@@ -184,8 +184,51 @@
         border-radius: var(--omnibar-radius);
     }
 
+    /*
+     * Keyboard-only focus ring, appended to the box-shadow list below rather than
+     * replacing it. Transparent/zero-spread by default so it's always a valid shadow
+     * layer; .popup[data-keyboard-focus-within] (set by useKeyboardFocusWithin.js, lifted
+     * into Omnibar.js so both SearchForm's input and AiChatForm's textarea share it)
+     * swaps in the real ring. On .popup itself rather than on the input/textarea: those
+     * span the exact same width as .popup with no lateral margin, so a ring on either of
+     * them alone would trace its own near-rectangular radius flush against .popup's pill
+     * radius, reading as a straight cut instead of a continuous curve.
+     */
+    --keyboard-focus-ring: 0 0 0 0 transparent;
+
+    .popup[data-keyboard-focus-within] {
+        --keyboard-focus-ring: var(--focus-ring);
+    }
+
+    /* Typing / focused: shadow only, no blue border or accent glow (plus --keyboard-focus-ring, see above) */
+    .root:has(input:focus, textarea:focus) .popup {
+        box-shadow: var(--omnibar-box-shadow-focused), var(--keyboard-focus-ring);
+    }
+
+    .root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-attachment-warning])) .popup {
+        border: none;
+        box-shadow: var(--omnibar-box-shadow-focused), var(--keyboard-focus-ring);
+        margin: 3px; /* keep rest inset; legacy used margin:0 to make room for a 2px blue border */
+        outline: none;
+
+        .field {
+            margin: 0;
+        }
+
+        .aiChatsList {
+            margin-left: 0;
+            margin-right: 0;
+            margin-top: 0;
+        }
+    }
+
     /* Rebrand shadow/outline — background left to legacy rules */
     :global([data-theme]) .popup {
+        --omnibar-border-color: var(--ds-color-theme-container-border-secondary);
+        --omnibar-box-shadow-focused:
+            0 10px 20px 0 rgba(0, 0, 0, 0.06),
+            0 2px 6px 0 rgba(0, 0, 0, 0.06),
+            0 0 0 1px var(--omnibar-border-color);
         box-shadow:
             0 10px 20px 0 rgba(0, 0, 0, 0.02),
             0 2px 6px 0 rgba(0, 0, 0, 0.06),
@@ -195,6 +238,7 @@
 
     /* Match Favorites/Stats/RMF card chrome: subtler white-at-3 border in dark */
     :global([data-theme="dark"]) .popup {
+        --omnibar-border-color: var(--ds-ntp-dark-card-border-color);
         box-shadow:
             0 10px 20px 0 rgba(0, 0, 0, 0.02),
             0 2px 6px 0 rgba(0, 0, 0, 0.06),
