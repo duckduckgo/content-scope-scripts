@@ -22,9 +22,7 @@ export class WebTelemetry extends ContentFeature {
 
     init() {
         this.videoPlaybackEnabled = this.getFeatureSettingEnabled('videoPlayback');
-        // TEMPORARY: defaulted on so autoplay telemetry fires without a config change.
-        // Revert to `this.getFeatureSettingEnabled('videoAutoplay')` before merging.
-        this.videoAutoplayEnabled = this.getFeatureSettingEnabled('videoAutoplay', 'enabled');
+        this.videoAutoplayEnabled = this.getFeatureSettingEnabled('videoAutoplay');
         if (this.videoPlaybackEnabled || this.videoAutoplayEnabled) {
             this.videoPlaybackObserve();
         }
