@@ -18,7 +18,7 @@ export class WebTelemetry extends ContentFeature {
         // Kept separate from the dedupe above, so neither message suppresses the other.
         this.reportedAutoplayElements = new WeakSet();
         this.videoPlaybackEnabled = false;
-        this.videoAutoplayEnabled = true;
+        this.videoAutoplayEnabled = false;
     }
 
     init() {
@@ -82,22 +82,20 @@ export class WebTelemetry extends ContentFeature {
         this.messaging.notify(MSG_VIDEO_PLAYBACK, message);
     }
 
-    fireTelemetryForVideoAutoplay(video) {
+    reportAutoplay(video) {
         if (this.reportedAutoplayElements.has(video)) {
             return; // report each element once
         }
         this.reportedAutoplayElements.add(video);
-        const message = {
-            userInteraction: navigator.userActivation.isActive,
-        };
-        this.messaging.notify(MSG_VIDEO_AUTOPLAY, message);
+        this.messaging.notify(MSG_VIDEO_AUTOPLAY);
     }
 
     addPlayObserver(video) {
-        // Reported on sight, so an element that never starts is still counted.
-        // Safe to re-run: fireTelemetryForVideoAutoplay dedupes per element.
-        if (this.videoAutoplayEnabled && video.hasAttribute('autoplay')) {
-            this.fireTelemetryForVideoAutoplay(video);
+        // Declarative autoplay, reported on sight so an element that never starts is
+        // still counted. `video.autoplay` covers both the HTML attribute and a JS
+        // property assignment. Safe to re-run: reportAutoplay dedupes per element.
+        if (this.videoAutoplayEnabled && video.autoplay) {
+            this.reportAutoplay(video);
         }
         if (this.seenVideoElements.has(video)) {
             return; // already observed
@@ -107,9 +105,9 @@ export class WebTelemetry extends ContentFeature {
             if (this.videoPlaybackEnabled) {
                 this.fireTelemetryForVideo(video);
             }
-            // Catches script-driven playback that carries no autoplay attribute.
+            // Script-driven autoplay: playback that started without a user gesture.
             if (this.videoAutoplayEnabled && !navigator.userActivation.isActive) {
-                this.fireTelemetryForVideoAutoplay(video);
+                this.reportAutoplay(video);
             }
         });
     }
@@ -144,8 +142,9 @@ export class WebTelemetry extends ContentFeature {
 
         this.addListenersToAllVideos(documentBody);
 
-        // Backfill: fire telemetry for already playing videos. Playback only —
-        // these started before we could observe their attributes or activation.
+        // Backfill: fire telemetry for already playing videos. Playback only — their
+        // `play` event already fired, so script-driven autoplay can't be detected here.
+        // The declarative case is covered by addListenersToAllVideos above.
         documentBody.querySelectorAll('video').forEach((video) => {
             if (this.videoPlaybackEnabled && !video.paused && !video.ended) {
                 this.fireTelemetryForVideo(video);
