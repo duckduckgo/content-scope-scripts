@@ -1,4 +1,3 @@
- 
 import {
     createXPathExpression,
     documentQuerySelector,
@@ -185,7 +184,7 @@ function compileXPath(expression) {
     }
     let compiled = cache.get(expression);
     if (!compiled) {
-        compiled = createXPathExpression(document, expression);
+        compiled = createXPathExpression(expression, null);
         cache.set(expression, compiled);
     }
     return compiled;
@@ -357,7 +356,7 @@ function evaluateSingleTextCondition(condition) {
     // Checked before xpath because CSS matching avoids the per-call expression
     // parse and snapshot allocation that `document.evaluate` requires.
     const selectorMatch = selectors.some((selector) => {
-        const elements = documentQuerySelectorAll(document, selector);
+        const elements = documentQuerySelectorAll(selector);
         for (const element of elements) {
             if (patternComb.test(element.textContent || '')) {
                 return true;
@@ -395,9 +394,9 @@ function evaluateSingleElementCondition(config) {
     return asArray(config.selector).some((selector) => {
         if (visibility === 'any') {
             // if we don't care about visibility, we can just do a quick existence check
-            return documentQuerySelector(document, selector) !== null;
+            return documentQuerySelector(selector) !== null;
         }
-        for (const element of documentQuerySelectorAll(document, selector)) {
+        for (const element of documentQuerySelectorAll(selector)) {
             if (visibility === 'visible' && isVisible(element)) {
                 return true;
             }
