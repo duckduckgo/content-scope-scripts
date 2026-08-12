@@ -10224,6 +10224,7 @@
   // src/features/web-telemetry.js
   init_define_import_meta_trackerLookup();
   var MSG_VIDEO_PLAYBACK = "video-playback";
+  var MSG_VIDEO_AUTOPLAY = "video-autoplay";
   var MSG_URL_CHANGED = "url-changed";
   var WebTelemetry = class extends ContentFeature {
     constructor(featureName, importConfig, features, args) {
@@ -10231,9 +10232,14 @@
       __publicField(this, "listenForUrlChanges", true);
       this.seenVideoElements = /* @__PURE__ */ new WeakSet();
       this.seenVideoUrls = /* @__PURE__ */ new Set();
+      this.reportedAutoplayElements = /* @__PURE__ */ new WeakSet();
+      this.videoPlaybackEnabled = false;
+      this.videoAutoplayEnabled = false;
     }
     init() {
-      if (this.getFeatureSettingEnabled("videoPlayback")) {
+      this.videoPlaybackEnabled = this.getFeatureSettingEnabled("videoPlayback");
+      this.videoAutoplayEnabled = this.getFeatureSettingEnabled("videoAutoplay");
+      if (this.videoPlaybackEnabled || this.videoAutoplayEnabled) {
         this.videoPlaybackObserve();
       }
     }
@@ -10280,12 +10286,29 @@
       };
       this.messaging.notify(MSG_VIDEO_PLAYBACK, message);
     }
+    reportAutoplay(video) {
+      if (this.reportedAutoplayElements.has(video)) {
+        return;
+      }
+      this.reportedAutoplayElements.add(video);
+      this.messaging.notify(MSG_VIDEO_AUTOPLAY);
+    }
     addPlayObserver(video) {
+      if (this.videoAutoplayEnabled && video.autoplay) {
+        this.reportAutoplay(video);
+      }
       if (this.seenVideoElements.has(video)) {
         return;
       }
       this.seenVideoElements.add(video);
-      video.addEventListener("play", () => this.fireTelemetryForVideo(video));
+      video.addEventListener("play", () => {
+        if (this.videoPlaybackEnabled) {
+          this.fireTelemetryForVideo(video);
+        }
+        if (this.videoAutoplayEnabled && !navigator.userActivation.isActive) {
+          this.reportAutoplay(video);
+        }
+      });
     }
     addListenersToAllVideos(node) {
       if (!node) {
@@ -10314,7 +10337,7 @@
       if (!documentBody) return;
       this.addListenersToAllVideos(documentBody);
       documentBody.querySelectorAll("video").forEach((video) => {
-        if (!video.paused && !video.ended) {
+        if (this.videoPlaybackEnabled && !video.paused && !video.ended) {
           this.fireTelemetryForVideo(video);
         }
       });
@@ -10330,13 +10353,17 @@
                 }
               }
             });
+          } else if (mutation.type === "attributes" && mutation.target.tagName === "VIDEO") {
+            this.addPlayObserver(mutation.target);
           }
         }
       };
       const observer = new MutationObserver(observerCallback);
       observer.observe(documentBody, {
         childList: true,
-        subtree: true
+        subtree: true,
+        attributes: true,
+        attributeFilter: ["autoplay"]
       });
     }
   };

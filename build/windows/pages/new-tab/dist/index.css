@@ -4078,6 +4078,7 @@ body[data-rebrand=true][data-platform-name=windows] .NextStepsListCard_buttonRow
   display: flex;
   justify-content: space-between;
   left: 0;
+  outline: none;
   padding: var(--sp-3);
   position: absolute;
   right: 0;

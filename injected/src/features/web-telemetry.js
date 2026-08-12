@@ -5,6 +5,7 @@ import ContentFeature from '../content-feature.js';
  */
 
 const MSG_VIDEO_PLAYBACK = 'video-playback';
+const MSG_VIDEO_AUTOPLAY = 'video-autoplay';
 const MSG_URL_CHANGED = 'url-changed';
 
 export class WebTelemetry extends ContentFeature {
@@ -14,10 +15,15 @@ export class WebTelemetry extends ContentFeature {
         super(featureName, importConfig, features, args);
         this.seenVideoElements = new WeakSet();
         this.seenVideoUrls = new Set();
+        this.reportedAutoplayElements = new WeakSet();
+        this.videoPlaybackEnabled = false;
+        this.videoAutoplayEnabled = false;
     }
 
     init() {
-        if (this.getFeatureSettingEnabled('videoPlayback')) {
+        this.videoPlaybackEnabled = this.getFeatureSettingEnabled('videoPlayback');
+        this.videoAutoplayEnabled = this.getFeatureSettingEnabled('videoAutoplay');
+        if (this.videoPlaybackEnabled || this.videoAutoplayEnabled) {
             this.videoPlaybackObserve();
         }
     }
@@ -73,12 +79,31 @@ export class WebTelemetry extends ContentFeature {
         this.messaging.notify(MSG_VIDEO_PLAYBACK, message);
     }
 
+    reportAutoplay(video) {
+        if (this.reportedAutoplayElements.has(video)) {
+            return;
+        }
+        this.reportedAutoplayElements.add(video);
+        this.messaging.notify(MSG_VIDEO_AUTOPLAY);
+    }
+
     addPlayObserver(video) {
+        // `video.autoplay` covers both the HTML attribute and a JS property assignment.
+        if (this.videoAutoplayEnabled && video.autoplay) {
+            this.reportAutoplay(video);
+        }
         if (this.seenVideoElements.has(video)) {
             return; // already observed
         }
         this.seenVideoElements.add(video);
-        video.addEventListener('play', () => this.fireTelemetryForVideo(video));
+        video.addEventListener('play', () => {
+            if (this.videoPlaybackEnabled) {
+                this.fireTelemetryForVideo(video);
+            }
+            if (this.videoAutoplayEnabled && !navigator.userActivation.isActive) {
+                this.reportAutoplay(video);
+            }
+        });
     }
 
     addListenersToAllVideos(node) {
@@ -113,7 +138,7 @@ export class WebTelemetry extends ContentFeature {
 
         // Backfill: fire telemetry for already playing videos
         documentBody.querySelectorAll('video').forEach((video) => {
-            if (!video.paused && !video.ended) {
+            if (this.videoPlaybackEnabled && !video.paused && !video.ended) {
                 this.fireTelemetryForVideo(video);
             }
         });
@@ -130,6 +155,9 @@ export class WebTelemetry extends ContentFeature {
                             }
                         }
                     });
+                } else if (mutation.type === 'attributes' && mutation.target.tagName === 'VIDEO') {
+                    // `autoplay` set by JS after insertion.
+                    this.addPlayObserver(mutation.target);
                 }
             }
         };
@@ -137,6 +165,8 @@ export class WebTelemetry extends ContentFeature {
         observer.observe(documentBody, {
             childList: true,
             subtree: true,
+            attributes: true,
+            attributeFilter: ['autoplay'],
         });
     }
 }

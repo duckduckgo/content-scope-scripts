@@ -1,1 +1,4 @@
-- Support formats for a generated date of birth (#2936)
+- Implements Video Autoplay Telemetry (#2950)
+- NTP: fix for visual glitch in the bottom panel (#2943)
+- NTP: Don't show suggestions for a term that was already cleared (#2922)
+- build(deps-dev): bump eslint from 10.7.0 to 10.8.0 in the eslint group (#2944)

@@ -10158,10 +10158,19 @@
   // pages/new-tab/app/omnibar/components/useSuggestions.js
   function reducer3(state, action) {
     switch (action.type) {
+      case "setPendingTerm":
+        return {
+          ...state,
+          pendingTerm: action.term
+        };
       case "setSuggestions":
+        if (state.pendingTerm !== action.term) {
+          return state;
+        }
         return {
           ...state,
           originalTerm: action.term,
+          pendingTerm: null,
           suggestions: action.suggestions,
           selectedIndex: null,
           suggestionsVisible: true
@@ -10169,6 +10178,7 @@
       case "hideSuggestions":
         return {
           ...state,
+          pendingTerm: null,
           suggestionsVisible: false
         };
       case "setSelectedSuggestion": {
@@ -10272,12 +10282,16 @@
       });
     }, [onSuggestions, enableAi, enableAskAiSuggestion]);
     const selectedSuggestion = state.selectedIndex !== null ? state.suggestions[state.selectedIndex] : null;
+    const requestSuggestions = (term2) => {
+      dispatch({ type: "setPendingTerm", term: term2 });
+      getSuggestions(term2);
+    };
     const updateSuggestions = (term2) => {
       clearSelectedSuggestion();
       if (term2.length === 0) {
         hideSuggestions();
       } else {
-        getSuggestions(term2);
+        requestSuggestions(term2);
       }
     };
     const selectPreviousSuggestion = () => {
@@ -10336,6 +10350,7 @@
       init_OmnibarProvider();
       initialState = {
         originalTerm: null,
+        pendingTerm: null,
         suggestions: [],
         selectedIndex: null,
         suggestionsVisible: true
@@ -41815,7 +41830,8 @@ This is placeholder content used by the NTP mock transport so the attach-tabs fe
             return config;
           }
           case "omnibar_getSuggestions": {
-            await new Promise((resolve) => setTimeout(resolve, 100));
+            const delay = parseInt(url5.searchParams.get("omnibar.suggestionsDelay") ?? "", 10);
+            await new Promise((resolve) => setTimeout(resolve, delay > 0 ? delay : 100));
             return getMockSuggestions(msg.params.term);
           }
           case "omnibar_getAiChats": {
