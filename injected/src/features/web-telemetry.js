@@ -10,6 +10,12 @@ const MSG_URL_CHANGED = 'url-changed';
 export class WebTelemetry extends ContentFeature {
     listenForUrlChanges = true;
 
+    /**
+     * @param {string} featureName
+     * @param {Record<string, unknown>} importConfig
+     * @param {Partial<import('../features.js').FeatureMap>} features
+     * @param {import('../content-scope-features.js').LoadArgs} args
+     */
     constructor(featureName, importConfig, features, args) {
         super(featureName, importConfig, features, args);
         this.seenVideoElements = new WeakSet();
@@ -31,6 +37,10 @@ export class WebTelemetry extends ContentFeature {
         }
     }
 
+    /**
+     * @param {HTMLVideoElement} video
+     * @returns {string | null}
+     */
     getVideoUrl(video) {
         // Try to get the video URL from various sources
         if (video.src) {
@@ -57,6 +67,9 @@ export class WebTelemetry extends ContentFeature {
         });
     }
 
+    /**
+     * @param {HTMLVideoElement} video
+     */
     fireTelemetryForVideo(video) {
         const videoUrl = this.getVideoUrl(video);
         if (this.seenVideoUrls.has(videoUrl)) {
@@ -73,6 +86,9 @@ export class WebTelemetry extends ContentFeature {
         this.messaging.notify(MSG_VIDEO_PLAYBACK, message);
     }
 
+    /**
+     * @param {HTMLVideoElement} video
+     */
     addPlayObserver(video) {
         if (this.seenVideoElements.has(video)) {
             return; // already observed
@@ -81,12 +97,15 @@ export class WebTelemetry extends ContentFeature {
         video.addEventListener('play', () => this.fireTelemetryForVideo(video));
     }
 
+    /**
+     * @param {Element | Document | DocumentFragment} node
+     */
     addListenersToAllVideos(node) {
         if (!node) {
             return;
         }
         const videos = node.querySelectorAll('video');
-        videos.forEach((video) => {
+        videos.forEach((/** @param {HTMLVideoElement} video */ video) => {
             this.addPlayObserver(video);
         });
     }
@@ -118,13 +137,16 @@ export class WebTelemetry extends ContentFeature {
             }
         });
 
+        /**
+         * @param {MutationRecord[]} mutationsList
+         */
         const observerCallback = (mutationsList) => {
             for (const mutation of mutationsList) {
                 if (mutation.type === 'childList') {
                     mutation.addedNodes.forEach((node) => {
-                        if (node.nodeType === Node.ELEMENT_NODE) {
+                        if (node instanceof Element) {
                             if (node.tagName === 'VIDEO') {
-                                this.addPlayObserver(node);
+                                this.addPlayObserver(/** @type {HTMLVideoElement} */ (node));
                             } else {
                                 this.addListenersToAllVideos(node);
                             }
