@@ -44,6 +44,68 @@ export const ReflectDeleteProperty = Reflect.deleteProperty.bind(Reflect);
 export const ReflectApply = Reflect.apply.bind(Reflect);
 export const getRandomValues = globalThis.crypto?.getRandomValues?.bind(globalThis.crypto);
 
+// DOM query methods, captured at module evaluation - ie document_start, before any page
+// script runs. A page can replace these slots and observe every selector we pass. Queries
+// against a document produced by `DOMParser` are equally exposed, since it shares these
+// prototypes.
+//
+// The `??` arms cover non-browser environments - the unit tests supply `document` only after
+// this module is evaluated - where the live method is safe because there is no page.
+/** @type {(selectors: string) => Element | null} */
+export const documentQuerySelector =
+    globalThis.document?.querySelector.bind(globalThis.document) ?? ((selectors) => document.querySelector(selectors));
+/** @type {(selectors: string) => NodeListOf<Element>} */
+export const documentQuerySelectorAll =
+    globalThis.document?.querySelectorAll.bind(globalThis.document) ?? ((selectors) => document.querySelectorAll(selectors));
+/** @type {(expression: string, resolver: XPathNSResolver | null) => XPathExpression} */
+export const createXPathExpression =
+    globalThis.document?.createExpression.bind(globalThis.document) ??
+    ((expression, resolver) => document.createExpression(expression, resolver));
+
+// These take their receiver per call, so unlike the above they cannot be bound: element
+// queries run against a detached `DOMParser` tree, and each XPath expression is its own
+// receiver. Undefined outside a browser, as above.
+const capturedElementQuerySelector = globalThis.Element?.prototype.querySelector;
+const capturedElementQuerySelectorAll = globalThis.Element?.prototype.querySelectorAll;
+const capturedEvaluateExpression = globalThis.XPathExpression?.prototype.evaluate;
+
+/**
+ * `element.querySelector(selectors)` via the captured method.
+ *
+ * @param {Element} element
+ * @param {string} selectors
+ * @returns {Element | null}
+ */
+export function elementQuerySelector(element, selectors) {
+    if (capturedElementQuerySelector) return ReflectApply(capturedElementQuerySelector, element, [selectors]);
+    return element.querySelector(selectors);
+}
+
+/**
+ * `element.querySelectorAll(selectors)` via the captured method.
+ *
+ * @param {Element} element
+ * @param {string} selectors
+ * @returns {NodeListOf<Element>}
+ */
+export function elementQuerySelectorAll(element, selectors) {
+    if (capturedElementQuerySelectorAll) return ReflectApply(capturedElementQuerySelectorAll, element, [selectors]);
+    return element.querySelectorAll(selectors);
+}
+
+/**
+ * `expression.evaluate(contextNode, type, null)` via the captured method.
+ *
+ * @param {XPathExpression} expression
+ * @param {Node} contextNode
+ * @param {number} type
+ * @returns {XPathResult}
+ */
+export function evaluateXPathExpression(expression, contextNode, type) {
+    if (capturedEvaluateExpression) return ReflectApply(capturedEvaluateExpression, expression, [contextNode, type, null]);
+    return expression.evaluate(contextNode, type, null);
+}
+
 // Secure context only - crypto.subtle is unavailable on HTTP
 export const generateKey = globalThis.crypto?.subtle?.generateKey?.bind(globalThis.crypto?.subtle);
 export const exportKey = globalThis.crypto?.subtle?.exportKey?.bind(globalThis.crypto?.subtle);

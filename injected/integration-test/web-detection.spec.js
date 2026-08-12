@@ -772,4 +772,43 @@ test.describe('WebDetection Feature', () => {
             expect(await helper.getWebEventNotifications()).toEqual([]);
         });
     });
+
+    test.describe('selector visibility to the page', () => {
+        test('detector selectors are not observable via replaced query methods', async ({ page }, testInfo) => {
+            const { helper } = await WebDetectionTestHelper.setupCaptchaTest(page, testInfo.project.use);
+            await helper.navigateTo('/web-detection/pages/captcha-recaptcha.html');
+
+            // Replace the query methods after injection. The captured
+            // references taken at document_start must not route through these.
+            await page.evaluate(() => {
+                /** @type {string[]} */
+                const observed = [];
+                Reflect.set(globalThis, '__observedSelectors', observed);
+                for (const proto of [Document.prototype, Element.prototype]) {
+                    for (const name of ['querySelector', 'querySelectorAll']) {
+                        const original = Reflect.get(proto, name);
+                        Reflect.set(proto, name, function (/** @type {string} */ selectors) {
+                            observed.push(selectors);
+
+                            return original.apply(this, arguments);
+                        });
+                    }
+                }
+                // Proves the replacement is effective, so an empty result below means the feature
+                // avoided these slots rather than that the test failed to install anything.
+                document.querySelectorAll('.replacement-is-live');
+            });
+
+            await page.clock.fastForward(100);
+
+            const observed = /** @type {string[]} */ (
+                await page.evaluate(() => Reflect.get(globalThis, '__observedSelectors'))
+            );
+            expect(observed).toContain('.replacement-is-live');
+            expect(observed.filter((selector) => selector.includes('recaptcha'))).toEqual([]);
+
+            // The detector still ran and matched, so the queries happened - just not through the page's slots.
+            expect((await helper.getWebEventNotifications()).map((e) => e.type)).toEqual(['captcha_recaptcha']);
+        });
+    });
 });

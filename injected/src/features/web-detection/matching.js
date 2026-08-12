@@ -1,5 +1,14 @@
-// eslint-disable-next-line no-redeclare
-import { hasOwnProperty, objectKeys } from '../../captured-globals.js';
+ 
+import {
+    createXPathExpression,
+    documentQuerySelector,
+    documentQuerySelectorAll,
+    elementQuerySelector,
+    elementQuerySelectorAll,
+    evaluateXPathExpression,
+    hasOwnProperty,
+    objectKeys,
+} from '../../captured-globals.js';
 
 /**
  * @typedef {import('@duckduckgo/privacy-configuration/schema/features/web-detection.ts').ConditionTypes} ConditionTypes
@@ -116,19 +125,20 @@ function hasContent(element) {
         contentDomParser = new DOMParser();
     }
     const parsed = contentDomParser.parseFromString(element.outerHTML, 'text/html').documentElement;
-    parsed.querySelectorAll(CONTENT_METADATA_SELECTORS).forEach((el) => el.remove());
+    elementQuerySelectorAll(parsed, CONTENT_METADATA_SELECTORS).forEach((el) => el.remove());
 
     // Text content (read on the detached copy, so no live-page layout).
     if ((parsed.innerText || parsed.textContent || '').trim() !== '') {
         return true;
     }
     // Embedded media / form controls count as content.
-    if (parsed.querySelector(CONTENT_MEDIA_SELECTORS) !== null) {
+    if (elementQuerySelector(parsed, CONTENT_MEDIA_SELECTORS) !== null) {
         return true;
     }
     // A real (eg cross-origin Turnstile) iframe counts; about:blank does not.
-    return [...parsed.querySelectorAll('iframe')].some((frame) => {
-        return !frame.hidden && frame.src !== '' && frame.src !== 'about:blank';
+    return [...elementQuerySelectorAll(parsed, 'iframe')].some((frame) => {
+        const frameElement = /** @type {HTMLIFrameElement} */ (frame);
+        return !frameElement.hidden && frameElement.src !== '' && frameElement.src !== 'about:blank';
     });
 }
 
@@ -175,7 +185,7 @@ function compileXPath(expression) {
     }
     let compiled = cache.get(expression);
     if (!compiled) {
-        compiled = document.createExpression(expression, null);
+        compiled = createXPathExpression(document, expression);
         cache.set(expression, compiled);
     }
     return compiled;
@@ -285,7 +295,7 @@ function retainTail(buffer, chunkTail) {
  * @returns {boolean}
  */
 function xpathMatches(pattern, expression, { chunkSize, chunkTail }) {
-    const snapshot = compileXPath(expression).evaluate(document, ORDERED_NODE_SNAPSHOT_TYPE, null);
+    const snapshot = evaluateXPathExpression(compileXPath(expression), document, ORDERED_NODE_SNAPSHOT_TYPE);
     let buffer = '';
     // Characters added since the last test, rather than the length of the buffer. Each test
     // then advances `chunkSize` fresh characters whatever `chunkTail` is, so an oversized tail
@@ -347,7 +357,7 @@ function evaluateSingleTextCondition(condition) {
     // Checked before xpath because CSS matching avoids the per-call expression
     // parse and snapshot allocation that `document.evaluate` requires.
     const selectorMatch = selectors.some((selector) => {
-        const elements = document.querySelectorAll(selector);
+        const elements = documentQuerySelectorAll(document, selector);
         for (const element of elements) {
             if (patternComb.test(element.textContent || '')) {
                 return true;
@@ -385,9 +395,9 @@ function evaluateSingleElementCondition(config) {
     return asArray(config.selector).some((selector) => {
         if (visibility === 'any') {
             // if we don't care about visibility, we can just do a quick existence check
-            return document.querySelector(selector) !== null;
+            return documentQuerySelector(document, selector) !== null;
         }
-        for (const element of document.querySelectorAll(selector)) {
+        for (const element of documentQuerySelectorAll(document, selector)) {
             if (visibility === 'visible' && isVisible(element)) {
                 return true;
             }
