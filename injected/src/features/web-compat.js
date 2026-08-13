@@ -851,6 +851,7 @@ export class WebCompat extends ContentFeature {
             try {
                 const options = args[0];
                 if (options && typeof options === 'object' && options.publicKey && result && typeof result.then === 'function') {
+                    feature.log.info(`Intercepted navigator.credentials.${methodName}() passkey call`);
                     void feature.observePasskeyResult(result, methodName);
                 }
             } catch {
