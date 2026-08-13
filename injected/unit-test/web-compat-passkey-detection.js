@@ -1,4 +1,5 @@
 import WebCompat from '../src/features/web-compat.js';
+import WebEvents from '../src/features/web-events.js';
 
 /**
  * Flush pending microtasks so fire-and-forget promise chains (e.g. the passkey
@@ -82,9 +83,10 @@ describe('WebCompat passkey detection', () => {
      *   settingEnabled?: boolean,
      *   get?: (options: any) => Promise<any>,
      *   create?: (options: any) => Promise<any>,
+     *   features?: Record<string, any>,
      * }} [options]
      */
-    function createInstance({ settingEnabled = true, get, create } = {}) {
+    function createInstance({ settingEnabled = true, get, create, features = {} } = {}) {
         const { CredentialsContainer, credentialsInstance } = makeFakeCredentialsApi({ get, create });
         globalThis.CredentialsContainer = /** @type {any} */ (CredentialsContainer);
         setGlobalNavigator({ credentials: credentialsInstance });
@@ -100,7 +102,7 @@ describe('WebCompat passkey detection', () => {
             bundledConfig: undefined,
             messagingContextName: 'test',
         };
-        const webCompat = new WebCompat('webCompat', undefined, {}, args);
+        const webCompat = new WebCompat('webCompat', undefined, features, args);
 
         /** @type {{ name: string, params: any }[]} */
         const notified = [];
@@ -204,6 +206,65 @@ describe('WebCompat passkey detection', () => {
                 expect(proto[methodName].length).toBe(1);
                 expect(proto[methodName].toString()).toContain(`function ${methodName}(options)`);
             }
+        });
+
+        // WIP (proof of concept) - remove alongside emitPasskeyWebEvent once the client
+        // handles `passkeyUsed` natively.
+        describe('webEvents proof-of-concept mirror', () => {
+            /**
+             * @param {(options: any) => Promise<any>} get
+             */
+            async function createInstanceWithWebEvents(get) {
+                /** @type {Record<string, any>} */
+                const features = {};
+                const args = {
+                    site: { domain: 'example.com', url: 'https://example.com' },
+                    platform: {},
+                    featureSettings: {},
+                    bundledConfig: undefined,
+                    messagingContextName: 'test',
+                };
+                const webEvents = new WebEvents('webEvents', undefined, features, args);
+                features.webEvents = webEvents;
+                await webEvents.callInit(args);
+                const fireEventSpy = spyOn(webEvents, 'fireEvent');
+
+                const { notified } = createInstance({ get, features });
+                return { fireEventSpy, notified };
+            }
+
+            it('mirrors a successful ceremony to webEvents', async () => {
+                const { fireEventSpy } = await createInstanceWithWebEvents(() => Promise.resolve({ type: 'public-key' }));
+
+                await credentialsGet({ publicKey: {} });
+                await flushMicrotasks();
+
+                expect(fireEventSpy).toHaveBeenCalledWith({
+                    type: 'passkeyUsed',
+                    data: { operation: 'get', success: true },
+                });
+            });
+
+            it('mirrors a failed ceremony to webEvents', async () => {
+                const { fireEventSpy } = await createInstanceWithWebEvents(() => Promise.reject(new Error('cancelled')));
+
+                await expectAsync(credentialsGet({ publicKey: {} })).toBeRejected();
+                await flushMicrotasks();
+
+                expect(fireEventSpy).toHaveBeenCalledWith({
+                    type: 'passkeyUsed',
+                    data: { operation: 'get', success: false },
+                });
+            });
+
+            it('still sends the passkeyUsed notification', async () => {
+                const { notified } = await createInstanceWithWebEvents(() => Promise.resolve({ type: 'public-key' }));
+
+                await credentialsGet({ publicKey: {} });
+                await flushMicrotasks();
+
+                expect(notified).toEqual([{ name: 'passkeyUsed', params: { type: 'get', success: true } }]);
+            });
         });
 
         it('never includes nativeData in the notification params', async () => {
