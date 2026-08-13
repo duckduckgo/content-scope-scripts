@@ -22,12 +22,12 @@ export class CustomError extends HTMLElement {
     static CUSTOM_TAG_NAME = 'ddg-video-error';
 
     policy = createPolicy();
-    /** @type {Logger} */
-    logger;
+    /** @type {Logger | undefined} */
+    logger = undefined;
     /** @type {boolean} */
     testMode = false;
-    /** @type {YouTubeError} */
-    error;
+    /** @type {import('../error-detection.js').YouTubeError | undefined} */
+    error = undefined;
     /** @type {string} */
     title = '';
     /** @type {string[]} */
