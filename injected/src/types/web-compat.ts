@@ -38,13 +38,17 @@ export interface PasskeyUsedNotification {
   params: PasskeyUsedParams;
 }
 /**
- * Notifies the native layer that a WebAuthn passkey was successfully used (created or retrieved), for pixelling purposes only.
+ * Notifies the native layer that a WebAuthn passkey ceremony succeeded or failed, for pixelling purposes only.
  */
 export interface PasskeyUsedParams {
   /**
-   * Which CredentialsContainer method completed the passkey ceremony.
+   * Which CredentialsContainer method initiated the passkey ceremony.
    */
   type: "get" | "create";
+  /**
+   * Whether the passkey ceremony completed successfully.
+   */
+  success: boolean;
 }
 /**
  * Generated from @see "../messages/web-compat/showNotification.notify.json"

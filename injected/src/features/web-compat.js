@@ -887,10 +887,9 @@ export class WebCompat extends ContentFeature {
 
     /**
      * Observes (without consuming or altering) the outcome of a passkey ceremony and
-     * notifies native only when it resolves with a public-key credential. Rejections
-     * (e.g. the user cancelled, or there was no matching credential) are intentionally
-     * not reported. Runs as a fire-and-forget derived promise chain - it never affects
-     * the promise/value returned to the page.
+     * notifies native of success when it resolves with a public-key credential, or of
+     * failure when it rejects. Runs as a fire-and-forget derived promise chain - it
+     * never affects the promise/value returned to the page.
      * @param {Promise<Credential | null>} resultPromise
      * @param {'get'|'create'} type
      */
@@ -900,15 +899,21 @@ export class WebCompat extends ContentFeature {
         try {
             credential = await resultPromise;
         } catch (e) {
-            // Not reported to native: a rejection means no passkey was used (cancellation,
-            // no matching credential, or a platform/credential-manager failure). Only the
-            // error's name is logged - never the page-supplied options or any error message.
+            // A rejection means no passkey was used (cancellation, no matching credential,
+            // or a platform/credential-manager failure). Only the boolean outcome is sent
+            // to native; the error name stays in debug logs and no page-supplied options or
+            // error messages leave the page context.
             this.log.info(`Passkey ${type}() ceremony did not complete: ${e?.name ?? 'unknown error'}`);
+            try {
+                this.notify(MSG_PASSKEY_USED, { type, success: false });
+            } catch {
+                // Messaging must never affect the page.
+            }
             return;
         }
         try {
             if (credential && credential.type === CREDENTIAL_TYPE_PUBLIC_KEY) {
-                this.notify(MSG_PASSKEY_USED, { type });
+                this.notify(MSG_PASSKEY_USED, { type, success: true });
             }
         } catch {
             // Ignore exceptions - this must never affect the page.

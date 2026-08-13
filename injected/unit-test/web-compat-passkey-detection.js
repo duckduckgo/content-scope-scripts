@@ -135,7 +135,7 @@ describe('WebCompat passkey detection', () => {
             await credentialsGet({ publicKey: { challenge: 'x' } });
             await flushMicrotasks();
 
-            expect(notified).toEqual([{ name: 'passkeyUsed', params: { type: 'get' } }]);
+            expect(notified).toEqual([{ name: 'passkeyUsed', params: { type: 'get', success: true } }]);
         });
 
         it('notifies native when create() resolves with a public-key credential', async () => {
@@ -145,7 +145,7 @@ describe('WebCompat passkey detection', () => {
             await credentialsCreate({ publicKey: { challenge: 'x' } });
             await flushMicrotasks();
 
-            expect(notified).toEqual([{ name: 'passkeyUsed', params: { type: 'create' } }]);
+            expect(notified).toEqual([{ name: 'passkeyUsed', params: { type: 'create', success: true } }]);
         });
 
         it('does not notify for a plain (non-WebAuthn) credentials.get() call', async () => {
@@ -176,13 +176,13 @@ describe('WebCompat passkey detection', () => {
             expect(notified).toEqual([]);
         });
 
-        it('does not notify when the ceremony rejects (e.g. user cancelled)', async () => {
+        it('notifies native with success false when the ceremony rejects', async () => {
             const { notified } = createInstance({ get: () => Promise.reject(new Error('cancelled')) });
 
             await expectAsync(credentialsGet({ publicKey: {} })).toBeRejected();
             await flushMicrotasks();
 
-            expect(notified).toEqual([]);
+            expect(notified).toEqual([{ name: 'passkeyUsed', params: { type: 'get', success: false } }]);
         });
 
         it('propagates rejection to the page unchanged', async () => {

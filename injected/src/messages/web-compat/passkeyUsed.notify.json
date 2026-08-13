@@ -2,14 +2,18 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "title": "PasskeyUsedParams",
-  "description": "Notifies the native layer that a WebAuthn passkey was successfully used (created or retrieved), for pixelling purposes only.",
+  "description": "Notifies the native layer that a WebAuthn passkey ceremony succeeded or failed, for pixelling purposes only.",
   "additionalProperties": false,
-  "required": ["type"],
+  "required": ["type", "success"],
   "properties": {
     "type": {
-      "description": "Which CredentialsContainer method completed the passkey ceremony.",
+      "description": "Which CredentialsContainer method initiated the passkey ceremony.",
       "type": "string",
       "enum": ["get", "create"]
+    },
+    "success": {
+      "description": "Whether the passkey ceremony completed successfully.",
+      "type": "boolean"
     }
   }
 }
