@@ -1,4 +1,5 @@
 import ContentFeature from '../content-feature.js';
+import { isBeingFramed } from '../utils.js';
 
 export default class TextSelection extends ContentFeature {
     /** @type {string} */
@@ -104,11 +105,7 @@ export default class TextSelection extends ContentFeature {
     }
 
     _canClaim() {
-        return !this._isFramed() || document.hasFocus();
-    }
-
-    _isFramed() {
-        return window.location && 'ancestorOrigins' in window.location ? window.location.ancestorOrigins.length > 0 : window.top !== window;
+        return !isBeingFramed() || document.hasFocus();
     }
 
     /**
