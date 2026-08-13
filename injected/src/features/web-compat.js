@@ -133,7 +133,9 @@ export class WebCompat extends ContentFeature {
         if (this.getFeatureSettingEnabled('navigatorCredentials')) {
             this.navigatorCredentialsFix();
         }
-        if (this.getFeatureSettingEnabled('passkeyDetection')) {
+        const passkeyDetectionEnabled = this.getFeatureSettingEnabled('passkeyDetection');
+        this.log.info(`Passkey detection is ${passkeyDetectionEnabled ? 'enabled' : 'disabled'}`);
+        if (passkeyDetectionEnabled) {
             this.passkeyDetectionFix();
         }
         if (this.getFeatureSettingEnabled('safariObject')) {
