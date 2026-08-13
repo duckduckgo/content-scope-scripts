@@ -41,7 +41,7 @@ export class ActionExecutorBase extends ContentFeature {
             }
         } catch (e) {
             this.log.error('unhandled exception: ', e);
-            return this.messaging.notify('actionError', { error: e.toString() });
+            return this.messaging.notify('actionError', { error: String(e) });
         }
     }
 
@@ -75,6 +75,7 @@ export class ActionExecutorBase extends ContentFeature {
     }
 
     /**
+     * @param {import("./broker-protection/types.js").PirAction} action
      * @returns {any}
      */
     retryConfigFor(action) {
@@ -96,7 +97,7 @@ export default class BrokerProtection extends ActionExecutorBase {
     /**
      * Define default retry configurations for certain actions
      *
-     * @param {any} action
+     * @param {import("./broker-protection/types.js").PirAction & {retry?: {environment?: string}; expectations?: Array<{type: string}>}} action
      * @returns
      */
     retryConfigFor(action) {
@@ -118,7 +119,7 @@ export default class BrokerProtection extends ActionExecutorBase {
          * Special case for when expectation or condition contains a check for an element, retry it
          */
         if (!retryConfig && (action.actionType === 'expectation' || action.actionType === 'condition')) {
-            if (action.expectations.some((x) => x.type === 'element')) {
+            if (action.expectations?.some((/** @param {{type: string}} x */ x) => x.type === 'element')) {
                 return {
                     interval: { ms: 1000 },
                     maxAttempts: 30,
