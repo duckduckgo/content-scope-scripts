@@ -54,4 +54,9 @@ export const pages = {
         windows: ['copy', 'build-js'],
         apple: ['copy', 'build-js'],
     },
+    /** @type {Partial<Record<ImportMeta['injectName'], string[]>>} */
+    'set-as-default': {
+        integration: ['copy', 'build-js'],
+        windows: ['copy', 'build-js'],
+    },
 };
