@@ -19,14 +19,16 @@ async function flushMicrotasks() {
  * }} [impl]
  */
 function makeFakeCredentialsApi(impl = {}) {
-    const { get = () => Promise.resolve(null), create = () => Promise.resolve(null) } = impl;
+    const { get: getImpl = () => Promise.resolve(null), create: createImpl = () => Promise.resolve(null) } = impl;
 
     function CredentialsContainer() {}
-    CredentialsContainer.prototype.get = function (options) {
-        return get(options);
+    // Named function expressions so `name`/`length` are meaningful, mirroring the real
+    // native methods that we assert the wrapper stays indistinguishable from.
+    CredentialsContainer.prototype.get = function get(options) {
+        return getImpl(options);
     };
-    CredentialsContainer.prototype.create = function (options) {
-        return create(options);
+    CredentialsContainer.prototype.create = function create(options) {
+        return createImpl(options);
     };
 
     const credentialsInstance = Object.create(CredentialsContainer.prototype);
@@ -188,6 +190,20 @@ describe('WebCompat passkey detection', () => {
             createInstance({ get: () => Promise.reject(error) });
 
             await expectAsync(credentialsGet({ publicKey: {} })).toBeRejectedWith(error);
+        });
+
+        it('keeps name/length/toString indistinguishable from the unwrapped method', () => {
+            const { credentialsInstance } = createInstance();
+            const proto = Object.getPrototypeOf(credentialsInstance);
+
+            // The fake methods are declared as `function get(options)` / `function create(options)`,
+            // so an unwrapped implementation reports name 'get'/'create' and length 1. A bare
+            // wrapper would report '' and 0, which is exactly the tamper signal sites look for.
+            for (const methodName of ['get', 'create']) {
+                expect(proto[methodName].name).toBe(methodName);
+                expect(proto[methodName].length).toBe(1);
+                expect(proto[methodName].toString()).toContain(`function ${methodName}(options)`);
+            }
         });
 
         it('never includes nativeData in the notification params', async () => {

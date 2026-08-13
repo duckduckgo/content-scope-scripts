@@ -4,7 +4,7 @@
  */
 import ContentFeature from '../content-feature.js';
 // eslint-disable-next-line no-redeclare
-import { URL } from '../captured-globals.js';
+import { URL, getOwnPropertyDescriptor, objectDefineProperty } from '../captured-globals.js';
 import { DDGProxy, DDGReflect } from '../utils.js';
 import { wrapToString, wrapFunction } from '../wrapper-utils.js';
 /**
@@ -844,7 +844,7 @@ export class WebCompat extends ContentFeature {
     wrapPasskeyMethod(proto, methodName) {
         // eslint-disable-next-line @typescript-eslint/no-this-alias
         const feature = this;
-        this.wrapMethod(proto, methodName, function (originalFn, ...args) {
+        const origDescriptor = this.wrapMethod(proto, methodName, function (originalFn, ...args) {
             // Always call through with the original arguments/receiver first: the page
             // must see exactly the same behaviour, return value, and timing as native.
             const result = originalFn.apply(this, args);
@@ -859,6 +859,30 @@ export class WebCompat extends ContentFeature {
             }
             return result;
         });
+        this.maskWrappedMethodIdentity(proto, methodName, origDescriptor);
+    }
+
+    /**
+     * `wrapMethod` masks `toString()` but leaves the anonymous wrapper's own `name` and
+     * `length`, so an untouched `navigator.credentials.get.name` of `"get"` becomes `""`.
+     * Sites that fingerprint the credentials API can read that difference, which is the
+     * exact detectability concern this feature has to avoid, so restore both.
+     * @param {object} proto
+     * @param {'get'|'create'} methodName
+     * @param {PropertyDescriptor} [origDescriptor] - descriptor returned by `wrapMethod`
+     */
+    maskWrappedMethodIdentity(proto, methodName, origDescriptor) {
+        try {
+            const origFn = origDescriptor?.value;
+            const wrappedFn = getOwnPropertyDescriptor(proto, methodName)?.value;
+            if (typeof origFn !== 'function' || typeof wrappedFn !== 'function') {
+                return;
+            }
+            objectDefineProperty(wrappedFn, 'name', { value: origFn.name, configurable: true });
+            objectDefineProperty(wrappedFn, 'length', { value: origFn.length, configurable: true });
+        } catch {
+            // Masking is best-effort; never let it break the wrap itself.
+        }
     }
 
     /**
@@ -875,8 +899,11 @@ export class WebCompat extends ContentFeature {
         let credential;
         try {
             credential = await resultPromise;
-        } catch {
-            // Ignore rejections (cancellation, no credential available, etc.)
+        } catch (e) {
+            // Not reported to native: a rejection means no passkey was used (cancellation,
+            // no matching credential, or a platform/credential-manager failure). Only the
+            // error's name is logged - never the page-supplied options or any error message.
+            this.log.info(`Passkey ${type}() ceremony did not complete: ${e?.name ?? 'unknown error'}`);
             return;
         }
         try {
