@@ -16,6 +16,7 @@ export class WebTelemetry extends ContentFeature {
         this.seenVideoElements = new WeakSet();
         this.seenVideoUrls = new Set();
         this.reportedAutoplayElements = new WeakSet();
+        this.autoplayObservers = new WeakMap();
         this.videoPlaybackEnabled = false;
         this.videoAutoplayEnabled = false;
     }
@@ -84,6 +85,8 @@ export class WebTelemetry extends ContentFeature {
             return;
         }
         this.reportedAutoplayElements.add(video);
+        this.autoplayObservers.get(video)?.disconnect();
+        this.autoplayObservers.delete(video);
         this.messaging.notify(MSG_VIDEO_AUTOPLAY);
     }
 
@@ -110,10 +113,10 @@ export class WebTelemetry extends ContentFeature {
             const attributeObserver = new MutationObserver(() => {
                 if (video.autoplay) {
                     this.reportAutoplay(video);
-                    attributeObserver.disconnect();
                 }
             });
             attributeObserver.observe(video, { attributes: true, attributeFilter: ['autoplay'] });
+            this.autoplayObservers.set(video, attributeObserver);
         }
     }
 
