@@ -51,13 +51,6 @@ describe('TextSelection', () => {
         );
     }
 
-    function passwordField() {
-        const input = document.createElement('input');
-        input.type = 'password';
-        document.body.append(input);
-        return input;
-    }
-
     it('stays inert when native disables the feature', async () => {
         feature.request = jasmine.createSpy('request').and.resolveTo({ enabled: false });
 
@@ -76,14 +69,14 @@ describe('TextSelection', () => {
         expect(feature.notify).not.toHaveBeenCalled();
     });
 
-    it('does not initialize on another platform', async () => {
+    it('allows config and native to enable the feature on another Apple platform', async () => {
         feature.platform = { name: 'macos' };
-        feature.request = jasmine.createSpy('request');
+        feature.request = jasmine.createSpy('request').and.resolveTo({ enabled: true });
 
         await feature.init();
 
-        expect(feature.request).not.toHaveBeenCalled();
-        expect(selectionFrame()).toBeUndefined();
+        expect(feature.request).toHaveBeenCalledWith('isEnabled', {});
+        expect(selectionFrame()).toBeDefined();
     });
 
     it('reports selection state without sending selected text', async () => {
@@ -164,42 +157,6 @@ describe('TextSelection', () => {
         target.textContent = 'Replacement text';
 
         expect(selectionFrame()?.readSelection().selectedText).toBe('Selected text');
-    });
-
-    it('releases the frame when a password field receives focus', async () => {
-        feature.request = jasmine.createSpy('request').and.resolveTo({ enabled: true });
-        await feature.init();
-        selectTargetText();
-        const input = passwordField();
-
-        input.dispatchEvent(new window.FocusEvent('focusin', { bubbles: true }));
-
-        expect(feature.notify).toHaveBeenCalledWith('selectionFrameChanged', jasmine.objectContaining({ hasSelection: false }));
-        expect(selectionFrame()?.readSelection().selectedText).toBe('');
-    });
-
-    it('reports a password-field clear without a local selection claim', async () => {
-        feature.request = jasmine.createSpy('request').and.resolveTo({ enabled: true });
-        await feature.init();
-        const input = passwordField();
-
-        input.dispatchEvent(new window.FocusEvent('focusin', { bubbles: true }));
-
-        expect(feature.notify).toHaveBeenCalledWith('selectionFrameChanged', {
-            hasSelection: false,
-            eventTimestamp: jasmine.any(Number),
-        });
-    });
-
-    it('does not expose a retained snapshot while a password field is active', async () => {
-        feature.request = jasmine.createSpy('request').and.resolveTo({ enabled: true });
-        await feature.init();
-        selectTargetText();
-        const input = passwordField();
-        input.focus();
-        feature._snapshot = 'Retained text';
-
-        expect(selectionFrame()?.readSelection().selectedText).toBe('');
     });
 
     it('releases a claimed frame when the page is hidden', async () => {

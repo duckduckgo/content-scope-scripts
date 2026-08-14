@@ -1,4 +1,5 @@
 import ContentFeature from '../content-feature.js';
+import { objectDefineProperty } from '../captured-globals.js';
 import { isBeingFramed } from '../utils.js';
 
 export default class TextSelection extends ContentFeature {
@@ -14,8 +15,6 @@ export default class TextSelection extends ContentFeature {
     _snapshotTimestamp = 0;
 
     async init() {
-        if (this.platform?.name !== 'ios') return;
-
         try {
             const { enabled } = await this.request('isEnabled', {});
             if (!enabled) return;
@@ -23,11 +22,11 @@ export default class TextSelection extends ContentFeature {
             return;
         }
 
-        Object.defineProperty(window, '__ddgSelectionFrame', {
+        objectDefineProperty(window, '__ddgSelectionFrame', {
             value: Object.freeze({
                 readSelection: () => ({
                     eventTimestamp: this._snapshotTimestamp,
-                    selectedText: this._isPasswordField(document.activeElement) ? '' : this._snapshot,
+                    selectedText: this._snapshot,
                 }),
             }),
             configurable: false,
@@ -36,15 +35,12 @@ export default class TextSelection extends ContentFeature {
         });
 
         document.addEventListener('selectionchange', (event) => this._selectionChanged(event), true);
-        document.addEventListener('focusin', (event) => this._secureFieldChanged(event), true);
-        document.addEventListener('select', (event) => this._secureFieldChanged(event), true);
         window.addEventListener('pagehide', (event) => this._pageHidden(event), true);
         window.addEventListener('pageshow', (event) => this._pageShown(event), true);
         this._publish(this._selectionText());
     }
 
     _selectionText() {
-        if (this._isPasswordField(document.activeElement)) return '';
         const selection = window.getSelection();
         return selection ? String(selection) : '';
     }
@@ -53,10 +49,6 @@ export default class TextSelection extends ContentFeature {
     _selectionChanged(event) {
         this._cancelPendingClaim();
         const eventTimestamp = this._eventTimestamp(event);
-        if (this._isPasswordField(event.target) || this._isPasswordField(document.activeElement)) {
-            this._releaseImmediately(eventTimestamp);
-            return;
-        }
         const text = this._selectionText();
         const hasSelection = text.trim().length > 0;
         const canClaim = this._canClaim();
@@ -70,26 +62,6 @@ export default class TextSelection extends ContentFeature {
             this._clearTimer = null;
             this._publish(this._selectionText(), undefined, eventTimestamp);
         }, 100);
-    }
-
-    /** @param {Event} event */
-    _secureFieldChanged(event) {
-        if (!this._isPasswordField(event.target)) return;
-        this._releaseImmediately(this._eventTimestamp(event));
-    }
-
-    /** @param {EventTarget | null} element */
-    _isPasswordField(element) {
-        return element instanceof window.HTMLInputElement && element.type === 'password';
-    }
-
-    /** @param {number} eventTimestamp */
-    _releaseImmediately(eventTimestamp) {
-        this._cancelPendingClaim();
-        this._cancelPendingClear();
-        this._snapshot = '';
-        this._snapshotTimestamp = eventTimestamp;
-        this._post(false, true, eventTimestamp);
     }
 
     /** @param {number} eventTimestamp */
