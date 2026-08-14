@@ -909,42 +909,14 @@ export class WebCompat extends ContentFeature {
             } catch {
                 // Messaging must never affect the page.
             }
-            void this.emitPasskeyWebEvent(type, false);
             return;
         }
         try {
             if (credential && credential.type === CREDENTIAL_TYPE_PUBLIC_KEY) {
                 this.notify(MSG_PASSKEY_USED, { type, success: true });
-                void this.emitPasskeyWebEvent(type, true);
             }
         } catch {
             // Ignore exceptions - this must never affect the page.
-        }
-    }
-
-    /**
-     * WIP (proof of concept): mirrors the passkey outcome through the `webEvents` feature.
-     *
-     * `webCompat.passkeyUsed` is the message we actually want, but no native handler
-     * declares it yet, so those notifications are dropped by the client's message router
-     * without any log or error. `webEvents.webEvent` is already routed and logged natively
-     * by the Event Hub, so sending the same outcome there makes the signal observable
-     * end-to-end with no client change. Remove this once `passkeyUsed` is handled natively.
-     *
-     * @param {'get'|'create'} type
-     * @param {boolean} success
-     */
-    async emitPasskeyWebEvent(type, success) {
-        try {
-            const result = await this.callFeatureMethod('webEvents', 'fireEvent', {
-                type: MSG_PASSKEY_USED,
-                data: { operation: type, success },
-            });
-            if (result instanceof Error) {
-                this.log.info(`Could not fire passkey web event: ${result.message}`);
-            }
-        } catch {
-            // Best-effort only - this must never affect the page.
         }
     }
 
