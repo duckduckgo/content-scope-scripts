@@ -39,7 +39,7 @@ export interface SelectionFrameChangedParams {
 export interface IsEnabledRequest {
   method: "isEnabled";
   /**
-   * Checks whether native text-selection tracking is enabled.
+   * Checks whether native text-selection handling is enabled.
    */
   params: {
     [k: string]: unknown;

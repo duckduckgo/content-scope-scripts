@@ -1,11 +1,11 @@
 {
-  "description": "Checks whether native text-selection tracking is enabled.",
+  "description": "Checks whether native text-selection handling is enabled.",
   "params": {},
   "response": {
     "description": "The native text-selection feature state.",
     "properties": {
       "enabled": {
-        "description": "Whether the frame should track text selection.",
+        "description": "Whether the frame should handle text selection.",
         "type": "boolean"
       }
     },
