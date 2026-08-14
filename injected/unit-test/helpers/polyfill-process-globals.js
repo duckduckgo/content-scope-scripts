@@ -39,16 +39,14 @@ export function createDomStringList(list) {
 
 export function polyfillProcessGlobals(defaultLocation = 'http://localhost:8080', frameAncestorsList = [], topisNull = false) {
     // Store original values to restore later
-    const originalDocument = globalThis.document;
     const originalLocation = globalThis.location;
     const originalTop = globalThis.top;
 
-    // Apply the patch
-    // @ts-expect-error - document is not defined in the type definition
-    globalThis.document = {
-        referrer: defaultLocation,
-        location: createLocationObject(defaultLocation, frameAncestorsList),
-    };
+    // Adjust the shared document rather than replacing it. The DOM query methods in
+    // captured-globals.js are bound to that document at module evaluation, so swapping the global
+    // out breaks every DOM-based spec - and several callers here run at module scope, which would
+    // break them for the whole run.
+    Object.defineProperty(globalThis.document, 'referrer', { value: defaultLocation, configurable: true });
 
     globalThis.location = createLocationObject(defaultLocation, frameAncestorsList);
 
@@ -61,7 +59,8 @@ export function polyfillProcessGlobals(defaultLocation = 'http://localhost:8080'
 
     // Return a cleanup function
     return function cleanup() {
-        globalThis.document = originalDocument;
+        // Removing the own property reveals the document's real accessor again
+        Reflect.deleteProperty(globalThis.document, 'referrer');
         globalThis.location = originalLocation;
         globalThis.top = originalTop;
     };

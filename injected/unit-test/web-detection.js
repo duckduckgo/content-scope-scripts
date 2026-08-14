@@ -1,4 +1,4 @@
-import { JSDOM } from 'jsdom';
+import { resetDom } from './helpers/install-dom-globals.js';
 import { parseDetectors } from '../src/features/web-detection/parse.js';
 import { evaluateMatch } from '../src/features/web-detection/matching.js';
 import WebDetection from '../src/features/web-detection.js';
@@ -651,16 +651,13 @@ describe('WebDetection', () => {
          */
         function matchInDOM(html, match, options = {}) {
             const { zeroSizeSelectors = [] } = options;
-            const dom = new JSDOM(`<!DOCTYPE html><html><body>${html}</body></html>`);
-            const originalDocument = globalThis.document;
+            // The shared document is reused rather than replaced, because the query methods
+            // captured at module evaluation are bound to it (see helpers/install-dom-globals.js).
+            resetDom(html);
             const originalGetComputedStyle = globalThis.getComputedStyle;
-            const originalDOMParser = globalThis.DOMParser;
-            globalThis.document = dom.window.document;
-            // `content` visibility mode uses DOMParser; provide JSDOM's implementation.
-            globalThis.DOMParser = dom.window.DOMParser;
 
             // Wrap getComputedStyle to return browser-like defaults (JSDOM returns "" for opacity)
-            const jsdomGetComputedStyle = dom.window.getComputedStyle;
+            const jsdomGetComputedStyle = originalGetComputedStyle;
             globalThis.getComputedStyle = (el, pseudoElt) => {
                 const style = jsdomGetComputedStyle(el, pseudoElt);
                 return new Proxy(style, {
@@ -674,7 +671,7 @@ describe('WebDetection', () => {
             };
 
             // Patch Element prototype to mock getBoundingClientRect based on selectors
-            const ElementProto = dom.window.Element.prototype;
+            const ElementProto = Element.prototype;
             const originalGetBoundingClientRect = ElementProto.getBoundingClientRect;
             ElementProto.getBoundingClientRect = function () {
                 const isZeroSize = zeroSizeSelectors.some((sel) => this.matches(sel));
@@ -694,12 +691,86 @@ describe('WebDetection', () => {
             try {
                 return evaluateMatch(match);
             } finally {
-                globalThis.document = originalDocument;
                 globalThis.getComputedStyle = originalGetComputedStyle;
-                globalThis.DOMParser = originalDOMParser;
                 ElementProto.getBoundingClientRect = originalGetBoundingClientRect;
             }
         }
+
+        describe('query API capture', () => {
+            /**
+             * Replace every query method the feature could reach, run `body`, and report what the
+             * replacements saw. The methods are captured at module evaluation, so a replacement
+             * installed here - as a Cloudflare challenge page installs one - must observe nothing.
+             *
+             * @param {() => void} run
+             * @returns {string[]}
+             */
+            function selectorsObservedDuring(run) {
+                /** @type {string[]} */
+                const observed = [];
+                /** @type {Array<() => void>} */
+                const restore = [];
+                for (const proto of [Document.prototype, Element.prototype]) {
+                    for (const name of ['querySelector', 'querySelectorAll']) {
+                        const original = proto[name];
+                        restore.push(() => {
+                            proto[name] = original;
+                        });
+                        proto[name] = function (/** @type {string} */ selectors) {
+                            observed.push(selectors);
+                            return original.call(this, selectors);
+                        };
+                    }
+                }
+                try {
+                    run();
+                } finally {
+                    for (const undo of restore) undo();
+                }
+                return observed;
+            }
+
+            it('is effective, so an empty result below is meaningful', () => {
+                const observed = selectorsObservedDuring(() => document.querySelectorAll('.replacement-is-live'));
+                expect(observed).toEqual(['.replacement-is-live']);
+            });
+
+            it('hides element condition selectors from a replaced query method', () => {
+                /** @type {boolean | undefined} */
+                let matched;
+                const observed = selectorsObservedDuring(() => {
+                    matched = matchInDOM('<div class="g-recaptcha"></div>', { element: { selector: '.g-recaptcha' } });
+                });
+                // The detector still matched, so the query happened - just not through the replacement
+                expect(matched).toBe(true);
+                expect(observed).toEqual([]);
+            });
+
+            it('hides text condition selectors from a replaced query method', () => {
+                /** @type {boolean | undefined} */
+                let matched;
+                const observed = selectorsObservedDuring(() => {
+                    matched = matchInDOM('<p class="wall">adblocker detected</p>', {
+                        text: { pattern: 'adblocker detected', selector: '.wall' },
+                    });
+                });
+                expect(matched).toBe(true);
+                expect(observed).toEqual([]);
+            });
+
+            it('hides the selectors used when probing content of a matched element', () => {
+                // `content` visibility inspects a detached DOMParser tree, which shares these prototypes
+                /** @type {boolean | undefined} */
+                let matched;
+                const observed = selectorsObservedDuring(() => {
+                    matched = matchInDOM('<div class="cf-turnstile"><iframe src="https://example.com/"></iframe></div>', {
+                        element: { selector: '.cf-turnstile', visibility: 'content' },
+                    });
+                });
+                expect(matched).toBe(true);
+                expect(observed).toEqual([]);
+            });
+        });
 
         describe('empty conditions', () => {
             it('should match with empty object (no conditions)', () => {
@@ -878,17 +949,11 @@ describe('WebDetection', () => {
 
             it('should see content added between evaluations', () => {
                 // Compiled expressions are reused across evaluations; the DOM they run against is not
-                const dom = new JSDOM('<!DOCTYPE html><html><body><p>Loading...</p></body></html>');
-                const originalDocument = globalThis.document;
-                globalThis.document = dom.window.document;
-                try {
-                    const match = { text: { pattern: 'adblocker detected', xpath: RENDERED_TEXT } };
-                    expect(evaluateMatch(match)).toBe(false);
-                    dom.window.document.body.insertAdjacentHTML('beforeend', '<div class="wall">adblocker detected</div>');
-                    expect(evaluateMatch(match)).toBe(true);
-                } finally {
-                    globalThis.document = originalDocument;
-                }
+                resetDom('<p>Loading...</p>');
+                const match = { text: { pattern: 'adblocker detected', xpath: RENDERED_TEXT } };
+                expect(evaluateMatch(match)).toBe(false);
+                document.body.insertAdjacentHTML('beforeend', '<div class="wall">adblocker detected</div>');
+                expect(evaluateMatch(match)).toBe(true);
             });
 
             it('should throw on an invalid expression, surfacing as a detector error', () => {

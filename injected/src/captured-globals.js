@@ -49,25 +49,27 @@ export const getRandomValues = globalThis.crypto?.getRandomValues?.bind(globalTh
 // against a document produced by `DOMParser` are equally exposed, since it shares these
 // prototypes.
 //
-// The `??` arms cover non-browser environments - the unit tests supply `document` only after
-// this module is evaluated - where the live method is safe because there is no page.
-/** @type {(selectors: string) => Element | null} */
-export const documentQuerySelector =
-    globalThis.document?.querySelector.bind(globalThis.document) ?? ((selectors) => document.querySelector(selectors));
-/** @type {(selectors: string) => NodeListOf<Element>} */
-export const documentQuerySelectorAll =
-    globalThis.document?.querySelectorAll.bind(globalThis.document) ?? ((selectors) => document.querySelectorAll(selectors));
-/** @type {(expression: string, resolver: XPathNSResolver | null) => XPathExpression} */
-export const createXPathExpression =
-    globalThis.document?.createExpression.bind(globalThis.document) ??
-    ((expression, resolver) => document.createExpression(expression, resolver));
+// Anything calling these must have a DOM. The optional chaining only keeps module evaluation safe
+// where there is none - `src/utils.js` is imported by Node-side Playwright tooling - and the casts
+// record that as an invariant rather than a supported mode: calling without a DOM throws
+// immediately instead of silently reverting to the live, observable slot. The unit tests install a
+// single JSDOM window in a Jasmine helper so they exercise the same captured path as production;
+// see `unit-test/helpers/install-dom-globals.js`.
+export const documentQuerySelector = /** @type {(selectors: string) => Element | null} */ (
+    globalThis.document?.querySelector.bind(globalThis.document)
+);
+export const documentQuerySelectorAll = /** @type {(selectors: string) => NodeListOf<Element>} */ (
+    globalThis.document?.querySelectorAll.bind(globalThis.document)
+);
+export const createXPathExpression = /** @type {(expression: string, resolver: XPathNSResolver | null) => XPathExpression} */ (
+    globalThis.document?.createExpression.bind(globalThis.document)
+);
 
-// These take their receiver per call, so unlike the above they cannot be bound: element
-// queries run against a detached `DOMParser` tree, and each XPath expression is its own
-// receiver. Undefined outside a browser, as above.
-const capturedElementQuerySelector = globalThis.Element?.prototype.querySelector;
-const capturedElementQuerySelectorAll = globalThis.Element?.prototype.querySelectorAll;
-const capturedEvaluateExpression = globalThis.XPathExpression?.prototype.evaluate;
+// These take their receiver per call, so unlike the above they cannot be bound: element queries
+// run against a detached `DOMParser` tree, and each XPath expression is its own receiver.
+const capturedElementQuerySelector = /** @type {Element['querySelector']} */ (globalThis.Element?.prototype.querySelector);
+const capturedElementQuerySelectorAll = /** @type {Element['querySelectorAll']} */ (globalThis.Element?.prototype.querySelectorAll);
+const capturedEvaluateExpression = /** @type {XPathExpression['evaluate']} */ (globalThis.XPathExpression?.prototype.evaluate);
 
 /**
  * `element.querySelector(selectors)` via the captured method.
@@ -77,8 +79,7 @@ const capturedEvaluateExpression = globalThis.XPathExpression?.prototype.evaluat
  * @returns {Element | null}
  */
 export function elementQuerySelector(element, selectors) {
-    if (capturedElementQuerySelector) return ReflectApply(capturedElementQuerySelector, element, [selectors]);
-    return element.querySelector(selectors);
+    return ReflectApply(capturedElementQuerySelector, element, [selectors]);
 }
 
 /**
@@ -89,8 +90,7 @@ export function elementQuerySelector(element, selectors) {
  * @returns {NodeListOf<Element>}
  */
 export function elementQuerySelectorAll(element, selectors) {
-    if (capturedElementQuerySelectorAll) return ReflectApply(capturedElementQuerySelectorAll, element, [selectors]);
-    return element.querySelectorAll(selectors);
+    return ReflectApply(capturedElementQuerySelectorAll, element, [selectors]);
 }
 
 /**
@@ -102,8 +102,7 @@ export function elementQuerySelectorAll(element, selectors) {
  * @returns {XPathResult}
  */
 export function evaluateXPathExpression(expression, contextNode, type) {
-    if (capturedEvaluateExpression) return ReflectApply(capturedEvaluateExpression, expression, [contextNode, type, null]);
-    return expression.evaluate(contextNode, type, null);
+    return ReflectApply(capturedEvaluateExpression, expression, [contextNode, type, null]);
 }
 
 // Secure context only - crypto.subtle is unavailable on HTTP
