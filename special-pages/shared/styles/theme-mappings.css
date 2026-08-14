@@ -70,6 +70,12 @@ body {
         --ds-input-control-primary-background-color: var(--ds-color-theme-default-light-input-control-primary-background-color);
         --ds-input-control-secondary-background-color: var(--ds-color-theme-default-light-input-control-secondary-background-color);
         --ds-input-control-shadow-primary: var(--ds-color-theme-default-light-input-control-shadow-primary);
+        --ds-input-field-primary-background-color: var(--ds-color-theme-default-light-input-field-primary-background-color);
+        --ds-input-field-secondary-background-color: var(--ds-color-theme-default-light-input-field-secondary-background-color);
+        --ds-input-text-primary: var(--ds-color-theme-default-light-input-text-primary);
+        --ds-input-text-secondary: var(--ds-color-theme-default-light-input-text-secondary);
+        --ds-input-icons-primary: var(--ds-color-theme-default-light-input-icons-primary);
+        --ds-input-icons-secondary: var(--ds-color-theme-default-light-input-icons-secondary);
     }
 
     &[data-theme="dark"], [data-theme="dark"] {
@@ -128,6 +134,12 @@ body {
         --ds-input-control-primary-background-color: var(--ds-color-theme-default-dark-input-control-primary-background-color);
         --ds-input-control-secondary-background-color: var(--ds-color-theme-default-dark-input-control-secondary-background-color);
         --ds-input-control-shadow-primary: var(--ds-color-theme-default-dark-input-control-shadow-primary);
+        --ds-input-field-primary-background-color: var(--ds-color-theme-default-dark-input-field-primary-background-color);
+        --ds-input-field-secondary-background-color: var(--ds-color-theme-default-dark-input-field-secondary-background-color);
+        --ds-input-text-primary: var(--ds-color-theme-default-dark-input-text-primary);
+        --ds-input-text-secondary: var(--ds-color-theme-default-dark-input-text-secondary);
+        --ds-input-icons-primary: var(--ds-color-theme-default-dark-input-icons-primary);
+        --ds-input-icons-secondary: var(--ds-color-theme-default-dark-input-icons-secondary);
     }
 }
 
@@ -182,6 +194,12 @@ body[data-theme-variant="coolGray"] {
         --ds-input-control-primary-background-color: var(--ds-color-theme-cool-gray-light-input-control-primary-background-color);
         --ds-input-control-secondary-background-color: var(--ds-color-theme-cool-gray-light-input-control-secondary-background-color);
         --ds-input-control-shadow-primary: var(--ds-color-theme-cool-gray-light-input-control-shadow-primary);
+        --ds-input-field-primary-background-color: var(--ds-color-theme-cool-gray-light-input-field-primary-background-color);
+        --ds-input-field-secondary-background-color: var(--ds-color-theme-cool-gray-light-input-field-secondary-background-color);
+        --ds-input-text-primary: var(--ds-color-theme-cool-gray-light-input-text-primary);
+        --ds-input-text-secondary: var(--ds-color-theme-cool-gray-light-input-text-secondary);
+        --ds-input-icons-primary: var(--ds-color-theme-cool-gray-light-input-icons-primary);
+        --ds-input-icons-secondary: var(--ds-color-theme-cool-gray-light-input-icons-secondary);
     }
 
     &[data-theme="dark"], [data-theme="dark"] {
@@ -231,6 +249,12 @@ body[data-theme-variant="coolGray"] {
         --ds-input-control-primary-background-color: var(--ds-color-theme-cool-gray-dark-input-control-primary-background-color);
         --ds-input-control-secondary-background-color: var(--ds-color-theme-cool-gray-dark-input-control-secondary-background-color);
         --ds-input-control-shadow-primary: var(--ds-color-theme-cool-gray-dark-input-control-shadow-primary);
+        --ds-input-field-primary-background-color: var(--ds-color-theme-cool-gray-dark-input-field-primary-background-color);
+        --ds-input-field-secondary-background-color: var(--ds-color-theme-cool-gray-dark-input-field-secondary-background-color);
+        --ds-input-text-primary: var(--ds-color-theme-cool-gray-dark-input-text-primary);
+        --ds-input-text-secondary: var(--ds-color-theme-cool-gray-dark-input-text-secondary);
+        --ds-input-icons-primary: var(--ds-color-theme-cool-gray-dark-input-icons-primary);
+        --ds-input-icons-secondary: var(--ds-color-theme-cool-gray-dark-input-icons-secondary);
     }
 }
 
@@ -285,6 +309,12 @@ body[data-theme-variant="slateBlue"] {
         --ds-input-control-primary-background-color: var(--ds-color-theme-slate-blue-light-input-control-primary-background-color);
         --ds-input-control-secondary-background-color: var(--ds-color-theme-slate-blue-light-input-control-secondary-background-color);
         --ds-input-control-shadow-primary: var(--ds-color-theme-slate-blue-light-input-control-shadow-primary);
+        --ds-input-field-primary-background-color: var(--ds-color-theme-slate-blue-light-input-field-primary-background-color);
+        --ds-input-field-secondary-background-color: var(--ds-color-theme-slate-blue-light-input-field-secondary-background-color);
+        --ds-input-text-primary: var(--ds-color-theme-slate-blue-light-input-text-primary);
+        --ds-input-text-secondary: var(--ds-color-theme-slate-blue-light-input-text-secondary);
+        --ds-input-icons-primary: var(--ds-color-theme-slate-blue-light-input-icons-primary);
+        --ds-input-icons-secondary: var(--ds-color-theme-slate-blue-light-input-icons-secondary);
     }
 
     &[data-theme="dark"], [data-theme="dark"] {
@@ -334,6 +364,12 @@ body[data-theme-variant="slateBlue"] {
         --ds-input-control-primary-background-color: var(--ds-color-theme-slate-blue-dark-input-control-primary-background-color);
         --ds-input-control-secondary-background-color: var(--ds-color-theme-slate-blue-dark-input-control-secondary-background-color);
         --ds-input-control-shadow-primary: var(--ds-color-theme-slate-blue-dark-input-control-shadow-primary);
+        --ds-input-field-primary-background-color: var(--ds-color-theme-slate-blue-dark-input-field-primary-background-color);
+        --ds-input-field-secondary-background-color: var(--ds-color-theme-slate-blue-dark-input-field-secondary-background-color);
+        --ds-input-text-primary: var(--ds-color-theme-slate-blue-dark-input-text-primary);
+        --ds-input-text-secondary: var(--ds-color-theme-slate-blue-dark-input-text-secondary);
+        --ds-input-icons-primary: var(--ds-color-theme-slate-blue-dark-input-icons-primary);
+        --ds-input-icons-secondary: var(--ds-color-theme-slate-blue-dark-input-icons-secondary);
     }
 }
 
@@ -388,6 +424,12 @@ body[data-theme-variant="green"] {
         --ds-input-control-primary-background-color: var(--ds-color-theme-green-light-input-control-primary-background-color);
         --ds-input-control-secondary-background-color: var(--ds-color-theme-green-light-input-control-secondary-background-color);
         --ds-input-control-shadow-primary: var(--ds-color-theme-green-light-input-control-shadow-primary);
+        --ds-input-field-primary-background-color: var(--ds-color-theme-green-light-input-field-primary-background-color);
+        --ds-input-field-secondary-background-color: var(--ds-color-theme-green-light-input-field-secondary-background-color);
+        --ds-input-text-primary: var(--ds-color-theme-green-light-input-text-primary);
+        --ds-input-text-secondary: var(--ds-color-theme-green-light-input-text-secondary);
+        --ds-input-icons-primary: var(--ds-color-theme-green-light-input-icons-primary);
+        --ds-input-icons-secondary: var(--ds-color-theme-green-light-input-icons-secondary);
     }
 
     &[data-theme="dark"], [data-theme="dark"] {
@@ -437,6 +479,12 @@ body[data-theme-variant="green"] {
         --ds-input-control-primary-background-color: var(--ds-color-theme-green-dark-input-control-primary-background-color);
         --ds-input-control-secondary-background-color: var(--ds-color-theme-green-dark-input-control-secondary-background-color);
         --ds-input-control-shadow-primary: var(--ds-color-theme-green-dark-input-control-shadow-primary);
+        --ds-input-field-primary-background-color: var(--ds-color-theme-green-dark-input-field-primary-background-color);
+        --ds-input-field-secondary-background-color: var(--ds-color-theme-green-dark-input-field-secondary-background-color);
+        --ds-input-text-primary: var(--ds-color-theme-green-dark-input-text-primary);
+        --ds-input-text-secondary: var(--ds-color-theme-green-dark-input-text-secondary);
+        --ds-input-icons-primary: var(--ds-color-theme-green-dark-input-icons-primary);
+        --ds-input-icons-secondary: var(--ds-color-theme-green-dark-input-icons-secondary);
     }
 }
 
@@ -491,6 +539,12 @@ body[data-theme-variant="violet"] {
         --ds-input-control-primary-background-color: var(--ds-color-theme-violet-light-input-control-primary-background-color);
         --ds-input-control-secondary-background-color: var(--ds-color-theme-violet-light-input-control-secondary-background-color);
         --ds-input-control-shadow-primary: var(--ds-color-theme-violet-light-input-control-shadow-primary);
+        --ds-input-field-primary-background-color: var(--ds-color-theme-violet-light-input-field-primary-background-color);
+        --ds-input-field-secondary-background-color: var(--ds-color-theme-violet-light-input-field-secondary-background-color);
+        --ds-input-text-primary: var(--ds-color-theme-violet-light-input-text-primary);
+        --ds-input-text-secondary: var(--ds-color-theme-violet-light-input-text-secondary);
+        --ds-input-icons-primary: var(--ds-color-theme-violet-light-input-icons-primary);
+        --ds-input-icons-secondary: var(--ds-color-theme-violet-light-input-icons-secondary);
     }
 
     &[data-theme="dark"], [data-theme="dark"] {
@@ -540,6 +594,12 @@ body[data-theme-variant="violet"] {
         --ds-input-control-primary-background-color: var(--ds-color-theme-violet-dark-input-control-primary-background-color);
         --ds-input-control-secondary-background-color: var(--ds-color-theme-violet-dark-input-control-secondary-background-color);
         --ds-input-control-shadow-primary: var(--ds-color-theme-violet-dark-input-control-shadow-primary);
+        --ds-input-field-primary-background-color: var(--ds-color-theme-violet-dark-input-field-primary-background-color);
+        --ds-input-field-secondary-background-color: var(--ds-color-theme-violet-dark-input-field-secondary-background-color);
+        --ds-input-text-primary: var(--ds-color-theme-violet-dark-input-text-primary);
+        --ds-input-text-secondary: var(--ds-color-theme-violet-dark-input-text-secondary);
+        --ds-input-icons-primary: var(--ds-color-theme-violet-dark-input-icons-primary);
+        --ds-input-icons-secondary: var(--ds-color-theme-violet-dark-input-icons-secondary);
     }
 }
 
@@ -594,6 +654,12 @@ body[data-theme-variant="rose"] {
         --ds-input-control-primary-background-color: var(--ds-color-theme-rose-light-input-control-primary-background-color);
         --ds-input-control-secondary-background-color: var(--ds-color-theme-rose-light-input-control-secondary-background-color);
         --ds-input-control-shadow-primary: var(--ds-color-theme-rose-light-input-control-shadow-primary);
+        --ds-input-field-primary-background-color: var(--ds-color-theme-rose-light-input-field-primary-background-color);
+        --ds-input-field-secondary-background-color: var(--ds-color-theme-rose-light-input-field-secondary-background-color);
+        --ds-input-text-primary: var(--ds-color-theme-rose-light-input-text-primary);
+        --ds-input-text-secondary: var(--ds-color-theme-rose-light-input-text-secondary);
+        --ds-input-icons-primary: var(--ds-color-theme-rose-light-input-icons-primary);
+        --ds-input-icons-secondary: var(--ds-color-theme-rose-light-input-icons-secondary);
     }
 
     &[data-theme="dark"], [data-theme="dark"] {
@@ -643,6 +709,12 @@ body[data-theme-variant="rose"] {
         --ds-input-control-primary-background-color: var(--ds-color-theme-rose-dark-input-control-primary-background-color);
         --ds-input-control-secondary-background-color: var(--ds-color-theme-rose-dark-input-control-secondary-background-color);
         --ds-input-control-shadow-primary: var(--ds-color-theme-rose-dark-input-control-shadow-primary);
+        --ds-input-field-primary-background-color: var(--ds-color-theme-rose-dark-input-field-primary-background-color);
+        --ds-input-field-secondary-background-color: var(--ds-color-theme-rose-dark-input-field-secondary-background-color);
+        --ds-input-text-primary: var(--ds-color-theme-rose-dark-input-text-primary);
+        --ds-input-text-secondary: var(--ds-color-theme-rose-dark-input-text-secondary);
+        --ds-input-icons-primary: var(--ds-color-theme-rose-dark-input-icons-primary);
+        --ds-input-icons-secondary: var(--ds-color-theme-rose-dark-input-icons-secondary);
     }
 }
 
@@ -697,6 +769,12 @@ body[data-theme-variant="orange"] {
         --ds-input-control-primary-background-color: var(--ds-color-theme-orange-light-input-control-primary-background-color);
         --ds-input-control-secondary-background-color: var(--ds-color-theme-orange-light-input-control-secondary-background-color);
         --ds-input-control-shadow-primary: var(--ds-color-theme-orange-light-input-control-shadow-primary);
+        --ds-input-field-primary-background-color: var(--ds-color-theme-orange-light-input-field-primary-background-color);
+        --ds-input-field-secondary-background-color: var(--ds-color-theme-orange-light-input-field-secondary-background-color);
+        --ds-input-text-primary: var(--ds-color-theme-orange-light-input-text-primary);
+        --ds-input-text-secondary: var(--ds-color-theme-orange-light-input-text-secondary);
+        --ds-input-icons-primary: var(--ds-color-theme-orange-light-input-icons-primary);
+        --ds-input-icons-secondary: var(--ds-color-theme-orange-light-input-icons-secondary);
     }
 
     &[data-theme="dark"], [data-theme="dark"] {
@@ -746,6 +824,12 @@ body[data-theme-variant="orange"] {
         --ds-input-control-primary-background-color: var(--ds-color-theme-orange-dark-input-control-primary-background-color);
         --ds-input-control-secondary-background-color: var(--ds-color-theme-orange-dark-input-control-secondary-background-color);
         --ds-input-control-shadow-primary: var(--ds-color-theme-orange-dark-input-control-shadow-primary);
+        --ds-input-field-primary-background-color: var(--ds-color-theme-orange-dark-input-field-primary-background-color);
+        --ds-input-field-secondary-background-color: var(--ds-color-theme-orange-dark-input-field-secondary-background-color);
+        --ds-input-text-primary: var(--ds-color-theme-orange-dark-input-text-primary);
+        --ds-input-text-secondary: var(--ds-color-theme-orange-dark-input-text-secondary);
+        --ds-input-icons-primary: var(--ds-color-theme-orange-dark-input-icons-primary);
+        --ds-input-icons-secondary: var(--ds-color-theme-orange-dark-input-icons-secondary);
     }
 }
 
@@ -800,6 +884,12 @@ body[data-theme-variant="desert"] {
         --ds-input-control-primary-background-color: var(--ds-color-theme-desert-light-input-control-primary-background-color);
         --ds-input-control-secondary-background-color: var(--ds-color-theme-desert-light-input-control-secondary-background-color);
         --ds-input-control-shadow-primary: var(--ds-color-theme-desert-light-input-control-shadow-primary);
+        --ds-input-field-primary-background-color: var(--ds-color-theme-desert-light-input-field-primary-background-color);
+        --ds-input-field-secondary-background-color: var(--ds-color-theme-desert-light-input-field-secondary-background-color);
+        --ds-input-text-primary: var(--ds-color-theme-desert-light-input-text-primary);
+        --ds-input-text-secondary: var(--ds-color-theme-desert-light-input-text-secondary);
+        --ds-input-icons-primary: var(--ds-color-theme-desert-light-input-icons-primary);
+        --ds-input-icons-secondary: var(--ds-color-theme-desert-light-input-icons-secondary);
     }
 
     &[data-theme="dark"], [data-theme="dark"] {
@@ -849,5 +939,62 @@ body[data-theme-variant="desert"] {
         --ds-input-control-primary-background-color: var(--ds-color-theme-desert-dark-input-control-primary-background-color);
         --ds-input-control-secondary-background-color: var(--ds-color-theme-desert-dark-input-control-secondary-background-color);
         --ds-input-control-shadow-primary: var(--ds-color-theme-desert-dark-input-control-shadow-primary);
+        --ds-input-field-primary-background-color: var(--ds-color-theme-desert-dark-input-field-primary-background-color);
+        --ds-input-field-secondary-background-color: var(--ds-color-theme-desert-dark-input-field-secondary-background-color);
+        --ds-input-text-primary: var(--ds-color-theme-desert-dark-input-text-primary);
+        --ds-input-text-secondary: var(--ds-color-theme-desert-dark-input-text-secondary);
+        --ds-input-icons-primary: var(--ds-color-theme-desert-dark-input-icons-primary);
+        --ds-input-icons-secondary: var(--ds-color-theme-desert-dark-input-icons-secondary);
+    }
+}
+
+/*
+ * NTP Custom Background — unified-input overrides.
+ *
+ * When a custom background is active (color / gradient / user image), the omnibar
+ * (unified input) needs tint/shade semi-transparent values to stay legible over
+ * arbitrary user wallpapers, instead of the solid theme values above.
+ *
+ * TEMP: values below are hardcoded to simulate the `ntpCustomBackground` theme
+ * added in design-tokens PR #41 (https://github.com/duckduckgo/design-tokens/pull/41).
+ * Once that PR is merged, released, and @duckduckgo/design-tokens is bumped in this
+ * repo (currently pinned to v0.36.0), replace each hardcoded value with a
+ * `var(--ds-color-theme-ntp-custom-background-{light|dark}-input-*)` reference.
+ *
+ * Source of truth: Chris Morast's Theme Color 2 export → `NTP (Custom BG).tokens.json`.
+ */
+body[data-rebrand="true"]:not([data-background-kind="default"]) {
+    &[data-theme="light"], [data-theme="light"] {
+        /* Toggle (control): white-at-60 / black-at-6 per Chris's Asana spec */
+        --ds-input-control-primary-background-color: rgba(255, 255, 255, 0.6);
+        --ds-input-control-secondary-background-color: rgba(0, 0, 0, 0.06);
+        --ds-input-control-shadow-primary: rgba(0, 0, 0, 0.06);
+
+        /* Input field (popup): white-at-54 for the frosted fill */
+        --ds-input-field-primary-background-color: rgba(255, 255, 255, 0.54);
+        --ds-input-field-secondary-background-color: rgba(0, 0, 0, 0.18);
+
+        --ds-input-text-primary: rgba(0, 0, 0, 0.96);
+        --ds-input-text-secondary: rgba(0, 0, 0, 0.6);
+        --ds-input-icons-primary: rgba(0, 0, 0, 0.84);
+        --ds-input-icons-secondary: rgba(0, 0, 0, 0.6);
+    }
+
+    &[data-theme="dark"], [data-theme="dark"] {
+        /* Toggle (control): black-at-60 / white-at-18. Shadow=transparent so
+         * `box-shadow: 0 0 0 1px var(--ds-input-control-shadow-primary)` renders
+         * as invisible ring, matching Chris's `box-shadow: none` for dark active. */
+        --ds-input-control-primary-background-color: rgba(0, 0, 0, 0.6);
+        --ds-input-control-secondary-background-color: rgba(255, 255, 255, 0.18);
+        --ds-input-control-shadow-primary: transparent;
+
+        /* Input field (popup): white-at-24 for the frosted fill */
+        --ds-input-field-primary-background-color: rgba(255, 255, 255, 0.24);
+        --ds-input-field-secondary-background-color: rgba(255, 255, 255, 0.3);
+
+        --ds-input-text-primary: rgba(0, 0, 0, 0.84);
+        --ds-input-text-secondary: rgba(0, 0, 0, 0.6);
+        --ds-input-icons-primary: rgba(0, 0, 0, 0.84);
+        --ds-input-icons-secondary: rgba(0, 0, 0, 0.6);
     }
 }

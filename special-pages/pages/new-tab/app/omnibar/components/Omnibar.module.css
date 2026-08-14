@@ -248,17 +248,33 @@
 
 /*
  * Rebrand: custom background overrides for the omnibar popup.
- * Reduces blur to 24px and corrects dark tint to rgba(255,255,255,0.24).
- * @todo rebrand: confirm box-shadow spec for custom bg with Chris/design and add it here.
+ * Values from Chris Morast's spec (Asana 1217158720693670).
+ *
+ * Popup fill uses the semantic --ds-input-field-primary-background-color,
+ * which is remapped to white-at-54 (light) / white-at-24 (dark) in
+ * shared/styles/theme-mappings.css under the same selector.
+ *
+ * box-shadow is layered (drop shadows + 1px ring) — not expressible as a single
+ * design token, so the outer layers stay inline. The 1px ring uses the existing
+ * palette variables from special-pages/shared/styles/variables.css.
  */
 :global(body[data-rebrand="true"]:not([data-background-kind="default"])) {
-    :global([data-theme="light"]) .popup {
+    .popup {
         backdrop-filter: blur(24px);
-        background: rgba(255, 255, 255, 0.54);
+        background: var(--ds-input-field-primary-background-color);
+    }
+
+    :global([data-theme="light"]) .popup {
+        box-shadow:
+            0 10px 20px 0 rgba(0, 0, 0, 0.02),
+            0 2px 6px 0 rgba(0, 0, 0, 0.08),
+            0 0 0 1px var(--color-black-at-6);
     }
 
     :global([data-theme="dark"]) .popup {
-        backdrop-filter: blur(24px);
-        background: rgba(255, 255, 255, 0.24);
+        box-shadow:
+            0 10px 20px 0 rgba(0, 0, 0, 0.04),
+            0 2px 6px 0 rgba(0, 0, 0, 0.1),
+            0 0 0 1px var(--color-white-at-36);
     }
 }
