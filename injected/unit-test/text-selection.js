@@ -178,6 +178,19 @@ describe('TextSelection', () => {
         expect(selectionFrame()?.readSelection().selectedText).toBe('');
     });
 
+    it('reports a password-field clear without a local selection claim', async () => {
+        feature.request = jasmine.createSpy('request').and.resolveTo({ enabled: true });
+        await feature.init();
+        const input = passwordField();
+
+        input.dispatchEvent(new window.FocusEvent('focusin', { bubbles: true }));
+
+        expect(feature.notify).toHaveBeenCalledWith('selectionFrameChanged', {
+            hasSelection: false,
+            eventTimestamp: jasmine.any(Number),
+        });
+    });
+
     it('does not expose a retained snapshot while a password field is active', async () => {
         feature.request = jasmine.createSpy('request').and.resolveTo({ enabled: true });
         await feature.init();

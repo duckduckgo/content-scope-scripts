@@ -89,7 +89,7 @@ export default class TextSelection extends ContentFeature {
         this._cancelPendingClear();
         this._snapshot = '';
         this._snapshotTimestamp = eventTimestamp;
-        this._post(false, false, eventTimestamp);
+        this._post(false, true, eventTimestamp);
     }
 
     /** @param {number} eventTimestamp */
@@ -140,7 +140,7 @@ export default class TextSelection extends ContentFeature {
      * @param {number} [eventTimestamp]
      */
     _post(hasSelection, force = false, eventTimestamp = this._now()) {
-        if (!hasSelection && this._lastHasSelection !== true) return;
+        if (!force && !hasSelection && this._lastHasSelection !== true) return;
         if (!force && hasSelection === this._lastHasSelection) return;
         this._lastHasSelection = hasSelection;
         this.notify('selectionFrameChanged', {
