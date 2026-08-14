@@ -38,7 +38,7 @@ export interface PasskeyUsedNotification {
   params: PasskeyUsedParams;
 }
 /**
- * Notifies the native layer that a WebAuthn passkey ceremony succeeded or failed, for pixelling purposes only.
+ * Contract for the webCompat.passkeyUsed notification sent to Android when a WebAuthn passkey ceremony succeeds or fails, for pixelling purposes only.
  */
 export interface PasskeyUsedParams {
   /**
