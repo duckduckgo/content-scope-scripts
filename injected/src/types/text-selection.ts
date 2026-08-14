@@ -29,9 +29,9 @@ export interface SelectionFrameChangedParams {
    */
   hasSelection: boolean;
   /**
-   * A document-scoped token used to reject reads from a replacement document.
+   * The event time expressed against the frame's performance time origin.
    */
-  frameToken: string;
+  eventTimestamp: number;
 }
 /**
  * Generated from @see "../messages/text-selection/isEnabled.request.json"

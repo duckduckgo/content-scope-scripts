@@ -2,8 +2,6 @@ import ContentFeature from '../content-feature.js';
 import { isBeingFramed } from '../utils.js';
 
 export default class TextSelection extends ContentFeature {
-    /** @type {string} */
-    _frameToken = '';
     /** @type {boolean | null} */
     _lastHasSelection = null;
     /** @type {number | null} */
@@ -12,6 +10,8 @@ export default class TextSelection extends ContentFeature {
     _claimTimer = null;
     /** @type {string} */
     _snapshot = '';
+    /** @type {number} */
+    _snapshotTimestamp = 0;
 
     async init() {
         if (this.platform?.name !== 'ios') return;
@@ -23,12 +23,11 @@ export default class TextSelection extends ContentFeature {
             return;
         }
 
-        this._frameToken = this._makeFrameToken();
         Object.defineProperty(window, '__ddgSelectionFrame', {
             value: Object.freeze({
                 readSelection: () => ({
-                    frameToken: this._frameToken,
-                    selectedText: this._snapshot,
+                    eventTimestamp: this._snapshotTimestamp,
+                    selectedText: this._isPasswordField(document.activeElement) ? '' : this._snapshot,
                 }),
             }),
             configurable: false,
@@ -36,48 +35,72 @@ export default class TextSelection extends ContentFeature {
             writable: false,
         });
 
-        document.addEventListener('selectionchange', () => this._selectionChanged(), true);
-        window.addEventListener('pagehide', () => this._pageHidden(), true);
+        document.addEventListener('selectionchange', (event) => this._selectionChanged(event), true);
+        document.addEventListener('focusin', (event) => this._secureFieldChanged(event), true);
+        document.addEventListener('select', (event) => this._secureFieldChanged(event), true);
+        window.addEventListener('pagehide', (event) => this._pageHidden(event), true);
         window.addEventListener('pageshow', (event) => this._pageShown(event), true);
         this._publish(this._selectionText());
     }
 
-    _makeFrameToken() {
-        const tokenParts = new Uint32Array(4);
-        window.crypto.getRandomValues(tokenParts);
-        return Array.from(tokenParts).join('-');
-    }
-
     _selectionText() {
+        if (this._isPasswordField(document.activeElement)) return '';
         const selection = window.getSelection();
         return selection ? String(selection) : '';
     }
 
-    _selectionChanged() {
+    /** @param {Event} event */
+    _selectionChanged(event) {
         this._cancelPendingClaim();
+        const eventTimestamp = this._eventTimestamp(event);
+        if (this._isPasswordField(event.target) || this._isPasswordField(document.activeElement)) {
+            this._releaseImmediately(eventTimestamp);
+            return;
+        }
         const text = this._selectionText();
         const hasSelection = text.trim().length > 0;
         const canClaim = this._canClaim();
         if (hasSelection) {
             this._cancelPendingClear();
-            if (!this._publish(text, canClaim)) this._scheduleClaimRetry();
+            if (!this._publish(text, canClaim, eventTimestamp)) this._scheduleClaimRetry(eventTimestamp);
             return;
         }
         if (this._clearTimer !== null) return;
         this._clearTimer = window.setTimeout(() => {
             this._clearTimer = null;
-            this._publish(this._selectionText());
+            this._publish(this._selectionText(), undefined, eventTimestamp);
         }, 100);
     }
 
-    _scheduleClaimRetry() {
+    /** @param {Event} event */
+    _secureFieldChanged(event) {
+        if (!this._isPasswordField(event.target)) return;
+        this._releaseImmediately(this._eventTimestamp(event));
+    }
+
+    /** @param {EventTarget | null} element */
+    _isPasswordField(element) {
+        return element instanceof window.HTMLInputElement && element.type === 'password';
+    }
+
+    /** @param {number} eventTimestamp */
+    _releaseImmediately(eventTimestamp) {
+        this._cancelPendingClaim();
+        this._cancelPendingClear();
+        this._snapshot = '';
+        this._snapshotTimestamp = eventTimestamp;
+        this._post(false, false, eventTimestamp);
+    }
+
+    /** @param {number} eventTimestamp */
+    _scheduleClaimRetry(eventTimestamp) {
         this._claimTimer = window.setTimeout(() => {
             this._claimTimer = null;
             const text = this._selectionText();
             const hasSelection = text.trim().length > 0;
             const canClaim = this._canClaim();
             if (!hasSelection) return;
-            this._publish(text, canClaim);
+            this._publish(text, canClaim, eventTimestamp);
         }, 0);
     }
 
@@ -90,17 +113,20 @@ export default class TextSelection extends ContentFeature {
     /**
      * @param {string} text
      * @param {boolean} [canClaim]
+     * @param {number} [eventTimestamp]
      * @returns {boolean}
      */
-    _publish(text, canClaim = this._canClaim()) {
+    _publish(text, canClaim = this._canClaim(), eventTimestamp = this._now()) {
         if (text.trim().length === 0) {
             this._snapshot = '';
-            this._post(false);
+            this._snapshotTimestamp = eventTimestamp;
+            this._post(false, false, eventTimestamp);
             return true;
         }
         if (!canClaim) return false;
         this._snapshot = text;
-        this._post(true, true);
+        this._snapshotTimestamp = eventTimestamp;
+        this._post(true, true, eventTimestamp);
         return true;
     }
 
@@ -111,14 +137,25 @@ export default class TextSelection extends ContentFeature {
     /**
      * @param {boolean} hasSelection
      * @param {boolean} [force]
+     * @param {number} [eventTimestamp]
      */
-    _post(hasSelection, force = false) {
+    _post(hasSelection, force = false, eventTimestamp = this._now()) {
+        if (!hasSelection && this._lastHasSelection !== true) return;
         if (!force && hasSelection === this._lastHasSelection) return;
         this._lastHasSelection = hasSelection;
         this.notify('selectionFrameChanged', {
             hasSelection,
-            frameToken: this._frameToken,
+            eventTimestamp,
         });
+    }
+
+    /** @param {Event} event */
+    _eventTimestamp(event) {
+        return window.performance.timeOrigin + event.timeStamp;
+    }
+
+    _now() {
+        return window.performance.timeOrigin + window.performance.now();
     }
 
     _cancelPendingClear() {
@@ -127,11 +164,13 @@ export default class TextSelection extends ContentFeature {
         this._clearTimer = null;
     }
 
-    _pageHidden() {
+    /** @param {PageTransitionEvent} event */
+    _pageHidden(event) {
         this._cancelPendingClear();
         this._cancelPendingClaim();
         this._snapshot = '';
-        if (this._lastHasSelection === true) this._post(false);
+        this._snapshotTimestamp = this._eventTimestamp(event);
+        if (this._lastHasSelection === true) this._post(false, false, this._snapshotTimestamp);
     }
 
     /** @param {PageTransitionEvent} event */
@@ -139,6 +178,6 @@ export default class TextSelection extends ContentFeature {
         if (!event.persisted) return;
         this._cancelPendingClear();
         this._lastHasSelection = null;
-        this._publish(this._selectionText());
+        this._publish(this._selectionText(), undefined, this._eventTimestamp(event));
     }
 }

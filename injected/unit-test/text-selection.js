@@ -40,13 +40,22 @@ describe('TextSelection', () => {
         range.selectNodeContents(target);
         selection.removeAllRanges();
         selection.addRange(range);
-        document.dispatchEvent(new window.Event('selectionchange'));
+        const event = new window.Event('selectionchange');
+        document.dispatchEvent(event);
+        return event;
     }
 
     function selectionFrame() {
-        return /** @type {{readSelection: () => {frameToken: string, selectedText: string}} | undefined} */ (
+        return /** @type {{readSelection: () => {eventTimestamp: number, selectedText: string}} | undefined} */ (
             /** @type {any} */ (window).__ddgSelectionFrame
         );
+    }
+
+    function passwordField() {
+        const input = document.createElement('input');
+        input.type = 'password';
+        document.body.append(input);
+        return input;
     }
 
     it('stays inert when native disables the feature', async () => {
@@ -86,8 +95,28 @@ describe('TextSelection', () => {
         const [method, params] = feature.notify.calls.mostRecent().args;
         expect(method).toBe('selectionFrameChanged');
         expect(params.hasSelection).toBeTrue();
-        expect(params.frameToken).toEqual(jasmine.any(String));
+        expect(params.eventTimestamp).toEqual(jasmine.any(Number));
         expect(params.selectedText).toBeUndefined();
+    });
+
+    it('does not report an initial empty selection', async () => {
+        feature.request = jasmine.createSpy('request').and.resolveTo({ enabled: true });
+
+        await feature.init();
+
+        expect(feature.notify).not.toHaveBeenCalled();
+    });
+
+    it('reports the selection event time against the frame time origin', async () => {
+        feature.request = jasmine.createSpy('request').and.resolveTo({ enabled: true });
+        await feature.init();
+        feature.notify.calls.reset();
+
+        const event = selectTargetText();
+
+        const [, params] = feature.notify.calls.mostRecent().args;
+        expect(params.eventTimestamp).toBe(window.performance.timeOrigin + event.timeStamp);
+        expect(selectionFrame()?.readSelection().eventTimestamp).toBe(params.eventTimestamp);
     });
 
     it('reasserts an accepted selection when another frame may have taken native ownership', async () => {
@@ -108,13 +137,13 @@ describe('TextSelection', () => {
         for (const [, params] of notifications) {
             expect(params).toEqual({
                 hasSelection: true,
-                frameToken: jasmine.any(String),
+                eventTimestamp: jasmine.any(Number),
             });
         }
         expect(snapshots).toEqual(['First selection', 'Second selection']);
     });
 
-    it('returns the snapshot and document token when native reads the selected frame', async () => {
+    it('returns the snapshot and its event timestamp when native reads the selected frame', async () => {
         feature.request = jasmine.createSpy('request').and.resolveTo({ enabled: true });
         await feature.init();
 
@@ -122,8 +151,7 @@ describe('TextSelection', () => {
 
         const result = selectionFrame()?.readSelection();
         expect(result?.selectedText).toBe('Selected text');
-        expect(result?.frameToken).toEqual(jasmine.any(String));
-        expect(result?.frameToken.length).toBeGreaterThan(0);
+        expect(result?.eventTimestamp).toEqual(jasmine.any(Number));
     });
 
     it('keeps the selected-time snapshot when the page mutates the text', async () => {
@@ -136,6 +164,29 @@ describe('TextSelection', () => {
         target.textContent = 'Replacement text';
 
         expect(selectionFrame()?.readSelection().selectedText).toBe('Selected text');
+    });
+
+    it('releases the frame when a password field receives focus', async () => {
+        feature.request = jasmine.createSpy('request').and.resolveTo({ enabled: true });
+        await feature.init();
+        selectTargetText();
+        const input = passwordField();
+
+        input.dispatchEvent(new window.FocusEvent('focusin', { bubbles: true }));
+
+        expect(feature.notify).toHaveBeenCalledWith('selectionFrameChanged', jasmine.objectContaining({ hasSelection: false }));
+        expect(selectionFrame()?.readSelection().selectedText).toBe('');
+    });
+
+    it('does not expose a retained snapshot while a password field is active', async () => {
+        feature.request = jasmine.createSpy('request').and.resolveTo({ enabled: true });
+        await feature.init();
+        selectTargetText();
+        const input = passwordField();
+        input.focus();
+        feature._snapshot = 'Retained text';
+
+        expect(selectionFrame()?.readSelection().selectedText).toBe('');
     });
 
     it('releases a claimed frame when the page is hidden', async () => {
@@ -224,7 +275,7 @@ describe('TextSelection', () => {
             expect(method).toBe('selectionFrameChanged');
             expect(params).toEqual({
                 hasSelection: true,
-                frameToken: jasmine.any(String),
+                eventTimestamp: jasmine.any(Number),
             });
         });
 

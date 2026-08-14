@@ -9,10 +9,10 @@
       "description": "Whether this frame currently owns a non-empty selection.",
       "type": "boolean"
     },
-    "frameToken": {
-      "description": "A document-scoped token used to reject reads from a replacement document.",
-      "type": "string"
+    "eventTimestamp": {
+      "description": "The event time expressed against the frame's performance time origin.",
+      "type": "number"
     }
   },
-  "required": ["hasSelection", "frameToken"]
+  "required": ["hasSelection", "eventTimestamp"]
 }
