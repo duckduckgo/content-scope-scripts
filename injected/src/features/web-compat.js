@@ -150,9 +150,7 @@ export class WebCompat extends ContentFeature {
         if (this.getFeatureSettingEnabled('navigatorCredentials')) {
             this.navigatorCredentialsFix();
         }
-        const passkeyDetectionEnabled = this.getFeatureSettingEnabled('passkeyDetection');
-        this.log.info(`Passkey detection is ${passkeyDetectionEnabled ? 'enabled' : 'disabled'}`);
-        if (passkeyDetectionEnabled) {
+        if (this.getFeatureSettingEnabled('passkeyDetection')) {
             this.passkeyDetectionFix();
         }
         if (this.getFeatureSettingEnabled('safariObject')) {
@@ -868,7 +866,6 @@ export class WebCompat extends ContentFeature {
             try {
                 const options = args[0];
                 if (options && typeof options === 'object' && options.publicKey && result && typeof result.then === 'function') {
-                    feature.log.info(`Intercepted navigator.credentials.${methodName}() passkey call`);
                     void feature.observePasskeyResult(result, methodName);
                 }
             } catch {
@@ -921,7 +918,6 @@ export class WebCompat extends ContentFeature {
             // sent to native; the error message and page-supplied options never leave the
             // page context.
             const error = this.sanitizePasskeyErrorName(e);
-            this.log.info(`Passkey ${type}() ceremony did not complete: ${error}`);
             try {
                 this.notify(MSG_PASSKEY_USED, { type, success: false, error });
             } catch {
