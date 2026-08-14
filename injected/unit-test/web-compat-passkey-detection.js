@@ -176,13 +176,57 @@ describe('WebCompat passkey detection', () => {
             expect(notified).toEqual([]);
         });
 
-        it('notifies native with success false when the ceremony rejects', async () => {
+        it('notifies native with success false and a sanitized error when the ceremony rejects', async () => {
+            const { notified } = createInstance({
+                get: () => Promise.reject(new DOMException('The operation is not allowed.', 'NotAllowedError')),
+            });
+
+            await expectAsync(credentialsGet({ publicKey: {} })).toBeRejected();
+            await flushMicrotasks();
+
+            expect(notified).toEqual([{ name: 'passkeyUsed', params: { type: 'get', success: false, error: 'NotAllowedError' } }]);
+        });
+
+        it('forwards a NotReadableError (platform/credential-manager failure) verbatim', async () => {
+            const { notified } = createInstance({
+                create: () => Promise.reject(new DOMException('credential manager error', 'NotReadableError')),
+            });
+
+            await expectAsync(credentialsCreate({ publicKey: {} })).toBeRejected();
+            await flushMicrotasks();
+
+            expect(notified).toEqual([{ name: 'passkeyUsed', params: { type: 'create', success: false, error: 'NotReadableError' } }]);
+        });
+
+        it("reports an unknown error name as 'Other'", async () => {
             const { notified } = createInstance({ get: () => Promise.reject(new Error('cancelled')) });
 
             await expectAsync(credentialsGet({ publicKey: {} })).toBeRejected();
             await flushMicrotasks();
 
-            expect(notified).toEqual([{ name: 'passkeyUsed', params: { type: 'get', success: false } }]);
+            expect(notified).toEqual([{ name: 'passkeyUsed', params: { type: 'get', success: false, error: 'Other' } }]);
+        });
+
+        it("reports a non-Error rejection as 'Other' without leaking its value", async () => {
+            const { notified } = createInstance({
+                // eslint-disable-next-line prefer-promise-reject-errors -- deliberately a non-Error rejection
+                get: () => Promise.reject('a raw string with details'),
+            });
+
+            await expectAsync(credentialsGet({ publicKey: {} })).toBeRejected();
+            await flushMicrotasks();
+
+            expect(notified).toEqual([{ name: 'passkeyUsed', params: { type: 'get', success: false, error: 'Other' } }]);
+        });
+
+        it('never includes an error field on a successful ceremony', async () => {
+            const { notified } = createInstance({ get: () => Promise.resolve({ type: 'public-key', id: 'abc' }) });
+
+            await credentialsGet({ publicKey: {} });
+            await flushMicrotasks();
+
+            expect(notified).toEqual([{ name: 'passkeyUsed', params: { type: 'get', success: true } }]);
+            expect('error' in notified[0].params).toBe(false);
         });
 
         it('propagates rejection to the page unchanged', async () => {

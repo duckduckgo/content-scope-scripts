@@ -26,6 +26,23 @@ const MSG_SCREEN_UNLOCK = 'screenUnlock';
 const MSG_DEVICE_ENUMERATION = 'deviceEnumeration';
 const MSG_PASSKEY_USED = 'passkeyUsed';
 const CREDENTIAL_TYPE_PUBLIC_KEY = 'public-key';
+const PASSKEY_ERROR_OTHER = 'Other';
+// Allowlist of DOMException names we forward verbatim to native. Anything else is
+// reported as `PASSKEY_ERROR_OTHER` so the native pixel enum stays bounded and we never
+// leak an arbitrary, page-influenced string. Keep in sync with the `error` enum in
+// src/messages/web-compat/passkeyUsed.notify.json.
+const PASSKEY_ALLOWED_ERROR_NAMES = [
+    'NotAllowedError',
+    'SecurityError',
+    'NotSupportedError',
+    'InvalidStateError',
+    'ConstraintError',
+    'AbortError',
+    'UnknownError',
+    'EncodingError',
+    'NotReadableError',
+    'TypeError',
+];
 
 function canShare(data) {
     if (typeof data !== 'object') return false;
@@ -900,12 +917,13 @@ export class WebCompat extends ContentFeature {
             credential = await resultPromise;
         } catch (e) {
             // A rejection means no passkey was used (cancellation, no matching credential,
-            // or a platform/credential-manager failure). Only the boolean outcome is sent
-            // to native; the error name stays in debug logs and no page-supplied options or
-            // error messages leave the page context.
-            this.log.info(`Passkey ${type}() ceremony did not complete: ${e?.name ?? 'unknown error'}`);
+            // or a platform/credential-manager failure). Only the sanitized error *name* is
+            // sent to native; the error message and page-supplied options never leave the
+            // page context.
+            const error = this.sanitizePasskeyErrorName(e);
+            this.log.info(`Passkey ${type}() ceremony did not complete: ${error}`);
             try {
-                this.notify(MSG_PASSKEY_USED, { type, success: false });
+                this.notify(MSG_PASSKEY_USED, { type, success: false, error });
             } catch {
                 // Messaging must never affect the page.
             }
@@ -918,6 +936,21 @@ export class WebCompat extends ContentFeature {
         } catch {
             // Ignore exceptions - this must never affect the page.
         }
+    }
+
+    /**
+     * Reduces a rejected passkey ceremony error to a bounded, non-identifying name.
+     * Only a known DOMException name is forwarded; anything else (including non-Error
+     * rejections) becomes 'Other'. The error message is intentionally never used.
+     * @param {unknown} error
+     * @returns {NonNullable<import('../types/web-compat.js').PasskeyUsedParams['error']>}
+     */
+    sanitizePasskeyErrorName(error) {
+        const name = /** @type {{ name?: unknown }} */ (error)?.name;
+        if (typeof name === 'string' && PASSKEY_ALLOWED_ERROR_NAMES.includes(name)) {
+            return /** @type {NonNullable<import('../types/web-compat.js').PasskeyUsedParams['error']>} */ (name);
+        }
+        return PASSKEY_ERROR_OTHER;
     }
 
     safariObjectFix() {

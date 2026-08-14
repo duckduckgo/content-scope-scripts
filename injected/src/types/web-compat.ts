@@ -49,6 +49,21 @@ export interface PasskeyUsedParams {
    * Whether the passkey ceremony completed successfully.
    */
   success: boolean;
+  /**
+   * For failed ceremonies only (success=false): the sanitized DOMException name from the rejected navigator.credentials call, restricted to a known set. Unrecognized names are reported as 'Other'. The underlying error message is never included.
+   */
+  error?:
+    | "NotAllowedError"
+    | "SecurityError"
+    | "NotSupportedError"
+    | "InvalidStateError"
+    | "ConstraintError"
+    | "AbortError"
+    | "UnknownError"
+    | "EncodingError"
+    | "NotReadableError"
+    | "TypeError"
+    | "Other";
 }
 /**
  * Generated from @see "../messages/web-compat/showNotification.notify.json"
