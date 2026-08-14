@@ -5,15 +5,16 @@
  * You must share a {@link AndroidMessagingConfig} instance between features
  *
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { MessagingTransport, MessageResponse, SubscriptionEvent } from '../index.js';
 import { isResponseFor, isSubscriptionEventFor } from '../schema.js';
 
 /**
- * @typedef {import('../index.js').Subscription} Subscription
- * @typedef {import('../index.js').MessagingContext} MessagingContext
- * @typedef {import('../index.js').RequestMessage} RequestMessage
- * @typedef {import('../index.js').NotificationMessage} NotificationMessage
+ * @typedef {import('../core.js').MessagingTransport} MessagingTransport
+ * @typedef {import('../core.js').MessagingContext} MessagingContext
+ * @typedef {import('../schema.js').Subscription} Subscription
+ * @typedef {import('../schema.js').RequestMessage} RequestMessage
+ * @typedef {import('../schema.js').NotificationMessage} NotificationMessage
+ * @typedef {import('../schema.js').MessageResponse} MessageResponse
+ * @typedef {import('../schema.js').SubscriptionEvent} SubscriptionEvent
  */
 
 /**
@@ -335,5 +336,14 @@ export class AndroidMessagingConfig {
         Object.defineProperty(this.target, this.messageCallback, {
             value: responseHandler,
         });
+    }
+
+    /**
+     * @param {MessagingContext} messagingContext
+     * @returns {MessagingTransport}
+     * @internal
+     */
+    createTransport(messagingContext) {
+        return new AndroidMessagingTransport(this, messagingContext);
     }
 }
