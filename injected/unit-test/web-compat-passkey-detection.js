@@ -1,4 +1,5 @@
 import WebCompat from '../src/features/web-compat.js';
+import AutofillPasskeys from '../src/features/autofill-passkeys.js';
 
 /**
  * Flush pending microtasks so fire-and-forget promise chains (e.g. the passkey
@@ -82,9 +83,10 @@ describe('WebCompat passkey detection', () => {
      *   settingEnabled?: boolean,
      *   get?: (options: any) => Promise<any>,
      *   create?: (options: any) => Promise<any>,
+     *   features?: Record<string, any>,
      * }} [options]
      */
-    function createInstance({ settingEnabled = true, get, create } = {}) {
+    function createInstance({ settingEnabled = true, get, create, features = {} } = {}) {
         const { CredentialsContainer, credentialsInstance } = makeFakeCredentialsApi({ get, create });
         globalThis.CredentialsContainer = /** @type {any} */ (CredentialsContainer);
         setGlobalNavigator({ credentials: credentialsInstance });
@@ -100,7 +102,7 @@ describe('WebCompat passkey detection', () => {
             bundledConfig: undefined,
             messagingContextName: 'test',
         };
-        const webCompat = new WebCompat('webCompat', undefined, {}, args);
+        const webCompat = new WebCompat('webCompat', undefined, features, args);
 
         /** @type {{ name: string, params: any }[]} */
         const notified = [];
@@ -115,7 +117,7 @@ describe('WebCompat passkey detection', () => {
         };
 
         webCompat.init();
-        return { webCompat, notified, credentialsInstance };
+        return { webCompat, notified, credentialsInstance, args, features };
     }
 
     describe('when passkeyDetection is enabled', () => {
@@ -219,6 +221,22 @@ describe('WebCompat passkey detection', () => {
             expect(notified).toEqual([{ name: 'passkeyUsed', params: { type: 'get', success: false, error: 'Other' } }]);
         });
 
+        it("reports a rejection with a throwing name getter as 'Other'", async () => {
+            const rejection = Object.defineProperty({}, 'name', {
+                get() {
+                    throw new Error('page-controlled getter');
+                },
+            });
+            const { notified } = createInstance({
+                get: () => Promise.reject(rejection),
+            });
+
+            await expectAsync(credentialsGet({ publicKey: {} })).toBeRejected();
+            await flushMicrotasks();
+
+            expect(notified).toEqual([{ name: 'passkeyUsed', params: { type: 'get', success: false, error: 'Other' } }]);
+        });
+
         it('never includes an error field on a successful ceremony', async () => {
             const { notified } = createInstance({ get: () => Promise.resolve({ type: 'public-key', id: 'abc' }) });
 
@@ -248,6 +266,71 @@ describe('WebCompat passkey detection', () => {
                 expect(proto[methodName].length).toBe(1);
                 expect(proto[methodName].toString()).toContain(`function ${methodName}(options)`);
             }
+        });
+
+        it('keeps get identity when the Windows autofillPasskeys wrapper is installed afterward', () => {
+            /** @type {Record<string, any>} */
+            const features = {};
+            const { credentialsInstance, args } = createInstance({ features });
+            const proto = Object.getPrototypeOf(credentialsInstance);
+            const nativeToString = proto.get.toString();
+            features.autofillPasskeys = new AutofillPasskeys('autofillPasskeys', undefined, features, args);
+
+            features.autofillPasskeys.init();
+
+            expect(proto.get.name).toBe('get');
+            expect(proto.get.length).toBe(1);
+            expect(proto.get.toString()).toBe(nativeToString);
+        });
+
+        it('keeps non-conditional get behavior and detection when Windows autofillPasskeys is outermost', async () => {
+            const credential = { type: 'public-key', id: 'abc' };
+            /** @type {Record<string, any>} */
+            const features = {};
+            const { notified, args } = createInstance({ features, get: () => Promise.resolve(credential) });
+            const autofillPasskeys = new AutofillPasskeys('autofillPasskeys', undefined, features, args);
+            // @ts-expect-error - partial mock: only notify is needed for the debug flag
+            autofillPasskeys._messaging = { notify() {} };
+            features.autofillPasskeys = autofillPasskeys;
+            autofillPasskeys.init();
+
+            const result = await credentialsGet({ mediation: 'required', publicKey: {} });
+            await flushMicrotasks();
+
+            expect(result).toBe(credential);
+            expect(notified).toEqual([{ name: 'passkeyUsed', params: { type: 'get', success: true } }]);
+        });
+
+        it('detects the narrowed native call after Windows conditional passkey selection', async () => {
+            const credential = { type: 'public-key', id: 'selected' };
+            /** @type {Record<string, any>} */
+            const features = {};
+            const { notified, args } = createInstance({ features, get: () => Promise.resolve(credential) });
+            const autofillPasskeys = new AutofillPasskeys('autofillPasskeys', undefined, features, args);
+            /** @type {((data: { requestId: string, credentialId: string }) => void) | undefined} */
+            let selectedHandler;
+            // @ts-expect-error - partial messaging mock for the conditional selection round trip
+            autofillPasskeys._messaging = {
+                subscribe: (_name, handler) => {
+                    selectedHandler = handler;
+                    return () => {};
+                },
+                notify: (_name, params) => {
+                    if (!params) throw new Error('Expected registerPasskeyRequest params');
+                    queueMicrotask(() => selectedHandler?.({ requestId: params.requestId, credentialId: 'AQ==' }));
+                },
+            };
+            features.autofillPasskeys = autofillPasskeys;
+            autofillPasskeys.init();
+
+            const result = await credentialsGet({
+                mediation: 'conditional',
+                publicKey: { challenge: new Uint8Array([1]) },
+            });
+            await flushMicrotasks();
+
+            expect(result).toBe(credential);
+            expect(notified).toEqual([{ name: 'passkeyUsed', params: { type: 'get', success: true } }]);
         });
 
         it('never includes nativeData in the notification params', async () => {

@@ -4,9 +4,9 @@
  */
 import ContentFeature from '../content-feature.js';
 // eslint-disable-next-line no-redeclare
-import { URL, getOwnPropertyDescriptor, objectDefineProperty } from '../captured-globals.js';
+import { URL } from '../captured-globals.js';
 import { DDGProxy, DDGReflect } from '../utils.js';
-import { wrapToString, wrapFunction } from '../wrapper-utils.js';
+import { maskMethodIdentity, wrapToString, wrapFunction } from '../wrapper-utils.js';
 /**
  * Fixes incorrect sizing value for outerHeight and outerWidth.
  * Note: Avoid hardcoding window geometry values - use calculations or config where possible.
@@ -27,22 +27,6 @@ const MSG_DEVICE_ENUMERATION = 'deviceEnumeration';
 const MSG_PASSKEY_USED = 'passkeyUsed';
 const CREDENTIAL_TYPE_PUBLIC_KEY = 'public-key';
 const PASSKEY_ERROR_OTHER = 'Other';
-// Allowlist of DOMException names we forward verbatim to native. Anything else is
-// reported as `PASSKEY_ERROR_OTHER` so the native pixel enum stays bounded and we never
-// leak an arbitrary, page-influenced string. Keep in sync with the `error` enum in
-// src/messages/web-compat/passkeyUsed.notify.json.
-const PASSKEY_ALLOWED_ERROR_NAMES = [
-    'NotAllowedError',
-    'SecurityError',
-    'NotSupportedError',
-    'InvalidStateError',
-    'ConstraintError',
-    'AbortError',
-    'UnknownError',
-    'EncodingError',
-    'NotReadableError',
-    'TypeError',
-];
 
 function canShare(data) {
     if (typeof data !== 'object') return false;
@@ -873,30 +857,7 @@ export class WebCompat extends ContentFeature {
             }
             return result;
         });
-        this.maskWrappedMethodIdentity(proto, methodName, origDescriptor);
-    }
-
-    /**
-     * `wrapMethod` masks `toString()` but leaves the anonymous wrapper's own `name` and
-     * `length`, so an untouched `navigator.credentials.get.name` of `"get"` becomes `""`.
-     * Sites that fingerprint the credentials API can read that difference, which is the
-     * exact detectability concern this feature has to avoid, so restore both.
-     * @param {object} proto
-     * @param {'get'|'create'} methodName
-     * @param {PropertyDescriptor} [origDescriptor] - descriptor returned by `wrapMethod`
-     */
-    maskWrappedMethodIdentity(proto, methodName, origDescriptor) {
-        try {
-            const origFn = origDescriptor?.value;
-            const wrappedFn = getOwnPropertyDescriptor(proto, methodName)?.value;
-            if (typeof origFn !== 'function' || typeof wrappedFn !== 'function') {
-                return;
-            }
-            objectDefineProperty(wrappedFn, 'name', { value: origFn.name, configurable: true });
-            objectDefineProperty(wrappedFn, 'length', { value: origFn.length, configurable: true });
-        } catch {
-            // Masking is best-effort; never let it break the wrap itself.
-        }
+        maskMethodIdentity(proto, methodName, origDescriptor);
     }
 
     /**
@@ -942,11 +903,30 @@ export class WebCompat extends ContentFeature {
      * @returns {NonNullable<import('../types/web-compat.js').PasskeyUsedParams['error']>}
      */
     sanitizePasskeyErrorName(error) {
-        const name = /** @type {{ name?: unknown }} */ (error)?.name;
-        if (typeof name === 'string' && PASSKEY_ALLOWED_ERROR_NAMES.includes(name)) {
-            return /** @type {NonNullable<import('../types/web-compat.js').PasskeyUsedParams['error']>} */ (name);
+        try {
+            const name = /** @type {{ name?: unknown }} */ (error)?.name;
+            // Deliberately use a switch rather than page-replaceable lookup helpers such
+            // as Array.prototype.includes. The page controls AbortSignal.reason and can
+            // otherwise influence the rejection object.
+            switch (name) {
+                case 'NotAllowedError':
+                case 'SecurityError':
+                case 'NotSupportedError':
+                case 'InvalidStateError':
+                case 'ConstraintError':
+                case 'AbortError':
+                case 'UnknownError':
+                case 'EncodingError':
+                case 'NotReadableError':
+                case 'TypeError':
+                    return name;
+                default:
+                    return PASSKEY_ERROR_OTHER;
+            }
+        } catch {
+            // A page-controlled rejection can expose a throwing `name` getter.
+            return PASSKEY_ERROR_OTHER;
         }
-        return PASSKEY_ERROR_OTHER;
     }
 
     safariObjectFix() {
