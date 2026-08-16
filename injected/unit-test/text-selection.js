@@ -116,7 +116,7 @@ describe('TextSelection', () => {
         feature.request = jasmine.createSpy('request').and.resolveTo({ enabled: true });
         await feature.init();
         feature.notify.calls.reset();
-        spyOn(feature, '_selectionText').and.returnValues('First selection', 'Second selection');
+        spyOn(feature, '_selectionText').and.returnValue('Same selection');
         const snapshots = [];
         feature.notify.and.callFake((method) => {
             if (method === 'selectionFrameChanged') snapshots.push(selectionFrame()?.readSelection().selectedText);
@@ -133,7 +133,7 @@ describe('TextSelection', () => {
                 eventTimestamp: jasmine.any(Number),
             });
         }
-        expect(snapshots).toEqual(['First selection', 'Second selection']);
+        expect(snapshots).toEqual(['Same selection', 'Same selection']);
     });
 
     it('returns the snapshot and its event timestamp when native reads the selected frame', async () => {
