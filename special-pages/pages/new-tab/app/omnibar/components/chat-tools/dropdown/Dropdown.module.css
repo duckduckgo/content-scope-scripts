@@ -73,8 +73,8 @@
     padding-left: 8px;
 }
 
-/* Gated options (e.g. "Upgrade"): gray out the icon and label to signal they aren't selectable,
-   while keeping the trailing badge at full opacity. */
+/* Gated options: gray out the icon and label to signal they aren't selectable,
+   while keeping the trailing badge (e.g. the internal-build marker) at full opacity. */
 .itemDimmed > svg,
 .itemDimmed .itemLabel {
     opacity: 0.4;

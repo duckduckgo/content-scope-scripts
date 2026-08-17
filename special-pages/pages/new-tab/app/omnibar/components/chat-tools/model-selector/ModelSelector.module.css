@@ -167,7 +167,8 @@
 
 /* Subscription-gated rows in an all-disabled (upsell) section: dimmed like a
    disabled row, but interactive — hovering highlights and clicking triggers
-   the same upsell as the section's CTA above them. */
+   the section's upsell flow directly (rows are the upsell trigger; there's
+   no separate CTA). */
 .modelOptionUpsell {
     color: var(--ds-color-theme-text-tertiary);
     cursor: pointer;

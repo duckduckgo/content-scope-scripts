@@ -801,7 +801,7 @@ export interface ReasoningEffortOption {
    */
   upsell?: "subscribe" | "upgrade";
   /**
-   * Localized header for the gated section this option starts (e.g. 'Try Free for 7 Days', 'Available with Pro'). Set on the first gated option only; absent means render a divider with no header.
+   * Localized header for the gated section this option starts (e.g. 'Try Free for 7 Days', 'Available with Pro'). Set on the first gated option only; absent means no divider and no header for that option.
    */
   gatedSectionHeader?: string;
 }

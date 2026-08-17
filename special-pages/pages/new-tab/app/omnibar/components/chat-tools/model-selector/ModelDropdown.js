@@ -66,7 +66,12 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
         if (enabledModelIndices.length === 0) return -1;
 
         const selectedIndex = selectedModelId ? allModels.findIndex((model) => model.id === selectedModelId && model.isAvailable) : -1;
-        return selectedIndex >= 0 ? selectedIndex : enabledModelIndices[0];
+        if (selectedIndex >= 0) return selectedIndex;
+
+        // Prefer the first *available* model over a gated upsell row, so opening
+        // the dropdown never pre-highlights a row whose Enter navigates away.
+        const firstAvailableIndex = allModels.findIndex((model) => model.isAvailable);
+        return firstAvailableIndex >= 0 ? firstAvailableIndex : enabledModelIndices[0];
     };
 
     const [activeIndex, setActiveIndex] = useState(getInitialActiveIndex);
@@ -166,15 +171,17 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
             onMouseLeave={clearActiveIndex}
         >
             {sections.map((section, sectionIndex) => {
+                // A gated (upsell) section always needs the divider separating it from
+                // the available models above, even when the client sends no header text.
+                // Never show it above the very first section.
+                const needsDivider = sectionIndex > 0 && (Boolean(section.header) || isUpsellSectionAt[sectionIndex]);
                 return (
                     <Fragment key={sectionIndex}>
+                        {needsDivider && <li role="separator" class={styles.modelSectionDivider} />}
                         {section.header && (
-                            <Fragment>
-                                <li role="separator" class={styles.modelSectionDivider} />
-                                <li role="presentation" class={styles.modelSectionHeader}>
-                                    {section.header}
-                                </li>
-                            </Fragment>
+                            <li role="presentation" class={styles.modelSectionHeader}>
+                                {section.header}
+                            </li>
                         )}
                         {section.items.map((model) => {
                             const Icon = getModelIcon(model.id);

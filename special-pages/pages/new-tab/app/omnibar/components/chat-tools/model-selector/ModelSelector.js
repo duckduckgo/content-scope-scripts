@@ -14,7 +14,7 @@ import styles from './ModelSelector.module.css';
  * @param {import('../../../../../types/new-tab.js').AIModelSections} props.aiModelSections
  * @param {(type?: 'subscribe' | 'upgrade') => void} props.onUpsell
  * @param {string} props.ariaLabel
- * @param {boolean} props.isEligibleForFreeTrial - When false, a 'subscribe' upsell shows "Upgrade" instead of "Try for free".
+ * @param {boolean} props.isEligibleForFreeTrial - When false, a 'subscribe' upsell reports 'upgrade' telemetry instead of 'tryForFree'. Does not affect rendered copy, which comes entirely from the payload.
  */
 export function ModelSelector({ selector, selectedModel, aiModelSections, onUpsell, ariaLabel, isEligibleForFreeTrial }) {
     const { modelButtonRef, modelDropdownOpen, dropdownPos, dropdownRef, toggleDropdown, closeDropdown, selectModel } = selector;

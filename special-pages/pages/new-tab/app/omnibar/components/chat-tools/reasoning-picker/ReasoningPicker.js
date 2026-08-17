@@ -34,7 +34,7 @@ import styles from './ReasoningPicker.module.css';
  * @param {(type?: 'subscribe' | 'upgrade') => void} props.onUpsell
  * @param {string} props.ariaLabel
  * @param {string} props.buttonLabel
- * @param {boolean} props.isEligibleForFreeTrial - When false, a 'subscribe' upsell shows the upgrade label instead of "Try for free".
+ * @param {boolean} props.isEligibleForFreeTrial - When false, a 'subscribe' upsell reports 'upgrade' telemetry instead of 'tryForFree'. Does not affect rendered copy, which comes entirely from the payload.
  */
 export function ReasoningPicker({ options, selectedEffort, onSelect, onUpsell, ariaLabel, buttonLabel, isEligibleForFreeTrial }) {
     const { isOpen, dropdownPos, buttonRef, dropdownRef, toggle, close } = useDropdown({ align: 'right' });
@@ -80,6 +80,33 @@ export function ReasoningPicker({ options, selectedEffort, onSelect, onUpsell, a
 
     const SelectedOptionIcon = options.find((option) => option.id === selectedEffort)?.icon ?? null;
 
+    let headerShown = false;
+    const dropdownItems = options.map((option) => {
+        const OptionIcon = option.icon;
+        const dropdownItem = (
+            <DropdownItem
+                key={option.id}
+                role="option"
+                icon={<OptionIcon />}
+                name={option.name}
+                description={option.description}
+                isSelected={option.isAvailable && option.id === selectedEffort}
+                ariaSelected={option.isAvailable && option.id === selectedEffort}
+                isDimmed={!option.isAvailable}
+                onSelect={() => (option.isAvailable ? handleSelect(option.id) : onUpsell(option.upsell))}
+            />
+        );
+        const showHeader = !option.isAvailable && option.gatedSectionHeader !== undefined && !headerShown;
+        if (showHeader) headerShown = true;
+        return showHeader
+            ? [
+                  <DropdownSeparator key={`${option.id}-separator`} />,
+                  <DropdownSectionHeader key={`${option.id}-header`}>{option.gatedSectionHeader}</DropdownSectionHeader>,
+                  dropdownItem,
+              ]
+            : dropdownItem;
+    });
+
     return (
         <div class={styles.reasoningPicker}>
             <button
@@ -108,29 +135,7 @@ export function ReasoningPicker({ options, selectedEffort, onSelect, onUpsell, a
                     idPrefix="reasoning-option"
                     className={dropdownStyles.roomy}
                 >
-                    {options.map((option) => {
-                        const OptionIcon = option.icon;
-                        const dropdownItem = (
-                            <DropdownItem
-                                key={option.id}
-                                role="option"
-                                icon={<OptionIcon />}
-                                name={option.name}
-                                description={option.description}
-                                isSelected={option.isAvailable && option.id === selectedEffort}
-                                ariaSelected={option.isAvailable && option.id === selectedEffort}
-                                isDimmed={!option.isAvailable}
-                                onSelect={() => (option.isAvailable ? handleSelect(option.id) : onUpsell(option.upsell))}
-                            />
-                        );
-                        return option.gatedSectionHeader !== undefined
-                            ? [
-                                  <DropdownSeparator key={`${option.id}-separator`} />,
-                                  <DropdownSectionHeader key={`${option.id}-header`}>{option.gatedSectionHeader}</DropdownSectionHeader>,
-                                  dropdownItem,
-                              ]
-                            : dropdownItem;
-                    })}
+                    {dropdownItems}
                 </Dropdown>
             )}
         </div>
