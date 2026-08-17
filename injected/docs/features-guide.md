@@ -56,7 +56,7 @@ There are three stages that the content scope code is hooked into the platform:
 - This limitation may be re-addressed in manifest v3
 - One exception here is the cookie protection, which installs wrappers in `load()` and completes policy setup in `init()` to avoid race conditions
 
-#### Red flags in `load`
+#### Red flags in load
 
 **🚩 Waiting on anything, especially a request to the client.** `load()` is the phase whose only job is to be early: it installs wrappers before the page has had a chance to use the API. `callLoad()` calls it without awaiting, so an `await` doesn't stall the load loop — it quietly splits the method in two. Everything after the `await` runs in a later task, by which point the page may already have read the property the feature meant to wrap, and any rejection is unhandled because nobody holds the returned promise.
 
@@ -81,7 +81,7 @@ Enforced by the `ddg-local/no-blocking-init-request` ESLint rule.
 
 - This is the main place that features are actually loaded into the extension
 
-#### Red flags in `init`
+#### Red flags in init
 
 **🚩 Awaiting a request/response round trip to the client.** `init()` is awaited by `callInit()`, which is awaited by the shared init chain in [`content-scope-features.js`](../src/content-scope-features.js). A `request()` awaited inside `init()` therefore:
 
@@ -124,7 +124,7 @@ async setupFromClient() {
 }
 ```
 
-This is enforced by the `ddg-local/no-blocking-init-request` ESLint rule (see [`scripts/eslint-rules/`](../../scripts/eslint-rules/)), which covers `load()` too, and sees through a `*Messages` wrapper built from `this.messaging`. `click-to-load` and `duck-player-native` carry documented `eslint-disable` comments for pre-existing cases; new features should not add one.
+This is enforced by the `ddg-local/no-blocking-init-request` ESLint rule (see [`scripts/eslint-rules/README.md`](../../scripts/eslint-rules/README.md)), which covers `load()` too, and sees through a `*Messages` wrapper built from `this.messaging`. `click-to-load` and `duck-player-native` carry documented `eslint-disable` comments for pre-existing cases; new features should not add one.
 
 **🚩 Other things worth a second look in `init`:** synchronous work proportional to page size (defer it), and gating behaviour on `platform.name` where remote config could decide instead.
 
