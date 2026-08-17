@@ -74,6 +74,21 @@ ruleTester.run('no-blocking-init-request', noBlockingInitRequest, {
                 await someClient.request('getState', {});
             }
         }`,
+        // An object built from something that isn't this.messaging
+        `class F extends ContentFeature {
+            async init() {
+                const helper = new Helper(this.platform);
+                await helper.initialSetup();
+            }
+        }`,
+        // A messaging wrapper is fine as long as init doesn't wait on it
+        `class F extends ContentFeature {
+            init() {
+                const messages = new FeatureMessages(this.messaging);
+                messages.subscribeToChanges(() => this.recompute());
+                void initOverlays(messages);
+            }
+        }`,
         // load() installing its wrappers synchronously, which is the point of load()
         `class F extends ContentFeature {
             load() {
@@ -210,6 +225,39 @@ ruleTester.run('no-blocking-init-request', noBlockingInitRequest, {
                 }
             }`,
             errors: [{ messageId: 'blockingLoad' }, { messageId: 'blockingInit' }],
+        },
+        {
+            // A round trip one layer down, through a messages class built from this.messaging
+            code: `class F extends ContentFeature {
+                async init() {
+                    const messages = new FeatureMessages(this.messaging, env);
+                    const settings = await messages.initialSetup();
+                    this.applySettings(settings);
+                }
+            }`,
+            errors: [{ messageId: 'blockingInit', data: { name: 'messages.initialSetup' } }],
+        },
+        {
+            // ...and where the wrapper is built outside the lifecycle method
+            code: `class F extends ContentFeature {
+                async init() {
+                    await this.messages.initialSetup();
+                }
+                get messages() {
+                    return new FeatureMessages(this.messaging);
+                }
+            }`,
+            options: [{ methodNames: ['request', 'initialSetup'] }],
+            errors: [{ messageId: 'blockingInit' }],
+        },
+        {
+            // `return await` is reached via both the return and the await - report once
+            code: `class F extends ContentFeature {
+                async init() {
+                    return await this.request('getState', {});
+                }
+            }`,
+            errors: [{ messageId: 'blockingInit' }],
         },
     ],
 });

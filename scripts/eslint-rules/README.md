@@ -17,7 +17,12 @@ Gating a feature this way also puts a message on every page load, on every platf
 
 When a feature really does need a client response before it can do anything, the repo idiom is `void this.someAsyncSetup()` — the lifecycle method returns, a separate `async` method awaits and handles its own errors. (`.then()` chains are rejected by `promise/prefer-await-to-then`, and a bare un-awaited promise by `@typescript-eslint/no-floating-promises`.)
 
-Only calls reached from `this` count (`this.request`, `this.messaging.request`), and only in the lifecycle method's own scope — a request inside an event listener or other callback registered there is fine, because nothing waits on it. Extra method names can be flagged per config block:
+Two shapes are matched:
+
+- a `methodNames` call reached from `this` — `this.request(...)`, `this.messaging.request(...)`;
+- any method call on a local **messaging wrapper**, i.e. a variable whose initialiser mentions `this.messaging`, as features do with their `*Messages` classes. `const messages = new DuckPlayerNativeMessages(this.messaging, env); await messages.initialSetup()` is the same round trip one layer down. The variable is resolved through scope, not matched by name, so an unrelated `await someClient.request(...)` is left alone.
+
+Only the lifecycle method's own scope is examined — a request inside an event listener or other callback registered there is fine, because nothing waits on it. Extra method names can be flagged per config block:
 
 ```js
 'ddg-local/no-blocking-init-request': ['error', { methodNames: ['request', 'initialSetup'] }],

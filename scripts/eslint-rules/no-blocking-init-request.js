@@ -60,6 +60,20 @@ function walkOwnScope(node, visit) {
 }
 
 /**
+ * The object a method is called on, with any member chain unwrapped:
+ * `this.messaging.request()` -> `this`, `messages.initialSetup()` -> `messages`.
+ *
+ * @param {any} callee
+ */
+function calleeRoot(callee) {
+    let root = callee.object;
+    while (root && root.type === 'MemberExpression') {
+        root = root.object;
+    }
+    return root;
+}
+
+/**
  * True for `this.request(…)`, `this.messaging.request(…)`, `this.#messaging.request(…)`,
  * i.e. a call to one of `methodNames` on something reached from `this`.
  *
@@ -72,12 +86,62 @@ function isClientRequestCall(node, methodNames) {
     if (!callee || callee.type !== 'MemberExpression') return false;
     const name = callee.property?.type === 'Identifier' ? callee.property.name : null;
     if (!name || !methodNames.has(name)) return false;
-    // Unwrap `this.a.b.request` back to `this`
-    let root = callee.object;
-    while (root && root.type === 'MemberExpression') {
-        root = root.object;
+    return calleeRoot(callee)?.type === 'ThisExpression';
+}
+
+/**
+ * True if `node` mentions `this.messaging` anywhere.
+ *
+ * @param {any} node
+ */
+function mentionsMessaging(node) {
+    let found = false;
+    walkOwnScope(node, (child) => {
+        if (
+            child.type === 'MemberExpression' &&
+            child.object?.type === 'ThisExpression' &&
+            child.property?.type === 'Identifier' &&
+            child.property.name === 'messaging'
+        ) {
+            found = true;
+        }
+    });
+    return found;
+}
+
+/**
+ * True for a call on a local messaging wrapper - an object built from
+ * `this.messaging`, as features do with their `*Messages` classes:
+ *
+ *     const messages = new DuckPlayerNativeMessages(this.messaging, env);
+ *     await messages.initialSetup();   // still a round trip to the client
+ *
+ * Awaiting any method of such a wrapper in a lifecycle method is the same
+ * anti-pattern as awaiting `this.request()` directly, just one layer down. We
+ * resolve the variable rather than matching on names, so an unrelated
+ * `await someClient.request()` stays untouched.
+ *
+ * @param {any} node
+ * @param {import('eslint').Rule.RuleContext} context
+ */
+function isMessagingWrapperCall(node, context) {
+    if (node.type !== 'CallExpression') return false;
+    const callee = node.callee;
+    if (!callee || callee.type !== 'MemberExpression') return false;
+    const root = calleeRoot(callee);
+    if (root?.type !== 'Identifier') return false;
+
+    /** @type {import('eslint').Scope.Scope | null} */
+    let scope = context.sourceCode.getScope(node);
+    /** @type {import('eslint').Scope.Variable | null} */
+    let variable = null;
+    while (scope && !variable) {
+        variable = scope.variables.find((candidate) => candidate.name === root.name) || null;
+        scope = scope.upper;
     }
-    return root?.type === 'ThisExpression';
+    return (variable?.defs || []).some(
+        (def) => def.type === 'Variable' && def.node.init && !FUNCTION_TYPES.has(def.node.init.type) && mentionsMessaging(def.node.init),
+    );
 }
 
 /**
@@ -127,6 +191,9 @@ export const noBlockingInitRequest = {
     create(context) {
         const options = context.options[0] || {};
         const methodNames = new Set(options.methodNames?.length ? options.methodNames : DEFAULT_METHOD_NAMES);
+        // `return await this.request(…)` is reached twice, via the return and via
+        // the await. Report each call once.
+        const reported = new WeakSet();
 
         /**
          * Report any client request reached from an `await` or a `return` in the
@@ -154,7 +221,9 @@ export const noBlockingInitRequest = {
          */
         function reportRequestsIn(expression, messageId) {
             walkOwnScope(expression, (node) => {
-                if (!isClientRequestCall(node, methodNames)) return;
+                if (!isClientRequestCall(node, methodNames) && !isMessagingWrapperCall(node, context)) return;
+                if (reported.has(node)) return;
+                reported.add(node);
                 context.report({
                     node,
                     messageId,

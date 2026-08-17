@@ -124,7 +124,7 @@ async setupFromClient() {
 }
 ```
 
-This is enforced by the `ddg-local/no-blocking-init-request` ESLint rule (see [`scripts/eslint-rules/`](../../scripts/eslint-rules/)), which covers `load()` too. `click-to-load` carries a documented `eslint-disable` for a pre-existing case; new features should not add one.
+This is enforced by the `ddg-local/no-blocking-init-request` ESLint rule (see [`scripts/eslint-rules/`](../../scripts/eslint-rules/)), which covers `load()` too, and sees through a `*Messages` wrapper built from `this.messaging`. `click-to-load` and `duck-player-native` carry documented `eslint-disable` comments for pre-existing cases; new features should not add one.
 
 **🚩 Other things worth a second look in `init`:** synchronous work proportional to page size (defer it), and gating behaviour on `platform.name` where remote config could decide instead.
 
