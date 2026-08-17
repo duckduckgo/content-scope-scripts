@@ -105,9 +105,9 @@ const response = await this.request('messageName', { data });
 this.subscribe('eventName', (data) => { ... });
 ```
 
-### Never block `init()` on a request (red flag)
+### Never wait on a request in `load()` or `init()` (red flag)
 
-Awaiting a `request()` inside `init()` blocks the shared feature init chain on a client round trip, and hangs forever if the platform has no handler for it. It is a red flag in review, and the `ddg-local/no-blocking-init-request` ESLint rule rejects it.
+Awaiting a `request()` inside `init()` blocks the shared feature init chain on a client round trip, and hangs forever if the platform has no handler for it. In `load()` it's worse in a different way: `callLoad()` doesn't await `load()`, so the code after the `await` runs in a later task, after the page may already have used the API the feature meant to wrap. Both are red flags in review, and the `ddg-local/no-blocking-init-request` ESLint rule rejects them.
 
 ```js
 // ❌ Red flag - the feature (and the init chain) waits for the client
@@ -124,7 +124,7 @@ init() {
 }
 ```
 
-Use remote config or `userPreferences` for enablement, `subscribe()` for state the client pushes, and an un-awaited `request()` when the feature really does need a response to continue. See [Red flags in `init`](./features-guide.md#red-flags-in-init) for the full rationale and alternatives.
+Use remote config or `userPreferences` for enablement, `subscribe()` for state the client pushes, and `void this.someAsyncSetup()` — a separate method that awaits and handles its own errors — when the feature really does need a response to continue. Keep `load()` synchronous and do client work in `init()`. See [Red flags in `load`](./features-guide.md#red-flags-in-load) and [Red flags in `init`](./features-guide.md#red-flags-in-init) for the full rationale and alternatives.
 
 ### Reserved Fields
 

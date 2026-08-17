@@ -83,7 +83,7 @@ Follow the error handling guidelines in [`guides/error-handling.md`](guides/erro
 
 ### Feature Lifecycle (injected)
 
-Do not block a feature's `init()` on a `request()` to the client — it delays the shared init chain and hangs where no handler exists. Gate features with Privacy Remote Configuration or `userPreferences` instead. See [`injected/docs/features-guide.md`](injected/docs/features-guide.md) → "Red flags in `init`"; enforced by the `ddg-local/no-blocking-init-request` ESLint rule in [`scripts/eslint-rules/`](scripts/eslint-rules/).
+Do not wait on a `request()` to the client in a feature's `load()` or `init()`. In `init()` it delays the shared init chain and hangs where no handler exists; in `load()` it defers the hooks that phase exists to install early. Gate features with Privacy Remote Configuration or `userPreferences` instead. See [`injected/docs/features-guide.md`](injected/docs/features-guide.md) → "Red flags in `load`" / "Red flags in `init`"; enforced by the `ddg-local/no-blocking-init-request` ESLint rule in [`scripts/eslint-rules/`](scripts/eslint-rules/).
 
 ### Strict TypeScript
 

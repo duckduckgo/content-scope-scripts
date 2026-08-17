@@ -56,6 +56,27 @@ There are three stages that the content scope code is hooked into the platform:
 - This limitation may be re-addressed in manifest v3
 - One exception here is the cookie protection, which installs wrappers in `load()` and completes policy setup in `init()` to avoid race conditions
 
+#### Red flags in `load`
+
+**🚩 Waiting on anything, especially a request to the client.** `load()` is the phase whose only job is to be early: it installs wrappers before the page has had a chance to use the API. `callLoad()` calls it without awaiting, so an `await` doesn't stall the load loop — it quietly splits the method in two. Everything after the `await` runs in a later task, by which point the page may already have read the property the feature meant to wrap, and any rejection is unhandled because nobody holds the returned promise.
+
+```js
+// ❌ Red flag - the wrapper is installed a round trip too late, if at all
+async load() {
+    const { enabled } = await this.request('isEnabled', {});
+    if (enabled) this.wrapProperty('Navigator.prototype.someApi', {});
+}
+
+// ✅ Install synchronously; decide with config that's already present
+load() {
+    this.wrapProperty('Navigator.prototype.someApi', {});
+}
+```
+
+A request in `load()` is doubly wrong: `load()` runs before Privacy Remote Configuration exceptions are applied, and `platformSpecificFeatures` load even when protections are globally disabled for the site. So the message goes to the client on pages where the feature will never init. Do client work in `init()` instead, and see [Red flags in `init`](#red-flags-in-init) for how to gate it there.
+
+Enforced by the `ddg-local/no-blocking-init-request` ESLint rule.
+
 ### `init`
 
 - This is the main place that features are actually loaded into the extension
@@ -85,19 +106,25 @@ Ask what the round trip is actually for. Almost always the answer is "deciding w
 - **State the client owns and can change later** → `this.subscribe(...)`, set up synchronously in `init()`, acting when the message arrives.
 - **State that only a later user action needs** → make the request at that point, not during init.
 
-If a feature genuinely cannot do anything until the client answers, fire the request without awaiting it and let the handler continue setup:
+If a feature genuinely cannot do anything until the client answers, move the wait into its own method and let `init()` return. `void` marks the promise as deliberately not awaited (`no-floating-promises`), and the method handles its own failure so nothing rejects unhandled — note that `.then()` chains are not the way to do this here, `promise/prefer-await-to-then` rejects them:
 
 ```js
 // ✅ init returns immediately; the response drives the rest
 init() {
     if (!this.getFeatureSettingEnabled('someToggle')) return;
-    this.request('getState', {})
-        .then((state) => this.applyState(state))
-        .catch(() => {});
+    void this.setupFromClient();
+}
+
+async setupFromClient() {
+    try {
+        this.applyState(await this.request('getState', {}));
+    } catch (e) {
+        // No handler on this platform, or the client failed to answer
+    }
 }
 ```
 
-This is enforced by the `ddg-local/no-blocking-init-request` ESLint rule (see [`scripts/eslint-rules/`](../../scripts/eslint-rules/)). `click-to-load` carries a documented `eslint-disable` for a pre-existing case; new features should not add one.
+This is enforced by the `ddg-local/no-blocking-init-request` ESLint rule (see [`scripts/eslint-rules/`](../../scripts/eslint-rules/)), which covers `load()` too. `click-to-load` carries a documented `eslint-disable` for a pre-existing case; new features should not add one.
 
 **🚩 Other things worth a second look in `init`:** synchronous work proportional to page size (defer it), and gating behaviour on `platform.name` where remote config could decide instead.
 

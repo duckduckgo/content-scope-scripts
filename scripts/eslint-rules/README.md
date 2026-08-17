@@ -8,13 +8,16 @@ Repo-specific ESLint rules, exposed to [`eslint.config.js`](../../eslint.config.
 
 Applies to `injected/src/**/*.js`.
 
-Rejects a feature that blocks its `init()` on a request/response round trip to the client — `await this.request(...)`, `await this.messaging.request(...)`, or returning that promise from `init()`.
+Rejects a feature whose `load()` or `init()` waits on a request/response round trip to the client — `await this.request(...)`, `await this.messaging.request(...)`, or returning that promise from the method. Each phase gets its own message, because they break differently:
 
-`callInit()` awaits `init()`, and the shared init chain in `injected/src/content-scope-features.js` awaits every feature's `callInit()`. So an awaited request delays the feature's own setup, delays the queued-`update()` drain for all features, and leaves the feature's `ready` state unresolved forever on a platform that has no handler for the message. Gating a feature this way also puts a message on every page load, on every platform, even when the feature does nothing.
+- **`init()`** — `callInit()` awaits `init()`, and the shared init chain in `injected/src/content-scope-features.js` awaits every feature's `callInit()`. So an awaited request delays the feature's own setup, delays the queued-`update()` drain for all features, and leaves the feature's `ready` state unresolved forever on a platform that has no handler for the message.
+- **`load()`** — `callLoad()` does *not* await `load()`, so an `await` doesn't stall the load loop; it splits the method in two. The code after it runs in a later task, after the page may already have used the API the feature meant to wrap, and any rejection is unhandled. `load()` also runs before remote-config exceptions apply, so the message goes out on sites where the feature never inits.
 
-Enablement belongs in Privacy Remote Configuration (`getFeatureSettingEnabled`) or `userPreferences`, both of which arrive with the injected args. See [Red flags in `init`](../../injected/docs/features-guide.md#red-flags-in-init) for the alternatives.
+Gating a feature this way also puts a message on every page load, on every platform, even when the feature does nothing. Enablement belongs in Privacy Remote Configuration (`getFeatureSettingEnabled`) or `userPreferences`, both of which arrive with the injected args. See [Red flags in `load`](../../injected/docs/features-guide.md#red-flags-in-load) and [Red flags in `init`](../../injected/docs/features-guide.md#red-flags-in-init) for the alternatives.
 
-Only calls reached from `this` count (`this.request`, `this.messaging.request`), and only in `init()`'s own scope — a request inside an event listener or other callback registered by `init()` is fine, because it doesn't block. Extra method names can be flagged per config block:
+When a feature really does need a client response before it can do anything, the repo idiom is `void this.someAsyncSetup()` — the lifecycle method returns, a separate `async` method awaits and handles its own errors. (`.then()` chains are rejected by `promise/prefer-await-to-then`, and a bare un-awaited promise by `@typescript-eslint/no-floating-promises`.)
+
+Only calls reached from `this` count (`this.request`, `this.messaging.request`), and only in the lifecycle method's own scope — a request inside an event listener or other callback registered there is fine, because nothing waits on it. Extra method names can be flagged per config block:
 
 ```js
 'ddg-local/no-blocking-init-request': ['error', { methodNames: ['request', 'initialSetup'] }],

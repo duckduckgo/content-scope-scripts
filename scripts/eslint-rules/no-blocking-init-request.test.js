@@ -27,6 +27,17 @@ ruleTester.run('no-blocking-init-request', noBlockingInitRequest, {
                 this.notify('somethingHappened', {});
             }
         }`,
+        // The repo-idiomatic escape hatch: init returns, a separate method waits
+        `class F extends ContentFeature {
+            init() {
+                void this.setupFromClient();
+            }
+            async setupFromClient() {
+                try {
+                    this.applyState(await this.request('getState', {}));
+                } catch (e) {}
+            }
+        }`,
         // Request sent from init but not awaited - init does not wait for the reply
         `class F extends ContentFeature {
             init() {
@@ -61,6 +72,18 @@ ruleTester.run('no-blocking-init-request', noBlockingInitRequest, {
         `class F extends ContentFeature {
             async init() {
                 await someClient.request('getState', {});
+            }
+        }`,
+        // load() installing its wrappers synchronously, which is the point of load()
+        `class F extends ContentFeature {
+            load() {
+                this.wrapProperty('Navigator.prototype.someApi', {});
+            }
+        }`,
+        // A request sent from load() but not waited on
+        `class F extends ContentFeature {
+            load() {
+                this.request('getState', {}).then((state) => this.applyState(state)).catch(() => {});
             }
         }`,
     ],
@@ -148,6 +171,45 @@ ruleTester.run('no-blocking-init-request', noBlockingInitRequest, {
             }`,
             options: [{ methodNames: ['request', 'initialSetup'] }],
             errors: [{ messageId: 'blockingInit' }],
+        },
+        {
+            // load() splits in half around the await: the wrapper lands too late
+            code: `class F extends ContentFeature {
+                async load() {
+                    const { enabled } = await this.request('isEnabled', {});
+                    if (enabled) this.wrapProperty('Navigator.prototype.someApi', {});
+                }
+            }`,
+            errors: [{ messageId: 'blockingLoad', data: { name: 'this.request' } }],
+        },
+        {
+            code: `class F extends ContentFeature {
+                async load() {
+                    const state = await this.messaging.request('getState');
+                    this.applyState(state);
+                }
+            }`,
+            errors: [{ messageId: 'blockingLoad', data: { name: 'this.messaging.request' } }],
+        },
+        {
+            code: `class F extends ContentFeature {
+                load() {
+                    return this.request('getState', {});
+                }
+            }`,
+            errors: [{ messageId: 'blockingLoad' }],
+        },
+        {
+            // Each phase reports against its own message
+            code: `class F extends ContentFeature {
+                async load() {
+                    await this.request('getState', {});
+                }
+                async init() {
+                    await this.request('isEnabled', {});
+                }
+            }`,
+            errors: [{ messageId: 'blockingLoad' }, { messageId: 'blockingInit' }],
         },
     ],
 });
