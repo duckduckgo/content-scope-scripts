@@ -16,6 +16,7 @@ export class WebTelemetry extends ContentFeature {
         this.seenVideoElements = new WeakSet();
         this.seenVideoUrls = new Set();
         this.reportedAutoplayElements = new WeakSet();
+        this.autoplayObservers = new WeakMap();
         this.videoPlaybackEnabled = false;
         this.videoAutoplayEnabled = false;
     }
@@ -84,6 +85,8 @@ export class WebTelemetry extends ContentFeature {
             return;
         }
         this.reportedAutoplayElements.add(video);
+        this.autoplayObservers.get(video)?.disconnect();
+        this.autoplayObservers.delete(video);
         this.messaging.notify(MSG_VIDEO_AUTOPLAY);
     }
 
@@ -104,6 +107,17 @@ export class WebTelemetry extends ContentFeature {
                 this.reportAutoplay(video);
             }
         });
+        // Watch this element's own `autoplay` attribute rather than the whole document subtree,
+        // so autoplay detection never observes attributes across the page.
+        if (this.videoAutoplayEnabled && !this.reportedAutoplayElements.has(video)) {
+            const attributeObserver = new MutationObserver(() => {
+                if (video.autoplay) {
+                    this.reportAutoplay(video);
+                }
+            });
+            attributeObserver.observe(video, { attributes: true, attributeFilter: ['autoplay'] });
+            this.autoplayObservers.set(video, attributeObserver);
+        }
     }
 
     addListenersToAllVideos(node) {
@@ -155,9 +169,6 @@ export class WebTelemetry extends ContentFeature {
                             }
                         }
                     });
-                } else if (mutation.type === 'attributes' && mutation.target.tagName === 'VIDEO') {
-                    // `autoplay` set by JS after insertion.
-                    this.addPlayObserver(mutation.target);
                 }
             }
         };
@@ -165,8 +176,6 @@ export class WebTelemetry extends ContentFeature {
         observer.observe(documentBody, {
             childList: true,
             subtree: true,
-            attributes: true,
-            attributeFilter: ['autoplay'],
         });
     }
 }
