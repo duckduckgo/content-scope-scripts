@@ -39,11 +39,12 @@ const EXTENDED_EFFORT_UNAVAILABLE = {
     description: 'For analytical tasks',
     isAvailable: false,
     upsell: 'subscribe',
+    gatedSectionHeader: 'Try Free for 7 Days',
 };
 /** @type {import('../../../types/new-tab.ts').ReasoningEffortOption} */
-const EXTENDED_EFFORT_UPGRADE = { ...EXTENDED_EFFORT_UNAVAILABLE, upsell: 'upgrade' };
+const EXTENDED_EFFORT_UPGRADE = { ...EXTENDED_EFFORT_UNAVAILABLE, upsell: 'upgrade', gatedSectionHeader: 'Available with Pro' };
 /** @type {import('../../../types/new-tab.ts').ReasoningEffortOption} */
-const EXTENDED_EFFORT_AVAILABLE = { ...EXTENDED_EFFORT_UNAVAILABLE, isAvailable: true, upsell: undefined };
+const EXTENDED_EFFORT_AVAILABLE = { ...EXTENDED_EFFORT_UNAVAILABLE, isAvailable: true, upsell: undefined, gatedSectionHeader: undefined };
 
 export function omnibarMockTransport() {
     /** @type {import('../../../types/new-tab.ts').OmnibarConfig} */

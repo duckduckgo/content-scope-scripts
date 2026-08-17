@@ -800,6 +800,10 @@ export interface ReasoningEffortOption {
    * For a gated (isAvailable: false) option, which upsell flow it leads to. Absent for available options.
    */
   upsell?: "subscribe" | "upgrade";
+  /**
+   * Localized header for the gated section this option starts (e.g. 'Try Free for 7 Days', 'Available with Pro'). Set on the first gated option only; absent means render a divider with no header.
+   */
+  gatedSectionHeader?: string;
 }
 /**
  * Limits the omnibar applies to attachments. All fields are optional. `files`/`images` are backend-sourced; the omnibar falls back to its built-in defaults for whichever is absent. `tabs` is a hardcoded native cap; when omitted (kill switch off) no tab limit is applied.
