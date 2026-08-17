@@ -4,7 +4,6 @@ import cn from 'classnames';
 import { ChevronSmall } from '../../../../components/Icons';
 import { useMessaging } from '../../../../types.js';
 import { ModelDropdown } from './ModelDropdown';
-import { isUpsellMuted, recordUpsellImpression } from '../upsellImpressions.js';
 import { getUpsellCtaLabel } from '../../../utils.js';
 import styles from './ModelSelector.module.css';
 
@@ -34,16 +33,6 @@ export function ModelSelector({ selector, selectedModel, aiModelSections, onUpse
         [aiModelSections, isEligibleForFreeTrial],
     );
 
-    // Mute the yellow CTA once it has been seen enough times (this picker's own count).
-    // Freeze the decision for the duration of each open: capture it on the render
-    // that opens the dropdown, before this open's impression is recorded below.
-    const wasOpenRef = useRef(false);
-    const upsellMutedRef = useRef(false);
-    if (modelDropdownOpen && !wasOpenRef.current) {
-        upsellMutedRef.current = upsellCtas.size > 0 && isUpsellMuted('model');
-    }
-    wasOpenRef.current = modelDropdownOpen;
-
     /** @param {{ restoreFocus: boolean }} options */
     const handleClose = ({ restoreFocus }) => {
         closeDropdown();
@@ -61,9 +50,6 @@ export function ModelSelector({ selector, selectedModel, aiModelSections, onUpse
 
         ntp.telemetryEvent({ attributes: { name: 'omnibar_model_picker_shown' } });
 
-        if (upsellCtas.size > 0) {
-            recordUpsellImpression('model');
-        }
         if (upsellCtas.has('tryForFree')) {
             ntp.telemetryEvent({ attributes: { name: 'omnibar_model_picker_tryforfree_shown' } });
         }
@@ -99,7 +85,6 @@ export function ModelSelector({ selector, selectedModel, aiModelSections, onUpse
                     onClose={handleClose}
                     onSelect={selectModel}
                     onUpsell={onUpsell}
-                    className={upsellMutedRef.current ? styles.upsellMuted : undefined}
                     ariaLabel={ariaLabel}
                 />
             )}

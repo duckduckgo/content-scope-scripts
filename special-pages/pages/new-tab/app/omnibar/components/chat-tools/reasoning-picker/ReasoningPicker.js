@@ -7,7 +7,6 @@ import { Dropdown } from '../dropdown/Dropdown';
 import { DropdownItem } from '../dropdown/DropdownItem';
 import { DropdownSeparator } from '../dropdown/DropdownSeparator';
 import { DropdownSectionHeader } from '../dropdown/DropdownSectionHeader';
-import { recordUpsellImpression } from '../upsellImpressions.js';
 import { getUpsellCtaLabel } from '../../../utils.js';
 import dropdownStyles from '../dropdown/Dropdown.module.css';
 import styles from './ReasoningPicker.module.css';
@@ -55,9 +54,6 @@ export function ReasoningPicker({ options, selectedEffort, onSelect, onUpsell, a
 
         ntp.telemetryEvent({ attributes: { name: 'omnibar_reasoning_picker_shown' } });
 
-        if (gated.length > 0) {
-            recordUpsellImpression('reasoning');
-        }
         // Report the CTA label that is actually shown, which is eligibility-aware
         // (a 'subscribe' upsell reads as "Upgrade" for free-trial-ineligible users).
         const gatedLabels = gated.map((option) => getUpsellCtaLabel(option.upsell, isEligibleForFreeTrial));
