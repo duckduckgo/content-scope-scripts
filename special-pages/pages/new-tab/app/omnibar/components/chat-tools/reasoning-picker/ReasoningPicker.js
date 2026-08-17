@@ -92,7 +92,6 @@ export function ReasoningPicker({ options, selectedEffort, onSelect, onUpsell, a
                 description={option.description}
                 isSelected={option.isAvailable && option.id === selectedEffort}
                 ariaSelected={option.isAvailable && option.id === selectedEffort}
-                isDimmed={!option.isAvailable}
                 onSelect={() => (option.isAvailable ? handleSelect(option.id) : onUpsell(option.upsell))}
             />
         );
