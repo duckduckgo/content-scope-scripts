@@ -2892,8 +2892,9 @@
     "webEvents",
     "pageObserver",
     "hover",
-    "trackerProtection"
+    "trackerProtection",
     // only enabled on apple platforms
+    "textSelection"
   ];
   var selfGatingFeatures = ["trackerProtection"];
   function isPlatformSpecificFeature(featureName) {
@@ -3005,7 +3006,8 @@
       "browserUiLock",
       "trackerProtection",
       "tabSuspension",
-      "autofillPasskeys"
+      "autofillPasskeys",
+      "textSelection"
     ]
   );
   var platformSupport = {
@@ -3026,7 +3028,8 @@
       "webTelemetry",
       "pageObserver",
       "hover",
-      "tabSuspension"
+      "tabSuspension",
+      "textSelection"
     ],
     "apple-ai-clear": ["duckAiDataClearing"],
     "apple-ai-history": ["duckAiChatHistory"],
@@ -28136,6 +28139,142 @@ ${iframeContent}
   };
   _cancelPending = new WeakMap();
 
+  // src/features/text-selection.js
+  init_define_import_meta_trackerLookup();
+  var TextSelection = class extends ContentFeature {
+    constructor() {
+      super(...arguments);
+      /** @type {boolean | null} */
+      __publicField(this, "_lastHasSelection", null);
+      /** @type {number | null} */
+      __publicField(this, "_clearTimer", null);
+      /** @type {number | null} */
+      __publicField(this, "_claimTimer", null);
+      /** @type {string} */
+      __publicField(this, "_snapshot", "");
+      /** @type {number} */
+      __publicField(this, "_snapshotTimestamp", 0);
+    }
+    init() {
+      objectDefineProperty(window, "__ddgSelectionFrame", {
+        value: Object.freeze({
+          readSelection: () => ({
+            eventTimestamp: this._snapshotTimestamp,
+            selectedText: this._snapshot
+          })
+        }),
+        configurable: false,
+        enumerable: false,
+        writable: false
+      });
+      document.addEventListener("selectionchange", (event) => this._selectionChanged(event), true);
+      window.addEventListener("pagehide", (event) => this._pageHidden(event), true);
+      window.addEventListener("pageshow", (event) => this._pageShown(event), true);
+      this._publish(this._selectionText());
+    }
+    _selectionText() {
+      const selection = window.getSelection();
+      return selection ? String(selection) : "";
+    }
+    /** @param {Event} event */
+    _selectionChanged(event) {
+      this._cancelPendingClaim();
+      const eventTimestamp = this._eventTimestamp(event);
+      const text2 = this._selectionText();
+      const hasSelection = text2.trim().length > 0;
+      const canClaim = this._canClaim();
+      if (hasSelection) {
+        this._cancelPendingClear();
+        if (!this._publish(text2, canClaim, eventTimestamp)) this._scheduleClaimRetry(eventTimestamp);
+        return;
+      }
+      if (this._clearTimer !== null) return;
+      this._clearTimer = window.setTimeout(() => {
+        this._clearTimer = null;
+        this._publish(this._selectionText(), void 0, eventTimestamp);
+      }, 100);
+    }
+    /** @param {number} eventTimestamp */
+    _scheduleClaimRetry(eventTimestamp) {
+      this._claimTimer = window.setTimeout(() => {
+        this._claimTimer = null;
+        const text2 = this._selectionText();
+        const hasSelection = text2.trim().length > 0;
+        const canClaim = this._canClaim();
+        if (!hasSelection) return;
+        this._publish(text2, canClaim, eventTimestamp);
+      }, 0);
+    }
+    _cancelPendingClaim() {
+      if (this._claimTimer === null) return;
+      window.clearTimeout(this._claimTimer);
+      this._claimTimer = null;
+    }
+    /**
+     * @param {string} text
+     * @param {boolean} [canClaim]
+     * @param {number} [eventTimestamp]
+     * @returns {boolean}
+     */
+    _publish(text2, canClaim = this._canClaim(), eventTimestamp = this._now()) {
+      if (text2.trim().length === 0) {
+        this._snapshot = "";
+        this._snapshotTimestamp = eventTimestamp;
+        this._post(false, false, eventTimestamp);
+        return true;
+      }
+      if (!canClaim) return false;
+      this._snapshot = text2;
+      this._snapshotTimestamp = eventTimestamp;
+      this._post(true, true, eventTimestamp);
+      return true;
+    }
+    _canClaim() {
+      return !isBeingFramed() || document.hasFocus();
+    }
+    /**
+     * @param {boolean} hasSelection
+     * @param {boolean} [force]
+     * @param {number} [eventTimestamp]
+     */
+    _post(hasSelection, force = false, eventTimestamp = this._now()) {
+      if (!force && !hasSelection && this._lastHasSelection !== true) return;
+      if (!force && hasSelection === this._lastHasSelection) return;
+      this._lastHasSelection = hasSelection;
+      this.notify("selectionFrameChanged", {
+        hasSelection,
+        eventTimestamp
+      });
+    }
+    /** @param {Event} event */
+    _eventTimestamp(event) {
+      return window.performance.timeOrigin + event.timeStamp;
+    }
+    _now() {
+      return window.performance.timeOrigin + window.performance.now();
+    }
+    _cancelPendingClear() {
+      if (this._clearTimer === null) return;
+      window.clearTimeout(this._clearTimer);
+      this._clearTimer = null;
+    }
+    /** @param {PageTransitionEvent} event */
+    _pageHidden(event) {
+      this._cancelPendingClear();
+      this._cancelPendingClaim();
+      this._snapshot = "";
+      this._snapshotTimestamp = this._eventTimestamp(event);
+      if (this._lastHasSelection === true) this._post(false, false, this._snapshotTimestamp);
+    }
+    /** @param {PageTransitionEvent} event */
+    _pageShown(event) {
+      if (!event.persisted) return;
+      this._cancelPendingClear();
+      this._lastHasSelection = null;
+      this._publish(this._selectionText(), void 0, this._eventTimestamp(event));
+    }
+  };
+
   // ddg:platformFeatures:ddg:platformFeatures
   var ddg_platformFeatures_default = {
     ddg_feature_fingerprintingAudio: FingerprintingAudio,
@@ -28179,7 +28318,8 @@ ${iframeContent}
     ddg_feature_browserUiLock: BrowserUiLock,
     ddg_feature_trackerProtection: tracker_protection_default,
     ddg_feature_tabSuspension: tab_suspension_default,
-    ddg_feature_autofillPasskeys: AutofillPasskeys
+    ddg_feature_autofillPasskeys: AutofillPasskeys,
+    ddg_feature_textSelection: TextSelection
   };
 
   // src/url-change.js

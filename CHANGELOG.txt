@@ -1,3 +1,3 @@
-- web-telemetry: scope autoplay detection to per-element observers (#2957)
-- build(deps): bump @preact/signals from 2.10.0 to 2.10.1 (#2956)
-- Onboarding: fix Dax animation overlap on Get Started screen (#2954)
+- Add iOS text selection (#2953)
+- Use a forced tool call for semver classification (#2961)
+- build(deps): bump preact from 10.29.7 to 10.29.8 (#2959)

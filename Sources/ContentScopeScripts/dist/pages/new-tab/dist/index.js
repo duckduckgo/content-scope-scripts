@@ -7,14 +7,14 @@
   var __getProtoOf = Object.getPrototypeOf;
   var __hasOwnProp = Object.prototype.hasOwnProperty;
   var __glob = (map) => (path) => {
-    var fn = map[path];
-    if (fn) return fn();
+    var fn2 = map[path];
+    if (fn2) return fn2();
     throw new Error("Module not found in bundle: " + path);
   };
-  var __esm = (fn, res, err) => function __init() {
+  var __esm = (fn2, res, err) => function __init() {
     if (err) throw err[0];
     try {
-      return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
+      return fn2 && (res = (0, fn2[__getOwnPropNames(fn2)[0]])(fn2 = 0)), res;
     } catch (e4) {
       throw err = [e4], e4;
     }
@@ -98,8 +98,8 @@
     }
   }
   function L(n3, l5, u4, t4, i5, r4, o4, e4, f4, c4, a4) {
-    var s4, h5, p5, v4, y5, _5, g6, m5 = t4 && t4.__k || w, b4 = l5.length;
-    for (f4 = T(u4, l5, m5, f4, b4), s4 = 0; s4 < b4; s4++) null != (p5 = u4.__k[s4]) && (h5 = -1 != p5.__i && m5[p5.__i] || d, p5.__i = s4, _5 = q(n3, p5, h5, i5, r4, o4, e4, f4, c4, a4), v4 = p5.__e, p5.ref && h5.ref != p5.ref && (h5.ref && J(h5.ref, null, p5), a4.push(p5.ref, p5.__c || v4, p5)), null == y5 && null != v4 && (y5 = v4), (g6 = !!(4 & p5.__u)) || h5.__k === p5.__k ? (f4 = j(p5, f4, n3, g6), g6 && h5.__e && (h5.__e = null)) : "function" == typeof p5.type && void 0 !== _5 ? f4 = _5 : v4 && (f4 = v4.nextSibling), p5.__u &= -7);
+    var s4, h5, p5, v4, y5, _5, g6 = t4 && t4.__k || w, m5 = l5.length;
+    for (f4 = T(u4, l5, g6, f4, m5), s4 = 0; s4 < m5; s4++) null != (p5 = u4.__k[s4]) && (h5 = -1 != p5.__i && g6[p5.__i] || d, p5.__i = s4, _5 = q(n3, p5, h5, i5, r4, o4, e4, f4, c4, a4), v4 = p5.__e, p5.ref && h5.ref != p5.ref && (h5.ref && J(h5.ref, null, p5), a4.push(p5.ref, p5.__c || v4, p5)), null == y5 && null != v4 && (y5 = v4), 4 & p5.__u ? (f4 = j(p5, f4, n3), h5.__e && (h5.__e = null)) : "function" == typeof p5.type && void 0 !== _5 ? f4 = _5 : v4 && (f4 = v4.nextSibling), p5.__u &= -7);
     return u4.__e = y5, f4;
   }
   function T(n3, l5, u4, t4, i5) {
@@ -108,13 +108,13 @@
     if (s4) for (r4 = 0; r4 < a4; r4++) null != (e4 = u4[r4]) && 0 == (2 & e4.__u) && (e4.__e == t4 && (t4 = $(e4)), K(e4, e4));
     return t4;
   }
-  function j(n3, l5, u4, t4) {
-    var i5, r4;
+  function j(n3, l5, u4) {
+    var t4, i5;
     if ("function" == typeof n3.type) {
-      for (i5 = n3.__k, r4 = 0; i5 && r4 < i5.length; r4++) i5[r4] && (i5[r4].__ = n3, l5 = j(i5[r4], l5, u4, t4));
+      for (t4 = n3.__k, i5 = 0; t4 && i5 < t4.length; i5++) t4[i5] && (t4[i5].__ = n3, l5 = j(t4[i5], l5, u4));
       return l5;
     }
-    n3.__e != l5 && (t4 && (l5 && n3.type && !l5.parentNode && (l5 = $(n3)), u4.insertBefore(n3.__e, l5 || null)), l5 = n3.__e);
+    n3.__e != l5 && (l5 && n3.type && !l5.parentNode && (l5 = $(n3)), l5 = u4.insertBefore(n3.__e, l5 || null));
     do {
       l5 = l5 && l5.nextSibling;
     } while (null != l5 && 8 == l5.nodeType);
@@ -165,35 +165,35 @@
     };
   }
   function q(n3, u4, t4, i5, r4, o4, e4, f4, c4, a4) {
-    var s4, h5, p5, v4, y5, d5, _5, k4, x5, M3, $3, I2, P4, A5, H3, T6, j5 = u4.type;
+    var s4, h5, p5, v4, y5, d5, _5, k4, x5, M3, I2, P4, A5, H3, T6, j5, F4 = u4.type;
     if (void 0 !== u4.constructor) return null;
     128 & t4.__u && (c4 = !!(32 & t4.__u), o4 = [f4 = u4.__e = t4.__e]), (s4 = l.__b) && s4(u4);
-    n: if ("function" == typeof j5) {
+    n: if ("function" == typeof F4) {
       h5 = e4.length;
       try {
-        if (x5 = u4.props, M3 = j5.prototype && j5.prototype.render, $3 = (s4 = j5.contextType) && i5[s4.__c], I2 = s4 ? $3 ? $3.props.value : s4.__ : i5, t4.__c ? k4 = (p5 = u4.__c = t4.__c).__ = p5.__E : (M3 ? u4.__c = p5 = new j5(x5, I2) : (u4.__c = p5 = new C(x5, I2), p5.constructor = j5, p5.render = Q), $3 && $3.sub(p5), p5.state || (p5.state = {}), p5.__n = i5, v4 = p5.__d = true, p5.__h = [], p5._sb = []), M3 && null == p5.__s && (p5.__s = p5.state), M3 && null != j5.getDerivedStateFromProps && (p5.__s == p5.state && (p5.__s = m({}, p5.__s)), m(p5.__s, j5.getDerivedStateFromProps(x5, p5.__s))), y5 = p5.props, d5 = p5.state, p5.__v = u4, v4) M3 && null == j5.getDerivedStateFromProps && null != p5.componentWillMount && p5.componentWillMount(), M3 && null != p5.componentDidMount && p5.__h.push(p5.componentDidMount);
+        if (x5 = u4.props, M3 = F4.prototype && F4.prototype.render, I2 = (s4 = F4.contextType) && i5[s4.__c], P4 = s4 ? I2 ? I2.props.value : s4.__ : i5, t4.__c ? k4 = (p5 = u4.__c = t4.__c).__ = p5.__E : (M3 ? u4.__c = p5 = new F4(x5, P4) : (u4.__c = p5 = new C(x5, P4), p5.constructor = F4, p5.render = Q), I2 && I2.sub(p5), p5.state || (p5.state = {}), p5.__n = i5, v4 = p5.__d = true, p5.__h = [], p5._sb = []), M3 && null == p5.__s && (p5.__s = p5.state), M3 && null != F4.getDerivedStateFromProps && (p5.__s == p5.state && (p5.__s = m({}, p5.__s)), m(p5.__s, F4.getDerivedStateFromProps(x5, p5.__s))), y5 = p5.props, d5 = p5.state, p5.__v = u4, v4) M3 && null == F4.getDerivedStateFromProps && null != p5.componentWillMount && p5.componentWillMount(), M3 && null != p5.componentDidMount && p5.__h.push(p5.componentDidMount);
         else {
-          if (M3 && null == j5.getDerivedStateFromProps && x5 !== y5 && null != p5.componentWillReceiveProps && p5.componentWillReceiveProps(x5, I2), u4.__v == t4.__v || !p5.__e && null != p5.shouldComponentUpdate && false === p5.shouldComponentUpdate(x5, p5.__s, I2)) {
+          if (M3 && null == F4.getDerivedStateFromProps && x5 !== y5 && null != p5.componentWillReceiveProps && p5.componentWillReceiveProps(x5, P4), u4.__v == t4.__v || !p5.__e && null != p5.shouldComponentUpdate && false === p5.shouldComponentUpdate(x5, p5.__s, P4)) {
             u4.__v != t4.__v && (p5.props = x5, p5.state = p5.__s, p5.__d = false), u4.__e = t4.__e, u4.__k = t4.__k, u4.__k.some(function(n4) {
               n4 && (n4.__ = u4);
-            }), w.push.apply(p5.__h, p5._sb), p5._sb = [], p5.__h.length && e4.push(p5);
+            }), w.push.apply(p5.__h, p5._sb), p5._sb = [], p5.__h.length && e4.push(p5), f4 = $(t4);
             break n;
           }
-          null != p5.componentWillUpdate && p5.componentWillUpdate(x5, p5.__s, I2), M3 && null != p5.componentDidUpdate && p5.__h.push(function() {
+          null != p5.componentWillUpdate && p5.componentWillUpdate(x5, p5.__s, P4), M3 && null != p5.componentDidUpdate && p5.__h.push(function() {
             p5.componentDidUpdate(y5, d5, _5);
           });
         }
-        if (p5.context = I2, p5.props = x5, p5.__P = n3, p5.__e = false, P4 = l.__r, A5 = 0, M3) p5.state = p5.__s, p5.__d = false, P4 && P4(u4), s4 = p5.render(p5.props, p5.state, p5.context), w.push.apply(p5.__h, p5._sb), p5._sb = [];
+        if (p5.context = P4, p5.props = x5, p5.__P = n3, p5.__e = false, A5 = l.__r, H3 = 0, M3) p5.state = p5.__s, p5.__d = false, A5 && A5(u4), s4 = p5.render(p5.props, p5.state, p5.context), w.push.apply(p5.__h, p5._sb), p5._sb = [];
         else do {
-          p5.__d = false, P4 && P4(u4), s4 = p5.render(p5.props, p5.state, p5.context), p5.state = p5.__s;
-        } while (p5.__d && ++A5 < 25);
-        p5.state = p5.__s, null != p5.getChildContext && (i5 = m(m({}, i5), p5.getChildContext())), M3 && !v4 && null != p5.getSnapshotBeforeUpdate && (_5 = p5.getSnapshotBeforeUpdate(y5, d5)), H3 = null != s4 && s4.type === S && null == s4.key ? E(s4.props.children) : s4, f4 = L(n3, g(H3) ? H3 : [H3], u4, t4, i5, r4, o4, e4, f4, c4, a4), p5.base = u4.__e, u4.__u &= -161, p5.__h.length && e4.push(p5), k4 && (p5.__E = p5.__ = null);
+          p5.__d = false, A5 && A5(u4), s4 = p5.render(p5.props, p5.state, p5.context), p5.state = p5.__s;
+        } while (p5.__d && ++H3 < 25);
+        p5.state = p5.__s, null != p5.getChildContext && (i5 = m(m({}, i5), p5.getChildContext())), M3 && !v4 && null != p5.getSnapshotBeforeUpdate && (_5 = p5.getSnapshotBeforeUpdate(y5, d5)), T6 = null != s4 && s4.type === S && null == s4.key ? E(s4.props.children) : s4, f4 = L(n3, g(T6) ? T6 : [T6], u4, t4, i5, r4, o4, e4, f4, c4, a4), p5.base = u4.__e, u4.__u &= -161, p5.__h.length && e4.push(p5), k4 && (p5.__E = p5.__ = null);
       } catch (n4) {
         if (e4.length = h5, u4.__v = null, c4 || null != o4) {
           if (n4.then) {
             for (u4.__u |= c4 ? 160 : 128; f4 && 8 == f4.nodeType && f4.nextSibling; ) f4 = f4.nextSibling;
             null != o4 && (o4[o4.indexOf(f4)] = null), u4.__e = f4;
-          } else if (null != o4) for (T6 = o4.length; T6--; ) b(o4[T6]);
+          } else if (null != o4) for (j5 = o4.length; j5--; ) b(o4[j5]);
         } else u4.__e = t4.__e;
         null == u4.__k && (u4.__k = t4.__k || []), n4.then || B(u4), l.__e(n4, u4, t4);
       }
@@ -1389,7 +1389,7 @@
         });
       });
       return () => {
-        cleanupsCurr.forEach((fn) => fn());
+        cleanupsCurr.forEach((fn2) => fn2());
       };
     }, [values2, str]);
     return /* @__PURE__ */ k("span", { ref, dangerouslySetInnerHTML: { __html: str } });
@@ -2393,7 +2393,7 @@
     var r4 = k(Y, { __v: n3, h: e4 });
     return r4.containerInfo = e4, r4;
   }
-  var T5, A4, O2, U2, H2, q4, G2, J2, K2, Q2, X2, en, rn, un, on, ln, cn;
+  var T5, A4, O2, U2, H2, q4, G2, J2, K2, Q2, X2, en, rn, un, on, ln, fn;
   var init_compat_module = __esm({
     "../node_modules/preact/compat/dist/compat.module.js"() {
       init_preact_module();
@@ -2423,12 +2423,12 @@
         var e4 = t4.__c, r4 = this;
         null == r4.o && (r4.o = []), r4.o.push(e4);
         var u4 = j4(r4.__v), o4 = false, i5 = function() {
-          o4 || r4.__z || (o4 = true, e4.__R = null, u4 ? u4(c4) : c4());
+          o4 || r4.__z || (o4 = true, e4.__R = null, u4 ? u4(f4) : f4());
         };
         e4.__R = i5;
         var l5 = e4.__P;
         e4.__P = null;
-        var c4 = function() {
+        var f4 = function() {
           if (!--r4.__u) {
             if (r4.state.__a) {
               var n4 = r4.state.__a;
@@ -2513,8 +2513,8 @@
           for (var i5 in t4) {
             var l5 = t4[i5];
             if (!("value" === i5 && "defaultValue" in t4 && null == l5 || Q2 && "children" === i5 && "noscript" === e4 || "class" === i5 || "className" === i5)) {
-              var c4 = i5.toLowerCase();
-              "defaultValue" === i5 && "value" in t4 && null == t4.value ? i5 = "value" : "download" === i5 && true === l5 ? l5 = "" : "translate" === c4 && "no" === l5 ? l5 = false : "o" === c4[0] && "n" === c4[1] ? "ondoubleclick" === c4 ? i5 = "ondblclick" : "onchange" !== c4 || "input" !== e4 && "textarea" !== e4 || X2(t4.type) ? "onfocus" === c4 ? i5 = "onfocusin" : "onblur" === c4 ? i5 = "onfocusout" : J2.test(i5) && (i5 = c4) : c4 = i5 = "oninput" : o4 && G2.test(i5) ? i5 = i5.replace(K2, "-$&").toLowerCase() : null === l5 && (l5 = void 0), "oninput" === c4 && u4[i5 = c4] && (i5 = "oninputCapture"), u4[i5] = l5;
+              var f4 = i5.toLowerCase();
+              "defaultValue" === i5 && "value" in t4 && null == t4.value ? i5 = "value" : "download" === i5 && true === l5 ? l5 = "" : "translate" === f4 && "no" === l5 ? l5 = false : "o" === f4[0] && "n" === f4[1] ? "ondoubleclick" === f4 ? i5 = "ondblclick" : "onchange" !== f4 || "input" !== e4 && "textarea" !== e4 || X2(t4.type) ? "onfocus" === f4 ? i5 = "onfocusin" : "onblur" === f4 ? i5 = "onfocusout" : J2.test(i5) && (i5 = f4) : f4 = i5 = "oninput" : o4 && G2.test(i5) ? i5 = i5.replace(K2, "-$&").toLowerCase() : null === l5 && (l5 = void 0), "oninput" === f4 && u4[i5 = f4] && (i5 = "oninputCapture"), u4[i5] = l5;
             }
           }
           "select" == e4 && (u4.multiple && Array.isArray(u4.value) && (u4.value = F(t4.children).forEach(function(n5) {
@@ -2528,9 +2528,9 @@
       l.__r = function(n3) {
         ln && ln(n3), rn = n3.__c;
       };
-      cn = l.diffed;
+      fn = l.diffed;
       l.diffed = function(n3) {
-        cn && cn(n3);
+        fn && fn(n3);
         var t4 = n3.props, e4 = n3.__e;
         null != e4 && "textarea" === n3.type && "value" in t4 && t4.value !== e4.value && (e4.value = null == t4.value ? "" : t4.value), rn = null;
       };
@@ -3462,8 +3462,8 @@
         /**
          * @param {(old: Data, next: Data, trigger: InvocationSource) => Data} fn
          */
-        withUpdater(fn) {
-          this.accept = fn;
+        withUpdater(fn2) {
+          this.accept = fn2;
           return this;
         }
         /**
@@ -4288,14 +4288,14 @@
   });
 
   // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/once.js
-  function once(fn) {
+  function once(fn2) {
     var cache = null;
     return function wrapped() {
       if (!cache) {
         for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
           args[_key] = arguments[_key];
         }
-        var result = fn.apply(this, args);
+        var result = fn2.apply(this, args);
         cache = {
           result
         };
@@ -4845,7 +4845,7 @@
   var rafSchd, raf_schd_esm_default;
   var init_raf_schd_esm = __esm({
     "../node_modules/raf-schd/dist/raf-schd.esm.js"() {
-      rafSchd = function rafSchd2(fn) {
+      rafSchd = function rafSchd2(fn2) {
         var lastArgs = [];
         var frameId = null;
         var wrapperFn = function wrapperFn2() {
@@ -4858,7 +4858,7 @@
           }
           frameId = requestAnimationFrame(function() {
             frameId = null;
-            fn.apply(void 0, lastArgs);
+            fn2.apply(void 0, lastArgs);
           });
         };
         wrapperFn.cancel = function() {
@@ -4969,19 +4969,19 @@
   var init_dispatch_consumer_event = __esm({
     "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/ledger/dispatch-consumer-event.js"() {
       init_raf_schd_esm();
-      scheduleOnDrag = raf_schd_esm_default(function(fn) {
-        return fn();
+      scheduleOnDrag = raf_schd_esm_default(function(fn2) {
+        return fn2();
       });
       dragStart = /* @__PURE__ */ (function() {
         var scheduled = null;
-        function schedule(fn) {
+        function schedule(fn2) {
           var frameId = requestAnimationFrame(function() {
             scheduled = null;
-            fn();
+            fn2();
           });
           scheduled = {
             frameId,
-            fn
+            fn: fn2
           };
         }
         function flush() {
@@ -5277,8 +5277,8 @@
       fns[_key] = arguments[_key];
     }
     return function cleanup() {
-      fns.forEach(function(fn) {
-        return fn();
+      fns.forEach(function(fn2) {
+        return fn2();
       });
     };
   }
@@ -7203,11 +7203,11 @@
   });
 
   // pages/new-tab/app/utils.js
-  function viewTransition(fn) {
+  function viewTransition(fn2) {
     if ("startViewTransition" in document && typeof document.startViewTransition === "function") {
-      return document.startViewTransition(fn);
+      return document.startViewTransition(fn2);
     }
-    return fn();
+    return fn2();
   }
   function noop(named) {
     return () => {
@@ -16197,9 +16197,9 @@
     );
     return /* @__PURE__ */ k(ActivityBurningSignalContext.Provider, { value: { burning, exiting, animation, showBurnAnimation, doneBurning } }, /* @__PURE__ */ k(ActivityInteractionsContext.Provider, { value: { didClick } }, children));
   }
-  function toPromise(fn) {
+  function toPromise(fn2) {
     return new Promise((resolve) => {
-      const cleanup = fn({
+      const cleanup = fn2({
         next: (v4) => {
           resolve(v4);
           cleanup();
@@ -17147,15 +17147,15 @@
               });
             }
           };
-          function createWorker(fn) {
+          function createWorker(fn2) {
             if (window.Worker && window.Blob && getWebWorker()) {
-              var blob = new Blob(["var _workerSelf = self; self.onmessage = ", fn.toString()], {
+              var blob = new Blob(["var _workerSelf = self; self.onmessage = ", fn2.toString()], {
                 type: "text/javascript"
               });
               var url8 = URL.createObjectURL(blob);
               return new Worker(url8);
             }
-            workerFn = fn;
+            workerFn = fn2;
             return workerProxy;
           }
           function setupWorker() {
@@ -30479,7 +30479,7 @@
             function ease(t4, tMin, tMax, val1, val2) {
               return applyEase(easeInOutBez, t4, tMin, tMax, val1, val2);
             }
-            function applyEase(fn, t4, tMin, tMax, val1, val2) {
+            function applyEase(fn2, t4, tMin, tMax, val1, val2) {
               if (val1 === void 0) {
                 val1 = tMin;
                 val2 = tMax;
@@ -30491,7 +30491,7 @@
               } else if (t4 < 0) {
                 t4 = 0;
               }
-              var mult = fn(t4);
+              var mult = fn2(t4);
               if ($bm_isInstanceOfArray(val1)) {
                 var iKey;
                 var lenKey = val1.length;
@@ -34528,7 +34528,7 @@
   // ../node_modules/preact/devtools/dist/devtools.module.js
   init_preact_module();
   var i2;
-  null != (i2 = "undefined" != typeof globalThis ? globalThis : "undefined" != typeof window ? window : void 0) && i2.__PREACT_DEVTOOLS__ && i2.__PREACT_DEVTOOLS__.attachPreact("10.29.7", l, { Fragment: S, Component: C });
+  null != (i2 = "undefined" != typeof globalThis ? globalThis : "undefined" != typeof window ? window : void 0) && i2.__PREACT_DEVTOOLS__ && i2.__PREACT_DEVTOOLS__.attachPreact("10.29.8", l, { Fragment: S, Component: C });
 
   // pages/new-tab/src/index.js
   init_preact_module();
@@ -34876,8 +34876,8 @@
       ));
     }), env === "development" && /* @__PURE__ */ k(Centered, { "data-entry-point": "debug" }, /* @__PURE__ */ k(DebugCustomized, { index: widgets.length, isOpenInitially: window.location.search.includes("debugWidget") })));
   }
-  function WidgetLoader({ fn }) {
-    const result = fn?.();
+  function WidgetLoader({ fn: fn2 }) {
+    const result = fn2?.();
     return result;
   }
 
@@ -38024,8 +38024,8 @@
         Error: window.Error,
         String: window.String
       };
-      for (const [methodName, fn] of Object.entries(this.config.methods)) {
-        if (typeof fn !== "function") {
+      for (const [methodName, fn2] of Object.entries(this.config.methods)) {
+        if (typeof fn2 !== "function") {
           throw new Error("cannot create WindowsMessagingTransport, missing the method: " + methodName);
         }
       }
@@ -38626,9 +38626,9 @@
      * @param {(...args: any[]) => any} fn
      * @param {string} [context]
      */
-    _tryCatch(fn, context = "none") {
+    _tryCatch(fn2, context = "none") {
       try {
-        return fn();
+        return fn2();
       } catch (e4) {
         if (this.debug) {
           console.error("AndroidMessagingConfig error:", context);
@@ -38842,9 +38842,9 @@
      * @param {(...args: any[]) => any} fn
      * @param {string} [context]
      */
-    _tryCatch(fn, context = "none") {
+    _tryCatch(fn2, context = "none") {
       try {
-        return fn();
+        return fn2();
       } catch (e4) {
         if (this.debug) {
           console.error("AndroidAdsjsMessagingConfig error:", context);
@@ -39709,12 +39709,12 @@
   }
 
   // shared/call-with-retry.js
-  async function callWithRetry(fn, params = {}) {
+  async function callWithRetry(fn2, params = {}) {
     const { maxAttempts = 10, intervalMs = 300 } = params;
     let attempt = 1;
     while (attempt <= maxAttempts) {
       try {
-        return { value: await fn(), attempt };
+        return { value: await fn2(), attempt };
       } catch (error) {
         if (attempt === maxAttempts) {
           return { error: `Max attempts reached: ${error}` };
