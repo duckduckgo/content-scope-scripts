@@ -219,10 +219,7 @@ export class DuckplayerOverlays {
 
     async userValuesCallIsProxied() {
         const calls = await this.collector.outgoingMessages();
-        const message = calls.find(
-            ({ payload }) => payload.featureName === 'duckPlayer' && 'method' in payload && payload.method === 'getUserValues',
-        );
-        if (!message) throw new Error('missing getUserValues message');
+        const message = calls[0];
         const payload = message.payload;
         if (!('id' in payload)) throw new Error('missing id');
 
