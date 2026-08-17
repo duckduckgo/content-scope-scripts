@@ -60,6 +60,47 @@ There are three stages that the content scope code is hooked into the platform:
 
 - This is the main place that features are actually loaded into the extension
 
+#### Red flags in `init`
+
+**🚩 Awaiting a request/response round trip to the client.** `init()` is awaited by `callInit()`, which is awaited by the shared init chain in [`content-scope-features.js`](../src/content-scope-features.js). A `request()` awaited inside `init()` therefore:
+
+- delays the feature's own setup by a full round trip to the client, during which the page is already running,
+- delays the queued-`update()` drain that happens after all features have initialised,
+- never completes on a platform where no handler replies, leaving the feature's `ready` state unresolved forever,
+- adds a message to every page load on every supported platform, even when the feature does nothing.
+
+```js
+// ❌ Red flag - init blocks on the client answering
+async init() {
+    const { enabled } = await this.request('isEnabled', {});
+    if (!enabled) return;
+    this.installListeners();
+}
+```
+
+Ask what the round trip is actually for. Almost always the answer is "deciding whether to run", and that decision already has a non-blocking home:
+
+- **Enablement, per platform or per site** → Privacy Remote Configuration. `this.getFeatureSettingEnabled(...)` / `this.getFeatureSetting(...)` read config that arrives with the injected args, so no message is needed and the feature can be changed remotely without a client release. This includes turning a feature on for a new platform - prefer a config change over a platform check in JS.
+- **A user-controlled setting** → send it through `userPreferences` in the injected args. It is delivered statically at injection time, so it costs nothing on the page.
+- **State the client owns and can change later** → `this.subscribe(...)`, set up synchronously in `init()`, acting when the message arrives.
+- **State that only a later user action needs** → make the request at that point, not during init.
+
+If a feature genuinely cannot do anything until the client answers, fire the request without awaiting it and let the handler continue setup:
+
+```js
+// ✅ init returns immediately; the response drives the rest
+init() {
+    if (!this.getFeatureSettingEnabled('someToggle')) return;
+    this.request('getState', {})
+        .then((state) => this.applyState(state))
+        .catch(() => {});
+}
+```
+
+This is enforced by the `ddg-local/no-blocking-init-request` ESLint rule (see [`scripts/eslint-rules/`](../../scripts/eslint-rules/)). `click-to-load` carries a documented `eslint-disable` for a pre-existing case; new features should not add one.
+
+**🚩 Other things worth a second look in `init`:** synchronous work proportional to page size (defer it), and gating behaviour on `platform.name` where remote config could decide instead.
+
 ### `update`
 
 - This allows the feature to be sent updates from the browser

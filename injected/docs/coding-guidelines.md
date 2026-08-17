@@ -105,6 +105,27 @@ const response = await this.request('messageName', { data });
 this.subscribe('eventName', (data) => { ... });
 ```
 
+### Never block `init()` on a request (red flag)
+
+Awaiting a `request()` inside `init()` blocks the shared feature init chain on a client round trip, and hangs forever if the platform has no handler for it. It is a red flag in review, and the `ddg-local/no-blocking-init-request` ESLint rule rejects it.
+
+```js
+// ❌ Red flag - the feature (and the init chain) waits for the client
+async init() {
+    const { enabled } = await this.request('isEnabled', {});
+    if (!enabled) return;
+    this.installListeners();
+}
+
+// ✅ Enablement belongs in remote config - it arrives with the injected args
+init() {
+    if (!this.getFeatureSettingEnabled('someToggle')) return;
+    this.installListeners();
+}
+```
+
+Use remote config or `userPreferences` for enablement, `subscribe()` for state the client pushes, and an un-awaited `request()` when the feature really does need a response to continue. See [Red flags in `init`](./features-guide.md#red-flags-in-init) for the full rationale and alternatives.
+
 ### Reserved Fields
 
 The `nativeData` field is **reserved for native platform use** and must never be included in messages sent from C-S-S to the client. Native implementations inject a `nativeData` field into incoming messages; `nativeData` is reserved for that layer. Including it in outgoing messages would conflict with native-side processing.

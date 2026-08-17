@@ -2,6 +2,7 @@ import tseslint from 'typescript-eslint';
 import ddgConfig from '@duckduckgo/eslint-config';
 import reactHooks from 'eslint-plugin-react-hooks';
 import globals from 'globals';
+import ddgLocal from './scripts/eslint-rules/index.js';
 
 // @ts-check
 export default tseslint.config(
@@ -81,6 +82,14 @@ export default tseslint.config(
         rules: {
             '@typescript-eslint/no-floating-promises': 'error',
             'no-void': ['error', { allowAsStatement: true }],
+        },
+    },
+    {
+        // Feature lifecycle rules - see injected/docs/features-guide.md
+        files: ['injected/src/**/*.js'],
+        plugins: { 'ddg-local': ddgLocal },
+        rules: {
+            'ddg-local/no-blocking-init-request': 'error',
         },
     },
     {

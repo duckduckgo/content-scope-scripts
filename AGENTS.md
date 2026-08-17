@@ -81,6 +81,10 @@ Follow the error handling guidelines in [`guides/error-handling.md`](guides/erro
 - Never leave promises unhandled — use `.catch()` or `try/catch` with `await`
 - Return `null`/sentinel values for expected missing data instead of throwing
 
+### Feature Lifecycle (injected)
+
+Do not block a feature's `init()` on a `request()` to the client — it delays the shared init chain and hangs where no handler exists. Gate features with Privacy Remote Configuration or `userPreferences` instead. See [`injected/docs/features-guide.md`](injected/docs/features-guide.md) → "Red flags in `init`"; enforced by the `ddg-local/no-blocking-init-request` ESLint rule in [`scripts/eslint-rules/`](scripts/eslint-rules/).
+
 ### Strict TypeScript
 
 All **new** source files under `injected/src/` must be added to the `CORE_FILES` set in `scripts/check-strict-core.js`. This enforces TypeScript strict mode (`strict: true`, `noUncheckedIndexedAccess`). Run `npm run tsc-strict-core` to verify. Do not remove existing entries from the set.
