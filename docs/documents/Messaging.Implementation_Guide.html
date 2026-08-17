@@ -1,0 +1,115 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>Implementation Guide | @duckduckgo/content-scope-scripts</title><meta name="description" content="Documentation for @duckduckgo/content-scope-scripts"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar"><div class="tsd-toolbar-contents container"><a href="../index.html" class="title">@duckduckgo/content-scope-scripts</a><div id="tsd-toolbar-links"></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/><ul role="listbox" id="tsd-search-results"></ul><div id="tsd-search-status" aria-live="polite" aria-atomic="true"><div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header><div class="container container-main"><div class="col-content"><div class="tsd-page-title"><ul class="tsd-breadcrumb" aria-label="Breadcrumb"><li><a href="Messaging.html">Messaging</a></li><li><a href="" aria-current="page">Implementation Guide</a></li></ul></div><div class="tsd-panel tsd-typography"><h1 id="messaging-implementation-guide" class="tsd-anchor-link">Messaging Implementation Guide<a href="#messaging-implementation-guide" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h1>
+<h2 id="step-1-receiving-a-notification-or-request-message" class="tsd-anchor-link">Step 1) Receiving a notification or request message:<a href="#step-1-receiving-a-notification-or-request-message" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>Each platform will 'receive' messages according to their own best practices, the following spec describes everything <strong>after</strong>
+the message has been delivered from the clientside JavaScript (deliberately avoiding the platform specifics of <em>how</em> messages arrive)</p>
+<p>For example, in Android this would be what happens within a <code>@Javascript</code> Interface, but on macOS it would be within
+the WebKit messaging protocol, etc.</p>
+<h3 id="algorithm" class="tsd-anchor-link">Algorithm<a href="#algorithm" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ol>
+<li>let <code>s</code> be an incoming raw <code>JSON</code> payload</li>
+<li>let <code>msg</code> be the result of parsing <code>s</code> into key/value pairs
+<ul>
+<li>2.1 Note: 'parsing' here may not be required if the platform in question receives JSON data directly (ie: JavaScript environments)</li>
+</ul>
+</li>
+<li>if parsing was not successful, log an &quot;invalid message&quot; exception and exit.</li>
+<li>validate that <code>msg.context</code> exists and is a <code>string</code> value</li>
+<li>validate that <code>msg.featureName</code> exists and is a <code>string</code> value</li>
+<li>validate that <code>msg.method</code> exists and is a <code>string</code> value
+<ul>
+<li>6.1 if <code>context</code>, <code>featureName</code> or <code>method</code> are invalid (not a string, or missing), log an &quot;invalid message&quot; Exception and exit.</li>
+</ul>
+</li>
+<li>let <code>params</code> be a reference to <code>msg.params</code> or a new, empty key/value structure</li>
+<li>if <code>params</code> is not a valid key/value structure, log an &quot;invalid params&quot; exception and exit.</li>
+<li>if the <code>msg.id</code> field is absent, then:
+<ul>
+<li>9.1. mark <code>msg</code> as being of type <a href="../classes/Messaging_Schema.NotificationMessage.html" class="tsd-kind-class"> Messaging.NotificationMessage</a></li>
+</ul>
+</li>
+<li>if the <code>msg.id</code> field is present, then:
+<ul>
+<li>10.1. validate that <code>msg.id</code> a string value, log an &quot;invalid id&quot; exception if it isn't, and exit.</li>
+<li>10.2. mark <code>msg</code> as being of type <a href="../classes/Messaging_Schema.RequestMessage.html" class="tsd-kind-class"> Messaging.RequestMessage</a></li>
+</ul>
+</li>
+<li>At this point, you should have a structure that represents either a <a href="../classes/Messaging_Schema.NotificationMessage.html" class="tsd-kind-class"> Messaging.NotificationMessage</a> or
+<a href="../classes/Messaging_Schema.RequestMessage.html" class="tsd-kind-class"> Messaging.RequestMessage</a>. Then move to Step 2)</li>
+</ol>
+<h2 id="step-2-choosing-and-executing-a-handler" class="tsd-anchor-link">Step 2) Choosing and executing a handler<a href="#step-2-choosing-and-executing-a-handler" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>Once you've completed Step 1), you'll know whether you are dealing with a notification or a request (something you need
+to respond to). At this point you don't know which feature will attempt the message, you just know the format was correct.</p>
+<h3 id="algorithm-1" class="tsd-anchor-link">Algorithm<a href="#algorithm-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ol>
+<li>let <code>feature</code> be the result of looking up a feature that matches name <code>msg.featureName</code></li>
+<li>if <code>feature</code> is not found:
+<ul>
+<li>2.1 if <code>msg</code> was marked as type <code>Request</code>, return a &quot;feature not found&quot; <a href="Messaging.Example_JSON_payloads.html#error-response">Error Response</a></li>
+<li>2.2 if <code>msg</code> was marked as type <code>Notification</code>, optionally log a &quot;feature not found&quot; exception and exit</li>
+</ul>
+</li>
+<li>let <code>handler</code> be the result of calling <code>feature.handlerFor(msg.method)</code></li>
+<li>if <code>handler</code> is not found:
+<ul>
+<li>4.1 if <code>msg</code> was marked as type <code>Request</code>, return a &quot;method not found&quot; <a href="Messaging.Example_JSON_payloads.html#error-response">Error Response</a></li>
+<li>4.2 if <code>msg</code> was marked as type <code>Notification</code>, optionally log a &quot;feature not found&quot; exception and exit</li>
+</ul>
+</li>
+<li>execute <code>handler</code> with <code>msg.params</code>
+<ul>
+<li>5.1. if <code>msg</code> was marked as a <a href="../classes/Messaging_Schema.NotificationMessage.html" class="tsd-kind-class"> Messaging.NotificationMessage</a> (via step 1), then:
+<ol>
+<li>do not wait for a response</li>
+<li>if the platform must respond (to prevent errors), then:
+<ol>
+<li>respond with an empty key/value JSON structure <code>{}</code></li>
+</ol>
+</li>
+</ol>
+</li>
+<li>5.2. if <code>msg</code> was marked as a <a href="../classes/Messaging_Schema.RequestMessage.html" class="tsd-kind-class"> Messaging.RequestMessage</a>, then:
+<ol>
+<li>let <code>response</code> be a new instance of <a href="../classes/Messaging_Schema.MessageResponse.html" class="tsd-kind-class"> Messaging.MessageResponse</a>
+<ol>
+<li>assign <code>msg.context</code> to <code>response.context</code></li>
+<li>assign <code>msg.featureName</code> to <code>response.featureName</code></li>
+<li>assign <code>msg.id</code> to <code>response.id</code></li>
+</ol>
+</li>
+<li>let <code>result</code> be the return value of <em>executing</em> <code>handler(msg.params)</code></li>
+<li>if <code>result</code> is empty, assign <code>result</code> to an empty key/value structure</li>
+<li>if an <strong>error</strong> occurred during execution, then:
+<ol>
+<li>let <code>error</code> be a new instance of <a href="../classes/Messaging_Schema.MessageError.html" class="tsd-kind-class"> Messaging.MessageError</a></li>
+<li>assign a descriptive message if possible, to <code>error.message</code></li>
+<li>assign <code>error</code> to <code>response.error</code></li>
+</ol>
+</li>
+<li>if an error <strong>did not occur</strong>, assign <code>result</code> to <code>response.result</code></li>
+<li>let <code>json</code> be the string result of converting <code>response</code> into JSON</li>
+<li>deliver the JSON response in the platform-specified way</li>
+</ol>
+</li>
+</ul>
+</li>
+</ol>
+<h2 id="step-3-push-based-messaging" class="tsd-anchor-link">Step 3) Push-based messaging<a href="#step-3-push-based-messaging" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<ol>
+<li>let <code>event</code> be a new instance of <a href="../classes/Messaging_Schema.SubscriptionEvent.html" class="tsd-kind-class"> Messaging.SubscriptionEvent</a></li>
+<li>assign <code>event.context</code> to the target context</li>
+<li>assign <code>event.featureName</code> to the target feature</li>
+<li>assign <code>event.subscriptionName</code> to the target subscriptionName</li>
+<li>if the message contains data, then
+<ol>
+<li>let <code>params</code> be a key/value structure
+<ol>
+<li>Note: only key/value structures are permitted.</li>
+</ol>
+</li>
+<li>assign <code>params</code> to <code>event.params</code></li>
+</ol>
+</li>
+<li>let <code>json</code> be the string result of converting <code>event</code> into JSON</li>
+<li>deliver the JSON response in the platform-specified way</li>
+</ol>
+</div></div><div class="col-sidebar"><div class="page-menu"><div class="tsd-navigation settings"><details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg><h3>Settings</h3></summary><div class="tsd-accordion-details"><div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span><ul id="tsd-filter-options"><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li></ul></div><div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div><details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg><h3>On This Page</h3></summary><div class="tsd-accordion-details"><a href="#messaging-implementation-guide"><span>Messaging <wbr/>Implementation <wbr/>Guide</span></a><ul><li><a href="#step-1-receiving-a-notification-or-request-message"><span>Step 1) <wbr/>Receiving a notification or request message:</span></a></li><li><ul><li><a href="#algorithm"><span>Algorithm</span></a></li></ul></li><li><a href="#step-2-choosing-and-executing-a-handler"><span>Step 2) <wbr/>Choosing and executing a handler</span></a></li><li><ul><li><a href="#algorithm-1"><span>Algorithm</span></a></li></ul></li><li><a href="#step-3-push-based-messaging"><span>Step 3) <wbr/>Push-<wbr/>based messaging</span></a></li></ul></div></details></div><div class="site-menu"><nav class="tsd-navigation"><a href="../index.html">@duckduckgo/content-scope-scripts</a><ul class="tsd-small-nested-navigation" id="tsd-nav-container"><li>Loading...</li></ul></nav></div></div></div><footer><p class="tsd-generator">Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></footer><div class="overlay"></div></body></html>
