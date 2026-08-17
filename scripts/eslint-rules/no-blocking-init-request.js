@@ -110,25 +110,31 @@ function mentionsMessaging(node) {
 }
 
 /**
- * True for a call on a local messaging wrapper - an object built from
- * `this.messaging`, as features do with their `*Messages` classes:
+ * True for a call on a messaging wrapper - an object built from `this.messaging`,
+ * as features do with their `*Messages` classes. Both of these are a round trip
+ * to the client, one layer down from `this.request()`:
  *
  *     const messages = new DuckPlayerNativeMessages(this.messaging, env);
- *     await messages.initialSetup();   // still a round trip to the client
+ *     await messages.initialSetup();          // a local
  *
- * Awaiting any method of such a wrapper in a lifecycle method is the same
- * anti-pattern as awaiting `this.request()` directly, just one layer down. We
- * resolve the variable rather than matching on names, so an unrelated
- * `await someClient.request()` stays untouched.
+ *     get messages() { return new FeatureMessages(this.messaging); }
+ *     await this.messages.initialSetup();     // a class member
+ *
+ * We resolve the local through scope, and the class member through the
+ * surrounding class body, rather than matching on method names - so an
+ * unrelated `await someClient.request()` stays untouched.
  *
  * @param {any} node
  * @param {import('eslint').Rule.RuleContext} context
+ * @param {any} classBody the class the lifecycle method belongs to, if any
  */
-function isMessagingWrapperCall(node, context) {
+function isMessagingWrapperCall(node, context, classBody) {
     if (node.type !== 'CallExpression') return false;
     const callee = node.callee;
     if (!callee || callee.type !== 'MemberExpression') return false;
     const root = calleeRoot(callee);
+
+    if (root?.type === 'ThisExpression') return isMessagingMember(callee, classBody);
     if (root?.type !== 'Identifier') return false;
 
     /** @type {import('eslint').Scope.Scope | null} */
@@ -142,6 +148,34 @@ function isMessagingWrapperCall(node, context) {
     return (variable?.defs || []).some(
         (def) => def.type === 'Variable' && def.node.init && !FUNCTION_TYPES.has(def.node.init.type) && mentionsMessaging(def.node.init),
     );
+}
+
+/**
+ * For a callee rooted at `this`, whether the property it hangs off is a member
+ * of this class built from `this.messaging` - a `get messages()` accessor or a
+ * `messages = new FeatureMessages(this.messaging)` field.
+ *
+ * @param {any} callee
+ * @param {any} classBody
+ */
+function isMessagingMember(callee, classBody) {
+    if (!classBody) return false;
+    // Step down to the property hanging directly off `this`: for
+    // `this.messages.initialSetup`, that's `this.messages`.
+    let owner = callee.object;
+    while (owner?.type === 'MemberExpression' && owner.object?.type === 'MemberExpression') {
+        owner = owner.object;
+    }
+    if (owner?.type !== 'MemberExpression' || owner.object?.type !== 'ThisExpression') return false;
+    const name = owner.property?.type === 'Identifier' || owner.property?.type === 'PrivateIdentifier' ? owner.property.name : null;
+    if (!name) return false;
+
+    return (classBody.body || []).some((member) => {
+        const key = member.key?.type === 'Identifier' || member.key?.type === 'PrivateIdentifier' ? member.key.name : null;
+        if (key !== name) return false;
+        // A getter's body, or a field's initialiser
+        return mentionsMessaging(member.value?.body || member.value);
+    });
 }
 
 /**
@@ -201,27 +235,29 @@ export const noBlockingInitRequest = {
          *
          * @param {any} fn
          * @param {string} messageId
+         * @param {any} classBody
          */
-        function checkLifecycleMethod(fn, messageId) {
+        function checkLifecycleMethod(fn, messageId, classBody) {
             if (!fn.body) return;
             // Expression-bodied arrow: `init = async () => this.request(…)` returns the promise
             if (fn.body.type !== 'BlockStatement') {
-                reportRequestsIn(fn.body, messageId);
+                reportRequestsIn(fn.body, messageId, classBody);
                 return;
             }
             walkOwnScope(fn.body, (node) => {
                 const blocked = node.type === 'AwaitExpression' ? node.argument : node.type === 'ReturnStatement' ? node.argument : null;
-                if (blocked) reportRequestsIn(blocked, messageId);
+                if (blocked) reportRequestsIn(blocked, messageId, classBody);
             });
         }
 
         /**
          * @param {any} expression an expression whose promise the lifecycle method waits on
          * @param {string} messageId
+         * @param {any} classBody
          */
-        function reportRequestsIn(expression, messageId) {
+        function reportRequestsIn(expression, messageId, classBody) {
             walkOwnScope(expression, (node) => {
-                if (!isClientRequestCall(node, methodNames) && !isMessagingWrapperCall(node, context)) return;
+                if (!isClientRequestCall(node, methodNames) && !isMessagingWrapperCall(node, context, classBody)) return;
                 if (reported.has(node)) return;
                 reported.add(node);
                 context.report({
@@ -235,7 +271,10 @@ export const noBlockingInitRequest = {
         /** @param {any} node */
         function checkDefinition(node) {
             const found = lifecycleFunction(node);
-            if (found) checkLifecycleMethod(found.fn, found.messageId);
+            // `node.parent` is the ClassBody: set already, since ESLint enters the
+            // class before this definition. Descendants of `node` are not yet
+            // traversed, so their `parent` cannot be relied on here.
+            if (found) checkLifecycleMethod(found.fn, found.messageId, node.parent);
         }
 
         return {

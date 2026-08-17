@@ -81,6 +81,13 @@ ruleTester.run('no-blocking-init-request', noBlockingInitRequest, {
                 await helper.initialSetup();
             }
         }`,
+        // A class member that has nothing to do with messaging
+        `class F extends ContentFeature {
+            helper = new Helper(this.platform);
+            async init() {
+                await this.helper.load();
+            }
+        }`,
         // A messaging wrapper is fine as long as init doesn't wait on it
         `class F extends ContentFeature {
             init() {
@@ -238,7 +245,7 @@ ruleTester.run('no-blocking-init-request', noBlockingInitRequest, {
             errors: [{ messageId: 'blockingInit', data: { name: 'messages.initialSetup' } }],
         },
         {
-            // ...and where the wrapper is built outside the lifecycle method
+            // ...and where the wrapper is a getter on the class, under default options
             code: `class F extends ContentFeature {
                 async init() {
                     await this.messages.initialSetup();
@@ -247,7 +254,16 @@ ruleTester.run('no-blocking-init-request', noBlockingInitRequest, {
                     return new FeatureMessages(this.messaging);
                 }
             }`,
-            options: [{ methodNames: ['request', 'initialSetup'] }],
+            errors: [{ messageId: 'blockingInit', data: { name: 'this.messages.initialSetup' } }],
+        },
+        {
+            // ...or a class field
+            code: `class F extends ContentFeature {
+                messages = new FeatureMessages(this.messaging);
+                async init() {
+                    await this.messages.initialSetup();
+                }
+            }`,
             errors: [{ messageId: 'blockingInit' }],
         },
         {

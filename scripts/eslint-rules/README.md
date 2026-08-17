@@ -20,7 +20,7 @@ When a feature really does need a client response before it can do anything, the
 Two shapes are matched:
 
 - a `methodNames` call reached from `this` — `this.request(...)`, `this.messaging.request(...)`;
-- any method call on a local **messaging wrapper**, i.e. a variable whose initialiser mentions `this.messaging`, as features do with their `*Messages` classes. `const messages = new DuckPlayerNativeMessages(this.messaging, env); await messages.initialSetup()` is the same round trip one layer down. The variable is resolved through scope, not matched by name, so an unrelated `await someClient.request(...)` is left alone.
+- any method call on a **messaging wrapper**, i.e. an object built from `this.messaging`, as features do with their `*Messages` classes — `await messages.initialSetup()` is the same round trip one layer down. Both a local (`const messages = new DuckPlayerNativeMessages(this.messaging, env)`) and a class member (`get messages() { return new FeatureMessages(this.messaging) }`, or the equivalent field) are recognised: the local is resolved through scope and the member through the surrounding class body, rather than matched by name — so an unrelated `await someClient.request(...)` or `await this.helper.load()` is left alone.
 
 Only the lifecycle method's own scope is examined — a request inside an event listener or other callback registered there is fine, because nothing waits on it. Extra method names can be flagged per config block:
 
