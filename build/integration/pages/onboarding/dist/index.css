@@ -3030,7 +3030,7 @@ h2 {
 .GetStartedAnimation_root {
   position: absolute;
   left: -138px;
-  bottom: -192px;
+  bottom: -251px;
 }
 .GetStartedAnimation_fadeOut {
   animation: GetStartedAnimation_fade-out 100ms cubic-bezier(0.66, 0, 0.34, 1) both;

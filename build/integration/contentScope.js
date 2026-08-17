@@ -23997,6 +23997,7 @@ ul.messages {
       this.seenVideoElements = /* @__PURE__ */ new WeakSet();
       this.seenVideoUrls = /* @__PURE__ */ new Set();
       this.reportedAutoplayElements = /* @__PURE__ */ new WeakSet();
+      this.autoplayObservers = /* @__PURE__ */ new WeakMap();
       this.videoPlaybackEnabled = false;
       this.videoAutoplayEnabled = false;
     }
@@ -24055,6 +24056,8 @@ ul.messages {
         return;
       }
       this.reportedAutoplayElements.add(video);
+      this.autoplayObservers.get(video)?.disconnect();
+      this.autoplayObservers.delete(video);
       this.messaging.notify(MSG_VIDEO_AUTOPLAY);
     }
     addPlayObserver(video) {
@@ -24073,6 +24076,15 @@ ul.messages {
           this.reportAutoplay(video);
         }
       });
+      if (this.videoAutoplayEnabled && !this.reportedAutoplayElements.has(video)) {
+        const attributeObserver = new MutationObserver(() => {
+          if (video.autoplay) {
+            this.reportAutoplay(video);
+          }
+        });
+        attributeObserver.observe(video, { attributes: true, attributeFilter: ["autoplay"] });
+        this.autoplayObservers.set(video, attributeObserver);
+      }
     }
     addListenersToAllVideos(node) {
       if (!node) {
@@ -24117,17 +24129,13 @@ ul.messages {
                 }
               }
             });
-          } else if (mutation.type === "attributes" && mutation.target.tagName === "VIDEO") {
-            this.addPlayObserver(mutation.target);
           }
         }
       };
       const observer = new MutationObserver(observerCallback);
       observer.observe(documentBody, {
         childList: true,
-        subtree: true,
-        attributes: true,
-        attributeFilter: ["autoplay"]
+        subtree: true
       });
     }
   };
