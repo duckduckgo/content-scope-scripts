@@ -51,37 +51,14 @@ describe('TextSelection', () => {
         );
     }
 
-    it('stays inert when native disables the feature', async () => {
-        feature.request = jasmine.createSpy('request').and.resolveTo({ enabled: false });
+    it('installs the reader when initialized', () => {
+        feature.init();
 
-        await feature.init();
-
-        expect(selectionFrame()).toBeUndefined();
-        expect(feature.notify).not.toHaveBeenCalled();
-    });
-
-    it('stays inert when native does not handle the request', async () => {
-        feature.request = jasmine.createSpy('request').and.rejectWith(new Error('missing handler'));
-
-        await feature.init();
-
-        expect(selectionFrame()).toBeUndefined();
-        expect(feature.notify).not.toHaveBeenCalled();
-    });
-
-    it('allows config and native to enable the feature on another Apple platform', async () => {
-        feature.platform = { name: 'macos' };
-        feature.request = jasmine.createSpy('request').and.resolveTo({ enabled: true });
-
-        await feature.init();
-
-        expect(feature.request).toHaveBeenCalledWith('isEnabled', {});
         expect(selectionFrame()).toBeDefined();
     });
 
-    it('reports selection state without sending selected text', async () => {
-        feature.request = jasmine.createSpy('request').and.resolveTo({ enabled: true });
-        await feature.init();
+    it('reports selection state without sending selected text', () => {
+        feature.init();
 
         selectTargetText();
 
@@ -92,17 +69,14 @@ describe('TextSelection', () => {
         expect(params.selectedText).toBeUndefined();
     });
 
-    it('does not report an initial empty selection', async () => {
-        feature.request = jasmine.createSpy('request').and.resolveTo({ enabled: true });
-
-        await feature.init();
+    it('does not report an initial empty selection', () => {
+        feature.init();
 
         expect(feature.notify).not.toHaveBeenCalled();
     });
 
-    it('reports the selection event time against the frame time origin', async () => {
-        feature.request = jasmine.createSpy('request').and.resolveTo({ enabled: true });
-        await feature.init();
+    it('reports the selection event time against the frame time origin', () => {
+        feature.init();
         feature.notify.calls.reset();
 
         const event = selectTargetText();
@@ -112,9 +86,8 @@ describe('TextSelection', () => {
         expect(selectionFrame()?.readSelection().eventTimestamp).toBe(params.eventTimestamp);
     });
 
-    it('reasserts an accepted selection when another frame may have taken native ownership', async () => {
-        feature.request = jasmine.createSpy('request').and.resolveTo({ enabled: true });
-        await feature.init();
+    it('reasserts an accepted selection when another frame may have taken native ownership', () => {
+        feature.init();
         feature.notify.calls.reset();
         spyOn(feature, '_selectionText').and.returnValue('Same selection');
         const snapshots = [];
@@ -136,9 +109,8 @@ describe('TextSelection', () => {
         expect(snapshots).toEqual(['Same selection', 'Same selection']);
     });
 
-    it('returns the snapshot and its event timestamp when native reads the selected frame', async () => {
-        feature.request = jasmine.createSpy('request').and.resolveTo({ enabled: true });
-        await feature.init();
+    it('returns the snapshot and its event timestamp when native reads the selected frame', () => {
+        feature.init();
 
         selectTargetText();
 
@@ -147,9 +119,8 @@ describe('TextSelection', () => {
         expect(result?.eventTimestamp).toEqual(jasmine.any(Number));
     });
 
-    it('keeps the selected-time snapshot when the page mutates the text', async () => {
-        feature.request = jasmine.createSpy('request').and.resolveTo({ enabled: true });
-        await feature.init();
+    it('keeps the selected-time snapshot when the page mutates the text', () => {
+        feature.init();
         selectTargetText();
 
         const target = document.getElementById('target');
@@ -159,9 +130,8 @@ describe('TextSelection', () => {
         expect(selectionFrame()?.readSelection().selectedText).toBe('Selected text');
     });
 
-    it('releases a claimed frame when the page is hidden', async () => {
-        feature.request = jasmine.createSpy('request').and.resolveTo({ enabled: true });
-        await feature.init();
+    it('releases a claimed frame when the page is hidden', () => {
+        feature.init();
         selectTargetText();
 
         window.dispatchEvent(new window.Event('pagehide'));
@@ -190,9 +160,8 @@ describe('TextSelection', () => {
             jasmine.clock().uninstall();
         });
 
-        it('claims after focus becomes observable on the next task', async () => {
-            feature.request = jasmine.createSpy('request').and.resolveTo({ enabled: true });
-            await feature.init();
+        it('claims after focus becomes observable on the next task', () => {
+            feature.init();
             feature.notify.calls.reset();
             let canClaim = false;
             let selectedText = 'Initial selection';
@@ -208,9 +177,8 @@ describe('TextSelection', () => {
             expect(selectionFrame()?.readSelection().selectedText).toBe('Focused selection');
         });
 
-        it('does not claim when a newer empty selection cancels the retry', async () => {
-            feature.request = jasmine.createSpy('request').and.resolveTo({ enabled: true });
-            await feature.init();
+        it('does not claim when a newer empty selection cancels the retry', () => {
+            feature.init();
             feature.notify.calls.reset();
             let canClaim = false;
             let selectedText = 'Selected text';
@@ -229,9 +197,8 @@ describe('TextSelection', () => {
             expect(claimed).toBeFalse();
         });
 
-        it('does not include selected text in a successful retry notification', async () => {
-            feature.request = jasmine.createSpy('request').and.resolveTo({ enabled: true });
-            await feature.init();
+        it('does not include selected text in a successful retry notification', () => {
+            feature.init();
             feature.notify.calls.reset();
             let canClaim = false;
             spyOn(feature, '_canClaim').and.callFake(() => canClaim);
@@ -249,9 +216,8 @@ describe('TextSelection', () => {
             });
         });
 
-        it('cancels a pending claim when the page is hidden', async () => {
-            feature.request = jasmine.createSpy('request').and.resolveTo({ enabled: true });
-            await feature.init();
+        it('cancels a pending claim when the page is hidden', () => {
+            feature.init();
             feature.notify.calls.reset();
             let canClaim = false;
             spyOn(feature, '_canClaim').and.callFake(() => canClaim);

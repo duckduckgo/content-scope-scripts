@@ -11,7 +11,6 @@
  */
 export interface TextSelectionMessages {
   notifications: SelectionFrameChangedNotification;
-  requests: IsEnabledRequest;
 }
 /**
  * Generated from @see "../messages/text-selection/selectionFrameChanged.notify.json"
@@ -33,22 +32,9 @@ export interface SelectionFrameChangedParams {
    */
   eventTimestamp: number;
 }
-/**
- * Generated from @see "../messages/text-selection/isEnabled.request.json"
- */
-export interface IsEnabledRequest {
-  method: "isEnabled";
-  /**
-   * Checks whether native text-selection handling is enabled.
-   */
-  params: {
-    [k: string]: unknown;
-  };
-}
 
 declare module "../features/text-selection.js" {
   export interface TextSelection {
-    notify: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<TextSelectionMessages>['notify'],
-    request: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<TextSelectionMessages>['request']
+    notify: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<TextSelectionMessages>['notify']
   }
 }

@@ -14,14 +14,7 @@ export default class TextSelection extends ContentFeature {
     /** @type {number} */
     _snapshotTimestamp = 0;
 
-    async init() {
-        try {
-            const { enabled } = await this.request('isEnabled', {});
-            if (!enabled) return;
-        } catch (_error) {
-            return;
-        }
-
+    init() {
         objectDefineProperty(window, '__ddgSelectionFrame', {
             value: Object.freeze({
                 readSelection: () => ({
