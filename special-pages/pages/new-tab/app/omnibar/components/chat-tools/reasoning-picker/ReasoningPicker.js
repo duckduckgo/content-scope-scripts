@@ -1,11 +1,13 @@
-import { h } from 'preact';
+import { Fragment, h } from 'preact';
 import { useEffect, useMemo, useRef } from 'preact/hooks';
 import cn from 'classnames';
 import { useDropdown } from '../useDropdown';
 import { useMessaging } from '../../../../types.js';
 import { Dropdown } from '../dropdown/Dropdown';
 import { DropdownItem } from '../dropdown/DropdownItem';
-import { isUpsellMuted, recordUpsellImpression } from '../upsellImpressions.js';
+import { DropdownSeparator } from '../dropdown/DropdownSeparator';
+import { DropdownSectionHeader } from '../dropdown/DropdownSectionHeader';
+import { recordUpsellImpression } from '../upsellImpressions.js';
 import { getUpsellCtaLabel } from '../../../utils.js';
 import dropdownStyles from '../dropdown/Dropdown.module.css';
 import styles from './ReasoningPicker.module.css';
@@ -22,6 +24,7 @@ import styles from './ReasoningPicker.module.css';
  * @property {string} [description] - Localized description
  * @property {boolean} isAvailable - Whether the option is selectable or gated behind an upsell
  * @property {'subscribe' | 'upgrade'} [upsell] - For a gated option, which upsell flow to trigger
+ * @property {string} [gatedSectionHeader] - Section header shown above the first gated option
  */
 
 /**
@@ -32,36 +35,14 @@ import styles from './ReasoningPicker.module.css';
  * @param {(type?: 'subscribe' | 'upgrade') => void} props.onUpsell
  * @param {string} props.ariaLabel
  * @param {string} props.buttonLabel
- * @param {string} props.tryForFreeLabel
- * @param {string} props.upgradeLabel
  * @param {boolean} props.isEligibleForFreeTrial - When false, a 'subscribe' upsell shows the upgrade label instead of "Try for free".
  */
-export function ReasoningPicker({
-    options,
-    selectedEffort,
-    onSelect,
-    onUpsell,
-    ariaLabel,
-    buttonLabel,
-    tryForFreeLabel,
-    upgradeLabel,
-    isEligibleForFreeTrial,
-}) {
+export function ReasoningPicker({ options, selectedEffort, onSelect, onUpsell, ariaLabel, buttonLabel, isEligibleForFreeTrial }) {
     const { isOpen, dropdownPos, buttonRef, dropdownRef, toggle, close } = useDropdown({ align: 'right' });
     const ntp = useMessaging();
     const shownRef = useRef(false);
 
     const gated = useMemo(() => options.filter((option) => !option.isAvailable), [options]);
-
-    // Mute the yellow CTA once it has been seen enough times (this picker's own count).
-    // Freeze the decision for the duration of each open: capture it on the render
-    // that opens the picker, before this open's impression is recorded below.
-    const wasOpenRef = useRef(false);
-    const upsellMutedRef = useRef(false);
-    if (isOpen && !wasOpenRef.current) {
-        upsellMutedRef.current = gated.length > 0 && isUpsellMuted('reasoning');
-    }
-    wasOpenRef.current = isOpen;
 
     // Impression telemetry: fire once each time the picker opens, plus the CTA(s) it shows.
     useEffect(() => {
@@ -129,25 +110,29 @@ export function ReasoningPicker({
                     position={dropdownPos}
                     onClose={handleClose}
                     idPrefix="reasoning-option"
-                    className={cn(dropdownStyles.roomy, upsellMutedRef.current && styles.upsellMuted)}
+                    className={dropdownStyles.roomy}
                 >
                     {options.map((option) => {
                         const OptionIcon = option.icon;
-                        const badgeLabel =
-                            getUpsellCtaLabel(option.upsell, isEligibleForFreeTrial) === 'upgrade' ? upgradeLabel : tryForFreeLabel;
                         return (
-                            <DropdownItem
-                                key={option.id}
-                                role="option"
-                                icon={<OptionIcon />}
-                                name={option.name}
-                                description={option.description}
-                                isSelected={option.isAvailable && option.id === selectedEffort}
-                                ariaSelected={option.isAvailable && option.id === selectedEffort}
-                                isDimmed={!option.isAvailable && option.upsell === 'upgrade'}
-                                trailingIcon={!option.isAvailable ? <span class={styles.tryForFreeBadge}>{badgeLabel}</span> : undefined}
-                                onSelect={() => (option.isAvailable ? handleSelect(option.id) : onUpsell(option.upsell))}
-                            />
+                            <Fragment key={option.id}>
+                                {option.gatedSectionHeader !== undefined && (
+                                    <Fragment>
+                                        <DropdownSeparator />
+                                        <DropdownSectionHeader>{option.gatedSectionHeader}</DropdownSectionHeader>
+                                    </Fragment>
+                                )}
+                                <DropdownItem
+                                    role="option"
+                                    icon={<OptionIcon />}
+                                    name={option.name}
+                                    description={option.description}
+                                    isSelected={option.isAvailable && option.id === selectedEffort}
+                                    ariaSelected={option.isAvailable && option.id === selectedEffort}
+                                    isDimmed={!option.isAvailable}
+                                    onSelect={() => (option.isAvailable ? handleSelect(option.id) : onUpsell(option.upsell))}
+                                />
+                            </Fragment>
                         );
                     })}
                 </Dropdown>

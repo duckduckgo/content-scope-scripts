@@ -156,3 +156,13 @@
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+.sectionHeader {
+    align-items: center;
+    color: var(--ds-color-theme-text-tertiary);
+    cursor: default;
+    display: flex;
+    font-size: 13px;
+    padding: var(--sp-1) 9px var(--sp-1) 19px;
+    white-space: nowrap;
+}
