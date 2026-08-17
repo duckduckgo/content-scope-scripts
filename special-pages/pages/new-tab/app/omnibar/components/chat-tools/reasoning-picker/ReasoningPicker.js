@@ -1,4 +1,4 @@
-import { Fragment, h } from 'preact';
+import { h } from 'preact';
 import { useEffect, useMemo, useRef } from 'preact/hooks';
 import cn from 'classnames';
 import { useDropdown } from '../useDropdown';
@@ -114,26 +114,26 @@ export function ReasoningPicker({ options, selectedEffort, onSelect, onUpsell, a
                 >
                     {options.map((option) => {
                         const OptionIcon = option.icon;
-                        return (
-                            <Fragment key={option.id}>
-                                {option.gatedSectionHeader !== undefined && (
-                                    <Fragment>
-                                        <DropdownSeparator />
-                                        <DropdownSectionHeader>{option.gatedSectionHeader}</DropdownSectionHeader>
-                                    </Fragment>
-                                )}
-                                <DropdownItem
-                                    role="option"
-                                    icon={<OptionIcon />}
-                                    name={option.name}
-                                    description={option.description}
-                                    isSelected={option.isAvailable && option.id === selectedEffort}
-                                    ariaSelected={option.isAvailable && option.id === selectedEffort}
-                                    isDimmed={!option.isAvailable}
-                                    onSelect={() => (option.isAvailable ? handleSelect(option.id) : onUpsell(option.upsell))}
-                                />
-                            </Fragment>
+                        const dropdownItem = (
+                            <DropdownItem
+                                key={option.id}
+                                role="option"
+                                icon={<OptionIcon />}
+                                name={option.name}
+                                description={option.description}
+                                isSelected={option.isAvailable && option.id === selectedEffort}
+                                ariaSelected={option.isAvailable && option.id === selectedEffort}
+                                isDimmed={!option.isAvailable}
+                                onSelect={() => (option.isAvailable ? handleSelect(option.id) : onUpsell(option.upsell))}
+                            />
                         );
+                        return option.gatedSectionHeader !== undefined
+                            ? [
+                                  <DropdownSeparator key={`${option.id}-separator`} />,
+                                  <DropdownSectionHeader key={`${option.id}-header`}>{option.gatedSectionHeader}</DropdownSectionHeader>,
+                                  dropdownItem,
+                              ]
+                            : dropdownItem;
                     })}
                 </Dropdown>
             )}
