@@ -221,7 +221,8 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
                                 >
                                     {Icon && <Icon />}
                                     <div class={styles.modelOptionLabel}>
-                                        <span class={styles.modelOptionName}>{model.name}</span>
+                                        {/* A locked model's name trails off, marking it as a preview rather than a choice. */}
+                                        <span class={styles.modelOptionName}>{model.isAvailable ? model.name : `${model.name}…`}</span>
                                         {model.description && <span class={styles.modelOptionDescription}>{model.description}</span>}
                                     </div>
                                     {badgeLabel && <span class={styles.modelOptionBadge}>{badgeLabel}</span>}
