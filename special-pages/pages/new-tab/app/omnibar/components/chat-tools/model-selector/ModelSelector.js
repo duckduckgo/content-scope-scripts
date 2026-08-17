@@ -101,7 +101,6 @@ export function ModelSelector({ selector, selectedModel, aiModelSections, onUpse
                     onUpsell={onUpsell}
                     className={upsellMutedRef.current ? styles.upsellMuted : undefined}
                     ariaLabel={ariaLabel}
-                    isEligibleForFreeTrial={isEligibleForFreeTrial}
                 />
             )}
         </div>

@@ -2,7 +2,6 @@ import { Fragment, h } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
 import cn from 'classnames';
 import { useTypedTranslationWith } from '../../../../types';
-import { getUpsellCtaLabel } from '../../../utils.js';
 import styles from './ModelSelector.module.css';
 import { getModelIcon } from './Icons';
 
@@ -19,16 +18,9 @@ import { getModelIcon } from './Icons';
  * @returns {string | null}
  */
 function getRowBadgeLabel(model, t) {
-    switch (model.accessTier) {
-        case 'internal':
-            return t('omnibar_modelBadgeInternal');
-        case 'plus':
-            return t('omnibar_modelBadgePlus');
-        case 'pro':
-            return t('omnibar_modelBadgePro');
-        default:
-            return null;
-    }
+    // Tier is named by the gated section's header, so only the internal-build marker
+    // still earns a per-row badge.
+    return model.accessTier === 'internal' ? t('omnibar_modelBadgeInternal') : null;
 }
 
 /**
@@ -41,24 +33,22 @@ function getRowBadgeLabel(model, t) {
  * @param {(type?: 'subscribe' | 'upgrade') => void} props.onUpsell
  * @param {string} [props.className] - Extra class(es) for the dropdown root.
  * @param {string} props.ariaLabel
- * @param {boolean} props.isEligibleForFreeTrial - When false, a 'subscribe' upsell shows "Upgrade" instead of "Try for free".
  * @param {import('preact').RefObject<HTMLUListElement>} [props.dropdownRef]
  */
-export function ModelDropdown({
-    sections,
-    selectedModelId,
-    dropdownPos,
-    onClose,
-    onSelect,
-    onUpsell,
-    className,
-    ariaLabel,
-    isEligibleForFreeTrial,
-    dropdownRef,
-}) {
+export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose, onSelect, onUpsell, className, ariaLabel, dropdownRef }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const allModels = sections.flatMap((section) => section.items);
     const optionIndexById = new Map(allModels.map((model, index) => [model.id, index]));
+    // A section whose every row is gated is an upsell section: its rows stay
+    // navigable and clickable, and activate the section's upsell instead of selecting.
+    const isUpsellSectionAt = sections.map((section) => section.items.length > 0 && section.items.every((model) => !model.isAvailable));
+    const upsellByModelId = new Map(
+        sections.flatMap((section, sectionIndex) =>
+            isUpsellSectionAt[sectionIndex]
+                ? section.items.map((model) => [model.id, section.items.find((item) => item.upsell)?.upsell ?? 'subscribe'])
+                : [],
+        ),
+    );
     const enabledModelIndices = allModels.reduce(
         /**
          * @param {number[]} indices
@@ -66,15 +56,11 @@ export function ModelDropdown({
          * @param {number} index
          */
         (indices, model, index) => {
-            if (model.isAvailable) indices.push(index);
+            if (model.isAvailable || upsellByModelId.has(model.id)) indices.push(index);
             return indices;
         },
         [],
     );
-    const upsellSections = sections
-        .map((section, sectionIndex) => ({ section, sectionIndex }))
-        .filter(({ section }) => section.items.length > 0 && section.items.every((model) => !model.isAvailable));
-    enabledModelIndices.push(...upsellSections.map((_, index) => allModels.length + index));
 
     const getInitialActiveIndex = () => {
         if (enabledModelIndices.length === 0) return -1;
@@ -121,11 +107,7 @@ export function ModelDropdown({
     /**
      * @param {number} index
      */
-    const getOptionId = (index) => {
-        const upsellSection = upsellSections[index - allModels.length];
-        if (upsellSection) return `model-upsell-${upsellSection.sectionIndex}`;
-        return `model-option-${allModels[index]?.id ?? index}`;
-    };
+    const getOptionId = (index) => `model-option-${allModels[index]?.id ?? index}`;
 
     /** @type {(e: KeyboardEvent) => void} */
     const handleKeyDown = (e) => {
@@ -149,12 +131,16 @@ export function ModelDropdown({
             case 'Enter':
             case ' ':
                 e.preventDefault();
-                if (activeIndex >= allModels.length) {
-                    const upsellSection = upsellSections[activeIndex - allModels.length]?.section;
-                    activateUpsell(upsellSection?.items.find((model) => model.upsell)?.upsell ?? 'subscribe', true);
-                } else if (activeIndex >= 0 && activeIndex < allModels.length) {
-                    onSelect(allModels[activeIndex].id);
-                    onClose({ restoreFocus: true });
+                if (activeIndex < 0 || activeIndex >= allModels.length) break;
+                {
+                    const model = allModels[activeIndex];
+                    const upsell = upsellByModelId.get(model.id);
+                    if (model.isAvailable) {
+                        onSelect(model.id);
+                        onClose({ restoreFocus: true });
+                    } else if (upsell) {
+                        activateUpsell(upsell, true);
+                    }
                 }
                 break;
             case 'Escape':
@@ -180,47 +166,22 @@ export function ModelDropdown({
             onMouseLeave={clearActiveIndex}
         >
             {sections.map((section, sectionIndex) => {
-                const isUpsellSection = section.items.length > 0 && section.items.every((model) => !model.isAvailable);
-                const sectionUpsell = section.items.find((model) => model.upsell)?.upsell ?? 'subscribe';
-                const upsellIndex = allModels.length + upsellSections.findIndex((entry) => entry.sectionIndex === sectionIndex);
                 return (
                     <Fragment key={sectionIndex}>
-                        {isUpsellSection ? (
+                        {section.header && (
                             <Fragment>
                                 <li role="separator" class={styles.modelSectionDivider} />
-                                <li
-                                    id={`model-upsell-${sectionIndex}`}
-                                    role="option"
-                                    aria-selected={false}
-                                    class={cn(styles.modelUpsellHeader, activeIndex === upsellIndex && styles.modelUpsellHeaderActive)}
-                                    onMouseOver={() => setActiveIndex(upsellIndex)}
-                                    onClick={() => activateUpsell(sectionUpsell, false)}
-                                >
-                                    {section.header && <span class={styles.modelUpsellText}>{section.header}</span>}
-                                    <span class={styles.modelUpsellCta}>
-                                        {getUpsellCtaLabel(sectionUpsell, isEligibleForFreeTrial) === 'upgrade'
-                                            ? t('omnibar_upgrade')
-                                            : t('omnibar_tryForFree')}
-                                    </span>
+                                <li role="presentation" class={styles.modelSectionHeader}>
+                                    {section.header}
                                 </li>
                             </Fragment>
-                        ) : (
-                            section.header && (
-                                <Fragment>
-                                    <li role="separator" class={styles.modelSectionDivider} />
-                                    <li role="presentation" class={styles.modelSectionHeader}>
-                                        {section.header}
-                                    </li>
-                                </Fragment>
-                            )
                         )}
                         {section.items.map((model) => {
                             const Icon = getModelIcon(model.id);
                             const optionIndex = optionIndexById.get(model.id) ?? -1;
                             const badgeLabel = getRowBadgeLabel(model, t);
-                            // Rows in an all-disabled section act as extra triggers for the
-                            // section's upsell CTA: dimmed, but hoverable and clickable.
-                            const isUpsellRow = !model.isAvailable && isUpsellSection;
+                            const rowUpsell = upsellByModelId.get(model.id);
+                            const isUpsellRow = !model.isAvailable && rowUpsell !== undefined;
                             const isInteractive = model.isAvailable || isUpsellRow;
                             return (
                                 <li
@@ -246,7 +207,7 @@ export function ModelDropdown({
                                             : isUpsellRow
                                               ? (e) => {
                                                     e.stopPropagation();
-                                                    activateUpsell(sectionUpsell, false);
+                                                    activateUpsell(rowUpsell, false);
                                                 }
                                               : undefined
                                     }
