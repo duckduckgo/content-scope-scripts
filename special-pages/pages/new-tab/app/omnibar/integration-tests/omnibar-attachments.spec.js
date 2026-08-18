@@ -344,7 +344,7 @@ test.describe('omnibar tab attachment', () => {
         await expect(omnibar.tabChip()).toHaveCount(1);
 
         await omnibar.chatInput().pressSequentially('@');
-        const firstOptionId = await omnibar.mentionOption('MacBook Neo - Apple').getAttribute('id');
+        const firstOptionId = await omnibar.mentionPicker().getByRole('option').first().getAttribute('id');
         expect(firstOptionId).toBeTruthy();
         await expect(omnibar.chatInput()).toHaveAttribute('aria-activedescendant', firstOptionId ?? '');
     });
