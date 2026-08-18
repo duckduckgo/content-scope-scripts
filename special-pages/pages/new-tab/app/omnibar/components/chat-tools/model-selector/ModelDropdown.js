@@ -41,6 +41,8 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
     const optionIndexById = new Map(allModels.map((model, index) => [model.id, index]));
     // Upsell behavior belongs to each gated model, independent of how native
     // groups available and gated rows into sections.
+    // Missing upsell values retain the legacy subscription behavior. Native
+    // should send an explicit value while the unavailable-item contract is finalized.
     const upsellByModelId = new Map(
         allModels.filter((model) => !model.isAvailable).map((model) => [model.id, model.upsell ?? 'subscribe']),
     );
@@ -171,11 +173,12 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
                 // it from the section above, even when the client sends no header text.
                 // Never show it above the very first section.
                 const needsDivider = sectionIndex > 0 && (Boolean(section.header) || hasGatedModelsAt[sectionIndex]);
+                const gatedSectionDescriptionId = section.header ? `model-gated-section-${sectionIndex}` : undefined;
                 return (
                     <Fragment key={sectionIndex}>
                         {needsDivider && <li role="separator" class={styles.modelSectionDivider} />}
                         {section.header && (
-                            <li role="presentation" class={styles.modelSectionHeader}>
+                            <li id={gatedSectionDescriptionId} role="presentation" class={styles.modelSectionHeader}>
                                 {section.header}
                             </li>
                         )}
@@ -192,6 +195,7 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
                                     id={getOptionId(optionIndex)}
                                     role="option"
                                     aria-selected={model.isAvailable ? model.id === selectedModelId : isUpsellRow ? false : undefined}
+                                    aria-describedby={isUpsellRow ? gatedSectionDescriptionId : undefined}
                                     aria-disabled={(!model.isAvailable && !isUpsellRow) || undefined}
                                     class={cn(
                                         styles.modelOption,
@@ -217,8 +221,7 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
                                 >
                                     {Icon && <Icon />}
                                     <div class={styles.modelOptionLabel}>
-                                        {/* A locked model's name trails off, marking it as a preview rather than a choice. */}
-                                        <span class={styles.modelOptionName}>{model.isAvailable ? model.name : `${model.name}…`}</span>
+                                        <span class={styles.modelOptionName}>{model.name}</span>
                                         {model.description && <span class={styles.modelOptionDescription}>{model.description}</span>}
                                     </div>
                                     {badgeLabel && <span class={styles.modelOptionBadge}>{badgeLabel}</span>}

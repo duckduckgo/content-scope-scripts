@@ -775,7 +775,7 @@ export interface AIModelItem {
    */
   reasoningEfforts?: ReasoningEffortOption[];
   /**
-   * For a gated (disabled) model, which upsell flow it leads to. Absent for enabled models.
+   * For a gated (disabled) model, which upsell flow it leads to. Absent for enabled models. The web UI currently treats a missing value on a gated model as 'subscribe' for backward compatibility; native should send an explicit value.
    */
   upsell?: "subscribe" | "upgrade";
 }
@@ -797,7 +797,7 @@ export interface ReasoningEffortOption {
    */
   isAvailable: boolean;
   /**
-   * For a gated (isAvailable: false) option, which upsell flow it leads to. Absent for available options.
+   * For a gated (isAvailable: false) option, which upsell flow it leads to. Absent for available options. The web UI currently treats a missing value on a gated option as 'subscribe' for backward compatibility; native should send an explicit value.
    */
   upsell?: "subscribe" | "upgrade";
   /**
@@ -1151,21 +1151,39 @@ export interface CustomizerDrawerState {
     themeVariantPopoverWasOpen?: boolean;
   };
 }
+/**
+ * Fired once when the user opens the omnibar model picker. This is a picker impression; it does not imply that the user activated a model or an upsell.
+ */
 export interface OmnibarModelPickerShown {
   name: "omnibar_model_picker_shown";
 }
+/**
+ * Fired when the user activates a gated model row whose displayed CTA is 'Try for free', immediately before the web UI requests the native subscription upsell. Despite the historical '_shown' suffix, this is an activation event, not an impression.
+ */
 export interface OmnibarModelPickerTryForFreeShown {
   name: "omnibar_model_picker_tryforfree_shown";
 }
+/**
+ * Fired when the user activates a gated model row whose resolved upsell presentation is 'Upgrade'. This activation bucket is derived from the item's upsell type and free-trial eligibility; the following native route is still determined by the item's upsell value, so this event can precede a subscription-upsell request. Despite the historical '_shown' suffix, this is an activation event, not an impression.
+ */
 export interface OmnibarModelPickerUpgradeShown {
   name: "omnibar_model_picker_upgrade_shown";
 }
+/**
+ * Fired once when the user opens the omnibar reasoning picker. This is a picker impression; it does not imply that the user activated a reasoning effort or an upsell.
+ */
 export interface OmnibarReasoningPickerShown {
   name: "omnibar_reasoning_picker_shown";
 }
+/**
+ * Fired when the user activates a gated reasoning-effort row whose displayed CTA is 'Try for free', immediately before the web UI requests the native subscription upsell. Despite the historical '_shown' suffix, this is an activation event, not an impression.
+ */
 export interface OmnibarReasoningPickerTryForFreeShown {
   name: "omnibar_reasoning_picker_tryforfree_shown";
 }
+/**
+ * Fired when the user activates a gated reasoning-effort row whose resolved upsell presentation is 'Upgrade'. This activation bucket is derived from the item's upsell type and free-trial eligibility; the following native route is still determined by the item's upsell value, so this event can precede a subscription-upsell request. Despite the historical '_shown' suffix, this is an activation event, not an impression.
+ */
 export interface OmnibarReasoningPickerUpgradeShown {
   name: "omnibar_reasoning_picker_upgrade_shown";
 }

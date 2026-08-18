@@ -25,6 +25,7 @@ import styles from './Dropdown.module.css';
  * @param {boolean} [props.ariaSelected]
  * @param {boolean} [props.ariaHasPopup]
  * @param {boolean} [props.ariaExpanded]
+ * @param {string} [props.ariaDescribedBy]
  * @param {boolean} [props.isActive]
  * @param {string} [props.id]
  * @param {import('preact').RefObject<HTMLLIElement>} [props.elementRef]
@@ -45,6 +46,7 @@ export function DropdownItem({
     ariaSelected,
     ariaHasPopup,
     ariaExpanded,
+    ariaDescribedBy,
     isActive = false,
     id,
     elementRef,
@@ -73,6 +75,7 @@ export function DropdownItem({
             aria-selected={ariaSelected}
             aria-haspopup={ariaHasPopup}
             aria-expanded={ariaExpanded}
+            aria-describedby={ariaDescribedBy}
             aria-disabled={disabled || undefined}
             class={cn(styles.item, isActive && styles.itemActive, isSelected && styles.itemSelected, disabled && styles.itemDisabled)}
             onMouseOver={onMouseOver}

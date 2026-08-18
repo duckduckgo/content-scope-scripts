@@ -1803,6 +1803,37 @@ test.describe('omnibar widget', () => {
             await expect(omnibar.modelDropdown()).toHaveCount(0);
         });
 
+        test('exposes the gated model section header as the row accessible description', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true' } });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+            await omnibar.modelSelectorButton().click();
+
+            await expect(omnibar.modelOption('Claude Sonnet 4.5')).toHaveAccessibleDescription('Advanced Models - DuckDuckGo subscription');
+        });
+
+        test('renders a gated model native name without an artificial suffix', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true' } });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+            await omnibar.modelSelectorButton().click();
+
+            const gatedModelName = omnibar.modelOption('Claude Sonnet 4.5').locator('div > span').first();
+            await expect(gatedModelName).toHaveText('Claude Sonnet 4.5');
+        });
+
         test('clicking a subscription-gated model row opens the subscription upsell', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);
@@ -2026,6 +2057,36 @@ test.describe('omnibar widget', () => {
                 'omnibar_model_picker_shown',
                 'omnibar_model_picker_upgrade_shown',
             ]);
+        });
+
+        test('keeps subscribe routing when free-trial eligibility selects upgrade telemetry', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.isEligibleForFreeTrial': 'false',
+                },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+            await omnibar.modelSelectorButton().click();
+            await omnibar.modelOption('Claude Sonnet 4.5').click();
+
+            const telemetryCalls = await ntp.mocks.waitForCallCount({ method: 'telemetryEvent', count: 2 });
+            expect(telemetryCalls.map((call) => call.payload.params.attributes.name)).toEqual([
+                'omnibar_model_picker_shown',
+                'omnibar_model_picker_upgrade_shown',
+            ]);
+            const subscribeCalls = await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpsell', count: 1 });
+            expect(subscribeCalls.at(-1)?.payload.params).toEqual({ source: 'model' });
+            const upgradeCalls = await ntp.mocks.outgoing({ names: ['omnibar_showSubscriptionUpgrade'] });
+            expect(upgradeCalls).toEqual([]);
         });
 
         test('fires only the model picker shown event when no models are gated', async ({ page }, workerInfo) => {
@@ -2413,6 +2474,29 @@ test.describe('omnibar widget', () => {
 
             await expect(omnibar.reasoningDropdown().getByText('Try Free for 7 Days', { exact: true })).toBeVisible();
             await expect(omnibar.reasoningDropdown().getByText('Available with Pro', { exact: true })).toBeVisible();
+        });
+
+        test('exposes a gated reasoning section header as every row accessible description', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.selectedModelId': 'claude-haiku-4-5',
+                    'omnibar.reasoningSections': 'grouped',
+                },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+            await omnibar.reasoningPickerButton().click();
+
+            await expect(omnibar.reasoningOption('For analytical tasks')).toHaveAccessibleDescription('Try Free for 7 Days');
+            await expect(omnibar.reasoningOption('For the hardest tasks')).toHaveAccessibleDescription('Try Free for 7 Days');
         });
 
         test('fires try-for-free telemetry when its gated reasoning effort is activated', async ({ page }, workerInfo) => {

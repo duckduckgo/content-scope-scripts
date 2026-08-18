@@ -80,8 +80,16 @@ export function ReasoningPicker({ options, selectedEffort, onSelect, onUpsell, a
 
     const SelectedOptionIcon = options.find((option) => option.id === selectedEffort)?.icon ?? null;
 
+    let gatedSectionDescriptionId;
     const dropdownItems = options.map((option, optionIndex) => {
         const OptionIcon = option.icon;
+        const showHeader = !option.isAvailable && Boolean(option.gatedSectionHeader);
+        if (option.isAvailable) {
+            gatedSectionDescriptionId = undefined;
+        } else if (showHeader) {
+            gatedSectionDescriptionId = `reasoning-gated-section-${optionIndex}`;
+        }
+
         const dropdownItem = (
             <DropdownItem
                 key={option.id}
@@ -91,15 +99,17 @@ export function ReasoningPicker({ options, selectedEffort, onSelect, onUpsell, a
                 description={option.description}
                 isSelected={option.isAvailable && option.id === selectedEffort}
                 ariaSelected={option.isAvailable && option.id === selectedEffort}
+                ariaDescribedBy={!option.isAvailable ? gatedSectionDescriptionId : undefined}
                 onSelect={() => (option.isAvailable ? handleSelect(option.id) : handleUpsell(option.upsell))}
             />
         );
-        const showHeader = !option.isAvailable && Boolean(option.gatedSectionHeader);
         if (!showHeader) return dropdownItem;
 
         return [
             optionIndex > 0 ? <DropdownSeparator key={`${option.id}-separator`} /> : null,
-            <DropdownSectionHeader key={`${option.id}-header`}>{option.gatedSectionHeader}</DropdownSectionHeader>,
+            <DropdownSectionHeader key={`${option.id}-header`} descriptionId={gatedSectionDescriptionId}>
+                {option.gatedSectionHeader}
+            </DropdownSectionHeader>,
             dropdownItem,
         ];
     });

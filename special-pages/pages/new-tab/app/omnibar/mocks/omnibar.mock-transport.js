@@ -54,6 +54,12 @@ const HIGH_EFFORT_UPGRADE = {
     upsell: 'upgrade',
     gatedSectionHeader: 'Available with Pro',
 };
+/** @type {import('../../../types/new-tab.ts').ReasoningEffortOption} */
+const HIGH_EFFORT_SAME_GATED_SECTION = {
+    ...HIGH_EFFORT_UPGRADE,
+    upsell: 'subscribe',
+    gatedSectionHeader: undefined,
+};
 
 export function omnibarMockTransport() {
     /** @type {import('../../../types/new-tab.ts').OmnibarConfig} */
@@ -371,7 +377,7 @@ export function omnibarMockTransport() {
                         });
                     }
                     const reasoningSections = url.searchParams.get('omnibar.reasoningSections');
-                    if (reasoningSections === 'first-gated' || reasoningSections === 'multiple') {
+                    if (reasoningSections === 'first-gated' || reasoningSections === 'multiple' || reasoningSections === 'grouped') {
                         config.aiModelSections = config.aiModelSections?.map((section) => ({
                             ...section,
                             items: section.items.map((item) => {
@@ -381,7 +387,9 @@ export function omnibarMockTransport() {
                                     reasoningEfforts:
                                         reasoningSections === 'first-gated'
                                             ? [EXTENDED_EFFORT_UNAVAILABLE, REASONING_EFFORT]
-                                            : [FAST_EFFORT, EXTENDED_EFFORT_UNAVAILABLE, REASONING_EFFORT, HIGH_EFFORT_UPGRADE],
+                                            : reasoningSections === 'grouped'
+                                              ? [FAST_EFFORT, EXTENDED_EFFORT_UNAVAILABLE, HIGH_EFFORT_SAME_GATED_SECTION]
+                                              : [FAST_EFFORT, EXTENDED_EFFORT_UNAVAILABLE, REASONING_EFFORT, HIGH_EFFORT_UPGRADE],
                                 };
                             }),
                         }));

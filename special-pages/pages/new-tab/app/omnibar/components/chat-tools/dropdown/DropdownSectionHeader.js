@@ -7,10 +7,11 @@ import styles from './Dropdown.module.css';
  *
  * @param {object} props
  * @param {import('preact').ComponentChildren} props.children
+ * @param {string} [props.descriptionId] - Stable id for options that use this native-provided copy as their accessible description.
  */
-export function DropdownSectionHeader({ children }) {
+export function DropdownSectionHeader({ children, descriptionId }) {
     return (
-        <li role="presentation" class={styles.sectionHeader}>
+        <li id={descriptionId} role="presentation" class={styles.sectionHeader}>
             {children}
         </li>
     );
