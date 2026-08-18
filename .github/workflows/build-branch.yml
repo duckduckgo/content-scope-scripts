@@ -6,19 +6,30 @@ on:
             - main
             - releases
             - 'pr-releases/**'
+            # Dependency-bump branches are the one place third-party code
+            # enters this repo, and the `publish` job below holds a
+            # `contents: write` token. Keep the two apart.
+            - 'dependabot/**'
     delete:
 
-permissions: write-all
+# Least privilege: each job opts in to only the scopes it needs.
+permissions: {}
 
 jobs:
     build:
         # Only run on push events (not delete)
         if: github.event_name == 'push'
         runs-on: ubuntu-latest
+        permissions:
+            contents: read
 
         steps:
             - name: Checkout repository
               uses: actions/checkout@v7
+              with:
+                  # No token left in .git/config: this job runs third-party
+                  # build tooling and must not carry push credentials.
+                  persist-credentials: false
 
             - name: Use Node.js
               uses: actions/setup-node@v6
@@ -35,17 +46,65 @@ jobs:
                       special-pages/node_modules
                       messaging/node_modules
                       types-generator/node_modules
-                  key: ${{ runner.os }}-node-modules-${{ hashFiles('.nvmrc') }}-${{ hashFiles('**/package-lock.json') }}
+                  key: ${{ runner.os }}-node-modules-noscripts-${{ hashFiles('.nvmrc') }}-${{ hashFiles('**/package-lock.json') }}
 
             - name: Install dependencies
               if: steps.cache-node-modules.outputs.cache-hit != 'true'
-              run: npm ci
+              # --ignore-scripts blocks dependency lifecycle hooks. Only three
+              # packages in the tree declare one: `injected` (ours, re-run
+              # below), `esbuild` (resolves its platform binary at runtime) and
+              # `fsevents` (macOS-only, optional).
+              run: npm ci --ignore-scripts
+
+            - name: Generate SJCL bundle
+              if: steps.cache-node-modules.outputs.cache-hit != 'true'
+              # Normally injected's postinstall; run explicitly since the
+              # install above skips scripts.
+              run: npm run copy-sjcl -w injected
 
             - name: Run build
               run: npm run build
 
             - name: Build docs preview
               run: npm run docs-preview
+
+            - name: Package build output
+              # Tar rather than hand upload-artifact three paths: it pins the
+              # layout (upload-artifact roots the archive at the common
+              # ancestor of whatever actually matched, which shifts if a path
+              # comes up empty) and turns ~2.5k small files into one blob.
+              run: tar -czf build-output.tar.gz build Sources/ContentScopeScripts/dist docs
+
+            - name: Upload build output
+              uses: actions/upload-artifact@v7
+              with:
+                  name: build-output
+                  path: build-output.tar.gz
+                  # Handoff to `publish` only; no reason to retain it.
+                  retention-days: 1
+
+    publish:
+        # Split from `build` so the token that can write to this repo never
+        # shares a runner with third-party build tooling.
+        needs: build
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+            pull-requests: write
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v7
+
+            - name: Download build output
+              uses: actions/download-artifact@v8
+              with:
+                  name: build-output
+
+            - name: Unpack build output
+              run: |
+                  tar -xzf build-output.tar.gz
+                  rm build-output.tar.gz
 
             - name: Create and push build branch
               id: create_branch
@@ -236,6 +295,8 @@ jobs:
         # Only run when a branch is deleted, and only for non-pr-releases branches
         if: github.event_name == 'delete' && github.event.ref_type == 'branch' && !startsWith(github.event.ref, 'pr-releases/')
         runs-on: ubuntu-latest
+        permissions:
+            contents: write
         steps:
             - name: Checkout repository
               uses: actions/checkout@v7
