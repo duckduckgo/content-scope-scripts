@@ -1928,6 +1928,34 @@ test.describe('omnibar widget', () => {
             await expect(dropdown).toHaveCount(0);
         });
 
+        test('routes each gated model in a mixed section to its own upsell', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.mixedModelAccess': 'true',
+                },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+            await omnibar.modelSelectorButton().click();
+
+            await omnibar.modelOption('GPT-5.2').click();
+            const subscribeCalls = await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpsell', count: 1 });
+            expect(subscribeCalls.at(-1)?.payload.params).toEqual({ source: 'model' });
+
+            await omnibar.modelSelectorButton().click();
+            await omnibar.modelOption('Claude Sonnet 4.5').click();
+            const upgradeCalls = await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpgrade', count: 1 });
+            expect(upgradeCalls.at(-1)?.payload.params).toEqual({ source: 'model' });
+        });
+
         test('does not show the upsell when all models are available', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);
@@ -1949,7 +1977,7 @@ test.describe('omnibar widget', () => {
             await expect(omnibar.modelDropdown()).toHaveCount(0);
         });
 
-        test('fires model picker telemetry with the try-for-free CTA on open', async ({ page }, workerInfo) => {
+        test('fires try-for-free telemetry when its gated model is activated', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
@@ -1962,12 +1990,19 @@ test.describe('omnibar widget', () => {
             await omnibar.expectMode('ai');
             await omnibar.modelSelectorButton().click();
 
-            const calls = await ntp.mocks.waitForCallCount({ method: 'telemetryEvent', count: 2 });
-            const names = calls.map((call) => call.payload.params.attributes.name);
-            expect(names).toEqual(['omnibar_model_picker_shown', 'omnibar_model_picker_tryforfree_shown']);
+            await expect(omnibar.modelDropdown()).toBeFocused();
+            const openCalls = await ntp.mocks.waitForCallCount({ method: 'telemetryEvent', count: 1 });
+            expect(openCalls.map((call) => call.payload.params.attributes.name)).toEqual(['omnibar_model_picker_shown']);
+
+            await omnibar.modelOption('Claude Sonnet 4.5').click();
+            const activatedCalls = await ntp.mocks.waitForCallCount({ method: 'telemetryEvent', count: 2 });
+            expect(activatedCalls.map((call) => call.payload.params.attributes.name)).toEqual([
+                'omnibar_model_picker_shown',
+                'omnibar_model_picker_tryforfree_shown',
+            ]);
         });
 
-        test('fires model picker telemetry with the upgrade CTA on open', async ({ page }, workerInfo) => {
+        test('fires upgrade telemetry when its gated model is activated', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
@@ -1981,9 +2016,16 @@ test.describe('omnibar widget', () => {
             await omnibar.expectMode('ai');
             await omnibar.modelSelectorButton().click();
 
-            const calls = await ntp.mocks.waitForCallCount({ method: 'telemetryEvent', count: 2 });
-            const names = calls.map((call) => call.payload.params.attributes.name);
-            expect(names).toEqual(['omnibar_model_picker_shown', 'omnibar_model_picker_upgrade_shown']);
+            await expect(omnibar.modelDropdown()).toBeFocused();
+            const openCalls = await ntp.mocks.waitForCallCount({ method: 'telemetryEvent', count: 1 });
+            expect(openCalls.map((call) => call.payload.params.attributes.name)).toEqual(['omnibar_model_picker_shown']);
+
+            await omnibar.modelOption('GPT-5.2').click();
+            const activatedCalls = await ntp.mocks.waitForCallCount({ method: 'telemetryEvent', count: 2 });
+            expect(activatedCalls.map((call) => call.payload.params.attributes.name)).toEqual([
+                'omnibar_model_picker_shown',
+                'omnibar_model_picker_upgrade_shown',
+            ]);
         });
 
         test('fires only the model picker shown event when no models are gated', async ({ page }, workerInfo) => {
@@ -2304,7 +2346,76 @@ test.describe('omnibar widget', () => {
             expect(upgradeCalls.at(-1)?.payload.params).toEqual({ source: 'reasoning' });
         });
 
-        test('fires reasoning picker telemetry with the try-for-free CTA on open', async ({ page }, workerInfo) => {
+        test('supports keyboard activation for a gated reasoning effort', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true', 'omnibar.selectedModelId': 'claude-haiku-4-5' },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+            await omnibar.reasoningPickerButton().click();
+            await expect(omnibar.reasoningDropdown()).toBeFocused();
+
+            await page.keyboard.press('End');
+            await page.keyboard.press('Enter');
+
+            const upsellCalls = await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpsell', count: 1 });
+            expect(upsellCalls.at(-1)?.payload.params).toEqual({ source: 'reasoning' });
+            await expect(omnibar.reasoningPickerButton()).toBeFocused();
+        });
+
+        test('does not render a separator before a leading gated reasoning section', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.selectedModelId': 'claude-haiku-4-5',
+                    'omnibar.reasoningSections': 'first-gated',
+                },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+            await omnibar.reasoningPickerButton().click();
+
+            await expect(omnibar.reasoningDropdown().locator(':scope > li').first()).toHaveText('Try Free for 7 Days');
+            await expect(omnibar.reasoningDropdown().getByRole('separator')).toHaveCount(0);
+        });
+
+        test('renders each native-provided gated reasoning section', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.selectedModelId': 'claude-haiku-4-5',
+                    'omnibar.reasoningSections': 'multiple',
+                },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+            await omnibar.reasoningPickerButton().click();
+
+            await expect(omnibar.reasoningDropdown().getByText('Try Free for 7 Days', { exact: true })).toBeVisible();
+            await expect(omnibar.reasoningDropdown().getByText('Available with Pro', { exact: true })).toBeVisible();
+        });
+
+        test('fires try-for-free telemetry when its gated reasoning effort is activated', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
@@ -2319,12 +2430,19 @@ test.describe('omnibar widget', () => {
             await omnibar.expectMode('ai');
             await omnibar.reasoningPickerButton().click();
 
-            const calls = await ntp.mocks.waitForCallCount({ method: 'telemetryEvent', count: 2 });
-            const names = calls.map((call) => call.payload.params.attributes.name);
-            expect(names).toEqual(['omnibar_reasoning_picker_shown', 'omnibar_reasoning_picker_tryforfree_shown']);
+            await expect(omnibar.reasoningDropdown()).toBeFocused();
+            const openCalls = await ntp.mocks.waitForCallCount({ method: 'telemetryEvent', count: 1 });
+            expect(openCalls.map((call) => call.payload.params.attributes.name)).toEqual(['omnibar_reasoning_picker_shown']);
+
+            await omnibar.reasoningOption('For analytical tasks').click();
+            const activatedCalls = await ntp.mocks.waitForCallCount({ method: 'telemetryEvent', count: 2 });
+            expect(activatedCalls.map((call) => call.payload.params.attributes.name)).toEqual([
+                'omnibar_reasoning_picker_shown',
+                'omnibar_reasoning_picker_tryforfree_shown',
+            ]);
         });
 
-        test('fires reasoning picker telemetry with the upgrade CTA on open', async ({ page }, workerInfo) => {
+        test('fires upgrade telemetry when its gated reasoning effort is activated', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
@@ -2343,9 +2461,16 @@ test.describe('omnibar widget', () => {
             await omnibar.expectMode('ai');
             await omnibar.reasoningPickerButton().click();
 
-            const calls = await ntp.mocks.waitForCallCount({ method: 'telemetryEvent', count: 2 });
-            const names = calls.map((call) => call.payload.params.attributes.name);
-            expect(names).toEqual(['omnibar_reasoning_picker_shown', 'omnibar_reasoning_picker_upgrade_shown']);
+            await expect(omnibar.reasoningDropdown()).toBeFocused();
+            const openCalls = await ntp.mocks.waitForCallCount({ method: 'telemetryEvent', count: 1 });
+            expect(openCalls.map((call) => call.payload.params.attributes.name)).toEqual(['omnibar_reasoning_picker_shown']);
+
+            await omnibar.reasoningOption('For analytical tasks').click();
+            const activatedCalls = await ntp.mocks.waitForCallCount({ method: 'telemetryEvent', count: 2 });
+            expect(activatedCalls.map((call) => call.payload.params.attributes.name)).toEqual([
+                'omnibar_reasoning_picker_shown',
+                'omnibar_reasoning_picker_upgrade_shown',
+            ]);
         });
     });
 

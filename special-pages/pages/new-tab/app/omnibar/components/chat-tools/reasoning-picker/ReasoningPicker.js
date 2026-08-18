@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { useEffect, useMemo, useRef } from 'preact/hooks';
+import { useEffect, useRef } from 'preact/hooks';
 import cn from 'classnames';
 import { useDropdown } from '../useDropdown';
 import { useMessaging } from '../../../../types.js';
@@ -7,7 +7,7 @@ import { Dropdown } from '../dropdown/Dropdown';
 import { DropdownItem } from '../dropdown/DropdownItem';
 import { DropdownSeparator } from '../dropdown/DropdownSeparator';
 import { DropdownSectionHeader } from '../dropdown/DropdownSectionHeader';
-import { getUpsellCtaLabel } from '../../../utils.js';
+import { getUpsellTelemetryType } from '../../../utils.js';
 import dropdownStyles from '../dropdown/Dropdown.module.css';
 import styles from './ReasoningPicker.module.css';
 
@@ -41,9 +41,8 @@ export function ReasoningPicker({ options, selectedEffort, onSelect, onUpsell, a
     const ntp = useMessaging();
     const shownRef = useRef(false);
 
-    const gated = useMemo(() => options.filter((option) => !option.isAvailable), [options]);
-
-    // Impression telemetry: fire once each time the picker opens, plus the CTA(s) it shows.
+    // Impression telemetry: fire once each time the picker opens. Upsell
+    // telemetry is emitted only when the user activates a gated row.
     useEffect(() => {
         if (!isOpen) {
             shownRef.current = false;
@@ -53,17 +52,7 @@ export function ReasoningPicker({ options, selectedEffort, onSelect, onUpsell, a
         shownRef.current = true;
 
         ntp.telemetryEvent({ attributes: { name: 'omnibar_reasoning_picker_shown' } });
-
-        // Report the CTA label that is actually shown, which is eligibility-aware
-        // (a 'subscribe' upsell reads as "Upgrade" for free-trial-ineligible users).
-        const gatedLabels = gated.map((option) => getUpsellCtaLabel(option.upsell, isEligibleForFreeTrial));
-        if (gatedLabels.includes('tryForFree')) {
-            ntp.telemetryEvent({ attributes: { name: 'omnibar_reasoning_picker_tryforfree_shown' } });
-        }
-        if (gatedLabels.includes('upgrade')) {
-            ntp.telemetryEvent({ attributes: { name: 'omnibar_reasoning_picker_upgrade_shown' } });
-        }
-    }, [isOpen, gated, ntp, isEligibleForFreeTrial]);
+    }, [isOpen, ntp]);
 
     /** @param {{ restoreFocus: boolean }} opts */
     const handleClose = ({ restoreFocus }) => {
@@ -78,10 +67,20 @@ export function ReasoningPicker({ options, selectedEffort, onSelect, onUpsell, a
         onSelect(effort);
     };
 
+    /** @param {'subscribe' | 'upgrade' | undefined} type */
+    const handleUpsell = (type) => {
+        const telemetryType = getUpsellTelemetryType(type, isEligibleForFreeTrial);
+        ntp.telemetryEvent({
+            attributes: {
+                name: telemetryType === 'upgrade' ? 'omnibar_reasoning_picker_upgrade_shown' : 'omnibar_reasoning_picker_tryforfree_shown',
+            },
+        });
+        onUpsell(type);
+    };
+
     const SelectedOptionIcon = options.find((option) => option.id === selectedEffort)?.icon ?? null;
 
-    let headerShown = false;
-    const dropdownItems = options.map((option) => {
+    const dropdownItems = options.map((option, optionIndex) => {
         const OptionIcon = option.icon;
         const dropdownItem = (
             <DropdownItem
@@ -92,18 +91,17 @@ export function ReasoningPicker({ options, selectedEffort, onSelect, onUpsell, a
                 description={option.description}
                 isSelected={option.isAvailable && option.id === selectedEffort}
                 ariaSelected={option.isAvailable && option.id === selectedEffort}
-                onSelect={() => (option.isAvailable ? handleSelect(option.id) : onUpsell(option.upsell))}
+                onSelect={() => (option.isAvailable ? handleSelect(option.id) : handleUpsell(option.upsell))}
             />
         );
-        const showHeader = !option.isAvailable && option.gatedSectionHeader !== undefined && !headerShown;
-        if (showHeader) headerShown = true;
-        return showHeader
-            ? [
-                  <DropdownSeparator key={`${option.id}-separator`} />,
-                  <DropdownSectionHeader key={`${option.id}-header`}>{option.gatedSectionHeader}</DropdownSectionHeader>,
-                  dropdownItem,
-              ]
-            : dropdownItem;
+        const showHeader = !option.isAvailable && Boolean(option.gatedSectionHeader);
+        if (!showHeader) return dropdownItem;
+
+        return [
+            optionIndex > 0 ? <DropdownSeparator key={`${option.id}-separator`} /> : null,
+            <DropdownSectionHeader key={`${option.id}-header`}>{option.gatedSectionHeader}</DropdownSectionHeader>,
+            dropdownItem,
+        ];
     });
 
     return (

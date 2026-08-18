@@ -45,6 +45,15 @@ const EXTENDED_EFFORT_UNAVAILABLE = {
 const EXTENDED_EFFORT_UPGRADE = { ...EXTENDED_EFFORT_UNAVAILABLE, upsell: 'upgrade', gatedSectionHeader: 'Available with Pro' };
 /** @type {import('../../../types/new-tab.ts').ReasoningEffortOption} */
 const EXTENDED_EFFORT_AVAILABLE = { ...EXTENDED_EFFORT_UNAVAILABLE, isAvailable: true, upsell: undefined, gatedSectionHeader: undefined };
+/** @type {import('../../../types/new-tab.ts').ReasoningEffortOption} */
+const HIGH_EFFORT_UPGRADE = {
+    id: 'high',
+    name: 'High Reasoning',
+    description: 'For the hardest tasks',
+    isAvailable: false,
+    upsell: 'upgrade',
+    gatedSectionHeader: 'Available with Pro',
+};
 
 export function omnibarMockTransport() {
     /** @type {import('../../../types/new-tab.ts').OmnibarConfig} */
@@ -325,11 +334,9 @@ export function omnibarMockTransport() {
                     if (url.searchParams.get('omnibar.modelUpsell') === 'upgrade') {
                         config.aiModelSections = config.aiModelSections?.map((section) => ({
                             ...section,
-                            items: section.items.map((item, index) =>
-                                index === 0 && section.items.every((model) => !model.isAvailable)
-                                    ? { ...item, upsell: /** @type {const} */ ('upgrade') }
-                                    : item,
-                            ),
+                            items: section.items.every((model) => !model.isAvailable)
+                                ? section.items.map((item) => ({ ...item, upsell: /** @type {const} */ ('upgrade') }))
+                                : section.items,
                         }));
                     }
                     if (parseBooleanQueryParam('omnibar.multipleModelUpsells') === true) {
@@ -343,10 +350,41 @@ export function omnibarMockTransport() {
                                     header: 'Pro Models - DuckDuckGo subscription',
                                     items: section.items
                                         .slice(midpoint)
-                                        .map((item, index) => (index === 0 ? { ...item, upsell: /** @type {const} */ ('upgrade') } : item)),
+                                        .map((item) => ({ ...item, upsell: /** @type {const} */ ('upgrade') })),
                                 },
                             ];
                         });
+                    }
+                    if (parseBooleanQueryParam('omnibar.mixedModelAccess') === true) {
+                        config.aiModelSections = config.aiModelSections?.map((section) => {
+                            if (!section.items.every((model) => !model.isAvailable)) return section;
+
+                            return {
+                                ...section,
+                                items: section.items.map((item, index) => {
+                                    if (index === 0) return { ...item, isAvailable: true, upsell: undefined };
+                                    if (index === 1) return { ...item, upsell: /** @type {const} */ ('subscribe') };
+                                    if (index === 2) return { ...item, upsell: /** @type {const} */ ('upgrade') };
+                                    return item;
+                                }),
+                            };
+                        });
+                    }
+                    const reasoningSections = url.searchParams.get('omnibar.reasoningSections');
+                    if (reasoningSections === 'first-gated' || reasoningSections === 'multiple') {
+                        config.aiModelSections = config.aiModelSections?.map((section) => ({
+                            ...section,
+                            items: section.items.map((item) => {
+                                if (item.id !== 'claude-haiku-4-5') return item;
+                                return {
+                                    ...item,
+                                    reasoningEfforts:
+                                        reasoningSections === 'first-gated'
+                                            ? [EXTENDED_EFFORT_UNAVAILABLE, REASONING_EFFORT]
+                                            : [FAST_EFFORT, EXTENDED_EFFORT_UNAVAILABLE, REASONING_EFFORT, HIGH_EFFORT_UPGRADE],
+                                };
+                            }),
+                        }));
                     }
                     config.selectedReasoningEffort =
                         parseReasoningEffortQueryParam('omnibar.selectedReasoningEffort') ?? config.selectedReasoningEffort;

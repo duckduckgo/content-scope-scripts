@@ -39,16 +39,12 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const allModels = sections.flatMap((section) => section.items);
     const optionIndexById = new Map(allModels.map((model, index) => [model.id, index]));
-    // A section whose every row is gated is an upsell section: its rows stay
-    // navigable and clickable, and activate the section's upsell instead of selecting.
-    const isUpsellSectionAt = sections.map((section) => section.items.length > 0 && section.items.every((model) => !model.isAvailable));
+    // Upsell behavior belongs to each gated model, independent of how native
+    // groups available and gated rows into sections.
     const upsellByModelId = new Map(
-        sections.flatMap((section, sectionIndex) =>
-            isUpsellSectionAt[sectionIndex]
-                ? section.items.map((model) => [model.id, section.items.find((item) => item.upsell)?.upsell ?? 'subscribe'])
-                : [],
-        ),
+        allModels.filter((model) => !model.isAvailable).map((model) => [model.id, model.upsell ?? 'subscribe']),
     );
+    const hasGatedModelsAt = sections.map((section) => section.items.some((model) => !model.isAvailable));
     const enabledModelIndices = allModels.reduce(
         /**
          * @param {number[]} indices
@@ -171,10 +167,10 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
             onMouseLeave={clearActiveIndex}
         >
             {sections.map((section, sectionIndex) => {
-                // A gated (upsell) section always needs the divider separating it from
-                // the available models above, even when the client sends no header text.
+                // A section containing gated models always needs the divider separating
+                // it from the section above, even when the client sends no header text.
                 // Never show it above the very first section.
-                const needsDivider = sectionIndex > 0 && (Boolean(section.header) || isUpsellSectionAt[sectionIndex]);
+                const needsDivider = sectionIndex > 0 && (Boolean(section.header) || hasGatedModelsAt[sectionIndex]);
                 return (
                     <Fragment key={sectionIndex}>
                         {needsDivider && <li role="separator" class={styles.modelSectionDivider} />}

@@ -1,10 +1,10 @@
 import { h } from 'preact';
-import { useEffect, useMemo, useRef } from 'preact/hooks';
+import { useEffect, useRef } from 'preact/hooks';
 import cn from 'classnames';
 import { ChevronSmall } from '../../../../components/Icons';
 import { useMessaging } from '../../../../types.js';
 import { ModelDropdown } from './ModelDropdown';
-import { getUpsellCtaLabel } from '../../../utils.js';
+import { getUpsellTelemetryType } from '../../../utils.js';
 import styles from './ModelSelector.module.css';
 
 /**
@@ -21,25 +21,25 @@ export function ModelSelector({ selector, selectedModel, aiModelSections, onUpse
     const ntp = useMessaging();
     const shownRef = useRef(false);
 
-    // The upsell CTA label(s) the dropdown would show: one entry per all-gated section.
-    // Eligibility-aware, so a 'subscribe' upsell reads as "Upgrade" for free-trial-ineligible users.
-    const upsellCtas = useMemo(
-        () =>
-            new Set(
-                aiModelSections
-                    .filter((section) => section.items.length > 0 && section.items.every((model) => !model.isAvailable))
-                    .map((section) => getUpsellCtaLabel(section.items.find((model) => model.upsell)?.upsell, isEligibleForFreeTrial)),
-            ),
-        [aiModelSections, isEligibleForFreeTrial],
-    );
-
     /** @param {{ restoreFocus: boolean }} options */
     const handleClose = ({ restoreFocus }) => {
         closeDropdown();
         if (restoreFocus) modelButtonRef.current?.focus();
     };
 
-    // Impression telemetry: fire once each time the dropdown opens, plus the CTA(s) it shows.
+    /** @param {'subscribe' | 'upgrade' | undefined} type */
+    const handleUpsell = (type) => {
+        const telemetryType = getUpsellTelemetryType(type, isEligibleForFreeTrial);
+        ntp.telemetryEvent({
+            attributes: {
+                name: telemetryType === 'upgrade' ? 'omnibar_model_picker_upgrade_shown' : 'omnibar_model_picker_tryforfree_shown',
+            },
+        });
+        onUpsell(type);
+    };
+
+    // Impression telemetry: fire once each time the dropdown opens. Upsell
+    // telemetry is emitted only when the user activates a gated row.
     useEffect(() => {
         if (!modelDropdownOpen) {
             shownRef.current = false;
@@ -49,14 +49,7 @@ export function ModelSelector({ selector, selectedModel, aiModelSections, onUpse
         shownRef.current = true;
 
         ntp.telemetryEvent({ attributes: { name: 'omnibar_model_picker_shown' } });
-
-        if (upsellCtas.has('tryForFree')) {
-            ntp.telemetryEvent({ attributes: { name: 'omnibar_model_picker_tryforfree_shown' } });
-        }
-        if (upsellCtas.has('upgrade')) {
-            ntp.telemetryEvent({ attributes: { name: 'omnibar_model_picker_upgrade_shown' } });
-        }
-    }, [modelDropdownOpen, upsellCtas, ntp]);
+    }, [modelDropdownOpen, ntp]);
 
     return (
         <div class={styles.modelSelector}>
@@ -84,7 +77,7 @@ export function ModelSelector({ selector, selectedModel, aiModelSections, onUpse
                     dropdownPos={dropdownPos}
                     onClose={handleClose}
                     onSelect={selectModel}
-                    onUpsell={onUpsell}
+                    onUpsell={handleUpsell}
                     ariaLabel={ariaLabel}
                 />
             )}
