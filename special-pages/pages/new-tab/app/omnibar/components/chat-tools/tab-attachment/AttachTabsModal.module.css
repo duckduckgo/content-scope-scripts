@@ -1,31 +1,37 @@
-.overlay {
-    align-items: center;
-    display: flex;
-    inset: 0;
-    justify-content: center;
-    position: fixed;
-    z-index: 200;
-    /* Duck.ai's modal scrim; no translucent theme token exists, so literal values */
-    background: rgba(0, 0, 0, 0.3);
-
-    [data-theme='dark'] & {
-        background: rgba(0, 0, 0, 0.6);
-    }
-}
-
+/* Native <dialog>; shown via showModal(), so the browser centers it in the viewport
+   (top layer) regardless of the omnibar's backdrop-filter containing block. */
 .tabsModal {
     background: var(--ds-color-theme-surface-secondary);
+    border: none;
     border-radius: 13px;
     box-shadow:
         0 0 0 0.5px rgba(0, 0, 0, 0.2),
         0 10px 24px 0 rgba(0, 0, 0, 0.32),
         inset 0 0 0 1px rgba(255, 255, 255, 0.2);
     box-sizing: border-box;
+    color: inherit;
     display: flex;
     flex-direction: column;
     height: 340px;
+    margin: auto; /* Restore UA centering; the app's global reset zeroes dialog margins. */
     overflow: clip;
+    padding: 0;
     width: var(--sp-90);
+
+    /* `display: flex` would otherwise override the UA's `display: none` and flash
+       the dialog before the mount effect calls showModal(). */
+    &:not([open]) {
+        display: none;
+    }
+
+    &::backdrop {
+        /* Duck.ai's modal scrim; no translucent theme token exists, so literal values */
+        background: rgba(0, 0, 0, 0.3);
+    }
+
+    [data-theme='dark'] &::backdrop {
+        background: rgba(0, 0, 0, 0.6);
+    }
 }
 
 .tabsModalHeader {

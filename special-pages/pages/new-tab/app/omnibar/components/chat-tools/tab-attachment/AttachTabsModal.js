@@ -45,11 +45,12 @@ export function AttachTabsModal({ onClose, onToggleTab, isAttached, maxTabs = Nu
         }
     }
 
-    const dialogRef = useRef(/** @type {HTMLDivElement|null} */ (null));
+    const dialogRef = useRef(/** @type {HTMLDialogElement|null} */ (null));
     const searchInputRef = useRef(/** @type {HTMLInputElement|null} */ (null));
     const debounceTimerRef = useRef(/** @type {number|null} */ (null));
 
     useEffect(() => {
+        dialogRef.current?.showModal();
         refetchTabs();
         searchInputRef.current?.focus();
         return () => {
@@ -153,51 +154,59 @@ export function AttachTabsModal({ onClose, onToggleTab, isAttached, maxTabs = Nu
         });
     };
 
+    // Native <dialog> + showModal(): the top layer positions against the viewport, so the
+    // omnibar `.popup`'s `backdrop-filter` (applied on non-default backgrounds) can't trap
+    // the modal inside the omnibar box the way a `position: fixed` overlay would be.
     // data-attach-tabs-modal lets the omnibar's focus styling ignore the modal's search input.
     return (
-        <div class={styles.overlay} data-attach-tabs-modal onClick={onClose}>
-            <div
-                ref={dialogRef}
-                role="dialog"
-                aria-modal="true"
-                aria-label={t('omnibar_attachTabsModalTitle')}
-                class={styles.tabsModal}
-                onClick={(e) => e.stopPropagation()}
-                onKeyDown={handleDialogKeyDown}
-            >
-                <header class={styles.tabsModalHeader}>
-                    <h4>{t('omnibar_attachTabsModalTitle')}</h4>
-                </header>
-                <div class={styles.tabsModalBody}>
-                    <div class={styles.tabsSearchWrapper}>
-                        <div class={styles.tabsSearchField}>
-                            <SearchIcon width={14} height={14} class={styles.tabsSearchIcon} aria-hidden="true" />
-                            <input
-                                ref={searchInputRef}
-                                type="text"
-                                class={styles.tabsSearchInput}
-                                value={searchInput}
-                                onInput={(e) => handleSearchInputChange(/** @type {HTMLInputElement} */ (e.currentTarget).value)}
-                                placeholder={t('omnibar_attachTabsSearchLabel')}
-                                aria-label={t('omnibar_attachTabsSearchLabel')}
-                                autoComplete="off"
-                            />
-                        </div>
+        <dialog
+            ref={dialogRef}
+            aria-label={t('omnibar_attachTabsModalTitle')}
+            class={styles.tabsModal}
+            data-attach-tabs-modal
+            onClick={(e) => {
+                // Clicks on the ::backdrop are dispatched on the <dialog> itself.
+                if (e.target === e.currentTarget) onClose();
+            }}
+            onKeyDown={handleDialogKeyDown}
+            onCancel={(e) => {
+                // Route native Escape-close through onClose so open/close state stays in sync.
+                e.preventDefault();
+                onClose();
+            }}
+        >
+            <header class={styles.tabsModalHeader}>
+                <h4>{t('omnibar_attachTabsModalTitle')}</h4>
+            </header>
+            <div class={styles.tabsModalBody}>
+                <div class={styles.tabsSearchWrapper}>
+                    <div class={styles.tabsSearchField}>
+                        <SearchIcon width={14} height={14} class={styles.tabsSearchIcon} aria-hidden="true" />
+                        <input
+                            ref={searchInputRef}
+                            type="text"
+                            class={styles.tabsSearchInput}
+                            value={searchInput}
+                            onInput={(e) => handleSearchInputChange(/** @type {HTMLInputElement} */ (e.currentTarget).value)}
+                            placeholder={t('omnibar_attachTabsSearchLabel')}
+                            aria-label={t('omnibar_attachTabsSearchLabel')}
+                            autoComplete="off"
+                        />
                     </div>
-                    <ul role="menu" aria-label={t('omnibar_attachTabsModalTitle')} class={styles.tabsMenu}>
-                        {renderRows()}
-                    </ul>
                 </div>
-                <footer class={styles.tabsModalFooter}>
-                    <button type="button" class={cn(styles.tabsFooterButton, styles.tabsFooterButtonSecondary)} onClick={onClose}>
-                        {t('omnibar_attachTabsCancel')}
-                    </button>
-                    <button type="button" class={cn(styles.tabsFooterButton, styles.tabsFooterButtonPrimary)} onClick={handleAttach}>
-                        {t('omnibar_attachTabsConfirm')}
-                    </button>
-                </footer>
+                <ul role="menu" aria-label={t('omnibar_attachTabsModalTitle')} class={styles.tabsMenu}>
+                    {renderRows()}
+                </ul>
             </div>
-        </div>
+            <footer class={styles.tabsModalFooter}>
+                <button type="button" class={cn(styles.tabsFooterButton, styles.tabsFooterButtonSecondary)} onClick={onClose}>
+                    {t('omnibar_attachTabsCancel')}
+                </button>
+                <button type="button" class={cn(styles.tabsFooterButton, styles.tabsFooterButtonPrimary)} onClick={handleAttach}>
+                    {t('omnibar_attachTabsConfirm')}
+                </button>
+            </footer>
+        </dialog>
     );
 }
 
