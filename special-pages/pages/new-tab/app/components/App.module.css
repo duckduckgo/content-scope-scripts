@@ -103,17 +103,21 @@ body[data-rebrand="true"] {
 }
 
 .mainScroller {
-    &::-webkit-scrollbar {
-        width: 4px;
-    }
+    /* macOS keeps the native overlay scrollbar (auto-hides); Windows has no
+       native overlay style, so it keeps this thin custom one. */
+    :root:has(body[data-platform-name="windows"]) & {
+        &::-webkit-scrollbar {
+            width: 4px;
+        }
 
-    &::-webkit-scrollbar-track {
-        border-radius: 6px;
-    }
+        &::-webkit-scrollbar-track {
+            border-radius: 6px;
+        }
 
-    &::-webkit-scrollbar-thumb {
-        background: rgb(108, 108, 108);
-        border-radius: 6px;
+        &::-webkit-scrollbar-thumb {
+            background: rgb(108, 108, 108);
+            border-radius: 6px;
+        }
     }
 }
 
