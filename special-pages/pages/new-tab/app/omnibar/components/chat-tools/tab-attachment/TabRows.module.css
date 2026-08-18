@@ -1,0 +1,104 @@
+.tabItem {
+    align-items: center;
+    border-radius: 8px;
+    box-sizing: border-box;
+    color: var(--ds-color-theme-text-primary);
+    cursor: pointer;
+    display: flex;
+    font-size: 13px;
+    gap: 6px;
+    height: var(--sp-7);
+    letter-spacing: -0.08px;
+    line-height: 13px;
+    min-width: 0;
+    outline: none;
+    padding: 0 9px;
+    -webkit-tap-highlight-color: transparent;
+    width: 100%;
+}
+
+.tabItemActive {
+    background: var(--ds-color-theme-control-fill-primary);
+}
+
+/* Fixed-width checkmark gutter keeps titles aligned */
+.checkGutter {
+    align-items: center;
+    display: flex;
+    flex-shrink: 0;
+    justify-content: center;
+    position: relative;
+    width: var(--sp-1);
+}
+
+/* Check icon overflows the 4px gutter without affecting layout;
+   explicit size defeats the global `svg { max-width: 100% }` reset */
+.checkGutter svg {
+    height: 9px;
+    left: 0;
+    max-width: none;
+    position: absolute;
+    transform: translateX(-50%);
+    width: 10px;
+}
+
+.favicon {
+    border-radius: 2px;
+    flex: none;
+    height: var(--sp-3);
+    object-fit: cover;
+    width: var(--sp-3);
+}
+
+.faviconFallback {
+    align-items: center;
+    color: var(--ds-color-theme-icons-secondary);
+    display: flex;
+    flex: none;
+    height: var(--sp-3);
+    justify-content: center;
+    width: var(--sp-3);
+}
+
+.tabTitle {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sectionHeader {
+    align-items: center;
+    color: var(--ds-color-theme-text-secondary);
+    display: flex;
+    font-size: 10px;
+    font-weight: 600;
+    height: var(--sp-5);
+    letter-spacing: 0.12px;
+    line-height: 13px;
+    padding: 0 9px;
+    user-select: none;
+}
+
+/* Aligns the header with rows that reserve the checkmark gutter */
+.sectionHeaderGutter {
+    padding-left: calc(9px + var(--sp-1) + 6px);
+}
+
+/* Loading / empty state row */
+.statusItem {
+    align-items: center;
+    box-sizing: border-box;
+    cursor: default;
+    display: flex;
+    height: calc(var(--sp-7) * 3);
+    justify-content: center;
+    outline: none;
+    padding: 0 var(--sp-4);
+}
+
+.statusText {
+    color: var(--ds-color-theme-text-secondary);
+    font-size: 13px;
+}
