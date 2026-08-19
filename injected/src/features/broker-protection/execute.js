@@ -24,9 +24,11 @@ export async function execute(action, inputData, root = document) {
                 return fillForm(action, data(action, inputData, 'extractedProfile'), root, userProfile);
             }
             case 'getCaptchaInfo':
-                return await getCaptchaInfo(action, root);
+                return await getCaptchaInfo(action, data(action, inputData, 'userProfile'), root);
             case 'solveCaptcha':
-                return solveCaptcha(action, data(action, inputData, 'token'), root);
+                // the token is read via the action's dataSource (defaulting to 'token'), while the
+                // user profile — used for `parent.profileMatch` targeting — always comes from 'userProfile'
+                return solveCaptcha(action, data(action, inputData, 'token'), inputData?.userProfile ?? null, root);
             case 'condition':
                 return condition(action, root);
             case 'scroll':
