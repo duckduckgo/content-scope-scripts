@@ -955,46 +955,39 @@ body[data-theme-variant="desert"] {
  * (unified input) needs tint/shade semi-transparent values to stay legible over
  * arbitrary user wallpapers, instead of the solid theme values above.
  *
- * TEMP: values below are hardcoded to simulate the `ntpCustomBackground` theme
- * added in design-tokens PR #41 (https://github.com/duckduckgo/design-tokens/pull/41).
- * Once that PR is merged, released, and @duckduckgo/design-tokens is bumped in this
- * repo (currently pinned to v0.36.0), replace each hardcoded value with a
- * `var(--ds-color-theme-ntp-custom-background-{light|dark}-input-*)` reference.
- *
- * Source of truth: Chris Morast's Theme Color 2 export → `NTP (Custom BG).tokens.json`.
+ * Source of truth: Chris Morast's Theme Color 2 export → `NTP (Custom BG).tokens.json`,
+ * via the `ntpOnCustomBackground` partial theme in design-tokens (PR #41,
+ * https://github.com/duckduckgo/design-tokens/pull/41).
  */
 body[data-rebrand="true"]:not([data-background-kind="default"]) {
     &[data-theme="light"], [data-theme="light"] {
-        /* Toggle (control): white-at-60 / black-at-6 per Chris's Asana spec */
-        --ds-input-control-primary-background-color: rgba(255, 255, 255, 0.6);
-        --ds-input-control-secondary-background-color: rgba(0, 0, 0, 0.06);
-        --ds-input-control-shadow-primary: rgba(0, 0, 0, 0.06);
+        --ds-input-control-primary-background-color: var(--ds-color-theme-ntp-on-custom-background-light-input-control-primary-background-color);
+        --ds-input-control-secondary-background-color: var(--ds-color-theme-ntp-on-custom-background-light-input-control-secondary-background-color);
+        --ds-input-control-shadow-primary: var(--ds-color-theme-ntp-on-custom-background-light-input-control-shadow-primary);
 
-        /* Input field (popup): white-at-54 for the frosted fill */
-        --ds-input-field-primary-background-color: rgba(255, 255, 255, 0.54);
-        --ds-input-field-secondary-background-color: rgba(0, 0, 0, 0.18);
+        --ds-input-field-primary-background-color: var(--ds-color-theme-ntp-on-custom-background-light-input-field-primary-background-color);
+        --ds-input-field-secondary-background-color: var(--ds-color-theme-ntp-on-custom-background-light-input-field-secondary-background-color);
 
-        --ds-input-text-primary: rgba(0, 0, 0, 0.96);
-        --ds-input-text-secondary: rgba(0, 0, 0, 0.6);
-        --ds-input-icons-primary: rgba(0, 0, 0, 0.84);
-        --ds-input-icons-secondary: rgba(0, 0, 0, 0.6);
+        --ds-input-text-primary: var(--ds-color-theme-ntp-on-custom-background-light-input-text-primary);
+        --ds-input-text-secondary: var(--ds-color-theme-ntp-on-custom-background-light-input-text-secondary);
+        --ds-input-icons-primary: var(--ds-color-theme-ntp-on-custom-background-light-input-icons-primary);
+        --ds-input-icons-secondary: var(--ds-color-theme-ntp-on-custom-background-light-input-icons-secondary);
     }
 
     &[data-theme="dark"], [data-theme="dark"] {
-        /* Toggle (control): black-at-60 / white-at-18. Shadow=transparent so
-         * `box-shadow: 0 0 0 1px var(--ds-input-control-shadow-primary)` renders
-         * as invisible ring, matching Chris's `box-shadow: none` for dark active. */
-        --ds-input-control-primary-background-color: rgba(0, 0, 0, 0.6);
-        --ds-input-control-secondary-background-color: rgba(255, 255, 255, 0.18);
-        --ds-input-control-shadow-primary: transparent;
+        /* Shadow resolves to transparent: matches Chris's `box-shadow: none` for
+         * dark active, since `box-shadow: 0 0 0 1px var(--ds-input-control-shadow-primary)`
+         * renders as an invisible ring at that value. */
+        --ds-input-control-primary-background-color: var(--ds-color-theme-ntp-on-custom-background-dark-input-control-primary-background-color);
+        --ds-input-control-secondary-background-color: var(--ds-color-theme-ntp-on-custom-background-dark-input-control-secondary-background-color);
+        --ds-input-control-shadow-primary: var(--ds-color-theme-ntp-on-custom-background-dark-input-control-shadow-primary);
 
-        /* Input field (popup): white-at-24 for the frosted fill */
-        --ds-input-field-primary-background-color: rgba(255, 255, 255, 0.24);
-        --ds-input-field-secondary-background-color: rgba(255, 255, 255, 0.3);
+        --ds-input-field-primary-background-color: var(--ds-color-theme-ntp-on-custom-background-dark-input-field-primary-background-color);
+        --ds-input-field-secondary-background-color: var(--ds-color-theme-ntp-on-custom-background-dark-input-field-secondary-background-color);
 
-        --ds-input-text-primary: rgba(0, 0, 0, 0.84);
-        --ds-input-text-secondary: rgba(0, 0, 0, 0.6);
-        --ds-input-icons-primary: rgba(0, 0, 0, 0.84);
-        --ds-input-icons-secondary: rgba(0, 0, 0, 0.6);
+        --ds-input-text-primary: var(--ds-color-theme-ntp-on-custom-background-dark-input-text-primary);
+        --ds-input-text-secondary: var(--ds-color-theme-ntp-on-custom-background-dark-input-text-secondary);
+        --ds-input-icons-primary: var(--ds-color-theme-ntp-on-custom-background-dark-input-icons-primary);
+        --ds-input-icons-secondary: var(--ds-color-theme-ntp-on-custom-background-dark-input-icons-secondary);
     }
 }
