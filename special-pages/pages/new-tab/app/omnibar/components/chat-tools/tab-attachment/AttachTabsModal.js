@@ -92,29 +92,6 @@ export function AttachTabsModal({ onClose, onToggleTab, isAttached, maxTabs = Nu
         onClose();
     };
 
-    /** @param {KeyboardEvent} event */
-    const handleDialogKeyDown = (event) => {
-        if (event.key === 'Escape') {
-            event.stopPropagation();
-            onClose();
-            return;
-        }
-        // Minimal focus trap: keep Tab cycling within the dialog.
-        if (event.key === 'Tab' && dialogRef.current) {
-            const focusables = dialogRef.current.querySelectorAll('button, input, [tabindex]:not([tabindex="-1"])');
-            if (focusables.length === 0) return;
-            const first = /** @type {HTMLElement} */ (focusables[0]);
-            const last = /** @type {HTMLElement} */ (focusables[focusables.length - 1]);
-            if (event.shiftKey && document.activeElement === first) {
-                event.preventDefault();
-                last.focus();
-            } else if (!event.shiftKey && document.activeElement === last) {
-                event.preventDefault();
-                first.focus();
-            }
-        }
-    };
-
     const renderRows = () => {
         if (isLoadingTabs) {
             return <StatusRow text={t('omnibar_attachTabsLoading')} />;
@@ -168,7 +145,6 @@ export function AttachTabsModal({ onClose, onToggleTab, isAttached, maxTabs = Nu
                 // Clicks on the ::backdrop are dispatched on the <dialog> itself.
                 if (e.target === e.currentTarget) onClose();
             }}
-            onKeyDown={handleDialogKeyDown}
             onCancel={(e) => {
                 // Route native Escape-close through onClose so open/close state stays in sync.
                 e.preventDefault();
