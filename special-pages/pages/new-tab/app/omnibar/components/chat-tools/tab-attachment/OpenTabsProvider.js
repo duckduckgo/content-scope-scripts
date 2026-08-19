@@ -1,5 +1,5 @@
 import { createContext, h } from 'preact';
-import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'preact/hooks';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'preact/hooks';
 import { OmnibarContext } from '../../OmnibarProvider';
 import { OpenTabsList } from '../../PersistentOmnibarValuesProvider';
 
@@ -23,25 +23,23 @@ export const OpenTabsContext = createContext(
 export function OpenTabsProvider({ tabId, enabled, children }) {
     const { getOpenTabs } = useContext(OmnibarContext);
     const [rawTabs, setRawTabs] = useStateWithLocalPersistence(tabId);
-    const [isLoadingTabs, setIsLoadingTabs] = useState(false);
+    const [isFetching, setIsFetching] = useState(false);
 
     // Native sends tab-strip order (oldest first); reverse to show most recent first.
     const openTabs = useMemo(() => [...rawTabs].reverse(), [rawTabs]);
 
-    // Ref (not dep) so `refetchTabs` stays referentially stable across fetches.
-    const hasCachedTabsRef = useRef(rawTabs.length > 0);
-    hasCachedTabsRef.current = rawTabs.length > 0;
+    // Only show a loading state when nothing is cached yet.
+    const isLoadingTabs = isFetching && rawTabs.length === 0;
 
     const refetchTabs = useCallback(async () => {
-        // Only show a loading state when nothing is cached yet.
-        setIsLoadingTabs(!hasCachedTabsRef.current);
+        setIsFetching(true);
         try {
             const response = await getOpenTabs();
             setRawTabs(response.tabs ?? []);
         } catch (err) {
             console.error('omnibar_getOpenTabs failed', err);
         } finally {
-            setIsLoadingTabs(false);
+            setIsFetching(false);
         }
     }, [getOpenTabs, setRawTabs]);
 
