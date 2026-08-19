@@ -41,6 +41,25 @@ describe('page-context.js - stripInvisibleFormatCharacters', () => {
         expect(stripInvisibleFormatCharacters(smuggled)).toBe('What color is the sky? ');
     });
 
+    it('preserves emoji ZWJ sequences and variation selectors', () => {
+        expect(stripInvisibleFormatCharacters('👨‍👩‍👧')).toBe('👨‍👩‍👧');
+        expect(stripInvisibleFormatCharacters('❤️')).toBe('❤️');
+        expect(stripInvisibleFormatCharacters('👋🏻')).toBe('👋🏻');
+    });
+
+    it('preserves Persian/Arabic ZWNJ shaping', () => {
+        expect(stripInvisibleFormatCharacters('می‌رود')).toBe('می‌رود');
+        expect(stripInvisibleFormatCharacters('خانه‌ام')).toBe('خانه‌ام');
+    });
+
+    it('strips joiners used to smuggle next to Latin', () => {
+        expect(stripInvisibleFormatCharacters('a\u200Db')).toBe('ab');
+        expect(stripInvisibleFormatCharacters('a\u200Cb')).toBe('ab');
+        expect(stripInvisibleFormatCharacters('hello\u200Bworld')).toBe('helloworld');
+        // Boundary between Latin and Arabic: strip the bridging joiner, keep internal Persian ZWNJ
+        expect(stripInvisibleFormatCharacters('test\u200Cمی‌رود')).toBe('testمی‌رود');
+    });
+
     it('returns empty string for non-strings', () => {
         expect(stripInvisibleFormatCharacters(/** @type {any} */ (null))).toBe('');
         expect(stripInvisibleFormatCharacters(/** @type {any} */ (undefined))).toBe('');

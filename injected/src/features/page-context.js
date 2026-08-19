@@ -27,9 +27,70 @@ export function checkNodeIsVisible(node) {
     }
 }
 
+const RE_DEFAULT_IGNORABLE = /^\p{Default_Ignorable_Code_Point}$/u;
+const RE_LATIN = /^\p{Script=Latin}$/u;
+const RE_ARABIC = /^\p{Script=Arabic}$/u;
+const RE_EMOJI = /^\p{Extended_Pictographic}$/u;
+const RE_EMOJI_PROP = /^\p{Emoji}$/u;
+
 /**
- * Strip Unicode default-ignorable code points (ZWSP, ZWNJ, ZWJ, WJ, BOM, soft hyphen,
- * Tags U+E0000–E007F, …) and C0/C1 controls other than tab/newline/carriage-return.
+ * @param {number} cp
+ * @returns {boolean}
+ */
+function isZeroWidthJoinerOrNonJoiner(cp) {
+    return cp === 0x200c || cp === 0x200d;
+}
+
+/**
+ * @param {number} cp
+ * @returns {boolean}
+ */
+function isVariationSelector(cp) {
+    return cp >= 0xfe00 && cp <= 0xfe0f;
+}
+
+/**
+ * @param {number} cp
+ * @returns {boolean}
+ */
+function isEmojiModifier(cp) {
+    return cp >= 0x1f3fb && cp <= 0x1f3ff;
+}
+
+/**
+ * @param {string | null} ch
+ * @returns {boolean}
+ */
+function isEmojiRelatedClusterChar(ch) {
+    if (!ch) {
+        return false;
+    }
+    const cp = /** @type {number} */ (ch.codePointAt(0));
+    return isZeroWidthJoinerOrNonJoiner(cp) || isVariationSelector(cp) || isEmojiModifier(cp) || RE_EMOJI.test(ch) || RE_EMOJI_PROP.test(ch);
+}
+
+/**
+ * Nearest scalar that is not a joiner / variation selector (skips emoji cluster glue).
+ * @param {string[]} chars
+ * @param {number} index
+ * @param {number} direction
+ * @returns {string | null}
+ */
+function findScriptNeighbor(chars, index, direction) {
+    for (let j = index + direction; j >= 0 && j < chars.length; j += direction) {
+        const ch = chars[j];
+        const cp = /** @type {number} */ (ch.codePointAt(0));
+        if (isZeroWidthJoinerOrNonJoiner(cp) || isVariationSelector(cp)) {
+            continue;
+        }
+        return ch;
+    }
+    return null;
+}
+
+/**
+ * Keep ZWNJ/ZWJ for Arabic/Persian shaping and ZWJ/VS for emoji; strip when used
+ * next to Latin (anti-smuggling). All other default-ignorables (Tags, ZWSP, …) go.
  * Aligns with Apple `removingInvisibleFormatCharacters()`.
  * @param {string} str
  * @returns {string}
@@ -38,9 +99,54 @@ export function stripInvisibleFormatCharacters(str) {
     if (typeof str !== 'string' || str.length === 0) {
         return typeof str === 'string' ? str : '';
     }
-    return str
-        .replace(/\p{Default_Ignorable_Code_Point}/gu, '')
-        .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/g, '');
+
+    const chars = Array.from(str);
+    let out = '';
+
+    for (let i = 0; i < chars.length; i++) {
+        const ch = chars[i];
+        const cp = /** @type {number} */ (ch.codePointAt(0));
+
+        // Keep tab / LF / CR; drop other C0/C1 controls
+        if (cp <= 0x1f || (cp >= 0x7f && cp <= 0x9f)) {
+            if (cp === 0x09 || cp === 0x0a || cp === 0x0d) {
+                out += ch;
+            }
+            continue;
+        }
+
+        if (!RE_DEFAULT_IGNORABLE.test(ch)) {
+            out += ch;
+            continue;
+        }
+
+        const isJoiner = isZeroWidthJoinerOrNonJoiner(cp);
+        const isVS = isVariationSelector(cp);
+        if (!isJoiner && !isVS) {
+            continue;
+        }
+
+        const prev = findScriptNeighbor(chars, i, -1);
+        const next = findScriptNeighbor(chars, i, 1);
+
+        // Latin-adjacent joiners are smuggling / confusable — always strip
+        if ((prev && RE_LATIN.test(prev)) || (next && RE_LATIN.test(next))) {
+            continue;
+        }
+
+        // Persian / Arabic orthography (نیم‌فاصله etc.)
+        if (isJoiner && ((prev && RE_ARABIC.test(prev)) || (next && RE_ARABIC.test(next)))) {
+            out += ch;
+            continue;
+        }
+
+        // Emoji ZWJ sequences + emoji presentation VS16
+        if ((isJoiner || isVS) && (isEmojiRelatedClusterChar(prev) || isEmojiRelatedClusterChar(next))) {
+            out += ch;
+        }
+    }
+
+    return out;
 }
 
 function collapseWhitespace(str) {
