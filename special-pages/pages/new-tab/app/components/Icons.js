@@ -1024,3 +1024,52 @@ export function NewTabOptionsIcon(props) {
         </svg>
     );
 }
+
+/**
+ * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Tab-Content-Attach-16.svg
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
+ */
+export function TabContentAttachIcon(props) {
+    return (
+        <svg width="16" height="16" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
+            <path
+                fill="currentColor"
+                d="M12.5 9c1.933 0 3.5 1.567 3.5 3.5S14.433 16 12.5 16 9 14.433 9 12.5 10.567 9 12.5 9M12 1.125c2.21 0 4 1.79 4 4v2.572c0 .565-.753.887-1.25.619V6.437c0-.586-.476-1.062-1.062-1.062h-3.261c-1.264 0-2.42-.714-2.986-1.845-.354-.708-1.077-1.155-1.868-1.155H4c-1.519 0-2.75 1.231-2.75 2.75v6c0 1.519 1.231 2.75 2.75 2.75h3.952q.033.105.07.21c.166.47-.148 1.04-.647 1.04H4c-2.21 0-4-1.79-4-4v-6c0-2.21 1.79-4 4-4zm.375 8.75c-.276 0-.5.224-.5.5v1.5h-1.5c-.276 0-.5.224-.5.5v.25c0 .276.224.5.5.5h1.5v1.5c0 .276.224.5.5.5h.25c.276 0 .5-.224.5-.5v-1.5h1.5c.276 0 .5-.224.5-.5v-.25c0-.276-.224-.5-.5-.5h-1.5v-1.5c0-.276-.224-.5-.5-.5zm-5 .125c.345 0 .625.28.625.625s-.28.625-.625.625h-3.75c-.345 0-.625-.28-.625-.625S3.28 10 3.625 10zm2-3c.345 0 .625.28.625.625s-.28.625-.625.625h-5.75C3.28 8.25 3 7.97 3 7.625S3.28 7 3.625 7zM8.178 2.375q.22.274.381.595c.354.708 1.077 1.155 1.868 1.155h3.26c.337 0 .657.072.945.201C14.29 3.197 13.24 2.375 12 2.375z"
+            />
+        </svg>
+    );
+}
+
+/**
+ * 10x9 checkmark, from the Duck.ai frontend (react/assets/icons/check-10.svg).
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
+ */
+export function Check10Icon(props) {
+    return (
+        <svg width="10" height="9" fill="none" viewBox="0 0 10 9" xmlns="http://www.w3.org/2000/svg" {...props}>
+            <path
+                fill="currentColor"
+                fill-rule="evenodd"
+                clip-rule="evenodd"
+                d="M9.06151.172623c.457.310109.57608.931977.26597 1.388977l-4.75 7c-.17169.25302-.4497.41358-.75466.43585-.30496.02226-.60335-.09623-.80997-.32163l-2.75-3c-.373193-.40712-.34569-1.03968.061429-1.41288.407119-.37319 1.039689-.34568 1.412879.06143l1.89546 2.06778L7.67253.438597c.31011-.457001.93198-.576083 1.38898-.265974Z"
+            />
+        </svg>
+    );
+}
+
+/**
+ * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/12px/Check-12.svg
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
+ */
+export function Check12Icon(props) {
+    return (
+        <svg width="12" height="12" fill="none" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg" {...props}>
+            <path
+                fill="currentColor"
+                fill-rule="evenodd"
+                clip-rule="evenodd"
+                d="M10.767 2.138c.269.216.311.61.095.878L4.987 10.33c-.116.144-.29.23-.475.233s-.363-.075-.484-.215L1.153 7.035c-.226-.261-.198-.656.062-.882.261-.226.656-.198.882.062l2.384 2.748 5.407-6.73c.216-.269.61-.311.879-.095"
+            />
+        </svg>
+    );
+}

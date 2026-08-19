@@ -55,7 +55,7 @@
     "ts-json-schema-generator": "^2.9.0",
     "typedoc": "^0.28.20",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.65.0"
+    "typescript-eslint": "^8.66.0"
   },
   "dependencies": {
     "@duckduckgo/design-tokens": "github:duckduckgo/design-tokens#v0.42.0",

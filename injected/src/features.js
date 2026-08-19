@@ -54,6 +54,7 @@ const otherFeatures = /** @type {FeatureName[]} */ ([
     'trackerProtection',
     'tabSuspension',
     'autofillPasskeys',
+    'textSelection',
 ]);
 
 /** @type {Record<string, FeatureName[]>} */
@@ -76,6 +77,7 @@ export const platformSupport = {
         'pageObserver',
         'hover',
         'tabSuspension',
+        'textSelection',
     ],
     'apple-ai-clear': ['duckAiDataClearing'],
     'apple-ai-history': ['duckAiChatHistory'],

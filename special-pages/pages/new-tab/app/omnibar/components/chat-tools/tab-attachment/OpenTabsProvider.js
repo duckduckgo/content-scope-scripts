@@ -1,5 +1,5 @@
 import { createContext, h } from 'preact';
-import { useCallback, useContext, useEffect, useMemo } from 'preact/hooks';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'preact/hooks';
 import { OmnibarContext } from '../../OmnibarProvider';
 import { OpenTabsList } from '../../PersistentOmnibarValuesProvider';
 
@@ -7,10 +7,12 @@ const { useStateWithLocalPersistence } = OpenTabsList;
 
 /**
  * @typedef {import('../../../../../types/new-tab.js').TabMetadata} TabMetadata
- * @typedef {{ openTabs: TabMetadata[], refetchTabs: () => Promise<void> }} OpenTabsValue
+ * @typedef {{ openTabs: TabMetadata[], isLoadingTabs: boolean, refetchTabs: () => Promise<void> }} OpenTabsValue
  */
 
-export const OpenTabsContext = createContext(/** @type {OpenTabsValue} */ ({ openTabs: [], refetchTabs: async () => {} }));
+export const OpenTabsContext = createContext(
+    /** @type {OpenTabsValue} */ ({ openTabs: [], isLoadingTabs: false, refetchTabs: async () => {} }),
+);
 
 /**
  * @param {object} props
@@ -20,16 +22,26 @@ export const OpenTabsContext = createContext(/** @type {OpenTabsValue} */ ({ ope
  */
 export function OpenTabsProvider({ tabId, enabled, children }) {
     const { getOpenTabs } = useContext(OmnibarContext);
-    const [openTabs, setOpenTabs] = useStateWithLocalPersistence(tabId);
+    const [rawTabs, setRawTabs] = useStateWithLocalPersistence(tabId);
+    const [isFetching, setIsFetching] = useState(false);
+
+    // Native sends tab-strip order (oldest first); reverse to show most recent first.
+    const openTabs = useMemo(() => [...rawTabs].reverse(), [rawTabs]);
+
+    // Only show a loading state when nothing is cached yet.
+    const isLoadingTabs = isFetching && rawTabs.length === 0;
 
     const refetchTabs = useCallback(async () => {
+        setIsFetching(true);
         try {
             const response = await getOpenTabs();
-            setOpenTabs(response.tabs ?? []);
+            setRawTabs(response.tabs ?? []);
         } catch (err) {
             console.error('omnibar_getOpenTabs failed', err);
+        } finally {
+            setIsFetching(false);
         }
-    }, [getOpenTabs, setOpenTabs]);
+    }, [getOpenTabs, setRawTabs]);
 
     useEffect(() => {
         if (!enabled) return;
@@ -46,7 +58,7 @@ export function OpenTabsProvider({ tabId, enabled, children }) {
         return () => document.removeEventListener('visibilitychange', handler);
     }, [enabled, refetchTabs]);
 
-    const value = useMemo(() => ({ openTabs, refetchTabs }), [openTabs, refetchTabs]);
+    const value = useMemo(() => ({ openTabs, isLoadingTabs, refetchTabs }), [openTabs, isLoadingTabs, refetchTabs]);
 
     return <OpenTabsContext.Provider value={value}>{children}</OpenTabsContext.Provider>;
 }
