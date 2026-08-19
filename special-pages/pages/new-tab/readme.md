@@ -324,6 +324,14 @@
    - `true`
    - `false`
 
+### Upsell Disabled (kill switch off)
+ - **Purpose**: Drops `upsell` from every gated model and reasoning effort, and clears the gated sections' headers — the payload native sends when its subscription-upsell kill switch is off. Gated rows still show, but stay inert: no upsell, no section header.
+ - **Parameter**: `omnibar.upsellDisabled`
+ - **Example**: `?omnibar.upsellDisabled=true`
+ - **Options**:
+   - `true`
+   - `false`
+
 ### Mixed Model Access
  - **Purpose**: Makes the gated model section contain an available model plus subscription- and upgrade-gated models, for testing per-model upsell routing within one section.
  - **Parameter**: `omnibar.mixedModelAccess`
