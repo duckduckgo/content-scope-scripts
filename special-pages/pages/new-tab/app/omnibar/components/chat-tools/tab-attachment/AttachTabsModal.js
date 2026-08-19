@@ -13,8 +13,6 @@ import styles from './AttachTabsModal.module.css';
  * @typedef {import('../../../../../types/new-tab.js').TabMetadata} TabMetadata
  */
 
-const SEARCH_DEBOUNCE_MS = 150;
-
 /**
  * "Add Tabs" dialog opened from the attach dropdown: searchable checkbox rows for all open tabs.
  * Selection is staged locally and only committed on "Add" (diffed via `onToggleTab`); Cancel,
@@ -33,7 +31,6 @@ export function AttachTabsModal({ onClose, onToggleTab, isAttached, maxTabs = Nu
     const seedStagedIds = () => new Set(openTabs.filter((tab) => isAttached(tab.tabId)).map((tab) => tab.tabId));
 
     const [stagedTabIds, setStagedTabIds] = useState(seedStagedIds);
-    const [searchInput, setSearchInput] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
     const [wasLoading, setWasLoading] = useState(isLoadingTabs);
 
@@ -47,23 +44,12 @@ export function AttachTabsModal({ onClose, onToggleTab, isAttached, maxTabs = Nu
 
     const dialogRef = useRef(/** @type {HTMLDialogElement|null} */ (null));
     const searchInputRef = useRef(/** @type {HTMLInputElement|null} */ (null));
-    const debounceTimerRef = useRef(/** @type {number|null} */ (null));
 
     useEffect(() => {
         dialogRef.current?.showModal();
         refetchTabs();
         searchInputRef.current?.focus();
-        return () => {
-            if (debounceTimerRef.current !== null) window.clearTimeout(debounceTimerRef.current);
-        };
     }, [refetchTabs]);
-
-    /** @param {string} value */
-    const handleSearchInputChange = (value) => {
-        setSearchInput(value);
-        if (debounceTimerRef.current !== null) window.clearTimeout(debounceTimerRef.current);
-        debounceTimerRef.current = window.setTimeout(() => setSearchQuery(value), SEARCH_DEBOUNCE_MS);
-    };
 
     /** @param {TabMetadata} tab */
     const toggleStaged = (tab) => {
@@ -162,8 +148,8 @@ export function AttachTabsModal({ onClose, onToggleTab, isAttached, maxTabs = Nu
                             ref={searchInputRef}
                             type="text"
                             class={styles.tabsSearchInput}
-                            value={searchInput}
-                            onInput={(e) => handleSearchInputChange(/** @type {HTMLInputElement} */ (e.currentTarget).value)}
+                            value={searchQuery}
+                            onInput={(e) => setSearchQuery(/** @type {HTMLInputElement} */ (e.currentTarget).value)}
                             placeholder={t('omnibar_attachTabsSearchLabel')}
                             aria-label={t('omnibar_attachTabsSearchLabel')}
                             autoComplete="off"
