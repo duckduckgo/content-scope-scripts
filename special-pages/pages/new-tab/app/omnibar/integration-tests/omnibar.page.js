@@ -334,7 +334,7 @@ export class OmnibarPage {
 
     /**
      * The muted header above subscription-only models in the model selector.
-     * @param {string} header - Native-provided copy, e.g. 'Available with Pro'
+     * @param {string} header - Native-provided copy, e.g. 'Pro Plan Exclusive'
      */
     modelGatedSectionHeader(header) {
         return this.modelDropdown().getByText(header, { exact: true });

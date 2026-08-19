@@ -39,10 +39,10 @@ const EXTENDED_EFFORT_UNAVAILABLE = {
     description: 'For analytical tasks',
     isAvailable: false,
     upsell: 'subscribe',
-    gatedSectionHeader: 'Try Free for 7 Days',
+    gatedSectionHeader: 'Try for Free',
 };
 /** @type {import('../../../types/new-tab.ts').ReasoningEffortOption} */
-const EXTENDED_EFFORT_UPGRADE = { ...EXTENDED_EFFORT_UNAVAILABLE, upsell: 'upgrade', gatedSectionHeader: 'Available with Pro' };
+const EXTENDED_EFFORT_UPGRADE = { ...EXTENDED_EFFORT_UNAVAILABLE, upsell: 'upgrade', gatedSectionHeader: 'Pro Plan Exclusive' };
 /** @type {import('../../../types/new-tab.ts').ReasoningEffortOption} */
 const EXTENDED_EFFORT_AVAILABLE = { ...EXTENDED_EFFORT_UNAVAILABLE, isAvailable: true, upsell: undefined, gatedSectionHeader: undefined };
 /** @type {import('../../../types/new-tab.ts').ReasoningEffortOption} */
@@ -52,7 +52,7 @@ const HIGH_EFFORT_UPGRADE = {
     description: 'For the hardest tasks',
     isAvailable: false,
     upsell: 'upgrade',
-    gatedSectionHeader: 'Available with Pro',
+    gatedSectionHeader: 'Pro Plan Exclusive',
 };
 /** @type {import('../../../types/new-tab.ts').ReasoningEffortOption} */
 const HIGH_EFFORT_SAME_GATED_SECTION = {
@@ -157,7 +157,7 @@ export function omnibarMockTransport() {
                 ],
             },
             {
-                header: 'Advanced Models - DuckDuckGo subscription',
+                header: 'Subscriber Exclusive',
                 items: [
                     {
                         id: 'gpt-4o',
@@ -353,7 +353,7 @@ export function omnibarMockTransport() {
                             return [
                                 { ...section, items: section.items.slice(0, midpoint) },
                                 {
-                                    header: 'Pro Models - DuckDuckGo subscription',
+                                    header: 'Pro Plan Exclusive',
                                     items: section.items
                                         .slice(midpoint)
                                         .map((item) => ({ ...item, upsell: /** @type {const} */ ('upgrade') })),

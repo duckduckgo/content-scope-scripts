@@ -1793,7 +1793,7 @@ test.describe('omnibar widget', () => {
 
             await omnibar.modelSelectorButton().click();
             // The gated section renders its native-provided header (not a hardcoded label).
-            await expect(omnibar.modelGatedSectionHeader('Advanced Models - DuckDuckGo subscription')).toBeVisible();
+            await expect(omnibar.modelGatedSectionHeader('Subscriber Exclusive')).toBeVisible();
 
             // Gated model rows are themselves the navigable, clickable upsell triggers.
             await omnibar.modelOption('Claude Sonnet 4.5').click();
@@ -1815,7 +1815,7 @@ test.describe('omnibar widget', () => {
             await omnibar.expectMode('ai');
             await omnibar.modelSelectorButton().click();
 
-            await expect(omnibar.modelOption('Claude Sonnet 4.5')).toHaveAccessibleDescription('Advanced Models - DuckDuckGo subscription');
+            await expect(omnibar.modelOption('Claude Sonnet 4.5')).toHaveAccessibleDescription('Subscriber Exclusive');
         });
 
         test('renders a gated model native name without an artificial suffix', async ({ page }, workerInfo) => {
@@ -1931,8 +1931,8 @@ test.describe('omnibar widget', () => {
             await omnibar.modelSelectorButton().click();
 
             const dropdown = omnibar.modelDropdown();
-            // 'Advanced Models' section (subscribe upsell) is split from a new 'Pro Models'
-            // section (upgrade upsell); assert the last row of each.
+            // The subscriber-exclusive section (subscribe upsell) is split from a new
+            // Pro-exclusive section (upgrade upsell); assert the last row of each.
             const lastOfSubscribeSection = omnibar.modelOption('Claude Sonnet 4.5');
             const firstOfUpgradeSection = omnibar.modelOption('Llama 4 Maverick');
             const lastOfUpgradeSection = omnibar.modelOption('Claude 4 Sonnet');
@@ -2367,7 +2367,7 @@ test.describe('omnibar widget', () => {
 
             await omnibar.reasoningPickerButton().click();
             // Native-provided section header shown above the gated option, not a hardcoded label.
-            await expect(omnibar.reasoningDropdown()).toContainText('Try Free for 7 Days');
+            await expect(omnibar.reasoningDropdown()).toContainText('Try for Free');
             const gatedOption = omnibar.reasoningOption('For analytical tasks');
 
             await gatedOption.click();
@@ -2398,7 +2398,7 @@ test.describe('omnibar widget', () => {
 
             await omnibar.reasoningPickerButton().click();
             // Native-provided section header shown above the gated option, not a hardcoded label.
-            await expect(omnibar.reasoningDropdown()).toContainText('Available with Pro');
+            await expect(omnibar.reasoningDropdown()).toContainText('Pro Plan Exclusive');
             const gatedOption = omnibar.reasoningOption('For analytical tasks');
 
             await gatedOption.click();
@@ -2449,7 +2449,7 @@ test.describe('omnibar widget', () => {
             await omnibar.expectMode('ai');
             await omnibar.reasoningPickerButton().click();
 
-            await expect(omnibar.reasoningDropdown().locator(':scope > li').first()).toHaveText('Try Free for 7 Days');
+            await expect(omnibar.reasoningDropdown().locator(':scope > li').first()).toHaveText('Try for Free');
             await expect(omnibar.reasoningDropdown().getByRole('separator')).toHaveCount(0);
         });
 
@@ -2472,8 +2472,8 @@ test.describe('omnibar widget', () => {
             await omnibar.expectMode('ai');
             await omnibar.reasoningPickerButton().click();
 
-            await expect(omnibar.reasoningDropdown().getByText('Try Free for 7 Days', { exact: true })).toBeVisible();
-            await expect(omnibar.reasoningDropdown().getByText('Available with Pro', { exact: true })).toBeVisible();
+            await expect(omnibar.reasoningDropdown().getByText('Try for Free', { exact: true })).toBeVisible();
+            await expect(omnibar.reasoningDropdown().getByText('Pro Plan Exclusive', { exact: true })).toBeVisible();
         });
 
         test('exposes a gated reasoning section header as every row accessible description', async ({ page }, workerInfo) => {
@@ -2495,8 +2495,8 @@ test.describe('omnibar widget', () => {
             await omnibar.expectMode('ai');
             await omnibar.reasoningPickerButton().click();
 
-            await expect(omnibar.reasoningOption('For analytical tasks')).toHaveAccessibleDescription('Try Free for 7 Days');
-            await expect(omnibar.reasoningOption('For the hardest tasks')).toHaveAccessibleDescription('Try Free for 7 Days');
+            await expect(omnibar.reasoningOption('For analytical tasks')).toHaveAccessibleDescription('Try for Free');
+            await expect(omnibar.reasoningOption('For the hardest tasks')).toHaveAccessibleDescription('Try for Free');
         });
 
         test('fires try-for-free telemetry when its gated reasoning effort is activated', async ({ page }, workerInfo) => {

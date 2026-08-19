@@ -722,7 +722,7 @@ export interface OmnibarConfig {
  */
 export interface AIModelSection {
   /**
-   * Optional section header text (e.g. 'Advanced Models - DuckDuckGo subscription')
+   * Optional section header text (e.g. 'Subscriber Exclusive')
    */
   header?: string;
   /**
@@ -801,7 +801,7 @@ export interface ReasoningEffortOption {
    */
   upsell?: "subscribe" | "upgrade";
   /**
-   * Localized header for the gated section this option starts (e.g. 'Try Free for 7 Days', 'Available with Pro'). Set on the first gated option only; absent means no divider and no header for that option.
+   * Localized header for the gated section this option starts (e.g. 'Try for Free', 'Pro Plan Exclusive'). Set on the first gated option only; absent means no divider and no header for that option.
    */
   gatedSectionHeader?: string;
 }

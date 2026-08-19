@@ -76,7 +76,7 @@
       "required": ["items"],
       "properties": {
         "header": {
-          "description": "Optional section header text (e.g. 'Advanced Models - DuckDuckGo subscription')",
+          "description": "Optional section header text (e.g. 'Subscriber Exclusive')",
           "type": "string"
         },
         "items": {
@@ -112,7 +112,7 @@
           "$ref": "#/$defs/UpsellType"
         },
         "gatedSectionHeader": {
-          "description": "Localized header for the gated section this option starts (e.g. 'Try Free for 7 Days', 'Available with Pro'). Set on the first gated option only; absent means no divider and no header for that option.",
+          "description": "Localized header for the gated section this option starts (e.g. 'Try for Free', 'Pro Plan Exclusive'). Set on the first gated option only; absent means no divider and no header for that option.",
           "type": "string"
         }
       }

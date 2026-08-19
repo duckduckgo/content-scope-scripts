@@ -317,7 +317,7 @@
  - **Options**: Any positive integer
 
 ### Subscription (simulate subscribed user)
- - **Purpose**: Flips `isAvailable: true` on every AI model in the mock, unlocking the "Advanced Models - DuckDuckGo subscription" section. Lets tests pick subscription-tier models (e.g. Opus 4.6, GPT-5.2) as `selectedModelId`.
+ - **Purpose**: Flips `isAvailable: true` on every AI model in the mock, unlocking the "Subscriber Exclusive" section. Lets tests pick subscription-tier models (e.g. Opus 4.6, GPT-5.2) as `selectedModelId`.
  - **Parameter**: `omnibar.subscription`
  - **Example**: `?omnibar.subscription=true`
  - **Options**:

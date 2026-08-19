@@ -108,7 +108,7 @@
     "description": "Error shown when an attached image cannot be processed."
   },
   "omnibar_advancedModelsSectionHeader": {
-    "title": "Advanced Models - DuckDuckGo subscription",
+    "title": "Subscriber Exclusive",
     "description": "Section header in the model picker for premium models that require a subscription."
   },
   "omnibar_viewAllChats": {
