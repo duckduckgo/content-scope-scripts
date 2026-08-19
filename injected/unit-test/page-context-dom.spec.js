@@ -2,7 +2,7 @@ import { JSDOM } from 'jsdom';
 import { writeFileSync, existsSync, mkdirSync, readFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { domToMarkdown } from '../src/features/page-context.js';
+import { domToMarkdown, stripInvisibleFormatCharacters } from '../src/features/page-context.js';
 
 const currentFilename = fileURLToPath(import.meta.url);
 const currentDirname = dirname(currentFilename);
@@ -15,6 +15,37 @@ const currentDirname = dirname(currentFilename);
  * @property {boolean} includeIframes - Whether to include iframe content
  * @property {boolean} trimBlankLinks - Whether to trim blank links
  */
+
+describe('page-context.js - stripInvisibleFormatCharacters', () => {
+    it('strips zero-width and other default-ignorable characters', () => {
+        expect(stripInvisibleFormatCharacters('\u200B')).toBe('');
+        expect(stripInvisibleFormatCharacters('\u200C')).toBe('');
+        expect(stripInvisibleFormatCharacters('\u200D')).toBe('');
+        expect(stripInvisibleFormatCharacters('\u2060')).toBe('');
+        expect(stripInvisibleFormatCharacters('\uFEFF')).toBe('');
+        expect(stripInvisibleFormatCharacters('\u00AD')).toBe('');
+        expect(stripInvisibleFormatCharacters('a\u200Cb\u200Bc')).toBe('abc');
+    });
+
+    it('keeps tab and newlines but strips other controls', () => {
+        expect(stripInvisibleFormatCharacters('hello\nworld')).toBe('hello\nworld');
+        expect(stripInvisibleFormatCharacters('hello\tworld')).toBe('hello\tworld');
+        expect(stripInvisibleFormatCharacters('a\u0000b')).toBe('ab');
+        expect(stripInvisibleFormatCharacters('a\u0007b')).toBe('ab');
+    });
+
+    it('strips Unicode Tag characters used for ASCII smuggling', () => {
+        // U+E0001 + TAG letters spelling "Thanks" + U+E007F
+        const smuggled =
+            'What color is the sky? \u{E0001}\u{E0054}\u{E0068}\u{E0061}\u{E006E}\u{E006B}\u{E0073}\u{E007F}';
+        expect(stripInvisibleFormatCharacters(smuggled)).toBe('What color is the sky? ');
+    });
+
+    it('returns empty string for non-strings', () => {
+        expect(stripInvisibleFormatCharacters(/** @type {any} */ (null))).toBe('');
+        expect(stripInvisibleFormatCharacters(/** @type {any} */ (undefined))).toBe('');
+    });
+});
 
 describe('page-context.js - domToMarkdown', () => {
     const fixturesDir = join(currentDirname, 'fixtures', 'page-context');
@@ -116,6 +147,11 @@ describe('page-context.js - domToMarkdown', () => {
         {
             name: 'mixed-formatting',
             html: '<p>This has <strong><em>bold and italic</em></strong> together.</p>',
+            settings: defaultSettings,
+        },
+        {
+            name: 'invisible-format-characters',
+            html: '<p>What color is the sky? \u{E0001}\u{E0054}\u{E0068}\u{E0061}\u{E006E}\u{E006B}\u{E0073}\u{E007F}</p><p>hello\u200Bworld\u200C</p>',
             settings: defaultSettings,
         },
         {

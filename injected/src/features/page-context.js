@@ -27,8 +27,24 @@ export function checkNodeIsVisible(node) {
     }
 }
 
+/**
+ * Strip Unicode default-ignorable code points (ZWSP, ZWNJ, ZWJ, WJ, BOM, soft hyphen,
+ * Tags U+E0000–E007F, …) and C0/C1 controls other than tab/newline/carriage-return.
+ * Aligns with Apple `removingInvisibleFormatCharacters()`.
+ * @param {string} str
+ * @returns {string}
+ */
+export function stripInvisibleFormatCharacters(str) {
+    if (typeof str !== 'string' || str.length === 0) {
+        return typeof str === 'string' ? str : '';
+    }
+    return str
+        .replace(/\p{Default_Ignorable_Code_Point}/gu, '')
+        .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/g, '');
+}
+
 function collapseWhitespace(str) {
-    return typeof str === 'string' ? str.replace(/\s+/g, ' ') : '';
+    return typeof str === 'string' ? stripInvisibleFormatCharacters(str).replace(/\s+/g, ' ') : '';
 }
 
 /**
@@ -196,7 +212,7 @@ export function domToMarkdown(node, settings, depth = 0) {
  */
 function getAttributeOrBlank(node, attr) {
     const attrValue = node.getAttribute(attr) ?? '';
-    return attrValue.trim();
+    return stripInvisibleFormatCharacters(attrValue).trim();
 }
 
 function collapseAndTrim(str) {
@@ -621,7 +637,7 @@ export default class PageContext extends ContentFeature {
     }
 
     getPageTitle() {
-        const title = document.title || '';
+        const title = stripInvisibleFormatCharacters(document.title || '');
         const maxTitleLength = this.getFeatureSetting('maxTitleLength') || 100;
 
         if (title.length > maxTitleLength) {
@@ -633,7 +649,8 @@ export default class PageContext extends ContentFeature {
 
     getMetaDescription() {
         const metaDesc = document.querySelector('meta[name="description"]');
-        return metaDesc ? metaDesc.getAttribute('content') || '' : '';
+        const content = metaDesc ? metaDesc.getAttribute('content') || '' : '';
+        return stripInvisibleFormatCharacters(content);
     }
 
     getMainContent() {
@@ -713,7 +730,7 @@ export default class PageContext extends ContentFeature {
 
         headingElements.forEach((heading) => {
             const level = parseInt(heading.tagName.charAt(1));
-            const text = heading.textContent?.trim();
+            const text = stripInvisibleFormatCharacters(heading.textContent || '').trim();
             if (text) {
                 headings.push({ level, text });
             }
@@ -728,7 +745,7 @@ export default class PageContext extends ContentFeature {
         const linkElements = document.querySelectorAll(linkSelector);
 
         linkElements.forEach((link) => {
-            const text = link.textContent?.trim();
+            const text = stripInvisibleFormatCharacters(link.textContent || '').trim();
             const href = link.getAttribute('href');
             if (text && href && text.length > 0) {
                 links.push({ text, href });
@@ -765,7 +782,7 @@ export default class PageContext extends ContentFeature {
         const imgElements = document.querySelectorAll(imgSelector);
 
         imgElements.forEach((img) => {
-            const alt = img.getAttribute('alt') || '';
+            const alt = stripInvisibleFormatCharacters(img.getAttribute('alt') || '');
             const src = img.getAttribute('src') || '';
             if (src) {
                 images.push({ alt, src });
