@@ -260,6 +260,10 @@
     "title" : "A imagem é demasiado grande. Usa uma imagem menor que 10 000 × 10 000 píxeis.",
     "description" : "Error shown when a user tries to attach an image that exceeds the maximum pixel dimensions."
   },
+  "omnibar_fileTooLargeError" : {
+    "title" : "O ficheiro é demasiado grande. Usa um ficheiro com menos de {limit} MB.",
+    "description" : "Error shown when a user tries to attach a file that exceeds the maximum allowed size. {limit} is the size limit in megabytes."
+  },
   "omnibar_imageProcessingError" : {
     "title" : "Falha ao processar a imagem. Experimenta com um ficheiro diferente.",
     "description" : "Error shown when an attached image cannot be processed."
@@ -299,6 +303,18 @@
   "omnibar_webSearchDescription" : {
     "title" : "Respostas da web",
     "description" : "Description for the Web Search tool shown in the tools menu dropdown."
+  },
+  "omnibar_customizeResponsesLabel" : {
+    "title" : "Personalizar respostas",
+    "description" : "Label for the Customize Responses entry shown in the tools menu dropdown. Selecting it opens a modal to control how Duck.ai responds."
+  },
+  "omnibar_customizeResponsesDescription" : {
+    "title" : "Controla o tom, a duração e muito mais",
+    "description" : "Description for the Customize Responses entry shown in the tools menu dropdown."
+  },
+  "omnibar_customizeResponsesToggleLabel" : {
+    "title" : "Aplicar personalização da resposta",
+    "description" : "Accessible label for the on/off toggle that applies or unapplies the saved response customization, shown on the Customize Responses tools menu row."
   },
   "omnibar_imageGenerationWithAttachmentPlaceholder" : {
     "title" : "Descreve as alterações com base na imagem",
@@ -349,12 +365,32 @@
     "description" : "Accessible label for the button that removes an attached file chip from the AI chat input. {fileName} is the original filename."
   },
   "omnibar_attachPageContentLabel" : {
-    "title" : "Adicionar conteúdo à página",
-    "description" : "Menu item in the attach dropdown that opens the open-tabs picker so the user can attach extracted page content."
+    "title" : "Adicionar separadores",
+    "description" : "Menu item in the attach dropdown that opens the Add Tabs dialog so the user can attach extracted page content from open tabs."
   },
-  "omnibar_attachTabsPickerTitle" : {
-    "title" : "Separadores",
-    "description" : "Header text for the open-tabs picker panel."
+  "omnibar_attachTabsModalTitle" : {
+    "title" : "Adicionar separadores",
+    "description" : "Title and accessible name of the Add Tabs dialog opened from the attach dropdown menu."
+  },
+  "omnibar_attachTabsSearchLabel" : {
+    "title" : "Pesquisar",
+    "description" : "Placeholder and accessibility label for the search input that filters the list of open tabs in the Add Tabs dialog."
+  },
+  "omnibar_attachTabsConfirm" : {
+    "title" : "Adicionar",
+    "description" : "Primary button in the Add Tabs dialog that attaches the tabs the user checked."
+  },
+  "omnibar_attachTabsCancel" : {
+    "title" : "Cancelar",
+    "description" : "Secondary button in the Add Tabs dialog that dismisses it without attaching anything."
+  },
+  "omnibar_attachTabsRecentTabs" : {
+    "title" : "Separadores recentes",
+    "description" : "Section header for the list of recent open tabs, shown in the attach dropdown menu and the @-mention tab picker."
+  },
+  "omnibar_attachTabsLoading" : {
+    "title" : "A carregar separadores…",
+    "description" : "Status text displayed while the list of open tabs is loading."
   },
   "omnibar_attachTabsPickerLabel" : {
     "title" : "Seleciona um separador aberto para adicionar",
@@ -362,11 +398,11 @@
   },
   "omnibar_attachTabsNoMatches" : {
     "title" : "Nenhum separador correspondente",
-    "description" : "Empty-state message shown in the @-mention tab picker when no open tabs match what the user typed."
+    "description" : "Empty-state message shown when no open tabs match what the user typed, in the @-mention tab picker and the Add Tabs dialog search."
   },
   "omnibar_attachTabsNoOpenTabs" : {
-    "title" : "Não há conteúdo disponível na página",
-    "description" : "Empty-state message shown in the attach-page-content tabs dropdown when there is no page content available to attach."
+    "title" : "Nenhum separador aberto",
+    "description" : "Empty-state message shown in the attach dropdown's Recent Tabs section and the Add Tabs dialog when there are no open tabs available to attach."
   },
   "omnibar_removeAttachedTabLabel" : {
     "title" : "Remover {title}",
@@ -387,10 +423,6 @@
   "omnibar_upgrade" : {
     "title" : "Atualizar",
     "description" : "CTA shown on a model or reasoning-effort option gated behind a higher subscription tier; opens the upgrade flow when tapped."
-  },
-  "omnibar_modelBadgeBeta" : {
-    "title" : "Beta",
-    "description" : "Badge shown next to an AI model in the model selector that is in beta."
   },
   "omnibar_modelBadgePlus" : {
     "title" : "Plus",
