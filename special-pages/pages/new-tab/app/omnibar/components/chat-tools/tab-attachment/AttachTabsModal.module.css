@@ -1,0 +1,270 @@
+/* Native <dialog>; shown via showModal(), so the browser centers it in the viewport
+   (top layer) regardless of the omnibar's backdrop-filter containing block. */
+.tabsModal {
+    background: var(--ds-color-theme-surface-secondary);
+    border: none;
+    border-radius: 13px;
+    box-shadow:
+        0 0 0 0.5px rgba(0, 0, 0, 0.2),
+        0 10px 24px 0 rgba(0, 0, 0, 0.32),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+    box-sizing: border-box;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    height: 340px;
+    margin: auto; /* Restore UA centering; the app's global reset zeroes dialog margins. */
+    overflow: clip;
+    padding: 0;
+    width: var(--sp-90);
+
+    /* `display: flex` would otherwise override the UA's `display: none` and flash
+       the dialog before the mount effect calls showModal(). */
+    &:not([open]) {
+        display: none;
+    }
+
+    &::backdrop {
+        /* Duck.ai's modal scrim; no translucent theme token exists, so literal values */
+        background: rgba(0, 0, 0, 0.3);
+    }
+
+    [data-theme='dark'] &::backdrop {
+        background: rgba(0, 0, 0, 0.6);
+    }
+}
+
+.tabsModalHeader {
+    flex-shrink: 0;
+    padding: var(--sp-5);
+
+    & h4 {
+        font-size: 17px;
+        font-weight: 700;
+        letter-spacing: -0.43px;
+        line-height: 22px;
+        margin: 0;
+    }
+}
+
+.tabsModalBody {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+    padding: 0;
+}
+
+.tabsSearchWrapper {
+    border-bottom: 1px solid var(--ds-color-theme-surface-decoration-primary);
+    flex-shrink: 0;
+    padding: 0 var(--sp-4) var(--sp-2);
+}
+
+.tabsSearchField {
+    align-items: center;
+    background-color: var(--ds-color-theme-surface-tertiary);
+    border: 1px solid var(--ds-color-theme-container-border-tertiary);
+    border-radius: 6px;
+    box-sizing: border-box;
+    display: flex;
+    gap: 6px;
+    height: 24px;
+    padding: 0 9px;
+
+    &:focus-within {
+        outline: var(--sp-0_5) solid color-mix(in srgb, var(--ds-color-theme-accent-primary) 55%, white);
+        outline-offset: calc(-1 * var(--sp-0_5));
+    }
+}
+
+.tabsSearchIcon {
+    color: var(--ds-color-theme-text-secondary);
+    flex-shrink: 0;
+}
+
+.tabsSearchInput {
+    background: transparent;
+    border: none;
+    color: var(--ds-color-theme-text-primary);
+    flex: 1;
+    font-family: inherit;
+    font-size: 13px;
+    letter-spacing: -0.08px;
+    line-height: 13px;
+    margin: 0;
+    min-width: 0;
+    outline: none;
+    padding: 0;
+
+    &::placeholder {
+        color: var(--ds-color-theme-text-secondary);
+    }
+}
+
+.tabsMenu {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    list-style: none;
+    margin: 0;
+    min-height: 0;
+    outline: none;
+    overflow-y: auto;
+    padding: var(--sp-2) 27px;
+}
+
+.checkboxItem {
+    align-items: center;
+    border-radius: 8px;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    color: var(--ds-color-theme-text-primary);
+    cursor: pointer;
+    display: flex;
+    font-size: 13px;
+    gap: 6px;
+    height: var(--sp-7);
+    letter-spacing: -0.08px;
+    line-height: 13px;
+    /* Inset the hover/focus background without shifting content alignment */
+    margin: 0 calc(var(--sp-2) * -1);
+    min-width: 0;
+    outline: none;
+    padding: 0 var(--sp-2);
+    -webkit-tap-highlight-color: transparent;
+    width: calc(100% + var(--sp-2) * 2);
+}
+
+.checkboxItem:focus-visible {
+    background-color: var(--ds-color-theme-control-fill-secondary);
+}
+
+.checkboxItemDisabled {
+    color: var(--ds-color-theme-text-tertiary);
+    cursor: default;
+}
+
+.checkboxIndicator {
+    align-items: center;
+    background-color: var(--ds-color-theme-surface-tertiary);
+    border: 1px solid var(--ds-color-theme-control-border-primary);
+    border-radius: var(--sp-1);
+    box-sizing: border-box;
+    display: flex;
+    flex-shrink: 0;
+    height: var(--sp-4);
+    justify-content: center;
+    width: var(--sp-4);
+}
+
+.checkboxItemDisabled .checkboxIndicator {
+    opacity: 0.5;
+}
+
+.checkboxCheck {
+    color: var(--ds-color-theme-accent-content-primary);
+    height: var(--sp-3);
+    visibility: hidden;
+    width: var(--sp-3);
+}
+
+.checkboxIndicatorChecked {
+    background-color: var(--ds-color-theme-accent-primary);
+    border-color: var(--ds-color-theme-accent-primary);
+
+    & .checkboxCheck {
+        visibility: visible;
+    }
+}
+
+.favicon {
+    border-radius: 2px;
+    flex: none;
+    height: var(--sp-4);
+    object-fit: cover;
+    width: var(--sp-4);
+}
+
+.faviconFallback {
+    align-items: center;
+    color: var(--ds-color-theme-icons-secondary);
+    display: flex;
+    flex: none;
+    height: var(--sp-4);
+    justify-content: center;
+    width: var(--sp-4);
+}
+
+.tabTitle {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.statusItem {
+    align-items: center;
+    box-sizing: border-box;
+    flex-shrink: 0;
+    cursor: default;
+    display: flex;
+    height: calc(var(--sp-7) * 3);
+    justify-content: center;
+    outline: none;
+    padding: 0 var(--sp-4);
+}
+
+.statusText {
+    color: var(--ds-color-theme-text-secondary);
+    font-size: 13px;
+}
+
+.tabsModalFooter {
+    border-top: 1px solid var(--ds-color-theme-surface-decoration-primary);
+    display: flex;
+    flex-shrink: 0;
+    gap: var(--sp-2);
+    padding: var(--sp-4) var(--sp-5);
+}
+
+.tabsFooterButton {
+    align-items: center;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    flex: 1;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 400;
+    height: var(--sp-7);
+    justify-content: center;
+    letter-spacing: -0.08px;
+    line-height: 13px;
+    padding: 0 var(--sp-3);
+
+    &:focus-visible {
+        outline: 2px solid var(--ds-color-theme-accent-primary);
+        outline-offset: 1px;
+    }
+}
+
+.tabsFooterButtonSecondary {
+    background-color: var(--ds-color-theme-control-fill-primary);
+    color: var(--ds-color-theme-text-primary);
+
+    &:hover {
+        background-color: var(--ds-color-theme-control-fill-secondary);
+    }
+}
+
+.tabsFooterButtonPrimary {
+    background-color: var(--ds-color-theme-accent-primary);
+    color: var(--ds-color-theme-accent-content-primary);
+
+    &:hover {
+        background-color: var(--ds-color-theme-accent-secondary);
+    }
+}
