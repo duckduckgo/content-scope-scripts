@@ -100,6 +100,9 @@ export function ReasoningPicker({ options, selectedEffort, onSelect, onUpsell, a
                 isSelected={option.isAvailable && option.id === selectedEffort}
                 ariaSelected={option.isAvailable && option.id === selectedEffort}
                 ariaDescribedBy={!option.isAvailable ? gatedSectionDescriptionId : undefined}
+                // A gated option with no `upsell` has nowhere to send the user (native omits it
+                // when its upsell kill switch is off), so the row shows but stays inert.
+                disabled={!option.isAvailable && !option.upsell}
                 onSelect={() => (option.isAvailable ? handleSelect(option.id) : handleUpsell(option.upsell))}
             />
         );

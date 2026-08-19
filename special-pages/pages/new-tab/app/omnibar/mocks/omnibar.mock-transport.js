@@ -164,6 +164,7 @@ export function omnibarMockTransport() {
                         name: 'GPT-4o',
                         shortName: 'GPT-4o',
                         isAvailable: false,
+                        upsell: /** @type {const} */ ('subscribe'),
                         accessTier: 'plus',
                         supportsImageUpload: true,
                         supportedTools: ['WebSearch'],
@@ -173,6 +174,7 @@ export function omnibarMockTransport() {
                         name: 'GPT-5.2',
                         shortName: 'GPT-5.2',
                         isAvailable: false,
+                        upsell: /** @type {const} */ ('subscribe'),
                         accessTier: 'plus',
                         supportsImageUpload: true,
                         supportedTools: ['WebSearch'],
@@ -183,6 +185,7 @@ export function omnibarMockTransport() {
                         name: 'Claude Sonnet 4.5',
                         shortName: 'Sonnet 4.5',
                         isAvailable: false,
+                        upsell: /** @type {const} */ ('subscribe'),
                         accessTier: 'plus',
                         supportsImageUpload: true,
                         supportedFileTypes: ['application/pdf'],
@@ -194,6 +197,7 @@ export function omnibarMockTransport() {
                         name: 'Llama 4 Maverick',
                         shortName: 'Maverick',
                         isAvailable: false,
+                        upsell: /** @type {const} */ ('subscribe'),
                         accessTier: 'plus',
                         supportsImageUpload: false,
                         supportedTools: [],
@@ -203,6 +207,7 @@ export function omnibarMockTransport() {
                         name: 'Claude Opus 4.6',
                         shortName: 'Opus 4.6',
                         isAvailable: false,
+                        upsell: /** @type {const} */ ('subscribe'),
                         accessTier: 'pro',
                         supportsImageUpload: true,
                         supportedTools: ['WebSearch'],
@@ -213,6 +218,7 @@ export function omnibarMockTransport() {
                         name: 'Claude 4 Sonnet',
                         shortName: 'Claude 4 Sonnet',
                         isAvailable: false,
+                        upsell: /** @type {const} */ ('subscribe'),
                         accessTier: 'pro',
                         supportsImageUpload: true,
                         supportedTools: ['WebSearch'],
@@ -334,6 +340,22 @@ export function omnibarMockTransport() {
                                 ...item,
                                 isAvailable: true,
                                 reasoningEfforts: item.reasoningEfforts?.map((effort) => ({ ...effort, isAvailable: true })),
+                            })),
+                        }));
+                    }
+                    // Native's upsell kill switch: gated rows still ship, but with no upsell
+                    // target and no section headers.
+                    if (parseBooleanQueryParam('omnibar.upsellDisabled') === true) {
+                        config.aiModelSections = config.aiModelSections?.map((section) => ({
+                            header: section.items.every((model) => !model.isAvailable) ? undefined : section.header,
+                            items: section.items.map((item) => ({
+                                ...item,
+                                upsell: undefined,
+                                reasoningEfforts: item.reasoningEfforts?.map((effort) => ({
+                                    ...effort,
+                                    upsell: undefined,
+                                    gatedSectionHeader: undefined,
+                                })),
                             })),
                         }));
                     }

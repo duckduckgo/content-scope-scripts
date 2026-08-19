@@ -2008,6 +2008,30 @@ test.describe('omnibar widget', () => {
             await expect(omnibar.modelDropdown()).toHaveCount(0);
         });
 
+        test('leaves gated rows inert when native sends no upsell', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            // Native omits `upsell` when its subscription-upsell kill switch is off.
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true', 'omnibar.upsellDisabled': 'true' },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await omnibar.modelSelectorButton().click();
+            const gatedModel = omnibar.modelOption('Claude Sonnet 4.5');
+            await expect(gatedModel).toHaveAttribute('aria-disabled', 'true');
+            await gatedModel.click({ force: true });
+
+            const upsellCalls = await ntp.mocks.outgoing({ names: ['omnibar_showSubscriptionUpsell', 'omnibar_showSubscriptionUpgrade'] });
+            expect(upsellCalls).toEqual([]);
+            await expect(omnibar.modelDropdown()).toBeVisible();
+        });
+
         test('fires try-for-free telemetry when its gated model is activated', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);

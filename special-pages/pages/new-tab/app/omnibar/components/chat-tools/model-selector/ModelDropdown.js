@@ -40,11 +40,11 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
     const allModels = sections.flatMap((section) => section.items);
     const optionIndexById = new Map(allModels.map((model, index) => [model.id, index]));
     // Upsell behavior belongs to each gated model, independent of how native
-    // groups available and gated rows into sections.
-    // Missing upsell values retain the legacy subscription behavior. Native
-    // should send an explicit value while the unavailable-item contract is finalized.
+    // groups available and gated rows into sections. A gated model with no
+    // `upsell` has nowhere to send the user — native omits it when its upsell
+    // kill switch is off — so that row shows but stays inert.
     const upsellByModelId = new Map(
-        allModels.filter((model) => !model.isAvailable).map((model) => [model.id, model.upsell ?? 'subscribe']),
+        allModels.filter((model) => !model.isAvailable && model.upsell).map((model) => [model.id, model.upsell]),
     );
     const hasGatedModelsAt = sections.map((section) => section.items.some((model) => !model.isAvailable));
     const enabledModelIndices = allModels.reduce(
