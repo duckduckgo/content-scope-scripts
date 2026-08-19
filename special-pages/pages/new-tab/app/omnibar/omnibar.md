@@ -80,7 +80,7 @@ title: Omnibar Widget
 
 ### `omnibar_getTabContent`
 - {@link "NewTab Messages".OmnibarGetTabContentRequest}
-- Extracts page content for a specific tab. Called when the user attaches a tab (via the inline Recent Tabs preview, the Add Tabs dialog, or an `@`-mention).
+- Extracts page content for a specific tab. Called when the user picks a tab from the picker.
 - requires `tabId` (returned by `omnibar_getOpenTabs`).
 - Returns `{ pageContext: null }` when the tab has any issue (closed, restricted page, extraction failure, etc) — the UI handles this by silently dropping the chip.
 - returns {@link "NewTab Messages".GetTabContentResponse}
