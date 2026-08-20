@@ -133,6 +133,16 @@ title: Omnibar Widget
 }
 ```
 
+## Picker telemetry
+
+Picker telemetry distinguishes impressions from gated-row activations:
+
+- `omnibar_model_picker_shown` and `omnibar_reasoning_picker_shown` fire once when the corresponding picker opens.
+- `omnibar_model_picker_tryforfree_shown` and `omnibar_reasoning_picker_tryforfree_shown` fire when the user activates a gated row whose displayed CTA is “Try for free”.
+- `omnibar_model_picker_upgrade_shown` and `omnibar_reasoning_picker_upgrade_shown` fire when the user activates a gated row whose displayed CTA is “Upgrade”.
+
+The four CTA events retain their historical `_shown` names, but they represent activation rather than visibility. Their Try-for-free/Upgrade classification is derived from the item’s `upsell` value and the user’s free-trial eligibility. Native routing remains determined only by `upsell`, so an `*_upgrade_shown` event can precede `omnibar_showSubscriptionUpsell` when a `subscribe` item is activated by a user who is not eligible for a free trial.
+
 ## Subscriptions:
 
 ### `omnibar_onConfigUpdate` 

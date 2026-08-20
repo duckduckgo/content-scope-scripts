@@ -233,21 +233,20 @@ export function startsWithIgnoreCase(string, searchString) {
 }
 
 /**
- * Resolves which CTA label a gated model/reasoning picker item should show.
+ * Resolves which upsell interaction telemetry bucket should be reported.
  *
  * A 'subscribe' upsell normally reads as "Try for free", but a user who is not
  * eligible for a free trial (`isEligibleForFreeTrial: false`) should see
  * "Upgrade" instead. An 'upgrade' upsell always reads as "Upgrade".
  *
- * This only affects the label text. The upsell action fired on click stays the
- * item's true `upsell` flow ('subscribe' vs 'upgrade') — native decides which
- * screen/button to present.
+ * The upsell action fired on click stays the item's true `upsell` flow
+ * ('subscribe' vs 'upgrade'); this value only selects the telemetry event.
  *
  * @param {'subscribe' | 'upgrade' | undefined} upsell
  * @param {boolean} isEligibleForFreeTrial
  * @returns {'tryForFree' | 'upgrade'}
  */
-export function getUpsellCtaLabel(upsell, isEligibleForFreeTrial) {
+export function getUpsellTelemetryType(upsell, isEligibleForFreeTrial) {
     if (upsell === 'upgrade' || !isEligibleForFreeTrial) return 'upgrade';
     return 'tryForFree';
 }

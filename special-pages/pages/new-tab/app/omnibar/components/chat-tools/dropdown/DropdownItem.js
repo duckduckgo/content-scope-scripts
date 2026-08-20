@@ -13,7 +13,7 @@ import styles from './Dropdown.module.css';
  *
  * @param {object} props
  * @param {import('preact').ComponentChildren} [props.icon]
- * @param {import('preact').ComponentChildren} [props.trailingIcon] - Rendered after the label. Callers own its accessibility (mark decorative icons `aria-hidden`; leave meaningful ones, e.g. an "Upgrade" badge, exposed).
+ * @param {import('preact').ComponentChildren} [props.trailingIcon] - Rendered after the label. Callers own its accessibility (mark decorative icons `aria-hidden`; leave meaningful ones, e.g. an internal-build badge, exposed).
  * @param {import('preact').ComponentChildren} [props.trailingControl] - interactive trailing element (e.g. a toggle); clicks are kept from triggering the row's `onSelect`.
  * @param {string} props.name
  * @param {string} [props.description]
@@ -28,6 +28,7 @@ import styles from './Dropdown.module.css';
  * @param {boolean} [props.ariaSelected]
  * @param {boolean} [props.ariaHasPopup]
  * @param {boolean} [props.ariaExpanded]
+ * @param {string} [props.ariaDescribedBy]
  * @param {boolean} [props.isActive]
  * @param {string} [props.id]
  * @param {import('preact').RefObject<HTMLLIElement>} [props.elementRef]
@@ -51,6 +52,7 @@ export function DropdownItem({
     ariaSelected,
     ariaHasPopup,
     ariaExpanded,
+    ariaDescribedBy,
     isActive = false,
     id,
     elementRef,
@@ -79,6 +81,7 @@ export function DropdownItem({
             aria-selected={ariaSelected}
             aria-haspopup={ariaHasPopup}
             aria-expanded={ariaExpanded}
+            aria-describedby={ariaDescribedBy}
             aria-disabled={disabled || undefined}
             class={cn(
                 styles.item,
