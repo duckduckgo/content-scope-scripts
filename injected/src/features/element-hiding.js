@@ -374,10 +374,10 @@ function forgivingSelector(selector) {
 
 /**
  * Resolve a rule's selector for use with querySelectorAll
- * 
+ *
  * :is() makes a selector list forgiving, but has a perf cost since
  * it's a pseudo-class that isn't indexed. Only wrap when the selector
- * might be a list, in which case one malformed selector can lead to 
+ * might be a list, in which case one malformed selector can lead to
  * the rest of the list not applying
  */
 function querySelectorFor(selector) {
