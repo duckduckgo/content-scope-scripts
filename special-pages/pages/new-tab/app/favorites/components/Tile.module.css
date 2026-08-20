@@ -184,25 +184,14 @@ body[data-rebrand="true"] {
     }
 }
 
-/* Rebrand: Figma specifies Input/Control/Fill-Primary (light) and Tint 18%
-   (dark) for Favorites tiles on custom backgrounds — override the global
+/* Rebrand: Figma specifies Container/Fill-Secondary + Container/Border-Secondary
+   for Favorites tiles on custom backgrounds — override the global
    ntp-surface-background-color which defaults to black-at-50 here. */
 body[data-rebrand="true"][data-background-kind="color"],
 body[data-rebrand="true"][data-background-kind="gradient"],
 body[data-rebrand="true"][data-background-kind="userImage"] {
-    [data-theme="light"] {
-        .draggable {
-            background: var(--ds-input-control-primary-background-color);
-        }
-    }
-
-    [data-theme="dark"] {
-        .draggable {
-            background: var(--color-white-at-18);
-
-            &:hover {
-                background: var(--ds-color-theme-control-fill-secondary);
-            }
-        }
+    .draggable {
+        background: var(--ds-color-theme-container-fill-secondary);
+        border: 1px solid var(--ds-color-theme-container-border-secondary);
     }
 }
