@@ -2,7 +2,7 @@
     background: var(--ntp-surface-background-color);
     box-shadow: var(--ntp-surface-box-shadow, none);
     backdrop-filter: blur(48px);
-    border: 1px solid var(--ds-color-theme-container-border-primary);
+    border: 1px solid var(--ntp-surface-border-color, var(--ds-color-theme-container-border-primary));
     padding: var(--sp-6);
     border-radius: var(--border-radius-lg);
     display: grid;
@@ -18,7 +18,7 @@
     }
 
     [data-theme=dark] & {
-        border-color: var(--color-white-at-9);
+        border-color: var(--ntp-surface-border-color, var(--color-white-at-9));
     }
 }
 
@@ -138,7 +138,7 @@
 
     .switcher {
         background: var(--ds-color-theme-control-fill-primary);
-        border: 1px solid var(--ds-color-theme-container-border-primary);
+        border: 1px solid var(--ntp-surface-border-color, var(--ds-color-theme-container-border-primary));
         border-radius: var(--ds-radius-full);
         padding: var(--ds-space-x-5);
         position: relative;
