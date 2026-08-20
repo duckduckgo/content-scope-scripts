@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
 
-/** Stable empty props when the hook is disabled (no document listeners / no DOM attrs). */
+/**
+ * Stable empty props when the hook is disabled (no document listeners / no DOM attrs).
+ * @type {Record<string, never>}
+ */
 const EMPTY_PROPS = {};
 
 /**
