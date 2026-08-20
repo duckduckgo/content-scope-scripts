@@ -1,13 +1,16 @@
-import { Fragment, h } from 'preact';
-import { useRef, useState } from 'preact/hooks';
+import { h } from 'preact';
+import { useContext, useRef, useState } from 'preact/hooks';
 import cn from 'classnames';
 import { useTypedTranslationWith } from '../../../../types';
-import { ChevronSmall, FolderIcon, PageContentIcon, PaperclipIcon } from '../../../../components/Icons';
+import { FolderIcon, PaperclipIcon, TabContentAttachIcon } from '../../../../components/Icons';
 import { useDropdown } from '../useDropdown';
 import { Dropdown } from '../dropdown/Dropdown';
 import { DropdownItem } from '../dropdown/DropdownItem';
+import { DropdownSeparator } from '../dropdown/DropdownSeparator';
 import { resolveFileInput } from './fileChannels';
-import { TabPicker } from './TabPicker';
+import { OpenTabsContext } from './OpenTabsProvider';
+import { AttachTabsModal } from './AttachTabsModal';
+import { TabRow, TabStatusRow, TabsSectionHeader } from './TabRows';
 import { Tooltip } from '../../Tooltip';
 import imageStyles from '../image-attachment/ImageAttachment.module.css';
 import styles from './AttachMenu.module.css';
@@ -20,6 +23,9 @@ import styles from './AttachMenu.module.css';
  * @typedef {import('./fileChannels.js').ResolvedFileInput} ResolvedFileInput
  */
 
+/** Tabs previewed inline in the dropdown; the full list lives in the Add Tabs dialog. */
+const MAX_INLINE_RECENT_TABS = 5;
+
 /**
  * @param {object} props
  * @param {ImageChannel | null} props.image — null omits the image route.
@@ -27,8 +33,9 @@ import styles from './AttachMenu.module.css';
  * @param {boolean} props.tabsEnabled
  * @param {(tab: TabMetadata) => void} props.onToggleTab
  * @param {(tabId: string) => boolean} props.isAttached
+ * @param {number} [props.maxTabs] - Max attached tabs, from native `attachmentLimits.tabs.maxAttached`. Absent means no limit.
  */
-export function AttachMenu({ image, file, tabsEnabled, onToggleTab, isAttached }) {
+export function AttachMenu({ image, file, tabsEnabled, onToggleTab, isAttached, maxTabs }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
 
     const attachEnabled = image !== null || file !== null;
@@ -56,7 +63,15 @@ export function AttachMenu({ image, file, tabsEnabled, onToggleTab, isAttached }
         return button;
     }
 
-    return <DropdownMenu attachEnabled={attachEnabled} fileInput={fileInput} onToggleTab={onToggleTab} isAttached={isAttached} />;
+    return (
+        <DropdownMenu
+            attachEnabled={attachEnabled}
+            fileInput={fileInput}
+            onToggleTab={onToggleTab}
+            isAttached={isAttached}
+            maxTabs={maxTabs}
+        />
+    );
 }
 
 /**
@@ -107,19 +122,22 @@ function DirectFileButton({ ariaLabel, accept, disabled, onChange }) {
 }
 
 /**
- * Paperclip-triggered dropdown, used whenever `tabsEnabled`. The hidden file input is
- * `click()`-triggered on a microtask so the menu unmounts before the OS picker takes focus.
+ * Paperclip-triggered dropdown, used whenever `tabsEnabled`. Owns the Add Tabs dialog state,
+ * which must outlive the (unmounted-on-close) dropdown body.
  *
  * @param {object} props
  * @param {boolean} props.attachEnabled
  * @param {ResolvedFileInput} props.fileInput
  * @param {(tab: TabMetadata) => void} props.onToggleTab
  * @param {(tabId: string) => boolean} props.isAttached
+ * @param {number} [props.maxTabs]
  */
-function DropdownMenu({ attachEnabled, fileInput, onToggleTab, isAttached }) {
+function DropdownMenu({ attachEnabled, fileInput, onToggleTab, isAttached, maxTabs }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const { isOpen, buttonRef, dropdownRef, dropdownPos, toggle, close } = useDropdown({ align: 'left' });
+    const { refetchTabs } = useContext(OpenTabsContext);
     const fileInputRef = useRef(/** @type {HTMLInputElement|null} */ (null));
+    const [isTabsModalOpen, setIsTabsModalOpen] = useState(false);
 
     const triggerFileInput = () => {
         if (fileInput.disabled) return;
@@ -143,6 +161,7 @@ function DropdownMenu({ attachEnabled, fileInput, onToggleTab, isAttached }) {
                 aria-expanded={isOpen}
                 onClick={(e) => {
                     e.stopPropagation();
+                    if (!isOpen) refetchTabs();
                     toggle();
                 }}
             >
@@ -169,11 +188,17 @@ function DropdownMenu({ attachEnabled, fileInput, onToggleTab, isAttached }) {
                     dropdownRef={dropdownRef}
                     onClose={handleClose}
                     onTriggerFileInput={triggerFileInput}
+                    onOpenTabsModal={() => setIsTabsModalOpen(true)}
                     isAttached={isAttached}
-                    onToggleTab={(tab) => {
-                        onToggleTab(tab);
-                        close();
-                    }}
+                    onToggleTab={onToggleTab}
+                />
+            )}
+            {isTabsModalOpen && (
+                <AttachTabsModal
+                    onClose={() => setIsTabsModalOpen(false)}
+                    onToggleTab={onToggleTab}
+                    isAttached={isAttached}
+                    maxTabs={maxTabs}
                 />
             )}
         </div>
@@ -181,7 +206,9 @@ function DropdownMenu({ attachEnabled, fileInput, onToggleTab, isAttached }) {
 }
 
 /**
- * Body of the paperclip menu while open. Mounted only while open, so `submenuOpen` resets on re-open.
+ * Body of the paperclip menu while open: file item, "Add Tabs" item (opens the dialog), and an
+ * inline "Recent Tabs" preview whose rows toggle attachment. The checkmark gutter is only
+ * reserved while at least one previewed tab is attached.
  *
  * @param {object} props
  * @param {boolean} props.attachEnabled
@@ -190,70 +217,77 @@ function DropdownMenu({ attachEnabled, fileInput, onToggleTab, isAttached }) {
  * @param {import('preact').RefObject<HTMLUListElement>} props.dropdownRef
  * @param {(opts: { restoreFocus: boolean }) => void} props.onClose
  * @param {() => void} props.onTriggerFileInput
+ * @param {() => void} props.onOpenTabsModal
  * @param {(tab: TabMetadata) => void} props.onToggleTab
  * @param {(tabId: string) => boolean} props.isAttached
  */
-function OpenDropdownBody({ attachEnabled, fileLabel, dropdownPos, dropdownRef, onClose, onTriggerFileInput, onToggleTab, isAttached }) {
+function OpenDropdownBody({
+    attachEnabled,
+    fileLabel,
+    dropdownPos,
+    dropdownRef,
+    onClose,
+    onTriggerFileInput,
+    onOpenTabsModal,
+    onToggleTab,
+    isAttached,
+}) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
-    const submenuRef = useRef(/** @type {HTMLUListElement|null} */ (null));
-    const triggerRef = useRef(/** @type {HTMLLIElement|null} */ (null));
-    const [submenuOpen, setSubmenuOpen] = useState(false);
+    const { openTabs, isLoadingTabs } = useContext(OpenTabsContext);
 
-    const getSubmenuPos = () => {
-        if (!submenuOpen || dropdownPos.left === undefined || !dropdownRef.current) return null;
-        // Align the submenu to its triggering item, not the top of the parent panel.
-        const triggerOffsetTop = triggerRef.current?.offsetTop ?? 0;
-        return {
-            left: dropdownPos.left + dropdownRef.current.offsetWidth + 4,
-            top: dropdownPos.top + triggerOffsetTop,
-        };
+    const recentTabs = openTabs.slice(0, MAX_INLINE_RECENT_TABS);
+    const showGutter = recentTabs.some((tab) => isAttached(tab.tabId));
+
+    /** @returns {import('preact').ComponentChildren[]} */
+    const renderRecentTabRows = () => {
+        if (isLoadingTabs) {
+            return [<TabStatusRow key="loading" text={t('omnibar_attachTabsLoading')} />];
+        }
+        if (recentTabs.length === 0) {
+            return [<TabStatusRow key="empty" text={t('omnibar_attachTabsNoOpenTabs')} />];
+        }
+        return recentTabs.map((tab) => (
+            <TabRow
+                key={tab.tabId}
+                tab={tab}
+                showGutter={showGutter}
+                isAttached={isAttached(tab.tabId)}
+                onSelect={() => onToggleTab(tab)}
+            />
+        ));
     };
-    const submenuPos = getSubmenuPos();
 
     return (
-        <Fragment>
-            <Dropdown
-                dropdownRef={dropdownRef}
-                role="menu"
-                ariaLabel={t('omnibar_attachMenuLabel')}
-                position={dropdownPos}
-                onClose={onClose}
-                idPrefix="attach-menu-item"
-            >
-                {attachEnabled && (
-                    <DropdownItem
-                        role="menuitem"
-                        icon={<FolderIcon />}
-                        name={fileLabel}
-                        onSelect={onTriggerFileInput}
-                        onHover={() => setSubmenuOpen(false)}
-                    />
-                )}
+        <Dropdown
+            dropdownRef={dropdownRef}
+            role="menu"
+            ariaLabel={t('omnibar_attachMenuLabel')}
+            position={dropdownPos}
+            onClose={onClose}
+            idPrefix="attach-menu-item"
+            className={styles.attachDropdown}
+        >
+            {attachEnabled && (
                 <DropdownItem
                     role="menuitem"
-                    elementRef={triggerRef}
-                    ariaHasPopup
-                    ariaExpanded={submenuOpen}
-                    icon={<PageContentIcon />}
-                    name={t('omnibar_attachPageContentLabel')}
-                    trailingIcon={
-                        <span class={styles.submenuChevron} aria-hidden="true">
-                            <ChevronSmall />
-                        </span>
-                    }
-                    onSelect={() => setSubmenuOpen(true)}
-                    onHover={() => setSubmenuOpen(true)}
-                />
-            </Dropdown>
-            {submenuPos && (
-                <TabPicker
-                    position={submenuPos}
-                    dropdownRef={submenuRef}
-                    onSelect={onToggleTab}
-                    isAttached={isAttached}
-                    onClose={onClose}
+                    className={styles.menuItem}
+                    showCheckGutter={showGutter}
+                    icon={<FolderIcon class={styles.menuItemIcon} />}
+                    name={fileLabel}
+                    onSelect={onTriggerFileInput}
                 />
             )}
-        </Fragment>
+            <DropdownItem
+                role="menuitem"
+                className={styles.menuItem}
+                showCheckGutter={showGutter}
+                icon={<TabContentAttachIcon class={styles.menuItemIcon} />}
+                name={t('omnibar_attachPageContentLabel')}
+                onSelect={onOpenTabsModal}
+            />
+            <DropdownSeparator />
+            <TabsSectionHeader label={t('omnibar_attachTabsRecentTabs')} showGutter={showGutter} />
+            {renderRecentTabRows()}
+        </Dropdown>
     );
 }

@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "SelectionFrameChangedParams",
+  "description": "Reports whether this frame has a selection without sending the selected text.",
+  "additionalProperties": false,
+  "properties": {
+    "hasSelection": {
+      "description": "Whether this frame currently owns a non-empty selection.",
+      "type": "boolean"
+    },
+    "eventTimestamp": {
+      "description": "The event time expressed against the frame's performance time origin.",
+      "type": "number"
+    }
+  },
+  "required": ["hasSelection", "eventTimestamp"]
+}

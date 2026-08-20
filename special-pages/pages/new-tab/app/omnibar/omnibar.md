@@ -55,9 +55,9 @@ title: Omnibar Widget
 
 ### `omnibar_getOpenTabs`
 - {@link "NewTab Messages".OmnibarGetOpenTabsRequest}
-- Used to populate the attach-tabs picker. Called when the user opens the picker (clicks the paperclip's "Attach Page Content" menu item, or types `@` in the chat input).
+- Used to populate the open-tabs UI: the paperclip menu's inline "Recent Tabs" preview (five most recent), the "Add Tabs" dialog (search + checkbox selection, opened from the paperclip menu), and the `@`-mention typeahead. Called when the user opens the paperclip menu, opens the dialog, or types `@` in the chat input.
 - No params for v1. Filtering / `@`-typeahead is performed client-side over the returned list.
-- Native is expected to exclude the requesting NTP tab and return tabs in recency order.
+- Native is expected to exclude the requesting NTP tab and return tabs in tab-strip/creation order (oldest first); the frontend reverses the list so the most recently opened tabs show first.
 - returns {@link "NewTab Messages".GetOpenTabsResponse}
 ```json
 {

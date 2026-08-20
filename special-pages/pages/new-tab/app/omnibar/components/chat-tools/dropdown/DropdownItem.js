@@ -19,6 +19,9 @@ import styles from './Dropdown.module.css';
  * @param {string} [props.description]
  * @param {boolean} [props.isSelected]
  * @param {boolean} [props.disabled]
+ * @param {boolean} [props.isDimmed] - Grays the icon and label (e.g. gated options) while keeping the trailing badge legible
+ * @param {boolean} [props.showCheckGutter] - Set false to drop the leading checkmark gutter
+ * @param {string} [props.className] - Extra class for caller-specific row styling
  * @param {'option' | 'menuitemcheckbox' | 'menuitemradio' | 'menuitem'} props.role
  * @param {() => void} props.onSelect
  * @param {boolean} [props.ariaChecked]
@@ -41,6 +44,9 @@ export function DropdownItem({
     description,
     isSelected = false,
     disabled = false,
+    isDimmed = false,
+    showCheckGutter = true,
+    className,
     role,
     ariaChecked,
     ariaSelected,
@@ -77,12 +83,19 @@ export function DropdownItem({
             aria-expanded={ariaExpanded}
             aria-describedby={ariaDescribedBy}
             aria-disabled={disabled || undefined}
-            class={cn(styles.item, isActive && styles.itemActive, isSelected && styles.itemSelected, disabled && styles.itemDisabled)}
+            class={cn(
+                styles.item,
+                className,
+                isActive && styles.itemActive,
+                isSelected && styles.itemSelected,
+                isDimmed && styles.itemDimmed,
+                disabled && styles.itemDisabled,
+            )}
             onMouseOver={onMouseOver}
             onMouseEnter={onHover}
             onClick={onClick}
         >
-            <span class={styles.checkmark} aria-hidden="true" />
+            {showCheckGutter && <span class={styles.checkmark} aria-hidden="true" />}
             {icon}
             <div class={styles.itemLabel}>
                 <span class={styles.itemName}>{name}</span>

@@ -2,6 +2,7 @@ import { Fragment, h } from 'preact';
 import { useLayoutEffect, useRef } from 'preact/hooks';
 import cn from 'classnames';
 import { useTypedTranslationWith } from '../../../../types';
+import { Check10Icon } from '../../../../components/Icons';
 import { TabFavicon } from './TabFavicon';
 import styles from './MentionPicker.module.css';
 
@@ -34,9 +35,9 @@ export function MentionPicker({ filtered, activeIndex, onActiveIndexChange, onSe
             ) : (
                 <Fragment>
                     <div class={styles.header}>
-                        <span class={styles.headerTitle}>{t('omnibar_attachTabsPickerTitle')}</span>
+                        <span class={styles.headerTitle}>{t('omnibar_attachTabsRecentTabs')}</span>
                     </div>
-                    <ul class={styles.list} role="listbox" id={listboxId} aria-label={t('omnibar_attachTabsPickerTitle')}>
+                    <ul class={styles.list} role="listbox" id={listboxId} aria-label={t('omnibar_attachTabsRecentTabs')}>
                         {filtered.map((tab, index) => {
                             const isActive = index === activeIndex;
                             const attached = isAttached(tab.tabId);
@@ -53,7 +54,7 @@ export function MentionPicker({ filtered, activeIndex, onActiveIndexChange, onSe
                                     key={tab.tabId}
                                     role="option"
                                     aria-selected={attached}
-                                    class={cn(styles.row, isActive && styles.rowActive, attached && styles.rowSelected)}
+                                    class={cn(styles.row, isActive && styles.rowActive)}
                                     onMouseDown={(e) => {
                                         // Prevent the textarea from losing focus when the row is clicked.
                                         e.preventDefault();
@@ -64,10 +65,12 @@ export function MentionPicker({ filtered, activeIndex, onActiveIndexChange, onSe
                                         onSelect(tab);
                                     }}
                                 >
-                                    <span class={styles.check} aria-hidden="true" />
+                                    <span class={styles.checkGutter} aria-hidden="true">
+                                        {attached && <Check10Icon />}
+                                    </span>
                                     <TabFavicon
                                         favicon={tab.favicon}
-                                        iconSize={14}
+                                        iconSize={12}
                                         className={styles.favicon}
                                         fallbackClassName={styles.faviconFallback}
                                     />

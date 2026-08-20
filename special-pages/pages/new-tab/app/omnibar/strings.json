@@ -204,12 +204,32 @@
     "description": "Accessible label for the button that removes an attached file chip from the AI chat input. {fileName} is the original filename."
   },
   "omnibar_attachPageContentLabel": {
-    "title": "Add Page Content",
-    "description": "Menu item in the attach dropdown that opens the open-tabs picker so the user can attach extracted page content."
+    "title": "Add Tabs",
+    "description": "Menu item in the attach dropdown that opens the Add Tabs dialog so the user can attach extracted page content from open tabs."
   },
-  "omnibar_attachTabsPickerTitle": {
-    "title": "Tabs",
-    "description": "Header text for the open-tabs picker panel."
+  "omnibar_attachTabsModalTitle": {
+    "title": "Add Tabs",
+    "description": "Title and accessible name of the Add Tabs dialog opened from the attach dropdown menu."
+  },
+  "omnibar_attachTabsSearchLabel": {
+    "title": "Search",
+    "description": "Placeholder and accessibility label for the search input that filters the list of open tabs in the Add Tabs dialog."
+  },
+  "omnibar_attachTabsConfirm": {
+    "title": "Add",
+    "description": "Primary button in the Add Tabs dialog that attaches the tabs the user checked."
+  },
+  "omnibar_attachTabsCancel": {
+    "title": "Cancel",
+    "description": "Secondary button in the Add Tabs dialog that dismisses it without attaching anything."
+  },
+  "omnibar_attachTabsRecentTabs": {
+    "title": "Recent Tabs",
+    "description": "Section header for the list of recent open tabs, shown in the attach dropdown menu and the @-mention tab picker."
+  },
+  "omnibar_attachTabsLoading": {
+    "title": "Loading tabs…",
+    "description": "Status text displayed while the list of open tabs is loading."
   },
   "omnibar_attachTabsPickerLabel": {
     "title": "Pick an open tab to add",
@@ -217,11 +237,11 @@
   },
   "omnibar_attachTabsNoMatches": {
     "title": "No matching tabs",
-    "description": "Empty-state message shown in the @-mention tab picker when no open tabs match what the user typed."
+    "description": "Empty-state message shown when no open tabs match what the user typed, in the @-mention tab picker and the Add Tabs dialog search."
   },
   "omnibar_attachTabsNoOpenTabs": {
-    "title": "No page content available",
-    "description": "Empty-state message shown in the attach-page-content tabs dropdown when there is no page content available to attach."
+    "title": "No open tabs",
+    "description": "Empty-state message shown in the attach dropdown's Recent Tabs section and the Add Tabs dialog when there are no open tabs available to attach."
   },
   "omnibar_removeAttachedTabLabel": {
     "title": "Remove {title}",

@@ -41,6 +41,7 @@ import type PerformanceMetrics from '../features/performance-metrics.js';
 import type Print from '../features/print.js';
 import type Referrer from '../features/referrer.js';
 import type TabSuspension from '../features/tab-suspension.js';
+import type TextSelection from '../features/text-selection.js';
 import type TrackerProtection from '../features/tracker-protection.js';
 import type UaChBrands from '../features/ua-ch-brands.js';
 import type WebCompat from '../features/web-compat.js';
@@ -89,6 +90,7 @@ export interface FeatureMap {
     print: Print;
     referrer: Referrer;
     tabSuspension: TabSuspension;
+    textSelection: TextSelection;
     trackerProtection: TrackerProtection;
     uaChBrands: UaChBrands;
     webCompat: WebCompat;
