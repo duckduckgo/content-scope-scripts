@@ -319,6 +319,10 @@ export class BrokerProtectionPage {
     }
 
     async getErrorMessage(actionID) {
+        if (actionID) {
+            await expect.poll(async () => this._getResultFromResponse(await this.getActionCompletedParams(), actionID)).toBeDefined();
+        }
+
         const response = await this.getActionCompletedParams();
         this.isErrorMessage(response, actionID);
         return this._getResultFromResponse(response, actionID).error.message;
