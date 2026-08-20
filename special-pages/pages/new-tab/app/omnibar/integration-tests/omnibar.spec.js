@@ -1834,7 +1834,7 @@ test.describe('omnibar widget', () => {
 
             const gatedModel = omnibar.modelOption('Claude Sonnet 4.5');
             const gatedModelName = gatedModel.locator('div > span').first();
-            await expect(gatedModel).toHaveAccessibleName('Claude Sonnet 4.5', { exact: true });
+            await expect(gatedModel).toHaveAccessibleName(/^Claude Sonnet 4\.5$/);
             await expect(gatedModelName).toHaveText('Claude Sonnet 4.5…');
         });
 
