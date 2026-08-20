@@ -58,7 +58,6 @@
     "typescript-eslint": "^8.66.0"
   },
   "dependencies": {
-    "@duckduckgo/design-tokens": "github:duckduckgo/design-tokens#v0.42.0",
     "immutable-json-patch": "^6.0.3",
     "urlpattern-polyfill": "^10.1.0"
   },
