@@ -10,7 +10,7 @@ import {
     formatURLForTerm,
     getDuckDuckGoSearchQuery,
     startsWithIgnoreCase,
-    getUpsellCtaLabel,
+    getUpsellTelemetryType,
 } from '../utils.js';
 
 /**
@@ -585,22 +585,22 @@ test.describe('startsWithIgnoreCase', () => {
     });
 });
 
-test.describe('getUpsellCtaLabel', () => {
+test.describe('getUpsellTelemetryType', () => {
     test('returns "tryForFree" for a subscribe upsell when eligible for a free trial', () => {
-        equal(getUpsellCtaLabel('subscribe', true), 'tryForFree');
+        equal(getUpsellTelemetryType('subscribe', true), 'tryForFree');
     });
 
     test('returns "upgrade" for a subscribe upsell when not eligible for a free trial', () => {
-        equal(getUpsellCtaLabel('subscribe', false), 'upgrade');
+        equal(getUpsellTelemetryType('subscribe', false), 'upgrade');
     });
 
     test('returns "upgrade" for an upgrade upsell regardless of eligibility', () => {
-        equal(getUpsellCtaLabel('upgrade', true), 'upgrade');
-        equal(getUpsellCtaLabel('upgrade', false), 'upgrade');
+        equal(getUpsellTelemetryType('upgrade', true), 'upgrade');
+        equal(getUpsellTelemetryType('upgrade', false), 'upgrade');
     });
 
     test('treats an undefined upsell like subscribe', () => {
-        equal(getUpsellCtaLabel(undefined, true), 'tryForFree');
-        equal(getUpsellCtaLabel(undefined, false), 'upgrade');
+        equal(getUpsellTelemetryType(undefined, true), 'tryForFree');
+        equal(getUpsellTelemetryType(undefined, false), 'upgrade');
     });
 });

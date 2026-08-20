@@ -10151,7 +10151,7 @@
   function startsWithIgnoreCase(string2, searchString) {
     return string2.toLowerCase().startsWith(searchString.toLowerCase());
   }
-  function getUpsellCtaLabel(upsell, isEligibleForFreeTrial) {
+  function getUpsellTelemetryType(upsell, isEligibleForFreeTrial) {
     if (upsell === "upgrade" || !isEligibleForFreeTrial) return "upgrade";
     return "tryForFree";
   }
@@ -12261,6 +12261,55 @@
     }
   });
 
+  // pages/new-tab/app/omnibar/components/chat-tools/dropdown/Dropdown.module.css
+  var Dropdown_default;
+  var init_Dropdown = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/dropdown/Dropdown.module.css"() {
+      Dropdown_default = {
+        dropdown: "Dropdown_dropdown",
+        header: "Dropdown_header",
+        empty: "Dropdown_empty",
+        item: "Dropdown_item",
+        roomy: "Dropdown_roomy",
+        trailingIcon: "Dropdown_trailingIcon",
+        itemActive: "Dropdown_itemActive",
+        trailingControl: "Dropdown_trailingControl",
+        itemDescription: "Dropdown_itemDescription",
+        checkmark: "Dropdown_checkmark",
+        itemSelected: "Dropdown_itemSelected",
+        itemDisabled: "Dropdown_itemDisabled",
+        separator: "Dropdown_separator",
+        itemLabel: "Dropdown_itemLabel",
+        itemName: "Dropdown_itemName",
+        sectionHeader: "Dropdown_sectionHeader"
+      };
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/dropdown/DropdownSectionHeader.js
+  function DropdownSectionHeader({ children, descriptionId }) {
+    return /* @__PURE__ */ k("li", { id: descriptionId, role: "presentation", class: Dropdown_default.sectionHeader }, children);
+  }
+  var init_DropdownSectionHeader = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/dropdown/DropdownSectionHeader.js"() {
+      "use strict";
+      init_preact_module();
+      init_Dropdown();
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/dropdown/DropdownSeparator.js
+  function DropdownSeparator() {
+    return /* @__PURE__ */ k("li", { role: "separator", class: Dropdown_default.separator });
+  }
+  var init_DropdownSeparator = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/dropdown/DropdownSeparator.js"() {
+      "use strict";
+      init_preact_module();
+      init_Dropdown();
+    }
+  });
+
   // pages/new-tab/app/omnibar/components/chat-tools/model-selector/ModelSelector.module.css
   var ModelSelector_default;
   var init_ModelSelector = __esm({
@@ -12279,13 +12328,7 @@
         modelOptionActive: "ModelSelector_modelOptionActive",
         modelOptionSelected: "ModelSelector_modelOptionSelected",
         modelOptionDisabled: "ModelSelector_modelOptionDisabled",
-        modelOptionUpsell: "ModelSelector_modelOptionUpsell",
-        modelSectionDivider: "ModelSelector_modelSectionDivider",
-        modelSectionHeader: "ModelSelector_modelSectionHeader",
-        modelUpsellHeader: "ModelSelector_modelUpsellHeader",
-        modelUpsellHeaderActive: "ModelSelector_modelUpsellHeaderActive",
-        modelUpsellCta: "ModelSelector_modelUpsellCta",
-        upsellMuted: "ModelSelector_upsellMuted"
+        modelOptionUpsell: "ModelSelector_modelOptionUpsell"
       };
     }
   });
@@ -12350,35 +12393,19 @@
 
   // pages/new-tab/app/omnibar/components/chat-tools/model-selector/ModelDropdown.js
   function getRowBadgeLabel(model, t4) {
-    switch (model.accessTier) {
-      case "internal":
-        return t4("omnibar_modelBadgeInternal");
-      case "plus":
-        return t4("omnibar_modelBadgePlus");
-      case "pro":
-        return t4("omnibar_modelBadgePro");
-      default:
-        return null;
-    }
+    return model.accessTier === "internal" ? t4("omnibar_modelBadgeInternal") : null;
   }
-  function ModelDropdown({
-    sections,
-    selectedModelId,
-    dropdownPos,
-    onClose,
-    onSelect,
-    onUpsell,
-    className,
-    ariaLabel,
-    isEligibleForFreeTrial,
-    dropdownRef
-  }) {
+  function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose, onSelect, onUpsell, className, ariaLabel, dropdownRef }) {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {Strings} */
       {}
     );
     const allModels = sections.flatMap((section) => section.items);
     const optionIndexById = new Map(allModels.map((model, index2) => [model.id, index2]));
+    const upsellByModelId = new Map(
+      allModels.filter((model) => !model.isAvailable && model.upsell).map((model) => [model.id, model.upsell])
+    );
+    const hasGatedModelsAt = sections.map((section) => section.items.some((model) => !model.isAvailable));
     const enabledModelIndices = allModels.reduce(
       /**
        * @param {number[]} indices
@@ -12386,17 +12413,17 @@
        * @param {number} index
        */
       (indices, model, index2) => {
-        if (model.isAvailable) indices.push(index2);
+        if (model.isAvailable || upsellByModelId.has(model.id)) indices.push(index2);
         return indices;
       },
       []
     );
-    const upsellSections = sections.map((section, sectionIndex) => ({ section, sectionIndex })).filter(({ section }) => section.items.length > 0 && section.items.every((model) => !model.isAvailable));
-    enabledModelIndices.push(...upsellSections.map((_5, index2) => allModels.length + index2));
     const getInitialActiveIndex = () => {
       if (enabledModelIndices.length === 0) return -1;
       const selectedIndex = selectedModelId ? allModels.findIndex((model) => model.id === selectedModelId && model.isAvailable) : -1;
-      return selectedIndex >= 0 ? selectedIndex : enabledModelIndices[0];
+      if (selectedIndex >= 0) return selectedIndex;
+      const firstAvailableIndex = allModels.findIndex((model) => model.isAvailable);
+      return firstAvailableIndex >= 0 ? firstAvailableIndex : enabledModelIndices[0];
     };
     const [activeIndex, setActiveIndex] = d2(getInitialActiveIndex);
     const clearActiveIndex = () => setActiveIndex(-1);
@@ -12420,11 +12447,7 @@
       });
       return () => window.cancelAnimationFrame(frameId);
     }, [dropdownRef]);
-    const getOptionId = (index2) => {
-      const upsellSection = upsellSections[index2 - allModels.length];
-      if (upsellSection) return `model-upsell-${upsellSection.sectionIndex}`;
-      return `model-option-${allModels[index2]?.id ?? index2}`;
-    };
+    const getOptionId = (index2) => `model-option-${allModels[index2]?.id ?? index2}`;
     const handleKeyDown = (e4) => {
       switch (e4.key) {
         case "ArrowDown":
@@ -12446,12 +12469,16 @@
         case "Enter":
         case " ":
           e4.preventDefault();
-          if (activeIndex >= allModels.length) {
-            const upsellSection = upsellSections[activeIndex - allModels.length]?.section;
-            activateUpsell(upsellSection?.items.find((model) => model.upsell)?.upsell ?? "subscribe", true);
-          } else if (activeIndex >= 0 && activeIndex < allModels.length) {
-            onSelect(allModels[activeIndex].id);
-            onClose({ restoreFocus: true });
+          if (activeIndex < 0 || activeIndex >= allModels.length) break;
+          {
+            const model = allModels[activeIndex];
+            const upsell = upsellByModelId.get(model.id);
+            if (model.isAvailable) {
+              onSelect(model.id);
+              onClose({ restoreFocus: true });
+            } else if (upsell) {
+              activateUpsell(upsell, true);
+            }
           }
           break;
         case "Escape":
@@ -12477,26 +12504,14 @@
         onMouseLeave: clearActiveIndex
       },
       sections.map((section, sectionIndex) => {
-        const isUpsellSection = section.items.length > 0 && section.items.every((model) => !model.isAvailable);
-        const sectionUpsell = section.items.find((model) => model.upsell)?.upsell ?? "subscribe";
-        const upsellIndex = allModels.length + upsellSections.findIndex((entry) => entry.sectionIndex === sectionIndex);
-        return /* @__PURE__ */ k(S, { key: sectionIndex }, isUpsellSection ? /* @__PURE__ */ k(S, null, /* @__PURE__ */ k("li", { role: "separator", class: ModelSelector_default.modelSectionDivider }), /* @__PURE__ */ k(
-          "li",
-          {
-            id: `model-upsell-${sectionIndex}`,
-            role: "option",
-            "aria-selected": false,
-            class: (0, import_classnames12.default)(ModelSelector_default.modelUpsellHeader, activeIndex === upsellIndex && ModelSelector_default.modelUpsellHeaderActive),
-            onMouseOver: () => setActiveIndex(upsellIndex),
-            onClick: () => activateUpsell(sectionUpsell, false)
-          },
-          section.header && /* @__PURE__ */ k("span", { class: ModelSelector_default.modelUpsellText }, section.header),
-          /* @__PURE__ */ k("span", { class: ModelSelector_default.modelUpsellCta }, getUpsellCtaLabel(sectionUpsell, isEligibleForFreeTrial) === "upgrade" ? t4("omnibar_upgrade") : t4("omnibar_tryForFree"))
-        )) : section.header && /* @__PURE__ */ k(S, null, /* @__PURE__ */ k("li", { role: "separator", class: ModelSelector_default.modelSectionDivider }), /* @__PURE__ */ k("li", { role: "presentation", class: ModelSelector_default.modelSectionHeader }, section.header)), section.items.map((model) => {
+        const needsDivider = sectionIndex > 0 && (Boolean(section.header) || hasGatedModelsAt[sectionIndex]);
+        const gatedSectionDescriptionId = section.header ? `model-gated-section-${sectionIndex}` : void 0;
+        return /* @__PURE__ */ k(S, { key: sectionIndex }, needsDivider && /* @__PURE__ */ k(DropdownSeparator, null), section.header && /* @__PURE__ */ k(DropdownSectionHeader, { descriptionId: gatedSectionDescriptionId }, section.header), section.items.map((model) => {
           const Icon = getModelIcon(model.id);
           const optionIndex = optionIndexById.get(model.id) ?? -1;
           const badgeLabel = getRowBadgeLabel(model, t4);
-          const isUpsellRow = !model.isAvailable && isUpsellSection;
+          const rowUpsell = upsellByModelId.get(model.id);
+          const isUpsellRow = !model.isAvailable && rowUpsell !== void 0;
           const isInteractive = model.isAvailable || isUpsellRow;
           return /* @__PURE__ */ k(
             "li",
@@ -12504,7 +12519,9 @@
               key: model.id,
               id: getOptionId(optionIndex),
               role: "option",
+              "aria-label": !model.isAvailable ? model.name : void 0,
               "aria-selected": model.isAvailable ? model.id === selectedModelId : isUpsellRow ? false : void 0,
+              "aria-describedby": isUpsellRow ? gatedSectionDescriptionId : void 0,
               "aria-disabled": !model.isAvailable && !isUpsellRow || void 0,
               class: (0, import_classnames12.default)(
                 ModelSelector_default.modelOption,
@@ -12519,11 +12536,11 @@
                 onSelect(model.id);
               } : isUpsellRow ? (e4) => {
                 e4.stopPropagation();
-                activateUpsell(sectionUpsell, false);
+                activateUpsell(rowUpsell, false);
               } : void 0
             },
             Icon && /* @__PURE__ */ k(Icon, null),
-            /* @__PURE__ */ k("div", { class: ModelSelector_default.modelOptionLabel }, /* @__PURE__ */ k("span", { class: ModelSelector_default.modelOptionName }, model.name), model.description && /* @__PURE__ */ k("span", { class: ModelSelector_default.modelOptionDescription }, model.description)),
+            /* @__PURE__ */ k("div", { class: ModelSelector_default.modelOptionLabel }, /* @__PURE__ */ k("span", { class: ModelSelector_default.modelOptionName }, model.isAvailable ? model.name : `${model.name}\u2026`), model.description && /* @__PURE__ */ k("span", { class: ModelSelector_default.modelOptionDescription }, model.description)),
             badgeLabel && /* @__PURE__ */ k("span", { class: ModelSelector_default.modelOptionBadge }, badgeLabel)
           );
         }));
@@ -12538,40 +12555,10 @@
       init_hooks_module();
       import_classnames12 = __toESM(require_classnames(), 1);
       init_types();
-      init_utils4();
+      init_DropdownSectionHeader();
+      init_DropdownSeparator();
       init_ModelSelector();
       init_Icons3();
-    }
-  });
-
-  // pages/new-tab/app/omnibar/components/chat-tools/upsellImpressions.js
-  function getUpsellImpressionCount(picker) {
-    try {
-      const n3 = parseInt(localStorage.getItem(STORAGE_KEYS[picker]) ?? "", 10);
-      return Number.isFinite(n3) && n3 > 0 ? n3 : 0;
-    } catch {
-      return 0;
-    }
-  }
-  function isUpsellMuted(picker) {
-    return getUpsellImpressionCount(picker) >= UPSELL_MUTE_THRESHOLD;
-  }
-  function recordUpsellImpression(picker) {
-    try {
-      const next = Math.min(getUpsellImpressionCount(picker) + 1, UPSELL_MUTE_THRESHOLD);
-      localStorage.setItem(STORAGE_KEYS[picker], String(next));
-    } catch {
-    }
-  }
-  var STORAGE_KEYS, UPSELL_MUTE_THRESHOLD;
-  var init_upsellImpressions = __esm({
-    "pages/new-tab/app/omnibar/components/chat-tools/upsellImpressions.js"() {
-      "use strict";
-      STORAGE_KEYS = {
-        model: "omnibar_upsell_impressions_model",
-        reasoning: "omnibar_upsell_impressions_reasoning"
-      };
-      UPSELL_MUTE_THRESHOLD = 4;
     }
   });
 
@@ -12580,21 +12567,18 @@
     const { modelButtonRef, modelDropdownOpen, dropdownPos, dropdownRef, toggleDropdown, closeDropdown, selectModel } = selector;
     const ntp = useMessaging();
     const shownRef = A2(false);
-    const upsellCtas = T2(
-      () => new Set(
-        aiModelSections.filter((section) => section.items.length > 0 && section.items.every((model) => !model.isAvailable)).map((section) => getUpsellCtaLabel(section.items.find((model) => model.upsell)?.upsell, isEligibleForFreeTrial))
-      ),
-      [aiModelSections, isEligibleForFreeTrial]
-    );
-    const wasOpenRef = A2(false);
-    const upsellMutedRef = A2(false);
-    if (modelDropdownOpen && !wasOpenRef.current) {
-      upsellMutedRef.current = upsellCtas.size > 0 && isUpsellMuted("model");
-    }
-    wasOpenRef.current = modelDropdownOpen;
     const handleClose = ({ restoreFocus }) => {
       closeDropdown();
       if (restoreFocus) modelButtonRef.current?.focus();
+    };
+    const handleUpsell = (type) => {
+      const telemetryType = getUpsellTelemetryType(type, isEligibleForFreeTrial);
+      ntp.telemetryEvent({
+        attributes: {
+          name: telemetryType === "upgrade" ? "omnibar_model_picker_upgrade_shown" : "omnibar_model_picker_tryforfree_shown"
+        }
+      });
+      onUpsell(type);
     };
     h2(() => {
       if (!modelDropdownOpen) {
@@ -12604,16 +12588,7 @@
       if (shownRef.current) return;
       shownRef.current = true;
       ntp.telemetryEvent({ attributes: { name: "omnibar_model_picker_shown" } });
-      if (upsellCtas.size > 0) {
-        recordUpsellImpression("model");
-      }
-      if (upsellCtas.has("tryForFree")) {
-        ntp.telemetryEvent({ attributes: { name: "omnibar_model_picker_tryforfree_shown" } });
-      }
-      if (upsellCtas.has("upgrade")) {
-        ntp.telemetryEvent({ attributes: { name: "omnibar_model_picker_upgrade_shown" } });
-      }
-    }, [modelDropdownOpen, upsellCtas, ntp]);
+    }, [modelDropdownOpen, ntp]);
     return /* @__PURE__ */ k("div", { class: ModelSelector_default.modelSelector }, /* @__PURE__ */ k(
       "button",
       {
@@ -12640,10 +12615,8 @@
         dropdownPos,
         onClose: handleClose,
         onSelect: selectModel,
-        onUpsell,
-        className: upsellMutedRef.current ? ModelSelector_default.upsellMuted : void 0,
-        ariaLabel,
-        isEligibleForFreeTrial
+        onUpsell: handleUpsell,
+        ariaLabel
       }
     ));
   }
@@ -12657,7 +12630,6 @@
       init_Icons2();
       init_types();
       init_ModelDropdown();
-      init_upsellImpressions();
       init_utils4();
       init_ModelSelector();
     }
@@ -12749,31 +12721,6 @@
     "pages/new-tab/app/omnibar/components/chat-tools/reasoning-picker/Icons.js"() {
       "use strict";
       init_preact_module();
-    }
-  });
-
-  // pages/new-tab/app/omnibar/components/chat-tools/dropdown/Dropdown.module.css
-  var Dropdown_default;
-  var init_Dropdown = __esm({
-    "pages/new-tab/app/omnibar/components/chat-tools/dropdown/Dropdown.module.css"() {
-      Dropdown_default = {
-        dropdown: "Dropdown_dropdown",
-        header: "Dropdown_header",
-        empty: "Dropdown_empty",
-        item: "Dropdown_item",
-        roomy: "Dropdown_roomy",
-        trailingIcon: "Dropdown_trailingIcon",
-        itemActive: "Dropdown_itemActive",
-        trailingControl: "Dropdown_trailingControl",
-        itemDimmed: "Dropdown_itemDimmed",
-        itemLabel: "Dropdown_itemLabel",
-        itemDescription: "Dropdown_itemDescription",
-        checkmark: "Dropdown_checkmark",
-        itemSelected: "Dropdown_itemSelected",
-        itemDisabled: "Dropdown_itemDisabled",
-        separator: "Dropdown_separator",
-        itemName: "Dropdown_itemName"
-      };
     }
   });
 
@@ -12941,6 +12888,7 @@
     ariaSelected,
     ariaHasPopup,
     ariaExpanded,
+    ariaDescribedBy,
     isActive = false,
     id,
     elementRef,
@@ -12969,6 +12917,7 @@
         "aria-selected": ariaSelected,
         "aria-haspopup": ariaHasPopup,
         "aria-expanded": ariaExpanded,
+        "aria-describedby": ariaDescribedBy,
         "aria-disabled": disabled || void 0,
         class: (0, import_classnames15.default)(
           Dropdown_default.item,
@@ -13009,35 +12958,16 @@
         reasoningButton: "ReasoningPicker_reasoningButton",
         reasoningButtonOpen: "ReasoningPicker_reasoningButtonOpen",
         buttonIcon: "ReasoningPicker_buttonIcon",
-        buttonLabel: "ReasoningPicker_buttonLabel",
-        tryForFreeBadge: "ReasoningPicker_tryForFreeBadge",
-        upsellMuted: "ReasoningPicker_upsellMuted"
+        buttonLabel: "ReasoningPicker_buttonLabel"
       };
     }
   });
 
   // pages/new-tab/app/omnibar/components/chat-tools/reasoning-picker/ReasoningPicker.js
-  function ReasoningPicker({
-    options,
-    selectedEffort,
-    onSelect,
-    onUpsell,
-    ariaLabel,
-    buttonLabel,
-    tryForFreeLabel,
-    upgradeLabel,
-    isEligibleForFreeTrial
-  }) {
+  function ReasoningPicker({ options, selectedEffort, onSelect, onUpsell, ariaLabel, buttonLabel, isEligibleForFreeTrial }) {
     const { isOpen, dropdownPos, buttonRef, dropdownRef, toggle, close } = useDropdown({ align: "right" });
     const ntp = useMessaging();
     const shownRef = A2(false);
-    const gated = T2(() => options.filter((option) => !option.isAvailable), [options]);
-    const wasOpenRef = A2(false);
-    const upsellMutedRef = A2(false);
-    if (isOpen && !wasOpenRef.current) {
-      upsellMutedRef.current = gated.length > 0 && isUpsellMuted("reasoning");
-    }
-    wasOpenRef.current = isOpen;
     h2(() => {
       if (!isOpen) {
         shownRef.current = false;
@@ -13046,17 +12976,7 @@
       if (shownRef.current) return;
       shownRef.current = true;
       ntp.telemetryEvent({ attributes: { name: "omnibar_reasoning_picker_shown" } });
-      if (gated.length > 0) {
-        recordUpsellImpression("reasoning");
-      }
-      const gatedLabels = gated.map((option) => getUpsellCtaLabel(option.upsell, isEligibleForFreeTrial));
-      if (gatedLabels.includes("tryForFree")) {
-        ntp.telemetryEvent({ attributes: { name: "omnibar_reasoning_picker_tryforfree_shown" } });
-      }
-      if (gatedLabels.includes("upgrade")) {
-        ntp.telemetryEvent({ attributes: { name: "omnibar_reasoning_picker_upgrade_shown" } });
-      }
-    }, [isOpen, gated, ntp, isEligibleForFreeTrial]);
+    }, [isOpen, ntp]);
     const handleClose = ({ restoreFocus }) => {
       close();
       if (restoreFocus) buttonRef.current?.focus();
@@ -13066,7 +12986,47 @@
       if (!isSupported) return;
       onSelect(effort);
     };
+    const handleUpsell = (type) => {
+      const telemetryType = getUpsellTelemetryType(type, isEligibleForFreeTrial);
+      ntp.telemetryEvent({
+        attributes: {
+          name: telemetryType === "upgrade" ? "omnibar_reasoning_picker_upgrade_shown" : "omnibar_reasoning_picker_tryforfree_shown"
+        }
+      });
+      onUpsell(type);
+    };
     const SelectedOptionIcon = options.find((option) => option.id === selectedEffort)?.icon ?? null;
+    let gatedSectionDescriptionId;
+    const dropdownItems = options.map((option, optionIndex) => {
+      const OptionIcon = option.icon;
+      const showHeader = !option.isAvailable && Boolean(option.gatedSectionHeader);
+      if (option.isAvailable) {
+        gatedSectionDescriptionId = void 0;
+      } else if (showHeader) {
+        gatedSectionDescriptionId = `reasoning-gated-section-${optionIndex}`;
+      }
+      const dropdownItem = /* @__PURE__ */ k(
+        DropdownItem,
+        {
+          key: option.id,
+          role: "option",
+          icon: /* @__PURE__ */ k(OptionIcon, null),
+          name: option.name,
+          description: option.description,
+          isSelected: option.isAvailable && option.id === selectedEffort,
+          ariaSelected: option.isAvailable && option.id === selectedEffort,
+          ariaDescribedBy: !option.isAvailable ? gatedSectionDescriptionId : void 0,
+          disabled: !option.isAvailable && !option.upsell,
+          onSelect: () => option.isAvailable ? handleSelect(option.id) : handleUpsell(option.upsell)
+        }
+      );
+      if (!showHeader) return dropdownItem;
+      return [
+        optionIndex > 0 ? /* @__PURE__ */ k(DropdownSeparator, { key: `${option.id}-separator` }) : null,
+        /* @__PURE__ */ k(DropdownSectionHeader, { key: `${option.id}-header`, descriptionId: gatedSectionDescriptionId }, option.gatedSectionHeader),
+        dropdownItem
+      ];
+    });
     return /* @__PURE__ */ k("div", { class: ReasoningPicker_default.reasoningPicker }, /* @__PURE__ */ k(
       "button",
       {
@@ -13093,27 +13053,9 @@
         position: dropdownPos,
         onClose: handleClose,
         idPrefix: "reasoning-option",
-        className: (0, import_classnames16.default)(Dropdown_default.roomy, upsellMutedRef.current && ReasoningPicker_default.upsellMuted)
+        className: Dropdown_default.roomy
       },
-      options.map((option) => {
-        const OptionIcon = option.icon;
-        const badgeLabel = getUpsellCtaLabel(option.upsell, isEligibleForFreeTrial) === "upgrade" ? upgradeLabel : tryForFreeLabel;
-        return /* @__PURE__ */ k(
-          DropdownItem,
-          {
-            key: option.id,
-            role: "option",
-            icon: /* @__PURE__ */ k(OptionIcon, null),
-            name: option.name,
-            description: option.description,
-            isSelected: option.isAvailable && option.id === selectedEffort,
-            ariaSelected: option.isAvailable && option.id === selectedEffort,
-            isDimmed: !option.isAvailable && option.upsell === "upgrade",
-            trailingIcon: !option.isAvailable ? /* @__PURE__ */ k("span", { class: ReasoningPicker_default.tryForFreeBadge }, badgeLabel) : void 0,
-            onSelect: () => option.isAvailable ? handleSelect(option.id) : onUpsell(option.upsell)
-          }
-        );
-      })
+      dropdownItems
     ));
   }
   var import_classnames16;
@@ -13127,7 +13069,8 @@
       init_types();
       init_Dropdown2();
       init_DropdownItem();
-      init_upsellImpressions();
+      init_DropdownSeparator();
+      init_DropdownSectionHeader();
       init_utils4();
       init_Dropdown();
       init_ReasoningPicker();
@@ -13141,10 +13084,10 @@
       case "minimal":
         return FastReasoningIcon;
       case "extended":
+      case "medium":
       case "high":
         return ExtendedReasoningIcon;
       case "low":
-      case "medium":
         return ReasoningEffortIcon;
       default:
         return ReasoningEffortIcon;
@@ -13164,6 +13107,7 @@
       description: effort.description,
       isAvailable: effort.isAvailable,
       upsell: effort.upsell,
+      gatedSectionHeader: effort.gatedSectionHeader,
       icon: getReasoningIcon(effort.id)
     }));
     if (options.length < 2) {
@@ -13179,8 +13123,6 @@
         onUpsell: (type) => showUpsell(type, "reasoning"),
         ariaLabel: t4("omnibar_reasoningPickerLabel"),
         buttonLabel: selectedOption?.name ?? t4("omnibar_reasoningPickerLabel"),
-        tryForFreeLabel: t4("omnibar_tryForFree"),
-        upgradeLabel: t4("omnibar_upgrade"),
         isEligibleForFreeTrial
       }
     );
@@ -13195,18 +13137,6 @@
       init_useSelectedReasoningEffort();
       init_Icons4();
       init_ReasoningPicker2();
-    }
-  });
-
-  // pages/new-tab/app/omnibar/components/chat-tools/dropdown/DropdownSeparator.js
-  function DropdownSeparator() {
-    return /* @__PURE__ */ k("li", { role: "separator", class: Dropdown_default.separator });
-  }
-  var init_DropdownSeparator = __esm({
-    "pages/new-tab/app/omnibar/components/chat-tools/dropdown/DropdownSeparator.js"() {
-      "use strict";
-      init_preact_module();
-      init_Dropdown();
     }
   });
 
@@ -36416,7 +36346,7 @@
       description: "Error shown when an attached image cannot be processed."
     },
     omnibar_advancedModelsSectionHeader: {
-      title: "Advanced Models - DuckDuckGo subscription",
+      title: "Subscriber Exclusive",
       description: "Section header in the model picker for premium models that require a subscription."
     },
     omnibar_viewAllChats: {
@@ -36562,22 +36492,6 @@
     omnibar_removeAiChat: {
       title: "Delete this chat",
       description: "Accessible label and tooltip for the button that deletes a recent AI chat."
-    },
-    omnibar_tryForFree: {
-      title: "Try for free",
-      description: "CTA on a subscription-gated model or reasoning-effort option that opens the subscription upsell when tapped."
-    },
-    omnibar_upgrade: {
-      title: "Upgrade",
-      description: "CTA shown on a model or reasoning-effort option gated behind a higher subscription tier; opens the upgrade flow when tapped."
-    },
-    omnibar_modelBadgePlus: {
-      title: "Plus",
-      description: "Badge shown next to an AI model in the model selector that requires a Plus subscription tier."
-    },
-    omnibar_modelBadgePro: {
-      title: "Pro",
-      description: "Badge shown next to an AI model in the model selector that requires a Pro subscription tier."
     },
     omnibar_modelBadgeInternal: {
       title: "Internal",
@@ -41744,22 +41658,36 @@ This is placeholder content used by the NTP mock transport so the attach-tabs fe
     if (value2 === "false") return false;
     return null;
   }
-  var REASONING_EFFORTS = ["none", "medium", "extended"];
+  var REASONING_EFFORTS = ["none", "minimal", "low", "medium", "high", "extended"];
   function parseReasoningEffortQueryParam(param) {
     const value2 = url5.searchParams.get(param);
     return REASONING_EFFORTS.find((effort) => effort === value2) ?? null;
   }
   var FAST_EFFORT = { id: "none", name: "Fast", description: "Answers quickly", isAvailable: true };
-  var REASONING_EFFORT = { id: "medium", name: "Reasoning", description: "For complex tasks", isAvailable: true };
+  var REASONING_EFFORT = { id: "low", name: "Reasoning", description: "For complex tasks", isAvailable: true };
   var EXTENDED_EFFORT_UNAVAILABLE = {
-    id: "extended",
+    id: "medium",
     name: "Extended Reasoning",
     description: "For analytical tasks",
     isAvailable: false,
-    upsell: "subscribe"
+    upsell: "subscribe",
+    gatedSectionHeader: "Try for Free"
   };
-  var EXTENDED_EFFORT_UPGRADE = { ...EXTENDED_EFFORT_UNAVAILABLE, upsell: "upgrade" };
-  var EXTENDED_EFFORT_AVAILABLE = { ...EXTENDED_EFFORT_UNAVAILABLE, isAvailable: true, upsell: void 0 };
+  var EXTENDED_EFFORT_UPGRADE = { ...EXTENDED_EFFORT_UNAVAILABLE, upsell: "upgrade", gatedSectionHeader: "Pro Plan Exclusive" };
+  var EXTENDED_EFFORT_AVAILABLE = { ...EXTENDED_EFFORT_UNAVAILABLE, isAvailable: true, upsell: void 0, gatedSectionHeader: void 0 };
+  var HIGH_EFFORT_UPGRADE = {
+    id: "high",
+    name: "High Reasoning",
+    description: "For the hardest tasks",
+    isAvailable: false,
+    upsell: "upgrade",
+    gatedSectionHeader: "Pro Plan Exclusive"
+  };
+  var HIGH_EFFORT_SAME_GATED_SECTION = {
+    ...HIGH_EFFORT_UPGRADE,
+    upsell: "subscribe",
+    gatedSectionHeader: void 0
+  };
   function omnibarMockTransport() {
     const config = {
       mode: "search",
@@ -41776,7 +41704,7 @@ This is placeholder content used by the NTP mock transport so the attach-tabs fe
               id: "gpt-4o-mini",
               name: "GPT-4o mini",
               shortName: "4o-mini",
-              description: "Solid but uses limits faster",
+              description: "Solid but hits limits sooner",
               isAvailable: true,
               accessTier: "free",
               supportsImageUpload: true,
@@ -41815,7 +41743,7 @@ This is placeholder content used by the NTP mock transport so the attach-tabs fe
               id: "claude-haiku-4-5",
               name: "Claude Haiku 4.5",
               shortName: "Haiku 4.5",
-              description: "Solid but uses limits faster",
+              description: "Solid but hits limits sooner",
               isAvailable: true,
               accessTier: "free",
               supportsImageUpload: true,
@@ -41855,13 +41783,17 @@ This is placeholder content used by the NTP mock transport so the attach-tabs fe
           ]
         },
         {
-          header: "Advanced Models - DuckDuckGo subscription",
+          header: "Subscriber Exclusive",
           items: [
             {
               id: "gpt-4o",
               name: "GPT-4o",
               shortName: "GPT-4o",
               isAvailable: false,
+              upsell: (
+                /** @type {const} */
+                "subscribe"
+              ),
               accessTier: "plus",
               supportsImageUpload: true,
               supportedTools: ["WebSearch"]
@@ -41871,6 +41803,10 @@ This is placeholder content used by the NTP mock transport so the attach-tabs fe
               name: "GPT-5.2",
               shortName: "GPT-5.2",
               isAvailable: false,
+              upsell: (
+                /** @type {const} */
+                "subscribe"
+              ),
               accessTier: "plus",
               supportsImageUpload: true,
               supportedTools: ["WebSearch"],
@@ -41881,6 +41817,10 @@ This is placeholder content used by the NTP mock transport so the attach-tabs fe
               name: "Claude Sonnet 4.5",
               shortName: "Sonnet 4.5",
               isAvailable: false,
+              upsell: (
+                /** @type {const} */
+                "subscribe"
+              ),
               accessTier: "plus",
               supportsImageUpload: true,
               supportedFileTypes: ["application/pdf"],
@@ -41892,6 +41832,10 @@ This is placeholder content used by the NTP mock transport so the attach-tabs fe
               name: "Llama 4 Maverick",
               shortName: "Maverick",
               isAvailable: false,
+              upsell: (
+                /** @type {const} */
+                "subscribe"
+              ),
               accessTier: "plus",
               supportsImageUpload: false,
               supportedTools: []
@@ -41901,6 +41845,10 @@ This is placeholder content used by the NTP mock transport so the attach-tabs fe
               name: "Claude Opus 4.6",
               shortName: "Opus 4.6",
               isAvailable: false,
+              upsell: (
+                /** @type {const} */
+                "subscribe"
+              ),
               accessTier: "pro",
               supportsImageUpload: true,
               supportedTools: ["WebSearch"],
@@ -41911,6 +41859,10 @@ This is placeholder content used by the NTP mock transport so the attach-tabs fe
               name: "Claude 4 Sonnet",
               shortName: "Claude 4 Sonnet",
               isAvailable: false,
+              upsell: (
+                /** @type {const} */
+                "subscribe"
+              ),
               accessTier: "pro",
               supportsImageUpload: true,
               supportedTools: ["WebSearch"]
@@ -42035,15 +41987,27 @@ This is placeholder content used by the NTP mock transport so the attach-tabs fe
                 }))
               }));
             }
+            if (parseBooleanQueryParam("omnibar.upsellDisabled") === true) {
+              config.aiModelSections = config.aiModelSections?.map((section) => ({
+                header: section.items.every((model) => !model.isAvailable) ? void 0 : section.header,
+                items: section.items.map((item) => ({
+                  ...item,
+                  upsell: void 0,
+                  reasoningEfforts: item.reasoningEfforts?.map((effort) => ({
+                    ...effort,
+                    upsell: void 0,
+                    gatedSectionHeader: void 0
+                  }))
+                }))
+              }));
+            }
             if (url5.searchParams.get("omnibar.modelUpsell") === "upgrade") {
               config.aiModelSections = config.aiModelSections?.map((section) => ({
                 ...section,
-                items: section.items.map(
-                  (item, index2) => index2 === 0 && section.items.every((model) => !model.isAvailable) ? { ...item, upsell: (
-                    /** @type {const} */
-                    "upgrade"
-                  ) } : item
-                )
+                items: section.items.every((model) => !model.isAvailable) ? section.items.map((item) => ({ ...item, upsell: (
+                  /** @type {const} */
+                  "upgrade"
+                ) })) : section.items
               }));
             }
             if (parseBooleanQueryParam("omnibar.multipleModelUpsells") === true) {
@@ -42053,14 +42017,47 @@ This is placeholder content used by the NTP mock transport so the attach-tabs fe
                 return [
                   { ...section, items: section.items.slice(0, midpoint) },
                   {
-                    header: "Pro Models - DuckDuckGo subscription",
-                    items: section.items.slice(midpoint).map((item, index2) => index2 === 0 ? { ...item, upsell: (
+                    header: "Pro Plan Exclusive",
+                    items: section.items.slice(midpoint).map((item) => ({ ...item, upsell: (
                       /** @type {const} */
                       "upgrade"
-                    ) } : item)
+                    ) }))
                   }
                 ];
               });
+            }
+            if (parseBooleanQueryParam("omnibar.mixedModelAccess") === true) {
+              config.aiModelSections = config.aiModelSections?.map((section) => {
+                if (!section.items.every((model) => !model.isAvailable)) return section;
+                return {
+                  ...section,
+                  items: section.items.map((item, index2) => {
+                    if (index2 === 0) return { ...item, isAvailable: true, upsell: void 0 };
+                    if (index2 === 1) return { ...item, upsell: (
+                      /** @type {const} */
+                      "subscribe"
+                    ) };
+                    if (index2 === 2) return { ...item, upsell: (
+                      /** @type {const} */
+                      "upgrade"
+                    ) };
+                    return item;
+                  })
+                };
+              });
+            }
+            const reasoningSections = url5.searchParams.get("omnibar.reasoningSections");
+            if (reasoningSections === "first-gated" || reasoningSections === "multiple" || reasoningSections === "grouped") {
+              config.aiModelSections = config.aiModelSections?.map((section) => ({
+                ...section,
+                items: section.items.map((item) => {
+                  if (item.id !== "claude-haiku-4-5") return item;
+                  return {
+                    ...item,
+                    reasoningEfforts: reasoningSections === "first-gated" ? [EXTENDED_EFFORT_UNAVAILABLE, REASONING_EFFORT] : reasoningSections === "grouped" ? [FAST_EFFORT, EXTENDED_EFFORT_UNAVAILABLE, HIGH_EFFORT_SAME_GATED_SECTION] : [FAST_EFFORT, EXTENDED_EFFORT_UNAVAILABLE, REASONING_EFFORT, HIGH_EFFORT_UPGRADE]
+                  };
+                })
+              }));
             }
             config.selectedReasoningEffort = parseReasoningEffortQueryParam("omnibar.selectedReasoningEffort") ?? config.selectedReasoningEffort;
             config.showViewAllAiChats = parseBooleanQueryParam("omnibar.showViewAllAiChats") ?? config.showViewAllAiChats;

@@ -1,12 +1,13 @@
 import { h } from 'preact';
-import { useEffect, useMemo, useRef } from 'preact/hooks';
+import { useEffect, useRef } from 'preact/hooks';
 import cn from 'classnames';
 import { useDropdown } from '../useDropdown';
 import { useMessaging } from '../../../../types.js';
 import { Dropdown } from '../dropdown/Dropdown';
 import { DropdownItem } from '../dropdown/DropdownItem';
-import { isUpsellMuted, recordUpsellImpression } from '../upsellImpressions.js';
-import { getUpsellCtaLabel } from '../../../utils.js';
+import { DropdownSeparator } from '../dropdown/DropdownSeparator';
+import { DropdownSectionHeader } from '../dropdown/DropdownSectionHeader';
+import { getUpsellTelemetryType } from '../../../utils.js';
 import dropdownStyles from '../dropdown/Dropdown.module.css';
 import styles from './ReasoningPicker.module.css';
 
@@ -22,6 +23,7 @@ import styles from './ReasoningPicker.module.css';
  * @property {string} [description] - Localized description
  * @property {boolean} isAvailable - Whether the option is selectable or gated behind an upsell
  * @property {'subscribe' | 'upgrade'} [upsell] - For a gated option, which upsell flow to trigger
+ * @property {string} [gatedSectionHeader] - Section header shown above the first gated option
  */
 
 /**
@@ -32,38 +34,15 @@ import styles from './ReasoningPicker.module.css';
  * @param {(type?: 'subscribe' | 'upgrade') => void} props.onUpsell
  * @param {string} props.ariaLabel
  * @param {string} props.buttonLabel
- * @param {string} props.tryForFreeLabel
- * @param {string} props.upgradeLabel
- * @param {boolean} props.isEligibleForFreeTrial - When false, a 'subscribe' upsell shows the upgrade label instead of "Try for free".
+ * @param {boolean} props.isEligibleForFreeTrial - When false, a 'subscribe' upsell reports 'upgrade' telemetry instead of 'tryForFree'. Does not affect rendered copy, which comes entirely from the payload.
  */
-export function ReasoningPicker({
-    options,
-    selectedEffort,
-    onSelect,
-    onUpsell,
-    ariaLabel,
-    buttonLabel,
-    tryForFreeLabel,
-    upgradeLabel,
-    isEligibleForFreeTrial,
-}) {
+export function ReasoningPicker({ options, selectedEffort, onSelect, onUpsell, ariaLabel, buttonLabel, isEligibleForFreeTrial }) {
     const { isOpen, dropdownPos, buttonRef, dropdownRef, toggle, close } = useDropdown({ align: 'right' });
     const ntp = useMessaging();
     const shownRef = useRef(false);
 
-    const gated = useMemo(() => options.filter((option) => !option.isAvailable), [options]);
-
-    // Mute the yellow CTA once it has been seen enough times (this picker's own count).
-    // Freeze the decision for the duration of each open: capture it on the render
-    // that opens the picker, before this open's impression is recorded below.
-    const wasOpenRef = useRef(false);
-    const upsellMutedRef = useRef(false);
-    if (isOpen && !wasOpenRef.current) {
-        upsellMutedRef.current = gated.length > 0 && isUpsellMuted('reasoning');
-    }
-    wasOpenRef.current = isOpen;
-
-    // Impression telemetry: fire once each time the picker opens, plus the CTA(s) it shows.
+    // Impression telemetry: fire once each time the picker opens. Upsell
+    // telemetry is emitted only when the user activates a gated row.
     useEffect(() => {
         if (!isOpen) {
             shownRef.current = false;
@@ -73,20 +52,7 @@ export function ReasoningPicker({
         shownRef.current = true;
 
         ntp.telemetryEvent({ attributes: { name: 'omnibar_reasoning_picker_shown' } });
-
-        if (gated.length > 0) {
-            recordUpsellImpression('reasoning');
-        }
-        // Report the CTA label that is actually shown, which is eligibility-aware
-        // (a 'subscribe' upsell reads as "Upgrade" for free-trial-ineligible users).
-        const gatedLabels = gated.map((option) => getUpsellCtaLabel(option.upsell, isEligibleForFreeTrial));
-        if (gatedLabels.includes('tryForFree')) {
-            ntp.telemetryEvent({ attributes: { name: 'omnibar_reasoning_picker_tryforfree_shown' } });
-        }
-        if (gatedLabels.includes('upgrade')) {
-            ntp.telemetryEvent({ attributes: { name: 'omnibar_reasoning_picker_upgrade_shown' } });
-        }
-    }, [isOpen, gated, ntp, isEligibleForFreeTrial]);
+    }, [isOpen, ntp]);
 
     /** @param {{ restoreFocus: boolean }} opts */
     const handleClose = ({ restoreFocus }) => {
@@ -101,7 +67,55 @@ export function ReasoningPicker({
         onSelect(effort);
     };
 
+    /** @param {'subscribe' | 'upgrade' | undefined} type */
+    const handleUpsell = (type) => {
+        const telemetryType = getUpsellTelemetryType(type, isEligibleForFreeTrial);
+        ntp.telemetryEvent({
+            attributes: {
+                name: telemetryType === 'upgrade' ? 'omnibar_reasoning_picker_upgrade_shown' : 'omnibar_reasoning_picker_tryforfree_shown',
+            },
+        });
+        onUpsell(type);
+    };
+
     const SelectedOptionIcon = options.find((option) => option.id === selectedEffort)?.icon ?? null;
+
+    let gatedSectionDescriptionId;
+    const dropdownItems = options.map((option, optionIndex) => {
+        const OptionIcon = option.icon;
+        const showHeader = !option.isAvailable && Boolean(option.gatedSectionHeader);
+        if (option.isAvailable) {
+            gatedSectionDescriptionId = undefined;
+        } else if (showHeader) {
+            gatedSectionDescriptionId = `reasoning-gated-section-${optionIndex}`;
+        }
+
+        const dropdownItem = (
+            <DropdownItem
+                key={option.id}
+                role="option"
+                icon={<OptionIcon />}
+                name={option.name}
+                description={option.description}
+                isSelected={option.isAvailable && option.id === selectedEffort}
+                ariaSelected={option.isAvailable && option.id === selectedEffort}
+                ariaDescribedBy={!option.isAvailable ? gatedSectionDescriptionId : undefined}
+                // A gated option with no `upsell` has nowhere to send the user,
+                // so the row shows but stays inert.
+                disabled={!option.isAvailable && !option.upsell}
+                onSelect={() => (option.isAvailable ? handleSelect(option.id) : handleUpsell(option.upsell))}
+            />
+        );
+        if (!showHeader) return dropdownItem;
+
+        return [
+            optionIndex > 0 ? <DropdownSeparator key={`${option.id}-separator`} /> : null,
+            <DropdownSectionHeader key={`${option.id}-header`} descriptionId={gatedSectionDescriptionId}>
+                {option.gatedSectionHeader}
+            </DropdownSectionHeader>,
+            dropdownItem,
+        ];
+    });
 
     return (
         <div class={styles.reasoningPicker}>
@@ -129,27 +143,9 @@ export function ReasoningPicker({
                     position={dropdownPos}
                     onClose={handleClose}
                     idPrefix="reasoning-option"
-                    className={cn(dropdownStyles.roomy, upsellMutedRef.current && styles.upsellMuted)}
+                    className={dropdownStyles.roomy}
                 >
-                    {options.map((option) => {
-                        const OptionIcon = option.icon;
-                        const badgeLabel =
-                            getUpsellCtaLabel(option.upsell, isEligibleForFreeTrial) === 'upgrade' ? upgradeLabel : tryForFreeLabel;
-                        return (
-                            <DropdownItem
-                                key={option.id}
-                                role="option"
-                                icon={<OptionIcon />}
-                                name={option.name}
-                                description={option.description}
-                                isSelected={option.isAvailable && option.id === selectedEffort}
-                                ariaSelected={option.isAvailable && option.id === selectedEffort}
-                                isDimmed={!option.isAvailable && option.upsell === 'upgrade'}
-                                trailingIcon={!option.isAvailable ? <span class={styles.tryForFreeBadge}>{badgeLabel}</span> : undefined}
-                                onSelect={() => (option.isAvailable ? handleSelect(option.id) : onUpsell(option.upsell))}
-                            />
-                        );
-                    })}
+                    {dropdownItems}
                 </Dropdown>
             )}
         </div>
