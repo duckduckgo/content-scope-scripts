@@ -1818,7 +1818,9 @@ test.describe('omnibar widget', () => {
             await expect(omnibar.modelOption('Claude Sonnet 4.5')).toHaveAccessibleDescription('Subscriber Exclusive');
         });
 
-        test('renders a gated model native name without an artificial suffix', async ({ page }, workerInfo) => {
+        test('renders the native ellipsis on unavailable model names without changing their accessible name', async ({
+            page,
+        }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
@@ -1830,8 +1832,10 @@ test.describe('omnibar widget', () => {
             await omnibar.expectMode('ai');
             await omnibar.modelSelectorButton().click();
 
-            const gatedModelName = omnibar.modelOption('Claude Sonnet 4.5').locator('div > span').first();
-            await expect(gatedModelName).toHaveText('Claude Sonnet 4.5');
+            const gatedModel = omnibar.modelOption('Claude Sonnet 4.5');
+            const gatedModelName = gatedModel.locator('div > span').first();
+            await expect(gatedModel).toHaveAccessibleName('Claude Sonnet 4.5', { exact: true });
+            await expect(gatedModelName).toHaveText('Claude Sonnet 4.5…');
         });
 
         test('clicking a subscription-gated model row opens the subscription upsell', async ({ page }, workerInfo) => {
@@ -2197,7 +2201,7 @@ test.describe('omnibar widget', () => {
 
             const calls = await ntp.mocks.waitForCallCount({ method: 'omnibar_setConfig', count: 1 });
             const last = calls[calls.length - 1];
-            expect(last?.payload?.params?.selectedReasoningEffort).toBe('medium');
+            expect(last?.payload?.params?.selectedReasoningEffort).toBe('low');
         });
 
         test('submit includes reasoningEffort for models that support it', async ({ page }, workerInfo) => {
@@ -2210,7 +2214,7 @@ test.describe('omnibar widget', () => {
                     omnibar: true,
                     'omnibar.enableAiChatTools': 'true',
                     'omnibar.selectedModelId': 'gpt-5-mini',
-                    'omnibar.selectedReasoningEffort': 'medium',
+                    'omnibar.selectedReasoningEffort': 'low',
                 },
             });
             await omnibar.ready();
@@ -2225,7 +2229,7 @@ test.describe('omnibar widget', () => {
                 chat: 'hello',
                 target: 'same-tab',
                 modelId: 'gpt-5-mini',
-                reasoningEffort: 'medium',
+                reasoningEffort: 'low',
             });
         });
 
@@ -2239,7 +2243,7 @@ test.describe('omnibar widget', () => {
                     omnibar: true,
                     'omnibar.enableAiChatTools': 'true',
                     'omnibar.selectedModelId': 'gpt-4o-mini',
-                    'omnibar.selectedReasoningEffort': 'medium',
+                    'omnibar.selectedReasoningEffort': 'low',
                 },
             });
             await omnibar.ready();
@@ -2260,14 +2264,14 @@ test.describe('omnibar widget', () => {
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
 
-            // claude-opus-4-6 supports ['none', 'medium', 'extended']; gpt-5-mini only ['none', 'medium']
+            // claude-opus-4-6 supports ['none', 'low', 'medium']; gpt-5-mini only ['none', 'low']
             await ntp.openPage({
                 additional: {
                     omnibar: true,
                     'omnibar.enableAiChatTools': 'true',
                     'omnibar.subscription': 'true',
                     'omnibar.selectedModelId': 'claude-opus-4-6',
-                    'omnibar.selectedReasoningEffort': 'extended',
+                    'omnibar.selectedReasoningEffort': 'medium',
                 },
             });
             await omnibar.ready();
@@ -2281,7 +2285,7 @@ test.describe('omnibar widget', () => {
             await omnibar.chatInput().fill('hello');
             await omnibar.chatInput().press('Enter');
 
-            // 'extended' isn't in gpt-5-mini's list; effective value falls back to the first supported one
+            // 'medium' isn't in gpt-5-mini's list; effective value falls back to the first supported one
             await omnibar.expectMethodCalledWith('omnibar_submitChat', {
                 chat: 'hello',
                 target: 'same-tab',
@@ -2295,14 +2299,14 @@ test.describe('omnibar widget', () => {
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
 
-            // claude-opus-4-6 supports 'extended'; gpt-5-mini does not
+            // claude-opus-4-6 supports 'medium'; gpt-5-mini does not
             await ntp.openPage({
                 additional: {
                     omnibar: true,
                     'omnibar.enableAiChatTools': 'true',
                     'omnibar.subscription': 'true',
                     'omnibar.selectedModelId': 'claude-opus-4-6',
-                    'omnibar.selectedReasoningEffort': 'extended',
+                    'omnibar.selectedReasoningEffort': 'medium',
                 },
             });
             await omnibar.ready();
@@ -2369,6 +2373,28 @@ test.describe('omnibar widget', () => {
             await expect(omnibar.reasoningOption('For complex tasks')).toBeVisible();
         });
 
+        test('uses the native timer icon for the medium Extended Reasoning effort', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.selectedModelId': 'claude-haiku-4-5',
+                },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+            await omnibar.reasoningPickerButton().click();
+
+            await expect(omnibar.reasoningOption('For complex tasks').locator('svg')).toHaveAttribute('viewBox', '0 0 13.9693 13.9694');
+            await expect(omnibar.reasoningOption('For analytical tasks').locator('svg')).toHaveAttribute('viewBox', '0 0 16 16.0001');
+        });
+
         test('an unavailable reasoning-effort option shows a gated-section header and opens the subscription upsell', async ({
             page,
         }, workerInfo) => {
@@ -2376,7 +2402,7 @@ test.describe('omnibar widget', () => {
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
 
-            // claude-haiku-4-5 has an 'extended' reasoning effort with isAvailable false in the mock
+            // claude-haiku-4-5 has a 'medium' reasoning effort with isAvailable false in the mock
             await ntp.openPage({
                 additional: {
                     omnibar: true,
@@ -2407,7 +2433,7 @@ test.describe('omnibar widget', () => {
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
 
-            // Mistral Small 3 has an 'extended' reasoning effort with isAvailable false and upsell 'upgrade' in the mock
+            // Mistral Small 3 has a 'medium' reasoning effort with isAvailable false and upsell 'upgrade' in the mock
             await ntp.openPage({
                 additional: {
                     omnibar: true,
@@ -2528,7 +2554,7 @@ test.describe('omnibar widget', () => {
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
 
-            // claude-haiku-4-5 has a gated 'extended' effort behind a subscription (Try for free).
+            // claude-haiku-4-5 has a gated 'medium' effort behind a subscription (Try for free).
             await ntp.openPage({
                 additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true', 'omnibar.selectedModelId': 'claude-haiku-4-5' },
             });
@@ -2555,7 +2581,7 @@ test.describe('omnibar widget', () => {
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
 
-            // Mistral Small 3 has a gated 'extended' effort behind a tier upgrade.
+            // Mistral Small 3 has a gated 'medium' effort behind a tier upgrade.
             await ntp.openPage({
                 additional: {
                     omnibar: true,

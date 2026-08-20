@@ -16,7 +16,7 @@ function parseBooleanQueryParam(param) {
 }
 
 /** @type {ReadonlyArray<import('../../../types/new-tab.ts').ReasoningEffort>} */
-const REASONING_EFFORTS = ['none', 'medium', 'extended'];
+const REASONING_EFFORTS = ['none', 'minimal', 'low', 'medium', 'high', 'extended'];
 
 /**
  * Reads a URL query param as a ReasoningEffort. Returns null if absent or invalid.
@@ -31,10 +31,10 @@ function parseReasoningEffortQueryParam(param) {
 /** @type {import('../../../types/new-tab.ts').ReasoningEffortOption} */
 const FAST_EFFORT = { id: 'none', name: 'Fast', description: 'Answers quickly', isAvailable: true };
 /** @type {import('../../../types/new-tab.ts').ReasoningEffortOption} */
-const REASONING_EFFORT = { id: 'medium', name: 'Reasoning', description: 'For complex tasks', isAvailable: true };
+const REASONING_EFFORT = { id: 'low', name: 'Reasoning', description: 'For complex tasks', isAvailable: true };
 /** @type {import('../../../types/new-tab.ts').ReasoningEffortOption} */
 const EXTENDED_EFFORT_UNAVAILABLE = {
-    id: 'extended',
+    id: 'medium',
     name: 'Extended Reasoning',
     description: 'For analytical tasks',
     isAvailable: false,

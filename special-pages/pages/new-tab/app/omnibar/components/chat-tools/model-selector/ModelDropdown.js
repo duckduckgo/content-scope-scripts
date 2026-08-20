@@ -2,6 +2,8 @@ import { Fragment, h } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
 import cn from 'classnames';
 import { useTypedTranslationWith } from '../../../../types';
+import { DropdownSectionHeader } from '../dropdown/DropdownSectionHeader';
+import { DropdownSeparator } from '../dropdown/DropdownSeparator';
 import styles from './ModelSelector.module.css';
 import { getModelIcon } from './Icons';
 
@@ -176,11 +178,9 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
                 const gatedSectionDescriptionId = section.header ? `model-gated-section-${sectionIndex}` : undefined;
                 return (
                     <Fragment key={sectionIndex}>
-                        {needsDivider && <li role="separator" class={styles.modelSectionDivider} />}
+                        {needsDivider && <DropdownSeparator />}
                         {section.header && (
-                            <li id={gatedSectionDescriptionId} role="presentation" class={styles.modelSectionHeader}>
-                                {section.header}
-                            </li>
+                            <DropdownSectionHeader descriptionId={gatedSectionDescriptionId}>{section.header}</DropdownSectionHeader>
                         )}
                         {section.items.map((model) => {
                             const Icon = getModelIcon(model.id);
@@ -194,6 +194,7 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
                                     key={model.id}
                                     id={getOptionId(optionIndex)}
                                     role="option"
+                                    aria-label={!model.isAvailable ? model.name : undefined}
                                     aria-selected={model.isAvailable ? model.id === selectedModelId : isUpsellRow ? false : undefined}
                                     aria-describedby={isUpsellRow ? gatedSectionDescriptionId : undefined}
                                     aria-disabled={(!model.isAvailable && !isUpsellRow) || undefined}
@@ -221,7 +222,7 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
                                 >
                                     {Icon && <Icon />}
                                     <div class={styles.modelOptionLabel}>
-                                        <span class={styles.modelOptionName}>{model.name}</span>
+                                        <span class={styles.modelOptionName}>{model.isAvailable ? model.name : `${model.name}…`}</span>
                                         {model.description && <span class={styles.modelOptionDescription}>{model.description}</span>}
                                     </div>
                                     {badgeLabel && <span class={styles.modelOptionBadge}>{badgeLabel}</span>}

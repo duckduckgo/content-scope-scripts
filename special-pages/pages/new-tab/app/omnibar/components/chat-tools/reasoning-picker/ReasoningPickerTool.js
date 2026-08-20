@@ -25,10 +25,10 @@ function getReasoningIcon(id) {
         case 'minimal':
             return FastReasoningIcon;
         case 'extended':
+        case 'medium':
         case 'high':
             return ExtendedReasoningIcon;
         case 'low':
-        case 'medium':
             return ReasoningEffortIcon;
         default:
             return ReasoningEffortIcon;
