@@ -343,8 +343,8 @@ export function omnibarMockTransport() {
                             })),
                         }));
                     }
-                    // Native's upsell kill switch: gated rows still ship, but with no upsell
-                    // target and no section headers.
+                    // Mock the service-level inert state: gated rows remain, but with no
+                    // upsell target or section headers.
                     if (parseBooleanQueryParam('omnibar.upsellDisabled') === true) {
                         config.aiModelSections = config.aiModelSections?.map((section) => ({
                             header: section.items.every((model) => !model.isAvailable) ? undefined : section.header,

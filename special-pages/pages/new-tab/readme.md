@@ -324,8 +324,8 @@
    - `true`
    - `false`
 
-### Upsell Disabled (kill switch off)
- - **Purpose**: Drops `upsell` from every gated model and reasoning effort, and clears the gated sections' headers — the payload native sends when its subscription-upsell kill switch is off. Gated rows still show, but stay inert: no upsell, no section header.
+### Upsell Disabled (inert gated rows)
+ - **Purpose**: Drops `upsell` from every gated model and reasoning effort, and clears the gated sections' headers. Gated rows still show, but stay inert: no upsell, no section header.
  - **Parameter**: `omnibar.upsellDisabled`
  - **Example**: `?omnibar.upsellDisabled=true`
  - **Options**:

@@ -41,10 +41,9 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const allModels = sections.flatMap((section) => section.items);
     const optionIndexById = new Map(allModels.map((model, index) => [model.id, index]));
-    // Upsell behavior belongs to each gated model, independent of how native
-    // groups available and gated rows into sections. A gated model with no
-    // `upsell` has nowhere to send the user — native omits it when its upsell
-    // kill switch is off — so that row shows but stays inert.
+    // Upsell behavior belongs to each gated model, independent of how models
+    // are grouped into sections. A gated model with no `upsell` has nowhere to
+    // send the user, so that row shows but stays inert.
     const upsellByModelId = new Map(
         allModels.filter((model) => !model.isAvailable && model.upsell).map((model) => [model.id, model.upsell]),
     );

@@ -775,7 +775,7 @@ export interface AIModelItem {
    */
   reasoningEfforts?: ReasoningEffortOption[];
   /**
-   * For a gated (disabled) model, which upsell flow it leads to. Absent for enabled models. Absent on a gated model means the row shows but is inert — no upsell action — which is what native sends when its subscription-upsell kill switch is off; send an explicit value whenever the row should be actionable.
+   * For a gated (disabled) model, which upsell flow it leads to. Absent for enabled models. Absent on a gated model means the row shows but is inert, with no upsell action; send an explicit value whenever the row should be actionable.
    */
   upsell?: "subscribe" | "upgrade";
 }
@@ -797,7 +797,7 @@ export interface ReasoningEffortOption {
    */
   isAvailable: boolean;
   /**
-   * For a gated (isAvailable: false) option, which upsell flow it leads to. Absent for available options. Absent on a gated option means the row shows but is inert — no upsell action — which is what native sends when its subscription-upsell kill switch is off; send an explicit value whenever the row should be actionable.
+   * For a gated (isAvailable: false) option, which upsell flow it leads to. Absent for available options. Absent on a gated option means the row shows but is inert, with no upsell action; send an explicit value whenever the row should be actionable.
    */
   upsell?: "subscribe" | "upgrade";
   /**

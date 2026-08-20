@@ -2012,12 +2012,12 @@ test.describe('omnibar widget', () => {
             await expect(omnibar.modelDropdown()).toHaveCount(0);
         });
 
-        test('leaves gated rows inert when native sends no upsell', async ({ page }, workerInfo) => {
+        test('leaves gated rows inert when upsell is absent', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
 
-            // Native omits `upsell` when its subscription-upsell kill switch is off.
+            // An absent `upsell` is the service-level contract for an inert gated row.
             await ntp.openPage({
                 additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true', 'omnibar.upsellDisabled': 'true' },
             });
