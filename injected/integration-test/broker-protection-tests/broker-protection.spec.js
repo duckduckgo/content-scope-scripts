@@ -1056,4 +1056,81 @@ test.describe('Broker Protection communications', () => {
             dbp.isErrorMessage(response);
         });
     });
+
+    test.describe('executeScript', () => {
+        /**
+         * @param {string} id
+         * @param {string} script
+         */
+        const executeScript = (id, script) => ({ state: { action: { actionType: 'executeScript', id, script } } });
+
+        /**
+         * @param {import('@playwright/test').Page} page
+         * @param {import('@playwright/test').TestInfo} testInfo
+         */
+        async function onExecuteScriptPage(page, testInfo) {
+            const dbp = BrokerProtectionPage.create(page, testInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('execute-script.html');
+            return dbp;
+        }
+
+        test('runs the script against the profile, reports a null response, and a following click reaches the encoded destination', async ({
+            page,
+        }, testInfo) => {
+            const dbp = await onExecuteScriptPage(page, testInfo);
+            await dbp.receivesAction('execute-script.json');
+
+            const response = await dbp.getActionCompletedParams();
+            dbp.isSuccessMessage(response);
+            expect(response[0].payload.params.result.success.actionType).toBe('executeScript');
+            expect(response[0].payload.params.result.success.response).toBeNull();
+
+            await dbp.receivesInlineAction({
+                state: {
+                    action: {
+                        actionType: 'click',
+                        id: 'execute-script-click',
+                        elements: [{ type: 'button', selector: '#pir-probe-anchor' }],
+                    },
+                },
+            });
+
+            const clickResponse = await dbp.collector.waitForMessage('actionCompleted', 2);
+            expect('success' in clickResponse[1].payload.params.result).toBe(true);
+            await page.waitForURL((url) => url.hash === '#name=Daniel+Silva', { timeout: 2000 });
+        });
+
+        test('returns the action error shape when the script throws', async ({ page }, testInfo) => {
+            const dbp = await onExecuteScriptPage(page, testInfo);
+            await dbp.receivesInlineAction(executeScript('execute-script-throw', "throw new Error('boom');"));
+
+            expect(await dbp.getErrorMessage()).toContain('executeScript failed');
+        });
+
+        test('returns the action error shape when the script rejects', async ({ page }, testInfo) => {
+            const dbp = await onExecuteScriptPage(page, testInfo);
+            await dbp.receivesInlineAction(executeScript('execute-script-reject', "return Promise.reject(new Error('nope'));"));
+
+            expect(await dbp.getErrorMessage()).toContain('executeScript failed');
+        });
+
+        test('discards the value returned by the script', async ({ page }, testInfo) => {
+            const dbp = await onExecuteScriptPage(page, testInfo);
+            await dbp.receivesInlineAction(executeScript('execute-script-return', 'return { leaked: root.body.innerHTML };'));
+
+            const response = await dbp.getActionCompletedParams();
+            dbp.isSuccessMessage(response);
+            const result = response[0].payload.params.result;
+            expect(result.success.response).toBeNull();
+            expect(JSON.stringify(result)).not.toContain('Daniel Silva');
+        });
+
+        test('returns the action error shape when the script is empty', async ({ page }, testInfo) => {
+            const dbp = await onExecuteScriptPage(page, testInfo);
+            await dbp.receivesInlineAction(executeScript('execute-script-empty', ''));
+
+            expect(await dbp.getErrorMessage()).toContain('No script provided to executeScript action');
+        });
+    });
 });

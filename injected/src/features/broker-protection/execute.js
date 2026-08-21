@@ -1,5 +1,16 @@
-// eslint-disable-next-line no-redeclare
-import { navigate, extract, click, scroll, expectation, fillForm, getCaptchaInfo, solveCaptcha, condition } from './actions/actions';
+import {
+    navigate,
+    extract,
+    click,
+    // eslint-disable-next-line no-redeclare
+    scroll,
+    expectation,
+    fillForm,
+    getCaptchaInfo,
+    solveCaptcha,
+    condition,
+    executeScript,
+} from './actions/actions';
 import { ErrorResponse } from './types';
 
 /**
@@ -35,6 +46,8 @@ export async function execute(action, inputData, root = document) {
                 return condition(action, root);
             case 'scroll':
                 return scroll(action, root);
+            case 'executeScript':
+                return await executeScript(action, data(action, inputData, 'userProfile'), root);
             default: {
                 return new ErrorResponse({
                     actionID: action.id,
