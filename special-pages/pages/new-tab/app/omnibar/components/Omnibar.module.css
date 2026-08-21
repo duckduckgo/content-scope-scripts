@@ -53,6 +53,8 @@
     display: flow-root; /* Prevent margin collapse on .field */
     margin: 3px;
     outline: 1px solid var(--ds-color-theme-control-raised-backdrop);
+    position: relative;
+    z-index: 1; /* Paint above UsageLimitsDrawer tuck */
 
     [data-background-kind="color"] [data-theme="light"] &,
     [data-background-kind="gradient"] [data-theme="light"] &,

@@ -1,0 +1,101 @@
+/*
+ * Tucks under the omnibar .popup pill (native: 32 DIP tuck, 74 height).
+ * .popup must paint above this via z-index on Omnibar.module.css.
+ */
+.drawer {
+    margin: -29px 3px 0;
+    padding-top: 29px;
+    position: relative;
+    z-index: 0;
+    animation: slideOpen 400ms ease-out 100ms both;
+
+    @media (prefers-reduced-motion: reduce) {
+        animation: none;
+    }
+}
+
+@keyframes slideOpen {
+    from {
+        transform: translateY(-48px);
+    }
+
+    to {
+        transform: translateY(0);
+    }
+}
+
+.card {
+    background: var(--ds-color-theme-surface-tertiary);
+    border-radius: 0 0 12px 12px;
+    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.1), 0 4px 8px 0 rgba(0, 0, 0, 0.08);
+    outline: 1px solid var(--ds-color-theme-control-raised-backdrop);
+
+    [data-background-kind='color'] [data-theme='light'] &,
+    [data-background-kind='gradient'] [data-theme='light'] &,
+    [data-background-kind='userImage'] [data-theme='light'] & {
+        backdrop-filter: blur(48px);
+        background: rgba(255, 255, 255, 0.54);
+    }
+
+    [data-background-kind='color'] [data-theme='dark'] &,
+    [data-background-kind='gradient'] [data-theme='dark'] & {
+        backdrop-filter: blur(48px);
+        background: rgba(255, 255, 255, 0.12);
+        outline: 1px solid rgba(0, 0, 0, 0.12);
+    }
+
+    [data-background-kind='userImage'] [data-theme='dark'] & {
+        backdrop-filter: blur(48px);
+        background: rgba(0, 0, 0, 0.3);
+    }
+}
+
+.content {
+    align-items: center;
+    display: flex;
+    gap: var(--sp-2);
+    min-height: 42px;
+    padding: 3px 12px 8px 16px;
+}
+
+.icon {
+    flex-shrink: 0;
+    height: 16px;
+    width: 16px;
+}
+
+.message {
+    color: var(--ds-color-theme-text-primary);
+    flex: 1;
+    font-size: 13px;
+    line-height: 1.3;
+    margin: 0;
+    min-width: 0;
+}
+
+.secondary {
+    color: var(--ds-color-theme-text-secondary);
+}
+
+.dismiss {
+    flex-shrink: 0;
+    position: relative;
+}
+
+:global(body[data-rebrand='true']) {
+    .card {
+        border-radius: 0 0 var(--ds-radius-x06) var(--ds-radius-x06);
+        box-shadow:
+            0 10px 20px 0 rgba(0, 0, 0, 0.02),
+            0 2px 6px 0 rgba(0, 0, 0, 0.06),
+            0 0 0 1px var(--ds-color-theme-container-border-secondary);
+        outline: none;
+    }
+
+    :global([data-theme='dark']) .card {
+        box-shadow:
+            0 10px 20px 0 rgba(0, 0, 0, 0.02),
+            0 2px 6px 0 rgba(0, 0, 0, 0.06),
+            0 0 0 1px var(--ds-ntp-dark-card-border-color);
+    }
+}

@@ -35,6 +35,8 @@ import { MentionPicker } from './chat-tools/tab-attachment/MentionPicker';
 import { OpenTabsProvider } from './chat-tools/tab-attachment/OpenTabsProvider';
 import { useMentionPicker } from './chat-tools/tab-attachment/useMentionPicker';
 import { useTabAttachments } from './chat-tools/tab-attachment/useTabAttachments';
+import { UsageLimitsDrawer } from './UsageLimitsDrawer';
+import { useUsageLimitsDrawer } from './useUsageLimitsDrawer';
 
 /**
  * @typedef {typeof import('../strings.json')} Strings
@@ -70,6 +72,7 @@ export function Omnibar({
     tabId,
 }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
+    const usageLimits = useUsageLimitsDrawer();
 
     const [query, setQuery] = useQueryWithLocalPersistence(tabId);
     const [resetKey, setResetKey] = useState(0);
@@ -179,6 +182,13 @@ export function Omnibar({
                                 </OpenTabsProvider>
                             )}
                         </div>
+                        {mode === 'ai' && usageLimits.visible && (
+                            <UsageLimitsDrawer
+                                message={usageLimits.message}
+                                secondaryText={usageLimits.secondaryText}
+                                onDismiss={usageLimits.dismissible ? usageLimits.onDismiss : undefined}
+                            />
+                        )}
                     </div>
                 </AiChatsProvider>
             </SearchFormProvider>
