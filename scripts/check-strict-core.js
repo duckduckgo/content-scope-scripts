@@ -1,11 +1,12 @@
 #!/usr/bin/env node
+import { execSync } from 'node:child_process';
+
 /**
  * Checks that injected core source files pass TypeScript strict mode.
  *
  * Runs tsc with tsconfig.strict-core.json and filters output to only core files.
  * Feature files are checked transitively but their errors are not reported here.
  */
-import { execSync } from 'node:child_process';
 
 const CORE_FILES = new Set([
     'injected/entry-points/android-adsjs.js',
@@ -68,6 +69,7 @@ const CORE_FILES = new Set([
     'injected/src/features/broker-protection/types.js',
     'injected/src/features/broker-protection/utils/expectations.js',
     'injected/src/features/broker-protection/utils/safe-call.js',
+    'injected/src/features/broker-protection/utils/select-root-element.js',
     'injected/src/features/broker-protection/utils/url.js',
     'injected/src/features/click-to-load/components/ctl-placeholder-blocked.js',
     'injected/src/features/click-to-load/components/index.js',
