@@ -24,18 +24,18 @@ export function OpenTabsProvider({ tabId, enabled, children }) {
     const { getOpenTabs } = useContext(OmnibarContext);
     const [rawTabs, setRawTabs] = useStateWithLocalPersistence(tabId);
     const [isFetching, setIsFetching] = useState(false);
+    const [hasFetched, setHasFetched] = useState(false);
 
     // Native sends tab-strip order (oldest first); reverse to show most recent first.
     const openTabs = useMemo(() => [...rawTabs].reverse(), [rawTabs]);
-
-    // Only show a loading state when nothing is cached yet.
-    const isLoadingTabs = isFetching && rawTabs.length === 0;
+    const isLoadingTabs = isFetching && !hasFetched && rawTabs.length === 0;
 
     const refetchTabs = useCallback(async () => {
         setIsFetching(true);
         try {
             const response = await getOpenTabs();
             setRawTabs(response.tabs ?? []);
+            setHasFetched(true);
         } catch (err) {
             console.error('omnibar_getOpenTabs failed', err);
         } finally {

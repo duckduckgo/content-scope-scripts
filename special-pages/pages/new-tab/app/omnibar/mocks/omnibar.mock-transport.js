@@ -480,6 +480,9 @@ export function omnibarMockTransport() {
                 }
                 case 'omnibar_getOpenTabs': {
                     await new Promise((resolve) => setTimeout(resolve, 50));
+                    if (parseBooleanQueryParam('omnibar.noOpenTabs') === true) {
+                        return { tabs: [] };
+                    }
                     return getMockOpenTabs();
                 }
                 case 'omnibar_getTabContent': {
