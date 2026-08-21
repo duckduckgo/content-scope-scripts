@@ -158,36 +158,7 @@ test.describe('Broker Protection Captcha', () => {
                 await dbp.isWidgetNotNotified('[data-sitekey="test-site-key-1"]', 'data-callback-token');
             });
 
-            test('native retry keeps captcha context after a failed solve', async ({ dbp }) => {
-                await dbp.navigatesTo(parentTargetPage);
-                await dbp.receivesInlineAction(createGetRecaptchaInfoAction({ parent: createProfileMatchParent() }, { userProfile }));
-                await dbp.getSuccessResponse();
-                const failedSolveAction = createSolveRecaptchaAction({
-                    id: 'failed-solve',
-                    parent: createProfileMatchParent(),
-                    selector: '#missing-captcha',
-                });
-                await dbp.receivesInlineAction(failedSolveAction);
-                await dbp.isCaptchaError(failedSolveAction.state.action.id);
-
-                const solveAction = createSolveRecaptchaAction({ parent: createProfileMatchParent() }, { token: undefined, userProfile });
-                await dbp.receivesInlineAction(solveAction);
-                const successResponse = await dbp.getSuccessResponse(solveAction.state.action.id);
-
-                await dbp.isCaptchaTokenFilled('#g-recaptcha-response-2');
-                await dbp.doesInputValueEqual('#g-recaptcha-response', '');
-                await dbp.doesInputValueEqual('#g-recaptcha-response-1', '');
-
-                await dbp.runsCaptchaCallback(successResponse);
-                await dbp.isWidgetNotified('[data-sitekey="test-site-key-2"]', 'data-callback-token');
-                await dbp.isWidgetNotNotified('[data-sitekey="test-site-key-0"]', 'data-callback-token');
-                await dbp.isWidgetNotNotified('[data-sitekey="test-site-key-1"]', 'data-callback-token');
-            });
-
-            test('missing held profile after a page load writes nothing', async ({ dbp }) => {
-                await dbp.navigatesTo(parentTargetPage);
-                await dbp.receivesInlineAction(createGetRecaptchaInfoAction({ parent: createProfileMatchParent() }, { userProfile }));
-                await dbp.getSuccessResponse();
+            test('returns an error response when solving and the client sent no profile', async ({ dbp }) => {
                 await dbp.navigatesTo(parentTargetPage);
                 await dbp.receivesInlineAction(createSolveRecaptchaAction({ parent: createProfileMatchParent() }));
 
@@ -195,7 +166,6 @@ test.describe('Broker Protection Captcha', () => {
                 await dbp.doesInputValueEqual('#g-recaptcha-response', '');
                 await dbp.doesInputValueEqual('#g-recaptcha-response-1', '');
                 await dbp.doesInputValueEqual('#g-recaptcha-response-2', '');
-                await dbp.hasNoNotifiedWidget();
             });
 
             test('returns an error response when solving and no record matches the user profile', async ({ dbp }) => {

@@ -8,11 +8,7 @@ import { getCaptchaInfo as getCaptchaInfoDeprecated, solveCaptcha as solveCaptch
 
 /**
  * @import { ActionResponse, PirAction, ProfileData } from '../types.js'
- * @typedef {{profile: ProfileData|null, token: string|null}} PendingCaptchaContext
  */
-
-/** @type {PendingCaptchaContext|null} */
-let pendingCaptchaContext = null;
 
 /**
  *
@@ -75,8 +71,6 @@ export function getSupportingCodeToInject(action) {
  */
 export async function getCaptchaInfo(action, userData, root = document) {
     const { id: actionID, actionType, captchaType, selector } = action;
-    pendingCaptchaContext = null;
-
     if (!captchaType) {
         // ensures backward compatibility with old actions
         return getCaptchaInfoDeprecated(action, root);
@@ -120,10 +114,6 @@ export async function getCaptchaInfo(action, userData, root = document) {
         type: reportedType,
     };
 
-    if (action.parent) {
-        pendingCaptchaContext = { profile: userData, token: null };
-    }
-
     return SuccessResponse.create({ actionID, actionType, response });
 }
 
@@ -144,20 +134,11 @@ export function solveCaptcha(action, token, userData, root = document) {
     }
 
     const createError = ErrorResponse.generateErrorResponseFunction({ actionID, context: `[solveCaptcha] captchaType: ${captchaType}` });
-    const matchingProfile = userData ?? pendingCaptchaContext?.profile ?? null;
-
-    if (action.parent && !matchingProfile) {
+    if (action.parent && !userData) {
         return createError('no profile available to scope the captcha solve');
     }
 
-    const captchaToken = token ?? pendingCaptchaContext?.token ?? null;
-    if (!captchaToken) {
-        return createError('no token available to solve the captcha');
-    }
-
-    pendingCaptchaContext = action.parent ? { profile: matchingProfile, token: captchaToken } : null;
-
-    const captchaRoot = getCaptchaRoot(action, matchingProfile, root);
+    const captchaRoot = getCaptchaRoot(action, userData, root);
     if (PirError.isError(captchaRoot)) {
         return createError(captchaRoot.error.message);
     }
@@ -176,12 +157,12 @@ export function solveCaptcha(action, token, userData, root = document) {
         return createError('cannot solve captcha');
     }
 
-    const callback = captchaSolveProvider.getSolveCallback(captchaContainer, captchaToken);
+    const callback = captchaSolveProvider.getSolveCallback(captchaContainer, token);
     if (PirError.isError(callback)) {
         return createError(callback.error.message);
     }
 
-    const tokenResponse = captchaSolveProvider.injectToken(captchaContainer, captchaToken);
+    const tokenResponse = captchaSolveProvider.injectToken(captchaContainer, token);
     if (PirError.isError(tokenResponse)) {
         return createError(tokenResponse.error.message);
     }
@@ -189,8 +170,6 @@ export function solveCaptcha(action, token, userData, root = document) {
     if (!tokenResponse.response.injected) {
         return createError('could not inject token');
     }
-
-    pendingCaptchaContext = null;
 
     return SuccessResponse.create({
         actionID,
