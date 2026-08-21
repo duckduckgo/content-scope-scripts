@@ -2488,13 +2488,13 @@ body[data-rebrand=true][data-platform-name=macos] {
 [data-drawer-visibility=visible] .App_mainLayout {
   transform: translateX(calc(0px - var(--ntp-combined-width) / 2));
 }
-.App_mainScroller::-webkit-scrollbar {
+:root:has(body[data-platform-name=windows]) .App_mainScroller::-webkit-scrollbar {
   width: 4px;
 }
-.App_mainScroller::-webkit-scrollbar-track {
+:root:has(body[data-platform-name=windows]) .App_mainScroller::-webkit-scrollbar-track {
   border-radius: 6px;
 }
-.App_mainScroller::-webkit-scrollbar-thumb {
+:root:has(body[data-platform-name=windows]) .App_mainScroller::-webkit-scrollbar-thumb {
   background: rgb(108, 108, 108);
   border-radius: 6px;
 }

@@ -1,1 +1,2 @@
-- NTP: Implement new effort and model pickers for Duck.ai omnibar (#2965)
+- fix(broker-protection): preserve matched CAPTCHA context (#2976)
+- fix(NTP): restore native scrollbar on macOS (#2967)
