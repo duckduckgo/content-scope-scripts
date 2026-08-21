@@ -288,8 +288,6 @@ function OpenDropdownBody({
                 onSelect={onOpenTabsModal}
             />
             <DropdownSeparator />
-            {/* Header only when tab rows exist: while loading nothing is cached yet, so hiding it
-                keeps loading → empty a pure text swap with no layout shift. */}
             {recentTabs.length > 0 && <TabsSectionHeader label={t('omnibar_attachTabsRecentTabs')} showGutter={showGutter} />}
             {renderRecentTabRows()}
         </Dropdown>
