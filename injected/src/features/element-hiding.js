@@ -62,7 +62,6 @@ const parser = new DOMParser();
 let hiddenElements = new WeakMap();
 let modifiedElements = new WeakMap();
 let appliedRules = new Set();
-const resolvedSelectors = new Map();
 let shouldInjectStyleTag = false;
 let styleTagInjected = false;
 let mediaAndFormSelectors = 'video,canvas,embed,object,audio,map,form,input,textarea,select,option,button';
@@ -381,12 +380,7 @@ function forgivingSelector(selector) {
  * the rest of the list not applying
  */
 function querySelectorFor(selector) {
-    let resolved = resolvedSelectors.get(selector);
-    if (resolved === undefined) {
-        resolved = selector.includes(',') ? forgivingSelector(selector) : selector;
-        resolvedSelectors.set(selector, resolved);
-    }
-    return resolved;
+    return selector.includes(',') ? forgivingSelector(selector) : selector;
 }
 
 export default class ElementHiding extends ContentFeature {
