@@ -1,13 +1,14 @@
 /*
- * Tucks under the omnibar .popup pill (native: 32 DIP tuck, 74 height).
- * .popup must paint above this via z-index on Omnibar.module.css.
+ * Tucks under the omnibar .popup pill (native: Margin top -32, Height 74,
+ * empty top row ~31, content hangs ~42 below). Painted surface must include
+ * the tuck — empty space goes inside .card, not on this wrapper.
+ * .popup paints above via z-index on Omnibar.module.css.
  */
 .drawer {
-    margin: -29px 3px 0;
-    padding-top: 29px;
+    margin: -32px 3px 0;
     position: relative;
     z-index: 0;
-    animation: slideOpen 400ms ease-out 100ms both;
+    animation: slideOpen 400ms cubic-bezier(0.33, 1, 0.68, 1) 100ms both;
 
     @media (prefers-reduced-motion: reduce) {
         animation: none;
@@ -16,7 +17,7 @@
 
 @keyframes slideOpen {
     from {
-        transform: translateY(-48px);
+        transform: translateY(calc(-100% + 32px));
     }
 
     to {
@@ -25,10 +26,13 @@
 }
 
 .card {
+    /* Full radii like native (16,16,19,19) — top crescents show under the pill curve */
     background: var(--ds-color-theme-surface-tertiary);
-    border-radius: 0 0 12px 12px;
+    border-radius: 12px;
     box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.1), 0 4px 8px 0 rgba(0, 0, 0, 0.08);
     outline: 1px solid var(--ds-color-theme-control-raised-backdrop);
+    /* Empty tuck zone under the pill (native row height 31 + hairline ≈ 32) */
+    padding-top: 32px;
 
     [data-background-kind='color'] [data-theme='light'] &,
     [data-background-kind='gradient'] [data-theme='light'] &,
@@ -84,7 +88,7 @@
 
 :global(body[data-rebrand='true']) {
     .card {
-        border-radius: 0 0 var(--ds-radius-x06) var(--ds-radius-x06);
+        border-radius: var(--ds-radius-x06);
         box-shadow:
             0 10px 20px 0 rgba(0, 0, 0, 0.02),
             0 2px 6px 0 rgba(0, 0, 0, 0.06),
