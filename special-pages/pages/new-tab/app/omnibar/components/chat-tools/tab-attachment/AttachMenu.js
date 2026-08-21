@@ -237,6 +237,7 @@ function OpenDropdownBody({
 
     const recentTabs = openTabs.slice(0, MAX_INLINE_RECENT_TABS);
     const showGutter = recentTabs.some((tab) => isAttached(tab.tabId));
+    const noTabsAvailable = !isLoadingTabs && openTabs.length === 0;
 
     /** @returns {import('preact').ComponentChildren[]} */
     const renderRecentTabRows = () => {
@@ -244,7 +245,7 @@ function OpenDropdownBody({
             return [<TabStatusRow key="loading" text={t('omnibar_attachTabsLoading')} />];
         }
         if (recentTabs.length === 0) {
-            return [<TabStatusRow key="empty" text={t('omnibar_attachTabsNoOpenTabs')} />];
+            return [<TabStatusRow key="empty" text={t('omnibar_attachTabsNoPageContent')} />];
         }
         return recentTabs.map((tab) => (
             <TabRow
@@ -283,10 +284,11 @@ function OpenDropdownBody({
                 showCheckGutter={showGutter}
                 icon={<TabContentAttachIcon class={styles.menuItemIcon} />}
                 name={t('omnibar_attachPageContentLabel')}
+                disabled={noTabsAvailable}
                 onSelect={onOpenTabsModal}
             />
             <DropdownSeparator />
-            <TabsSectionHeader label={t('omnibar_attachTabsRecentTabs')} showGutter={showGutter} />
+            {recentTabs.length > 0 && <TabsSectionHeader label={t('omnibar_attachTabsRecentTabs')} showGutter={showGutter} />}
             {renderRecentTabRows()}
         </Dropdown>
     );

@@ -1,2 +1,2 @@
-- fix(broker-protection): preserve matched CAPTCHA context (#2976)
-- fix(NTP): restore native scrollbar on macOS (#2967)
+- NTP: UI updates to match the native (#2980)
+- Element hiding: Improve performance by taking advantage of browser selector indexing (#2977)

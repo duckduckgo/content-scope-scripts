@@ -83,7 +83,7 @@ export function AttachTabsModal({ onClose, onToggleTab, isAttached, maxTabs = Nu
             return <StatusRow text={t('omnibar_attachTabsLoading')} />;
         }
         if (visibleTabs.length === 0) {
-            return <StatusRow text={searchQuery ? t('omnibar_attachTabsNoMatches') : t('omnibar_attachTabsNoOpenTabs')} />;
+            return <StatusRow text={searchQuery ? t('omnibar_attachTabsNoMatches') : t('omnibar_attachTabsNoPageContent')} />;
         }
         return visibleTabs.map((tab) => {
             const isStaged = stagedTabIds.has(tab.tabId);

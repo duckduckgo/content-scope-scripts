@@ -8247,8 +8247,12 @@
   function hideAdNodes(rules) {
     const document2 = globalThis.document;
     rules.filter(hasSelector).forEach((rule) => {
-      const selector = forgivingSelector(rule.selector);
-      const matchingElementArray = [...document2.querySelectorAll(selector)];
+      let matchingElementArray;
+      try {
+        matchingElementArray = [...document2.querySelectorAll(querySelectorFor(rule.selector))];
+      } catch {
+        return;
+      }
       matchingElementArray.forEach((element) => {
         collapseDomNode(element, rule);
       });
@@ -8257,8 +8261,12 @@
   function unhideLoadedAds() {
     const document2 = globalThis.document;
     appliedRules.forEach((rule) => {
-      const selector = forgivingSelector(rule.selector);
-      const matchingElementArray = [...document2.querySelectorAll(selector)];
+      let matchingElementArray;
+      try {
+        matchingElementArray = [...document2.querySelectorAll(querySelectorFor(rule.selector))];
+      } catch {
+        return;
+      }
       matchingElementArray.forEach((element) => {
         expandNonEmptyDomNode(element, rule);
       });
@@ -8266,6 +8274,9 @@
   }
   function forgivingSelector(selector) {
     return `:is(${selector})`;
+  }
+  function querySelectorFor(selector) {
+    return selector.includes(",") ? forgivingSelector(selector) : selector;
   }
   var ElementHiding = class extends ContentFeature {
     init() {

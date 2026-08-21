@@ -401,9 +401,9 @@
     "title": "No matching tabs",
     "description": "Empty-state message shown when no open tabs match what the user typed, in the @-mention tab picker and the Add Tabs dialog search."
   },
-  "omnibar_attachTabsNoOpenTabs": {
-    "title": "No open tabs",
-    "description": "Empty-state message shown in the attach dropdown's Recent Tabs section and the Add Tabs dialog when there are no open tabs available to attach."
+  "omnibar_attachTabsNoPageContent": {
+    "title": "No page content available",
+    "description": "Empty-state message shown in the attach dropdown and the Add Tabs dialog when there are no open tabs with attachable page content."
   },
   "omnibar_removeAttachedTabLabel": {
     "title": "Remove {title}",

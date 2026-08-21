@@ -13466,13 +13466,15 @@
     const { getOpenTabs } = x2(OmnibarContext);
     const [rawTabs, setRawTabs] = useStateWithLocalPersistence3(tabId);
     const [isFetching, setIsFetching] = d2(false);
+    const [hasFetched, setHasFetched] = d2(false);
     const openTabs = T2(() => [...rawTabs].reverse(), [rawTabs]);
-    const isLoadingTabs = isFetching && rawTabs.length === 0;
+    const isLoadingTabs = isFetching && !hasFetched && rawTabs.length === 0;
     const refetchTabs = q2(async () => {
       setIsFetching(true);
       try {
         const response = await getOpenTabs();
         setRawTabs(response.tabs ?? []);
+        setHasFetched(true);
       } catch (err) {
         console.error("omnibar_getOpenTabs failed", err);
       } finally {
@@ -13619,7 +13621,7 @@
         return /* @__PURE__ */ k(StatusRow, { text: t4("omnibar_attachTabsLoading") });
       }
       if (visibleTabs.length === 0) {
-        return /* @__PURE__ */ k(StatusRow, { text: searchQuery ? t4("omnibar_attachTabsNoMatches") : t4("omnibar_attachTabsNoOpenTabs") });
+        return /* @__PURE__ */ k(StatusRow, { text: searchQuery ? t4("omnibar_attachTabsNoMatches") : t4("omnibar_attachTabsNoPageContent") });
       }
       return visibleTabs.map((tab) => {
         const isStaged = stagedTabIds.has(tab.tabId);
@@ -13948,12 +13950,13 @@
     const { openTabs, isLoadingTabs } = x2(OpenTabsContext);
     const recentTabs = openTabs.slice(0, MAX_INLINE_RECENT_TABS);
     const showGutter = recentTabs.some((tab) => isAttached(tab.tabId));
+    const noTabsAvailable = !isLoadingTabs && openTabs.length === 0;
     const renderRecentTabRows = () => {
       if (isLoadingTabs) {
         return [/* @__PURE__ */ k(TabStatusRow, { key: "loading", text: t4("omnibar_attachTabsLoading") })];
       }
       if (recentTabs.length === 0) {
-        return [/* @__PURE__ */ k(TabStatusRow, { key: "empty", text: t4("omnibar_attachTabsNoOpenTabs") })];
+        return [/* @__PURE__ */ k(TabStatusRow, { key: "empty", text: t4("omnibar_attachTabsNoPageContent") })];
       }
       return recentTabs.map((tab) => /* @__PURE__ */ k(
         TabRow,
@@ -13996,11 +13999,12 @@
           showCheckGutter: showGutter,
           icon: /* @__PURE__ */ k(TabContentAttachIcon, { class: AttachMenu_default.menuItemIcon }),
           name: t4("omnibar_attachPageContentLabel"),
+          disabled: noTabsAvailable,
           onSelect: onOpenTabsModal
         }
       ),
       /* @__PURE__ */ k(DropdownSeparator, null),
-      /* @__PURE__ */ k(TabsSectionHeader, { label: t4("omnibar_attachTabsRecentTabs"), showGutter }),
+      recentTabs.length > 0 && /* @__PURE__ */ k(TabsSectionHeader, { label: t4("omnibar_attachTabsRecentTabs"), showGutter }),
       renderRecentTabRows()
     );
   }
@@ -36464,9 +36468,9 @@
       title: "No matching tabs",
       description: "Empty-state message shown when no open tabs match what the user typed, in the @-mention tab picker and the Add Tabs dialog search."
     },
-    omnibar_attachTabsNoOpenTabs: {
-      title: "No open tabs",
-      description: "Empty-state message shown in the attach dropdown's Recent Tabs section and the Add Tabs dialog when there are no open tabs available to attach."
+    omnibar_attachTabsNoPageContent: {
+      title: "No page content available",
+      description: "Empty-state message shown in the attach dropdown and the Add Tabs dialog when there are no open tabs with attachable page content."
     },
     omnibar_removeAttachedTabLabel: {
       title: "Remove {title}",
