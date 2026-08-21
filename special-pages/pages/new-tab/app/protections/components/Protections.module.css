@@ -137,7 +137,7 @@
     }
 
     .switcher {
-        background: var(--ds-color-theme-control-fill-primary);
+        background: var(--ds-color-theme-control-fill-tertiary);
         border: 1px solid var(--ntp-surface-border-color, var(--ds-color-theme-container-border-primary));
         border-radius: var(--ds-radius-full);
         padding: var(--ds-space-x-5);
@@ -166,9 +166,9 @@
        --tab-index, so switching feed animates instead of instantly
        swapping which button has a background. */
     .blob {
-        background-color: var(--ds-color-theme-control-raised-fill-primary);
+        background-color: var(--ds-input-control-primary-background-color);
         border-radius: var(--ds-radius-full);
-        box-shadow: 0 1px 0 0 var(--ds-color-theme-tone-tint-primary) inset, 0 1px 4px 0 var(--ds-color-theme-shadow-secondary), 0 4px 8px 0 var(--ds-color-theme-shadow-secondary);
+        box-shadow: var(--ds-input-control-shadow-primary);
         height: calc(100% - var(--ds-space-x-5) * 2);
         left: var(--ds-space-x-5);
         position: absolute;
