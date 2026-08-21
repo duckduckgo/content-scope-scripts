@@ -45,7 +45,7 @@
 
 :global(body[data-rebrand="true"]) .customizeButton {
     backdrop-filter: none;
-    background-color: var(--ds-input-control-primary-background-color);
+    background-color: var(--ds-color-theme-control-fill-primary);
     border: none;
     border-radius: var(--ds-radius-x06);
     padding: var(--ds-space-x02) var(--ds-space-x04);
