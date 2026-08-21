@@ -155,6 +155,10 @@
     "title": "Apply response customization",
     "description": "Accessible label for the on/off toggle that applies or unapplies the saved response customization, shown on the Customize Responses tools menu row."
   },
+  "omnibar_usageLimitsOpusMessage": {
+    "title": "Opus 4.8 reaches usage limits 2-5x sooner than basic models.",
+    "description": "Educational message shown in the AI-mode usage limits drawer when Opus 4.8 is selected."
+  },
   "omnibar_imageGenerationWithAttachmentPlaceholder": {
     "title": "Describe changes based on the image",
     "description": "Placeholder text for the AI chat input when image generation mode is active and an image is attached."
