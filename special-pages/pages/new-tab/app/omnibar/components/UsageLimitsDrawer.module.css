@@ -66,6 +66,12 @@
     flex-shrink: 0;
     height: 16px;
     width: 16px;
+
+    /* Match omnibar toolbar icons (Tools/paperclip); default InfoIcon fill is too light */
+    :global(.info-icon-fill) {
+        fill: var(--ds-color-theme-icons-primary);
+        fill-opacity: 1;
+    }
 }
 
 .message {
