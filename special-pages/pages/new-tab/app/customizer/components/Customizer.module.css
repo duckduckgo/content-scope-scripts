@@ -63,6 +63,17 @@
     }
 }
 
+:global(body[data-rebrand="true"][data-background-kind="color"]),
+:global(body[data-rebrand="true"][data-background-kind="gradient"]),
+:global(body[data-rebrand="true"][data-background-kind="userImage"]) {
+    .customizeButton {
+        backdrop-filter: blur(48px);
+        background-color: var(--ds-color-theme-container-fill-secondary);
+        border: 1px solid var(--ds-color-theme-container-border-secondary);
+        box-shadow: var(--ntp-card-shadow-rest);
+    }
+}
+
 .popover {
     --popover-offset-x: -10px;
     --popover-offset-y: -3px;
