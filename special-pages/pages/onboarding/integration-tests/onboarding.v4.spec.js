@@ -902,6 +902,43 @@ test.describe('onboarding v4', () => {
         });
     });
 
+    test.describe('bubble height measurement', () => {
+        test('reports bubble height synchronously before ResizeObserver delivers', async ({ page }, workerInfo) => {
+            // ResizeObserver's first callback runs after paint; without a synchronous report in
+            // Bubble's layout effect, SingleStep paints one frame with height 0 and mis-positions
+            // in-flow content on short viewports (#2925).
+            await page.addInitScript(() => {
+                class SilentResizeObserver {
+                    constructor(callback) {
+                        this.callback = callback;
+                    }
+                    observe() {
+                        // Intentionally silent — only synchronous measurement should set height.
+                    }
+                    disconnect() {}
+                }
+                window.ResizeObserver = SilentResizeObserver;
+            });
+
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: null,
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'getStarted' });
+
+            await expect(page.getByRole('heading', { name: 'Hi there' })).toBeVisible();
+
+            const bottomHeight = await page.evaluate(() => {
+                const layout = document.querySelector('[style*="--bubble-bottom-height"]');
+                return layout ? getComputedStyle(layout).getPropertyValue('--bubble-bottom-height').trim() : '';
+            });
+
+            expect(bottomHeight).not.toBe('0px');
+            expect(parseFloat(bottomHeight)).toBeGreaterThan(0);
+        });
+    });
+
     test.describe('Chrome extension checkbox on getStarted step', () => {
         test('checkbox is NOT shown by default', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
