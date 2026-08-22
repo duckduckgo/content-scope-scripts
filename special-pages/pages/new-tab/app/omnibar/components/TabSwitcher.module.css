@@ -76,7 +76,7 @@
  */
 :global(body[data-rebrand="true"]) {
     .tabSwitcher {
-        background: var(--ds-color-theme-control-fill-primary);
+        background: var(--ds-input-control-secondary-background-color);
         backdrop-filter: none;
     }
 
@@ -93,8 +93,28 @@
     }
 
     .blob {
-        [data-theme="dark"] & {
-            box-shadow: none;
-        }
+        background: var(--ds-input-control-primary-background-color);
+        box-shadow: 0 0 0 1px var(--ds-input-control-shadow-primary);
+    }
+}
+
+/*
+ * Custom background mode: keep semantic tokens; the value swap happens in
+ * shared/styles/theme-mappings.css under the same selector. Adds backdrop-filter
+ * (not a design token) for the frosted-glass effect.
+ */
+:global(body[data-rebrand="true"]:not([data-background-kind="default"])) {
+    .tabSwitcher {
+        backdrop-filter: blur(24px);
+        background: var(--ds-input-control-secondary-background-color);
+    }
+
+    .blob {
+        background: var(--ds-input-control-primary-background-color);
+        /* In dark custom BG mode the semantic --ds-input-control-shadow-primary is
+         * remapped to `transparent`, so this ring renders as invisible (matches
+         * Chris's `box-shadow: none` for dark active). Light custom BG uses
+         * black-at-6 for the ring. */
+        box-shadow: 0 0 0 1px var(--ds-input-control-shadow-primary);
     }
 }

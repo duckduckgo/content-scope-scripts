@@ -71,16 +71,23 @@ body[data-rebrand="true"] [data-has-theme-variants="true"] {
 }
 
 /*
- * NTP rebrand: darker veil for legibility on dark + custom background.
- * data-rebrand and data-background-kind both live on <body>, so they must be
- * compounded (no descendant combinator) to actually match; data-theme lives
- * on a descendant (main/aside), which does need the descendant combinator.
+ * NTP rebrand: use semantic Container tokens for surfaces on custom backgrounds.
+ * Figma specifies Container/Fill-Secondary + Container/Border-Secondary for
+ * cards (Protections, NextSteps, RMF, etc.) on all custom background kinds.
+ *
+ * Selector notes (per tech-design-custom-background-implementation.md):
+ * - :not([data-background-kind="default"]) covers color/gradient/userImage
+ *   with a single selector — avoids listing each kind separately.
+ * - Scoped to main[data-theme] and .themeContext[data-theme] (never bare
+ *   [data-theme]) so the Customizer <aside> (which carries browserMode on its
+ *   own data-theme attribute) is not affected by custom-background mappings.
  */
-body[data-rebrand="true"][data-background-kind="color"],
-body[data-rebrand="true"][data-background-kind="gradient"],
-body[data-rebrand="true"][data-background-kind="userImage"] {
-    [data-theme="dark"] {
-        --ntp-surface-background-color: var(--ds-color-black-at-50, rgba(0, 0, 0, 0.5));
+body[data-rebrand="true"]:not([data-background-kind="default"]) {
+    main[data-theme="light"], .themeContext[data-theme="light"],
+    main[data-theme="dark"],  .themeContext[data-theme="dark"] {
+        --ntp-surface-background-color: var(--ds-color-theme-container-fill-secondary);
+        --ntp-surface-border-color: var(--ds-color-theme-container-border-secondary);
+        --ntp-surface-box-shadow: var(--ntp-card-shadow-rest);
     }
 }
 

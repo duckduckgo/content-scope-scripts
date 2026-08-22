@@ -1,7 +1,8 @@
 .root {
     background: var(--ntp-surface-background-color);
+    box-shadow: var(--ntp-surface-box-shadow, none);
     backdrop-filter: blur(48px);
-    border: 1px solid var(--ds-color-theme-container-border-primary);
+    border: 1px solid var(--ntp-surface-border-color, var(--ds-color-theme-container-border-primary));
     padding: var(--sp-6);
     border-radius: var(--border-radius-lg);
     display: grid;
@@ -17,7 +18,7 @@
     }
 
     [data-theme=dark] & {
-        border-color: var(--color-white-at-9);
+        border-color: var(--ntp-surface-border-color, var(--color-white-at-9));
     }
 }
 
@@ -136,8 +137,8 @@
     }
 
     .switcher {
-        background: var(--ds-color-theme-control-fill-primary);
-        border: 1px solid var(--ds-color-theme-container-border-primary);
+        background: var(--ds-color-theme-control-fill-tertiary);
+        border: 1px solid var(--ntp-surface-border-color, var(--ds-color-theme-container-border-primary));
         border-radius: var(--ds-radius-full);
         padding: var(--ds-space-x-5);
         position: relative;
@@ -165,9 +166,9 @@
        --tab-index, so switching feed animates instead of instantly
        swapping which button has a background. */
     .blob {
-        background-color: var(--ds-color-theme-control-raised-fill-primary);
+        background-color: var(--ds-input-control-primary-background-color);
         border-radius: var(--ds-radius-full);
-        box-shadow: 0 1px 0 0 var(--ds-color-theme-tone-tint-primary) inset, 0 1px 4px 0 var(--ds-color-theme-shadow-secondary), 0 4px 8px 0 var(--ds-color-theme-shadow-secondary);
+        box-shadow: var(--ds-input-control-shadow-primary);
         height: calc(100% - var(--ds-space-x-5) * 2);
         left: var(--ds-space-x-5);
         position: absolute;

@@ -183,3 +183,17 @@ body[data-rebrand="true"] {
         }
     }
 }
+
+/* Rebrand: Figma specifies Container/Fill-Secondary + Container/Border-Secondary
+   for Favorites tiles on custom backgrounds — override the global
+   ntp-surface-background-color which defaults to black-at-50 here. */
+body[data-rebrand="true"]:not([data-background-kind="default"]) {
+    .draggable {
+        background: var(--ds-color-theme-container-fill-secondary);
+        border: 1px solid var(--ds-color-theme-container-border-secondary);
+
+        &:hover {
+            background: var(--ds-color-white-at-60, rgba(255, 255, 255, 0.6));
+        }
+    }
+}

@@ -2,7 +2,7 @@ import { Fragment, h } from 'preact';
 import { useCallback, useContext, useRef, useState } from 'preact/hooks';
 import { ArrowRightIcon, LogoStacked, VoiceIcon } from '../../components/Icons';
 import { eventToTarget } from '../../../../../shared/handlers';
-import { usePlatformName } from '../../settings.provider';
+import { usePlatformName, useNewTabPageRebranding } from '../../settings.provider';
 import { useTypedTranslationWith } from '../../types';
 import { AiChatForm } from './AiChatForm';
 import aiChatFormStyles from './AiChatForm.module.css';
@@ -35,6 +35,7 @@ import { MentionPicker } from './chat-tools/tab-attachment/MentionPicker';
 import { OpenTabsProvider } from './chat-tools/tab-attachment/OpenTabsProvider';
 import { useMentionPicker } from './chat-tools/tab-attachment/useMentionPicker';
 import { useTabAttachments } from './chat-tools/tab-attachment/useTabAttachments';
+import { useKeyboardFocusWithin } from './useKeyboardFocusWithin.js';
 
 /**
  * @typedef {typeof import('../strings.json')} Strings
@@ -74,6 +75,19 @@ export function Omnibar({
     const [query, setQuery] = useQueryWithLocalPersistence(tabId);
     const [resetKey, setResetKey] = useState(0);
     const [autoFocus, setAutoFocus] = useState(false);
+    /*
+     * Lifted here (rather than into SearchForm/AiChatForm individually) for two reasons:
+     * 1. .popup wraps whichever form is mounted, so both the search input and the Duck.ai
+     *    textarea get the keyboard-only focus ring for free via the existing generic
+     *    `input:focus, textarea:focus` selectors in Omnibar.module.css — no per-form wiring.
+     * 2. This div remounts on every resetKey bump (search submit, suggestion open, chat
+     *    submit) and on every mode switch; instantiating the hook up here, in Omnibar's own
+     *    render (which doesn't remount), keeps its document listeners attached once instead
+     *    of tearing them down and re-adding them on every submit.
+     * `enabled: rebrand` skips listeners on legacy NTP (pill-ring CSS is rebrand-only).
+     */
+    const rebrand = useNewTabPageRebranding();
+    const { keyboardFocusWithinProps } = useKeyboardFocusWithin({ enabled: rebrand });
     const { openSuggestion, submitSearch, submitChat, setShowCustomizePopover } = useContext(OmnibarContext);
 
     const { open: openCustomizer } = useDrawerControls();
@@ -151,7 +165,7 @@ export function Omnibar({
                     showViewAllAiChats={showViewAllAiChats}
                 >
                     <div class={styles.spacer}>
-                        <div class={styles.popup}>
+                        <div class={styles.popup} {...keyboardFocusWithinProps}>
                             {mode === 'search' ? (
                                 <>
                                     <ResizingContainer className={styles.field}>
