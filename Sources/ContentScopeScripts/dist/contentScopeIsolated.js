@@ -17,11 +17,20 @@
     if (typeof require !== "undefined") return require.apply(this, arguments);
     throw Error('Dynamic require of "' + x2 + '" is not supported');
   });
-  var __esm = (fn, res) => function __init() {
-    return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
+  var __esm = (fn, res, err) => function __init() {
+    if (err) throw err[0];
+    try {
+      return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
+    } catch (e) {
+      throw err = [e], e;
+    }
   };
   var __commonJS = (cb, mod) => function __require2() {
-    return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+    try {
+      return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+    } catch (e) {
+      throw mod = 0, e;
+    }
   };
   var __export = (target, all) => {
     for (var name in all)
@@ -3794,7 +3803,7 @@
       if (isJSONObject(value)) {
         value = value[path[i]];
       } else if (isJSONArray(value)) {
-        value = value[Number.parseInt(path[i])];
+        value = value[Number.parseInt(path[i], 10)];
       } else {
         value = void 0;
       }
@@ -3802,8 +3811,7 @@
     }
     return value;
   }
-  function setIn(object, path, value) {
-    let createPath = arguments.length > 3 && arguments[3] !== void 0 ? arguments[3] : false;
+  function setIn(object, path, value, createPath = false) {
     if (path.length === 0) {
       return value;
     }
@@ -3845,7 +3853,7 @@
       }
       const updatedObject = shallowClone(object);
       if (isJSONArray(updatedObject)) {
-        updatedObject.splice(Number.parseInt(key2), 1);
+        updatedObject.splice(Number.parseInt(key2, 10), 1);
       }
       if (isJSONObject(updatedObject)) {
         delete updatedObject[key2];
@@ -3864,7 +3872,7 @@
         throw new TypeError(`Array expected at path ${JSON.stringify(parentPath)}`);
       }
       const updatedItems = shallowClone(items);
-      updatedItems.splice(Number.parseInt(index), 0, value);
+      updatedItems.splice(Number.parseInt(index, 10), 0, value);
       return updatedItems;
     });
   }
