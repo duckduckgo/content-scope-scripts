@@ -1,7 +1,8 @@
-import { h } from 'preact';
+import { Fragment, h } from 'preact';
 import { useContext, useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import cn from 'classnames';
 import { useTypedTranslationWith } from '../../../../types';
+import { usePlatformName } from '../../../../settings.provider';
 import { Check12Icon, SearchIcon } from '../../../../components/Icons';
 import { OpenTabsContext } from './OpenTabsProvider';
 import { TabFavicon } from './TabFavicon';
@@ -26,6 +27,7 @@ import styles from './AttachTabsModal.module.css';
  */
 export function AttachTabsModal({ onClose, onToggleTab, isAttached, maxTabs = Number.POSITIVE_INFINITY }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
+    const platformName = usePlatformName();
     const { openTabs, isLoadingTabs, refetchTabs } = useContext(OpenTabsContext);
 
     const seedStagedIds = () => new Set(openTabs.filter((tab) => isAttached(tab.tabId)).map((tab) => tab.tabId));
@@ -117,6 +119,17 @@ export function AttachTabsModal({ onClose, onToggleTab, isAttached, maxTabs = Nu
         });
     };
 
+    const cancelButton = (
+        <button type="button" class={cn(styles.tabsFooterButton, styles.tabsFooterButtonSecondary)} onClick={onClose}>
+            {t('omnibar_attachTabsCancel')}
+        </button>
+    );
+    const confirmButton = (
+        <button type="button" class={cn(styles.tabsFooterButton, styles.tabsFooterButtonPrimary)} onClick={handleAttach}>
+            {t('omnibar_attachTabsConfirm')}
+        </button>
+    );
+
     // Native <dialog> + showModal(): the top layer positions against the viewport, so the
     // omnibar `.popup`'s `backdrop-filter` (applied on non-default backgrounds) can't trap
     // the modal inside the omnibar box the way a `position: fixed` overlay would be.
@@ -160,13 +173,19 @@ export function AttachTabsModal({ onClose, onToggleTab, isAttached, maxTabs = Nu
                     {renderRows()}
                 </ul>
             </div>
+            {/* Windows convention places the primary action first; macOS places it last. */}
             <footer class={styles.tabsModalFooter}>
-                <button type="button" class={cn(styles.tabsFooterButton, styles.tabsFooterButtonSecondary)} onClick={onClose}>
-                    {t('omnibar_attachTabsCancel')}
-                </button>
-                <button type="button" class={cn(styles.tabsFooterButton, styles.tabsFooterButtonPrimary)} onClick={handleAttach}>
-                    {t('omnibar_attachTabsConfirm')}
-                </button>
+                {platformName === 'windows' ? (
+                    <Fragment>
+                        {confirmButton}
+                        {cancelButton}
+                    </Fragment>
+                ) : (
+                    <Fragment>
+                        {cancelButton}
+                        {confirmButton}
+                    </Fragment>
+                )}
             </footer>
         </dialog>
     );
