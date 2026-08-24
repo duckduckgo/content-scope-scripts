@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Cursor's afterFileEdit bash hook hangs on Windows (leaves dead terminals).
+# Keep formatting for macOS/Linux; no-op immediately on Win32/Git Bash.
+if [[ "${OS:-}" == "Windows_NT" ]] || [[ "$(uname -s 2>/dev/null || true)" =~ ^(MINGW|MSYS|CYGWIN) ]]; then
+    exit 0
+fi
+
 payload="$(cat)"
 
 if [[ -z "$payload" ]]; then
