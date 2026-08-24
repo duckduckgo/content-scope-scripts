@@ -45,7 +45,7 @@ export default class UaChBrands extends ContentFeature {
             const targetBrand = this.getBrandOverride();
             const mutatedBrands = this.applyBrandMutationsToList(this.originalBrands, targetBrand);
 
-            if (mutatedBrands.length) {
+            if (mutatedBrands.length && !this.brandListsMatch(this.originalBrands, mutatedBrands)) {
                 this.log.info(
                     'shimUserAgentDataBrands - about to apply override with:',
                     mutatedBrands.map((b) => `"${b.brand}" v${b.version}`).join(', '),
@@ -59,15 +59,26 @@ export default class UaChBrands extends ContentFeature {
     }
 
     /**
-     * Append target brand to the brands list, using the Chromium version
+     * Ensure the brands list carries the target brand exactly once, using the Chromium version
      * @param {Array<{brand: string, version: string}>} list - Original brands list
-     * @param {string} targetBrand - Brand name to append
+     * @param {string} targetBrand - Brand name to apply
      * @returns {Array<{brand: string, version: string}>} - Modified brands array
      */
     applyBrandMutationsToList(list, targetBrand) {
         if (!Array.isArray(list) || !list.length) {
             this.log.info('applyBrandMutationsToList - no brands to mutate');
             return [];
+        }
+
+        if (list.some((b) => b.brand === targetBrand)) {
+            return [...list];
+        }
+
+        // Chromium supplies the brand itself when --ddg-user-agent-brand is passed, so a host taking a
+        // different brand needs that entry renamed rather than a second one appended.
+        if (list.some((b) => b.brand === 'DuckDuckGo')) {
+            this.log.info(`Renamed "DuckDuckGo" to "${targetBrand}"`);
+            return list.map((b) => (b.brand === 'DuckDuckGo' ? { brand: targetBrand, version: b.version } : b));
         }
 
         const mutated = [...list];
@@ -80,6 +91,15 @@ export default class UaChBrands extends ContentFeature {
         const brandNames = mutated.map((b) => `"${b.brand}" v${b.version}`).join(', ');
         this.log.info(`Final brands: [${brandNames}]`);
         return mutated;
+    }
+
+    /**
+     * @param {Array<{brand: string, version: string}>} a
+     * @param {Array<{brand: string, version: string}>} b
+     * @returns {boolean}
+     */
+    brandListsMatch(a, b) {
+        return a.length === b.length && a.every((entry, index) => entry.brand === b[index].brand && entry.version === b[index].version);
     }
 
     /**
