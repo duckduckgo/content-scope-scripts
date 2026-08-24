@@ -17,20 +17,11 @@
     if (typeof require !== "undefined") return require.apply(this, arguments);
     throw Error('Dynamic require of "' + x2 + '" is not supported');
   });
-  var __esm = (fn, res, err) => function __init() {
-    if (err) throw err[0];
-    try {
-      return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
-    } catch (e) {
-      throw err = [e], e;
-    }
+  var __esm = (fn, res) => function __init() {
+    return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
   };
   var __commonJS = (cb, mod) => function __require2() {
-    try {
-      return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
-    } catch (e) {
-      throw mod = 0, e;
-    }
+    return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
   };
   var __export = (target, all) => {
     for (var name in all)
@@ -5147,7 +5138,7 @@
       if (isJSONObject(value)) {
         value = value[path[i]];
       } else if (isJSONArray(value)) {
-        value = value[Number.parseInt(path[i], 10)];
+        value = value[Number.parseInt(path[i])];
       } else {
         value = void 0;
       }
@@ -5155,7 +5146,8 @@
     }
     return value;
   }
-  function setIn(object, path, value, createPath = false) {
+  function setIn(object, path, value) {
+    let createPath = arguments.length > 3 && arguments[3] !== void 0 ? arguments[3] : false;
     if (path.length === 0) {
       return value;
     }
@@ -5197,7 +5189,7 @@
       }
       const updatedObject = shallowClone(object);
       if (isJSONArray(updatedObject)) {
-        updatedObject.splice(Number.parseInt(key2, 10), 1);
+        updatedObject.splice(Number.parseInt(key2), 1);
       }
       if (isJSONObject(updatedObject)) {
         delete updatedObject[key2];
@@ -5216,7 +5208,7 @@
         throw new TypeError(`Array expected at path ${JSON.stringify(parentPath)}`);
       }
       const updatedItems = shallowClone(items);
-      updatedItems.splice(Number.parseInt(index, 10), 0, value);
+      updatedItems.splice(Number.parseInt(index), 0, value);
       return updatedItems;
     });
   }
@@ -19159,7 +19151,7 @@ ul.messages {
         );
         const targetBrand = this.getBrandOverride();
         const mutatedBrands = this.applyBrandMutationsToList(this.originalBrands, targetBrand);
-        if (mutatedBrands.length) {
+        if (mutatedBrands.length && !this.brandListsMatch(this.originalBrands, mutatedBrands)) {
           this.log.info(
             "shimUserAgentDataBrands - about to apply override with:",
             mutatedBrands.map((b2) => `"${b2.brand}" v${b2.version}`).join(", ")
@@ -19172,15 +19164,22 @@ ul.messages {
       }
     }
     /**
-     * Append target brand to the brands list, using the Chromium version
+     * Ensure the brands list carries the target brand exactly once, using the Chromium version
      * @param {Array<{brand: string, version: string}>} list - Original brands list
-     * @param {string} targetBrand - Brand name to append
+     * @param {string} targetBrand - Brand name to apply
      * @returns {Array<{brand: string, version: string}>} - Modified brands array
      */
     applyBrandMutationsToList(list, targetBrand) {
       if (!Array.isArray(list) || !list.length) {
         this.log.info("applyBrandMutationsToList - no brands to mutate");
         return [];
+      }
+      if (list.some((b2) => b2.brand === targetBrand)) {
+        return [...list];
+      }
+      if (list.some((b2) => b2.brand === "DuckDuckGo")) {
+        this.log.info(`Renamed "DuckDuckGo" to "${targetBrand}"`);
+        return list.map((b2) => b2.brand === "DuckDuckGo" ? { brand: targetBrand, version: b2.version } : b2);
       }
       const mutated = [...list];
       const chromium = mutated.find((b2) => b2.brand === "Chromium");
@@ -19191,6 +19190,14 @@ ul.messages {
       const brandNames = mutated.map((b2) => `"${b2.brand}" v${b2.version}`).join(", ");
       this.log.info(`Final brands: [${brandNames}]`);
       return mutated;
+    }
+    /**
+     * @param {Array<{brand: string, version: string}>} a
+     * @param {Array<{brand: string, version: string}>} b
+     * @returns {boolean}
+     */
+    brandListsMatch(a2, b2) {
+      return a2.length === b2.length && a2.every((entry, index) => entry.brand === b2[index].brand && entry.version === b2[index].version);
     }
     /**
      * Apply the brand override to navigator.userAgentData
