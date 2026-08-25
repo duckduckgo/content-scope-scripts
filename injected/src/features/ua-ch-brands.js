@@ -1,4 +1,4 @@
-import ContentFeature from '../content-feature';
+import ContentFeature from '../content-feature.js';
 import { DDGReflect } from '../utils';
 
 export default class UaChBrands extends ContentFeature {
