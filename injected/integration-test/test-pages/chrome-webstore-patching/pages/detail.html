@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Chrome Web Store detail page (fixture)</title>
+        <!--
+            Structural stand-in for a chromewebstore.google.com extension detail page.
+            Mirrors the recon'd button component: button[jsname="wQO0od"] containing
+            sibling icon/ripple spans plus the text-label span.UywwFc-vQzf8d.
+            TODO: replace inner markup with sanitized outerHTML from the DDG Windows build.
+        -->
+    </head>
+    <body>
+        <header>
+            <h1>Bitwarden Password Manager (fixture)</h1>
+        </header>
+        <section itemprop="detail">
+            <button class="UywwFc-LgbsSe" jsname="wQO0od" jsaction="click:trigger">
+                <span class="UywwFc-icon" aria-hidden="true"></span>
+                <span class="UywwFc-ripple" aria-hidden="true"></span>
+                <span class="UywwFc-vQzf8d">Add to Chrome</span>
+                <span class="UywwFc-trailing" aria-hidden="true"></span>
+            </button>
+        </section>
+
+        <nav>
+            <!-- SPA-navigation drivers for the spec (favicon test-page pattern) -->
+            <button id="nav-curated">Go to curated detail</button>
+            <button id="nav-uncurated">Go to uncurated detail</button>
+            <button id="rerender">Re-render install button</button>
+        </nav>
+
+        <script type="module">
+            document.getElementById('nav-curated').addEventListener('click', () => {
+                history.pushState({}, '', '/detail/bitwarden-password-manage/nngceckbapebfimnlniiiahkandclblb');
+            });
+            document.getElementById('nav-uncurated').addEventListener('click', () => {
+                history.pushState({}, '', '/detail/some-other-extension/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
+            });
+            // Simulates the store's framework replacing the button node on hydration/state change
+            document.getElementById('rerender').addEventListener('click', () => {
+                const old = document.querySelector('button[jsname="wQO0od"]');
+                if (!old) return;
+                const fresh = old.cloneNode(false);
+                fresh.innerHTML =
+                    '<span class="UywwFc-icon" aria-hidden="true"></span>' +
+                    '<span class="UywwFc-ripple" aria-hidden="true"></span>' +
+                    '<span class="UywwFc-vQzf8d">Add to Chrome</span>' +
+                    '<span class="UywwFc-trailing" aria-hidden="true"></span>';
+                old.replaceWith(fresh);
+            });
+        </script>
+    </body>
+</html>
