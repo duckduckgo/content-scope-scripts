@@ -16,6 +16,17 @@ const INSTALLED_STATUSES = ['enabled', 'disabled', 'force_installed', 'terminate
 const INSTALLABLE_STATUSES = ['installable', 'can_request'];
 
 /**
+ * Per-state pill styles, applied INLINE with !important priority: the store's
+ * own stylesheet (including its disabled-button styling on non-Chrome
+ * browsers) uses !important + high-specificity selectors that can beat any
+ * rule we inject, but nothing beats an inline important declaration.
+ */
+const PILL_STYLES = {
+    curated: { background: '#F05F2B', color: '#FFFFFF', cursor: 'pointer', 'pointer-events': 'auto' },
+    unsupported: { background: '#E4E4E4', color: '#8A8A8A', cursor: 'default', 'pointer-events': 'none' },
+};
+
+/**
  * Extracts the extension ID from a Chrome Web Store detail-page path, e.g.
  * /detail/bitwarden-password-manag/nngceckbapebfimnlniiiahkandclblb
  * The slug segment is optional; IDs are exactly 32 chars of a-p.
@@ -93,6 +104,7 @@ export class ChromeWebstorePatching extends ContentFeature {
                 align-items: center !important;
                 justify-content: center !important;
                 gap: 6px !important;
+                width: fit-content !important;
                 height: 40px !important;
                 padding: 8px 16px 8px 12px !important;
                 border: none !important;
@@ -107,10 +119,13 @@ export class ChromeWebstorePatching extends ContentFeature {
                 height: 24px !important;
                 background: url("${DAX_DATA_URI}") center / contain no-repeat !important;
             }
-            html[data-ddg-webstore='curated'] ${btn} { background: #F05F2B !important; cursor: pointer !important; }
-            html[data-ddg-webstore='curated'] ${btn}, html[data-ddg-webstore='curated'] ${btn} * { color: #FFFFFF !important; }
-            html[data-ddg-webstore='unsupported'] ${btn} { background: #E4E4E4 !important; pointer-events: none !important; cursor: default !important; }
-            html[data-ddg-webstore='unsupported'] ${btn}, html[data-ddg-webstore='unsupported'] ${btn} * { color: #8A8A8A !important; }
+            html[data-ddg-webstore] ${btn} > * {
+                position: static !important;
+                transform: none !important;
+                margin: 0 !important;
+                color: inherit !important;
+                fill: currentColor !important;
+            }
             html[data-ddg-webstore='unsupported'] ${btn}::before { filter: grayscale(1) opacity(0.55) !important; }
             ${promoRule}
         `);
@@ -211,15 +226,41 @@ export class ChromeWebstorePatching extends ContentFeature {
         if (label && label.textContent !== text) {
             label.textContent = text;
         }
+        // The pill is icon + label only. Hide the store's decorative children
+        // (ripple/icon spans): even zero-width flex items consume the 6px gap,
+        // which pushed the dax icon and label apart on the real page.
+        if (label) {
+            for (const child of button.children) {
+                if (child === label || child.contains(label) || !(child instanceof HTMLElement)) continue;
+                if (child.style.getPropertyValue('display') !== 'none') {
+                    child.style.setProperty('display', 'none', 'important');
+                }
+            }
+        }
         if (button.getAttribute('aria-label') !== text) {
             button.setAttribute('aria-label', text);
         }
 
-        // The unsupported pill is inert: pointer-events are off in CSS; disabled +
-        // title cover keyboard activation and explain why (per design's tooltip)
         const isUnsupported = this._verdict === 'unsupported';
+
+        // Inline important declarations beat the store's own !important rules,
+        // including its greyed-out disabled styling on non-Chrome browsers
+        const styles = PILL_STYLES[isUnsupported ? 'unsupported' : 'curated'];
+        for (const [prop, value] of Object.entries(styles)) {
+            if (button.style.getPropertyValue(prop) !== value) {
+                button.style.setProperty(prop, value, 'important');
+            }
+        }
+
+        // The unsupported pill is inert (disabled + title tooltip). For curated
+        // verdicts, actively CLEAR the disabled state — the store disables its
+        // install/remove buttons on non-Chrome browsers and may re-apply it on
+        // re-renders (which re-trigger this via the observer).
         if (button instanceof HTMLButtonElement && button.disabled !== isUnsupported) {
             button.disabled = isUnsupported;
+        }
+        if (!isUnsupported && button.getAttribute('aria-disabled') !== null) {
+            button.removeAttribute('aria-disabled');
         }
         const description = isUnsupported && typeof copy?.unavailableDescription === 'string' ? copy.unavailableDescription : '';
         if (description && button.getAttribute('title') !== description) {

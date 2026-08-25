@@ -81,12 +81,19 @@ async function navigateTo(page, path) {
 }
 
 test.describe('chromeWebstorePatching', () => {
-    test('curated + installable → DuckDuckGo install copy', async ({ page }, testInfo) => {
+    test('curated + installable → DuckDuckGo install copy, re-enabled', async ({ page }, testInfo) => {
         await setup(page, testInfo);
         await navigateTo(page, CURATED_PATH);
         await expect(page.locator(BUTTON)).toBeVisible();
         await expect(page.locator(LABEL)).toHaveText('Add to DuckDuckGo');
         await expect(page.locator(BUTTON)).toHaveAttribute('aria-label', 'Add to DuckDuckGo');
+        // fixture button starts disabled + aria-disabled (the store disables it
+        // on non-Chrome browsers) — the feature must clear both
+        await expect(page.locator(BUTTON)).toBeEnabled();
+        await expect(page.locator(BUTTON)).not.toHaveAttribute('aria-disabled', 'true');
+        // decorative children are hidden so only icon + label consume flex gap
+        await expect(page.locator(`${BUTTON} .UywwFc-icon`)).toHaveCSS('display', 'none');
+        await expect(page.locator(`${BUTTON} .UywwFc-ripple`)).toHaveCSS('display', 'none');
     });
 
     test('curated + installed → remove copy', async ({ page }, testInfo) => {
