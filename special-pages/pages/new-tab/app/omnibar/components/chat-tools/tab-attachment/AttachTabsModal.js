@@ -173,7 +173,6 @@ export function AttachTabsModal({ onClose, onToggleTab, isAttached, maxTabs = Nu
                     {renderRows()}
                 </ul>
             </div>
-            {/* Windows convention places the primary action first; macOS places it last. */}
             <footer class={styles.tabsModalFooter}>
                 {platformName === 'windows' ? (
                     <Fragment>
