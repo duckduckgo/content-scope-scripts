@@ -10,7 +10,8 @@ const CURATED_PATH = `/detail/bitwarden-password-manage/${CURATED_ID}`;
 const UNCURATED_PATH = '/detail/some-other-extension/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 
 const BUTTON = 'button[jsname="wQO0od"]';
-const LABEL = 'span.UywwFc-vQzf8d';
+const LABEL = 'button [data-ddg-webstore-label]';
+const ORIGINAL_LABEL = 'span.UywwFc-vQzf8d';
 
 /**
  * Installed into the page BEFORE the C-S-S bundle runs (addInitScript ordering).
@@ -34,6 +35,17 @@ function mockWebstorePrivate({ statusById = {}, omit = false, errorFor = undefin
                 return;
             }
             cb(statusById[id] ?? 'installable');
+        },
+    };
+    // Test hook: lets specs flip an extension's install status mid-test
+    // @ts-expect-error - page-world globals
+    window.__cwsHook = {
+        /**
+         * @param {string} id
+         * @param {string} status
+         */
+        setStatus(id, status) {
+            statusById[id] = status;
         },
     };
     // The windows messaging test harness does `window.chrome = {}` in a later
@@ -91,9 +103,32 @@ test.describe('chromeWebstorePatching', () => {
         // on non-Chrome browsers) — the feature must clear both
         await expect(page.locator(BUTTON)).toBeEnabled();
         await expect(page.locator(BUTTON)).not.toHaveAttribute('aria-disabled', 'true');
-        // decorative children are hidden so only icon + label consume flex gap
+        // every store child is hidden so only icon + our label consume flex gap
         await expect(page.locator(`${BUTTON} .UywwFc-icon`)).toHaveCSS('display', 'none');
         await expect(page.locator(`${BUTTON} .UywwFc-ripple`)).toHaveCSS('display', 'none');
+        await expect(page.locator(ORIGINAL_LABEL)).toHaveCSS('display', 'none');
+    });
+
+    test('unsupported pill click does not trigger the store install handler', async ({ page }, testInfo) => {
+        await setup(page, testInfo);
+        await navigateTo(page, UNCURATED_PATH);
+        await expect(page.locator(LABEL)).toHaveText('Unsupported extension');
+        // Playwright refuses normal clicks on disabled elements
+        await page.locator(BUTTON).click({ force: true });
+        await expect.poll(() => page.evaluate(() => /** @type {any} */ (window).__installClicked)).toBe(false);
+    });
+
+    test('curated pill click reaches the store handler and re-evaluates state', async ({ page }, testInfo) => {
+        await setup(page, testInfo);
+        await navigateTo(page, CURATED_PATH);
+        await expect(page.locator(LABEL)).toHaveText('Add to DuckDuckGo');
+        await page.locator(BUTTON).click();
+        // the store's delegated handler must still fire for curated extensions
+        await expect.poll(() => page.evaluate(() => /** @type {any} */ (window).__installClicked)).toBe(true);
+        // simulate the async install completing; the click-scheduled
+        // re-evaluation flips the pill without a navigation
+        await page.evaluate(() => /** @type {any} */ (window).__cwsHook.setStatus('nngceckbapebfimnlniiiahkandclblb', 'enabled'));
+        await expect(page.locator(LABEL)).toHaveText('Remove from DuckDuckGo');
     });
 
     test('curated + installed → remove copy', async ({ page }, testInfo) => {
@@ -123,7 +158,7 @@ test.describe('chromeWebstorePatching', () => {
         await setup(page, testInfo);
         // fixture's natural URL is not a /detail/ path
         await expect(page.locator(BUTTON)).not.toBeVisible();
-        await expect(page.locator(LABEL)).toHaveText('Add to Chrome');
+        await expect(page.locator(ORIGINAL_LABEL)).toHaveText('Add to Chrome');
     });
 
     for (const config of ['config-gate-disabled', 'config-feature-disabled', 'config-minimal']) {
@@ -133,7 +168,7 @@ test.describe('chromeWebstorePatching', () => {
             });
             await navigateTo(page, CURATED_PATH);
             await expect(page.locator(BUTTON)).toBeVisible();
-            await expect(page.locator(LABEL)).toHaveText('Add to Chrome');
+            await expect(page.locator(ORIGINAL_LABEL)).toHaveText('Add to Chrome');
         });
     }
 
@@ -154,7 +189,7 @@ test.describe('chromeWebstorePatching', () => {
         // bogus selectors hide nothing and swap nothing — documents that CSS
         // fail-closed only protects where selectors match
         await expect(page.locator(BUTTON)).toBeVisible();
-        await expect(page.locator(LABEL)).toHaveText('Add to Chrome');
+        await expect(page.locator(ORIGINAL_LABEL)).toHaveText('Add to Chrome');
     });
 
     test('API absent → stays hidden (fail closed)', async ({ page }, testInfo) => {

@@ -32,6 +32,14 @@
         </nav>
 
         <script type="module">
+            // Mirrors the store's jsaction-style event delegation: the install
+            // trigger listens at the document, not on the button itself.
+            window.__installClicked = false;
+            document.addEventListener('click', (event) => {
+                if (event.target instanceof Element && event.target.closest('button[jsname]')) {
+                    window.__installClicked = true;
+                }
+            });
             document.getElementById('nav-curated').addEventListener('click', () => {
                 history.pushState({}, '', '/detail/bitwarden-password-manage/nngceckbapebfimnlniiiahkandclblb');
             });

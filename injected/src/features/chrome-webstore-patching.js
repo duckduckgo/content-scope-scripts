@@ -23,7 +23,10 @@ const INSTALLABLE_STATUSES = ['installable', 'can_request'];
  */
 const PILL_STYLES = {
     curated: { background: '#F05F2B', color: '#FFFFFF', cursor: 'pointer', 'pointer-events': 'auto' },
-    unsupported: { background: '#E4E4E4', color: '#8A8A8A', cursor: 'default', 'pointer-events': 'none' },
+    // NOTE: no pointer-events: none — that would redirect clicks to the store's
+    // delegated jsaction ancestor handler, which still installs. Clicks are
+    // blocked by the capture-phase interceptor + the disabled attribute instead.
+    unsupported: { background: '#E4E4E4', color: '#8A8A8A', cursor: 'default', 'pointer-events': 'auto' },
 };
 
 /**
@@ -74,6 +77,29 @@ export class ChromeWebstorePatching extends ContentFeature {
             .map((s) => s.value)
             .join(',');
         if (!this._buttonSelector) return;
+
+        // Capture-phase click interceptor, registered at document-start BEFORE
+        // the store's root jsaction handler so stopImmediatePropagation beats it.
+        // Blocks activation of the unsupported pill (belt-and-braces on top of
+        // the disabled attribute), and re-evaluates after curated clicks: the
+        // store installs/uninstalls asynchronously and nothing else tells us the
+        // state changed.
+        document.addEventListener(
+            'click',
+            (event) => {
+                if (!this._verdict) return;
+                const target = event.target instanceof Element ? event.target.closest(this._buttonSelector) : null;
+                if (!target) return;
+                if (this._verdict === 'unsupported') {
+                    event.preventDefault();
+                    event.stopImmediatePropagation();
+                    return;
+                }
+                setTimeout(() => this.urlChanged(), 1500);
+                setTimeout(() => this.urlChanged(), 5000);
+            },
+            true,
+        );
 
         // We run at document-start, before the DOM exists — wait for it before
         // injecting styles or observing. The store is client-rendered, so
@@ -221,20 +247,25 @@ export class ChromeWebstorePatching extends ContentFeature {
         const button = document.querySelector(this._buttonSelector);
         if (!(button instanceof HTMLElement)) return;
 
-        const label = this._findLabel(button);
+        // The label is feature-owned: the store's internal label structure
+        // rotates between button states and re-renders (live testing showed
+        // fragment text and missing labels when we wrote into Google's spans).
+        // The pill is icon (::before) + our span only; every other child is
+        // hidden — even zero-width flex items consume the 6px gap.
+        let label = button.querySelector('span[data-ddg-webstore-label]');
+        if (!label) {
+            label = document.createElement('span');
+            label.setAttribute('data-ddg-webstore-label', '');
+            button.appendChild(label);
+        }
         // Guard prevents our own textContent write from re-triggering the observer forever
-        if (label && label.textContent !== text) {
+        if (label.textContent !== text) {
             label.textContent = text;
         }
-        // The pill is icon + label only. Hide the store's decorative children
-        // (ripple/icon spans): even zero-width flex items consume the 6px gap,
-        // which pushed the dax icon and label apart on the real page.
-        if (label) {
-            for (const child of button.children) {
-                if (child === label || child.contains(label) || !(child instanceof HTMLElement)) continue;
-                if (child.style.getPropertyValue('display') !== 'none') {
-                    child.style.setProperty('display', 'none', 'important');
-                }
+        for (const child of button.children) {
+            if (child === label || !(child instanceof HTMLElement)) continue;
+            if (child.style.getPropertyValue('display') !== 'none') {
+                child.style.setProperty('display', 'none', 'important');
             }
         }
         if (button.getAttribute('aria-label') !== text) {
@@ -266,33 +297,6 @@ export class ChromeWebstorePatching extends ContentFeature {
         if (description && button.getAttribute('title') !== description) {
             button.setAttribute('title', description);
         }
-    }
-
-    /**
-     * Finds the element carrying the button's visible text. Tries the configured
-     * selectors in order; falls back to the first leaf descendant with text —
-     * the store's label-span classes rotate between Add/Remove button states,
-     * so the configured selector is best-effort only.
-     * @param {Element} button
-     * @returns {Element | null}
-     */
-    _findLabel(button) {
-        const selectors = this.getFeatureSetting('installButtonTextSelectors');
-        if (Array.isArray(selectors)) {
-            for (const selector of selectors) {
-                if (typeof selector !== 'string') continue;
-                try {
-                    const el = button.querySelector(selector);
-                    if (el) return el;
-                } catch {
-                    // malformed remote-config selector — try the next one
-                }
-            }
-        }
-        for (const el of button.querySelectorAll('*')) {
-            if (el.childElementCount === 0 && el.textContent?.trim()) return el;
-        }
-        return null;
     }
 
     /**

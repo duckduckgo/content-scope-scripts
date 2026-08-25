@@ -11,7 +11,7 @@ Patches the Chrome Web Store UI (`chromewebstore.google.com`) in the DuckDuckGo 
 - On detail pages for **non-curated** extensions, shows a disabled grey pill (`#E4E4E4`) labelled "Unsupported extension" with an explanatory tooltip
 - Hides "Switch to Chrome"-style promo banners (CSS only, no reveal path)
 
-Pill styling values are deliberately literal in the feature (not remote config): they are DDG design tokens, not Google-shaped, so they don't rot with store markup. The reveal CSS is keyed on `html[data-ddg-webstore="curated"|"unsupported"]`, which only the decision path sets.
+Pill styling values are deliberately literal in the feature (not remote config): they are DDG design tokens, not Google-shaped, so they don't rot with store markup. The reveal CSS is keyed on `html[data-ddg-webstore="curated"|"unsupported"]`, which only the decision path sets. The label is **feature-owned** (`span[data-ddg-webstore-label]`, appended to the button; every other child is hidden): live testing showed the store's internal label spans rotate between button states and re-renders, so writing into them is unreliable. A capture-phase click interceptor (registered at document-start, ahead of the store's delegated jsaction handler) blocks activation of the unsupported pill and re-evaluates install state after curated clicks, flipping the pill Add ↔ Remove without a navigation.
 
 Install state comes from the page-world private API `chrome.webstorePrivate.getExtensionStatus()` — no native messaging.
 
@@ -27,7 +27,7 @@ Feature key `chromeWebstorePatching` (schema: `privacy-configuration/schema/feat
 | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `patchWebstore`              | `{state}` execution gate — disabled everywhere, enabled on the store domain via `domains` patch. `init()` early-returns unless enabled.                           |
 | `installButtonSelectors`     | Ordered `{type: 'css'\|'xpath', value}` list targeting the install `<button>`. POC consumes `css` entries only. Primary: `button[jsname="wQO0od"]`.               |
-| `installButtonTextSelectors` | Ordered CSS selectors, relative to the button, for the text-label span. Primary: `span.UywwFc-vQzf8d`.                                                            |
+| `installButtonTextSelectors` | Reserved/currently unused — the feature renders its own label span rather than writing into the store's rotating label structure.                                 |
 | `promoSelectors`             | CSS selectors for Chrome promo banners to hide.                                                                                                                   |
 | `buttonCopy`                 | `{install, remove, unavailable, unavailableDescription}` — curated pill labels, unsupported pill label, and its tooltip. A verdict without its copy stays hidden. |
 | `apiDetectionTimeoutMs`      | Reserved for a future `webstorePrivate` retry/poll (POC does a single attempt).                                                                                   |
