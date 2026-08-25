@@ -2,7 +2,7 @@ import UaChBrands from '../src/features/ua-ch-brands.js';
 
 function createFeature() {
     const feature = Object.create(UaChBrands.prototype);
-    feature.log = { info: () => {}, error: () => {} };
+    Object.defineProperty(feature, 'log', { value: { info: () => {}, error: () => {} } });
     return feature;
 }
 
