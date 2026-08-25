@@ -46,7 +46,10 @@ describe('UaChBrands brandListsMatch', () => {
     });
 
     it('is false when a brand differs', () => {
-        const other = [{ brand: 'Chromium', version: '151' }, { brand: 'DuckDuckGo', version: '151' }];
+        const other = [
+            { brand: 'Chromium', version: '151' },
+            { brand: 'DuckDuckGo', version: '151' },
+        ];
 
         expect(createFeature().brandListsMatch(chromiumBrands, other)).toBeFalse();
     });
