@@ -13574,6 +13574,7 @@
       /** @type {Strings} */
       {}
     );
+    const platformName = usePlatformName();
     const { openTabs, isLoadingTabs, refetchTabs } = x2(OpenTabsContext);
     const seedStagedIds = () => new Set(openTabs.filter((tab) => isAttached(tab.tabId)).map((tab) => tab.tabId));
     const [stagedTabIds, setStagedTabIds] = d2(seedStagedIds);
@@ -13657,6 +13658,8 @@
         );
       });
     };
+    const cancelButton = /* @__PURE__ */ k("button", { type: "button", class: (0, import_classnames18.default)(AttachTabsModal_default.tabsFooterButton, AttachTabsModal_default.tabsFooterButtonSecondary), onClick: onClose }, t4("omnibar_attachTabsCancel"));
+    const confirmButton = /* @__PURE__ */ k("button", { type: "button", class: (0, import_classnames18.default)(AttachTabsModal_default.tabsFooterButton, AttachTabsModal_default.tabsFooterButtonPrimary), onClick: handleAttach }, t4("omnibar_attachTabsConfirm"));
     return /* @__PURE__ */ k(
       "dialog",
       {
@@ -13689,7 +13692,7 @@
           autoComplete: "off"
         }
       ))), /* @__PURE__ */ k("ul", { role: "menu", "aria-label": t4("omnibar_attachTabsModalTitle"), class: AttachTabsModal_default.tabsMenu }, renderRows())),
-      /* @__PURE__ */ k("footer", { class: AttachTabsModal_default.tabsModalFooter }, /* @__PURE__ */ k("button", { type: "button", class: (0, import_classnames18.default)(AttachTabsModal_default.tabsFooterButton, AttachTabsModal_default.tabsFooterButtonSecondary), onClick: onClose }, t4("omnibar_attachTabsCancel")), /* @__PURE__ */ k("button", { type: "button", class: (0, import_classnames18.default)(AttachTabsModal_default.tabsFooterButton, AttachTabsModal_default.tabsFooterButtonPrimary), onClick: handleAttach }, t4("omnibar_attachTabsConfirm")))
+      /* @__PURE__ */ k("footer", { class: AttachTabsModal_default.tabsModalFooter }, platformName === "windows" ? /* @__PURE__ */ k(S, null, confirmButton, cancelButton) : /* @__PURE__ */ k(S, null, cancelButton, confirmButton))
     );
   }
   function StatusRow({ text: text2 }) {
@@ -13703,6 +13706,7 @@
       init_hooks_module();
       import_classnames18 = __toESM(require_classnames(), 1);
       init_types();
+      init_settings_provider();
       init_Icons2();
       init_OpenTabsProvider();
       init_TabFavicon();
@@ -41625,12 +41629,25 @@
       favicon: null
     }
   ];
-  function getMockOpenTabs() {
-    return { tabs: allMockOpenTabs };
+  var extraMockOpenTabs = [];
+  function getMockOpenTabs(count) {
+    if (count === void 0 || !Number.isFinite(count) || count < 0) {
+      return { tabs: allMockOpenTabs };
+    }
+    while (allMockOpenTabs.length + extraMockOpenTabs.length < count) {
+      const n3 = extraMockOpenTabs.length + 1;
+      extraMockOpenTabs.push({
+        tabId: `tab-extra-${n3}`,
+        title: `Generated Tab ${n3}`,
+        url: `https://example.com/generated/${n3}`,
+        favicon: localFavicon("e.svg")
+      });
+    }
+    return { tabs: [...allMockOpenTabs, ...extraMockOpenTabs].slice(0, count) };
   }
   function getMockTabContent(tabId) {
     if (tabId === "tab-broken") return null;
-    const tab = allMockOpenTabs.find((t4) => t4.tabId === tabId);
+    const tab = allMockOpenTabs.find((t4) => t4.tabId === tabId) ?? extraMockOpenTabs.find((t4) => t4.tabId === tabId);
     if (!tab) return null;
     const content2 = `## ${tab.title}
 
@@ -42122,7 +42139,8 @@ This is placeholder content used by the NTP mock transport so the attach-tabs fe
             if (parseBooleanQueryParam("omnibar.noOpenTabs") === true) {
               return { tabs: [] };
             }
-            return getMockOpenTabs();
+            const openTabsCount = parseInt(url5.searchParams.get("omnibar.openTabsCount") ?? "", 10);
+            return getMockOpenTabs(openTabsCount >= 0 ? openTabsCount : void 0);
           }
           case "omnibar_getTabContent": {
             await new Promise((resolve) => setTimeout(resolve, 150));

@@ -13569,6 +13569,7 @@
       /** @type {Strings} */
       {}
     );
+    const platformName = usePlatformName();
     const { openTabs, isLoadingTabs, refetchTabs } = x2(OpenTabsContext);
     const seedStagedIds = () => new Set(openTabs.filter((tab) => isAttached(tab.tabId)).map((tab) => tab.tabId));
     const [stagedTabIds, setStagedTabIds] = d2(seedStagedIds);
@@ -13652,6 +13653,8 @@
         );
       });
     };
+    const cancelButton = /* @__PURE__ */ k("button", { type: "button", class: (0, import_classnames18.default)(AttachTabsModal_default.tabsFooterButton, AttachTabsModal_default.tabsFooterButtonSecondary), onClick: onClose }, t4("omnibar_attachTabsCancel"));
+    const confirmButton = /* @__PURE__ */ k("button", { type: "button", class: (0, import_classnames18.default)(AttachTabsModal_default.tabsFooterButton, AttachTabsModal_default.tabsFooterButtonPrimary), onClick: handleAttach }, t4("omnibar_attachTabsConfirm"));
     return /* @__PURE__ */ k(
       "dialog",
       {
@@ -13684,7 +13687,7 @@
           autoComplete: "off"
         }
       ))), /* @__PURE__ */ k("ul", { role: "menu", "aria-label": t4("omnibar_attachTabsModalTitle"), class: AttachTabsModal_default.tabsMenu }, renderRows())),
-      /* @__PURE__ */ k("footer", { class: AttachTabsModal_default.tabsModalFooter }, /* @__PURE__ */ k("button", { type: "button", class: (0, import_classnames18.default)(AttachTabsModal_default.tabsFooterButton, AttachTabsModal_default.tabsFooterButtonSecondary), onClick: onClose }, t4("omnibar_attachTabsCancel")), /* @__PURE__ */ k("button", { type: "button", class: (0, import_classnames18.default)(AttachTabsModal_default.tabsFooterButton, AttachTabsModal_default.tabsFooterButtonPrimary), onClick: handleAttach }, t4("omnibar_attachTabsConfirm")))
+      /* @__PURE__ */ k("footer", { class: AttachTabsModal_default.tabsModalFooter }, platformName === "windows" ? /* @__PURE__ */ k(S, null, confirmButton, cancelButton) : /* @__PURE__ */ k(S, null, cancelButton, confirmButton))
     );
   }
   function StatusRow({ text: text2 }) {
@@ -13698,6 +13701,7 @@
       init_hooks_module();
       import_classnames18 = __toESM(require_classnames(), 1);
       init_types();
+      init_settings_provider();
       init_Icons2();
       init_OpenTabsProvider();
       init_TabFavicon();

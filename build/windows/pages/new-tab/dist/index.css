@@ -5699,7 +5699,8 @@ body[data-rebrand=true] .TabSwitcher_tabLabel {
   color: inherit;
   display: flex;
   flex-direction: column;
-  height: 340px;
+  min-height: 340px;
+  max-height: min(440px, calc(100vh - var(--sp-20)));
   margin: auto;
   overflow: clip;
   padding: 0;

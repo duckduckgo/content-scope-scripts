@@ -1,2 +1,5 @@
-- NTP: UI updates to match the native (#2980)
-- Element hiding: Improve performance by taking advantage of browser selector indexing (#2977)
+- NTP: Address design feedback (#2985)
+- build(deps-dev): bump typescript-eslint from 8.66.0 to 8.67.0 (#2987)
+- build(deps-dev): bump c8 from 11.0.0 to 12.0.0 (#2916)
+- build(deps-dev): bump eslint in the eslint group across 1 directory (#2981)
+- build(deps): bump esbuild from 0.28.1 to 0.28.2 (#2983)

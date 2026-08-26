@@ -37,7 +37,7 @@
   "dependencies": {
     "@duckduckgo/privacy-configuration": "github:duckduckgo/privacy-configuration#1786094392564",
     "@duckduckgo/tracker-surrogates": "github:duckduckgo/tracker-surrogates#0528e3226df15b1a3e319ad68ef76612a8f26623",
-    "esbuild": "^0.28.1",
+    "esbuild": "^0.28.2",
     "minimist": "^1.2.8",
     "parse-address": "^1.1.2",
     "seedrandom": "^3.0.5",
@@ -52,7 +52,7 @@
     "@types/jasmine": "^6.0.0",
     "@types/node": "^26.1.1",
     "@types/seedrandom": "^3.0.8",
-    "c8": "^11.0.0",
+    "c8": "^12.0.0",
     "fast-check": "^4.9.0",
     "jasmine": "^6.3.0",
     "jsdom": "^29.1.1",
