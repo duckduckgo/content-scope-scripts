@@ -196,14 +196,33 @@
         .blob {
             box-shadow: none;
         }
+
+        /* Legacy platform rules ([data-platform-name][data-theme="dark"] .active)
+           paint the selected button white-at-25, at a higher specificity than the
+           base rebrand `.active { background: transparent }`, so in dark mode that
+           white fill covers the .blob pill (the muddy grey Chris flagged). Reset it
+           here — this selector is (0,3,1), beating the legacy (0,3,0). */
+        .active {
+            background: transparent;
+        }
     }
 }
 
 :global(body[data-rebrand="true"]:not([data-background-kind="default"])) {
-    /* Same treatment as the omnibar's Search/Duck.ai TabSwitcher: blur the
-       arbitrary custom background before tinting. */
+    /* Match the omnibar TabSwitcher track + blob on custom backgrounds:
+       track = input-control-secondary (white-at-18 dark / black-at-7 light) + blur;
+       active blob = the semantic input-control-primary (Shade 60 dark / Tint 60 light)
+       with a 1px input-control-shadow-primary ring (black-at-5 light, transparent dark).
+       The selected button text stays on the base .button rule (theme-primary), which
+       reads correctly against both blob values — no override needed. */
     .switcher {
-        backdrop-filter: blur(48px);
+        backdrop-filter: blur(24px);
+        background: var(--ds-input-control-secondary-background-color);
+    }
+
+    .blob {
+        background: var(--ds-input-control-primary-background-color);
+        box-shadow: 0 0 0 1px var(--ds-input-control-shadow-primary);
     }
 }
 
