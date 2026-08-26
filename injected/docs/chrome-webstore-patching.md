@@ -27,7 +27,6 @@ Feature key `chromeWebstorePatching` (schema: `privacy-configuration/schema/feat
 | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `patchWebstore`              | `{state}` execution gate — disabled everywhere, enabled on the store domain via `domains` patch. `init()` early-returns unless enabled.                           |
 | `installButtonSelectors`     | Ordered `{type: 'css'\|'xpath', value}` list targeting the install `<button>`. POC consumes `css` entries only. Primary: `button[jsname="wQO0od"]`.               |
-| `installButtonTextSelectors` | Reserved/currently unused — the feature renders its own label span rather than writing into the store's rotating label structure.                                 |
 | `promoSelectors`             | CSS selectors for Chrome promo banners to hide.                                                                                                                   |
 | `buttonCopy`                 | `{install, remove, unavailable, unavailableDescription}` — curated pill labels, unsupported pill label, and its tooltip. A verdict without its copy stays hidden. |
 | `apiDetectionTimeoutMs`      | Reserved for a future `webstorePrivate` retry/poll (POC does a single attempt).                                                                                   |

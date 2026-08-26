@@ -15,9 +15,6 @@
                         "value": "button[jsname=\"DOES_NOT_EXIST\"]"
                     }
                 ],
-                "installButtonTextSelectors": [
-                    "span.does-not-exist"
-                ],
                 "promoSelectors": [
                     "[jsname=\"v621tc\"]",
                     "div[jscontroller=\"o2G9me\"]",

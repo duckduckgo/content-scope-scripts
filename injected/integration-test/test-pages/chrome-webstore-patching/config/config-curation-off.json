@@ -23,9 +23,6 @@
                         "value": "button[jscontroller=\"O626Fe\"][disabled]"
                     }
                 ],
-                "installButtonTextSelectors": [
-                    "span.UywwFc-vQzf8d"
-                ],
                 "promoSelectors": [
                     "[jsname=\"v621tc\"]",
                     "div[jscontroller=\"o2G9me\"]",
