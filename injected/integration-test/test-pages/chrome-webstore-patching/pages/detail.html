@@ -22,7 +22,7 @@
         </header>
         <section itemprop="detail">
             <!-- disabled + aria-disabled mirror the store's state on non-Chrome browsers -->
-            <button class="UywwFc-LgbsSe" jsname="wQO0od" jsaction="click:trigger" disabled aria-disabled="true">
+            <button class="UywwFc-LgbsSe" jsname="wQO0od" jscontroller="O626Fe" jsaction="click:trigger" disabled aria-disabled="true">
                 <span class="UywwFc-icon" aria-hidden="true"></span>
                 <span class="UywwFc-ripple" aria-hidden="true"></span>
                 <span class="UywwFc-vQzf8d">Add to Chrome</span>
@@ -46,24 +46,35 @@
                     window.__installClicked = true;
                 }
             });
-            document.getElementById('nav-curated').addEventListener('click', () => {
-                history.pushState({}, '', '/detail/bitwarden-password-manage/nngceckbapebfimnlniiiahkandclblb');
-            });
-            document.getElementById('nav-uncurated').addEventListener('click', () => {
-                history.pushState({}, '', '/detail/some-other-extension/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
-            });
-            // Simulates the store's framework replacing the button node on hydration/state change
-            document.getElementById('rerender').addEventListener('click', () => {
-                const old = document.querySelector('button[jsname="wQO0od"]');
+            // Simulates the store's framework replacing the button node on
+            // hydration/state change: a fresh button with Google's copy,
+            // while the previous node lingers in the DOM (real store behavior
+            // on SPA navigation — old views stay cached in the document)
+            function rerenderButton({ keepOld = false } = {}) {
+                const old = document.querySelector('section[itemprop] button[jsname="wQO0od"]:last-of-type');
                 if (!old) return;
                 const fresh = old.cloneNode(false);
+                fresh.removeAttribute('style');
                 fresh.innerHTML =
                     '<span class="UywwFc-icon" aria-hidden="true"></span>' +
                     '<span class="UywwFc-ripple" aria-hidden="true"></span>' +
                     '<span class="UywwFc-vQzf8d">Add to Chrome</span>' +
                     '<span class="UywwFc-trailing" aria-hidden="true"></span>';
-                old.replaceWith(fresh);
+                if (keepOld) {
+                    old.after(fresh);
+                } else {
+                    old.replaceWith(fresh);
+                }
+            }
+            document.getElementById('nav-curated').addEventListener('click', () => {
+                history.pushState({}, '', '/detail/bitwarden-password-manage/nngceckbapebfimnlniiiahkandclblb');
+                rerenderButton({ keepOld: true });
             });
+            document.getElementById('nav-uncurated').addEventListener('click', () => {
+                history.pushState({}, '', '/detail/some-other-extension/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
+                rerenderButton({ keepOld: true });
+            });
+            document.getElementById('rerender').addEventListener('click', () => rerenderButton());
         </script>
     </body>
 </html>

@@ -216,31 +216,44 @@ test.describe('chromeWebstorePatching', () => {
         await expect(page.locator(BUTTON)).not.toBeVisible();
     });
 
+    // Each nav mounts a FRESH store button while the old node lingers in the
+    // DOM (mirroring the real store) — every match must be restyled, not just
+    // the first in document order.
     test('SPA nav curated → uncurated flips to unsupported pill', async ({ page }, testInfo) => {
         await setup(page, testInfo);
         await page.getByRole('button', { name: 'Go to curated detail' }).click();
-        await expect(page.locator(LABEL)).toHaveText('Add to DuckDuckGo');
+        await expect(page.locator(LABEL).last()).toHaveText('Add to DuckDuckGo');
         await page.getByRole('button', { name: 'Go to uncurated detail' }).click();
-        await expect(page.locator(LABEL)).toHaveText('Unsupported extension');
-        await expect(page.locator(BUTTON)).toBeDisabled();
+        await expect(page.locator(LABEL).last()).toHaveText('Unsupported extension');
+        await expect(page.locator(BUTTON).last()).toBeDisabled();
+        // no lingering node keeps the previous verdict's copy
+        for (const text of await page.locator(LABEL).allTextContents()) {
+            expect(text).toBe('Unsupported extension');
+        }
     });
 
     test('SPA nav uncurated → curated flips to install pill', async ({ page }, testInfo) => {
         await setup(page, testInfo);
         await page.getByRole('button', { name: 'Go to uncurated detail' }).click();
-        await expect(page.locator(LABEL)).toHaveText('Unsupported extension');
+        await expect(page.locator(LABEL).last()).toHaveText('Unsupported extension');
         await page.getByRole('button', { name: 'Go to curated detail' }).click();
-        await expect(page.locator(LABEL)).toHaveText('Add to DuckDuckGo');
-        await expect(page.locator(BUTTON)).toBeEnabled();
+        await expect(page.locator(LABEL).last()).toHaveText('Add to DuckDuckGo');
+        await expect(page.locator(BUTTON).last()).toBeEnabled();
+        for (const text of await page.locator(LABEL).allTextContents()) {
+            expect(text).toBe('Add to DuckDuckGo');
+        }
     });
 
     test('store re-render → observer re-applies copy', async ({ page }, testInfo) => {
         await setup(page, testInfo);
         await page.getByRole('button', { name: 'Go to curated detail' }).click();
-        await expect(page.locator(LABEL)).toHaveText('Add to DuckDuckGo');
+        await expect(page.locator(LABEL).last()).toHaveText('Add to DuckDuckGo');
         // page script replaces the whole button node with fresh Chrome copy
         await page.getByRole('button', { name: 'Re-render install button' }).click();
-        await expect(page.locator(LABEL)).toHaveText('Add to DuckDuckGo');
+        await expect(page.locator(LABEL).last()).toHaveText('Add to DuckDuckGo');
+        for (const text of await page.locator(LABEL).allTextContents()) {
+            expect(text).toBe('Add to DuckDuckGo');
+        }
     });
 
     test('promos hidden with configured promoSelectors', async ({ page }, testInfo) => {

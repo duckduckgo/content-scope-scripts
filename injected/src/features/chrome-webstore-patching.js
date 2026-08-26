@@ -259,9 +259,22 @@ export class ChromeWebstorePatching extends ContentFeature {
         const text = { install: copy?.install, remove: copy?.remove, unsupported: copy?.unavailable }[this._verdict];
         if (typeof text !== 'string') return;
 
-        const button = document.querySelector(this._buttonSelector);
-        if (!(button instanceof HTMLElement)) return;
+        // ALL matches, not the first: on SPA navigations the store mounts a
+        // fresh button while previous-view nodes can linger in the DOM, and
+        // the visible one is not necessarily first in document order.
+        for (const button of document.querySelectorAll(this._buttonSelector)) {
+            if (button instanceof HTMLElement) {
+                this._applyVerdictToButton(button, text, copy);
+            }
+        }
+    }
 
+    /**
+     * @param {HTMLElement} button
+     * @param {string} text
+     * @param {any} copy
+     */
+    _applyVerdictToButton(button, text, copy) {
         // Icon and label are feature-owned: the store's internal button
         // structure rotates between states and re-renders, and its !important
         // class rules beat injected pseudo-element styling (live testing showed

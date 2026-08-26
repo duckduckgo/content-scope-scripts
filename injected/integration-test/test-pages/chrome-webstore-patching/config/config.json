@@ -17,6 +17,10 @@
                     {
                         "type": "css",
                         "value": "button[jsname=\"ajZLRd\"]"
+                    },
+                    {
+                        "type": "css",
+                        "value": "button[jscontroller=\"O626Fe\"][disabled]"
                     }
                 ],
                 "installButtonTextSelectors": [
