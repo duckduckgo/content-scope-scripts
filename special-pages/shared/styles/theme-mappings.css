@@ -991,3 +991,29 @@ body[data-rebrand="true"]:not([data-background-kind="default"]) {
         --ds-input-icons-secondary: var(--ds-color-theme-ntp-on-custom-background-dark-input-icons-secondary);
     }
 }
+
+/*
+ * Surfaces + favorites on custom backgrounds: Figma's Container/Fill-Secondary and
+ * Container/Border-Secondary are the ntpOnCustomBackground values (dark: black-at-36 /
+ * light: white-at-42), NOT the generic --ds-color-theme-container-fill-secondary
+ * (dark: white-at-6 / light: black-at-3, a near-invisible film that washes out over a
+ * wallpaper — in dark mode it reads like light mode, and it silently reverted the July
+ * black-at-50 veil fix when surfaces switched to the generic token).
+ *
+ * ntp-theme.css maps --ntp-surface-background-color / --ntp-surface-border-color to the
+ * generic tokens, and Favorites (Tile.module.css) reads them directly, so remap the
+ * generics here. Scoped to main[data-theme] / .themeContext[data-theme] — NOT bare
+ * [data-theme] — so the Customizer <aside> (which follows browserMode, not the custom
+ * background) is unaffected, mirroring the surface scoping in ntp-theme.css.
+ */
+body[data-rebrand="true"]:not([data-background-kind="default"]) {
+    main[data-theme="light"], .themeContext[data-theme="light"] {
+        --ds-color-theme-container-fill-secondary: var(--ds-color-theme-ntp-on-custom-background-light-container-fill-secondary);
+        --ds-color-theme-container-border-secondary: var(--ds-color-theme-ntp-on-custom-background-light-container-border-secondary);
+    }
+
+    main[data-theme="dark"], .themeContext[data-theme="dark"] {
+        --ds-color-theme-container-fill-secondary: var(--ds-color-theme-ntp-on-custom-background-dark-container-fill-secondary);
+        --ds-color-theme-container-border-secondary: var(--ds-color-theme-ntp-on-custom-background-dark-container-border-secondary);
+    }
+}
