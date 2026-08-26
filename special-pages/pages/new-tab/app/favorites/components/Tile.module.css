@@ -196,4 +196,13 @@ body[data-rebrand="true"]:not([data-background-kind="default"]) {
             background: var(--ds-color-white-at-60, rgba(255, 255, 255, 0.6));
         }
     }
+
+    main[data-theme="dark"],
+    .themeContext[data-theme="dark"] {
+        .draggable {
+            &:hover {
+                background: var(--ds-color-theme-control-fill-secondary);
+            }
+        }
+    }
 }
