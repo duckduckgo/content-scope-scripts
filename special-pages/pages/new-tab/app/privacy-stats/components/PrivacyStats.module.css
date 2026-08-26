@@ -327,3 +327,27 @@
         background: var(--ds-color-theme-control-fill-secondary);
     }
 }
+
+/* Lock tracker bar colors to neutral defaults on custom backgrounds.
+ * Theme-variant fills (e.g. violet-light-control-fill-primary = rgba(87,11,218,0.09))
+ * bleed through otherwise, making the bars adopt the wallpaper's accent hue. */
+:global(body[data-rebrand="true"]:not([data-background-kind="default"])) {
+    .bar {
+        background: var(--ds-color-theme-default-light-control-fill-primary);
+    }
+
+    .fill {
+        background: var(--ds-color-theme-default-light-control-fill-secondary);
+    }
+
+    main[data-theme="dark"],
+    .themeContext[data-theme="dark"] {
+        .bar {
+            background: var(--ds-color-theme-default-dark-control-fill-primary);
+        }
+
+        .fill {
+            background: var(--ds-color-theme-default-dark-control-fill-secondary);
+        }
+    }
+}
