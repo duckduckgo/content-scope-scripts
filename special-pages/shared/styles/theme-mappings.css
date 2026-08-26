@@ -972,6 +972,11 @@ body[data-rebrand="true"]:not([data-background-kind="default"]) {
         --ds-input-text-secondary: var(--ds-color-theme-ntp-on-custom-background-light-input-text-secondary);
         --ds-input-icons-primary: var(--ds-color-theme-ntp-on-custom-background-light-input-icons-primary);
         --ds-input-icons-secondary: var(--ds-color-theme-ntp-on-custom-background-light-input-icons-secondary);
+
+        /* Omnibar suggestion highlight: pin accent-alt to the default blue so it stays
+           neutral on custom backgrounds instead of following the theme variant accent. */
+        --ds-color-theme-accent-alt-primary: var(--ds-color-theme-default-light-accent-alt-primary);
+        --ds-color-theme-accent-alt-secondary: var(--ds-color-theme-default-light-accent-alt-secondary);
     }
 
     &[data-theme="dark"], [data-theme="dark"] {
@@ -989,6 +994,10 @@ body[data-rebrand="true"]:not([data-background-kind="default"]) {
         --ds-input-text-secondary: var(--ds-color-theme-ntp-on-custom-background-dark-input-text-secondary);
         --ds-input-icons-primary: var(--ds-color-theme-ntp-on-custom-background-dark-input-icons-primary);
         --ds-input-icons-secondary: var(--ds-color-theme-ntp-on-custom-background-dark-input-icons-secondary);
+
+        /* See light block: neutral (default-blue) suggestion highlight on custom bg. */
+        --ds-color-theme-accent-alt-primary: var(--ds-color-theme-default-dark-accent-alt-primary);
+        --ds-color-theme-accent-alt-secondary: var(--ds-color-theme-default-dark-accent-alt-secondary);
     }
 }
 
