@@ -9,6 +9,12 @@
             sibling icon/ripple spans plus the text-label span.UywwFc-vQzf8d.
             TODO: replace inner markup with sanitized outerHTML from the DDG Windows build.
         -->
+        <style>
+            /* Hostile store styles: high-specificity !important rules like the
+               real store ships — our inline styles must beat all of these */
+            button.UywwFc-LgbsSe { height: 24px !important; padding: 0 !important; border-radius: 4px !important; gap: 20px !important; }
+            button.UywwFc-LgbsSe::before { content: '' !important; width: 62px !important; background: none !important; }
+        </style>
     </head>
     <body>
         <header>

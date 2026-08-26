@@ -16,17 +16,41 @@ const INSTALLED_STATUSES = ['enabled', 'disabled', 'force_installed', 'terminate
 const INSTALLABLE_STATUSES = ['installable', 'can_request'];
 
 /**
- * Per-state pill styles, applied INLINE with !important priority: the store's
- * own stylesheet (including its disabled-button styling on non-Chrome
- * browsers) uses !important + high-specificity selectors that can beat any
- * rule we inject, but nothing beats an inline important declaration.
+ * Pill styles, applied INLINE with !important priority: the store's own
+ * stylesheet uses !important + high-specificity class rules that beat any
+ * rule we can inject (verified on the Windows build: our injected height and
+ * ::before lost every specificity war), but nothing beats an inline important
+ * declaration. Only display stays stylesheet-driven — it must flip with the
+ * html[data-ddg-webstore] attribute for the fail-closed hide/reveal to work.
+ * Values per Figma: 40px pill, radius 48, padding 8/16/8/12, 6px icon gap.
  */
+const PILL_LAYOUT = {
+    'align-items': 'center',
+    'justify-content': 'center',
+    gap: '6px',
+    width: 'fit-content',
+    height: '40px',
+    padding: '8px 16px 8px 12px',
+    border: 'none',
+    'border-radius': '48px',
+    'box-shadow': 'none',
+    'font-weight': '500',
+};
 const PILL_STYLES = {
-    curated: { background: '#F05F2B', color: '#FFFFFF', cursor: 'pointer', 'pointer-events': 'auto' },
+    curated: { ...PILL_LAYOUT, background: '#F05F2B', color: '#FFFFFF', cursor: 'pointer', 'pointer-events': 'auto' },
     // NOTE: no pointer-events: none — that would redirect clicks to the store's
     // delegated jsaction ancestor handler, which still installs. Clicks are
     // blocked by the capture-phase interceptor + the disabled attribute instead.
-    unsupported: { background: '#E4E4E4', color: '#8A8A8A', cursor: 'default', 'pointer-events': 'auto' },
+    unsupported: { ...PILL_LAYOUT, background: '#E4E4E4', color: '#8A8A8A', cursor: 'default', 'pointer-events': 'auto' },
+};
+
+/** Icon element styles (a feature-owned span — ::before pseudo-elements can't carry inline styles) */
+const ICON_STYLES = {
+    display: 'inline-block',
+    flex: 'none',
+    width: '24px',
+    height: '24px',
+    background: `url("${DAX_DATA_URI}") center / contain no-repeat`,
 };
 
 /**
@@ -78,35 +102,46 @@ export class ChromeWebstorePatching extends ContentFeature {
             .join(',');
         if (!this._buttonSelector) return;
 
-        // Capture-phase click interceptor, registered at document-start BEFORE
-        // the store's root jsaction handler so stopImmediatePropagation beats it.
+        // Capture-phase interceptors, registered at document-start BEFORE the
+        // store's root jsaction handler so stopImmediatePropagation beats it.
         // Blocks activation of the unsupported pill (belt-and-braces on top of
-        // the disabled attribute), and re-evaluates after curated clicks: the
-        // store installs/uninstalls asynchronously and nothing else tells us the
-        // state changed.
-        document.addEventListener(
-            'click',
-            (event) => {
-                if (!this._verdict) return;
-                const target = event.target instanceof Element ? event.target.closest(this._buttonSelector) : null;
-                if (!target) return;
-                if (this._verdict === 'unsupported') {
-                    event.preventDefault();
-                    event.stopImmediatePropagation();
-                    return;
-                }
+        // the disabled attribute, covering the window before the observer
+        // re-applies it after a store re-render), and re-evaluates after
+        // curated clicks: the store installs/uninstalls asynchronously and
+        // nothing else tells us the state changed.
+        /** @param {Event} event */
+        const intercept = (event) => {
+            if (!this._verdict) return;
+            const target = event.target instanceof Element ? event.target.closest(this._buttonSelector) : null;
+            if (!target) return;
+            if (this._verdict === 'unsupported') {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                return;
+            }
+            if (event.type === 'click') {
                 setTimeout(() => this.urlChanged(), 1500);
                 setTimeout(() => this.urlChanged(), 5000);
-            },
-            true,
-        );
+            }
+        };
+        for (const type of ['click', 'auxclick', 'pointerdown', 'mousedown', 'touchstart', 'keydown']) {
+            document.addEventListener(type, intercept, true);
+        }
 
-        // We run at document-start, before the DOM exists — wait for it before
-        // injecting styles or observing. The store is client-rendered, so
-        // DOMContentLoaded still lands well before the install button paints.
-        if (document.readyState === 'loading') {
+        // We run at document-start, where document.documentElement may not
+        // exist yet. Wait ONLY until it does (the first parsed element, long
+        // before first paint) so the fail-closed hide CSS is active before the
+        // server-rendered button can flash. Waiting for DOMContentLoaded here
+        // caused exactly that flash on the live store.
+        if (!document.documentElement) {
             await new Promise((resolve) => {
-                document.addEventListener('DOMContentLoaded', () => resolve(undefined), { once: true });
+                const observer = new MutationObserver(() => {
+                    if (document.documentElement) {
+                        observer.disconnect();
+                        resolve(undefined);
+                    }
+                });
+                observer.observe(document, { childList: true });
             });
         }
 
@@ -115,50 +150,30 @@ export class ChromeWebstorePatching extends ContentFeature {
         const promoRule =
             Array.isArray(promoSelectors) && promoSelectors.length ? `:is(${promoSelectors.join(',')}) { display: none !important; }` : '';
 
-        // Fail closed: hide all install buttons before the page hydrates. The
-        // reveal rules only win once we positively mark the page (curated or
-        // unsupported) via the data-ddg-webstore attribute. Pill styling values
-        // come from the Figma design (T-Accent-Fire/Primary #F05F2B; disabled
-        // #E4E4E4) — DDG design tokens, deliberately literal: they are not
-        // Google-shaped, so they don't rot with store markup and don't need to
-        // be remote-config.
-        const btn = this._buttonSelector;
+        // Fail closed: hide all install buttons before the page hydrates; the
+        // reveal rule only wins once the decision path sets data-ddg-webstore.
+        // The button selector is a comma list, so it MUST be wrapped in :is() —
+        // bare interpolation prefixes only the first alternative (a live bug
+        // found on the Windows build). Only display lives here: everything
+        // else is applied inline in _applyVerdict, because the store's own
+        // !important class rules out-specificity any stylesheet we inject.
+        const btn = `:is(${this._buttonSelector})`;
         injectGlobalStyles(`
-            ${btn} { display: none !important; }
-            html[data-ddg-webstore] ${btn} {
-                display: inline-flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-                gap: 6px !important;
-                width: fit-content !important;
-                height: 40px !important;
-                padding: 8px 16px 8px 12px !important;
-                border: none !important;
-                border-radius: 48px !important;
-                box-shadow: none !important;
-                font-weight: 500 !important;
-            }
-            html[data-ddg-webstore] ${btn}::before {
-                content: '' !important;
-                flex: none !important;
-                width: 24px !important;
-                height: 24px !important;
-                background: url("${DAX_DATA_URI}") center / contain no-repeat !important;
-            }
-            html[data-ddg-webstore] ${btn} > * {
-                position: static !important;
-                transform: none !important;
-                margin: 0 !important;
-                color: inherit !important;
-                fill: currentColor !important;
-            }
-            html[data-ddg-webstore='unsupported'] ${btn}::before { filter: grayscale(1) opacity(0.55) !important; }
+            html ${btn} { display: none !important; }
+            html[data-ddg-webstore] ${btn} { display: inline-flex !important; }
             ${promoRule}
         `);
 
         this._observer = new MutationObserver(() => this._applyVerdict());
         this._observer.observe(document.documentElement, { childList: true, subtree: true });
 
+        // DOM-touching work (button lookups, our icon/label spans) can wait
+        // until the document has parsed; the observer covers late renders.
+        if (document.readyState === 'loading') {
+            await new Promise((resolve) => {
+                document.addEventListener('DOMContentLoaded', () => resolve(undefined), { once: true });
+            });
+        }
         await this._evaluatePage();
     }
 
@@ -247,11 +262,28 @@ export class ChromeWebstorePatching extends ContentFeature {
         const button = document.querySelector(this._buttonSelector);
         if (!(button instanceof HTMLElement)) return;
 
-        // The label is feature-owned: the store's internal label structure
-        // rotates between button states and re-renders (live testing showed
-        // fragment text and missing labels when we wrote into Google's spans).
-        // The pill is icon (::before) + our span only; every other child is
-        // hidden — even zero-width flex items consume the 6px gap.
+        // Icon and label are feature-owned: the store's internal button
+        // structure rotates between states and re-renders, and its !important
+        // class rules beat injected pseudo-element styling (live testing showed
+        // our ::before losing to the store's own). The pill is our icon span +
+        // our label span; every store child is hidden — even zero-width flex
+        // items consume the 6px gap.
+        const isUnsupported = this._verdict === 'unsupported';
+        /** @type {HTMLElement | null} */
+        let icon = /** @type {HTMLElement | null} */ (button.querySelector('span[data-ddg-webstore-icon]'));
+        if (!icon) {
+            icon = document.createElement('span');
+            icon.setAttribute('data-ddg-webstore-icon', '');
+            icon.setAttribute('aria-hidden', 'true');
+            for (const [prop, value] of Object.entries(ICON_STYLES)) {
+                icon.style.setProperty(prop, value, 'important');
+            }
+            button.prepend(icon);
+        }
+        const iconFilter = isUnsupported ? 'grayscale(1) opacity(0.55)' : 'none';
+        if (icon.style.getPropertyValue('filter') !== iconFilter) {
+            icon.style.setProperty('filter', iconFilter, 'important');
+        }
         let label = button.querySelector('span[data-ddg-webstore-label]');
         if (!label) {
             label = document.createElement('span');
@@ -263,7 +295,7 @@ export class ChromeWebstorePatching extends ContentFeature {
             label.textContent = text;
         }
         for (const child of button.children) {
-            if (child === label || !(child instanceof HTMLElement)) continue;
+            if (child === label || child === icon || !(child instanceof HTMLElement)) continue;
             if (child.style.getPropertyValue('display') !== 'none') {
                 child.style.setProperty('display', 'none', 'important');
             }
@@ -271,8 +303,6 @@ export class ChromeWebstorePatching extends ContentFeature {
         if (button.getAttribute('aria-label') !== text) {
             button.setAttribute('aria-label', text);
         }
-
-        const isUnsupported = this._verdict === 'unsupported';
 
         // Inline important declarations beat the store's own !important rules,
         // including its greyed-out disabled styling on non-Chrome browsers

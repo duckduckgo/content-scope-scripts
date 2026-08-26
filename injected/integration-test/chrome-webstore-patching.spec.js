@@ -107,6 +107,12 @@ test.describe('chromeWebstorePatching', () => {
         await expect(page.locator(`${BUTTON} .UywwFc-icon`)).toHaveCSS('display', 'none');
         await expect(page.locator(`${BUTTON} .UywwFc-ripple`)).toHaveCSS('display', 'none');
         await expect(page.locator(ORIGINAL_LABEL)).toHaveCSS('display', 'none');
+        // inline layout beats the fixture's hostile !important store rules
+        await expect(page.locator(BUTTON)).toHaveCSS('height', '40px');
+        await expect(page.locator(BUTTON)).toHaveCSS('border-radius', '48px');
+        const icon = page.locator(`${BUTTON} [data-ddg-webstore-icon]`);
+        await expect(icon).toBeVisible();
+        await expect(icon).toHaveCSS('width', '24px');
     });
 
     test('unsupported pill click does not trigger the store install handler', async ({ page }, testInfo) => {
