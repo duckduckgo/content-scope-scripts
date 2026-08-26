@@ -1,4 +1,5 @@
 import ContentFeature from '../content-feature.js';
+import { timeDetector } from './detector-perf.js';
 import { parseDetectors } from './web-detection/parse.js';
 import { evaluateMatch } from './web-detection/matching.js';
 
@@ -50,16 +51,24 @@ export default class WebDetection extends ContentFeature {
     }
 
     /**
+     * Single choke point for evaluating config-driven detectors — both the
+     * auto-run scans (`_runAutoDetector`) and breakage-report scans
+     * (`runDetectors`) pass through here, so this is where execution time is
+     * measured. All config-driven detectors are attributed to the pooled
+     * `webDetection` label (detector IDs live in remote config and change
+     * without releases, so they cannot appear in event-type names).
      *
      * @param {DetectorConfig} detectorConfig
      * @returns {DetectorMatchResult}
      */
     _evaluateMatch(detectorConfig) {
-        try {
-            return evaluateMatch(detectorConfig.match);
-        } catch {
-            return 'error';
-        }
+        return timeDetector(this, 'webDetection', () => {
+            try {
+                return evaluateMatch(detectorConfig.match);
+            } catch {
+                return 'error';
+            }
+        });
     }
 
     /**

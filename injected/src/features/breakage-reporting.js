@@ -1,4 +1,5 @@
 import ContentFeature, { CallFeatureMethodError } from '../content-feature';
+import { timeDetector } from './detector-perf.js';
 import { getExpandedPerformanceMetrics, getJsPerformanceMetrics } from './breakage-reporting/utils.js';
 import { runBotDetection } from '../detectors/detections/bot-detection.js';
 import { runFraudDetection } from '../detectors/detections/fraud-detection.js';
@@ -58,8 +59,10 @@ export default class BreakageReporting extends ContentFeature {
             const detectorSettings = this.getFeatureSetting('interferenceTypes', 'webInterferenceDetection');
             if (detectorSettings) {
                 result.detectorData = {
-                    botDetection: runBotDetection(detectorSettings.botDetection),
-                    fraudDetection: runFraudDetection(detectorSettings.fraudDetection),
+                    botDetection: timeDetector(this, 'bot', () => runBotDetection(detectorSettings.botDetection)),
+                    fraudDetection: timeDetector(this, 'fraud', () => runFraudDetection(detectorSettings.fraudDetection)),
+                    // youtubeAds is intentionally not timed: the YouTube detector is
+                    // excluded from detectorPerf and keeps its own internal metrics.
                     youtubeAds: runYoutubeAdDetection(detectorSettings.youtubeAds),
                 };
             }

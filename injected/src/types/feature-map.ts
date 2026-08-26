@@ -16,6 +16,7 @@ import type BrowserUiLock from '../features/browser-ui-lock.js';
 import type ClickToLoad from '../features/click-to-load.js';
 import type ContextMenu from '../features/context-menu.js';
 import type Cookie from '../features/cookie.js';
+import type DetectorPerf from '../features/detector-perf.js';
 import type DuckAiChatHistory from '../features/duck-ai-chat-history.js';
 import type DuckAiDataClearing from '../features/duck-ai-data-clearing.js';
 import type DuckPlayer from '../features/duck-player.js';
@@ -65,6 +66,7 @@ export interface FeatureMap {
     clickToLoad: ClickToLoad;
     contextMenu: ContextMenu;
     cookie: Cookie;
+    detectorPerf: DetectorPerf;
     duckAiChatHistory: DuckAiChatHistory;
     duckAiDataClearing: DuckAiDataClearing;
     duckPlayer: DuckPlayer;
