@@ -1,0 +1,74 @@
+{
+    "readme": "chromeWebstorePatching fixture WITHOUT buttonCopy: copy must come from the bundled locale strings.",
+    "version": 1,
+    "features": {
+        "chromeWebstorePatching": {
+            "state": "enabled",
+            "exceptions": [],
+            "settings": {
+                "patchWebstore": {
+                    "state": "disabled"
+                },
+                "installButtonSelectors": [
+                    {
+                        "type": "css",
+                        "value": "button[jsname=\"wQO0od\"]"
+                    },
+                    {
+                        "type": "css",
+                        "value": "button[jsname=\"ajZLRd\"]"
+                    },
+                    {
+                        "type": "css",
+                        "value": "button[jscontroller=\"O626Fe\"][disabled]"
+                    }
+                ],
+                "promoSelectors": [
+                    "[jsname=\"v621tc\"]",
+                    "div[jscontroller=\"o2G9me\"]",
+                    "header[role=\"banner\"] aside"
+                ],
+                "domains": [
+                    {
+                        "domain": "localhost",
+                        "patchSettings": [
+                            {
+                                "op": "replace",
+                                "path": "/patchWebstore/state",
+                                "value": "enabled"
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        "extensionManagement": {
+            "state": "internal",
+            "exceptions": [],
+            "settings": {
+                "hiddenExtensionIds": [],
+                "disabledExtensionIds": [],
+                "specialBehavior": {}
+            },
+            "features": {
+                "curatedExtensions": {
+                    "state": "internal",
+                    "settings": {
+                        "catalog": [
+                            {
+                                "id": "nngceckbapebfimnlniiiahkandclblb",
+                                "name": "Bitwarden Password Manager",
+                                "publisher": "Bitwarden Inc.",
+                                "publisherUri": "https://bitwarden.com/",
+                                "iconUri": "/chrome-webstore-patching/pages/icon.png",
+                                "cwsUri": "https://chromewebstore.google.com/detail/bitwarden-password-manage/nngceckbapebfimnlniiiahkandclblb",
+                                "categoryId": "password-manager"
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+    },
+    "unprotectedTemporary": []
+}

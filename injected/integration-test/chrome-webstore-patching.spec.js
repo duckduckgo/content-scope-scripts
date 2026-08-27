@@ -78,6 +78,7 @@ function mockWebstorePrivate({ statusById = {}, omit = false, errorFor = undefin
  * @param {string[]} [opts.userUnprotectedDomains]
  * @param {boolean} [opts.internal] internal build? fixtures ship the feature as
  * `internal`, matching the windows override, so this defaults to true
+ * @param {string} [opts.locale]
  */
 async function setup(page, testInfo, opts = {}) {
     const collector = ResultsCollector.create(page, testInfo.project.use);
@@ -89,7 +90,14 @@ async function setup(page, testInfo, opts = {}) {
         omit: opts.omit ?? false,
         errorFor: opts.errorFor,
     });
-    await collector.load(opts.html ?? HTML, opts.config ?? CONFIG, { internal: opts.internal ?? true });
+    const platform = { internal: opts.internal ?? true };
+    if (opts.locale) {
+        // collector.load() has no locale parameter; setup() + goto is the same flow
+        await collector.setup({ config: opts.config ?? CONFIG, locale: opts.locale, platform });
+        await page.goto(opts.html ?? HTML);
+    } else {
+        await collector.load(opts.html ?? HTML, opts.config ?? CONFIG, platform);
+    }
     return collector;
 }
 
@@ -360,6 +368,36 @@ test.describe('chromeWebstorePatching', () => {
         for (const text of await page.locator(LABEL).allTextContents()) {
             expect(text).toBe('Add to DuckDuckGo');
         }
+    });
+
+    const CONFIG_NO_COPY = './integration-test/test-pages/chrome-webstore-patching/config/config-no-copy.json';
+
+    test('no buttonCopy in config → bundled English strings', async ({ page }, testInfo) => {
+        await setup(page, testInfo, { config: CONFIG_NO_COPY });
+        await navigateTo(page, CURATED_PATH);
+        await expect(page.locator(LABEL)).toHaveText('Add to DuckDuckGo');
+    });
+
+    test('locale de without config copy → bundled German strings', async ({ page }, testInfo) => {
+        await setup(page, testInfo, { config: CONFIG_NO_COPY, locale: 'de' });
+        await navigateTo(page, UNCURATED_PATH);
+        await expect(page.locator(LABEL)).toHaveText('Nicht unterstützte Erweiterung');
+        await expect(page.locator(BUTTON)).toHaveAttribute('title', /wird nicht unterstützt/);
+        await navigateTo(page, CURATED_PATH);
+        await expect(page.locator(LABEL)).toHaveText('Zu DuckDuckGo hinzufügen');
+    });
+
+    test('config buttonCopy overrides the bundled locale', async ({ page }, testInfo) => {
+        await setup(page, testInfo, { locale: 'de' });
+        await navigateTo(page, CURATED_PATH);
+        // CONFIG carries English buttonCopy — the override must win over de strings
+        await expect(page.locator(LABEL)).toHaveText('Add to DuckDuckGo');
+    });
+
+    test('unknown locale falls back to bundled English', async ({ page }, testInfo) => {
+        await setup(page, testInfo, { config: CONFIG_NO_COPY, locale: 'zz' });
+        await navigateTo(page, CURATED_PATH);
+        await expect(page.locator(LABEL)).toHaveText('Add to DuckDuckGo');
     });
 
     test('promos hidden with configured promoSelectors', async ({ page }, testInfo) => {
