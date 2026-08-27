@@ -19,8 +19,8 @@ function createFeatureForSite(site, exceptions = []) {
 }
 
 describe('UaChBrands stock-brand sites', () => {
-    it('treats a site the user allowlisted as needing the stock brands', () => {
-        expect(createFeatureForSite({ allowlisted: true }).shouldPresentStockBrands()).toBeTrue();
+    it('leaves a site the user allowlisted brandable - protections say nothing about the brand', () => {
+        expect(createFeatureForSite({ allowlisted: true }).shouldPresentStockBrands()).toBeFalse();
     });
 
     it('treats an ordinary site as brandable', () => {

@@ -937,7 +937,6 @@ export const platformSpecificFeatures = [
     'hover',
     'trackerProtection', // only enabled on apple platforms
     'textSelection',
-    'uaChBrands', // Chromium can add the brand before any of this runs
 ];
 /**
  * Features that bypass exception-based disabling in computeEnabledFeatures.

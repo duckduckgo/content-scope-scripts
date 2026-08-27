@@ -60,15 +60,16 @@ export default class UaChBrands extends ContentFeature {
     }
 
     /**
-     * True when the page is meant to look exactly like the default browser, so our brand has to be
-     * taken back out of whatever Chromium produced: the site is excepted from this feature, or the
-     * user has turned protections off for it. Self-gating means the framework no longer applies the
-     * exceptions for us, so they are read here - see selfGatingFeatures.
+     * True when the site is excepted from this feature and so is meant to look exactly like the
+     * default browser, which means taking our brand back out of whatever Chromium produced. Turning
+     * protections off is deliberately not part of this: it says nothing about which brand a site
+     * should see. Self-gating means the framework no longer applies the exceptions for us, so they
+     * are read here - see selfGatingFeatures.
      * @returns {boolean}
      */
     shouldPresentStockBrands() {
         const exceptions = this.bundledConfig?.features?.uaChBrands?.exceptions || [];
-        return isUnprotectedDomain(getTabHostname(), exceptions) || !!this.args?.site?.allowlisted;
+        return isUnprotectedDomain(getTabHostname(), exceptions);
     }
 
     /**
