@@ -19,12 +19,16 @@ describe('chromeWebstorePatching', () => {
         );
     }
 
-    /** bundledConfig shape carrying a curatedExtensions catalog */
-    function configWithCatalog(overrides = {}) {
+    /**
+     * bundledConfig shape carrying a curatedExtensions catalog
+     * @param {object} [overrides]
+     * @param {string | null} [parentState]
+     */
+    function configWithCatalog(overrides = {}, parentState = 'internal') {
         return {
             features: {
                 extensionManagement: {
-                    state: 'internal',
+                    state: parentState,
                     features: {
                         curatedExtensions: {
                             state: 'internal',
@@ -89,6 +93,17 @@ describe('chromeWebstorePatching', () => {
                 configWithCatalog({ settings: { catalog: [{ id: CURATED_ID }, { name: 'no id' }, { id: 42 }, null] } }),
             );
             expect(feature.getCuratedExtensionIds()).toEqual([CURATED_ID]);
+        });
+
+        it('returns [] when the parent extensionManagement feature is disabled', () => {
+            const feature = createFeature(configWithCatalog({}, 'disabled'));
+            expect(feature.getCuratedExtensionIds()).toEqual([]);
+        });
+
+        it('returns [] when the parent state is missing', () => {
+            // null survives the default parameter (undefined would not)
+            const feature = createFeature(configWithCatalog({}, null));
+            expect(feature.getCuratedExtensionIds()).toEqual([]);
         });
 
         it('returns [] when extensionManagement is absent', () => {

@@ -23,13 +23,13 @@ Every failure path degrades to "install button stays hidden", never to a working
 
 Feature key `chromeWebstorePatching` (schema: `privacy-configuration/schema/features/chrome-webstore-patching.ts`). All settings are top-level defaults; a single `domains` patch scoped to `chromewebstore.google.com` flips the `patchWebstore` gate:
 
-| Setting                      | Purpose                                                                                                                                                           |
-| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `patchWebstore`              | `{state}` execution gate — disabled everywhere, enabled on the store domain via `domains` patch. `init()` early-returns unless enabled.                           |
-| `installButtonSelectors`     | Ordered `{type: 'css'\|'xpath', value}` list targeting the install `<button>`. POC consumes `css` entries only. Primary: `button[jsname="wQO0od"]`.               |
-| `promoSelectors`             | CSS selectors for Chrome promo banners to hide.                                                                                                                   |
-| `buttonCopy`                 | `{install, remove, unavailable, unavailableDescription}` — curated pill labels, unsupported pill label, and its tooltip. A verdict without its copy stays hidden. |
-| `apiDetectionTimeoutMs`      | Reserved for a future `webstorePrivate` retry/poll (POC does a single attempt).                                                                                   |
+| Setting                  | Purpose                                                                                                                                                           |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `patchWebstore`          | `{state}` execution gate — disabled everywhere, enabled on the store domain via `domains` patch. `init()` early-returns unless enabled.                           |
+| `installButtonSelectors` | Ordered `{type: 'css'\|'xpath', value}` list targeting the install `<button>`. POC consumes `css` entries only. Primary: `button[jsname="wQO0od"]`.               |
+| `promoSelectors`         | CSS selectors for Chrome promo banners to hide.                                                                                                                   |
+| `buttonCopy`             | `{install, remove, unavailable, unavailableDescription}` — curated pill labels, unsupported pill label, and its tooltip. A verdict without its copy stays hidden. |
+| `apiDetectionTimeoutMs`  | Reserved for a future `webstorePrivate` retry/poll (POC does a single attempt).                                                                                   |
 
 Curated extension IDs are **not** duplicated here — they are read from the native `extensionManagement` feature's `curatedExtensions.settings.catalog` via `bundledConfig` (sub-feature settings are not copied into `featureSettings`, so `getFeatureSetting` cannot reach them). Any shape mismatch there degrades to an empty catalog → everything hidden.
 

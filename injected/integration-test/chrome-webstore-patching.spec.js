@@ -178,6 +178,18 @@ test.describe('chromeWebstorePatching', () => {
         });
     }
 
+    test('extensionManagement (parent) disabled → curated ID treated as unsupported, click inert', async ({ page }, testInfo) => {
+        await setup(page, testInfo, {
+            config: './integration-test/test-pages/chrome-webstore-patching/config/config-extension-management-off.json',
+        });
+        await navigateTo(page, CURATED_PATH);
+        await expect(page.locator(LABEL)).toHaveText('Unsupported extension');
+        await expect(page.locator(BUTTON)).toBeDisabled();
+        // the live-build bug: this click used to reach the store's install handler
+        await page.locator(BUTTON).click({ force: true });
+        await expect.poll(() => page.evaluate(() => /** @type {any} */ (window).__installClicked)).toBe(false);
+    });
+
     test('curatedExtensions disabled → curated ID treated as unsupported', async ({ page }, testInfo) => {
         await setup(page, testInfo, {
             config: './integration-test/test-pages/chrome-webstore-patching/config/config-curation-off.json',

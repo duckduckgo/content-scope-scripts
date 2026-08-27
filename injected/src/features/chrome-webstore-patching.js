@@ -324,6 +324,9 @@ export class ChromeWebstorePatching extends ContentFeature {
     getCuratedExtensionIds() {
         // The config type doesn't declare sub-features, so drop to `any` at this boundary
         const extensionManagement = /** @type {any} */ (this.bundledConfig?.features?.extensionManagement);
+        // The parent feature gates native extension support — with it disabled the
+        // catalog must be treated as empty, or the pill would offer a working install
+        if (extensionManagement?.state !== 'enabled' && extensionManagement?.state !== 'internal') return [];
         const curated = extensionManagement?.features?.curatedExtensions;
         // 'internal' is fine: non-internal builds won't offer installation natively either
         if (curated?.state !== 'enabled' && curated?.state !== 'internal') return [];
