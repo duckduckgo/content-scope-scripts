@@ -1,0 +1,28 @@
+{
+  "smartling": {
+    "string_format": "icu",
+    "translate_paths": [
+      {
+        "path": "*/title",
+        "key": "{*}/title",
+        "instruction": "*/note"
+      }
+    ]
+  },
+  "install": {
+    "title": "Add to DuckDuckGo",
+    "note": "Install button on a Chrome Web Store extension detail page, replacing 'Add to Chrome'."
+  },
+  "remove": {
+    "title": "Remove from DuckDuckGo",
+    "note": "Uninstall button on a Chrome Web Store extension detail page, shown when the extension is already installed."
+  },
+  "unavailable": {
+    "title": "Unsupported extension",
+    "note": "Label on a disabled button, shown on extensions the DuckDuckGo browser does not support."
+  },
+  "unavailableDescription": {
+    "title": "This extension isn't supported. DuckDuckGo is introducing extension support, starting with password managers.",
+    "note": "Tooltip shown when hovering the disabled 'Unsupported extension' button."
+  }
+}
