@@ -1,29 +1,20 @@
 import ContentFeature from '../content-feature.js';
 import { injectGlobalStyles } from '../utils.js';
-// Copied from the duckduckgo/Icons repo (Color/24px), per design; the icons
-// package doesn't export color icons, so the SVG is vendored with its
-// original name for future reuse.
+// Vendored from the duckduckgo/Icons repo (no package exports them), original names kept
 import daxSvg from './chrome-webstore-patching/assets/DuckDuckGo-Color-24.svg';
+import trashSvg from './chrome-webstore-patching/assets/Trash-24.svg';
 
 const DAX_DATA_URI = `data:image/svg+xml;utf8,${encodeURIComponent(daxSvg)}`;
+const TRASH_DATA_URI = `data:image/svg+xml;utf8,${encodeURIComponent(trashSvg.replaceAll('fill="black"', 'fill="#FFFFFF" fill-opacity="0.78"'))}`;
 
-/**
- * Fallback status strings for chrome.webstorePrivate.getExtensionStatus, used
- * only when the API's own ExtensionInstallStatus enum is unavailable. Anything
- * not matched is treated as unknown and the button stays hidden (fail closed).
- */
+// Fallbacks for when the API's own ExtensionInstallStatus enum is unavailable;
+// unmatched statuses keep the button hidden (fail closed)
 const INSTALLED_STATUSES = ['enabled', 'disabled', 'force_installed', 'terminated'];
 const INSTALLABLE_STATUSES = ['installable', 'can_request'];
 
-/**
- * Pill styles, applied INLINE with !important priority: the store's own
- * stylesheet uses !important + high-specificity class rules that beat any
- * rule we can inject (verified on the Windows build: our injected height and
- * ::before lost every specificity war), but nothing beats an inline important
- * declaration. Only display stays stylesheet-driven — it must flip with the
- * html[data-ddg-webstore] attribute for the fail-closed hide/reveal to work.
- * Values per Figma: 40px pill, radius 48, padding 8/16/8/12, 6px icon gap.
- */
+// Applied INLINE with !important: the store's own !important class rules beat
+// any injected stylesheet, but nothing beats an inline important declaration.
+// Only `display` stays stylesheet-driven (must flip with html[data-ddg-webstore]).
 const PILL_LAYOUT = {
     'align-items': 'center',
     'justify-content': 'center',
@@ -37,20 +28,25 @@ const PILL_LAYOUT = {
     'font-weight': '500',
 };
 const PILL_STYLES = {
-    curated: { ...PILL_LAYOUT, background: '#F05F2B', color: '#FFFFFF', cursor: 'pointer', 'pointer-events': 'auto' },
-    // NOTE: no pointer-events: none — that would redirect clicks to the store's
-    // delegated jsaction ancestor handler, which still installs. Clicks are
-    // blocked by the capture-phase interceptor + the disabled attribute instead.
+    install: { ...PILL_LAYOUT, background: '#F05F2B', color: '#FFFFFF', cursor: 'pointer', 'pointer-events': 'auto' },
+    // Figma token T-Destructive/Primary
+    remove: { ...PILL_LAYOUT, background: '#E44D55', color: '#FFFFFF', cursor: 'pointer', 'pointer-events': 'auto' },
+    // pointer-events must stay auto: `none` redirects clicks to the store's delegated
+    // jsaction ancestor, which still installs — the interceptor + disabled block them instead
     unsupported: { ...PILL_LAYOUT, background: '#E4E4E4', color: '#8A8A8A', cursor: 'default', 'pointer-events': 'auto' },
 };
 
-/** Icon element styles (a feature-owned span — ::before pseudo-elements can't carry inline styles) */
+// The icon is a feature-owned span: ::before can't carry inline styles
 const ICON_STYLES = {
     display: 'inline-block',
     flex: 'none',
     width: '24px',
     height: '24px',
-    background: `url("${DAX_DATA_URI}") center / contain no-repeat`,
+};
+const ICON_BACKGROUNDS = {
+    install: `url("${DAX_DATA_URI}") center / contain no-repeat`,
+    remove: `url("${TRASH_DATA_URI}") center / contain no-repeat`,
+    unsupported: `url("${DAX_DATA_URI}") center / contain no-repeat`,
 };
 
 /**
@@ -87,28 +83,21 @@ export class ChromeWebstorePatching extends ContentFeature {
     _buttonSelector = '';
 
     async init() {
-        // Check enabled
         if (!this.getFeatureSettingEnabled('patchWebstore')) return;
 
-        // Settings only exist on chromewebstore.google.com — the remote config
-        // delivers them via a `domains` patch — so this doubles as the domain check.
         const selectors = this.getFeatureSetting('installButtonSelectors');
         if (!Array.isArray(selectors)) return;
 
-        // POC: CSS selectors only; xpath fallback entries are a future improvement.
+        // POC consumes css entries only; xpath fallbacks are a future improvement
         this._buttonSelector = selectors
             .filter((s) => s?.type === 'css' && typeof s.value === 'string')
             .map((s) => s.value)
             .join(',');
         if (!this._buttonSelector) return;
 
-        // Capture-phase interceptors, registered at document-start BEFORE the
-        // store's root jsaction handler so stopImmediatePropagation beats it.
-        // Blocks activation of the unsupported pill (belt-and-braces on top of
-        // the disabled attribute, covering the window before the observer
-        // re-applies it after a store re-render), and re-evaluates after
-        // curated clicks: the store installs/uninstalls asynchronously and
-        // nothing else tells us the state changed.
+        // Registered at document-start so capture-phase beats the store's root
+        // jsaction handler. Blocks activation of the unsupported pill; after a
+        // curated click, re-evaluates — install/uninstall is async and emits no event.
         /** @param {Event} event */
         const intercept = (event) => {
             if (!this._verdict) return;
@@ -128,11 +117,9 @@ export class ChromeWebstorePatching extends ContentFeature {
             document.addEventListener(type, intercept, true);
         }
 
-        // We run at document-start, where document.documentElement may not
-        // exist yet. Wait ONLY until it does (the first parsed element, long
-        // before first paint) so the fail-closed hide CSS is active before the
-        // server-rendered button can flash. Waiting for DOMContentLoaded here
-        // caused exactly that flash on the live store.
+        // At document-start documentElement may not exist yet. Wait only until it
+        // does (long before first paint) — waiting for DOMContentLoaded here let
+        // the server-rendered button flash on the live store.
         if (!document.documentElement) {
             await new Promise((resolve) => {
                 const observer = new MutationObserver(() => {
@@ -145,18 +132,13 @@ export class ChromeWebstorePatching extends ContentFeature {
             });
         }
 
-        // Chrome promo banners are hide-only: no reveal path, no JS follow-up.
         const promoSelectors = this.getFeatureSetting('promoSelectors');
         const promoRule =
             Array.isArray(promoSelectors) && promoSelectors.length ? `:is(${promoSelectors.join(',')}) { display: none !important; }` : '';
 
-        // Fail closed: hide all install buttons before the page hydrates; the
-        // reveal rule only wins once the decision path sets data-ddg-webstore.
-        // The button selector is a comma list, so it MUST be wrapped in :is() —
-        // bare interpolation prefixes only the first alternative (a live bug
-        // found on the Windows build). Only display lives here: everything
-        // else is applied inline in _applyVerdict, because the store's own
-        // !important class rules out-specificity any stylesheet we inject.
+        // Fail closed: buttons hidden until a verdict sets data-ddg-webstore.
+        // The comma-list selector must be wrapped in :is() — bare interpolation
+        // prefixes only the first alternative (live bug on the Windows build).
         const btn = `:is(${this._buttonSelector})`;
         injectGlobalStyles(`
             html ${btn} { display: none !important; }
@@ -167,8 +149,7 @@ export class ChromeWebstorePatching extends ContentFeature {
         this._observer = new MutationObserver(() => this._applyVerdict());
         this._observer.observe(document.documentElement, { childList: true, subtree: true });
 
-        // DOM-touching work (button lookups, our icon/label spans) can wait
-        // until the document has parsed; the observer covers late renders.
+        // DOM work can wait for parse; the observer covers late renders
         if (document.readyState === 'loading') {
             await new Promise((resolve) => {
                 document.addEventListener('DOMContentLoaded', () => resolve(undefined), { once: true });
@@ -178,7 +159,7 @@ export class ChromeWebstorePatching extends ContentFeature {
     }
 
     urlChanged() {
-        // The URL-change dispatcher calls this synchronously; _evaluatePage never rejects
+        // Called synchronously by the URL-change dispatcher; _evaluatePage never rejects
         void this._evaluatePage();
     }
 
@@ -187,7 +168,7 @@ export class ChromeWebstorePatching extends ContentFeature {
      * navigation — never per DOM mutation.
      */
     async _evaluatePage() {
-        // Reset to fail-closed before deciding, so nothing stale survives navigation
+        // Reset to fail-closed so nothing stale survives navigation
         this._verdict = null;
         delete document.documentElement.dataset.ddgWebstore;
 
@@ -195,14 +176,13 @@ export class ChromeWebstorePatching extends ContentFeature {
         if (!extensionId) return;
 
         if (!this.getCuratedExtensionIds().includes(extensionId)) {
-            // Non-curated detail page: disabled grey "Unsupported extension" pill
             this._reveal('unsupported');
             return;
         }
 
         const status = await this.getExtensionStatus(extensionId);
 
-        // A navigation may have happened while we awaited — don't apply a stale verdict
+        // A navigation may have happened during the await — don't apply a stale verdict
         if (extensionId !== parseExtensionId(window.location.pathname)) return;
 
         const { installable, installed } = this._statusSets();
@@ -215,13 +195,8 @@ export class ChromeWebstorePatching extends ContentFeature {
     }
 
     /**
-     * Status values that map to each verdict. Read from the API's own
-     * ExtensionInstallStatus enum (verified on the Windows build, Aug 2026:
-     * blacklisted, blocked_by_policy, can_request, corrupted,
-     * custodian_approval_required[_for_installation], deprecated_manifest_version,
-     * disabled, enabled, force_installed, installable, request_pending,
-     * terminated) so we
-     * track Chromium; hardcoded fallbacks only if the enum is missing.
+     * Status values that map to each verdict, read from the API's own
+     * ExtensionInstallStatus enum so we track Chromium; fallbacks only if it's missing.
      * @returns {{ installable: string[], installed: string[] }}
      */
     _statusSets() {
@@ -235,8 +210,7 @@ export class ChromeWebstorePatching extends ContentFeature {
     }
 
     /**
-     * Marks the page state so the injected CSS reveals and styles the button,
-     * then applies copy. Refuses to reveal without the copy for this verdict —
+     * Reveals the button for a verdict. Refuses without the verdict's copy —
      * a revealed button must never show Google's original wording.
      * @param {'install' | 'remove' | 'unsupported'} verdict
      */
@@ -259,9 +233,8 @@ export class ChromeWebstorePatching extends ContentFeature {
         const text = { install: copy?.install, remove: copy?.remove, unsupported: copy?.unavailable }[this._verdict];
         if (typeof text !== 'string') return;
 
-        // ALL matches, not the first: on SPA navigations the store mounts a
-        // fresh button while previous-view nodes can linger in the DOM, and
-        // the visible one is not necessarily first in document order.
+        // ALL matches: on SPA navigations the store mounts a fresh button while
+        // previous-view nodes linger, and the visible one isn't necessarily first
         for (const button of document.querySelectorAll(this._buttonSelector)) {
             if (button instanceof HTMLElement) {
                 this._applyVerdictToButton(button, text, copy);
@@ -275,13 +248,11 @@ export class ChromeWebstorePatching extends ContentFeature {
      * @param {any} copy
      */
     _applyVerdictToButton(button, text, copy) {
-        // Icon and label are feature-owned: the store's internal button
-        // structure rotates between states and re-renders, and its !important
-        // class rules beat injected pseudo-element styling (live testing showed
-        // our ::before losing to the store's own). The pill is our icon span +
-        // our label span; every store child is hidden — even zero-width flex
-        // items consume the 6px gap.
-        const isUnsupported = this._verdict === 'unsupported';
+        // Icon and label are feature-owned spans — the store's internal button
+        // structure rotates between states, so nothing of Google's is reused.
+        // Every store child gets hidden: even zero-width flex items consume the gap.
+        const verdict = /** @type {'install' | 'remove' | 'unsupported'} */ (this._verdict);
+        const isUnsupported = verdict === 'unsupported';
         /** @type {HTMLElement | null} */
         let icon = /** @type {HTMLElement | null} */ (button.querySelector('span[data-ddg-webstore-icon]'));
         if (!icon) {
@@ -293,6 +264,12 @@ export class ChromeWebstorePatching extends ContentFeature {
             }
             button.prepend(icon);
         }
+        // Verdicts flip in place (install ↔ remove after a click); the background
+        // shorthand doesn't serialize back verbatim, so guard on a marker
+        if (icon.dataset.ddgVerdict !== verdict) {
+            icon.dataset.ddgVerdict = verdict;
+            icon.style.setProperty('background', ICON_BACKGROUNDS[verdict], 'important');
+        }
         const iconFilter = isUnsupported ? 'grayscale(1) opacity(0.55)' : 'none';
         if (icon.style.getPropertyValue('filter') !== iconFilter) {
             icon.style.setProperty('filter', iconFilter, 'important');
@@ -303,7 +280,7 @@ export class ChromeWebstorePatching extends ContentFeature {
             label.setAttribute('data-ddg-webstore-label', '');
             button.appendChild(label);
         }
-        // Guard prevents our own textContent write from re-triggering the observer forever
+        // Equality guard stops our own write from re-triggering the observer forever
         if (label.textContent !== text) {
             label.textContent = text;
         }
@@ -317,19 +294,15 @@ export class ChromeWebstorePatching extends ContentFeature {
             button.setAttribute('aria-label', text);
         }
 
-        // Inline important declarations beat the store's own !important rules,
-        // including its greyed-out disabled styling on non-Chrome browsers
-        const styles = PILL_STYLES[isUnsupported ? 'unsupported' : 'curated'];
+        const styles = PILL_STYLES[verdict];
         for (const [prop, value] of Object.entries(styles)) {
             if (button.style.getPropertyValue(prop) !== value) {
                 button.style.setProperty(prop, value, 'important');
             }
         }
 
-        // The unsupported pill is inert (disabled + title tooltip). For curated
-        // verdicts, actively CLEAR the disabled state — the store disables its
-        // install/remove buttons on non-Chrome browsers and may re-apply it on
-        // re-renders (which re-trigger this via the observer).
+        // Curated verdicts actively CLEAR disabled — the store disables these
+        // buttons on non-Chrome browsers and re-applies it on re-renders
         if (button instanceof HTMLButtonElement && button.disabled !== isUnsupported) {
             button.disabled = isUnsupported;
         }
@@ -343,17 +316,16 @@ export class ChromeWebstorePatching extends ContentFeature {
     }
 
     /**
-     * Curated extension IDs from remote config. The catalog lives on the native
-     * extensionManagement feature's curatedExtensions SUB-feature; sub-feature
-     * settings aren't copied into featureSettings, so read bundledConfig directly.
+     * Curated extension IDs, read from the native extensionManagement feature's
+     * curatedExtensions sub-feature via bundledConfig — sub-feature settings
+     * aren't copied into featureSettings.
      * @returns {string[]}
      */
     getCuratedExtensionIds() {
         // The config type doesn't declare sub-features, so drop to `any` at this boundary
         const extensionManagement = /** @type {any} */ (this.bundledConfig?.features?.extensionManagement);
         const curated = extensionManagement?.features?.curatedExtensions;
-        // 'internal' is acceptable: on non-internal builds the native side won't
-        // offer installation either, so over-matching is harmless.
+        // 'internal' is fine: non-internal builds won't offer installation natively either
         if (curated?.state !== 'enabled' && curated?.state !== 'internal') return [];
         const catalog = curated.settings?.catalog;
         if (!Array.isArray(catalog)) return [];
@@ -361,10 +333,8 @@ export class ChromeWebstorePatching extends ContentFeature {
     }
 
     /**
-     * Resolves the raw install status, or null when the API is missing or errors.
-     * Single attempt for the POC — if chrome.webstorePrivate appears later than we
-     * run, we stay fail-closed (a retry/poll is a future improvement).
-     * Callback API: failures surface via chrome.runtime.lastError, not via throw.
+     * Raw install status, or null when the API is missing or errors. Single
+     * attempt for the POC — a late-appearing chrome.webstorePrivate stays fail-closed.
      * @param {string} extensionId
      * @returns {Promise<string | null>}
      */
