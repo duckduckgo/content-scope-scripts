@@ -70,7 +70,7 @@ export default class UaChBrands extends ContentFeature {
      * @returns {boolean}
      */
     shouldPresentStockBrands() {
-        if (isGloballyDisabled(this.args)) {
+        if (this.args && isGloballyDisabled(this.args)) {
             return true;
         }
 
