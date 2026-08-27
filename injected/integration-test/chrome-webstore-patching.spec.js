@@ -394,6 +394,12 @@ test.describe('chromeWebstorePatching', () => {
         await expect(page.locator(LABEL)).toHaveText('Add to DuckDuckGo');
     });
 
+    test('region-tagged locale resolves its language dir (de-DE → de)', async ({ page }, testInfo) => {
+        await setup(page, testInfo, { config: CONFIG_NO_COPY, locale: 'de-DE' });
+        await navigateTo(page, CURATED_PATH);
+        await expect(page.locator(LABEL)).toHaveText('Zu DuckDuckGo hinzufügen');
+    });
+
     test('unknown locale falls back to bundled English', async ({ page }, testInfo) => {
         await setup(page, testInfo, { config: CONFIG_NO_COPY, locale: 'zz' });
         await navigateTo(page, CURATED_PATH);

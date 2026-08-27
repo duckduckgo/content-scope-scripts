@@ -93,7 +93,11 @@ export class ChromeWebstorePatching extends ContentFeature {
 
     /** @param {any} [args] */
     async init(args) {
-        this._locale = args?.locale || args?.language || 'en';
+        // Locale dirs are bare language codes — strip any region subtag ('de-DE'/'de_DE' → 'de')
+        this._locale =
+            String(args?.locale || args?.language || 'en')
+                .toLowerCase()
+                .split(/[-_]/)[0] || 'en';
         if (!this.getFeatureSettingEnabled('patchWebstore')) return;
 
         const selectors = this.getFeatureSetting('installButtonSelectors');
