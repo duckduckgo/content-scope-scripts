@@ -1,5 +1,7 @@
 import ContentFeature from '../content-feature.js';
-import { DDGReflect, getTabHostname, isUnprotectedDomain } from '../utils.js';
+import { DDGReflect, getTabHostname, isGloballyDisabled, isUnprotectedDomain } from '../utils.js';
+
+const DUCK_DUCK_GO_BRAND = 'DuckDuckGo';
 
 export default class UaChBrands extends ContentFeature {
     constructor(featureName, importConfig, features, args) {
@@ -17,8 +19,8 @@ export default class UaChBrands extends ContentFeature {
      * @returns {string} - Brand name to use for replacement/append
      */
     getBrandOverride() {
-        const brandName = this.getFeatureSetting('brandName') || 'DuckDuckGo';
-        if (brandName !== 'DuckDuckGo') {
+        const brandName = this.getFeatureSetting('brandName') || DUCK_DUCK_GO_BRAND;
+        if (brandName !== DUCK_DUCK_GO_BRAND) {
             this.log.info(`Using brand override: "${brandName}"`);
         }
         return brandName;
@@ -60,14 +62,18 @@ export default class UaChBrands extends ContentFeature {
     }
 
     /**
-     * True when the site is excepted from this feature and so is meant to look exactly like the
-     * default browser, which means taking our brand back out of whatever Chromium produced. Turning
-     * protections off is deliberately not part of this: it says nothing about which brand a site
-     * should see. Self-gating means the framework no longer applies the exceptions for us, so they
-     * are read here - see selfGatingFeatures.
+     * True when the site is meant to look exactly like the default browser, which means taking our
+     * brand back out of whatever Chromium produced. That covers both a config exception and
+     * protections being off, the two cases where this feature used to not run at all. Self-gating
+     * means the framework no longer applies the exceptions for us, so they are read here - see
+     * selfGatingFeatures.
      * @returns {boolean}
      */
     shouldPresentStockBrands() {
+        if (isGloballyDisabled(this.args)) {
+            return true;
+        }
+
         const exceptions = this.bundledConfig?.features?.uaChBrands?.exceptions || [];
         return isUnprotectedDomain(getTabHostname(), exceptions);
     }
@@ -82,9 +88,9 @@ export default class UaChBrands extends ContentFeature {
             return [];
         }
 
-        const remaining = list.filter((b) => b.brand !== 'DuckDuckGo');
+        const remaining = list.filter((b) => b.brand !== DUCK_DUCK_GO_BRAND);
         if (remaining.length !== list.length) {
-            this.log.info('Removed "DuckDuckGo" so the site sees the stock brands');
+            this.log.info(`Removed "${DUCK_DUCK_GO_BRAND}" so the site sees the stock brands`);
         }
         return remaining;
     }
@@ -101,22 +107,15 @@ export default class UaChBrands extends ContentFeature {
             return [];
         }
 
-        if (list.some((b) => b.brand === targetBrand)) {
-            return [...list];
-        }
+        // Our brand must not survive next to a different one, however it got there.
+        const mutated = targetBrand === DUCK_DUCK_GO_BRAND ? [...list] : this.removeOurBrandFromList(list);
 
-        // Chromium supplies the brand itself when --ddg-user-agent-brand is passed, so a host taking a
-        // different brand needs that entry renamed rather than a second one appended.
-        if (list.some((b) => b.brand === 'DuckDuckGo')) {
-            this.log.info(`Renamed "DuckDuckGo" to "${targetBrand}"`);
-            return list.map((b) => (b.brand === 'DuckDuckGo' ? { brand: targetBrand, version: b.version } : b));
-        }
-
-        const mutated = [...list];
-        const chromium = mutated.find((b) => b.brand === 'Chromium');
-        if (chromium) {
-            mutated.push({ brand: targetBrand, version: chromium.version });
-            this.log.info(`Appended "${targetBrand}" v${chromium.version} (to match Chromium version)`);
+        if (!mutated.some((b) => b.brand === targetBrand)) {
+            const chromium = mutated.find((b) => b.brand === 'Chromium');
+            if (chromium) {
+                mutated.push({ brand: targetBrand, version: chromium.version });
+                this.log.info(`Appended "${targetBrand}" v${chromium.version} (to match Chromium version)`);
+            }
         }
 
         const brandNames = mutated.map((b) => `"${b.brand}" v${b.version}`).join(', ');

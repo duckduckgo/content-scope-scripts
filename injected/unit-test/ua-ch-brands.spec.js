@@ -19,8 +19,24 @@ function createFeatureForSite(site, exceptions = []) {
 }
 
 describe('UaChBrands stock-brand sites', () => {
-    it('leaves a site the user allowlisted brandable - protections say nothing about the brand', () => {
-        expect(createFeatureForSite({ allowlisted: true }).shouldPresentStockBrands()).toBeFalse();
+    it('presents stock brands on a site the user allowlisted', () => {
+        expect(createFeatureForSite({ allowlisted: true }).shouldPresentStockBrands()).toBeTrue();
+    });
+
+    it('presents stock brands on a site protections consider broken', () => {
+        expect(createFeatureForSite({ isBroken: true }).shouldPresentStockBrands()).toBeTrue();
+    });
+
+    it('presents stock brands on a site excepted from this feature', () => {
+        const top = globalThis.top;
+        globalThis.top = /** @type {any} */ ({ location: { href: 'https://example.com/' } });
+
+        try {
+            expect(createFeatureForSite({}, [{ domain: 'example.com' }]).shouldPresentStockBrands()).toBeTrue();
+            expect(createFeatureForSite({}, [{ domain: 'other.example' }]).shouldPresentStockBrands()).toBeFalse();
+        } finally {
+            globalThis.top = top;
+        }
     });
 
     it('treats an ordinary site as brandable', () => {
@@ -60,13 +76,21 @@ describe('UaChBrands applyBrandMutationsToList', () => {
         expect(result).toEqual(branded);
     });
 
-    it('renames the existing brand instead of appending a second one', () => {
+    it('replaces our brand instead of appending a second one', () => {
         const branded = [...chromiumBrands, { brand: 'DuckDuckGo', version: '151' }];
 
         const result = createFeature().applyBrandMutationsToList(branded, 'Chrome');
 
         expect(result).toEqual([...chromiumBrands, { brand: 'Chrome', version: '151' }]);
         expect(branded[2].brand).toBe('DuckDuckGo');
+    });
+
+    it('drops our brand when a different one is already present', () => {
+        const both = [...chromiumBrands, { brand: 'DuckDuckGo', version: '151' }, { brand: 'Chrome', version: '151' }];
+
+        const result = createFeature().applyBrandMutationsToList(both, 'Chrome');
+
+        expect(result).toEqual([...chromiumBrands, { brand: 'Chrome', version: '151' }]);
     });
 
     it('returns an empty list when there are no brands', () => {

@@ -937,6 +937,7 @@ export const platformSpecificFeatures = [
     'hover',
     'trackerProtection', // only enabled on apple platforms
     'textSelection',
+    'uaChBrands',
 ];
 /**
  * Features that bypass exception-based disabling in computeEnabledFeatures.
