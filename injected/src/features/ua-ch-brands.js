@@ -1,5 +1,5 @@
 import ContentFeature from '../content-feature.js';
-import { DDGReflect } from '../utils.js';
+import { DDGReflect, getTabHostname, isUnprotectedDomain } from '../utils.js';
 
 export default class UaChBrands extends ContentFeature {
     constructor(featureName, importConfig, features, args) {
@@ -42,8 +42,9 @@ export default class UaChBrands extends ContentFeature {
                 this.originalBrands.map((b) => `"${b.brand}" v${b.version}`).join(', '),
             );
 
-            const targetBrand = this.getBrandOverride();
-            const mutatedBrands = this.applyBrandMutationsToList(this.originalBrands, targetBrand);
+            const mutatedBrands = this.shouldPresentStockBrands()
+                ? this.removeOurBrandFromList(this.originalBrands)
+                : this.applyBrandMutationsToList(this.originalBrands, this.getBrandOverride());
 
             if (mutatedBrands.length && !this.brandListsMatch(this.originalBrands, mutatedBrands)) {
                 this.log.info(
@@ -56,6 +57,35 @@ export default class UaChBrands extends ContentFeature {
         } catch (error) {
             this.log.error('Error in shimUserAgentDataBrands:', error);
         }
+    }
+
+    /**
+     * True when the page is meant to look exactly like the default browser, so our brand has to be
+     * taken back out of whatever Chromium produced: the site is excepted from this feature, or the
+     * user has turned protections off for it. Self-gating means the framework no longer applies the
+     * exceptions for us, so they are read here - see selfGatingFeatures.
+     * @returns {boolean}
+     */
+    shouldPresentStockBrands() {
+        const exceptions = this.bundledConfig?.features?.uaChBrands?.exceptions || [];
+        return isUnprotectedDomain(getTabHostname(), exceptions) || !!this.args?.site?.allowlisted;
+    }
+
+    /**
+     * Drops our brand, leaving the list Chromium would have produced on its own.
+     * @param {Array<{brand: string, version: string}>} list - Original brands list
+     * @returns {Array<{brand: string, version: string}>} - List without our brand
+     */
+    removeOurBrandFromList(list) {
+        if (!Array.isArray(list) || !list.length) {
+            return [];
+        }
+
+        const remaining = list.filter((b) => b.brand !== 'DuckDuckGo');
+        if (remaining.length !== list.length) {
+            this.log.info('Removed "DuckDuckGo" so the site sees the stock brands');
+        }
+        return remaining;
     }
 
     /**
@@ -130,8 +160,9 @@ export default class UaChBrands extends ContentFeature {
                         result = newBrands;
                     }
                     if (key === 'fullVersionList' && args[0]?.includes('fullVersionList') && value) {
-                        const targetBrand = featureInstance.getBrandOverride();
-                        result = featureInstance.applyBrandMutationsToList(value, targetBrand);
+                        result = featureInstance.shouldPresentStockBrands()
+                            ? featureInstance.removeOurBrandFromList(value)
+                            : featureInstance.applyBrandMutationsToList(value, featureInstance.getBrandOverride());
                     }
 
                     modifiedResult[key] = result;

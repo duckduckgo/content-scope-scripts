@@ -11,6 +11,40 @@ const chromiumBrands = [
     { brand: 'Not=A?Brand', version: '99' },
 ];
 
+function createFeatureForSite(site, exceptions = []) {
+    const feature = createFeature();
+    Object.defineProperty(feature, 'args', { value: { site } });
+    Object.defineProperty(feature, 'bundledConfig', { value: { features: { uaChBrands: { exceptions } } } });
+    return feature;
+}
+
+describe('UaChBrands stock-brand sites', () => {
+    it('treats a site the user allowlisted as needing the stock brands', () => {
+        expect(createFeatureForSite({ allowlisted: true }).shouldPresentStockBrands()).toBeTrue();
+    });
+
+    it('treats an ordinary site as brandable', () => {
+        expect(createFeatureForSite({}).shouldPresentStockBrands()).toBeFalse();
+    });
+
+    it('removes the brand Chromium added, leaving the stock list', () => {
+        const branded = [...chromiumBrands, { brand: 'DuckDuckGo', version: '151' }];
+
+        const result = createFeature().removeOurBrandFromList(branded);
+
+        expect(result).toEqual(chromiumBrands);
+        expect(branded.length).toBe(3);
+    });
+
+    it('leaves an already stock list alone', () => {
+        expect(createFeature().removeOurBrandFromList(chromiumBrands)).toEqual(chromiumBrands);
+    });
+
+    it('returns an empty list when there are no brands', () => {
+        expect(createFeature().removeOurBrandFromList([])).toEqual([]);
+    });
+});
+
 describe('UaChBrands applyBrandMutationsToList', () => {
     it('appends the target brand using the Chromium version', () => {
         const result = createFeature().applyBrandMutationsToList(chromiumBrands, 'DuckDuckGo');
