@@ -2,7 +2,6 @@ import ContentFeature, { CallFeatureMethodError } from '../content-feature';
 import { getExpandedPerformanceMetrics, getJsPerformanceMetrics } from './breakage-reporting/utils.js';
 import { runBotDetection } from '../detectors/detections/bot-detection.js';
 import { runFraudDetection } from '../detectors/detections/fraud-detection.js';
-import { runAdwallDetection } from '../detectors/detections/adwall-detection.js';
 import { runYoutubeAdDetection } from '../detectors/detections/youtube-ad-detection.js';
 
 /**
@@ -61,7 +60,6 @@ export default class BreakageReporting extends ContentFeature {
                 result.detectorData = {
                     botDetection: runBotDetection(detectorSettings.botDetection),
                     fraudDetection: runFraudDetection(detectorSettings.fraudDetection),
-                    adwallDetection: runAdwallDetection(detectorSettings.adwallDetection),
                     youtubeAds: runYoutubeAdDetection(detectorSettings.youtubeAds),
                 };
             }

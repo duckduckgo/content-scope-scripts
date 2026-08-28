@@ -1,3 +1,2 @@
-- Filter out brand duplication (#2986)
-- build(deps-dev): bump @duckduckgo/design-tokens from v0.37.0 to v0.39.0 (#2990)
-- build(deps-dev): bump @duckduckgo/design-tokens from v0.34.0 to v0.37.0 (#2989)
+- Remove legacy adwall detector (#2994)
+- build(deps): bump @preact/signals from 2.11.0 to 2.11.1 (#2996)

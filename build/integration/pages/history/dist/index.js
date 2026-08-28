@@ -2306,8 +2306,8 @@
 
   // ../node_modules/@preact/signals/dist/signals.module.js
   var l4;
-  var d4;
   var h4;
+  var d4;
   var p4 = "undefined" != typeof window && !!window.__PREACT_SIGNALS_DEVTOOLS__;
   var m4 = [];
   var _4 = [];
@@ -2319,12 +2319,12 @@
     });
   }
   function b3(i5) {
-    if (h4) {
-      var n3 = h4;
-      h4 = void 0;
+    if (d4) {
+      var n3 = d4;
+      d4 = void 0;
       n3();
     }
-    h4 = i5 && i5.S();
+    d4 = i5 && i5.S();
   }
   function y4(i5) {
     var n3 = this, t4 = i5.data, f4 = useSignal(t4);
@@ -2391,25 +2391,27 @@
           }, { name: n4 });
           r5.c = i6;
           return r5;
-        })(function() {
-          var i6;
-          if (p4) null == (i6 = r4.y) || i6.call(r4);
-          o4.__$f |= 1;
-          o4.setState({});
-        }, "function" == typeof n3.type ? n3.type.displayName || n3.type.name : "");
+        })(/* @__PURE__ */ (function(i6) {
+          return function() {
+            var n4;
+            if (p4) null == (n4 = this.y) || n4.call(this);
+            i6.__$f |= 1;
+            i6.setState({});
+          };
+        })(o4), "function" == typeof n3.type ? n3.type.displayName || n3.type.name : "");
       }
-      d4 = o4;
+      h4 = o4;
       b3(r4);
     }
   });
   g3("__e", function(i5, n3, r4, t4) {
     b3();
-    d4 = void 0;
+    h4 = void 0;
     i5(n3, r4, t4);
   });
   g3("diffed", function(i5, n3) {
     b3();
-    d4 = void 0;
+    h4 = void 0;
     var r4;
     if ("string" == typeof n3.type && (r4 = n3.__e)) {
       var t4 = n3.__np, o4 = n3.props, f4 = r4.U;
@@ -2511,7 +2513,7 @@
   function useComputed(i5, n3) {
     var r4 = A2(i5);
     r4.current = i5;
-    d4.__$f |= 4;
+    h4.__$f |= 4;
     return T2(function() {
       return g2(function() {
         return r4.current();
