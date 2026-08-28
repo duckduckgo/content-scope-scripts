@@ -62,6 +62,23 @@ export function parseExtensionId(pathname) {
 }
 
 /**
+ * Remote config is a hot-fix channel, so a malformed selector is a question of
+ * when, not if. One bad entry would invalidate the entire injected CSS rule —
+ * dropping the fail-closed hide and revealing Google's own install button — and
+ * throw out of querySelectorAll. Bad entries are discarded; good ones still apply.
+ * @param {string} selector
+ * @returns {boolean}
+ */
+export function isValidSelector(selector) {
+    try {
+        document.createDocumentFragment().querySelector(selector);
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+/**
  * Patches the Chrome Web Store UI in the DDG browser.
  * - Hides every install button via CSS up front (fail closed)
  * - On extension detail pages for curated extensions, swaps the button copy to
@@ -79,8 +96,11 @@ export class ChromeWebstorePatching extends ContentFeature {
     /** @type {MutationObserver | undefined} */
     _observer;
 
-    /** @type {string} combined CSS selector for install buttons */
-    _buttonSelector = '';
+    /** @type {number | undefined} pending coalesced _applyVerdict, if any */
+    _applyScheduled;
+
+    /** @type {string[]} validated install-button selectors, never joined into one list */
+    _buttonSelectors = [];
 
     async init() {
         if (!this.getFeatureSettingEnabled('patchWebstore')) return;
@@ -89,11 +109,11 @@ export class ChromeWebstorePatching extends ContentFeature {
         if (!Array.isArray(selectors)) return;
 
         // POC consumes css entries only; xpath fallbacks are a future improvement
-        this._buttonSelector = selectors
+        this._buttonSelectors = selectors
             .filter((s) => s?.type === 'css' && typeof s.value === 'string')
             .map((s) => s.value)
-            .join(',');
-        if (!this._buttonSelector) return;
+            .filter(isValidSelector);
+        if (!this._buttonSelectors.length) return;
 
         // Registered at document-start so capture-phase beats the store's root
         // jsaction handler. Blocks activation of the unsupported pill; after a
@@ -101,7 +121,7 @@ export class ChromeWebstorePatching extends ContentFeature {
         /** @param {Event} event */
         const intercept = (event) => {
             if (!this._verdict) return;
-            const target = event.target instanceof Element ? event.target.closest(this._buttonSelector) : null;
+            const target = event.target instanceof Element ? this._closestButton(event.target) : null;
             if (!target) return;
             if (this._verdict === 'unsupported') {
                 event.preventDefault();
@@ -133,20 +153,29 @@ export class ChromeWebstorePatching extends ContentFeature {
         }
 
         const promoSelectors = this.getFeatureSetting('promoSelectors');
-        const promoRule =
-            Array.isArray(promoSelectors) && promoSelectors.length ? `:is(${promoSelectors.join(',')}) { display: none !important; }` : '';
+        const validPromoSelectors = Array.isArray(promoSelectors)
+            ? promoSelectors.filter((s) => typeof s === 'string' && isValidSelector(s))
+            : [];
+        const promoRule = validPromoSelectors.map((selector) => `:is(${selector}) { display: none !important; }`).join('\n            ');
 
         // Fail closed: buttons hidden until a verdict sets data-ddg-webstore.
-        // The comma-list selector must be wrapped in :is() — bare interpolation
-        // prefixes only the first alternative (live bug on the Windows build).
-        const btn = `:is(${this._buttonSelector})`;
-        injectGlobalStyles(`
-            html ${btn} { display: none !important; }
-            html[data-ddg-webstore] ${btn} { display: inline-flex !important; }
+        // One rule per selector, never one rule listing them all — an unparseable
+        // selector then invalidates only its own rule, and a dropped hide rule
+        // puts Google's own install button back on screen. Each is wrapped in
+        // :is() because bare interpolation prefixes only the first alternative
+        // (live bug on the Windows build).
+        const buttonRules = this._buttonSelectors
+            .map(
+                (selector) => `
+            html :is(${selector}) { display: none !important; }
+            html[data-ddg-webstore] :is(${selector}) { display: inline-flex !important; }`,
+            )
+            .join('');
+        injectGlobalStyles(`${buttonRules}
             ${promoRule}
         `);
 
-        this._observer = new MutationObserver(() => this._applyVerdict());
+        this._observer = new MutationObserver(() => this._scheduleApply());
         this._observer.observe(document.documentElement, { childList: true, subtree: true });
 
         // DOM work can wait for parse; the observer covers late renders
@@ -224,8 +253,22 @@ export class ChromeWebstorePatching extends ContentFeature {
     }
 
     /**
+     * Coalesces observer-driven re-applies into one per frame: the store mutates
+     * the document constantly while scrolling, and each apply walks the document.
+     * Verdict changes still call _applyVerdict directly, so nothing waits a frame
+     * to be patched for the first time.
+     */
+    _scheduleApply() {
+        if (this._applyScheduled !== undefined) return;
+        this._applyScheduled = requestAnimationFrame(() => {
+            this._applyScheduled = undefined;
+            this._applyVerdict();
+        });
+    }
+
+    /**
      * Re-imposes the current verdict on the DOM. Cheap and synchronous so the
-     * MutationObserver can call it on every mutation batch.
+     * MutationObserver can call it once per frame.
      */
     _applyVerdict() {
         if (!this._verdict) return;
@@ -235,11 +278,38 @@ export class ChromeWebstorePatching extends ContentFeature {
 
         // ALL matches: on SPA navigations the store mounts a fresh button while
         // previous-view nodes linger, and the visible one isn't necessarily first
-        for (const button of document.querySelectorAll(this._buttonSelector)) {
-            if (button instanceof HTMLElement) {
-                this._applyVerdictToButton(button, text, copy);
+        for (const button of this._matchingButtons()) {
+            this._applyVerdictToButton(button, text, copy);
+        }
+    }
+
+    /**
+     * Every install button on the page, de-duplicated across selectors.
+     * @returns {Set<HTMLElement>}
+     */
+    _matchingButtons() {
+        /** @type {Set<HTMLElement>} */
+        const buttons = new Set();
+        for (const selector of this._buttonSelectors) {
+            for (const button of document.querySelectorAll(selector)) {
+                if (button instanceof HTMLElement) buttons.add(button);
             }
         }
+        return buttons;
+    }
+
+    /**
+     * Nearest install-button ancestor, testing selectors one at a time so a
+     * single unparseable entry can't swallow the rest.
+     * @param {Element} element
+     * @returns {Element | null}
+     */
+    _closestButton(element) {
+        for (const selector of this._buttonSelectors) {
+            const match = element.closest(selector);
+            if (match) return match;
+        }
+        return null;
     }
 
     /**

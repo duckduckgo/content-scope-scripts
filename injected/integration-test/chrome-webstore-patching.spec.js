@@ -242,6 +242,19 @@ test.describe('chromeWebstorePatching', () => {
         await expect(page.locator(BUTTON)).toBeDisabled();
     });
 
+    // Remote config is a hot-fix channel: one malformed selector must not
+    // invalidate the whole injected rule and reveal Google's own button
+    test('malformed selector dropped, valid ones still patch', async ({ page }, testInfo) => {
+        await setup(page, testInfo, {
+            config: './integration-test/test-pages/chrome-webstore-patching/config/config-invalid-selector.json',
+        });
+        await navigateTo(page, CURATED_PATH);
+        await expect(page.locator(LABEL)).toHaveText('Add to DuckDuckGo');
+        await navigateTo(page, UNCURATED_PATH);
+        await expect(page.locator(LABEL)).toHaveText('Unsupported extension');
+        await expect(page.locator(BUTTON)).toBeDisabled();
+    });
+
     test('selector miss → no crash, original button untouched', async ({ page }, testInfo) => {
         await setup(page, testInfo, {
             config: './integration-test/test-pages/chrome-webstore-patching/config/config-selector-miss.json',
