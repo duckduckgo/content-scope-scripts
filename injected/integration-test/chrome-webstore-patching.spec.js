@@ -203,6 +203,21 @@ test.describe('chromeWebstorePatching', () => {
         await expect(page.locator(BUTTON)).toBeDisabled();
     });
 
+    // Launch blocker: with the native catalog gone or unusable, nothing is
+    // installable — an unreadable catalog must never fall back to "curated"
+    for (const config of ['config-no-extension-management', 'config-empty-catalog', 'config-malformed-catalog']) {
+        test(`${config} → nothing curated, install stays blocked`, async ({ page }, testInfo) => {
+            await setup(page, testInfo, {
+                config: `./integration-test/test-pages/chrome-webstore-patching/config/${config}.json`,
+            });
+            await navigateTo(page, CURATED_PATH);
+            await expect(page.locator(LABEL)).toHaveText('Unsupported extension');
+            await expect(page.locator(BUTTON)).toBeDisabled();
+            await page.locator(BUTTON).click({ force: true });
+            await expect.poll(() => page.evaluate(() => /** @type {any} */ (window).__installClicked)).toBe(false);
+        });
+    }
+
     // Ship Review blocker: switching protections off must not restore a working
     // install button. The feature is in `platformSpecificFeatures`, so it keeps
     // loading while everything else is skipped.
