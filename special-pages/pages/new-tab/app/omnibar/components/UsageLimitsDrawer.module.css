@@ -91,23 +91,23 @@
 }
 
 .ringValue {
-    stroke: var(--ds-color-theme-accent-primary);
+    stroke: #21c000;
 }
 
 .severity_neutral .ringValue {
-    stroke: #36d399;
+    stroke: #21c000; /* DDG.Brush.StatusSuccess */
 }
 
 .severity_warning .ringValue {
-    stroke: #eea80d;
+    stroke: #f5a031; /* DDG.Brush.YellowPrimary — theme-invariant */
 }
 
 .severity_critical .ringValue {
-    stroke: var(--color-red-50);
+    stroke: #ea0f2c; /* DDG.Brush.StatusCritical */
 }
 
 .alertTriangle {
-    fill: var(--color-red-50);
+    fill: #ea0f2c; /* DDG.Brush.StatusCritical */
 }
 
 .alertMark {
