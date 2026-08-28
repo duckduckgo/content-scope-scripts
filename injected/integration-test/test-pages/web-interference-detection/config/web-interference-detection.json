@@ -8,8 +8,7 @@
             "settings": {
                 "interferenceTypes": {
                     "botDetection": {},
-                    "fraudDetection": {},
-                    "adwallDetection": {}
+                    "fraudDetection": {}
                 }
             }
         }
