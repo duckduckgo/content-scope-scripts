@@ -1,5 +1,7 @@
-import ContentFeature from '../content-feature';
-import { DDGReflect } from '../utils';
+import ContentFeature from '../content-feature.js';
+import { DDGReflect, getTabHostname, isGloballyDisabled, isUnprotectedDomain } from '../utils.js';
+
+const DUCK_DUCK_GO_BRAND = 'DuckDuckGo';
 
 export default class UaChBrands extends ContentFeature {
     constructor(featureName, importConfig, features, args) {
@@ -17,8 +19,8 @@ export default class UaChBrands extends ContentFeature {
      * @returns {string} - Brand name to use for replacement/append
      */
     getBrandOverride() {
-        const brandName = this.getFeatureSetting('brandName') || 'DuckDuckGo';
-        if (brandName !== 'DuckDuckGo') {
+        const brandName = this.getFeatureSetting('brandName') || DUCK_DUCK_GO_BRAND;
+        if (brandName !== DUCK_DUCK_GO_BRAND) {
             this.log.info(`Using brand override: "${brandName}"`);
         }
         return brandName;
@@ -42,10 +44,11 @@ export default class UaChBrands extends ContentFeature {
                 this.originalBrands.map((b) => `"${b.brand}" v${b.version}`).join(', '),
             );
 
-            const targetBrand = this.getBrandOverride();
-            const mutatedBrands = this.applyBrandMutationsToList(this.originalBrands, targetBrand);
+            const mutatedBrands = this.shouldPresentStockBrands()
+                ? this.removeOurBrandFromList(this.originalBrands)
+                : this.applyBrandMutationsToList(this.originalBrands, this.getBrandOverride());
 
-            if (mutatedBrands.length) {
+            if (mutatedBrands.length && !this.brandListsMatch(this.originalBrands, mutatedBrands)) {
                 this.log.info(
                     'shimUserAgentDataBrands - about to apply override with:',
                     mutatedBrands.map((b) => `"${b.brand}" v${b.version}`).join(', '),
@@ -59,9 +62,43 @@ export default class UaChBrands extends ContentFeature {
     }
 
     /**
-     * Append target brand to the brands list, using the Chromium version
+     * True when the site is meant to look exactly like the default browser, which means taking our
+     * brand back out of whatever Chromium produced. That covers both a config exception and
+     * protections being off, the two cases where this feature used to not run at all. Self-gating
+     * means the framework no longer applies the exceptions for us, so they are read here - see
+     * selfGatingFeatures.
+     * @returns {boolean}
+     */
+    shouldPresentStockBrands() {
+        if (this.args && isGloballyDisabled(this.args)) {
+            return true;
+        }
+
+        const exceptions = this.bundledConfig?.features?.uaChBrands?.exceptions || [];
+        return isUnprotectedDomain(getTabHostname(), exceptions);
+    }
+
+    /**
+     * Drops our brand, leaving the list Chromium would have produced on its own.
      * @param {Array<{brand: string, version: string}>} list - Original brands list
-     * @param {string} targetBrand - Brand name to append
+     * @returns {Array<{brand: string, version: string}>} - List without our brand
+     */
+    removeOurBrandFromList(list) {
+        if (!Array.isArray(list) || !list.length) {
+            return [];
+        }
+
+        const remaining = list.filter((b) => b.brand !== DUCK_DUCK_GO_BRAND);
+        if (remaining.length !== list.length) {
+            this.log.info(`Removed "${DUCK_DUCK_GO_BRAND}" so the site sees the stock brands`);
+        }
+        return remaining;
+    }
+
+    /**
+     * Ensure the brands list carries the target brand exactly once, using the Chromium version
+     * @param {Array<{brand: string, version: string}>} list - Original brands list
+     * @param {string} targetBrand - Brand name to apply
      * @returns {Array<{brand: string, version: string}>} - Modified brands array
      */
     applyBrandMutationsToList(list, targetBrand) {
@@ -70,16 +107,29 @@ export default class UaChBrands extends ContentFeature {
             return [];
         }
 
-        const mutated = [...list];
-        const chromium = mutated.find((b) => b.brand === 'Chromium');
-        if (chromium) {
-            mutated.push({ brand: targetBrand, version: chromium.version });
-            this.log.info(`Appended "${targetBrand}" v${chromium.version} (to match Chromium version)`);
+        // Our brand must not survive next to a different one, however it got there.
+        const mutated = targetBrand === DUCK_DUCK_GO_BRAND ? [...list] : this.removeOurBrandFromList(list);
+
+        if (!mutated.some((b) => b.brand === targetBrand)) {
+            const chromium = mutated.find((b) => b.brand === 'Chromium');
+            if (chromium) {
+                mutated.push({ brand: targetBrand, version: chromium.version });
+                this.log.info(`Appended "${targetBrand}" v${chromium.version} (to match Chromium version)`);
+            }
         }
 
         const brandNames = mutated.map((b) => `"${b.brand}" v${b.version}`).join(', ');
         this.log.info(`Final brands: [${brandNames}]`);
         return mutated;
+    }
+
+    /**
+     * @param {Array<{brand: string, version: string}>} a
+     * @param {Array<{brand: string, version: string}>} b
+     * @returns {boolean}
+     */
+    brandListsMatch(a, b) {
+        return a.length === b.length && a.every((entry, index) => entry.brand === b[index].brand && entry.version === b[index].version);
     }
 
     /**
@@ -110,8 +160,9 @@ export default class UaChBrands extends ContentFeature {
                         result = newBrands;
                     }
                     if (key === 'fullVersionList' && args[0]?.includes('fullVersionList') && value) {
-                        const targetBrand = featureInstance.getBrandOverride();
-                        result = featureInstance.applyBrandMutationsToList(value, targetBrand);
+                        result = featureInstance.shouldPresentStockBrands()
+                            ? featureInstance.removeOurBrandFromList(value)
+                            : featureInstance.applyBrandMutationsToList(value, featureInstance.getBrandOverride());
                     }
 
                     modifiedResult[key] = result;

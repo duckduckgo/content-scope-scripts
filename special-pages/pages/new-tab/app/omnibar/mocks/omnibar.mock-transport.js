@@ -16,7 +16,7 @@ function parseBooleanQueryParam(param) {
 }
 
 /** @type {ReadonlyArray<import('../../../types/new-tab.ts').ReasoningEffort>} */
-const REASONING_EFFORTS = ['none', 'medium', 'extended'];
+const REASONING_EFFORTS = ['none', 'minimal', 'low', 'medium', 'high', 'extended'];
 
 /**
  * Reads a URL query param as a ReasoningEffort. Returns null if absent or invalid.
@@ -31,19 +31,35 @@ function parseReasoningEffortQueryParam(param) {
 /** @type {import('../../../types/new-tab.ts').ReasoningEffortOption} */
 const FAST_EFFORT = { id: 'none', name: 'Fast', description: 'Answers quickly', isAvailable: true };
 /** @type {import('../../../types/new-tab.ts').ReasoningEffortOption} */
-const REASONING_EFFORT = { id: 'medium', name: 'Reasoning', description: 'For complex tasks', isAvailable: true };
+const REASONING_EFFORT = { id: 'low', name: 'Reasoning', description: 'For complex tasks', isAvailable: true };
 /** @type {import('../../../types/new-tab.ts').ReasoningEffortOption} */
 const EXTENDED_EFFORT_UNAVAILABLE = {
-    id: 'extended',
+    id: 'medium',
     name: 'Extended Reasoning',
     description: 'For analytical tasks',
     isAvailable: false,
     upsell: 'subscribe',
+    gatedSectionHeader: 'Try for Free',
 };
 /** @type {import('../../../types/new-tab.ts').ReasoningEffortOption} */
-const EXTENDED_EFFORT_UPGRADE = { ...EXTENDED_EFFORT_UNAVAILABLE, upsell: 'upgrade' };
+const EXTENDED_EFFORT_UPGRADE = { ...EXTENDED_EFFORT_UNAVAILABLE, upsell: 'upgrade', gatedSectionHeader: 'Pro Plan Exclusive' };
 /** @type {import('../../../types/new-tab.ts').ReasoningEffortOption} */
-const EXTENDED_EFFORT_AVAILABLE = { ...EXTENDED_EFFORT_UNAVAILABLE, isAvailable: true, upsell: undefined };
+const EXTENDED_EFFORT_AVAILABLE = { ...EXTENDED_EFFORT_UNAVAILABLE, isAvailable: true, upsell: undefined, gatedSectionHeader: undefined };
+/** @type {import('../../../types/new-tab.ts').ReasoningEffortOption} */
+const HIGH_EFFORT_UPGRADE = {
+    id: 'high',
+    name: 'High Reasoning',
+    description: 'For the hardest tasks',
+    isAvailable: false,
+    upsell: 'upgrade',
+    gatedSectionHeader: 'Pro Plan Exclusive',
+};
+/** @type {import('../../../types/new-tab.ts').ReasoningEffortOption} */
+const HIGH_EFFORT_SAME_GATED_SECTION = {
+    ...HIGH_EFFORT_UPGRADE,
+    upsell: 'subscribe',
+    gatedSectionHeader: undefined,
+};
 
 export function omnibarMockTransport() {
     /** @type {import('../../../types/new-tab.ts').OmnibarConfig} */
@@ -62,7 +78,7 @@ export function omnibarMockTransport() {
                         id: 'gpt-4o-mini',
                         name: 'GPT-4o mini',
                         shortName: '4o-mini',
-                        description: 'Solid but uses limits faster',
+                        description: 'Solid but hits limits sooner',
                         isAvailable: true,
                         accessTier: 'free',
                         supportsImageUpload: true,
@@ -101,7 +117,7 @@ export function omnibarMockTransport() {
                         id: 'claude-haiku-4-5',
                         name: 'Claude Haiku 4.5',
                         shortName: 'Haiku 4.5',
-                        description: 'Solid but uses limits faster',
+                        description: 'Solid but hits limits sooner',
                         isAvailable: true,
                         accessTier: 'free',
                         supportsImageUpload: true,
@@ -141,13 +157,14 @@ export function omnibarMockTransport() {
                 ],
             },
             {
-                header: 'Advanced Models - DuckDuckGo subscription',
+                header: 'Subscriber Exclusive',
                 items: [
                     {
                         id: 'gpt-4o',
                         name: 'GPT-4o',
                         shortName: 'GPT-4o',
                         isAvailable: false,
+                        upsell: /** @type {const} */ ('subscribe'),
                         accessTier: 'plus',
                         supportsImageUpload: true,
                         supportedTools: ['WebSearch'],
@@ -157,6 +174,7 @@ export function omnibarMockTransport() {
                         name: 'GPT-5.2',
                         shortName: 'GPT-5.2',
                         isAvailable: false,
+                        upsell: /** @type {const} */ ('subscribe'),
                         accessTier: 'plus',
                         supportsImageUpload: true,
                         supportedTools: ['WebSearch'],
@@ -167,6 +185,7 @@ export function omnibarMockTransport() {
                         name: 'Claude Sonnet 4.5',
                         shortName: 'Sonnet 4.5',
                         isAvailable: false,
+                        upsell: /** @type {const} */ ('subscribe'),
                         accessTier: 'plus',
                         supportsImageUpload: true,
                         supportedFileTypes: ['application/pdf'],
@@ -178,6 +197,7 @@ export function omnibarMockTransport() {
                         name: 'Llama 4 Maverick',
                         shortName: 'Maverick',
                         isAvailable: false,
+                        upsell: /** @type {const} */ ('subscribe'),
                         accessTier: 'plus',
                         supportsImageUpload: false,
                         supportedTools: [],
@@ -187,6 +207,7 @@ export function omnibarMockTransport() {
                         name: 'Claude Opus 4.6',
                         shortName: 'Opus 4.6',
                         isAvailable: false,
+                        upsell: /** @type {const} */ ('subscribe'),
                         accessTier: 'pro',
                         supportsImageUpload: true,
                         supportedTools: ['WebSearch'],
@@ -197,6 +218,7 @@ export function omnibarMockTransport() {
                         name: 'Claude 4 Sonnet',
                         shortName: 'Claude 4 Sonnet',
                         isAvailable: false,
+                        upsell: /** @type {const} */ ('subscribe'),
                         accessTier: 'pro',
                         supportsImageUpload: true,
                         supportedTools: ['WebSearch'],
@@ -321,14 +343,28 @@ export function omnibarMockTransport() {
                             })),
                         }));
                     }
+                    // Mock the service-level inert state: gated rows remain, but with no
+                    // upsell target or section headers.
+                    if (parseBooleanQueryParam('omnibar.upsellDisabled') === true) {
+                        config.aiModelSections = config.aiModelSections?.map((section) => ({
+                            header: section.items.every((model) => !model.isAvailable) ? undefined : section.header,
+                            items: section.items.map((item) => ({
+                                ...item,
+                                upsell: undefined,
+                                reasoningEfforts: item.reasoningEfforts?.map((effort) => ({
+                                    ...effort,
+                                    upsell: undefined,
+                                    gatedSectionHeader: undefined,
+                                })),
+                            })),
+                        }));
+                    }
                     if (url.searchParams.get('omnibar.modelUpsell') === 'upgrade') {
                         config.aiModelSections = config.aiModelSections?.map((section) => ({
                             ...section,
-                            items: section.items.map((item, index) =>
-                                index === 0 && section.items.every((model) => !model.isAvailable)
-                                    ? { ...item, upsell: /** @type {const} */ ('upgrade') }
-                                    : item,
-                            ),
+                            items: section.items.every((model) => !model.isAvailable)
+                                ? section.items.map((item) => ({ ...item, upsell: /** @type {const} */ ('upgrade') }))
+                                : section.items,
                         }));
                     }
                     if (parseBooleanQueryParam('omnibar.multipleModelUpsells') === true) {
@@ -339,13 +375,46 @@ export function omnibarMockTransport() {
                             return [
                                 { ...section, items: section.items.slice(0, midpoint) },
                                 {
-                                    header: 'Pro Models - DuckDuckGo subscription',
+                                    header: 'Pro Plan Exclusive',
                                     items: section.items
                                         .slice(midpoint)
-                                        .map((item, index) => (index === 0 ? { ...item, upsell: /** @type {const} */ ('upgrade') } : item)),
+                                        .map((item) => ({ ...item, upsell: /** @type {const} */ ('upgrade') })),
                                 },
                             ];
                         });
+                    }
+                    if (parseBooleanQueryParam('omnibar.mixedModelAccess') === true) {
+                        config.aiModelSections = config.aiModelSections?.map((section) => {
+                            if (!section.items.every((model) => !model.isAvailable)) return section;
+
+                            return {
+                                ...section,
+                                items: section.items.map((item, index) => {
+                                    if (index === 0) return { ...item, isAvailable: true, upsell: undefined };
+                                    if (index === 1) return { ...item, upsell: /** @type {const} */ ('subscribe') };
+                                    if (index === 2) return { ...item, upsell: /** @type {const} */ ('upgrade') };
+                                    return item;
+                                }),
+                            };
+                        });
+                    }
+                    const reasoningSections = url.searchParams.get('omnibar.reasoningSections');
+                    if (reasoningSections === 'first-gated' || reasoningSections === 'multiple' || reasoningSections === 'grouped') {
+                        config.aiModelSections = config.aiModelSections?.map((section) => ({
+                            ...section,
+                            items: section.items.map((item) => {
+                                if (item.id !== 'claude-haiku-4-5') return item;
+                                return {
+                                    ...item,
+                                    reasoningEfforts:
+                                        reasoningSections === 'first-gated'
+                                            ? [EXTENDED_EFFORT_UNAVAILABLE, REASONING_EFFORT]
+                                            : reasoningSections === 'grouped'
+                                              ? [FAST_EFFORT, EXTENDED_EFFORT_UNAVAILABLE, HIGH_EFFORT_SAME_GATED_SECTION]
+                                              : [FAST_EFFORT, EXTENDED_EFFORT_UNAVAILABLE, REASONING_EFFORT, HIGH_EFFORT_UPGRADE],
+                                };
+                            }),
+                        }));
                     }
                     config.selectedReasoningEffort =
                         parseReasoningEffortQueryParam('omnibar.selectedReasoningEffort') ?? config.selectedReasoningEffort;
@@ -411,7 +480,11 @@ export function omnibarMockTransport() {
                 }
                 case 'omnibar_getOpenTabs': {
                     await new Promise((resolve) => setTimeout(resolve, 50));
-                    return getMockOpenTabs();
+                    if (parseBooleanQueryParam('omnibar.noOpenTabs') === true) {
+                        return { tabs: [] };
+                    }
+                    const openTabsCount = parseInt(url.searchParams.get('omnibar.openTabsCount') ?? '', 10);
+                    return getMockOpenTabs(openTabsCount >= 0 ? openTabsCount : undefined);
                 }
                 case 'omnibar_getTabContent': {
                     await new Promise((resolve) => setTimeout(resolve, 150));

@@ -1,72 +1,23 @@
-.panel {
-    background: var(--ds-color-theme-surface-secondary);
-    border-radius: 13px;
-    box-shadow:
-        0 0 0 0.5px rgba(0, 0, 0, 0.2),
-        0 10px 24px 0 rgba(0, 0, 0, 0.32),
-        inset 0 0 0 1px rgba(255, 255, 255, 0.2);
-    display: flex;
-    flex-direction: column;
-    margin-bottom: var(--sp-1);
-    max-height: var(--sp-90);
-    max-width: min(240px, 100%);
-    overflow: hidden;
-    padding: 5px;
-}
-
-.header {
-    align-items: center;
-    color: var(--ds-color-theme-text-secondary);
-    display: flex;
-    font-size: 10px;
-    font-weight: 600;
-    height: var(--sp-5);
-    letter-spacing: 0.12px;
-    line-height: 13px;
-    padding: 0 9px;
-    user-select: none;
-}
-
-.headerTitle {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.list {
-    display: flex;
-    flex-direction: column;
-    list-style: none;
-    margin: 0;
-    min-height: 0;
-    overflow-y: auto;
-    padding: 0;
-}
-
-.empty {
-    color: var(--ds-color-theme-text-secondary);
-    font-size: 13px;
-    line-height: 20px;
-    padding: var(--sp-3) var(--sp-2);
-}
-
-.row {
+.tabItem {
     align-items: center;
     border-radius: 8px;
+    box-sizing: border-box;
     color: var(--ds-color-theme-text-primary);
     cursor: pointer;
     display: flex;
     font-size: 13px;
     gap: 6px;
-    height: var(--sp-6);
+    height: var(--sp-7);
     letter-spacing: -0.08px;
     line-height: 13px;
     min-width: 0;
+    outline: none;
     padding: 0 9px;
     -webkit-tap-highlight-color: transparent;
+    width: 100%;
 }
 
-.rowActive {
+.tabItemActive {
     background: var(--ds-color-theme-control-fill-primary);
 }
 
@@ -109,10 +60,45 @@
     width: var(--sp-3);
 }
 
-.rowTitle {
+.tabTitle {
     flex: 1;
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+.sectionHeader {
+    align-items: center;
+    color: var(--ds-color-theme-text-secondary);
+    display: flex;
+    font-size: 10px;
+    font-weight: 600;
+    height: var(--sp-5);
+    letter-spacing: 0.12px;
+    line-height: 13px;
+    padding: 0 9px;
+    user-select: none;
+}
+
+/* Aligns the header with rows that reserve the checkmark gutter */
+.sectionHeaderGutter {
+    padding-left: calc(9px + var(--sp-1) + 6px);
+}
+
+/* Loading / empty state row */
+.statusItem {
+    align-items: center;
+    box-sizing: border-box;
+    cursor: default;
+    display: flex;
+    height: var(--sp-7);
+    justify-content: center;
+    outline: none;
+    padding: 0 var(--sp-4);
+}
+
+.statusText {
+    color: var(--ds-color-theme-text-secondary);
+    font-size: 13px;
 }

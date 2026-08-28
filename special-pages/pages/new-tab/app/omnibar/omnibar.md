@@ -55,9 +55,9 @@ title: Omnibar Widget
 
 ### `omnibar_getOpenTabs`
 - {@link "NewTab Messages".OmnibarGetOpenTabsRequest}
-- Used to populate the attach-tabs picker. Called when the user opens the picker (clicks the paperclip's "Attach Page Content" menu item, or types `@` in the chat input).
+- Used to populate the open-tabs UI: the paperclip menu's inline "Recent Tabs" preview (five most recent), the "Add Tabs" dialog (search + checkbox selection, opened from the paperclip menu), and the `@`-mention typeahead. Called when the user opens the paperclip menu, opens the dialog, or types `@` in the chat input.
 - No params for v1. Filtering / `@`-typeahead is performed client-side over the returned list.
-- Native is expected to exclude the requesting NTP tab and return tabs in recency order.
+- Native is expected to exclude the requesting NTP tab and return tabs in tab-strip/creation order (oldest first); the frontend reverses the list so the most recently opened tabs show first.
 - returns {@link "NewTab Messages".GetOpenTabsResponse}
 ```json
 {
@@ -132,6 +132,16 @@ title: Omnibar Widget
    }
 }
 ```
+
+## Picker telemetry
+
+Picker telemetry distinguishes impressions from gated-row activations:
+
+- `omnibar_model_picker_shown` and `omnibar_reasoning_picker_shown` fire once when the corresponding picker opens.
+- `omnibar_model_picker_tryforfree_shown` and `omnibar_reasoning_picker_tryforfree_shown` fire when the user activates a gated row whose displayed CTA is “Try for free”.
+- `omnibar_model_picker_upgrade_shown` and `omnibar_reasoning_picker_upgrade_shown` fire when the user activates a gated row whose displayed CTA is “Upgrade”.
+
+The four CTA events retain their historical `_shown` names, but they represent activation rather than visibility. Their Try-for-free/Upgrade classification is derived from the item’s `upsell` value and the user’s free-trial eligibility. Native routing remains determined only by `upsell`, so an `*_upgrade_shown` event can precede `omnibar_showSubscriptionUpsell` when a `subscribe` item is activated by a user who is not eligible for a free trial.
 
 ## Subscriptions:
 

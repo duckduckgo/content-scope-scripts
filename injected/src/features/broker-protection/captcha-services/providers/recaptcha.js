@@ -5,6 +5,7 @@ import { injectTokenIntoElement } from '../utils/token';
 // TODO move on the same folder level once we deprecate the existing captcha scripts
 import { captchaCallback } from '../../actions/captcha-callback';
 import { safeCallWithError } from '../../utils/safe-call';
+import { PirError } from '../../types.js';
 
 // define the config below to reuse it in the class
 /**
@@ -60,14 +61,20 @@ export class ReCaptchaProvider {
     }
 
     /**
-     * @param {HTMLElement} _captchaContainerElement - The element containing the captcha
+     * @param {HTMLElement} captchaContainerElement - The element containing the captcha
      * @param {string} token
      */
-    getSolveCallback(_captchaContainerElement, token) {
+    getSolveCallback(captchaContainerElement, token) {
+        const responseElement = getElementByTagName(captchaContainerElement, this.#config.responseElementName);
+        const callbackArgs = createCaptchaCallbackArgs(responseElement, this.#config.responseElementName, token);
+        if (PirError.isError(callbackArgs)) {
+            return callbackArgs;
+        }
+
         return stringifyFunction({
             functionBody: captchaCallback,
             functionName: 'captchaCallback',
-            args: { token },
+            args: callbackArgs,
         });
     }
 
@@ -93,4 +100,31 @@ export class ReCaptchaProvider {
     _getCaptchaElement(captchaContainerElement) {
         return getElementWithSrcStart(captchaContainerElement, this.#config.providerUrl);
     }
+}
+
+/**
+ * @param {HTMLElement | null} responseElement
+ * @param {string} responseElementName
+ * @param {string} token
+ */
+function createCaptchaCallbackArgs(responseElement, responseElementName, token) {
+    if (!responseElement) {
+        return PirError.create('could not find the reCAPTCHA response element for the matched record');
+    }
+
+    if (responseElement.id === responseElementName) {
+        return { token, widgetId: 0 };
+    }
+
+    const prefix = `${responseElementName}-`;
+    if (!responseElement.id.startsWith(prefix)) {
+        return PirError.create('could not resolve a unique reCAPTCHA widget for the matched record');
+    }
+
+    const widgetId = responseElement.id.slice(prefix.length);
+    if (!/^\d+$/.test(widgetId)) {
+        return PirError.create('could not resolve a unique reCAPTCHA widget for the matched record');
+    }
+
+    return { token, widgetId: Number(widgetId) };
 }

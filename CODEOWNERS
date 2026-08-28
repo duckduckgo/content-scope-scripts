@@ -40,7 +40,6 @@ injected/src/features/gpc.js @duckduckgo/content-scope-scripts-owners
 injected/src/features/performance-metrics.js @duckduckgo/content-scope-scripts-owners
 injected/src/features/web-interference-detection.js @duckduckgo/content-scope-scripts-owners @jdorweiler @GuiltyDolphin
 injected/src/features/web-telemetry.js @duckduckgo/content-scope-scripts-owners
-injected/src/detectors/detections/adwall-detection.js @duckduckgo/content-scope-scripts-owners
 injected/src/detectors/detections/bot-detection.js @duckduckgo/content-scope-scripts-owners
 injected/src/detectors/detections/youtube-ad-detection.js @duckduckgo/content-scope-scripts-owners
 injected/src/detectors/utils/detection-utils.js @duckduckgo/content-scope-scripts-owners

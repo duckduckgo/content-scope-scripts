@@ -429,6 +429,7 @@ function AiChatContent({
                                     tabsEnabled={canAttachTabs}
                                     onToggleTab={tabAttachments.toggleTab}
                                     isAttached={tabAttachments.isAttached}
+                                    maxTabs={tabAttachments.maxTabs}
                                 />
                             )}
                             {toolsMenu.items.length > 0 && (
