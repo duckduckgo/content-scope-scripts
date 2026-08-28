@@ -81,6 +81,7 @@ export default defineConfig({
             name: 'chrome-mv3',
             testMatch: [
                 'integration-test/remote-pages.spec.js',
+                'integration-test/async-clipboard.spec.js',
                 'integration-test/cookie.spec.js',
                 'integration-test/device-enumeration.spec.js',
                 'integration-test/fingerprint.spec.js',
