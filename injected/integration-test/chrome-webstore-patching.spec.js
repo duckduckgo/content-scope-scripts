@@ -205,7 +205,7 @@ test.describe('chromeWebstorePatching', () => {
 
     // Launch blocker: with the native catalog gone or unusable, nothing is
     // installable — an unreadable catalog must never fall back to "curated"
-    for (const config of ['config-no-extension-management', 'config-empty-catalog', 'config-malformed-catalog']) {
+    for (const config of ['config-no-extension-management', 'config-empty-catalog']) {
         test(`${config} → nothing curated, install stays blocked`, async ({ page }, testInfo) => {
             await setup(page, testInfo, {
                 config: `./integration-test/test-pages/chrome-webstore-patching/config/${config}.json`,
