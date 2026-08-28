@@ -66,6 +66,23 @@
     transition: opacity 0.3s ease-in-out;
 }
 
+.skipLink {
+    all: unset;
+    cursor: pointer;
+    font-family: var(--font-product);
+    font-size: calc(14 * var(--px-in-rem));
+    font-weight: 400;
+    line-height: calc(18 * var(--px-in-rem));
+    color: var(--ds-text-secondary);
+    text-decoration: underline;
+    text-underline-offset: calc(2 * var(--px-in-rem));
+    align-self: center;
+}
+
+.skipLink:hover {
+    color: var(--ds-text-primary);
+}
+
 /* Chrome extension checkbox row */
 .checkboxRow {
     display: flex;

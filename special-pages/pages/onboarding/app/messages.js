@@ -10,6 +10,7 @@
  * @property {ImportMeta['env']} [env] - optional override for the running override
  * @property {string} locale
  * @property {{ name: 'macos'|'windows'|'android'|'ios'}} [platform]
+ * @property {boolean} [showSkip] - whether to show the skip onboarding option
  */
 
 /**
@@ -148,6 +149,13 @@ export class OnboardingMessages {
      */
     dismissToAddressBar() {
         this.messaging.notify('dismissToAddressBar');
+    }
+
+    /**
+     * Sent when the user chooses to skip onboarding entirely.
+     */
+    skipOnboarding() {
+        this.messaging.notify('skipOnboarding');
     }
 
     /**

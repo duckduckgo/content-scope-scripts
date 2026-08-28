@@ -253,6 +253,9 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
             if (msg.kind === 'dismiss') {
                 messaging.dismissToAddressBar();
             }
+            if (msg.kind === 'skip') {
+                messaging.skipOnboarding();
+            }
             if (msg.kind === 'request-chrome-extension') {
                 messaging.requestChromeExtensionInstall();
             }

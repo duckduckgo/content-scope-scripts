@@ -99,7 +99,8 @@ export const ORDER_V4 = ['welcome', 'getStarted', 'makeDefaultSingle', 'systemSe
  *   | DismissOverlayEvent
  *   | ConfigUpdateEvent
  *   | TelemetryEvent
- *   | RequestChromeExtensionEvent} GlobalEvents
+ *   | RequestChromeExtensionEvent
+ *   | SkipEvent} GlobalEvents
  *  All the events that the UI can dispatch
  * @typedef {{ kind: "enqueue-next"; }} NextEvent
  * @typedef {{ kind: "advance" }} AdvanceEvent
@@ -107,6 +108,7 @@ export const ORDER_V4 = ['welcome', 'getStarted', 'makeDefaultSingle', 'systemSe
  * @typedef {{ kind: "exec-complete"; id: SystemValueId; payload: SystemValue }} ExecCompleteEvent
  * @typedef {{ kind: "exec-error"; id: SystemValueId; message: string }} ExecErrorEvent
  * @typedef {{ kind: "dismiss" }} DismissEvent
+ * @typedef {{ kind: "skip" }} SkipEvent
  * @typedef {{ kind: "dismiss-to-settings" }} DismisstoSettingsEvent
  * @typedef {{ kind: "error-boundary"; error: { message: string; id: Step['id'] }}} ErrorBoundaryEvent
  * @typedef {{ kind: "title-complete"; }} TitleCompleteEvent

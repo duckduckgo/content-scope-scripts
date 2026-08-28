@@ -496,5 +496,9 @@
   "getStarted_chromeExtension_tooltip": {
     "title": "Set DuckDuckGo as your default search engine in Chrome to search online without being tracked.",
     "note": "Tooltip text shown when hovering over the info icon next to the Chrome extension checkbox."
+  },
+  "skip_v4": {
+    "title": "Skip Setup",
+    "note": "Link text allowing the user to skip the onboarding setup and start browsing immediately."
   }
 }

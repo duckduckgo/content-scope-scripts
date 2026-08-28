@@ -13,6 +13,7 @@ export class Settings {
      * @param {import('./types.js').Step['id']} [params.first] - choose which screen to start on
      * @param {import('./types.js').StepDefinitions} [params.stepDefinitions] - individual data for each step, eg: which rows to show
      * @param {'title'|null} [params.typingEffect] - typing effect variant for titles
+     * @param {boolean} [params.showSkip] - whether to show the skip onboarding option
      */
     constructor({
         platform = { name: 'macos' },
@@ -21,6 +22,7 @@ export class Settings {
         first = 'welcome',
         exclude = [],
         typingEffect = 'title',
+        showSkip = false,
     } = {}) {
         this.platform = platform;
         this.order = order;
@@ -28,6 +30,7 @@ export class Settings {
         this.first = first;
         this.exclude = exclude;
         this.typingEffect = typingEffect;
+        this.showSkip = showSkip;
     }
 
     withPlatformName(name) {
@@ -101,6 +104,15 @@ export class Settings {
         if (typingEffect === 'none') return new Settings({ ...this, typingEffect: null });
         if (typingEffect === 'title') return new Settings({ ...this, typingEffect: 'title' });
         return this;
+    }
+
+    /**
+     * @param {boolean|undefined|null} showSkip
+     * @return {Settings}
+     */
+    withShowSkip(showSkip) {
+        if (showSkip == null) return this;
+        return new Settings({ ...this, showSkip });
     }
 
     /**

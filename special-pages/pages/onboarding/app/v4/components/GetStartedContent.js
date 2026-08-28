@@ -3,7 +3,7 @@ import { useState } from 'preact/hooks';
 import cn from 'classnames';
 import { useTypedTranslation } from '../../types';
 import { Typed } from './Typed';
-import { useTypingEffect } from '../../shared/components/SettingsProvider';
+import { useTypingEffect, useShowSkip } from '../../shared/components/SettingsProvider';
 import { useGlobalDispatch, useGlobalState } from '../../global';
 import { Button } from './Button';
 import { Container } from './Container';
@@ -22,6 +22,7 @@ import styles from './GetStartedContent.module.css';
 export function GetStartedContent({ advance, onTitleComplete }) {
     const { t } = useTypedTranslation();
     const hasTypingEffect = !!useTypingEffect();
+    const showSkip = useShowSkip();
     const { activeStepVisible, step } = useGlobalState();
     const dispatch = useGlobalDispatch();
     const [chromeExtensionChecked, setChromeExtensionChecked] = useState(false);
@@ -36,6 +37,10 @@ export function GetStartedContent({ advance, onTitleComplete }) {
             dispatch({ kind: 'request-chrome-extension' });
         }
         advance();
+    }
+
+    function handleSkip() {
+        dispatch({ kind: 'skip' });
     }
 
     return (
@@ -68,6 +73,14 @@ export function GetStartedContent({ advance, onTitleComplete }) {
             >
                 {t(showChromeExtension ? 'getStartedButton_v4' : 'getStartedButtonDefault_v4')}
             </Button>
+            {showSkip && (
+                <button
+                    class={cn(styles.skipLink, { [styles.revealable]: hasTypingEffect, [styles.hidden]: hasTypingEffect && !activeStepVisible })}
+                    onClick={handleSkip}
+                >
+                    {t('skip_v4')}
+                </button>
+            )}
             {showChromeExtension && (
                 <ChromeExtensionCheckbox
                     class={cn({ [styles.revealable]: hasTypingEffect, [styles.hidden]: hasTypingEffect && !activeStepVisible })}
