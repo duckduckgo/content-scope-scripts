@@ -319,6 +319,24 @@
           "type": "boolean",
           "description": "When true, show a dismiss control. Dismiss notifies native via omnibar_dismissUsageLimits.",
           "default": false
+        },
+        "icon": {
+          "type": "string",
+          "description": "Leading glyph. Omitted defaults to info.",
+          "enum": ["info", "ring", "alert"],
+          "default": "info"
+        },
+        "percent": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Fill amount when icon=ring."
+        },
+        "severity": {
+          "type": "string",
+          "description": "Ring color when icon=ring. Omitted defaults to neutral.",
+          "enum": ["neutral", "warning", "critical"],
+          "default": "neutral"
         }
       }
     }

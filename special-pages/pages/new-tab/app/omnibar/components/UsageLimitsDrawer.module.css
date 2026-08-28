@@ -57,16 +57,28 @@
 .content {
     align-items: center;
     display: flex;
-    gap: var(--sp-2);
+    gap: 8px;
     min-height: 42px;
     padding: 3px 12px 8px 16px;
 }
 
-.icon {
+/* Shared 16×16 slot so info / ring / alert never shift the row */
+.leading {
+    display: grid;
     flex-shrink: 0;
     height: 16px;
+    place-items: center;
     width: 16px;
+}
 
+.glyph {
+    display: block;
+    grid-area: 1 / 1;
+    height: 16px;
+    width: 16px;
+}
+
+.info {
     /* Match omnibar toolbar icons (Tools/paperclip); default InfoIcon fill is too light */
     :global(.info-icon-fill) {
         fill: var(--ds-color-theme-icons-primary);
@@ -74,17 +86,50 @@
     }
 }
 
+.ringTrack {
+    stroke: var(--ds-color-theme-control-fill-primary);
+}
+
+.ringValue {
+    stroke: var(--ds-color-theme-accent-primary);
+}
+
+.severity_neutral .ringValue {
+    stroke: #36d399;
+}
+
+.severity_warning .ringValue {
+    stroke: #eea80d;
+}
+
+.severity_critical .ringValue {
+    stroke: var(--color-red-50);
+}
+
+.alertTriangle {
+    fill: var(--color-red-50);
+}
+
+.alertMark {
+    fill: var(--ds-color-theme-accent-content-primary, #fff);
+}
+
 .message {
     color: var(--ds-color-theme-text-primary);
     flex: 1;
     font-size: 13px;
-    line-height: 1.3;
+    line-height: 16px;
     margin: 0;
     min-width: 0;
 }
 
+.messageEmphasized {
+    font-weight: 600;
+}
+
 .secondary {
     color: var(--ds-color-theme-text-secondary);
+    font-weight: 400;
 }
 
 .dismiss {

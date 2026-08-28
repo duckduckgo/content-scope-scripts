@@ -186,7 +186,10 @@ export function Omnibar({
                             <UsageLimitsDrawer
                                 message={usageLimits.message}
                                 secondaryText={usageLimits.secondaryText}
-                                onDismiss={usageLimits.dismissible ? usageLimits.onDismiss : undefined}
+                                icon={usageLimits.icon}
+                                percent={usageLimits.percent}
+                                severity={usageLimits.severity}
+                                onDismiss={usageLimits.onDismiss}
                             />
                         )}
                     </div>

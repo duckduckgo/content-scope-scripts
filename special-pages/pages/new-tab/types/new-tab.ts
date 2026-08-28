@@ -166,6 +166,18 @@ export type UsageLimitsDrawer = {
    * When true, show a dismiss control. Dismiss notifies native via omnibar_dismissUsageLimits.
    */
   dismissible?: boolean;
+  /**
+   * Leading glyph. Omitted defaults to info.
+   */
+  icon?: "info" | "ring" | "alert";
+  /**
+   * Fill amount when icon=ring.
+   */
+  percent?: number;
+  /**
+   * Ring color when icon=ring. Omitted defaults to neutral.
+   */
+  severity?: "neutral" | "warning" | "critical";
 } | null;
 export type Favicon = null | {
   src: string;

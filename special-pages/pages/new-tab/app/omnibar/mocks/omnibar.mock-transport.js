@@ -252,10 +252,11 @@ export function omnibarMockTransport() {
         },
         enableAiChatDeletion: false,
         enableSearchSuggestionDeletion: false,
-        // Tracer: always show the educational Opus banner until native drives this.
+        // Tracer default: educational Opus banner (info icon).
         usageLimits: {
             message: 'Opus 4.8 reaches usage limits 2-5x sooner than basic models.',
             dismissible: true,
+            icon: 'info',
         },
     };
 
@@ -453,9 +454,26 @@ export function omnibarMockTransport() {
                     config.enableAiChatDeletion = parseBooleanQueryParam('omnibar.enableAiChatDeletion') ?? config.enableAiChatDeletion;
                     config.enableSearchSuggestionDeletion =
                         parseBooleanQueryParam('omnibar.enableSearchSuggestionDeletion') ?? config.enableSearchSuggestionDeletion;
-                    // omnibar.usageLimits=false hides the tracer drawer; otherwise keep default educational banner.
-                    if (parseBooleanQueryParam('omnibar.usageLimits') === false) {
+                    // omnibar.usageLimits=false hides; educational|approaching|reached set presets.
+                    const usageLimitsPreset = url.searchParams.get('omnibar.usageLimits');
+                    if (usageLimitsPreset === 'false') {
                         config.usageLimits = null;
+                    } else if (usageLimitsPreset === 'approaching') {
+                        config.usageLimits = {
+                            message: '75% of weekly limit',
+                            secondaryText: ' • Resets in 2d',
+                            dismissible: true,
+                            icon: 'ring',
+                            percent: 75,
+                            severity: 'warning',
+                        };
+                    } else if (usageLimitsPreset === 'reached') {
+                        config.usageLimits = {
+                            message: 'Weekly usage limit reached',
+                            secondaryText: ' • Resets in 2d',
+                            dismissible: false,
+                            icon: 'alert',
+                        };
                     }
                     return config;
                 }
