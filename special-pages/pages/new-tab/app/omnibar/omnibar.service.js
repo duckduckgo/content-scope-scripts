@@ -225,6 +225,14 @@ export class OmnibarService {
     }
 
     /**
+     * Notify native that the user dismissed the AI-mode usage limits drawer.
+     * Native owns dismiss persistence and should push updated config.
+     */
+    dismissUsageLimits() {
+        this.ntp.messaging.notify('omnibar_dismissUsageLimits', {});
+    }
+
+    /**
      * Notify native to apply or unapply the stored response customization.
      * @param {boolean} active
      */

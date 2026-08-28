@@ -300,6 +300,27 @@
       "description": "Show a delete button on history entry suggestions. When true, clicking the button removes the entry from browsing history.",
       "type": "boolean",
       "default": false
+    },
+    "usageLimits": {
+      "title": "Usage Limits Drawer",
+      "description": "Native-resolved presentation for the AI-mode usage limits drawer under the omnibar pill. Non-null shows the drawer; null/omitted hides it. FE does not derive content.",
+      "type": ["object", "null"],
+      "required": ["message"],
+      "properties": {
+        "message": {
+          "type": "string",
+          "description": "Primary banner copy (already localized by native)."
+        },
+        "secondaryText": {
+          "type": "string",
+          "description": "Optional secondary copy (e.g. reset countdown), shown after the primary message."
+        },
+        "dismissible": {
+          "type": "boolean",
+          "description": "When true, show a dismiss control. Dismiss notifies native via omnibar_dismissUsageLimits.",
+          "default": false
+        }
+      }
     }
   }
 }

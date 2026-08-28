@@ -150,6 +150,23 @@ export type EnableAIChatDeletion = boolean;
  * Show a delete button on history entry suggestions. When true, clicking the button removes the entry from browsing history.
  */
 export type EnableSearchSuggestionDeletion = boolean;
+/**
+ * Native-resolved presentation for the AI-mode usage limits drawer under the omnibar pill. Non-null shows the drawer; null/omitted hides it. FE does not derive content.
+ */
+export type UsageLimitsDrawer = {
+  /**
+   * Primary banner copy (already localized by native).
+   */
+  message: string;
+  /**
+   * Optional secondary copy (e.g. reset countdown), shown after the primary message.
+   */
+  secondaryText?: string;
+  /**
+   * When true, show a dismiss control. Dismiss notifies native via omnibar_dismissUsageLimits.
+   */
+  dismissible?: boolean;
+} | null;
 export type Favicon = null | {
   src: string;
   maxAvailableSize?: number;
@@ -230,6 +247,7 @@ export interface NewTabMessages {
     | NextStepsActionNotification
     | NextStepsDismissNotification
     | NextStepsSetConfigNotification
+    | OmnibarDismissUsageLimitsNotification
     | OmnibarOpenAiChatNotification
     | OmnibarOpenCustomizeResponsesNotification
     | OmnibarOpenSuggestionNotification
@@ -593,6 +611,17 @@ export interface NextStepsConfig {
   animation?: Animation;
 }
 /**
+ * Generated from @see "../messages/omnibar_dismissUsageLimits.notify.json"
+ */
+export interface OmnibarDismissUsageLimitsNotification {
+  method: "omnibar_dismissUsageLimits";
+  params: DismissUsageLimitsDrawer;
+}
+/**
+ * Sent when the user dismisses the AI-mode usage limits drawer. Native owns dismiss persistence and should push an updated OmnibarConfig with usageLimits null/omitted.
+ */
+export interface DismissUsageLimitsDrawer {}
+/**
  * Generated from @see "../messages/omnibar_openAiChat.notify.json"
  */
 export interface OmnibarOpenAiChatNotification {
@@ -716,6 +745,7 @@ export interface OmnibarConfig {
   enableAttachTabs?: EnableAttachTabs;
   enableAiChatDeletion?: EnableAIChatDeletion;
   enableSearchSuggestionDeletion?: EnableSearchSuggestionDeletion;
+  usageLimits?: UsageLimitsDrawer;
 }
 /**
  * A section of AI models with an optional header and a list of model items.

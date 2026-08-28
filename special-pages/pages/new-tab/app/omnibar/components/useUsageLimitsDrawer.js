@@ -1,35 +1,41 @@
-import { useCallback, useState } from 'preact/hooks';
-import { useTypedTranslationWith } from '../../types';
+import { useCallback, useContext } from 'preact/hooks';
+import { OmnibarContext } from './OmnibarProvider';
 
 /**
- * @typedef {typeof import('../strings.json')} Strings
- */
-
-/**
- * Stage 1: hardcoded educational Opus banner with session-local dismiss.
- * Later replaced by native-driven config / subscribe over the message bridge.
+ * Reads the native-driven usageLimits presentation from OmnibarConfig.
+ * Tracer: message + optional secondary + dismiss only.
  *
  * @returns {{
  *   visible: boolean,
  *   message: string,
  *   secondaryText: string,
  *   dismissible: boolean,
- *   onDismiss: () => void,
+ *   onDismiss: (() => void) | undefined,
  * }}
  */
 export function useUsageLimitsDrawer() {
-    const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
-    const [dismissed, setDismissed] = useState(false);
+    const { state, dismissUsageLimits } = useContext(OmnibarContext);
+    const usageLimits = state.config?.usageLimits ?? null;
 
     const onDismiss = useCallback(() => {
-        setDismissed(true);
-    }, []);
+        dismissUsageLimits();
+    }, [dismissUsageLimits]);
+
+    if (!usageLimits) {
+        return {
+            visible: false,
+            message: '',
+            secondaryText: '',
+            dismissible: false,
+            onDismiss: undefined,
+        };
+    }
 
     return {
-        visible: !dismissed,
-        message: t('omnibar_usageLimitsOpusMessage'),
-        secondaryText: '',
-        dismissible: true,
-        onDismiss,
+        visible: true,
+        message: usageLimits.message,
+        secondaryText: usageLimits.secondaryText ?? '',
+        dismissible: usageLimits.dismissible === true,
+        onDismiss: usageLimits.dismissible === true ? onDismiss : undefined,
     };
 }

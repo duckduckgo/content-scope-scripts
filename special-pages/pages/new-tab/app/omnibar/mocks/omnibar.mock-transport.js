@@ -252,6 +252,11 @@ export function omnibarMockTransport() {
         },
         enableAiChatDeletion: false,
         enableSearchSuggestionDeletion: false,
+        // Tracer: always show the educational Opus banner until native drives this.
+        usageLimits: {
+            message: 'Opus 4.8 reaches usage limits 2-5x sooner than basic models.',
+            dismissible: true,
+        },
     };
 
     /** @type {Map<string, (d: any) => void>} */
@@ -272,6 +277,11 @@ export function omnibarMockTransport() {
                 }
                 case 'omnibar_setCustomizeResponsesActive': {
                     config.customizationActive = msg.params.active;
+                    subs.get('omnibar_onConfigUpdate')?.(config);
+                    break;
+                }
+                case 'omnibar_dismissUsageLimits': {
+                    config.usageLimits = null;
                     subs.get('omnibar_onConfigUpdate')?.(config);
                     break;
                 }
@@ -443,6 +453,10 @@ export function omnibarMockTransport() {
                     config.enableAiChatDeletion = parseBooleanQueryParam('omnibar.enableAiChatDeletion') ?? config.enableAiChatDeletion;
                     config.enableSearchSuggestionDeletion =
                         parseBooleanQueryParam('omnibar.enableSearchSuggestionDeletion') ?? config.enableSearchSuggestionDeletion;
+                    // omnibar.usageLimits=false hides the tracer drawer; otherwise keep default educational banner.
+                    if (parseBooleanQueryParam('omnibar.usageLimits') === false) {
+                        config.usageLimits = null;
+                    }
                     return config;
                 }
                 case 'omnibar_getSuggestions': {
