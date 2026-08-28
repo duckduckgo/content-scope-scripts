@@ -2913,9 +2913,10 @@
     "hover",
     "trackerProtection",
     // only enabled on apple platforms
-    "textSelection"
+    "textSelection",
+    "uaChBrands"
   ];
-  var selfGatingFeatures = ["trackerProtection"];
+  var selfGatingFeatures = ["trackerProtection", "uaChBrands"];
   function isPlatformSpecificFeature(featureName) {
     return platformSpecificFeatures.includes(
       /** @type {import('./features.js').FeatureName} */
@@ -10748,6 +10749,7 @@
 
   // src/features/ua-ch-brands.js
   init_define_import_meta_trackerLookup();
+  var DUCK_DUCK_GO_BRAND = "DuckDuckGo";
   var UaChBrands = class extends ContentFeature {
     constructor(featureName, importConfig, features, args) {
       super(featureName, importConfig, features, args);
@@ -10761,8 +10763,8 @@
      * @returns {string} - Brand name to use for replacement/append
      */
     getBrandOverride() {
-      const brandName = this.getFeatureSetting("brandName") || "DuckDuckGo";
-      if (brandName !== "DuckDuckGo") {
+      const brandName = this.getFeatureSetting("brandName") || DUCK_DUCK_GO_BRAND;
+      if (brandName !== DUCK_DUCK_GO_BRAND) {
         this.log.info(`Using brand override: "${brandName}"`);
       }
       return brandName;
@@ -10781,9 +10783,8 @@
           "shimUserAgentDataBrands - captured original brands:",
           this.originalBrands.map((b2) => `"${b2.brand}" v${b2.version}`).join(", ")
         );
-        const targetBrand = this.getBrandOverride();
-        const mutatedBrands = this.applyBrandMutationsToList(this.originalBrands, targetBrand);
-        if (mutatedBrands.length) {
+        const mutatedBrands = this.shouldPresentStockBrands() ? this.removeOurBrandFromList(this.originalBrands) : this.applyBrandMutationsToList(this.originalBrands, this.getBrandOverride());
+        if (mutatedBrands.length && !this.brandListsMatch(this.originalBrands, mutatedBrands)) {
           this.log.info(
             "shimUserAgentDataBrands - about to apply override with:",
             mutatedBrands.map((b2) => `"${b2.brand}" v${b2.version}`).join(", ")
@@ -10796,9 +10797,39 @@
       }
     }
     /**
-     * Append target brand to the brands list, using the Chromium version
+     * True when the site is meant to look exactly like the default browser, which means taking our
+     * brand back out of whatever Chromium produced. That covers both a config exception and
+     * protections being off, the two cases where this feature used to not run at all. Self-gating
+     * means the framework no longer applies the exceptions for us, so they are read here - see
+     * selfGatingFeatures.
+     * @returns {boolean}
+     */
+    shouldPresentStockBrands() {
+      if (this.args && isGloballyDisabled(this.args)) {
+        return true;
+      }
+      const exceptions = this.bundledConfig?.features?.uaChBrands?.exceptions || [];
+      return isUnprotectedDomain(getTabHostname(), exceptions);
+    }
+    /**
+     * Drops our brand, leaving the list Chromium would have produced on its own.
      * @param {Array<{brand: string, version: string}>} list - Original brands list
-     * @param {string} targetBrand - Brand name to append
+     * @returns {Array<{brand: string, version: string}>} - List without our brand
+     */
+    removeOurBrandFromList(list) {
+      if (!Array.isArray(list) || !list.length) {
+        return [];
+      }
+      const remaining = list.filter((b2) => b2.brand !== DUCK_DUCK_GO_BRAND);
+      if (remaining.length !== list.length) {
+        this.log.info(`Removed "${DUCK_DUCK_GO_BRAND}" so the site sees the stock brands`);
+      }
+      return remaining;
+    }
+    /**
+     * Ensure the brands list carries the target brand exactly once, using the Chromium version
+     * @param {Array<{brand: string, version: string}>} list - Original brands list
+     * @param {string} targetBrand - Brand name to apply
      * @returns {Array<{brand: string, version: string}>} - Modified brands array
      */
     applyBrandMutationsToList(list, targetBrand) {
@@ -10806,15 +10837,25 @@
         this.log.info("applyBrandMutationsToList - no brands to mutate");
         return [];
       }
-      const mutated = [...list];
-      const chromium = mutated.find((b2) => b2.brand === "Chromium");
-      if (chromium) {
-        mutated.push({ brand: targetBrand, version: chromium.version });
-        this.log.info(`Appended "${targetBrand}" v${chromium.version} (to match Chromium version)`);
+      const mutated = targetBrand === DUCK_DUCK_GO_BRAND ? [...list] : this.removeOurBrandFromList(list);
+      if (!mutated.some((b2) => b2.brand === targetBrand)) {
+        const chromium = mutated.find((b2) => b2.brand === "Chromium");
+        if (chromium) {
+          mutated.push({ brand: targetBrand, version: chromium.version });
+          this.log.info(`Appended "${targetBrand}" v${chromium.version} (to match Chromium version)`);
+        }
       }
       const brandNames = mutated.map((b2) => `"${b2.brand}" v${b2.version}`).join(", ");
       this.log.info(`Final brands: [${brandNames}]`);
       return mutated;
+    }
+    /**
+     * @param {Array<{brand: string, version: string}>} a
+     * @param {Array<{brand: string, version: string}>} b
+     * @returns {boolean}
+     */
+    brandListsMatch(a2, b2) {
+      return a2.length === b2.length && a2.every((entry, index) => entry.brand === b2[index].brand && entry.version === b2[index].version);
     }
     /**
      * Apply the brand override to navigator.userAgentData
@@ -10836,8 +10877,7 @@
               result = newBrands;
             }
             if (key === "fullVersionList" && args[0]?.includes("fullVersionList") && value) {
-              const targetBrand = featureInstance2.getBrandOverride();
-              result = featureInstance2.applyBrandMutationsToList(value, targetBrand);
+              result = featureInstance2.shouldPresentStockBrands() ? featureInstance2.removeOurBrandFromList(value) : featureInstance2.applyBrandMutationsToList(value, featureInstance2.getBrandOverride());
             }
             modifiedResult[key] = result;
           }

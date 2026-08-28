@@ -2126,9 +2126,10 @@
     "hover",
     "trackerProtection",
     // only enabled on apple platforms
-    "textSelection"
+    "textSelection",
+    "uaChBrands"
   ];
-  var selfGatingFeatures = ["trackerProtection"];
+  var selfGatingFeatures = ["trackerProtection", "uaChBrands"];
   function isPlatformSpecificFeature(featureName) {
     return platformSpecificFeatures.includes(
       /** @type {import('./features.js').FeatureName} */
