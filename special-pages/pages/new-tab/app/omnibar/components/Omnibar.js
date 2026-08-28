@@ -189,6 +189,8 @@ export function Omnibar({
                                 icon={usageLimits.icon}
                                 percent={usageLimits.percent}
                                 severity={usageLimits.severity}
+                                cta={usageLimits.cta}
+                                onSelectCta={usageLimits.onSelectCta}
                                 onDismiss={usageLimits.onDismiss}
                             />
                         )}

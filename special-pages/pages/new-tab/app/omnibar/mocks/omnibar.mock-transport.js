@@ -286,6 +286,15 @@ export function omnibarMockTransport() {
                     subs.get('omnibar_onConfigUpdate')?.(config);
                     break;
                 }
+                case 'omnibar_selectUsageLimitsCta': {
+                    console.warn('Mock: selectUsageLimitsCta', msg.params);
+                    if (msg.params?.modelId) {
+                        config.selectedModelId = msg.params.modelId;
+                    }
+                    config.usageLimits = null;
+                    subs.get('omnibar_onConfigUpdate')?.(config);
+                    break;
+                }
                 case 'omnibar_removeSuggestion': {
                     console.log('Mock: removing suggestion', msg.params.url);
                     break;
@@ -454,7 +463,7 @@ export function omnibarMockTransport() {
                     config.enableAiChatDeletion = parseBooleanQueryParam('omnibar.enableAiChatDeletion') ?? config.enableAiChatDeletion;
                     config.enableSearchSuggestionDeletion =
                         parseBooleanQueryParam('omnibar.enableSearchSuggestionDeletion') ?? config.enableSearchSuggestionDeletion;
-                    // omnibar.usageLimits=false hides; educational|approaching|reached set presets.
+                    // omnibar.usageLimits=false hides; approaching|reached|reached-switch set presets.
                     const usageLimitsPreset = url.searchParams.get('omnibar.usageLimits');
                     if (usageLimitsPreset === 'false') {
                         config.usageLimits = null;
@@ -466,6 +475,17 @@ export function omnibarMockTransport() {
                             icon: 'ring',
                             percent: 75,
                             severity: 'warning',
+                            cta: {
+                                label: 'Switch to GPT-4o mini',
+                                leadingIcon: 'convert',
+                                primaryModelId: 'gpt-4o-mini',
+                                showMenu: true,
+                                alternatives: [
+                                    { id: 'gpt-5-mini', name: 'GPT-5 mini' },
+                                    { id: 'claude-haiku-4-5', name: 'Claude Haiku 4.5' },
+                                    { id: 'openai_gpt-oss-120b', name: 'GPT-OSS 120B' },
+                                ],
+                            },
                         };
                     } else if (usageLimitsPreset === 'reached') {
                         config.usageLimits = {
@@ -473,6 +493,29 @@ export function omnibarMockTransport() {
                             secondaryText: ' • Resets in 2d',
                             dismissible: false,
                             icon: 'alert',
+                            cta: {
+                                label: 'Try DuckDuckGo Subscription',
+                                leadingIcon: 'none',
+                                showMenu: false,
+                            },
+                        };
+                    } else if (usageLimitsPreset === 'reached-switch') {
+                        config.usageLimits = {
+                            message: 'Weekly usage limit reached',
+                            secondaryText: ' • Resets in 2d',
+                            dismissible: false,
+                            icon: 'alert',
+                            cta: {
+                                label: 'Switch to free model',
+                                leadingIcon: 'none',
+                                primaryModelId: 'gpt-4o-mini',
+                                showMenu: true,
+                                alternatives: [
+                                    { id: 'gpt-4o-mini', name: 'GPT-4o mini' },
+                                    { id: 'gpt-5-mini', name: 'GPT-5 mini' },
+                                    { id: 'claude-haiku-4-5', name: 'Claude Haiku 4.5' },
+                                ],
+                            },
                         };
                     }
                     return config;

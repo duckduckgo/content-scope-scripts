@@ -337,6 +337,44 @@
           "description": "Ring color when icon=ring. Omitted defaults to neutral.",
           "enum": ["neutral", "warning", "critical"],
           "default": "neutral"
+        },
+        "cta": {
+          "type": ["object", "null"],
+          "description": "Optional action button. Native owns execution via omnibar_selectUsageLimitsCta.",
+          "required": ["label", "showMenu"],
+          "properties": {
+            "label": {
+              "type": "string",
+              "description": "Primary button label (already localized)."
+            },
+            "leadingIcon": {
+              "type": "string",
+              "description": "Optional glyph before the label. convert = switch-model icon; none/omitted = text only.",
+              "enum": ["none", "convert"],
+              "default": "none"
+            },
+            "primaryModelId": {
+              "type": "string",
+              "description": "Opaque model id sent on primary click when set. Omit for non-model actions (bypass/subscribe)."
+            },
+            "showMenu": {
+              "type": "boolean",
+              "description": "When true, show a chevron and alternatives menu. Native decides; FE does not infer."
+            },
+            "alternatives": {
+              "type": "array",
+              "description": "Model options for the chevron menu.",
+              "items": {
+                "type": "object",
+                "required": ["id", "name"],
+                "properties": {
+                  "id": { "type": "string" },
+                  "name": { "type": "string" },
+                  "variant": { "type": "string" }
+                }
+              }
+            }
+          }
         }
       }
     }

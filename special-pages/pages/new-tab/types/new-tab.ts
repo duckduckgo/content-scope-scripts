@@ -178,6 +178,35 @@ export type UsageLimitsDrawer = {
    * Ring color when icon=ring. Omitted defaults to neutral.
    */
   severity?: "neutral" | "warning" | "critical";
+  /**
+   * Optional action button. Native owns execution via omnibar_selectUsageLimitsCta.
+   */
+  cta?: {
+    /**
+     * Primary button label (already localized).
+     */
+    label: string;
+    /**
+     * Optional glyph before the label. convert = switch-model icon; none/omitted = text only.
+     */
+    leadingIcon?: "none" | "convert";
+    /**
+     * Opaque model id sent on primary click when set. Omit for non-model actions (bypass/subscribe).
+     */
+    primaryModelId?: string;
+    /**
+     * When true, show a chevron and alternatives menu. Native decides; FE does not infer.
+     */
+    showMenu: boolean;
+    /**
+     * Model options for the chevron menu.
+     */
+    alternatives?: {
+      id: string;
+      name: string;
+      variant?: string;
+    }[];
+  } | null;
 } | null;
 export type Favicon = null | {
   src: string;
@@ -264,6 +293,7 @@ export interface NewTabMessages {
     | OmnibarOpenCustomizeResponsesNotification
     | OmnibarOpenSuggestionNotification
     | OmnibarRemoveSuggestionNotification
+    | OmnibarSelectUsageLimitsCtaNotification
     | OmnibarSetConfigNotification
     | OmnibarSetCustomizeResponsesActiveNotification
     | OmnibarShowSubscriptionUpgradeNotification
@@ -725,6 +755,22 @@ export interface RemoveSuggestion {
    * The URL of the history entry to remove
    */
   url: string;
+}
+/**
+ * Generated from @see "../messages/omnibar_selectUsageLimitsCta.notify.json"
+ */
+export interface OmnibarSelectUsageLimitsCtaNotification {
+  method: "omnibar_selectUsageLimitsCta";
+  params: SelectUsageLimitsCTA;
+}
+/**
+ * Sent when the user activates the usage-limits drawer CTA (primary button or a menu alternative). Native executes the current CTA; FE only reports the selection.
+ */
+export interface SelectUsageLimitsCTA {
+  /**
+   * Set when the user picks a model (primaryModelId or menu item). Omitted for non-model primary actions (bypass/subscribe).
+   */
+  modelId?: string;
 }
 /**
  * Generated from @see "../messages/omnibar_setConfig.notify.json"

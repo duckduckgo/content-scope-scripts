@@ -87,6 +87,10 @@ export const OmnibarContext = createContext({
     dismissUsageLimits: () => {
         throw new Error('must implement');
     },
+    /** @type {(modelId?: string) => void} */
+    selectUsageLimitsCta: () => {
+        throw new Error('must implement');
+    },
     /** @type {(active: boolean) => void} */
     setCustomizeResponsesActive: () => {
         throw new Error('must implement');
@@ -265,6 +269,14 @@ export function OmnibarProvider(props) {
         service.current?.dismissUsageLimits();
     }, [service]);
 
+    /** @type {(modelId?: string) => void} */
+    const selectUsageLimitsCta = useCallback(
+        (modelId) => {
+            service.current?.selectUsageLimitsCta(modelId);
+        },
+        [service],
+    );
+
     /** @type {(active: boolean) => void} */
     const setCustomizeResponsesActive = useCallback(
         (active) => {
@@ -340,6 +352,7 @@ export function OmnibarProvider(props) {
                 viewAllAiChats,
                 openCustomizeResponses,
                 dismissUsageLimits,
+                selectUsageLimitsCta,
                 setCustomizeResponsesActive,
                 showUpsell,
                 getOpenTabs,
