@@ -75,9 +75,13 @@ function mockWebstorePrivate({ statusById = {}, omit = false, errorFor = undefin
  * @param {string} [opts.errorFor]
  * @param {string} [opts.config]
  * @param {string} [opts.html]
+ * @param {string[]} [opts.userUnprotectedDomains]
  */
 async function setup(page, testInfo, opts = {}) {
     const collector = ResultsCollector.create(page, testInfo.project.use);
+    if (opts.userUnprotectedDomains) {
+        collector.withUserUnprotectedDomains(opts.userUnprotectedDomains);
+    }
     await page.addInitScript(mockWebstorePrivate, {
         statusById: opts.statusById ?? {},
         omit: opts.omit ?? false,
@@ -195,6 +199,30 @@ test.describe('chromeWebstorePatching', () => {
             config: './integration-test/test-pages/chrome-webstore-patching/config/config-curation-off.json',
         });
         await navigateTo(page, CURATED_PATH);
+        await expect(page.locator(LABEL)).toHaveText('Unsupported extension');
+        await expect(page.locator(BUTTON)).toBeDisabled();
+    });
+
+    // Ship Review blocker: switching protections off must not restore a working
+    // install button. The feature is in `platformSpecificFeatures`, so it keeps
+    // loading while everything else is skipped.
+    test('protections off (user allowlist) → feature still patches', async ({ page }, testInfo) => {
+        await setup(page, testInfo, { userUnprotectedDomains: ['localhost'] });
+        await navigateTo(page, UNCURATED_PATH);
+        await expect(page.locator(LABEL)).toHaveText('Unsupported extension');
+        await expect(page.locator(BUTTON)).toBeDisabled();
+        await page.locator(BUTTON).click({ force: true });
+        await expect.poll(() => page.evaluate(() => /** @type {any} */ (window).__installClicked)).toBe(false);
+        // curated extensions keep working normally
+        await navigateTo(page, CURATED_PATH);
+        await expect(page.locator(LABEL)).toHaveText('Add to DuckDuckGo');
+    });
+
+    test('site in unprotectedTemporary → feature still patches', async ({ page }, testInfo) => {
+        await setup(page, testInfo, {
+            config: './integration-test/test-pages/chrome-webstore-patching/config/config-site-unprotected.json',
+        });
+        await navigateTo(page, UNCURATED_PATH);
         await expect(page.locator(LABEL)).toHaveText('Unsupported extension');
         await expect(page.locator(BUTTON)).toBeDisabled();
     });

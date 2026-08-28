@@ -937,6 +937,9 @@ export const platformSpecificFeatures = [
     'hover',
     'trackerProtection', // only enabled on apple platforms
     'textSelection',
+    // Gates extension installs rather than protecting privacy: turning protections
+    // off for the web store must not hand the user a working install button
+    'chromeWebstorePatching',
 ];
 /**
  * Features that bypass exception-based disabling in computeEnabledFeatures.
