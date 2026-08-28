@@ -938,8 +938,6 @@ export const platformSpecificFeatures = [
     'trackerProtection', // only enabled on apple platforms
     'textSelection',
     'uaChBrands',
-    // Gates extension installs rather than protecting privacy: turning protections
-    // off for the web store must not hand the user a working install button
     'chromeWebstorePatching',
 ];
 /**
