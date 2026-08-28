@@ -126,7 +126,6 @@ test.describe('Breakage Reporting Feature', () => {
         const fraudResult = result.params?.detectorData?.fraudDetection.results[0];
         expect(fraudResult.alertId).toBe('px');
     });
-
 });
 
 export class BreakageReportingSpec {
