@@ -38,8 +38,9 @@ import styles from './ToolsMenu.module.css';
  * @param {ToolConfig[]} props.items - Complete, ordered list of menu rows
  * @param {ToolConfig|null} props.activeItem - Active row backing the collapsed chip, or null
  * @param {boolean} props.isCollapsed - Whether the trigger renders icon-only
+ * @param {boolean} [props.disabled] - When true, the trigger and chip are inert (hard usage limit).
  */
-export function ToolsMenu({ items, activeItem, isCollapsed }) {
+export function ToolsMenu({ items, activeItem, isCollapsed, disabled = false }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const { isOpen: menuOpen, buttonRef, dropdownRef, dropdownPos, toggle: toggleMenu, close: closeMenu } = useDropdown({ align: 'left' });
 
@@ -54,13 +55,15 @@ export function ToolsMenu({ items, activeItem, isCollapsed }) {
             <button
                 ref={buttonRef}
                 type="button"
-                tabIndex={0}
+                tabIndex={disabled ? -1 : 0}
                 class={cn(styles.toolsButton, isCollapsed && styles.toolsButtonCollapsed)}
                 aria-label={t('omnibar_toolsMenuLabel')}
                 aria-haspopup="menu"
                 aria-expanded={menuOpen}
+                disabled={disabled}
                 onClick={(e) => {
                     e.stopPropagation();
+                    if (disabled) return;
                     toggleMenu();
                 }}
             >
@@ -70,11 +73,13 @@ export function ToolsMenu({ items, activeItem, isCollapsed }) {
             {activeItem && (
                 <button
                     type="button"
-                    tabIndex={0}
+                    tabIndex={disabled ? -1 : 0}
                     class={styles.activeToolChip}
                     aria-label={activeItem.label}
+                    disabled={disabled}
                     onClick={(e) => {
                         e.stopPropagation();
+                        if (disabled) return;
                         activeItem.onSelect();
                     }}
                 >

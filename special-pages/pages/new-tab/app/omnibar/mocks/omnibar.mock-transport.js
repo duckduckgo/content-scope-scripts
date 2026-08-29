@@ -493,6 +493,7 @@ export function omnibarMockTransport() {
                             secondaryText: ' • Resets in 2d',
                             dismissible: false,
                             icon: 'alert',
+                            blocksPrompt: true,
                             cta: {
                                 label: 'Try DuckDuckGo Subscription',
                                 leadingIcon: 'none',
@@ -505,6 +506,7 @@ export function omnibarMockTransport() {
                             secondaryText: ' • Resets in 2d',
                             dismissible: false,
                             icon: 'alert',
+                            blocksPrompt: true,
                             cta: {
                                 label: 'Switch to free model',
                                 leadingIcon: 'none',

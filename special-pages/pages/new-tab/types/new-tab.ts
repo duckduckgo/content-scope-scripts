@@ -179,6 +179,10 @@ export type UsageLimitsDrawer = {
    */
   severity?: "neutral" | "warning" | "critical";
   /**
+   * When true, disable AI composer controls (input, voice, model picker, reasoning, tools, attach) — parity with address-bar AreAiPromptControlsEnabled=false. weeklyReachedDegraded keeps this false.
+   */
+  blocksPrompt?: boolean;
+  /**
    * Optional action button. Native owns execution via omnibar_selectUsageLimitsCta.
    */
   cta?: {

@@ -227,6 +227,7 @@ function AiChatContent({
     const { showChats, hideChats, deletionInProgress } = useAiChatsContext();
     const { state } = useContext(OmnibarContext);
     const attachmentLimits = state.config?.attachmentLimits;
+    const blocksPrompt = state.config?.usageLimits?.blocksPrompt === true;
     const { selectedModel } = useSelectedModel();
     const { selectedEffort } = useSelectedReasoningEffort();
     const { activeTool, availableTools, imageGenerationActive, webSearchActive, setActiveTool } = useActiveTools();
@@ -297,6 +298,7 @@ function AiChatContent({
      * @param {import('../../../types/new-tab.js').OpenTarget} target
      */
     const handleSubmit = async (chat, target) => {
+        if (blocksPrompt) return;
         if (submittingRef.current) return;
         submittingRef.current = true;
         try {
@@ -339,6 +341,7 @@ function AiChatContent({
      * @param {import('../../../types/new-tab.js').OpenTarget} target
      */
     const handleVoiceSubmit = (target) => {
+        if (blocksPrompt) return;
         onSubmit({
             chat: '',
             target,
@@ -355,7 +358,7 @@ function AiChatContent({
     const showFileWarning = fileWarning && !imageMessageShowing && !showFileError;
     // Only one attachment message shows at a time; the tab warning falls last in precedence.
     const showTabWarning = tabWarning && !imageMessageShowing && !showFileError && !showFileWarning;
-    const disabled = !query || imageWarning || fileWarning || tabWarning;
+    const disabled = blocksPrompt || !query || imageWarning || fileWarning || tabWarning;
 
     const isVoiceChatMode =
         enableVoiceChatAccess &&
@@ -413,6 +416,7 @@ function AiChatContent({
                     query={query}
                     autoFocus={autoFocus}
                     disabled={disabled}
+                    readOnly={blocksPrompt}
                     placeholder={imageGenerationActive ? imageGenerationPlaceholder : undefined}
                     onChange={handleChange}
                     onSubmit={handleSubmit}
@@ -427,7 +431,7 @@ function AiChatContent({
                                         canAttachImages
                                             ? {
                                                   processFiles: imageState.processFiles,
-                                                  disabled: imageState.imageUploadDisabled,
+                                                  disabled: blocksPrompt || imageState.imageUploadDisabled,
                                                   maxImages: imageState.maxImages,
                                               }
                                             : null
@@ -436,19 +440,25 @@ function AiChatContent({
                                         canAttachFiles
                                             ? {
                                                   processFiles: fileState.processFiles,
-                                                  disabled: fileState.fileUploadDisabled,
+                                                  disabled: blocksPrompt || fileState.fileUploadDisabled,
                                                   mimeTypes: selectedModel?.supportedFileTypes ?? [],
                                               }
                                             : null
                                     }
                                     tabsEnabled={canAttachTabs}
+                                    disabled={blocksPrompt}
                                     onToggleTab={tabAttachments.toggleTab}
                                     isAttached={tabAttachments.isAttached}
                                     maxTabs={tabAttachments.maxTabs}
                                 />
                             )}
                             {toolsMenu.items.length > 0 && (
-                                <ToolsMenu items={toolsMenu.items} activeItem={toolsMenu.activeItem} isCollapsed={toolsMenu.isCollapsed} />
+                                <ToolsMenu
+                                    items={toolsMenu.items}
+                                    activeItem={toolsMenu.activeItem}
+                                    isCollapsed={toolsMenu.isCollapsed}
+                                    disabled={blocksPrompt}
+                                />
                             )}
                         </Fragment>
                     }
@@ -462,10 +472,11 @@ function AiChatContent({
                             )}
                             {isVoiceChatMode ? (
                                 <button
-                                    tabIndex={0}
+                                    tabIndex={blocksPrompt ? -1 : 0}
                                     type="button"
                                     class={aiChatFormStyles.submitButton}
                                     aria-label={t('omnibar_aiChatFormVoiceButtonLabel')}
+                                    disabled={blocksPrompt}
                                     onClick={handleClickVoiceChat}
                                     onAuxClick={handleClickVoiceChat}
                                 >
