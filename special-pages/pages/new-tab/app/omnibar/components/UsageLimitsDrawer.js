@@ -52,16 +52,19 @@ function UsageLimitsRing({ percent, severity }) {
     );
 }
 
+/** Alert-Recolorable-16 — same geometry as address-bar usage drawer. */
 function UsageLimitsAlertIcon() {
     return (
-        <svg class={cn(styles.glyph, styles.alert)} viewBox="0 0 16 16" aria-hidden="true">
+        <svg class={cn(styles.glyph, styles.alert)} viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <path
                 class={styles.alertTriangle}
-                d="M7.134 1.5a1 1 0 0 1 1.732 0l6.01 10.408A1 1 0 0 1 14.01 13.5H1.99a1 1 0 0 1-.866-1.592L7.134 1.5Z"
+                d="M11.0577 1.82645C9.72299 -0.568293 6.27798 -0.568287 4.94327 1.82645L0.501422 9.79603C-0.798841 12.129 0.887818 15 3.55864 15H12.4423C15.1132 15 16.7998 12.129 15.4996 9.79602L11.0577 1.82645Z"
             />
             <path
                 class={styles.alertMark}
-                d="M8 5.25a.75.75 0 0 1 .75.75v3a.75.75 0 0 1-1.5 0v-3A.75.75 0 0 1 8 5.25Zm0 6.5a.875.875 0 1 0 0-1.75.875.875 0 0 0 0 1.75Z"
+                fill-rule="evenodd"
+                clip-rule="evenodd"
+                d="M7.52562 4C7.23968 4 7.01197 4.23938 7.02625 4.52497L7.22625 8.52497C7.23955 8.79107 7.45919 9 7.72562 9H8.27438C8.54081 9 8.76045 8.79107 8.77375 8.52497L8.97375 4.52497C8.98803 4.23938 8.76032 4 8.47438 4H7.52562ZM8 12C8.55228 12 9 11.5523 9 11C9 10.4477 8.55228 10 8 10C7.44772 10 7 10.4477 7 11C7 11.5523 7.44772 12 8 12Z"
             />
         </svg>
     );
