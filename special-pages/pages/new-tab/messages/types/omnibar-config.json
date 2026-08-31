@@ -366,6 +366,10 @@
               "type": "boolean",
               "description": "When true, show a chevron and alternatives menu. Native decides; FE does not infer."
             },
+            "menuHeader": {
+              "type": "string",
+              "description": "Optional section header above the alternatives menu (e.g. 'Switch to a more efficient model'). Already localized. Omitted when the menu has no header (e.g. switch-to-free)."
+            },
             "alternatives": {
               "type": "array",
               "description": "Model options for the chevron menu.",

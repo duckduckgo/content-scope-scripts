@@ -61,6 +61,7 @@ export function useUsageLimitsDrawer() {
                   leadingIcon: rawCta.leadingIcon === 'convert' ? 'convert' : 'none',
                   primaryModelId: rawCta.primaryModelId,
                   showMenu: rawCta.showMenu === true,
+                  menuHeader: typeof rawCta.menuHeader === 'string' ? rawCta.menuHeader : undefined,
                   alternatives: Array.isArray(rawCta.alternatives) ? rawCta.alternatives : [],
               }
             : null;

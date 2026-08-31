@@ -480,6 +480,7 @@ export function omnibarMockTransport() {
                                 leadingIcon: 'convert',
                                 primaryModelId: 'gpt-4o-mini',
                                 showMenu: true,
+                                menuHeader: 'Switch to a more efficient model',
                                 alternatives: [
                                     { id: 'gpt-5-mini', name: 'GPT-5 mini' },
                                     { id: 'claude-haiku-4-5', name: 'Claude Haiku 4.5' },

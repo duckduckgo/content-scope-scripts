@@ -1,4 +1,5 @@
 import { h, Fragment } from 'preact';
+import { useRef } from 'preact/hooks';
 import cn from 'classnames';
 import { DismissButton } from '../../components/DismissButton';
 import { ChevronSmall, InfoIcon } from '../../components/Icons';
@@ -18,6 +19,7 @@ import styles from './UsageLimitsDrawer.module.css';
  *   leadingIcon?: UsageLimitsCtaLeadingIcon,
  *   primaryModelId?: string,
  *   showMenu: boolean,
+ *   menuHeader?: string,
  *   alternatives?: UsageLimitsCtaAlternative[],
  * }} UsageLimitsCta
  */
@@ -92,10 +94,13 @@ function ConvertIcon() {
  * @param {(modelId?: string) => void} props.onSelectCta
  */
 function UsageLimitsCtaControl({ cta, onSelectCta }) {
-    const menu = useDropdown({ align: 'right' });
+    const splitRef = useRef(/** @type {HTMLDivElement|null} */ (null));
+    // Seat against the CTA bottom (native VerticalOffset -9 ≈ flush under the split).
+    const menu = useDropdown({ align: 'right', offsetY: 0, anchorRef: splitRef });
     const showConvert = cta.leadingIcon === 'convert';
     const alternatives = cta.alternatives ?? [];
     const showMenu = cta.showMenu === true && alternatives.length > 0;
+    const menuHeader = typeof cta.menuHeader === 'string' && cta.menuHeader.length > 0 ? cta.menuHeader : null;
 
     const handlePrimary = () => {
         onSelectCta(cta.primaryModelId);
@@ -103,7 +108,7 @@ function UsageLimitsCtaControl({ cta, onSelectCta }) {
     };
 
     return (
-        <div class={styles.ctaSplit}>
+        <div ref={splitRef} class={styles.ctaSplit}>
             <button
                 type="button"
                 class={cn(styles.ctaPrimary, showMenu ? styles.ctaPrimarySplit : styles.ctaPrimarySolo)}
@@ -128,7 +133,8 @@ function UsageLimitsCtaControl({ cta, onSelectCta }) {
                     {menu.isOpen && menu.dropdownPos ? (
                         <Dropdown
                             role="menu"
-                            ariaLabel="Switch model"
+                            ariaLabel={menuHeader ?? 'Switch model'}
+                            header={menuHeader}
                             position={menu.dropdownPos}
                             dropdownRef={menu.dropdownRef}
                             onClose={({ restoreFocus }) => {

@@ -203,6 +203,10 @@ export type UsageLimitsDrawer = {
      */
     showMenu: boolean;
     /**
+     * Optional section header above the alternatives menu (e.g. 'Switch to a more efficient model'). Already localized. Omitted when the menu has no header (e.g. switch-to-free).
+     */
+    menuHeader?: string;
+    /**
      * Model options for the chevron menu.
      */
     alternatives?: {
