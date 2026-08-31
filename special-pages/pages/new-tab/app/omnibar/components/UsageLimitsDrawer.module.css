@@ -211,6 +211,11 @@
     text-overflow: ellipsis;
 }
 
+.ctaMenuHeader {
+    font-size: 11px;
+    line-height: 14px;
+}
+
 .convertIcon {
     flex-shrink: 0;
 }
