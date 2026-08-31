@@ -134,7 +134,8 @@ function UsageLimitsCtaControl({ cta, onSelectCta }) {
                         <Dropdown
                             role="menu"
                             ariaLabel={menuHeader ?? 'Switch model'}
-                            header={menuHeader ? <span class={styles.ctaMenuHeader}>{menuHeader}</span> : null}
+                            header={menuHeader}
+                            headerClassName={styles.ctaMenuHeader}
                             className={styles.ctaDropdown}
                             position={menu.dropdownPos}
                             dropdownRef={menu.dropdownRef}
