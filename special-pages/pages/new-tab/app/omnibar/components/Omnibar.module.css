@@ -127,8 +127,9 @@
     padding: var(--sp-2) var(--sp-3) 0;
 }
 
-/* Suggestions / AI chats list visible */
-.root:has([data-omnibar-list]) .popup {
+/* Suggestions list visible (search only). AI mode keeps rest width — focusing
+ * the textarea opens recent chats (also data-omnibar-list) and must not jump wider. */
+.root:not([data-mode='ai']):has([data-omnibar-list]) .popup {
     border-radius: 15px;
     margin: 0;
 
@@ -185,7 +186,7 @@
     .popup,
     .root:not([data-mode='ai']):has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-attachment-warning])) .popup,
     .root:has([data-attachment-warning]) .popup,
-    .root:has([data-omnibar-list]) .popup {
+    .root:not([data-mode='ai']):has([data-omnibar-list]) .popup {
         border-radius: var(--omnibar-radius);
     }
 
