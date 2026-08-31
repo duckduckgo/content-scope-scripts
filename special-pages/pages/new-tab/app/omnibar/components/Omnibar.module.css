@@ -180,7 +180,7 @@
 
     /* Keep the same radius across Rest, Focused, Attachment limit exceeded, and Suggestions/AI chats list visible */
     .popup,
-    .root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-attachment-warning])) .popup,
+    .root:not([data-mode='ai']):has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-attachment-warning])) .popup,
     .root:has([data-attachment-warning]) .popup,
     .root:has([data-omnibar-list]) .popup {
         border-radius: var(--omnibar-radius);
