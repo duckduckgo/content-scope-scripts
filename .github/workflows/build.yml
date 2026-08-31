@@ -111,6 +111,7 @@ jobs:
             - name: Build release
               run: |
                   npm ci
+                  npm pkg set version="${{ steps.version.outputs.version }}"
                   npm run build
 
             - name: Check in files
