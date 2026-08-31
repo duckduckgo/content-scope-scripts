@@ -103,27 +103,6 @@
     }
 }
 
-/*
- * AI engaged footprint without accent glow (address-bar EffectiveIsPillEngaged +
- * glow suppressed). Same outer width as the former AI+glow state so the usage
- * drawer stays full-bleed under the pill.
- */
-.root[data-mode='ai']:has(textarea:focus):not(:has([data-attachment-warning], [data-attach-tabs-modal])) .popup,
-.root[data-mode='ai']:has([data-testid='usage-limits-drawer']) .popup {
-    margin: 0;
-    border-radius: 15px;
-
-    .field {
-        margin: 1px;
-    }
-
-    .aiChatsList {
-        margin-left: -2px;
-        margin-right: -2px;
-        margin-top: 3px;
-    }
-}
-
 /* Attachment limit exceeded */
 .root:has([data-attachment-warning]) .popup {
     border: 2px solid var(--color-red-50);
