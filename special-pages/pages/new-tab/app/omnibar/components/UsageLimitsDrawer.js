@@ -135,6 +135,7 @@ function UsageLimitsCtaControl({ cta, onSelectCta }) {
                             role="menu"
                             ariaLabel={menuHeader ?? 'Switch model'}
                             header={menuHeader ? <span class={styles.ctaMenuHeader}>{menuHeader}</span> : null}
+                            className={styles.ctaDropdown}
                             position={menu.dropdownPos}
                             dropdownRef={menu.dropdownRef}
                             onClose={({ restoreFocus }) => {
@@ -145,12 +146,16 @@ function UsageLimitsCtaControl({ cta, onSelectCta }) {
                         >
                             {alternatives.map((alt) => {
                                 const Icon = getModelIcon(alt.id);
-                                const name = alt.variant ? `${alt.name} ${alt.variant}` : alt.name;
                                 return (
                                     <DropdownItem
                                         key={alt.id}
                                         role="menuitem"
-                                        name={name}
+                                        name={
+                                            <Fragment>
+                                                <span class={styles.ctaModelName}>{alt.name}</span>
+                                                {alt.variant ? <span class={styles.ctaModelVariant}> {alt.variant}</span> : null}
+                                            </Fragment>
+                                        }
                                         showCheckGutter={false}
                                         icon={Icon ? <Icon /> : undefined}
                                         onSelect={() => {

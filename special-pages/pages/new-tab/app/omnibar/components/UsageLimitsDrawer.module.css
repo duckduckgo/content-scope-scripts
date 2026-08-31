@@ -216,6 +216,19 @@
     line-height: 14px;
 }
 
+.ctaDropdown {
+    min-width: 200px;
+    width: 200px;
+}
+
+.ctaModelName {
+    font-weight: 600;
+}
+
+.ctaModelVariant {
+    font-weight: 400;
+}
+
 .convertIcon {
     flex-shrink: 0;
 }
