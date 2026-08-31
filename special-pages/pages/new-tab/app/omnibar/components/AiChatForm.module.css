@@ -110,6 +110,12 @@
     &:active:not([disabled]) {
         background: var(--ds-color-theme-control-fill-tertiary);
     }
+
+    /* Match address-bar voice disabled: no fill circle, faded icon only. */
+    &[disabled] {
+        background: none;
+        color: color-mix(in srgb, var(--ds-color-theme-icons-primary) 30%, transparent);
+    }
 }
 
 @keyframes fadeIn {
