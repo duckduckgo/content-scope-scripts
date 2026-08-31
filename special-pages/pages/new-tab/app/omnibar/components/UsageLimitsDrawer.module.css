@@ -60,7 +60,7 @@
     display: flex;
     gap: 8px;
     min-height: 42px;
-    padding: 3px 12px 8px 16px;
+    padding: 4px 12px 8px 16px;
 }
 
 /* Shared 16×16 slot so info / ring / alert never shift the row */
