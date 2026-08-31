@@ -77,6 +77,7 @@ export default defineConfig({
             testMatch: [
                 'duckplayer.spec.js',
                 'duckplayer-screenshots.spec.js',
+                'errorpage.spec.js',
                 'onboarding.v4.spec.js',
                 'release-notes.spec.js',
                 'special-error.spec.js',

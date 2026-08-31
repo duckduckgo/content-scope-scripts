@@ -15,6 +15,7 @@ Native performs string replacement on the HTML before loading:
 | `$HEADER$` | Error title text |
 | `$ERROR_DESCRIPTION$` | Error description text |
 | `$THEME_VARIANT$` | Theme variant name (falls back to default if not replaced) |
+| `/* $ERROR_PAGE_LINK_CONFIGURATION$ */` | Optional inert marker that native can replace with action-link configuration |
 
 ## Runtime Theme Updates
 
@@ -32,3 +33,18 @@ window.onChangeTheme({ themeVariant: 'coolGray' });
 ```
 
 Available theme variants: `default`, `coolGray`, `slateBlue`, `green`, `violet`, `rose`, `orange`, `desert`
+
+## Optional Action Link
+
+The action link is hidden by default. Provide non-empty text and a click function to show it:
+
+```javascript
+window.configureErrorPageLink({
+  text: 'Send Feedback',
+  onClick: function() {
+    // Handle the action in native.
+  }
+});
+```
+
+Missing or invalid configuration hides the link and clears its text and click function. Calling `window.configureErrorPageLink` again replaces the previous configuration.

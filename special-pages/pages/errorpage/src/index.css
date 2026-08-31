@@ -104,6 +104,20 @@ body {
     padding: 8px;
 }
 
+.error-page-link {
+    appearance: none;
+    background-color: transparent;
+    border: 0;
+    color: var(--text-color);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+    line-height: 16px;
+    margin: 0;
+    padding: 0;
+    text-decoration: underline;
+}
+
 .header-container .description-container {
     position: relative;
     width: 100%;
