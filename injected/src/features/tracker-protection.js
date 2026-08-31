@@ -14,34 +14,10 @@
  */
 
 import ContentFeature from '../content-feature.js';
-import { isUnprotectedDomain } from '../utils.js';
+import { isUnprotectedDomain, getTabUrl } from '../utils.js';
 import { objectEntries, objectFromEntries } from '../captured-globals.js';
 import { TrackerResolver } from './tracker-protection/tracker-resolver.js';
 import { surrogates as bundledSurrogates } from './tracker-protection/surrogates-generated.js';
-
-/**
- * Get the tab's top-level URL, handling iframes
- * @returns {URL | null}
- */
-function getTabURL() {
-    let framingOrigin = null;
-
-    try {
-        framingOrigin = globalThis.top?.location.href;
-    } catch {
-        framingOrigin = globalThis.document.referrer;
-
-        if ('ancestorOrigins' in globalThis.location && globalThis.location.ancestorOrigins.length) {
-            framingOrigin = globalThis.location.ancestorOrigins.item(globalThis.location.ancestorOrigins.length - 1);
-        }
-    }
-
-    try {
-        return framingOrigin ? new URL(framingOrigin) : null;
-    } catch {
-        return null;
-    }
-}
 
 export class TrackerProtection extends ContentFeature {
     init() {
@@ -61,7 +37,7 @@ export class TrackerProtection extends ContentFeature {
         this._surrogateInjectionEnabled = this.getFeatureSettingEnabled('surrogateInjection', 'enabled');
 
         // Get top-level URL for tracker matching
-        this._topLevelUrl = getTabURL();
+        this._topLevelUrl = getTabUrl();
         if (!this._topLevelUrl) {
             return;
         }
@@ -185,9 +161,6 @@ export class TrackerProtection extends ContentFeature {
             }
             return originalSend.apply(this, args);
         };
-
-        this._originalXHROpen = originalOpen;
-        this._originalXHRSend = originalSend;
     }
 
     _setupFetchInterception() {
@@ -211,8 +184,6 @@ export class TrackerProtection extends ContentFeature {
             }
             return originalFetch.apply(window, args);
         };
-
-        this._originalFetch = originalFetch;
     }
 
     _setupImageSrcInterception() {
@@ -220,7 +191,6 @@ export class TrackerProtection extends ContentFeature {
         const originalDescriptor = Object.getOwnPropertyDescriptor(Image.prototype, 'src');
         if (!originalDescriptor?.get || !originalDescriptor?.set) return;
 
-        this._originalImageSrc = originalDescriptor;
         /** @type {WeakSet<HTMLImageElement>} */
         const imgTracked = new WeakSet();
         const origGet = originalDescriptor.get;
