@@ -107,6 +107,7 @@ const CORE_FILES = new Set([
     'injected/src/features/text-selection.js',
     'injected/src/detectors/detections/bot-detection.js',
     'injected/src/detectors/utils/detection-utils.js',
+    'injected/src/features/element-hiding-selectors.js',
     'injected/src/features/exception-handler.js',
     'injected/src/features/favicon.js',
     'injected/src/features/fingerprinting-battery.js',
