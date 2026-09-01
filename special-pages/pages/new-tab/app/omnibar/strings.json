@@ -155,9 +155,13 @@
     "title": "Apply response customization",
     "description": "Accessible label for the on/off toggle that applies or unapplies the saved response customization, shown on the Customize Responses tools menu row."
   },
-  "omnibar_usageLimitsOpusMessage": {
-    "title": "Opus 4.8 reaches usage limits 2-5x sooner than basic models.",
-    "description": "Educational message shown in the AI-mode usage limits drawer when Opus 4.8 is selected."
+  "omnibar_usageLimitsCtaMenuLabel": {
+    "title": "Show more models",
+    "description": "Accessible label for the usage-limits CTA chevron that opens the alternatives menu."
+  },
+  "omnibar_usageLimitsCtaMenuFallback": {
+    "title": "Switch model",
+    "description": "Accessible name for the usage-limits alternatives menu when native did not send menuHeader."
   },
   "omnibar_imageGenerationWithAttachmentPlaceholder": {
     "title": "Describe changes based on the image",

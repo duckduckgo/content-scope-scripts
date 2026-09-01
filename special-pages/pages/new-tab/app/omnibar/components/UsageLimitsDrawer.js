@@ -3,11 +3,14 @@ import { useRef } from 'preact/hooks';
 import cn from 'classnames';
 import { DismissButton } from '../../components/DismissButton';
 import { ChevronSmall, InfoIcon } from '../../components/Icons';
+import { useTypedTranslationWith } from '../../types';
 import { Dropdown } from './chat-tools/dropdown/Dropdown';
 import { DropdownItem } from './chat-tools/dropdown/DropdownItem';
 import { useDropdown } from './chat-tools/useDropdown';
 import { getModelIcon } from './chat-tools/model-selector/Icons';
 import styles from './UsageLimitsDrawer.module.css';
+
+/** @typedef {typeof import('../strings.json')} Strings */
 
 /**
  * @typedef {'info' | 'ring' | 'alert'} UsageLimitsIcon
@@ -94,6 +97,7 @@ function ConvertIcon() {
  * @param {(modelId?: string) => void} props.onSelectCta
  */
 function UsageLimitsCtaControl({ cta, onSelectCta }) {
+    const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const splitRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     // Seat against the CTA bottom (native VerticalOffset -9 ≈ flush under the split).
     const menu = useDropdown({ align: 'right', offsetY: 0, anchorRef: splitRef });
@@ -123,7 +127,7 @@ function UsageLimitsCtaControl({ cta, onSelectCta }) {
                         ref={menu.buttonRef}
                         type="button"
                         class={styles.ctaMenu}
-                        aria-label="Show more models"
+                        aria-label={t('omnibar_usageLimitsCtaMenuLabel')}
                         aria-expanded={menu.isOpen}
                         aria-haspopup="menu"
                         onClick={menu.toggle}
@@ -133,7 +137,7 @@ function UsageLimitsCtaControl({ cta, onSelectCta }) {
                     {menu.isOpen && menu.dropdownPos ? (
                         <Dropdown
                             role="menu"
-                            ariaLabel={menuHeader ?? 'Switch model'}
+                            ariaLabel={menuHeader ?? t('omnibar_usageLimitsCtaMenuFallback')}
                             header={menuHeader}
                             headerClassName={styles.ctaMenuHeader}
                             className={styles.ctaDropdown}

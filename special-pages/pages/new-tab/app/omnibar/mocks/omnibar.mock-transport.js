@@ -252,12 +252,6 @@ export function omnibarMockTransport() {
         },
         enableAiChatDeletion: false,
         enableSearchSuggestionDeletion: false,
-        // Tracer default: educational Opus banner (info icon).
-        usageLimits: {
-            message: 'Opus 4.8 reaches usage limits 2-5x sooner than basic models.',
-            dismissible: true,
-            icon: 'info',
-        },
     };
 
     /** @type {Map<string, (d: any) => void>} */
