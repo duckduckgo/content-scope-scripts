@@ -170,7 +170,10 @@ export function reducer(state, action) {
                     };
                 }
                 default:
-                    throw new Error('unhandled ' + action.kind);
+                    // A second action while an update is in flight has no valid transition from here.
+                    // Throwing would escape to window.onerror and fail the onboarding journey, so the
+                    // action is dropped instead and the UI keeps its controls inert until 'exec-complete'.
+                    return state;
             }
         }
     }
