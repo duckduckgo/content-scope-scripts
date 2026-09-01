@@ -1,4 +1,11 @@
-import { parseExtensionId, readCuratedCatalog } from '../src/features/chrome-webstore-patching/helpers.js';
+import {
+    getWebstorePrivate,
+    hasRuntimeLastError,
+    parseExtensionId,
+    readButtonCopy,
+    readCuratedCatalog,
+    readStatusSets,
+} from '../src/features/chrome-webstore-patching/helpers.js';
 
 const CURATED_ID = 'nngceckbapebfimnlniiiahkandclblb';
 
@@ -106,6 +113,80 @@ describe('chromeWebstorePatching helpers', () => {
         it('returns [] when there is no config at all', () => {
             expect(readCuratedCatalog(undefined)).toEqual([]);
             expect(readCuratedCatalog(null)).toEqual([]);
+        });
+    });
+
+    describe('getWebstorePrivate', () => {
+        it('returns the API when getExtensionStatus is callable', () => {
+            const getExtensionStatus = () => {};
+            expect(getWebstorePrivate({ webstorePrivate: { getExtensionStatus } })?.getExtensionStatus).toBe(getExtensionStatus);
+        });
+
+        for (const [label, value] of [
+            ['no chrome global', undefined],
+            ['chrome is not an object', 'nope'],
+            ['no webstorePrivate', {}],
+            ['webstorePrivate without the method', { webstorePrivate: {} }],
+            ['getExtensionStatus is not callable', { webstorePrivate: { getExtensionStatus: 'nope' } }],
+        ]) {
+            it(`returns null when ${label}`, () => {
+                expect(getWebstorePrivate(value)).toBeNull();
+            });
+        }
+    });
+
+    describe('hasRuntimeLastError', () => {
+        it('is true when runtime.lastError is set', () => {
+            expect(hasRuntimeLastError({ runtime: { lastError: { message: 'boom' } } })).toBeTrue();
+        });
+
+        it('is false when the error is absent or the shape is wrong', () => {
+            expect(hasRuntimeLastError({ runtime: {} })).toBeFalse();
+            expect(hasRuntimeLastError({ runtime: { lastError: undefined } })).toBeFalse();
+            expect(hasRuntimeLastError({})).toBeFalse();
+            expect(hasRuntimeLastError(undefined)).toBeFalse();
+        });
+    });
+
+    describe('readStatusSets', () => {
+        it("prefers the API's own enum so we track Chromium", () => {
+            const chromeGlobal = {
+                webstorePrivate: {
+                    getExtensionStatus: () => {},
+                    ExtensionInstallStatus: { INSTALLABLE: 'installable_v2', ENABLED: 'enabled_v2' },
+                },
+            };
+            const { installable, installed } = readStatusSets(chromeGlobal);
+            expect(installable).toEqual(['installable_v2']);
+            expect(installed).toEqual(['enabled_v2']);
+        });
+
+        it('falls back to the bundled lists when the enum is missing', () => {
+            const { installable, installed } = readStatusSets(undefined);
+            expect(installable).toEqual(['installable', 'can_request']);
+            expect(installed).toEqual(['enabled', 'disabled', 'force_installed', 'terminated']);
+        });
+
+        it('ignores non-string enum members', () => {
+            const chromeGlobal = {
+                webstorePrivate: { getExtensionStatus: () => {}, ExtensionInstallStatus: { INSTALLABLE: 7, CAN_REQUEST: null } },
+            };
+            expect(readStatusSets(chromeGlobal).installable).toEqual(['installable', 'can_request']);
+        });
+    });
+
+    describe('readButtonCopy', () => {
+        it('keeps string fields and drops everything else', () => {
+            const copy = readButtonCopy({ install: 'Add', remove: 42, unavailable: null, unavailableDescription: 'Why' });
+            expect(copy.install).toBe('Add');
+            expect(copy.remove).toBeUndefined();
+            expect(copy.unavailable).toBeUndefined();
+            expect(copy.unavailableDescription).toBe('Why');
+        });
+
+        it('returns an empty object for a missing or malformed setting', () => {
+            expect(readButtonCopy(undefined)).toEqual({});
+            expect(readButtonCopy('nope')).toEqual({});
         });
     });
 });

@@ -87,3 +87,98 @@ export function readCuratedCatalog(bundledConfig) {
     }
     return ids;
 }
+
+/**
+ * @typedef {object} WebstorePrivate
+ * @property {(extensionId: string, callback: (status?: string) => void) => void} getExtensionStatus
+ * @property {Record<string, unknown>} [ExtensionInstallStatus]
+ */
+
+// Fallbacks for when the API's own ExtensionInstallStatus enum is unavailable;
+// unmatched statuses keep the button hidden (fail closed)
+const INSTALLED_STATUSES = ['enabled', 'disabled', 'force_installed', 'terminated'];
+const INSTALLABLE_STATUSES = ['installable', 'can_request'];
+
+/**
+ * The chrome.webstorePrivate surface, or null when this browser doesn't expose
+ * a usable one. Returns the narrowed API rather than a boolean so callers get
+ * getExtensionStatus typed instead of reaching through `any`.
+ * @param {unknown} chromeGlobal
+ * @returns {WebstorePrivate | null}
+ */
+export function getWebstorePrivate(chromeGlobal) {
+    if (!isRecord(chromeGlobal)) return null;
+    const webstorePrivate = chromeGlobal.webstorePrivate;
+    if (!isRecord(webstorePrivate)) return null;
+    if (typeof webstorePrivate.getExtensionStatus !== 'function') return null;
+    // Every field consumed has been checked above; the cast carries those findings
+    return /** @type {WebstorePrivate} */ (/** @type {unknown} */ (webstorePrivate));
+}
+
+/**
+ * Whether the last chrome.* call left an error pending. Reading the property is
+ * also what marks the error as handled, so this must run inside the callback.
+ * @param {unknown} chromeGlobal
+ * @returns {boolean}
+ */
+export function hasRuntimeLastError(chromeGlobal) {
+    if (!isRecord(chromeGlobal)) return false;
+    const runtime = chromeGlobal.runtime;
+    return isRecord(runtime) && runtime.lastError != null;
+}
+
+/**
+ * Status values that map to each verdict, read from the API's own
+ * ExtensionInstallStatus enum so we track Chromium; fallbacks only if it's missing.
+ * @param {unknown} chromeGlobal
+ * @returns {{ installable: string[], installed: string[] }}
+ */
+export function readStatusSets(chromeGlobal) {
+    const statuses = getWebstorePrivate(chromeGlobal)?.ExtensionInstallStatus;
+    const enumValues = isRecord(statuses) ? statuses : {};
+    /**
+     * @param {string[]} keys
+     * @returns {string[]}
+     */
+    const collect = (keys) => {
+        /** @type {string[]} */
+        const found = [];
+        for (const key of keys) {
+            const value = enumValues[key];
+            if (typeof value === 'string') found.push(value);
+        }
+        return found;
+    };
+    const installable = collect(['INSTALLABLE', 'CAN_REQUEST']);
+    const installed = collect(['ENABLED', 'DISABLED', 'FORCE_INSTALLED', 'TERMINATED']);
+    return {
+        installable: installable.length ? installable : INSTALLABLE_STATUSES,
+        installed: installed.length ? installed : INSTALLED_STATUSES,
+    };
+}
+
+/**
+ * @typedef {object} ButtonCopy
+ * @property {string} [install]
+ * @property {string} [remove]
+ * @property {string} [unavailable]
+ * @property {string} [unavailableDescription]
+ */
+
+/**
+ * The remote-config `buttonCopy` setting, with every non-string dropped, so
+ * callers read typed fields instead of indexing an `any`.
+ * @param {unknown} value
+ * @returns {ButtonCopy}
+ */
+export function readButtonCopy(value) {
+    if (!isRecord(value)) return {};
+    /** @param {unknown} field @returns {string | undefined} */
+    const str = (field) => (typeof field === 'string' ? field : undefined);
+    return {
+        install: str(value.install),
+        remove: str(value.remove),
+        unavailable: str(value.unavailable),
+        unavailableDescription: str(value.unavailableDescription),
+    };
+}

@@ -1,17 +1,20 @@
 import ContentFeature from '../content-feature.js';
 import { injectGlobalStyles } from '../utils.js';
-import { isValidSelector, parseExtensionId, readCuratedCatalog } from './chrome-webstore-patching/helpers.js';
+import {
+    getWebstorePrivate,
+    hasRuntimeLastError,
+    isValidSelector,
+    parseExtensionId,
+    readButtonCopy,
+    readCuratedCatalog,
+    readStatusSets,
+} from './chrome-webstore-patching/helpers.js';
 // Vendored from the duckduckgo/Icons repo (no package exports them), original names kept
 import daxSvg from './chrome-webstore-patching/assets/DuckDuckGo-Color-24.svg';
 import trashSvg from './chrome-webstore-patching/assets/Trash-24.svg';
 
 const DAX_DATA_URI = `data:image/svg+xml;utf8,${encodeURIComponent(daxSvg)}`;
 const TRASH_DATA_URI = `data:image/svg+xml;utf8,${encodeURIComponent(trashSvg.replaceAll('fill="black"', 'fill="#FFFFFF" fill-opacity="0.78"'))}`;
-
-// Fallbacks for when the API's own ExtensionInstallStatus enum is unavailable;
-// unmatched statuses keep the button hidden (fail closed)
-const INSTALLED_STATUSES = ['enabled', 'disabled', 'force_installed', 'terminated'];
-const INSTALLABLE_STATUSES = ['installable', 'can_request'];
 
 // Applied INLINE with !important: the store's own !important class rules beat
 // any injected stylesheet, but nothing beats an inline important declaration.
@@ -186,7 +189,7 @@ export class ChromeWebstorePatching extends ContentFeature {
         // A navigation may have happened during the await — don't apply a stale verdict
         if (extensionId !== parseExtensionId(window.location.pathname)) return;
 
-        const { installable, installed } = this._statusSets();
+        const { installable, installed } = readStatusSets(globalThis.chrome);
         if (status !== null && installable.includes(status)) {
             this._reveal('install');
         } else if (status !== null && installed.includes(status)) {
@@ -196,28 +199,13 @@ export class ChromeWebstorePatching extends ContentFeature {
     }
 
     /**
-     * Status values that map to each verdict, read from the API's own
-     * ExtensionInstallStatus enum so we track Chromium; fallbacks only if it's missing.
-     * @returns {{ installable: string[], installed: string[] }}
-     */
-    _statusSets() {
-        const eis = /** @type {any} */ (globalThis).chrome?.webstorePrivate?.ExtensionInstallStatus ?? {};
-        const installable = [eis.INSTALLABLE, eis.CAN_REQUEST].filter((s) => typeof s === 'string');
-        const installed = [eis.ENABLED, eis.DISABLED, eis.FORCE_INSTALLED, eis.TERMINATED].filter((s) => typeof s === 'string');
-        return {
-            installable: installable.length ? installable : INSTALLABLE_STATUSES,
-            installed: installed.length ? installed : INSTALLED_STATUSES,
-        };
-    }
-
-    /**
      * Reveals the button for a verdict. Refuses without the verdict's copy —
      * a revealed button must never show Google's original wording.
      * @param {'install' | 'remove' | 'unsupported'} verdict
      */
     _reveal(verdict) {
-        const copy = this.getFeatureSetting('buttonCopy');
-        const text = { install: copy?.install, remove: copy?.remove, unsupported: copy?.unavailable }[verdict];
+        const copy = readButtonCopy(this.getFeatureSetting('buttonCopy'));
+        const text = { install: copy.install, remove: copy.remove, unsupported: copy.unavailable }[verdict];
         if (typeof text !== 'string') return;
         this._verdict = verdict;
         document.documentElement.dataset.ddgWebstore = verdict === 'unsupported' ? 'unsupported' : 'curated';
@@ -243,15 +231,16 @@ export class ChromeWebstorePatching extends ContentFeature {
      * MutationObserver can call it once per frame.
      */
     _applyVerdict() {
-        if (!this._verdict) return;
-        const copy = this.getFeatureSetting('buttonCopy');
-        const text = { install: copy?.install, remove: copy?.remove, unsupported: copy?.unavailable }[this._verdict];
+        const verdict = this._verdict;
+        if (!verdict) return;
+        const copy = readButtonCopy(this.getFeatureSetting('buttonCopy'));
+        const text = { install: copy.install, remove: copy.remove, unsupported: copy.unavailable }[verdict];
         if (typeof text !== 'string') return;
 
         // ALL matches: on SPA navigations the store mounts a fresh button while
         // previous-view nodes linger, and the visible one isn't necessarily first
         for (const button of this._matchingButtons()) {
-            this._applyVerdictToButton(button, text, copy);
+            this._applyVerdictToButton(button, verdict, text, copy);
         }
     }
 
@@ -286,14 +275,14 @@ export class ChromeWebstorePatching extends ContentFeature {
 
     /**
      * @param {HTMLElement} button
+     * @param {'install' | 'remove' | 'unsupported'} verdict
      * @param {string} text
-     * @param {any} copy
+     * @param {import('./chrome-webstore-patching/helpers.js').ButtonCopy} copy
      */
-    _applyVerdictToButton(button, text, copy) {
+    _applyVerdictToButton(button, verdict, text, copy) {
         // Icon and label are feature-owned spans — the store's internal button
         // structure rotates between states, so nothing of Google's is reused.
         // Every store child gets hidden: even zero-width flex items consume the gap.
-        const verdict = /** @type {'install' | 'remove' | 'unsupported'} */ (this._verdict);
         const isUnsupported = verdict === 'unsupported';
         /** @type {HTMLElement | null} */
         let icon = /** @type {HTMLElement | null} */ (button.querySelector('span[data-ddg-webstore-icon]'));
@@ -354,7 +343,7 @@ export class ChromeWebstorePatching extends ContentFeature {
         // The tooltip belongs to the unsupported state only. A node that flips to
         // install/remove — SPA nav reusing a lingering button, or the post-click
         // re-evaluation — must not keep telling the user it isn't supported.
-        const description = isUnsupported && typeof copy?.unavailableDescription === 'string' ? copy.unavailableDescription : '';
+        const description = (isUnsupported && copy.unavailableDescription) || '';
         if (description) {
             if (button.getAttribute('title') !== description) button.setAttribute('title', description);
         } else if (button.hasAttribute('title')) {
@@ -378,15 +367,14 @@ export class ChromeWebstorePatching extends ContentFeature {
      */
     getExtensionStatus(extensionId) {
         return new Promise((resolve) => {
-            const chrome = /** @type {any} */ (globalThis).chrome;
-            if (typeof chrome?.webstorePrivate?.getExtensionStatus !== 'function') {
-                return resolve(null);
-            }
+            const chromeGlobal = globalThis.chrome;
+            const webstorePrivate = getWebstorePrivate(chromeGlobal);
+            if (!webstorePrivate) return resolve(null);
             try {
-                chrome.webstorePrivate.getExtensionStatus(extensionId, (/** @type {string} */ status) => {
+                webstorePrivate.getExtensionStatus(extensionId, (status) => {
                     // Reading lastError also marks the error as handled
-                    if (chrome.runtime?.lastError) return resolve(null);
-                    resolve(status);
+                    if (hasRuntimeLastError(chromeGlobal)) return resolve(null);
+                    resolve(typeof status === 'string' ? status : null);
                 });
             } catch {
                 resolve(null);
