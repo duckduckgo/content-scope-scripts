@@ -18,12 +18,15 @@ const USAGE_LIMITS_SEVERITY_VALUES = /** @type {const} */ (['neutral', 'warning'
 const USAGE_LIMITS_CTA_LEADING_ICON_VALUES = /** @type {const} */ (['none', 'convert']);
 
 /**
- * Reads the native-driven usageLimits presentation from OmnibarConfig.
+ * Reads the native-driven drawer presentation from OmnibarConfig. A Create
+ * Image model-switch notice wins visually over usage limits, matching the
+ * native input priority, while usage-limit prompt blocking remains enforced.
  *
  * @returns {{
  *   message: string,
  *   secondaryText: string,
- *   icon: 'info' | 'ring' | 'alert',
+ *   secondaryOnNewLine: boolean,
+ *   icon: 'info' | 'ring' | 'alert' | 'convert',
  *   percent: number,
  *   severity: 'neutral' | 'warning' | 'critical',
  *   cta: import('./UsageLimitsDrawer.js').UsageLimitsCta | null,
@@ -34,12 +37,19 @@ const USAGE_LIMITS_CTA_LEADING_ICON_VALUES = /** @type {const} */ (['none', 'con
  * } | null}
  */
 export function useUsageLimitsDrawer() {
-    const { state, dismissUsageLimits, selectUsageLimitsCta } = useContext(OmnibarContext);
+    const { state, dismissCreateImageModelSwitch, dismissUsageLimits, selectUsageLimitsCta } = useContext(OmnibarContext);
+    const createImageModelSwitch = state.config?.createImageModelSwitch ?? null;
     const usageLimits = state.config?.usageLimits ?? null;
+    const presentation = createImageModelSwitch ?? usageLimits;
+    const showingCreateImageModelSwitch = createImageModelSwitch !== null;
 
     const onDismiss = useCallback(() => {
-        dismissUsageLimits();
-    }, [dismissUsageLimits]);
+        if (showingCreateImageModelSwitch) {
+            dismissCreateImageModelSwitch();
+        } else {
+            dismissUsageLimits();
+        }
+    }, [dismissCreateImageModelSwitch, dismissUsageLimits, showingCreateImageModelSwitch]);
 
     const onSelectCta = useCallback(
         (/** @type {string | undefined} */ modelId) => {
@@ -48,14 +58,22 @@ export function useUsageLimitsDrawer() {
         [selectUsageLimitsCta],
     );
 
-    if (!usageLimits) {
+    if (!presentation) {
         return null;
     }
 
-    const icon = usageLimits.icon && USAGE_LIMITS_ICON_VALUES.includes(usageLimits.icon) ? usageLimits.icon : 'info';
-    const severity = usageLimits.severity && USAGE_LIMITS_SEVERITY_VALUES.includes(usageLimits.severity) ? usageLimits.severity : 'neutral';
+    const icon = showingCreateImageModelSwitch
+        ? /** @type {const} */ ('convert')
+        : usageLimits?.icon && USAGE_LIMITS_ICON_VALUES.includes(usageLimits.icon)
+          ? usageLimits.icon
+          : 'info';
+    const severity =
+        usageLimits?.severity && USAGE_LIMITS_SEVERITY_VALUES.includes(usageLimits.severity) ? usageLimits.severity : 'neutral';
 
-    const rawCta = usageLimits.cta ?? null;
+    const rawCta = showingCreateImageModelSwitch ? null : (usageLimits?.cta ?? null);
+    const dismissible = showingCreateImageModelSwitch
+        ? createImageModelSwitch?.dismissible !== false
+        : usageLimits?.dismissible === true;
     /** @type {import('./UsageLimitsDrawer.js').UsageLimitsCta | null} */
     const cta =
         rawCta && typeof rawCta.label === 'string'
@@ -73,15 +91,16 @@ export function useUsageLimitsDrawer() {
             : null;
 
     return {
-        message: usageLimits.message,
-        secondaryText: usageLimits.secondaryText ?? '',
+        message: presentation.message,
+        secondaryText: presentation.secondaryText ?? '',
+        secondaryOnNewLine: showingCreateImageModelSwitch,
         icon,
-        percent: typeof usageLimits.percent === 'number' ? usageLimits.percent : 0,
+        percent: typeof usageLimits?.percent === 'number' ? usageLimits.percent : 0,
         severity,
         cta,
-        blocksPrompt: usageLimits.blocksPrompt === true,
-        dismissible: usageLimits.dismissible === true,
-        onDismiss: usageLimits.dismissible === true ? onDismiss : undefined,
+        blocksPrompt: usageLimits?.blocksPrompt === true,
+        dismissible,
+        onDismiss: dismissible ? onDismiss : undefined,
         onSelectCta: cta ? onSelectCta : undefined,
     };
 }

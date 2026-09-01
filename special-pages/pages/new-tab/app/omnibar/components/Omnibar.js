@@ -253,9 +253,10 @@ function AiChatContent({
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
     const { showChats, hideChats, deletionInProgress } = useAiChatsContext();
-    const { state } = useContext(OmnibarContext);
+    const { state, setImageGenerationActive } = useContext(OmnibarContext);
     const attachmentLimits = state.config?.attachmentLimits;
     const blocksPrompt = state.config?.usageLimits?.blocksPrompt === true;
+    const updatedCreateImageEnabled = state.config?.enableUpdatedCreateImage === true;
     const { selectedModel } = useSelectedModel();
     const { selectedEffort } = useSelectedReasoningEffort();
     const { activeTool, availableTools, imageGenerationActive, webSearchActive, setActiveTool } = useActiveTools();
@@ -296,6 +297,9 @@ function AiChatContent({
     });
 
     const clearTool = () => {
+        if (updatedCreateImageEnabled && activeTool === 'image-generation') {
+            setImageGenerationActive(false);
+        }
         setActiveTool(null);
     };
 
@@ -307,6 +311,10 @@ function AiChatContent({
 
         if (nextTool === 'image-generation') {
             hideChats();
+        }
+
+        if (updatedCreateImageEnabled && (activeTool === 'image-generation') !== (nextTool === 'image-generation')) {
+            setImageGenerationActive(nextTool === 'image-generation');
         }
 
         setActiveTool(nextTool);
@@ -485,11 +493,9 @@ function AiChatContent({
                     }
                     toolbarRight={
                         <Fragment>
-                            {!imageGenerationActive && (
-                                <Fragment>
-                                    <ReasoningPickerTool />
-                                    <ModelSelectorTool />
-                                </Fragment>
+                            {!imageGenerationActive && <ReasoningPickerTool />}
+                            {(!imageGenerationActive || updatedCreateImageEnabled) && (
+                                <ModelSelectorTool readOnly={imageGenerationActive && updatedCreateImageEnabled} />
                             )}
                             {isVoiceChatMode ? (
                                 <button

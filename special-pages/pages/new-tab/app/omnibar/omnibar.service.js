@@ -233,6 +233,23 @@ export class OmnibarService {
     }
 
     /**
+     * Notify native that the user dismissed the Create Image model-switch notice.
+     * Native owns notice lifecycle and should push updated config.
+     */
+    dismissCreateImageModelSwitch() {
+        this.ntp.messaging.notify('omnibar_dismissCreateImageModelSwitch', {});
+    }
+
+    /**
+     * Notify native when the updated Create Image mode changes.
+     * Native owns model selection, persistence, and localized notice copy.
+     * @param {boolean} active
+     */
+    setImageGenerationActive(active) {
+        this.ntp.messaging.notify('omnibar_setImageGenerationActive', { active });
+    }
+
+    /**
      * Notify native that the user selected the usage-limits CTA.
      * @param {string} [modelId] - Model id when switching models; omit for non-model actions.
      */
