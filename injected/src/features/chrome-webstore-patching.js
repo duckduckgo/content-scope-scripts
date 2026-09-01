@@ -18,8 +18,12 @@ const TRASH_DATA_URI = `data:image/svg+xml;utf8,${encodeURIComponent(trashSvg.re
 
 // Applied INLINE with !important: the store's own !important class rules beat
 // any injected stylesheet, but nothing beats an inline important declaration.
-// Only `display` stays stylesheet-driven (must flip with html[data-ddg-webstore]).
+// `display` is inline too, so revealing a button never writes page-readable
+// state: a root attribute would tell the store it's the DDG browser and whether
+// this extension is in our catalog. Hiding stays stylesheet-driven — it has to
+// cover nodes the store hasn't mounted yet.
 const PILL_LAYOUT = {
+    display: 'inline-flex',
     'align-items': 'center',
     'justify-content': 'center',
     gap: '6px',
@@ -133,19 +137,15 @@ export class ChromeWebstorePatching extends ContentFeature {
             : [];
         const promoRule = validPromoSelectors.map((selector) => `:is(${selector}) { display: none !important; }`).join('\n            ');
 
-        // Fail closed: buttons hidden until a verdict sets data-ddg-webstore.
+        // Fail closed: buttons stay hidden until a verdict styles them inline.
         // One rule per selector, never one rule listing them all — an unparseable
         // selector then invalidates only its own rule, and a dropped hide rule
         // puts Google's own install button back on screen. Each is wrapped in
         // :is() because bare interpolation prefixes only the first alternative
         // (live bug on the Windows build).
         const buttonRules = this._buttonSelectors
-            .map(
-                (selector) => `
-            html :is(${selector}) { display: none !important; }
-            html[data-ddg-webstore] :is(${selector}) { display: inline-flex !important; }`,
-            )
-            .join('');
+            .map((selector) => `html :is(${selector}) { display: none !important; }`)
+            .join('\n            ');
         injectGlobalStyles(`${buttonRules}
             ${promoRule}
         `);
@@ -172,9 +172,12 @@ export class ChromeWebstorePatching extends ContentFeature {
      * navigation — never per DOM mutation.
      */
     async _evaluatePage() {
-        // Reset to fail-closed so nothing stale survives navigation
+        // Reset to fail-closed so nothing stale survives navigation. Dropping the
+        // inline display hands each button back to the stylesheet's hide rule.
         this._verdict = null;
-        delete document.documentElement.dataset.ddgWebstore;
+        for (const button of this._matchingButtons()) {
+            button.style.removeProperty('display');
+        }
 
         const extensionId = parseExtensionId(window.location.pathname);
         if (!extensionId) return;
@@ -208,7 +211,6 @@ export class ChromeWebstorePatching extends ContentFeature {
         const text = { install: copy.install, remove: copy.remove, unsupported: copy.unavailable }[verdict];
         if (typeof text !== 'string') return;
         this._verdict = verdict;
-        document.documentElement.dataset.ddgWebstore = verdict === 'unsupported' ? 'unsupported' : 'curated';
         this._applyVerdict();
     }
 

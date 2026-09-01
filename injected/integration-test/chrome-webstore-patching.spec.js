@@ -175,6 +175,22 @@ test.describe('chromeWebstorePatching', () => {
         await expect(page.locator(BUTTON)).toHaveCSS('border-radius', '48px');
     });
 
+    // The reveal must not write page-readable state: a root attribute would tell
+    // the store it's the DDG browser and whether this extension is curated, and
+    // any page script could set it to un-hide buttons we decided to keep hidden
+    test('no page-exposed state, and a forged root attribute reveals nothing', async ({ page }, testInfo) => {
+        await setup(page, testInfo);
+        await navigateTo(page, CURATED_PATH);
+        await expect(page.locator(LABEL)).toHaveText('Add to DuckDuckGo');
+        const rootAttributes = await page.evaluate(() => [...document.documentElement.attributes].map((a) => a.name));
+        expect(rootAttributes.filter((name) => name.startsWith('data-ddg'))).toEqual([]);
+
+        // a page script tries to force the hidden state open
+        await setup(page, testInfo);
+        await page.evaluate(() => document.documentElement.setAttribute('data-ddg-webstore', 'curated'));
+        await expect(page.locator(BUTTON)).not.toBeVisible();
+    });
+
     test('non-detail path → button hidden, copy untouched', async ({ page }, testInfo) => {
         await setup(page, testInfo);
         // fixture's natural URL is not a /detail/ path
