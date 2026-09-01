@@ -143,6 +143,10 @@ export class ChromeWebstorePatching extends ContentFeature {
         // puts Google's own install button back on screen. Each is wrapped in
         // :is() because bare interpolation prefixes only the first alternative
         // (live bug on the Windows build).
+        // The store's button carries an absolutely-positioned ::before (its
+        // Material state layer) and no ::after. Both are left alone: absolute
+        // pseudos take no layout space, so there's nothing to reclaim, and the
+        // current pill styling is what's been validated on-device.
         const buttonRules = this._buttonSelectors
             .map((selector) => `html :is(${selector}) { display: none !important; }`)
             .join('\n            ');
