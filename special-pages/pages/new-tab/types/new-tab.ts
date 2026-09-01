@@ -93,7 +93,7 @@ export type ReasoningEffort = string;
 /**
  * Identifier for an AI chat tool.
  */
-export type ToolId = "WebSearch";
+export type ToolId = "WebSearch" | "GenerateImage";
 /**
  * Stable server key for this reasoning-effort option; round-tripped on submit.
  */
@@ -110,6 +110,10 @@ export type ShowViewAllAIChats = boolean;
  * Show 'Create Image' toggle in the AI chat toolbar.
  */
 export type EnableImageGeneration = boolean;
+/**
+ * Use the native-driven Create Image model-switch flow. Native selects and persists an image-capable model and provides localized notice copy.
+ */
+export type EnableUpdatedCreateImage = boolean;
 /**
  * Allow AI chat submissions to include web search tool.
  */
@@ -150,6 +154,23 @@ export type EnableAIChatDeletion = boolean;
  * Show a delete button on history entry suggestions. When true, clicking the button removes the entry from browsing history.
  */
 export type EnableSearchSuggestionDeletion = boolean;
+/**
+ * Native-resolved presentation shown after Create Image switches away from an unsupported model. Non-null takes visual priority over usageLimits; native owns model selection, localized copy, and lifecycle.
+ */
+export type CreateImageModelSwitchNotice = {
+  /**
+   * Primary notice copy, already localized by native (for example, 'Now using GPT-5.4').
+   */
+  message: string;
+  /**
+   * Optional explanation, already localized by native, including the OSS privacy variant when applicable.
+   */
+  secondaryText?: string;
+  /**
+   * When true or omitted, show a dismiss control. Dismiss notifies native via omnibar_dismissCreateImageModelSwitch.
+   */
+  dismissible?: boolean;
+} | null;
 /**
  * Native-resolved presentation for the AI-mode usage limits drawer under the omnibar pill. Non-null shows the drawer; null/omitted hides it. FE does not derive content.
  */
@@ -296,6 +317,7 @@ export interface NewTabMessages {
     | NextStepsActionNotification
     | NextStepsDismissNotification
     | NextStepsSetConfigNotification
+    | OmnibarDismissCreateImageModelSwitchNotification
     | OmnibarDismissUsageLimitsNotification
     | OmnibarOpenAiChatNotification
     | OmnibarOpenCustomizeResponsesNotification
@@ -304,6 +326,7 @@ export interface NewTabMessages {
     | OmnibarSelectUsageLimitsCtaNotification
     | OmnibarSetConfigNotification
     | OmnibarSetCustomizeResponsesActiveNotification
+    | OmnibarSetImageGenerationActiveNotification
     | OmnibarShowSubscriptionUpgradeNotification
     | OmnibarShowSubscriptionUpsellNotification
     | OmnibarSubmitChatNotification
@@ -661,6 +684,17 @@ export interface NextStepsConfig {
   animation?: Animation;
 }
 /**
+ * Generated from @see "../messages/omnibar_dismissCreateImageModelSwitch.notify.json"
+ */
+export interface OmnibarDismissCreateImageModelSwitchNotification {
+  method: "omnibar_dismissCreateImageModelSwitch";
+  params: DismissCreateImageModelSwitch;
+}
+/**
+ * Sent when the user dismisses the native-provided Create Image model-switch notice. Native owns notice lifecycle and should push an updated OmnibarConfig.
+ */
+export interface DismissCreateImageModelSwitch {}
+/**
  * Generated from @see "../messages/omnibar_dismissUsageLimits.notify.json"
  */
 export interface OmnibarDismissUsageLimitsNotification {
@@ -801,6 +835,7 @@ export interface OmnibarConfig {
   attachmentLimits?: AttachmentLimits;
   showViewAllAiChats?: ShowViewAllAIChats;
   enableImageGeneration?: EnableImageGeneration;
+  enableUpdatedCreateImage?: EnableUpdatedCreateImage;
   enableWebSearch?: EnableWebSearch;
   enableVoiceChatAccess?: EnableVoiceChatAccess;
   enableCustomizeResponses?: EnableCustomizeResponses;
@@ -811,6 +846,7 @@ export interface OmnibarConfig {
   enableAttachTabs?: EnableAttachTabs;
   enableAiChatDeletion?: EnableAIChatDeletion;
   enableSearchSuggestionDeletion?: EnableSearchSuggestionDeletion;
+  createImageModelSwitch?: CreateImageModelSwitchNotice;
   usageLimits?: UsageLimitsDrawer;
 }
 /**
@@ -966,6 +1002,22 @@ export interface OmnibarSetCustomizeResponsesActiveNotification {
 export interface SetCustomizeResponsesActiveAction {
   /**
    * Whether the stored customization should be applied.
+   */
+  active: boolean;
+}
+/**
+ * Generated from @see "../messages/omnibar_setImageGenerationActive.notify.json"
+ */
+export interface OmnibarSetImageGenerationActiveNotification {
+  method: "omnibar_setImageGenerationActive";
+  params: SetImageGenerationActive;
+}
+/**
+ * Sent when Create Image is activated or deactivated under the updated native-driven flow. Native owns fallback model selection, persistence, and notice presentation.
+ */
+export interface SetImageGenerationActive {
+  /**
+   * Whether Create Image is now active in this New Tab Page omnibar.
    */
   active: boolean;
 }

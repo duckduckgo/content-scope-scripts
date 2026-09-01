@@ -33,6 +33,7 @@ title: Omnibar Widget
   - `enableAi` — enables the Duck.ai tab (default `true`)
   - `enableAiChatTools` — enables AI chat tools: model selector, image attachments (default `false`)
   - `enableImageGeneration` — shows "Create Image" in the tools menu (default `false`)
+  - `enableUpdatedCreateImage` — enables the native-driven image-capable model switch and localized notice (default `false`)
   - `enableWebSearch` — shows "Web Search" in the tools menu (default `false`)
   - `enableVoiceChatAccess` — when true and the input is empty, replaces the AI chat submit button with a 1-click voice-chat button. Click/Enter sends `omnibar_submitChat` with an empty `chat` and `mode: "voice-mode"` — native handles the voice handoff (default `false`)
   - `enableAskAiSuggestion` — when `false`, hides the inline "Ask Duck.ai: <query>" entry in the suggestions dropdown. Missing/undefined is treated as `true` (default `true`). Does not affect the Duck.ai mode pill or any other AI affordance — those remain governed by `enableAi`
@@ -46,6 +47,7 @@ title: Omnibar Widget
    "enableAi": true,
    "enableAiChatTools": false,
    "enableImageGeneration": false,
+   "enableUpdatedCreateImage": false,
    "enableWebSearch": false,
    "enableVoiceChatAccess": false,
    "enableAskAiSuggestion": true,
@@ -151,6 +153,14 @@ The four CTA events retain their historical `_shown` names, but they represent a
 - returns {@link "NewTab Messages".OmnibarConfig}
 
 ## Notifications:
+
+### `omnibar_setImageGenerationActive`
+- Sent when Create Image is activated or deactivated while `enableUpdatedCreateImage` is enabled.
+- Native resolves and persists the selected model and pushes `createImageModelSwitch` via `omnibar_onConfigUpdate` when a notice should be shown.
+
+### `omnibar_dismissCreateImageModelSwitch`
+- Sent when the user dismisses the native-provided Create Image model-switch notice.
+- Native clears the notice and pushes the updated config.
 
 ### `omnibar_setConfig` 
 - {@link "NewTab Messages".OmnibarSetConfigNotification}
