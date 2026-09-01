@@ -119,14 +119,11 @@
 .message {
     color: var(--ds-color-theme-text-primary);
     flex: 1;
-    font-size: 13px;
+    font-size: 12px;
+    font-weight: 600;
     line-height: 16px;
     margin: 0;
     min-width: 0;
-}
-
-.messageEmphasized {
-    font-weight: 600;
 }
 
 .secondary {
