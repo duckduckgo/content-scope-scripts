@@ -120,4 +120,44 @@ test.describe('omnibar usage limits drawer', () => {
         await expect(omnibar.chatInput()).toHaveAttribute('readonly');
         await expect(omnibar.chatInput()).toHaveAttribute('aria-disabled', 'true');
     });
+
+    test('blocksPrompt disables the AI composer toolbar', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({
+            additional: {
+                'omnibar.mode': 'ai',
+                'omnibar.usageLimits': 'reached',
+                'omnibar.enableAiChatTools': 'true',
+                'omnibar.enableWebSearch': 'true',
+                'omnibar.enableImageGeneration': 'true',
+                'omnibar.enableVoiceChatAccess': 'true',
+                'omnibar.selectedModelId': 'gpt-5-mini',
+            },
+        });
+        await omnibar.ready();
+
+        await expect(omnibar.directFileButton()).toBeDisabled();
+        await expect(omnibar.toolsMenuButton()).toBeDisabled();
+        await expect(omnibar.reasoningPickerButton()).toBeDisabled();
+        await expect(omnibar.modelSelectorButton()).toBeDisabled();
+        await expect(omnibar.voiceChatButton()).toBeDisabled();
+    });
+
+    test('reached-switch CTA notifies with primaryModelId and has no menu header', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { 'omnibar.mode': 'ai', 'omnibar.usageLimits': 'reached-switch' } });
+        await omnibar.ready();
+
+        await omnibar.chatInput().evaluate((el) => el.focus());
+        await omnibar.usageLimitsCtaMenuButton().click();
+
+        const menu = page.getByRole('menu', { name: 'Switch model' });
+        await expect(menu).toBeVisible();
+        await expect(menu.getByText('Switch to a more efficient model')).toHaveCount(0);
+
+        await omnibar.usageLimitsDrawer().getByRole('button', { name: 'Switch to free model' }).click();
+        await omnibar.expectMethodCalledWith('omnibar_selectUsageLimitsCta', { modelId: 'gpt-4o-mini' });
+    });
 });
