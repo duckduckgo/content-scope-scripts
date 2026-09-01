@@ -157,6 +157,17 @@ test.describe('chromeWebstorePatching', () => {
         await expect(page.locator(BUTTON)).toHaveAttribute('title', /isn't supported/);
     });
 
+    // The tooltip is unsupported-only: a node that flips verdict in place must
+    // not keep claiming the extension isn't supported
+    test('tooltip cleared when the same button flips to a curated verdict', async ({ page }, testInfo) => {
+        await setup(page, testInfo);
+        await navigateTo(page, UNCURATED_PATH);
+        await expect(page.locator(BUTTON)).toHaveAttribute('title', /isn't supported/);
+        await navigateTo(page, CURATED_PATH);
+        await expect(page.locator(LABEL)).toHaveText('Add to DuckDuckGo');
+        await expect(page.locator(BUTTON)).not.toHaveAttribute('title', /./);
+    });
+
     test('curated pill uses the DDG accent background', async ({ page }, testInfo) => {
         await setup(page, testInfo);
         await navigateTo(page, CURATED_PATH);

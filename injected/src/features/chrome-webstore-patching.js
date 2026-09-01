@@ -351,9 +351,14 @@ export class ChromeWebstorePatching extends ContentFeature {
         if (!isUnsupported && button.getAttribute('aria-disabled') !== null) {
             button.removeAttribute('aria-disabled');
         }
+        // The tooltip belongs to the unsupported state only. A node that flips to
+        // install/remove — SPA nav reusing a lingering button, or the post-click
+        // re-evaluation — must not keep telling the user it isn't supported.
         const description = isUnsupported && typeof copy?.unavailableDescription === 'string' ? copy.unavailableDescription : '';
-        if (description && button.getAttribute('title') !== description) {
-            button.setAttribute('title', description);
+        if (description) {
+            if (button.getAttribute('title') !== description) button.setAttribute('title', description);
+        } else if (button.hasAttribute('title')) {
+            button.removeAttribute('title');
         }
     }
 
