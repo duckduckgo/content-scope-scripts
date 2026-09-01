@@ -76,6 +76,8 @@ function mockWebstorePrivate({ statusById = {}, omit = false, errorFor = undefin
  * @param {string} [opts.config]
  * @param {string} [opts.html]
  * @param {string[]} [opts.userUnprotectedDomains]
+ * @param {boolean} [opts.internal] internal build? fixtures ship the feature as
+ * `internal`, matching the windows override, so this defaults to true
  */
 async function setup(page, testInfo, opts = {}) {
     const collector = ResultsCollector.create(page, testInfo.project.use);
@@ -87,7 +89,7 @@ async function setup(page, testInfo, opts = {}) {
         omit: opts.omit ?? false,
         errorFor: opts.errorFor,
     });
-    await collector.load(opts.html ?? HTML, opts.config ?? CONFIG);
+    await collector.load(opts.html ?? HTML, opts.config ?? CONFIG, { internal: opts.internal ?? true });
     return collector;
 }
 
@@ -189,6 +191,15 @@ test.describe('chromeWebstorePatching', () => {
         await setup(page, testInfo);
         await page.evaluate(() => document.documentElement.setAttribute('data-ddg-webstore', 'curated'));
         await expect(page.locator(BUTTON)).not.toBeVisible();
+    });
+
+    // The feature ships `internal` in the windows override, so a public build
+    // must get nothing at all — not a patched button, not a hidden one
+    test('non-internal build → feature inert, original button untouched', async ({ page }, testInfo) => {
+        await setup(page, testInfo, { internal: false });
+        await navigateTo(page, CURATED_PATH);
+        await expect(page.locator(BUTTON)).toBeVisible();
+        await expect(page.locator(ORIGINAL_LABEL)).toHaveText('Add to Chrome');
     });
 
     test('non-detail path → button hidden, copy untouched', async ({ page }, testInfo) => {

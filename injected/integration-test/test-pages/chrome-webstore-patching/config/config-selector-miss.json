@@ -3,7 +3,7 @@
     "version": 1,
     "features": {
         "chromeWebstorePatching": {
-            "state": "enabled",
+            "state": "internal",
             "exceptions": [],
             "settings": {
                 "patchWebstore": {
