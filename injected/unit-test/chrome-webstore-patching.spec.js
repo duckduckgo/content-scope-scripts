@@ -1,27 +1,14 @@
-import ChromeWebstorePatching, { parseExtensionId } from '../src/features/chrome-webstore-patching.js';
+import { parseExtensionId, readCuratedCatalog } from '../src/features/chrome-webstore-patching/helpers.js';
 
 const CURATED_ID = 'nngceckbapebfimnlniiiahkandclblb';
 
-describe('chromeWebstorePatching', () => {
-    /**
-     * @param {object} [bundledConfig]
-     * @returns {ChromeWebstorePatching}
-     */
-    function createFeature(bundledConfig = { features: {}, unprotectedTemporary: [] }) {
-        return new ChromeWebstorePatching(
-            'chromeWebstorePatching',
-            {},
-            {},
-            {
-                site: { domain: 'chromewebstore.google.com', url: 'https://chromewebstore.google.com/' },
-                bundledConfig,
-            },
-        );
-    }
-
+// Only the pure helpers are unit tested: the feature module imports SVG assets,
+// which plain Node can't load. Copy resolution and the chrome.webstorePrivate
+// calls are covered by the integration specs instead.
+describe('chromeWebstorePatching helpers', () => {
     /**
      * bundledConfig shape carrying a curatedExtensions catalog
-     * @param {object} [overrides]
+     * @param {object} [overrides] applied to the curatedExtensions sub-feature
      * @param {string | null} [parentState]
      */
     function configWithCatalog(overrides = {}, parentState = 'internal') {
@@ -38,6 +25,7 @@ describe('chromeWebstorePatching', () => {
                     },
                 },
             },
+            unprotectedTemporary: [],
         };
     }
 
@@ -62,116 +50,62 @@ describe('chromeWebstorePatching', () => {
         }
     });
 
-    describe('getCuratedExtensionIds', () => {
+    // Every empty result here is a launch guarantee: an unreadable catalog must
+    // read as "nothing is installable", never as "everything is curated"
+    describe('readCuratedCatalog', () => {
         it('returns catalog ids on the happy path', () => {
-            const feature = createFeature(configWithCatalog());
-            expect(feature.getCuratedExtensionIds()).toEqual([CURATED_ID]);
+            expect(readCuratedCatalog(configWithCatalog())).toEqual([CURATED_ID]);
         });
 
         it('accepts enabled state', () => {
-            const feature = createFeature(configWithCatalog({ state: 'enabled' }));
-            expect(feature.getCuratedExtensionIds()).toEqual([CURATED_ID]);
+            expect(readCuratedCatalog(configWithCatalog({ state: 'enabled' }))).toEqual([CURATED_ID]);
         });
 
         it('returns [] when curatedExtensions is disabled', () => {
-            const feature = createFeature(configWithCatalog({ state: 'disabled' }));
-            expect(feature.getCuratedExtensionIds()).toEqual([]);
+            expect(readCuratedCatalog(configWithCatalog({ state: 'disabled' }))).toEqual([]);
         });
 
         it('returns [] when state is missing', () => {
-            const feature = createFeature(configWithCatalog({ state: undefined }));
-            expect(feature.getCuratedExtensionIds()).toEqual([]);
+            expect(readCuratedCatalog(configWithCatalog({ state: undefined }))).toEqual([]);
+        });
+
+        it('returns [] when settings are missing', () => {
+            expect(readCuratedCatalog(configWithCatalog({ settings: undefined }))).toEqual([]);
         });
 
         it('returns [] when catalog is not an array', () => {
-            const feature = createFeature(configWithCatalog({ settings: { catalog: 'nope' } }));
-            expect(feature.getCuratedExtensionIds()).toEqual([]);
+            expect(readCuratedCatalog(configWithCatalog({ settings: { catalog: 'nope' } }))).toEqual([]);
         });
 
+        // Not reachable from a config fixture: the schema requires an id on
+        // every entry, so this shape can only be exercised here
         it('filters entries without a string id', () => {
-            const feature = createFeature(
-                configWithCatalog({ settings: { catalog: [{ id: CURATED_ID }, { name: 'no id' }, { id: 42 }, null] } }),
-            );
-            expect(feature.getCuratedExtensionIds()).toEqual([CURATED_ID]);
+            const config = configWithCatalog({
+                settings: { catalog: [{ id: CURATED_ID }, { name: 'no id' }, { id: 42 }, null] },
+            });
+            expect(readCuratedCatalog(config)).toEqual([CURATED_ID]);
         });
 
         it('returns [] when the parent extensionManagement feature is disabled', () => {
-            const feature = createFeature(configWithCatalog({}, 'disabled'));
-            expect(feature.getCuratedExtensionIds()).toEqual([]);
+            expect(readCuratedCatalog(configWithCatalog({}, 'disabled'))).toEqual([]);
         });
 
         it('returns [] when the parent state is missing', () => {
             // null survives the default parameter (undefined would not)
-            const feature = createFeature(configWithCatalog({}, null));
-            expect(feature.getCuratedExtensionIds()).toEqual([]);
+            expect(readCuratedCatalog(configWithCatalog({}, null))).toEqual([]);
         });
 
         it('returns [] when extensionManagement is absent', () => {
-            const feature = createFeature({ features: {} });
-            expect(feature.getCuratedExtensionIds()).toEqual([]);
+            expect(readCuratedCatalog({ features: {} })).toEqual([]);
         });
 
         it('returns [] with an empty features object', () => {
-            const feature = createFeature();
-            expect(feature.getCuratedExtensionIds()).toEqual([]);
-        });
-    });
-
-    describe('getExtensionStatus', () => {
-        /** @type {any} */
-        let originalChrome;
-
-        beforeEach(() => {
-            originalChrome = /** @type {any} */ (globalThis).chrome;
+            expect(readCuratedCatalog({ features: {}, unprotectedTemporary: [] })).toEqual([]);
         });
 
-        afterEach(() => {
-            /** @type {any} */ (globalThis).chrome = originalChrome;
-        });
-
-        it('resolves the raw status from the API', async () => {
-            /** @type {any} */ (globalThis).chrome = {
-                webstorePrivate: {
-                    getExtensionStatus: (/** @type {string} */ _id, /** @type {(s: string) => void} */ respond) => respond('installable'),
-                },
-                runtime: {},
-            };
-            const feature = createFeature();
-            expect(await feature.getExtensionStatus(CURATED_ID)).toBe('installable');
-        });
-
-        it('resolves null when the API is absent', async () => {
-            /** @type {any} */ (globalThis).chrome = undefined;
-            const feature = createFeature();
-            expect(await feature.getExtensionStatus(CURATED_ID)).toBeNull();
-        });
-
-        it('resolves null when the API throws', async () => {
-            /** @type {any} */ (globalThis).chrome = {
-                webstorePrivate: {
-                    getExtensionStatus: () => {
-                        throw new Error('boom');
-                    },
-                },
-                runtime: {},
-            };
-            const feature = createFeature();
-            expect(await feature.getExtensionStatus(CURATED_ID)).toBeNull();
-        });
-
-        it('resolves null when runtime.lastError is set in the callback', async () => {
-            /** @type {any} */ (globalThis).chrome = {
-                webstorePrivate: {
-                    getExtensionStatus: (/** @type {string} */ _id, /** @type {(s?: string) => void} */ cb) => {
-                        /** @type {any} */ (globalThis).chrome.runtime.lastError = { message: 'boom' };
-                        cb(undefined);
-                        /** @type {any} */ (globalThis).chrome.runtime.lastError = undefined;
-                    },
-                },
-                runtime: {},
-            };
-            const feature = createFeature();
-            expect(await feature.getExtensionStatus(CURATED_ID)).toBeNull();
+        it('returns [] when there is no config at all', () => {
+            expect(readCuratedCatalog(undefined)).toEqual([]);
+            expect(readCuratedCatalog(null)).toEqual([]);
         });
     });
 });

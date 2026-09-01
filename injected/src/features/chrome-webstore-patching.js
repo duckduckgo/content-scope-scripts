@@ -1,5 +1,6 @@
 import ContentFeature from '../content-feature.js';
 import { injectGlobalStyles } from '../utils.js';
+import { isValidSelector, parseExtensionId, readCuratedCatalog } from './chrome-webstore-patching/helpers.js';
 // Vendored from the duckduckgo/Icons repo (no package exports them), original names kept
 import daxSvg from './chrome-webstore-patching/assets/DuckDuckGo-Color-24.svg';
 import trashSvg from './chrome-webstore-patching/assets/Trash-24.svg';
@@ -48,35 +49,6 @@ const ICON_BACKGROUNDS = {
     remove: `url("${TRASH_DATA_URI}") center / contain no-repeat`,
     unsupported: `url("${DAX_DATA_URI}") center / contain no-repeat`,
 };
-
-/**
- * Extracts the extension ID from a Chrome Web Store detail-page path, e.g.
- * /detail/bitwarden-password-manag/nngceckbapebfimnlniiiahkandclblb
- * The slug segment is optional; IDs are exactly 32 chars of a-p.
- * @param {string} pathname
- * @returns {string|null} null when not on a detail page
- */
-export function parseExtensionId(pathname) {
-    const match = pathname.match(/\/detail\/(?:[^/]+\/)?([a-p]{32})(?:[/?#]|$)/);
-    return match?.[1] ?? null;
-}
-
-/**
- * Remote config is a hot-fix channel, so a malformed selector is a question of
- * when, not if. One bad entry would invalidate the entire injected CSS rule —
- * dropping the fail-closed hide and revealing Google's own install button — and
- * throw out of querySelectorAll. Bad entries are discarded; good ones still apply.
- * @param {string} selector
- * @returns {boolean}
- */
-export function isValidSelector(selector) {
-    try {
-        document.createDocumentFragment().querySelector(selector);
-        return true;
-    } catch {
-        return false;
-    }
-}
 
 /**
  * Patches the Chrome Web Store UI in the DDG browser.
@@ -386,23 +358,11 @@ export class ChromeWebstorePatching extends ContentFeature {
     }
 
     /**
-     * Curated extension IDs, read from the native extensionManagement feature's
-     * curatedExtensions sub-feature via bundledConfig — sub-feature settings
-     * aren't copied into featureSettings.
+     * Curated extension IDs for this build's config.
      * @returns {string[]}
      */
     getCuratedExtensionIds() {
-        // The config type doesn't declare sub-features, so drop to `any` at this boundary
-        const extensionManagement = /** @type {any} */ (this.bundledConfig?.features?.extensionManagement);
-        // The parent feature gates native extension support — with it disabled the
-        // catalog must be treated as empty, or the pill would offer a working install
-        if (extensionManagement?.state !== 'enabled' && extensionManagement?.state !== 'internal') return [];
-        const curated = extensionManagement?.features?.curatedExtensions;
-        // 'internal' is fine: non-internal builds won't offer installation natively either
-        if (curated?.state !== 'enabled' && curated?.state !== 'internal') return [];
-        const catalog = curated.settings?.catalog;
-        if (!Array.isArray(catalog)) return [];
-        return catalog.map((/** @type {any} */ entry) => entry?.id).filter((/** @type {any} */ id) => typeof id === 'string');
+        return readCuratedCatalog(this.bundledConfig);
     }
 
     /**
