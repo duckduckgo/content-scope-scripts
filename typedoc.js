@@ -46,6 +46,9 @@ const config = /** @type {Partial<import('typedoc').TypeDocOptions>} */ ({
     excludeInternal: true,
     readme: 'none',
     treatWarningsAsErrors: true,
+    // Documented `typeof globalThis` types resolve into test helpers that assign to `globalThis.*`,
+    // since in a `.js` file such an assignment declares a global.
+    intentionallyNotExported: ['globalThis'],
     searchInComments: true,
     blockTags: [...OptionDefaults.blockTags, '@maxItems'],
     modifierTags: [...OptionDefaults.modifierTags, '@implements'],
