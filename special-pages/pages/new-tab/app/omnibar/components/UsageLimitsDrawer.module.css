@@ -80,9 +80,9 @@
 }
 
 .info {
-    /* Match omnibar toolbar icons (Tools/paperclip); default InfoIcon fill is too light */
+    /* Native IconsSecondaryBrush — all three 16px info paths, full opacity */
     :global(.info-icon-fill) {
-        fill: var(--ds-color-theme-icons-primary);
+        fill: var(--ds-color-theme-icons-secondary);
         fill-opacity: 1;
     }
 }
