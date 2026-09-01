@@ -230,7 +230,7 @@ export function UsageLimitsDrawer({
                         )}
                     </span>
                     <p class={styles.message}>
-                        <span>{message}</span>
+                        <span class={styles.primary}>{message}</span>
                         {secondaryText ? <span class={styles.secondary}>{secondaryText}</span> : null}
                     </p>
                     {cta && onSelectCta ? <UsageLimitsCtaControl cta={cta} onSelectCta={onSelectCta} /> : null}
