@@ -1,5 +1,5 @@
 import { Fragment, h } from 'preact';
-import { useCallback, useContext, useEffect, useRef, useState } from 'preact/hooks';
+import { useCallback, useContext, useRef, useState } from 'preact/hooks';
 import { ArrowRightIcon, LogoStacked, VoiceIcon } from '../../components/Icons';
 import { eventToTarget } from '../../../../../shared/handlers';
 import { usePlatformName } from '../../settings.provider';
@@ -73,33 +73,7 @@ export function Omnibar({
 }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const usageLimits = useUsageLimitsDrawer();
-    const rootRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const [usageLimitsRevealed, setUsageLimitsRevealed] = useState(false);
-
-    useEffect(() => {
-        const update = () => {
-            const root = rootRef.current;
-            const active = document.activeElement;
-            if (!root || !(active instanceof Element) || !root.contains(active)) {
-                setUsageLimitsRevealed(false);
-                return;
-            }
-            const inComposer = active.tagName === 'TEXTAREA';
-            const inDrawer = Boolean(active.closest('[data-testid="usage-limits-drawer"]'));
-            setUsageLimitsRevealed(inComposer || inDrawer);
-        };
-
-        const onFocusOut = () => {
-            requestAnimationFrame(update);
-        };
-
-        document.addEventListener('focusin', update);
-        document.addEventListener('focusout', onFocusOut);
-        return () => {
-            document.removeEventListener('focusin', update);
-            document.removeEventListener('focusout', onFocusOut);
-        };
-    }, []);
 
     const [query, setQuery] = useQueryWithLocalPersistence(tabId);
     const [resetKey, setResetKey] = useState(0);
@@ -149,13 +123,7 @@ export function Omnibar({
     };
 
     return (
-        <div
-            key={resetKey}
-            ref={rootRef}
-            class={styles.root}
-            data-mode={mode}
-            data-usage-limits-revealed={usageLimitsRevealed ? true : undefined}
-        >
+        <div key={resetKey} class={styles.root} data-mode={mode} data-usage-limits-revealed={usageLimitsRevealed ? true : undefined}>
             <LogoStacked class={styles.logo} aria-label={t('omnibar_logoAlt')} />
             {enableAi && (
                 <div class={styles.tabSwitcherContainer}>
@@ -211,6 +179,7 @@ export function Omnibar({
                                         tabId={tabId}
                                         onChange={setQuery}
                                         onSubmit={handleSubmitChat}
+                                        onUsageLimitsReveal={setUsageLimitsRevealed}
                                     />
                                 </OpenTabsProvider>
                             )}
@@ -244,6 +213,7 @@ export function Omnibar({
  * @param {string|null|undefined} [props.tabId]
  * @param {(query: string) => void} props.onChange
  * @param {(params: SubmitChatAction) => void} props.onSubmit
+ * @param {(revealed: boolean) => void} [props.onUsageLimitsReveal]
  */
 function AiChatContent({
     query,
@@ -254,6 +224,7 @@ function AiChatContent({
     tabId,
     onChange,
     onSubmit,
+    onUsageLimitsReveal,
 }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
@@ -424,16 +395,16 @@ function AiChatContent({
             class={styles.aiChatContent}
             data-attachment-warning={imageWarning || fileWarning || tabWarning || undefined}
             onFocusCapture={(event) => {
-                if (
-                    event.target instanceof HTMLTextAreaElement &&
-                    !hasVisibleImagesRef.current &&
-                    !imageGenerationActive &&
-                    !mention.pickerActive
-                )
-                    showChats();
+                if (!(event.target instanceof HTMLTextAreaElement)) return;
+                onUsageLimitsReveal?.(true);
+                if (!hasVisibleImagesRef.current && !imageGenerationActive && !mention.pickerActive) showChats();
             }}
             onBlurCapture={(event) => {
-                if (event.relatedTarget instanceof Element && containerRef.current?.contains(event.relatedTarget)) {
+                const next = event.relatedTarget;
+                if (
+                    next instanceof Element &&
+                    (containerRef.current?.contains(next) || next.closest('[data-testid="usage-limits-drawer"]'))
+                ) {
                     return;
                 }
                 // Don't hide the list while the native deletion dialog is open
@@ -442,6 +413,7 @@ function AiChatContent({
                 }
 
                 hideChats();
+                onUsageLimitsReveal?.(false);
             }}
         >
             <ResizingContainer className={styles.field}>
