@@ -134,8 +134,11 @@
 }
 
 .dismiss {
+    border-radius: 50%;
     flex-shrink: 0;
+    height: 24px;
     position: relative;
+    width: 24px;
 }
 
 .ctaSplit {
@@ -251,5 +254,11 @@
             0 10px 20px 0 rgba(0, 0, 0, 0.02),
             0 2px 6px 0 rgba(0, 0, 0, 0.06),
             0 0 0 1px var(--ds-ntp-dark-card-border-color);
+    }
+
+    .dismiss {
+        border-radius: 50%;
+        height: 24px;
+        width: 24px;
     }
 }
