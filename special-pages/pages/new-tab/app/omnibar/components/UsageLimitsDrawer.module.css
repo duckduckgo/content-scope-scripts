@@ -76,6 +76,7 @@
     display: block;
     grid-area: 1 / 1;
     height: 16px;
+    overflow: visible;
     width: 16px;
 }
 

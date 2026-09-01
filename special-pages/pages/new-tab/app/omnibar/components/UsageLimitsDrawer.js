@@ -28,20 +28,32 @@ import styles from './UsageLimitsDrawer.module.css';
  */
 
 /**
- * Fixed 16×16 usage ring (native ProgressRing thickness 1.25).
+ * 16×16 usage ring matching native ProgressRing (thickness 1.25).
+ * radius = 16/2 − 1.25/2 = 7.375 so the stroke outer edge is 16px.
  * @param {object} props
  * @param {number} props.percent
  * @param {UsageLimitsSeverity} props.severity
  */
 function UsageLimitsRing({ percent, severity }) {
-    const radius = 6.375;
+    const radius = 7.375;
     const circumference = 2 * Math.PI * radius;
-    const clamped = Math.min(100, Math.max(0, percent));
-    const dash = (clamped / 100) * circumference;
+    // WPF cannot paint a true 1.0 arc — track is a near-closed 0.99999 sweep.
+    const trackDash = 0.99999 * circumference;
+    const valueDash = Math.min(0.9999, Math.max(0, percent / 100)) * circumference;
 
     return (
-        <svg class={cn(styles.glyph, styles.ring, styles[`severity_${severity}`])} viewBox="0 0 16 16" aria-hidden="true">
-            <circle class={styles.ringTrack} cx="8" cy="8" r={radius} fill="none" stroke-width="1.25" />
+        <svg class={cn(styles.glyph, styles.ring, styles[`severity_${severity}`])} viewBox="0 0 16 16" overflow="visible" aria-hidden="true">
+            <circle
+                class={styles.ringTrack}
+                cx="8"
+                cy="8"
+                r={radius}
+                fill="none"
+                stroke-width="1.25"
+                stroke-dasharray={`${trackDash} ${circumference}`}
+                stroke-linecap="round"
+                transform="rotate(-90 8 8)"
+            />
             <circle
                 class={styles.ringValue}
                 cx="8"
@@ -49,8 +61,8 @@ function UsageLimitsRing({ percent, severity }) {
                 r={radius}
                 fill="none"
                 stroke-width="1.25"
-                stroke-dasharray={`${dash} ${circumference}`}
-                stroke-linecap="butt"
+                stroke-dasharray={`${valueDash} ${circumference}`}
+                stroke-linecap="round"
                 transform="rotate(-90 8 8)"
             />
         </svg>
