@@ -5,6 +5,7 @@ import {
     elementQuerySelector,
     elementQuerySelectorAll,
     evaluateXPathExpression,
+    // eslint-disable-next-line no-redeclare
     hasOwnProperty,
     objectKeys,
 } from '../../captured-globals.js';

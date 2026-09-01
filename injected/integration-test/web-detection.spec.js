@@ -801,9 +801,7 @@ test.describe('WebDetection Feature', () => {
 
             await page.clock.fastForward(100);
 
-            const observed = /** @type {string[]} */ (
-                await page.evaluate(() => Reflect.get(globalThis, '__observedSelectors'))
-            );
+            const observed = /** @type {string[]} */ (await page.evaluate(() => Reflect.get(globalThis, '__observedSelectors')));
             expect(observed).toContain('.replacement-is-live');
             expect(observed.filter((selector) => selector.includes('recaptcha'))).toEqual([]);
 
