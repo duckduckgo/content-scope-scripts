@@ -128,6 +128,10 @@
  */
 :global(body[data-rebrand="true"]) {
     .root {
+        /* outline renders outside the box, so the drop shadow doesn't cover
+           it — rebrand only, legacy keeps its inset border. */
+        border: none;
+        outline: 1px solid var(--ntp-surface-border-color, var(--ds-color-theme-container-border-primary));
         border-radius: var(--ds-radius-x06);
         box-shadow: var(--ntp-card-shadow-rest);
     }
@@ -137,8 +141,13 @@
     }
 
     .switcher {
-        background: var(--ds-color-theme-control-fill-tertiary);
-        border: 1px solid var(--ntp-surface-border-color, var(--ds-color-theme-container-border-primary));
+        /* self-remaps for custom backgrounds (theme-mappings.css); see the
+           comment near the end of this file for when this value stands vs.
+           when the veil-compensated override below replaces it */
+        background: var(--ds-input-control-secondary-background-color);
+        /* the omnibar's TabSwitcher never has a border, in any state — match
+           that here too, not just on custom backgrounds */
+        border: none;
         border-radius: var(--ds-radius-full);
         padding: var(--ds-space-x-5);
         position: relative;
@@ -190,7 +199,7 @@
 
     [data-theme="dark"] {
         .root {
-            border-color: var(--ds-ntp-dark-card-border-color);
+            outline-color: var(--ntp-surface-border-color, var(--ds-ntp-dark-card-border-color));
         }
 
         .blob {
@@ -209,20 +218,47 @@
 }
 
 :global(body[data-rebrand="true"]:not([data-background-kind="default"])) {
-    /* Match the omnibar TabSwitcher track + blob on custom backgrounds:
-       track = input-control-secondary (white-at-18 dark / black-at-7 light) + blur;
-       active blob = the semantic input-control-primary (Shade 60 dark / Tint 60 light)
-       with a 1px input-control-shadow-primary ring (black-at-5 light, transparent dark).
-       The selected button text stays on the base .button rule (theme-primary), which
-       reads correctly against both blob values — no override needed. */
+    /* Match the omnibar TabSwitcher track + blob on custom backgrounds
+       (track background: see the comment near the end of this file; active
+       blob = the semantic input-control-primary, Shade 60 dark / Tint 60
+       light, with a 1px input-control-shadow-primary ring — black-at-5
+       light, transparent dark). The selected button text stays on the base
+       .button rule (theme-primary), which reads correctly against both
+       blob values — no override needed. */
     .switcher {
         backdrop-filter: blur(24px);
-        background: var(--ds-input-control-secondary-background-color);
     }
 
     .blob {
         background: var(--ds-input-control-primary-background-color);
         box-shadow: 0 0 0 1px var(--ds-input-control-shadow-primary);
+    }
+}
+
+/* Visual parity with the omnibar TabSwitcher track: the shared token reads
+   darker/lighter here because this track sits on top of the card's own
+   veil, which the omnibar's track doesn't have to contend with. A plain
+   opacity bump can't fix this exactly (the required correction differs per
+   RGB channel) — this is a calibrated approximation, checked against the
+   omnibar on a mid-tone sample background.
+   It's excluded on near-black (dark theme) / near-white (light theme)
+   wallpapers via [data-wallpaper-extreme] (set in BackgroundProvider.js):
+   there, the veil is close to invisible against the wallpaper and the
+   plain token above already matches the omnibar exactly — the compensated
+   value would overshoot and make the mismatch worse, not better. */
+:global(body[data-rebrand="true"]:not([data-background-kind="default"], [data-wallpaper-extreme="dark"])) {
+    main[data-theme="dark"], .themeContext[data-theme="dark"] {
+        .switcher {
+            background: rgba(255, 255, 255, 0.35);
+        }
+    }
+}
+
+:global(body[data-rebrand="true"]:not([data-background-kind="default"], [data-wallpaper-extreme="light"])) {
+    main[data-theme="light"], .themeContext[data-theme="light"] {
+        .switcher {
+            background: rgba(0, 0, 0, 0.17);
+        }
     }
 }
 

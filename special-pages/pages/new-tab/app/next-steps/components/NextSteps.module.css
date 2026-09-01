@@ -197,3 +197,12 @@
         letter-spacing: normal;
     }
 }
+
+/* outline renders outside the box, so the drop shadow doesn't cover it —
+   rebrand only, legacy keeps its inset border. */
+:global(body[data-rebrand="true"]) {
+    .card {
+        border: none;
+        outline: 1px solid var(--ntp-surface-border-color, var(--ds-color-theme-container-border-primary));
+    }
+}

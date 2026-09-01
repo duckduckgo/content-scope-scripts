@@ -77,6 +77,10 @@
 
 :global(body[data-rebrand="true"]) {
     .root {
+        /* outline renders outside the box, so the drop shadow doesn't cover
+           it — rebrand only, legacy keeps its inset border. */
+        border: none;
+        outline: 1px solid var(--ntp-surface-border-color, var(--ds-color-theme-container-border-primary));
         border-radius: var(--ds-radius-x05);
         box-shadow: var(--ntp-card-shadow-rest);
         /* top/bottom 20, left 16, right 40 — same for all RMF variants */
@@ -127,7 +131,7 @@
 
     [data-theme="dark"] {
         .root {
-            border-color: var(--ntp-surface-border-color, var(--ds-ntp-dark-card-border-color));
+            outline-color: var(--ntp-surface-border-color, var(--ds-ntp-dark-card-border-color));
         }
     }
 }

@@ -280,7 +280,8 @@
     .card {
         background: var(--ntp-surface-background-color);
         backdrop-filter: blur(48px);
-        border: 1px solid var(--ds-color-theme-container-border-primary);
+        border: none;
+        outline: 1px solid var(--ntp-surface-border-color, var(--ds-color-theme-container-border-primary));
         border-radius: var(--ds-radius-x06);
         box-shadow: var(--ntp-card-shadow-rest);
         gap: var(--ds-space-x04);
@@ -289,7 +290,7 @@
         padding-left: clamp(var(--ds-space-x05), 6vw, var(--ds-space-x10));
 
         [data-theme=dark] & {
-            border-color: var(--ds-ntp-dark-card-border-color);
+            outline-color: var(--ntp-surface-border-color, var(--ds-ntp-dark-card-border-color));
         }
     }
 
