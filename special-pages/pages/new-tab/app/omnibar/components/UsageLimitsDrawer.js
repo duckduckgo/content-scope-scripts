@@ -211,6 +211,8 @@ export function UsageLimitsDrawer({
     onSelectCta,
     onDismiss,
 }) {
+    const emphasize = icon === 'ring' || icon === 'alert';
+
     const keepComposerFocus = (event) => {
         // Keep the caret in the composer so clicking CTA/dismiss does not hide the drawer first.
         event.preventDefault();
@@ -229,7 +231,7 @@ export function UsageLimitsDrawer({
                             <InfoIcon class={cn(styles.glyph, styles.info)} aria-hidden="true" />
                         )}
                     </span>
-                    <p class={styles.message}>
+                    <p class={cn(styles.message, emphasize && styles.messageEmphasized)}>
                         <span class={styles.primary}>{message}</span>
                         {secondaryText ? <span class={styles.secondary}>{secondaryText}</span> : null}
                     </p>

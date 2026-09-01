@@ -127,6 +127,10 @@
 }
 
 .primary {
+    font-weight: 400;
+}
+
+.messageEmphasized .primary {
     font-weight: 600;
 }
 
