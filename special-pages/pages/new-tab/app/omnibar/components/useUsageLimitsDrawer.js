@@ -62,7 +62,9 @@ export function useUsageLimitsDrawer() {
                   primaryModelId: rawCta.primaryModelId,
                   showMenu: rawCta.showMenu === true,
                   menuHeader: typeof rawCta.menuHeader === 'string' ? rawCta.menuHeader : undefined,
-                  alternatives: Array.isArray(rawCta.alternatives) ? rawCta.alternatives : [],
+                  alternatives: Array.isArray(rawCta.alternatives)
+                      ? rawCta.alternatives.filter((alt) => alt && typeof alt.id === 'string' && typeof alt.name === 'string')
+                      : [],
               }
             : null;
 

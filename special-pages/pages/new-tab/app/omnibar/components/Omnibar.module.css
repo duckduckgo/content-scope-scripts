@@ -76,6 +76,11 @@
     }
 }
 
+/* Shown only while data-usage-limits-revealed is set (composer or drawer focus). */
+.root[data-mode='ai']:not([data-usage-limits-revealed]) :global([data-testid='usage-limits-drawer']) {
+    display: none;
+}
+
 /* Typing. Suppressed while the Add Tabs modal is open so its search input doesn't light up the omnibar. */
 .root:has(input:focus, textarea:focus):not(:has([data-attach-tabs-modal])) .popup {
     box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.1), 0 20px 40px 0 rgba(0, 0, 0, 0.08); /* Elevation 90 */

@@ -1,5 +1,5 @@
 import { Fragment, h } from 'preact';
-import { useCallback, useContext, useRef, useState } from 'preact/hooks';
+import { useCallback, useContext, useEffect, useRef, useState } from 'preact/hooks';
 import { ArrowRightIcon, LogoStacked, VoiceIcon } from '../../components/Icons';
 import { eventToTarget } from '../../../../../shared/handlers';
 import { usePlatformName } from '../../settings.provider';
@@ -73,6 +73,33 @@ export function Omnibar({
 }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const usageLimits = useUsageLimitsDrawer();
+    const rootRef = useRef(/** @type {HTMLDivElement|null} */ (null));
+    const [usageLimitsRevealed, setUsageLimitsRevealed] = useState(false);
+
+    useEffect(() => {
+        const update = () => {
+            const root = rootRef.current;
+            const active = document.activeElement;
+            if (!root || !(active instanceof Element) || !root.contains(active)) {
+                setUsageLimitsRevealed(false);
+                return;
+            }
+            const inComposer = active.tagName === 'TEXTAREA';
+            const inDrawer = Boolean(active.closest('[data-testid="usage-limits-drawer"]'));
+            setUsageLimitsRevealed(inComposer || inDrawer);
+        };
+
+        const onFocusOut = () => {
+            requestAnimationFrame(update);
+        };
+
+        document.addEventListener('focusin', update);
+        document.addEventListener('focusout', onFocusOut);
+        return () => {
+            document.removeEventListener('focusin', update);
+            document.removeEventListener('focusout', onFocusOut);
+        };
+    }, []);
 
     const [query, setQuery] = useQueryWithLocalPersistence(tabId);
     const [resetKey, setResetKey] = useState(0);
@@ -122,7 +149,13 @@ export function Omnibar({
     };
 
     return (
-        <div key={resetKey} class={styles.root} data-mode={mode}>
+        <div
+            key={resetKey}
+            ref={rootRef}
+            class={styles.root}
+            data-mode={mode}
+            data-usage-limits-revealed={usageLimitsRevealed ? true : undefined}
+        >
             <LogoStacked class={styles.logo} aria-label={t('omnibar_logoAlt')} />
             {enableAi && (
                 <div class={styles.tabSwitcherContainer}>

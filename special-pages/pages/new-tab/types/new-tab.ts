@@ -179,7 +179,7 @@ export type UsageLimitsDrawer = {
    */
   severity?: "neutral" | "warning" | "critical";
   /**
-   * When true, disable AI composer controls (input, voice, model picker, reasoning, tools, attach) — parity with address-bar AreAiPromptControlsEnabled=false. weeklyReachedDegraded keeps this false.
+   * When true, disable AI composer controls (input, voice, model picker, reasoning, tools, attach).
    */
   blocksPrompt?: boolean;
   /**

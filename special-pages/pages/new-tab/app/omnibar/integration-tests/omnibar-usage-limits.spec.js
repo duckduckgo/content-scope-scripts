@@ -10,12 +10,13 @@ function setup(page, workerInfo) {
 }
 
 test.describe('omnibar usage limits drawer', () => {
-    test('stays hidden until native sends usageLimits', async ({ page }, workerInfo) => {
+    test('stays hidden until native sends usageLimits and the input is focused', async ({ page }, workerInfo) => {
         const { ntp, omnibar } = setup(page, workerInfo);
         await ntp.reducedMotion();
         await ntp.openPage({ additional: { 'omnibar.mode': 'ai', 'omnibar.usageLimits': 'false' } });
         await omnibar.ready();
 
+        await omnibar.focusChatInput();
         await expect(omnibar.usageLimitsDrawer()).toHaveCount(0);
 
         await omnibar.didReceiveConfig({
@@ -28,8 +29,24 @@ test.describe('omnibar usage limits drawer', () => {
             },
         });
 
+        await omnibar.focusChatInput();
         await expect(omnibar.usageLimitsDrawer()).toBeVisible();
         await expect(omnibar.usageLimitsDrawer()).toContainText('75% of weekly limit');
+    });
+
+    test('is hidden when the AI input is not focused', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { 'omnibar.mode': 'ai', 'omnibar.usageLimits': 'approaching' } });
+        await omnibar.ready();
+
+        await expect(omnibar.usageLimitsDrawer()).toBeHidden();
+
+        await omnibar.focusChatInput();
+        await expect(omnibar.usageLimitsDrawer()).toBeVisible();
+
+        await omnibar.chatInput().evaluate((el) => el.blur());
+        await expect(omnibar.usageLimitsDrawer()).toBeHidden();
     });
 
     test('hides when native pushes usageLimits null', async ({ page }, workerInfo) => {
@@ -38,6 +55,7 @@ test.describe('omnibar usage limits drawer', () => {
         await ntp.openPage({ additional: { 'omnibar.mode': 'ai', 'omnibar.usageLimits': 'approaching' } });
         await omnibar.ready();
 
+        await omnibar.focusChatInput();
         await expect(omnibar.usageLimitsDrawer()).toBeVisible();
 
         await omnibar.didReceiveConfig({ mode: 'ai', enableAi: true, usageLimits: null });
@@ -51,6 +69,7 @@ test.describe('omnibar usage limits drawer', () => {
         await ntp.openPage({ additional: { 'omnibar.mode': 'ai', 'omnibar.usageLimits': 'approaching' } });
         await omnibar.ready();
 
+        await omnibar.focusChatInput();
         await omnibar.usageLimitsDismiss().click();
         await omnibar.expectMethodCalledWith('omnibar_dismissUsageLimits', {});
     });
@@ -61,6 +80,7 @@ test.describe('omnibar usage limits drawer', () => {
         await ntp.openPage({ additional: { 'omnibar.mode': 'ai', 'omnibar.usageLimits': 'approaching' } });
         await omnibar.ready();
 
+        await omnibar.focusChatInput();
         await omnibar.usageLimitsDrawer().getByRole('button', { name: 'Switch to GPT-4o mini' }).click();
         await omnibar.expectMethodCalledWith('omnibar_selectUsageLimitsCta', { modelId: 'gpt-4o-mini' });
     });
@@ -71,6 +91,7 @@ test.describe('omnibar usage limits drawer', () => {
         await ntp.openPage({ additional: { 'omnibar.mode': 'ai', 'omnibar.usageLimits': 'approaching' } });
         await omnibar.ready();
 
+        await omnibar.focusChatInput();
         await omnibar.usageLimitsCtaMenuButton().click();
         await expect(omnibar.usageLimitsCtaMenu()).toBeVisible();
         await expect(omnibar.usageLimitsCtaMenu()).toContainText('Switch to a more efficient model');
@@ -84,6 +105,8 @@ test.describe('omnibar usage limits drawer', () => {
         await ntp.openPage({ additional: { 'omnibar.mode': 'ai', 'omnibar.usageLimits': 'reached' } });
         await omnibar.ready();
 
+        // blocksPrompt marks the composer aria-disabled; focus still reveals the drawer.
+        await omnibar.chatInput().evaluate((el) => el.focus());
         await omnibar.usageLimitsDrawer().getByRole('button', { name: 'Try DuckDuckGo Subscription' }).click();
         await omnibar.expectMethodCalledWith('omnibar_selectUsageLimitsCta', {});
     });

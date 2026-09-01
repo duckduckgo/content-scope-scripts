@@ -37,7 +37,16 @@ import styles from './ReasoningPicker.module.css';
  * @param {boolean} [props.disabled] - When true, the trigger is inert (hard usage limit).
  * @param {boolean} props.isEligibleForFreeTrial - When false, a 'subscribe' upsell reports 'upgrade' telemetry instead of 'tryForFree'. Does not affect rendered copy, which comes entirely from the payload.
  */
-export function ReasoningPicker({ options, selectedEffort, onSelect, onUpsell, ariaLabel, buttonLabel, disabled = false, isEligibleForFreeTrial }) {
+export function ReasoningPicker({
+    options,
+    selectedEffort,
+    onSelect,
+    onUpsell,
+    ariaLabel,
+    buttonLabel,
+    disabled = false,
+    isEligibleForFreeTrial,
+}) {
     const { isOpen, dropdownPos, buttonRef, dropdownRef, toggle, close } = useDropdown({ align: 'right' });
     const ntp = useMessaging();
     const shownRef = useRef(false);

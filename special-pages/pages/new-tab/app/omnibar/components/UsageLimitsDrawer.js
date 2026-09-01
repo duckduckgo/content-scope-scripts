@@ -201,8 +201,13 @@ export function UsageLimitsDrawer({
 }) {
     const emphasize = icon === 'ring' || icon === 'alert';
 
+    const keepComposerFocus = (event) => {
+        // Keep the caret in the composer so clicking CTA/dismiss does not hide the drawer first.
+        event.preventDefault();
+    };
+
     return (
-        <div class={styles.drawer} data-testid="usage-limits-drawer" role="status">
+        <div class={styles.drawer} data-testid="usage-limits-drawer" role="status" onMouseDown={keepComposerFocus}>
             <div class={styles.card}>
                 <div class={styles.content}>
                     <span class={styles.leading}>
