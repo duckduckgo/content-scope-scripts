@@ -129,6 +129,11 @@
     font-weight: 600;
 }
 
+.messageStacked {
+    display: flex;
+    flex-direction: column;
+}
+
 .secondary {
     color: var(--ds-color-theme-text-secondary);
     font-weight: 400;
@@ -237,6 +242,7 @@
 }
 
 .convertIcon {
+    color: var(--ds-color-theme-icons-secondary);
     flex-shrink: 0;
 }
 

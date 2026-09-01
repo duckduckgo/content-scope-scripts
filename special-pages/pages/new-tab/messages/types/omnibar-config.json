@@ -242,6 +242,12 @@
       "type": "boolean",
       "default": false
     },
+    "enableUpdatedCreateImage": {
+      "title": "Enable Updated Create Image",
+      "description": "Use the native-driven Create Image model-switch flow. Native selects and persists an image-capable model and provides localized notice copy.",
+      "type": "boolean",
+      "default": false
+    },
     "enableWebSearch": {
       "title": "Enable Web Search",
       "description": "Allow AI chat submissions to include web search tool.",
@@ -300,6 +306,27 @@
       "description": "Show a delete button on history entry suggestions. When true, clicking the button removes the entry from browsing history.",
       "type": "boolean",
       "default": false
+    },
+    "createImageModelSwitch": {
+      "title": "Create Image Model Switch Notice",
+      "description": "Native-resolved presentation shown after Create Image switches away from an unsupported model. Non-null takes visual priority over usageLimits; native owns model selection, localized copy, and lifecycle.",
+      "type": ["object", "null"],
+      "required": ["message"],
+      "properties": {
+        "message": {
+          "type": "string",
+          "description": "Primary notice copy, already localized by native (for example, 'Now using GPT-5.4')."
+        },
+        "secondaryText": {
+          "type": "string",
+          "description": "Optional explanation, already localized by native, including the OSS privacy variant when applicable."
+        },
+        "dismissible": {
+          "type": "boolean",
+          "description": "When true or omitted, show a dismiss control. Dismiss notifies native via omnibar_dismissCreateImageModelSwitch.",
+          "default": true
+        }
+      }
     },
     "usageLimits": {
       "title": "Usage Limits Drawer",

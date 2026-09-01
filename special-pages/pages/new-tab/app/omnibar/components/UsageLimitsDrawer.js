@@ -13,7 +13,7 @@ import styles from './UsageLimitsDrawer.module.css';
 /** @typedef {typeof import('../strings.json')} Strings */
 
 /**
- * @typedef {'info' | 'ring' | 'alert'} UsageLimitsIcon
+ * @typedef {'info' | 'ring' | 'alert' | 'convert'} UsageLimitsIcon
  * @typedef {'neutral' | 'warning' | 'critical'} UsageLimitsSeverity
  * @typedef {'none' | 'convert'} UsageLimitsCtaLeadingIcon
  * @typedef {{ id: string, name: string, variant?: string }} UsageLimitsCtaAlternative
@@ -42,7 +42,12 @@ function UsageLimitsRing({ percent, severity }) {
     const valueDash = Math.min(0.9999, Math.max(0, percent / 100)) * circumference;
 
     return (
-        <svg class={cn(styles.glyph, styles.ring, styles[`severity_${severity}`])} viewBox="0 0 16 16" overflow="visible" aria-hidden="true">
+        <svg
+            class={cn(styles.glyph, styles.ring, styles[`severity_${severity}`])}
+            viewBox="0 0 16 16"
+            overflow="visible"
+            aria-hidden="true"
+        >
             <circle
                 class={styles.ringTrack}
                 cx="8"
@@ -90,7 +95,7 @@ function UsageLimitsAlertIcon() {
 /** Convert / switch-model glyph (Convert-16 from DDG Icons). */
 function ConvertIcon() {
     return (
-        <svg class={styles.convertIcon} viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden="true">
+        <svg class={cn(styles.glyph, styles.convertIcon)} viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden="true">
             <path
                 fill="currentColor"
                 d="M4.19193 1.30806C4.43601 1.55214 4.43601 1.94786 4.19193 2.19194L2.75887 3.625H11.875C14.0841 3.625 15.875 5.41586 15.875 7.625C15.875 7.97018 15.5952 8.25 15.25 8.25C14.9048 8.25 14.625 7.97018 14.625 7.625C14.625 6.10622 13.3938 4.875 11.875 4.875H2.75887L4.19193 6.30806C4.43601 6.55214 4.43601 6.94786 4.19193 7.19194C3.94785 7.43602 3.55213 7.43602 3.30805 7.19194L1.42677 5.31066C0.840981 4.72487 0.840979 3.77513 1.42677 3.18934L3.30805 1.30806C3.55213 1.06398 3.94785 1.06398 4.19193 1.30806Z"
@@ -194,6 +199,7 @@ function UsageLimitsCtaControl({ cta, onSelectCta }) {
  * @param {object} props
  * @param {string} props.message
  * @param {string} [props.secondaryText]
+ * @param {boolean} [props.secondaryOnNewLine]
  * @param {UsageLimitsIcon} [props.icon]
  * @param {number} [props.percent]
  * @param {UsageLimitsSeverity} [props.severity]
@@ -204,6 +210,7 @@ function UsageLimitsCtaControl({ cta, onSelectCta }) {
 export function UsageLimitsDrawer({
     message,
     secondaryText,
+    secondaryOnNewLine = false,
     icon = 'info',
     percent = 0,
     severity = 'neutral',
@@ -211,7 +218,7 @@ export function UsageLimitsDrawer({
     onSelectCta,
     onDismiss,
 }) {
-    const emphasize = icon === 'ring' || icon === 'alert';
+    const emphasize = icon === 'ring' || icon === 'alert' || icon === 'convert';
 
     const keepComposerFocus = (event) => {
         // Keep the caret in the composer so clicking CTA/dismiss does not hide the drawer first.
@@ -227,11 +234,19 @@ export function UsageLimitsDrawer({
                             <UsageLimitsRing percent={percent} severity={severity} />
                         ) : icon === 'alert' ? (
                             <UsageLimitsAlertIcon />
+                        ) : icon === 'convert' ? (
+                            <ConvertIcon />
                         ) : (
                             <InfoIcon class={cn(styles.glyph, styles.info)} aria-hidden="true" />
                         )}
                     </span>
-                    <p class={cn(styles.message, emphasize && styles.messageEmphasized)}>
+                    <p
+                        class={cn(
+                            styles.message,
+                            emphasize && styles.messageEmphasized,
+                            secondaryOnNewLine && styles.messageStacked,
+                        )}
+                    >
                         <span>{message}</span>
                         {secondaryText ? <span class={styles.secondary}>{secondaryText}</span> : null}
                     </p>
