@@ -9,7 +9,7 @@
 .overlay {
     width: 100%;
     height: 100%;
-    background-color: #bfbfbf;
+    background-color: var(--color-gray-40);
     background-image: url('../../public/landscape.svg');
     background-repeat: no-repeat;
     background-position: bottom center;
@@ -24,7 +24,7 @@
 
 .instructionsWrapper {
     position: relative;
-    max-width: 1014px;
+    max-width: calc(1014 * var(--px-in-rem));
     width: calc(100% - var(--sp-16));
     margin: 0 auto;
     padding-top: var(--sp-6);
@@ -34,15 +34,15 @@
     padding: var(--sp-4);
     background-color: var(--color-white);
     border-radius: var(--border-radius-lg);
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 1px 4px var(--color-black-at-9), 0 4px 8px var(--color-black-at-9);
 }
 
 .instructionsText {
     color: var(--color-black);
     text-align: center;
     margin: 0;
-    font-size: 1.25rem;
-    line-height: 1.75rem;
+    font-size: calc(20 * var(--px-in-rem));
+    line-height: calc(28 * var(--px-in-rem));
     font-weight: 400;
 }
 
@@ -51,7 +51,7 @@
     left: 100%;
     top: var(--sp-13);
     width: var(--sp-24);
-    height: 190px;
+    height: calc(190 * var(--px-in-rem));
     z-index: 1;
     pointer-events: none;
 }

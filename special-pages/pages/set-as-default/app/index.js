@@ -1,5 +1,6 @@
 import { h, render } from 'preact';
-import { EnvironmentProvider, UpdateEnvironment } from '../../../shared/components/EnvironmentProvider.js';
+import { EnvironmentProvider, UpdateEnvironment, WillThrow } from '../../../shared/components/EnvironmentProvider.js';
+import { InlineErrorBoundary } from '../../../shared/components/InlineErrorBoundary.js';
 
 import { App } from './components/App.jsx';
 import { Components } from './components/Components.jsx';
@@ -50,12 +51,19 @@ export async function init(messaging, baseEnvironment) {
 
     if (environment.display === 'app') {
         render(
-            <EnvironmentProvider debugState={environment.debugState} injectName={environment.injectName} willThrow={environment.willThrow}>
-                <UpdateEnvironment search={window.location.search} />
-                <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
-                    <App />
-                </TranslationProvider>
-            </EnvironmentProvider>,
+            <InlineErrorBoundary messaging={messaging} context={'Set as Default application'}>
+                <EnvironmentProvider
+                    debugState={environment.debugState}
+                    injectName={environment.injectName}
+                    willThrow={environment.willThrow}
+                >
+                    <UpdateEnvironment search={window.location.search} />
+                    <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
+                        <App />
+                        <WillThrow />
+                    </TranslationProvider>
+                </EnvironmentProvider>
+            </InlineErrorBoundary>,
             root,
         );
     } else if (environment.display === 'components') {
