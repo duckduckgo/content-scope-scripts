@@ -22,7 +22,7 @@
     "note": "Label on a disabled button, shown on extensions the DuckDuckGo browser does not support."
   },
   "unavailableDescription": {
-    "title": "This extension isn't supported. DuckDuckGo is introducing extension support, starting with password managers.",
+    "title": "This extension isn't supported.",
     "note": "Tooltip shown when hovering the disabled 'Unsupported extension' button."
   }
 }
