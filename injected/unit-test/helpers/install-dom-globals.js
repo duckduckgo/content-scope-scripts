@@ -3,14 +3,12 @@ import { JSDOM } from 'jsdom';
 /**
  * Installs one JSDOM window's globals before any spec module is imported.
  *
- * Jasmine loads helpers before spec files, so this runs before `captured-globals.js` is
- * evaluated. That ordering is the point: it captures DOM query methods at module evaluation,
- * which is `document_start` in production. Without a document in place first it would capture
- * nothing, and every DOM-based test would exercise a path that does not exist in a browser.
+ * Jasmine loads helpers before spec files, so this runs before `captured-globals.js` captures
+ * the DOM query methods at module evaluation. A document must be in place by then for the
+ * captures to resolve.
  *
- * There is exactly one window for the whole run, and it has to stay that way - the captured
- * methods are bound to this `document`. A spec that needs different markup should replace the
- * contents of this document via `resetDom` rather than construct another JSDOM.
+ * There is one window for the whole run, and the captured methods are bound to its `document`.
+ * A spec needing different markup replaces this document's contents via `resetDom`.
  */
 const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>');
 

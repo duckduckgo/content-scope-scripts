@@ -778,8 +778,8 @@ test.describe('WebDetection Feature', () => {
             const { helper } = await WebDetectionTestHelper.setupCaptchaTest(page, testInfo.project.use);
             await helper.navigateTo('/web-detection/pages/captcha-recaptcha.html');
 
-            // Replace the query methods after injection. The captured
-            // references taken at document_start must not route through these.
+            // Replaced after injection, so the references captured at document_start do not
+            // route through these.
             await page.evaluate(() => {
                 /** @type {string[]} */
                 const observed = [];
@@ -794,8 +794,6 @@ test.describe('WebDetection Feature', () => {
                         });
                     }
                 }
-                // Proves the replacement is effective, so an empty result below means the feature
-                // avoided these slots rather than that the test failed to install anything.
                 document.querySelectorAll('.replacement-is-live');
             });
 
@@ -804,8 +802,6 @@ test.describe('WebDetection Feature', () => {
             const observed = /** @type {string[]} */ (await page.evaluate(() => Reflect.get(globalThis, '__observedSelectors')));
             expect(observed).toContain('.replacement-is-live');
             expect(observed.filter((selector) => selector.includes('recaptcha'))).toEqual([]);
-
-            // The detector still ran and matched, so the queries happened - just not through the page's slots.
             expect((await helper.getWebEventNotifications()).map((e) => e.type)).toEqual(['captcha_recaptcha']);
         });
     });

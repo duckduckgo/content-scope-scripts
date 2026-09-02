@@ -48,10 +48,8 @@ export function polyfillProcessGlobals(defaultLocation = 'http://localhost:8080'
     const hasDocument = Boolean(globalThis.document);
 
     if (hasDocument) {
-        // Adjust the shared document rather than replacing it. The DOM query methods in
-        // captured-globals.js are bound to that document at module evaluation, so swapping the global
-        // out breaks every DOM-based spec - and several callers here run at module scope, which would
-        // break them for the whole run.
+        // The DOM query methods in captured-globals.js are bound to this document, so it must be
+        // adjusted in place rather than replaced.
         Object.defineProperty(globalThis.document, 'referrer', { value: defaultLocation, configurable: true });
     } else {
         globalThis.document = /** @type {Document} */ (
@@ -74,7 +72,7 @@ export function polyfillProcessGlobals(defaultLocation = 'http://localhost:8080'
     // Return a cleanup function
     return function cleanup() {
         if (hasDocument) {
-            // Removing the own property reveals the document's real accessor again
+            // Removing the own property restores the document's own `referrer` accessor
             Reflect.deleteProperty(globalThis.document, 'referrer');
         } else {
             Reflect.deleteProperty(globalThis, 'document');

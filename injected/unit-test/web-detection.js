@@ -651,15 +651,14 @@ describe('WebDetection', () => {
          */
         function matchInDOM(html, match, options = {}) {
             const { zeroSizeSelectors = [] } = options;
-            // The shared document is reused rather than replaced, because the query methods
-            // captured at module evaluation are bound to it (see helpers/install-dom-globals.js).
+            // The captured query methods are bound to the shared document, so its contents are
+            // replaced rather than the document itself (see helpers/install-dom-globals.js).
             resetDom(html);
             const originalGetComputedStyle = globalThis.getComputedStyle;
 
             // Wrap getComputedStyle to return browser-like defaults (JSDOM returns "" for opacity)
-            const jsdomGetComputedStyle = originalGetComputedStyle;
             globalThis.getComputedStyle = (el, pseudoElt) => {
-                const style = jsdomGetComputedStyle(el, pseudoElt);
+                const style = originalGetComputedStyle(el, pseudoElt);
                 return new Proxy(style, {
                     get(target, prop) {
                         const value = target[prop];
@@ -698,9 +697,8 @@ describe('WebDetection', () => {
 
         describe('query API capture', () => {
             /**
-             * Replace every query method the feature could reach, run `body`, and report what the
-             * replacements saw. The methods are captured at module evaluation, so a replacement
-             * installed here - as a Cloudflare challenge page installs one - must observe nothing.
+             * Replace every query method the feature could reach, run `run`, and return the
+             * selectors the replacements saw.
              *
              * @param {() => void} run
              * @returns {string[]}
@@ -730,7 +728,7 @@ describe('WebDetection', () => {
                 return observed;
             }
 
-            it('is effective, so an empty result below is meaningful', () => {
+            it('records selectors passed through a replaced query method', () => {
                 const observed = selectorsObservedDuring(() => document.querySelectorAll('.replacement-is-live'));
                 expect(observed).toEqual(['.replacement-is-live']);
             });
@@ -741,7 +739,6 @@ describe('WebDetection', () => {
                 const observed = selectorsObservedDuring(() => {
                     matched = matchInDOM('<div class="g-recaptcha"></div>', { element: { selector: '.g-recaptcha' } });
                 });
-                // The detector still matched, so the query happened - just not through the replacement
                 expect(matched).toBe(true);
                 expect(observed).toEqual([]);
             });

@@ -44,17 +44,13 @@ export const ReflectDeleteProperty = Reflect.deleteProperty.bind(Reflect);
 export const ReflectApply = Reflect.apply.bind(Reflect);
 export const getRandomValues = globalThis.crypto?.getRandomValues?.bind(globalThis.crypto);
 
-// DOM query methods, captured at module evaluation - ie document_start, before any page
-// script runs. A page can replace these slots and observe every selector we pass. Queries
-// against a document produced by `DOMParser` are equally exposed, since it shares these
-// prototypes.
+// DOM query methods, captured at module evaluation - ie document_start, before any page script
+// runs. A page can replace these slots and observe every selector passed to them, including on a
+// document produced by `DOMParser`, which shares these prototypes.
 //
-// Anything calling these must have a DOM. The optional chaining only keeps module evaluation safe
-// where there is none - `src/utils.js` is imported by Node-side Playwright tooling - and the casts
-// record that as an invariant rather than a supported mode: calling without a DOM throws
-// immediately instead of silently reverting to the live, observable slot. The unit tests install a
-// single JSDOM window in a Jasmine helper so they exercise the same captured path as production;
-// see `unit-test/helpers/install-dom-globals.js`.
+// Callers must have a DOM. The optional chaining keeps module evaluation safe where there is none
+// (`src/utils.js` is imported by Node-side Playwright tooling); the casts hold callers to the
+// invariant, so calling without a DOM throws.
 export const documentQuerySelector = /** @type {(selectors: string) => Element | null} */ (
     globalThis.document?.querySelector.bind(globalThis.document)
 );
@@ -65,8 +61,8 @@ export const createXPathExpression = /** @type {(expression: string, resolver: X
     globalThis.document?.createExpression.bind(globalThis.document)
 );
 
-// These take their receiver per call, so unlike the above they cannot be bound: element queries
-// run against a detached `DOMParser` tree, and each XPath expression is its own receiver.
+// These take their receiver per call, so they cannot be bound: element queries run against a
+// detached `DOMParser` tree, and each XPath expression is its own receiver.
 const capturedElementQuerySelector = /** @type {Element['querySelector']} */ (globalThis.Element?.prototype.querySelector);
 const capturedElementQuerySelectorAll = /** @type {Element['querySelectorAll']} */ (globalThis.Element?.prototype.querySelectorAll);
 const capturedEvaluateExpression = /** @type {XPathExpression['evaluate']} */ (globalThis.XPathExpression?.prototype.evaluate);

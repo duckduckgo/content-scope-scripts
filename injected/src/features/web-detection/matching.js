@@ -136,10 +136,8 @@ function hasContent(element) {
         return true;
     }
     // A real (eg cross-origin Turnstile) iframe counts; about:blank does not.
-    return [...elementQuerySelectorAll(parsed, 'iframe')].some((frame) => {
-        const frameElement = /** @type {HTMLIFrameElement} */ (frame);
-        return !frameElement.hidden && frameElement.src !== '' && frameElement.src !== 'about:blank';
-    });
+    const frames = /** @type {NodeListOf<HTMLIFrameElement>} */ (elementQuerySelectorAll(parsed, 'iframe'));
+    return [...frames].some((frame) => !frame.hidden && frame.src !== '' && frame.src !== 'about:blank');
 }
 
 /**
