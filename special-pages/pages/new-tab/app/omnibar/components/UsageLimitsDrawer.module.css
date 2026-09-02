@@ -28,7 +28,7 @@
 
 .card {
     /* Full radii like native (16,16,19,19) — top crescents show under the pill curve */
-    background: var(--ds-color-theme-surface-tertiary);
+    background: var(--ds-color-theme-surface-secondary);
     border-radius: 12px;
     box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.1), 0 4px 8px 0 rgba(0, 0, 0, 0.08);
     outline: 1px solid var(--ds-color-theme-control-raised-backdrop);
