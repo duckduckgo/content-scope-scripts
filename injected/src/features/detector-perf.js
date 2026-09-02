@@ -1,4 +1,6 @@
 import ContentFeature from '../content-feature.js';
+// eslint-disable-next-line no-redeclare
+import { hasOwnProperty, performanceNow } from '../captured-globals.js';
 
 /**
  * Default threshold bin edges (ms). These are discovery bins, not perf
@@ -12,16 +14,36 @@ const DEFAULT_TOTAL_PER_PAGE_THRESHOLDS_MS = [50, 100, 250];
 const DEFAULT_COMBINED_THRESHOLDS_MS = [100, 250, 500];
 
 /**
- * Detector metric names: alphanumeric segments, with `.` reserved for future
- * namespaced sub-metrics (e.g. `youtube.sweep`).
+ * Cap on severe emissions per page. Severe crossings are rare by
+ * construction under sane thresholds, so the cap only matters when a bad
+ * config push (e.g. near-zero edges) would otherwise turn every detector on
+ * every page into an immediate pixel across the fleet.
+ */
+const DEFAULT_MAX_SEVERE_PER_PAGE = 10;
+
+/**
+ * Detector metric names: alphanumeric segments separated by `.`, `_` or `-`,
+ * with `.` reserved for namespaced sub-metrics (e.g. `youtube.sweep`).
+ * Names feed event-type names, so a name ending in e.g. `_total` could
+ * collide with another detector's event namespace — current call sites pass
+ * fixed constants or dotted config IDs, which cannot collide.
  */
 const NAME_PATTERN = /^[a-zA-Z0-9]+(?:[._-][a-zA-Z0-9]+)*$/;
 
 const EVENT_PREFIX = 'detectorPerf';
 
 /**
+ * Event type for worst-case crossings: fired so that native EventHub can
+ * forward it as an immediate pixel. The data payload
+ * carries per-detector attribution — including exact config IDs for the
+ * detectors that counters pool under `webDetection`.
+ */
+const SEVERE_EVENT_TYPE = `${EVENT_PREFIX}_severe`;
+
+/**
  * @typedef {{ runs: number, totalMs: number, worstMs: number }} DetectorStats
  * @typedef {{ singleRunThresholdsMs: number[], totalPerPageThresholdsMs: number[] }} DetectorThresholds
+ * @typedef {'single' | 'total' | 'combined'} SevereKind
  */
 
 /**
@@ -40,22 +62,46 @@ export function parseThresholds(value, fallback) {
 }
 
 /**
+ * Round a duration to 0.1ms for the breakage-report payload.
+ * @param {number} ms
+ * @returns {number}
+ */
+function roundMs(ms) {
+    return Math.round(ms * 10) / 10;
+}
+
+/**
  * Measures detector execution cost per page and reports it as coarse
  * threshold-crossing events through webEvents, where native EventHub
  * aggregates them into periodic telemetry pixels.
  *
- * Nothing is emitted per detector run. Counters accumulate for the page's
- * lifetime and flush when the page is hidden; each event type is emitted at
- * most once per page.
+ * Every event is monotonic and fires as soon as it first becomes true, at
+ * most once per page per event type: `measured` at feature init, `<name>_ran`
+ * on a detector's first run, and each threshold event at its first crossing.
+ * Nothing depends on page visibility, so a killed process or swiped-away app
+ * loses nothing already observed — avoiding the data-loss bias where the
+ * slowest pages are exactly the ones users abandon. When a crossing passes
+ * the *highest* configured edge of a threshold family, `detectorPerf_severe`
+ * also fires (at most once per page per detector and family): those crossings
+ * are rare by construction and native EventHub turns them into an immediate
+ * pixel with the detector name in the data payload.
  *
  * No DOM or layout reads and no `performance.mark`/`measure` happen here —
  * measurement must never be observable by the page.
  */
 export default class DetectorPerf extends ContentFeature {
-    _exposedMethods = this._declareExposedMethods(['record']);
+    _exposedMethods = this._declareExposedMethods(['record', 'getStats']);
 
     /** @type {Map<string, DetectorStats>} */
     #detectors = new Map();
+
+    /**
+     * Per-page stats keyed by exact attribution (the `detail` config ID when
+     * present, the label otherwise). Never feeds events — event names must be
+     * static — only the breakage-report payload, where exact IDs are wanted.
+     * @type {Map<string, DetectorStats>}
+     */
+    #detectorsDetailed = new Map();
 
     /** Total ms across all recorded detectors on this page. */
     #combinedTotalMs = 0;
@@ -76,18 +122,19 @@ export default class DetectorPerf extends ContentFeature {
     /** @type {Record<string, Partial<DetectorThresholds>>} */
     #detectorOverrides = {};
 
+    /** Severe emissions so far on this page. */
+    #severeCount = 0;
+
+    /** @type {number} */
+    #maxSeverePerPage = DEFAULT_MAX_SEVERE_PER_PAGE;
+
     init() {
         this._readThresholdSettings();
 
-        document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'hidden') {
-                this._flush();
-            }
-        });
-        // Backstop for the (rare) teardown paths that skip the hidden transition.
-        window.addEventListener('pagehide', () => {
-            this._flush();
-        });
+        // Page-level denominator: this page was observed, even if no detector
+        // ever runs. Fired at init like every other event fires at occurrence,
+        // so no page-lifecycle event is ever needed.
+        this._emit(`${EVENT_PREFIX}_measured`);
     }
 
     _readThresholdSettings() {
@@ -108,6 +155,11 @@ export default class DetectorPerf extends ContentFeature {
         if (overrides && typeof overrides === 'object' && !Array.isArray(overrides)) {
             this.#detectorOverrides = /** @type {Record<string, Partial<DetectorThresholds>>} */ (overrides);
         }
+
+        const maxSevere = this.getFeatureSetting('maxSeverePerPage');
+        if (typeof maxSevere === 'number' && Number.isFinite(maxSevere) && maxSevere > 0) {
+            this.#maxSeverePerPage = Math.floor(maxSevere);
+        }
     }
 
     /**
@@ -117,7 +169,9 @@ export default class DetectorPerf extends ContentFeature {
      * @returns {DetectorThresholds}
      */
     _thresholdsFor(name) {
-        const override = this.#detectorOverrides[name];
+        // Own-property check: overrides are a config-supplied map, so a key
+        // like 'constructor' must not resolve through the prototype chain.
+        const override = hasOwnProperty.call(this.#detectorOverrides, name) ? this.#detectorOverrides[name] : undefined;
         return {
             singleRunThresholdsMs: parseThresholds(override?.singleRunThresholdsMs, this.#singleRunThresholdsMs),
             totalPerPageThresholdsMs: parseThresholds(override?.totalPerPageThresholdsMs, this.#totalPerPageThresholdsMs),
@@ -133,8 +187,11 @@ export default class DetectorPerf extends ContentFeature {
      *
      * @param {string} name - detector label, e.g. 'bot' or 'webDetection'
      * @param {number} durationMs
+     * @param {string} [detail] - exact detector identity for severe attribution
+     *   where `name` is a pooled label, e.g. the config ID `adwalls.generic_en`
+     *   behind the `webDetection` label. Never appears in event-type names.
      */
-    record(name, durationMs) {
+    record(name, durationMs, detail) {
         if (typeof name !== 'string' || !NAME_PATTERN.test(name)) return;
         if (typeof durationMs !== 'number' || !Number.isFinite(durationMs) || durationMs < 0) return;
 
@@ -144,43 +201,120 @@ export default class DetectorPerf extends ContentFeature {
         stats.worstMs = Math.max(stats.worstMs, durationMs);
         this.#detectors.set(name, stats);
         this.#combinedTotalMs += durationMs;
+
+        const attributed = typeof detail === 'string' && NAME_PATTERN.test(detail) ? detail : name;
+        const detailed = this.#detectorsDetailed.get(attributed) ?? { runs: 0, totalMs: 0, worstMs: 0 };
+        detailed.runs += 1;
+        detailed.totalMs += durationMs;
+        detailed.worstMs = Math.max(detailed.worstMs, durationMs);
+        this.#detectorsDetailed.set(attributed, detailed);
+
+        const thresholds = this._thresholdsFor(name);
+        this._emitCrossings(name, durationMs, stats, thresholds);
+        this._checkSevere(name, durationMs, stats, attributed, thresholds);
     }
 
     /**
-     * Emit threshold-crossing events for everything accumulated so far.
+     * Emit `ran` and every newly crossed threshold edge for this run. All
+     * counters are monotonic, so checking at each run is equivalent to
+     * checking accumulated worst/total values — the at-most-once guard makes
+     * each event fire exactly at its first crossing.
      *
-     * Counters are cumulative and never reset; the at-most-once guard means
-     * repeated flushes (page re-shown and hidden again, bfcache restores)
-     * only emit newly crossed edges and newly ran detectors.
+     * @param {string} name
+     * @param {number} durationMs
+     * @param {DetectorStats} stats
+     * @param {DetectorThresholds} thresholds
      */
-    _flush() {
-        // Page-level denominator: this page was observed, even if no detector ran.
-        this._emit(`${EVENT_PREFIX}_measured`);
+    _emitCrossings(name, durationMs, stats, thresholds) {
+        this._emit(`${EVENT_PREFIX}_${name}_ran`);
 
-        for (const [name, stats] of this.#detectors) {
-            this._emit(`${EVENT_PREFIX}_${name}_ran`);
-
-            const thresholds = this._thresholdsFor(name);
-            // Every crossed edge is emitted (not just the highest) so each
-            // EventHub counter reads as an independent exceedance rate.
-            for (const edge of thresholds.singleRunThresholdsMs) {
-                if (stats.worstMs > edge) this._emit(`${EVENT_PREFIX}_${name}_over${edge}ms`);
-            }
-            for (const edge of thresholds.totalPerPageThresholdsMs) {
-                if (stats.totalMs > edge) this._emit(`${EVENT_PREFIX}_${name}_total_over${edge}ms`);
-            }
+        // Every crossed edge is emitted (not just the highest) so each
+        // EventHub counter reads as an independent exceedance rate.
+        for (const edge of thresholds.singleRunThresholdsMs) {
+            if (durationMs > edge) this._emit(`${EVENT_PREFIX}_${name}_over${edge}ms`);
         }
-
+        for (const edge of thresholds.totalPerPageThresholdsMs) {
+            if (stats.totalMs > edge) this._emit(`${EVENT_PREFIX}_${name}_total_over${edge}ms`);
+        }
         for (const edge of this.#combinedThresholdsMs) {
             if (this.#combinedTotalMs > edge) this._emit(`${EVENT_PREFIX}_combined_over${edge}ms`);
         }
     }
 
     /**
+     * Snapshot of the exact per-detector accumulators for this page, for
+     * attachment to user-initiated breakage reports. Unlike the bucketed
+     * events, values are exact and keyed by exact attribution (config IDs
+     * such as `adwalls.generic_en` rather than the pooled `webDetection`
+     * label). Durations are rounded to 0.1ms to keep the payload compact —
+     * finer precision is below timer granularity anyway.
+     *
+     * @returns {{ combinedTotalMs: number, detectors: Record<string, DetectorStats> }}
+     */
+    getStats() {
+        /** @type {Record<string, DetectorStats>} */
+        const detectors = {};
+        for (const [name, stats] of this.#detectorsDetailed) {
+            detectors[name] = {
+                runs: stats.runs,
+                totalMs: roundMs(stats.totalMs),
+                worstMs: roundMs(stats.worstMs),
+            };
+        }
+        return { combinedTotalMs: roundMs(this.#combinedTotalMs), detectors };
+    }
+
+    /**
+     * Fire the immediate severe event when this run crosses the highest
+     * configured edge of a threshold family. Totals are checked against the
+     * accumulated label (per-ID totals do not exist for pooled detectors, so
+     * a pooled total crossing attributes to the label, e.g. `webDetection`).
+     *
+     * @param {string} name
+     * @param {number} durationMs
+     * @param {DetectorStats} stats
+     * @param {string} attributed - exact detector identity for severe attribution
+     * @param {DetectorThresholds} thresholds
+     */
+    _checkSevere(name, durationMs, stats, attributed, thresholds) {
+        const singleEdge = thresholds.singleRunThresholdsMs[thresholds.singleRunThresholdsMs.length - 1];
+        const totalEdge = thresholds.totalPerPageThresholdsMs[thresholds.totalPerPageThresholdsMs.length - 1];
+        const combinedEdge = this.#combinedThresholdsMs[this.#combinedThresholdsMs.length - 1];
+
+        if (singleEdge !== undefined && durationMs > singleEdge) {
+            this._emitSevere('single', attributed, singleEdge);
+        }
+        if (totalEdge !== undefined && stats.totalMs > totalEdge) {
+            this._emitSevere('total', name, totalEdge);
+        }
+        if (combinedEdge !== undefined && this.#combinedTotalMs > combinedEdge) {
+            this._emitSevere('combined', 'combined', combinedEdge);
+        }
+    }
+
+    /**
+     * Fire `detectorPerf_severe` immediately, at most once per page per
+     * detector and family, and at most `maxSeverePerPage` per page in total
+     * (blast-radius cap for a misconfigured threshold push).
+     *
+     * @param {SevereKind} kind
+     * @param {string} detector
+     * @param {number} thresholdMs
+     */
+    _emitSevere(kind, detector, thresholdMs) {
+        if (this.#severeCount >= this.#maxSeverePerPage) return;
+        const guardKey = `${SEVERE_EVENT_TYPE}:${kind}:${detector}`;
+        if (this.#emitted.has(guardKey)) return;
+        this.#emitted.add(guardKey);
+        this.#severeCount += 1;
+        void this._dispatch(SEVERE_EVENT_TYPE, { kind, detector, thresholdMs });
+    }
+
+    /**
      * Fire an event through webEvents, at most once per page per event type.
      *
      * The at-most-once guard runs synchronously (before any await), so
-     * repeated flushes cannot double-emit. Dispatch is fire-and-forget: the
+     * repeated crossings cannot double-emit. Dispatch is fire-and-forget: the
      * call site does not await, and failures (e.g. webEvents not bundled on
      * this platform) are silently swallowed.
      *
@@ -194,10 +328,15 @@ export default class DetectorPerf extends ContentFeature {
 
     /**
      * @param {string} type
+     * @param {Record<string, unknown>} [data]
      */
-    async _dispatch(type) {
+    async _dispatch(type, data) {
         try {
-            await this.callFeatureMethod('webEvents', 'fireEvent', { type });
+            if (data === undefined) {
+                await this.callFeatureMethod('webEvents', 'fireEvent', { type });
+            } else {
+                await this.callFeatureMethod('webEvents', 'fireEvent', { type, data });
+            }
         } catch {
             // webEvents may not be loaded on this platform — silently ignore
         }
@@ -215,17 +354,25 @@ export default class DetectorPerf extends ContentFeature {
  * detectorPerf feature is disabled or absent, the wrapped call behaves
  * exactly as an unwrapped one.
  *
+ * Timing uses `performance.now` captured at module load (document-start,
+ * before page scripts): in main-world builds a page override of the global
+ * could otherwise throw here, breaking the wrapped detector. Value
+ * poisoning by a patched clock is unavoidable in-page and is handled by
+ * `record`'s input validation instead.
+ *
  * @template T
  * @param {ContentFeature} feature - the calling feature, used to reach detectorPerf
  * @param {string} name - detector label, e.g. 'bot'
  * @param {() => T} fn - the synchronous detector invocation
+ * @param {string} [detail] - exact detector identity for severe attribution
+ *   when `name` is a pooled label (e.g. `adwalls.generic_en` under `webDetection`)
  * @returns {T}
  */
-export function timeDetector(feature, name, fn) {
-    const t0 = performance.now();
+export function timeDetector(feature, name, fn, detail) {
+    const t0 = performanceNow();
     const result = fn();
-    const durationMs = performance.now() - t0;
-    void reportDuration(feature, name, durationMs);
+    const durationMs = performanceNow() - t0;
+    void reportDuration(feature, name, durationMs, detail);
     return result;
 }
 
@@ -236,10 +383,11 @@ export function timeDetector(feature, name, fn) {
  * @param {ContentFeature} feature
  * @param {string} name
  * @param {number} durationMs
+ * @param {string} [detail]
  */
-async function reportDuration(feature, name, durationMs) {
+async function reportDuration(feature, name, durationMs, detail) {
     try {
-        await feature.callFeatureMethod('detectorPerf', 'record', name, durationMs);
+        await feature.callFeatureMethod('detectorPerf', 'record', name, durationMs, detail);
     } catch {
         // detectorPerf may not be loaded on this platform — silently ignore
     }

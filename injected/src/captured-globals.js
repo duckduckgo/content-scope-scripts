@@ -17,6 +17,7 @@ export const TypeError = globalThis.TypeError;
 export const Symbol = globalThis.Symbol;
 export const hasOwnProperty = Object.prototype.hasOwnProperty;
 export const dispatchEvent = globalThis.dispatchEvent?.bind(globalThis);
+export const performanceNow = globalThis.performance.now.bind(globalThis.performance);
 export const addEventListener = globalThis.addEventListener?.bind(globalThis);
 export const removeEventListener = globalThis.removeEventListener?.bind(globalThis);
 export const CustomEvent = globalThis.CustomEvent;

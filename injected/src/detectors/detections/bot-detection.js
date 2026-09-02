@@ -1,5 +1,8 @@
 import { checkSelectors, checkWindowProperties, matchesSelectors, matchesTextPatterns } from '../utils/detection-utils.js';
 
+/** Metric name for detectorPerf reporting; must match the EventHub `source` entries in remote config. */
+export const BOT_DETECTOR_NAME = 'bot';
+
 /**
  * @typedef {object} BotChallengeConfig
  * @property {string} [state]

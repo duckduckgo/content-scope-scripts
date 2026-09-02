@@ -55,20 +55,28 @@ export default class WebDetection extends ContentFeature {
      * auto-run scans (`_runAutoDetector`) and breakage-report scans
      * (`runDetectors`) pass through here, so this is where execution time is
      * measured. All config-driven detectors are attributed to the pooled
-     * `webDetection` label (detector IDs live in remote config and change
-     * without releases, so they cannot appear in event-type names).
+     * `webDetection` label in the counters (detector IDs live in remote
+     * config and change without releases, so they cannot appear in
+     * event-type names). The full ID is passed alongside so the severe
+     * immediate event can attribute the exact detector in its data payload.
      *
      * @param {DetectorConfig} detectorConfig
+     * @param {string} fullDetectorId - `groupName.detectorId`, e.g. `adwalls.generic_en`
      * @returns {DetectorMatchResult}
      */
-    _evaluateMatch(detectorConfig) {
-        return timeDetector(this, 'webDetection', () => {
-            try {
-                return evaluateMatch(detectorConfig.match);
-            } catch {
-                return 'error';
-            }
-        });
+    _evaluateMatch(detectorConfig, fullDetectorId) {
+        return timeDetector(
+            this,
+            'webDetection',
+            () => {
+                try {
+                    return evaluateMatch(detectorConfig.match);
+                } catch {
+                    return 'error';
+                }
+            },
+            fullDetectorId,
+        );
     }
 
     /**
@@ -123,7 +131,7 @@ export default class WebDetection extends ContentFeature {
             }
 
             // Evaluate match conditions
-            const detected = this._evaluateMatch(detectorConfig);
+            const detected = this._evaluateMatch(detectorConfig, fullDetectorId);
 
             // Track successful matches (allows us to skip subsequent runs if already successful (first-success))
             if (detected === true) {
@@ -206,8 +214,10 @@ export default class WebDetection extends ContentFeature {
                 // Check whether the detector should be run for the given trigger.
                 if (!this._shouldRunDetector(detectorConfig, options)) continue;
 
+                const fullDetectorId = `${groupName}.${detectorId}`;
+
                 // Evaluate match conditions
-                const detected = this._evaluateMatch(detectorConfig);
+                const detected = this._evaluateMatch(detectorConfig, fullDetectorId);
 
                 // Execute detector actions.
 
@@ -216,7 +226,7 @@ export default class WebDetection extends ContentFeature {
                     // Only include if detected or errored (not false)
                     if (detected !== false) {
                         results.push({
-                            detectorId: `${groupName}.${detectorId}`,
+                            detectorId: fullDetectorId,
                             detected,
                         });
                     }
