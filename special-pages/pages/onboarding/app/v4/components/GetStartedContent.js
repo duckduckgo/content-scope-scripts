@@ -73,14 +73,6 @@ export function GetStartedContent({ advance, onTitleComplete }) {
             >
                 {t(showChromeExtension ? 'getStartedButton_v4' : 'getStartedButtonDefault_v4')}
             </Button>
-            {showSkip && (
-                <button
-                    class={cn(styles.skipLink, { [styles.revealable]: hasTypingEffect, [styles.hidden]: hasTypingEffect && !activeStepVisible })}
-                    onClick={handleSkip}
-                >
-                    {t('skip_v4')}
-                </button>
-            )}
             {showChromeExtension && (
                 <ChromeExtensionCheckbox
                     class={cn({ [styles.revealable]: hasTypingEffect, [styles.hidden]: hasTypingEffect && !activeStepVisible })}
@@ -89,6 +81,17 @@ export function GetStartedContent({ advance, onTitleComplete }) {
                     label={t('getStarted_chromeExtension_label')}
                     tooltip={t('getStarted_chromeExtension_tooltip')}
                 />
+            )}
+            {showSkip && (
+                <button
+                    class={cn(styles.skipLink, {
+                        [styles.revealable]: hasTypingEffect,
+                        [styles.hidden]: hasTypingEffect && !activeStepVisible,
+                    })}
+                    onClick={handleSkip}
+                >
+                    {t('skip_v4')}
+                </button>
             )}
         </Container>
     );
