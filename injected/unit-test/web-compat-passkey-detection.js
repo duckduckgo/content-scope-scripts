@@ -137,7 +137,7 @@ describe('WebCompat passkey detection', () => {
             await credentialsGet({ publicKey: { challenge: 'x' } });
             await flushMicrotasks();
 
-            expect(notified).toEqual([{ name: 'passkeyUsed', params: { type: 'get', success: true } }]);
+            expect(notified).toEqual([{ name: 'passkeyUsed', params: { type: 'get' } }]);
         });
 
         it('notifies native when create() resolves with a public-key credential', async () => {
@@ -147,7 +147,7 @@ describe('WebCompat passkey detection', () => {
             await credentialsCreate({ publicKey: { challenge: 'x' } });
             await flushMicrotasks();
 
-            expect(notified).toEqual([{ name: 'passkeyUsed', params: { type: 'create', success: true } }]);
+            expect(notified).toEqual([{ name: 'passkeyUsed', params: { type: 'create' } }]);
         });
 
         it('does not notify for a plain (non-WebAuthn) credentials.get() call', async () => {
@@ -178,7 +178,7 @@ describe('WebCompat passkey detection', () => {
             expect(notified).toEqual([]);
         });
 
-        it('notifies native with success false and a sanitized error when the ceremony rejects', async () => {
+        it('notifies native with passkeyFailed and a sanitized error when the ceremony rejects', async () => {
             const { notified } = createInstance({
                 get: () => Promise.reject(new DOMException('The operation is not allowed.', 'NotAllowedError')),
             });
@@ -186,7 +186,7 @@ describe('WebCompat passkey detection', () => {
             await expectAsync(credentialsGet({ publicKey: {} })).toBeRejected();
             await flushMicrotasks();
 
-            expect(notified).toEqual([{ name: 'passkeyUsed', params: { type: 'get', success: false, error: 'NotAllowedError' } }]);
+            expect(notified).toEqual([{ name: 'passkeyFailed', params: { type: 'get', error: 'NotAllowedError' } }]);
         });
 
         it('forwards a NotReadableError (platform/credential-manager failure) verbatim', async () => {
@@ -197,7 +197,7 @@ describe('WebCompat passkey detection', () => {
             await expectAsync(credentialsCreate({ publicKey: {} })).toBeRejected();
             await flushMicrotasks();
 
-            expect(notified).toEqual([{ name: 'passkeyUsed', params: { type: 'create', success: false, error: 'NotReadableError' } }]);
+            expect(notified).toEqual([{ name: 'passkeyFailed', params: { type: 'create', error: 'NotReadableError' } }]);
         });
 
         it("reports an unknown error name as 'Other'", async () => {
@@ -206,7 +206,7 @@ describe('WebCompat passkey detection', () => {
             await expectAsync(credentialsGet({ publicKey: {} })).toBeRejected();
             await flushMicrotasks();
 
-            expect(notified).toEqual([{ name: 'passkeyUsed', params: { type: 'get', success: false, error: 'Other' } }]);
+            expect(notified).toEqual([{ name: 'passkeyFailed', params: { type: 'get', error: 'Other' } }]);
         });
 
         it("reports a non-Error rejection as 'Other' without leaking its value", async () => {
@@ -218,7 +218,7 @@ describe('WebCompat passkey detection', () => {
             await expectAsync(credentialsGet({ publicKey: {} })).toBeRejected();
             await flushMicrotasks();
 
-            expect(notified).toEqual([{ name: 'passkeyUsed', params: { type: 'get', success: false, error: 'Other' } }]);
+            expect(notified).toEqual([{ name: 'passkeyFailed', params: { type: 'get', error: 'Other' } }]);
         });
 
         it("reports a rejection with a throwing name getter as 'Other'", async () => {
@@ -234,7 +234,7 @@ describe('WebCompat passkey detection', () => {
             await expectAsync(credentialsGet({ publicKey: {} })).toBeRejected();
             await flushMicrotasks();
 
-            expect(notified).toEqual([{ name: 'passkeyUsed', params: { type: 'get', success: false, error: 'Other' } }]);
+            expect(notified).toEqual([{ name: 'passkeyFailed', params: { type: 'get', error: 'Other' } }]);
         });
 
         it('never includes an error field on a successful ceremony', async () => {
@@ -243,8 +243,9 @@ describe('WebCompat passkey detection', () => {
             await credentialsGet({ publicKey: {} });
             await flushMicrotasks();
 
-            expect(notified).toEqual([{ name: 'passkeyUsed', params: { type: 'get', success: true } }]);
+            expect(notified).toEqual([{ name: 'passkeyUsed', params: { type: 'get' } }]);
             expect('error' in notified[0].params).toBe(false);
+            expect('success' in notified[0].params).toBe(false);
         });
 
         it('propagates rejection to the page unchanged', async () => {
@@ -298,7 +299,7 @@ describe('WebCompat passkey detection', () => {
             await flushMicrotasks();
 
             expect(result).toBe(credential);
-            expect(notified).toEqual([{ name: 'passkeyUsed', params: { type: 'get', success: true } }]);
+            expect(notified).toEqual([{ name: 'passkeyUsed', params: { type: 'get' } }]);
         });
 
         it('detects the narrowed native call after Windows conditional passkey selection', async () => {
@@ -330,7 +331,7 @@ describe('WebCompat passkey detection', () => {
             await flushMicrotasks();
 
             expect(result).toBe(credential);
-            expect(notified).toEqual([{ name: 'passkeyUsed', params: { type: 'get', success: true } }]);
+            expect(notified).toEqual([{ name: 'passkeyUsed', params: { type: 'get' } }]);
         });
 
         it('never includes nativeData in the notification params', async () => {

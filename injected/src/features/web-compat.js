@@ -25,6 +25,7 @@ const MSG_SCREEN_LOCK = 'screenLock';
 const MSG_SCREEN_UNLOCK = 'screenUnlock';
 const MSG_DEVICE_ENUMERATION = 'deviceEnumeration';
 const MSG_PASSKEY_USED = 'passkeyUsed';
+const MSG_PASSKEY_FAILED = 'passkeyFailed';
 const CREDENTIAL_TYPE_PUBLIC_KEY = 'public-key';
 const PASSKEY_ERROR_OTHER = 'Other';
 
@@ -862,9 +863,9 @@ export class WebCompat extends ContentFeature {
 
     /**
      * Observes (without consuming or altering) the outcome of a passkey ceremony and
-     * notifies native of success when it resolves with a public-key credential, or of
-     * failure when it rejects. Runs as a fire-and-forget derived promise chain - it
-     * never affects the promise/value returned to the page.
+     * notifies native with `passkeyUsed` when it resolves with a public-key credential,
+     * or `passkeyFailed` when it rejects. Runs as a fire-and-forget derived promise
+     * chain - it never affects the promise/value returned to the page.
      * @param {Promise<Credential | null>} resultPromise
      * @param {'get'|'create'} type
      */
@@ -880,7 +881,7 @@ export class WebCompat extends ContentFeature {
             // page context.
             const error = this.sanitizePasskeyErrorName(e);
             try {
-                this.notify(MSG_PASSKEY_USED, { type, success: false, error });
+                this.notify(MSG_PASSKEY_FAILED, { type, error });
             } catch {
                 // Messaging must never affect the page.
             }
@@ -888,7 +889,7 @@ export class WebCompat extends ContentFeature {
         }
         try {
             if (credential && credential.type === CREDENTIAL_TYPE_PUBLIC_KEY) {
-                this.notify(MSG_PASSKEY_USED, { type, success: true });
+                this.notify(MSG_PASSKEY_USED, { type });
             }
         } catch {
             // Ignore exceptions - this must never affect the page.
@@ -900,7 +901,7 @@ export class WebCompat extends ContentFeature {
      * Only a known DOMException name is forwarded; anything else (including non-Error
      * rejections) becomes 'Other'. The error message is intentionally never used.
      * @param {unknown} error
-     * @returns {NonNullable<import('../types/web-compat.js').PasskeyUsedParams['error']>}
+     * @returns {import('../types/web-compat.js').PasskeyFailedParams['error']}
      */
     sanitizePasskeyErrorName(error) {
         try {

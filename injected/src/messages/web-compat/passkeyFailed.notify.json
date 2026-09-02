@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "PasskeyFailedParams",
+  "description": "Contract for the webCompat.passkeyFailed notification sent to Android when a WebAuthn passkey ceremony rejects, for pixelling purposes only.",
+  "additionalProperties": false,
+  "required": ["type", "error"],
+  "properties": {
+    "type": {
+      "description": "Which CredentialsContainer method initiated the passkey ceremony.",
+      "type": "string",
+      "enum": ["get", "create"]
+    },
+    "error": {
+      "description": "The sanitized DOMException name from the rejected navigator.credentials call, restricted to a known set. Unrecognized names are reported as 'Other'. The underlying error message is never included.",
+      "type": "string",
+      "enum": [
+        "NotAllowedError",
+        "SecurityError",
+        "NotSupportedError",
+        "InvalidStateError",
+        "ConstraintError",
+        "AbortError",
+        "UnknownError",
+        "EncodingError",
+        "NotReadableError",
+        "TypeError",
+        "Other"
+      ]
+    }
+  }
+}
