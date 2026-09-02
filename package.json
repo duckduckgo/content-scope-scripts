@@ -48,7 +48,7 @@
     "eslint": "^10.8.1",
     "eslint-plugin-react-hooks": "^7.1.1",
     "minimist": "^1.2.8",
-    "prettier": "3.8.4",
+    "prettier": "3.9.6",
     "stylelint": "^17.14.1",
     "stylelint-config-standard": "^40.0.0",
     "stylelint-csstree-validator": "^4.0.0",
