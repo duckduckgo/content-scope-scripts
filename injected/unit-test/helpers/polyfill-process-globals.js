@@ -42,11 +42,25 @@ export function polyfillProcessGlobals(defaultLocation = 'http://localhost:8080'
     const originalLocation = globalThis.location;
     const originalTop = globalThis.top;
 
-    // Adjust the shared document rather than replacing it. The DOM query methods in
-    // captured-globals.js are bound to that document at module evaluation, so swapping the global
-    // out breaks every DOM-based spec - and several callers here run at module scope, which would
-    // break them for the whole run.
-    Object.defineProperty(globalThis.document, 'referrer', { value: defaultLocation, configurable: true });
+    // The unit-test run installs a document (see install-dom-globals.js); the Playwright runner does
+    // not, yet its helpers call into src/utils.js, which reads `document.referrer` and
+    // `document.location`.
+    const hasDocument = Boolean(globalThis.document);
+
+    if (hasDocument) {
+        // Adjust the shared document rather than replacing it. The DOM query methods in
+        // captured-globals.js are bound to that document at module evaluation, so swapping the global
+        // out breaks every DOM-based spec - and several callers here run at module scope, which would
+        // break them for the whole run.
+        Object.defineProperty(globalThis.document, 'referrer', { value: defaultLocation, configurable: true });
+    } else {
+        globalThis.document = /** @type {Document} */ (
+            /** @type {unknown} */ ({
+                referrer: defaultLocation,
+                location: createLocationObject(defaultLocation, frameAncestorsList),
+            })
+        );
+    }
 
     globalThis.location = createLocationObject(defaultLocation, frameAncestorsList);
 
@@ -59,8 +73,12 @@ export function polyfillProcessGlobals(defaultLocation = 'http://localhost:8080'
 
     // Return a cleanup function
     return function cleanup() {
-        // Removing the own property reveals the document's real accessor again
-        Reflect.deleteProperty(globalThis.document, 'referrer');
+        if (hasDocument) {
+            // Removing the own property reveals the document's real accessor again
+            Reflect.deleteProperty(globalThis.document, 'referrer');
+        } else {
+            Reflect.deleteProperty(globalThis, 'document');
+        }
         globalThis.location = originalLocation;
         globalThis.top = originalTop;
     };
