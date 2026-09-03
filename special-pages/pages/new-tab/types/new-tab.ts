@@ -722,7 +722,7 @@ export interface OmnibarConfig {
  */
 export interface AIModelSection {
   /**
-   * Optional section header text (e.g. 'Advanced Models - DuckDuckGo subscription')
+   * Optional section header text (e.g. 'Subscriber Exclusive')
    */
   header?: string;
   /**
@@ -775,7 +775,7 @@ export interface AIModelItem {
    */
   reasoningEfforts?: ReasoningEffortOption[];
   /**
-   * For a gated (disabled) model, which upsell flow it leads to. Absent for enabled models.
+   * For a gated (disabled) model, which upsell flow it leads to. Absent for enabled models. Absent on a gated model means the row shows but is inert, with no upsell action; send an explicit value whenever the row should be actionable.
    */
   upsell?: "subscribe" | "upgrade";
 }
@@ -797,9 +797,13 @@ export interface ReasoningEffortOption {
    */
   isAvailable: boolean;
   /**
-   * For a gated (isAvailable: false) option, which upsell flow it leads to. Absent for available options.
+   * For a gated (isAvailable: false) option, which upsell flow it leads to. Absent for available options. Absent on a gated option means the row shows but is inert, with no upsell action; send an explicit value whenever the row should be actionable.
    */
   upsell?: "subscribe" | "upgrade";
+  /**
+   * Localized header for the gated section this option starts (e.g. 'Try for Free', 'Pro Plan Exclusive'). Set on the first gated option only; absent means no divider and no header for that option.
+   */
+  gatedSectionHeader?: string;
 }
 /**
  * Limits the omnibar applies to attachments. All fields are optional. `files`/`images` are backend-sourced; the omnibar falls back to its built-in defaults for whichever is absent. `tabs` is a hardcoded native cap; when omitted (kill switch off) no tab limit is applied.
@@ -1147,21 +1151,39 @@ export interface CustomizerDrawerState {
     themeVariantPopoverWasOpen?: boolean;
   };
 }
+/**
+ * Fired once when the user opens the omnibar model picker. This is a picker impression; it does not imply that the user activated a model or an upsell.
+ */
 export interface OmnibarModelPickerShown {
   name: "omnibar_model_picker_shown";
 }
+/**
+ * Fired when the user activates a gated model row whose displayed CTA is 'Try for free', immediately before the web UI requests the native subscription upsell. Despite the historical '_shown' suffix, this is an activation event, not an impression.
+ */
 export interface OmnibarModelPickerTryForFreeShown {
   name: "omnibar_model_picker_tryforfree_shown";
 }
+/**
+ * Fired when the user activates a gated model row whose resolved upsell presentation is 'Upgrade'. This activation bucket is derived from the item's upsell type and free-trial eligibility; the following native route is still determined by the item's upsell value, so this event can precede a subscription-upsell request. Despite the historical '_shown' suffix, this is an activation event, not an impression.
+ */
 export interface OmnibarModelPickerUpgradeShown {
   name: "omnibar_model_picker_upgrade_shown";
 }
+/**
+ * Fired once when the user opens the omnibar reasoning picker. This is a picker impression; it does not imply that the user activated a reasoning effort or an upsell.
+ */
 export interface OmnibarReasoningPickerShown {
   name: "omnibar_reasoning_picker_shown";
 }
+/**
+ * Fired when the user activates a gated reasoning-effort row whose displayed CTA is 'Try for free', immediately before the web UI requests the native subscription upsell. Despite the historical '_shown' suffix, this is an activation event, not an impression.
+ */
 export interface OmnibarReasoningPickerTryForFreeShown {
   name: "omnibar_reasoning_picker_tryforfree_shown";
 }
+/**
+ * Fired when the user activates a gated reasoning-effort row whose resolved upsell presentation is 'Upgrade'. This activation bucket is derived from the item's upsell type and free-trial eligibility; the following native route is still determined by the item's upsell value, so this event can precede a subscription-upsell request. Despite the historical '_shown' suffix, this is an activation event, not an impression.
+ */
 export interface OmnibarReasoningPickerUpgradeShown {
   name: "omnibar_reasoning_picker_upgrade_shown";
 }

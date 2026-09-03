@@ -89,6 +89,25 @@ test.describe('omnibar tab attachment', () => {
         await expect(omnibar.attachmentChips()).toHaveCount(0);
     });
 
+    test('with no open tabs, Add Tabs is disabled and the empty state replaces Recent Tabs', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({
+            additional: {
+                'omnibar.mode': 'ai',
+                'omnibar.enableAttachTabs': 'true',
+                'omnibar.selectedModelId': 'openai_gpt-oss-120b',
+                'omnibar.noOpenTabs': 'true',
+            },
+        });
+        await omnibar.ready();
+
+        await omnibar.attachMenuButton().click();
+        await expect(omnibar.attachMenu().getByText('No page content available')).toBeVisible();
+        await expect(omnibar.attachPageContentMenuItem()).toHaveAttribute('aria-disabled', 'true');
+        await expect(omnibar.attachMenu().getByText('Recent Tabs')).toHaveCount(0);
+    });
+
     test('the Add Tabs dialog filters by search and shows a no-matches state', async ({ page }, workerInfo) => {
         const { ntp, omnibar } = setup(page, workerInfo);
         await ntp.reducedMotion();

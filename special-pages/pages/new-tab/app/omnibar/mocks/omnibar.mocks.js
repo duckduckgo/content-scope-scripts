@@ -261,11 +261,28 @@ const allMockOpenTabs = [
     },
 ];
 
+/** @type {import("../../../types/new-tab").TabMetadata[]} Generated overflow tabs, cached so tabIds stay stable across refetches */
+const extraMockOpenTabs = [];
+
 /**
+ * @param {number} [count] - Exact number of tabs to return; trims or pads the
+ *   fixture list. Absent/invalid returns the full fixture list.
  * @returns {import("../../../types/new-tab").GetOpenTabsResponse}
  */
-export function getMockOpenTabs() {
-    return { tabs: allMockOpenTabs };
+export function getMockOpenTabs(count) {
+    if (count === undefined || !Number.isFinite(count) || count < 0) {
+        return { tabs: allMockOpenTabs };
+    }
+    while (allMockOpenTabs.length + extraMockOpenTabs.length < count) {
+        const n = extraMockOpenTabs.length + 1;
+        extraMockOpenTabs.push({
+            tabId: `tab-extra-${n}`,
+            title: `Generated Tab ${n}`,
+            url: `https://example.com/generated/${n}`,
+            favicon: localFavicon('e.svg'),
+        });
+    }
+    return { tabs: [...allMockOpenTabs, ...extraMockOpenTabs].slice(0, count) };
 }
 
 /**
@@ -274,7 +291,7 @@ export function getMockOpenTabs() {
  */
 export function getMockTabContent(tabId) {
     if (tabId === 'tab-broken') return null;
-    const tab = allMockOpenTabs.find((t) => t.tabId === tabId);
+    const tab = allMockOpenTabs.find((t) => t.tabId === tabId) ?? extraMockOpenTabs.find((t) => t.tabId === tabId);
     if (!tab) return null;
     const content = `## ${tab.title}\n\nMock markdown content extracted from ${tab.url}.\n\nThis is placeholder content used by the NTP mock transport so the attach-tabs feature can be exercised without a native backend.`;
     return {

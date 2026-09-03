@@ -108,7 +108,7 @@
     "description": "Error shown when an attached image cannot be processed."
   },
   "omnibar_advancedModelsSectionHeader": {
-    "title": "Advanced Models - DuckDuckGo subscription",
+    "title": "Subscriber Exclusive",
     "description": "Section header in the model picker for premium models that require a subscription."
   },
   "omnibar_viewAllChats": {
@@ -239,9 +239,9 @@
     "title": "No matching tabs",
     "description": "Empty-state message shown when no open tabs match what the user typed, in the @-mention tab picker and the Add Tabs dialog search."
   },
-  "omnibar_attachTabsNoOpenTabs": {
-    "title": "No open tabs",
-    "description": "Empty-state message shown in the attach dropdown's Recent Tabs section and the Add Tabs dialog when there are no open tabs available to attach."
+  "omnibar_attachTabsNoPageContent": {
+    "title": "No page content available",
+    "description": "Empty-state message shown in the attach dropdown and the Add Tabs dialog when there are no open tabs with attachable page content."
   },
   "omnibar_removeAttachedTabLabel": {
     "title": "Remove {title}",
@@ -254,22 +254,6 @@
   "omnibar_removeAiChat": {
     "title": "Delete this chat",
     "description": "Accessible label and tooltip for the button that deletes a recent AI chat."
-  },
-  "omnibar_tryForFree": {
-    "title": "Try for free",
-    "description": "CTA on a subscription-gated model or reasoning-effort option that opens the subscription upsell when tapped."
-  },
-  "omnibar_upgrade": {
-    "title": "Upgrade",
-    "description": "CTA shown on a model or reasoning-effort option gated behind a higher subscription tier; opens the upgrade flow when tapped."
-  },
-  "omnibar_modelBadgePlus": {
-    "title": "Plus",
-    "description": "Badge shown next to an AI model in the model selector that requires a Plus subscription tier."
-  },
-  "omnibar_modelBadgePro": {
-    "title": "Pro",
-    "description": "Badge shown next to an AI model in the model selector that requires a Pro subscription tier."
   },
   "omnibar_modelBadgeInternal": {
     "title": "Internal",

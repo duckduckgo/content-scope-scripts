@@ -12,7 +12,10 @@
     color: inherit;
     display: flex;
     flex-direction: column;
-    height: 340px;
+    /* Grow with the tab list, but never below the design's base size (keeps the
+       loading/empty states from collapsing) nor beyond most of the viewport. */
+    min-height: 340px;
+    max-height: min(440px, calc(100vh - var(--sp-20)));
     margin: auto; /* Restore UA centering; the app's global reset zeroes dialog margins. */
     overflow: clip;
     padding: 0;

@@ -317,12 +317,37 @@
  - **Options**: Any positive integer
 
 ### Subscription (simulate subscribed user)
- - **Purpose**: Flips `isAvailable: true` on every AI model in the mock, unlocking the "Advanced Models - DuckDuckGo subscription" section. Lets tests pick subscription-tier models (e.g. Opus 4.6, GPT-5.2) as `selectedModelId`.
+ - **Purpose**: Flips `isAvailable: true` on every AI model in the mock, unlocking the "Subscriber Exclusive" section. Lets tests pick subscription-tier models (e.g. Opus 4.6, GPT-5.2) as `selectedModelId`.
  - **Parameter**: `omnibar.subscription`
  - **Example**: `?omnibar.subscription=true`
  - **Options**:
    - `true`
    - `false`
+
+### Upsell Disabled (inert gated rows)
+ - **Purpose**: Drops `upsell` from every gated model and reasoning effort, and clears the gated sections' headers. Gated rows still show, but stay inert: no upsell, no section header.
+ - **Parameter**: `omnibar.upsellDisabled`
+ - **Example**: `?omnibar.upsellDisabled=true`
+ - **Options**:
+   - `true`
+   - `false`
+
+### Mixed Model Access
+ - **Purpose**: Makes the gated model section contain an available model plus subscription- and upgrade-gated models, for testing per-model upsell routing within one section.
+ - **Parameter**: `omnibar.mixedModelAccess`
+ - **Example**: `?omnibar.mixedModelAccess=true`
+ - **Options**:
+   - `true`
+   - `false`
+
+### Reasoning Sections
+ - **Purpose**: Overrides the `claude-haiku-4-5` reasoning-effort layout for testing gated-section rendering and accessibility. Select that model with `omnibar.selectedModelId=claude-haiku-4-5` to expose the reasoning picker.
+ - **Parameter**: `omnibar.reasoningSections`
+ - **Example**: `?omnibar.selectedModelId=claude-haiku-4-5&omnibar.reasoningSections=multiple`
+ - **Options**:
+   - `first-gated` - Starts the list with a gated section
+   - `multiple` - Renders two gated sections separated by an available option
+   - `grouped` - Renders adjacent gated options under one section header
 
 ### Show View All AI Chats
  - **Purpose**: Shows a "View all chats" link at the bottom of the recent AI chats list

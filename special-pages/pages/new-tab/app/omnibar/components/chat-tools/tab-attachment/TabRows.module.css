@@ -92,7 +92,7 @@
     box-sizing: border-box;
     cursor: default;
     display: flex;
-    height: calc(var(--sp-7) * 3);
+    height: var(--sp-7);
     justify-content: center;
     outline: none;
     padding: 0 var(--sp-4);

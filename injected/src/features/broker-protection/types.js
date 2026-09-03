@@ -2,6 +2,11 @@
  * @typedef {SuccessResponse | ErrorResponse} ActionResponse
  * @typedef {{ result: true } | { result: false; error: string }} BooleanResult
  * @typedef {{type: "element" | "text" | "url"; selector: string; parent?: string; expect?: string; failSilently?: boolean}} Expectation
+ * @typedef {Record<string, unknown>} ProfileData
+ * @import { Action as ExtractAction, ProfileSpec } from './actions/extract.js'
+ * @typedef {{selector: string, profile: ProfileSpec}} ProfileMatch
+ * @typedef {{profileMatch: ProfileMatch}} ActionParent
+ * @typedef {{userProfile?: ProfileData, extractedProfile?: ProfileData, token?: string}} PirInputData
  */
 
 /**
@@ -9,6 +14,7 @@
  * @property {string} id
  * @property {"extract" | "fillForm" | "click" | "expectation" | "getCaptchaInfo" | "solveCaptcha" | "navigate" | "condition" | "scroll"} actionType
  * @property {string} [selector]
+ * @property {ActionParent} [parent]
  * @property {string} [captchaType]
  * @property {string} [injectCaptchaHandler]
  * @property {string} [dataSource]
@@ -135,7 +141,7 @@ export class ErrorResponse {
  * @property {PirAction['id']} actionID
  * @property {PirAction['actionType']} actionType
  * @property {any} response
- * @property {import("./actions/extract").Action[]} [next]
+ * @property {ExtractAction[]} [next]
  * @property {Record<string, any>} [meta] - optional meta data
  */
 

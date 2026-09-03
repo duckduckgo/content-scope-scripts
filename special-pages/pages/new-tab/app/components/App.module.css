@@ -103,17 +103,21 @@ body[data-rebrand="true"] {
 }
 
 .mainScroller {
-    &::-webkit-scrollbar {
-        width: 4px;
-    }
+    /* Windows keeps the custom scrollbar; macOS falls back to native.
+       https://app.asana.com/1/137249556945/project/1176956903599313/task/1217462538495084 */
+    :root:has(body[data-platform-name="windows"]) & {
+        &::-webkit-scrollbar {
+            width: 4px;
+        }
 
-    &::-webkit-scrollbar-track {
-        border-radius: 6px;
-    }
+        &::-webkit-scrollbar-track {
+            border-radius: 6px;
+        }
 
-    &::-webkit-scrollbar-thumb {
-        background: rgb(108, 108, 108);
-        border-radius: 6px;
+        &::-webkit-scrollbar-thumb {
+            background: rgb(108, 108, 108);
+            border-radius: 6px;
+        }
     }
 }
 

@@ -1,22 +1,25 @@
 /**
  * @param {object} args
  * @param {string} args.token
+ * @param {number} [args.widgetId]
  */
 export function captchaCallback(args) {
     const clients = findRecaptchaClients(globalThis);
 
-    // if a client was found, check there was a function
     if (clients.length === 0) {
         return console.log('cannot find clients');
     }
 
-    if (typeof clients[0].function === 'function') {
-        try {
-            clients[0].function(args.token);
-            console.log('called function with path', clients[0].callback);
-        } catch (e) {
-            console.error('could not call function');
-        }
+    const client = args.widgetId === undefined ? clients[0] : clients.find(({ id }) => Number(id) === args.widgetId);
+    if (!client || typeof client.function !== 'function') {
+        return console.log('cannot find a callable reCAPTCHA client for widget', args.widgetId);
+    }
+
+    try {
+        client.function(args.token);
+        console.log('called function with path', client.callback);
+    } catch (e) {
+        console.error('could not call function');
     }
 
     /**

@@ -3,13 +3,22 @@ import { removeUrlQueryParams } from '../utils/url.js';
 import { ErrorResponse, PirError, SuccessResponse } from '../types';
 import { getCaptchaProvider, getCaptchaSolveProvider } from './get-captcha-provider';
 import { captchaFactory } from './providers/registry.js';
+import { selectRootElement } from '../utils/select-root-element.js';
 import { getCaptchaInfo as getCaptchaInfoDeprecated, solveCaptcha as solveCaptchaDeprecated } from '../actions/captcha-deprecated';
+
+/**
+ * @import { ActionResponse, PirAction, ProfileData } from '../types.js'
+ * @typedef {{profile: ProfileData|null, token: string|null}} PendingCaptchaContext
+ */
+
+/** @type {PendingCaptchaContext|null} */
+let pendingCaptchaContext = null;
 
 /**
  *
  * @param {Document | HTMLElement} root
- * @param {import('../types.js').PirAction['selector']} [selector]
- * @returns {HTMLElement | import('../types.js').PirError}
+ * @param {PirAction['selector']} [selector]
+ * @returns {HTMLElement | PirError}
  */
 const getCaptchaContainer = (root, selector) => {
     if (!selector) {
@@ -25,10 +34,20 @@ const getCaptchaContainer = (root, selector) => {
 };
 
 /**
+ * @param {PirAction} action
+ * @param {ProfileData|null} userData
+ * @param {Document | HTMLElement} root
+ * @returns {Document | HTMLElement | PirError}
+ */
+const getCaptchaRoot = (action, userData, root) => {
+    return selectRootElement(action, userData ?? {}, root);
+};
+
+/**
  * Returns the supporting code to inject for the given captcha type
  *
- * @param {import('../types.js').PirAction} action
- * @return {import('../types.js').ActionResponse}
+ * @param {PirAction} action
+ * @return {ActionResponse}
  */
 export function getSupportingCodeToInject(action) {
     const { id: actionID, actionType, injectCaptchaHandler: captchaType } = action;
@@ -49,20 +68,27 @@ export function getSupportingCodeToInject(action) {
 /**
  * Gets the captcha information to send to the backend
  *
- * @param {import('../types.js').PirAction} action
- * @param {Document | HTMLElement} root
- * @return {Promise<import('../types.js').ActionResponse>}
+ * @param {PirAction} action
+ * @param {ProfileData|null} userData
+ * @param {Document} root
+ * @return {Promise<ActionResponse>}
  */
-export async function getCaptchaInfo(action, root = document) {
+export async function getCaptchaInfo(action, userData, root = document) {
     const { id: actionID, actionType, captchaType, selector } = action;
+    pendingCaptchaContext = null;
+
     if (!captchaType) {
         // ensures backward compatibility with old actions
         return getCaptchaInfoDeprecated(action, root);
     }
 
     const createError = ErrorResponse.generateErrorResponseFunction({ actionID, context: `[getCaptchaInfo] captchaType: ${captchaType}` });
+    const captchaRoot = getCaptchaRoot(action, userData, root);
+    if (PirError.isError(captchaRoot)) {
+        return createError(captchaRoot.error.message);
+    }
 
-    const captchaContainer = getCaptchaContainer(root, selector);
+    const captchaContainer = getCaptchaContainer(captchaRoot, selector);
     if (PirError.isError(captchaContainer)) {
         return createError(captchaContainer.error.message);
     }
@@ -94,18 +120,23 @@ export async function getCaptchaInfo(action, root = document) {
         type: reportedType,
     };
 
+    if (action.parent) {
+        pendingCaptchaContext = { profile: userData, token: null };
+    }
+
     return SuccessResponse.create({ actionID, actionType, response });
 }
 
 /**
  * Takes the solved captcha token and injects it into the page to solve the captcha
  *
- * @param {import('../types.js').PirAction} action
+ * @param {PirAction} action
  * @param {string} token
+ * @param {ProfileData|null} userData
  * @param {Document} root
- * @return {import('../types.js').ActionResponse}
+ * @return {ActionResponse}
  */
-export function solveCaptcha(action, token, root = document) {
+export function solveCaptcha(action, token, userData, root = document) {
     const { id: actionID, actionType, captchaType, selector } = action;
     if (!captchaType) {
         // ensures backward compatibility with old actions
@@ -113,8 +144,25 @@ export function solveCaptcha(action, token, root = document) {
     }
 
     const createError = ErrorResponse.generateErrorResponseFunction({ actionID, context: `[solveCaptcha] captchaType: ${captchaType}` });
+    const matchingProfile = userData ?? pendingCaptchaContext?.profile ?? null;
 
-    const captchaContainer = getCaptchaContainer(root, selector);
+    if (action.parent && !matchingProfile) {
+        return createError('no profile available to scope the captcha solve');
+    }
+
+    const captchaToken = token ?? pendingCaptchaContext?.token ?? null;
+    if (!captchaToken) {
+        return createError('no token available to solve the captcha');
+    }
+
+    pendingCaptchaContext = action.parent ? { profile: matchingProfile, token: captchaToken } : null;
+
+    const captchaRoot = getCaptchaRoot(action, matchingProfile, root);
+    if (PirError.isError(captchaRoot)) {
+        return createError(captchaRoot.error.message);
+    }
+
+    const captchaContainer = getCaptchaContainer(captchaRoot, selector);
     if (PirError.isError(captchaContainer)) {
         return createError(captchaContainer.error.message);
     }
@@ -128,7 +176,12 @@ export function solveCaptcha(action, token, root = document) {
         return createError('cannot solve captcha');
     }
 
-    const tokenResponse = captchaSolveProvider.injectToken(captchaContainer, token);
+    const callback = captchaSolveProvider.getSolveCallback(captchaContainer, captchaToken);
+    if (PirError.isError(callback)) {
+        return createError(callback.error.message);
+    }
+
+    const tokenResponse = captchaSolveProvider.injectToken(captchaContainer, captchaToken);
     if (PirError.isError(tokenResponse)) {
         return createError(tokenResponse.error.message);
     }
@@ -137,9 +190,11 @@ export function solveCaptcha(action, token, root = document) {
         return createError('could not inject token');
     }
 
+    pendingCaptchaContext = null;
+
     return SuccessResponse.create({
         actionID,
         actionType,
-        response: { callback: { eval: captchaSolveProvider.getSolveCallback(captchaContainer, token) } },
+        response: { callback: { eval: callback } },
     });
 }

@@ -1762,7 +1762,7 @@ test.describe('omnibar widget', () => {
     });
 
     test.describe('AI chat model selector', () => {
-        test('renders model descriptions and tier badges', async ({ page }, workerInfo) => {
+        test('renders model descriptions', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
@@ -1777,9 +1777,6 @@ test.describe('omnibar widget', () => {
 
             // description under the model name
             await expect(omnibar.modelOption('GPT-5 mini')).toContainText('Best for everyday use');
-            // tier badges on gated models
-            await expect(omnibar.modelOption('Claude Sonnet 4.5')).toContainText('Plus');
-            await expect(omnibar.modelOption('Claude Opus 4.6')).toContainText('Pro');
         });
 
         test('shows the subscriber-exclusive upsell and opens the subscription upsell on "Try for free"', async ({ page }, workerInfo) => {
@@ -1796,18 +1793,52 @@ test.describe('omnibar widget', () => {
 
             await omnibar.modelSelectorButton().click();
             // The gated section renders its native-provided header (not a hardcoded label).
-            await expect(omnibar.modelDropdown()).toContainText('Advanced Models - DuckDuckGo subscription');
+            await expect(omnibar.modelGatedSectionHeader('Subscriber Exclusive')).toBeVisible();
 
-            const upsellRow = omnibar.modelUpsellRow();
-            await expect(upsellRow).toHaveAttribute('role', 'option');
-            await omnibar.modelUpsellCta().click();
+            // Gated model rows are themselves the navigable, clickable upsell triggers.
+            await omnibar.modelOption('Claude Sonnet 4.5').click();
 
             const upsellCalls = await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpsell', count: 1 });
             expect(upsellCalls.at(-1)?.payload.params).toEqual({ source: 'model' });
             await expect(omnibar.modelDropdown()).toHaveCount(0);
         });
 
-        test('clicking a subscription-gated model row opens the same upsell as its CTA', async ({ page }, workerInfo) => {
+        test('exposes the gated model section header as the row accessible description', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true' } });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+            await omnibar.modelSelectorButton().click();
+
+            await expect(omnibar.modelOption('Claude Sonnet 4.5')).toHaveAccessibleDescription('Subscriber Exclusive');
+        });
+
+        test('renders the native ellipsis on unavailable model names without changing their accessible name', async ({
+            page,
+        }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true' } });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+            await omnibar.modelSelectorButton().click();
+
+            const gatedModel = omnibar.modelOption('Claude Sonnet 4.5');
+            const gatedModelName = gatedModel.locator('div > span').first();
+            await expect(gatedModel).toHaveAccessibleName(/^Claude Sonnet 4\.5$/);
+            await expect(gatedModelName).toHaveText('Claude Sonnet 4.5…');
+        });
+
+        test('clicking a subscription-gated model row opens the subscription upsell', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
@@ -1820,7 +1851,7 @@ test.describe('omnibar widget', () => {
             await omnibar.expectMode('ai');
             await omnibar.modelSelectorButton().click();
 
-            // A disabled, subscription-gated model row (Plus badge) inside the all-disabled section.
+            // A disabled, subscription-gated model row inside the all-disabled section.
             const gatedModel = omnibar.modelOption('Claude Sonnet 4.5');
             const inactiveBackground = await gatedModel.evaluate((element) => getComputedStyle(element).backgroundColor);
 
@@ -1829,7 +1860,7 @@ test.describe('omnibar widget', () => {
             const activeBackground = await gatedModel.evaluate((element) => getComputedStyle(element).backgroundColor);
             expect(activeBackground).not.toBe(inactiveBackground);
 
-            // Clicking the row triggers the same upsell as the section's "Try for free" CTA.
+            // Clicking the row triggers the section's upsell.
             await gatedModel.click();
             const upsellCalls = await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpsell', count: 1 });
             expect(upsellCalls.at(-1)?.payload.params).toEqual({ source: 'model' });
@@ -1855,17 +1886,21 @@ test.describe('omnibar widget', () => {
             await omnibar.modelSelectorButton().click();
 
             const dropdown = omnibar.modelDropdown();
-            const upgradeRow = omnibar.modelUpsellRow('Upgrade');
+            // Every row in the disabled section is gated behind the 'upgrade' upsell.
+            const upgradeRow = omnibar.modelOption('GPT-5.2');
+            const lastGatedRow = omnibar.modelOption('Claude 4 Sonnet');
             const inactiveBackground = await upgradeRow.evaluate((element) => getComputedStyle(element).backgroundColor);
 
             await upgradeRow.hover();
-            await expect(dropdown).toHaveAttribute('aria-activedescendant', 'model-upsell-1');
+            await expect(dropdown).toHaveAttribute('aria-activedescendant', 'model-option-gpt-5_2');
             const activeBackground = await upgradeRow.evaluate((element) => getComputedStyle(element).backgroundColor);
             expect(activeBackground).not.toBe(inactiveBackground);
 
             await page.keyboard.press('Home');
             await page.keyboard.press('End');
-            await expect(dropdown).toHaveAttribute('aria-activedescendant', 'model-upsell-1');
+            // End lands on the last gated row.
+            await expect(dropdown).toHaveAttribute('aria-activedescendant', 'model-option-claude-sonnet-4');
+            await expect(lastGatedRow).toHaveAttribute('id', 'model-option-claude-sonnet-4');
 
             await page.keyboard.press('Enter');
             const upgradeCalls1 = await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpgrade', count: 1 });
@@ -1900,17 +1935,16 @@ test.describe('omnibar widget', () => {
             await omnibar.modelSelectorButton().click();
 
             const dropdown = omnibar.modelDropdown();
-            const tryForFreeRow = omnibar.modelUpsellRow();
-            const upgradeRow = omnibar.modelUpsellRow('Upgrade');
-            await expect(tryForFreeRow).toHaveAttribute('id', 'model-upsell-1');
-            await expect(upgradeRow).toHaveAttribute('id', 'model-upsell-2');
+            // The subscriber-exclusive section (subscribe upsell) is split from a new
+            // Pro-exclusive section (upgrade upsell); assert the last row of each.
+            const lastOfSubscribeSection = omnibar.modelOption('Claude Sonnet 4.5');
+            const firstOfUpgradeSection = omnibar.modelOption('Llama 4 Maverick');
+            const lastOfUpgradeSection = omnibar.modelOption('Claude 4 Sonnet');
+            await expect(lastOfSubscribeSection).toHaveAttribute('id', 'model-option-claude-sonnet-4-5');
+            await expect(lastOfUpgradeSection).toHaveAttribute('id', 'model-option-claude-sonnet-4');
 
-            await upgradeRow.hover();
-            await expect(dropdown).toHaveAttribute('aria-activedescendant', 'model-upsell-2');
-
-            await page.keyboard.press('Home');
-            await page.keyboard.press('End');
-            await expect(dropdown).toHaveAttribute('aria-activedescendant', 'model-upsell-2');
+            await lastOfUpgradeSection.hover();
+            await expect(dropdown).toHaveAttribute('aria-activedescendant', 'model-option-claude-sonnet-4');
             await page.keyboard.press('Enter');
             const upgradeCalls = await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpgrade', count: 1 });
             expect(upgradeCalls.at(-1)?.payload.params).toEqual({ source: 'model' });
@@ -1918,13 +1952,43 @@ test.describe('omnibar widget', () => {
 
             await omnibar.modelSelectorButton().click();
             await expect(dropdown).toBeFocused();
-            await page.keyboard.press('End');
+            // ArrowUp from the first row of the upgrade section walks into the previous
+            // (subscribe) section's last row.
+            await firstOfUpgradeSection.hover();
             await page.keyboard.press('ArrowUp');
-            await expect(dropdown).toHaveAttribute('aria-activedescendant', 'model-upsell-1');
+            await expect(dropdown).toHaveAttribute('aria-activedescendant', 'model-option-claude-sonnet-4-5');
             await page.keyboard.press('Enter');
             const upsellCalls = await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpsell', count: 1 });
             expect(upsellCalls.at(-1)?.payload.params).toEqual({ source: 'model' });
             await expect(dropdown).toHaveCount(0);
+        });
+
+        test('routes each gated model in a mixed section to its own upsell', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.mixedModelAccess': 'true',
+                },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+            await omnibar.modelSelectorButton().click();
+
+            await omnibar.modelOption('GPT-5.2').click();
+            const subscribeCalls = await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpsell', count: 1 });
+            expect(subscribeCalls.at(-1)?.payload.params).toEqual({ source: 'model' });
+
+            await omnibar.modelSelectorButton().click();
+            await omnibar.modelOption('Claude Sonnet 4.5').click();
+            const upgradeCalls = await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpgrade', count: 1 });
+            expect(upgradeCalls.at(-1)?.payload.params).toEqual({ source: 'model' });
         });
 
         test('does not show the upsell when all models are available', async ({ page }, workerInfo) => {
@@ -1941,10 +2005,38 @@ test.describe('omnibar widget', () => {
             await omnibar.expectMode('ai');
 
             await omnibar.modelSelectorButton().click();
-            await expect(omnibar.modelUpsellCta()).toHaveCount(0);
+            // No row is gated, so clicking one selects it directly instead of opening an upsell.
+            await omnibar.modelOption('Claude Sonnet 4.5').click();
+            const upsellCalls = await ntp.mocks.outgoing({ names: ['omnibar_showSubscriptionUpsell', 'omnibar_showSubscriptionUpgrade'] });
+            expect(upsellCalls).toEqual([]);
+            await expect(omnibar.modelDropdown()).toHaveCount(0);
         });
 
-        test('fires model picker telemetry with the try-for-free CTA on open', async ({ page }, workerInfo) => {
+        test('leaves gated rows inert when upsell is absent', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            // An absent `upsell` is the service-level contract for an inert gated row.
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true', 'omnibar.upsellDisabled': 'true' },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await omnibar.modelSelectorButton().click();
+            const gatedModel = omnibar.modelOption('Claude Sonnet 4.5');
+            await expect(gatedModel).toHaveAttribute('aria-disabled', 'true');
+            await gatedModel.click({ force: true });
+
+            const upsellCalls = await ntp.mocks.outgoing({ names: ['omnibar_showSubscriptionUpsell', 'omnibar_showSubscriptionUpgrade'] });
+            expect(upsellCalls).toEqual([]);
+            await expect(omnibar.modelDropdown()).toBeVisible();
+        });
+
+        test('fires try-for-free telemetry when its gated model is activated', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
@@ -1957,12 +2049,19 @@ test.describe('omnibar widget', () => {
             await omnibar.expectMode('ai');
             await omnibar.modelSelectorButton().click();
 
-            const calls = await ntp.mocks.waitForCallCount({ method: 'telemetryEvent', count: 2 });
-            const names = calls.map((call) => call.payload.params.attributes.name);
-            expect(names).toEqual(['omnibar_model_picker_shown', 'omnibar_model_picker_tryforfree_shown']);
+            await expect(omnibar.modelDropdown()).toBeFocused();
+            const openCalls = await ntp.mocks.waitForCallCount({ method: 'telemetryEvent', count: 1 });
+            expect(openCalls.map((call) => call.payload.params.attributes.name)).toEqual(['omnibar_model_picker_shown']);
+
+            await omnibar.modelOption('Claude Sonnet 4.5').click();
+            const activatedCalls = await ntp.mocks.waitForCallCount({ method: 'telemetryEvent', count: 2 });
+            expect(activatedCalls.map((call) => call.payload.params.attributes.name)).toEqual([
+                'omnibar_model_picker_shown',
+                'omnibar_model_picker_tryforfree_shown',
+            ]);
         });
 
-        test('fires model picker telemetry with the upgrade CTA on open', async ({ page }, workerInfo) => {
+        test('fires upgrade telemetry when its gated model is activated', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
@@ -1976,9 +2075,46 @@ test.describe('omnibar widget', () => {
             await omnibar.expectMode('ai');
             await omnibar.modelSelectorButton().click();
 
-            const calls = await ntp.mocks.waitForCallCount({ method: 'telemetryEvent', count: 2 });
-            const names = calls.map((call) => call.payload.params.attributes.name);
-            expect(names).toEqual(['omnibar_model_picker_shown', 'omnibar_model_picker_upgrade_shown']);
+            await expect(omnibar.modelDropdown()).toBeFocused();
+            const openCalls = await ntp.mocks.waitForCallCount({ method: 'telemetryEvent', count: 1 });
+            expect(openCalls.map((call) => call.payload.params.attributes.name)).toEqual(['omnibar_model_picker_shown']);
+
+            await omnibar.modelOption('GPT-5.2').click();
+            const activatedCalls = await ntp.mocks.waitForCallCount({ method: 'telemetryEvent', count: 2 });
+            expect(activatedCalls.map((call) => call.payload.params.attributes.name)).toEqual([
+                'omnibar_model_picker_shown',
+                'omnibar_model_picker_upgrade_shown',
+            ]);
+        });
+
+        test('keeps subscribe routing when free-trial eligibility selects upgrade telemetry', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.isEligibleForFreeTrial': 'false',
+                },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+            await omnibar.modelSelectorButton().click();
+            await omnibar.modelOption('Claude Sonnet 4.5').click();
+
+            const telemetryCalls = await ntp.mocks.waitForCallCount({ method: 'telemetryEvent', count: 2 });
+            expect(telemetryCalls.map((call) => call.payload.params.attributes.name)).toEqual([
+                'omnibar_model_picker_shown',
+                'omnibar_model_picker_upgrade_shown',
+            ]);
+            const subscribeCalls = await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpsell', count: 1 });
+            expect(subscribeCalls.at(-1)?.payload.params).toEqual({ source: 'model' });
+            const upgradeCalls = await ntp.mocks.outgoing({ names: ['omnibar_showSubscriptionUpgrade'] });
+            expect(upgradeCalls).toEqual([]);
         });
 
         test('fires only the model picker shown event when no models are gated', async ({ page }, workerInfo) => {
@@ -1998,40 +2134,6 @@ test.describe('omnibar widget', () => {
             const calls = await ntp.mocks.waitForCallCount({ method: 'telemetryEvent', count: 1 });
             const names = calls.map((call) => call.payload.params.attributes.name);
             expect(names).toEqual(['omnibar_model_picker_shown']);
-        });
-
-        test('mutes the upsell CTA color after it has been shown 4 times', async ({ page }, workerInfo) => {
-            const ntp = NewtabPage.create(page, workerInfo);
-            const omnibar = new OmnibarPage(ntp);
-            await ntp.reducedMotion();
-
-            // Default mock: the advanced section is gated behind a subscription (Try for free).
-            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true' } });
-            await omnibar.ready();
-
-            await omnibar.aiTab().click();
-            await omnibar.expectMode('ai');
-
-            /** @param {import('@playwright/test').Locator} cta */
-            const backgroundOf = (cta) => cta.evaluate((el) => getComputedStyle(el).backgroundColor);
-
-            // Views 1–4 keep the yellow color.
-            let yellowBackground = '';
-            for (let view = 1; view <= 4; view++) {
-                await omnibar.modelSelectorButton().click();
-                await expect(omnibar.modelUpsellCta()).toBeVisible();
-                const background = await backgroundOf(omnibar.modelUpsellCta());
-                if (view === 1) yellowBackground = background;
-                expect(background).toBe(yellowBackground);
-                await omnibar.modelDropdown().press('Escape');
-                await expect(omnibar.modelDropdown()).toHaveCount(0);
-            }
-
-            // 5th view: the color is muted (different from the yellow CTA).
-            await omnibar.modelSelectorButton().click();
-            await expect(omnibar.modelUpsellCta()).toBeVisible();
-            const mutedBackground = await backgroundOf(omnibar.modelUpsellCta());
-            expect(mutedBackground).not.toBe(yellowBackground);
         });
     });
 
@@ -2099,7 +2201,7 @@ test.describe('omnibar widget', () => {
 
             const calls = await ntp.mocks.waitForCallCount({ method: 'omnibar_setConfig', count: 1 });
             const last = calls[calls.length - 1];
-            expect(last?.payload?.params?.selectedReasoningEffort).toBe('medium');
+            expect(last?.payload?.params?.selectedReasoningEffort).toBe('low');
         });
 
         test('submit includes reasoningEffort for models that support it', async ({ page }, workerInfo) => {
@@ -2112,7 +2214,7 @@ test.describe('omnibar widget', () => {
                     omnibar: true,
                     'omnibar.enableAiChatTools': 'true',
                     'omnibar.selectedModelId': 'gpt-5-mini',
-                    'omnibar.selectedReasoningEffort': 'medium',
+                    'omnibar.selectedReasoningEffort': 'low',
                 },
             });
             await omnibar.ready();
@@ -2127,7 +2229,7 @@ test.describe('omnibar widget', () => {
                 chat: 'hello',
                 target: 'same-tab',
                 modelId: 'gpt-5-mini',
-                reasoningEffort: 'medium',
+                reasoningEffort: 'low',
             });
         });
 
@@ -2141,7 +2243,7 @@ test.describe('omnibar widget', () => {
                     omnibar: true,
                     'omnibar.enableAiChatTools': 'true',
                     'omnibar.selectedModelId': 'gpt-4o-mini',
-                    'omnibar.selectedReasoningEffort': 'medium',
+                    'omnibar.selectedReasoningEffort': 'low',
                 },
             });
             await omnibar.ready();
@@ -2162,14 +2264,14 @@ test.describe('omnibar widget', () => {
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
 
-            // claude-opus-4-6 supports ['none', 'medium', 'extended']; gpt-5-mini only ['none', 'medium']
+            // claude-opus-4-6 supports ['none', 'low', 'medium']; gpt-5-mini only ['none', 'low']
             await ntp.openPage({
                 additional: {
                     omnibar: true,
                     'omnibar.enableAiChatTools': 'true',
                     'omnibar.subscription': 'true',
                     'omnibar.selectedModelId': 'claude-opus-4-6',
-                    'omnibar.selectedReasoningEffort': 'extended',
+                    'omnibar.selectedReasoningEffort': 'medium',
                 },
             });
             await omnibar.ready();
@@ -2183,7 +2285,7 @@ test.describe('omnibar widget', () => {
             await omnibar.chatInput().fill('hello');
             await omnibar.chatInput().press('Enter');
 
-            // 'extended' isn't in gpt-5-mini's list; effective value falls back to the first supported one
+            // 'medium' isn't in gpt-5-mini's list; effective value falls back to the first supported one
             await omnibar.expectMethodCalledWith('omnibar_submitChat', {
                 chat: 'hello',
                 target: 'same-tab',
@@ -2197,14 +2299,14 @@ test.describe('omnibar widget', () => {
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
 
-            // claude-opus-4-6 supports 'extended'; gpt-5-mini does not
+            // claude-opus-4-6 supports 'medium'; gpt-5-mini does not
             await ntp.openPage({
                 additional: {
                     omnibar: true,
                     'omnibar.enableAiChatTools': 'true',
                     'omnibar.subscription': 'true',
                     'omnibar.selectedModelId': 'claude-opus-4-6',
-                    'omnibar.selectedReasoningEffort': 'extended',
+                    'omnibar.selectedReasoningEffort': 'medium',
                 },
             });
             await omnibar.ready();
@@ -2271,14 +2373,36 @@ test.describe('omnibar widget', () => {
             await expect(omnibar.reasoningOption('For complex tasks')).toBeVisible();
         });
 
-        test('an unavailable reasoning-effort option shows "Try for free" and opens the subscription upsell', async ({
+        test('uses the native timer icon for the medium Extended Reasoning effort', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.selectedModelId': 'claude-haiku-4-5',
+                },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+            await omnibar.reasoningPickerButton().click();
+
+            await expect(omnibar.reasoningOption('For complex tasks').locator('svg')).toHaveAttribute('viewBox', '0 0 13.9693 13.9694');
+            await expect(omnibar.reasoningOption('For analytical tasks').locator('svg')).toHaveAttribute('viewBox', '0 0 16 16.0001');
+        });
+
+        test('an unavailable reasoning-effort option shows a gated-section header and opens the subscription upsell', async ({
             page,
         }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
 
-            // claude-haiku-4-5 has an 'extended' reasoning effort with isAvailable false in the mock
+            // claude-haiku-4-5 has a 'medium' reasoning effort with isAvailable false in the mock
             await ntp.openPage({
                 additional: {
                     omnibar: true,
@@ -2292,8 +2416,9 @@ test.describe('omnibar widget', () => {
             await omnibar.expectMode('ai');
 
             await omnibar.reasoningPickerButton().click();
+            // Native-provided section header shown above the gated option, not a hardcoded label.
+            await expect(omnibar.reasoningDropdown()).toContainText('Try for Free');
             const gatedOption = omnibar.reasoningOption('For analytical tasks');
-            await expect(gatedOption).toContainText('Try for free');
 
             await gatedOption.click();
 
@@ -2301,14 +2426,14 @@ test.describe('omnibar widget', () => {
             expect(upsellCalls.at(-1)?.payload.params).toEqual({ source: 'reasoning' });
         });
 
-        test('an upgrade-gated reasoning-effort option shows "Upgrade" and opens the subscription upgrade', async ({
+        test('an upgrade-gated reasoning-effort option shows a gated-section header and opens the subscription upgrade', async ({
             page,
         }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
 
-            // Mistral Small 3 has an 'extended' reasoning effort with isAvailable false and upsell 'upgrade' in the mock
+            // Mistral Small 3 has a 'medium' reasoning effort with isAvailable false and upsell 'upgrade' in the mock
             await ntp.openPage({
                 additional: {
                     omnibar: true,
@@ -2322,8 +2447,9 @@ test.describe('omnibar widget', () => {
             await omnibar.expectMode('ai');
 
             await omnibar.reasoningPickerButton().click();
+            // Native-provided section header shown above the gated option, not a hardcoded label.
+            await expect(omnibar.reasoningDropdown()).toContainText('Pro Plan Exclusive');
             const gatedOption = omnibar.reasoningOption('For analytical tasks');
-            await expect(gatedOption).toContainText('Upgrade');
 
             await gatedOption.click();
 
@@ -2331,12 +2457,104 @@ test.describe('omnibar widget', () => {
             expect(upgradeCalls.at(-1)?.payload.params).toEqual({ source: 'reasoning' });
         });
 
-        test('fires reasoning picker telemetry with the try-for-free CTA on open', async ({ page }, workerInfo) => {
+        test('supports keyboard activation for a gated reasoning effort', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
 
-            // claude-haiku-4-5 has a gated 'extended' effort behind a subscription (Try for free).
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true', 'omnibar.selectedModelId': 'claude-haiku-4-5' },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+            await omnibar.reasoningPickerButton().click();
+            await expect(omnibar.reasoningDropdown()).toBeFocused();
+
+            await page.keyboard.press('End');
+            await page.keyboard.press('Enter');
+
+            const upsellCalls = await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpsell', count: 1 });
+            expect(upsellCalls.at(-1)?.payload.params).toEqual({ source: 'reasoning' });
+            await expect(omnibar.reasoningPickerButton()).toBeFocused();
+        });
+
+        test('does not render a separator before a leading gated reasoning section', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.selectedModelId': 'claude-haiku-4-5',
+                    'omnibar.reasoningSections': 'first-gated',
+                },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+            await omnibar.reasoningPickerButton().click();
+
+            await expect(omnibar.reasoningDropdown().locator(':scope > li').first()).toHaveText('Try for Free');
+            await expect(omnibar.reasoningDropdown().getByRole('separator')).toHaveCount(0);
+        });
+
+        test('renders each native-provided gated reasoning section', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.selectedModelId': 'claude-haiku-4-5',
+                    'omnibar.reasoningSections': 'multiple',
+                },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+            await omnibar.reasoningPickerButton().click();
+
+            await expect(omnibar.reasoningDropdown().getByText('Try for Free', { exact: true })).toBeVisible();
+            await expect(omnibar.reasoningDropdown().getByText('Pro Plan Exclusive', { exact: true })).toBeVisible();
+        });
+
+        test('exposes a gated reasoning section header as every row accessible description', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.selectedModelId': 'claude-haiku-4-5',
+                    'omnibar.reasoningSections': 'grouped',
+                },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+            await omnibar.reasoningPickerButton().click();
+
+            await expect(omnibar.reasoningOption('For analytical tasks')).toHaveAccessibleDescription('Try for Free');
+            await expect(omnibar.reasoningOption('For the hardest tasks')).toHaveAccessibleDescription('Try for Free');
+        });
+
+        test('fires try-for-free telemetry when its gated reasoning effort is activated', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            // claude-haiku-4-5 has a gated 'medium' effort behind a subscription (Try for free).
             await ntp.openPage({
                 additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true', 'omnibar.selectedModelId': 'claude-haiku-4-5' },
             });
@@ -2346,17 +2564,24 @@ test.describe('omnibar widget', () => {
             await omnibar.expectMode('ai');
             await omnibar.reasoningPickerButton().click();
 
-            const calls = await ntp.mocks.waitForCallCount({ method: 'telemetryEvent', count: 2 });
-            const names = calls.map((call) => call.payload.params.attributes.name);
-            expect(names).toEqual(['omnibar_reasoning_picker_shown', 'omnibar_reasoning_picker_tryforfree_shown']);
+            await expect(omnibar.reasoningDropdown()).toBeFocused();
+            const openCalls = await ntp.mocks.waitForCallCount({ method: 'telemetryEvent', count: 1 });
+            expect(openCalls.map((call) => call.payload.params.attributes.name)).toEqual(['omnibar_reasoning_picker_shown']);
+
+            await omnibar.reasoningOption('For analytical tasks').click();
+            const activatedCalls = await ntp.mocks.waitForCallCount({ method: 'telemetryEvent', count: 2 });
+            expect(activatedCalls.map((call) => call.payload.params.attributes.name)).toEqual([
+                'omnibar_reasoning_picker_shown',
+                'omnibar_reasoning_picker_tryforfree_shown',
+            ]);
         });
 
-        test('fires reasoning picker telemetry with the upgrade CTA on open', async ({ page }, workerInfo) => {
+        test('fires upgrade telemetry when its gated reasoning effort is activated', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
 
-            // Mistral Small 3 has a gated 'extended' effort behind a tier upgrade.
+            // Mistral Small 3 has a gated 'medium' effort behind a tier upgrade.
             await ntp.openPage({
                 additional: {
                     omnibar: true,
@@ -2370,56 +2595,16 @@ test.describe('omnibar widget', () => {
             await omnibar.expectMode('ai');
             await omnibar.reasoningPickerButton().click();
 
-            const calls = await ntp.mocks.waitForCallCount({ method: 'telemetryEvent', count: 2 });
-            const names = calls.map((call) => call.payload.params.attributes.name);
-            expect(names).toEqual(['omnibar_reasoning_picker_shown', 'omnibar_reasoning_picker_upgrade_shown']);
-        });
+            await expect(omnibar.reasoningDropdown()).toBeFocused();
+            const openCalls = await ntp.mocks.waitForCallCount({ method: 'telemetryEvent', count: 1 });
+            expect(openCalls.map((call) => call.payload.params.attributes.name)).toEqual(['omnibar_reasoning_picker_shown']);
 
-        test('mutes each picker CTA on its own count once it reaches 4', async ({ page }, workerInfo) => {
-            const ntp = NewtabPage.create(page, workerInfo);
-            const omnibar = new OmnibarPage(ntp);
-            await ntp.reducedMotion();
-
-            // claude-haiku-4-5 gives a gated reasoning option (Try for free); the model picker's
-            // advanced section is gated too. Each picker tracks its own impression count, so muting
-            // one does not affect the other.
-            await ntp.openPage({
-                additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true', 'omnibar.selectedModelId': 'claude-haiku-4-5' },
-            });
-            await omnibar.ready();
-
-            await omnibar.aiTab().click();
-            await omnibar.expectMode('ai');
-
-            /** @param {import('@playwright/test').Locator} cta */
-            const backgroundOf = (cta) => cta.evaluate((el) => getComputedStyle(el).backgroundColor);
-
-            // Four reasoning-picker views reach the reasoning picker's own threshold.
-            let reasoningYellow = '';
-            for (let view = 1; view <= 4; view++) {
-                await omnibar.reasoningPickerButton().click();
-                await expect(omnibar.reasoningUpsellBadge()).toBeVisible();
-                reasoningYellow = await backgroundOf(omnibar.reasoningUpsellBadge());
-                await omnibar.reasoningDropdown().press('Escape');
-                await expect(omnibar.reasoningDropdown()).toHaveCount(0);
-            }
-
-            // 5th reasoning view: the reasoning badge color is muted.
-            await omnibar.reasoningPickerButton().click();
-            await expect(omnibar.reasoningUpsellBadge()).toBeVisible();
-            const mutedReasoning = await backgroundOf(omnibar.reasoningUpsellBadge());
-            expect(mutedReasoning).not.toBe(reasoningYellow);
-            await omnibar.reasoningDropdown().press('Escape');
-            await expect(omnibar.reasoningDropdown()).toHaveCount(0);
-
-            // The model picker keeps its own separate count: it was never opened, so its CTA
-            // is still yellow (un-muted) despite the reasoning picker being muted. Both CTAs
-            // share the same yellow, so the model CTA still matches the reasoning picker's yellow.
-            await omnibar.modelSelectorButton().click();
-            await expect(omnibar.modelUpsellCta()).toBeVisible();
-            const modelBackground = await backgroundOf(omnibar.modelUpsellCta());
-            expect(modelBackground).toBe(reasoningYellow);
-            expect(modelBackground).not.toBe(mutedReasoning);
+            await omnibar.reasoningOption('For analytical tasks').click();
+            const activatedCalls = await ntp.mocks.waitForCallCount({ method: 'telemetryEvent', count: 2 });
+            expect(activatedCalls.map((call) => call.payload.params.attributes.name)).toEqual([
+                'omnibar_reasoning_picker_shown',
+                'omnibar_reasoning_picker_upgrade_shown',
+            ]);
         });
     });
 

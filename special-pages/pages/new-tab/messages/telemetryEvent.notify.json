@@ -57,6 +57,7 @@
         {
           "type": "object",
           "title": "Omnibar Model Picker Shown",
+          "description": "Fired once when the user opens the omnibar model picker. This is a picker impression; it does not imply that the user activated a model or an upsell.",
           "required": ["name"],
           "properties": {
             "name": {
@@ -67,6 +68,7 @@
         {
           "type": "object",
           "title": "Omnibar Model Picker Try For Free Shown",
+          "description": "Fired when the user activates a gated model row whose displayed CTA is 'Try for free', immediately before the web UI requests the native subscription upsell. Despite the historical '_shown' suffix, this is an activation event, not an impression.",
           "required": ["name"],
           "properties": {
             "name": {
@@ -77,6 +79,7 @@
         {
           "type": "object",
           "title": "Omnibar Model Picker Upgrade Shown",
+          "description": "Fired when the user activates a gated model row whose resolved upsell presentation is 'Upgrade'. This activation bucket is derived from the item's upsell type and free-trial eligibility; the following native route is still determined by the item's upsell value, so this event can precede a subscription-upsell request. Despite the historical '_shown' suffix, this is an activation event, not an impression.",
           "required": ["name"],
           "properties": {
             "name": {
@@ -87,6 +90,7 @@
         {
           "type": "object",
           "title": "Omnibar Reasoning Picker Shown",
+          "description": "Fired once when the user opens the omnibar reasoning picker. This is a picker impression; it does not imply that the user activated a reasoning effort or an upsell.",
           "required": ["name"],
           "properties": {
             "name": {
@@ -97,6 +101,7 @@
         {
           "type": "object",
           "title": "Omnibar Reasoning Picker Try For Free Shown",
+          "description": "Fired when the user activates a gated reasoning-effort row whose displayed CTA is 'Try for free', immediately before the web UI requests the native subscription upsell. Despite the historical '_shown' suffix, this is an activation event, not an impression.",
           "required": ["name"],
           "properties": {
             "name": {
@@ -107,6 +112,7 @@
         {
           "type": "object",
           "title": "Omnibar Reasoning Picker Upgrade Shown",
+          "description": "Fired when the user activates a gated reasoning-effort row whose resolved upsell presentation is 'Upgrade'. This activation bucket is derived from the item's upsell type and free-trial eligibility; the following native route is still determined by the item's upsell value, so this event can precede a subscription-upsell request. Despite the historical '_shown' suffix, this is an activation event, not an impression.",
           "required": ["name"],
           "properties": {
             "name": {

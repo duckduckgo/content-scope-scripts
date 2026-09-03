@@ -1,7 +1,8 @@
-import { h } from 'preact';
+import { Fragment, h } from 'preact';
 import { useContext, useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import cn from 'classnames';
 import { useTypedTranslationWith } from '../../../../types';
+import { usePlatformName } from '../../../../settings.provider';
 import { Check12Icon, SearchIcon } from '../../../../components/Icons';
 import { OpenTabsContext } from './OpenTabsProvider';
 import { TabFavicon } from './TabFavicon';
@@ -26,6 +27,7 @@ import styles from './AttachTabsModal.module.css';
  */
 export function AttachTabsModal({ onClose, onToggleTab, isAttached, maxTabs = Number.POSITIVE_INFINITY }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
+    const platformName = usePlatformName();
     const { openTabs, isLoadingTabs, refetchTabs } = useContext(OpenTabsContext);
 
     const seedStagedIds = () => new Set(openTabs.filter((tab) => isAttached(tab.tabId)).map((tab) => tab.tabId));
@@ -83,7 +85,7 @@ export function AttachTabsModal({ onClose, onToggleTab, isAttached, maxTabs = Nu
             return <StatusRow text={t('omnibar_attachTabsLoading')} />;
         }
         if (visibleTabs.length === 0) {
-            return <StatusRow text={searchQuery ? t('omnibar_attachTabsNoMatches') : t('omnibar_attachTabsNoOpenTabs')} />;
+            return <StatusRow text={searchQuery ? t('omnibar_attachTabsNoMatches') : t('omnibar_attachTabsNoPageContent')} />;
         }
         return visibleTabs.map((tab) => {
             const isStaged = stagedTabIds.has(tab.tabId);
@@ -116,6 +118,17 @@ export function AttachTabsModal({ onClose, onToggleTab, isAttached, maxTabs = Nu
             );
         });
     };
+
+    const cancelButton = (
+        <button type="button" class={cn(styles.tabsFooterButton, styles.tabsFooterButtonSecondary)} onClick={onClose}>
+            {t('omnibar_attachTabsCancel')}
+        </button>
+    );
+    const confirmButton = (
+        <button type="button" class={cn(styles.tabsFooterButton, styles.tabsFooterButtonPrimary)} onClick={handleAttach}>
+            {t('omnibar_attachTabsConfirm')}
+        </button>
+    );
 
     // Native <dialog> + showModal(): the top layer positions against the viewport, so the
     // omnibar `.popup`'s `backdrop-filter` (applied on non-default backgrounds) can't trap
@@ -161,12 +174,17 @@ export function AttachTabsModal({ onClose, onToggleTab, isAttached, maxTabs = Nu
                 </ul>
             </div>
             <footer class={styles.tabsModalFooter}>
-                <button type="button" class={cn(styles.tabsFooterButton, styles.tabsFooterButtonSecondary)} onClick={onClose}>
-                    {t('omnibar_attachTabsCancel')}
-                </button>
-                <button type="button" class={cn(styles.tabsFooterButton, styles.tabsFooterButtonPrimary)} onClick={handleAttach}>
-                    {t('omnibar_attachTabsConfirm')}
-                </button>
+                {platformName === 'windows' ? (
+                    <Fragment>
+                        {confirmButton}
+                        {cancelButton}
+                    </Fragment>
+                ) : (
+                    <Fragment>
+                        {cancelButton}
+                        {confirmButton}
+                    </Fragment>
+                )}
             </footer>
         </dialog>
     );

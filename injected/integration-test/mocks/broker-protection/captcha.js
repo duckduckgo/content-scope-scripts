@@ -1,36 +1,38 @@
 import { createPirState, getBrokerProtectionTestPageUrl } from './utils';
 /**
- * @import { PirAction } from '../../../src/features/broker-protection/types.js'
+ * @import { PirAction, PirInputData } from '../../../src/features/broker-protection/types.js'
  */
 
 const MOCK_SITE_KEY = '6LeCl8UUAAAAAGssOpatU5nzFXH2D7UZEYelSLTn';
 
-// Captcha actions
-
 /**
  * @param {object} params
  * @param {Omit<PirAction, 'id' | 'actionType'>} params.action
+ * @param {PirInputData} [params.data]
  */
-export function createGetCaptchaInfoAction({ action }) {
+export function createGetCaptchaInfoAction({ action, data }) {
     return createPirState({
         action: {
             id: '8324',
             actionType: 'getCaptchaInfo',
             ...action,
         },
+        ...(data && { data }),
     });
 }
 
 /**
  * @param {Partial<PirAction>} [actionOverrides]
+ * @param {PirInputData} [data]
  */
-export function createGetRecaptchaInfoAction(actionOverrides = {}) {
+export function createGetRecaptchaInfoAction(actionOverrides = {}, data) {
     return createGetCaptchaInfoAction({
         action: {
             captchaType: 'recaptcha2',
             selector: '.g-recaptcha',
             ...actionOverrides,
         },
+        data,
     });
 }
 
@@ -61,7 +63,7 @@ export function createGetCloudFlareCaptchaInfoAction(actionOverrides = {}) {
 /**
  * @param {object} params
  * @param {Omit<PirAction, 'id' | 'actionType'>} params.action
- * @param {Record<string, any>} [params.data]
+ * @param {PirInputData} [params.data]
  */
 export function createSolveCaptchaAction({ action, data }) {
     return createPirState({
@@ -79,14 +81,16 @@ export function createSolveCaptchaAction({ action, data }) {
 
 /**
  * @param {Partial<PirAction>} [actionOverrides]
+ * @param {PirInputData} [data]
  */
-export function createSolveRecaptchaAction(actionOverrides = {}) {
+export function createSolveRecaptchaAction(actionOverrides = {}, data) {
     return createSolveCaptchaAction({
         action: {
             captchaType: 'recaptcha2',
             selector: '.g-recaptcha',
             ...actionOverrides,
         },
+        data,
     });
 }
 

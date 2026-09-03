@@ -1,7 +1,6 @@
 import ContentFeature, { CallFeatureMethodError } from '../content-feature.js';
 import { runBotDetection } from '../detectors/detections/bot-detection.js';
 import { runFraudDetection } from '../detectors/detections/fraud-detection.js';
-import { runAdwallDetection } from '../detectors/detections/adwall-detection.js';
 import { runYoutubeAdDetection } from '../detectors/detections/youtube-ad-detection.js';
 
 /**
@@ -44,9 +43,6 @@ export default class WebInterferenceDetection extends ContentFeature {
             }
             if (types.includes('fraudDetection')) {
                 results.fraudDetection = runFraudDetection(settings?.fraudDetection);
-            }
-            if (types.includes('adwallDetection')) {
-                results.adwallDetection = runAdwallDetection(settings?.adwallDetection);
             }
             return results;
         });

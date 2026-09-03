@@ -3,11 +3,15 @@ import { getElement } from '../utils/utils.js';
 import { ErrorResponse, SuccessResponse } from '../types.js';
 
 /**
+ * @import { ActionResponse, PirAction } from '../types.js'
+ */
+
+/**
  * Gets the captcha information to send to the backend
  *
- * @param {import('../types.js').PirAction} action
- * @param {Document | HTMLElement} root
- * @return {import('../types.js').ActionResponse}
+ * @param {PirAction} action
+ * @param {Document} root
+ * @return {ActionResponse}
  */
 export function getCaptchaInfo(action, root = document) {
     const pageUrl = window.location.href;
@@ -90,7 +94,7 @@ export function getCaptchaInfo(action, root = document) {
  * @param action
  * @param {string} token
  * @param {Document} root
- * @return {import('../types.js').ActionResponse}
+ * @return {ActionResponse}
  */
 export function solveCaptcha(action, token, root = document) {
     const selectors = ['h-captcha-response', 'g-recaptcha-response'];

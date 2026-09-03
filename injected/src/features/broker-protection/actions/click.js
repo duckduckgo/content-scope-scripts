@@ -1,13 +1,17 @@
 import { getElements } from '../utils/utils.js';
-import { ErrorResponse, SuccessResponse } from '../types.js';
-import { extractProfiles } from './extract.js';
+import { ErrorResponse, PirError, SuccessResponse } from '../types.js';
+import { selectRootElement } from '../utils/select-root-element.js';
 import { processTemplateStringWithUserData } from './build-url-transforms.js';
+
+/**
+ * @import { ActionResponse } from '../types.js'
+ */
 
 /**
  * @param {Record<string, any>} action
  * @param {Record<string, any>} userData
  * @param {Document | HTMLElement} root
- * @return {import('../types.js').ActionResponse}
+ * @return {ActionResponse}
  */
 export function click(action, userData, root = document) {
     /** @type {Array<any> | null} */
@@ -40,12 +44,10 @@ export function click(action, userData, root = document) {
 
     // there can be multiple elements provided by the action
     for (const element of elements) {
-        let rootElement;
+        const rootElement = selectRootElement(element, userData, root);
 
-        try {
-            rootElement = selectRootElement(element, userData, root);
-        } catch (error) {
-            return new ErrorResponse({ actionID: action.id, message: `Could not find root element: ${error.message}` });
+        if (PirError.isError(rootElement)) {
+            return new ErrorResponse({ actionID: action.id, message: `Could not find root element: ${rootElement.error.message}` });
         }
 
         const elements = getElements(rootElement, element.selector);
@@ -81,31 +83,6 @@ export function click(action, userData, root = document) {
     }
 
     return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: null });
-}
-
-/**
- * @param {{parent?: {profileMatch?: Record<string, any>}}} clickElement
- * @param {Record<string, any>} userData
- * @param {Document | HTMLElement} root
- * @return {Node}
- */
-function selectRootElement(clickElement, userData, root = document) {
-    // if there's no 'parent' field, just use the document
-    if (!clickElement.parent) return root;
-
-    // if the 'parent' field contains 'profileMatch', try to match it
-    if (clickElement.parent.profileMatch) {
-        const extraction = extractProfiles(clickElement.parent.profileMatch, userData, root);
-        if ('results' in extraction) {
-            const sorted = extraction.results.filter((x) => x.result === true).sort((a, b) => b.score - a.score);
-            const first = sorted[0];
-            if (first && first.element) {
-                return first.element;
-            }
-        }
-    }
-
-    throw new Error('`parent` was present on the element, but the configuration is not supported');
 }
 
 /**

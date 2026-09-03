@@ -80,6 +80,14 @@
         </div>
     </div>
 
+    <!-- Invalid selector containment test elements -->
+    <div id="invalid-selector">
+        <div class="container invalid-canary-test" id="invalid-canary">
+        </div>
+        <div class="container invalid-list-test" id="invalid-list-member">
+        </div>
+    </div>
+
     <!-- Closest-empty rule test elements -->
     <div id="closest-empty">
         <div class="container closest-empty-test" id="closest-empty-single-div">
@@ -363,6 +371,23 @@
                     name: "Parent of element that loads 3p frame after delay is NOT hidden",
                     result: isElementHidden('closest-empty-delayed-frame'),
                     expected: false
+                }
+            ];
+        });
+
+        test('Invalid selector containment tests', async () => {
+            await new Promise(resolve => setTimeout(resolve, 100));
+
+            return [
+                {
+                    name: "Rule following a malformed selector is still applied",
+                    result: isElementHidden('invalid-canary'),
+                    expected: true
+                },
+                {
+                    name: "Valid selector in a list containing a malformed selector is still applied",
+                    result: isElementHidden('invalid-list-member'),
+                    expected: true
                 }
             ];
         });

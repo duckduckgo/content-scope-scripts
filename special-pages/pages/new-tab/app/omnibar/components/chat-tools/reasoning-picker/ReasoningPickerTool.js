@@ -25,10 +25,10 @@ function getReasoningIcon(id) {
         case 'minimal':
             return FastReasoningIcon;
         case 'extended':
+        case 'medium':
         case 'high':
             return ExtendedReasoningIcon;
         case 'low':
-        case 'medium':
             return ReasoningEffortIcon;
         default:
             return ReasoningEffortIcon;
@@ -47,6 +47,7 @@ export function ReasoningPickerTool() {
         description: effort.description,
         isAvailable: effort.isAvailable,
         upsell: effort.upsell,
+        gatedSectionHeader: effort.gatedSectionHeader,
         icon: getReasoningIcon(effort.id),
     }));
 
@@ -64,8 +65,6 @@ export function ReasoningPickerTool() {
             onUpsell={(type) => showUpsell(type, 'reasoning')}
             ariaLabel={t('omnibar_reasoningPickerLabel')}
             buttonLabel={selectedOption?.name ?? t('omnibar_reasoningPickerLabel')}
-            tryForFreeLabel={t('omnibar_tryForFree')}
-            upgradeLabel={t('omnibar_upgrade')}
             isEligibleForFreeTrial={isEligibleForFreeTrial}
         />
     );
