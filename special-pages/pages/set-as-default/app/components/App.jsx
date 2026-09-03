@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { useMemo } from 'preact/hooks';
+import { useEffect } from 'preact/hooks';
 import styles from './App.module.css';
 import { useTypedTranslation } from '../types.js';
 import { Trans } from '../../../../shared/components/TranslationsProvider.js';
@@ -7,9 +7,13 @@ import { Arrow } from './Arrow.jsx';
 
 export function App() {
     const { t } = useTypedTranslation();
-    const params = useMemo(() => new URLSearchParams(window.location.search), []);
+    const params = new URLSearchParams(window.location.search);
     const arrowX = params.get('arrow_x');
     const arrowY = params.get('arrow_y');
+
+    useEffect(() => {
+        document.title = t('tabTitle');
+    }, [t]);
 
     /** @type {Record<string, string>} */
     const arrowStyle = {};
@@ -25,7 +29,7 @@ export function App() {
                             <Trans str={t('setDefaultInstruction')} values={{}} />
                         </p>
                     </div>
-                    <div class={styles.arrow} style={Object.keys(arrowStyle).length > 0 ? arrowStyle : undefined}>
+                    <div class={styles.arrow} style={arrowStyle} data-testid="arrow">
                         <Arrow />
                     </div>
                 </div>

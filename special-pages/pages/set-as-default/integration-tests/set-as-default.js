@@ -89,14 +89,14 @@ export class SetAsDefaultPage {
     }
 
     async didShowInstructions() {
-        await expect(this.page.getByRole('main')).toContainText('Select the Set default button in your settings');
+        await expect(this.page.getByRole('main')).toContainText('Select the Set default button in Windows settings');
     }
 
     /**
      * @param {{left: string, top: string}} expected
      */
     async arrowHasPosition(expected) {
-        const arrow = this.page.locator('svg[aria-hidden="true"]').locator('..');
+        const arrow = this.page.getByTestId('arrow');
         await expect(arrow).toHaveCSS('left', expected.left);
         await expect(arrow).toHaveCSS('top', expected.top);
     }
