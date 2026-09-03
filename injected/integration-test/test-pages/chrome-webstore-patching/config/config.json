@@ -37,12 +37,6 @@
                         "value": "header[role=\"banner\"] aside"
                     }
                 ],
-                "buttonCopy": {
-                    "install": "Add to DuckDuckGo",
-                    "remove": "Remove from DuckDuckGo",
-                    "unavailable": "Unsupported extension",
-                    "unavailableDescription": "This extension isn't supported."
-                },
                 "domains": [
                     {
                         "domain": "localhost",

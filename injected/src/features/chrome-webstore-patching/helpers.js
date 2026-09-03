@@ -156,29 +156,3 @@ export function readStatusSets(chromeGlobal) {
         installed: installed.length ? installed : INSTALLED_STATUSES,
     };
 }
-
-/**
- * @typedef {object} ButtonCopy
- * @property {string} [install]
- * @property {string} [remove]
- * @property {string} [unavailable]
- * @property {string} [unavailableDescription]
- */
-
-/**
- * The remote-config `buttonCopy` setting, with every non-string dropped, so
- * callers read typed fields instead of indexing an `any`.
- * @param {unknown} value
- * @returns {ButtonCopy}
- */
-export function readButtonCopy(value) {
-    if (!isRecord(value)) return {};
-    /** @param {unknown} field @returns {string | undefined} */
-    const str = (field) => (typeof field === 'string' ? field : undefined);
-    return {
-        install: str(value.install),
-        remove: str(value.remove),
-        unavailable: str(value.unavailable),
-        unavailableDescription: str(value.unavailableDescription),
-    };
-}

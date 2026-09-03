@@ -2,7 +2,6 @@ import {
     getWebstorePrivate,
     hasRuntimeLastError,
     parseExtensionId,
-    readButtonCopy,
     readCuratedCatalog,
     readStatusSets,
 } from '../src/features/chrome-webstore-patching/helpers.js';
@@ -172,21 +171,6 @@ describe('chromeWebstorePatching helpers', () => {
                 webstorePrivate: { getExtensionStatus: () => {}, ExtensionInstallStatus: { INSTALLABLE: 7, CAN_REQUEST: null } },
             };
             expect(readStatusSets(chromeGlobal).installable).toEqual(['installable', 'can_request']);
-        });
-    });
-
-    describe('readButtonCopy', () => {
-        it('keeps string fields and drops everything else', () => {
-            const copy = readButtonCopy({ install: 'Add', remove: 42, unavailable: null, unavailableDescription: 'Why' });
-            expect(copy.install).toBe('Add');
-            expect(copy.remove).toBeUndefined();
-            expect(copy.unavailable).toBeUndefined();
-            expect(copy.unavailableDescription).toBe('Why');
-        });
-
-        it('returns an empty object for a missing or malformed setting', () => {
-            expect(readButtonCopy(undefined)).toEqual({});
-            expect(readButtonCopy('nope')).toEqual({});
         });
     });
 });

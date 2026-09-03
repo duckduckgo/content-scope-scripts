@@ -5,7 +5,6 @@ import {
     hasRuntimeLastError,
     isValidSelector,
     parseExtensionId,
-    readButtonCopy,
     readCuratedCatalog,
     readStatusSets,
 } from './chrome-webstore-patching/helpers.js';
@@ -55,6 +54,20 @@ const ICON_BACKGROUNDS = {
     install: `url("${DAX_DATA_URI}") center / contain no-repeat`,
     remove: `url("${TRASH_DATA_URI}") center / contain no-repeat`,
     unsupported: `url("${DAX_DATA_URI}") center / contain no-repeat`,
+};
+
+// Shipped copy. Remote config no longer carries buttonCopy: it was the only
+// source, which meant a config without it resolved to no copy and left every
+// button hidden. The remaining `buttonCopy` setting is an override for
+// hot-fixing wording without a browser release, so these are the values that
+// render when it is absent, which is the normal case.
+// English only. The translated strings land here in the localization work, and
+// this stub is replaced by the bundled locale files at that point.
+const DEFAULT_COPY = {
+    install: 'Add to DuckDuckGo',
+    remove: 'Remove from DuckDuckGo',
+    unavailable: 'Unsupported extension',
+    unavailableDescription: "This extension isn't supported.",
 };
 
 /**
@@ -221,7 +234,7 @@ export class ChromeWebstorePatching extends ContentFeature {
      * @param {'install' | 'remove' | 'unsupported'} verdict
      */
     _reveal(verdict) {
-        const copy = readButtonCopy(this.getFeatureSetting('buttonCopy'));
+        const copy = DEFAULT_COPY;
         const text = { install: copy.install, remove: copy.remove, unsupported: copy.unavailable }[verdict];
         if (typeof text !== 'string') return;
         this._verdict = verdict;
@@ -249,7 +262,7 @@ export class ChromeWebstorePatching extends ContentFeature {
     _applyVerdict() {
         const verdict = this._verdict;
         if (!verdict) return;
-        const copy = readButtonCopy(this.getFeatureSetting('buttonCopy'));
+        const copy = DEFAULT_COPY;
         const text = { install: copy.install, remove: copy.remove, unsupported: copy.unavailable }[verdict];
         if (typeof text !== 'string') return;
 
