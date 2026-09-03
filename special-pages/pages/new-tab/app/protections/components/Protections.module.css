@@ -230,11 +230,12 @@
        light, with a 1px input-control-shadow-primary ring — black-at-5
        light, transparent dark). The selected button text stays on the base
        .button rule (theme-primary), which reads correctly against both
-       blob values — no override needed. */
-    .switcher {
-        backdrop-filter: blur(24px);
-    }
+       blob values — no override needed.
 
+       No backdrop-filter here: .switcher already sits on .root's own
+       blur(48px), and stacking a second blur(24px) on a 28px-tall pill
+       pulls in the card's border/shadow, reading as a dull grey instead
+       of the plain translucent white the token declares. */
     .blob {
         background: var(--ds-input-control-primary-background-color);
         box-shadow: 0 0 0 1px var(--ds-input-control-shadow-primary);
