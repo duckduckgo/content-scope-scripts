@@ -650,48 +650,13 @@ describe('WebDetection', () => {
          * @returns {boolean}
          */
         function matchInDOM(html, match, options = {}) {
-            const { zeroSizeSelectors = [] } = options;
-            // The captured query methods are bound to the shared document, so its contents are
-            // replaced rather than the document itself (see helpers/install-dom-globals.js).
-            resetDom(html);
-            const originalGetComputedStyle = globalThis.getComputedStyle;
-
-            // Wrap getComputedStyle to return browser-like defaults (JSDOM returns "" for opacity)
-            globalThis.getComputedStyle = (el, pseudoElt) => {
-                const style = originalGetComputedStyle(el, pseudoElt);
-                return new Proxy(style, {
-                    get(target, prop) {
-                        const value = target[prop];
-                        // JSDOM returns "" for opacity, browsers return "1"
-                        if (prop === 'opacity' && value === '') return '1';
-                        return value;
-                    },
-                });
-            };
-
-            // Patch Element prototype to mock getBoundingClientRect based on selectors
-            const ElementProto = Element.prototype;
-            const originalGetBoundingClientRect = ElementProto.getBoundingClientRect;
-            ElementProto.getBoundingClientRect = function () {
-                const isZeroSize = zeroSizeSelectors.some((sel) => this.matches(sel));
-                return {
-                    width: isZeroSize ? 0 : 100,
-                    height: isZeroSize ? 0 : 50,
-                    top: 0,
-                    left: 0,
-                    right: isZeroSize ? 0 : 100,
-                    bottom: isZeroSize ? 0 : 50,
-                    x: 0,
-                    y: 0,
-                    toJSON: () => ({}),
-                };
-            };
-
+            // Captured DOM APIs are bound to the shared document and taken from its prototypes, so
+            // markup and layout are replaced in place (see helpers/install-dom-globals.js).
+            resetDom(html, options.zeroSizeSelectors);
             try {
                 return evaluateMatch(match);
             } finally {
-                globalThis.getComputedStyle = originalGetComputedStyle;
-                ElementProto.getBoundingClientRect = originalGetBoundingClientRect;
+                resetDom();
             }
         }
 

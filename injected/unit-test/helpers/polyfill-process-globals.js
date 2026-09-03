@@ -48,8 +48,9 @@ export function polyfillProcessGlobals(defaultLocation = 'http://localhost:8080'
     const hasDocument = Boolean(globalThis.document);
 
     if (hasDocument) {
-        // The DOM query methods in captured-globals.js are bound to this document, so it must be
-        // adjusted in place rather than replaced.
+        // The DOM APIs in captured-globals.js are bound to this document, so it must be adjusted in
+        // place rather than replaced. `document.location` is non-configurable in JSDOM: it reports
+        // the shared window's URL, which a spec changes through `setDocumentUrl`.
         Object.defineProperty(globalThis.document, 'referrer', { value: defaultLocation, configurable: true });
     } else {
         globalThis.document = /** @type {Document} */ (
@@ -72,7 +73,7 @@ export function polyfillProcessGlobals(defaultLocation = 'http://localhost:8080'
     // Return a cleanup function
     return function cleanup() {
         if (hasDocument) {
-            // Removing the own property restores the document's own `referrer` accessor
+            // Removing the own properties restores the document's own accessors
             Reflect.deleteProperty(globalThis.document, 'referrer');
         } else {
             Reflect.deleteProperty(globalThis, 'document');
