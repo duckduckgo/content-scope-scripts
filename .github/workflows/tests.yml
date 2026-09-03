@@ -97,6 +97,9 @@ jobs:
             version: ${{ steps.pw.outputs.version }}
         steps:
             - uses: actions/checkout@v7
+            - uses: actions/setup-node@v6
+              with:
+                  node-version-file: '.nvmrc'
             - id: pw
               run: |
                   VERSION=$(node -e "const l=require('./package-lock.json'); console.log((l.packages['node_modules/@playwright/test']||l.packages['node_modules/playwright']).version)")
