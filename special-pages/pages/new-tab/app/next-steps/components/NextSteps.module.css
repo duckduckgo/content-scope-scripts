@@ -205,4 +205,10 @@
         border: none;
         outline: 1px solid var(--ntp-surface-border-color, var(--ds-color-theme-container-border-primary));
     }
+
+    [data-theme="light"] {
+        .card {
+            outline: none;
+        }
+    }
 }

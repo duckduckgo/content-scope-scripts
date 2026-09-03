@@ -134,4 +134,10 @@
             outline-color: var(--ntp-surface-border-color, var(--ds-ntp-dark-card-border-color));
         }
     }
+
+    [data-theme="light"] {
+        .root {
+            outline: none;
+        }
+    }
 }

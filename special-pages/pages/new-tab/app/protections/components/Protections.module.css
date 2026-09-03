@@ -197,6 +197,12 @@
         border: 0;
     }
 
+    [data-theme="light"] {
+        .root {
+            outline: none;
+        }
+    }
+
     [data-theme="dark"] {
         .root {
             outline-color: var(--ntp-surface-border-color, var(--ds-ntp-dark-card-border-color));
@@ -232,25 +238,6 @@
     .blob {
         background: var(--ds-input-control-primary-background-color);
         box-shadow: 0 0 0 1px var(--ds-input-control-shadow-primary);
-    }
-}
-
-/* Visual parity with the omnibar TabSwitcher track: the shared token reads
-   darker/lighter here because this track sits on top of the card's own
-   veil, which the omnibar's track doesn't have to contend with. A plain
-   opacity bump can't fix this exactly (the required correction differs per
-   RGB channel) — this is a calibrated approximation, checked against the
-   omnibar on a mid-tone sample background.
-   It's excluded on near-black (dark theme) / near-white (light theme)
-   wallpapers via [data-wallpaper-extreme] (set in BackgroundProvider.js):
-   there, the veil is close to invisible against the wallpaper and the
-   plain token above already matches the omnibar exactly — the compensated
-   value would overshoot and make the mismatch worse, not better. */
-:global(body[data-rebrand="true"]:not([data-background-kind="default"], [data-wallpaper-extreme="dark"])) {
-    main[data-theme="dark"], .themeContext[data-theme="dark"] {
-        .switcher {
-            background: rgba(255, 255, 255, 0.35);
-        }
     }
 }
 

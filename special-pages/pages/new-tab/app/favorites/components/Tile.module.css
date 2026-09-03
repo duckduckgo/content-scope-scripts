@@ -213,4 +213,11 @@ body[data-rebrand="true"]:not([data-background-kind="default"]) {
             }
         }
     }
+
+    main[data-theme="light"],
+    .themeContext[data-theme="light"] {
+        .draggable {
+            outline: none;
+        }
+    }
 }

@@ -292,6 +292,10 @@
         [data-theme=dark] & {
             outline-color: var(--ntp-surface-border-color, var(--ds-ntp-dark-card-border-color));
         }
+
+        [data-theme="light"] & {
+            outline: none;
+        }
     }
 
     .cardContainer:has(.backCard) > .card:not(.backCard, .dismissing, .promoting) {
