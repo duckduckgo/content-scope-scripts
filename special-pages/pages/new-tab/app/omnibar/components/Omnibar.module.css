@@ -236,8 +236,12 @@
         outline: none;
     }
 
-    /* Match Favorites/Stats/RMF card chrome: subtler white-at-3 border in dark */
-    :global([data-theme="dark"]) .popup {
+    /* Match Favorites/Stats/RMF card chrome: subtler white-at-3 border in dark.
+       Scoped to main/.themeContext (not bare [data-theme]) so this can't also
+       match through <body data-theme={browser}> when it diverges from main's
+       adaptive theme — same fix as f3578f7 in theme-mappings.css. */
+    :global(main[data-theme="dark"]) .popup,
+    :global(.themeContext[data-theme="dark"]) .popup {
         --omnibar-border-color: var(--ds-ntp-dark-card-border-color);
         box-shadow:
             0 10px 20px 0 rgba(0, 0, 0, 0.02),
@@ -259,6 +263,12 @@
  * --ds-color-black-at-6 / --ds-color-white-at-36, with a literal fallback
  * since desktop-browsers doesn't export these palette tokens yet (same gap
  * as --ds-color-white-at-60 in Tile.module.css).
+ *
+ * All the light/dark rules below are scoped to main[data-theme] /
+ * .themeContext[data-theme], NOT bare [data-theme] — a bare match can also
+ * be satisfied through <body data-theme={browser}>, which diverges from
+ * main's adaptive theme whenever the user's custom background brightness
+ * doesn't match their browser theme. Same fix as f3578f7 in theme-mappings.css.
  */
 :global(body[data-rebrand="true"]:not([data-background-kind="default"])) {
     .popup {
@@ -266,14 +276,16 @@
         background: var(--ds-input-field-primary-background-color);
     }
 
-    :global([data-theme="light"]) .popup {
+    :global(main[data-theme="light"]) .popup,
+    :global(.themeContext[data-theme="light"]) .popup {
         box-shadow:
             0 10px 20px 0 rgba(0, 0, 0, 0.02),
             0 2px 6px 0 rgba(0, 0, 0, 0.08),
             0 0 0 1px var(--ds-color-black-at-6, rgba(0, 0, 0, 0.06));
     }
 
-    :global([data-theme="dark"]) .popup {
+    :global(main[data-theme="dark"]) .popup,
+    :global(.themeContext[data-theme="dark"]) .popup {
         box-shadow:
             0 10px 20px 0 rgba(0, 0, 0, 0.04),
             0 2px 6px 0 rgba(0, 0, 0, 0.1),
@@ -287,8 +299,10 @@
      * backgrounds. Adding [data-theme] here matches those rules' selector shape plus one
      * extra attribute selector, so these always win regardless of source order.
      */
-    :global([data-theme="light"]) .root:has(input:focus, textarea:focus):not(:has([data-attach-tabs-modal])) .popup,
-    :global([data-theme="light"]) .root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-attachment-warning], [data-attach-tabs-modal])) .popup {
+    :global(main[data-theme="light"]) .root:has(input:focus, textarea:focus):not(:has([data-attach-tabs-modal])) .popup,
+    :global(main[data-theme="light"]) .root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-attachment-warning], [data-attach-tabs-modal])) .popup,
+    :global(.themeContext[data-theme="light"]) .root:has(input:focus, textarea:focus):not(:has([data-attach-tabs-modal])) .popup,
+    :global(.themeContext[data-theme="light"]) .root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-attachment-warning], [data-attach-tabs-modal])) .popup {
         box-shadow:
             0 10px 20px 0 rgba(0, 0, 0, 0.02),
             0 2px 6px 0 rgba(0, 0, 0, 0.08),
@@ -296,8 +310,10 @@
             var(--keyboard-focus-ring);
     }
 
-    :global([data-theme="dark"]) .root:has(input:focus, textarea:focus):not(:has([data-attach-tabs-modal])) .popup,
-    :global([data-theme="dark"]) .root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-attachment-warning], [data-attach-tabs-modal])) .popup {
+    :global(main[data-theme="dark"]) .root:has(input:focus, textarea:focus):not(:has([data-attach-tabs-modal])) .popup,
+    :global(main[data-theme="dark"]) .root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-attachment-warning], [data-attach-tabs-modal])) .popup,
+    :global(.themeContext[data-theme="dark"]) .root:has(input:focus, textarea:focus):not(:has([data-attach-tabs-modal])) .popup,
+    :global(.themeContext[data-theme="dark"]) .root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-attachment-warning], [data-attach-tabs-modal])) .popup {
         box-shadow:
             0 10px 20px 0 rgba(0, 0, 0, 0.04),
             0 2px 6px 0 rgba(0, 0, 0, 0.1),
