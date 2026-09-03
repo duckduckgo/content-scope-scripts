@@ -31,6 +31,7 @@ test.describe('errorpage', () => {
             document.body.appendChild(reference);
 
             const link = document.getElementById('error-page-link');
+            if (!link) return false;
             return getComputedStyle(link).color === getComputedStyle(reference).color;
         });
 
