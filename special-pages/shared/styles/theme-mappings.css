@@ -958,9 +958,15 @@ body[data-theme-variant="desert"] {
  * Source of truth: Chris Morast's Theme Color 2 export → `NTP (Custom BG).tokens.json`,
  * via the `ntpOnCustomBackground` partial theme in design-tokens (PR #41,
  * https://github.com/duckduckgo/design-tokens/pull/41).
+ *
+ * Scoped to main[data-theme] / .themeContext[data-theme] — NOT bare [data-theme]
+ * (and not the & self-match on body) — so the Customizer <aside> (which follows
+ * browserMode, not the custom background) is unaffected, mirroring the container
+ * remapping block below. No current consumer of these tokens lives in the aside,
+ * but a bare/self match here would leak the override there via inheritance.
  */
 body[data-rebrand="true"]:not([data-background-kind="default"]) {
-    &[data-theme="light"], [data-theme="light"] {
+    main[data-theme="light"], .themeContext[data-theme="light"] {
         --ds-input-control-primary-background-color: var(--ds-color-theme-ntp-on-custom-background-light-input-control-primary-background-color);
         --ds-input-control-secondary-background-color: var(--ds-color-theme-ntp-on-custom-background-light-input-control-secondary-background-color);
         --ds-input-control-shadow-primary: var(--ds-color-theme-ntp-on-custom-background-light-input-control-shadow-primary);
@@ -979,7 +985,7 @@ body[data-rebrand="true"]:not([data-background-kind="default"]) {
         --ds-color-theme-accent-alt-secondary: var(--ds-color-theme-default-light-accent-alt-secondary);
     }
 
-    &[data-theme="dark"], [data-theme="dark"] {
+    main[data-theme="dark"], .themeContext[data-theme="dark"] {
         /* Shadow resolves to transparent: matches Chris's `box-shadow: none` for
          * dark active, since `box-shadow: 0 0 0 1px var(--ds-input-control-shadow-primary)`
          * renders as an invisible ring at that value. */
