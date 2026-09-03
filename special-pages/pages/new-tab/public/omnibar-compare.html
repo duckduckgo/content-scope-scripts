@@ -110,8 +110,9 @@ body.is-dragging .divider {
   <span class="note">Customizer state syncs automatically between both sides</span>
 </header>
 
-<div style="position:fixed;top:0;left:0;right:0;z-index:9999;background:#FF3B30;color:#fff;text-align:center;padding:10px 16px;font-family:system-ui,-apple-system,sans-serif;font-size:15px;font-weight:700;letter-spacing:0.01em;pointer-events:none;">
-  ⚠️ DEV ONLY — DO NOT SHIP TO PRODUCTION
+<div id="dev-banner" style="position:fixed;top:0;left:0;right:0;z-index:9999;background:#FF3B30;color:#fff;text-align:center;padding:10px 16px;font-family:system-ui,-apple-system,sans-serif;font-size:15px;font-weight:700;letter-spacing:0.01em;pointer-events:none;">
+  ⚠️ Dev Only for testing purposes
+  <span id="dev-banner-close" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;pointer-events:auto;font-size:18px;line-height:1;padding:4px 8px;">✕</span>
 </div>
 
 <div class="frames" id="frames" style="margin-top:40px;">
@@ -148,6 +149,10 @@ function applyWidths() {
 // Set initial widths after layout
 requestAnimationFrame(applyWidths);
 window.addEventListener('resize', applyWidths);
+
+document.getElementById('dev-banner-close').addEventListener('click', () => {
+  document.getElementById('dev-banner').style.display = 'none';
+});
 
 divider.addEventListener('mousedown', (e) => {
   e.preventDefault();
