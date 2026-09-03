@@ -87,7 +87,11 @@ export class ChromeWebstorePatching extends ContentFeature {
         const selectors = this.getFeatureSetting('installButtonSelectors');
         if (!Array.isArray(selectors)) return;
 
-        // POC consumes css entries only; xpath fallbacks are a future improvement
+        // css entries only. xpath would survive Google renaming jsname values
+        // (it can match on the button's visible text, which CSS can't express),
+        // but the fail-closed hide is a stylesheet rule and xpath can't live in
+        // a stylesheet, so an xpath-only match would get styled below without
+        // ever having been hidden. Adding it needs a JS-driven hide path first.
         this._buttonSelectors = selectors
             .filter((s) => s?.type === 'css' && typeof s.value === 'string')
             .map((s) => s.value)
