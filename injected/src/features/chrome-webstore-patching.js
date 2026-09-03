@@ -11,6 +11,16 @@ import {
 // Vendored from the duckduckgo/Icons repo (no package exports them), original names kept
 import daxSvg from './chrome-webstore-patching/assets/DuckDuckGo-Color-24.svg';
 import trashSvg from './chrome-webstore-patching/assets/Trash-24.svg';
+// Bundled by scripts/buildLocales.js from src/locales/chrome-webstore-patching/
+import localesJSON from '../../../build/locales/chrome-webstore-patching-locales.js';
+
+/** @type {Record<string, Record<string, Record<string, string>>>} locale → file → key → string */
+const STRINGS = JSON.parse(localesJSON);
+
+// buildLocales.js keys each locale by filename. Named for this feature rather
+// than a generic strings.json because Smartling scopes one project per repo, so
+// every locale file in it has to be distinguishable by name.
+const STRINGS_FILE = 'chrome-store-strings.json';
 
 const DAX_DATA_URI = `data:image/svg+xml;utf8,${encodeURIComponent(daxSvg)}`;
 const TRASH_DATA_URI = `data:image/svg+xml;utf8,${encodeURIComponent(trashSvg.replaceAll('fill="black"', 'fill="#FFFFFF" fill-opacity="0.78"'))}`;
@@ -56,19 +66,7 @@ const ICON_BACKGROUNDS = {
     unsupported: `url("${DAX_DATA_URI}") center / contain no-repeat`,
 };
 
-// Shipped copy. Remote config no longer carries buttonCopy: it was the only
-// source, which meant a config without it resolved to no copy and left every
-// button hidden. The remaining `buttonCopy` setting is an override for
-// hot-fixing wording without a browser release, so these are the values that
-// render when it is absent, which is the normal case.
-// English only. The translated strings land here in the localization work, and
-// this stub is replaced by the bundled locale files at that point.
-const DEFAULT_COPY = {
-    install: 'Add to DuckDuckGo',
-    remove: 'Remove from DuckDuckGo',
-    unavailable: 'Unsupported extension',
-    unavailableDescription: "This extension isn't supported.",
-};
+const VERDICT_COPY_KEY = /** @type {const} */ ({ install: 'install', remove: 'remove', unsupported: 'unavailable' });
 
 /**
  * Patches the Chrome Web Store UI in the DDG browser.
@@ -94,7 +92,16 @@ export class ChromeWebstorePatching extends ContentFeature {
     /** @type {string[]} validated install-button selectors, never joined into one list */
     _buttonSelectors = [];
 
-    async init() {
+    /** @type {string} BCP 47-ish language tag from the platform, e.g. 'de' */
+    _locale = 'en';
+
+    /** @param {any} [args] */
+    async init(args) {
+        // Locale dirs are bare language codes — strip any region subtag ('de-DE'/'de_DE' → 'de')
+        this._locale =
+            String(args?.locale || args?.language || 'en')
+                .toLowerCase()
+                .split(/[-_]/)[0] || 'en';
         if (!this.getFeatureSettingEnabled('patchWebstore')) return;
 
         const selectors = this.getFeatureSetting('installButtonSelectors');
@@ -229,13 +236,25 @@ export class ChromeWebstorePatching extends ContentFeature {
     }
 
     /**
+     * Localized copy for a key: the bundled locale, then bundled English.
+     * Remote config is not consulted — `buttonCopy` was removed from the schema
+     * when these bundled strings became the source, so English lives in
+     * `en/chrome-store-strings.json` only and cannot drift from a second copy.
+     * @param {'install' | 'remove' | 'unavailable' | 'unavailableDescription'} key
+     * @returns {string | undefined}
+     */
+    _copy(key) {
+        const localized = STRINGS[this._locale]?.[STRINGS_FILE]?.[key];
+        return typeof localized === 'string' ? localized : STRINGS.en?.[STRINGS_FILE]?.[key];
+    }
+
+    /**
      * Reveals the button for a verdict. Refuses without the verdict's copy —
      * a revealed button must never show Google's original wording.
      * @param {'install' | 'remove' | 'unsupported'} verdict
      */
     _reveal(verdict) {
-        const copy = DEFAULT_COPY;
-        const text = { install: copy.install, remove: copy.remove, unsupported: copy.unavailable }[verdict];
+        const text = this._copy(VERDICT_COPY_KEY[verdict]);
         if (typeof text !== 'string') return;
         this._verdict = verdict;
         this._applyVerdict();
@@ -262,14 +281,13 @@ export class ChromeWebstorePatching extends ContentFeature {
     _applyVerdict() {
         const verdict = this._verdict;
         if (!verdict) return;
-        const copy = DEFAULT_COPY;
-        const text = { install: copy.install, remove: copy.remove, unsupported: copy.unavailable }[verdict];
+        const text = this._copy(VERDICT_COPY_KEY[verdict]);
         if (typeof text !== 'string') return;
 
         // ALL matches: on SPA navigations the store mounts a fresh button while
         // previous-view nodes linger, and the visible one isn't necessarily first
         for (const button of this._matchingButtons()) {
-            this._applyVerdictToButton(button, verdict, text, copy);
+            this._applyVerdictToButton(button, verdict, text);
         }
     }
 
@@ -306,9 +324,8 @@ export class ChromeWebstorePatching extends ContentFeature {
      * @param {HTMLElement} button
      * @param {'install' | 'remove' | 'unsupported'} verdict
      * @param {string} text
-     * @param {import('./chrome-webstore-patching/helpers.js').ButtonCopy} copy
      */
-    _applyVerdictToButton(button, verdict, text, copy) {
+    _applyVerdictToButton(button, verdict, text) {
         // Icon and label are feature-owned spans — the store's internal button
         // structure rotates between states, so nothing of Google's is reused.
         // Every store child gets hidden: even zero-width flex items consume the gap.
@@ -370,9 +387,9 @@ export class ChromeWebstorePatching extends ContentFeature {
             button.removeAttribute('aria-disabled');
         }
         // The tooltip belongs to the unsupported state only. A node that flips to
-        // install/remove — SPA nav reusing a lingering button, or the post-click
-        // re-evaluation — must not keep telling the user it isn't supported.
-        const description = (isUnsupported && copy.unavailableDescription) || '';
+        // install/remove (SPA nav reusing a lingering button, or the post-click
+        // re-evaluation) must not keep telling the user it isn't supported.
+        const description = (isUnsupported && this._copy('unavailableDescription')) || '';
         if (description) {
             if (button.getAttribute('title') !== description) button.setAttribute('title', description);
         } else if (button.hasAttribute('title')) {

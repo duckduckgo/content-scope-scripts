@@ -78,6 +78,7 @@ function mockWebstorePrivate({ statusById = {}, omit = false, errorFor = undefin
  * @param {string[]} [opts.userUnprotectedDomains]
  * @param {boolean} [opts.internal] internal build? fixtures ship the feature as
  * `internal`, matching the windows override, so this defaults to true
+ * @param {string} [opts.locale]
  */
 async function setup(page, testInfo, opts = {}) {
     const collector = ResultsCollector.create(page, testInfo.project.use);
@@ -89,7 +90,14 @@ async function setup(page, testInfo, opts = {}) {
         omit: opts.omit ?? false,
         errorFor: opts.errorFor,
     });
-    await collector.load(opts.html ?? HTML, opts.config ?? CONFIG, { internal: opts.internal ?? true });
+    const platform = { internal: opts.internal ?? true };
+    if (opts.locale) {
+        // collector.load() has no locale parameter; setup() + goto is the same flow
+        await collector.setup({ config: opts.config ?? CONFIG, locale: opts.locale, platform });
+        await page.goto(opts.html ?? HTML);
+    } else {
+        await collector.load(opts.html ?? HTML, opts.config ?? CONFIG, platform);
+    }
     return collector;
 }
 
@@ -360,6 +368,33 @@ test.describe('chromeWebstorePatching', () => {
         for (const text of await page.locator(LABEL).allTextContents()) {
             expect(text).toBe('Add to DuckDuckGo');
         }
+    });
+
+    test('default locale → bundled English strings', async ({ page }, testInfo) => {
+        await setup(page, testInfo);
+        await navigateTo(page, CURATED_PATH);
+        await expect(page.locator(LABEL)).toHaveText('Add to DuckDuckGo');
+    });
+
+    test('locale de without config copy → bundled German strings', async ({ page }, testInfo) => {
+        await setup(page, testInfo, { locale: 'de' });
+        await navigateTo(page, UNCURATED_PATH);
+        await expect(page.locator(LABEL)).toHaveText('Nicht unterstützte Erweiterung');
+        await expect(page.locator(BUTTON)).toHaveAttribute('title', /wird nicht unterstützt/);
+        await navigateTo(page, CURATED_PATH);
+        await expect(page.locator(LABEL)).toHaveText('Zu DuckDuckGo hinzufügen');
+    });
+
+    test('region-tagged locale resolves its language dir (de-DE → de)', async ({ page }, testInfo) => {
+        await setup(page, testInfo, { locale: 'de-DE' });
+        await navigateTo(page, CURATED_PATH);
+        await expect(page.locator(LABEL)).toHaveText('Zu DuckDuckGo hinzufügen');
+    });
+
+    test('unknown locale falls back to bundled English', async ({ page }, testInfo) => {
+        await setup(page, testInfo, { locale: 'zz' });
+        await navigateTo(page, CURATED_PATH);
+        await expect(page.locator(LABEL)).toHaveText('Add to DuckDuckGo');
     });
 
     test('promos hidden with configured promoSelectors', async ({ page }, testInfo) => {

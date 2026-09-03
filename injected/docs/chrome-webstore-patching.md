@@ -34,9 +34,15 @@ Feature key `chromeWebstorePatching` (schema: `privacy-configuration/schema/feat
 
 Both selector lists take `{type, value}` entries. `promoSelectors` previously took bare strings; that format was dropped rather than kept alongside, since the feature is internal-only and not yet enabled by default, so the worst case of a config update reaching a build before the release does is promo banners showing on internal builds.
 
-Button copy ships in the feature as `DEFAULT_COPY`, not in remote config. Config was the only source at first, which meant a config without `buttonCopy` resolved to no copy and left every button hidden. The setting was removed from the schema and the override: the localization work supersedes it, and the bundled locale strings become the source once that lands.
+Button copy is **not** remote config. `buttonCopy` used to be the only source, which meant a config without it resolved to no copy and left every button hidden; it was removed from the schema and the override once the bundled locale strings took over. See Localization below.
 
 Curated extension IDs are **not** duplicated here — they are read from the native `extensionManagement` feature's `curatedExtensions.settings.catalog` via `bundledConfig` (sub-feature settings are not copied into `featureSettings`, so `getFeatureSetting` cannot reach them). Any shape mismatch there degrades to an empty catalog → everything hidden.
+
+## Localization
+
+Button copy lives in `injected/src/locales/chrome-webstore-patching/<locale>/chrome-store-strings.json` (`en` is the source of truth; other locales come from the translation pipeline), bundled by `scripts/buildLocales.js` into `build/locales/chrome-webstore-patching-locales.js` as part of `npm run build`. The locale comes from the platform init args (`args.locale || args.language || 'en'`, the duck-player pattern — never from remote config). Resolution order per string: bundled locale → bundled English. Remote config is not consulted, so English lives in `en/chrome-store-strings.json` alone and cannot drift from a second copy. The fail-closed rule is unchanged: a verdict whose copy resolves to nothing keeps the button hidden.
+
+The file is named for the feature rather than a generic `strings.json` because Smartling scopes one project per repo, so every locale file in it must be distinguishable by name (`click-to-load` and `duckplayer` follow the same rule). `buildLocales.js` keys the bundle by filename, so renaming it means updating `STRINGS_FILE` in the feature.
 
 ## Testing
 
