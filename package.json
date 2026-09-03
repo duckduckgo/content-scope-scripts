@@ -25,6 +25,7 @@
     "tsc-watch": "tsc --watch",
     "lint": "eslint . && npm run tsc && npm run tsc-strict-core && npm run check-surrogates -w injected && npm run lint-no-output-globals && npx prettier . --check",
     "lint-no-output-globals": "eslint --no-inline-config --config build-output.eslint.config.js Sources/ContentScopeScripts/dist/contentScope.js",
+    "test-eslint-rules": "node --test scripts/eslint-rules/no-blocking-init-request.test.js",
     "postlint": "npm run lint --workspaces --if-present",
     "lint-fix": "eslint . --fix && npx prettier . --write && npm run tsc",
     "stylelint": "npx stylelint \"**/*.css\"",

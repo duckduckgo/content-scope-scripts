@@ -37,6 +37,8 @@ jobs:
               env:
                   ORG_TOKEN: ${{ secrets.DAX_PAT }}
               with:
+                  # Ride out transient 5xx from the API rather than failing the gate
+                  retries: 3
                   script: |
                       const { loadRequiredTeams, findAuthorizedApproval } = await import(`${process.cwd()}/.github/scripts/review-helpers.mjs`);
                       const teams = loadRequiredTeams();
@@ -45,13 +47,20 @@ jobs:
                       const teamsList = teams.map(t => `@duckduckgo/${t}`).join(', ');
 
                       async function setReviewStatus({ state, description }) {
-                          await github.rest.repos.createCommitStatus({
-                              ...repo,
-                              sha,
-                              state,
-                              context: 'Authorized Review',
-                              description: description.substring(0, 140)
-                          });
+                          try {
+                              await github.rest.repos.createCommitStatus({
+                                  ...repo,
+                                  sha,
+                                  state,
+                                  context: 'Authorized Review',
+                                  description: description.substring(0, 140)
+                              });
+                          } catch (error) {
+                              // Reporting the status must not mask what we were reporting:
+                              // this is also called from the catch below, so throwing here
+                              // replaces a real diagnosis with an unhandled API error.
+                              core.warning(`Could not set the Authorized Review status: ${error.message}`);
+                          }
                       }
 
                       let approval;
