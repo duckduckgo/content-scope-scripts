@@ -660,74 +660,143 @@ describe('WebDetection', () => {
             }
         }
 
-        describe('query API capture', () => {
+        describe('captured API surface', () => {
             /**
-             * Replace every query method the feature could reach, run `run`, and return the
-             * selectors the replacements saw.
+             * Replace every page-reachable API the matcher could reach with one that records what
+             * it was given, evaluate `match` against `html`, and return the recorded strings that
+             * disclose a detector's configuration.
              *
-             * @param {() => void} run
-             * @returns {string[]}
+             * Elements are recorded as their markup, so an uncaptured call that merely receives a
+             * matched node still shows which selector found it.
+             *
+             * @param {object} options
+             * @param {string} options.html
+             * @param {import('../src/features/web-detection/parse.js').MatchCondition} options.match
+             * @param {string[]} options.secrets Strings a page must not be able to observe.
+             * @param {string[]} [options.zeroSizeSelectors]
+             * @param {() => void} [options.probe] Runs while the replacements are installed.
+             * @returns {{ matched: boolean, observed: string[] }}
              */
-            function selectorsObservedDuring(run) {
+            function evaluateUnderReplacedApis({ html, match, secrets, zeroSizeSelectors, probe }) {
+                // Markup is in place before the recording starts, so the parse work of building it
+                // is not mistaken for the matcher's own reads.
+                resetDom(html, zeroSizeSelectors);
+
                 /** @type {string[]} */
-                const observed = [];
+                const recorded = [];
                 /** @type {Array<() => void>} */
                 const restore = [];
-                for (const proto of [Document.prototype, Element.prototype]) {
-                    for (const name of ['querySelector', 'querySelectorAll']) {
-                        const original = proto[name];
-                        restore.push(() => {
-                            proto[name] = original;
-                        });
-                        proto[name] = function (/** @type {string} */ selectors) {
-                            observed.push(selectors);
-                            return original.call(this, selectors);
-                        };
-                    }
+
+                /**
+                 * @param {object} target
+                 * @param {string} name
+                 * @param {(this: any, result: any, ...args: any[]) => string} describe What the
+                 *   replacement discloses: the argument it was given or the node it returned.
+                 */
+                function replace(target, name, describe) {
+                    const original = target[name];
+                    restore.push(() => {
+                        target[name] = original;
+                    });
+                    target[name] = function (...args) {
+                        const result = original.apply(this, args);
+                        recorded.push(describe.call(this, result, ...args));
+                        return result;
+                    };
                 }
+
+                for (const proto of [Document.prototype, Element.prototype]) {
+                    replace(proto, 'querySelector', (_result, selectors) => selectors);
+                    replace(proto, 'querySelectorAll', (_result, selectors) => selectors);
+                }
+                replace(Document.prototype, 'createExpression', (_result, expression) => expression);
+                replace(XPathExpression.prototype, 'evaluate', (_result, contextNode) => String(contextNode));
+                replace(XPathResult.prototype, 'snapshotItem', (node) => String(node?.textContent));
+                replace(DOMParser.prototype, 'parseFromString', (_result, markup) => markup);
+                replace(NodeList.prototype, 'item', (node) => String(node?.outerHTML));
+                replace(RegExp.prototype, 'test', function () {
+                    return this.source;
+                });
+                replace(Element.prototype, 'remove', function () {
+                    return this.outerHTML;
+                });
+                replace(Element.prototype, 'getBoundingClientRect', function () {
+                    return this.outerHTML;
+                });
+                replace(globalThis, 'getComputedStyle', (_result, element) => element.outerHTML);
+
                 try {
-                    run();
+                    probe?.();
+                    const matched = evaluateMatch(match);
+                    return { matched, observed: recorded.filter((entry) => secrets.some((secret) => entry.includes(secret))) };
                 } finally {
                     for (const undo of restore) undo();
+                    resetDom();
                 }
-                return observed;
             }
 
-            it('records selectors passed through a replaced query method', () => {
-                const observed = selectorsObservedDuring(() => document.querySelectorAll('.replacement-is-live'));
-                expect(observed).toEqual(['.replacement-is-live']);
+            it('records configuration passed through a replaced API', () => {
+                // Control: the replacements are live for anything not routed through a captured
+                // reference, so the empty results below mean capture, not an inert test.
+                const { observed } = evaluateUnderReplacedApis({
+                    html: '<div class="g-recaptcha"></div>',
+                    match: {},
+                    secrets: ['leaked'],
+                    probe: () => {
+                        const source = 'leaked-pattern';
+                        document.querySelectorAll('.leaked-selector');
+                        new RegExp(source).test('nothing');
+                    },
+                });
+                expect(observed).toEqual(['.leaked-selector', 'leaked-pattern']);
             });
 
-            it('hides element condition selectors from a replaced query method', () => {
-                /** @type {boolean | undefined} */
-                let matched;
-                const observed = selectorsObservedDuring(() => {
-                    matched = matchInDOM('<div class="g-recaptcha"></div>', { element: { selector: '.g-recaptcha' } });
+            it('hides element condition selectors', () => {
+                const { matched, observed } = evaluateUnderReplacedApis({
+                    html: '<div class="g-recaptcha"></div>',
+                    match: { element: { selector: '.g-recaptcha' } },
+                    secrets: ['g-recaptcha'],
                 });
                 expect(matched).toBe(true);
                 expect(observed).toEqual([]);
             });
 
-            it('hides text condition selectors from a replaced query method', () => {
-                /** @type {boolean | undefined} */
-                let matched;
-                const observed = selectorsObservedDuring(() => {
-                    matched = matchInDOM('<p class="wall">adblocker detected</p>', {
-                        text: { pattern: 'adblocker detected', selector: '.wall' },
-                    });
+            it('hides text condition selectors and patterns', () => {
+                const { matched, observed } = evaluateUnderReplacedApis({
+                    html: '<p class="wall">adblocker detected</p>',
+                    match: { text: { pattern: 'adblocker detected', selector: '.wall' } },
+                    secrets: ['adblocker detected', '.wall'],
                 });
                 expect(matched).toBe(true);
                 expect(observed).toEqual([]);
             });
 
-            it('hides the selectors used when probing content of a matched element', () => {
+            it('hides xpath expressions and the patterns matched against them', () => {
+                const { matched, observed } = evaluateUnderReplacedApis({
+                    html: '<div class="wall">adblocker detected</div>',
+                    match: { text: { pattern: 'adblocker detected', xpath: '//div[@class="wall"]//text()' } },
+                    secrets: ['adblocker detected', '@class="wall"'],
+                });
+                expect(matched).toBe(true);
+                expect(observed).toEqual([]);
+            });
+
+            it('hides the markup and selectors used when probing content of a matched element', () => {
                 // `content` visibility inspects a detached DOMParser tree, which shares these prototypes
-                /** @type {boolean | undefined} */
-                let matched;
-                const observed = selectorsObservedDuring(() => {
-                    matched = matchInDOM('<div class="cf-turnstile"><iframe src="https://example.com/"></iframe></div>', {
-                        element: { selector: '.cf-turnstile', visibility: 'content' },
-                    });
+                const { matched, observed } = evaluateUnderReplacedApis({
+                    html: '<div class="cf-turnstile"><iframe src="https://example.com/"></iframe></div>',
+                    match: { element: { selector: '.cf-turnstile', visibility: 'content' } },
+                    secrets: ['cf-turnstile'],
+                });
+                expect(matched).toBe(true);
+                expect(observed).toEqual([]);
+            });
+
+            it('hides the elements measured for a visibility check', () => {
+                const { matched, observed } = evaluateUnderReplacedApis({
+                    html: '<div class="g-recaptcha">challenge</div>',
+                    match: { element: { selector: '.g-recaptcha', visibility: 'visible' } },
+                    secrets: ['g-recaptcha'],
                 });
                 expect(matched).toBe(true);
                 expect(observed).toEqual([]);
