@@ -20,6 +20,23 @@ test.describe('errorpage', () => {
         expect(await errorPage.callbackNames()).toEqual(['configured']);
     });
 
+    test('configured action link uses the design system accent text color', async ({ page }, testInfo) => {
+        const errorPage = ErrorPage.create(page, testInfo);
+        await errorPage.openPage();
+        await errorPage.configureLink('Send Feedback', 'configured');
+
+        const usesAccentTextColor = await page.evaluate(() => {
+            const reference = document.createElement('span');
+            reference.style.color = 'var(--ds-color-theme-default-light-accent-text-primary)';
+            document.body.appendChild(reference);
+
+            const link = document.getElementById('error-page-link');
+            return getComputedStyle(link).color === getComputedStyle(reference).color;
+        });
+
+        expect(usesAccentTextColor).toBe(true);
+    });
+
     test('reconfiguring the action link replaces its function', async ({ page }, testInfo) => {
         const errorPage = ErrorPage.create(page, testInfo);
         await errorPage.openPage();
