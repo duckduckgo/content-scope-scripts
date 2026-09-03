@@ -255,8 +255,10 @@
  * shared/styles/theme-mappings.css under the same selector.
  *
  * box-shadow is layered (drop shadows + 1px ring) — not expressible as a single
- * design token, so the outer layers stay inline. The 1px ring uses the existing
- * palette variables from special-pages/shared/styles/variables.css.
+ * design token, so the outer layers stay inline. The 1px ring uses
+ * --ds-color-black-at-6 / --ds-color-white-at-36, with a literal fallback
+ * since desktop-browsers doesn't export these palette tokens yet (same gap
+ * as --ds-color-white-at-60 in Tile.module.css).
  */
 :global(body[data-rebrand="true"]:not([data-background-kind="default"])) {
     .popup {
@@ -268,14 +270,14 @@
         box-shadow:
             0 10px 20px 0 rgba(0, 0, 0, 0.02),
             0 2px 6px 0 rgba(0, 0, 0, 0.08),
-            0 0 0 1px var(--color-black-at-6);
+            0 0 0 1px var(--ds-color-black-at-6, rgba(0, 0, 0, 0.06));
     }
 
     :global([data-theme="dark"]) .popup {
         box-shadow:
             0 10px 20px 0 rgba(0, 0, 0, 0.04),
             0 2px 6px 0 rgba(0, 0, 0, 0.1),
-            0 0 0 1px var(--color-white-at-36);
+            0 0 0 1px var(--ds-color-white-at-36, rgba(255, 255, 255, 0.36));
     }
 
     /*
@@ -290,7 +292,7 @@
         box-shadow:
             0 10px 20px 0 rgba(0, 0, 0, 0.02),
             0 2px 6px 0 rgba(0, 0, 0, 0.08),
-            0 0 0 1px var(--color-black-at-6),
+            0 0 0 1px var(--ds-color-black-at-6, rgba(0, 0, 0, 0.06)),
             var(--keyboard-focus-ring);
     }
 
@@ -299,7 +301,7 @@
         box-shadow:
             0 10px 20px 0 rgba(0, 0, 0, 0.04),
             0 2px 6px 0 rgba(0, 0, 0, 0.1),
-            0 0 0 1px var(--color-white-at-36),
+            0 0 0 1px var(--ds-color-white-at-36, rgba(255, 255, 255, 0.36)),
             var(--keyboard-focus-ring);
     }
 }
