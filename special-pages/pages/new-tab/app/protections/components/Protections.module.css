@@ -177,7 +177,7 @@
     .blob {
         background-color: var(--ds-input-control-primary-background-color);
         border-radius: var(--ds-radius-full);
-        box-shadow: var(--ds-input-control-shadow-primary);
+        box-shadow: 0 0 0 1px var(--ds-input-control-shadow-primary);
         height: calc(100% - var(--ds-space-x-5) * 2);
         left: var(--ds-space-x-5);
         position: absolute;
