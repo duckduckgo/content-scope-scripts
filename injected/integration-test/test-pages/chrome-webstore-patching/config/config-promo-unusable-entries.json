@@ -29,8 +29,16 @@
                         "value": "[jsname=\"v621tc\"]"
                     },
                     {
+                        "type": "xpath",
+                        "value": "//aside"
+                    },
+                    {
                         "type": "css",
                         "value": "div[jscontroller=\"o2G9me\"]"
+                    },
+                    {
+                        "type": "css",
+                        "value": "header[role=\"banner\" aside"
                     },
                     {
                         "type": "css",

@@ -135,9 +135,15 @@ export class ChromeWebstorePatching extends ContentFeature {
             });
         }
 
+        // Same {type, value} entries as installButtonSelectors, but 'css' is the
+        // only type: promo hiding has no JS pass at all, so there is nothing for
+        // an xpath entry to feed. Unusable entries are dropped individually.
         const promoSelectors = this.getFeatureSetting('promoSelectors');
         const validPromoSelectors = Array.isArray(promoSelectors)
-            ? promoSelectors.filter((s) => typeof s === 'string' && isValidSelector(s))
+            ? promoSelectors
+                  .filter((s) => s?.type === 'css' && typeof s.value === 'string')
+                  .map((s) => s.value)
+                  .filter(isValidSelector)
             : [];
         const promoRule = validPromoSelectors.map((selector) => `:is(${selector}) { display: none !important; }`).join('\n            ');
 

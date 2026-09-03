@@ -369,6 +369,20 @@ test.describe('chromeWebstorePatching', () => {
         await expect(page.locator('header aside')).toHaveCSS('display', 'none');
     });
 
+    // Unusable promo entries must be dropped one at a time. An xpath entry can
+    // never be consumed here, and remote config is a hot-fix channel so a
+    // malformed selector is a question of when; neither may take the rest of
+    // the list down with it.
+    test('promos still hidden when the list contains unusable entries', async ({ page }, testInfo) => {
+        await setup(page, testInfo, {
+            html: PROMO_HTML,
+            config: './integration-test/test-pages/chrome-webstore-patching/config/config-promo-unusable-entries.json',
+        });
+        await expect(page.locator('[jsname="v621tc"]')).toHaveCSS('display', 'none');
+        await expect(page.locator('div[jscontroller="o2G9me"]')).toHaveCSS('display', 'none');
+        await expect(page.locator('header aside')).toHaveCSS('display', 'none');
+    });
+
     test('promos visible when feature inert', async ({ page }, testInfo) => {
         await setup(page, testInfo, {
             html: PROMO_HTML,
