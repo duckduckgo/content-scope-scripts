@@ -39,7 +39,9 @@ Curated extension IDs are **not** duplicated here — they are read from the nat
 
 ## Localization
 
-Button copy lives in `injected/src/locales/chrome-webstore-patching/<locale>/strings.json` (`en` is the source of truth; other locales come from the translation pipeline), bundled by `scripts/buildLocales.js` into `build/locales/chrome-webstore-patching-locales.js` as part of `npm run build`. The locale comes from the platform init args (`args.locale || args.language || 'en'`, the duck-player pattern — never from remote config). Resolution order per string: config `buttonCopy` override → bundled locale → bundled English. The fail-closed rule is unchanged: a verdict whose copy resolves to nothing keeps the button hidden.
+Button copy lives in `injected/src/locales/chrome-webstore-patching/<locale>/chrome-store-strings.json` (`en` is the source of truth; other locales come from the translation pipeline), bundled by `scripts/buildLocales.js` into `build/locales/chrome-webstore-patching-locales.js` as part of `npm run build`. The locale comes from the platform init args (`args.locale || args.language || 'en'`, the duck-player pattern — never from remote config). Resolution order per string: config `buttonCopy` override → bundled locale → bundled English. The fail-closed rule is unchanged: a verdict whose copy resolves to nothing keeps the button hidden.
+
+The file is named for the feature rather than a generic `strings.json` because Smartling scopes one project per repo, so every locale file in it must be distinguishable by name (`click-to-load` and `duckplayer` follow the same rule). `buildLocales.js` keys the bundle by filename, so renaming it means updating `STRINGS_FILE` in the feature.
 
 ## Testing
 

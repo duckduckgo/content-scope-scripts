@@ -18,6 +18,11 @@ import localesJSON from '../../../build/locales/chrome-webstore-patching-locales
 /** @type {Record<string, Record<string, Record<string, string>>>} locale → file → key → string */
 const STRINGS = JSON.parse(localesJSON);
 
+// buildLocales.js keys each locale by filename. Named for this feature rather
+// than a generic strings.json because Smartling scopes one project per repo, so
+// every locale file in it has to be distinguishable by name.
+const STRINGS_FILE = 'chrome-store-strings.json';
+
 const DAX_DATA_URI = `data:image/svg+xml;utf8,${encodeURIComponent(daxSvg)}`;
 const TRASH_DATA_URI = `data:image/svg+xml;utf8,${encodeURIComponent(trashSvg.replaceAll('fill="black"', 'fill="#FFFFFF" fill-opacity="0.78"'))}`;
 
@@ -240,8 +245,8 @@ export class ChromeWebstorePatching extends ContentFeature {
     _copy(key) {
         const override = readButtonCopy(this.getFeatureSetting('buttonCopy'))[key];
         if (typeof override === 'string') return override;
-        const localized = STRINGS[this._locale]?.['strings.json']?.[key];
-        return typeof localized === 'string' ? localized : STRINGS.en?.['strings.json']?.[key];
+        const localized = STRINGS[this._locale]?.[STRINGS_FILE]?.[key];
+        return typeof localized === 'string' ? localized : STRINGS.en?.[STRINGS_FILE]?.[key];
     }
 
     /**
