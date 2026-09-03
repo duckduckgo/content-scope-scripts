@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Omnibar Compare — Legacy vs Rebrand</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; background: #111; font-family: system-ui, -apple-system, sans-serif; }
+
+body { display: flex; flex-direction: column; }
+
+header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  height: 36px;
+  background: #1c1c1e;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  flex-shrink: 0;
+}
+.title { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.7); }
+.note  { font-size: 10px; color: rgba(255,255,255,0.3); margin-left: auto; }
+.badge {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+.badge-legacy  { background: rgba(255,159,10,0.15);  color: #FFB340; }
+.badge-rebrand { background: rgba(124,122,255,0.18); color: #A8A7FF; }
+
+.frames {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+.col {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+.col-header {
+  padding: 5px 12px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  text-align: center;
+  flex-shrink: 0;
+}
+.col.legacy .col-header {
+  background: rgba(255,159,10,0.08);
+  color: #FFB340;
+}
+.col.rebrand .col-header {
+  background: rgba(124,122,255,0.08);
+  color: #A8A7FF;
+}
+iframe {
+  flex: 1;
+  border: none;
+  width: 100%;
+  min-height: 0;
+}
+
+/* Transparent cover that sits on top of iframes during drag to prevent them
+   from swallowing pointer events */
+.iframe-cover {
+  display: none;
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+}
+body.is-dragging .iframe-cover {
+  display: block;
+}
+
+.divider {
+  width: 6px;
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.06);
+  cursor: col-resize;
+  position: relative;
+  transition: background 0.15s;
+  z-index: 5;
+}
+.divider::after {
+  content: '';
+  position: absolute;
+  inset: 0 -4px; /* wider hit area */
+}
+.divider:hover,
+body.is-dragging .divider {
+  background: rgba(255,255,255,0.2);
+}
+</style>
+</head>
+<body>
+
+<header>
+  <span class="title">Omnibar token diff</span>
+  <span class="badge badge-legacy">Legacy — FF off</span>
+  <span class="badge badge-rebrand">Rebrand — FF on</span>
+  <span class="note">Customizer state syncs automatically between both sides</span>
+</header>
+
+<div id="dev-banner" style="position:fixed;top:0;left:0;right:0;z-index:9999;background:#FF3B30;color:#fff;text-align:center;padding:10px 16px;font-family:system-ui,-apple-system,sans-serif;font-size:15px;font-weight:700;letter-spacing:0.01em;pointer-events:none;">
+  ⚠️ Dev Only for testing purposes
+  <span id="dev-banner-close" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;pointer-events:auto;font-size:18px;line-height:1;padding:4px 8px;">✕</span>
+</div>
+
+<div class="frames" id="frames" style="margin-top:40px;">
+  <div class="col legacy" id="col-left">
+    <div class="col-header">Legacy (FF off)</div>
+    <iframe src="index.html?themeVariant=default" title="Legacy NTP"></iframe>
+    <div class="iframe-cover"></div>
+  </div>
+
+  <div class="divider" id="divider"></div>
+
+  <div class="col rebrand" id="col-right">
+    <div class="col-header">Rebrand (FF on)</div>
+    <iframe src="index.html?rebrand=enabled&autoOpen=true&themeVariant=default" title="Rebrand NTP"></iframe>
+    <div class="iframe-cover"></div>
+  </div>
+</div>
+
+<script>
+const frames  = document.getElementById('frames');
+const colLeft = document.getElementById('col-left');
+const colRight = document.getElementById('col-right');
+const divider = document.getElementById('divider');
+
+// Start at 50/50
+let leftPct = 50;
+
+function applyWidths() {
+  const total = frames.offsetWidth - divider.offsetWidth;
+  colLeft.style.width  = (leftPct / 100 * total) + 'px';
+  colRight.style.width = ((100 - leftPct) / 100 * total) + 'px';
+}
+
+// Set initial widths after layout
+requestAnimationFrame(applyWidths);
+window.addEventListener('resize', applyWidths);
+
+document.getElementById('dev-banner-close').addEventListener('click', () => {
+  document.getElementById('dev-banner').style.display = 'none';
+});
+
+divider.addEventListener('mousedown', (e) => {
+  e.preventDefault();
+  document.body.classList.add('is-dragging');
+  document.body.style.cursor = 'col-resize';
+
+  const startX   = e.clientX;
+  const startPct = leftPct;
+  const totalW   = frames.offsetWidth - divider.offsetWidth;
+
+  function onMove(e) {
+    const delta = e.clientX - startX;
+    leftPct = Math.min(80, Math.max(20, startPct + (delta / totalW * 100)));
+    applyWidths();
+  }
+
+  function onUp() {
+    document.body.classList.remove('is-dragging');
+    document.body.style.cursor = '';
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+  }
+
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onUp);
+});
+</script>
+
+</body>
+</html>
