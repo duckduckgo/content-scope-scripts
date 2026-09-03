@@ -235,6 +235,92 @@ test.describe('DetectorPerf Feature', () => {
         }
     });
 
+    test('debug builds broadcast live stats to the page as a JSON-string CustomEvent', async ({ page }, testInfo) => {
+        // The harness loads with args.debug enabled, which is exactly the
+        // configuration where test-page overlays consume this event.
+        const collector = ResultsCollector.create(page, testInfo.project.use);
+        collector.withMockResponse({ webDetectionAutoRun: null, webEvent: null, breakageReportResult: null });
+        await collector.load('/web-detection/index.html', buildConfig());
+        await navigateTo(page, '/web-detection/pages/no-detection.html');
+
+        // Listen after navigation (the init broadcast is missed; run
+        // broadcasts follow), then trigger detectors via the breakage flow.
+        await page.evaluate(() => {
+            // @ts-expect-error - test-only page global
+            window.__debugStats = [];
+            window.addEventListener('detectorPerfDebugStats', (event) => {
+                // @ts-expect-error - test-only page global
+                window.__debugStats.push(/** @type {CustomEvent} */ (event).detail);
+            });
+        });
+        await collector.simulateSubscriptionMessage('breakageReporting', 'getBreakageReportValues', {});
+        await collector.waitForMessage('breakageReportResult');
+
+        await expect
+            .poll(
+                async () =>
+                    // @ts-expect-error - test-only page global
+                    await page.evaluate(() => window.__debugStats.length),
+                { message: 'expected debug stats broadcasts on the page' },
+            )
+            .toBeGreaterThan(0);
+
+        // @ts-expect-error - test-only page global
+        const details = await page.evaluate(() => window.__debugStats);
+        // Detail must be a JSON string: primitives cross isolated-world
+        // boundaries, objects from an isolated world do not (Chromium).
+        for (const detail of details) {
+            expect(typeof detail).toBe('string');
+        }
+        const last = JSON.parse(details[details.length - 1]);
+        expect(typeof last.combinedTotalMs).toBe('number');
+        expect(Array.isArray(last.severe)).toBe(true);
+        expect(last.lastRun).toEqual(
+            expect.objectContaining({
+                name: expect.any(String),
+                attributed: expect.any(String),
+                durationMs: expect.any(Number),
+            }),
+        );
+        // The standalone detectors just ran, so their exact stats are present
+        expect(last.detectors.bot.runs).toBeGreaterThanOrEqual(1);
+        expect(last.detectors.fraud.runs).toBeGreaterThanOrEqual(1);
+    });
+
+    test('without the debug flag no stats broadcast reaches the page', async ({ page }, testInfo) => {
+        const collector = ResultsCollector.create(page, testInfo.project.use);
+        collector.withMockResponse({ webDetectionAutoRun: null, webEvent: null, breakageReportResult: null });
+        // Production configuration: the harness default of debug:true is
+        // overridden. A production-env build cannot receive the harness's
+        // development-env subscription pushes, so this test drives detectors
+        // through the timer-based auto-run path instead of the breakage flow.
+        collector.withUserPreferences({ debug: false });
+        await page.clock.install();
+        await collector.load('/web-detection/index.html', buildConfig());
+        await navigateTo(page, '/web-detection/pages/auto-run-basic.html');
+
+        await page.evaluate(() => {
+            // @ts-expect-error - test-only page global
+            window.__debugStats = [];
+            window.addEventListener('detectorPerfDebugStats', (event) => {
+                // @ts-expect-error - test-only page global
+                window.__debugStats.push(/** @type {CustomEvent} */ (event).detail);
+            });
+        });
+        // Trigger the auto-run scans (configured at 100ms and 300ms intervals)
+        await page.clock.fastForward(300);
+
+        // Detectors ran (recording is independent of the debug flag)…
+        await expect
+            .poll(async () => await getDetectorPerfEvents(collector), {
+                message: 'expected webDetection to have run',
+            })
+            .toContain('detectorPerf_webDetection_ran');
+        // …but the page observed nothing.
+        // @ts-expect-error - test-only page global
+        expect(await page.evaluate(() => window.__debugStats)).toEqual([]);
+    });
+
     test('emits only measured when the feature is enabled but no detector runs', async ({ page }, testInfo) => {
         const collector = await setup(page, testInfo.project.use);
         await navigateTo(page, '/web-detection/pages/no-detection.html');

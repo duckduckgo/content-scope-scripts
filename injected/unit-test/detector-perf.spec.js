@@ -30,9 +30,10 @@ describe('DetectorPerf', () => {
 
     /**
      * @param {object} [featureSettings] - settings for the detectorPerf feature
+     * @param {{ debug?: boolean }} [options]
      * @returns {{ feature: DetectorPerf, captured: string[], capturedEvents: Array<{type: string, data?: Record<string, unknown>}> }}
      */
-    function createFeature(featureSettings = {}) {
+    function createFeature(featureSettings = {}, { debug = false } = {}) {
         /** @type {string[]} */
         const captured = [];
         /** @type {Array<{type: string, data?: Record<string, unknown>}>} */
@@ -52,6 +53,7 @@ describe('DetectorPerf', () => {
             featureSettings: { detectorPerf: featureSettings },
             bundledConfig: undefined,
             messagingContextName: 'test',
+            debug,
         };
         // @ts-expect-error - stub features map for test
         const feature = new DetectorPerf('detectorPerf', undefined, { webEvents: webEventsStub }, args);
@@ -455,6 +457,38 @@ describe('DetectorPerf', () => {
                     bot: { runs: 2, totalMs: 3.6, worstMs: 2.3 },
                 },
             });
+        });
+    });
+
+    describe('debug stats broadcast', () => {
+        // The actual CustomEvent dispatch is asserted in the Playwright
+        // integration suite (Node's globalThis is not an EventTarget, so the
+        // captured dispatchEvent is undefined here). These tests cover the
+        // debug-flag gating: the broadcast path builds its payload from
+        // getStats(), so a getStats call marks the gate as open.
+
+        it('never builds a broadcast payload without the debug flag', () => {
+            const { feature } = createFeature();
+            const statsSpy = spyOn(feature, 'getStats').and.callThrough();
+            feature.record('bot', 40);
+            expect(statsSpy).not.toHaveBeenCalled();
+        });
+
+        it('builds a broadcast payload per recorded run with the debug flag', () => {
+            const { feature } = createFeature({}, { debug: true });
+            const statsSpy = spyOn(feature, 'getStats').and.callThrough();
+            feature.record('bot', 40);
+            feature.record('fraud', 5);
+            expect(statsSpy).toHaveBeenCalledTimes(2);
+        });
+
+        it('does not let broadcast failures affect recording', async () => {
+            const { feature, captured } = createFeature({}, { debug: true });
+            spyOn(feature, 'getStats').and.throwError('boom');
+            expect(() => feature.record('bot', 40)).not.toThrow();
+            // the run was still recorded and its events still emitted
+            await settle();
+            expect(captured).toContain('detectorPerf_bot_ran');
         });
     });
 

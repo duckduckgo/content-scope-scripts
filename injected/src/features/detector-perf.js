@@ -1,6 +1,6 @@
 import ContentFeature from '../content-feature.js';
 // eslint-disable-next-line no-redeclare
-import { hasOwnProperty, performanceNow } from '../captured-globals.js';
+import { hasOwnProperty, performanceNow, CustomEvent, dispatchEvent } from '../captured-globals.js';
 
 /**
  * Default threshold bin edges (ms). These are discovery bins, not perf
@@ -39,6 +39,18 @@ const EVENT_PREFIX = 'detectorPerf';
  * detectors that counters pool under `webDetection`.
  */
 const SEVERE_EVENT_TYPE = `${EVENT_PREFIX}_severe`;
+
+/**
+ * Debug-only page broadcast: a CustomEvent carrying the current stats
+ * snapshot, dispatched on `window` after every recorded run so test pages
+ * can render live timings for human testing. Gated on the platform debug
+ * flag — production builds never set it, so the branch is inert there and
+ * the "measurement is never page-observable" invariant holds for users.
+ * The detail is a JSON *string*: primitives cross isolated-world
+ * boundaries on all platforms, while objects created in an isolated world
+ * are not readable by the page on Chromium.
+ */
+const DEBUG_STATS_EVENT_TYPE = `${EVENT_PREFIX}DebugStats`;
 
 /**
  * @typedef {{ runs: number, totalMs: number, worstMs: number }} DetectorStats
@@ -87,7 +99,10 @@ function roundMs(ms) {
  * pixel with the detector name in the data payload.
  *
  * No DOM or layout reads and no `performance.mark`/`measure` happen here —
- * measurement must never be observable by the page.
+ * measurement must never be observable by the page. The only exception is
+ * the `detectorPerfDebugStats` CustomEvent, which exists solely for test
+ * pages and fires only when the platform sets the debug flag (never in
+ * production builds).
  */
 export default class DetectorPerf extends ContentFeature {
     _exposedMethods = this._declareExposedMethods(['record', 'getStats']);
@@ -128,6 +143,13 @@ export default class DetectorPerf extends ContentFeature {
     /** @type {number} */
     #maxSeverePerPage = DEFAULT_MAX_SEVERE_PER_PAGE;
 
+    /**
+     * Severe emissions on this page, kept only under the debug flag for the
+     * debug stats broadcast. Empty in production.
+     * @type {Array<{ kind: SevereKind, detector: string, thresholdMs: number }>}
+     */
+    #severeDebugLog = [];
+
     init() {
         this._readThresholdSettings();
 
@@ -135,6 +157,9 @@ export default class DetectorPerf extends ContentFeature {
         // ever runs. Fired at init like every other event fires at occurrence,
         // so no page-lifecycle event is ever needed.
         this._emit(`${EVENT_PREFIX}_measured`);
+
+        // Lets test-page overlays show "feature active" before any run.
+        this._debugBroadcast(null);
     }
 
     _readThresholdSettings() {
@@ -212,6 +237,9 @@ export default class DetectorPerf extends ContentFeature {
         const thresholds = this._thresholdsFor(name);
         this._emitCrossings(name, durationMs, stats, thresholds);
         this._checkSevere(name, durationMs, stats, attributed, thresholds);
+
+        // After crossings/severe so the broadcast includes this run's effects.
+        this._debugBroadcast({ name, attributed, durationMs: roundMs(durationMs) });
     }
 
     /**
@@ -307,7 +335,34 @@ export default class DetectorPerf extends ContentFeature {
         if (this.#emitted.has(guardKey)) return;
         this.#emitted.add(guardKey);
         this.#severeCount += 1;
+        if (this.isDebug) {
+            this.#severeDebugLog.push({ kind, detector, thresholdMs });
+        }
         void this._dispatch(SEVERE_EVENT_TYPE, { kind, detector, thresholdMs });
+    }
+
+    /**
+     * Debug-only broadcast of the current stats snapshot to the page, for
+     * test-page overlays during human testing. No-op unless the platform
+     * set the debug flag, so production behaviour is unchanged. Failures
+     * are swallowed: a page with a broken/removed EventTarget must not
+     * break recording.
+     *
+     * @param {{ name: string, attributed: string, durationMs: number } | null} lastRun
+     *   the run that triggered this broadcast, or null for the init broadcast
+     */
+    _debugBroadcast(lastRun) {
+        if (!this.isDebug) return;
+        try {
+            const payload = {
+                ...this.getStats(),
+                severe: this.#severeDebugLog,
+                lastRun,
+            };
+            dispatchEvent?.(new CustomEvent(DEBUG_STATS_EVENT_TYPE, { detail: JSON.stringify(payload) }));
+        } catch {
+            // never let debug plumbing affect measurement
+        }
     }
 
     /**
