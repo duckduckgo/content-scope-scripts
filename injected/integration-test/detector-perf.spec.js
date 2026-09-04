@@ -165,6 +165,21 @@ test.describe('DetectorPerf Feature', () => {
         const keys = Object.keys(perf.detectors);
         expect(keys.filter((key) => /^[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+$/.test(key)).length).toBeGreaterThan(0);
         expect(keys).not.toContain('webDetection');
+
+        // Ordering guard: getStats() must observe the fire-and-forget
+        // record() calls from the *same* report flow (they funnel through
+        // one shared `_ready` await, so continuations run FIFO). A second
+        // report must therefore show exactly one more run for the
+        // standalone detectors, which only ever run inside report flows.
+        await collector.simulateSubscriptionMessage('breakageReporting', 'getBreakageReportValues', {});
+        const reportCalls = await collector.waitForMessage('breakageReportResult', 2);
+        const secondParams = /** @type {Record<string, any>} */ (reportCalls[1].payload).params;
+        const secondPerf = JSON.parse(decodeURIComponent(String(secondParams.breakageData))).detectorPerf;
+        for (const name of ['bot', 'fraud']) {
+            expect(secondPerf.detectors[name].runs, `expected ${name} runs to include the current report's run`).toBe(
+                perf.detectors[name].runs + 1,
+            );
+        }
     });
 
     test('measurement leaves no page-observable performance timeline entries', async ({ page }, testInfo) => {

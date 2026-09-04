@@ -1,6 +1,6 @@
 import ContentFeature from '../content-feature.js';
 // eslint-disable-next-line no-redeclare
-import { hasOwnProperty, performanceNow, CustomEvent, dispatchEvent } from '../captured-globals.js';
+import { hasOwnProperty, performanceNow, CustomEvent, dispatchEvent, Map, Set } from '../captured-globals.js';
 
 /**
  * Default threshold bin edges (ms). These are discovery bins, not perf
@@ -353,6 +353,11 @@ export default class DetectorPerf extends ContentFeature {
      * set the debug flag, so production behaviour is unchanged. Failures
      * are swallowed: a page with a broken/removed EventTarget must not
      * break recording.
+     *
+     * INVARIANT: native release builds must never set the debug flag
+     * (`args.debug`) on user pages — this event is page-observable and
+     * exposes detector timing and severe-crossing attribution to any page
+     * script with a listener. The debug flag is the sole gate.
      *
      * @param {{ name: string, attributed: string, durationMs: number } | null} lastRun
      *   the run that triggered this broadcast, or null for the init broadcast
