@@ -88,6 +88,15 @@ describe('DetectorPerf', () => {
             expect(captured).toEqual(['detectorPerf_measured']);
         });
 
+        it('does not emit measured in subframes (iframes must not inflate the page denominator)', async () => {
+            const iframe = dom.window.document.createElement('iframe');
+            dom.window.document.body.appendChild(iframe);
+            globalThis.window = iframe.contentWindow;
+            const { captured } = createFeature();
+            await settle();
+            expect(captured).toEqual([]);
+        });
+
         it('emits ran and every crossed single-run edge as runs happen', async () => {
             const { feature, captured } = createFeature();
             feature.record('bot', 5);

@@ -88,7 +88,8 @@ function roundMs(ms) {
  * aggregates them into periodic telemetry pixels.
  *
  * Every event is monotonic and fires as soon as it first becomes true, at
- * most once per page per event type: `measured` at feature init, `<name>_ran`
+ * most once per page per event type: `measured` at feature init (top frame
+ * only, so iframes cannot inflate the page denominator), `<name>_ran`
  * on a detector's first run, and each threshold event at its first crossing.
  * Nothing depends on page visibility, so a killed process or swiped-away app
  * loses nothing already observed — avoiding the data-loss bias where the
@@ -155,8 +156,13 @@ export default class DetectorPerf extends ContentFeature {
 
         // Page-level denominator: this page was observed, even if no detector
         // ever runs. Fired at init like every other event fires at occurrence,
-        // so no page-lifecycle event is ever needed.
-        this._emit(`${EVENT_PREFIX}_measured`);
+        // so no page-lifecycle event is ever needed. Top frame only: the
+        // feature initializes in every injected subframe too, and without
+        // this guard each iframe would inflate the "pages measured" count
+        // while crossings can only come from frames where detectors run.
+        if (window.self === window.top) {
+            this._emit(`${EVENT_PREFIX}_measured`);
+        }
 
         // Lets test-page overlays show "feature active" before any run.
         this._debugBroadcast(null);
