@@ -7,6 +7,7 @@ import ContentFeature from '../content-feature.js';
 import { URL } from '../captured-globals.js';
 import { DDGProxy, DDGReflect } from '../utils';
 import { wrapToString, wrapFunction } from '../wrapper-utils.js';
+import { ClipboardImpl, ClipboardItemImpl } from './web-compat/async-clipboard.js';
 /**
  * Fixes incorrect sizing value for outerHeight and outerWidth.
  * Note: Avoid hardcoding window geometry values - use calculations or config where possible.
@@ -157,6 +158,10 @@ export class WebCompat extends ContentFeature {
 
         if (this.getFeatureSettingEnabled('presentation')) {
             this.presentationFix();
+        }
+
+        if (this.getFeatureSettingEnabled('asyncClipboard')) {
+            this.asyncClipboardFix();
         }
 
         if (this.getFeatureSettingEnabled('webShare')) {
@@ -960,6 +965,40 @@ export class WebCompat extends ContentFeature {
 
             // @ts-expect-error Presentation API is still experimental, TS types are missing
             this.shimProperty(Navigator.prototype, 'presentation', new MyPresentation(), true);
+        } catch {
+            // Ignore exceptions that could be caused by conflicting with other extensions
+        }
+    }
+
+    /**
+     * Adds the Async Clipboard API where it is missing, backed by `document.execCommand()`.
+     *
+     * Restricted to the Windows browser: it is the only platform whose WebView is known to
+     * omit `navigator.clipboard` while still honouring the deprecated clipboard commands.
+     */
+    asyncClipboardFix() {
+        if (this.platform?.name !== 'windows') {
+            return;
+        }
+        try {
+            // Never replace a working implementation. The integration build always shims,
+            // so the behaviour can be tested in a browser that has the real API.
+            if (window.navigator.clipboard && this.injectName !== 'integration') {
+                return;
+            }
+
+            this.shimInterface('ClipboardItem', ClipboardItemImpl, {
+                disallowConstructor: false,
+                allowConstructorCall: false,
+                wrapToString: true,
+            });
+
+            this.shimInterface('Clipboard', ClipboardImpl, {
+                disallowConstructor: true,
+                allowConstructorCall: false,
+                wrapToString: true,
+            });
+            this.shimProperty(Navigator.prototype, 'clipboard', new ClipboardImpl(), true);
         } catch {
             // Ignore exceptions that could be caused by conflicting with other extensions
         }
