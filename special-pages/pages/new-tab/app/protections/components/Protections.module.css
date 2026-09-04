@@ -1,7 +1,8 @@
 .root {
     background: var(--ntp-surface-background-color);
+    box-shadow: var(--ntp-surface-box-shadow, none);
     backdrop-filter: blur(48px);
-    border: 1px solid var(--ds-color-theme-container-border-primary);
+    border: 1px solid var(--ntp-surface-border-color, var(--ds-color-theme-container-border-primary));
     padding: var(--sp-6);
     border-radius: var(--border-radius-lg);
     display: grid;
@@ -17,7 +18,7 @@
     }
 
     [data-theme=dark] & {
-        border-color: var(--color-white-at-9);
+        border-color: var(--ntp-surface-border-color, var(--color-white-at-9));
     }
 }
 
@@ -127,6 +128,10 @@
  */
 :global(body[data-rebrand="true"]) {
     .root {
+        /* outline renders outside the box, so the drop shadow doesn't cover
+           it — rebrand only, legacy keeps its inset border. */
+        border: none;
+        outline: 1px solid var(--ntp-surface-border-color, var(--ds-color-theme-container-border-primary));
         border-radius: var(--ds-radius-x06);
         box-shadow: var(--ntp-card-shadow-rest);
     }
@@ -136,8 +141,13 @@
     }
 
     .switcher {
-        background: var(--ds-color-theme-control-fill-primary);
-        border: 1px solid var(--ds-color-theme-container-border-primary);
+        /* self-remaps for custom backgrounds (theme-mappings.css); see the
+           comment near the end of this file for when this value stands vs.
+           when the veil-compensated override below replaces it */
+        background: var(--ds-input-control-secondary-background-color);
+        /* the omnibar's TabSwitcher never has a border, in any state — match
+           that here too, not just on custom backgrounds */
+        border: none;
         border-radius: var(--ds-radius-full);
         padding: var(--ds-space-x-5);
         position: relative;
@@ -165,9 +175,9 @@
        --tab-index, so switching feed animates instead of instantly
        swapping which button has a background. */
     .blob {
-        background-color: var(--ds-color-theme-control-raised-fill-primary);
+        background-color: var(--ds-input-control-primary-background-color);
         border-radius: var(--ds-radius-full);
-        box-shadow: 0 1px 0 0 var(--ds-color-theme-tone-tint-primary) inset, 0 1px 4px 0 var(--ds-color-theme-shadow-secondary), 0 4px 8px 0 var(--ds-color-theme-shadow-secondary);
+        box-shadow: 0 0 0 1px var(--ds-input-control-shadow-primary);
         height: calc(100% - var(--ds-space-x-5) * 2);
         left: var(--ds-space-x-5);
         position: absolute;
@@ -187,22 +197,56 @@
         border: 0;
     }
 
+    [data-theme="light"] {
+        .root {
+            outline: none;
+        }
+    }
+
     [data-theme="dark"] {
         .root {
-            border-color: var(--ds-ntp-dark-card-border-color);
+            outline-color: var(--ntp-surface-border-color, var(--ds-ntp-dark-card-border-color));
         }
 
         .blob {
             box-shadow: none;
         }
+
+        /* Legacy platform rules ([data-platform-name][data-theme="dark"] .active)
+           paint the selected button white-at-25, at a higher specificity than the
+           base rebrand `.active { background: transparent }`, so in dark mode that
+           white fill covers the .blob pill (the muddy grey Chris flagged). Reset it
+           here — this selector is (0,3,1), beating the legacy (0,3,0). */
+        .active {
+            background: transparent;
+        }
     }
 }
 
 :global(body[data-rebrand="true"]:not([data-background-kind="default"])) {
-    /* Same treatment as the omnibar's Search/Duck.ai TabSwitcher: blur the
-       arbitrary custom background before tinting. */
-    .switcher {
-        backdrop-filter: blur(48px);
+    /* Match the omnibar TabSwitcher track + blob on custom backgrounds
+       (track background: see the comment near the end of this file; active
+       blob = the semantic input-control-primary, Shade 60 dark / Tint 60
+       light, with a 1px input-control-shadow-primary ring — black-at-5
+       light, transparent dark). The selected button text stays on the base
+       .button rule (theme-primary), which reads correctly against both
+       blob values — no override needed.
+
+       No backdrop-filter here: .switcher already sits on .root's own
+       blur(48px), and stacking a second blur(24px) on a 28px-tall pill
+       pulls in the card's border/shadow, reading as a dull grey instead
+       of the plain translucent white the token declares. */
+    .blob {
+        background: var(--ds-input-control-primary-background-color);
+        box-shadow: 0 0 0 1px var(--ds-input-control-shadow-primary);
+    }
+}
+
+:global(body[data-rebrand="true"]:not([data-background-kind="default"], [data-wallpaper-extreme="light"])) {
+    main[data-theme="light"], .themeContext[data-theme="light"] {
+        .switcher {
+            background: rgba(0, 0, 0, 0.17);
+        }
     }
 }
 

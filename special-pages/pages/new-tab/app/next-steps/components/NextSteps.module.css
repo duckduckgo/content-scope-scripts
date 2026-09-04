@@ -1,7 +1,8 @@
 .card {
     background-color: var(--ntp-surface-background-color);
+    box-shadow: var(--ntp-surface-box-shadow, none);
     backdrop-filter: blur(48px);
-    border: 1px solid var(--ds-color-theme-container-border-primary);
+    border: 1px solid var(--ntp-surface-border-color, var(--ds-color-theme-container-border-primary));
     padding: var(--sp-2) var(--sp-4);
     border-radius: var(--border-radius-lg);
     position: relative;
@@ -194,5 +195,20 @@
     .nextStepsCard .title {
         font-weight: 700;
         letter-spacing: normal;
+    }
+}
+
+/* outline renders outside the box, so the drop shadow doesn't cover it —
+   rebrand only, legacy keeps its inset border. */
+:global(body[data-rebrand="true"]) {
+    .card {
+        border: none;
+        outline: 1px solid var(--ntp-surface-border-color, var(--ds-color-theme-container-border-primary));
+    }
+
+    [data-theme="light"] {
+        .card {
+            outline: none;
+        }
     }
 }

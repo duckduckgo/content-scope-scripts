@@ -3,7 +3,7 @@ import styles from './BackgroundReceiver.module.css';
 import { values } from '../customizer/values.js';
 import { useContext, useEffect, useState } from 'preact/hooks';
 import { CustomizerContext } from '../customizer/CustomizerProvider.js';
-import { detectThemeFromHex } from '../customizer/utils.js';
+import { detectThemeFromHex, getWallpaperExtreme } from '../customizer/utils.js';
 import { useSignalEffect } from '@preact/signals';
 import { memo } from 'preact/compat';
 
@@ -89,6 +89,19 @@ export function BackgroundConsumer({ browser, variant }) {
         }
 
         document.body.style.setProperty('background-color', nextBodyBackground);
+
+        // Some custom-bg overrides (e.g. Protections' toggle) compensate for a
+        // veil over the wallpaper — that compensation overshoots once the
+        // wallpaper is already close to the veil's own color, where the
+        // uncompensated token already matches. Flag that case here.
+        // userImage/default have no single flat color to measure.
+        const isFlatColor = background.kind !== 'userImage' && background.kind !== 'default';
+        const wallpaperExtreme = isFlatColor ? getWallpaperExtreme(nextBodyBackground) : undefined;
+        if (wallpaperExtreme) {
+            document.body.dataset.wallpaperExtreme = wallpaperExtreme;
+        } else {
+            delete document.body.dataset.wallpaperExtreme;
+        }
 
         // let animations occur, after properties above have been flushed to the DOM
         if (!document.body.dataset.animateBackground) {

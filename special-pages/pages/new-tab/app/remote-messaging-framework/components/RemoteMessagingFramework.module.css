@@ -1,7 +1,8 @@
 .root {
     background-color: var(--ntp-surface-background-color);
+    box-shadow: var(--ntp-surface-box-shadow, none);
     backdrop-filter: blur(48px);
-    border: 1px solid var(--ds-color-theme-container-border-primary);
+    border: 1px solid var(--ntp-surface-border-color, var(--ds-color-theme-container-border-primary));
     padding: calc(14 * var(--px-in-rem)) var(--sp-8) calc(14 * var(--px-in-rem)) var(--sp-4);
     border-radius: var(--border-radius-lg);
     position: relative;
@@ -76,6 +77,10 @@
 
 :global(body[data-rebrand="true"]) {
     .root {
+        /* outline renders outside the box, so the drop shadow doesn't cover
+           it — rebrand only, legacy keeps its inset border. */
+        border: none;
+        outline: 1px solid var(--ntp-surface-border-color, var(--ds-color-theme-container-border-primary));
         border-radius: var(--ds-radius-x05);
         box-shadow: var(--ntp-card-shadow-rest);
         /* top/bottom 20, left 16, right 40 — same for all RMF variants */
@@ -126,7 +131,13 @@
 
     [data-theme="dark"] {
         .root {
-            border-color: var(--ds-ntp-dark-card-border-color);
+            outline-color: var(--ntp-surface-border-color, var(--ds-ntp-dark-card-border-color));
+        }
+    }
+
+    [data-theme="light"] {
+        .root {
+            outline: none;
         }
     }
 }
