@@ -12,14 +12,7 @@ const __filename = fileURLToPath(import.meta.url);
 // eslint-disable-next-line no-redeclare
 const __dirname = path.dirname(__filename);
 
-// The config package exports getSchema/createValidator, but they resolve
-// './schema/config.ts' against process.cwd(), so they only work from inside that
-// repo. Hence the local generator, pointed at a resolved path rather than a
-// hardcoded '../../node_modules': privacy-configuration is a dependency of the
-// injected workspace alone, so npm hoists it to the repo root or leaves it in
-// injected/node_modules depending on the pin, and hardcoding either one breaks
-// every schema spec here with "No input files" the next time that flips.
-// TODO make the config export all of this so it can be imported
+// Using node's lookup to resolve schema generator
 async function createConfigSchemaGenerator() {
     const schemaGenerator = await import('ts-json-schema-generator');
     return schemaGenerator.createGenerator({
