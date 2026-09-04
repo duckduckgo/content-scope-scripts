@@ -2914,7 +2914,8 @@
     "trackerProtection",
     // only enabled on apple platforms
     "textSelection",
-    "uaChBrands"
+    "uaChBrands",
+    "chromeWebstorePatching"
   ];
   var selfGatingFeatures = ["trackerProtection", "uaChBrands"];
   function isPlatformSpecificFeature(featureName) {
@@ -2999,7 +3000,8 @@
       "trackerProtection",
       "tabSuspension",
       "autofillPasskeys",
-      "textSelection"
+      "textSelection",
+      "chromeWebstorePatching"
     ]
   );
   var platformSupport = {
@@ -3072,7 +3074,8 @@
       "duckAiDataClearing",
       "performanceMetrics",
       "duckAiChatHistory",
-      "autofillPasskeys"
+      "autofillPasskeys",
+      "chromeWebstorePatching"
     ],
     firefox: ["cookie", ...baseFeatures, "clickToLoad", "webDetection", "webEvents", "webInterferenceDetection", "breakageReporting"],
     chrome: ["cookie", ...baseFeatures, "clickToLoad", "webDetection", "webEvents", "webInterferenceDetection", "breakageReporting"],
@@ -19958,6 +19961,403 @@ ${iframeContent}
   };
   _cancelPending = new WeakMap();
 
+  // src/features/chrome-webstore-patching.js
+  init_define_import_meta_trackerLookup();
+
+  // src/features/chrome-webstore-patching/helpers.js
+  init_define_import_meta_trackerLookup();
+  function isRecord(value) {
+    return typeof value === "object" && value !== null;
+  }
+  function isStateOn(state) {
+    return state === "enabled" || state === "internal";
+  }
+  function parseExtensionId(pathname) {
+    const match = pathname.match(/\/detail\/(?:[^/]+\/)?([a-p]{32})(?:[/?#]|$)/);
+    return match?.[1] ?? null;
+  }
+  function isValidSelector(selector) {
+    try {
+      document.createDocumentFragment().querySelector(selector);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+  function readCuratedCatalog(bundledConfig) {
+    if (!isRecord(bundledConfig)) return [];
+    const features = bundledConfig.features;
+    if (!isRecord(features)) return [];
+    const extensionManagement = features.extensionManagement;
+    if (!isRecord(extensionManagement) || !isStateOn(extensionManagement.state)) return [];
+    const subFeatures = extensionManagement.features;
+    if (!isRecord(subFeatures)) return [];
+    const curated = subFeatures.curatedExtensions;
+    if (!isRecord(curated) || !isStateOn(curated.state)) return [];
+    const settings = curated.settings;
+    if (!isRecord(settings)) return [];
+    const catalog = settings.catalog;
+    if (!Array.isArray(catalog)) return [];
+    const ids = [];
+    for (const entry of catalog) {
+      if (isRecord(entry) && typeof entry.id === "string") ids.push(entry.id);
+    }
+    return ids;
+  }
+  var INSTALLED_STATUSES = ["enabled", "disabled", "force_installed", "terminated"];
+  var INSTALLABLE_STATUSES = ["installable", "can_request"];
+  function getWebstorePrivate(chromeGlobal) {
+    if (!isRecord(chromeGlobal)) return null;
+    const webstorePrivate = chromeGlobal.webstorePrivate;
+    if (!isRecord(webstorePrivate)) return null;
+    if (typeof webstorePrivate.getExtensionStatus !== "function") return null;
+    return (
+      /** @type {WebstorePrivate} */
+      /** @type {unknown} */
+      webstorePrivate
+    );
+  }
+  function hasRuntimeLastError(chromeGlobal) {
+    if (!isRecord(chromeGlobal)) return false;
+    const runtime = chromeGlobal.runtime;
+    return isRecord(runtime) && runtime.lastError != null;
+  }
+  function readStatusSets(chromeGlobal) {
+    const statuses = getWebstorePrivate(chromeGlobal)?.ExtensionInstallStatus;
+    const enumValues = isRecord(statuses) ? statuses : {};
+    const collect = (keys) => {
+      const found = [];
+      for (const key of keys) {
+        const value = enumValues[key];
+        if (typeof value === "string") found.push(value);
+      }
+      return found;
+    };
+    const installable = collect(["INSTALLABLE", "CAN_REQUEST"]);
+    const installed = collect(["ENABLED", "DISABLED", "FORCE_INSTALLED", "TERMINATED"]);
+    return {
+      installable: installable.length ? installable : INSTALLABLE_STATUSES,
+      installed: installed.length ? installed : INSTALLED_STATUSES
+    };
+  }
+
+  // src/features/chrome-webstore-patching/assets/DuckDuckGo-Color-24.svg
+  var DuckDuckGo_Color_24_default = '<svg fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">\n  <path fill="#DE5833" fill-rule="evenodd" d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10" clip-rule="evenodd"/>\n  <path fill="#DDD" fill-rule="evenodd" d="M13.406 19.46c0-.077.02-.095-.229-.59-.66-1.322-1.323-3.185-1.022-4.387.055-.218-.621-8.085-1.1-8.338-.531-.283-1.185-.733-1.784-.833-.303-.048-.701-.025-1.013.017-.055.007-.057.106-.004.124.204.07.452.19.598.371.028.035-.01.089-.053.09-.138.006-.388.063-.718.344-.038.032-.006.092.043.082.709-.14 1.432-.07 1.86.317.027.025.012.07-.024.08-3.702 1.006-2.97 4.227-1.984 8.179.877 3.515 1.208 4.652 1.312 4.999.01.034.035.062.068.075 1.275.507 4.05.53 4.05-.334z" clip-rule="evenodd"/>\n  <path fill="#fff" d="M12 3.063c4.953 0 8.969 4.015 8.969 8.968S16.953 21 12 21s-8.969-4.015-8.969-8.969S7.047 3.063 12 3.063m0 1.25c-4.263 0-7.719 3.455-7.719 7.718 0 3.433 2.241 6.341 5.34 7.344-.337-1.092-.885-2.955-1.427-5.178l-.069-.285-.001-.003c-.847-3.462-1.539-6.29 2.255-7.178.034-.008.05-.049.028-.076-.435-.516-1.25-.686-2.282-.33-.042.015-.079-.028-.053-.064.202-.279.598-.493.793-.587.04-.02.038-.078-.005-.092-.127-.04-.345-.101-.59-.14-.057-.01-.062-.109-.004-.117 1.461-.196 2.989.242 3.755 1.207q.011.015.028.019c2.804.602 3.006 5.033 2.683 5.238-.063.04-.268.018-.538-.013-1.091-.122-3.252-.364-1.468 2.96.017.033-.006.076-.042.082-.91.142.057 2.727.95 4.756 3.478-.75 6.085-3.84 6.085-7.543 0-4.263-3.456-7.719-7.719-7.719"/>\n  <path fill="#3CA82B" d="M15.169 16.171c-.214-.098-1.035.49-1.58.942-.114-.16-.329-.278-.813-.194-.424.074-.658.176-.762.352-.67-.253-1.795-.645-2.067-.267-.298.414.074 2.37.469 2.623.206.133 1.192-.501 1.707-.938.083.117.217.184.492.177.416-.01 1.09-.106 1.195-.3q.01-.017.016-.041c.53.198 1.461.407 1.67.376.542-.082-.076-2.613-.327-2.73"/>\n  <path fill="#4CBA3C" d="M13.639 17.171q.032.06.056.126c.075.21.198.882.105 1.048s-.697.245-1.069.252c-.373.006-.456-.13-.532-.34-.06-.17-.09-.567-.09-.794-.014-.337.109-.456.678-.548.421-.068.644.012.773.147.598-.446 1.596-1.076 1.693-.961.485.574.547 1.94.442 2.49-.035.18-1.642-.178-1.642-.371 0-.805-.209-1.026-.414-1.049m-3.52-.251c.131-.208 1.199.05 1.785.311 0 0-.12.546.07 1.188.057.188-1.347 1.025-1.53.881-.212-.166-.602-1.942-.325-2.38"/>\n  <path fill="#FC3" fill-rule="evenodd" d="M10.636 12.689c.086-.376.488-1.084 1.925-1.066.726-.003 1.628 0 2.226-.069.89-.1 1.55-.316 1.989-.483.622-.237.842-.185.92-.043.085.156-.015.426-.233.673-.415.474-1.16.841-2.479.95-1.317.109-2.19-.245-2.566.33-.162.25-.037.834 1.238 1.018 1.721.249 3.136-.3 3.31.032.175.33-.831 1.004-2.556 1.018s-2.802-.604-3.184-.91c-.485-.39-.702-.959-.59-1.45" clip-rule="evenodd"/>\n  <path fill="#14307E" d="M12.832 8.582c.096-.157.31-.279.659-.279s.513.14.627.294c.023.032-.012.069-.048.053l-.026-.011c-.128-.056-.285-.124-.553-.128-.287-.004-.468.068-.583.13-.038.02-.099-.021-.076-.059m-3.93.202c.339-.142.605-.123.793-.079.04.01.068-.033.036-.059-.146-.118-.474-.264-.9-.105-.381.142-.56.437-.561.63 0 .047.093.05.118.012.065-.105.175-.257.514-.4"/>\n  <path fill="#14307E" fill-rule="evenodd" d="M13.787 10.738c-.3 0-.542-.243-.542-.541s.243-.541.542-.541.543.242.543.54-.243.542-.543.542m.383-.72c0-.078-.063-.14-.14-.14s-.14.062-.141.14c0 .077.063.14.14.14s.14-.063.14-.14m-3.978.552c0 .35-.283.632-.633.632-.349 0-.632-.283-.632-.631s.283-.63.632-.63.633.282.633.63m-.187-.208c0-.09-.073-.163-.163-.163s-.163.072-.164.163c0 .09.073.163.164.163.09 0 .164-.073.164-.163" clip-rule="evenodd"/>\n  <path fill="#fff" fill-rule="evenodd" d="M12 19.813c4.315 0 7.813-3.498 7.813-7.813S16.314 4.188 12 4.188 4.188 7.685 4.188 12 7.685 19.813 12 19.813m0 .937c4.833 0 8.75-3.918 8.75-8.75S16.832 3.25 12 3.25 3.25 7.168 3.25 12c0 4.833 3.918 8.75 8.75 8.75" clip-rule="evenodd"/>\n</svg>\n';
+
+  // src/features/chrome-webstore-patching/assets/Trash-24.svg
+  var Trash_24_default = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">\n<path d="M9.25 8.99984C9.66421 8.99984 10 9.33562 10 9.74984V17.2498C10 17.6641 9.66421 17.9998 9.25 17.9998C8.83579 17.9998 8.5 17.6641 8.5 17.2498V9.74984C8.5 9.33562 8.83579 8.99984 9.25 8.99984Z" fill="black"/>\n<path d="M15.4996 9.74984C15.4996 9.33562 15.1638 8.99984 14.7496 8.99984C14.3354 8.99984 13.9996 9.33562 13.9996 9.74984V17.2498C13.9996 17.6641 14.3354 17.9998 14.7496 17.9998C15.1638 17.9998 15.4996 17.6641 15.4996 17.2498V9.74984Z" fill="black"/>\n<path fill-rule="evenodd" clip-rule="evenodd" d="M7.03105 4.99984C7.3097 3.29834 8.78678 2 10.5671 2H13.4874C15.2677 2 16.7448 3.29834 17.0235 4.99984H20.25C20.6642 4.99984 21 5.33562 21 5.74984C21 6.16405 20.6642 6.49984 20.25 6.49984H20V16.9998C20 19.7613 17.7614 21.9998 15 21.9998H9C6.23858 21.9998 4 19.7613 4 16.9998V6.49984H3.75C3.33579 6.49984 3 6.16405 3 5.74984C3 5.33562 3.33579 4.99984 3.75 4.99984H7.03105ZM5.5 6.49984V16.9998C5.5 18.9328 7.067 20.4998 9 20.4998H15C16.933 20.4998 18.5 18.9328 18.5 16.9998V6.49984H5.5ZM15.4879 4.99984C15.2356 4.13325 14.4355 3.5 13.4874 3.5H10.5671C9.61907 3.5 8.81893 4.13325 8.5666 4.99984H15.4879Z" fill="black"/>\n</svg>';
+
+  // ../build/locales/chrome-webstore-patching-locales.js
+  init_define_import_meta_trackerLookup();
+  var chrome_webstore_patching_locales_default = `{"de":{"chrome-store-strings.json":{"install":"Zu DuckDuckGo hinzuf\xFCgen","remove":"Aus DuckDuckGo entfernen","unavailable":"Nicht unterst\xFCtzte Erweiterung","unavailableDescription":"Diese Erweiterung wird nicht unterst\xFCtzt."}},"en":{"chrome-store-strings.json":{"install":"Add to DuckDuckGo","remove":"Remove from DuckDuckGo","unavailable":"Unsupported extension","unavailableDescription":"This extension isn't supported."}}}`;
+
+  // src/features/chrome-webstore-patching.js
+  var STRINGS = JSON.parse(chrome_webstore_patching_locales_default);
+  var STRINGS_FILE = "chrome-store-strings.json";
+  var DAX_DATA_URI = `data:image/svg+xml;utf8,${encodeURIComponent(DuckDuckGo_Color_24_default)}`;
+  var TRASH_DATA_URI = `data:image/svg+xml;utf8,${encodeURIComponent(Trash_24_default.replaceAll('fill="black"', 'fill="#FFFFFF" fill-opacity="0.78"'))}`;
+  var PILL_LAYOUT = {
+    display: "inline-flex",
+    "align-items": "center",
+    "justify-content": "center",
+    gap: "6px",
+    width: "fit-content",
+    height: "40px",
+    padding: "8px 16px 8px 12px",
+    border: "none",
+    "border-radius": "48px",
+    "box-shadow": "none",
+    "font-weight": "500"
+  };
+  var PILL_STYLES = {
+    install: { ...PILL_LAYOUT, background: "#F05F2B", color: "#FFFFFF", cursor: "pointer", "pointer-events": "auto" },
+    // Figma token T-Destructive/Primary
+    remove: { ...PILL_LAYOUT, background: "#E44D55", color: "#FFFFFF", cursor: "pointer", "pointer-events": "auto" },
+    // pointer-events must stay auto: `none` redirects clicks to the store's delegated
+    // jsaction ancestor, which still installs — the interceptor + disabled block them instead
+    unsupported: { ...PILL_LAYOUT, background: "#E4E4E4", color: "#8A8A8A", cursor: "default", "pointer-events": "auto" }
+  };
+  var ICON_STYLES = {
+    display: "inline-block",
+    flex: "none",
+    width: "24px",
+    height: "24px"
+  };
+  var ICON_BACKGROUNDS = {
+    install: `url("${DAX_DATA_URI}") center / contain no-repeat`,
+    remove: `url("${TRASH_DATA_URI}") center / contain no-repeat`,
+    unsupported: `url("${DAX_DATA_URI}") center / contain no-repeat`
+  };
+  var VERDICT_COPY_KEY = (
+    /** @type {const} */
+    { install: "install", remove: "remove", unsupported: "unavailable" }
+  );
+  var ChromeWebstorePatching = class extends ContentFeature {
+    constructor() {
+      super(...arguments);
+      /** Re-run the page evaluation on SPA navigations (base class calls urlChanged) */
+      __publicField(this, "listenForUrlChanges", true);
+      /** @type {'install' | 'remove' | 'unsupported' | null} verdict for the current page; null = keep hidden */
+      __publicField(this, "_verdict", null);
+      /** @type {MutationObserver | undefined} */
+      __publicField(this, "_observer");
+      /** @type {number | undefined} pending coalesced _applyVerdict, if any */
+      __publicField(this, "_applyScheduled");
+      /** @type {string[]} validated install-button selectors, never joined into one list */
+      __publicField(this, "_buttonSelectors", []);
+      /** @type {string} BCP 47-ish language tag from the platform, e.g. 'de' */
+      __publicField(this, "_locale", "en");
+    }
+    /** @param {any} [args] */
+    async init(args) {
+      this._locale = String(args?.locale || args?.language || "en").toLowerCase().split(/[-_]/)[0] || "en";
+      if (!this.getFeatureSettingEnabled("patchWebstore")) return;
+      const selectors = this.getFeatureSetting("installButtonSelectors");
+      if (!Array.isArray(selectors)) return;
+      this._buttonSelectors = selectors.filter((s) => s?.type === "css" && typeof s.value === "string").map((s) => s.value).filter(isValidSelector);
+      if (!this._buttonSelectors.length) return;
+      const intercept = (event) => {
+        if (!this._verdict) return;
+        const target = event.target instanceof Element ? this._closestButton(event.target) : null;
+        if (!target) return;
+        if (this._verdict === "unsupported") {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          return;
+        }
+        if (event.type === "click") {
+          setTimeout(() => this.urlChanged(), 1500);
+          setTimeout(() => this.urlChanged(), 5e3);
+        }
+      };
+      for (const type of ["click", "auxclick", "pointerdown", "mousedown", "touchstart", "keydown"]) {
+        document.addEventListener(type, intercept, true);
+      }
+      if (!document.documentElement) {
+        await new Promise((resolve) => {
+          const observer = new MutationObserver(() => {
+            if (document.documentElement) {
+              observer.disconnect();
+              resolve(void 0);
+            }
+          });
+          observer.observe(document, { childList: true });
+        });
+      }
+      const promoSelectors = this.getFeatureSetting("promoSelectors");
+      const validPromoSelectors = Array.isArray(promoSelectors) ? promoSelectors.filter((s) => s?.type === "css" && typeof s.value === "string").map((s) => s.value).filter(isValidSelector) : [];
+      const promoRule = validPromoSelectors.map((selector) => `:is(${selector}) { display: none !important; }`).join("\n            ");
+      const buttonRules = this._buttonSelectors.map((selector) => `html :is(${selector}) { display: none !important; }`).join("\n            ");
+      injectGlobalStyles(`${buttonRules}
+            ${promoRule}
+        `);
+      this._observer = new MutationObserver(() => this._scheduleApply());
+      this._observer.observe(document.documentElement, { childList: true, subtree: true });
+      if (document.readyState === "loading") {
+        await new Promise((resolve) => {
+          document.addEventListener("DOMContentLoaded", () => resolve(void 0), { once: true });
+        });
+      }
+      await this._evaluatePage();
+    }
+    urlChanged() {
+      void this._evaluatePage();
+    }
+    /**
+     * Decides what the current page should show. Runs on load and on every SPA
+     * navigation — never per DOM mutation.
+     */
+    async _evaluatePage() {
+      this._verdict = null;
+      for (const button of this._matchingButtons()) {
+        button.style.removeProperty("display");
+      }
+      const extensionId = parseExtensionId(window.location.pathname);
+      if (!extensionId) return;
+      if (!this.getCuratedExtensionIds().includes(extensionId)) {
+        this._reveal("unsupported");
+        return;
+      }
+      const status = await this.getExtensionStatus(extensionId);
+      if (extensionId !== parseExtensionId(window.location.pathname)) return;
+      const { installable, installed } = readStatusSets(globalThis.chrome);
+      if (status !== null && installable.includes(status)) {
+        this._reveal("install");
+      } else if (status !== null && installed.includes(status)) {
+        this._reveal("remove");
+      }
+    }
+    /**
+     * Localized copy for a key: the bundled locale, then bundled English.
+     * Remote config is not consulted — `buttonCopy` was removed from the schema
+     * when these bundled strings became the source, so English lives in
+     * `en/chrome-store-strings.json` only and cannot drift from a second copy.
+     * @param {'install' | 'remove' | 'unavailable' | 'unavailableDescription'} key
+     * @returns {string | undefined}
+     */
+    _copy(key) {
+      const localized = STRINGS[this._locale]?.[STRINGS_FILE]?.[key];
+      return typeof localized === "string" ? localized : STRINGS.en?.[STRINGS_FILE]?.[key];
+    }
+    /**
+     * Reveals the button for a verdict. Refuses without the verdict's copy —
+     * a revealed button must never show Google's original wording.
+     * @param {'install' | 'remove' | 'unsupported'} verdict
+     */
+    _reveal(verdict) {
+      const text2 = this._copy(VERDICT_COPY_KEY[verdict]);
+      if (typeof text2 !== "string") return;
+      this._verdict = verdict;
+      this._applyVerdict();
+    }
+    /**
+     * Coalesces observer-driven re-applies into one per frame: the store mutates
+     * the document constantly while scrolling, and each apply walks the document.
+     * Verdict changes still call _applyVerdict directly, so nothing waits a frame
+     * to be patched for the first time.
+     */
+    _scheduleApply() {
+      if (this._applyScheduled !== void 0) return;
+      this._applyScheduled = requestAnimationFrame(() => {
+        this._applyScheduled = void 0;
+        this._applyVerdict();
+      });
+    }
+    /**
+     * Re-imposes the current verdict on the DOM. Cheap and synchronous so the
+     * MutationObserver can call it once per frame.
+     */
+    _applyVerdict() {
+      const verdict = this._verdict;
+      if (!verdict) return;
+      const text2 = this._copy(VERDICT_COPY_KEY[verdict]);
+      if (typeof text2 !== "string") return;
+      for (const button of this._matchingButtons()) {
+        this._applyVerdictToButton(button, verdict, text2);
+      }
+    }
+    /**
+     * Every install button on the page, de-duplicated across selectors.
+     * @returns {Set<HTMLElement>}
+     */
+    _matchingButtons() {
+      const buttons = /* @__PURE__ */ new Set();
+      for (const selector of this._buttonSelectors) {
+        for (const button of document.querySelectorAll(selector)) {
+          if (button instanceof HTMLElement) buttons.add(button);
+        }
+      }
+      return buttons;
+    }
+    /**
+     * Nearest install-button ancestor, testing selectors one at a time so a
+     * single unparseable entry can't swallow the rest.
+     * @param {Element} element
+     * @returns {Element | null}
+     */
+    _closestButton(element) {
+      for (const selector of this._buttonSelectors) {
+        const match = element.closest(selector);
+        if (match) return match;
+      }
+      return null;
+    }
+    /**
+     * @param {HTMLElement} button
+     * @param {'install' | 'remove' | 'unsupported'} verdict
+     * @param {string} text
+     */
+    _applyVerdictToButton(button, verdict, text2) {
+      const isUnsupported = verdict === "unsupported";
+      let icon = (
+        /** @type {HTMLElement | null} */
+        button.querySelector("span[data-ddg-webstore-icon]")
+      );
+      if (!icon) {
+        icon = document.createElement("span");
+        icon.setAttribute("data-ddg-webstore-icon", "");
+        icon.setAttribute("aria-hidden", "true");
+        for (const [prop, value] of Object.entries(ICON_STYLES)) {
+          icon.style.setProperty(prop, value, "important");
+        }
+        button.prepend(icon);
+      }
+      if (icon.dataset.ddgVerdict !== verdict) {
+        icon.dataset.ddgVerdict = verdict;
+        icon.style.setProperty("background", ICON_BACKGROUNDS[verdict], "important");
+      }
+      const iconFilter = isUnsupported ? "grayscale(1) opacity(0.55)" : "none";
+      if (icon.style.getPropertyValue("filter") !== iconFilter) {
+        icon.style.setProperty("filter", iconFilter, "important");
+      }
+      let label = button.querySelector("span[data-ddg-webstore-label]");
+      if (!label) {
+        label = document.createElement("span");
+        label.setAttribute("data-ddg-webstore-label", "");
+        button.appendChild(label);
+      }
+      if (label.textContent !== text2) {
+        label.textContent = text2;
+      }
+      for (const child of button.children) {
+        if (child === label || child === icon || !(child instanceof HTMLElement)) continue;
+        if (child.style.getPropertyValue("display") !== "none") {
+          child.style.setProperty("display", "none", "important");
+        }
+      }
+      if (button.getAttribute("aria-label") !== text2) {
+        button.setAttribute("aria-label", text2);
+      }
+      const styles = PILL_STYLES[verdict];
+      for (const [prop, value] of Object.entries(styles)) {
+        if (button.style.getPropertyValue(prop) !== value) {
+          button.style.setProperty(prop, value, "important");
+        }
+      }
+      if (button instanceof HTMLButtonElement && button.disabled !== isUnsupported) {
+        button.disabled = isUnsupported;
+      }
+      if (!isUnsupported && button.getAttribute("aria-disabled") !== null) {
+        button.removeAttribute("aria-disabled");
+      }
+      const description = isUnsupported && this._copy("unavailableDescription") || "";
+      if (description) {
+        if (button.getAttribute("title") !== description) button.setAttribute("title", description);
+      } else if (button.hasAttribute("title")) {
+        button.removeAttribute("title");
+      }
+    }
+    /**
+     * Curated extension IDs for this build's config.
+     * @returns {string[]}
+     */
+    getCuratedExtensionIds() {
+      return readCuratedCatalog(this.bundledConfig);
+    }
+    /**
+     * Raw install status, or null when the API is missing or errors. Single
+     * attempt for the POC — a late-appearing chrome.webstorePrivate stays fail-closed.
+     * @param {string} extensionId
+     * @returns {Promise<string | null>}
+     */
+    getExtensionStatus(extensionId) {
+      return new Promise((resolve) => {
+        const chromeGlobal = globalThis.chrome;
+        const webstorePrivate = getWebstorePrivate(chromeGlobal);
+        if (!webstorePrivate) return resolve(null);
+        try {
+          webstorePrivate.getExtensionStatus(extensionId, (status) => {
+            if (hasRuntimeLastError(chromeGlobal)) return resolve(null);
+            resolve(typeof status === "string" ? status : null);
+          });
+        } catch {
+          resolve(null);
+        }
+      });
+    }
+  };
+  var chrome_webstore_patching_default = ChromeWebstorePatching;
+
   // ddg:platformFeatures:ddg:platformFeatures
   var ddg_platformFeatures_default = {
     ddg_feature_cookie: CookieFeature,
@@ -19989,7 +20389,8 @@ ${iframeContent}
     ddg_feature_duckAiDataClearing: duck_ai_data_clearing_default,
     ddg_feature_performanceMetrics: PerformanceMetrics,
     ddg_feature_duckAiChatHistory: duck_ai_chat_history_default,
-    ddg_feature_autofillPasskeys: AutofillPasskeys
+    ddg_feature_autofillPasskeys: AutofillPasskeys,
+    ddg_feature_chromeWebstorePatching: chrome_webstore_patching_default
   };
 
   // src/url-change.js

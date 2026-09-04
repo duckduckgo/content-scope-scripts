@@ -1,6 +1,1 @@
-- [macOS] add configurable link to error page (#3005)
-- Fix onboarding crash from a second settings action during an update (#3009)
-- build(deps-dev): bump @duckduckgo/design-tokens from v0.41.0 to v0.42.0 (#3014)
-- Upgrade Node to v24 (#3011)
-- build(deps-dev): bump @duckduckgo/design-tokens from v0.40.0 to v0.41.0 (#3008)
-- build(deps-dev): bump @duckduckgo/design-tokens from v0.39.0 to v0.40.0 (#2998)
+- Add chromeWebstorePatching feature (Windows) (#2991)
