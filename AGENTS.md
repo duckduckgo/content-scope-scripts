@@ -101,7 +101,7 @@ See [`guides/debugging.md`](guides/debugging.md) for debugging resources includi
 
 ## Cursor Cloud specific instructions
 
-- Node 22 and npm are pre-installed. Playwright browsers + system deps are pre-installed. Just run `npm ci` to refresh dependencies.
+- Node 24 (see `.nvmrc`) and npm are required; if the pre-installed Node differs, run `nvm install` to match `.nvmrc`. Playwright browsers + system deps are pre-installed. Just run `npm ci` to refresh dependencies.
 - `npm run serve-special-pages` actually serves on **port 3210** (not 3221 as the Commands table above states). The injected test pages serve on port 3220 as documented.
 - Integration tests for injected workspace may show 2 flaky iOS mobile drawer timeouts (`duckplayer-mobile-drawer.spec.js`); these are pre-existing timing issues, not environment problems.
 - No Docker, databases, or external services are needed. All tests are self-contained with local HTTP servers and mocked native messaging.

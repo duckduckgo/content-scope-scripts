@@ -1456,67 +1456,83 @@
 /* pages/errorpage/src/index.css */
 body {
   --background-color: var(--ds-color-theme-default-light-surface-canvas);
+  --accent-color: var(--ds-color-theme-default-light-accent-text-primary);
   --text-color: var(--ds-color-theme-default-light-text-primary);
 }
 body[data-theme-variant=coolGray] {
   --background-color: var(--ds-color-theme-cool-gray-light-surface-canvas);
+  --accent-color: var(--ds-color-theme-cool-gray-light-accent-text-primary);
   --text-color: var(--ds-color-theme-cool-gray-light-text-primary);
 }
 body[data-theme-variant=slateBlue] {
   --background-color: var(--ds-color-theme-slate-blue-light-surface-canvas);
+  --accent-color: var(--ds-color-theme-slate-blue-light-accent-text-primary);
   --text-color: var(--ds-color-theme-slate-blue-light-text-primary);
 }
 body[data-theme-variant=green] {
   --background-color: var(--ds-color-theme-green-light-surface-canvas);
+  --accent-color: var(--ds-color-theme-green-light-accent-text-primary);
   --text-color: var(--ds-color-theme-green-light-text-primary);
 }
 body[data-theme-variant=violet] {
   --background-color: var(--ds-color-theme-violet-light-surface-canvas);
+  --accent-color: var(--ds-color-theme-violet-light-accent-text-primary);
   --text-color: var(--ds-color-theme-violet-light-text-primary);
 }
 body[data-theme-variant=rose] {
   --background-color: var(--ds-color-theme-rose-light-surface-canvas);
+  --accent-color: var(--ds-color-theme-rose-light-accent-text-primary);
   --text-color: var(--ds-color-theme-rose-light-text-primary);
 }
 body[data-theme-variant=orange] {
   --background-color: var(--ds-color-theme-orange-light-surface-canvas);
+  --accent-color: var(--ds-color-theme-orange-light-accent-text-primary);
   --text-color: var(--ds-color-theme-orange-light-text-primary);
 }
 body[data-theme-variant=desert] {
   --background-color: var(--ds-color-theme-desert-light-surface-canvas);
+  --accent-color: var(--ds-color-theme-desert-light-accent-text-primary);
   --text-color: var(--ds-color-theme-desert-light-text-primary);
 }
 @media (prefers-color-scheme: dark) {
   body {
     --background-color: var(--ds-color-theme-default-dark-surface-canvas);
+    --accent-color: var(--ds-color-theme-default-dark-accent-text-primary);
     --text-color: var(--ds-color-theme-default-dark-text-primary);
   }
   body[data-theme-variant=coolGray] {
     --background-color: var(--ds-color-theme-cool-gray-dark-surface-canvas);
+    --accent-color: var(--ds-color-theme-cool-gray-dark-accent-text-primary);
     --text-color: var(--ds-color-theme-cool-gray-dark-text-primary);
   }
   body[data-theme-variant=slateBlue] {
     --background-color: var(--ds-color-theme-slate-blue-dark-surface-canvas);
+    --accent-color: var(--ds-color-theme-slate-blue-dark-accent-text-primary);
     --text-color: var(--ds-color-theme-slate-blue-dark-text-primary);
   }
   body[data-theme-variant=green] {
     --background-color: var(--ds-color-theme-green-dark-surface-canvas);
+    --accent-color: var(--ds-color-theme-green-dark-accent-text-primary);
     --text-color: var(--ds-color-theme-green-dark-text-primary);
   }
   body[data-theme-variant=violet] {
     --background-color: var(--ds-color-theme-violet-dark-surface-canvas);
+    --accent-color: var(--ds-color-theme-violet-dark-accent-text-primary);
     --text-color: var(--ds-color-theme-violet-dark-text-primary);
   }
   body[data-theme-variant=rose] {
     --background-color: var(--ds-color-theme-rose-dark-surface-canvas);
+    --accent-color: var(--ds-color-theme-rose-dark-accent-text-primary);
     --text-color: var(--ds-color-theme-rose-dark-text-primary);
   }
   body[data-theme-variant=orange] {
     --background-color: var(--ds-color-theme-orange-dark-surface-canvas);
+    --accent-color: var(--ds-color-theme-orange-dark-accent-text-primary);
     --text-color: var(--ds-color-theme-orange-dark-text-primary);
   }
   body[data-theme-variant=desert] {
     --background-color: var(--ds-color-theme-desert-dark-surface-canvas);
+    --accent-color: var(--ds-color-theme-desert-dark-accent-text-primary);
     --text-color: var(--ds-color-theme-desert-dark-text-primary);
   }
 }
@@ -1548,6 +1564,20 @@ body {
   line-height: 16px;
   margin: 0 auto;
   padding: 8px;
+}
+.error-page-link {
+  -webkit-appearance: none;
+  appearance: none;
+  background-color: transparent;
+  border: 0;
+  color: var(--accent-color);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 16px;
+  margin: 0;
+  padding: 0;
+  text-decoration: underline;
 }
 .header-container .description-container {
   position: relative;

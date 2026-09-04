@@ -19628,7 +19628,7 @@
     const { step, status, order, activeStep } = globalState;
     const isDone = globalState.activeRow >= step.rows.length;
     const isLastStep = order[order.length - 1] === activeStep;
-    const pendingId = status.kind === "executing" && status.action.kind === "update-system-value" ? status.action.id : null;
+    const isBusy = status.kind === "executing";
     const [exitingIndex, setExitingIndex] = d2(
       /** @type {number | null} */
       null
@@ -19643,7 +19643,7 @@
         isEntering: enteringIndex === index2,
         systemValue: globalState.values[rowId] || null,
         uiValue: globalState.UIValues[rowId],
-        pending: pendingId === rowId,
+        pending: isBusy,
         id: rowId,
         data: settingsRowItems[rowId](t3, platform)
       };
@@ -19660,7 +19660,7 @@
         },
         onTransitionEnd: () => setExitingIndex(null)
       }
-    )))), globalState.status.kind === "idle" && globalState.status.error && /* @__PURE__ */ k("p", null, globalState.status.error), isDone && /* @__PURE__ */ k("div", { class: (0, import_classnames10.default)(SettingsContent_default.actions, isAnimating && SettingsContent_default.fadeInDelayed) }, /* @__PURE__ */ k(Button, { size: "wide", onClick: isLastStep ? dismiss : advance }, isLastStep ? t3("startBrowsing") : t3("nextButton"), isLastStep && /* @__PURE__ */ k(Launch, null))));
+    )))), globalState.status.kind === "idle" && globalState.status.error && /* @__PURE__ */ k("p", null, globalState.status.error), isDone && /* @__PURE__ */ k("div", { class: (0, import_classnames10.default)(SettingsContent_default.actions, isAnimating && SettingsContent_default.fadeInDelayed) }, /* @__PURE__ */ k(Button, { size: "wide", disabled: isBusy, onClick: isLastStep ? dismiss : advance }, isLastStep ? t3("startBrowsing") : t3("nextButton"), isLastStep && /* @__PURE__ */ k(Launch, null))));
   }
   function SettingListItem({ item, dispatch, updateSystemValue, onAction, onTransitionEnd }) {
     const { data: data2, current, isExiting, isEntering, pending } = item;

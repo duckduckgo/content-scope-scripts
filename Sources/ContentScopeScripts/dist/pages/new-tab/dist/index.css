@@ -2368,6 +2368,34 @@ body[data-theme-variant=desert] [data-theme=dark] {
 /* ../node_modules/@duckduckgo/design-tokens/build/desktop-browsers/ntp.css */
 :root,
 :host {
+  --ds-color-theme-ntp-on-custom-background-dark-container-border-secondary: rgba(255, 255, 255, 0.12);
+  --ds-color-theme-ntp-on-custom-background-dark-container-fill-secondary: rgba(0, 0, 0, 0.36);
+  --ds-color-theme-ntp-on-custom-background-dark-input-text-primary: rgba(0, 0, 0, 0.84);
+  --ds-color-theme-ntp-on-custom-background-dark-input-text-secondary: rgba(0, 0, 0, 0.6);
+  --ds-color-theme-ntp-on-custom-background-dark-input-icons-primary: rgba(0, 0, 0, 0.84);
+  --ds-color-theme-ntp-on-custom-background-dark-input-icons-secondary: rgba(0, 0, 0, 0.6);
+  --ds-color-theme-ntp-on-custom-background-dark-input-field-primary-background-color: rgba(255, 255, 255, 0.24);
+  --ds-color-theme-ntp-on-custom-background-dark-input-field-secondary-background-color: rgba(255, 255, 255, 0.3);
+  --ds-color-theme-ntp-on-custom-background-dark-input-control-primary-background-color: rgba(0, 0, 0, 0.6);
+  --ds-color-theme-ntp-on-custom-background-dark-input-control-secondary-background-color: rgba(255, 255, 255, 0.18);
+  --ds-color-theme-ntp-on-custom-background-dark-input-control-tertiary-background-color: rgba(0, 0, 0, 0.36);
+  --ds-color-theme-ntp-on-custom-background-dark-input-control-shadow-primary: rgba(0, 0, 0, 0);
+  --ds-color-theme-ntp-on-custom-background-dark-shadow-primary: rgba(0, 0, 0, 0.06);
+  --ds-color-theme-ntp-on-custom-background-dark-shadow-secondary: rgba(0, 0, 0, 0.08);
+  --ds-color-theme-ntp-on-custom-background-light-container-border-secondary: rgba(255, 255, 255, 0.48);
+  --ds-color-theme-ntp-on-custom-background-light-container-fill-secondary: rgba(255, 255, 255, 0.42);
+  --ds-color-theme-ntp-on-custom-background-light-input-text-primary: rgba(0, 0, 0, 0.96);
+  --ds-color-theme-ntp-on-custom-background-light-input-text-secondary: rgba(0, 0, 0, 0.6);
+  --ds-color-theme-ntp-on-custom-background-light-input-icons-primary: rgba(0, 0, 0, 0.84);
+  --ds-color-theme-ntp-on-custom-background-light-input-icons-secondary: rgba(0, 0, 0, 0.6);
+  --ds-color-theme-ntp-on-custom-background-light-input-field-primary-background-color: rgba(255, 255, 255, 0.54);
+  --ds-color-theme-ntp-on-custom-background-light-input-field-secondary-background-color: rgba(0, 0, 0, 0.18);
+  --ds-color-theme-ntp-on-custom-background-light-input-control-primary-background-color: rgba(255, 255, 255, 0.6);
+  --ds-color-theme-ntp-on-custom-background-light-input-control-secondary-background-color: rgba(0, 0, 0, 0.06);
+  --ds-color-theme-ntp-on-custom-background-light-input-control-tertiary-background-color: rgba(0, 0, 0, 0.06);
+  --ds-color-theme-ntp-on-custom-background-light-input-control-shadow-primary: rgba(0, 0, 0, 0.06);
+  --ds-color-theme-ntp-on-custom-background-light-shadow-primary: rgba(0, 0, 0, 0.06);
+  --ds-color-theme-ntp-on-custom-background-light-shadow-secondary: rgba(0, 0, 0, 0.08);
   --ds-ntp-next-steps-badge-background: #ffd885;
   --ds-ntp-next-steps-badge-color: #47210a;
   --ds-ntp-light-button-secondary-rest-background-color: rgba(0, 0, 0, 0.06);
