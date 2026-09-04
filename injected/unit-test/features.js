@@ -12,6 +12,12 @@ const __filename = fileURLToPath(import.meta.url);
 // eslint-disable-next-line no-redeclare
 const __dirname = path.dirname(__filename);
 
+// Resolved rather than hardcoded to `../../node_modules`: privacy-configuration is
+// a dependency of the injected workspace only, so npm hoists it to the repo root or
+// leaves it in injected/node_modules depending on the pin. When it stopped being
+// hoisted, every schema spec below failed with "No input files".
+const CONFIG_SCHEMA_PATH = fileURLToPath(import.meta.resolve('@duckduckgo/privacy-configuration/schema/config.ts'));
+
 describe('Features definition', () => {
     it('calls `webCompat` before `fingerPrintingScreenSize` https://app.asana.com/0/1177771139624306/1204944717262422/f', () => {
         const arr = platformSupport.apple;
@@ -33,7 +39,7 @@ describe('test-pages/*/config/*.json schema validation', () => {
     // TODO make the config export all of this so it can be imported
     function createGenerator() {
         return schemaGenerator.createGenerator({
-            path: path.resolve(__dirname, '../../node_modules/@duckduckgo/privacy-configuration/schema/config.ts'),
+            path: CONFIG_SCHEMA_PATH,
         });
     }
 
@@ -506,7 +512,7 @@ describe('ApiManipulation', () => {
         const schemaGenerator = await import('ts-json-schema-generator');
         const schema = schemaGenerator
             .createGenerator({
-                path: path.resolve(__dirname, '../../node_modules/@duckduckgo/privacy-configuration/schema/config.ts'),
+                path: CONFIG_SCHEMA_PATH,
             })
             .createSchema('CurrentGenericConfig');
         const validate = new Ajv({ allowUnionTypes: true }).compile(schema);
