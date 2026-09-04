@@ -1,5 +1,47 @@
-// eslint-disable-next-line no-redeclare
-import { hasOwnProperty, objectKeys } from '../../captured-globals.js';
+/* eslint-disable no-redeclare */
+import {
+    arrayIsArray,
+    capturedDocument,
+    createXPathExpression,
+    cssPropertyValue,
+    documentElement,
+    documentQuerySelector,
+    documentQuerySelectorAll,
+    DOMParser,
+    elementHidden,
+    elementInnerText,
+    elementOuterHTML,
+    elementQuerySelector,
+    elementQuerySelectorAll,
+    elementRemove,
+    evaluateXPathExpression,
+    getBoundingClientRect,
+    getComputedStyle,
+    hasOwn,
+    iframeSrc,
+    Map,
+    mathFloor,
+    mathMax,
+    mathMin,
+    mapGet,
+    mapSet,
+    nodeListItem,
+    nodeListLength,
+    nodeTextContent,
+    objectKeys,
+    parseFloat,
+    parseFromString,
+    RegExp,
+    rectHeight,
+    rectWidth,
+    regExpTest,
+    snapshotItem,
+    snapshotLength,
+    stringCharCodeAt,
+    stringSlice,
+    stringTrim,
+} from '../../captured-globals.js';
+/* eslint-enable no-redeclare */
 
 /**
  * @typedef {import('@duckduckgo/privacy-configuration/schema/features/web-detection.ts').ConditionTypes} ConditionTypes
@@ -18,7 +60,52 @@ import { hasOwnProperty, objectKeys } from '../../captured-globals.js';
  */
 function asArray(value, defaultValue = []) {
     if (value === undefined) return defaultValue;
-    return Array.isArray(value) ? value : [value];
+    return arrayIsArray(value) ? value : [value];
+}
+
+/**
+ * `list[index]`, for an index the caller has already bounded.
+ *
+ * Index loops throughout this module keep config-derived values off page-replaceable
+ * `Array.prototype` methods, which receive the array they are called on. This carries the one cast
+ * that `noUncheckedIndexedAccess` would otherwise require at each of them.
+ *
+ * @template T
+ * @param {T[]} list
+ * @param {number} index
+ * @returns {T}
+ */
+function at(list, index) {
+    return /** @type {T} */ (list[index]);
+}
+
+/**
+ * Whether `list` contains `value`.
+ *
+ * @param {string[]} list
+ * @param {string} value
+ * @returns {boolean}
+ */
+function contains(list, value) {
+    for (let i = 0; i < list.length; i++) {
+        if (at(list, i) === value) return true;
+    }
+    return false;
+}
+
+/**
+ * Concatenate `list` with `separator` between entries.
+ *
+ * @param {string[]} list
+ * @param {string} separator
+ * @returns {string}
+ */
+function join(list, separator) {
+    let result = '';
+    for (let i = 0; i < list.length; i++) {
+        result += i === 0 ? at(list, i) : separator + at(list, i);
+    }
+    return result;
 }
 
 /**
@@ -35,14 +122,14 @@ function asArray(value, defaultValue = []) {
  */
 function isVisible(element) {
     const style = getComputedStyle(element);
-    const rect = element.getBoundingClientRect();
+    const rect = getBoundingClientRect(element);
 
     return (
-        rect.width > 0.5 &&
-        rect.height > 0.5 &&
-        style.display !== 'none' &&
-        style.visibility !== 'hidden' &&
-        parseFloat(style.opacity) > 0.05
+        rectWidth(rect) > 0.5 &&
+        rectHeight(rect) > 0.5 &&
+        cssPropertyValue(style, 'display') !== 'none' &&
+        cssPropertyValue(style, 'visibility') !== 'hidden' &&
+        parseFloat(cssPropertyValue(style, 'opacity')) > 0.05
     );
 }
 
@@ -104,7 +191,7 @@ function hasContent(element) {
     // poll tick (reachable only via an overly broad selector). textContent is a
     // cheap, layout-free proxy for the serialized size; such a subtree clearly
     // holds content.
-    if ((element.textContent || '').length > CONTENT_TEXT_PARSE_LIMIT) {
+    if ((nodeTextContent(element) || '').length > CONTENT_TEXT_PARSE_LIMIT) {
         return true;
     }
 
@@ -115,21 +202,30 @@ function hasContent(element) {
     if (!contentDomParser) {
         contentDomParser = new DOMParser();
     }
-    const parsed = contentDomParser.parseFromString(element.outerHTML, 'text/html').documentElement;
-    parsed.querySelectorAll(CONTENT_METADATA_SELECTORS).forEach((el) => el.remove());
+    const parsed = documentElement(parseFromString(contentDomParser, elementOuterHTML(element), 'text/html'));
+    const metadata = elementQuerySelectorAll(parsed, CONTENT_METADATA_SELECTORS);
+    for (let i = 0; i < nodeListLength(metadata); i++) {
+        elementRemove(nodeListItem(metadata, i));
+    }
 
     // Text content (read on the detached copy, so no live-page layout).
-    if ((parsed.innerText || parsed.textContent || '').trim() !== '') {
+    if (stringTrim(elementInnerText(parsed) || nodeTextContent(parsed) || '') !== '') {
         return true;
     }
     // Embedded media / form controls count as content.
-    if (parsed.querySelector(CONTENT_MEDIA_SELECTORS) !== null) {
+    if (elementQuerySelector(parsed, CONTENT_MEDIA_SELECTORS) !== null) {
         return true;
     }
     // A real (eg cross-origin Turnstile) iframe counts; about:blank does not.
-    return [...parsed.querySelectorAll('iframe')].some((frame) => {
-        return !frame.hidden && frame.src !== '' && frame.src !== 'about:blank';
-    });
+    const frames = elementQuerySelectorAll(parsed, 'iframe');
+    for (let i = 0; i < nodeListLength(frames); i++) {
+        const frame = nodeListItem(frames, i);
+        const src = iframeSrc(frame);
+        if (!elementHidden(frame) && src !== '' && src !== 'about:blank') {
+            return true;
+        }
+    }
+    return false;
 }
 
 /**
@@ -145,18 +241,18 @@ function hasContent(element) {
 const ORDERED_NODE_SNAPSHOT_TYPE = 7;
 
 /**
- * Compiled XPath expressions, keyed by document and then by expression source.
+ * Compiled XPath expressions, keyed by expression source.
  *
  * `document.evaluate()` re-parses the expression string on every call, and
  * detectors re-evaluate their conditions on every poll tick against a fixed,
  * config-supplied set of expressions. Compiling once removes that repeated parse.
  *
- * Keyed by document because an `XPathExpression` belongs to the document that
- * created it.
+ * An `XPathExpression` belongs to the document that created it, which is the
+ * captured document for every entry here.
  *
- * @type {WeakMap<Document, Map<string, XPathExpression>>}
+ * @type {Map<string, XPathExpression>}
  */
-const compiledXPaths = new WeakMap();
+const compiledXPaths = new Map();
 
 /**
  * Compile an XPath expression, reusing a previously compiled one where possible.
@@ -168,15 +264,10 @@ const compiledXPaths = new WeakMap();
  * @returns {XPathExpression}
  */
 function compileXPath(expression) {
-    let cache = compiledXPaths.get(document);
-    if (!cache) {
-        cache = new Map();
-        compiledXPaths.set(document, cache);
-    }
-    let compiled = cache.get(expression);
+    let compiled = mapGet(compiledXPaths, expression);
     if (!compiled) {
-        compiled = document.createExpression(expression, null);
-        cache.set(expression, compiled);
+        compiled = createXPathExpression(expression, null);
+        mapSet(compiledXPaths, expression, compiled);
     }
     return compiled;
 }
@@ -237,7 +328,7 @@ function resolveXPathConfig(config) {
     // being silently rewritten on a user's page. Safe only because no value can break the
     // scan loop in `xpathMatches`.
     const chunkSize = config?.chunkSize ?? DEFAULT_CHUNK_SIZE;
-    const chunkTail = config?.chunkTail ?? Math.floor(chunkSize / CHUNK_TAIL_RATIO);
+    const chunkTail = config?.chunkTail ?? mathFloor(chunkSize / CHUNK_TAIL_RATIO);
     return { chunkSize, chunkTail };
 }
 
@@ -257,13 +348,13 @@ function retainTail(buffer, chunkTail) {
     // for this flush - a hard bound is worth more than exact `\b` semantics inside a blob
     // that a phrase pattern will not match anyway. Never more than `chunkTail`, so a tail
     // of 0 still retains nothing.
-    const limit = Math.max(0, cut - Math.min(chunkTail, MAX_WORD_LENGTH));
+    const limit = mathMax(0, cut - mathMin(chunkTail, MAX_WORD_LENGTH));
     // Land the cut just after a non-word character, so position 0 is a real word boundary
     // rather than an artefact of where the chunk ended - otherwise a `\b`-prefixed pattern
     // asserts at position 0 of every chunk and matches mid-word. This only lengthens the
     // tail, so it introduces no false negative.
-    while (cut > limit && isWordCode(buffer.charCodeAt(cut - 1))) cut--;
-    return buffer.slice(cut);
+    while (cut > limit && isWordCode(stringCharCodeAt(buffer, cut - 1))) cut--;
+    return stringSlice(buffer, cut);
 }
 
 /**
@@ -285,27 +376,29 @@ function retainTail(buffer, chunkTail) {
  * @returns {boolean}
  */
 function xpathMatches(pattern, expression, { chunkSize, chunkTail }) {
-    const snapshot = compileXPath(expression).evaluate(document, ORDERED_NODE_SNAPSHOT_TYPE, null);
+    const snapshot = evaluateXPathExpression(compileXPath(expression), capturedDocument, ORDERED_NODE_SNAPSHOT_TYPE);
     let buffer = '';
     // Characters added since the last test, rather than the length of the buffer. Each test
     // then advances `chunkSize` fresh characters whatever `chunkTail` is, so an oversized tail
     // costs proportionally more scanning instead of re-testing the whole buffer per node -
     // which is what makes configured values safe to use unvalidated.
     let pending = 0;
-    for (let i = 0; i < snapshot.snapshotLength; i++) {
-        const text = snapshot.snapshotItem(i)?.textContent || '';
+    const length = snapshotLength(snapshot);
+    for (let i = 0; i < length; i++) {
+        const node = snapshotItem(snapshot, i);
+        const text = (node && nodeTextContent(node)) || '';
         buffer += text;
         pending += text.length;
         // chunkSize 0 disables chunking, accumulating everything for the single test below
         if (chunkSize > 0 && pending >= chunkSize) {
-            if (pattern.test(buffer)) return true;
+            if (regExpTest(pattern, buffer)) return true;
             // Retained text is contiguous with what follows, so a phrase split across nodes
             // still matches across a flush
             buffer = retainTail(buffer, chunkTail);
             pending = 0;
         }
     }
-    return pattern.test(buffer);
+    return regExpTest(pattern, buffer);
 }
 
 /**
@@ -341,22 +434,18 @@ function evaluateSingleTextCondition(condition) {
     // `body` is only the implicit source when the condition names no source of its own
     const selectors = asArray(condition.selector, xpaths.length > 0 ? [] : ['body']);
 
-    const patternComb = new RegExp(patterns.join('|'), 'i');
+    const patternComb = new RegExp(join(patterns, '|'), 'i');
 
     // Disjunction: any selector having a matching element is success.
     // Checked before xpath because CSS matching avoids the per-call expression
     // parse and snapshot allocation that `document.evaluate` requires.
-    const selectorMatch = selectors.some((selector) => {
-        const elements = document.querySelectorAll(selector);
-        for (const element of elements) {
-            if (patternComb.test(element.textContent || '')) {
+    for (let i = 0; i < selectors.length; i++) {
+        const elements = documentQuerySelectorAll(at(selectors, i));
+        for (let j = 0; j < nodeListLength(elements); j++) {
+            if (regExpTest(patternComb, nodeTextContent(nodeListItem(elements, j)) || '')) {
                 return true;
             }
         }
-        return false;
-    });
-    if (selectorMatch) {
-        return true;
     }
 
     // Disjunction: any expression whose selected text matches is success
@@ -364,7 +453,12 @@ function evaluateSingleTextCondition(condition) {
         return false;
     }
     const chunking = resolveXPathConfig(condition.xpathConfig);
-    return xpaths.some((expression) => xpathMatches(patternComb, expression, chunking));
+    for (let i = 0; i < xpaths.length; i++) {
+        if (xpathMatches(patternComb, at(xpaths, i), chunking)) {
+            return true;
+        }
+    }
+    return false;
 }
 
 /**
@@ -381,13 +475,20 @@ function evaluateSingleTextCondition(condition) {
  */
 function evaluateSingleElementCondition(config) {
     const visibility = config.visibility ?? 'any';
+    const selectors = asArray(config.selector);
     // Disjunction: any selector having a matching element is success
-    return asArray(config.selector).some((selector) => {
+    for (let i = 0; i < selectors.length; i++) {
+        const selector = at(selectors, i);
         if (visibility === 'any') {
             // if we don't care about visibility, we can just do a quick existence check
-            return document.querySelector(selector) !== null;
+            if (documentQuerySelector(selector) !== null) {
+                return true;
+            }
+            continue;
         }
-        for (const element of document.querySelectorAll(selector)) {
+        const elements = documentQuerySelectorAll(selector);
+        for (let j = 0; j < nodeListLength(elements); j++) {
+            const element = nodeListItem(elements, j);
             if (visibility === 'visible' && isVisible(element)) {
                 return true;
             }
@@ -399,8 +500,8 @@ function evaluateSingleElementCondition(config) {
                 return true;
             }
         }
-        return false;
-    });
+    }
+    return false;
 }
 
 /**
@@ -420,8 +521,8 @@ function evaluateSingleElementCondition(config) {
  */
 function evaluateNode(node, evalFinal) {
     if (node === undefined) return true;
-    if (Array.isArray(node)) {
-        return node.some((n) => evaluateNode(n, evalFinal));
+    if (arrayIsArray(node)) {
+        return evaluateAny(node, evalFinal);
     }
     if (node === null || typeof node !== 'object') {
         return evalFinal(/** @type {Final} */ (node));
@@ -429,19 +530,58 @@ function evaluateNode(node, evalFinal) {
 
     const operatorKeys = ['any', 'all', 'none'];
 
-    const opKeys = operatorKeys.filter((k) => hasOwnProperty.call(node, k));
+    /** @type {string[]} */
+    const opKeys = [];
+    for (let i = 0; i < operatorKeys.length; i++) {
+        if (hasOwn(node, at(operatorKeys, i))) opKeys[opKeys.length] = at(operatorKeys, i);
+    }
     if (opKeys.length === 0) {
         return evalFinal(/** @type {Final} */ (node));
     }
-    const otherKeys = objectKeys(node).filter((k) => !operatorKeys.includes(k));
+    const keys = objectKeys(node);
+    /** @type {string[]} */
+    const otherKeys = [];
+    for (let i = 0; i < keys.length; i++) {
+        if (!contains(operatorKeys, at(keys, i))) otherKeys[otherKeys.length] = at(keys, i);
+    }
     if (otherKeys.length > 0) {
-        throw new Error(`Condition node mixes operator keys [${opKeys.join(', ')}] with leaf fields [${otherKeys.join(', ')}]`);
+        throw new Error(`Condition node mixes operator keys [${join(opKeys, ', ')}] with leaf fields [${join(otherKeys, ', ')}]`);
     }
 
     const block = /** @type {Partial<Record<'all' | 'any' | 'none', ConditionBranch<Final>>>} */ (node);
-    if (hasOwnProperty.call(block, 'all') && !asArray(block.all).every((n) => evaluateNode(n, evalFinal))) return false;
-    if (hasOwnProperty.call(block, 'any') && !asArray(block.any).some((n) => evaluateNode(n, evalFinal))) return false;
-    if (hasOwnProperty.call(block, 'none') && asArray(block.none).some((n) => evaluateNode(n, evalFinal))) return false;
+    if (hasOwn(block, 'all') && !evaluateAll(asArray(block.all), evalFinal)) return false;
+    if (hasOwn(block, 'any') && !evaluateAny(asArray(block.any), evalFinal)) return false;
+    if (hasOwn(block, 'none') && evaluateAny(asArray(block.none), evalFinal)) return false;
+    return true;
+}
+
+/**
+ * Whether any node in `nodes` evaluates true.
+ *
+ * @template Final
+ * @param {ConditionBranch<Final>[]} nodes
+ * @param {(final: Final) => boolean} evalFinal
+ * @returns {boolean}
+ */
+function evaluateAny(nodes, evalFinal) {
+    for (let i = 0; i < nodes.length; i++) {
+        if (evaluateNode(at(nodes, i), evalFinal)) return true;
+    }
+    return false;
+}
+
+/**
+ * Whether every node in `nodes` evaluates true.
+ *
+ * @template Final
+ * @param {ConditionBranch<Final>[]} nodes
+ * @param {(final: Final) => boolean} evalFinal
+ * @returns {boolean}
+ */
+function evaluateAll(nodes, evalFinal) {
+    for (let i = 0; i < nodes.length; i++) {
+        if (!evaluateNode(at(nodes, i), evalFinal)) return false;
+    }
     return true;
 }
 

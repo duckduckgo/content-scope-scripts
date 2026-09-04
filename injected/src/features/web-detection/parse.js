@@ -1,3 +1,7 @@
+/* eslint-disable no-redeclare */
+import { objectEntries, RegExp, regExpTest } from '../../captured-globals.js';
+/* eslint-enable no-redeclare */
+
 /**
  * @typedef {import('../../utils.js').FeatureState} FeatureState
  */
@@ -82,15 +86,17 @@ const DEFAULT_RUN_CONDITIONS = /** @type {import('../../config-feature.js').Cond
     },
 ]);
 
+/** Names must start with a letter and contain only alphanumeric characters and underscores. */
+const VALID_NAME = new RegExp('^[a-zA-Z][a-zA-Z0-9_]*$');
+
 /**
  * Validate that a name matches the required format.
- * Names must start with a letter and contain only alphanumeric characters and underscores.
  *
  * @param {string} name
  * @returns {boolean}
  */
 function isValidName(name) {
-    return /^[a-zA-Z][a-zA-Z0-9_]*$/.test(name);
+    return regExpTest(VALID_NAME, name);
 }
 
 /**
@@ -155,7 +161,12 @@ export function parseDetectors(detectorsConfig) {
         return detectors;
     }
 
-    for (const [groupName, groupConfig] of Object.entries(detectorsConfig)) {
+    // Index access throughout, because array destructuring and `for...of` both route through
+    // `Array.prototype[Symbol.iterator]`, which the page can replace.
+    const groups = objectEntries(detectorsConfig);
+    for (let i = 0; i < groups.length; i++) {
+        const groupName = groups[i][0];
+        const groupConfig = groups[i][1];
         if (!isValidName(groupName)) {
             continue;
         }
@@ -163,7 +174,10 @@ export function parseDetectors(detectorsConfig) {
         /** @type {Record<string, DetectorConfig>} */
         const groupDetectors = {};
 
-        for (const [detectorId, detectorConfig] of Object.entries(groupConfig)) {
+        const groupEntries = objectEntries(groupConfig);
+        for (let j = 0; j < groupEntries.length; j++) {
+            const detectorId = groupEntries[j][0];
+            const detectorConfig = groupEntries[j][1];
             if (!isValidName(detectorId)) {
                 continue;
             }

@@ -1,4 +1,4 @@
-import { JSDOM } from 'jsdom';
+import { resetDom } from './helpers/install-dom-globals.js';
 import { parseDetectors } from '../src/features/web-detection/parse.js';
 import { evaluateMatch } from '../src/features/web-detection/matching.js';
 import WebDetection from '../src/features/web-detection.js';
@@ -650,56 +650,158 @@ describe('WebDetection', () => {
          * @returns {boolean}
          */
         function matchInDOM(html, match, options = {}) {
-            const { zeroSizeSelectors = [] } = options;
-            const dom = new JSDOM(`<!DOCTYPE html><html><body>${html}</body></html>`);
-            const originalDocument = globalThis.document;
-            const originalGetComputedStyle = globalThis.getComputedStyle;
-            const originalDOMParser = globalThis.DOMParser;
-            globalThis.document = dom.window.document;
-            // `content` visibility mode uses DOMParser; provide JSDOM's implementation.
-            globalThis.DOMParser = dom.window.DOMParser;
-
-            // Wrap getComputedStyle to return browser-like defaults (JSDOM returns "" for opacity)
-            const jsdomGetComputedStyle = dom.window.getComputedStyle;
-            globalThis.getComputedStyle = (el, pseudoElt) => {
-                const style = jsdomGetComputedStyle(el, pseudoElt);
-                return new Proxy(style, {
-                    get(target, prop) {
-                        const value = target[prop];
-                        // JSDOM returns "" for opacity, browsers return "1"
-                        if (prop === 'opacity' && value === '') return '1';
-                        return value;
-                    },
-                });
-            };
-
-            // Patch Element prototype to mock getBoundingClientRect based on selectors
-            const ElementProto = dom.window.Element.prototype;
-            const originalGetBoundingClientRect = ElementProto.getBoundingClientRect;
-            ElementProto.getBoundingClientRect = function () {
-                const isZeroSize = zeroSizeSelectors.some((sel) => this.matches(sel));
-                return {
-                    width: isZeroSize ? 0 : 100,
-                    height: isZeroSize ? 0 : 50,
-                    top: 0,
-                    left: 0,
-                    right: isZeroSize ? 0 : 100,
-                    bottom: isZeroSize ? 0 : 50,
-                    x: 0,
-                    y: 0,
-                    toJSON: () => ({}),
-                };
-            };
-
+            // Captured DOM APIs are bound to the shared document and taken from its prototypes, so
+            // markup and layout are replaced in place (see helpers/install-dom-globals.js).
+            resetDom(html, options.zeroSizeSelectors);
             try {
                 return evaluateMatch(match);
             } finally {
-                globalThis.document = originalDocument;
-                globalThis.getComputedStyle = originalGetComputedStyle;
-                globalThis.DOMParser = originalDOMParser;
-                ElementProto.getBoundingClientRect = originalGetBoundingClientRect;
+                resetDom();
             }
         }
+
+        describe('captured API surface', () => {
+            /**
+             * Replace every page-reachable API the matcher could reach with one that records what
+             * it was given, evaluate `match` against `html`, and return the recorded strings that
+             * disclose a detector's configuration.
+             *
+             * Elements are recorded as their markup, so an uncaptured call that merely receives a
+             * matched node still shows which selector found it.
+             *
+             * @param {object} options
+             * @param {string} options.html
+             * @param {import('../src/features/web-detection/parse.js').MatchCondition} options.match
+             * @param {string[]} options.secrets Strings a page must not be able to observe.
+             * @param {string[]} [options.zeroSizeSelectors]
+             * @param {() => void} [options.probe] Runs while the replacements are installed.
+             * @returns {{ matched: boolean, observed: string[] }}
+             */
+            function evaluateUnderReplacedApis({ html, match, secrets, zeroSizeSelectors, probe }) {
+                // Markup is in place before the recording starts, so the parse work of building it
+                // is not mistaken for the matcher's own reads.
+                resetDom(html, zeroSizeSelectors);
+
+                /** @type {string[]} */
+                const recorded = [];
+                /** @type {Array<() => void>} */
+                const restore = [];
+
+                /**
+                 * @param {object} target
+                 * @param {string} name
+                 * @param {(this: any, result: any, ...args: any[]) => string} describe What the
+                 *   replacement discloses: the argument it was given or the node it returned.
+                 */
+                function replace(target, name, describe) {
+                    const original = target[name];
+                    restore.push(() => {
+                        target[name] = original;
+                    });
+                    target[name] = function (...args) {
+                        const result = original.apply(this, args);
+                        recorded.push(describe.call(this, result, ...args));
+                        return result;
+                    };
+                }
+
+                for (const proto of [Document.prototype, Element.prototype]) {
+                    replace(proto, 'querySelector', (_result, selectors) => selectors);
+                    replace(proto, 'querySelectorAll', (_result, selectors) => selectors);
+                }
+                replace(Document.prototype, 'createExpression', (_result, expression) => expression);
+                replace(XPathExpression.prototype, 'evaluate', (_result, contextNode) => String(contextNode));
+                replace(XPathResult.prototype, 'snapshotItem', (node) => String(node?.textContent));
+                replace(DOMParser.prototype, 'parseFromString', (_result, markup) => markup);
+                replace(NodeList.prototype, 'item', (node) => String(node?.outerHTML));
+                replace(RegExp.prototype, 'test', function () {
+                    return this.source;
+                });
+                replace(Element.prototype, 'remove', function () {
+                    return this.outerHTML;
+                });
+                replace(Element.prototype, 'getBoundingClientRect', function () {
+                    return this.outerHTML;
+                });
+                replace(globalThis, 'getComputedStyle', (_result, element) => element.outerHTML);
+
+                try {
+                    probe?.();
+                    const matched = evaluateMatch(match);
+                    return { matched, observed: recorded.filter((entry) => secrets.some((secret) => entry.includes(secret))) };
+                } finally {
+                    for (const undo of restore) undo();
+                    resetDom();
+                }
+            }
+
+            it('records configuration passed through a replaced API', () => {
+                // Control: the replacements are live for anything not routed through a captured
+                // reference, so the empty results below mean capture, not an inert test.
+                const { observed } = evaluateUnderReplacedApis({
+                    html: '<div class="g-recaptcha"></div>',
+                    match: {},
+                    secrets: ['leaked'],
+                    probe: () => {
+                        const source = 'leaked-pattern';
+                        document.querySelectorAll('.leaked-selector');
+                        new RegExp(source).test('nothing');
+                    },
+                });
+                expect(observed).toEqual(['.leaked-selector', 'leaked-pattern']);
+            });
+
+            it('hides element condition selectors', () => {
+                const { matched, observed } = evaluateUnderReplacedApis({
+                    html: '<div class="g-recaptcha"></div>',
+                    match: { element: { selector: '.g-recaptcha' } },
+                    secrets: ['g-recaptcha'],
+                });
+                expect(matched).toBe(true);
+                expect(observed).toEqual([]);
+            });
+
+            it('hides text condition selectors and patterns', () => {
+                const { matched, observed } = evaluateUnderReplacedApis({
+                    html: '<p class="wall">adblocker detected</p>',
+                    match: { text: { pattern: 'adblocker detected', selector: '.wall' } },
+                    secrets: ['adblocker detected', '.wall'],
+                });
+                expect(matched).toBe(true);
+                expect(observed).toEqual([]);
+            });
+
+            it('hides xpath expressions and the patterns matched against them', () => {
+                const { matched, observed } = evaluateUnderReplacedApis({
+                    html: '<div class="wall">adblocker detected</div>',
+                    match: { text: { pattern: 'adblocker detected', xpath: '//div[@class="wall"]//text()' } },
+                    secrets: ['adblocker detected', '@class="wall"'],
+                });
+                expect(matched).toBe(true);
+                expect(observed).toEqual([]);
+            });
+
+            it('hides the markup and selectors used when probing content of a matched element', () => {
+                // `content` visibility inspects a detached DOMParser tree, which shares these prototypes
+                const { matched, observed } = evaluateUnderReplacedApis({
+                    html: '<div class="cf-turnstile"><iframe src="https://example.com/"></iframe></div>',
+                    match: { element: { selector: '.cf-turnstile', visibility: 'content' } },
+                    secrets: ['cf-turnstile'],
+                });
+                expect(matched).toBe(true);
+                expect(observed).toEqual([]);
+            });
+
+            it('hides the elements measured for a visibility check', () => {
+                const { matched, observed } = evaluateUnderReplacedApis({
+                    html: '<div class="g-recaptcha">challenge</div>',
+                    match: { element: { selector: '.g-recaptcha', visibility: 'visible' } },
+                    secrets: ['g-recaptcha'],
+                });
+                expect(matched).toBe(true);
+                expect(observed).toEqual([]);
+            });
+        });
 
         describe('empty conditions', () => {
             it('should match with empty object (no conditions)', () => {
@@ -878,17 +980,11 @@ describe('WebDetection', () => {
 
             it('should see content added between evaluations', () => {
                 // Compiled expressions are reused across evaluations; the DOM they run against is not
-                const dom = new JSDOM('<!DOCTYPE html><html><body><p>Loading...</p></body></html>');
-                const originalDocument = globalThis.document;
-                globalThis.document = dom.window.document;
-                try {
-                    const match = { text: { pattern: 'adblocker detected', xpath: RENDERED_TEXT } };
-                    expect(evaluateMatch(match)).toBe(false);
-                    dom.window.document.body.insertAdjacentHTML('beforeend', '<div class="wall">adblocker detected</div>');
-                    expect(evaluateMatch(match)).toBe(true);
-                } finally {
-                    globalThis.document = originalDocument;
-                }
+                resetDom('<p>Loading...</p>');
+                const match = { text: { pattern: 'adblocker detected', xpath: RENDERED_TEXT } };
+                expect(evaluateMatch(match)).toBe(false);
+                document.body.insertAdjacentHTML('beforeend', '<div class="wall">adblocker detected</div>');
+                expect(evaluateMatch(match)).toBe(true);
             });
 
             it('should throw on an invalid expression, surfacing as a detector error', () => {
