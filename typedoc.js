@@ -37,6 +37,7 @@ const config = /** @type {Partial<import('typedoc').TypeDocOptions>} */ ({
         'special-pages/pages/release-notes/app/types.js',
         'special-pages/pages/special-error/src/index.js',
         'special-pages/pages/special-error/app/types.js',
+        'special-pages/pages/set-as-default/src/index.js',
         'special-pages/pages/new-tab/app/favorites/constants.js',
         'special-pages/pages/**/types/*.ts',
     ],
