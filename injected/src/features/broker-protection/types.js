@@ -12,8 +12,9 @@
 /**
  * @typedef {object} PirAction
  * @property {string} id
- * @property {"extract" | "fillForm" | "click" | "expectation" | "getCaptchaInfo" | "solveCaptcha" | "navigate" | "condition" | "scroll"} actionType
+ * @property {"extract" | "fillForm" | "click" | "expectation" | "getCaptchaInfo" | "solveCaptcha" | "navigate" | "condition" | "scroll" | "executeScript"} actionType
  * @property {string} [selector]
+ * @property {string} [script]
  * @property {ActionParent} [parent]
  * @property {string} [captchaType]
  * @property {string} [injectCaptchaHandler]

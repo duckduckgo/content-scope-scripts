@@ -1,0 +1,18 @@
+{
+  "state": {
+    "action": {
+      "id": "execute-script-1",
+      "actionType": "executeScript",
+      "script": "const params = new URLSearchParams({ name: userProfile.firstName + ' ' + userProfile.lastName }); const anchor = root.createElement('a'); anchor.id = 'pir-probe-anchor'; anchor.href = '#' + params.toString(); anchor.textContent = 'probe'; root.body.appendChild(anchor);"
+    },
+    "data": {
+      "userProfile": {
+        "firstName": "Daniel",
+        "lastName": "Silva",
+        "city": "Los Angeles",
+        "state": "CA",
+        "birthYear": 1988
+      }
+    }
+  }
+}
