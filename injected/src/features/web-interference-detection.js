@@ -1,6 +1,7 @@
 import ContentFeature, { CallFeatureMethodError } from '../content-feature.js';
-import { runBotDetection } from '../detectors/detections/bot-detection.js';
-import { runFraudDetection } from '../detectors/detections/fraud-detection.js';
+import { timeDetector } from './detector-perf.js';
+import { runBotDetection, BOT_DETECTOR_NAME } from '../detectors/detections/bot-detection.js';
+import { runFraudDetection, FRAUD_DETECTOR_NAME } from '../detectors/detections/fraud-detection.js';
 import { runYoutubeAdDetection } from '../detectors/detections/youtube-ad-detection.js';
 
 /**
@@ -39,10 +40,10 @@ export default class WebInterferenceDetection extends ContentFeature {
             const results = {};
 
             if (types.includes('botDetection')) {
-                results.botDetection = runBotDetection(settings?.botDetection);
+                results.botDetection = timeDetector(this, BOT_DETECTOR_NAME, () => runBotDetection(settings?.botDetection));
             }
             if (types.includes('fraudDetection')) {
-                results.fraudDetection = runFraudDetection(settings?.fraudDetection);
+                results.fraudDetection = timeDetector(this, FRAUD_DETECTOR_NAME, () => runFraudDetection(settings?.fraudDetection));
             }
             return results;
         });

@@ -1,5 +1,8 @@
 import { checkSelectorsWithVisibility, checkTextPatterns } from '../utils/detection-utils.js';
 
+/** Metric name for detectorPerf reporting; must match the EventHub `source` entries in remote config. */
+export const FRAUD_DETECTOR_NAME = 'fraud';
+
 /**
  * Run fraud detection.
  * @param {Record<string, any>} config
