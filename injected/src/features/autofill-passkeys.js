@@ -1,4 +1,4 @@
-import ContentFeature from '../content-feature';
+import ContentFeature from '../content-feature.js';
 /* eslint-disable no-redeclare */
 import {
     Uint8Array,
@@ -7,7 +7,7 @@ import {
     DOMException as CapturedDOMException,
     charCodeAt,
     randomUUID,
-} from '../captured-globals';
+} from '../captured-globals.js';
 /* eslint-enable no-redeclare */
 
 const MSG_INBOUND_PASSKEY_SELECTED = 'passkeySelected';
