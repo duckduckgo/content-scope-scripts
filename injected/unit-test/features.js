@@ -12,11 +12,20 @@ const __filename = fileURLToPath(import.meta.url);
 // eslint-disable-next-line no-redeclare
 const __dirname = path.dirname(__filename);
 
-// Resolved rather than hardcoded to `../../node_modules`: privacy-configuration is
-// a dependency of the injected workspace only, so npm hoists it to the repo root or
-// leaves it in injected/node_modules depending on the pin. When it stopped being
-// hoisted, every schema spec below failed with "No input files".
-const CONFIG_SCHEMA_PATH = fileURLToPath(import.meta.resolve('@duckduckgo/privacy-configuration/schema/config.ts'));
+// The config package exports getSchema/createValidator, but they resolve
+// './schema/config.ts' against process.cwd(), so they only work from inside that
+// repo. Hence the local generator, pointed at a resolved path rather than a
+// hardcoded '../../node_modules': privacy-configuration is a dependency of the
+// injected workspace alone, so npm hoists it to the repo root or leaves it in
+// injected/node_modules depending on the pin, and hardcoding either one breaks
+// every schema spec here with "No input files" the next time that flips.
+// TODO make the config export all of this so it can be imported
+async function createConfigSchemaGenerator() {
+    const schemaGenerator = await import('ts-json-schema-generator');
+    return schemaGenerator.createGenerator({
+        path: fileURLToPath(import.meta.resolve('@duckduckgo/privacy-configuration/schema/config.ts')),
+    });
+}
 
 describe('Features definition', () => {
     it('calls `webCompat` before `fingerPrintingScreenSize` https://app.asana.com/0/1177771139624306/1204944717262422/f', () => {
@@ -30,26 +39,15 @@ describe('Features definition', () => {
 });
 
 describe('test-pages/*/config/*.json schema validation', () => {
-    let Ajv, schemaGenerator;
+    let Ajv;
     beforeAll(async () => {
         Ajv = (await import('ajv')).default;
-        schemaGenerator = await import('ts-json-schema-generator');
     });
 
-    // TODO make the config export all of this so it can be imported
-    function createGenerator() {
-        return schemaGenerator.createGenerator({
-            path: CONFIG_SCHEMA_PATH,
-        });
-    }
-
-    function getSchema(schemaName) {
-        return createGenerator().createSchema(schemaName);
-    }
-
-    function createValidator(schemaName) {
+    async function createValidator(schemaName) {
+        const generator = await createConfigSchemaGenerator();
         const ajv = new Ajv({ allowUnionTypes: true });
-        return ajv.compile(getSchema(schemaName));
+        return ajv.compile(generator.createSchema(schemaName));
     }
 
     // Utility to ensure 'hash' exists on all features in the config
@@ -106,7 +104,7 @@ describe('test-pages/*/config/*.json schema validation', () => {
         it(`should match the CurrentGenericConfig schema: ${path.relative(process.cwd(), configPath)}`, async () => {
             let config = JSON.parse(await readFile(configPath, 'utf-8'));
             config = ensureHashOnFeatures(config);
-            const validate = createValidator('CurrentGenericConfig');
+            const validate = await createValidator('CurrentGenericConfig');
             const valid = validate(config);
             if (!valid) {
                 throw new Error(`Schema validation failed for ${configPath}: ` + formatErrors(validate.errors));
@@ -509,12 +507,8 @@ describe('ApiManipulation', () => {
 
     it('validates privacy-configuration #5215 MediaDevices apiChanges against schema', async () => {
         const Ajv = (await import('ajv')).default;
-        const schemaGenerator = await import('ts-json-schema-generator');
-        const schema = schemaGenerator
-            .createGenerator({
-                path: CONFIG_SCHEMA_PATH,
-            })
-            .createSchema('CurrentGenericConfig');
+        const generator = await createConfigSchemaGenerator();
+        const schema = generator.createSchema('CurrentGenericConfig');
         const validate = new Ajv({ allowUnionTypes: true }).compile(schema);
         const config = {
             readme: 'MediaDevices apiManipulation overrides from privacy-configuration #5215',
