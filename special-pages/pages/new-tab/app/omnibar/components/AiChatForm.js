@@ -26,7 +26,8 @@ import styles from './AiChatForm.module.css';
  * @param {object} props
  * @param {string} props.query
  * @param {boolean} [props.autoFocus]
- * @param {boolean} [props.disabled]
+ * @param {boolean} [props.disabled] - Blocks Enter/submit (e.g. empty query or attachment warnings).
+ * @param {boolean} [props.readOnly] - Freezes the textarea (hard usage limit); typing and submit are blocked.
  * @param {(query: string, caret: number) => void} props.onChange
  * @param {(chat: string, target: OpenTarget) => void} props.onSubmit
  * @param {string} [props.placeholder]
@@ -41,6 +42,7 @@ export function AiChatForm({
     query,
     autoFocus,
     disabled,
+    readOnly = false,
     onChange,
     onSubmit,
     children,
@@ -85,12 +87,21 @@ export function AiChatForm({
     /** @type {(event: SubmitEvent) => void} */
     const handleSubmit = (event) => {
         event.preventDefault();
-        if (disabled) return;
+        if (disabled || readOnly) return;
         onSubmit(query, 'same-tab');
     };
 
     /** @type {(event: KeyboardEvent) => void} */
     const handleKeyDown = (event) => {
+        if (readOnly) {
+            // Allow Escape to clear recent-chat selection; block everything else.
+            if (event.key === 'Escape' && (selectedChat || viewAllChatsSelected)) {
+                event.preventDefault();
+                clearSelectedChat();
+            }
+            return;
+        }
+
         // Let the parent claim keys first (e.g. arrow keys → mention picker); skip ours if it does.
         const result = onTextareaKeyDown?.(event);
         if (result?.handled) return;
@@ -189,13 +200,17 @@ export function AiChatForm({
                 aria-activedescendant={getActiveDescendant()}
                 autoComplete="off"
                 rows={1}
+                readOnly={readOnly}
+                aria-disabled={readOnly || undefined}
                 onKeyDown={handleKeyDown}
                 // Emit caret with value so the mention flow can detect active `@` mentions.
                 onInput={(event) => {
+                    if (readOnly) return;
                     emitChange(event);
                     clearSelectedChat();
                 }}
                 onKeyUp={(event) => {
+                    if (readOnly) return;
                     // Caret moves (arrows, Home/End) don't fire onInput but can enter/exit an `@`; re-emit.
                     if (event.key.startsWith('Arrow') || event.key === 'Home' || event.key === 'End') {
                         emitChange(event);

@@ -1,0 +1,270 @@
+/*
+ * Tucks under the omnibar .popup pill (native: Margin top -32, Height 74,
+ * empty top row ~31, content hangs ~42 below). Painted surface must include
+ * the tuck — empty space goes inside .card, not on this wrapper.
+ * .popup paints above via z-index on Omnibar.module.css.
+ */
+.drawer {
+    /* Match rest .popup horizontal margin (3px) — AI mode does not expand on focus. */
+    margin: -32px 3px 0;
+    position: relative;
+    z-index: 0;
+    animation: slideOpen 400ms cubic-bezier(0.33, 1, 0.68, 1) 100ms both;
+
+    @media (prefers-reduced-motion: reduce) {
+        animation: none;
+    }
+}
+
+@keyframes slideOpen {
+    from {
+        transform: translateY(calc(-100% + 32px));
+    }
+
+    to {
+        transform: translateY(0);
+    }
+}
+
+.card {
+    /* Full radii like native (16,16,19,19) — top crescents show under the pill curve */
+    background: var(--ds-color-theme-surface-secondary);
+    border-radius: 12px;
+    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.1), 0 4px 8px 0 rgba(0, 0, 0, 0.08);
+    outline: 1px solid var(--ds-color-theme-control-raised-backdrop);
+    /* Empty tuck zone under the pill (native row height 31 + hairline ≈ 32) */
+    padding-top: 32px;
+
+    [data-background-kind='color'] [data-theme='light'] &,
+    [data-background-kind='gradient'] [data-theme='light'] &,
+    [data-background-kind='userImage'] [data-theme='light'] & {
+        backdrop-filter: blur(48px);
+        background: rgba(255, 255, 255, 0.54);
+    }
+
+    [data-background-kind='color'] [data-theme='dark'] &,
+    [data-background-kind='gradient'] [data-theme='dark'] & {
+        backdrop-filter: blur(48px);
+        background: rgba(255, 255, 255, 0.12);
+        outline: 1px solid rgba(0, 0, 0, 0.12);
+    }
+
+    [data-background-kind='userImage'] [data-theme='dark'] & {
+        backdrop-filter: blur(48px);
+        background: rgba(0, 0, 0, 0.3);
+    }
+}
+
+.content {
+    align-items: center;
+    display: flex;
+    gap: 8px;
+    min-height: 42px;
+    padding: 4px 12px 8px 16px;
+}
+
+/* Shared 16×16 slot so info / ring / alert never shift the row */
+.leading {
+    display: grid;
+    flex-shrink: 0;
+    height: 16px;
+    place-items: center;
+    width: 16px;
+}
+
+.glyph {
+    display: block;
+    grid-area: 1 / 1;
+    height: 16px;
+    overflow: visible;
+    width: 16px;
+}
+
+.info {
+    /* Native IconsSecondaryBrush — all three 16px info paths, full opacity */
+    :global(.info-icon-fill) {
+        fill: var(--ds-color-theme-icons-secondary);
+        fill-opacity: 1;
+    }
+}
+
+.ringTrack {
+    stroke: var(--ds-color-theme-control-fill-primary);
+}
+
+.ringValue {
+    stroke: #21c000;
+}
+
+.severity_neutral .ringValue {
+    stroke: #21c000; /* DDG.Brush.StatusSuccess */
+}
+
+.severity_warning .ringValue {
+    stroke: #f5a031; /* DDG.Brush.YellowPrimary — theme-invariant */
+}
+
+.severity_critical .ringValue {
+    stroke: #ea0f2c; /* DDG.Brush.StatusCritical */
+}
+
+.alertTriangle {
+    fill: #ea0f2c; /* DDG.Brush.StatusCritical */
+}
+
+.alertMark {
+    fill: var(--ds-color-theme-accent-content-primary, #fff);
+}
+
+.message {
+    color: var(--ds-color-theme-text-primary);
+    flex: 1;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 16px;
+    margin: 0;
+    min-width: 0;
+}
+
+.primary {
+    font-weight: 400;
+}
+
+.messageEmphasized .primary {
+    font-weight: 600;
+}
+
+.secondary {
+    color: var(--ds-color-theme-text-secondary);
+    font-weight: 400;
+}
+
+.dismiss {
+    border-radius: 50%;
+    flex-shrink: 0;
+    height: 24px;
+    position: relative;
+    width: 24px;
+}
+
+.ctaSplit {
+    align-items: center;
+    display: flex;
+    flex-shrink: 0;
+    height: var(--sp-7);
+}
+
+.ctaPrimary {
+    align-items: center;
+    background: var(--ds-color-theme-control-fill-primary);
+    border: none;
+    color: var(--ds-color-theme-text-primary);
+    cursor: pointer;
+    display: inline-flex;
+    font-size: 13px;
+    font-weight: 400;
+    gap: var(--sp-1);
+    height: var(--sp-7);
+    padding: 0 12px;
+    white-space: nowrap;
+
+    &:hover {
+        background: var(--ds-color-theme-control-fill-secondary);
+    }
+
+    &:active {
+        background: var(--ds-color-theme-control-fill-tertiary);
+    }
+}
+
+.ctaPrimarySolo {
+    border-radius: 16px;
+}
+
+.ctaPrimarySplit {
+    border-radius: 16px 0 0 16px;
+}
+
+.ctaMenu {
+    align-items: center;
+    background: var(--ds-color-theme-control-fill-primary);
+    border: none;
+    border-left: 1px solid var(--ds-color-theme-container-border-primary);
+    border-radius: 0 16px 16px 0;
+    color: var(--ds-color-theme-text-primary);
+    cursor: pointer;
+    display: inline-flex;
+    height: var(--sp-7);
+    justify-content: center;
+    padding: 0;
+    width: var(--sp-7);
+
+    &:hover {
+        background: var(--ds-color-theme-control-fill-secondary);
+        border-left-color: transparent;
+    }
+
+    &:active {
+        background: var(--ds-color-theme-control-fill-tertiary);
+        border-left-color: transparent;
+    }
+
+    svg {
+        display: block;
+    }
+}
+
+.ctaLabel {
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ctaMenuHeader {
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 14px;
+    padding: 0 6px;
+    white-space: nowrap;
+}
+
+.ctaDropdown {
+    min-width: 200px;
+    width: 200px;
+}
+
+.ctaModelName {
+    font-weight: 600;
+}
+
+.ctaModelVariant {
+    font-weight: 400;
+}
+
+.convertIcon {
+    flex-shrink: 0;
+}
+
+:global(body[data-rebrand='true']) {
+    .card {
+        border-radius: var(--ds-radius-x06);
+        box-shadow:
+            0 10px 20px 0 rgba(0, 0, 0, 0.02),
+            0 2px 6px 0 rgba(0, 0, 0, 0.06),
+            0 0 0 1px var(--ds-color-theme-container-border-secondary);
+        outline: none;
+    }
+
+    :global([data-theme='dark']) .card {
+        box-shadow:
+            0 10px 20px 0 rgba(0, 0, 0, 0.02),
+            0 2px 6px 0 rgba(0, 0, 0, 0.06),
+            0 0 0 1px var(--ds-ntp-dark-card-border-color);
+    }
+
+    .dismiss {
+        border-radius: 50%;
+        height: 24px;
+        width: 24px;
+    }
+}

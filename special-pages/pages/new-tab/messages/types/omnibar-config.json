@@ -300,6 +300,92 @@
       "description": "Show a delete button on history entry suggestions. When true, clicking the button removes the entry from browsing history.",
       "type": "boolean",
       "default": false
+    },
+    "usageLimits": {
+      "title": "Usage Limits Drawer",
+      "description": "Native-resolved presentation for the AI-mode usage limits drawer under the omnibar pill. Non-null shows the drawer; null/omitted hides it. FE does not derive content.",
+      "type": ["object", "null"],
+      "required": ["message"],
+      "properties": {
+        "message": {
+          "type": "string",
+          "description": "Primary banner copy (already localized by native)."
+        },
+        "secondaryText": {
+          "type": "string",
+          "description": "Optional secondary copy (e.g. reset countdown), shown after the primary message."
+        },
+        "dismissible": {
+          "type": "boolean",
+          "description": "When true, show a dismiss control. Dismiss notifies native via omnibar_dismissUsageLimits.",
+          "default": false
+        },
+        "icon": {
+          "type": "string",
+          "description": "Leading glyph. Omitted defaults to info.",
+          "enum": ["info", "ring", "alert"],
+          "default": "info"
+        },
+        "percent": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Fill amount when icon=ring."
+        },
+        "severity": {
+          "type": "string",
+          "description": "Ring color when icon=ring. Omitted defaults to neutral.",
+          "enum": ["neutral", "warning", "critical"],
+          "default": "neutral"
+        },
+        "blocksPrompt": {
+          "type": "boolean",
+          "description": "When true, disable AI composer controls (input, voice, model picker, reasoning, tools, attach).",
+          "default": false
+        },
+        "cta": {
+          "type": ["object", "null"],
+          "description": "Optional action button. Native owns execution via omnibar_selectUsageLimitsCta.",
+          "required": ["label", "showMenu"],
+          "properties": {
+            "label": {
+              "type": "string",
+              "description": "Primary button label (already localized)."
+            },
+            "leadingIcon": {
+              "type": "string",
+              "description": "Optional glyph before the label. convert = switch-model icon; none/omitted = text only.",
+              "enum": ["none", "convert"],
+              "default": "none"
+            },
+            "primaryModelId": {
+              "type": "string",
+              "description": "Opaque model id sent on primary click when set. Omit for non-model actions (bypass/subscribe)."
+            },
+            "showMenu": {
+              "type": "boolean",
+              "description": "When true, show a chevron and alternatives menu. Native decides; FE does not infer."
+            },
+            "menuHeader": {
+              "type": "string",
+              "description": "Optional section header above the alternatives menu (e.g. 'Switch to a more efficient model'). Already localized. Omitted when the menu has no header (e.g. switch-to-free)."
+            },
+            "alternatives": {
+              "type": "array",
+              "description": "Model options for the chevron menu.",
+              "items": {
+                "type": "object",
+                "required": ["id", "name"],
+                "properties": {
+                  "id": { "type": "string" },
+                  "name": { "type": "string" },
+                  "variant": { "type": "string" }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 }

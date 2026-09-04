@@ -150,6 +150,72 @@ export type EnableAIChatDeletion = boolean;
  * Show a delete button on history entry suggestions. When true, clicking the button removes the entry from browsing history.
  */
 export type EnableSearchSuggestionDeletion = boolean;
+/**
+ * Native-resolved presentation for the AI-mode usage limits drawer under the omnibar pill. Non-null shows the drawer; null/omitted hides it. FE does not derive content.
+ */
+export type UsageLimitsDrawer = {
+  /**
+   * Primary banner copy (already localized by native).
+   */
+  message: string;
+  /**
+   * Optional secondary copy (e.g. reset countdown), shown after the primary message.
+   */
+  secondaryText?: string;
+  /**
+   * When true, show a dismiss control. Dismiss notifies native via omnibar_dismissUsageLimits.
+   */
+  dismissible?: boolean;
+  /**
+   * Leading glyph. Omitted defaults to info.
+   */
+  icon?: "info" | "ring" | "alert";
+  /**
+   * Fill amount when icon=ring.
+   */
+  percent?: number;
+  /**
+   * Ring color when icon=ring. Omitted defaults to neutral.
+   */
+  severity?: "neutral" | "warning" | "critical";
+  /**
+   * When true, disable AI composer controls (input, voice, model picker, reasoning, tools, attach).
+   */
+  blocksPrompt?: boolean;
+  /**
+   * Optional action button. Native owns execution via omnibar_selectUsageLimitsCta.
+   */
+  cta?: {
+    /**
+     * Primary button label (already localized).
+     */
+    label: string;
+    /**
+     * Optional glyph before the label. convert = switch-model icon; none/omitted = text only.
+     */
+    leadingIcon?: "none" | "convert";
+    /**
+     * Opaque model id sent on primary click when set. Omit for non-model actions (bypass/subscribe).
+     */
+    primaryModelId?: string;
+    /**
+     * When true, show a chevron and alternatives menu. Native decides; FE does not infer.
+     */
+    showMenu: boolean;
+    /**
+     * Optional section header above the alternatives menu (e.g. 'Switch to a more efficient model'). Already localized. Omitted when the menu has no header (e.g. switch-to-free).
+     */
+    menuHeader?: string;
+    /**
+     * Model options for the chevron menu.
+     */
+    alternatives?: {
+      id: string;
+      name: string;
+      variant?: string;
+    }[];
+  } | null;
+} | null;
 export type Favicon = null | {
   src: string;
   maxAvailableSize?: number;
@@ -230,10 +296,12 @@ export interface NewTabMessages {
     | NextStepsActionNotification
     | NextStepsDismissNotification
     | NextStepsSetConfigNotification
+    | OmnibarDismissUsageLimitsNotification
     | OmnibarOpenAiChatNotification
     | OmnibarOpenCustomizeResponsesNotification
     | OmnibarOpenSuggestionNotification
     | OmnibarRemoveSuggestionNotification
+    | OmnibarSelectUsageLimitsCtaNotification
     | OmnibarSetConfigNotification
     | OmnibarSetCustomizeResponsesActiveNotification
     | OmnibarShowSubscriptionUpgradeNotification
@@ -593,6 +661,17 @@ export interface NextStepsConfig {
   animation?: Animation;
 }
 /**
+ * Generated from @see "../messages/omnibar_dismissUsageLimits.notify.json"
+ */
+export interface OmnibarDismissUsageLimitsNotification {
+  method: "omnibar_dismissUsageLimits";
+  params: DismissUsageLimitsDrawer;
+}
+/**
+ * Sent when the user dismisses the AI-mode usage limits drawer. Native owns dismiss persistence and should push an updated OmnibarConfig with usageLimits null/omitted.
+ */
+export interface DismissUsageLimitsDrawer {}
+/**
  * Generated from @see "../messages/omnibar_openAiChat.notify.json"
  */
 export interface OmnibarOpenAiChatNotification {
@@ -686,6 +765,22 @@ export interface RemoveSuggestion {
   url: string;
 }
 /**
+ * Generated from @see "../messages/omnibar_selectUsageLimitsCta.notify.json"
+ */
+export interface OmnibarSelectUsageLimitsCtaNotification {
+  method: "omnibar_selectUsageLimitsCta";
+  params: SelectUsageLimitsCTA;
+}
+/**
+ * Sent when the user activates the usage-limits drawer CTA (primary button or a menu alternative). Native executes the current CTA; FE only reports the selection.
+ */
+export interface SelectUsageLimitsCTA {
+  /**
+   * Set when the user picks a model (primaryModelId or menu item). Omitted for non-model primary actions (bypass/subscribe).
+   */
+  modelId?: string;
+}
+/**
  * Generated from @see "../messages/omnibar_setConfig.notify.json"
  */
 export interface OmnibarSetConfigNotification {
@@ -716,6 +811,7 @@ export interface OmnibarConfig {
   enableAttachTabs?: EnableAttachTabs;
   enableAiChatDeletion?: EnableAIChatDeletion;
   enableSearchSuggestionDeletion?: EnableSearchSuggestionDeletion;
+  usageLimits?: UsageLimitsDrawer;
 }
 /**
  * A section of AI models with an optional header and a list of model items.

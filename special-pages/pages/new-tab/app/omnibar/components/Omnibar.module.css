@@ -53,6 +53,8 @@
     display: flow-root; /* Prevent margin collapse on .field */
     margin: 3px;
     outline: 1px solid var(--ds-color-theme-control-raised-backdrop);
+    position: relative;
+    z-index: 1; /* Paint above UsageLimitsDrawer tuck */
 
     [data-background-kind="color"] [data-theme="light"] &,
     [data-background-kind="gradient"] [data-theme="light"] &,
@@ -74,13 +76,21 @@
     }
 }
 
+/* Shown only while data-usage-limits-revealed is set (composer or drawer focus). */
+.root[data-mode='ai']:not([data-usage-limits-revealed]) :global([data-testid='usage-limits-drawer']) {
+    display: none;
+}
+
 /* Typing. Suppressed while the Add Tabs modal is open so its search input doesn't light up the omnibar. */
 .root:has(input:focus, textarea:focus):not(:has([data-attach-tabs-modal])) .popup {
     box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.1), 0 20px 40px 0 rgba(0, 0, 0, 0.08); /* Elevation 90 */
 }
 
-/* Focused */
-.root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-attachment-warning], [data-attach-tabs-modal])) .popup {
+/* Focused empty search: accent border + glow. AI mode suppresses the glow (parity with address bar). */
+.root:not([data-mode='ai']):has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(
+        :has([data-attachment-warning], [data-attach-tabs-modal])
+    )
+    .popup {
     border-radius: 15px;
     border: 2px solid var(--ds-color-theme-accent-primary);
     box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.1), 0 20px 40px 0 rgba(0, 0, 0, 0.08); /* Elevation 90 */
@@ -122,8 +132,9 @@
     padding: var(--sp-2) var(--sp-3) 0;
 }
 
-/* Suggestions / AI chats list visible */
-.root:has([data-omnibar-list]) .popup {
+/* Suggestions list visible (search only). AI mode keeps rest width — focusing
+ * the textarea opens recent chats (also data-omnibar-list) and must not jump wider. */
+.root:not([data-mode='ai']):has([data-omnibar-list]) .popup {
     border-radius: 15px;
     margin: 0;
 
@@ -178,9 +189,9 @@
 
     /* Keep the same radius across Rest, Focused, Attachment limit exceeded, and Suggestions/AI chats list visible */
     .popup,
-    .root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-attachment-warning])) .popup,
+    .root:not([data-mode='ai']):has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-attachment-warning])) .popup,
     .root:has([data-attachment-warning]) .popup,
-    .root:has([data-omnibar-list]) .popup {
+    .root:not([data-mode='ai']):has([data-omnibar-list]) .popup {
         border-radius: var(--omnibar-radius);
     }
 
