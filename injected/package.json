@@ -35,7 +35,7 @@
   },
   "type": "module",
   "dependencies": {
-    "@duckduckgo/privacy-configuration": "github:duckduckgo/privacy-configuration#1786094392564",
+    "@duckduckgo/privacy-configuration": "github:duckduckgo/privacy-configuration#1787584642867",
     "@duckduckgo/tracker-surrogates": "github:duckduckgo/tracker-surrogates#0528e3226df15b1a3e319ad68ef76612a8f26623",
     "esbuild": "^0.28.2",
     "minimist": "^1.2.8",
@@ -57,6 +57,6 @@
     "jasmine": "^6.3.0",
     "jsdom": "^29.1.1",
     "monocart-coverage-reports": "^2.12.12",
-    "web-ext": "^10.5.0"
+    "web-ext": "^10.6.0"
   }
 }

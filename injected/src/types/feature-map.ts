@@ -13,6 +13,7 @@ import type AutofillPasskeys from '../features/autofill-passkeys.js';
 import type BreakageReporting from '../features/breakage-reporting.js';
 import type BrokerProtection from '../features/broker-protection.js';
 import type BrowserUiLock from '../features/browser-ui-lock.js';
+import type ChromeWebstorePatching from '../features/chrome-webstore-patching.js';
 import type ClickToLoad from '../features/click-to-load.js';
 import type ContextMenu from '../features/context-menu.js';
 import type Cookie from '../features/cookie.js';
@@ -63,6 +64,7 @@ export interface FeatureMap {
     breakageReporting: BreakageReporting;
     brokerProtection: BrokerProtection;
     browserUiLock: BrowserUiLock;
+    chromeWebstorePatching: ChromeWebstorePatching;
     clickToLoad: ClickToLoad;
     contextMenu: ContextMenu;
     cookie: Cookie;

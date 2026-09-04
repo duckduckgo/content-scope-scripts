@@ -969,6 +969,14 @@ describe('Helpers checks', () => {
             const args2 = { site: { enabledFeatures: [] } };
             expect(isFeatureBroken(args2, 'navigatorInterface')).toBeTrue();
         });
+
+        it('keeps chromeWebstorePatching unbroken with protections off', () => {
+            /** @type {any} */
+            const args = {
+                site: { enabledFeatures: ['chromeWebstorePatching'], allowlisted: true, isBroken: true },
+            };
+            expect(isFeatureBroken(args, 'chromeWebstorePatching')).toBeFalse();
+        });
     });
 
     describe('isPlatformSpecificFeature', () => {
@@ -978,6 +986,7 @@ describe('Helpers checks', () => {
             expect(isPlatformSpecificFeature('favicon')).toBeTrue();
             expect(isPlatformSpecificFeature('webDetection')).toBeTrue();
             expect(isPlatformSpecificFeature('webEvents')).toBeTrue();
+            expect(isPlatformSpecificFeature('chromeWebstorePatching')).toBeTrue();
         });
 
         it('returns false for non-platform features', () => {
@@ -1011,6 +1020,11 @@ describe('Helpers checks', () => {
         it('platformSpecificFeatures includes webDetection and webEvents so they load when globally disabled', () => {
             expect(platformSpecificFeatures).toContain('webDetection');
             expect(platformSpecificFeatures).toContain('webEvents');
+        });
+
+        // Disabling protections for the web store must not restore working install buttons
+        it('platformSpecificFeatures includes chromeWebstorePatching so it loads when globally disabled', () => {
+            expect(platformSpecificFeatures).toContain('chromeWebstorePatching');
         });
     });
 

@@ -55,6 +55,8 @@ let coverageFileCounter = 0;
 export class ResultsCollector {
     #userPreferences = {};
     #mockResponses = {};
+    /** @type {string[]} domains the user has switched protections off for */
+    #userUnprotectedDomains = [];
     #coverageStarted = false;
 
     /**
@@ -130,6 +132,15 @@ export class ResultsCollector {
     }
 
     /**
+     * Simulates the user turning protections off for these domains (`site.allowlisted`)
+     * @param {string[]} domains
+     */
+    withUserUnprotectedDomains(domains) {
+        this.#userUnprotectedDomains = domains;
+        return this;
+    }
+
+    /**
      * @param {Record<string, any>} values
      */
     withMockResponse(values) {
@@ -168,7 +179,7 @@ export class ResultsCollector {
 
         const processedConfig = processConfig(
             /** @type {import('../../src/utils.js').RemoteConfig} */ (config),
-            /* userList */ [],
+            /* userList */ this.#userUnprotectedDomains,
             /* preferences */ userPreferences /*, platformSpecificFeatures = [] */,
         );
 
@@ -237,7 +248,7 @@ export class ResultsCollector {
         // read the built file from disk and do replacements
         const injectedJS = wrapFn(this.build.artifact, {
             $CONTENT_SCOPE$: config,
-            $USER_UNPROTECTED_DOMAINS$: [],
+            $USER_UNPROTECTED_DOMAINS$: this.#userUnprotectedDomains,
             $USER_PREFERENCES$: {
                 platform: { name: this.platform.name, ...platform },
                 debug: true,
