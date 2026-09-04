@@ -28,6 +28,8 @@ const CORE_FILES = new Set([
     'injected/src/navigator-global.js',
     'injected/src/utils/dom-metadata.js',
     'injected/src/features/browser-ui-lock.js',
+    'injected/src/features/chrome-webstore-patching.js',
+    'injected/src/features/chrome-webstore-patching/helpers.js',
     'injected/src/features/hover.js',
     'injected/src/performance.js',
     'injected/src/sendmessage-transport.js',

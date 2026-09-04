@@ -1,0 +1,47 @@
+{
+    "readme": "chromeWebstorePatching fixture with no extensionManagement feature at all: the catalog is unknowable, so every extension must read as unsupported.",
+    "version": 1,
+    "features": {
+        "chromeWebstorePatching": {
+            "state": "internal",
+            "exceptions": [],
+            "settings": {
+                "patchWebstore": {
+                    "state": "disabled"
+                },
+                "installButtonSelectors": [
+                    {
+                        "type": "css",
+                        "value": "button[jsname=\"wQO0od\"]"
+                    },
+                    {
+                        "type": "css",
+                        "value": "button[jsname=\"ajZLRd\"]"
+                    },
+                    {
+                        "type": "css",
+                        "value": "button[jscontroller=\"O626Fe\"][disabled]"
+                    }
+                ],
+                "promoSelectors": [
+                    "[jsname=\"v621tc\"]",
+                    "div[jscontroller=\"o2G9me\"]",
+                    "header[role=\"banner\"] aside"
+                ],
+                "domains": [
+                    {
+                        "domain": "localhost",
+                        "patchSettings": [
+                            {
+                                "op": "replace",
+                                "path": "/patchWebstore/state",
+                                "value": "enabled"
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    },
+    "unprotectedTemporary": []
+}
