@@ -5,8 +5,8 @@
 import ContentFeature from '../content-feature.js';
 // eslint-disable-next-line no-redeclare
 import { URL } from '../captured-globals.js';
-import { DDGProxy, DDGReflect } from '../utils';
-import { wrapToString, wrapFunction } from '../wrapper-utils.js';
+import { DDGProxy, DDGReflect } from '../utils.js';
+import { maskMethodIdentity, wrapToString, wrapFunction } from '../wrapper-utils.js';
 /**
  * Fixes incorrect sizing value for outerHeight and outerWidth.
  * Note: Avoid hardcoding window geometry values - use calculations or config where possible.
@@ -24,6 +24,10 @@ const MSG_PERMISSIONS_QUERY = 'permissionsQuery';
 const MSG_SCREEN_LOCK = 'screenLock';
 const MSG_SCREEN_UNLOCK = 'screenUnlock';
 const MSG_DEVICE_ENUMERATION = 'deviceEnumeration';
+const MSG_PASSKEY_USED = 'passkeyUsed';
+const MSG_PASSKEY_FAILED = 'passkeyFailed';
+const CREDENTIAL_TYPE_PUBLIC_KEY = 'public-key';
+const PASSKEY_ERROR_OTHER = 'Other';
 
 function canShare(data) {
     if (typeof data !== 'object') return false;
@@ -130,6 +134,9 @@ export class WebCompat extends ContentFeature {
         }
         if (this.getFeatureSettingEnabled('navigatorCredentials')) {
             this.navigatorCredentialsFix();
+        }
+        if (this.getFeatureSettingEnabled('passkeyDetection')) {
+            this.passkeyDetectionFix();
         }
         if (this.getFeatureSettingEnabled('safariObject')) {
             this.safariObjectFix();
@@ -794,6 +801,132 @@ export class WebCompat extends ContentFeature {
             });
         } catch {
             // Ignore exceptions that could be caused by conflicting with other extensions
+        }
+    }
+
+    /**
+     * Detects usage of WebAuthn passkeys (`navigator.credentials.get`/`.create` called
+     * with a `publicKey` option) and notifies the native layer, purely for pixelling
+     * purposes. This never mediates, delays, or alters the credential ceremony itself:
+     * the original method is always invoked with the original arguments and its return
+     * value (a promise) is returned to the page completely unmodified. We only attach a
+     * side-channel observer to that promise to detect a successful outcome.
+     *
+     * This is intentionally a much lighter touch than `AutofillPasskeys`
+     * (autofill-passkeys.js), which fully mediates conditional requests to drive a
+     * custom credential-picker UI. Here there is no UI to replace (the platform already
+     * shows its own native passkey prompt), so we only need to observe, not intercept.
+     */
+    passkeyDetectionFix() {
+        try {
+            if (
+                typeof CredentialsContainer === 'undefined' ||
+                !navigator.credentials ||
+                !(navigator.credentials instanceof CredentialsContainer) ||
+                typeof navigator.credentials.get !== 'function'
+            ) {
+                return;
+            }
+            const proto = CredentialsContainer.prototype;
+            this.wrapPasskeyMethod(proto, 'get');
+            this.wrapPasskeyMethod(proto, 'create');
+        } catch {
+            // Ignore exceptions that could be caused by conflicting with other extensions
+        }
+    }
+
+    /**
+     * Wraps a single CredentialsContainer method (`get` or `create`) so that WebAuthn
+     * (`publicKey`) calls are observed without changing behaviour.
+     * @param {object} proto
+     * @param {'get'|'create'} methodName
+     */
+    wrapPasskeyMethod(proto, methodName) {
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        const feature = this;
+        const origDescriptor = this.wrapMethod(proto, methodName, function (originalFn, ...args) {
+            // Always call through with the original arguments/receiver first: the page
+            // must see exactly the same behaviour, return value, and timing as native.
+            const result = originalFn.apply(this, args);
+            try {
+                const options = args[0];
+                if (options && typeof options === 'object' && options.publicKey && result && typeof result.then === 'function') {
+                    void feature.observePasskeyResult(result, methodName);
+                }
+            } catch {
+                // Never let a bug in detection surface as a page-visible error.
+            }
+            return result;
+        });
+        maskMethodIdentity(proto, methodName, origDescriptor);
+    }
+
+    /**
+     * Observes (without consuming or altering) the outcome of a passkey ceremony and
+     * notifies native with `passkeyUsed` when it resolves with a public-key credential,
+     * or `passkeyFailed` when it rejects. Runs as a fire-and-forget derived promise
+     * chain - it never affects the promise/value returned to the page.
+     * @param {Promise<Credential | null>} resultPromise
+     * @param {'get'|'create'} type
+     */
+    async observePasskeyResult(resultPromise, type) {
+        /** @type {Credential | null} */
+        let credential;
+        try {
+            credential = await resultPromise;
+        } catch (e) {
+            // A rejection means no passkey was used (cancellation, no matching credential,
+            // or a platform/credential-manager failure). Only the sanitized error *name* is
+            // sent to native; the error message and page-supplied options never leave the
+            // page context.
+            const error = this.sanitizePasskeyErrorName(e);
+            try {
+                this.notify(MSG_PASSKEY_FAILED, { type, error });
+            } catch {
+                // Messaging must never affect the page.
+            }
+            return;
+        }
+        try {
+            if (credential && credential.type === CREDENTIAL_TYPE_PUBLIC_KEY) {
+                this.notify(MSG_PASSKEY_USED, { type });
+            }
+        } catch {
+            // Ignore exceptions - this must never affect the page.
+        }
+    }
+
+    /**
+     * Reduces a rejected passkey ceremony error to a bounded, non-identifying name.
+     * Only a known DOMException name is forwarded; anything else (including non-Error
+     * rejections) becomes 'Other'. The error message is intentionally never used.
+     * @param {unknown} error
+     * @returns {import('../types/web-compat.js').PasskeyFailedParams['error']}
+     */
+    sanitizePasskeyErrorName(error) {
+        try {
+            const name = /** @type {{ name?: unknown }} */ (error)?.name;
+            // Deliberately use a switch rather than page-replaceable lookup helpers such
+            // as Array.prototype.includes. The page controls AbortSignal.reason and can
+            // otherwise influence the rejection object.
+            switch (name) {
+                case 'NotAllowedError':
+                case 'SecurityError':
+                case 'NotSupportedError':
+                case 'InvalidStateError':
+                case 'ConstraintError':
+                case 'AbortError':
+                case 'UnknownError':
+                case 'EncodingError':
+                case 'NotReadableError':
+                case 'TypeError':
+                    return name;
+                default:
+                    return PASSKEY_ERROR_OTHER;
+            }
+        } catch {
+            // A page-controlled rejection can expose a throwing `name` getter.
+            return PASSKEY_ERROR_OTHER;
         }
     }
 

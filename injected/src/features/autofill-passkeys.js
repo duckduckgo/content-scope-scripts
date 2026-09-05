@@ -1,4 +1,4 @@
-import ContentFeature from '../content-feature';
+import ContentFeature from '../content-feature.js';
 /* eslint-disable no-redeclare */
 import {
     Uint8Array,
@@ -7,7 +7,8 @@ import {
     DOMException as CapturedDOMException,
     charCodeAt,
     randomUUID,
-} from '../captured-globals';
+} from '../captured-globals.js';
+import { maskMethodIdentity } from '../wrapper-utils.js';
 /* eslint-enable no-redeclare */
 
 const MSG_INBOUND_PASSKEY_SELECTED = 'passkeySelected';
@@ -36,7 +37,7 @@ export default class AutofillPasskeys extends ContentFeature {
         // eslint-disable-next-line @typescript-eslint/no-this-alias
         const feature = this;
 
-        this.wrapMethod(
+        const origDescriptor = this.wrapMethod(
             CredentialsContainer.prototype,
             'get',
             /** @this {CredentialsContainer} */ function (originalGet, options) {
@@ -60,6 +61,7 @@ export default class AutofillPasskeys extends ContentFeature {
                 }
             },
         );
+        maskMethodIdentity(CredentialsContainer.prototype, 'get', origDescriptor);
     }
 
     /**

@@ -1,5 +1,6 @@
 import {
     mergePropertyDescriptors,
+    maskMethodIdentity,
     shimInterface,
     shimProperty,
     wrapProperty,
@@ -357,6 +358,43 @@ describe('wrapMethod', () => {
         );
         expect(origDesc).toBeDefined();
         expect(obj.greet('World')).toBe('Hello, World!');
+    });
+
+    it('preserves method identity across multiple explicitly masked wrapper layers', () => {
+        const obj = {
+            greet(name, punctuation) {
+                return `Hello, ${name}${punctuation}`;
+            },
+        };
+        const nativeName = obj.greet.name;
+        const nativeLength = obj.greet.length;
+        const nativeToString = obj.greet.toString();
+
+        const firstDescriptor = wrapMethod(obj, 'greet', (origFn, ...args) => origFn.call(obj, ...args), Object.defineProperty);
+        maskMethodIdentity(obj, 'greet', firstDescriptor);
+
+        const secondDescriptor = wrapMethod(obj, 'greet', (origFn, ...args) => origFn.call(obj, ...args), Object.defineProperty);
+        maskMethodIdentity(obj, 'greet', secondDescriptor);
+
+        expect(obj.greet('World', '!')).toBe('Hello, World!');
+        expect(obj.greet.name).toBe(nativeName);
+        expect(obj.greet.length).toBe(nativeLength);
+        expect(obj.greet.toString()).toBe(nativeToString);
+    });
+
+    it('does not change identity automatically for unrelated wrapMethod callers', () => {
+        const obj = {
+            greet(name) {
+                return `Hello, ${name}`;
+            },
+        };
+
+        wrapMethod(obj, 'greet', (origFn, ...args) => origFn.call(obj, ...args), Object.defineProperty);
+
+        // Identity masking remains opt-in, avoiding a global behavior change for every
+        // existing wrapMethod caller.
+        expect(obj.greet.name).toBe('');
+        expect(obj.greet.length).toBe(0);
     });
 
     it('throws when property is not a function', () => {

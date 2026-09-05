@@ -10,7 +10,11 @@
  * Requests, Notifications and Subscriptions from the WebCompat feature
  */
 export interface WebCompatMessages {
-  notifications: CloseNotificationNotification | ShowNotificationNotification;
+  notifications:
+    | CloseNotificationNotification
+    | PasskeyFailedNotification
+    | PasskeyUsedNotification
+    | ShowNotificationNotification;
   requests: DeviceEnumerationRequest | RequestPermissionRequest | WebShareRequest;
   subscriptions: NotificationEventSubscription;
 }
@@ -29,6 +33,53 @@ export interface CloseNotificationParams {
    * Unique identifier of the notification to close
    */
   id: string;
+}
+/**
+ * Generated from @see "../messages/web-compat/passkeyFailed.notify.json"
+ */
+export interface PasskeyFailedNotification {
+  method: "passkeyFailed";
+  params: PasskeyFailedParams;
+}
+/**
+ * Contract for the webCompat.passkeyFailed notification sent to Android when a WebAuthn passkey ceremony rejects, for pixelling purposes only.
+ */
+export interface PasskeyFailedParams {
+  /**
+   * Which CredentialsContainer method initiated the passkey ceremony.
+   */
+  type: "get" | "create";
+  /**
+   * The sanitized DOMException name from the rejected navigator.credentials call, restricted to a known set. Unrecognized names are reported as 'Other'. The underlying error message is never included.
+   */
+  error:
+    | "NotAllowedError"
+    | "SecurityError"
+    | "NotSupportedError"
+    | "InvalidStateError"
+    | "ConstraintError"
+    | "AbortError"
+    | "UnknownError"
+    | "EncodingError"
+    | "NotReadableError"
+    | "TypeError"
+    | "Other";
+}
+/**
+ * Generated from @see "../messages/web-compat/passkeyUsed.notify.json"
+ */
+export interface PasskeyUsedNotification {
+  method: "passkeyUsed";
+  params: PasskeyUsedParams;
+}
+/**
+ * Contract for the webCompat.passkeyUsed notification sent to Android when a WebAuthn passkey ceremony succeeds, for pixelling purposes only.
+ */
+export interface PasskeyUsedParams {
+  /**
+   * Which CredentialsContainer method initiated the passkey ceremony.
+   */
+  type: "get" | "create";
 }
 /**
  * Generated from @see "../messages/web-compat/showNotification.notify.json"

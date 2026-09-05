@@ -223,6 +223,36 @@ export function wrapMethod(object, propertyName, wrapperFn, definePropertyFn) {
 }
 
 /**
+ * Restore the observable function identity of a method after `wrapMethod()`.
+ *
+ * `wrapMethod()` already masks `toString()`, but its anonymous wrapper otherwise
+ * exposes an empty `name` and a wrapper-derived `length`. Call this after every
+ * layer that wraps the same method so the outermost page-visible function continues
+ * to match the method descriptor that layer replaced.
+ *
+ * This is intentionally opt-in rather than changing `wrapMethod()` globally: only
+ * the passkey wrappers currently need the stronger anti-tamper guarantee, and a
+ * global behavior change would affect every wrapped web API.
+ *
+ * @param {object} object
+ * @param {string} propertyName
+ * @param {PropertyDescriptor} [origDescriptor] - descriptor returned by `wrapMethod`
+ */
+export function maskMethodIdentity(object, propertyName, origDescriptor) {
+    try {
+        const origFn = /** @type {{ value?: unknown } | undefined} */ (origDescriptor)?.value;
+        const wrappedFn = /** @type {{ value?: unknown } | undefined} */ (getOwnPropertyDescriptor(object, propertyName))?.value;
+        if (typeof origFn !== 'function' || typeof wrappedFn !== 'function') {
+            return;
+        }
+        objectDefineProperty(wrappedFn, 'name', { value: origFn.name, configurable: true });
+        objectDefineProperty(wrappedFn, 'length', { value: origFn.length, configurable: true });
+    } catch {
+        // Masking is best-effort; never let it break the wrap itself.
+    }
+}
+
+/**
  * @template {keyof typeof globalThis} StandardInterfaceName
  * @param {StandardInterfaceName} interfaceName - the name of the interface to shim (must be some known standard API, e.g. 'MediaSession')
  * @param {typeof globalThis[StandardInterfaceName]} ImplClass - the class to use as the shim implementation
