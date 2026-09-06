@@ -42,6 +42,7 @@ const CORE_FILES = new Set([
     'injected/src/detectors/detections/fraud-detection.js',
     'injected/src/features/broker-protection/actions/actions.js',
     'injected/src/features/broker-protection/actions/condition.js',
+    'injected/src/features/broker-protection/actions/execute-script.js',
     'injected/src/features/broker-protection/actions/expectation.js',
     'injected/src/features/broker-protection/actions/generators.js',
     'injected/src/features/broker-protection/actions/navigate.js',
