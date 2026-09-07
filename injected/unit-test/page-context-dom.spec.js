@@ -214,7 +214,11 @@ describe('page-context.js - domToMarkdown iframe handling', () => {
         global.Node = window.Node;
         try {
             const iframe = /** @type {HTMLIFrameElement} */ (window.document.querySelector('iframe'));
-            iframe.contentDocument.body.innerHTML = '<p>Inner text</p>';
+            const iframeDocument = iframe.contentDocument;
+            if (!iframeDocument) {
+                throw new Error('Expected JSDOM to provide a contentDocument for the test iframe');
+            }
+            iframeDocument.body.innerHTML = '<p>Inner text</p>';
             return domToMarkdown(window.document.body, iframeSettings, 0);
         } finally {
             global.window = originalWindow;
