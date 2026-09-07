@@ -195,3 +195,68 @@ describe('page-context.js - domToMarkdown', () => {
         });
     }
 });
+
+describe('page-context.js - domToMarkdown iframe handling', () => {
+    const iframeSettings = { maxLength: 10000, maxDepth: 100, excludeSelectors: null, includeIframes: true, trimBlankLinks: false };
+    const iframeMarker = '--- Iframe Content ---';
+
+    /**
+     * Render a page containing one iframe (with the given attributes) whose document holds "Inner text"
+     * @param {string} iframeAttributes
+     * @returns {string}
+     */
+    function renderWithIframe(iframeAttributes) {
+        const dom = new JSDOM(`<!DOCTYPE html><html><body><p>Outer</p><iframe ${iframeAttributes}></iframe></body></html>`);
+        const { window } = dom;
+        const originalWindow = global.window;
+        const originalNode = global.Node;
+        global.window = window;
+        global.Node = window.Node;
+        try {
+            const iframe = /** @type {HTMLIFrameElement} */ (window.document.querySelector('iframe'));
+            iframe.contentDocument.body.innerHTML = '<p>Inner text</p>';
+            return domToMarkdown(window.document.body, iframeSettings, 0);
+        } finally {
+            global.window = originalWindow;
+            global.Node = originalNode;
+        }
+    }
+
+    it('includes content from an unsandboxed same-origin iframe', () => {
+        const markdown = renderWithIframe('');
+        expect(markdown).toContain(iframeMarker);
+        expect(markdown).toContain('Inner text');
+    });
+
+    it('skips an iframe with an empty sandbox attribute', () => {
+        const markdown = renderWithIframe('sandbox');
+        expect(markdown).not.toContain(iframeMarker);
+        expect(markdown).not.toContain('Inner text');
+    });
+
+    it('skips a sandboxed iframe that lacks allow-same-origin', () => {
+        // Without allow-same-origin the frame has an opaque origin, so reading its document
+        // is a sandbox access violation even when the src is same-origin.
+        const markdown = renderWithIframe('sandbox="allow-scripts"');
+        expect(markdown).not.toContain(iframeMarker);
+        expect(markdown).not.toContain('Inner text');
+    });
+
+    it('skips a sandboxed iframe that lacks allow-scripts', () => {
+        const markdown = renderWithIframe('sandbox="allow-same-origin"');
+        expect(markdown).not.toContain(iframeMarker);
+        expect(markdown).not.toContain('Inner text');
+    });
+
+    it('includes content from a sandboxed iframe with allow-scripts and allow-same-origin', () => {
+        const markdown = renderWithIframe('sandbox="allow-scripts allow-same-origin"');
+        expect(markdown).toContain(iframeMarker);
+        expect(markdown).toContain('Inner text');
+    });
+
+    it('treats sandbox flags as case-insensitive', () => {
+        const markdown = renderWithIframe('sandbox="ALLOW-SCRIPTS Allow-Same-Origin"');
+        expect(markdown).toContain(iframeMarker);
+        expect(markdown).toContain('Inner text');
+    });
+});

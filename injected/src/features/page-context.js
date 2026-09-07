@@ -41,6 +41,19 @@ function isHtmlElement(node) {
 }
 
 /**
+ * Parse the sandbox attribute of an iframe into its set of flags.
+ * Read from the attribute rather than `iframe.sandbox` so the check works in
+ * environments without a DOMTokenList for it (e.g. JSDOM in unit tests).
+ * Sandbox flags are ASCII case-insensitive, so normalise to lower case.
+ * @param {HTMLIFrameElement} iframe
+ * @returns {Set<string>}
+ */
+function getSandboxFlags(iframe) {
+    const value = iframe.getAttribute('sandbox') ?? '';
+    return new Set(value.toLowerCase().split(/\s+/).filter(Boolean));
+}
+
+/**
  * Check if an iframe is same-origin and return its content document
  * @param {HTMLIFrameElement} iframe
  * @returns {Document | null}
@@ -49,11 +62,19 @@ function getSameOriginIframeDocument(iframe) {
     // Pre-check conditions that would prevent access without triggering security errors
     const src = iframe.src;
 
-    // Skip sandboxed iframes unless they explicitly allow scripts
-    // Avoids: Blocked script execution in 'about:blank' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.
-    // Note: iframe.sandbox always returns a DOMTokenList, so check hasAttribute instead
-    if (iframe.hasAttribute('sandbox') && !iframe.sandbox.contains('allow-scripts')) {
-        return null;
+    // Skip sandboxed iframes unless they explicitly allow both scripts and same-origin access.
+    // Without 'allow-same-origin' the frame has an opaque origin, so its document is inaccessible
+    // even when the src matches our origin. WebKit logs a console error rather than throwing:
+    //   Sandbox access violation: Blocked a frame at "..." from accessing a frame at "...".
+    //   The frame being accessed is sandboxed and lacks the "allow-same-origin" flag.
+    // Without 'allow-scripts' we get:
+    //   Blocked script execution in 'about:blank' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.
+    // Note: an empty sandbox attribute is the most restrictive, so check hasAttribute rather than truthiness.
+    if (iframe.hasAttribute('sandbox')) {
+        const sandboxFlags = getSandboxFlags(iframe);
+        if (!sandboxFlags.has('allow-scripts') || !sandboxFlags.has('allow-same-origin')) {
+            return null;
+        }
     }
 
     // Check for cross-origin URLs (but allow about:blank and empty src as they inherit parent origin)
