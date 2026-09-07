@@ -100,6 +100,10 @@ export default class BrokerProtection extends ActionExecutorBase {
      * @returns
      */
     retryConfigFor(action) {
+        // Scripts can have non-idempotent side effects. Never retry, even when
+        // broker JSON supplies an explicit web retry configuration.
+        if (action.actionType === 'executeScript') return undefined;
+
         /**
          * Note: We're not currently guarding against concurrent actions here
          * since the native side contains the scheduling logic to prevent it.

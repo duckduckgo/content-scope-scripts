@@ -3,7 +3,7 @@
     "action": {
       "id": "execute-script-1",
       "actionType": "executeScript",
-      "script": "const params = new URLSearchParams({ name: userProfile.firstName + ' ' + userProfile.lastName }); const anchor = root.createElement('a'); anchor.id = 'pir-probe-anchor'; anchor.href = '#' + params.toString(); anchor.textContent = 'probe'; root.body.appendChild(anchor);"
+      "script": "const params = new URLSearchParams({ name: userProfile.firstName + ' ' + userProfile.lastName }); const anchor = root.createElement('a'); anchor.id = 'pir-probe-anchor'; anchor.href = 'execute-script.html?' + params.toString(); anchor.textContent = 'probe'; root.body.appendChild(anchor);"
     },
     "data": {
       "userProfile": {
