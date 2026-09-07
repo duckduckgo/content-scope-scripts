@@ -2697,6 +2697,36 @@ test.describe('omnibar widget', () => {
             await expect(page.locator('button[type="submit"]')).toBeDisabled();
         });
 
+        test('the image cap follows the backend attachmentLimits config', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableAiChatTools': 'true',
+                    // Backend-configured cap of one image per turn (default is three).
+                    'omnibar.imageMaxPerTurn': '1',
+                },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            // One image is within the configured cap — no warning.
+            await omnibar.fileInput().setInputFiles({ name: 'a.png', mimeType: 'image/png', buffer: TINY_PNG });
+            await expect(omnibar.imagePreviews()).toHaveCount(1);
+            await expect(page.locator('[role="alert"]')).toHaveCount(0);
+
+            // A second image exceeds the configured cap of one → warning and blocked submit.
+            await omnibar.fileInput().setInputFiles({ name: 'b.png', mimeType: 'image/png', buffer: TINY_PNG });
+            await expect(omnibar.imagePreviews()).toHaveCount(2);
+            await expect(page.locator('[role="alert"]')).toBeVisible();
+            await expect(page.locator('button[type="submit"]')).toBeDisabled();
+        });
+
         test('switching to non-image model clears image warning and reenables submit', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);
