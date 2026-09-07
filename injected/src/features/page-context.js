@@ -50,7 +50,12 @@ function isHtmlElement(node) {
  */
 function getSandboxFlags(iframe) {
     const value = iframe.getAttribute('sandbox') ?? '';
-    return new Set(value.toLowerCase().split(/\s+/).filter(Boolean));
+    return new Set(
+        value
+            .toLowerCase()
+            .split(/\s+/)
+            .filter((flag) => flag.length > 0),
+    );
 }
 
 /**
