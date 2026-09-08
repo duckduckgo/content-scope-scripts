@@ -3,7 +3,7 @@ import styles from './BackgroundReceiver.module.css';
 import { values } from '../customizer/values.js';
 import { useContext, useEffect, useState } from 'preact/hooks';
 import { CustomizerContext } from '../customizer/CustomizerProvider.js';
-import { detectThemeFromHex, getWallpaperExtreme } from '../customizer/utils.js';
+import { detectThemeFromHex, detectThemeNearBlackOrWhiteFromHex } from '../customizer/utils.js';
 import { useSignalEffect } from '@preact/signals';
 import { memo } from 'preact/compat';
 
@@ -96,11 +96,11 @@ export function BackgroundConsumer({ browser, variant }) {
         // uncompensated token already matches. Flag that case here.
         // userImage/default have no single flat color to measure.
         const isFlatColor = background.kind !== 'userImage' && background.kind !== 'default';
-        const wallpaperExtreme = isFlatColor ? getWallpaperExtreme(nextBodyBackground) : undefined;
-        if (wallpaperExtreme) {
-            document.body.dataset.wallpaperExtreme = wallpaperExtreme;
+        const nearBlackOrWhite = isFlatColor ? detectThemeNearBlackOrWhiteFromHex(nextBodyBackground) : undefined;
+        if (nearBlackOrWhite) {
+            document.body.dataset.wallpaperNearBlackOrWhite = nearBlackOrWhite;
         } else {
-            delete document.body.dataset.wallpaperExtreme;
+            delete document.body.dataset.wallpaperNearBlackOrWhite;
         }
 
         // let animations occur, after properties above have been flushed to the DOM

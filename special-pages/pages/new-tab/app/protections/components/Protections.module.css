@@ -242,7 +242,7 @@
     }
 }
 
-:global(body[data-rebrand="true"]:not([data-background-kind="default"], [data-wallpaper-extreme="light"])) {
+:global(body[data-rebrand="true"]:not([data-background-kind="default"], [data-wallpaper-near-black-or-white="light"])) {
     main[data-theme="light"], .themeContext[data-theme="light"] {
         .switcher {
             background: rgba(0, 0, 0, 0.17);
