@@ -38,6 +38,23 @@ Native can call `window.onChangeTheme(payload)` to update the theme at runtime.
 window.onChangeTheme({ themeVariant: 'coolGray' });
 ```
 
+### Optional Action Link
+
+The action link is hidden by default. Native can show it by providing both non-empty text and a click function:
+
+```javascript
+window.configureErrorPageLink({
+  text: 'Send Feedback',
+  onClick: function() {
+    // Handle the action in native.
+  }
+});
+```
+
+Passing a missing or invalid value hides the link and clears its text and click function. Reconfiguring the link replaces the previous click function.
+
+Native can replace the inert `/* $ERROR_PAGE_LINK_CONFIGURATION$ */` marker with a call to `window.configureErrorPageLink`. Leaving the marker unchanged keeps the link hidden.
+
 ---
 
 ## Contributing

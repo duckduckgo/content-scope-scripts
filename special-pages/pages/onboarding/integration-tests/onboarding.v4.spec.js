@@ -973,4 +973,40 @@ test.describe('onboarding v4', () => {
             expect(calls).toHaveLength(0);
         });
     });
+
+    test.describe('Given a settings update is in flight', () => {
+        test('Then a control on another row cannot start a second update', async ({ page }, workerInfo) => {
+            test.skip(workerInfo.project.name !== 'windows', 'holdRequests patches the Windows transport only');
+
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    systemSettings: {
+                        rows: ['dock', 'import'],
+                    },
+                },
+            });
+            // The native import window holds the request open for as long as the user needs.
+            onboarding.holdRequests(['requestImport']);
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'systemSettings' });
+
+            // Skip the taskbar row. It keeps a live button, and the import row appears.
+            await onboarding.skippedCurrent();
+            const taskbar = page.getByRole('button', { name: 'Pin to Taskbar' });
+            await taskbar.waitFor();
+
+            await page.getByRole('button', { name: 'Import Now' }).click();
+            await onboarding.mocks.waitForCallCount({ method: 'requestImport', count: 1 });
+
+            // The reducer has no transition for a second action, so the click must not reach it.
+            const names = ['reportInitException', 'reportPageException'];
+            const before = await onboarding.mocks.outgoing({ names });
+            await taskbar.click({ force: true });
+            const after = await onboarding.mocks.outgoing({ names });
+            expect(after).toHaveLength(before.length);
+
+            await expect(taskbar).toBeDisabled();
+        });
+    });
 });

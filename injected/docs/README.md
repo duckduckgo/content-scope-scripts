@@ -19,6 +19,7 @@ This directory contains detailed documentation for the Content Scope Scripts pro
 
 ### Existing Documentation
 
+- **[Chrome Webstore Patching](./chrome-webstore-patching.md)** - Chrome Web Store UI patching for curated extensions
 - **[Favicon](./favicon.md)** - Favicon-related documentation
 - **[Message Bridge](./message-bridge.md)** - Message bridge implementation details
 

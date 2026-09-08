@@ -483,7 +483,8 @@ export function omnibarMockTransport() {
                     if (parseBooleanQueryParam('omnibar.noOpenTabs') === true) {
                         return { tabs: [] };
                     }
-                    return getMockOpenTabs();
+                    const openTabsCount = parseInt(url.searchParams.get('omnibar.openTabsCount') ?? '', 10);
+                    return getMockOpenTabs(openTabsCount >= 0 ? openTabsCount : undefined);
                 }
                 case 'omnibar_getTabContent': {
                     await new Promise((resolve) => setTimeout(resolve, 150));
