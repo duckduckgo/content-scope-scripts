@@ -269,7 +269,7 @@
     "description" : "Error shown when an attached image cannot be processed."
   },
   "omnibar_advancedModelsSectionHeader" : {
-    "title" : "Geavanceerde modellen - DuckDuckGo-abonnement",
+    "title" : "Alleen voor abonnees",
     "description" : "Section header in the model picker for premium models that require a subscription."
   },
   "omnibar_viewAllChats" : {
@@ -400,9 +400,9 @@
     "title" : "Geen overeenkomende tabbladen",
     "description" : "Empty-state message shown when no open tabs match what the user typed, in the @-mention tab picker and the Add Tabs dialog search."
   },
-  "omnibar_attachTabsNoOpenTabs" : {
-    "title" : "Geen open tabbladen",
-    "description" : "Empty-state message shown in the attach dropdown's Recent Tabs section and the Add Tabs dialog when there are no open tabs available to attach."
+  "omnibar_attachTabsNoPageContent" : {
+    "title" : "Geen pagina-inhoud beschikbaar",
+    "description" : "Empty-state message shown in the attach dropdown and the Add Tabs dialog when there are no open tabs with attachable page content."
   },
   "omnibar_removeAttachedTabLabel" : {
     "title" : "{title} verwijderen",
@@ -415,22 +415,6 @@
   "omnibar_removeAiChat" : {
     "title" : "Deze chat verwijderen",
     "description" : "Accessible label and tooltip for the button that deletes a recent AI chat."
-  },
-  "omnibar_tryForFree" : {
-    "title" : "Probeer het gratis",
-    "description" : "CTA on a subscription-gated model or reasoning-effort option that opens the subscription upsell when tapped."
-  },
-  "omnibar_upgrade" : {
-    "title" : "Upgrade",
-    "description" : "CTA shown on a model or reasoning-effort option gated behind a higher subscription tier; opens the upgrade flow when tapped."
-  },
-  "omnibar_modelBadgePlus" : {
-    "title" : "Plus",
-    "description" : "Badge shown next to an AI model in the model selector that requires a Plus subscription tier."
-  },
-  "omnibar_modelBadgePro" : {
-    "title" : "Pro",
-    "description" : "Badge shown next to an AI model in the model selector that requires a Pro subscription tier."
   },
   "omnibar_modelBadgeInternal" : {
     "title" : "Intern",
@@ -553,11 +537,11 @@
     "note" : "Button text of the Next Steps List card for DuckDuckGo subscription"
   },
   "nextStepsList_sync_title" : {
-    "title" : "Synchroniseer en back-up je bladwijzers en wachtwoorden",
+    "title" : "Synchroniseer en back-up je bladwijzers, wachtwoorden en chats",
     "note" : "Title of the Next Steps List card for syncing data across devices"
   },
   "nextStepsList_sync_summary" : {
-    "title" : "Synchroniseer veilig je bladwijzers, wachtwoorden en identiteitsgegevens op mobiel en desktop.",
+    "title" : "Synchroniseer veilig je bladwijzers, automatisch ingevulde gegevens en Duck.ai-chats met end-to-end-versleuteling tussen je apparaten.",
     "note" : "Summary of the Next Steps List card for syncing data across devices"
   },
   "nextStepsList_sync_actionText" : {
