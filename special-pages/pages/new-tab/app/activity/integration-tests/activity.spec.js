@@ -57,13 +57,13 @@ test.describe('activity widget', () => {
         await ap.didRender();
         await ap.burnsItem();
     });
-    test('burn control uses trash icon in new UI with rebrand enabled', async ({ page }, workerInfo) => {
+    test('burn control uses outline fire icon in new UI with rebrand enabled', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const ap = new ActivityPage(page, ntp);
         await ntp.reducedMotion();
         await ntp.openPage({ additional: { ...defaultPageParams, cpm: 'null', rebrand: 'enabled' } });
         await ap.didRender();
-        await ap.burnControlUsesTrashIcon();
+        await ap.burnControlUsesFireOutlineIcon();
     });
     test('burn control uses fire icon in new UI when rebrand disabled', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);

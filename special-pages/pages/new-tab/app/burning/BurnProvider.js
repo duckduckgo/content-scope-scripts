@@ -3,6 +3,7 @@ import { useCallback, useContext } from 'preact/hooks';
 import { batch, signal, useSignal, useSignalEffect } from '@preact/signals';
 import { useEnv } from '../../../../shared/components/EnvironmentProvider.js';
 import { ActivityInteractionsContext } from './ActivityInteractionsContext.js';
+import { useNewTabPageRebranding } from '../../settings.provider.js';
 
 export const ACTION_BURN = 'burn';
 
@@ -32,6 +33,7 @@ export function BurnProvider({ children, service, showBurnAnimation = true }) {
     const animation = useSignal({ state: /** @type {'loading' | 'ready' | 'error'} */ ('loading'), data: null });
     const { didClick: originalDidClick } = useContext(ActivityInteractionsContext);
     const { isReducedMotion } = useEnv();
+    const isRebrand = useNewTabPageRebranding();
 
     async function didClick(e) {
         const button = /** @type {HTMLButtonElement|null} */ (e.target?.closest(`button[value][data-action="${ACTION_BURN}"]`));
@@ -81,7 +83,7 @@ export function BurnProvider({ children, service, showBurnAnimation = true }) {
     useSignalEffect(() => {
         let cancelled = false;
         async function fetchAnimation() {
-            const resp = await fetch('burn.json');
+            const resp = await fetch(isRebrand ? 'burn-rebrand.json' : 'burn.json');
             if (!resp.ok) {
                 animation.value = { state: /** @type {const} */ ('error'), data: null };
                 return;

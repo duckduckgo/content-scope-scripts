@@ -107,6 +107,20 @@
         /* NTP Shadow Small */
         box-shadow: 0 0.25px 1px 0 rgba(0, 0, 0, 0.08), 0 1px 4px 0 rgba(0, 0, 0, 0.06), 0 0.5px 2px 0 rgba(0, 0, 0, 0.04);
     }
+
+    .icon {
+        width: 28px;
+        height: 28px;
+    }
+
+    /* No highlight at rest, only on hover (was always-on at --color-black-at-3). */
+    .controlIcon {
+        background-color: transparent;
+
+        [data-theme="dark"] & {
+            background-color: transparent;
+        }
+    }
 }
 
 .title {
