@@ -113,20 +113,14 @@
         height: 28px;
     }
 
-    /* No highlight at rest, only on hover (was always-on at --color-black-at-3). */
+    /* No highlight at rest, only on hover (was always-on at --color-black-at-3).
+       --ds-color-theme-control-fill-secondary already resolves per theme, same
+       token used for this exact hover-highlight shape in ShowHide.module.css. */
     .controlIcon {
         background-color: transparent;
 
         &:hover {
-            background-color: var(--color-black-at-6);
-        }
-
-        [data-theme="dark"] & {
-            background-color: transparent;
-
-            &:hover {
-                background-color: var(--color-white-at-9);
-            }
+            background-color: var(--ds-color-theme-control-fill-secondary);
         }
     }
 }
