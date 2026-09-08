@@ -35,10 +35,10 @@ describe('DetectorPerf', () => {
 
     /**
      * @param {object} [featureSettings] - settings for the detectorPerf feature
-     * @param {{ debug?: boolean }} [options]
+     * @param {{ debug?: boolean, configured?: boolean }} [options]
      * @returns {{ feature: DetectorPerf, captured: string[], capturedEvents: Array<{type: string, data?: Record<string, unknown>}> }}
      */
-    function createFeature(featureSettings = {}, { debug = false } = {}) {
+    function createFeature(featureSettings = {}, { debug = false, configured = true } = {}) {
         /** @type {string[]} */
         const captured = [];
         /** @type {Array<{type: string, data?: Record<string, unknown>}>} */
@@ -55,7 +55,7 @@ describe('DetectorPerf', () => {
         const args = {
             site: { domain: 'example.com', url: 'https://example.com/page' },
             platform: {},
-            featureSettings: { detectorPerf: featureSettings },
+            featureSettings: configured ? { detectorPerf: featureSettings } : {},
             bundledConfig: undefined,
             messagingContextName: 'test',
             debug,
@@ -121,6 +121,15 @@ describe('DetectorPerf', () => {
     });
 
     describe('fire-at-occurrence event emission', () => {
+        it('stays inert when bundled but absent from enabled remote config', async () => {
+            const { feature, captured } = createFeature({}, { configured: false, debug: true });
+            feature.record('webDetection', 100, 'adwalls.generic_en', true);
+            await settle();
+
+            expect(captured).toEqual([]);
+            expect(feature.getStats()).toBeUndefined();
+        });
+
         it('emits measured at init, before any detector runs', async () => {
             const { captured } = createFeature();
             await settle();
@@ -441,7 +450,7 @@ describe('DetectorPerf', () => {
             feature.record('bot', 0);
             await settle();
             expect(captured).toContain('detectorPerf_bot_ran');
-            expect(feature.getStats().detectors.bot).toEqual({ runs: 1, totalMs: 0, worstMs: 0 });
+            expect(feature.getStats()?.detectors.bot).toEqual({ runs: 1, totalMs: 0, worstMs: 0 });
         });
     });
 
@@ -459,7 +468,7 @@ describe('DetectorPerf', () => {
             // 200ms also exercises the severe dispatch path
             expect(() => feature.record('bot', 200)).not.toThrow();
             await settle();
-            expect(feature.getStats().detectors.bot).toEqual({ runs: 1, totalMs: 200, worstMs: 200 });
+            expect(feature.getStats()?.detectors.bot).toEqual({ runs: 1, totalMs: 200, worstMs: 200 });
         });
     });
 
@@ -500,7 +509,7 @@ describe('DetectorPerf', () => {
         it('falls back to the label key when the detail is invalid', () => {
             const { feature } = createFeature();
             feature.record('webDetection', 10, 'bad detail!');
-            expect(feature.getStats().detectors).toEqual({
+            expect(feature.getStats()?.detectors).toEqual({
                 webDetection: { runs: 1, totalMs: 10, worstMs: 10 },
             });
         });

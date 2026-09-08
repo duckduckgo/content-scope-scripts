@@ -142,6 +142,14 @@ function roundMs(ms) {
 export default class DetectorPerf extends ContentFeature {
     _exposedMethods = this._declareExposedMethods(['record', 'getStats']);
 
+    /**
+     * `detectorPerf` is bundled as a platform-specific dependency so it remains
+     * available when protections are disabled, but loading it must not bypass
+     * remote-config gating. Enabled feature settings are copied into
+     * `featureSettings`; an absent/disabled feature has no own entry.
+     */
+    #active = false;
+
     /** @type {Map<string, DetectorStats>} */
     #detectors = new Map();
 
@@ -186,6 +194,8 @@ export default class DetectorPerf extends ContentFeature {
     #severeDebugLog = [];
 
     init() {
+        if (!hasOwnProperty.call(this.featureSettings ?? {}, this.name)) return;
+        this.#active = true;
         this._readThresholdSettings();
 
         // Page denominator: this top frame was observed, even if no detector
@@ -258,6 +268,7 @@ export default class DetectorPerf extends ContentFeature {
      * @param {boolean} [failed] - whether the detector invocation threw
      */
     record(name, durationMs, detail, failed = false) {
+        if (!this.#active) return;
         if (typeof name !== 'string' || !NAME_PATTERN.test(name)) return;
         if (typeof durationMs !== 'number' || !Number.isFinite(durationMs) || durationMs < 0) return;
 
@@ -321,9 +332,10 @@ export default class DetectorPerf extends ContentFeature {
      * label). Durations are rounded to 0.1ms to keep the payload compact —
      * finer precision is below timer granularity anyway.
      *
-     * @returns {{ combinedTotalMs: number, detectors: Record<string, DetectorStats> }}
+     * @returns {{ combinedTotalMs: number, detectors: Record<string, DetectorStats> } | undefined}
      */
     getStats() {
+        if (!this.#active) return undefined;
         /** @type {Record<string, DetectorStats>} */
         const detectors = {};
         for (const [name, stats] of this.#detectorsDetailed) {
@@ -403,8 +415,10 @@ export default class DetectorPerf extends ContentFeature {
     _debugBroadcast(lastRun) {
         if (!this.isDebug) return;
         try {
+            const stats = this.getStats();
+            if (!stats) return;
             const payload = {
-                ...this.getStats(),
+                ...stats,
                 severe: this.#severeDebugLog,
                 lastRun,
             };

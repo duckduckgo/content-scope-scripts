@@ -350,6 +350,35 @@ test.describe('DetectorPerf Feature', () => {
         expect(events).toEqual(['detectorPerf_measured']);
     });
 
+    test('remains active when the user disables protections for the site', async ({ page }, testInfo) => {
+        const collector = ResultsCollector.create(page, testInfo.project.use);
+        collector.withMockResponse({ webDetectionAutoRun: null, webEvent: null, breakageReportResult: null });
+        collector.withUserUnprotectedDomains(['localhost']);
+        await page.clock.install();
+        await collector.load('/web-detection/index.html', buildConfig());
+        await navigateTo(page, '/web-detection/pages/auto-run-basic.html');
+
+        await page.clock.fastForward(300);
+
+        const events = await getDetectorPerfEvents(collector);
+        expect(events).toContain('detectorPerf_measured');
+        expect(events).toContain('detectorPerf_webDetection_ran');
+    });
+
+    test('stays inert when bundled but absent from remote config', async ({ page }, testInfo) => {
+        const collector = ResultsCollector.create(page, testInfo.project.use);
+        collector.withMockResponse({ webDetectionAutoRun: null, webEvent: null, breakageReportResult: null });
+        await page.clock.install();
+        const config = buildConfig();
+        delete config.features.detectorPerf;
+        await collector.load('/web-detection/index.html', config);
+        await navigateTo(page, '/web-detection/pages/auto-run-basic.html');
+
+        await page.clock.fastForward(300);
+
+        expect(await getDetectorPerfEvents(collector)).toEqual([]);
+    });
+
     test('emits nothing and is omitted from breakage reports when disabled', async ({ page }, testInfo) => {
         const collector = ResultsCollector.create(page, testInfo.project.use);
         collector.withMockResponse({ webDetectionAutoRun: null, webEvent: null, breakageReportResult: null });
