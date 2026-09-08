@@ -1,8 +1,9 @@
 .root {
     background-color: var(--ntp-surface-background-color);
-    box-shadow: var(--ntp-surface-box-shadow, none);
     backdrop-filter: blur(48px);
-    border: 1px solid var(--ntp-surface-border-color, var(--ds-color-theme-container-border-primary));
+    /* Hardcoded: --ntp-surface-border-color is only ever set for rebrand +
+       custom background, never here (see the outline below instead). */
+    border: 1px solid var(--ds-color-theme-container-border-primary);
     padding: calc(14 * var(--px-in-rem)) var(--sp-8) calc(14 * var(--px-in-rem)) var(--sp-4);
     border-radius: var(--border-radius-lg);
     position: relative;

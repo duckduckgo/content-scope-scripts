@@ -29,8 +29,7 @@ export function detectThemeFromHex(backgroundColor) {
 }
 
 /**
- * Flags a HEX background as near-black or near-white, or `undefined` for
- * anything in between. See callers for why these cases need special
+ * See callers for why near-black/near-white backgrounds need special
  * handling. The 40/215 thresholds (out of 255) aren't a precise derivation,
  * just "close enough to black/white to matter", picked by eye against a
  * few sample wallpapers.

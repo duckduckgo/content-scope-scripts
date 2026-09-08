@@ -1,8 +1,9 @@
 .root {
     background: var(--ntp-surface-background-color);
-    box-shadow: var(--ntp-surface-box-shadow, none);
     backdrop-filter: blur(48px);
-    border: 1px solid var(--ntp-surface-border-color, var(--ds-color-theme-container-border-primary));
+    /* Hardcoded: --ntp-surface-border-color is only ever set for rebrand +
+       custom background, never here (see the outline below instead). */
+    border: 1px solid var(--ds-color-theme-container-border-primary);
     padding: var(--sp-6);
     border-radius: var(--border-radius-lg);
     display: grid;
@@ -18,7 +19,7 @@
     }
 
     [data-theme=dark] & {
-        border-color: var(--ntp-surface-border-color, var(--color-white-at-9));
+        border-color: var(--color-white-at-9);
     }
 }
 

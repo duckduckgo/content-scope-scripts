@@ -1,6 +1,8 @@
 .card {
     background-color: var(--ntp-surface-background-color);
     backdrop-filter: blur(48px);
+    /* Hardcoded: --ntp-surface-border-color is only ever set for rebrand +
+       custom background, never here (see the outline below instead). */
     border: 1px solid var(--ds-color-theme-container-border-primary);
     padding: var(--sp-2) var(--sp-4);
     border-radius: var(--border-radius-lg);
