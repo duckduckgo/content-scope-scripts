@@ -10,19 +10,19 @@
     ]
   },
   "install": {
-    "title": "Zu DuckDuckGo hinzufügen",
+    "title": "Добавить в DuckDuckGo",
     "note": "Install button on a Chrome Web Store extension detail page, replacing 'Add to Chrome'."
   },
   "remove": {
-    "title": "Von DuckDuckGo entfernen",
+    "title": "Удалить из DuckDuckGo",
     "note": "Uninstall button on a Chrome Web Store extension detail page, shown when the extension is already installed."
   },
   "unavailable": {
-    "title": "Nicht unterstützte Erweiterung",
+    "title": "Неподдерживаемое расширение браузера",
     "note": "Label on a disabled button, shown on extensions the DuckDuckGo browser does not support."
   },
   "unavailableDescription": {
-    "title": "Diese Erweiterung wird nicht unterstützt.",
+    "title": "Это расширение браузера не поддерживается.",
     "note": "Tooltip shown when hovering the disabled 'Unsupported extension' button."
   }
 }
