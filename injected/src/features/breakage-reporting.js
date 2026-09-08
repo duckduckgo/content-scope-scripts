@@ -80,7 +80,7 @@ export default class BreakageReporting extends ContentFeature {
             // Exact webDetection timing accumulated in this frame
             // (detectorPerf events are bucketed; the report carries exact values).
             const detectorPerfStats = await this.callFeatureMethod('detectorPerf', 'getStats');
-            if (!(detectorPerfStats instanceof CallFeatureMethodError)) {
+            if (!(detectorPerfStats instanceof CallFeatureMethodError) && detectorPerfStats != null) {
                 breakageDataPayload.detectorPerf = detectorPerfStats;
             }
             if (Object.keys(breakageDataPayload).length > 0) {

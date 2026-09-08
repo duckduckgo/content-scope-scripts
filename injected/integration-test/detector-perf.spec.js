@@ -183,6 +183,19 @@ test.describe('DetectorPerf Feature', () => {
         const keys = Object.keys(perf.detectors);
         expect(keys.filter((key) => /^[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+$/.test(key)).length).toBeGreaterThan(0);
         expect(keys).not.toContain('webDetection');
+
+        // A second report must include the detector runs that just completed.
+        // This guards the FIFO ordering between fire-and-forget record calls
+        // and the immediately following getStats call.
+        await collector.simulateSubscriptionMessage('breakageReporting', 'getBreakageReportValues', {});
+        const reportCalls = await collector.waitForMessage('breakageReportResult', 2);
+        const secondParams = /** @type {Record<string, any>} */ (reportCalls[1].payload).params;
+        const secondBreakageData = JSON.parse(decodeURIComponent(String(secondParams.breakageData)));
+        const secondPerf = secondBreakageData.detectorPerf;
+        expect(Object.keys(secondPerf.detectors)).toEqual(keys);
+        for (const key of keys) {
+            expect(secondPerf.detectors[key].runs, `${key} should include its second report run`).toBe(perf.detectors[key].runs + 1);
+        }
     });
 
     test('measurement leaves no page-observable performance timeline entries', async ({ page }, testInfo) => {
