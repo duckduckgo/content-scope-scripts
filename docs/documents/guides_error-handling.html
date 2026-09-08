@@ -1,0 +1,113 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>guides/error-handling | @duckduckgo/content-scope-scripts</title><meta name="description" content="Documentation for @duckduckgo/content-scope-scripts"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar"><div class="tsd-toolbar-contents container"><a href="../index.html" class="title">@duckduckgo/content-scope-scripts</a><div id="tsd-toolbar-links"></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/><ul role="listbox" id="tsd-search-results"></ul><div id="tsd-search-status" aria-live="polite" aria-atomic="true"><div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header><div class="container container-main"><div class="col-content"><div class="tsd-page-title"><ul class="tsd-breadcrumb" aria-label="Breadcrumb"><li><a href="" aria-current="page">guides/error-handling</a></li></ul></div><div class="tsd-panel tsd-typography"><h1 id="intentional-error-management" class="tsd-anchor-link">Intentional Error Management<a href="#intentional-error-management" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h1>
+<h2 id="principle" class="tsd-anchor-link">Principle<a href="#principle" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>Thrown errors and unhandled promise rejections must be <strong>intentional</strong> and represent <strong>exceptional conditions</strong>, not part of the normal &quot;happy path&quot; of code execution.</p>
+<h2 id="guidelines" class="tsd-anchor-link">Guidelines<a href="#guidelines" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<h3 id="1-errors-are-not-control-flow" class="tsd-anchor-link">1. Errors Are Not Control Flow<a href="#1-errors-are-not-control-flow" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<p><strong>Do NOT</strong> use errors as a mechanism for normal control flow:</p>
+<pre><code class="javascript"><span class="hl-0">// BAD: Using errors for expected conditions</span><br/><span class="hl-1">function</span><span class="hl-2"> </span><span class="hl-3">getValue</span><span class="hl-2">(</span><span class="hl-4">key</span><span class="hl-2">) {</span><br/><span class="hl-2">    </span><span class="hl-1">const</span><span class="hl-2"> </span><span class="hl-5">value</span><span class="hl-2"> = </span><span class="hl-4">map</span><span class="hl-2">.</span><span class="hl-3">get</span><span class="hl-2">(</span><span class="hl-4">key</span><span class="hl-2">);</span><br/><span class="hl-2">    </span><span class="hl-6">if</span><span class="hl-2"> (!</span><span class="hl-4">value</span><span class="hl-2">) </span><span class="hl-6">throw</span><span class="hl-2"> </span><span class="hl-1">new</span><span class="hl-2"> </span><span class="hl-3">Error</span><span class="hl-2">(</span><span class="hl-7">&#39;Key not found&#39;</span><span class="hl-2">); </span><span class="hl-0">// Expected case!</span><br/><span class="hl-2">    </span><span class="hl-6">return</span><span class="hl-2"> </span><span class="hl-4">value</span><span class="hl-2">;</span><br/><span class="hl-2">}</span><br/><br/><span class="hl-0">// GOOD: Return a sentinel or optional value</span><br/><span class="hl-1">function</span><span class="hl-2"> </span><span class="hl-3">getValue</span><span class="hl-2">(</span><span class="hl-4">key</span><span class="hl-2">) {</span><br/><span class="hl-2">    </span><span class="hl-6">return</span><span class="hl-2"> </span><span class="hl-4">map</span><span class="hl-2">.</span><span class="hl-3">get</span><span class="hl-2">(</span><span class="hl-4">key</span><span class="hl-2">) ?? </span><span class="hl-1">null</span><span class="hl-2">;</span><br/><span class="hl-2">}</span>
+</code><button type="button">Copy</button></pre>
+
+<h3 id="2-valid-uses-of-thrown-errors" class="tsd-anchor-link">2. Valid Uses of Thrown Errors<a href="#2-valid-uses-of-thrown-errors" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<p>Errors should be thrown only for:</p>
+<ul>
+<li>
+<p><strong>Unreachable code paths</strong> (exhaustiveness checks):</p>
+<pre><code class="javascript"><span class="hl-6">switch</span><span class="hl-2"> (</span><span class="hl-4">type</span><span class="hl-2">) {</span><br/><span class="hl-2">    </span><span class="hl-6">case</span><span class="hl-2"> </span><span class="hl-7">&#39;a&#39;</span><span class="hl-2">: </span><span class="hl-6">return</span><span class="hl-2"> </span><span class="hl-3">handleA</span><span class="hl-2">();</span><br/><span class="hl-2">    </span><span class="hl-6">case</span><span class="hl-2"> </span><span class="hl-7">&#39;b&#39;</span><span class="hl-2">: </span><span class="hl-6">return</span><span class="hl-2"> </span><span class="hl-3">handleB</span><span class="hl-2">();</span><br/><span class="hl-2">    </span><span class="hl-6">default</span><span class="hl-2">: </span><span class="hl-6">throw</span><span class="hl-2"> </span><span class="hl-1">new</span><span class="hl-2"> </span><span class="hl-3">Error</span><span class="hl-2">(</span><span class="hl-7">&#39;unreachable&#39;</span><span class="hl-2">);</span><br/><span class="hl-2">}</span>
+</code><button type="button">Copy</button></pre>
+
+</li>
+<li>
+<p><strong>Invalid invariants</strong> (programmer errors, not user errors):</p>
+<pre><code class="javascript"><span class="hl-6">if</span><span class="hl-2"> (!</span><span class="hl-1">this</span><span class="hl-2">.</span><span class="hl-4">args</span><span class="hl-2">) </span><span class="hl-6">throw</span><span class="hl-2"> </span><span class="hl-1">new</span><span class="hl-2"> </span><span class="hl-3">Error</span><span class="hl-2">(</span><span class="hl-7">&#39;messaging requires args to be set&#39;</span><span class="hl-2">);</span><br/><span class="hl-6">if</span><span class="hl-2"> (!(</span><span class="hl-4">manager</span><span class="hl-2"> </span><span class="hl-1">instanceof</span><span class="hl-2"> </span><span class="hl-8">VideoOverlay</span><span class="hl-2">)) </span><span class="hl-6">throw</span><span class="hl-2"> </span><span class="hl-1">new</span><span class="hl-2"> </span><span class="hl-3">Error</span><span class="hl-2">(</span><span class="hl-7">&#39;invalid arguments&#39;</span><span class="hl-2">);</span>
+</code><button type="button">Copy</button></pre>
+
+</li>
+<li>
+<p><strong>Missing required dependencies</strong>:</p>
+<pre><code class="javascript"><span class="hl-6">if</span><span class="hl-2"> (!</span><span class="hl-4">_messagingModuleScope</span><span class="hl-2">) </span><span class="hl-6">throw</span><span class="hl-2"> </span><span class="hl-1">new</span><span class="hl-2"> </span><span class="hl-3">Error</span><span class="hl-2">(</span><span class="hl-7">&#39;Messaging not initialized&#39;</span><span class="hl-2">);</span>
+</code><button type="button">Copy</button></pre>
+
+</li>
+</ul>
+<h3 id="3-promise-rejection-rules" class="tsd-anchor-link">3. Promise Rejection Rules<a href="#3-promise-rejection-rules" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul>
+<li>
+<p><strong>Never leave promises unhandled</strong> - always attach <code>.catch()</code> or use <code>try/catch</code> with <code>await</code></p>
+</li>
+<li>
+<p><strong>Use <code>Promise.reject()</code> only when mimicking browser API behavior</strong> (e.g., <code>web-compat.js</code> returning <code>DOMException</code>):</p>
+<pre><code class="javascript"><span class="hl-0">// Mimicking native Share API behavior</span><br/><span class="hl-6">if</span><span class="hl-2"> (!</span><span class="hl-3">canShare</span><span class="hl-2">(</span><span class="hl-4">data</span><span class="hl-2">)) </span><span class="hl-6">return</span><span class="hl-2"> </span><span class="hl-8">Promise</span><span class="hl-2">.</span><span class="hl-3">reject</span><span class="hl-2">(</span><span class="hl-1">new</span><span class="hl-2"> </span><span class="hl-3">TypeError</span><span class="hl-2">(</span><span class="hl-7">&#39;Invalid share data&#39;</span><span class="hl-2">));</span>
+</code><button type="button">Copy</button></pre>
+
+</li>
+<li>
+<p><strong>Handle async errors explicitly</strong>:</p>
+<pre><code class="javascript"><span class="hl-0">// GOOD: Explicit error handling</span><br/><span class="hl-6">await</span><span class="hl-2"> </span><span class="hl-1">this</span><span class="hl-2">.</span><span class="hl-3">setUserChoice</span><span class="hl-2">(</span><span class="hl-4">choice</span><span class="hl-2">).</span><span class="hl-3">catch</span><span class="hl-2">((</span><span class="hl-4">e</span><span class="hl-2">) </span><span class="hl-1">=&gt;</span><span class="hl-2"> </span><span class="hl-4">console</span><span class="hl-2">.</span><span class="hl-3">error</span><span class="hl-2">(</span><span class="hl-7">&#39;error setting user choice&#39;</span><span class="hl-2">, </span><span class="hl-4">e</span><span class="hl-2">));</span><br/><br/><span class="hl-0">// GOOD: Swallow expected failures intentionally</span><br/><span class="hl-6">await</span><span class="hl-2"> </span><span class="hl-3">fetchOptional</span><span class="hl-2">().</span><span class="hl-3">catch</span><span class="hl-2">(() </span><span class="hl-1">=&gt;</span><span class="hl-2"> {});  </span><span class="hl-0">// Comment explaining why this is OK</span>
+</code><button type="button">Copy</button></pre>
+
+</li>
+</ul>
+<h3 id="4-assertion-pattern" class="tsd-anchor-link">4. Assertion Pattern<a href="#4-assertion-pattern" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<p>Use assertion functions for type/state validation that throws on failure:</p>
+<pre><code class="javascript"><span class="hl-0">/**</span><br/><span class="hl-0"> * </span><span class="hl-1">@returns</span><span class="hl-0"> </span><span class="hl-8">{asserts event is CustomEvent&lt;{kind: string, data: any}&gt;}</span><br/><span class="hl-0"> */</span><br/><span class="hl-1">function</span><span class="hl-2"> </span><span class="hl-3">assertCustomEvent</span><span class="hl-2">(</span><span class="hl-4">event</span><span class="hl-2">) {</span><br/><span class="hl-2">    </span><span class="hl-6">if</span><span class="hl-2"> (!(</span><span class="hl-7">&#39;detail&#39;</span><span class="hl-2"> </span><span class="hl-1">in</span><span class="hl-2"> </span><span class="hl-4">event</span><span class="hl-2">)) </span><span class="hl-6">throw</span><span class="hl-2"> </span><span class="hl-1">new</span><span class="hl-2"> </span><span class="hl-3">Error</span><span class="hl-2">(</span><span class="hl-7">&#39;none-custom event&#39;</span><span class="hl-2">);</span><br/><span class="hl-2">    </span><span class="hl-6">if</span><span class="hl-2"> (</span><span class="hl-1">typeof</span><span class="hl-2"> </span><span class="hl-4">event</span><span class="hl-2">.</span><span class="hl-4">detail</span><span class="hl-2">.</span><span class="hl-4">kind</span><span class="hl-2"> !== </span><span class="hl-7">&#39;string&#39;</span><span class="hl-2">) </span><span class="hl-6">throw</span><span class="hl-2"> </span><span class="hl-1">new</span><span class="hl-2"> </span><span class="hl-3">Error</span><span class="hl-2">(</span><span class="hl-7">&#39;custom event requires detail.kind to be a string&#39;</span><span class="hl-2">);</span><br/><span class="hl-2">}</span>
+</code><button type="button">Copy</button></pre>
+
+<h3 id="5-error-messages" class="tsd-anchor-link">5. Error Messages<a href="#5-error-messages" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul>
+<li>Error messages should clearly indicate <strong>what went wrong</strong> and <strong>why it's a bug</strong></li>
+<li>Include context that helps debugging:<pre><code class="javascript"><span class="hl-6">throw</span><span class="hl-2"> </span><span class="hl-1">new</span><span class="hl-2"> </span><span class="hl-3">Error</span><span class="hl-2">(</span><span class="hl-7">`&#39;</span><span class="hl-1">${</span><span class="hl-4">method</span><span class="hl-9">.</span><span class="hl-3">toString</span><span class="hl-9">()</span><span class="hl-1">}</span><span class="hl-7">&#39; is not a method of feature &#39;</span><span class="hl-1">${</span><span class="hl-1">this</span><span class="hl-9">.</span><span class="hl-4">name</span><span class="hl-1">}</span><span class="hl-7">&#39;`</span><span class="hl-2">);</span>
+</code><button type="button">Copy</button></pre>
+
+</li>
+</ul>
+<h2 id="anti-patterns-to-avoid" class="tsd-anchor-link">Anti-Patterns to Avoid<a href="#anti-patterns-to-avoid" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<table>
+<thead>
+<tr>
+<th>Anti-Pattern</th>
+<th>Problem</th>
+<th>Solution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Empty catch blocks</td>
+<td>Silently swallows errors</td>
+<td>Log or re-throw with context</td>
+</tr>
+<tr>
+<td>Throwing for expected <code>null</code>/<code>undefined</code></td>
+<td>Using errors as control flow</td>
+<td>Return optional/sentinel values</td>
+</tr>
+<tr>
+<td>Unhandled promise chains</td>
+<td>Leads to unhandled rejections</td>
+<td>Add <code>.catch()</code> handler</td>
+</tr>
+<tr>
+<td>Generic error messages</td>
+<td>Hard to debug</td>
+<td>Include specific context</td>
+</tr>
+<tr>
+<td>Catching and ignoring all errors</td>
+<td>Masks bugs</td>
+<td>Catch specific error types</td>
+</tr>
+</tbody>
+</table>
+<h2 id="eslint-support" class="tsd-anchor-link">ESLint Support<a href="#eslint-support" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>The codebase enforces:</p>
+<ul>
+<li><code>require-await</code> - async functions must use await</li>
+<li><code>promise/prefer-await-to-then</code> - prefer async/await over <code>.then()</code></li>
+<li><code>@typescript-eslint/await-thenable</code> - only await promises</li>
+</ul>
+<h2 id="summary" class="tsd-anchor-link">Summary<a href="#summary" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<ul>
+<li>Errors = <strong>exceptional conditions</strong> (bugs, invariant violations, unreachable code)</li>
+<li>Errors ≠ <strong>expected conditions</strong> (missing data, user input validation, optional features)</li>
+<li>Every promise rejection must be <strong>handled</strong> or <strong>intentionally propagated</strong></li>
+</ul>
+</div></div><div class="col-sidebar"><div class="page-menu"><div class="tsd-navigation settings"><details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg><h3>Settings</h3></summary><div class="tsd-accordion-details"><div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span><ul id="tsd-filter-options"><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li></ul></div><div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div><details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg><h3>On This Page</h3></summary><div class="tsd-accordion-details"><a href="#intentional-error-management"><span>Intentional <wbr/>Error <wbr/>Management</span></a><ul><li><a href="#principle"><span>Principle</span></a></li><li><a href="#guidelines"><span>Guidelines</span></a></li><li><ul><li><a href="#1-errors-are-not-control-flow"><span>1. <wbr/>Errors <wbr/>Are <wbr/>Not <wbr/>Control <wbr/>Flow</span></a></li><li><a href="#2-valid-uses-of-thrown-errors"><span>2. <wbr/>Valid <wbr/>Uses of <wbr/>Thrown <wbr/>Errors</span></a></li><li><a href="#3-promise-rejection-rules"><span>3. <wbr/>Promise <wbr/>Rejection <wbr/>Rules</span></a></li><li><a href="#4-assertion-pattern"><span>4. <wbr/>Assertion <wbr/>Pattern</span></a></li><li><a href="#5-error-messages"><span>5. <wbr/>Error <wbr/>Messages</span></a></li></ul></li><li><a href="#anti-patterns-to-avoid"><span>Anti-<wbr/>Patterns to <wbr/>Avoid</span></a></li><li><a href="#eslint-support"><span>ES<wbr/>Lint <wbr/>Support</span></a></li><li><a href="#summary"><span>Summary</span></a></li></ul></div></details></div><div class="site-menu"><nav class="tsd-navigation"><a href="../index.html">@duckduckgo/content-scope-scripts</a><ul class="tsd-small-nested-navigation" id="tsd-nav-container"><li>Loading...</li></ul></nav></div></div></div><footer><p class="tsd-generator">Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></footer><div class="overlay"></div></body></html>
