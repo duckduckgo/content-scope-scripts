@@ -3,7 +3,7 @@ import { useCallback, useContext } from 'preact/hooks';
 import { batch, signal, useSignal, useSignalEffect } from '@preact/signals';
 import { useEnv } from '../../../../shared/components/EnvironmentProvider.js';
 import { ActivityInteractionsContext } from './ActivityInteractionsContext.js';
-import { useNewTabPageRebranding } from '../../settings.provider.js';
+import { useNewTabPageRebranding } from '../settings.provider.js';
 
 export const ACTION_BURN = 'burn';
 
