@@ -2,6 +2,7 @@ import {
     aggregateFields,
     createProfile,
     parseRegexFromString,
+    scrapedDataMatchesUserData,
     stringsFromElements,
 } from '../src/features/broker-protection/actions/extract.js';
 import { cleanArray } from '../src/features/broker-protection/utils/utils.js';
@@ -147,8 +148,8 @@ describe('create profiles from extracted data', () => {
                 elements: [{ innerText: '123 fake street,\nDallas, TX 75215' }, { innerText: '123 fake street,\nMiami, FL 75215' }],
                 expected: {
                     addresses: [
-                        { city: 'Miami', state: 'FL' },
-                        { city: 'Dallas', state: 'TX' },
+                        { city: 'Miami', state: 'FL', extras: { street: '123 Fake St', zip: '75215' } },
+                        { city: 'Dallas', state: 'TX', extras: { street: '123 Fake St', zip: '75215' } },
                     ],
                 },
             },
@@ -365,6 +366,75 @@ describe('create profiles from extracted data', () => {
         expect(actual.alternativeNames).toEqual(['Fred Firth', 'Jerry Doug', 'Marvin Smith', 'Roger Star']);
     });
 
+    it('routes an unknown config field into extras via the generic text fallback', () => {
+        // honours the same knobs as any text field: attribute, afterText/beforeText, affix stripping
+        const select = (/** @type {any} */ _root, /** @type {string} */ selector) => {
+            if (selector === '.county') return [{ innerText: '[Harris County]' }];
+            if (selector === '.link') return [fakeElement({ 'data-town': 'Springfield' })];
+            if (selector === '.prefixed') return [{ innerText: 'Related to: Jane Doe' }];
+            return [];
+        };
+        const profile = createProfile(
+            select,
+            ROOT,
+            /** @type {any} */ ({
+                county: { selector: '.county', afterText: '[', beforeText: ']' },
+                town: { selector: '.link', attribute: 'data-town' },
+                connection: { selector: '.prefixed' },
+            }),
+        );
+        expect(profile.extras).toEqual({ county: 'Harris County', town: 'Springfield', connection: 'Jane Doe' });
+    });
+
+    it('keeps only the first non-empty match for a findElements field routed to extras', () => {
+        const select = () => [{ innerText: '   ' }, { innerText: 'first' }, { innerText: 'second' }];
+        const profile = createProfile(select, ROOT, /** @type {any} */ ({ note: { selector: '.note', findElements: true } }));
+        expect(profile.extras).toEqual({ note: 'first' });
+    });
+
+    it('omits extras when empty, skips the reserved key and disabled specs, and never routes a null known field', () => {
+        const select = () => [];
+        const profile = createProfile(
+            select,
+            ROOT,
+            /** @type {any} */ ({
+                age: { selector: '.missing' }, // known field that extracts nothing
+                disabled: null, // disabled spec is skipped, not routed to extras
+                extras: { selector: '.anything' }, // reserved config key is ignored
+                missing: { selector: '.also-missing' }, // unknown field with no match
+            }),
+        );
+        expect(profile.age).toBeNull();
+        expect('extras' in profile).toBe(false);
+    });
+
+    it('appends extras last on the aggregated profile', () => {
+        const aggregated = aggregateFields({ name: 'John Smith', extras: { county: 'Harris County' } });
+        const keys = Object.keys(aggregated);
+        expect(keys[keys.length - 1]).toBe('extras');
+        expect(aggregated.extras).toEqual({ county: 'Harris County' });
+    });
+
+    it('matches user data the same way with or without extras on either side', () => {
+        const userData = {
+            firstName: 'John',
+            lastName: 'Smith',
+            age: '40',
+            addresses: [{ city: 'Chicago', state: 'IL' }],
+        };
+        const without = {
+            name: 'John Smith',
+            age: '40',
+            addressCityStateList: [{ city: 'Chicago', state: 'IL' }],
+        };
+        const withExtras = {
+            ...without,
+            extras: { county: 'Cook County' },
+            addressCityStateList: [{ city: 'Chicago', state: 'IL', extras: { street: '1 Main St' } }],
+        };
+        expect(scrapedDataMatchesUserData(userData, withExtras)).toEqual(scrapedDataMatchesUserData(userData, without));
+    });
+
     describe('stringsFromElements (reading element values)', () => {
         it('should extract innerText by default', () => {
             const element = {
@@ -556,6 +626,46 @@ describe('create profiles from extracted data', () => {
                     // Nowhere dropped: its state element is present but unparseable
                 ],
             });
+        });
+
+        it('omits address extras when there is none', () => {
+            const aggregated = aggregateFields({
+                addressCityStateList: [{ city: 'Dallas', state: 'TX' }],
+            });
+            expect(aggregated.addresses).toEqual([{ city: 'Dallas', state: 'TX' }]);
+            expect('extras' in aggregated).toBe(false);
+        });
+
+        it('keeps same-city/state addresses that differ only by extras, but dedupes identical ones', () => {
+            const aggregated = aggregateFields({
+                addressFull: [
+                    { city: 'Livingston', state: 'TX', extras: { street: '197 Carlisle Rd' } },
+                    { city: 'Livingston', state: 'TX', extras: { street: '11642 Us Highway 190 E' } },
+                    { city: 'Livingston', state: 'TX', extras: { street: '197 Carlisle Rd' } }, // dup of the first
+                ],
+            });
+            expect(aggregated.addresses).toEqual([
+                { city: 'Livingston', state: 'TX', extras: { street: '197 Carlisle Rd' } },
+                { city: 'Livingston', state: 'TX', extras: { street: '11642 Us Highway 190 E' } },
+            ]);
+        });
+
+        it('drops a city/state-only address when the same city/state also appears with extras', () => {
+            const aggregated = aggregateFields({
+                addressCityState: [{ city: 'Orlando', state: 'FL' }],
+                addressFull: [{ city: 'Orlando', state: 'FL', extras: { street: '123 Main St', zip: '81010' } }],
+            });
+            expect(aggregated.addresses).toEqual([{ city: 'Orlando', state: 'FL', extras: { street: '123 Main St', zip: '81010' } }]);
+        });
+
+        it('compares city/state case-insensitively when deduping', () => {
+            // extractCityState keeps the page's own casing, while extractAddressFull title-cases
+            // what parse-address recovered, so one location can arrive spelled two ways
+            const aggregated = aggregateFields({
+                addressCityState: [{ city: 'dallas', state: 'TX' }],
+                addressFull: [{ city: 'Dallas', state: 'TX', extras: { street: '123 Fake St', zip: '75215' } }],
+            });
+            expect(aggregated.addresses).toEqual([{ city: 'Dallas', state: 'TX', extras: { street: '123 Fake St', zip: '75215' } }]);
         });
 
         it('reads city per row when only a city sub-selector is configured, keeping state null', () => {

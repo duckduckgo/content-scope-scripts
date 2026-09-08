@@ -6,7 +6,6 @@
  *
  * @typedef {Object} InitResponse
  * @property {Record<string, any>} stepDefinitions
- * @property {string} [order] - ability to override the screen order
  * @property {string[]} [exclude] - ability to exclude screens
  * @property {ImportMeta['env']} [env] - optional override for the running override
  * @property {string} locale
@@ -41,7 +40,6 @@ export class OnboardingMessages {
      *       "rows": ["dock", "import", "default-browser"]
      *     }
      *   },
-     *   "order": "v3",
      *   "exclude": ["dockSingle"],
      *   "locale": "en"
      * }

@@ -7,7 +7,7 @@ test.describe('protections report', () => {
         const ntp = NewtabPage.create(page, workerInfo);
         await ntp.reducedMotion();
 
-        await ntp.openPage({ additional: { 'protections.feed': 'privacy-stats' } });
+        await ntp.openPage({ additional: { protections_feed: 'privacy-stats' } });
         await ntp.mocks.waitForCallCount({ method: 'initialSetup', count: 1 });
         await Promise.all([
             ntp.mocks.waitForCallCount({ method: 'protections_getConfig', count: 1 }),
@@ -18,7 +18,7 @@ test.describe('protections report', () => {
         const ntp = NewtabPage.create(page, workerInfo);
         await ntp.reducedMotion();
 
-        await ntp.openPage({ additional: { 'protections.feed': 'privacy-stats' } });
+        await ntp.openPage({ additional: { protections_feed: 'privacy-stats' } });
         await ntp.mocks.waitForCallCount({ method: 'initialSetup', count: 1 });
         await Promise.all([
             ntp.mocks.waitForCallCount({ method: 'protections_getConfig', count: 1 }),
@@ -30,7 +30,7 @@ test.describe('protections report', () => {
         const ntp = NewtabPage.create(page, workerInfo);
         await ntp.reducedMotion();
 
-        await ntp.openPage({ additional: { 'protections.feed': 'activity' } });
+        await ntp.openPage({ additional: { protections_feed: 'activity' } });
         await ntp.mocks.waitForCallCount({ method: 'initialSetup', count: 1 });
         await Promise.all([
             ntp.mocks.waitForCallCount({ method: 'protections_getConfig', count: 1 }),
@@ -41,7 +41,7 @@ test.describe('protections report', () => {
     test('receives total count update', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         await ntp.reducedMotion();
-        await ntp.openPage({ additional: { 'protections.feed': 'activity' } });
+        await ntp.openPage({ additional: { protections_feed: 'activity' } });
 
         const protections = new ProtectionsPage(ntp);
         await protections.ready();
@@ -51,7 +51,7 @@ test.describe('protections report', () => {
     test('localization smoke test', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         await ntp.reducedMotion();
-        await ntp.openPage({ additional: { 'protections.feed': 'activity', locale: 'pl' } });
+        await ntp.openPage({ additional: { protections_feed: 'activity', locale: 'pl' } });
 
         const protections = new ProtectionsPage(ntp);
         await protections.ready();
@@ -61,7 +61,7 @@ test.describe('protections report', () => {
     test('displays cookie popup blocking stats when enabled and counts > 0', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         await ntp.reducedMotion();
-        await ntp.openPage({ additional: { 'protections.feed': 'activity' } });
+        await ntp.openPage({ additional: { protections_feed: 'activity' } });
 
         const protections = new ProtectionsPage(ntp);
         await protections.ready();
@@ -71,7 +71,7 @@ test.describe('protections report', () => {
     test('hides cookie popup stats when CPM is disabled (null)', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         await ntp.reducedMotion();
-        await ntp.openPage({ additional: { 'protections.feed': 'activity' } });
+        await ntp.openPage({ additional: { protections_feed: 'activity' } });
 
         const protections = new ProtectionsPage(ntp);
         await protections.ready();
@@ -81,18 +81,28 @@ test.describe('protections report', () => {
     test('hides cookie popup stats when count is 0', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         await ntp.reducedMotion();
-        await ntp.openPage({ additional: { 'protections.feed': 'activity' } });
+        await ntp.openPage({ additional: { protections_feed: 'activity' } });
 
         const protections = new ProtectionsPage(ntp);
         await protections.ready();
         await protections.hidesCookiePopupStatsWhenZero();
     });
 
+    test('shows no recent activity state when trackers are zero', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { protections_feed: 'activity', activity: 'empty', cpm: 'true' } });
+
+        const protections = new ProtectionsPage(ntp);
+        await protections.ready();
+        await protections.displaysNoRecentState();
+    });
+
     test('displays info tooltip', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         await ntp.reducedMotion();
         // Use cpm: 'null' to enable new UI (feature available but disabled)
-        await ntp.openPage({ additional: { 'protections.feed': 'activity', cpm: 'null' } });
+        await ntp.openPage({ additional: { protections_feed: 'activity', cpm: 'null' } });
 
         const protections = new ProtectionsPage(ntp);
         await protections.ready();
@@ -102,10 +112,20 @@ test.describe('protections report', () => {
     test('scrolls to protections heading via subscription message', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         await ntp.reducedMotion();
-        await ntp.openPage({ additional: { 'protections.feed': 'activity' } });
+        await ntp.openPage({ additional: { protections_feed: 'activity' } });
 
         const protections = new ProtectionsPage(ntp);
         await protections.ready();
         await protections.scrollsToProtectionsHeading();
+    });
+
+    test('toggles collapsed/expanded from heading button', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { protections_feed: 'activity' } });
+
+        const protections = new ProtectionsPage(ntp);
+        await protections.ready();
+        await protections.togglesCollapsedState();
     });
 });

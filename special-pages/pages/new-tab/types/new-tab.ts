@@ -67,6 +67,10 @@ export type Suggestion =
   | HistoryEntrySuggestion
   | InternalPageSuggestion;
 export type OmnibarMode = "search" | "ai";
+/**
+ * Whether the user is eligible for a free trial. When false, gated 'subscribe' upsells show 'Upgrade' instead of 'Try for free'. Missing/undefined is treated as true for backward compatibility.
+ */
+export type IsEligibleForFreeTrial = boolean;
 export type EnableDuckAi = boolean;
 export type ShowDuckAiSetting = boolean;
 /**
@@ -83,13 +87,17 @@ export type EnableAIChatTools = boolean;
  */
 export type SelectedModelID = string;
 /**
- * Stable server key for a reasoning-effort option on a reasoning-capable model.
+ * Stable server key for a reasoning-effort option on a reasoning-capable model (e.g. 'none', 'medium', 'extended'). Server-controlled and round-tripped on submit.
  */
-export type ReasoningEffort = "none" | "minimal" | "low" | "medium" | "high";
+export type ReasoningEffort = string;
 /**
  * Identifier for an AI chat tool.
  */
 export type ToolId = "WebSearch";
+/**
+ * Stable server key for this reasoning-effort option; round-tripped on submit.
+ */
+export type ReasoningEffort1 = string;
 /**
  * Sections of AI models for the model selector.
  */
@@ -110,6 +118,22 @@ export type EnableWebSearch = boolean;
  * Show a 1-click voice-chat button in place of the AI chat submit button when the input is empty.
  */
 export type EnableVoiceChatAccess = boolean;
+/**
+ * Show the 'Customize responses' entry in the AI chat Tools menu. Selecting it opens the Customize Responses modal.
+ */
+export type EnableCustomizeResponses = boolean;
+/**
+ * Summary of the user's current response customization (e.g. 'Professional, Concise'), shown as the description under the 'Customize responses' Tools-menu row. Omitted when responses haven't been customized, in which case the default description is shown.
+ */
+export type CustomizeResponsesSubLabel = string;
+/**
+ * True once the user has customized their responses. Gates the on/off toggle shown alongside the 'Customize responses' Tools-menu row.
+ */
+export type HasCustomization = boolean;
+/**
+ * Whether the stored customization is currently applied. Drives the checked state of the toggle in the 'Customize responses' Tools-menu row.
+ */
+export type CustomizationActive = boolean;
 /**
  * Controls whether the inline 'Ask Duck.ai: <query>' suggestion is rendered in the omnibar dropdown. Missing/undefined is treated as true for backward compatibility. Does not affect the Duck.ai mode pill or any other AI affordance — those remain governed by enableAi.
  */
@@ -207,9 +231,13 @@ export interface NewTabMessages {
     | NextStepsDismissNotification
     | NextStepsSetConfigNotification
     | OmnibarOpenAiChatNotification
+    | OmnibarOpenCustomizeResponsesNotification
     | OmnibarOpenSuggestionNotification
     | OmnibarRemoveSuggestionNotification
     | OmnibarSetConfigNotification
+    | OmnibarSetCustomizeResponsesActiveNotification
+    | OmnibarShowSubscriptionUpgradeNotification
+    | OmnibarShowSubscriptionUpsellNotification
     | OmnibarSubmitChatNotification
     | OmnibarSubmitSearchNotification
     | OmnibarViewAllAIChatsNotification
@@ -587,6 +615,17 @@ export interface OpenAIChatAction {
   isPinned: boolean;
 }
 /**
+ * Generated from @see "../messages/omnibar_openCustomizeResponses.notify.json"
+ */
+export interface OmnibarOpenCustomizeResponsesNotification {
+  method: "omnibar_openCustomizeResponses";
+  params: OpenCustomizeResponsesAction;
+}
+/**
+ * Sent when the user selects 'Customize responses' in the omnibar Tools menu. Native opens the Customize Responses modal for the active New Tab Page tab; no parameters are required.
+ */
+export interface OpenCustomizeResponsesAction {}
+/**
  * Generated from @see "../messages/omnibar_openSuggestion.notify.json"
  */
 export interface OmnibarOpenSuggestionNotification {
@@ -655,6 +694,7 @@ export interface OmnibarSetConfigNotification {
 }
 export interface OmnibarConfig {
   mode: OmnibarMode;
+  isEligibleForFreeTrial?: IsEligibleForFreeTrial;
   enableAi?: EnableDuckAi;
   showAiSetting?: ShowDuckAiSetting;
   showCustomizePopover?: ShowCustomizePopover;
@@ -668,6 +708,10 @@ export interface OmnibarConfig {
   enableImageGeneration?: EnableImageGeneration;
   enableWebSearch?: EnableWebSearch;
   enableVoiceChatAccess?: EnableVoiceChatAccess;
+  enableCustomizeResponses?: EnableCustomizeResponses;
+  customizeSubLabel?: CustomizeResponsesSubLabel;
+  hasCustomization?: HasCustomization;
+  customizationActive?: CustomizationActive;
   enableAskAiSuggestion?: EnableAskDuckAiSuggestion;
   enableAttachTabs?: EnableAttachTabs;
   enableAiChatDeletion?: EnableAIChatDeletion;
@@ -678,7 +722,7 @@ export interface OmnibarConfig {
  */
 export interface AIModelSection {
   /**
-   * Optional section header text (e.g. 'Advanced Models - DuckDuckGo subscription')
+   * Optional section header text (e.g. 'Subscriber Exclusive')
    */
   header?: string;
   /**
@@ -703,9 +747,17 @@ export interface AIModelItem {
    */
   shortName: string;
   /**
-   * Whether the model is enabled and selectable
+   * Optional short description shown beneath the model name in the selector.
    */
-  isEnabled: boolean;
+  description?: string;
+  /**
+   * Whether the model is available and selectable
+   */
+  isAvailable: boolean;
+  /**
+   * Access tier that grants this model (e.g. 'internal', 'free', 'plus', 'pro'). Drives the tier badge (Plus/Pro/Internal) in the model selector.
+   */
+  accessTier?: "internal" | "free" | "plus" | "pro";
   /**
    * Whether this model supports image attachments
    */
@@ -719,18 +771,57 @@ export interface AIModelItem {
    */
   supportedTools?: ToolId[];
   /**
-   * Reasoning-effort keys this model supports. Empty or omitted means the reasoning picker is hidden for this model.
+   * Reasoning-effort options this model supports, each with localized copy and availability. Empty or omitted means the reasoning picker is hidden for this model.
    */
-  supportedReasoningEffort?: ReasoningEffort[];
+  reasoningEfforts?: ReasoningEffortOption[];
+  /**
+   * For a gated (disabled) model, which upsell flow it leads to. Absent for enabled models. Absent on a gated model means the row shows but is inert, with no upsell action; send an explicit value whenever the row should be actionable.
+   */
+  upsell?: "subscribe" | "upgrade";
 }
 /**
- * Limits the omnibar applies to image and file attachments. When omitted, the omnibar uses its built-in defaults.
+ * A reasoning-effort option for a reasoning-capable model, including its localized display copy and availability.
+ */
+export interface ReasoningEffortOption {
+  id: ReasoningEffort1;
+  /**
+   * Localized display name for this reasoning-effort option.
+   */
+  name: string;
+  /**
+   * Optional localized subtitle shown beneath the name.
+   */
+  description?: string;
+  /**
+   * Whether this option is selectable (true) or gated behind a subscription upsell (false).
+   */
+  isAvailable: boolean;
+  /**
+   * For a gated (isAvailable: false) option, which upsell flow it leads to. Absent for available options. Absent on a gated option means the row shows but is inert, with no upsell action; send an explicit value whenever the row should be actionable.
+   */
+  upsell?: "subscribe" | "upgrade";
+  /**
+   * Localized header for the gated section this option starts (e.g. 'Try for Free', 'Pro Plan Exclusive'). Set on the first gated option only; absent means no divider and no header for that option.
+   */
+  gatedSectionHeader?: string;
+}
+/**
+ * Limits the omnibar applies to attachments. All fields are optional. `files`/`images` are backend-sourced; the omnibar falls back to its built-in defaults for whichever is absent. `tabs` is a hardcoded native cap; when omitted (kill switch off) no tab limit is applied.
  */
 export interface AttachmentLimits {
   /**
+   * Limits for attached open tabs. Omitted when the tab-limit kill switch is off, meaning no tab limit.
+   */
+  tabs?: {
+    /**
+     * Maximum number of open tabs that can be attached at once.
+     */
+    maxAttached: number;
+  };
+  /**
    * Limits for file attachments (e.g. PDFs).
    */
-  files: {
+  files?: {
     /**
      * Maximum number of file attachments allowed.
      */
@@ -751,7 +842,7 @@ export interface AttachmentLimits {
   /**
    * Limits for image attachments.
    */
-  images: {
+  images?: {
     /**
      * Maximum number of images allowed in a single submission.
      */
@@ -765,6 +856,54 @@ export interface AttachmentLimits {
      */
     maxInputCharsWithAttachments: number;
   };
+}
+/**
+ * Generated from @see "../messages/omnibar_setCustomizeResponsesActive.notify.json"
+ */
+export interface OmnibarSetCustomizeResponsesActiveNotification {
+  method: "omnibar_setCustomizeResponsesActive";
+  params: SetCustomizeResponsesActiveAction;
+}
+/**
+ * Sent when the user toggles the on/off switch on the 'Customize responses' Tools-menu row. Native persists the new active state for the current window's stored customization.
+ */
+export interface SetCustomizeResponsesActiveAction {
+  /**
+   * Whether the stored customization should be applied.
+   */
+  active: boolean;
+}
+/**
+ * Generated from @see "../messages/omnibar_showSubscriptionUpgrade.notify.json"
+ */
+export interface OmnibarShowSubscriptionUpgradeNotification {
+  method: "omnibar_showSubscriptionUpgrade";
+  params: ShowSubscriptionUpgradeAction;
+}
+/**
+ * Ask native to present the subscription upgrade flow (e.g. when a subscriber taps 'Upgrade' on a model or reasoning-effort option gated behind a higher tier).
+ */
+export interface ShowSubscriptionUpgradeAction {
+  /**
+   * Which omnibar picker triggered the upsell.
+   */
+  source: "model" | "reasoning";
+}
+/**
+ * Generated from @see "../messages/omnibar_showSubscriptionUpsell.notify.json"
+ */
+export interface OmnibarShowSubscriptionUpsellNotification {
+  method: "omnibar_showSubscriptionUpsell";
+  params: ShowSubscriptionUpsellAction;
+}
+/**
+ * Ask native to present the subscription upsell (e.g. when the user taps 'Try for free' on a gated model or reasoning-effort option).
+ */
+export interface ShowSubscriptionUpsellAction {
+  /**
+   * Which omnibar picker triggered the upsell.
+   */
+  source: "model" | "reasoning";
 }
 /**
  * Generated from @see "../messages/omnibar_submitChat.notify.json"
@@ -984,7 +1123,16 @@ export interface TelemetryEventNotification {
   params: NTPTelemetryEvent;
 }
 export interface NTPTelemetryEvent {
-  attributes: StatsShowMore | ExampleTelemetryEvent | CustomizerDrawerState;
+  attributes:
+    | StatsShowMore
+    | ExampleTelemetryEvent
+    | CustomizerDrawerState
+    | OmnibarModelPickerShown
+    | OmnibarModelPickerTryForFreeShown
+    | OmnibarModelPickerUpgradeShown
+    | OmnibarReasoningPickerShown
+    | OmnibarReasoningPickerTryForFreeShown
+    | OmnibarReasoningPickerUpgradeShown;
 }
 export interface StatsShowMore {
   name: "stats_toggle";
@@ -1002,6 +1150,42 @@ export interface CustomizerDrawerState {
      */
     themeVariantPopoverWasOpen?: boolean;
   };
+}
+/**
+ * Fired once when the user opens the omnibar model picker. This is a picker impression; it does not imply that the user activated a model or an upsell.
+ */
+export interface OmnibarModelPickerShown {
+  name: "omnibar_model_picker_shown";
+}
+/**
+ * Fired when the user activates a gated model row whose displayed CTA is 'Try for free', immediately before the web UI requests the native subscription upsell. Despite the historical '_shown' suffix, this is an activation event, not an impression.
+ */
+export interface OmnibarModelPickerTryForFreeShown {
+  name: "omnibar_model_picker_tryforfree_shown";
+}
+/**
+ * Fired when the user activates a gated model row whose resolved upsell presentation is 'Upgrade'. This activation bucket is derived from the item's upsell type and free-trial eligibility; the following native route is still determined by the item's upsell value, so this event can precede a subscription-upsell request. Despite the historical '_shown' suffix, this is an activation event, not an impression.
+ */
+export interface OmnibarModelPickerUpgradeShown {
+  name: "omnibar_model_picker_upgrade_shown";
+}
+/**
+ * Fired once when the user opens the omnibar reasoning picker. This is a picker impression; it does not imply that the user activated a reasoning effort or an upsell.
+ */
+export interface OmnibarReasoningPickerShown {
+  name: "omnibar_reasoning_picker_shown";
+}
+/**
+ * Fired when the user activates a gated reasoning-effort row whose displayed CTA is 'Try for free', immediately before the web UI requests the native subscription upsell. Despite the historical '_shown' suffix, this is an activation event, not an impression.
+ */
+export interface OmnibarReasoningPickerTryForFreeShown {
+  name: "omnibar_reasoning_picker_tryforfree_shown";
+}
+/**
+ * Fired when the user activates a gated reasoning-effort row whose resolved upsell presentation is 'Upgrade'. This activation bucket is derived from the item's upsell type and free-trial eligibility; the following native route is still determined by the item's upsell value, so this event can precede a subscription-upsell request. Despite the historical '_shown' suffix, this is an activation event, not an impression.
+ */
+export interface OmnibarReasoningPickerUpgradeShown {
+  name: "omnibar_reasoning_picker_upgrade_shown";
 }
 /**
  * Generated from @see "../messages/updateNotification_dismiss.notify.json"
@@ -1223,6 +1407,9 @@ export interface NewTabPageSettings {
     autoOpen?: boolean;
   };
   adBlocking?: {
+    state: "enabled" | "disabled";
+  };
+  newTabPageRebranding?: {
     state: "enabled" | "disabled";
   };
 }

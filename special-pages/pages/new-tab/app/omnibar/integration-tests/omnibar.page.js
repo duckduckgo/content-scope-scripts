@@ -332,6 +332,14 @@ export class OmnibarPage {
         return this.modelDropdown().getByRole('option', { name: modelName });
     }
 
+    /**
+     * The muted header above subscription-only models in the model selector.
+     * @param {string} header - Native-provided copy, e.g. 'Pro Plan Exclusive'
+     */
+    modelGatedSectionHeader(header) {
+        return this.modelDropdown().getByText(header, { exact: true });
+    }
+
     toolsMenuButton() {
         return this.context().getByRole('button', { name: 'Tools' });
     }
@@ -395,26 +403,46 @@ export class OmnibarPage {
     }
 
     attachPageContentMenuItem() {
-        return this.attachMenu().getByRole('menuitem', { name: 'Add Page Content' });
+        return this.attachMenu().getByRole('menuitem', { name: 'Add Tabs' });
     }
 
-    tabPicker() {
-        return this.context().getByRole('menu', { name: 'Tabs' });
+    /** Inline "Recent Tabs" row in the paperclip menu. @param {string | RegExp} title */
+    recentTabItem(title) {
+        return this.attachMenu().getByRole('menuitemcheckbox', { name: title });
+    }
+
+    /** The "Add Tabs" dialog opened from the paperclip menu. */
+    attachTabsModal() {
+        return this.context().getByRole('dialog', { name: 'Add Tabs' });
     }
 
     /** @param {string | RegExp} title */
-    tabPickerItem(title) {
-        return this.tabPicker().getByRole('menuitemcheckbox', { name: title });
+    attachTabsModalItem(title) {
+        return this.attachTabsModal().getByRole('menuitemcheckbox', { name: title });
+    }
+
+    attachTabsModalSearch() {
+        return this.attachTabsModal().getByRole('textbox', { name: 'Search' });
+    }
+
+    attachTabsModalConfirmButton() {
+        return this.attachTabsModal().getByRole('button', { name: 'Add', exact: true });
+    }
+
+    attachTabsModalCancelButton() {
+        return this.attachTabsModal().getByRole('button', { name: 'Cancel' });
     }
 
     /**
-     * Open the paperclip menu and pick a tab from the recent-tabs submenu.
+     * Toggle a tab through the "Add Tabs" dialog: open it from the paperclip menu,
+     * flip the tab's checkbox, and commit with "Add".
      * @param {string} title
      */
     async attachTab(title) {
         await this.attachMenuButton().click();
         await this.attachPageContentMenuItem().click();
-        await this.tabPickerItem(title).click();
+        await this.attachTabsModalItem(title).click();
+        await this.attachTabsModalConfirmButton().click();
     }
 
     /**
@@ -445,6 +473,10 @@ export class OmnibarPage {
 
     removeImageButton() {
         return this.attachmentChips().locator('button[aria-label="Remove image"]');
+    }
+
+    tabLimitWarning() {
+        return this.context().getByText(/You can only attach \d+ tabs at a time/);
     }
 
     fileLimitWarning() {

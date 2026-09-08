@@ -147,18 +147,18 @@
     position: absolute;
     bottom: calc(100% + 6 * var(--px-in-rem));
     right: 0;
-    width: calc(182 * var(--px-in-rem));
+    width: calc(228 * var(--px-in-rem));
     padding: calc(2 * var(--px-in-rem)) calc(6 * var(--px-in-rem));
     border-radius: calc(2 * var(--px-in-rem));
     border: 1px solid var(--ds-control-primary-border-color);
-    background: var(--ds-surface-primary);
+    background: var(--ds-surface-tertiary);
     box-shadow:
         0 0 0 rgba(0, 0, 0, 0.2),
         0 2px 4px rgba(0, 0, 0, 0.24);
     font-family: var(--font-product);
-    font-size: calc(10 * var(--px-in-rem));
-    font-weight: 500;
-    line-height: calc(14 * var(--px-in-rem));
+    font-size: calc(12 * var(--px-in-rem));
+    font-weight: 400;
+    line-height: calc(15 * var(--px-in-rem));
     letter-spacing: calc(0.06 * var(--px-in-rem));
     color: var(--ds-text-primary);
     white-space: normal;

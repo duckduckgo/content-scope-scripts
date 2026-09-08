@@ -16,6 +16,15 @@ body {
     top: 0;
     left: 0;
 
+    /* Sit the card's midpoint at ~40% of the viewport. Only in windows big
+     * enough that the expanded card still fits, or its top gets clipped. */
+    [data-platform-name="macos"] &,
+    [data-platform-name="windows"] & {
+        @media (min-height: 600px) and (min-width: 600px) {
+            padding-bottom: 20vh;
+        }
+    }
+
     @media (max-height: 400px) {
         padding-top: var(--sp-10);
         align-items: flex-start;

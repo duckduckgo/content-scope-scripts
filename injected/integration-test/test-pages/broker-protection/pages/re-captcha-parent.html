@@ -1,0 +1,54 @@
+<ul id="people-search-results">
+    <li>
+        <div>
+            <div class="!text-black-900 text-lg">James Daly</div>
+        </div>
+        <div class="g-recaptcha" data-sitekey="test-site-key-0">
+            <iframe src="https://www.google.com/recaptcha/api2/anchor?k=test-site-key-0"></iframe>
+            <textarea id="g-recaptcha-response" name="g-recaptcha-response"></textarea>
+        </div>
+    </li>
+    <li>
+        <div>
+            <div class="!text-black-900 text-lg">James A Daly</div>
+            <div class="text-lg">52 Years Old</div>
+            <div class="text-xs">Locations Include</div>
+            <div>Gilbert, AZ</div>
+        </div>
+        <div class="g-recaptcha" data-sitekey="test-site-key-1">
+            <iframe src="https://www.google.com/recaptcha/api2/anchor?k=test-site-key-1"></iframe>
+            <textarea id="g-recaptcha-response-1" name="g-recaptcha-response"></textarea>
+        </div>
+    </li>
+    <li>
+        <div>
+            <div class="!text-black-900 text-lg">James W Daly</div>
+            <div class="text-lg">52 Years Old</div>
+            <div class="text-xs">Locations Include</div>
+            <div>Gilbert, AZ</div>
+        </div>
+        <div class="g-recaptcha" data-sitekey="test-site-key-2">
+            <iframe src="https://www.google.com/recaptcha/api2/anchor?k=test-site-key-2"></iframe>
+            <textarea id="g-recaptcha-response-2" name="g-recaptcha-response"></textarea>
+        </div>
+    </li>
+</ul>
+<script>
+    const captchaElements = document.querySelectorAll('.g-recaptcha');
+    globalThis.___grecaptcha_cfg = {
+        clients: Object.fromEntries(
+            Array.from(captchaElements).map((captchaElement, index) => [
+                index,
+                {
+                    config: {
+                        widget: {
+                            sitekey: captchaElement.getAttribute('data-sitekey'),
+                            size: 'normal',
+                            callback: (token) => captchaElement.setAttribute('data-callback-token', token),
+                        },
+                    },
+                },
+            ]),
+        ),
+    };
+</script>

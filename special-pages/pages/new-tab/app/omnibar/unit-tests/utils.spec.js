@@ -10,6 +10,7 @@ import {
     formatURLForTerm,
     getDuckDuckGoSearchQuery,
     startsWithIgnoreCase,
+    getUpsellTelemetryType,
 } from '../utils.js';
 
 /**
@@ -581,5 +582,25 @@ test.describe('startsWithIgnoreCase', () => {
         equal(startsWithIgnoreCase('!@#Test', '!@#'), true);
         equal(startsWithIgnoreCase('Test!', 'test!'), true);
         equal(startsWithIgnoreCase('Test!', 'Test!@#'), false);
+    });
+});
+
+test.describe('getUpsellTelemetryType', () => {
+    test('returns "tryForFree" for a subscribe upsell when eligible for a free trial', () => {
+        equal(getUpsellTelemetryType('subscribe', true), 'tryForFree');
+    });
+
+    test('returns "upgrade" for a subscribe upsell when not eligible for a free trial', () => {
+        equal(getUpsellTelemetryType('subscribe', false), 'upgrade');
+    });
+
+    test('returns "upgrade" for an upgrade upsell regardless of eligibility', () => {
+        equal(getUpsellTelemetryType('upgrade', true), 'upgrade');
+        equal(getUpsellTelemetryType('upgrade', false), 'upgrade');
+    });
+
+    test('treats an undefined upsell like subscribe', () => {
+        equal(getUpsellTelemetryType(undefined, true), 'tryForFree');
+        equal(getUpsellTelemetryType(undefined, false), 'upgrade');
     });
 });

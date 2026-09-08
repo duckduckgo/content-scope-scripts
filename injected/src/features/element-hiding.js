@@ -331,10 +331,15 @@ function hideAdNodes(rules) {
     const document = globalThis.document;
 
     rules.filter(hasSelector).forEach((rule) => {
-        const selector = forgivingSelector(rule.selector);
-        const matchingElementArray = [...document.querySelectorAll(selector)];
+        let matchingElementArray;
+        try {
+            matchingElementArray = [...document.querySelectorAll(querySelectorFor(rule.selector))];
+        } catch {
+            // Invalid or unsupported selector. Skip this rule only - an
+            // uncaught throw here would abort the whole pass.
+            return;
+        }
         matchingElementArray.forEach((element) => {
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             collapseDomNode(element, rule);
         });
     });
@@ -347,10 +352,13 @@ function unhideLoadedAds() {
     const document = globalThis.document;
 
     appliedRules.forEach((rule) => {
-        const selector = forgivingSelector(rule.selector);
-        const matchingElementArray = [...document.querySelectorAll(selector)];
+        let matchingElementArray;
+        try {
+            matchingElementArray = [...document.querySelectorAll(querySelectorFor(rule.selector))];
+        } catch {
+            return;
+        }
         matchingElementArray.forEach((element) => {
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             expandNonEmptyDomNode(element, rule);
         });
     });
@@ -361,6 +369,18 @@ function unhideLoadedAds() {
  */
 function forgivingSelector(selector) {
     return `:is(${selector})`;
+}
+
+/**
+ * Resolve a rule's selector for use with querySelectorAll
+ *
+ * :is() makes a selector list forgiving, but has a perf cost since
+ * it's a pseudo-class that isn't indexed. Only wrap when the selector
+ * might be a list, in which case one malformed selector can lead to
+ * the rest of the list not applying
+ */
+function querySelectorFor(selector) {
+    return selector.includes(',') ? forgivingSelector(selector) : selector;
 }
 
 export default class ElementHiding extends ContentFeature {

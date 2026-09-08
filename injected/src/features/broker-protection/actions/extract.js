@@ -1,4 +1,12 @@
-import { cleanArray, getElement, getElementMatches, getElements, sortAddressesByStateAndCity } from '../utils/utils.js'; // Assuming you have imported the address comparison function
+import {
+    cleanArray,
+    dedupeAddresses,
+    getElement,
+    getElementMatches,
+    getElements,
+    hasExtras,
+    sortAddressesByStateAndCity,
+} from '../utils/utils.js'; // Assuming you have imported the address comparison function
 import { ErrorResponse, ProfileResult, SuccessResponse } from '../types.js';
 import { isSameAge } from '../comparisons/is-same-age.js';
 import { isSameName } from '../comparisons/is-same-name.js';
@@ -9,6 +17,7 @@ import { extractAddressFull, extractCityState } from '../extractors/address.js';
 import { extractPhone } from '../extractors/phone.js';
 import { extractRelatives } from '../extractors/relatives.js';
 import { extractProfileUrl, ProfileHashTransformer } from '../extractors/profile-url.js';
+import { extractExtra } from '../extractors/extra.js';
 
 /**
  * Adding these types here so that we can switch to generated ones later
@@ -71,9 +80,19 @@ import { extractProfileUrl, ProfileHashTransformer } from '../extractors/profile
  */
 
 /**
+ * An open map of extra, config-defined fields that have no dedicated extractor. String values only;
+ * omitted when empty (so consumers must tolerate its absence) and excluded from the hash identifier
+ * (see {@link import('../extractors/profile-url.js').omitExtrasForHash}).
+ * @typedef {Record<string, string>} ProfileExtras
+ */
+
+/**
  * The `profile` block of an `extract` action: a map of output field name -> how to locate that
  * field. `null` disables a field. This is the per-broker config the native layer sends; the field
  * keys are a contract with that config.
+ *
+ * Any key not listed below (and not the reserved `extras`) falls back to profile-level
+ * {@link ProfileExtras}.
  *
  * @typedef {Object} ProfileSpec
  * @property {TextFieldSpec | null} [name]
@@ -229,7 +248,8 @@ const extractors = {
  *       "state": "FL"
  *     }
  *   ],
- *   "profileUrl": "https://example.com/1234"
+ *   "profileUrl": "https://example.com/1234",
+ *   "extras": { "shoeSize": "10.5" }
  * }
  *
  * @param {Select} select - resolves a field's selector to elements within a scope (injectable for tests)
@@ -239,11 +259,21 @@ const extractors = {
  */
 export function createProfile(select, root, profileSpec) {
     const output = {};
+    /** @type {ProfileExtras} */
+    const extras = {};
     for (const [field, fieldSpec] of Object.entries(profileSpec)) {
-        const extractField = extractors[field];
-        if (!extractField) continue;
-        output[field] = extractField(select, root, fieldSpec ?? {}) || null;
+        const extractField = Object.prototype.hasOwnProperty.call(extractors, field) ? extractors[field] : undefined;
+        if (extractField) {
+            output[field] = extractField(select, root, fieldSpec ?? {}) || null;
+            continue;
+        }
+        // Unknown field: fall back to a generic text extraction into `extras`. `extras` itself is a
+        // reserved key, and a `null` (or non-object) spec keeps its "disabled" meaning.
+        if (field === 'extras' || fieldSpec === null || typeof fieldSpec !== 'object') continue;
+        const value = extractExtra(select, root, fieldSpec);
+        if (value) extras[field] = value;
     }
+    if (Object.keys(extras).length > 0) output.extras = extras;
     return output;
 }
 
@@ -385,8 +415,7 @@ export function aggregateFields(profile) {
         ...(profile.addressFullList || []),
         ...(profile.addressFull || []),
     ];
-    const addressMap = new Map(combinedAddresses.map((addr) => [`${addr.city},${addr.state}`, addr]));
-    const addresses = sortAddressesByStateAndCity([...addressMap.values()]);
+    const addresses = sortAddressesByStateAndCity(dedupeAddresses(combinedAddresses));
 
     // phone
     const phoneArray = profile.phone || [];
@@ -399,7 +428,8 @@ export function aggregateFields(profile) {
     // aliases
     const alternativeNames = [...new Set(profile.alternativeNamesList)].sort();
 
-    return {
+    /** @type {Record<string, any>} */
+    const output = {
         name: profile.name,
         alternativeNames,
         age: profile.age,
@@ -408,6 +438,8 @@ export function aggregateFields(profile) {
         relatives,
         ...profile.profileUrl,
     };
+    if (hasExtras(profile)) output.extras = profile.extras;
+    return output;
 }
 
 /**

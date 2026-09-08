@@ -1,11 +1,12 @@
 #!/usr/bin/env node
+import { execSync } from 'node:child_process';
+
 /**
  * Checks that injected core source files pass TypeScript strict mode.
  *
  * Runs tsc with tsconfig.strict-core.json and filters output to only core files.
  * Feature files are checked transitively but their errors are not reported here.
  */
-import { execSync } from 'node:child_process';
 
 const CORE_FILES = new Set([
     'injected/entry-points/android-adsjs.js',
@@ -27,6 +28,8 @@ const CORE_FILES = new Set([
     'injected/src/navigator-global.js',
     'injected/src/utils/dom-metadata.js',
     'injected/src/features/browser-ui-lock.js',
+    'injected/src/features/chrome-webstore-patching.js',
+    'injected/src/features/chrome-webstore-patching/helpers.js',
     'injected/src/features/hover.js',
     'injected/src/performance.js',
     'injected/src/sendmessage-transport.js',
@@ -60,6 +63,7 @@ const CORE_FILES = new Set([
     'injected/src/features/broker-protection/comparisons/constants.js',
     'injected/src/features/broker-protection/comparisons/is-same-name.js',
     'injected/src/features/broker-protection/extractors/age.js',
+    'injected/src/features/broker-protection/extractors/extra.js',
     'injected/src/features/broker-protection/extractors/name.js',
     'injected/src/features/broker-protection/extractors/phone.js',
     'injected/src/features/broker-protection/extractors/profile-url.js',
@@ -67,6 +71,7 @@ const CORE_FILES = new Set([
     'injected/src/features/broker-protection/types.js',
     'injected/src/features/broker-protection/utils/expectations.js',
     'injected/src/features/broker-protection/utils/safe-call.js',
+    'injected/src/features/broker-protection/utils/select-root-element.js',
     'injected/src/features/broker-protection/utils/url.js',
     'injected/src/features/click-to-load/components/ctl-placeholder-blocked.js',
     'injected/src/features/click-to-load/components/index.js',
@@ -81,11 +86,13 @@ const CORE_FILES = new Set([
     'injected/src/features/duckplayer-native/pause-video.js',
     'injected/src/features/duckplayer-native/sub-features/duck-player-native-no-cookie.js',
     'injected/src/features/duckplayer-native/sub-features/duck-player-native-serp.js',
+    'injected/src/features/duckplayer/buffering-hold.js',
     'injected/src/features/duckplayer/components/ddg-video-overlay-mobile.js',
     'injected/src/features/duckplayer/components/ddg-video-thumbnail-overlay-mobile.js',
     'injected/src/features/duckplayer/components/index.js',
     'injected/src/features/duckplayer/constants.js',
     'injected/src/features/duckplayer/overlays.js',
+    'injected/src/features/duckplayer/poster.js',
     'injected/src/features/duckplayer/text.js',
     'injected/src/features/fingerprinting-hardware.js',
     'injected/src/features/google-rejected.js',
@@ -99,7 +106,7 @@ const CORE_FILES = new Set([
     'injected/src/features/web-events.js',
     'injected/src/features/web-interference-detection.js',
     'injected/src/features/tab-suspension.js',
-    'injected/src/detectors/detections/adwall-detection.js',
+    'injected/src/features/text-selection.js',
     'injected/src/detectors/detections/bot-detection.js',
     'injected/src/detectors/utils/detection-utils.js',
     'injected/src/features/exception-handler.js',
@@ -117,6 +124,7 @@ const CORE_FILES = new Set([
     'injected/src/types/hover.ts',
     'injected/src/types/page-observer.ts',
     'injected/src/types/print.ts',
+    'injected/src/types/text-selection.ts',
     'injected/src/types/web-compat.ts',
     'messaging/lib/examples/android.example.js',
     'messaging/lib/examples/payloads.js',

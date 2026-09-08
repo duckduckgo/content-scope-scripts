@@ -62,8 +62,115 @@ test.describe('omnibar tab attachment', () => {
 
         await omnibar.attachMenuButton().click();
         await omnibar.attachPageContentMenuItem().click();
-        await expect(omnibar.tabPickerItem('Starbucks Coffee Company')).toHaveAttribute('aria-checked', 'true');
-        await expect(omnibar.tabPickerItem('MacBook Neo - Apple')).toHaveAttribute('aria-checked', 'false');
+        await expect(omnibar.attachTabsModalItem('Starbucks Coffee Company')).toHaveAttribute('aria-checked', 'true');
+        await expect(omnibar.attachTabsModalItem('MacBook Neo - Apple')).toHaveAttribute('aria-checked', 'false');
+    });
+
+    test('the inline Recent Tabs preview toggles a tab without opening the dialog', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({
+            additional: { 'omnibar.mode': 'ai', 'omnibar.enableAttachTabs': 'true', 'omnibar.selectedModelId': 'openai_gpt-oss-120b' },
+        });
+        await omnibar.ready();
+
+        // The menu previews only the five most recent tabs ('Asana' is among them; older tabs are not).
+        await omnibar.attachMenuButton().click();
+        await expect(omnibar.attachMenu().getByRole('menuitemcheckbox')).toHaveCount(5);
+        await expect(omnibar.recentTabItem('Starbucks Coffee Company')).toHaveCount(0);
+
+        await omnibar.recentTabItem('Asana').click();
+        await expect(omnibar.tabChip()).toHaveCount(1);
+
+        // Reopening shows the attached state inline; clicking again detaches.
+        await omnibar.attachMenuButton().click();
+        await expect(omnibar.recentTabItem('Asana')).toHaveAttribute('aria-checked', 'true');
+        await omnibar.recentTabItem('Asana').click();
+        await expect(omnibar.attachmentChips()).toHaveCount(0);
+    });
+
+    test('with no open tabs, Add Tabs is disabled and the empty state replaces Recent Tabs', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({
+            additional: {
+                'omnibar.mode': 'ai',
+                'omnibar.enableAttachTabs': 'true',
+                'omnibar.selectedModelId': 'openai_gpt-oss-120b',
+                'omnibar.noOpenTabs': 'true',
+            },
+        });
+        await omnibar.ready();
+
+        await omnibar.attachMenuButton().click();
+        await expect(omnibar.attachMenu().getByText('No page content available')).toBeVisible();
+        await expect(omnibar.attachPageContentMenuItem()).toHaveAttribute('aria-disabled', 'true');
+        await expect(omnibar.attachMenu().getByText('Recent Tabs')).toHaveCount(0);
+    });
+
+    test('the Add Tabs dialog filters by search and shows a no-matches state', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({
+            additional: { 'omnibar.mode': 'ai', 'omnibar.enableAttachTabs': 'true', 'omnibar.selectedModelId': 'openai_gpt-oss-120b' },
+        });
+        await omnibar.ready();
+
+        await omnibar.attachMenuButton().click();
+        await omnibar.attachPageContentMenuItem().click();
+
+        await omnibar.attachTabsModalSearch().fill('starbucks');
+        await expect(omnibar.attachTabsModalItem('Starbucks Coffee Company')).toBeVisible();
+        await expect(omnibar.attachTabsModalItem('MacBook Neo - Apple')).toHaveCount(0);
+
+        await omnibar.attachTabsModalSearch().fill('zzznomatch');
+        await expect(omnibar.attachTabsModal().getByText('No matching tabs')).toBeVisible();
+        await expect(omnibar.attachTabsModal().getByRole('menuitemcheckbox')).toHaveCount(0);
+    });
+
+    test('cancelling the Add Tabs dialog discards the staged selection', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({
+            additional: { 'omnibar.mode': 'ai', 'omnibar.enableAttachTabs': 'true', 'omnibar.selectedModelId': 'openai_gpt-oss-120b' },
+        });
+        await omnibar.ready();
+
+        await omnibar.attachMenuButton().click();
+        await omnibar.attachPageContentMenuItem().click();
+        await omnibar.attachTabsModalItem('Starbucks Coffee Company').click();
+        await omnibar.attachTabsModalCancelButton().click();
+
+        await expect(omnibar.attachmentChips()).toHaveCount(0);
+
+        // Reopening re-seeds from the real (empty) attachment state — nothing stays checked.
+        await omnibar.attachMenuButton().click();
+        await omnibar.attachPageContentMenuItem().click();
+        await expect(omnibar.attachTabsModalItem('Starbucks Coffee Company')).toHaveAttribute('aria-checked', 'false');
+    });
+
+    test('the Add Tabs dialog disables unchecked tabs once the cap is reached', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({
+            additional: {
+                'omnibar.mode': 'ai',
+                'omnibar.enableAttachTabs': 'true',
+                'omnibar.selectedModelId': 'openai_gpt-oss-120b',
+                'omnibar.tabMaxAttached': '1',
+            },
+        });
+        await omnibar.ready();
+
+        await omnibar.attachMenuButton().click();
+        await omnibar.attachPageContentMenuItem().click();
+
+        await omnibar.attachTabsModalItem('Starbucks Coffee Company').click();
+        await expect(omnibar.attachTabsModalItem('MacBook Neo - Apple')).toHaveAttribute('aria-disabled', 'true');
+
+        // Unchecking frees the slot again.
+        await omnibar.attachTabsModalItem('Starbucks Coffee Company').click();
+        await expect(omnibar.attachTabsModalItem('MacBook Neo - Apple')).not.toHaveAttribute('aria-disabled', 'true');
     });
 
     test('selecting an already-attached tab in the picker detaches it', async ({ page }, workerInfo) => {
@@ -99,6 +206,45 @@ test.describe('omnibar tab attachment', () => {
         const params = await omnibar.lastSubmitChatParams();
         expect(params.pageContext).toHaveLength(2);
         expect(params.pageContext?.map((c) => c.tabId).sort()).toEqual(['tab-1', 'tab-2']);
+    });
+
+    test('tabs over the configured cap warn (naming the limit), block submit, and recover on removal', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({
+            additional: {
+                'omnibar.mode': 'ai',
+                'omnibar.enableAttachTabs': 'true',
+                'omnibar.selectedModelId': 'openai_gpt-oss-120b',
+                // Backend-configured cap of one tab (default is three). A cap of one keeps the
+                // picker interactions to two attaches — reopening the picker per attach is slow,
+                // so more attaches make the test flaky under parallel load.
+                'omnibar.tabMaxAttached': '1',
+            },
+        });
+        await omnibar.ready();
+
+        // One tab is within the configured cap — no warning.
+        await omnibar.attachTab('Starbucks Coffee Company');
+        await expect(omnibar.tabChip()).toHaveCount(1);
+        await expect(omnibar.tabLimitWarning()).toHaveCount(0);
+
+        // A second tab exceeds the cap → kept, but warns (naming the configured limit) and blocks
+        // submit. The Add Tabs dialog hard-caps selection, so exceed via the @-mention picker,
+        // which still allows over-attaching (the soft limit).
+        await omnibar.chatInput().click();
+        await omnibar.chatInput().pressSequentially('@macbook');
+        await omnibar.mentionOption('MacBook Neo - Apple').click();
+        await expect(omnibar.tabChip()).toHaveCount(2);
+        await expect(omnibar.context().getByText('You can only attach 1 tabs at a time.')).toBeVisible();
+        await omnibar.types({ mode: 'ai', value: 'summarize these' });
+        await expect(omnibar.chatSubmitButton()).toBeDisabled();
+
+        // Removing the excess tab clears the warning and re-enables submit.
+        await omnibar.removeTabButton('MacBook Neo - Apple').click();
+        await expect(omnibar.tabChip()).toHaveCount(1);
+        await expect(omnibar.tabLimitWarning()).toHaveCount(0);
+        await expect(omnibar.chatSubmitButton()).toBeEnabled();
     });
 
     test('removing a chip drops its context from the next submit', async ({ page }, workerInfo) => {
@@ -217,7 +363,7 @@ test.describe('omnibar tab attachment', () => {
         await expect(omnibar.tabChip()).toHaveCount(1);
 
         await omnibar.chatInput().pressSequentially('@');
-        const firstOptionId = await omnibar.mentionOption('MacBook Neo - Apple').getAttribute('id');
+        const firstOptionId = await omnibar.mentionPicker().getByRole('option').first().getAttribute('id');
         expect(firstOptionId).toBeTruthy();
         await expect(omnibar.chatInput()).toHaveAttribute('aria-activedescendant', firstOptionId ?? '');
     });
@@ -234,9 +380,9 @@ test.describe('omnibar tab attachment', () => {
 
         await omnibar.attachMenuButton().click();
         await omnibar.attachPageContentMenuItem().click();
-        await expect(omnibar.tabPickerItem(longTitle)).toBeVisible();
-        const menuBox = await omnibar.tabPicker().boundingBox();
-        expect(menuBox?.width ?? Infinity).toBeLessThanOrEqual(361);
+        await expect(omnibar.attachTabsModalItem(longTitle)).toBeVisible();
+        const modalBox = await omnibar.attachTabsModal().boundingBox();
+        expect(modalBox?.width ?? Infinity).toBeLessThanOrEqual(361);
         await page.keyboard.press('Escape');
 
         await omnibar.chatInput().click();

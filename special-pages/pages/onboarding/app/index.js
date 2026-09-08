@@ -1,11 +1,9 @@
 import { OnboardingMessages } from './messages';
 import { render, h } from 'preact';
 import './shared/styles/global.css'; // global styles
-import { App as AppV3 } from './v3/App.js';
-import { App as AppV4 } from './v4/App.js';
+import { App } from './v4/App.js';
 import { SkipLink } from './shared/components/SkipLink.js';
 import { GlobalProvider } from './global';
-import { Components } from './Components';
 import { EnvironmentProvider, UpdateEnvironment } from '../../../shared/components/EnvironmentProvider';
 import { Environment } from '../../../shared/environment';
 import { createSpecialPageMessaging } from '../../../shared/create-special-page-messaging';
@@ -14,8 +12,6 @@ import { callWithRetry } from '../../../shared/call-with-retry';
 import { TranslationProvider } from '../../../shared/components/TranslationsProvider';
 import { SettingsProvider } from './shared/components/SettingsProvider';
 import enStrings from '../public/locales/en/onboarding.json';
-import { stepDefinitions as stepDefinitionsV3 } from './v3/data/data';
-import { stepDefinitions as stepDefinitionsV4 } from './v4/data/data';
 import { mockTransport } from '../src/mock-transport.js';
 
 const baseEnvironment = new Environment().withInjectName(document.documentElement.dataset.platform).withEnv(import.meta.env);
@@ -80,16 +76,11 @@ async function init() {
                       return enStrings;
                   });
 
-    const defaultStepDefinitions = init.order === 'v4' ? stepDefinitionsV4 : stepDefinitionsV3;
-
     const settings = new Settings()
         .withPlatformName(baseEnvironment.injectName)
         .withPlatformName(init.platform?.name)
         .withPlatformName(baseEnvironment.urlParams.get('platform'))
-        .withStepDefinitions(defaultStepDefinitions)
         .withStepDefinitions(init.stepDefinitions)
-        .withNamedOrder(init.order)
-        .withNamedOrder(environment.urlParams.get('order'))
         .withExcludedScreens(init.exclude)
         .withExcludedScreens(environment.urlParams.getAll('exclude'))
         .withFirst(environment.urlParams.get('page'))
@@ -99,8 +90,6 @@ async function init() {
     if (!root) throw new Error('could not render, root element missing');
 
     if (environment.display === 'app') {
-        const AppComponent = settings.orderName === 'v4' ? AppV4 : AppV3;
-
         render(
             <EnvironmentProvider debugState={environment.debugState} injectName={environment.injectName} willThrow={environment.willThrow}>
                 <UpdateEnvironment search={window.location.search} />
@@ -112,19 +101,9 @@ async function init() {
                             stepDefinitions={settings.stepDefinitions}
                             firstPage={settings.first}
                         >
-                            <AppComponent>{environment.env === 'development' && <SkipLink />}</AppComponent>
+                            <App>{environment.env === 'development' && <SkipLink />}</App>
                         </GlobalProvider>
                     </SettingsProvider>
-                </TranslationProvider>
-            </EnvironmentProvider>,
-            root,
-        );
-    }
-    if (environment.display === 'components') {
-        render(
-            <EnvironmentProvider debugState={false} injectName={environment.injectName}>
-                <TranslationProvider translationObject={strings} fallback={enStrings}>
-                    <Components />
                 </TranslationProvider>
             </EnvironmentProvider>,
             root,

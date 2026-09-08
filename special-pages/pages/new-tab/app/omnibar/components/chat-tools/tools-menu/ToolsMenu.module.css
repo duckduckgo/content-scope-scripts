@@ -32,6 +32,15 @@
     }
 }
 
+.toolsButtonCollapsed {
+    background: var(--ds-color-theme-control-fill-primary);
+    border-radius: 100%;
+    color: var(--ds-color-theme-icons-primary);
+    justify-content: center;
+    padding: 0;
+    width: var(--sp-7);
+}
+
 .toolsLabel {
     font-weight: 400;
 }

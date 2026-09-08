@@ -5,11 +5,20 @@ import { ResultsCollector } from './results-collector.js';
 import { createCaptchaResponse } from '../mocks/broker-protection/captcha.js';
 import { createFeatureConfig } from '../mocks/broker-protection/feature-config.js';
 
+/**
+ * @import { Page } from '@playwright/test'
+ * @import { Build } from '../type-helpers.mjs'
+ * @import { PlatformInfo } from '@duckduckgo/messaging/lib/test-utils.mjs'
+ */
+
+const RECAPTCHA_RESPONSE_ID = 'g-recaptcha-response';
+const RECAPTCHA_RESPONSE_SELECTOR = `#${RECAPTCHA_RESPONSE_ID}`;
+
 export class BrokerProtectionPage {
     /**
-     * @param {import("@playwright/test").Page} page
-     * @param {import("../type-helpers.mjs").Build} build
-     * @param {import("@duckduckgo/messaging/lib/test-utils.mjs").PlatformInfo} platform
+     * @param {Page} page
+     * @param {Build} build
+     * @param {PlatformInfo} platform
      */
     constructor(page, build, platform) {
         this.page = page;
@@ -91,6 +100,41 @@ export class BrokerProtectionPage {
     }
 
     /**
+     * @param {string} selector - the selector for an `<input type="date">`
+     * @param {number} age - the age the filled date of birth should imply as of today
+     * @return {Promise<void>}
+     */
+    async isDateOfBirthForAge(selector, age) {
+        const value = await this.getFormFieldValue(selector);
+        expect(value).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+
+        const [year, month, day] = value.split('-').map(Number);
+        const today = new Date();
+        const birthdayThisYear = new Date(today.getFullYear(), month - 1, day);
+        expect(today.getFullYear() - year - (today < birthdayThisYear ? 1 : 0)).toBe(age);
+    }
+
+    /**
+     * @param {object} selectors
+     * @param {string} selectors.date - an `<input type="date">` filled with the default format
+     * @param {string} selectors.year - filled with `YYYY`
+     * @param {string} selectors.month - filled with `MM`
+     * @param {string} selectors.day - filled with `D`
+     * @param {string} selectors.us - filled with `MM/DD/YYYY`
+     * @param {number} age - the age the date of birth should imply as of today
+     * @return {Promise<void>}
+     */
+    async isDateOfBirthSplitAcrossFields(selectors, age) {
+        await this.isDateOfBirthForAge(selectors.date, age);
+
+        const [year, month, day] = (await this.getFormFieldValue(selectors.date)).split('-');
+        await this.doesInputValueEqual(selectors.year, year);
+        await this.doesInputValueEqual(selectors.month, month);
+        await this.doesInputValueEqual(selectors.day, String(Number(day)));
+        await this.doesInputValueEqual(selectors.us, `${month}/${day}/${year}`);
+    }
+
+    /**
      * @param {string} responseElementSelector
      * @return {Promise<void>}
      */
@@ -98,6 +142,66 @@ export class BrokerProtectionPage {
         const captchaTarget = await this.page.$(responseElementSelector);
         const captchaToken = await captchaTarget?.evaluate((element) => ('value' in element ? element.value : element.innerHTML));
         expect(captchaToken).toBe('test_token');
+    }
+
+    /**
+     * @param {object} params
+     * @param {number} params.widgetId
+     * @param {Record<number, string|null>} params.clients
+     */
+    async rendersRecaptchaClients({ widgetId, clients }) {
+        await this.page.evaluate(
+            ({ responseId, widgetId, clients }) => {
+                const responseElement = document.querySelector(`#${responseId}`);
+                if (!(responseElement instanceof HTMLElement)) {
+                    throw new Error('reCAPTCHA response element is missing');
+                }
+                responseElement.id = `${responseId}-${widgetId}`;
+                globalThis.___grecaptcha_cfg.clients = Object.fromEntries(
+                    Object.entries(clients).map(([id, callbackAttribute]) => [
+                        id,
+                        globalThis.createRecaptchaClient({ callbackAttribute, callable: callbackAttribute !== null }),
+                    ]),
+                );
+            },
+            { responseId: RECAPTCHA_RESPONSE_ID, widgetId, clients },
+        );
+    }
+
+    /**
+     * @param {{callback: {eval: string}}} response
+     */
+    async runsCaptchaCallback(response) {
+        await this.page.evaluate(response.callback.eval);
+    }
+
+    /**
+     * @param {string} selector
+     * @param {string} callbackAttribute
+     */
+    async isWidgetNotified(selector, callbackAttribute) {
+        await expect(this.page.locator(selector)).toHaveAttribute(callbackAttribute, 'test_token');
+    }
+
+    /**
+     * @param {string} selector
+     * @param {string} callbackAttribute
+     */
+    async isWidgetNotNotified(selector, callbackAttribute) {
+        await expect(this.page.locator(selector)).not.toHaveAttribute(callbackAttribute, 'test_token');
+    }
+
+    async hasNoNotifiedWidget() {
+        await expect(this.page.locator('.g-recaptcha[data-callback-token="test_token"]')).toHaveCount(0);
+    }
+
+    /**
+     * @param {number} widgetId
+     */
+    async removesRecaptchaWidgetId(widgetId) {
+        await this.page.locator(`${RECAPTCHA_RESPONSE_SELECTOR}-${widgetId}`).evaluate((element) => {
+            element.id = 'captcha-response-without-widget-id';
+        });
     }
 
     /**
@@ -138,8 +242,11 @@ export class BrokerProtectionPage {
         }
     }
 
-    async isCaptchaError() {
-        expect(await this.getErrorMessage()).not.toBeFalsy();
+    /**
+     * @param {string} [actionID]
+     */
+    async isCaptchaError(actionID) {
+        expect(await this.getErrorMessage(actionID)).not.toBeFalsy();
     }
 
     /**
@@ -194,39 +301,62 @@ export class BrokerProtectionPage {
         return await this.collector.waitForMessage('actionCompleted');
     }
 
-    async getSuccessResponse() {
+    /**
+     * @param {string} [actionID]
+     */
+    async getSuccessResponse(actionID) {
+        if (!actionID) {
+            const response = await this.getActionCompletedParams();
+            this.isSuccessMessage(response);
+            return this._getResultFromResponse(response).success.response;
+        }
+
+        await expect.poll(async () => this._getResultFromResponse(await this.getActionCompletedParams(), actionID)).toBeDefined();
+
         const response = await this.getActionCompletedParams();
-        this.isSuccessMessage(response);
-        return this._getResultFromResponse(response).success.response;
+        this.isSuccessMessage(response, actionID);
+        return this._getResultFromResponse(response, actionID).success.response;
     }
 
-    async getErrorMessage() {
+    async getErrorMessage(actionID) {
+        if (actionID) {
+            await expect.poll(async () => this._getResultFromResponse(await this.getActionCompletedParams(), actionID)).toBeDefined();
+        }
+
         const response = await this.getActionCompletedParams();
-        this.isErrorMessage(response);
-        return this._getResultFromResponse(response).error.message;
+        this.isErrorMessage(response, actionID);
+        return this._getResultFromResponse(response, actionID).error.message;
     }
 
     /**
      * @param {object} response
+     * @param {string} [actionID]
      */
-    isErrorMessage(response) {
-        expect('error' in this._getResultFromResponse(response)).toBe(true);
+    isErrorMessage(response, actionID) {
+        expect('error' in this._getResultFromResponse(response, actionID)).toBe(true);
     }
 
-    isSuccessMessage(response) {
-        expect('success' in this._getResultFromResponse(response)).toBe(true);
+    isSuccessMessage(response, actionID) {
+        const result = this._getResultFromResponse(response, actionID);
+        expect('success' in result, JSON.stringify(result)).toBe(true);
     }
 
     /**
      * @param {object} response
+     * @param {string} [actionID]
      */
-    _getResultFromResponse(response) {
-        return response[0].payload?.params?.result;
+    _getResultFromResponse(response, actionID) {
+        const results = response.map((message) => message.payload?.params?.result);
+        if (!actionID) {
+            return results[0];
+        }
+
+        return results.find((result) => (result?.success ?? result?.error)?.actionID === actionID);
     }
 
     /**
      * Helper for creating an instance per platform
-     * @param {import("@playwright/test").Page} page
+     * @param {Page} page
      * @param {Record<string, any>} use
      */
     static create(page, use) {

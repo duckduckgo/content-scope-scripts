@@ -103,6 +103,20 @@ test.describe('newtab widgets', () => {
             },
         });
     });
+    test('defaults rebrand data attribute to false', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage();
+
+        await expect(page.locator('body')).toHaveAttribute('data-rebrand', 'false');
+    });
+    test('sets rebrand data attribute from mock url param', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { rebrand: 'enabled' } });
+
+        await expect(page.locator('body')).toHaveAttribute('data-rebrand', 'true');
+    });
     test.describe('default background colors', () => {
         test('default background light', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);

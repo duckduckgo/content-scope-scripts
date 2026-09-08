@@ -3,6 +3,20 @@
  */
 
 /**
+ * Icons available to settings rows. Paths are relative to `public/assets/img/steps/`.
+ *
+ * @typedef {'v3/Ads-Blocked-Color-24.svg'
+ *   | 'v3/Ai-Chat-Color-24.svg'
+ *   | 'v3/Browser-Default-Color-24.svg'
+ *   | 'v4/bookmark.svg'
+ *   | 'v4/dock.svg'
+ *   | 'v4/home.svg'
+ *   | 'v4/import.svg'
+ *   | 'v4/session-restore.svg'
+ * } RowIcon
+ */
+
+/**
  * @typedef {object} Progress
  * @property {number} current - Current step position within total number of steps
  * @property {number} total - Total number of steps

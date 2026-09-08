@@ -66,7 +66,8 @@ export async function init(root, messaging, telemetry, baseEnvironment) {
         .withPlatformName(init.platform?.name)
         .withPlatformName(baseEnvironment.urlParams.get('platform'))
         .withFeatureState('customizerDrawer', init.settings?.customizerDrawer)
-        .withFeatureState('adBlocking', init.settings?.adBlocking);
+        .withFeatureState('adBlocking', init.settings?.adBlocking)
+        .withFeatureState('newTabPageRebranding', init.settings?.newTabPageRebranding);
 
     if (!window.__playwright_01) {
         console.log('environment:', environment);
@@ -175,6 +176,7 @@ function installGlobalSideEffects(environment, settings) {
     document.body.dataset.platformName = settings.platform.name;
     document.body.dataset.display = environment.display;
     document.body.dataset.animation = environment.urlParams.get('animation') || '';
+    document.body.dataset.rebrand = settings.newTabPageRebranding.state === 'enabled' ? 'true' : 'false';
 }
 
 /**

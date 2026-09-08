@@ -46,6 +46,7 @@
     display: flex;
     justify-content: space-between;
     left: 0;
+    outline: none;
     padding: var(--sp-3);
     position: absolute; /* Fix .buttons to <Container /> so that it animates smoothly when container resizes */
     right: 0;
@@ -112,5 +113,23 @@
     }
     to {
         opacity: 1;
+    }
+}
+
+/*
+ * NTP rebrand styling for the Duck.ai chat row. Scoped to body[data-rebrand="true"]
+ * so that with the rebrand feature flag OFF the row renders exactly as it did before.
+ * Match the search input row's left inset (SearchForm.module.css) so text/icons
+ * align the same way when switching between the Search and Duck.ai tabs.
+ * @todo rebrand: fold these into the base rules once the rebrand ships to all
+ * platforms and the flag is retired.
+ */
+:global(body[data-rebrand="true"]) {
+    .textarea {
+        padding-left: var(--ds-space-x05);
+    }
+
+    .buttons {
+        padding-left: var(--ds-space-x05);
     }
 }

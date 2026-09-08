@@ -1,0 +1,24 @@
+{
+    "state": {
+        "action": {
+            "actionType": "extract",
+            "selector": ".card",
+            "profile": {
+                "name": { "selector": ".larger" },
+                "addressFullList": {
+                    "selector": "a[href^='/address/']",
+                    "findElements": true,
+                    "attribute": "title",
+                    "afterText": "the address "
+                }
+            }
+        },
+        "data": {
+            "userProfile": {
+                "firstName": "John",
+                "lastName": "Sample",
+                "addresses": [{ "city": "Baytown", "state": "TX" }]
+            }
+        }
+    }
+}

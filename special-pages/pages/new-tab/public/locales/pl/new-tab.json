@@ -252,16 +252,24 @@
     "title" : "Możesz dołączyć tylko {limit} plików naraz.",
     "description" : "Warning shown when user attaches more files than the allowed maximum."
   },
+  "omnibar_tabAttachmentLimitWarning" : {
+    "title" : "Jednocześnie możesz załączyć tylko następującą liczbę kart: {limit}.",
+    "description" : "Warning shown when user attaches more open tabs than the allowed maximum."
+  },
   "omnibar_imageTooLargeError" : {
     "title" : "Obraz jest zbyt duży. Użyj obrazu mniejszego niż 10000×10000 pikseli.",
     "description" : "Error shown when a user tries to attach an image that exceeds the maximum pixel dimensions."
+  },
+  "omnibar_fileTooLargeError" : {
+    "title" : "Plik jest za duży. Użyj pliku mniejszego niż {limit} MB.",
+    "description" : "Error shown when a user tries to attach a file that exceeds the maximum allowed size. {limit} is the size limit in megabytes."
   },
   "omnibar_imageProcessingError" : {
     "title" : "Nie udało się przetworzyć obrazu. Wybierz inny plik.",
     "description" : "Error shown when an attached image cannot be processed."
   },
   "omnibar_advancedModelsSectionHeader" : {
-    "title" : "Zaawansowane modele – subskrypcja DuckDuckGo",
+    "title" : "Tylko dla subskrybentów",
     "description" : "Section header in the model picker for premium models that require a subscription."
   },
   "omnibar_viewAllChats" : {
@@ -295,6 +303,18 @@
   "omnibar_webSearchDescription" : {
     "title" : "Pobieraj odpowiedzi z internetu",
     "description" : "Description for the Web Search tool shown in the tools menu dropdown."
+  },
+  "omnibar_customizeResponsesLabel" : {
+    "title" : "Dostosuj odpowiedzi",
+    "description" : "Label for the Customize Responses entry shown in the tools menu dropdown. Selecting it opens a modal to control how Duck.ai responds."
+  },
+  "omnibar_customizeResponsesDescription" : {
+    "title" : "Kontroluj ton, długość i nie tylko",
+    "description" : "Description for the Customize Responses entry shown in the tools menu dropdown."
+  },
+  "omnibar_customizeResponsesToggleLabel" : {
+    "title" : "Zastosuj dostosowanie odpowiedzi",
+    "description" : "Accessible label for the on/off toggle that applies or unapplies the saved response customization, shown on the Customize Responses tools menu row."
   },
   "omnibar_imageGenerationWithAttachmentPlaceholder" : {
     "title" : "Opisz zmiany na podstawie obrazu",
@@ -345,12 +365,32 @@
     "description" : "Accessible label for the button that removes an attached file chip from the AI chat input. {fileName} is the original filename."
   },
   "omnibar_attachPageContentLabel" : {
-    "title" : "Dodaj zawartość strony",
-    "description" : "Menu item in the attach dropdown that opens the open-tabs picker so the user can attach extracted page content."
+    "title" : "Dodaj karty",
+    "description" : "Menu item in the attach dropdown that opens the Add Tabs dialog so the user can attach extracted page content from open tabs."
   },
-  "omnibar_attachTabsPickerTitle" : {
-    "title" : "Karty",
-    "description" : "Header text for the open-tabs picker panel."
+  "omnibar_attachTabsModalTitle" : {
+    "title" : "Dodaj karty",
+    "description" : "Title and accessible name of the Add Tabs dialog opened from the attach dropdown menu."
+  },
+  "omnibar_attachTabsSearchLabel" : {
+    "title" : "Szukaj",
+    "description" : "Placeholder and accessibility label for the search input that filters the list of open tabs in the Add Tabs dialog."
+  },
+  "omnibar_attachTabsConfirm" : {
+    "title" : "Dodaj",
+    "description" : "Primary button in the Add Tabs dialog that attaches the tabs the user checked."
+  },
+  "omnibar_attachTabsCancel" : {
+    "title" : "Anuluj",
+    "description" : "Secondary button in the Add Tabs dialog that dismisses it without attaching anything."
+  },
+  "omnibar_attachTabsRecentTabs" : {
+    "title" : "Ostatnie karty",
+    "description" : "Section header for the list of recent open tabs, shown in the attach dropdown menu and the @-mention tab picker."
+  },
+  "omnibar_attachTabsLoading" : {
+    "title" : "Ładowanie kart…",
+    "description" : "Status text displayed while the list of open tabs is loading."
   },
   "omnibar_attachTabsPickerLabel" : {
     "title" : "Wybierz otwartą kartę do dodania",
@@ -358,11 +398,11 @@
   },
   "omnibar_attachTabsNoMatches" : {
     "title" : "Brak pasujących kart",
-    "description" : "Empty-state message shown in the @-mention tab picker when no open tabs match what the user typed."
+    "description" : "Empty-state message shown when no open tabs match what the user typed, in the @-mention tab picker and the Add Tabs dialog search."
   },
-  "omnibar_attachTabsNoOpenTabs" : {
+  "omnibar_attachTabsNoPageContent" : {
     "title" : "Brak dostępnej zawartości strony",
-    "description" : "Empty-state message shown in the attach-page-content tabs dropdown when there is no page content available to attach."
+    "description" : "Empty-state message shown in the attach dropdown and the Add Tabs dialog when there are no open tabs with attachable page content."
   },
   "omnibar_removeAttachedTabLabel" : {
     "title" : "Usuń {title}",
@@ -375,6 +415,10 @@
   "omnibar_removeAiChat" : {
     "title" : "Usuń ten czat",
     "description" : "Accessible label and tooltip for the button that deletes a recent AI chat."
+  },
+  "omnibar_modelBadgeInternal" : {
+    "title" : "Wewnętrzny",
+    "description" : "Badge shown next to an AI model in the model selector that is only available to internal users."
   },
   "nextStepsList_sectionTitle" : {
     "title" : "Dalsze kroki",
@@ -493,11 +537,11 @@
     "note" : "Button text of the Next Steps List card for DuckDuckGo subscription"
   },
   "nextStepsList_sync_title" : {
-    "title" : "Synchronizuj zakładki i hasła oraz twórz ich kopie zapasowe",
+    "title" : "Synchronizuj zakładki, hasła i czaty oraz twórz ich kopie zapasowe",
     "note" : "Title of the Next Steps List card for syncing data across devices"
   },
   "nextStepsList_sync_summary" : {
-    "title" : "Bezpiecznie synchronizuj zakładki, hasła i dane tożsamości na urządzeniach mobilnych i stacjonarnych.",
+    "title" : "Bezpiecznie synchronizuj swoje zakładki, dane autouzupełniania i czaty Duck.ai między urządzeniami z użyciem szyfrowania end-to-end.",
     "note" : "Summary of the Next Steps List card for syncing data across devices"
   },
   "nextStepsList_sync_actionText" : {

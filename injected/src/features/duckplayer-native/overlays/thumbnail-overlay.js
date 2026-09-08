@@ -1,7 +1,8 @@
 import css from './thumbnail-overlay.css';
 import { createPolicy, html } from '../../../dom-utils.js';
 import { customElementsDefine, customElementsGet } from '../../../captured-globals.js';
-import { VideoParams, appendImageAsBackground, Logger } from '../../duckplayer/util.js';
+import { VideoParams, Logger } from '../../duckplayer/util.js';
+import { appendImageAsBackground } from '../../duckplayer/poster.js';
 
 /**
  * The custom element that we use to present our UI elements

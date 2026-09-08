@@ -13,16 +13,22 @@ import styles from './Dropdown.module.css';
  *
  * @param {object} props
  * @param {import('preact').ComponentChildren} [props.icon]
- * @param {import('preact').ComponentChildren} [props.trailingIcon]
+ * @param {import('preact').ComponentChildren} [props.trailingIcon] - Rendered after the label. Callers own its accessibility (mark decorative icons `aria-hidden`; leave meaningful ones, e.g. an internal-build badge, exposed).
+ * @param {import('preact').ComponentChildren} [props.trailingControl] - interactive trailing element (e.g. a toggle); clicks are kept from triggering the row's `onSelect`.
  * @param {string} props.name
  * @param {string} [props.description]
  * @param {boolean} [props.isSelected]
+ * @param {boolean} [props.disabled]
+ * @param {boolean} [props.isDimmed] - Grays the icon and label (e.g. gated options) while keeping the trailing badge legible
+ * @param {boolean} [props.showCheckGutter] - Set false to drop the leading checkmark gutter
+ * @param {string} [props.className] - Extra class for caller-specific row styling
  * @param {'option' | 'menuitemcheckbox' | 'menuitemradio' | 'menuitem'} props.role
  * @param {() => void} props.onSelect
  * @param {boolean} [props.ariaChecked]
  * @param {boolean} [props.ariaSelected]
  * @param {boolean} [props.ariaHasPopup]
  * @param {boolean} [props.ariaExpanded]
+ * @param {string} [props.ariaDescribedBy]
  * @param {boolean} [props.isActive]
  * @param {string} [props.id]
  * @param {import('preact').RefObject<HTMLLIElement>} [props.elementRef]
@@ -33,14 +39,20 @@ import styles from './Dropdown.module.css';
 export function DropdownItem({
     icon,
     trailingIcon,
+    trailingControl,
     name,
     description,
     isSelected = false,
+    disabled = false,
+    isDimmed = false,
+    showCheckGutter = true,
+    className,
     role,
     ariaChecked,
     ariaSelected,
     ariaHasPopup,
     ariaExpanded,
+    ariaDescribedBy,
     isActive = false,
     id,
     elementRef,
@@ -69,20 +81,30 @@ export function DropdownItem({
             aria-selected={ariaSelected}
             aria-haspopup={ariaHasPopup}
             aria-expanded={ariaExpanded}
-            class={cn(styles.item, isActive && styles.itemActive, isSelected && styles.itemSelected)}
+            aria-describedby={ariaDescribedBy}
+            aria-disabled={disabled || undefined}
+            class={cn(
+                styles.item,
+                className,
+                isActive && styles.itemActive,
+                isSelected && styles.itemSelected,
+                isDimmed && styles.itemDimmed,
+                disabled && styles.itemDisabled,
+            )}
             onMouseOver={onMouseOver}
             onMouseEnter={onHover}
             onClick={onClick}
         >
-            <span class={styles.checkmark} aria-hidden="true" />
+            {showCheckGutter && <span class={styles.checkmark} aria-hidden="true" />}
             {icon}
             <div class={styles.itemLabel}>
                 <span class={styles.itemName}>{name}</span>
                 {description && <span class={styles.itemDescription}>{description}</span>}
             </div>
-            {trailingIcon && (
-                <span class={styles.trailingIcon} aria-hidden="true">
-                    {trailingIcon}
+            {trailingIcon && <span class={styles.trailingIcon}>{trailingIcon}</span>}
+            {trailingControl && (
+                <span class={styles.trailingControl} onClick={(e) => e.stopPropagation()}>
+                    {trailingControl}
                 </span>
             )}
         </li>

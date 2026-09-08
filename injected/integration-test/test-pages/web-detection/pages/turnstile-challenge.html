@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Just a moment...</title>
+</head>
+<!--
+  Regression fixture mimicking a Cloudflare "managed challenge" interstitial that
+  embeds a Turnstile widget. Used to run the real webDetection detector against a
+  Turnstile-like DOM and assert we neither break detection nor force layout on the
+  challenge. It intentionally reproduces the structural traits that matter:
+    - top-level challenge markers (#challenge-stage, "just a moment" text)
+    - a Turnstile wrapper (.cf-turnstile) containing a cross-origin-looking iframe
+    - a nested same-origin subframe that itself hosts a .cf-turnstile widget, so a
+      detector without an isBeingFramed() guard will also run inside the subframe.
+-->
+<body>
+    <div id="cf-wrapper">
+        <div id="challenge-stage">
+            <h1>Just a moment...</h1>
+            <p>Verifying you are human. This may take a few seconds.</p>
+            <div class="cf-turnstile" data-sitekey="1x00000000000000000000AA">
+                <iframe
+                    title="Widget containing a Cloudflare security challenge"
+                    src="https://challenges.cloudflare.com/cdn-cgi/challenge-platform/turnstile/if/ov2/av0/rc/fixture"
+                    style="width: 300px; height: 65px;"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- Same-origin subframe that also hosts a Turnstile widget. A detector that
+         does not bail in subframes will run its selectors + layout reads here too. -->
+    <iframe id="nested-frame" src="turnstile-subframe.html" style="width: 320px; height: 100px;"></iframe>
+</body>
+</html>

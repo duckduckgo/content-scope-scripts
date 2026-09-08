@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>XPath - Rendered Text And Script</title>
+</head>
+<body>
+    <div class="wall"><p>adblock detected</p></div>
+    <script>
+        // Same pattern in a script in a separate subtree: must not suppress the rendered occurrence
+        var config = { "text": "adblock detected" };
+        window.__wallConfig = config;
+    </script>
+</body>
+</html>

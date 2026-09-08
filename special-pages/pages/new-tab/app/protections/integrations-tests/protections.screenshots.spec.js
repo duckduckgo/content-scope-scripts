@@ -10,7 +10,7 @@ test.describe('Protections screenshots', { tag: ['@screenshots'] }, () => {
             const ntp = NewtabPage.create(page, workerInfo);
             await ntp.reducedMotion();
             const protections = new ProtectionsPage(ntp);
-            await ntp.openPage({ additional: { 'protections.feed': 'privacy-stats' } });
+            await ntp.openPage({ additional: { protections_feed: 'privacy-stats' } });
             await protections.ready();
 
             await expect(protections.context()).toHaveScreenshot('protections-stats.png', { maxDiffPixels });
@@ -19,7 +19,7 @@ test.describe('Protections screenshots', { tag: ['@screenshots'] }, () => {
             const ntp = NewtabPage.create(page, workerInfo);
             await ntp.reducedMotion();
             const protections = new ProtectionsPage(ntp);
-            await ntp.openPage({ additional: { 'protections.feed': 'privacy-stats', activity: 'empty' } });
+            await ntp.openPage({ additional: { protections_feed: 'privacy-stats', activity: 'empty' } });
             await protections.ready();
             await expect(protections.context()).toHaveScreenshot('protections-stats-empty.png', { maxDiffPixels });
         });
@@ -28,7 +28,7 @@ test.describe('Protections screenshots', { tag: ['@screenshots'] }, () => {
             await ntp.reducedMotion();
             await ntp.darkMode();
             const protections = new ProtectionsPage(ntp);
-            await ntp.openPage({ additional: { 'protections.feed': 'privacy-stats' } });
+            await ntp.openPage({ additional: { protections_feed: 'privacy-stats' } });
             await protections.ready();
 
             await expect(protections.context()).toHaveScreenshot('protections-stats-dark.png', { maxDiffPixels });
@@ -38,7 +38,7 @@ test.describe('Protections screenshots', { tag: ['@screenshots'] }, () => {
         const ntp = NewtabPage.create(page, workerInfo);
         await ntp.reducedMotion();
         const protections = new ProtectionsPage(ntp);
-        await ntp.openPage({ additional: { 'protections.feed': 'activity' } });
+        await ntp.openPage({ additional: { protections_feed: 'activity' } });
         await protections.ready();
 
         await expect(protections.context()).toHaveScreenshot('protections-activity.png', { maxDiffPixels });

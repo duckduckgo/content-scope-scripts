@@ -253,6 +253,10 @@
     "title": "You can only attach {limit} files at a time.",
     "description": "Warning shown when user attaches more files than the allowed maximum."
   },
+  "omnibar_tabAttachmentLimitWarning": {
+    "title": "You can only attach {limit} tabs at a time.",
+    "description": "Warning shown when user attaches more open tabs than the allowed maximum."
+  },
   "omnibar_imageTooLargeError": {
     "title": "Image is too large. Please use an image smaller than 10000×10000 pixels.",
     "description": "Error shown when a user tries to attach an image that exceeds the maximum pixel dimensions."
@@ -266,7 +270,7 @@
     "description": "Error shown when an attached image cannot be processed."
   },
   "omnibar_advancedModelsSectionHeader": {
-    "title": "Advanced Models - DuckDuckGo subscription",
+    "title": "Subscriber Exclusive",
     "description": "Section header in the model picker for premium models that require a subscription."
   },
   "omnibar_viewAllChats": {
@@ -300,6 +304,18 @@
   "omnibar_webSearchDescription": {
     "title": "Source answers from the web",
     "description": "Description for the Web Search tool shown in the tools menu dropdown."
+  },
+  "omnibar_customizeResponsesLabel": {
+    "title": "Customize Responses",
+    "description": "Label for the Customize Responses entry shown in the tools menu dropdown. Selecting it opens a modal to control how Duck.ai responds."
+  },
+  "omnibar_customizeResponsesDescription": {
+    "title": "Control tone, length, and more",
+    "description": "Description for the Customize Responses entry shown in the tools menu dropdown."
+  },
+  "omnibar_customizeResponsesToggleLabel": {
+    "title": "Apply response customization",
+    "description": "Accessible label for the on/off toggle that applies or unapplies the saved response customization, shown on the Customize Responses tools menu row."
   },
   "omnibar_imageGenerationWithAttachmentPlaceholder": {
     "title": "Describe changes based on the image",
@@ -350,12 +366,32 @@
     "description": "Accessible label for the button that removes an attached file chip from the AI chat input. {fileName} is the original filename."
   },
   "omnibar_attachPageContentLabel": {
-    "title": "Add Page Content",
-    "description": "Menu item in the attach dropdown that opens the open-tabs picker so the user can attach extracted page content."
+    "title": "Add Tabs",
+    "description": "Menu item in the attach dropdown that opens the Add Tabs dialog so the user can attach extracted page content from open tabs."
   },
-  "omnibar_attachTabsPickerTitle": {
-    "title": "Tabs",
-    "description": "Header text for the open-tabs picker panel."
+  "omnibar_attachTabsModalTitle": {
+    "title": "Add Tabs",
+    "description": "Title and accessible name of the Add Tabs dialog opened from the attach dropdown menu."
+  },
+  "omnibar_attachTabsSearchLabel": {
+    "title": "Search",
+    "description": "Placeholder and accessibility label for the search input that filters the list of open tabs in the Add Tabs dialog."
+  },
+  "omnibar_attachTabsConfirm": {
+    "title": "Add",
+    "description": "Primary button in the Add Tabs dialog that attaches the tabs the user checked."
+  },
+  "omnibar_attachTabsCancel": {
+    "title": "Cancel",
+    "description": "Secondary button in the Add Tabs dialog that dismisses it without attaching anything."
+  },
+  "omnibar_attachTabsRecentTabs": {
+    "title": "Recent Tabs",
+    "description": "Section header for the list of recent open tabs, shown in the attach dropdown menu and the @-mention tab picker."
+  },
+  "omnibar_attachTabsLoading": {
+    "title": "Loading tabs…",
+    "description": "Status text displayed while the list of open tabs is loading."
   },
   "omnibar_attachTabsPickerLabel": {
     "title": "Pick an open tab to add",
@@ -363,11 +399,11 @@
   },
   "omnibar_attachTabsNoMatches": {
     "title": "No matching tabs",
-    "description": "Empty-state message shown in the @-mention tab picker when no open tabs match what the user typed."
+    "description": "Empty-state message shown when no open tabs match what the user typed, in the @-mention tab picker and the Add Tabs dialog search."
   },
-  "omnibar_attachTabsNoOpenTabs": {
+  "omnibar_attachTabsNoPageContent": {
     "title": "No page content available",
-    "description": "Empty-state message shown in the attach-page-content tabs dropdown when there is no page content available to attach."
+    "description": "Empty-state message shown in the attach dropdown and the Add Tabs dialog when there are no open tabs with attachable page content."
   },
   "omnibar_removeAttachedTabLabel": {
     "title": "Remove {title}",
@@ -380,6 +416,10 @@
   "omnibar_removeAiChat": {
     "title": "Delete this chat",
     "description": "Accessible label and tooltip for the button that deletes a recent AI chat."
+  },
+  "omnibar_modelBadgeInternal": {
+    "title": "Internal",
+    "description": "Badge shown next to an AI model in the model selector that is only available to internal users."
   },
   "nextStepsList_sectionTitle": {
     "title": "Next Steps",
@@ -498,11 +538,11 @@
     "note": "Button text of the Next Steps List card for DuckDuckGo subscription"
   },
   "nextStepsList_sync_title": {
-    "title": "Sync and Back Up Your Bookmarks and Passwords",
+    "title": "Sync and Back Up Your Bookmarks, Passwords, and Chats",
     "note": "Title of the Next Steps List card for syncing data across devices"
   },
   "nextStepsList_sync_summary": {
-    "title": "Securely sync your bookmarks, passwords, and identity data on mobile and desktop.",
+    "title": "Securely sync your bookmarks, autofill data, and Duck.ai chats with end-to-end encryption between your devices.",
     "note": "Summary of the Next Steps List card for syncing data across devices"
   },
   "nextStepsList_sync_actionText": {

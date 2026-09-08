@@ -4,7 +4,7 @@ import { ActivityPage } from './activity.page.js';
 import { BatchingPage } from './batching.page.js';
 
 const defaultPageParams = {
-    'protections.feed': 'activity',
+    protections_feed: 'activity',
 };
 
 test.describe('activity widget', () => {
@@ -53,9 +53,25 @@ test.describe('activity widget', () => {
         const ntp = NewtabPage.create(page, workerInfo);
         const ap = new ActivityPage(page, ntp);
         await ntp.reducedMotion();
-        await ntp.openPage({ additional: { 'protections.feed': 'activity' } });
+        await ntp.openPage({ additional: { protections_feed: 'activity' } });
         await ap.didRender();
         await ap.burnsItem();
+    });
+    test('burn control uses trash icon in new UI with rebrand enabled', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const ap = new ActivityPage(page, ntp);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { ...defaultPageParams, cpm: 'null', rebrand: 'enabled' } });
+        await ap.didRender();
+        await ap.burnControlUsesTrashIcon();
+    });
+    test('burn control uses fire icon in new UI when rebrand disabled', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const ap = new ActivityPage(page, ntp);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { ...defaultPageParams, cpm: 'null' } });
+        await ap.didRender();
+        await ap.burnControlUsesFireIcon();
     });
     test('removes item (windows)', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
@@ -64,6 +80,14 @@ test.describe('activity widget', () => {
         await ntp.openPage({ additional: { ...defaultPageParams }, platformName: 'windows' });
         await ap.didRender();
         await ap.removesItem();
+    });
+    test('remove control uses cross icon on windows', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const ap = new ActivityPage(page, ntp);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { ...defaultPageParams }, platformName: 'windows' });
+        await ap.didRender();
+        await ap.removeControlUsesCrossIcon();
     });
     test('opening links from title', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);

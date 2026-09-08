@@ -79,6 +79,18 @@
     }
 }
 
+:global(body[data-rebrand="true"]) {
+    --show-hide-icon-background: var(--ds-ntp-light-button-secondary-rest-background-color);
+
+    [data-theme="dark"] {
+        --show-hide-icon-background: var(--ds-ntp-dark-button-secondary-rest-background-color);
+    }
+
+    .iconBlock {
+        background-color: var(--show-hide-icon-background);
+    }
+}
+
 .pill {
     height: calc(26 * var(--px-in-rem));
     border-radius: 9999px;
@@ -89,6 +101,26 @@
     line-height: var(--callout-line-height);
     border: 1px solid var(--ds-color-theme-container-border-primary);
     color: var(--ds-color-theme-text-secondary);
+}
+
+/*
+ * NTP rebrand "Show more/less" pill. Used across NTP widgets (Privacy Stats,
+ * Favorites, …). Callers opt in via `variant="rebrand"`, typically gated on
+ * the rebrand feature flag, so nothing changes when the flag is OFF.
+ */
+.pill.rebrandPill {
+    border-radius: var(--ds-radius-full);
+    border-color: var(--ds-color-theme-container-border-secondary);
+
+    &:hover {
+        background-color: var(--ds-color-theme-control-fill-primary);
+        border-color: var(--ds-color-theme-container-border-secondary);
+    }
+
+    &:active {
+        background-color: var(--ds-color-theme-control-fill-secondary);
+        border-color: var(--ds-color-theme-container-border-secondary);
+    }
 }
 
 .fill {

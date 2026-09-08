@@ -1,0 +1,32 @@
+{
+    "state": {
+        "action": {
+            "actionType": "fillForm",
+            "id": "fill-extras",
+            "selector": "#contact-form",
+            "dataSource": "extractedProfile",
+            "elements": [
+                { "type": "firstName", "selector": "#FirstName" },
+                { "type": "middleName", "selector": "#MiddleName" },
+                { "type": "lastName", "selector": "#LastName" },
+                { "type": "street", "selector": "#StreetAddress" },
+                { "type": "city", "selector": "#City" },
+                { "type": "state", "selector": "#State" }
+            ]
+        },
+        "data": {
+            "extractedProfile": {
+                "firstName": "John",
+                "middleName": "Andrew",
+                "lastName": "Sample",
+                "name": "John Sample",
+                "addresses": [{ "city": "Baytown", "state": "TX", "extras": { "street": "100 Sample Dr", "zip": "77523" } }]
+            },
+            "userProfile": {
+                "firstName": "John",
+                "lastName": "Sample",
+                "addresses": [{ "city": "Baytown", "state": "TX" }]
+            }
+        }
+    }
+}

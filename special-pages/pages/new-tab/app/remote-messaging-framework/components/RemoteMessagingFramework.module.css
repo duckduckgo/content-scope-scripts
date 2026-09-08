@@ -73,3 +73,60 @@
         scale: 1;
     }
 }
+
+:global(body[data-rebrand="true"]) {
+    .root {
+        border-radius: var(--ds-radius-x05);
+        box-shadow: var(--ntp-card-shadow-rest);
+        /* top/bottom 20, left 16, right 40 — same for all RMF variants */
+        padding: var(--ds-space-x05) var(--ds-space-x10) var(--ds-space-x05) var(--ds-space-x04);
+
+        &.icon {
+            padding-left: var(--ds-space-x04);
+        }
+    }
+
+    .title {
+        font-size: var(--ds-font-body-md-size);
+        font-weight: var(--ds-font-weight-bold);
+        line-height: var(--ds-font-body-md-line-height);
+    }
+
+    .description {
+        font-size: var(--ds-font-body-md-size);
+        font-weight: var(--ds-font-weight-normal);
+        line-height: var(--ds-font-body-md-line-height);
+    }
+
+    /* Color/size/hover/active live in DismissButton.module.css (shared with
+       Next Steps); only position differs per card. */
+    .dismissBtn {
+        right: var(--ds-space-x1-5);
+        top: var(--ds-space-x1-5);
+    }
+
+    /* Pin --button-bg/--button-text here (DS tokens inherit from the nearest
+       [data-theme], unlike Button.module.css's macOS dark rule, which matches
+       any dark-theme ancestor). .btnRow/.btnBlock prefix needed to win the
+       specificity tie against Button's own .button.standard rule. */
+    .btnRow .actionButton.primaryButton {
+        --button-bg: var(--ds-color-theme-accent-primary);
+        --button-bg--hover: var(--ds-color-theme-accent-secondary);
+        --button-bg--active: var(--ds-color-theme-accent-tertiary);
+        --button-text: var(--ds-color-theme-accent-content-primary);
+    }
+
+    .btnRow .actionButton.secondaryButton,
+    .btnBlock .actionButton.secondaryButton {
+        --button-bg: var(--ds-color-theme-control-fill-primary);
+        --button-bg--hover: var(--ds-color-theme-control-fill-secondary);
+        --button-bg--active: var(--ds-color-theme-control-fill-tertiary);
+        --button-text: var(--ds-color-theme-text-primary);
+    }
+
+    [data-theme="dark"] {
+        .root {
+            border-color: var(--ds-ntp-dark-card-border-color);
+        }
+    }
+}

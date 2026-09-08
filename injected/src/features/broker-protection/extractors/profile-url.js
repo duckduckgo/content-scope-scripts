@@ -120,7 +120,32 @@ export class ProfileHashTransformer {
 
         return {
             ...profile,
-            identifier: await hashObject(profile),
+            identifier: await hashObject(omitExtrasForHash(profile)),
         };
     }
+}
+
+/**
+ * Rebuilds a profile in its pre-`extras` shape for hashing, so capturing extras never churns
+ * existing identifiers. As well as dropping `extras` at both levels, addresses are collapsed back to
+ * one per city/state: before extras, `addressFull` discarded street/zip and several full addresses in
+ * one city deduped down to a single `{city, state}`.
+ *
+ * @param {Record<string, any>} profile
+ * @return {Record<string, any>}
+ */
+export function omitExtrasForHash({ extras, ...profile }) {
+    if (!Array.isArray(profile.addresses)) return profile;
+
+    const seen = new Set();
+    const addresses = profile.addresses
+        .map(({ extras, ...address }) => address)
+        .filter((address) => {
+            const cityState = `${address.city},${address.state}`;
+            if (seen.has(cityState)) return false;
+            seen.add(cityState);
+            return true;
+        });
+
+    return { ...profile, addresses };
 }

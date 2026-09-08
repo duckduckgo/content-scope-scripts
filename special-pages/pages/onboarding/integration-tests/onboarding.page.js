@@ -46,6 +46,24 @@ export class OnboardingPage {
         };
         // default mocks - just enough to render the first page without error
         this.mocks.defaultResponses(this.defaultResponses);
+        /**
+         * Names of requests that the mocked native layer must not answer.
+         * @type {string[]}
+         */
+        this.heldRequestNames = [];
+    }
+
+    /**
+     * Stops the mocked native layer from answering the named requests, so the page stays
+     * in its 'in flight' state for the rest of the test. Use it to hold open a request
+     * that a real native dialog keeps open, such as `requestImport`.
+     *
+     * Call this before `openPage`. Windows transport only.
+     *
+     * @param {string[]} names
+     */
+    holdRequests(names) {
+        this.heldRequestNames = names;
     }
 
     withInitData(data) {
@@ -66,13 +84,16 @@ export class OnboardingPage {
      * This method ensures that mocks are installed and routes are set up before navigating to the page.
      *
      * @param {Object} [params] - Optional parameters for opening the page.
-     * @param {'app' | 'components'} [params.env] - Optional parameters for opening the page.
+     * @param {'app'} [params.env] - Optional parameters for opening the page.
      * @param {import('../app/types.js').Step['id']} [params.page] - Optional start page
      * @param {boolean} [params.willThrow] - Optional flag to simulate an exception
      * @param {boolean} [params.debugState] - Optional flag to show debug state overlay (default: true)
      */
     async openPage({ env = 'app', page = 'welcome', willThrow = false, debugState = true } = {}) {
         await this.mocks.install();
+        if (this.heldRequestNames.length > 0) {
+            await this.page.addInitScript(holdRequests, { names: this.heldRequestNames });
+        }
         const searchParams = new URLSearchParams({ env, page, willThrow: String(willThrow) });
         if (debugState) {
             searchParams.set('debugState', 'true');
@@ -364,4 +385,28 @@ export class OnboardingPage {
             },
         ]);
     }
+}
+
+/**
+ * Runs in the page, after the messaging mock and before the application.
+ *
+ * The Windows mock answers a request only when the message carries an `Id`. This wrapper
+ * removes that `Id` from the named requests, so the mock records the call and then sends
+ * no response. The application keeps its pending state until the test ends.
+ *
+ * @param {{names: string[]}} params
+ */
+function holdRequests(params) {
+    const send = window.windowsInteropPostMessage;
+    if (typeof send !== 'function') {
+        throw new Error('holdRequests supports the Windows transport only');
+    }
+    window.windowsInteropPostMessage = (input) => {
+        if (params.names.includes(input.Name) && 'Id' in input) {
+            const held = { ...input };
+            delete held.Id;
+            return send(held);
+        }
+        return send(input);
+    };
 }

@@ -33,7 +33,7 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             const ntp = NewtabPage.create(page, workerInfo);
             const ap = new ActivityPage(page, ntp);
             await ntp.reducedMotion();
-            await ntp.openPage({ additional: { 'protections.feed': 'activity' } });
+            await ntp.openPage({ additional: { protections_feed: 'activity' } });
             await ap.didRender();
             await expect(page).toHaveScreenshot('activity-default.png', { maxDiffPixels });
         });
@@ -42,7 +42,7 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             const ntp = NewtabPage.create(page, workerInfo);
             const ap = new ActivityPage(page, ntp);
             await ntp.reducedMotion();
-            await ntp.openPage({ additional: { 'protections.feed': 'activity', activity: 'empty' } });
+            await ntp.openPage({ additional: { protections_feed: 'activity', activity: 'empty' } });
             await ap.ready();
             await expect(page).toHaveScreenshot('activity-empty.png', { maxDiffPixels });
         });
@@ -406,7 +406,7 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             await expect(page).toHaveScreenshot('omnibar-attach-menu-open.png', { maxDiffPixels });
         });
 
-        test('tab picker open', async ({ page }, workerInfo) => {
+        test('add tabs dialog open', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
@@ -414,8 +414,8 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             await omnibar.ready();
             await omnibar.attachMenuButton().click();
             await omnibar.attachPageContentMenuItem().click();
-            await expect(omnibar.tabPickerItem('Starbucks Coffee Company')).toBeVisible();
-            await expect(page).toHaveScreenshot('omnibar-tab-picker-open.png', { maxDiffPixels });
+            await expect(omnibar.attachTabsModalItem('Starbucks Coffee Company')).toBeVisible();
+            await expect(page).toHaveScreenshot('omnibar-add-tabs-dialog-open.png', { maxDiffPixels });
         });
 
         test('attached tab chip', async ({ page }, workerInfo) => {
@@ -468,7 +468,9 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
-            await ntp.openPage({ additional: attachmentsConfig });
+            // Raise the tab cap above the chip count so this stays a pure overflow test — 4 chips
+            // exceed the default cap of 3 and would otherwise render the over-limit warning chrome.
+            await ntp.openPage({ additional: { ...attachmentsConfig, 'omnibar.tabMaxAttached': '10' } });
             await omnibar.ready();
             // Enough wide tab chips to exceed the field width; they stay on one row and the
             // trailing chip is clipped at the scroll edge rather than wrapping to a new row.

@@ -9,10 +9,40 @@ body {
 }
 
 .main {
+    /* Release Notes accent palette (this page only): links use
+       accent-text-primary; buttons use accent-primary + accent-content-primary. */
+    --theme-accent-primary: #1074cc;
+    --theme-accent-secondary: #045eb2;
+    --theme-accent-tertiary: #034180;
+    --theme-accent-content-primary: #ffffff;
+    --theme-accent-text-primary: #1074cc;
+
     padding: var(--sp-6) var(--sp-5);
     position: relative;
     display: grid;
     gap: var(--sp-8);
+}
+
+.main[data-theme="dark"] {
+    --theme-accent-primary: #75b6eb;
+    --theme-accent-secondary: #4397e0;
+    --theme-accent-tertiary: #1074cc;
+    --theme-accent-content-primary: #242323;
+    --theme-accent-text-primary: #75b6eb;
+}
+
+/* Pill radius + recolor accentBrand buttons to the palette above.
+   `button[class]` (0-4-1) beats the shared dark-mode --button-text override
+   (0-4-0), which would otherwise win over a plain 0-3-1 selector. */
+[data-platform-name="macos"] .main[data-theme] button[class] {
+    border-radius: var(--border-radius-full);
+
+    --button-text: var(--theme-accent-content-primary);
+    --button-text--active: var(--theme-accent-content-primary);
+    --button-bg: var(--theme-accent-primary);
+    --button-bg--hover: var(--theme-accent-secondary);
+    --button-bg--focus: var(--theme-accent-primary);
+    --button-bg--active: var(--theme-accent-tertiary);
 }
 
 .header {

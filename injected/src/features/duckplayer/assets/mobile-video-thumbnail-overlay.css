@@ -94,3 +94,153 @@
     background-position: center center;
     background-repeat: no-repeat;
 }
+
+/* -- BUFFERING SPINNER, reproducing YouTube's Material "linspin" so it reads as the player's own */
+.ddg-vpo-spinner {
+    --ddg-vpo-spinner-size: 48px;
+    --ddg-vpo-spinner-border: 4px;
+    --ddg-vpo-spinner-color: #dddddd;
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: var(--ddg-vpo-spinner-size);
+    height: var(--ddg-vpo-spinner-size);
+    margin: calc(var(--ddg-vpo-spinner-size) / -2) 0 0 calc(var(--ddg-vpo-spinner-size) / -2);
+    pointer-events: none;
+}
+@media screen and (min-width: 430px) {
+    .ddg-vpo-spinner {
+        --ddg-vpo-spinner-size: 64px;
+        --ddg-vpo-spinner-border: 6px;
+    }
+}
+
+.ddg-video-player-overlay.loading .logo {
+    display: none;
+}
+.ddg-video-player-overlay.loading.spinning .ddg-vpo-spinner {
+    display: block;
+}
+
+.ddg-vpo-spinner__container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    animation: ddg-vpo-linspin 1.5682s linear infinite;
+}
+
+.ddg-vpo-spinner__rotator {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    animation: ddg-vpo-easespin 5.332s cubic-bezier(0.4, 0, 0.2, 1) infinite both;
+}
+
+.ddg-vpo-spinner__left,
+.ddg-vpo-spinner__right {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+}
+.ddg-vpo-spinner__left {
+    right: 49%;
+}
+.ddg-vpo-spinner__right {
+    left: 49%;
+}
+
+.ddg-vpo-spinner__circle {
+    box-sizing: border-box;
+    position: absolute;
+    width: 200%;
+    height: 100%;
+    border-style: solid;
+    border-width: var(--ddg-vpo-spinner-border);
+    border-color: var(--ddg-vpo-spinner-color) var(--ddg-vpo-spinner-color) transparent;
+    border-radius: 50%;
+}
+.ddg-vpo-spinner__left .ddg-vpo-spinner__circle {
+    left: 0;
+    right: -100%;
+    border-right-color: transparent;
+    animation: ddg-vpo-left-spin 1.333s cubic-bezier(0.4, 0, 0.2, 1) infinite both;
+}
+.ddg-vpo-spinner__right .ddg-vpo-spinner__circle {
+    left: -100%;
+    right: 0;
+    border-left-color: transparent;
+    animation: ddg-vpo-right-spin 1.333s cubic-bezier(0.4, 0, 0.2, 1) infinite both;
+}
+
+@keyframes ddg-vpo-linspin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+@keyframes ddg-vpo-easespin {
+    12.5% {
+        transform: rotate(135deg);
+    }
+    25% {
+        transform: rotate(270deg);
+    }
+    37.5% {
+        transform: rotate(405deg);
+    }
+    50% {
+        transform: rotate(540deg);
+    }
+    62.5% {
+        transform: rotate(675deg);
+    }
+    75% {
+        transform: rotate(810deg);
+    }
+    87.5% {
+        transform: rotate(945deg);
+    }
+    100% {
+        transform: rotate(1080deg);
+    }
+}
+@keyframes ddg-vpo-left-spin {
+    0% {
+        transform: rotate(130deg);
+    }
+    50% {
+        transform: rotate(-5deg);
+    }
+    100% {
+        transform: rotate(130deg);
+    }
+}
+@keyframes ddg-vpo-right-spin {
+    0% {
+        transform: rotate(-130deg);
+    }
+    50% {
+        transform: rotate(5deg);
+    }
+    100% {
+        transform: rotate(-130deg);
+    }
+}
+
+/* Reduced motion: drop the multi-phase arc sweep for a single gentle rotation */
+@media (prefers-reduced-motion: reduce) {
+    .ddg-vpo-spinner__container {
+        animation-duration: 1.4s;
+    }
+    .ddg-vpo-spinner__rotator {
+        animation: none;
+    }
+    .ddg-vpo-spinner__left .ddg-vpo-spinner__circle {
+        animation: none;
+        transform: rotate(130deg);
+    }
+    .ddg-vpo-spinner__right .ddg-vpo-spinner__circle {
+        animation: none;
+        transform: rotate(-130deg);
+    }
+}

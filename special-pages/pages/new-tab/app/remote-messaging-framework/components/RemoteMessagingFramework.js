@@ -5,66 +5,89 @@ import { useContext } from 'preact/hooks';
 import { RMFContext } from '../RMFProvider.js';
 import { DismissButton } from '../../components/DismissButton';
 import { Button } from '../../../../../shared/components/Button/Button';
-import { usePlatformName } from '../../settings.provider';
+import { usePlatformName, useNewTabPageRebranding } from '../../settings.provider';
 
 /**
- * @import { RMFMessage } from "../../../types/new-tab"
+ * @import { RMFMessage, BigTwoActionMessage } from "../../../types/new-tab"
+ */
+
+/**
+ * @param {object} props
+ * @param {string} props.platform
+ * @param {string} props.id
+ * @param {BigTwoActionMessage} props.message
+ * @param {(id: string) => void} [props.primaryAction]
+ * @param {(id: string) => void} [props.secondaryAction]
+ */
+function TwoActionButtons({ platform, id, message, primaryAction, secondaryAction }) {
+    const primaryBtn = primaryAction && message.primaryActionText.length > 0 && (
+        <Button className={cn(styles.actionButton, styles.primaryButton)} variant={'accentBrand'} onClick={() => primaryAction(id)}>
+            {message.primaryActionText}
+        </Button>
+    );
+    const secondaryBtn = secondaryAction && message.secondaryActionText.length > 0 && (
+        <Button className={cn(styles.actionButton, styles.secondaryButton)} variant={'standard'} onClick={() => secondaryAction(id)}>
+            {message.secondaryActionText}
+        </Button>
+    );
+    return (
+        <div class={styles.btnRow}>
+            {platform === 'windows' ? (
+                <Fragment>
+                    {primaryBtn}
+                    {secondaryBtn}
+                </Fragment>
+            ) : (
+                <Fragment>
+                    {secondaryBtn}
+                    {primaryBtn}
+                </Fragment>
+            )}
+        </div>
+    );
+}
+
+/**
  * @param {object} props
  * @param {RMFMessage} props.message
  * @param {(id: string) => void} props.dismiss
  * @param {(id: string) => void} [props.primaryAction]
  * @param {(id: string) => void} [props.secondaryAction]
  */
-
 export function RemoteMessagingFramework({ message, primaryAction, secondaryAction, dismiss }) {
     const { id, messageType, titleText, descriptionText } = message;
     const platform = usePlatformName();
+    const isRebrandEnabled = useNewTabPageRebranding();
+    const showIcon = messageType !== 'small' && Boolean(message.icon);
+    const iconSrc = showIcon ? (isRebrandEnabled ? `./icons/rebrand/${message.icon}-96.svg` : `./icons/${message.icon}-96.svg`) : undefined;
 
     return (
-        <div id={id} class={cn(styles.root, messageType !== 'small' && message.icon && styles.icon)}>
-            {messageType !== 'small' && message.icon && (
+        <div id={id} class={cn(styles.root, showIcon && styles.icon)}>
+            {showIcon && iconSrc && (
                 <span class={styles.iconBlock}>
-                    <img src={`./icons/${message.icon}-96.svg`} alt="" />
+                    <img src={iconSrc} alt="" />
                 </span>
             )}
             <div class={styles.content}>
                 <h2 class={styles.title}>{titleText}</h2>
                 <p class={styles.description}>{descriptionText}</p>
                 {messageType === 'big_two_action' && (
-                    <div class={styles.btnRow}>
-                        {platform === 'windows' ? (
-                            <Fragment>
-                                {primaryAction && message.primaryActionText.length > 0 && (
-                                    <Button variant={'accentBrand'} onClick={() => primaryAction(id)}>
-                                        {message.primaryActionText}
-                                    </Button>
-                                )}
-                                {secondaryAction && message.secondaryActionText.length > 0 && (
-                                    <Button variant={'standard'} onClick={() => secondaryAction(id)}>
-                                        {message.secondaryActionText}
-                                    </Button>
-                                )}
-                            </Fragment>
-                        ) : (
-                            <Fragment>
-                                {secondaryAction && message.secondaryActionText.length > 0 && (
-                                    <Button variant={'standard'} onClick={() => secondaryAction(id)}>
-                                        {message.secondaryActionText}
-                                    </Button>
-                                )}
-                                {primaryAction && message.primaryActionText.length > 0 && (
-                                    <Button variant={'accentBrand'} onClick={() => primaryAction(id)}>
-                                        {message.primaryActionText}
-                                    </Button>
-                                )}
-                            </Fragment>
-                        )}
-                    </div>
+                    <TwoActionButtons
+                        platform={platform}
+                        id={id}
+                        message={message}
+                        primaryAction={primaryAction}
+                        secondaryAction={secondaryAction}
+                    />
                 )}
             </div>
             {messageType === 'big_single_action' && message.primaryActionText && primaryAction && (
                 <div class={styles.btnBlock}>
-                    <Button variant="standard" onClick={() => primaryAction(id)}>
+                    <Button
+                        className={cn(styles.actionButton, styles.secondaryButton)}
+                        variant="standard"
+                        onClick={() => primaryAction(id)}
+                    >
                         {message.primaryActionText}
                     </Button>
                 </div>

@@ -21,7 +21,7 @@ const dist = join(publicDir, 'dist');
 const timestamp = join(CWD, 'timestamp.json');
 const timestampDist = join(dist, 'timestamp.json');
 
-// start wirth clean folders
+// start with clean folders
 rmSync(dist, { recursive: true, force: true });
 mkdirSync(dist, { recursive: true });
 

@@ -64,7 +64,7 @@
    - `true`
 
 ### Theme Variant
- - **Purpose**: Sets a visual theme variant to customize the default background colors
+ - **Purpose**: Sets a visual theme variant and simulates native support for theme variants
  - **Parameter**: `themeVariant`
  - **Example**: `?themeVariant=violet&theme=light`
  - **Options**:
@@ -76,7 +76,10 @@
    - `rose` - Rose tones
    - `orange` - Orange tones
    - `desert` - Desert tones
- - **Note**: Works with default backgrounds only. Custom colors/gradients override the variant.
+ - **Notes**:
+   - Providing this parameter makes `customizer.themeVariant` defined, which sets `hasThemeVariants=true` and displays `ThemeSection` in the Customizer (Light/Dark/System controls and color swatches) even when running outside the native browser.
+   - Without native data or this parameter, the Customizer falls back to `BrowserThemeSection`.
+   - Theme variants work with default backgrounds only. Custom colors and gradients override the variant.
 
  ## Feature Parameters
 
@@ -113,6 +116,14 @@
  - **Options**:
    - `true` - Opens customizer automatically
    - `false` - Does not open customizer automatically
+
+ ### New Tab Page Rebrand
+ - **Purpose**: Controls the New Tab Page rebrand feature flag in the mock transport (sets `body[data-rebrand]`)
+ - **Parameter**: `rebrand`
+ - **Example**: `?rebrand=enabled`
+ - **Options**:
+   - `enabled` - Turns on New Tab Page rebranding
+   - `disabled` - Turns off New Tab Page rebranding (default)
 
  ### RMF (Remote Messaging Framework)
  - **Purpose**: Controls Remote Messaging Framework dialog
@@ -174,16 +185,15 @@
  - **Options**:
    - `empty`
 
- ### Feed Controls
- - **Purpose**: Modifies feed display and behavior
- - **Parameter**: `feed`
- - **Example**: `?feed=activity`
+ ### Protections Feed
+ - **Purpose**: Selects the initial Protections Report tab
+ - **Parameter**: `protections_feed`
+ - **Example**: `?protections_feed=activity`
  - **Options**:
-   - `stats` - Displays the Privacy Stats widget
-   - `activity` - Displays the Activity widget
-   - `both` - Display both privacy widgets
+   - `privacy-stats` - Displays the Summary tab (default)
+   - `activity` - Displays the Details tab
 
-### Proctections
+### Protections
  - **Purpose**: Controls number of stats shown in Protections feature
  - **Parameter**: `protections`
  - **Example**: `?protections=many`
@@ -197,6 +207,18 @@
  - **Parameter**: `protections.continuous`
  - **Example**: `?protections.continuous=`
  - **Options**:
+
+### Cookie Popup Management (CPM)
+ - **Purpose**: Simulates the native `totalCookiePopUpsBlocked` value returned by `protections_getData`, including schema compatibility and CPM availability states
+ - **Parameter**: `cpm`
+ - **Example**: `?cpm=true&protections_feed=activity`
+ - **Options**:
+   - Parameter omitted - Sets `totalCookiePopUpsBlocked` to `undefined` and renders the legacy Protections Report, simulating a native client that does not support the field
+   - `true` - Sets a positive maximum cookie pop-up count and renders the new UI with the CPM counter
+   - `none` - Sets the count to `0`, representing CPM available with no cookie pop-ups blocked
+   - `null` - Sets the value to `null`, representing the new schema with CPM explicitly disabled
+   - `max` - Sets both tracker attempts and cookie pop-ups to the maximum display count
+ - **Note**: This is a mock-only URL parameter, not a runtime feature flag. In the native browser, `totalCookiePopUpsBlocked` is supplied by the `protections_getData` message.
 
 
  ### Stats Display
@@ -288,13 +310,44 @@
  - **Example**: `?omnibar.selectedModelId=claude-haiku-4-5`
  - **Options**: Any model ID from the `aiModelSections` config
 
+### Max Attached Tabs
+ - **Purpose**: Overrides the cap on how many open tabs can be attached as context (defaults to 3). Attaching more shows the over-limit warning and blocks submit until one is removed.
+ - **Parameter**: `omnibar.tabMaxAttached`
+ - **Example**: `?omnibar.tabMaxAttached=1`
+ - **Options**: Any positive integer
+
 ### Subscription (simulate subscribed user)
- - **Purpose**: Flips `isEnabled: true` on every AI model in the mock, unlocking the "Advanced Models - DuckDuckGo subscription" section. Lets tests pick subscription-tier models (e.g. Opus 4.6, GPT-5.2) as `selectedModelId`.
+ - **Purpose**: Flips `isAvailable: true` on every AI model in the mock, unlocking the "Subscriber Exclusive" section. Lets tests pick subscription-tier models (e.g. Opus 4.6, GPT-5.2) as `selectedModelId`.
  - **Parameter**: `omnibar.subscription`
  - **Example**: `?omnibar.subscription=true`
  - **Options**:
    - `true`
    - `false`
+
+### Upsell Disabled (inert gated rows)
+ - **Purpose**: Drops `upsell` from every gated model and reasoning effort, and clears the gated sections' headers. Gated rows still show, but stay inert: no upsell, no section header.
+ - **Parameter**: `omnibar.upsellDisabled`
+ - **Example**: `?omnibar.upsellDisabled=true`
+ - **Options**:
+   - `true`
+   - `false`
+
+### Mixed Model Access
+ - **Purpose**: Makes the gated model section contain an available model plus subscription- and upgrade-gated models, for testing per-model upsell routing within one section.
+ - **Parameter**: `omnibar.mixedModelAccess`
+ - **Example**: `?omnibar.mixedModelAccess=true`
+ - **Options**:
+   - `true`
+   - `false`
+
+### Reasoning Sections
+ - **Purpose**: Overrides the `claude-haiku-4-5` reasoning-effort layout for testing gated-section rendering and accessibility. Select that model with `omnibar.selectedModelId=claude-haiku-4-5` to expose the reasoning picker.
+ - **Parameter**: `omnibar.reasoningSections`
+ - **Example**: `?omnibar.selectedModelId=claude-haiku-4-5&omnibar.reasoningSections=multiple`
+ - **Options**:
+   - `first-gated` - Starts the list with a gated section
+   - `multiple` - Renders two gated sections separated by an available option
+   - `grouped` - Renders adjacent gated options under one section header
 
 ### Show View All AI Chats
  - **Purpose**: Shows a "View all chats" link at the bottom of the recent AI chats list
@@ -303,6 +356,12 @@
  - **Options**:
    - `true`
    - `false`
+
+### Suggestions Delay
+ - **Purpose**: Overrides the simulated network delay before the mock responds to `omnibar_getSuggestions`.
+ - **Parameter**: `omnibar.suggestionsDelay`
+ - **Example**: `?omnibar.suggestionsDelay=1000`
+ - **Options**: Any positive integer (milliseconds)
 
 ### Subscription Win-back Banner
  - **Purpose**: Tests different win-back banner states

@@ -73,3 +73,33 @@
         scale: 1;
     }
 }
+
+:global(body[data-rebrand="true"]) {
+    .root {
+        border-radius: var(--ds-radius-x05);
+        box-shadow: var(--ntp-card-shadow-rest);
+        /* top/bottom 20, left 16, right 40 — same as RMF (RemoteMessagingFramework.module.css) */
+        padding: var(--ds-space-x05) var(--ds-space-x10) var(--ds-space-x05) var(--ds-space-x04);
+
+        &.icon {
+            padding-left: var(--ds-space-x04);
+        }
+    }
+
+    .title {
+        font-size: var(--ds-font-body-md-size);
+        font-weight: var(--ds-font-weight-bold);
+        line-height: var(--ds-font-body-md-line-height);
+    }
+
+    .description {
+        font-size: var(--ds-font-body-md-size);
+        font-weight: var(--ds-font-weight-normal);
+        line-height: var(--ds-font-body-md-line-height);
+    }
+
+    .dismissBtn {
+        right: var(--ds-space-x1-5);
+        top: var(--ds-space-x1-5);
+    }
+}

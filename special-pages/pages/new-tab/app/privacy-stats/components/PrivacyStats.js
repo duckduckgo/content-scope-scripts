@@ -7,6 +7,7 @@ import { DDG_STATS_DEFAULT_ROWS, DDG_STATS_OTHER_COMPANY_IDENTIFIER } from '../c
 import { displayNameForCompany, sortStatsForDisplay } from '../privacy-stats.utils.js';
 import { CompanyIcon } from '../../components/CompanyIcon.js';
 import { useBodyExpansion, useBodyExpansionApi } from './BodyExpansionProvider.js';
+import { useNewTabPageRebranding } from '../../settings.provider.js';
 import { ProtectionsEmpty } from '../../protections/components/Protections.js';
 import { getLocalizedNumberFormatter } from '../../../../../shared/utils.js';
 import { useLocale } from '../../../../../shared/components/EnvironmentProvider';
@@ -177,6 +178,7 @@ export function ListFooter({ all }) {
 function PillShowMoreLess({ expansion }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const { showLess, showMore } = useBodyExpansionApi();
+    const isRebrand = useNewTabPageRebranding();
 
     const toggleListExpansion = () => {
         if (expansion === 'collapsed') {
@@ -192,6 +194,7 @@ function PillShowMoreLess({ expansion }) {
                 onClick={toggleListExpansion}
                 label={undefined}
                 fill={false}
+                variant={isRebrand ? 'rebrand' : 'default'}
                 text={expansion === 'collapsed' ? t('ntp_show_more') : t('ntp_show_less')}
                 buttonAttrs={{
                     'aria-expanded': expansion === 'expanded',

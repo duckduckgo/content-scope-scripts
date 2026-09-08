@@ -116,6 +116,8 @@
 }
 
 .browserIconDuckDuckGo {
-    background-color: var(--ds-color-palette-red-50);
+    /* This is the DuckDuckGo brand color, so preserve the exact value rather
+       than substituting a similar color from the current token palette. */
+    background-color: #de5833;
     background-image: url('../../../public/assets/img/icons/ddg.svg');
 }

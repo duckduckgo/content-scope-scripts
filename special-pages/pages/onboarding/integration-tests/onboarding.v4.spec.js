@@ -6,11 +6,10 @@ test.describe('onboarding v4', () => {
         const onboarding = OnboardingV4Page.create(page, workerInfo);
         onboarding.withInitData({
             stepDefinitions: null,
-            order: 'v4',
         });
         await onboarding.reducedMotion();
         await onboarding.openPage({ env: 'app', page: 'getStarted' });
-        await page.getByRole('button', { name: 'Start browser setup' }).click();
+        await page.getByRole('button', { name: 'Let’s get started!' }).click();
         await page.getByRole('heading', { name: 'Protections activated' }).waitFor({ timeout: 1000 });
 
         await onboarding.didFireStepCompleted({ id: 'getStarted', next: 'makeDefaultSingle' });
@@ -27,7 +26,6 @@ test.describe('onboarding v4', () => {
                         rows: ['dock', 'import', 'placebo-ad-blocking'],
                     },
                 },
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'makeDefaultSingle' });
@@ -42,7 +40,6 @@ test.describe('onboarding v4', () => {
                         rows: ['dock', 'import', 'aggressive-ad-blocking'],
                     },
                 },
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'makeDefaultSingle' });
@@ -57,7 +54,6 @@ test.describe('onboarding v4', () => {
                         rows: ['dock', 'import', 'youtube-ad-blocking'],
                     },
                 },
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'makeDefaultSingle' });
@@ -74,7 +70,6 @@ test.describe('onboarding v4', () => {
                         rows: ['dock', 'import', 'placebo-ad-blocking'],
                     },
                 },
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'systemSettings' });
@@ -91,7 +86,6 @@ test.describe('onboarding v4', () => {
                         rows: ['dock', 'import', 'placebo-ad-blocking'],
                     },
                 },
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'systemSettings' });
@@ -108,7 +102,6 @@ test.describe('onboarding v4', () => {
                         rows: ['dock', 'import', 'aggressive-ad-blocking'],
                     },
                 },
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'systemSettings' });
@@ -125,7 +118,6 @@ test.describe('onboarding v4', () => {
                         rows: ['dock', 'import', 'aggressive-ad-blocking'],
                     },
                 },
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'systemSettings' });
@@ -142,7 +134,6 @@ test.describe('onboarding v4', () => {
                         rows: ['dock', 'import', 'youtube-ad-blocking'],
                     },
                 },
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'systemSettings' });
@@ -159,7 +150,6 @@ test.describe('onboarding v4', () => {
                         rows: ['dock', 'import', 'youtube-ad-blocking'],
                     },
                 },
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'systemSettings' });
@@ -178,7 +168,6 @@ test.describe('onboarding v4', () => {
                         variant: 'ad-free',
                     },
                 },
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'duckPlayerSingle' });
@@ -201,7 +190,6 @@ test.describe('onboarding v4', () => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             onboarding.withInitData({
                 stepDefinitions: null,
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'duckPlayerSingle' });
@@ -225,7 +213,6 @@ test.describe('onboarding v4', () => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             onboarding.withInitData({
                 stepDefinitions: null,
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'duckPlayerSingle' });
@@ -239,7 +226,6 @@ test.describe('onboarding v4', () => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             onboarding.withInitData({
                 stepDefinitions: null,
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'duckPlayerSingle' });
@@ -254,7 +240,6 @@ test.describe('onboarding v4', () => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             onboarding.withInitData({
                 stepDefinitions: null,
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'duckPlayerSingle' });
@@ -293,7 +278,6 @@ test.describe('onboarding v4', () => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             onboarding.withInitData({
                 stepDefinitions: null,
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'duckPlayerSingle' });
@@ -327,7 +311,6 @@ test.describe('onboarding v4', () => {
         const onboarding = OnboardingV4Page.create(page, workerInfo);
         onboarding.withInitData({
             stepDefinitions: null,
-            order: 'v4',
         });
         await onboarding.reducedMotion();
         await onboarding.darkMode();
@@ -338,7 +321,7 @@ test.describe('onboarding v4', () => {
 
         // Get started (welcome auto-advances after ~3.7s animation)
         await page.getByRole('heading', { name: 'Hi there' }).waitFor({ timeout: 5000 });
-        await page.getByRole('button', { name: 'Start browser setup' }).click();
+        await page.getByRole('button', { name: 'Let’s get started!' }).click();
 
         // Make default
         await page.getByRole('heading', { name: 'Protections activated' }).waitFor({ timeout: 1000 });
@@ -385,13 +368,12 @@ test.describe('onboarding v4', () => {
                         rows: ['dock-instructions', 'import'],
                     },
                 },
-                order: 'v4',
                 exclude: ['makeDefaultSingle'],
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'getStarted' });
 
-            await page.getByRole('button', { name: 'Start browser setup' }).click();
+            await page.getByRole('button', { name: 'Let’s get started!' }).click();
 
             await onboarding.didFireTelemetryEvents([{ name: 'row_shown', value: 'dock-instructions' }]);
         });
@@ -404,7 +386,6 @@ test.describe('onboarding v4', () => {
                         rows: ['dock-instructions', 'import'],
                     },
                 },
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'systemSettings' });
@@ -424,7 +405,6 @@ test.describe('onboarding v4', () => {
                         rows: ['dock-instructions', 'import'],
                     },
                 },
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'systemSettings' });
@@ -442,7 +422,6 @@ test.describe('onboarding v4', () => {
                         rows: ['dock-instructions', 'import'],
                     },
                 },
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'systemSettings' });
@@ -461,7 +440,6 @@ test.describe('onboarding v4', () => {
                         rows: ['dock-instructions', 'import'],
                     },
                 },
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'systemSettings' });
@@ -482,7 +460,6 @@ test.describe('onboarding v4', () => {
                         rows: ['dock-instructions', 'import'],
                     },
                 },
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'systemSettings' });
@@ -501,7 +478,6 @@ test.describe('onboarding v4', () => {
                         rows: ['dock-instructions', 'import'],
                     },
                 },
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'systemSettings' });
@@ -520,7 +496,6 @@ test.describe('onboarding v4', () => {
                         rows: ['dock-instructions', 'import'],
                     },
                 },
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'systemSettings' });
@@ -540,7 +515,6 @@ test.describe('onboarding v4', () => {
                         rows: ['dock-instructions', 'import'],
                     },
                 },
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'systemSettings' });
@@ -567,7 +541,6 @@ test.describe('onboarding v4', () => {
                         rows: ['dock-instructions', 'import'],
                     },
                 },
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'systemSettings' });
@@ -588,7 +561,6 @@ test.describe('onboarding v4', () => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             onboarding.withInitData({
                 stepDefinitions: null,
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'systemSettings' });
@@ -601,7 +573,6 @@ test.describe('onboarding v4', () => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             onboarding.withInitData({
                 stepDefinitions: null,
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'systemSettings' });
@@ -617,7 +588,6 @@ test.describe('onboarding v4', () => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             onboarding.withInitData({
                 stepDefinitions: null,
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'systemSettings' });
@@ -631,7 +601,6 @@ test.describe('onboarding v4', () => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             onboarding.withInitData({
                 stepDefinitions: null,
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'systemSettings' });
@@ -651,7 +620,6 @@ test.describe('onboarding v4', () => {
             onboarding.withMockData({
                 init: {
                     stepDefinitions: null,
-                    order: 'v4',
                 },
                 requestImport: { enabled: false },
             });
@@ -670,7 +638,6 @@ test.describe('onboarding v4', () => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             onboarding.withInitData({
                 stepDefinitions: null,
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'customize' });
@@ -681,7 +648,6 @@ test.describe('onboarding v4', () => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             onboarding.withInitData({
                 stepDefinitions: null,
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'customize' });
@@ -694,7 +660,6 @@ test.describe('onboarding v4', () => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             onboarding.withInitData({
                 stepDefinitions: null,
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'customize' });
@@ -708,7 +673,6 @@ test.describe('onboarding v4', () => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             onboarding.withInitData({
                 stepDefinitions: null,
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'customize' });
@@ -722,7 +686,6 @@ test.describe('onboarding v4', () => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             onboarding.withInitData({
                 stepDefinitions: null,
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'customize' });
@@ -737,7 +700,6 @@ test.describe('onboarding v4', () => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             onboarding.withInitData({
                 stepDefinitions: null,
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'customize' });
@@ -754,7 +716,6 @@ test.describe('onboarding v4', () => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             onboarding.withInitData({
                 stepDefinitions: null,
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'customize' });
@@ -772,7 +733,6 @@ test.describe('onboarding v4', () => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             onboarding.withInitData({
                 stepDefinitions: null,
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'addressBarMode' });
@@ -787,7 +747,6 @@ test.describe('onboarding v4', () => {
             }, workerInfo) => {
                 const onboarding = OnboardingV4Page.create(page, workerInfo);
                 onboarding.withInitData({
-                    order: 'v4',
                     stepDefinitions: { systemSettings: { rows: ['dock', 'import', 'default-browser'] } },
                 });
                 await onboarding.reducedMotion();
@@ -948,7 +907,6 @@ test.describe('onboarding v4', () => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             onboarding.withInitData({
                 stepDefinitions: null,
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'getStarted' });
@@ -963,7 +921,6 @@ test.describe('onboarding v4', () => {
                         options: ['chrome-extension-install'],
                     },
                 },
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'getStarted' });
@@ -978,13 +935,12 @@ test.describe('onboarding v4', () => {
                         options: ['chrome-extension-install'],
                     },
                 },
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'getStarted' });
 
             await page.getByRole('checkbox', { name: 'Also install our Chrome search extension' }).check();
-            await page.getByRole('button', { name: 'Start browser setup' }).click();
+            await page.getByRole('button', { name: 'Start Browser Setup' }).click();
 
             const calls = await onboarding.mocks.outgoing({ names: ['requestChromeExtensionInstall'] });
             expect(calls).toMatchObject([
@@ -1007,15 +963,50 @@ test.describe('onboarding v4', () => {
                         options: ['chrome-extension-install'],
                     },
                 },
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'getStarted' });
 
-            await page.getByRole('button', { name: 'Start browser setup' }).click();
+            await page.getByRole('button', { name: 'Start Browser Setup' }).click();
 
             const calls = await onboarding.mocks.outgoing({ names: ['requestChromeExtensionInstall'] });
             expect(calls).toHaveLength(0);
+        });
+    });
+
+    test.describe('Given a settings update is in flight', () => {
+        test('Then a control on another row cannot start a second update', async ({ page }, workerInfo) => {
+            test.skip(workerInfo.project.name !== 'windows', 'holdRequests patches the Windows transport only');
+
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    systemSettings: {
+                        rows: ['dock', 'import'],
+                    },
+                },
+            });
+            // The native import window holds the request open for as long as the user needs.
+            onboarding.holdRequests(['requestImport']);
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'systemSettings' });
+
+            // Skip the taskbar row. It keeps a live button, and the import row appears.
+            await onboarding.skippedCurrent();
+            const taskbar = page.getByRole('button', { name: 'Pin to Taskbar' });
+            await taskbar.waitFor();
+
+            await page.getByRole('button', { name: 'Import Now' }).click();
+            await onboarding.mocks.waitForCallCount({ method: 'requestImport', count: 1 });
+
+            // The reducer has no transition for a second action, so the click must not reach it.
+            const names = ['reportInitException', 'reportPageException'];
+            const before = await onboarding.mocks.outgoing({ names });
+            await taskbar.click({ force: true });
+            const after = await onboarding.mocks.outgoing({ names });
+            expect(after).toHaveLength(before.length);
+
+            await expect(taskbar).toBeDisabled();
         });
     });
 });

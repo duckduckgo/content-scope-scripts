@@ -76,9 +76,14 @@ export function Bubble({
         const frame = frameRef.current;
         if (!content || !frame || !onHeight) return;
 
-        const observer = new ResizeObserver(() => {
-            onHeight(measureHeight(content, frame));
-        });
+        const report = () => onHeight(measureHeight(content, frame));
+
+        // Report synchronously, before the first paint. The observer's initial delivery only arrives
+        // on the next frame, and a frame rendered with a height of 0 pins --bubble-leading at its 40vh
+        // maximum, which pushes the step's in-flow content down far enough to overflow short viewports.
+        report();
+
+        const observer = new ResizeObserver(report);
         observer.observe(content);
         return () => observer.disconnect();
     }, [onHeight, frameRef]);

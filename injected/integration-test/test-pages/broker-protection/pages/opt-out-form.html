@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Record Suppression Form</title>
+    </head>
+    <body>
+        <!--
+            A simplified version of the CyberBackgroundChecks opt-out form.
+        -->
+        <div class="card-body">
+            <h1 class="card-title">Record Suppression Form</h1>
+            <form id="contact-form" action="/optout/submitoptout" method="post">
+                <label for="FirstName">First Name</label>
+                <input class="form-control" id="FirstName" maxlength="50" name="FirstName" type="text" value="" />
+
+                <label for="MiddleName">Middle Name</label>
+                <input class="form-control" id="MiddleName" maxlength="50" name="MiddleName" type="text" value="" />
+
+                <label for="LastName">Last Name</label>
+                <input class="form-control" id="LastName" maxlength="50" name="LastName" type="text" value="" />
+
+                <label for="StreetAddress">Street Address</label>
+                <input class="form-control" id="StreetAddress" maxlength="50" name="StreetAddress" type="text" value="" />
+
+                <label for="City">City</label>
+                <input class="form-control" id="City" maxlength="50" name="City" type="text" value="" />
+
+                <label for="State">State/Region</label>
+                <input class="form-control" id="State" maxlength="2" name="State" type="text" value="" />
+
+                <button type="submit" class="btn btn-warning btn-block">Submit</button>
+            </form>
+        </div>
+        <script>
+            document.getElementById('contact-form').onsubmit = (e) => e.preventDefault();
+        </script>
+    </body>
+</html>

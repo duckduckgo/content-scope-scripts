@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Search results</title>
+    </head>
+    <body>
+        <!--
+            Exercises the title-attribute address shape: the link text is only "City, ST", but each
+            link's `title` carries the full "street, city ST zip". Two addresses share a city with
+            distinct streets, so this also covers dedup keeping same-city addresses apart.
+        -->
+        <div class="card">
+            <div class="card-block">
+                <h3 class="card-title">
+                    <a href="/john-sample_id_G-100"><span class="larger">John Sample</span><br /><span class="grey">Age 40 • Baytown, TX</span></a>
+                </h3>
+
+                <div>
+                    <h4>Past Addresses:</h4>
+                    <a href="/address/1" title="Property details for the address 100 Sample Dr, Baytown TX 77523">Baytown, TX</a> •
+                    <a href="/address/2" title="Property details for the address 200 Sample Ct, Baytown TX 77523">Baytown, TX</a> •
+                    <a href="/address/3" title="Property details for the address 300 Example Rd, Livingston TX 77351">Livingston, TX</a> •
+                    <a href="/address/4" title="Property details for the address 400 Example Ln, Livingston TX 77351">Livingston, TX</a> •
+                    <a href="/address/5" title="Property details for the address 500 Old Mill Rd, Winston-Salem NC 27101">Winston-Salem, NC</a>
+                </div>
+
+                <div>
+                    <h4>Relatives:</h4>
+                    <a href="/robin-sample_id_G-200" title="Person details for Robin Sample">Robin Sample</a>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

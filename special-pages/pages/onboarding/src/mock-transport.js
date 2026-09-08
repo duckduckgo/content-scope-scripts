@@ -77,7 +77,6 @@ export function mockTransport() {
                     return Promise.resolve({
                         stepDefinitions,
                         exclude: [],
-                        order: 'v3',
                         locale: 'en',
                         env: 'development',
                     });

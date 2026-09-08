@@ -1,0 +1,20 @@
+{
+    "state": {
+        "action": {
+            "actionType": "extract",
+            "selector": ".person",
+            "profile": {
+                "name": { "selector": ".name" },
+                "addressCityState": { "selector": ".location" },
+                "shoeSize": { "selector": ".shoe" }
+            }
+        },
+        "data": {
+            "userProfile": {
+                "firstName": "John",
+                "lastName": "Sample",
+                "addresses": [{ "city": "Springfield", "state": "IL" }]
+            }
+        }
+    }
+}

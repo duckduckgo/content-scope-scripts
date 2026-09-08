@@ -5,6 +5,7 @@ import styles from './Protections.module.css';
 import { ProtectionsHeading } from './ProtectionsHeading.js';
 import { useTypedTranslationWith } from '../../types.js';
 import { ProtectionsHeadingLegacy } from './ProtectionsHeadingLegacy';
+import { useNewTabPageRebranding } from '../../settings.provider';
 
 /**
  * @import enStrings from "../strings.json"
@@ -92,19 +93,32 @@ export function Protections({
 function ProtectionsBody({ feed, id, expansion, setFeed, children }) {
     const hidden = expansion === 'collapsed';
     const showing = expansion === 'expanded';
+    const isRebrandEnabled = useNewTabPageRebranding();
     const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
     return (
         <div class={styles.body} id={id} aria-hidden={hidden} aria-expanded={showing}>
             {expansion === 'expanded' && (
                 <Fragment>
-                    <div class={cn(styles.switcher, styles.block)}>
+                    <div class={cn(styles.switcher, styles.block)} role="tablist">
+                        {isRebrandEnabled && (
+                            <div class={styles.blob} style={{ '--tab-count': 2, '--tab-index': feed === 'privacy-stats' ? 0 : 1 }} />
+                        )}
                         <button
+                            type="button"
+                            role="tab"
+                            aria-selected={feed === 'privacy-stats'}
                             class={cn(styles.button, feed === 'privacy-stats' && styles.active)}
                             onClick={() => setFeed('privacy-stats')}
                         >
                             {t('protections_statsSwitchTitle')}
                         </button>
-                        <button class={cn(styles.button, feed === 'activity' && styles.active)} onClick={() => setFeed('activity')}>
+                        <button
+                            type="button"
+                            role="tab"
+                            aria-selected={feed === 'activity'}
+                            class={cn(styles.button, feed === 'activity' && styles.active)}
+                            onClick={() => setFeed('activity')}
+                        >
                             {t('protections_activitySwitchTitle')}
                         </button>
                     </div>
@@ -126,19 +140,32 @@ function ProtectionsBody({ feed, id, expansion, setFeed, children }) {
 function ProtectionsBodyLegacy({ feed, id, expansion, setFeed, children }) {
     const hidden = expansion === 'collapsed';
     const showing = expansion === 'expanded';
+    const isRebrandEnabled = useNewTabPageRebranding();
     const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
     return (
         <div class={styles.body} id={id} aria-hidden={hidden} aria-expanded={showing}>
             {expansion === 'expanded' && (
                 <Fragment>
-                    <div class={cn(styles.switcher, styles.blockLegacy)}>
+                    <div class={cn(styles.switcher, styles.blockLegacy)} role="tablist">
+                        {isRebrandEnabled && (
+                            <div class={styles.blob} style={{ '--tab-count': 2, '--tab-index': feed === 'privacy-stats' ? 0 : 1 }} />
+                        )}
                         <button
+                            type="button"
+                            role="tab"
+                            aria-selected={feed === 'privacy-stats'}
                             class={cn(styles.button, feed === 'privacy-stats' && styles.active)}
                             onClick={() => setFeed('privacy-stats')}
                         >
                             {t('protections_statsSwitchTitle')}
                         </button>
-                        <button class={cn(styles.button, feed === 'activity' && styles.active)} onClick={() => setFeed('activity')}>
+                        <button
+                            type="button"
+                            role="tab"
+                            aria-selected={feed === 'activity'}
+                            class={cn(styles.button, feed === 'activity' && styles.active)}
+                            onClick={() => setFeed('activity')}
+                        >
                             {t('protections_activitySwitchTitle')}
                         </button>
                     </div>

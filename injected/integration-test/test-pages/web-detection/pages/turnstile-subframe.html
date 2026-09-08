@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Turnstile subframe</title>
+</head>
+<!-- Same-origin subframe hosting a Turnstile widget, used to observe whether the
+     detector runs (and forces layout) inside frames. -->
+<body>
+    <div class="cf-turnstile" data-sitekey="1x00000000000000000000AA">
+        <iframe
+            title="Widget containing a Cloudflare security challenge"
+            src="https://challenges.cloudflare.com/cdn-cgi/challenge-platform/turnstile/if/ov2/av0/rc/subframe"
+            style="width: 300px; height: 65px;"></iframe>
+    </div>
+</body>
+</html>

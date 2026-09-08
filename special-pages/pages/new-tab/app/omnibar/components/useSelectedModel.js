@@ -13,8 +13,8 @@ export function useSelectedModel() {
     const allModels = aiModelSections.flatMap((s) => s.items);
 
     const persistedId = state.config?.selectedModelId;
-    const match = persistedId ? allModels.find((m) => m.id === persistedId && m.isEnabled) : null;
-    const selectedModel = match ?? allModels.find((m) => m.isEnabled) ?? null;
+    const match = persistedId ? allModels.find((m) => m.id === persistedId && m.isAvailable) : null;
+    const selectedModel = match ?? allModels.find((m) => m.isAvailable) ?? null;
 
     return { selectedModel, aiModelSections, allModels, setSelectedModelId };
 }

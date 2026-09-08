@@ -7,7 +7,8 @@ import { FaviconWithState } from '../../../../../shared/components/FaviconWithSt
 import { ACTION_ADD_FAVORITE, ACTION_REMOVE, ACTION_REMOVE_FAVORITE } from '../constants.js';
 import { Star, StarFilled } from '../../components/icons/Star.js';
 import { Fire as FireIconLegacy } from '../../components/icons/Fire.js';
-import { Cross, FireIcon } from '../../components/Icons.js';
+import { Cross, FireIcon, TrashIcon } from '../../components/Icons.js';
+import { useNewTabPageRebranding } from '../../settings.provider.js';
 import { useContext } from 'preact/hooks';
 import { memo } from 'preact/compat';
 import { useComputed } from '@preact/signals';
@@ -28,6 +29,7 @@ export const ActivityItem = memo(
      * @param {string} props.etldPlusOne
      */
     function ActivityItem({ canBurn, documentVisibility, title, url, favoriteSrc, faviconMax, etldPlusOne, children }) {
+        const isRebrand = useNewTabPageRebranding();
         return (
             <li key={url} class={cn(styles.item)} data-testid="ActivityItem">
                 <div class={styles.heading}>
@@ -48,7 +50,7 @@ export const ActivityItem = memo(
                         </span>
                         {title}
                     </a>
-                    <Controls canBurn={canBurn} url={url} title={title} shouldDisplayLegacyActivity={false} />
+                    <Controls canBurn={canBurn} url={url} title={title} isRebrand={isRebrand} shouldDisplayLegacyActivity={false} />
                 </div>
                 <div class={styles.body}>{children}</div>
             </li>
@@ -69,6 +71,7 @@ export const ActivityItemLegacy = memo(
      * @param {string} props.etldPlusOne
      */
     function ActivityItem({ canBurn, documentVisibility, title, url, favoriteSrc, faviconMax, etldPlusOne, children }) {
+        const isRebrand = useNewTabPageRebranding();
         return (
             <li key={url} class={cn(stylesLegacy.item)} data-testid="ActivityItem">
                 <div class={stylesLegacy.heading}>
@@ -89,7 +92,7 @@ export const ActivityItemLegacy = memo(
                         </span>
                         {title}
                     </a>
-                    <Controls canBurn={canBurn} url={url} title={title} />
+                    <Controls canBurn={canBurn} url={url} title={title} isRebrand={isRebrand} />
                 </div>
                 <div class={stylesLegacy.body}>{children}</div>
             </li>
@@ -106,8 +109,9 @@ export const ActivityItemLegacy = memo(
  * @param {string} props.url - The unique URL identifier for the associated item.
  * @param {string} props.title - The title or domain name displayed in the button tooltips.
  * @param {boolean} [props.shouldDisplayLegacyActivity=true] - Indicates whether to show legacy icons. Optional, defaults to `true` for backwards compatibility
+ * @param {boolean} props.isRebrand
  */
-function Controls({ canBurn, url, title, shouldDisplayLegacyActivity = true }) {
+function Controls({ canBurn, url, title, shouldDisplayLegacyActivity = true, isRebrand }) {
     const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
     const { activity } = useContext(NormalizedDataContext);
     const favorite = useComputed(() => activity.value.favorites[url]);
@@ -121,6 +125,7 @@ function Controls({ canBurn, url, title, shouldDisplayLegacyActivity = true }) {
     const secondaryTitle = canBurn
         ? t('activity_burn', { domain: title })
         : t('activity_itemRemove', { domain: title });
+
     return (
         <div className={styles.controls}>
             <button
@@ -140,10 +145,27 @@ function Controls({ canBurn, url, title, shouldDisplayLegacyActivity = true }) {
                 value={url}
                 type="button"
             >
-                {/* @todo legacyProtections: Remove legacy check once all
-                platforms are ready for the new Protections Report */}
-                {canBurn ? shouldDisplayLegacyActivity ? <FireIconLegacy /> : <FireIcon /> : <Cross />}
+                {renderSecondaryIcon({ canBurn, shouldDisplayLegacyActivity, isRebrand })}
             </button>
         </div>
     );
+}
+
+/**
+ * Picks the glyph for the secondary control: a Cross when the item can only be
+ * removed, otherwise the burn glyph for the current UI generation.
+ *
+ * @todo legacyProtections: Remove the legacy branch once all platforms are
+ * ready for the new Protections Report.
+ * @param {object} props
+ * @param {boolean} props.canBurn
+ * @param {boolean} props.shouldDisplayLegacyActivity
+ * @param {boolean} props.isRebrand
+ */
+function renderSecondaryIcon({ canBurn, shouldDisplayLegacyActivity, isRebrand }) {
+    // canBurn is always false on Windows (burn unavailable there), so TrashIcon only appears on platforms where burn is enabled.
+    if (!canBurn) return <Cross />;
+    if (shouldDisplayLegacyActivity) return <FireIconLegacy />;
+    if (isRebrand) return <TrashIcon />;
+    return <FireIcon />;
 }
