@@ -203,6 +203,7 @@
     .card {
         border: none;
         outline: 1px solid var(--ntp-surface-border-color, var(--ds-color-theme-container-border-primary));
+        box-shadow: var(--ntp-card-shadow-rest);
     }
 
     [data-theme="light"] {
