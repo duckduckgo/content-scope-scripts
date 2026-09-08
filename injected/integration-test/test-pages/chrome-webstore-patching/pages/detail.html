@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Chrome Web Store detail page (fixture)</title>
+        <!--
+            Structural stand-in for a chromewebstore.google.com extension detail page.
+            Mirrors the recon'd button component: button[jsname="wQO0od"] containing
+            sibling icon/ripple spans plus the text-label span.UywwFc-vQzf8d.
+            TODO: replace inner markup with sanitized outerHTML from the DDG Windows build.
+        -->
+        <style>
+            /* Hostile store styles: high-specificity !important rules like the
+               real store ships — our inline styles must beat all of these */
+            button.UywwFc-LgbsSe { height: 24px !important; padding: 0 !important; border-radius: 4px !important; gap: 20px !important; }
+            button.UywwFc-LgbsSe::before { content: '' !important; width: 62px !important; background: none !important; }
+        </style>
+    </head>
+    <body>
+        <header>
+            <h1>Bitwarden Password Manager (fixture)</h1>
+        </header>
+        <section itemprop="detail">
+            <!-- disabled + aria-disabled mirror the store's state on non-Chrome browsers -->
+            <button class="UywwFc-LgbsSe" jsname="wQO0od" jscontroller="O626Fe" jsaction="click:trigger" disabled aria-disabled="true">
+                <span class="UywwFc-icon" aria-hidden="true"></span>
+                <span class="UywwFc-ripple" aria-hidden="true"></span>
+                <span class="UywwFc-vQzf8d">Add to Chrome</span>
+                <span class="UywwFc-trailing" aria-hidden="true"></span>
+            </button>
+        </section>
+
+        <nav>
+            <!-- SPA-navigation drivers for the spec (favicon test-page pattern) -->
+            <button id="nav-curated">Go to curated detail</button>
+            <button id="nav-uncurated">Go to uncurated detail</button>
+            <button id="rerender">Re-render install button</button>
+        </nav>
+
+        <script type="module">
+            // Mirrors the store's jsaction-style event delegation: the install
+            // trigger listens at the document, not on the button itself.
+            window.__installClicked = false;
+            document.addEventListener('click', (event) => {
+                if (event.target instanceof Element && event.target.closest('button[jsname]')) {
+                    window.__installClicked = true;
+                }
+            });
+            // Simulates the store's framework replacing the button node on
+            // hydration/state change: a fresh button with Google's copy,
+            // while the previous node lingers in the DOM (real store behavior
+            // on SPA navigation — old views stay cached in the document)
+            function rerenderButton({ keepOld = false } = {}) {
+                const old = document.querySelector('section[itemprop] button[jsname="wQO0od"]:last-of-type');
+                if (!old) return;
+                const fresh = old.cloneNode(false);
+                fresh.removeAttribute('style');
+                fresh.innerHTML =
+                    '<span class="UywwFc-icon" aria-hidden="true"></span>' +
+                    '<span class="UywwFc-ripple" aria-hidden="true"></span>' +
+                    '<span class="UywwFc-vQzf8d">Add to Chrome</span>' +
+                    '<span class="UywwFc-trailing" aria-hidden="true"></span>';
+                if (keepOld) {
+                    old.after(fresh);
+                } else {
+                    old.replaceWith(fresh);
+                }
+            }
+            document.getElementById('nav-curated').addEventListener('click', () => {
+                history.pushState({}, '', '/detail/bitwarden-password-manage/nngceckbapebfimnlniiiahkandclblb');
+                rerenderButton({ keepOld: true });
+            });
+            document.getElementById('nav-uncurated').addEventListener('click', () => {
+                history.pushState({}, '', '/detail/some-other-extension/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
+                rerenderButton({ keepOld: true });
+            });
+            document.getElementById('rerender').addEventListener('click', () => rerenderButton());
+        </script>
+    </body>
+</html>
