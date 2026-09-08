@@ -933,7 +933,6 @@ export const platformSpecificFeatures = [
     'webInterferenceDetection',
     'webDetection',
     'webEvents',
-    'detectorPerf',
     'pageObserver',
     'hover',
     'trackerProtection', // only enabled on apple platforms
