@@ -238,11 +238,14 @@ jobs:
                   # spam the timeline, while the reviewer/assignee
                   # steps below still run if a prior attempt crashed
                   # after posting the review.
+                  # `gh api --jq` takes a single filter string and has no
+                  # `--arg`; read the head SHA from the environment via
+                  # `$ENV` instead so the filter stays a single argument.
                   latest_is_changes_requested="$(gh api "repos/$REPO/pulls/$PR_NUMBER/reviews" --paginate \
-                    --jq --arg sha "$PR_HEAD_SHA" '
+                    --jq '
                       [.[] | select(.user.login == "daxtheduck" and (.state == "APPROVED" or .state == "CHANGES_REQUESTED" or .state == "DISMISSED"))]
                       | last
-                      | (. != null and .state == "CHANGES_REQUESTED" and .commit_id == $sha)
+                      | (. != null and .state == "CHANGES_REQUESTED" and .commit_id == $ENV.PR_HEAD_SHA)
                     ')"
                   if [[ "$latest_is_changes_requested" == "true" ]]; then
                     echo "daxtheduck latest decision is already REQUEST_CHANGES on $PR_HEAD_SHA; skipping new review."
