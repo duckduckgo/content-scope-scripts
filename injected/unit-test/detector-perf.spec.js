@@ -1,5 +1,10 @@
 import { JSDOM } from 'jsdom';
-import DetectorPerf, { parseThresholds, timeDetector } from '../src/features/detector-perf.js';
+import DetectorPerf, {
+    DETECTOR_PERF_DETECTOR_NAMES,
+    getDetectorPerfEventTypes,
+    parseThresholds,
+    timeDetector,
+} from '../src/features/detector-perf.js';
 
 /**
  * Wait for fire-and-forget event dispatch (callFeatureMethod awaits the
@@ -81,11 +86,56 @@ describe('DetectorPerf', () => {
         });
     });
 
+    describe('event contract', () => {
+        it('enumerates every event emitted for the supported detector names and configured thresholds', async () => {
+            const settings = {
+                defaults: {
+                    singleRunThresholdsMs: [5],
+                    totalPerPageThresholdsMs: [10],
+                },
+                combinedThresholdsMs: [20],
+                detectorOverrides: {
+                    webDetection: { singleRunThresholdsMs: [7] },
+                },
+            };
+            const expected = [
+                'detectorPerf_measured',
+                'detectorPerf_severe',
+                'detectorPerf_webDetection_ran',
+                'detectorPerf_webDetection_failed',
+                'detectorPerf_webDetection_over7ms',
+                'detectorPerf_webDetection_total_over10ms',
+                'detectorPerf_combined_over20ms',
+            ];
+
+            expect(getDetectorPerfEventTypes(settings).sort()).toEqual(expected.sort());
+
+            const { feature, captured } = createFeature(settings);
+            for (const name of DETECTOR_PERF_DETECTOR_NAMES) {
+                feature.record(name, 100);
+                feature.record(name, 100, undefined, true);
+            }
+            await settle();
+            expect([...new Set(captured)].sort()).toEqual(expected.sort());
+        });
+    });
+
     describe('fire-at-occurrence event emission', () => {
         it('emits measured at init, before any detector runs', async () => {
             const { captured } = createFeature();
             await settle();
             expect(captured).toEqual(['detectorPerf_measured']);
+        });
+
+        it('emits failed at most once per frame while retaining timing events', async () => {
+            const { feature, captured } = createFeature();
+            feature.record('webDetection', 10, 'captcha.recaptcha', true);
+            feature.record('webDetection', 20, 'captcha.hcaptcha', true);
+            await settle();
+
+            expect(captured).toContain('detectorPerf_webDetection_ran');
+            expect(captured).toContain('detectorPerf_webDetection_over8ms');
+            expect(captured.filter((type) => type === 'detectorPerf_webDetection_failed').length).toBe(1);
         });
 
         it('does not emit measured in subframes (iframes must not inflate the page denominator)', async () => {
@@ -113,17 +163,17 @@ describe('DetectorPerf', () => {
             expect(captured).not.toContain('detectorPerf_bot_over150ms');
         });
 
-        it('emits total-per-page edges as the sum of runs crosses them', async () => {
+        it('emits total-per-frame edges as the sum of runs crosses them', async () => {
             const { feature, captured } = createFeature();
             // three runs of 30ms: worst 30, total 90
-            feature.record('adwall', 30);
-            feature.record('adwall', 30);
+            feature.record('webDetection', 30);
+            feature.record('webDetection', 30);
             await settle();
-            expect(captured).toContain('detectorPerf_adwall_total_over50ms');
+            expect(captured).toContain('detectorPerf_webDetection_total_over50ms');
 
-            feature.record('adwall', 30);
+            feature.record('webDetection', 30);
             await settle();
-            expect(captured).not.toContain('detectorPerf_adwall_total_over100ms');
+            expect(captured).not.toContain('detectorPerf_webDetection_total_over100ms');
         });
 
         it('sums combined total across detectors', async () => {
@@ -148,7 +198,7 @@ describe('DetectorPerf', () => {
         });
     });
 
-    describe('at-most-once emission per page', () => {
+    describe('at-most-once emission per frame', () => {
         it('does not re-emit already crossed edges on later runs', async () => {
             const { feature, captured } = createFeature();
             feature.record('bot', 40);
@@ -263,7 +313,7 @@ describe('DetectorPerf', () => {
             expect(severePayloads(capturedEvents)).toEqual([{ kind: 'single', detector: 'webDetection', thresholdMs: 150 }]);
         });
 
-        it('fires at most once per page per detector and kind', async () => {
+        it('fires at most once per frame per detector and kind', async () => {
             // Pin total/combined edges high so only single-run severes fire here
             const { feature, capturedEvents } = createFeature({
                 defaults: {
@@ -280,7 +330,7 @@ describe('DetectorPerf', () => {
             expect(severe.map((event) => event.data?.detector).sort()).toEqual(['bot', 'fraud']);
         });
 
-        it('fires for accumulated per-page totals against the pooled label', async () => {
+        it('fires for accumulated per-frame totals against the pooled label', async () => {
             const { feature, capturedEvents } = createFeature();
             // three 90ms runs: no single run crosses 150, but the total crosses 250
             feature.record('webDetection', 90, 'adwalls.generic_en');
@@ -292,15 +342,14 @@ describe('DetectorPerf', () => {
         });
 
         it('fires for the combined total across detectors', async () => {
-            const { feature, capturedEvents } = createFeature();
+            const { feature, capturedEvents } = createFeature({ combinedThresholdsMs: [400] });
             feature.record('bot', 140);
             feature.record('fraud', 140);
-            feature.record('adwall', 140);
             feature.record('webDetection', 140);
             await settle();
-            // 560ms combined crosses 500; no single run crossed 150 and no
+            // 420ms combined crosses 400; no single run crossed 150 and no
             // per-detector total crossed 250
-            expect(severePayloads(capturedEvents)).toEqual([{ kind: 'combined', detector: 'combined', thresholdMs: 500 }]);
+            expect(severePayloads(capturedEvents)).toEqual([{ kind: 'combined', detector: 'combined', thresholdMs: 400 }]);
         });
 
         it('respects per-detector overrides for the severe edge', async () => {
@@ -323,7 +372,7 @@ describe('DetectorPerf', () => {
             expect(captured).toContain('detectorPerf_bot_over150ms');
         });
 
-        it('caps severe emissions per page at the default of 10', async () => {
+        it('caps severe emissions per frame at the default of 10', async () => {
             // Pin total/combined edges high so only single-run severes fire,
             // then cross the edge with 15 distinct detector IDs.
             const { feature, capturedEvents } = createFeature({
@@ -345,7 +394,7 @@ describe('DetectorPerf', () => {
             });
             feature.record('bot', 200);
             feature.record('fraud', 200);
-            feature.record('adwall', 200);
+            feature.record('webDetection', 200);
             await settle();
             expect(severePayloads(capturedEvents).map((data) => data?.detector)).toEqual(['bot', 'fraud']);
         });
@@ -358,7 +407,7 @@ describe('DetectorPerf', () => {
             });
             feature.record('bot', 200);
             feature.record('fraud', 200);
-            feature.record('adwall', 200);
+            feature.record('webDetection', 200);
             await settle();
             expect(severePayloads(capturedEvents).length).toBe(3);
         });
@@ -380,7 +429,7 @@ describe('DetectorPerf', () => {
             expect(captured).toEqual(['detectorPerf_measured']);
         });
 
-        it('accepts namespaced names for future sub-metrics', async () => {
+        it('accepts namespaced names for future detector call sites', async () => {
             const { feature, captured } = createFeature();
             feature.record('youtube.sweep', 10);
             await settle();
@@ -505,9 +554,9 @@ describe('DetectorPerf', () => {
         it('returns the wrapped result and records the duration', async () => {
             const { feature, captured } = createFeature();
             const caller = {
-                callFeatureMethod: (featureName, methodName, name, durationMs) => {
+                callFeatureMethod: (featureName, methodName, name, durationMs, detail, failed) => {
                     if (featureName === 'detectorPerf' && methodName === 'record') {
-                        feature.record(name, durationMs);
+                        feature.record(name, durationMs, detail, failed);
                     }
                     return Promise.resolve(undefined);
                 },
@@ -517,6 +566,35 @@ describe('DetectorPerf', () => {
             expect(result).toBe('detected');
             await settle();
             expect(captured).toContain('detectorPerf_bot_ran');
+            expect(captured).not.toContain('detectorPerf_bot_failed');
+        });
+
+        it('records failed timing and preserves the wrapped exception', async () => {
+            const { feature, captured } = createFeature();
+            const caller = {
+                callFeatureMethod: (featureName, methodName, name, durationMs, detail, failed) => {
+                    if (featureName === 'detectorPerf' && methodName === 'record') {
+                        feature.record(name, durationMs, detail, failed);
+                    }
+                    return Promise.resolve(undefined);
+                },
+            };
+            const error = new Error('detector failed');
+
+            expect(() =>
+                timeDetector(
+                    // @ts-expect-error - minimal caller stub for test
+                    caller,
+                    'webDetection',
+                    () => {
+                        throw error;
+                    },
+                    'captcha.recaptcha',
+                ),
+            ).toThrow(error);
+            await settle();
+            expect(captured).toContain('detectorPerf_webDetection_ran');
+            expect(captured).toContain('detectorPerf_webDetection_failed');
         });
 
         it('passes the attribution detail through to record', async () => {

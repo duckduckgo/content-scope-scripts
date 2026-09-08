@@ -2,6 +2,10 @@ import ContentFeature from '../content-feature.js';
 // eslint-disable-next-line no-redeclare
 import { hasOwnProperty, performanceNow, CustomEvent, dispatchEvent, Map, Set } from '../captured-globals.js';
 
+export const WEB_DETECTION_DETECTOR_NAME = 'webDetection';
+/** @type {readonly ['webDetection']} */
+export const DETECTOR_PERF_DETECTOR_NAMES = [WEB_DETECTION_DETECTOR_NAME];
+
 /**
  * Default threshold bin edges (ms). These are discovery bins, not perf
  * budgets — remote config overrides them via the feature settings
@@ -14,19 +18,18 @@ const DEFAULT_TOTAL_PER_PAGE_THRESHOLDS_MS = [50, 100, 250];
 const DEFAULT_COMBINED_THRESHOLDS_MS = [100, 250, 500];
 
 /**
- * Cap on severe emissions per page. Severe crossings are rare by
+ * Cap on severe emissions per frame. Severe crossings are rare by
  * construction under sane thresholds, so the cap only matters when a bad
  * config push (e.g. near-zero edges) would otherwise turn every detector on
- * every page into an immediate pixel across the fleet.
+ * every frame into an immediate pixel across the fleet.
  */
 const DEFAULT_MAX_SEVERE_PER_PAGE = 10;
 
 /**
- * Detector metric names: alphanumeric segments separated by `.`, `_` or `-`,
- * with `.` reserved for namespaced sub-metrics (e.g. `youtube.sweep`).
- * Names feed event-type names, so a name ending in e.g. `_total` could
- * collide with another detector's event namespace — current call sites pass
- * fixed constants or dotted config IDs, which cannot collide.
+ * Detailed detector identities use alphanumeric segments separated by `.`,
+ * `_` or `-`. They are included only in breakage reports and severe-event
+ * data; periodic event names are limited to DETECTOR_PERF_DETECTOR_NAMES so
+ * privacy config can validate the complete event set at build time.
  */
 const NAME_PATTERN = /^[a-zA-Z0-9]+(?:[._-][a-zA-Z0-9]+)*$/;
 
@@ -74,6 +77,35 @@ export function parseThresholds(value, fallback) {
 }
 
 /**
+ * Enumerate every event type detectorPerf can emit for a settings object.
+ * Privacy config mirrors this contract and verifies that every type has an
+ * EventHub consumer.
+ *
+ * @param {Record<string, any>} [settings]
+ * @returns {string[]}
+ */
+export function getDetectorPerfEventTypes(settings = {}) {
+    const defaults = settings.defaults ?? {};
+    const overrides = settings.detectorOverrides ?? {};
+    const defaultSingle = parseThresholds(defaults.singleRunThresholdsMs, DEFAULT_SINGLE_RUN_THRESHOLDS_MS);
+    const defaultTotal = parseThresholds(defaults.totalPerPageThresholdsMs, DEFAULT_TOTAL_PER_PAGE_THRESHOLDS_MS);
+    const combined = parseThresholds(settings.combinedThresholdsMs, DEFAULT_COMBINED_THRESHOLDS_MS);
+    const types = new Set([`${EVENT_PREFIX}_measured`, SEVERE_EVENT_TYPE]);
+
+    for (const name of DETECTOR_PERF_DETECTOR_NAMES) {
+        types.add(`${EVENT_PREFIX}_${name}_ran`);
+        types.add(`${EVENT_PREFIX}_${name}_failed`);
+        const single = parseThresholds(overrides[name]?.singleRunThresholdsMs, defaultSingle);
+        const total = parseThresholds(overrides[name]?.totalPerPageThresholdsMs, defaultTotal);
+        for (const edge of single) types.add(`${EVENT_PREFIX}_${name}_over${edge}ms`);
+        for (const edge of total) types.add(`${EVENT_PREFIX}_${name}_total_over${edge}ms`);
+    }
+    for (const edge of combined) types.add(`${EVENT_PREFIX}_combined_over${edge}ms`);
+
+    return [...types];
+}
+
+/**
  * Round a duration to 0.1ms for the breakage-report payload.
  * @param {number} ms
  * @returns {number}
@@ -83,21 +115,23 @@ function roundMs(ms) {
 }
 
 /**
- * Measures detector execution cost per page and reports it as coarse
+ * Measures detector execution cost per frame and reports it as coarse
  * threshold-crossing events through webEvents, where native EventHub
  * aggregates them into periodic telemetry pixels.
  *
  * Every event is monotonic and fires as soon as it first becomes true, at
- * most once per page per event type: `measured` at feature init (top frame
+ * most once per frame per event type: `measured` at feature init (top frame
  * only, so iframes cannot inflate the page denominator), `<name>_ran`
  * on a detector's first run, and each threshold event at its first crossing.
  * Nothing depends on page visibility, so a killed process or swiped-away app
  * loses nothing already observed — avoiding the data-loss bias where the
  * slowest pages are exactly the ones users abandon. When a crossing passes
  * the *highest* configured edge of a threshold family, `detectorPerf_severe`
- * also fires (at most once per page per detector and family): those crossings
+ * also fires (at most once per frame per detector and family): those crossings
  * are rare by construction and native EventHub turns them into an immediate
  * pixel with the detector name in the data payload.
+ * `<name>_failed` fires when an invocation throws; failed runs still contribute
+ * to duration thresholds because they consume the same on-device resources.
  *
  * No DOM or layout reads and no `performance.mark`/`measure` happen here —
  * measurement must never be observable by the page. The only exception is
@@ -119,10 +153,10 @@ export default class DetectorPerf extends ContentFeature {
      */
     #detectorsDetailed = new Map();
 
-    /** Total ms across all recorded detectors on this page. */
+    /** Total ms across all recorded detectors in this frame. */
     #combinedTotalMs = 0;
 
-    /** Event types already emitted on this page (at-most-once guard). */
+    /** Event types already emitted in this frame (at-most-once guard). */
     /** @type {Set<string>} */
     #emitted = new Set();
 
@@ -138,14 +172,14 @@ export default class DetectorPerf extends ContentFeature {
     /** @type {Record<string, Partial<DetectorThresholds>>} */
     #detectorOverrides = {};
 
-    /** Severe emissions so far on this page. */
+    /** Severe emissions so far in this frame. */
     #severeCount = 0;
 
     /** @type {number} */
     #maxSeverePerPage = DEFAULT_MAX_SEVERE_PER_PAGE;
 
     /**
-     * Severe emissions on this page, kept only under the debug flag for the
+     * Severe emissions in this frame, kept only under the debug flag for the
      * debug stats broadcast. Empty in production.
      * @type {Array<{ kind: SevereKind, detector: string, thresholdMs: number }>}
      */
@@ -154,9 +188,9 @@ export default class DetectorPerf extends ContentFeature {
     init() {
         this._readThresholdSettings();
 
-        // Page-level denominator: this page was observed, even if no detector
+        // Page denominator: this top frame was observed, even if no detector
         // ever runs. Fired at init like every other event fires at occurrence,
-        // so no page-lifecycle event is ever needed. Top frame only: the
+        // so no lifecycle event is needed. Top frame only: the
         // feature initializes in every injected subframe too, and without
         // this guard each iframe would inflate the "pages measured" count
         // while crossings can only come from frames where detectors run.
@@ -210,19 +244,20 @@ export default class DetectorPerf extends ContentFeature {
     }
 
     /**
-     * Add one detector run's duration to the page accumulators.
+     * Add one detector run's duration to the frame accumulators.
      *
      * Called (fire-and-forget) by the `timeDetector` wrapper around detector
      * invocations. Invalid input is ignored — recording must never throw
      * back into a detector call site.
      *
-     * @param {string} name - detector label, e.g. 'bot' or 'webDetection'
+     * @param {string} name - detector label
      * @param {number} durationMs
      * @param {string} [detail] - exact detector identity for severe attribution
      *   where `name` is a pooled label, e.g. the config ID `adwalls.generic_en`
      *   behind the `webDetection` label. Never appears in event-type names.
+     * @param {boolean} [failed] - whether the detector invocation threw
      */
-    record(name, durationMs, detail) {
+    record(name, durationMs, detail, failed = false) {
         if (typeof name !== 'string' || !NAME_PATTERN.test(name)) return;
         if (typeof durationMs !== 'number' || !Number.isFinite(durationMs) || durationMs < 0) return;
 
@@ -242,10 +277,13 @@ export default class DetectorPerf extends ContentFeature {
 
         const thresholds = this._thresholdsFor(name);
         this._emitCrossings(name, durationMs, stats, thresholds);
+        if (failed === true) {
+            this._emit(`${EVENT_PREFIX}_${name}_failed`);
+        }
         this._checkSevere(name, durationMs, stats, attributed, thresholds);
 
         // After crossings/severe so the broadcast includes this run's effects.
-        this._debugBroadcast({ name, attributed, durationMs: roundMs(durationMs) });
+        this._debugBroadcast({ name, attributed, durationMs: roundMs(durationMs), failed: failed === true });
     }
 
     /**
@@ -276,7 +314,7 @@ export default class DetectorPerf extends ContentFeature {
     }
 
     /**
-     * Snapshot of the exact per-detector accumulators for this page, for
+     * Snapshot of the exact per-detector accumulators for this frame, for
      * attachment to user-initiated breakage reports. Unlike the bucketed
      * events, values are exact and keyed by exact attribution (config IDs
      * such as `adwalls.generic_en` rather than the pooled `webDetection`
@@ -327,8 +365,8 @@ export default class DetectorPerf extends ContentFeature {
     }
 
     /**
-     * Fire `detectorPerf_severe` immediately, at most once per page per
-     * detector and family, and at most `maxSeverePerPage` per page in total
+     * Fire `detectorPerf_severe` immediately, at most once per frame per
+     * detector and family, and at most `maxSeverePerPage` per frame in total
      * (blast-radius cap for a misconfigured threshold push).
      *
      * @param {SevereKind} kind
@@ -359,7 +397,7 @@ export default class DetectorPerf extends ContentFeature {
      * exposes detector timing and severe-crossing attribution to any page
      * script with a listener. The debug flag is the sole gate.
      *
-     * @param {{ name: string, attributed: string, durationMs: number } | null} lastRun
+     * @param {{ name: string, attributed: string, durationMs: number, failed: boolean } | null} lastRun
      *   the run that triggered this broadcast, or null for the init broadcast
      */
     _debugBroadcast(lastRun) {
@@ -377,7 +415,7 @@ export default class DetectorPerf extends ContentFeature {
     }
 
     /**
-     * Fire an event through webEvents, at most once per page per event type.
+     * Fire an event through webEvents, at most once per frame per event type.
      *
      * The at-most-once guard runs synchronously (before any await), so
      * repeated crossings cannot double-emit. Dispatch is fire-and-forget: the
@@ -418,7 +456,8 @@ export default class DetectorPerf extends ContentFeature {
  * measurement) and the returned promise is intentionally not awaited (so the
  * call site keeps the detector's synchronous return value). When the
  * detectorPerf feature is disabled or absent, the wrapped call behaves
- * exactly as an unwrapped one.
+ * exactly as an unwrapped one. Thrown errors are recorded as failed runs and
+ * rethrown unchanged.
  *
  * Timing uses `performance.now` captured at module load (document-start,
  * before page scripts): in main-world builds a page override of the global
@@ -428,7 +467,7 @@ export default class DetectorPerf extends ContentFeature {
  *
  * @template T
  * @param {ContentFeature} feature - the calling feature, used to reach detectorPerf
- * @param {string} name - detector label, e.g. 'bot'
+ * @param {string} name - detector label
  * @param {() => T} fn - the synchronous detector invocation
  * @param {string} [detail] - exact detector identity for severe attribution
  *   when `name` is a pooled label (e.g. `adwalls.generic_en` under `webDetection`)
@@ -436,10 +475,15 @@ export default class DetectorPerf extends ContentFeature {
  */
 export function timeDetector(feature, name, fn, detail) {
     const t0 = performanceNow();
-    const result = fn();
-    const durationMs = performanceNow() - t0;
-    void reportDuration(feature, name, durationMs, detail);
-    return result;
+    let failed = true;
+    try {
+        const result = fn();
+        failed = false;
+        return result;
+    } finally {
+        const durationMs = performanceNow() - t0;
+        void reportDuration(feature, name, durationMs, detail, failed);
+    }
 }
 
 /**
@@ -450,10 +494,11 @@ export function timeDetector(feature, name, fn, detail) {
  * @param {string} name
  * @param {number} durationMs
  * @param {string} [detail]
+ * @param {boolean} [failed]
  */
-async function reportDuration(feature, name, durationMs, detail) {
+async function reportDuration(feature, name, durationMs, detail, failed) {
     try {
-        await feature.callFeatureMethod('detectorPerf', 'record', name, durationMs, detail);
+        await feature.callFeatureMethod('detectorPerf', 'record', name, durationMs, detail, failed);
     } catch {
         // detectorPerf may not be loaded on this platform — silently ignore
     }

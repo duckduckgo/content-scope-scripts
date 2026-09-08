@@ -1,5 +1,5 @@
 import ContentFeature from '../content-feature.js';
-import { timeDetector } from './detector-perf.js';
+import { timeDetector, WEB_DETECTION_DETECTOR_NAME } from './detector-perf.js';
 import { parseDetectors } from './web-detection/parse.js';
 import { evaluateMatch } from './web-detection/matching.js';
 
@@ -51,32 +51,18 @@ export default class WebDetection extends ContentFeature {
     }
 
     /**
-     * Single choke point for evaluating config-driven detectors — both the
-     * auto-run scans (`_runAutoDetector`) and breakage-report scans
-     * (`runDetectors`) pass through here, so this is where execution time is
-     * measured. All config-driven detectors are attributed to the pooled
-     * `webDetection` label in the counters (detector IDs live in remote
-     * config and change without releases, so they cannot appear in
-     * event-type names). The full ID is passed alongside so the severe
-     * immediate event can attribute the exact detector in its data payload.
+     * Evaluate one configured detector and record its execution time.
      *
      * @param {DetectorConfig} detectorConfig
      * @param {string} fullDetectorId - `groupName.detectorId`, e.g. `adwalls.generic_en`
      * @returns {DetectorMatchResult}
      */
     _evaluateMatch(detectorConfig, fullDetectorId) {
-        return timeDetector(
-            this,
-            'webDetection',
-            () => {
-                try {
-                    return evaluateMatch(detectorConfig.match);
-                } catch {
-                    return 'error';
-                }
-            },
-            fullDetectorId,
-        );
+        try {
+            return timeDetector(this, WEB_DETECTION_DETECTOR_NAME, () => evaluateMatch(detectorConfig.match), fullDetectorId);
+        } catch {
+            return 'error';
+        }
     }
 
     /**

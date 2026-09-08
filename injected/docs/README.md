@@ -16,6 +16,7 @@ This directory contains detailed documentation for the Content Scope Scripts pro
 - **[Development Utilities](./development-utilities.md)** - Scope injection utilities and development tools
 - **[Testing Guide](./testing-guide.md)** - Local testing and development workflow
 - **[Coding Guidelines](./coding-guidelines.md)** - Code style, architecture, security, and performance guidelines
+- **[Detector Performance Monitoring](./detector-performance.md)** - Instrumented detectors, emitted events, and the EventHub contract
 
 ### Existing Documentation
 

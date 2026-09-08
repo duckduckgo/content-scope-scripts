@@ -87,7 +87,7 @@ async function getWebEventPayloads(collector, type) {
 }
 
 test.describe('DetectorPerf Feature', () => {
-    test('auto-run webDetection scans are timed and reported at occurrence, once per page', async ({ page }, testInfo) => {
+    test('auto-run webDetection scans are timed and reported at occurrence, once per frame', async ({ page }, testInfo) => {
         const collector = await setup(page, testInfo.project.use);
         await navigateTo(page, '/web-detection/pages/auto-run-basic.html');
 
@@ -111,32 +111,59 @@ test.describe('DetectorPerf Feature', () => {
         await collector.waitForMessage('breakageReportResult');
 
         const eventsAfterMoreRuns = await getDetectorPerfEvents(collector);
-        expect(eventsAfterMoreRuns).toContain('detectorPerf_bot_ran');
+        expect(eventsAfterMoreRuns).toContain('detectorPerf_webDetection_ran');
         const counts = new Map();
         for (const type of eventsAfterMoreRuns) {
             counts.set(type, (counts.get(type) ?? 0) + 1);
         }
         for (const [type, count] of counts) {
-            expect(count, `event ${type} must be emitted at most once per page`).toBe(1);
+            expect(count, `event ${type} must be emitted at most once per frame`).toBe(1);
         }
     });
 
-    test('on-demand detectors via the breakage-report path are timed per detector', async ({ page }, testInfo) => {
+    test('breakage reports retain on-demand detection data without timing those detectors', async ({ page }, testInfo) => {
         const collector = await setup(page, testInfo.project.use);
         await navigateTo(page, '/web-detection/pages/no-detection.html');
 
-        // Native requests a breakage report: runs bot/fraud utils and
-        // the webDetection breakageReport trigger
         await collector.simulateSubscriptionMessage('breakageReporting', 'getBreakageReportValues', {});
-        await collector.waitForMessage('breakageReportResult');
+        const [reportCall] = await collector.waitForMessage('breakageReportResult');
+        const params = /** @type {Record<string, any>} */ (reportCall.payload).params;
 
         const events = await getDetectorPerfEvents(collector);
         expect(events).toContain('detectorPerf_measured');
-        expect(events).toContain('detectorPerf_bot_ran');
-        expect(events).toContain('detectorPerf_fraud_ran');
         expect(events).toContain('detectorPerf_webDetection_ran');
-        // The YouTube detector is excluded from detectorPerf entirely
-        expect(events.filter((type) => type.includes('youtube'))).toEqual([]);
+        expect(events.filter((type) => type.includes('bot') || type.includes('fraud') || type.includes('youtube'))).toEqual([]);
+
+        expect(params.detectorData?.botDetection).toBeDefined();
+        expect(params.detectorData?.fraudDetection).toBeDefined();
+    });
+
+    test('failed webDetection runs emit failure telemetry and remain in breakage data', async ({ page }, testInfo) => {
+        const collector = ResultsCollector.create(page, testInfo.project.use);
+        collector.withMockResponse({ webDetectionAutoRun: null, webEvent: null, breakageReportResult: null });
+        const config = buildConfig();
+        config.features.webDetection.settings.detectors.failureTest = {
+            invalidSelector: {
+                match: {
+                    element: {
+                        selector: '[',
+                    },
+                },
+            },
+        };
+        await collector.load('/web-detection/index.html', config);
+        await navigateTo(page, '/web-detection/pages/no-detection.html');
+
+        await collector.simulateSubscriptionMessage('breakageReporting', 'getBreakageReportValues', {});
+        const [reportCall] = await collector.waitForMessage('breakageReportResult');
+        const params = /** @type {Record<string, any>} */ (reportCall.payload).params;
+
+        expect(await getDetectorPerfEvents(collector)).toContain('detectorPerf_webDetection_failed');
+        const breakageData = JSON.parse(decodeURIComponent(String(params.breakageData)));
+        expect(breakageData.webDetection).toContainEqual({
+            detectorId: 'failureTest.invalidSelector',
+            detected: 'error',
+        });
     });
 
     test('breakage reports carry exact per-detector timing stats', async ({ page }, testInfo) => {
@@ -151,35 +178,11 @@ test.describe('DetectorPerf Feature', () => {
         const perf = breakageData.detectorPerf;
         expect(perf).toBeDefined();
         expect(typeof perf.combinedTotalMs).toBe('number');
-        // The standalone detectors just ran via timeDetector, so each has
-        // exact stats — unlike the bucketed events, values are not thresholds
-        for (const name of ['bot', 'fraud']) {
-            const stats = perf.detectors[name];
-            expect(stats, `expected detectorPerf stats for ${name}`).toBeDefined();
-            expect(stats.runs).toBeGreaterThanOrEqual(1);
-            expect(stats.totalMs).toBeGreaterThanOrEqual(0);
-            expect(stats.worstMs).toBeGreaterThanOrEqual(0);
-        }
         // Config-driven detectors are keyed by exact config ID
         // (group.detectorId), never by the pooled webDetection label
         const keys = Object.keys(perf.detectors);
         expect(keys.filter((key) => /^[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+$/.test(key)).length).toBeGreaterThan(0);
         expect(keys).not.toContain('webDetection');
-
-        // Ordering guard: getStats() must observe the fire-and-forget
-        // record() calls from the *same* report flow (they funnel through
-        // one shared `_ready` await, so continuations run FIFO). A second
-        // report must therefore show exactly one more run for the
-        // standalone detectors, which only ever run inside report flows.
-        await collector.simulateSubscriptionMessage('breakageReporting', 'getBreakageReportValues', {});
-        const reportCalls = await collector.waitForMessage('breakageReportResult', 2);
-        const secondParams = /** @type {Record<string, any>} */ (reportCalls[1].payload).params;
-        const secondPerf = JSON.parse(decodeURIComponent(String(secondParams.breakageData))).detectorPerf;
-        for (const name of ['bot', 'fraud']) {
-            expect(secondPerf.detectors[name].runs, `expected ${name} runs to include the current report's run`).toBe(
-                perf.detectors[name].runs + 1,
-            );
-        }
     });
 
     test('measurement leaves no page-observable performance timeline entries', async ({ page }, testInfo) => {
@@ -195,7 +198,7 @@ test.describe('DetectorPerf Feature', () => {
         await collector.simulateSubscriptionMessage('breakageReporting', 'getBreakageReportValues', {});
         await collector.waitForMessage('breakageReportResult');
         // Confirm measurement actually happened before asserting its invisibility
-        expect(await getDetectorPerfEvents(collector)).toContain('detectorPerf_bot_ran');
+        expect(await getDetectorPerfEvents(collector)).toContain('detectorPerf_webDetection_ran');
 
         const timelineEntries = await page.evaluate(() => {
             return performance
@@ -297,9 +300,12 @@ test.describe('DetectorPerf Feature', () => {
                 durationMs: expect.any(Number),
             }),
         );
-        // The standalone detectors just ran, so their exact stats are present
-        expect(last.detectors.bot.runs).toBeGreaterThanOrEqual(1);
-        expect(last.detectors.fraud.runs).toBeGreaterThanOrEqual(1);
+        const detectorEntries = Object.entries(last.detectors);
+        expect(detectorEntries.length).toBeGreaterThan(0);
+        for (const [name, stats] of detectorEntries) {
+            expect(name).toMatch(/^[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+$/);
+            expect(stats.runs).toBeGreaterThanOrEqual(1);
+        }
     });
 
     test('without the debug flag no stats broadcast reaches the page', async ({ page }, testInfo) => {

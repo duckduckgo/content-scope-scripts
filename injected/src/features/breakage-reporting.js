@@ -1,8 +1,7 @@
 import ContentFeature, { CallFeatureMethodError } from '../content-feature';
-import { timeDetector } from './detector-perf.js';
 import { getExpandedPerformanceMetrics, getJsPerformanceMetrics } from './breakage-reporting/utils.js';
-import { runBotDetection, BOT_DETECTOR_NAME } from '../detectors/detections/bot-detection.js';
-import { runFraudDetection, FRAUD_DETECTOR_NAME } from '../detectors/detections/fraud-detection.js';
+import { runBotDetection } from '../detectors/detections/bot-detection.js';
+import { runFraudDetection } from '../detectors/detections/fraud-detection.js';
 import { runYoutubeAdDetection } from '../detectors/detections/youtube-ad-detection.js';
 
 /**
@@ -59,8 +58,8 @@ export default class BreakageReporting extends ContentFeature {
             const detectorSettings = this.getFeatureSetting('interferenceTypes', 'webInterferenceDetection');
             if (detectorSettings) {
                 result.detectorData = {
-                    botDetection: timeDetector(this, BOT_DETECTOR_NAME, () => runBotDetection(detectorSettings.botDetection)),
-                    fraudDetection: timeDetector(this, FRAUD_DETECTOR_NAME, () => runFraudDetection(detectorSettings.fraudDetection)),
+                    botDetection: runBotDetection(detectorSettings.botDetection),
+                    fraudDetection: runFraudDetection(detectorSettings.fraudDetection),
                     // youtubeAds is intentionally not timed: the YouTube detector is
                     // excluded from detectorPerf and keeps its own internal metrics.
                     youtubeAds: runYoutubeAdDetection(detectorSettings.youtubeAds),
@@ -78,14 +77,8 @@ export default class BreakageReporting extends ContentFeature {
                 breakageDataPayload.detectorData = result.detectorData;
             }
 
-            // Exact per-detector timing accumulated over this page's lifetime
+            // Exact webDetection timing accumulated in this frame
             // (detectorPerf events are bucketed; the report carries exact values).
-            // Requested last so the record() calls queued by the timeDetector
-            // wrappers above are applied before the snapshot is taken. That
-            // ordering is guaranteed because every callFeatureMethod call to the
-            // same feature awaits the same `_ready` promise, and continuations
-            // on a shared promise run in FIFO subscription order — revisit this
-            // if the dispatch mechanism ever stops funnelling through one await.
             const detectorPerfStats = await this.callFeatureMethod('detectorPerf', 'getStats');
             if (!(detectorPerfStats instanceof CallFeatureMethodError)) {
                 breakageDataPayload.detectorPerf = detectorPerfStats;
