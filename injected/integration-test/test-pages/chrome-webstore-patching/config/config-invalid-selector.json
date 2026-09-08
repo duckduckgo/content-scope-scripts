@@ -1,0 +1,79 @@
+{
+    "readme": "chromeWebstorePatching fixture with a malformed selector alongside valid ones: the bad entry must be dropped without taking the fail-closed hide down with it.",
+    "version": 1,
+    "features": {
+        "chromeWebstorePatching": {
+            "state": "internal",
+            "exceptions": [],
+            "settings": {
+                "patchWebstore": {
+                    "state": "disabled"
+                },
+                "installButtonSelectors": [
+                    {
+                        "type": "css",
+                        "value": "button[jsname=\"unclosed"
+                    },
+                    {
+                        "type": "css",
+                        "value": "button[jsname=\"wQO0od\"]"
+                    },
+                    {
+                        "type": "css",
+                        "value": "button[jsname=\"ajZLRd\"]"
+                    },
+                    {
+                        "type": "css",
+                        "value": "button[jscontroller=\"O626Fe\"][disabled]"
+                    }
+                ],
+                "promoSelectors": [
+                    "div[[[broken",
+                    "[jsname=\"v621tc\"]",
+                    "div[jscontroller=\"o2G9me\"]",
+                    "header[role=\"banner\"] aside"
+                ],
+                "domains": [
+                    {
+                        "domain": "localhost",
+                        "patchSettings": [
+                            {
+                                "op": "replace",
+                                "path": "/patchWebstore/state",
+                                "value": "enabled"
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        "extensionManagement": {
+            "state": "internal",
+            "exceptions": [],
+            "settings": {
+                "hiddenExtensionIds": [],
+                "disabledExtensionIds": [],
+                "specialBehavior": {}
+            },
+            "features": {
+                "curatedExtensions": {
+                    "state": "internal",
+                    "settings": {
+                        "catalog": [
+                            {
+                                "id": "nngceckbapebfimnlniiiahkandclblb",
+                                "name": "Bitwarden Password Manager",
+                                "publisher": "Bitwarden Inc.",
+                                "publisherUri": "https://bitwarden.com/",
+                                "iconUri": "/chrome-webstore-patching/pages/icon.png",
+                                "cwsUri": "https://chromewebstore.google.com/detail/bitwarden-password-manage/nngceckbapebfimnlniiiahkandclblb",
+                                "categoryId": "password-manager"
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+    },
+    "unprotectedTemporary": []
+}
