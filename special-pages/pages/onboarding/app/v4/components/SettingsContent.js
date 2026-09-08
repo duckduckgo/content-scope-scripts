@@ -36,7 +36,9 @@ export function SettingsContent({ advance, dismiss, updateSystemValue }) {
     const { step, status, order, activeStep } = globalState;
     const isDone = globalState.activeRow >= step.rows.length;
     const isLastStep = order[order.length - 1] === activeStep;
-    const pendingId = status.kind === 'executing' && status.action.kind === 'update-system-value' ? status.action.id : null;
+    // While an update is in flight every control on the step stays inert, not just the row that
+    // started it: a second action has no valid transition out of the reducer's 'executing' state.
+    const isBusy = status.kind === 'executing';
 
     const [exitingIndex, setExitingIndex] = useState(/** @type {number | null} */ (null));
     const enteringIndex = exitingIndex !== null && exitingIndex + 1 < step.rows.length ? exitingIndex + 1 : null;
@@ -50,7 +52,7 @@ export function SettingsContent({ advance, dismiss, updateSystemValue }) {
             isEntering: enteringIndex === index,
             systemValue: globalState.values[rowId] || null,
             uiValue: globalState.UIValues[rowId],
-            pending: pendingId === rowId,
+            pending: isBusy,
             id: rowId,
             data: settingsRowItems[rowId](t, platform),
         };
@@ -82,7 +84,7 @@ export function SettingsContent({ advance, dismiss, updateSystemValue }) {
 
             {isDone && (
                 <div class={cn(styles.actions, isAnimating && styles.fadeInDelayed)}>
-                    <Button size="wide" onClick={isLastStep ? dismiss : advance}>
+                    <Button size="wide" disabled={isBusy} onClick={isLastStep ? dismiss : advance}>
                         {isLastStep ? t('startBrowsing') : t('nextButton')}
                         {isLastStep && <Launch />}
                     </Button>
