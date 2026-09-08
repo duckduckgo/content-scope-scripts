@@ -117,8 +117,16 @@
     .controlIcon {
         background-color: transparent;
 
+        &:hover {
+            background-color: var(--color-black-at-6);
+        }
+
         [data-theme="dark"] & {
             background-color: transparent;
+
+            &:hover {
+                background-color: var(--color-white-at-9);
+            }
         }
     }
 }
