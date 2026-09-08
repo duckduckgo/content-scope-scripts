@@ -83,7 +83,7 @@ export function BurnProvider({ children, service, showBurnAnimation = true }) {
     useSignalEffect(() => {
         let cancelled = false;
         async function fetchAnimation() {
-            const resp = await fetch(isRebrand ? 'burn-rebrand.json' : 'burn.json');
+            const resp = await fetch(isRebrand ? 'burn-rebranding.json' : 'burn.json');
             if (!resp.ok) {
                 animation.value = { state: /** @type {const} */ ('error'), data: null };
                 return;
