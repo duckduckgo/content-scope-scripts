@@ -47,11 +47,18 @@ export function isValidSelector(selector) {
  * Every unreadable shape returns an empty catalog, which the caller treats as
  * "nothing is installable": the parent feature gates native extension support,
  * so with it disabled a working install button must not be offered.
+ * Internal builds read `catalogInternal` instead of `catalog`, so extensions
+ * still being trialled can be offered internally while the public catalog stays
+ * narrower. It replaces the public list rather than extending it, per the native
+ * behaviour. Older configs have no `catalogInternal`, so its absence falls back
+ * to `catalog`: that is the narrower list, so falling back cannot widen what an
+ * internal user is offered, and it keeps internal users working on old config.
  * @param {unknown} bundledConfig
  * @param {(state: unknown) => boolean} isEnabled platform-aware state check
+ * @param {boolean} [isInternal] internal build, from `platform.internal`
  * @returns {string[]}
  */
-export function readCuratedCatalog(bundledConfig, isEnabled) {
+export function readCuratedCatalog(bundledConfig, isEnabled, isInternal = false) {
     if (!isRecord(bundledConfig)) return [];
     const features = bundledConfig.features;
     if (!isRecord(features)) return [];
@@ -68,7 +75,8 @@ export function readCuratedCatalog(bundledConfig, isEnabled) {
     const settings = curated.settings;
     if (!isRecord(settings)) return [];
 
-    const catalog = settings.catalog;
+    const internalCatalog = isInternal ? settings.catalogInternal : undefined;
+    const catalog = Array.isArray(internalCatalog) ? internalCatalog : settings.catalog;
     if (!Array.isArray(catalog)) return [];
 
     /** @type {string[]} */

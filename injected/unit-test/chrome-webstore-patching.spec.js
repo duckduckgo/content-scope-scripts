@@ -8,6 +8,7 @@ import {
 import { isStateEnabled } from '../src/utils.js';
 
 const CURATED_ID = 'nngceckbapebfimnlniiiahkandclblb';
+const INTERNAL_ID = 'aeblfdkhhhdcdjpifhhbdiojplfjncoa';
 
 // Only the pure helpers are unit tested: the feature module imports SVG assets,
 // which plain Node can't load. Copy resolution and the chrome.webstorePrivate
@@ -70,6 +71,21 @@ describe('chromeWebstorePatching helpers', () => {
 
         it('accepts enabled state', () => {
             expect(readCuratedCatalog(configWithCatalog({ state: 'enabled' }), enabledFor())).toEqual([CURATED_ID]);
+        });
+
+        // Internal builds read catalogInternal so extensions still being trialled
+        // can be offered internally while the public catalog stays narrower
+        it('reads catalogInternal on an internal build', () => {
+            const config = configWithCatalog({ settings: { catalog: [{ id: CURATED_ID }], catalogInternal: [{ id: INTERNAL_ID }] } });
+            expect(readCuratedCatalog(config, enabledFor(), true)).toEqual([INTERNAL_ID]);
+            expect(readCuratedCatalog(config, enabledFor(), false)).toEqual([CURATED_ID]);
+        });
+
+        it('falls back to catalog when catalogInternal is absent or malformed', () => {
+            const absent = configWithCatalog({ settings: { catalog: [{ id: CURATED_ID }] } });
+            expect(readCuratedCatalog(absent, enabledFor(), true)).toEqual([CURATED_ID]);
+            const malformed = configWithCatalog({ settings: { catalog: [{ id: CURATED_ID }], catalogInternal: 'nope' } });
+            expect(readCuratedCatalog(malformed, enabledFor(), true)).toEqual([CURATED_ID]);
         });
 
         it('returns [] when curatedExtensions is disabled', () => {
