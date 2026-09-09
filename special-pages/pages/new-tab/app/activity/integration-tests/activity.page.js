@@ -209,6 +209,30 @@ export class ActivityPage {
     }
 
     /**
+     * New UI (non-legacy) burn/favorite control icons have no highlight at rest,
+     * only on hover, in both light and dark theme.
+     */
+    async controlIconsHighlightOnlyOnHover() {
+        const burnButton = this.context().getByRole('button', { name: 'Clear browsing history and data for example.com' });
+
+        await expect(burnButton).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+        await burnButton.hover();
+        await expect(burnButton).toHaveCSS('background-color', 'rgba(0, 0, 0, 0.09)');
+    }
+
+    /**
+     * Same as controlIconsHighlightOnlyOnHover, but the hover color is the
+     * dark-theme variant of --ds-color-theme-control-fill-secondary.
+     */
+    async controlIconsHighlightOnlyOnHoverDark() {
+        const burnButton = this.context().getByRole('button', { name: 'Clear browsing history and data for example.com' });
+
+        await expect(burnButton).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+        await burnButton.hover();
+        await expect(burnButton).toHaveCSS('background-color', 'rgba(255, 255, 255, 0.18)');
+    }
+
+    /**
      * Windows remove control uses Cross icon.
      */
     async removeControlUsesCrossIcon() {

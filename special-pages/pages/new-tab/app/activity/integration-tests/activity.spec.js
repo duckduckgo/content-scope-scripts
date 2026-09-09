@@ -65,6 +65,23 @@ test.describe('activity widget', () => {
         await ap.didRender();
         await ap.burnControlUsesFireOutlineIcon();
     });
+    test('control icons have no highlight at rest, only on hover, with rebrand enabled', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const ap = new ActivityPage(page, ntp);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { ...defaultPageParams, cpm: 'null', rebrand: 'enabled' } });
+        await ap.didRender();
+        await ap.controlIconsHighlightOnlyOnHover();
+    });
+    test('control icons hover highlight uses the dark-theme color with rebrand enabled', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const ap = new ActivityPage(page, ntp);
+        await ntp.reducedMotion();
+        await ntp.darkMode();
+        await ntp.openPage({ additional: { ...defaultPageParams, cpm: 'null', rebrand: 'enabled' } });
+        await ap.didRender();
+        await ap.controlIconsHighlightOnlyOnHoverDark();
+    });
     test('burn control uses fire icon in new UI when rebrand disabled', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const ap = new ActivityPage(page, ntp);
