@@ -1,4 +1,1 @@
-- Added translation strings from Smartling (#3028)
-- build(deps-dev): bump jasmine from 6.3.0 to 7.0.0 (#3001)
-- build(deps): bump actions/cache from 5 to 6 (#2796)
-- Use .nvmrc Node version in remaining workflow jobs (#3015)
+- PIR: Add support for executeScript action (#2978)
