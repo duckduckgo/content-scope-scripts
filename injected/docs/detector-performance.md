@@ -19,6 +19,7 @@ The on-demand bot and fraud detectors are not instrumented because their request
 - `combinedThresholdsMs` controls accumulated edges across all instrumented detectors in a frame.
 - `singleRunSevereThresholdMs` makes every crossed single-run edge at or above the cutoff emit immediate severe telemetry.
 - `totalPerPageSevereThresholdMs` does the same for crossed per-group accumulated edges.
+- `combinedSevereThresholdMs` does the same for crossed combined accumulated edges.
 - `detectorOverrides` can replace the single-run or accumulated edges for one detector group.
 - `maxSeverePerPage` caps immediate severe events in each frame. It likewise retains its original name for config compatibility.
 
@@ -34,7 +35,7 @@ All detector performance event types use the reserved `detectorPerf_` prefix:
 - `detectorPerf_<group>_over<N>ms` — one run in the group exceeded threshold `N`
 - `detectorPerf_<group>_total_over<N>ms` — the group's accumulated time in the frame exceeded `N`
 - `detectorPerf_combined_over<N>ms` — accumulated time for all instrumented detectors in the frame exceeded `N`
-- `detectorPerf_severe` — an immediate event for each crossed single or total edge at or above its severe cutoff; combined totals emit at their highest edge
+- `detectorPerf_severe` — an immediate event for each crossed single-run, per-group total, or combined edge at or above its severe cutoff
 
 Thresholds are configuration values embedded in event names. Every threshold change therefore requires corresponding EventHub sources in privacy configuration. C-S-S unit tests enumerate the possible output types, while privacy-configuration tests verify both directions of the contract: every possible event has a consumer and no stale `detectorPerf_` source remains.
 

@@ -344,6 +344,23 @@ describe('DetectorPerf', () => {
             ]);
         });
 
+        it('fires every crossed combined edge at or above the configured cutoff', async () => {
+            const { feature, capturedEvents } = createFeature({
+                defaults: {
+                    singleRunThresholdsMs: [10000],
+                    totalPerPageThresholdsMs: [10000],
+                },
+                combinedThresholdsMs: [50, 100, 250],
+                combinedSevereThresholdMs: 100,
+            });
+            feature.record('adwalls', 300, 'adwalls.generic_en');
+            await settle();
+            expect(severePayloads(capturedEvents)).toEqual([
+                { kind: 'combined', detector: 'combined', thresholdMs: 250 },
+                { kind: 'combined', detector: 'combined', thresholdMs: 100 },
+            ]);
+        });
+
         it('emits the highest severe edges first when the per-frame cap is reached', async () => {
             const { feature, capturedEvents } = createFeature({
                 defaults: {
@@ -370,6 +387,20 @@ describe('DetectorPerf', () => {
             feature.record('bot', 200);
             await settle();
             expect(severePayloads(capturedEvents)).toEqual([{ kind: 'single', detector: 'bot', thresholdMs: 150 }]);
+        });
+
+        it('falls back to the highest combined edge when its severe cutoff is invalid', async () => {
+            const { feature, capturedEvents } = createFeature({
+                defaults: {
+                    singleRunThresholdsMs: [10000],
+                    totalPerPageThresholdsMs: [10000],
+                },
+                combinedThresholdsMs: [100, 250, 500],
+                combinedSevereThresholdMs: 'invalid',
+            });
+            feature.record('bot', 600);
+            await settle();
+            expect(severePayloads(capturedEvents)).toEqual([{ kind: 'combined', detector: 'combined', thresholdMs: 500 }]);
         });
 
         it('attributes config-driven detectors via the detail argument', async () => {

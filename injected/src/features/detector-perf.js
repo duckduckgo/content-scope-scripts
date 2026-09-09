@@ -126,7 +126,7 @@ function roundMs(ms) {
  * slowest pages are exactly the ones users abandon. When a crossing passes
  * a configured severe cutoff, `detectorPerf_severe` also fires for every
  * crossed edge at or above that cutoff (at most once per frame per detector,
- * family and edge). Combined totals retain the highest-edge behavior. These
+ * family and edge). These
  * crossings are rare by construction and native EventHub turns them into an
  * immediate pixel with the detector name in the data payload.
  * `<name>_failed` fires when an invocation throws; failed runs still contribute
@@ -181,6 +181,9 @@ export default class DetectorPerf extends ContentFeature {
 
     /** @type {number | undefined} */
     #totalPerPageSevereThresholdMs;
+
+    /** @type {number | undefined} */
+    #combinedSevereThresholdMs;
 
     /** @type {Record<string, Partial<DetectorThresholds>>} */
     #detectorOverrides = {};
@@ -246,6 +249,11 @@ export default class DetectorPerf extends ContentFeature {
             totalPerPageSevereThresholdMs > 0
         ) {
             this.#totalPerPageSevereThresholdMs = totalPerPageSevereThresholdMs;
+        }
+
+        const combinedSevereThresholdMs = this.getFeatureSetting('combinedSevereThresholdMs');
+        if (typeof combinedSevereThresholdMs === 'number' && Number.isFinite(combinedSevereThresholdMs) && combinedSevereThresholdMs > 0) {
+            this.#combinedSevereThresholdMs = combinedSevereThresholdMs;
         }
 
         /** @type {unknown} */
@@ -403,9 +411,12 @@ export default class DetectorPerf extends ContentFeature {
             }
         }
 
-        const combinedEdge = this.#combinedThresholdsMs[this.#combinedThresholdsMs.length - 1];
-        if (combinedEdge !== undefined && this.#combinedTotalMs > combinedEdge) {
-            this._emitSevere('combined', 'combined', combinedEdge);
+        const combinedCutoff = this.#combinedSevereThresholdMs ?? this.#combinedThresholdsMs[this.#combinedThresholdsMs.length - 1];
+        for (let i = this.#combinedThresholdsMs.length - 1; i >= 0; i--) {
+            const edge = this.#combinedThresholdsMs[i];
+            if (edge !== undefined && combinedCutoff !== undefined && edge >= combinedCutoff && this.#combinedTotalMs > edge) {
+                this._emitSevere('combined', 'combined', edge);
+            }
         }
     }
 
