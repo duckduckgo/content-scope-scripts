@@ -100,8 +100,8 @@ test.describe('DetectorPerf Feature', () => {
         const events = await getDetectorPerfEvents(collector);
         // Events fire as they occur: no page-lifecycle trigger needed
         expect(events).toContain('detectorPerf_measured');
-        // Config-driven detectors are attributed to the pooled webDetection label
-        expect(events).toContain('detectorPerf_webDetection_ran');
+        // Config-driven detectors are attributed to their Web Detection group
+        expect(events).toContain('detectorPerf_autorun_ran');
 
         // Trigger genuinely new detector runs (the auto-run intervals are
         // one-shot timeouts, so advancing the clock further runs nothing):
@@ -111,7 +111,9 @@ test.describe('DetectorPerf Feature', () => {
         await collector.waitForMessage('breakageReportResult');
 
         const eventsAfterMoreRuns = await getDetectorPerfEvents(collector);
-        expect(eventsAfterMoreRuns).toContain('detectorPerf_webDetection_ran');
+        expect(eventsAfterMoreRuns).toContain('detectorPerf_autorun_ran');
+        expect(eventsAfterMoreRuns).toContain('detectorPerf_adwall_ran');
+        expect(eventsAfterMoreRuns).toContain('detectorPerf_video_ran');
         const counts = new Map();
         for (const type of eventsAfterMoreRuns) {
             counts.set(type, (counts.get(type) ?? 0) + 1);
@@ -131,7 +133,8 @@ test.describe('DetectorPerf Feature', () => {
 
         const events = await getDetectorPerfEvents(collector);
         expect(events).toContain('detectorPerf_measured');
-        expect(events).toContain('detectorPerf_webDetection_ran');
+        expect(events).toContain('detectorPerf_adwall_ran');
+        expect(events).toContain('detectorPerf_video_ran');
         expect(events.filter((type) => type.includes('bot') || type.includes('fraud') || type.includes('youtube'))).toEqual([]);
 
         expect(params.detectorData?.botDetection).toBeDefined();
@@ -158,7 +161,7 @@ test.describe('DetectorPerf Feature', () => {
         const [reportCall] = await collector.waitForMessage('breakageReportResult');
         const params = /** @type {Record<string, any>} */ (reportCall.payload).params;
 
-        expect(await getDetectorPerfEvents(collector)).toContain('detectorPerf_webDetection_failed');
+        expect(await getDetectorPerfEvents(collector)).toContain('detectorPerf_failureTest_failed');
         const breakageData = JSON.parse(decodeURIComponent(String(params.breakageData)));
         expect(breakageData.webDetection).toContainEqual({
             detectorId: 'failureTest.invalidSelector',
@@ -179,10 +182,11 @@ test.describe('DetectorPerf Feature', () => {
         expect(perf).toBeDefined();
         expect(typeof perf.combinedTotalMs).toBe('number');
         // Config-driven detectors are keyed by exact config ID
-        // (group.detectorId), never by the pooled webDetection label
+        // (group.detectorId), never by a group label
         const keys = Object.keys(perf.detectors);
         expect(keys.filter((key) => /^[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+$/.test(key)).length).toBeGreaterThan(0);
-        expect(keys).not.toContain('webDetection');
+        expect(keys).not.toContain('adwall');
+        expect(keys).not.toContain('video');
 
         // A second report must include the detector runs that just completed.
         // This guards the FIFO ordering between fire-and-forget record calls
@@ -211,7 +215,7 @@ test.describe('DetectorPerf Feature', () => {
         await collector.simulateSubscriptionMessage('breakageReporting', 'getBreakageReportValues', {});
         await collector.waitForMessage('breakageReportResult');
         // Confirm measurement actually happened before asserting its invisibility
-        expect(await getDetectorPerfEvents(collector)).toContain('detectorPerf_webDetection_ran');
+        expect(await getDetectorPerfEvents(collector)).toContain('detectorPerf_adwall_ran');
 
         const timelineEntries = await page.evaluate(() => {
             return performance
@@ -238,11 +242,13 @@ test.describe('DetectorPerf Feature', () => {
         const collector = ResultsCollector.create(page, testInfo.project.use);
         collector.withMockResponse({ webDetectionAutoRun: null, webEvent: null, breakageReportResult: null });
         const config = buildConfig();
-        // Force the webDetection severe edge below any real run duration so a
+        // Force one group's severe edge below any real run duration so a
         // real crossing is deterministic. No fake clock in this test: the
         // measured durations must be real for the edge to be crossed.
+        config.features.detectorPerf.settings.defaults.totalPerPageThresholdsMs = [100000];
+        config.features.detectorPerf.settings.combinedThresholdsMs = [100000];
         config.features.detectorPerf.settings.detectorOverrides = {
-            webDetection: { singleRunThresholdsMs: [0.0001] },
+            autorun: { singleRunThresholdsMs: [0.0001] },
         };
         await collector.load('/web-detection/index.html', config);
         await navigateTo(page, '/web-detection/pages/auto-run-basic.html');
@@ -261,7 +267,7 @@ test.describe('DetectorPerf Feature', () => {
         for (const data of payloads) {
             expect(data.kind).toBe('single');
             expect(data.thresholdMs).toBe(0.0001);
-            // Exact config attribution: groupName.detectorId, not the pooled label
+            // Exact config attribution: groupName.detectorId, not the group label
             expect(String(data.detector)).toMatch(/^[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+$/);
         }
     });
@@ -349,7 +355,7 @@ test.describe('DetectorPerf Feature', () => {
             .poll(async () => await getDetectorPerfEvents(collector), {
                 message: 'expected webDetection to have run',
             })
-            .toContain('detectorPerf_webDetection_ran');
+            .toContain('detectorPerf_autorun_ran');
         // …but the page observed nothing.
         // @ts-expect-error - test-only page global
         expect(await page.evaluate(() => window.__debugStats)).toEqual([]);
@@ -375,7 +381,7 @@ test.describe('DetectorPerf Feature', () => {
 
         const events = await getDetectorPerfEvents(collector);
         expect(events).toContain('detectorPerf_measured');
-        expect(events).toContain('detectorPerf_webDetection_ran');
+        expect(events).toContain('detectorPerf_autorun_ran');
     });
 
     test('stays inert when bundled but absent from remote config', async ({ page }, testInfo) => {

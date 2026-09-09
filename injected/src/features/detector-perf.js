@@ -2,10 +2,6 @@ import ContentFeature from '../content-feature.js';
 // eslint-disable-next-line no-redeclare
 import { hasOwnProperty, performanceNow, CustomEvent, dispatchEvent, Map, Set } from '../captured-globals.js';
 
-export const WEB_DETECTION_DETECTOR_NAME = 'webDetection';
-/** @type {readonly ['webDetection']} */
-export const DETECTOR_PERF_DETECTOR_NAMES = [WEB_DETECTION_DETECTOR_NAME];
-
 /**
  * Default threshold bin edges (ms). These are discovery bins, not perf
  * budgets — remote config overrides them via the feature settings
@@ -26,10 +22,11 @@ const DEFAULT_COMBINED_THRESHOLDS_MS = [100, 250, 500];
 const DEFAULT_MAX_SEVERE_PER_PAGE = 10;
 
 /**
- * Detailed detector identities use alphanumeric segments separated by `.`,
- * `_` or `-`. They are included only in breakage reports and severe-event
- * data; periodic event names are limited to DETECTOR_PERF_DETECTOR_NAMES so
- * privacy config can validate the complete event set at build time.
+ * Detector group and detailed identities use alphanumeric segments separated
+ * by `.`, `_` or `-`. Group names appear in periodic event names, while exact
+ * config IDs appear in breakage reports and single-run severe-event data.
+ * Privacy config derives the enabled groups at build time and validates the
+ * complete event set.
  */
 const NAME_PATTERN = /^[a-zA-Z0-9]+(?:[._-][a-zA-Z0-9]+)*$/;
 
@@ -38,8 +35,8 @@ const EVENT_PREFIX = 'detectorPerf';
 /**
  * Event type for worst-case crossings: fired so that native EventHub can
  * forward it as an immediate pixel. The data payload
- * carries per-detector attribution — including exact config IDs for the
- * detectors that counters pool under `webDetection`.
+ * carries exact detector attribution for single-run crossings and group
+ * attribution for accumulated-total crossings.
  */
 const SEVERE_EVENT_TYPE = `${EVENT_PREFIX}_severe`;
 
@@ -82,9 +79,10 @@ export function parseThresholds(value, fallback) {
  * EventHub consumer.
  *
  * @param {Record<string, any>} [settings]
+ * @param {string[]} [detectorNames] detector group names known by the caller
  * @returns {string[]}
  */
-export function getDetectorPerfEventTypes(settings = {}) {
+export function getDetectorPerfEventTypes(settings = {}, detectorNames = []) {
     const defaults = settings.defaults ?? {};
     const overrides = settings.detectorOverrides ?? {};
     const defaultSingle = parseThresholds(defaults.singleRunThresholdsMs, DEFAULT_SINGLE_RUN_THRESHOLDS_MS);
@@ -92,7 +90,7 @@ export function getDetectorPerfEventTypes(settings = {}) {
     const combined = parseThresholds(settings.combinedThresholdsMs, DEFAULT_COMBINED_THRESHOLDS_MS);
     const types = new Set([`${EVENT_PREFIX}_measured`, SEVERE_EVENT_TYPE]);
 
-    for (const name of DETECTOR_PERF_DETECTOR_NAMES) {
+    for (const name of detectorNames) {
         types.add(`${EVENT_PREFIX}_${name}_ran`);
         types.add(`${EVENT_PREFIX}_${name}_failed`);
         const single = parseThresholds(overrides[name]?.singleRunThresholdsMs, defaultSingle);
@@ -155,8 +153,8 @@ export default class DetectorPerf extends ContentFeature {
 
     /**
      * Per-page stats keyed by exact attribution (the `detail` config ID when
-     * present, the label otherwise). Never feeds events — event names must be
-     * static — only the breakage-report payload, where exact IDs are wanted.
+     * present, the group otherwise). Never feeds periodic events — only the
+     * breakage-report payload, where exact IDs are wanted.
      * @type {Map<string, DetectorStats>}
      */
     #detectorsDetailed = new Map();
@@ -238,7 +236,7 @@ export default class DetectorPerf extends ContentFeature {
     }
 
     /**
-     * Threshold edges for a given detector, applying per-detector overrides.
+     * Threshold edges for a detector group, applying per-group overrides.
      *
      * @param {string} name
      * @returns {DetectorThresholds}
@@ -260,11 +258,11 @@ export default class DetectorPerf extends ContentFeature {
      * invocations. Invalid input is ignored — recording must never throw
      * back into a detector call site.
      *
-     * @param {string} name - detector label
+     * @param {string} name - detector group
      * @param {number} durationMs
-     * @param {string} [detail] - exact detector identity for severe attribution
-     *   where `name` is a pooled label, e.g. the config ID `adwalls.generic_en`
-     *   behind the `webDetection` label. Never appears in event-type names.
+     * @param {string} [detail] - exact detector identity for single-run severe
+     *   attribution, e.g. `adwalls.generic_en` within the `adwalls` group.
+     *   Never appears in periodic event-type names.
      * @param {boolean} [failed] - whether the detector invocation threw
      */
     record(name, durationMs, detail, failed = false) {
@@ -328,8 +326,8 @@ export default class DetectorPerf extends ContentFeature {
      * Snapshot of the exact per-detector accumulators for this frame, for
      * attachment to user-initiated breakage reports. Unlike the bucketed
      * events, values are exact and keyed by exact attribution (config IDs
-     * such as `adwalls.generic_en` rather than the pooled `webDetection`
-     * label). Durations are rounded to 0.1ms to keep the payload compact —
+     * such as `adwalls.generic_en` rather than the `adwalls` group).
+     * Durations are rounded to 0.1ms to keep the payload compact —
      * finer precision is below timer granularity anyway.
      *
      * @returns {{ combinedTotalMs: number, detectors: Record<string, DetectorStats> } | undefined}
@@ -351,8 +349,8 @@ export default class DetectorPerf extends ContentFeature {
     /**
      * Fire the immediate severe event when this run crosses the highest
      * configured edge of a threshold family. Totals are checked against the
-     * accumulated label (per-ID totals do not exist for pooled detectors, so
-     * a pooled total crossing attributes to the label, e.g. `webDetection`).
+     * accumulated group (per-ID totals do not feed periodic telemetry, so a
+     * total crossing attributes to the group, e.g. `adwalls`).
      *
      * @param {string} name
      * @param {number} durationMs
@@ -481,10 +479,10 @@ export default class DetectorPerf extends ContentFeature {
  *
  * @template T
  * @param {ContentFeature} feature - the calling feature, used to reach detectorPerf
- * @param {string} name - detector label
+ * @param {string} name - detector group
  * @param {() => T} fn - the synchronous detector invocation
- * @param {string} [detail] - exact detector identity for severe attribution
- *   when `name` is a pooled label (e.g. `adwalls.generic_en` under `webDetection`)
+ * @param {string} [detail] - exact detector identity for single-run severe
+ *   attribution (e.g. `adwalls.generic_en` within `adwalls`)
  * @returns {T}
  */
 export function timeDetector(feature, name, fn, detail) {

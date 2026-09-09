@@ -6,9 +6,9 @@ The feature is remote-config gated. When it is disabled or unavailable, detector
 
 ## Instrumented detectors
 
-Periodic telemetry uses the `webDetection` label for all config-driven Web Detection detectors.
+Periodic telemetry uses Web Detection group labels such as `adwalls`, `captcha`, `commentsDisabled`, and `other`.
 
-Config-driven detector IDs can change without a C-S-S release, so they are pooled under `webDetection` in periodic event names. The exact ID, such as `adwalls.generic_en`, is retained for severe-event attribution and breakage-report data.
+Detectors within a group are pooled for periodic event names, reducing telemetry size while distinguishing broad detector families. The exact ID, such as `adwalls.generic_en`, is retained for single-run severe-event attribution and breakage-report data.
 
 The on-demand bot and fraud detectors are not instrumented because their request-driven sampling is not comparable with automatically running Web Detection. Their detection results remain in breakage reports independently of detector performance monitoring. The YouTube interference detector is also excluded because its recurring sweep does not have the same run and accumulated-total semantics.
 
@@ -17,7 +17,7 @@ The on-demand bot and fraud detectors are not instrumented because their request
 - `defaults.singleRunThresholdsMs` controls worst-single-run event edges.
 - `defaults.totalPerPageThresholdsMs` controls accumulated edges for each frame. The setting retains its original `PerPage` name for config compatibility.
 - `combinedThresholdsMs` controls accumulated edges across all instrumented detectors in a frame.
-- `detectorOverrides` can replace the single-run or accumulated edges for one supported detector label.
+- `detectorOverrides` can replace the single-run or accumulated edges for one detector group.
 - `maxSeverePerPage` caps immediate severe events in each frame. It likewise retains its original name for config compatibility.
 
 Invalid threshold lists fall back to C-S-S defaults. Threshold lists are normalized to ascending, unique, positive finite values.
@@ -27,10 +27,10 @@ Invalid threshold lists fall back to C-S-S defaults. Threshold lists are normali
 All detector performance event types use the reserved `detectorPerf_` prefix:
 
 - `detectorPerf_measured` — the top frame initialized the feature
-- `detectorPerf_<name>_ran` — the named detector ran
-- `detectorPerf_<name>_failed` — the named detector threw during evaluation
-- `detectorPerf_<name>_over<N>ms` — one run exceeded threshold `N`
-- `detectorPerf_<name>_total_over<N>ms` — accumulated time in the frame exceeded `N`
+- `detectorPerf_<group>_ran` — a detector in the named group ran
+- `detectorPerf_<group>_failed` — a detector in the named group threw during evaluation
+- `detectorPerf_<group>_over<N>ms` — one run in the group exceeded threshold `N`
+- `detectorPerf_<group>_total_over<N>ms` — the group's accumulated time in the frame exceeded `N`
 - `detectorPerf_combined_over<N>ms` — accumulated time for all instrumented detectors in the frame exceeded `N`
 - `detectorPerf_severe` — an immediate event for crossing the highest configured single, total, or combined threshold
 
@@ -48,7 +48,7 @@ Failed runs still contribute to run and duration events because failed detector 
 }
 ```
 
-`kind` is `single`, `total`, or `combined`. Single-run events can identify the exact config-driven detector. Totals use the pooled label because the accumulator is shared.
+`kind` is `single`, `total`, or `combined`. Single-run events identify the exact config-driven detector. Totals use the detector group because the accumulator is shared within that group; combined crossings use the literal `combined`.
 
 ## Frames and EventHub deduplication
 
