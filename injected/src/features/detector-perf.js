@@ -389,7 +389,7 @@ export default class DetectorPerf extends ContentFeature {
         const singleCutoff = this.#singleRunSevereThresholdMs ?? singleEdges[singleEdges.length - 1];
         for (let i = singleEdges.length - 1; i >= 0; i--) {
             const edge = singleEdges[i];
-            if (edge >= singleCutoff && durationMs > edge) {
+            if (edge !== undefined && singleCutoff !== undefined && edge >= singleCutoff && durationMs > edge) {
                 this._emitSevere('single', attributed, edge);
             }
         }
@@ -398,7 +398,7 @@ export default class DetectorPerf extends ContentFeature {
         const totalCutoff = this.#totalPerPageSevereThresholdMs ?? totalEdges[totalEdges.length - 1];
         for (let i = totalEdges.length - 1; i >= 0; i--) {
             const edge = totalEdges[i];
-            if (edge >= totalCutoff && stats.totalMs > edge) {
+            if (edge !== undefined && totalCutoff !== undefined && edge >= totalCutoff && stats.totalMs > edge) {
                 this._emitSevere('total', name, edge);
             }
         }
