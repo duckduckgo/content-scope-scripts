@@ -11,16 +11,6 @@ function isRecord(value) {
 }
 
 /**
- * Feature states that count as on for our purposes. 'internal' counts because
- * non-internal builds don't offer native extension installation either.
- * @param {unknown} state
- * @returns {boolean}
- */
-function isStateOn(state) {
-    return state === 'enabled' || state === 'internal';
-}
-
-/**
  * Extracts the extension ID from a Chrome Web Store detail-page path, e.g.
  * /detail/bitwarden-password-manag/nngceckbapebfimnlniiiahkandclblb
  * The slug segment is optional; IDs are exactly 32 chars of a-p.
@@ -58,21 +48,22 @@ export function isValidSelector(selector) {
  * "nothing is installable": the parent feature gates native extension support,
  * so with it disabled a working install button must not be offered.
  * @param {unknown} bundledConfig
+ * @param {(state: unknown) => boolean} isEnabled platform-aware state check
  * @returns {string[]}
  */
-export function readCuratedCatalog(bundledConfig) {
+export function readCuratedCatalog(bundledConfig, isEnabled) {
     if (!isRecord(bundledConfig)) return [];
     const features = bundledConfig.features;
     if (!isRecord(features)) return [];
 
     const extensionManagement = features.extensionManagement;
-    if (!isRecord(extensionManagement) || !isStateOn(extensionManagement.state)) return [];
+    if (!isRecord(extensionManagement) || !isEnabled(extensionManagement.state)) return [];
 
     const subFeatures = extensionManagement.features;
     if (!isRecord(subFeatures)) return [];
 
     const curated = subFeatures.curatedExtensions;
-    if (!isRecord(curated) || !isStateOn(curated.state)) return [];
+    if (!isRecord(curated) || !isEnabled(curated.state)) return [];
 
     const settings = curated.settings;
     if (!isRecord(settings)) return [];

@@ -5,6 +5,7 @@ import {
     readCuratedCatalog,
     readStatusSets,
 } from '../src/features/chrome-webstore-patching/helpers.js';
+import { isStateEnabled } from '../src/utils.js';
 
 const CURATED_ID = 'nngceckbapebfimnlniiiahkandclblb';
 
@@ -12,6 +13,10 @@ const CURATED_ID = 'nngceckbapebfimnlniiiahkandclblb';
 // which plain Node can't load. Copy resolution and the chrome.webstorePrivate
 // calls are covered by the integration specs instead.
 describe('chromeWebstorePatching helpers', () => {
+    // The real platform-aware check, the same one ConfigFeature#_isStateEnabled
+    // wraps, so these specs pin the actual contract rather than a stand-in
+    const enabledFor = () => (/** @type {any} */ state) => isStateEnabled(state, { internal: true });
+
     /**
      * bundledConfig shape carrying a curatedExtensions catalog
      * @param {object} [overrides] applied to the curatedExtensions sub-feature
@@ -60,27 +65,27 @@ describe('chromeWebstorePatching helpers', () => {
     // read as "nothing is installable", never as "everything is curated"
     describe('readCuratedCatalog', () => {
         it('returns catalog ids on the happy path', () => {
-            expect(readCuratedCatalog(configWithCatalog())).toEqual([CURATED_ID]);
+            expect(readCuratedCatalog(configWithCatalog(), enabledFor())).toEqual([CURATED_ID]);
         });
 
         it('accepts enabled state', () => {
-            expect(readCuratedCatalog(configWithCatalog({ state: 'enabled' }))).toEqual([CURATED_ID]);
+            expect(readCuratedCatalog(configWithCatalog({ state: 'enabled' }), enabledFor())).toEqual([CURATED_ID]);
         });
 
         it('returns [] when curatedExtensions is disabled', () => {
-            expect(readCuratedCatalog(configWithCatalog({ state: 'disabled' }))).toEqual([]);
+            expect(readCuratedCatalog(configWithCatalog({ state: 'disabled' }), enabledFor())).toEqual([]);
         });
 
         it('returns [] when state is missing', () => {
-            expect(readCuratedCatalog(configWithCatalog({ state: undefined }))).toEqual([]);
+            expect(readCuratedCatalog(configWithCatalog({ state: undefined }), enabledFor())).toEqual([]);
         });
 
         it('returns [] when settings are missing', () => {
-            expect(readCuratedCatalog(configWithCatalog({ settings: undefined }))).toEqual([]);
+            expect(readCuratedCatalog(configWithCatalog({ settings: undefined }), enabledFor())).toEqual([]);
         });
 
         it('returns [] when catalog is not an array', () => {
-            expect(readCuratedCatalog(configWithCatalog({ settings: { catalog: 'nope' } }))).toEqual([]);
+            expect(readCuratedCatalog(configWithCatalog({ settings: { catalog: 'nope' } }), enabledFor())).toEqual([]);
         });
 
         // Not reachable from a config fixture: the schema requires an id on
@@ -89,29 +94,29 @@ describe('chromeWebstorePatching helpers', () => {
             const config = configWithCatalog({
                 settings: { catalog: [{ id: CURATED_ID }, { name: 'no id' }, { id: 42 }, null] },
             });
-            expect(readCuratedCatalog(config)).toEqual([CURATED_ID]);
+            expect(readCuratedCatalog(config, enabledFor())).toEqual([CURATED_ID]);
         });
 
         it('returns [] when the parent extensionManagement feature is disabled', () => {
-            expect(readCuratedCatalog(configWithCatalog({}, 'disabled'))).toEqual([]);
+            expect(readCuratedCatalog(configWithCatalog({}, 'disabled'), enabledFor())).toEqual([]);
         });
 
         it('returns [] when the parent state is missing', () => {
             // null survives the default parameter (undefined would not)
-            expect(readCuratedCatalog(configWithCatalog({}, null))).toEqual([]);
+            expect(readCuratedCatalog(configWithCatalog({}, null), enabledFor())).toEqual([]);
         });
 
         it('returns [] when extensionManagement is absent', () => {
-            expect(readCuratedCatalog({ features: {} })).toEqual([]);
+            expect(readCuratedCatalog({ features: {} }, enabledFor())).toEqual([]);
         });
 
         it('returns [] with an empty features object', () => {
-            expect(readCuratedCatalog({ features: {}, unprotectedTemporary: [] })).toEqual([]);
+            expect(readCuratedCatalog({ features: {}, unprotectedTemporary: [] }, enabledFor())).toEqual([]);
         });
 
         it('returns [] when there is no config at all', () => {
-            expect(readCuratedCatalog(undefined)).toEqual([]);
-            expect(readCuratedCatalog(null)).toEqual([]);
+            expect(readCuratedCatalog(undefined, enabledFor())).toEqual([]);
+            expect(readCuratedCatalog(null, enabledFor())).toEqual([]);
         });
     });
 

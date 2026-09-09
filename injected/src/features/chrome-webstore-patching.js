@@ -402,7 +402,7 @@ export class ChromeWebstorePatching extends ContentFeature {
      * @returns {string[]}
      */
     getCuratedExtensionIds() {
-        return readCuratedCatalog(this.bundledConfig);
+        return readCuratedCatalog(this.bundledConfig, (state) => this._isStateEnabled(/** @type {any} */ (state)));
     }
 
     /**
