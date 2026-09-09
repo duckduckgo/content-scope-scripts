@@ -1,1 +1,1 @@
-- PIR: Add support for executeScript action (#2978)
+- Resolve extension catalog states against the platform flags (#3029)

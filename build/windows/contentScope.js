@@ -20005,8 +20005,16 @@ ${iframeContent}
   function isRecord(value) {
     return typeof value === "object" && value !== null;
   }
-  function isStateOn(state) {
-    return state === "enabled" || state === "internal";
+  function asFeatureState(value) {
+    switch (value) {
+      case "enabled":
+      case "disabled":
+      case "internal":
+      case "preview":
+        return value;
+      default:
+        return void 0;
+    }
   }
   function parseExtensionId(pathname) {
     const match = pathname.match(/\/detail\/(?:[^/]+\/)?([a-p]{32})(?:[/?#]|$)/);
@@ -20020,19 +20028,20 @@ ${iframeContent}
       return false;
     }
   }
-  function readCuratedCatalog(bundledConfig) {
+  function readCuratedCatalog(bundledConfig, isEnabled, isInternal = false) {
     if (!isRecord(bundledConfig)) return [];
     const features = bundledConfig.features;
     if (!isRecord(features)) return [];
     const extensionManagement = features.extensionManagement;
-    if (!isRecord(extensionManagement) || !isStateOn(extensionManagement.state)) return [];
+    if (!isRecord(extensionManagement) || !isEnabled(asFeatureState(extensionManagement.state))) return [];
     const subFeatures = extensionManagement.features;
     if (!isRecord(subFeatures)) return [];
     const curated = subFeatures.curatedExtensions;
-    if (!isRecord(curated) || !isStateOn(curated.state)) return [];
+    if (!isRecord(curated) || !isEnabled(asFeatureState(curated.state))) return [];
     const settings = curated.settings;
     if (!isRecord(settings)) return [];
-    const catalog = settings.catalog;
+    const internalCatalog = isInternal ? settings.catalogInternal : void 0;
+    const catalog = Array.isArray(internalCatalog) ? internalCatalog : settings.catalog;
     if (!Array.isArray(catalog)) return [];
     const ids = [];
     for (const entry of catalog) {
@@ -20364,11 +20373,14 @@ ${iframeContent}
       }
     }
     /**
-     * Curated extension IDs for this build's config.
+     * Curated extension IDs for this build's config. The state check comes from
+     * ConfigFeature so 'internal' and 'preview' resolve against this build's
+     * platform flags rather than being matched as bare strings, and internal
+     * builds read the wider `catalogInternal` list.
      * @returns {string[]}
      */
     getCuratedExtensionIds() {
-      return readCuratedCatalog(this.bundledConfig);
+      return readCuratedCatalog(this.bundledConfig, (state) => this._isStateEnabled(state), this.platform?.internal === true);
     }
     /**
      * Raw install status, or null when the API is missing or errors. Single
