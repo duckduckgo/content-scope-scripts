@@ -49,6 +49,26 @@ test.describe('omnibar usage limits drawer', () => {
         await expect(omnibar.usageLimitsDrawer()).toBeHidden();
     });
 
+    test('shows Create Image model switch without focusing the AI input', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { 'omnibar.mode': 'ai', 'omnibar.usageLimits': 'false' } });
+        await omnibar.ready();
+
+        await omnibar.didReceiveConfig({
+            mode: 'ai',
+            enableAi: true,
+            createImageModelSwitch: {
+                message: 'Now using Luna',
+                secondaryText: "Gemma can't create images.",
+                dismissible: true,
+            },
+        });
+
+        await expect(omnibar.usageLimitsDrawer()).toBeVisible();
+        await expect(omnibar.usageLimitsDrawer()).toContainText('Now using Luna');
+    });
+
     test('hides when native pushes usageLimits null', async ({ page }, workerInfo) => {
         const { ntp, omnibar } = setup(page, workerInfo);
         await ntp.reducedMotion();
