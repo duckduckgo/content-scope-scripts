@@ -16,7 +16,8 @@ const INTERNAL_ID = 'aeblfdkhhhdcdjpifhhbdiojplfjncoa';
 describe('chromeWebstorePatching helpers', () => {
     // The real platform-aware check, the same one ConfigFeature#_isStateEnabled
     // wraps, so these specs pin the actual contract rather than a stand-in
-    const enabledFor = () => (/** @type {any} */ state) => isStateEnabled(state, { internal: true });
+    const enabledFor = () => (/** @type {import('../src/utils.js').FeatureState | undefined} */ state) =>
+        isStateEnabled(state, { name: 'windows', internal: true });
 
     /**
      * bundledConfig shape carrying a curatedExtensions catalog
