@@ -10,6 +10,25 @@ function isRecord(value) {
     return typeof value === 'object' && value !== null;
 }
 
+/** @typedef {import('../../utils.js').FeatureState} FeatureState */
+
+/**
+ * Narrows an untyped config value to a FeatureState.
+ * @param {unknown} value
+ * @returns {FeatureState | undefined}
+ */
+function asFeatureState(value) {
+    switch (value) {
+        case 'enabled':
+        case 'disabled':
+        case 'internal':
+        case 'preview':
+            return value;
+        default:
+            return undefined;
+    }
+}
+
 /**
  * Extracts the extension ID from a Chrome Web Store detail-page path, e.g.
  * /detail/bitwarden-password-manag/nngceckbapebfimnlniiiahkandclblb
@@ -54,7 +73,7 @@ export function isValidSelector(selector) {
  * to `catalog`: that is the narrower list, so falling back cannot widen what an
  * internal user is offered, and it keeps internal users working on old config.
  * @param {unknown} bundledConfig
- * @param {(state: unknown) => boolean} isEnabled platform-aware state check
+ * @param {(state: FeatureState | undefined) => boolean} isEnabled platform-aware state check
  * @param {boolean} [isInternal] internal build, from `platform.internal`
  * @returns {string[]}
  */
@@ -64,13 +83,13 @@ export function readCuratedCatalog(bundledConfig, isEnabled, isInternal = false)
     if (!isRecord(features)) return [];
 
     const extensionManagement = features.extensionManagement;
-    if (!isRecord(extensionManagement) || !isEnabled(extensionManagement.state)) return [];
+    if (!isRecord(extensionManagement) || !isEnabled(asFeatureState(extensionManagement.state))) return [];
 
     const subFeatures = extensionManagement.features;
     if (!isRecord(subFeatures)) return [];
 
     const curated = subFeatures.curatedExtensions;
-    if (!isRecord(curated) || !isEnabled(curated.state)) return [];
+    if (!isRecord(curated) || !isEnabled(asFeatureState(curated.state))) return [];
 
     const settings = curated.settings;
     if (!isRecord(settings)) return [];

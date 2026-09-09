@@ -398,11 +398,14 @@ export class ChromeWebstorePatching extends ContentFeature {
     }
 
     /**
-     * Curated extension IDs for this build's config.
+     * Curated extension IDs for this build's config. The state check comes from
+     * ConfigFeature so 'internal' and 'preview' resolve against this build's
+     * platform flags rather than being matched as bare strings, and internal
+     * builds read the wider `catalogInternal` list.
      * @returns {string[]}
      */
     getCuratedExtensionIds() {
-        return readCuratedCatalog(this.bundledConfig, (state) => this._isStateEnabled(/** @type {any} */ (state)));
+        return readCuratedCatalog(this.bundledConfig, (state) => this._isStateEnabled(state), this.platform?.internal === true);
     }
 
     /**
