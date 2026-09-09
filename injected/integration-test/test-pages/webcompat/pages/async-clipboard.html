@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Async Clipboard shim</title>
+  <link rel="stylesheet" href="../../shared/style.css">
+</head>
+<body>
+    <p><a href="../index.html">[Webcompat shims]</a></p>
+
+    <p>
+        This page exercises the Async Clipboard API shim. Every call is made from a real click handler,
+        because the deprecated clipboard commands the shim relies on only run during a user gesture.
+        Outcomes are recorded on <code>window.clipboardResults</code> for the Playwright spec to read.
+    </p>
+
+    <button id="write-text">writeText</button>
+    <button id="write-item">write</button>
+    <button id="read-text">readText</button>
+
+    <script>
+        // The real implementation, captured before content-scope-scripts replaces it, so the
+        // spec can check what the shim actually put on the system clipboard.
+        window.nativeClipboard = navigator.clipboard;
+        window.clipboardResults = {};
+
+        function record (name, promise) {
+            promise.then(
+                (value) => {
+                    window.clipboardResults[name] = { status: 'fulfilled', value: value ?? null };
+                },
+                (error) => {
+                    window.clipboardResults[name] = { status: 'rejected', name: error.name, message: error.message };
+                }
+            );
+        }
+
+        document.getElementById('write-text').addEventListener('click', () => {
+            record('writeText', navigator.clipboard.writeText('copied by the shim'));
+        });
+
+        document.getElementById('write-item').addEventListener('click', () => {
+            const item = new ClipboardItem({
+                'text/plain': 'plain from the shim',
+                'text/html': '<b>rich from the shim</b>'
+            });
+            record('write', navigator.clipboard.write([item]));
+        });
+
+        document.getElementById('read-text').addEventListener('click', () => {
+            record('readText', navigator.clipboard.readText());
+        });
+    </script>
+</body>
+</html>

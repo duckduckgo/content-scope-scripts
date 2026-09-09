@@ -102,6 +102,7 @@ const CORE_FILES = new Set([
     'injected/src/features/referrer.js',
     'injected/src/features/tracker-protection.js',
     'injected/src/features/tracker-protection/tracker-resolver.js',
+    'injected/src/features/web-compat/async-clipboard.js',
     'injected/src/features/web-detection.js',
     'injected/src/features/web-detection/matching.js',
     'injected/src/features/web-events.js',
