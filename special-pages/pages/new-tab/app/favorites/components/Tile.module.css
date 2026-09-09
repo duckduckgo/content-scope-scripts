@@ -166,7 +166,6 @@ body[data-rebrand="true"] {
            ntp-theme.css); tone-tint-primary wasn't, and went light on
            dark+userImage, hiding the .plus icon above. */
         background: var(--ntp-surface-background-color);
-        backdrop-filter: none;
         box-shadow: var(--ntp-card-shadow-rest);
 
         /* Figma --ds-tone-brighten-secondary (white 60%). The fallback is
