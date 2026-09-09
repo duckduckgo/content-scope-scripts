@@ -867,6 +867,7 @@
     objectEntries: () => objectEntries,
     objectFromEntries: () => objectFromEntries,
     objectKeys: () => objectKeys,
+    performanceNow: () => performanceNow,
     randomUUID: () => randomUUID,
     removeEventListener: () => removeEventListener,
     toString: () => toString
@@ -890,6 +891,7 @@
   var Symbol2 = globalThis.Symbol;
   var hasOwnProperty = Object.prototype.hasOwnProperty;
   var dispatchEvent2 = globalThis.dispatchEvent?.bind(globalThis);
+  var performanceNow = globalThis.performance?.now?.bind(globalThis.performance) ?? Date.now;
   var addEventListener = globalThis.addEventListener?.bind(globalThis);
   var removeEventListener = globalThis.removeEventListener?.bind(globalThis);
   var CustomEvent2 = globalThis.CustomEvent;
@@ -1417,6 +1419,7 @@
     "webInterferenceDetection",
     "webDetection",
     "webEvents",
+    "detectorPerf",
     "pageObserver",
     "hover",
     "trackerProtection",
@@ -1492,6 +1495,7 @@
       "webDetection",
       "webEvents",
       "webInterferenceDetection",
+      "detectorPerf",
       "windowsPermissionUsage",
       "uaChBrands",
       "brokerProtection",
@@ -1527,6 +1531,7 @@
       "webDetection",
       "webEvents",
       "webInterferenceDetection",
+      "detectorPerf",
       "webTelemetry",
       "pageObserver",
       "hover",
@@ -1541,6 +1546,7 @@
       "webDetection",
       "webEvents",
       "webInterferenceDetection",
+      "detectorPerf",
       "breakageReporting",
       "duckPlayer",
       "messageBridge",
@@ -1570,6 +1576,7 @@
       "webDetection",
       "webEvents",
       "webInterferenceDetection",
+      "detectorPerf",
       "webTelemetry",
       "windowsPermissionUsage",
       "uaChBrands",

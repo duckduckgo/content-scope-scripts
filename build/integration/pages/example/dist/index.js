@@ -281,6 +281,7 @@
   var TypeError = globalThis.TypeError;
   var Symbol = globalThis.Symbol;
   var dispatchEvent = globalThis.dispatchEvent?.bind(globalThis);
+  var performanceNow = globalThis.performance?.now?.bind(globalThis.performance) ?? Date.now;
   var addEventListener = globalThis.addEventListener?.bind(globalThis);
   var removeEventListener = globalThis.removeEventListener?.bind(globalThis);
   var CustomEvent2 = globalThis.CustomEvent;

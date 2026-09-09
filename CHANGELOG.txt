@@ -1,1 +1,1 @@
-- Resolve extension catalog states against the platform flags (#3029)
+- Detector perf monitoring (#3013)
