@@ -1,4 +1,6 @@
 import ContentFeature from '../content-feature.js';
+// eslint-disable-next-line no-redeclare
+import { hasOwnProperty } from '../captured-globals.js';
 import { timeDetector } from './detector-perf.js';
 import { parseDetectors } from './web-detection/parse.js';
 import { evaluateMatch } from './web-detection/matching.js';
@@ -39,12 +41,15 @@ export default class WebDetection extends ContentFeature {
     /** @type {Map<string, boolean>} */
     #matchedDetectors = new Map();
 
+    #detectorPerfEnabled = false;
+
     _exposedMethods = this._declareExposedMethods(['runDetectors']);
 
     /**
      * Initialize the feature by loading detector configurations
      */
     init() {
+        this.#detectorPerfEnabled = hasOwnProperty.call(this.featureSettings ?? {}, 'detectorPerf');
         const detectorsConfig = this.getFeatureSetting('detectors');
         this.#detectors = parseDetectors(detectorsConfig);
         this._scheduleAutoRunDetectors();
@@ -60,6 +65,9 @@ export default class WebDetection extends ContentFeature {
      */
     _evaluateMatch(detectorConfig, groupName, fullDetectorId) {
         try {
+            if (!this.#detectorPerfEnabled) {
+                return evaluateMatch(detectorConfig.match);
+            }
             return timeDetector(this, groupName, () => evaluateMatch(detectorConfig.match), fullDetectorId);
         } catch {
             return 'error';

@@ -73,6 +73,18 @@ async function getDetectorPerfEvents(collector) {
 }
 
 /**
+ * Count completed automatic Web Detection runs.
+ * @param {ResultsCollector} collector
+ * @returns {Promise<number>}
+ */
+async function getWebDetectionAutoRunCount(collector) {
+    const calls = await collector.outgoingMessages();
+    return calls
+        .map((c) => /** @type {import('../../messaging/index.js').NotificationMessage} */ (c.payload))
+        .filter((payload) => payload.method === 'webDetectionAutoRun').length;
+}
+
+/**
  * Collect the data payloads of webEvents of one type sent so far.
  * @param {ResultsCollector} collector
  * @param {string} type
@@ -399,6 +411,7 @@ test.describe('DetectorPerf Feature', () => {
         await page.clock.fastForward(300);
 
         expect(await getDetectorPerfEvents(collector)).toEqual([]);
+        expect(await getWebDetectionAutoRunCount(collector)).toBeGreaterThan(0);
     });
 
     test('emits nothing and is omitted from breakage reports when disabled', async ({ page }, testInfo) => {
@@ -413,6 +426,7 @@ test.describe('DetectorPerf Feature', () => {
         await page.clock.fastForward(300);
 
         expect(await getDetectorPerfEvents(collector)).toEqual([]);
+        expect(await getWebDetectionAutoRunCount(collector)).toBeGreaterThan(0);
 
         // Breakage reports must omit the detectorPerf key gracefully rather
         // than fail or carry an error placeholder
