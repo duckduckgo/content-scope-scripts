@@ -33,8 +33,8 @@ const NAME_PATTERN = /^[a-zA-Z0-9]+(?:[._-][a-zA-Z0-9]+)*$/;
 const EVENT_PREFIX = 'detectorPerf';
 
 /**
- * Event type for worst-case crossings: fired so that native EventHub can
- * forward it as an immediate pixel. The data payload
+ * Event type for severe crossings: fired so that native EventHub can forward
+ * it as an immediate pixel. The data payload
  * carries exact detector attribution for single-run crossings and group
  * attribution for accumulated-total crossings.
  */
@@ -124,10 +124,11 @@ function roundMs(ms) {
  * Nothing depends on page visibility, so a killed process or swiped-away app
  * loses nothing already observed — avoiding the data-loss bias where the
  * slowest pages are exactly the ones users abandon. When a crossing passes
- * the *highest* configured edge of a threshold family, `detectorPerf_severe`
- * also fires (at most once per frame per detector and family): those crossings
- * are rare by construction and native EventHub turns them into an immediate
- * pixel with the detector name in the data payload.
+ * a configured severe cutoff, `detectorPerf_severe` also fires for every
+ * crossed edge at or above that cutoff (at most once per frame per detector,
+ * family and edge). Combined totals retain the highest-edge behavior. These
+ * crossings are rare by construction and native EventHub turns them into an
+ * immediate pixel with the detector name in the data payload.
  * `<name>_failed` fires when an invocation throws; failed runs still contribute
  * to duration thresholds because they consume the same on-device resources.
  *
@@ -174,6 +175,12 @@ export default class DetectorPerf extends ContentFeature {
 
     /** @type {number[]} */
     #combinedThresholdsMs = DEFAULT_COMBINED_THRESHOLDS_MS;
+
+    /** @type {number | undefined} */
+    #singleRunSevereThresholdMs;
+
+    /** @type {number | undefined} */
+    #totalPerPageSevereThresholdMs;
 
     /** @type {Record<string, Partial<DetectorThresholds>>} */
     #detectorOverrides = {};
@@ -222,6 +229,24 @@ export default class DetectorPerf extends ContentFeature {
             );
         }
         this.#combinedThresholdsMs = parseThresholds(this.getFeatureSetting('combinedThresholdsMs'), DEFAULT_COMBINED_THRESHOLDS_MS);
+
+        const singleRunSevereThresholdMs = this.getFeatureSetting('singleRunSevereThresholdMs');
+        if (
+            typeof singleRunSevereThresholdMs === 'number' &&
+            Number.isFinite(singleRunSevereThresholdMs) &&
+            singleRunSevereThresholdMs > 0
+        ) {
+            this.#singleRunSevereThresholdMs = singleRunSevereThresholdMs;
+        }
+
+        const totalPerPageSevereThresholdMs = this.getFeatureSetting('totalPerPageSevereThresholdMs');
+        if (
+            typeof totalPerPageSevereThresholdMs === 'number' &&
+            Number.isFinite(totalPerPageSevereThresholdMs) &&
+            totalPerPageSevereThresholdMs > 0
+        ) {
+            this.#totalPerPageSevereThresholdMs = totalPerPageSevereThresholdMs;
+        }
 
         /** @type {unknown} */
         const overrides = this.getFeatureSetting('detectorOverrides');
@@ -347,10 +372,11 @@ export default class DetectorPerf extends ContentFeature {
     }
 
     /**
-     * Fire the immediate severe event when this run crosses the highest
-     * configured edge of a threshold family. Totals are checked against the
-     * accumulated group (per-ID totals do not feed periodic telemetry, so a
-     * total crossing attributes to the group, e.g. `adwalls`).
+     * Fire immediate severe events for crossed edges at or above the
+     * configured cutoff. Edges are emitted highest-first so the per-frame cap
+     * preserves the strongest signals. Totals are checked against the
+     * accumulated group and therefore attribute to that group, e.g. `adwalls`.
+     * Without an explicit cutoff, the previous highest-edge behavior applies.
      *
      * @param {string} name
      * @param {number} durationMs
@@ -359,16 +385,25 @@ export default class DetectorPerf extends ContentFeature {
      * @param {DetectorThresholds} thresholds
      */
     _checkSevere(name, durationMs, stats, attributed, thresholds) {
-        const singleEdge = thresholds.singleRunThresholdsMs[thresholds.singleRunThresholdsMs.length - 1];
-        const totalEdge = thresholds.totalPerPageThresholdsMs[thresholds.totalPerPageThresholdsMs.length - 1];
-        const combinedEdge = this.#combinedThresholdsMs[this.#combinedThresholdsMs.length - 1];
+        const singleEdges = thresholds.singleRunThresholdsMs;
+        const singleCutoff = this.#singleRunSevereThresholdMs ?? singleEdges[singleEdges.length - 1];
+        for (let i = singleEdges.length - 1; i >= 0; i--) {
+            const edge = singleEdges[i];
+            if (edge >= singleCutoff && durationMs > edge) {
+                this._emitSevere('single', attributed, edge);
+            }
+        }
 
-        if (singleEdge !== undefined && durationMs > singleEdge) {
-            this._emitSevere('single', attributed, singleEdge);
+        const totalEdges = thresholds.totalPerPageThresholdsMs;
+        const totalCutoff = this.#totalPerPageSevereThresholdMs ?? totalEdges[totalEdges.length - 1];
+        for (let i = totalEdges.length - 1; i >= 0; i--) {
+            const edge = totalEdges[i];
+            if (edge >= totalCutoff && stats.totalMs > edge) {
+                this._emitSevere('total', name, edge);
+            }
         }
-        if (totalEdge !== undefined && stats.totalMs > totalEdge) {
-            this._emitSevere('total', name, totalEdge);
-        }
+
+        const combinedEdge = this.#combinedThresholdsMs[this.#combinedThresholdsMs.length - 1];
         if (combinedEdge !== undefined && this.#combinedTotalMs > combinedEdge) {
             this._emitSevere('combined', 'combined', combinedEdge);
         }
@@ -376,8 +411,8 @@ export default class DetectorPerf extends ContentFeature {
 
     /**
      * Fire `detectorPerf_severe` immediately, at most once per frame per
-     * detector and family, and at most `maxSeverePerPage` per frame in total
-     * (blast-radius cap for a misconfigured threshold push).
+     * detector, family and threshold, and at most `maxSeverePerPage` per frame
+     * in total (blast-radius cap for a misconfigured threshold push).
      *
      * @param {SevereKind} kind
      * @param {string} detector
@@ -385,7 +420,7 @@ export default class DetectorPerf extends ContentFeature {
      */
     _emitSevere(kind, detector, thresholdMs) {
         if (this.#severeCount >= this.#maxSeverePerPage) return;
-        const guardKey = `${SEVERE_EVENT_TYPE}:${kind}:${detector}`;
+        const guardKey = `${SEVERE_EVENT_TYPE}:${kind}:${detector}:${thresholdMs}`;
         if (this.#emitted.has(guardKey)) return;
         this.#emitted.add(guardKey);
         this.#severeCount += 1;

@@ -247,8 +247,10 @@ test.describe('DetectorPerf Feature', () => {
         // measured durations must be real for the edge to be crossed.
         config.features.detectorPerf.settings.defaults.totalPerPageThresholdsMs = [100000];
         config.features.detectorPerf.settings.combinedThresholdsMs = [100000];
+        config.features.detectorPerf.settings.singleRunSevereThresholdMs = 0.0001;
+        config.features.detectorPerf.settings.maxSeverePerPage = 50;
         config.features.detectorPerf.settings.detectorOverrides = {
-            autorun: { singleRunThresholdsMs: [0.0001] },
+            autorun: { singleRunThresholdsMs: [0.0001, 0.0002] },
         };
         await collector.load('/web-detection/index.html', config);
         await navigateTo(page, '/web-detection/pages/auto-run-basic.html');
@@ -264,9 +266,10 @@ test.describe('DetectorPerf Feature', () => {
             .toBeGreaterThan(0);
 
         const payloads = await getWebEventPayloads(collector, 'detectorPerf_severe');
+        expect(new Set(payloads.map((data) => data.thresholdMs))).toEqual(new Set([0.0001, 0.0002]));
         for (const data of payloads) {
             expect(data.kind).toBe('single');
-            expect(data.thresholdMs).toBe(0.0001);
+            expect([0.0001, 0.0002]).toContain(data.thresholdMs);
             // Exact config attribution: groupName.detectorId, not the group label
             expect(String(data.detector)).toMatch(/^[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+$/);
         }

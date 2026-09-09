@@ -308,6 +308,70 @@ describe('DetectorPerf', () => {
             expect(severePayloads(capturedEvents)).toEqual([]);
         });
 
+        it('fires every crossed single-run edge at or above the configured cutoff', async () => {
+            const { feature, capturedEvents } = createFeature({
+                defaults: {
+                    singleRunThresholdsMs: [8, 16, 50, 150],
+                    totalPerPageThresholdsMs: [10000],
+                },
+                combinedThresholdsMs: [10000],
+                singleRunSevereThresholdMs: 16,
+            });
+            feature.record('adwalls', 200, 'adwalls.generic_en');
+            feature.record('adwalls', 300, 'adwalls.generic_en');
+            await settle();
+            expect(severePayloads(capturedEvents)).toEqual([
+                { kind: 'single', detector: 'adwalls.generic_en', thresholdMs: 150 },
+                { kind: 'single', detector: 'adwalls.generic_en', thresholdMs: 50 },
+                { kind: 'single', detector: 'adwalls.generic_en', thresholdMs: 16 },
+            ]);
+        });
+
+        it('fires every crossed total edge at or above the configured cutoff against the group', async () => {
+            const { feature, capturedEvents } = createFeature({
+                defaults: {
+                    singleRunThresholdsMs: [10000],
+                    totalPerPageThresholdsMs: [50, 100, 250],
+                },
+                combinedThresholdsMs: [10000],
+                totalPerPageSevereThresholdMs: 100,
+            });
+            feature.record('adwalls', 300, 'adwalls.generic_en');
+            await settle();
+            expect(severePayloads(capturedEvents)).toEqual([
+                { kind: 'total', detector: 'adwalls', thresholdMs: 250 },
+                { kind: 'total', detector: 'adwalls', thresholdMs: 100 },
+            ]);
+        });
+
+        it('emits the highest severe edges first when the per-frame cap is reached', async () => {
+            const { feature, capturedEvents } = createFeature({
+                defaults: {
+                    singleRunThresholdsMs: [8, 16, 50, 150],
+                    totalPerPageThresholdsMs: [10000],
+                },
+                combinedThresholdsMs: [10000],
+                singleRunSevereThresholdMs: 16,
+                maxSeverePerPage: 2,
+            });
+            feature.record('bot', 200);
+            await settle();
+            expect(severePayloads(capturedEvents)).toEqual([
+                { kind: 'single', detector: 'bot', thresholdMs: 150 },
+                { kind: 'single', detector: 'bot', thresholdMs: 50 },
+            ]);
+        });
+
+        it('falls back to the highest edge when severe cutoffs are invalid', async () => {
+            const { feature, capturedEvents } = createFeature({
+                singleRunSevereThresholdMs: -1,
+                totalPerPageSevereThresholdMs: 'invalid',
+            });
+            feature.record('bot', 200);
+            await settle();
+            expect(severePayloads(capturedEvents)).toEqual([{ kind: 'single', detector: 'bot', thresholdMs: 150 }]);
+        });
+
         it('attributes config-driven detectors via the detail argument', async () => {
             const { feature, capturedEvents } = createFeature();
             feature.record('adwalls', 200, 'adwalls.generic_en');
@@ -322,7 +386,7 @@ describe('DetectorPerf', () => {
             expect(severePayloads(capturedEvents)).toEqual([{ kind: 'single', detector: 'adwalls', thresholdMs: 150 }]);
         });
 
-        it('fires at most once per frame per detector and kind', async () => {
+        it('fires at most once per frame per detector, kind and threshold', async () => {
             // Pin total/combined edges high so only single-run severes fire here
             const { feature, capturedEvents } = createFeature({
                 defaults: {

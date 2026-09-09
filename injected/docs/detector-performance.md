@@ -17,10 +17,12 @@ The on-demand bot and fraud detectors are not instrumented because their request
 - `defaults.singleRunThresholdsMs` controls worst-single-run event edges.
 - `defaults.totalPerPageThresholdsMs` controls accumulated edges for each frame. The setting retains its original `PerPage` name for config compatibility.
 - `combinedThresholdsMs` controls accumulated edges across all instrumented detectors in a frame.
+- `singleRunSevereThresholdMs` makes every crossed single-run edge at or above the cutoff emit immediate severe telemetry.
+- `totalPerPageSevereThresholdMs` does the same for crossed per-group accumulated edges.
 - `detectorOverrides` can replace the single-run or accumulated edges for one detector group.
 - `maxSeverePerPage` caps immediate severe events in each frame. It likewise retains its original name for config compatibility.
 
-Invalid threshold lists fall back to C-S-S defaults. Threshold lists are normalized to ascending, unique, positive finite values.
+Invalid threshold lists fall back to C-S-S defaults. Threshold lists are normalized to ascending, unique, positive finite values. An absent or invalid severe cutoff retains the previous behavior of emitting only at the highest edge.
 
 ## Event contract
 
@@ -32,7 +34,7 @@ All detector performance event types use the reserved `detectorPerf_` prefix:
 - `detectorPerf_<group>_over<N>ms` — one run in the group exceeded threshold `N`
 - `detectorPerf_<group>_total_over<N>ms` — the group's accumulated time in the frame exceeded `N`
 - `detectorPerf_combined_over<N>ms` — accumulated time for all instrumented detectors in the frame exceeded `N`
-- `detectorPerf_severe` — an immediate event for crossing the highest configured single, total, or combined threshold
+- `detectorPerf_severe` — an immediate event for each crossed single or total edge at or above its severe cutoff; combined totals emit at their highest edge
 
 Thresholds are configuration values embedded in event names. Every threshold change therefore requires corresponding EventHub sources in privacy configuration. C-S-S unit tests enumerate the possible output types, while privacy-configuration tests verify both directions of the contract: every possible event has a consumer and no stale `detectorPerf_` source remains.
 
@@ -48,7 +50,7 @@ Failed runs still contribute to run and duration events because failed detector 
 }
 ```
 
-`kind` is `single`, `total`, or `combined`. Single-run events identify the exact config-driven detector. Totals use the detector group because the accumulator is shared within that group; combined crossings use the literal `combined`.
+`kind` is `single`, `total`, or `combined`. Single-run events identify the exact config-driven detector. Totals use the detector group because the accumulator is shared within that group; combined crossings use the literal `combined`. Severe events are deduplicated per detector, kind, and threshold. When several edges cross together, the highest edges emit first so the frame cap preserves the strongest signals.
 
 ## Frames and EventHub deduplication
 
