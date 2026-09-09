@@ -44,7 +44,6 @@
 }
 
 :global(body[data-rebrand="true"]) .customizeButton {
-    backdrop-filter: none;
     background-color: var(--ds-color-theme-control-fill-primary);
     border: none;
     border-radius: var(--ds-radius-x06);
