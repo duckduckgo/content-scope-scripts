@@ -87,14 +87,6 @@ export const OmnibarContext = createContext({
     dismissUsageLimits: () => {
         throw new Error('must implement');
     },
-    /** @type {() => void} */
-    dismissCreateImageModelSwitch: () => {
-        throw new Error('must implement');
-    },
-    /** @type {(active: boolean) => void} */
-    setImageGenerationActive: () => {
-        throw new Error('must implement');
-    },
     /** @type {(modelId?: string) => void} */
     selectUsageLimitsCta: () => {
         throw new Error('must implement');
@@ -277,19 +269,6 @@ export function OmnibarProvider(props) {
         service.current?.dismissUsageLimits();
     }, [service]);
 
-    /** @type {() => void} */
-    const dismissCreateImageModelSwitch = useCallback(() => {
-        service.current?.dismissCreateImageModelSwitch();
-    }, [service]);
-
-    /** @type {(active: boolean) => void} */
-    const setImageGenerationActive = useCallback(
-        (active) => {
-            service.current?.setImageGenerationActive(active);
-        },
-        [service],
-    );
-
     /** @type {(modelId?: string) => void} */
     const selectUsageLimitsCta = useCallback(
         (modelId) => {
@@ -373,8 +352,6 @@ export function OmnibarProvider(props) {
                 viewAllAiChats,
                 openCustomizeResponses,
                 dismissUsageLimits,
-                dismissCreateImageModelSwitch,
-                setImageGenerationActive,
                 selectUsageLimitsCta,
                 setCustomizeResponsesActive,
                 showUpsell,

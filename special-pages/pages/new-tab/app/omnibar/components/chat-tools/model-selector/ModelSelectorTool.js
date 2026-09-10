@@ -10,11 +10,7 @@ import { ModelSelector } from './ModelSelector';
  * @typedef {import('../../../strings.json')} Strings
  */
 
-/**
- * @param {object} props
- * @param {boolean} [props.readOnly]
- */
-export function ModelSelectorTool({ readOnly = false }) {
+export function ModelSelectorTool() {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const { state, showUpsell } = useContext(OmnibarContext);
     const { selectedModel, aiModelSections, allModels, setSelectedModelId } = useSelectedModel();
@@ -35,7 +31,6 @@ export function ModelSelectorTool({ readOnly = false }) {
             aiModelSections={aiModelSections}
             onUpsell={(type) => showUpsell(type, 'model')}
             disabled={blocksPrompt}
-            readOnly={readOnly}
             ariaLabel={t('omnibar_modelSelectorLabel')}
             isEligibleForFreeTrial={isEligibleForFreeTrial}
         />
