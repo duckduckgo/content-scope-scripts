@@ -223,6 +223,83 @@ describe('BrowserUiLock', () => {
         });
     });
 
+    describe('_detectShouldLock', () => {
+        /** @type {typeof globalThis.getComputedStyle | undefined} */
+        let originalGetComputedStyle;
+        /** @type {Element | null} */
+        let originalDocumentElement;
+        /** @type {HTMLElement | null} */
+        let originalBody;
+        /** @type {string | undefined} */
+        let originalContentType;
+
+        beforeEach(() => {
+            originalGetComputedStyle = globalThis.getComputedStyle;
+            originalDocumentElement = document.documentElement;
+            originalBody = document.body;
+            originalContentType = document.contentType;
+        });
+
+        afterEach(() => {
+            if (originalGetComputedStyle !== undefined) {
+                globalThis.getComputedStyle = originalGetComputedStyle;
+            } else {
+                // @ts-expect-error - restoring undefined
+                delete globalThis.getComputedStyle;
+            }
+            Object.defineProperty(document, 'documentElement', { value: originalDocumentElement, configurable: true });
+            Object.defineProperty(document, 'body', { value: originalBody, configurable: true });
+            Object.defineProperty(document, 'contentType', { value: originalContentType, configurable: true });
+        });
+
+        /**
+         * @param {string} overflowY
+         * @returns {Element}
+         */
+        function createNonScrollableElement(overflowY) {
+            return /** @type {Element} */ (
+                /** @type {unknown} */ ({
+                    scrollHeight: 500,
+                    clientHeight: 500,
+                    overflowY,
+                })
+            );
+        }
+
+        /**
+         * @param {Element} html
+         * @param {Element} body
+         */
+        function setDocumentElements(html, body) {
+            Object.defineProperty(document, 'documentElement', { value: html, configurable: true });
+            Object.defineProperty(document, 'body', { value: body, configurable: true });
+        }
+
+        beforeEach(() => {
+            globalThis.getComputedStyle = jasmine.createSpy('getComputedStyle').and.callFake(
+                (element) =>
+                    /** @type {CSSStyleDeclaration} */ ({
+                        overflowY: /** @type {{ overflowY: string }} */ (element).overflowY,
+                    }),
+            );
+            Object.defineProperty(document, 'contentType', { value: 'text/html', configurable: true });
+        });
+
+        it('returns false when there is no visible scrollbar but no locking overflow-y value', () => {
+            const feature = createFeature();
+            setDocumentElements(createNonScrollableElement('visible'), createNonScrollableElement('auto'));
+
+            expect(feature._detectShouldLock()).toBe(false);
+        });
+
+        it('returns true when there is no visible scrollbar and html has a locking overflow-y value', () => {
+            const feature = createFeature();
+            setDocumentElements(createNonScrollableElement('hidden'), createNonScrollableElement('auto'));
+
+            expect(feature._detectShouldLock()).toBe(true);
+        });
+    });
+
     describe('_isImageDisplayPage', () => {
         /** @type {string | undefined} */
         let originalContentType;
