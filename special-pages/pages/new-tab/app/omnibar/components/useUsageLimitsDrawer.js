@@ -2,10 +2,25 @@ import { useCallback, useContext } from 'preact/hooks';
 import { OmnibarContext } from './OmnibarProvider';
 
 /**
+ * @typedef {NonNullable<import('../../../types/new-tab.js').UsageLimitsDrawer>} UsageLimitsDrawerConfig
+ * @typedef {NonNullable<UsageLimitsDrawerConfig['icon']>} UsageLimitsIcon
+ * @typedef {NonNullable<UsageLimitsDrawerConfig['severity']>} UsageLimitsSeverity
+ * @typedef {NonNullable<NonNullable<UsageLimitsDrawerConfig['cta']>['leadingIcon']>} UsageLimitsCtaLeadingIcon
+ */
+
+/** @satisfies {readonly UsageLimitsIcon[]} */
+const USAGE_LIMITS_ICON_VALUES = /** @type {const} */ (['info', 'ring', 'alert']);
+
+/** @satisfies {readonly UsageLimitsSeverity[]} */
+const USAGE_LIMITS_SEVERITY_VALUES = /** @type {const} */ (['neutral', 'warning', 'critical']);
+
+/** @satisfies {readonly UsageLimitsCtaLeadingIcon[]} */
+const USAGE_LIMITS_CTA_LEADING_ICON_VALUES = /** @type {const} */ (['none', 'convert']);
+
+/**
  * Reads the native-driven usageLimits presentation from OmnibarConfig.
  *
  * @returns {{
- *   visible: boolean,
  *   message: string,
  *   secondaryText: string,
  *   icon: 'info' | 'ring' | 'alert',
@@ -16,7 +31,7 @@ import { OmnibarContext } from './OmnibarProvider';
  *   dismissible: boolean,
  *   onDismiss: (() => void) | undefined,
  *   onSelectCta: ((modelId?: string) => void) | undefined,
- * }}
+ * } | null}
  */
 export function useUsageLimitsDrawer() {
     const { state, dismissUsageLimits, selectUsageLimitsCta } = useContext(OmnibarContext);
@@ -34,23 +49,11 @@ export function useUsageLimitsDrawer() {
     );
 
     if (!usageLimits) {
-        return {
-            visible: false,
-            message: '',
-            secondaryText: '',
-            icon: /** @type {const} */ ('info'),
-            percent: 0,
-            severity: /** @type {const} */ ('neutral'),
-            cta: null,
-            blocksPrompt: false,
-            dismissible: false,
-            onDismiss: undefined,
-            onSelectCta: undefined,
-        };
+        return null;
     }
 
-    const icon = usageLimits.icon && ['ring', 'alert'].includes(usageLimits.icon) ? usageLimits.icon : 'info';
-    const severity = usageLimits.severity && ['warning', 'critical'].includes(usageLimits.severity) ? usageLimits.severity : 'neutral';
+    const icon = usageLimits.icon && USAGE_LIMITS_ICON_VALUES.includes(usageLimits.icon) ? usageLimits.icon : 'info';
+    const severity = usageLimits.severity && USAGE_LIMITS_SEVERITY_VALUES.includes(usageLimits.severity) ? usageLimits.severity : 'neutral';
 
     const rawCta = usageLimits.cta ?? null;
     /** @type {import('./UsageLimitsDrawer.js').UsageLimitsCta | null} */
@@ -58,7 +61,8 @@ export function useUsageLimitsDrawer() {
         rawCta && typeof rawCta.label === 'string'
             ? {
                   label: rawCta.label,
-                  leadingIcon: rawCta.leadingIcon === 'convert' ? 'convert' : 'none',
+                  leadingIcon:
+                      rawCta.leadingIcon && USAGE_LIMITS_CTA_LEADING_ICON_VALUES.includes(rawCta.leadingIcon) ? rawCta.leadingIcon : 'none',
                   primaryModelId: rawCta.primaryModelId,
                   showMenu: rawCta.showMenu === true,
                   menuHeader: typeof rawCta.menuHeader === 'string' ? rawCta.menuHeader : undefined,
@@ -69,7 +73,6 @@ export function useUsageLimitsDrawer() {
             : null;
 
     return {
-        visible: true,
         message: usageLimits.message,
         secondaryText: usageLimits.secondaryText ?? '',
         icon,

@@ -226,9 +226,11 @@ function UsageLimitsCtaControl({ cta, onSelectCta }) {
  * @param {boolean} props.revealed - Whether focus is inside the omnibar; the drawer only shows alongside a focused composer.
  */
 export function UsageLimitsDrawer({ revealed }) {
-    const { visible, message, secondaryText, icon, percent, severity, cta, onSelectCta, onDismiss } = useUsageLimitsDrawer();
+    const usageLimits = useUsageLimitsDrawer();
 
-    if (!visible) return null;
+    if (!usageLimits) return null;
+
+    const { message, secondaryText, icon, percent, severity, cta, onSelectCta, onDismiss } = usageLimits;
 
     const emphasize = icon === 'ring' || icon === 'alert';
 
