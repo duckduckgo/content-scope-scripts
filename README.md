@@ -33,3 +33,5 @@ Utilities to automatically generate TypeScript types from JSON Schema files.
 ## Contributing
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for development setup, npm commands, and release process.
+
+<!-- test: CI hoisting repro, safe to close/delete -->
