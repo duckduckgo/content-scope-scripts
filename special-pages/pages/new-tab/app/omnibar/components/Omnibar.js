@@ -166,7 +166,11 @@ export function Omnibar({
                     <div
                         ref={spacerRef}
                         class={styles.spacer}
-                        onFocusCapture={() => setUsageLimitsRevealed(true)}
+                        onFocusCapture={(event) => {
+                            // Toolbar/drawer focus must not reveal the drawer — only the composer itself.
+                            if (!(event.target instanceof HTMLTextAreaElement)) return;
+                            setUsageLimitsRevealed(true);
+                        }}
                         onBlurCapture={(event) => {
                             if (focusStaysWithin(spacerRef, event)) return;
                             setUsageLimitsRevealed(false);
