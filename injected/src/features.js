@@ -38,6 +38,7 @@ const otherFeatures = /** @type {FeatureName[]} */ ([
     'webDetection',
     'webEvents',
     'webInterferenceDetection',
+    'detectorPerf',
     'windowsPermissionUsage',
     'uaChBrands',
     'brokerProtection',
@@ -55,6 +56,7 @@ const otherFeatures = /** @type {FeatureName[]} */ ([
     'tabSuspension',
     'autofillPasskeys',
     'textSelection',
+    'chromeWebstorePatching',
 ]);
 
 /** @type {Record<string, FeatureName[]>} */
@@ -73,6 +75,7 @@ export const platformSupport = {
         'webDetection',
         'webEvents',
         'webInterferenceDetection',
+        'detectorPerf',
         'webTelemetry',
         'pageObserver',
         'hover',
@@ -87,6 +90,7 @@ export const platformSupport = {
         'webDetection',
         'webEvents',
         'webInterferenceDetection',
+        'detectorPerf',
         'breakageReporting',
         'duckPlayer',
         'messageBridge',
@@ -116,6 +120,7 @@ export const platformSupport = {
         'webDetection',
         'webEvents',
         'webInterferenceDetection',
+        'detectorPerf',
         'webTelemetry',
         'windowsPermissionUsage',
         'uaChBrands',
@@ -129,6 +134,7 @@ export const platformSupport = {
         'performanceMetrics',
         'duckAiChatHistory',
         'autofillPasskeys',
+        'chromeWebstorePatching',
     ],
     firefox: ['cookie', ...baseFeatures, 'clickToLoad', 'webDetection', 'webEvents', 'webInterferenceDetection', 'breakageReporting'],
     chrome: ['cookie', ...baseFeatures, 'clickToLoad', 'webDetection', 'webEvents', 'webInterferenceDetection', 'breakageReporting'],

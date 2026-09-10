@@ -16,6 +16,7 @@
             <div class="description-container">
                 <p class="error-description">$ERROR_DESCRIPTION$</p>
             </div>
+            <button id="error-page-link" class="error-page-link" type="button" hidden></button>
         </div>
         <div class="watermark-container">
             <img src="img/logo-horizontal.svg" alt="DuckDuckGo" class="watermark">
@@ -31,6 +32,28 @@
                 document.body.dataset.themeVariant = payload.themeVariant;
             }
         };
+
+        /**
+         * @param {{ text: string, onClick: () => void } | null} configuration
+         */
+        window.configureErrorPageLink = function(configuration) {
+            var link = document.getElementById('error-page-link');
+            var hasText = configuration && typeof configuration.text === 'string' && configuration.text.trim().length > 0;
+            var hasAction = configuration && typeof configuration.onClick === 'function';
+
+            if (!hasText || !hasAction) {
+                link.textContent = '';
+                link.onclick = null;
+                link.hidden = true;
+                return;
+            }
+
+            link.textContent = configuration.text;
+            link.onclick = configuration.onClick;
+            link.hidden = false;
+        };
+
+        /* $ERROR_PAGE_LINK_CONFIGURATION$ */
     </script>
 </body>
 </html>

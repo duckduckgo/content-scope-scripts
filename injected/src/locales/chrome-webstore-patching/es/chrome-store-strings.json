@@ -1,0 +1,28 @@
+{
+  "smartling": {
+    "string_format": "icu",
+    "translate_paths": [
+      {
+        "path": "*/title",
+        "key": "{*}/title",
+        "instruction": "*/note"
+      }
+    ]
+  },
+  "install": {
+    "title": "Añadir a DuckDuckGo",
+    "note": "Install button on a Chrome Web Store extension detail page, replacing 'Add to Chrome'."
+  },
+  "remove": {
+    "title": "Eliminar de DuckDuckGo",
+    "note": "Uninstall button on a Chrome Web Store extension detail page, shown when the extension is already installed."
+  },
+  "unavailable": {
+    "title": "Extensión no compatible",
+    "note": "Label on a disabled button, shown on extensions the DuckDuckGo browser does not support."
+  },
+  "unavailableDescription": {
+    "title": "Esta extensión no es compatible.",
+    "note": "Tooltip shown when hovering the disabled 'Unsupported extension' button."
+  }
+}
