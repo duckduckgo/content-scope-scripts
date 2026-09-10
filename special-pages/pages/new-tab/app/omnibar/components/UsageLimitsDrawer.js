@@ -8,6 +8,7 @@ import { Dropdown } from './chat-tools/dropdown/Dropdown';
 import { DropdownItem } from './chat-tools/dropdown/DropdownItem';
 import { useDropdown } from './chat-tools/useDropdown';
 import { getModelIcon } from './chat-tools/model-selector/Icons';
+import { useUsageLimitsDrawer } from './useUsageLimitsDrawer';
 import styles from './UsageLimitsDrawer.module.css';
 
 /** @typedef {typeof import('../strings.json')} Strings */
@@ -42,7 +43,12 @@ function UsageLimitsRing({ percent, severity }) {
     const valueDash = Math.min(0.9999, Math.max(0, percent / 100)) * circumference;
 
     return (
-        <svg class={cn(styles.glyph, styles.ring, styles[`severity_${severity}`])} viewBox="0 0 16 16" overflow="visible" aria-hidden="true">
+        <svg
+            class={cn(styles.glyph, styles.ring, styles[`severity_${severity}`])}
+            viewBox="0 0 16 16"
+            overflow="visible"
+            aria-hidden="true"
+        >
             <circle
                 class={styles.ringTrack}
                 cx="8"
@@ -85,6 +91,31 @@ function UsageLimitsAlertIcon() {
             />
         </svg>
     );
+}
+
+/**
+ * @param {object} props
+ * @param {UsageLimitsIcon} props.icon
+ * @param {number} props.percent
+ * @param {UsageLimitsSeverity} props.severity
+ */
+function UsageLimitsGlyph({ icon, percent, severity }) {
+    const infoIcon = <InfoIcon class={cn(styles.glyph, styles.info)} aria-hidden="true" />;
+
+    switch (icon) {
+        case 'ring':
+            return <UsageLimitsRing percent={percent} severity={severity} />;
+        case 'alert':
+            return <UsageLimitsAlertIcon />;
+        case 'info':
+            return infoIcon;
+        default: {
+            /** @type {never} */
+            const _exhaustiveCheck = icon;
+            console.error(`Unknown usage limits icon: ${_exhaustiveCheck}`);
+            return infoIcon;
+        }
+    }
 }
 
 /** Convert / switch-model glyph (Convert-16 from DDG Icons). */
@@ -192,25 +223,13 @@ function UsageLimitsCtaControl({ cta, onSelectCta }) {
 
 /**
  * @param {object} props
- * @param {string} props.message
- * @param {string} [props.secondaryText]
- * @param {UsageLimitsIcon} [props.icon]
- * @param {number} [props.percent]
- * @param {UsageLimitsSeverity} [props.severity]
- * @param {UsageLimitsCta | null} [props.cta]
- * @param {(modelId?: string) => void} [props.onSelectCta]
- * @param {() => void} [props.onDismiss]
+ * @param {boolean} props.revealed - Whether focus is inside the omnibar; the drawer only shows alongside a focused composer.
  */
-export function UsageLimitsDrawer({
-    message,
-    secondaryText,
-    icon = 'info',
-    percent = 0,
-    severity = 'neutral',
-    cta = null,
-    onSelectCta,
-    onDismiss,
-}) {
+export function UsageLimitsDrawer({ revealed }) {
+    const { visible, message, secondaryText, icon, percent, severity, cta, onSelectCta, onDismiss } = useUsageLimitsDrawer();
+
+    if (!visible) return null;
+
     const emphasize = icon === 'ring' || icon === 'alert';
 
     const keepComposerFocus = (event) => {
@@ -219,17 +238,16 @@ export function UsageLimitsDrawer({
     };
 
     return (
-        <div class={styles.drawer} data-testid="usage-limits-drawer" role="status" onMouseDown={keepComposerFocus}>
+        <div
+            class={cn(styles.drawer, !revealed && styles.hidden)}
+            data-testid="usage-limits-drawer"
+            role="status"
+            onMouseDown={keepComposerFocus}
+        >
             <div class={styles.card}>
                 <div class={styles.content}>
                     <span class={styles.leading}>
-                        {icon === 'ring' ? (
-                            <UsageLimitsRing percent={percent} severity={severity} />
-                        ) : icon === 'alert' ? (
-                            <UsageLimitsAlertIcon />
-                        ) : (
-                            <InfoIcon class={cn(styles.glyph, styles.info)} aria-hidden="true" />
-                        )}
+                        <UsageLimitsGlyph icon={icon} percent={percent} severity={severity} />
                     </span>
                     <p class={cn(styles.message, emphasize && styles.messageEmphasized)}>
                         <span class={styles.primary}>{message}</span>

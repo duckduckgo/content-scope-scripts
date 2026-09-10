@@ -16,6 +16,11 @@
     }
 }
 
+/* Revealed only while focus is inside the omnibar. */
+.hidden {
+    display: none;
+}
+
 @keyframes slideOpen {
     from {
         transform: translateY(calc(-100% + 32px));
