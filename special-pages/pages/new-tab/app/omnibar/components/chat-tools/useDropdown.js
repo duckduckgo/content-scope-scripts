@@ -31,13 +31,14 @@ function findContainingBlock(el) {
 
 /**
  * Computes dropdown position relative to the trigger button.
- * @param {DOMRect} buttonRect
- * @param {DOMRect | null} cbRect - containing-block rect, if any
- * @param {'left' | 'right'} align
- * @param {number} offsetY - Gap below the anchor; 0 seats the menu against the button.
+ * @param {object} args
+ * @param {DOMRect} args.buttonRect
+ * @param {DOMRect | null} args.cbRect - containing-block rect, if any
+ * @param {'left' | 'right'} args.align
+ * @param {number} args.offsetY - Gap below the anchor; 0 seats the menu against the button.
  * @returns {DropdownPosition}
  */
-function computePosition(buttonRect, cbRect, align, offsetY) {
+function computePosition({ buttonRect, cbRect, align, offsetY }) {
     const topOffset = cbRect?.top ?? 0;
     const top = buttonRect.bottom - topOffset + offsetY;
     if (align === 'right') {
@@ -80,7 +81,7 @@ export function useDropdown({ align = 'left', offsetY = 4, anchorRef } = {}) {
         const rect = anchor.getBoundingClientRect();
         const cb = findContainingBlock(anchor);
         const cbRect = cb?.getBoundingClientRect() ?? null;
-        setDropdownPos(computePosition(rect, cbRect, align, offsetY));
+        setDropdownPos(computePosition({ buttonRect: rect, cbRect, align, offsetY }));
         setIsOpen(true);
 
         /** @param {MouseEvent} e */

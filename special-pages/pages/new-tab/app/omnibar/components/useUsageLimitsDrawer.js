@@ -49,8 +49,8 @@ export function useUsageLimitsDrawer() {
         };
     }
 
-    const icon = usageLimits.icon === 'ring' || usageLimits.icon === 'alert' ? usageLimits.icon : 'info';
-    const severity = usageLimits.severity === 'warning' || usageLimits.severity === 'critical' ? usageLimits.severity : 'neutral';
+    const icon = usageLimits.icon && ['ring', 'alert'].includes(usageLimits.icon) ? usageLimits.icon : 'info';
+    const severity = usageLimits.severity && ['warning', 'critical'].includes(usageLimits.severity) ? usageLimits.severity : 'neutral';
 
     const rawCta = usageLimits.cta ?? null;
     /** @type {import('./UsageLimitsDrawer.js').UsageLimitsCta | null} */
