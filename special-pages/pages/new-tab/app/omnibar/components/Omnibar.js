@@ -36,7 +36,6 @@ import { OpenTabsProvider } from './chat-tools/tab-attachment/OpenTabsProvider';
 import { useMentionPicker } from './chat-tools/tab-attachment/useMentionPicker';
 import { useTabAttachments } from './chat-tools/tab-attachment/useTabAttachments';
 import { UsageLimitsDrawer } from './UsageLimitsDrawer';
-import { useUsageLimitsDrawer } from './useUsageLimitsDrawer';
 
 /**
  * @typedef {typeof import('../strings.json')} Strings
@@ -45,6 +44,16 @@ import { useUsageLimitsDrawer } from './useUsageLimitsDrawer';
  * @typedef {import('../../../types/new-tab.js').OpenTarget} OpenTarget
  * @typedef {import('../../../types/new-tab.js').SubmitChatAction} SubmitChatAction
  */
+
+/**
+ * Whether a focus change landed on another element inside `ref`, rather than leaving its subtree.
+ * @param {{ current: HTMLElement | null }} ref
+ * @param {FocusEvent} event
+ */
+function focusStaysWithin(ref, event) {
+    const next = event.relatedTarget;
+    return next instanceof Node && (ref.current?.contains(next) ?? false);
+}
 
 /**
  * @param {object} props
@@ -72,7 +81,7 @@ export function Omnibar({
     tabId,
 }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
-    const usageLimits = useUsageLimitsDrawer();
+    const spacerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const [usageLimitsRevealed, setUsageLimitsRevealed] = useState(false);
 
     const [query, setQuery] = useQueryWithLocalPersistence(tabId);
@@ -123,7 +132,7 @@ export function Omnibar({
     };
 
     return (
-        <div key={resetKey} class={styles.root} data-mode={mode} data-usage-limits-revealed={usageLimitsRevealed ? true : undefined}>
+        <div key={resetKey} class={styles.root} data-mode={mode}>
             <LogoStacked class={styles.logo} aria-label={t('omnibar_logoAlt')} />
             {enableAi && (
                 <div class={styles.tabSwitcherContainer}>
@@ -154,7 +163,15 @@ export function Omnibar({
                     enableRecentAiChats={enableRecentAiChats}
                     showViewAllAiChats={showViewAllAiChats}
                 >
-                    <div class={styles.spacer}>
+                    <div
+                        ref={spacerRef}
+                        class={styles.spacer}
+                        onFocusCapture={() => setUsageLimitsRevealed(true)}
+                        onBlurCapture={(event) => {
+                            if (focusStaysWithin(spacerRef, event)) return;
+                            setUsageLimitsRevealed(false);
+                        }}
+                    >
                         <div class={styles.popup}>
                             {mode === 'search' ? (
                                 <>
@@ -179,23 +196,12 @@ export function Omnibar({
                                         tabId={tabId}
                                         onChange={setQuery}
                                         onSubmit={handleSubmitChat}
-                                        onUsageLimitsReveal={setUsageLimitsRevealed}
+                                        omnibarRef={spacerRef}
                                     />
                                 </OpenTabsProvider>
                             )}
                         </div>
-                        {mode === 'ai' && usageLimits.visible && (
-                            <UsageLimitsDrawer
-                                message={usageLimits.message}
-                                secondaryText={usageLimits.secondaryText}
-                                icon={usageLimits.icon}
-                                percent={usageLimits.percent}
-                                severity={usageLimits.severity}
-                                cta={usageLimits.cta}
-                                onSelectCta={usageLimits.onSelectCta}
-                                onDismiss={usageLimits.onDismiss}
-                            />
-                        )}
+                        {mode === 'ai' && <UsageLimitsDrawer revealed={usageLimitsRevealed} />}
                     </div>
                 </AiChatsProvider>
             </SearchFormProvider>
@@ -213,7 +219,7 @@ export function Omnibar({
  * @param {string|null|undefined} [props.tabId]
  * @param {(query: string) => void} props.onChange
  * @param {(params: SubmitChatAction) => void} props.onSubmit
- * @param {(revealed: boolean) => void} [props.onUsageLimitsReveal]
+ * @param {{ current: HTMLElement | null }} props.omnibarRef - Focus staying inside this subtree keeps the chats list open.
  */
 function AiChatContent({
     query,
@@ -224,7 +230,7 @@ function AiChatContent({
     tabId,
     onChange,
     onSubmit,
-    onUsageLimitsReveal,
+    omnibarRef,
 }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
@@ -396,24 +402,16 @@ function AiChatContent({
             data-attachment-warning={imageWarning || fileWarning || tabWarning || undefined}
             onFocusCapture={(event) => {
                 if (!(event.target instanceof HTMLTextAreaElement)) return;
-                onUsageLimitsReveal?.(true);
                 if (!hasVisibleImagesRef.current && !imageGenerationActive && !mention.pickerActive) showChats();
             }}
             onBlurCapture={(event) => {
-                const next = event.relatedTarget;
-                if (
-                    next instanceof Element &&
-                    (containerRef.current?.contains(next) || next.closest('[data-testid="usage-limits-drawer"]'))
-                ) {
-                    return;
-                }
+                if (focusStaysWithin(omnibarRef, event)) return;
                 // Don't hide the list while the native deletion dialog is open
                 if (deletionInProgress.current) {
                     return;
                 }
 
                 hideChats();
-                onUsageLimitsReveal?.(false);
             }}
         >
             <ResizingContainer className={styles.field}>

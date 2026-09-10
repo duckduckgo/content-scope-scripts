@@ -49,6 +49,32 @@ test.describe('omnibar usage limits drawer', () => {
         await expect(omnibar.usageLimitsDrawer()).toBeHidden();
     });
 
+    test('keeps the drawer and chats list open while focus moves into the drawer', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({
+            additional: {
+                'omnibar.mode': 'ai',
+                'omnibar.usageLimits': 'approaching',
+                'omnibar.enableAi': true,
+                'omnibar.enableRecentAiChats': true,
+            },
+        });
+        await omnibar.ready();
+
+        await omnibar.focusChatInput();
+        await expect(omnibar.usageLimitsDrawer()).toBeVisible();
+        await expect(omnibar.aiChats().first()).toBeVisible();
+
+        // The drawer renders outside the composer, so focusing its CTA must not read as leaving the omnibar.
+        await omnibar.usageLimitsCtaMenuButton().focus();
+        await expect(omnibar.usageLimitsDrawer()).toBeVisible();
+        await expect(omnibar.aiChats().first()).toBeVisible();
+
+        await omnibar.customizeButton().focus();
+        await expect(omnibar.usageLimitsDrawer()).toBeHidden();
+    });
+
     test('hides when native pushes usageLimits null', async ({ page }, workerInfo) => {
         const { ntp, omnibar } = setup(page, workerInfo);
         await ntp.reducedMotion();
