@@ -78,7 +78,7 @@ export function Omnibar({
     const [query, setQuery] = useQueryWithLocalPersistence(tabId);
     const [resetKey, setResetKey] = useState(0);
     const [autoFocus, setAutoFocus] = useState(false);
-    const { state, openSuggestion, submitSearch, submitChat, setShowCustomizePopover } = useContext(OmnibarContext);
+    const { openSuggestion, submitSearch, submitChat, setShowCustomizePopover } = useContext(OmnibarContext);
 
     const { open: openCustomizer } = useDrawerControls();
     useDrawerEventListeners(
@@ -123,12 +123,7 @@ export function Omnibar({
     };
 
     return (
-        <div
-            key={resetKey}
-            class={styles.root}
-            data-mode={mode}
-            data-usage-limits-revealed={usageLimitsRevealed || state.config?.createImageModelSwitch ? true : undefined}
-        >
+        <div key={resetKey} class={styles.root} data-mode={mode} data-usage-limits-revealed={usageLimitsRevealed ? true : undefined}>
             <LogoStacked class={styles.logo} aria-label={t('omnibar_logoAlt')} />
             {enableAi && (
                 <div class={styles.tabSwitcherContainer}>
