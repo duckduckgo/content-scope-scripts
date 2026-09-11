@@ -6,15 +6,16 @@
  * between JavaScript and native Android code.
  *
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { MessagingTransport, MessageResponse, SubscriptionEvent } from '../index.js';
 import { isResponseFor, isSubscriptionEventFor, RequestMessage } from '../schema.js';
 import { isBeingFramed } from '../../injected/src/utils.js';
 
 /**
- * @typedef {import('../index.js').Subscription} Subscription
- * @typedef {import('../index.js').MessagingContext} MessagingContext
- * @typedef {import('../index.js').NotificationMessage} NotificationMessage
+ * @typedef {import('../core.js').MessagingTransport} MessagingTransport
+ * @typedef {import('../core.js').MessagingContext} MessagingContext
+ * @typedef {import('../schema.js').Subscription} Subscription
+ * @typedef {import('../schema.js').NotificationMessage} NotificationMessage
+ * @typedef {import('../schema.js').MessageResponse} MessageResponse
+ * @typedef {import('../schema.js').SubscriptionEvent} SubscriptionEvent
  */
 
 /**
@@ -348,5 +349,14 @@ export class AndroidAdsjsMessagingConfig {
             this._log('Failed to send initial ping:', e);
             return false;
         }
+    }
+
+    /**
+     * @param {MessagingContext} messagingContext
+     * @returns {MessagingTransport}
+     * @internal
+     */
+    createTransport(messagingContext) {
+        return new AndroidAdsjsMessagingTransport(this, messagingContext);
     }
 }
