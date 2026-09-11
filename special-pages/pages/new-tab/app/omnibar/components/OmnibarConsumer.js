@@ -89,7 +89,10 @@ function OmnibarReadyState({ config, tabId }) {
                 mode={modeForCurrentTab}
                 setMode={setMode}
                 enableAi={showAiSetting && enableAi}
-                enableRecentAiChats={enableRecentAiChats}
+                /* POC: the rail owns recent chats now, so the composer's own dropdown is off -
+                   the two overlap and the provider hands over a full history the dropdown was
+                   never sized for. Pass `enableRecentAiChats` again to bring it back. */
+                enableRecentAiChats={false}
                 showViewAllAiChats={showViewAllAiChats}
                 showCustomizePopover={showCustomizePopover}
                 enableVoiceChatAccess={enableVoiceChatAccess}

@@ -287,6 +287,18 @@
     "title": "Show chats panel",
     "description": "Accessible label and tooltip for the button that reopens the collapsed Duck.ai chats side panel."
   },
+  "omnibar_chatsSidePanelNewChat": {
+    "title": "New Chat",
+    "description": "Label for the row that starts a new Duck.ai chat in the chats side panel."
+  },
+  "omnibar_chatsSidePanelNewVoiceChat": {
+    "title": "New Voice Chat",
+    "description": "Label for the row that starts a new Duck.ai voice chat in the chats side panel."
+  },
+  "omnibar_chatsSidePanelNewImage": {
+    "title": "New Image",
+    "description": "Label for the row that starts a new Duck.ai image generation in the chats side panel."
+  },
   "omnibar_modelBadgeInternal": {
     "title": "Internal",
     "description": "Badge shown next to an AI model in the model selector that is only available to internal users."

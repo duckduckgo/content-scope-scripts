@@ -2750,7 +2750,8 @@ test.describe('omnibar widget', () => {
         });
     });
 
-    test.describe('AI chats', () => {
+    test.describe.skip('AI chats', () => {
+        // POC: the composer's recent-chats dropdown is disabled (enableRecentAiChats is forced false in OmnibarConsumer) because it overlaps the Duck.ai chats rail and the provider now hands over a full history. Restore these together with that flag.
         test('shows recent AI chats when in AI mode', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);
@@ -3350,7 +3351,8 @@ test.describe('omnibar widget', () => {
             });
         });
 
-        test.describe('AI chats', () => {
+        test.describe.skip('AI chats', () => {
+            // POC: the composer's recent-chats dropdown is disabled (enableRecentAiChats is forced false in OmnibarConsumer) because it overlaps the Duck.ai chats rail and the provider now hands over a full history. Restore these together with that flag.
             test('delete button appears on hover and clicking it does not open the chat', async ({ page }, workerInfo) => {
                 const ntp = NewtabPage.create(page, workerInfo);
                 const omnibar = new OmnibarPage(ntp);

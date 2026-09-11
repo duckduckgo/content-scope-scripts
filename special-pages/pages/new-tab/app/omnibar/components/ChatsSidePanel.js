@@ -2,7 +2,8 @@ import { Fragment, h } from 'preact';
 import { createPortal } from 'preact/compat';
 import { useCallback, useContext, useEffect, useRef, useState } from 'preact/hooks';
 import { eventToTarget } from '../../../../../shared/handlers';
-import { CloseSmallIcon, FireIcon } from '../../components/Icons';
+import { AiChatColorIcon, CloseSmallIcon, FireIcon, ImageIcon, VoiceIcon } from '../../components/Icons';
+import { NewChat } from '../../components/icons/NewChat';
 import { SearchFind } from '../../components/icons/SearchFind';
 import { SidePanel } from '../../components/icons/SidePanel';
 import { usePlatformName } from '../../settings.provider';
@@ -194,6 +195,44 @@ export function ChatsSidePanel({ open }) {
                 aria-hidden={!showing}
                 aria-label={t('omnibar_chatsSidePanelLabel')}
             >
+                <div class={styles.brand}>
+                    <AiChatColorIcon class={styles.brandLogo} />
+                    <span class={styles.brandName}>{t('omnibar_aiTabLabel')}</span>
+                    <button
+                        type="button"
+                        class={styles.headerButton}
+                        tabIndex={tabIndex}
+                        aria-label={t('omnibar_chatsSidePanelHide')}
+                        title={t('omnibar_chatsSidePanelHide')}
+                        onClick={toggleCollapsed}
+                    >
+                        <SidePanel />
+                    </button>
+                </div>
+
+                {/* Presentational for now: the rail mirrors Duck.ai's layout, but starting a
+                    new chat, voice chat or image from here isn't wired up yet. */}
+                <ul class={styles.actions}>
+                    <li>
+                        <button type="button" class={styles.action} tabIndex={tabIndex}>
+                            <NewChat />
+                            <span>{t('omnibar_chatsSidePanelNewChat')}</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class={styles.action} tabIndex={tabIndex}>
+                            <VoiceIcon />
+                            <span>{t('omnibar_chatsSidePanelNewVoiceChat')}</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class={styles.action} tabIndex={tabIndex}>
+                            <ImageIcon />
+                            <span>{t('omnibar_chatsSidePanelNewImage')}</span>
+                        </button>
+                    </li>
+                </ul>
+
                 {searching ? (
                     <div class={styles.searchRow}>
                         <div class={styles.searchField}>
@@ -246,20 +285,10 @@ export function ChatsSidePanel({ open }) {
                         >
                             <SearchFind />
                         </button>
-                        <button
-                            type="button"
-                            class={styles.headerButton}
-                            tabIndex={tabIndex}
-                            aria-label={t('omnibar_chatsSidePanelHide')}
-                            title={t('omnibar_chatsSidePanelHide')}
-                            onClick={toggleCollapsed}
-                        >
-                            <SidePanel />
-                        </button>
                     </div>
                 )}
 
-                <ul class={styles.list}>
+                <ul class={styles.list} data-ntp-chats-list>
                     {chats.map((chat) => (
                         <li key={chat.chatId}>
                             <button

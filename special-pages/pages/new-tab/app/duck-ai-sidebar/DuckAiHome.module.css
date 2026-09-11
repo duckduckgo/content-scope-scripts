@@ -1,0 +1,208 @@
+.home {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 8px;
+    padding-top: 32px;
+    color: var(--ds-color-theme-text-primary);
+}
+
+.logo svg {
+    width: 56px;
+    height: 56px;
+}
+
+.title {
+    margin: 4px 0 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.subtitle {
+    margin: 0 0 20px;
+    max-width: 440px;
+    color: var(--ds-color-theme-text-secondary);
+}
+
+/* Composer card — matches the omnibar AI input (Omnibar.module.css `.popup`). */
+.card {
+    align-self: center;
+    width: 100%;
+    max-width: 620px;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px;
+    background: var(--ds-color-theme-surface-tertiary);
+    border-radius: 12px;
+    outline: 1px solid var(--ds-color-theme-control-raised-backdrop);
+    box-shadow:
+        0 1px 4px 0 rgba(0, 0, 0, 0.1),
+        0 4px 8px 0 rgba(0, 0, 0, 0.08);
+}
+
+.inputRow {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.input {
+    flex: 1;
+    border: none;
+    resize: none;
+    background: transparent;
+    color: var(--ds-color-theme-text-primary);
+    font: inherit;
+    font-weight: 500;
+    line-height: 1.5;
+    padding: 4px 0;
+    max-height: 160px;
+}
+
+.input::placeholder {
+    color: var(--ds-color-theme-text-tertiary);
+}
+
+.input:focus {
+    outline: none;
+}
+
+.toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.toolbarGroup {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Shared button look */
+.iconButton,
+.toolButton,
+.modelButton {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: none;
+    background: transparent;
+    color: var(--ds-color-theme-text-primary);
+    font: inherit;
+    cursor: pointer;
+    border-radius: 16px;
+}
+
+.iconButton {
+    padding: 6px;
+    color: var(--ds-color-theme-text-secondary);
+}
+
+.toolButton {
+    padding: 6px 10px;
+    font-weight: 600;
+}
+
+.iconButton:hover,
+.toolButton:hover,
+.modelButton:hover {
+    background: var(--ds-color-theme-surface-tertiary);
+}
+
+.iconButton svg,
+.toolButton svg {
+    width: 20px;
+    height: 20px;
+}
+
+.fast {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--ds-color-theme-text-secondary);
+    font-size: 0.9375rem;
+}
+
+.modelButton {
+    padding: 6px 8px;
+    border: none;
+    font-weight: 500;
+}
+
+/* Action button — matches the omnibar submit/voice button (AiChatForm.module.css `.submitButton`). */
+.action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 100%;
+    background: var(--ds-color-theme-accent-primary);
+    color: var(--ds-color-theme-accent-content-primary);
+    cursor: pointer;
+}
+
+.action:hover {
+    background: var(--ds-color-theme-accent-secondary);
+}
+
+/* Empty state: a voice entry point, using the accent-alt palette like the omnibar. */
+.actionVoice {
+    background: var(--ds-color-theme-accent-alt-primary);
+    color: var(--ds-color-theme-icons-primary);
+}
+
+.actionVoice:hover {
+    background: var(--ds-color-theme-accent-alt-secondary);
+}
+
+.action svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* Suggestion chips */
+.chips {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 20px;
+    background: var(--ds-color-theme-surface-secondary);
+    color: var(--ds-color-theme-text-primary);
+    font: inherit;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.chip:hover {
+    background: var(--ds-color-theme-surface-tertiary);
+}
+
+.chipIcon {
+    display: inline-flex;
+    color: var(--ds-color-theme-text-secondary);
+}
+
+.chipIcon[data-accent="true"] {
+    color: #de5833;
+}
+
+.chipIcon svg {
+    width: 18px;
+    height: 18px;
+}

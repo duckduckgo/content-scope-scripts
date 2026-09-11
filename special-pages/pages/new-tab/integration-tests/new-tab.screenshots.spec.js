@@ -99,7 +99,8 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             await expect(page).toHaveScreenshot('omnibar-search-suggestion-delete.png', { maxDiffPixels });
         });
 
-        test('ai chat with delete button', async ({ page }, workerInfo) => {
+        // POC: the composer's recent-chats dropdown is disabled (enableRecentAiChats is forced false in OmnibarConsumer) because it overlaps the Duck.ai chats rail and the provider now hands over a full history. Restore these together with that flag.
+        test.skip('ai chat with delete button', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
@@ -307,7 +308,8 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
         });
     });
 
-    test.describe('omnibar recent ai chats @screenshots', () => {
+    test.describe.skip('omnibar recent ai chats @screenshots', () => {
+        // POC: the composer's recent-chats dropdown is disabled (enableRecentAiChats is forced false in OmnibarConsumer) because it overlaps the Duck.ai chats rail and the provider now hands over a full history. Restore these together with that flag.
         test('recent ai chats list', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);
@@ -333,9 +335,9 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             await omnibar.ready();
             const panel = page.locator('[data-ntp-chats-panel]');
             await expect(panel).toHaveAttribute('data-open', 'true');
-            // Count the rows rather than any button: the header's own buttons render before the
-            // chats are fetched, so waiting on those would snapshot an empty list.
-            await expect(panel.getByRole('listitem')).toHaveCount(5);
+            // Count the chat rows specifically: the header's buttons render before the fetch,
+            // and the New Chat / Voice / Image rows are list items too.
+            await expect(panel.locator('[data-ntp-chats-list] li')).toHaveCount(5);
             await expect(page).toHaveScreenshot('omnibar-chats-side-panel.png', { maxDiffPixels });
         });
 
@@ -352,7 +354,7 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             await panel.getByRole('textbox').fill(mockAiChatsSearchTerm);
             // The matching title is in the unfiltered list too, so assert the list has actually
             // narrowed - otherwise this passes before the debounce and fetch complete.
-            await expect(panel.getByRole('listitem')).toHaveCount(1);
+            await expect(panel.locator('[data-ntp-chats-list] li')).toHaveCount(1);
             await expect(panel.getByRole('button', { name: mockAiChatTitleWithSearchTerm })).toBeVisible();
             await expect(page).toHaveScreenshot('omnibar-chats-side-panel-search.png', { maxDiffPixels });
         });

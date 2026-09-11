@@ -55,6 +55,66 @@
     }
 }
 
+.brand {
+    align-items: center;
+    display: flex;
+    gap: var(--sp-2);
+    padding: 0 0 var(--sp-3) var(--sp-2);
+}
+
+.brandLogo {
+    flex: none;
+    height: 20px;
+    width: 20px;
+}
+
+.brandName {
+    flex: 1;
+    font-size: 15px;
+    font-weight: 590;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.actions {
+    display: flex;
+    flex-direction: column;
+    list-style: none;
+    margin: 0 0 var(--sp-4);
+    padding: 0;
+}
+
+.action {
+    align-items: center;
+    background: none;
+    border: none;
+    border-radius: var(--border-radius-md);
+    color: inherit;
+    cursor: pointer;
+    display: flex;
+    font: inherit;
+    font-weight: 590;
+    gap: var(--sp-3);
+    height: var(--sp-9);
+    padding: 0 var(--sp-2);
+    text-align: left;
+    width: 100%;
+
+    svg {
+        color: var(--ds-color-theme-icons-primary);
+        flex: none;
+    }
+
+    &:hover {
+        background: var(--ds-color-theme-control-fill-primary);
+    }
+
+    &:active {
+        background: var(--ds-color-theme-control-fill-secondary);
+    }
+}
+
 .header {
     align-items: center;
     display: flex;
