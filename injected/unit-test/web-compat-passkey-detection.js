@@ -326,7 +326,9 @@ describe('WebCompat passkey detection', () => {
 
             const result = await credentialsGet({
                 mediation: 'conditional',
-                publicKey: { challenge: new Uint8Array([1]) },
+                // Explicit rpId so the conditional path never falls back to reading
+                // `location.hostname`, which is not defined in the Node test environment.
+                publicKey: { challenge: new Uint8Array([1]), rpId: 'example.com' },
             });
             await flushMicrotasks();
 

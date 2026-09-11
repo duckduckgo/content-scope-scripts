@@ -1,6 +1,5 @@
 import {
     mergePropertyDescriptors,
-    maskMethodIdentity,
     shimInterface,
     shimProperty,
     wrapProperty,
@@ -388,23 +387,6 @@ describe('wrapMethod', () => {
 
         wrapMethod(obj, 'greet', (origFn, ...args) => origFn.call(obj, ...args), Object.defineProperty);
 
-        expect(obj.greet.name).toBe('greet');
-        expect(obj.greet.length).toBe(1);
-    });
-
-    it('lets maskMethodIdentity restore identity after a wrap that skipped wrapMethod', () => {
-        const obj = {
-            greet(name) {
-                return `Hello, ${name}`;
-            },
-        };
-        const origDescriptor = Object.getOwnPropertyDescriptor(obj, 'greet');
-        obj.greet = function () {
-            return origDescriptor.value.call(this, ...arguments);
-        };
-
-        expect(obj.greet.name).toBe('');
-        maskMethodIdentity(obj, 'greet', origDescriptor);
         expect(obj.greet.name).toBe('greet');
         expect(obj.greet.length).toBe(1);
     });

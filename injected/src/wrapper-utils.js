@@ -231,14 +231,13 @@ export function wrapMethod(object, propertyName, wrapperFn, definePropertyFn) {
  * Restore the observable function identity of a method after wrapping.
  *
  * `wrapToString()` already masks `toString()`, but an anonymous wrapper otherwise
- * exposes an empty `name` and a wrapper-derived `length`. `wrapMethod()` calls this
- * automatically; keep it exported for any wrap that does not go through `wrapMethod()`.
+ * exposes an empty `name` and a wrapper-derived `length`.
  *
  * @param {object} object
  * @param {string} propertyName
  * @param {PropertyDescriptor} [origDescriptor] - descriptor of the function being replaced
  */
-export function maskMethodIdentity(object, propertyName, origDescriptor) {
+function maskMethodIdentity(object, propertyName, origDescriptor) {
     try {
         const origFn = /** @type {{ value?: unknown } | undefined} */ (origDescriptor)?.value;
         const wrappedFn = /** @type {{ value?: unknown } | undefined} */ (getOwnPropertyDescriptor(object, propertyName))?.value;
