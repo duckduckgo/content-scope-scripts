@@ -32,11 +32,9 @@
 }
 
 .card {
-    /* Full radii like native (16,16,19,19) — top crescents show under the pill curve */
     background: var(--ds-color-theme-surface-secondary);
-    border-radius: 12px;
+    border-radius: 0 0 12px 12px;
     box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.1), 0 4px 8px 0 rgba(0, 0, 0, 0.08);
-    outline: 1px solid var(--ds-color-theme-control-raised-backdrop);
     /* Empty tuck zone under the pill (native row height 31 + hairline ≈ 32) */
     padding-top: 32px;
 
@@ -51,7 +49,6 @@
     [data-background-kind='gradient'] [data-theme='dark'] & {
         backdrop-filter: blur(48px);
         background: rgba(255, 255, 255, 0.12);
-        outline: 1px solid rgba(0, 0, 0, 0.12);
     }
 
     [data-background-kind='userImage'] [data-theme='dark'] & {
@@ -252,19 +249,16 @@
 
 :global(body[data-rebrand='true']) {
     .card {
-        border-radius: var(--ds-radius-x06);
+        border-radius: 0 0 var(--ds-radius-x06) var(--ds-radius-x06);
         box-shadow:
             0 10px 20px 0 rgba(0, 0, 0, 0.02),
-            0 2px 6px 0 rgba(0, 0, 0, 0.06),
-            0 0 0 1px var(--ds-color-theme-container-border-secondary);
-        outline: none;
+            0 2px 6px 0 rgba(0, 0, 0, 0.06);
     }
 
     :global([data-theme='dark']) .card {
         box-shadow:
             0 10px 20px 0 rgba(0, 0, 0, 0.02),
-            0 2px 6px 0 rgba(0, 0, 0, 0.06),
-            0 0 0 1px var(--ds-ntp-dark-card-border-color);
+            0 2px 6px 0 rgba(0, 0, 0, 0.06);
     }
 
     .dismiss {

@@ -80,6 +80,7 @@ export function Omnibar({
     enableAttachTabs = false,
     tabId,
 }) {
+    console.log('__TEMP_CHECK__')
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const spacerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const [usageLimitsRevealed, setUsageLimitsRevealed] = useState(false);
