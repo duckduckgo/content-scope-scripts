@@ -111,6 +111,10 @@
     .input {
         padding-block: 7px;
         padding-inline: var(--ds-space-x05) var(--ds-space-x10);
+
+        &::placeholder {
+            color: var(--ds-color-theme-text-secondary);
+        }
     }
 
     .suffix {
