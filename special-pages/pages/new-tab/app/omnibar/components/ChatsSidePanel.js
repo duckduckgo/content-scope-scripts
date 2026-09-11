@@ -14,6 +14,37 @@ import styles from './ChatsSidePanel.module.css';
  */
 
 /**
+ * Below this the gutter beside the omnibar is thinner than 160px, which can't hold a
+ * readable chat title, so the rail stays closed.
+ */
+const MIN_VIEWPORT_WIDTH = 940;
+
+/**
+ * Whether the viewport is wide enough to have somewhere to put the rail.
+ *
+ * This lives in JS rather than a CSS media query so that one piece of state drives
+ * everything: the rail's `data-open`, and with it the slide, `aria-hidden`, the tab stops,
+ * and whether App.module.css reserves any room for it. A CSS-only version left the rail
+ * focusable and exposed to screen readers while it was invisible.
+ *
+ * @returns {boolean}
+ */
+function useHasRoomForRail() {
+    const query = `(min-width: ${MIN_VIEWPORT_WIDTH}px)`;
+    const [hasRoom, setHasRoom] = useState(() => window.matchMedia(query).matches);
+
+    useEffect(() => {
+        const list = window.matchMedia(query);
+        const update = () => setHasRoom(list.matches);
+        list.addEventListener('change', update);
+        update();
+        return () => list.removeEventListener('change', update);
+    }, [query]);
+
+    return hasRoom;
+}
+
+/**
  * A rail of recent Duck.ai chats pinned to the left edge of the viewport, shown while the
  * omnibar is in Duck.ai mode.
  *
@@ -35,6 +66,8 @@ export function ChatsSidePanel({ open }) {
     const { openAiChat } = useContext(OmnibarContext);
     const platformName = usePlatformName();
     const ntp = useMessaging();
+    const hasRoom = useHasRoomForRail();
+    const showing = open && hasRoom;
 
     const serviceRef = useRef(/** @type {OmnibarAiChatsService|null} */ (null));
     if (!serviceRef.current) {
@@ -50,39 +83,41 @@ export function ChatsSidePanel({ open }) {
 
     // Re-fetch every time the rail opens, so chats started in the meantime show up.
     useEffect(() => {
-        if (!open) return;
+        if (!showing) return;
         service.triggerFetch('');
-    }, [service, open]);
+    }, [service, showing]);
 
     return createPortal(
-        <nav class={styles.panel} data-ntp-chats-panel data-open={open} aria-hidden={!open} aria-label={t('omnibar_chatsSidePanelLabel')}>
-            {/* Padding lives on this inner element, not the rail: `width: 0` can't shrink a
-                border-box below its own padding, so the rail would keep a 16px stub. */}
-            <div class={styles.inner}>
-                <h2 class={styles.heading}>{t('omnibar_chatsSidePanelHeading')}</h2>
-                <ul class={styles.list}>
-                    {chats.map((chat) => (
-                        <li key={chat.chatId}>
-                            <button
-                                type="button"
-                                class={styles.item}
-                                tabIndex={open ? 0 : -1}
-                                title={chat.title}
-                                onClick={(event) => {
-                                    openAiChat({
-                                        chatId: chat.chatId,
-                                        target: eventToTarget(event, platformName),
-                                        trigger: 'mouse',
-                                        isPinned: Boolean(chat.pinned),
-                                    });
-                                }}
-                            >
-                                <span class={styles.title}>{chat.title}</span>
-                            </button>
-                        </li>
-                    ))}
-                </ul>
-            </div>
+        <nav
+            class={styles.panel}
+            data-ntp-chats-panel
+            data-open={showing}
+            aria-hidden={!showing}
+            aria-label={t('omnibar_chatsSidePanelLabel')}
+        >
+            <h2 class={styles.heading}>{t('omnibar_chatsSidePanelHeading')}</h2>
+            <ul class={styles.list}>
+                {chats.map((chat) => (
+                    <li key={chat.chatId}>
+                        <button
+                            type="button"
+                            class={styles.item}
+                            tabIndex={showing ? 0 : -1}
+                            title={chat.title}
+                            onClick={(event) => {
+                                openAiChat({
+                                    chatId: chat.chatId,
+                                    target: eventToTarget(event, platformName),
+                                    trigger: 'mouse',
+                                    isPinned: Boolean(chat.pinned),
+                                });
+                            }}
+                        >
+                            <span class={styles.title}>{chat.title}</span>
+                        </button>
+                    </li>
+                ))}
+            </ul>
         </nav>,
         document.body,
     );

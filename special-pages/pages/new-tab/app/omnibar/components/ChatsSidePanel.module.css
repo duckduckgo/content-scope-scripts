@@ -6,14 +6,12 @@
  */
 .panel {
     background: var(--ds-color-theme-surface-secondary);
+    border-right: 1px solid var(--ds-color-theme-container-border-secondary);
     bottom: 0;
-    /* An inset shadow rather than a border-right, so that at width 0 (see
-       --ntp-chats-rail-width) the rail leaves no stray 1px line behind. */
-    box-shadow: inset -1px 0 0 0 var(--ds-color-theme-container-border-secondary);
     color: var(--ds-color-theme-text-primary);
     left: 0;
-    /* hidden on the inline axis so titles can't spill out when the rail is 0-width */
     overflow: hidden auto;
+    padding: var(--sp-4) var(--sp-2);
     position: fixed;
     top: 0;
     transform: translateX(-100%);
@@ -31,10 +29,6 @@
     .panel {
         transition: none;
     }
-}
-
-.inner {
-    padding: var(--sp-4) var(--sp-2);
 }
 
 .heading {

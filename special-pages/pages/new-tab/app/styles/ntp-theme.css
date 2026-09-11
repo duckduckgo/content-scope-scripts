@@ -1,10 +1,11 @@
 :root {
     --ntp-gap: 2rem;
 
-    /* Width of the Duck.ai chats rail while it's showing, 0 when it isn't. It takes the
-       gutter beside the widest widget (the 620px omnibar) so it never covers content and
-       content never has to shift for it. Shared here because App.module.css needs it to
-       work out how far to shift main when the customizer drawer opens. */
+    /* Width of the Duck.ai chats rail: the gutter beside the widest widget (the 620px
+       omnibar), so it never covers content and content never has to shift for it. Shared
+       here because App.module.css needs it to work out how far to shift main when the
+       customizer drawer opens. Clamped at 0 so a viewport narrower than the omnibar can't
+       produce a negative width; ChatsSidePanel.js keeps the rail closed well before that. */
     --ntp-chats-rail-width: clamp(0px, calc((100vw - calc(620 * var(--px-in-rem))) / 2), calc(260 * var(--px-in-rem)));
     --ntp-drawer-width: calc(224 * var(--px-in-rem));
     --ntp-drawer-scroll-width: 12px;
@@ -138,12 +139,4 @@ body[data-rebrand="true"]:not([data-background-kind="default"]) {
     --title-3-em-font-size: 16px;
     --title-3-em-font-weight: 600;
     --title-3-em-line-height: 20px;
-}
-
-/* Under ~940px that gutter is thinner than 160px, which can't hold a readable chat title,
-   so the rail isn't shown at all and nothing should reserve space for it. */
-@media (max-width: 939px) {
-    :root {
-        --ntp-chats-rail-width: 0px;
-    }
 }
