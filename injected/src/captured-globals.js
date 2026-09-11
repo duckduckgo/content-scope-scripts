@@ -17,6 +17,9 @@ export const TypeError = globalThis.TypeError;
 export const Symbol = globalThis.Symbol;
 export const hasOwnProperty = Object.prototype.hasOwnProperty;
 export const dispatchEvent = globalThis.dispatchEvent?.bind(globalThis);
+// Optional chaining + Date.now fallback so a hypothetical environment
+// without `performance` cannot throw at module load and break the bundle.
+export const performanceNow = globalThis.performance?.now?.bind(globalThis.performance) ?? Date.now;
 export const addEventListener = globalThis.addEventListener?.bind(globalThis);
 export const removeEventListener = globalThis.removeEventListener?.bind(globalThis);
 export const CustomEvent = globalThis.CustomEvent;

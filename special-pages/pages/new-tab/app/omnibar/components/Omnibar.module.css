@@ -16,7 +16,7 @@
 }
 
 .placeholderTabs {
-    height: calc(var(--sp-8) + var(--sp-0_5) * 2);
+    height: calc(var(--sp-7) + var(--sp-0_5) * 2);
 }
 
 .popover {
@@ -184,8 +184,51 @@
         border-radius: var(--omnibar-radius);
     }
 
+    /*
+     * Keyboard-only focus ring, appended to the box-shadow list below rather than
+     * replacing it. Transparent/zero-spread by default so it's always a valid shadow
+     * layer; .popup[data-keyboard-focus-within] (set by useKeyboardFocusWithin.js, lifted
+     * into Omnibar.js so both SearchForm's input and AiChatForm's textarea share it)
+     * swaps in the real ring. On .popup itself rather than on the input/textarea: those
+     * span the exact same width as .popup with no lateral margin, so a ring on either of
+     * them alone would trace its own near-rectangular radius flush against .popup's pill
+     * radius, reading as a straight cut instead of a continuous curve.
+     */
+    --keyboard-focus-ring: 0 0 0 0 transparent;
+
+    .popup[data-keyboard-focus-within] {
+        --keyboard-focus-ring: var(--focus-ring);
+    }
+
+    /* Typing / focused: shadow only, no blue border or accent glow (plus --keyboard-focus-ring, see above) */
+    .root:has(input:focus, textarea:focus):not(:has([data-attach-tabs-modal])) .popup {
+        box-shadow: var(--omnibar-box-shadow-focused), var(--keyboard-focus-ring);
+    }
+
+    .root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-attachment-warning], [data-attach-tabs-modal])) .popup {
+        border: none;
+        box-shadow: var(--omnibar-box-shadow-focused), var(--keyboard-focus-ring);
+        margin: 3px; /* keep rest inset; legacy used margin:0 to make room for a 2px blue border */
+        outline: none;
+
+        .field {
+            margin: 0;
+        }
+
+        .aiChatsList {
+            margin-left: 0;
+            margin-right: 0;
+            margin-top: 0;
+        }
+    }
+
     /* Rebrand shadow/outline — background left to legacy rules */
     :global([data-theme]) .popup {
+        --omnibar-border-color: var(--ds-color-theme-container-border-secondary);
+        --omnibar-box-shadow-focused:
+            0 10px 20px 0 rgba(0, 0, 0, 0.06),
+            0 2px 6px 0 rgba(0, 0, 0, 0.06),
+            0 0 0 1px var(--omnibar-border-color);
         box-shadow:
             0 10px 20px 0 rgba(0, 0, 0, 0.02),
             0 2px 6px 0 rgba(0, 0, 0, 0.06),
@@ -193,11 +236,88 @@
         outline: none;
     }
 
-    /* Match Favorites/Stats/RMF card chrome: subtler white-at-3 border in dark */
-    :global([data-theme="dark"]) .popup {
+    /* Match Favorites/Stats/RMF card chrome: subtler white-at-3 border in dark.
+       Scoped to main/.themeContext (not bare [data-theme]) so this can't also
+       match through <body data-theme={browser}> when it diverges from main's
+       adaptive theme — same fix as f3578f7 in theme-mappings.css. */
+    :global(main[data-theme="dark"]) .popup,
+    :global(.themeContext[data-theme="dark"]) .popup {
+        --omnibar-border-color: var(--ds-ntp-dark-card-border-color);
         box-shadow:
             0 10px 20px 0 rgba(0, 0, 0, 0.02),
             0 2px 6px 0 rgba(0, 0, 0, 0.06),
             0 0 0 1px var(--ds-ntp-dark-card-border-color);
+    }
+}
+
+/*
+ * Rebrand: custom background overrides for the omnibar popup.
+ * Values from Chris Morast's spec (Asana 1217158720693670).
+ *
+ * Popup fill uses the semantic --ds-input-field-primary-background-color,
+ * which is remapped to white-at-54 (light) / white-at-24 (dark) in
+ * shared/styles/theme-mappings.css under the same selector.
+ *
+ * box-shadow is layered (drop shadows + 1px ring) — not expressible as a single
+ * design token, so the outer layers stay inline. The 1px ring uses
+ * --ds-color-black-at-6 / --ds-color-white-at-36, with a literal fallback
+ * since desktop-browsers doesn't export these palette tokens yet (same gap
+ * as --ds-color-white-at-60 in Tile.module.css).
+ *
+ * All the light/dark rules below are scoped to main[data-theme] /
+ * .themeContext[data-theme], NOT bare [data-theme] — a bare match can also
+ * be satisfied through <body data-theme={browser}>, which diverges from
+ * main's adaptive theme whenever the user's custom background brightness
+ * doesn't match their browser theme. Same fix as f3578f7 in theme-mappings.css.
+ */
+:global(body[data-rebrand="true"]:not([data-background-kind="default"])) {
+    .popup {
+        backdrop-filter: blur(24px);
+        background: var(--ds-input-field-primary-background-color);
+    }
+
+    :global(main[data-theme="light"]) .popup,
+    :global(.themeContext[data-theme="light"]) .popup {
+        box-shadow:
+            0 10px 20px 0 rgba(0, 0, 0, 0.02),
+            0 2px 6px 0 rgba(0, 0, 0, 0.08),
+            0 0 0 1px var(--ds-color-black-at-6, rgba(0, 0, 0, 0.06));
+    }
+
+    :global(main[data-theme="dark"]) .popup,
+    :global(.themeContext[data-theme="dark"]) .popup {
+        box-shadow:
+            0 10px 20px 0 rgba(0, 0, 0, 0.04),
+            0 2px 6px 0 rgba(0, 0, 0, 0.1),
+            0 0 0 1px var(--ds-color-white-at-36, rgba(255, 255, 255, 0.36));
+    }
+
+    /*
+     * Keep the custom-bg ring on focus too. Without these, the unscoped default-theme
+     * focused rules above (higher up in the file) would win on specificity ties and
+     * replace this ring with --omnibar-box-shadow-focused, which isn't aware of custom
+     * backgrounds. Adding [data-theme] here matches those rules' selector shape plus one
+     * extra attribute selector, so these always win regardless of source order.
+     */
+    :global(main[data-theme="light"]) .root:has(input:focus, textarea:focus):not(:has([data-attach-tabs-modal])) .popup,
+    :global(main[data-theme="light"]) .root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-attachment-warning], [data-attach-tabs-modal])) .popup,
+    :global(.themeContext[data-theme="light"]) .root:has(input:focus, textarea:focus):not(:has([data-attach-tabs-modal])) .popup,
+    :global(.themeContext[data-theme="light"]) .root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-attachment-warning], [data-attach-tabs-modal])) .popup {
+        box-shadow:
+            0 10px 20px 0 rgba(0, 0, 0, 0.02),
+            0 2px 6px 0 rgba(0, 0, 0, 0.08),
+            0 0 0 1px var(--ds-color-black-at-6, rgba(0, 0, 0, 0.06)),
+            var(--keyboard-focus-ring);
+    }
+
+    :global(main[data-theme="dark"]) .root:has(input:focus, textarea:focus):not(:has([data-attach-tabs-modal])) .popup,
+    :global(main[data-theme="dark"]) .root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-attachment-warning], [data-attach-tabs-modal])) .popup,
+    :global(.themeContext[data-theme="dark"]) .root:has(input:focus, textarea:focus):not(:has([data-attach-tabs-modal])) .popup,
+    :global(.themeContext[data-theme="dark"]) .root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-attachment-warning], [data-attach-tabs-modal])) .popup {
+        box-shadow:
+            0 10px 20px 0 rgba(0, 0, 0, 0.04),
+            0 2px 6px 0 rgba(0, 0, 0, 0.1),
+            0 0 0 1px var(--ds-color-white-at-36, rgba(255, 255, 255, 0.36)),
+            var(--keyboard-focus-ring);
     }
 }

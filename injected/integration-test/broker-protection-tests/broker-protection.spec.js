@@ -1,6 +1,9 @@
-import { test, expect } from '@playwright/test';
+import { test as base, expect } from '@playwright/test';
 import { BrokerProtectionPage } from '../page-objects/broker-protection.js';
 import { BROKER_PROTECTION_CONFIGS } from './tests-config.js';
+import { createConfiguredDbpTest } from './fixtures.js';
+
+const test = createConfiguredDbpTest(base);
 
 test.describe('Broker Protection communications', () => {
     test('sends an error when the action is not found', async ({ page }, workerInfo) => {
@@ -1054,6 +1057,209 @@ test.describe('Broker Protection communications', () => {
             await dbp.receivesAction('condition-fail.json');
             const response = await dbp.collector.waitForMessage('actionCompleted');
             dbp.isErrorMessage(response);
+        });
+    });
+
+    test.describe('executeScript', () => {
+        const actionID = 'execute-script-test';
+
+        /**
+         * @param {unknown} script
+         * @param {Record<string, unknown>} [overrides]
+         * @param {Record<string, unknown>} [data]
+         */
+        function scriptAction(script, overrides = {}, data = {}) {
+            return { state: { action: { actionType: 'executeScript', id: actionID, script, ...overrides }, data } };
+        }
+
+        /** @param {import('../page-objects/broker-protection.js').BrokerProtectionPage} dbp */
+        async function completedResult(dbp) {
+            const messages = await dbp.getActionCompletedParams();
+            expect(messages).toHaveLength(1);
+            return messages[0].payload.params.result;
+        }
+
+        const success = { success: { actionID, actionType: 'executeScript', response: null } };
+
+        test.beforeEach(async ({ dbp }) => {
+            await dbp.navigatesTo('execute-script.html');
+        });
+
+        test('injects a profile-based link that a following click navigates with the page as referrer', async ({ dbp, page }) => {
+            const sourceUrl = page.url();
+            await dbp.receivesAction('execute-script.json');
+            expect(await completedResult(dbp)).toEqual({
+                success: { actionID: 'execute-script-1', actionType: 'executeScript', response: null },
+            });
+            await expect(page.locator('#pir-probe-anchor')).toHaveAttribute('href', 'execute-script.html?name=Daniel+Silva');
+
+            await dbp.receivesInlineAction({
+                state: {
+                    action: {
+                        actionType: 'click',
+                        id: 'execute-script-click',
+                        elements: [{ type: 'button', selector: '#pir-probe-anchor' }],
+                    },
+                },
+            });
+            await page.waitForURL((url) => url.searchParams.get('name') === 'Daniel Silva');
+            expect(await page.evaluate(() => document.referrer)).toBe(sourceUrl);
+        });
+
+        test('passes the profile selected by dataSource', async ({ dbp, page }) => {
+            const userProfile = { firstName: 'Daniel', lastName: 'Silva', city: 'Los Angeles', state: 'CA', birthYear: 1988 };
+            const extractedProfile = { firstName: 'Other' };
+            await dbp.receivesInlineAction(
+                scriptAction(
+                    'root.body.textContent = JSON.stringify(userProfile);',
+                    { dataSource: 'extractedProfile' },
+                    { userProfile, extractedProfile },
+                ),
+            );
+            expect(await completedResult(dbp)).toEqual(success);
+            await expect(page.locator('body')).toHaveText(JSON.stringify(extractedProfile));
+        });
+
+        test('allows DOM-only scripts without input data', async ({ dbp, page }) => {
+            const action = scriptAction('root.body.textContent = userProfile === null ? "no profile" : "unexpected profile";');
+            await dbp.receivesInlineAction({ state: { action: action.state.action } });
+            expect(await completedResult(dbp)).toEqual(success);
+            await expect(page.locator('body')).toHaveText('no profile');
+        });
+
+        test('waits for a returned promise and discards its resolved value', async ({ dbp, page }) => {
+            await dbp.receivesInlineAction(
+                scriptAction(`return new Promise((resolve) => {
+                    root.addEventListener('finish-script', () => {
+                        root.body.dataset.finished = 'true';
+                        resolve({ privateData: root.body.innerHTML });
+                    }, { once: true });
+                    root.body.dataset.started = 'true';
+                });`),
+            );
+            await expect(page.locator('body')).toHaveAttribute('data-started', 'true');
+            const brokerMessages = (await dbp.collector.outgoingMessages()).filter(
+                (message) => message.payload.featureName === 'brokerProtection',
+            );
+            expect(brokerMessages).toEqual([]);
+
+            await page.evaluate(() => document.dispatchEvent(new Event('finish-script')));
+            expect(await completedResult(dbp)).toEqual(success);
+            await expect(page.locator('body')).toHaveAttribute('data-finished', 'true');
+        });
+
+        test('discards synchronous results without serializing or executing returned actions', async ({ dbp }) => {
+            await dbp.receivesInlineAction(
+                scriptAction(`return {
+                    privateData: root.body.innerHTML,
+                    next: [{ actionType: 'executeScript', script: 'throw new Error("unexpected action");' }],
+                    toJSON() { throw new Error('must not serialize'); }
+                };`),
+            );
+            expect(await completedResult(dbp)).toEqual(success);
+        });
+
+        for (const { label, script, message } of [
+            { label: 'a synchronous throw', script: "throw new TypeError('boom');", message: 'TypeError: boom' },
+            { label: 'a rejected promise', script: "return Promise.reject(new RangeError('nope'));", message: 'RangeError: nope' },
+            { label: 'an empty script', script: '', message: 'Error: No script provided to executeScript action' },
+            { label: 'a whitespace-only script', script: ' \n\t ', message: 'Error: No script provided to executeScript action' },
+            { label: 'a missing script', script: undefined, message: 'Error: No script provided to executeScript action' },
+            { label: 'a non-string script', script: 42, message: 'Error: No script provided to executeScript action' },
+            { label: 'a thrown string', script: 'throw "failed";', message: 'Error: failed' },
+            { label: 'a thrown null', script: 'throw null;', message: 'Error: null' },
+            {
+                label: 'an error-like object',
+                script: 'throw { name: "CustomError", message: "failed" };',
+                message: 'CustomError: failed',
+            },
+            { label: 'an error with no name', script: 'throw { message: "failed" };', message: 'Error: failed' },
+            { label: 'an error with an empty message', script: 'throw new Error("");', message: 'Error: ' },
+            {
+                label: 'a DOMException',
+                script: 'throw new DOMException("denied", "SecurityError");',
+                message: 'SecurityError: denied',
+            },
+            {
+                label: 'an object that cannot be converted to a string',
+                script: 'throw Object.create(null);',
+                message: 'Error: Unknown error',
+            },
+            {
+                label: 'an error whose message getter throws',
+                script: 'throw { name: "CustomError", get message() { throw new Error("private getter failure"); } };',
+                message: 'CustomError: Unknown error',
+            },
+            {
+                label: 'an error name exceeding the 500-character limit',
+                script: 'throw { name: "n".repeat(600), message: "message" };',
+                message: 'n'.repeat(478),
+            },
+            {
+                label: 'an error with controls before printable Unicode',
+                script: 'throw new Error("\\n".repeat(1000) + "café 日本語");',
+                message: 'Error: café 日本語',
+            },
+            {
+                label: 'an oversized error with controls and an unreadable stack',
+                script: `const controls = String.fromCharCode(
+                        ...Array.from({ length: 32 }, (_, index) => index),
+                        ...Array.from({ length: 33 }, (_, index) => 127 + index),
+                        0x2028, 0x2029
+                    );
+                    const error = new Error('line1' + controls + 'line2' + 'x'.repeat(600));
+                    error.name = 'Type' + controls + 'Error';
+                    Object.defineProperty(error, 'stack', {
+                        get() { throw new Error('must not read the stack'); }
+                    });
+                    throw error;`,
+                message: 'TypeError: line1line2' + 'x'.repeat(500 - 'executeScript failed: TypeError: line1line2'.length),
+            },
+            {
+                label: 'an error from an iframe',
+                script: `const frame = root.createElement('iframe');
+                    root.body.appendChild(frame);
+                    const error = new frame.contentWindow.RangeError('out of range');
+                    frame.remove();
+                    if (error instanceof Error) throw new Error('expected an error from another realm');
+                    throw error;`,
+                message: 'RangeError: out of range',
+            },
+        ]) {
+            test(`reports the action error for ${label}`, async ({ dbp }) => {
+                await dbp.receivesInlineAction(scriptAction(script));
+                expect(await completedResult(dbp)).toEqual({ error: { actionID, message: `executeScript failed: ${message}` } });
+            });
+        }
+
+        test('reports syntax errors without running any of the script', async ({ dbp, page }) => {
+            await dbp.receivesInlineAction(scriptAction('root.body.dataset.started = "true"; const = ;'));
+            expect(await completedResult(dbp)).toEqual({
+                error: { actionID, message: expect.stringMatching(/^executeScript failed: SyntaxError: /) },
+            });
+            await expect(page.locator('body')).not.toHaveAttribute('data-started');
+        });
+
+        for (const { failureType, script } of [
+            { failureType: 'synchronous', script: 'throw new Error("failed");' },
+            { failureType: 'asynchronous', script: 'return Promise.reject(new Error("failed"));' },
+        ]) {
+            test(`does not retry ${failureType} failures when retries are configured`, async ({ dbp, page }) => {
+                await dbp.receivesInlineAction(
+                    scriptAction(
+                        `root.body.dataset.attempts = String(Number(root.body.dataset.attempts || 0) + 1);
+                        ${script}`,
+                        { retry: { environment: 'web', maxAttempts: 3, interval: { ms: 1 } } },
+                    ),
+                );
+                expect(await completedResult(dbp)).toEqual({ error: { actionID, message: 'executeScript failed: Error: failed' } });
+                await expect(page.locator('body')).toHaveAttribute('data-attempts', '1');
+            });
+        }
+
+        test('reports failures even when failSilently is true', async ({ dbp }) => {
+            await dbp.receivesInlineAction(scriptAction('throw new Error("failed");', { failSilently: true }));
+            expect(await completedResult(dbp)).toEqual({ error: { actionID, message: 'executeScript failed: Error: failed' } });
         });
     });
 });
