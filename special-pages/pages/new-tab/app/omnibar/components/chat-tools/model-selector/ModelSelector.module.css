@@ -27,6 +27,12 @@
     &:focus-visible {
         box-shadow: var(--focus-ring);
     }
+
+    &:disabled {
+        color: color-mix(in srgb, var(--ds-color-theme-text-primary) 30%, transparent);
+        cursor: default;
+        pointer-events: none;
+    }
 }
 
 .modelButtonOpen {

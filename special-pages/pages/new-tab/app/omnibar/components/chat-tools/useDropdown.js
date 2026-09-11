@@ -31,14 +31,16 @@ function findContainingBlock(el) {
 
 /**
  * Computes dropdown position relative to the trigger button.
- * @param {DOMRect} buttonRect
- * @param {DOMRect | null} cbRect - containing-block rect, if any
- * @param {'left' | 'right'} align
+ * @param {object} args
+ * @param {DOMRect} args.buttonRect
+ * @param {DOMRect | null} args.cbRect - containing-block rect, if any
+ * @param {'left' | 'right'} args.align
+ * @param {number} args.offsetY - Gap below the anchor; 0 seats the menu against the button.
  * @returns {DropdownPosition}
  */
-function computePosition(buttonRect, cbRect, align) {
+function computePosition({ buttonRect, cbRect, align, offsetY }) {
     const topOffset = cbRect?.top ?? 0;
-    const top = buttonRect.bottom - topOffset + 4;
+    const top = buttonRect.bottom - topOffset + offsetY;
     if (align === 'right') {
         const rightEdge = cbRect?.right ?? window.innerWidth;
         return { right: rightEdge - buttonRect.right, top };
@@ -53,8 +55,10 @@ function computePosition(buttonRect, cbRect, align) {
  *
  * @param {object} [options]
  * @param {'left' | 'right'} [options.align] - Horizontal alignment of the dropdown relative to the button. Defaults to 'left'.
+ * @param {number} [options.offsetY] - Vertical gap below the anchor in CSS pixels. Defaults to 4.
+ * @param {import('preact').RefObject<HTMLElement|null>} [options.anchorRef] - Element to measure for position; defaults to the trigger button.
  */
-export function useDropdown({ align = 'left' } = {}) {
+export function useDropdown({ align = 'left', offsetY = 4, anchorRef } = {}) {
     const [isOpen, setIsOpen] = useState(false);
     const [dropdownPos, setDropdownPos] = useState(/** @type {DropdownPosition|null} */ (null));
     const buttonRef = useRef(/** @type {HTMLButtonElement|null} */ (null));
@@ -72,11 +76,12 @@ export function useDropdown({ align = 'left' } = {}) {
     };
 
     const open = () => {
-        if (!buttonRef.current) return;
-        const rect = buttonRef.current.getBoundingClientRect();
-        const cb = findContainingBlock(buttonRef.current);
+        const anchor = anchorRef?.current ?? buttonRef.current;
+        if (!anchor) return;
+        const rect = anchor.getBoundingClientRect();
+        const cb = findContainingBlock(anchor);
         const cbRect = cb?.getBoundingClientRect() ?? null;
-        setDropdownPos(computePosition(rect, cbRect, align));
+        setDropdownPos(computePosition({ buttonRect: rect, cbRect, align, offsetY }));
         setIsOpen(true);
 
         /** @param {MouseEvent} e */
