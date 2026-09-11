@@ -83,7 +83,7 @@ export function trustedUnsafe(string) {
 
 /**
  * Use a policy if trustedTypes is available
- * @return {{createHTML: (s: string) => any}}
+ * @return {{createHTML: (s: string) => string | TrustedHTML}}
  */
 export function createPolicy() {
     if (/** @type {any} */ (globalThis).trustedTypes) {
