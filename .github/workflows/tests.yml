@@ -30,7 +30,7 @@ jobs:
                   cache: 'npm'
             - name: Cache node_modules
               id: cache-node-modules
-              uses: actions/cache@v5
+              uses: actions/cache@v6
               with:
                   path: |
                       node_modules
@@ -72,7 +72,7 @@ jobs:
                   cache: 'npm'
             - name: Cache node_modules
               id: cache-node-modules
-              uses: actions/cache@v5
+              uses: actions/cache@v6
               with:
                   path: |
                       node_modules
@@ -133,7 +133,7 @@ jobs:
                   cache: 'npm'
             - name: Cache node_modules
               id: cache-node-modules
-              uses: actions/cache@v5
+              uses: actions/cache@v6
               with:
                   path: |
                       node_modules
@@ -188,7 +188,7 @@ jobs:
                   cache: 'npm'
             - name: Cache node_modules
               id: cache-node-modules
-              uses: actions/cache@v5
+              uses: actions/cache@v6
               with:
                   path: |
                       node_modules
@@ -223,7 +223,7 @@ jobs:
                   cache: 'npm'
             - name: Cache node_modules
               id: cache-node-modules
-              uses: actions/cache@v5
+              uses: actions/cache@v6
               with:
                   path: |
                       node_modules
@@ -239,7 +239,7 @@ jobs:
               run: npm run build
             - name: Cache docs output
               id: docs-output
-              uses: actions/cache@v5
+              uses: actions/cache@v6
               with:
                   path: docs
                   key: docs-output-${{ github.run_id }}
@@ -264,7 +264,7 @@ jobs:
                   node-version-file: '.nvmrc'
             - name: Cache build outputs
               id: docs-output
-              uses: actions/cache@v5
+              uses: actions/cache@v6
               with:
                   path: docs
                   key: docs-output-${{ github.run_id }}
@@ -291,7 +291,7 @@ jobs:
                   cache: 'npm'
             - name: Cache node_modules (production)
               id: cache-node-modules
-              uses: actions/cache@v5
+              uses: actions/cache@v6
               with:
                   path: |
                       node_modules
