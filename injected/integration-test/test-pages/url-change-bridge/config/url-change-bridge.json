@@ -1,0 +1,30 @@
+{
+  "readme": "This config enables features needed to test URL change bridging from page world to isolated world.",
+  "version": 1,
+  "unprotectedTemporary": [],
+  "features": {
+    "navigatorInterface": {
+      "state": "enabled",
+      "exceptions": []
+    },
+    "messageBridge": {
+      "exceptions": [],
+      "state": "enabled",
+      "settings": {
+        "exampleFeature": "disabled",
+        "domains": [
+          {
+            "domain": "localhost",
+            "patchSettings": [
+              {
+                "op": "replace",
+                "path": "/exampleFeature",
+                "value": "enabled"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
