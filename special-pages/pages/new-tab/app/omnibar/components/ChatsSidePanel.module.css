@@ -1,0 +1,91 @@
+/**
+ * The rail is portaled to <body>, so it picks up the *browser* theme that
+ * BackgroundProvider writes to `document.body.dataset.theme` — the same theme the
+ * customizer drawer uses. That's what we want: this reads as browser chrome, not as
+ * page content sitting on the wallpaper.
+ */
+.panel {
+    /* The omnibar is the widest widget on the page (620px, see App.module.css). Sizing the
+       rail to the gutter beside it means it never covers content, and content never has to
+       shift to make room — it stays centred in the viewport either way. */
+    --ntp-chats-panel-gutter: calc((100vw - calc(620 * var(--px-in-rem))) / 2);
+    --ntp-chats-panel-width: min(calc(260 * var(--px-in-rem)), var(--ntp-chats-panel-gutter));
+
+    background: var(--ds-color-theme-surface-secondary);
+    border-right: 1px solid var(--ds-color-theme-container-border-secondary);
+    bottom: 0;
+    color: var(--ds-color-theme-text-primary);
+    left: 0;
+    overflow-y: auto;
+    padding: var(--sp-4) var(--sp-2);
+    position: fixed;
+    top: 0;
+    transform: translateX(-100%);
+    transition: transform .3s;
+    width: var(--ntp-chats-panel-width);
+    /* Above .layout and the customizer .aside, both z-index: 1 */
+    z-index: 3;
+
+    &[data-open="true"] {
+        transform: translateX(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .panel {
+        transition: none;
+    }
+}
+
+/* Under ~940px the gutter is too thin (<160px) to hold a readable chat title. */
+@media (max-width: 939px) {
+    .panel {
+        display: none;
+    }
+}
+
+.heading {
+    color: var(--ds-color-theme-text-secondary);
+    font-size: 12px;
+    font-weight: 590;
+    line-height: 16px;
+    margin: 0;
+    padding: var(--sp-1) var(--sp-2) var(--sp-2);
+}
+
+.list {
+    display: flex;
+    flex-direction: column;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.item {
+    align-items: center;
+    background: none;
+    border: none;
+    border-radius: var(--border-radius-md);
+    color: inherit;
+    cursor: pointer;
+    display: flex;
+    font: inherit;
+    height: var(--sp-9);
+    padding: 0 var(--sp-2);
+    text-align: left;
+    width: 100%;
+
+    &:hover {
+        background: var(--ds-color-theme-control-fill-primary);
+    }
+
+    &:active {
+        background: var(--ds-color-theme-control-fill-secondary);
+    }
+}
+
+.title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

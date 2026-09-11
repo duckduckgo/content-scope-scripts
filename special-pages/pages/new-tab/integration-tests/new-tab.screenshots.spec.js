@@ -321,6 +321,22 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
         });
     });
 
+    test.describe('omnibar chats side panel @screenshots', () => {
+        test('chats side panel in Duck.ai mode', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({
+                additional: { 'omnibar.mode': 'ai', 'omnibar.enableRecentAiChats': 'true' },
+            });
+            await omnibar.ready();
+            const panel = page.locator('[data-ntp-chats-panel]');
+            await expect(panel).toHaveAttribute('data-open', 'true');
+            await expect(panel.getByRole('button').first()).toBeVisible();
+            await expect(page).toHaveScreenshot('omnibar-chats-side-panel.png', { maxDiffPixels });
+        });
+    });
+
     test.describe('omnibar reasoning picker @screenshots', () => {
         test('reasoning picker rest', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);

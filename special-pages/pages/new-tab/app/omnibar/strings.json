@@ -255,6 +255,14 @@
     "title": "Delete this chat",
     "description": "Accessible label and tooltip for the button that deletes a recent AI chat."
   },
+  "omnibar_chatsSidePanelHeading": {
+    "title": "Chats",
+    "description": "Heading above the list of recent chats in the Duck.ai side panel on the New Tab Page."
+  },
+  "omnibar_chatsSidePanelLabel": {
+    "title": "Recent Duck.ai chats",
+    "description": "Accessible label for the Duck.ai side panel that lists recent chats."
+  },
   "omnibar_modelBadgeInternal": {
     "title": "Internal",
     "description": "Badge shown next to an AI model in the model selector that is only available to internal users."
