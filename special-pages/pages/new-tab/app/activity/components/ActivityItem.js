@@ -7,7 +7,7 @@ import { FaviconWithState } from '../../../../../shared/components/FaviconWithSt
 import { ACTION_ADD_FAVORITE, ACTION_REMOVE, ACTION_REMOVE_FAVORITE } from '../constants.js';
 import { Star, StarFilled } from '../../components/icons/Star.js';
 import { Fire as FireIconLegacy } from '../../components/icons/Fire.js';
-import { Cross, FireIcon, TrashIcon } from '../../components/Icons.js';
+import { Cross, FireIcon, FireOutlineIcon } from '../../components/Icons.js';
 import { useNewTabPageRebranding } from '../../settings.provider.js';
 import { useContext } from 'preact/hooks';
 import { memo } from 'preact/compat';
@@ -163,9 +163,9 @@ function Controls({ canBurn, url, title, shouldDisplayLegacyActivity = true, isR
  * @param {boolean} props.isRebrand
  */
 function renderSecondaryIcon({ canBurn, shouldDisplayLegacyActivity, isRebrand }) {
-    // canBurn is always false on Windows (burn unavailable there), so TrashIcon only appears on platforms where burn is enabled.
+    // canBurn is always false on Windows (burn unavailable there), so FireOutlineIcon only appears on platforms where burn is enabled.
     if (!canBurn) return <Cross />;
     if (shouldDisplayLegacyActivity) return <FireIconLegacy />;
-    if (isRebrand) return <TrashIcon />;
+    if (isRebrand) return <FireOutlineIcon />;
     return <FireIcon />;
 }
