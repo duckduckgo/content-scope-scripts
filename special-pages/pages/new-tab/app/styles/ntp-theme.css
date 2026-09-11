@@ -1,5 +1,12 @@
 :root {
     --ntp-gap: 2rem;
+
+    /* Width of the Duck.ai chats rail: the gutter beside the widest widget (the 620px
+       omnibar), so it never covers content and content never has to shift for it. Shared
+       here because App.module.css needs it to work out how far to shift main when the
+       customizer drawer opens. Clamped at 0 so a viewport narrower than the omnibar can't
+       produce a negative width; ChatsSidePanel.js keeps the rail closed well before that. */
+    --ntp-chats-rail-width: clamp(0px, calc((100vw - calc(620 * var(--px-in-rem))) / 2), calc(260 * var(--px-in-rem)));
     --ntp-drawer-width: calc(224 * var(--px-in-rem));
     --ntp-drawer-scroll-width: 12px;
     --ntp-combined-width: calc(var(--ntp-drawer-width) + var(--ntp-drawer-scroll-width));

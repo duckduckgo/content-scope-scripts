@@ -1,0 +1,243 @@
+/**
+ * The rail is portaled to <body>, so it picks up the *browser* theme that
+ * BackgroundProvider writes to `document.body.dataset.theme` — the same theme the
+ * customizer drawer uses. That's what we want: this reads as browser chrome, not as
+ * page content sitting on the wallpaper.
+ */
+.panel {
+    background: var(--ds-color-theme-surface-secondary);
+    border-right: 1px solid var(--ds-color-theme-container-border-secondary);
+    bottom: 0;
+    color: var(--ds-color-theme-text-primary);
+    left: 0;
+    overflow: hidden auto;
+    padding: var(--sp-4) var(--sp-2);
+    position: fixed;
+    top: 0;
+    transform: translateX(-100%);
+    transition: transform .3s;
+    width: var(--ntp-chats-rail-width);
+    /* Above .layout and the customizer .aside, both z-index: 1 */
+    z-index: 3;
+
+    &[data-open="true"] {
+        transform: translateX(0);
+    }
+}
+
+/* The way back once the rail is collapsed, at the page's leading edge where the rail was. */
+.reveal {
+    align-items: center;
+    background: var(--ds-color-theme-surface-secondary);
+    border: 1px solid var(--ds-color-theme-container-border-secondary);
+    border-radius: var(--border-radius-md);
+    color: var(--ds-color-theme-icons-secondary);
+    cursor: pointer;
+    display: flex;
+    height: var(--sp-8);
+    justify-content: center;
+    left: var(--sp-2);
+    opacity: 0;
+    pointer-events: none;
+    position: fixed;
+    top: var(--sp-4);
+    transition: opacity .2s;
+    width: var(--sp-8);
+    z-index: 3;
+
+    &[data-visible="true"] {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    &:hover {
+        color: var(--ds-color-theme-icons-primary);
+    }
+}
+
+.brand {
+    align-items: center;
+    display: flex;
+    gap: var(--sp-2);
+    padding: 0 0 var(--sp-3) var(--sp-2);
+}
+
+.brandLogo {
+    flex: none;
+    height: 20px;
+    width: 20px;
+}
+
+.brandName {
+    flex: 1;
+    font-size: 15px;
+    font-weight: 590;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.actions {
+    display: flex;
+    flex-direction: column;
+    list-style: none;
+    margin: 0 0 var(--sp-4);
+    padding: 0;
+}
+
+.action {
+    align-items: center;
+    background: none;
+    border: none;
+    border-radius: var(--border-radius-md);
+    color: inherit;
+    cursor: pointer;
+    display: flex;
+    font: inherit;
+    font-weight: 590;
+    gap: var(--sp-3);
+    height: var(--sp-9);
+    padding: 0 var(--sp-2);
+    text-align: left;
+    width: 100%;
+
+    svg {
+        color: var(--ds-color-theme-icons-primary);
+        flex: none;
+    }
+
+    &:hover {
+        background: var(--ds-color-theme-control-fill-primary);
+    }
+
+    &:active {
+        background: var(--ds-color-theme-control-fill-secondary);
+    }
+}
+
+.header {
+    align-items: center;
+    display: flex;
+    gap: var(--sp-1);
+    padding-bottom: var(--sp-2);
+}
+
+.heading {
+    color: var(--ds-color-theme-text-primary);
+    flex: 1;
+    font-size: 15px;
+    font-weight: 590;
+    line-height: 20px;
+    margin: 0;
+    /* Lines the title up with the chat titles below, which are inset by the row padding */
+    padding-left: var(--sp-2);
+}
+
+.headerButton {
+    align-items: center;
+    background: none;
+    border: none;
+    border-radius: var(--border-radius-sm);
+    color: var(--ds-color-theme-icons-secondary);
+    cursor: pointer;
+    display: flex;
+    flex: none;
+    height: var(--sp-7);
+    justify-content: center;
+    padding: 0;
+    width: var(--sp-7);
+
+    &:hover {
+        background: var(--ds-color-theme-control-fill-primary);
+        color: var(--ds-color-theme-icons-primary);
+    }
+
+    &:active {
+        background: var(--ds-color-theme-control-fill-secondary);
+    }
+}
+
+.searchRow {
+    align-items: center;
+    display: flex;
+    gap: var(--sp-1);
+    padding-bottom: var(--sp-2);
+}
+
+.searchField {
+    align-items: center;
+    background: var(--ds-color-theme-surface-tertiary);
+    border: 2px solid var(--ds-color-theme-accent-primary);
+    border-radius: var(--border-radius-lg);
+    display: flex;
+    flex: 1;
+    gap: var(--sp-2);
+    min-width: 0;
+    padding: 0 var(--sp-3);
+}
+
+.searchFieldIcon {
+    color: var(--ds-color-theme-icons-tertiary);
+    flex: none;
+}
+
+.searchInput {
+    background: none;
+    border: none;
+    color: var(--ds-color-theme-text-primary);
+    flex: 1;
+    font: inherit;
+    height: var(--sp-9);
+    min-width: 0;
+    outline: none;
+    padding: 0;
+
+    &::placeholder {
+        color: var(--ds-color-theme-text-secondary);
+    }
+}
+
+.list {
+    display: flex;
+    flex-direction: column;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.item {
+    align-items: center;
+    background: none;
+    border: none;
+    border-radius: var(--border-radius-md);
+    color: inherit;
+    cursor: pointer;
+    display: flex;
+    font: inherit;
+    gap: var(--sp-2);
+    height: var(--sp-9);
+    padding: 0 var(--sp-2);
+    text-align: left;
+    width: 100%;
+
+    &:hover {
+        background: var(--ds-color-theme-control-fill-primary);
+    }
+
+    &:active {
+        background: var(--ds-color-theme-control-fill-secondary);
+    }
+}
+
+.title {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.date {
+    color: var(--ds-color-theme-text-secondary);
+    flex: none;
+}

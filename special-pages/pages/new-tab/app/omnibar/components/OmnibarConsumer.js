@@ -4,6 +4,7 @@ import { useCustomizer } from '../../customizer/components/CustomizerMenu.js';
 import { useTypedTranslationWith } from '../../types.js';
 import { useVisibility } from '../../widget-list/widget-config.provider.js';
 import { Omnibar } from './Omnibar.js';
+import { ChatsSidePanel } from './ChatsSidePanel.js';
 import styles from './Omnibar.module.css';
 import { OmnibarContext } from './OmnibarProvider.js';
 import { ArrowIndentCenteredIcon, LogoStacked } from '../../components/Icons.js';
@@ -79,18 +80,27 @@ function OmnibarReadyState({ config, tabId }) {
     const modeForCurrentTab = useModeWithLocalPersistence(tabId, defaultMode);
 
     return (
-        <Omnibar
-            mode={modeForCurrentTab}
-            setMode={setMode}
-            enableAi={showAiSetting && enableAi}
-            enableRecentAiChats={enableRecentAiChats}
-            showViewAllAiChats={showViewAllAiChats}
-            showCustomizePopover={showCustomizePopover}
-            enableVoiceChatAccess={enableVoiceChatAccess}
-            enableAskAiSuggestion={enableAskAiSuggestion}
-            enableAttachTabs={enableAttachTabs}
-            tabId={tabId}
-        />
+        <>
+            {/* Rendered here rather than inside Omnibar: Omnibar's root div is keyed on a
+                reset counter and remounts on every submit, which would refetch the chats
+                and restart the panel's slide animation. */}
+            {enableRecentAiChats && <ChatsSidePanel open={modeForCurrentTab === 'ai'} />}
+            <Omnibar
+                mode={modeForCurrentTab}
+                setMode={setMode}
+                enableAi={showAiSetting && enableAi}
+                /* POC: the rail owns recent chats now, so the composer's own dropdown is off -
+                   the two overlap and the provider hands over a full history the dropdown was
+                   never sized for. Pass `enableRecentAiChats` again to bring it back. */
+                enableRecentAiChats={false}
+                showViewAllAiChats={showViewAllAiChats}
+                showCustomizePopover={showCustomizePopover}
+                enableVoiceChatAccess={enableVoiceChatAccess}
+                enableAskAiSuggestion={enableAskAiSuggestion}
+                enableAttachTabs={enableAttachTabs}
+                tabId={tabId}
+            />
+        </>
     );
 }
 

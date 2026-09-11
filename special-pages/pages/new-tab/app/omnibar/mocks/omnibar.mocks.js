@@ -99,7 +99,7 @@ export const mockAiChatTitleWithSearchTerm = `Onboarding ${mockAiChatsSearchTerm
 const MAX_RESULTS = 5;
 
 /** @type {import("../../../types/new-tab").AiChat[]} */
-const allMockChats = [
+export const allMockChats = [
     {
         chatId: 'chat-001',
         title: 'Edit: feedback quality & timing',

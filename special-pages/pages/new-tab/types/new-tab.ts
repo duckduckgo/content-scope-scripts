@@ -263,6 +263,7 @@ export interface NewTabMessages {
     | NextStepsGetConfigRequest
     | NextStepsGetDataRequest
     | OmnibarConfirmDeleteAiChatRequest
+    | OmnibarConfirmDeleteAllAiChatsRequest
     | OmnibarGetAiChatsRequest
     | OmnibarGetConfigRequest
     | OmnibarGetOpenTabsRequest
@@ -1484,6 +1485,24 @@ export interface ConfirmDeleteAIChatParams {
  * Response from native after the user interacts with the confirmation dialog.
  */
 export interface ConfirmDeleteAIChatResponse {
+  action: "delete" | "none";
+}
+/**
+ * Generated from @see "../messages/omnibar_confirmDeleteAllAiChats.request.json"
+ */
+export interface OmnibarConfirmDeleteAllAiChatsRequest {
+  method: "omnibar_confirmDeleteAllAiChats";
+  params: ConfirmDeleteAllAIChatsParams;
+  result: ConfirmDeleteAllAIChatsResponse;
+}
+/**
+ * Requests a native confirmation dialog for deleting every AI chat. Native shows the same dialog as the Duck.ai menu's 'Delete All Chats...' item and responds with the user's choice, deleting the chats itself when confirmed.
+ */
+export interface ConfirmDeleteAllAIChatsParams {}
+/**
+ * Response from native after the user interacts with the confirmation dialog. On 'delete' the chats are already gone, so the page should re-fetch.
+ */
+export interface ConfirmDeleteAllAIChatsResponse {
   action: "delete" | "none";
 }
 /**

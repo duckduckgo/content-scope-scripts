@@ -1,0 +1,6 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Confirm Delete All AI Chats Params",
+  "description": "Requests a native confirmation dialog for deleting every AI chat. Native shows the same dialog as the Duck.ai menu's 'Delete All Chats...' item and responds with the user's choice, deleting the chats itself when confirmed.",
+  "type": "object"
+}
