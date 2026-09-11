@@ -103,7 +103,7 @@ function useCollapsed() {
  */
 export function ChatsSidePanel({ open }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
-    const { openAiChat, confirmDeleteAllAiChats } = useContext(OmnibarContext);
+    const { openAiChat, confirmDeleteAllAiChats, getAiChats } = useContext(OmnibarContext);
     const platformName = usePlatformName();
     const ntp = useMessaging();
     const hasRoom = useHasRoomForRail();
@@ -156,6 +156,9 @@ export function ChatsSidePanel({ open }) {
             if (response.action === 'delete') {
                 setChats([]);
                 service.triggerFetch(query);
+                // The composer's dropdown reads a different service instance, so it would keep
+                // listing the chats we just deleted until its own query changed.
+                getAiChats('');
             }
         } catch {
             // Native dialog didn't complete; the list stays as it is

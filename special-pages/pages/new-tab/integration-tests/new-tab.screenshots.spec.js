@@ -333,7 +333,9 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             await omnibar.ready();
             const panel = page.locator('[data-ntp-chats-panel]');
             await expect(panel).toHaveAttribute('data-open', 'true');
-            await expect(panel.getByRole('button').first()).toBeVisible();
+            // Count the rows rather than any button: the header's own buttons render before the
+            // chats are fetched, so waiting on those would snapshot an empty list.
+            await expect(panel.getByRole('listitem')).toHaveCount(5);
             await expect(page).toHaveScreenshot('omnibar-chats-side-panel.png', { maxDiffPixels });
         });
 
@@ -348,7 +350,9 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             const panel = page.locator('[data-ntp-chats-panel]');
             await panel.getByRole('button', { name: 'Search chats' }).click();
             await panel.getByRole('textbox').fill(mockAiChatsSearchTerm);
-            // Dates only render in search mode, so waiting on one also waits out the fetch
+            // The matching title is in the unfiltered list too, so assert the list has actually
+            // narrowed - otherwise this passes before the debounce and fetch complete.
+            await expect(panel.getByRole('listitem')).toHaveCount(1);
             await expect(panel.getByRole('button', { name: mockAiChatTitleWithSearchTerm })).toBeVisible();
             await expect(page).toHaveScreenshot('omnibar-chats-side-panel-search.png', { maxDiffPixels });
         });
