@@ -317,6 +317,14 @@
     "title": "Apply response customization",
     "description": "Accessible label for the on/off toggle that applies or unapplies the saved response customization, shown on the Customize Responses tools menu row."
   },
+  "omnibar_usageLimitsCtaMenuLabel": {
+    "title": "Show more models",
+    "description": "Accessible label for the usage-limits CTA chevron that opens the alternatives menu."
+  },
+  "omnibar_usageLimitsCtaMenuFallback": {
+    "title": "Switch model",
+    "description": "Accessible name for the usage-limits alternatives menu when native did not send menuHeader."
+  },
   "omnibar_imageGenerationWithAttachmentPlaceholder": {
     "title": "Describe changes based on the image",
     "description": "Placeholder text for the AI chat input when image generation mode is active and an image is attached."

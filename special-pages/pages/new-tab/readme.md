@@ -316,6 +316,16 @@
  - **Example**: `?omnibar.tabMaxAttached=1`
  - **Options**: Any positive integer
 
+### Usage Limits Drawer
+ - **Purpose**: Shows the native-driven AI-mode usage-limits drawer under the omnibar pill. Hidden unless the AI input is focused. Default is hidden.
+ - **Parameter**: `omnibar.usageLimits`
+ - **Example**: `?omnibar.mode=ai&omnibar.usageLimits=approaching`
+ - **Options**:
+   - `false` - Hide the drawer
+   - `approaching` - Warning ring + switch-to-cheaper CTA with alternatives menu
+   - `reached` - Alert + subscribe CTA; `blocksPrompt` freezes the composer
+   - `reached-switch` - Alert + switch-to-free CTA (no menu header)
+
 ### Subscription (simulate subscribed user)
  - **Purpose**: Flips `isAvailable: true` on every AI model in the mock, unlocking the "Subscriber Exclusive" section. Lets tests pick subscription-tier models (e.g. Opus 4.6, GPT-5.2) as `selectedModelId`.
  - **Parameter**: `omnibar.subscription`
@@ -396,6 +406,7 @@
  - Full AI chat tools: `?omnibar.mode=ai&omnibar.enableAiChatTools=true&omnibar.enableImageGeneration=true&omnibar.enableWebSearch=true`
  - Image generation only: `?omnibar.mode=ai&omnibar.enableAiChatTools=true&omnibar.enableImageGeneration=true`
  - Web search only: `?omnibar.mode=ai&omnibar.enableAiChatTools=true&omnibar.enableWebSearch=true`
+ - Usage limits (approaching): `?omnibar.mode=ai&omnibar.usageLimits=approaching`
 
  ### For Design Reviews
  - Component review: `?display=components`

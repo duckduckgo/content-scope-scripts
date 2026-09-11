@@ -103,6 +103,22 @@ export class OmnibarPage {
         return this.context().getByRole('button', { name: 'Close' });
     }
 
+    usageLimitsDrawer() {
+        return this.page.getByTestId('usage-limits-drawer');
+    }
+
+    usageLimitsCtaMenuButton() {
+        return this.usageLimitsDrawer().getByRole('button', { name: 'Show more models' });
+    }
+
+    usageLimitsCtaMenu() {
+        return this.page.getByRole('menu', { name: 'Switch to a more efficient model' });
+    }
+
+    usageLimitsDismiss() {
+        return this.usageLimitsDrawer().getByTestId('dismissBtn');
+    }
+
     popover() {
         return this.context().getByRole('dialog');
     }
