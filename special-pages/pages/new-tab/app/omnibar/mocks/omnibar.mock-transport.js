@@ -1,5 +1,5 @@
 import { TestTransportConfig } from '@duckduckgo/messaging';
-import { getMockSuggestions, getMockAiChats, getMockOpenTabs, getMockTabContent } from './omnibar.mocks.js';
+import { getMockSuggestions, getMockAiChats, getMockOpenTabs, getMockTabContent, allMockChats } from './omnibar.mocks.js';
 
 const url = typeof window !== 'undefined' ? new URL(window.location.href) : new URL('https://example.com');
 
@@ -475,6 +475,27 @@ export function omnibarMockTransport() {
                     // Track deletion so re-fetches don't return this chat
                     if (response.action === 'delete') {
                         deletedChatIds.add(msg.params.chatId);
+                    }
+                    return response;
+                }
+                case 'omnibar_confirmDeleteAllAiChats': {
+                    // Simulates the native 'Delete All Chats...' dialog, which deletes on confirm
+                    /** @type {{ action: string }} */
+                    let response;
+
+                    if (window.__playwright_01?.mockResponses?.omnibar_confirmDeleteAllAiChats) {
+                        response = /** @type {{ action: string }} */ (
+                            /** @type {unknown} */ (window.__playwright_01.mockResponses.omnibar_confirmDeleteAllAiChats)
+                        );
+                    } else if (!window.__playwright_01) {
+                        response = { action: window.confirm('Delete all chats?') ? 'delete' : 'none' };
+                    } else {
+                        response = { action: 'delete' };
+                    }
+                    if (response.action === 'delete') {
+                        for (const chat of allMockChats) {
+                            deletedChatIds.add(chat.chatId);
+                        }
                     }
                     return response;
                 }

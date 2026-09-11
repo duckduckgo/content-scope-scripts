@@ -25,19 +25,117 @@
     }
 }
 
-@media (prefers-reduced-motion: reduce) {
-    .panel {
-        transition: none;
+/* The way back once the rail is collapsed. Sits where the rail's own toggle was, so the
+   control doesn't appear to jump when it hides. */
+.reveal {
+    align-items: center;
+    background: var(--ds-color-theme-surface-secondary);
+    border: 1px solid var(--ds-color-theme-container-border-secondary);
+    border-radius: var(--border-radius-md);
+    color: var(--ds-color-theme-icons-secondary);
+    cursor: pointer;
+    display: flex;
+    height: var(--sp-8);
+    justify-content: center;
+    left: var(--sp-2);
+    opacity: 0;
+    pointer-events: none;
+    position: fixed;
+    top: var(--sp-4);
+    transition: opacity .2s;
+    width: var(--sp-8);
+    z-index: 3;
+
+    &[data-visible="true"] {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    &:hover {
+        color: var(--ds-color-theme-icons-primary);
     }
 }
 
+.header {
+    align-items: center;
+    display: flex;
+    gap: var(--sp-1);
+    padding-bottom: var(--sp-2);
+}
+
 .heading {
-    color: var(--ds-color-theme-text-secondary);
-    font-size: 12px;
+    color: var(--ds-color-theme-text-primary);
+    flex: 1;
+    font-size: 15px;
     font-weight: 590;
-    line-height: 16px;
+    line-height: 20px;
     margin: 0;
-    padding: var(--sp-1) var(--sp-2) var(--sp-2);
+    /* Optically aligns the title with the chat rows below, which are inset by the icon button */
+    padding-left: var(--sp-1);
+}
+
+.headerButton {
+    align-items: center;
+    background: none;
+    border: none;
+    border-radius: var(--border-radius-sm);
+    color: var(--ds-color-theme-icons-secondary);
+    cursor: pointer;
+    display: flex;
+    flex: none;
+    height: var(--sp-7);
+    justify-content: center;
+    padding: 0;
+    width: var(--sp-7);
+
+    &:hover {
+        background: var(--ds-color-theme-control-fill-primary);
+        color: var(--ds-color-theme-icons-primary);
+    }
+
+    &:active {
+        background: var(--ds-color-theme-control-fill-secondary);
+    }
+}
+
+.searchRow {
+    align-items: center;
+    display: flex;
+    gap: var(--sp-1);
+    padding-bottom: var(--sp-2);
+}
+
+.searchField {
+    align-items: center;
+    background: var(--ds-color-theme-surface-tertiary);
+    border: 2px solid var(--ds-color-theme-accent-primary);
+    border-radius: var(--border-radius-lg);
+    display: flex;
+    flex: 1;
+    gap: var(--sp-2);
+    min-width: 0;
+    padding: 0 var(--sp-3);
+}
+
+.searchFieldIcon {
+    color: var(--ds-color-theme-icons-tertiary);
+    flex: none;
+}
+
+.searchInput {
+    background: none;
+    border: none;
+    color: var(--ds-color-theme-text-primary);
+    flex: 1;
+    font: inherit;
+    height: var(--sp-9);
+    min-width: 0;
+    outline: none;
+    padding: 0;
+
+    &::placeholder {
+        color: var(--ds-color-theme-text-secondary);
+    }
 }
 
 .list {
@@ -57,6 +155,7 @@
     cursor: pointer;
     display: flex;
     font: inherit;
+    gap: var(--sp-2);
     height: var(--sp-9);
     padding: 0 var(--sp-2);
     text-align: left;
@@ -72,7 +171,14 @@
 }
 
 .title {
+    flex: 1;
+    min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+.date {
+    color: var(--ds-color-theme-text-secondary);
+    flex: none;
 }

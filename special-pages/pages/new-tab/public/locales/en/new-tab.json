@@ -425,6 +425,30 @@
     "title": "Recent Duck.ai chats",
     "description": "Accessible label for the Duck.ai side panel that lists recent chats."
   },
+  "omnibar_chatsSidePanelSearch": {
+    "title": "Search chats",
+    "description": "Accessible label and tooltip for the button that starts searching the Duck.ai chats side panel."
+  },
+  "omnibar_chatsSidePanelSearchPlaceholder": {
+    "title": "Search chats",
+    "description": "Placeholder and accessible label for the search field in the Duck.ai chats side panel."
+  },
+  "omnibar_chatsSidePanelSearchClose": {
+    "title": "Close search",
+    "description": "Accessible label and tooltip for the button that leaves search mode in the Duck.ai chats side panel."
+  },
+  "omnibar_chatsSidePanelDeleteAll": {
+    "title": "Delete all chats",
+    "description": "Accessible label and tooltip for the button that deletes every Duck.ai chat from the side panel."
+  },
+  "omnibar_chatsSidePanelHide": {
+    "title": "Hide chats panel",
+    "description": "Accessible label and tooltip for the button that collapses the Duck.ai chats side panel."
+  },
+  "omnibar_chatsSidePanelShow": {
+    "title": "Show chats panel",
+    "description": "Accessible label and tooltip for the button that reopens the collapsed Duck.ai chats side panel."
+  },
   "omnibar_modelBadgeInternal": {
     "title": "Internal",
     "description": "Badge shown next to an AI model in the model selector that is only available to internal users."

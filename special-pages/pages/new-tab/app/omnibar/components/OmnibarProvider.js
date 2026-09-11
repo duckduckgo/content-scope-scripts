@@ -103,6 +103,10 @@ export const OmnibarContext = createContext({
     confirmDeleteAiChat: () => {
         throw new Error('must implement');
     },
+    /** @type {() => Promise<import('../../../types/new-tab.js').ConfirmDeleteAllAIChatsResponse>} */
+    confirmDeleteAllAiChats: () => {
+        throw new Error('must implement');
+    },
     /** @type {(url: string) => void} */
     removeSuggestion: () => {
         throw new Error('must implement');
@@ -301,6 +305,16 @@ export function OmnibarProvider(props) {
     );
 
     /**
+     * Asks native to show a confirmation dialog for deleting every AI chat. Native owns the
+     * deletion too, so on 'delete' the caller only needs to re-fetch.
+     * @type {() => Promise<import('../../../types/new-tab.js').ConfirmDeleteAllAIChatsResponse>}
+     */
+    const confirmDeleteAllAiChats = useCallback(() => {
+        if (!service.current) throw new Error('Service not available');
+        return service.current.confirmDeleteAllAiChats();
+    }, [service]);
+
+    /**
      * Tells native to remove a history entry from browsing history (fire-and-forget).
      * @type {(url: string) => void}
      */
@@ -335,6 +349,7 @@ export function OmnibarProvider(props) {
                 getOpenTabs,
                 getTabContent,
                 confirmDeleteAiChat,
+                confirmDeleteAllAiChats,
                 removeSuggestion,
             }}
         >

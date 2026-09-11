@@ -303,4 +303,14 @@ export class OmnibarService {
     confirmDeleteAiChat(chatId, title) {
         return this.ntp.messaging.request('omnibar_confirmDeleteAiChat', { chatId, title });
     }
+
+    /**
+     * Ask native to confirm deleting every chat. Native owns the dialog and the deletion, so
+     * on `delete` the chats are already gone and the caller just needs to re-fetch.
+     *
+     * @returns {Promise<{action: 'delete'|'none'}>}
+     */
+    confirmDeleteAllAiChats() {
+        return this.ntp.messaging.request('omnibar_confirmDeleteAllAiChats', {});
+    }
 }

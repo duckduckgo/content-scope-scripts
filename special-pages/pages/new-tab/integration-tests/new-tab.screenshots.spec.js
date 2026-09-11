@@ -4,6 +4,7 @@ import { NewtabPage } from './new-tab.page.js';
 import { ActivityPage } from '../app/activity/integration-tests/activity.page.js';
 import { PrivacyStatsPage } from '../app/privacy-stats/integration-tests/privacy-stats.page.js';
 import { OmnibarPage } from '../app/omnibar/integration-tests/omnibar.page.js';
+import { mockAiChatsSearchTerm, mockAiChatTitleWithSearchTerm } from '../app/omnibar/mocks/omnibar.mocks.js';
 
 const maxDiffPixels = 20;
 
@@ -334,6 +335,22 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             await expect(panel).toHaveAttribute('data-open', 'true');
             await expect(panel.getByRole('button').first()).toBeVisible();
             await expect(page).toHaveScreenshot('omnibar-chats-side-panel.png', { maxDiffPixels });
+        });
+
+        test('chats side panel search', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({
+                additional: { 'omnibar.mode': 'ai', 'omnibar.enableRecentAiChats': 'true' },
+            });
+            await omnibar.ready();
+            const panel = page.locator('[data-ntp-chats-panel]');
+            await panel.getByRole('button', { name: 'Search chats' }).click();
+            await panel.getByRole('textbox').fill(mockAiChatsSearchTerm);
+            // Dates only render in search mode, so waiting on one also waits out the fetch
+            await expect(panel.getByRole('button', { name: mockAiChatTitleWithSearchTerm })).toBeVisible();
+            await expect(page).toHaveScreenshot('omnibar-chats-side-panel-search.png', { maxDiffPixels });
         });
     });
 
