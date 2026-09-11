@@ -14,7 +14,7 @@
     "note": "Install button on a Chrome Web Store extension detail page, replacing 'Add to Chrome'."
   },
   "remove": {
-    "title": "Aus DuckDuckGo entfernen",
+    "title": "Von DuckDuckGo entfernen",
     "note": "Uninstall button on a Chrome Web Store extension detail page, shown when the extension is already installed."
   },
   "unavailable": {

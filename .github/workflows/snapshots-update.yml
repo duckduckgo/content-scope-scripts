@@ -36,7 +36,7 @@ jobs:
                   cache: 'npm'
             - name: Cache node_modules
               id: cache-node-modules
-              uses: actions/cache@v5
+              uses: actions/cache@v6
               with:
                   path: |
                       node_modules
@@ -46,7 +46,7 @@ jobs:
                       types-generator/node_modules
                   key: ${{ runner.os }}-node-modules-${{ hashFiles('.nvmrc') }}-${{ hashFiles('**/package-lock.json') }}
             - name: Cache Playwright browsers
-              uses: actions/cache@v5
+              uses: actions/cache@v6
               with:
                   path: ~/.cache/ms-playwright
                   key: ${{ runner.os }}-playwright-${{ hashFiles('**/package-lock.json') }}
