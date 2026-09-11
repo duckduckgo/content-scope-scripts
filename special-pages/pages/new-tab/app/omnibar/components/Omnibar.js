@@ -81,6 +81,7 @@ export function Omnibar({
     enableAttachTabs = false,
     tabId,
 }) {
+    console.log('__NEW_OMNIBAR__');
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const spacerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const [usageLimitsRevealed, setUsageLimitsRevealed] = useState(false);
