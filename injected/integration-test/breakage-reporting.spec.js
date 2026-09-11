@@ -9,18 +9,18 @@ test.describe('Breakage Reporting Feature', () => {
     test('breakageData is undefined when no features add data', async ({ page }, testInfo) => {
         const collector = ResultsCollector.create(page, testInfo.project.use);
         const config = JSON.parse(readFileSync(CONFIG, 'utf8'));
-        // disable webInterferenceDetection feature so it doesn't add data to the breakage report
+        // Disable features that add data to the breakage report.
         config.features.webInterferenceDetection.state = 'disabled';
+        config.features.detectorPerf = { state: 'disabled' };
         await collector.load(HTML, config);
 
         const breakageFeature = new BreakageReportingSpec(page);
         await breakageFeature.navigate();
 
         await collector.simulateSubscriptionMessage('breakageReporting', 'getBreakageReportValues', {});
-        await collector.waitForMessage('breakageReportResult');
-        const calls = await collector.outgoingMessages();
+        const [resultCall] = await collector.waitForMessage('breakageReportResult');
 
-        const result = /** @type {import("@duckduckgo/messaging").NotificationMessage} */ (calls[0].payload);
+        const result = /** @type {import("@duckduckgo/messaging").NotificationMessage} */ (resultCall.payload);
         expect(result.params?.detectorData).toBeUndefined();
         expect(result.params?.breakageData).toBeUndefined();
     });
@@ -33,11 +33,9 @@ test.describe('Breakage Reporting Feature', () => {
         await breakageFeature.navigate();
 
         await collector.simulateSubscriptionMessage('breakageReporting', 'getBreakageReportValues', {});
-        await collector.waitForMessage('breakageReportResult');
-        const calls = await collector.outgoingMessages();
+        const [resultCall] = await collector.waitForMessage('breakageReportResult');
 
-        expect(calls.length).toBe(1);
-        const result = /** @type {import("@duckduckgo/messaging").NotificationMessage} */ (calls[0].payload);
+        const result = /** @type {import("@duckduckgo/messaging").NotificationMessage} */ (resultCall.payload);
         expect(result.params?.jsPerformance.length).toBe(1);
         expect(result.params?.jsPerformance[0]).toBeGreaterThan(0);
         expect(result.params?.referrer).toBe('http://localhost:3220/breakage-reporting/index.html');
@@ -51,14 +49,12 @@ test.describe('Breakage Reporting Feature', () => {
         await breakageFeature.navigateToPage('/breakage-reporting/pages/no-challenge.html');
 
         await collector.simulateSubscriptionMessage('breakageReporting', 'getBreakageReportValues', {});
-        await collector.waitForMessage('breakageReportResult');
-        const calls = await collector.outgoingMessages();
+        const [resultCall] = await collector.waitForMessage('breakageReportResult');
 
-        const result = /** @type {import("@duckduckgo/messaging").NotificationMessage} */ (calls[0].payload);
+        const result = /** @type {import("@duckduckgo/messaging").NotificationMessage} */ (resultCall.payload);
         expect(result.params?.detectorData).toBeDefined();
         expect(result.params?.detectorData?.botDetection.detected).toBe(false);
         expect(result.params?.detectorData?.fraudDetection.detected).toBe(false);
-        expect(result.params?.detectorData?.adwallDetection.detected).toBe(false);
 
         // Verify breakageData contains URL-encoded JSON with detectorData
         expect(result.params?.breakageData).toBeDefined();
@@ -74,10 +70,9 @@ test.describe('Breakage Reporting Feature', () => {
         await breakageFeature.navigateToPage('/breakage-reporting/pages/captcha-cloudflare.html');
 
         await collector.simulateSubscriptionMessage('breakageReporting', 'getBreakageReportValues', {});
-        await collector.waitForMessage('breakageReportResult');
-        const calls = await collector.outgoingMessages();
+        const [resultCall] = await collector.waitForMessage('breakageReportResult');
 
-        const result = /** @type {import("@duckduckgo/messaging").NotificationMessage} */ (calls[0].payload);
+        const result = /** @type {import("@duckduckgo/messaging").NotificationMessage} */ (resultCall.payload);
         expect(result.params?.detectorData).toBeDefined();
         expect(result.params?.detectorData?.botDetection.detected).toBe(true);
         expect(result.params?.detectorData?.botDetection.results.length).toBeGreaterThan(0);
@@ -96,10 +91,9 @@ test.describe('Breakage Reporting Feature', () => {
         await breakageFeature.navigateToPage('/breakage-reporting/pages/captcha-recaptcha.html');
 
         await collector.simulateSubscriptionMessage('breakageReporting', 'getBreakageReportValues', {});
-        await collector.waitForMessage('breakageReportResult');
-        const calls = await collector.outgoingMessages();
+        const [resultCall] = await collector.waitForMessage('breakageReportResult');
 
-        const result = /** @type {import("@duckduckgo/messaging").NotificationMessage} */ (calls[0].payload);
+        const result = /** @type {import("@duckduckgo/messaging").NotificationMessage} */ (resultCall.payload);
         expect(result.params?.detectorData).toBeDefined();
         expect(result.params?.detectorData?.botDetection.detected).toBe(true);
 
@@ -117,53 +111,14 @@ test.describe('Breakage Reporting Feature', () => {
         await breakageFeature.navigateToPage('/breakage-reporting/pages/fraud-px.html');
 
         await collector.simulateSubscriptionMessage('breakageReporting', 'getBreakageReportValues', {});
-        await collector.waitForMessage('breakageReportResult');
-        const calls = await collector.outgoingMessages();
+        const [resultCall] = await collector.waitForMessage('breakageReportResult');
 
-        const result = /** @type {import("@duckduckgo/messaging").NotificationMessage} */ (calls[0].payload);
+        const result = /** @type {import("@duckduckgo/messaging").NotificationMessage} */ (resultCall.payload);
         expect(result.params?.detectorData).toBeDefined();
         expect(result.params?.detectorData?.fraudDetection.detected).toBe(true);
 
         const fraudResult = result.params?.detectorData?.fraudDetection.results[0];
         expect(fraudResult.alertId).toBe('px');
-    });
-
-    test('detects adwall on page with adblocker message', async ({ page }, testInfo) => {
-        const collector = ResultsCollector.create(page, testInfo.project.use);
-        await collector.load(HTML, CONFIG);
-
-        const breakageFeature = new BreakageReportingSpec(page);
-        await breakageFeature.navigateToPage('/breakage-reporting/pages/adwall.html');
-
-        await collector.simulateSubscriptionMessage('breakageReporting', 'getBreakageReportValues', {});
-        await collector.waitForMessage('breakageReportResult');
-        const calls = await collector.outgoingMessages();
-
-        const result = /** @type {import("@duckduckgo/messaging").NotificationMessage} */ (calls[0].payload);
-        expect(result.params?.detectorData).toBeDefined();
-        expect(result.params?.detectorData?.adwallDetection.detected).toBe(true);
-        expect(result.params?.detectorData?.adwallDetection.results.length).toBeGreaterThan(0);
-
-        const adwallResult = result.params?.detectorData?.adwallDetection.results[0];
-        expect(adwallResult.detectorId).toBe('generic');
-        expect(adwallResult.detected).toBe(true);
-    });
-
-    test('does not detect adwall on clean page', async ({ page }, testInfo) => {
-        const collector = ResultsCollector.create(page, testInfo.project.use);
-        await collector.load(HTML, CONFIG);
-
-        const breakageFeature = new BreakageReportingSpec(page);
-        await breakageFeature.navigateToPage('/breakage-reporting/pages/no-challenge.html');
-
-        await collector.simulateSubscriptionMessage('breakageReporting', 'getBreakageReportValues', {});
-        await collector.waitForMessage('breakageReportResult');
-        const calls = await collector.outgoingMessages();
-
-        const result = /** @type {import("@duckduckgo/messaging").NotificationMessage} */ (calls[0].payload);
-        expect(result.params?.detectorData).toBeDefined();
-        expect(result.params?.detectorData?.adwallDetection.detected).toBe(false);
-        expect(result.params?.detectorData?.adwallDetection.results.length).toBe(0);
     });
 });
 

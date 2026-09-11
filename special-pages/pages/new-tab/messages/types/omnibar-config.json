@@ -76,7 +76,7 @@
       "required": ["items"],
       "properties": {
         "header": {
-          "description": "Optional section header text (e.g. 'Advanced Models - DuckDuckGo subscription')",
+          "description": "Optional section header text (e.g. 'Subscriber Exclusive')",
           "type": "string"
         },
         "items": {
@@ -108,8 +108,12 @@
           "type": "boolean"
         },
         "upsell": {
-          "description": "For a gated (isAvailable: false) option, which upsell flow it leads to. Absent for available options.",
+          "description": "For a gated (isAvailable: false) option, which upsell flow it leads to. Absent for available options. Absent on a gated option means the row shows but is inert, with no upsell action; send an explicit value whenever the row should be actionable.",
           "$ref": "#/$defs/UpsellType"
+        },
+        "gatedSectionHeader": {
+          "description": "Localized header for the gated section this option starts (e.g. 'Try for Free', 'Pro Plan Exclusive'). Set on the first gated option only; absent means no divider and no header for that option.",
+          "type": "string"
         }
       }
     },
@@ -163,7 +167,7 @@
           "items": { "$ref": "#/$defs/ReasoningEffortOption" }
         },
         "upsell": {
-          "description": "For a gated (disabled) model, which upsell flow it leads to. Absent for enabled models.",
+          "description": "For a gated (disabled) model, which upsell flow it leads to. Absent for enabled models. Absent on a gated model means the row shows but is inert, with no upsell action; send an explicit value whenever the row should be actionable.",
           "$ref": "#/$defs/UpsellType"
         }
       }

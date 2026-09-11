@@ -13,6 +13,22 @@
                 "domains": [],
                 "rules": [
                     {
+                        "selector": "div:::malformed-selector",
+                        "type": "hide-empty"
+                    },
+                    {
+                        "selector": ":ddg-nonexistent-pseudo-class",
+                        "type": "hide-empty"
+                    },
+                    {
+                        "selector": ".invalid-canary-test",
+                        "type": "hide-empty"
+                    },
+                    {
+                        "selector": ".invalid-list-test, div:::malformed-in-list",
+                        "type": "hide-empty"
+                    },
+                    {
                         "selector": ".hide-test",
                         "type": "hide"
                     },

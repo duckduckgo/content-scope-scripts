@@ -113,7 +113,7 @@ Built artifacts live on dedicated branches:
 | Branch | Purpose | How it's created |
 |--------|---------|-----------------|
 | `releases` | Production releases. Tags (e.g. `12.38.0`) point here. | Manual `workflow_dispatch` on `build.yml` |
-| `pr-releases/<branch>` | Per-PR build artifacts for cross-repo testing. | Automatic via `build-pr.yml` on every PR push |
+| `pr-releases/<branch>` | Per-PR build artifacts for cross-repo testing. | Automatic via `build-branch.yml` on every PR push |
 
 The `releases` branch is the long-lived equivalent of "what `main` would look like if we checked in build output". The `pr-releases/` branches are ephemeral — created when a PR is opened/updated, deleted when it's closed.
 
@@ -136,7 +136,7 @@ The workflow creates a tag and GitHub release automatically. Build artifacts on 
 
 ### PR build branches
 
-When you push to any branch (except `main`, `releases`, or `pr-releases/*`), the `build-pr.yml` workflow automatically:
+When you push to any branch (except `main`, `releases`, `pr-releases/*`, or `dependabot/*`), the `build-branch.yml` workflow automatically:
 
 1. Builds all workspaces (`npm run build`)
 2. Pushes the source + build artifacts to `pr-releases/<your-branch-name>`
@@ -145,6 +145,8 @@ When you push to any branch (except `main`, `releases`, or `pr-releases/*`), the
    - Integration commands for each platform
 
 The build branch is created on the first push and updated on every subsequent push. It's deleted automatically when the source branch is deleted.
+
+Dependabot branches are deliberately excluded: the workflow's publish job holds a `contents: write` token, and dependency-bump branches are the one place third-party code enters the repo. Test a Dependabot bump via the regular CI checks or a local build instead.
 
 **Using a PR build branch in a native client:**
 

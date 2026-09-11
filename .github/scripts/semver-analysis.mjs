@@ -27,6 +27,32 @@ const ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages';
 const MAX_BUILD_DIFF_CHARS = 80_000;
 const MAX_SOURCE_DIFF_CHARS = 80_000;
 
+export const SEVERITY_VALUES = ['major', 'minor', 'patch'];
+const SEVERITY_VALUE_SET = new Set(SEVERITY_VALUES);
+export const SUBMIT_SEVERITY_TOOL_NAME = 'submit_severity';
+export const SUBMIT_SEVERITY_TOOL = {
+    name: SUBMIT_SEVERITY_TOOL_NAME,
+    description:
+        'Submit the semver classification for this PR. ' +
+        'Call this tool exactly once with your final classification. Do not include any other text or reasoning in your response.',
+    input_schema: {
+        type: 'object',
+        properties: {
+            severity: {
+                type: 'string',
+                enum: SEVERITY_VALUES,
+                description: 'The semver impact of this PR.',
+            },
+            reasoning: {
+                type: 'string',
+                description: '2-3 concise sentences explaining the classification.',
+            },
+        },
+        required: ['severity', 'reasoning'],
+        additionalProperties: false,
+    },
+};
+
 const SYSTEM_PROMPT = `You are a semver classification expert for the duckduckgo/content-scope-scripts repository.
 
 This is an npm workspace monorepo that ships privacy features and special pages to DuckDuckGo's native apps (macOS, Windows, iOS, Android). Downstream consumers integrate via npm, Swift Package Manager, and git submodules.
@@ -86,7 +112,7 @@ You also receive a **source diff** (unified git diff between base and PR) and th
 - No new entries in \`platformSupport\` or \`platformSpecificFeatures\`
 - OR source changes are limited to docs, tests, CI/tooling, or dependency updates with no semver-sensitive API changes (even when build output is unchanged)
 
-Always respond with valid JSON: { "severity": "major"|"minor"|"patch", "reasoning": "..." }
+Submit your classification by calling the ${SUBMIT_SEVERITY_TOOL_NAME} tool exactly once with both required arguments.
 The reasoning should be 2-3 concise sentences explaining the classification.`;
 
 function truncateDiff(diff, maxChars) {
@@ -127,7 +153,7 @@ ${formatBuildDiffSection(buildDiff)}
 ## Source Diff
 ${formatSourceDiffSection(sourceDiff)}
 
-Respond with JSON only: { "severity": "major"|"minor"|"patch", "reasoning": "..." }`;
+Submit your classification by calling the ${SUBMIT_SEVERITY_TOOL_NAME} tool.`;
 }
 
 export { buildUserPrompt, formatBuildDiffSection, formatSourceDiffSection };
@@ -142,8 +168,10 @@ async function callAnthropic(systemPrompt, userPrompt, apiKey) {
         },
         body: JSON.stringify({
             model: resolveAnthropicModel(),
-            max_tokens: 512,
+            max_tokens: 1024,
             system: systemPrompt,
+            tools: [SUBMIT_SEVERITY_TOOL],
+            tool_choice: { type: 'tool', name: SUBMIT_SEVERITY_TOOL_NAME, disable_parallel_tool_use: true },
             messages: [{ role: 'user', content: userPrompt }],
         }),
     });
@@ -153,25 +181,60 @@ async function callAnthropic(systemPrompt, userPrompt, apiKey) {
         throw new Error(`Anthropic API error ${response.status}: ${text}`);
     }
 
-    const data = await response.json();
-    const content = data.content?.[0]?.text;
-    if (!content) {
-        throw new Error('Empty response from Anthropic API');
-    }
-    return content;
+    return response.json();
 }
 
-function parseResponse(text) {
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-        throw new Error(`Could not extract JSON from LLM response: ${text}`);
+/**
+ * Extracts the severity classification from an Anthropic response that used
+ * the `submit_severity` tool.
+ *
+ * The model is bound to a single forced tool call via `tool_choice`, so the
+ * classification arrives as structured `tool_use` input rather than as JSON
+ * embedded in free-form text. That removes the whole class of failure the
+ * previous text parser had — a model-emitted trailing comma, a code fence, or
+ * a stray prose sentence around the object used to fail `JSON.parse` and take
+ * the job down even though the classification itself was correct.
+ *
+ * `severity` is validated strictly because the workflow acts on it. `reasoning`
+ * is only logged, so a missing one falls back to an empty string rather than
+ * failing the job over a cosmetic field.
+ *
+ * @param {unknown} response
+ */
+export function extractSeverityFromAnthropicResponse(response) {
+    if (!response || typeof response !== 'object') {
+        throw new Error(`Anthropic response had no content array: ${JSON.stringify(response)}`);
     }
-    const parsed = JSON.parse(jsonMatch[0]);
-    const severity = parsed.severity?.toLowerCase();
-    if (!['major', 'minor', 'patch'].includes(severity)) {
-        throw new Error(`Invalid severity "${parsed.severity}" in LLM response`);
+    const { content, stop_reason: stopReason } = /** @type {{content?: unknown, stop_reason?: string}} */ (response);
+    if (!Array.isArray(content)) {
+        throw new Error(`Anthropic response had no content array: ${JSON.stringify(response)}`);
     }
-    return { severity, reasoning: parsed.reasoning || '' };
+
+    const toolUses = content.filter((block) => block && block.type === 'tool_use');
+    if (toolUses.length === 0) {
+        if (stopReason === 'max_tokens') {
+            throw new Error(`Anthropic response hit max_tokens before completing the ${SUBMIT_SEVERITY_TOOL_NAME} call`);
+        }
+        throw new Error(`Anthropic response did not call ${SUBMIT_SEVERITY_TOOL_NAME}: ${JSON.stringify(content)}`);
+    }
+    if (toolUses.length > 1) {
+        throw new Error(`Anthropic response called ${toolUses.length} tools; expected exactly one ${SUBMIT_SEVERITY_TOOL_NAME} call`);
+    }
+
+    const [toolUse] = toolUses;
+    if (toolUse.name !== SUBMIT_SEVERITY_TOOL_NAME) {
+        throw new Error(`Anthropic response called unexpected tool '${toolUse.name}'; expected '${SUBMIT_SEVERITY_TOOL_NAME}'`);
+    }
+    const input = toolUse.input;
+    if (input === null || typeof input !== 'object' || Array.isArray(input)) {
+        throw new Error(`${SUBMIT_SEVERITY_TOOL_NAME} input was not an object: ${JSON.stringify(input)}`);
+    }
+
+    const severity = typeof input.severity === 'string' ? input.severity.toLowerCase() : input.severity;
+    if (typeof severity !== 'string' || !SEVERITY_VALUE_SET.has(severity)) {
+        throw new Error(`${SUBMIT_SEVERITY_TOOL_NAME} input has invalid severity: ${JSON.stringify(input)}`);
+    }
+    return { severity, reasoning: typeof input.reasoning === 'string' ? input.reasoning : '' };
 }
 
 async function main() {
@@ -188,8 +251,8 @@ async function main() {
     const files = process.env.PR_FILES || '';
 
     const userPrompt = buildUserPrompt({ buildDiff, sourceDiff, title, body, files });
-    const rawResponse = await callAnthropic(SYSTEM_PROMPT, userPrompt, apiKey);
-    const result = parseResponse(rawResponse);
+    const response = await callAnthropic(SYSTEM_PROMPT, userPrompt, apiKey);
+    const result = extractSeverityFromAnthropicResponse(response);
 
     console.log(JSON.stringify(result));
 }

@@ -1,11 +1,12 @@
 #!/usr/bin/env node
+import { execSync } from 'node:child_process';
+
 /**
  * Checks that injected core source files pass TypeScript strict mode.
  *
  * Runs tsc with tsconfig.strict-core.json and filters output to only core files.
  * Feature files are checked transitively but their errors are not reported here.
  */
-import { execSync } from 'node:child_process';
 
 const CORE_FILES = new Set([
     'injected/entry-points/android-adsjs.js',
@@ -27,6 +28,8 @@ const CORE_FILES = new Set([
     'injected/src/navigator-global.js',
     'injected/src/utils/dom-metadata.js',
     'injected/src/features/browser-ui-lock.js',
+    'injected/src/features/chrome-webstore-patching.js',
+    'injected/src/features/chrome-webstore-patching/helpers.js',
     'injected/src/features/hover.js',
     'injected/src/performance.js',
     'injected/src/sendmessage-transport.js',
@@ -39,6 +42,7 @@ const CORE_FILES = new Set([
     'injected/src/detectors/detections/fraud-detection.js',
     'injected/src/features/broker-protection/actions/actions.js',
     'injected/src/features/broker-protection/actions/condition.js',
+    'injected/src/features/broker-protection/actions/execute-script.js',
     'injected/src/features/broker-protection/actions/expectation.js',
     'injected/src/features/broker-protection/actions/generators.js',
     'injected/src/features/broker-protection/actions/navigate.js',
@@ -68,6 +72,7 @@ const CORE_FILES = new Set([
     'injected/src/features/broker-protection/types.js',
     'injected/src/features/broker-protection/utils/expectations.js',
     'injected/src/features/broker-protection/utils/safe-call.js',
+    'injected/src/features/broker-protection/utils/select-root-element.js',
     'injected/src/features/broker-protection/utils/url.js',
     'injected/src/features/click-to-load/components/ctl-placeholder-blocked.js',
     'injected/src/features/click-to-load/components/index.js',
@@ -97,12 +102,13 @@ const CORE_FILES = new Set([
     'injected/src/features/referrer.js',
     'injected/src/features/tracker-protection.js',
     'injected/src/features/tracker-protection/tracker-resolver.js',
+    'injected/src/features/detector-perf.js',
     'injected/src/features/web-detection.js',
     'injected/src/features/web-detection/matching.js',
     'injected/src/features/web-events.js',
     'injected/src/features/web-interference-detection.js',
     'injected/src/features/tab-suspension.js',
-    'injected/src/detectors/detections/adwall-detection.js',
+    'injected/src/features/text-selection.js',
     'injected/src/detectors/detections/bot-detection.js',
     'injected/src/detectors/utils/detection-utils.js',
     'injected/src/features/exception-handler.js',
@@ -120,6 +126,7 @@ const CORE_FILES = new Set([
     'injected/src/types/hover.ts',
     'injected/src/types/page-observer.ts',
     'injected/src/types/print.ts',
+    'injected/src/types/text-selection.ts',
     'injected/src/types/web-compat.ts',
     'messaging/lib/examples/android.example.js',
     'messaging/lib/examples/payloads.js',

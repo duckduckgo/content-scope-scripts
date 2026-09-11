@@ -5,10 +5,10 @@
     "test-unit": "jasmine --config=unit-test/config.json"
   },
   "dependencies": {
-    "json-schema-to-typescript": "^15.0.4"
+    "json-schema-to-typescript": "^16.0.0"
   },
   "devDependencies": {
-    "jasmine": "^6.3.0",
+    "jasmine": "^7.0.0",
     "@types/jasmine": "^6.0.0"
   }
 }

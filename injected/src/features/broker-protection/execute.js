@@ -1,12 +1,27 @@
-// eslint-disable-next-line no-redeclare
-import { navigate, extract, click, scroll, expectation, fillForm, getCaptchaInfo, solveCaptcha, condition } from './actions/actions';
+import {
+    navigate,
+    extract,
+    click,
+    // eslint-disable-next-line no-redeclare
+    scroll,
+    expectation,
+    fillForm,
+    getCaptchaInfo,
+    solveCaptcha,
+    condition,
+    executeScript,
+} from './actions/actions';
 import { ErrorResponse } from './types';
 
 /**
- * @param {import('./types.js').PirAction} action
+ * @import { ActionResponse, PirAction, PirInputData, ProfileData } from './types.js'
+ */
+
+/**
+ * @param {PirAction} action
  * @param {Record<string, any>} inputData
  * @param {Document} [root] - optional root element
- * @return {Promise<import('./types.js').ActionResponse>}
+ * @return {Promise<ActionResponse>}
  */
 export async function execute(action, inputData, root = document) {
     try {
@@ -24,13 +39,15 @@ export async function execute(action, inputData, root = document) {
                 return fillForm(action, data(action, inputData, 'extractedProfile'), root, userProfile);
             }
             case 'getCaptchaInfo':
-                return await getCaptchaInfo(action, root);
+                return await getCaptchaInfo(action, profileForMatching(inputData), root);
             case 'solveCaptcha':
-                return solveCaptcha(action, data(action, inputData, 'token'), root);
+                return solveCaptcha(action, data(action, inputData, 'token'), profileForMatching(inputData), root);
             case 'condition':
                 return condition(action, root);
             case 'scroll':
                 return scroll(action, root);
+            case 'executeScript':
+                return await executeScript(action, data(action, inputData, 'userProfile'), root);
             default: {
                 return new ErrorResponse({
                     actionID: action.id,
@@ -45,6 +62,14 @@ export async function execute(action, inputData, root = document) {
             message: `unhandled exception: ${e.message}`,
         });
     }
+}
+
+/**
+ * @param {PirInputData} inputData
+ * @returns {ProfileData|null}
+ */
+function profileForMatching(inputData) {
+    return inputData?.userProfile ?? inputData?.extractedProfile ?? null;
 }
 
 /**

@@ -57,6 +57,7 @@ writeTimestamp();
     const ctx = await esbuild.context(opts);
     const { hosts, port } = await ctx.serve({
         servedir: publicDir,
+        ...(args.port ? { port: Number(args.port) } : {}),
     });
     await ctx.watch({});
     for (const host of hosts) {

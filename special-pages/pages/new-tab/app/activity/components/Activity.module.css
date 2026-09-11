@@ -107,6 +107,22 @@
         /* NTP Shadow Small */
         box-shadow: 0 0.25px 1px 0 rgba(0, 0, 0, 0.08), 0 1px 4px 0 rgba(0, 0, 0, 0.06), 0 0.5px 2px 0 rgba(0, 0, 0, 0.04);
     }
+
+    .icon {
+        width: 28px;
+        height: 28px;
+    }
+
+    /* No highlight at rest, only on hover (was always-on at --color-black-at-3).
+       --ds-color-theme-control-fill-secondary already resolves per theme, same
+       token used for this exact hover-highlight shape in ShowHide.module.css. */
+    .controlIcon {
+        background-color: transparent;
+
+        &:hover {
+            background-color: var(--ds-color-theme-control-fill-secondary);
+        }
+    }
 }
 
 .title {
