@@ -172,7 +172,8 @@ export function ChatsSidePanel({ open }) {
     return createPortal(
         <>
             {/* Stays mounted while the rail is open so it can cross-fade, and is the only way
-                back once the rail is collapsed. */}
+                back once the rail is collapsed. Sits at the page's leading edge, where the rail
+                itself was, rather than under the header control that hid it. */}
             <button
                 type="button"
                 class={styles.reveal}
@@ -224,16 +225,6 @@ export function ChatsSidePanel({ open }) {
                     </div>
                 ) : (
                     <div class={styles.header}>
-                        <button
-                            type="button"
-                            class={styles.headerButton}
-                            tabIndex={tabIndex}
-                            aria-label={t('omnibar_chatsSidePanelHide')}
-                            title={t('omnibar_chatsSidePanelHide')}
-                            onClick={toggleCollapsed}
-                        >
-                            <SidePanel />
-                        </button>
                         <h2 class={styles.heading}>{t('omnibar_chatsSidePanelHeading')}</h2>
                         <button
                             type="button"
@@ -254,6 +245,16 @@ export function ChatsSidePanel({ open }) {
                             onClick={openSearch}
                         >
                             <SearchFind />
+                        </button>
+                        <button
+                            type="button"
+                            class={styles.headerButton}
+                            tabIndex={tabIndex}
+                            aria-label={t('omnibar_chatsSidePanelHide')}
+                            title={t('omnibar_chatsSidePanelHide')}
+                            onClick={toggleCollapsed}
+                        >
+                            <SidePanel />
                         </button>
                     </div>
                 )}

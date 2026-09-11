@@ -25,8 +25,7 @@
     }
 }
 
-/* The way back once the rail is collapsed. Sits where the rail's own toggle was, so the
-   control doesn't appear to jump when it hides. */
+/* The way back once the rail is collapsed, at the page's leading edge where the rail was. */
 .reveal {
     align-items: center;
     background: var(--ds-color-theme-surface-secondary);
@@ -70,8 +69,8 @@
     font-weight: 590;
     line-height: 20px;
     margin: 0;
-    /* Optically aligns the title with the chat rows below, which are inset by the icon button */
-    padding-left: var(--sp-1);
+    /* Lines the title up with the chat titles below, which are inset by the row padding */
+    padding-left: var(--sp-2);
 }
 
 .headerButton {

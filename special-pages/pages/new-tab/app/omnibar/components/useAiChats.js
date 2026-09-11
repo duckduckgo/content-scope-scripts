@@ -43,7 +43,7 @@ function reducer(state, action) {
         case 'setChats':
             return {
                 ...state,
-                chats: action.payload,
+                chats: action.payload.slice(0, MAX_DROPDOWN_CHATS),
                 selectedIndex: null,
             };
         case 'hideChats':
@@ -124,6 +124,14 @@ function reducer(state, action) {
 
 /** @type {AiChat[]} */
 const EMPTY_ARRAY = [];
+
+/**
+ * POC: the NTP's native chats provider now returns the full history so the Duck.ai chats rail
+ * can show all of it, which would otherwise turn this dropdown into a wall of chats. Capped
+ * here at what maxHistoryCount used to allow through on macOS. Remove along with the provider
+ * change.
+ */
+const MAX_DROPDOWN_CHATS = 5;
 
 /**
  * @param {object} params
