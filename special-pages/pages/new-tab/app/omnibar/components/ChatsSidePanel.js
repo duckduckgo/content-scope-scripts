@@ -54,29 +54,33 @@ export function ChatsSidePanel({ open }) {
 
     return createPortal(
         <nav class={styles.panel} data-ntp-chats-panel data-open={open} aria-hidden={!open} aria-label={t('omnibar_chatsSidePanelLabel')}>
-            <h2 class={styles.heading}>{t('omnibar_chatsSidePanelHeading')}</h2>
-            <ul class={styles.list}>
-                {chats.map((chat) => (
-                    <li key={chat.chatId}>
-                        <button
-                            type="button"
-                            class={styles.item}
-                            tabIndex={open ? 0 : -1}
-                            title={chat.title}
-                            onClick={(event) => {
-                                openAiChat({
-                                    chatId: chat.chatId,
-                                    target: eventToTarget(event, platformName),
-                                    trigger: 'mouse',
-                                    isPinned: Boolean(chat.pinned),
-                                });
-                            }}
-                        >
-                            <span class={styles.title}>{chat.title}</span>
-                        </button>
-                    </li>
-                ))}
-            </ul>
+            {/* Padding lives on this inner element, not the rail: `width: 0` can't shrink a
+                border-box below its own padding, so the rail would keep a 16px stub. */}
+            <div class={styles.inner}>
+                <h2 class={styles.heading}>{t('omnibar_chatsSidePanelHeading')}</h2>
+                <ul class={styles.list}>
+                    {chats.map((chat) => (
+                        <li key={chat.chatId}>
+                            <button
+                                type="button"
+                                class={styles.item}
+                                tabIndex={open ? 0 : -1}
+                                title={chat.title}
+                                onClick={(event) => {
+                                    openAiChat({
+                                        chatId: chat.chatId,
+                                        target: eventToTarget(event, platformName),
+                                        trigger: 'mouse',
+                                        isPinned: Boolean(chat.pinned),
+                                    });
+                                }}
+                            >
+                                <span class={styles.title}>{chat.title}</span>
+                            </button>
+                        </li>
+                    ))}
+                </ul>
+            </div>
         </nav>,
         document.body,
     );

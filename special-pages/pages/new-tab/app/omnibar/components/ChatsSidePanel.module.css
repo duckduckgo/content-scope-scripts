@@ -5,24 +5,20 @@
  * page content sitting on the wallpaper.
  */
 .panel {
-    /* The omnibar is the widest widget on the page (620px, see App.module.css). Sizing the
-       rail to the gutter beside it means it never covers content, and content never has to
-       shift to make room — it stays centred in the viewport either way. */
-    --ntp-chats-panel-gutter: calc((100vw - calc(620 * var(--px-in-rem))) / 2);
-    --ntp-chats-panel-width: min(calc(260 * var(--px-in-rem)), var(--ntp-chats-panel-gutter));
-
     background: var(--ds-color-theme-surface-secondary);
-    border-right: 1px solid var(--ds-color-theme-container-border-secondary);
     bottom: 0;
+    /* An inset shadow rather than a border-right, so that at width 0 (see
+       --ntp-chats-rail-width) the rail leaves no stray 1px line behind. */
+    box-shadow: inset -1px 0 0 0 var(--ds-color-theme-container-border-secondary);
     color: var(--ds-color-theme-text-primary);
     left: 0;
-    overflow-y: auto;
-    padding: var(--sp-4) var(--sp-2);
+    /* hidden on the inline axis so titles can't spill out when the rail is 0-width */
+    overflow: hidden auto;
     position: fixed;
     top: 0;
     transform: translateX(-100%);
     transition: transform .3s;
-    width: var(--ntp-chats-panel-width);
+    width: var(--ntp-chats-rail-width);
     /* Above .layout and the customizer .aside, both z-index: 1 */
     z-index: 3;
 
@@ -37,11 +33,8 @@
     }
 }
 
-/* Under ~940px the gutter is too thin (<160px) to hold a readable chat title. */
-@media (max-width: 939px) {
-    .panel {
-        display: none;
-    }
+.inner {
+    padding: var(--sp-4) var(--sp-2);
 }
 
 .heading {
