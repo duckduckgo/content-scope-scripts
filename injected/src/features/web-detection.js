@@ -1,4 +1,7 @@
 import ContentFeature from '../content-feature.js';
+// eslint-disable-next-line no-redeclare
+import { hasOwnProperty } from '../captured-globals.js';
+import { timeDetector } from './detector-perf.js';
 import { parseDetectors } from './web-detection/parse.js';
 import { evaluateMatch } from './web-detection/matching.js';
 
@@ -38,25 +41,34 @@ export default class WebDetection extends ContentFeature {
     /** @type {Map<string, boolean>} */
     #matchedDetectors = new Map();
 
+    #detectorPerfEnabled = false;
+
     _exposedMethods = this._declareExposedMethods(['runDetectors']);
 
     /**
      * Initialize the feature by loading detector configurations
      */
     init() {
+        this.#detectorPerfEnabled = hasOwnProperty.call(this.featureSettings ?? {}, 'detectorPerf');
         const detectorsConfig = this.getFeatureSetting('detectors');
         this.#detectors = parseDetectors(detectorsConfig);
         this._scheduleAutoRunDetectors();
     }
 
     /**
+     * Evaluate one configured detector and record its execution time.
      *
      * @param {DetectorConfig} detectorConfig
+     * @param {string} groupName - detector group, e.g. `adwalls`
+     * @param {string} fullDetectorId - `groupName.detectorId`, e.g. `adwalls.generic_en`
      * @returns {DetectorMatchResult}
      */
-    _evaluateMatch(detectorConfig) {
+    _evaluateMatch(detectorConfig, groupName, fullDetectorId) {
         try {
-            return evaluateMatch(detectorConfig.match);
+            if (!this.#detectorPerfEnabled) {
+                return evaluateMatch(detectorConfig.match);
+            }
+            return timeDetector(this, groupName, () => evaluateMatch(detectorConfig.match), fullDetectorId);
         } catch {
             return 'error';
         }
@@ -66,8 +78,8 @@ export default class WebDetection extends ContentFeature {
      * Schedule automatic detector execution based on configured intervals.
      */
     _scheduleAutoRunDetectors() {
-        // Group detectors by interval: interval → [{detectorId, config}, ...]
-        /** @type {Map<number, Array<{detectorId: string, config: DetectorConfig}>>} */
+        // Group detectors by interval: interval → [{groupName, detectorId, config}, ...]
+        /** @type {Map<number, Array<{groupName: string, detectorId: string, config: DetectorConfig}>>} */
         const detectorsByInterval = new Map();
 
         for (const [groupName, groupDetectors] of Object.entries(this.#detectors)) {
@@ -82,6 +94,7 @@ export default class WebDetection extends ContentFeature {
                 for (const interval of autoTrigger.when.intervalMs) {
                     const atInterval = detectorsByInterval.get(interval) ?? [];
                     atInterval.push({
+                        groupName,
                         detectorId: fullDetectorId,
                         config: detectorConfig,
                     });
@@ -94,8 +107,8 @@ export default class WebDetection extends ContentFeature {
         for (const [interval, detectors] of detectorsByInterval.entries()) {
             setTimeout(() => {
                 // Run all detectors scheduled for this interval
-                for (const { detectorId, config } of detectors) {
-                    this._runAutoDetector(detectorId, config);
+                for (const { groupName, detectorId, config } of detectors) {
+                    this._runAutoDetector(groupName, detectorId, config);
                 }
             }, interval);
         }
@@ -103,10 +116,11 @@ export default class WebDetection extends ContentFeature {
 
     /**
      * Run a single detector with the auto trigger
+     * @param {string} groupName - The detector group
      * @param {string} fullDetectorId - The full detector ID (groupName.detectorId)
      * @param {DetectorConfig} detectorConfig - The detector configuration
      */
-    _runAutoDetector(fullDetectorId, detectorConfig) {
+    _runAutoDetector(groupName, fullDetectorId, detectorConfig) {
         try {
             // Auto detectors use first-success behavior (skip if already matched)
             if (this.#matchedDetectors.get(fullDetectorId)) {
@@ -114,7 +128,7 @@ export default class WebDetection extends ContentFeature {
             }
 
             // Evaluate match conditions
-            const detected = this._evaluateMatch(detectorConfig);
+            const detected = this._evaluateMatch(detectorConfig, groupName, fullDetectorId);
 
             // Track successful matches (allows us to skip subsequent runs if already successful (first-success))
             if (detected === true) {
@@ -197,8 +211,10 @@ export default class WebDetection extends ContentFeature {
                 // Check whether the detector should be run for the given trigger.
                 if (!this._shouldRunDetector(detectorConfig, options)) continue;
 
+                const fullDetectorId = `${groupName}.${detectorId}`;
+
                 // Evaluate match conditions
-                const detected = this._evaluateMatch(detectorConfig);
+                const detected = this._evaluateMatch(detectorConfig, groupName, fullDetectorId);
 
                 // Execute detector actions.
 
@@ -207,7 +223,7 @@ export default class WebDetection extends ContentFeature {
                     // Only include if detected or errored (not false)
                     if (detected !== false) {
                         results.push({
-                            detectorId: `${groupName}.${detectorId}`,
+                            detectorId: fullDetectorId,
                             detected,
                         });
                     }

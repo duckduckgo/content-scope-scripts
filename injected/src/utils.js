@@ -933,11 +933,13 @@ export const platformSpecificFeatures = [
     'webInterferenceDetection',
     'webDetection',
     'webEvents',
+    'detectorPerf',
     'pageObserver',
     'hover',
     'trackerProtection', // only enabled on apple platforms
     'textSelection',
     'uaChBrands',
+    'chromeWebstorePatching',
 ];
 /**
  * Features that bypass exception-based disabling in computeEnabledFeatures.
