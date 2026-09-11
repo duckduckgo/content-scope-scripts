@@ -60,6 +60,8 @@ export default class BreakageReporting extends ContentFeature {
                 result.detectorData = {
                     botDetection: runBotDetection(detectorSettings.botDetection),
                     fraudDetection: runFraudDetection(detectorSettings.fraudDetection),
+                    // youtubeAds is intentionally not timed: the YouTube detector is
+                    // excluded from detectorPerf and keeps its own internal metrics.
                     youtubeAds: runYoutubeAdDetection(detectorSettings.youtubeAds),
                 };
             }
@@ -73,6 +75,13 @@ export default class BreakageReporting extends ContentFeature {
 
             if (result.detectorData) {
                 breakageDataPayload.detectorData = result.detectorData;
+            }
+
+            // Exact webDetection timing accumulated in this frame
+            // (detectorPerf events are bucketed; the report carries exact values).
+            const detectorPerfStats = await this.callFeatureMethod('detectorPerf', 'getStats');
+            if (!(detectorPerfStats instanceof CallFeatureMethodError) && detectorPerfStats != null) {
+                breakageDataPayload.detectorPerf = detectorPerfStats;
             }
             if (Object.keys(breakageDataPayload).length > 0) {
                 try {

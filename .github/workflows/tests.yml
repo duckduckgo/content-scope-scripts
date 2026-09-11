@@ -30,7 +30,7 @@ jobs:
                   cache: 'npm'
             - name: Cache node_modules
               id: cache-node-modules
-              uses: actions/cache@v5
+              uses: actions/cache@v6
               with:
                   path: |
                       node_modules
@@ -72,7 +72,7 @@ jobs:
                   cache: 'npm'
             - name: Cache node_modules
               id: cache-node-modules
-              uses: actions/cache@v5
+              uses: actions/cache@v6
               with:
                   path: |
                       node_modules
@@ -97,6 +97,9 @@ jobs:
             version: ${{ steps.pw.outputs.version }}
         steps:
             - uses: actions/checkout@v7
+            - uses: actions/setup-node@v6
+              with:
+                  node-version-file: '.nvmrc'
             - id: pw
               run: |
                   VERSION=$(node -e "const l=require('./package-lock.json'); console.log((l.packages['node_modules/@playwright/test']||l.packages['node_modules/playwright']).version)")
@@ -130,7 +133,7 @@ jobs:
                   cache: 'npm'
             - name: Cache node_modules
               id: cache-node-modules
-              uses: actions/cache@v5
+              uses: actions/cache@v6
               with:
                   path: |
                       node_modules
@@ -185,7 +188,7 @@ jobs:
                   cache: 'npm'
             - name: Cache node_modules
               id: cache-node-modules
-              uses: actions/cache@v5
+              uses: actions/cache@v6
               with:
                   path: |
                       node_modules
@@ -220,7 +223,7 @@ jobs:
                   cache: 'npm'
             - name: Cache node_modules
               id: cache-node-modules
-              uses: actions/cache@v5
+              uses: actions/cache@v6
               with:
                   path: |
                       node_modules
@@ -236,7 +239,7 @@ jobs:
               run: npm run build
             - name: Cache docs output
               id: docs-output
-              uses: actions/cache@v5
+              uses: actions/cache@v6
               with:
                   path: docs
                   key: docs-output-${{ github.run_id }}
@@ -261,7 +264,7 @@ jobs:
                   node-version-file: '.nvmrc'
             - name: Cache build outputs
               id: docs-output
-              uses: actions/cache@v5
+              uses: actions/cache@v6
               with:
                   path: docs
                   key: docs-output-${{ github.run_id }}
@@ -288,7 +291,7 @@ jobs:
                   cache: 'npm'
             - name: Cache node_modules (production)
               id: cache-node-modules
-              uses: actions/cache@v5
+              uses: actions/cache@v6
               with:
                   path: |
                       node_modules
