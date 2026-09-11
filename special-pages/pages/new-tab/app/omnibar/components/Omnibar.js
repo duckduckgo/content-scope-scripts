@@ -2,7 +2,7 @@ import { Fragment, h } from 'preact';
 import { useCallback, useContext, useRef, useState } from 'preact/hooks';
 import { ArrowRightIcon, LogoStacked, VoiceIcon } from '../../components/Icons';
 import { eventToTarget } from '../../../../../shared/handlers';
-import { usePlatformName } from '../../settings.provider';
+import { usePlatformName, useNewTabPageRebranding } from '../../settings.provider';
 import { useTypedTranslationWith } from '../../types';
 import { AiChatForm } from './AiChatForm';
 import aiChatFormStyles from './AiChatForm.module.css';
@@ -35,6 +35,8 @@ import { MentionPicker } from './chat-tools/tab-attachment/MentionPicker';
 import { OpenTabsProvider } from './chat-tools/tab-attachment/OpenTabsProvider';
 import { useMentionPicker } from './chat-tools/tab-attachment/useMentionPicker';
 import { useTabAttachments } from './chat-tools/tab-attachment/useTabAttachments';
+import { UsageLimitsDrawer } from './UsageLimitsDrawer';
+import { useKeyboardFocusWithin } from './useKeyboardFocusWithin.js';
 
 /**
  * @typedef {typeof import('../strings.json')} Strings
@@ -43,6 +45,16 @@ import { useTabAttachments } from './chat-tools/tab-attachment/useTabAttachments
  * @typedef {import('../../../types/new-tab.js').OpenTarget} OpenTarget
  * @typedef {import('../../../types/new-tab.js').SubmitChatAction} SubmitChatAction
  */
+
+/**
+ * Whether a focus change landed on another element inside `ref`, rather than leaving its subtree.
+ * @param {{ current: HTMLElement | null }} ref
+ * @param {FocusEvent} event
+ */
+function focusStaysWithin(ref, event) {
+    const next = event.relatedTarget;
+    return next instanceof Node && (ref.current?.contains(next) ?? false);
+}
 
 /**
  * @param {object} props
@@ -70,10 +82,25 @@ export function Omnibar({
     tabId,
 }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
+    const spacerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
+    const [usageLimitsRevealed, setUsageLimitsRevealed] = useState(false);
 
     const [query, setQuery] = useQueryWithLocalPersistence(tabId);
     const [resetKey, setResetKey] = useState(0);
     const [autoFocus, setAutoFocus] = useState(false);
+    /*
+     * Lifted here (rather than into SearchForm/AiChatForm individually) for two reasons:
+     * 1. .popup wraps whichever form is mounted, so both the search input and the Duck.ai
+     *    textarea get the keyboard-only focus ring for free via the existing generic
+     *    `input:focus, textarea:focus` selectors in Omnibar.module.css — no per-form wiring.
+     * 2. This div remounts on every resetKey bump (search submit, suggestion open, chat
+     *    submit) and on every mode switch; instantiating the hook up here, in Omnibar's own
+     *    render (which doesn't remount), keeps its document listeners attached once instead
+     *    of tearing them down and re-adding them on every submit.
+     * `enabled: rebrand` skips listeners on legacy NTP (pill-ring CSS is rebrand-only).
+     */
+    const rebrand = useNewTabPageRebranding();
+    const { keyboardFocusWithinProps } = useKeyboardFocusWithin({ enabled: rebrand });
     const { openSuggestion, submitSearch, submitChat, setShowCustomizePopover } = useContext(OmnibarContext);
 
     const { open: openCustomizer } = useDrawerControls();
@@ -150,8 +177,20 @@ export function Omnibar({
                     enableRecentAiChats={enableRecentAiChats}
                     showViewAllAiChats={showViewAllAiChats}
                 >
-                    <div class={styles.spacer}>
-                        <div class={styles.popup}>
+                    <div
+                        ref={spacerRef}
+                        class={styles.spacer}
+                        onFocusCapture={(event) => {
+                            // Toolbar/drawer focus must not reveal the drawer — only the composer itself.
+                            if (!(event.target instanceof HTMLTextAreaElement)) return;
+                            setUsageLimitsRevealed(true);
+                        }}
+                        onBlurCapture={(event) => {
+                            if (focusStaysWithin(spacerRef, event)) return;
+                            setUsageLimitsRevealed(false);
+                        }}
+                    >
+                        <div class={styles.popup} {...keyboardFocusWithinProps}>
                             {mode === 'search' ? (
                                 <>
                                     <ResizingContainer className={styles.field}>
@@ -175,10 +214,12 @@ export function Omnibar({
                                         tabId={tabId}
                                         onChange={setQuery}
                                         onSubmit={handleSubmitChat}
+                                        omnibarRef={spacerRef}
                                     />
                                 </OpenTabsProvider>
                             )}
                         </div>
+                        {mode === 'ai' && <UsageLimitsDrawer revealed={usageLimitsRevealed} />}
                     </div>
                 </AiChatsProvider>
             </SearchFormProvider>
@@ -196,6 +237,7 @@ export function Omnibar({
  * @param {string|null|undefined} [props.tabId]
  * @param {(query: string) => void} props.onChange
  * @param {(params: SubmitChatAction) => void} props.onSubmit
+ * @param {{ current: HTMLElement | null }} props.omnibarRef - Focus staying inside this subtree keeps the chats list open.
  */
 function AiChatContent({
     query,
@@ -206,12 +248,14 @@ function AiChatContent({
     tabId,
     onChange,
     onSubmit,
+    omnibarRef,
 }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
     const { showChats, hideChats, deletionInProgress } = useAiChatsContext();
     const { state } = useContext(OmnibarContext);
     const attachmentLimits = state.config?.attachmentLimits;
+    const blocksPrompt = state.config?.usageLimits?.blocksPrompt === true;
     const { selectedModel } = useSelectedModel();
     const { selectedEffort } = useSelectedReasoningEffort();
     const { activeTool, availableTools, imageGenerationActive, webSearchActive, setActiveTool } = useActiveTools();
@@ -282,6 +326,7 @@ function AiChatContent({
      * @param {import('../../../types/new-tab.js').OpenTarget} target
      */
     const handleSubmit = async (chat, target) => {
+        if (blocksPrompt) return;
         if (submittingRef.current) return;
         submittingRef.current = true;
         try {
@@ -324,6 +369,7 @@ function AiChatContent({
      * @param {import('../../../types/new-tab.js').OpenTarget} target
      */
     const handleVoiceSubmit = (target) => {
+        if (blocksPrompt) return;
         onSubmit({
             chat: '',
             target,
@@ -340,7 +386,7 @@ function AiChatContent({
     const showFileWarning = fileWarning && !imageMessageShowing && !showFileError;
     // Only one attachment message shows at a time; the tab warning falls last in precedence.
     const showTabWarning = tabWarning && !imageMessageShowing && !showFileError && !showFileWarning;
-    const disabled = !query || imageWarning || fileWarning || tabWarning;
+    const disabled = blocksPrompt || !query || imageWarning || fileWarning || tabWarning;
 
     const isVoiceChatMode =
         enableVoiceChatAccess &&
@@ -373,18 +419,11 @@ function AiChatContent({
             class={styles.aiChatContent}
             data-attachment-warning={imageWarning || fileWarning || tabWarning || undefined}
             onFocusCapture={(event) => {
-                if (
-                    event.target instanceof HTMLTextAreaElement &&
-                    !hasVisibleImagesRef.current &&
-                    !imageGenerationActive &&
-                    !mention.pickerActive
-                )
-                    showChats();
+                if (!(event.target instanceof HTMLTextAreaElement)) return;
+                if (!hasVisibleImagesRef.current && !imageGenerationActive && !mention.pickerActive) showChats();
             }}
             onBlurCapture={(event) => {
-                if (event.relatedTarget instanceof Element && containerRef.current?.contains(event.relatedTarget)) {
-                    return;
-                }
+                if (focusStaysWithin(omnibarRef, event)) return;
                 // Don't hide the list while the native deletion dialog is open
                 if (deletionInProgress.current) {
                     return;
@@ -398,6 +437,7 @@ function AiChatContent({
                     query={query}
                     autoFocus={autoFocus}
                     disabled={disabled}
+                    readOnly={blocksPrompt}
                     placeholder={imageGenerationActive ? imageGenerationPlaceholder : undefined}
                     onChange={handleChange}
                     onSubmit={handleSubmit}
@@ -412,7 +452,7 @@ function AiChatContent({
                                         canAttachImages
                                             ? {
                                                   processFiles: imageState.processFiles,
-                                                  disabled: imageState.imageUploadDisabled,
+                                                  disabled: blocksPrompt || imageState.imageUploadDisabled,
                                                   maxImages: imageState.maxImages,
                                               }
                                             : null
@@ -421,19 +461,25 @@ function AiChatContent({
                                         canAttachFiles
                                             ? {
                                                   processFiles: fileState.processFiles,
-                                                  disabled: fileState.fileUploadDisabled,
+                                                  disabled: blocksPrompt || fileState.fileUploadDisabled,
                                                   mimeTypes: selectedModel?.supportedFileTypes ?? [],
                                               }
                                             : null
                                     }
                                     tabsEnabled={canAttachTabs}
+                                    disabled={blocksPrompt}
                                     onToggleTab={tabAttachments.toggleTab}
                                     isAttached={tabAttachments.isAttached}
                                     maxTabs={tabAttachments.maxTabs}
                                 />
                             )}
                             {toolsMenu.items.length > 0 && (
-                                <ToolsMenu items={toolsMenu.items} activeItem={toolsMenu.activeItem} isCollapsed={toolsMenu.isCollapsed} />
+                                <ToolsMenu
+                                    items={toolsMenu.items}
+                                    activeItem={toolsMenu.activeItem}
+                                    isCollapsed={toolsMenu.isCollapsed}
+                                    disabled={blocksPrompt}
+                                />
                             )}
                         </Fragment>
                     }
@@ -447,10 +493,11 @@ function AiChatContent({
                             )}
                             {isVoiceChatMode ? (
                                 <button
-                                    tabIndex={0}
+                                    tabIndex={blocksPrompt ? -1 : 0}
                                     type="button"
                                     class={aiChatFormStyles.submitButton}
                                     aria-label={t('omnibar_aiChatFormVoiceButtonLabel')}
+                                    disabled={blocksPrompt}
                                     onClick={handleClickVoiceChat}
                                     onAuxClick={handleClickVoiceChat}
                                 >

@@ -2004,23 +2004,26 @@
       )
     );
   }
-  function TrashIcon(props) {
-    return /* @__PURE__ */ k("svg", { fill: "none", width: "16", height: "16", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props, "data-testid": "TrashIcon" }, /* @__PURE__ */ k(
-      "path",
-      {
-        fill: "currentColor",
-        d: "M9.125 0C10.1605 2.41596e-08 11 0.839466 11 1.875V2H14.375L14.501 2.0127C14.7858 2.07098 15 2.32298 15 2.625C15 2.92702 14.7858 3.17902 14.501 3.2373L14.375 3.25H14V12.875C14 14.6009 12.6009 16 10.875 16H5.125C3.39911 16 2 14.6009 2 12.875V3.25H1.625C1.27982 3.25 1 2.97018 1 2.625C1 2.27982 1.27982 2 1.625 2H5V1.875C5 0.839466 5.83947 2.416e-08 6.875 0H9.125ZM3.25 3.25V12.875C3.25 13.9105 4.08947 14.75 5.125 14.75H10.875C11.9105 14.75 12.75 13.9105 12.75 12.875V3.25H3.25ZM5.625 5C5.97018 5 6.25 5.27982 6.25 5.625V12.375C6.25 12.7202 5.97018 13 5.625 13C5.27982 13 5 12.7202 5 12.375V5.625C5 5.27982 5.27982 5 5.625 5ZM10.375 5C10.7202 5 11 5.27982 11 5.625V12.375C11 12.7202 10.7202 13 10.375 13C10.0298 13 9.75 12.7202 9.75 12.375V5.625C9.75 5.27982 10.0298 5 10.375 5ZM6.875 1.25C6.52982 1.25 6.25 1.52982 6.25 1.875V2H9.75V1.875C9.75 1.52982 9.47018 1.25 9.125 1.25H6.875Z"
-      }
-    ));
-  }
   function FireOutlineIcon(props) {
-    return /* @__PURE__ */ k("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k(
-      "path",
+    return /* @__PURE__ */ k(
+      "svg",
       {
-        fill: "currentColor",
-        d: "M13.75 9.99999C13.75 7.6114 12.7665 5.86879 12.054 4.91918C11.8634 5.35713 11.3138 6.24999 10 6.24999C9.23524 6.24999 8.69912 5.91636 8.35681 5.53795C8.05115 5.20006 7.90223 4.83217 7.84424 4.6361L7.83374 4.59923C7.73724 4.23909 7.65821 3.86108 7.5813 3.52025C7.50214 3.16943 7.42248 2.8441 7.31921 2.54088C7.21055 2.22182 7.07987 1.93981 6.90686 1.69616C6.04176 3.51683 4.90473 4.74512 4.0083 5.8474C2.98036 7.11139 2.25 8.21978 2.25 9.99999C2.25 11.5453 3.17333 12.9549 4.62378 13.8314C4.5498 13.5538 4.50912 13.2661 4.50134 12.9761L4.5 12.8721C4.5 11.9152 5.02207 11.0884 5.60693 10.3995C6.18795 9.71517 6.95902 9.02869 7.55933 8.43175L7.58264 8.40978C7.8276 8.18966 8.20451 8.19696 8.44067 8.43175C9.05396 9.04158 9.81298 9.74213 10.3971 10.444C10.9724 11.1352 11.5 11.9641 11.5 12.8721L11.4987 12.9761C11.4909 13.2662 11.45 13.5538 11.376 13.8314C12.8265 12.9549 13.75 11.5454 13.75 9.99999ZM15 9.99999C15 12.8172 12.7588 15.0456 9.96423 15.7555L9.83069 15.7882C9.53379 15.858 9.22988 15.7033 9.11157 15.4222C8.99328 15.1411 9.09514 14.8155 9.35266 14.6521L9.40625 14.6168C9.93428 14.2555 10.2305 13.6503 10.249 12.9431L10.25 12.8721C10.25 12.4301 9.97904 11.8957 9.43628 11.2435C9.01978 10.7431 8.51533 10.2539 7.99817 9.74926C7.47734 10.2499 6.9792 10.7145 6.55981 11.2085C6.02662 11.8365 5.75 12.3731 5.75 12.8721L5.75098 12.9431C5.77015 13.6739 6.08576 14.2957 6.64722 14.6521C6.90474 14.8156 7.00661 15.1411 6.88831 15.4222C6.77369 15.6946 6.48489 15.8482 6.19702 15.7941L6.16907 15.7882C3.31282 15.1162 1 12.8618 1 9.99999C1 7.78021 1.95715 6.38859 3.03857 5.05883C4.11921 3.73004 5.30467 2.4733 6.10437 0.400015L6.11804 0.367423C6.19088 0.206365 6.32889 0.083099 6.49841 0.0292879C6.67923 -0.0281012 6.87633 -0.000258736 7.03418 0.104972L7.1084 0.155875C7.86401 0.688105 8.25594 1.41415 8.50244 2.13793C8.62834 2.5076 8.7199 2.88721 8.80066 3.24511C8.88367 3.61298 8.95333 3.94758 9.04126 4.27575L9.04895 4.30089C9.07357 4.37452 9.14524 4.54627 9.28381 4.69945C9.42588 4.85648 9.63979 4.99999 10 4.99999C10.3407 4.99999 10.5367 4.88856 10.66 4.77758C10.7966 4.65468 10.8764 4.50089 10.9197 4.39281L10.9323 4.35717C10.962 4.26293 10.9945 4.09424 11.0333 3.8789C11.0513 3.77918 11.073 3.65801 11.0959 3.56664C11.1047 3.5319 11.1268 3.44415 11.1708 3.35876C11.1841 3.33286 11.2534 3.19351 11.4126 3.0963C11.5104 3.03661 11.6525 2.98718 11.8207 3.00793C11.9625 3.02544 12.0692 3.08634 12.1396 3.14257L12.1676 3.16625L12.1681 3.16662L12.2168 3.21166C12.6011 3.5746 15 5.99558 15 9.99999Z"
-      }
-    ));
+        width: "16",
+        height: "16",
+        viewBox: "0 0 16 16",
+        fill: "none",
+        xmlns: "http://www.w3.org/2000/svg",
+        ...props,
+        "data-testid": "FireOutlineIcon"
+      },
+      /* @__PURE__ */ k(
+        "path",
+        {
+          fill: "currentColor",
+          d: "M13.75 9.99999C13.75 7.6114 12.7665 5.86879 12.054 4.91918C11.8634 5.35713 11.3138 6.24999 10 6.24999C9.23524 6.24999 8.69912 5.91636 8.35681 5.53795C8.05115 5.20006 7.90223 4.83217 7.84424 4.6361L7.83374 4.59923C7.73724 4.23909 7.65821 3.86108 7.5813 3.52025C7.50214 3.16943 7.42248 2.8441 7.31921 2.54088C7.21055 2.22182 7.07987 1.93981 6.90686 1.69616C6.04176 3.51683 4.90473 4.74512 4.0083 5.8474C2.98036 7.11139 2.25 8.21978 2.25 9.99999C2.25 11.5453 3.17333 12.9549 4.62378 13.8314C4.5498 13.5538 4.50912 13.2661 4.50134 12.9761L4.5 12.8721C4.5 11.9152 5.02207 11.0884 5.60693 10.3995C6.18795 9.71517 6.95902 9.02869 7.55933 8.43175L7.58264 8.40978C7.8276 8.18966 8.20451 8.19696 8.44067 8.43175C9.05396 9.04158 9.81298 9.74213 10.3971 10.444C10.9724 11.1352 11.5 11.9641 11.5 12.8721L11.4987 12.9761C11.4909 13.2662 11.45 13.5538 11.376 13.8314C12.8265 12.9549 13.75 11.5454 13.75 9.99999ZM15 9.99999C15 12.8172 12.7588 15.0456 9.96423 15.7555L9.83069 15.7882C9.53379 15.858 9.22988 15.7033 9.11157 15.4222C8.99328 15.1411 9.09514 14.8155 9.35266 14.6521L9.40625 14.6168C9.93428 14.2555 10.2305 13.6503 10.249 12.9431L10.25 12.8721C10.25 12.4301 9.97904 11.8957 9.43628 11.2435C9.01978 10.7431 8.51533 10.2539 7.99817 9.74926C7.47734 10.2499 6.9792 10.7145 6.55981 11.2085C6.02662 11.8365 5.75 12.3731 5.75 12.8721L5.75098 12.9431C5.77015 13.6739 6.08576 14.2957 6.64722 14.6521C6.90474 14.8156 7.00661 15.1411 6.88831 15.4222C6.77369 15.6946 6.48489 15.8482 6.19702 15.7941L6.16907 15.7882C3.31282 15.1162 1 12.8618 1 9.99999C1 7.78021 1.95715 6.38859 3.03857 5.05883C4.11921 3.73004 5.30467 2.4733 6.10437 0.400015L6.11804 0.367423C6.19088 0.206365 6.32889 0.083099 6.49841 0.0292879C6.67923 -0.0281012 6.87633 -0.000258736 7.03418 0.104972L7.1084 0.155875C7.86401 0.688105 8.25594 1.41415 8.50244 2.13793C8.62834 2.5076 8.7199 2.88721 8.80066 3.24511C8.88367 3.61298 8.95333 3.94758 9.04126 4.27575L9.04895 4.30089C9.07357 4.37452 9.14524 4.54627 9.28381 4.69945C9.42588 4.85648 9.63979 4.99999 10 4.99999C10.3407 4.99999 10.5367 4.88856 10.66 4.77758C10.7966 4.65468 10.8764 4.50089 10.9197 4.39281L10.9323 4.35717C10.962 4.26293 10.9945 4.09424 11.0333 3.8789C11.0513 3.77918 11.073 3.65801 11.0959 3.56664C11.1047 3.5319 11.1268 3.44415 11.1708 3.35876C11.1841 3.33286 11.2534 3.19351 11.4126 3.0963C11.5104 3.03661 11.6525 2.98718 11.8207 3.00793C11.9625 3.02544 12.0692 3.08634 12.1396 3.14257L12.1676 3.16625L12.1681 3.16662L12.2168 3.21166C12.6011 3.5746 15 5.99558 15 9.99999Z"
+        }
+      )
+    );
   }
   function TrashOutlineIcon(props) {
     return /* @__PURE__ */ k("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k(
@@ -2307,13 +2310,21 @@
   });
 
   // pages/new-tab/app/customizer/utils.js
-  function detectThemeFromHex(backgroundColor) {
+  function getLuminanceFromHex(backgroundColor) {
     const hex = backgroundColor.replace("#", "");
     const r4 = parseInt(hex.slice(0, 2), 16);
     const g6 = parseInt(hex.slice(2, 4), 16);
     const b4 = parseInt(hex.slice(4, 6), 16);
-    const luminance = 0.2126 * r4 + 0.7152 * g6 + 0.0722 * b4;
-    return luminance < 128 ? "dark" : "light";
+    return 0.2126 * r4 + 0.7152 * g6 + 0.0722 * b4;
+  }
+  function detectThemeFromHex(backgroundColor) {
+    return getLuminanceFromHex(backgroundColor) < 128 ? "dark" : "light";
+  }
+  function detectThemeNearBlackOrWhiteFromHex(backgroundColor) {
+    const luminance = getLuminanceFromHex(backgroundColor);
+    if (luminance < 40) return "dark";
+    if (luminance > 215) return "light";
+    return void 0;
   }
   function applyDefaultStyles(defaultStyles) {
     if (defaultStyles?.lightBackgroundColor || defaultStyles?.darkBackgroundColor) {
@@ -2611,6 +2622,13 @@
         nextBodyBackground = browser.value === "dark" ? "var(--default-dark-background-color)" : "var(--default-light-background-color)";
       }
       document.body.style.setProperty("background-color", nextBodyBackground);
+      const isFlatColor = background2.kind !== "userImage" && background2.kind !== "default";
+      const nearBlackOrWhite = isFlatColor ? detectThemeNearBlackOrWhiteFromHex(nextBodyBackground) : void 0;
+      if (nearBlackOrWhite) {
+        document.body.dataset.wallpaperNearBlackOrWhite = nearBlackOrWhite;
+      } else {
+        delete document.body.dataset.wallpaperNearBlackOrWhite;
+      }
       if (!document.body.dataset.animateBackground) {
         requestAnimationFrame(() => {
           document.body.dataset.animateBackground = "true";
@@ -4665,21 +4683,19 @@
     }
   });
 
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/changing-window/is-from-another-window.js
+  function isNodeLike(target) {
+    return "nodeName" in target;
+  }
+  function isFromAnotherWindow(eventTarget) {
+    return isNodeLike(eventTarget) && eventTarget.ownerDocument !== document;
+  }
+  var init_is_from_another_window = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/changing-window/is-from-another-window.js"() {
+    }
+  });
+
   // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/changing-window/count-events-for-safari.js
-  function isEnteringWindowInSafari(_ref) {
-    var dragEnter = _ref.dragEnter;
-    if (!isSafari2()) {
-      return false;
-    }
-    return dragEnter.hasOwnProperty(symbols.isEnteringWindow);
-  }
-  function isLeavingWindowInSafari(_ref2) {
-    var dragLeave = _ref2.dragLeave;
-    if (!isSafari2()) {
-      return false;
-    }
-    return dragLeave.hasOwnProperty(symbols.isLeavingWindow);
-  }
   var import_bind_event_listener2, symbols;
   var init_count_events_for_safari = __esm({
     "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/changing-window/count-events-for-safari.js"() {
@@ -4752,15 +4768,18 @@
     }
   });
 
-  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/changing-window/is-from-another-window.js
-  function isNodeLike(target) {
-    return "nodeName" in target;
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/changing-window/is-leaving-window-in-safari.js
+  function isLeavingWindowInSafari(_ref) {
+    var dragLeave = _ref.dragLeave;
+    if (!isSafari2()) {
+      return false;
+    }
+    return dragLeave.hasOwnProperty(symbols.isLeavingWindow);
   }
-  function isFromAnotherWindow(eventTarget) {
-    return isNodeLike(eventTarget) && eventTarget.ownerDocument !== document;
-  }
-  var init_is_from_another_window = __esm({
-    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/changing-window/is-from-another-window.js"() {
+  var init_is_leaving_window_in_safari = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/changing-window/is-leaving-window-in-safari.js"() {
+      init_is_safari();
+      init_count_events_for_safari();
     }
   });
 
@@ -4788,8 +4807,8 @@
     "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/changing-window/is-leaving-window.js"() {
       init_is_firefox();
       init_is_safari();
-      init_count_events_for_safari();
       init_is_from_another_window();
+      init_is_leaving_window_in_safari();
     }
   });
 
@@ -6006,7 +6025,7 @@
     }
   });
 
-  // ../node_modules/@atlaskit/pragmatic-drag-and-drop-hitbox/dist/esm/closest-edge.js
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop-hitbox/dist/esm/attach-closest-edge.js
   function ownKeys4(e4, r4) {
     var t4 = Object.keys(e4);
     if (Object.getOwnPropertySymbols) {
@@ -6047,14 +6066,11 @@
     })[0]) === null || _entries$sort$ === void 0 ? void 0 : _entries$sort$.edge) !== null && _entries$sort$0$edge !== void 0 ? _entries$sort$0$edge : null;
     return _objectSpread4(_objectSpread4({}, userData), {}, _defineProperty({}, uniqueKey, addClosestEdge));
   }
-  function extractClosestEdge(userData) {
-    var _ref2;
-    return (_ref2 = userData[uniqueKey]) !== null && _ref2 !== void 0 ? _ref2 : null;
-  }
-  var getDistanceToEdge, uniqueKey;
-  var init_closest_edge = __esm({
-    "../node_modules/@atlaskit/pragmatic-drag-and-drop-hitbox/dist/esm/closest-edge.js"() {
+  var getDistanceToEdge;
+  var init_attach_closest_edge = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop-hitbox/dist/esm/attach-closest-edge.js"() {
       init_defineProperty();
+      init_closest_edge();
       getDistanceToEdge = {
         top: function top(rect, client) {
           return Math.abs(client.y - rect.top);
@@ -6069,6 +6085,26 @@
           return Math.abs(client.x - rect.left);
         }
       };
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop-hitbox/dist/esm/extract-closest-edge.js
+  function extractClosestEdge(userData) {
+    var _ref;
+    return (_ref = userData[uniqueKey]) !== null && _ref !== void 0 ? _ref : null;
+  }
+  var init_extract_closest_edge = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop-hitbox/dist/esm/extract-closest-edge.js"() {
+      init_closest_edge();
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop-hitbox/dist/esm/closest-edge.js
+  var uniqueKey;
+  var init_closest_edge = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop-hitbox/dist/esm/closest-edge.js"() {
+      init_attach_closest_edge();
+      init_extract_closest_edge();
       uniqueKey = /* @__PURE__ */ Symbol("closestEdge");
     }
   });
@@ -6142,6 +6178,21 @@
     }
   });
 
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/changing-window/is-entering-window-in-safari.js
+  function isEnteringWindowInSafari(_ref) {
+    var dragEnter = _ref.dragEnter;
+    if (!isSafari2()) {
+      return false;
+    }
+    return dragEnter.hasOwnProperty(symbols.isEnteringWindow);
+  }
+  var init_is_entering_window_in_safari = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/changing-window/is-entering-window-in-safari.js"() {
+      init_is_safari();
+      init_count_events_for_safari();
+    }
+  });
+
   // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/changing-window/is-entering-window.js
   function isEnteringWindow(_ref) {
     var dragEnter = _ref.dragEnter;
@@ -6166,12 +6217,12 @@
     "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/changing-window/is-entering-window.js"() {
       init_is_firefox();
       init_is_safari();
-      init_count_events_for_safari();
+      init_is_entering_window_in_safari();
       init_is_from_another_window();
     }
   });
 
-  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/adapter/external-adapter.js
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/adapter/is-an-available-type.js
   function isAnAvailableType(_ref) {
     var type = _ref.type, value2 = _ref.value;
     if (type === elementAdapterNativeDataKey) {
@@ -6182,14 +6233,15 @@
     }
     return true;
   }
-  function getAvailableTypes(transfer) {
-    return Array.from(transfer.types).filter(function(type) {
-      return isAnAvailableType({
-        type,
-        value: transfer.getData(type)
-      });
-    });
-  }
+  var init_is_an_available_type = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/adapter/is-an-available-type.js"() {
+      init_android();
+      init_text_media_type();
+      init_element_adapter_native_data_key();
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/adapter/get-available-items.js
   function getAvailableItems(dataTransfer) {
     return Array.from(dataTransfer.items).filter(function(item) {
       return item.kind === "file" || isAnAvailableType({
@@ -6198,23 +6250,39 @@
       });
     });
   }
-  function dropTargetForExternal(args) {
-    return adapter2.dropTarget(args);
+  var init_get_available_items = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/adapter/get-available-items.js"() {
+      init_is_an_available_type();
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/adapter/get-available-types.js
+  function getAvailableTypes(transfer) {
+    return Array.from(transfer.types).filter(function(type) {
+      return isAnAvailableType({
+        type,
+        value: transfer.getData(type)
+      });
+    });
   }
-  function monitorForExternal(args) {
-    return adapter2.monitor(args);
-  }
+  var init_get_available_types = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/adapter/get-available-types.js"() {
+      init_is_an_available_type();
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/adapter/external-adapter.js
   var import_bind_event_listener5, didDragStartLocally, adapter2;
   var init_external_adapter = __esm({
     "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/adapter/external-adapter.js"() {
       init_toConsumableArray();
       import_bind_event_listener5 = __toESM(require_dist());
       init_make_adapter();
-      init_android();
       init_is_entering_window();
       init_detect_broken_drag();
-      init_text_media_type();
-      init_element_adapter_native_data_key();
+      init_get_available_items();
+      init_get_available_types();
+      init_is_an_available_type();
       didDragStartLocally = false;
       adapter2 = makeAdapter({
         typeKey: "external",
@@ -6345,10 +6413,31 @@
     }
   });
 
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/adapter/drop-target-for-external.js
+  function dropTargetForExternal(args) {
+    return adapter2.dropTarget(args);
+  }
+  var init_drop_target_for_external = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/adapter/drop-target-for-external.js"() {
+      init_external_adapter();
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/adapter/monitor-for-external.js
+  function monitorForExternal(args) {
+    return adapter2.monitor(args);
+  }
+  var init_monitor_for_external = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/adapter/monitor-for-external.js"() {
+      init_external_adapter();
+    }
+  });
+
   // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/entry-point/external/adapter.js
   var init_adapter2 = __esm({
     "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/entry-point/external/adapter.js"() {
-      init_external_adapter();
+      init_drop_target_for_external();
+      init_monitor_for_external();
     }
   });
 
@@ -6367,21 +6456,29 @@
     }
   });
 
-  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/external/html.js
-  function getHTML(_ref2) {
-    var source = _ref2.source;
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/external/contains-html.js
+  var init_contains_html = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/external/contains-html.js"() {
+      init_html_media_type();
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/external/get-html.js
+  function getHTML(_ref) {
+    var source = _ref.source;
     return source.getStringData(HTMLMediaType);
   }
-  var init_html = __esm({
-    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/external/html.js"() {
+  var init_get_html = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/external/get-html.js"() {
       init_html_media_type();
     }
   });
 
   // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/entry-point/external/html.js
-  var init_html2 = __esm({
+  var init_html = __esm({
     "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/entry-point/external/html.js"() {
-      init_html();
+      init_contains_html();
+      init_get_html();
     }
   });
 
@@ -6755,7 +6852,7 @@
       init_get_reorder_destination_index();
       init_adapter2();
       init_combine2();
-      init_html2();
+      init_html();
       init_constants();
       init_set_custom_native_drag_preview2();
       init_center_under_pointer2();
@@ -6923,7 +7020,8 @@
         text: "Tile_text",
         placeholder: "Tile_placeholder",
         plus: "Tile_plus",
-        dropper: "Tile_dropper"
+        dropper: "Tile_dropper",
+        themeContext: "Tile_themeContext"
       };
     }
   });
@@ -9171,6 +9269,20 @@
           this.ntp.messaging.notify("omnibar_openCustomizeResponses", {});
         }
         /**
+         * Notify native that the user dismissed the AI-mode usage limits drawer.
+         * Native owns dismiss persistence and should push updated config.
+         */
+        dismissUsageLimits() {
+          this.ntp.messaging.notify("omnibar_dismissUsageLimits", {});
+        }
+        /**
+         * Notify native that the user selected the usage-limits CTA.
+         * @param {string} [modelId] - Model id when switching models; omit for non-model actions.
+         */
+        selectUsageLimitsCta(modelId) {
+          this.ntp.messaging.notify("omnibar_selectUsageLimitsCta", modelId ? { modelId } : {});
+        }
+        /**
          * Notify native to apply or unapply the stored response customization.
          * @param {boolean} active
          */
@@ -9351,6 +9463,15 @@
     const openCustomizeResponses = q2(() => {
       service.current?.openCustomizeResponses();
     }, [service]);
+    const dismissUsageLimits = q2(() => {
+      service.current?.dismissUsageLimits();
+    }, [service]);
+    const selectUsageLimitsCta = q2(
+      (modelId) => {
+        service.current?.selectUsageLimitsCta(modelId);
+      },
+      [service]
+    );
     const setCustomizeResponsesActive = q2(
       (active2) => {
         service.current?.setCustomizeResponsesActive(active2);
@@ -9407,6 +9528,8 @@
           openAiChat,
           viewAllAiChats,
           openCustomizeResponses,
+          dismissUsageLimits,
+          selectUsageLimitsCta,
           setCustomizeResponsesActive,
           showUpsell,
           getOpenTabs,
@@ -9506,6 +9629,14 @@
         },
         /** @type {() => void} */
         openCustomizeResponses: () => {
+          throw new Error("must implement");
+        },
+        /** @type {() => void} */
+        dismissUsageLimits: () => {
+          throw new Error("must implement");
+        },
+        /** @type {(modelId?: string) => void} */
+        selectUsageLimitsCta: () => {
           throw new Error("must implement");
         },
         /** @type {(active: boolean) => void} */
@@ -9786,6 +9917,7 @@
     query,
     autoFocus,
     disabled,
+    readOnly = false,
     onChange,
     onSubmit,
     children,
@@ -9827,7 +9959,7 @@
     }, [query, textareaRef]);
     const handleSubmit = (event) => {
       event.preventDefault();
-      if (disabled) return;
+      if (disabled || readOnly) return;
       onSubmit(query, "same-tab");
     };
     const handleKeyDown = (event) => {
@@ -9868,7 +10000,7 @@
             });
             break;
           }
-          if (disabled) {
+          if (disabled || readOnly) {
             break;
           }
           onSubmit(query, eventToTarget2(event, platformName));
@@ -9917,12 +10049,16 @@
           "aria-activedescendant": getActiveDescendant(),
           autoComplete: "off",
           rows: 1,
+          readOnly,
+          "aria-disabled": readOnly || void 0,
           onKeyDown: handleKeyDown,
           onInput: (event) => {
+            if (readOnly) return;
             emitChange(event);
             clearSelectedChat();
           },
           onKeyUp: (event) => {
+            if (readOnly) return;
             if (event.key.startsWith("Arrow") || event.key === "Home" || event.key === "End") {
               emitChange(event);
             }
@@ -12155,9 +12291,9 @@
     }
     return null;
   }
-  function computePosition(buttonRect, cbRect, align) {
+  function computePosition({ buttonRect, cbRect, align, offsetY }) {
     const topOffset = cbRect?.top ?? 0;
-    const top2 = buttonRect.bottom - topOffset + 4;
+    const top2 = buttonRect.bottom - topOffset + offsetY;
     if (align === "right") {
       const rightEdge = cbRect?.right ?? window.innerWidth;
       return { right: rightEdge - buttonRect.right, top: top2 };
@@ -12165,7 +12301,7 @@
     const leftOffset = cbRect?.left ?? 0;
     return { left: buttonRect.left - leftOffset, top: top2 };
   }
-  function useDropdown({ align = "left" } = {}) {
+  function useDropdown({ align = "left", offsetY = 4, anchorRef } = {}) {
     const [isOpen, setIsOpen] = d2(false);
     const [dropdownPos, setDropdownPos] = d2(
       /** @type {DropdownPosition|null} */
@@ -12192,11 +12328,12 @@
       setIsOpen(false);
     };
     const open = () => {
-      if (!buttonRef.current) return;
-      const rect = buttonRef.current.getBoundingClientRect();
-      const cb = findContainingBlock(buttonRef.current);
+      const anchor = anchorRef?.current ?? buttonRef.current;
+      if (!anchor) return;
+      const rect = anchor.getBoundingClientRect();
+      const cb = findContainingBlock(anchor);
       const cbRect = cb?.getBoundingClientRect() ?? null;
-      setDropdownPos(computePosition(rect, cbRect, align));
+      setDropdownPos(computePosition({ buttonRect: rect, cbRect, align, offsetY }));
       setIsOpen(true);
       const handleClickOutside = (e4) => {
         const target = (
@@ -12565,7 +12702,7 @@
   });
 
   // pages/new-tab/app/omnibar/components/chat-tools/model-selector/ModelSelector.js
-  function ModelSelector({ selector, selectedModel, aiModelSections, onUpsell, ariaLabel, isEligibleForFreeTrial }) {
+  function ModelSelector({ selector, selectedModel, aiModelSections, onUpsell, disabled = false, ariaLabel, isEligibleForFreeTrial }) {
     const { modelButtonRef, modelDropdownOpen, dropdownPos, dropdownRef, toggleDropdown, closeDropdown, selectModel } = selector;
     const ntp = useMessaging();
     const shownRef = A2(false);
@@ -12596,13 +12733,15 @@
       {
         ref: modelButtonRef,
         type: "button",
-        tabIndex: 0,
+        tabIndex: disabled ? -1 : 0,
         class: (0, import_classnames13.default)(ModelSelector_default.modelButton, modelDropdownOpen && ModelSelector_default.modelButtonOpen),
         "aria-label": ariaLabel,
         "aria-haspopup": "listbox",
         "aria-expanded": modelDropdownOpen,
+        disabled,
         onClick: (e4) => {
           e4.stopPropagation();
+          if (disabled) return;
           toggleDropdown();
         }
       },
@@ -12646,6 +12785,7 @@
     const { state, showUpsell } = x2(OmnibarContext);
     const { selectedModel, aiModelSections, allModels, setSelectedModelId } = useSelectedModel();
     const isEligibleForFreeTrial = state.config?.isEligibleForFreeTrial !== false;
+    const blocksPrompt = state.config?.usageLimits?.blocksPrompt === true;
     const selector = useModelSelector({
       allModels,
       onModelChange: setSelectedModelId
@@ -12658,6 +12798,7 @@
         selectedModel,
         aiModelSections,
         onUpsell: (type) => showUpsell(type, "model"),
+        disabled: blocksPrompt,
         ariaLabel: t4("omnibar_modelSelectorLabel"),
         isEligibleForFreeTrial
       }
@@ -12737,6 +12878,7 @@
   function Dropdown({
     children,
     header,
+    headerClassName,
     emptyMessage,
     ariaLabel,
     role,
@@ -12858,7 +13000,7 @@
         onKeyDown: handleKeyDown,
         onMouseLeave: clearActiveIndex
       },
-      header && /* @__PURE__ */ k("li", { role: "presentation", class: Dropdown_default.header }, header),
+      header && /* @__PURE__ */ k("li", { role: "presentation", class: (0, import_classnames14.default)(Dropdown_default.header, headerClassName) }, header),
       items.length === 0 && emptyMessage ? /* @__PURE__ */ k("li", { role: "presentation", class: Dropdown_default.empty }, emptyMessage) : clonedItems
     );
   }
@@ -12966,7 +13108,16 @@
   });
 
   // pages/new-tab/app/omnibar/components/chat-tools/reasoning-picker/ReasoningPicker.js
-  function ReasoningPicker({ options, selectedEffort, onSelect, onUpsell, ariaLabel, buttonLabel, isEligibleForFreeTrial }) {
+  function ReasoningPicker({
+    options,
+    selectedEffort,
+    onSelect,
+    onUpsell,
+    ariaLabel,
+    buttonLabel,
+    disabled = false,
+    isEligibleForFreeTrial
+  }) {
     const { isOpen, dropdownPos, buttonRef, dropdownRef, toggle, close } = useDropdown({ align: "right" });
     const ntp = useMessaging();
     const shownRef = A2(false);
@@ -13034,13 +13185,15 @@
       {
         ref: buttonRef,
         type: "button",
-        tabIndex: 0,
+        tabIndex: disabled ? -1 : 0,
         class: (0, import_classnames16.default)(ReasoningPicker_default.reasoningButton, isOpen && ReasoningPicker_default.reasoningButtonOpen),
         "aria-label": ariaLabel,
         "aria-haspopup": "listbox",
         "aria-expanded": isOpen,
+        disabled,
         onClick: (e4) => {
           e4.stopPropagation();
+          if (disabled) return;
           toggle();
         }
       },
@@ -13103,6 +13256,7 @@
     const { state, showUpsell } = x2(OmnibarContext);
     const { reasoningEfforts, selectedEffort, setSelectedReasoningEffort } = useSelectedReasoningEffort();
     const isEligibleForFreeTrial = state.config?.isEligibleForFreeTrial !== false;
+    const blocksPrompt = state.config?.usageLimits?.blocksPrompt === true;
     const options = reasoningEfforts.map((effort) => ({
       id: effort.id,
       name: effort.name,
@@ -13123,6 +13277,7 @@
         selectedEffort,
         onSelect: setSelectedReasoningEffort,
         onUpsell: (type) => showUpsell(type, "reasoning"),
+        disabled: blocksPrompt,
         ariaLabel: t4("omnibar_reasoningPickerLabel"),
         buttonLabel: selectedOption?.name ?? t4("omnibar_reasoningPickerLabel"),
         isEligibleForFreeTrial
@@ -13158,7 +13313,7 @@
   });
 
   // pages/new-tab/app/omnibar/components/chat-tools/tools-menu/ToolsMenu.js
-  function ToolsMenu({ items, activeItem, isCollapsed }) {
+  function ToolsMenu({ items, activeItem, isCollapsed, disabled = false }) {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {Strings} */
       {}
@@ -13173,13 +13328,15 @@
       {
         ref: buttonRef,
         type: "button",
-        tabIndex: 0,
+        tabIndex: disabled ? -1 : 0,
         class: (0, import_classnames17.default)(ToolsMenu_default.toolsButton, isCollapsed && ToolsMenu_default.toolsButtonCollapsed),
         "aria-label": t4("omnibar_toolsMenuLabel"),
         "aria-haspopup": "menu",
         "aria-expanded": menuOpen,
+        disabled,
         onClick: (e4) => {
           e4.stopPropagation();
+          if (disabled) return;
           toggleMenu();
         }
       },
@@ -13189,11 +13346,13 @@
       "button",
       {
         type: "button",
-        tabIndex: 0,
+        tabIndex: disabled ? -1 : 0,
         class: ToolsMenu_default.activeToolChip,
         "aria-label": activeItem.label,
+        disabled,
         onClick: (e4) => {
           e4.stopPropagation();
+          if (disabled) return;
           activeItem.onSelect();
         }
       },
@@ -13794,7 +13953,7 @@
   });
 
   // pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/AttachMenu.js
-  function AttachMenu({ image, file, tabsEnabled, onToggleTab, isAttached, maxTabs }) {
+  function AttachMenu({ image, file, tabsEnabled, onToggleTab, isAttached, maxTabs, disabled = false }) {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {Strings} */
       {}
@@ -13802,17 +13961,18 @@
     const attachEnabled = image !== null || file !== null;
     if (!attachEnabled && !tabsEnabled) return null;
     const fileInput = resolveFileInput({ t: t4, image, file });
+    const controlsDisabled = disabled || fileInput.disabled;
     if (attachEnabled && !tabsEnabled) {
       const button = /* @__PURE__ */ k(
         DirectFileButton,
         {
           ariaLabel: fileInput.label,
           accept: fileInput.accept,
-          disabled: fileInput.disabled,
+          disabled: controlsDisabled,
           onChange: fileInput.onChange
         }
       );
-      if (image && !file && fileInput.disabled) {
+      if (image && !file && fileInput.disabled && !disabled) {
         return /* @__PURE__ */ k(Tooltip, { content: t4("omnibar_imageAttachmentLimitWarning", { limit: String(image.maxImages) }), position: "above" }, button);
       }
       return button;
@@ -13824,7 +13984,8 @@
         fileInput,
         onToggleTab,
         isAttached,
-        maxTabs
+        maxTabs,
+        disabled
       }
     );
   }
@@ -13870,7 +14031,7 @@
       )
     );
   }
-  function DropdownMenu({ attachEnabled, fileInput, onToggleTab, isAttached, maxTabs }) {
+  function DropdownMenu({ attachEnabled, fileInput, onToggleTab, isAttached, maxTabs, disabled = false }) {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {Strings} */
       {}
@@ -13883,7 +14044,7 @@
     );
     const [isTabsModalOpen, setIsTabsModalOpen] = d2(false);
     const triggerFileInput = () => {
-      if (fileInput.disabled) return;
+      if (disabled || fileInput.disabled) return;
       window.setTimeout(() => fileInputRef.current?.click(), 0);
     };
     const handleClose = ({ restoreFocus }) => {
@@ -13895,13 +14056,15 @@
       {
         ref: buttonRef,
         type: "button",
-        tabIndex: 0,
-        class: ImageAttachment_default.toolButton,
+        tabIndex: disabled ? -1 : 0,
+        class: (0, import_classnames20.default)(ImageAttachment_default.toolButton, disabled && ImageAttachment_default.toolButtonDisabled),
         "aria-label": t4("omnibar_attachMenuLabel"),
         "aria-haspopup": "menu",
         "aria-expanded": isOpen,
+        disabled,
         onClick: (e4) => {
           e4.stopPropagation();
+          if (disabled) return;
           if (!isOpen) refetchTabs();
           toggle();
         }
@@ -14370,7 +14533,368 @@
     }
   });
 
+  // pages/new-tab/app/omnibar/components/useUsageLimitsDrawer.js
+  function useUsageLimitsDrawer() {
+    const { state, dismissUsageLimits, selectUsageLimitsCta } = x2(OmnibarContext);
+    const usageLimits = state.config?.usageLimits ?? null;
+    const onDismiss = q2(() => {
+      dismissUsageLimits();
+    }, [dismissUsageLimits]);
+    const onSelectCta = q2(
+      (modelId) => {
+        selectUsageLimitsCta(modelId);
+      },
+      [selectUsageLimitsCta]
+    );
+    if (!usageLimits) {
+      return null;
+    }
+    const icon = usageLimits.icon && USAGE_LIMITS_ICON_VALUES.includes(usageLimits.icon) ? usageLimits.icon : "info";
+    const severity = usageLimits.severity && USAGE_LIMITS_SEVERITY_VALUES.includes(usageLimits.severity) ? usageLimits.severity : "neutral";
+    const rawCta = usageLimits.cta ?? null;
+    const cta = rawCta && typeof rawCta.label === "string" ? {
+      label: rawCta.label,
+      leadingIcon: rawCta.leadingIcon && USAGE_LIMITS_CTA_LEADING_ICON_VALUES.includes(rawCta.leadingIcon) ? rawCta.leadingIcon : "none",
+      primaryModelId: rawCta.primaryModelId,
+      showMenu: rawCta.showMenu === true,
+      menuHeader: typeof rawCta.menuHeader === "string" ? rawCta.menuHeader : void 0,
+      alternatives: Array.isArray(rawCta.alternatives) ? rawCta.alternatives.filter((alt) => alt && typeof alt.id === "string" && typeof alt.name === "string") : []
+    } : null;
+    return {
+      message: usageLimits.message,
+      secondaryText: usageLimits.secondaryText ?? "",
+      icon,
+      percent: typeof usageLimits.percent === "number" ? usageLimits.percent : 0,
+      severity,
+      cta,
+      blocksPrompt: usageLimits.blocksPrompt === true,
+      dismissible: usageLimits.dismissible === true,
+      onDismiss: usageLimits.dismissible === true ? onDismiss : void 0,
+      onSelectCta: cta ? onSelectCta : void 0
+    };
+  }
+  var USAGE_LIMITS_ICON_VALUES, USAGE_LIMITS_SEVERITY_VALUES, USAGE_LIMITS_CTA_LEADING_ICON_VALUES;
+  var init_useUsageLimitsDrawer = __esm({
+    "pages/new-tab/app/omnibar/components/useUsageLimitsDrawer.js"() {
+      "use strict";
+      init_hooks_module();
+      init_OmnibarProvider();
+      USAGE_LIMITS_ICON_VALUES = /** @type {const} */
+      ["info", "ring", "alert"];
+      USAGE_LIMITS_SEVERITY_VALUES = /** @type {const} */
+      ["neutral", "warning", "critical"];
+      USAGE_LIMITS_CTA_LEADING_ICON_VALUES = /** @type {const} */
+      ["none", "convert"];
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/UsageLimitsDrawer.module.css
+  var UsageLimitsDrawer_default;
+  var init_UsageLimitsDrawer = __esm({
+    "pages/new-tab/app/omnibar/components/UsageLimitsDrawer.module.css"() {
+      UsageLimitsDrawer_default = {
+        drawer: "UsageLimitsDrawer_drawer",
+        slideOpen: "UsageLimitsDrawer_slideOpen",
+        hidden: "UsageLimitsDrawer_hidden",
+        card: "UsageLimitsDrawer_card",
+        content: "UsageLimitsDrawer_content",
+        leading: "UsageLimitsDrawer_leading",
+        glyph: "UsageLimitsDrawer_glyph",
+        info: "UsageLimitsDrawer_info",
+        ringTrack: "UsageLimitsDrawer_ringTrack",
+        ringValue: "UsageLimitsDrawer_ringValue",
+        severity_neutral: "UsageLimitsDrawer_severity_neutral",
+        severity_warning: "UsageLimitsDrawer_severity_warning",
+        severity_critical: "UsageLimitsDrawer_severity_critical",
+        alertTriangle: "UsageLimitsDrawer_alertTriangle",
+        alertMark: "UsageLimitsDrawer_alertMark",
+        message: "UsageLimitsDrawer_message",
+        primary: "UsageLimitsDrawer_primary",
+        messageEmphasized: "UsageLimitsDrawer_messageEmphasized",
+        secondary: "UsageLimitsDrawer_secondary",
+        dismiss: "UsageLimitsDrawer_dismiss",
+        ctaSplit: "UsageLimitsDrawer_ctaSplit",
+        ctaPrimary: "UsageLimitsDrawer_ctaPrimary",
+        ctaPrimarySolo: "UsageLimitsDrawer_ctaPrimarySolo",
+        ctaPrimarySplit: "UsageLimitsDrawer_ctaPrimarySplit",
+        ctaMenu: "UsageLimitsDrawer_ctaMenu",
+        ctaLabel: "UsageLimitsDrawer_ctaLabel",
+        ctaMenuHeader: "UsageLimitsDrawer_ctaMenuHeader",
+        ctaDropdown: "UsageLimitsDrawer_ctaDropdown",
+        ctaModelName: "UsageLimitsDrawer_ctaModelName",
+        ctaModelVariant: "UsageLimitsDrawer_ctaModelVariant",
+        convertIcon: "UsageLimitsDrawer_convertIcon"
+      };
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/UsageLimitsDrawer.js
+  function UsageLimitsRing({ percent, severity }) {
+    const radius = 7.375;
+    const circumference = 2 * Math.PI * radius;
+    const trackDash = 0.99999 * circumference;
+    const valueDash = Math.min(0.9999, Math.max(0, percent / 100)) * circumference;
+    return /* @__PURE__ */ k(
+      "svg",
+      {
+        class: (0, import_classnames22.default)(UsageLimitsDrawer_default.glyph, UsageLimitsDrawer_default.ring, UsageLimitsDrawer_default[`severity_${severity}`]),
+        viewBox: "0 0 16 16",
+        overflow: "visible",
+        "aria-hidden": "true"
+      },
+      /* @__PURE__ */ k(
+        "circle",
+        {
+          class: UsageLimitsDrawer_default.ringTrack,
+          cx: "8",
+          cy: "8",
+          r: radius,
+          fill: "none",
+          "stroke-width": "1.25",
+          "stroke-dasharray": `${trackDash} ${circumference}`,
+          "stroke-linecap": "round",
+          transform: "rotate(-90 8 8)"
+        }
+      ),
+      /* @__PURE__ */ k(
+        "circle",
+        {
+          class: UsageLimitsDrawer_default.ringValue,
+          cx: "8",
+          cy: "8",
+          r: radius,
+          fill: "none",
+          "stroke-width": "1.25",
+          "stroke-dasharray": `${valueDash} ${circumference}`,
+          "stroke-linecap": "round",
+          transform: "rotate(-90 8 8)"
+        }
+      )
+    );
+  }
+  function UsageLimitsAlertIcon() {
+    return /* @__PURE__ */ k("svg", { class: (0, import_classnames22.default)(UsageLimitsDrawer_default.glyph, UsageLimitsDrawer_default.alert), viewBox: "0 0 16 16", fill: "none", "aria-hidden": "true" }, /* @__PURE__ */ k(
+      "path",
+      {
+        class: UsageLimitsDrawer_default.alertTriangle,
+        d: "M11.0577 1.82645C9.72299 -0.568293 6.27798 -0.568287 4.94327 1.82645L0.501422 9.79603C-0.798841 12.129 0.887818 15 3.55864 15H12.4423C15.1132 15 16.7998 12.129 15.4996 9.79602L11.0577 1.82645Z"
+      }
+    ), /* @__PURE__ */ k(
+      "path",
+      {
+        class: UsageLimitsDrawer_default.alertMark,
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M7.52562 4C7.23968 4 7.01197 4.23938 7.02625 4.52497L7.22625 8.52497C7.23955 8.79107 7.45919 9 7.72562 9H8.27438C8.54081 9 8.76045 8.79107 8.77375 8.52497L8.97375 4.52497C8.98803 4.23938 8.76032 4 8.47438 4H7.52562ZM8 12C8.55228 12 9 11.5523 9 11C9 10.4477 8.55228 10 8 10C7.44772 10 7 10.4477 7 11C7 11.5523 7.44772 12 8 12Z"
+      }
+    ));
+  }
+  function UsageLimitsGlyph({ icon, percent, severity }) {
+    const infoIcon = /* @__PURE__ */ k(InfoIcon, { class: (0, import_classnames22.default)(UsageLimitsDrawer_default.glyph, UsageLimitsDrawer_default.info), "aria-hidden": "true" });
+    switch (icon) {
+      case "ring":
+        return /* @__PURE__ */ k(UsageLimitsRing, { percent, severity });
+      case "alert":
+        return /* @__PURE__ */ k(UsageLimitsAlertIcon, null);
+      case "info":
+        return infoIcon;
+      default: {
+        const _exhaustiveCheck = icon;
+        console.error(`Unknown usage limits icon: ${_exhaustiveCheck}`);
+        return infoIcon;
+      }
+    }
+  }
+  function ConvertIcon() {
+    return /* @__PURE__ */ k("svg", { class: UsageLimitsDrawer_default.convertIcon, viewBox: "0 0 16 16", width: "16", height: "16", fill: "none", "aria-hidden": "true" }, /* @__PURE__ */ k(
+      "path",
+      {
+        fill: "currentColor",
+        d: "M4.19193 1.30806C4.43601 1.55214 4.43601 1.94786 4.19193 2.19194L2.75887 3.625H11.875C14.0841 3.625 15.875 5.41586 15.875 7.625C15.875 7.97018 15.5952 8.25 15.25 8.25C14.9048 8.25 14.625 7.97018 14.625 7.625C14.625 6.10622 13.3938 4.875 11.875 4.875H2.75887L4.19193 6.30806C4.43601 6.55214 4.43601 6.94786 4.19193 7.19194C3.94785 7.43602 3.55213 7.43602 3.30805 7.19194L1.42677 5.31066C0.840981 4.72487 0.840979 3.77513 1.42677 3.18934L3.30805 1.30806C3.55213 1.06398 3.94785 1.06398 4.19193 1.30806Z"
+      }
+    ), /* @__PURE__ */ k(
+      "path",
+      {
+        fill: "currentColor",
+        d: "M13.2411 11.125L11.8081 9.69194C11.564 9.44786 11.564 9.05214 11.8081 8.80806C12.0521 8.56398 12.4479 8.56398 12.692 8.80806L14.5732 10.6893C15.159 11.2751 15.159 12.2249 14.5732 12.8107L12.692 14.6919C12.4479 14.936 12.0521 14.936 11.8081 14.6919C11.564 14.4479 11.564 14.0521 11.8081 13.8081L13.2411 12.375L4 12.375C1.79086 12.375 0 10.5841 0 8.375C0 8.02982 0.279823 7.75 0.625 7.75C0.970178 7.75 1.25 8.02982 1.25 8.375C1.25 9.89378 2.48122 11.125 4 11.125L13.2411 11.125Z"
+      }
+    ));
+  }
+  function UsageLimitsCtaControl({ cta, onSelectCta }) {
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {Strings} */
+      {}
+    );
+    const splitRef = A2(
+      /** @type {HTMLDivElement|null} */
+      null
+    );
+    const menu = useDropdown({ align: "right", offsetY: 0, anchorRef: splitRef });
+    const showConvert = cta.leadingIcon === "convert";
+    const alternatives = cta.alternatives ?? [];
+    const showMenu = cta.showMenu === true && alternatives.length > 0;
+    const menuHeader = typeof cta.menuHeader === "string" && cta.menuHeader.length > 0 ? cta.menuHeader : null;
+    const handlePrimary = () => {
+      onSelectCta(cta.primaryModelId);
+      menu.close();
+    };
+    return /* @__PURE__ */ k("div", { ref: splitRef, class: UsageLimitsDrawer_default.ctaSplit }, /* @__PURE__ */ k(
+      "button",
+      {
+        type: "button",
+        class: (0, import_classnames22.default)(UsageLimitsDrawer_default.ctaPrimary, showMenu ? UsageLimitsDrawer_default.ctaPrimarySplit : UsageLimitsDrawer_default.ctaPrimarySolo),
+        onClick: handlePrimary
+      },
+      showConvert ? /* @__PURE__ */ k(ConvertIcon, null) : null,
+      /* @__PURE__ */ k("span", { class: UsageLimitsDrawer_default.ctaLabel }, cta.label)
+    ), showMenu ? /* @__PURE__ */ k(S, null, /* @__PURE__ */ k(
+      "button",
+      {
+        ref: menu.buttonRef,
+        type: "button",
+        class: UsageLimitsDrawer_default.ctaMenu,
+        "aria-label": t4("omnibar_usageLimitsCtaMenuLabel"),
+        "aria-expanded": menu.isOpen,
+        "aria-haspopup": "menu",
+        onClick: menu.toggle
+      },
+      /* @__PURE__ */ k(ChevronSmall, null)
+    ), menu.isOpen && menu.dropdownPos ? /* @__PURE__ */ k(
+      Dropdown,
+      {
+        role: "menu",
+        ariaLabel: menuHeader ?? t4("omnibar_usageLimitsCtaMenuFallback"),
+        header: menuHeader,
+        headerClassName: UsageLimitsDrawer_default.ctaMenuHeader,
+        className: UsageLimitsDrawer_default.ctaDropdown,
+        position: menu.dropdownPos,
+        dropdownRef: menu.dropdownRef,
+        onClose: ({ restoreFocus }) => {
+          menu.close();
+          if (restoreFocus) menu.buttonRef.current?.focus();
+        },
+        idPrefix: "usage-limits-cta"
+      },
+      alternatives.map((alt) => {
+        const Icon = getModelIcon(alt.id);
+        return /* @__PURE__ */ k(
+          DropdownItem,
+          {
+            key: alt.id,
+            role: "menuitem",
+            name: /* @__PURE__ */ k(S, null, /* @__PURE__ */ k("span", { class: UsageLimitsDrawer_default.ctaModelName }, alt.name), alt.variant ? /* @__PURE__ */ k("span", { class: UsageLimitsDrawer_default.ctaModelVariant }, " ", alt.variant) : null),
+            showCheckGutter: false,
+            icon: Icon ? /* @__PURE__ */ k(Icon, null) : void 0,
+            onSelect: () => {
+              onSelectCta(alt.id);
+              menu.close();
+            }
+          }
+        );
+      })
+    ) : null) : null);
+  }
+  function UsageLimitsDrawer({ revealed }) {
+    const usageLimits = useUsageLimitsDrawer();
+    if (!usageLimits) return null;
+    const { message, secondaryText, icon, percent, severity, cta, onSelectCta, onDismiss } = usageLimits;
+    const emphasize = icon === "ring" || icon === "alert";
+    const keepComposerFocus = (event) => {
+      event.preventDefault();
+    };
+    return /* @__PURE__ */ k(
+      "div",
+      {
+        class: (0, import_classnames22.default)(UsageLimitsDrawer_default.drawer, !revealed && UsageLimitsDrawer_default.hidden),
+        "data-testid": "usage-limits-drawer",
+        role: "status",
+        onMouseDown: keepComposerFocus
+      },
+      /* @__PURE__ */ k("div", { class: UsageLimitsDrawer_default.card }, /* @__PURE__ */ k("div", { class: UsageLimitsDrawer_default.content }, /* @__PURE__ */ k("span", { class: UsageLimitsDrawer_default.leading }, /* @__PURE__ */ k(UsageLimitsGlyph, { icon, percent, severity })), /* @__PURE__ */ k("p", { class: (0, import_classnames22.default)(UsageLimitsDrawer_default.message, emphasize && UsageLimitsDrawer_default.messageEmphasized) }, /* @__PURE__ */ k("span", { class: UsageLimitsDrawer_default.primary }, message), secondaryText ? /* @__PURE__ */ k("span", { class: UsageLimitsDrawer_default.secondary }, secondaryText) : null), cta && onSelectCta ? /* @__PURE__ */ k(UsageLimitsCtaControl, { cta, onSelectCta }) : null, onDismiss ? /* @__PURE__ */ k(DismissButton, { className: UsageLimitsDrawer_default.dismiss, onClick: onDismiss }) : null))
+    );
+  }
+  var import_classnames22;
+  var init_UsageLimitsDrawer2 = __esm({
+    "pages/new-tab/app/omnibar/components/UsageLimitsDrawer.js"() {
+      "use strict";
+      init_preact_module();
+      init_hooks_module();
+      import_classnames22 = __toESM(require_classnames(), 1);
+      init_DismissButton2();
+      init_Icons2();
+      init_types();
+      init_Dropdown2();
+      init_DropdownItem();
+      init_useDropdown();
+      init_Icons3();
+      init_useUsageLimitsDrawer();
+      init_UsageLimitsDrawer();
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/useKeyboardFocusWithin.js
+  function useKeyboardFocusWithin({ enabled = true } = {}) {
+    const [isKeyboardFocusWithin, setIsKeyboardFocusWithin] = d2(false);
+    const hadKeyboardNavigation = A2(false);
+    h2(() => {
+      if (!enabled) {
+        hadKeyboardNavigation.current = false;
+        setIsKeyboardFocusWithin(false);
+        return;
+      }
+      const handleKeyDown = (event) => {
+        if (event.key === "Tab") {
+          hadKeyboardNavigation.current = true;
+        }
+      };
+      const handlePointerInput = () => {
+        hadKeyboardNavigation.current = false;
+        setIsKeyboardFocusWithin(false);
+      };
+      document.addEventListener("keydown", handleKeyDown, true);
+      document.addEventListener("pointerdown", handlePointerInput, true);
+      document.addEventListener("mousedown", handlePointerInput, true);
+      document.addEventListener("touchstart", handlePointerInput, true);
+      return () => {
+        document.removeEventListener("keydown", handleKeyDown, true);
+        document.removeEventListener("pointerdown", handlePointerInput, true);
+        document.removeEventListener("mousedown", handlePointerInput, true);
+        document.removeEventListener("touchstart", handlePointerInput, true);
+      };
+    }, [enabled]);
+    const handleFocusCapture = q2(() => {
+      setIsKeyboardFocusWithin(hadKeyboardNavigation.current);
+    }, []);
+    const handleBlurCapture = q2((event) => {
+      const nextFocusedElement = event.relatedTarget;
+      if (!(nextFocusedElement instanceof Node) || !(event.currentTarget instanceof Node) || !event.currentTarget.contains(nextFocusedElement)) {
+        hadKeyboardNavigation.current = false;
+        setIsKeyboardFocusWithin(false);
+      }
+    }, []);
+    return {
+      isKeyboardFocusWithin: enabled ? isKeyboardFocusWithin : false,
+      keyboardFocusWithinProps: enabled ? {
+        "data-keyboard-focus-within": isKeyboardFocusWithin || void 0,
+        onFocusCapture: handleFocusCapture,
+        onBlurCapture: handleBlurCapture
+      } : EMPTY_PROPS
+    };
+  }
+  var EMPTY_PROPS;
+  var init_useKeyboardFocusWithin = __esm({
+    "pages/new-tab/app/omnibar/components/useKeyboardFocusWithin.js"() {
+      "use strict";
+      init_hooks_module();
+      EMPTY_PROPS = {};
+    }
+  });
+
   // pages/new-tab/app/omnibar/components/Omnibar.js
+  function focusStaysWithin(ref, event) {
+    const next = event.relatedTarget;
+    return next instanceof Node && (ref.current?.contains(next) ?? false);
+  }
   function Omnibar({
     mode,
     setMode,
@@ -14387,9 +14911,16 @@
       /** @type {Strings} */
       {}
     );
+    const spacerRef = A2(
+      /** @type {HTMLDivElement|null} */
+      null
+    );
+    const [usageLimitsRevealed, setUsageLimitsRevealed] = d2(false);
     const [query, setQuery] = useQueryWithLocalPersistence(tabId);
     const [resetKey, setResetKey] = d2(0);
     const [autoFocus, setAutoFocus] = d2(false);
+    const rebrand = useNewTabPageRebranding();
+    const { keyboardFocusWithinProps } = useKeyboardFocusWithin({ enabled: rebrand });
     const { openSuggestion, submitSearch, submitChat, setShowCustomizePopover } = x2(OmnibarContext);
     const { open: openCustomizer } = useDrawerControls();
     useDrawerEventListeners(
@@ -14449,27 +14980,44 @@
         enableRecentAiChats,
         showViewAllAiChats
       },
-      /* @__PURE__ */ k("div", { class: Omnibar_default.spacer }, /* @__PURE__ */ k("div", { class: Omnibar_default.popup }, mode === "search" ? /* @__PURE__ */ k(S, null, /* @__PURE__ */ k(ResizingContainer, { className: Omnibar_default.field }, /* @__PURE__ */ k(
-        SearchForm,
+      /* @__PURE__ */ k(
+        "div",
         {
-          autoFocus,
-          onOpenSuggestion: handleOpenSuggestion,
-          onSubmit: handleSubmitSearch,
-          onSubmitChat: handleSubmitChat
-        }
-      )), /* @__PURE__ */ k(SuggestionsList, { onOpenSuggestion: handleOpenSuggestion, onSubmitChat: handleSubmitChat })) : /* @__PURE__ */ k(OpenTabsProvider, { tabId, enabled: enableAttachTabs }, /* @__PURE__ */ k(
-        AiChatContent,
-        {
-          query,
-          autoFocus,
-          enableRecentAiChats,
-          enableVoiceChatAccess,
-          enableAttachTabs,
-          tabId,
-          onChange: setQuery,
-          onSubmit: handleSubmitChat
-        }
-      ))))
+          ref: spacerRef,
+          class: Omnibar_default.spacer,
+          onFocusCapture: (event) => {
+            if (!(event.target instanceof HTMLTextAreaElement)) return;
+            setUsageLimitsRevealed(true);
+          },
+          onBlurCapture: (event) => {
+            if (focusStaysWithin(spacerRef, event)) return;
+            setUsageLimitsRevealed(false);
+          }
+        },
+        /* @__PURE__ */ k("div", { class: Omnibar_default.popup, ...keyboardFocusWithinProps }, mode === "search" ? /* @__PURE__ */ k(S, null, /* @__PURE__ */ k(ResizingContainer, { className: Omnibar_default.field }, /* @__PURE__ */ k(
+          SearchForm,
+          {
+            autoFocus,
+            onOpenSuggestion: handleOpenSuggestion,
+            onSubmit: handleSubmitSearch,
+            onSubmitChat: handleSubmitChat
+          }
+        )), /* @__PURE__ */ k(SuggestionsList, { onOpenSuggestion: handleOpenSuggestion, onSubmitChat: handleSubmitChat })) : /* @__PURE__ */ k(OpenTabsProvider, { tabId, enabled: enableAttachTabs }, /* @__PURE__ */ k(
+          AiChatContent,
+          {
+            query,
+            autoFocus,
+            enableRecentAiChats,
+            enableVoiceChatAccess,
+            enableAttachTabs,
+            tabId,
+            onChange: setQuery,
+            onSubmit: handleSubmitChat,
+            omnibarRef: spacerRef
+          }
+        ))),
+        mode === "ai" && /* @__PURE__ */ k(UsageLimitsDrawer, { revealed: usageLimitsRevealed })
+      )
     )));
   }
   function AiChatContent({
@@ -14480,7 +15028,8 @@
     enableAttachTabs = false,
     tabId,
     onChange,
-    onSubmit
+    onSubmit,
+    omnibarRef
   }) {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {Strings} */
@@ -14490,6 +15039,7 @@
     const { showChats, hideChats, deletionInProgress } = useAiChatsContext();
     const { state } = x2(OmnibarContext);
     const attachmentLimits = state.config?.attachmentLimits;
+    const blocksPrompt = state.config?.usageLimits?.blocksPrompt === true;
     const { selectedModel } = useSelectedModel();
     const { selectedEffort } = useSelectedReasoningEffort();
     const { activeTool, availableTools, imageGenerationActive, webSearchActive, setActiveTool } = useActiveTools();
@@ -14545,6 +15095,7 @@
       mention.handleTextChange(value2, caret);
     };
     const handleSubmit = async (chat, target) => {
+      if (blocksPrompt) return;
       if (submittingRef.current) return;
       submittingRef.current = true;
       try {
@@ -14581,6 +15132,7 @@
       }
     };
     const handleVoiceSubmit = (target) => {
+      if (blocksPrompt) return;
       onSubmit({
         chat: "",
         target,
@@ -14597,7 +15149,7 @@
     const showFileError = !!fileError && !imageMessageShowing;
     const showFileWarning = fileWarning && !imageMessageShowing && !showFileError;
     const showTabWarning = tabWarning && !imageMessageShowing && !showFileError && !showFileWarning;
-    const disabled = !query || imageWarning || fileWarning || tabWarning;
+    const disabled = blocksPrompt || !query || imageWarning || fileWarning || tabWarning;
     const isVoiceChatMode = enableVoiceChatAccess && !imageGenerationActive && !hasAttachedImages && fileState.attachedFiles.length === 0 && tabAttachments.attachedTabs.length === 0 && !query;
     const handleClickSubmit = (event) => {
       event.preventDefault();
@@ -14618,13 +15170,11 @@
         class: Omnibar_default.aiChatContent,
         "data-attachment-warning": imageWarning || fileWarning || tabWarning || void 0,
         onFocusCapture: (event) => {
-          if (event.target instanceof HTMLTextAreaElement && !hasVisibleImagesRef.current && !imageGenerationActive && !mention.pickerActive)
-            showChats();
+          if (!(event.target instanceof HTMLTextAreaElement)) return;
+          if (!hasVisibleImagesRef.current && !imageGenerationActive && !mention.pickerActive) showChats();
         },
         onBlurCapture: (event) => {
-          if (event.relatedTarget instanceof Element && containerRef.current?.contains(event.relatedTarget)) {
-            return;
-          }
+          if (focusStaysWithin(omnibarRef, event)) return;
           if (deletionInProgress.current) {
             return;
           }
@@ -14637,6 +15187,7 @@
           query,
           autoFocus,
           disabled,
+          readOnly: blocksPrompt,
           placeholder: imageGenerationActive ? imageGenerationPlaceholder : void 0,
           onChange: handleChange,
           onSubmit: handleSubmit,
@@ -14648,27 +15199,37 @@
             {
               image: canAttachImages ? {
                 processFiles: imageState.processFiles,
-                disabled: imageState.imageUploadDisabled,
+                disabled: blocksPrompt || imageState.imageUploadDisabled,
                 maxImages: imageState.maxImages
               } : null,
               file: canAttachFiles ? {
                 processFiles: fileState.processFiles,
-                disabled: fileState.fileUploadDisabled,
+                disabled: blocksPrompt || fileState.fileUploadDisabled,
                 mimeTypes: selectedModel?.supportedFileTypes ?? []
               } : null,
               tabsEnabled: canAttachTabs,
+              disabled: blocksPrompt,
               onToggleTab: tabAttachments.toggleTab,
               isAttached: tabAttachments.isAttached,
               maxTabs: tabAttachments.maxTabs
             }
-          ), toolsMenu.items.length > 0 && /* @__PURE__ */ k(ToolsMenu, { items: toolsMenu.items, activeItem: toolsMenu.activeItem, isCollapsed: toolsMenu.isCollapsed })),
+          ), toolsMenu.items.length > 0 && /* @__PURE__ */ k(
+            ToolsMenu,
+            {
+              items: toolsMenu.items,
+              activeItem: toolsMenu.activeItem,
+              isCollapsed: toolsMenu.isCollapsed,
+              disabled: blocksPrompt
+            }
+          )),
           toolbarRight: /* @__PURE__ */ k(S, null, !imageGenerationActive && /* @__PURE__ */ k(S, null, /* @__PURE__ */ k(ReasoningPickerTool, null), /* @__PURE__ */ k(ModelSelectorTool, null)), isVoiceChatMode ? /* @__PURE__ */ k(
             "button",
             {
-              tabIndex: 0,
+              tabIndex: blocksPrompt ? -1 : 0,
               type: "button",
               class: AiChatForm_default.submitButton,
               "aria-label": t4("omnibar_aiChatFormVoiceButtonLabel"),
+              disabled: blocksPrompt,
               onClick: handleClickVoiceChat,
               onAuxClick: handleClickVoiceChat
             },
@@ -14762,6 +15323,8 @@
       init_OpenTabsProvider();
       init_useMentionPicker();
       init_useTabAttachments();
+      init_UsageLimitsDrawer2();
+      init_useKeyboardFocusWithin();
     }
   });
 
@@ -15101,7 +15664,8 @@
         button: "Protections_button",
         active: "Protections_active",
         feed: "Protections_feed",
-        blob: "Protections_blob"
+        blob: "Protections_blob",
+        themeContext: "Protections_themeContext"
       };
     }
   });
@@ -15134,7 +15698,8 @@
         name: "PrivacyStats_name",
         count: "PrivacyStats_count",
         bar: "PrivacyStats_bar",
-        fill: "PrivacyStats_fill"
+        fill: "PrivacyStats_fill",
+        themeContext: "PrivacyStats_themeContext"
       };
     }
   });
@@ -15169,7 +15734,7 @@
     return /* @__PURE__ */ k(
       "div",
       {
-        class: (0, import_classnames22.default)(Tooltip_default2.tooltipContainer, className),
+        class: (0, import_classnames23.default)(Tooltip_default2.tooltipContainer, className),
         role: "button",
         tabIndex: 0,
         "aria-describedby": isVisible ? tooltipId : void 0,
@@ -15183,14 +15748,14 @@
       isVisible && /* @__PURE__ */ k("div", { id: tooltipId, class: Tooltip_default2.tooltip, role: "tooltip", dangerouslySetInnerHTML: { __html: content2 } })
     );
   }
-  var import_classnames22;
+  var import_classnames23;
   var init_Tooltip4 = __esm({
     "pages/new-tab/app/components/Tooltip/Tooltip.js"() {
       "use strict";
       init_preact_module();
       init_hooks_module();
       init_Tooltip3();
-      import_classnames22 = __toESM(require_classnames(), 1);
+      import_classnames23 = __toESM(require_classnames(), 1);
     }
   });
 
@@ -15468,7 +16033,7 @@
     const isCpmEnabled = totalCookiePopUpsBlockedValue !== void 0 && totalCookiePopUpsBlockedValue !== null;
     const trackersBlockedHeading = animatedTrackersBlocked === 1 ? t4("stats_countBlockedSingular") : t4("stats_countBlockedPlural");
     const cookiePopUpsBlockedHeading = animatedCookiePopUpsBlocked === 1 ? t4("stats_totalCookiePopUpsBlockedSingular") : t4("stats_totalCookiePopUpsBlockedPlural");
-    return /* @__PURE__ */ k("div", { class: PrivacyStats_default.heading, "data-testid": "ProtectionsHeading", ref: headingRef }, /* @__PURE__ */ k("div", { class: (0, import_classnames23.default)(PrivacyStats_default.control, animatedTrackersBlocked === 0 && PrivacyStats_default.noTrackers) }, /* @__PURE__ */ k("span", { class: PrivacyStats_default.headingIcon }, /* @__PURE__ */ k("img", { src: isRebrand ? "./icons/Shield-Color-16.svg" : "./icons/Shield-Check-Color-16.svg", alt: "Privacy Shield" })), /* @__PURE__ */ k("h2", { class: PrivacyStats_default.caption }, t4("protections_menuTitle")), /* @__PURE__ */ k(Tooltip2, { content: t4("stats_protectionsReportInfo") }, /* @__PURE__ */ k(InfoIcon, { class: PrivacyStats_default.infoIcon })), canExpand && /* @__PURE__ */ k("span", { class: PrivacyStats_default.widgetExpander }, /* @__PURE__ */ k(
+    return /* @__PURE__ */ k("div", { class: PrivacyStats_default.heading, "data-testid": "ProtectionsHeading", ref: headingRef }, /* @__PURE__ */ k("div", { class: (0, import_classnames24.default)(PrivacyStats_default.control, animatedTrackersBlocked === 0 && PrivacyStats_default.noTrackers) }, /* @__PURE__ */ k("span", { class: PrivacyStats_default.headingIcon }, /* @__PURE__ */ k("img", { src: isRebrand ? "./icons/Shield-Color-16.svg" : "./icons/Shield-Check-Color-16.svg", alt: "Privacy Shield" })), /* @__PURE__ */ k("h2", { class: PrivacyStats_default.caption }, t4("protections_menuTitle")), /* @__PURE__ */ k(Tooltip2, { content: t4("stats_protectionsReportInfo") }, /* @__PURE__ */ k(InfoIcon, { class: PrivacyStats_default.infoIcon })), canExpand && /* @__PURE__ */ k("span", { class: PrivacyStats_default.widgetExpander }, /* @__PURE__ */ k(
       ShowHideButtonCircle,
       {
         buttonAttrs: {
@@ -15479,9 +16044,9 @@
         onClick: onToggle,
         label: expansion === "expanded" ? t4("stats_hideLabel") : t4("stats_toggleLabel")
       }
-    ))), /* @__PURE__ */ k("div", { class: PrivacyStats_default.counterContainer, ref: counterContainerRef }, /* @__PURE__ */ k("div", { class: PrivacyStats_default.counter }, animatedTrackersBlocked === 0 && /* @__PURE__ */ k("h3", { class: PrivacyStats_default.noRecentTitle }, t4("protections_noRecent")), animatedTrackersBlocked > 0 && /* @__PURE__ */ k("h3", { class: PrivacyStats_default.title }, formatter.format(animatedTrackersBlocked), " ", /* @__PURE__ */ k("span", null, trackersBlockedHeading))), isCpmEnabled && animatedTrackersBlocked > 0 && totalCookiePopUpsBlocked > 0 && /* @__PURE__ */ k("div", { class: (0, import_classnames23.default)(PrivacyStats_default.counter, PrivacyStats_default.cookiePopUpsCounter) }, /* @__PURE__ */ k("h3", { class: PrivacyStats_default.title }, formatter.format(animatedCookiePopUpsBlocked), " ", /* @__PURE__ */ k("span", null, cookiePopUpsBlockedHeading)), showProtectionsReportNewLabel && /* @__PURE__ */ k(NewBadge, null))));
+    ))), /* @__PURE__ */ k("div", { class: PrivacyStats_default.counterContainer, ref: counterContainerRef }, /* @__PURE__ */ k("div", { class: PrivacyStats_default.counter }, animatedTrackersBlocked === 0 && /* @__PURE__ */ k("h3", { class: PrivacyStats_default.noRecentTitle }, t4("protections_noRecent")), animatedTrackersBlocked > 0 && /* @__PURE__ */ k("h3", { class: PrivacyStats_default.title }, formatter.format(animatedTrackersBlocked), " ", /* @__PURE__ */ k("span", null, trackersBlockedHeading))), isCpmEnabled && animatedTrackersBlocked > 0 && totalCookiePopUpsBlocked > 0 && /* @__PURE__ */ k("div", { class: (0, import_classnames24.default)(PrivacyStats_default.counter, PrivacyStats_default.cookiePopUpsCounter) }, /* @__PURE__ */ k("h3", { class: PrivacyStats_default.title }, formatter.format(animatedCookiePopUpsBlocked), " ", /* @__PURE__ */ k("span", null, cookiePopUpsBlockedHeading)), showProtectionsReportNewLabel && /* @__PURE__ */ k(NewBadge, null))));
   }
-  var import_classnames23;
+  var import_classnames24;
   var init_ProtectionsHeading = __esm({
     "pages/new-tab/app/protections/components/ProtectionsHeading.js"() {
       "use strict";
@@ -15489,7 +16054,7 @@
       init_PrivacyStats();
       init_settings_provider();
       init_ShowHideButton();
-      import_classnames23 = __toESM(require_classnames(), 1);
+      import_classnames24 = __toESM(require_classnames(), 1);
       init_preact_module();
       init_Icons2();
       init_NewBadge2();
@@ -15559,9 +16124,9 @@
         onClick: onToggle,
         label: expansion === "expanded" ? t4("stats_hideLabel") : t4("stats_toggleLabel")
       }
-    ))), /* @__PURE__ */ k("div", { class: PrivacyStatsLegacy_default.counter }, none && /* @__PURE__ */ k("h3", { class: PrivacyStatsLegacy_default.title }, t4("protections_noRecent")), some && /* @__PURE__ */ k("h3", { class: PrivacyStatsLegacy_default.title }, " ", /* @__PURE__ */ k(Trans, { str: alltimeTitle, values: { count: alltime } })), /* @__PURE__ */ k("p", { class: (0, import_classnames24.default)(PrivacyStatsLegacy_default.subtitle, PrivacyStatsLegacy_default.indented) }, t4("stats_feedCountBlockedPeriod"))));
+    ))), /* @__PURE__ */ k("div", { class: PrivacyStatsLegacy_default.counter }, none && /* @__PURE__ */ k("h3", { class: PrivacyStatsLegacy_default.title }, t4("protections_noRecent")), some && /* @__PURE__ */ k("h3", { class: PrivacyStatsLegacy_default.title }, " ", /* @__PURE__ */ k(Trans, { str: alltimeTitle, values: { count: alltime } })), /* @__PURE__ */ k("p", { class: (0, import_classnames25.default)(PrivacyStatsLegacy_default.subtitle, PrivacyStatsLegacy_default.indented) }, t4("stats_feedCountBlockedPeriod"))));
   }
-  var import_classnames24;
+  var import_classnames25;
   var init_ProtectionsHeadingLegacy = __esm({
     "pages/new-tab/app/protections/components/ProtectionsHeadingLegacy.js"() {
       "use strict";
@@ -15569,7 +16134,7 @@
       init_hooks_module();
       init_PrivacyStatsLegacy();
       init_ShowHideButton();
-      import_classnames24 = __toESM(require_classnames(), 1);
+      import_classnames25 = __toESM(require_classnames(), 1);
       init_preact_module();
       init_settings_provider();
       init_TranslationsProvider();
@@ -15629,13 +16194,13 @@
       /** @type {enStrings} */
       {}
     );
-    return /* @__PURE__ */ k("div", { class: Protections_default.body, id, "aria-hidden": hidden, "aria-expanded": showing }, expansion === "expanded" && /* @__PURE__ */ k(S, null, /* @__PURE__ */ k("div", { class: (0, import_classnames25.default)(Protections_default.switcher, Protections_default.block), role: "tablist" }, isRebrandEnabled && /* @__PURE__ */ k("div", { class: Protections_default.blob, style: { "--tab-count": 2, "--tab-index": feed === "privacy-stats" ? 0 : 1 } }), /* @__PURE__ */ k(
+    return /* @__PURE__ */ k("div", { class: Protections_default.body, id, "aria-hidden": hidden, "aria-expanded": showing }, expansion === "expanded" && /* @__PURE__ */ k(S, null, /* @__PURE__ */ k("div", { class: (0, import_classnames26.default)(Protections_default.switcher, Protections_default.block), role: "tablist" }, isRebrandEnabled && /* @__PURE__ */ k("div", { class: Protections_default.blob, style: { "--tab-count": 2, "--tab-index": feed === "privacy-stats" ? 0 : 1 } }), /* @__PURE__ */ k(
       "button",
       {
         type: "button",
         role: "tab",
         "aria-selected": feed === "privacy-stats",
-        class: (0, import_classnames25.default)(Protections_default.button, feed === "privacy-stats" && Protections_default.active),
+        class: (0, import_classnames26.default)(Protections_default.button, feed === "privacy-stats" && Protections_default.active),
         onClick: () => setFeed("privacy-stats")
       },
       t4("protections_statsSwitchTitle")
@@ -15645,7 +16210,7 @@
         type: "button",
         role: "tab",
         "aria-selected": feed === "activity",
-        class: (0, import_classnames25.default)(Protections_default.button, feed === "activity" && Protections_default.active),
+        class: (0, import_classnames26.default)(Protections_default.button, feed === "activity" && Protections_default.active),
         onClick: () => setFeed("activity")
       },
       t4("protections_activitySwitchTitle")
@@ -15659,13 +16224,13 @@
       /** @type {enStrings} */
       {}
     );
-    return /* @__PURE__ */ k("div", { class: Protections_default.body, id, "aria-hidden": hidden, "aria-expanded": showing }, expansion === "expanded" && /* @__PURE__ */ k(S, null, /* @__PURE__ */ k("div", { class: (0, import_classnames25.default)(Protections_default.switcher, Protections_default.blockLegacy), role: "tablist" }, isRebrandEnabled && /* @__PURE__ */ k("div", { class: Protections_default.blob, style: { "--tab-count": 2, "--tab-index": feed === "privacy-stats" ? 0 : 1 } }), /* @__PURE__ */ k(
+    return /* @__PURE__ */ k("div", { class: Protections_default.body, id, "aria-hidden": hidden, "aria-expanded": showing }, expansion === "expanded" && /* @__PURE__ */ k(S, null, /* @__PURE__ */ k("div", { class: (0, import_classnames26.default)(Protections_default.switcher, Protections_default.blockLegacy), role: "tablist" }, isRebrandEnabled && /* @__PURE__ */ k("div", { class: Protections_default.blob, style: { "--tab-count": 2, "--tab-index": feed === "privacy-stats" ? 0 : 1 } }), /* @__PURE__ */ k(
       "button",
       {
         type: "button",
         role: "tab",
         "aria-selected": feed === "privacy-stats",
-        class: (0, import_classnames25.default)(Protections_default.button, feed === "privacy-stats" && Protections_default.active),
+        class: (0, import_classnames26.default)(Protections_default.button, feed === "privacy-stats" && Protections_default.active),
         onClick: () => setFeed("privacy-stats")
       },
       t4("protections_statsSwitchTitle")
@@ -15675,25 +16240,25 @@
         type: "button",
         role: "tab",
         "aria-selected": feed === "activity",
-        class: (0, import_classnames25.default)(Protections_default.button, feed === "activity" && Protections_default.active),
+        class: (0, import_classnames26.default)(Protections_default.button, feed === "activity" && Protections_default.active),
         onClick: () => setFeed("activity")
       },
       t4("protections_activitySwitchTitle")
     )), /* @__PURE__ */ k("div", { class: Protections_default.feed }, children)));
   }
   function ProtectionsEmpty({ children }) {
-    return /* @__PURE__ */ k("div", { class: (0, import_classnames25.default)(Protections_default.block, Protections_default.empty) }, children);
+    return /* @__PURE__ */ k("div", { class: (0, import_classnames26.default)(Protections_default.block, Protections_default.empty) }, children);
   }
   function ProtectionsEmptyLegacy({ children }) {
-    return /* @__PURE__ */ k("div", { class: (0, import_classnames25.default)(Protections_default.blockLegacy, Protections_default.empty) }, children);
+    return /* @__PURE__ */ k("div", { class: (0, import_classnames26.default)(Protections_default.blockLegacy, Protections_default.empty) }, children);
   }
-  var import_classnames25;
+  var import_classnames26;
   var init_Protections2 = __esm({
     "pages/new-tab/app/protections/components/Protections.js"() {
       "use strict";
       init_hooks_module();
       init_preact_module();
-      import_classnames25 = __toESM(require_classnames(), 1);
+      import_classnames26 = __toESM(require_classnames(), 1);
       init_Protections();
       init_ProtectionsHeading();
       init_types();
@@ -15980,10 +16545,10 @@
         burning: "Activity_burning",
         heading: "Activity_heading",
         favicon: "Activity_favicon",
-        title: "Activity_title",
-        controls: "Activity_controls",
         icon: "Activity_icon",
         controlIcon: "Activity_controlIcon",
+        title: "Activity_title",
+        controls: "Activity_controls",
         disableWhenBusy: "Activity_disableWhenBusy",
         body: "Activity_body",
         otherIcon: "Activity_otherIcon",
@@ -16318,6 +16883,7 @@
     ), data: null });
     const { didClick: originalDidClick } = x2(ActivityInteractionsContext);
     const { isReducedMotion } = useEnv();
+    const isRebrand = useNewTabPageRebranding();
     async function didClick(e4) {
       const button = (
         /** @type {HTMLButtonElement|null} */
@@ -16347,7 +16913,7 @@
     useSignalEffect(() => {
       let cancelled = false;
       async function fetchAnimation() {
-        const resp = await fetch("burn.json");
+        const resp = await fetch(isRebrand ? "burn-rebranding.json" : "burn.json");
         if (!resp.ok) {
           animation.value = { state: (
             /** @type {const} */
@@ -16493,6 +17059,7 @@
       init_signals_module();
       init_EnvironmentProvider();
       init_ActivityInteractionsContext();
+      init_settings_provider();
       ACTION_BURN = "burn";
       ActivityBurningSignalContext = X({
         /** @type {import("@preact/signals").Signal<string[]>} */
@@ -16748,7 +17315,7 @@
     return /* @__PURE__ */ k("div", { className: Activity_default.controls }, /* @__PURE__ */ k(
       "button",
       {
-        class: (0, import_classnames26.default)(Activity_default.icon, Activity_default.controlIcon, Activity_default.disableWhenBusy),
+        class: (0, import_classnames27.default)(Activity_default.icon, Activity_default.controlIcon, Activity_default.disableWhenBusy),
         title: favoriteTitle,
         "data-action": favorite.value ? ACTION_REMOVE_FAVORITE : ACTION_ADD_FAVORITE,
         "data-title": title,
@@ -16759,7 +17326,7 @@
     ), /* @__PURE__ */ k(
       "button",
       {
-        class: (0, import_classnames26.default)(Activity_default.icon, Activity_default.controlIcon, Activity_default.disableWhenBusy),
+        class: (0, import_classnames27.default)(Activity_default.icon, Activity_default.controlIcon, Activity_default.disableWhenBusy),
         title: secondaryTitle,
         "data-action": canBurn ? ACTION_BURN : ACTION_REMOVE,
         value: url8,
@@ -16771,16 +17338,16 @@
   function renderSecondaryIcon({ canBurn, shouldDisplayLegacyActivity, isRebrand }) {
     if (!canBurn) return /* @__PURE__ */ k(Cross, null);
     if (shouldDisplayLegacyActivity) return /* @__PURE__ */ k(Fire, null);
-    if (isRebrand) return /* @__PURE__ */ k(TrashIcon, null);
+    if (isRebrand) return /* @__PURE__ */ k(FireOutlineIcon, null);
     return /* @__PURE__ */ k(FireIcon, null);
   }
-  var import_classnames26, ActivityItem, ActivityItemLegacy;
+  var import_classnames27, ActivityItem, ActivityItemLegacy;
   var init_ActivityItem = __esm({
     "pages/new-tab/app/activity/components/ActivityItem.js"() {
       "use strict";
       init_preact_module();
       init_types();
-      import_classnames26 = __toESM(require_classnames(), 1);
+      import_classnames27 = __toESM(require_classnames(), 1);
       init_Activity();
       init_ActivityLegacy();
       init_FaviconWithState2();
@@ -16809,7 +17376,7 @@
          */
         function ActivityItem2({ canBurn, documentVisibility, title, url: url8, favoriteSrc, faviconMax, etldPlusOne, children }) {
           const isRebrand = useNewTabPageRebranding();
-          return /* @__PURE__ */ k("li", { key: url8, class: (0, import_classnames26.default)(Activity_default.item), "data-testid": "ActivityItem" }, /* @__PURE__ */ k("div", { class: Activity_default.heading }, /* @__PURE__ */ k("a", { class: Activity_default.title, href: url8, "data-url": url8 }, /* @__PURE__ */ k("span", { className: Activity_default.favicon, "data-url": url8 }, documentVisibility === "visible" && /* @__PURE__ */ k(
+          return /* @__PURE__ */ k("li", { key: url8, class: (0, import_classnames27.default)(Activity_default.item), "data-testid": "ActivityItem" }, /* @__PURE__ */ k("div", { class: Activity_default.heading }, /* @__PURE__ */ k("a", { class: Activity_default.title, href: url8, "data-url": url8 }, /* @__PURE__ */ k("span", { className: Activity_default.favicon, "data-url": url8 }, documentVisibility === "visible" && /* @__PURE__ */ k(
             FaviconWithState,
             {
               faviconSrc: favoriteSrc,
@@ -16838,7 +17405,7 @@
          */
         function ActivityItem3({ canBurn, documentVisibility, title, url: url8, favoriteSrc, faviconMax, etldPlusOne, children }) {
           const isRebrand = useNewTabPageRebranding();
-          return /* @__PURE__ */ k("li", { key: url8, class: (0, import_classnames26.default)(ActivityLegacy_default.item), "data-testid": "ActivityItem" }, /* @__PURE__ */ k("div", { class: ActivityLegacy_default.heading }, /* @__PURE__ */ k("a", { class: ActivityLegacy_default.title, href: url8, "data-url": url8 }, /* @__PURE__ */ k("span", { className: ActivityLegacy_default.favicon, "data-url": url8 }, documentVisibility === "visible" && /* @__PURE__ */ k(
+          return /* @__PURE__ */ k("li", { key: url8, class: (0, import_classnames27.default)(ActivityLegacy_default.item), "data-testid": "ActivityItem" }, /* @__PURE__ */ k("div", { class: ActivityLegacy_default.heading }, /* @__PURE__ */ k("a", { class: ActivityLegacy_default.title, href: url8, "data-url": url8 }, /* @__PURE__ */ k("span", { className: ActivityLegacy_default.favicon, "data-url": url8 }, documentVisibility === "visible" && /* @__PURE__ */ k(
             FaviconWithState,
             {
               faviconSrc: favoriteSrc,
@@ -33268,20 +33835,20 @@
         canceled = true;
       };
     }, [isBurning.value, isExiting.value, url8]);
-    return /* @__PURE__ */ k("div", { class: (0, import_classnames27.default)(Activity_default.anim, isBurning.value && Activity_default.burning), ref }, !isExiting.value && children, !isExiting.value && isBurning.value && showBurnAnimation && /* @__PURE__ */ k(P3, { fallback: null }, /* @__PURE__ */ k(BurnAnimationLazy, { url: url8, doneBurning })), !isExiting.value && isBurning.value && !showBurnAnimation && /* @__PURE__ */ k(NullBurner, { url: url8, doneBurning }));
+    return /* @__PURE__ */ k("div", { class: (0, import_classnames28.default)(Activity_default.anim, isBurning.value && Activity_default.burning), ref }, !isExiting.value && children, !isExiting.value && isBurning.value && showBurnAnimation && /* @__PURE__ */ k(P3, { fallback: null }, /* @__PURE__ */ k(BurnAnimationLazy, { url: url8, doneBurning })), !isExiting.value && isBurning.value && !showBurnAnimation && /* @__PURE__ */ k(NullBurner, { url: url8, doneBurning }));
   }
   function NullBurner({ url: url8, doneBurning }) {
     h2(() => doneBurning(url8), [url8]);
     return null;
   }
-  var import_classnames27, BurnAnimationLazy;
+  var import_classnames28, BurnAnimationLazy;
   var init_ActivityItemAnimationWrapper = __esm({
     "pages/new-tab/app/activity/components/ActivityItemAnimationWrapper.js"() {
       "use strict";
       init_hooks_module();
       init_BurnProvider();
       init_signals_module();
-      import_classnames27 = __toESM(require_classnames(), 1);
+      import_classnames28 = __toESM(require_classnames(), 1);
       init_Activity();
       init_compat_module();
       init_preact_module();
@@ -33391,15 +33958,15 @@
 
   // pages/new-tab/app/components/TickPill/TickPill.js
   function TickPill({ text: text2, className, displayTick = true }) {
-    return /* @__PURE__ */ k("div", { class: (0, import_classnames28.default)(TickPill_default.tickPill, className || "") }, displayTick && /* @__PURE__ */ k("span", { class: TickPill_default.iconWrapper }, /* @__PURE__ */ k(Check, null)), /* @__PURE__ */ k("span", { class: TickPill_default.text }, text2));
+    return /* @__PURE__ */ k("div", { class: (0, import_classnames29.default)(TickPill_default.tickPill, className || "") }, displayTick && /* @__PURE__ */ k("span", { class: TickPill_default.iconWrapper }, /* @__PURE__ */ k(Check, null)), /* @__PURE__ */ k("span", { class: TickPill_default.text }, text2));
   }
-  var import_classnames28;
+  var import_classnames29;
   var init_TickPill2 = __esm({
     "pages/new-tab/app/components/TickPill/TickPill.js"() {
       "use strict";
       init_preact_module();
       init_Icons2();
-      import_classnames28 = __toESM(require_classnames(), 1);
+      import_classnames29 = __toESM(require_classnames(), 1);
       init_TickPill();
     }
   });
@@ -34215,8 +34782,8 @@
 
   // pages/new-tab/app/remote-messaging-framework/components/RemoteMessagingFramework.js
   function TwoActionButtons({ platform, id, message, primaryAction, secondaryAction }) {
-    const primaryBtn = primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ k(Button, { className: (0, import_classnames29.default)(RemoteMessagingFramework_default.actionButton, RemoteMessagingFramework_default.primaryButton), variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText);
-    const secondaryBtn = secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ k(Button, { className: (0, import_classnames29.default)(RemoteMessagingFramework_default.actionButton, RemoteMessagingFramework_default.secondaryButton), variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText);
+    const primaryBtn = primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ k(Button, { className: (0, import_classnames30.default)(RemoteMessagingFramework_default.actionButton, RemoteMessagingFramework_default.primaryButton), variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText);
+    const secondaryBtn = secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ k(Button, { className: (0, import_classnames30.default)(RemoteMessagingFramework_default.actionButton, RemoteMessagingFramework_default.secondaryButton), variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText);
     return /* @__PURE__ */ k("div", { class: RemoteMessagingFramework_default.btnRow }, platform === "windows" ? /* @__PURE__ */ k(S, null, primaryBtn, secondaryBtn) : /* @__PURE__ */ k(S, null, secondaryBtn, primaryBtn));
   }
   function RemoteMessagingFramework({ message, primaryAction, secondaryAction, dismiss }) {
@@ -34225,7 +34792,7 @@
     const isRebrandEnabled = useNewTabPageRebranding();
     const showIcon = messageType !== "small" && Boolean(message.icon);
     const iconSrc = showIcon ? isRebrandEnabled ? `./icons/rebrand/${message.icon}-96.svg` : `./icons/${message.icon}-96.svg` : void 0;
-    return /* @__PURE__ */ k("div", { id, class: (0, import_classnames29.default)(RemoteMessagingFramework_default.root, showIcon && RemoteMessagingFramework_default.icon) }, showIcon && iconSrc && /* @__PURE__ */ k("span", { class: RemoteMessagingFramework_default.iconBlock }, /* @__PURE__ */ k("img", { src: iconSrc, alt: "" })), /* @__PURE__ */ k("div", { class: RemoteMessagingFramework_default.content }, /* @__PURE__ */ k("h2", { class: RemoteMessagingFramework_default.title }, titleText), /* @__PURE__ */ k("p", { class: RemoteMessagingFramework_default.description }, descriptionText), messageType === "big_two_action" && /* @__PURE__ */ k(
+    return /* @__PURE__ */ k("div", { id, class: (0, import_classnames30.default)(RemoteMessagingFramework_default.root, showIcon && RemoteMessagingFramework_default.icon) }, showIcon && iconSrc && /* @__PURE__ */ k("span", { class: RemoteMessagingFramework_default.iconBlock }, /* @__PURE__ */ k("img", { src: iconSrc, alt: "" })), /* @__PURE__ */ k("div", { class: RemoteMessagingFramework_default.content }, /* @__PURE__ */ k("h2", { class: RemoteMessagingFramework_default.title }, titleText), /* @__PURE__ */ k("p", { class: RemoteMessagingFramework_default.description }, descriptionText), messageType === "big_two_action" && /* @__PURE__ */ k(
       TwoActionButtons,
       {
         platform,
@@ -34237,7 +34804,7 @@
     )), messageType === "big_single_action" && message.primaryActionText && primaryAction && /* @__PURE__ */ k("div", { class: RemoteMessagingFramework_default.btnBlock }, /* @__PURE__ */ k(
       Button,
       {
-        className: (0, import_classnames29.default)(RemoteMessagingFramework_default.actionButton, RemoteMessagingFramework_default.secondaryButton),
+        className: (0, import_classnames30.default)(RemoteMessagingFramework_default.actionButton, RemoteMessagingFramework_default.secondaryButton),
         variant: "standard",
         onClick: () => primaryAction(id)
       },
@@ -34259,12 +34826,12 @@
     }
     return null;
   }
-  var import_classnames29;
+  var import_classnames30;
   var init_RemoteMessagingFramework2 = __esm({
     "pages/new-tab/app/remote-messaging-framework/components/RemoteMessagingFramework.js"() {
       "use strict";
       init_preact_module();
-      import_classnames29 = __toESM(require_classnames(), 1);
+      import_classnames30 = __toESM(require_classnames(), 1);
       init_RemoteMessagingFramework();
       init_hooks_module();
       init_RMFProvider();
@@ -34445,7 +35012,7 @@
     const isRebrandEnabled = useNewTabPageRebranding();
     const processedMessageDescription = convertMarkdownToHTMLForStrongTags(message.descriptionText);
     const iconSrc = isRebrandEnabled ? "./icons/rebrand/Subscription-Clock-96.svg" : "./icons/Subscription-Clock-96.svg";
-    return /* @__PURE__ */ k("div", { id: message.id, class: (0, import_classnames30.default)(SubscriptionWinBackBanner_default.root, SubscriptionWinBackBanner_default.icon) }, /* @__PURE__ */ k("span", { class: SubscriptionWinBackBanner_default.iconBlock }, /* @__PURE__ */ k("img", { "aria-hidden": "true", src: iconSrc, alt: "" })), /* @__PURE__ */ k("div", { class: SubscriptionWinBackBanner_default.content }, message.titleText && /* @__PURE__ */ k("h2", { class: SubscriptionWinBackBanner_default.title }, message.titleText), /* @__PURE__ */ k("p", { class: SubscriptionWinBackBanner_default.description, dangerouslySetInnerHTML: { __html: processedMessageDescription } })), message.messageType === "big_single_action" && message?.actionText && action && /* @__PURE__ */ k("div", { class: SubscriptionWinBackBanner_default.btnBlock }, /* @__PURE__ */ k(Button, { size: "md", variant: "accent", onClick: () => action(message.id) }, message.actionText)), message.id && dismiss && /* @__PURE__ */ k(DismissButton, { className: SubscriptionWinBackBanner_default.dismissBtn, onClick: () => dismiss(message.id) }));
+    return /* @__PURE__ */ k("div", { id: message.id, class: (0, import_classnames31.default)(SubscriptionWinBackBanner_default.root, SubscriptionWinBackBanner_default.icon) }, /* @__PURE__ */ k("span", { class: SubscriptionWinBackBanner_default.iconBlock }, /* @__PURE__ */ k("img", { "aria-hidden": "true", src: iconSrc, alt: "" })), /* @__PURE__ */ k("div", { class: SubscriptionWinBackBanner_default.content }, message.titleText && /* @__PURE__ */ k("h2", { class: SubscriptionWinBackBanner_default.title }, message.titleText), /* @__PURE__ */ k("p", { class: SubscriptionWinBackBanner_default.description, dangerouslySetInnerHTML: { __html: processedMessageDescription } })), message.messageType === "big_single_action" && message?.actionText && action && /* @__PURE__ */ k("div", { class: SubscriptionWinBackBanner_default.btnBlock }, /* @__PURE__ */ k(Button, { size: "md", variant: "accent", onClick: () => action(message.id) }, message.actionText)), message.id && dismiss && /* @__PURE__ */ k(DismissButton, { className: SubscriptionWinBackBanner_default.dismissBtn, onClick: () => dismiss(message.id) }));
   }
   function SubscriptionWinBackBannerConsumer() {
     const { state, action, dismiss } = x2(SubscriptionWinBackBannerContext);
@@ -34454,11 +35021,11 @@
     }
     return null;
   }
-  var import_classnames30;
+  var import_classnames31;
   var init_SubscriptionWinBackBanner2 = __esm({
     "pages/new-tab/app/subscription-winback-banner/components/SubscriptionWinBackBanner.js"() {
       "use strict";
-      import_classnames30 = __toESM(require_classnames(), 1);
+      import_classnames31 = __toESM(require_classnames(), 1);
       init_preact_module();
       init_Button2();
       init_DismissButton2();
@@ -34620,7 +35187,7 @@
 
   // pages/new-tab/app/update-notification/components/UpdateNotification.js
   function UpdateNotification({ notes, dismiss, version }) {
-    return /* @__PURE__ */ k("div", { class: UpdateNotification_default.root, "data-reset-layout": "true" }, /* @__PURE__ */ k("div", { class: (0, import_classnames31.default)("layout-centered", UpdateNotification_default.body) }, notes.length > 0 ? /* @__PURE__ */ k(WithNotes, { notes, version }) : /* @__PURE__ */ k(WithoutNotes, { version })), /* @__PURE__ */ k(DismissButton, { onClick: dismiss, className: UpdateNotification_default.dismiss }));
+    return /* @__PURE__ */ k("div", { class: UpdateNotification_default.root, "data-reset-layout": "true" }, /* @__PURE__ */ k("div", { class: (0, import_classnames32.default)("layout-centered", UpdateNotification_default.body) }, notes.length > 0 ? /* @__PURE__ */ k(WithNotes, { notes, version }) : /* @__PURE__ */ k(WithoutNotes, { version })), /* @__PURE__ */ k(DismissButton, { onClick: dismiss, className: UpdateNotification_default.dismiss }));
   }
   function WithNotes({ notes, version }) {
     const id = g2();
@@ -34682,12 +35249,12 @@
     }
     return null;
   }
-  var import_classnames31;
+  var import_classnames32;
   var init_UpdateNotification2 = __esm({
     "pages/new-tab/app/update-notification/components/UpdateNotification.js"() {
       "use strict";
       init_preact_module();
-      import_classnames31 = __toESM(require_classnames(), 1);
+      import_classnames32 = __toESM(require_classnames(), 1);
       init_UpdateNotification();
       init_hooks_module();
       init_UpdateNotificationProvider();
@@ -34727,7 +35294,7 @@
 
   // pages/new-tab/app/components/App.js
   init_preact_module();
-  var import_classnames42 = __toESM(require_classnames(), 1);
+  var import_classnames43 = __toESM(require_classnames(), 1);
 
   // pages/new-tab/app/components/App.module.css
   var App_default = {
@@ -35090,7 +35657,7 @@
   // pages/new-tab/app/customizer/components/CustomizerDrawerInner.js
   init_preact_module();
   init_hooks_module();
-  var import_classnames41 = __toESM(require_classnames(), 1);
+  var import_classnames42 = __toESM(require_classnames(), 1);
 
   // pages/new-tab/app/customizer/components/CustomizerDrawerInner.module.css
   var CustomizerDrawerInner_default = {
@@ -35126,7 +35693,7 @@
 
   // pages/new-tab/app/customizer/components/BackgroundSection.js
   init_preact_module();
-  var import_classnames32 = __toESM(require_classnames(), 1);
+  var import_classnames33 = __toESM(require_classnames(), 1);
   init_values();
   init_Icons2();
   init_signals_module();
@@ -35151,7 +35718,7 @@
     } else {
       gradient = values.gradients.gradient02;
     }
-    return /* @__PURE__ */ k("ul", { class: (0, import_classnames32.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup" }, /* @__PURE__ */ k("li", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ k(
+    return /* @__PURE__ */ k("ul", { class: (0, import_classnames33.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup" }, /* @__PURE__ */ k("li", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ k(
       DefaultPanel,
       {
         checked: data2.value.background.kind === "default",
@@ -35185,7 +35752,7 @@
     return /* @__PURE__ */ k(S, null, /* @__PURE__ */ k(
       "button",
       {
-        class: (0, import_classnames32.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames33.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": main,
         "aria-checked": checked,
         "aria-labelledby": id,
@@ -35205,7 +35772,7 @@
     return /* @__PURE__ */ k(S, null, /* @__PURE__ */ k(
       "button",
       {
-        class: (0, import_classnames32.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames33.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": props.color.colorScheme,
         onClick: props.onClick,
         "aria-checked": props.checked,
@@ -35227,7 +35794,7 @@
       "button",
       {
         onClick: props.onClick,
-        class: (0, import_classnames32.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames33.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": props.gradient.colorScheme,
         "aria-checked": props.checked,
         tabindex: props.checked ? -1 : 0,
@@ -35267,7 +35834,7 @@
       return /* @__PURE__ */ k(S, null, /* @__PURE__ */ k(
         "button",
         {
-          class: (0, import_classnames32.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
+          class: (0, import_classnames33.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
           "data-color-mode": props.browserTheme,
           "aria-checked": props.checked,
           "aria-labelledby": id,
@@ -35282,7 +35849,7 @@
     return /* @__PURE__ */ k(S, null, /* @__PURE__ */ k(
       "button",
       {
-        class: (0, import_classnames32.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames33.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": scheme,
         onClick: props.onClick,
         "aria-checked": props.checked,
@@ -35308,7 +35875,7 @@
   };
 
   // pages/new-tab/app/customizer/components/BrowserThemeSection.js
-  var import_classnames33 = __toESM(require_classnames(), 1);
+  var import_classnames34 = __toESM(require_classnames(), 1);
   init_preact_module();
   init_signals_module();
   init_types();
@@ -35321,7 +35888,7 @@
     return /* @__PURE__ */ k("ul", { class: BrowserThemeSection_default.themeList }, /* @__PURE__ */ k("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ k(
       "button",
       {
-        class: (0, import_classnames33.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonLight),
+        class: (0, import_classnames34.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonLight),
         role: "radio",
         type: "button",
         "aria-checked": current.value === "light",
@@ -35332,7 +35899,7 @@
     ), /* @__PURE__ */ k("span", null, t4("customizer_browser_theme_light"))), /* @__PURE__ */ k("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ k(
       "button",
       {
-        class: (0, import_classnames33.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonDark),
+        class: (0, import_classnames34.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonDark),
         role: "radio",
         type: "button",
         "aria-checked": current.value === "dark",
@@ -35343,7 +35910,7 @@
     ), /* @__PURE__ */ k("span", null, t4("customizer_browser_theme_dark"))), /* @__PURE__ */ k("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ k(
       "button",
       {
-        class: (0, import_classnames33.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonSystem),
+        class: (0, import_classnames34.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonSystem),
         role: "radio",
         type: "button",
         "aria-checked": current.value === "system",
@@ -35357,7 +35924,7 @@
   // pages/new-tab/app/customizer/components/ThemeSection.js
   init_preact_module();
   init_signals_module();
-  var import_classnames34 = __toESM(require_classnames(), 1);
+  var import_classnames35 = __toESM(require_classnames(), 1);
   init_types();
 
   // pages/new-tab/app/customizer/components/ThemeSection.module.css
@@ -35400,7 +35967,7 @@
     return /* @__PURE__ */ k("div", { class: ThemeSection_default.root }, /* @__PURE__ */ k(
       "div",
       {
-        class: (0, import_classnames34.default)(ThemeSection_default.segmentedControl, {
+        class: (0, import_classnames35.default)(ThemeSection_default.segmentedControl, {
           [ThemeSection_default.vertical]: ["pl", "ru"].includes(locale)
         }),
         role: "radiogroup",
@@ -35471,7 +36038,7 @@
   init_CustomizerMenu();
 
   // pages/new-tab/app/customizer/components/VisibilityMenu.js
-  var import_classnames35 = __toESM(require_classnames(), 1);
+  var import_classnames36 = __toESM(require_classnames(), 1);
   init_preact_module();
   init_hooks_module();
   init_Switch2();
@@ -35492,8 +36059,8 @@
   function EmbeddedVisibilityMenu({ rows }) {
     const platformName = usePlatformName();
     const { browser } = x2(CustomizerThemesContext);
-    return /* @__PURE__ */ k("ul", { className: (0, import_classnames35.default)(VisibilityMenu_default.list, VisibilityMenu_default.embedded) }, rows.map((row) => {
-      return /* @__PURE__ */ k("li", { key: row.id }, /* @__PURE__ */ k("div", { class: (0, import_classnames35.default)(VisibilityMenu_default.menuItemLabel, VisibilityMenu_default.menuItemLabelEmbedded) }, /* @__PURE__ */ k("span", { class: VisibilityMenu_default.svg }, row.icon), /* @__PURE__ */ k("span", { class: VisibilityMenu_default.title }, row.title ?? row.id), /* @__PURE__ */ k(
+    return /* @__PURE__ */ k("ul", { className: (0, import_classnames36.default)(VisibilityMenu_default.list, VisibilityMenu_default.embedded) }, rows.map((row) => {
+      return /* @__PURE__ */ k("li", { key: row.id }, /* @__PURE__ */ k("div", { class: (0, import_classnames36.default)(VisibilityMenu_default.menuItemLabel, VisibilityMenu_default.menuItemLabelEmbedded) }, /* @__PURE__ */ k("span", { class: VisibilityMenu_default.svg }, row.icon), /* @__PURE__ */ k("span", { class: VisibilityMenu_default.title }, row.title ?? row.id), /* @__PURE__ */ k(
         Switch,
         {
           theme: browser.value,
@@ -35536,7 +36103,7 @@
 
   // pages/new-tab/app/customizer/components/ColorSelection.js
   init_preact_module();
-  var import_classnames36 = __toESM(require_classnames(), 1);
+  var import_classnames37 = __toESM(require_classnames(), 1);
   init_values();
   init_Icons2();
   init_signals_module();
@@ -35565,7 +36132,7 @@
       if (!(value2 in values.colors)) return console.warn("could not select color", value2);
       select({ background: { kind: "color", value: value2 } });
     }
-    return /* @__PURE__ */ k("div", null, /* @__PURE__ */ k("button", { type: "button", onClick: back, class: (0, import_classnames36.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ k(BackChevron, null), t4("customizer_background_selection_color")), /* @__PURE__ */ k("div", { class: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ k(InlineErrorBoundary, { format: (message) => `Customizer section 'ColorGrid' threw an exception: ` + message }, /* @__PURE__ */ k("div", { class: (0, import_classnames36.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup", onClick }, /* @__PURE__ */ k(PickerPanel, { data: data2, select }), /* @__PURE__ */ k(ColorGrid, { data: data2 })))));
+    return /* @__PURE__ */ k("div", null, /* @__PURE__ */ k("button", { type: "button", onClick: back, class: (0, import_classnames37.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ k(BackChevron, null), t4("customizer_background_selection_color")), /* @__PURE__ */ k("div", { class: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ k(InlineErrorBoundary, { format: (message) => `Customizer section 'ColorGrid' threw an exception: ` + message }, /* @__PURE__ */ k("div", { class: (0, import_classnames37.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup", onClick }, /* @__PURE__ */ k(PickerPanel, { data: data2, select }), /* @__PURE__ */ k(ColorGrid, { data: data2 })))));
   }
   var entries = Object.keys(values.colors);
   function ColorGrid({ data: data2 }) {
@@ -35602,7 +36169,7 @@
     return /* @__PURE__ */ k("div", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ k(
       "button",
       {
-        className: (0, import_classnames36.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty),
+        className: (0, import_classnames37.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty),
         type: "button",
         tabIndex: 0,
         style: { background: hex.value },
@@ -35627,12 +36194,12 @@
           }
         }
       }
-    ), /* @__PURE__ */ k("span", { class: (0, import_classnames36.default)(CustomizerDrawerInner_default.colorInputIcon, CustomizerDrawerInner_default.dynamicPickerIconColor), "data-color-mode": modeSelected }, /* @__PURE__ */ k(Picker, null)));
+    ), /* @__PURE__ */ k("span", { class: (0, import_classnames37.default)(CustomizerDrawerInner_default.colorInputIcon, CustomizerDrawerInner_default.dynamicPickerIconColor), "data-color-mode": modeSelected }, /* @__PURE__ */ k(Picker, null)));
   }
 
   // pages/new-tab/app/customizer/components/GradientSelection.js
   init_preact_module();
-  var import_classnames37 = __toESM(require_classnames(), 1);
+  var import_classnames38 = __toESM(require_classnames(), 1);
   init_values();
   init_signals_module();
   init_Icons2();
@@ -35660,12 +36227,12 @@
       if (!(value2 in values.gradients)) return console.warn("could not select gradient", value2);
       select({ background: { kind: "gradient", value: value2 } });
     }
-    return /* @__PURE__ */ k("div", null, /* @__PURE__ */ k("button", { type: "button", onClick: back, class: (0, import_classnames37.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ k(BackChevron, null), t4("customizer_background_selection_gradient")), /* @__PURE__ */ k("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ k(InlineErrorBoundary, { format: (message) => `Customizer section 'GradientSelection' threw an exception: ` + message }, /* @__PURE__ */ k(GradientGrid, { data: data2 }))));
+    return /* @__PURE__ */ k("div", null, /* @__PURE__ */ k("button", { type: "button", onClick: back, class: (0, import_classnames38.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ k(BackChevron, null), t4("customizer_background_selection_gradient")), /* @__PURE__ */ k("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ k(InlineErrorBoundary, { format: (message) => `Customizer section 'GradientSelection' threw an exception: ` + message }, /* @__PURE__ */ k(GradientGrid, { data: data2 }))));
   }
   var entries2 = Object.keys(values.gradients);
   function GradientGrid({ data: data2 }) {
     const selected = useComputed(() => data2.value.background.kind === "gradient" && data2.value.background.value);
-    return /* @__PURE__ */ k("ul", { className: (0, import_classnames37.default)(CustomizerDrawerInner_default.bgList) }, entries2.map((key2) => {
+    return /* @__PURE__ */ k("ul", { className: (0, import_classnames38.default)(CustomizerDrawerInner_default.bgList) }, entries2.map((key2) => {
       const entry = values.gradients[key2];
       return /* @__PURE__ */ k("li", { className: CustomizerDrawerInner_default.bgListItem, key: key2 }, /* @__PURE__ */ k(
         "button",
@@ -35693,7 +36260,7 @@
 
   // pages/new-tab/app/customizer/components/ImageSelection.js
   init_preact_module();
-  var import_classnames38 = __toESM(require_classnames(), 1);
+  var import_classnames39 = __toESM(require_classnames(), 1);
   init_signals_module();
   init_DismissButton2();
   init_Icons2();
@@ -35737,7 +36304,7 @@
         customizerContextMenu({ id, target: "userImage" });
       }
     }
-    return /* @__PURE__ */ k("div", { onContextMenu }, /* @__PURE__ */ k("button", { type: "button", onClick: back, class: (0, import_classnames38.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ k(BackChevron, null), t4("customizer_background_selection_image_existing")), /* @__PURE__ */ k("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ k(InlineErrorBoundary, { format: (message) => `Customizer section 'ImageSelection' threw an exception: ` + message }, /* @__PURE__ */ k(ImageGrid, { data: data2, deleteImage, onUpload }))), /* @__PURE__ */ k("div", { className: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ k("p", null, t4("customizer_image_privacy"))));
+    return /* @__PURE__ */ k("div", { onContextMenu }, /* @__PURE__ */ k("button", { type: "button", onClick: back, class: (0, import_classnames39.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ k(BackChevron, null), t4("customizer_background_selection_image_existing")), /* @__PURE__ */ k("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ k(InlineErrorBoundary, { format: (message) => `Customizer section 'ImageSelection' threw an exception: ` + message }, /* @__PURE__ */ k(ImageGrid, { data: data2, deleteImage, onUpload }))), /* @__PURE__ */ k("div", { className: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ k("p", null, t4("customizer_image_privacy"))));
   }
   function ImageGrid({ data: data2, deleteImage, onUpload }) {
     const { t: t4 } = useTypedTranslationWith(
@@ -35752,7 +36319,7 @@
     const max = 8;
     const diff = max - entries4.value.length;
     const placeholders = new Array(diff).fill(null);
-    return /* @__PURE__ */ k("ul", { className: (0, import_classnames38.default)(CustomizerDrawerInner_default.bgList) }, entries4.value.map((entry, index2) => {
+    return /* @__PURE__ */ k("ul", { className: (0, import_classnames39.default)(CustomizerDrawerInner_default.bgList) }, entries4.value.map((entry, index2) => {
       $INTEGRATION: (() => {
         if (entry.id === "__will_throw__") throw new Error("Simulated error");
       })();
@@ -35789,7 +36356,7 @@
         {
           type: "button",
           onClick: onUpload,
-          class: (0, import_classnames38.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
+          class: (0, import_classnames39.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
           "data-color-mode": browser
         },
         /* @__PURE__ */ k(PlusIcon, null),
@@ -35800,24 +36367,24 @@
 
   // pages/new-tab/app/customizer/components/CustomizerSection.js
   init_preact_module();
-  var import_classnames39 = __toESM(require_classnames(), 1);
+  var import_classnames40 = __toESM(require_classnames(), 1);
   init_NewBadge2();
   function CustomizerSection({ title, showNewBadge, children }) {
     return /* @__PURE__ */ k("div", { className: CustomizerDrawerInner_default.section }, title === null && children, title !== null && /* @__PURE__ */ k(S, null, /* @__PURE__ */ k("h3", { className: CustomizerDrawerInner_default.sectionTitle }, /* @__PURE__ */ k("span", null, title), showNewBadge && /* @__PURE__ */ k(NewBadge, null)), /* @__PURE__ */ k("div", { className: CustomizerDrawerInner_default.sectionBody }, children)));
   }
   function BorderedSection({ children }) {
-    return /* @__PURE__ */ k("div", { class: (0, import_classnames39.default)(CustomizerDrawerInner_default.section, CustomizerDrawerInner_default.borderedSection) }, children);
+    return /* @__PURE__ */ k("div", { class: (0, import_classnames40.default)(CustomizerDrawerInner_default.section, CustomizerDrawerInner_default.borderedSection) }, children);
   }
 
   // pages/new-tab/app/customizer/components/SettingsLink.js
-  var import_classnames40 = __toESM(require_classnames(), 1);
+  var import_classnames41 = __toESM(require_classnames(), 1);
   init_preact_module();
   function SettingsLink({ title, icon, onClick }) {
     return /* @__PURE__ */ k(
       "a",
       {
         href: "duck://settings",
-        class: (0, import_classnames40.default)(CustomizerDrawerInner_default.settingsLink),
+        class: (0, import_classnames41.default)(CustomizerDrawerInner_default.settingsLink),
         onClick: (event) => {
           event.preventDefault();
           onClick();
@@ -35862,7 +36429,7 @@
     const { customizer } = useInitialSetupData();
     const { showThemeNewBadge } = x2(CustomizerContext);
     const hasThemeVariants = customizer?.themeVariant !== void 0;
-    return /* @__PURE__ */ k("div", { class: CustomizerDrawerInner_default.root }, /* @__PURE__ */ k("header", { class: (0, import_classnames41.default)(CustomizerDrawerInner_default.header, CustomizerDrawerInner_default.internal) }, /* @__PURE__ */ k("h2", null, t4("customizer_drawer_title")), /* @__PURE__ */ k(
+    return /* @__PURE__ */ k("div", { class: CustomizerDrawerInner_default.root }, /* @__PURE__ */ k("header", { class: (0, import_classnames42.default)(CustomizerDrawerInner_default.header, CustomizerDrawerInner_default.internal) }, /* @__PURE__ */ k("h2", null, t4("customizer_drawer_title")), /* @__PURE__ */ k(
       DismissButton,
       {
         onClick: close,
@@ -35932,7 +36499,7 @@
       }
       renderedScreen.value = visibleScreen.value;
     }
-    return /* @__PURE__ */ k("div", { class: CustomizerDrawerInner_default.colwrap }, /* @__PURE__ */ k("div", { class: CustomizerDrawerInner_default.cols, "data-sub": visibleScreen, onTransitionEnd: transitionEnded }, /* @__PURE__ */ k("div", { class: (0, import_classnames41.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col1) }, col1.value && left2({ push })), /* @__PURE__ */ k("div", { class: (0, import_classnames41.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col2) }, renderedScreen.value !== "home" && right2({ id: renderedScreen.value, pop }))));
+    return /* @__PURE__ */ k("div", { class: CustomizerDrawerInner_default.colwrap }, /* @__PURE__ */ k("div", { class: CustomizerDrawerInner_default.cols, "data-sub": visibleScreen, onTransitionEnd: transitionEnded }, /* @__PURE__ */ k("div", { class: (0, import_classnames42.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col1) }, col1.value && left2({ push })), /* @__PURE__ */ k("div", { class: (0, import_classnames42.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col2) }, renderedScreen.value !== "home" && right2({ id: renderedScreen.value, pop }))));
   }
 
   // pages/new-tab/app/customizer/components/CustomizerDrawer.js
@@ -35989,7 +36556,7 @@
         "data-drawer-visibility": visibility,
         "data-has-theme-variants": hasThemeVariants
       },
-      /* @__PURE__ */ k("main", { class: (0, import_classnames42.default)(App_default.main, App_default.mainLayout, App_default.mainScroller), "data-main-scroller": true, "data-theme": main }, /* @__PURE__ */ k("div", { class: App_default.content }, /* @__PURE__ */ k("div", { className: App_default.tube, "data-content-tube": true, "data-platform": platformName }, /* @__PURE__ */ k(WidgetList, null)))),
+      /* @__PURE__ */ k("main", { class: (0, import_classnames43.default)(App_default.main, App_default.mainLayout, App_default.mainScroller), "data-main-scroller": true, "data-theme": main }, /* @__PURE__ */ k("div", { class: App_default.content }, /* @__PURE__ */ k("div", { className: App_default.tube, "data-content-tube": true, "data-platform": platformName }, /* @__PURE__ */ k(WidgetList, null)))),
       /* @__PURE__ */ k("div", { class: App_default.themeContext, "data-theme": main }, /* @__PURE__ */ k(CustomizerMenuPositionedFixed, null, /* @__PURE__ */ k(
         CustomizerButton,
         {
@@ -36004,7 +36571,7 @@
       /* @__PURE__ */ k(
         "aside",
         {
-          class: (0, import_classnames42.default)(App_default.aside, App_default.asideLayout, App_default.asideScroller),
+          class: (0, import_classnames43.default)(App_default.aside, App_default.asideLayout, App_default.asideScroller),
           tabindex: tabIndex,
           "aria-hidden": hidden,
           "data-theme": browser,
@@ -36402,6 +36969,14 @@
     omnibar_customizeResponsesToggleLabel: {
       title: "Apply response customization",
       description: "Accessible label for the on/off toggle that applies or unapplies the saved response customization, shown on the Customize Responses tools menu row."
+    },
+    omnibar_usageLimitsCtaMenuLabel: {
+      title: "Show more models",
+      description: "Accessible label for the usage-limits CTA chevron that opens the alternatives menu."
+    },
+    omnibar_usageLimitsCtaMenuFallback: {
+      title: "Switch model",
+      description: "Accessible name for the usage-limits alternatives menu when native did not send menuHeader."
     },
     omnibar_imageGenerationWithAttachmentPlaceholder: {
       title: "Describe changes based on the image",
@@ -41940,6 +42515,20 @@ This is placeholder content used by the NTP mock transport so the attach-tabs fe
             subs.get("omnibar_onConfigUpdate")?.(config);
             break;
           }
+          case "omnibar_dismissUsageLimits": {
+            config.usageLimits = null;
+            subs.get("omnibar_onConfigUpdate")?.(config);
+            break;
+          }
+          case "omnibar_selectUsageLimitsCta": {
+            console.warn("Mock: selectUsageLimitsCta", msg.params);
+            if (msg.params?.modelId) {
+              config.selectedModelId = msg.params.modelId;
+            }
+            config.usageLimits = null;
+            subs.get("omnibar_onConfigUpdate")?.(config);
+            break;
+          }
           case "omnibar_removeSuggestion": {
             console.log("Mock: removing suggestion", msg.params.url);
             break;
@@ -42107,6 +42696,63 @@ This is placeholder content used by the NTP mock transport so the attach-tabs fe
             }
             config.enableAiChatDeletion = parseBooleanQueryParam("omnibar.enableAiChatDeletion") ?? config.enableAiChatDeletion;
             config.enableSearchSuggestionDeletion = parseBooleanQueryParam("omnibar.enableSearchSuggestionDeletion") ?? config.enableSearchSuggestionDeletion;
+            const usageLimitsPreset = url5.searchParams.get("omnibar.usageLimits");
+            if (usageLimitsPreset === "false") {
+              config.usageLimits = null;
+            } else if (usageLimitsPreset === "approaching") {
+              config.usageLimits = {
+                message: "75% of weekly limit",
+                secondaryText: " \u2022 Resets in 2d",
+                dismissible: true,
+                icon: "ring",
+                percent: 75,
+                severity: "warning",
+                cta: {
+                  label: "Switch to GPT-4o mini",
+                  leadingIcon: "convert",
+                  primaryModelId: "gpt-4o-mini",
+                  showMenu: true,
+                  menuHeader: "Switch to a more efficient model",
+                  alternatives: [
+                    { id: "gpt-5-mini", name: "GPT-5 mini" },
+                    { id: "claude-haiku-4-5", name: "Claude Haiku 4.5" },
+                    { id: "openai_gpt-oss-120b", name: "GPT-OSS 120B" }
+                  ]
+                }
+              };
+            } else if (usageLimitsPreset === "reached") {
+              config.usageLimits = {
+                message: "Weekly usage limit reached",
+                secondaryText: " \u2022 Resets in 2d",
+                dismissible: false,
+                icon: "alert",
+                blocksPrompt: true,
+                cta: {
+                  label: "Try DuckDuckGo Subscription",
+                  leadingIcon: "none",
+                  showMenu: false
+                }
+              };
+            } else if (usageLimitsPreset === "reached-switch") {
+              config.usageLimits = {
+                message: "Weekly usage limit reached",
+                secondaryText: " \u2022 Resets in 2d",
+                dismissible: false,
+                icon: "alert",
+                blocksPrompt: true,
+                cta: {
+                  label: "Switch to free model",
+                  leadingIcon: "none",
+                  primaryModelId: "gpt-4o-mini",
+                  showMenu: true,
+                  alternatives: [
+                    { id: "gpt-4o-mini", name: "GPT-4o mini" },
+                    { id: "gpt-5-mini", name: "GPT-5 mini" },
+                    { id: "claude-haiku-4-5", name: "Claude Haiku 4.5" }
+                  ]
+                }
+              };
+            }
             return config;
           }
           case "omnibar_getSuggestions": {

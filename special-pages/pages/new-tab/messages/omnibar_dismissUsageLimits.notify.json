@@ -1,0 +1,8 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Dismiss Usage Limits Drawer",
+  "description": "Sent when the user dismisses the AI-mode usage limits drawer. Native owns dismiss persistence and should push an updated OmnibarConfig with usageLimits null/omitted.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {}
+}

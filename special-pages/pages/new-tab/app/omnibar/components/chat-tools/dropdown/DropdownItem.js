@@ -15,7 +15,7 @@ import styles from './Dropdown.module.css';
  * @param {import('preact').ComponentChildren} [props.icon]
  * @param {import('preact').ComponentChildren} [props.trailingIcon] - Rendered after the label. Callers own its accessibility (mark decorative icons `aria-hidden`; leave meaningful ones, e.g. an internal-build badge, exposed).
  * @param {import('preact').ComponentChildren} [props.trailingControl] - interactive trailing element (e.g. a toggle); clicks are kept from triggering the row's `onSelect`.
- * @param {string} props.name
+ * @param {import('preact').ComponentChildren} props.name
  * @param {string} [props.description]
  * @param {boolean} [props.isSelected]
  * @param {boolean} [props.disabled]

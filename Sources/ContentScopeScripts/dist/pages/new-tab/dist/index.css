@@ -1640,6 +1640,15 @@ body [data-theme=light] {
   --ds-color-theme-control-raised-fill-primary: var(--ds-color-theme-default-light-control-raised-fill-primary);
   --ds-color-theme-shadow-primary: var(--ds-color-theme-default-light-shadow-primary);
   --ds-color-theme-shadow-secondary: var(--ds-color-theme-default-light-shadow-secondary);
+  --ds-input-control-primary-background-color: var(--ds-color-theme-default-light-input-control-primary-background-color);
+  --ds-input-control-secondary-background-color: var(--ds-color-theme-default-light-input-control-secondary-background-color);
+  --ds-input-control-shadow-primary: var(--ds-color-theme-default-light-input-control-shadow-primary);
+  --ds-input-field-primary-background-color: var(--ds-color-theme-default-light-input-field-primary-background-color);
+  --ds-input-field-secondary-background-color: var(--ds-color-theme-default-light-input-field-secondary-background-color);
+  --ds-input-text-primary: var(--ds-color-theme-default-light-input-text-primary);
+  --ds-input-text-secondary: var(--ds-color-theme-default-light-input-text-secondary);
+  --ds-input-icons-primary: var(--ds-color-theme-default-light-input-icons-primary);
+  --ds-input-icons-secondary: var(--ds-color-theme-default-light-input-icons-secondary);
 }
 body[data-theme=dark],
 body [data-theme=dark] {
@@ -1691,6 +1700,15 @@ body [data-theme=dark] {
   --ds-color-theme-control-raised-fill-primary: var(--ds-color-theme-default-dark-control-raised-fill-primary);
   --ds-color-theme-shadow-primary: var(--ds-color-theme-default-dark-shadow-primary);
   --ds-color-theme-shadow-secondary: var(--ds-color-theme-default-dark-shadow-secondary);
+  --ds-input-control-primary-background-color: var(--ds-color-theme-default-dark-input-control-primary-background-color);
+  --ds-input-control-secondary-background-color: var(--ds-color-theme-default-dark-input-control-secondary-background-color);
+  --ds-input-control-shadow-primary: var(--ds-color-theme-default-dark-input-control-shadow-primary);
+  --ds-input-field-primary-background-color: var(--ds-color-theme-default-dark-input-field-primary-background-color);
+  --ds-input-field-secondary-background-color: var(--ds-color-theme-default-dark-input-field-secondary-background-color);
+  --ds-input-text-primary: var(--ds-color-theme-default-dark-input-text-primary);
+  --ds-input-text-secondary: var(--ds-color-theme-default-dark-input-text-secondary);
+  --ds-input-icons-primary: var(--ds-color-theme-default-dark-input-icons-primary);
+  --ds-input-icons-secondary: var(--ds-color-theme-default-dark-input-icons-secondary);
 }
 body[data-theme-variant=coolGray] {
   --default-light-background-color: var(--ds-color-theme-cool-gray-light-surface-canvas);
@@ -1741,6 +1759,15 @@ body[data-theme-variant=coolGray] [data-theme=light] {
   --ds-color-theme-accent-glow-primary: var(--ds-color-theme-cool-gray-light-accent-glow-primary);
   --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-cool-gray-light-accent-glow-secondary);
   --ds-color-theme-highlight-primary: var(--ds-color-theme-cool-gray-light-highlight-primary);
+  --ds-input-control-primary-background-color: var(--ds-color-theme-cool-gray-light-input-control-primary-background-color);
+  --ds-input-control-secondary-background-color: var(--ds-color-theme-cool-gray-light-input-control-secondary-background-color);
+  --ds-input-control-shadow-primary: var(--ds-color-theme-cool-gray-light-input-control-shadow-primary);
+  --ds-input-field-primary-background-color: var(--ds-color-theme-cool-gray-light-input-field-primary-background-color);
+  --ds-input-field-secondary-background-color: var(--ds-color-theme-cool-gray-light-input-field-secondary-background-color);
+  --ds-input-text-primary: var(--ds-color-theme-cool-gray-light-input-text-primary);
+  --ds-input-text-secondary: var(--ds-color-theme-cool-gray-light-input-text-secondary);
+  --ds-input-icons-primary: var(--ds-color-theme-cool-gray-light-input-icons-primary);
+  --ds-input-icons-secondary: var(--ds-color-theme-cool-gray-light-input-icons-secondary);
 }
 body[data-theme-variant=coolGray][data-theme=dark],
 body[data-theme-variant=coolGray] [data-theme=dark] {
@@ -1787,6 +1814,15 @@ body[data-theme-variant=coolGray] [data-theme=dark] {
   --ds-color-theme-accent-glow-primary: var(--ds-color-theme-cool-gray-dark-accent-glow-primary);
   --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-cool-gray-dark-accent-glow-secondary);
   --ds-color-theme-highlight-primary: var(--ds-color-theme-cool-gray-dark-highlight-primary);
+  --ds-input-control-primary-background-color: var(--ds-color-theme-cool-gray-dark-input-control-primary-background-color);
+  --ds-input-control-secondary-background-color: var(--ds-color-theme-cool-gray-dark-input-control-secondary-background-color);
+  --ds-input-control-shadow-primary: var(--ds-color-theme-cool-gray-dark-input-control-shadow-primary);
+  --ds-input-field-primary-background-color: var(--ds-color-theme-cool-gray-dark-input-field-primary-background-color);
+  --ds-input-field-secondary-background-color: var(--ds-color-theme-cool-gray-dark-input-field-secondary-background-color);
+  --ds-input-text-primary: var(--ds-color-theme-cool-gray-dark-input-text-primary);
+  --ds-input-text-secondary: var(--ds-color-theme-cool-gray-dark-input-text-secondary);
+  --ds-input-icons-primary: var(--ds-color-theme-cool-gray-dark-input-icons-primary);
+  --ds-input-icons-secondary: var(--ds-color-theme-cool-gray-dark-input-icons-secondary);
 }
 body[data-theme-variant=slateBlue] {
   --default-light-background-color: var(--ds-color-theme-slate-blue-light-surface-canvas);
@@ -1837,6 +1873,15 @@ body[data-theme-variant=slateBlue] [data-theme=light] {
   --ds-color-theme-accent-glow-primary: var(--ds-color-theme-slate-blue-light-accent-glow-primary);
   --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-slate-blue-light-accent-glow-secondary);
   --ds-color-theme-highlight-primary: var(--ds-color-theme-slate-blue-light-highlight-primary);
+  --ds-input-control-primary-background-color: var(--ds-color-theme-slate-blue-light-input-control-primary-background-color);
+  --ds-input-control-secondary-background-color: var(--ds-color-theme-slate-blue-light-input-control-secondary-background-color);
+  --ds-input-control-shadow-primary: var(--ds-color-theme-slate-blue-light-input-control-shadow-primary);
+  --ds-input-field-primary-background-color: var(--ds-color-theme-slate-blue-light-input-field-primary-background-color);
+  --ds-input-field-secondary-background-color: var(--ds-color-theme-slate-blue-light-input-field-secondary-background-color);
+  --ds-input-text-primary: var(--ds-color-theme-slate-blue-light-input-text-primary);
+  --ds-input-text-secondary: var(--ds-color-theme-slate-blue-light-input-text-secondary);
+  --ds-input-icons-primary: var(--ds-color-theme-slate-blue-light-input-icons-primary);
+  --ds-input-icons-secondary: var(--ds-color-theme-slate-blue-light-input-icons-secondary);
 }
 body[data-theme-variant=slateBlue][data-theme=dark],
 body[data-theme-variant=slateBlue] [data-theme=dark] {
@@ -1883,6 +1928,15 @@ body[data-theme-variant=slateBlue] [data-theme=dark] {
   --ds-color-theme-accent-glow-primary: var(--ds-color-theme-slate-blue-dark-accent-glow-primary);
   --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-slate-blue-dark-accent-glow-secondary);
   --ds-color-theme-highlight-primary: var(--ds-color-theme-slate-blue-dark-highlight-primary);
+  --ds-input-control-primary-background-color: var(--ds-color-theme-slate-blue-dark-input-control-primary-background-color);
+  --ds-input-control-secondary-background-color: var(--ds-color-theme-slate-blue-dark-input-control-secondary-background-color);
+  --ds-input-control-shadow-primary: var(--ds-color-theme-slate-blue-dark-input-control-shadow-primary);
+  --ds-input-field-primary-background-color: var(--ds-color-theme-slate-blue-dark-input-field-primary-background-color);
+  --ds-input-field-secondary-background-color: var(--ds-color-theme-slate-blue-dark-input-field-secondary-background-color);
+  --ds-input-text-primary: var(--ds-color-theme-slate-blue-dark-input-text-primary);
+  --ds-input-text-secondary: var(--ds-color-theme-slate-blue-dark-input-text-secondary);
+  --ds-input-icons-primary: var(--ds-color-theme-slate-blue-dark-input-icons-primary);
+  --ds-input-icons-secondary: var(--ds-color-theme-slate-blue-dark-input-icons-secondary);
 }
 body[data-theme-variant=green] {
   --default-light-background-color: var(--ds-color-theme-green-light-surface-canvas);
@@ -1933,6 +1987,15 @@ body[data-theme-variant=green] [data-theme=light] {
   --ds-color-theme-accent-glow-primary: var(--ds-color-theme-green-light-accent-glow-primary);
   --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-green-light-accent-glow-secondary);
   --ds-color-theme-highlight-primary: var(--ds-color-theme-green-light-highlight-primary);
+  --ds-input-control-primary-background-color: var(--ds-color-theme-green-light-input-control-primary-background-color);
+  --ds-input-control-secondary-background-color: var(--ds-color-theme-green-light-input-control-secondary-background-color);
+  --ds-input-control-shadow-primary: var(--ds-color-theme-green-light-input-control-shadow-primary);
+  --ds-input-field-primary-background-color: var(--ds-color-theme-green-light-input-field-primary-background-color);
+  --ds-input-field-secondary-background-color: var(--ds-color-theme-green-light-input-field-secondary-background-color);
+  --ds-input-text-primary: var(--ds-color-theme-green-light-input-text-primary);
+  --ds-input-text-secondary: var(--ds-color-theme-green-light-input-text-secondary);
+  --ds-input-icons-primary: var(--ds-color-theme-green-light-input-icons-primary);
+  --ds-input-icons-secondary: var(--ds-color-theme-green-light-input-icons-secondary);
 }
 body[data-theme-variant=green][data-theme=dark],
 body[data-theme-variant=green] [data-theme=dark] {
@@ -1979,6 +2042,15 @@ body[data-theme-variant=green] [data-theme=dark] {
   --ds-color-theme-accent-glow-primary: var(--ds-color-theme-green-dark-accent-glow-primary);
   --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-green-dark-accent-glow-secondary);
   --ds-color-theme-highlight-primary: var(--ds-color-theme-green-dark-highlight-primary);
+  --ds-input-control-primary-background-color: var(--ds-color-theme-green-dark-input-control-primary-background-color);
+  --ds-input-control-secondary-background-color: var(--ds-color-theme-green-dark-input-control-secondary-background-color);
+  --ds-input-control-shadow-primary: var(--ds-color-theme-green-dark-input-control-shadow-primary);
+  --ds-input-field-primary-background-color: var(--ds-color-theme-green-dark-input-field-primary-background-color);
+  --ds-input-field-secondary-background-color: var(--ds-color-theme-green-dark-input-field-secondary-background-color);
+  --ds-input-text-primary: var(--ds-color-theme-green-dark-input-text-primary);
+  --ds-input-text-secondary: var(--ds-color-theme-green-dark-input-text-secondary);
+  --ds-input-icons-primary: var(--ds-color-theme-green-dark-input-icons-primary);
+  --ds-input-icons-secondary: var(--ds-color-theme-green-dark-input-icons-secondary);
 }
 body[data-theme-variant=violet] {
   --default-light-background-color: var(--ds-color-theme-violet-light-surface-canvas);
@@ -2029,6 +2101,15 @@ body[data-theme-variant=violet] [data-theme=light] {
   --ds-color-theme-accent-glow-primary: var(--ds-color-theme-violet-light-accent-glow-primary);
   --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-violet-light-accent-glow-secondary);
   --ds-color-theme-highlight-primary: var(--ds-color-theme-violet-light-highlight-primary);
+  --ds-input-control-primary-background-color: var(--ds-color-theme-violet-light-input-control-primary-background-color);
+  --ds-input-control-secondary-background-color: var(--ds-color-theme-violet-light-input-control-secondary-background-color);
+  --ds-input-control-shadow-primary: var(--ds-color-theme-violet-light-input-control-shadow-primary);
+  --ds-input-field-primary-background-color: var(--ds-color-theme-violet-light-input-field-primary-background-color);
+  --ds-input-field-secondary-background-color: var(--ds-color-theme-violet-light-input-field-secondary-background-color);
+  --ds-input-text-primary: var(--ds-color-theme-violet-light-input-text-primary);
+  --ds-input-text-secondary: var(--ds-color-theme-violet-light-input-text-secondary);
+  --ds-input-icons-primary: var(--ds-color-theme-violet-light-input-icons-primary);
+  --ds-input-icons-secondary: var(--ds-color-theme-violet-light-input-icons-secondary);
 }
 body[data-theme-variant=violet][data-theme=dark],
 body[data-theme-variant=violet] [data-theme=dark] {
@@ -2075,6 +2156,15 @@ body[data-theme-variant=violet] [data-theme=dark] {
   --ds-color-theme-accent-glow-primary: var(--ds-color-theme-violet-dark-accent-glow-primary);
   --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-violet-dark-accent-glow-secondary);
   --ds-color-theme-highlight-primary: var(--ds-color-theme-violet-dark-highlight-primary);
+  --ds-input-control-primary-background-color: var(--ds-color-theme-violet-dark-input-control-primary-background-color);
+  --ds-input-control-secondary-background-color: var(--ds-color-theme-violet-dark-input-control-secondary-background-color);
+  --ds-input-control-shadow-primary: var(--ds-color-theme-violet-dark-input-control-shadow-primary);
+  --ds-input-field-primary-background-color: var(--ds-color-theme-violet-dark-input-field-primary-background-color);
+  --ds-input-field-secondary-background-color: var(--ds-color-theme-violet-dark-input-field-secondary-background-color);
+  --ds-input-text-primary: var(--ds-color-theme-violet-dark-input-text-primary);
+  --ds-input-text-secondary: var(--ds-color-theme-violet-dark-input-text-secondary);
+  --ds-input-icons-primary: var(--ds-color-theme-violet-dark-input-icons-primary);
+  --ds-input-icons-secondary: var(--ds-color-theme-violet-dark-input-icons-secondary);
 }
 body[data-theme-variant=rose] {
   --default-light-background-color: var(--ds-color-theme-rose-light-surface-canvas);
@@ -2125,6 +2215,15 @@ body[data-theme-variant=rose] [data-theme=light] {
   --ds-color-theme-accent-glow-primary: var(--ds-color-theme-rose-light-accent-glow-primary);
   --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-rose-light-accent-glow-secondary);
   --ds-color-theme-highlight-primary: var(--ds-color-theme-rose-light-highlight-primary);
+  --ds-input-control-primary-background-color: var(--ds-color-theme-rose-light-input-control-primary-background-color);
+  --ds-input-control-secondary-background-color: var(--ds-color-theme-rose-light-input-control-secondary-background-color);
+  --ds-input-control-shadow-primary: var(--ds-color-theme-rose-light-input-control-shadow-primary);
+  --ds-input-field-primary-background-color: var(--ds-color-theme-rose-light-input-field-primary-background-color);
+  --ds-input-field-secondary-background-color: var(--ds-color-theme-rose-light-input-field-secondary-background-color);
+  --ds-input-text-primary: var(--ds-color-theme-rose-light-input-text-primary);
+  --ds-input-text-secondary: var(--ds-color-theme-rose-light-input-text-secondary);
+  --ds-input-icons-primary: var(--ds-color-theme-rose-light-input-icons-primary);
+  --ds-input-icons-secondary: var(--ds-color-theme-rose-light-input-icons-secondary);
 }
 body[data-theme-variant=rose][data-theme=dark],
 body[data-theme-variant=rose] [data-theme=dark] {
@@ -2171,6 +2270,15 @@ body[data-theme-variant=rose] [data-theme=dark] {
   --ds-color-theme-accent-glow-primary: var(--ds-color-theme-rose-dark-accent-glow-primary);
   --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-rose-dark-accent-glow-secondary);
   --ds-color-theme-highlight-primary: var(--ds-color-theme-rose-dark-highlight-primary);
+  --ds-input-control-primary-background-color: var(--ds-color-theme-rose-dark-input-control-primary-background-color);
+  --ds-input-control-secondary-background-color: var(--ds-color-theme-rose-dark-input-control-secondary-background-color);
+  --ds-input-control-shadow-primary: var(--ds-color-theme-rose-dark-input-control-shadow-primary);
+  --ds-input-field-primary-background-color: var(--ds-color-theme-rose-dark-input-field-primary-background-color);
+  --ds-input-field-secondary-background-color: var(--ds-color-theme-rose-dark-input-field-secondary-background-color);
+  --ds-input-text-primary: var(--ds-color-theme-rose-dark-input-text-primary);
+  --ds-input-text-secondary: var(--ds-color-theme-rose-dark-input-text-secondary);
+  --ds-input-icons-primary: var(--ds-color-theme-rose-dark-input-icons-primary);
+  --ds-input-icons-secondary: var(--ds-color-theme-rose-dark-input-icons-secondary);
 }
 body[data-theme-variant=orange] {
   --default-light-background-color: var(--ds-color-theme-orange-light-surface-canvas);
@@ -2221,6 +2329,15 @@ body[data-theme-variant=orange] [data-theme=light] {
   --ds-color-theme-accent-glow-primary: var(--ds-color-theme-orange-light-accent-glow-primary);
   --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-orange-light-accent-glow-secondary);
   --ds-color-theme-highlight-primary: var(--ds-color-theme-orange-light-highlight-primary);
+  --ds-input-control-primary-background-color: var(--ds-color-theme-orange-light-input-control-primary-background-color);
+  --ds-input-control-secondary-background-color: var(--ds-color-theme-orange-light-input-control-secondary-background-color);
+  --ds-input-control-shadow-primary: var(--ds-color-theme-orange-light-input-control-shadow-primary);
+  --ds-input-field-primary-background-color: var(--ds-color-theme-orange-light-input-field-primary-background-color);
+  --ds-input-field-secondary-background-color: var(--ds-color-theme-orange-light-input-field-secondary-background-color);
+  --ds-input-text-primary: var(--ds-color-theme-orange-light-input-text-primary);
+  --ds-input-text-secondary: var(--ds-color-theme-orange-light-input-text-secondary);
+  --ds-input-icons-primary: var(--ds-color-theme-orange-light-input-icons-primary);
+  --ds-input-icons-secondary: var(--ds-color-theme-orange-light-input-icons-secondary);
 }
 body[data-theme-variant=orange][data-theme=dark],
 body[data-theme-variant=orange] [data-theme=dark] {
@@ -2267,6 +2384,15 @@ body[data-theme-variant=orange] [data-theme=dark] {
   --ds-color-theme-accent-glow-primary: var(--ds-color-theme-orange-dark-accent-glow-primary);
   --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-orange-dark-accent-glow-secondary);
   --ds-color-theme-highlight-primary: var(--ds-color-theme-orange-dark-highlight-primary);
+  --ds-input-control-primary-background-color: var(--ds-color-theme-orange-dark-input-control-primary-background-color);
+  --ds-input-control-secondary-background-color: var(--ds-color-theme-orange-dark-input-control-secondary-background-color);
+  --ds-input-control-shadow-primary: var(--ds-color-theme-orange-dark-input-control-shadow-primary);
+  --ds-input-field-primary-background-color: var(--ds-color-theme-orange-dark-input-field-primary-background-color);
+  --ds-input-field-secondary-background-color: var(--ds-color-theme-orange-dark-input-field-secondary-background-color);
+  --ds-input-text-primary: var(--ds-color-theme-orange-dark-input-text-primary);
+  --ds-input-text-secondary: var(--ds-color-theme-orange-dark-input-text-secondary);
+  --ds-input-icons-primary: var(--ds-color-theme-orange-dark-input-icons-primary);
+  --ds-input-icons-secondary: var(--ds-color-theme-orange-dark-input-icons-secondary);
 }
 body[data-theme-variant=desert] {
   --default-light-background-color: var(--ds-color-theme-desert-light-surface-canvas);
@@ -2317,6 +2443,15 @@ body[data-theme-variant=desert] [data-theme=light] {
   --ds-color-theme-accent-glow-primary: var(--ds-color-theme-desert-light-accent-glow-primary);
   --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-desert-light-accent-glow-secondary);
   --ds-color-theme-highlight-primary: var(--ds-color-theme-desert-light-highlight-primary);
+  --ds-input-control-primary-background-color: var(--ds-color-theme-desert-light-input-control-primary-background-color);
+  --ds-input-control-secondary-background-color: var(--ds-color-theme-desert-light-input-control-secondary-background-color);
+  --ds-input-control-shadow-primary: var(--ds-color-theme-desert-light-input-control-shadow-primary);
+  --ds-input-field-primary-background-color: var(--ds-color-theme-desert-light-input-field-primary-background-color);
+  --ds-input-field-secondary-background-color: var(--ds-color-theme-desert-light-input-field-secondary-background-color);
+  --ds-input-text-primary: var(--ds-color-theme-desert-light-input-text-primary);
+  --ds-input-text-secondary: var(--ds-color-theme-desert-light-input-text-secondary);
+  --ds-input-icons-primary: var(--ds-color-theme-desert-light-input-icons-primary);
+  --ds-input-icons-secondary: var(--ds-color-theme-desert-light-input-icons-secondary);
 }
 body[data-theme-variant=desert][data-theme=dark],
 body[data-theme-variant=desert] [data-theme=dark] {
@@ -2363,6 +2498,53 @@ body[data-theme-variant=desert] [data-theme=dark] {
   --ds-color-theme-accent-glow-primary: var(--ds-color-theme-desert-dark-accent-glow-primary);
   --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-desert-dark-accent-glow-secondary);
   --ds-color-theme-highlight-primary: var(--ds-color-theme-desert-dark-highlight-primary);
+  --ds-input-control-primary-background-color: var(--ds-color-theme-desert-dark-input-control-primary-background-color);
+  --ds-input-control-secondary-background-color: var(--ds-color-theme-desert-dark-input-control-secondary-background-color);
+  --ds-input-control-shadow-primary: var(--ds-color-theme-desert-dark-input-control-shadow-primary);
+  --ds-input-field-primary-background-color: var(--ds-color-theme-desert-dark-input-field-primary-background-color);
+  --ds-input-field-secondary-background-color: var(--ds-color-theme-desert-dark-input-field-secondary-background-color);
+  --ds-input-text-primary: var(--ds-color-theme-desert-dark-input-text-primary);
+  --ds-input-text-secondary: var(--ds-color-theme-desert-dark-input-text-secondary);
+  --ds-input-icons-primary: var(--ds-color-theme-desert-dark-input-icons-primary);
+  --ds-input-icons-secondary: var(--ds-color-theme-desert-dark-input-icons-secondary);
+}
+body[data-rebrand=true]:not([data-background-kind=default]) main[data-theme=light],
+body[data-rebrand=true]:not([data-background-kind=default]) .themeContext[data-theme=light] {
+  --ds-input-control-primary-background-color: var(--ds-color-theme-ntp-on-custom-background-light-input-control-primary-background-color);
+  --ds-input-control-secondary-background-color: var(--ds-color-theme-ntp-on-custom-background-light-input-control-secondary-background-color);
+  --ds-input-control-shadow-primary: var(--ds-color-theme-ntp-on-custom-background-light-input-control-shadow-primary);
+  --ds-input-field-primary-background-color: var(--ds-color-theme-ntp-on-custom-background-light-input-field-primary-background-color);
+  --ds-input-field-secondary-background-color: var(--ds-color-theme-ntp-on-custom-background-light-input-field-secondary-background-color);
+  --ds-input-text-primary: var(--ds-color-theme-ntp-on-custom-background-light-input-text-primary);
+  --ds-input-text-secondary: var(--ds-color-theme-ntp-on-custom-background-light-input-text-secondary);
+  --ds-input-icons-primary: var(--ds-color-theme-ntp-on-custom-background-light-input-icons-primary);
+  --ds-input-icons-secondary: var(--ds-color-theme-ntp-on-custom-background-light-input-icons-secondary);
+  --ds-color-theme-accent-alt-primary: var(--ds-color-theme-default-light-accent-alt-primary);
+  --ds-color-theme-accent-alt-secondary: var(--ds-color-theme-default-light-accent-alt-secondary);
+}
+body[data-rebrand=true]:not([data-background-kind=default]) main[data-theme=dark],
+body[data-rebrand=true]:not([data-background-kind=default]) .themeContext[data-theme=dark] {
+  --ds-input-control-primary-background-color: var(--ds-color-theme-ntp-on-custom-background-dark-input-control-primary-background-color);
+  --ds-input-control-secondary-background-color: var(--ds-color-theme-ntp-on-custom-background-dark-input-control-secondary-background-color);
+  --ds-input-control-shadow-primary: var(--ds-color-theme-ntp-on-custom-background-dark-input-control-shadow-primary);
+  --ds-input-field-primary-background-color: var(--ds-color-theme-ntp-on-custom-background-dark-input-field-primary-background-color);
+  --ds-input-field-secondary-background-color: var(--ds-color-theme-ntp-on-custom-background-dark-input-field-secondary-background-color);
+  --ds-input-text-primary: var(--ds-color-theme-ntp-on-custom-background-dark-input-text-primary);
+  --ds-input-text-secondary: var(--ds-color-theme-ntp-on-custom-background-dark-input-text-secondary);
+  --ds-input-icons-primary: var(--ds-color-theme-ntp-on-custom-background-dark-input-icons-primary);
+  --ds-input-icons-secondary: var(--ds-color-theme-ntp-on-custom-background-dark-input-icons-secondary);
+  --ds-color-theme-accent-alt-primary: var(--ds-color-theme-default-dark-accent-alt-primary);
+  --ds-color-theme-accent-alt-secondary: var(--ds-color-theme-default-dark-accent-alt-secondary);
+}
+body[data-rebrand=true]:not([data-background-kind=default]) main[data-theme=light],
+body[data-rebrand=true]:not([data-background-kind=default]) .themeContext[data-theme=light] {
+  --ds-color-theme-container-fill-secondary: var(--ds-color-theme-ntp-on-custom-background-light-container-fill-secondary);
+  --ds-color-theme-container-border-secondary: var(--ds-color-theme-ntp-on-custom-background-light-container-border-secondary);
+}
+body[data-rebrand=true]:not([data-background-kind=default]) main[data-theme=dark],
+body[data-rebrand=true]:not([data-background-kind=default]) .themeContext[data-theme=dark] {
+  --ds-color-theme-container-fill-secondary: var(--ds-color-theme-ntp-on-custom-background-dark-container-fill-secondary);
+  --ds-color-theme-container-border-secondary: var(--ds-color-theme-ntp-on-custom-background-dark-container-border-secondary);
 }
 
 /* ../node_modules/@duckduckgo/design-tokens/build/desktop-browsers/ntp.css */
@@ -2551,8 +2733,13 @@ body[data-rebrand=true] [data-has-theme-variants=true] {
 :is([data-background-kind=color], [data-background-kind=gradient], [data-background-kind=userImage]) [data-theme=dark] {
   --ntp-surface-background-color: var(--color-black-at-18);
 }
-:is(body[data-rebrand=true][data-background-kind=color], body[data-rebrand=true][data-background-kind=gradient], body[data-rebrand=true][data-background-kind=userImage]) [data-theme=dark] {
-  --ntp-surface-background-color: var(--ds-color-black-at-50, rgba(0, 0, 0, 0.5));
+body[data-rebrand=true]:not([data-background-kind=default]) main[data-theme=light],
+body[data-rebrand=true]:not([data-background-kind=default]) .themeContext[data-theme=light],
+body[data-rebrand=true]:not([data-background-kind=default]) main[data-theme=dark],
+body[data-rebrand=true]:not([data-background-kind=default]) .themeContext[data-theme=dark] {
+  --ntp-surface-background-color: var(--ds-color-theme-container-fill-secondary);
+  --ntp-surface-border-color: var(--ds-color-theme-container-border-secondary);
+  --ntp-surface-box-shadow: var(--ntp-card-shadow-rest);
 }
 [data-theme=light] {
   --focus-ring: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--color-black);
@@ -2773,8 +2960,6 @@ body[data-rebrand=true][data-platform-name=macos] {
   }
 }
 body[data-rebrand=true] .Customizer_customizeButton {
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
   background-color: var(--ds-color-theme-control-fill-primary);
   border: none;
   border-radius: var(--ds-radius-x06);
@@ -3220,6 +3405,7 @@ body[data-rebrand=true] .ShowHide_iconBlock {
   opacity: 0.8;
 }
 .Tile_draggable {
+  --dark-hover-bg: rgba(0, 0, 0, 0.24);
   -webkit-backdrop-filter: blur(48px);
   backdrop-filter: blur(48px);
   background: var(--ntp-surface-background-color);
@@ -3233,7 +3419,7 @@ body[data-rebrand=true] .ShowHide_iconBlock {
   border: 1px solid var(--color-white-at-9);
 }
 [data-theme=dark] .Tile_draggable:hover {
-  background: rgba(0, 0, 0, 0.24);
+  background: var(--dark-hover-bg);
 }
 [data-background-kind=userImage] .Tile_draggable {
   border: 1px solid var(--color-black-at-9);
@@ -3313,18 +3499,31 @@ body[data-rebrand=true] .Tile_draggable {
   justify-content: center;
   align-items: center;
   background: var(--ntp-surface-background-color);
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
   box-shadow: var(--ntp-card-shadow-rest);
 }
 body[data-rebrand=true] .Tile_draggable:hover {
   background: var(--ds-color-white-at-60, rgba(255, 255, 255, 0.6));
 }
 body[data-rebrand=true] [data-theme=dark] .Tile_draggable {
-  border: 1px solid var(--ds-ntp-dark-card-border-color);
+  border: none;
+  outline: 1px solid var(--ds-ntp-dark-card-border-color);
 }
 body[data-rebrand=true] [data-theme=dark] .Tile_draggable:hover {
-  background: var(--ds-color-theme-control-fill-secondary);
+  background: var(--dark-hover-bg);
+}
+body[data-rebrand=true]:not([data-background-kind=default]) .Tile_draggable {
+  background: var(--ds-color-theme-container-fill-secondary);
+  border: none;
+  outline: 1px solid var(--ds-color-theme-container-border-secondary);
+}
+body[data-rebrand=true]:not([data-background-kind=default]) .Tile_draggable:hover {
+  background: var(--ds-color-white-at-60, rgba(255, 255, 255, 0.6));
+}
+:is(body[data-rebrand=true]:not([data-background-kind=default]) main[data-theme=dark], body[data-rebrand=true]:not([data-background-kind=default]) .Tile_themeContext[data-theme=dark]) .Tile_draggable:hover {
+  background: var(--ds-color-theme-ntp-on-custom-background-dark-input-control-primary-background-color);
+}
+:is(body[data-rebrand=true]:not([data-background-kind=default]) main[data-theme=light], body[data-rebrand=true]:not([data-background-kind=default]) .Tile_themeContext[data-theme=light]) .Tile_draggable {
+  outline: none;
 }
 
 /* shared/components/FaviconWithState.module.css */
@@ -3859,6 +4058,14 @@ body:not([data-platform-name]) .Button_button:active:not(:disabled) {
   font-weight: 700;
   letter-spacing: normal;
 }
+body[data-rebrand=true] .NextSteps_card {
+  border: none;
+  outline: 1px solid var(--ntp-surface-border-color, var(--ds-color-theme-container-border-primary));
+  box-shadow: var(--ntp-card-shadow-rest);
+}
+body[data-rebrand=true] [data-theme=light] .NextSteps_card {
+  outline: none;
+}
 
 /* pages/new-tab/app/next-steps-list/components/NextStepsListCard.module.css */
 .NextStepsListCard_wrapper {
@@ -4091,7 +4298,8 @@ body[data-rebrand=true] .NextStepsListCard_card {
   background: var(--ntp-surface-background-color);
   -webkit-backdrop-filter: blur(48px);
   backdrop-filter: blur(48px);
-  border: 1px solid var(--ds-color-theme-container-border-primary);
+  border: none;
+  outline: 1px solid var(--ntp-surface-border-color, var(--ds-color-theme-container-border-primary));
   border-radius: var(--ds-radius-x06);
   box-shadow: var(--ntp-card-shadow-rest);
   gap: var(--ds-space-x04);
@@ -4100,7 +4308,10 @@ body[data-rebrand=true] .NextStepsListCard_card {
   padding-left: clamp(var(--ds-space-x05), 6vw, var(--ds-space-x10));
 }
 [data-theme=dark] :is(body[data-rebrand=true] .NextStepsListCard_card) {
-  border-color: var(--ds-ntp-dark-card-border-color);
+  outline-color: var(--ntp-surface-border-color, var(--ds-ntp-dark-card-border-color));
+}
+[data-theme=light] :is(body[data-rebrand=true] .NextStepsListCard_card) {
+  outline: none;
 }
 body[data-rebrand=true] .NextStepsListCard_cardContainer:has(.NextStepsListCard_backCard) > .NextStepsListCard_card:not(.NextStepsListCard_backCard, .NextStepsListCard_dismissing, .NextStepsListCard_promoting) {
   box-shadow: 0 2px 8px 0 var(--ds-color-theme-shadow-secondary);
@@ -4239,6 +4450,10 @@ body[data-rebrand=true][data-platform-name=windows] .NextStepsListCard_buttonRow
 .AiChatForm_textarea:focus {
   outline: none;
 }
+.AiChatForm_textarea[readonly] {
+  color: color-mix(in srgb, var(--ds-color-theme-text-primary) 55%, transparent);
+  cursor: default;
+}
 .AiChatForm_hasScroll .AiChatForm_textarea {
   border-bottom: 1px solid var(--ds-color-theme-surface-decoration-tertiary);
   padding-bottom: var(--sp-3);
@@ -4299,6 +4514,10 @@ body[data-rebrand=true][data-platform-name=windows] .NextStepsListCard_buttonRow
 .AiChatForm_submitButton:has(.AiChatForm_voiceIcon):active:not([disabled]) {
   background: var(--ds-color-theme-control-fill-tertiary);
 }
+.AiChatForm_submitButton:has(.AiChatForm_voiceIcon)[disabled] {
+  background: none;
+  color: color-mix(in srgb, var(--ds-color-theme-icons-primary) 30%, transparent);
+}
 @keyframes AiChatForm_fadeIn {
   from {
     opacity: 0;
@@ -4330,7 +4549,7 @@ body[data-rebrand=true] .AiChatForm_buttons {
   position: relative;
 }
 .Omnibar_placeholderTabs {
-  height: calc(var(--sp-8) + var(--sp-0_5) * 2);
+  height: calc(var(--sp-7) + var(--sp-0_5) * 2);
 }
 .Omnibar_popover {
   --popover-offset-x: 7px;
@@ -4352,6 +4571,8 @@ body[data-rebrand=true] .AiChatForm_buttons {
   display: flow-root;
   margin: 3px;
   outline: 1px solid var(--ds-color-theme-control-raised-backdrop);
+  position: relative;
+  z-index: 1;
 }
 [data-background-kind=color] [data-theme=light] .Omnibar_popup,
 [data-background-kind=gradient] [data-theme=light] .Omnibar_popup,
@@ -4375,17 +4596,17 @@ body[data-rebrand=true] .AiChatForm_buttons {
 .Omnibar_root:has(input:focus, textarea:focus):not(:has([data-attach-tabs-modal])) .Omnibar_popup {
   box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.1), 0 20px 40px 0 rgba(0, 0, 0, 0.08);
 }
-.Omnibar_root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-attachment-warning], [data-attach-tabs-modal])) .Omnibar_popup {
+.Omnibar_root:not([data-mode=ai]):has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-attachment-warning], [data-attach-tabs-modal])) .Omnibar_popup {
   border-radius: 15px;
   border: 2px solid var(--ds-color-theme-accent-primary);
   box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.1), 0 20px 40px 0 rgba(0, 0, 0, 0.08);
   margin: 0;
   outline: 2px solid var(--ds-color-theme-accent-glow-primary);
 }
-.Omnibar_root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-attachment-warning], [data-attach-tabs-modal])) .Omnibar_popup .Omnibar_field {
+.Omnibar_root:not([data-mode=ai]):has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-attachment-warning], [data-attach-tabs-modal])) .Omnibar_popup .Omnibar_field {
   margin: 1px;
 }
-.Omnibar_root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-attachment-warning], [data-attach-tabs-modal])) .Omnibar_popup .Omnibar_aiChatsList {
+.Omnibar_root:not([data-mode=ai]):has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-attachment-warning], [data-attach-tabs-modal])) .Omnibar_popup .Omnibar_aiChatsList {
   margin-left: -2px;
   margin-right: -2px;
   margin-top: 3px;
@@ -4410,11 +4631,11 @@ body[data-rebrand=true] .AiChatForm_buttons {
   order: -1;
   padding: var(--sp-2) var(--sp-3) 0;
 }
-.Omnibar_root:has([data-omnibar-list]) .Omnibar_popup {
+.Omnibar_root:not([data-mode=ai]):has([data-omnibar-list]) .Omnibar_popup {
   border-radius: 15px;
   margin: 0;
 }
-.Omnibar_root:has([data-omnibar-list]) .Omnibar_popup .Omnibar_field {
+.Omnibar_root:not([data-mode=ai]):has([data-omnibar-list]) .Omnibar_popup .Omnibar_field {
   margin: 3px;
 }
 .Omnibar_field {
@@ -4437,6 +4658,9 @@ body[data-rebrand=true] .AiChatForm_buttons {
   position: absolute;
   z-index: 2;
 }
+body[data-rebrand=true] {
+  --keyboard-focus-ring: 0 0 0 0 transparent;
+}
 body[data-rebrand=true] .Omnibar_root {
   --omnibar-radius: var(--ds-radius-x06);
 }
@@ -4444,23 +4668,89 @@ body[data-rebrand=true] .Omnibar_root[data-mode=search] .Omnibar_spacer {
   height: calc(var(--ds-space-x10) + 3px * 2);
 }
 body[data-rebrand=true] .Omnibar_popup,
-body[data-rebrand=true] .Omnibar_root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-attachment-warning])) .Omnibar_popup,
+body[data-rebrand=true] .Omnibar_root:not([data-mode=ai]):has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-attachment-warning])) .Omnibar_popup,
 body[data-rebrand=true] .Omnibar_root:has([data-attachment-warning]) .Omnibar_popup,
-body[data-rebrand=true] .Omnibar_root:has([data-omnibar-list]) .Omnibar_popup {
+body[data-rebrand=true] .Omnibar_root:not([data-mode=ai]):has([data-omnibar-list]) .Omnibar_popup {
   border-radius: var(--omnibar-radius);
 }
+body[data-rebrand=true] .Omnibar_popup[data-keyboard-focus-within] {
+  --keyboard-focus-ring: var(--focus-ring);
+}
+body[data-rebrand=true] .Omnibar_root:has(input:focus, textarea:focus):not(:has([data-attach-tabs-modal])) .Omnibar_popup {
+  box-shadow: var(--omnibar-box-shadow-focused), var(--keyboard-focus-ring);
+}
+body[data-rebrand=true] .Omnibar_root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-attachment-warning], [data-attach-tabs-modal])) .Omnibar_popup {
+  border: none;
+  box-shadow: var(--omnibar-box-shadow-focused), var(--keyboard-focus-ring);
+  margin: 3px;
+  outline: none;
+}
+body[data-rebrand=true] .Omnibar_root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-attachment-warning], [data-attach-tabs-modal])) .Omnibar_popup .Omnibar_field {
+  margin: 0;
+}
+body[data-rebrand=true] .Omnibar_root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-attachment-warning], [data-attach-tabs-modal])) .Omnibar_popup .Omnibar_aiChatsList {
+  margin-left: 0;
+  margin-right: 0;
+  margin-top: 0;
+}
 body[data-rebrand=true] [data-theme] .Omnibar_popup {
+  --omnibar-border-color: var(--ds-color-theme-container-border-secondary);
+  --omnibar-box-shadow-focused:
+    0 10px 20px 0 rgba(0, 0, 0, 0.06),
+    0 2px 6px 0 rgba(0, 0, 0, 0.06),
+    0 0 0 1px var(--omnibar-border-color);
   box-shadow:
     0 10px 20px 0 rgba(0, 0, 0, 0.02),
     0 2px 6px 0 rgba(0, 0, 0, 0.06),
     0 0 0 1px var(--ds-color-theme-container-border-secondary);
   outline: none;
 }
-body[data-rebrand=true] [data-theme=dark] .Omnibar_popup {
+body[data-rebrand=true] main[data-theme=dark] .Omnibar_popup,
+body[data-rebrand=true] .themeContext[data-theme=dark] .Omnibar_popup {
+  --omnibar-border-color: var(--ds-ntp-dark-card-border-color);
   box-shadow:
     0 10px 20px 0 rgba(0, 0, 0, 0.02),
     0 2px 6px 0 rgba(0, 0, 0, 0.06),
     0 0 0 1px var(--ds-ntp-dark-card-border-color);
+}
+body[data-rebrand=true]:not([data-background-kind=default]) .Omnibar_popup {
+  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
+  background: var(--ds-input-field-primary-background-color);
+}
+body[data-rebrand=true]:not([data-background-kind=default]) main[data-theme=light] .Omnibar_popup,
+body[data-rebrand=true]:not([data-background-kind=default]) .themeContext[data-theme=light] .Omnibar_popup {
+  box-shadow:
+    0 10px 20px 0 rgba(0, 0, 0, 0.02),
+    0 2px 6px 0 rgba(0, 0, 0, 0.08),
+    0 0 0 1px var(--ds-color-black-at-6, rgba(0, 0, 0, 0.06));
+}
+body[data-rebrand=true]:not([data-background-kind=default]) main[data-theme=dark] .Omnibar_popup,
+body[data-rebrand=true]:not([data-background-kind=default]) .themeContext[data-theme=dark] .Omnibar_popup {
+  box-shadow:
+    0 10px 20px 0 rgba(0, 0, 0, 0.04),
+    0 2px 6px 0 rgba(0, 0, 0, 0.1),
+    0 0 0 1px var(--ds-color-white-at-36, rgba(255, 255, 255, 0.36));
+}
+body[data-rebrand=true]:not([data-background-kind=default]) main[data-theme=light] .Omnibar_root:has(input:focus, textarea:focus):not(:has([data-attach-tabs-modal])) .Omnibar_popup,
+body[data-rebrand=true]:not([data-background-kind=default]) main[data-theme=light] .Omnibar_root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-attachment-warning], [data-attach-tabs-modal])) .Omnibar_popup,
+body[data-rebrand=true]:not([data-background-kind=default]) .themeContext[data-theme=light] .Omnibar_root:has(input:focus, textarea:focus):not(:has([data-attach-tabs-modal])) .Omnibar_popup,
+body[data-rebrand=true]:not([data-background-kind=default]) .themeContext[data-theme=light] .Omnibar_root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-attachment-warning], [data-attach-tabs-modal])) .Omnibar_popup {
+  box-shadow:
+    0 10px 20px 0 rgba(0, 0, 0, 0.02),
+    0 2px 6px 0 rgba(0, 0, 0, 0.08),
+    0 0 0 1px var(--ds-color-black-at-6, rgba(0, 0, 0, 0.06)),
+    var(--keyboard-focus-ring);
+}
+body[data-rebrand=true]:not([data-background-kind=default]) main[data-theme=dark] .Omnibar_root:has(input:focus, textarea:focus):not(:has([data-attach-tabs-modal])) .Omnibar_popup,
+body[data-rebrand=true]:not([data-background-kind=default]) main[data-theme=dark] .Omnibar_root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-attachment-warning], [data-attach-tabs-modal])) .Omnibar_popup,
+body[data-rebrand=true]:not([data-background-kind=default]) .themeContext[data-theme=dark] .Omnibar_root:has(input:focus, textarea:focus):not(:has([data-attach-tabs-modal])) .Omnibar_popup,
+body[data-rebrand=true]:not([data-background-kind=default]) .themeContext[data-theme=dark] .Omnibar_root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-attachment-warning], [data-attach-tabs-modal])) .Omnibar_popup {
+  box-shadow:
+    0 10px 20px 0 rgba(0, 0, 0, 0.04),
+    0 2px 6px 0 rgba(0, 0, 0, 0.1),
+    0 0 0 1px var(--ds-color-white-at-36, rgba(255, 255, 255, 0.36)),
+    var(--keyboard-focus-ring);
 }
 
 /* pages/new-tab/app/omnibar/components/SearchForm.module.css */
@@ -4550,6 +4840,9 @@ body[data-rebrand=true] .SearchForm_form {
 body[data-rebrand=true] .SearchForm_input {
   padding-block: 7px;
   padding-inline: var(--ds-space-x05) var(--ds-space-x10);
+}
+body[data-rebrand=true] .SearchForm_input::placeholder {
+  color: var(--ds-color-theme-text-secondary);
 }
 body[data-rebrand=true] .SearchForm_suffix {
   color: var(--ds-color-theme-accent-text-primary);
@@ -4884,7 +5177,7 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
   cursor: pointer;
   display: flex;
   gap: 6px;
-  height: var(--sp-8);
+  height: var(--sp-7);
   justify-content: center;
   padding: 0 var(--sp-3);
   position: relative;
@@ -4912,7 +5205,7 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
     0 1px 0 0 var(--ds-color-theme-tone-tint-primary) inset,
     0 1px 4px 0 var(--ds-color-theme-shadow-secondary),
     0 4px 8px 0 var(--ds-color-theme-shadow-secondary);
-  height: var(--sp-8);
+  height: var(--sp-7);
   left: 0;
   position: absolute;
   top: 2px;
@@ -4934,7 +5227,7 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
   }
 }
 body[data-rebrand=true] .TabSwitcher_tabSwitcher {
-  background: var(--ds-color-theme-control-fill-primary);
+  background: var(--ds-input-control-secondary-background-color);
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
@@ -4947,8 +5240,18 @@ body[data-rebrand=true] .TabSwitcher_tab:hover:not([aria-selected=true])::before
 body[data-rebrand=true] .TabSwitcher_tabLabel {
   padding-top: 0;
 }
-[data-theme=dark] :is(body[data-rebrand=true] .TabSwitcher_blob) {
-  box-shadow: none;
+body[data-rebrand=true] .TabSwitcher_blob {
+  background: var(--ds-input-control-primary-background-color);
+  box-shadow: 0 0 0 1px var(--ds-input-control-shadow-primary);
+}
+body[data-rebrand=true]:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
+  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
+  background: var(--ds-input-control-secondary-background-color);
+}
+body[data-rebrand=true]:not([data-background-kind=default]) .TabSwitcher_blob {
+  background: var(--ds-input-control-primary-background-color);
+  box-shadow: 0 0 0 1px var(--ds-input-control-shadow-primary);
 }
 
 /* pages/new-tab/app/omnibar/components/chat-tools/image-attachment/ImageAttachment.module.css */
@@ -5419,6 +5722,11 @@ body[data-rebrand=true] .TabSwitcher_tabLabel {
 .ModelSelector_modelButton:focus-visible {
   box-shadow: var(--focus-ring);
 }
+.ModelSelector_modelButton:disabled {
+  color: color-mix(in srgb, var(--ds-color-theme-text-primary) 30%, transparent);
+  cursor: default;
+  pointer-events: none;
+}
 .ModelSelector_modelButtonOpen {
   background: var(--ds-color-theme-control-fill-secondary);
   color: var(--ds-color-theme-text-primary);
@@ -5563,6 +5871,11 @@ body[data-rebrand=true] .TabSwitcher_tabLabel {
 .ReasoningPicker_reasoningButton:focus-visible {
   box-shadow: var(--focus-ring);
 }
+.ReasoningPicker_reasoningButton:disabled {
+  color: color-mix(in srgb, var(--ds-color-theme-text-primary) 30%, transparent);
+  cursor: default;
+  pointer-events: none;
+}
 .ReasoningPicker_reasoningButtonOpen {
   background: var(--ds-color-theme-control-fill-secondary);
   color: var(--ds-color-theme-text-primary);
@@ -5613,6 +5926,11 @@ body[data-rebrand=true] .TabSwitcher_tabLabel {
 .ToolsMenu_toolsButton:focus-visible {
   box-shadow: var(--focus-ring);
 }
+.ToolsMenu_toolsButton:disabled {
+  color: color-mix(in srgb, var(--ds-color-theme-icons-primary) 30%, transparent);
+  cursor: default;
+  pointer-events: none;
+}
 .ToolsMenu_toolsButtonCollapsed {
   background: var(--ds-color-theme-control-fill-primary);
   border-radius: 100%;
@@ -5646,6 +5964,11 @@ body[data-rebrand=true] .TabSwitcher_tabLabel {
 }
 .ToolsMenu_activeToolChip:focus-visible {
   box-shadow: var(--focus-ring);
+}
+.ToolsMenu_activeToolChip:disabled {
+  color: color-mix(in srgb, var(--ds-color-theme-text-primary) 30%, transparent);
+  cursor: default;
+  pointer-events: none;
 }
 .ToolsMenu_chipLabel {
   font-weight: 400;
@@ -6328,6 +6651,220 @@ body[data-rebrand=true] .TabSwitcher_tabLabel {
   white-space: nowrap;
 }
 
+/* pages/new-tab/app/omnibar/components/UsageLimitsDrawer.module.css */
+.UsageLimitsDrawer_drawer {
+  margin: -32px 3px 0;
+  position: relative;
+  z-index: 0;
+  animation: UsageLimitsDrawer_slideOpen 400ms cubic-bezier(0.33, 1, 0.68, 1) 100ms both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .UsageLimitsDrawer_drawer {
+    animation: none;
+  }
+}
+.UsageLimitsDrawer_hidden {
+  display: none;
+}
+@keyframes UsageLimitsDrawer_slideOpen {
+  from {
+    transform: translateY(calc(-100% + 32px));
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+.UsageLimitsDrawer_card {
+  background: var(--ds-color-theme-surface-secondary);
+  border-radius: 0 0 12px 12px;
+  box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.1), 0 4px 8px 0 rgba(0, 0, 0, 0.08);
+  padding-top: 32px;
+}
+[data-background-kind=color] [data-theme=light] .UsageLimitsDrawer_card,
+[data-background-kind=gradient] [data-theme=light] .UsageLimitsDrawer_card,
+[data-background-kind=userImage] [data-theme=light] .UsageLimitsDrawer_card {
+  -webkit-backdrop-filter: blur(48px);
+  backdrop-filter: blur(48px);
+  background: rgba(255, 255, 255, 0.54);
+}
+[data-background-kind=color] [data-theme=dark] .UsageLimitsDrawer_card,
+[data-background-kind=gradient] [data-theme=dark] .UsageLimitsDrawer_card {
+  -webkit-backdrop-filter: blur(48px);
+  backdrop-filter: blur(48px);
+  background: rgba(255, 255, 255, 0.12);
+}
+[data-background-kind=userImage] [data-theme=dark] .UsageLimitsDrawer_card {
+  -webkit-backdrop-filter: blur(48px);
+  backdrop-filter: blur(48px);
+  background: rgba(0, 0, 0, 0.3);
+}
+.UsageLimitsDrawer_content {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  min-height: 42px;
+  padding: 4px 12px 8px 16px;
+}
+.UsageLimitsDrawer_leading {
+  display: grid;
+  flex-shrink: 0;
+  height: 16px;
+  place-items: center;
+  width: 16px;
+}
+.UsageLimitsDrawer_glyph {
+  display: block;
+  grid-area: 1 / 1;
+  height: 16px;
+  overflow: visible;
+  width: 16px;
+}
+.UsageLimitsDrawer_info .info-icon-fill {
+  fill: var(--ds-color-theme-icons-secondary);
+  fill-opacity: 1;
+}
+.UsageLimitsDrawer_ringTrack {
+  stroke: var(--ds-color-theme-control-fill-primary);
+}
+.UsageLimitsDrawer_ringValue {
+  stroke: #21c000;
+}
+.UsageLimitsDrawer_severity_neutral .UsageLimitsDrawer_ringValue {
+  stroke: #21c000;
+}
+.UsageLimitsDrawer_severity_warning .UsageLimitsDrawer_ringValue {
+  stroke: #f5a031;
+}
+.UsageLimitsDrawer_severity_critical .UsageLimitsDrawer_ringValue {
+  stroke: #ea0f2c;
+}
+.UsageLimitsDrawer_alertTriangle {
+  fill: #ea0f2c;
+}
+.UsageLimitsDrawer_alertMark {
+  fill: var(--ds-color-theme-accent-content-primary, #fff);
+}
+.UsageLimitsDrawer_message {
+  color: var(--ds-color-theme-text-primary);
+  flex: 1;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+  margin: 0;
+  min-width: 0;
+}
+.UsageLimitsDrawer_primary {
+  font-weight: 400;
+}
+.UsageLimitsDrawer_messageEmphasized .UsageLimitsDrawer_primary {
+  font-weight: 600;
+}
+.UsageLimitsDrawer_secondary {
+  color: var(--ds-color-theme-text-secondary);
+  font-weight: 400;
+}
+.UsageLimitsDrawer_dismiss {
+  border-radius: 50%;
+  flex-shrink: 0;
+  height: 24px;
+  position: relative;
+  width: 24px;
+}
+.UsageLimitsDrawer_ctaSplit {
+  align-items: center;
+  display: flex;
+  flex-shrink: 0;
+  height: var(--sp-7);
+}
+.UsageLimitsDrawer_ctaPrimary {
+  align-items: center;
+  background: var(--ds-color-theme-control-fill-primary);
+  border: none;
+  color: var(--ds-color-theme-text-primary);
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 13px;
+  font-weight: 400;
+  gap: var(--sp-1);
+  height: var(--sp-7);
+  padding: 0 12px;
+  white-space: nowrap;
+}
+.UsageLimitsDrawer_ctaPrimary:hover {
+  background: var(--ds-color-theme-control-fill-secondary);
+}
+.UsageLimitsDrawer_ctaPrimary:active {
+  background: var(--ds-color-theme-control-fill-tertiary);
+}
+.UsageLimitsDrawer_ctaPrimarySolo {
+  border-radius: 16px;
+}
+.UsageLimitsDrawer_ctaPrimarySplit {
+  border-radius: 16px 0 0 16px;
+}
+.UsageLimitsDrawer_ctaMenu {
+  align-items: center;
+  background: var(--ds-color-theme-control-fill-primary);
+  border: none;
+  border-left: 1px solid var(--ds-color-theme-container-border-primary);
+  border-radius: 0 16px 16px 0;
+  color: var(--ds-color-theme-text-primary);
+  cursor: pointer;
+  display: inline-flex;
+  height: var(--sp-7);
+  justify-content: center;
+  padding: 0;
+  width: var(--sp-7);
+}
+.UsageLimitsDrawer_ctaMenu:hover {
+  background: var(--ds-color-theme-control-fill-secondary);
+  border-left-color: transparent;
+}
+.UsageLimitsDrawer_ctaMenu:active {
+  background: var(--ds-color-theme-control-fill-tertiary);
+  border-left-color: transparent;
+}
+.UsageLimitsDrawer_ctaMenu svg {
+  display: block;
+}
+.UsageLimitsDrawer_ctaLabel {
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.UsageLimitsDrawer_ctaMenuHeader {
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 14px;
+  padding: 0 6px;
+  white-space: nowrap;
+}
+.UsageLimitsDrawer_ctaDropdown {
+  min-width: 200px;
+  width: 200px;
+}
+.UsageLimitsDrawer_ctaModelName {
+  font-weight: 600;
+}
+.UsageLimitsDrawer_ctaModelVariant {
+  font-weight: 400;
+}
+.UsageLimitsDrawer_convertIcon {
+  flex-shrink: 0;
+}
+body[data-rebrand=true] .UsageLimitsDrawer_card {
+  border-radius: 0 0 var(--ds-radius-x06) var(--ds-radius-x06);
+  box-shadow: 0 10px 20px 0 rgba(0, 0, 0, 0.02), 0 2px 6px 0 rgba(0, 0, 0, 0.06);
+}
+body[data-rebrand=true] [data-theme=dark] .UsageLimitsDrawer_card {
+  box-shadow: 0 10px 20px 0 rgba(0, 0, 0, 0.02), 0 2px 6px 0 rgba(0, 0, 0, 0.06);
+}
+body[data-rebrand=true] .UsageLimitsDrawer_dismiss {
+  border-radius: 50%;
+  height: 24px;
+  width: 24px;
+}
+
 /* pages/new-tab/app/protections/components/Protections.module.css */
 .Protections_root {
   background: var(--ntp-surface-background-color);
@@ -6428,6 +6965,8 @@ body[data-rebrand=true] .TabSwitcher_tabLabel {
   background: rgba(255, 255, 255, 0.25);
 }
 body[data-rebrand=true] .Protections_root {
+  border: none;
+  outline: 1px solid var(--ntp-surface-border-color, var(--ds-color-theme-container-border-primary));
   border-radius: var(--ds-radius-x06);
   box-shadow: var(--ntp-card-shadow-rest);
 }
@@ -6435,8 +6974,8 @@ body[data-rebrand=true] .Protections_body {
   overflow: visible;
 }
 body[data-rebrand=true] .Protections_switcher {
-  background: var(--ds-color-theme-control-fill-primary);
-  border: 1px solid var(--ds-color-theme-container-border-primary);
+  background: var(--ds-input-control-secondary-background-color);
+  border: none;
   border-radius: var(--ds-radius-full);
   padding: var(--ds-space-x-5);
   position: relative;
@@ -6455,12 +6994,9 @@ body[data-rebrand=true] .Protections_button {
   z-index: 1;
 }
 body[data-rebrand=true] .Protections_blob {
-  background-color: var(--ds-color-theme-control-raised-fill-primary);
+  background-color: var(--ds-input-control-primary-background-color);
   border-radius: var(--ds-radius-full);
-  box-shadow:
-    0 1px 0 0 var(--ds-color-theme-tone-tint-primary) inset,
-    0 1px 4px 0 var(--ds-color-theme-shadow-secondary),
-    0 4px 8px 0 var(--ds-color-theme-shadow-secondary);
+  box-shadow: 0 0 0 1px var(--ds-input-control-shadow-primary);
   height: calc(100% - var(--ds-space-x-5) * 2);
   left: var(--ds-space-x-5);
   position: absolute;
@@ -6479,15 +7015,24 @@ body[data-rebrand=true] .Protections_active {
   background: transparent;
   border: 0;
 }
+body[data-rebrand=true] [data-theme=light] .Protections_root {
+  outline: none;
+}
 body[data-rebrand=true] [data-theme=dark] .Protections_root {
-  border-color: var(--ds-ntp-dark-card-border-color);
+  outline-color: var(--ntp-surface-border-color, var(--ds-ntp-dark-card-border-color));
 }
 body[data-rebrand=true] [data-theme=dark] .Protections_blob {
   box-shadow: none;
 }
-body[data-rebrand=true]:not([data-background-kind=default]) .Protections_switcher {
-  -webkit-backdrop-filter: blur(48px);
-  backdrop-filter: blur(48px);
+body[data-rebrand=true] [data-theme=dark] .Protections_active {
+  background: transparent;
+}
+body[data-rebrand=true]:not([data-background-kind=default]) .Protections_blob {
+  background: var(--ds-input-control-primary-background-color);
+  box-shadow: 0 0 0 1px var(--ds-input-control-shadow-primary);
+}
+:is(body[data-rebrand=true]:not([data-background-kind=default], [data-wallpaper-near-black-or-white=light]) main[data-theme=light], body[data-rebrand=true]:not([data-background-kind=default], [data-wallpaper-near-black-or-white=light]) .Protections_themeContext[data-theme=light]) .Protections_switcher {
+  background: rgba(0, 0, 0, 0.17);
 }
 body[data-rebrand=true][data-platform-name=windows] .Protections_button {
   font-size: var(--body-font-size);
@@ -6775,6 +7320,18 @@ body[data-rebrand=true] .PrivacyStats_fill {
   height: calc(16 * var(--px-in-rem));
   background: var(--ds-color-theme-control-fill-secondary);
 }
+body[data-rebrand=true]:not([data-background-kind=default]) .PrivacyStats_bar {
+  background: var(--ds-color-theme-default-light-control-fill-primary);
+}
+body[data-rebrand=true]:not([data-background-kind=default]) .PrivacyStats_fill {
+  background: var(--ds-color-theme-default-light-control-fill-secondary);
+}
+:is(body[data-rebrand=true]:not([data-background-kind=default]) main[data-theme=dark], body[data-rebrand=true]:not([data-background-kind=default]) .PrivacyStats_themeContext[data-theme=dark]) .PrivacyStats_bar {
+  background: var(--ds-color-theme-default-dark-control-fill-primary);
+}
+:is(body[data-rebrand=true]:not([data-background-kind=default]) main[data-theme=dark], body[data-rebrand=true]:not([data-background-kind=default]) .PrivacyStats_themeContext[data-theme=dark]) .PrivacyStats_fill {
+  background: var(--ds-color-theme-default-dark-control-fill-secondary);
+}
 
 /* pages/new-tab/app/components/Tooltip/Tooltip.module.css */
 .Tooltip_tooltipContainer {
@@ -7051,6 +7608,16 @@ body[data-rebrand=true] .Activity_favicon {
     0 0.25px 1px 0 rgba(0, 0, 0, 0.08),
     0 1px 4px 0 rgba(0, 0, 0, 0.06),
     0 0.5px 2px 0 rgba(0, 0, 0, 0.04);
+}
+body[data-rebrand=true] .Activity_icon {
+  width: 28px;
+  height: 28px;
+}
+body[data-rebrand=true] .Activity_controlIcon {
+  background-color: transparent;
+}
+body[data-rebrand=true] .Activity_controlIcon:hover {
+  background-color: var(--ds-color-theme-control-fill-secondary);
 }
 .Activity_title {
   font-size: var(--title-3-em-font-size);
@@ -7625,6 +8192,8 @@ body[data-rebrand=true] .TickPill_text {
   }
 }
 body[data-rebrand=true] .RemoteMessagingFramework_root {
+  border: none;
+  outline: 1px solid var(--ntp-surface-border-color, var(--ds-color-theme-container-border-primary));
   border-radius: var(--ds-radius-x05);
   box-shadow: var(--ntp-card-shadow-rest);
   padding: var(--ds-space-x05) var(--ds-space-x10) var(--ds-space-x05) var(--ds-space-x04);
@@ -7660,7 +8229,10 @@ body[data-rebrand=true] .RemoteMessagingFramework_btnBlock .RemoteMessagingFrame
   --button-text: var(--ds-color-theme-text-primary);
 }
 body[data-rebrand=true] [data-theme=dark] .RemoteMessagingFramework_root {
-  border-color: var(--ds-ntp-dark-card-border-color);
+  outline-color: var(--ntp-surface-border-color, var(--ds-ntp-dark-card-border-color));
+}
+body[data-rebrand=true] [data-theme=light] .RemoteMessagingFramework_root {
+  outline: none;
 }
 
 /* pages/new-tab/app/freemium-pir-banner/components/FreemiumPIRBanner.module.css */
@@ -7734,12 +8306,17 @@ body[data-rebrand=true] [data-theme=dark] .RemoteMessagingFramework_root {
   }
 }
 body[data-rebrand=true] .FreemiumPIRBanner_root {
+  border: none;
+  outline: 1px solid var(--ntp-surface-border-color, var(--ds-color-theme-container-border-primary));
   border-radius: var(--ds-radius-x05);
   box-shadow: var(--ntp-card-shadow-rest);
   padding: var(--ds-space-x05) var(--ds-space-x10) var(--ds-space-x05) var(--ds-space-x04);
 }
 body[data-rebrand=true] .FreemiumPIRBanner_root.FreemiumPIRBanner_icon {
   padding-left: var(--ds-space-x04);
+}
+body[data-rebrand=true] [data-theme=light] .FreemiumPIRBanner_root {
+  outline: none;
 }
 body[data-rebrand=true] .FreemiumPIRBanner_title {
   font-size: var(--ds-font-body-md-size);
