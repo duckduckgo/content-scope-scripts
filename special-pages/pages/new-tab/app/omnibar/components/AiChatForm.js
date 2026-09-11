@@ -93,15 +93,6 @@ export function AiChatForm({
 
     /** @type {(event: KeyboardEvent) => void} */
     const handleKeyDown = (event) => {
-        if (readOnly) {
-            // Allow Escape to clear recent-chat selection; block everything else.
-            if (event.key === 'Escape' && (selectedChat || viewAllChatsSelected)) {
-                event.preventDefault();
-                clearSelectedChat();
-            }
-            return;
-        }
-
         // Let the parent claim keys first (e.g. arrow keys → mention picker); skip ours if it does.
         const result = onTextareaKeyDown?.(event);
         if (result?.handled) return;
@@ -145,7 +136,7 @@ export function AiChatForm({
                     break;
                 }
 
-                if (disabled) {
+                if (disabled || readOnly) {
                     break;
                 }
 
