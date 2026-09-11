@@ -211,22 +211,23 @@ export function ChatsSidePanel({ open }) {
                 </div>
 
                 {/* Presentational for now: the rail mirrors Duck.ai's layout, but starting a
-                    new chat, voice chat or image from here isn't wired up yet. */}
+                    new chat, voice chat or image from here isn't wired up yet. Kept out of the
+                    tab order and marked aria-disabled so nobody can activate a dead control. */}
                 <ul class={styles.actions}>
                     <li>
-                        <button type="button" class={styles.action} tabIndex={tabIndex}>
+                        <button type="button" class={styles.action} tabIndex={-1} aria-disabled="true">
                             <NewChat />
                             <span>{t('omnibar_chatsSidePanelNewChat')}</span>
                         </button>
                     </li>
                     <li>
-                        <button type="button" class={styles.action} tabIndex={tabIndex}>
+                        <button type="button" class={styles.action} tabIndex={-1} aria-disabled="true">
                             <VoiceIcon />
                             <span>{t('omnibar_chatsSidePanelNewVoiceChat')}</span>
                         </button>
                     </li>
                     <li>
-                        <button type="button" class={styles.action} tabIndex={tabIndex}>
+                        <button type="button" class={styles.action} tabIndex={-1} aria-disabled="true">
                             <ImageIcon />
                             <span>{t('omnibar_chatsSidePanelNewImage')}</span>
                         </button>
