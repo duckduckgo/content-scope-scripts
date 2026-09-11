@@ -62,6 +62,11 @@ export class DuckPlayerNativeFeature extends ContentFeature {
         let initialSetup;
 
         try {
+            // Pre-existing exception to `no-blocking-init-request`: this feature is
+            // bundled only for the native Duck Player platforms, which all implement
+            // this handler, and the page setup below needs its response. Do not copy
+            // this into new features - see injected/docs/features-guide.md#red-flags-in-init.
+            // eslint-disable-next-line ddg-local/no-blocking-init-request
             initialSetup = await messages.initialSetup();
         } catch (e) {
             console.warn('Failed to get initial setup', e);
