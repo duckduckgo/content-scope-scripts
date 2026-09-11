@@ -6,7 +6,7 @@ import ContentFeature from '../content-feature.js';
 // eslint-disable-next-line no-redeclare
 import { URL } from '../captured-globals.js';
 import { DDGProxy, DDGReflect } from '../utils.js';
-import { maskMethodIdentity, wrapToString, wrapFunction } from '../wrapper-utils.js';
+import { wrapToString, wrapFunction } from '../wrapper-utils.js';
 /**
  * Fixes incorrect sizing value for outerHeight and outerWidth.
  * Note: Avoid hardcoding window geometry values - use calculations or config where possible.
@@ -844,7 +844,7 @@ export class WebCompat extends ContentFeature {
     wrapPasskeyMethod(proto, methodName) {
         // eslint-disable-next-line @typescript-eslint/no-this-alias
         const feature = this;
-        const origDescriptor = this.wrapMethod(proto, methodName, function (originalFn, ...args) {
+        this.wrapMethod(proto, methodName, function (originalFn, ...args) {
             // Always call through with the original arguments/receiver first: the page
             // must see exactly the same behaviour, return value, and timing as native.
             const result = originalFn.apply(this, args);
@@ -858,7 +858,6 @@ export class WebCompat extends ContentFeature {
             }
             return result;
         });
-        maskMethodIdentity(proto, methodName, origDescriptor);
     }
 
     /**

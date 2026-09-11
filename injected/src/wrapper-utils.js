@@ -182,6 +182,7 @@ export function wrapProperty(object, propertyName, descriptor, definePropertyFn)
 
 /**
  * Wrap a method descriptor. Only for function properties. For data properties, use wrapProperty(). For constructors, use wrapConstructor().
+ * The replacement keeps the original `toString`, `name`, and `length` so stacked wraps stay indistinguishable.
  * @param {object} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.Bluetooth.prototype)
  * @param {string} propertyName
  * @param {(originalFn: any, ...args: any[]) => any } wrapperFn - wrapper function receives the original function as the first argument
@@ -219,24 +220,23 @@ export function wrapMethod(object, propertyName, wrapperFn, definePropertyFn) {
         ...origDescriptor,
         value: newFn,
     });
+    // Every wrapMethod layer restores name/length from the descriptor it replaced, so
+    // stacked wrappers (e.g. webCompat passkey detection + Windows autofillPasskeys)
+    // stay indistinguishable regardless of init order.
+    maskMethodIdentity(object, propertyName, origDescriptor);
     return origDescriptor;
 }
 
 /**
- * Restore the observable function identity of a method after `wrapMethod()`.
+ * Restore the observable function identity of a method after wrapping.
  *
- * `wrapMethod()` already masks `toString()`, but its anonymous wrapper otherwise
- * exposes an empty `name` and a wrapper-derived `length`. Call this after every
- * layer that wraps the same method so the outermost page-visible function continues
- * to match the method descriptor that layer replaced.
- *
- * This is intentionally opt-in rather than changing `wrapMethod()` globally: only
- * the passkey wrappers currently need the stronger anti-tamper guarantee, and a
- * global behavior change would affect every wrapped web API.
+ * `wrapToString()` already masks `toString()`, but an anonymous wrapper otherwise
+ * exposes an empty `name` and a wrapper-derived `length`. `wrapMethod()` calls this
+ * automatically; keep it exported for any wrap that does not go through `wrapMethod()`.
  *
  * @param {object} object
  * @param {string} propertyName
- * @param {PropertyDescriptor} [origDescriptor] - descriptor returned by `wrapMethod`
+ * @param {PropertyDescriptor} [origDescriptor] - descriptor of the function being replaced
  */
 export function maskMethodIdentity(object, propertyName, origDescriptor) {
     try {

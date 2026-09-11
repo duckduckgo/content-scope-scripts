@@ -360,7 +360,7 @@ describe('wrapMethod', () => {
         expect(obj.greet('World')).toBe('Hello, World!');
     });
 
-    it('preserves method identity across multiple explicitly masked wrapper layers', () => {
+    it('preserves method identity across stacked wrapMethod layers', () => {
         const obj = {
             greet(name, punctuation) {
                 return `Hello, ${name}${punctuation}`;
@@ -370,11 +370,8 @@ describe('wrapMethod', () => {
         const nativeLength = obj.greet.length;
         const nativeToString = obj.greet.toString();
 
-        const firstDescriptor = wrapMethod(obj, 'greet', (origFn, ...args) => origFn.call(obj, ...args), Object.defineProperty);
-        maskMethodIdentity(obj, 'greet', firstDescriptor);
-
-        const secondDescriptor = wrapMethod(obj, 'greet', (origFn, ...args) => origFn.call(obj, ...args), Object.defineProperty);
-        maskMethodIdentity(obj, 'greet', secondDescriptor);
+        wrapMethod(obj, 'greet', (origFn, ...args) => origFn.call(obj, ...args), Object.defineProperty);
+        wrapMethod(obj, 'greet', (origFn, ...args) => origFn.call(obj, ...args), Object.defineProperty);
 
         expect(obj.greet('World', '!')).toBe('Hello, World!');
         expect(obj.greet.name).toBe(nativeName);
@@ -382,7 +379,7 @@ describe('wrapMethod', () => {
         expect(obj.greet.toString()).toBe(nativeToString);
     });
 
-    it('does not change identity automatically for unrelated wrapMethod callers', () => {
+    it('preserves name and length for every wrapMethod caller', () => {
         const obj = {
             greet(name) {
                 return `Hello, ${name}`;
@@ -391,10 +388,25 @@ describe('wrapMethod', () => {
 
         wrapMethod(obj, 'greet', (origFn, ...args) => origFn.call(obj, ...args), Object.defineProperty);
 
-        // Identity masking remains opt-in, avoiding a global behavior change for every
-        // existing wrapMethod caller.
+        expect(obj.greet.name).toBe('greet');
+        expect(obj.greet.length).toBe(1);
+    });
+
+    it('lets maskMethodIdentity restore identity after a wrap that skipped wrapMethod', () => {
+        const obj = {
+            greet(name) {
+                return `Hello, ${name}`;
+            },
+        };
+        const origDescriptor = Object.getOwnPropertyDescriptor(obj, 'greet');
+        obj.greet = function () {
+            return origDescriptor.value.call(this, ...arguments);
+        };
+
         expect(obj.greet.name).toBe('');
-        expect(obj.greet.length).toBe(0);
+        maskMethodIdentity(obj, 'greet', origDescriptor);
+        expect(obj.greet.name).toBe('greet');
+        expect(obj.greet.length).toBe(1);
     });
 
     it('throws when property is not a function', () => {

@@ -8,7 +8,6 @@ import {
     charCodeAt,
     randomUUID,
 } from '../captured-globals.js';
-import { maskMethodIdentity } from '../wrapper-utils.js';
 /* eslint-enable no-redeclare */
 
 const MSG_INBOUND_PASSKEY_SELECTED = 'passkeySelected';
@@ -37,7 +36,7 @@ export default class AutofillPasskeys extends ContentFeature {
         // eslint-disable-next-line @typescript-eslint/no-this-alias
         const feature = this;
 
-        const origDescriptor = this.wrapMethod(
+        this.wrapMethod(
             CredentialsContainer.prototype,
             'get',
             /** @this {CredentialsContainer} */ function (originalGet, options) {
@@ -61,7 +60,6 @@ export default class AutofillPasskeys extends ContentFeature {
                 }
             },
         );
-        maskMethodIdentity(CredentialsContainer.prototype, 'get', origDescriptor);
     }
 
     /**
