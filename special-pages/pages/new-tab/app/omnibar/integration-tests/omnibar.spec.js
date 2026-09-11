@@ -1664,6 +1664,196 @@ test.describe('omnibar widget', () => {
         });
     });
 
+    test.describe('AI chat customize responses', () => {
+        test('hidden when enableCustomizeResponses is false', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.enableWebSearch': 'true',
+                    'omnibar.enableCustomizeResponses': 'false',
+                },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await omnibar.toolsMenuButton().click();
+            await expect(omnibar.customizeResponsesMenuItem()).toHaveCount(0);
+            await expect(omnibar.webSearchMenuItem()).toBeVisible();
+        });
+
+        test('shown when enableCustomizeResponses is true', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true', 'omnibar.enableCustomizeResponses': 'true' },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await omnibar.toolsMenuButton().click();
+            await expect(omnibar.customizeResponsesMenuItem()).toBeVisible();
+            await expect(omnibar.customizeResponsesMenuItem()).toContainText('Control tone, length, and more');
+        });
+
+        test('shows backend customizeSubLabel when provided', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.enableCustomizeResponses': 'true',
+                    'omnibar.customizeSubLabel': 'Formal tone, concise answers',
+                },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await omnibar.toolsMenuButton().click();
+            await expect(omnibar.customizeResponsesMenuItem()).toContainText('Formal tone, concise answers');
+            await expect(omnibar.customizeResponsesMenuItem()).not.toContainText('Control tone, length, and more');
+        });
+
+        test('selecting row notifies omnibar_openCustomizeResponses when no saved customization', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.enableCustomizeResponses': 'true',
+                    'omnibar.hasCustomization': 'false',
+                },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await omnibar.toolsMenuButton().click();
+            await expect(omnibar.customizeResponsesToggle()).toHaveCount(0);
+            await omnibar.customizeResponsesMenuItem().click();
+
+            await omnibar.expectMethodCalledWith('omnibar_openCustomizeResponses', {});
+        });
+
+        test('shows apply toggle when hasCustomization is true', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.enableCustomizeResponses': 'true',
+                    'omnibar.hasCustomization': 'true',
+                    'omnibar.customizationActive': 'false',
+                },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await omnibar.toolsMenuButton().click();
+            await expect(omnibar.customizeResponsesToggle()).toBeVisible();
+            await expect(omnibar.customizeResponsesToggle()).not.toBeChecked();
+        });
+
+        test('toggle notifies omnibar_setCustomizeResponsesActive', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.enableCustomizeResponses': 'true',
+                    'omnibar.hasCustomization': 'true',
+                    'omnibar.customizationActive': 'false',
+                },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await omnibar.toolsMenuButton().click();
+            await omnibar.customizeResponsesToggle().click();
+
+            const calls = await ntp.mocks.waitForCallCount({ method: 'omnibar_setCustomizeResponsesActive', count: 1 });
+            expect(calls[0].payload.params).toEqual({ active: true });
+        });
+
+        test('collapsed tools trigger when customization is applied', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.enableCustomizeResponses': 'true',
+                    'omnibar.hasCustomization': 'true',
+                    'omnibar.customizationActive': 'true',
+                },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await expect(omnibar.toolsMenuButton()).not.toContainText('Tools');
+        });
+
+        test('disabled during image-generation mode', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.enableImageGeneration': 'true',
+                    'omnibar.enableCustomizeResponses': 'true',
+                    'omnibar.hasCustomization': 'true',
+                },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await omnibar.toolsMenuButton().click();
+            await omnibar.createImageMenuItem().click();
+
+            await omnibar.toolsMenuButton().click();
+            await expect(omnibar.customizeResponsesMenuItem()).toHaveAttribute('aria-disabled', 'true');
+            await expect(omnibar.customizeResponsesToggle()).toBeDisabled();
+        });
+    });
+
     test.describe('AI chat popup keyboard navigation', () => {
         test('tools menu supports keyboard navigation', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
