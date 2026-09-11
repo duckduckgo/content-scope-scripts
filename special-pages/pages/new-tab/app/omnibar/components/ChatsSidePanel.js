@@ -44,7 +44,9 @@ export function ChatsSidePanel({ open }) {
 
     const [chats, setChats] = useState(/** @type {AiChat[]} */ ([]));
 
-    useEffect(() => service.onData((data) => setChats(data.chats)), [service]);
+    useEffect(() => {
+        return service.onData((data) => setChats(data.chats));
+    }, [service]);
 
     // Re-fetch every time the rail opens, so chats started in the meantime show up.
     useEffect(() => {
