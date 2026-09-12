@@ -31,7 +31,10 @@
     "playwright-screenshots": "playwright test --grep '@screenshots'",
     "playwright-e2e": "playwright test -c playwright-e2e.config.js --project duckplayer-e2e",
     "playwright-e2e-headed": "npm run playwright-e2e -- --headed",
-    "fake-extension": "node ./scripts/run-fake-extension.js"
+    "fake-extension": "node ./scripts/run-fake-extension.js",
+    "test-bench": "playwright test -c playwright-bench.config.js --reporter list",
+    "bench-detectors": "node ./scripts/detector-bench/run.mjs",
+    "bench-drift-guard": "node ./scripts/detector-bench/drift-guard.mjs"
   },
   "type": "module",
   "dependencies": {
