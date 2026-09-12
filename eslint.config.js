@@ -84,6 +84,39 @@ export default tseslint.config(
         },
     },
     {
+        // web-detection runs detector selectors, XPath expressions and text patterns from remote
+        // config against hostile pages. Every DOM and intrinsic slot it touches must come from
+        // injected/src/captured-globals.js, or a page that replaces the slot reads the config.
+        files: ['injected/src/features/web-detection/**/*.js'],
+        rules: {
+            'no-restricted-globals': [
+                'error',
+                ...['document', 'DOMParser', 'Element', 'getComputedStyle', 'Math', 'Node', 'RegExp', 'XPathResult', 'parseFloat'].map(
+                    (name) => ({
+                        name,
+                        message: `Import ${name} from captured-globals.js: the page can replace this global.`,
+                    }),
+                ),
+            ],
+            'no-restricted-syntax': [
+                'error',
+                {
+                    selector: "MethodDefinition[key.type='PrivateIdentifier']",
+                    message: 'Private methods are currently unsupported in older WebKit and ESR Firefox',
+                },
+                {
+                    selector:
+                        'CallExpression[callee.type="MemberExpression"][callee.property.name=/^(test|exec|querySelector|querySelectorAll|createExpression|evaluate|snapshotItem|parseFromString|getBoundingClientRect|getPropertyValue|hasOwnProperty|remove|item|join|some|every|filter|map|forEach|includes|push|slice|trim|charCodeAt|call|apply|bind)$/]',
+                    message: 'Call the captured-globals.js equivalent: the page can replace this prototype method.',
+                },
+                {
+                    selector: 'ForOfStatement, ArrayExpression > SpreadElement, CallExpression > SpreadElement, ArrayPattern',
+                    message: 'Iteration routes through a page-replaceable Symbol.iterator; use an index loop.',
+                },
+            ],
+        },
+    },
+    {
         files: ['special-pages/**/*.{js,jsx,ts,tsx}'],
         plugins: { 'react-hooks': reactHooks },
         rules: {

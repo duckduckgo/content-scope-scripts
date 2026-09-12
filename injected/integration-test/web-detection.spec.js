@@ -772,4 +772,60 @@ test.describe('WebDetection Feature', () => {
             expect(await helper.getWebEventNotifications()).toEqual([]);
         });
     });
+
+    test.describe('detector visibility to the page', () => {
+        test('detector configuration is not observable via replaced DOM APIs', async ({ page }, testInfo) => {
+            const { helper } = await WebDetectionTestHelper.setupCaptchaTest(page, testInfo.project.use);
+            await helper.navigateTo('/web-detection/pages/captcha-recaptcha.html');
+
+            // Replaced after injection, so the references captured at document_start do not route
+            // through these. The control selector proves the replacements are live.
+            await page.evaluate(() => {
+                /** @type {string[]} */
+                const observed = [];
+                Reflect.set(globalThis, '__observed', observed);
+
+                /**
+                 * @param {object} target
+                 * @param {string} name
+                 * @param {(this: any, result: any, ...args: any[]) => string} describe
+                 */
+                function replace(target, name, describe) {
+                    const original = Reflect.get(target, name);
+                    Reflect.set(target, name, function (/** @type {any[]} */ ...args) {
+                        const result = original.apply(this, args);
+                        observed.push(describe.call(this, result, ...args));
+                        return result;
+                    });
+                }
+
+                for (const proto of [Document.prototype, Element.prototype]) {
+                    replace(proto, 'querySelector', (_result, selectors) => selectors);
+                    replace(proto, 'querySelectorAll', (_result, selectors) => selectors);
+                }
+                replace(Document.prototype, 'createExpression', (_result, expression) => expression);
+                replace(DOMParser.prototype, 'parseFromString', (_result, markup) => markup);
+                replace(NodeList.prototype, 'item', (node) => String(node?.outerHTML));
+                replace(RegExp.prototype, 'test', function () {
+                    return this.source;
+                });
+                replace(Element.prototype, 'getBoundingClientRect', function () {
+                    return this.outerHTML;
+                });
+                replace(globalThis, 'getComputedStyle', (_result, element) => element.outerHTML);
+
+                document.querySelectorAll('.replacement-is-live');
+            });
+
+            await page.clock.fastForward(100);
+
+            // Anything naming the detector's provider would disclose its configuration; the control
+            // entry is all that a page can see.
+            const observed = /** @type {string[]} */ (await page.evaluate(() => Reflect.get(globalThis, '__observed')));
+            expect(observed.filter((entry) => entry.includes('recaptcha') || entry === '.replacement-is-live')).toEqual([
+                '.replacement-is-live',
+            ]);
+            expect((await helper.getWebEventNotifications()).map((e) => e.type)).toEqual(['captcha_recaptcha']);
+        });
+    });
 });
