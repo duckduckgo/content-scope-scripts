@@ -71,9 +71,7 @@ export function useUsageLimitsDrawer() {
         usageLimits?.severity && USAGE_LIMITS_SEVERITY_VALUES.includes(usageLimits.severity) ? usageLimits.severity : 'neutral';
 
     const rawCta = showingCreateImageModelSwitch ? null : (usageLimits?.cta ?? null);
-    const dismissible = showingCreateImageModelSwitch
-        ? createImageModelSwitch?.dismissible !== false
-        : usageLimits?.dismissible === true;
+    const dismissible = showingCreateImageModelSwitch ? createImageModelSwitch?.dismissible !== false : usageLimits?.dismissible === true;
     /** @type {import('./UsageLimitsDrawer.js').UsageLimitsCta | null} */
     const cta =
         rawCta && typeof rawCta.label === 'string'

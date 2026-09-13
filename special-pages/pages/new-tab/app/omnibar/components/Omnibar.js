@@ -219,9 +219,7 @@ export function Omnibar({
                                 </OpenTabsProvider>
                             )}
                         </div>
-                        {mode === 'ai' && (
-                            <UsageLimitsDrawer revealed={usageLimitsRevealed || !!state.config?.createImageModelSwitch} />
-                        )}
+                        {mode === 'ai' && <UsageLimitsDrawer revealed={usageLimitsRevealed || !!state.config?.createImageModelSwitch} />}
                     </div>
                 </AiChatsProvider>
             </SearchFormProvider>

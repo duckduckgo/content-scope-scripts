@@ -249,8 +249,11 @@
 }
 
 .convertIcon {
-    color: var(--ds-color-theme-icons-secondary);
     flex-shrink: 0;
+}
+
+.leading .convertIcon {
+    color: var(--ds-color-theme-icons-secondary);
 }
 
 :global(body[data-rebrand='true']) {
