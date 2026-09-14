@@ -17,15 +17,18 @@ export function navigate(action, userData) {
         return urlResult;
     }
 
-    const codeToInjectResponse = getSupportingCodeToInject(action);
-    if (codeToInjectResponse instanceof ErrorResponse) {
-        return codeToInjectResponse;
-    }
-
     const response = {
         ...urlResult.success.response,
-        ...codeToInjectResponse.success.response,
     };
+
+    if (action.injectCaptchaHandler) {
+        const codeToInjectResponse = getSupportingCodeToInject(action);
+        if (codeToInjectResponse instanceof ErrorResponse) {
+            return codeToInjectResponse;
+        }
+
+        response.injectedCode = codeToInjectResponse.success.response.injectedCode;
+    }
 
     return new SuccessResponse({ actionID, actionType, response });
 }
