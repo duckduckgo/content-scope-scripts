@@ -34,6 +34,7 @@ function getItemProps(child) {
  * @param {object} props
  * @param {import('preact').ComponentChildren} props.children
  * @param {import('preact').ComponentChildren} [props.header] - header rendered at the top of the panel.
+ * @param {string} [props.headerClassName] - Extra class for caller-specific header styling.
  * @param {import('preact').ComponentChildren} [props.emptyMessage] - shown when there are no items.
  * @param {string} props.ariaLabel
  * @param {'menu' | 'listbox'} props.role
@@ -47,6 +48,7 @@ function getItemProps(child) {
 export function Dropdown({
     children,
     header,
+    headerClassName,
     emptyMessage,
     ariaLabel,
     role,
@@ -199,7 +201,7 @@ export function Dropdown({
             onMouseLeave={clearActiveIndex}
         >
             {header && (
-                <li role="presentation" class={styles.header}>
+                <li role="presentation" class={cn(styles.header, headerClassName)}>
                     {header}
                 </li>
             )}

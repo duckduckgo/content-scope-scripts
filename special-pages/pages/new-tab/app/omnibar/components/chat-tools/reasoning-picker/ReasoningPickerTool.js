@@ -40,6 +40,7 @@ export function ReasoningPickerTool() {
     const { state, showUpsell } = useContext(OmnibarContext);
     const { reasoningEfforts, selectedEffort, setSelectedReasoningEffort } = useSelectedReasoningEffort();
     const isEligibleForFreeTrial = state.config?.isEligibleForFreeTrial !== false;
+    const blocksPrompt = state.config?.usageLimits?.blocksPrompt === true;
 
     const options = reasoningEfforts.map((effort) => ({
         id: effort.id,
@@ -63,6 +64,7 @@ export function ReasoningPickerTool() {
             selectedEffort={selectedEffort}
             onSelect={setSelectedReasoningEffort}
             onUpsell={(type) => showUpsell(type, 'reasoning')}
+            disabled={blocksPrompt}
             ariaLabel={t('omnibar_reasoningPickerLabel')}
             buttonLabel={selectedOption?.name ?? t('omnibar_reasoningPickerLabel')}
             isEligibleForFreeTrial={isEligibleForFreeTrial}

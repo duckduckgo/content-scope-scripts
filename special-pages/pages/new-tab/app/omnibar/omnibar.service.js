@@ -225,6 +225,22 @@ export class OmnibarService {
     }
 
     /**
+     * Notify native that the user dismissed the AI-mode usage limits drawer.
+     * Native owns dismiss persistence and should push updated config.
+     */
+    dismissUsageLimits() {
+        this.ntp.messaging.notify('omnibar_dismissUsageLimits', {});
+    }
+
+    /**
+     * Notify native that the user selected the usage-limits CTA.
+     * @param {string} [modelId] - Model id when switching models; omit for non-model actions.
+     */
+    selectUsageLimitsCta(modelId) {
+        this.ntp.messaging.notify('omnibar_selectUsageLimitsCta', modelId ? { modelId } : {});
+    }
+
+    /**
      * Notify native to apply or unapply the stored response customization.
      * @param {boolean} active
      */

@@ -34,26 +34,29 @@ const MAX_INLINE_RECENT_TABS = 5;
  * @param {(tab: TabMetadata) => void} props.onToggleTab
  * @param {(tabId: string) => boolean} props.isAttached
  * @param {number} [props.maxTabs] - Max attached tabs, from native `attachmentLimits.tabs.maxAttached`. Absent means no limit.
+ * @param {boolean} [props.disabled] - When true, the attach entry is inert (hard usage limit).
  */
-export function AttachMenu({ image, file, tabsEnabled, onToggleTab, isAttached, maxTabs }) {
+export function AttachMenu({ image, file, tabsEnabled, onToggleTab, isAttached, maxTabs, disabled = false }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
 
     const attachEnabled = image !== null || file !== null;
     if (!attachEnabled && !tabsEnabled) return null;
 
     const fileInput = resolveFileInput({ t, image, file });
+    const controlsDisabled = disabled || fileInput.disabled;
 
     if (attachEnabled && !tabsEnabled) {
         const button = (
             <DirectFileButton
                 ariaLabel={fileInput.label}
                 accept={fileInput.accept}
-                disabled={fileInput.disabled}
+                disabled={controlsDisabled}
                 onChange={fileInput.onChange}
             />
         );
         // Image-only: a disabled button means the image limit is reached — show its warning tooltip.
-        if (image && !file && fileInput.disabled) {
+        // Skip the tooltip when the whole composer is frozen by a hard usage limit.
+        if (image && !file && fileInput.disabled && !disabled) {
             return (
                 <Tooltip content={t('omnibar_imageAttachmentLimitWarning', { limit: String(image.maxImages) })} position="above">
                     {button}
@@ -70,6 +73,7 @@ export function AttachMenu({ image, file, tabsEnabled, onToggleTab, isAttached, 
             onToggleTab={onToggleTab}
             isAttached={isAttached}
             maxTabs={maxTabs}
+            disabled={disabled}
         />
     );
 }
@@ -131,8 +135,9 @@ function DirectFileButton({ ariaLabel, accept, disabled, onChange }) {
  * @param {(tab: TabMetadata) => void} props.onToggleTab
  * @param {(tabId: string) => boolean} props.isAttached
  * @param {number} [props.maxTabs]
+ * @param {boolean} [props.disabled]
  */
-function DropdownMenu({ attachEnabled, fileInput, onToggleTab, isAttached, maxTabs }) {
+function DropdownMenu({ attachEnabled, fileInput, onToggleTab, isAttached, maxTabs, disabled = false }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const { isOpen, buttonRef, dropdownRef, dropdownPos, toggle, close } = useDropdown({ align: 'left' });
     const { refetchTabs } = useContext(OpenTabsContext);
@@ -140,7 +145,7 @@ function DropdownMenu({ attachEnabled, fileInput, onToggleTab, isAttached, maxTa
     const [isTabsModalOpen, setIsTabsModalOpen] = useState(false);
 
     const triggerFileInput = () => {
-        if (fileInput.disabled) return;
+        if (disabled || fileInput.disabled) return;
         window.setTimeout(() => fileInputRef.current?.click(), 0);
     };
 
@@ -154,13 +159,15 @@ function DropdownMenu({ attachEnabled, fileInput, onToggleTab, isAttached, maxTa
             <button
                 ref={buttonRef}
                 type="button"
-                tabIndex={0}
-                class={imageStyles.toolButton}
+                tabIndex={disabled ? -1 : 0}
+                class={cn(imageStyles.toolButton, disabled && imageStyles.toolButtonDisabled)}
                 aria-label={t('omnibar_attachMenuLabel')}
                 aria-haspopup="menu"
                 aria-expanded={isOpen}
+                disabled={disabled}
                 onClick={(e) => {
                     e.stopPropagation();
+                    if (disabled) return;
                     if (!isOpen) refetchTabs();
                     toggle();
                 }}

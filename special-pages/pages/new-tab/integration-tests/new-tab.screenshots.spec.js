@@ -321,6 +321,38 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
         });
     });
 
+    test.describe('omnibar usage limits @screenshots', () => {
+        for (const preset of ['approaching', 'reached', 'reached-switch']) {
+            test(`usage limits drawer ${preset}`, async ({ page }, workerInfo) => {
+                const ntp = NewtabPage.create(page, workerInfo);
+                const omnibar = new OmnibarPage(ntp);
+                await ntp.reducedMotion();
+                await ntp.openPage({
+                    additional: { 'omnibar.mode': 'ai', 'omnibar.usageLimits': preset },
+                });
+                await omnibar.ready();
+                // The reached presets mark the composer aria-disabled, so click() is refused.
+                await omnibar.chatInput().evaluate((el) => el.focus());
+                await expect(omnibar.usageLimitsDrawer()).toBeVisible();
+                await expect(page).toHaveScreenshot(`omnibar-usage-limits-${preset}.png`, { maxDiffPixels });
+            });
+        }
+
+        test('usage limits drawer cta menu open', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({
+                additional: { 'omnibar.mode': 'ai', 'omnibar.usageLimits': 'approaching' },
+            });
+            await omnibar.ready();
+            await omnibar.chatInput().click();
+            await omnibar.usageLimitsCtaMenuButton().click();
+            await expect(omnibar.usageLimitsCtaMenu()).toBeVisible();
+            await expect(page).toHaveScreenshot('omnibar-usage-limits-cta-menu.png', { maxDiffPixels });
+        });
+    });
+
     test.describe('omnibar reasoning picker @screenshots', () => {
         test('reasoning picker rest', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);

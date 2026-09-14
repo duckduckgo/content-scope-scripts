@@ -33,6 +33,11 @@
         outline: none;
     }
 
+    &[readonly] {
+        color: color-mix(in srgb, var(--ds-color-theme-text-primary) 55%, transparent);
+        cursor: default;
+    }
+
     .hasScroll & {
         border-bottom: 1px solid var(--ds-color-theme-surface-decoration-tertiary);
         padding-bottom: var(--sp-3);
@@ -104,6 +109,12 @@
 
     &:active:not([disabled]) {
         background: var(--ds-color-theme-control-fill-tertiary);
+    }
+
+    /* Match address-bar voice disabled: no fill circle, faded icon only. */
+    &[disabled] {
+        background: none;
+        color: color-mix(in srgb, var(--ds-color-theme-icons-primary) 30%, transparent);
     }
 }
 

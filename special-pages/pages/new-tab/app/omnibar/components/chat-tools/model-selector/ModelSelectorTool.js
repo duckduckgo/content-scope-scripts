@@ -15,6 +15,7 @@ export function ModelSelectorTool() {
     const { state, showUpsell } = useContext(OmnibarContext);
     const { selectedModel, aiModelSections, allModels, setSelectedModelId } = useSelectedModel();
     const isEligibleForFreeTrial = state.config?.isEligibleForFreeTrial !== false;
+    const blocksPrompt = state.config?.usageLimits?.blocksPrompt === true;
 
     const selector = useModelSelector({
         allModels,
@@ -29,6 +30,7 @@ export function ModelSelectorTool() {
             selectedModel={selectedModel}
             aiModelSections={aiModelSections}
             onUpsell={(type) => showUpsell(type, 'model')}
+            disabled={blocksPrompt}
             ariaLabel={t('omnibar_modelSelectorLabel')}
             isEligibleForFreeTrial={isEligibleForFreeTrial}
         />

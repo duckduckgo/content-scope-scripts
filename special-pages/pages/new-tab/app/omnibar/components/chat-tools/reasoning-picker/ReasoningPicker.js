@@ -34,9 +34,19 @@ import styles from './ReasoningPicker.module.css';
  * @param {(type?: 'subscribe' | 'upgrade') => void} props.onUpsell
  * @param {string} props.ariaLabel
  * @param {string} props.buttonLabel
+ * @param {boolean} [props.disabled] - When true, the trigger is inert (hard usage limit).
  * @param {boolean} props.isEligibleForFreeTrial - When false, a 'subscribe' upsell reports 'upgrade' telemetry instead of 'tryForFree'. Does not affect rendered copy, which comes entirely from the payload.
  */
-export function ReasoningPicker({ options, selectedEffort, onSelect, onUpsell, ariaLabel, buttonLabel, isEligibleForFreeTrial }) {
+export function ReasoningPicker({
+    options,
+    selectedEffort,
+    onSelect,
+    onUpsell,
+    ariaLabel,
+    buttonLabel,
+    disabled = false,
+    isEligibleForFreeTrial,
+}) {
     const { isOpen, dropdownPos, buttonRef, dropdownRef, toggle, close } = useDropdown({ align: 'right' });
     const ntp = useMessaging();
     const shownRef = useRef(false);
@@ -122,13 +132,15 @@ export function ReasoningPicker({ options, selectedEffort, onSelect, onUpsell, a
             <button
                 ref={buttonRef}
                 type="button"
-                tabIndex={0}
+                tabIndex={disabled ? -1 : 0}
                 class={cn(styles.reasoningButton, isOpen && styles.reasoningButtonOpen)}
                 aria-label={ariaLabel}
                 aria-haspopup="listbox"
                 aria-expanded={isOpen}
+                disabled={disabled}
                 onClick={(e) => {
                     e.stopPropagation();
+                    if (disabled) return;
                     toggle();
                 }}
             >
