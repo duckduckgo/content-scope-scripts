@@ -182,6 +182,7 @@ export function wrapProperty(object, propertyName, descriptor, definePropertyFn)
 
 /**
  * Wrap a method descriptor. Only for function properties. For data properties, use wrapProperty(). For constructors, use wrapConstructor().
+ * The replacement keeps the original `toString`, `name`, and `length` so stacked wraps stay indistinguishable.
  * @param {object} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.Bluetooth.prototype)
  * @param {string} propertyName
  * @param {(originalFn: any, ...args: any[]) => any } wrapperFn - wrapper function receives the original function as the first argument
@@ -219,7 +220,35 @@ export function wrapMethod(object, propertyName, wrapperFn, definePropertyFn) {
         ...origDescriptor,
         value: newFn,
     });
+    // Every wrapMethod layer restores name/length from the descriptor it replaced, so
+    // stacked wrappers (e.g. webCompat passkey detection + Windows autofillPasskeys)
+    // stay indistinguishable regardless of init order.
+    maskMethodIdentity(object, propertyName, origDescriptor);
     return origDescriptor;
+}
+
+/**
+ * Restore the observable function identity of a method after wrapping.
+ *
+ * `wrapToString()` already masks `toString()`, but an anonymous wrapper otherwise
+ * exposes an empty `name` and a wrapper-derived `length`.
+ *
+ * @param {object} object
+ * @param {string} propertyName
+ * @param {PropertyDescriptor} [origDescriptor] - descriptor of the function being replaced
+ */
+function maskMethodIdentity(object, propertyName, origDescriptor) {
+    try {
+        const origFn = /** @type {{ value?: unknown } | undefined} */ (origDescriptor)?.value;
+        const wrappedFn = /** @type {{ value?: unknown } | undefined} */ (getOwnPropertyDescriptor(object, propertyName))?.value;
+        if (typeof origFn !== 'function' || typeof wrappedFn !== 'function') {
+            return;
+        }
+        objectDefineProperty(wrappedFn, 'name', { value: origFn.name, configurable: true });
+        objectDefineProperty(wrappedFn, 'length', { value: origFn.length, configurable: true });
+    } catch {
+        // Masking is best-effort; never let it break the wrap itself.
+    }
 }
 
 /**
