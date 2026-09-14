@@ -1,0 +1,8 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Dismiss Create Image Model Switch",
+  "description": "Sent when the user dismisses the native-provided Create Image model-switch notice. Native owns notice lifecycle and should push an updated OmnibarConfig.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {}
+}

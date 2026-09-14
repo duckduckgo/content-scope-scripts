@@ -92,7 +92,7 @@ export function omnibarMockTransport() {
                         isAvailable: true,
                         accessTier: 'free',
                         supportsImageUpload: true,
-                        supportedTools: ['WebSearch'],
+                        supportedTools: ['WebSearch', 'GenerateImage'],
                         reasoningEfforts: [FAST_EFFORT, REASONING_EFFORT],
                     },
                     {
@@ -280,6 +280,37 @@ export function omnibarMockTransport() {
                     subs.get('omnibar_onConfigUpdate')?.(config);
                     break;
                 }
+                case 'omnibar_dismissCreateImageModelSwitch': {
+                    config.createImageModelSwitch = null;
+                    subs.get('omnibar_onConfigUpdate')?.(config);
+                    break;
+                }
+                case 'omnibar_setImageGenerationActive': {
+                    if (config.enableUpdatedCreateImage !== true) break;
+
+                    config.createImageModelSwitch = null;
+                    if (msg.params.active) {
+                        const models = config.aiModelSections?.flatMap((section) => section.items) ?? [];
+                        const previousModel =
+                            models.find((model) => model.id === config.selectedModelId && model.isAvailable) ??
+                            models.find((model) => model.isAvailable);
+                        const imageModel = models.find((model) => model.isAvailable && model.supportedTools?.includes('GenerateImage'));
+
+                        if (previousModel && imageModel && previousModel.id !== imageModel.id) {
+                            config.selectedModelId = imageModel.id;
+                            const hasExtraPrivacy = previousModel.id.includes('gpt-oss') || previousModel.id.startsWith('tinfoil/');
+                            config.createImageModelSwitch = {
+                                message: `Now using ${imageModel.shortName}`,
+                                secondaryText: hasExtraPrivacy
+                                    ? `${previousModel.shortName} can't create images. Its extra privacy protections won't apply until you switch back.`
+                                    : `${previousModel.shortName} doesn't support image creation.`,
+                                dismissible: true,
+                            };
+                        }
+                    }
+                    subs.get('omnibar_onConfigUpdate')?.(config);
+                    break;
+                }
                 case 'omnibar_selectUsageLimitsCta': {
                     console.warn('Mock: selectUsageLimitsCta', msg.params);
                     if (msg.params?.modelId) {
@@ -345,6 +376,8 @@ export function omnibarMockTransport() {
                     config.enableRecentAiChats = parseBooleanQueryParam('omnibar.enableRecentAiChats') ?? config.enableRecentAiChats;
                     config.enableAiChatTools = parseBooleanQueryParam('omnibar.enableAiChatTools') ?? config.enableAiChatTools;
                     config.enableImageGeneration = parseBooleanQueryParam('omnibar.enableImageGeneration') ?? config.enableImageGeneration;
+                    config.enableUpdatedCreateImage =
+                        parseBooleanQueryParam('omnibar.enableUpdatedCreateImage') ?? config.enableUpdatedCreateImage;
                     config.enableWebSearch = parseBooleanQueryParam('omnibar.enableWebSearch') ?? config.enableWebSearch;
                     config.selectedModelId = url.searchParams.get('omnibar.selectedModelId') ?? config.selectedModelId;
                     if (parseBooleanQueryParam('omnibar.subscription') === true) {

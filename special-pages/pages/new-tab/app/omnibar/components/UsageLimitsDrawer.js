@@ -14,7 +14,7 @@ import styles from './UsageLimitsDrawer.module.css';
 /** @typedef {typeof import('../strings.json')} Strings */
 
 /**
- * @typedef {'info' | 'ring' | 'alert'} UsageLimitsIcon
+ * @typedef {'info' | 'ring' | 'alert' | 'convert'} UsageLimitsIcon
  * @typedef {'neutral' | 'warning' | 'critical'} UsageLimitsSeverity
  * @typedef {'none' | 'convert'} UsageLimitsCtaLeadingIcon
  * @typedef {{ id: string, name: string, variant?: string }} UsageLimitsCtaAlternative
@@ -107,6 +107,8 @@ function UsageLimitsGlyph({ icon, percent, severity }) {
             return <UsageLimitsRing percent={percent} severity={severity} />;
         case 'alert':
             return <UsageLimitsAlertIcon />;
+        case 'convert':
+            return <ConvertIcon />;
         case 'info':
             return infoIcon;
         default: {
@@ -230,9 +232,9 @@ export function UsageLimitsDrawer({ revealed }) {
 
     if (!usageLimits) return null;
 
-    const { message, secondaryText, icon, percent, severity, cta, onSelectCta, onDismiss } = usageLimits;
+    const { message, secondaryText, secondaryOnNewLine, icon, percent, severity, cta, onSelectCta, onDismiss } = usageLimits;
 
-    const emphasize = icon === 'ring' || icon === 'alert';
+    const emphasize = icon === 'ring' || icon === 'alert' || icon === 'convert';
 
     const keepComposerFocus = (event) => {
         // Keep the caret in the composer so clicking CTA/dismiss does not hide the drawer first.
@@ -251,7 +253,7 @@ export function UsageLimitsDrawer({ revealed }) {
                     <span class={styles.leading}>
                         <UsageLimitsGlyph icon={icon} percent={percent} severity={severity} />
                     </span>
-                    <p class={cn(styles.message, emphasize && styles.messageEmphasized)}>
+                    <p class={cn(styles.message, emphasize && styles.messageEmphasized, secondaryOnNewLine && styles.messageStacked)}>
                         <span class={styles.primary}>{message}</span>
                         {secondaryText ? <span class={styles.secondary}>{secondaryText}</span> : null}
                     </p>
