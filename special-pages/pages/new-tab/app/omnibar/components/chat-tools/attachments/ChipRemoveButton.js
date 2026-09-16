@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { CloseSmallIcon } from '../../../../components/Icons';
+import { CloseXsmallIcon } from '../../../../components/Icons';
 import styles from './ChipRemoveButton.module.css';
 
 /**
@@ -9,9 +9,8 @@ import styles from './ChipRemoveButton.module.css';
  * @param {object} props
  * @param {() => void} props.onRemove
  * @param {string} props.label
- * @param {boolean} [props.stopPropagation] - stop the click bubbling, e.g. when the chip itself is clickable.
  */
-export function ChipRemoveButton({ onRemove, label, stopPropagation }) {
+export function ChipRemoveButton({ onRemove, label }) {
     return (
         <button
             type="button"
@@ -19,11 +18,11 @@ export function ChipRemoveButton({ onRemove, label, stopPropagation }) {
             class={styles.remove}
             aria-label={label}
             onClick={(e) => {
-                if (stopPropagation) e.stopPropagation();
+                e.stopPropagation();
                 onRemove();
             }}
         >
-            <CloseSmallIcon width="12" height="12" />
+            <CloseXsmallIcon width="16" height="16" aria-hidden="true" />
         </button>
     );
 }

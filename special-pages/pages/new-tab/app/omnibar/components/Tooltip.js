@@ -19,8 +19,9 @@ const VIEWPORT_PADDING = 8;
  * @param {string} props.content
  * @param {string} [props.className]
  * @param {TooltipPosition} [props.position]
+ * @param {string} [props.ariaLabel] - names the wrapper so nested controls' labels don't leak into its accessible name.
  */
-export function Tooltip({ children, content, className, position = 'above' }) {
+export function Tooltip({ children, content, className, position = 'above', ariaLabel }) {
     const [rect, setRect] = useState(/** @type {DOMRect | null} */ (null));
     const tooltipId = useId();
     const containerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
@@ -95,6 +96,7 @@ export function Tooltip({ children, content, className, position = 'above' }) {
             class={cn(styles.container, className)}
             role="button"
             tabIndex={0}
+            aria-label={ariaLabel}
             aria-describedby={isVisible ? tooltipId : undefined}
             onMouseEnter={show}
             onMouseLeave={hide}
