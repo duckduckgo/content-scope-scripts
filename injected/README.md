@@ -65,7 +65,7 @@ npm test
 npm run test-unit      # Unit tests (Jasmine)
 npm run test-int       # Integration tests (Playwright)  
 npm run build          # Build platform-specific artifacts
-npm run fake-extension # Runs an example extension used within the integration tests
+npm run fake-extension # Manual dev tool: loads the test extension in Chromium via web-ext (not run in CI; integration tests use Playwright --load-extension instead)
 ```
 
 ### Project Structure
