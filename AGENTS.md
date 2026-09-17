@@ -12,7 +12,7 @@ JavaScript features injected into web pages for privacy protections. Features ex
 
 **Features** (in `injected/src/features/`):
 - `api-manipulation` - API behavior modifications
-- `autofill-import` - Credential import support (animates and taps buttons on passwords.google.com)
+- `autofill-import` - Credential import support
 - `autofill-passkeys` - Routes `navigator.credentials.get()` passkey requests to native autofill
 - `breakage-reporting` - Site breakage reports
 - `broker-protection` - Data broker removal automation
