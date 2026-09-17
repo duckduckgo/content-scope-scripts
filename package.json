@@ -7,7 +7,8 @@
     "special-pages",
     "messaging",
     "build",
-    "Sources/ContentScopeScripts/dist"
+    "Sources/ContentScopeScripts/dist",
+    "types-generator"
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",
@@ -64,5 +65,13 @@
   "overrides": {
     "shell-quote": "^1.8.4",
     "tmp": "^0.2.6"
+  },
+  "peerDependencies": {
+    "json-schema-to-typescript": "^16.0.0"
+  },
+  "peerDependenciesMeta": {
+    "json-schema-to-typescript": {
+      "optional": true
+    }
   }
 }
