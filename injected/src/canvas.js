@@ -5,7 +5,7 @@ import Seedrandom from 'seedrandom';
  * @param {HTMLCanvasElement} canvas
  * @param {string} domainKey
  * @param {string} sessionKey
- * @param {any} getImageDataProxy
+ * @param {import('./utils').DDGProxy} getImageDataProxy
  * @param {CanvasRenderingContext2D | WebGL2RenderingContext | WebGLRenderingContext} ctx?
  */
 export function computeOffScreenCanvas(canvas, domainKey, sessionKey, getImageDataProxy, ctx) {
