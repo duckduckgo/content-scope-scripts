@@ -104,7 +104,8 @@ export async function getCaptchaInfo(action, userData, root = document) {
     }
 
     if (PirError.isError(captchaIdentifier)) {
-        return createError(captchaIdentifier.error.message);
+        const errorMessage = captchaIdentifier.error.message;
+        return createError(errorMessage);
     }
 
     // Determine the type to report to dbp-api. When the requested captchaType resolved to its
