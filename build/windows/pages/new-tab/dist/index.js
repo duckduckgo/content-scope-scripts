@@ -6126,13 +6126,6 @@
     }
   });
 
-  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/entry-point/reorder.js
-  var init_reorder2 = __esm({
-    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/entry-point/reorder.js"() {
-      init_reorder();
-    }
-  });
-
   // ../node_modules/@atlaskit/pragmatic-drag-and-drop-hitbox/dist/esm/get-reorder-destination-index.js
   function getReorderDestinationIndex(_ref) {
     var startIndex = _ref.startIndex, closestEdgeOfTarget = _ref.closestEdgeOfTarget, indexOfTarget = _ref.indexOfTarget, axis = _ref.axis;
@@ -6173,7 +6166,7 @@
   }
   var init_reorder_with_edge = __esm({
     "../node_modules/@atlaskit/pragmatic-drag-and-drop-hitbox/dist/esm/reorder-with-edge.js"() {
-      init_reorder2();
+      init_reorder();
       init_get_reorder_destination_index();
     }
   });
