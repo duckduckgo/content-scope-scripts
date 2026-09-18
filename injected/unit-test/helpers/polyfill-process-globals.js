@@ -39,16 +39,27 @@ export function createDomStringList(list) {
 
 export function polyfillProcessGlobals(defaultLocation = 'http://localhost:8080', frameAncestorsList = [], topisNull = false) {
     // Store original values to restore later
-    const originalDocument = globalThis.document;
     const originalLocation = globalThis.location;
     const originalTop = globalThis.top;
 
-    // Apply the patch
-    // @ts-expect-error - document is not defined in the type definition
-    globalThis.document = {
-        referrer: defaultLocation,
-        location: createLocationObject(defaultLocation, frameAncestorsList),
-    };
+    // The unit-test run installs a document (see install-dom-globals.js); the Playwright runner does
+    // not, yet its helpers call into src/utils.js, which reads `document.referrer` and
+    // `document.location`.
+    const hasDocument = Boolean(globalThis.document);
+
+    if (hasDocument) {
+        // The DOM APIs in captured-globals.js are bound to this document, so it must be adjusted in
+        // place rather than replaced. `document.location` is non-configurable in JSDOM: it reports
+        // the shared window's URL, which a spec changes through `setDocumentUrl`.
+        Object.defineProperty(globalThis.document, 'referrer', { value: defaultLocation, configurable: true });
+    } else {
+        globalThis.document = /** @type {Document} */ (
+            /** @type {unknown} */ ({
+                referrer: defaultLocation,
+                location: createLocationObject(defaultLocation, frameAncestorsList),
+            })
+        );
+    }
 
     globalThis.location = createLocationObject(defaultLocation, frameAncestorsList);
 
@@ -61,7 +72,12 @@ export function polyfillProcessGlobals(defaultLocation = 'http://localhost:8080'
 
     // Return a cleanup function
     return function cleanup() {
-        globalThis.document = originalDocument;
+        if (hasDocument) {
+            // Removing the own properties restores the document's own accessors
+            Reflect.deleteProperty(globalThis.document, 'referrer');
+        } else {
+            Reflect.deleteProperty(globalThis, 'document');
+        }
         globalThis.location = originalLocation;
         globalThis.top = originalTop;
     };
