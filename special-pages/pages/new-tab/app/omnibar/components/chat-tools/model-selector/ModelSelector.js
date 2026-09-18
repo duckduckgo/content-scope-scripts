@@ -14,10 +14,20 @@ import styles from './ModelSelector.module.css';
  * @param {import('../../../../../types/new-tab.js').AIModelSections} props.aiModelSections
  * @param {(type?: 'subscribe' | 'upgrade') => void} props.onUpsell
  * @param {boolean} [props.disabled] - When true, the trigger is inert (hard usage limit).
+ * @param {boolean} [props.readOnly] - When true, show the selected model without picker affordances.
  * @param {string} props.ariaLabel
  * @param {boolean} props.isEligibleForFreeTrial - When false, a 'subscribe' upsell reports 'upgrade' telemetry instead of 'tryForFree'. Does not affect rendered copy, which comes entirely from the payload.
  */
-export function ModelSelector({ selector, selectedModel, aiModelSections, onUpsell, disabled = false, ariaLabel, isEligibleForFreeTrial }) {
+export function ModelSelector({
+    selector,
+    selectedModel,
+    aiModelSections,
+    onUpsell,
+    disabled = false,
+    readOnly = false,
+    ariaLabel,
+    isEligibleForFreeTrial,
+}) {
     const { modelButtonRef, modelDropdownOpen, dropdownPos, dropdownRef, toggleDropdown, closeDropdown, selectModel } = selector;
     const ntp = useMessaging();
     const shownRef = useRef(false);
@@ -57,22 +67,23 @@ export function ModelSelector({ selector, selectedModel, aiModelSections, onUpse
             <button
                 ref={modelButtonRef}
                 type="button"
-                tabIndex={disabled ? -1 : 0}
-                class={cn(styles.modelButton, modelDropdownOpen && styles.modelButtonOpen)}
+                tabIndex={disabled || readOnly ? -1 : 0}
+                class={cn(styles.modelButton, readOnly && styles.modelButtonReadOnly, modelDropdownOpen && styles.modelButtonOpen)}
                 aria-label={ariaLabel}
-                aria-haspopup="listbox"
-                aria-expanded={modelDropdownOpen}
+                aria-disabled={readOnly || undefined}
+                aria-haspopup={readOnly ? undefined : 'listbox'}
+                aria-expanded={readOnly ? undefined : modelDropdownOpen}
                 disabled={disabled}
                 onClick={(e) => {
                     e.stopPropagation();
-                    if (disabled) return;
+                    if (disabled || readOnly) return;
                     toggleDropdown();
                 }}
             >
                 <span class={styles.modelButtonLabel}>{selectedModel?.shortName ?? ariaLabel}</span>
-                <ChevronSmall />
+                {!readOnly && <ChevronSmall />}
             </button>
-            {modelDropdownOpen && dropdownPos && (
+            {!readOnly && modelDropdownOpen && dropdownPos && (
                 <ModelDropdown
                     dropdownRef={dropdownRef}
                     sections={aiModelSections}
