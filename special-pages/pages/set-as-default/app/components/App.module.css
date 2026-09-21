@@ -65,7 +65,6 @@
 
 @media (prefers-color-scheme: dark) {
     .layout {
-        /* Onboarding dark backdrop. design-tokens 0.34.0 still maps this to #034180, so the hex is inline. */
         background-color: #133e7c;
         background-image: url('../../public/landscape-dark.svg');
     }

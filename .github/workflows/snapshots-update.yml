@@ -55,7 +55,6 @@ jobs:
               run: |
                   curl -L -o SF-Pro.dmg 'https://devimages-cdn.apple.com/design/resources/download/SF-Pro.dmg'
                   hdiutil attach SF-Pro.dmg
-                  ls -la /Volumes/SFProFonts
                   # Apple renames the package between releases, so match it by extension
                   shopt -s nullglob
                   pkgs=(/Volumes/SFProFonts/*.pkg)
