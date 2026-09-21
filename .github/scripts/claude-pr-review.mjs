@@ -298,6 +298,62 @@ export function isLowRisk(review) {
 }
 
 /**
+ * Paths that govern the review machinery itself. A reviewer that can approve
+ * changes to its own prompts, gates and workflows is not a check on anything,
+ * so a PR touching these always goes to a human.
+ */
+export const SELF_GOVERNED_PATH_PREFIXES = ['.github/'];
+
+/** @param {string} path */
+export function isSelfGovernedPath(path) {
+    return SELF_GOVERNED_PATH_PREFIXES.some((prefix) => path.startsWith(prefix));
+}
+
+/**
+ * Branch prefixes used by agent sessions working in this repo. A PR Claude
+ * wrote must not be approved by the same model that wrote it.
+ */
+export const AGENT_BRANCH_PREFIXES = ['claude/'];
+
+/**
+ * Reasons the bot approval must be withheld, in the order a reader wants them.
+ * An empty array means the PR is eligible for auto-approval.
+ *
+ * @param {{ review: Pick<Review, 'risk_level' | 'blocking' | 'confidence'>, files?: Array<{ filename?: string }>, pull?: any }} args
+ * @returns {string[]}
+ */
+export function autoApprovalBlockers({ review, files = [], pull = {} }) {
+    /** @type {string[]} */
+    const blockers = [];
+
+    if (!isLowRisk(review)) {
+        const level = review.blocking ? `${review.risk_level} risk and blocking` : `${review.risk_level} risk`;
+        blockers.push(`the review came back ${level}; only non-blocking low risk is auto-approved`);
+    }
+
+    if (review.confidence !== 'high') {
+        blockers.push(`the reviewer reported ${review.confidence} confidence in its own assessment`);
+    }
+
+    const selfGoverned = (files ?? []).map((file) => file?.filename ?? '').filter((path) => path && isSelfGovernedPath(path));
+    if (selfGoverned.length > 0) {
+        const shown = selfGoverned.slice(0, 3).join(', ');
+        const rest = selfGoverned.length > 3 ? ` and ${selfGoverned.length - 3} more` : '';
+        blockers.push(`it changes the review machinery itself (${shown}${rest})`);
+    }
+
+    const author = pull?.user?.login ?? 'an unknown author';
+    const headRef = pull?.head?.ref ?? '';
+    if (pull?.user?.type === 'Bot') {
+        blockers.push(`it was opened by the bot ${author}`);
+    } else if (AGENT_BRANCH_PREFIXES.some((prefix) => headRef.startsWith(prefix))) {
+        blockers.push(`it comes from the agent branch ${headRef}`);
+    }
+
+    return blockers;
+}
+
+/**
  * @param {Review} review
  * @param {{ model: string, headSha: string }} context
  */
@@ -447,7 +503,7 @@ export async function reviewPullRequest({ apiKey, model, profile = 'dependency',
         fetchImpl,
     });
 
-    return { review, pull, model: resolvedModel };
+    return { review, pull, files, model: resolvedModel };
 }
 
 /* -------------------------------------------------------------------------
@@ -565,7 +621,7 @@ export async function main(argv = process.argv.slice(2)) {
     const prNumber = requiredEnv('PR_NUMBER');
     const apiRoot = `https://api.github.com/repos/${owner}/${repo}`;
 
-    const { review, pull, model } = await reviewPullRequest({
+    const { review, pull, files, model } = await reviewPullRequest({
         apiKey,
         profile,
         apiRoot,
@@ -584,9 +640,17 @@ export async function main(argv = process.argv.slice(2)) {
     console.log(
         `Claude review (${profile}): risk_level=${review.risk_level}; blocking=${review.blocking}; confidence=${review.confidence}; findings=${review.findings.length}`,
     );
+    const blockers = autoApprovalBlockers({ review, files, pull });
+    if (blockers.length > 0) {
+        console.log(`Auto-approval withheld: ${blockers.join('; ')}`);
+    }
+
     setOutput('risk_level', review.risk_level);
     setOutput('blocking', String(review.blocking));
+    setOutput('confidence', review.confidence);
     setOutput('is_low_risk', String(isLowRisk(review)));
+    setOutput('auto_approve', String(blockers.length === 0));
+    setOutput('auto_approve_blockers', blockers.join('\n'));
     setOutput('reviewed_head_sha', headSha);
     setOutput('review_complete', 'true');
 }

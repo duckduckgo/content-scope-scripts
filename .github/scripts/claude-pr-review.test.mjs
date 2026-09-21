@@ -5,10 +5,12 @@ import {
     MAX_PATCH_CHARS,
     REVIEW_COMMENT_MARKER,
     SUBMIT_REVIEW_TOOL_NAME,
+    autoApprovalBlockers,
     buildDiffDigest,
     extractReviewFromAnthropicResponse,
     formatReviewComment,
     isLowRisk,
+    isSelfGovernedPath,
     listOpenPullRequests,
     requestReview,
     shouldOmitPatch,
@@ -192,6 +194,73 @@ test('isLowRisk requires low risk and non-blocking', () => {
     assert.equal(isLowRisk({ risk_level: 'low', blocking: false }), true);
     assert.equal(isLowRisk({ risk_level: 'low', blocking: true }), false);
     assert.equal(isLowRisk({ risk_level: 'medium', blocking: false }), false);
+});
+
+const APPROVABLE_REVIEW = { risk_level: 'low', blocking: false, confidence: 'high' };
+const HUMAN_PR = { user: { login: 'someone', type: 'User' }, head: { ref: 'feature/thing' } };
+
+test('isSelfGovernedPath matches the review machinery only', () => {
+    assert.equal(isSelfGovernedPath('.github/workflows/claude-review.yml'), true);
+    assert.equal(isSelfGovernedPath('.github/scripts/claude-pr-review.mjs'), true);
+    assert.equal(isSelfGovernedPath('injected/src/features/gpc.js'), false);
+});
+
+test('autoApprovalBlockers allows a low-risk, high-confidence human PR', () => {
+    const blockers = autoApprovalBlockers({
+        review: APPROVABLE_REVIEW,
+        files: [{ filename: 'injected/src/features/gpc.js' }],
+        pull: HUMAN_PR,
+    });
+    assert.deepEqual(blockers, []);
+});
+
+test('autoApprovalBlockers withholds approval below high confidence', () => {
+    const blockers = autoApprovalBlockers({
+        review: { ...APPROVABLE_REVIEW, confidence: 'medium' },
+        files: [{ filename: 'injected/src/features/gpc.js' }],
+        pull: HUMAN_PR,
+    });
+    assert.equal(blockers.length, 1);
+    assert.match(blockers[0], /medium confidence/);
+});
+
+test('autoApprovalBlockers withholds approval on changes to the review machinery', () => {
+    const blockers = autoApprovalBlockers({
+        review: APPROVABLE_REVIEW,
+        files: [{ filename: '.github/scripts/claude-pr-review.mjs' }, { filename: 'injected/src/features/gpc.js' }],
+        pull: HUMAN_PR,
+    });
+    assert.equal(blockers.length, 1);
+    assert.match(blockers[0], /review machinery itself/);
+    assert.match(blockers[0], /claude-pr-review\.mjs/);
+});
+
+test('autoApprovalBlockers withholds approval from bot and agent branches', () => {
+    const botBlockers = autoApprovalBlockers({
+        review: APPROVABLE_REVIEW,
+        files: [],
+        pull: { user: { login: 'some-bot[bot]', type: 'Bot' }, head: { ref: 'bump-thing' } },
+    });
+    assert.equal(botBlockers.length, 1);
+    assert.match(botBlockers[0], /opened by the bot some-bot\[bot\]/);
+
+    const agentBlockers = autoApprovalBlockers({
+        review: APPROVABLE_REVIEW,
+        files: [],
+        pull: { user: { login: 'someone', type: 'User' }, head: { ref: 'claude/fix-ci' } },
+    });
+    assert.equal(agentBlockers.length, 1);
+    assert.match(agentBlockers[0], /agent branch claude\/fix-ci/);
+});
+
+test('autoApprovalBlockers reports every reason at once', () => {
+    const blockers = autoApprovalBlockers({
+        review: { risk_level: 'high', blocking: true, confidence: 'low' },
+        files: [{ filename: '.github/workflows/claude-review.yml' }],
+        pull: { user: { login: 'someone', type: 'User' }, head: { ref: 'claude/fix-ci' } },
+    });
+    assert.equal(blockers.length, 4);
+    assert.match(blockers[0], /high risk and blocking/);
 });
 
 test('formatReviewComment carries the marker and a parseable risk level', () => {

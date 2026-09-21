@@ -158,10 +158,14 @@ jobs:
                       console.log(`Found approved review from ${DAX_USERNAME}: ${has}`);
                       core.setOutput('has_approved_review', has);
 
+            # `auto_approve` is the single gate: the reviewer withholds it for a
+            # non-low risk level, for anything below high confidence, for changes
+            # to `.github/**` (the reviewer must not approve changes to itself),
+            # and for bot- or agent-authored branches.
             - name: Auto approve
               if: |
                   steps.review.outcome == 'success' &&
-                  steps.review.outputs.is_low_risk == 'true' &&
+                  steps.review.outputs.auto_approve == 'true' &&
                   steps.review.outputs.reviewed_head_sha == github.event.pull_request.head.sha &&
                   steps.check_reviews.outputs.has_approved_review == 'false'
               run: gh pr review --approve "$PR_URL"
@@ -172,7 +176,7 @@ jobs:
             - name: Find previous review comment
               if: |
                   steps.review.outcome != 'success' ||
-                  steps.review.outputs.is_low_risk != 'true'
+                  steps.review.outputs.auto_approve != 'true'
               uses: peter-evans/find-comment@v4
               id: find_comment
               with:
@@ -184,12 +188,12 @@ jobs:
             - name: Post manual review required comment
               if: |
                   (steps.review.outcome != 'success' ||
-                  steps.review.outputs.is_low_risk != 'true') &&
+                  steps.review.outputs.auto_approve != 'true') &&
                   steps.find_comment.outputs.comment-id == ''
               uses: actions/github-script@v9
               env:
                   REVIEW_OUTCOME: ${{ steps.review.outcome }}
-                  RISK_LEVEL: ${{ steps.review.outputs.risk_level }}
+                  AUTO_APPROVE_BLOCKERS: ${{ steps.review.outputs.auto_approve_blockers }}
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
                   script: |
@@ -198,11 +202,21 @@ jobs:
                       const teamList = formatTeamList(teams);
 
                       const reviewRan = process.env.REVIEW_OUTCOME === 'success';
-                      const riskLevel = process.env.RISK_LEVEL;
+                      const blockers = (process.env.AUTO_APPROVE_BLOCKERS || '')
+                          .split('\n')
+                          .map((line) => line.trim())
+                          .filter(Boolean);
 
-                      const reason = reviewRan
-                          ? `Claude assessed this PR as **${riskLevel} Risk** (only Low Risk is auto-approved).`
-                          : 'The Claude review did not complete.';
+                      let reason = 'The Claude review did not complete.';
+                      if (reviewRan && blockers.length > 0) {
+                          reason = [
+                              'Claude did not auto-approve this PR because:',
+                              '',
+                              ...blockers.map((blocker) => `- ${blocker}`),
+                          ].join('\n');
+                      } else if (reviewRan) {
+                          reason = 'Claude did not auto-approve this PR.';
+                      }
 
                       await github.rest.issues.createComment({
                           owner: context.repo.owner,
