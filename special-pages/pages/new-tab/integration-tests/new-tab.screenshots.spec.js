@@ -333,7 +333,7 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
                 await omnibar.ready();
                 // The reached presets mark the composer aria-disabled, so click() is refused.
                 await omnibar.chatInput().evaluate((el) => el.focus());
-                await expect(omnibar.usageLimitsDrawer()).toBeVisible();
+                await expect(omnibar.noticeDrawer()).toBeVisible();
                 await expect(page).toHaveScreenshot(`omnibar-usage-limits-${preset}.png`, { maxDiffPixels });
             });
         }

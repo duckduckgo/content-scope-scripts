@@ -18,20 +18,9 @@ const USAGE_LIMITS_SEVERITY_VALUES = /** @type {const} */ (['neutral', 'warning'
 const USAGE_LIMITS_CTA_LEADING_ICON_VALUES = /** @type {const} */ (['none', 'convert']);
 
 /**
- * Reads the native-driven usageLimits presentation from OmnibarConfig.
+ * Reads the native-driven usage limits presentation from OmnibarConfig.
  *
- * @returns {{
- *   message: string,
- *   secondaryText: string,
- *   icon: 'info' | 'ring' | 'alert',
- *   percent: number,
- *   severity: 'neutral' | 'warning' | 'critical',
- *   cta: import('./UsageLimitsDrawer.js').UsageLimitsCta | null,
- *   blocksPrompt: boolean,
- *   dismissible: boolean,
- *   onDismiss: (() => void) | undefined,
- *   onSelectCta: ((modelId?: string) => void) | undefined,
- * } | null}
+ * @returns {import('./NoticeDrawer.js').NoticePresentation | null}
  */
 export function useUsageLimitsDrawer() {
     const { state, dismissUsageLimits, selectUsageLimitsCta } = useContext(OmnibarContext);
@@ -56,7 +45,7 @@ export function useUsageLimitsDrawer() {
     const severity = usageLimits.severity && USAGE_LIMITS_SEVERITY_VALUES.includes(usageLimits.severity) ? usageLimits.severity : 'neutral';
 
     const rawCta = usageLimits.cta ?? null;
-    /** @type {import('./UsageLimitsDrawer.js').UsageLimitsCta | null} */
+    /** @type {import('./NoticeDrawer.js').UsageLimitsCta | null} */
     const cta =
         rawCta && typeof rawCta.label === 'string'
             ? {
@@ -79,8 +68,6 @@ export function useUsageLimitsDrawer() {
         percent: typeof usageLimits.percent === 'number' ? usageLimits.percent : 0,
         severity,
         cta,
-        blocksPrompt: usageLimits.blocksPrompt === true,
-        dismissible: usageLimits.dismissible === true,
         onDismiss: usageLimits.dismissible === true ? onDismiss : undefined,
         onSelectCta: cta ? onSelectCta : undefined,
     };
