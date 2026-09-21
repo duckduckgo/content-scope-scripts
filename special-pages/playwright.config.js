@@ -12,6 +12,7 @@ export default defineConfig({
                 'special-error.spec.js',
                 'special-error-screenshots.spec.js',
                 'special-error-theme.spec.js',
+                'set-as-default.spec.js',
             ],
             use: {
                 ...devices['Desktop Edge'],

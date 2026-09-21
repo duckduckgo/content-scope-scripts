@@ -1,3 +1,2 @@
-- build(deps): bump @atlaskit/pragmatic-drag-and-drop-hitbox (#3039)
-- build(deps): bump @atlaskit/pragmatic-drag-and-drop from 3.0.0 to 3.1.0 (#3040)
-- build(deps-dev): bump @playwright/test from 1.61.1 to 1.62.1 (#2955)
+- Add "Set as Default" page for Windows integration (#2701)
+- docs: Update AGENTS.md with comprehensive feature list and clarifications (#3050)

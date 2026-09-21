@@ -2313,6 +2313,7 @@ body:not([data-platform-name]) .Button_button:active:not(:disabled) {
   --color-black-at-12: rgba(0, 0, 0, 0.12);
   --color-black-at-15: rgba(0, 0, 0, 0.15);
   --color-black-at-18: rgba(0, 0, 0, 0.18);
+  --color-black-at-25: rgba(0, 0, 0, 0.25);
   --color-black-at-36: rgba(0, 0, 0, 0.36);
   --color-black-at-40: rgba(0, 0, 0, 0.4);
   --color-black-at-42: rgba(0, 0, 0, 0.42);
