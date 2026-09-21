@@ -1,6 +1,5 @@
 import { readFileSync } from 'fs';
 
-const RISK_PATTERN = /\*\*(Low|Medium|High|Critical)\s+Risk\*\*/i;
 export const DAX_USERNAME = 'daxtheduck';
 
 export function loadRequiredTeams(path = '.github/REQUIRED_TEAMS') {
@@ -9,37 +8,6 @@ export function loadRequiredTeams(path = '.github/REQUIRED_TEAMS') {
 
 export function formatTeamList(teams) {
     return teams.map((t) => `- @duckduckgo/${t}`).join('\n');
-}
-
-const CURSOR_BOT = 'cursor[bot]';
-
-function matchRiskLevel(text) {
-    const match = text.match(RISK_PATTERN);
-    return match ? match[1] : null;
-}
-
-/**
- * Extracts the Cursor Bugbot risk level. Checks the PR description first
- * (where Bugbot writes CURSOR_SUMMARY), then falls back to comments
- * authored by cursor[bot].
- */
-export async function findRiskLevel(github, { owner, repo, prNumber }) {
-    const { data: pr } = await github.rest.pulls.get({ owner, repo, pull_number: prNumber });
-    const descLevel = matchRiskLevel(pr.body ?? '');
-    if (descLevel) return descLevel;
-
-    const { data: comments } = await github.rest.issues.listComments({
-        owner,
-        repo,
-        issue_number: prNumber,
-    });
-    for (const c of comments) {
-        if (c.user?.login !== CURSOR_BOT) continue;
-        const level = matchRiskLevel(c.body ?? '');
-        if (level) return level;
-    }
-
-    return null;
 }
 
 export async function isTeamMember(github, orgToken, org, teamSlug, username) {

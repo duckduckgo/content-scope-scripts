@@ -1,12 +1,24 @@
-name: Cursor Auto Review
+name: Claude Auto Review
+
+# Replaces the retired Cursor Bugbot / Cursor Automation review. Instead of
+# waiting for a third-party GitHub App to publish a check run, this calls the
+# Claude API directly against the PR diff and posts the result.
+#
+# Dependabot PRs are excluded: `dependabot-auto-merge.yml` runs the same
+# reviewer with the `dependency` profile and would otherwise fight this
+# workflow over the same review comment.
 
 on:
     pull_request:
         types: [opened, synchronize, reopened]
 
+permissions:
+    contents: read
+    pull-requests: write
+
 jobs:
     check_membership:
-        if: ${{ !github.event.pull_request.head.repo.fork }}
+        if: ${{ !github.event.pull_request.head.repo.fork && github.event.pull_request.user.login != 'dependabot[bot]' }}
         runs-on: ubuntu-latest
         outputs:
             is_member: ${{ steps.membership.outputs.is_member }}
@@ -20,18 +32,16 @@ jobs:
                       const prAuthor = context.payload.pull_request.user.login;
 
                       // For human-authored PRs the PR author IS the launcher
-                      // — check team membership against them. For Cursor-app
-                      // PRs (`cursor[bot]`) the PR author is the bot, which
-                      // is never a team member, so we resolve a human identity
-                      // from the head commit instead. Prefer the committer
-                      // (who pushed); Cursor app commits often keep
-                      // `cursor[bot]` as committer, so fall back to the
-                      // commit author. Same-repo branches are already
-                      // required (the `head.repo.fork` check on this job),
-                      // so a human committer can only have been a user with
-                      // push access to this repo.
+                      // — check team membership against them. For bot-authored
+                      // PRs the author is never a team member, so we resolve a
+                      // human identity from the head commit instead. Prefer the
+                      // committer (who pushed); bot-created commits often keep
+                      // the bot as committer, so fall back to the commit author.
+                      // Same-repo branches are already required (the
+                      // `head.repo.fork` check on this job), so a human
+                      // committer can only have been a user with push access.
                       let userToCheck = prAuthor;
-                      if (prAuthor === 'cursor[bot]') {
+                      if (context.payload.pull_request.user.type === 'Bot') {
                           const { data: headCommit } = await github.rest.repos.getCommit({
                               owner: context.repo.owner,
                               repo: context.repo.repo,
@@ -75,11 +85,11 @@ jobs:
                           core.setOutput('is_member', 'false');
                       }
 
-    cursor_auto_review:
+    claude_auto_review:
         needs: check_membership
         if: needs.check_membership.outputs.is_member == 'true'
         runs-on: ubuntu-latest
-        concurrency: cursor-review-${{ github.event.pull_request.number }}
+        concurrency: claude-review-${{ github.event.pull_request.number }}
 
         steps:
             - name: Dismiss stale Dax approval on new push
@@ -101,7 +111,7 @@ jobs:
                                   repo: context.repo.repo,
                                   pull_number: context.payload.pull_request.number,
                                   review_id: review.id,
-                                  message: 'Dismissing stale approval — new commits pushed, awaiting Cursor re-review.'
+                                  message: 'Dismissing stale approval — new commits pushed, awaiting Claude re-review.'
                               });
                               console.log(`Dismissed stale approval (review ${review.id})`);
                           }
@@ -114,36 +124,23 @@ jobs:
                   sparse-checkout: |
                       .github/REQUIRED_TEAMS
                       .github/scripts
+                      .nvmrc
                   sparse-checkout-cone-mode: false
+                  persist-credentials: false
 
-            - name: Debounce delay
-              run: sleep 5
-
-            - name: Wait for Cursor Bugbot
-              uses: fountainhead/action-wait-for-check@v1.2.0
-              id: wait-for-cursor
+            - name: Use Node.js
+              uses: actions/setup-node@v7
               with:
-                  token: ${{ secrets.GITHUB_TOKEN }}
-                  checkName: Cursor Bugbot
-                  ref: ${{ github.event.pull_request.head.sha }}
-                  timeoutSeconds: 600
+                  node-version-file: '.nvmrc'
 
-            - name: Check Cursor Bugbot risk assessment
-              if: steps.wait-for-cursor.outputs.conclusion == 'success'
-              uses: actions/github-script@v9
-              id: risk_check
-              with:
-                  github-token: ${{ secrets.GITHUB_TOKEN }}
-                  script: |
-                      const { findRiskLevel } = await import(`${process.cwd()}/.github/scripts/review-helpers.mjs`);
-                      const riskLevel = await findRiskLevel(github, {
-                          owner: context.repo.owner,
-                          repo: context.repo.repo,
-                          prNumber: context.payload.pull_request.number
-                      });
-                      console.log(`Cursor Bugbot risk level: ${riskLevel ?? 'not found'}`);
-                      core.setOutput('risk_level', riskLevel ?? 'unknown');
-                      core.setOutput('is_low_risk', riskLevel?.toLowerCase() === 'low');
+            - name: Claude review
+              id: review
+              continue-on-error: true
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+                  PR_NUMBER: ${{ github.event.pull_request.number }}
+              run: node .github/scripts/claude-pr-review.mjs --profile general
 
             - name: Check for existing Dax approval
               uses: actions/github-script@v9
@@ -163,8 +160,9 @@ jobs:
 
             - name: Auto approve
               if: |
-                  steps.wait-for-cursor.outputs.conclusion == 'success' &&
-                  steps.risk_check.outputs.is_low_risk == 'true' &&
+                  steps.review.outcome == 'success' &&
+                  steps.review.outputs.is_low_risk == 'true' &&
+                  steps.review.outputs.reviewed_head_sha == github.event.pull_request.head.sha &&
                   steps.check_reviews.outputs.has_approved_review == 'false'
               run: gh pr review --approve "$PR_URL"
               env:
@@ -173,8 +171,8 @@ jobs:
 
             - name: Find previous review comment
               if: |
-                  steps.wait-for-cursor.outputs.conclusion != 'success' ||
-                  steps.risk_check.outputs.is_low_risk != 'true'
+                  steps.review.outcome != 'success' ||
+                  steps.review.outputs.is_low_risk != 'true'
               uses: peter-evans/find-comment@v4
               id: find_comment
               with:
@@ -185,13 +183,13 @@ jobs:
 
             - name: Post manual review required comment
               if: |
-                  (steps.wait-for-cursor.outputs.conclusion != 'success' ||
-                  steps.risk_check.outputs.is_low_risk != 'true') &&
+                  (steps.review.outcome != 'success' ||
+                  steps.review.outputs.is_low_risk != 'true') &&
                   steps.find_comment.outputs.comment-id == ''
               uses: actions/github-script@v9
               env:
-                  CURSOR_CONCLUSION: ${{ steps.wait-for-cursor.outputs.conclusion }}
-                  RISK_LEVEL: ${{ steps.risk_check.outputs.risk_level }}
+                  REVIEW_OUTCOME: ${{ steps.review.outcome }}
+                  RISK_LEVEL: ${{ steps.review.outputs.risk_level }}
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
                   script: |
@@ -199,12 +197,12 @@ jobs:
                       const teams = loadRequiredTeams();
                       const teamList = formatTeamList(teams);
 
-                      const cursorPassed = process.env.CURSOR_CONCLUSION === 'success';
+                      const reviewRan = process.env.REVIEW_OUTCOME === 'success';
                       const riskLevel = process.env.RISK_LEVEL;
 
-                      const reason = cursorPassed
-                          ? `Cursor assessed this PR as **${riskLevel} Risk** (only Low Risk is auto-approved).`
-                          : 'Cursor review was not successful.';
+                      const reason = reviewRan
+                          ? `Claude assessed this PR as **${riskLevel} Risk** (only Low Risk is auto-approved).`
+                          : 'The Claude review did not complete.';
 
                       await github.rest.issues.createComment({
                           owner: context.repo.owner,

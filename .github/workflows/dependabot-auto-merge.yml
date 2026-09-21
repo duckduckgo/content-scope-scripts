@@ -59,23 +59,23 @@ jobs:
                     echo "is_npm=false" >> "$GITHUB_OUTPUT"
                   fi
 
-            # Each Dependabot reviewer inline comment is classified (and
-            # low-risk threads resolved) in its own step before the merge
-            # gate runs or any human-deferral step (#2756) can assign a
-            # reviewer. The classify step writes a runner-local state file
-            # that merge-gate consumes so we don't repeat the check wait.
-            - name: Classify Dependabot reviewer inline comments
+            # Claude reviews the PR diff directly and posts the review as a
+            # comment, then writes a runner-local state file that the merge
+            # gate consumes so we don't repeat the check wait. This replaces
+            # the retired Cursor Bugbot / Cursor Automation checks the gate
+            # used to wait for and grade.
+            - name: Claude review
               if: steps.classify.outputs.is_npm == 'true'
-              id: classify_threads
+              id: review
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
                   PR_NUMBER: ${{ github.event.pull_request.number }}
                   PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-              run: node .github/scripts/dependabot-anthropic-gate.mjs classify-threads
+              run: node .github/scripts/dependabot-anthropic-gate.mjs review
 
-            - name: Ask Anthropic to assess Cursor results
-              if: steps.classify.outputs.is_npm == 'true' && steps.classify_threads.outcome == 'success'
+            - name: Ask Anthropic to assess the Claude review
+              if: steps.classify.outputs.is_npm == 'true' && steps.review.outcome == 'success'
               id: anthropic_gate
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -85,10 +85,9 @@ jobs:
               run: node .github/scripts/dependabot-anthropic-gate.mjs merge-gate
 
             # Any human-deferral step (e.g. #2756) must also require
-            # `steps.classify_threads.outcome == 'success'` and
-            # `steps.classify_threads.outputs.review_thread_classification_complete == 'true'`
-            # so reviewers are only assigned after every Dependabot reviewer
-            # inline thread has been individually classified.
+            # `steps.review.outcome == 'success'` and
+            # `steps.review.outputs.review_complete == 'true'` so reviewers
+            # are only assigned after the PR has actually been reviewed.
 
             # Approve as `daxtheduck` (via DAX_PAT) rather than the
             # workflow's GITHUB_TOKEN. The Authorized Review check in
@@ -184,17 +183,15 @@ jobs:
             # the gate's current judgement.
             #
             # Required upstream signal (per the note above the merge
-            # gate): only run after the per-thread classifier has
-            # completed every Dependabot reviewer inline thread, and
+            # gate): only run after the Claude review completed, and
             # only after the Anthropic merge gate itself has returned
             # a `safe_to_merge: false` verdict. That ordering ensures
             # we never assign a human reviewer on a half-evaluated PR
-            # — e.g. one where the classifier crashed mid-pass and
-            # only some threads have been triaged.
+            # — e.g. one where the reviewer crashed before posting.
             - name: Defer to human reviewer if Anthropic declined
               if: |
-                  steps.classify_threads.outcome == 'success' &&
-                  steps.classify_threads.outputs.review_thread_classification_complete == 'true' &&
+                  steps.review.outcome == 'success' &&
+                  steps.review.outputs.review_complete == 'true' &&
                   steps.anthropic_gate.outputs.safe_to_merge == 'false'
               env:
                   GH_TOKEN: ${{ secrets.DAX_PAT }}
