@@ -8,6 +8,7 @@ import { Dropdown } from './chat-tools/dropdown/Dropdown';
 import { DropdownItem } from './chat-tools/dropdown/DropdownItem';
 import { useDropdown } from './chat-tools/useDropdown';
 import { getModelIcon } from './chat-tools/model-selector/Icons';
+import { useCreateImageModelSwitchNotice } from './useCreateImageModelSwitchNotice';
 import { useUsageLimitsDrawer } from './useUsageLimitsDrawer';
 import styles from './UsageLimitsDrawer.module.css';
 
@@ -26,6 +27,17 @@ import styles from './UsageLimitsDrawer.module.css';
  *   menuHeader?: string,
  *   alternatives?: UsageLimitsCtaAlternative[],
  * }} UsageLimitsCta
+ * @typedef {{
+ *   message: string,
+ *   secondaryText: string,
+ *   secondaryOnNewLine?: boolean,
+ *   icon: UsageLimitsIcon,
+ *   percent?: number,
+ *   severity?: UsageLimitsSeverity,
+ *   cta?: UsageLimitsCta | null,
+ *   onDismiss?: (() => void) | undefined,
+ *   onSelectCta?: ((modelId?: string) => void) | undefined,
+ * }} DrawerPresentation
  */
 
 /**
@@ -225,16 +237,30 @@ function UsageLimitsCtaControl({ cta, onSelectCta }) {
 
 /**
  * @param {object} props
- * @param {boolean} props.revealed - Whether focus is inside the omnibar; the drawer only shows alongside a focused composer.
+ * @param {boolean} props.revealed - Whether focus is inside the omnibar; usage limits only show alongside a focused composer.
  */
 export function UsageLimitsDrawer({ revealed }) {
     const usageLimits = useUsageLimitsDrawer();
+    const createImageModelSwitch = useCreateImageModelSwitchNotice();
+    // Create Image wins visual priority; usage-limit blocking remains independent.
+    const presentation = createImageModelSwitch ?? usageLimits;
 
-    if (!usageLimits) return null;
+    if (!presentation) return null;
 
-    const { message, secondaryText, secondaryOnNewLine, icon, percent, severity, cta, onSelectCta, onDismiss } = usageLimits;
+    const {
+        message,
+        secondaryText,
+        secondaryOnNewLine = false,
+        icon,
+        percent = 0,
+        severity = 'neutral',
+        cta = null,
+        onSelectCta,
+        onDismiss,
+    } = presentation;
 
     const emphasize = icon === 'ring' || icon === 'alert' || icon === 'convert';
+    const isRevealed = revealed || createImageModelSwitch !== null;
 
     const keepComposerFocus = (event) => {
         // Keep the caret in the composer so clicking CTA/dismiss does not hide the drawer first.
@@ -243,7 +269,7 @@ export function UsageLimitsDrawer({ revealed }) {
 
     return (
         <div
-            class={cn(styles.drawer, !revealed && styles.hidden)}
+            class={cn(styles.drawer, !isRevealed && styles.hidden)}
             data-testid="usage-limits-drawer"
             role="status"
             onMouseDown={keepComposerFocus}

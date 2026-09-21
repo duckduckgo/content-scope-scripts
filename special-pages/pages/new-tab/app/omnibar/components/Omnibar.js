@@ -101,7 +101,7 @@ export function Omnibar({
      */
     const rebrand = useNewTabPageRebranding();
     const { keyboardFocusWithinProps } = useKeyboardFocusWithin({ enabled: rebrand });
-    const { state, openSuggestion, submitSearch, submitChat, setShowCustomizePopover } = useContext(OmnibarContext);
+    const { openSuggestion, submitSearch, submitChat, setShowCustomizePopover } = useContext(OmnibarContext);
 
     const { open: openCustomizer } = useDrawerControls();
     useDrawerEventListeners(
@@ -219,7 +219,7 @@ export function Omnibar({
                                 </OpenTabsProvider>
                             )}
                         </div>
-                        {mode === 'ai' && <UsageLimitsDrawer revealed={usageLimitsRevealed || !!state.config?.createImageModelSwitch} />}
+                        {mode === 'ai' && <UsageLimitsDrawer revealed={usageLimitsRevealed} />}
                     </div>
                 </AiChatsProvider>
             </SearchFormProvider>
