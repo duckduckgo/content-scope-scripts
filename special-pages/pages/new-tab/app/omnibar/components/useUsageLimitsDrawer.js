@@ -20,7 +20,7 @@ const USAGE_LIMITS_CTA_LEADING_ICON_VALUES = /** @type {const} */ (['none', 'con
 /**
  * Reads the native-driven usage limits presentation from OmnibarConfig.
  *
- * @returns {import('./UsageLimitsDrawer.js').DrawerPresentation | null}
+ * @returns {import('./NoticeDrawer.js').NoticePresentation | null}
  */
 export function useUsageLimitsDrawer() {
     const { state, dismissUsageLimits, selectUsageLimitsCta } = useContext(OmnibarContext);
@@ -45,7 +45,7 @@ export function useUsageLimitsDrawer() {
     const severity = usageLimits.severity && USAGE_LIMITS_SEVERITY_VALUES.includes(usageLimits.severity) ? usageLimits.severity : 'neutral';
 
     const rawCta = usageLimits.cta ?? null;
-    /** @type {import('./UsageLimitsDrawer.js').UsageLimitsCta | null} */
+    /** @type {import('./NoticeDrawer.js').UsageLimitsCta | null} */
     const cta =
         rawCta && typeof rawCta.label === 'string'
             ? {

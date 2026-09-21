@@ -10,13 +10,13 @@ import { useDropdown } from './chat-tools/useDropdown';
 import { getModelIcon } from './chat-tools/model-selector/Icons';
 import { useCreateImageModelSwitchNotice } from './useCreateImageModelSwitchNotice';
 import { useUsageLimitsDrawer } from './useUsageLimitsDrawer';
-import styles from './UsageLimitsDrawer.module.css';
+import styles from './NoticeDrawer.module.css';
 
 /** @typedef {typeof import('../strings.json')} Strings */
 
 /**
- * @typedef {'info' | 'ring' | 'alert' | 'convert'} UsageLimitsIcon
- * @typedef {'neutral' | 'warning' | 'critical'} UsageLimitsSeverity
+ * @typedef {'info' | 'ring' | 'alert' | 'convert'} NoticeIcon
+ * @typedef {'neutral' | 'warning' | 'critical'} NoticeSeverity
  * @typedef {'none' | 'convert'} UsageLimitsCtaLeadingIcon
  * @typedef {{ id: string, name: string, variant?: string }} UsageLimitsCtaAlternative
  * @typedef {{
@@ -31,13 +31,13 @@ import styles from './UsageLimitsDrawer.module.css';
  *   message: string,
  *   secondaryText: string,
  *   secondaryOnNewLine?: boolean,
- *   icon: UsageLimitsIcon,
+ *   icon: NoticeIcon,
  *   percent?: number,
- *   severity?: UsageLimitsSeverity,
+ *   severity?: NoticeSeverity,
  *   cta?: UsageLimitsCta | null,
  *   onDismiss?: (() => void) | undefined,
  *   onSelectCta?: ((modelId?: string) => void) | undefined,
- * }} DrawerPresentation
+ * }} NoticePresentation
  */
 
 /**
@@ -45,7 +45,7 @@ import styles from './UsageLimitsDrawer.module.css';
  * radius = 16/2 − 1.25/2 = 7.375 so the stroke outer edge is 16px.
  * @param {object} props
  * @param {number} props.percent
- * @param {UsageLimitsSeverity} props.severity
+ * @param {NoticeSeverity} props.severity
  */
 function UsageLimitsRing({ percent, severity }) {
     const radius = 7.375;
@@ -107,11 +107,11 @@ function UsageLimitsAlertIcon() {
 
 /**
  * @param {object} props
- * @param {UsageLimitsIcon} props.icon
+ * @param {NoticeIcon} props.icon
  * @param {number} props.percent
- * @param {UsageLimitsSeverity} props.severity
+ * @param {NoticeSeverity} props.severity
  */
-function UsageLimitsGlyph({ icon, percent, severity }) {
+function NoticeGlyph({ icon, percent, severity }) {
     const infoIcon = <InfoIcon class={cn(styles.glyph, styles.info)} aria-hidden="true" />;
 
     switch (icon) {
@@ -126,7 +126,7 @@ function UsageLimitsGlyph({ icon, percent, severity }) {
         default: {
             /** @type {never} */
             const _exhaustiveCheck = icon;
-            console.error(`Unknown usage limits icon: ${_exhaustiveCheck}`);
+            console.error(`Unknown notice icon: ${_exhaustiveCheck}`);
             return infoIcon;
         }
     }
@@ -237,9 +237,9 @@ function UsageLimitsCtaControl({ cta, onSelectCta }) {
 
 /**
  * @param {object} props
- * @param {boolean} props.revealed - Whether focus is inside the omnibar; usage limits only show alongside a focused composer.
+ * @param {boolean} props.revealed - Whether focus-gated notices should be shown.
  */
-export function UsageLimitsDrawer({ revealed }) {
+export function NoticeDrawer({ revealed }) {
     const usageLimits = useUsageLimitsDrawer();
     const createImageModelSwitch = useCreateImageModelSwitchNotice();
     // Create Image wins visual priority; usage-limit blocking remains independent.
@@ -270,14 +270,14 @@ export function UsageLimitsDrawer({ revealed }) {
     return (
         <div
             class={cn(styles.drawer, !isRevealed && styles.hidden)}
-            data-testid="usage-limits-drawer"
+            data-testid="notice-drawer"
             role="status"
             onMouseDown={keepComposerFocus}
         >
             <div class={styles.card}>
                 <div class={styles.content}>
                     <span class={styles.leading}>
-                        <UsageLimitsGlyph icon={icon} percent={percent} severity={severity} />
+                        <NoticeGlyph icon={icon} percent={percent} severity={severity} />
                     </span>
                     <p class={cn(styles.message, emphasize && styles.messageEmphasized, secondaryOnNewLine && styles.messageStacked)}>
                         <span class={styles.primary}>{message}</span>

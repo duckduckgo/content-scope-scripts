@@ -4,7 +4,7 @@ import { OmnibarContext } from './OmnibarProvider';
 /**
  * Reads the native-driven notice shown when Create Image switches models.
  *
- * @returns {import('./UsageLimitsDrawer.js').DrawerPresentation | null}
+ * @returns {import('./NoticeDrawer.js').NoticePresentation | null}
  */
 export function useCreateImageModelSwitchNotice() {
     const { state, dismissCreateImageModelSwitch } = useContext(OmnibarContext);

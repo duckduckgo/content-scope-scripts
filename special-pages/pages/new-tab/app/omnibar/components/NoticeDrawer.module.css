@@ -16,7 +16,7 @@
     }
 }
 
-/* Revealed only while the composer has focus. */
+/* Hide focus-gated notices until the composer has focus. */
 .hidden {
     display: none;
 }

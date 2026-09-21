@@ -35,7 +35,7 @@ import { MentionPicker } from './chat-tools/tab-attachment/MentionPicker';
 import { OpenTabsProvider } from './chat-tools/tab-attachment/OpenTabsProvider';
 import { useMentionPicker } from './chat-tools/tab-attachment/useMentionPicker';
 import { useTabAttachments } from './chat-tools/tab-attachment/useTabAttachments';
-import { UsageLimitsDrawer } from './UsageLimitsDrawer';
+import { NoticeDrawer } from './NoticeDrawer';
 import { useKeyboardFocusWithin } from './useKeyboardFocusWithin.js';
 
 /**
@@ -219,7 +219,7 @@ export function Omnibar({
                                 </OpenTabsProvider>
                             )}
                         </div>
-                        {mode === 'ai' && <UsageLimitsDrawer revealed={usageLimitsRevealed} />}
+                        {mode === 'ai' && <NoticeDrawer revealed={usageLimitsRevealed} />}
                     </div>
                 </AiChatsProvider>
             </SearchFormProvider>
@@ -308,13 +308,14 @@ function AiChatContent({
      */
     const handleToggleTool = (tool) => {
         const nextTool = activeTool === tool ? null : tool;
+        const nextImageGeneration = nextTool === 'image-generation';
 
-        if (nextTool === 'image-generation') {
+        if (nextImageGeneration) {
             hideChats();
         }
 
-        if (updatedCreateImageEnabled && (activeTool === 'image-generation') !== (nextTool === 'image-generation')) {
-            setImageGenerationActive(nextTool === 'image-generation');
+        if (updatedCreateImageEnabled && (imageGenerationActive || nextImageGeneration)) {
+            setImageGenerationActive(nextImageGeneration);
         }
 
         setActiveTool(nextTool);
