@@ -55,7 +55,11 @@ jobs:
               run: |
                   curl -L -o SF-Pro.dmg 'https://devimages-cdn.apple.com/design/resources/download/SF-Pro.dmg'
                   hdiutil attach SF-Pro.dmg
-                  sudo installer -pkg '/Volumes/SFProFonts/SF Pro Fonts.pkg' -target /
+                  # Apple renames the package between releases, so match it by extension
+                  shopt -s nullglob
+                  pkgs=(/Volumes/SFProFonts/*.pkg)
+                  if [ ${#pkgs[@]} -eq 0 ]; then echo 'No .pkg found in SF-Pro.dmg'; exit 1; fi
+                  for pkg in "${pkgs[@]}"; do sudo installer -pkg "$pkg" -target /; done
                   hdiutil detach '/Volumes/SFProFonts'
 
             - name: Install dependencies
