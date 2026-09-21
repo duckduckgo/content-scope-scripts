@@ -9,6 +9,7 @@ import {
     extractReviewFromAnthropicResponse,
     formatReviewComment,
     isLowRisk,
+    listOpenPullRequests,
     requestReview,
     shouldOmitPatch,
     splitDiffByFile,
@@ -47,6 +48,7 @@ function reviewResponse(overrides = {}) {
                     risk_level: 'low',
                     summary: 'Routine patch bump with no source changes.',
                     findings: [],
+                    sections: [{ heading: 'Changelog impact', body: 'Patch release, no breaking changes.' }],
                     blocking: false,
                     confidence: 'high',
                     ...overrides,
@@ -115,10 +117,19 @@ test('summariseFiles normalises and caps the file list', () => {
     assert.equal(summary.omittedFileCount, 0);
 });
 
-test('systemPromptFor returns a distinct prompt per profile', () => {
-    assert.ok(systemPromptFor('dependency').includes('dependency update'));
-    assert.ok(systemPromptFor('general').includes('web compatibility'));
+test('systemPromptFor loads a distinct prompt per profile', () => {
+    const dependency = systemPromptFor('dependency');
+    const general = systemPromptFor('general');
+    assert.ok(dependency.includes('dependency update reviewer'));
+    assert.ok(dependency.includes('Supply chain'));
+    assert.ok(general.includes('Web Compatibility Evaluation'));
+    assert.ok(general.includes('captured-globals.js'));
+    assert.notEqual(dependency, general);
     assert.throws(() => systemPromptFor('nope'), /Unknown review profile/);
+});
+
+test('systemPromptFor caches the prompt after the first read', () => {
+    assert.equal(systemPromptFor('dependency'), systemPromptFor('dependency'));
 });
 
 test('extractReviewFromAnthropicResponse returns the structured review', () => {
@@ -131,12 +142,21 @@ test('extractReviewFromAnthropicResponse returns the structured review', () => {
 test('extractReviewFromAnthropicResponse normalises findings', () => {
     const review = extractReviewFromAnthropicResponse(
         reviewResponse({
-            risk_level: 'high',
+            risk_level: 'critical',
             blocking: true,
-            findings: [{ severity: 'high', description: 'Breaks origin validation.' }],
+            findings: [{ severity: 'critical', status: 'confirmed', description: 'Breaks origin validation.' }],
         }),
     );
-    assert.deepEqual(review.findings, [{ severity: 'high', file: '', description: 'Breaks origin validation.' }]);
+    assert.deepEqual(review.findings, [{ severity: 'critical', status: 'confirmed', file: '', description: 'Breaks origin validation.' }]);
+});
+
+test('extractReviewFromAnthropicResponse keeps only well-formed sections', () => {
+    const review = extractReviewFromAnthropicResponse(
+        reviewResponse({
+            sections: [{ heading: 'Supply chain', body: 'Official publisher.' }, { heading: '', body: 'dropped: no heading' }, null],
+        }),
+    );
+    assert.deepEqual(review.sections, [{ heading: 'Supply chain', body: 'Official publisher.' }]);
 });
 
 test('extractReviewFromAnthropicResponse rejects malformed payloads', () => {
@@ -147,8 +167,18 @@ test('extractReviewFromAnthropicResponse rejects malformed payloads', () => {
     assert.throws(() => extractReviewFromAnthropicResponse(reviewResponse({ confidence: 'sure' })), /confidence/);
     assert.throws(() => extractReviewFromAnthropicResponse(reviewResponse({ findings: 'none' })), /findings/);
     assert.throws(
-        () => extractReviewFromAnthropicResponse(reviewResponse({ findings: [{ severity: 'nope', file: '', description: 'x' }] })),
+        () =>
+            extractReviewFromAnthropicResponse(
+                reviewResponse({ findings: [{ severity: 'nope', status: 'confirmed', file: '', description: 'x' }] }),
+            ),
         /severity/,
+    );
+    assert.throws(
+        () =>
+            extractReviewFromAnthropicResponse(
+                reviewResponse({ findings: [{ severity: 'error', status: 'maybe', file: '', description: 'x' }] }),
+            ),
+        /status/,
     );
 });
 
@@ -175,19 +205,33 @@ test('formatReviewComment carries the marker and a parseable risk level', () => 
     assert.ok(body.includes('abc123'));
 });
 
-test('formatReviewComment renders findings and the blocking notice', () => {
+test('formatReviewComment renders findings, status and the blocking notice', () => {
     const review = extractReviewFromAnthropicResponse(
         reviewResponse({
-            risk_level: 'high',
+            risk_level: 'critical',
             blocking: true,
-            findings: [{ severity: 'high', file: 'injected/src/a.js', description: 'Leaks data | to the page.' }],
+            findings: [
+                { severity: 'critical', status: 'confirmed', file: 'injected/src/a.js', description: 'Leaks data | to the page.' },
+                { severity: 'warning', status: 'uncertain', file: '', description: 'May race with init().' },
+            ],
         }),
     );
     const body = formatReviewComment(review, { model: 'claude-opus-5', headSha: 'abc123' });
-    assert.ok(body.includes('**High Risk**'));
+    assert.ok(body.includes('**Critical Risk**'));
     assert.ok(body.includes('`injected/src/a.js`'));
+    assert.ok(body.includes('| critical | confirmed |'));
+    assert.ok(body.includes('| warning | uncertain |'));
     assert.ok(body.includes('Leaks data \\| to the page.'), 'pipes are escaped for the table');
     assert.ok(body.includes('blocking'));
+});
+
+test('formatReviewComment renders the assessment sections', () => {
+    const body = formatReviewComment(extractReviewFromAnthropicResponse(reviewResponse()), {
+        model: 'claude-opus-5',
+        headSha: 'abc123',
+    });
+    assert.ok(body.includes('### Changelog impact'));
+    assert.ok(body.includes('Patch release, no breaking changes.'));
 });
 
 test('requestReview posts a forced tool call and returns the parsed review', async () => {
@@ -230,4 +274,22 @@ test('requestReview surfaces an API error', async () => {
         }),
         /429/,
     );
+});
+
+test('listOpenPullRequests returns lightweight context and drops the PR under review', async () => {
+    const fetchImpl = async () => ({
+        ok: true,
+        status: 200,
+        json: async () => [
+            { number: 10, title: 'fix: lockfile', user: { login: 'someone' }, draft: false },
+            { number: 11, title: 'the PR under review', user: { login: 'dependabot[bot]' }, draft: false },
+        ],
+    });
+    const pulls = await listOpenPullRequests({ apiRoot: 'https://api', headers: {}, fetchImpl, exclude: 11 });
+    assert.deepEqual(pulls, [{ number: 10, title: 'fix: lockfile', author: 'someone', draft: false }]);
+});
+
+test('listOpenPullRequests degrades to empty context rather than failing the review', async () => {
+    const fetchImpl = async () => ({ ok: false, status: 403, json: async () => ({}) });
+    assert.deepEqual(await listOpenPullRequests({ apiRoot: 'https://api', headers: {}, fetchImpl }), []);
 });
