@@ -70,7 +70,7 @@ export function ModelSelector({
                 tabIndex={disabled || readOnly ? -1 : 0}
                 class={cn(styles.modelButton, readOnly && styles.modelButtonReadOnly, modelDropdownOpen && styles.modelButtonOpen)}
                 aria-label={ariaLabel}
-                aria-disabled={readOnly || undefined}
+                aria-disabled={(!disabled && readOnly) || undefined}
                 aria-haspopup={readOnly ? undefined : 'listbox'}
                 aria-expanded={readOnly ? undefined : modelDropdownOpen}
                 disabled={disabled}
