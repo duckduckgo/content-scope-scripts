@@ -45,9 +45,24 @@ jobs:
 
             - name: Install SF Pro Fonts
               run: |
+                  set -euo pipefail
                   curl -L -o SF-Pro.dmg 'https://devimages-cdn.apple.com/design/resources/download/SF-Pro.dmg'
                   hdiutil attach SF-Pro.dmg
-                  sudo installer -pkg '/Volumes/SFProFonts/SF Pro Fonts.pkg' -target /
+                  # Apple renames the package inside the DMG between font
+                  # releases. It used to be 'SF Pro Fonts.pkg'; when that name
+                  # changed, `installer` failed with "the package path
+                  # specified was invalid" and took every snapshot run with
+                  # it. Resolve whichever .pkg the mounted volume ships
+                  # instead of hard-coding the name.
+                  pkg="$(find /Volumes/SFProFonts -maxdepth 1 -name '*.pkg' -print -quit)"
+                  if [[ -z "$pkg" ]]; then
+                      echo "::error::No .pkg found on /Volumes/SFProFonts; Apple may have changed the DMG layout."
+                      ls -la /Volumes/SFProFonts || true
+                      hdiutil detach '/Volumes/SFProFonts' || true
+                      exit 1
+                  fi
+                  echo "Installing $pkg"
+                  sudo installer -pkg "$pkg" -target /
                   hdiutil detach '/Volumes/SFProFonts'
 
             - name: Install dependencies
