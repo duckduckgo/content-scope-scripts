@@ -296,6 +296,14 @@
    - `true`
    - `false`
 
+### Enable Updated Create Image
+ - **Purpose**: Enables the native-driven model switch and notice when Create Image is selected from an unsupported model
+ - **Parameter**: `omnibar.enableUpdatedCreateImage`
+ - **Example**: `?omnibar.mode=ai&omnibar.enableAiChatTools=true&omnibar.enableImageGeneration=true&omnibar.enableUpdatedCreateImage=true&omnibar.selectedModelId=openai_gpt-oss-120b`
+ - **Options**:
+   - `true`
+   - `false`
+
 ### Enable Web Search
  - **Purpose**: Shows the "Web Search" tool in the AI chat toolbar's tools menu
  - **Parameter**: `omnibar.enableWebSearch`

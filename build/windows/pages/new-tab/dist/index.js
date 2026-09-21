@@ -9264,6 +9264,21 @@
           this.ntp.messaging.notify("omnibar_dismissUsageLimits", {});
         }
         /**
+         * Notify native that the user dismissed the Create Image model-switch notice.
+         * Native owns notice lifecycle and should push updated config.
+         */
+        dismissCreateImageModelSwitch() {
+          this.ntp.messaging.notify("omnibar_dismissCreateImageModelSwitch", {});
+        }
+        /**
+         * Notify native when the updated Create Image mode changes.
+         * Native owns model selection, persistence, and localized notice copy.
+         * @param {boolean} active
+         */
+        setImageGenerationActive(active2) {
+          this.ntp.messaging.notify("omnibar_setImageGenerationActive", { active: active2 });
+        }
+        /**
          * Notify native that the user selected the usage-limits CTA.
          * @param {string} [modelId] - Model id when switching models; omit for non-model actions.
          */
@@ -9454,6 +9469,15 @@
     const dismissUsageLimits = q2(() => {
       service.current?.dismissUsageLimits();
     }, [service]);
+    const dismissCreateImageModelSwitch = q2(() => {
+      service.current?.dismissCreateImageModelSwitch();
+    }, [service]);
+    const setImageGenerationActive = q2(
+      (active2) => {
+        service.current?.setImageGenerationActive(active2);
+      },
+      [service]
+    );
     const selectUsageLimitsCta = q2(
       (modelId) => {
         service.current?.selectUsageLimitsCta(modelId);
@@ -9517,6 +9541,8 @@
           viewAllAiChats,
           openCustomizeResponses,
           dismissUsageLimits,
+          dismissCreateImageModelSwitch,
+          setImageGenerationActive,
           selectUsageLimitsCta,
           setCustomizeResponsesActive,
           showUpsell,
@@ -9621,6 +9647,14 @@
         },
         /** @type {() => void} */
         dismissUsageLimits: () => {
+          throw new Error("must implement");
+        },
+        /** @type {() => void} */
+        dismissCreateImageModelSwitch: () => {
+          throw new Error("must implement");
+        },
+        /** @type {(active: boolean) => void} */
+        setImageGenerationActive: () => {
           throw new Error("must implement");
         },
         /** @type {(modelId?: string) => void} */
@@ -12445,6 +12479,7 @@
         modelSelector: "ModelSelector_modelSelector",
         modelButton: "ModelSelector_modelButton",
         modelButtonOpen: "ModelSelector_modelButtonOpen",
+        modelButtonReadOnly: "ModelSelector_modelButtonReadOnly",
         modelButtonLabel: "ModelSelector_modelButtonLabel",
         modelDropdown: "ModelSelector_modelDropdown",
         modelOption: "ModelSelector_modelOption",
@@ -12690,7 +12725,16 @@
   });
 
   // pages/new-tab/app/omnibar/components/chat-tools/model-selector/ModelSelector.js
-  function ModelSelector({ selector, selectedModel, aiModelSections, onUpsell, disabled = false, ariaLabel, isEligibleForFreeTrial }) {
+  function ModelSelector({
+    selector,
+    selectedModel,
+    aiModelSections,
+    onUpsell,
+    disabled = false,
+    readOnly = false,
+    ariaLabel,
+    isEligibleForFreeTrial
+  }) {
     const { modelButtonRef, modelDropdownOpen, dropdownPos, dropdownRef, toggleDropdown, closeDropdown, selectModel } = selector;
     const ntp = useMessaging();
     const shownRef = A2(false);
@@ -12721,21 +12765,22 @@
       {
         ref: modelButtonRef,
         type: "button",
-        tabIndex: disabled ? -1 : 0,
-        class: (0, import_classnames13.default)(ModelSelector_default.modelButton, modelDropdownOpen && ModelSelector_default.modelButtonOpen),
+        tabIndex: disabled || readOnly ? -1 : 0,
+        class: (0, import_classnames13.default)(ModelSelector_default.modelButton, readOnly && ModelSelector_default.modelButtonReadOnly, modelDropdownOpen && ModelSelector_default.modelButtonOpen),
         "aria-label": ariaLabel,
-        "aria-haspopup": "listbox",
-        "aria-expanded": modelDropdownOpen,
+        "aria-disabled": !disabled && readOnly || void 0,
+        "aria-haspopup": readOnly ? void 0 : "listbox",
+        "aria-expanded": readOnly ? void 0 : modelDropdownOpen,
         disabled,
         onClick: (e4) => {
           e4.stopPropagation();
-          if (disabled) return;
+          if (disabled || readOnly) return;
           toggleDropdown();
         }
       },
       /* @__PURE__ */ k("span", { class: ModelSelector_default.modelButtonLabel }, selectedModel?.shortName ?? ariaLabel),
-      /* @__PURE__ */ k(ChevronSmall, null)
-    ), modelDropdownOpen && dropdownPos && /* @__PURE__ */ k(
+      !readOnly && /* @__PURE__ */ k(ChevronSmall, null)
+    ), !readOnly && modelDropdownOpen && dropdownPos && /* @__PURE__ */ k(
       ModelDropdown,
       {
         dropdownRef,
@@ -12765,7 +12810,7 @@
   });
 
   // pages/new-tab/app/omnibar/components/chat-tools/model-selector/ModelSelectorTool.js
-  function ModelSelectorTool() {
+  function ModelSelectorTool({ readOnly = false }) {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {Strings} */
       {}
@@ -12787,6 +12832,7 @@
         aiModelSections,
         onUpsell: (type) => showUpsell(type, "model"),
         disabled: blocksPrompt,
+        readOnly,
         ariaLabel: t4("omnibar_modelSelectorLabel"),
         isEligibleForFreeTrial
       }
@@ -14521,6 +14567,33 @@
     }
   });
 
+  // pages/new-tab/app/omnibar/components/useCreateImageModelSwitchNotice.js
+  function useCreateImageModelSwitchNotice() {
+    const { state, dismissCreateImageModelSwitch } = x2(OmnibarContext);
+    const notice = state.config?.createImageModelSwitch ?? null;
+    const onDismiss = q2(() => {
+      dismissCreateImageModelSwitch();
+    }, [dismissCreateImageModelSwitch]);
+    if (!notice) return null;
+    return {
+      message: notice.message,
+      secondaryText: notice.secondaryText ?? "",
+      secondaryOnNewLine: true,
+      icon: (
+        /** @type {const} */
+        "convert"
+      ),
+      onDismiss: notice.dismissible !== false ? onDismiss : void 0
+    };
+  }
+  var init_useCreateImageModelSwitchNotice = __esm({
+    "pages/new-tab/app/omnibar/components/useCreateImageModelSwitchNotice.js"() {
+      "use strict";
+      init_hooks_module();
+      init_OmnibarProvider();
+    }
+  });
+
   // pages/new-tab/app/omnibar/components/useUsageLimitsDrawer.js
   function useUsageLimitsDrawer() {
     const { state, dismissUsageLimits, selectUsageLimitsCta } = x2(OmnibarContext);
@@ -14555,8 +14628,6 @@
       percent: typeof usageLimits.percent === "number" ? usageLimits.percent : 0,
       severity,
       cta,
-      blocksPrompt: usageLimits.blocksPrompt === true,
-      dismissible: usageLimits.dismissible === true,
       onDismiss: usageLimits.dismissible === true ? onDismiss : void 0,
       onSelectCta: cta ? onSelectCta : void 0
     };
@@ -14576,47 +14647,48 @@
     }
   });
 
-  // pages/new-tab/app/omnibar/components/UsageLimitsDrawer.module.css
-  var UsageLimitsDrawer_default;
-  var init_UsageLimitsDrawer = __esm({
-    "pages/new-tab/app/omnibar/components/UsageLimitsDrawer.module.css"() {
-      UsageLimitsDrawer_default = {
-        drawer: "UsageLimitsDrawer_drawer",
-        slideOpen: "UsageLimitsDrawer_slideOpen",
-        hidden: "UsageLimitsDrawer_hidden",
-        card: "UsageLimitsDrawer_card",
-        content: "UsageLimitsDrawer_content",
-        leading: "UsageLimitsDrawer_leading",
-        glyph: "UsageLimitsDrawer_glyph",
-        info: "UsageLimitsDrawer_info",
-        ringTrack: "UsageLimitsDrawer_ringTrack",
-        ringValue: "UsageLimitsDrawer_ringValue",
-        severity_neutral: "UsageLimitsDrawer_severity_neutral",
-        severity_warning: "UsageLimitsDrawer_severity_warning",
-        severity_critical: "UsageLimitsDrawer_severity_critical",
-        alertTriangle: "UsageLimitsDrawer_alertTriangle",
-        alertMark: "UsageLimitsDrawer_alertMark",
-        message: "UsageLimitsDrawer_message",
-        primary: "UsageLimitsDrawer_primary",
-        messageEmphasized: "UsageLimitsDrawer_messageEmphasized",
-        secondary: "UsageLimitsDrawer_secondary",
-        dismiss: "UsageLimitsDrawer_dismiss",
-        ctaSplit: "UsageLimitsDrawer_ctaSplit",
-        ctaPrimary: "UsageLimitsDrawer_ctaPrimary",
-        ctaPrimarySolo: "UsageLimitsDrawer_ctaPrimarySolo",
-        ctaPrimarySplit: "UsageLimitsDrawer_ctaPrimarySplit",
-        ctaMenu: "UsageLimitsDrawer_ctaMenu",
-        ctaLabel: "UsageLimitsDrawer_ctaLabel",
-        ctaMenuHeader: "UsageLimitsDrawer_ctaMenuHeader",
-        ctaDropdown: "UsageLimitsDrawer_ctaDropdown",
-        ctaModelName: "UsageLimitsDrawer_ctaModelName",
-        ctaModelVariant: "UsageLimitsDrawer_ctaModelVariant",
-        convertIcon: "UsageLimitsDrawer_convertIcon"
+  // pages/new-tab/app/omnibar/components/NoticeDrawer.module.css
+  var NoticeDrawer_default;
+  var init_NoticeDrawer = __esm({
+    "pages/new-tab/app/omnibar/components/NoticeDrawer.module.css"() {
+      NoticeDrawer_default = {
+        drawer: "NoticeDrawer_drawer",
+        slideOpen: "NoticeDrawer_slideOpen",
+        hidden: "NoticeDrawer_hidden",
+        card: "NoticeDrawer_card",
+        content: "NoticeDrawer_content",
+        leading: "NoticeDrawer_leading",
+        glyph: "NoticeDrawer_glyph",
+        info: "NoticeDrawer_info",
+        ringTrack: "NoticeDrawer_ringTrack",
+        ringValue: "NoticeDrawer_ringValue",
+        severity_neutral: "NoticeDrawer_severity_neutral",
+        severity_warning: "NoticeDrawer_severity_warning",
+        severity_critical: "NoticeDrawer_severity_critical",
+        alertTriangle: "NoticeDrawer_alertTriangle",
+        alertMark: "NoticeDrawer_alertMark",
+        message: "NoticeDrawer_message",
+        primary: "NoticeDrawer_primary",
+        messageEmphasized: "NoticeDrawer_messageEmphasized",
+        messageStacked: "NoticeDrawer_messageStacked",
+        secondary: "NoticeDrawer_secondary",
+        dismiss: "NoticeDrawer_dismiss",
+        ctaSplit: "NoticeDrawer_ctaSplit",
+        ctaPrimary: "NoticeDrawer_ctaPrimary",
+        ctaPrimarySolo: "NoticeDrawer_ctaPrimarySolo",
+        ctaPrimarySplit: "NoticeDrawer_ctaPrimarySplit",
+        ctaMenu: "NoticeDrawer_ctaMenu",
+        ctaLabel: "NoticeDrawer_ctaLabel",
+        ctaMenuHeader: "NoticeDrawer_ctaMenuHeader",
+        ctaDropdown: "NoticeDrawer_ctaDropdown",
+        ctaModelName: "NoticeDrawer_ctaModelName",
+        ctaModelVariant: "NoticeDrawer_ctaModelVariant",
+        convertIcon: "NoticeDrawer_convertIcon"
       };
     }
   });
 
-  // pages/new-tab/app/omnibar/components/UsageLimitsDrawer.js
+  // pages/new-tab/app/omnibar/components/NoticeDrawer.js
   function UsageLimitsRing({ percent, severity }) {
     const radius = 7.375;
     const circumference = 2 * Math.PI * radius;
@@ -14625,7 +14697,7 @@
     return /* @__PURE__ */ k(
       "svg",
       {
-        class: (0, import_classnames22.default)(UsageLimitsDrawer_default.glyph, UsageLimitsDrawer_default.ring, UsageLimitsDrawer_default[`severity_${severity}`]),
+        class: (0, import_classnames22.default)(NoticeDrawer_default.glyph, NoticeDrawer_default.ring, NoticeDrawer_default[`severity_${severity}`]),
         viewBox: "0 0 16 16",
         overflow: "visible",
         "aria-hidden": "true"
@@ -14633,7 +14705,7 @@
       /* @__PURE__ */ k(
         "circle",
         {
-          class: UsageLimitsDrawer_default.ringTrack,
+          class: NoticeDrawer_default.ringTrack,
           cx: "8",
           cy: "8",
           r: radius,
@@ -14647,7 +14719,7 @@
       /* @__PURE__ */ k(
         "circle",
         {
-          class: UsageLimitsDrawer_default.ringValue,
+          class: NoticeDrawer_default.ringValue,
           cx: "8",
           cy: "8",
           r: radius,
@@ -14661,40 +14733,42 @@
     );
   }
   function UsageLimitsAlertIcon() {
-    return /* @__PURE__ */ k("svg", { class: (0, import_classnames22.default)(UsageLimitsDrawer_default.glyph, UsageLimitsDrawer_default.alert), viewBox: "0 0 16 16", fill: "none", "aria-hidden": "true" }, /* @__PURE__ */ k(
+    return /* @__PURE__ */ k("svg", { class: (0, import_classnames22.default)(NoticeDrawer_default.glyph, NoticeDrawer_default.alert), viewBox: "0 0 16 16", fill: "none", "aria-hidden": "true" }, /* @__PURE__ */ k(
       "path",
       {
-        class: UsageLimitsDrawer_default.alertTriangle,
+        class: NoticeDrawer_default.alertTriangle,
         d: "M11.0577 1.82645C9.72299 -0.568293 6.27798 -0.568287 4.94327 1.82645L0.501422 9.79603C-0.798841 12.129 0.887818 15 3.55864 15H12.4423C15.1132 15 16.7998 12.129 15.4996 9.79602L11.0577 1.82645Z"
       }
     ), /* @__PURE__ */ k(
       "path",
       {
-        class: UsageLimitsDrawer_default.alertMark,
+        class: NoticeDrawer_default.alertMark,
         "fill-rule": "evenodd",
         "clip-rule": "evenodd",
         d: "M7.52562 4C7.23968 4 7.01197 4.23938 7.02625 4.52497L7.22625 8.52497C7.23955 8.79107 7.45919 9 7.72562 9H8.27438C8.54081 9 8.76045 8.79107 8.77375 8.52497L8.97375 4.52497C8.98803 4.23938 8.76032 4 8.47438 4H7.52562ZM8 12C8.55228 12 9 11.5523 9 11C9 10.4477 8.55228 10 8 10C7.44772 10 7 10.4477 7 11C7 11.5523 7.44772 12 8 12Z"
       }
     ));
   }
-  function UsageLimitsGlyph({ icon, percent, severity }) {
-    const infoIcon = /* @__PURE__ */ k(InfoIcon, { class: (0, import_classnames22.default)(UsageLimitsDrawer_default.glyph, UsageLimitsDrawer_default.info), "aria-hidden": "true" });
+  function NoticeGlyph({ icon, percent, severity }) {
+    const infoIcon = /* @__PURE__ */ k(InfoIcon, { class: (0, import_classnames22.default)(NoticeDrawer_default.glyph, NoticeDrawer_default.info), "aria-hidden": "true" });
     switch (icon) {
       case "ring":
         return /* @__PURE__ */ k(UsageLimitsRing, { percent, severity });
       case "alert":
         return /* @__PURE__ */ k(UsageLimitsAlertIcon, null);
+      case "convert":
+        return /* @__PURE__ */ k(ConvertIcon, null);
       case "info":
         return infoIcon;
       default: {
         const _exhaustiveCheck = icon;
-        console.error(`Unknown usage limits icon: ${_exhaustiveCheck}`);
+        console.error(`Unknown notice icon: ${_exhaustiveCheck}`);
         return infoIcon;
       }
     }
   }
   function ConvertIcon() {
-    return /* @__PURE__ */ k("svg", { class: UsageLimitsDrawer_default.convertIcon, viewBox: "0 0 16 16", width: "16", height: "16", fill: "none", "aria-hidden": "true" }, /* @__PURE__ */ k(
+    return /* @__PURE__ */ k("svg", { class: NoticeDrawer_default.convertIcon, viewBox: "0 0 16 16", width: "16", height: "16", fill: "none", "aria-hidden": "true" }, /* @__PURE__ */ k(
       "path",
       {
         fill: "currentColor",
@@ -14726,21 +14800,21 @@
       onSelectCta(cta.primaryModelId);
       menu.close();
     };
-    return /* @__PURE__ */ k("div", { ref: splitRef, class: UsageLimitsDrawer_default.ctaSplit }, /* @__PURE__ */ k(
+    return /* @__PURE__ */ k("div", { ref: splitRef, class: NoticeDrawer_default.ctaSplit }, /* @__PURE__ */ k(
       "button",
       {
         type: "button",
-        class: (0, import_classnames22.default)(UsageLimitsDrawer_default.ctaPrimary, showMenu ? UsageLimitsDrawer_default.ctaPrimarySplit : UsageLimitsDrawer_default.ctaPrimarySolo),
+        class: (0, import_classnames22.default)(NoticeDrawer_default.ctaPrimary, showMenu ? NoticeDrawer_default.ctaPrimarySplit : NoticeDrawer_default.ctaPrimarySolo),
         onClick: handlePrimary
       },
       showConvert ? /* @__PURE__ */ k(ConvertIcon, null) : null,
-      /* @__PURE__ */ k("span", { class: UsageLimitsDrawer_default.ctaLabel }, cta.label)
+      /* @__PURE__ */ k("span", { class: NoticeDrawer_default.ctaLabel }, cta.label)
     ), showMenu ? /* @__PURE__ */ k(S, null, /* @__PURE__ */ k(
       "button",
       {
         ref: menu.buttonRef,
         type: "button",
-        class: UsageLimitsDrawer_default.ctaMenu,
+        class: NoticeDrawer_default.ctaMenu,
         "aria-label": t4("omnibar_usageLimitsCtaMenuLabel"),
         "aria-expanded": menu.isOpen,
         "aria-haspopup": "menu",
@@ -14753,8 +14827,8 @@
         role: "menu",
         ariaLabel: menuHeader ?? t4("omnibar_usageLimitsCtaMenuFallback"),
         header: menuHeader,
-        headerClassName: UsageLimitsDrawer_default.ctaMenuHeader,
-        className: UsageLimitsDrawer_default.ctaDropdown,
+        headerClassName: NoticeDrawer_default.ctaMenuHeader,
+        className: NoticeDrawer_default.ctaDropdown,
         position: menu.dropdownPos,
         dropdownRef: menu.dropdownRef,
         onClose: ({ restoreFocus }) => {
@@ -14770,7 +14844,7 @@
           {
             key: alt.id,
             role: "menuitem",
-            name: /* @__PURE__ */ k(S, null, /* @__PURE__ */ k("span", { class: UsageLimitsDrawer_default.ctaModelName }, alt.name), alt.variant ? /* @__PURE__ */ k("span", { class: UsageLimitsDrawer_default.ctaModelVariant }, " ", alt.variant) : null),
+            name: /* @__PURE__ */ k(S, null, /* @__PURE__ */ k("span", { class: NoticeDrawer_default.ctaModelName }, alt.name), alt.variant ? /* @__PURE__ */ k("span", { class: NoticeDrawer_default.ctaModelVariant }, " ", alt.variant) : null),
             showCheckGutter: false,
             icon: Icon ? /* @__PURE__ */ k(Icon, null) : void 0,
             onSelect: () => {
@@ -14782,28 +14856,41 @@
       })
     ) : null) : null);
   }
-  function UsageLimitsDrawer({ revealed }) {
+  function NoticeDrawer({ revealed }) {
     const usageLimits = useUsageLimitsDrawer();
-    if (!usageLimits) return null;
-    const { message, secondaryText, icon, percent, severity, cta, onSelectCta, onDismiss } = usageLimits;
-    const emphasize = icon === "ring" || icon === "alert";
+    const createImageModelSwitch = useCreateImageModelSwitchNotice();
+    const presentation = createImageModelSwitch ?? usageLimits;
+    if (!presentation) return null;
+    const {
+      message,
+      secondaryText,
+      secondaryOnNewLine = false,
+      icon,
+      percent = 0,
+      severity = "neutral",
+      cta = null,
+      onSelectCta,
+      onDismiss
+    } = presentation;
+    const emphasize = icon === "ring" || icon === "alert" || icon === "convert";
+    const isRevealed = revealed || createImageModelSwitch !== null;
     const keepComposerFocus = (event) => {
       event.preventDefault();
     };
     return /* @__PURE__ */ k(
       "div",
       {
-        class: (0, import_classnames22.default)(UsageLimitsDrawer_default.drawer, !revealed && UsageLimitsDrawer_default.hidden),
-        "data-testid": "usage-limits-drawer",
+        class: (0, import_classnames22.default)(NoticeDrawer_default.drawer, !isRevealed && NoticeDrawer_default.hidden),
+        "data-testid": "notice-drawer",
         role: "status",
         onMouseDown: keepComposerFocus
       },
-      /* @__PURE__ */ k("div", { class: UsageLimitsDrawer_default.card }, /* @__PURE__ */ k("div", { class: UsageLimitsDrawer_default.content }, /* @__PURE__ */ k("span", { class: UsageLimitsDrawer_default.leading }, /* @__PURE__ */ k(UsageLimitsGlyph, { icon, percent, severity })), /* @__PURE__ */ k("p", { class: (0, import_classnames22.default)(UsageLimitsDrawer_default.message, emphasize && UsageLimitsDrawer_default.messageEmphasized) }, /* @__PURE__ */ k("span", { class: UsageLimitsDrawer_default.primary }, message), secondaryText ? /* @__PURE__ */ k("span", { class: UsageLimitsDrawer_default.secondary }, secondaryText) : null), cta && onSelectCta ? /* @__PURE__ */ k(UsageLimitsCtaControl, { cta, onSelectCta }) : null, onDismiss ? /* @__PURE__ */ k(DismissButton, { className: UsageLimitsDrawer_default.dismiss, onClick: onDismiss }) : null))
+      /* @__PURE__ */ k("div", { class: NoticeDrawer_default.card }, /* @__PURE__ */ k("div", { class: NoticeDrawer_default.content }, /* @__PURE__ */ k("span", { class: NoticeDrawer_default.leading }, /* @__PURE__ */ k(NoticeGlyph, { icon, percent, severity })), /* @__PURE__ */ k("p", { class: (0, import_classnames22.default)(NoticeDrawer_default.message, emphasize && NoticeDrawer_default.messageEmphasized, secondaryOnNewLine && NoticeDrawer_default.messageStacked) }, /* @__PURE__ */ k("span", { class: NoticeDrawer_default.primary }, message), secondaryText ? /* @__PURE__ */ k("span", { class: NoticeDrawer_default.secondary }, secondaryText) : null), cta && onSelectCta ? /* @__PURE__ */ k(UsageLimitsCtaControl, { cta, onSelectCta }) : null, onDismiss ? /* @__PURE__ */ k(DismissButton, { className: NoticeDrawer_default.dismiss, onClick: onDismiss }) : null))
     );
   }
   var import_classnames22;
-  var init_UsageLimitsDrawer2 = __esm({
-    "pages/new-tab/app/omnibar/components/UsageLimitsDrawer.js"() {
+  var init_NoticeDrawer2 = __esm({
+    "pages/new-tab/app/omnibar/components/NoticeDrawer.js"() {
       "use strict";
       init_preact_module();
       init_hooks_module();
@@ -14815,8 +14902,9 @@
       init_DropdownItem();
       init_useDropdown();
       init_Icons3();
+      init_useCreateImageModelSwitchNotice();
       init_useUsageLimitsDrawer();
-      init_UsageLimitsDrawer();
+      init_NoticeDrawer();
     }
   });
 
@@ -15004,7 +15092,7 @@
             omnibarRef: spacerRef
           }
         ))),
-        mode === "ai" && /* @__PURE__ */ k(UsageLimitsDrawer, { revealed: usageLimitsRevealed })
+        mode === "ai" && /* @__PURE__ */ k(NoticeDrawer, { revealed: usageLimitsRevealed })
       )
     )));
   }
@@ -15025,9 +15113,10 @@
     );
     const platformName = usePlatformName();
     const { showChats, hideChats, deletionInProgress } = useAiChatsContext();
-    const { state } = x2(OmnibarContext);
+    const { state, setImageGenerationActive } = x2(OmnibarContext);
     const attachmentLimits = state.config?.attachmentLimits;
     const blocksPrompt = state.config?.usageLimits?.blocksPrompt === true;
+    const updatedCreateImageEnabled = state.config?.enableUpdatedCreateImage === true;
     const { selectedModel } = useSelectedModel();
     const { selectedEffort } = useSelectedReasoningEffort();
     const { activeTool, availableTools, imageGenerationActive, webSearchActive, setActiveTool } = useActiveTools();
@@ -15067,12 +15156,19 @@
       anchorRef: containerRef
     });
     const clearTool = () => {
+      if (updatedCreateImageEnabled && activeTool === "image-generation") {
+        setImageGenerationActive(false);
+      }
       setActiveTool(null);
     };
     const handleToggleTool = (tool) => {
       const nextTool = activeTool === tool ? null : tool;
-      if (nextTool === "image-generation") {
+      const nextImageGeneration = nextTool === "image-generation";
+      if (nextImageGeneration) {
         hideChats();
+      }
+      if (updatedCreateImageEnabled && (imageGenerationActive || nextImageGeneration)) {
+        setImageGenerationActive(nextImageGeneration);
       }
       setActiveTool(nextTool);
     };
@@ -15210,7 +15306,7 @@
               disabled: blocksPrompt
             }
           )),
-          toolbarRight: /* @__PURE__ */ k(S, null, !imageGenerationActive && /* @__PURE__ */ k(S, null, /* @__PURE__ */ k(ReasoningPickerTool, null), /* @__PURE__ */ k(ModelSelectorTool, null)), isVoiceChatMode ? /* @__PURE__ */ k(
+          toolbarRight: /* @__PURE__ */ k(S, null, !imageGenerationActive && /* @__PURE__ */ k(ReasoningPickerTool, null), (!imageGenerationActive || updatedCreateImageEnabled) && /* @__PURE__ */ k(ModelSelectorTool, { readOnly: imageGenerationActive && updatedCreateImageEnabled }), isVoiceChatMode ? /* @__PURE__ */ k(
             "button",
             {
               tabIndex: blocksPrompt ? -1 : 0,
@@ -15311,7 +15407,7 @@
       init_OpenTabsProvider();
       init_useMentionPicker();
       init_useTabAttachments();
-      init_UsageLimitsDrawer2();
+      init_NoticeDrawer2();
       init_useKeyboardFocusWithin();
     }
   });

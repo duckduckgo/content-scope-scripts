@@ -1,2 +1,1 @@
-- Add "Set as Default" page for Windows integration (#2701)
-- docs: Update AGENTS.md with comprehensive feature list and clarifications (#3050)
+- NTP: Create Image warning flow (#3037)

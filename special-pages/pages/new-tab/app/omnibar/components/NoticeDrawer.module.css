@@ -16,7 +16,7 @@
     }
 }
 
-/* Revealed only while the composer has focus. */
+/* Hide focus-gated notices until the composer has focus. */
 .hidden {
     display: none;
 }
@@ -136,6 +136,11 @@
     font-weight: 600;
 }
 
+.messageStacked {
+    display: flex;
+    flex-direction: column;
+}
+
 .secondary {
     color: var(--ds-color-theme-text-secondary);
     font-weight: 400;
@@ -245,6 +250,10 @@
 
 .convertIcon {
     flex-shrink: 0;
+}
+
+.leading .convertIcon {
+    color: var(--ds-color-theme-icons-secondary);
 }
 
 :global(body[data-rebrand='true']) {

@@ -5738,6 +5738,14 @@ body[data-rebrand=true]:not([data-background-kind=default]) .TabSwitcher_blob {
 .ModelSelector_modelButtonOpen:active {
   background: var(--ds-color-theme-control-fill-tertiary);
 }
+.ModelSelector_modelButtonReadOnly {
+  cursor: default;
+  padding-right: var(--sp-2);
+}
+.ModelSelector_modelButtonReadOnly:hover,
+.ModelSelector_modelButtonReadOnly:active {
+  background: none;
+}
 .ModelSelector_modelButtonLabel {
   max-width: 120px;
   font-weight: 500;
@@ -6652,22 +6660,22 @@ body[data-rebrand=true]:not([data-background-kind=default]) .TabSwitcher_blob {
   white-space: nowrap;
 }
 
-/* pages/new-tab/app/omnibar/components/UsageLimitsDrawer.module.css */
-.UsageLimitsDrawer_drawer {
+/* pages/new-tab/app/omnibar/components/NoticeDrawer.module.css */
+.NoticeDrawer_drawer {
   margin: -32px 3px 0;
   position: relative;
   z-index: 0;
-  animation: UsageLimitsDrawer_slideOpen 400ms cubic-bezier(0.33, 1, 0.68, 1) 100ms both;
+  animation: NoticeDrawer_slideOpen 400ms cubic-bezier(0.33, 1, 0.68, 1) 100ms both;
 }
 @media (prefers-reduced-motion: reduce) {
-  .UsageLimitsDrawer_drawer {
+  .NoticeDrawer_drawer {
     animation: none;
   }
 }
-.UsageLimitsDrawer_hidden {
+.NoticeDrawer_hidden {
   display: none;
 }
-@keyframes UsageLimitsDrawer_slideOpen {
+@keyframes NoticeDrawer_slideOpen {
   from {
     transform: translateY(calc(-100% + 32px));
   }
@@ -6675,77 +6683,77 @@ body[data-rebrand=true]:not([data-background-kind=default]) .TabSwitcher_blob {
     transform: translateY(0);
   }
 }
-.UsageLimitsDrawer_card {
+.NoticeDrawer_card {
   background: var(--ds-color-theme-surface-secondary);
   border-radius: 0 0 12px 12px;
   box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.1), 0 4px 8px 0 rgba(0, 0, 0, 0.08);
   padding-top: 32px;
 }
-[data-background-kind=color] [data-theme=light] .UsageLimitsDrawer_card,
-[data-background-kind=gradient] [data-theme=light] .UsageLimitsDrawer_card,
-[data-background-kind=userImage] [data-theme=light] .UsageLimitsDrawer_card {
+[data-background-kind=color] [data-theme=light] .NoticeDrawer_card,
+[data-background-kind=gradient] [data-theme=light] .NoticeDrawer_card,
+[data-background-kind=userImage] [data-theme=light] .NoticeDrawer_card {
   -webkit-backdrop-filter: blur(48px);
   backdrop-filter: blur(48px);
   background: rgba(255, 255, 255, 0.54);
 }
-[data-background-kind=color] [data-theme=dark] .UsageLimitsDrawer_card,
-[data-background-kind=gradient] [data-theme=dark] .UsageLimitsDrawer_card {
+[data-background-kind=color] [data-theme=dark] .NoticeDrawer_card,
+[data-background-kind=gradient] [data-theme=dark] .NoticeDrawer_card {
   -webkit-backdrop-filter: blur(48px);
   backdrop-filter: blur(48px);
   background: rgba(255, 255, 255, 0.12);
 }
-[data-background-kind=userImage] [data-theme=dark] .UsageLimitsDrawer_card {
+[data-background-kind=userImage] [data-theme=dark] .NoticeDrawer_card {
   -webkit-backdrop-filter: blur(48px);
   backdrop-filter: blur(48px);
   background: rgba(0, 0, 0, 0.3);
 }
-.UsageLimitsDrawer_content {
+.NoticeDrawer_content {
   align-items: center;
   display: flex;
   gap: 8px;
   min-height: 42px;
   padding: 4px 12px 8px 16px;
 }
-.UsageLimitsDrawer_leading {
+.NoticeDrawer_leading {
   display: grid;
   flex-shrink: 0;
   height: 16px;
   place-items: center;
   width: 16px;
 }
-.UsageLimitsDrawer_glyph {
+.NoticeDrawer_glyph {
   display: block;
   grid-area: 1 / 1;
   height: 16px;
   overflow: visible;
   width: 16px;
 }
-.UsageLimitsDrawer_info .info-icon-fill {
+.NoticeDrawer_info .info-icon-fill {
   fill: var(--ds-color-theme-icons-secondary);
   fill-opacity: 1;
 }
-.UsageLimitsDrawer_ringTrack {
+.NoticeDrawer_ringTrack {
   stroke: var(--ds-color-theme-control-fill-primary);
 }
-.UsageLimitsDrawer_ringValue {
+.NoticeDrawer_ringValue {
   stroke: #21c000;
 }
-.UsageLimitsDrawer_severity_neutral .UsageLimitsDrawer_ringValue {
+.NoticeDrawer_severity_neutral .NoticeDrawer_ringValue {
   stroke: #21c000;
 }
-.UsageLimitsDrawer_severity_warning .UsageLimitsDrawer_ringValue {
+.NoticeDrawer_severity_warning .NoticeDrawer_ringValue {
   stroke: #f5a031;
 }
-.UsageLimitsDrawer_severity_critical .UsageLimitsDrawer_ringValue {
+.NoticeDrawer_severity_critical .NoticeDrawer_ringValue {
   stroke: #ea0f2c;
 }
-.UsageLimitsDrawer_alertTriangle {
+.NoticeDrawer_alertTriangle {
   fill: #ea0f2c;
 }
-.UsageLimitsDrawer_alertMark {
+.NoticeDrawer_alertMark {
   fill: var(--ds-color-theme-accent-content-primary, #fff);
 }
-.UsageLimitsDrawer_message {
+.NoticeDrawer_message {
   color: var(--ds-color-theme-text-primary);
   flex: 1;
   font-size: 12px;
@@ -6754,30 +6762,34 @@ body[data-rebrand=true]:not([data-background-kind=default]) .TabSwitcher_blob {
   margin: 0;
   min-width: 0;
 }
-.UsageLimitsDrawer_primary {
+.NoticeDrawer_primary {
   font-weight: 400;
 }
-.UsageLimitsDrawer_messageEmphasized .UsageLimitsDrawer_primary {
+.NoticeDrawer_messageEmphasized .NoticeDrawer_primary {
   font-weight: 600;
 }
-.UsageLimitsDrawer_secondary {
+.NoticeDrawer_messageStacked {
+  display: flex;
+  flex-direction: column;
+}
+.NoticeDrawer_secondary {
   color: var(--ds-color-theme-text-secondary);
   font-weight: 400;
 }
-.UsageLimitsDrawer_dismiss {
+.NoticeDrawer_dismiss {
   border-radius: 50%;
   flex-shrink: 0;
   height: 24px;
   position: relative;
   width: 24px;
 }
-.UsageLimitsDrawer_ctaSplit {
+.NoticeDrawer_ctaSplit {
   align-items: center;
   display: flex;
   flex-shrink: 0;
   height: var(--sp-7);
 }
-.UsageLimitsDrawer_ctaPrimary {
+.NoticeDrawer_ctaPrimary {
   align-items: center;
   background: var(--ds-color-theme-control-fill-primary);
   border: none;
@@ -6791,19 +6803,19 @@ body[data-rebrand=true]:not([data-background-kind=default]) .TabSwitcher_blob {
   padding: 0 12px;
   white-space: nowrap;
 }
-.UsageLimitsDrawer_ctaPrimary:hover {
+.NoticeDrawer_ctaPrimary:hover {
   background: var(--ds-color-theme-control-fill-secondary);
 }
-.UsageLimitsDrawer_ctaPrimary:active {
+.NoticeDrawer_ctaPrimary:active {
   background: var(--ds-color-theme-control-fill-tertiary);
 }
-.UsageLimitsDrawer_ctaPrimarySolo {
+.NoticeDrawer_ctaPrimarySolo {
   border-radius: 16px;
 }
-.UsageLimitsDrawer_ctaPrimarySplit {
+.NoticeDrawer_ctaPrimarySplit {
   border-radius: 16px 0 0 16px;
 }
-.UsageLimitsDrawer_ctaMenu {
+.NoticeDrawer_ctaMenu {
   align-items: center;
   background: var(--ds-color-theme-control-fill-primary);
   border: none;
@@ -6817,50 +6829,53 @@ body[data-rebrand=true]:not([data-background-kind=default]) .TabSwitcher_blob {
   padding: 0;
   width: var(--sp-7);
 }
-.UsageLimitsDrawer_ctaMenu:hover {
+.NoticeDrawer_ctaMenu:hover {
   background: var(--ds-color-theme-control-fill-secondary);
   border-left-color: transparent;
 }
-.UsageLimitsDrawer_ctaMenu:active {
+.NoticeDrawer_ctaMenu:active {
   background: var(--ds-color-theme-control-fill-tertiary);
   border-left-color: transparent;
 }
-.UsageLimitsDrawer_ctaMenu svg {
+.NoticeDrawer_ctaMenu svg {
   display: block;
 }
-.UsageLimitsDrawer_ctaLabel {
+.NoticeDrawer_ctaLabel {
   max-width: 160px;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.UsageLimitsDrawer_ctaMenuHeader {
+.NoticeDrawer_ctaMenuHeader {
   font-size: 11px;
   font-weight: 400;
   line-height: 14px;
   padding: 0 6px;
   white-space: nowrap;
 }
-.UsageLimitsDrawer_ctaDropdown {
+.NoticeDrawer_ctaDropdown {
   min-width: 200px;
   width: 200px;
 }
-.UsageLimitsDrawer_ctaModelName {
+.NoticeDrawer_ctaModelName {
   font-weight: 600;
 }
-.UsageLimitsDrawer_ctaModelVariant {
+.NoticeDrawer_ctaModelVariant {
   font-weight: 400;
 }
-.UsageLimitsDrawer_convertIcon {
+.NoticeDrawer_convertIcon {
   flex-shrink: 0;
 }
-body[data-rebrand=true] .UsageLimitsDrawer_card {
+.NoticeDrawer_leading .NoticeDrawer_convertIcon {
+  color: var(--ds-color-theme-icons-secondary);
+}
+body[data-rebrand=true] .NoticeDrawer_card {
   border-radius: 0 0 var(--ds-radius-x06) var(--ds-radius-x06);
   box-shadow: 0 10px 20px 0 rgba(0, 0, 0, 0.02), 0 2px 6px 0 rgba(0, 0, 0, 0.06);
 }
-body[data-rebrand=true] [data-theme=dark] .UsageLimitsDrawer_card {
+body[data-rebrand=true] [data-theme=dark] .NoticeDrawer_card {
   box-shadow: 0 10px 20px 0 rgba(0, 0, 0, 0.02), 0 2px 6px 0 rgba(0, 0, 0, 0.06);
 }
-body[data-rebrand=true] .UsageLimitsDrawer_dismiss {
+body[data-rebrand=true] .NoticeDrawer_dismiss {
   border-radius: 50%;
   height: 24px;
   width: 24px;
