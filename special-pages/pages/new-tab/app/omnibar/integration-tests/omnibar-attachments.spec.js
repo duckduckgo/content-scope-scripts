@@ -49,6 +49,26 @@ test.describe('omnibar tab attachment', () => {
         expect(params.pageContext?.[0].title).toBe('Starbucks Coffee Company');
     });
 
+    test('an attached tab alone, with no text, can be submitted', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({
+            additional: { 'omnibar.mode': 'ai', 'omnibar.enableAttachTabs': 'true', 'omnibar.selectedModelId': 'openai_gpt-oss-120b' },
+        });
+        await omnibar.ready();
+
+        await expect(omnibar.chatSubmitButton()).toBeDisabled();
+        await omnibar.attachTab('Starbucks Coffee Company');
+        await expect(omnibar.tabChip()).toHaveCount(1);
+        await expect(omnibar.chatSubmitButton()).toBeEnabled();
+
+        await omnibar.submitChat();
+
+        const params = await omnibar.lastSubmitChatParams();
+        expect(params.chat).toBe('');
+        expect(params.pageContext).toHaveLength(1);
+    });
+
     test('an attached tab shows as checked when the picker is reopened', async ({ page }, workerInfo) => {
         const { ntp, omnibar } = setup(page, workerInfo);
         await ntp.reducedMotion();
@@ -429,6 +449,26 @@ test.describe('omnibar file attachment', () => {
         expect(params.files?.[0].fileName).toBe('q3-report.pdf');
         expect(params.files?.[0].mimeType).toBe('application/pdf');
         expect(params.files?.[0].data.length).toBeGreaterThan(0);
+    });
+
+    test('a PDF alone, with no text, can be submitted', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({
+            additional: { 'omnibar.mode': 'ai', 'omnibar.enableAiChatTools': 'true', 'omnibar.selectedModelId': 'claude-haiku-4-5' },
+        });
+        await omnibar.ready();
+
+        await omnibar.fileInput().setInputFiles({ name: 'q3-report.pdf', mimeType: 'application/pdf', buffer: PDF_BYTES });
+        await expect(omnibar.fileChip()).toHaveCount(1);
+        await expect(omnibar.chatSubmitButton()).toBeEnabled();
+
+        await omnibar.submitChat();
+
+        const params = await omnibar.lastSubmitChatParams();
+        expect(params.chat).toBe('');
+        expect(params.files).toHaveLength(1);
+        expect(params.files?.[0].fileName).toBe('q3-report.pdf');
     });
 
     test('with the tabs feature off, the paperclip opens the file picker directly (no dropdown)', async ({ page }, workerInfo) => {
