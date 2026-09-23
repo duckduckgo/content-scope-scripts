@@ -279,18 +279,17 @@ function logNotificationError(env, name, data, error) {
 }
 
 /**
- * Thrown when a handler cannot be found
+ * Re-export MissingHandler from `./core.js` instead of redefining it.
+ *
+ * Two separate class definitions are two separate identities, so an
+ * `instanceof MissingHandler` check using the `messaging/index.js`
+ * export would not match errors thrown by `lib/webkit.js` (which
+ * imports from `./core.js`). The webkit transport is the realistic
+ * source of MissingHandler errors at runtime, so consumers catching
+ * via index.js's identity would silently miss them. Re-exporting
+ * gives both modules the same class.
  */
-export class MissingHandler extends Error {
-    /**
-     * @param {string} message
-     * @param {string} handlerName
-     */
-    constructor(message, handlerName) {
-        super(message);
-        this.handlerName = handlerName;
-    }
-}
+export { MissingHandler } from './core.js';
 
 /**
  * Some re-exports for convenience
