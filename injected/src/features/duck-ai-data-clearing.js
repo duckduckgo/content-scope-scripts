@@ -50,19 +50,20 @@ export class DuckAiDataClearing extends ContentFeature {
 
     /**
      * WebKit's `objectStore.clear()` leaves the records' Blob files (e.g. chat images) orphaned on disk,
-     * so Apple platforms delete records one by one instead, which removes them.
+     * so Apple platforms delete records one by one instead; `deleteRecordsIndividually` can remotely revert to `clear()`.
      * @param {IDBObjectStore} objectStore
      */
     clearObjectStore(objectStore) {
-        if (this.isWebKitPlatform) {
+        if (this.shouldDeleteRecordsIndividually) {
             this.deleteAllRecords(objectStore);
         } else {
             objectStore.clear();
         }
     }
 
-    get isWebKitPlatform() {
-        return this.platform.name === 'ios' || this.platform.name === 'macos';
+    get shouldDeleteRecordsIndividually() {
+        const isWebKitPlatform = this.platform.name === 'ios' || this.platform.name === 'macos';
+        return isWebKitPlatform && this.getFeatureSettingEnabled('deleteRecordsIndividually', 'enabled');
     }
 
     /**
