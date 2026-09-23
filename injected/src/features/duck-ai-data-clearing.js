@@ -42,10 +42,26 @@ export class DuckAiDataClearing extends ContentFeature {
 
         await this.withAllIndexedDBs((objectStore, _transaction, dbName, storeName) => {
             this.log.info(`Clearing '${dbName}/${storeName}'`);
-            objectStore.clear();
+            this.deleteAllRecords(objectStore);
         }, errors);
 
         this.notifyCompletionResult(errors);
+    }
+
+    /**
+     * Deletes every record one by one instead of calling `objectStore.clear()`.
+     * WebKit's `clear()` leaves the records' Blob files (e.g. chat images) orphaned on disk; per-record deletes remove them.
+     * @param {IDBObjectStore} objectStore
+     */
+    deleteAllRecords(objectStore) {
+        const cursorRequest = objectStore.openCursor();
+        cursorRequest.onsuccess = () => {
+            const cursor = cursorRequest.result;
+            if (cursor) {
+                cursor.delete();
+                cursor.continue();
+            }
+        };
     }
 
     /**
