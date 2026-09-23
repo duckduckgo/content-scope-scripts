@@ -48,26 +48,37 @@ test('duck-ai-data-clearing feature clears localStorage and IndexedDB', async ({
     await duckAiDataClearing.waitForVerification('Verification complete: All data cleared');
 });
 
-test('duck-ai-data-clearing feature clears IndexedDB records holding Blob values', async ({ page }, testInfo) => {
-    const collector = ResultsCollector.create(page, testInfo.project.use);
-    collector.withUserPreferences({
-        messageSecret: 'ABC',
-        javascriptInterface: 'javascriptInterface',
-        messageCallback: 'messageCallback',
+/** @type {{ platform: 'ios' | 'macos' | 'windows', usesBulkClear: boolean }[]} */
+const bulkClearExpectations = [
+    { platform: 'ios', usesBulkClear: false },
+    { platform: 'macos', usesBulkClear: false },
+    { platform: 'windows', usesBulkClear: true },
+];
+
+for (const { platform, usesBulkClear } of bulkClearExpectations) {
+    test(`duck-ai-data-clearing feature clears IndexedDB records holding Blob values on ${platform}`, async ({ page }, testInfo) => {
+        const collector = ResultsCollector.create(page, testInfo.project.use);
+        collector.withUserPreferences({
+            messageSecret: 'ABC',
+            javascriptInterface: 'javascriptInterface',
+            messageCallback: 'messageCallback',
+        });
+        await collector.load(HTML, CONFIG, { name: platform });
+
+        const duckAiDataClearing = new DuckAiDataClearingSpec(page);
+        await duckAiDataClearing.setupBlobImages();
+        await duckAiDataClearing.countBulkClearCalls();
+
+        await collector.simulateSubscriptionMessage('duckAiDataClearing', 'duckAiClearData', {});
+
+        const messages = await collector.waitForMessage('duckAiClearDataCompleted', 1);
+        expect(messages).toHaveLength(1);
+
+        await duckAiDataClearing.verifyDataCleared();
+        await duckAiDataClearing.waitForVerification('Verification complete: All data cleared');
+        expect((await duckAiDataClearing.bulkClearCallCount()) > 0).toBe(usesBulkClear);
     });
-    await collector.load(HTML, CONFIG);
-
-    const duckAiDataClearing = new DuckAiDataClearingSpec(page);
-    await duckAiDataClearing.setupBlobImages();
-
-    await collector.simulateSubscriptionMessage('duckAiDataClearing', 'duckAiClearData', {});
-
-    const messages = await collector.waitForMessage('duckAiClearDataCompleted', 1);
-    expect(messages).toHaveLength(1);
-
-    await duckAiDataClearing.verifyDataCleared();
-    await duckAiDataClearing.waitForVerification('Verification complete: All data cleared');
-});
+}
 
 test('duck-ai-data-clearing feature handles IndexedDB errors gracefully', async ({ page }, testInfo) => {
     const collector = ResultsCollector.create(page, testInfo.project.use);
@@ -290,6 +301,22 @@ class DuckAiDataClearingSpec {
                     };
                 }),
         );
+    }
+
+    async countBulkClearCalls() {
+        await this.page.evaluate(() => {
+            const counter = /** @type {{ bulkClearCalls: number }} */ (/** @type {unknown} */ (window));
+            const originalClear = IDBObjectStore.prototype.clear;
+            counter.bulkClearCalls = 0;
+            IDBObjectStore.prototype.clear = function () {
+                counter.bulkClearCalls++;
+                return originalClear.call(this);
+            };
+        });
+    }
+
+    async bulkClearCallCount() {
+        return await this.page.evaluate(() => /** @type {{ bulkClearCalls: number }} */ (/** @type {unknown} */ (window)).bulkClearCalls);
     }
 
     async waitForDataSetup() {

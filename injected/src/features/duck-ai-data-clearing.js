@@ -42,15 +42,30 @@ export class DuckAiDataClearing extends ContentFeature {
 
         await this.withAllIndexedDBs((objectStore, _transaction, dbName, storeName) => {
             this.log.info(`Clearing '${dbName}/${storeName}'`);
-            this.deleteAllRecords(objectStore);
+            this.clearObjectStore(objectStore);
         }, errors);
 
         this.notifyCompletionResult(errors);
     }
 
     /**
-     * Deletes every record one by one instead of calling `objectStore.clear()`.
-     * WebKit's `clear()` leaves the records' Blob files (e.g. chat images) orphaned on disk; per-record deletes remove them.
+     * WebKit's `objectStore.clear()` leaves the records' Blob files (e.g. chat images) orphaned on disk,
+     * so Apple platforms delete records one by one instead, which removes them.
+     * @param {IDBObjectStore} objectStore
+     */
+    clearObjectStore(objectStore) {
+        if (this.isWebKitPlatform) {
+            this.deleteAllRecords(objectStore);
+        } else {
+            objectStore.clear();
+        }
+    }
+
+    get isWebKitPlatform() {
+        return this.platform.name === 'ios' || this.platform.name === 'macos';
+    }
+
+    /**
      * @param {IDBObjectStore} objectStore
      */
     deleteAllRecords(objectStore) {
