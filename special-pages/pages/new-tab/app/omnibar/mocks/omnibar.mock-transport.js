@@ -288,6 +288,7 @@ export function omnibarMockTransport() {
                 case 'omnibar_setImageGenerationActive': {
                     if (config.enableUpdatedCreateImage !== true) break;
 
+                    config.imageGenerationActive = msg.params.active;
                     config.createImageModelSwitch = null;
                     if (msg.params.active) {
                         const models = config.aiModelSections?.flatMap((section) => section.items) ?? [];
@@ -378,6 +379,10 @@ export function omnibarMockTransport() {
                     config.enableImageGeneration = parseBooleanQueryParam('omnibar.enableImageGeneration') ?? config.enableImageGeneration;
                     config.enableUpdatedCreateImage =
                         parseBooleanQueryParam('omnibar.enableUpdatedCreateImage') ?? config.enableUpdatedCreateImage;
+                    const imageGenerationActive = parseBooleanQueryParam('omnibar.imageGenerationActive');
+                    if (imageGenerationActive !== null) {
+                        config.imageGenerationActive = imageGenerationActive;
+                    }
                     config.enableWebSearch = parseBooleanQueryParam('omnibar.enableWebSearch') ?? config.enableWebSearch;
                     config.selectedModelId = url.searchParams.get('omnibar.selectedModelId') ?? config.selectedModelId;
                     if (parseBooleanQueryParam('omnibar.subscription') === true) {

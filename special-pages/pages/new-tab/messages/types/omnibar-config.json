@@ -248,6 +248,11 @@
       "type": "boolean",
       "default": false
     },
+    "imageGenerationActive": {
+      "title": "Image Generation Active",
+      "description": "Whether native has activated Create Image mode. Omitted by older native clients.",
+      "type": "boolean"
+    },
     "enableWebSearch": {
       "title": "Enable Web Search",
       "description": "Allow AI chat submissions to include web search tool.",

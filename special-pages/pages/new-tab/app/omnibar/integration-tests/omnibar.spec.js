@@ -1520,6 +1520,72 @@ test.describe('omnibar widget', () => {
             expect(calls.map((call) => call.payload.params)).toEqual([{ active: true }, { active: false }]);
         });
 
+        test('legacy Create Image keeps client state when native config omits active state', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableImageGeneration': 'true',
+                    'omnibar.enableAiChatTools': 'true',
+                },
+            });
+            await omnibar.ready();
+            await omnibar.aiTab().click();
+            await omnibar.toolsMenuButton().click();
+            await omnibar.createImageMenuItem().click();
+            await expect(omnibar.createImageChip()).toBeVisible();
+
+            await omnibar.didReceiveConfig({
+                mode: 'ai',
+                enableAi: true,
+                enableImageGeneration: true,
+                enableAiChatTools: true,
+            });
+            await expect(omnibar.createImageChip()).toBeVisible();
+        });
+
+        test('native image generation updates apply without a client notification', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableImageGeneration': 'true',
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.enableUpdatedCreateImage': 'true',
+                },
+            });
+            await omnibar.ready();
+            await omnibar.aiTab().click();
+
+            await omnibar.didReceiveConfig({
+                mode: 'ai',
+                enableAi: true,
+                enableImageGeneration: true,
+                enableAiChatTools: true,
+                enableUpdatedCreateImage: true,
+                imageGenerationActive: true,
+            });
+            await expect(omnibar.createImageChip()).toBeVisible();
+            await omnibar.expectMethodNotCalled('omnibar_setImageGenerationActive');
+
+            await omnibar.didReceiveConfig({
+                mode: 'ai',
+                enableAi: true,
+                enableImageGeneration: true,
+                enableAiChatTools: true,
+                enableUpdatedCreateImage: true,
+                imageGenerationActive: false,
+            });
+            await expect(omnibar.createImageChip()).toHaveCount(0);
+            await expect(omnibar.chatInput()).toBeVisible();
+        });
+
         test('image generation submit sends mode and omits modelId', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);

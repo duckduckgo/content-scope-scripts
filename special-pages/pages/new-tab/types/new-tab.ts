@@ -111,6 +111,10 @@ export type EnableImageGeneration = boolean;
  */
 export type EnableUpdatedCreateImage = boolean;
 /**
+ * Whether native has activated Create Image mode. Omitted by older native clients.
+ */
+export type ImageGenerationActive = boolean;
+/**
  * Allow AI chat submissions to include web search tool.
  */
 export type EnableWebSearch = boolean;
@@ -832,6 +836,7 @@ export interface OmnibarConfig {
   showViewAllAiChats?: ShowViewAllAIChats;
   enableImageGeneration?: EnableImageGeneration;
   enableUpdatedCreateImage?: EnableUpdatedCreateImage;
+  imageGenerationActive?: ImageGenerationActive;
   enableWebSearch?: EnableWebSearch;
   enableVoiceChatAccess?: EnableVoiceChatAccess;
   enableCustomizeResponses?: EnableCustomizeResponses;
