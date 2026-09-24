@@ -490,6 +490,8 @@ export function omnibarMockTransport() {
                     config.enableAiChatDeletion = parseBooleanQueryParam('omnibar.enableAiChatDeletion') ?? config.enableAiChatDeletion;
                     config.enableSearchSuggestionDeletion =
                         parseBooleanQueryParam('omnibar.enableSearchSuggestionDeletion') ?? config.enableSearchSuggestionDeletion;
+                    config.requiresTermsAcceptance =
+                        parseBooleanQueryParam('omnibar.requiresTermsAcceptance') ?? config.requiresTermsAcceptance;
                     // omnibar.usageLimits=false hides; approaching|reached|reached-switch set presets.
                     const usageLimitsPreset = url.searchParams.get('omnibar.usageLimits');
                     if (usageLimitsPreset === 'false') {

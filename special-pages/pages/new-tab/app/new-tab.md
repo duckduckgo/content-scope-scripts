@@ -56,6 +56,7 @@ children:
 ### `open`
 - {@link "NewTab Messages".OpenNotification}
 - Sent when the user clicks on a link, such as 'settings'
+- Targets: `settings`, `duckAiPrivacyTerms` (the Duck.ai Privacy Policy and Terms of Service page, from the omnibar terms disclaimer)
 - Sends: {@link "NewTab Messages".OpenAction}
 - Example:
 

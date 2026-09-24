@@ -97,6 +97,21 @@
     }
 }
 
+.termsSubmitButton {
+    border-radius: var(--ds-radius-full);
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 16px;
+    padding: 0 var(--sp-3);
+    white-space: nowrap;
+    width: auto;
+
+    &[disabled] {
+        background: var(--ds-color-theme-control-fill-primary);
+        color: color-mix(in srgb, var(--ds-color-theme-text-primary) 30%, transparent);
+    }
+}
+
 /* When the input is empty AND voice-chat access is enabled, the submit button is repurposed
    as a 1-click voice-chat entry point. Use greyscale styling to match other icons. */
 .submitButton:has(.voiceIcon) {

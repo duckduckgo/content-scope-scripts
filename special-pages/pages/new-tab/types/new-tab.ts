@@ -151,6 +151,10 @@ export type EnableAIChatDeletion = boolean;
  */
 export type EnableSearchSuggestionDeletion = boolean;
 /**
+ * True while the user hasn't accepted Duck.ai's Privacy Policy and Terms of Service. The Duck.ai tab then shows the terms disclaimer, labels the send button 'Ask' (or 'Create'), and sends `termsAccepted: true` on `omnibar_submitChat`. Missing/false shows no disclaimer. After acceptance the NTP hides the disclaimer on its own until reload; native should still push `false` to every open NTP.
+ */
+export type RequiresTermsAcceptance = boolean;
+/**
  * Native-resolved presentation shown after Create Image switches away from an unsupported model. Non-null takes visual priority over usageLimits; native owns model selection, localized copy, and lifecycle.
  */
 export type CreateImageModelSwitchNotice = {
@@ -842,6 +846,7 @@ export interface OmnibarConfig {
   enableAttachTabs?: EnableAttachTabs;
   enableAiChatDeletion?: EnableAIChatDeletion;
   enableSearchSuggestionDeletion?: EnableSearchSuggestionDeletion;
+  requiresTermsAcceptance?: RequiresTermsAcceptance;
   createImageModelSwitch?: CreateImageModelSwitchNotice;
   usageLimits?: UsageLimitsDrawer;
 }
@@ -1093,6 +1098,10 @@ export interface SubmitChatAction {
    */
   pageContext?: PageContext[];
   /**
+   * True when this submission is the user's acceptance of Duck.ai's Privacy Policy and Terms of Service: the terms disclaimer was showing and the user clicked 'Ask'/'Create' or pressed Enter. Native passes it to Duck.ai with the prompt. Omitted otherwise, including for voice mode.
+   */
+  termsAccepted?: boolean;
+  /**
    * Files (PDFs in v1) attached via the paperclip menu. Each entry mirrors Duck.ai's `NativePromptFile` shape so native forwards them through unchanged. Omitted when no files are attached.
    */
   files?: NativePromptFile[];
@@ -1176,7 +1185,7 @@ export interface OpenNotification {
   params: OpenAction;
 }
 export interface OpenAction {
-  target: "settings";
+  target: "settings" | "duckAiPrivacyTerms";
 }
 /**
  * Generated from @see "../messages/protections_setConfig.notify.json"
