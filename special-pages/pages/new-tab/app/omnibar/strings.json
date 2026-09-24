@@ -251,6 +251,10 @@
     "title": "No page content available",
     "description": "Empty-state message shown in the attach dropdown and the Add Tabs dialog when there are no open tabs with attachable page content."
   },
+  "omnibar_attachmentTypeWebpage": {
+    "title": "Webpage",
+    "description": "Attachment kind label shown next to the favicon in an attached-tab chip in the AI chat input."
+  },
   "omnibar_removeAttachedTabLabel": {
     "title": "Remove {title}",
     "description": "Accessible label for the close button on an attached-tab chip. {title} is the tab title."

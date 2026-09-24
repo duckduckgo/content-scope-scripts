@@ -1,0 +1,196 @@
+/* A fixed 108px card that never compresses; the row scrolls instead. */
+.listItem {
+    display: flex;
+    flex: none;
+    position: relative;
+    width: 108px;
+}
+
+/* Carries the entrance animation instead of the list item, so the item keeps its
+ * real layout size while the chip pops in and can be scrolled to right away. */
+.enter {
+    display: flex;
+    flex: 1 1 auto;
+    min-width: 0;
+    animation: chipEnter 0.3s cubic-bezier(0.1, 0.77, 0.37, 1.13) backwards;
+
+    @media (prefers-reduced-motion) {
+        animation: none;
+    }
+}
+
+@keyframes chipEnter {
+    from {
+        transform: scale(0);
+    }
+}
+
+/* The Tooltip wrapper must fill the item so the card below can use width: 100%. */
+.tooltipContainer {
+    border-radius: 18px;
+    display: flex;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+/* Three rows (title + metadata + icon/type); hugs its rows instead of a fixed height. */
+.root {
+    backdrop-filter: blur(24px);
+    background-color: var(--ds-color-theme-control-fill-primary);
+    /* Reserved so the hover/pressed border doesn't shift the contents. */
+    border: 1px solid transparent;
+    border-radius: 18px;
+    box-sizing: border-box;
+    color: var(--ds-color-theme-text-primary);
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+}
+
+/* Hover is gated on a real pointer: on touch it sticks after a tap. */
+@media (hover: hover) {
+    .root:hover {
+        background-color: var(--ds-color-theme-control-fill-secondary);
+        border-color: var(--ds-color-theme-container-border-primary);
+        box-shadow:
+            0 0.25px 1px 0 var(--ds-color-theme-shadow-secondary),
+            0 1px 4px 0 var(--ds-color-theme-shadow-primary);
+    }
+}
+
+.root:active {
+    background-color: var(--ds-color-theme-control-fill-tertiary);
+    border-color: var(--ds-color-theme-container-border-secondary);
+    box-shadow:
+        0 0.25px 1px 0 var(--ds-color-theme-shadow-secondary),
+        0 1px 4px 0 var(--ds-color-theme-shadow-primary);
+}
+
+/* Full-bleed image chips. The preview is absolutely positioned so its own aspect
+ * ratio can't shape the card; 94px content + 1px borders keeps the card at 96px. */
+.imageFill {
+    flex: none;
+    height: 94px;
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+
+    & > * {
+        height: 100%;
+        left: 0;
+        object-fit: cover;
+        position: absolute;
+        top: 0;
+        width: 100%;
+    }
+}
+
+.headerBand {
+    box-sizing: border-box;
+    display: flex;
+    flex: none;
+    min-width: 0;
+    overflow: hidden;
+    padding: 12px 12px 2px;
+    width: 100%;
+}
+
+.title {
+    color: var(--ds-color-theme-text-primary);
+    font-size: 14px;
+    line-height: 20px;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
+}
+
+/* Extra line between the title and the icon/type row: a fixed 24px band with its
+ * single 16px line centred by the vertical padding. */
+.metadata {
+    box-sizing: border-box;
+    color: var(--ds-color-theme-text-secondary);
+    flex: none;
+    font-size: 12px;
+    height: 24px;
+    line-height: 16px;
+    min-width: 0;
+    overflow: hidden;
+    padding: 4px 12px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
+}
+
+.info {
+    align-items: center;
+    box-sizing: border-box;
+    display: flex;
+    flex: none;
+    gap: 4px;
+    min-width: 0;
+    padding: 4px 12px 12px;
+    width: 100%;
+}
+
+.iconSlot {
+    align-items: center;
+    display: flex;
+    flex: none;
+    height: 16px;
+    justify-content: center;
+}
+
+.icon {
+    align-items: center;
+    border-radius: 2px;
+    color: var(--ds-color-theme-icons-secondary);
+    display: flex;
+    flex: none;
+    height: 16px;
+    justify-content: center;
+    overflow: hidden;
+    width: 16px;
+
+    & > img {
+        height: 16px;
+        object-fit: cover;
+        width: 16px;
+    }
+}
+
+.typeLabel {
+    color: var(--ds-color-theme-text-secondary);
+    flex: 1 1 auto;
+    font-size: 12px;
+    line-height: 20px;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Inset from the corner rather than overhanging it: the card clips its overflow.
+ * Hidden until hover or focus. A pointer click always hovers the card first, so the
+ * button is visible by the time it can be clicked; Tab focus reveals it too. */
+.removeSlot {
+    display: flex;
+    opacity: 0;
+    position: absolute;
+    right: 7px;
+    top: 7px;
+    transition: opacity 0.15s ease-out;
+
+    @media (prefers-reduced-motion) {
+        transition: none;
+    }
+}
+
+.removeSlot:focus-within,
+.root:hover .removeSlot {
+    opacity: 1;
+}
