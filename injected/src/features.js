@@ -59,6 +59,48 @@ const otherFeatures = /** @type {FeatureName[]} */ ([
     'chromeWebstorePatching',
 ]);
 
+/**
+ * Features that still load in `about:blank` subframes on iOS.
+ *
+ * Pages can create many empty iframes (e.g. one per carousel slide), and each one
+ * gets its own copy of every enabled feature. On iOS this can push the WebContent
+ * process past its memory limit. A blank frame has no content of its own, so we
+ * keep only:
+ * - API overrides that stop a parent page reading unprotected APIs through `iframe.contentWindow`
+ * - `print`, so `iframe.contentWindow.print()` still reaches native
+ * - `trackerProtection`, so surrogates and tracker reporting still work for scripts written into the frame
+ * - `textSelection`, since rich-text editors often live in blank iframes
+ * @type {FeatureName[]}
+ */
+export const iosBlankSubframeFeatures = [
+    'apiManipulation',
+    'exceptionHandler',
+    'fingerprintingAudio',
+    'fingerprintingBattery',
+    'fingerprintingCanvas',
+    'fingerprintingHardware',
+    'fingerprintingScreenSize',
+    'fingerprintingTemporaryStorage',
+    'googleRejected',
+    'gpc',
+    'navigatorInterface',
+    'print',
+    'referrer',
+    'textSelection',
+    'trackerProtection',
+    'webCompat',
+];
+
+/**
+ * @param {string[]} featureNames
+ * @param {boolean} iosBlankSubframe
+ * @returns {string[]}
+ */
+export function featuresForFrame(featureNames, iosBlankSubframe) {
+    if (!iosBlankSubframe) return featureNames;
+    return featureNames.filter((name) => iosBlankSubframeFeatures.includes(/** @type {FeatureName} */ (name)));
+}
+
 /** @type {Record<string, FeatureName[]>} */
 export const platformSupport = {
     apple: ['webCompat', 'duckPlayerNative', ...baseFeatures, 'pageContext', 'print', 'trackerProtection'],

@@ -1,4 +1,4 @@
-import { platformSupport } from '../src/features.js';
+import { featuresForFrame, iosBlankSubframeFeatures, platformSupport } from '../src/features.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { readFile } from 'fs/promises';
@@ -28,6 +28,28 @@ describe('Features definition', () => {
         expect(webCompatIdx).not.toBe(-1);
         expect(fpScreenSizeIdx).not.toBe(-1);
         expect(webCompatIdx).toBeLessThan(fpScreenSizeIdx);
+    });
+});
+
+describe('featuresForFrame', () => {
+    const enabled = ['webCompat', 'fingerprintingHardware', 'elementHiding', 'print', 'webDetection', 'gpc'];
+
+    it('returns every enabled feature outside iOS blank subframes', () => {
+        expect(featuresForFrame(enabled, false)).toEqual(enabled);
+    });
+
+    it('keeps only the allowed features in iOS blank subframes', () => {
+        expect(featuresForFrame(enabled, true)).toEqual(['webCompat', 'fingerprintingHardware', 'print', 'gpc']);
+    });
+
+    it('never adds features that are not enabled', () => {
+        expect(featuresForFrame(['elementHiding'], true)).toEqual([]);
+    });
+
+    it('only lists features bundled for Apple', () => {
+        const appleFeatures = new Set([...platformSupport.apple, ...platformSupport['apple-isolated']]);
+        const unknown = iosBlankSubframeFeatures.filter((name) => !appleFeatures.has(name));
+        expect(unknown).toEqual([]);
     });
 });
 

@@ -1,0 +1,15 @@
+{
+    "readme": "Config for blank-subframe isolated-world integration tests.",
+    "version": 1,
+    "features": {
+        "contextMenu": {
+            "state": "enabled",
+            "exceptions": []
+        },
+        "textSelection": {
+            "state": "enabled",
+            "exceptions": []
+        }
+    },
+    "unprotectedTemporary": []
+}

@@ -122,6 +122,14 @@ export function isBeingFramed() {
 }
 
 /**
+ * True when running in an `about:blank` document inside another frame.
+ * @returns {boolean}
+ */
+export function isBlankSubframe() {
+    return globalThis.location?.href === 'about:blank' && isBeingFramed();
+}
+
+/**
  * Best guess effort if the document is third party
  * @returns {boolean} if we infer the document is third party
  */

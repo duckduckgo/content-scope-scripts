@@ -1,0 +1,22 @@
+{
+    "readme": "Config for blank-subframe integration tests. TrackerData is passed via withUserPreferences().",
+    "version": 1,
+    "features": {
+        "contentBlocking": {
+            "state": "enabled",
+            "exceptions": []
+        },
+        "trackerAllowlist": {
+            "state": "enabled",
+            "exceptions": [],
+            "settings": {
+                "allowlistedTrackers": {}
+            }
+        },
+        "trackerProtection": {
+            "state": "enabled",
+            "exceptions": []
+        }
+    },
+    "unprotectedTemporary": []
+}
