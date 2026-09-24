@@ -1,5 +1,6 @@
 import ContentFeature from '../content-feature';
 import { isBeingFramed, injectGlobalStyles } from '../utils';
+import { forgivingSelector, querySelectorFor } from './element-hiding-selectors.js';
 
 /**
  * @typedef {Object} ElementHidingValue
@@ -340,7 +341,7 @@ function hideAdNodes(rules) {
             return;
         }
         matchingElementArray.forEach((element) => {
-            collapseDomNode(element, rule);
+            collapseDomNode(/** @type {HTMLElement} */ (element), rule);
         });
     });
 }
@@ -359,28 +360,9 @@ function unhideLoadedAds() {
             return;
         }
         matchingElementArray.forEach((element) => {
-            expandNonEmptyDomNode(element, rule);
+            expandNonEmptyDomNode(/** @type {HTMLElement} */ (element), rule);
         });
     });
-}
-
-/**
- * Wrap selector(s) in :is(..) to make them forgiving
- */
-function forgivingSelector(selector) {
-    return `:is(${selector})`;
-}
-
-/**
- * Resolve a rule's selector for use with querySelectorAll
- *
- * :is() makes a selector list forgiving, but has a perf cost since
- * it's a pseudo-class that isn't indexed. Only wrap when the selector
- * might be a list, in which case one malformed selector can lead to
- * the rest of the list not applying
- */
-function querySelectorFor(selector) {
-    return selector.includes(',') ? forgivingSelector(selector) : selector;
 }
 
 export default class ElementHiding extends ContentFeature {
