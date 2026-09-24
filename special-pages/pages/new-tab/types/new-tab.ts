@@ -151,7 +151,7 @@ export type EnableAIChatDeletion = boolean;
  */
 export type EnableSearchSuggestionDeletion = boolean;
 /**
- * True while the user hasn't accepted Duck.ai's Privacy Policy and Terms of Service. The Duck.ai tab then shows the terms disclaimer, labels the send button 'Ask' (or 'Create'), and sends `termsAccepted: true` on `omnibar_submitChat`. Missing/false shows no disclaimer. After acceptance the NTP hides the disclaimer on its own until reload; native should still push `false` to every open NTP.
+ * True while the user hasn't accepted Duck.ai's Privacy Policy and Terms of Service. The Duck.ai tab then shows the terms disclaimer, labels the send button 'Ask' (or 'Create'), and sends `termsAccepted: true` on `omnibar_submitChat`. Missing/false shows no disclaimer. After a submission with `termsAccepted: true`, native should push `false` to every open NTP.
  */
 export type RequiresTermsAcceptance = boolean;
 /**
@@ -321,6 +321,7 @@ export interface NewTabMessages {
     | OmnibarDismissUsageLimitsNotification
     | OmnibarOpenAiChatNotification
     | OmnibarOpenCustomizeResponsesNotification
+    | OmnibarOpenPrivacyTermsNotification
     | OmnibarOpenSuggestionNotification
     | OmnibarRemoveSuggestionNotification
     | OmnibarSelectUsageLimitsCtaNotification
@@ -738,6 +739,17 @@ export interface OmnibarOpenCustomizeResponsesNotification {
  * Sent when the user selects 'Customize responses' in the omnibar Tools menu. Native opens the Customize Responses modal for the active New Tab Page tab; no parameters are required.
  */
 export interface OpenCustomizeResponsesAction {}
+/**
+ * Generated from @see "../messages/omnibar_openPrivacyTerms.notify.json"
+ */
+export interface OmnibarOpenPrivacyTermsNotification {
+  method: "omnibar_openPrivacyTerms";
+  params: OpenPrivacyTermsAction;
+}
+/**
+ * Sent when the user clicks the link in the Duck.ai terms disclaimer. Native opens the Duck.ai Privacy Policy and Terms of Service page in a new tab; no parameters are required.
+ */
+export interface OpenPrivacyTermsAction {}
 /**
  * Generated from @see "../messages/omnibar_openSuggestion.notify.json"
  */
@@ -1185,7 +1197,7 @@ export interface OpenNotification {
   params: OpenAction;
 }
 export interface OpenAction {
-  target: "settings" | "duckAiPrivacyTerms";
+  target: "settings";
 }
 /**
  * Generated from @see "../messages/protections_setConfig.notify.json"

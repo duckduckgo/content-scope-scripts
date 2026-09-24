@@ -163,6 +163,11 @@ The four CTA events retain their historical `_shown` names, but they represent a
 - Sent when the user dismisses the native-provided Create Image model-switch notice.
 - Native clears the notice and pushes the updated config.
 
+### `omnibar_openPrivacyTerms`
+- {@link "NewTab Messages".OmnibarOpenPrivacyTermsNotification}
+- Sent when the user clicks the link in the Duck.ai terms disclaimer. See [Duck.ai terms](#duckai-terms).
+- Native opens the Duck.ai Privacy Policy and Terms of Service page in a new tab. No parameters.
+
 ### `omnibar_setConfig` 
 - {@link "NewTab Messages".OmnibarSetConfigNotification}
 - Sent when the user changes the omnibar mode (search vs AI)
@@ -304,9 +309,9 @@ The omnibar supports various types of suggestions:
 While `requiresTermsAcceptance` is `true`, the Duck.ai tab shows the terms disclaimer under the input, and the send button reads "Ask" ("Create" in image-generation mode) instead of the arrow.
 
 - Clicking the button or pressing Enter accepts the terms: `omnibar_submitChat` includes `termsAccepted: true`. Native passes it to Duck.ai with the prompt, so Duck.ai sends the prompt without its Continue card.
-- After that submission the NTP hides the disclaimer on its own until the page reloads. Native should still push `requiresTermsAcceptance: false` to every open NTP.
+- After that submission native should push `requiresTermsAcceptance: false` to every open NTP. The NTP doesn't hide the disclaimer on its own.
 - The voice-chat button and the Search tab's "Ask Duck.ai" suggestion never send `termsAccepted`.
-- The disclaimer's link sends `open` with `{ "target": "duckAiPrivacyTerms" }`. Native opens the Duck.ai Privacy Policy and Terms of Service page in a new tab.
+- The disclaimer's link sends `omnibar_openPrivacyTerms`. Native opens the Duck.ai Privacy Policy and Terms of Service page in a new tab.
 - The disclaimer takes priority over `createImageModelSwitch` and `usageLimits` in the notice drawer. `usageLimits.blocksPrompt` still applies.
 - `omnibar_setConfig` sends the whole config, so it echoes `requiresTermsAcceptance` back. Native should ignore it there.
 

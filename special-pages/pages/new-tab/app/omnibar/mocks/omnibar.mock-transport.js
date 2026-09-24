@@ -327,6 +327,7 @@ export function omnibarMockTransport() {
                 case 'omnibar_viewAllAIChats':
                 case 'omnibar_openAiChat':
                 case 'omnibar_openCustomizeResponses':
+                case 'omnibar_openPrivacyTerms':
                 case 'omnibar_openSuggestion':
                 case 'omnibar_submitSearch':
                 case 'omnibar_submitChat':

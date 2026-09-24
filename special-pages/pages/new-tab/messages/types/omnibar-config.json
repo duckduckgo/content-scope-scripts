@@ -307,6 +307,12 @@
       "type": "boolean",
       "default": false
     },
+    "requiresTermsAcceptance": {
+      "title": "Requires Terms Acceptance",
+      "description": "True while the user hasn't accepted Duck.ai's Privacy Policy and Terms of Service. The Duck.ai tab then shows the terms disclaimer, labels the send button 'Ask' (or 'Create'), and sends `termsAccepted: true` on `omnibar_submitChat`. Missing/false shows no disclaimer. After a submission with `termsAccepted: true`, native should push `false` to every open NTP.",
+      "type": "boolean",
+      "default": false
+    },
     "createImageModelSwitch": {
       "title": "Create Image Model Switch Notice",
       "description": "Native-resolved presentation shown after Create Image switches away from an unsupported model. Non-null takes visual priority over usageLimits; native owns model selection, localized copy, and lifecycle.",
