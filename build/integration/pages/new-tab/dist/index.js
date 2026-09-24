@@ -15238,7 +15238,8 @@
     const showFileError = !!fileError && !imageMessageShowing;
     const showFileWarning = fileWarning && !imageMessageShowing && !showFileError;
     const showTabWarning = tabWarning && !imageMessageShowing && !showFileError && !showFileWarning;
-    const disabled = blocksPrompt || !query || imageWarning || fileWarning || tabWarning;
+    const hasSendableAttachments = canAttachImages && hasAttachedImages || canAttachFiles && fileState.attachedFiles.length > 0 || canAttachTabs && tabAttachments.attachedTabs.length > 0;
+    const disabled = blocksPrompt || !query && !hasSendableAttachments || imageWarning || fileWarning || tabWarning;
     const isVoiceChatMode = enableVoiceChatAccess && !imageGenerationActive && !hasAttachedImages && fileState.attachedFiles.length === 0 && tabAttachments.attachedTabs.length === 0 && !query;
     const handleClickSubmit = (event) => {
       event.preventDefault();

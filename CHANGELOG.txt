@@ -1,1 +1,1 @@
-- NTP: Create Image warning flow (#3037)
+- NTP omnibar: allow submitting Duck.ai prompt with only attachments (#3059)
