@@ -10,6 +10,14 @@ updates:
       open-pull-requests-limit: 20
       labels:
           - 'dependencies'
+      ignore:
+          # TypeScript 7 is blocked until the toolchain supports it:
+          # - typedoc@0.28.x peers cap at <=6.0.x and crashes at runtime against TS 7
+          # - typescript-eslint@8.63.x peers cap at <6.1.0 and crashes ESLint at import time
+          # - npm ci fails with ERESOLVE before CI can run
+          # - tsc reports 340 new errors vs 0 on TS 6.0.3 (see dependency review on #2892)
+          - dependency-name: 'typescript'
+            update-types: ['version-update:semver-major']
       groups:
           eslint:
               patterns:
