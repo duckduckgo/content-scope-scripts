@@ -21,7 +21,7 @@ import styles from './AiChatForm.module.css';
  * A simple form shell for the AI chat input. Renders a textarea plus two toolbar slots
  * (`toolbarLeft`, `toolbarRight`). The parent owns all submission UI (submit button,
  * voice button, etc.) and renders it via the right slot — this component only forwards
- * Enter-key submissions through `onSubmit(query, target)`.
+ * Enter-key submissions through `onSubmit({ chat, target })`.
  *
  * @param {object} props
  * @param {string} props.query
@@ -29,7 +29,7 @@ import styles from './AiChatForm.module.css';
  * @param {boolean} [props.disabled] - Blocks Enter/submit (e.g. empty query or attachment warnings).
  * @param {boolean} [props.readOnly] - Freezes the textarea (hard usage limit); typing and submit are blocked.
  * @param {(query: string, caret: number) => void} props.onChange
- * @param {(chat: string, target: OpenTarget) => void} props.onSubmit
+ * @param {(params: { chat: string, target: OpenTarget }) => void} props.onSubmit
  * @param {string} [props.placeholder]
  * @param {import('preact').ComponentChildren} [props.children]
  * @param {import('preact').ComponentChildren} [props.toolbarLeft]
@@ -88,7 +88,7 @@ export function AiChatForm({
     const handleSubmit = (event) => {
         event.preventDefault();
         if (disabled || readOnly) return;
-        onSubmit(query, 'same-tab');
+        onSubmit({ chat: query, target: 'same-tab' });
     };
 
     /** @type {(event: KeyboardEvent) => void} */
@@ -140,7 +140,7 @@ export function AiChatForm({
                     break;
                 }
 
-                onSubmit(query, eventToTarget(event, platformName));
+                onSubmit({ chat: query, target: eventToTarget(event, platformName) });
                 break;
         }
     };
