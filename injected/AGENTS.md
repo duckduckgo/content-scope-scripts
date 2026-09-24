@@ -66,6 +66,7 @@ Platform-specific features: `navigatorInterface`, `windowsPermissionUsage`, `mes
 
 ## Messaging Constraints
 
+- **Never wait on a `request()` round trip to the client in `load()` or `init()`.** `init()` is awaited by the shared feature init chain, so an awaited request delays every other feature and never resolves on a platform with no handler. `load()` is not awaited at all, so an `await` there splits the method in two and the wrappers it installs land after the page may already have used the API — keep `load()` synchronous. Gating a feature on a client reply is a review red flag: enablement belongs in Privacy Remote Configuration (`getFeatureSettingEnabled`) or `userPreferences`, both of which arrive with the injected args. Use `subscribe()` for client-pushed state, or send the request without awaiting it. Enforced by the `ddg-local/no-blocking-init-request` ESLint rule; see `docs/features-guide.md` → "Red flags in `load`" / "Red flags in `init`".
 - **Never include `nativeData` as a field in any message sent to the client.** The `nativeData` field is reserved for native platform use — native implementations inject a `nativeData` field into incoming messages, and `nativeData` is reserved for that layer. When constructing `notify()` or `request()` params, only pass explicitly defined fields (destructure rather than spread).
 
 ## Notes
