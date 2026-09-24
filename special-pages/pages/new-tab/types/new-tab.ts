@@ -1110,7 +1110,7 @@ export interface SubmitChatAction {
    */
   pageContext?: PageContext[];
   /**
-   * True when this submission is the user's acceptance of Duck.ai's Privacy Policy and Terms of Service: the terms disclaimer was showing and the user clicked 'Ask'/'Create' or pressed Enter. Native passes it to Duck.ai with the prompt. Omitted otherwise, including for voice mode.
+   * True when this submission is the user's acceptance of Duck.ai's Privacy Policy and Terms of Service: the terms disclaimer was showing and the user clicked 'Ask'/'Create'. Submitting with Enter doesn't count as acceptance. Native passes it to Duck.ai with the prompt. Omitted otherwise, including for voice mode.
    */
   termsAccepted?: boolean;
   /**

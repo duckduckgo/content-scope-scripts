@@ -308,7 +308,8 @@ The omnibar supports various types of suggestions:
 
 While `requiresTermsAcceptance` is `true`, the Duck.ai tab shows the terms disclaimer under the input, and the send button reads "Ask" ("Create" in image-generation mode) instead of the arrow.
 
-- Clicking the button or pressing Enter accepts the terms: `omnibar_submitChat` includes `termsAccepted: true`. Native passes it to Duck.ai with the prompt, so Duck.ai sends the prompt without its Continue card.
+- Clicking the button accepts the terms: `omnibar_submitChat` includes `termsAccepted: true`. Native passes it to Duck.ai with the prompt, so Duck.ai sends the prompt without its Continue card.
+- Pressing Enter still submits, but without `termsAccepted`. Legal requires an explicit click to accept.
 - After that submission native should push `requiresTermsAcceptance: false` to every open NTP. The NTP doesn't hide the disclaimer on its own.
 - The voice-chat button and the Search tab's "Ask Duck.ai" suggestion never send `termsAccepted`.
 - The disclaimer's link sends `omnibar_openPrivacyTerms`. Native opens the Duck.ai Privacy Policy and Terms of Service page in a new tab.

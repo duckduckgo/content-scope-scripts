@@ -60,7 +60,7 @@ test.describe('omnibar terms disclaimer', () => {
         await omnibar.expectMethodCalledWith('omnibar_submitChat', { chat: 'pizza', target: 'same-tab', termsAccepted: true });
     });
 
-    test('pressing Enter accepts the terms with the prompt', async ({ page }, workerInfo) => {
+    test('pressing Enter submits without accepting the terms', async ({ page }, workerInfo) => {
         const { ntp, omnibar } = setup(page, workerInfo);
         await ntp.reducedMotion();
         await ntp.openPage({ additional: requiresTerms });
@@ -69,7 +69,8 @@ test.describe('omnibar terms disclaimer', () => {
         await omnibar.chatInput().fill('pizza');
         await omnibar.chatInput().press('Enter');
 
-        await omnibar.expectMethodCalledWith('omnibar_submitChat', { chat: 'pizza', target: 'same-tab', termsAccepted: true });
+        await omnibar.expectMethodCalledWith('omnibar_submitChat', { chat: 'pizza', target: 'same-tab' });
+        await expect(omnibar.noticeDrawer()).toHaveText(askDisclaimer);
     });
 
     test('says Create in image generation mode', async ({ page }, workerInfo) => {
@@ -98,7 +99,7 @@ test.describe('omnibar terms disclaimer', () => {
         });
     });
 
-    test('hides the disclaimer right after acceptance when the page stays open', async ({ page }, workerInfo) => {
+    test('keeps the disclaimer after acceptance until native pushes the new config', async ({ page }, workerInfo) => {
         const { ntp, omnibar } = setup(page, workerInfo);
         await ntp.reducedMotion();
         await ntp.openPage({ additional: requiresTerms });
@@ -108,27 +109,14 @@ test.describe('omnibar terms disclaimer', () => {
         await omnibar.askButton().click({ modifiers: ['Meta'] });
         expect(await omnibar.lastSubmitChatParams()).toEqual({ chat: 'pizza', target: 'new-tab', termsAccepted: true });
 
+        await expect(omnibar.noticeDrawer()).toHaveText(askDisclaimer);
+
+        await omnibar.didReceiveConfig({ mode: 'ai', enableAi: true, requiresTermsAcceptance: false });
         await expect(omnibar.noticeDrawer()).toHaveCount(0);
 
         await omnibar.chatInput().fill('pasta');
         await omnibar.chatSubmitButton().click();
         expect(await omnibar.lastSubmitChatParams(2)).toEqual({ chat: 'pasta', target: 'same-tab' });
-    });
-
-    test('hides the disclaimer when native reports acceptance', async ({ page }, workerInfo) => {
-        const { ntp, omnibar } = setup(page, workerInfo);
-        await ntp.reducedMotion();
-        await ntp.openPage({ additional: requiresTerms });
-        await omnibar.ready();
-
-        await expect(omnibar.noticeDrawer()).toBeVisible();
-
-        await omnibar.didReceiveConfig({ mode: 'ai', enableAi: true, requiresTermsAcceptance: false });
-
-        await expect(omnibar.noticeDrawer()).toHaveCount(0);
-        await omnibar.chatInput().fill('pizza');
-        await expect(omnibar.chatSubmitButton()).toBeVisible();
-        await expect(omnibar.askButton()).toHaveCount(0);
     });
 
     test('the link opens the Privacy Policy and Terms of Service', async ({ page }, workerInfo) => {
@@ -139,7 +127,7 @@ test.describe('omnibar terms disclaimer', () => {
 
         await omnibar.termsLink().click();
 
-        await omnibar.expectMethodCalledWith('open', { target: 'duckAiPrivacyTerms' });
+        await omnibar.expectMethodCalledWith('omnibar_openPrivacyTerms', {});
         await omnibar.expectMethodNotCalled('omnibar_submitChat');
     });
 
