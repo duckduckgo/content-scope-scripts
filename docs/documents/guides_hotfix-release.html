@@ -1,0 +1,159 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>guides/hotfix-release | @duckduckgo/content-scope-scripts</title><meta name="description" content="Documentation for @duckduckgo/content-scope-scripts"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">@duckduckgo/content-scope-scripts</a>
+<div id="tsd-toolbar-links"></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="" aria-current="page">guides/hotfix-release</a></li></ul></div>
+<div class="tsd-panel tsd-typography"><h1 id="hotfix-releases" class="tsd-anchor-link">Hotfix Releases<a href="#hotfix-releases" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h1>
+<p>Use this when a released version needs a fix <strong>now</strong> and you cannot wait for the next <code>main</code> release.</p>
+<p>Normal releases are automated (<a href="https://github.com/duckduckgo/content-scope-scripts/actions/workflows/build.yml">Release workflow</a>): they copy <code>main</code> onto the <code>releases</code> branch, build, commit the artifacts and tag. A hotfix does the same thing, but starts from an existing release tag instead of <code>main</code>, so only the fix ships. Because built code is checked in, there is more to it than tagging a commit.</p>
+<p>Background on why build output lives on a separate branch: <a href="../media/CONTRIBUTING.md#why-release-branches-exist">CONTRIBUTING.md → Why release branches exist</a>.</p>
+<h2 id="cutting-one" class="tsd-anchor-link">Cutting one<a href="#cutting-one" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>Use the <a href="https://github.com/duckduckgo/content-scope-scripts/actions/workflows/hotfix.yml">Hotfix Release workflow</a>. Give it the release tag you are fixing and the commits to cherry-pick, and it does everything up to a <strong>draft</strong> release: branches from the tag, cherry-picks, builds, checks in the artifacts, pushes <code>hotfix/&lt;version&gt;</code> and pushes the changelog anchor. Review the compare link in the job summary, then publish the draft yourself.</p>
+<p>It refuses to run if a commit is not already on <code>main</code>, if the target tag exists, or if a cherry-pick conflicts. In those cases, and for anything else that needs judgement, fall back to <a href="#doing-it-by-hand">doing it by hand</a>. Set <code>dry_run</code> to build and verify without pushing anything.</p>
+<div class="tsd-alert tsd-alert-warning"><div class="tsd-alert-title"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><use href="../assets/icons.svg#icon-alertWarning"></use></svg><span>Warning</span></div><p>
+The workflow asks for the release to be a draft and sets <code>make_latest: false</code>, but GitHub still shows a <strong>Set as the latest release</strong> tickbox when you publish. Confirm it is unticked, unless this genuinely is the latest release.</p>
+</div>
+<h2 id="before-you-start" class="tsd-anchor-link">Before you start<a href="#before-you-start" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<ul>
+<li><strong>The fix must already be merged to <code>main</code>.</strong> You cherry-pick from <code>main</code> onto the hotfix branch. If the commit only exists on the hotfix branch, the next regular release silently reverts it.</li>
+<li><strong>Nothing to bump in the repo.</strong> The root <code>package.json</code> has no <code>version</code> field; the version is the git tag and nothing else.</li>
+<li><strong>The patch digit is yours.</strong> <code>build.yml</code> always emits <code>${MAJOR}.${MINOR}.0</code> and ignores the patch component when computing the next version, so <code>x.y.1</code>, <code>x.y.2</code> … can never collide with an automated release, and a hotfix tag does not skew the next minor. Apple consumers need this: Swift Package Manager only accepts a strict <code>major.minor.patch</code> trio, so the patch slot is the only room a hotfix has.</li>
+</ul>
+<div class="tsd-alert tsd-alert-warning"><div class="tsd-alert-title"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><use href="../assets/icons.svg#icon-alertWarning"></use></svg><span>Warning</span></div><p>
+Because only <code>major.minor.patch</code> is available to Apple codebases, keep reserving the patch digit in automated releases. If <code>build.yml</code> ever starts emitting a non-zero patch, hotfix numbering collides.</p>
+</div>
+<h2 id="doing-it-by-hand" class="tsd-anchor-link">Doing it by hand<a href="#doing-it-by-hand" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>The workflow mirrors the steps below, so this is both the fallback and the explanation of what it does.</p>
+<h3 id="1-create-and-build-the-hotfix-branch" class="tsd-anchor-link">1. Create and build the hotfix branch<a href="#1-create-and-build-the-hotfix-branch" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<p>Work in a <strong>clean clone or worktree</strong>, because step 4 force-adds files and stray local output (<code>coverage/</code>, <code>test-results/</code>, <code>docs/</code>, <code>.env</code>) would be swept in.</p>
+<ol>
+<li>
+<p><strong>Fetch tags and check out the release you are fixing.</strong> Tags are not present in a shallow clone.</p>
+<pre><code class="sh"><span class="hl-3">git</span><span class="hl-2"> </span><span class="hl-7">fetch</span><span class="hl-2"> </span><span class="hl-1">--tags</span><span class="hl-2"> </span><span class="hl-7">origin</span><br/><span class="hl-3">git</span><span class="hl-2"> </span><span class="hl-7">checkout</span><span class="hl-2"> </span><span class="hl-10">4.21.1</span><span class="hl-2">          </span><span class="hl-0"># {release-tag}</span><br/><span class="hl-3">git</span><span class="hl-2"> </span><span class="hl-7">checkout</span><span class="hl-2"> </span><span class="hl-1">-b</span><span class="hl-2"> </span><span class="hl-7">hotfix/4.21.2</span><span class="hl-2"> </span><span class="hl-0"># hotfix/{release-tag+1}</span>
+</code><button type="button">Copy</button></pre>
+
+</li>
+<li>
+<p><strong>Cherry-pick the fix from <code>main</code>.</strong> Source files on <code>releases</code> are a straight copy of <code>main</code>, so commits that only touch source apply cleanly.</p>
+<pre><code class="sh"><span class="hl-3">git</span><span class="hl-2"> </span><span class="hl-7">cherry-pick</span><span class="hl-2"> &lt;</span><span class="hl-7">commit-sh</span><span class="hl-2">a&gt;</span>
+</code><button type="button">Copy</button></pre>
+
+</li>
+<li>
+<p><strong>Build exactly what CI would build.</strong></p>
+<pre><code class="sh"><span class="hl-3">nvm</span><span class="hl-2"> </span><span class="hl-7">use</span><br/><span class="hl-3">npm</span><span class="hl-2"> </span><span class="hl-7">ci</span><span class="hl-2">        </span><span class="hl-0"># not `npm install`: ci installs the lockfile exactly, as build.yml does</span><br/><span class="hl-3">npm</span><span class="hl-2"> </span><span class="hl-7">run</span><span class="hl-2"> </span><span class="hl-7">build</span>
+</code><button type="button">Copy</button></pre>
+
+</li>
+<li>
+<p><strong>Check in the build output and commit.</strong> The release workflow adds everything, so mirror it rather than listing directories:</p>
+<pre><code class="sh"><span class="hl-3">git</span><span class="hl-2"> </span><span class="hl-7">add</span><span class="hl-2"> </span><span class="hl-1">-f</span><span class="hl-2"> </span><span class="hl-7">.</span><span class="hl-2"> </span><span class="hl-7">&#39;:!node_modules&#39;</span><span class="hl-2"> </span><span class="hl-7">&#39;:!CHANGELOG.txt&#39;</span><br/><span class="hl-3">git</span><span class="hl-2"> </span><span class="hl-7">status</span><span class="hl-2"> </span><span class="hl-1">--short</span><span class="hl-2">   </span><span class="hl-0"># eyeball this before committing</span><br/><span class="hl-3">git</span><span class="hl-2"> </span><span class="hl-7">commit</span><span class="hl-2"> </span><span class="hl-1">-m</span><span class="hl-2"> </span><span class="hl-7">&quot;Hotfix release of 4.21.2 based on 4.21.1&quot;</span><br/><span class="hl-3">git</span><span class="hl-2"> </span><span class="hl-7">push</span><span class="hl-2"> </span><span class="hl-1">-u</span><span class="hl-2"> </span><span class="hl-7">origin</span><span class="hl-2"> </span><span class="hl-7">hotfix/4.21.2</span>
+</code><button type="button">Copy</button></pre>
+
+<div class="tsd-alert tsd-alert-note"><div class="tsd-alert-title"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><use href="../assets/icons.svg#icon-alertNote"></use></svg><span>Note</span></div><p>
+<code>git add -f build/ Sources/</code> is <strong>not</strong> enough. <code>npm run build</code> also regenerates <code>injected/src/features/tracker-protection/surrogates-generated.js</code> and its <code>.d.ts</code> (via the <code>prebuild</code> → <code>build-surrogates</code> step). Those are gitignored in source but tracked on <code>releases</code>, so a narrow add leaves them stale and the branch no longer matches its own source.</p>
+</div>
+</li>
+</ol>
+<h3 id="2-verify-the-branch-before-tagging" class="tsd-anchor-link">2. Verify the branch before tagging<a href="#2-verify-the-branch-before-tagging" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ol>
+<li>
+<p><strong>Rebuild and assert the tree is clean.</strong> This proves the checked-in artifacts match the checked-in source:</p>
+<pre><code class="sh"><span class="hl-3">npm</span><span class="hl-2"> </span><span class="hl-7">run</span><span class="hl-2"> </span><span class="hl-7">test-clean-tree</span>
+</code><button type="button">Copy</button></pre>
+
+</li>
+<li>
+<p><strong>Compare against the base tag on GitHub</strong> and confirm only the expected changes are present, source and compiled:</p>
+<pre><code class="text">https://github.com/duckduckgo/content-scope-scripts/compare/4.21.1...hotfix/4.21.2
+</code><button type="button">Copy</button></pre>
+
+<div class="tsd-alert tsd-alert-note"><div class="tsd-alert-title"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><use href="../assets/icons.svg#icon-alertNote"></use></svg><span>Note</span></div><p>
+<code>test-clean-tree</code> only inspects tracked files. A build that produces a <strong>new</strong> file (a new locale, a new bundle) is ignored-and-untracked, so it will not fail the check. The GitHub compare is what catches it.</p>
+</div>
+</li>
+</ol>
+<p>The hotfix branch can be tested in isolation from here (see <a href="../media/CONTRIBUTING.md#pr-build-branches">CONTRIBUTING.md → Using a PR build branch in a native client</a> for the per-platform reference syntax), but applications should end up pointing at the released tag, not the branch.</p>
+<h3 id="3-create-the-release-and-tag" class="tsd-anchor-link">3. Create the release and tag<a href="#3-create-the-release-and-tag" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ol>
+<li>Open <a href="https://github.com/duckduckgo/content-scope-scripts/releases/new">https://github.com/duckduckgo/content-scope-scripts/releases/new</a></li>
+<li>Change <strong>Target</strong> to <code>hotfix/{release-tag+1}</code></li>
+<li>In <strong>Choose tag</strong> type <code>{release-tag+1}</code> and select <strong>Create new tag on publish</strong></li>
+<li>In the notes, list the commits that were added and link to them</li>
+<li><strong>Untick &quot;Set as the latest release&quot;</strong>, unless this genuinely is the latest</li>
+<li>Publish</li>
+</ol>
+<div class="tsd-alert tsd-alert-warning"><div class="tsd-alert-title"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><use href="../assets/icons.svg#icon-alertWarning"></use></svg><span>Warning</span></div><p>
+Getting the &quot;latest&quot; flag wrong has real consequences. Anything reading the GitHub <code>releases/latest</code> endpoint, Android automation among them, will pick up the hotfix number and present it as the current release in PRs and documentation, even though it is an older line.</p>
+</div>
+<div class="tsd-alert tsd-alert-note"><div class="tsd-alert-title"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><use href="../assets/icons.svg#icon-alertNote"></use></svg><span>Note</span></div><p>
+Automated releases are marked latest by default (<code>softprops/action-gh-release</code>), which is why this is an explicit manual step here.</p>
+</div>
+<h3 id="4-preserve-the-branch-and-re-verify" class="tsd-anchor-link">4. Preserve the branch and re-verify<a href="#4-preserve-the-branch-and-re-verify" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul>
+<li>
+<p><strong>Keep <code>hotfix/{release-tag+1}</code> around.</strong> The tag is what actually pins the commits, so publishing the release first is the step that protects them. Do not delete the branch before the tag exists, and keeping it afterwards matches existing practice (<code>hotfix/4.21.2</code>, <code>hotfix/4.22.5</code> and <code>hotfix/12.4.1</code> are all still present) and makes a follow-up hotfix on the same line straightforward.</p>
+</li>
+<li>
+<p><strong>Compare the two tags</strong> and confirm, again, that only the expected source and compiled changes are there:</p>
+<pre><code class="text">https://github.com/duckduckgo/content-scope-scripts/compare/4.21.1...4.21.2
+</code><button type="button">Copy</button></pre>
+
+</li>
+</ul>
+<h3 id="5-restore-the-changelog-anchor" class="tsd-anchor-link">5. Restore the changelog anchor<a href="#5-restore-the-changelog-anchor" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<p><strong>Do not skip this.</strong> It is the one step with no manual equivalent in the release UI, and skipping it corrupts the <em>next</em> regular release's notes.</p>
+<p><a href="../media/changelog.sh"><code>scripts/changelog.sh</code></a> finds the highest semver tag and looks for a matching <code>released/&lt;version&gt;</code> anchor on <code>main</code>. A hotfix tag is now the highest semver tag and has no anchor, so the script falls back to a date-based boundary (the newest tagged commit, which is the hotfix build) and the next release's changelog drops every <code>main</code> commit between the base release and the hotfix. If nothing landed on <code>main</code> after the hotfix, the changelog comes out empty and <code>build.yml</code> aborts the release.</p>
+<p>Point the new anchor at the same <code>main</code> commit as the base release's anchor. The hotfix did not advance <code>main</code>'s release frontier, so the range is unchanged:</p>
+<pre><code class="sh"><span class="hl-3">git</span><span class="hl-2"> </span><span class="hl-7">tag</span><span class="hl-2"> </span><span class="hl-7">released/4.21.2</span><span class="hl-2"> </span><span class="hl-7">&quot;$(</span><span class="hl-3">git</span><span class="hl-7"> rev-parse released/4.21.1)&quot;</span><br/><span class="hl-3">git</span><span class="hl-2"> </span><span class="hl-7">push</span><span class="hl-2"> </span><span class="hl-7">origin</span><span class="hl-2"> </span><span class="hl-7">released/4.21.2</span>
+</code><button type="button">Copy</button></pre>
+
+<p>If the base release predates the anchor system (anchors start at <code>released/15.14.0</code>), anchor to the <code>main</code> commit that release was built from instead.</p>
+<h3 id="checklist" class="tsd-anchor-link">Checklist<a href="#checklist" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul>
+<li>[ ] Fix is merged to <code>main</code></li>
+<li>[ ] Built with <code>npm ci</code> + <code>npm run build</code> in a clean checkout</li>
+<li>[ ] All generated files added, including <code>surrogates-generated.js</code> / <code>.d.ts</code></li>
+<li>[ ] <code>npm run test-clean-tree</code> passes and the GitHub compare shows only expected changes</li>
+<li>[ ] Release published with &quot;Set as the latest release&quot; unticked (unless it is)</li>
+<li>[ ] <code>released/{release-tag+1}</code> anchor pushed</li>
+</ul>
+</div></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
+<details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>On This Page</h3></summary>
+<div class="tsd-accordion-details"><a href="#hotfix-releases"><span>Hotfix <wbr/>Releases</span></a>
+<ul>
+<li><a href="#cutting-one"><span>Cutting one</span></a></li>
+<li><a href="#before-you-start"><span>Before you start</span></a></li>
+<li><a href="#doing-it-by-hand"><span>Doing it by hand</span></a></li>
+<li>
+<ul>
+<li><a href="#1-create-and-build-the-hotfix-branch"><span>1. <wbr/>Create and build the hotfix branch</span></a></li>
+<li><a href="#2-verify-the-branch-before-tagging"><span>2. <wbr/>Verify the branch before tagging</span></a></li>
+<li><a href="#3-create-the-release-and-tag"><span>3. <wbr/>Create the release and tag</span></a></li>
+<li><a href="#4-preserve-the-branch-and-re-verify"><span>4. <wbr/>Preserve the branch and re-<wbr/>verify</span></a></li>
+<li><a href="#5-restore-the-changelog-anchor"><span>5. <wbr/>Restore the changelog anchor</span></a></li>
+<li><a href="#checklist"><span>Checklist</span></a></li></ul></li></ul></div></details></div>
+<div class="site-menu">
+<nav class="tsd-navigation"><a href="../index.html">@duckduckgo/content-scope-scripts</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer>
+<p class="tsd-generator">Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></footer>
+<div class="overlay"></div></body></html>
