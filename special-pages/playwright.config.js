@@ -45,6 +45,7 @@ export default defineConfig({
                 'omnibar.persistence.spec.js',
                 'omnibar-attachments.spec.js',
                 'omnibar-usage-limits.spec.js',
+                'omnibar-terms.spec.js',
             ],
             use: {
                 ...devices['Desktop Chrome'],

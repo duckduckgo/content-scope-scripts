@@ -151,6 +151,10 @@ export type EnableAIChatDeletion = boolean;
  */
 export type EnableSearchSuggestionDeletion = boolean;
 /**
+ * True while the user hasn't accepted Duck.ai's Privacy Policy and Terms of Service. The Duck.ai tab then shows the terms disclaimer, labels the send button 'Ask' (or 'Create'), and sends `termsAccepted: true` on `omnibar_submitChat`. Missing/false shows no disclaimer. After a submission with `termsAccepted: true`, native should push `false` to every open NTP.
+ */
+export type RequiresTermsAcceptance = boolean;
+/**
  * Native-resolved presentation shown after Create Image switches away from an unsupported model. Non-null takes visual priority over usageLimits; native owns model selection, localized copy, and lifecycle.
  */
 export type CreateImageModelSwitchNotice = {
@@ -317,6 +321,7 @@ export interface NewTabMessages {
     | OmnibarDismissUsageLimitsNotification
     | OmnibarOpenAiChatNotification
     | OmnibarOpenCustomizeResponsesNotification
+    | OmnibarOpenPrivacyTermsNotification
     | OmnibarOpenSuggestionNotification
     | OmnibarRemoveSuggestionNotification
     | OmnibarSelectUsageLimitsCtaNotification
@@ -735,6 +740,17 @@ export interface OmnibarOpenCustomizeResponsesNotification {
  */
 export interface OpenCustomizeResponsesAction {}
 /**
+ * Generated from @see "../messages/omnibar_openPrivacyTerms.notify.json"
+ */
+export interface OmnibarOpenPrivacyTermsNotification {
+  method: "omnibar_openPrivacyTerms";
+  params: OpenPrivacyTermsAction;
+}
+/**
+ * Sent when the user clicks the link in the Duck.ai terms disclaimer. Native opens the Duck.ai Privacy Policy and Terms of Service page in a new tab; no parameters are required.
+ */
+export interface OpenPrivacyTermsAction {}
+/**
  * Generated from @see "../messages/omnibar_openSuggestion.notify.json"
  */
 export interface OmnibarOpenSuggestionNotification {
@@ -842,6 +858,7 @@ export interface OmnibarConfig {
   enableAttachTabs?: EnableAttachTabs;
   enableAiChatDeletion?: EnableAIChatDeletion;
   enableSearchSuggestionDeletion?: EnableSearchSuggestionDeletion;
+  requiresTermsAcceptance?: RequiresTermsAcceptance;
   createImageModelSwitch?: CreateImageModelSwitchNotice;
   usageLimits?: UsageLimitsDrawer;
 }
@@ -1092,6 +1109,10 @@ export interface SubmitChatAction {
    * Page contexts attached from open tabs via the attach-tabs picker. Each entry is the same PageContext shape returned by `omnibar_getTabContent` and is guaranteed by NTP to carry a `tabId` so native can attribute attachments back to their source tab. Omitted when no tabs are attached so existing native handlers continue to work unchanged.
    */
   pageContext?: PageContext[];
+  /**
+   * True when this submission is the user's acceptance of Duck.ai's Privacy Policy and Terms of Service: the terms disclaimer was showing and the user clicked 'Ask'/'Create'. Submitting with Enter doesn't count as acceptance. Native passes it to Duck.ai with the prompt. Omitted otherwise, including for voice mode.
+   */
+  termsAccepted?: boolean;
   /**
    * Files (PDFs in v1) attached via the paperclip menu. Each entry mirrors Duck.ai's `NativePromptFile` shape so native forwards them through unchanged. Omitted when no files are attached.
    */

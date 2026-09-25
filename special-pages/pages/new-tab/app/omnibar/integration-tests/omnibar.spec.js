@@ -1600,6 +1600,28 @@ test.describe('omnibar widget', () => {
             await expect(omnibar.createImageChip()).toHaveCount(0);
             await expect(omnibar.imageGenerationInput()).toHaveCount(0);
         });
+
+        test('switching to Search and back resets image generation', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableImageGeneration': 'true', 'omnibar.enableAiChatTools': 'true' },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.toolsMenuButton().click();
+            await omnibar.createImageMenuItem().click();
+            await expect(omnibar.imageGenerationInput()).toBeVisible();
+
+            await omnibar.searchTab().click();
+            await omnibar.aiTab().click();
+
+            await expect(omnibar.chatInput()).toBeVisible();
+            await expect(omnibar.createImageChip()).toHaveCount(0);
+        });
     });
 
     test.describe('AI chat web search mode', () => {

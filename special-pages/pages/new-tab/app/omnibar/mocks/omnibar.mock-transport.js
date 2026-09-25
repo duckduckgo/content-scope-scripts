@@ -327,6 +327,7 @@ export function omnibarMockTransport() {
                 case 'omnibar_viewAllAIChats':
                 case 'omnibar_openAiChat':
                 case 'omnibar_openCustomizeResponses':
+                case 'omnibar_openPrivacyTerms':
                 case 'omnibar_openSuggestion':
                 case 'omnibar_submitSearch':
                 case 'omnibar_submitChat':
@@ -490,6 +491,8 @@ export function omnibarMockTransport() {
                     config.enableAiChatDeletion = parseBooleanQueryParam('omnibar.enableAiChatDeletion') ?? config.enableAiChatDeletion;
                     config.enableSearchSuggestionDeletion =
                         parseBooleanQueryParam('omnibar.enableSearchSuggestionDeletion') ?? config.enableSearchSuggestionDeletion;
+                    config.requiresTermsAcceptance =
+                        parseBooleanQueryParam('omnibar.requiresTermsAcceptance') ?? config.requiresTermsAcceptance;
                     // omnibar.usageLimits=false hides; approaching|reached|reached-switch set presets.
                     const usageLimitsPreset = url.searchParams.get('omnibar.usageLimits');
                     if (usageLimitsPreset === 'false') {

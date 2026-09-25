@@ -2,20 +2,22 @@ import { h, Fragment } from 'preact';
 import { useRef } from 'preact/hooks';
 import cn from 'classnames';
 import { DismissButton } from '../../components/DismissButton';
-import { ChevronSmall, InfoIcon } from '../../components/Icons';
+import { ChevronSmall, InfoIcon, ShieldCheckIcon } from '../../components/Icons';
 import { useTypedTranslationWith } from '../../types';
 import { Dropdown } from './chat-tools/dropdown/Dropdown';
 import { DropdownItem } from './chat-tools/dropdown/DropdownItem';
 import { useDropdown } from './chat-tools/useDropdown';
 import { getModelIcon } from './chat-tools/model-selector/Icons';
 import { useCreateImageModelSwitchNotice } from './useCreateImageModelSwitchNotice';
+import { useReservedHeight } from './useReservedHeight';
+import { useTermsDisclaimerNotice } from './useTermsDisclaimerNotice';
 import { useUsageLimitsDrawer } from './useUsageLimitsDrawer';
 import styles from './NoticeDrawer.module.css';
 
 /** @typedef {typeof import('../strings.json')} Strings */
 
 /**
- * @typedef {'info' | 'ring' | 'alert' | 'convert'} NoticeIcon
+ * @typedef {'info' | 'ring' | 'alert' | 'convert' | 'shield'} NoticeIcon
  * @typedef {'neutral' | 'warning' | 'critical'} NoticeSeverity
  * @typedef {'none' | 'convert'} UsageLimitsCtaLeadingIcon
  * @typedef {{ id: string, name: string, variant?: string }} UsageLimitsCtaAlternative
@@ -28,9 +30,11 @@ import styles from './NoticeDrawer.module.css';
  *   alternatives?: UsageLimitsCtaAlternative[],
  * }} UsageLimitsCta
  * @typedef {{
- *   message: string,
+ *   message: import('preact').ComponentChildren,
+ *   messageId?: string,
  *   secondaryText: string,
  *   secondaryOnNewLine?: boolean,
+ *   muted?: boolean,
  *   icon: NoticeIcon,
  *   percent?: number,
  *   severity?: NoticeSeverity,
@@ -121,6 +125,8 @@ function NoticeGlyph({ icon, percent, severity }) {
             return <UsageLimitsAlertIcon />;
         case 'convert':
             return <ConvertIcon />;
+        case 'shield':
+            return <ShieldCheckIcon class={cn(styles.glyph, styles.shield)} aria-hidden="true" />;
         case 'info':
             return infoIcon;
         default: {
@@ -238,19 +244,25 @@ function UsageLimitsCtaControl({ cta, onSelectCta }) {
 /**
  * @param {object} props
  * @param {boolean} props.revealed - Whether focus-gated notices should be shown.
+ * @param {boolean} props.imageGenerationActive
+ * @param {(height: number) => void} props.onReservedHeightChange - Room the page must keep below the omnibar for a notice that stays open at rest.
  */
-export function NoticeDrawer({ revealed }) {
+export function NoticeDrawer({ revealed, imageGenerationActive, onReservedHeightChange }) {
+    const termsDisclaimer = useTermsDisclaimerNotice(imageGenerationActive);
     const usageLimits = useUsageLimitsDrawer();
     const createImageModelSwitch = useCreateImageModelSwitchNotice();
-    // Create Image wins visual priority; usage-limit blocking remains independent.
-    const presentation = createImageModelSwitch ?? usageLimits;
+    const presentation = termsDisclaimer ?? createImageModelSwitch ?? usageLimits;
+
+    const drawerRef = useReservedHeight(Boolean(termsDisclaimer), onReservedHeightChange);
 
     if (!presentation) return null;
 
     const {
         message,
+        messageId,
         secondaryText,
         secondaryOnNewLine = false,
+        muted = false,
         icon,
         percent = 0,
         severity = 'neutral',
@@ -260,7 +272,7 @@ export function NoticeDrawer({ revealed }) {
     } = presentation;
 
     const emphasize = icon === 'ring' || icon === 'alert' || icon === 'convert';
-    const isRevealed = revealed || createImageModelSwitch !== null;
+    const isRevealed = revealed || termsDisclaimer !== null || createImageModelSwitch !== null;
 
     const keepComposerFocus = (event) => {
         // Keep the caret in the composer so clicking CTA/dismiss does not hide the drawer first.
@@ -269,6 +281,7 @@ export function NoticeDrawer({ revealed }) {
 
     return (
         <div
+            ref={drawerRef}
             class={cn(styles.drawer, !isRevealed && styles.hidden)}
             data-testid="notice-drawer"
             role="status"
@@ -279,7 +292,15 @@ export function NoticeDrawer({ revealed }) {
                     <span class={styles.leading}>
                         <NoticeGlyph icon={icon} percent={percent} severity={severity} />
                     </span>
-                    <p class={cn(styles.message, emphasize && styles.messageEmphasized, secondaryOnNewLine && styles.messageStacked)}>
+                    <p
+                        id={messageId}
+                        class={cn(
+                            styles.message,
+                            emphasize && styles.messageEmphasized,
+                            secondaryOnNewLine && styles.messageStacked,
+                            muted && styles.messageMuted,
+                        )}
+                    >
                         <span class={styles.primary}>{message}</span>
                         {secondaryText ? <span class={styles.secondary}>{secondaryText}</span> : null}
                     </p>

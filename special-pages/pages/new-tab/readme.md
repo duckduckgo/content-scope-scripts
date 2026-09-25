@@ -334,6 +334,14 @@
    - `reached` - Alert + subscribe CTA; `blocksPrompt` freezes the composer
    - `reached-switch` - Alert + switch-to-free CTA (no menu header)
 
+### Requires Terms Acceptance
+ - **Purpose**: Simulates a user who hasn't accepted Duck.ai's terms. The Duck.ai tab shows the terms disclaimer and an "Ask" (or "Create") button, and the next chat submission sends `termsAccepted: true`. Default is `false`.
+ - **Parameter**: `omnibar.requiresTermsAcceptance`
+ - **Example**: `?omnibar.mode=ai&omnibar.requiresTermsAcceptance=true`
+ - **Options**:
+   - `true`
+   - `false`
+
 ### Subscription (simulate subscribed user)
  - **Purpose**: Flips `isAvailable: true` on every AI model in the mock, unlocking the "Subscriber Exclusive" section. Lets tests pick subscription-tier models (e.g. Opus 4.6, GPT-5.2) as `selectedModelId`.
  - **Parameter**: `omnibar.subscription`
@@ -415,6 +423,7 @@
  - Image generation only: `?omnibar.mode=ai&omnibar.enableAiChatTools=true&omnibar.enableImageGeneration=true`
  - Web search only: `?omnibar.mode=ai&omnibar.enableAiChatTools=true&omnibar.enableWebSearch=true`
  - Usage limits (approaching): `?omnibar.mode=ai&omnibar.usageLimits=approaching`
+ - Terms disclaimer (not accepted): `?omnibar.mode=ai&omnibar.requiresTermsAcceptance=true`
 
  ### For Design Reviews
  - Component review: `?display=components`

@@ -41,6 +41,7 @@ title: Omnibar Widget
   - `aiModelSections` — array of model sections for the model selector. Each model may include `supportedReasoningEffort` (e.g. `["none", "low", "medium"]`) to surface the reasoning picker
   - `selectedModelId` — the user's persisted model choice
   - `selectedReasoningEffort` — the user's persisted reasoning-effort choice for the active model. Native validates against the model's `supportedReasoningEffort` on write
+  - `requiresTermsAcceptance` — `true` while the user hasn't accepted Duck.ai's terms. See [Duck.ai terms](#duckai-terms) (default `false`)
 ```json
 {
    "mode": "search",
@@ -162,6 +163,11 @@ The four CTA events retain their historical `_shown` names, but they represent a
 - Sent when the user dismisses the native-provided Create Image model-switch notice.
 - Native clears the notice and pushes the updated config.
 
+### `omnibar_openPrivacyTerms`
+- {@link "NewTab Messages".OmnibarOpenPrivacyTermsNotification}
+- Sent when the user clicks the link in the Duck.ai terms disclaimer. See [Duck.ai terms](#duckai-terms).
+- Native opens the Duck.ai Privacy Policy and Terms of Service page in a new tab. No parameters.
+
 ### `omnibar_setConfig` 
 - {@link "NewTab Messages".OmnibarSetConfigNotification}
 - Sent when the user changes the omnibar mode (search vs AI)
@@ -196,6 +202,7 @@ The four CTA events retain their historical `_shown` names, but they represent a
   - `toolChoice` — `["WebSearch"]` when the user has the Web Search tool active. Omitted otherwise.
   - `images` — array of `{ data, format }` objects for attached images. Omitted when no images are attached.
   - `pageContext` — array of {@link "NewTab Messages".PageContext} objects echoed back from `omnibar_getTabContent`. Each entry **always** includes `tabId` so native can attribute attachments to their source tab. Omitted when no tabs are attached so existing native handlers continue to work unchanged.
+  - `termsAccepted` — `true` when this submission accepts Duck.ai's terms. See [Duck.ai terms](#duckai-terms). Omitted otherwise.
 - example payloads:
 
 **Normal chat:**
@@ -259,6 +266,15 @@ The four CTA events retain their historical `_shown` names, but they represent a
 }
 ```
 
+**Chat that accepts Duck.ai's terms:**
+```json
+{
+   "chat": "How do I enable privacy protection?",
+   "target": "same-tab",
+   "termsAccepted": true
+}
+```
+
 ### `omnibar_openSuggestion` 
 - {@link "NewTab Messages".OmnibarOpenSuggestionNotification}
 - Sent when the user selects a suggestion from the dropdown
@@ -287,6 +303,18 @@ The omnibar supports various types of suggestions:
 - **website**: Direct website URL suggestions
 - **historyEntry**: Previously visited pages from browser history with title, URL, and relevance score
 - **internalPage**: Internal browser pages (settings, etc.) with title, URL, and relevance score
+
+## Duck.ai terms
+
+While `requiresTermsAcceptance` is `true`, the Duck.ai tab shows the terms disclaimer under the input, and the send button reads "Ask" ("Create" in image-generation mode) instead of the arrow.
+
+- Clicking the button accepts the terms: `omnibar_submitChat` includes `termsAccepted: true`. Native passes it to Duck.ai with the prompt, so Duck.ai sends the prompt without its Continue card.
+- Pressing Enter still submits, but without `termsAccepted`. Legal requires an explicit click to accept.
+- After that submission native should push `requiresTermsAcceptance: false` to every open NTP. The NTP doesn't hide the disclaimer on its own.
+- The voice-chat button and the Search tab's "Ask Duck.ai" suggestion never send `termsAccepted`.
+- The disclaimer's link sends `omnibar_openPrivacyTerms`. Native opens the Duck.ai Privacy Policy and Terms of Service page in a new tab.
+- The disclaimer takes priority over `createImageModelSwitch` and `usageLimits` in the notice drawer. `usageLimits.blocksPrompt` still applies.
+- `omnibar_setConfig` sends the whole config, so it echoes `requiresTermsAcceptance` back. Native should ignore it there.
 
 ## Open Targets
 

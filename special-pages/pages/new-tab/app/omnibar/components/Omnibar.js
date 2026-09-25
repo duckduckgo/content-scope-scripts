@@ -1,5 +1,6 @@
 import { Fragment, h } from 'preact';
 import { useCallback, useContext, useRef, useState } from 'preact/hooks';
+import cn from 'classnames';
 import { ArrowRightIcon, LogoStacked, VoiceIcon } from '../../components/Icons';
 import { eventToTarget } from '../../../../../shared/handlers';
 import { usePlatformName, useNewTabPageRebranding } from '../../settings.provider';
@@ -36,6 +37,7 @@ import { OpenTabsProvider } from './chat-tools/tab-attachment/OpenTabsProvider';
 import { useMentionPicker } from './chat-tools/tab-attachment/useMentionPicker';
 import { useTabAttachments } from './chat-tools/tab-attachment/useTabAttachments';
 import { NoticeDrawer } from './NoticeDrawer';
+import { TERMS_DISCLAIMER_ID } from './useTermsDisclaimerNotice';
 import { useKeyboardFocusWithin } from './useKeyboardFocusWithin.js';
 
 /**
@@ -84,6 +86,7 @@ export function Omnibar({
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const spacerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const [usageLimitsRevealed, setUsageLimitsRevealed] = useState(false);
+    const [noticeReservedHeight, setNoticeReservedHeight] = useState(0);
 
     const [query, setQuery] = useQueryWithLocalPersistence(tabId);
     const [resetKey, setResetKey] = useState(0);
@@ -102,6 +105,7 @@ export function Omnibar({
     const rebrand = useNewTabPageRebranding();
     const { keyboardFocusWithinProps } = useKeyboardFocusWithin({ enabled: rebrand });
     const { openSuggestion, submitSearch, submitChat, setShowCustomizePopover } = useContext(OmnibarContext);
+    const activeTools = useActiveTools();
 
     const { open: openCustomizer } = useDrawerControls();
     useDrawerEventListeners(
@@ -114,6 +118,7 @@ export function Omnibar({
 
     const resetForm = () => {
         setQuery('');
+        activeTools.setActiveTool(null);
         setResetKey((prev) => prev + 1);
     };
 
@@ -142,6 +147,7 @@ export function Omnibar({
     /** @type {(mode: OmnibarConfig['mode']) => void} */
     const handleChangeMode = (nextMode) => {
         setAutoFocus(true);
+        activeTools.setActiveTool(null);
         setMode(nextMode);
     };
 
@@ -180,6 +186,7 @@ export function Omnibar({
                     <div
                         ref={spacerRef}
                         class={styles.spacer}
+                        style={{ marginBottom: noticeReservedHeight }}
                         onFocusCapture={(event) => {
                             // Toolbar/drawer focus must not reveal the drawer — only the composer itself.
                             if (!(event.target instanceof HTMLTextAreaElement)) return;
@@ -214,12 +221,19 @@ export function Omnibar({
                                         tabId={tabId}
                                         onChange={setQuery}
                                         onSubmit={handleSubmitChat}
+                                        activeTools={activeTools}
                                         omnibarRef={spacerRef}
                                     />
                                 </OpenTabsProvider>
                             )}
                         </div>
-                        {mode === 'ai' && <NoticeDrawer revealed={usageLimitsRevealed} />}
+                        {mode === 'ai' && (
+                            <NoticeDrawer
+                                revealed={usageLimitsRevealed}
+                                imageGenerationActive={activeTools.imageGenerationActive}
+                                onReservedHeightChange={setNoticeReservedHeight}
+                            />
+                        )}
                     </div>
                 </AiChatsProvider>
             </SearchFormProvider>
@@ -237,6 +251,7 @@ export function Omnibar({
  * @param {string|null|undefined} [props.tabId]
  * @param {(query: string) => void} props.onChange
  * @param {(params: SubmitChatAction) => void} props.onSubmit
+ * @param {ReturnType<typeof useActiveTools>} props.activeTools
  * @param {{ current: HTMLElement | null }} props.omnibarRef - Focus staying inside this subtree keeps the chats list open.
  */
 function AiChatContent({
@@ -248,6 +263,7 @@ function AiChatContent({
     tabId,
     onChange,
     onSubmit,
+    activeTools,
     omnibarRef,
 }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
@@ -256,10 +272,11 @@ function AiChatContent({
     const { state, setImageGenerationActive } = useContext(OmnibarContext);
     const attachmentLimits = state.config?.attachmentLimits;
     const blocksPrompt = state.config?.usageLimits?.blocksPrompt === true;
+    const requiresTermsAcceptance = state.config?.requiresTermsAcceptance === true;
     const updatedCreateImageEnabled = state.config?.enableUpdatedCreateImage === true;
     const { selectedModel } = useSelectedModel();
     const { selectedEffort } = useSelectedReasoningEffort();
-    const { activeTool, availableTools, imageGenerationActive, webSearchActive, setActiveTool } = useActiveTools();
+    const { activeTool, availableTools, imageGenerationActive, webSearchActive, setActiveTool } = activeTools;
 
     const containerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const hasVisibleImagesRef = useRef(false);
@@ -331,10 +348,12 @@ function AiChatContent({
     };
 
     /**
-     * @param {string} chat
-     * @param {import('../../../types/new-tab.js').OpenTarget} target
+     * @param {object} params
+     * @param {string} params.chat
+     * @param {import('../../../types/new-tab.js').OpenTarget} params.target
+     * @param {boolean} [params.termsAccepted] - Only a click on Ask/Create accepts the terms; Enter submits without it.
      */
-    const handleSubmit = async (chat, target) => {
+    const handleSubmit = async ({ chat, target, termsAccepted = false }) => {
         if (blocksPrompt) return;
         if (submittingRef.current) return;
         submittingRef.current = true;
@@ -359,6 +378,7 @@ function AiChatContent({
                 ...(images && { images }),
                 ...(files && { files }),
                 ...(pageContext && { pageContext }),
+                ...(termsAccepted && { termsAccepted: true }),
             };
 
             onSubmit(action);
@@ -414,7 +434,7 @@ function AiChatContent({
         event.preventDefault();
         if (disabled) return;
         event.stopPropagation();
-        handleSubmit(query, eventToTarget(event, platformName));
+        handleSubmit({ chat: query, target: eventToTarget(event, platformName), termsAccepted: requiresTermsAcceptance });
     };
 
     /** @type {(event: MouseEvent) => void} */
@@ -425,6 +445,7 @@ function AiChatContent({
     };
 
     const showRecentChats = enableRecentAiChats && !imageGenerationActive && !mention.pickerActive;
+    const termsButtonLabel = imageGenerationActive ? t('omnibar_termsCreateButtonLabel') : t('omnibar_termsAskButtonLabel');
 
     return (
         <div
@@ -518,13 +539,14 @@ function AiChatContent({
                                 <button
                                     tabIndex={0}
                                     type="submit"
-                                    class={aiChatFormStyles.submitButton}
-                                    aria-label={t('omnibar_aiChatFormSubmitButtonLabel')}
+                                    class={cn(aiChatFormStyles.submitButton, requiresTermsAcceptance && aiChatFormStyles.termsSubmitButton)}
+                                    aria-label={requiresTermsAcceptance ? undefined : t('omnibar_aiChatFormSubmitButtonLabel')}
+                                    aria-describedby={requiresTermsAcceptance ? TERMS_DISCLAIMER_ID : undefined}
                                     disabled={disabled}
                                     onClick={handleClickSubmit}
                                     onAuxClick={handleClickSubmit}
                                 >
-                                    <ArrowRightIcon />
+                                    {requiresTermsAcceptance ? termsButtonLabel : <ArrowRightIcon />}
                                 </button>
                             )}
                         </Fragment>

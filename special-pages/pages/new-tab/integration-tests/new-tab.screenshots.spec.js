@@ -353,6 +353,57 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
         });
     });
 
+    test.describe('omnibar terms disclaimer @screenshots', () => {
+        const requiresTerms = { 'omnibar.mode': 'ai', 'omnibar.requiresTermsAcceptance': 'true' };
+
+        test('terms disclaimer ask', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: requiresTerms });
+            await omnibar.ready();
+            await omnibar.chatInput().fill('pizza');
+            await expect(omnibar.askButton()).toBeEnabled();
+            await expect(page).toHaveScreenshot('omnibar-terms-ask.png', { maxDiffPixels });
+        });
+
+        test('terms disclaimer create', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({
+                additional: { ...requiresTerms, 'omnibar.enableAiChatTools': 'true', 'omnibar.enableImageGeneration': 'true' },
+            });
+            await omnibar.ready();
+            await omnibar.toolsMenuButton().click();
+            await omnibar.createImageMenuItem().click();
+            await omnibar.imageGenerationInput().fill('a neon duck');
+            await expect(omnibar.createButton()).toBeEnabled();
+            await expect(page).toHaveScreenshot('omnibar-terms-create.png', { maxDiffPixels });
+        });
+
+        test('terms disclaimer empty input', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: requiresTerms });
+            await omnibar.ready();
+            await expect(omnibar.askButton()).toBeDisabled();
+            await expect(page).toHaveScreenshot('omnibar-terms-empty.png', { maxDiffPixels });
+        });
+
+        test('terms disclaimer narrow', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await page.setViewportSize({ width: 360, height: 1500 });
+            await ntp.openPage({ additional: requiresTerms });
+            await omnibar.ready();
+            await omnibar.chatInput().fill('pizza');
+            await expect(page).toHaveScreenshot('omnibar-terms-narrow.png', { maxDiffPixels });
+        });
+    });
+
     test.describe('omnibar reasoning picker @screenshots', () => {
         test('reasoning picker rest', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
