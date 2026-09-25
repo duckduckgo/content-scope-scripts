@@ -48,6 +48,38 @@ test('duck-ai-data-clearing feature clears localStorage and IndexedDB', async ({
     await duckAiDataClearing.waitForVerification('Verification complete: All data cleared');
 });
 
+/** @type {{ platform: 'ios' | 'macos' | 'windows', usesBulkClear: boolean }[]} */
+const bulkClearExpectations = [
+    { platform: 'ios', usesBulkClear: false },
+    { platform: 'macos', usesBulkClear: false },
+    { platform: 'windows', usesBulkClear: true },
+];
+
+for (const { platform, usesBulkClear } of bulkClearExpectations) {
+    test(`duck-ai-data-clearing feature clears IndexedDB records holding Blob values on ${platform}`, async ({ page }, testInfo) => {
+        const collector = ResultsCollector.create(page, testInfo.project.use);
+        collector.withUserPreferences({
+            messageSecret: 'ABC',
+            javascriptInterface: 'javascriptInterface',
+            messageCallback: 'messageCallback',
+        });
+        await collector.load(HTML, CONFIG, { name: platform });
+
+        const duckAiDataClearing = new DuckAiDataClearingSpec(page);
+        await duckAiDataClearing.setupBlobImages();
+        await duckAiDataClearing.countBulkClearCalls();
+
+        await collector.simulateSubscriptionMessage('duckAiDataClearing', 'duckAiClearData', {});
+
+        const messages = await collector.waitForMessage('duckAiClearDataCompleted', 1);
+        expect(messages).toHaveLength(1);
+
+        await duckAiDataClearing.verifyDataCleared();
+        await duckAiDataClearing.waitForVerification('Verification complete: All data cleared');
+        expect((await duckAiDataClearing.bulkClearCallCount()) > 0).toBe(usesBulkClear);
+    });
+}
+
 test('duck-ai-data-clearing feature handles IndexedDB errors gracefully', async ({ page }, testInfo) => {
     const collector = ResultsCollector.create(page, testInfo.project.use);
     collector.withUserPreferences({
@@ -246,6 +278,45 @@ class DuckAiDataClearingSpec {
         await this.page.evaluate(() => {
             localStorage.setItem('savedAIChats', JSON.stringify([{ id: 1, message: 'test chat 1' }]));
         });
+    }
+
+    async setupBlobImages() {
+        await this.page.evaluate(
+            () =>
+                new Promise((resolve, reject) => {
+                    const request = indexedDB.open('savedAIChatData', 1);
+                    request.onupgradeneeded = () => request.result.createObjectStore('chat-images', { keyPath: 'id' });
+                    request.onerror = () => reject(request.error);
+                    request.onsuccess = () => {
+                        const db = request.result;
+                        const transaction = db.transaction(['chat-images'], 'readwrite');
+                        const objectStore = transaction.objectStore('chat-images');
+                        objectStore.add({ id: 1, chatId: 'chat-1', data: new Blob(['image-1'], { type: 'image/jpeg' }) });
+                        objectStore.add({ id: 2, chatId: 'chat-2', data: new Blob(['image-2'], { type: 'image/jpeg' }) });
+                        transaction.oncomplete = () => {
+                            db.close();
+                            resolve(undefined);
+                        };
+                        transaction.onerror = () => reject(transaction.error);
+                    };
+                }),
+        );
+    }
+
+    async countBulkClearCalls() {
+        await this.page.evaluate(() => {
+            const counter = /** @type {{ bulkClearCalls: number }} */ (/** @type {unknown} */ (window));
+            const originalClear = IDBObjectStore.prototype.clear;
+            counter.bulkClearCalls = 0;
+            IDBObjectStore.prototype.clear = function () {
+                counter.bulkClearCalls++;
+                return originalClear.call(this);
+            };
+        });
+    }
+
+    async bulkClearCallCount() {
+        return await this.page.evaluate(() => /** @type {{ bulkClearCalls: number }} */ (/** @type {unknown} */ (window)).bulkClearCalls);
     }
 
     async waitForDataSetup() {
