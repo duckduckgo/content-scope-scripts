@@ -245,9 +245,9 @@ jobs:
                   # spam the timeline, while the reviewer/assignee
                   # steps below still run if a prior attempt crashed
                   # after posting the review.
-                  latest_is_changes_requested="$(gh api "repos/$REPO/pulls/$PR_NUMBER/reviews" --paginate \
-                    --jq --arg sha "$PR_HEAD_SHA" '
-                      [.[] | select(.user.login == "daxtheduck" and (.state == "APPROVED" or .state == "CHANGES_REQUESTED" or .state == "DISMISSED"))]
+                  latest_is_changes_requested="$(gh api "repos/$REPO/pulls/$PR_NUMBER/reviews" --paginate --slurp | \
+                    jq --arg sha "$PR_HEAD_SHA" '
+                      [.[][] | select(.user.login == "daxtheduck" and (.state == "APPROVED" or .state == "CHANGES_REQUESTED" or .state == "DISMISSED"))]
                       | last
                       | (. != null and .state == "CHANGES_REQUESTED" and .commit_id == $sha)
                     ')"
