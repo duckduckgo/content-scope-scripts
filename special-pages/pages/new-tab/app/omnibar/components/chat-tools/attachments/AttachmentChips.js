@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { useLayoutEffect, useRef } from 'preact/hooks';
 import { useTypedTranslationWith } from '../../../../types';
 import { TabChip } from '../tab-attachment/TabChips';
 import { FileChip } from '../file-attachment/FileChip';
@@ -55,11 +56,25 @@ export function AttachmentChips({ tabs, files, images, onRemoveTab, onRemoveFile
         ),
     ].sort((a, b) => a.addedAtRelative - b.addedAtRelative);
 
+    // Items are in attach order, so a newly added chip is always last. useLayoutEffect
+    // so the scroll happens before paint and the chip doesn't flash un-scrolled.
+    const listRef = useRef(/** @type {HTMLDivElement|null} */ (null));
+    const previousCount = useRef(0);
+    useLayoutEffect(() => {
+        const grew = items.length > previousCount.current;
+        previousCount.current = items.length;
+        const list = listRef.current;
+        if (!grew || !list) return;
+        list.lastElementChild?.scrollIntoView?.({ behavior: 'auto', inline: 'nearest', block: 'nearest' });
+        list.scrollLeft = list.scrollWidth;
+    }, [items.length]);
+
     if (items.length === 0) return null;
 
     return (
-        <div class={styles.chipsArea} data-testid="omnibar-attachment-chips">
-            {items.map((item) => {
+        <div ref={listRef} class={styles.chipsArea} data-testid="omnibar-attachment-chips">
+            {items.map((item, index) => {
+                const enteringAnimationDelay = index * 50;
                 switch (item.kind) {
                     case 'tab':
                         return (
@@ -68,6 +83,7 @@ export function AttachmentChips({ tabs, files, images, onRemoveTab, onRemoveFile
                                 tab={item.tab}
                                 onRemove={() => onRemoveTab(item.tab.tabId)}
                                 removeLabel={t('omnibar_removeAttachedTabLabel', { title: item.tab.title })}
+                                enteringAnimationDelay={enteringAnimationDelay}
                             />
                         );
                     case 'file':
@@ -77,6 +93,7 @@ export function AttachmentChips({ tabs, files, images, onRemoveTab, onRemoveFile
                                 file={item.file}
                                 onRemove={() => onRemoveFile(item.originalIndex)}
                                 removeLabel={t('omnibar_removeAttachedFileLabel', { fileName: item.file.fileName })}
+                                enteringAnimationDelay={enteringAnimationDelay}
                             />
                         );
                     case 'image':
@@ -86,6 +103,7 @@ export function AttachmentChips({ tabs, files, images, onRemoveTab, onRemoveFile
                                 image={item.image}
                                 onRemove={() => onRemoveImage(item.originalIndex)}
                                 removeLabel={t('omnibar_removeImageLabel')}
+                                enteringAnimationDelay={enteringAnimationDelay}
                             />
                         );
                     default: {
