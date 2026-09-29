@@ -693,7 +693,7 @@ export interface OmnibarAttachmentPrivacyDisclaimerShownNotification {
   params: AttachmentPrivacyDisclaimerShown;
 }
 /**
- * Sent once per prompt draft, when the omnibar renders the file-upload privacy disclaimer. Native increments the device-wide display count, fires the shown pixel, and pushes an updated OmnibarConfig once the count reaches the cap.
+ * Sent once per continuous attachment session, when the omnibar renders the file-upload privacy disclaimer. Native increments the device-wide display count, fires the shown pixel, and pushes an updated OmnibarConfig once the count reaches the cap.
  */
 export interface AttachmentPrivacyDisclaimerShown {
   /**
