@@ -1,4 +1,5 @@
 import ContentFeature from '../content-feature.js';
+import { MacOSWebstore } from './chrome-webstore-patching/macos.js';
 import { injectGlobalStyles } from '../utils.js';
 import {
     getWebstorePrivate,
@@ -95,8 +96,13 @@ export class ChromeWebstorePatching extends ContentFeature {
     /** @type {string} BCP 47-ish language tag from the platform, e.g. 'de' */
     _locale = 'en';
 
+    /** @type {MacOSWebstore | undefined} */
+    _macOS;
+
     /** @param {any} [args] */
     async init(args) {
+        // The Apple page-world bundle is shared with iOS, which has no integration.
+        if (this.platform?.name === 'ios') return;
         // Locale dirs are bare language codes — strip any region subtag ('de-DE'/'de_DE' → 'de')
         this._locale =
             String(args?.locale || args?.language || 'en')
@@ -118,11 +124,17 @@ export class ChromeWebstorePatching extends ContentFeature {
             .filter(isValidSelector);
         if (!this._buttonSelectors.length) return;
 
+        if (this.platform?.name === 'macos') this._macOS = new MacOSWebstore(this);
+
         // Registered at document-start so capture-phase beats the store's root
         // jsaction handler. Blocks activation of the unsupported pill; after a
         // curated click, re-evaluates — install/uninstall is async and emits no event.
         /** @param {Event} event */
         const intercept = (event) => {
+            if (this._macOS) {
+                this._macOS.intercept(event);
+                return;
+            }
             if (!this._verdict) return;
             const target = event.target instanceof Element ? this._closestButton(event.target) : null;
             if (!target) return;
@@ -137,7 +149,8 @@ export class ChromeWebstorePatching extends ContentFeature {
             }
         };
         for (const type of ['click', 'auxclick', 'pointerdown', 'mousedown', 'touchstart', 'keydown']) {
-            document.addEventListener(type, intercept, true);
+            // macOS owns activation, before the store's document-level handlers.
+            (this._macOS ? window : document).addEventListener(type, intercept, true);
         }
 
         // At document-start documentElement may not exist yet. Wait only until it
@@ -197,6 +210,7 @@ export class ChromeWebstorePatching extends ContentFeature {
     }
 
     urlChanged() {
+        if (this.platform?.name === 'ios' || (this.platform?.name === 'macos' && !this._macOS)) return;
         // Called synchronously by the URL-change dispatcher; _evaluatePage never rejects
         void this._evaluatePage();
     }
@@ -206,6 +220,7 @@ export class ChromeWebstorePatching extends ContentFeature {
      * navigation — never per DOM mutation.
      */
     async _evaluatePage() {
+        if (this._macOS) return this._macOS.evaluatePage();
         // Reset to fail-closed so nothing stale survives navigation. Dropping the
         // inline display hands each button back to the stylesheet's hide rule.
         this._verdict = null;
@@ -415,6 +430,7 @@ export class ChromeWebstorePatching extends ContentFeature {
      * @returns {Promise<string | null>}
      */
     getExtensionStatus(extensionId) {
+        if (this._macOS) return this._macOS.getExtensionStatus(extensionId);
         return new Promise((resolve) => {
             const chromeGlobal = globalThis.chrome;
             const webstorePrivate = getWebstorePrivate(chromeGlobal);

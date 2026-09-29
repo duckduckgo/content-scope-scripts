@@ -50,6 +50,7 @@ export default defineConfig({
                 'integration-test/webcompat.spec.js',
                 'integration-test/message-bridge-apple.spec.js',
                 'integration-test/tracker-protection.spec.js',
+                'integration-test/chrome-webstore-patching-macos.spec.js',
             ],
             use: { injectName: 'apple', platform: 'macos' },
         },
