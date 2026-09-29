@@ -91,12 +91,50 @@ function createPersistentList() {
     return { Provider, useStateWithLocalPersistence };
 }
 
+/**
+ * A boolean per NTP tab. Same shape as `createPersistentList`, for state that has to outlive the
+ * Omnibar itself — hiding the widget unmounts it while the attachment lists stay mounted.
+ */
+function createPersistentFlag() {
+    const Context = createContext(/** @type {PersistentValue<boolean>|null} */ (null));
+
+    /** @param {{ children: import('preact').ComponentChildren }} props */
+    function Provider({ children }) {
+        const [store] = useState(() => /** @type {PersistentValue<boolean>} */ (new PersistentValue()));
+        const { all } = useTabState();
+        useEffect(() => {
+            return all.subscribe((tabIds) => store.prune({ preserve: tabIds }));
+        }, [all, store]);
+
+        return <Context.Provider value={store}>{children}</Context.Provider>;
+    }
+
+    /** @param {string|null|undefined} tabId */
+    function useStateWithLocalPersistence(tabId) {
+        const store = useContext(Context);
+        const [value, setValue] = useState(() => store?.byId(tabId) ?? false);
+        const setter = useCallback(
+            /** @param {boolean} next */
+            (next) => {
+                if (tabId) store?.update({ id: tabId, value: next });
+                setValue(next);
+            },
+            [store, tabId],
+        );
+        return /** @type {const} */ ([value, setter]);
+    }
+
+    return { Provider, useStateWithLocalPersistence };
+}
+
 // Per-NTP-tab persisted lists, each with its own Provider + `useStateWithLocalPersistence` hook.
 export const TabAttachments = /** @type {() => PersistentList<AttachedTabEntry>} */ (createPersistentList)();
 export const FileAttachments = /** @type {() => PersistentList<AttachedFile>} */ (createPersistentList)();
 export const ImageAttachments = /** @type {() => PersistentList<AttachedImage>} */ (createPersistentList)();
 // Single source of truth for open-tab metadata; tab chips and the pickers derive from this.
 export const OpenTabsList = /** @type {() => PersistentList<TabMetadata>} */ (createPersistentList)();
+// Whether the current prompt draft already spent an attachment-privacy display.
+export const AttachmentPrivacyGrant = createPersistentFlag();
 
 /**
  * A normal set-state, but with values recorded. Must be used when the Omnibar Service is ready

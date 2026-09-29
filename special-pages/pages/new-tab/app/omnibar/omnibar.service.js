@@ -241,6 +241,21 @@ export class OmnibarService {
     }
 
     /**
+     * Notify native that the omnibar rendered the file-upload privacy disclaimer.
+     * @param {'image' | 'file'} kind
+     */
+    attachmentPrivacyDisclaimerShown(kind) {
+        this.ntp.messaging.notify('omnibar_attachmentPrivacyDisclaimerShown', { kind });
+    }
+
+    /**
+     * Notify native to open the attachment privacy help page in a new tab.
+     */
+    openAttachmentPrivacyLearnMore() {
+        this.ntp.messaging.notify('omnibar_openAttachmentPrivacyLearnMore', {});
+    }
+
+    /**
      * Notify native when the updated Create Image mode changes.
      * Native owns model selection, persistence, and localized notice copy.
      * @param {boolean} active

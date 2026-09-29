@@ -95,6 +95,14 @@ export const OmnibarContext = createContext({
     setImageGenerationActive: () => {
         throw new Error('must implement');
     },
+    /** @type {(kind: 'image' | 'file') => void} */
+    attachmentPrivacyDisclaimerShown: () => {
+        throw new Error('must implement');
+    },
+    /** @type {() => void} */
+    openAttachmentPrivacyLearnMore: () => {
+        throw new Error('must implement');
+    },
     /** @type {(modelId?: string) => void} */
     selectUsageLimitsCta: () => {
         throw new Error('must implement');
@@ -290,6 +298,19 @@ export function OmnibarProvider(props) {
         [service],
     );
 
+    /** @type {(kind: 'image' | 'file') => void} */
+    const attachmentPrivacyDisclaimerShown = useCallback(
+        (kind) => {
+            service.current?.attachmentPrivacyDisclaimerShown(kind);
+        },
+        [service],
+    );
+
+    /** @type {() => void} */
+    const openAttachmentPrivacyLearnMore = useCallback(() => {
+        service.current?.openAttachmentPrivacyLearnMore();
+    }, [service]);
+
     /** @type {(modelId?: string) => void} */
     const selectUsageLimitsCta = useCallback(
         (modelId) => {
@@ -375,6 +396,8 @@ export function OmnibarProvider(props) {
                 dismissUsageLimits,
                 dismissCreateImageModelSwitch,
                 setImageGenerationActive,
+                attachmentPrivacyDisclaimerShown,
+                openAttachmentPrivacyLearnMore,
                 selectUsageLimitsCta,
                 setCustomizeResponsesActive,
                 showUpsell,

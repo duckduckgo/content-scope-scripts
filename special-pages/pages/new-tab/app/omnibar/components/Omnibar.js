@@ -1,5 +1,5 @@
 import { Fragment, h } from 'preact';
-import { useCallback, useContext, useRef, useState } from 'preact/hooks';
+import { useCallback, useContext, useEffect, useRef, useState } from 'preact/hooks';
 import { ArrowRightIcon, LogoStacked, VoiceIcon } from '../../components/Icons';
 import { eventToTarget } from '../../../../../shared/handlers';
 import { usePlatformName, useNewTabPageRebranding } from '../../settings.provider';
@@ -16,6 +16,7 @@ import { AiChatsList } from './AiChatsList';
 import { AiChatsProvider, useAiChatsContext } from './AiChatsProvider';
 import { TabSwitcher } from './TabSwitcher';
 import { useQueryWithLocalPersistence } from './PersistentOmnibarValuesProvider.js';
+import { useAttachmentPrivacyNotice } from './useAttachmentPrivacyNotice';
 import { Popover } from '../../components/Popover';
 import { useDrawerControls, useDrawerEventListeners } from '../../components/Drawer';
 import { Trans } from '../../../../../shared/components/TranslationsProvider.js';
@@ -84,6 +85,11 @@ export function Omnibar({
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const spacerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const [usageLimitsRevealed, setUsageLimitsRevealed] = useState(false);
+    const [attachmentKind, setAttachmentKind] = useState(/** @type {'image' | 'file' | null} */ (null));
+    const { presentation: attachmentPrivacyNotice, endDraft: endAttachmentPrivacyDraft } = useAttachmentPrivacyNotice(
+        attachmentKind,
+        tabId,
+    );
 
     const [query, setQuery] = useQueryWithLocalPersistence(tabId);
     const [resetKey, setResetKey] = useState(0);
@@ -114,6 +120,8 @@ export function Omnibar({
 
     const resetForm = () => {
         setQuery('');
+        setAttachmentKind(null);
+        endAttachmentPrivacyDraft();
         setResetKey((prev) => prev + 1);
     };
 
@@ -215,11 +223,12 @@ export function Omnibar({
                                         onChange={setQuery}
                                         onSubmit={handleSubmitChat}
                                         omnibarRef={spacerRef}
+                                        onAttachmentKindChange={setAttachmentKind}
                                     />
                                 </OpenTabsProvider>
                             )}
                         </div>
-                        {mode === 'ai' && <NoticeDrawer revealed={usageLimitsRevealed} />}
+                        {mode === 'ai' && <NoticeDrawer revealed={usageLimitsRevealed} attachmentPrivacy={attachmentPrivacyNotice} />}
                     </div>
                 </AiChatsProvider>
             </SearchFormProvider>
@@ -238,6 +247,7 @@ export function Omnibar({
  * @param {(query: string) => void} props.onChange
  * @param {(params: SubmitChatAction) => void} props.onSubmit
  * @param {{ current: HTMLElement | null }} props.omnibarRef - Focus staying inside this subtree keeps the chats list open.
+ * @param {(kind: 'image' | 'file' | null) => void} props.onAttachmentKindChange
  */
 function AiChatContent({
     query,
@@ -249,6 +259,7 @@ function AiChatContent({
     onChange,
     onSubmit,
     omnibarRef,
+    onAttachmentKindChange,
 }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
@@ -281,6 +292,13 @@ function AiChatContent({
         maxFileSizeMB: attachmentLimits?.files?.maxFileSizeMB,
     });
     const canAttachFiles = !imageGenerationActive && (selectedModel?.supportedFileTypes?.length ?? 0) > 0;
+
+    // Attached tabs are page context, which the privacy disclaimer doesn't cover.
+    const stagedAttachmentKind =
+        canAttachImages && hasAttachedImages ? 'image' : canAttachFiles && fileState.attachedFiles.length > 0 ? 'file' : null;
+    useEffect(() => {
+        onAttachmentKindChange(stagedAttachmentKind);
+    }, [stagedAttachmentKind, onAttachmentKindChange]);
 
     const canAttachTabs = enableAttachTabs && !imageGenerationActive;
     const tabAttachments = useTabAttachments(tabId, attachmentLimits?.tabs?.maxAttached);

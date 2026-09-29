@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Attachment Privacy Disclaimer Shown",
+  "description": "Sent once per prompt draft, when the omnibar renders the file-upload privacy disclaimer. Native increments the device-wide display count, fires the shown pixel, and pushes an updated OmnibarConfig once the count reaches the cap.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["kind"],
+  "properties": {
+    "kind": {
+      "description": "Which attachment triggered the disclaimer. Native never sees the attach, so it cannot infer this for the pixel.",
+      "type": "string",
+      "enum": ["image", "file"]
+    }
+  }
+}

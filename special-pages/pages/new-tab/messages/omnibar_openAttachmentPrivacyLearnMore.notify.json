@@ -1,0 +1,8 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Open Attachment Privacy Learn More",
+  "description": "Sent when the user selects 'Learn more' in the file-upload privacy disclaimer. Native opens the help page in a new tab and fires the learn_more_tapped pixel; the staged attachment is left untouched.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {}
+}
