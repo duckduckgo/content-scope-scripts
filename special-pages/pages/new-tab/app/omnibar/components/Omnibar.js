@@ -85,11 +85,9 @@ export function Omnibar({
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const spacerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const [usageLimitsRevealed, setUsageLimitsRevealed] = useState(false);
-    const [attachmentKind, setAttachmentKind] = useState(/** @type {'image' | 'file' | null} */ (null));
-    const { presentation: attachmentPrivacyNotice, endDraft: endAttachmentPrivacyDraft } = useAttachmentPrivacyNotice(
-        attachmentKind,
-        tabId,
-    );
+    // `undefined` until the composer reports; `null` only when the user has no attachments staged.
+    const [attachmentKind, setAttachmentKind] = useState(/** @type {'image' | 'file' | null | undefined} */ (undefined));
+    const attachmentPrivacyNotice = useAttachmentPrivacyNotice(attachmentKind, tabId);
 
     const [query, setQuery] = useQueryWithLocalPersistence(tabId);
     const [resetKey, setResetKey] = useState(0);
@@ -121,7 +119,6 @@ export function Omnibar({
     const resetForm = () => {
         setQuery('');
         setAttachmentKind(null);
-        endAttachmentPrivacyDraft();
         setResetKey((prev) => prev + 1);
     };
 

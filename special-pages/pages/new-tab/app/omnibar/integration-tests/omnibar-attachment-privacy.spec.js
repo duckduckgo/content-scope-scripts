@@ -5,7 +5,7 @@ import { OmnibarPage } from './omnibar.page.js';
 
 /**
  * The file-upload privacy disclaimer: native answers with `showAttachmentPrivacyDisclaimer`,
- * the page decides when a draft starts and reports each display back.
+ * the page decides when a display starts and reports each one back.
  */
 
 /** A tiny valid PDF, base64-encoded, used to drive `setInputFiles` without a fixture file. */
@@ -110,7 +110,7 @@ test.describe('omnibar attachment privacy disclaimer', () => {
         await omnibar.expectMethodNotCalled('omnibar_attachmentPrivacyDisclaimerShown');
     });
 
-    test('removing the attachment hides it, re-attaching does not spend another display', async ({ page }, workerInfo) => {
+    test('removing the attachment ends the display, so re-attaching spends another', async ({ page }, workerInfo) => {
         const harness = setup(page, workerInfo);
         await openAiOmnibar(harness, true);
         const { omnibar } = harness;
@@ -124,7 +124,7 @@ test.describe('omnibar attachment privacy disclaimer', () => {
 
         await attachFile(omnibar);
         await expect(omnibar.noticeDrawer()).toBeVisible();
-        await omnibar.expectExactMethodCallCount('omnibar_attachmentPrivacyDisclaimerShown', 1);
+        await omnibar.expectExactMethodCallCount('omnibar_attachmentPrivacyDisclaimerShown', 2);
     });
 
     test('toggling out of Duck.ai and back does not spend another display', async ({ page }, workerInfo) => {
@@ -166,7 +166,7 @@ test.describe('omnibar attachment privacy disclaimer', () => {
         await omnibar.expectExactMethodCallCount('omnibar_attachmentPrivacyDisclaimerShown', 1);
     });
 
-    test('a new draft after submit spends another display', async ({ page }, workerInfo) => {
+    test('attaching again after submit spends another display', async ({ page }, workerInfo) => {
         const harness = setup(page, workerInfo);
         await openAiOmnibar(harness, true);
         const { omnibar } = harness;
@@ -181,12 +181,12 @@ test.describe('omnibar attachment privacy disclaimer', () => {
         await omnibar.expectExactMethodCallCount('omnibar_attachmentPrivacyDisclaimerShown', 2);
     });
 
-    test('shows for three drafts, stays up for the one that spends the last display, then stops', async ({ page }, workerInfo) => {
+    test('shows three times, stays up for the one that spends the last display, then stops', async ({ page }, workerInfo) => {
         const harness = setup(page, workerInfo);
         await openAiOmnibar(harness, true);
         const { omnibar } = harness;
 
-        for (let draft = 1; draft <= 3; draft++) {
+        for (let display = 1; display <= 3; display++) {
             await attachFile(omnibar);
             await expect(omnibar.noticeDrawer()).toContainText(DISCLAIMER);
             await omnibar.submitChat();
