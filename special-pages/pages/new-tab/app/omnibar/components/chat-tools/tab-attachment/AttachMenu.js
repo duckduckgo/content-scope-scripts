@@ -2,11 +2,12 @@ import { h } from 'preact';
 import { useContext, useRef, useState } from 'preact/hooks';
 import cn from 'classnames';
 import { useTypedTranslationWith } from '../../../../types';
-import { FolderIcon, PaperclipIcon, TabContentAttachIcon } from '../../../../components/Icons';
+import { CameraIcon, FolderIcon, MonitorIcon, PaperclipIcon, ScissorsIcon, TabContentAttachIcon } from '../../../../components/Icons';
 import { useDropdown } from '../useDropdown';
 import { Dropdown } from '../dropdown/Dropdown';
 import { DropdownItem } from '../dropdown/DropdownItem';
 import { DropdownSeparator } from '../dropdown/DropdownSeparator';
+import { DropdownSubmenu } from '../dropdown/DropdownSubmenu';
 import { resolveFileInput } from './fileChannels';
 import { OpenTabsContext } from './OpenTabsProvider';
 import { AttachTabsModal } from './AttachTabsModal';
@@ -21,10 +22,15 @@ import styles from './AttachMenu.module.css';
  * @typedef {import('./fileChannels.js').ImageChannel} ImageChannel
  * @typedef {import('./fileChannels.js').FileChannel} FileChannel
  * @typedef {import('./fileChannels.js').ResolvedFileInput} ResolvedFileInput
+ * @typedef {import('../../../../../types/new-tab.js').ScreenshotMode} ScreenshotMode
+ * @typedef {{ modes: ScreenshotMode[], onCapture: (mode: ScreenshotMode) => void, disabled: boolean }} ScreenshotChannel
  */
 
 /** Tabs previewed inline in the dropdown; the full list lives in the Add Tabs dialog. */
 const MAX_INLINE_RECENT_TABS = 5;
+
+/** Places the screenshot submenu against the "Add Screenshot" row, matching the address bar's menu. */
+const SCREENSHOT_SUBMENU_OFFSET = { x: -7, y: -4 };
 
 /**
  * @param {object} props
@@ -35,17 +41,19 @@ const MAX_INLINE_RECENT_TABS = 5;
  * @param {(tabId: string) => boolean} props.isAttached
  * @param {number} [props.maxTabs] - Max attached tabs, from native `attachmentLimits.tabs.maxAttached`. Absent means no limit.
  * @param {boolean} [props.disabled] - When true, the attach entry is inert (hard usage limit).
+ * @param {ScreenshotChannel | null} [props.screenshot] - Adds the "Add Screenshot" submenu; null omits it.
  */
-export function AttachMenu({ image, file, tabsEnabled, onToggleTab, isAttached, maxTabs, disabled = false }) {
+export function AttachMenu({ image, file, tabsEnabled, onToggleTab, isAttached, maxTabs, disabled = false, screenshot = null }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
 
     const attachEnabled = image !== null || file !== null;
-    if (!attachEnabled && !tabsEnabled) return null;
+    if (!attachEnabled && !tabsEnabled && !screenshot) return null;
 
     const fileInput = resolveFileInput({ t, image, file });
     const controlsDisabled = disabled || fileInput.disabled;
 
-    if (attachEnabled && !tabsEnabled) {
+    // Without tabs or screenshots there is only the file picker, so skip the dropdown.
+    if (attachEnabled && !tabsEnabled && !screenshot) {
         const button = (
             <DirectFileButton
                 ariaLabel={fileInput.label}
@@ -74,6 +82,8 @@ export function AttachMenu({ image, file, tabsEnabled, onToggleTab, isAttached, 
             isAttached={isAttached}
             maxTabs={maxTabs}
             disabled={disabled}
+            tabsEnabled={tabsEnabled}
+            screenshot={screenshot}
         />
     );
 }
@@ -126,8 +136,8 @@ function DirectFileButton({ ariaLabel, accept, disabled, onChange }) {
 }
 
 /**
- * Paperclip-triggered dropdown, used whenever `tabsEnabled`. Owns the Add Tabs dialog state,
- * which must outlive the (unmounted-on-close) dropdown body.
+ * Paperclip-triggered dropdown, used whenever tabs or screenshots are enabled. Owns the Add Tabs
+ * dialog state, which must outlive the (unmounted-on-close) dropdown body.
  *
  * @param {object} props
  * @param {boolean} props.attachEnabled
@@ -136,8 +146,10 @@ function DirectFileButton({ ariaLabel, accept, disabled, onChange }) {
  * @param {(tabId: string) => boolean} props.isAttached
  * @param {number} [props.maxTabs]
  * @param {boolean} [props.disabled]
+ * @param {boolean} props.tabsEnabled
+ * @param {ScreenshotChannel | null} props.screenshot
  */
-function DropdownMenu({ attachEnabled, fileInput, onToggleTab, isAttached, maxTabs, disabled = false }) {
+function DropdownMenu({ attachEnabled, fileInput, onToggleTab, isAttached, maxTabs, disabled = false, tabsEnabled, screenshot }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const { isOpen, buttonRef, dropdownRef, dropdownPos, toggle, close } = useDropdown({ align: 'left' });
     const { refetchTabs } = useContext(OpenTabsContext);
@@ -168,7 +180,7 @@ function DropdownMenu({ attachEnabled, fileInput, onToggleTab, isAttached, maxTa
                 onClick={(e) => {
                     e.stopPropagation();
                     if (disabled) return;
-                    if (!isOpen) refetchTabs();
+                    if (!isOpen && tabsEnabled) refetchTabs();
                     toggle();
                 }}
             >
@@ -198,6 +210,8 @@ function DropdownMenu({ attachEnabled, fileInput, onToggleTab, isAttached, maxTa
                     onOpenTabsModal={() => setIsTabsModalOpen(true)}
                     isAttached={isAttached}
                     onToggleTab={onToggleTab}
+                    tabsEnabled={tabsEnabled}
+                    screenshot={screenshot}
                 />
             )}
             {isTabsModalOpen && (
@@ -213,9 +227,9 @@ function DropdownMenu({ attachEnabled, fileInput, onToggleTab, isAttached, maxTa
 }
 
 /**
- * Body of the paperclip menu while open: file item, "Add Tabs" item (opens the dialog), and an
- * inline "Recent Tabs" preview whose rows toggle attachment. The checkmark gutter is only
- * reserved while at least one previewed tab is attached.
+ * Body of the paperclip menu while open: file item, "Add Screenshot" submenu, "Add Tabs" item
+ * (opens the dialog), and an inline "Recent Tabs" preview whose rows toggle attachment. The
+ * checkmark gutter is only reserved while at least one previewed tab is attached.
  *
  * @param {object} props
  * @param {boolean} props.attachEnabled
@@ -227,6 +241,8 @@ function DropdownMenu({ attachEnabled, fileInput, onToggleTab, isAttached, maxTa
  * @param {() => void} props.onOpenTabsModal
  * @param {(tab: TabMetadata) => void} props.onToggleTab
  * @param {(tabId: string) => boolean} props.isAttached
+ * @param {boolean} props.tabsEnabled
+ * @param {ScreenshotChannel | null} props.screenshot
  */
 function OpenDropdownBody({
     attachEnabled,
@@ -238,12 +254,14 @@ function OpenDropdownBody({
     onOpenTabsModal,
     onToggleTab,
     isAttached,
+    tabsEnabled,
+    screenshot,
 }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const { openTabs, isLoadingTabs } = useContext(OpenTabsContext);
 
     const recentTabs = openTabs.slice(0, MAX_INLINE_RECENT_TABS);
-    const showGutter = recentTabs.some((tab) => isAttached(tab.tabId));
+    const showGutter = tabsEnabled && recentTabs.some((tab) => isAttached(tab.tabId));
     const noTabsAvailable = !isLoadingTabs && openTabs.length === 0;
 
     /** @returns {import('preact').ComponentChildren[]} */
@@ -285,18 +303,57 @@ function OpenDropdownBody({
                     onSelect={onTriggerFileInput}
                 />
             )}
-            <DropdownItem
-                role="menuitem"
-                className={styles.menuItem}
-                showCheckGutter={showGutter}
-                icon={<TabContentAttachIcon class={styles.menuItemIcon} />}
-                name={t('omnibar_attachPageContentLabel')}
-                disabled={noTabsAvailable}
-                onSelect={onOpenTabsModal}
-            />
-            <DropdownSeparator />
-            {recentTabs.length > 0 && <TabsSectionHeader label={t('omnibar_attachTabsRecentTabs')} showGutter={showGutter} />}
-            {renderRecentTabRows()}
+            {screenshot && (
+                <DropdownSubmenu
+                    className={styles.menuItem}
+                    showCheckGutter={showGutter}
+                    icon={<CameraIcon class={styles.menuItemIcon} />}
+                    name={t('omnibar_addScreenshotLabel')}
+                    ariaLabel={t('omnibar_addScreenshotLabel')}
+                    disabled={screenshot.disabled}
+                    panelClassName={styles.attachDropdown}
+                    offset={SCREENSHOT_SUBMENU_OFFSET}
+                    idPrefix="screenshot-menu-item"
+                >
+                    {screenshot.modes.map((mode) => (
+                        <DropdownItem
+                            key={mode}
+                            role="menuitem"
+                            className={styles.menuItem}
+                            showCheckGutter={false}
+                            icon={
+                                mode === 'dragToSelect' ? (
+                                    <ScissorsIcon class={styles.menuItemIcon} />
+                                ) : (
+                                    <MonitorIcon class={styles.menuItemIcon} />
+                                )
+                            }
+                            name={
+                                mode === 'dragToSelect'
+                                    ? t('omnibar_screenshotDragToSelectLabel')
+                                    : t('omnibar_screenshotSelectWindowOrDisplayLabel')
+                            }
+                            onSelect={() => screenshot.onCapture(mode)}
+                        />
+                    ))}
+                </DropdownSubmenu>
+            )}
+            {tabsEnabled && (
+                <DropdownItem
+                    role="menuitem"
+                    className={styles.menuItem}
+                    showCheckGutter={showGutter}
+                    icon={<TabContentAttachIcon class={styles.menuItemIcon} />}
+                    name={t('omnibar_attachPageContentLabel')}
+                    disabled={noTabsAvailable}
+                    onSelect={onOpenTabsModal}
+                />
+            )}
+            {tabsEnabled && <DropdownSeparator />}
+            {tabsEnabled && recentTabs.length > 0 && (
+                <TabsSectionHeader label={t('omnibar_attachTabsRecentTabs')} showGutter={showGutter} />
+            )}
+            {tabsEnabled && renderRecentTabRows()}
         </Dropdown>
     );
 }

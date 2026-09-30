@@ -422,6 +422,65 @@ export class OmnibarPage {
         return this.attachMenu().getByRole('menuitem', { name: 'Add Tabs' });
     }
 
+    /** "Add Screenshot" row in the paperclip menu; it opens the screenshot submenu. */
+    addScreenshotMenuItem() {
+        return this.attachMenu().getByRole('menuitem', { name: 'Add Screenshot' });
+    }
+
+    screenshotSubmenu() {
+        return this.context().getByRole('menu', { name: 'Add Screenshot' });
+    }
+
+    /** @param {'Drag to Select' | 'Select Window or Display'} name */
+    screenshotModeItem(name) {
+        return this.screenshotSubmenu().getByRole('menuitem', { name });
+    }
+
+    /**
+     * Opens the paperclip menu and the screenshot submenu, then chooses a capture mode.
+     * @param {'Drag to Select' | 'Select Window or Display'} name
+     */
+    async captureScreenshot(name) {
+        await this.attachMenuButton().click();
+        await this.addScreenshotMenuItem().click();
+        await this.screenshotModeItem(name).click();
+    }
+
+    /**
+     * Dispatches a synthetic `paste` on the Duck.ai prompt. Synthetic pastes never insert text,
+     * so the result reports whether the page cancelled the default paste instead.
+     *
+     * @param {object} clipboard
+     * @param {string} [clipboard.text]
+     * @param {{ name: string, type: string, base64: string }[]} [clipboard.files]
+     * @returns {Promise<{ defaultPrevented: boolean }>}
+     */
+    async pasteIntoChatInput({ text, files = [] }) {
+        return await this.chatInput().evaluate(
+            (textarea, { text, files }) => {
+                const data = new DataTransfer();
+                if (text) data.setData('text/plain', text);
+                for (const file of files) {
+                    const bytes = Uint8Array.from(atob(file.base64), (c) => c.charCodeAt(0));
+                    data.items.add(new File([bytes], file.name, { type: file.type }));
+                }
+                const event = new ClipboardEvent('paste', { clipboardData: data, bubbles: true, cancelable: true });
+                textarea.dispatchEvent(event);
+                return { defaultPrevented: event.defaultPrevented };
+            },
+            { text, files },
+        );
+    }
+
+    /**
+     * Names and values of the `telemetryEvent` notifications sent so far.
+     * @returns {Promise<{ name: string, value?: unknown }[]>}
+     */
+    async telemetryEvents() {
+        const calls = await this.ntp.mocks.outgoing({ names: ['telemetryEvent'] });
+        return calls.map((call) => /** @type {any} */ (call.payload).params.attributes);
+    }
+
     /** Inline "Recent Tabs" row in the paperclip menu. @param {string | RegExp} title */
     recentTabItem(title) {
         return this.attachMenu().getByRole('menuitemcheckbox', { name: title });

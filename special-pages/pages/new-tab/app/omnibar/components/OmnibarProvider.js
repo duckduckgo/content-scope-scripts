@@ -123,6 +123,10 @@ export const OmnibarContext = createContext({
     removeSuggestion: () => {
         throw new Error('must implement');
     },
+    /** @type {(mode: import('../../../types/new-tab.js').ScreenshotMode) => Promise<import('../../../types/new-tab.js').CaptureScreenshotResponse>} */
+    captureScreenshot: () => {
+        throw new Error('must implement');
+    },
 });
 
 export const OmnibarServiceContext = createContext(/** @type {OmnibarService|null} */ (null));
@@ -353,6 +357,18 @@ export function OmnibarProvider(props) {
         [service],
     );
 
+    /**
+     * Asks native to capture a screenshot; resolves when the user finishes or cancels.
+     * @type {(mode: import('../../../types/new-tab.js').ScreenshotMode) => Promise<import('../../../types/new-tab.js').CaptureScreenshotResponse>}
+     */
+    const captureScreenshot = useCallback(
+        (mode) => {
+            if (!service.current) throw new Error('Service not available');
+            return service.current.captureScreenshot(mode);
+        },
+        [service],
+    );
+
     return (
         <OmnibarContext.Provider
             value={{
@@ -382,6 +398,7 @@ export function OmnibarProvider(props) {
                 getTabContent,
                 confirmDeleteAiChat,
                 removeSuggestion,
+                captureScreenshot,
             }}
         >
             <OmnibarServiceContext.Provider value={service.current}>{props.children}</OmnibarServiceContext.Provider>

@@ -377,6 +377,30 @@
     "title": "Add Tabs",
     "description": "Menu item in the attach dropdown that opens the Add Tabs dialog so the user can attach extracted page content from open tabs."
   },
+  "omnibar_addScreenshotLabel": {
+    "title": "Add Screenshot",
+    "description": "Menu item in the attach dropdown that opens a submenu of screenshot capture modes."
+  },
+  "omnibar_screenshotDragToSelectLabel": {
+    "title": "Drag to Select",
+    "description": "Screenshot submenu item: the user drags to select a region of the screen to capture."
+  },
+  "omnibar_screenshotSelectWindowOrDisplayLabel": {
+    "title": "Select Window or Display",
+    "description": "Screenshot submenu item: the user picks a window or a whole display to capture."
+  },
+  "omnibar_screenshotFileName": {
+    "title": "Screenshot",
+    "description": "File name given to a screenshot attached to the AI chat input. Repeats are numbered, e.g. 'Screenshot 2'."
+  },
+  "omnibar_pastedImageFileName": {
+    "title": "Pasted image",
+    "description": "File name given to an image pasted from the clipboard into the AI chat input. Repeats are numbered, e.g. 'Pasted image 2'."
+  },
+  "omnibar_screenshotCaptureError": {
+    "title": "Couldn't capture screenshot",
+    "description": "Inline error shown under the AI chat input when the browser failed to capture a screenshot."
+  },
   "omnibar_attachTabsModalTitle": {
     "title": "Add Tabs",
     "description": "Title and accessible name of the Add Tabs dialog opened from the attach dropdown menu."

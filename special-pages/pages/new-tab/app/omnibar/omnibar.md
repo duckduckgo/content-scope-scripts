@@ -38,6 +38,8 @@ title: Omnibar Widget
   - `enableVoiceChatAccess` — when true and the input is empty, replaces the AI chat submit button with a 1-click voice-chat button. Click/Enter sends `omnibar_submitChat` with an empty `chat` and `mode: "voice-mode"` — native handles the voice handoff (default `false`)
   - `enableAskAiSuggestion` — when `false`, hides the inline "Ask Duck.ai: <query>" entry in the suggestions dropdown. Missing/undefined is treated as `true` (default `true`). Does not affect the Duck.ai mode pill or any other AI affordance — those remain governed by `enableAi`
   - `enableAttachTabs` — when `true`, the omnibar shows the page context entry point and accepts `@` mentions for attaching open tabs as context. Requires native to handle `omnibar_getOpenTabs` and `omnibar_getTabContent` (default `false`).
+  - `screenshotModes` — capture modes (`"dragToSelect"`, `"selectWindowOrDisplay"`) listed, in order, under "Add Screenshot" in the paperclip menu. Absent or empty hides the screenshot UI. Requires native to handle `omnibar_captureScreenshot`. The row is disabled while a capture is pending, at the image cap, when the model cannot take images, or when the prompt is blocked.
+  - `enablePastedAttachments` — when `true`, pasting into the Duck.ai prompt attaches copied images and files (see [Paste](#paste)). When `false` or absent, paste is left to the browser (text only) (default `false`).
   - `aiModelSections` — array of model sections for the model selector. Each model may include `supportedReasoningEffort` (e.g. `["none", "low", "medium"]`) to surface the reasoning picker
   - `selectedModelId` — the user's persisted model choice
   - `selectedReasoningEffort` — the user's persisted reasoning-effort choice for the active model. Native validates against the model's `supportedReasoningEffort` on write
@@ -51,7 +53,23 @@ title: Omnibar Widget
    "enableWebSearch": false,
    "enableVoiceChatAccess": false,
    "enableAskAiSuggestion": true,
-   "enableAttachTabs": false
+   "enableAttachTabs": false,
+   "screenshotModes": ["dragToSelect", "selectWindowOrDisplay"],
+   "enablePastedAttachments": true
+}
+```
+
+### `omnibar_captureScreenshot`
+- {@link "NewTab Messages".OmnibarCaptureScreenshotRequest}
+- Sent when the user picks a mode from the "Add Screenshot" submenu. Native runs the capture (selection overlay or window/display picker) and replies when the user finishes or cancels, so the request can stay pending for as long as that takes. The page sends one request at a time.
+- requires `mode`, one of the configured `screenshotModes`.
+- returns {@link "NewTab Messages".CaptureScreenshotResponse}:
+  - `image` — base64 `data` (no data-URL prefix), `format` (`png` or `jpeg`) and `kind` (`selection`, `screen` or `window`). Native scales it to at most 1024px on the long side; the page keeps that size and adds it as an image chip named "Screenshot" (numbered on repeats).
+  - `error: "screenshotFailed"` — the page shows "Couldn't capture screenshot" under the prompt. Native reports these failures itself; the page sends no telemetry for them.
+  - neither — the user cancelled; the page does nothing.
+```json
+{
+   "image": { "data": "iVBORw0KGgo...", "format": "png", "kind": "selection" }
 }
 ```
 
@@ -144,6 +162,23 @@ Picker telemetry distinguishes impressions from gated-row activations:
 - `omnibar_model_picker_upgrade_shown` and `omnibar_reasoning_picker_upgrade_shown` fire when the user activates a gated row whose displayed CTA is “Upgrade”.
 
 The four CTA events retain their historical `_shown` names, but they represent activation rather than visibility. Their Try-for-free/Upgrade classification is derived from the item’s `upsell` value and the user’s free-trial eligibility. Native routing remains determined only by `upsell`, so an `*_upgrade_shown` event can precede `omnibar_showSubscriptionUpsell` when a `subscribe` item is activated by a user who is not eligible for a free trial.
+
+## Attachment telemetry
+
+Sent as `telemetryEvent` with `{ attributes: { name, value } }`:
+
+- `omnibar_image_attached` — every image chip added, with `value.source`: `file` (picker), `paste` or `screenshot`.
+- `omnibar_image_removed` — every image chip the user removes (its × button), with the chip's `value.source`. Clearing on submit or on a model switch does not count.
+- `omnibar_screenshot_taken` — once a screenshot has been added as a chip, with `value.kind` from the capture.
+- `omnibar_screenshot_removed` — the user removed a screenshot chip (sent alongside `omnibar_image_removed`).
+- `omnibar_screenshot_failed` — `value.reason: "failed"`, when the page could not process an image native returned. Native `error` replies are not reported by the page.
+
+## Paste
+
+With `enablePastedAttachments`, a paste into the Duck.ai prompt is handled as follows:
+
+- If the clipboard has any text, the browser pastes the text and nothing is attached. Office apps put a picture of the copied cells next to the text; the text wins.
+- Otherwise a clipboard bitmap is attached like a screenshot (kept at up to 1024px), named "Pasted image" (numbered on repeats); copied image files are resized like picked ones (512px); copied PDFs go to the file chips. Images need an image-capable model and files a model that supports them, as with the picker.
 
 ## Subscriptions:
 
