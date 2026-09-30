@@ -28,7 +28,7 @@ import { ModelSelectorTool } from './chat-tools/model-selector/ModelSelectorTool
 import { ReasoningPickerTool } from './chat-tools/reasoning-picker/ReasoningPickerTool';
 import { ToolsMenu } from './chat-tools/tools-menu/ToolsMenu';
 import { useToolsMenu } from './chat-tools/tools-menu/useToolsMenu';
-import { useActiveTools } from './chat-tools/useActiveTools';
+import { ActiveToolsProvider, useActiveTools } from './chat-tools/useActiveTools';
 import { useSelectedModel } from './useSelectedModel';
 import { useSelectedReasoningEffort } from './useSelectedReasoningEffort';
 import { AttachMenu } from './chat-tools/tab-attachment/AttachMenu';
@@ -105,7 +105,6 @@ export function Omnibar({
     const rebrand = useNewTabPageRebranding();
     const { keyboardFocusWithinProps } = useKeyboardFocusWithin({ enabled: rebrand });
     const { openSuggestion, submitSearch, submitChat, setShowCustomizePopover } = useContext(OmnibarContext);
-    const activeTools = useActiveTools();
 
     const { open: openCustomizer } = useDrawerControls();
     useDrawerEventListeners(
@@ -118,7 +117,6 @@ export function Omnibar({
 
     const resetForm = () => {
         setQuery('');
-        activeTools.setActiveTool(null);
         setResetKey((prev) => prev + 1);
     };
 
@@ -147,7 +145,6 @@ export function Omnibar({
     /** @type {(mode: OmnibarConfig['mode']) => void} */
     const handleChangeMode = (nextMode) => {
         setAutoFocus(true);
-        activeTools.setActiveTool(null);
         setMode(nextMode);
     };
 
@@ -197,43 +194,41 @@ export function Omnibar({
                             setUsageLimitsRevealed(false);
                         }}
                     >
-                        <div class={styles.popup} {...keyboardFocusWithinProps}>
-                            {mode === 'search' ? (
-                                <>
-                                    <ResizingContainer className={styles.field}>
-                                        <SearchForm
+                        {/* The active tool resets whenever this provider remounts: on a mode switch via key={mode}, and on submit via the root's resetKey. */}
+                        <ActiveToolsProvider key={mode}>
+                            <div class={styles.popup} {...keyboardFocusWithinProps}>
+                                {mode === 'search' ? (
+                                    <>
+                                        <ResizingContainer className={styles.field}>
+                                            <SearchForm
+                                                autoFocus={autoFocus}
+                                                onOpenSuggestion={handleOpenSuggestion}
+                                                onSubmit={handleSubmitSearch}
+                                                onSubmitChat={handleSubmitChat}
+                                            />
+                                        </ResizingContainer>
+                                        <SuggestionsList onOpenSuggestion={handleOpenSuggestion} onSubmitChat={handleSubmitChat} />
+                                    </>
+                                ) : (
+                                    <OpenTabsProvider tabId={tabId} enabled={enableAttachTabs}>
+                                        <AiChatContent
+                                            query={query}
                                             autoFocus={autoFocus}
-                                            onOpenSuggestion={handleOpenSuggestion}
-                                            onSubmit={handleSubmitSearch}
-                                            onSubmitChat={handleSubmitChat}
+                                            enableRecentAiChats={enableRecentAiChats}
+                                            enableVoiceChatAccess={enableVoiceChatAccess}
+                                            enableAttachTabs={enableAttachTabs}
+                                            tabId={tabId}
+                                            onChange={setQuery}
+                                            onSubmit={handleSubmitChat}
+                                            omnibarRef={spacerRef}
                                         />
-                                    </ResizingContainer>
-                                    <SuggestionsList onOpenSuggestion={handleOpenSuggestion} onSubmitChat={handleSubmitChat} />
-                                </>
-                            ) : (
-                                <OpenTabsProvider tabId={tabId} enabled={enableAttachTabs}>
-                                    <AiChatContent
-                                        query={query}
-                                        autoFocus={autoFocus}
-                                        enableRecentAiChats={enableRecentAiChats}
-                                        enableVoiceChatAccess={enableVoiceChatAccess}
-                                        enableAttachTabs={enableAttachTabs}
-                                        tabId={tabId}
-                                        onChange={setQuery}
-                                        onSubmit={handleSubmitChat}
-                                        activeTools={activeTools}
-                                        omnibarRef={spacerRef}
-                                    />
-                                </OpenTabsProvider>
+                                    </OpenTabsProvider>
+                                )}
+                            </div>
+                            {mode === 'ai' && (
+                                <NoticeDrawer revealed={usageLimitsRevealed} onReservedHeightChange={setNoticeReservedHeight} />
                             )}
-                        </div>
-                        {mode === 'ai' && (
-                            <NoticeDrawer
-                                revealed={usageLimitsRevealed}
-                                imageGenerationActive={activeTools.imageGenerationActive}
-                                onReservedHeightChange={setNoticeReservedHeight}
-                            />
-                        )}
+                        </ActiveToolsProvider>
                     </div>
                 </AiChatsProvider>
             </SearchFormProvider>
@@ -251,7 +246,6 @@ export function Omnibar({
  * @param {string|null|undefined} [props.tabId]
  * @param {(query: string) => void} props.onChange
  * @param {(params: SubmitChatAction) => void} props.onSubmit
- * @param {ReturnType<typeof useActiveTools>} props.activeTools
  * @param {{ current: HTMLElement | null }} props.omnibarRef - Focus staying inside this subtree keeps the chats list open.
  */
 function AiChatContent({
@@ -263,7 +257,6 @@ function AiChatContent({
     tabId,
     onChange,
     onSubmit,
-    activeTools,
     omnibarRef,
 }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
@@ -276,7 +269,7 @@ function AiChatContent({
     const updatedCreateImageEnabled = state.config?.enableUpdatedCreateImage === true;
     const { selectedModel } = useSelectedModel();
     const { selectedEffort } = useSelectedReasoningEffort();
-    const { activeTool, availableTools, imageGenerationActive, webSearchActive, setActiveTool } = activeTools;
+    const { activeTool, availableTools, imageGenerationActive, webSearchActive, setActiveTool } = useActiveTools();
 
     const containerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const hasVisibleImagesRef = useRef(false);

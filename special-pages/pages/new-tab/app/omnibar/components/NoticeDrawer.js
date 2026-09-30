@@ -260,11 +260,10 @@ function highestNotice(notices) {
 /**
  * @param {object} props
  * @param {boolean} props.revealed - Whether focus-gated notices should be shown.
- * @param {boolean} props.imageGenerationActive
  * @param {(height: number) => void} props.onReservedHeightChange - Room the page must keep below the omnibar for a notice that stays open at rest.
  */
-export function NoticeDrawer({ revealed, imageGenerationActive, onReservedHeightChange }) {
-    const termsDisclaimer = useTermsDisclaimerNotice(imageGenerationActive);
+export function NoticeDrawer({ revealed, onReservedHeightChange }) {
+    const termsDisclaimer = useTermsDisclaimerNotice();
     const usageLimits = useUsageLimitsDrawer();
     const createImageModelSwitch = useCreateImageModelSwitchNotice();
     const presentation = highestNotice([termsDisclaimer, usageLimits, createImageModelSwitch]);

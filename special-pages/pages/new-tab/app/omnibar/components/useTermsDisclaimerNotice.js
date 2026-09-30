@@ -2,6 +2,7 @@ import { h } from 'preact';
 import { useContext } from 'preact/hooks';
 import { Trans } from '../../../../../shared/components/TranslationsProvider.js';
 import { useTypedTranslationWith } from '../../types';
+import { useActiveTools } from './chat-tools/useActiveTools';
 import { OmnibarContext } from './OmnibarProvider';
 import styles from './NoticeDrawer.module.css';
 
@@ -12,12 +13,12 @@ export const TERMS_DISCLAIMER_ID = 'omnibar-terms-disclaimer';
 /**
  * The Duck.ai terms disclaimer, shown until the user accepts the terms by submitting a chat.
  *
- * @param {boolean} imageGenerationActive - Names the 'Create' button instead of 'Ask'.
  * @returns {import('./NoticeDrawer.js').NoticePresentation | null}
  */
-export function useTermsDisclaimerNotice(imageGenerationActive) {
+export function useTermsDisclaimerNotice() {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const { state, openPrivacyTerms } = useContext(OmnibarContext);
+    const { imageGenerationActive } = useActiveTools();
 
     if (state.config?.requiresAiTermsAcceptance !== true) return null;
 
