@@ -378,6 +378,14 @@ test.describe('omnibar paste', () => {
         await expect(omnibar.imagePreviews()).toHaveCount(0);
     });
 
+    test('reports a pasted image in an unsupported format instead of dropping it silently', async ({ page }, workerInfo) => {
+        const { omnibar } = await setup(page, workerInfo, PASTE_ON);
+
+        await omnibar.pasteIntoChatInput({ files: [{ name: 'diagram.bmp', type: 'image/bmp', base64: TINY_PNG_BASE64 }] });
+        await expect(page.getByRole('alert')).toContainText('diagram.bmp');
+        await expect(omnibar.imagePreviews()).toHaveCount(0);
+    });
+
     test('lets text win over a bitmap on the clipboard', async ({ page }, workerInfo) => {
         const { omnibar } = await setup(page, workerInfo, PASTE_ON);
 

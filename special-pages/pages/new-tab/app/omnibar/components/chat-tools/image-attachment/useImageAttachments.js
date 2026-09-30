@@ -119,9 +119,13 @@ export function useImageAttachments({ tabId, maxImages = MAX_IMAGES } = {}) {
         setImageError(null);
 
         const existingNames = new Set(attachedImages.map((img) => img.fileName));
+        // Reported like a processing failure, so an unsupported pasted format (e.g. BMP) isn't silently dropped.
+        /** @type {string[]} */
+        const unsupportedNames = [];
         const validFiles = files.filter((file) => {
             if (!ALLOWED_FORMATS.includes(file.type)) {
                 console.warn('Attachment rejected: unsupported file type');
+                unsupportedNames.push(file.name);
                 return false;
             }
             if (existingNames.has(file.name)) {
@@ -130,13 +134,14 @@ export function useImageAttachments({ tabId, maxImages = MAX_IMAGES } = {}) {
             return true;
         });
 
-        if (validFiles.length === 0) return nothing;
-
         // Only process enough to reach maxImages + 1 (to trigger the limit warning).
         const processLimit = maxImages + 1 - attachedImages.length;
         const filesToProcess = processLimit > 0 ? validFiles.slice(0, processLimit) : [];
 
-        if (filesToProcess.length === 0) return nothing;
+        if (filesToProcess.length === 0) {
+            if (unsupportedNames.length > 0) setImageError({ type: 'processingFailed', fileNames: unsupportedNames });
+            return { ...nothing, rejected: unsupportedNames.length };
+        }
 
         const newImages = filesToProcess.map(async (file) => {
             /** @type {string} */
@@ -162,7 +167,7 @@ export function useImageAttachments({ tabId, maxImages = MAX_IMAGES } = {}) {
             results.filter((r) => r.status === 'fulfilled')
         ).map((r) => r.value);
         const tooLargeNames = [];
-        const failedNames = [];
+        const failedNames = [...unsupportedNames];
         for (let i = 0; i < results.length; i++) {
             const r = results[i];
             if (r.status === 'rejected') {
