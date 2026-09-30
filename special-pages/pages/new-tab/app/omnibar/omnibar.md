@@ -313,8 +313,18 @@ While `requiresAiTermsAcceptance` is `true`, the Duck.ai tab shows the terms dis
 - After that submission native should push `requiresAiTermsAcceptance: false` to every open NTP. The NTP doesn't hide the disclaimer on its own.
 - The voice-chat button and the Search tab's "Ask Duck.ai" suggestion never send `aiTermsAccepted`.
 - The disclaimer's link sends `omnibar_openPrivacyTerms`. Native opens the Duck.ai Privacy Policy and Terms of Service page in a new tab.
-- The disclaimer takes priority over `createImageModelSwitch` and `usageLimits` in the notice drawer. `usageLimits.blocksPrompt` still applies.
+- The disclaimer is the top notice in the [notice drawer](#notice-drawer). `usageLimits.blocksPrompt` still blocks sending.
 - `omnibar_setConfig` sends the whole config, so it echoes `requiresAiTermsAcceptance` back. Native should ignore it there.
+
+## Notice drawer
+
+The Duck.ai tab shows one notice under the input. It follows the [Duck.ai messaging framework](https://app.asana.com/1/137249556945/project/1211654189969294/task/1218246195820552). The highest type wins, then the order within a type:
+
+1. Required: the terms disclaimer, then `usageLimits` with `blocksPrompt: true`.
+2. Action: `createImageModelSwitch`.
+3. Informational: `usageLimits` without `blocksPrompt`.
+
+A higher notice hides a lower one. The lower one comes back if it still applies when the higher one goes away. On its own, `usageLimits` shows only while the input is focused.
 
 ## Open Targets
 
