@@ -61,7 +61,7 @@ const otherFeatures = /** @type {FeatureName[]} */ ([
 
 /** @type {Record<string, FeatureName[]>} */
 export const platformSupport = {
-    apple: ['webCompat', 'duckPlayerNative', ...baseFeatures, 'pageContext', 'print', 'trackerProtection', 'chromeWebstorePatching'],
+    apple: ['webCompat', 'duckPlayerNative', ...baseFeatures, 'pageContext', 'print', 'trackerProtection'],
     'apple-isolated': [
         'contextMenu',
         'duckPlayer',
@@ -81,6 +81,7 @@ export const platformSupport = {
         'hover',
         'tabSuspension',
         'textSelection',
+        'chromeWebstorePatching',
     ],
     'apple-ai-clear': ['duckAiDataClearing'],
     'apple-ai-history': ['duckAiChatHistory'],

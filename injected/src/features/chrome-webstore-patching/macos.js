@@ -23,10 +23,26 @@ export class MacOSWebstore {
     constructor(feature) {
         this.feature = feature;
         this._evaluation = 0;
+        this._url = window.location.href;
         /** @type {string | null} ID whose status produced the visible button */
         this._evaluatedExtensionId = null;
         /** @type {Set<string>} Operations awaiting native completion */
         this._pending = new Set();
+    }
+
+    startObservingURL() {
+        // In an isolated world, the History fallback only wraps that world's
+        // methods, not the page's. DOM mutations usually catch navigation first;
+        // this also covers pushState/replaceState without a DOM change on older
+        // WebKit versions that do not expose the Navigation API.
+        setInterval(() => this.checkForURLChange(), 250);
+    }
+
+    checkForURLChange() {
+        if (this._url === window.location.href) return false;
+        this.feature.recomputeSiteObject();
+        this.feature.urlChanged();
+        return true;
     }
 
     /**
@@ -44,6 +60,7 @@ export class MacOSWebstore {
     }
 
     async evaluatePage() {
+        this._url = window.location.href;
         const evaluation = ++this._evaluation;
         this._evaluatedExtensionId = null;
         this.feature._verdict = null;

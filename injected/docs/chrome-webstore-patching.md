@@ -17,13 +17,13 @@ On Windows, install state comes from the page-world private API `chrome.webstore
 
 ## macOS native integration
 
-macOS uses `src/features/chrome-webstore-patching/macos.js` and does not access or create any `chrome.*` APIs. The feature is included in the Apple **page-world** bundle (`contentScope.js`), so the existing URL-change listener can observe the store's History API navigation. iOS explicitly skips the feature. Native must enable `chromeWebstorePatching` and its `patchWebstore` domain gate and supply the existing `extensionManagement.curatedExtensions` catalog, just as Windows does; adding it to the bundle alone does not enable it.
+macOS uses `src/features/chrome-webstore-patching/macos.js` and does not access or create any `chrome.*` APIs. The feature is included in the Apple **isolated-world** bundle (`contentScopeIsolated.js`). Native registers `ChromeWebStoreSubfeature` on `contentScopeUserScriptIsolated`; it is not permitted on the page-world message handler. DOM mutations detect URL changes before reapplying button state, with a 250 ms URL check covering navigation without DOM changes. This also works on WebKit versions without the Navigation API, where the shared History wrappers cannot observe page-world calls from an isolated world. iOS explicitly skips the feature. Native must enable `chromeWebstorePatching` and its `patchWebstore` domain gate and supply the existing `extensionManagement.curatedExtensions` catalog, just as Windows does; adding it to the bundle alone does not enable it.
 
 All messages are requests through the existing C-S-S messaging layer:
 
 Machine-readable request/response schemas live in `injected/src/messages/chrome-webstore-patching/`; `npm run build-types -w injected` generates the corresponding typed feature contract.
 
-- **Context:** `contentScopeScripts`
+- **Context:** `contentScopeScriptsIsolated`
 - **Feature name:** `chromeWebstorePatching`
 
 | Method               | Parameters                                                                                   | Response result                                                                                                         |
@@ -89,6 +89,6 @@ The file is named for the feature rather than a generic `strings.json` because S
 - Integration (Playwright, `windows` project): `injected/integration-test/chrome-webstore-patching.spec.js` against fixtures in `integration-test/test-pages/chrome-webstore-patching/`. `chrome.webstorePrivate` is mocked via `page.addInitScript`; the mock installs a `window.chrome` accessor because the windows messaging test harness later reassigns `window.chrome`. Config fixtures retarget the `domains` patch to `localhost`.
 - Fixtures ship the feature at `state: "internal"`, matching the windows override, so `setup()` reports an internal build by default. A new spec that bypasses that helper must pass `platform.internal`, or the feature will silently not load and any "feature inert" assertion will pass for the wrong reason. `setup(page, testInfo, { internal: false })` covers the public-build case on purpose.
 - Run: `npx playwright test --project=windows chrome-webstore-patching --reporter=list`
-- macOS: `injected/integration-test/chrome-webstore-patching-macos.spec.js` uses the Apple bundle and mocked native requests. It covers native status/install/removal, rejected/cancelled operations, keyboard input, synthetic-event rejection, pending operations, stale status responses, DOM re-renders, configuration gates and iOS exclusion. Run from `injected/`: `npx playwright test --project=apple --project=windows chrome-webstore-patching --reporter list`.
+- macOS: `injected/integration-test/chrome-webstore-patching-macos.spec.js` uses the Apple isolated bundle and mocked native requests. Page navigation uses saved History methods with the Navigation API disabled to simulate calls made outside the isolated world. It covers native status/install/removal, rejected/cancelled operations, keyboard input, synthetic-event rejection, pending operations, stale status responses, DOM re-renders, configuration gates and iOS exclusion. Run from `injected/`: `npx playwright test --project=apple-isolated --project=windows chrome-webstore-patching --reporter list`.
 
 Still requires manual verification on a Windows internal build: real `webstorePrivate` availability/status strings, install/uninstall events, promo markup (only renders on de-Googled Chromium), and real store DOM against the fixture snapshots.

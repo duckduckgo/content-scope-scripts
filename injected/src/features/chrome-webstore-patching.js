@@ -101,7 +101,7 @@ export class ChromeWebstorePatching extends ContentFeature {
 
     /** @param {any} [args] */
     async init(args) {
-        // The Apple page-world bundle is shared with iOS, which has no integration.
+        // The Apple isolated bundle is shared with iOS, which has no integration.
         if (this.platform?.name === 'ios') return;
         // Locale dirs are bare language codes — strip any region subtag ('de-DE'/'de_DE' → 'de')
         this._locale =
@@ -206,6 +206,7 @@ export class ChromeWebstorePatching extends ContentFeature {
                 document.addEventListener('DOMContentLoaded', () => resolve(undefined), { once: true });
             });
         }
+        this._macOS?.startObservingURL();
         await this._evaluatePage();
     }
 
@@ -282,6 +283,9 @@ export class ChromeWebstorePatching extends ContentFeature {
      * to be patched for the first time.
      */
     _scheduleApply() {
+        // Page-world History calls cannot be intercepted from an isolated world.
+        // Catch navigation before reapplying a verdict to newly rendered buttons.
+        if (this._macOS?.checkForURLChange()) return;
         if (this._applyScheduled !== undefined) return;
         this._applyScheduled = requestAnimationFrame(() => {
             this._applyScheduled = undefined;

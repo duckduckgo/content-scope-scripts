@@ -25,6 +25,12 @@ async function setup(page, testInfo, options = {}) {
     });
     // Detect even an accidental read of Chromium APIs on the macOS path.
     await page.addInitScript(() => {
+        // Simulate page-world History calls bypassing the isolated world's
+        // wrappers, including WebKit versions without the Navigation API.
+        const win = /** @type {any} */ (window);
+        win.storePushState = history.pushState.bind(history);
+        win.storeReplaceState = history.replaceState.bind(history);
+        Object.defineProperty(window, 'navigation', { value: undefined, configurable: true });
         Object.defineProperty(window, 'chrome', {
             get() {
                 throw new Error('macOS must not access chrome');
@@ -35,7 +41,7 @@ async function setup(page, testInfo, options = {}) {
     await collector.load(HTML, options.config ?? CONFIG, { internal: true, name: options.platform ?? 'macos' });
     await page.evaluate((opts) => {
         const win = /** @type {any} */ (window);
-        const handler = win.webkit.messageHandlers.contentScopeScripts;
+        const handler = win.webkit.messageHandlers.contentScopeScriptsIsolated;
         const original = handler.postMessage.bind(handler);
         handler.postMessage = async (message) => {
             const response = await original(message);
@@ -70,7 +76,7 @@ async function setup(page, testInfo, options = {}) {
 
 /** @param {import('@playwright/test').Page} page @param {string} path */
 async function navigate(page, path) {
-    await page.evaluate((p) => history.pushState({}, '', p), path);
+    await page.evaluate((p) => /** @type {any} */ (window).storePushState({}, '', p), path);
 }
 
 /** @param {ResultsCollector} collector @param {string} [method] */
@@ -84,7 +90,7 @@ test('queries native and sends a CRX download URL on install, without calling th
     const collector = await setup(page, testInfo);
     await expect(page.locator(LABEL)).toHaveText('Add to DuckDuckGo');
     expect(await messages(collector, 'getExtensionStatus')).toEqual([
-        expect.objectContaining({ params: { extensionId: ID }, context: 'contentScopeScripts' }),
+        expect.objectContaining({ params: { extensionId: ID }, context: 'contentScopeScriptsIsolated' }),
     ]);
     await page.locator(BUTTON).click();
     await expect(page.locator(LABEL)).toHaveText('Remove from DuckDuckGo');
@@ -192,6 +198,10 @@ test('late status from an earlier visit cannot overwrite the latest visit to the
     await navigate(page, DETAIL);
     await page.waitForFunction(() => typeof (/** @type {any} */ (window).releaseStatus) === 'function');
     await navigate(page, OTHER);
+    // The old unsupported label remains in the hidden button while A's status
+    // is pending. Wait for B to be evaluated, not merely for that stale text.
+    await expect(page.locator(BUTTON)).toBeVisible();
+    await expect(page.locator(LABEL)).toHaveText('Unsupported extension');
     await page.evaluate(() => {
         /** @type {any} */ (window).__playwright_01.mockResponses.getExtensionStatus = { status: 'installed' };
     });
@@ -230,4 +240,36 @@ test('shared Apple bundle leaves iOS inert', async ({ page }, testInfo) => {
     await expect(page.locator(BUTTON)).toBeVisible();
     await expect(page.locator(BUTTON)).toHaveText('Add to Chrome');
     expect(await messages(collector)).toHaveLength(0);
+});
+
+test('Apple page-world bundle does not patch the store or send native requests', async ({ page }) => {
+    const collector = ResultsCollector.create(page, { injectName: 'apple', platform: 'macos' });
+    await collector.load(HTML, CONFIG, { internal: true });
+    await page.evaluate((path) => history.pushState({}, '', path), DETAIL);
+    await expect(page.locator(BUTTON)).toBeVisible();
+    await expect(page.locator(BUTTON)).toHaveText('Add to Chrome');
+    expect(await messages(collector)).toHaveLength(0);
+});
+
+test('page-world replaceState without DOM mutations refreshes the isolated feature', async ({ page }, testInfo) => {
+    const collector = await setup(page, testInfo);
+    await expect(page.locator(LABEL)).toHaveText('Add to DuckDuckGo');
+    await page.evaluate((path) => /** @type {any} */ (window).storeReplaceState({}, '', path), OTHER);
+    await expect(page.locator(LABEL)).toHaveText('Unsupported extension');
+    await page.evaluate((path) => /** @type {any} */ (window).storeReplaceState({}, '', path), DETAIL);
+    await expect(page.locator(LABEL)).toHaveText('Add to DuckDuckGo');
+    expect(await messages(collector, 'getExtensionStatus')).toHaveLength(2);
+});
+
+test('DOM changes detect page-world navigation before the URL polling interval', async ({ page }, testInfo) => {
+    const collector = await setup(page, testInfo);
+    await expect(page.locator(LABEL)).toHaveText('Add to DuckDuckGo');
+    await page.clock.install();
+    await page.clock.pauseAt(new Date());
+    await page.evaluate((path) => {
+        /** @type {any} */ (window).storePushState({}, '', path);
+        document.body.append(document.createElement('div'));
+    }, OTHER);
+    await expect(page.locator(LABEL)).toHaveText('Unsupported extension');
+    expect(await messages(collector, 'getExtensionStatus')).toHaveLength(1);
 });
