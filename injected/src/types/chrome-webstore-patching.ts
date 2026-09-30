@@ -11,6 +11,7 @@
  */
 export interface ChromeWebstorePatchingMessages {
   requests: GetExtensionStatusRequest | InstallExtensionRequest | RemoveExtensionRequest;
+  subscriptions: ExtensionRemovedSubscription;
 }
 /**
  * Generated from @see "../messages/chrome-webstore-patching/getExtensionStatus.request.json"
@@ -85,9 +86,26 @@ export interface RemoveExtensionParams {
 export interface RemoveExtensionResponse {
   success: boolean;
 }
+/**
+ * Generated from @see "../messages/chrome-webstore-patching/extensionRemoved.subscribe.json"
+ */
+export interface ExtensionRemovedSubscription {
+  subscriptionEvent: "extensionRemoved";
+  params: ExtensionRemovedParams;
+}
+/**
+ * macOS: native reports that an extension was removed, after updating its stored status.
+ */
+export interface ExtensionRemovedParams {
+  /**
+   * Chrome Web Store ID of the removed extension.
+   */
+  extensionId: string;
+}
 
 declare module "../features/chrome-webstore-patching.js" {
   export interface ChromeWebstorePatching {
-    request: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<ChromeWebstorePatchingMessages>['request']
+    request: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<ChromeWebstorePatchingMessages>['request'],
+    subscribe: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<ChromeWebstorePatchingMessages>['subscribe']
   }
 }

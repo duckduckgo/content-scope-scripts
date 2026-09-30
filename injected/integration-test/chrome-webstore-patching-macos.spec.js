@@ -24,7 +24,7 @@ async function setup(page, testInfo, options = {}) {
         removeExtension: { success: !options.fail },
     });
     // Detect even an accidental read of Chromium APIs on the macOS path.
-    await page.addInitScript(() => {
+    await page.addInitScript((opts) => {
         // Simulate page-world History calls bypassing the isolated world's
         // wrappers, including WebKit versions without the Navigation API.
         const win = /** @type {any} */ (window);
@@ -37,39 +37,46 @@ async function setup(page, testInfo, options = {}) {
             },
             configurable: true,
         });
-    });
-    await collector.load(HTML, options.config ?? CONFIG, { internal: true, name: options.platform ?? 'macos' });
-    await page.evaluate((opts) => {
-        const win = /** @type {any} */ (window);
-        const handler = win.webkit.messageHandlers.contentScopeScriptsIsolated;
-        const original = handler.postMessage.bind(handler);
-        handler.postMessage = async (message) => {
-            const response = await original(message);
-            if (message.method === 'getExtensionStatus') {
-                if (opts.rejectStatus) throw new Error('native status unavailable');
-                if (win.holdNextStatus) {
-                    win.holdNextStatus = false;
-                    await new Promise((resolve) => {
-                        win.releaseStatus = resolve;
-                    });
-                }
-                return response;
-            }
-            if (message.method === 'installExtension' || message.method === 'removeExtension') {
-                if (opts.hold)
-                    await new Promise((resolve) => {
-                        win.completeOperation = resolve;
-                    });
-                if (opts.rejectAction) throw new Error('native operation failed');
-                if (!opts.fail) {
-                    win.__playwright_01.mockResponses.getExtensionStatus = {
-                        status: message.method === 'installExtension' ? 'installed' : 'installable',
-                    };
-                }
-            }
-            return response;
-        };
+        // Wrap the mock before the feature captures its native message handler
+        // when registering the removal subscription at document start.
+        let webkit;
+        Object.defineProperty(window, 'webkit', {
+            configurable: true,
+            get: () => webkit,
+            set(value) {
+                webkit = value;
+                const handler = value.messageHandlers.contentScopeScriptsIsolated;
+                const original = handler.postMessage.bind(handler);
+                handler.postMessage = async (message) => {
+                    const response = await original(message);
+                    if (message.method === 'getExtensionStatus') {
+                        if (opts.rejectStatus) throw new Error('native status unavailable');
+                        if (win.holdNextStatus) {
+                            win.holdNextStatus = false;
+                            await new Promise((resolve) => {
+                                win.releaseStatus = resolve;
+                            });
+                        }
+                        return response;
+                    }
+                    if (message.method === 'installExtension' || message.method === 'removeExtension') {
+                        if (opts.hold)
+                            await new Promise((resolve) => {
+                                win.completeOperation = resolve;
+                            });
+                        if (opts.rejectAction) throw new Error('native operation failed');
+                        if (!opts.fail) {
+                            win.__playwright_01.mockResponses.getExtensionStatus = {
+                                status: message.method === 'installExtension' ? 'installed' : 'installable',
+                            };
+                        }
+                    }
+                    return response;
+                };
+            },
+        });
     }, options);
+    await collector.load(HTML, options.config ?? CONFIG, { internal: true, name: options.platform ?? 'macos' });
     await navigate(page, DETAIL);
     return collector;
 }
@@ -272,4 +279,67 @@ test('DOM changes detect page-world navigation before the URL polling interval',
     }, OTHER);
     await expect(page.locator(LABEL)).toHaveText('Unsupported extension');
     expect(await messages(collector, 'getExtensionStatus')).toHaveLength(1);
+});
+
+test('external removal refreshes the current extension and allows reinstalling', async ({ page }, testInfo) => {
+    const collector = await setup(page, testInfo, { status: 'installed' });
+    await expect(page.locator(LABEL)).toHaveText('Remove from DuckDuckGo');
+    await page.evaluate(() => {
+        /** @type {any} */ (window).__playwright_01.mockResponses.getExtensionStatus = { status: 'installable' };
+    });
+    await collector.simulateSubscriptionMessage('chromeWebstorePatching', 'extensionRemoved', { extensionId: ID });
+    await expect(page.locator(LABEL)).toHaveText('Add to DuckDuckGo');
+    expect(await messages(collector, 'getExtensionStatus')).toHaveLength(2);
+    expect(await messages(collector, 'removeExtension')).toHaveLength(0);
+    await page.locator(BUTTON).click();
+    await expect(page.locator(LABEL)).toHaveText('Remove from DuckDuckGo');
+    expect(await messages(collector, 'installExtension')).toHaveLength(1);
+});
+
+test('removal notifications ignore other IDs, malformed payloads and non-detail pages', async ({ page }, testInfo) => {
+    const collector = await setup(page, testInfo, { status: 'installed' });
+    await expect(page.locator(LABEL)).toHaveText('Remove from DuckDuckGo');
+    for (const payload of [{ extensionId: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' }, {}, { extensionId: null }, null]) {
+        await collector.simulateSubscriptionMessage('chromeWebstorePatching', 'extensionRemoved', /** @type {any} */ (payload));
+    }
+    await expect(page.locator(LABEL)).toHaveText('Remove from DuckDuckGo');
+    expect(await messages(collector, 'getExtensionStatus')).toHaveLength(1);
+    await navigate(page, '/category/extensions');
+    await expect(page.locator(BUTTON)).toBeHidden();
+    await collector.simulateSubscriptionMessage('chromeWebstorePatching', 'extensionRemoved', { extensionId: ID });
+    await expect(page.locator(BUTTON)).toBeHidden();
+    expect(await messages(collector, 'getExtensionStatus')).toHaveLength(1);
+});
+
+test('removal notification invalidates an older installed status response', async ({ page }, testInfo) => {
+    const collector = await setup(page, testInfo, { status: 'installed' });
+    await expect(page.locator(LABEL)).toHaveText('Remove from DuckDuckGo');
+    await page.evaluate(() => {
+        /** @type {any} */ (window).holdNextStatus = true;
+    });
+    await collector.simulateSubscriptionMessage('chromeWebstorePatching', 'extensionRemoved', { extensionId: ID });
+    await expect.poll(() => page.evaluate(() => typeof (/** @type {any} */ (window).releaseStatus))).toBe('function');
+    await page.evaluate(() => {
+        /** @type {any} */ (window).__playwright_01.mockResponses.getExtensionStatus = { status: 'installable' };
+    });
+    await collector.simulateSubscriptionMessage('chromeWebstorePatching', 'extensionRemoved', { extensionId: ID });
+    await expect(page.locator(LABEL)).toHaveText('Add to DuckDuckGo');
+    await page.evaluate(() => /** @type {any} */ (window).releaseStatus());
+    await page.locator(BUTTON).click();
+    await expect(page.locator(LABEL)).toHaveText('Remove from DuckDuckGo');
+    expect(await messages(collector, 'installExtension')).toHaveLength(1);
+    expect(await messages(collector, 'removeExtension')).toHaveLength(0);
+});
+
+test('removal notification cannot reveal a button while its operation is pending', async ({ page }, testInfo) => {
+    const collector = await setup(page, testInfo, { status: 'installed', hold: true });
+    await expect(page.locator(LABEL)).toHaveText('Remove from DuckDuckGo');
+    await page.locator(BUTTON).click();
+    await expect.poll(() => page.evaluate(() => typeof (/** @type {any} */ (window).completeOperation))).toBe('function');
+    await collector.simulateSubscriptionMessage('chromeWebstorePatching', 'extensionRemoved', { extensionId: ID });
+    await expect(page.locator(BUTTON)).toBeHidden();
+    expect(await messages(collector, 'getExtensionStatus')).toHaveLength(1);
+    await page.evaluate(() => /** @type {any} */ (window).completeOperation());
+    await expect(page.locator(LABEL)).toHaveText('Add to DuckDuckGo');
+    expect(await messages(collector, 'removeExtension')).toHaveLength(1);
 });

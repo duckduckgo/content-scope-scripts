@@ -28,6 +28,15 @@ export class MacOSWebstore {
         this._evaluatedExtensionId = null;
         /** @type {Set<string>} Operations awaiting native completion */
         this._pending = new Set();
+        this.feature.subscribe('extensionRemoved', (params) => {
+            const extensionId = params?.extensionId;
+            if (typeof extensionId !== 'string' || extensionId !== parseExtensionId(window.location.pathname)) return;
+            // Re-query native state rather than assuming the extension is now
+            // installable. This also invalidates any older status response.
+            void this.evaluatePage().catch((error) => {
+                this.feature.log.info('Could not refresh Chrome Web Store after extension removal', error);
+            });
+        });
     }
 
     startObservingURL() {

@@ -19,7 +19,7 @@ On Windows, install state comes from the page-world private API `chrome.webstore
 
 macOS uses `src/features/chrome-webstore-patching/macos.js` and does not access or create any `chrome.*` APIs. The feature is included in the Apple **isolated-world** bundle (`contentScopeIsolated.js`). Native registers `ChromeWebStoreSubfeature` on `contentScopeUserScriptIsolated`; it is not permitted on the page-world message handler. DOM mutations detect URL changes before reapplying button state, with a 250 ms URL check covering navigation without DOM changes. This also works on WebKit versions without the Navigation API, where the shared History wrappers cannot observe page-world calls from an isolated world. iOS explicitly skips the feature. Native must enable `chromeWebstorePatching` and its `patchWebstore` domain gate and supply the existing `extensionManagement.curatedExtensions` catalog, just as Windows does; adding it to the bundle alone does not enable it.
 
-All messages are requests through the existing C-S-S messaging layer:
+Messages use the existing C-S-S messaging layer: requests for status and operations, and a subscription for native removal events.
 
 Machine-readable request/response schemas live in `injected/src/messages/chrome-webstore-patching/`; `npm run build-types -w injected` generates the corresponding typed feature contract.
 
@@ -35,6 +35,12 @@ Machine-readable request/response schemas live in `injected/src/messages/chrome-
 These are the request `params` and response `result`, inside the standard messaging envelopes. Native must return the final operation response **after** its stored status has been updated, not merely acknowledge that a download started. Native owns confirmation, progress, and error UI. Rejected operation requests are also supported. After any completion, including cancellation or rejection, the script queries status again; the `success` field is informational and does not determine button state. Unrecognized/malformed status responses or status request errors leave the button hidden.
 
 On activation, macOS consumes the event before the store's document handlers, verifies a trusted user event and a current curated ID, and sends the native request. Mouse/touch clicks and Enter/Space are supported. Buttons for an extension stay hidden while its native operation is pending, including across SPA navigation; repeated activation cannot start another operation for that extension. Navigation invalidates older status responses, even when returning to the same ID.
+
+### Removal outside the store page
+
+Native pushes `extensionRemoved` with `{ "extensionId": "<32-character store ID>" }` through the `chromeWebstorePatching` feature in the `contentScopeScriptsIsolated` context. Send this after updating stored installation state, including removals from browser settings or another tab. This is a native-to-script subscription; JavaScript registration sends no request or acknowledgment to native.
+
+If the ID matches the currently displayed extension detail page, the script queries `getExtensionStatus` again and refreshes the button (normally from "Remove from DuckDuckGo" to "Add to DuckDuckGo"). Other IDs and non-detail pages are ignored. The usual curated catalog, pending-operation and stale-response guards still apply; the notification itself does not assert that installation is permitted. No page-world event or Chrome API is involved.
 
 ### CRX download URL
 
