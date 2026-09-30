@@ -38,7 +38,7 @@ title: Omnibar Widget
   - `enableVoiceChatAccess` — when true and the input is empty, replaces the AI chat submit button with a 1-click voice-chat button. Click/Enter sends `omnibar_submitChat` with an empty `chat` and `mode: "voice-mode"` — native handles the voice handoff (default `false`)
   - `enableAskAiSuggestion` — when `false`, hides the inline "Ask Duck.ai: <query>" entry in the suggestions dropdown. Missing/undefined is treated as `true` (default `true`). Does not affect the Duck.ai mode pill or any other AI affordance — those remain governed by `enableAi`
   - `enableAttachTabs` — when `true`, the omnibar shows the page context entry point and accepts `@` mentions for attaching open tabs as context. Requires native to handle `omnibar_getOpenTabs` and `omnibar_getTabContent` (default `false`).
-  - `screenshotModes` — capture modes (`"dragToSelect"`, `"selectWindowOrDisplay"`) listed, in order, under "Add Screenshot" in the paperclip menu. Absent or empty hides the screenshot UI. Requires native to handle `omnibar_captureScreenshot`. The row is disabled while a capture is pending, at the image cap, when the model cannot take images, or when the prompt is blocked.
+  - `screenshotModes` — capture modes (`"dragToSelect"`, `"selectWindowOrDisplay"`) listed, in order, under "Add Screenshot" in the paperclip menu. Absent or empty hides the screenshot UI. Requires native to handle `omnibar_captureScreenshot`. The row is disabled at the image cap, when the model cannot take images, or when the prompt is blocked; it stays enabled while a capture is pending.
   - `enablePastedAttachments` — when `true`, pasting into the Duck.ai prompt attaches copied images and files (see [Paste](#paste)). When `false` or absent, paste is left to the browser (text only) (default `false`).
   - `aiModelSections` — array of model sections for the model selector. Each model may include `supportedReasoningEffort` (e.g. `["none", "low", "medium"]`) to surface the reasoning picker
   - `selectedModelId` — the user's persisted model choice
@@ -61,7 +61,7 @@ title: Omnibar Widget
 
 ### `omnibar_captureScreenshot`
 - {@link "NewTab Messages".OmnibarCaptureScreenshotRequest}
-- Sent when the user picks a mode from the "Add Screenshot" submenu. Native runs the capture (selection overlay or window/display picker) and replies when the user finishes or cancels, so the request can stay pending for as long as that takes. The page sends one request at a time.
+- Sent when the user picks a mode from the "Add Screenshot" submenu. Native runs the capture (selection overlay or window/display picker) and replies when the user finishes or cancels, so the request can stay pending for as long as that takes. The user can choose a mode again while one is pending: native answers the older request as cancelled and serves the new one (a Drag to Select replaces a pending one; a Select Window or Display request while the picker is open is answered as cancelled). Only the latest request's `error` is shown.
 - requires `mode`, one of the configured `screenshotModes`.
 - returns {@link "NewTab Messages".CaptureScreenshotResponse}:
   - `image` — base64 `data` (no data-URL prefix), `format` (`png` or `jpeg`) and `kind` (`selection`, `screen` or `window`). Native scales it to at most 1024px on the long side; the page keeps that size and adds it as an image chip named "Screenshot" (numbered on repeats).
