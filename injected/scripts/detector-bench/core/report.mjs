@@ -111,6 +111,7 @@ export function table(rows, indent = '  ') {
  * @property {boolean} unexpected
  * @property {boolean} [preExisting] - Incorrect, but the comparison point is incorrect the same way
  * @property {ReferenceDelta | null} [vsReference]
+ * @property {import('./expand.mjs').CostRole} [cost] - Cost axis only: what this variant stands for
  */
 
 /**
@@ -119,7 +120,8 @@ export function table(rows, indent = '  ') {
  * @property {string} [engine]
  * @property {'timing' | 'correctness' | 'both'} [purpose]
  * @property {{ group: string, param: string, value: number } | null} [scale]
- * @property {{ elements: number, textNodes: number, chars: number, renderedChars?: number }} facts
+ * @property {string} [category] - Site fixtures: the capture list's category. Generated fixtures have none
+ * @property {{ elements: number, textNodes: number, chars: number, renderedChars?: number, scriptChars?: number }} facts
  * @property {{ clean: number, dirty: number, ratio: number } | null} [layoutCheck]
  * @property {VariantReport[]} variants
  */
@@ -527,5 +529,318 @@ export function compareToStored(reports, stored, thresholdPercent) {
         lines.push(...changes.map((c) => `  - ${c}`));
     }
 
+    return lines.join('\n');
+}
+
+/**
+ * Cost-axis budgets. Reported, never enforced: they say where to look, not what to ship.
+ *
+ * - `tickP95Ms`: one frame at 60Hz. A tick over it can drop a frame on its own.
+ * - `throttledTickP95Ms`: the long-task threshold, read against a CPU-throttled run, which
+ *   stands in for a low-end phone.
+ * - `detectorMedianMs`: one detector's share. The detectors due at a tick run in one task,
+ *   so a set of about twenty at this cost fills a frame between them.
+ */
+export const COST_BUDGETS = { tickP95Ms: 16, throttledTickP95Ms: 50, detectorMedianMs: 1 };
+
+/**
+ * The page-size bands `measured-rates.md` reads rates against, on rendered text length, so
+ * a cost can be set beside a false-positive rate for the same kind of page.
+ *
+ * @param {FixtureReport['facts']} facts
+ * @returns {'content-rich' | 'sparse' | 'near-empty'}
+ */
+export function pageBand(facts) {
+    const rendered = facts.renderedChars ?? facts.chars;
+    if (rendered > 3000) return 'content-rich';
+    if (rendered > 500) return 'sparse';
+    return 'near-empty';
+}
+
+/**
+ * @param {FixtureReport} report
+ * @returns {string}
+ */
+function fixtureCategory(report) {
+    return report.category ?? 'generated';
+}
+
+/**
+ * Split a report's variants by layout mode. The cost axis reads warm and dirty as two
+ * separate runs of the same variants, never as rows to compare within one table.
+ *
+ * @param {VariantReport[]} variants
+ * @returns {Map<string, VariantReport[]>}
+ */
+function byLayout(variants) {
+    /** @type {Map<string, VariantReport[]>} */
+    const out = new Map();
+    for (const variant of variants) {
+        const layout = variant.layout ?? 'warm';
+        out.set(layout, [...(out.get(layout) ?? []), variant]);
+    }
+    return out;
+}
+
+/**
+ * How many of a variant's detectors matched on this fixture. A matched detector costs less
+ * than one that scans to the end, so a cheap row that matched is not evidence it is cheap.
+ *
+ * @param {VariantReport} variant
+ * @returns {string}
+ */
+function matchedCount(variant) {
+    const values = Object.values(variant.actual ?? {});
+    const matched = values.filter((v) => v === true).length;
+    const errors = values.filter((v) => v === 'error').length;
+    return `${matched}/${values.length}${errors ? ` (${errors} threw)` : ''}`;
+}
+
+/**
+ * One fixture on the cost axis: its shape, the aggregate rows, and the costliest
+ * individual detectors. The full per-detector list is in the matrix at the end, which
+ * reads across fixtures rather than down one.
+ *
+ * @param {FixtureReport} report
+ * @param {{ timed?: boolean, top?: number }} [options]
+ * @returns {string}
+ */
+export function formatCostFixture(report, { timed = true, top = 5 } = {}) {
+    const { facts } = report;
+    const lines = [
+        '',
+        `### ${report.fixture} [${fixtureCategory(report)}, ${pageBand(facts)}]`,
+        `  ${facts.elements.toLocaleString()} elements, ${facts.textNodes.toLocaleString()} text nodes, ` +
+            `${formatChars(facts.chars)} chars, ${formatChars(facts.renderedChars ?? 0)} rendered, ` +
+            `${formatChars(facts.scriptChars ?? 0)} inline script`,
+    ];
+
+    for (const [layout, variants] of byLayout(report.variants)) {
+        const aggregates = variants.filter((v) => v.cost && v.cost.role !== 'each');
+        const each = variants.filter((v) => v.cost?.role === 'each');
+        const rows = [['variant', 'detectors', ...(timed ? ['median', 'p95'] : []), 'matched']];
+        for (const variant of aggregates) {
+            rows.push([
+                variant.name,
+                String(variant.cost?.keys.length ?? 0),
+                ...(timed ? [formatMs(variant.median), formatMs(variant.p95)] : []),
+                matchedCount(variant),
+            ]);
+        }
+        const costliest = timed ? [...each].sort((a, b) => b.median - a.median).slice(0, top) : [];
+        for (const variant of costliest) {
+            rows.push([`  ${variant.name}`, '1', formatMs(variant.median), formatMs(variant.p95), matchedCount(variant)]);
+        }
+        lines.push(
+            '',
+            `  ${layout}${costliest.length ? ` (aggregates, then the ${costliest.length} costliest detectors)` : ''}`,
+            table(rows, '  '),
+        );
+        for (const variant of each) {
+            for (const key of Object.keys(variant.actual ?? {})) {
+                if (variant.actual[key] === 'error') lines.push(`  ! ${key} threw`);
+            }
+        }
+    }
+
+    return lines.join('\n');
+}
+
+/**
+ * Group reports into one section per engine and layout mode, preserving fixture order.
+ *
+ * @param {FixtureReport[]} reports
+ * @returns {Array<{ engine: string, layout: string, fixtures: Array<{ report: FixtureReport, variants: VariantReport[] }> }>}
+ */
+function costSections(reports) {
+    /** @type {Map<string, { engine: string, layout: string, fixtures: Array<{ report: FixtureReport, variants: VariantReport[] }> }>} */
+    const sections = new Map();
+    for (const report of reports) {
+        for (const [layout, variants] of byLayout(report.variants)) {
+            const engine = report.engine ?? '';
+            const key = `${engine}::${layout}`;
+            let section = sections.get(key);
+            if (!section) {
+                section = { engine, layout, fixtures: [] };
+                sections.set(key, section);
+            }
+            section.fixtures.push({ report, variants });
+        }
+    }
+    return [...sections.values()];
+}
+
+/**
+ * @param {string} engine
+ * @param {string} layout
+ * @returns {string}
+ */
+function sectionTitle(engine, layout) {
+    return [engine, layout].filter(Boolean).join(', ');
+}
+
+/**
+ * Per-detector cost by site category: each detector's worst median over the fixtures in a
+ * category, then its worst anywhere. Worst rather than typical because the question is
+ * whether shipping it can hurt a page, and the page it hurts is the worst one.
+ *
+ * Sorted by worst-case cost, so the detectors to look at come first. Detectors over
+ * `COST_BUDGETS.detectorMedianMs` are marked.
+ *
+ * @param {FixtureReport[]} reports
+ * @returns {string}
+ */
+export function formatCostMatrix(reports) {
+    const sections = costSections(reports);
+    if (sections.length === 0) return '';
+    const lines = ['', '='.repeat(60), '== Per-detector cost (worst median per category)', '='.repeat(60)];
+
+    for (const section of sections) {
+        const categories = [...new Set(section.fixtures.map(({ report }) => fixtureCategory(report)))];
+
+        /** @type {Map<string, { byCategory: Map<string, number>, worst: number, worstFixture: string, matchedOn: number }>} */
+        const rows = new Map();
+        for (const { report, variants } of section.fixtures) {
+            const category = fixtureCategory(report);
+            for (const variant of variants) {
+                if (variant.cost?.role !== 'each') continue;
+                const key = variant.cost.key ?? variant.name;
+                let row = rows.get(key);
+                if (!row) {
+                    row = { byCategory: new Map(), worst: -1, worstFixture: '', matchedOn: 0 };
+                    rows.set(key, row);
+                }
+                row.byCategory.set(category, Math.max(row.byCategory.get(category) ?? 0, variant.median));
+                if (variant.median > row.worst) {
+                    row.worst = variant.median;
+                    row.worstFixture = report.fixture;
+                }
+                if (Object.values(variant.actual ?? {}).some((v) => v === true)) row.matchedOn++;
+            }
+        }
+
+        const sorted = [...rows.entries()].sort((a, b) => b[1].worst - a[1].worst);
+        const header = ['detector', ...categories, 'worst', 'worst on', 'matched on'];
+        const body = sorted.map(([key, row]) => [
+            row.worst > COST_BUDGETS.detectorMedianMs ? `${key} !` : key,
+            ...categories.map((c) => (row.byCategory.has(c) ? formatMs(row.byCategory.get(c) ?? 0) : '-')),
+            formatMs(row.worst),
+            row.worstFixture,
+            `${row.matchedOn}/${section.fixtures.length}`,
+        ]);
+        lines.push('', `### ${sectionTitle(section.engine, section.layout)}`, '', table([header, ...body]));
+    }
+
+    lines.push('', `  ! marks a detector whose worst median is over ${COST_BUDGETS.detectorMedianMs} ms.`);
+    return lines.join('\n');
+}
+
+/**
+ * The shipping question: the costliest task the schedule produces. Each `tick@` row is one
+ * `setTimeout` callback running every detector due at that offset, so its p95 on the worst
+ * page is the task a user's page can be made to wait for.
+ *
+ * @param {FixtureReport[]} reports
+ * @param {{ throttle?: number }} [options] - CPU throttle the run used; picks the budget
+ * @returns {string}
+ */
+export function formatTickSummary(reports, { throttle = 1 } = {}) {
+    const sections = costSections(reports);
+    if (sections.length === 0) return '';
+    const throttled = throttle > 1;
+    const budget = throttled ? COST_BUDGETS.throttledTickP95Ms : COST_BUDGETS.tickP95Ms;
+    const lines = ['', '='.repeat(60), `== Worst task per tick${throttled ? ` (CPU throttled ${throttle}x)` : ''}`, '='.repeat(60)];
+
+    /** @type {string[]} */
+    const over = [];
+    for (const section of sections) {
+        /** @type {Map<string, { role: string, detectors: number, median: number, p95: number, fixture: string }>} */
+        const rows = new Map();
+        for (const { report, variants } of section.fixtures) {
+            for (const variant of variants) {
+                const role = variant.cost?.role;
+                if (role !== 'tick' && role !== 'breakage-report' && role !== 'all') continue;
+                const row = rows.get(variant.name);
+                if (!row || variant.p95 > row.p95) {
+                    rows.set(variant.name, {
+                        role,
+                        detectors: variant.cost?.keys.length ?? 0,
+                        median: variant.median,
+                        p95: variant.p95,
+                        fixture: report.fixture,
+                    });
+                }
+            }
+        }
+        const header = ['task', 'detectors', 'worst median', 'worst p95', 'on', `p95 vs ${budget} ms`];
+        const body = [...rows.entries()].map(([name, row]) => {
+            const isTask = row.role !== 'all';
+            if (isTask && row.p95 > budget)
+                over.push(`${sectionTitle(section.engine, section.layout)} / ${name}: ${formatMs(row.p95)} on ${row.fixture}`);
+            return [
+                name,
+                String(row.detectors),
+                formatMs(row.median),
+                formatMs(row.p95),
+                row.fixture,
+                isTask ? (row.p95 > budget ? 'OVER' : 'ok') : '-',
+            ];
+        });
+        lines.push('', `### ${sectionTitle(section.engine, section.layout)}`, '', table([header, ...body]));
+    }
+
+    lines.push(
+        '',
+        over.length === 0
+            ? `  Every task stays within ${budget} ms at p95 on every fixture.`
+            : `  ${over.length} task(s) over ${budget} ms at p95:\n${over.map((o) => `    - ${o}`).join('\n')}`,
+        '  `all` is not a task the scheduler runs; it is shown as the upper bound on any one tick.',
+    );
+    return lines.join('\n');
+}
+
+/**
+ * Whether the detectors share work. `matching.js` caches nothing between detectors, so the
+ * whole set should cost the sum of its parts; a ratio well below 1 would mean they share
+ * something (a warmed cache, a layout one detector pays for and the next reuses), and well
+ * above 1 would mean they interfere.
+ *
+ * @param {FixtureReport[]} reports
+ * @returns {string}
+ */
+export function formatAllVsSum(reports) {
+    const sections = costSections(reports);
+    if (sections.length === 0) return '';
+    const lines = ['', '='.repeat(60), '== All detectors against the sum of each', '='.repeat(60), ''];
+    const rows = [['run', 'fixtures', 'min', 'median', 'max', 'widest gap on']];
+
+    for (const section of sections) {
+        /** @type {Array<{ ratio: number, fixture: string }>} */
+        const ratios = [];
+        for (const { report, variants } of section.fixtures) {
+            const all = variants.find((v) => v.cost?.role === 'all');
+            const empty = variants.find((v) => v.cost?.role === 'empty');
+            const floor = empty?.median ?? 0;
+            const each = variants.filter((v) => v.cost?.role === 'each');
+            // Each `each` row carries the loop overhead once, as does `all`, so the floor is
+            // taken off every row before summing.
+            const sum = each.reduce((acc, v) => acc + Math.max(0, v.median - floor), 0);
+            if (!all || sum <= 0) continue;
+            ratios.push({ ratio: Math.max(0, all.median - floor) / sum, fixture: report.fixture });
+        }
+        if (ratios.length === 0) continue;
+        const sorted = [...ratios].sort((a, b) => a.ratio - b.ratio);
+        const widest = sorted.reduce((w, r) => (Math.abs(Math.log(r.ratio || 1e-9)) > Math.abs(Math.log(w.ratio || 1e-9)) ? r : w));
+        rows.push([
+            sectionTitle(section.engine, section.layout),
+            String(sorted.length),
+            `${sorted[0].ratio.toFixed(2)}x`,
+            `${sorted[Math.floor(sorted.length / 2)].ratio.toFixed(2)}x`,
+            `${sorted[sorted.length - 1].ratio.toFixed(2)}x`,
+            `${widest.fixture} (${widest.ratio.toFixed(2)}x)`,
+        ]);
+    }
+
+    lines.push(table(rows), '', '  1.00x means the set costs exactly the sum of its detectors run alone.');
     return lines.join('\n');
 }

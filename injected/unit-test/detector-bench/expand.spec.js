@@ -11,6 +11,7 @@ import {
     assertExpectKeysKnown,
     expandFixtures,
     buildVariants,
+    expandCostVariants,
 } from '../../scripts/detector-bench/core/expand.mjs';
 
 describe('detector-bench expand', () => {
@@ -297,6 +298,79 @@ describe('detector-bench expand', () => {
 
         it('rejects a spec with no configs, pointing at the other axis', () => {
             expect(() => buildVariants({ axis: 'config', spec: {} })).toThrowError(SpecError, /needs `configs`/);
+        });
+    });
+
+    describe('expandCostVariants', () => {
+        const auto = (/** @type {number[]} */ intervalMs) => ({ auto: { state: 'enabled', when: { intervalMs } } });
+        const match = { element: { selector: 'p' } };
+        const detectors = {
+            blank: {
+                early: { match, triggers: auto([500, 3000]) },
+                late: { match, triggers: auto([3000]) },
+            },
+            captcha: {
+                reportOnly: { match },
+                off: { match, state: 'disabled', triggers: auto([500]) },
+                autoOnly: { match, triggers: { ...auto([500, 500]), breakageReport: { state: 'disabled' } } },
+            },
+        };
+
+        /** @param {string} name */
+        const find = (name) => expandCostVariants(detectors).find((v) => v.name === name);
+
+        it('gives one variant per enabled detector, per tick, the breakage report, all and empty', () => {
+            const names = expandCostVariants(detectors).map((v) => v.name);
+            expect(names).toEqual([
+                'all',
+                'empty',
+                'tick@500ms',
+                'tick@3000ms',
+                'breakage-report',
+                'blank.early',
+                'blank.late',
+                'captcha.reportOnly',
+                'captcha.autoOnly',
+            ]);
+        });
+
+        it('puts exactly the detectors due at an offset in its tick, once each', () => {
+            // `autoOnly` lists 500 twice; the scheduler keys timers by offset, so it runs once.
+            expect(find('tick@500ms')?.cost.keys).toEqual(['blank.early', 'captcha.autoOnly']);
+            expect(find('tick@3000ms')?.cost.keys).toEqual(['blank.early', 'blank.late']);
+            expect(find('tick@3000ms')?.detectors).toEqual({ blank: { early: detectors.blank.early, late: detectors.blank.late } });
+        });
+
+        it('follows the parse.js defaults: disabled detectors are dropped, the breakage report is on unless turned off', () => {
+            expect(find('all')?.cost.keys).not.toContain('captcha.off');
+            expect(find('breakage-report')?.cost.keys).toEqual(['blank.early', 'blank.late', 'captcha.reportOnly']);
+        });
+
+        it('gives each single-detector variant a config holding only that detector', () => {
+            expect(find('captcha.reportOnly')?.detectors).toEqual({ captcha: { reportOnly: detectors.captcha.reportOnly } });
+            expect(find('empty')?.detectors).toEqual({});
+        });
+
+        it('rejects a config with nothing enabled', () => {
+            expect(() => expandCostVariants({ g: { d: { match, state: 'disabled' } } })).toThrowError(SpecError, /at least one enabled/);
+        });
+    });
+
+    describe('buildVariants on the cost axis', () => {
+        const spec = { detectors: { g: { a: { match: { element: { selector: 'p' } } } } }, layout: ['warm', 'dirty'] };
+
+        it('marks `all` as the baseline and carries each role through the layout expansion', () => {
+            const { variants, meta } = buildVariants({ axis: 'cost', spec });
+            expect(variants.filter((v) => v.baseline).map((v) => v.name)).toEqual(['all (warm)']);
+            expect(meta.get('g.a (dirty)')?.cost).toEqual({ role: 'each', key: 'g.a', keys: ['g.a'] });
+            expect(variants.some((v) => 'cost' in v)).toBeFalse();
+        });
+
+        it('rejects configs or implementations, which belong to the other axes', () => {
+            expect(() => buildVariants({ axis: 'cost', spec: { ...spec, configs: [{ name: 'x' }] } })).toThrowError(
+                SpecError,
+                /derives its own variants/,
+            );
         });
     });
 });

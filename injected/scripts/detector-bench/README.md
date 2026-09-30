@@ -12,28 +12,32 @@ This file is the map of the directory.
 npm run bench-detectors -- --spec scripts/detector-bench/specs/detector-design/adwall-xpath.mjs
 npm run bench-detectors -- --spec <spec> --check-only   # accuracy only, seconds not minutes
 npm run bench-drift-guard                               # after touching lib/ or matching.js
+node scripts/detector-bench/page-gen/capture-sites.mjs  # capture real sites as fixtures
 ```
 
 ## What lives where
 
 | Directory | Holds | You edit it when |
 |---|---|---|
-| `core/` | The harness: spec expansion, bundling, in-page measurement, verdicts, reporting | Almost never — changing how benchmarking works, not what is benchmarked |
-| `page-gen/` | The test pages, as parameterised generators | Adding a DOM shape no existing generator isolates |
+| `core/` | The harness: spec expansion, bundling, in-page measurement, verdicts, reporting, site replay | Almost never — changing how benchmarking works, not what is benchmarked |
+| `page-gen/` | The test pages, as parameterised generators, plus the real-site capture script and its site list | Adding a DOM shape no existing generator isolates, or a site to capture |
 | `assertions/` | Ground-truth case sets: markup, the answer, and why the case exists | Adding a case an approach got wrong, or a set for a new detection question |
 | `detectors/` | Detector vocabulary: XPath expressions, and per-detector presets | Adding a detector, or an expression worth comparing |
 | `specs/` | Committed comparisons | Asking a question worth keeping the answer to |
 | `lib/` | Scaffolding for algorithm experiments | Writing an experiment that changes matching code |
 | `self-test/` | Inputs for the harness's own integration tests | Changing the runner's exit-code behaviour |
-| `.bench-variants/` | Gitignored scratch | Anything throwaway — see below |
+| `.bench-variants/` | Gitignored scratch, captured sites (`sites/`) and the detector corpus | Anything throwaway — see below |
 
-Two entry points sit at the top level: `run.mjs` (the benchmark) and `drift-guard.mjs` (the
-correctness check on `lib/`).
+Three entry points sit at the top level: `run.mjs` (the benchmark), `drift-guard.mjs` (the
+correctness check on `lib/`) and `merge-cost.mjs` (cost-axis summaries over several `--json`
+runs, such as `--shard` shards).
 
-## The two questions
+## The questions
 
-There are two, they want different specs, and they are judged by different rules. Getting
-this wrong is the most common way to produce a table that cannot answer anything.
+There are two comparisons, they want different specs, and they are judged by different
+rules. Getting this wrong is the most common way to produce a table that cannot answer
+anything. A third axis, `kind: 'cost'`, prices one config rather than comparing two; see
+[Pricing a detector set](../../../.agents/skills/detector-performance/SKILL.md#pricing-a-detector-set).
 
 |  | **Config axis** | **Algorithm axis** |
 |---|---|---|

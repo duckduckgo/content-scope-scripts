@@ -176,30 +176,151 @@ function withLayoutModes(variant, modes) {
 }
 
 /**
+ * What a variant on the cost axis stands for, so the report can regroup variants into a
+ * per-detector matrix and a per-tick summary without parsing their names.
+ *
+ * - `each`: one detector on its own. `key` is `group.id`.
+ * - `tick`: every detector the auto trigger runs at `offsetMs`. `web-detection.js` sets one
+ *   `setTimeout` per distinct offset and runs everything due at it in that one task, so
+ *   this is the cost of one task on the page's main thread.
+ * - `breakage-report`: every detector the breakage-report trigger runs, in one sweep.
+ * - `all`: every enabled detector in the config.
+ * - `empty`: no detectors. The floor under every other row: what the sweep loop itself costs.
+ *
+ * @typedef {object} CostRole
+ * @property {'each' | 'tick' | 'breakage-report' | 'all' | 'empty'} role
+ * @property {string} [key]
+ * @property {number} [offsetMs]
+ * @property {string[]} keys - The `group.id` keys the variant runs
+ */
+
+/**
+ * @typedef {object} VariantMeta
+ * @property {boolean} reference
+ * @property {boolean} expectDivergence
+ * @property {CostRole} [cost]
+ */
+
+/**
+ * Split one detector config into the variants the cost axis times.
+ *
+ * Trigger semantics mirror `normalizeDetector` in `web-detection/parse.js`: a detector is
+ * enabled unless it says otherwise, the breakage-report trigger is on by default, and the
+ * auto trigger is off unless enabled with offsets. Mirrored rather than imported because
+ * this runs in Node on the raw config and must not depend on what the variant under test
+ * does with it.
+ *
+ * @param {Record<string, Record<string, any>>} detectors - `settings.detectors` as authored
+ * @returns {Array<{ name: string, detectors: Record<string, Record<string, any>>, cost: CostRole }>}
+ */
+export function expandCostVariants(detectors) {
+    /** @type {Array<{ key: string, group: string, id: string, config: any }>} */
+    const enabled = [];
+    for (const [group, groupConfig] of Object.entries(detectors ?? {})) {
+        for (const [id, config] of Object.entries(groupConfig ?? {})) {
+            if ((config?.state ?? 'enabled') !== 'enabled') continue;
+            enabled.push({ key: `${group}.${id}`, group, id, config });
+        }
+    }
+    if (enabled.length === 0) {
+        throw new SpecError('A cost spec needs a spec-level `detectors` with at least one enabled detector.');
+    }
+
+    /** @param {typeof enabled} entries */
+    const toConfig = (entries) => {
+        /** @type {Record<string, Record<string, any>>} */
+        const out = {};
+        for (const entry of entries) {
+            out[entry.group] = { ...(out[entry.group] ?? {}), [entry.id]: entry.config };
+        }
+        return out;
+    };
+
+    /** @type {Map<number, typeof enabled>} */
+    const byOffset = new Map();
+    for (const entry of enabled) {
+        const auto = entry.config.triggers?.auto;
+        if ((auto?.state ?? 'disabled') !== 'enabled') continue;
+        // A detector listing one offset twice still runs once per timer, and the scheduler
+        // keys timers by offset, so a duplicate would be counted twice here and not there.
+        for (const offsetMs of new Set(auto?.when?.intervalMs ?? [])) {
+            byOffset.set(offsetMs, [...(byOffset.get(offsetMs) ?? []), entry]);
+        }
+    }
+    const onReport = enabled.filter((entry) => (entry.config.triggers?.breakageReport?.state ?? 'enabled') === 'enabled');
+
+    /** @type {Array<{ name: string, detectors: Record<string, Record<string, any>>, cost: CostRole }>} */
+    const variants = [
+        { name: 'all', detectors: toConfig(enabled), cost: { role: 'all', keys: enabled.map((e) => e.key) } },
+        { name: 'empty', detectors: {}, cost: { role: 'empty', keys: [] } },
+    ];
+    for (const offsetMs of [...byOffset.keys()].sort((a, b) => a - b)) {
+        const entries = byOffset.get(offsetMs) ?? [];
+        variants.push({
+            name: `tick@${offsetMs}ms`,
+            detectors: toConfig(entries),
+            cost: { role: 'tick', offsetMs, keys: entries.map((e) => e.key) },
+        });
+    }
+    if (onReport.length > 0) {
+        variants.push({
+            name: 'breakage-report',
+            detectors: toConfig(onReport),
+            cost: { role: 'breakage-report', keys: onReport.map((e) => e.key) },
+        });
+    }
+    for (const entry of enabled) {
+        variants.push({ name: entry.key, detectors: toConfig([entry]), cost: { role: 'each', key: entry.key, keys: [entry.key] } });
+    }
+    return variants;
+}
+
+/**
  * Flatten a spec's variants into the shape `resolveVariants` takes, plus the per-axis
  * metadata the report needs.
  *
  * @param {object} args
- * @param {'algorithm' | 'config'} args.axis
+ * @param {'algorithm' | 'config' | 'cost'} args.axis
  * @param {any} args.spec
- * @returns {{ variants: any[], meta: Map<string, { reference: boolean, expectDivergence: boolean }> }}
+ * @returns {{ variants: any[], meta: Map<string, VariantMeta> }}
  */
 export function buildVariants({ axis, spec }) {
     const modes = resolveLayoutModes(spec.layout);
 
     /** @type {any[]} */
     const built = [];
-    /** @type {Map<string, { reference: boolean, expectDivergence: boolean }>} */
+    /** @type {Map<string, VariantMeta>} */
     const meta = new Map();
 
     /** @param {any} variant */
     const push = (variant) => {
         for (const entry of withLayoutModes(variant, modes)) {
-            const { reference, expectDivergence, ...rest } = entry;
+            const { reference, expectDivergence, cost, ...rest } = entry;
             built.push(rest);
-            meta.set(entry.name, { reference: Boolean(reference), expectDivergence: Boolean(expectDivergence) });
+            meta.set(entry.name, { reference: Boolean(reference), expectDivergence: Boolean(expectDivergence), ...(cost ? { cost } : {}) });
         }
     };
+
+    if (axis === 'cost') {
+        if (spec.configs?.length || spec.implementations?.length) {
+            throw new SpecError(
+                'A cost spec takes one spec-level `detectors` and derives its own variants. ' +
+                    "Use `kind: 'config'` or `kind: 'algorithm'` to compare configs or implementations.",
+            );
+        }
+        const implementation = spec.implementation ?? { name: 'working-tree' };
+        for (const variant of expandCostVariants(spec.detectors)) {
+            push({
+                ...variant,
+                source: implementation.source,
+                ref: implementation.ref,
+                path: implementation.path,
+                // `all` is what "vs baseline" is read against: each row as a share of the whole set.
+                baseline: variant.cost.role === 'all',
+            });
+        }
+        return { variants: built, meta };
+    }
 
     if (axis === 'algorithm') {
         if (!spec.implementations?.length) {

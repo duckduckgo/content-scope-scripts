@@ -1,6 +1,6 @@
 # Test pages
 
-Nothing here is a captured page. Each generator builds a DOM to order from its parameters, so
+The generators in `pages.mjs` build no captured page. Each generator builds a DOM to order from its parameters, so
 a spec picks the *shape* it wants and then sizes it — which is what makes a scaling sweep
 possible, and what lets one shape serve both a 2000-element realistic case and a 600k-element
 stress case.
@@ -67,3 +67,23 @@ Three constraints, all enforced by `unit-test/detector-bench/page-gen.spec.js`:
 Take `append` and apply it at the end, and take a parameter that scales the thing your shape
 is about. Then say in the doc comment which cost the shape isolates and which existing shape
 it is the counterpart to; that sentence is what makes it findable later.
+
+## Captured sites
+
+`capture-sites.mjs` turns the sites in `sites.json` into fixtures a spec names with
+`{ name, site: '<name>' }`. Each capture is `page.html` (the settled DOM, scripts inert),
+`har.zip` (every subresource) and `meta.json` (URL, capture time, user agent, viewport, and
+element and character counts), under the gitignored `../.bench-variants/sites/<name>/`.
+
+| Flag | Effect |
+|---|---|
+| `--sites <json>` | Site list to read (default `sites.json`) |
+| `--only <a,b>` | Capture only these names |
+| `--settle <ms>` | Wait after load before freezing the DOM (default 10000) |
+| `--force` | Recapture a site that already has a capture |
+| `--out <dir>` | Write somewhere other than `.bench-variants/sites/` |
+
+Replay is in `../core/site.mjs`. The skill's
+[real-site fixtures](../../../../.agents/skills/detector-performance/SKILL.md#real-site-fixtures)
+section says what a capture keeps and loses.
+

@@ -15,8 +15,13 @@ import { test, expect } from '@playwright/test';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
+import { createServer } from 'node:http';
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { bundleLayoutCore } from '../scripts/detector-bench/core/bundle.mjs';
+import { openSite } from '../scripts/detector-bench/core/site.mjs';
+import { captureSite } from '../scripts/detector-bench/page-gen/capture-sites.mjs';
 import { collectFacts, checkLayoutInvalidation } from '../scripts/detector-bench/core/harness.mjs';
 
 const execFileAsync = promisify(execFile);
@@ -283,5 +288,104 @@ test.describe('run.mjs end to end', () => {
         ]);
         expect(code).toBe(1);
         expect(stdout).not.toContain('CORRECTNESS FAIL');
+    });
+});
+
+test.describe('site capture and replay', () => {
+    /** A page whose script builds part of the DOM, so capture has to happen after it runs. */
+    const PAGE = `<!DOCTYPE html><html><head>
+        <meta http-equiv="refresh" content="3600;url=/elsewhere">
+        <link rel="stylesheet" href="/style.css">
+    </head><body>
+        <p class="styled" onclick="window.__clicked = 1">styled</p>
+        <script>
+            document.body.insertAdjacentHTML('beforeend', '<p id="built">built by script</p>');
+            window.__inline = (window.__inline || 0) + 1;
+        </script>
+        <script src="/app.js"></script>
+    </body></html>`;
+
+    /** @type {import('node:http').Server} */
+    let server;
+    /** @type {string} */
+    let origin;
+    /** @type {string} */
+    let outRoot;
+
+    test.beforeEach(async () => {
+        server = createServer((req, res) => {
+            if (req.url === '/style.css') {
+                res.writeHead(200, { 'content-type': 'text/css' }).end('.styled { display: none }');
+            } else if (req.url === '/app.js') {
+                res.writeHead(200, { 'content-type': 'text/javascript' }).end('window.__external = 1;');
+            } else {
+                res.writeHead(200, { 'content-type': 'text/html' }).end(PAGE);
+            }
+        });
+        await new Promise((resolve) => server.listen(0, '127.0.0.1', () => resolve(undefined)));
+        const address = /** @type {import('node:net').AddressInfo} */ (server.address());
+        origin = `http://127.0.0.1:${address.port}`;
+        outRoot = mkdtempSync(path.join(tmpdir(), 'detector-bench-sites-'));
+    });
+
+    test.afterEach(async () => {
+        await new Promise((resolve) => server.close(() => resolve(undefined)));
+        rmSync(outRoot, { recursive: true, force: true });
+    });
+
+    test('replays the settled DOM with its stylesheets, and nothing on it runs', async ({ browser }) => {
+        const { dir } = await captureSite(browser, { name: 'local', category: 'small', url: `${origin}/` }, outRoot, { settleMs: 100 });
+        // Replay must not need the origin: everything comes from the capture.
+        await new Promise((resolve) => server.close(() => resolve(undefined)));
+        server.listen(0);
+
+        const page = await openSite(browser, dir);
+        try {
+            const state = await page.evaluate(() => {
+                const w = /** @type {any} */ (window);
+                return {
+                    built: document.getElementById('built')?.textContent,
+                    inline: w.__inline,
+                    external: w.__external,
+                    clickHandler: document.querySelector('.styled')?.getAttribute('onclick'),
+                    styledDisplay: getComputedStyle(/** @type {Element} */ (document.querySelector('.styled'))).display,
+                    refresh: document.querySelector('meta[http-equiv="refresh"]'),
+                    scriptTextKept: (document.body.textContent || '').includes('window.__inline'),
+                };
+            });
+            expect(state.built).toBe('built by script');
+            expect(state.inline).toBeUndefined();
+            expect(state.external).toBeUndefined();
+            expect(state.clickHandler).toBeNull();
+            expect(state.styledDisplay).toBe('none');
+            expect(state.refresh).toBeNull();
+            // Inline source stays in place, because a body-wide text condition reads it on the live page.
+            expect(state.scriptTextKept).toBe(true);
+        } finally {
+            await page.close();
+        }
+    });
+});
+
+test.describe('cost axis end to end', () => {
+    test('prices each detector, each tick and the whole set, with the empty floor below them', async () => {
+        const jsonPath = path.join(mkdtempSync(path.join(tmpdir(), 'detector-bench-cost-')), 'run.json');
+        const { stdout } = await execFileAsync(
+            'node',
+            ['./scripts/detector-bench/run.mjs', '--spec', 'scripts/detector-bench/self-test/cost.mjs', '--json', jsonPath],
+            { cwd: injectedRoot, maxBuffer: 20 * 1024 * 1024 },
+        );
+
+        expect(stdout).toContain('2 detectors, 2 ticks, 1 breakage-report, all, empty');
+        expect(stdout).toContain('Per-detector cost');
+        expect(stdout).toContain('Worst task per tick');
+        expect(stdout).toContain('All detectors against the sum of each');
+
+        const run = JSON.parse(readFileSync(jsonPath, 'utf8'));
+        const variants = run.reports[0].variants;
+        /** @param {string} name */
+        const median = (name) => variants.find((/** @type {any} */ v) => v.name === name).median;
+        expect(median('all')).toBeGreaterThan(median('empty'));
+        expect(variants.find((/** @type {any} */ v) => v.name === 'tick@500ms').cost.keys).toEqual(['tests.bodyText', 'tests.element']);
     });
 });

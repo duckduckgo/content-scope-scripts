@@ -14,6 +14,11 @@ import {
     formatSummary,
     formatAccuracy,
     compareToStored,
+    pageBand,
+    formatCostFixture,
+    formatCostMatrix,
+    formatTickSummary,
+    formatAllVsSum,
 } from '../../scripts/detector-bench/core/report.mjs';
 
 /**
@@ -440,6 +445,74 @@ describe('detector-bench report', () => {
         it('does not compare against an unmeasured stored median', () => {
             const zero = compareToStored(current, { reports: [report([variant({ name: 'v', median: 0 })], { engine: 'chromium' })] }, 10);
             expect(zero).toContain('Nothing in common with the stored run');
+        });
+    });
+
+    describe('cost axis', () => {
+        /**
+         * @param {string} name
+         * @param {'each' | 'tick' | 'breakage-report' | 'all' | 'empty'} role
+         * @param {number} median
+         * @param {object} [extra]
+         */
+        const costVariant = (name, role, median, extra = {}) =>
+            variant({
+                name,
+                median,
+                p95: median * 1.2,
+                cost: { role, keys: role === 'each' ? [name] : ['a.x', 'a.y'], ...(role === 'each' ? { key: name } : {}) },
+                actual: role === 'each' ? { [name]: false } : { 'a.x': false, 'a.y': false },
+                ...extra,
+            });
+
+        const run = (/** @type {number} */ scale, /** @type {object} */ overrides = {}) =>
+            report(
+                [
+                    costVariant('all', 'all', 3 * scale),
+                    costVariant('empty', 'empty', 0),
+                    costVariant('tick@500ms', 'tick', 3 * scale),
+                    costVariant('a.x', 'each', 1 * scale),
+                    costVariant('a.y', 'each', 2 * scale, { actual: { 'a.y': true } }),
+                ],
+                { engine: 'chromium', ...overrides },
+            );
+
+        it('bands pages on rendered text the way measured-rates.md does', () => {
+            expect(pageBand({ elements: 1, textNodes: 1, chars: 9999, renderedChars: 3001 })).toBe('content-rich');
+            expect(pageBand({ elements: 1, textNodes: 1, chars: 9999, renderedChars: 3000 })).toBe('sparse');
+            expect(pageBand({ elements: 1, textNodes: 1, chars: 9999, renderedChars: 500 })).toBe('near-empty');
+        });
+
+        it('lists aggregates, then the costliest detectors first, with their match counts', () => {
+            const out = formatCostFixture(run(1), { top: 1 });
+            expect(out).toContain('[generated, near-empty]');
+            expect(out).toMatch(/tick@500ms\s+2/);
+            expect(out).toMatch(/ {4}a\.y\s+1\s+2\.00 ms\s+2\.40 ms\s+1\/1/);
+            expect(out).not.toMatch(/ {4}a\.x/);
+        });
+
+        it('takes each detector at its worst per category, sorted and marked against the budget', () => {
+            const out = formatCostMatrix([
+                run(1, { fixture: 'small', category: 'small' }),
+                run(4, { fixture: 'news', category: 'heavy-news' }),
+            ]);
+            const lines = out.split('\n');
+            const header = lines.find((l) => l.trimStart().startsWith('detector'));
+            expect(header).toMatch(/small\s+heavy-news\s+worst/);
+            const y = lines.findIndex((l) => l.includes('a.y'));
+            const x = lines.findIndex((l) => l.includes('a.x'));
+            expect(y).toBeLessThan(x);
+            expect(lines[y]).toMatch(/a\.y !\s+2\.00 ms\s+8\.00 ms\s+8\.00 ms\s+news\s+2\/2/);
+        });
+
+        it('flags a tick over budget, and uses the long-task budget for a throttled run', () => {
+            const reports = [run(10)];
+            expect(formatTickSummary(reports)).toContain('1 task(s) over 16 ms');
+            expect(formatTickSummary(reports, { throttle: 4 })).toContain('within 50 ms');
+        });
+
+        it('reads the whole set against the sum of its detectors, net of the empty floor', () => {
+            expect(formatAllVsSum([run(1)])).toMatch(/chromium, warm\s+1\s+1\.00x/);
         });
     });
 });

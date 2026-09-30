@@ -116,6 +116,9 @@ npm run bench-drift-guard      # after touching lib/ or matching.js - see below
 | `--iterations <n>` | Samples per variant per fixture (default 15) |
 | `--json <path>` / `--baseline <path>` | Write a run; compare medians against one previously written |
 | `--threshold <n>` | Percent change `--baseline` reports (default 25, deliberately loose) |
+| `--serial` | Run engines one after another rather than concurrently. Use it for any figure read against a budget |
+| `--cpu-throttle <n>` | Slow the timed sweeps n-fold over CDP (chromium only), standing in for a low-end phone |
+| `--shard <i>/<n>` | Run every n-th fixture from the i-th, so n processes split one spec. `merge-cost.mjs` recombines cost-axis shards. Concurrent shards share the CPU: read their figures as ratios |
 
 ### Layout state
 
@@ -221,6 +224,55 @@ answered by the run rather than by three near-identical blocks:
     detectors: ({ chunkTail }) => detector({ pattern: PATTERNS, xpath: RENDERED_TEXT, xpathConfig: { chunkSize: 8192, chunkTail } }),
 }
 ```
+
+## Pricing a detector set
+
+`kind: 'cost'` answers "what does this config cost to ship": per detector, per page, and per
+task the scheduler runs. It takes one spec-level `detectors` and derives its own variants.
+
+| Variant | Runs | Reads as |
+|---|---|---|
+| `group.id` | One detector | That detector's cost |
+| `tick@<ms>` | Every detector whose auto trigger includes that offset | One `setTimeout` task in `web-detection.js`: all of them run synchronously in it |
+| `breakage-report` | Every detector with the breakage-report trigger on | The sweep a breakage report runs |
+| `all` | Every enabled detector | The upper bound on any one task; the baseline for `vs baseline` |
+| `empty` | Nothing | The sweep loop's own cost, subtracted in the all-against-sum check |
+
+Fixtures need no `expect`. Each row reports how many of its detectors matched, because a
+detector that matches returns early and a cheap row that matched says nothing about a page
+where it does not.
+
+The run ends with three sections:
+
+- **Per-detector cost** — each detector's worst median per fixture category, sorted by
+  worst case, with `!` past `COST_BUDGETS.detectorMedianMs`.
+- **Worst task per tick** — each tick's worst p95 against one frame (16 ms), or against the
+  long-task threshold (50 ms) under `--cpu-throttle`.
+- **All detectors against the sum of each** — `matching.js` shares no work between
+  detectors, so this sits near 1.00x. A ratio well away from 1 means detectors share or
+  contend for something, and the per-detector figures do not add up to a tick.
+
+`specs/detector-design/detector-set-cost.mjs` runs the page-load detector corpus this way;
+its header says how to generate the corpus and pick the shipping set or every proposal.
+
+A figure read against a budget needs the CPU to itself: pass `--serial`, and run nothing
+else. A run that only ranks detectors can be split with `--shard` and recombined with
+`node scripts/detector-bench/merge-cost.mjs <run.json>...`.
+
+### Real-site fixtures
+
+`page-gen/capture-sites.mjs` loads each site in `page-gen/sites.json` in Chromium, records a
+HAR, waits for load plus a settle (10 s by default), and saves the DOM with every script made
+inert: inline source stays in place under an unknown `type`, external `src`, inline handlers
+and meta refreshes are removed. A fixture `{ name, site: '<name>' }` replays it with
+`core/site.mjs`: the saved DOM as the document, every subresource from the HAR, sub-frames and
+scripts aborted. Layout and stylesheets are the real ones and the DOM is identical in every
+engine and on every run.
+
+Captures live in `.bench-variants/sites/` and are never committed. Shadow roots are not
+serialised; the matcher does not read them, but layout inside custom elements differs from
+the live page. A site that serves the headless browser a challenge is captured as that
+challenge, and its fixture header shows the near-empty band.
 
 ## Writing an algorithm spec
 

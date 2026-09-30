@@ -87,6 +87,11 @@ describe('detector-bench harness', () => {
             expect(facts.chars).toBe('hello'.length + 'ab'.length);
         });
 
+        it('counts inline script source separately, since a body-wide textContent read scans it', () => {
+            env = withDocument('<p>hello</p><script>var a = 1;</script><script>var bb;</script>');
+            expect(collectFacts().scriptChars).toBe('var a = 1;'.length + 'var bb;'.length);
+        });
+
         it('counts text inside script and style, which the XPath predicate later excludes', () => {
             // collectFacts describes the DOM as generated, not as any detector selects it. A
             // script-heavy fixture exists precisely because `chars` and selected characters
@@ -183,6 +188,15 @@ describe('detector-bench harness', () => {
             expect(() => collectResults({ variantNames: ['v'], detectorsByVariant: { v: { emptyGroup: {} } } })).toThrowError(
                 /parsed to zero detectors/,
             );
+        });
+
+        it('accepts an empty config when asked, since the cost axis times one as its floor', () => {
+            env = withDocument('<p>hi</p>');
+            env.window.__benchVariants = { v: stubVariant() };
+
+            const { results, detectorKeys } = collectResults({ variantNames: ['v'], detectorsByVariant: { v: {} }, allowEmpty: true });
+            expect(results.v).toEqual({});
+            expect(detectorKeys.v).toEqual([]);
         });
 
         it('invalidates layout for a dirty variant, so its result is checked in the state it is timed in', () => {

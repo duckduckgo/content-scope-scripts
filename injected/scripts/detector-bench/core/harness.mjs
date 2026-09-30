@@ -20,7 +20,11 @@
  * available for the shipped implementation too. Reading it forces layout, which is
  * harmless here: this runs once at setup, before anything is timed.
  *
- * @returns {{ elements: number, textNodes: number, chars: number, renderedChars: number }}
+ * `scriptChars` is the inline script source under `body`. A text condition without a selector
+ * reads `body.textContent`, which carries that source, so on a script-heavy page it is most
+ * of what such a condition scans.
+ *
+ * @returns {{ elements: number, textNodes: number, chars: number, renderedChars: number, scriptChars: number }}
  */
 export function collectFacts() {
     const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
@@ -35,6 +39,7 @@ export function collectFacts() {
         textNodes,
         chars,
         renderedChars: (document.body.innerText || '').length,
+        scriptChars: [...document.body.querySelectorAll('script')].reduce((sum, script) => sum + (script.textContent || '').length, 0),
     };
 }
 
@@ -52,13 +57,14 @@ export function collectFacts() {
  * @param {string[]} args.variantNames
  * @param {Record<string, object>} args.detectorsByVariant
  * @param {Record<string, 'warm' | 'dirty'>} [args.layoutByVariant]
+ * @param {boolean} [args.allowEmpty] - The cost axis times an empty config on purpose, as its floor
  * @returns {{
  *   results: Record<string, Record<string, boolean | 'error'>>,
  *   detectorKeys: Record<string, string[]>,
  *   peakChars: Record<string, number | null>
  * }}
  */
-export function collectResults({ variantNames, detectorsByVariant, layoutByVariant = {} }) {
+export function collectResults({ variantNames, detectorsByVariant, layoutByVariant = {}, allowEmpty = false }) {
     const w = /** @type {any} */ (window);
     const registry = w.__benchVariants;
 
@@ -80,7 +86,7 @@ export function collectResults({ variantNames, detectorsByVariant, layoutByVaria
                 entries.push([`${groupName}.${detectorId}`, parsed[groupName][detectorId]]);
             }
         }
-        if (entries.length === 0) {
+        if (entries.length === 0 && !allowEmpty) {
             throw new Error(`Variant "${name}" parsed to zero detectors - check group and detector names`);
         }
 

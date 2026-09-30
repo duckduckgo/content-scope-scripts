@@ -9,6 +9,10 @@
  *   kind: 'config'     fixed implementation, varying detector config. What does a
  *                      configured detector cost, and what does gating trade away. A
  *                      behaviour change is a trade-off to weigh, not a failure.
+ *   kind: 'cost'       one detector config, split into one variant per detector, per
+ *                      scheduler tick, and the whole set. What does each detector cost,
+ *                      on which pages, and what is the costliest task the set produces.
+ *                      No labels: there is no behaviour to compare.
  *
  *   npm run bench-detectors -- --spec scripts/detector-bench/specs/detector-design/adwall-xpath.mjs
  *
@@ -21,7 +25,19 @@ import minimist from 'minimist';
 import { chromium, firefox, webkit } from '@playwright/test';
 import { resolveVariants, bundleMeasureCore, bundleLayoutCore, injectedRoot } from './core/bundle.mjs';
 import { collectFacts, collectResults, benchmark, singleSweep, checkLayoutInvalidation } from './core/harness.mjs';
-import { summarise, formatFixture, formatScaling, formatSummary, formatAccuracy, compareToStored } from './core/report.mjs';
+import {
+    summarise,
+    formatFixture,
+    formatScaling,
+    formatSummary,
+    formatAccuracy,
+    compareToStored,
+    formatCostFixture,
+    formatCostMatrix,
+    formatTickSummary,
+    formatAllVsSum,
+} from './core/report.mjs';
+import { openSite, readSiteMeta } from './core/site.mjs';
 import { SpecError, assertFixturesLabelled, assertExpectKeysKnown, buildVariants, expandFixtures } from './core/expand.mjs';
 import { decideOutcome } from './core/outcome.mjs';
 
@@ -52,8 +68,10 @@ import { decideOutcome } from './core/outcome.mjs';
  * @property {(params: any) => void} [generate] - Runs in the page; use for anything sizeable
  * @property {any} [params] - Passed to `generate`, so one generator covers many sizes
  * @property {Record<string, number[]>} [scale] - One param to sweep, eg `{ rows: [2000, 20000] }`
+ * @property {string} [site] - A capture from `page-gen/capture-sites.mjs`: a name under `.bench-variants/sites/`, or a directory
+ * @property {string} [category] - Groups fixtures in the cost matrix. A site fixture defaults to its capture's category
  * @property {'timing' | 'correctness' | 'both'} [purpose] - Defaults to `both`. `timing` fixtures are skipped under --check-only
- * @property {Record<string, boolean>} expect - Required: detector key -> expected match
+ * @property {Record<string, boolean>} [expect] - Detector key -> expected match. Required, except on the cost axis
  */
 
 /**
@@ -90,12 +108,12 @@ import { decideOutcome } from './core/outcome.mjs';
 
 /**
  * @typedef {object} Spec
- * @property {'algorithm' | 'config'} kind
+ * @property {'algorithm' | 'config' | 'cost'} kind
  * @property {Fixture[]} fixtures
  * @property {Implementation[]} [implementations] - Algorithm specs
- * @property {Detectors} [detectors] - Algorithm specs: the fixed config
+ * @property {Detectors} [detectors] - Algorithm and cost specs: the fixed config
  * @property {ConfigVariant[]} [configs] - Config specs
- * @property {Implementation} [implementation] - Config specs: defaults to the working tree
+ * @property {Implementation} [implementation] - Config and cost specs: defaults to the working tree
  * @property {Array<'warm' | 'dirty'>} [layout] - Layout states to measure under; defaults to `['warm']`
  * @property {number} [iterations]
  * @property {number} [warmup]
@@ -118,8 +136,8 @@ const BROWSER_TYPES = { chromium, firefox, webkit };
 const DEFAULT_THRESHOLD_PERCENT = 25;
 
 const argv = minimist(process.argv.slice(2), {
-    string: ['spec', 'json', 'filter', 'browsers', 'baseline'],
-    boolean: ['help', 'check-only', 'memory'],
+    string: ['spec', 'json', 'filter', 'browsers', 'baseline', 'shard'],
+    boolean: ['help', 'check-only', 'memory', 'serial'],
     default: { minBatchMs: 2, browsers: 'chromium' },
 });
 
@@ -129,8 +147,15 @@ Detector performance benchmark
 
   --spec <path>       Spec module to run (required)
   --filter <text>     Only run fixtures whose name contains <text>
+  --shard <i>/<n>     Only run every n-th fixture, starting at the i-th (1-based), so n
+                      processes can split one spec. Concurrent shards share the CPU, so
+                      read their timings as ratios, not against a budget.
   --browsers <list>   Comma-separated: chromium, firefox, webkit (default chromium).
                       Engines run concurrently.
+  --serial            Run engines one after another. Use it when absolute timings matter,
+                      as they do against a cost budget: concurrent engines share the CPU.
+  --cpu-throttle <n>  Slow the CPU n-fold over CDP (chromium only), to approximate a
+                      low-end phone. Applied to the timed sweeps only.
   --check-only        Run the correctness pass and skip all sampling. Seconds, not minutes.
                       Fixtures marked \`purpose: 'timing'\` are skipped entirely.
   --memory            Also read retained heap around one sweep per variant (chromium only).
@@ -156,8 +181,8 @@ const specModule = await import(pathToFileURL(specPath).href);
 const spec = specModule.default;
 
 const axis = spec.kind;
-if (axis !== 'algorithm' && axis !== 'config') {
-    console.error(`Spec must declare kind: 'algorithm' or kind: 'config', got ${JSON.stringify(spec.kind)}.`);
+if (axis !== 'algorithm' && axis !== 'config' && axis !== 'cost') {
+    console.error(`Spec must declare kind: 'algorithm', 'config' or 'cost', got ${JSON.stringify(spec.kind)}.`);
     process.exit(1);
 }
 
@@ -167,6 +192,11 @@ const minBatchMs = Number(argv.minBatchMs ?? spec.minBatchMs ?? 2);
 const checkOnly = Boolean(argv['check-only']);
 const withMemory = Boolean(argv.memory);
 const thresholdPercent = Number(argv.threshold ?? DEFAULT_THRESHOLD_PERCENT);
+const cpuThrottle = Number(argv['cpu-throttle'] ?? 1);
+if (!Number.isFinite(cpuThrottle) || cpuThrottle < 1) {
+    console.error(`--cpu-throttle takes a factor of 1 or more, got ${JSON.stringify(argv['cpu-throttle'])}.`);
+    process.exit(1);
+}
 
 /**
  * A fixture after sweep expansion. `scale` means something different here than it does as
@@ -200,14 +230,23 @@ function orExit(build) {
 /** @type {PreparedFixture[]} */
 const fixtures = orExit(() => expandFixtures(spec.fixtures, { checkOnly }));
 
-const selected = fixtures.filter((f) => !argv.filter || f.name.includes(argv.filter));
+const shardMatch = argv.shard ? /^(\d+)\/(\d+)$/.exec(String(argv.shard)) : null;
+if (argv.shard && (!shardMatch || Number(shardMatch[1]) < 1 || Number(shardMatch[1]) > Number(shardMatch[2]))) {
+    console.error(`--shard takes <i>/<n> with 1 <= i <= n, got ${JSON.stringify(argv.shard)}.`);
+    process.exit(1);
+}
+const selected = fixtures
+    .filter((f) => !argv.filter || f.name.includes(argv.filter))
+    .filter((_, index) => !shardMatch || index % Number(shardMatch[2]) === Number(shardMatch[1]) - 1);
 if (selected.length === 0) {
     const scope = checkOnly ? " (note --check-only skips fixtures marked purpose: 'timing')" : '';
     console.error(`No fixtures matched --filter "${argv.filter}"${scope}`);
     process.exit(1);
 }
 
-orExit(() => assertFixturesLabelled(selected));
+// The cost axis prices detectors on pages nobody has labelled - a captured site has no
+// known answer - and has no behaviour to compare, so labels would be decoration there.
+if (axis !== 'cost') orExit(() => assertFixturesLabelled(selected));
 
 const browsers = String(argv.browsers)
     .split(',')
@@ -218,6 +257,10 @@ for (const name of browsers) {
         console.error(`Unknown browser "${name}". Choose from: ${Object.keys(BROWSER_TYPES).join(', ')}`);
         process.exit(1);
     }
+}
+if (cpuThrottle > 1 && browsers.some((name) => name !== 'chromium')) {
+    console.error('--cpu-throttle uses CDP, which is chromium only. Run it with --browsers chromium.');
+    process.exit(1);
 }
 if (withMemory && browsers.some((name) => name !== 'chromium')) {
     console.error('--memory reads the heap over CDP, which is chromium only. Run it with --browsers chromium.');
@@ -257,12 +300,24 @@ if (axis === 'config' && ![...variantMeta.values()].some((m) => m.reference)) {
 const referenceName = variants.find((v) => variantMeta.get(v.name)?.reference)?.name;
 
 console.log(`spec:       ${path.relative(injectedRoot, specPath)}`);
-console.log(
-    `axis:       ${axis} (${axis === 'algorithm' ? 'fixed config, varying implementation' : 'fixed implementation, varying config'})`,
-);
+const AXIS_DESCRIPTIONS = {
+    algorithm: 'fixed config, varying implementation',
+    config: 'fixed implementation, varying config',
+    cost: 'one config, split per detector and per tick',
+};
+console.log(`axis:       ${axis} (${AXIS_DESCRIPTIONS[axis]})`);
 console.log(`fixtures:   ${selected.length}`);
 console.log(`browsers:   ${browsers.join(', ')}${browsers.length > 1 ? ' (concurrent)' : ''}`);
-console.log(`variants:   ${variants.map((v) => `${v.name} [${v.code.key}]`).join(', ')}`);
+if (axis === 'cost') {
+    const roles = [...variantMeta.values()].map((m) => m.cost?.role);
+    const count = (/** @type {string} */ role) => roles.filter((r) => r === role).length;
+    console.log(
+        `variants:   ${variants.length} [${variants[0]?.code.key}]: ${count('each')} detectors, ${count('tick')} ticks, ` +
+            `${count('breakage-report')} breakage-report, all, empty`,
+    );
+} else {
+    console.log(`variants:   ${variants.map((v) => `${v.name} [${v.code.key}]`).join(', ')}`);
+}
 if (axis === 'config') console.log(`reference:  ${referenceName ?? 'none'}`);
 if (anyDirtyLayout) console.log('layout:     dirty variants invalidate layout inside each timed sweep');
 console.log(
@@ -271,9 +326,14 @@ console.log(
         : `sampling:   ${iterations} samples, ${warmup} warmup sweeps, >=${minBatchMs}ms per batch`,
 );
 if (withMemory) console.log('memory:     retained heap read around one sweep per variant');
+if (cpuThrottle > 1) console.log(`cpu:        throttled ${cpuThrottle}x during timed sweeps`);
 
 /** @type {import('./core/report.mjs').FixtureReport[]} */
 let reports = [];
+
+/** Fixtures that could not be run. Reported, and fail the run, without stopping it. */
+/** @type {string[]} */
+const fixtureFailures = [];
 
 /** Fixtures whose dirty-layout timings cannot be trusted. Fails the run; see below. */
 /** @type {string[]} */
@@ -283,7 +343,13 @@ try {
     // Engines are independent processes, so running them concurrently costs nothing but
     // memory. Output is buffered per engine and printed in the requested order, since
     // interleaved progress from three browsers is unreadable.
-    const runs = await Promise.all(browsers.map((name) => runBrowser(name)));
+    /** @type {Awaited<ReturnType<typeof runBrowser>>[]} */
+    const runs = [];
+    if (argv.serial) {
+        for (const name of browsers) runs.push(await runBrowser(name));
+    } else {
+        runs.push(...(await Promise.all(browsers.map((name) => runBrowser(name)))));
+    }
     for (const run of runs) {
         console.log(`\n${'='.repeat(60)}\n== ${run.engine}\n${'='.repeat(60)}`);
         console.log(run.output.join('\n'));
@@ -311,11 +377,30 @@ async function runBrowser(browserName) {
     /** @type {string[]} */
     const output = [];
 
+    /**
+     * @param {string} name
+     * @param {unknown} e
+     */
+    const skipFixture = (name, e) => {
+        const message = e instanceof Error ? e.message.split('\n')[0] : String(e);
+        fixtureFailures.push(`${browserName} / ${name}: ${message}`);
+        output.push(`\n### ${name}\n  ! skipped: ${message}`);
+    };
+
     try {
         for (const fixture of selected) {
-            const page = await browserInstance.newPage();
+            /** @type {import('@playwright/test').Page} */
+            let page;
             try {
-                await page.setContent(`<!DOCTYPE html><html><body>${fixture.html ?? ''}</body></html>`);
+                page = fixture.site ? await openSite(browserInstance, fixture.site) : await browserInstance.newPage();
+            } catch (e) {
+                skipFixture(fixture.name, e);
+                continue;
+            }
+            try {
+                if (!fixture.site) {
+                    await page.setContent(`<!DOCTYPE html><html><body>${fixture.html ?? ''}</body></html>`);
+                }
                 if (fixture.generate) {
                     await page.evaluate(fixture.generate, fixture.params ?? {});
                 }
@@ -329,12 +414,24 @@ async function runBrowser(browserName) {
                 await page.evaluate(() => {
                     /** @type {any} */ (window).__benchVariants = {};
                 });
+                // The cost axis runs one implementation under dozens of configs. One bundle
+                // per code source serves them all, as one matcher serves every detector in
+                // production; a copy per variant would also give each its own cold JIT.
+                /** @type {Map<string, string>} */
+                const injectedAs = new Map();
                 for (const variant of variants) {
-                    await page.addScriptTag({ content: variant.bundle });
-                    await page.evaluate((name) => {
-                        const w = /** @type {any} */ (window);
-                        w.__benchVariants[name] = w.__detectorBench;
-                    }, variant.name);
+                    const shared = axis === 'cost' ? injectedAs.get(variant.code.key) : undefined;
+                    if (!shared) {
+                        await page.addScriptTag({ content: variant.bundle });
+                        injectedAs.set(variant.code.key, variant.name);
+                    }
+                    await page.evaluate(
+                        ({ name, from }) => {
+                            const w = /** @type {any} */ (window);
+                            w.__benchVariants[name] = from ? w.__benchVariants[from] : w.__detectorBench;
+                        },
+                        { name: variant.name, from: shared ?? null },
+                    );
                 }
 
                 const variantNames = variants.map((v) => v.name);
@@ -350,13 +447,18 @@ async function runBrowser(browserName) {
                     variantNames,
                     detectorsByVariant,
                     layoutByVariant,
+                    allowEmpty: axis === 'cost',
                 });
 
                 // Before anything is timed: a fixture labelling a detector the config does
                 // not define would otherwise be scored as a detection failure rather than
                 // reported as the spec error it is. Thrown rather than exited, so the
                 // worktree cleanup in the caller's `finally` still runs.
-                assertExpectKeysKnown(fixture.name, fixture.expect, detectorKeys);
+                if (axis !== 'cost') assertExpectKeysKnown(fixture.name, fixture.expect ?? {}, detectorKeys);
+
+                // After setup and the correctness pass, so only the timed sweeps run slow.
+                const throttleSession = cpuThrottle > 1 && !checkOnly ? await page.context().newCDPSession(page) : null;
+                await throttleSession?.send('Emulation.setCPUThrottlingRate', { rate: cpuThrottle });
 
                 const timings = checkOnly
                     ? null
@@ -368,6 +470,9 @@ async function runBrowser(browserName) {
                           warmup,
                           minBatchMs,
                       });
+
+                await throttleSession?.send('Emulation.setCPUThrottlingRate', { rate: 1 });
+                await throttleSession?.detach();
 
                 const heapBytes = withMemory ? await readMemory(page, variants) : null;
 
@@ -381,6 +486,7 @@ async function runBrowser(browserName) {
                     // Carried through so the accuracy summary can exclude `timing` fixtures,
                     // whose single "no match" label every variant satisfies for free.
                     purpose: fixture.purpose ?? 'both',
+                    category: fixture.category ?? (fixture.site ? readSiteMeta(fixture.site).category : undefined),
                     scale: fixture.scale ?? null,
                     facts,
                     layoutCheck,
@@ -392,13 +498,25 @@ async function runBrowser(browserName) {
                         // implementation, so a divergence can be attributed to the variant
                         // that introduced it rather than to whoever ran the spec.
                         const comparison = axis === 'config' ? referenceActual : baselineActual;
-                        const outcome = decideOutcome({
-                            axis,
-                            expected: fixture.expect,
-                            actual,
-                            comparison,
-                            expectDivergence: meta?.expectDivergence,
-                        });
+                        // No labels and nothing to compare on the cost axis: every variant runs
+                        // a different subset of the same config by construction.
+                        const outcome =
+                            axis === 'cost'
+                                ? {
+                                      falsePositives: [],
+                                      falseNegatives: [],
+                                      correct: true,
+                                      unexpected: false,
+                                      preExisting: false,
+                                      delta: null,
+                                  }
+                                : decideOutcome({
+                                      axis,
+                                      expected: fixture.expect ?? {},
+                                      actual,
+                                      comparison,
+                                      expectDivergence: meta?.expectDivergence,
+                                  });
 
                         return {
                             name: variant.name,
@@ -409,7 +527,7 @@ async function runBrowser(browserName) {
                             ...stats,
                             peakChars: peakChars[variant.name] ?? null,
                             heapBytes: heapBytes?.[variant.name] ?? null,
-                            expected: fixture.expect,
+                            expected: fixture.expect ?? {},
                             actual,
                             falsePositives: outcome.falsePositives,
                             falseNegatives: outcome.falseNegatives,
@@ -417,6 +535,7 @@ async function runBrowser(browserName) {
                             unexpected: outcome.unexpected,
                             preExisting: outcome.preExisting,
                             vsReference: outcome.delta,
+                            ...(meta?.cost ? { cost: meta.cost } : {}),
                         };
                     }),
                 };
@@ -430,7 +549,14 @@ async function runBrowser(browserName) {
                 }
 
                 engineReports.push(report);
-                output.push(formatFixture(report, axis, { timed: !checkOnly }));
+                output.push(
+                    axis === 'cost' ? formatCostFixture(report, { timed: !checkOnly }) : formatFixture(report, axis, { timed: !checkOnly }),
+                );
+            } catch (e) {
+                // A spec error is the spec's fault and ends the run. Anything else belongs to
+                // this fixture's page - a replay that will not load, say - and costs only it.
+                if (e instanceof SpecError) throw e;
+                skipFixture(fixture.name, e);
             } finally {
                 await page.close();
             }
@@ -500,18 +626,26 @@ async function readMemory(page, variantList) {
     return out;
 }
 
-if (!checkOnly) {
-    const scaling = formatScaling(reports);
-    if (scaling) console.log(scaling);
+if (axis === 'cost') {
+    if (!checkOnly) {
+        console.log(formatCostMatrix(reports));
+        console.log(formatTickSummary(reports, { throttle: cpuThrottle }));
+        console.log(formatAllVsSum(reports));
+    }
+} else {
+    if (!checkOnly) {
+        const scaling = formatScaling(reports);
+        if (scaling) console.log(scaling);
+    }
+
+    // Accuracy before behaviour, because "how well did each variant do" is the question a
+    // comparison is run to answer, and the behaviour summary below refines it into "and was
+    // that this variant's doing".
+    const accuracy = formatAccuracy(reports);
+    if (accuracy) console.log(accuracy);
+
+    console.log(formatSummary(reports, axis));
 }
-
-// Accuracy before behaviour, because "how well did each variant do" is the question a
-// comparison is run to answer, and the behaviour summary below refines it into "and was
-// that this variant's doing".
-const accuracy = formatAccuracy(reports);
-if (accuracy) console.log(accuracy);
-
-console.log(formatSummary(reports, axis));
 
 if (argv.baseline) {
     if (checkOnly) {
@@ -524,7 +658,7 @@ if (argv.baseline) {
 
 if (argv.json) {
     const jsonPath = path.resolve(process.cwd(), argv.json);
-    writeFileSync(jsonPath, JSON.stringify({ spec: specPath, axis, iterations, warmup, minBatchMs, reports }, null, 2));
+    writeFileSync(jsonPath, JSON.stringify({ spec: specPath, axis, iterations, warmup, minBatchMs, cpuThrottle, reports }, null, 2));
     console.log(`\nWrote ${jsonPath}`);
 }
 
@@ -545,5 +679,9 @@ if (layoutFailures.length > 0) {
     );
 }
 
+if (fixtureFailures.length > 0) {
+    console.log(['', `${fixtureFailures.length} fixture(s) skipped:`, ...fixtureFailures.map((f) => `  - ${f}`)].join('\n'));
+}
+
 const unexpectedBehaviour = reports.some((report) => report.variants.some((variant) => variant.unexpected));
-process.exit(unexpectedBehaviour || layoutFailures.length > 0 ? 1 : 0);
+process.exit(unexpectedBehaviour || layoutFailures.length > 0 || fixtureFailures.length > 0 ? 1 : 0);
