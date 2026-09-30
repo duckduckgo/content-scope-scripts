@@ -272,7 +272,7 @@ function AiChatContent({
     const { state, setImageGenerationActive } = useContext(OmnibarContext);
     const attachmentLimits = state.config?.attachmentLimits;
     const blocksPrompt = state.config?.usageLimits?.blocksPrompt === true;
-    const requiresTermsAcceptance = state.config?.requiresTermsAcceptance === true;
+    const requiresAiTermsAcceptance = state.config?.requiresAiTermsAcceptance === true;
     const updatedCreateImageEnabled = state.config?.enableUpdatedCreateImage === true;
     const { selectedModel } = useSelectedModel();
     const { selectedEffort } = useSelectedReasoningEffort();
@@ -351,9 +351,9 @@ function AiChatContent({
      * @param {object} params
      * @param {string} params.chat
      * @param {import('../../../types/new-tab.js').OpenTarget} params.target
-     * @param {boolean} [params.termsAccepted] - Only a click on Ask/Create accepts the terms; Enter submits without it.
+     * @param {boolean} [params.aiTermsAccepted] - Only a click on Ask/Create accepts the terms; Enter submits without it.
      */
-    const handleSubmit = async ({ chat, target, termsAccepted = false }) => {
+    const handleSubmit = async ({ chat, target, aiTermsAccepted = false }) => {
         if (blocksPrompt) return;
         if (submittingRef.current) return;
         submittingRef.current = true;
@@ -378,7 +378,7 @@ function AiChatContent({
                 ...(images && { images }),
                 ...(files && { files }),
                 ...(pageContext && { pageContext }),
-                ...(termsAccepted && { termsAccepted: true }),
+                ...(aiTermsAccepted && { aiTermsAccepted: true }),
             };
 
             onSubmit(action);
@@ -430,7 +430,7 @@ function AiChatContent({
         event.preventDefault();
         if (disabled) return;
         event.stopPropagation();
-        handleSubmit({ chat: query, target: eventToTarget(event, platformName), termsAccepted: requiresTermsAcceptance });
+        handleSubmit({ chat: query, target: eventToTarget(event, platformName), aiTermsAccepted: requiresAiTermsAcceptance });
     };
 
     /** @type {(event: MouseEvent) => void} */
@@ -535,14 +535,17 @@ function AiChatContent({
                                 <button
                                     tabIndex={0}
                                     type="submit"
-                                    class={cn(aiChatFormStyles.submitButton, requiresTermsAcceptance && aiChatFormStyles.termsSubmitButton)}
-                                    aria-label={requiresTermsAcceptance ? undefined : t('omnibar_aiChatFormSubmitButtonLabel')}
-                                    aria-describedby={requiresTermsAcceptance ? TERMS_DISCLAIMER_ID : undefined}
+                                    class={cn(
+                                        aiChatFormStyles.submitButton,
+                                        requiresAiTermsAcceptance && aiChatFormStyles.termsSubmitButton,
+                                    )}
+                                    aria-label={requiresAiTermsAcceptance ? undefined : t('omnibar_aiChatFormSubmitButtonLabel')}
+                                    aria-describedby={requiresAiTermsAcceptance ? TERMS_DISCLAIMER_ID : undefined}
                                     disabled={disabled}
                                     onClick={handleClickSubmit}
                                     onAuxClick={handleClickSubmit}
                                 >
-                                    {requiresTermsAcceptance ? termsButtonLabel : <ArrowRightIcon />}
+                                    {requiresAiTermsAcceptance ? termsButtonLabel : <ArrowRightIcon />}
                                 </button>
                             )}
                         </Fragment>

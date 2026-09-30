@@ -19,7 +19,7 @@ export function useTermsDisclaimerNotice(imageGenerationActive) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const { state, openPrivacyTerms } = useContext(OmnibarContext);
 
-    if (state.config?.requiresTermsAcceptance !== true) return null;
+    if (state.config?.requiresAiTermsAcceptance !== true) return null;
 
     /** @param {MouseEvent} event */
     const onLinkClick = (event) => {

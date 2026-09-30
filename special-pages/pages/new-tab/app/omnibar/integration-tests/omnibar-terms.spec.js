@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import { NewtabPage } from '../../../integration-tests/new-tab.page.js';
 import { OmnibarPage } from './omnibar.page.js';
 
-const requiresTerms = { 'omnibar.mode': 'ai', 'omnibar.requiresTermsAcceptance': 'true' };
+const requiresTerms = { 'omnibar.mode': 'ai', 'omnibar.requiresAiTermsAcceptance': 'true' };
 const askDisclaimer = 'DuckDuckGo anonymizes your chats. By clicking ‘Ask’ you agree to our Privacy Policy & Terms of Service.';
 
 /** @param {import('@playwright/test').Page} page @param {import('@playwright/test').TestInfo} workerInfo */
@@ -57,7 +57,7 @@ test.describe('omnibar terms disclaimer', () => {
         await omnibar.chatInput().fill('pizza');
         await omnibar.askButton().click();
 
-        await omnibar.expectMethodCalledWith('omnibar_submitChat', { chat: 'pizza', target: 'same-tab', termsAccepted: true });
+        await omnibar.expectMethodCalledWith('omnibar_submitChat', { chat: 'pizza', target: 'same-tab', aiTermsAccepted: true });
     });
 
     test('pressing Enter submits without accepting the terms', async ({ page }, workerInfo) => {
@@ -95,7 +95,7 @@ test.describe('omnibar terms disclaimer', () => {
             chat: 'a neon duck',
             target: 'same-tab',
             mode: 'image-generation',
-            termsAccepted: true,
+            aiTermsAccepted: true,
         });
     });
 
@@ -107,11 +107,11 @@ test.describe('omnibar terms disclaimer', () => {
 
         await omnibar.chatInput().fill('pizza');
         await omnibar.askButton().click({ modifiers: ['Meta'] });
-        expect(await omnibar.lastSubmitChatParams()).toEqual({ chat: 'pizza', target: 'new-tab', termsAccepted: true });
+        expect(await omnibar.lastSubmitChatParams()).toEqual({ chat: 'pizza', target: 'new-tab', aiTermsAccepted: true });
 
         await expect(omnibar.noticeDrawer()).toHaveText(askDisclaimer);
 
-        await omnibar.didReceiveConfig({ mode: 'ai', enableAi: true, requiresTermsAcceptance: false });
+        await omnibar.didReceiveConfig({ mode: 'ai', enableAi: true, requiresAiTermsAcceptance: false });
         await expect(omnibar.noticeDrawer()).toHaveCount(0);
 
         await omnibar.chatInput().fill('pasta');
@@ -149,7 +149,7 @@ test.describe('omnibar terms disclaimer', () => {
     test('the Search tab Ask Duck.ai suggestion sends no acceptance', async ({ page }, workerInfo) => {
         const { ntp, omnibar } = setup(page, workerInfo);
         await ntp.reducedMotion();
-        await ntp.openPage({ additional: { 'omnibar.requiresTermsAcceptance': 'true' } });
+        await ntp.openPage({ additional: { 'omnibar.requiresAiTermsAcceptance': 'true' } });
         await omnibar.ready();
 
         await omnibar.searchInput().fill('pizza dough');
@@ -168,7 +168,7 @@ test.describe('omnibar terms disclaimer', () => {
         await omnibar.didReceiveConfig({
             mode: 'ai',
             enableAi: true,
-            requiresTermsAcceptance: true,
+            requiresAiTermsAcceptance: true,
             createImageModelSwitch: { message: 'Now using Luna', dismissible: true },
         });
 

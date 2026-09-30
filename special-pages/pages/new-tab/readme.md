@@ -334,10 +334,10 @@
    - `reached` - Alert + subscribe CTA; `blocksPrompt` freezes the composer
    - `reached-switch` - Alert + switch-to-free CTA (no menu header)
 
-### Requires Terms Acceptance
- - **Purpose**: Simulates a user who hasn't accepted Duck.ai's terms. The Duck.ai tab shows the terms disclaimer and an "Ask" (or "Create") button, and the next chat submission sends `termsAccepted: true`. Default is `false`.
- - **Parameter**: `omnibar.requiresTermsAcceptance`
- - **Example**: `?omnibar.mode=ai&omnibar.requiresTermsAcceptance=true`
+### Requires AI Terms Acceptance
+ - **Purpose**: Simulates a user who hasn't accepted Duck.ai's terms. The Duck.ai tab shows the terms disclaimer and an "Ask" (or "Create") button, and the next chat submission sends `aiTermsAccepted: true`. Default is `false`.
+ - **Parameter**: `omnibar.requiresAiTermsAcceptance`
+ - **Example**: `?omnibar.mode=ai&omnibar.requiresAiTermsAcceptance=true`
  - **Options**:
    - `true`
    - `false`
@@ -423,7 +423,7 @@
  - Image generation only: `?omnibar.mode=ai&omnibar.enableAiChatTools=true&omnibar.enableImageGeneration=true`
  - Web search only: `?omnibar.mode=ai&omnibar.enableAiChatTools=true&omnibar.enableWebSearch=true`
  - Usage limits (approaching): `?omnibar.mode=ai&omnibar.usageLimits=approaching`
- - Terms disclaimer (not accepted): `?omnibar.mode=ai&omnibar.requiresTermsAcceptance=true`
+ - Terms disclaimer (not accepted): `?omnibar.mode=ai&omnibar.requiresAiTermsAcceptance=true`
 
  ### For Design Reviews
  - Component review: `?display=components`

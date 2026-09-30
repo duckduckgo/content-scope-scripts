@@ -354,7 +354,7 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
     });
 
     test.describe('omnibar terms disclaimer @screenshots', () => {
-        const requiresTerms = { 'omnibar.mode': 'ai', 'omnibar.requiresTermsAcceptance': 'true' };
+        const requiresTerms = { 'omnibar.mode': 'ai', 'omnibar.requiresAiTermsAcceptance': 'true' };
 
         test('terms disclaimer ask', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
