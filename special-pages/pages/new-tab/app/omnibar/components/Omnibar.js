@@ -194,7 +194,7 @@ export function Omnibar({
                             setUsageLimitsRevealed(false);
                         }}
                     >
-                        {/* The active tool resets whenever this provider remounts: on a mode switch via key={mode}, and on submit via the root's resetKey. */}
+                        {/* Remounting resets the active tool: key={mode} on mode switch */}
                         <ActiveToolsProvider key={mode}>
                             <div class={styles.popup} {...keyboardFocusWithinProps}>
                                 {mode === 'search' ? (
