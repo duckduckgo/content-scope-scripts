@@ -28,6 +28,7 @@ export function useTermsDisclaimerNotice(imageGenerationActive) {
     };
 
     return {
+        type: 'required',
         message: (
             <Trans
                 str={imageGenerationActive ? t('omnibar_termsDisclaimerCreate') : t('omnibar_termsDisclaimerAsk')}

@@ -315,7 +315,7 @@
     },
     "createImageModelSwitch": {
       "title": "Create Image Model Switch Notice",
-      "description": "Native-resolved presentation shown after Create Image switches away from an unsupported model. Non-null takes visual priority over usageLimits; native owns model selection, localized copy, and lifecycle.",
+      "description": "Native-resolved presentation shown after Create Image switches away from an unsupported model. Non-null takes visual priority over usageLimits unless usageLimits.blocksPrompt is true; native owns model selection, localized copy, and lifecycle.",
       "type": ["object", "null"],
       "required": ["message"],
       "properties": {

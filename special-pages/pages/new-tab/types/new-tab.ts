@@ -155,7 +155,7 @@ export type EnableSearchSuggestionDeletion = boolean;
  */
 export type RequiresAITermsAcceptance = boolean;
 /**
- * Native-resolved presentation shown after Create Image switches away from an unsupported model. Non-null takes visual priority over usageLimits; native owns model selection, localized copy, and lifecycle.
+ * Native-resolved presentation shown after Create Image switches away from an unsupported model. Non-null takes visual priority over usageLimits unless usageLimits.blocksPrompt is true; native owns model selection, localized copy, and lifecycle.
  */
 export type CreateImageModelSwitchNotice = {
   /**

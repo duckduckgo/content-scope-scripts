@@ -16,7 +16,11 @@ import styles from './NoticeDrawer.module.css';
 
 /** @typedef {typeof import('../strings.json')} Strings */
 
+/** Duck.ai messaging framework types, highest first. */
+const NOTICE_TYPES = /** @type {const} */ (['required', 'action', 'informational']);
+
 /**
+ * @typedef {typeof NOTICE_TYPES[number]} NoticeType
  * @typedef {'info' | 'ring' | 'alert' | 'convert' | 'shield'} NoticeIcon
  * @typedef {'neutral' | 'warning' | 'critical'} NoticeSeverity
  * @typedef {'none' | 'convert'} UsageLimitsCtaLeadingIcon
@@ -30,6 +34,7 @@ import styles from './NoticeDrawer.module.css';
  *   alternatives?: UsageLimitsCtaAlternative[],
  * }} UsageLimitsCta
  * @typedef {{
+ *   type: NoticeType,
  *   message: import('preact').ComponentChildren,
  *   messageId?: string,
  *   secondaryText: string,
@@ -242,6 +247,17 @@ function UsageLimitsCtaControl({ cta, onSelectCta }) {
 }
 
 /**
+ * @param {(NoticePresentation | null)[]} notices
+ */
+function highestNotice(notices) {
+    for (const type of NOTICE_TYPES) {
+        const notice = notices.find((candidate) => candidate?.type === type);
+        if (notice) return notice;
+    }
+    return null;
+}
+
+/**
  * @param {object} props
  * @param {boolean} props.revealed - Whether focus-gated notices should be shown.
  * @param {boolean} props.imageGenerationActive
@@ -251,7 +267,7 @@ export function NoticeDrawer({ revealed, imageGenerationActive, onReservedHeight
     const termsDisclaimer = useTermsDisclaimerNotice(imageGenerationActive);
     const usageLimits = useUsageLimitsDrawer();
     const createImageModelSwitch = useCreateImageModelSwitchNotice();
-    const presentation = termsDisclaimer ?? createImageModelSwitch ?? usageLimits;
+    const presentation = highestNotice([termsDisclaimer, usageLimits, createImageModelSwitch]);
 
     const drawerRef = useReservedHeight(Boolean(termsDisclaimer), onReservedHeightChange);
 
