@@ -755,7 +755,12 @@ export interface OmnibarOpenAttachmentPrivacyLearnMoreNotification {
 /**
  * Sent when the user selects 'Learn more' in the file-upload privacy disclaimer. Native opens the help page in a new tab and fires the learn_more_tapped pixel; the staged attachment is left untouched.
  */
-export interface OpenAttachmentPrivacyLearnMore {}
+export interface OpenAttachmentPrivacyLearnMore {
+  /**
+   * Which attachment the disclaimer was about. Native never sees the attach, so it cannot infer this for the pixel.
+   */
+  kind: "image" | "file";
+}
 /**
  * Generated from @see "../messages/omnibar_openCustomizeResponses.notify.json"
  */

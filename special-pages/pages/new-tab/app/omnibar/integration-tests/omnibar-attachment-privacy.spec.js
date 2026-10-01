@@ -237,7 +237,7 @@ test.describe('omnibar attachment privacy disclaimer', () => {
         await attachFile(omnibar);
         await omnibar.attachmentPrivacyLearnMore().click();
 
-        await omnibar.expectMethodCalledWith('omnibar_openAttachmentPrivacyLearnMore', {});
+        await omnibar.expectMethodCalledWith('omnibar_openAttachmentPrivacyLearnMore', { kind: 'file' });
         await expect(omnibar.fileChip()).toHaveCount(1);
         await expect(omnibar.noticeDrawer()).toBeVisible();
     });

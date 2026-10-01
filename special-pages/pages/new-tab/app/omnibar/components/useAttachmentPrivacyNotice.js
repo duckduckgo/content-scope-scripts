@@ -41,7 +41,14 @@ export function useAttachmentPrivacyNotice() {
         attachmentPrivacyDisclaimerShown(attachmentKind);
     }, [attachmentKind, granted, allowed, setGranted, attachmentPrivacyDisclaimerShown]);
 
-    const messageValues = { button: { click: openAttachmentPrivacyLearnMore } };
+    const messageValues = {
+        button: {
+            click: () => {
+                // Non-null whenever the notice is on screen; the presentation below needs it too.
+                if (attachmentKind) openAttachmentPrivacyLearnMore(attachmentKind);
+            },
+        },
+    };
 
     // `granted` outlasts `allowed`: the display that spends the last one stays on screen.
     const presentation =

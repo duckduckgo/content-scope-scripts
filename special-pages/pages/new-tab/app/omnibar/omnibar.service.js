@@ -250,9 +250,10 @@ export class OmnibarService {
 
     /**
      * Notify native to open the attachment privacy help page in a new tab.
+     * @param {'image' | 'file'} kind
      */
-    openAttachmentPrivacyLearnMore() {
-        this.ntp.messaging.notify('omnibar_openAttachmentPrivacyLearnMore', {});
+    openAttachmentPrivacyLearnMore(kind) {
+        this.ntp.messaging.notify('omnibar_openAttachmentPrivacyLearnMore', { kind });
     }
 
     /**
