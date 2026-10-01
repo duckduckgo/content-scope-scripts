@@ -1,6 +1,32 @@
 import ContentFeature from '../content-feature.js';
 
 /**
+ * @typedef {'localStorage' | 'indexedDB' | 'unexpected'} ClearStage
+ * @typedef {{ stage: ClearStage, error: Error }} ClearFailure
+ */
+
+/**
+ * @param {unknown} error
+ * @returns {Error}
+ */
+function toError(error) {
+    return error instanceof Error ? error : new Error(String(error));
+}
+
+/**
+ * Reading `error` on a request that hasn't finished throws, so treat that as no error.
+ * @param {unknown} request
+ * @returns {DOMException | null}
+ */
+function requestError(request) {
+    try {
+        return request && typeof request === 'object' && 'error' in request ? /** @type {IDBRequest} */ (request).error : null;
+    } catch {
+        return null;
+    }
+}
+
+/**
  * This feature is responsible for clearing Duck.ai-related data when the `duckAiClearData`
  * message is received. It clears the `savedAIChats` item from localStorage and the `chat-images`
  * object store from IndexedDB, then sends a `duckAiClearDataCompleted` message if successful
@@ -12,10 +38,23 @@ import ContentFeature from '../content-feature.js';
 export class DuckAiDataClearing extends ContentFeature {
     init() {
         this.messaging.subscribe('duckAiClearData', (params) => {
-            void this.clearData(params);
+            void this.handleClearData(params);
         });
 
         this.notify('duckAiClearDataReady');
+    }
+
+    /**
+     * Always replies, even when clearing throws unexpectedly (e.g. missing settings), so the caller never waits in vain.
+     * @param {unknown} [params]
+     */
+    async handleClearData(params) {
+        try {
+            await this.clearData(params);
+        } catch (error) {
+            this.log.error('Unexpected error while clearing data:', error);
+            this.notifyCompletionResult([{ stage: 'unexpected', error: toError(error) }]);
+        }
     }
 
     /**
@@ -35,7 +74,7 @@ export class DuckAiDataClearing extends ContentFeature {
     }
 
     async clearAllData() {
-        /** @type {Error[]} */
+        /** @type {ClearFailure[]} */
         const errors = [];
 
         this.withLocalStorages((key) => this.clearSavedAIChats(key), errors);
@@ -85,7 +124,7 @@ export class DuckAiDataClearing extends ContentFeature {
      * @param {string} chatId - The ID of the chat to delete
      */
     async deleteSingleChat(chatId) {
-        /** @type {Error[]} */
+        /** @type {ClearFailure[]} */
         const errors = [];
 
         this.withLocalStorages((key) => this.removeChatFromLocalStorage(key, chatId), errors);
@@ -117,7 +156,7 @@ export class DuckAiDataClearing extends ContentFeature {
     /**
      * Iterates over all configured localStorage keys and performs an operation on each.
      * @param {(key: string) => void} operation - Operation to perform on each localStorage key
-     * @param {Error[]} errors - Array to collect any errors
+     * @param {ClearFailure[]} errors - Array to collect any errors
      */
     withLocalStorages(operation, errors) {
         const keys = this.getFeatureSetting('chatsLocalStorageKeys');
@@ -125,7 +164,7 @@ export class DuckAiDataClearing extends ContentFeature {
             try {
                 operation(key);
             } catch (error) {
-                errors.push(error instanceof Error ? error : new Error(String(error)));
+                errors.push({ stage: 'localStorage', error: toError(error) });
                 this.log.error('Error in localStorage operation:', error);
             }
         }
@@ -134,7 +173,7 @@ export class DuckAiDataClearing extends ContentFeature {
     /**
      * Iterates over all configured IndexedDB stores and performs an operation on each.
      * @param {(objectStore: IDBObjectStore, transaction: IDBTransaction, dbName: string, storeName: string) => void} operation
-     * @param {Error[]} errors - Array to collect any errors
+     * @param {ClearFailure[]} errors - Array to collect any errors
      */
     async withAllIndexedDBs(operation, errors) {
         const pairs = this.getFeatureSetting('chatImagesIndexDbNameObjectStoreNamePairs');
@@ -144,7 +183,7 @@ export class DuckAiDataClearing extends ContentFeature {
                     operation(objectStore, transaction, dbName, storeName);
                 });
             } catch (error) {
-                errors.push(error instanceof Error ? error : new Error(String(error)));
+                errors.push({ stage: 'indexedDB', error: toError(error) });
                 this.log.error('Error in IndexedDB operation:', error);
             }
         }
@@ -152,15 +191,18 @@ export class DuckAiDataClearing extends ContentFeature {
 
     /**
      * Sends the appropriate completion or failure notification based on errors.
-     * @param {Error[]} errors - Array of errors that occurred during operations
+     * `errorName` (e.g. a `DOMException` name) and `stage` let the native side report the cause without free text.
+     * @param {ClearFailure[]} errors - Failures that occurred during operations
      */
     notifyCompletionResult(errors) {
         if (errors.length === 0) {
             this.notify('duckAiClearDataCompleted');
         } else {
-            const lastError = errors[errors.length - 1];
+            const { stage, error } = errors[errors.length - 1];
             this.notify('duckAiClearDataFailed', {
-                error: lastError?.message,
+                error: error.message,
+                errorName: error.name,
+                stage,
             });
         }
     }
@@ -218,7 +260,7 @@ export class DuckAiDataClearing extends ContentFeature {
                 const request = window.indexedDB.open(indexDbName);
                 request.onerror = (event) => {
                     this.log.error('Error opening IndexedDB:', event);
-                    reject(event);
+                    reject(requestError(request) ?? new Error('Failed to open IndexedDB'));
                 };
                 request.onsuccess = (_) => {
                     const db = request.result;
@@ -247,7 +289,13 @@ export class DuckAiDataClearing extends ContentFeature {
                         transaction.addEventListener('error', (err) => {
                             this.log.error('Transaction error:', err);
                             db.close();
-                            reject(err);
+                            reject(requestError(err.target) ?? transaction.error ?? new Error('IndexedDB transaction failed'));
+                        });
+
+                        // An abort without an error event (e.g. the connection closing) would otherwise never settle.
+                        transaction.addEventListener('abort', () => {
+                            db.close();
+                            reject(transaction.error ?? new DOMException('IndexedDB transaction aborted', 'AbortError'));
                         });
 
                         operation(objectStore, transaction);
