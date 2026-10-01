@@ -1,1 +1,2 @@
-- Duck.ai data clearing: remove image blobs on Apple platforms (#3058)
+- [Web-compat] Pass key detection messaging (#2948)
+- Document the hotfix release process (#3065)
