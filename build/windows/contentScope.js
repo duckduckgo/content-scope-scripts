@@ -19880,12 +19880,37 @@ ${iframeContent}
 
   // src/features/duck-ai-data-clearing.js
   init_define_import_meta_trackerLookup();
+  function toError(error) {
+    return error instanceof Error ? error : new Error(String(error));
+  }
+  function requestError(request) {
+    try {
+      return request && typeof request === "object" && "error" in request ? (
+        /** @type {IDBRequest} */
+        request.error
+      ) : null;
+    } catch {
+      return null;
+    }
+  }
   var DuckAiDataClearing = class extends ContentFeature {
     init() {
       this.messaging.subscribe("duckAiClearData", (params) => {
-        void this.clearData(params);
+        void this.handleClearData(params);
       });
       this.notify("duckAiClearDataReady");
+    }
+    /**
+     * Always replies, even when clearing throws unexpectedly (e.g. missing settings), so the caller never waits in vain.
+     * @param {unknown} [params]
+     */
+    async handleClearData(params) {
+      try {
+        await this.clearData(params);
+      } catch (error) {
+        this.log.error("Unexpected error while clearing data:", error);
+        this.notifyCompletionResult([{ stage: "unexpected", error: toError(error) }]);
+      }
     }
     /**
      * @param {unknown} [params]
@@ -19969,7 +19994,7 @@ ${iframeContent}
     /**
      * Iterates over all configured localStorage keys and performs an operation on each.
      * @param {(key: string) => void} operation - Operation to perform on each localStorage key
-     * @param {Error[]} errors - Array to collect any errors
+     * @param {ClearFailure[]} errors - Array to collect any errors
      */
     withLocalStorages(operation, errors) {
       const keys = this.getFeatureSetting("chatsLocalStorageKeys");
@@ -19977,7 +20002,7 @@ ${iframeContent}
         try {
           operation(key);
         } catch (error) {
-          errors.push(error instanceof Error ? error : new Error(String(error)));
+          errors.push({ stage: "localStorage", error: toError(error) });
           this.log.error("Error in localStorage operation:", error);
         }
       }
@@ -19985,7 +20010,7 @@ ${iframeContent}
     /**
      * Iterates over all configured IndexedDB stores and performs an operation on each.
      * @param {(objectStore: IDBObjectStore, transaction: IDBTransaction, dbName: string, storeName: string) => void} operation
-     * @param {Error[]} errors - Array to collect any errors
+     * @param {ClearFailure[]} errors - Array to collect any errors
      */
     async withAllIndexedDBs(operation, errors) {
       const pairs = this.getFeatureSetting("chatImagesIndexDbNameObjectStoreNamePairs");
@@ -19995,22 +20020,25 @@ ${iframeContent}
             operation(objectStore, transaction, dbName, storeName);
           });
         } catch (error) {
-          errors.push(error instanceof Error ? error : new Error(String(error)));
+          errors.push({ stage: "indexedDB", error: toError(error) });
           this.log.error("Error in IndexedDB operation:", error);
         }
       }
     }
     /**
      * Sends the appropriate completion or failure notification based on errors.
-     * @param {Error[]} errors - Array of errors that occurred during operations
+     * `errorName` (e.g. a `DOMException` name) and `stage` let the native side report the cause without free text.
+     * @param {ClearFailure[]} errors - Failures that occurred during operations
      */
     notifyCompletionResult(errors) {
       if (errors.length === 0) {
         this.notify("duckAiClearDataCompleted");
       } else {
-        const lastError = errors[errors.length - 1];
+        const { stage, error } = errors[errors.length - 1];
         this.notify("duckAiClearDataFailed", {
-          error: lastError?.message
+          error: error.message,
+          errorName: error.name,
+          stage
         });
       }
     }
@@ -20062,7 +20090,7 @@ ${iframeContent}
           const request = window.indexedDB.open(indexDbName);
           request.onerror = (event) => {
             this.log.error("Error opening IndexedDB:", event);
-            reject(event);
+            reject(requestError(request) ?? new Error("Failed to open IndexedDB"));
           };
           request.onsuccess = (_2) => {
             const db = request.result;
@@ -20087,7 +20115,11 @@ ${iframeContent}
               transaction.addEventListener("error", (err) => {
                 this.log.error("Transaction error:", err);
                 db.close();
-                reject(err);
+                reject(requestError(err.target) ?? transaction.error ?? new Error("IndexedDB transaction failed"));
+              });
+              transaction.addEventListener("abort", () => {
+                db.close();
+                reject(transaction.error ?? new DOMException("IndexedDB transaction aborted", "AbortError"));
               });
               operation(objectStore, transaction);
             } catch (err) {

@@ -1,2 +1,1 @@
-- [Web-compat] Pass key detection messaging (#2948)
-- Document the hotfix release process (#3065)
+- Duck.ai data clearing: report the real error and always reply (#3070)
