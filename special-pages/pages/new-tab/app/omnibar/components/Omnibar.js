@@ -502,7 +502,11 @@ function AiChatContent({
                                             ? {
                                                   modes: screenshotModes,
                                                   onCapture: screenshotCapture.capture,
-                                                  disabled: blocksPrompt || !canAttachImages || imageState.imageUploadDisabled,
+                                                  disabled:
+                                                      blocksPrompt ||
+                                                      !canAttachImages ||
+                                                      screenshotCapture.capturing ||
+                                                      imageState.imageUploadDisabled,
                                               }
                                             : null
                                     }

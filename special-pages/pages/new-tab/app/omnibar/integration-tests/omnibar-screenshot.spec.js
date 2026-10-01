@@ -141,14 +141,15 @@ test.describe('omnibar screenshot menu', () => {
         await expect(omnibar.addScreenshotMenuItem()).toHaveAttribute('aria-disabled', 'true');
     });
 
-    test('keeps "Add Screenshot" enabled while a capture is pending', async ({ page }, workerInfo) => {
+    test('greys out "Add Screenshot" while a capture is pending', async ({ page }, workerInfo) => {
         const { omnibar } = await setup(page, workerInfo, { 'omnibar.screenshotModes': BOTH_MODES, 'omnibar.screenshotDelay': '1500' });
 
         await omnibar.captureScreenshot('Drag to Select');
         await omnibar.attachMenuButton().click();
-        await expect(omnibar.addScreenshotMenuItem()).not.toHaveAttribute('aria-disabled');
-        await omnibar.addScreenshotMenuItem().click();
-        await expect(omnibar.screenshotModeItem('Drag to Select')).not.toHaveAttribute('aria-disabled');
+        await expect(omnibar.addScreenshotMenuItem()).toHaveAttribute('aria-disabled', 'true');
+
+        await expect(omnibar.imagePreviews()).toHaveCount(1);
+        await expect(omnibar.addScreenshotMenuItem()).not.toHaveAttribute('aria-disabled', 'true');
     });
 
     test('opens and closes from the keyboard', async ({ page }, workerInfo) => {
@@ -223,25 +224,6 @@ test.describe('omnibar screenshot capture', () => {
         await expect
             .poll(async () => (await omnibar.telemetryEvents()).slice(2))
             .toEqual([{ name: 'omnibar_image_removed', value: { source: 'screenshot' } }, { name: 'omnibar_screenshot_removed' }]);
-    });
-
-    test('a new Drag to Select replaces a pending one, whose cancelled reply shows nothing', async ({ page }, workerInfo) => {
-        const { omnibar } = await setup(page, workerInfo, { 'omnibar.screenshotModes': BOTH_MODES, 'omnibar.screenshotDelay': '1000' });
-
-        await omnibar.captureScreenshot('Drag to Select');
-        await omnibar.expectMethodCallCount('omnibar_captureScreenshot', 1);
-        await omnibar.captureScreenshot('Drag to Select');
-        await omnibar.expectMethodCallCount('omnibar_captureScreenshot', 2);
-
-        // The first request is answered as cancelled straight away; only the second one attaches.
-        await expect(omnibar.imagePreviews()).toHaveCount(1);
-        await expect(page.getByRole('alert')).toHaveCount(0);
-        await expect
-            .poll(() => omnibar.telemetryEvents())
-            .toEqual([
-                { name: 'omnibar_image_attached', value: { source: 'screenshot' } },
-                { name: 'omnibar_screenshot_taken', value: { kind: 'selection' } },
-            ]);
     });
 
     test('numbers repeated screenshots so each one attaches', async ({ page }, workerInfo) => {

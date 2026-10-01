@@ -259,12 +259,6 @@ export function omnibarMockTransport() {
 
     /** @type {Set<string>} Tracks deleted chats so re-fetches exclude them */
     const deletedChatIds = new Set();
-    /**
-     * Settles the capture request that is still waiting, if any. A new request answers it as
-     * cancelled, as native does for Drag to Select (the mock does it for either mode).
-     * @type {((reply: import('../../../types/new-tab.js').CaptureScreenshotResponse) => void) | null}
-     */
-    let settlePendingCapture = null;
 
     return new TestTransportConfig({
         notify(_msg) {
@@ -607,20 +601,9 @@ export function omnibarMockTransport() {
                     return getMockOpenTabs(openTabsCount >= 0 ? openTabsCount : undefined);
                 }
                 case 'omnibar_captureScreenshot': {
-                    settlePendingCapture?.({});
                     // Simulates the user spending time in the native picker or selection overlay.
                     const delay = parseInt(url.searchParams.get('omnibar.screenshotDelay') ?? '', 10);
-                    /** @type {import('../../../types/new-tab.js').CaptureScreenshotResponse | null} */
-                    const replaced = await new Promise((resolve) => {
-                        /** @param {import('../../../types/new-tab.js').CaptureScreenshotResponse | null} reply */
-                        const settle = (reply) => {
-                            if (settlePendingCapture === settle) settlePendingCapture = null;
-                            resolve(reply);
-                        };
-                        settlePendingCapture = settle;
-                        setTimeout(() => settle(null), delay >= 0 ? delay : window.__playwright_01 ? 0 : 600);
-                    });
-                    if (replaced) return replaced;
+                    await new Promise((resolve) => setTimeout(resolve, delay >= 0 ? delay : window.__playwright_01 ? 0 : 600));
                     const override = window.__playwright_01?.mockResponses?.omnibar_captureScreenshot;
                     if (override) return /** @type {import('../../../types/new-tab.js').CaptureScreenshotResponse} */ (override);
                     // `omnibar.screenshotResult=error|cancel|invalid`; anything else returns a capture

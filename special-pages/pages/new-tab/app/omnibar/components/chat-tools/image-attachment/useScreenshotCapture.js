@@ -46,64 +46,59 @@ export function useScreenshotCapture({ imageState, canAttachImages, processOther
     const ntp = useMessaging();
     const { captureScreenshot } = useContext(OmnibarContext);
     const [captureError, setCaptureError] = useState(false);
+    const [capturing, setCapturing] = useState(false);
 
     // A capture can stay pending for as long as the user is in the native picker; read the image
     // state as it is when the reply arrives, not as it was when the capture started.
     const imageStateRef = useRef(imageState);
     imageStateRef.current = imageState;
 
-    // Native answers a request as cancelled when a newer one replaces it, so replies can arrive
-    // after a later capture has started. Only the latest request may show an error.
-    const latestRequestRef = useRef(0);
-
     const takenNames = () => new Set(imageStateRef.current.attachedImages.map((img) => img.fileName));
 
-    /**
-     * Starts a capture. The rows stay enabled while it is pending: choosing again sends a new
-     * request, which native lets replace the pending one.
-     * @param {ScreenshotMode} mode
-     */
+    /** @param {ScreenshotMode} mode */
     const capture = async (mode) => {
-        const requestId = ++latestRequestRef.current;
-        const isLatest = () => requestId === latestRequestRef.current;
+        if (capturing) return;
         setCaptureError(false);
-
-        /** @type {import('../../../../../types/new-tab.js').CaptureScreenshotResponse} */
-        let response;
+        setCapturing(true);
         try {
-            response = await captureScreenshot(mode);
-        } catch (err) {
-            console.warn('omnibar_captureScreenshot failed', err);
-            if (isLatest()) setCaptureError(true);
-            return;
-        }
-        // Native reports its own capture failures; the page only shows the message.
-        if (response.error) {
-            if (isLatest()) setCaptureError(true);
-            return;
-        }
-        if (!response.image) return; // cancelled, or replaced by a newer request
+            /** @type {import('../../../../../types/new-tab.js').CaptureScreenshotResponse} */
+            let response;
+            try {
+                response = await captureScreenshot(mode);
+            } catch (err) {
+                console.warn('omnibar_captureScreenshot failed', err);
+                setCaptureError(true);
+                return;
+            }
+            // Native reports its own capture failures; the page only shows the message.
+            if (response.error) {
+                setCaptureError(true);
+                return;
+            }
+            if (!response.image) return; // cancelled
 
-        // An image is the user's capture whichever request it answers, so it is always attached.
-        const { image } = response;
-        /** @type {File} */
-        let file;
-        try {
-            file = screenshotToFile(image, uniqueFileName(t('omnibar_screenshotFileName'), extensionFor(image.format), takenNames()));
-        } catch (err) {
-            console.warn('Screenshot rejected: invalid image data');
-            ntp.telemetryEvent({ attributes: { name: 'omnibar_screenshot_failed', value: { reason: 'failed' } } });
-            if (isLatest()) setCaptureError(true);
-            return;
-        }
-        const result = await imageStateRef.current.processFiles([file], {
-            maxDimension: SCREENSHOT_MAX_DIMENSION,
-            source: 'screenshot',
-        });
-        if (result.added > 0) {
-            ntp.telemetryEvent({ attributes: { name: 'omnibar_screenshot_taken', value: { kind: image.kind } } });
-        } else if (result.rejected > 0) {
-            ntp.telemetryEvent({ attributes: { name: 'omnibar_screenshot_failed', value: { reason: 'failed' } } });
+            const { image } = response;
+            /** @type {File} */
+            let file;
+            try {
+                file = screenshotToFile(image, uniqueFileName(t('omnibar_screenshotFileName'), extensionFor(image.format), takenNames()));
+            } catch (err) {
+                console.warn('Screenshot rejected: invalid image data');
+                ntp.telemetryEvent({ attributes: { name: 'omnibar_screenshot_failed', value: { reason: 'failed' } } });
+                setCaptureError(true);
+                return;
+            }
+            const result = await imageStateRef.current.processFiles([file], {
+                maxDimension: SCREENSHOT_MAX_DIMENSION,
+                source: 'screenshot',
+            });
+            if (result.added > 0) {
+                ntp.telemetryEvent({ attributes: { name: 'omnibar_screenshot_taken', value: { kind: image.kind } } });
+            } else if (result.rejected > 0) {
+                ntp.telemetryEvent({ attributes: { name: 'omnibar_screenshot_failed', value: { reason: 'failed' } } });
+            }
+        } finally {
+            setCapturing(false);
         }
     };
 
@@ -165,6 +160,7 @@ export function useScreenshotCapture({ imageState, canAttachImages, processOther
 
     return {
         capture,
+        capturing,
         captureError,
         clearCaptureError: () => setCaptureError(false),
         handlePaste,

@@ -1686,7 +1686,7 @@ export interface OmnibarCaptureScreenshotRequest {
   result: CaptureScreenshotResponse;
 }
 /**
- * Asks native to capture a screenshot for the Duck.ai prompt. The request stays pending while the user is in the native picker or selection overlay. A new request while one is pending makes native answer the older one as cancelled.
+ * Asks native to capture a screenshot for the Duck.ai prompt. The request stays pending while the user is in the native picker or selection overlay. Native allows one capture at a time and answers a second request while one is pending as cancelled.
  */
 export interface CaptureScreenshotParams {
   mode: ScreenshotMode;
