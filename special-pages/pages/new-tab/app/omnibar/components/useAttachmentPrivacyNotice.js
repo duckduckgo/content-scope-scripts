@@ -1,7 +1,8 @@
-import { useContext, useEffect, useMemo } from 'preact/hooks';
+import { useContext, useEffect } from 'preact/hooks';
 import { useTypedTranslationWith } from '../../types';
 import { OmnibarContext } from './OmnibarProvider';
 import { AttachmentPrivacyGrant } from './PersistentOmnibarValuesProvider.js';
+import { useAttachmentsContext } from './chat-tools/attachments/AttachmentsProvider';
 
 /** @typedef {typeof import('../strings.json')} Strings */
 
@@ -14,21 +15,23 @@ import { AttachmentPrivacyGrant } from './PersistentOmnibarValuesProvider.js';
  * mode switch unmounts the drawer and hiding the widget unmounts the Omnibar, both while the staged
  * attachments live on — neither may spend a second display.
  *
- * @param {'image' | 'file' | null | undefined} attachmentKind - The staged attachment, `null` when
- * there is none, `undefined` before the composer has derived it.
- * @param {string|null|undefined} tabId
  * @returns {import('./NoticeDrawer.js').NoticePresentation | null}
  */
-export function useAttachmentPrivacyNotice(attachmentKind, tabId) {
+export function useAttachmentPrivacyNotice() {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const { state, attachmentPrivacyDisclaimerShown, openAttachmentPrivacyLearnMore } = useContext(OmnibarContext);
+    const { imageState, fileState, tabId } = useAttachmentsContext();
     const allowed = state.config?.showAttachmentPrivacyDisclaimer === true;
     const [granted, setGranted] = AttachmentPrivacyGrant.useStateWithLocalPersistence(tabId);
+    /** @type {'image' | 'file' | null} */
+    let attachmentKind = null;
+    if (imageState.attachedImages.length > 0) {
+        attachmentKind = 'image';
+    } else if (fileState.attachedFiles.length > 0) {
+        attachmentKind = 'file';
+    }
 
     useEffect(() => {
-        // Not derived yet — the Omnibar just remounted, and the attachments are still being read
-        // back. Only an explicit `null` means the user emptied them.
-        if (attachmentKind === undefined) return;
         if (attachmentKind === null) {
             if (granted) setGranted(false);
             return;
@@ -38,7 +41,7 @@ export function useAttachmentPrivacyNotice(attachmentKind, tabId) {
         attachmentPrivacyDisclaimerShown(attachmentKind);
     }, [attachmentKind, granted, allowed, setGranted, attachmentPrivacyDisclaimerShown]);
 
-    const messageValues = useMemo(() => ({ button: { click: () => openAttachmentPrivacyLearnMore() } }), [openAttachmentPrivacyLearnMore]);
+    const messageValues = { button: { click: openAttachmentPrivacyLearnMore } };
 
     // `granted` outlasts `allowed`: the display that spends the last one stays on screen.
     const presentation =

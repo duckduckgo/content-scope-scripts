@@ -146,6 +146,37 @@ test.describe('omnibar attachment privacy disclaimer', () => {
         await omnibar.expectExactMethodCallCount('omnibar_attachmentPrivacyDisclaimerShown', 1);
     });
 
+    test('submitting a search while an attachment is staged does not spend another display', async ({ page }, workerInfo) => {
+        const harness = setup(page, workerInfo);
+        await openAiOmnibar(harness, true);
+        const { omnibar } = harness;
+
+        await attachFile(omnibar);
+        await omnibar.switchMode({ mode: 'search' });
+        await omnibar.searchInput().fill('pizza');
+        await omnibar.searchInput().press('Enter');
+        await omnibar.switchMode({ mode: 'ai' });
+
+        await expect(omnibar.fileChip()).toHaveCount(1);
+        await expect(omnibar.noticeDrawer()).toContainText(DISCLAIMER);
+        await omnibar.expectExactMethodCallCount('omnibar_attachmentPrivacyDisclaimerShown', 1);
+    });
+
+    test('toggling Create Image while an attachment is staged does not spend another display', async ({ page }, workerInfo) => {
+        const harness = setup(page, workerInfo);
+        await openAiOmnibar(harness, true, { 'omnibar.enableImageGeneration': 'true' });
+        const { omnibar } = harness;
+
+        await attachFile(omnibar);
+        await omnibar.toolsMenuButton().click();
+        await omnibar.createImageMenuItem().click();
+        await omnibar.createImageChip().click();
+
+        await expect(omnibar.fileChip()).toHaveCount(1);
+        await expect(omnibar.noticeDrawer()).toContainText(DISCLAIMER);
+        await omnibar.expectExactMethodCallCount('omnibar_attachmentPrivacyDisclaimerShown', 1);
+    });
+
     test('hiding and restoring the widget does not spend another display', async ({ page }, workerInfo) => {
         const harness = setup(page, workerInfo);
         await openAiOmnibar(harness, true, { omnibar: true });

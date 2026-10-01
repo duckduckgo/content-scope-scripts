@@ -11,6 +11,7 @@ import { useDropdown } from './chat-tools/useDropdown';
 import { getModelIcon } from './chat-tools/model-selector/Icons';
 import { useCreateImageModelSwitchNotice } from './useCreateImageModelSwitchNotice';
 import { useUsageLimitsDrawer } from './useUsageLimitsDrawer';
+import { useAttachmentPrivacyNotice } from './useAttachmentPrivacyNotice';
 import styles from './NoticeDrawer.module.css';
 
 /** @typedef {typeof import('../strings.json')} Strings */
@@ -240,10 +241,9 @@ function UsageLimitsCtaControl({ cta, onSelectCta }) {
 /**
  * @param {object} props
  * @param {boolean} props.revealed - Whether focus-gated notices should be shown.
- * @param {import('./NoticeDrawer.js').NoticePresentation | null} [props.attachmentPrivacy] - Owned by
- * the draft, not by this drawer, so a mode switch doesn't spend another display.
  */
-export function NoticeDrawer({ revealed, attachmentPrivacy = null }) {
+export function NoticeDrawer({ revealed }) {
+    const attachmentPrivacy = useAttachmentPrivacyNotice();
     const usageLimits = useUsageLimitsDrawer();
     const createImageModelSwitch = useCreateImageModelSwitchNotice();
     // Attachment privacy outranks Create Image, which outranks usage limits; usage-limit blocking

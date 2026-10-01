@@ -133,7 +133,7 @@ export const FileAttachments = /** @type {() => PersistentList<AttachedFile>} */
 export const ImageAttachments = /** @type {() => PersistentList<AttachedImage>} */ (createPersistentList)();
 // Single source of truth for open-tab metadata; tab chips and the pickers derive from this.
 export const OpenTabsList = /** @type {() => PersistentList<TabMetadata>} */ (createPersistentList)();
-// Whether the current prompt draft already spent an attachment-privacy display.
+// Whether the current attachment session already spent an attachment-privacy display.
 export const AttachmentPrivacyGrant = createPersistentFlag();
 
 /**
