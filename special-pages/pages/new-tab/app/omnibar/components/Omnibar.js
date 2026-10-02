@@ -21,6 +21,7 @@ import { useDrawerControls, useDrawerEventListeners } from '../../components/Dra
 import { Trans } from '../../../../../shared/components/TranslationsProvider.js';
 import { ImageAttachmentContent } from './chat-tools/image-attachment/ImageAttachmentTool';
 import { useImageAttachments } from './chat-tools/image-attachment/useImageAttachments';
+import { usePastedAttachments } from './chat-tools/image-attachment/usePastedAttachments';
 import { useScreenshotCapture } from './chat-tools/image-attachment/useScreenshotCapture';
 import { useFileAttachments } from './chat-tools/file-attachment/useFileAttachments';
 import { AttachmentChips } from './chat-tools/attachments/AttachmentChips';
@@ -284,15 +285,16 @@ function AiChatContent({
     const canAttachFiles = !imageGenerationActive && (selectedModel?.supportedFileTypes?.length ?? 0) > 0;
 
     const canAttachTabs = enableAttachTabs && !imageGenerationActive;
-    // Screenshots land in the image list; without an image-capable model the row shows greyed out.
-    const screenshotModes = state.config?.screenshotModes ?? [];
-    const canCaptureScreenshot = screenshotModes.length > 0;
-    const screenshotCapture = useScreenshotCapture({
+    const pastedAttachments = usePastedAttachments({
         imageState,
         canAttachImages,
         processOtherFiles: canAttachFiles ? fileState.processFiles : null,
-        pasteEnabled: state.config?.enablePastedAttachments === true && !blocksPrompt,
+        enabled: state.config?.enablePastedAttachments === true && !blocksPrompt,
     });
+    // Screenshots land in the image list; without an image-capable model the row shows greyed out.
+    const screenshotModes = state.config?.screenshotModes ?? [];
+    const canCaptureScreenshot = screenshotModes.length > 0;
+    const screenshotCapture = useScreenshotCapture({ imageState });
     const tabAttachments = useTabAttachments(tabId, attachmentLimits?.tabs?.maxAttached);
     const textareaRef = useRef(/** @type {HTMLTextAreaElement|null} */ (null));
     const mention = useMentionPicker({
@@ -469,7 +471,7 @@ function AiChatContent({
                     onTextareaKeyDown={mention.handleTextareaKeyDown}
                     combobox={mention.combobox}
                     textareaRef={textareaRef}
-                    onPaste={screenshotCapture.handlePaste}
+                    onPaste={pastedAttachments.handlePaste}
                     toolbarLeft={
                         <Fragment>
                             {(canAttachImages || canAttachFiles || canAttachTabs || canCaptureScreenshot) && (

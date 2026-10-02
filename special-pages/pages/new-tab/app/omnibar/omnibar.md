@@ -39,7 +39,7 @@ title: Omnibar Widget
   - `enableAskAiSuggestion` — when `false`, hides the inline "Ask Duck.ai: <query>" entry in the suggestions dropdown. Missing/undefined is treated as `true` (default `true`). Does not affect the Duck.ai mode pill or any other AI affordance — those remain governed by `enableAi`
   - `enableAttachTabs` — when `true`, the omnibar shows the page context entry point and accepts `@` mentions for attaching open tabs as context. Requires native to handle `omnibar_getOpenTabs` and `omnibar_getTabContent` (default `false`).
   - `screenshotModes` — capture modes (`"dragToSelect"`, `"selectWindowOrDisplay"`) listed, in order, under "Add Screenshot" in the paperclip menu. Absent or empty hides the screenshot UI. Requires native to handle `omnibar_captureScreenshot`. The row is disabled while a capture is pending, at the image cap, when the model cannot take images, or when the prompt is blocked.
-  - `enablePastedAttachments` — when `true`, pasting into the Duck.ai prompt attaches copied images and files (see [Paste](#paste)). When `false` or absent, paste is left to the browser (text only) (default `false`).
+  - `enablePastedAttachments` — when `true`, pasting into the Duck.ai prompt attaches copied images and files (see [Paste](#paste)). When `false` or absent, paste is left to the browser (text only) (default `false`). The page needs no native support to paste; the flag lets native roll the behaviour out and switch it off remotely.
   - `aiModelSections` — array of model sections for the model selector. Each model may include `supportedReasoningEffort` (e.g. `["none", "low", "medium"]`) to surface the reasoning picker
   - `selectedModelId` — the user's persisted model choice
   - `selectedReasoningEffort` — the user's persisted reasoning-effort choice for the active model. Native validates against the model's `supportedReasoningEffort` on write
@@ -178,7 +178,7 @@ Sent as `telemetryEvent` with `{ attributes: { name, value } }`:
 With `enablePastedAttachments`, a paste into the Duck.ai prompt is handled as follows:
 
 - If the clipboard has any text, the browser pastes the text and nothing is attached. Office apps put a picture of the copied cells next to the text; the text wins.
-- Otherwise a clipboard bitmap is attached like a screenshot (kept at up to 1024px), named "Pasted image" (numbered on repeats); copied image files are resized like picked ones (512px); copied PDFs go to the file chips. Images need an image-capable model and files a model that supports them, as with the picker.
+- Otherwise a clipboard bitmap is attached at up to 1024px, so text in it stays legible, named "Pasted image" (numbered on repeats); copied image files are resized like picked ones (512px); copied PDFs go to the file chips. Images need an image-capable model and files a model that supports them, as with the picker. An image in an unsupported format shows the "Failed to process image" error.
 
 ## Subscriptions:
 

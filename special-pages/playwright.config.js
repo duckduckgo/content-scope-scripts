@@ -44,6 +44,7 @@ export default defineConfig({
                 'omnibar.spec.js',
                 'omnibar.persistence.spec.js',
                 'omnibar-attachments.spec.js',
+                'omnibar-paste.spec.js',
                 'omnibar-screenshot.spec.js',
                 'omnibar-usage-limits.spec.js',
             ],
