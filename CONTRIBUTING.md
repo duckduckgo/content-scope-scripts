@@ -138,7 +138,11 @@ Note that the workflow only offers `major` and `minor`, and always emits a `.0` 
 
 ### Hotfix releases
 
-When a released version needs a fix before the next `main` release, follow [`guides/hotfix-release.md`](./guides/hotfix-release.md). It covers cherry-picking onto a `hotfix/<version>` branch off the release tag, rebuilding and checking in the artifacts by hand, publishing the tag without marking it latest, and pushing the `released/<version>` changelog anchor afterwards.
+When a released version needs a fix before the next `main` release, run the [Hotfix Release workflow](https://github.com/duckduckgo/content-scope-scripts/actions/workflows/hotfix.yml) with the release tag and the commits to cherry-pick. It branches from the tag, builds, checks in the artifacts, pushes the changelog anchor and leaves a draft release for you to review and publish.
+
+[`guides/hotfix-release.md`](./guides/hotfix-release.md) documents that workflow and the manual fallback for when a cherry-pick conflicts.
+
+Do not add a `patch` option to the release workflow instead. It rebuilds `main`, so a patch number there ships everything on main under a hotfix version, which is how `6.14.1` and `10.9.1` happened.
 
 ### PR build branches
 
