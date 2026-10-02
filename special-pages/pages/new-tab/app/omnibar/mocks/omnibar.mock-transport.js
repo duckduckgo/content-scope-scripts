@@ -71,6 +71,7 @@ export function omnibarMockTransport() {
         showCustomizePopover: false,
         enableRecentAiChats: false,
         enableAiChatTools: false,
+        showAttachmentPrivacyDisclaimer: false,
         aiModelSections: [
             {
                 items: [
@@ -260,6 +261,9 @@ export function omnibarMockTransport() {
     /** @type {Set<string>} Tracks deleted chats so re-fetches exclude them */
     const deletedChatIds = new Set();
 
+    /** Device-wide count for exercising the cap. */
+    let attachmentPrivacyDisplays = 0;
+
     return new TestTransportConfig({
         notify(_msg) {
             /** @type {import('../../../types/new-tab.ts').NewTabMessages['notifications']} */
@@ -309,6 +313,17 @@ export function omnibarMockTransport() {
                         }
                     }
                     subs.get('omnibar_onConfigUpdate')?.(config);
+                    break;
+                }
+                case 'omnibar_attachmentPrivacyDisclaimerShown': {
+                    attachmentPrivacyDisplays += 1;
+                    config.showAttachmentPrivacyDisclaimer = attachmentPrivacyDisplays < 3;
+                    // Mirror native's config push after each display.
+                    subs.get('omnibar_onConfigUpdate')?.(config);
+                    break;
+                }
+                case 'omnibar_openAttachmentPrivacyLearnMore': {
+                    console.warn('Mock: openAttachmentPrivacyLearnMore');
                     break;
                 }
                 case 'omnibar_selectUsageLimitsCta': {
@@ -471,6 +486,8 @@ export function omnibarMockTransport() {
                     config.enableAttachTabs = parseBooleanQueryParam('omnibar.enableAttachTabs') ?? config.enableAttachTabs;
                     config.enablePastedAttachments =
                         parseBooleanQueryParam('omnibar.enablePastedAttachments') ?? config.enablePastedAttachments;
+                    config.showAttachmentPrivacyDisclaimer =
+                        parseBooleanQueryParam('omnibar.showAttachmentPrivacyDisclaimer') ?? config.showAttachmentPrivacyDisclaimer;
                     config.enableCustomizeResponses =
                         parseBooleanQueryParam('omnibar.enableCustomizeResponses') ?? config.enableCustomizeResponses;
                     config.customizeSubLabel = url.searchParams.get('omnibar.customizeSubLabel') ?? config.customizeSubLabel;

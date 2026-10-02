@@ -317,6 +317,10 @@
     "title": "Apply response customization",
     "description": "Accessible label for the on/off toggle that applies or unapplies the saved response customization, shown on the Customize Responses tools menu row."
   },
+  "omnibar_attachmentPrivacyDisclaimer": {
+    "title": "Files are automatically scanned for illegal content. Flagged chats have limited data retention. <button>Learn more</button>",
+    "description": "Privacy disclaimer shown under the Duck.ai omnibar while a file or image is attached. The button opens the Duck.ai privacy help page."
+  },
   "omnibar_usageLimitsCtaMenuLabel": {
     "title": "Show more models",
     "description": "Accessible label for the usage-limits CTA chevron that opens the alternatives menu."

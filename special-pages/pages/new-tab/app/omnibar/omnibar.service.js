@@ -240,6 +240,16 @@ export class OmnibarService {
         this.ntp.messaging.notify('omnibar_dismissCreateImageModelSwitch', {});
     }
 
+    /** @param {'image' | 'file'} kind */
+    attachmentPrivacyDisclaimerShown(kind) {
+        this.ntp.messaging.notify('omnibar_attachmentPrivacyDisclaimerShown', { kind });
+    }
+
+    /** @param {'image' | 'file'} kind */
+    openAttachmentPrivacyLearnMore(kind) {
+        this.ntp.messaging.notify('omnibar_openAttachmentPrivacyLearnMore', { kind });
+    }
+
     /**
      * Notify native when the updated Create Image mode changes.
      * Native owns model selection, persistence, and localized notice copy.
