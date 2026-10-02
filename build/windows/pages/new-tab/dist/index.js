@@ -9270,6 +9270,14 @@
         dismissCreateImageModelSwitch() {
           this.ntp.messaging.notify("omnibar_dismissCreateImageModelSwitch", {});
         }
+        /** @param {'image' | 'file'} kind */
+        attachmentPrivacyDisclaimerShown(kind) {
+          this.ntp.messaging.notify("omnibar_attachmentPrivacyDisclaimerShown", { kind });
+        }
+        /** @param {'image' | 'file'} kind */
+        openAttachmentPrivacyLearnMore(kind) {
+          this.ntp.messaging.notify("omnibar_openAttachmentPrivacyLearnMore", { kind });
+        }
         /**
          * Notify native when the updated Create Image mode changes.
          * Native owns model selection, persistence, and localized notice copy.
@@ -9478,6 +9486,18 @@
       },
       [service]
     );
+    const attachmentPrivacyDisclaimerShown = q2(
+      (kind) => {
+        service.current?.attachmentPrivacyDisclaimerShown(kind);
+      },
+      [service]
+    );
+    const openAttachmentPrivacyLearnMore = q2(
+      (kind) => {
+        service.current?.openAttachmentPrivacyLearnMore(kind);
+      },
+      [service]
+    );
     const selectUsageLimitsCta = q2(
       (modelId) => {
         service.current?.selectUsageLimitsCta(modelId);
@@ -9543,6 +9563,8 @@
           dismissUsageLimits,
           dismissCreateImageModelSwitch,
           setImageGenerationActive,
+          attachmentPrivacyDisclaimerShown,
+          openAttachmentPrivacyLearnMore,
           selectUsageLimitsCta,
           setCustomizeResponsesActive,
           showUpsell,
@@ -9655,6 +9677,14 @@
         },
         /** @type {(active: boolean) => void} */
         setImageGenerationActive: () => {
+          throw new Error("must implement");
+        },
+        /** @type {(kind: 'image' | 'file') => void} */
+        attachmentPrivacyDisclaimerShown: () => {
+          throw new Error("must implement");
+        },
+        /** @type {(kind: 'image' | 'file') => void} */
+        openAttachmentPrivacyLearnMore: () => {
           throw new Error("must implement");
         },
         /** @type {(modelId?: string) => void} */
@@ -11425,6 +11455,40 @@
     }
     return { Provider: Provider2, useStateWithLocalPersistence: useStateWithLocalPersistence5 };
   }
+  function createPersistentFlag() {
+    const Context = X(
+      /** @type {PersistentValue<boolean>|null} */
+      null
+    );
+    function Provider2({ children }) {
+      const [store] = d2(() => (
+        /** @type {PersistentValue<boolean>} */
+        new PersistentValue()
+      ));
+      const { all: all2 } = useTabState();
+      h2(() => {
+        return all2.subscribe((tabIds) => store.prune({ preserve: tabIds }));
+      }, [all2, store]);
+      return /* @__PURE__ */ k(Context.Provider, { value: store }, children);
+    }
+    function useStateWithLocalPersistence5(tabId) {
+      const store = x2(Context);
+      const [value2, setValue] = d2(() => store?.byId(tabId) ?? false);
+      const setter = q2(
+        /** @param {boolean} next */
+        (next) => {
+          if (tabId) store?.update({ id: tabId, value: next });
+          setValue(next);
+        },
+        [store, tabId]
+      );
+      return (
+        /** @type {const} */
+        [value2, setter]
+      );
+    }
+    return { Provider: Provider2, useStateWithLocalPersistence: useStateWithLocalPersistence5 };
+  }
   function useQueryWithLocalPersistence(tabId) {
     const terms = x2(TextInputContext);
     invariant(
@@ -11482,7 +11546,7 @@
     if (message) throw new Error("Invariant failed: " + message);
     throw new Error("Invariant failed");
   }
-  var TextInputContext, ModeContext, TabAttachments, FileAttachments, ImageAttachments, OpenTabsList;
+  var TextInputContext, ModeContext, TabAttachments, FileAttachments, ImageAttachments, OpenTabsList, AttachmentPrivacyGrant;
   var init_PersistentOmnibarValuesProvider = __esm({
     "pages/new-tab/app/omnibar/components/PersistentOmnibarValuesProvider.js"() {
       "use strict";
@@ -11507,6 +11571,7 @@
       createPersistentList();
       OpenTabsList = /** @type {() => PersistentList<TabMetadata>} */
       createPersistentList();
+      AttachmentPrivacyGrant = createPersistentFlag();
     }
   });
 
@@ -11769,155 +11834,6 @@
       init_types();
       init_useImageAttachments();
       init_ImageAttachment();
-    }
-  });
-
-  // pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/fileChannels.js
-  function buildFileAccept(mimeTypes) {
-    return mimeTypes.flatMap((mime) => [mime, ...FILE_EXTENSIONS[mime] ?? []]).join(",");
-  }
-  function resolveFileMimeType(file, allowList) {
-    if (allowList.includes(file.type)) return file.type;
-    const lowerName = file.name.toLowerCase();
-    for (const mime of allowList) {
-      if ((FILE_EXTENSIONS[mime] ?? []).some((ext) => lowerName.endsWith(ext))) return mime;
-    }
-    return null;
-  }
-  function resolveFileInputLabel(t4, image, file) {
-    if (image && file) return t4("omnibar_attachImageOrFileLabel");
-    if (image) return t4("omnibar_attachImageLabel");
-    return t4("omnibar_attachFileLabel");
-  }
-  function resolveFileInput({ t: t4, image, file }) {
-    const label = resolveFileInputLabel(t4, image, file);
-    const accept = [...image ? [IMAGE_ACCEPT] : [], ...file ? [buildFileAccept(file.mimeTypes)] : []].filter(Boolean).join(",");
-    const disabled = (image?.disabled ?? true) && (file?.disabled ?? true);
-    const onChange = async (event) => {
-      const input = (
-        /** @type {HTMLInputElement} */
-        event.currentTarget
-      );
-      if (!input.files || input.files.length === 0) return;
-      const all2 = Array.from(input.files);
-      const tasks = [];
-      if (image) {
-        const images = all2.filter((file2) => file2.type.startsWith("image/"));
-        if (images.length > 0) tasks.push(image.processFiles(images));
-      }
-      if (file) {
-        const others = all2.filter((file2) => !file2.type.startsWith("image/"));
-        if (others.length > 0) tasks.push(file.processFiles(others));
-      }
-      await Promise.all(tasks);
-      input.value = "";
-    };
-    return { label, accept, disabled, onChange };
-  }
-  var IMAGE_ACCEPT, FILE_EXTENSIONS;
-  var init_fileChannels = __esm({
-    "pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/fileChannels.js"() {
-      "use strict";
-      IMAGE_ACCEPT = "image/jpeg,image/png,image/webp";
-      FILE_EXTENSIONS = {
-        "application/pdf": [".pdf"]
-      };
-    }
-  });
-
-  // pages/new-tab/app/omnibar/components/chat-tools/file-attachment/useFileAttachments.js
-  function useFileAttachments({ supportedFileTypes, tabId, maxFiles = MAX_FILES, maxFileSizeMB } = {}) {
-    const [attachedFiles, setAttachedFiles] = useStateWithLocalPersistence2(tabId);
-    const [fileError, setFileError] = d2(
-      /** @type {FileError|null} */
-      null
-    );
-    const allowList = supportedFileTypes ?? [];
-    const allowListKey = allowList.join("|");
-    const [prevAllowListKey, setPrevAllowListKey] = d2(allowListKey);
-    if (prevAllowListKey !== allowListKey) {
-      setPrevAllowListKey(allowListKey);
-      setAttachedFiles((prev) => prev.filter((f4) => allowList.includes(f4.mimeType)));
-    }
-    const fileUploadDisabled = allowList.length === 0;
-    const fileLimitExceeded = attachedFiles.length > maxFiles;
-    const clearAttachedFiles = () => setAttachedFiles([]);
-    const clearFileError = () => setFileError(null);
-    const processFiles = async (files) => {
-      if (files.length === 0) return;
-      setFileError(null);
-      const existingNames = new Set(attachedFiles.map((file) => file.fileName));
-      const candidates = files.map((file) => ({ file, mimeType: resolveFileMimeType(file, allowList) })).filter(({ file, mimeType }) => mimeType !== null && !existingNames.has(file.name));
-      if (candidates.length === 0) return;
-      const maxBytes = maxFileSizeMB != null ? maxFileSizeMB * BYTES_PER_MB : null;
-      const tooLargeNames = [];
-      const validFiles = candidates.filter(({ file }) => {
-        if (maxBytes != null && file.size > maxBytes) {
-          tooLargeNames.push(file.name);
-          return false;
-        }
-        return true;
-      });
-      if (tooLargeNames.length > 0) {
-        setFileError({ type: "fileTooLarge", fileNames: tooLargeNames });
-      }
-      if (validFiles.length === 0) return;
-      const results = await Promise.allSettled(
-        validFiles.map(({ file, mimeType }) => readFileAsBase64(
-          file,
-          /** @type {string} */
-          mimeType
-        ))
-      );
-      const ok = (
-        /** @type {PromiseFulfilledResult<Omit<AttachedFile, 'addedAtRelative'>>[]} */
-        results.filter((r4) => r4.status === "fulfilled").map((r4) => r4.value)
-      );
-      if (ok.length > 0) {
-        const addedAtRelative = performance.now();
-        setAttachedFiles((prev) => [...prev, ...ok.map((file) => ({ ...file, addedAtRelative }))]);
-      }
-    };
-    const handleRemoveFile = (index2) => {
-      setAttachedFiles((prev) => prev.filter((_5, i5) => i5 !== index2));
-    };
-    const getFilesForSubmission = () => {
-      if (attachedFiles.length === 0) return void 0;
-      return attachedFiles.map(({ data: data2, fileName, mimeType }) => ({ data: data2, fileName, mimeType }));
-    };
-    return {
-      attachedFiles,
-      processFiles,
-      handleRemoveFile,
-      clearAttachedFiles,
-      fileUploadDisabled,
-      fileLimitExceeded,
-      getFilesForSubmission,
-      fileError,
-      clearFileError,
-      maxFiles,
-      maxFileSizeMB
-    };
-  }
-  async function readFileAsBase64(file, mimeType) {
-    const result = await readFileAsDataUrl(file, FILE_READ_TIMEOUT);
-    const commaIndex = result.indexOf(",");
-    if (commaIndex < 0) {
-      throw new Error("FileReader returned unexpected output");
-    }
-    return { data: result.slice(commaIndex + 1), fileName: file.name, mimeType };
-  }
-  var useStateWithLocalPersistence2, MAX_FILES, BYTES_PER_MB;
-  var init_useFileAttachments = __esm({
-    "pages/new-tab/app/omnibar/components/chat-tools/file-attachment/useFileAttachments.js"() {
-      "use strict";
-      init_hooks_module();
-      init_PersistentOmnibarValuesProvider();
-      init_fileChannels();
-      init_readFileAsDataUrl();
-      ({ useStateWithLocalPersistence: useStateWithLocalPersistence2 } = FileAttachments);
-      MAX_FILES = 3;
-      BYTES_PER_MB = 1024 * 1024;
     }
   });
 
@@ -12297,6 +12213,190 @@
       "use strict";
       init_hooks_module();
       init_OmnibarProvider();
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/fileChannels.js
+  function buildFileAccept(mimeTypes) {
+    return mimeTypes.flatMap((mime) => [mime, ...FILE_EXTENSIONS[mime] ?? []]).join(",");
+  }
+  function resolveFileMimeType(file, allowList) {
+    if (allowList.includes(file.type)) return file.type;
+    const lowerName = file.name.toLowerCase();
+    for (const mime of allowList) {
+      if ((FILE_EXTENSIONS[mime] ?? []).some((ext) => lowerName.endsWith(ext))) return mime;
+    }
+    return null;
+  }
+  function resolveFileInputLabel(t4, image, file) {
+    if (image && file) return t4("omnibar_attachImageOrFileLabel");
+    if (image) return t4("omnibar_attachImageLabel");
+    return t4("omnibar_attachFileLabel");
+  }
+  function resolveFileInput({ t: t4, image, file }) {
+    const label = resolveFileInputLabel(t4, image, file);
+    const accept = [...image ? [IMAGE_ACCEPT] : [], ...file ? [buildFileAccept(file.mimeTypes)] : []].filter(Boolean).join(",");
+    const disabled = (image?.disabled ?? true) && (file?.disabled ?? true);
+    const onChange = async (event) => {
+      const input = (
+        /** @type {HTMLInputElement} */
+        event.currentTarget
+      );
+      if (!input.files || input.files.length === 0) return;
+      const all2 = Array.from(input.files);
+      const tasks = [];
+      if (image) {
+        const images = all2.filter((file2) => file2.type.startsWith("image/"));
+        if (images.length > 0) tasks.push(image.processFiles(images));
+      }
+      if (file) {
+        const others = all2.filter((file2) => !file2.type.startsWith("image/"));
+        if (others.length > 0) tasks.push(file.processFiles(others));
+      }
+      await Promise.all(tasks);
+      input.value = "";
+    };
+    return { label, accept, disabled, onChange };
+  }
+  var IMAGE_ACCEPT, FILE_EXTENSIONS;
+  var init_fileChannels = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/fileChannels.js"() {
+      "use strict";
+      IMAGE_ACCEPT = "image/jpeg,image/png,image/webp";
+      FILE_EXTENSIONS = {
+        "application/pdf": [".pdf"]
+      };
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/file-attachment/useFileAttachments.js
+  function useFileAttachments({ supportedFileTypes, tabId, maxFiles = MAX_FILES, maxFileSizeMB } = {}) {
+    const [attachedFiles, setAttachedFiles] = useStateWithLocalPersistence2(tabId);
+    const [fileError, setFileError] = d2(
+      /** @type {FileError|null} */
+      null
+    );
+    const allowList = supportedFileTypes ?? [];
+    const allowListKey = allowList.join("|");
+    const [prevAllowListKey, setPrevAllowListKey] = d2(allowListKey);
+    if (prevAllowListKey !== allowListKey) {
+      setPrevAllowListKey(allowListKey);
+      setAttachedFiles((prev) => prev.filter((f4) => allowList.includes(f4.mimeType)));
+    }
+    const fileUploadDisabled = allowList.length === 0;
+    const fileLimitExceeded = attachedFiles.length > maxFiles;
+    const clearAttachedFiles = () => setAttachedFiles([]);
+    const clearFileError = () => setFileError(null);
+    const processFiles = async (files) => {
+      if (files.length === 0) return;
+      setFileError(null);
+      const existingNames = new Set(attachedFiles.map((file) => file.fileName));
+      const candidates = files.map((file) => ({ file, mimeType: resolveFileMimeType(file, allowList) })).filter(({ file, mimeType }) => mimeType !== null && !existingNames.has(file.name));
+      if (candidates.length === 0) return;
+      const maxBytes = maxFileSizeMB != null ? maxFileSizeMB * BYTES_PER_MB : null;
+      const tooLargeNames = [];
+      const validFiles = candidates.filter(({ file }) => {
+        if (maxBytes != null && file.size > maxBytes) {
+          tooLargeNames.push(file.name);
+          return false;
+        }
+        return true;
+      });
+      if (tooLargeNames.length > 0) {
+        setFileError({ type: "fileTooLarge", fileNames: tooLargeNames });
+      }
+      if (validFiles.length === 0) return;
+      const results = await Promise.allSettled(
+        validFiles.map(({ file, mimeType }) => readFileAsBase64(
+          file,
+          /** @type {string} */
+          mimeType
+        ))
+      );
+      const ok = (
+        /** @type {PromiseFulfilledResult<Omit<AttachedFile, 'addedAtRelative'>>[]} */
+        results.filter((r4) => r4.status === "fulfilled").map((r4) => r4.value)
+      );
+      if (ok.length > 0) {
+        const addedAtRelative = performance.now();
+        setAttachedFiles((prev) => [...prev, ...ok.map((file) => ({ ...file, addedAtRelative }))]);
+      }
+    };
+    const handleRemoveFile = (index2) => {
+      setAttachedFiles((prev) => prev.filter((_5, i5) => i5 !== index2));
+    };
+    const getFilesForSubmission = () => {
+      if (attachedFiles.length === 0) return void 0;
+      return attachedFiles.map(({ data: data2, fileName, mimeType }) => ({ data: data2, fileName, mimeType }));
+    };
+    return {
+      attachedFiles,
+      processFiles,
+      handleRemoveFile,
+      clearAttachedFiles,
+      fileUploadDisabled,
+      fileLimitExceeded,
+      getFilesForSubmission,
+      fileError,
+      clearFileError,
+      maxFiles,
+      maxFileSizeMB
+    };
+  }
+  async function readFileAsBase64(file, mimeType) {
+    const result = await readFileAsDataUrl(file, FILE_READ_TIMEOUT);
+    const commaIndex = result.indexOf(",");
+    if (commaIndex < 0) {
+      throw new Error("FileReader returned unexpected output");
+    }
+    return { data: result.slice(commaIndex + 1), fileName: file.name, mimeType };
+  }
+  var useStateWithLocalPersistence2, MAX_FILES, BYTES_PER_MB;
+  var init_useFileAttachments = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/file-attachment/useFileAttachments.js"() {
+      "use strict";
+      init_hooks_module();
+      init_PersistentOmnibarValuesProvider();
+      init_fileChannels();
+      init_readFileAsDataUrl();
+      ({ useStateWithLocalPersistence: useStateWithLocalPersistence2 } = FileAttachments);
+      MAX_FILES = 3;
+      BYTES_PER_MB = 1024 * 1024;
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/attachments/AttachmentsProvider.js
+  function AttachmentsProvider({ tabId, children }) {
+    const { state } = x2(OmnibarContext);
+    const { selectedModel } = useSelectedModel();
+    const attachmentLimits = state.config?.attachmentLimits;
+    const imageState = useImageAttachments({ tabId, maxImages: attachmentLimits?.images?.maxPerTurn });
+    const fileState = useFileAttachments({
+      supportedFileTypes: selectedModel?.supportedFileTypes,
+      tabId,
+      maxFiles: attachmentLimits?.files?.maxPerConversation,
+      maxFileSizeMB: attachmentLimits?.files?.maxFileSizeMB
+    });
+    return /* @__PURE__ */ k(AttachmentsContext.Provider, { value: { imageState, fileState, tabId } }, children);
+  }
+  function useAttachmentsContext() {
+    const context = x2(AttachmentsContext);
+    if (!context) {
+      throw new Error("useAttachmentsContext must be used within an AttachmentsProvider");
+    }
+    return context;
+  }
+  var AttachmentsContext;
+  var init_AttachmentsProvider = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/attachments/AttachmentsProvider.js"() {
+      "use strict";
+      init_preact_module();
+      init_hooks_module();
+      init_OmnibarProvider();
+      init_useSelectedModel();
+      init_useFileAttachments();
+      init_useImageAttachments();
+      AttachmentsContext = X(null);
     }
   });
 
@@ -14647,6 +14747,60 @@
     }
   });
 
+  // pages/new-tab/app/omnibar/components/useAttachmentPrivacyNotice.js
+  function useAttachmentPrivacyNotice() {
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {Strings} */
+      {}
+    );
+    const { state, attachmentPrivacyDisclaimerShown, openAttachmentPrivacyLearnMore } = x2(OmnibarContext);
+    const { imageState, fileState, tabId } = useAttachmentsContext();
+    const allowed = state.config?.showAttachmentPrivacyDisclaimer === true;
+    const [granted, setGranted] = AttachmentPrivacyGrant.useStateWithLocalPersistence(tabId);
+    let attachmentKind = null;
+    if (imageState.attachedImages.length > 0) {
+      attachmentKind = "image";
+    } else if (fileState.attachedFiles.length > 0) {
+      attachmentKind = "file";
+    }
+    h2(() => {
+      if (attachmentKind === null) {
+        if (granted) setGranted(false);
+        return;
+      }
+      if (granted || !allowed) return;
+      setGranted(true);
+      attachmentPrivacyDisclaimerShown(attachmentKind);
+    }, [attachmentKind, granted, allowed, setGranted, attachmentPrivacyDisclaimerShown]);
+    const messageValues = {
+      button: {
+        click: () => {
+          if (attachmentKind) openAttachmentPrivacyLearnMore(attachmentKind);
+        }
+      }
+    };
+    const presentation = attachmentKind && granted ? {
+      message: t4("omnibar_attachmentPrivacyDisclaimer"),
+      secondaryText: "",
+      icon: (
+        /** @type {const} */
+        "info"
+      ),
+      messageValues
+    } : null;
+    return presentation;
+  }
+  var init_useAttachmentPrivacyNotice = __esm({
+    "pages/new-tab/app/omnibar/components/useAttachmentPrivacyNotice.js"() {
+      "use strict";
+      init_hooks_module();
+      init_types();
+      init_OmnibarProvider();
+      init_PersistentOmnibarValuesProvider();
+      init_AttachmentsProvider();
+    }
+  });
+
   // pages/new-tab/app/omnibar/components/NoticeDrawer.module.css
   var NoticeDrawer_default;
   var init_NoticeDrawer = __esm({
@@ -14857,9 +15011,10 @@
     ) : null) : null);
   }
   function NoticeDrawer({ revealed }) {
+    const attachmentPrivacy = useAttachmentPrivacyNotice();
     const usageLimits = useUsageLimitsDrawer();
     const createImageModelSwitch = useCreateImageModelSwitchNotice();
-    const presentation = createImageModelSwitch ?? usageLimits;
+    const presentation = attachmentPrivacy ?? createImageModelSwitch ?? usageLimits;
     if (!presentation) return null;
     const {
       message,
@@ -14869,11 +15024,12 @@
       percent = 0,
       severity = "neutral",
       cta = null,
+      messageValues,
       onSelectCta,
       onDismiss
     } = presentation;
     const emphasize = icon === "ring" || icon === "alert" || icon === "convert";
-    const isRevealed = revealed || createImageModelSwitch !== null;
+    const isRevealed = revealed || createImageModelSwitch !== null || attachmentPrivacy !== null;
     const keepComposerFocus = (event) => {
       event.preventDefault();
     };
@@ -14885,7 +15041,7 @@
         role: "status",
         onMouseDown: keepComposerFocus
       },
-      /* @__PURE__ */ k("div", { class: NoticeDrawer_default.card }, /* @__PURE__ */ k("div", { class: NoticeDrawer_default.content }, /* @__PURE__ */ k("span", { class: NoticeDrawer_default.leading }, /* @__PURE__ */ k(NoticeGlyph, { icon, percent, severity })), /* @__PURE__ */ k("p", { class: (0, import_classnames22.default)(NoticeDrawer_default.message, emphasize && NoticeDrawer_default.messageEmphasized, secondaryOnNewLine && NoticeDrawer_default.messageStacked) }, /* @__PURE__ */ k("span", { class: NoticeDrawer_default.primary }, message), secondaryText ? /* @__PURE__ */ k("span", { class: NoticeDrawer_default.secondary }, secondaryText) : null), cta && onSelectCta ? /* @__PURE__ */ k(UsageLimitsCtaControl, { cta, onSelectCta }) : null, onDismiss ? /* @__PURE__ */ k(DismissButton, { className: NoticeDrawer_default.dismiss, onClick: onDismiss }) : null))
+      /* @__PURE__ */ k("div", { class: NoticeDrawer_default.card }, /* @__PURE__ */ k("div", { class: NoticeDrawer_default.content }, /* @__PURE__ */ k("span", { class: NoticeDrawer_default.leading }, /* @__PURE__ */ k(NoticeGlyph, { icon, percent, severity })), /* @__PURE__ */ k("p", { class: (0, import_classnames22.default)(NoticeDrawer_default.message, emphasize && NoticeDrawer_default.messageEmphasized, secondaryOnNewLine && NoticeDrawer_default.messageStacked) }, /* @__PURE__ */ k("span", { class: NoticeDrawer_default.primary }, messageValues ? /* @__PURE__ */ k(Trans, { str: message, values: messageValues }) : message), secondaryText ? /* @__PURE__ */ k("span", { class: NoticeDrawer_default.secondary }, secondaryText) : null), cta && onSelectCta ? /* @__PURE__ */ k(UsageLimitsCtaControl, { cta, onSelectCta }) : null, onDismiss ? /* @__PURE__ */ k(DismissButton, { className: NoticeDrawer_default.dismiss, onClick: onDismiss }) : null))
     );
   }
   var import_classnames22;
@@ -14898,12 +15054,14 @@
       init_DismissButton2();
       init_Icons2();
       init_types();
+      init_TranslationsProvider();
       init_Dropdown2();
       init_DropdownItem();
       init_useDropdown();
       init_Icons3();
       init_useCreateImageModelSwitchNotice();
       init_useUsageLimitsDrawer();
+      init_useAttachmentPrivacyNotice();
       init_NoticeDrawer();
     }
   });
@@ -15048,7 +15206,7 @@
           }
         }
       )
-    )), /* @__PURE__ */ k(SearchFormProvider, { term: query, setTerm: setQuery, enableAi, enableAskAiSuggestion }, /* @__PURE__ */ k(
+    )), /* @__PURE__ */ k(SearchFormProvider, { term: query, setTerm: setQuery, enableAi, enableAskAiSuggestion }, /* @__PURE__ */ k(AttachmentsProvider, { tabId }, /* @__PURE__ */ k(
       AiChatsProvider,
       {
         query,
@@ -15094,7 +15252,7 @@
         ))),
         mode === "ai" && /* @__PURE__ */ k(NoticeDrawer, { revealed: usageLimitsRevealed })
       )
-    )));
+    ))));
   }
   function AiChatContent({
     query,
@@ -15127,17 +15285,11 @@
     const hasVisibleImagesRef = A2(false);
     const submittingRef = A2(false);
     const [imageWarning, setImageWarning] = d2(false);
-    const imageState = useImageAttachments({ tabId, maxImages: attachmentLimits?.images?.maxPerTurn });
+    const { imageState, fileState } = useAttachmentsContext();
     const hasAttachedImages = imageState.attachedImages.length > 0;
     const imageGenerationPlaceholder = hasAttachedImages ? t4("omnibar_imageGenerationWithAttachmentPlaceholder") : t4("omnibar_imageGenerationPlaceholder");
     const selectedModelSupportsImages = selectedModel?.supportsImageUpload ?? false;
     const canAttachImages = selectedModelSupportsImages || imageGenerationActive;
-    const fileState = useFileAttachments({
-      supportedFileTypes: selectedModel?.supportedFileTypes,
-      tabId,
-      maxFiles: attachmentLimits?.files?.maxPerConversation,
-      maxFileSizeMB: attachmentLimits?.files?.maxFileSizeMB
-    });
     const canAttachFiles = !imageGenerationActive && (selectedModel?.supportedFileTypes?.length ?? 0) > 0;
     const canAttachTabs = enableAttachTabs && !imageGenerationActive;
     const tabAttachments = useTabAttachments(tabId, attachmentLimits?.tabs?.maxAttached);
@@ -15393,9 +15545,8 @@
       init_Drawer();
       init_TranslationsProvider();
       init_ImageAttachmentTool();
-      init_useImageAttachments();
-      init_useFileAttachments();
       init_AttachmentChips2();
+      init_AttachmentsProvider();
       init_ModelSelectorTool();
       init_ReasoningPickerTool();
       init_ToolsMenu2();
@@ -15503,9 +15654,9 @@
     const sectionTitle = t4("omnibar_menuTitle");
     const { visibility, id, toggle, index: index2 } = useVisibility();
     useCustomizer({ title: sectionTitle, id, icon: /* @__PURE__ */ k(SearchIcon, null), toggle, visibility: visibility.value, index: index2, enabled: true });
-    return /* @__PURE__ */ k(PersistentTextInputProvider, null, /* @__PURE__ */ k(PersistentModeProvider, null, /* @__PURE__ */ k(TabAttachmentsProvider, null, /* @__PURE__ */ k(OpenTabsListProvider, null, /* @__PURE__ */ k(FileAttachmentsProvider, null, /* @__PURE__ */ k(ImageAttachmentsProvider, null, /* @__PURE__ */ k(OmnibarProvider, null, /* @__PURE__ */ k(OmnibarConsumer, null))))))));
+    return /* @__PURE__ */ k(PersistentTextInputProvider, null, /* @__PURE__ */ k(PersistentModeProvider, null, /* @__PURE__ */ k(TabAttachmentsProvider, null, /* @__PURE__ */ k(OpenTabsListProvider, null, /* @__PURE__ */ k(FileAttachmentsProvider, null, /* @__PURE__ */ k(ImageAttachmentsProvider, null, /* @__PURE__ */ k(AttachmentPrivacyGrantProvider, null, /* @__PURE__ */ k(OmnibarProvider, null, /* @__PURE__ */ k(OmnibarConsumer, null)))))))));
   }
-  var TabAttachmentsProvider, FileAttachmentsProvider, ImageAttachmentsProvider, OpenTabsListProvider;
+  var TabAttachmentsProvider, FileAttachmentsProvider, ImageAttachmentsProvider, OpenTabsListProvider, AttachmentPrivacyGrantProvider;
   var init_OmnibarCustomized = __esm({
     "pages/new-tab/app/omnibar/components/OmnibarCustomized.js"() {
       "use strict";
@@ -15521,6 +15672,7 @@
       ({ Provider: FileAttachmentsProvider } = FileAttachments);
       ({ Provider: ImageAttachmentsProvider } = ImageAttachments);
       ({ Provider: OpenTabsListProvider } = OpenTabsList);
+      ({ Provider: AttachmentPrivacyGrantProvider } = AttachmentPrivacyGrant);
     }
   });
 
@@ -37046,6 +37198,10 @@
     omnibar_customizeResponsesToggleLabel: {
       title: "Apply response customization",
       description: "Accessible label for the on/off toggle that applies or unapplies the saved response customization, shown on the Customize Responses tools menu row."
+    },
+    omnibar_attachmentPrivacyDisclaimer: {
+      title: "Files are automatically scanned for illegal content. Flagged chats have limited data retention. <button>Learn more</button>",
+      description: "Privacy disclaimer shown under the Duck.ai omnibar while a file or image is attached. The button opens the Duck.ai privacy help page."
     },
     omnibar_usageLimitsCtaMenuLabel: {
       title: "Show more models",

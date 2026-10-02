@@ -1,1 +1,1 @@
-- Duck.ai data clearing: report the real error and always reply (#3070)
+- NTP omnibar: add the file upload privacy disclaimer (#3072)

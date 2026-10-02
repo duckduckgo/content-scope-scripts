@@ -6768,6 +6768,24 @@ body[data-rebrand=true]:not([data-background-kind=default]) .TabSwitcher_blob {
 .NoticeDrawer_messageEmphasized .NoticeDrawer_primary {
   font-weight: 600;
 }
+.NoticeDrawer_primary button {
+  background: none;
+  border: none;
+  color: var(--ds-color-theme-accent-primary);
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+}
+.NoticeDrawer_primary button:hover {
+  color: var(--ds-color-theme-accent-secondary);
+}
+.NoticeDrawer_primary button:active {
+  color: var(--ds-color-theme-accent-tertiary);
+}
+.NoticeDrawer_primary button:focus-visible {
+  box-shadow: var(--focus-ring);
+  outline: none;
+}
 .NoticeDrawer_messageStacked {
   display: flex;
   flex-direction: column;
