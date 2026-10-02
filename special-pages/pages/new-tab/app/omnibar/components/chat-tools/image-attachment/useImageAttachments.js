@@ -28,8 +28,8 @@ export const MAX_IMAGES = 3;
 const ALLOWED_FORMATS = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_DIMENSION = 512;
 /**
- * Pasted bitmaps (usually screenshots) keep up to this size, so text in them stays legible.
- * Regular picked images use {@link MAX_DIMENSION}.
+ * Screenshots and pasted bitmaps arrive at up to this size (native scales screenshots to it) and
+ * keep it, so text in them stays legible. Regular picked images use {@link MAX_DIMENSION}.
  */
 export const SCREENSHOT_MAX_DIMENSION = 1024;
 const MAX_ENCODED_BYTES = 10 * 1024 * 1024;
@@ -205,6 +205,9 @@ export function useImageAttachments({ tabId, maxImages = MAX_IMAGES } = {}) {
         setAttachedImages((prev) => prev.filter((_, i) => i !== index));
         if (!removed) return;
         ntp.telemetryEvent({ attributes: { name: 'omnibar_image_removed', value: { source: removed.source } } });
+        if (removed.source === 'screenshot') {
+            ntp.telemetryEvent({ attributes: { name: 'omnibar_screenshot_removed' } });
+        }
     };
 
     /**

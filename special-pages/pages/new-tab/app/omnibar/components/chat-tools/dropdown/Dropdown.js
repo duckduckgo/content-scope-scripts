@@ -1,6 +1,7 @@
 import { h, cloneElement, toChildArray } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
 import cn from 'classnames';
+import { DropdownSubmenu } from './DropdownSubmenu';
 import styles from './Dropdown.module.css';
 
 /**
@@ -24,12 +25,23 @@ function getItemProps(child) {
 }
 
 /**
+ * @param {import('preact').ComponentChild} child
+ * @returns {boolean}
+ */
+function isSubmenu(child) {
+    return typeof child === 'object' && child !== null && 'type' in child && child.type === DropdownSubmenu;
+}
+
+/**
  * Shared dropdown panel for the chat-tools toolbar. Owns `activeIndex`, keyboard
  * navigation, aria-activedescendant, focus-on-open, and hover/leave tracking.
- * Children must be {@link DropdownItem} nodes; {@link DropdownSeparator} may be used
- * between groups. Dropdown injects `isActive`,
+ * Children must be {@link DropdownItem} or {@link DropdownSubmenu} nodes; {@link DropdownSeparator}
+ * may be used between groups. Dropdown injects `isActive`,
  * `id`, `onMouseOver`, and `onClick` via `cloneElement`, and invokes each
  * item's `onSelect` on click or Enter.
+ *
+ * At most one {@link DropdownSubmenu} is open at a time. It opens on hover, click, Enter/Space or
+ * ArrowRight, and closes when another row is hovered or (from inside it) on Escape/ArrowLeft.
  *
  * @param {object} props
  * @param {import('preact').ComponentChildren} props.children
@@ -44,6 +56,7 @@ function getItemProps(child) {
  * @param {string} [props.idPrefix]
  * @param {string} [props.className]
  * @param {boolean} [props.multiSelect] - open with no row highlighted instead of the first `isSelected` row.
+ * @param {boolean} [props.closeOnArrowLeft] - close on ArrowLeft too; set on submenu panels.
  */
 export function Dropdown({
     children,
@@ -58,8 +71,10 @@ export function Dropdown({
     idPrefix = 'dropdown-item',
     className,
     multiSelect = false,
+    closeOnArrowLeft = false,
 }) {
     const items = toChildArray(children);
+    const [openSubmenuIndex, setOpenSubmenuIndex] = useState(-1);
 
     const isItemEnabled = (/** @type {import('preact').ComponentChild} */ child) => !getItemProps(child)?.disabled;
 
@@ -74,7 +89,8 @@ export function Dropdown({
         items
             .map((child, index) => {
                 const props = getItemProps(child);
-                return props && typeof props.onSelect === 'function' && !props.disabled ? index : -1;
+                const actionable = typeof props?.onSelect === 'function' || isSubmenu(child);
+                return props && actionable && !props.disabled ? index : -1;
             })
             .filter((index) => index >= 0);
 
@@ -126,7 +142,21 @@ export function Dropdown({
     /** @param {number} index */
     const selectAt = (index) => {
         if (!isItemEnabled(items[index])) return;
+        if (isSubmenu(items[index])) {
+            setOpenSubmenuIndex(index);
+            return;
+        }
         getItemProps(items[index])?.onSelect?.();
+    };
+
+    /** Rows that open a submenu keep the panel open when chosen. */
+    const keepsOpenOnSelect = (/** @type {import('preact').ComponentChild} */ child) =>
+        isSubmenu(child) || Boolean(getItemProps(child)?.ariaHasPopup);
+
+    /** @param {{ restoreFocus: boolean }} options */
+    const closeSubmenu = ({ restoreFocus }) => {
+        setOpenSubmenuIndex(-1);
+        if (restoreFocus) dropdownRef.current?.focus();
     };
 
     /** @type {(e: KeyboardEvent) => void} */
@@ -156,7 +186,19 @@ export function Dropdown({
                 }
 
                 selectAt(activeIndex);
-                if (!getItemProps(items[activeIndex])?.ariaHasPopup) {
+                if (!keepsOpenOnSelect(items[activeIndex])) {
+                    onClose({ restoreFocus: true });
+                }
+                break;
+            case 'ArrowRight':
+                if (activeIndex >= 0 && isSubmenu(items[activeIndex])) {
+                    e.preventDefault();
+                    selectAt(activeIndex);
+                }
+                break;
+            case 'ArrowLeft':
+                if (closeOnArrowLeft) {
+                    e.preventDefault();
                     onClose({ restoreFocus: true });
                 }
                 break;
@@ -173,18 +215,35 @@ export function Dropdown({
     const clonedItems = items.map((child, index) => {
         if (getItemProps(child) === null) return child;
 
+        const enabled = isItemEnabled(child);
+        const submenuOpen = openSubmenuIndex >= 0;
         return cloneElement(/** @type {import('preact').VNode} */ (child), {
             id: getItemId(index),
             isActive: activeIndex === index,
-            onMouseOver: isItemEnabled(child) ? () => setActiveIndex(index) : undefined,
+            onMouseOver:
+                enabled || submenuOpen
+                    ? () => {
+                          if (enabled) setActiveIndex(index);
+                          // Moving onto another row closes the open submenu and hands focus back here.
+                          if (submenuOpen && openSubmenuIndex !== index) closeSubmenu({ restoreFocus: true });
+                      }
+                    : undefined,
             onClick: (/** @type {MouseEvent} */ e) => {
                 e.stopPropagation();
-                if (!isItemEnabled(child)) return;
+                if (!enabled) return;
                 selectAt(index);
-                if (!getItemProps(child)?.ariaHasPopup) {
+                if (!keepsOpenOnSelect(child)) {
                     onClose({ restoreFocus: false });
                 }
             },
+            ...(isSubmenu(child) && {
+                isOpen: openSubmenuIndex === index,
+                onOpen: () => {
+                    if (enabled) setOpenSubmenuIndex(index);
+                },
+                onCloseSubmenu: closeSubmenu,
+                onCloseMenu: onClose,
+            }),
         });
     });
 

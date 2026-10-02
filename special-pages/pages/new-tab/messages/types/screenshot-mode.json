@@ -1,0 +1,7 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Screenshot Mode",
+  "description": "How native acquires a screenshot: `dragToSelect` opens the system region-selection overlay; `selectWindowOrDisplay` opens the native window/display picker.",
+  "type": "string",
+  "enum": ["dragToSelect", "selectWindowOrDisplay"]
+}

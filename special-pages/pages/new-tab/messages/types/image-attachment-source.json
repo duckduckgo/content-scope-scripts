@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Image Attachment Source",
-  "description": "How an image chip was added to the Duck.ai prompt: the file picker or a clipboard paste.",
+  "description": "How an image chip was added to the Duck.ai prompt: the file picker, a clipboard paste, or a screenshot capture.",
   "type": "string",
-  "enum": ["file", "paste"]
+  "enum": ["file", "paste", "screenshot"]
 }
