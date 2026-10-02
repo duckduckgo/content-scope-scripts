@@ -295,6 +295,12 @@
       "type": "boolean",
       "default": false
     },
+    "enablePastedAttachments": {
+      "title": "Enable Pasted Attachments",
+      "description": "When true, pasting into the Duck.ai prompt attaches copied images and files (unless the clipboard also carries text). When false or absent, paste is left to the browser (text only).",
+      "type": "boolean",
+      "default": false
+    },
     "enableAiChatDeletion": {
       "title": "Enable AI Chat Deletion",
       "description": "Show a delete button on recent AI chat suggestions. When true, clicking the button prompts a native confirmation dialog before deleting the chat.",

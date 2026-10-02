@@ -38,6 +38,7 @@ title: Omnibar Widget
   - `enableVoiceChatAccess` — when true and the input is empty, replaces the AI chat submit button with a 1-click voice-chat button. Click/Enter sends `omnibar_submitChat` with an empty `chat` and `mode: "voice-mode"` — native handles the voice handoff (default `false`)
   - `enableAskAiSuggestion` — when `false`, hides the inline "Ask Duck.ai: <query>" entry in the suggestions dropdown. Missing/undefined is treated as `true` (default `true`). Does not affect the Duck.ai mode pill or any other AI affordance — those remain governed by `enableAi`
   - `enableAttachTabs` — when `true`, the omnibar shows the page context entry point and accepts `@` mentions for attaching open tabs as context. Requires native to handle `omnibar_getOpenTabs` and `omnibar_getTabContent` (default `false`).
+  - `enablePastedAttachments` — when `true`, pasting into the Duck.ai prompt attaches copied images and files (see [Paste](#paste)). When `false` or absent, paste is left to the browser (text only) (default `false`). The page needs no native support to paste; the flag lets native roll the behaviour out and switch it off remotely.
   - `aiModelSections` — array of model sections for the model selector. Each model may include `supportedReasoningEffort` (e.g. `["none", "low", "medium"]`) to surface the reasoning picker
   - `selectedModelId` — the user's persisted model choice
   - `selectedReasoningEffort` — the user's persisted reasoning-effort choice for the active model. Native validates against the model's `supportedReasoningEffort` on write
@@ -51,7 +52,8 @@ title: Omnibar Widget
    "enableWebSearch": false,
    "enableVoiceChatAccess": false,
    "enableAskAiSuggestion": true,
-   "enableAttachTabs": false
+   "enableAttachTabs": false,
+   "enablePastedAttachments": true
 }
 ```
 
@@ -144,6 +146,20 @@ Picker telemetry distinguishes impressions from gated-row activations:
 - `omnibar_model_picker_upgrade_shown` and `omnibar_reasoning_picker_upgrade_shown` fire when the user activates a gated row whose displayed CTA is “Upgrade”.
 
 The four CTA events retain their historical `_shown` names, but they represent activation rather than visibility. Their Try-for-free/Upgrade classification is derived from the item’s `upsell` value and the user’s free-trial eligibility. Native routing remains determined only by `upsell`, so an `*_upgrade_shown` event can precede `omnibar_showSubscriptionUpsell` when a `subscribe` item is activated by a user who is not eligible for a free trial.
+
+## Attachment telemetry
+
+Sent as `telemetryEvent` with `{ attributes: { name, value } }`:
+
+- `omnibar_image_attached` — every image chip added, with `value.source`: `file` (picker) or `paste`.
+- `omnibar_image_removed` — every image chip the user removes (its × button), with the chip's `value.source`. Clearing on submit or on a model switch does not count.
+
+## Paste
+
+With `enablePastedAttachments`, a paste into the Duck.ai prompt is handled as follows:
+
+- If the clipboard has any text, the browser pastes the text and nothing is attached. Office apps put a picture of the copied cells next to the text; the text wins.
+- Otherwise a clipboard bitmap is attached at up to 1024px, so text in it stays legible, named "Pasted image" (numbered on repeats); copied image files are resized like picked ones (512px); copied PDFs go to the file chips. Images need an image-capable model and files a model that supports them, as with the picker. An image in an unsupported format shows the "Failed to process image" error.
 
 ## Subscriptions:
 
