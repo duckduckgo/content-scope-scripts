@@ -28,15 +28,30 @@ export class MacOSWebstore {
         this._evaluatedExtensionId = null;
         /** @type {Set<string>} Operations awaiting native completion */
         this._pending = new Set();
-        this.feature.subscribe('extensionRemoved', (params) => {
+    }
+
+    /** Ask native whether setup should continue. @returns {Promise<boolean>} */
+    async initialSetup() {
+        try {
+            const response = await this.feature.request('initialSetup', {});
+            if (response?.enabled !== true) return false;
+        } catch (error) {
+            this.feature.log.info('Chrome Web Store setup unavailable', error);
+            return false;
+        }
+
+        this.feature.subscribe('extensionRemoved', async (params) => {
             const extensionId = params?.extensionId;
             if (typeof extensionId !== 'string' || extensionId !== parseExtensionId(window.location.pathname)) return;
             // Re-query native state rather than assuming the extension is now
             // installable. This also invalidates any older status response.
-            void this.evaluatePage().catch((error) => {
+            try {
+                await this.evaluatePage();
+            } catch (error) {
                 this.feature.log.info('Could not refresh Chrome Web Store after extension removal', error);
-            });
+            }
         });
+        return true;
     }
 
     startObservingURL() {

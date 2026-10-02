@@ -15,10 +15,12 @@ const LABEL = `${BUTTON} [data-ddg-webstore-label]`;
  * @param {import('@playwright/test').Page} page
  * @param {import('@playwright/test').TestInfo} testInfo
  * @param {{status?: unknown, fail?: boolean, hold?: boolean, rejectStatus?: boolean, rejectAction?: boolean,
+ * setupResponse?: unknown, rejectSetup?: boolean, holdSetup?: boolean,
  * config?: string, platform?: 'macos' | 'ios'}} [options]
  */
 async function setup(page, testInfo, options = {}) {
     const collector = ResultsCollector.create(page, testInfo.project.use).withMockResponse({
+        initialSetup: 'setupResponse' in options ? options.setupResponse : { enabled: true },
         getExtensionStatus: { status: options.status ?? 'installable' },
         installExtension: { success: !options.fail },
         removeExtension: { success: !options.fail },
@@ -49,6 +51,15 @@ async function setup(page, testInfo, options = {}) {
                 const original = handler.postMessage.bind(handler);
                 handler.postMessage = async (message) => {
                     const response = await original(message);
+                    if (message.method === 'initialSetup') {
+                        if (opts.rejectSetup) throw new Error('native setup unavailable');
+                        if (opts.holdSetup) {
+                            await new Promise((resolve) => {
+                                win.completeSetup = resolve;
+                            });
+                        }
+                        return response;
+                    }
                     if (message.method === 'getExtensionStatus') {
                         if (opts.rejectStatus) throw new Error('native status unavailable');
                         if (win.holdNextStatus) {
@@ -96,6 +107,9 @@ async function messages(collector, method) {
 test('queries native and sends a CRX download URL on install, without calling the store handler', async ({ page }, testInfo) => {
     const collector = await setup(page, testInfo);
     await expect(page.locator(LABEL)).toHaveText('Add to DuckDuckGo');
+    expect(await messages(collector, 'initialSetup')).toEqual([
+        expect.objectContaining({ params: {}, context: 'contentScopeScriptsIsolated' }),
+    ]);
     expect(await messages(collector, 'getExtensionStatus')).toEqual([
         expect.objectContaining({ params: { extensionId: ID }, context: 'contentScopeScriptsIsolated' }),
     ]);
@@ -111,6 +125,43 @@ test('queries native and sends a CRX download URL on install, without calling th
     expect(url.searchParams.get('acceptformat')).toBe('crx3');
     expect(url.searchParams.get('x')).toBe(`id=${ID}&installsource=ondemand&uc`);
     expect(await page.evaluate(() => /** @type {any} */ (window).__installClicked)).toBe(false);
+});
+
+for (const setupResponse of [{ enabled: false }, { enabled: 'true' }, {}, null]) {
+    test(`leaves the page untouched for setup response ${JSON.stringify(setupResponse)}`, async ({ page }, testInfo) => {
+        const collector = await setup(page, testInfo, { setupResponse });
+        await expect.poll(async () => (await messages(collector, 'initialSetup')).length).toBe(1);
+        await expect(page.locator(BUTTON)).toBeVisible();
+        await expect(page.locator(BUTTON)).toHaveText('Add to Chrome');
+        await expect(page.locator(LABEL)).toHaveCount(0);
+        await expect(page.locator(BUTTON)).toBeDisabled();
+        // The fixture's original button is disabled; dispatch directly to check
+        // that setup did not install an event interceptor.
+        await page.locator(BUTTON).dispatchEvent('click');
+        expect(await page.evaluate(() => /** @type {any} */ (window).__installClicked)).toBe(true);
+        await navigate(page, OTHER);
+        await page.evaluate(() => document.body.append(document.createElement('div')));
+        expect(await messages(collector)).toHaveLength(1);
+    });
+}
+
+test('a rejected setup request leaves the page untouched', async ({ page }, testInfo) => {
+    const collector = await setup(page, testInfo, { rejectSetup: true });
+    await expect.poll(async () => (await messages(collector, 'initialSetup')).length).toBe(1);
+    await expect(page.locator(BUTTON)).toBeVisible();
+    await expect(page.locator(BUTTON)).toHaveText('Add to Chrome');
+    expect(await messages(collector)).toHaveLength(1);
+});
+
+test('waits for setup before patching or subscribing', async ({ page }, testInfo) => {
+    const collector = await setup(page, testInfo, { holdSetup: true });
+    await expect.poll(() => page.evaluate(() => typeof (/** @type {any} */ (window).completeSetup))).toBe('function');
+    await expect(page.locator(BUTTON)).toBeVisible();
+    await expect(page.locator(BUTTON)).toHaveText('Add to Chrome');
+    expect(await messages(collector)).toHaveLength(1);
+    await page.evaluate(() => /** @type {any} */ (window).completeSetup());
+    await expect(page.locator(LABEL)).toHaveText('Add to DuckDuckGo');
+    expect(await messages(collector, 'initialSetup')).toHaveLength(1);
 });
 
 for (const key of ['Enter', 'Space']) {

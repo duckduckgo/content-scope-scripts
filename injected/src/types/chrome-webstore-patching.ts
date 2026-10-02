@@ -10,7 +10,7 @@
  * Requests, Notifications and Subscriptions from the ChromeWebstorePatching feature
  */
 export interface ChromeWebstorePatchingMessages {
-  requests: GetExtensionStatusRequest | InstallExtensionRequest | RemoveExtensionRequest;
+  requests: GetExtensionStatusRequest | InitialSetupRequest | InstallExtensionRequest | RemoveExtensionRequest;
   subscriptions: ExtensionRemovedSubscription;
 }
 /**
@@ -35,6 +35,24 @@ export interface GetExtensionStatusParams {
  */
 export interface GetExtensionStatusResponse {
   status: "installable" | "installed" | "unsupported" | "unknown";
+}
+/**
+ * Generated from @see "../messages/chrome-webstore-patching/initialSetup.request.json"
+ */
+export interface InitialSetupRequest {
+  method: "initialSetup";
+  params: InitialSetupParams;
+  result: InitialSetupResponse;
+}
+/**
+ * macOS: check native availability before modifying the store page.
+ */
+export interface InitialSetupParams {}
+/**
+ * macOS: enabled only for DMG builds; remote configuration gates still apply.
+ */
+export interface InitialSetupResponse {
+  enabled: boolean;
 }
 /**
  * Generated from @see "../messages/chrome-webstore-patching/installExtension.request.json"

@@ -28,6 +28,7 @@ Machine-readable request/response schemas live in `injected/src/messages/chrome-
 
 | Method               | Parameters                                                                                   | Response result                                                                                                         |
 | -------------------- | -------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `initialSetup`       | `{}`                                                                                         | `{ "enabled": true }` for DMG builds, `{ "enabled": false }` for App Store builds                                       |
 | `getExtensionStatus` | `{ "extensionId": "<32-character store ID>" }`                                               | `{ "status": "installable" }`, `{ "status": "installed" }`, `{ "status": "unsupported" }`, or `{ "status": "unknown" }` |
 | `installExtension`   | `{ "extensionId": "<ID>", "crxUrl": "https://clients2.google.com/service/update2/crx?..." }` | `{ "success": true }` on completion, `{ "success": false }` on failure/cancellation                                     |
 | `removeExtension`    | `{ "extensionId": "<ID>" }`                                                                  | `{ "success": true }` on completion, `{ "success": false }` on failure/cancellation                                     |
@@ -35,6 +36,10 @@ Machine-readable request/response schemas live in `injected/src/messages/chrome-
 These are the request `params` and response `result`, inside the standard messaging envelopes. Native must return the final operation response **after** its stored status has been updated, not merely acknowledge that a download started. Native owns confirmation, progress, and error UI. Rejected operation requests are also supported. After any completion, including cancellation or rejection, the script queries status again; the `success` field is informational and does not determine button state. Unrecognized/malformed status responses or status request errors leave the button hidden.
 
 On activation, macOS consumes the event before the store's document handlers, verifies a trusted user event and a current curated ID, and sends the native request. Mouse/touch clicks and Enter/Space are supported. Buttons for an extension stay hidden while its native operation is pending, including across SPA navigation; repeated activation cannot start another operation for that extension. Navigation invalidates older status responses, even when returning to the same ID.
+
+Before any macOS page changes, event interception, or removal subscription, C-S-S sends `initialSetup` once per document. Only a response with `enabled === true` allows initialization to continue; disabled, malformed, or rejected requests leave the page untouched. Remote configuration gates still apply. Windows does not use this handshake, and iOS continues to skip the feature.
+
+Native must register the isolated-world bridge on both macOS build types so App Store builds can return `enabled: false`. Validate the origin and main frame before answering setup, without requiring an extension ID. App Store builds must also reject status/install/remove requests and must not create the native store service.
 
 ### Removal outside the store page
 

@@ -124,7 +124,12 @@ export class ChromeWebstorePatching extends ContentFeature {
             .filter(isValidSelector);
         if (!this._buttonSelectors.length) return;
 
-        if (this.platform?.name === 'macos') this._macOS = new MacOSWebstore(this);
+        if (this.platform?.name === 'macos') {
+            // Leave the page untouched until native confirms this build supports the store.
+            const macOS = new MacOSWebstore(this);
+            if (!(await macOS.initialSetup())) return;
+            this._macOS = macOS;
+        }
 
         // Registered at document-start so capture-phase beats the store's root
         // jsaction handler. Blocks activation of the unsupported pill; after a
