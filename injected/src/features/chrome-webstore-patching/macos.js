@@ -44,7 +44,7 @@ export class MacOSWebstore {
         // methods, not the page's. DOM mutations usually catch navigation first;
         // this also covers pushState/replaceState without a DOM change on older
         // WebKit versions that do not expose the Navigation API.
-        setInterval(() => this.checkForURLChange(), 250);
+        setInterval(() => this.checkForURLChange(), 500);
     }
 
     checkForURLChange() {
