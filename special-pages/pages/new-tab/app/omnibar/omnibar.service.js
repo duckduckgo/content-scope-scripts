@@ -225,6 +225,13 @@ export class OmnibarService {
     }
 
     /**
+     * Notify native to open the Duck.ai Privacy Policy and Terms of Service page in a new tab.
+     */
+    openPrivacyTerms() {
+        this.ntp.messaging.notify('omnibar_openPrivacyTerms', {});
+    }
+
+    /**
      * Notify native that the user dismissed the AI-mode usage limits drawer.
      * Native owns dismiss persistence and should push updated config.
      */

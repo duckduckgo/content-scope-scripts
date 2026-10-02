@@ -177,6 +177,22 @@
     "title": "Start voice chat",
     "description": "Accessible label for the voice-chat button shown in place of the AI chat submit button when the input is empty and the feature is enabled."
   },
+  "omnibar_termsDisclaimerAsk": {
+    "title": "DuckDuckGo anonymizes your chats. By clicking ‘Ask’ you agree to our <a>Privacy Policy & Terms of Service</a>.",
+    "description": "Shown under the Duck.ai chat input until the user accepts Duck.ai's terms. ‘Ask’ must match the omnibar_termsAskButtonLabel button label. The <a> tag is a link to the Privacy Policy and Terms of Service page, please preserve it."
+  },
+  "omnibar_termsDisclaimerCreate": {
+    "title": "DuckDuckGo anonymizes your chats. By clicking ‘Create’ you agree to our <a>Privacy Policy & Terms of Service</a>.",
+    "description": "Shown under the Duck.ai chat input in image creation mode until the user accepts Duck.ai's terms. ‘Create’ must match the omnibar_termsCreateButtonLabel button label. The <a> tag is a link to the Privacy Policy and Terms of Service page, please preserve it."
+  },
+  "omnibar_termsAskButtonLabel": {
+    "title": "Ask",
+    "description": "Label of the Duck.ai chat submit button until the user accepts Duck.ai's terms. Clicking it accepts the terms and sends the prompt."
+  },
+  "omnibar_termsCreateButtonLabel": {
+    "title": "Create",
+    "description": "Label of the Duck.ai chat submit button in image creation mode until the user accepts Duck.ai's terms. Clicking it accepts the terms and sends the prompt."
+  },
   "omnibar_logoAlt": {
     "title": "DuckDuckGo",
     "description": "Alt text for the DuckDuckGo logo."

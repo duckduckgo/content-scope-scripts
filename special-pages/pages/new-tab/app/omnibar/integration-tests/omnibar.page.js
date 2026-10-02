@@ -51,6 +51,18 @@ export class OmnibarPage {
         return this.context().getByRole('button', { name: 'Start voice chat' });
     }
 
+    askButton() {
+        return this.context().getByRole('button', { name: 'Ask', exact: true });
+    }
+
+    createButton() {
+        return this.context().getByRole('button', { name: 'Create', exact: true });
+    }
+
+    termsLink() {
+        return this.noticeDrawer().getByRole('link', { name: 'Privacy Policy & Terms of Service' });
+    }
+
     tabList() {
         return this.context().getByRole('tablist');
     }

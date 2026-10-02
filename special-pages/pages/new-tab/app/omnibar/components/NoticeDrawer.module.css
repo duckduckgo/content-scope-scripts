@@ -90,6 +90,10 @@
     }
 }
 
+.shield {
+    color: var(--ds-color-theme-icons-secondary);
+}
+
 .ringTrack {
     stroke: var(--ds-color-theme-control-fill-primary);
 }
@@ -144,6 +148,19 @@
 .secondary {
     color: var(--ds-color-theme-text-secondary);
     font-weight: 400;
+}
+
+.messageMuted {
+    color: var(--ds-color-theme-text-secondary);
+}
+
+.link {
+    color: var(--ds-color-theme-accent-text-primary);
+    text-decoration: none;
+
+    &:hover {
+        text-decoration: underline;
+    }
 }
 
 .dismiss {
