@@ -17,7 +17,7 @@ JavaScript features injected into web pages for privacy protections. Features ex
 - `breakage-reporting` - Site breakage reports
 - `broker-protection` - Data broker removal automation
 - `browser-ui-lock` - Detects pages with no scrollbar so native can lock browser UI gestures
-- `chrome-webstore-patching` - Patches the Chrome Web Store UI for curated extensions
+- `chrome-webstore-patching` - Patches the Chrome Web Store UI for extensions in the native-owned catalog
 - `click-to-load` - Social embed blocking
 - `context-menu` - Reports context-menu events to native (Apple)
 - `cookie` - Cookie management

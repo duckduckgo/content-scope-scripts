@@ -4,8 +4,8 @@ import {
     getWebstorePrivate,
     hasRuntimeLastError,
     isValidSelector,
+    parseCatalogExtensionIds,
     parseExtensionId,
-    readCuratedCatalog,
     readStatusSets,
 } from './chrome-webstore-patching/helpers.js';
 // Vendored from the duckduckgo/Icons repo (no package exports them), original names kept
@@ -68,11 +68,15 @@ const ICON_BACKGROUNDS = {
 
 const VERDICT_COPY_KEY = /** @type {const} */ ({ install: 'install', remove: 'remove', unsupported: 'unavailable' });
 
+// Native replies within ~1 s by contract, even before its config is ready, so
+// this only bounds a reply that never arrives
+const CATALOG_REQUEST_TIMEOUT_MS = 3000;
+
 /**
  * Patches the Chrome Web Store UI in the DDG browser.
  * - Hides every install button via CSS up front (fail closed)
- * - On extension detail pages for curated extensions, swaps the button copy to
- *   DuckDuckGo wording and reveals the button
+ * - On extension detail pages for catalog extensions, swaps the button copy to
+ *   DuckDuckGo wording and reveals the button. Native owns the catalog.
  * Decisions happen on navigation; the MutationObserver only re-applies the
  * current decision when the store's framework re-renders the button.
  */
@@ -120,7 +124,7 @@ export class ChromeWebstorePatching extends ContentFeature {
 
         // Registered at document-start so capture-phase beats the store's root
         // jsaction handler. Blocks activation of the unsupported pill; after a
-        // curated click, re-evaluates — install/uninstall is async and emits no event.
+        // catalog click, re-evaluates — install/uninstall is async and emits no event.
         /** @param {Event} event */
         const intercept = (event) => {
             if (!this._verdict) return;
@@ -216,14 +220,22 @@ export class ChromeWebstorePatching extends ContentFeature {
         const extensionId = parseExtensionId(window.location.pathname);
         if (!extensionId) return;
 
-        if (!this.getCuratedExtensionIds().includes(extensionId)) {
+        const catalog = await this.getCatalogExtensionIds();
+
+        // A navigation may have happened during each await — don't apply a stale verdict
+        if (extensionId !== parseExtensionId(window.location.pathname)) return;
+
+        // Catalog unknown → stay hidden. Not the unsupported pill: that would
+        // claim a catalog extension isn't supported whenever native errors or stalls.
+        if (catalog === null) return;
+
+        if (!catalog.includes(extensionId)) {
             this._reveal('unsupported');
             return;
         }
 
         const status = await this.getExtensionStatus(extensionId);
 
-        // A navigation may have happened during the await — don't apply a stale verdict
         if (extensionId !== parseExtensionId(window.location.pathname)) return;
 
         const { installable, installed } = readStatusSets(globalThis.chrome);
@@ -378,7 +390,7 @@ export class ChromeWebstorePatching extends ContentFeature {
             }
         }
 
-        // Curated verdicts actively CLEAR disabled — the store disables these
+        // Catalog verdicts actively CLEAR disabled — the store disables these
         // buttons on non-Chrome browsers and re-applies it on re-renders
         if (button instanceof HTMLButtonElement && button.disabled !== isUnsupported) {
             button.disabled = isUnsupported;
@@ -398,14 +410,33 @@ export class ChromeWebstorePatching extends ContentFeature {
     }
 
     /**
-     * Curated extension IDs for this build's config. The state check comes from
-     * ConfigFeature so 'internal' and 'preview' resolve against this build's
-     * platform flags rather than being matched as bare strings, and internal
-     * builds read the wider `catalogInternal` list.
-     * @returns {string[]}
+     * Extension IDs the store may offer, asked of native on every evaluation.
+     * Native owns the catalog so the store offers exactly what browser Settings
+     * does: rollout, minimum versions and native-only gates never reach C-S-S.
+     * Not cached, because native answers with an empty list until its config is
+     * ready. Never rejects: an error, a malformed reply or a timeout all return
+     * null ("catalog unknown").
+     * @returns {Promise<string[] | null>}
      */
-    getCuratedExtensionIds() {
-        return readCuratedCatalog(this.bundledConfig, (state) => this._isStateEnabled(state), this.platform?.internal === true);
+    async getCatalogExtensionIds() {
+        /** @type {ReturnType<typeof setTimeout> | undefined} */
+        let timer;
+        /** @type {Promise<null>} */
+        const timeout = new Promise((resolve) => {
+            timer = setTimeout(() => resolve(null), CATALOG_REQUEST_TIMEOUT_MS);
+        });
+        try {
+            const response = await Promise.race([this.request('getCatalogExtensionIds', {}), timeout]);
+            const extensionIds = parseCatalogExtensionIds(response);
+            if (extensionIds === null) this.log.warn('getCatalogExtensionIds: timed out or malformed reply', response);
+            return extensionIds;
+        } catch (error) {
+            // Native's JSON-RPC-style error reply arrives as a rejection
+            this.log.warn('getCatalogExtensionIds failed', error);
+            return null;
+        } finally {
+            clearTimeout(timer);
+        }
     }
 
     /**
