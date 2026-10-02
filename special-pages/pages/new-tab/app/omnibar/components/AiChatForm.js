@@ -37,6 +37,7 @@ import styles from './AiChatForm.module.css';
  * @param {(event: KeyboardEvent) => ({ handled: boolean } | void)} [props.onTextareaKeyDown]
  * @param {ComboboxOverride|null} [props.combobox]
  * @param {import('preact').RefObject<HTMLTextAreaElement>} props.textareaRef - Ref the parent owns and uses to drive focus/selection or measure layout.
+ * @param {(event: ClipboardEvent) => void} [props.onPaste] - Clipboard image/file intake; call `preventDefault()` to stop the text paste.
  */
 export function AiChatForm({
     query,
@@ -52,6 +53,7 @@ export function AiChatForm({
     onTextareaKeyDown,
     combobox = null,
     textareaRef,
+    onPaste,
 }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
@@ -194,6 +196,10 @@ export function AiChatForm({
                 readOnly={readOnly}
                 aria-disabled={readOnly || undefined}
                 onKeyDown={handleKeyDown}
+                onPaste={(event) => {
+                    if (readOnly) return;
+                    onPaste?.(event);
+                }}
                 // Emit caret with value so the mention flow can detect active `@` mentions.
                 onInput={(event) => {
                     if (readOnly) return;

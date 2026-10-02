@@ -119,6 +119,46 @@
               "const": "omnibar_reasoning_picker_upgrade_shown"
             }
           }
+        },
+        {
+          "type": "object",
+          "title": "Omnibar Image Attached",
+          "description": "Fired for every image chip added to the prompt, from the file picker or a paste.",
+          "required": ["name", "value"],
+          "properties": {
+            "name": {
+              "const": "omnibar_image_attached"
+            },
+            "value": {
+              "type": "object",
+              "required": ["source"],
+              "properties": {
+                "source": {
+                  "$ref": "./types/image-attachment-source.json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "title": "Omnibar Image Removed",
+          "description": "Fired for every image chip the user removes.",
+          "required": ["name", "value"],
+          "properties": {
+            "name": {
+              "const": "omnibar_image_removed"
+            },
+            "value": {
+              "type": "object",
+              "required": ["source"],
+              "properties": {
+                "source": {
+                  "$ref": "./types/image-attachment-source.json"
+                }
+              }
+            }
+          }
         }
       ]
     }

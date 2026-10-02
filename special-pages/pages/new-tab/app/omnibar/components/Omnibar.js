@@ -21,6 +21,7 @@ import { useDrawerControls, useDrawerEventListeners } from '../../components/Dra
 import { Trans } from '../../../../../shared/components/TranslationsProvider.js';
 import { ImageAttachmentContent } from './chat-tools/image-attachment/ImageAttachmentTool';
 import { useImageAttachments } from './chat-tools/image-attachment/useImageAttachments';
+import { usePastedAttachments } from './chat-tools/image-attachment/usePastedAttachments';
 import { useFileAttachments } from './chat-tools/file-attachment/useFileAttachments';
 import { AttachmentChips } from './chat-tools/attachments/AttachmentChips';
 import { ModelSelectorTool } from './chat-tools/model-selector/ModelSelectorTool';
@@ -283,6 +284,12 @@ function AiChatContent({
     const canAttachFiles = !imageGenerationActive && (selectedModel?.supportedFileTypes?.length ?? 0) > 0;
 
     const canAttachTabs = enableAttachTabs && !imageGenerationActive;
+    const pastedAttachments = usePastedAttachments({
+        imageState,
+        canAttachImages,
+        processOtherFiles: canAttachFiles ? fileState.processFiles : null,
+        enabled: state.config?.enablePastedAttachments === true && !blocksPrompt,
+    });
     const tabAttachments = useTabAttachments(tabId, attachmentLimits?.tabs?.maxAttached);
     const textareaRef = useRef(/** @type {HTMLTextAreaElement|null} */ (null));
     const mention = useMentionPicker({
@@ -457,6 +464,7 @@ function AiChatContent({
                     onTextareaKeyDown={mention.handleTextareaKeyDown}
                     combobox={mention.combobox}
                     textareaRef={textareaRef}
+                    onPaste={pastedAttachments.handlePaste}
                     toolbarLeft={
                         <Fragment>
                             {(canAttachImages || canAttachFiles || canAttachTabs) && (

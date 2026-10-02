@@ -1,6 +1,6 @@
 /**
  * @typedef {typeof import('../../../strings.json')} Strings
- * @typedef {{ processFiles: (files: File[]) => Promise<void>, disabled: boolean, maxImages: number }} ImageChannel
+ * @typedef {{ processFiles: (files: File[]) => Promise<unknown>, disabled: boolean, maxImages: number }} ImageChannel
  * @typedef {{ processFiles: (files: File[]) => Promise<void>, disabled: boolean, mimeTypes: string[] }} FileChannel
  * @typedef {{ label: string, accept: string, disabled: boolean, onChange: (event: Event) => Promise<void> }} ResolvedFileInput
  */
@@ -73,7 +73,7 @@ export function resolveFileInput({ t, image, file }) {
         const input = /** @type {HTMLInputElement} */ (event.currentTarget);
         if (!input.files || input.files.length === 0) return;
         const all = Array.from(input.files);
-        /** @type {Promise<void>[]} */
+        /** @type {Promise<unknown>[]} */
         const tasks = [];
         if (image) {
             const images = all.filter((file) => file.type.startsWith('image/'));

@@ -1,4 +1,5 @@
 import { useState } from 'preact/hooks';
+import { useMessaging } from '../../../../types.js';
 import { ImageAttachments } from '../../PersistentOmnibarValuesProvider';
 import { FILE_READ_TIMEOUT, readFileAsDataUrl } from '../attachments/readFileAsDataUrl';
 
@@ -6,10 +7,14 @@ const { useStateWithLocalPersistence } = ImageAttachments;
 
 /**
  * `addedAtRelative` is a `performance.now()` value used to sort attachments by attach order.
- * @typedef {{ dataUrl: string, fileName: string, mimeType: string, addedAtRelative: number }} AttachedImage
+ * `source` records how the image was added, for telemetry when it is removed.
+ * @typedef {import('../../../../../types/new-tab.js').ImageAttachmentSource} ImageAttachmentSource
+ * @typedef {{ dataUrl: string, fileName: string, mimeType: string, addedAtRelative: number, source: ImageAttachmentSource }} AttachedImage
  * @typedef {'imageTooLarge' | 'processingFailed'} ImageErrorType
  * @typedef {{ type: ImageErrorType, fileNames: string[] }} ImageError
  * @typedef {ReturnType<typeof useImageAttachments>} ImageAttachmentState
+ * @typedef {{ maxDimension?: number, source?: ImageAttachmentSource }} ProcessImageOptions
+ * @typedef {{ added: number, rejected: number }} ProcessImageResult - `rejected` counts files that failed reading or normalisation.
  */
 
 class ImageTooLargeError extends Error {
@@ -22,6 +27,11 @@ class ImageTooLargeError extends Error {
 export const MAX_IMAGES = 3;
 const ALLOWED_FORMATS = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_DIMENSION = 512;
+/**
+ * Pasted bitmaps (usually screenshots) keep up to this size, so text in them stays legible.
+ * Regular picked images use {@link MAX_DIMENSION}.
+ */
+export const SCREENSHOT_MAX_DIMENSION = 1024;
 const MAX_ENCODED_BYTES = 10 * 1024 * 1024;
 // Reject decoded images whose pixel count exceeds this threshold before
 // allocating the canvas, limiting decompression-bomb memory pressure.
@@ -35,9 +45,10 @@ const MAX_DECODED_PIXELS = 10000 * 10000;
  *
  * @param {string} srcDataUrl
  * @param {'image/png' | 'image/jpeg'} targetMime
+ * @param {number} [maxDimension] - longest side after resizing; defaults to {@link MAX_DIMENSION}.
  * @returns {Promise<string>} data-URL in the target format
  */
-function normaliseImage(srcDataUrl, targetMime) {
+function normaliseImage(srcDataUrl, targetMime, maxDimension = MAX_DIMENSION) {
     return new Promise((resolve, reject) => {
         const img = new Image();
         img.onload = () => {
@@ -48,8 +59,8 @@ function normaliseImage(srcDataUrl, targetMime) {
                 return;
             }
 
-            if (w > MAX_DIMENSION || h > MAX_DIMENSION) {
-                const scale = MAX_DIMENSION / Math.max(w, h);
+            if (w > maxDimension || h > maxDimension) {
+                const scale = maxDimension / Math.max(w, h);
                 w = Math.round(w * scale);
                 h = Math.round(h * scale);
             }
@@ -88,6 +99,7 @@ function normaliseImage(srcDataUrl, targetMime) {
  * @param {number} [params.maxImages] - Max images per submission, from backend `attachmentLimits`. Defaults to {@link MAX_IMAGES}.
  */
 export function useImageAttachments({ tabId, maxImages = MAX_IMAGES } = {}) {
+    const ntp = useMessaging();
     const [attachedImages, setAttachedImages] = useStateWithLocalPersistence(tabId);
     const [imageError, setImageError] = useState(/** @type {ImageError|null} */ (null));
 
@@ -97,15 +109,23 @@ export function useImageAttachments({ tabId, maxImages = MAX_IMAGES } = {}) {
     const clearAttachedImages = () => setAttachedImages([]);
     const clearImageError = () => setImageError(null);
 
-    /** @type {(files: File[]) => Promise<void>} */
-    const processFiles = async (files) => {
-        if (files.length === 0) return;
+    /**
+     * Validates, resizes and attaches images. Sends `omnibar_image_attached` for each chip added.
+     * @type {(files: File[], options?: ProcessImageOptions) => Promise<ProcessImageResult>}
+     */
+    const processFiles = async (files, { maxDimension, source = 'file' } = {}) => {
+        const nothing = { added: 0, rejected: 0 };
+        if (files.length === 0) return nothing;
         setImageError(null);
 
         const existingNames = new Set(attachedImages.map((img) => img.fileName));
+        // Reported like a processing failure, so an unsupported pasted format (e.g. BMP) isn't silently dropped.
+        /** @type {string[]} */
+        const unsupportedNames = [];
         const validFiles = files.filter((file) => {
             if (!ALLOWED_FORMATS.includes(file.type)) {
                 console.warn('Attachment rejected: unsupported file type');
+                unsupportedNames.push(file.name);
                 return false;
             }
             if (existingNames.has(file.name)) {
@@ -114,13 +134,14 @@ export function useImageAttachments({ tabId, maxImages = MAX_IMAGES } = {}) {
             return true;
         });
 
-        if (validFiles.length === 0) return;
-
         // Only process enough to reach maxImages + 1 (to trigger the limit warning).
         const processLimit = maxImages + 1 - attachedImages.length;
         const filesToProcess = processLimit > 0 ? validFiles.slice(0, processLimit) : [];
 
-        if (filesToProcess.length === 0) return;
+        if (filesToProcess.length === 0) {
+            if (unsupportedNames.length > 0) setImageError({ type: 'processingFailed', fileNames: unsupportedNames });
+            return { ...nothing, rejected: unsupportedNames.length };
+        }
 
         const newImages = filesToProcess.map(async (file) => {
             /** @type {string} */
@@ -133,7 +154,7 @@ export function useImageAttachments({ tabId, maxImages = MAX_IMAGES } = {}) {
             }
             try {
                 const targetMime = file.type === 'image/jpeg' ? 'image/jpeg' : 'image/png';
-                const dataUrl = await normaliseImage(rawDataUrl, targetMime);
+                const dataUrl = await normaliseImage(rawDataUrl, targetMime, maxDimension);
                 return { dataUrl, fileName: file.name, mimeType: targetMime };
             } catch (err) {
                 console.warn('Attachment rejected: image normalisation failed');
@@ -146,7 +167,7 @@ export function useImageAttachments({ tabId, maxImages = MAX_IMAGES } = {}) {
             results.filter((r) => r.status === 'fulfilled')
         ).map((r) => r.value);
         const tooLargeNames = [];
-        const failedNames = [];
+        const failedNames = [...unsupportedNames];
         for (let i = 0; i < results.length; i++) {
             const r = results[i];
             if (r.status === 'rejected') {
@@ -166,13 +187,24 @@ export function useImageAttachments({ tabId, maxImages = MAX_IMAGES } = {}) {
 
         if (images.length > 0) {
             const addedAtRelative = performance.now();
-            setAttachedImages((prev) => [...prev, ...images.map((img) => ({ ...img, addedAtRelative }))]);
+            setAttachedImages((prev) => [...prev, ...images.map((img) => ({ ...img, addedAtRelative, source }))]);
+            for (let i = 0; i < images.length; i++) {
+                ntp.telemetryEvent({ attributes: { name: 'omnibar_image_attached', value: { source } } });
+            }
         }
+
+        return { added: images.length, rejected: tooLargeNames.length + failedNames.length };
     };
 
-    /** @param {number} index */
+    /**
+     * Removes an image chip at the user's request (its x button); sends the removal telemetry.
+     * @param {number} index
+     */
     const handleRemoveImage = (index) => {
+        const removed = attachedImages[index];
         setAttachedImages((prev) => prev.filter((_, i) => i !== index));
+        if (!removed) return;
+        ntp.telemetryEvent({ attributes: { name: 'omnibar_image_removed', value: { source: removed.source } } });
     };
 
     /**
