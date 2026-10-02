@@ -163,6 +163,10 @@ export type EnableAIChatDeletion = boolean;
  */
 export type EnableSearchSuggestionDeletion = boolean;
 /**
+ * Whether this surface may still show the file-upload privacy disclaimer. Native owns the device-wide display count and pushes an updated config whenever it changes, including when another surface spends a display. False or omitted means the omnibar renders nothing.
+ */
+export type ShowAttachmentPrivacyDisclaimer = boolean;
+/**
  * Native-resolved presentation shown after Create Image switches away from an unsupported model. Non-null takes visual priority over usageLimits; native owns model selection, localized copy, and lifecycle.
  */
 export type CreateImageModelSwitchNotice = {
@@ -333,9 +337,11 @@ export interface NewTabMessages {
     | NextStepsActionNotification
     | NextStepsDismissNotification
     | NextStepsSetConfigNotification
+    | OmnibarAttachmentPrivacyDisclaimerShownNotification
     | OmnibarDismissCreateImageModelSwitchNotification
     | OmnibarDismissUsageLimitsNotification
     | OmnibarOpenAiChatNotification
+    | OmnibarOpenAttachmentPrivacyLearnMoreNotification
     | OmnibarOpenCustomizeResponsesNotification
     | OmnibarOpenSuggestionNotification
     | OmnibarRemoveSuggestionNotification
@@ -701,6 +707,22 @@ export interface NextStepsConfig {
   animation?: Animation;
 }
 /**
+ * Generated from @see "../messages/omnibar_attachmentPrivacyDisclaimerShown.notify.json"
+ */
+export interface OmnibarAttachmentPrivacyDisclaimerShownNotification {
+  method: "omnibar_attachmentPrivacyDisclaimerShown";
+  params: AttachmentPrivacyDisclaimerShown;
+}
+/**
+ * Sent once per continuous attachment session, when the omnibar renders the file-upload privacy disclaimer. Native increments the device-wide display count, fires the shown pixel, and pushes an updated OmnibarConfig once the count reaches the cap.
+ */
+export interface AttachmentPrivacyDisclaimerShown {
+  /**
+   * Which attachment triggered the disclaimer. Native never sees the attach, so it cannot infer this for the pixel.
+   */
+  kind: "image" | "file";
+}
+/**
  * Generated from @see "../messages/omnibar_dismissCreateImageModelSwitch.notify.json"
  */
 export interface OmnibarDismissCreateImageModelSwitchNotification {
@@ -743,6 +765,22 @@ export interface OpenAIChatAction {
    * Whether the chat is pinned
    */
   isPinned: boolean;
+}
+/**
+ * Generated from @see "../messages/omnibar_openAttachmentPrivacyLearnMore.notify.json"
+ */
+export interface OmnibarOpenAttachmentPrivacyLearnMoreNotification {
+  method: "omnibar_openAttachmentPrivacyLearnMore";
+  params: OpenAttachmentPrivacyLearnMore;
+}
+/**
+ * Sent when the user selects 'Learn more' in the file-upload privacy disclaimer. Native opens the help page in a new tab and fires the learn_more_tapped pixel; the staged attachment is left untouched.
+ */
+export interface OpenAttachmentPrivacyLearnMore {
+  /**
+   * Which attachment the disclaimer was about. Native never sees the attach, so it cannot infer this for the pixel.
+   */
+  kind: "image" | "file";
 }
 /**
  * Generated from @see "../messages/omnibar_openCustomizeResponses.notify.json"
@@ -865,6 +903,7 @@ export interface OmnibarConfig {
   enablePastedAttachments?: EnablePastedAttachments;
   enableAiChatDeletion?: EnableAIChatDeletion;
   enableSearchSuggestionDeletion?: EnableSearchSuggestionDeletion;
+  showAttachmentPrivacyDisclaimer?: ShowAttachmentPrivacyDisclaimer;
   createImageModelSwitch?: CreateImageModelSwitchNotice;
   usageLimits?: UsageLimitsDrawer;
 }

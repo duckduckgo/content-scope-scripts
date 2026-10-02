@@ -20,11 +20,10 @@ import { Popover } from '../../components/Popover';
 import { useDrawerControls, useDrawerEventListeners } from '../../components/Drawer';
 import { Trans } from '../../../../../shared/components/TranslationsProvider.js';
 import { ImageAttachmentContent } from './chat-tools/image-attachment/ImageAttachmentTool';
-import { useImageAttachments } from './chat-tools/image-attachment/useImageAttachments';
 import { usePastedAttachments } from './chat-tools/image-attachment/usePastedAttachments';
 import { useScreenshotCapture } from './chat-tools/image-attachment/useScreenshotCapture';
-import { useFileAttachments } from './chat-tools/file-attachment/useFileAttachments';
 import { AttachmentChips } from './chat-tools/attachments/AttachmentChips';
+import { AttachmentsProvider, useAttachmentsContext } from './chat-tools/attachments/AttachmentsProvider';
 import { ModelSelectorTool } from './chat-tools/model-selector/ModelSelectorTool';
 import { ReasoningPickerTool } from './chat-tools/reasoning-picker/ReasoningPickerTool';
 import { ToolsMenu } from './chat-tools/tools-menu/ToolsMenu';
@@ -173,57 +172,59 @@ export function Omnibar({
                 </div>
             )}
             <SearchFormProvider term={query} setTerm={setQuery} enableAi={enableAi} enableAskAiSuggestion={enableAskAiSuggestion}>
-                <AiChatsProvider
-                    query={query}
-                    autoFocus={autoFocus}
-                    enableRecentAiChats={enableRecentAiChats}
-                    showViewAllAiChats={showViewAllAiChats}
-                >
-                    <div
-                        ref={spacerRef}
-                        class={styles.spacer}
-                        onFocusCapture={(event) => {
-                            // Toolbar/drawer focus must not reveal the drawer — only the composer itself.
-                            if (!(event.target instanceof HTMLTextAreaElement)) return;
-                            setUsageLimitsRevealed(true);
-                        }}
-                        onBlurCapture={(event) => {
-                            if (focusStaysWithin(spacerRef, event)) return;
-                            setUsageLimitsRevealed(false);
-                        }}
+                <AttachmentsProvider tabId={tabId}>
+                    <AiChatsProvider
+                        query={query}
+                        autoFocus={autoFocus}
+                        enableRecentAiChats={enableRecentAiChats}
+                        showViewAllAiChats={showViewAllAiChats}
                     >
-                        <div class={styles.popup} {...keyboardFocusWithinProps}>
-                            {mode === 'search' ? (
-                                <>
-                                    <ResizingContainer className={styles.field}>
-                                        <SearchForm
+                        <div
+                            ref={spacerRef}
+                            class={styles.spacer}
+                            onFocusCapture={(event) => {
+                                // Toolbar/drawer focus must not reveal the drawer — only the composer itself.
+                                if (!(event.target instanceof HTMLTextAreaElement)) return;
+                                setUsageLimitsRevealed(true);
+                            }}
+                            onBlurCapture={(event) => {
+                                if (focusStaysWithin(spacerRef, event)) return;
+                                setUsageLimitsRevealed(false);
+                            }}
+                        >
+                            <div class={styles.popup} {...keyboardFocusWithinProps}>
+                                {mode === 'search' ? (
+                                    <>
+                                        <ResizingContainer className={styles.field}>
+                                            <SearchForm
+                                                autoFocus={autoFocus}
+                                                onOpenSuggestion={handleOpenSuggestion}
+                                                onSubmit={handleSubmitSearch}
+                                                onSubmitChat={handleSubmitChat}
+                                            />
+                                        </ResizingContainer>
+                                        <SuggestionsList onOpenSuggestion={handleOpenSuggestion} onSubmitChat={handleSubmitChat} />
+                                    </>
+                                ) : (
+                                    <OpenTabsProvider tabId={tabId} enabled={enableAttachTabs}>
+                                        <AiChatContent
+                                            query={query}
                                             autoFocus={autoFocus}
-                                            onOpenSuggestion={handleOpenSuggestion}
-                                            onSubmit={handleSubmitSearch}
-                                            onSubmitChat={handleSubmitChat}
+                                            enableRecentAiChats={enableRecentAiChats}
+                                            enableVoiceChatAccess={enableVoiceChatAccess}
+                                            enableAttachTabs={enableAttachTabs}
+                                            tabId={tabId}
+                                            onChange={setQuery}
+                                            onSubmit={handleSubmitChat}
+                                            omnibarRef={spacerRef}
                                         />
-                                    </ResizingContainer>
-                                    <SuggestionsList onOpenSuggestion={handleOpenSuggestion} onSubmitChat={handleSubmitChat} />
-                                </>
-                            ) : (
-                                <OpenTabsProvider tabId={tabId} enabled={enableAttachTabs}>
-                                    <AiChatContent
-                                        query={query}
-                                        autoFocus={autoFocus}
-                                        enableRecentAiChats={enableRecentAiChats}
-                                        enableVoiceChatAccess={enableVoiceChatAccess}
-                                        enableAttachTabs={enableAttachTabs}
-                                        tabId={tabId}
-                                        onChange={setQuery}
-                                        onSubmit={handleSubmitChat}
-                                        omnibarRef={spacerRef}
-                                    />
-                                </OpenTabsProvider>
-                            )}
+                                    </OpenTabsProvider>
+                                )}
+                            </div>
+                            {mode === 'ai' && <NoticeDrawer revealed={usageLimitsRevealed} />}
                         </div>
-                        {mode === 'ai' && <NoticeDrawer revealed={usageLimitsRevealed} />}
-                    </div>
-                </AiChatsProvider>
+                    </AiChatsProvider>
+                </AttachmentsProvider>
             </SearchFormProvider>
         </div>
     );
@@ -267,7 +268,7 @@ function AiChatContent({
     const hasVisibleImagesRef = useRef(false);
     const submittingRef = useRef(false);
     const [imageWarning, setImageWarning] = useState(false);
-    const imageState = useImageAttachments({ tabId, maxImages: attachmentLimits?.images?.maxPerTurn });
+    const { imageState, fileState } = useAttachmentsContext();
 
     const hasAttachedImages = imageState.attachedImages.length > 0;
     const imageGenerationPlaceholder = hasAttachedImages
@@ -276,12 +277,6 @@ function AiChatContent({
     const selectedModelSupportsImages = selectedModel?.supportsImageUpload ?? false;
     const canAttachImages = selectedModelSupportsImages || imageGenerationActive;
 
-    const fileState = useFileAttachments({
-        supportedFileTypes: selectedModel?.supportedFileTypes,
-        tabId,
-        maxFiles: attachmentLimits?.files?.maxPerConversation,
-        maxFileSizeMB: attachmentLimits?.files?.maxFileSizeMB,
-    });
     const canAttachFiles = !imageGenerationActive && (selectedModel?.supportedFileTypes?.length ?? 0) > 0;
 
     const canAttachTabs = enableAttachTabs && !imageGenerationActive;

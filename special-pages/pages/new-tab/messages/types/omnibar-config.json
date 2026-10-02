@@ -321,6 +321,12 @@
       "type": "boolean",
       "default": false
     },
+    "showAttachmentPrivacyDisclaimer": {
+      "title": "Show Attachment Privacy Disclaimer",
+      "description": "Whether this surface may still show the file-upload privacy disclaimer. Native owns the device-wide display count and pushes an updated config whenever it changes, including when another surface spends a display. False or omitted means the omnibar renders nothing.",
+      "type": "boolean",
+      "default": false
+    },
     "createImageModelSwitch": {
       "title": "Create Image Model Switch Notice",
       "description": "Native-resolved presentation shown after Create Image switches away from an unsupported model. Non-null takes visual priority over usageLimits; native owns model selection, localized copy, and lifecycle.",

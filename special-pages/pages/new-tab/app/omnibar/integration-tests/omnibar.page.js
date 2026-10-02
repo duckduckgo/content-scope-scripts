@@ -115,6 +115,10 @@ export class OmnibarPage {
         return this.page.getByRole('menu', { name: 'Switch to a more efficient model' });
     }
 
+    attachmentPrivacyLearnMore() {
+        return this.noticeDrawer().getByRole('button', { name: 'Learn more' });
+    }
+
     noticeDismiss() {
         return this.noticeDrawer().getByTestId('dismissBtn');
     }
@@ -238,6 +242,17 @@ export class OmnibarPage {
     async expectMethodCalledWith(method, expectedParams) {
         const calls = await this.ntp.mocks.waitForCallCount({ method, count: 1 });
         expect(calls[0].payload.params).toEqual(expectedParams);
+    }
+
+    /**
+     * Unlike `expectMethodCallCount`, this rejects extra calls.
+     * @param {string} method
+     * @param {number} count
+     */
+    async expectExactMethodCallCount(method, count) {
+        await this.ntp.mocks.waitForCallCount({ method, count });
+        const calls = await this.ntp.mocks.outgoing({ names: [method] });
+        expect(calls).toHaveLength(count);
     }
 
     /**
