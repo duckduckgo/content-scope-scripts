@@ -6,17 +6,7 @@ import { useAttachmentsContext } from './chat-tools/attachments/AttachmentsProvi
 
 /** @typedef {typeof import('../strings.json')} Strings */
 
-/**
- * The file-upload privacy disclaimer. Native owns the device-wide display count and answers with
- * `showAttachmentPrivacyDisclaimer`; the page owns the trigger, since only it sees the attachments.
- *
- * One display per continuous attachment session, matching iOS: emptying the attachments ends it, so
- * re-attaching spends another. The grant is persisted per tab alongside the attachments, because a
- * mode switch unmounts the drawer and hiding the widget unmounts the Omnibar, both while the staged
- * attachments live on — neither may spend a second display.
- *
- * @returns {import('./NoticeDrawer.js').NoticePresentation | null}
- */
+/** @returns {import('./NoticeDrawer.js').NoticePresentation | null} */
 export function useAttachmentPrivacyNotice() {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const { state, attachmentPrivacyDisclaimerShown, openAttachmentPrivacyLearnMore } = useContext(OmnibarContext);
