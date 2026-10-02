@@ -240,18 +240,12 @@ export class OmnibarService {
         this.ntp.messaging.notify('omnibar_dismissCreateImageModelSwitch', {});
     }
 
-    /**
-     * Notify native that the omnibar rendered the file-upload privacy disclaimer.
-     * @param {'image' | 'file'} kind
-     */
+    /** @param {'image' | 'file'} kind */
     attachmentPrivacyDisclaimerShown(kind) {
         this.ntp.messaging.notify('omnibar_attachmentPrivacyDisclaimerShown', { kind });
     }
 
-    /**
-     * Notify native to open the attachment privacy help page in a new tab.
-     * @param {'image' | 'file'} kind
-     */
+    /** @param {'image' | 'file'} kind */
     openAttachmentPrivacyLearnMore(kind) {
         this.ntp.messaging.notify('omnibar_openAttachmentPrivacyLearnMore', { kind });
     }

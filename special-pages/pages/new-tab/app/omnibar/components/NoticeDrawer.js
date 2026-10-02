@@ -246,8 +246,7 @@ export function NoticeDrawer({ revealed }) {
     const attachmentPrivacy = useAttachmentPrivacyNotice();
     const usageLimits = useUsageLimitsDrawer();
     const createImageModelSwitch = useCreateImageModelSwitchNotice();
-    // Attachment privacy outranks Create Image, which outranks usage limits; usage-limit blocking
-    // remains independent.
+    // Presentation priority doesn't affect usage-limit blocking.
     const presentation = attachmentPrivacy ?? createImageModelSwitch ?? usageLimits;
 
     if (!presentation) return null;

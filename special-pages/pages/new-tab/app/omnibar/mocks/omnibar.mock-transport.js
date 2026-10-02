@@ -261,7 +261,7 @@ export function omnibarMockTransport() {
     /** @type {Set<string>} Tracks deleted chats so re-fetches exclude them */
     const deletedChatIds = new Set();
 
-    /** Stands in for native's device-wide disclaimer count, so the cap is exercisable in the mock. */
+    /** Device-wide count for exercising the cap. */
     let attachmentPrivacyDisplays = 0;
 
     return new TestTransportConfig({
@@ -318,7 +318,7 @@ export function omnibarMockTransport() {
                 case 'omnibar_attachmentPrivacyDisclaimerShown': {
                     attachmentPrivacyDisplays += 1;
                     config.showAttachmentPrivacyDisclaimer = attachmentPrivacyDisplays < 3;
-                    // Native pushes on every display, not just the one that reaches the cap.
+                    // Mirror native's config push after each display.
                     subs.get('omnibar_onConfigUpdate')?.(config);
                     break;
                 }

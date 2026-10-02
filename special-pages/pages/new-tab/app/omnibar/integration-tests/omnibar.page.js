@@ -245,7 +245,7 @@ export class OmnibarPage {
     }
 
     /**
-     * `expectMethodCallCount` passes on "at least", so use this when over-calling is the bug.
+     * Unlike `expectMethodCallCount`, this rejects extra calls.
      * @param {string} method
      * @param {number} count
      */

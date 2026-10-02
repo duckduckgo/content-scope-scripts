@@ -91,10 +91,7 @@ function createPersistentList() {
     return { Provider, useStateWithLocalPersistence };
 }
 
-/**
- * A boolean per NTP tab. Same shape as `createPersistentList`, for state that has to outlive the
- * Omnibar itself — hiding the widget unmounts it while the attachment lists stay mounted.
- */
+/** Per-tab boolean state that survives Omnibar unmounts. */
 function createPersistentFlag() {
     const Context = createContext(/** @type {PersistentValue<boolean>|null} */ (null));
 
@@ -133,7 +130,6 @@ export const FileAttachments = /** @type {() => PersistentList<AttachedFile>} */
 export const ImageAttachments = /** @type {() => PersistentList<AttachedImage>} */ (createPersistentList)();
 // Single source of truth for open-tab metadata; tab chips and the pickers derive from this.
 export const OpenTabsList = /** @type {() => PersistentList<TabMetadata>} */ (createPersistentList)();
-// Whether the current attachment session already spent an attachment-privacy display.
 export const AttachmentPrivacyGrant = createPersistentFlag();
 
 /**

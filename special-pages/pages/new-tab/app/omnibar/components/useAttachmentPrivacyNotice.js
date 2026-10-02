@@ -34,13 +34,12 @@ export function useAttachmentPrivacyNotice() {
     const messageValues = {
         button: {
             click: () => {
-                // Non-null whenever the notice is on screen; the presentation below needs it too.
                 if (attachmentKind) openAttachmentPrivacyLearnMore(attachmentKind);
             },
         },
     };
 
-    // `granted` outlasts `allowed`: the display that spends the last one stays on screen.
+    // Keep the final allowed display visible after native disables future ones.
     const presentation =
         attachmentKind && granted
             ? {

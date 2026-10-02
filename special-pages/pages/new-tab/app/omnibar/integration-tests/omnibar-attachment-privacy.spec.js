@@ -3,18 +3,12 @@ import { expect, test } from '@playwright/test';
 import { NewtabPage } from '../../../integration-tests/new-tab.page.js';
 import { OmnibarPage } from './omnibar.page.js';
 
-/**
- * The file-upload privacy disclaimer: native answers with `showAttachmentPrivacyDisclaimer`,
- * the page decides when a display starts and reports each one back.
- */
-
-/** A tiny valid PDF, base64-encoded, used to drive `setInputFiles` without a fixture file. */
+// Tiny valid files kept inline to avoid fixtures.
 const PDF_BYTES = Buffer.from(
     'JVBERi0xLjEKMSAwIG9iajw8L1R5cGUvQ2F0YWxvZy9QYWdlcyAyIDAgUj4+ZW5kb2JqCjIgMCBvYmo8PC9UeXBlL1BhZ2VzL0tpZHNbXS9Db3VudCAwPj5lbmRvYmoKdHJhaWxlcjw8L1Jvb3QgMSAwIFI+Pgo=',
     'base64',
 );
 
-/** A 1x1 PNG, base64-encoded, used to drive image `setInputFiles` without a fixture file. */
 const TINY_PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwADhQGAWjR9awAAAABJRU5ErkJggg==', 'base64');
 
 const DISCLAIMER = /Files are automatically scanned for illegal content/;
@@ -28,8 +22,8 @@ function setup(page, workerInfo) {
 
 /**
  * @param {ReturnType<typeof setup>} harness
- * @param {boolean} allowed - What native answers on `showAttachmentPrivacyDisclaimer`.
- * @param {object} [extra] - Further query params, e.g. `omnibar: true` to make the widget toggleable.
+ * @param {boolean} allowed
+ * @param {object} [extra]
  */
 async function openAiOmnibar({ ntp, omnibar }, allowed, extra = {}) {
     await ntp.reducedMotion();
@@ -45,7 +39,7 @@ async function openAiOmnibar({ ntp, omnibar }, allowed, extra = {}) {
     await omnibar.ready();
 }
 
-/** Everything the AI composer needs, since a config push replaces the config wholesale. */
+/** Full config because pushes replace rather than merge. */
 const AI_CONFIG = {
     mode: /** @type {const} */ ('ai'),
     enableAi: true,
@@ -187,7 +181,7 @@ test.describe('omnibar attachment privacy disclaimer', () => {
 
         await omnibar.customizeButton().click();
         await omnibar.toggleSearchButton().click();
-        // The widget-list wrapper stays mounted, so assert on the omnibar's own content.
+        // The wrapper stays mounted; assert on the omnibar.
         await expect(omnibar.tabList()).toHaveCount(0);
 
         await omnibar.toggleSearchButton().click();
@@ -223,7 +217,6 @@ test.describe('omnibar attachment privacy disclaimer', () => {
             await omnibar.submitChat();
         }
 
-        // The third display took the count to the cap, and native pushed the config saying so.
         await attachFile(omnibar);
         await expect(omnibar.noticeDrawer()).toHaveCount(0);
         await omnibar.expectExactMethodCallCount('omnibar_attachmentPrivacyDisclaimerShown', 3);
