@@ -1520,6 +1520,35 @@ test.describe('omnibar widget', () => {
             expect(calls.map((call) => call.payload.params)).toEqual([{ active: true }, { active: false }]);
         });
 
+        test('updated create image stays active across browser tabs', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: {
+                    tabs: true,
+                    omnibar: true,
+                    'omnibar.mode': 'ai',
+                    'omnibar.enableImageGeneration': 'true',
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.enableUpdatedCreateImage': 'true',
+                },
+            });
+            await omnibar.ready();
+
+            await omnibar.toolsMenuButton().click();
+            await omnibar.createImageMenuItem().click();
+            await expect(omnibar.createImageChip()).toBeVisible();
+
+            await omnibar.didSwitchToTab('02', ['01', '02']);
+            await expect(omnibar.createImageChip()).toBeVisible();
+
+            await omnibar.createImageChip().click();
+            await omnibar.didSwitchToTab('01', ['01', '02']);
+            await expect(omnibar.createImageChip()).toHaveCount(0);
+        });
+
         test('image generation submit sends mode and omits modelId', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);

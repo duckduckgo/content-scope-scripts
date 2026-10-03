@@ -5,9 +5,10 @@ import { useSelectedModel } from '../useSelectedModel';
 /** @typedef {import('./tools-menu/ToolsMenu').ToolId} ToolId */
 
 export function useActiveTools() {
-    const { state } = useContext(OmnibarContext);
+    const { state, imageGenerationActive: imageGenerationActiveForPage } = useContext(OmnibarContext);
     const { selectedModel } = useSelectedModel();
-    const [activeTool, setActiveTool] = useState(/** @type {ToolId|null} */ (null));
+    // Seeded on mount, which happens on every tab switch, so a new tab picks up Create Image from the previous one.
+    const [activeTool, setActiveTool] = useState(/** @type {ToolId|null} */ (imageGenerationActiveForPage ? 'image-generation' : null));
 
     const modelSupportedTools = selectedModel?.supportedTools ?? [];
 
