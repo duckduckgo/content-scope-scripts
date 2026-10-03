@@ -329,6 +329,23 @@ const mySet = new capturedGlobals.Set();
 capturedGlobals.dispatchEvent(new capturedGlobals.CustomEvent('name', { detail }));
 ```
 
+DOM APIs are captured too. Values whose receiver varies per call — element queries, XPath
+evaluation, node lists, style declarations, property accessors — are exposed as functions taking the
+receiver as their first argument:
+
+```js
+import { documentQuerySelectorAll, elementQuerySelector, nodeTextContent, regExpTest } from '../captured-globals.js';
+
+const elements = documentQuerySelectorAll('.selector');
+const text = nodeTextContent(elementQuerySelector(element, 'p'));
+```
+
+Reach for these where the argument or receiver would itself disclose something: a remote-config
+selector, an XPath expression or a text pattern is readable by any page that replaces
+`querySelectorAll` or `RegExp.prototype.test`. `Array.prototype` and `String.prototype` methods carry
+the same exposure — `patterns.join('|')` hands the pattern list to a replaced `join` — so index loops
+replace them on that data. `injected/src/features/web-detection/` is held to this by ESLint.
+
 ### Frame and Context Guards
 
 Validate execution context at feature initialization:
