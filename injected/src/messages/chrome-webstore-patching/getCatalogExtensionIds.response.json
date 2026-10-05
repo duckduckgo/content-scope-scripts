@@ -7,7 +7,7 @@
   "required": ["extensionIds"],
   "properties": {
     "extensionIds": {
-      "description": "Chrome Web Store extension IDs the store may offer for install. Empty when extension management is off, or before native config is ready.",
+      "description": "Chrome Web Store extension IDs the store may offer for install. Empty when extension management is off. Native replies with an error, not an empty list, before its config is ready.",
       "type": "array",
       "items": {
         "type": "string",

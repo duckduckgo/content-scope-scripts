@@ -1,4 +1,5 @@
 import ContentFeature from '../content-feature.js';
+import { MacOSWebstore } from './chrome-webstore-patching/macos.js';
 import { injectGlobalStyles } from '../utils.js';
 import {
     getWebstorePrivate,
@@ -6,6 +7,7 @@ import {
     isValidSelector,
     parseCatalogExtensionIds,
     parseExtensionId,
+    readCuratedCatalog,
     readStatusSets,
 } from './chrome-webstore-patching/helpers.js';
 // Vendored from the duckduckgo/Icons repo (no package exports them), original names kept
@@ -76,7 +78,8 @@ const CATALOG_REQUEST_TIMEOUT_MS = 3000;
  * Patches the Chrome Web Store UI in the DDG browser.
  * - Hides every install button via CSS up front (fail closed)
  * - On extension detail pages for catalog extensions, swaps the button copy to
- *   DuckDuckGo wording and reveals the button. Native owns the catalog.
+ *   DuckDuckGo wording and reveals the button. Native owns the catalog on
+ *   Windows; macOS reads it from config.
  * Decisions happen on navigation; the MutationObserver only re-applies the
  * current decision when the store's framework re-renders the button.
  */
@@ -99,8 +102,13 @@ export class ChromeWebstorePatching extends ContentFeature {
     /** @type {string} BCP 47-ish language tag from the platform, e.g. 'de' */
     _locale = 'en';
 
+    /** @type {MacOSWebstore | undefined} */
+    _macOS;
+
     /** @param {any} [args] */
     async init(args) {
+        // The Apple isolated bundle is shared with iOS, which has no integration.
+        if (this.platform?.name === 'ios') return;
         // Locale dirs are bare language codes — strip any region subtag ('de-DE'/'de_DE' → 'de')
         this._locale =
             String(args?.locale || args?.language || 'en')
@@ -122,11 +130,22 @@ export class ChromeWebstorePatching extends ContentFeature {
             .filter(isValidSelector);
         if (!this._buttonSelectors.length) return;
 
+        if (this.platform?.name === 'macos') {
+            // Leave the page untouched until native confirms this build supports the store.
+            const macOS = new MacOSWebstore(this);
+            if (!(await macOS.initialSetup())) return;
+            this._macOS = macOS;
+        }
+
         // Registered at document-start so capture-phase beats the store's root
         // jsaction handler. Blocks activation of the unsupported pill; after a
         // catalog click, re-evaluates — install/uninstall is async and emits no event.
         /** @param {Event} event */
         const intercept = (event) => {
+            if (this._macOS) {
+                this._macOS.intercept(event);
+                return;
+            }
             if (!this._verdict) return;
             const target = event.target instanceof Element ? this._closestButton(event.target) : null;
             if (!target) return;
@@ -141,7 +160,8 @@ export class ChromeWebstorePatching extends ContentFeature {
             }
         };
         for (const type of ['click', 'auxclick', 'pointerdown', 'mousedown', 'touchstart', 'keydown']) {
-            document.addEventListener(type, intercept, true);
+            // macOS owns activation, before the store's document-level handlers.
+            (this._macOS ? window : document).addEventListener(type, intercept, true);
         }
 
         // At document-start documentElement may not exist yet. Wait only until it
@@ -197,10 +217,12 @@ export class ChromeWebstorePatching extends ContentFeature {
                 document.addEventListener('DOMContentLoaded', () => resolve(undefined), { once: true });
             });
         }
+        this._macOS?.startObservingURL();
         await this._evaluatePage();
     }
 
     urlChanged() {
+        if (this.platform?.name === 'ios' || (this.platform?.name === 'macos' && !this._macOS)) return;
         // Called synchronously by the URL-change dispatcher; _evaluatePage never rejects
         void this._evaluatePage();
     }
@@ -210,6 +232,7 @@ export class ChromeWebstorePatching extends ContentFeature {
      * navigation — never per DOM mutation.
      */
     async _evaluatePage() {
+        if (this._macOS) return this._macOS.evaluatePage();
         // Reset to fail-closed so nothing stale survives navigation. Dropping the
         // inline display hands each button back to the stylesheet's hide rule.
         this._verdict = null;
@@ -279,6 +302,9 @@ export class ChromeWebstorePatching extends ContentFeature {
      * to be patched for the first time.
      */
     _scheduleApply() {
+        // Page-world History calls cannot be intercepted from an isolated world.
+        // Catch navigation before reapplying a verdict to newly rendered buttons.
+        if (this._macOS?.checkForURLChange()) return;
         if (this._applyScheduled !== undefined) return;
         this._applyScheduled = requestAnimationFrame(() => {
             this._applyScheduled = undefined;
@@ -410,12 +436,24 @@ export class ChromeWebstorePatching extends ContentFeature {
     }
 
     /**
-     * Extension IDs the store may offer, asked of native on every evaluation.
-     * Native owns the catalog so the store offers exactly what browser Settings
-     * does: rollout, minimum versions and native-only gates never reach C-S-S.
-     * Not cached, because native answers with an empty list until its config is
-     * ready. Never rejects: an error, a malformed reply or a timeout all return
-     * null ("catalog unknown").
+     * macOS catalog: curated extension IDs from this build's config. The state
+     * check comes from ConfigFeature so 'internal' and 'preview' resolve against
+     * this build's platform flags rather than being matched as bare strings, and
+     * internal builds read the wider `catalogInternal` list. Synchronous, because
+     * the macOS click interceptor checks it while handling the event.
+     * @returns {string[]}
+     */
+    getCuratedExtensionIds() {
+        return readCuratedCatalog(this.bundledConfig, (state) => this._isStateEnabled(state), this.platform?.internal === true);
+    }
+
+    /**
+     * Windows catalog: extension IDs the store may offer, asked of native on every
+     * evaluation. Native owns the catalog so the store offers exactly what browser
+     * Settings does: rollout, minimum versions and native-only gates never reach
+     * C-S-S. Not cached, because remote config can change it at any time. Never
+     * rejects: an error, a malformed reply or a timeout all return null ("catalog
+     * unknown").
      * @returns {Promise<string[] | null>}
      */
     async getCatalogExtensionIds() {
@@ -446,6 +484,7 @@ export class ChromeWebstorePatching extends ContentFeature {
      * @returns {Promise<string | null>}
      */
     getExtensionStatus(extensionId) {
+        if (this._macOS) return this._macOS.getExtensionStatus(extensionId);
         return new Promise((resolve) => {
             const chromeGlobal = globalThis.chrome;
             const webstorePrivate = getWebstorePrivate(chromeGlobal);

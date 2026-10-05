@@ -4,7 +4,7 @@ title: Chrome Webstore Patching
 
 # Chrome Webstore Patching
 
-Patches the Chrome Web Store UI (`chromewebstore.google.com`) in the DuckDuckGo Windows browser:
+Patches the Chrome Web Store UI (`chromewebstore.google.com`) in the DuckDuckGo Windows and macOS browsers:
 
 - Hides every extension install button via injected CSS before the page hydrates (**fail closed**)
 - On detail pages for extensions in the **catalog**, restyles the button as a DDG-branded pill (accent `#F05F2B`, radius 48px, per Figma) with "Add to DuckDuckGo" / "Remove from DuckDuckGo" copy
@@ -13,9 +13,9 @@ Patches the Chrome Web Store UI (`chromewebstore.google.com`) in the DuckDuckGo 
 
 Pill styling values are deliberately literal in the feature (not remote config): they are DDG design tokens, not Google-shaped, so they don't rot with store markup. Hiding and revealing are deliberately asymmetric: the **hide** is a stylesheet rule (one per validated selector) because it has to cover buttons the store has not mounted yet, while the **reveal** is an inline `display: inline-flex !important` applied per button as part of the pill styling. Inline important beats the injected stylesheet, so no root attribute or other page-readable state is written. That is a privacy requirement, not a style preference: a marker on `<html>` would tell any script on the store that this is the DuckDuckGo browser and, per page, whether that extension is in our catalog, and it would let the page reveal buttons we decided to keep hidden. The navigation reset clears the inline `display` so those nodes fall back under the hide rule. The label is **feature-owned** (`span[data-ddg-webstore-label]`, appended to the button; every other child is hidden): live testing showed the store's internal label spans rotate between button states and re-renders, so writing into them is unreliable. A capture-phase click interceptor (registered at document-start, ahead of the store's delegated jsaction handler) blocks activation of the unsupported pill and re-evaluates install state after catalog clicks, flipping the pill Add ↔ Remove without a navigation.
 
-The catalog comes from native over messaging (see below). Install state comes from the page-world private API `chrome.webstorePrivate.getExtensionStatus()`.
+Where the catalog and install state come from depends on the platform. Windows asks native for the catalog (below) and reads install state from the page-world private API `chrome.webstorePrivate.getExtensionStatus()`; the store's existing handlers perform install/removal, with status rechecks after 1.5 and 5 seconds. macOS reads the catalog from config and uses native messaging for status and operations (see macOS native integration).
 
-## Catalog: native owns it
+## Windows catalog: native owns it
 
 On Windows, the browser decides which extensions the store may offer. The feature asks for them on every page evaluation; nothing is read from remote config.
 
@@ -28,7 +28,7 @@ Native owns the catalog so the store offers exactly what the browser's own Setti
 | Reply             | `{ "extensionIds": string[] }`: the IDs the store may offer                                     |
 | Schemas           | `injected/src/messages/chrome-webstore-patching/getCatalogExtensionIds.{request,response}.json` |
 
-Native replies within about 1 s. It replies with an empty list when extension management is off, and also before its own config is ready. On failure it replies with a JSON-RPC-style error. The answer isn't cached, because an empty pre-config reply would otherwise stick for the life of the page.
+Native replies within about 1 s: an empty list when extension management is off, and a JSON-RPC-style error before its own config is ready or on failure. The answer isn't cached, so each evaluation picks up remote-config changes.
 
 How the reply maps to the page:
 
@@ -36,7 +36,53 @@ How the reply maps to the page:
 - **ID not in the list, including an empty list** → "Unsupported extension" pill.
 - **Catalog unknown** → button stays hidden, with no pill at all. This covers an error reply, a malformed reply (not an object whose `extensionIds` is an array of strings) and no reply within 3 s. Showing the unsupported pill here would tell users a catalog extension isn't supported whenever native misbehaves, so an unknown catalog fails closed instead.
 
-The feature no longer reads `extensionManagement.features.curatedExtensions` (`catalog` / `catalogInternal`), and the `internal` platform flag no longer affects which catalog applies. This change must ship together with the Windows `getCatalogExtensionIds` handler. A Windows build without the handler never replies, so every lookup times out and the store shows nothing installable.
+On Windows the feature no longer reads `extensionManagement.features.curatedExtensions` (`catalog` / `catalogInternal`), and the `internal` platform flag no longer affects which catalog applies; macOS still reads them (below). This change must ship together with the Windows `getCatalogExtensionIds` handler. A Windows build without the handler never replies, so every lookup times out and the store shows nothing installable.
+
+## macOS native integration
+
+macOS uses `src/features/chrome-webstore-patching/macos.js` and does not access or create any `chrome.*` APIs. The feature is included in the Apple **isolated-world** bundle (`contentScopeIsolated.js`). Native registers `ChromeWebStoreSubfeature` on `contentScopeUserScriptIsolated`; it is not permitted on the page-world message handler. DOM mutations detect URL changes before reapplying button state, with a 250 ms URL check covering navigation without DOM changes. This also works on WebKit versions without the Navigation API, where the shared History wrappers cannot observe page-world calls from an isolated world. iOS explicitly skips the feature. Native must enable `chromeWebstorePatching` and its `patchWebstore` domain gate and supply the `extensionManagement.curatedExtensions` catalog, which macOS reads from config (`readCuratedCatalog`) rather than asking native as Windows does; adding it to the bundle alone does not enable it.
+
+Messages use the existing C-S-S messaging layer: requests for status and operations, and a subscription for native removal events.
+
+Machine-readable request/response schemas live in `injected/src/messages/chrome-webstore-patching/`; `npm run build-types -w injected` generates the corresponding typed feature contract.
+
+- **Context:** `contentScopeScriptsIsolated`
+- **Feature name:** `chromeWebstorePatching`
+
+| Method               | Parameters                                                                                   | Response result                                                                                                         |
+| -------------------- | -------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `initialSetup`       | `{}`                                                                                         | `{ "enabled": true }` for DMG builds, `{ "enabled": false }` for App Store builds                                       |
+| `getExtensionStatus` | `{ "extensionId": "<32-character store ID>" }`                                               | `{ "status": "installable" }`, `{ "status": "installed" }`, `{ "status": "unsupported" }`, or `{ "status": "unknown" }` |
+| `installExtension`   | `{ "extensionId": "<ID>", "crxUrl": "https://clients2.google.com/service/update2/crx?..." }` | `{ "success": true }` on completion, `{ "success": false }` on failure/cancellation                                     |
+| `removeExtension`    | `{ "extensionId": "<ID>" }`                                                                  | `{ "success": true }` on completion, `{ "success": false }` on failure/cancellation                                     |
+
+These are the request `params` and response `result`, inside the standard messaging envelopes. Native must return the final operation response **after** its stored status has been updated, not merely acknowledge that a download started. Native owns confirmation, progress, and error UI. Rejected operation requests are also supported. After any completion, including cancellation or rejection, the script queries status again; the `success` field is informational and does not determine button state. Unrecognized/malformed status responses or status request errors leave the button hidden.
+
+On activation, macOS consumes the event before the store's document handlers, verifies a trusted user event and a current curated ID, and sends the native request. Mouse/touch clicks and Enter/Space are supported. Buttons for an extension stay hidden while its native operation is pending, including across SPA navigation; repeated activation cannot start another operation for that extension. Navigation invalidates older status responses, even when returning to the same ID.
+
+Before any macOS page changes, event interception, or change subscription, C-S-S sends `initialSetup` once per document. Only a response with `enabled === true` allows initialization to continue; disabled, malformed, or rejected requests leave the page untouched. Remote configuration gates still apply. Windows does not use this handshake, and iOS continues to skip the feature.
+
+Native must register the isolated-world bridge on both macOS build types so App Store builds can return `enabled: false`. Validate the origin and main frame before answering setup, without requiring an extension ID. App Store builds must also reject status/install/remove requests and must not create the native store service.
+
+### Extension state changes
+
+Native pushes `extensionChanged` with `{ "extensionId": "<32-character store ID>" }` through the `chromeWebstorePatching` feature in the `contentScopeScriptsIsolated` context. Send this after successful installation or removal and after updating stored installation state, including changes from browser settings or another tab. This is a native-to-script subscription; JavaScript registration sends no request or acknowledgment to native.
+
+If the ID matches the currently displayed extension detail page, the script queries `getExtensionStatus` with the event's `extensionId` and refreshes the button from the returned status. Other IDs and non-detail pages are ignored. The usual curated catalog, pending-operation and stale-response guards still apply; the notification itself does not assert that installation is permitted. No page-world event or Chrome API is involved.
+
+### CRX download URL
+
+The script constructs a Google update-service URL from the validated extension ID, following Chromium's [WebstoreInstaller download URL construction](https://raw.githubusercontent.com/chromium/chromium/main/extensions/browser/webstore_installer.cc). This is a **download URL that redirects to a CRX**, not the final, version-specific blob URL. Native follows the redirect and downloads the file; JavaScript does not fetch the package or depend on cross-origin fetch permissions.
+
+Parameters are `response=redirect`, `acceptformat=crx3`, `prodversion=9999.0.0.0`, and an encoded `x=id=<ID>&installsource=ondemand&uc`. The deliberately high product version requests the latest package rather than claiming a Safari version is a Chrome version or pinning an arbitrary Chrome release. It does **not** assert compatibility with WebKit. Native must check package identity, CRX signature and supported extension APIs/manifest before installation. The URL was checked against the live endpoint with the curated Bitwarden ID and returned a redirect to a `.crx` file; package installation still needs verification in the macOS app.
+
+Native must authorize these messages against the actual frame/origin and its own curated catalog, and validate the supplied URL/extension ID rather than treating page-provided parameters as installation authority.
+
+### Completion and the store's JavaScript
+
+There is no store install callback to invoke on macOS: the script intercepts activation before the store starts its Chromium-only flow. Native completion updates the feature-owned button via the subsequent status request. No fabricated `chrome.webstorePrivate` object, page event, or Google callback is required for this implementation. If the store later overwrites the button, the existing observer reapplies its current state.
+
+The native handlers, macOS remote-config rollout and on-device verification live outside this repository. Test with no Chrome APIs: install and cancel an extension, remove it, navigate while installation is pending, and confirm the real store's button/promo selectors still match its WebKit-rendered DOM.
 
 ## Fail-closed contract
 
@@ -59,7 +105,7 @@ Both selector lists take `{type, value}` entries. `promoSelectors` previously to
 
 Button copy is **not** remote config. `buttonCopy` used to be the only source, which meant a config without it resolved to no copy and left every button hidden; it was removed from the schema and the override once the bundled locale strings took over. See Localization below.
 
-Catalog extension IDs are **not** remote config for this feature: native supplies them through `getCatalogExtensionIds` (see Catalog above).
+On Windows, catalog extension IDs are **not** remote config for this feature: native supplies them through `getCatalogExtensionIds` (see Windows catalog above). macOS reads them from `extensionManagement.curatedExtensions`.
 
 ## Localization
 
@@ -69,9 +115,10 @@ The file is named for the feature rather than a generic `strings.json` because S
 
 ## Testing
 
-- Unit (Jasmine): `injected/unit-test/chrome-webstore-patching.spec.js` covers only the pure helpers in `src/features/chrome-webstore-patching/helpers.js`: ID parsing, validation of native's catalog reply (`parseCatalogExtensionIds`), and the `chrome.*` type guards. The specs deliberately do not import the feature module, which pulls in SVG assets that plain Node cannot load. Copy resolution and the live `webstorePrivate` calls are covered by integration instead. Keep new pure logic in the helpers module so this stays true.
-- Integration (Playwright, `windows` project): `injected/integration-test/chrome-webstore-patching.spec.js` against fixtures in `integration-test/test-pages/chrome-webstore-patching/`. `chrome.webstorePrivate` is mocked via `page.addInitScript`; the mock installs a `window.chrome` accessor because the windows messaging test harness later reassigns `window.chrome`. Native's `getCatalogExtensionIds` reply is mocked through the results collector (`setup()` defaults to a catalog holding the Bitwarden fixture ID; `catalogReply` overrides it, `catalogFailure: 'error' | 'none'` simulates an error reply or no reply). Config fixtures retarget the `domains` patch to `localhost`.
-- Fixtures ship the feature at `state: "internal"`, matching the windows override, so `setup()` reports an internal build by default. A new spec that bypasses that helper must pass `platform.internal`, or the feature will silently not load and any "feature inert" assertion will pass for the wrong reason. `setup(page, testInfo, { internal: false })` covers the public-build case on purpose. The flag only gates the feature's own state; it no longer selects a catalog.
+- Unit (Jasmine): `injected/unit-test/chrome-webstore-patching.spec.js` covers only the pure helpers in `src/features/chrome-webstore-patching/helpers.js`: ID parsing, validation of native's Windows catalog reply (`parseCatalogExtensionIds`), the macOS config catalog (`readCuratedCatalog`), and the `chrome.*` type guards. The specs deliberately do not import the feature module, which pulls in SVG assets that plain Node cannot load. Copy resolution and the live `webstorePrivate` calls are covered by integration instead. Keep new pure logic in the helpers module so this stays true.
+- Integration (Playwright, `windows` project): `injected/integration-test/chrome-webstore-patching.spec.js` against fixtures in `integration-test/test-pages/chrome-webstore-patching/`. `chrome.webstorePrivate` is mocked via `page.addInitScript`; the mock installs a `window.chrome` accessor because the windows messaging test harness later reassigns `window.chrome`. Native's `getCatalogExtensionIds` reply is mocked through the results collector (`setup()` defaults to a catalog holding the Bitwarden fixture ID; `catalogReply` overrides it, `catalogFailure: 'error' | 'none'` simulates an error reply or no reply). Config fixtures retarget the `domains` patch to `localhost`, and keep the `extensionManagement` catalog that the macOS spec reads; the Windows spec ignores it.
+- Fixtures ship the feature at `state: "internal"`, matching the windows override, so `setup()` reports an internal build by default. A new spec that bypasses that helper must pass `platform.internal`, or the feature will silently not load and any "feature inert" assertion will pass for the wrong reason. `setup(page, testInfo, { internal: false })` covers the public-build case on purpose. On Windows the flag only gates the feature's own state; macOS still uses it to pick `catalogInternal`.
 - Run: `npx playwright test --project=windows chrome-webstore-patching --reporter=list`
+- macOS: `injected/integration-test/chrome-webstore-patching-macos.spec.js` uses the Apple isolated bundle and mocked native requests. Page navigation uses saved History methods with the Navigation API disabled to simulate calls made outside the isolated world. It covers native status/install/removal, rejected/cancelled operations, keyboard input, synthetic-event rejection, pending operations, stale status responses, DOM re-renders, configuration gates and iOS exclusion. Run from `injected/`: `npx playwright test --project=apple-isolated --project=windows chrome-webstore-patching --reporter list`.
 
 Still requires manual verification on a Windows internal build: real `webstorePrivate` availability/status strings, install/uninstall events, promo markup (only renders on de-Googled Chromium), and real store DOM against the fixture snapshots.
