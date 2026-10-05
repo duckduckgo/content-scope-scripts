@@ -184,9 +184,13 @@ export type LauncherPromo = {
    */
   kind: "promo" | "shortcutHint" | "shortcutNudge";
   /**
-   * Drawer copy, already localized. May contain one {shortcut} token, rendered as a highlighted key combination. Omitted means no drawer.
+   * Drawer copy, already localized, shown emphasized. May contain one {shortcut} token, rendered as a highlighted key combination. Omitted means no drawer.
    */
   message?: string;
+  /**
+   * Optional drawer copy shown after message, already localized and including any leading separator (for example, ' · Add Duck.ai to your menu bar').
+   */
+  secondaryText?: string;
   /**
    * Display string of the user's launcher shortcut (for example, '⌥ Space'), substituted for {shortcut} in message.
    */

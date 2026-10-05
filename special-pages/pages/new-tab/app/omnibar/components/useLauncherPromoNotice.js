@@ -27,7 +27,7 @@ export function useLauncherPromoNotice() {
         return null;
     }
 
-    const { message, shortcut, ctaLabel } = launcherPromo;
+    const { message, secondaryText, shortcut, ctaLabel } = launcherPromo;
     const tokenIndex = message.indexOf(SHORTCUT_TOKEN);
     const content =
         tokenIndex === -1 || !shortcut ? (
@@ -42,8 +42,8 @@ export function useLauncherPromoNotice() {
 
     return {
         message: content,
-        secondaryText: '',
-        icon: 'info',
+        secondaryText: secondaryText ?? '',
+        icon: 'announce',
         cta: ctaLabel ? { label: ctaLabel, showMenu: false } : null,
         onSelectCta: ctaLabel ? onSelectCta : undefined,
         onDismiss: launcherPromo.dismissible === true ? onDismiss : undefined,

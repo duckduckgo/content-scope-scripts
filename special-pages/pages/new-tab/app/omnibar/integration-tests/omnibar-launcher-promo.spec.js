@@ -12,7 +12,7 @@ function setup(page, workerInfo) {
 }
 
 test.describe('omnibar launcher promo', () => {
-    test('promo drawer shows on focus with the highlighted shortcut', async ({ page }, workerInfo) => {
+    test('promo drawer shows on focus', async ({ page }, workerInfo) => {
         const { ntp, omnibar } = setup(page, workerInfo);
         await ntp.reducedMotion();
         await ntp.openPage({ additional: { 'omnibar.mode': 'ai', 'omnibar.launcherPromo': 'promo' } });
@@ -23,8 +23,7 @@ test.describe('omnibar launcher promo', () => {
 
         await omnibar.focusChatInput();
         await expect(omnibar.noticeDrawer()).toBeVisible();
-        await expect(omnibar.noticeDrawer()).toContainText('Open Duck.ai from anywhere on your Mac with ⌥ Space');
-        await expect(omnibar.noticeDrawer().locator('kbd')).toHaveText('⌥ Space');
+        await expect(omnibar.noticeDrawer()).toContainText('Chat privately outside the browser • Add Duck.ai to your menu bar');
         await omnibar.expectMethodCalledWith('omnibar_launcherPromoShown', { kind: 'promo' });
     });
 
@@ -84,7 +83,7 @@ test.describe('omnibar launcher promo', () => {
 
         await omnibar.focusChatInput();
         await expect(omnibar.noticeDrawer()).toBeVisible();
-        await expect(omnibar.noticeDrawer()).not.toContainText('Open Duck.ai from anywhere');
+        await expect(omnibar.noticeDrawer()).not.toContainText('Chat privately outside the browser');
         await omnibar.expectMethodNotCalled('omnibar_launcherPromoShown');
     });
 
@@ -109,6 +108,7 @@ test.describe('omnibar launcher promo', () => {
         await omnibar.ready();
 
         await omnibar.focusChatInput();
+        await expect(omnibar.noticeDrawer().locator('kbd')).toHaveText('⌥ Space');
         await expect(omnibar.noticeDismiss()).toHaveCount(0);
         await omnibar.noticeDrawer().getByRole('button', { name: 'Turn On' }).click();
 

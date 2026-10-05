@@ -90,6 +90,10 @@
     }
 }
 
+.announce {
+    color: var(--ds-color-theme-icons-secondary);
+}
+
 .ringTrack {
     stroke: var(--ds-color-theme-control-fill-primary);
 }

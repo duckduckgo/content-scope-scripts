@@ -7,8 +7,8 @@ const url = typeof window !== 'undefined' ? new URL(window.location.href) : new 
 const LAUNCHER_PROMO_PRESETS = {
     promo: {
         kind: 'promo',
-        message: 'Open Duck.ai from anywhere on your Mac with {shortcut}',
-        shortcut: '⌥ Space',
+        message: 'Chat privately outside the browser',
+        secondaryText: ' • Add Duck.ai to your menu bar',
         ctaLabel: 'Try Now',
         dismissible: true,
     },
