@@ -11,7 +11,7 @@
  */
 export interface ChromeWebstorePatchingMessages {
   requests: GetExtensionStatusRequest | InitialSetupRequest | InstallExtensionRequest | RemoveExtensionRequest;
-  subscriptions: ExtensionRemovedSubscription;
+  subscriptions: ExtensionChangedSubscription;
 }
 /**
  * Generated from @see "../messages/chrome-webstore-patching/getExtensionStatus.request.json"
@@ -105,18 +105,18 @@ export interface RemoveExtensionResponse {
   success: boolean;
 }
 /**
- * Generated from @see "../messages/chrome-webstore-patching/extensionRemoved.subscribe.json"
+ * Generated from @see "../messages/chrome-webstore-patching/extensionChanged.subscribe.json"
  */
-export interface ExtensionRemovedSubscription {
-  subscriptionEvent: "extensionRemoved";
-  params: ExtensionRemovedParams;
+export interface ExtensionChangedSubscription {
+  subscriptionEvent: "extensionChanged";
+  params: ExtensionChangedParams;
 }
 /**
- * macOS: native reports that an extension was removed, after updating its stored status.
+ * macOS: native reports an extension state change after updating its stored status. Query getExtensionStatus with the supplied ID.
  */
-export interface ExtensionRemovedParams {
+export interface ExtensionChangedParams {
   /**
-   * Chrome Web Store ID of the removed extension.
+   * Chrome Web Store ID of the changed extension.
    */
   extensionId: string;
 }

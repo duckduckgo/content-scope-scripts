@@ -37,15 +37,15 @@ These are the request `params` and response `result`, inside the standard messag
 
 On activation, macOS consumes the event before the store's document handlers, verifies a trusted user event and a current curated ID, and sends the native request. Mouse/touch clicks and Enter/Space are supported. Buttons for an extension stay hidden while its native operation is pending, including across SPA navigation; repeated activation cannot start another operation for that extension. Navigation invalidates older status responses, even when returning to the same ID.
 
-Before any macOS page changes, event interception, or removal subscription, C-S-S sends `initialSetup` once per document. Only a response with `enabled === true` allows initialization to continue; disabled, malformed, or rejected requests leave the page untouched. Remote configuration gates still apply. Windows does not use this handshake, and iOS continues to skip the feature.
+Before any macOS page changes, event interception, or change subscription, C-S-S sends `initialSetup` once per document. Only a response with `enabled === true` allows initialization to continue; disabled, malformed, or rejected requests leave the page untouched. Remote configuration gates still apply. Windows does not use this handshake, and iOS continues to skip the feature.
 
 Native must register the isolated-world bridge on both macOS build types so App Store builds can return `enabled: false`. Validate the origin and main frame before answering setup, without requiring an extension ID. App Store builds must also reject status/install/remove requests and must not create the native store service.
 
-### Removal outside the store page
+### Extension state changes
 
-Native pushes `extensionRemoved` with `{ "extensionId": "<32-character store ID>" }` through the `chromeWebstorePatching` feature in the `contentScopeScriptsIsolated` context. Send this after updating stored installation state, including removals from browser settings or another tab. This is a native-to-script subscription; JavaScript registration sends no request or acknowledgment to native.
+Native pushes `extensionChanged` with `{ "extensionId": "<32-character store ID>" }` through the `chromeWebstorePatching` feature in the `contentScopeScriptsIsolated` context. Send this after successful installation or removal and after updating stored installation state, including changes from browser settings or another tab. This is a native-to-script subscription; JavaScript registration sends no request or acknowledgment to native.
 
-If the ID matches the currently displayed extension detail page, the script queries `getExtensionStatus` again and refreshes the button (normally from "Remove from DuckDuckGo" to "Add to DuckDuckGo"). Other IDs and non-detail pages are ignored. The usual curated catalog, pending-operation and stale-response guards still apply; the notification itself does not assert that installation is permitted. No page-world event or Chrome API is involved.
+If the ID matches the currently displayed extension detail page, the script queries `getExtensionStatus` with the event's `extensionId` and refreshes the button from the returned status. Other IDs and non-detail pages are ignored. The usual curated catalog, pending-operation and stale-response guards still apply; the notification itself does not assert that installation is permitted. No page-world event or Chrome API is involved.
 
 ### CRX download URL
 

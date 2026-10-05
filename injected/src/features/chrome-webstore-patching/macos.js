@@ -40,15 +40,15 @@ export class MacOSWebstore {
             return false;
         }
 
-        this.feature.subscribe('extensionRemoved', async (params) => {
+        this.feature.subscribe('extensionChanged', async (params) => {
             const extensionId = params?.extensionId;
             if (typeof extensionId !== 'string' || extensionId !== parseExtensionId(window.location.pathname)) return;
-            // Re-query native state rather than assuming the extension is now
-            // installable. This also invalidates any older status response.
+            // Re-query the supplied ID rather than inferring state from the event.
+            // This also invalidates any older status response.
             try {
-                await this.evaluatePage();
+                await this.evaluatePage(extensionId);
             } catch (error) {
-                this.feature.log.info('Could not refresh Chrome Web Store after extension removal', error);
+                this.feature.log.info('Could not refresh Chrome Web Store after extension change', error);
             }
         });
         return true;
@@ -83,14 +83,15 @@ export class MacOSWebstore {
         }
     }
 
-    async evaluatePage() {
+    /** @param {string | null} [extensionId] */
+    async evaluatePage(extensionId = parseExtensionId(window.location.pathname)) {
+        if (extensionId !== parseExtensionId(window.location.pathname)) return;
         this._url = window.location.href;
         const evaluation = ++this._evaluation;
         this._evaluatedExtensionId = null;
         this.feature._verdict = null;
         for (const button of this.feature._matchingButtons()) button.style.removeProperty('display');
 
-        const extensionId = parseExtensionId(window.location.pathname);
         if (!extensionId || this._pending.has(extensionId)) return;
         if (!this.feature.getCuratedExtensionIds().includes(extensionId)) {
             this.feature._reveal('unsupported');

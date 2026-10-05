@@ -40,7 +40,7 @@ async function setup(page, testInfo, options = {}) {
             configurable: true,
         });
         // Wrap the mock before the feature captures its native message handler
-        // when registering the removal subscription at document start.
+        // when registering the change subscription at document start.
         let webkit;
         Object.defineProperty(window, 'webkit', {
             configurable: true,
@@ -332,13 +332,35 @@ test('DOM changes detect page-world navigation before the URL polling interval',
     expect(await messages(collector, 'getExtensionStatus')).toHaveLength(1);
 });
 
+for (const status of ['installed', 'unsupported', 'unknown']) {
+    test(`extensionChanged re-queries the supplied ID and reflects ${status}`, async ({ page }, testInfo) => {
+        const collector = await setup(page, testInfo);
+        await expect(page.locator(LABEL)).toHaveText('Add to DuckDuckGo');
+        await page.evaluate((status) => {
+            /** @type {any} */ (window).__playwright_01.mockResponses.getExtensionStatus = { status };
+        }, status);
+
+        await collector.simulateSubscriptionMessage('chromeWebstorePatching', 'extensionChanged', { extensionId: ID });
+
+        await expect.poll(async () => (await messages(collector, 'getExtensionStatus')).length).toBe(2);
+        expect((await messages(collector, 'getExtensionStatus'))[1]).toEqual(expect.objectContaining({ params: { extensionId: ID } }));
+        if (status === 'unknown') {
+            await expect(page.locator(BUTTON)).toBeHidden();
+        } else {
+            await expect(page.locator(LABEL)).toHaveText(status === 'installed' ? 'Remove from DuckDuckGo' : 'Unsupported extension');
+        }
+        expect(await messages(collector, 'installExtension')).toHaveLength(0);
+        expect(await messages(collector, 'removeExtension')).toHaveLength(0);
+    });
+}
+
 test('external removal refreshes the current extension and allows reinstalling', async ({ page }, testInfo) => {
     const collector = await setup(page, testInfo, { status: 'installed' });
     await expect(page.locator(LABEL)).toHaveText('Remove from DuckDuckGo');
     await page.evaluate(() => {
         /** @type {any} */ (window).__playwright_01.mockResponses.getExtensionStatus = { status: 'installable' };
     });
-    await collector.simulateSubscriptionMessage('chromeWebstorePatching', 'extensionRemoved', { extensionId: ID });
+    await collector.simulateSubscriptionMessage('chromeWebstorePatching', 'extensionChanged', { extensionId: ID });
     await expect(page.locator(LABEL)).toHaveText('Add to DuckDuckGo');
     expect(await messages(collector, 'getExtensionStatus')).toHaveLength(2);
     expect(await messages(collector, 'removeExtension')).toHaveLength(0);
@@ -347,33 +369,33 @@ test('external removal refreshes the current extension and allows reinstalling',
     expect(await messages(collector, 'installExtension')).toHaveLength(1);
 });
 
-test('removal notifications ignore other IDs, malformed payloads and non-detail pages', async ({ page }, testInfo) => {
+test('change notifications ignore other IDs, malformed payloads and non-detail pages', async ({ page }, testInfo) => {
     const collector = await setup(page, testInfo, { status: 'installed' });
     await expect(page.locator(LABEL)).toHaveText('Remove from DuckDuckGo');
     for (const payload of [{ extensionId: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' }, {}, { extensionId: null }, null]) {
-        await collector.simulateSubscriptionMessage('chromeWebstorePatching', 'extensionRemoved', /** @type {any} */ (payload));
+        await collector.simulateSubscriptionMessage('chromeWebstorePatching', 'extensionChanged', /** @type {any} */ (payload));
     }
     await expect(page.locator(LABEL)).toHaveText('Remove from DuckDuckGo');
     expect(await messages(collector, 'getExtensionStatus')).toHaveLength(1);
     await navigate(page, '/category/extensions');
     await expect(page.locator(BUTTON)).toBeHidden();
-    await collector.simulateSubscriptionMessage('chromeWebstorePatching', 'extensionRemoved', { extensionId: ID });
+    await collector.simulateSubscriptionMessage('chromeWebstorePatching', 'extensionChanged', { extensionId: ID });
     await expect(page.locator(BUTTON)).toBeHidden();
     expect(await messages(collector, 'getExtensionStatus')).toHaveLength(1);
 });
 
-test('removal notification invalidates an older installed status response', async ({ page }, testInfo) => {
+test('change notification invalidates an older installed status response', async ({ page }, testInfo) => {
     const collector = await setup(page, testInfo, { status: 'installed' });
     await expect(page.locator(LABEL)).toHaveText('Remove from DuckDuckGo');
     await page.evaluate(() => {
         /** @type {any} */ (window).holdNextStatus = true;
     });
-    await collector.simulateSubscriptionMessage('chromeWebstorePatching', 'extensionRemoved', { extensionId: ID });
+    await collector.simulateSubscriptionMessage('chromeWebstorePatching', 'extensionChanged', { extensionId: ID });
     await expect.poll(() => page.evaluate(() => typeof (/** @type {any} */ (window).releaseStatus))).toBe('function');
     await page.evaluate(() => {
         /** @type {any} */ (window).__playwright_01.mockResponses.getExtensionStatus = { status: 'installable' };
     });
-    await collector.simulateSubscriptionMessage('chromeWebstorePatching', 'extensionRemoved', { extensionId: ID });
+    await collector.simulateSubscriptionMessage('chromeWebstorePatching', 'extensionChanged', { extensionId: ID });
     await expect(page.locator(LABEL)).toHaveText('Add to DuckDuckGo');
     await page.evaluate(() => /** @type {any} */ (window).releaseStatus());
     await page.locator(BUTTON).click();
@@ -382,12 +404,12 @@ test('removal notification invalidates an older installed status response', asyn
     expect(await messages(collector, 'removeExtension')).toHaveLength(0);
 });
 
-test('removal notification cannot reveal a button while its operation is pending', async ({ page }, testInfo) => {
+test('change notification cannot reveal a button while its operation is pending', async ({ page }, testInfo) => {
     const collector = await setup(page, testInfo, { status: 'installed', hold: true });
     await expect(page.locator(LABEL)).toHaveText('Remove from DuckDuckGo');
     await page.locator(BUTTON).click();
     await expect.poll(() => page.evaluate(() => typeof (/** @type {any} */ (window).completeOperation))).toBe('function');
-    await collector.simulateSubscriptionMessage('chromeWebstorePatching', 'extensionRemoved', { extensionId: ID });
+    await collector.simulateSubscriptionMessage('chromeWebstorePatching', 'extensionChanged', { extensionId: ID });
     await expect(page.locator(BUTTON)).toBeHidden();
     expect(await messages(collector, 'getExtensionStatus')).toHaveLength(1);
     await page.evaluate(() => /** @type {any} */ (window).completeOperation());
