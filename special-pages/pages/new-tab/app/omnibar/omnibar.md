@@ -180,7 +180,7 @@ With `enablePastedAttachments`, a paste into the Duck.ai prompt is handled as fo
 
 ### `omnibar_launcherPromoShown`
 - Sent the first time per page load that a `launcherPromo` kind becomes visible: its drawer revealed on composer focus, or its placeholder shown in an empty AI input.
-- Native fires the exposure pixel.
+- Native records the impression: a Duck.ai prompt sent after it counts as dismissing the drawer.
 
 ### `omnibar_selectLauncherPromoCta`
 - Sent when the user activates the `launcherPromo` drawer button, with the rendered `kind`.

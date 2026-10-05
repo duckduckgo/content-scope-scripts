@@ -791,7 +791,7 @@ export interface OmnibarLauncherPromoShownNotification {
   params: LauncherPromoShown;
 }
 /**
- * Sent the first time per page load that a launcherPromo kind becomes visible: its drawer revealed on composer focus, or its placeholder shown in an empty AI input. Native fires the exposure pixel.
+ * Sent the first time per page load that a launcherPromo kind becomes visible: its drawer revealed on composer focus, or its placeholder shown in an empty AI input. Native records the impression: a Duck.ai prompt sent after it counts as dismissing the drawer.
  */
 export interface LauncherPromoShown {
   /**
