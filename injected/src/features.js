@@ -81,6 +81,7 @@ export const platformSupport = {
         'hover',
         'tabSuspension',
         'textSelection',
+        'chromeWebstorePatching',
     ],
     'apple-ai-clear': ['duckAiDataClearing'],
     'apple-ai-history': ['duckAiChatHistory'],

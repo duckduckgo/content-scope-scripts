@@ -1,1 +1,1 @@
-- NTP omnibar: attach pasted images and files, with image telemetry (#3079)
+- Add native Chrome Web Store integration for macOS (#3071)

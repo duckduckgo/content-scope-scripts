@@ -3037,7 +3037,8 @@
       "pageObserver",
       "hover",
       "tabSuspension",
-      "textSelection"
+      "textSelection",
+      "chromeWebstorePatching"
     ],
     "apple-ai-clear": ["duckAiDataClearing"],
     "apple-ai-history": ["duckAiChatHistory"],
@@ -28974,6 +28975,9 @@ ${iframeContent}
   // src/features/chrome-webstore-patching.js
   init_define_import_meta_trackerLookup();
 
+  // src/features/chrome-webstore-patching/macos.js
+  init_define_import_meta_trackerLookup();
+
   // src/features/chrome-webstore-patching/helpers.js
   init_define_import_meta_trackerLookup();
   function isRecord(value) {
@@ -29060,6 +29064,129 @@ ${iframeContent}
     };
   }
 
+  // src/features/chrome-webstore-patching/macos.js
+  function getCrxDownloadUrl(extensionId) {
+    if (!/^[a-p]{32}$/.test(extensionId)) return null;
+    const url = new URL("https://clients2.google.com/service/update2/crx");
+    url.searchParams.set("response", "redirect");
+    url.searchParams.set("prodversion", "9999.0.0.0");
+    url.searchParams.set("acceptformat", "crx3");
+    url.searchParams.set("x", `id=${extensionId}&installsource=ondemand&uc`);
+    return url.href;
+  }
+  var MacOSWebstore = class {
+    /** @param {import('../chrome-webstore-patching.js').ChromeWebstorePatching} feature */
+    constructor(feature) {
+      this.feature = feature;
+      this._evaluation = 0;
+      this._url = window.location.href;
+      this._evaluatedExtensionId = null;
+      this._pending = /* @__PURE__ */ new Set();
+    }
+    /** Ask native whether setup should continue. @returns {Promise<boolean>} */
+    async initialSetup() {
+      try {
+        const response = await this.feature.request("initialSetup", {});
+        if (response?.enabled !== true) return false;
+      } catch (error) {
+        this.feature.log.info("Chrome Web Store setup unavailable", error);
+        return false;
+      }
+      this.feature.subscribe("extensionChanged", async (params) => {
+        const extensionId = params?.extensionId;
+        if (typeof extensionId !== "string" || extensionId !== parseExtensionId(window.location.pathname)) return;
+        try {
+          await this.evaluatePage(extensionId);
+        } catch (error) {
+          this.feature.log.info("Could not refresh Chrome Web Store after extension change", error);
+        }
+      });
+      return true;
+    }
+    startObservingURL() {
+      setInterval(() => this.checkForURLChange(), 500);
+    }
+    checkForURLChange() {
+      if (this._url === window.location.href) return false;
+      this.feature.recomputeSiteObject();
+      this.feature.urlChanged();
+      return true;
+    }
+    /**
+     * @param {string} extensionId
+     * @returns {Promise<string | null>}
+     */
+    async getExtensionStatus(extensionId) {
+      try {
+        const response = await this.feature.request("getExtensionStatus", { extensionId });
+        return typeof response?.status === "string" ? response.status : null;
+      } catch {
+        return null;
+      }
+    }
+    /** @param {string | null} [extensionId] */
+    async evaluatePage(extensionId = parseExtensionId(window.location.pathname)) {
+      if (extensionId !== parseExtensionId(window.location.pathname)) return;
+      this._url = window.location.href;
+      const evaluation = ++this._evaluation;
+      this._evaluatedExtensionId = null;
+      this.feature._verdict = null;
+      for (const button of this.feature._matchingButtons()) button.style.removeProperty("display");
+      if (!extensionId || this._pending.has(extensionId)) return;
+      if (!this.feature.getCuratedExtensionIds().includes(extensionId)) {
+        this.feature._reveal("unsupported");
+        return;
+      }
+      const status = await this.getExtensionStatus(extensionId);
+      if (evaluation !== this._evaluation || extensionId !== parseExtensionId(window.location.pathname)) return;
+      this._evaluatedExtensionId = extensionId;
+      if (status === "installable") this.feature._reveal("install");
+      else if (status === "installed") this.feature._reveal("remove");
+      else if (status === "unsupported") this.feature._reveal("unsupported");
+    }
+    /** @param {Event} event */
+    intercept(event) {
+      const target = event.target instanceof Element ? this.feature._closestButton(event.target) : null;
+      if (!target) return;
+      const keyActivation = event instanceof KeyboardEvent && (event.key === "Enter" || event.key === " ");
+      if (event.type === "keydown" && !keyActivation) return;
+      event.stopImmediatePropagation();
+      if (event.type !== "click" && event.type !== "auxclick" && !keyActivation) return;
+      event.preventDefault();
+      if (!event.isTrusted || event.type === "auxclick") return;
+      if (event instanceof MouseEvent && event.button !== 0) return;
+      if (event instanceof KeyboardEvent && event.repeat) return;
+      const extensionId = parseExtensionId(window.location.pathname);
+      const verdict = this.feature._verdict;
+      if (!extensionId || extensionId !== this._evaluatedExtensionId || !this.feature.getCuratedExtensionIds().includes(extensionId) || this._pending.has(extensionId) || verdict !== "install" && verdict !== "remove")
+        return;
+      void this._performAction(extensionId, verdict).catch((error) => {
+        this.feature.log.info("Could not refresh Chrome Web Store after native operation", error);
+      });
+    }
+    /**
+     * @param {string} extensionId
+     * @param {'install' | 'remove'} action
+     */
+    async _performAction(extensionId, action) {
+      const crxUrl = getCrxDownloadUrl(extensionId);
+      if (!crxUrl) return;
+      this._pending.add(extensionId);
+      try {
+        await this.evaluatePage();
+        if (action === "install") {
+          await this.feature.request("installExtension", { extensionId, crxUrl });
+        } else {
+          await this.feature.request("removeExtension", { extensionId });
+        }
+      } catch {
+      } finally {
+        this._pending.delete(extensionId);
+        await this.evaluatePage();
+      }
+    }
+  };
+
   // src/features/chrome-webstore-patching/assets/DuckDuckGo-Color-24.svg
   var DuckDuckGo_Color_24_default = '<svg fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">\n  <path fill="#DE5833" fill-rule="evenodd" d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10" clip-rule="evenodd"/>\n  <path fill="#DDD" fill-rule="evenodd" d="M13.406 19.46c0-.077.02-.095-.229-.59-.66-1.322-1.323-3.185-1.022-4.387.055-.218-.621-8.085-1.1-8.338-.531-.283-1.185-.733-1.784-.833-.303-.048-.701-.025-1.013.017-.055.007-.057.106-.004.124.204.07.452.19.598.371.028.035-.01.089-.053.09-.138.006-.388.063-.718.344-.038.032-.006.092.043.082.709-.14 1.432-.07 1.86.317.027.025.012.07-.024.08-3.702 1.006-2.97 4.227-1.984 8.179.877 3.515 1.208 4.652 1.312 4.999.01.034.035.062.068.075 1.275.507 4.05.53 4.05-.334z" clip-rule="evenodd"/>\n  <path fill="#fff" d="M12 3.063c4.953 0 8.969 4.015 8.969 8.968S16.953 21 12 21s-8.969-4.015-8.969-8.969S7.047 3.063 12 3.063m0 1.25c-4.263 0-7.719 3.455-7.719 7.718 0 3.433 2.241 6.341 5.34 7.344-.337-1.092-.885-2.955-1.427-5.178l-.069-.285-.001-.003c-.847-3.462-1.539-6.29 2.255-7.178.034-.008.05-.049.028-.076-.435-.516-1.25-.686-2.282-.33-.042.015-.079-.028-.053-.064.202-.279.598-.493.793-.587.04-.02.038-.078-.005-.092-.127-.04-.345-.101-.59-.14-.057-.01-.062-.109-.004-.117 1.461-.196 2.989.242 3.755 1.207q.011.015.028.019c2.804.602 3.006 5.033 2.683 5.238-.063.04-.268.018-.538-.013-1.091-.122-3.252-.364-1.468 2.96.017.033-.006.076-.042.082-.91.142.057 2.727.95 4.756 3.478-.75 6.085-3.84 6.085-7.543 0-4.263-3.456-7.719-7.719-7.719"/>\n  <path fill="#3CA82B" d="M15.169 16.171c-.214-.098-1.035.49-1.58.942-.114-.16-.329-.278-.813-.194-.424.074-.658.176-.762.352-.67-.253-1.795-.645-2.067-.267-.298.414.074 2.37.469 2.623.206.133 1.192-.501 1.707-.938.083.117.217.184.492.177.416-.01 1.09-.106 1.195-.3q.01-.017.016-.041c.53.198 1.461.407 1.67.376.542-.082-.076-2.613-.327-2.73"/>\n  <path fill="#4CBA3C" d="M13.639 17.171q.032.06.056.126c.075.21.198.882.105 1.048s-.697.245-1.069.252c-.373.006-.456-.13-.532-.34-.06-.17-.09-.567-.09-.794-.014-.337.109-.456.678-.548.421-.068.644.012.773.147.598-.446 1.596-1.076 1.693-.961.485.574.547 1.94.442 2.49-.035.18-1.642-.178-1.642-.371 0-.805-.209-1.026-.414-1.049m-3.52-.251c.131-.208 1.199.05 1.785.311 0 0-.12.546.07 1.188.057.188-1.347 1.025-1.53.881-.212-.166-.602-1.942-.325-2.38"/>\n  <path fill="#FC3" fill-rule="evenodd" d="M10.636 12.689c.086-.376.488-1.084 1.925-1.066.726-.003 1.628 0 2.226-.069.89-.1 1.55-.316 1.989-.483.622-.237.842-.185.92-.043.085.156-.015.426-.233.673-.415.474-1.16.841-2.479.95-1.317.109-2.19-.245-2.566.33-.162.25-.037.834 1.238 1.018 1.721.249 3.136-.3 3.31.032.175.33-.831 1.004-2.556 1.018s-2.802-.604-3.184-.91c-.485-.39-.702-.959-.59-1.45" clip-rule="evenodd"/>\n  <path fill="#14307E" d="M12.832 8.582c.096-.157.31-.279.659-.279s.513.14.627.294c.023.032-.012.069-.048.053l-.026-.011c-.128-.056-.285-.124-.553-.128-.287-.004-.468.068-.583.13-.038.02-.099-.021-.076-.059m-3.93.202c.339-.142.605-.123.793-.079.04.01.068-.033.036-.059-.146-.118-.474-.264-.9-.105-.381.142-.56.437-.561.63 0 .047.093.05.118.012.065-.105.175-.257.514-.4"/>\n  <path fill="#14307E" fill-rule="evenodd" d="M13.787 10.738c-.3 0-.542-.243-.542-.541s.243-.541.542-.541.543.242.543.54-.243.542-.543.542m.383-.72c0-.078-.063-.14-.14-.14s-.14.062-.141.14c0 .077.063.14.14.14s.14-.063.14-.14m-3.978.552c0 .35-.283.632-.633.632-.349 0-.632-.283-.632-.631s.283-.63.632-.63.633.282.633.63m-.187-.208c0-.09-.073-.163-.163-.163s-.163.072-.164.163c0 .09.073.163.164.163.09 0 .164-.073.164-.163" clip-rule="evenodd"/>\n  <path fill="#fff" fill-rule="evenodd" d="M12 19.813c4.315 0 7.813-3.498 7.813-7.813S16.314 4.188 12 4.188 4.188 7.685 4.188 12 7.685 19.813 12 19.813m0 .937c4.833 0 8.75-3.918 8.75-8.75S16.832 3.25 12 3.25 3.25 7.168 3.25 12c0 4.833 3.918 8.75 8.75 8.75" clip-rule="evenodd"/>\n</svg>\n';
 
@@ -29126,16 +29253,28 @@ ${iframeContent}
       __publicField(this, "_buttonSelectors", []);
       /** @type {string} BCP 47-ish language tag from the platform, e.g. 'de' */
       __publicField(this, "_locale", "en");
+      /** @type {MacOSWebstore | undefined} */
+      __publicField(this, "_macOS");
     }
     /** @param {any} [args] */
     async init(args) {
+      if (this.platform?.name === "ios") return;
       this._locale = String(args?.locale || args?.language || "en").toLowerCase().split(/[-_]/)[0] || "en";
       if (!this.getFeatureSettingEnabled("patchWebstore")) return;
       const selectors = this.getFeatureSetting("installButtonSelectors");
       if (!Array.isArray(selectors)) return;
       this._buttonSelectors = selectors.filter((s) => s?.type === "css" && typeof s.value === "string").map((s) => s.value).filter(isValidSelector);
       if (!this._buttonSelectors.length) return;
+      if (this.platform?.name === "macos") {
+        const macOS = new MacOSWebstore(this);
+        if (!await macOS.initialSetup()) return;
+        this._macOS = macOS;
+      }
       const intercept = (event) => {
+        if (this._macOS) {
+          this._macOS.intercept(event);
+          return;
+        }
         if (!this._verdict) return;
         const target = event.target instanceof Element ? this._closestButton(event.target) : null;
         if (!target) return;
@@ -29150,7 +29289,7 @@ ${iframeContent}
         }
       };
       for (const type of ["click", "auxclick", "pointerdown", "mousedown", "touchstart", "keydown"]) {
-        document.addEventListener(type, intercept, true);
+        (this._macOS ? window : document).addEventListener(type, intercept, true);
       }
       if (!document.documentElement) {
         await new Promise((resolve) => {
@@ -29177,9 +29316,11 @@ ${iframeContent}
           document.addEventListener("DOMContentLoaded", () => resolve(void 0), { once: true });
         });
       }
+      this._macOS?.startObservingURL();
       await this._evaluatePage();
     }
     urlChanged() {
+      if (this.platform?.name === "ios" || this.platform?.name === "macos" && !this._macOS) return;
       void this._evaluatePage();
     }
     /**
@@ -29187,6 +29328,7 @@ ${iframeContent}
      * navigation — never per DOM mutation.
      */
     async _evaluatePage() {
+      if (this._macOS) return this._macOS.evaluatePage();
       this._verdict = null;
       for (const button of this._matchingButtons()) {
         button.style.removeProperty("display");
@@ -29236,6 +29378,7 @@ ${iframeContent}
      * to be patched for the first time.
      */
     _scheduleApply() {
+      if (this._macOS?.checkForURLChange()) return;
       if (this._applyScheduled !== void 0) return;
       this._applyScheduled = requestAnimationFrame(() => {
         this._applyScheduled = void 0;
@@ -29363,6 +29506,7 @@ ${iframeContent}
      * @returns {Promise<string | null>}
      */
     getExtensionStatus(extensionId) {
+      if (this._macOS) return this._macOS.getExtensionStatus(extensionId);
       return new Promise((resolve) => {
         const chromeGlobal = globalThis.chrome;
         const webstorePrivate = getWebstorePrivate(chromeGlobal);
