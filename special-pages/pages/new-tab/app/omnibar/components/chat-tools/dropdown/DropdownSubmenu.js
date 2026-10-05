@@ -116,7 +116,16 @@ export function DropdownSubmenu({
             />
             {isOpen && position && (
                 // Keys pressed inside the panel belong to it; don't let the parent navigate as well.
-                <li role="presentation" onKeyDown={(e) => e.stopPropagation()}>
+                <li
+                    role="presentation"
+                    onKeyDown={(e) => {
+                        e.stopPropagation();
+                        if (e.key === 'ArrowLeft') {
+                            e.preventDefault();
+                            onCloseSubmenu?.({ restoreFocus: true });
+                        }
+                    }}
+                >
                     <Dropdown
                         dropdownRef={panelRef}
                         role="menu"
@@ -126,7 +135,6 @@ export function DropdownSubmenu({
                             if (choseRowRef.current) return;
                             onCloseSubmenu?.({ restoreFocus });
                         }}
-                        closeOnArrowLeft
                         idPrefix={idPrefix}
                         className={panelClassName}
                     >

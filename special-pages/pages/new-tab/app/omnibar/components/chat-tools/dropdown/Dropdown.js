@@ -56,7 +56,6 @@ function isSubmenu(child) {
  * @param {string} [props.idPrefix]
  * @param {string} [props.className]
  * @param {boolean} [props.multiSelect] - open with no row highlighted instead of the first `isSelected` row.
- * @param {boolean} [props.closeOnArrowLeft] - close on ArrowLeft too; set on submenu panels.
  */
 export function Dropdown({
     children,
@@ -71,7 +70,6 @@ export function Dropdown({
     idPrefix = 'dropdown-item',
     className,
     multiSelect = false,
-    closeOnArrowLeft = false,
 }) {
     const items = toChildArray(children);
     const [openSubmenuIndex, setOpenSubmenuIndex] = useState(-1);
@@ -194,12 +192,6 @@ export function Dropdown({
                 if (activeIndex >= 0 && isSubmenu(items[activeIndex])) {
                     e.preventDefault();
                     selectAt(activeIndex);
-                }
-                break;
-            case 'ArrowLeft':
-                if (closeOnArrowLeft) {
-                    e.preventDefault();
-                    onClose({ restoreFocus: true });
                 }
                 break;
             case 'Escape':
