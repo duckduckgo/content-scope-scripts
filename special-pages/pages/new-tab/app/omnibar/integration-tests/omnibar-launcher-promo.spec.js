@@ -115,6 +115,45 @@ test.describe('omnibar launcher promo', () => {
         await omnibar.expectMethodCalledWith('omnibar_selectLauncherPromoCta', { kind: 'shortcutNudge' });
     });
 
+    test('a prompt sent while the promo is on screen carries its kind', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { 'omnibar.mode': 'ai', 'omnibar.launcherPromo': 'promo' } });
+        await omnibar.ready();
+
+        await omnibar.chatTextarea().fill('hello');
+        await expect(omnibar.noticeDrawer()).toBeVisible();
+        await omnibar.chatTextarea().press('Enter');
+
+        await omnibar.expectMethodCalledWith('omnibar_submitChat', { chat: 'hello', target: 'same-tab', launcherPromoKind: 'promo' });
+    });
+
+    test('a prompt sent while another notice takes the drawer omits the launcher promo', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({
+            additional: { 'omnibar.mode': 'ai', 'omnibar.launcherPromo': 'promo', 'omnibar.usageLimits': 'approaching' },
+        });
+        await omnibar.ready();
+
+        await omnibar.chatTextarea().fill('hello');
+        await omnibar.chatTextarea().press('Enter');
+
+        await omnibar.expectMethodCalledWith('omnibar_submitChat', { chat: 'hello', target: 'same-tab' });
+    });
+
+    test('a prompt sent with only the shortcut hint omits the launcher promo', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { 'omnibar.mode': 'ai', 'omnibar.launcherPromo': 'shortcutHint' } });
+        await omnibar.ready();
+
+        await omnibar.chatTextarea().fill('hello');
+        await omnibar.chatTextarea().press('Enter');
+
+        await omnibar.expectMethodCalledWith('omnibar_submitChat', { chat: 'hello', target: 'same-tab' });
+    });
+
     test('native pushing null hides the promo', async ({ page }, workerInfo) => {
         const { ntp, omnibar } = setup(page, workerInfo);
         await ntp.reducedMotion();

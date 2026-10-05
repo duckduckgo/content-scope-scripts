@@ -223,6 +223,7 @@ With `enablePastedAttachments`, a paste into the Duck.ai prompt is handled as fo
   - `mode` — `"chat"` or `"image-generation"`. Sent as `"image-generation"` when the Create Image tool is active. Omitted for normal chat (defaults to `"chat"`).
   - `toolChoice` — `["WebSearch"]` when the user has the Web Search tool active. Omitted otherwise.
   - `images` — array of `{ data, format }` objects for attached images. Omitted when no images are attached.
+  - `launcherPromoKind` — `"promo"` or `"shortcutNudge"` when that `launcherPromo` drawer was on screen as the prompt went out; native treats the prompt as passing over it. Omitted otherwise.
   - `pageContext` — array of {@link "NewTab Messages".PageContext} objects echoed back from `omnibar_getTabContent`. Each entry **always** includes `tabId` so native can attribute attachments to their source tab. Omitted when no tabs are attached so existing native handlers continue to work unchanged.
 - example payloads:
 

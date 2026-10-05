@@ -263,8 +263,9 @@ function UsageLimitsCtaControl({ cta, onSelectCta }) {
 /**
  * @param {object} props
  * @param {boolean} props.revealed - Whether focus-gated notices should be shown.
+ * @param {{ current: import('../../../types/new-tab.js').SubmitChatAction['launcherPromoKind'] | null }} props.visibleLauncherPromoRef - Holds the launcher promo drawer on screen, for submitChat.
  */
-export function NoticeDrawer({ revealed }) {
+export function NoticeDrawer({ revealed, visibleLauncherPromoRef }) {
     const attachmentPrivacy = useAttachmentPrivacyNotice();
     const usageLimits = useUsageLimitsDrawer();
     const createImageModelSwitch = useCreateImageModelSwitchNotice();
@@ -279,6 +280,14 @@ export function NoticeDrawer({ revealed }) {
     useEffect(() => {
         if (launcherPromoVisible && launcherPromoKind) launcherPromoShown(launcherPromoKind);
     }, [launcherPromoVisible, launcherPromoKind, launcherPromoShown]);
+
+    useEffect(() => {
+        const isDrawerKind = launcherPromoKind === 'promo' || launcherPromoKind === 'shortcutNudge';
+        visibleLauncherPromoRef.current = launcherPromoVisible && isDrawerKind ? launcherPromoKind : null;
+        return () => {
+            visibleLauncherPromoRef.current = null;
+        };
+    }, [launcherPromoVisible, launcherPromoKind, visibleLauncherPromoRef]);
 
     if (!presentation) return null;
 

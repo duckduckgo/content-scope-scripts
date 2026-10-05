@@ -60,6 +60,11 @@
       "description": "Files (PDFs in v1) attached via the paperclip menu. Each entry mirrors Duck.ai's `NativePromptFile` shape so native forwards them through unchanged. Omitted when no files are attached.",
       "type": "array",
       "items": { "$ref": "./types/native-prompt-file.json" }
+    },
+    "launcherPromoKind": {
+      "description": "The launcherPromo drawer that was visible when the prompt was sent, so native can treat the prompt as passing over it. Omitted when no launcher promo drawer was showing.",
+      "type": "string",
+      "enum": ["promo", "shortcutNudge"]
     }
   }
 }

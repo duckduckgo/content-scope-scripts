@@ -1229,6 +1229,10 @@ export interface SubmitChatAction {
    * Files (PDFs in v1) attached via the paperclip menu. Each entry mirrors Duck.ai's `NativePromptFile` shape so native forwards them through unchanged. Omitted when no files are attached.
    */
   files?: NativePromptFile[];
+  /**
+   * The launcherPromo drawer that was visible when the prompt was sent, so native can treat the prompt as passing over it. Omitted when no launcher promo drawer was showing.
+   */
+  launcherPromoKind?: "promo" | "shortcutNudge";
 }
 /**
  * Extracted page content for a specific tab, used as a Duck.ai chat attachment. Mirrors the shape produced by the Duck.ai sidebar's page-context extraction.
