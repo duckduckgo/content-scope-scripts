@@ -13,7 +13,6 @@ import { OmnibarAiChatsService } from './omnibar.ai-chats.service.js';
  * @typedef {import("../../types/new-tab.js").GetOpenTabsResponse} GetOpenTabsResponse
  * @typedef {import("../../types/new-tab.js").PageContext} PageContext
  * @typedef {import("../../types/new-tab.js").ConfirmDeleteAIChatResponse} ConfirmDeleteAIChatResponse
- * @typedef {import("../../types/new-tab.js").LauncherPromoShown['kind']} LauncherPromoKind
  */
 
 export class OmnibarService {
@@ -36,8 +35,7 @@ export class OmnibarService {
 
         this.suggestionsService = new OmnibarSuggestionsService(ntp);
         this.aiChatsService = new OmnibarAiChatsService(ntp);
-        /** @type {Set<LauncherPromoKind>} */
-        this.shownLauncherPromoKinds = new Set();
+        this.launcherPromoShownSent = false;
     }
 
     name() {
@@ -243,24 +241,19 @@ export class OmnibarService {
         this.ntp.messaging.notify('omnibar_dismissCreateImageModelSwitch', {});
     }
 
-    /**
-     * Notify native the first time per page load that a launcher promo kind is visible.
-     * @param {LauncherPromoKind} kind
-     */
-    launcherPromoShown(kind) {
-        if (this.shownLauncherPromoKinds.has(kind)) return;
-        this.shownLauncherPromoKinds.add(kind);
-        this.ntp.messaging.notify('omnibar_launcherPromoShown', { kind });
+    /** Notify native the first time per page load that the launcher promo is visible. */
+    launcherPromoShown() {
+        if (this.launcherPromoShownSent) return;
+        this.launcherPromoShownSent = true;
+        this.ntp.messaging.notify('omnibar_launcherPromoShown', {});
     }
 
-    /** @param {LauncherPromoKind} kind */
-    selectLauncherPromoCta(kind) {
-        this.ntp.messaging.notify('omnibar_selectLauncherPromoCta', { kind });
+    selectLauncherPromoCta() {
+        this.ntp.messaging.notify('omnibar_selectLauncherPromoCta', {});
     }
 
-    /** @param {LauncherPromoKind} kind */
-    dismissLauncherPromo(kind) {
-        this.ntp.messaging.notify('omnibar_dismissLauncherPromo', { kind });
+    dismissLauncherPromo() {
+        this.ntp.messaging.notify('omnibar_dismissLauncherPromo', {});
     }
 
     /** @param {'image' | 'file'} kind */

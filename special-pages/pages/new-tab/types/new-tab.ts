@@ -176,37 +176,25 @@ export type CreateImageModelSwitchNotice = {
   dismissible?: boolean;
 } | null;
 /**
- * Native-resolved Duck.ai launcher discovery presentation for AI mode. Native owns eligibility, precedence, localized copy and what the CTA does; FE renders what it receives. In the drawer it ranks below every other notice. Null/omitted shows nothing.
+ * Native-resolved Duck.ai launcher promo for the AI-mode drawer. Native owns eligibility, localized copy and what the CTA does; FE renders what it receives, below every other notice. Null/omitted shows nothing.
  */
 export type LauncherPromo = {
   /**
-   * Echoed back in launcher promo notifications so native knows which state was seen or acted on. FE does not branch on it.
+   * Drawer copy, already localized, shown emphasized.
    */
-  kind: "promo" | "shortcutHint" | "shortcutNudge";
+  message: string;
   /**
-   * Drawer copy, already localized, shown emphasized. May contain one {shortcut} token, rendered as a highlighted key combination. Omitted means no drawer.
-   */
-  message?: string;
-  /**
-   * Optional drawer copy shown after message, already localized and including any leading separator (for example, ' · Add Duck.ai to your menu bar').
+   * Optional copy shown after message, already localized and including any leading separator (for example, ' • Add Duck.ai to your menu bar').
    */
   secondaryText?: string;
   /**
-   * Display string of the user's launcher shortcut (for example, '⌥ Space'), substituted for {shortcut} in message.
-   */
-  shortcut?: string;
-  /**
-   * Drawer button label, already localized. Omitted means no button. Selecting it notifies native via omnibar_selectLauncherPromoCta.
+   * Button label, already localized. Omitted means no button. Selecting it notifies native via omnibar_selectLauncherPromoCta.
    */
   ctaLabel?: string;
   /**
    * When true, show a dismiss control. Dismiss notifies native via omnibar_dismissLauncherPromo.
    */
   dismissible?: boolean;
-  /**
-   * Replaces the AI input placeholder, already localized. Like any placeholder it hides once the user types.
-   */
-  placeholder?: string;
 } | null;
 /**
  * Native-resolved presentation for the AI-mode usage limits drawer under the omnibar pill. Non-null shows the drawer; null/omitted hides it. FE does not derive content.
@@ -764,14 +752,9 @@ export interface OmnibarDismissLauncherPromoNotification {
   params: DismissLauncherPromo;
 }
 /**
- * Sent when the user dismisses the launcher promo drawer. Native owns dismiss persistence and pushes an updated OmnibarConfig.
+ * Sent when the user dismisses the launcher promo. Native persists the dismissal and pushes an updated OmnibarConfig.
  */
-export interface DismissLauncherPromo {
-  /**
-   * The launcherPromo.kind that was rendered.
-   */
-  kind: "promo" | "shortcutHint" | "shortcutNudge";
-}
+export interface DismissLauncherPromo {}
 /**
  * Generated from @see "../messages/omnibar_dismissUsageLimits.notify.json"
  */
@@ -791,14 +774,9 @@ export interface OmnibarLauncherPromoShownNotification {
   params: LauncherPromoShown;
 }
 /**
- * Sent the first time per page load that a launcherPromo kind becomes visible: its drawer revealed on composer focus, or its placeholder shown in an empty AI input. Native records the impression: a Duck.ai prompt sent after it counts as dismissing the drawer.
+ * Sent the first time per page load that the launcher promo drawer is revealed on composer focus.
  */
-export interface LauncherPromoShown {
-  /**
-   * The launcherPromo.kind that was rendered.
-   */
-  kind: "promo" | "shortcutHint" | "shortcutNudge";
-}
+export interface LauncherPromoShown {}
 /**
  * Generated from @see "../messages/omnibar_openAiChat.notify.json"
  */
@@ -916,14 +894,9 @@ export interface OmnibarSelectLauncherPromoCtaNotification {
   params: SelectLauncherPromoCTA;
 }
 /**
- * Sent when the user activates the launcher promo drawer button. Native executes the action for the kind and pushes an updated OmnibarConfig.
+ * Sent when the user activates the launcher promo button. Native runs the action and pushes an updated OmnibarConfig.
  */
-export interface SelectLauncherPromoCTA {
-  /**
-   * The launcherPromo.kind that was rendered.
-   */
-  kind: "promo" | "shortcutHint" | "shortcutNudge";
-}
+export interface SelectLauncherPromoCTA {}
 /**
  * Generated from @see "../messages/omnibar_selectUsageLimitsCta.notify.json"
  */
@@ -1230,9 +1203,9 @@ export interface SubmitChatAction {
    */
   files?: NativePromptFile[];
   /**
-   * The launcherPromo drawer that was visible when the prompt was sent, so native can treat the prompt as passing over it. Omitted when no launcher promo drawer was showing.
+   * True when the launcherPromo drawer was on screen as the prompt was sent, so native can treat the prompt as passing over it. Omitted otherwise.
    */
-  launcherPromoKind?: "promo" | "shortcutNudge";
+  launcherPromoVisible?: boolean;
 }
 /**
  * Extracted page content for a specific tab, used as a Duck.ai chat attachment. Mirrors the shape produced by the Duck.ai sidebar's page-context extraction.

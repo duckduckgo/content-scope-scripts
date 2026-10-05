@@ -1,21 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Launcher Promo Shown",
-  "description": "Sent the first time per page load that a launcherPromo kind becomes visible: its drawer revealed on composer focus, or its placeholder shown in an empty AI input. Native records the impression: a Duck.ai prompt sent after it counts as dismissing the drawer.",
+  "description": "Sent the first time per page load that the launcher promo drawer is revealed on composer focus.",
   "type": "object",
   "additionalProperties": false,
-  "required": [
-    "kind"
-  ],
-  "properties": {
-    "kind": {
-      "type": "string",
-      "enum": [
-        "promo",
-        "shortcutHint",
-        "shortcutNudge"
-      ],
-      "description": "The launcherPromo.kind that was rendered."
-    }
-  }
+  "properties": {}
 }

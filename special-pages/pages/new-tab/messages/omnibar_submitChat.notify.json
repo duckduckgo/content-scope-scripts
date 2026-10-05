@@ -61,10 +61,9 @@
       "type": "array",
       "items": { "$ref": "./types/native-prompt-file.json" }
     },
-    "launcherPromoKind": {
-      "description": "The launcherPromo drawer that was visible when the prompt was sent, so native can treat the prompt as passing over it. Omitted when no launcher promo drawer was showing.",
-      "type": "string",
-      "enum": ["promo", "shortcutNudge"]
+    "launcherPromoVisible": {
+      "description": "True when the launcherPromo drawer was on screen as the prompt was sent, so native can treat the prompt as passing over it. Omitted otherwise.",
+      "type": "boolean"
     }
   }
 }

@@ -32,7 +32,7 @@ import styles from './NoticeDrawer.module.css';
  *   alternatives?: UsageLimitsCtaAlternative[],
  * }} UsageLimitsCta
  * @typedef {{
- *   message: import('preact').ComponentChild,
+ *   message: string,
  *   secondaryText: string,
  *   secondaryOnNewLine?: boolean,
  *   icon: NoticeIcon,
@@ -263,31 +263,26 @@ function UsageLimitsCtaControl({ cta, onSelectCta }) {
 /**
  * @param {object} props
  * @param {boolean} props.revealed - Whether focus-gated notices should be shown.
- * @param {{ current: import('../../../types/new-tab.js').SubmitChatAction['launcherPromoKind'] | null }} props.visibleLauncherPromoRef - Holds the launcher promo drawer on screen, for submitChat.
+ * @param {{ current: boolean }} props.launcherPromoVisibleRef - Whether the launcher promo drawer is on screen, for submitChat.
  */
-export function NoticeDrawer({ revealed, visibleLauncherPromoRef }) {
+export function NoticeDrawer({ revealed, launcherPromoVisibleRef }) {
     const attachmentPrivacy = useAttachmentPrivacyNotice();
     const usageLimits = useUsageLimitsDrawer();
     const createImageModelSwitch = useCreateImageModelSwitchNotice();
     const launcherPromo = useLauncherPromoNotice();
-    const { state, launcherPromoShown } = useContext(OmnibarContext);
+    const { launcherPromoShown } = useContext(OmnibarContext);
     // Presentation priority doesn't affect usage-limit blocking.
     const presentation = attachmentPrivacy ?? createImageModelSwitch ?? usageLimits ?? launcherPromo;
     const isRevealed = revealed || createImageModelSwitch !== null || attachmentPrivacy !== null;
 
-    const launcherPromoKind = state.config?.launcherPromo?.kind;
     const launcherPromoVisible = isRevealed && presentation !== null && presentation === launcherPromo;
     useEffect(() => {
-        if (launcherPromoVisible && launcherPromoKind) launcherPromoShown(launcherPromoKind);
-    }, [launcherPromoVisible, launcherPromoKind, launcherPromoShown]);
-
-    useEffect(() => {
-        const isDrawerKind = launcherPromoKind === 'promo' || launcherPromoKind === 'shortcutNudge';
-        visibleLauncherPromoRef.current = launcherPromoVisible && isDrawerKind ? launcherPromoKind : null;
+        if (launcherPromoVisible) launcherPromoShown();
+        launcherPromoVisibleRef.current = launcherPromoVisible;
         return () => {
-            visibleLauncherPromoRef.current = null;
+            launcherPromoVisibleRef.current = false;
         };
-    }, [launcherPromoVisible, launcherPromoKind, visibleLauncherPromoRef]);
+    }, [launcherPromoVisible, launcherPromoShown, launcherPromoVisibleRef]);
 
     if (!presentation) return null;
 
@@ -324,9 +319,7 @@ export function NoticeDrawer({ revealed, visibleLauncherPromoRef }) {
                         <NoticeGlyph icon={icon} percent={percent} severity={severity} />
                     </span>
                     <p class={cn(styles.message, emphasize && styles.messageEmphasized, secondaryOnNewLine && styles.messageStacked)}>
-                        <span class={styles.primary}>
-                            {messageValues && typeof message === 'string' ? <Trans str={message} values={messageValues} /> : message}
-                        </span>
+                        <span class={styles.primary}>{messageValues ? <Trans str={message} values={messageValues} /> : message}</span>
                         {secondaryText ? <span class={styles.secondary}>{secondaryText}</span> : null}
                     </p>
                     {cta && onSelectCta ? <UsageLimitsCtaControl cta={cta} onSelectCta={onSelectCta} /> : null}

@@ -1,9 +1,5 @@
-import { h } from 'preact';
-import { useCallback, useContext } from 'preact/hooks';
+import { useContext } from 'preact/hooks';
 import { OmnibarContext } from './OmnibarProvider';
-import styles from './NoticeDrawer.module.css';
-
-const SHORTCUT_TOKEN = '{shortcut}';
 
 /**
  * Reads the native-driven launcher promo drawer presentation from OmnibarConfig.
@@ -13,39 +9,17 @@ const SHORTCUT_TOKEN = '{shortcut}';
 export function useLauncherPromoNotice() {
     const { state, selectLauncherPromoCta, dismissLauncherPromo } = useContext(OmnibarContext);
     const launcherPromo = state.config?.launcherPromo ?? null;
-    const kind = launcherPromo?.kind;
 
-    const onDismiss = useCallback(() => {
-        if (kind) dismissLauncherPromo(kind);
-    }, [kind, dismissLauncherPromo]);
-
-    const onSelectCta = useCallback(() => {
-        if (kind) selectLauncherPromoCta(kind);
-    }, [kind, selectLauncherPromoCta]);
-
-    if (!launcherPromo?.message) {
+    if (!launcherPromo) {
         return null;
     }
 
-    const { message, secondaryText, shortcut, ctaLabel } = launcherPromo;
-    const tokenIndex = message.indexOf(SHORTCUT_TOKEN);
-    const content =
-        tokenIndex === -1 || !shortcut ? (
-            message
-        ) : (
-            <span>
-                {message.slice(0, tokenIndex)}
-                <kbd class={styles.shortcut}>{shortcut}</kbd>
-                {message.slice(tokenIndex + SHORTCUT_TOKEN.length)}
-            </span>
-        );
-
     return {
-        message: content,
-        secondaryText: secondaryText ?? '',
+        message: launcherPromo.message,
+        secondaryText: launcherPromo.secondaryText ?? '',
         icon: 'announce',
-        cta: ctaLabel ? { label: ctaLabel, showMenu: false } : null,
-        onSelectCta: ctaLabel ? onSelectCta : undefined,
-        onDismiss: launcherPromo.dismissible === true ? onDismiss : undefined,
+        cta: launcherPromo.ctaLabel ? { label: launcherPromo.ctaLabel, showMenu: false } : null,
+        onSelectCta: launcherPromo.ctaLabel ? selectLauncherPromoCta : undefined,
+        onDismiss: launcherPromo.dismissible === true ? dismissLauncherPromo : undefined,
     };
 }

@@ -14,7 +14,6 @@ import { OmnibarService } from '../omnibar.service.js';
  * @typedef {import('../../../types/new-tab.js').SubmitChatAction} SubmitChatAction
  * @typedef {import('../../../types/new-tab.js').GetOpenTabsResponse} GetOpenTabsResponse
  * @typedef {import('../../../types/new-tab.js').PageContext} PageContext
- * @typedef {import('../../../types/new-tab.js').LauncherPromoShown['kind']} LauncherPromoKind
  * @typedef {import('../../service.hooks.js').State<null, OmnibarConfig>} State
  */
 
@@ -108,15 +107,15 @@ export const OmnibarContext = createContext({
     selectUsageLimitsCta: () => {
         throw new Error('must implement');
     },
-    /** @type {(kind: LauncherPromoKind) => void} */
+    /** @type {() => void} */
     launcherPromoShown: () => {
         throw new Error('must implement');
     },
-    /** @type {(kind: LauncherPromoKind) => void} */
+    /** @type {() => void} */
     selectLauncherPromoCta: () => {
         throw new Error('must implement');
     },
-    /** @type {(kind: LauncherPromoKind) => void} */
+    /** @type {() => void} */
     dismissLauncherPromo: () => {
         throw new Error('must implement');
     },
@@ -335,29 +334,20 @@ export function OmnibarProvider(props) {
         [service],
     );
 
-    /** @type {(kind: LauncherPromoKind) => void} */
-    const launcherPromoShown = useCallback(
-        (kind) => {
-            service.current?.launcherPromoShown(kind);
-        },
-        [service],
-    );
+    /** @type {() => void} */
+    const launcherPromoShown = useCallback(() => {
+        service.current?.launcherPromoShown();
+    }, [service]);
 
-    /** @type {(kind: LauncherPromoKind) => void} */
-    const selectLauncherPromoCta = useCallback(
-        (kind) => {
-            service.current?.selectLauncherPromoCta(kind);
-        },
-        [service],
-    );
+    /** @type {() => void} */
+    const selectLauncherPromoCta = useCallback(() => {
+        service.current?.selectLauncherPromoCta();
+    }, [service]);
 
-    /** @type {(kind: LauncherPromoKind) => void} */
-    const dismissLauncherPromo = useCallback(
-        (kind) => {
-            service.current?.dismissLauncherPromo(kind);
-        },
-        [service],
-    );
+    /** @type {() => void} */
+    const dismissLauncherPromo = useCallback(() => {
+        service.current?.dismissLauncherPromo();
+    }, [service]);
 
     /** @type {(active: boolean) => void} */
     const setCustomizeResponsesActive = useCallback(

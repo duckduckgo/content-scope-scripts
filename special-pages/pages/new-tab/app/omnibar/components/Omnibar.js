@@ -1,5 +1,5 @@
 import { Fragment, h } from 'preact';
-import { useCallback, useContext, useEffect, useRef, useState } from 'preact/hooks';
+import { useCallback, useContext, useRef, useState } from 'preact/hooks';
 import { ArrowRightIcon, LogoStacked, VoiceIcon } from '../../components/Icons';
 import { eventToTarget } from '../../../../../shared/handlers';
 import { usePlatformName, useNewTabPageRebranding } from '../../settings.provider';
@@ -83,7 +83,7 @@ export function Omnibar({
 }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const spacerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
-    const visibleLauncherPromoRef = useRef(/** @type {SubmitChatAction['launcherPromoKind'] | null} */ (null));
+    const launcherPromoVisibleRef = useRef(false);
     const [usageLimitsRevealed, setUsageLimitsRevealed] = useState(false);
 
     const [query, setQuery] = useQueryWithLocalPersistence(tabId);
@@ -136,8 +136,7 @@ export function Omnibar({
 
     /** @type {(params: SubmitChatAction) => void} */
     const handleSubmitChat = (params) => {
-        const launcherPromoKind = visibleLauncherPromoRef.current;
-        submitChat(launcherPromoKind ? { ...params, launcherPromoKind } : params);
+        submitChat(launcherPromoVisibleRef.current ? { ...params, launcherPromoVisible: true } : params);
         resetForm();
     };
 
@@ -223,7 +222,7 @@ export function Omnibar({
                                 )}
                             </div>
                             {mode === 'ai' && (
-                                <NoticeDrawer revealed={usageLimitsRevealed} visibleLauncherPromoRef={visibleLauncherPromoRef} />
+                                <NoticeDrawer revealed={usageLimitsRevealed} launcherPromoVisibleRef={launcherPromoVisibleRef} />
                             )}
                         </div>
                     </AiChatsProvider>
@@ -259,7 +258,7 @@ function AiChatContent({
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
     const { showChats, hideChats, deletionInProgress } = useAiChatsContext();
-    const { state, setImageGenerationActive, launcherPromoShown } = useContext(OmnibarContext);
+    const { state, setImageGenerationActive } = useContext(OmnibarContext);
     const attachmentLimits = state.config?.attachmentLimits;
     const blocksPrompt = state.config?.usageLimits?.blocksPrompt === true;
     const updatedCreateImageEnabled = state.config?.enableUpdatedCreateImage === true;
@@ -277,12 +276,6 @@ function AiChatContent({
     const imageGenerationPlaceholder = hasAttachedImages
         ? t('omnibar_imageGenerationWithAttachmentPlaceholder')
         : t('omnibar_imageGenerationPlaceholder');
-    const launcherPromo = state.config?.launcherPromo;
-    const launcherPlaceholder = launcherPromo?.placeholder || undefined;
-    const launcherPlaceholderKind = launcherPlaceholder && !imageGenerationActive && query === '' ? launcherPromo?.kind : undefined;
-    useEffect(() => {
-        if (launcherPlaceholderKind) launcherPromoShown(launcherPlaceholderKind);
-    }, [launcherPlaceholderKind, launcherPromoShown]);
     const selectedModelSupportsImages = selectedModel?.supportsImageUpload ?? false;
     const canAttachImages = selectedModelSupportsImages || imageGenerationActive;
 
@@ -463,7 +456,7 @@ function AiChatContent({
                     autoFocus={autoFocus}
                     disabled={disabled}
                     readOnly={blocksPrompt}
-                    placeholder={imageGenerationActive ? imageGenerationPlaceholder : launcherPlaceholder}
+                    placeholder={imageGenerationActive ? imageGenerationPlaceholder : undefined}
                     onChange={handleChange}
                     onSubmit={handleSubmit}
                     onTextareaKeyDown={mention.handleTextareaKeyDown}

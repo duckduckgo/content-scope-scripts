@@ -179,16 +179,13 @@ With `enablePastedAttachments`, a paste into the Duck.ai prompt is handled as fo
 - Native clears the notice and pushes the updated config.
 
 ### `omnibar_launcherPromoShown`
-- Sent the first time per page load that a `launcherPromo` kind becomes visible: its drawer revealed on composer focus, or its placeholder shown in an empty AI input.
-- Native records the impression: a Duck.ai prompt sent after it counts as dismissing the drawer.
+- Sent the first time per page load that the `launcherPromo` drawer is revealed on composer focus.
 
 ### `omnibar_selectLauncherPromoCta`
-- Sent when the user activates the `launcherPromo` drawer button, with the rendered `kind`.
-- Native runs the action for that kind and pushes the updated config.
+- Sent when the user activates the `launcherPromo` button. Native runs the action and pushes the updated config.
 
 ### `omnibar_dismissLauncherPromo`
-- Sent when the user dismisses the `launcherPromo` drawer, with the rendered `kind`.
-- Native persists the dismissal and pushes the updated config.
+- Sent when the user dismisses the `launcherPromo` drawer. Native persists the dismissal and pushes the updated config.
 
 ### `omnibar_setConfig` 
 - {@link "NewTab Messages".OmnibarSetConfigNotification}
@@ -223,7 +220,7 @@ With `enablePastedAttachments`, a paste into the Duck.ai prompt is handled as fo
   - `mode` — `"chat"` or `"image-generation"`. Sent as `"image-generation"` when the Create Image tool is active. Omitted for normal chat (defaults to `"chat"`).
   - `toolChoice` — `["WebSearch"]` when the user has the Web Search tool active. Omitted otherwise.
   - `images` — array of `{ data, format }` objects for attached images. Omitted when no images are attached.
-  - `launcherPromoKind` — `"promo"` or `"shortcutNudge"` when that `launcherPromo` drawer was on screen as the prompt went out; native treats the prompt as passing over it. Omitted otherwise.
+  - `launcherPromoVisible` — `true` when the `launcherPromo` drawer was on screen as the prompt went out; native treats the prompt as passing over it. Omitted otherwise.
   - `pageContext` — array of {@link "NewTab Messages".PageContext} objects echoed back from `omnibar_getTabContent`. Each entry **always** includes `tabId` so native can attribute attachments to their source tab. Omitted when no tabs are attached so existing native handlers continue to work unchanged.
 - example payloads:
 

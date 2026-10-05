@@ -162,15 +162,6 @@
     }
 }
 
-.shortcut {
-    background: var(--ds-color-theme-control-fill-primary);
-    border-radius: 4px;
-    font: inherit;
-    font-weight: 600;
-    padding: 0 4px;
-    white-space: nowrap;
-}
-
 .messageStacked {
     display: flex;
     flex-direction: column;
