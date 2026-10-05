@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Capture Screenshot Response",
-  "description": "Result of a screenshot capture. `image` when a capture was taken, `error` when it failed; neither means the user cancelled, and the page shows nothing. Native reports its own capture failures to telemetry.",
+  "description": "Result of a screenshot capture. `image` when a capture was taken, `error` when it failed; neither means the user cancelled, and the page shows nothing. The page sends no telemetry for `error` replies.",
   "type": "object",
   "properties": {
     "image": {
@@ -10,7 +10,7 @@
       "required": ["data", "format", "kind"],
       "properties": {
         "data": {
-          "description": "Base64-encoded image bytes, without a data-URL prefix. Already scaled by native to at most 1024px on the long side.",
+          "description": "Base64-encoded image bytes, without a data-URL prefix, at most 1024px on the long side.",
           "type": "string"
         },
         "format": {

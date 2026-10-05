@@ -143,7 +143,7 @@ export type EnableAskDuckAiSuggestion = boolean;
  */
 export type EnableAttachTabs = boolean;
 /**
- * How native acquires a screenshot: `dragToSelect` opens the system region-selection overlay; `selectWindowOrDisplay` opens the native window/display picker.
+ * The screenshot capture mode the user chose: `dragToSelect` (drag to select a region) or `selectWindowOrDisplay` (pick a window or a display).
  */
 export type ScreenshotMode = "dragToSelect" | "selectWindowOrDisplay";
 /**
@@ -1414,7 +1414,7 @@ export interface OmnibarScreenshotRemoved {
   name: "omnibar_screenshot_removed";
 }
 /**
- * Fired when the page could not process a screenshot that native returned. Native capture failures (`error` replies) are reported by native, not by this event.
+ * Fired when the page could not process a screenshot returned by `omnibar_captureScreenshot`. `error` replies do not fire this event.
  */
 export interface OmnibarScreenshotFailed {
   name: "omnibar_screenshot_failed";
@@ -1725,13 +1725,13 @@ export interface OmnibarCaptureScreenshotRequest {
   result: CaptureScreenshotResponse;
 }
 /**
- * Asks native to capture a screenshot for the Duck.ai prompt. The request stays pending while the user is in the native picker or selection overlay. Native allows one capture at a time and answers a second request while one is pending as cancelled.
+ * Asks native to capture a screenshot for the Duck.ai prompt. The reply comes once the capture is taken, fails or is cancelled, so the request can stay pending for as long as the user takes.
  */
 export interface CaptureScreenshotParams {
   mode: ScreenshotMode;
 }
 /**
- * Result of a screenshot capture. `image` when a capture was taken, `error` when it failed; neither means the user cancelled, and the page shows nothing. Native reports its own capture failures to telemetry.
+ * Result of a screenshot capture. `image` when a capture was taken, `error` when it failed; neither means the user cancelled, and the page shows nothing. The page sends no telemetry for `error` replies.
  */
 export interface CaptureScreenshotResponse {
   image?: CapturedScreenshot;
@@ -1739,7 +1739,7 @@ export interface CaptureScreenshotResponse {
 }
 export interface CapturedScreenshot {
   /**
-   * Base64-encoded image bytes, without a data-URL prefix. Already scaled by native to at most 1024px on the long side.
+   * Base64-encoded image bytes, without a data-URL prefix, at most 1024px on the long side.
    */
   data: string;
   format: "png" | "jpeg";

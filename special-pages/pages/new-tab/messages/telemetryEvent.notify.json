@@ -154,7 +154,7 @@
         {
           "type": "object",
           "title": "Omnibar Screenshot Failed",
-          "description": "Fired when the page could not process a screenshot that native returned. Native capture failures (`error` replies) are reported by native, not by this event.",
+          "description": "Fired when the page could not process a screenshot returned by `omnibar_captureScreenshot`. `error` replies do not fire this event.",
           "required": ["name", "value"],
           "properties": {
             "name": {

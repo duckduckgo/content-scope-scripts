@@ -607,7 +607,7 @@ export function FolderIcon(props) {
 }
 
 /**
- * Camera glyph, matching the Windows address bar's "Add Screenshot" menu row.
+ * Camera glyph for the "Add Screenshot" menu row.
  * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
  */
 export function CameraIcon(props) {
@@ -624,7 +624,7 @@ export function CameraIcon(props) {
 }
 
 /**
- * Scissors glyph, matching the Windows address bar's "Drag to Select" screenshot row.
+ * Scissors glyph for the "Drag to Select" screenshot row.
  * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
  */
 export function ScissorsIcon(props) {
@@ -645,7 +645,7 @@ export function ScissorsIcon(props) {
 }
 
 /**
- * Monitor glyph, matching the Windows address bar's "Select Window or Display" screenshot row.
+ * Monitor glyph for the "Select Window or Display" screenshot row.
  * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
  */
 export function MonitorIcon(props) {

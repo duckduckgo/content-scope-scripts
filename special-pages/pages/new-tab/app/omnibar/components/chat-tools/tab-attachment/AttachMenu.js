@@ -29,7 +29,7 @@ import styles from './AttachMenu.module.css';
 /** Tabs previewed inline in the dropdown; the full list lives in the Add Tabs dialog. */
 const MAX_INLINE_RECENT_TABS = 5;
 
-/** Places the screenshot submenu against the "Add Screenshot" row, matching the address bar's menu. */
+/** Places the screenshot submenu against the "Add Screenshot" row. */
 const SCREENSHOT_SUBMENU_OFFSET = { x: -7, y: -4 };
 
 /**

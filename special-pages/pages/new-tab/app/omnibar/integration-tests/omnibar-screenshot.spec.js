@@ -58,7 +58,7 @@ test.describe('omnibar screenshot menu', () => {
         await expect(omnibar.addScreenshotMenuItem()).toHaveAttribute('aria-expanded', 'true');
     });
 
-    test('only lists the modes native offers', async ({ page }, workerInfo) => {
+    test('only lists the configured modes', async ({ page }, workerInfo) => {
         const { omnibar } = await setup(page, workerInfo, { 'omnibar.screenshotModes': 'selectWindowOrDisplay' });
 
         await omnibar.attachMenuButton().click();
@@ -180,7 +180,7 @@ test.describe('omnibar screenshot capture', () => {
         const params = await omnibar.lastSubmitChatParams();
         expect(params.images).toHaveLength(1);
         expect(params.images?.[0].format).toBe('png');
-        // The mock capture is 1024px wide, like native's; it must not be shrunk to the 512px picker size.
+        // The mock capture is 1024px wide; it must not be shrunk to the 512px picker size.
         expect(pngWidth(params.images?.[0].data ?? '')).toBe(1024);
     });
 
@@ -212,7 +212,7 @@ test.describe('omnibar screenshot capture', () => {
         await expect(omnibar.imagePreviews()).toHaveCount(2);
     });
 
-    test('shows an inline error, without telemetry, when native fails', async ({ page }, workerInfo) => {
+    test('shows an inline error, without telemetry, when the capture fails', async ({ page }, workerInfo) => {
         const { omnibar } = await setup(page, workerInfo, {
             'omnibar.screenshotModes': BOTH_MODES,
             'omnibar.screenshotResult': 'error',

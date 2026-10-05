@@ -61,11 +61,11 @@ title: Omnibar Widget
 
 ### `omnibar_captureScreenshot`
 - {@link "NewTab Messages".OmnibarCaptureScreenshotRequest}
-- Sent when the user picks a mode from the "Add Screenshot" submenu. Native runs the capture (selection overlay or window/display picker) and replies when the user finishes or cancels, so the request can stay pending for as long as that takes. Native allows one capture at a time and answers a second request while one is pending as cancelled; the page disables the screenshot rows while a request is pending.
+- Sent when the user picks a mode from the "Add Screenshot" submenu. The reply comes once the capture is taken, fails or is cancelled, so the request can stay pending for as long as the user takes. The page disables the screenshot rows while a request is pending.
 - requires `mode`, one of the configured `screenshotModes`.
 - returns {@link "NewTab Messages".CaptureScreenshotResponse}:
-  - `image` — base64 `data` (no data-URL prefix), `format` (`png` or `jpeg`) and `kind` (`selection`, `screen` or `window`). Native scales it to at most 1024px on the long side; the page keeps that size and adds it as an image chip named "Screenshot" (numbered on repeats).
-  - `error: "screenshotFailed"` — the page shows "Couldn't capture screenshot" under the prompt. Native reports these failures itself; the page sends no telemetry for them.
+  - `image` — base64 `data` (no data-URL prefix), `format` (`png` or `jpeg`) and `kind` (`selection`, `screen` or `window`). It is at most 1024px on the long side; the page keeps that size and adds it as an image chip named "Screenshot" (numbered on repeats).
+  - `error: "screenshotFailed"` — the page shows "Couldn't capture screenshot" under the prompt and sends no telemetry for it.
   - neither — the user cancelled; the page does nothing.
 ```json
 {
@@ -171,7 +171,7 @@ Sent as `telemetryEvent` with `{ attributes: { name, value } }`:
 - `omnibar_image_removed` — every image chip the user removes (its × button), with the chip's `value.source`. Clearing on submit or on a model switch does not count.
 - `omnibar_screenshot_taken` — once a screenshot has been added as a chip, with `value.kind` from the capture.
 - `omnibar_screenshot_removed` — the user removed a screenshot chip (sent alongside `omnibar_image_removed`).
-- `omnibar_screenshot_failed` — `value.reason: "failed"`, when the page could not process an image native returned. Native `error` replies are not reported by the page.
+- `omnibar_screenshot_failed` — `value.reason: "failed"`, when the page could not process a returned image. `error` replies are not reported by the page.
 
 ## Paste
 

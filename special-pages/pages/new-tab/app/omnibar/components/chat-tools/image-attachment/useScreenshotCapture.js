@@ -27,8 +27,8 @@ function screenshotToFile(image, fileName) {
 const extensionFor = (format) => (format === 'jpeg' ? '.jpg' : '.png');
 
 /**
- * Screenshot capture for the Duck.ai prompt: native acquires the image, the page attaches it
- * through the regular image pipeline.
+ * Screenshot capture for the Duck.ai prompt: requests a capture with `omnibar_captureScreenshot`
+ * and attaches the returned image through the regular image pipeline.
  *
  * @param {object} params
  * @param {ImageAttachmentState} params.imageState
@@ -40,8 +40,8 @@ export function useScreenshotCapture({ imageState }) {
     const [captureError, setCaptureError] = useState(false);
     const [capturing, setCapturing] = useState(false);
 
-    // A capture can stay pending for as long as the user is in the native picker; read the image
-    // state as it is when the reply arrives, not as it was when the capture started.
+    // A capture request can stay pending for as long as the user takes; read the image state as
+    // it is when the reply arrives, not as it was when the capture started.
     const imageStateRef = useRef(imageState);
     imageStateRef.current = imageState;
 
@@ -62,7 +62,7 @@ export function useScreenshotCapture({ imageState }) {
                 setCaptureError(true);
                 return;
             }
-            // Native reports its own capture failures; the page only shows the message.
+            // The page only shows the message; it sends no telemetry for `error` replies.
             if (response.error) {
                 setCaptureError(true);
                 return;

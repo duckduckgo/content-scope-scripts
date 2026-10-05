@@ -348,8 +348,8 @@ export class OmnibarService {
     }
 
     /**
-     * Asks native to capture a screenshot. Resolves once the user finishes or cancels in the
-     * native picker, which can take arbitrarily long; native allows one capture at a time.
+     * Asks native to capture a screenshot. Resolves once the capture is taken, fails or is
+     * cancelled, which can take arbitrarily long.
      * @param {import('../../types/new-tab.js').ScreenshotMode} mode
      * @returns {Promise<import('../../types/new-tab.js').CaptureScreenshotResponse>} `image`, `error`, or neither when cancelled
      */

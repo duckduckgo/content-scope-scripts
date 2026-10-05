@@ -618,7 +618,7 @@ export function omnibarMockTransport() {
                     return getMockOpenTabs(openTabsCount >= 0 ? openTabsCount : undefined);
                 }
                 case 'omnibar_captureScreenshot': {
-                    // Simulates the user spending time in the native picker or selection overlay.
+                    // Simulates the user taking time to make the capture.
                     const delay = parseInt(url.searchParams.get('omnibar.screenshotDelay') ?? '', 10);
                     await new Promise((resolve) => setTimeout(resolve, delay >= 0 ? delay : window.__playwright_01 ? 0 : 600));
                     const override = window.__playwright_01?.mockResponses?.omnibar_captureScreenshot;
@@ -653,7 +653,7 @@ export function omnibarMockTransport() {
     });
 }
 
-/** A 1024x576 PNG with small text (native scales captures to at most 1024px), for judging legibility. */
+/** A 1024x576 PNG with small text (captures are at most 1024px), for judging legibility. */
 function mockScreenshotBase64() {
     const canvas = document.createElement('canvas');
     canvas.width = 1024;
