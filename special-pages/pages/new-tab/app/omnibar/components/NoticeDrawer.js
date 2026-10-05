@@ -1,5 +1,5 @@
 import { h, Fragment } from 'preact';
-import { useRef } from 'preact/hooks';
+import { useContext, useEffect, useRef } from 'preact/hooks';
 import cn from 'classnames';
 import { DismissButton } from '../../components/DismissButton';
 import { ChevronSmall, InfoIcon } from '../../components/Icons';
@@ -12,6 +12,8 @@ import { getModelIcon } from './chat-tools/model-selector/Icons';
 import { useCreateImageModelSwitchNotice } from './useCreateImageModelSwitchNotice';
 import { useUsageLimitsDrawer } from './useUsageLimitsDrawer';
 import { useAttachmentPrivacyNotice } from './useAttachmentPrivacyNotice';
+import { useLauncherPromoNotice } from './useLauncherPromoNotice';
+import { OmnibarContext } from './OmnibarProvider';
 import styles from './NoticeDrawer.module.css';
 
 /** @typedef {typeof import('../strings.json')} Strings */
@@ -30,7 +32,7 @@ import styles from './NoticeDrawer.module.css';
  *   alternatives?: UsageLimitsCtaAlternative[],
  * }} UsageLimitsCta
  * @typedef {{
- *   message: string,
+ *   message: import('preact').ComponentChild,
  *   secondaryText: string,
  *   secondaryOnNewLine?: boolean,
  *   icon: NoticeIcon,
@@ -246,8 +248,17 @@ export function NoticeDrawer({ revealed }) {
     const attachmentPrivacy = useAttachmentPrivacyNotice();
     const usageLimits = useUsageLimitsDrawer();
     const createImageModelSwitch = useCreateImageModelSwitchNotice();
+    const launcherPromo = useLauncherPromoNotice();
+    const { state, launcherPromoShown } = useContext(OmnibarContext);
     // Presentation priority doesn't affect usage-limit blocking.
-    const presentation = attachmentPrivacy ?? createImageModelSwitch ?? usageLimits;
+    const presentation = attachmentPrivacy ?? createImageModelSwitch ?? usageLimits ?? launcherPromo;
+    const isRevealed = revealed || createImageModelSwitch !== null || attachmentPrivacy !== null;
+
+    const launcherPromoKind = state.config?.launcherPromo?.kind;
+    const launcherPromoVisible = isRevealed && presentation !== null && presentation === launcherPromo;
+    useEffect(() => {
+        if (launcherPromoVisible && launcherPromoKind) launcherPromoShown(launcherPromoKind);
+    }, [launcherPromoVisible, launcherPromoKind, launcherPromoShown]);
 
     if (!presentation) return null;
 
@@ -265,7 +276,6 @@ export function NoticeDrawer({ revealed }) {
     } = presentation;
 
     const emphasize = icon === 'ring' || icon === 'alert' || icon === 'convert';
-    const isRevealed = revealed || createImageModelSwitch !== null || attachmentPrivacy !== null;
 
     const keepComposerFocus = (event) => {
         // Keep the caret in the composer so clicking CTA/dismiss does not hide the drawer first.
@@ -285,7 +295,9 @@ export function NoticeDrawer({ revealed }) {
                         <NoticeGlyph icon={icon} percent={percent} severity={severity} />
                     </span>
                     <p class={cn(styles.message, emphasize && styles.messageEmphasized, secondaryOnNewLine && styles.messageStacked)}>
-                        <span class={styles.primary}>{messageValues ? <Trans str={message} values={messageValues} /> : message}</span>
+                        <span class={styles.primary}>
+                            {messageValues && typeof message === 'string' ? <Trans str={message} values={messageValues} /> : message}
+                        </span>
                         {secondaryText ? <span class={styles.secondary}>{secondaryText}</span> : null}
                     </p>
                     {cta && onSelectCta ? <UsageLimitsCtaControl cta={cta} onSelectCta={onSelectCta} /> : null}

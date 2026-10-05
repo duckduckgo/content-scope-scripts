@@ -1,5 +1,5 @@
 import { Fragment, h } from 'preact';
-import { useCallback, useContext, useRef, useState } from 'preact/hooks';
+import { useCallback, useContext, useEffect, useRef, useState } from 'preact/hooks';
 import { ArrowRightIcon, LogoStacked, VoiceIcon } from '../../components/Icons';
 import { eventToTarget } from '../../../../../shared/handlers';
 import { usePlatformName, useNewTabPageRebranding } from '../../settings.provider';
@@ -255,7 +255,7 @@ function AiChatContent({
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
     const { showChats, hideChats, deletionInProgress } = useAiChatsContext();
-    const { state, setImageGenerationActive } = useContext(OmnibarContext);
+    const { state, setImageGenerationActive, launcherPromoShown } = useContext(OmnibarContext);
     const attachmentLimits = state.config?.attachmentLimits;
     const blocksPrompt = state.config?.usageLimits?.blocksPrompt === true;
     const updatedCreateImageEnabled = state.config?.enableUpdatedCreateImage === true;
@@ -273,6 +273,12 @@ function AiChatContent({
     const imageGenerationPlaceholder = hasAttachedImages
         ? t('omnibar_imageGenerationWithAttachmentPlaceholder')
         : t('omnibar_imageGenerationPlaceholder');
+    const launcherPromo = state.config?.launcherPromo;
+    const launcherPlaceholder = launcherPromo?.placeholder || undefined;
+    const launcherPlaceholderKind = launcherPlaceholder && !imageGenerationActive && query === '' ? launcherPromo?.kind : undefined;
+    useEffect(() => {
+        if (launcherPlaceholderKind) launcherPromoShown(launcherPlaceholderKind);
+    }, [launcherPlaceholderKind, launcherPromoShown]);
     const selectedModelSupportsImages = selectedModel?.supportsImageUpload ?? false;
     const canAttachImages = selectedModelSupportsImages || imageGenerationActive;
 
@@ -453,7 +459,7 @@ function AiChatContent({
                     autoFocus={autoFocus}
                     disabled={disabled}
                     readOnly={blocksPrompt}
-                    placeholder={imageGenerationActive ? imageGenerationPlaceholder : undefined}
+                    placeholder={imageGenerationActive ? imageGenerationPlaceholder : launcherPlaceholder}
                     onChange={handleChange}
                     onSubmit={handleSubmit}
                     onTextareaKeyDown={mention.handleTextareaKeyDown}

@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Dismiss Launcher Promo",
+  "description": "Sent when the user dismisses the launcher promo drawer. Native owns dismiss persistence and pushes an updated OmnibarConfig.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "kind"
+  ],
+  "properties": {
+    "kind": {
+      "type": "string",
+      "enum": [
+        "promo",
+        "shortcutHint",
+        "shortcutNudge"
+      ],
+      "description": "The launcherPromo.kind that was rendered."
+    }
+  }
+}

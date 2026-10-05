@@ -35,6 +35,11 @@ export class OmnibarPage {
         return this.context().getByRole('textbox', { name: 'Ask anything privately' });
     }
 
+    /** The Duck.ai textarea, whatever its placeholder. */
+    chatTextarea() {
+        return this.context().locator('textarea');
+    }
+
     imageGenerationInput() {
         return this.context().getByRole('textbox', { name: 'Describe the image you want to create' });
     }

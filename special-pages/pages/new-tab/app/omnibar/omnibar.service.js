@@ -13,6 +13,7 @@ import { OmnibarAiChatsService } from './omnibar.ai-chats.service.js';
  * @typedef {import("../../types/new-tab.js").GetOpenTabsResponse} GetOpenTabsResponse
  * @typedef {import("../../types/new-tab.js").PageContext} PageContext
  * @typedef {import("../../types/new-tab.js").ConfirmDeleteAIChatResponse} ConfirmDeleteAIChatResponse
+ * @typedef {import("../../types/new-tab.js").LauncherPromoShown['kind']} LauncherPromoKind
  */
 
 export class OmnibarService {
@@ -35,6 +36,8 @@ export class OmnibarService {
 
         this.suggestionsService = new OmnibarSuggestionsService(ntp);
         this.aiChatsService = new OmnibarAiChatsService(ntp);
+        /** @type {Set<LauncherPromoKind>} */
+        this.shownLauncherPromoKinds = new Set();
     }
 
     name() {
@@ -238,6 +241,26 @@ export class OmnibarService {
      */
     dismissCreateImageModelSwitch() {
         this.ntp.messaging.notify('omnibar_dismissCreateImageModelSwitch', {});
+    }
+
+    /**
+     * Notify native the first time per page load that a launcher promo kind is visible.
+     * @param {LauncherPromoKind} kind
+     */
+    launcherPromoShown(kind) {
+        if (this.shownLauncherPromoKinds.has(kind)) return;
+        this.shownLauncherPromoKinds.add(kind);
+        this.ntp.messaging.notify('omnibar_launcherPromoShown', { kind });
+    }
+
+    /** @param {LauncherPromoKind} kind */
+    selectLauncherPromoCta(kind) {
+        this.ntp.messaging.notify('omnibar_selectLauncherPromoCta', { kind });
+    }
+
+    /** @param {LauncherPromoKind} kind */
+    dismissLauncherPromo(kind) {
+        this.ntp.messaging.notify('omnibar_dismissLauncherPromo', { kind });
     }
 
     /** @param {'image' | 'file'} kind */

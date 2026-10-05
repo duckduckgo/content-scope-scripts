@@ -3,6 +3,27 @@ import { getMockSuggestions, getMockAiChats, getMockOpenTabs, getMockTabContent 
 
 const url = typeof window !== 'undefined' ? new URL(window.location.href) : new URL('https://example.com');
 
+/** @type {Record<string, import('../../../types/new-tab.js').LauncherPromo>} */
+const LAUNCHER_PROMO_PRESETS = {
+    promo: {
+        kind: 'promo',
+        message: 'Open Duck.ai from anywhere on your Mac with {shortcut}',
+        shortcut: '⌥ Space',
+        ctaLabel: 'Try Now',
+        dismissible: true,
+    },
+    shortcutHint: {
+        kind: 'shortcutHint',
+        placeholder: 'Ask privately (⌥ Space opens Duck.ai anywhere)',
+    },
+    shortcutNudge: {
+        kind: 'shortcutNudge',
+        message: 'Turn on the {shortcut} shortcut to open Duck.ai from anywhere',
+        shortcut: '⌥ Space',
+        ctaLabel: 'Turn On',
+    },
+};
+
 /**
  * Reads a URL query param as a boolean. Returns null if absent or not 'true'/'false'.
  * @param {string} param
@@ -284,6 +305,21 @@ export function omnibarMockTransport() {
                     subs.get('omnibar_onConfigUpdate')?.(config);
                     break;
                 }
+                case 'omnibar_launcherPromoShown': {
+                    console.warn('Mock: launcherPromoShown', msg.params);
+                    break;
+                }
+                case 'omnibar_selectLauncherPromoCta': {
+                    // Mirror native: both CTAs end with the shortcut on, so the hint replaces the drawer.
+                    config.launcherPromo = LAUNCHER_PROMO_PRESETS.shortcutHint;
+                    subs.get('omnibar_onConfigUpdate')?.(config);
+                    break;
+                }
+                case 'omnibar_dismissLauncherPromo': {
+                    config.launcherPromo = null;
+                    subs.get('omnibar_onConfigUpdate')?.(config);
+                    break;
+                }
                 case 'omnibar_dismissCreateImageModelSwitch': {
                     config.createImageModelSwitch = null;
                     subs.get('omnibar_onConfigUpdate')?.(config);
@@ -509,6 +545,11 @@ export function omnibarMockTransport() {
                     config.enableAiChatDeletion = parseBooleanQueryParam('omnibar.enableAiChatDeletion') ?? config.enableAiChatDeletion;
                     config.enableSearchSuggestionDeletion =
                         parseBooleanQueryParam('omnibar.enableSearchSuggestionDeletion') ?? config.enableSearchSuggestionDeletion;
+                    // omnibar.launcherPromo=promo|shortcutHint|shortcutNudge sets a preset; anything else hides.
+                    const launcherPromoPreset = url.searchParams.get('omnibar.launcherPromo');
+                    if (launcherPromoPreset !== null) {
+                        config.launcherPromo = LAUNCHER_PROMO_PRESETS[launcherPromoPreset] ?? null;
+                    }
                     // omnibar.usageLimits=false hides; approaching|reached|reached-switch set presets.
                     const usageLimitsPreset = url.searchParams.get('omnibar.usageLimits');
                     if (usageLimitsPreset === 'false') {

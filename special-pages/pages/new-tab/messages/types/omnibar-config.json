@@ -340,6 +340,40 @@
         }
       }
     },
+    "launcherPromo": {
+      "title": "Launcher Promo",
+      "description": "Native-resolved Duck.ai launcher discovery presentation for AI mode. Native owns eligibility, precedence, localized copy and what the CTA does; FE renders what it receives. In the drawer it ranks below every other notice. Null/omitted shows nothing.",
+      "type": ["object", "null"],
+      "required": ["kind"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "description": "Echoed back in launcher promo notifications so native knows which state was seen or acted on. FE does not branch on it.",
+          "enum": ["promo", "shortcutHint", "shortcutNudge"]
+        },
+        "message": {
+          "type": "string",
+          "description": "Drawer copy, already localized. May contain one {shortcut} token, rendered as a highlighted key combination. Omitted means no drawer."
+        },
+        "shortcut": {
+          "type": "string",
+          "description": "Display string of the user's launcher shortcut (for example, '⌥ Space'), substituted for {shortcut} in message."
+        },
+        "ctaLabel": {
+          "type": "string",
+          "description": "Drawer button label, already localized. Omitted means no button. Selecting it notifies native via omnibar_selectLauncherPromoCta."
+        },
+        "dismissible": {
+          "type": "boolean",
+          "description": "When true, show a dismiss control. Dismiss notifies native via omnibar_dismissLauncherPromo.",
+          "default": false
+        },
+        "placeholder": {
+          "type": "string",
+          "description": "Replaces the AI input placeholder, already localized. Like any placeholder it hides once the user types."
+        }
+      }
+    },
     "usageLimits": {
       "title": "Usage Limits Drawer",
       "description": "Native-resolved presentation for the AI-mode usage limits drawer under the omnibar pill. Non-null shows the drawer; null/omitted hides it. FE does not derive content.",

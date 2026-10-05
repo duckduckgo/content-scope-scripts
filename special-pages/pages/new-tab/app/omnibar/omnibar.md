@@ -178,6 +178,18 @@ With `enablePastedAttachments`, a paste into the Duck.ai prompt is handled as fo
 - Sent when the user dismisses the native-provided Create Image model-switch notice.
 - Native clears the notice and pushes the updated config.
 
+### `omnibar_launcherPromoShown`
+- Sent the first time per page load that a `launcherPromo` kind becomes visible: its drawer revealed on composer focus, or its placeholder shown in an empty AI input.
+- Native fires the exposure pixel.
+
+### `omnibar_selectLauncherPromoCta`
+- Sent when the user activates the `launcherPromo` drawer button, with the rendered `kind`.
+- Native runs the action for that kind and pushes the updated config.
+
+### `omnibar_dismissLauncherPromo`
+- Sent when the user dismisses the `launcherPromo` drawer, with the rendered `kind`.
+- Native persists the dismissal and pushes the updated config.
+
 ### `omnibar_setConfig` 
 - {@link "NewTab Messages".OmnibarSetConfigNotification}
 - Sent when the user changes the omnibar mode (search vs AI)

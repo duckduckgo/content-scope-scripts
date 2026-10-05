@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Select Launcher Promo CTA",
+  "description": "Sent when the user activates the launcher promo drawer button. Native executes the action for the kind and pushes an updated OmnibarConfig.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "kind"
+  ],
+  "properties": {
+    "kind": {
+      "type": "string",
+      "enum": [
+        "promo",
+        "shortcutHint",
+        "shortcutNudge"
+      ],
+      "description": "The launcherPromo.kind that was rendered."
+    }
+  }
+}

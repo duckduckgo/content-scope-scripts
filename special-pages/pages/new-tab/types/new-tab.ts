@@ -176,6 +176,35 @@ export type CreateImageModelSwitchNotice = {
   dismissible?: boolean;
 } | null;
 /**
+ * Native-resolved Duck.ai launcher discovery presentation for AI mode. Native owns eligibility, precedence, localized copy and what the CTA does; FE renders what it receives. In the drawer it ranks below every other notice. Null/omitted shows nothing.
+ */
+export type LauncherPromo = {
+  /**
+   * Echoed back in launcher promo notifications so native knows which state was seen or acted on. FE does not branch on it.
+   */
+  kind: "promo" | "shortcutHint" | "shortcutNudge";
+  /**
+   * Drawer copy, already localized. May contain one {shortcut} token, rendered as a highlighted key combination. Omitted means no drawer.
+   */
+  message?: string;
+  /**
+   * Display string of the user's launcher shortcut (for example, '⌥ Space'), substituted for {shortcut} in message.
+   */
+  shortcut?: string;
+  /**
+   * Drawer button label, already localized. Omitted means no button. Selecting it notifies native via omnibar_selectLauncherPromoCta.
+   */
+  ctaLabel?: string;
+  /**
+   * When true, show a dismiss control. Dismiss notifies native via omnibar_dismissLauncherPromo.
+   */
+  dismissible?: boolean;
+  /**
+   * Replaces the AI input placeholder, already localized. Like any placeholder it hides once the user types.
+   */
+  placeholder?: string;
+} | null;
+/**
  * Native-resolved presentation for the AI-mode usage limits drawer under the omnibar pill. Non-null shows the drawer; null/omitted hides it. FE does not derive content.
  */
 export type UsageLimitsDrawer = {
@@ -327,12 +356,15 @@ export interface NewTabMessages {
     | NextStepsSetConfigNotification
     | OmnibarAttachmentPrivacyDisclaimerShownNotification
     | OmnibarDismissCreateImageModelSwitchNotification
+    | OmnibarDismissLauncherPromoNotification
     | OmnibarDismissUsageLimitsNotification
+    | OmnibarLauncherPromoShownNotification
     | OmnibarOpenAiChatNotification
     | OmnibarOpenAttachmentPrivacyLearnMoreNotification
     | OmnibarOpenCustomizeResponsesNotification
     | OmnibarOpenSuggestionNotification
     | OmnibarRemoveSuggestionNotification
+    | OmnibarSelectLauncherPromoCtaNotification
     | OmnibarSelectUsageLimitsCtaNotification
     | OmnibarSetConfigNotification
     | OmnibarSetCustomizeResponsesActiveNotification
@@ -721,6 +753,22 @@ export interface OmnibarDismissCreateImageModelSwitchNotification {
  */
 export interface DismissCreateImageModelSwitch {}
 /**
+ * Generated from @see "../messages/omnibar_dismissLauncherPromo.notify.json"
+ */
+export interface OmnibarDismissLauncherPromoNotification {
+  method: "omnibar_dismissLauncherPromo";
+  params: DismissLauncherPromo;
+}
+/**
+ * Sent when the user dismisses the launcher promo drawer. Native owns dismiss persistence and pushes an updated OmnibarConfig.
+ */
+export interface DismissLauncherPromo {
+  /**
+   * The launcherPromo.kind that was rendered.
+   */
+  kind: "promo" | "shortcutHint" | "shortcutNudge";
+}
+/**
  * Generated from @see "../messages/omnibar_dismissUsageLimits.notify.json"
  */
 export interface OmnibarDismissUsageLimitsNotification {
@@ -731,6 +779,22 @@ export interface OmnibarDismissUsageLimitsNotification {
  * Sent when the user dismisses the AI-mode usage limits drawer. Native owns dismiss persistence and should push an updated OmnibarConfig with usageLimits null/omitted.
  */
 export interface DismissUsageLimitsDrawer {}
+/**
+ * Generated from @see "../messages/omnibar_launcherPromoShown.notify.json"
+ */
+export interface OmnibarLauncherPromoShownNotification {
+  method: "omnibar_launcherPromoShown";
+  params: LauncherPromoShown;
+}
+/**
+ * Sent the first time per page load that a launcherPromo kind becomes visible: its drawer revealed on composer focus, or its placeholder shown in an empty AI input. Native fires the exposure pixel.
+ */
+export interface LauncherPromoShown {
+  /**
+   * The launcherPromo.kind that was rendered.
+   */
+  kind: "promo" | "shortcutHint" | "shortcutNudge";
+}
 /**
  * Generated from @see "../messages/omnibar_openAiChat.notify.json"
  */
@@ -841,6 +905,22 @@ export interface RemoveSuggestion {
   url: string;
 }
 /**
+ * Generated from @see "../messages/omnibar_selectLauncherPromoCta.notify.json"
+ */
+export interface OmnibarSelectLauncherPromoCtaNotification {
+  method: "omnibar_selectLauncherPromoCta";
+  params: SelectLauncherPromoCTA;
+}
+/**
+ * Sent when the user activates the launcher promo drawer button. Native executes the action for the kind and pushes an updated OmnibarConfig.
+ */
+export interface SelectLauncherPromoCTA {
+  /**
+   * The launcherPromo.kind that was rendered.
+   */
+  kind: "promo" | "shortcutHint" | "shortcutNudge";
+}
+/**
  * Generated from @see "../messages/omnibar_selectUsageLimitsCta.notify.json"
  */
 export interface OmnibarSelectUsageLimitsCtaNotification {
@@ -891,6 +971,7 @@ export interface OmnibarConfig {
   enableSearchSuggestionDeletion?: EnableSearchSuggestionDeletion;
   showAttachmentPrivacyDisclaimer?: ShowAttachmentPrivacyDisclaimer;
   createImageModelSwitch?: CreateImageModelSwitchNotice;
+  launcherPromo?: LauncherPromo;
   usageLimits?: UsageLimitsDrawer;
 }
 /**
