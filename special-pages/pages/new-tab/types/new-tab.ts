@@ -143,6 +143,10 @@ export type EnableAskDuckAiSuggestion = boolean;
  */
 export type EnableAttachTabs = boolean;
 /**
+ * When true, pasting into the Duck.ai prompt attaches copied images and files (unless the clipboard also carries text). When false or absent, paste is left to the browser (text only).
+ */
+export type EnablePastedAttachments = boolean;
+/**
  * Show a delete button on recent AI chat suggestions. When true, clicking the button prompts a native confirmation dialog before deleting the chat.
  */
 export type EnableAIChatDeletion = boolean;
@@ -150,6 +154,10 @@ export type EnableAIChatDeletion = boolean;
  * Show a delete button on history entry suggestions. When true, clicking the button removes the entry from browsing history.
  */
 export type EnableSearchSuggestionDeletion = boolean;
+/**
+ * Whether this surface may still show the file-upload privacy disclaimer. Native owns the device-wide display count and pushes an updated config whenever it changes, including when another surface spends a display. False or omitted means the omnibar renders nothing.
+ */
+export type ShowAttachmentPrivacyDisclaimer = boolean;
 /**
  * Native-resolved presentation shown after Create Image switches away from an unsupported model. Non-null takes visual priority over usageLimits; native owns model selection, localized copy, and lifecycle.
  */
@@ -239,6 +247,10 @@ export type Favicon = null | {
 };
 export type FeedType = "privacy-stats" | "activity";
 /**
+ * How an image chip was added to the Duck.ai prompt: the file picker or a clipboard paste.
+ */
+export type ImageAttachmentSource = "file" | "paste";
+/**
  * The visibility state of the widget, as configured by the user
  */
 export type WidgetVisibility = "visible" | "hidden";
@@ -313,9 +325,11 @@ export interface NewTabMessages {
     | NextStepsActionNotification
     | NextStepsDismissNotification
     | NextStepsSetConfigNotification
+    | OmnibarAttachmentPrivacyDisclaimerShownNotification
     | OmnibarDismissCreateImageModelSwitchNotification
     | OmnibarDismissUsageLimitsNotification
     | OmnibarOpenAiChatNotification
+    | OmnibarOpenAttachmentPrivacyLearnMoreNotification
     | OmnibarOpenCustomizeResponsesNotification
     | OmnibarOpenSuggestionNotification
     | OmnibarRemoveSuggestionNotification
@@ -680,6 +694,22 @@ export interface NextStepsConfig {
   animation?: Animation;
 }
 /**
+ * Generated from @see "../messages/omnibar_attachmentPrivacyDisclaimerShown.notify.json"
+ */
+export interface OmnibarAttachmentPrivacyDisclaimerShownNotification {
+  method: "omnibar_attachmentPrivacyDisclaimerShown";
+  params: AttachmentPrivacyDisclaimerShown;
+}
+/**
+ * Sent once per continuous attachment session, when the omnibar renders the file-upload privacy disclaimer. Native increments the device-wide display count, fires the shown pixel, and pushes an updated OmnibarConfig once the count reaches the cap.
+ */
+export interface AttachmentPrivacyDisclaimerShown {
+  /**
+   * Which attachment triggered the disclaimer. Native never sees the attach, so it cannot infer this for the pixel.
+   */
+  kind: "image" | "file";
+}
+/**
  * Generated from @see "../messages/omnibar_dismissCreateImageModelSwitch.notify.json"
  */
 export interface OmnibarDismissCreateImageModelSwitchNotification {
@@ -722,6 +752,22 @@ export interface OpenAIChatAction {
    * Whether the chat is pinned
    */
   isPinned: boolean;
+}
+/**
+ * Generated from @see "../messages/omnibar_openAttachmentPrivacyLearnMore.notify.json"
+ */
+export interface OmnibarOpenAttachmentPrivacyLearnMoreNotification {
+  method: "omnibar_openAttachmentPrivacyLearnMore";
+  params: OpenAttachmentPrivacyLearnMore;
+}
+/**
+ * Sent when the user selects 'Learn more' in the file-upload privacy disclaimer. Native opens the help page in a new tab and fires the learn_more_tapped pixel; the staged attachment is left untouched.
+ */
+export interface OpenAttachmentPrivacyLearnMore {
+  /**
+   * Which attachment the disclaimer was about. Native never sees the attach, so it cannot infer this for the pixel.
+   */
+  kind: "image" | "file";
 }
 /**
  * Generated from @see "../messages/omnibar_openCustomizeResponses.notify.json"
@@ -840,8 +886,10 @@ export interface OmnibarConfig {
   customizationActive?: CustomizationActive;
   enableAskAiSuggestion?: EnableAskDuckAiSuggestion;
   enableAttachTabs?: EnableAttachTabs;
+  enablePastedAttachments?: EnablePastedAttachments;
   enableAiChatDeletion?: EnableAIChatDeletion;
   enableSearchSuggestionDeletion?: EnableSearchSuggestionDeletion;
+  showAttachmentPrivacyDisclaimer?: ShowAttachmentPrivacyDisclaimer;
   createImageModelSwitch?: CreateImageModelSwitchNotice;
   usageLimits?: UsageLimitsDrawer;
 }
@@ -1276,7 +1324,9 @@ export interface NTPTelemetryEvent {
     | OmnibarModelPickerUpgradeShown
     | OmnibarReasoningPickerShown
     | OmnibarReasoningPickerTryForFreeShown
-    | OmnibarReasoningPickerUpgradeShown;
+    | OmnibarReasoningPickerUpgradeShown
+    | OmnibarImageAttached
+    | OmnibarImageRemoved;
 }
 export interface StatsShowMore {
   name: "stats_toggle";
@@ -1330,6 +1380,24 @@ export interface OmnibarReasoningPickerTryForFreeShown {
  */
 export interface OmnibarReasoningPickerUpgradeShown {
   name: "omnibar_reasoning_picker_upgrade_shown";
+}
+/**
+ * Fired for every image chip added to the prompt, from the file picker or a paste.
+ */
+export interface OmnibarImageAttached {
+  name: "omnibar_image_attached";
+  value: {
+    source: ImageAttachmentSource;
+  };
+}
+/**
+ * Fired for every image chip the user removes.
+ */
+export interface OmnibarImageRemoved {
+  name: "omnibar_image_removed";
+  value: {
+    source: ImageAttachmentSource;
+  };
 }
 /**
  * Generated from @see "../messages/updateNotification_dismiss.notify.json"

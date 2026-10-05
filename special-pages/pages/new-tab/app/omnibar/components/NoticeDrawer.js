@@ -4,12 +4,14 @@ import cn from 'classnames';
 import { DismissButton } from '../../components/DismissButton';
 import { ChevronSmall, InfoIcon } from '../../components/Icons';
 import { useTypedTranslationWith } from '../../types';
+import { Trans } from '../../../../../shared/components/TranslationsProvider.js';
 import { Dropdown } from './chat-tools/dropdown/Dropdown';
 import { DropdownItem } from './chat-tools/dropdown/DropdownItem';
 import { useDropdown } from './chat-tools/useDropdown';
 import { getModelIcon } from './chat-tools/model-selector/Icons';
 import { useCreateImageModelSwitchNotice } from './useCreateImageModelSwitchNotice';
 import { useUsageLimitsDrawer } from './useUsageLimitsDrawer';
+import { useAttachmentPrivacyNotice } from './useAttachmentPrivacyNotice';
 import styles from './NoticeDrawer.module.css';
 
 /** @typedef {typeof import('../strings.json')} Strings */
@@ -35,6 +37,7 @@ import styles from './NoticeDrawer.module.css';
  *   percent?: number,
  *   severity?: NoticeSeverity,
  *   cta?: UsageLimitsCta | null,
+ *   messageValues?: Record<string, Record<string, (event: Event) => void>>,
  *   onDismiss?: (() => void) | undefined,
  *   onSelectCta?: ((modelId?: string) => void) | undefined,
  * }} NoticePresentation
@@ -240,10 +243,11 @@ function UsageLimitsCtaControl({ cta, onSelectCta }) {
  * @param {boolean} props.revealed - Whether focus-gated notices should be shown.
  */
 export function NoticeDrawer({ revealed }) {
+    const attachmentPrivacy = useAttachmentPrivacyNotice();
     const usageLimits = useUsageLimitsDrawer();
     const createImageModelSwitch = useCreateImageModelSwitchNotice();
-    // Create Image wins visual priority; usage-limit blocking remains independent.
-    const presentation = createImageModelSwitch ?? usageLimits;
+    // Presentation priority doesn't affect usage-limit blocking.
+    const presentation = attachmentPrivacy ?? createImageModelSwitch ?? usageLimits;
 
     if (!presentation) return null;
 
@@ -255,12 +259,13 @@ export function NoticeDrawer({ revealed }) {
         percent = 0,
         severity = 'neutral',
         cta = null,
+        messageValues,
         onSelectCta,
         onDismiss,
     } = presentation;
 
     const emphasize = icon === 'ring' || icon === 'alert' || icon === 'convert';
-    const isRevealed = revealed || createImageModelSwitch !== null;
+    const isRevealed = revealed || createImageModelSwitch !== null || attachmentPrivacy !== null;
 
     const keepComposerFocus = (event) => {
         // Keep the caret in the composer so clicking CTA/dismiss does not hide the drawer first.
@@ -280,7 +285,7 @@ export function NoticeDrawer({ revealed }) {
                         <NoticeGlyph icon={icon} percent={percent} severity={severity} />
                     </span>
                     <p class={cn(styles.message, emphasize && styles.messageEmphasized, secondaryOnNewLine && styles.messageStacked)}>
-                        <span class={styles.primary}>{message}</span>
+                        <span class={styles.primary}>{messageValues ? <Trans str={message} values={messageValues} /> : message}</span>
                         {secondaryText ? <span class={styles.secondary}>{secondaryText}</span> : null}
                     </p>
                     {cta && onSelectCta ? <UsageLimitsCtaControl cta={cta} onSelectCta={onSelectCta} /> : null}

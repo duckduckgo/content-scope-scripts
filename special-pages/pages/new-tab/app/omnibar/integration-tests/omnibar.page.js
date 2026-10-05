@@ -115,6 +115,10 @@ export class OmnibarPage {
         return this.page.getByRole('menu', { name: 'Switch to a more efficient model' });
     }
 
+    attachmentPrivacyLearnMore() {
+        return this.noticeDrawer().getByRole('button', { name: 'Learn more' });
+    }
+
     noticeDismiss() {
         return this.noticeDrawer().getByTestId('dismissBtn');
     }
@@ -238,6 +242,17 @@ export class OmnibarPage {
     async expectMethodCalledWith(method, expectedParams) {
         const calls = await this.ntp.mocks.waitForCallCount({ method, count: 1 });
         expect(calls[0].payload.params).toEqual(expectedParams);
+    }
+
+    /**
+     * Unlike `expectMethodCallCount`, this rejects extra calls.
+     * @param {string} method
+     * @param {number} count
+     */
+    async expectExactMethodCallCount(method, count) {
+        await this.ntp.mocks.waitForCallCount({ method, count });
+        const calls = await this.ntp.mocks.outgoing({ names: [method] });
+        expect(calls).toHaveLength(count);
     }
 
     /**
@@ -420,6 +435,41 @@ export class OmnibarPage {
 
     attachPageContentMenuItem() {
         return this.attachMenu().getByRole('menuitem', { name: 'Add Tabs' });
+    }
+
+    /**
+     * Dispatches a synthetic `paste` on the Duck.ai prompt. Synthetic pastes never insert text,
+     * so the result reports whether the page cancelled the default paste instead.
+     *
+     * @param {object} clipboard
+     * @param {string} [clipboard.text]
+     * @param {{ name: string, type: string, base64: string }[]} [clipboard.files]
+     * @returns {Promise<{ defaultPrevented: boolean }>}
+     */
+    async pasteIntoChatInput({ text, files = [] }) {
+        return await this.chatInput().evaluate(
+            (textarea, { text, files }) => {
+                const data = new DataTransfer();
+                if (text) data.setData('text/plain', text);
+                for (const file of files) {
+                    const bytes = Uint8Array.from(atob(file.base64), (c) => c.charCodeAt(0));
+                    data.items.add(new File([bytes], file.name, { type: file.type }));
+                }
+                const event = new ClipboardEvent('paste', { clipboardData: data, bubbles: true, cancelable: true });
+                textarea.dispatchEvent(event);
+                return { defaultPrevented: event.defaultPrevented };
+            },
+            { text, files },
+        );
+    }
+
+    /**
+     * Names and values of the `telemetryEvent` notifications sent so far.
+     * @returns {Promise<{ name: string, value?: unknown }[]>}
+     */
+    async telemetryEvents() {
+        const calls = await this.ntp.mocks.outgoing({ names: ['telemetryEvent'] });
+        return calls.map((call) => /** @type {any} */ (call.payload).params.attributes);
     }
 
     /** Inline "Recent Tabs" row in the paperclip menu. @param {string | RegExp} title */
