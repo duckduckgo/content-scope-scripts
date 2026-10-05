@@ -1,4 +1,4 @@
-import { h, cloneElement, toChildArray, Fragment } from 'preact';
+import { h, Fragment } from 'preact';
 import { useLayoutEffect, useRef, useState } from 'preact/hooks';
 import { ChevronSmall } from '../../../../components/Icons';
 import { findContainingBlock } from '../useDropdown';
@@ -18,7 +18,7 @@ import styles from './Dropdown.module.css';
  * The panel renders inside the parent `<ul>` (so the parent's click-outside and mouse-leave
  * treat it as part of the menu) with `position: fixed`, so the parent's `overflow: hidden` does
  * not clip it. It takes focus when it opens; Escape and ArrowLeft return focus to the parent.
- * Choosing a row closes the whole menu, then runs that row's `onSelect`.
+ * Choosing a row runs that row's `onSelect`, then closes the whole menu.
  *
  * @param {object} props
  * @param {import('preact').ComponentChildren} props.children - the submenu's {@link DropdownItem}s.
@@ -63,8 +63,6 @@ export function DropdownSubmenu({
     const rowRef = useRef(/** @type {HTMLLIElement | null} */ (null));
     const panelRef = useRef(/** @type {HTMLUListElement | null} */ (null));
     const [position, setPosition] = useState(/** @type {DropdownPosition | null} */ (null));
-    // Set once a submenu row is chosen: the whole menu is closing, so the panel must not pull focus back to the parent.
-    const choseRowRef = useRef(false);
 
     useLayoutEffect(() => {
         const row = rowRef.current;
@@ -72,23 +70,10 @@ export function DropdownSubmenu({
             setPosition(null);
             return;
         }
-        choseRowRef.current = false;
         const rect = row.getBoundingClientRect();
         const cbRect = findContainingBlock(row)?.getBoundingClientRect();
         setPosition({ left: rect.right - (cbRect?.left ?? 0) + offset.x, top: rect.top - (cbRect?.top ?? 0) + offset.y });
     }, [isOpen, offset.x, offset.y]);
-
-    const items = toChildArray(children).map((child) => {
-        if (typeof child !== 'object' || child === null || !('props' in child)) return child;
-        const vnode = /** @type {import('preact').VNode<{ onSelect?: () => void }>} */ (child);
-        return cloneElement(vnode, {
-            onSelect: () => {
-                choseRowRef.current = true;
-                onCloseMenu?.({ restoreFocus: true });
-                vnode.props.onSelect?.();
-            },
-        });
-    });
 
     return (
         <Fragment>
@@ -131,14 +116,13 @@ export function DropdownSubmenu({
                         role="menu"
                         ariaLabel={ariaLabel}
                         position={position}
-                        onClose={({ restoreFocus }) => {
-                            if (choseRowRef.current) return;
-                            onCloseSubmenu?.({ restoreFocus });
-                        }}
+                        onClose={({ restoreFocus, selected }) =>
+                            selected ? onCloseMenu?.({ restoreFocus }) : onCloseSubmenu?.({ restoreFocus })
+                        }
                         idPrefix={idPrefix}
                         className={panelClassName}
                     >
-                        {items}
+                        {children}
                     </Dropdown>
                 </li>
             )}

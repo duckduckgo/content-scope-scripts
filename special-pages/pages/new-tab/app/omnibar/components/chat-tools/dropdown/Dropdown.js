@@ -51,7 +51,7 @@ function isSubmenu(child) {
  * @param {string} props.ariaLabel
  * @param {'menu' | 'listbox'} props.role
  * @param {DropdownPosition} props.position
- * @param {(options: {restoreFocus: boolean}) => void} props.onClose
+ * @param {(options: {restoreFocus: boolean, selected?: boolean}) => void} props.onClose - `selected` is true when the panel closes because a row was chosen.
  * @param {import('preact').RefObject<HTMLUListElement>} props.dropdownRef
  * @param {string} [props.idPrefix]
  * @param {string} [props.className]
@@ -185,7 +185,7 @@ export function Dropdown({
 
                 selectAt(activeIndex);
                 if (!keepsOpenOnSelect(items[activeIndex])) {
-                    onClose({ restoreFocus: true });
+                    onClose({ restoreFocus: true, selected: true });
                 }
                 break;
             case 'ArrowRight':
@@ -225,7 +225,7 @@ export function Dropdown({
                 if (!enabled) return;
                 selectAt(index);
                 if (!keepsOpenOnSelect(child)) {
-                    onClose({ restoreFocus: false });
+                    onClose({ restoreFocus: false, selected: true });
                 }
             },
             ...(isSubmenu(child) && {
