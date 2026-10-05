@@ -143,6 +143,10 @@ export type EnableAskDuckAiSuggestion = boolean;
  */
 export type EnableAttachTabs = boolean;
 /**
+ * When true, pasting into the Duck.ai prompt attaches copied images and files (unless the clipboard also carries text). When false or absent, paste is left to the browser (text only).
+ */
+export type EnablePastedAttachments = boolean;
+/**
  * Show a delete button on recent AI chat suggestions. When true, clicking the button prompts a native confirmation dialog before deleting the chat.
  */
 export type EnableAIChatDeletion = boolean;
@@ -242,6 +246,10 @@ export type Favicon = null | {
   maxAvailableSize?: number;
 };
 export type FeedType = "privacy-stats" | "activity";
+/**
+ * How an image chip was added to the Duck.ai prompt: the file picker or a clipboard paste.
+ */
+export type ImageAttachmentSource = "file" | "paste";
 /**
  * The visibility state of the widget, as configured by the user
  */
@@ -878,6 +886,7 @@ export interface OmnibarConfig {
   customizationActive?: CustomizationActive;
   enableAskAiSuggestion?: EnableAskDuckAiSuggestion;
   enableAttachTabs?: EnableAttachTabs;
+  enablePastedAttachments?: EnablePastedAttachments;
   enableAiChatDeletion?: EnableAIChatDeletion;
   enableSearchSuggestionDeletion?: EnableSearchSuggestionDeletion;
   showAttachmentPrivacyDisclaimer?: ShowAttachmentPrivacyDisclaimer;
@@ -1315,7 +1324,9 @@ export interface NTPTelemetryEvent {
     | OmnibarModelPickerUpgradeShown
     | OmnibarReasoningPickerShown
     | OmnibarReasoningPickerTryForFreeShown
-    | OmnibarReasoningPickerUpgradeShown;
+    | OmnibarReasoningPickerUpgradeShown
+    | OmnibarImageAttached
+    | OmnibarImageRemoved;
 }
 export interface StatsShowMore {
   name: "stats_toggle";
@@ -1369,6 +1380,24 @@ export interface OmnibarReasoningPickerTryForFreeShown {
  */
 export interface OmnibarReasoningPickerUpgradeShown {
   name: "omnibar_reasoning_picker_upgrade_shown";
+}
+/**
+ * Fired for every image chip added to the prompt, from the file picker or a paste.
+ */
+export interface OmnibarImageAttached {
+  name: "omnibar_image_attached";
+  value: {
+    source: ImageAttachmentSource;
+  };
+}
+/**
+ * Fired for every image chip the user removes.
+ */
+export interface OmnibarImageRemoved {
+  name: "omnibar_image_removed";
+  value: {
+    source: ImageAttachmentSource;
+  };
 }
 /**
  * Generated from @see "../messages/updateNotification_dismiss.notify.json"
