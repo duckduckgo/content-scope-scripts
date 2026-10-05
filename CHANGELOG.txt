@@ -1,1 +1,1 @@
-- NTP omnibar: add the file upload privacy disclaimer (#3072)
+- NTP omnibar: attach pasted images and files, with image telemetry (#3079)

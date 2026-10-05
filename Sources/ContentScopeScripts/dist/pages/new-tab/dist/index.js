@@ -9978,7 +9978,8 @@
     toolbarRight,
     onTextareaKeyDown,
     combobox = null,
-    textareaRef
+    textareaRef,
+    onPaste
   }) {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {Strings} */
@@ -10104,6 +10105,10 @@
           readOnly,
           "aria-disabled": readOnly || void 0,
           onKeyDown: handleKeyDown,
+          onPaste: (event) => {
+            if (readOnly) return;
+            onPaste?.(event);
+          },
           onInput: (event) => {
             if (readOnly) return;
             emitChange(event);
@@ -11606,7 +11611,7 @@
   });
 
   // pages/new-tab/app/omnibar/components/chat-tools/image-attachment/useImageAttachments.js
-  function normaliseImage(srcDataUrl, targetMime) {
+  function normaliseImage(srcDataUrl, targetMime, maxDimension = MAX_DIMENSION) {
     return new Promise((resolve, reject) => {
       const img = new Image();
       img.onload = () => {
@@ -11615,8 +11620,8 @@
           reject(new ImageTooLargeError("Decoded image dimensions exceed safety threshold"));
           return;
         }
-        if (w5 > MAX_DIMENSION || h5 > MAX_DIMENSION) {
-          const scale2 = MAX_DIMENSION / Math.max(w5, h5);
+        if (w5 > maxDimension || h5 > maxDimension) {
+          const scale2 = maxDimension / Math.max(w5, h5);
           w5 = Math.round(w5 * scale2);
           h5 = Math.round(h5 * scale2);
         }
@@ -11645,6 +11650,7 @@
     });
   }
   function useImageAttachments({ tabId, maxImages = MAX_IMAGES } = {}) {
+    const ntp = useMessaging();
     const [attachedImages, setAttachedImages] = useStateWithLocalPersistence(tabId);
     const [imageError, setImageError] = d2(
       /** @type {ImageError|null} */
@@ -11654,13 +11660,16 @@
     const imageUploadDisabled = attachedImages.length >= maxImages;
     const clearAttachedImages = () => setAttachedImages([]);
     const clearImageError = () => setImageError(null);
-    const processFiles = async (files) => {
-      if (files.length === 0) return;
+    const processFiles = async (files, { maxDimension, source = "file" } = {}) => {
+      const nothing = { added: 0, rejected: 0 };
+      if (files.length === 0) return nothing;
       setImageError(null);
       const existingNames = new Set(attachedImages.map((img) => img.fileName));
+      const unsupportedNames = [];
       const validFiles = files.filter((file) => {
         if (!ALLOWED_FORMATS.includes(file.type)) {
           console.warn("Attachment rejected: unsupported file type");
+          unsupportedNames.push(file.name);
           return false;
         }
         if (existingNames.has(file.name)) {
@@ -11668,10 +11677,12 @@
         }
         return true;
       });
-      if (validFiles.length === 0) return;
       const processLimit = maxImages + 1 - attachedImages.length;
       const filesToProcess = processLimit > 0 ? validFiles.slice(0, processLimit) : [];
-      if (filesToProcess.length === 0) return;
+      if (filesToProcess.length === 0) {
+        if (unsupportedNames.length > 0) setImageError({ type: "processingFailed", fileNames: unsupportedNames });
+        return { ...nothing, rejected: unsupportedNames.length };
+      }
       const newImages = filesToProcess.map(async (file) => {
         let rawDataUrl;
         try {
@@ -11682,7 +11693,7 @@
         }
         try {
           const targetMime = file.type === "image/jpeg" ? "image/jpeg" : "image/png";
-          const dataUrl = await normaliseImage(rawDataUrl, targetMime);
+          const dataUrl = await normaliseImage(rawDataUrl, targetMime, maxDimension);
           return { dataUrl, fileName: file.name, mimeType: targetMime };
         } catch (err) {
           console.warn("Attachment rejected: image normalisation failed");
@@ -11695,7 +11706,7 @@
         results.filter((r4) => r4.status === "fulfilled").map((r4) => r4.value)
       );
       const tooLargeNames = [];
-      const failedNames = [];
+      const failedNames = [...unsupportedNames];
       for (let i5 = 0; i5 < results.length; i5++) {
         const r4 = results[i5];
         if (r4.status === "rejected") {
@@ -11714,11 +11725,18 @@
       }
       if (images.length > 0) {
         const addedAtRelative = performance.now();
-        setAttachedImages((prev) => [...prev, ...images.map((img) => ({ ...img, addedAtRelative }))]);
+        setAttachedImages((prev) => [...prev, ...images.map((img) => ({ ...img, addedAtRelative, source }))]);
+        for (let i5 = 0; i5 < images.length; i5++) {
+          ntp.telemetryEvent({ attributes: { name: "omnibar_image_attached", value: { source } } });
+        }
       }
+      return { added: images.length, rejected: tooLargeNames.length + failedNames.length };
     };
     const handleRemoveImage = (index2) => {
+      const removed = attachedImages[index2];
       setAttachedImages((prev) => prev.filter((_5, i5) => i5 !== index2));
+      if (!removed) return;
+      ntp.telemetryEvent({ attributes: { name: "omnibar_image_removed", value: { source: removed.source } } });
     };
     const getImagesForSubmission = () => {
       if (attachedImages.length === 0) return void 0;
@@ -11756,11 +11774,12 @@
     const base = imageError.type === "imageTooLarge" ? messages.imageTooLarge : messages.processingFailed;
     return `${names2}: ${base}`;
   }
-  var useStateWithLocalPersistence, ImageTooLargeError, MAX_IMAGES, ALLOWED_FORMATS, MAX_DIMENSION, MAX_ENCODED_BYTES, MAX_DECODED_PIXELS;
+  var useStateWithLocalPersistence, ImageTooLargeError, MAX_IMAGES, ALLOWED_FORMATS, MAX_DIMENSION, SCREENSHOT_MAX_DIMENSION, MAX_ENCODED_BYTES, MAX_DECODED_PIXELS;
   var init_useImageAttachments = __esm({
     "pages/new-tab/app/omnibar/components/chat-tools/image-attachment/useImageAttachments.js"() {
       "use strict";
       init_hooks_module();
+      init_types();
       init_PersistentOmnibarValuesProvider();
       init_readFileAsDataUrl();
       ({ useStateWithLocalPersistence } = ImageAttachments);
@@ -11773,6 +11792,7 @@
       MAX_IMAGES = 3;
       ALLOWED_FORMATS = ["image/jpeg", "image/png", "image/webp"];
       MAX_DIMENSION = 512;
+      SCREENSHOT_MAX_DIMENSION = 1024;
       MAX_ENCODED_BYTES = 10 * 1024 * 1024;
       MAX_DECODED_PIXELS = 1e4 * 1e4;
     }
@@ -11834,6 +11854,71 @@
       init_types();
       init_useImageAttachments();
       init_ImageAttachment();
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/image-attachment/uniqueFileName.js
+  function uniqueFileName(base, ext, taken) {
+    if (!taken.has(`${base}${ext}`)) return `${base}${ext}`;
+    for (let n3 = 2; ; n3++) {
+      const candidate = `${base} ${n3}${ext}`;
+      if (!taken.has(candidate)) return candidate;
+    }
+  }
+  var init_uniqueFileName = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/image-attachment/uniqueFileName.js"() {
+      "use strict";
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/image-attachment/usePastedAttachments.js
+  function usePastedAttachments({ imageState, canAttachImages, processOtherFiles, enabled }) {
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {Strings} */
+      {}
+    );
+    const attachPasted = async ({ bitmaps, copiedImages, others }) => {
+      const tasks = [];
+      if (bitmaps.length > 0) tasks.push(imageState.processFiles(bitmaps, { maxDimension: SCREENSHOT_MAX_DIMENSION, source: "paste" }));
+      if (copiedImages.length > 0) tasks.push(imageState.processFiles(copiedImages, { source: "paste" }));
+      if (others.length > 0 && processOtherFiles) tasks.push(processOtherFiles(others));
+      try {
+        await Promise.all(tasks);
+      } catch (err) {
+        console.warn("Pasted attachment failed", err);
+      }
+    };
+    const handlePaste = (event) => {
+      if (!enabled) return;
+      const data2 = event.clipboardData;
+      if (!data2 || data2.getData("text/plain")) return;
+      let files = Array.from(data2.files ?? []);
+      if (files.length === 0) {
+        files = Array.from(data2.items ?? []).filter((item) => item.kind === "file").map((item) => item.getAsFile()).filter((file) => file !== null);
+      }
+      const images = canAttachImages ? files.filter((file) => file.type.startsWith("image/")) : [];
+      const others = processOtherFiles ? files.filter((file) => !file.type.startsWith("image/")) : [];
+      if (images.length === 0 && others.length === 0) return;
+      event.preventDefault();
+      const taken = new Set(imageState.attachedImages.map((img) => img.fileName));
+      const bitmaps = images.filter((file) => file.name === CLIPBOARD_BITMAP_NAME).map((file) => {
+        const name2 = uniqueFileName(t4("omnibar_pastedImageFileName"), ".png", taken);
+        taken.add(name2);
+        return new File([file], name2, { type: file.type });
+      });
+      const copiedImages = images.filter((file) => file.name !== CLIPBOARD_BITMAP_NAME);
+      attachPasted({ bitmaps, copiedImages, others });
+    };
+    return { handlePaste };
+  }
+  var CLIPBOARD_BITMAP_NAME;
+  var init_usePastedAttachments = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/image-attachment/usePastedAttachments.js"() {
+      "use strict";
+      init_types();
+      init_useImageAttachments();
+      init_uniqueFileName();
+      CLIPBOARD_BITMAP_NAME = "image.png";
     }
   });
 
@@ -15292,6 +15377,12 @@
     const canAttachImages = selectedModelSupportsImages || imageGenerationActive;
     const canAttachFiles = !imageGenerationActive && (selectedModel?.supportedFileTypes?.length ?? 0) > 0;
     const canAttachTabs = enableAttachTabs && !imageGenerationActive;
+    const pastedAttachments = usePastedAttachments({
+      imageState,
+      canAttachImages,
+      processOtherFiles: canAttachFiles ? fileState.processFiles : null,
+      enabled: state.config?.enablePastedAttachments === true && !blocksPrompt
+    });
     const tabAttachments = useTabAttachments(tabId, attachmentLimits?.tabs?.maxAttached);
     const textareaRef = A2(
       /** @type {HTMLTextAreaElement|null} */
@@ -15431,6 +15522,7 @@
           onTextareaKeyDown: mention.handleTextareaKeyDown,
           combobox: mention.combobox,
           textareaRef,
+          onPaste: pastedAttachments.handlePaste,
           toolbarLeft: /* @__PURE__ */ k(S, null, (canAttachImages || canAttachFiles || canAttachTabs) && /* @__PURE__ */ k(
             AttachMenu,
             {
@@ -15545,6 +15637,7 @@
       init_Drawer();
       init_TranslationsProvider();
       init_ImageAttachmentTool();
+      init_usePastedAttachments();
       init_AttachmentChips2();
       init_AttachmentsProvider();
       init_ModelSelectorTool();
@@ -37262,6 +37355,10 @@
     omnibar_attachPageContentLabel: {
       title: "Add Tabs",
       description: "Menu item in the attach dropdown that opens the Add Tabs dialog so the user can attach extracted page content from open tabs."
+    },
+    omnibar_pastedImageFileName: {
+      title: "Pasted image",
+      description: "File name given to an image pasted from the clipboard into the AI chat input. Repeats are numbered, e.g. 'Pasted image 2'."
     },
     omnibar_attachTabsModalTitle: {
       title: "Add Tabs",

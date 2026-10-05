@@ -381,6 +381,10 @@
     "title": "Add Tabs",
     "description": "Menu item in the attach dropdown that opens the Add Tabs dialog so the user can attach extracted page content from open tabs."
   },
+  "omnibar_pastedImageFileName": {
+    "title": "Pasted image",
+    "description": "File name given to an image pasted from the clipboard into the AI chat input. Repeats are numbered, e.g. 'Pasted image 2'."
+  },
   "omnibar_attachTabsModalTitle": {
     "title": "Add Tabs",
     "description": "Title and accessible name of the Add Tabs dialog opened from the attach dropdown menu."
