@@ -12,6 +12,7 @@ import { useCreateImageModelSwitchNotice } from './useCreateImageModelSwitchNoti
 import { useReservedHeight } from './useReservedHeight';
 import { useTermsDisclaimerNotice } from './useTermsDisclaimerNotice';
 import { useUsageLimitsDrawer } from './useUsageLimitsDrawer';
+import { useAttachmentPrivacyNotice } from './useAttachmentPrivacyNotice';
 import styles from './NoticeDrawer.module.css';
 
 /** @typedef {typeof import('../strings.json')} Strings */
@@ -264,9 +265,10 @@ function highestNotice(notices) {
  */
 export function NoticeDrawer({ revealed, onReservedHeightChange }) {
     const termsDisclaimer = useTermsDisclaimerNotice();
+    const attachmentPrivacy = useAttachmentPrivacyNotice();
     const usageLimits = useUsageLimitsDrawer();
     const createImageModelSwitch = useCreateImageModelSwitchNotice();
-    const presentation = highestNotice([termsDisclaimer, usageLimits, createImageModelSwitch]);
+    const presentation = highestNotice([termsDisclaimer, attachmentPrivacy, usageLimits, createImageModelSwitch]);
 
     const drawerRef = useReservedHeight(Boolean(termsDisclaimer), onReservedHeightChange);
 
@@ -287,7 +289,7 @@ export function NoticeDrawer({ revealed, onReservedHeightChange }) {
     } = presentation;
 
     const emphasize = icon === 'ring' || icon === 'alert' || icon === 'convert';
-    const isRevealed = revealed || termsDisclaimer !== null || createImageModelSwitch !== null;
+    const isRevealed = revealed || termsDisclaimer !== null || attachmentPrivacy !== null || createImageModelSwitch !== null;
 
     const keepComposerFocus = (event) => {
         // Keep the caret in the composer so clicking CTA/dismiss does not hide the drawer first.

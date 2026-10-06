@@ -119,6 +119,98 @@
               "const": "omnibar_reasoning_picker_upgrade_shown"
             }
           }
+        },
+        {
+          "type": "object",
+          "title": "Omnibar Screenshot Taken",
+          "description": "Fired once a screenshot returned by `omnibar_captureScreenshot` has been added to the prompt as an image chip.",
+          "required": ["name", "value"],
+          "properties": {
+            "name": {
+              "const": "omnibar_screenshot_taken"
+            },
+            "value": {
+              "type": "object",
+              "required": ["kind"],
+              "properties": {
+                "kind": {
+                  "$ref": "./types/screenshot-kind.json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "title": "Omnibar Screenshot Removed",
+          "description": "Fired when the user removes a screenshot image chip.",
+          "required": ["name"],
+          "properties": {
+            "name": {
+              "const": "omnibar_screenshot_removed"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "title": "Omnibar Screenshot Failed",
+          "description": "Fired when the page could not process a screenshot returned by `omnibar_captureScreenshot`. `error` replies do not fire this event.",
+          "required": ["name", "value"],
+          "properties": {
+            "name": {
+              "const": "omnibar_screenshot_failed"
+            },
+            "value": {
+              "type": "object",
+              "required": ["reason"],
+              "properties": {
+                "reason": {
+                  "type": "string",
+                  "enum": ["failed"]
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "title": "Omnibar Image Attached",
+          "description": "Fired for every image chip added to the prompt, from the file picker, a paste, or a screenshot.",
+          "required": ["name", "value"],
+          "properties": {
+            "name": {
+              "const": "omnibar_image_attached"
+            },
+            "value": {
+              "type": "object",
+              "required": ["source"],
+              "properties": {
+                "source": {
+                  "$ref": "./types/image-attachment-source.json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "title": "Omnibar Image Removed",
+          "description": "Fired for every image chip the user removes.",
+          "required": ["name", "value"],
+          "properties": {
+            "name": {
+              "const": "omnibar_image_removed"
+            },
+            "value": {
+              "type": "object",
+              "required": ["source"],
+              "properties": {
+                "source": {
+                  "$ref": "./types/image-attachment-source.json"
+                }
+              }
+            }
+          }
         }
       ]
     }

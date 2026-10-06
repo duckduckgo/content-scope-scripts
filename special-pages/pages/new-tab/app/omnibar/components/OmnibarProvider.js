@@ -99,6 +99,14 @@ export const OmnibarContext = createContext({
     setImageGenerationActive: () => {
         throw new Error('must implement');
     },
+    /** @type {(kind: 'image' | 'file') => void} */
+    attachmentPrivacyDisclaimerShown: () => {
+        throw new Error('must implement');
+    },
+    /** @type {(kind: 'image' | 'file') => void} */
+    openAttachmentPrivacyLearnMore: () => {
+        throw new Error('must implement');
+    },
     /** @type {(modelId?: string) => void} */
     selectUsageLimitsCta: () => {
         throw new Error('must implement');
@@ -125,6 +133,10 @@ export const OmnibarContext = createContext({
     },
     /** @type {(url: string) => void} */
     removeSuggestion: () => {
+        throw new Error('must implement');
+    },
+    /** @type {(mode: import('../../../types/new-tab.js').ScreenshotMode) => Promise<import('../../../types/new-tab.js').CaptureScreenshotResponse>} */
+    captureScreenshot: () => {
         throw new Error('must implement');
     },
 });
@@ -299,6 +311,22 @@ export function OmnibarProvider(props) {
         [service],
     );
 
+    /** @type {(kind: 'image' | 'file') => void} */
+    const attachmentPrivacyDisclaimerShown = useCallback(
+        (kind) => {
+            service.current?.attachmentPrivacyDisclaimerShown(kind);
+        },
+        [service],
+    );
+
+    /** @type {(kind: 'image' | 'file') => void} */
+    const openAttachmentPrivacyLearnMore = useCallback(
+        (kind) => {
+            service.current?.openAttachmentPrivacyLearnMore(kind);
+        },
+        [service],
+    );
+
     /** @type {(modelId?: string) => void} */
     const selectUsageLimitsCta = useCallback(
         (modelId) => {
@@ -362,6 +390,18 @@ export function OmnibarProvider(props) {
         [service],
     );
 
+    /**
+     * Asks native to capture a screenshot; resolves when the user finishes or cancels.
+     * @type {(mode: import('../../../types/new-tab.js').ScreenshotMode) => Promise<import('../../../types/new-tab.js').CaptureScreenshotResponse>}
+     */
+    const captureScreenshot = useCallback(
+        (mode) => {
+            if (!service.current) throw new Error('Service not available');
+            return service.current.captureScreenshot(mode);
+        },
+        [service],
+    );
+
     return (
         <OmnibarContext.Provider
             value={{
@@ -385,6 +425,8 @@ export function OmnibarProvider(props) {
                 dismissUsageLimits,
                 dismissCreateImageModelSwitch,
                 setImageGenerationActive,
+                attachmentPrivacyDisclaimerShown,
+                openAttachmentPrivacyLearnMore,
                 selectUsageLimitsCta,
                 setCustomizeResponsesActive,
                 showUpsell,
@@ -392,6 +434,7 @@ export function OmnibarProvider(props) {
                 getTabContent,
                 confirmDeleteAiChat,
                 removeSuggestion,
+                captureScreenshot,
             }}
         >
             <OmnibarServiceContext.Provider value={service.current}>{props.children}</OmnibarServiceContext.Provider>

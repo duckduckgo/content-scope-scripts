@@ -247,6 +247,16 @@ export class OmnibarService {
         this.ntp.messaging.notify('omnibar_dismissCreateImageModelSwitch', {});
     }
 
+    /** @param {'image' | 'file'} kind */
+    attachmentPrivacyDisclaimerShown(kind) {
+        this.ntp.messaging.notify('omnibar_attachmentPrivacyDisclaimerShown', { kind });
+    }
+
+    /** @param {'image' | 'file'} kind */
+    openAttachmentPrivacyLearnMore(kind) {
+        this.ntp.messaging.notify('omnibar_openAttachmentPrivacyLearnMore', { kind });
+    }
+
     /**
      * Notify native when the updated Create Image mode changes.
      * Native owns model selection, persistence, and localized notice copy.
@@ -342,5 +352,15 @@ export class OmnibarService {
      */
     confirmDeleteAiChat(chatId, title) {
         return this.ntp.messaging.request('omnibar_confirmDeleteAiChat', { chatId, title });
+    }
+
+    /**
+     * Asks native to capture a screenshot. Resolves once the capture is taken, fails or is
+     * cancelled, which can take arbitrarily long.
+     * @param {import('../../types/new-tab.js').ScreenshotMode} mode
+     * @returns {Promise<import('../../types/new-tab.js').CaptureScreenshotResponse>} `image`, `error`, or neither when cancelled
+     */
+    captureScreenshot(mode) {
+        return this.ntp.messaging.request('omnibar_captureScreenshot', { mode });
     }
 }

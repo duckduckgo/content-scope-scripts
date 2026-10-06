@@ -143,6 +143,18 @@ export type EnableAskDuckAiSuggestion = boolean;
  */
 export type EnableAttachTabs = boolean;
 /**
+ * The screenshot capture mode the user chose: `dragToSelect` (drag to select a region) or `selectWindowOrDisplay` (pick a window or a display).
+ */
+export type ScreenshotMode = "dragToSelect" | "selectWindowOrDisplay";
+/**
+ * Screenshot capture modes offered under 'Add Screenshot' in the attach menu, in display order. Absent or empty hides the screenshot UI. Choosing a mode calls `omnibar_captureScreenshot`.
+ */
+export type ScreenshotModes = ScreenshotMode[];
+/**
+ * When true, pasting into the Duck.ai prompt attaches copied images and files (unless the clipboard also carries text). When false or absent, paste is left to the browser (text only).
+ */
+export type EnablePastedAttachments = boolean;
+/**
  * Show a delete button on recent AI chat suggestions. When true, clicking the button prompts a native confirmation dialog before deleting the chat.
  */
 export type EnableAIChatDeletion = boolean;
@@ -154,6 +166,10 @@ export type EnableSearchSuggestionDeletion = boolean;
  * True while the user hasn't accepted Duck.ai's Privacy Policy and Terms of Service. The Duck.ai tab then shows the terms disclaimer, labels the send button 'Ask' (or 'Create'), and sends `aiTermsAccepted: true` on `omnibar_submitChat`. Missing/false shows no disclaimer. After a submission with `aiTermsAccepted: true`, native should push `false` to every open NTP.
  */
 export type RequiresAITermsAcceptance = boolean;
+/**
+ * Whether this surface may still show the file-upload privacy disclaimer. Native owns the device-wide display count and pushes an updated config whenever it changes, including when another surface spends a display. False or omitted means the omnibar renders nothing.
+ */
+export type ShowAttachmentPrivacyDisclaimer = boolean;
 /**
  * Native-resolved presentation shown after Create Image switches away from an unsupported model. Non-null takes visual priority over usageLimits unless usageLimits.blocksPrompt is true; native owns model selection, localized copy, and lifecycle.
  */
@@ -243,6 +259,14 @@ export type Favicon = null | {
 };
 export type FeedType = "privacy-stats" | "activity";
 /**
+ * What the user captured: a dragged region, a whole display, or a single window.
+ */
+export type ScreenshotKind = "selection" | "screen" | "window";
+/**
+ * How an image chip was added to the Duck.ai prompt: the file picker, a clipboard paste, or a screenshot capture.
+ */
+export type ImageAttachmentSource = "file" | "paste" | "screenshot";
+/**
  * The visibility state of the widget, as configured by the user
  */
 export type WidgetVisibility = "visible" | "hidden";
@@ -317,9 +341,11 @@ export interface NewTabMessages {
     | NextStepsActionNotification
     | NextStepsDismissNotification
     | NextStepsSetConfigNotification
+    | OmnibarAttachmentPrivacyDisclaimerShownNotification
     | OmnibarDismissCreateImageModelSwitchNotification
     | OmnibarDismissUsageLimitsNotification
     | OmnibarOpenAiChatNotification
+    | OmnibarOpenAttachmentPrivacyLearnMoreNotification
     | OmnibarOpenCustomizeResponsesNotification
     | OmnibarOpenPrivacyTermsNotification
     | OmnibarOpenSuggestionNotification
@@ -358,6 +384,7 @@ export interface NewTabMessages {
     | InitialSetupRequest
     | NextStepsGetConfigRequest
     | NextStepsGetDataRequest
+    | OmnibarCaptureScreenshotRequest
     | OmnibarConfirmDeleteAiChatRequest
     | OmnibarGetAiChatsRequest
     | OmnibarGetConfigRequest
@@ -685,6 +712,22 @@ export interface NextStepsConfig {
   animation?: Animation;
 }
 /**
+ * Generated from @see "../messages/omnibar_attachmentPrivacyDisclaimerShown.notify.json"
+ */
+export interface OmnibarAttachmentPrivacyDisclaimerShownNotification {
+  method: "omnibar_attachmentPrivacyDisclaimerShown";
+  params: AttachmentPrivacyDisclaimerShown;
+}
+/**
+ * Sent once per continuous attachment session, when the omnibar renders the file-upload privacy disclaimer. Native increments the device-wide display count, fires the shown pixel, and pushes an updated OmnibarConfig once the count reaches the cap.
+ */
+export interface AttachmentPrivacyDisclaimerShown {
+  /**
+   * Which attachment triggered the disclaimer. Native never sees the attach, so it cannot infer this for the pixel.
+   */
+  kind: "image" | "file";
+}
+/**
  * Generated from @see "../messages/omnibar_dismissCreateImageModelSwitch.notify.json"
  */
 export interface OmnibarDismissCreateImageModelSwitchNotification {
@@ -727,6 +770,22 @@ export interface OpenAIChatAction {
    * Whether the chat is pinned
    */
   isPinned: boolean;
+}
+/**
+ * Generated from @see "../messages/omnibar_openAttachmentPrivacyLearnMore.notify.json"
+ */
+export interface OmnibarOpenAttachmentPrivacyLearnMoreNotification {
+  method: "omnibar_openAttachmentPrivacyLearnMore";
+  params: OpenAttachmentPrivacyLearnMore;
+}
+/**
+ * Sent when the user selects 'Learn more' in the file-upload privacy disclaimer. Native opens the help page in a new tab and fires the learn_more_tapped pixel; the staged attachment is left untouched.
+ */
+export interface OpenAttachmentPrivacyLearnMore {
+  /**
+   * Which attachment the disclaimer was about. Native never sees the attach, so it cannot infer this for the pixel.
+   */
+  kind: "image" | "file";
 }
 /**
  * Generated from @see "../messages/omnibar_openCustomizeResponses.notify.json"
@@ -856,9 +915,12 @@ export interface OmnibarConfig {
   customizationActive?: CustomizationActive;
   enableAskAiSuggestion?: EnableAskDuckAiSuggestion;
   enableAttachTabs?: EnableAttachTabs;
+  screenshotModes?: ScreenshotModes;
+  enablePastedAttachments?: EnablePastedAttachments;
   enableAiChatDeletion?: EnableAIChatDeletion;
   enableSearchSuggestionDeletion?: EnableSearchSuggestionDeletion;
   requiresAiTermsAcceptance?: RequiresAITermsAcceptance;
+  showAttachmentPrivacyDisclaimer?: ShowAttachmentPrivacyDisclaimer;
   createImageModelSwitch?: CreateImageModelSwitchNotice;
   usageLimits?: UsageLimitsDrawer;
 }
@@ -1297,7 +1359,12 @@ export interface NTPTelemetryEvent {
     | OmnibarModelPickerUpgradeShown
     | OmnibarReasoningPickerShown
     | OmnibarReasoningPickerTryForFreeShown
-    | OmnibarReasoningPickerUpgradeShown;
+    | OmnibarReasoningPickerUpgradeShown
+    | OmnibarScreenshotTaken
+    | OmnibarScreenshotRemoved
+    | OmnibarScreenshotFailed
+    | OmnibarImageAttached
+    | OmnibarImageRemoved;
 }
 export interface StatsShowMore {
   name: "stats_toggle";
@@ -1351,6 +1418,48 @@ export interface OmnibarReasoningPickerTryForFreeShown {
  */
 export interface OmnibarReasoningPickerUpgradeShown {
   name: "omnibar_reasoning_picker_upgrade_shown";
+}
+/**
+ * Fired once a screenshot returned by `omnibar_captureScreenshot` has been added to the prompt as an image chip.
+ */
+export interface OmnibarScreenshotTaken {
+  name: "omnibar_screenshot_taken";
+  value: {
+    kind: ScreenshotKind;
+  };
+}
+/**
+ * Fired when the user removes a screenshot image chip.
+ */
+export interface OmnibarScreenshotRemoved {
+  name: "omnibar_screenshot_removed";
+}
+/**
+ * Fired when the page could not process a screenshot returned by `omnibar_captureScreenshot`. `error` replies do not fire this event.
+ */
+export interface OmnibarScreenshotFailed {
+  name: "omnibar_screenshot_failed";
+  value: {
+    reason: "failed";
+  };
+}
+/**
+ * Fired for every image chip added to the prompt, from the file picker, a paste, or a screenshot.
+ */
+export interface OmnibarImageAttached {
+  name: "omnibar_image_attached";
+  value: {
+    source: ImageAttachmentSource;
+  };
+}
+/**
+ * Fired for every image chip the user removes.
+ */
+export interface OmnibarImageRemoved {
+  name: "omnibar_image_removed";
+  value: {
+    source: ImageAttachmentSource;
+  };
 }
 /**
  * Generated from @see "../messages/updateNotification_dismiss.notify.json"
@@ -1627,6 +1736,35 @@ export interface NextStepsGetDataRequest {
 }
 export interface NextStepsData {
   content: null | NextStepsCards;
+}
+/**
+ * Generated from @see "../messages/omnibar_captureScreenshot.request.json"
+ */
+export interface OmnibarCaptureScreenshotRequest {
+  method: "omnibar_captureScreenshot";
+  params: CaptureScreenshotParams;
+  result: CaptureScreenshotResponse;
+}
+/**
+ * Asks native to capture a screenshot for the Duck.ai prompt. The reply comes once the capture is taken, fails or is cancelled, so the request can stay pending for as long as the user takes.
+ */
+export interface CaptureScreenshotParams {
+  mode: ScreenshotMode;
+}
+/**
+ * Result of a screenshot capture. `image` when a capture was taken, `error` when it failed; neither means the user cancelled, and the page shows nothing. The page sends no telemetry for `error` replies.
+ */
+export interface CaptureScreenshotResponse {
+  image?: CapturedScreenshot;
+  error?: "screenshotFailed";
+}
+export interface CapturedScreenshot {
+  /**
+   * Base64-encoded image bytes, without a data-URL prefix, at most 1024px on the long side.
+   */
+  data: string;
+  format: "png" | "jpeg";
+  kind: ScreenshotKind;
 }
 /**
  * Generated from @see "../messages/omnibar_confirmDeleteAiChat.request.json"

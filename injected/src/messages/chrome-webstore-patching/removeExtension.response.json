@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RemoveExtensionResponse",
+  "description": "macOS: returned after completion and state update; false means failed or cancelled. The script then queries status again.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "success"
+  ],
+  "properties": {
+    "success": {
+      "type": "boolean"
+    }
+  }
+}
