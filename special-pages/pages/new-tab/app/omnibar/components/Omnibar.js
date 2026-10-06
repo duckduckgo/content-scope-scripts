@@ -84,6 +84,7 @@ export function Omnibar({
 }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const spacerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
+    const launcherPromoVisibleRef = useRef(false);
     const [usageLimitsRevealed, setUsageLimitsRevealed] = useState(false);
 
     const [query, setQuery] = useQueryWithLocalPersistence(tabId);
@@ -136,7 +137,7 @@ export function Omnibar({
 
     /** @type {(params: SubmitChatAction) => void} */
     const handleSubmitChat = (params) => {
-        submitChat(params);
+        submitChat(launcherPromoVisibleRef.current ? { ...params, launcherPromoVisible: true } : params);
         resetForm();
     };
 
@@ -221,7 +222,9 @@ export function Omnibar({
                                     </OpenTabsProvider>
                                 )}
                             </div>
-                            {mode === 'ai' && <NoticeDrawer revealed={usageLimitsRevealed} />}
+                            {mode === 'ai' && (
+                                <NoticeDrawer revealed={usageLimitsRevealed} launcherPromoVisibleRef={launcherPromoVisibleRef} />
+                            )}
                         </div>
                     </AiChatsProvider>
                 </AttachmentsProvider>

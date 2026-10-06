@@ -1,1 +1,1 @@
-- NTP omnibar: screenshot capture (#3076)
+- NTP omnibar: Duck.ai launcher promo in AI mode (#3084)

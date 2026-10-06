@@ -6737,6 +6737,9 @@ body[data-rebrand=true]:not([data-background-kind=default]) .TabSwitcher_blob {
   fill: var(--ds-color-theme-icons-secondary);
   fill-opacity: 1;
 }
+.NoticeDrawer_announce {
+  color: var(--ds-color-theme-icons-secondary);
+}
 .NoticeDrawer_ringTrack {
   stroke: var(--ds-color-theme-control-fill-primary);
 }

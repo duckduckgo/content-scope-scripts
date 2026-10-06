@@ -9136,6 +9136,7 @@
           });
           this.suggestionsService = new OmnibarSuggestionsService(ntp);
           this.aiChatsService = new OmnibarAiChatsService(ntp);
+          this.launcherPromoShownSent = false;
         }
         name() {
           return "OmnibarService";
@@ -9313,6 +9314,18 @@
          */
         dismissCreateImageModelSwitch() {
           this.ntp.messaging.notify("omnibar_dismissCreateImageModelSwitch", {});
+        }
+        /** Notify native the first time per page load that the launcher promo is visible. */
+        launcherPromoShown() {
+          if (this.launcherPromoShownSent) return;
+          this.launcherPromoShownSent = true;
+          this.ntp.messaging.notify("omnibar_launcherPromoShown", {});
+        }
+        selectLauncherPromoCta() {
+          this.ntp.messaging.notify("omnibar_selectLauncherPromoCta", {});
+        }
+        dismissLauncherPromo() {
+          this.ntp.messaging.notify("omnibar_dismissLauncherPromo", {});
         }
         /** @param {'image' | 'file'} kind */
         attachmentPrivacyDisclaimerShown(kind) {
@@ -9557,6 +9570,15 @@
       },
       [service]
     );
+    const launcherPromoShown = q2(() => {
+      service.current?.launcherPromoShown();
+    }, [service]);
+    const selectLauncherPromoCta = q2(() => {
+      service.current?.selectLauncherPromoCta();
+    }, [service]);
+    const dismissLauncherPromo = q2(() => {
+      service.current?.dismissLauncherPromo();
+    }, [service]);
     const setCustomizeResponsesActive = q2(
       (active2) => {
         service.current?.setCustomizeResponsesActive(active2);
@@ -9626,6 +9648,9 @@
           attachmentPrivacyDisclaimerShown,
           openAttachmentPrivacyLearnMore,
           selectUsageLimitsCta,
+          launcherPromoShown,
+          selectLauncherPromoCta,
+          dismissLauncherPromo,
           setCustomizeResponsesActive,
           showUpsell,
           getOpenTabs,
@@ -9750,6 +9775,18 @@
         },
         /** @type {(modelId?: string) => void} */
         selectUsageLimitsCta: () => {
+          throw new Error("must implement");
+        },
+        /** @type {() => void} */
+        launcherPromoShown: () => {
+          throw new Error("must implement");
+        },
+        /** @type {() => void} */
+        selectLauncherPromoCta: () => {
+          throw new Error("must implement");
+        },
+        /** @type {() => void} */
+        dismissLauncherPromo: () => {
           throw new Error("must implement");
         },
         /** @type {(active: boolean) => void} */
@@ -15207,6 +15244,30 @@
     }
   });
 
+  // pages/new-tab/app/omnibar/components/useLauncherPromoNotice.js
+  function useLauncherPromoNotice() {
+    const { state, selectLauncherPromoCta, dismissLauncherPromo } = x2(OmnibarContext);
+    const launcherPromo = state.config?.launcherPromo ?? null;
+    if (!launcherPromo) {
+      return null;
+    }
+    return {
+      message: launcherPromo.message,
+      secondaryText: launcherPromo.secondaryText ?? "",
+      icon: "announce",
+      cta: launcherPromo.ctaLabel ? { label: launcherPromo.ctaLabel, showMenu: false } : null,
+      onSelectCta: launcherPromo.ctaLabel ? selectLauncherPromoCta : void 0,
+      onDismiss: launcherPromo.dismissible === true ? dismissLauncherPromo : void 0
+    };
+  }
+  var init_useLauncherPromoNotice = __esm({
+    "pages/new-tab/app/omnibar/components/useLauncherPromoNotice.js"() {
+      "use strict";
+      init_hooks_module();
+      init_OmnibarProvider();
+    }
+  });
+
   // pages/new-tab/app/omnibar/components/NoticeDrawer.module.css
   var NoticeDrawer_default;
   var init_NoticeDrawer = __esm({
@@ -15220,6 +15281,7 @@
         leading: "NoticeDrawer_leading",
         glyph: "NoticeDrawer_glyph",
         info: "NoticeDrawer_info",
+        announce: "NoticeDrawer_announce",
         ringTrack: "NoticeDrawer_ringTrack",
         ringValue: "NoticeDrawer_ringValue",
         severity_neutral: "NoticeDrawer_severity_neutral",
@@ -15318,6 +15380,8 @@
         return /* @__PURE__ */ k(UsageLimitsAlertIcon, null);
       case "convert":
         return /* @__PURE__ */ k(ConvertIcon, null);
+      case "announce":
+        return /* @__PURE__ */ k(AnnounceIcon, null);
       case "info":
         return infoIcon;
       default: {
@@ -15326,6 +15390,23 @@
         return infoIcon;
       }
     }
+  }
+  function AnnounceIcon() {
+    return /* @__PURE__ */ k("svg", { class: (0, import_classnames22.default)(NoticeDrawer_default.glyph, NoticeDrawer_default.announce), viewBox: "0 0 16 16", fill: "none", "aria-hidden": "true" }, /* @__PURE__ */ k(
+      "path",
+      {
+        fill: "currentColor",
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M12 2.625a.625.625 0 1 0-1.25 0V3L1.243 5.907A.625.625 0 0 0 0 6v4a.625.625 0 0 0 1.243.092l2.382.728v.574a2.59 2.59 0 0 0 4.76 1.418l.293-.449 2.072.633v.379a.625.625 0 1 0 1.25 0V2.625ZM1.25 8.787V7.212l9.497-2.904-.022 7.373L1.25 8.787Zm3.625 2.415 2.558.78-.095.146a1.34 1.34 0 0 1-2.463-.734v-.192Z"
+      }
+    ), /* @__PURE__ */ k(
+      "path",
+      {
+        fill: "currentColor",
+        d: "M15.107 4.205a.625.625 0 0 0-.464-1.16l-1.25.5a.625.625 0 0 0 .464 1.16l1.25-.5Zm-.982 3.045a.625.625 0 1 0 0 1.25h1.25a.625.625 0 1 0 0-1.25h-1.25Zm-.268 4.045a.625.625 0 1 0-.464 1.16l1.25.5a.625.625 0 1 0 .464-1.16l-1.25-.5Z"
+      }
+    ));
   }
   function ConvertIcon() {
     return /* @__PURE__ */ k("svg", { class: NoticeDrawer_default.convertIcon, viewBox: "0 0 16 16", width: "16", height: "16", fill: "none", "aria-hidden": "true" }, /* @__PURE__ */ k(
@@ -15416,11 +15497,22 @@
       })
     ) : null) : null);
   }
-  function NoticeDrawer({ revealed }) {
+  function NoticeDrawer({ revealed, launcherPromoVisibleRef }) {
     const attachmentPrivacy = useAttachmentPrivacyNotice();
     const usageLimits = useUsageLimitsDrawer();
     const createImageModelSwitch = useCreateImageModelSwitchNotice();
-    const presentation = attachmentPrivacy ?? createImageModelSwitch ?? usageLimits;
+    const launcherPromo = useLauncherPromoNotice();
+    const { launcherPromoShown } = x2(OmnibarContext);
+    const presentation = attachmentPrivacy ?? createImageModelSwitch ?? usageLimits ?? launcherPromo;
+    const isRevealed = revealed || createImageModelSwitch !== null || attachmentPrivacy !== null;
+    const launcherPromoVisible = isRevealed && presentation !== null && presentation === launcherPromo;
+    h2(() => {
+      if (launcherPromoVisible) launcherPromoShown();
+      launcherPromoVisibleRef.current = launcherPromoVisible;
+      return () => {
+        launcherPromoVisibleRef.current = false;
+      };
+    }, [launcherPromoVisible, launcherPromoShown, launcherPromoVisibleRef]);
     if (!presentation) return null;
     const {
       message,
@@ -15434,8 +15526,7 @@
       onSelectCta,
       onDismiss
     } = presentation;
-    const emphasize = icon === "ring" || icon === "alert" || icon === "convert";
-    const isRevealed = revealed || createImageModelSwitch !== null || attachmentPrivacy !== null;
+    const emphasize = icon === "ring" || icon === "alert" || icon === "convert" || icon === "announce";
     const keepComposerFocus = (event) => {
       event.preventDefault();
     };
@@ -15468,6 +15559,8 @@
       init_useCreateImageModelSwitchNotice();
       init_useUsageLimitsDrawer();
       init_useAttachmentPrivacyNotice();
+      init_useLauncherPromoNotice();
+      init_OmnibarProvider();
       init_NoticeDrawer();
     }
   });
@@ -15555,6 +15648,7 @@
       /** @type {HTMLDivElement|null} */
       null
     );
+    const launcherPromoVisibleRef = A2(false);
     const [usageLimitsRevealed, setUsageLimitsRevealed] = d2(false);
     const [query, setQuery] = useQueryWithLocalPersistence(tabId);
     const [resetKey, setResetKey] = d2(0);
@@ -15586,7 +15680,7 @@
       resetForm();
     };
     const handleSubmitChat = (params) => {
-      submitChat(params);
+      submitChat(launcherPromoVisibleRef.current ? { ...params, launcherPromoVisible: true } : params);
       resetForm();
     };
     const handleChangeMode = (nextMode) => {
@@ -15656,7 +15750,7 @@
             omnibarRef: spacerRef
           }
         ))),
-        mode === "ai" && /* @__PURE__ */ k(NoticeDrawer, { revealed: usageLimitsRevealed })
+        mode === "ai" && /* @__PURE__ */ k(NoticeDrawer, { revealed: usageLimitsRevealed, launcherPromoVisibleRef })
       )
     ))));
   }
@@ -42942,6 +43036,12 @@ This is placeholder content used by the NTP mock transport so the attach-tabs fe
 
   // pages/new-tab/app/omnibar/mocks/omnibar.mock-transport.js
   var url5 = typeof window !== "undefined" ? new URL(window.location.href) : new URL("https://example.com");
+  var LAUNCHER_PROMO = {
+    message: "Chat privately outside the browser",
+    secondaryText: " \u2022 Add Duck.ai to your menu bar",
+    ctaLabel: "Try Now",
+    dismissible: true
+  };
   function parseBooleanQueryParam(param) {
     const value2 = url5.searchParams.get(param);
     if (value2 === "true") return true;
@@ -43213,6 +43313,16 @@ This is placeholder content used by the NTP mock transport so the attach-tabs fe
             subs.get("omnibar_onConfigUpdate")?.(config);
             break;
           }
+          case "omnibar_launcherPromoShown": {
+            console.warn("Mock: launcherPromoShown");
+            break;
+          }
+          case "omnibar_selectLauncherPromoCta":
+          case "omnibar_dismissLauncherPromo": {
+            config.launcherPromo = null;
+            subs.get("omnibar_onConfigUpdate")?.(config);
+            break;
+          }
           case "omnibar_dismissCreateImageModelSwitch": {
             config.createImageModelSwitch = null;
             subs.get("omnibar_onConfigUpdate")?.(config);
@@ -43432,6 +43542,9 @@ This is placeholder content used by the NTP mock transport so the attach-tabs fe
             }
             config.enableAiChatDeletion = parseBooleanQueryParam("omnibar.enableAiChatDeletion") ?? config.enableAiChatDeletion;
             config.enableSearchSuggestionDeletion = parseBooleanQueryParam("omnibar.enableSearchSuggestionDeletion") ?? config.enableSearchSuggestionDeletion;
+            if (parseBooleanQueryParam("omnibar.launcherPromo") === true) {
+              config.launcherPromo = LAUNCHER_PROMO;
+            }
             const usageLimitsPreset = url5.searchParams.get("omnibar.usageLimits");
             if (usageLimitsPreset === "false") {
               config.usageLimits = null;

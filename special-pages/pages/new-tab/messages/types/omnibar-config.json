@@ -348,6 +348,31 @@
         }
       }
     },
+    "launcherPromo": {
+      "title": "Launcher Promo",
+      "description": "Native-resolved Duck.ai launcher promo for the AI-mode drawer. Native owns eligibility, localized copy and what the CTA does; FE renders what it receives, below every other notice. Null/omitted shows nothing.",
+      "type": ["object", "null"],
+      "required": ["message"],
+      "properties": {
+        "message": {
+          "type": "string",
+          "description": "Drawer copy, already localized, shown emphasized."
+        },
+        "secondaryText": {
+          "type": "string",
+          "description": "Optional copy shown after message, already localized and including any leading separator (for example, ' • Add Duck.ai to your menu bar')."
+        },
+        "ctaLabel": {
+          "type": "string",
+          "description": "Button label, already localized. Omitted means no button. Selecting it notifies native via omnibar_selectLauncherPromoCta."
+        },
+        "dismissible": {
+          "type": "boolean",
+          "description": "When true, show a dismiss control. Dismiss notifies native via omnibar_dismissLauncherPromo.",
+          "default": false
+        }
+      }
+    },
     "usageLimits": {
       "title": "Usage Limits Drawer",
       "description": "Native-resolved presentation for the AI-mode usage limits drawer under the omnibar pill. Non-null shows the drawer; null/omitted hides it. FE does not derive content.",
