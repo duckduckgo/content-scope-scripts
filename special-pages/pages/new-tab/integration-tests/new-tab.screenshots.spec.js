@@ -500,17 +500,19 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
-            // Raise the tab cap above the chip count so this stays a pure overflow test — 4 chips
+            // Raise the tab cap above the chip count so this stays a pure overflow test — 6 chips
             // exceed the default cap of 3 and would otherwise render the over-limit warning chrome.
             await ntp.openPage({ additional: { ...attachmentsConfig, 'omnibar.tabMaxAttached': '10' } });
             await omnibar.ready();
-            // Enough wide tab chips to exceed the field width; they stay on one row and the
-            // trailing chip is clipped at the scroll edge rather than wrapping to a new row.
+            // Enough 108px chips to exceed the 620px field; they stay on one row and the
+            // row scrolls to the newest chip rather than wrapping to a new row.
             await omnibar.attachTab('MacBook Neo - Apple');
             await omnibar.attachTab('Starbucks Coffee Company');
             await omnibar.attachTab('MacBook Pro - Apple');
             await omnibar.attachTab('Daring Fireball');
-            await expect(omnibar.tabChip()).toHaveCount(4);
+            await omnibar.attachTab('Dinosaurus');
+            await omnibar.attachTab('The Verge');
+            await expect(omnibar.tabChip()).toHaveCount(6);
             await expect(page).toHaveScreenshot('omnibar-attachment-carousel-overflow.png', { maxDiffPixels });
         });
 

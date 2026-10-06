@@ -181,6 +181,7 @@ export function AiChatForm({
                 }
             }}
         >
+            {children}
             <textarea
                 ref={textareaRef}
                 class={styles.textarea}
@@ -215,7 +216,6 @@ export function AiChatForm({
                 }}
                 onClick={emitChange}
             />
-            {children}
             <div tabIndex={-1} class={styles.buttons}>
                 {toolbarLeft}
                 <div class={styles.rightButtons}>{toolbarRight}</div>

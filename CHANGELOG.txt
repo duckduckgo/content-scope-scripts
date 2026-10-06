@@ -1,1 +1,1 @@
-- NTP omnibar: Duck.ai launcher promo in AI mode (#3084)
+- NTP: attachment chips UI updates (#3048)

@@ -1987,6 +1987,42 @@
       }
     ));
   }
+  function CloseXsmallIcon(props) {
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k(
+      "path",
+      {
+        fill: "currentColor",
+        d: "M10.433 4.683c.244-.244.64-.244.884 0s.244.64 0 .884L8.884 8l2.433 2.433c.244.244.244.64 0 .884s-.64.244-.884 0L8 8.884l-2.433 2.433c-.244.244-.64.244-.884 0s-.244-.64 0-.884L7.116 8 4.683 5.567c-.244-.244-.244-.64 0-.884s.64-.244.884 0L8 7.116z"
+      }
+    ));
+  }
+  function DocumentPdfColorIcon(props) {
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k(
+      "path",
+      {
+        fill: "#fff",
+        d: "M10.4736 15.4219H5.52572C3.66751 15.4219 2.16113 13.9155 2.16113 12.0573V3.94271C2.16113 2.0845 3.66751 0.578125 5.52572 0.578125H8.40174C8.84178 0.578125 9.2643 0.750541 9.57871 1.0584L13.3329 4.73438C13.6561 5.05082 13.8382 5.48408 13.8382 5.93639V12.0573C13.8382 13.9155 12.3318 15.4219 10.4736 15.4219Z"
+      }
+    ), /* @__PURE__ */ k(
+      "path",
+      {
+        fill: "#888",
+        d: "M13.0054 4.69678V13C13.0054 14.1074 12.1074 15.0054 11 15.0054H5C3.89255 15.0054 2.99463 14.1074 2.99463 13V3C2.99463 1.89255 3.89255 0.994629 5 0.994629H9.30322C9.61815 0.994642 9.92038 1.12009 10.1431 1.34277L12.6572 3.85693C12.8799 4.07962 13.0054 4.38185 13.0054 4.69678ZM13.9946 4.69678C13.9946 4.1194 13.7652 3.5655 13.3569 3.15723L10.8428 0.643066C10.4345 0.234797 9.8806 0.00538445 9.30322 0.00537109H5C3.34602 0.00537109 2.00537 1.34602 2.00537 3V13C2.00537 14.654 3.34602 15.9946 5 15.9946H11C12.654 15.9946 13.9946 14.654 13.9946 13V4.69678Z"
+      }
+    ), /* @__PURE__ */ k("path", { fill: "#F05F2B", d: "M9.5 2.125V0.5H10L13.5 4V4.5H11.875C10.5633 4.5 9.5 3.43668 9.5 2.125Z" }), /* @__PURE__ */ k(
+      "path",
+      {
+        fill: "#CC3B0A",
+        d: "M12.8057 4.00537L9.99463 1.19434L9.99463 2.125C9.99463 3.16341 10.8366 4.00537 11.875 4.00537L12.8057 4.00537ZM9.60889 0.00537107C9.99051 0.00537105 10.3566 0.156911 10.6265 0.426758L13.5732 3.37353C13.8431 3.64338 13.9946 4.00949 13.9946 4.39111C13.9946 4.7245 13.7245 4.9946 13.3911 4.99463L11.875 4.99463C10.2901 4.99463 9.00537 3.70994 9.00537 2.125L9.00537 0.608887C9.0054 0.275497 9.2755 0.00539778 9.60889 0.00537107Z"
+      }
+    ), /* @__PURE__ */ k(
+      "path",
+      {
+        fill: "#CC3B0A",
+        d: "M5.15039 9.5C5.82697 9.5 6.22151 9.9448 6.22168 10.6445C6.22168 11.3395 5.82686 11.7754 5.1543 11.7754H4.58984V13H4.0752V9.5H5.15039ZM8.00293 9.5C8.84982 9.50006 9.44141 10.1701 9.44141 11.25C9.44139 12.3249 8.84981 12.9999 8.00293 13H6.9043V9.5H8.00293ZM12.0752 10.0596H10.6406V11.0352H11.8965V11.5947H10.6406V13H10.124V9.5H12.0752V10.0596ZM7.42871 12.4404H7.97363C8.57728 12.4403 8.88769 11.9949 8.8877 11.25C8.8877 10.5051 8.57729 10.0597 7.97363 10.0596H7.42871V12.4404ZM4.58984 11.2295H5.11328C5.47022 11.2294 5.67773 11.0345 5.67773 10.6445C5.67758 10.2549 5.47008 10.0596 5.11328 10.0596H4.58984V11.2295Z"
+      }
+    ));
+  }
   function InfoIcon(props) {
     return /* @__PURE__ */ k("svg", { xmlns: "http://www.w3.org/2000/svg", width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", class: "info-icon", ...props }, /* @__PURE__ */ k(
       "path",
@@ -10185,6 +10221,7 @@
           }
         }
       },
+      children,
       /* @__PURE__ */ k(
         "textarea",
         {
@@ -10220,7 +10257,6 @@
           onClick: emitChange
         }
       ),
-      children,
       /* @__PURE__ */ k("div", { tabIndex: -1, class: AiChatForm_default.buttons }, toolbarLeft, /* @__PURE__ */ k("div", { class: AiChatForm_default.rightButtons }, toolbarRight))
     );
   }
@@ -11904,8 +11940,7 @@
     "pages/new-tab/app/omnibar/components/chat-tools/image-attachment/ImageAttachment.module.css"() {
       ImageAttachment_default = {
         imagePreviewArea: "ImageAttachment_imagePreviewArea",
-        thumbnail: "ImageAttachment_thumbnail",
-        thumbnailWrapper: "ImageAttachment_thumbnailWrapper",
+        chipPreview: "ImageAttachment_chipPreview",
         imageWarning: "ImageAttachment_imageWarning",
         dismissError: "ImageAttachment_dismissError",
         toolButton: "ImageAttachment_toolButton",
@@ -12102,97 +12137,6 @@
     }
   });
 
-  // pages/new-tab/app/omnibar/components/chat-tools/attachments/ChipRemoveButton.module.css
-  var ChipRemoveButton_default;
-  var init_ChipRemoveButton = __esm({
-    "pages/new-tab/app/omnibar/components/chat-tools/attachments/ChipRemoveButton.module.css"() {
-      ChipRemoveButton_default = {
-        remove: "ChipRemoveButton_remove"
-      };
-    }
-  });
-
-  // pages/new-tab/app/omnibar/components/chat-tools/attachments/ChipRemoveButton.js
-  function ChipRemoveButton({ onRemove, label, stopPropagation }) {
-    return /* @__PURE__ */ k(
-      "button",
-      {
-        type: "button",
-        tabIndex: 0,
-        class: ChipRemoveButton_default.remove,
-        "aria-label": label,
-        onClick: (e4) => {
-          if (stopPropagation) e4.stopPropagation();
-          onRemove();
-        }
-      },
-      /* @__PURE__ */ k(CloseSmallIcon, { width: "12", height: "12" })
-    );
-  }
-  var init_ChipRemoveButton2 = __esm({
-    "pages/new-tab/app/omnibar/components/chat-tools/attachments/ChipRemoveButton.js"() {
-      "use strict";
-      init_preact_module();
-      init_Icons2();
-      init_ChipRemoveButton();
-    }
-  });
-
-  // pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/TabFavicon.js
-  function TabFavicon({ favicon, iconSize, className, fallbackClassName }) {
-    const [errored, setErrored] = d2(false);
-    if (!favicon || !favicon.src || errored) {
-      return /* @__PURE__ */ k("span", { class: fallbackClassName, "aria-hidden": "true" }, /* @__PURE__ */ k(GlobeIcon, { width: iconSize, height: iconSize }));
-    }
-    return /* @__PURE__ */ k("img", { class: className, src: favicon.src, alt: "", onError: () => setErrored(true), loading: "lazy" });
-  }
-  var init_TabFavicon = __esm({
-    "pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/TabFavicon.js"() {
-      "use strict";
-      init_preact_module();
-      init_hooks_module();
-      init_Icons2();
-    }
-  });
-
-  // pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/TabChips.module.css
-  var TabChips_default;
-  var init_TabChips = __esm({
-    "pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/TabChips.module.css"() {
-      TabChips_default = {
-        chip: "TabChips_chip",
-        faviconTile: "TabChips_faviconTile",
-        faviconLine: "TabChips_faviconLine",
-        faviconCorner: "TabChips_faviconCorner",
-        favicon: "TabChips_favicon",
-        faviconFallback: "TabChips_faviconFallback",
-        title: "TabChips_title"
-      };
-    }
-  });
-
-  // pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/TabChips.js
-  function TabChip({ tab, onRemove, removeLabel }) {
-    return /* @__PURE__ */ k("div", { class: TabChips_default.chip, "data-attachment-kind": "tab" }, /* @__PURE__ */ k("span", { class: TabChips_default.faviconTile, "aria-hidden": "true" }, FAVICON_LINES.map((line, i5) => /* @__PURE__ */ k("span", { key: i5, class: TabChips_default.faviconLine, style: { left: line.left, top: line.top, width: line.width } })), /* @__PURE__ */ k("span", { class: TabChips_default.faviconCorner }, /* @__PURE__ */ k(TabFavicon, { favicon: tab.favicon, iconSize: 16, className: TabChips_default.favicon, fallbackClassName: TabChips_default.faviconFallback }))), /* @__PURE__ */ k("span", { class: TabChips_default.title, title: tab.title }, tab.title), /* @__PURE__ */ k(ChipRemoveButton, { onRemove, label: removeLabel }));
-  }
-  var FAVICON_LINES;
-  var init_TabChips2 = __esm({
-    "pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/TabChips.js"() {
-      "use strict";
-      init_preact_module();
-      init_ChipRemoveButton2();
-      init_TabFavicon();
-      init_TabChips();
-      FAVICON_LINES = [
-        { left: 22, top: 5, width: 10 },
-        { left: 22, top: 11, width: 10 },
-        { left: 22, top: 17, width: 10 },
-        { left: 4, top: 23, width: 28 },
-        { left: 4, top: 29, width: 23 }
-      ];
-    }
-  });
-
   // pages/new-tab/app/omnibar/components/Tooltip.module.css
   var Tooltip_default;
   var init_Tooltip = __esm({
@@ -12208,7 +12152,7 @@
   });
 
   // pages/new-tab/app/omnibar/components/Tooltip.js
-  function Tooltip({ children, content: content2, className, position: position2 = "above" }) {
+  function Tooltip({ children, content: content2, className, position: position2 = "above", ariaLabel }) {
     const [rect, setRect] = d2(
       /** @type {DOMRect | null} */
       null
@@ -12243,7 +12187,7 @@
     };
     const hide = () => setRect(null);
     const handleKeyDown = (e4) => {
-      if (e4.key === "Enter" || e4.key === " ") {
+      if ((e4.key === "Enter" || e4.key === " ") && e4.target === e4.currentTarget) {
         e4.preventDefault();
         if (rect) {
           hide();
@@ -12279,6 +12223,7 @@
         class: (0, import_classnames11.default)(Tooltip_default.container, className),
         role: "button",
         tabIndex: 0,
+        "aria-label": ariaLabel,
         "aria-describedby": isVisible ? tooltipId : void 0,
         onMouseEnter: show,
         onMouseLeave: hide,
@@ -12306,39 +12251,221 @@
     }
   });
 
-  // pages/new-tab/app/omnibar/components/chat-tools/file-attachment/PdfFileChip.module.css
-  var PdfFileChip_default;
-  var init_PdfFileChip = __esm({
-    "pages/new-tab/app/omnibar/components/chat-tools/file-attachment/PdfFileChip.module.css"() {
-      PdfFileChip_default = {
-        chipWrapper: "PdfFileChip_chipWrapper",
-        card: "PdfFileChip_card",
-        lines: "PdfFileChip_lines",
-        line: "PdfFileChip_line",
-        format: "PdfFileChip_format"
+  // pages/new-tab/app/omnibar/components/chat-tools/attachments/ChipRemoveButton.module.css
+  var ChipRemoveButton_default;
+  var init_ChipRemoveButton = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/attachments/ChipRemoveButton.module.css"() {
+      ChipRemoveButton_default = {
+        remove: "ChipRemoveButton_remove"
       };
     }
   });
 
-  // pages/new-tab/app/omnibar/components/chat-tools/file-attachment/PdfFileChip.js
-  function PdfFileChip({ file, onRemove, removeLabel }) {
-    return /* @__PURE__ */ k(Tooltip, { content: file.fileName, position: "above" }, /* @__PURE__ */ k("div", { class: PdfFileChip_default.chipWrapper, "data-attachment-kind": "file" }, /* @__PURE__ */ k("span", { class: PdfFileChip_default.card, "aria-hidden": "true" }, /* @__PURE__ */ k("span", { class: PdfFileChip_default.lines }, /* @__PURE__ */ k("span", { class: PdfFileChip_default.line }), /* @__PURE__ */ k("span", { class: PdfFileChip_default.line })), /* @__PURE__ */ k("span", { class: PdfFileChip_default.format }, "PDF")), /* @__PURE__ */ k(ChipRemoveButton, { onRemove, label: removeLabel })));
+  // pages/new-tab/app/omnibar/components/chat-tools/attachments/ChipRemoveButton.js
+  function ChipRemoveButton({ onRemove, label }) {
+    return /* @__PURE__ */ k(
+      "button",
+      {
+        type: "button",
+        tabIndex: 0,
+        class: ChipRemoveButton_default.remove,
+        "aria-label": label,
+        onClick: (e4) => {
+          e4.stopPropagation();
+          onRemove();
+        }
+      },
+      /* @__PURE__ */ k(CloseXsmallIcon, { width: "16", height: "16", "aria-hidden": "true" })
+    );
   }
-  var init_PdfFileChip2 = __esm({
+  var init_ChipRemoveButton2 = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/attachments/ChipRemoveButton.js"() {
+      "use strict";
+      init_preact_module();
+      init_Icons2();
+      init_ChipRemoveButton();
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/attachments/AttachmentChip.module.css
+  var AttachmentChip_default;
+  var init_AttachmentChip = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/attachments/AttachmentChip.module.css"() {
+      AttachmentChip_default = {
+        listItem: "AttachmentChip_listItem",
+        enter: "AttachmentChip_enter",
+        chipEnter: "AttachmentChip_chipEnter",
+        tooltipContainer: "AttachmentChip_tooltipContainer",
+        root: "AttachmentChip_root",
+        imageFill: "AttachmentChip_imageFill",
+        headerBand: "AttachmentChip_headerBand",
+        title: "AttachmentChip_title",
+        metadata: "AttachmentChip_metadata",
+        info: "AttachmentChip_info",
+        iconSlot: "AttachmentChip_iconSlot",
+        icon: "AttachmentChip_icon",
+        typeLabel: "AttachmentChip_typeLabel",
+        removeSlot: "AttachmentChip_removeSlot"
+      };
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/attachments/AttachmentChip.js
+  function AttachmentChip({
+    attachmentKind,
+    imagePreview,
+    icon,
+    title,
+    typeLabel,
+    metadata,
+    tooltipLabel,
+    onRemove,
+    removeLabel,
+    enteringAnimationDelay = 0
+  }) {
+    const tooltip = tooltipLabel || title || "";
+    return /* @__PURE__ */ k("div", { class: AttachmentChip_default.listItem, "data-attachment-kind": attachmentKind }, /* @__PURE__ */ k("span", { class: AttachmentChip_default.enter, style: { animationDelay: enteringAnimationDelay ? `${enteringAnimationDelay}ms` : void 0 } }, /* @__PURE__ */ k(Tooltip, { content: tooltip, position: "above", className: AttachmentChip_default.tooltipContainer, ariaLabel: tooltip }, /* @__PURE__ */ k("span", { class: AttachmentChip_default.root }, imagePreview ? /* @__PURE__ */ k("span", { class: AttachmentChip_default.imageFill }, imagePreview) : /* @__PURE__ */ k("span", { class: AttachmentChip_default.headerBand }, /* @__PURE__ */ k("span", { class: AttachmentChip_default.title }, title)), !imagePreview && metadata && /* @__PURE__ */ k("span", { class: AttachmentChip_default.metadata }, metadata), !imagePreview && /* @__PURE__ */ k("span", { class: AttachmentChip_default.info }, /* @__PURE__ */ k("span", { class: AttachmentChip_default.iconSlot }, /* @__PURE__ */ k("span", { class: AttachmentChip_default.icon }, icon)), /* @__PURE__ */ k("span", { class: AttachmentChip_default.typeLabel }, typeLabel)), /* @__PURE__ */ k("span", { class: AttachmentChip_default.removeSlot }, /* @__PURE__ */ k(ChipRemoveButton, { onRemove, label: removeLabel }))))));
+  }
+  var init_AttachmentChip2 = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/attachments/AttachmentChip.js"() {
+      "use strict";
+      init_preact_module();
+      init_Tooltip2();
+      init_ChipRemoveButton2();
+      init_AttachmentChip();
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/attachments/attachmentText.js
+  function formatFileSize(bytes) {
+    if (bytes < 1024) return `${bytes} B`;
+    const units = ["KB", "MB", "GB"];
+    let value2 = bytes / 1024;
+    let unitIndex = 0;
+    while (value2 >= 1024 && unitIndex < units.length - 1) {
+      value2 /= 1024;
+      unitIndex++;
+    }
+    return `${value2 >= 10 ? Math.round(value2) : Math.round(value2 * 10) / 10} ${units[unitIndex]}`;
+  }
+  function splitFileName(filename) {
+    const dotIndex = filename.lastIndexOf(".");
+    if (dotIndex <= 0 || dotIndex === filename.length - 1) {
+      return { stem: filename, extension: "" };
+    }
+    return { stem: filename.slice(0, dotIndex), extension: filename.slice(dotIndex) };
+  }
+  function base64ByteLength(data2) {
+    if (!data2) return 0;
+    let padding = 0;
+    if (data2.endsWith("==")) padding = 2;
+    else if (data2.endsWith("=")) padding = 1;
+    return Math.floor(data2.length * 3 / 4) - padding;
+  }
+  function getDomainForDisplay(url8) {
+    const parsed = parseURL(url8);
+    if (!parsed || !parsed.host) return url8;
+    return parsed.host.replace(/^www\./i, "");
+  }
+  var init_attachmentText = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/attachments/attachmentText.js"() {
+      "use strict";
+      init_utils4();
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/TabFavicon.js
+  function TabFavicon({ favicon, iconSize, className, fallbackClassName }) {
+    const [errored, setErrored] = d2(false);
+    if (!favicon || !favicon.src || errored) {
+      return /* @__PURE__ */ k("span", { class: fallbackClassName, "aria-hidden": "true" }, /* @__PURE__ */ k(GlobeIcon, { width: iconSize, height: iconSize }));
+    }
+    return /* @__PURE__ */ k("img", { class: className, src: favicon.src, alt: "", onError: () => setErrored(true), loading: "lazy" });
+  }
+  var init_TabFavicon = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/TabFavicon.js"() {
+      "use strict";
+      init_preact_module();
+      init_hooks_module();
+      init_Icons2();
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/TabChips.module.css
+  var TabChips_default;
+  var init_TabChips = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/TabChips.module.css"() {
+      TabChips_default = {
+        favicon: "TabChips_favicon",
+        faviconFallback: "TabChips_faviconFallback"
+      };
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/TabChips.js
+  function TabChip({ tab, onRemove, removeLabel, enteringAnimationDelay }) {
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {Strings} */
+      {}
+    );
+    return /* @__PURE__ */ k(
+      AttachmentChip,
+      {
+        attachmentKind: "tab",
+        icon: /* @__PURE__ */ k(TabFavicon, { favicon: tab.favicon, iconSize: 16, className: TabChips_default.favicon, fallbackClassName: TabChips_default.faviconFallback }),
+        title: tab.title,
+        typeLabel: t4("omnibar_attachmentTypeWebpage"),
+        metadata: getDomainForDisplay(tab.url),
+        onRemove,
+        removeLabel,
+        enteringAnimationDelay
+      }
+    );
+  }
+  var init_TabChips2 = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/TabChips.js"() {
+      "use strict";
+      init_preact_module();
+      init_types();
+      init_AttachmentChip2();
+      init_attachmentText();
+      init_TabFavicon();
+      init_TabChips();
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/file-attachment/PdfFileChip.js
+  function PdfFileChip({ file, onRemove, removeLabel, enteringAnimationDelay }) {
+    return /* @__PURE__ */ k(
+      AttachmentChip,
+      {
+        attachmentKind: "file",
+        icon: /* @__PURE__ */ k(DocumentPdfColorIcon, { width: 16, height: 16, "aria-hidden": "true" }),
+        title: splitFileName(file.fileName).stem,
+        typeLabel: "PDF",
+        metadata: formatFileSize(base64ByteLength(file.data)),
+        tooltipLabel: file.fileName,
+        onRemove,
+        removeLabel,
+        enteringAnimationDelay
+      }
+    );
+  }
+  var init_PdfFileChip = __esm({
     "pages/new-tab/app/omnibar/components/chat-tools/file-attachment/PdfFileChip.js"() {
       "use strict";
       init_preact_module();
-      init_ChipRemoveButton2();
-      init_Tooltip2();
-      init_PdfFileChip();
+      init_Icons2();
+      init_AttachmentChip2();
+      init_attachmentText();
     }
   });
 
   // pages/new-tab/app/omnibar/components/chat-tools/file-attachment/FileChip.js
-  function FileChip({ file, onRemove, removeLabel }) {
+  function FileChip({ file, onRemove, removeLabel, enteringAnimationDelay }) {
     switch (file.mimeType) {
       case "application/pdf":
-        return /* @__PURE__ */ k(PdfFileChip, { file, onRemove, removeLabel });
+        return /* @__PURE__ */ k(PdfFileChip, { file, onRemove, removeLabel, enteringAnimationDelay });
       default:
         return null;
     }
@@ -12347,20 +12474,54 @@
     "pages/new-tab/app/omnibar/components/chat-tools/file-attachment/FileChip.js"() {
       "use strict";
       init_preact_module();
-      init_PdfFileChip2();
+      init_PdfFileChip();
     }
   });
 
   // pages/new-tab/app/omnibar/components/chat-tools/image-attachment/ImageChip.js
-  function ImageChip({ image, onRemove, removeLabel }) {
-    return /* @__PURE__ */ k("div", { class: ImageAttachment_default.thumbnailWrapper, "data-attachment-kind": "image" }, /* @__PURE__ */ k("img", { src: image.dataUrl, alt: "", class: ImageAttachment_default.thumbnail }), /* @__PURE__ */ k(ChipRemoveButton, { onRemove, label: removeLabel, stopPropagation: true }));
+  function ImageChip({ image, onRemove, removeLabel, enteringAnimationDelay }) {
+    return /* @__PURE__ */ k(
+      AttachmentChip,
+      {
+        attachmentKind: "image",
+        imagePreview: /* @__PURE__ */ k("img", { src: image.dataUrl, alt: "", class: ImageAttachment_default.chipPreview }),
+        tooltipLabel: image.fileName,
+        onRemove,
+        removeLabel,
+        enteringAnimationDelay
+      }
+    );
   }
   var init_ImageChip = __esm({
     "pages/new-tab/app/omnibar/components/chat-tools/image-attachment/ImageChip.js"() {
       "use strict";
       init_preact_module();
-      init_ChipRemoveButton2();
+      init_AttachmentChip2();
       init_ImageAttachment();
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/attachments/useScrollToNewestChip.js
+  function useScrollToNewestChip(count) {
+    const listRef = A2(
+      /** @type {HTMLDivElement|null} */
+      null
+    );
+    const previousCount = A2(0);
+    _2(() => {
+      const grew = count > previousCount.current;
+      previousCount.current = count;
+      const list2 = listRef.current;
+      if (!grew || !list2) return;
+      list2.lastElementChild?.scrollIntoView?.({ behavior: "auto", inline: "nearest", block: "nearest" });
+      list2.scrollLeft = list2.scrollWidth;
+    }, [count]);
+    return listRef;
+  }
+  var init_useScrollToNewestChip = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/attachments/useScrollToNewestChip.js"() {
+      "use strict";
+      init_hooks_module();
     }
   });
 
@@ -12410,8 +12571,10 @@
         )
       )
     ].sort((a4, b4) => a4.addedAtRelative - b4.addedAtRelative);
+    const listRef = useScrollToNewestChip(items.length);
     if (items.length === 0) return null;
-    return /* @__PURE__ */ k("div", { class: AttachmentChips_default.chipsArea, "data-testid": "omnibar-attachment-chips" }, items.map((item) => {
+    return /* @__PURE__ */ k("div", { ref: listRef, class: AttachmentChips_default.chipsArea, "data-testid": "omnibar-attachment-chips" }, items.map((item, index2) => {
+      const enteringAnimationDelay = index2 * 50;
       switch (item.kind) {
         case "tab":
           return /* @__PURE__ */ k(
@@ -12420,7 +12583,8 @@
               key: item.key,
               tab: item.tab,
               onRemove: () => onRemoveTab(item.tab.tabId),
-              removeLabel: t4("omnibar_removeAttachedTabLabel", { title: item.tab.title })
+              removeLabel: t4("omnibar_removeAttachedTabLabel", { title: item.tab.title }),
+              enteringAnimationDelay
             }
           );
         case "file":
@@ -12430,7 +12594,8 @@
               key: item.key,
               file: item.file,
               onRemove: () => onRemoveFile(item.originalIndex),
-              removeLabel: t4("omnibar_removeAttachedFileLabel", { fileName: item.file.fileName })
+              removeLabel: t4("omnibar_removeAttachedFileLabel", { fileName: item.file.fileName }),
+              enteringAnimationDelay
             }
           );
         case "image":
@@ -12440,7 +12605,8 @@
               key: item.key,
               image: item.image,
               onRemove: () => onRemoveImage(item.originalIndex),
-              removeLabel: t4("omnibar_removeImageLabel")
+              removeLabel: t4("omnibar_removeImageLabel"),
+              enteringAnimationDelay
             }
           );
         default: {
@@ -12459,6 +12625,7 @@
       init_TabChips2();
       init_FileChip();
       init_ImageChip();
+      init_useScrollToNewestChip();
       init_AttachmentChips();
     }
   });
@@ -37837,6 +38004,10 @@
     omnibar_attachTabsNoPageContent: {
       title: "No page content available",
       description: "Empty-state message shown in the attach dropdown and the Add Tabs dialog when there are no open tabs with attachable page content."
+    },
+    omnibar_attachmentTypeWebpage: {
+      title: "Webpage",
+      description: "Attachment kind label shown next to the favicon in an attached-tab chip in the AI chat input."
     },
     omnibar_removeAttachedTabLabel: {
       title: "Remove {title}",
