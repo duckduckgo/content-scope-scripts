@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Capture Screenshot Response",
+  "description": "Result of a screenshot capture. `image` when a capture was taken, `error` when it failed; neither means the user cancelled, and the page shows nothing. The page sends no telemetry for `error` replies.",
+  "type": "object",
+  "properties": {
+    "image": {
+      "title": "Captured Screenshot",
+      "type": "object",
+      "required": ["data", "format", "kind"],
+      "properties": {
+        "data": {
+          "description": "Base64-encoded image bytes, without a data-URL prefix, at most 1024px on the long side.",
+          "type": "string"
+        },
+        "format": {
+          "type": "string",
+          "enum": ["png", "jpeg"]
+        },
+        "kind": {
+          "$ref": "./types/screenshot-kind.json"
+        }
+      }
+    },
+    "error": {
+      "type": "string",
+      "enum": ["screenshotFailed"]
+    }
+  }
+}

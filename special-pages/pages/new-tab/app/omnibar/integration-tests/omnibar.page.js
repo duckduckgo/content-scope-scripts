@@ -437,6 +437,30 @@ export class OmnibarPage {
         return this.attachMenu().getByRole('menuitem', { name: 'Add Tabs' });
     }
 
+    /** "Add Screenshot" row in the paperclip menu; it opens the screenshot submenu. */
+    addScreenshotMenuItem() {
+        return this.attachMenu().getByRole('menuitem', { name: 'Add Screenshot' });
+    }
+
+    screenshotSubmenu() {
+        return this.context().getByRole('menu', { name: 'Add Screenshot' });
+    }
+
+    /** @param {'Drag to Select' | 'Select Window or Display'} name */
+    screenshotModeItem(name) {
+        return this.screenshotSubmenu().getByRole('menuitem', { name });
+    }
+
+    /**
+     * Opens the paperclip menu and the screenshot submenu, then chooses a capture mode.
+     * @param {'Drag to Select' | 'Select Window or Display'} name
+     */
+    async captureScreenshot(name) {
+        await this.attachMenuButton().click();
+        await this.addScreenshotMenuItem().click();
+        await this.screenshotModeItem(name).click();
+    }
+
     /**
      * Dispatches a synthetic `paste` on the Duck.ai prompt. Synthetic pastes never insert text,
      * so the result reports whether the page cancelled the default paste instead.

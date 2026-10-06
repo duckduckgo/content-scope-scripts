@@ -346,4 +346,14 @@ export class OmnibarService {
     confirmDeleteAiChat(chatId, title) {
         return this.ntp.messaging.request('omnibar_confirmDeleteAiChat', { chatId, title });
     }
+
+    /**
+     * Asks native to capture a screenshot. Resolves once the capture is taken, fails or is
+     * cancelled, which can take arbitrarily long.
+     * @param {import('../../types/new-tab.js').ScreenshotMode} mode
+     * @returns {Promise<import('../../types/new-tab.js').CaptureScreenshotResponse>} `image`, `error`, or neither when cancelled
+     */
+    captureScreenshot(mode) {
+        return this.ntp.messaging.request('omnibar_captureScreenshot', { mode });
+    }
 }

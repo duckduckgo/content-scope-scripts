@@ -1,0 +1,7 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Screenshot Kind",
+  "description": "What the user captured: a dragged region, a whole display, or a single window.",
+  "type": "string",
+  "enum": ["selection", "screen", "window"]
+}
