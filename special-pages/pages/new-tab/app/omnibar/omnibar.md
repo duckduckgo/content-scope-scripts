@@ -353,13 +353,13 @@ While `requiresAiTermsAcceptance` is `true`, the Duck.ai tab shows the terms dis
 
 ## Notice drawer
 
-The Duck.ai tab shows one notice under the input. It follows the [Duck.ai messaging framework](https://app.asana.com/1/137249556945/project/1211654189969294/task/1218246195820552). The highest type wins, then the order within a type:
+The Duck.ai tab shows one notice under the input, or two when two Required notices apply (the terms disclaimer and the attachment privacy disclaimer on a first prompt with an attachment). It follows the [Duck.ai messaging framework](https://app.asana.com/1/137249556945/project/1211654189969294/task/1218246195820552). The highest type wins, then the order within a type:
 
-1. Required: the terms disclaimer, then the attachment privacy disclaimer (`showAttachmentPrivacyDisclaimer`), then `usageLimits` with `blocksPrompt: true`.
+1. Required: the terms disclaimer, then `usageLimits` with `blocksPrompt: true`, then the attachment privacy disclaimer (`showAttachmentPrivacyDisclaimer`).
 2. Action: `createImageModelSwitch`.
 3. Informational: `usageLimits` without `blocksPrompt`.
 
-A higher notice hides a lower one. The lower one comes back if it still applies when the higher one goes away. On its own, `usageLimits` shows only while the input is focused.
+A higher notice hides a lower one. The lower one comes back if it still applies when the higher one goes away. Informational notices show only while the input is focused. Required and Action notices also show at rest.
 
 ## Open Targets
 

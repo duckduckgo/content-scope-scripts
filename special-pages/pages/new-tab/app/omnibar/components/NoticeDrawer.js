@@ -248,32 +248,28 @@ function UsageLimitsCtaControl({ cta, onSelectCta }) {
 }
 
 /**
+ * The highest type that applies wins. Two Required notices show together; nothing else stacks.
+ *
  * @param {(NoticePresentation | null)[]} notices
+ * @returns {NoticePresentation[]}
  */
-function highestNotice(notices) {
+function visibleNotices(notices) {
     for (const type of NOTICE_TYPES) {
-        const notice = notices.find((candidate) => candidate?.type === type);
-        if (notice) return notice;
+        /** @type {NoticePresentation[]} */
+        const ofType = [];
+        for (const notice of notices) {
+            if (notice?.type === type) ofType.push(notice);
+        }
+        if (ofType.length > 0) return ofType.slice(0, type === 'required' ? 2 : 1);
     }
-    return null;
+    return [];
 }
 
 /**
  * @param {object} props
- * @param {boolean} props.revealed - Whether focus-gated notices should be shown.
- * @param {(height: number) => void} props.onReservedHeightChange - Room the page must keep below the omnibar for a notice that stays open at rest.
+ * @param {NoticePresentation} props.presentation
  */
-export function NoticeDrawer({ revealed, onReservedHeightChange }) {
-    const termsDisclaimer = useTermsDisclaimerNotice();
-    const attachmentPrivacy = useAttachmentPrivacyNotice();
-    const usageLimits = useUsageLimitsDrawer();
-    const createImageModelSwitch = useCreateImageModelSwitchNotice();
-    const presentation = highestNotice([termsDisclaimer, attachmentPrivacy, usageLimits, createImageModelSwitch]);
-
-    const drawerRef = useReservedHeight(Boolean(termsDisclaimer), onReservedHeightChange);
-
-    if (!presentation) return null;
-
+function NoticeRow({ presentation }) {
     const {
         message,
         messageId,
@@ -289,7 +285,48 @@ export function NoticeDrawer({ revealed, onReservedHeightChange }) {
     } = presentation;
 
     const emphasize = icon === 'ring' || icon === 'alert' || icon === 'convert';
-    const isRevealed = revealed || termsDisclaimer !== null || attachmentPrivacy !== null || createImageModelSwitch !== null;
+
+    return (
+        <div class={styles.content}>
+            <span class={styles.leading}>
+                <NoticeGlyph icon={icon} percent={percent} severity={severity} />
+            </span>
+            <p
+                id={messageId}
+                class={cn(
+                    styles.message,
+                    emphasize && styles.messageEmphasized,
+                    secondaryOnNewLine && styles.messageStacked,
+                    muted && styles.messageMuted,
+                )}
+            >
+                <span class={styles.primary}>{message}</span>
+                {secondaryText ? <span class={styles.secondary}>{secondaryText}</span> : null}
+            </p>
+            {cta && onSelectCta ? <UsageLimitsCtaControl cta={cta} onSelectCta={onSelectCta} /> : null}
+            {onDismiss ? <DismissButton className={styles.dismiss} onClick={onDismiss} /> : null}
+        </div>
+    );
+}
+
+/**
+ * @param {object} props
+ * @param {boolean} props.revealed - Whether focus-gated notices should be shown.
+ * @param {(height: number) => void} props.onReservedHeightChange - Room the page must keep below the omnibar for a notice that stays open at rest.
+ */
+export function NoticeDrawer({ revealed, onReservedHeightChange }) {
+    const termsDisclaimer = useTermsDisclaimerNotice();
+    const attachmentPrivacy = useAttachmentPrivacyNotice();
+    const usageLimits = useUsageLimitsDrawer();
+    const createImageModelSwitch = useCreateImageModelSwitchNotice();
+    const notices = visibleNotices([termsDisclaimer, usageLimits, attachmentPrivacy, createImageModelSwitch]);
+    const topType = notices[0]?.type;
+
+    const drawerRef = useReservedHeight(topType === 'required', onReservedHeightChange);
+
+    if (!topType) return null;
+
+    const isRevealed = revealed || topType !== 'informational';
 
     const keepComposerFocus = (event) => {
         // Keep the caret in the composer so clicking CTA/dismiss does not hide the drawer first.
@@ -305,25 +342,9 @@ export function NoticeDrawer({ revealed, onReservedHeightChange }) {
             onMouseDown={keepComposerFocus}
         >
             <div class={styles.card}>
-                <div class={styles.content}>
-                    <span class={styles.leading}>
-                        <NoticeGlyph icon={icon} percent={percent} severity={severity} />
-                    </span>
-                    <p
-                        id={messageId}
-                        class={cn(
-                            styles.message,
-                            emphasize && styles.messageEmphasized,
-                            secondaryOnNewLine && styles.messageStacked,
-                            muted && styles.messageMuted,
-                        )}
-                    >
-                        <span class={styles.primary}>{message}</span>
-                        {secondaryText ? <span class={styles.secondary}>{secondaryText}</span> : null}
-                    </p>
-                    {cta && onSelectCta ? <UsageLimitsCtaControl cta={cta} onSelectCta={onSelectCta} /> : null}
-                    {onDismiss ? <DismissButton className={styles.dismiss} onClick={onDismiss} /> : null}
-                </div>
+                {notices.map((presentation, index) => (
+                    <NoticeRow key={index} presentation={presentation} />
+                ))}
             </div>
         </div>
     );

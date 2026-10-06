@@ -523,6 +523,23 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             await expect(page).toHaveScreenshot('omnibar-attached-file-chip.png', { maxDiffPixels });
         });
 
+        test('privacy disclaimer stacked under terms', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({
+                additional: {
+                    ...attachmentsConfig,
+                    'omnibar.requiresAiTermsAcceptance': 'true',
+                    'omnibar.showAttachmentPrivacyDisclaimer': 'true',
+                },
+            });
+            await omnibar.ready();
+            await omnibar.fileInput().setInputFiles({ name: 'q3-report.pdf', mimeType: 'application/pdf', buffer: pdfBytes });
+            await expect(omnibar.noticeDrawer()).toContainText('Files are automatically scanned');
+            await expect(page).toHaveScreenshot('omnibar-attachment-privacy-stacked.png', { maxDiffPixels });
+        });
+
         test('attached image chip', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);

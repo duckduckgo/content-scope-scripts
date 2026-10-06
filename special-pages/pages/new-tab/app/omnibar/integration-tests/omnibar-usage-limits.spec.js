@@ -49,6 +49,19 @@ test.describe('omnibar notice drawer', () => {
         await expect(omnibar.noticeDrawer()).toBeHidden();
     });
 
+    test('shows a prompt-blocking usage limit without focusing the AI input', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { 'omnibar.mode': 'ai', 'omnibar.usageLimits': 'reached' } });
+        await omnibar.ready();
+
+        await expect(omnibar.noticeDrawer()).toBeVisible();
+
+        const drawer = await omnibar.noticeDrawer().boundingBox();
+        const favorites = await page.locator('[data-entry-point="favorites"]').boundingBox();
+        expect(drawer && favorites && drawer.y + drawer.height <= favorites.y).toBe(true);
+    });
+
     test('keeps the drawer and chats list open while focus moves into the drawer', async ({ page }, workerInfo) => {
         const { ntp, omnibar } = setup(page, workerInfo);
         await ntp.reducedMotion();
