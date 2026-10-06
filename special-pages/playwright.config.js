@@ -48,6 +48,7 @@ export default defineConfig({
                 'omnibar-screenshot.spec.js',
                 'omnibar-usage-limits.spec.js',
                 'omnibar-attachment-privacy.spec.js',
+                'omnibar-launcher-promo.spec.js',
             ],
             use: {
                 ...devices['Desktop Chrome'],
