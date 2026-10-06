@@ -1,0 +1,8 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "InitialSetupParams",
+  "description": "macOS: check native availability before modifying the store page.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {}
+}
