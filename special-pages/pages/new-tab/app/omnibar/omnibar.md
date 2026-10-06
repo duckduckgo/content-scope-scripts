@@ -38,6 +38,7 @@ title: Omnibar Widget
   - `enableVoiceChatAccess` — when true and the input is empty, replaces the AI chat submit button with a 1-click voice-chat button. Click/Enter sends `omnibar_submitChat` with an empty `chat` and `mode: "voice-mode"` — native handles the voice handoff (default `false`)
   - `enableAskAiSuggestion` — when `false`, hides the inline "Ask Duck.ai: <query>" entry in the suggestions dropdown. Missing/undefined is treated as `true` (default `true`). Does not affect the Duck.ai mode pill or any other AI affordance — those remain governed by `enableAi`
   - `enableAttachTabs` — when `true`, the omnibar shows the page context entry point and accepts `@` mentions for attaching open tabs as context. Requires native to handle `omnibar_getOpenTabs` and `omnibar_getTabContent` (default `false`).
+  - `screenshotModes` — capture modes (`"dragToSelect"`, `"selectWindowOrDisplay"`) listed, in order, under "Add Screenshot" in the paperclip menu. Absent or empty hides the screenshot UI. Requires native to handle `omnibar_captureScreenshot`. The row is disabled while a capture is pending, at the image cap, when the model cannot take images, or when the prompt is blocked.
   - `enablePastedAttachments` — when `true`, pasting into the Duck.ai prompt attaches copied images and files (see [Paste](#paste)). When `false` or absent, paste is left to the browser (text only) (default `false`). The page needs no native support to paste; the flag lets native roll the behaviour out and switch it off remotely.
   - `aiModelSections` — array of model sections for the model selector. Each model may include `supportedReasoningEffort` (e.g. `["none", "low", "medium"]`) to surface the reasoning picker
   - `selectedModelId` — the user's persisted model choice
@@ -53,7 +54,22 @@ title: Omnibar Widget
    "enableVoiceChatAccess": false,
    "enableAskAiSuggestion": true,
    "enableAttachTabs": false,
+   "screenshotModes": ["dragToSelect", "selectWindowOrDisplay"],
    "enablePastedAttachments": true
+}
+```
+
+### `omnibar_captureScreenshot`
+- {@link "NewTab Messages".OmnibarCaptureScreenshotRequest}
+- Sent when the user picks a mode from the "Add Screenshot" submenu. The reply comes once the capture is taken, fails or is cancelled, so the request can stay pending for as long as the user takes. The page disables the screenshot rows while a request is pending.
+- requires `mode`, one of the configured `screenshotModes`.
+- returns {@link "NewTab Messages".CaptureScreenshotResponse}:
+  - `image` — base64 `data` (no data-URL prefix), `format` (`png` or `jpeg`) and `kind` (`selection`, `screen` or `window`). It is at most 1024px on the long side; the page keeps that size and adds it as an image chip named "Screenshot" (numbered on repeats).
+  - `error: "screenshotFailed"` — the page shows "Couldn't capture screenshot" under the prompt and sends no telemetry for it.
+  - neither — the user cancelled; the page does nothing.
+```json
+{
+   "image": { "data": "iVBORw0KGgo...", "format": "png", "kind": "selection" }
 }
 ```
 
@@ -151,8 +167,11 @@ The four CTA events retain their historical `_shown` names, but they represent a
 
 Sent as `telemetryEvent` with `{ attributes: { name, value } }`:
 
-- `omnibar_image_attached` — every image chip added, with `value.source`: `file` (picker) or `paste`.
+- `omnibar_image_attached` — every image chip added, with `value.source`: `file` (picker), `paste` or `screenshot`.
 - `omnibar_image_removed` — every image chip the user removes (its × button), with the chip's `value.source`. Clearing on submit or on a model switch does not count.
+- `omnibar_screenshot_taken` — once a screenshot has been added as a chip, with `value.kind` from the capture.
+- `omnibar_screenshot_removed` — the user removed a screenshot chip (sent alongside `omnibar_image_removed`).
+- `omnibar_screenshot_failed` — `value.reason: "failed"`, when the page could not process a returned image. `error` replies are not reported by the page.
 
 ## Paste
 

@@ -33,33 +33,6 @@
                     }
                 ]
             }
-        },
-        "extensionManagement": {
-            "state": "internal",
-            "exceptions": [],
-            "settings": {
-                "hiddenExtensionIds": [],
-                "disabledExtensionIds": [],
-                "specialBehavior": {}
-            },
-            "features": {
-                "curatedExtensions": {
-                    "state": "internal",
-                    "settings": {
-                        "catalog": [
-                            {
-                                "id": "nngceckbapebfimnlniiiahkandclblb",
-                                "name": "Bitwarden Password Manager",
-                                "publisher": "Bitwarden Inc.",
-                                "publisherUri": "https://bitwarden.com/",
-                                "iconUri": "/chrome-webstore-patching/pages/icon.png",
-                                "cwsUri": "https://chromewebstore.google.com/detail/bitwarden-password-manage/nngceckbapebfimnlniiiahkandclblb",
-                                "categoryId": "password-manager"
-                            }
-                        ]
-                    }
-                }
-            }
         }
     },
     "unprotectedTemporary": []

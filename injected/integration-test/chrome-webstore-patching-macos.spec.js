@@ -10,17 +10,24 @@ const DETAIL = `/detail/bitwarden-password-manage/${ID}`;
 const OTHER = '/detail/other/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 const BUTTON = 'button[jsname="wQO0od"]';
 const LABEL = `${BUTTON} [data-ddg-webstore-label]`;
+// Logged (tests run with debug on) once a failed catalog lookup has resolved
+const LOG_CATALOG_ERROR = 'getCatalogExtensionIds failed';
+const LOG_CATALOG_UNUSABLE = 'getCatalogExtensionIds: timed out or malformed reply';
 
 /**
  * @param {import('@playwright/test').Page} page
  * @param {import('@playwright/test').TestInfo} testInfo
  * @param {{status?: unknown, fail?: boolean, hold?: boolean, rejectStatus?: boolean, rejectAction?: boolean,
  * setupResponse?: unknown, rejectSetup?: boolean, holdSetup?: boolean,
- * config?: string, platform?: 'macos' | 'ios'}} [options]
+ * catalogReply?: unknown, catalogFailure?: 'error' | 'none',
+ * config?: string, platform?: 'macos' | 'ios'}} [options] `catalogReply` is native's reply to
+ * getCatalogExtensionIds and defaults to a catalog holding ID; `catalogFailure` makes native
+ * reply with an error, or never reply at all
  */
 async function setup(page, testInfo, options = {}) {
     const collector = ResultsCollector.create(page, testInfo.project.use).withMockResponse({
         initialSetup: 'setupResponse' in options ? options.setupResponse : { enabled: true },
+        getCatalogExtensionIds: 'catalogReply' in options ? options.catalogReply : { extensionIds: [ID] },
         getExtensionStatus: { status: options.status ?? 'installable' },
         installExtension: { success: !options.fail },
         removeExtension: { success: !options.fail },
@@ -60,6 +67,11 @@ async function setup(page, testInfo, options = {}) {
                         }
                         return response;
                     }
+                    if (message.method === 'getCatalogExtensionIds') {
+                        if (opts.catalogFailure === 'error') throw new Error('catalog unavailable');
+                        if (opts.catalogFailure === 'none') await new Promise(() => {});
+                        return response;
+                    }
                     if (message.method === 'getExtensionStatus') {
                         if (opts.rejectStatus) throw new Error('native status unavailable');
                         if (win.holdNextStatus) {
@@ -97,6 +109,17 @@ async function navigate(page, path) {
     await page.evaluate((p) => /** @type {any} */ (window).storePushState({}, '', p), path);
 }
 
+/**
+ * Resolves once the feature logs `text`. Failed catalog lookups leave the
+ * button exactly as hidden as it starts, so a test must wait for the failure to
+ * be processed or its "stays hidden" assertion would pass vacuously.
+ * @param {import('@playwright/test').Page} page
+ * @param {string} text
+ */
+function waitForFeatureLog(page, text) {
+    return page.waitForEvent('console', { predicate: (msg) => msg.text().includes(text), timeout: 10000 });
+}
+
 /** @param {ResultsCollector} collector @param {string} [method] */
 async function messages(collector, method) {
     return (await collector.outgoingMessages())
@@ -108,6 +131,9 @@ test('queries native and sends a CRX download URL on install, without calling th
     const collector = await setup(page, testInfo);
     await expect(page.locator(LABEL)).toHaveText('Add to DuckDuckGo');
     expect(await messages(collector, 'initialSetup')).toEqual([
+        expect.objectContaining({ params: {}, context: 'contentScopeScriptsIsolated' }),
+    ]);
+    expect(await messages(collector, 'getCatalogExtensionIds')).toEqual([
         expect.objectContaining({ params: {}, context: 'contentScopeScriptsIsolated' }),
     ]);
     expect(await messages(collector, 'getExtensionStatus')).toEqual([
@@ -232,15 +258,61 @@ for (const options of [{ status: 'unknown' }, { status: 7 }, { rejectStatus: tru
     });
 }
 
-test('uncurated extensions never query native status or install', async ({ page }, testInfo) => {
+test('non-catalog extensions never query native status or install', async ({ page }, testInfo) => {
     const collector = await setup(page, testInfo);
     await expect(page.locator(LABEL)).toHaveText('Add to DuckDuckGo');
-    const before = await messages(collector);
+    const before = (await messages(collector)).filter((m) => !('method' in m && m.method === 'getCatalogExtensionIds'));
     await navigate(page, OTHER);
     await expect(page.locator(LABEL)).toHaveText('Unsupported extension');
     await expect(page.locator(BUTTON)).toBeDisabled();
     await page.locator(BUTTON).dispatchEvent('click');
-    expect(await messages(collector)).toEqual(before);
+    expect(await messages(collector, 'getCatalogExtensionIds')).toHaveLength(2);
+    expect((await messages(collector)).filter((m) => !('method' in m && m.method === 'getCatalogExtensionIds'))).toEqual(before);
+});
+
+// Native answers [] when extension management is off; rollout, minimum version
+// and native-only gates all surface as "not in the list"
+for (const extensionIds of [[], ['aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa']]) {
+    test(`native catalog ${JSON.stringify(extensionIds)} → unsupported pill, no status query`, async ({ page }, testInfo) => {
+        const collector = await setup(page, testInfo, { catalogReply: { extensionIds } });
+        await expect(page.locator(LABEL)).toHaveText('Unsupported extension');
+        await expect(page.locator(BUTTON)).toBeDisabled();
+        await page.locator(BUTTON).dispatchEvent('click');
+        expect(await messages(collector, 'getExtensionStatus')).toHaveLength(0);
+        expect(await messages(collector, 'installExtension')).toHaveLength(0);
+    });
+}
+
+// An unknown catalog is not an empty one: showing "Unsupported extension"
+// here would mislabel catalog extensions whenever native misbehaves
+for (const [label, options, log] of /** @type {const} */ ([
+    ['error reply', { catalogFailure: 'error' }, LOG_CATALOG_ERROR],
+    ['no reply', { catalogFailure: 'none' }, LOG_CATALOG_UNUSABLE],
+    ['extensionIds missing', { catalogReply: {} }, LOG_CATALOG_UNUSABLE],
+    ['non-string entries', { catalogReply: { extensionIds: [ID, 42] } }, LOG_CATALOG_UNUSABLE],
+])) {
+    test(`unknown native catalog (${label}) → button stays hidden, no unsupported pill`, async ({ page }, testInfo) => {
+        const failed = waitForFeatureLog(page, log);
+        const collector = await setup(page, testInfo, options);
+        await failed;
+        await expect(page.locator(BUTTON)).not.toBeVisible();
+        await expect(page.locator(LABEL)).toHaveCount(0);
+        expect(await messages(collector, 'getExtensionStatus')).toHaveLength(0);
+    });
+}
+
+test('catalog is not cached: an extension dropped from it becomes unsupported on re-evaluation', async ({ page }, testInfo) => {
+    const collector = await setup(page, testInfo);
+    await expect(page.locator(LABEL)).toHaveText('Add to DuckDuckGo');
+    await page.evaluate(() => {
+        /** @type {any} */ (window).__playwright_01.mockResponses.getCatalogExtensionIds = { extensionIds: [] };
+    });
+    await collector.simulateSubscriptionMessage('chromeWebstorePatching', 'extensionChanged', { extensionId: ID });
+    await expect(page.locator(LABEL)).toHaveText('Unsupported extension');
+    await page.locator(BUTTON).dispatchEvent('click');
+    expect(await messages(collector, 'getCatalogExtensionIds')).toHaveLength(2);
+    expect(await messages(collector, 'getExtensionStatus')).toHaveLength(1);
+    expect(await messages(collector, 'installExtension')).toHaveLength(0);
 });
 
 test('late status from an earlier visit cannot overwrite the latest visit to the same extension', async ({ page }, testInfo) => {
@@ -328,6 +400,10 @@ test('DOM changes detect page-world navigation before the URL polling interval',
         /** @type {any} */ (window).storePushState({}, '', path);
         document.body.append(document.createElement('div'));
     }, OTHER);
+    // The catalog request proves re-evaluation started with the polling timer
+    // paused; the mocked reply itself needs the clock running.
+    await expect.poll(async () => (await messages(collector, 'getCatalogExtensionIds')).length).toBe(2);
+    await page.clock.resume();
     await expect(page.locator(LABEL)).toHaveText('Unsupported extension');
     expect(await messages(collector, 'getExtensionStatus')).toHaveLength(1);
 });
