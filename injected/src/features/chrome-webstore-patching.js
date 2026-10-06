@@ -7,7 +7,6 @@ import {
     isValidSelector,
     parseCatalogExtensionIds,
     parseExtensionId,
-    readCuratedCatalog,
     readStatusSets,
 } from './chrome-webstore-patching/helpers.js';
 // Vendored from the duckduckgo/Icons repo (no package exports them), original names kept
@@ -78,8 +77,7 @@ const CATALOG_REQUEST_TIMEOUT_MS = 3000;
  * Patches the Chrome Web Store UI in the DDG browser.
  * - Hides every install button via CSS up front (fail closed)
  * - On extension detail pages for catalog extensions, swaps the button copy to
- *   DuckDuckGo wording and reveals the button. Native owns the catalog on
- *   Windows; macOS reads it from config.
+ *   DuckDuckGo wording and reveals the button. Native owns the catalog.
  * Decisions happen on navigation; the MutationObserver only re-applies the
  * current decision when the store's framework re-renders the button.
  */
@@ -436,19 +434,7 @@ export class ChromeWebstorePatching extends ContentFeature {
     }
 
     /**
-     * macOS catalog: curated extension IDs from this build's config. The state
-     * check comes from ConfigFeature so 'internal' and 'preview' resolve against
-     * this build's platform flags rather than being matched as bare strings, and
-     * internal builds read the wider `catalogInternal` list. Synchronous, because
-     * the macOS click interceptor checks it while handling the event.
-     * @returns {string[]}
-     */
-    getCuratedExtensionIds() {
-        return readCuratedCatalog(this.bundledConfig, (state) => this._isStateEnabled(state), this.platform?.internal === true);
-    }
-
-    /**
-     * Windows catalog: extension IDs the store may offer, asked of native on every
+     * Extension IDs the store may offer, asked of native on every
      * evaluation. Native owns the catalog so the store offers exactly what browser
      * Settings does: rollout, minimum versions and native-only gates never reach
      * C-S-S. Not cached, because remote config can change it at any time. Never

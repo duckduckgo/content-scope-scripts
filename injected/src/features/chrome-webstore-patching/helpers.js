@@ -10,25 +10,6 @@ function isRecord(value) {
     return typeof value === 'object' && value !== null;
 }
 
-/** @typedef {import('../../utils.js').FeatureState} FeatureState */
-
-/**
- * Narrows an untyped config value to a FeatureState.
- * @param {unknown} value
- * @returns {FeatureState | undefined}
- */
-function asFeatureState(value) {
-    switch (value) {
-        case 'enabled':
-        case 'disabled':
-        case 'internal':
-        case 'preview':
-            return value;
-        default:
-            return undefined;
-    }
-}
-
 /**
  * Extracts the extension ID from a Chrome Web Store detail-page path, e.g.
  * /detail/bitwarden-password-manag/nngceckbapebfimnlniiiahkandclblb
@@ -56,55 +37,6 @@ export function isValidSelector(selector) {
     } catch {
         return false;
     }
-}
-
-/**
- * macOS catalog: curated extension IDs from the native extensionManagement
- * feature's curatedExtensions sub-feature, read out of bundledConfig — sub-feature
- * settings aren't copied into featureSettings. Windows doesn't read config for
- * its catalog; it asks native (`getCatalogExtensionIds`).
- *
- * Every unreadable shape returns an empty catalog, which the caller treats as
- * "nothing is installable": the parent feature gates native extension support,
- * so with it disabled a working install button must not be offered.
- * Internal builds read `catalogInternal` instead of `catalog`, so extensions
- * still being trialled can be offered internally while the public catalog stays
- * narrower. It replaces the public list rather than extending it, per the native
- * behaviour. Older configs have no `catalogInternal`, so its absence falls back
- * to `catalog`: that is the narrower list, so falling back cannot widen what an
- * internal user is offered, and it keeps internal users working on old config.
- * @param {unknown} bundledConfig
- * @param {(state: FeatureState | undefined) => boolean} isEnabled platform-aware state check
- * @param {boolean} [isInternal] internal build, from `platform.internal`
- * @returns {string[]}
- */
-export function readCuratedCatalog(bundledConfig, isEnabled, isInternal = false) {
-    if (!isRecord(bundledConfig)) return [];
-    const features = bundledConfig.features;
-    if (!isRecord(features)) return [];
-
-    const extensionManagement = features.extensionManagement;
-    if (!isRecord(extensionManagement) || !isEnabled(asFeatureState(extensionManagement.state))) return [];
-
-    const subFeatures = extensionManagement.features;
-    if (!isRecord(subFeatures)) return [];
-
-    const curated = subFeatures.curatedExtensions;
-    if (!isRecord(curated) || !isEnabled(asFeatureState(curated.state))) return [];
-
-    const settings = curated.settings;
-    if (!isRecord(settings)) return [];
-
-    const internalCatalog = isInternal ? settings.catalogInternal : undefined;
-    const catalog = Array.isArray(internalCatalog) ? internalCatalog : settings.catalog;
-    if (!Array.isArray(catalog)) return [];
-
-    /** @type {string[]} */
-    const ids = [];
-    for (const entry of catalog) {
-        if (isRecord(entry) && typeof entry.id === 'string') ids.push(entry.id);
-    }
-    return ids;
 }
 
 /**
