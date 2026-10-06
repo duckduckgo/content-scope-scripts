@@ -38,7 +38,7 @@ const NOTICE_TYPES = /** @type {const} */ (['required', 'action', 'informational
  *   type: NoticeType,
  *   message: import('preact').ComponentChildren,
  *   messageId?: string,
- *   secondaryText: string,
+ *   secondaryText: import('preact').ComponentChildren,
  *   secondaryOnNewLine?: boolean,
  *   muted?: boolean,
  *   icon: NoticeIcon,
@@ -301,6 +301,7 @@ function NoticeRow({ presentation }) {
                 )}
             >
                 <span class={styles.primary}>{message}</span>
+                {secondaryOnNewLine && secondaryText ? ' ' : null}
                 {secondaryText ? <span class={styles.secondary}>{secondaryText}</span> : null}
             </p>
             {cta && onSelectCta ? <UsageLimitsCtaControl cta={cta} onSelectCta={onSelectCta} /> : null}

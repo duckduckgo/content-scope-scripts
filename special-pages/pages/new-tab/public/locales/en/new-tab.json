@@ -177,13 +177,17 @@
     "title": "Start voice chat",
     "description": "Accessible label for the voice-chat button shown in place of the AI chat submit button when the input is empty and the feature is enabled."
   },
+  "omnibar_termsDisclaimerAnonymized": {
+    "title": "DuckDuckGo anonymizes your chats.",
+    "description": "First line of the Duck.ai terms disclaimer shown under the Duck.ai chat input until the user accepts Duck.ai's terms. Followed on the next line by omnibar_termsDisclaimerAsk or omnibar_termsDisclaimerCreate."
+  },
   "omnibar_termsDisclaimerAsk": {
-    "title": "DuckDuckGo anonymizes your chats. By clicking ‘Ask’ you agree to our <a>Privacy Policy & Terms of Service</a>.",
-    "description": "Shown under the Duck.ai chat input until the user accepts Duck.ai's terms. ‘Ask’ must match the omnibar_termsAskButtonLabel button label. The <a> tag is a link to the Privacy Policy and Terms of Service page, please preserve it."
+    "title": "By clicking 'Ask' you agree to our <a>Privacy Policy and Terms of Service</a>.",
+    "description": "Second line of the Duck.ai terms disclaimer, shown below omnibar_termsDisclaimerAnonymized. 'Ask' must match the omnibar_termsAskButtonLabel button label. The <a> tag is a link to the Privacy Policy and Terms of Service page, please preserve it."
   },
   "omnibar_termsDisclaimerCreate": {
-    "title": "DuckDuckGo anonymizes your chats. By clicking ‘Create’ you agree to our <a>Privacy Policy & Terms of Service</a>.",
-    "description": "Shown under the Duck.ai chat input in image creation mode until the user accepts Duck.ai's terms. ‘Create’ must match the omnibar_termsCreateButtonLabel button label. The <a> tag is a link to the Privacy Policy and Terms of Service page, please preserve it."
+    "title": "By clicking 'Create' you agree to our <a>Privacy Policy and Terms of Service</a>.",
+    "description": "Second line of the Duck.ai terms disclaimer in image creation mode, shown below omnibar_termsDisclaimerAnonymized. 'Create' must match the omnibar_termsCreateButtonLabel button label. The <a> tag is a link to the Privacy Policy and Terms of Service page, please preserve it."
   },
   "omnibar_termsAskButtonLabel": {
     "title": "Ask",

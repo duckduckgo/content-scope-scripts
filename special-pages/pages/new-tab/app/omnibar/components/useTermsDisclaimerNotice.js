@@ -30,14 +30,15 @@ export function useTermsDisclaimerNotice() {
 
     return {
         type: 'required',
-        message: (
+        message: t('omnibar_termsDisclaimerAnonymized'),
+        messageId: TERMS_DISCLAIMER_ID,
+        secondaryText: (
             <Trans
                 str={imageGenerationActive ? t('omnibar_termsDisclaimerCreate') : t('omnibar_termsDisclaimerAsk')}
                 values={{ a: { href: '#', class: styles.link, click: onLinkClick, auxclick: onLinkClick } }}
             />
         ),
-        messageId: TERMS_DISCLAIMER_ID,
-        secondaryText: '',
+        secondaryOnNewLine: true,
         icon: /** @type {const} */ ('shield'),
         muted: true,
     };

@@ -3,7 +3,7 @@ import { NewtabPage } from '../../../integration-tests/new-tab.page.js';
 import { OmnibarPage } from './omnibar.page.js';
 
 const requiresTerms = { 'omnibar.mode': 'ai', 'omnibar.requiresAiTermsAcceptance': 'true' };
-const askDisclaimer = 'DuckDuckGo anonymizes your chats. By clicking ‘Ask’ you agree to our Privacy Policy & Terms of Service.';
+const askDisclaimer = "DuckDuckGo anonymizes your chats. By clicking 'Ask' you agree to our Privacy Policy and Terms of Service.";
 
 /** @param {import('@playwright/test').Page} page @param {import('@playwright/test').TestInfo} workerInfo */
 function setup(page, workerInfo) {
@@ -85,7 +85,7 @@ test.describe('omnibar terms disclaimer', () => {
         await omnibar.createImageMenuItem().click();
 
         await expect(omnibar.noticeDrawer()).toHaveText(
-            'DuckDuckGo anonymizes your chats. By clicking ‘Create’ you agree to our Privacy Policy & Terms of Service.',
+            "DuckDuckGo anonymizes your chats. By clicking 'Create' you agree to our Privacy Policy and Terms of Service.",
         );
 
         await omnibar.imageGenerationInput().fill('a neon duck');

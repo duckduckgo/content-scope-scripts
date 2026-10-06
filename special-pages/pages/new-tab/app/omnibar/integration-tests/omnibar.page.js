@@ -60,7 +60,7 @@ export class OmnibarPage {
     }
 
     termsLink() {
-        return this.noticeDrawer().getByRole('link', { name: 'Privacy Policy & Terms of Service' });
+        return this.noticeDrawer().getByRole('link', { name: 'Privacy Policy and Terms of Service' });
     }
 
     tabList() {
