@@ -13,9 +13,9 @@ export function useReservedHeight(enabled, onChange) {
     useLayoutEffect(() => {
         const element = ref.current;
         if (!enabled || !element) return;
-        const observer = new ResizeObserver(() => {
-            onChange(Math.max(0, element.offsetHeight + parseFloat(getComputedStyle(element).marginTop)));
-        });
+        const report = () => onChange(Math.max(0, element.offsetHeight + parseFloat(getComputedStyle(element).marginTop)));
+        report();
+        const observer = new ResizeObserver(report);
         observer.observe(element);
         return () => {
             observer.disconnect();

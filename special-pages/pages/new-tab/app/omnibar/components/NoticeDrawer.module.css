@@ -16,6 +16,10 @@
     }
 }
 
+.noSlideIn {
+    animation: none;
+}
+
 /* Hide focus-gated notices until the composer has focus. */
 .hidden {
     display: none;

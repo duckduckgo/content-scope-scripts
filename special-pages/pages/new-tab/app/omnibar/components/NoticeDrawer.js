@@ -1,5 +1,5 @@
 import { h, Fragment } from 'preact';
-import { useRef } from 'preact/hooks';
+import { useRef, useState } from 'preact/hooks';
 import cn from 'classnames';
 import { DismissButton } from '../../components/DismissButton';
 import { ChevronSmall, InfoIcon, ShieldCheckIcon } from '../../components/Icons';
@@ -325,9 +325,10 @@ export function NoticeDrawer({ revealed, onReservedHeightChange }) {
 
     const drawerRef = useReservedHeight(topType === 'required', onReservedHeightChange);
 
-    if (!topType) return null;
+    const isRevealed = topType !== undefined && (revealed || topType !== 'informational');
+    const [shownAtMount] = useState(isRevealed);
 
-    const isRevealed = revealed || topType !== 'informational';
+    if (!topType) return null;
 
     const keepComposerFocus = (event) => {
         // Keep the caret in the composer so clicking CTA/dismiss does not hide the drawer first.
@@ -337,7 +338,7 @@ export function NoticeDrawer({ revealed, onReservedHeightChange }) {
     return (
         <div
             ref={drawerRef}
-            class={cn(styles.drawer, !isRevealed && styles.hidden)}
+            class={cn(styles.drawer, shownAtMount && styles.noSlideIn, !isRevealed && styles.hidden)}
             data-testid="notice-drawer"
             role="status"
             onMouseDown={keepComposerFocus}
