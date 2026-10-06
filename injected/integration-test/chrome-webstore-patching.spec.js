@@ -362,6 +362,29 @@ test.describe('chromeWebstorePatching', () => {
         await expect(page.locator(LABEL)).toHaveCount(0);
     });
 
+    // Windows messaging can't cancel a request, so each new unanswered one would
+    // keep another reply listener for the life of the page
+    test('native never replies → later evaluations reuse the unanswered request', async ({ page }, testInfo) => {
+        const collector = await setup(page, testInfo, { catalogFailure: 'none' });
+        const firstTimeout = waitForFeatureLog(page, LOG_CATALOG_UNUSABLE);
+        await navigateTo(page, CATALOG_PATH);
+        await firstTimeout;
+        const secondTimeout = waitForFeatureLog(page, LOG_CATALOG_UNUSABLE);
+        await navigateTo(page, NON_CATALOG_PATH);
+        await secondTimeout;
+        expect(await collector.waitForMessage('getCatalogExtensionIds')).toHaveLength(1);
+    });
+
+    // Only an unanswered request is shared: remote config can change the catalog at any time
+    test('each evaluation asks native again once the previous request is answered', async ({ page }, testInfo) => {
+        const collector = await setup(page, testInfo);
+        await navigateTo(page, CATALOG_PATH);
+        await expect(page.locator(LABEL)).toHaveText('Add to DuckDuckGo');
+        await navigateTo(page, NON_CATALOG_PATH);
+        await expect(page.locator(LABEL)).toHaveText('Unsupported extension');
+        await collector.waitForMessage('getCatalogExtensionIds', 2);
+    });
+
     // Ship Review blocker: switching protections off must not restore a working
     // install button. The feature is in `platformSpecificFeatures`, so it keeps
     // loading while everything else is skipped.

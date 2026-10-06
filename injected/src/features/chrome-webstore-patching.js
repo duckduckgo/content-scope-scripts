@@ -103,6 +103,9 @@ export class ChromeWebstorePatching extends ContentFeature {
     /** @type {MacOSWebstore | undefined} */
     _macOS;
 
+    /** @type {Promise<unknown> | undefined} catalog request native hasn't answered yet */
+    _pendingCatalogRequest;
+
     /** @param {any} [args] */
     async init(args) {
         // The Apple isolated bundle is shared with iOS, which has no integration.
@@ -457,7 +460,7 @@ export class ChromeWebstorePatching extends ContentFeature {
             timer = setTimeout(() => resolve(null), CATALOG_REQUEST_TIMEOUT_MS);
         });
         try {
-            const response = await Promise.race([this.request('getCatalogExtensionIds', {}), timeout]);
+            const response = await Promise.race([this._catalogRequest(), timeout]);
             const extensionIds = parseCatalogExtensionIds(response);
             if (extensionIds === null) this.log.warn('getCatalogExtensionIds: timed out or malformed reply', response);
             return extensionIds;
@@ -468,6 +471,27 @@ export class ChromeWebstorePatching extends ContentFeature {
         } finally {
             clearTimeout(timer);
         }
+    }
+
+    /**
+     * The catalog request native hasn't answered yet, or a new one. Messaging
+     * can't cancel a request, and on Windows each unanswered one keeps a reply
+     * listener for the life of the page. Sharing it caps that at one listener,
+     * however many evaluations time out.
+     * @returns {Promise<unknown>}
+     */
+    _catalogRequest() {
+        if (!this._pendingCatalogRequest) {
+            const request = this.request('getCatalogExtensionIds', {});
+            const settled = () => {
+                this._pendingCatalogRequest = undefined;
+            };
+            // Handles the rejection too, so a late error reply is never unhandled
+            // eslint-disable-next-line promise/prefer-await-to-then
+            request.then(settled, settled);
+            this._pendingCatalogRequest = request;
+        }
+        return this._pendingCatalogRequest;
     }
 
     /**
