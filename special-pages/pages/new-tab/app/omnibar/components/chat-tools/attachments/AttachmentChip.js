@@ -36,7 +36,7 @@ export function AttachmentChip({
     removeLabel,
     enteringAnimationDelay = 0,
 }) {
-    const tooltip = tooltipLabel ?? title ?? '';
+    const tooltip = tooltipLabel || title || '';
     return (
         <div class={styles.listItem} data-attachment-kind={attachmentKind}>
             <span class={styles.enter} style={{ animationDelay: enteringAnimationDelay ? `${enteringAnimationDelay}ms` : undefined }}>
