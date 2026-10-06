@@ -241,23 +241,13 @@ export class ChromeWebstorePatching extends ContentFeature {
         const extensionId = parseExtensionId(window.location.pathname);
         if (!extensionId) return;
 
-        const catalog = await this.getCatalogExtensionIds();
-
         // A navigation may have happened during each await — don't apply a stale verdict
-        if (extensionId !== parseExtensionId(window.location.pathname)) return;
-
-        // Catalog unknown → stay hidden. Not the unsupported pill: that would
-        // claim a catalog extension isn't supported whenever native errors or stalls.
-        if (catalog === null) return;
-
-        if (!catalog.includes(extensionId)) {
-            this._reveal('unsupported');
-            return;
-        }
+        const isCurrent = () => extensionId === parseExtensionId(window.location.pathname);
+        if (!(await this._isInCatalog(extensionId, isCurrent))) return;
 
         const status = await this.getExtensionStatus(extensionId);
 
-        if (extensionId !== parseExtensionId(window.location.pathname)) return;
+        if (!isCurrent()) return;
 
         const { installable, installed } = readStatusSets(globalThis.chrome);
         if (status !== null && installable.includes(status)) {
@@ -266,6 +256,23 @@ export class ChromeWebstorePatching extends ContentFeature {
             this._reveal('remove');
         }
         // unknown status → stay hidden
+    }
+
+    /**
+     * The catalog step of a page decision, shared by Windows and macOS. Reveals the
+     * unsupported pill for an extension outside the catalog. An unknown catalog
+     * leaves the button hidden rather than unsupported: that would claim a catalog
+     * extension isn't supported whenever native errors or stalls.
+     * @param {string} extensionId
+     * @param {() => boolean} isCurrent whether this evaluation is still the latest once the catalog arrives
+     * @returns {Promise<boolean>} true only when the extension is in the catalog and the caller should check its install status
+     */
+    async _isInCatalog(extensionId, isCurrent) {
+        const catalog = await this.getCatalogExtensionIds();
+        if (!isCurrent() || catalog === null) return false;
+        if (catalog.includes(extensionId)) return true;
+        this._reveal('unsupported');
+        return false;
     }
 
     /**

@@ -94,18 +94,12 @@ export class MacOSWebstore {
 
         if (!extensionId || this._pending.has(extensionId)) return;
 
-        const catalog = await this.feature.getCatalogExtensionIds();
         // A → B → A navigation must also discard the first A's late response.
-        if (evaluation !== this._evaluation || extensionId !== parseExtensionId(window.location.pathname)) return;
-        // Catalog unknown → stay hidden, as on Windows.
-        if (catalog === null) return;
-        if (!catalog.includes(extensionId)) {
-            this.feature._reveal('unsupported');
-            return;
-        }
+        const isCurrent = () => evaluation === this._evaluation && extensionId === parseExtensionId(window.location.pathname);
+        if (!(await this.feature._isInCatalog(extensionId, isCurrent))) return;
 
         const status = await this.getExtensionStatus(extensionId);
-        if (evaluation !== this._evaluation || extensionId !== parseExtensionId(window.location.pathname)) return;
+        if (!isCurrent()) return;
         this._evaluatedExtensionId = extensionId;
         if (status === 'installable') this.feature._reveal('install');
         else if (status === 'installed') this.feature._reveal('remove');

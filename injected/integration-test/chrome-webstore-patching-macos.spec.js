@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { ResultsCollector } from './page-objects/results-collector.js';
+import { LOG_CATALOG_ERROR, LOG_CATALOG_UNUSABLE, waitForFeatureLog } from './helpers/chrome-webstore-patching.js';
 
 test.use({ browserName: 'webkit' });
 
@@ -10,9 +11,6 @@ const DETAIL = `/detail/bitwarden-password-manage/${ID}`;
 const OTHER = '/detail/other/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 const BUTTON = 'button[jsname="wQO0od"]';
 const LABEL = `${BUTTON} [data-ddg-webstore-label]`;
-// Logged (tests run with debug on) once a failed catalog lookup has resolved
-const LOG_CATALOG_ERROR = 'getCatalogExtensionIds failed';
-const LOG_CATALOG_UNUSABLE = 'getCatalogExtensionIds: timed out or malformed reply';
 
 /**
  * @param {import('@playwright/test').Page} page
@@ -107,17 +105,6 @@ async function setup(page, testInfo, options = {}) {
 /** @param {import('@playwright/test').Page} page @param {string} path */
 async function navigate(page, path) {
     await page.evaluate((p) => /** @type {any} */ (window).storePushState({}, '', p), path);
-}
-
-/**
- * Resolves once the feature logs `text`. Failed catalog lookups leave the
- * button exactly as hidden as it starts, so a test must wait for the failure to
- * be processed or its "stays hidden" assertion would pass vacuously.
- * @param {import('@playwright/test').Page} page
- * @param {string} text
- */
-function waitForFeatureLog(page, text) {
-    return page.waitForEvent('console', { predicate: (msg) => msg.text().includes(text), timeout: 10000 });
 }
 
 /** @param {ResultsCollector} collector @param {string} [method] */

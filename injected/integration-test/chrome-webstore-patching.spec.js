@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { ResultsCollector } from './page-objects/results-collector.js';
+import { LOG_CATALOG_ERROR, LOG_CATALOG_UNUSABLE, waitForFeatureLog } from './helpers/chrome-webstore-patching.js';
 
 const HTML = '/chrome-webstore-patching/pages/detail.html';
 const PROMO_HTML = '/chrome-webstore-patching/pages/promo.html';
@@ -9,10 +10,6 @@ const CATALOG_ID = 'nngceckbapebfimnlniiiahkandclblb';
 const CATALOG_PATH = `/detail/bitwarden-password-manage/${CATALOG_ID}`;
 const NON_CATALOG_PATH = '/detail/some-other-extension/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 const OTHER_CATALOG_ID = 'aeblfdkhhhdcdjpifhhbdiojplfjncoa';
-
-// Logged (tests run with debug on) once a failed catalog lookup has resolved
-const LOG_CATALOG_ERROR = 'getCatalogExtensionIds failed';
-const LOG_CATALOG_UNUSABLE = 'getCatalogExtensionIds: timed out or malformed reply';
 
 const BUTTON = 'button[jsname="wQO0od"]';
 const LABEL = 'button [data-ddg-webstore-label]';
@@ -119,17 +116,6 @@ function mockNativeErrorReply({ method, message }) {
         (remove) => (/** @type {string} */ type, /** @type {unknown} */ listener) =>
             remove(type, wrappedListeners.get(listener) ?? listener),
     );
-}
-
-/**
- * Resolves once the feature logs `text`. Failed catalog lookups leave the
- * button exactly as hidden as it starts, so a test must wait for the failure to
- * be processed or its "stays hidden" assertion would pass vacuously.
- * @param {import('@playwright/test').Page} page
- * @param {string} text
- */
-function waitForFeatureLog(page, text) {
-    return page.waitForEvent('console', { predicate: (msg) => msg.text().includes(text), timeout: 10000 });
 }
 
 /**
