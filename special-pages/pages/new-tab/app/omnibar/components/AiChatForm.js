@@ -179,7 +179,6 @@ export function AiChatForm({
                 }
             }}
         >
-            {/* Attachments sit above the prompt, as in the Duck.ai composer. */}
             {children}
             <textarea
                 ref={textareaRef}
