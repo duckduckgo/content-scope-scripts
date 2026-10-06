@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Set Image Generation Active",
+  "description": "Sent when Create Image is activated or deactivated under the updated native-driven flow. Native owns fallback model selection, persistence, and notice presentation.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["active"],
+  "properties": {
+    "active": {
+      "type": "boolean",
+      "description": "Whether Create Image is now active in this New Tab Page omnibar."
+    }
+  }
+}

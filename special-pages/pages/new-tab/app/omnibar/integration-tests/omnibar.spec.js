@@ -1495,6 +1495,31 @@ test.describe('omnibar widget', () => {
             await expect(omnibar.chatInput()).toHaveCount(0);
         });
 
+        test('updated create image flow notifies native when toggled', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableImageGeneration': 'true',
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.enableUpdatedCreateImage': 'true',
+                },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.toolsMenuButton().click();
+            await omnibar.createImageMenuItem().click();
+            await expect(omnibar.createImageChip()).toBeVisible();
+            await omnibar.createImageChip().click();
+
+            const calls = await ntp.mocks.waitForCallCount({ method: 'omnibar_setImageGenerationActive', count: 2 });
+            expect(calls.map((call) => call.payload.params)).toEqual([{ active: true }, { active: false }]);
+        });
+
         test('image generation submit sends mode and omits modelId', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);

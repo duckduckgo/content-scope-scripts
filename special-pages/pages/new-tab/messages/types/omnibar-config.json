@@ -242,6 +242,12 @@
       "type": "boolean",
       "default": false
     },
+    "enableUpdatedCreateImage": {
+      "title": "Enable Updated Create Image",
+      "description": "Use the native-driven Create Image model-switch flow. Native selects and persists an image-capable model and provides localized notice copy.",
+      "type": "boolean",
+      "default": false
+    },
     "enableWebSearch": {
       "title": "Enable Web Search",
       "description": "Allow AI chat submissions to include web search tool.",
@@ -289,6 +295,20 @@
       "type": "boolean",
       "default": false
     },
+    "screenshotModes": {
+      "title": "Screenshot Modes",
+      "description": "Screenshot capture modes offered under 'Add Screenshot' in the attach menu, in display order. Absent or empty hides the screenshot UI. Choosing a mode calls `omnibar_captureScreenshot`.",
+      "type": "array",
+      "items": {
+        "$ref": "screenshot-mode.json"
+      }
+    },
+    "enablePastedAttachments": {
+      "title": "Enable Pasted Attachments",
+      "description": "When true, pasting into the Duck.ai prompt attaches copied images and files (unless the clipboard also carries text). When false or absent, paste is left to the browser (text only).",
+      "type": "boolean",
+      "default": false
+    },
     "enableAiChatDeletion": {
       "title": "Enable AI Chat Deletion",
       "description": "Show a delete button on recent AI chat suggestions. When true, clicking the button prompts a native confirmation dialog before deleting the chat.",
@@ -300,6 +320,58 @@
       "description": "Show a delete button on history entry suggestions. When true, clicking the button removes the entry from browsing history.",
       "type": "boolean",
       "default": false
+    },
+    "showAttachmentPrivacyDisclaimer": {
+      "title": "Show Attachment Privacy Disclaimer",
+      "description": "Whether this surface may still show the file-upload privacy disclaimer. Native owns the device-wide display count and pushes an updated config whenever it changes, including when another surface spends a display. False or omitted means the omnibar renders nothing.",
+      "type": "boolean",
+      "default": false
+    },
+    "createImageModelSwitch": {
+      "title": "Create Image Model Switch Notice",
+      "description": "Native-resolved presentation shown after Create Image switches away from an unsupported model. Non-null takes visual priority over usageLimits; native owns model selection, localized copy, and lifecycle.",
+      "type": ["object", "null"],
+      "required": ["message"],
+      "properties": {
+        "message": {
+          "type": "string",
+          "description": "Primary notice copy, already localized by native (for example, 'Now using GPT-5.4')."
+        },
+        "secondaryText": {
+          "type": "string",
+          "description": "Optional explanation, already localized by native, including the OSS privacy variant when applicable."
+        },
+        "dismissible": {
+          "type": "boolean",
+          "description": "When true or omitted, show a dismiss control. Dismiss notifies native via omnibar_dismissCreateImageModelSwitch.",
+          "default": true
+        }
+      }
+    },
+    "launcherPromo": {
+      "title": "Launcher Promo",
+      "description": "Native-resolved Duck.ai launcher promo for the AI-mode drawer. Native owns eligibility, localized copy and what the CTA does; FE renders what it receives, below every other notice. Null/omitted shows nothing.",
+      "type": ["object", "null"],
+      "required": ["message"],
+      "properties": {
+        "message": {
+          "type": "string",
+          "description": "Drawer copy, already localized, shown emphasized."
+        },
+        "secondaryText": {
+          "type": "string",
+          "description": "Optional copy shown after message, already localized and including any leading separator (for example, ' • Add Duck.ai to your menu bar')."
+        },
+        "ctaLabel": {
+          "type": "string",
+          "description": "Button label, already localized. Omitted means no button. Selecting it notifies native via omnibar_selectLauncherPromoCta."
+        },
+        "dismissible": {
+          "type": "boolean",
+          "description": "When true, show a dismiss control. Dismiss notifies native via omnibar_dismissLauncherPromo.",
+          "default": false
+        }
+      }
     },
     "usageLimits": {
       "title": "Usage Limits Drawer",

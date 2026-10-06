@@ -607,6 +607,61 @@ export function FolderIcon(props) {
 }
 
 /**
+ * Camera glyph for the "Add Screenshot" menu row.
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
+ */
+export function CameraIcon(props) {
+    return (
+        <svg width="16" height="16" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
+            <path
+                fill="currentColor"
+                fill-rule="evenodd"
+                clip-rule="evenodd"
+                d="M6.5 1C5.9 1 5.4 1.3 5.1 1.8L4.4 3H4C1.8 3 0 4.8 0 7V11C0 13.2 1.8 15 4 15H12C14.2 15 16 13.2 16 11V7C16 4.8 14.2 3 12 3H11.6L10.9 1.8C10.6 1.3 10.1 1 9.5 1H6.5ZM6.5 2.25H9.5C9.65 2.25 9.8 2.33 9.86 2.45L10.7 3.9C10.9 4.1 11.1 4.25 11.4 4.25H12C13.5 4.25 14.75 5.5 14.75 7V11C14.75 12.5 13.5 13.75 12 13.75H4C2.5 13.75 1.25 12.5 1.25 11V7C1.25 5.5 2.5 4.25 4 4.25H4.6C4.9 4.25 5.1 4.1 5.3 3.9L6.14 2.45C6.2 2.33 6.35 2.25 6.5 2.25ZM8 6A3 3 0 1 0 8 12A3 3 0 1 0 8 6ZM8 7.25A1.75 1.75 0 1 1 8 10.75A1.75 1.75 0 1 1 8 7.25Z"
+            />
+        </svg>
+    );
+}
+
+/**
+ * Scissors glyph for the "Drag to Select" screenshot row.
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
+ */
+export function ScissorsIcon(props) {
+    return (
+        <svg width="16" height="16" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
+            <path
+                fill="currentColor"
+                fill-rule="evenodd"
+                clip-rule="evenodd"
+                d="M5.207,0.46C5.081,0.138 4.718,-0.02 4.397,0.106 4.075,0.232 3.917,0.595 4.043,0.916L7.303,9.224 6.498,11.339C5.961,10.532 5.042,10 4,10 2.343,10 1,11.343 1,13 1,14.657 2.343,16 4,16 5.348,16 6.488,15.11 6.867,13.887L7.982,10.955 9.137,13.9C9.52,15.117 10.657,16 12,16 13.657,16 15,14.657 15,13 15,11.343 13.657,10 12,10 10.947,10 10.02,10.543 9.485,11.364L5.207,0.459z M5.681,13.489L5.666,13.528C5.656,13.555 5.648,13.582 5.641,13.608 5.394,14.275 4.752,14.75 4,14.75 3.034,14.75 2.25,13.966 2.25,13 2.25,12.034 3.034,11.25 4,11.25 4.966,11.25 5.75,12.034 5.75,13 5.75,13.17 5.726,13.334 5.68,13.489z M10.359,13.609C10.352,13.579,10.343,13.551,10.332,13.522L10.32,13.492C10.275,13.337 10.25,13.172 10.25,13 10.25,12.034 11.034,11.25 12,11.25 12.966,11.25 13.75,12.034 13.75,13 13.75,13.966 12.966,14.75 12,14.75 11.248,14.75 10.606,14.275 10.359,13.609z"
+            />
+            <path
+                fill="currentColor"
+                d="M11.662,0.104C11.34,-0.02,10.978,0.141,10.854,0.464L8.667,6.15C8.543,6.472 8.704,6.834 9.026,6.958 9.348,7.081 9.71,6.921 9.833,6.598L12.021,0.913C12.145,0.591,11.984,0.229,11.661,0.105z"
+            />
+        </svg>
+    );
+}
+
+/**
+ * Monitor glyph for the "Select Window or Display" screenshot row.
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
+ */
+export function MonitorIcon(props) {
+    return (
+        <svg width="16" height="16" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
+            <path
+                fill="currentColor"
+                fill-rule="evenodd"
+                clip-rule="evenodd"
+                d="M3 1C1.34 1 0 2.34 0 4V9.5C0 11.16 1.34 12.5 3 12.5H7.375V14H5.125C4.78 14 4.5 14.28 4.5 14.625C4.5 14.97 4.78 15.25 5.125 15.25H10.875C11.22 15.25 11.5 14.97 11.5 14.625C11.5 14.28 11.22 14 10.875 14H8.625V12.5H13C14.66 12.5 16 11.16 16 9.5V4C16 2.34 14.66 1 13 1H3ZM3 2.25H13C13.97 2.25 14.75 3.03 14.75 4V9.5C14.75 10.47 13.97 11.25 13 11.25H3C2.03 11.25 1.25 10.47 1.25 9.5V4C1.25 3.03 2.03 2.25 3 2.25Z"
+            />
+        </svg>
+    );
+}
+
+/**
  * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Page-Content-16.svg
  * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
  */

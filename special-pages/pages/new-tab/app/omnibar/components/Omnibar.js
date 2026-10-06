@@ -20,9 +20,10 @@ import { Popover } from '../../components/Popover';
 import { useDrawerControls, useDrawerEventListeners } from '../../components/Drawer';
 import { Trans } from '../../../../../shared/components/TranslationsProvider.js';
 import { ImageAttachmentContent } from './chat-tools/image-attachment/ImageAttachmentTool';
-import { useImageAttachments } from './chat-tools/image-attachment/useImageAttachments';
-import { useFileAttachments } from './chat-tools/file-attachment/useFileAttachments';
+import { usePastedAttachments } from './chat-tools/image-attachment/usePastedAttachments';
+import { useScreenshotCapture } from './chat-tools/image-attachment/useScreenshotCapture';
 import { AttachmentChips } from './chat-tools/attachments/AttachmentChips';
+import { AttachmentsProvider, useAttachmentsContext } from './chat-tools/attachments/AttachmentsProvider';
 import { ModelSelectorTool } from './chat-tools/model-selector/ModelSelectorTool';
 import { ReasoningPickerTool } from './chat-tools/reasoning-picker/ReasoningPickerTool';
 import { ToolsMenu } from './chat-tools/tools-menu/ToolsMenu';
@@ -35,7 +36,7 @@ import { MentionPicker } from './chat-tools/tab-attachment/MentionPicker';
 import { OpenTabsProvider } from './chat-tools/tab-attachment/OpenTabsProvider';
 import { useMentionPicker } from './chat-tools/tab-attachment/useMentionPicker';
 import { useTabAttachments } from './chat-tools/tab-attachment/useTabAttachments';
-import { UsageLimitsDrawer } from './UsageLimitsDrawer';
+import { NoticeDrawer } from './NoticeDrawer';
 import { useKeyboardFocusWithin } from './useKeyboardFocusWithin.js';
 
 /**
@@ -83,6 +84,7 @@ export function Omnibar({
 }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const spacerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
+    const launcherPromoVisibleRef = useRef(false);
     const [usageLimitsRevealed, setUsageLimitsRevealed] = useState(false);
 
     const [query, setQuery] = useQueryWithLocalPersistence(tabId);
@@ -135,7 +137,7 @@ export function Omnibar({
 
     /** @type {(params: SubmitChatAction) => void} */
     const handleSubmitChat = (params) => {
-        submitChat(params);
+        submitChat(launcherPromoVisibleRef.current ? { ...params, launcherPromoVisible: true } : params);
         resetForm();
     };
 
@@ -171,57 +173,61 @@ export function Omnibar({
                 </div>
             )}
             <SearchFormProvider term={query} setTerm={setQuery} enableAi={enableAi} enableAskAiSuggestion={enableAskAiSuggestion}>
-                <AiChatsProvider
-                    query={query}
-                    autoFocus={autoFocus}
-                    enableRecentAiChats={enableRecentAiChats}
-                    showViewAllAiChats={showViewAllAiChats}
-                >
-                    <div
-                        ref={spacerRef}
-                        class={styles.spacer}
-                        onFocusCapture={(event) => {
-                            // Toolbar/drawer focus must not reveal the drawer — only the composer itself.
-                            if (!(event.target instanceof HTMLTextAreaElement)) return;
-                            setUsageLimitsRevealed(true);
-                        }}
-                        onBlurCapture={(event) => {
-                            if (focusStaysWithin(spacerRef, event)) return;
-                            setUsageLimitsRevealed(false);
-                        }}
+                <AttachmentsProvider tabId={tabId}>
+                    <AiChatsProvider
+                        query={query}
+                        autoFocus={autoFocus}
+                        enableRecentAiChats={enableRecentAiChats}
+                        showViewAllAiChats={showViewAllAiChats}
                     >
-                        <div class={styles.popup} {...keyboardFocusWithinProps}>
-                            {mode === 'search' ? (
-                                <>
-                                    <ResizingContainer className={styles.field}>
-                                        <SearchForm
+                        <div
+                            ref={spacerRef}
+                            class={styles.spacer}
+                            onFocusCapture={(event) => {
+                                // Toolbar/drawer focus must not reveal the drawer — only the composer itself.
+                                if (!(event.target instanceof HTMLTextAreaElement)) return;
+                                setUsageLimitsRevealed(true);
+                            }}
+                            onBlurCapture={(event) => {
+                                if (focusStaysWithin(spacerRef, event)) return;
+                                setUsageLimitsRevealed(false);
+                            }}
+                        >
+                            <div class={styles.popup} {...keyboardFocusWithinProps}>
+                                {mode === 'search' ? (
+                                    <>
+                                        <ResizingContainer className={styles.field}>
+                                            <SearchForm
+                                                autoFocus={autoFocus}
+                                                onOpenSuggestion={handleOpenSuggestion}
+                                                onSubmit={handleSubmitSearch}
+                                                onSubmitChat={handleSubmitChat}
+                                            />
+                                        </ResizingContainer>
+                                        <SuggestionsList onOpenSuggestion={handleOpenSuggestion} onSubmitChat={handleSubmitChat} />
+                                    </>
+                                ) : (
+                                    <OpenTabsProvider tabId={tabId} enabled={enableAttachTabs}>
+                                        <AiChatContent
+                                            query={query}
                                             autoFocus={autoFocus}
-                                            onOpenSuggestion={handleOpenSuggestion}
-                                            onSubmit={handleSubmitSearch}
-                                            onSubmitChat={handleSubmitChat}
+                                            enableRecentAiChats={enableRecentAiChats}
+                                            enableVoiceChatAccess={enableVoiceChatAccess}
+                                            enableAttachTabs={enableAttachTabs}
+                                            tabId={tabId}
+                                            onChange={setQuery}
+                                            onSubmit={handleSubmitChat}
+                                            omnibarRef={spacerRef}
                                         />
-                                    </ResizingContainer>
-                                    <SuggestionsList onOpenSuggestion={handleOpenSuggestion} onSubmitChat={handleSubmitChat} />
-                                </>
-                            ) : (
-                                <OpenTabsProvider tabId={tabId} enabled={enableAttachTabs}>
-                                    <AiChatContent
-                                        query={query}
-                                        autoFocus={autoFocus}
-                                        enableRecentAiChats={enableRecentAiChats}
-                                        enableVoiceChatAccess={enableVoiceChatAccess}
-                                        enableAttachTabs={enableAttachTabs}
-                                        tabId={tabId}
-                                        onChange={setQuery}
-                                        onSubmit={handleSubmitChat}
-                                        omnibarRef={spacerRef}
-                                    />
-                                </OpenTabsProvider>
+                                    </OpenTabsProvider>
+                                )}
+                            </div>
+                            {mode === 'ai' && (
+                                <NoticeDrawer revealed={usageLimitsRevealed} launcherPromoVisibleRef={launcherPromoVisibleRef} />
                             )}
                         </div>
-                        {mode === 'ai' && <UsageLimitsDrawer revealed={usageLimitsRevealed} />}
-                    </div>
-                </AiChatsProvider>
+                    </AiChatsProvider>
+                </AttachmentsProvider>
             </SearchFormProvider>
         </div>
     );
@@ -253,9 +259,10 @@ function AiChatContent({
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
     const { showChats, hideChats, deletionInProgress } = useAiChatsContext();
-    const { state } = useContext(OmnibarContext);
+    const { state, setImageGenerationActive } = useContext(OmnibarContext);
     const attachmentLimits = state.config?.attachmentLimits;
     const blocksPrompt = state.config?.usageLimits?.blocksPrompt === true;
+    const updatedCreateImageEnabled = state.config?.enableUpdatedCreateImage === true;
     const { selectedModel } = useSelectedModel();
     const { selectedEffort } = useSelectedReasoningEffort();
     const { activeTool, availableTools, imageGenerationActive, webSearchActive, setActiveTool } = useActiveTools();
@@ -264,7 +271,7 @@ function AiChatContent({
     const hasVisibleImagesRef = useRef(false);
     const submittingRef = useRef(false);
     const [imageWarning, setImageWarning] = useState(false);
-    const imageState = useImageAttachments({ tabId, maxImages: attachmentLimits?.images?.maxPerTurn });
+    const { imageState, fileState } = useAttachmentsContext();
 
     const hasAttachedImages = imageState.attachedImages.length > 0;
     const imageGenerationPlaceholder = hasAttachedImages
@@ -273,15 +280,19 @@ function AiChatContent({
     const selectedModelSupportsImages = selectedModel?.supportsImageUpload ?? false;
     const canAttachImages = selectedModelSupportsImages || imageGenerationActive;
 
-    const fileState = useFileAttachments({
-        supportedFileTypes: selectedModel?.supportedFileTypes,
-        tabId,
-        maxFiles: attachmentLimits?.files?.maxPerConversation,
-        maxFileSizeMB: attachmentLimits?.files?.maxFileSizeMB,
-    });
     const canAttachFiles = !imageGenerationActive && (selectedModel?.supportedFileTypes?.length ?? 0) > 0;
 
     const canAttachTabs = enableAttachTabs && !imageGenerationActive;
+    const pastedAttachments = usePastedAttachments({
+        imageState,
+        canAttachImages,
+        processOtherFiles: canAttachFiles ? fileState.processFiles : null,
+        enabled: state.config?.enablePastedAttachments === true && !blocksPrompt,
+    });
+    // Screenshots land in the image list; without an image-capable model the row shows greyed out.
+    const screenshotModes = state.config?.screenshotModes ?? [];
+    const canCaptureScreenshot = screenshotModes.length > 0;
+    const screenshotCapture = useScreenshotCapture({ imageState });
     const tabAttachments = useTabAttachments(tabId, attachmentLimits?.tabs?.maxAttached);
     const textareaRef = useRef(/** @type {HTMLTextAreaElement|null} */ (null));
     const mention = useMentionPicker({
@@ -296,6 +307,9 @@ function AiChatContent({
     });
 
     const clearTool = () => {
+        if (updatedCreateImageEnabled && activeTool === 'image-generation') {
+            setImageGenerationActive(false);
+        }
         setActiveTool(null);
     };
 
@@ -304,9 +318,14 @@ function AiChatContent({
      */
     const handleToggleTool = (tool) => {
         const nextTool = activeTool === tool ? null : tool;
+        const nextImageGeneration = nextTool === 'image-generation';
 
-        if (nextTool === 'image-generation') {
+        if (nextImageGeneration) {
             hideChats();
+        }
+
+        if (updatedCreateImageEnabled && (imageGenerationActive || nextImageGeneration)) {
+            setImageGenerationActive(nextImageGeneration);
         }
 
         setActiveTool(nextTool);
@@ -354,6 +373,7 @@ function AiChatContent({
 
             onSubmit(action);
             imageState.clearAttachedImages();
+            screenshotCapture.clearCaptureError();
             fileState.clearAttachedFiles();
             tabAttachments.clearAttachedTabs();
             clearTool();
@@ -382,11 +402,16 @@ function AiChatContent({
     const tabWarning = canAttachTabs && tabAttachments.tabLimitExceeded;
 
     const imageMessageShowing = !!(canAttachImages && (imageState.imageLimitExceeded || imageState.imageError));
-    const showFileError = !!fileError && !imageMessageShowing;
-    const showFileWarning = fileWarning && !imageMessageShowing && !showFileError;
+    const showCaptureError = screenshotCapture.captureError && !imageMessageShowing;
+    const showFileError = !!fileError && !imageMessageShowing && !showCaptureError;
+    const showFileWarning = fileWarning && !imageMessageShowing && !showCaptureError && !showFileError;
     // Only one attachment message shows at a time; the tab warning falls last in precedence.
-    const showTabWarning = tabWarning && !imageMessageShowing && !showFileError && !showFileWarning;
-    const disabled = blocksPrompt || !query || imageWarning || fileWarning || tabWarning;
+    const showTabWarning = tabWarning && !imageMessageShowing && !showCaptureError && !showFileError && !showFileWarning;
+    const hasSendableAttachments =
+        (canAttachImages && hasAttachedImages) ||
+        (canAttachFiles && fileState.attachedFiles.length > 0) ||
+        (canAttachTabs && tabAttachments.attachedTabs.length > 0);
+    const disabled = blocksPrompt || (!query && !hasSendableAttachments) || imageWarning || fileWarning || tabWarning;
 
     const isVoiceChatMode =
         enableVoiceChatAccess &&
@@ -444,9 +469,10 @@ function AiChatContent({
                     onTextareaKeyDown={mention.handleTextareaKeyDown}
                     combobox={mention.combobox}
                     textareaRef={textareaRef}
+                    onPaste={pastedAttachments.handlePaste}
                     toolbarLeft={
                         <Fragment>
-                            {(canAttachImages || canAttachFiles || canAttachTabs) && (
+                            {(canAttachImages || canAttachFiles || canAttachTabs || canCaptureScreenshot) && (
                                 <AttachMenu
                                     image={
                                         canAttachImages
@@ -471,6 +497,19 @@ function AiChatContent({
                                     onToggleTab={tabAttachments.toggleTab}
                                     isAttached={tabAttachments.isAttached}
                                     maxTabs={tabAttachments.maxTabs}
+                                    screenshot={
+                                        canCaptureScreenshot
+                                            ? {
+                                                  modes: screenshotModes,
+                                                  onCapture: screenshotCapture.capture,
+                                                  disabled:
+                                                      blocksPrompt ||
+                                                      !canAttachImages ||
+                                                      screenshotCapture.capturing ||
+                                                      imageState.imageUploadDisabled,
+                                              }
+                                            : null
+                                    }
                                 />
                             )}
                             {toolsMenu.items.length > 0 && (
@@ -485,11 +524,9 @@ function AiChatContent({
                     }
                     toolbarRight={
                         <Fragment>
-                            {!imageGenerationActive && (
-                                <Fragment>
-                                    <ReasoningPickerTool />
-                                    <ModelSelectorTool />
-                                </Fragment>
+                            {!imageGenerationActive && <ReasoningPickerTool />}
+                            {(!imageGenerationActive || updatedCreateImageEnabled) && (
+                                <ModelSelectorTool readOnly={imageGenerationActive && updatedCreateImageEnabled} />
                             )}
                             {isVoiceChatMode ? (
                                 <button
@@ -527,6 +564,11 @@ function AiChatContent({
                         onRemoveFile={fileState.handleRemoveFile}
                         onRemoveImage={imageState.handleRemoveImage}
                     />
+                    {showCaptureError && (
+                        <p class={styles.attachmentWarning} role="alert">
+                            {t('omnibar_screenshotCaptureError')}
+                        </p>
+                    )}
                     {showFileError && (
                         <p class={styles.attachmentWarning} role="alert">
                             {t('omnibar_fileTooLargeError', { limit: String(fileState.maxFileSizeMB ?? '') })}

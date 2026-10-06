@@ -16,7 +16,7 @@
     }
 }
 
-/* Revealed only while the composer has focus. */
+/* Hide focus-gated notices until the composer has focus. */
 .hidden {
     display: none;
 }
@@ -90,6 +90,10 @@
     }
 }
 
+.announce {
+    color: var(--ds-color-theme-icons-secondary);
+}
+
 .ringTrack {
     stroke: var(--ds-color-theme-control-fill-primary);
 }
@@ -134,6 +138,33 @@
 
 .messageEmphasized .primary {
     font-weight: 600;
+}
+
+.primary button {
+    background: none;
+    border: none;
+    color: var(--ds-color-theme-accent-primary);
+    cursor: pointer;
+    font: inherit;
+    padding: 0;
+
+    &:hover {
+        color: var(--ds-color-theme-accent-secondary);
+    }
+
+    &:active {
+        color: var(--ds-color-theme-accent-tertiary);
+    }
+
+    &:focus-visible {
+        box-shadow: var(--focus-ring);
+        outline: none;
+    }
+}
+
+.messageStacked {
+    display: flex;
+    flex-direction: column;
 }
 
 .secondary {
@@ -245,6 +276,10 @@
 
 .convertIcon {
     flex-shrink: 0;
+}
+
+.leading .convertIcon {
+    color: var(--ds-color-theme-icons-secondary);
 }
 
 :global(body[data-rebrand='true']) {

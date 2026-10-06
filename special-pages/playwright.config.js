@@ -12,6 +12,7 @@ export default defineConfig({
                 'special-error.spec.js',
                 'special-error-screenshots.spec.js',
                 'special-error-theme.spec.js',
+                'set-as-default.spec.js',
             ],
             use: {
                 ...devices['Desktop Edge'],
@@ -43,7 +44,11 @@ export default defineConfig({
                 'omnibar.spec.js',
                 'omnibar.persistence.spec.js',
                 'omnibar-attachments.spec.js',
+                'omnibar-paste.spec.js',
+                'omnibar-screenshot.spec.js',
                 'omnibar-usage-limits.spec.js',
+                'omnibar-attachment-privacy.spec.js',
+                'omnibar-launcher-promo.spec.js',
             ],
             use: {
                 ...devices['Desktop Chrome'],

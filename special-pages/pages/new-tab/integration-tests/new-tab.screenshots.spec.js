@@ -333,7 +333,7 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
                 await omnibar.ready();
                 // The reached presets mark the composer aria-disabled, so click() is refused.
                 await omnibar.chatInput().evaluate((el) => el.focus());
-                await expect(omnibar.usageLimitsDrawer()).toBeVisible();
+                await expect(omnibar.noticeDrawer()).toBeVisible();
                 await expect(page).toHaveScreenshot(`omnibar-usage-limits-${preset}.png`, { maxDiffPixels });
             });
         }
@@ -538,6 +538,61 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             await omnibar.chatInput().pressSequentially('@zzznomatch');
             await expect(omnibar.mentionPicker().getByText('No matching tabs')).toBeVisible();
             await expect(page).toHaveScreenshot('omnibar-mention-picker-empty.png', { maxDiffPixels });
+        });
+    });
+
+    test.describe('omnibar screenshot capture @screenshots', () => {
+        const screenshotConfig = {
+            'omnibar.mode': 'ai',
+            'omnibar.enableAiChatTools': 'true',
+            'omnibar.enableAttachTabs': 'true',
+            'omnibar.selectedModelId': 'claude-haiku-4-5',
+            'omnibar.screenshotModes': 'dragToSelect,selectWindowOrDisplay',
+        };
+
+        test('screenshot submenu open', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: screenshotConfig });
+            await omnibar.ready();
+            await omnibar.attachMenuButton().click();
+            await omnibar.addScreenshotMenuItem().hover();
+            await expect(omnibar.screenshotModeItem('Select Window or Display')).toBeVisible();
+            await expect(page).toHaveScreenshot('omnibar-screenshot-submenu-open.png', { maxDiffPixels });
+        });
+
+        test('add screenshot disabled without image support', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: { ...screenshotConfig, 'omnibar.selectedModelId': 'openai_gpt-oss-120b' } });
+            await omnibar.ready();
+            await omnibar.attachMenuButton().click();
+            await expect(omnibar.addScreenshotMenuItem()).toHaveAttribute('aria-disabled', 'true');
+            await expect(page).toHaveScreenshot('omnibar-screenshot-row-disabled.png', { maxDiffPixels });
+        });
+
+        test('attached screenshot chip', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: screenshotConfig });
+            await omnibar.ready();
+            await omnibar.captureScreenshot('Drag to Select');
+            await expect(omnibar.imagePreviews()).toHaveCount(1);
+            await expect(page).toHaveScreenshot('omnibar-screenshot-chip.png', { maxDiffPixels });
+        });
+
+        test('screenshot capture error', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: { ...screenshotConfig, 'omnibar.screenshotResult': 'error' } });
+            await omnibar.ready();
+            await omnibar.captureScreenshot('Drag to Select');
+            await expect(page.getByRole('alert')).toBeVisible();
+            await expect(page).toHaveScreenshot('omnibar-screenshot-error.png', { maxDiffPixels });
         });
     });
 

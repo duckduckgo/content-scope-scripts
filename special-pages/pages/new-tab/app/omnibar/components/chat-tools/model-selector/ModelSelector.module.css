@@ -48,6 +48,16 @@
     }
 }
 
+.modelButtonReadOnly {
+    cursor: default;
+    padding-right: var(--sp-2);
+
+    &:hover,
+    &:active {
+        background: none;
+    }
+}
+
 .modelButtonLabel {
     max-width: 120px;
 	font-weight: 500;

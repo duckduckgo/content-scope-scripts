@@ -134,6 +134,12 @@ The separate-branch approach was adopted via [Tech Design: Build automation for 
 
 The workflow creates a tag and GitHub release automatically. Build artifacts on the `releases` branch are consumed by native app repos.
 
+Note that the workflow only offers `major` and `minor`, and always emits a `.0` patch. The patch digit is reserved for hotfixes.
+
+### Hotfix releases
+
+When a released version needs a fix before the next `main` release, follow [`guides/hotfix-release.md`](./guides/hotfix-release.md). It covers cherry-picking onto a `hotfix/<version>` branch off the release tag, rebuilding and checking in the artifacts by hand, publishing the tag without marking it latest, and pushing the `released/<version>` changelog anchor afterwards.
+
 ### PR build branches
 
 When you push to any branch (except `main`, `releases`, `pr-releases/*`, or `dependabot/*`), the `build-branch.yml` workflow automatically:

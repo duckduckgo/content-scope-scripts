@@ -33,10 +33,13 @@ title: Omnibar Widget
   - `enableAi` — enables the Duck.ai tab (default `true`)
   - `enableAiChatTools` — enables AI chat tools: model selector, image attachments (default `false`)
   - `enableImageGeneration` — shows "Create Image" in the tools menu (default `false`)
+  - `enableUpdatedCreateImage` — enables the native-driven image-capable model switch and localized notice (default `false`)
   - `enableWebSearch` — shows "Web Search" in the tools menu (default `false`)
   - `enableVoiceChatAccess` — when true and the input is empty, replaces the AI chat submit button with a 1-click voice-chat button. Click/Enter sends `omnibar_submitChat` with an empty `chat` and `mode: "voice-mode"` — native handles the voice handoff (default `false`)
   - `enableAskAiSuggestion` — when `false`, hides the inline "Ask Duck.ai: <query>" entry in the suggestions dropdown. Missing/undefined is treated as `true` (default `true`). Does not affect the Duck.ai mode pill or any other AI affordance — those remain governed by `enableAi`
   - `enableAttachTabs` — when `true`, the omnibar shows the page context entry point and accepts `@` mentions for attaching open tabs as context. Requires native to handle `omnibar_getOpenTabs` and `omnibar_getTabContent` (default `false`).
+  - `screenshotModes` — capture modes (`"dragToSelect"`, `"selectWindowOrDisplay"`) listed, in order, under "Add Screenshot" in the paperclip menu. Absent or empty hides the screenshot UI. Requires native to handle `omnibar_captureScreenshot`. The row is disabled while a capture is pending, at the image cap, when the model cannot take images, or when the prompt is blocked.
+  - `enablePastedAttachments` — when `true`, pasting into the Duck.ai prompt attaches copied images and files (see [Paste](#paste)). When `false` or absent, paste is left to the browser (text only) (default `false`). The page needs no native support to paste; the flag lets native roll the behaviour out and switch it off remotely.
   - `aiModelSections` — array of model sections for the model selector. Each model may include `supportedReasoningEffort` (e.g. `["none", "low", "medium"]`) to surface the reasoning picker
   - `selectedModelId` — the user's persisted model choice
   - `selectedReasoningEffort` — the user's persisted reasoning-effort choice for the active model. Native validates against the model's `supportedReasoningEffort` on write
@@ -46,10 +49,27 @@ title: Omnibar Widget
    "enableAi": true,
    "enableAiChatTools": false,
    "enableImageGeneration": false,
+   "enableUpdatedCreateImage": false,
    "enableWebSearch": false,
    "enableVoiceChatAccess": false,
    "enableAskAiSuggestion": true,
-   "enableAttachTabs": false
+   "enableAttachTabs": false,
+   "screenshotModes": ["dragToSelect", "selectWindowOrDisplay"],
+   "enablePastedAttachments": true
+}
+```
+
+### `omnibar_captureScreenshot`
+- {@link "NewTab Messages".OmnibarCaptureScreenshotRequest}
+- Sent when the user picks a mode from the "Add Screenshot" submenu. The reply comes once the capture is taken, fails or is cancelled, so the request can stay pending for as long as the user takes. The page disables the screenshot rows while a request is pending.
+- requires `mode`, one of the configured `screenshotModes`.
+- returns {@link "NewTab Messages".CaptureScreenshotResponse}:
+  - `image` — base64 `data` (no data-URL prefix), `format` (`png` or `jpeg`) and `kind` (`selection`, `screen` or `window`). It is at most 1024px on the long side; the page keeps that size and adds it as an image chip named "Screenshot" (numbered on repeats).
+  - `error: "screenshotFailed"` — the page shows "Couldn't capture screenshot" under the prompt and sends no telemetry for it.
+  - neither — the user cancelled; the page does nothing.
+```json
+{
+   "image": { "data": "iVBORw0KGgo...", "format": "png", "kind": "selection" }
 }
 ```
 
@@ -143,6 +163,23 @@ Picker telemetry distinguishes impressions from gated-row activations:
 
 The four CTA events retain their historical `_shown` names, but they represent activation rather than visibility. Their Try-for-free/Upgrade classification is derived from the item’s `upsell` value and the user’s free-trial eligibility. Native routing remains determined only by `upsell`, so an `*_upgrade_shown` event can precede `omnibar_showSubscriptionUpsell` when a `subscribe` item is activated by a user who is not eligible for a free trial.
 
+## Attachment telemetry
+
+Sent as `telemetryEvent` with `{ attributes: { name, value } }`:
+
+- `omnibar_image_attached` — every image chip added, with `value.source`: `file` (picker), `paste` or `screenshot`.
+- `omnibar_image_removed` — every image chip the user removes (its × button), with the chip's `value.source`. Clearing on submit or on a model switch does not count.
+- `omnibar_screenshot_taken` — once a screenshot has been added as a chip, with `value.kind` from the capture.
+- `omnibar_screenshot_removed` — the user removed a screenshot chip (sent alongside `omnibar_image_removed`).
+- `omnibar_screenshot_failed` — `value.reason: "failed"`, when the page could not process a returned image. `error` replies are not reported by the page.
+
+## Paste
+
+With `enablePastedAttachments`, a paste into the Duck.ai prompt is handled as follows:
+
+- If the clipboard has any text, the browser pastes the text and nothing is attached. Office apps put a picture of the copied cells next to the text; the text wins.
+- Otherwise a clipboard bitmap is attached at up to 1024px, so text in it stays legible, named "Pasted image" (numbered on repeats); copied image files are resized like picked ones (512px); copied PDFs go to the file chips. Images need an image-capable model and files a model that supports them, as with the picker. An image in an unsupported format shows the "Failed to process image" error.
+
 ## Subscriptions:
 
 ### `omnibar_onConfigUpdate` 
@@ -151,6 +188,23 @@ The four CTA events retain their historical `_shown` names, but they represent a
 - returns {@link "NewTab Messages".OmnibarConfig}
 
 ## Notifications:
+
+### `omnibar_setImageGenerationActive`
+- Sent when Create Image is activated or deactivated while `enableUpdatedCreateImage` is enabled.
+- Native resolves and persists the selected model and pushes `createImageModelSwitch` via `omnibar_onConfigUpdate` when a notice should be shown.
+
+### `omnibar_dismissCreateImageModelSwitch`
+- Sent when the user dismisses the native-provided Create Image model-switch notice.
+- Native clears the notice and pushes the updated config.
+
+### `omnibar_launcherPromoShown`
+- Sent the first time per page load that the `launcherPromo` drawer is revealed on composer focus.
+
+### `omnibar_selectLauncherPromoCta`
+- Sent when the user activates the `launcherPromo` button. Native runs the action and pushes the updated config.
+
+### `omnibar_dismissLauncherPromo`
+- Sent when the user dismisses the `launcherPromo` drawer. Native persists the dismissal and pushes the updated config.
 
 ### `omnibar_setConfig` 
 - {@link "NewTab Messages".OmnibarSetConfigNotification}
@@ -185,6 +239,7 @@ The four CTA events retain their historical `_shown` names, but they represent a
   - `mode` — `"chat"` or `"image-generation"`. Sent as `"image-generation"` when the Create Image tool is active. Omitted for normal chat (defaults to `"chat"`).
   - `toolChoice` — `["WebSearch"]` when the user has the Web Search tool active. Omitted otherwise.
   - `images` — array of `{ data, format }` objects for attached images. Omitted when no images are attached.
+  - `launcherPromoVisible` — `true` when the `launcherPromo` drawer was on screen as the prompt went out; native treats the prompt as passing over it. Omitted otherwise.
   - `pageContext` — array of {@link "NewTab Messages".PageContext} objects echoed back from `omnibar_getTabContent`. Each entry **always** includes `tabId` so native can attribute attachments to their source tab. Omitted when no tabs are attached so existing native handlers continue to work unchanged.
 - example payloads:
 
