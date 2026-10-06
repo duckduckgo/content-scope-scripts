@@ -21,6 +21,7 @@ import { useDrawerControls, useDrawerEventListeners } from '../../components/Dra
 import { Trans } from '../../../../../shared/components/TranslationsProvider.js';
 import { ImageAttachmentContent } from './chat-tools/image-attachment/ImageAttachmentTool';
 import { usePastedAttachments } from './chat-tools/image-attachment/usePastedAttachments';
+import { useScreenshotCapture } from './chat-tools/image-attachment/useScreenshotCapture';
 import { AttachmentChips } from './chat-tools/attachments/AttachmentChips';
 import { AttachmentsProvider, useAttachmentsContext } from './chat-tools/attachments/AttachmentsProvider';
 import { ModelSelectorTool } from './chat-tools/model-selector/ModelSelectorTool';
@@ -285,6 +286,10 @@ function AiChatContent({
         processOtherFiles: canAttachFiles ? fileState.processFiles : null,
         enabled: state.config?.enablePastedAttachments === true && !blocksPrompt,
     });
+    // Screenshots land in the image list; without an image-capable model the row shows greyed out.
+    const screenshotModes = state.config?.screenshotModes ?? [];
+    const canCaptureScreenshot = screenshotModes.length > 0;
+    const screenshotCapture = useScreenshotCapture({ imageState });
     const tabAttachments = useTabAttachments(tabId, attachmentLimits?.tabs?.maxAttached);
     const textareaRef = useRef(/** @type {HTMLTextAreaElement|null} */ (null));
     const mention = useMentionPicker({
@@ -365,6 +370,7 @@ function AiChatContent({
 
             onSubmit(action);
             imageState.clearAttachedImages();
+            screenshotCapture.clearCaptureError();
             fileState.clearAttachedFiles();
             tabAttachments.clearAttachedTabs();
             clearTool();
@@ -393,10 +399,11 @@ function AiChatContent({
     const tabWarning = canAttachTabs && tabAttachments.tabLimitExceeded;
 
     const imageMessageShowing = !!(canAttachImages && (imageState.imageLimitExceeded || imageState.imageError));
-    const showFileError = !!fileError && !imageMessageShowing;
-    const showFileWarning = fileWarning && !imageMessageShowing && !showFileError;
+    const showCaptureError = screenshotCapture.captureError && !imageMessageShowing;
+    const showFileError = !!fileError && !imageMessageShowing && !showCaptureError;
+    const showFileWarning = fileWarning && !imageMessageShowing && !showCaptureError && !showFileError;
     // Only one attachment message shows at a time; the tab warning falls last in precedence.
-    const showTabWarning = tabWarning && !imageMessageShowing && !showFileError && !showFileWarning;
+    const showTabWarning = tabWarning && !imageMessageShowing && !showCaptureError && !showFileError && !showFileWarning;
     const hasSendableAttachments =
         (canAttachImages && hasAttachedImages) ||
         (canAttachFiles && fileState.attachedFiles.length > 0) ||
@@ -462,7 +469,7 @@ function AiChatContent({
                     onPaste={pastedAttachments.handlePaste}
                     toolbarLeft={
                         <Fragment>
-                            {(canAttachImages || canAttachFiles || canAttachTabs) && (
+                            {(canAttachImages || canAttachFiles || canAttachTabs || canCaptureScreenshot) && (
                                 <AttachMenu
                                     image={
                                         canAttachImages
@@ -487,6 +494,19 @@ function AiChatContent({
                                     onToggleTab={tabAttachments.toggleTab}
                                     isAttached={tabAttachments.isAttached}
                                     maxTabs={tabAttachments.maxTabs}
+                                    screenshot={
+                                        canCaptureScreenshot
+                                            ? {
+                                                  modes: screenshotModes,
+                                                  onCapture: screenshotCapture.capture,
+                                                  disabled:
+                                                      blocksPrompt ||
+                                                      !canAttachImages ||
+                                                      screenshotCapture.capturing ||
+                                                      imageState.imageUploadDisabled,
+                                              }
+                                            : null
+                                    }
                                 />
                             )}
                             {toolsMenu.items.length > 0 && (
@@ -541,6 +561,11 @@ function AiChatContent({
                         onRemoveFile={fileState.handleRemoveFile}
                         onRemoveImage={imageState.handleRemoveImage}
                     />
+                    {showCaptureError && (
+                        <p class={styles.attachmentWarning} role="alert">
+                            {t('omnibar_screenshotCaptureError')}
+                        </p>
+                    )}
                     {showFileError && (
                         <p class={styles.attachmentWarning} role="alert">
                             {t('omnibar_fileTooLargeError', { limit: String(fileState.maxFileSizeMB ?? '') })}

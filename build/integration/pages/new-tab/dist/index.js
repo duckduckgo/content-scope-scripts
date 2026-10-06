@@ -1861,6 +1861,45 @@
       }
     ));
   }
+  function CameraIcon(props) {
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k(
+      "path",
+      {
+        fill: "currentColor",
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M6.5 1C5.9 1 5.4 1.3 5.1 1.8L4.4 3H4C1.8 3 0 4.8 0 7V11C0 13.2 1.8 15 4 15H12C14.2 15 16 13.2 16 11V7C16 4.8 14.2 3 12 3H11.6L10.9 1.8C10.6 1.3 10.1 1 9.5 1H6.5ZM6.5 2.25H9.5C9.65 2.25 9.8 2.33 9.86 2.45L10.7 3.9C10.9 4.1 11.1 4.25 11.4 4.25H12C13.5 4.25 14.75 5.5 14.75 7V11C14.75 12.5 13.5 13.75 12 13.75H4C2.5 13.75 1.25 12.5 1.25 11V7C1.25 5.5 2.5 4.25 4 4.25H4.6C4.9 4.25 5.1 4.1 5.3 3.9L6.14 2.45C6.2 2.33 6.35 2.25 6.5 2.25ZM8 6A3 3 0 1 0 8 12A3 3 0 1 0 8 6ZM8 7.25A1.75 1.75 0 1 1 8 10.75A1.75 1.75 0 1 1 8 7.25Z"
+      }
+    ));
+  }
+  function ScissorsIcon(props) {
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k(
+      "path",
+      {
+        fill: "currentColor",
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M5.207,0.46C5.081,0.138 4.718,-0.02 4.397,0.106 4.075,0.232 3.917,0.595 4.043,0.916L7.303,9.224 6.498,11.339C5.961,10.532 5.042,10 4,10 2.343,10 1,11.343 1,13 1,14.657 2.343,16 4,16 5.348,16 6.488,15.11 6.867,13.887L7.982,10.955 9.137,13.9C9.52,15.117 10.657,16 12,16 13.657,16 15,14.657 15,13 15,11.343 13.657,10 12,10 10.947,10 10.02,10.543 9.485,11.364L5.207,0.459z M5.681,13.489L5.666,13.528C5.656,13.555 5.648,13.582 5.641,13.608 5.394,14.275 4.752,14.75 4,14.75 3.034,14.75 2.25,13.966 2.25,13 2.25,12.034 3.034,11.25 4,11.25 4.966,11.25 5.75,12.034 5.75,13 5.75,13.17 5.726,13.334 5.68,13.489z M10.359,13.609C10.352,13.579,10.343,13.551,10.332,13.522L10.32,13.492C10.275,13.337 10.25,13.172 10.25,13 10.25,12.034 11.034,11.25 12,11.25 12.966,11.25 13.75,12.034 13.75,13 13.75,13.966 12.966,14.75 12,14.75 11.248,14.75 10.606,14.275 10.359,13.609z"
+      }
+    ), /* @__PURE__ */ k(
+      "path",
+      {
+        fill: "currentColor",
+        d: "M11.662,0.104C11.34,-0.02,10.978,0.141,10.854,0.464L8.667,6.15C8.543,6.472 8.704,6.834 9.026,6.958 9.348,7.081 9.71,6.921 9.833,6.598L12.021,0.913C12.145,0.591,11.984,0.229,11.661,0.105z"
+      }
+    ));
+  }
+  function MonitorIcon(props) {
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k(
+      "path",
+      {
+        fill: "currentColor",
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M3 1C1.34 1 0 2.34 0 4V9.5C0 11.16 1.34 12.5 3 12.5H7.375V14H5.125C4.78 14 4.5 14.28 4.5 14.625C4.5 14.97 4.78 15.25 5.125 15.25H10.875C11.22 15.25 11.5 14.97 11.5 14.625C11.5 14.28 11.22 14 10.875 14H8.625V12.5H13C14.66 12.5 16 11.16 16 9.5V4C16 2.34 14.66 1 13 1H3ZM3 2.25H13C13.97 2.25 14.75 3.03 14.75 4V9.5C14.75 10.47 13.97 11.25 13 11.25H3C2.03 11.25 1.25 10.47 1.25 9.5V4C1.25 3.03 2.03 2.25 3 2.25Z"
+      }
+    ));
+  }
   function LogoStacked(props) {
     return /* @__PURE__ */ k("svg", { fill: "none", viewBox: "0 0 206 165", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k(
       "path",
@@ -9370,6 +9409,15 @@
         confirmDeleteAiChat(chatId, title) {
           return this.ntp.messaging.request("omnibar_confirmDeleteAiChat", { chatId, title });
         }
+        /**
+         * Asks native to capture a screenshot. Resolves once the capture is taken, fails or is
+         * cancelled, which can take arbitrarily long.
+         * @param {import('../../types/new-tab.js').ScreenshotMode} mode
+         * @returns {Promise<import('../../types/new-tab.js').CaptureScreenshotResponse>} `image`, `error`, or neither when cancelled
+         */
+        captureScreenshot(mode) {
+          return this.ntp.messaging.request("omnibar_captureScreenshot", { mode });
+        }
       };
     }
   });
@@ -9545,6 +9593,13 @@
       },
       [service]
     );
+    const captureScreenshot = q2(
+      (mode) => {
+        if (!service.current) throw new Error("Service not available");
+        return service.current.captureScreenshot(mode);
+      },
+      [service]
+    );
     return /* @__PURE__ */ k(
       OmnibarContext.Provider,
       {
@@ -9576,7 +9631,8 @@
           getOpenTabs,
           getTabContent,
           confirmDeleteAiChat,
-          removeSuggestion
+          removeSuggestion,
+          captureScreenshot
         }
       },
       /* @__PURE__ */ k(OmnibarServiceContext.Provider, { value: service.current }, props.children)
@@ -9718,6 +9774,10 @@
         },
         /** @type {(url: string) => void} */
         removeSuggestion: () => {
+          throw new Error("must implement");
+        },
+        /** @type {(mode: import('../../../types/new-tab.js').ScreenshotMode) => Promise<import('../../../types/new-tab.js').CaptureScreenshotResponse>} */
+        captureScreenshot: () => {
           throw new Error("must implement");
         }
       });
@@ -11742,6 +11802,9 @@
       setAttachedImages((prev) => prev.filter((_5, i5) => i5 !== index2));
       if (!removed) return;
       ntp.telemetryEvent({ attributes: { name: "omnibar_image_removed", value: { source: removed.source } } });
+      if (removed.source === "screenshot") {
+        ntp.telemetryEvent({ attributes: { name: "omnibar_screenshot_removed" } });
+      }
     };
     const getImagesForSubmission = () => {
       if (attachedImages.length === 0) return void 0;
@@ -11924,6 +11987,86 @@
       init_useImageAttachments();
       init_uniqueFileName();
       CLIPBOARD_BITMAP_NAME = "image.png";
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/image-attachment/useScreenshotCapture.js
+  function screenshotToFile(image, fileName) {
+    const binary = atob(image.data);
+    const bytes = new Uint8Array(binary.length);
+    for (let i5 = 0; i5 < binary.length; i5++) bytes[i5] = binary.charCodeAt(i5);
+    return new File([bytes], fileName, { type: `image/${image.format}` });
+  }
+  function useScreenshotCapture({ imageState }) {
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {Strings} */
+      {}
+    );
+    const ntp = useMessaging();
+    const { captureScreenshot } = x2(OmnibarContext);
+    const [captureError, setCaptureError] = d2(false);
+    const [capturing, setCapturing] = d2(false);
+    const imageStateRef = A2(imageState);
+    imageStateRef.current = imageState;
+    const takenNames = () => new Set(imageStateRef.current.attachedImages.map((img) => img.fileName));
+    const capture = async (mode) => {
+      if (capturing) return;
+      setCaptureError(false);
+      setCapturing(true);
+      try {
+        let response;
+        try {
+          response = await captureScreenshot(mode);
+        } catch (err) {
+          console.warn("omnibar_captureScreenshot failed", err);
+          setCaptureError(true);
+          return;
+        }
+        if (response.error) {
+          setCaptureError(true);
+          return;
+        }
+        if (!response.image) return;
+        const { image } = response;
+        let file;
+        try {
+          file = screenshotToFile(image, uniqueFileName(t4("omnibar_screenshotFileName"), extensionFor(image.format), takenNames()));
+        } catch (err) {
+          console.warn("Screenshot rejected: invalid image data");
+          ntp.telemetryEvent({ attributes: { name: "omnibar_screenshot_failed", value: { reason: "failed" } } });
+          setCaptureError(true);
+          return;
+        }
+        const result = await imageStateRef.current.processFiles([file], {
+          maxDimension: SCREENSHOT_MAX_DIMENSION,
+          source: "screenshot"
+        });
+        if (result.added > 0) {
+          ntp.telemetryEvent({ attributes: { name: "omnibar_screenshot_taken", value: { kind: image.kind } } });
+        } else if (result.rejected > 0) {
+          ntp.telemetryEvent({ attributes: { name: "omnibar_screenshot_failed", value: { reason: "failed" } } });
+        }
+      } finally {
+        setCapturing(false);
+      }
+    };
+    return {
+      capture,
+      capturing,
+      captureError,
+      clearCaptureError: () => setCaptureError(false)
+    };
+  }
+  var extensionFor;
+  var init_useScreenshotCapture = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/image-attachment/useScreenshotCapture.js"() {
+      "use strict";
+      init_hooks_module();
+      init_types();
+      init_OmnibarProvider();
+      init_useImageAttachments();
+      init_uniqueFileName();
+      extensionFor = (format) => format === "jpeg" ? ".jpg" : ".png";
     }
   });
 
@@ -12624,6 +12767,7 @@
         roomy: "Dropdown_roomy",
         trailingIcon: "Dropdown_trailingIcon",
         itemActive: "Dropdown_itemActive",
+        submenuChevron: "Dropdown_submenuChevron",
         trailingControl: "Dropdown_trailingControl",
         itemDescription: "Dropdown_itemDescription",
         checkmark: "Dropdown_checkmark",
@@ -13091,154 +13235,6 @@
     }
   });
 
-  // pages/new-tab/app/omnibar/components/chat-tools/dropdown/Dropdown.js
-  function getItemProps(child) {
-    if (typeof child !== "object" || child === null || !("props" in child)) return null;
-    return (
-      /** @type {DropdownItemProps} */
-      child.props
-    );
-  }
-  function Dropdown({
-    children,
-    header,
-    headerClassName,
-    emptyMessage,
-    ariaLabel,
-    role,
-    position: position2,
-    onClose,
-    dropdownRef,
-    idPrefix: idPrefix2 = "dropdown-item",
-    className,
-    multiSelect = false
-  }) {
-    const items = F(children);
-    const isItemEnabled = (child) => !getItemProps(child)?.disabled;
-    const getNavigableIndices = () => items.map((child, index2) => {
-      const props = getItemProps(child);
-      return props && typeof props.onSelect === "function" && !props.disabled ? index2 : -1;
-    }).filter((index2) => index2 >= 0);
-    const navigableIndices = getNavigableIndices();
-    const getInitialActiveIndex = () => {
-      if (navigableIndices.length === 0) return -1;
-      if (multiSelect) return -1;
-      const selected = items.findIndex((c4) => getItemProps(c4)?.isSelected);
-      if (selected >= 0 && isItemEnabled(items[selected])) return selected;
-      return navigableIndices[0];
-    };
-    const [activeIndex, setActiveIndex] = d2(getInitialActiveIndex);
-    const clearActiveIndex = () => setActiveIndex(-1);
-    const focusNavigable = (direction) => {
-      const count = navigableIndices.length;
-      if (count === 0) return;
-      const step = direction === "down" ? 1 : -1;
-      const currentPos = navigableIndices.indexOf(activeIndex);
-      let nextPos;
-      if (currentPos >= 0) {
-        nextPos = (currentPos + step + count) % count;
-      } else {
-        nextPos = direction === "down" ? 0 : count - 1;
-      }
-      setActiveIndex(navigableIndices[nextPos]);
-    };
-    h2(() => {
-      const frameId = window.requestAnimationFrame(() => {
-        dropdownRef.current?.focus();
-      });
-      return () => window.cancelAnimationFrame(frameId);
-    }, [dropdownRef]);
-    const getItemId = (index2) => `${idPrefix2}-${index2}`;
-    const selectAt = (index2) => {
-      if (!isItemEnabled(items[index2])) return;
-      getItemProps(items[index2])?.onSelect?.();
-    };
-    const handleKeyDown = (e4) => {
-      switch (e4.key) {
-        case "ArrowDown":
-          e4.preventDefault();
-          focusNavigable("down");
-          break;
-        case "ArrowUp":
-          e4.preventDefault();
-          focusNavigable("up");
-          break;
-        case "Home":
-          e4.preventDefault();
-          setActiveIndex(navigableIndices[0]);
-          break;
-        case "End":
-          e4.preventDefault();
-          setActiveIndex(navigableIndices[navigableIndices.length - 1]);
-          break;
-        case "Enter":
-        case " ":
-          e4.preventDefault();
-          if (activeIndex < 0 || activeIndex >= items.length) {
-            break;
-          }
-          selectAt(activeIndex);
-          if (!getItemProps(items[activeIndex])?.ariaHasPopup) {
-            onClose({ restoreFocus: true });
-          }
-          break;
-        case "Escape":
-          e4.preventDefault();
-          onClose({ restoreFocus: true });
-          break;
-        case "Tab":
-          window.setTimeout(() => onClose({ restoreFocus: false }), 0);
-          break;
-      }
-    };
-    const clonedItems = items.map((child, index2) => {
-      if (getItemProps(child) === null) return child;
-      return W(
-        /** @type {import('preact').VNode} */
-        child,
-        {
-          id: getItemId(index2),
-          isActive: activeIndex === index2,
-          onMouseOver: isItemEnabled(child) ? () => setActiveIndex(index2) : void 0,
-          onClick: (e4) => {
-            e4.stopPropagation();
-            if (!isItemEnabled(child)) return;
-            selectAt(index2);
-            if (!getItemProps(child)?.ariaHasPopup) {
-              onClose({ restoreFocus: false });
-            }
-          }
-        }
-      );
-    });
-    return /* @__PURE__ */ k(
-      "ul",
-      {
-        ref: dropdownRef,
-        class: (0, import_classnames14.default)(Dropdown_default.dropdown, className),
-        tabIndex: -1,
-        role,
-        "aria-label": ariaLabel,
-        "aria-activedescendant": activeIndex >= 0 ? getItemId(activeIndex) : void 0,
-        style: { left: position2.left, right: position2.right, top: position2.top },
-        onKeyDown: handleKeyDown,
-        onMouseLeave: clearActiveIndex
-      },
-      header && /* @__PURE__ */ k("li", { role: "presentation", class: (0, import_classnames14.default)(Dropdown_default.header, headerClassName) }, header),
-      items.length === 0 && emptyMessage ? /* @__PURE__ */ k("li", { role: "presentation", class: Dropdown_default.empty }, emptyMessage) : clonedItems
-    );
-  }
-  var import_classnames14;
-  var init_Dropdown2 = __esm({
-    "pages/new-tab/app/omnibar/components/chat-tools/dropdown/Dropdown.js"() {
-      "use strict";
-      init_preact_module();
-      init_hooks_module();
-      import_classnames14 = __toESM(require_classnames(), 1);
-      init_Dropdown();
-    }
-  });
-
   // pages/new-tab/app/omnibar/components/chat-tools/dropdown/DropdownItem.js
   function DropdownItem({
     icon,
@@ -13287,7 +13283,7 @@
         "aria-expanded": ariaExpanded,
         "aria-describedby": ariaDescribedBy,
         "aria-disabled": disabled || void 0,
-        class: (0, import_classnames15.default)(
+        class: (0, import_classnames14.default)(
           Dropdown_default.item,
           className,
           isActive && Dropdown_default.itemActive,
@@ -13306,13 +13302,299 @@
       trailingControl && /* @__PURE__ */ k("span", { class: Dropdown_default.trailingControl, onClick: (e4) => e4.stopPropagation() }, trailingControl)
     );
   }
-  var import_classnames15;
+  var import_classnames14;
   var init_DropdownItem = __esm({
     "pages/new-tab/app/omnibar/components/chat-tools/dropdown/DropdownItem.js"() {
       "use strict";
       init_preact_module();
       init_hooks_module();
+      import_classnames14 = __toESM(require_classnames(), 1);
+      init_Dropdown();
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/dropdown/DropdownSubmenu.js
+  function DropdownSubmenu({
+    children,
+    name: name2,
+    ariaLabel,
+    icon,
+    disabled = false,
+    showCheckGutter,
+    className,
+    panelClassName,
+    offset = { x: 0, y: 0 },
+    idPrefix: idPrefix2 = "dropdown-submenu-item",
+    isOpen = false,
+    onOpen,
+    onCloseSubmenu,
+    onCloseMenu,
+    isActive,
+    id,
+    onMouseOver,
+    onClick
+  }) {
+    const rowRef = A2(
+      /** @type {HTMLLIElement | null} */
+      null
+    );
+    const panelRef = A2(
+      /** @type {HTMLUListElement | null} */
+      null
+    );
+    const [position2, setPosition] = d2(
+      /** @type {DropdownPosition | null} */
+      null
+    );
+    _2(() => {
+      const row = rowRef.current;
+      if (!isOpen || !row) {
+        setPosition(null);
+        return;
+      }
+      const rect = row.getBoundingClientRect();
+      const cbRect = findContainingBlock(row)?.getBoundingClientRect();
+      setPosition({ left: rect.right - (cbRect?.left ?? 0) + offset.x, top: rect.top - (cbRect?.top ?? 0) + offset.y });
+    }, [isOpen, offset.x, offset.y]);
+    return /* @__PURE__ */ k(S, null, /* @__PURE__ */ k(
+      DropdownItem,
+      {
+        role: "menuitem",
+        className,
+        showCheckGutter,
+        icon,
+        name: name2,
+        disabled,
+        trailingIcon: /* @__PURE__ */ k("span", { class: Dropdown_default.submenuChevron, "aria-hidden": "true" }, /* @__PURE__ */ k(ChevronSmall, null)),
+        ariaHasPopup: true,
+        ariaExpanded: isOpen,
+        elementRef: rowRef,
+        isActive,
+        id,
+        onMouseOver,
+        onHover: onOpen,
+        onClick,
+        onSelect: () => onOpen?.()
+      }
+    ), isOpen && position2 && // Keys pressed inside the panel belong to it; don't let the parent navigate as well.
+    /* @__PURE__ */ k(
+      "li",
+      {
+        role: "presentation",
+        onKeyDown: (e4) => {
+          e4.stopPropagation();
+          if (e4.key === "ArrowLeft") {
+            e4.preventDefault();
+            onCloseSubmenu?.({ restoreFocus: true });
+          }
+        }
+      },
+      /* @__PURE__ */ k(
+        Dropdown,
+        {
+          dropdownRef: panelRef,
+          role: "menu",
+          ariaLabel,
+          position: position2,
+          onClose: ({ restoreFocus, selected }) => selected ? onCloseMenu?.({ restoreFocus }) : onCloseSubmenu?.({ restoreFocus }),
+          idPrefix: idPrefix2,
+          className: panelClassName
+        },
+        children
+      )
+    ));
+  }
+  var init_DropdownSubmenu = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/dropdown/DropdownSubmenu.js"() {
+      "use strict";
+      init_preact_module();
+      init_hooks_module();
+      init_Icons2();
+      init_useDropdown();
+      init_Dropdown2();
+      init_DropdownItem();
+      init_Dropdown();
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/dropdown/Dropdown.js
+  function getItemProps(child) {
+    if (typeof child !== "object" || child === null || !("props" in child)) return null;
+    return (
+      /** @type {DropdownItemProps} */
+      child.props
+    );
+  }
+  function isSubmenu(child) {
+    return typeof child === "object" && child !== null && "type" in child && child.type === DropdownSubmenu;
+  }
+  function Dropdown({
+    children,
+    header,
+    headerClassName,
+    emptyMessage,
+    ariaLabel,
+    role,
+    position: position2,
+    onClose,
+    dropdownRef,
+    idPrefix: idPrefix2 = "dropdown-item",
+    className,
+    multiSelect = false
+  }) {
+    const items = F(children);
+    const [openSubmenuIndex, setOpenSubmenuIndex] = d2(-1);
+    const isItemEnabled = (child) => !getItemProps(child)?.disabled;
+    const getNavigableIndices = () => items.map((child, index2) => {
+      const props = getItemProps(child);
+      const actionable = typeof props?.onSelect === "function" || isSubmenu(child);
+      return props && actionable && !props.disabled ? index2 : -1;
+    }).filter((index2) => index2 >= 0);
+    const navigableIndices = getNavigableIndices();
+    const getInitialActiveIndex = () => {
+      if (navigableIndices.length === 0) return -1;
+      if (multiSelect) return -1;
+      const selected = items.findIndex((c4) => getItemProps(c4)?.isSelected);
+      if (selected >= 0 && isItemEnabled(items[selected])) return selected;
+      return navigableIndices[0];
+    };
+    const [activeIndex, setActiveIndex] = d2(getInitialActiveIndex);
+    const clearActiveIndex = () => setActiveIndex(-1);
+    const focusNavigable = (direction) => {
+      const count = navigableIndices.length;
+      if (count === 0) return;
+      const step = direction === "down" ? 1 : -1;
+      const currentPos = navigableIndices.indexOf(activeIndex);
+      let nextPos;
+      if (currentPos >= 0) {
+        nextPos = (currentPos + step + count) % count;
+      } else {
+        nextPos = direction === "down" ? 0 : count - 1;
+      }
+      setActiveIndex(navigableIndices[nextPos]);
+    };
+    h2(() => {
+      const frameId = window.requestAnimationFrame(() => {
+        dropdownRef.current?.focus();
+      });
+      return () => window.cancelAnimationFrame(frameId);
+    }, [dropdownRef]);
+    const getItemId = (index2) => `${idPrefix2}-${index2}`;
+    const selectAt = (index2) => {
+      if (!isItemEnabled(items[index2])) return;
+      if (isSubmenu(items[index2])) {
+        setOpenSubmenuIndex(index2);
+        return;
+      }
+      getItemProps(items[index2])?.onSelect?.();
+    };
+    const keepsOpenOnSelect = (child) => isSubmenu(child) || Boolean(getItemProps(child)?.ariaHasPopup);
+    const closeSubmenu = ({ restoreFocus }) => {
+      setOpenSubmenuIndex(-1);
+      if (restoreFocus) dropdownRef.current?.focus();
+    };
+    const handleKeyDown = (e4) => {
+      switch (e4.key) {
+        case "ArrowDown":
+          e4.preventDefault();
+          focusNavigable("down");
+          break;
+        case "ArrowUp":
+          e4.preventDefault();
+          focusNavigable("up");
+          break;
+        case "Home":
+          e4.preventDefault();
+          setActiveIndex(navigableIndices[0]);
+          break;
+        case "End":
+          e4.preventDefault();
+          setActiveIndex(navigableIndices[navigableIndices.length - 1]);
+          break;
+        case "Enter":
+        case " ":
+          e4.preventDefault();
+          if (activeIndex < 0 || activeIndex >= items.length) {
+            break;
+          }
+          selectAt(activeIndex);
+          if (!keepsOpenOnSelect(items[activeIndex])) {
+            onClose({ restoreFocus: true, selected: true });
+          }
+          break;
+        case "ArrowRight":
+          if (activeIndex >= 0 && isSubmenu(items[activeIndex])) {
+            e4.preventDefault();
+            selectAt(activeIndex);
+          }
+          break;
+        case "Escape":
+          e4.preventDefault();
+          onClose({ restoreFocus: true });
+          break;
+        case "Tab":
+          window.setTimeout(() => onClose({ restoreFocus: false }), 0);
+          break;
+      }
+    };
+    const clonedItems = items.map((child, index2) => {
+      if (getItemProps(child) === null) return child;
+      const enabled = isItemEnabled(child);
+      const submenuOpen = openSubmenuIndex >= 0;
+      return W(
+        /** @type {import('preact').VNode} */
+        child,
+        {
+          id: getItemId(index2),
+          isActive: activeIndex === index2,
+          onMouseOver: enabled || submenuOpen ? () => {
+            if (enabled) setActiveIndex(index2);
+            if (submenuOpen && openSubmenuIndex !== index2) closeSubmenu({ restoreFocus: true });
+          } : void 0,
+          onClick: (e4) => {
+            e4.stopPropagation();
+            if (!enabled) return;
+            selectAt(index2);
+            if (!keepsOpenOnSelect(child)) {
+              onClose({ restoreFocus: false, selected: true });
+            }
+          },
+          ...isSubmenu(child) && {
+            isOpen: openSubmenuIndex === index2,
+            onOpen: () => {
+              if (enabled) setOpenSubmenuIndex(index2);
+            },
+            onCloseSubmenu: closeSubmenu,
+            onCloseMenu: onClose
+          }
+        }
+      );
+    });
+    return /* @__PURE__ */ k(
+      "ul",
+      {
+        ref: dropdownRef,
+        class: (0, import_classnames15.default)(Dropdown_default.dropdown, className),
+        tabIndex: -1,
+        role,
+        "aria-label": ariaLabel,
+        "aria-activedescendant": activeIndex >= 0 ? getItemId(activeIndex) : void 0,
+        style: { left: position2.left, right: position2.right, top: position2.top },
+        onKeyDown: handleKeyDown,
+        onMouseLeave: clearActiveIndex
+      },
+      header && /* @__PURE__ */ k("li", { role: "presentation", class: (0, import_classnames15.default)(Dropdown_default.header, headerClassName) }, header),
+      items.length === 0 && emptyMessage ? /* @__PURE__ */ k("li", { role: "presentation", class: Dropdown_default.empty }, emptyMessage) : clonedItems
+    );
+  }
+  var import_classnames15;
+  var init_Dropdown2 = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/dropdown/Dropdown.js"() {
+      "use strict";
+      init_preact_module();
+      init_hooks_module();
       import_classnames15 = __toESM(require_classnames(), 1);
+      init_DropdownSubmenu();
       init_Dropdown();
     }
   });
@@ -14177,16 +14459,16 @@
   });
 
   // pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/AttachMenu.js
-  function AttachMenu({ image, file, tabsEnabled, onToggleTab, isAttached, maxTabs, disabled = false }) {
+  function AttachMenu({ image, file, tabsEnabled, onToggleTab, isAttached, maxTabs, disabled = false, screenshot = null }) {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {Strings} */
       {}
     );
     const attachEnabled = image !== null || file !== null;
-    if (!attachEnabled && !tabsEnabled) return null;
+    if (!attachEnabled && !tabsEnabled && !screenshot) return null;
     const fileInput = resolveFileInput({ t: t4, image, file });
     const controlsDisabled = disabled || fileInput.disabled;
-    if (attachEnabled && !tabsEnabled) {
+    if (attachEnabled && !tabsEnabled && !screenshot) {
       const button = /* @__PURE__ */ k(
         DirectFileButton,
         {
@@ -14209,7 +14491,9 @@
         onToggleTab,
         isAttached,
         maxTabs,
-        disabled
+        disabled,
+        tabsEnabled,
+        screenshot
       }
     );
   }
@@ -14255,7 +14539,7 @@
       )
     );
   }
-  function DropdownMenu({ attachEnabled, fileInput, onToggleTab, isAttached, maxTabs, disabled = false }) {
+  function DropdownMenu({ attachEnabled, fileInput, onToggleTab, isAttached, maxTabs, disabled = false, tabsEnabled, screenshot }) {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {Strings} */
       {}
@@ -14289,7 +14573,7 @@
         onClick: (e4) => {
           e4.stopPropagation();
           if (disabled) return;
-          if (!isOpen) refetchTabs();
+          if (!isOpen && tabsEnabled) refetchTabs();
           toggle();
         }
       },
@@ -14318,7 +14602,9 @@
         onTriggerFileInput: triggerFileInput,
         onOpenTabsModal: () => setIsTabsModalOpen(true),
         isAttached,
-        onToggleTab
+        onToggleTab,
+        tabsEnabled,
+        screenshot
       }
     ), isTabsModalOpen && /* @__PURE__ */ k(
       AttachTabsModal,
@@ -14339,7 +14625,9 @@
     onTriggerFileInput,
     onOpenTabsModal,
     onToggleTab,
-    isAttached
+    isAttached,
+    tabsEnabled,
+    screenshot
   }) {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {Strings} */
@@ -14347,7 +14635,7 @@
     );
     const { openTabs, isLoadingTabs } = x2(OpenTabsContext);
     const recentTabs = openTabs.slice(0, MAX_INLINE_RECENT_TABS);
-    const showGutter = recentTabs.some((tab) => isAttached(tab.tabId));
+    const showGutter = tabsEnabled && recentTabs.some((tab) => isAttached(tab.tabId));
     const noTabsAvailable = !isLoadingTabs && openTabs.length === 0;
     const renderRecentTabRows = () => {
       if (isLoadingTabs) {
@@ -14389,7 +14677,33 @@
           onSelect: onTriggerFileInput
         }
       ),
-      /* @__PURE__ */ k(
+      screenshot && /* @__PURE__ */ k(
+        DropdownSubmenu,
+        {
+          className: AttachMenu_default.menuItem,
+          showCheckGutter: showGutter,
+          icon: /* @__PURE__ */ k(CameraIcon, { class: AttachMenu_default.menuItemIcon }),
+          name: t4("omnibar_addScreenshotLabel"),
+          ariaLabel: t4("omnibar_addScreenshotLabel"),
+          disabled: screenshot.disabled,
+          panelClassName: AttachMenu_default.attachDropdown,
+          offset: SCREENSHOT_SUBMENU_OFFSET,
+          idPrefix: "screenshot-menu-item"
+        },
+        screenshot.modes.map((mode) => /* @__PURE__ */ k(
+          DropdownItem,
+          {
+            key: mode,
+            role: "menuitem",
+            className: AttachMenu_default.menuItem,
+            showCheckGutter: false,
+            icon: mode === "dragToSelect" ? /* @__PURE__ */ k(ScissorsIcon, { class: AttachMenu_default.menuItemIcon }) : /* @__PURE__ */ k(MonitorIcon, { class: AttachMenu_default.menuItemIcon }),
+            name: mode === "dragToSelect" ? t4("omnibar_screenshotDragToSelectLabel") : t4("omnibar_screenshotSelectWindowOrDisplayLabel"),
+            onSelect: () => screenshot.onCapture(mode)
+          }
+        ))
+      ),
+      tabsEnabled && /* @__PURE__ */ k(
         DropdownItem,
         {
           role: "menuitem",
@@ -14401,12 +14715,12 @@
           onSelect: onOpenTabsModal
         }
       ),
-      /* @__PURE__ */ k(DropdownSeparator, null),
-      recentTabs.length > 0 && /* @__PURE__ */ k(TabsSectionHeader, { label: t4("omnibar_attachTabsRecentTabs"), showGutter }),
-      renderRecentTabRows()
+      tabsEnabled && /* @__PURE__ */ k(DropdownSeparator, null),
+      tabsEnabled && recentTabs.length > 0 && /* @__PURE__ */ k(TabsSectionHeader, { label: t4("omnibar_attachTabsRecentTabs"), showGutter }),
+      tabsEnabled && renderRecentTabRows()
     );
   }
-  var import_classnames20, MAX_INLINE_RECENT_TABS;
+  var import_classnames20, MAX_INLINE_RECENT_TABS, SCREENSHOT_SUBMENU_OFFSET;
   var init_AttachMenu2 = __esm({
     "pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/AttachMenu.js"() {
       "use strict";
@@ -14419,6 +14733,7 @@
       init_Dropdown2();
       init_DropdownItem();
       init_DropdownSeparator();
+      init_DropdownSubmenu();
       init_fileChannels();
       init_OpenTabsProvider();
       init_AttachTabsModal2();
@@ -14427,6 +14742,7 @@
       init_ImageAttachment();
       init_AttachMenu();
       MAX_INLINE_RECENT_TABS = 5;
+      SCREENSHOT_SUBMENU_OFFSET = { x: -7, y: -4 };
     }
   });
 
@@ -15388,6 +15704,9 @@
       processOtherFiles: canAttachFiles ? fileState.processFiles : null,
       enabled: state.config?.enablePastedAttachments === true && !blocksPrompt
     });
+    const screenshotModes = state.config?.screenshotModes ?? [];
+    const canCaptureScreenshot = screenshotModes.length > 0;
+    const screenshotCapture = useScreenshotCapture({ imageState });
     const tabAttachments = useTabAttachments(tabId, attachmentLimits?.tabs?.maxAttached);
     const textareaRef = A2(
       /** @type {HTMLTextAreaElement|null} */
@@ -15456,6 +15775,7 @@
         };
         onSubmit(action);
         imageState.clearAttachedImages();
+        screenshotCapture.clearCaptureError();
         fileState.clearAttachedFiles();
         tabAttachments.clearAttachedTabs();
         clearTool();
@@ -15478,9 +15798,10 @@
     const fileError = canAttachFiles ? fileState.fileError : null;
     const tabWarning = canAttachTabs && tabAttachments.tabLimitExceeded;
     const imageMessageShowing = !!(canAttachImages && (imageState.imageLimitExceeded || imageState.imageError));
-    const showFileError = !!fileError && !imageMessageShowing;
-    const showFileWarning = fileWarning && !imageMessageShowing && !showFileError;
-    const showTabWarning = tabWarning && !imageMessageShowing && !showFileError && !showFileWarning;
+    const showCaptureError = screenshotCapture.captureError && !imageMessageShowing;
+    const showFileError = !!fileError && !imageMessageShowing && !showCaptureError;
+    const showFileWarning = fileWarning && !imageMessageShowing && !showCaptureError && !showFileError;
+    const showTabWarning = tabWarning && !imageMessageShowing && !showCaptureError && !showFileError && !showFileWarning;
     const hasSendableAttachments = canAttachImages && hasAttachedImages || canAttachFiles && fileState.attachedFiles.length > 0 || canAttachTabs && tabAttachments.attachedTabs.length > 0;
     const disabled = blocksPrompt || !query && !hasSendableAttachments || imageWarning || fileWarning || tabWarning;
     const isVoiceChatMode = enableVoiceChatAccess && !imageGenerationActive && !hasAttachedImages && fileState.attachedFiles.length === 0 && tabAttachments.attachedTabs.length === 0 && !query;
@@ -15528,7 +15849,7 @@
           combobox: mention.combobox,
           textareaRef,
           onPaste: pastedAttachments.handlePaste,
-          toolbarLeft: /* @__PURE__ */ k(S, null, (canAttachImages || canAttachFiles || canAttachTabs) && /* @__PURE__ */ k(
+          toolbarLeft: /* @__PURE__ */ k(S, null, (canAttachImages || canAttachFiles || canAttachTabs || canCaptureScreenshot) && /* @__PURE__ */ k(
             AttachMenu,
             {
               image: canAttachImages ? {
@@ -15545,7 +15866,12 @@
               disabled: blocksPrompt,
               onToggleTab: tabAttachments.toggleTab,
               isAttached: tabAttachments.isAttached,
-              maxTabs: tabAttachments.maxTabs
+              maxTabs: tabAttachments.maxTabs,
+              screenshot: canCaptureScreenshot ? {
+                modes: screenshotModes,
+                onCapture: screenshotCapture.capture,
+                disabled: blocksPrompt || !canAttachImages || screenshotCapture.capturing || imageState.imageUploadDisabled
+              } : null
             }
           ), toolsMenu.items.length > 0 && /* @__PURE__ */ k(
             ToolsMenu,
@@ -15593,6 +15919,7 @@
             onRemoveImage: imageState.handleRemoveImage
           }
         ),
+        showCaptureError && /* @__PURE__ */ k("p", { class: Omnibar_default.attachmentWarning, role: "alert" }, t4("omnibar_screenshotCaptureError")),
         showFileError && /* @__PURE__ */ k("p", { class: Omnibar_default.attachmentWarning, role: "alert" }, t4("omnibar_fileTooLargeError", { limit: String(fileState.maxFileSizeMB ?? "") })),
         showFileWarning && /* @__PURE__ */ k("p", { class: Omnibar_default.attachmentWarning, role: "alert" }, t4("omnibar_fileAttachmentLimitWarning", { limit: String(fileState.maxFiles) })),
         showTabWarning && /* @__PURE__ */ k("p", { class: Omnibar_default.attachmentWarning, role: "alert" }, t4("omnibar_tabAttachmentLimitWarning", { limit: String(tabAttachments.maxTabs) })),
@@ -15643,6 +15970,7 @@
       init_TranslationsProvider();
       init_ImageAttachmentTool();
       init_usePastedAttachments();
+      init_useScreenshotCapture();
       init_AttachmentChips2();
       init_AttachmentsProvider();
       init_ModelSelectorTool();
@@ -37369,9 +37697,29 @@
       title: "Add Tabs",
       description: "Menu item in the attach dropdown that opens the Add Tabs dialog so the user can attach extracted page content from open tabs."
     },
+    omnibar_addScreenshotLabel: {
+      title: "Add Screenshot",
+      description: "Menu item in the attach dropdown that opens a submenu of screenshot capture modes."
+    },
+    omnibar_screenshotDragToSelectLabel: {
+      title: "Drag to Select",
+      description: "Screenshot submenu item: the user drags to select a region of the screen to capture."
+    },
+    omnibar_screenshotSelectWindowOrDisplayLabel: {
+      title: "Select Window or Display",
+      description: "Screenshot submenu item: the user picks a window or a whole display to capture."
+    },
+    omnibar_screenshotFileName: {
+      title: "Screenshot",
+      description: "File name given to a screenshot attached to the AI chat input. Repeats are numbered, e.g. 'Screenshot 2'."
+    },
     omnibar_pastedImageFileName: {
       title: "Pasted image",
       description: "File name given to an image pasted from the clipboard into the AI chat input. Repeats are numbered, e.g. 'Pasted image 2'."
+    },
+    omnibar_screenshotCaptureError: {
+      title: "Couldn't capture screenshot",
+      description: "Inline error shown under the AI chat input when the browser failed to capture a screenshot."
     },
     omnibar_attachTabsModalTitle: {
       title: "Add Tabs",
@@ -39569,7 +39917,7 @@
   var Uint16Array = globalThis.Uint16Array;
   var Uint32Array = globalThis.Uint32Array;
   var JSONparse = JSON.parse;
-  var atob = globalThis.atob?.bind(globalThis);
+  var atob2 = globalThis.atob?.bind(globalThis);
   var DOMException2 = globalThis.DOMException;
   var charCodeAt = globalThis.String.prototype.charCodeAt;
   var ReflectDeleteProperty = Reflect2.deleteProperty.bind(Reflect2);
@@ -43058,6 +43406,11 @@ This is placeholder content used by the NTP mock transport so the attach-tabs fe
             config.enableVoiceChatAccess = parseBooleanQueryParam("omnibar.enableVoiceChatAccess") ?? config.enableVoiceChatAccess;
             config.enableAskAiSuggestion = parseBooleanQueryParam("omnibar.enableAskAiSuggestion") ?? config.enableAskAiSuggestion;
             config.enableAttachTabs = parseBooleanQueryParam("omnibar.enableAttachTabs") ?? config.enableAttachTabs;
+            const screenshotModes = url5.searchParams.get("omnibar.screenshotModes");
+            if (screenshotModes !== null) {
+              config.screenshotModes = /** @type {import('../../../types/new-tab.js').ScreenshotMode[]} */
+              screenshotModes.split(",").filter(Boolean);
+            }
             config.enablePastedAttachments = parseBooleanQueryParam("omnibar.enablePastedAttachments") ?? config.enablePastedAttachments;
             config.showAttachmentPrivacyDisclaimer = parseBooleanQueryParam("omnibar.showAttachmentPrivacyDisclaimer") ?? config.showAttachmentPrivacyDisclaimer;
             config.enableCustomizeResponses = parseBooleanQueryParam("omnibar.enableCustomizeResponses") ?? config.enableCustomizeResponses;
@@ -43174,6 +43527,31 @@ This is placeholder content used by the NTP mock transport so the attach-tabs fe
             const openTabsCount = parseInt(url5.searchParams.get("omnibar.openTabsCount") ?? "", 10);
             return getMockOpenTabs(openTabsCount >= 0 ? openTabsCount : void 0);
           }
+          case "omnibar_captureScreenshot": {
+            const delay = parseInt(url5.searchParams.get("omnibar.screenshotDelay") ?? "", 10);
+            await new Promise((resolve) => setTimeout(resolve, delay >= 0 ? delay : window.__playwright_01 ? 0 : 600));
+            const override = window.__playwright_01?.mockResponses?.omnibar_captureScreenshot;
+            if (override) return (
+              /** @type {import('../../../types/new-tab.js').CaptureScreenshotResponse} */
+              override
+            );
+            switch (url5.searchParams.get("omnibar.screenshotResult")) {
+              case "error":
+                return { error: "screenshotFailed" };
+              case "cancel":
+                return {};
+              case "invalid":
+                return { image: { data: "bm90IGFuIGltYWdl", format: "png", kind: "selection" } };
+              default:
+                return {
+                  image: {
+                    data: mockScreenshotBase64(),
+                    format: "png",
+                    kind: msg.params.mode === "dragToSelect" ? "selection" : "window"
+                  }
+                };
+            }
+          }
           case "omnibar_getTabContent": {
             await new Promise((resolve) => setTimeout(resolve, 150));
             return { pageContext: getMockTabContent(msg.params.tabId) };
@@ -43184,6 +43562,23 @@ This is placeholder content used by the NTP mock transport so the attach-tabs fe
         }
       }
     });
+  }
+  function mockScreenshotBase64() {
+    const canvas = document.createElement("canvas");
+    canvas.width = 1024;
+    canvas.height = 576;
+    const ctx = (
+      /** @type {CanvasRenderingContext2D} */
+      canvas.getContext("2d")
+    );
+    ctx.fillStyle = "#f5f5f5";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#222";
+    ctx.font = "14px sans-serif";
+    for (let y5 = 30; y5 < canvas.height; y5 += 22) {
+      ctx.fillText(`Mock screenshot line ${Math.round(y5 / 22)} - the quick brown fox jumps over the lazy dog`, 24, y5);
+    }
+    return canvas.toDataURL("image/png").replace(/^data:image\/png;base64,/, "");
   }
 
   // pages/new-tab/app/tabs/tabs.mock-transport.js

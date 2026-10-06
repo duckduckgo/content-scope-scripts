@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Capture Screenshot Params",
+  "description": "Asks native to capture a screenshot for the Duck.ai prompt. The reply comes once the capture is taken, fails or is cancelled, so the request can stay pending for as long as the user takes.",
+  "type": "object",
+  "required": ["mode"],
+  "properties": {
+    "mode": {
+      "$ref": "./types/screenshot-mode.json"
+    }
+  }
+}

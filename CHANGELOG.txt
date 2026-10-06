@@ -1,1 +1,1 @@
-- Add native Chrome Web Store integration for macOS (#3071)
+- NTP omnibar: screenshot capture (#3076)

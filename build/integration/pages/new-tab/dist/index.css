@@ -5616,6 +5616,11 @@ body[data-rebrand=true]:not([data-background-kind=default]) .TabSwitcher_blob {
 .Dropdown_itemActive .Dropdown_trailingIcon {
   color: var(--ds-color-theme-accent-content-primary);
 }
+.Dropdown_submenuChevron {
+  color: var(--ds-color-theme-icons-secondary);
+  display: flex;
+  transform: rotate(-90deg);
+}
 .Dropdown_trailingControl {
   align-items: center;
   display: flex;
