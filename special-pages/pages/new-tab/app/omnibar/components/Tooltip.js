@@ -56,7 +56,7 @@ export function Tooltip({ children, content, className, position = 'above', aria
     const hide = () => setRect(null);
 
     const handleKeyDown = (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
+        if ((e.key === 'Enter' || e.key === ' ') && e.target === e.currentTarget) {
             e.preventDefault();
             if (rect) {
                 hide();
