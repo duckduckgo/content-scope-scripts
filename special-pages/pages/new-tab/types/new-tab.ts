@@ -143,6 +143,14 @@ export type EnableAskDuckAiSuggestion = boolean;
  */
 export type EnableAttachTabs = boolean;
 /**
+ * The screenshot capture mode the user chose: `dragToSelect` (drag to select a region) or `selectWindowOrDisplay` (pick a window or a display).
+ */
+export type ScreenshotMode = "dragToSelect" | "selectWindowOrDisplay";
+/**
+ * Screenshot capture modes offered under 'Add Screenshot' in the attach menu, in display order. Absent or empty hides the screenshot UI. Choosing a mode calls `omnibar_captureScreenshot`.
+ */
+export type ScreenshotModes = ScreenshotMode[];
+/**
  * When true, pasting into the Duck.ai prompt attaches copied images and files (unless the clipboard also carries text). When false or absent, paste is left to the browser (text only).
  */
 export type EnablePastedAttachments = boolean;
@@ -247,9 +255,13 @@ export type Favicon = null | {
 };
 export type FeedType = "privacy-stats" | "activity";
 /**
- * How an image chip was added to the Duck.ai prompt: the file picker or a clipboard paste.
+ * What the user captured: a dragged region, a whole display, or a single window.
  */
-export type ImageAttachmentSource = "file" | "paste";
+export type ScreenshotKind = "selection" | "screen" | "window";
+/**
+ * How an image chip was added to the Duck.ai prompt: the file picker, a clipboard paste, or a screenshot capture.
+ */
+export type ImageAttachmentSource = "file" | "paste" | "screenshot";
 /**
  * The visibility state of the widget, as configured by the user
  */
@@ -367,6 +379,7 @@ export interface NewTabMessages {
     | InitialSetupRequest
     | NextStepsGetConfigRequest
     | NextStepsGetDataRequest
+    | OmnibarCaptureScreenshotRequest
     | OmnibarConfirmDeleteAiChatRequest
     | OmnibarGetAiChatsRequest
     | OmnibarGetConfigRequest
@@ -886,6 +899,7 @@ export interface OmnibarConfig {
   customizationActive?: CustomizationActive;
   enableAskAiSuggestion?: EnableAskDuckAiSuggestion;
   enableAttachTabs?: EnableAttachTabs;
+  screenshotModes?: ScreenshotModes;
   enablePastedAttachments?: EnablePastedAttachments;
   enableAiChatDeletion?: EnableAIChatDeletion;
   enableSearchSuggestionDeletion?: EnableSearchSuggestionDeletion;
@@ -1325,6 +1339,9 @@ export interface NTPTelemetryEvent {
     | OmnibarReasoningPickerShown
     | OmnibarReasoningPickerTryForFreeShown
     | OmnibarReasoningPickerUpgradeShown
+    | OmnibarScreenshotTaken
+    | OmnibarScreenshotRemoved
+    | OmnibarScreenshotFailed
     | OmnibarImageAttached
     | OmnibarImageRemoved;
 }
@@ -1382,7 +1399,31 @@ export interface OmnibarReasoningPickerUpgradeShown {
   name: "omnibar_reasoning_picker_upgrade_shown";
 }
 /**
- * Fired for every image chip added to the prompt, from the file picker or a paste.
+ * Fired once a screenshot returned by `omnibar_captureScreenshot` has been added to the prompt as an image chip.
+ */
+export interface OmnibarScreenshotTaken {
+  name: "omnibar_screenshot_taken";
+  value: {
+    kind: ScreenshotKind;
+  };
+}
+/**
+ * Fired when the user removes a screenshot image chip.
+ */
+export interface OmnibarScreenshotRemoved {
+  name: "omnibar_screenshot_removed";
+}
+/**
+ * Fired when the page could not process a screenshot returned by `omnibar_captureScreenshot`. `error` replies do not fire this event.
+ */
+export interface OmnibarScreenshotFailed {
+  name: "omnibar_screenshot_failed";
+  value: {
+    reason: "failed";
+  };
+}
+/**
+ * Fired for every image chip added to the prompt, from the file picker, a paste, or a screenshot.
  */
 export interface OmnibarImageAttached {
   name: "omnibar_image_attached";
@@ -1674,6 +1715,35 @@ export interface NextStepsGetDataRequest {
 }
 export interface NextStepsData {
   content: null | NextStepsCards;
+}
+/**
+ * Generated from @see "../messages/omnibar_captureScreenshot.request.json"
+ */
+export interface OmnibarCaptureScreenshotRequest {
+  method: "omnibar_captureScreenshot";
+  params: CaptureScreenshotParams;
+  result: CaptureScreenshotResponse;
+}
+/**
+ * Asks native to capture a screenshot for the Duck.ai prompt. The reply comes once the capture is taken, fails or is cancelled, so the request can stay pending for as long as the user takes.
+ */
+export interface CaptureScreenshotParams {
+  mode: ScreenshotMode;
+}
+/**
+ * Result of a screenshot capture. `image` when a capture was taken, `error` when it failed; neither means the user cancelled, and the page shows nothing. The page sends no telemetry for `error` replies.
+ */
+export interface CaptureScreenshotResponse {
+  image?: CapturedScreenshot;
+  error?: "screenshotFailed";
+}
+export interface CapturedScreenshot {
+  /**
+   * Base64-encoded image bytes, without a data-URL prefix, at most 1024px on the long side.
+   */
+  data: string;
+  format: "png" | "jpeg";
+  kind: ScreenshotKind;
 }
 /**
  * Generated from @see "../messages/omnibar_confirmDeleteAiChat.request.json"

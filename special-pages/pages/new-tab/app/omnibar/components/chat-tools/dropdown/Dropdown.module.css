@@ -66,6 +66,13 @@
     color: var(--ds-color-theme-accent-content-primary);
 }
 
+/* Right-pointing chevron on a DropdownSubmenu row. Its colour stays put when the row is active. */
+.submenuChevron {
+    color: var(--ds-color-theme-icons-secondary);
+    display: flex;
+    transform: rotate(-90deg);
+}
+
 .trailingControl {
     align-items: center;
     display: flex;
