@@ -43,12 +43,12 @@ import { ItemBuffer, eachMember, isList } from './sources.js';
  * @typedef {NodeBase & { kind: 'literal', value: number | boolean }} LiteralNode
  * @typedef {NodeBase & { kind: 'source', source: Source<any>, bodies: unknown[] }} SourceNode
  * @typedef {NodeBase & { kind: 'count', operand: Node, bound: number }} CountNode
- * @typedef {NodeBase & { kind: 'only' | 'first' | 'last', operand: Node }} PickNode
+ * @typedef {NodeBase & { kind: 'only', operand: Node }} OnlyNode
  * @typedef {NodeBase & { kind: 'sum' | 'mul' | 'min' | 'max' | 'sub' | 'div', operands: Node[] }} ArithmeticNode
  * @typedef {NodeBase & { kind: 'any' | 'all' | 'none' | 'and', operands: Node[] }} LogicNode
  * @typedef {NodeBase & { kind: 'if', test: Node, then: Node, else: Node }} IfNode
  * @typedef {NodeBase & { kind: 'ref', name: string, target?: Node }} RefNode
- * @typedef {LiteralNode | SourceNode | CountNode | PickNode | ArithmeticNode | LogicNode | IfNode | RefNode} Node
+ * @typedef {LiteralNode | SourceNode | CountNode | OnlyNode | ArithmeticNode | LogicNode | IfNode | RefNode} Node
  */
 
 /**
@@ -186,7 +186,7 @@ export function evaluate(node, position, ctx) {
  */
 function checkType(value, position) {
     if (value instanceof ItemBuffer && position === 'boolean') {
-        throw new DetectionError('a list is read through any, all, none, count, only, first or last');
+        throw new DetectionError('a list is read through any, all, none, count or only');
     }
     if (position === 'number' && typeof value !== 'number') throw new DetectionError(`expected a number, got ${typeName(value)}`);
     if (position === 'boolean' && typeof value !== 'boolean') throw new DetectionError(`expected a boolean, got ${typeName(value)}`);
@@ -387,18 +387,15 @@ function compute(node, ctx) {
             return { value: node.value, measured: true };
         case 'count':
             return computeCount(node, ctx);
-        case 'only':
-        case 'first':
-        case 'last': {
+        case 'only': {
             const list = readList(node.operand, node.kind, ctx);
             if (isFailure(list)) return list;
-            const failure = list.buffer.pull(node.kind === 'only' ? 2 : node.kind === 'first' ? 1 : Infinity);
+            const failure = list.buffer.pull(2);
             if (failure) return failure;
             const values = list.buffer.values;
-            if (values.length === 0) throw new DetectionError(`'${node.kind}' over no items`);
-            if (node.kind === 'only' && values.length > 1) throw new DetectionError(`'only' over several items`);
-            const value = node.kind === 'last' ? values[values.length - 1] : values[0];
-            return { value, measured: list.measured && list.buffer.track.measured };
+            if (values.length === 0) throw new DetectionError(`'only' over no items`);
+            if (values.length > 1) throw new DetectionError(`'only' over several items`);
+            return { value: values[0], measured: list.measured && list.buffer.track.measured };
         }
         case 'sum':
         case 'mul':
@@ -602,8 +599,7 @@ function payloadValue(field, ctx) {
     const read = evaluateOccurrence(field.value, ctx);
     if (isFailure(read) || !read.measured) return OMIT;
     const value = read.value;
-    if (value instanceof ItemBuffer && !field.buckets)
-        throw new DetectionError('a list is sent bucketed, or through count, only, first or last');
+    if (value instanceof ItemBuffer && !field.buckets) throw new DetectionError('a list is sent bucketed, or through count or only');
     /** @type {Track} */
     const track = { measured: true };
     /**
