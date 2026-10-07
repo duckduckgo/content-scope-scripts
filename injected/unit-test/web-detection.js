@@ -1,6 +1,6 @@
 import { JSDOM } from 'jsdom';
 import { parseDetectors } from '../src/features/web-detection/parse.js';
-import { evaluateMatch } from '../src/features/web-detection/matching.js';
+import { evaluateMatch } from '../src/features/web-detection/expressions.js';
 import WebDetection from '../src/features/web-detection.js';
 import WebEvents from '../src/features/web-events.js';
 
@@ -647,7 +647,7 @@ describe('WebDetection', () => {
          * @param {import('../src/features/web-detection/parse.js').MatchCondition} match
          * @param {object} [options]
          * @param {string[]} [options.zeroSizeSelectors] - Selectors for elements with 0x0 dimensions
-         * @returns {boolean}
+         * @returns {boolean | 'aborted'}
          */
         function matchInDOM(html, match, options = {}) {
             const { zeroSizeSelectors = [] } = options;
@@ -804,7 +804,7 @@ describe('WebDetection', () => {
 
             /**
              * @param {string} html
-             * @returns {boolean}
+             * @returns {boolean | 'aborted'}
              */
             function matchRenderedText(html) {
                 return matchInDOM(html, { text: { pattern: 'adblocker detected', xpath: RENDERED_TEXT } });
@@ -903,7 +903,7 @@ describe('WebDetection', () => {
                  * @param {string} html
                  * @param {string} pattern
                  * @param {{ chunkSize?: number, chunkTail?: number }} [xpathConfig]
-                 * @returns {boolean}
+                 * @returns {boolean | 'aborted'}
                  */
                 function matchChunked(html, pattern, xpathConfig) {
                     return matchInDOM(html, { text: { pattern, xpath: RENDERED_TEXT, xpathConfig } });

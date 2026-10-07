@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Numeric detectors: styles missing</title>
+    <link rel="stylesheet" href="./missing-styles.css">
+    <style>
+        @font-face {
+            font-family: 'MissingFont';
+            src: url('./missing-font.woff2') format('woff2');
+        }
+        .uses-missing-font {
+            font-family: 'MissingFont', sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <h1>Styles missing</h1>
+    <p class="uses-missing-font">Text in a font that fails to load</p>
+</body>
+</html>
