@@ -47,3 +47,7 @@ URL parameters can be used to override the default values of the onboarding flow
 - `exclude` - Removes specific steps from the onboarding flow. Can be used multiple times (e.g., `&exclude=welcome&exclude=systemSettings`).
 - `page` - Sets the initial step to start the onboarding flow on (e.g., `systemSettings`).
 - `adBlocking` - If set to `enabled`, adds a step for enabling ad blocking. If set to `youtube`, adds a step for enabling YouTube-only ad blocking.
+- `extensions=true` - Offers the Windows extension installation checkbox in the integration preview.
+- `launchOnStartup=true` - Offers the Windows launch-on-sign-in checkbox in the integration preview.
+
+Preview both Windows installation options at `/onboarding/?platform=windows&page=getStarted&extensions=true&launchOnStartup=true` when serving special pages.

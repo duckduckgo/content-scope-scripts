@@ -66,7 +66,13 @@
     transition: opacity 0.3s ease-in-out;
 }
 
-/* Chrome extension checkbox row */
+.installOptions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-3);
+    align-self: stretch;
+}
+
 .checkboxRow {
     display: flex;
     align-items: flex-start;
@@ -99,6 +105,11 @@
 .checkbox.checked {
     background: var(--ds-accent-primary);
     border-color: var(--ds-accent-primary);
+}
+
+.installOptions .checkbox:has(:focus-visible) {
+    outline: 2px solid var(--ds-accent-primary);
+    outline-offset: 2px;
 }
 
 .checkboxInput {

@@ -34,6 +34,8 @@ export class OnboardingPage {
             setAdBlocking: {},
             reportPageException: {},
             reportInitException: {},
+            setOnboardingInstallOptions: {},
+            telemetryEvent: {},
             init: {
                 stepDefinitions: {
                     systemSettings: {
