@@ -16009,16 +16009,15 @@
         const images = canAttachImages ? imageState.getImagesForSubmission() : null;
         const files = canAttachFiles ? fileState.getFilesForSubmission() : null;
         const pageContext = canAttachTabs ? await tabAttachments.getTabsForSubmission() : null;
-        const modelId = imageGenerationActive ? null : selectedModel?.id ?? null;
+        const updatedImageGeneration = imageGenerationActive && updatedCreateImageEnabled;
+        const legacyImageGeneration = imageGenerationActive && !updatedCreateImageEnabled;
+        const modelId = legacyImageGeneration ? null : selectedModel?.id ?? null;
         const reasoningEffort = imageGenerationActive ? null : selectedEffort;
-        const toolChoice = webSearchActive ? (
-          /** @type {import('../../../types/new-tab.js').SubmitChatAction['toolChoice']} */
-          ["WebSearch"]
-        ) : null;
+        const toolChoice = updatedImageGeneration ? ["GenerateImage"] : webSearchActive ? ["WebSearch"] : null;
         const action = {
           chat,
           target,
-          ...imageGenerationActive && { mode: (
+          ...legacyImageGeneration && { mode: (
             /** @type {const} */
             "image-generation"
           ) },
