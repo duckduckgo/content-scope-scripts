@@ -262,7 +262,7 @@ function tailStart(buffer, chunkTail) {
 }
 
 /**
- * Yield once per match of a pattern in the text of every node selected by an XPath expression,
+ * Yield each match of a pattern, as the matched string, in the text of every node selected by an XPath expression,
  * scanning in bounded chunks rather than concatenating the whole selection.
  *
  * Nodes are joined without a separator so matching is equivalent to `textContent`
@@ -281,7 +281,7 @@ function tailStart(buffer, chunkTail) {
  * @param {string} expression
  * @param {Node} contextNode
  * @param {{ chunkSize: number, chunkTail: number }} chunking
- * @returns {Generator<undefined>}
+ * @returns {Generator<string>}
  */
 function* xpathMatches(pattern, expression, contextNode, { chunkSize, chunkTail }) {
     const snapshot = compileXPath(expression).evaluate(contextNode, ORDERED_NODE_SNAPSHOT_TYPE, null);
@@ -302,7 +302,7 @@ function* xpathMatches(pattern, expression, contextNode, { chunkSize, chunkTail 
             for (const match of matchesIn(pattern, buffer)) {
                 if (match.index >= cut) break;
                 next = Math.max(cut, match.index + match[0].length);
-                yield undefined;
+                yield match[0];
             }
             // Retained text is contiguous with what follows, so a phrase split across nodes
             // still matches across a flush
@@ -310,8 +310,7 @@ function* xpathMatches(pattern, expression, contextNode, { chunkSize, chunkTail 
             pending = 0;
         }
     }
-    const rest = matchesIn(pattern, buffer);
-    while (!rest.next().done) yield undefined;
+    for (const match of matchesIn(pattern, buffer)) yield match[0];
 }
 
 /**
@@ -375,7 +374,7 @@ function resolveRoots(root) {
  */
 
 /** @type {ReadonlySet<Placement>} */
-const TEXT_PLACEMENTS = new Set(['boolean', 'items']);
+const TEXT_PLACEMENTS = new Set(['boolean', 'value', 'items', 'values']);
 
 /**
  * Matches of a text pattern, case-insensitive, in each source: each `selector` element's
@@ -438,7 +437,7 @@ export const textSource = {
 
 /**
  * @param {TextBody[]} bodies
- * @returns {Generator<undefined>}
+ * @returns {Generator<string>}
  */
 function* textMatches(bodies) {
     for (const body of bodies) {
@@ -448,8 +447,7 @@ function* textMatches(bodies) {
             /** @type {Iterable<Element | ParentNode>} */
             const elements = body.selectors.length > 0 ? root.querySelectorAll(body.selectors.join(', ')) : body.rootIsSource ? [root] : [];
             for (const element of elements) {
-                const matches = matchesIn(pattern, element.textContent || '');
-                while (!matches.next().done) yield undefined;
+                for (const match of matchesIn(pattern, element.textContent || '')) yield match[0];
             }
             for (const expression of body.xpaths) {
                 yield* xpathMatches(pattern, expression, root, body.chunking);
@@ -465,12 +463,13 @@ function* textMatches(bodies) {
  * @property {string[]} [root]
  * @property {CompiledPredicate} [where]
  * @property {CompiledField} [field]
+ * @property {boolean} allowGetter
  */
 
 const VISIBILITIES = ['visible', 'hidden', 'any', 'content'];
 
 /** @type {ReadonlySet<Placement>} */
-const ELEMENT_PLACEMENTS = new Set(['boolean', 'items']);
+const ELEMENT_PLACEMENTS = new Set(['boolean', 'value', 'items', 'values']);
 /** @type {ReadonlySet<Placement>} */
 const ELEMENT_FIELD_PLACEMENTS = new Set(['value', 'items', 'values']);
 
@@ -503,7 +502,7 @@ export const elementSource = {
     key: 'element',
     parse(raw, path, hooks) {
         if (!isPlainObject(raw)) throw new ConfigParseError(path, '`element` takes an object');
-        rejectUnknownKeys(raw, ['selector', 'visibility', 'where', 'field', 'root'], path);
+        rejectUnknownKeys(raw, ['selector', 'visibility', 'where', 'field', 'root', 'allowGetter'], path);
         const visibility = raw.visibility ?? 'any';
         if (typeof visibility !== 'string' || !VISIBILITIES.includes(visibility)) {
             throw new ConfigParseError(`${path}.visibility`, `unknown visibility '${String(visibility)}'`);

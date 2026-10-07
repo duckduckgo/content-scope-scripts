@@ -235,7 +235,8 @@ function compileExpr(raw, position, path, scope) {
         return makeNode(scope, { kind: 'literal', value: raw, path, position }, []);
     }
     if (isArray(raw)) {
-        if (position !== 'boolean') throw new ConfigParseError(path, 'an array is only an expression in boolean position');
+        // An array is the OR of its entries, a boolean
+        if (position !== 'boolean' && position !== 'value') throw new ConfigParseError(path, `an array does not fill ${position} position`);
         return compileLogic('any', raw, position, path, scope);
     }
     if (!isPlainObject(raw)) throw new ConfigParseError(path, 'expected an expression');
@@ -261,8 +262,8 @@ function compileExpr(raw, position, path, scope) {
         // An object ANDs its keys, so no keys holds
         node = makeNode(scope, { kind: 'literal', value: true, path, position }, []);
     } else if (expressionKeys.length > 1) {
-        if (hasIs || position !== 'boolean') {
-            throw new ConfigParseError(path, 'several expression keys are their AND, in boolean position only and never beside `is`');
+        if (hasIs || (position !== 'boolean' && position !== 'value')) {
+            throw new ConfigParseError(path, 'several expression keys are their AND, in boolean or value position and never beside `is`');
         }
         const operands = expressionKeys.map((key) => compileKey(key, raw[key], 'boolean', `${path}.${key}`, scope));
         node = makeNode(scope, { kind: 'and', operands, path, position }, operands);
@@ -293,7 +294,10 @@ function compileExpr(raw, position, path, scope) {
     }
     if (hasIs) {
         const sink = /** @type {Node[]} */ (scope.deps.get(node));
-        node.is = scope.collecting(sink, () => compilePredicate(raw.is, 'value', `${path}.is`, scope.hooks));
+        // A source's `allowGetter` covers an `is` on it
+        const allowGetter =
+            node.kind === 'source' && node.bodies.some((body) => /** @type {{ allowGetter?: boolean }} */ (body).allowGetter === true);
+        node.is = scope.collecting(sink, () => compilePredicate(raw.is, 'value', `${path}.is`, scope.hooks, allowGetter));
     }
     return node;
 }
@@ -561,7 +565,10 @@ function resolve(scope) {
     }
     checkCycles(scope);
     for (const { node, single } of scope.slots) {
-        node.position = fillsOf(node).has('values') ? 'values' : single;
+        const fills = fillsOf(node);
+        // Under any / all / none, an operand that is a boolean stays one
+        if (single === 'boolean' && fills.has('boolean')) node.position = 'boolean';
+        else node.position = fills.has('values') ? 'values' : single;
     }
     for (const node of scope.nodes) {
         if (!fillsOf(node).has(node.position)) {

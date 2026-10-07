@@ -10,6 +10,7 @@
                             "args": [
                                 "navigation"
                             ],
+                            "allowGetter": true,
                             "field": "loadEventEnd"
                         },
                         "as": "loadEventEnd",
@@ -26,7 +27,8 @@
                             {
                                 "api": {
                                     "path": "performance.now",
-                                    "args": []
+                                    "args": [],
+                                    "allowGetter": true
                                 },
                                 "is": {
                                     "gte": 15000
@@ -79,6 +81,7 @@
                     "args": [
                         "navigation"
                     ],
+                    "allowGetter": true,
                     "field": "loadEventEnd"
                 },
                 "as": "loadEventEnd",
@@ -160,7 +163,7 @@
             "actions": {
                 "fireEvent": {
                     "state": "enabled",
-                    "type": "errorPage",
+                    "type": "errorPhraseCount",
                     "data": {
                         "keywordCount": {
                             "value": {
@@ -201,6 +204,7 @@
                                     "args": [
                                         "navigation"
                                     ],
+                                    "allowGetter": true,
                                     "field": "decodedBodySize"
                                 }
                             }
@@ -225,6 +229,7 @@
                             {
                                 "api": {
                                     "path": "document",
+                                    "allowGetter": true,
                                     "field": {
                                         "path": "title",
                                         "feature": "wordCount"
@@ -296,7 +301,7 @@
             "actions": {
                 "fireEvent": {
                     "state": "enabled",
-                    "type": "errorPage",
+                    "type": "soft404Features",
                     "data": {
                         "contentByteRatio": {
                             "value": {
@@ -377,7 +382,7 @@
             "actions": {
                 "fireEvent": {
                     "state": "enabled",
-                    "type": "errorPage",
+                    "type": "failurePhrasesSmallPage",
                     "data": {
                         "bodyTextLength": {
                             "value": {
@@ -442,6 +447,7 @@
                                     "args": [
                                         "navigation"
                                     ],
+                                    "allowGetter": true,
                                     "field": "responseStatus"
                                 },
                                 "as": "status",
@@ -470,7 +476,7 @@
             "actions": {
                 "fireEvent": {
                     "state": "enabled",
-                    "type": "blockPage",
+                    "type": "forbiddenPage",
                     "data": {
                         "status": {
                             "value": {
@@ -531,6 +537,7 @@
                                     "args": [
                                         "navigation"
                                     ],
+                                    "allowGetter": true,
                                     "field": "responseStatus"
                                 },
                                 "as": "status",
@@ -559,7 +566,7 @@
             "actions": {
                 "fireEvent": {
                     "state": "enabled",
-                    "type": "blockPage",
+                    "type": "rateLimitedPage",
                     "data": {
                         "status": {
                             "value": {
@@ -584,7 +591,7 @@
                 }
             }
         },
-        "waf_assets_v2": {
+        "waf_assets": {
             "state": "disabled",
             "match": {
                 "all": [
@@ -618,6 +625,7 @@
                                     "args": [
                                         "navigation"
                                     ],
+                                    "allowGetter": true,
                                     "field": "responseStatus"
                                 },
                                 "catch": {
@@ -645,7 +653,7 @@
             "actions": {
                 "fireEvent": {
                     "state": "enabled",
-                    "type": "blockPage",
+                    "type": "wafAssetsPage",
                     "data": {
                         "bodyTextLength": {
                             "value": {
@@ -675,7 +683,7 @@
         }
     },
     "blankPage": {
-        "app_root_empty_v2": {
+        "app_root_empty": {
             "state": "disabled",
             "match": {
                 "all": [
@@ -695,6 +703,7 @@
                             "args": [
                                 "navigation"
                             ],
+                            "allowGetter": true,
                             "field": "loadEventEnd"
                         },
                         "as": "loadEventEnd",
@@ -707,7 +716,8 @@
                             {
                                 "api": {
                                     "path": "performance.now",
-                                    "args": []
+                                    "args": [],
+                                    "allowGetter": true
                                 }
                             },
                             {
@@ -748,7 +758,7 @@
             "actions": {
                 "fireEvent": {
                     "state": "enabled",
-                    "type": "blankPage",
+                    "type": "appRootEmpty",
                     "data": {
                         "loadEventEnd": {
                             "value": {
@@ -776,6 +786,7 @@
                                         "args": [
                                             "resource"
                                         ],
+                                        "allowGetter": true,
                                         "where": {
                                             "initiatorType": "script",
                                             "responseStatus": {
@@ -824,7 +835,7 @@
             "actions": {
                 "fireEvent": {
                     "state": "enabled",
-                    "type": "blankPage",
+                    "type": "noTextOrTitle",
                     "data": {
                         "bodySize": {
                             "value": {
@@ -833,6 +844,7 @@
                                     "args": [
                                         "navigation"
                                     ],
+                                    "allowGetter": true,
                                     "field": "decodedBodySize"
                                 }
                             },
@@ -888,14 +900,22 @@
                 "any": [
                     {
                         "count": {
-                            "element": {
-                                "selector": "link[rel~='stylesheet']:not([rel~='alternate']):not([disabled])",
+                            "api": {
+                                "path": "performance.getEntriesByType",
+                                "args": [
+                                    "resource"
+                                ],
+                                "allowGetter": true,
                                 "where": {
-                                    "sheet": null
+                                    "initiatorType": "link",
+                                    "responseStatus": {
+                                        "exists": true,
+                                        "gte": 400
+                                    }
                                 }
                             }
                         },
-                        "as": "unloadedStylesheets",
+                        "as": "failedStylesheets",
                         "is": {
                             "gt": 0
                         }
@@ -904,6 +924,7 @@
                         "count": {
                             "api": {
                                 "path": "document.fonts",
+                                "allowGetter": true,
                                 "where": {
                                     "status": "error"
                                 }
@@ -934,9 +955,9 @@
                     "state": "enabled",
                     "type": "stylesMissing",
                     "data": {
-                        "unloadedStylesheets": {
+                        "failedStylesheets": {
                             "value": {
-                                "ref": "unloadedStylesheets"
+                                "ref": "failedStylesheets"
                             },
                             "buckets": {
                                 "0": 0,
@@ -978,6 +999,7 @@
                 "count": {
                     "element": {
                         "selector": "img",
+                        "allowGetter": true,
                         "where": {
                             "complete": true,
                             "naturalWidth": 0,
@@ -1091,6 +1113,7 @@
                         "count": {
                             "element": {
                                 "selector": "img",
+                                "allowGetter": true,
                                 "where": {
                                     "complete": true,
                                     "naturalWidth": {
@@ -1134,6 +1157,7 @@
                                 "count": {
                                     "element": {
                                         "selector": "img",
+                                        "allowGetter": true,
                                         "where": {
                                             "complete": true,
                                             "naturalWidth": 0,
