@@ -1,6 +1,6 @@
 import { isArray } from '../../captured-globals.js';
-import { ConfigParseError, isFailure, isPlainObject } from './core.js';
-import { SKIP, parseItemKeys, rejectUnknownKeys, selectItem } from './sources.js';
+import { ConfigParseError, DetectionError, isFailure, isPlainObject } from './core.js';
+import { ItemBuffer, SKIP, isList, members, parseItemKeys, rejectUnknownKeys, selectItem } from './sources.js';
 
 /**
  * @typedef {import('@duckduckgo/privacy-configuration/schema/features/web-detection.ts').ConditionTypes} ConditionTypes
@@ -8,7 +8,9 @@ import { SKIP, parseItemKeys, rejectUnknownKeys, selectItem } from './sources.js
  * @typedef {import('./predicates.js').CompiledField} CompiledField
  * @typedef {import('./predicates.js').CompiledPredicate} CompiledPredicate
  * @typedef {import('./predicates.js').PredicateContext} PredicateContext
- * @typedef {import('./sources.js').Placement} Placement
+ * @typedef {import('./predicates.js').PredicateHooks} PredicateHooks
+ * @typedef {import('./core.js').Failure} Failure
+ * @typedef {import('./expressions.js').Position} Position
  */
 
 /**
@@ -344,23 +346,88 @@ function stringList(raw, path) {
 }
 
 /**
- * The scope `root` selects: the union of the elements its selectors match, with an element inside
- * another matched element dropped. Without `root`, the document.
+ * A `root`: selectors queried from the document, or a compiled expression giving a node or a list
+ * of nodes.
  *
- * @param {string[] | undefined} root
+ * @typedef {{ selectors: string[] } | { expression: unknown }} Root
+ */
+
+/**
+ * @param {unknown} raw
+ * @param {string} path
+ * @param {PredicateHooks} hooks
+ * @returns {Root | undefined}
+ */
+function parseRoot(raw, path, hooks) {
+    if (raw === undefined) return undefined;
+    if (isPlainObject(raw)) return { expression: hooks.expression(raw, path, 'root') };
+    return { selectors: stringList(raw, path) };
+}
+
+/**
+ * @param {Root | undefined} root
+ * @returns {root is { expression: unknown }}
+ */
+function isExpressionRoot(root) {
+    return root !== undefined && 'expression' in root;
+}
+
+/**
+ * The scope `root` gives: the union of its nodes, with a node inside another dropped. Without
+ * `root`, the document.
+ *
+ * @param {Root | undefined} root
+ * @param {PredicateContext} ctx
+ * @param {Track} track
+ * @returns {ParentNode[] | Failure}
+ */
+function resolveRoots(root, ctx, track) {
+    if (!root || 'selectors' in root) return selectorRoots(root);
+    const value = ctx.read(root.expression, track);
+    if (isFailure(value)) return value;
+    if (value === null || value === undefined) return [];
+    /** @type {Iterable<unknown>} */
+    let nodes;
+    if (value instanceof ItemBuffer) {
+        const failure = value.pull(Infinity);
+        if (failure) return failure;
+        if (!value.track.measured) track.measured = false;
+        nodes = value.values;
+    } else {
+        nodes = isList(value, ctx) ? members(value, ctx) : [value];
+    }
+    /** @type {Node[]} */
+    const checked = [];
+    for (const node of nodes) {
+        if (!ctx.reader.isNode(node)) throw new DetectionError('a root is a node or a list of nodes');
+        checked.push(/** @type {Node} */ (node));
+    }
+    return outermost(checked);
+}
+
+/**
+ * Roots from selectors, or the document without `root`.
+ *
+ * @param {{ selectors: string[] } | undefined} root
  * @returns {ParentNode[]}
  */
-function resolveRoots(root) {
+function selectorRoots(root) {
     if (!root) return [document];
-    /** @type {Element[]} */
+    return outermost(document.querySelectorAll(root.selectors.join(', ')));
+}
+
+/**
+ * @param {Iterable<Node>} nodes
+ * @returns {ParentNode[]} the nodes, without those inside another
+ */
+function outermost(nodes) {
+    /** @type {Node[]} */
     const roots = [];
-    for (const element of document.querySelectorAll(root.join(', '))) {
-        const last = roots[roots.length - 1];
-        // Matches come in document order, so an element inside a kept root follows it directly
-        if (last && last.contains(element)) continue;
-        roots.push(element);
+    for (const node of nodes) {
+        if (roots.some((kept) => kept.contains(node))) continue;
+        roots.push(node);
     }
-    return roots;
+    return /** @type {ParentNode[]} */ (roots);
 }
 
 /**
@@ -369,12 +436,14 @@ function resolveRoots(root) {
  * @property {string[]} selectors
  * @property {string[]} xpaths
  * @property {{ chunkSize: number, chunkTail: number }} chunking
- * @property {string[]} [root]
+ * @property {Root} [root]
  * @property {boolean} rootIsSource - with `root` and neither `selector` nor `xpath`, each root's text is the source
  */
 
-/** @type {ReadonlySet<Placement>} */
-const TEXT_PLACEMENTS = new Set(['boolean', 'value', 'items', 'values']);
+/** @type {ReadonlySet<Position>} */
+const PRESENCE_FILLS = new Set(['boolean', 'list', 'value', 'number']);
+/** @type {ReadonlySet<Position>} */
+const LIST_FILLS = new Set(['list', 'value', 'number']);
 
 /**
  * Matches of a text pattern, case-insensitive, in each source: each `selector` element's
@@ -396,8 +465,8 @@ const TEXT_PLACEMENTS = new Set(['boolean', 'value', 'items', 'values']);
  *   `chunkTail` that straddles a chunk boundary is missed; `chunkSize: 0` turns chunking off
  *   entirely. See `xpathMatches` and `resolveXPathConfig`.
  *
- * `root` [optional]: Scopes the sources. Selectors are queried from each root and XPath expressions
- *   evaluated with the root as context node.
+ * `root` [optional]: Scopes the sources: selectors, or an expression giving a node or a list of nodes.
+ *   Selectors are queried from each root and XPath expressions evaluated with the root as context node.
  *
  * Selectors are read before XPath expressions because CSS matching avoids the per-call expression
  * parse and snapshot allocation that `document.evaluate` requires.
@@ -406,12 +475,12 @@ const TEXT_PLACEMENTS = new Set(['boolean', 'value', 'items', 'values']);
  */
 export const textSource = {
     key: 'text',
-    parse(raw, path) {
+    parse(raw, path, hooks) {
         if (!isPlainObject(raw)) throw new ConfigParseError(path, '`text` takes an object');
         rejectUnknownKeys(raw, ['pattern', 'selector', 'xpath', 'xpathConfig', 'root'], path);
         const patterns = stringList(raw.pattern, `${path}.pattern`);
         const xpaths = raw.xpath === undefined ? [] : stringList(raw.xpath, `${path}.xpath`);
-        const root = raw.root === undefined ? undefined : stringList(raw.root, `${path}.root`);
+        const root = parseRoot(raw.root, `${path}.root`, hooks);
         /** @type {string[]} */
         let selectors;
         if (raw.selector !== undefined) {
@@ -429,21 +498,28 @@ export const textSource = {
             rootIsSource: root !== undefined && raw.selector === undefined && xpaths.length === 0,
         };
     },
-    placements: () => TEXT_PLACEMENTS,
-    items(bodies) {
-        return textMatches(bodies);
+    fills: () => PRESENCE_FILLS,
+    read(bodies, ctx, track) {
+        return new ItemBuffer(textMatches(bodies, ctx, track), track);
     },
 };
 
 /**
  * @param {TextBody[]} bodies
- * @returns {Generator<string>}
+ * @param {PredicateContext} ctx
+ * @param {Track} track
+ * @returns {Generator<string | Failure>}
  */
-function* textMatches(bodies) {
+function* textMatches(bodies, ctx, track) {
     for (const body of bodies) {
         // A copy per read, since `exec` keeps state on a global pattern
         const pattern = new RegExp(body.pattern);
-        for (const root of resolveRoots(body.root)) {
+        const roots = resolveRoots(body.root, ctx, track);
+        if (isFailure(roots)) {
+            yield roots;
+            return;
+        }
+        for (const root of roots) {
             /** @type {Iterable<Element | ParentNode>} */
             const elements = body.selectors.length > 0 ? root.querySelectorAll(body.selectors.join(', ')) : body.rootIsSource ? [root] : [];
             for (const element of elements) {
@@ -460,24 +536,19 @@ function* textMatches(bodies) {
  * @typedef {object} ElementBody
  * @property {string} selector - the selectors joined into one selector list
  * @property {'visible' | 'hidden' | 'any' | 'content'} visibility
- * @property {string[]} [root]
+ * @property {Root} [root]
  * @property {CompiledPredicate} [where]
  * @property {CompiledField} [field]
  */
 
 const VISIBILITIES = ['visible', 'hidden', 'any', 'content'];
 
-/** @type {ReadonlySet<Placement>} */
-const ELEMENT_PLACEMENTS = new Set(['boolean', 'value', 'items', 'values']);
-/** @type {ReadonlySet<Placement>} */
-const ELEMENT_FIELD_PLACEMENTS = new Set(['value', 'items', 'values']);
-
 /**
  * @param {ElementBody} body
  * @returns {boolean}
  */
 function isPresenceOnly(body) {
-    return body.visibility === 'any' && !body.where && !body.field;
+    return body.visibility === 'any' && !body.where && !body.field && !isExpressionRoot(body.root);
 }
 
 /**
@@ -493,7 +564,8 @@ function isPresenceOnly(body) {
  *
  * `field` [optional]: The value read from each element that passes.
  *
- * `root` [optional]: Selectors are queried from each root.
+ * `root` [optional]: Selectors, or an expression giving a node or a list of nodes. Selectors are
+ *   queried from each root.
  *
  * @type {Source<ElementBody>}
  */
@@ -509,23 +581,31 @@ export const elementSource = {
         return {
             selector: stringList(raw.selector, `${path}.selector`).join(', '),
             visibility: /** @type {ElementBody['visibility']} */ (visibility),
-            root: raw.root === undefined ? undefined : stringList(raw.root, `${path}.root`),
+            root: parseRoot(raw.root, `${path}.root`, hooks),
             ...parseItemKeys(raw, path, hooks),
         };
     },
-    placements: (body) => (body.field ? ELEMENT_FIELD_PLACEMENTS : ELEMENT_PLACEMENTS),
-    items(bodies, ctx, track) {
-        return selectElements(bodies, ctx, track);
-    },
-    hasAny(bodies) {
-        // With no state to read, a quick existence check suffices
-        if (!bodies.every(isPresenceOnly)) return undefined;
-        return bodies.some((body) => resolveRoots(body.root).some((root) => root.querySelector(body.selector) !== null));
-    },
-    countAll(bodies) {
-        if (bodies.length !== 1 || !bodies.every(isPresenceOnly)) return undefined;
-        const body = /** @type {ElementBody} */ (bodies[0]);
-        return resolveRoots(body.root).reduce((sum, root) => sum + root.querySelectorAll(body.selector).length, 0);
+    fills: (body) => (body.field ? LIST_FILLS : PRESENCE_FILLS),
+    read(bodies, ctx, track) {
+        return new ItemBuffer(selectElements(bodies, ctx, track), track, {
+            hasAny() {
+                // With no state to read, a quick existence check suffices
+                if (!bodies.every(isPresenceOnly)) return undefined;
+                return bodies.some((body) =>
+                    selectorRoots(/** @type {{ selectors: string[] } | undefined} */ (body.root)).some(
+                        (root) => root.querySelector(body.selector) !== null,
+                    ),
+                );
+            },
+            countAll() {
+                if (bodies.length !== 1 || !bodies.every(isPresenceOnly)) return undefined;
+                const body = /** @type {ElementBody} */ (bodies[0]);
+                return selectorRoots(/** @type {{ selectors: string[] } | undefined} */ (body.root)).reduce(
+                    (sum, root) => sum + root.querySelectorAll(body.selector).length,
+                    0,
+                );
+            },
+        });
     },
 };
 
@@ -558,7 +638,12 @@ function* selectElements(bodies, ctx, track) {
     /** @type {Set<Element> | undefined} */
     const seen = bodies.length > 1 ? new Set() : undefined;
     for (const body of bodies) {
-        for (const root of resolveRoots(body.root)) {
+        const roots = resolveRoots(body.root, ctx, track);
+        if (isFailure(roots)) {
+            yield roots;
+            return;
+        }
+        for (const root of roots) {
             for (const element of root.querySelectorAll(body.selector)) {
                 if (seen) {
                     if (seen.has(element)) continue;
