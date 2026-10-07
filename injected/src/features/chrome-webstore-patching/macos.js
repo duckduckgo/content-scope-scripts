@@ -93,14 +93,13 @@ export class MacOSWebstore {
         for (const button of this.feature._matchingButtons()) button.style.removeProperty('display');
 
         if (!extensionId || this._pending.has(extensionId)) return;
-        if (!this.feature.getCuratedExtensionIds().includes(extensionId)) {
-            this.feature._reveal('unsupported');
-            return;
-        }
+
+        // A → B → A navigation must also discard the first A's late response.
+        const isCurrent = () => evaluation === this._evaluation && extensionId === parseExtensionId(window.location.pathname);
+        if (!(await this.feature._isInCatalog(extensionId, isCurrent))) return;
 
         const status = await this.getExtensionStatus(extensionId);
-        // A → B → A navigation must also discard the first A's late response.
-        if (evaluation !== this._evaluation || extensionId !== parseExtensionId(window.location.pathname)) return;
+        if (!isCurrent()) return;
         this._evaluatedExtensionId = extensionId;
         if (status === 'installable') this.feature._reveal('install');
         else if (status === 'installed') this.feature._reveal('remove');
@@ -125,10 +124,11 @@ export class MacOSWebstore {
 
         const extensionId = parseExtensionId(window.location.pathname);
         const verdict = this.feature._verdict;
+        // _evaluatedExtensionId is only set once native's catalog included the
+        // ID, so the synchronous handler needn't ask native again.
         if (
             !extensionId ||
             extensionId !== this._evaluatedExtensionId ||
-            !this.feature.getCuratedExtensionIds().includes(extensionId) ||
             this._pending.has(extensionId) ||
             (verdict !== 'install' && verdict !== 'remove')
         )

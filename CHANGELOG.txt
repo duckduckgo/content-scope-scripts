@@ -1,1 +1,1 @@
-- NTP: attachment chips UI updates (#3048)
+- Chrome Web Store: ask native for the extension catalog (#3085)

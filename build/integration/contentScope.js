@@ -28983,17 +28983,6 @@ ${iframeContent}
   function isRecord(value) {
     return typeof value === "object" && value !== null;
   }
-  function asFeatureState(value) {
-    switch (value) {
-      case "enabled":
-      case "disabled":
-      case "internal":
-      case "preview":
-        return value;
-      default:
-        return void 0;
-    }
-  }
   function parseExtensionId(pathname) {
     const match = pathname.match(/\/detail\/(?:[^/]+\/)?([a-p]{32})(?:[/?#]|$)/);
     return match?.[1] ?? null;
@@ -29006,26 +28995,12 @@ ${iframeContent}
       return false;
     }
   }
-  function readCuratedCatalog(bundledConfig, isEnabled, isInternal = false) {
-    if (!isRecord(bundledConfig)) return [];
-    const features = bundledConfig.features;
-    if (!isRecord(features)) return [];
-    const extensionManagement = features.extensionManagement;
-    if (!isRecord(extensionManagement) || !isEnabled(asFeatureState(extensionManagement.state))) return [];
-    const subFeatures = extensionManagement.features;
-    if (!isRecord(subFeatures)) return [];
-    const curated = subFeatures.curatedExtensions;
-    if (!isRecord(curated) || !isEnabled(asFeatureState(curated.state))) return [];
-    const settings = curated.settings;
-    if (!isRecord(settings)) return [];
-    const internalCatalog = isInternal ? settings.catalogInternal : void 0;
-    const catalog = Array.isArray(internalCatalog) ? internalCatalog : settings.catalog;
-    if (!Array.isArray(catalog)) return [];
-    const ids = [];
-    for (const entry of catalog) {
-      if (isRecord(entry) && typeof entry.id === "string") ids.push(entry.id);
-    }
-    return ids;
+  function parseCatalogExtensionIds(response) {
+    if (!isRecord(response)) return null;
+    const { extensionIds } = response;
+    if (!Array.isArray(extensionIds)) return null;
+    if (!extensionIds.every((id) => typeof id === "string")) return null;
+    return extensionIds;
   }
   var INSTALLED_STATUSES = ["enabled", "disabled", "force_installed", "terminated"];
   var INSTALLABLE_STATUSES = ["installable", "can_request"];
@@ -29133,12 +29108,10 @@ ${iframeContent}
       this.feature._verdict = null;
       for (const button of this.feature._matchingButtons()) button.style.removeProperty("display");
       if (!extensionId || this._pending.has(extensionId)) return;
-      if (!this.feature.getCuratedExtensionIds().includes(extensionId)) {
-        this.feature._reveal("unsupported");
-        return;
-      }
+      const isCurrent = () => evaluation === this._evaluation && extensionId === parseExtensionId(window.location.pathname);
+      if (!await this.feature._isInCatalog(extensionId, isCurrent)) return;
       const status = await this.getExtensionStatus(extensionId);
-      if (evaluation !== this._evaluation || extensionId !== parseExtensionId(window.location.pathname)) return;
+      if (!isCurrent()) return;
       this._evaluatedExtensionId = extensionId;
       if (status === "installable") this.feature._reveal("install");
       else if (status === "installed") this.feature._reveal("remove");
@@ -29158,7 +29131,7 @@ ${iframeContent}
       if (event instanceof KeyboardEvent && event.repeat) return;
       const extensionId = parseExtensionId(window.location.pathname);
       const verdict = this.feature._verdict;
-      if (!extensionId || extensionId !== this._evaluatedExtensionId || !this.feature.getCuratedExtensionIds().includes(extensionId) || this._pending.has(extensionId) || verdict !== "install" && verdict !== "remove")
+      if (!extensionId || extensionId !== this._evaluatedExtensionId || this._pending.has(extensionId) || verdict !== "install" && verdict !== "remove")
         return;
       void this._performAction(extensionId, verdict).catch((error) => {
         this.feature.log.info("Could not refresh Chrome Web Store after native operation", error);
@@ -29238,6 +29211,7 @@ ${iframeContent}
     /** @type {const} */
     { install: "install", remove: "remove", unsupported: "unavailable" }
   );
+  var CATALOG_REQUEST_TIMEOUT_MS = 3e3;
   var ChromeWebstorePatching = class extends ContentFeature {
     constructor() {
       super(...arguments);
@@ -29255,6 +29229,8 @@ ${iframeContent}
       __publicField(this, "_locale", "en");
       /** @type {MacOSWebstore | undefined} */
       __publicField(this, "_macOS");
+      /** @type {Promise<unknown> | undefined} catalog request native hasn't answered yet */
+      __publicField(this, "_pendingCatalogRequest");
     }
     /** @param {any} [args] */
     async init(args) {
@@ -29335,18 +29311,32 @@ ${iframeContent}
       }
       const extensionId = parseExtensionId(window.location.pathname);
       if (!extensionId) return;
-      if (!this.getCuratedExtensionIds().includes(extensionId)) {
-        this._reveal("unsupported");
-        return;
-      }
+      const isCurrent = () => extensionId === parseExtensionId(window.location.pathname);
+      if (!await this._isInCatalog(extensionId, isCurrent)) return;
       const status = await this.getExtensionStatus(extensionId);
-      if (extensionId !== parseExtensionId(window.location.pathname)) return;
+      if (!isCurrent()) return;
       const { installable, installed } = readStatusSets(globalThis.chrome);
       if (status !== null && installable.includes(status)) {
         this._reveal("install");
       } else if (status !== null && installed.includes(status)) {
         this._reveal("remove");
       }
+    }
+    /**
+     * The catalog step of a page decision, shared by Windows and macOS. Reveals the
+     * unsupported pill for an extension outside the catalog. An unknown catalog
+     * leaves the button hidden rather than unsupported: that would claim a catalog
+     * extension isn't supported whenever native errors or stalls.
+     * @param {string} extensionId
+     * @param {() => boolean} isCurrent whether this evaluation is still the latest once the catalog arrives
+     * @returns {Promise<boolean>} true only when the extension is in the catalog and the caller should check its install status
+     */
+    async _isInCatalog(extensionId, isCurrent) {
+      const catalog = await this.getCatalogExtensionIds();
+      if (!isCurrent() || catalog === null) return false;
+      if (catalog.includes(extensionId)) return true;
+      this._reveal("unsupported");
+      return false;
     }
     /**
      * Localized copy for a key: the bundled locale, then bundled English.
@@ -29490,14 +29480,48 @@ ${iframeContent}
       }
     }
     /**
-     * Curated extension IDs for this build's config. The state check comes from
-     * ConfigFeature so 'internal' and 'preview' resolve against this build's
-     * platform flags rather than being matched as bare strings, and internal
-     * builds read the wider `catalogInternal` list.
-     * @returns {string[]}
+     * Extension IDs the store may offer, asked of native on every
+     * evaluation. Native owns the catalog so the store offers exactly what browser
+     * Settings does: rollout, minimum versions and native-only gates never reach
+     * C-S-S. Not cached, because remote config can change it at any time. Never
+     * rejects: an error, a malformed reply or a timeout all return null ("catalog
+     * unknown").
+     * @returns {Promise<string[] | null>}
      */
-    getCuratedExtensionIds() {
-      return readCuratedCatalog(this.bundledConfig, (state) => this._isStateEnabled(state), this.platform?.internal === true);
+    async getCatalogExtensionIds() {
+      let timer;
+      const timeout = new Promise((resolve) => {
+        timer = setTimeout(() => resolve(null), CATALOG_REQUEST_TIMEOUT_MS);
+      });
+      try {
+        const response = await Promise.race([this._catalogRequest(), timeout]);
+        const extensionIds = parseCatalogExtensionIds(response);
+        if (extensionIds === null) this.log.warn("getCatalogExtensionIds: timed out or malformed reply", response);
+        return extensionIds;
+      } catch (error) {
+        this.log.warn("getCatalogExtensionIds failed", error);
+        return null;
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+    /**
+     * The catalog request native hasn't answered yet, or a new one. Messaging
+     * can't cancel a request, and on Windows each unanswered one keeps a reply
+     * listener for the life of the page. Sharing it caps that at one listener,
+     * however many evaluations time out.
+     * @returns {Promise<unknown>}
+     */
+    _catalogRequest() {
+      if (!this._pendingCatalogRequest) {
+        const request = this.request("getCatalogExtensionIds", {});
+        const settled = () => {
+          this._pendingCatalogRequest = void 0;
+        };
+        request.then(settled, settled);
+        this._pendingCatalogRequest = request;
+      }
+      return this._pendingCatalogRequest;
     }
     /**
      * Raw install status, or null when the API is missing or errors. Single

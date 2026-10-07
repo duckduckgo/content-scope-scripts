@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "GetCatalogExtensionIdsResponse",
+  "description": "The extension catalog as resolved by native, after rollout, version and native-only gates.",
+  "additionalProperties": false,
+  "required": ["extensionIds"],
+  "properties": {
+    "extensionIds": {
+      "description": "Chrome Web Store extension IDs the store may offer for install. Empty when extension management is off. Native replies with an error, not an empty list, before its config is ready.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "description": "A Chrome Web Store extension ID"
+      }
+    }
+  }
+}
