@@ -113,16 +113,16 @@ test.describe('WebDetection numeric detectors', () => {
         expect(await notifications(collector, 'webEvent')).toEqual([]);
     });
 
-    test('styleBreakage.missing_styles_or_fonts reports a missing stylesheet and font', async ({ page }, testInfo) => {
-        const collector = await setup(page, testInfo.project.use, [['styleBreakage', 'missing_styles_or_fonts']]);
+    test('styleBreakage.missing_styles_or_fonts reports a failed stylesheet and font', async ({ page }, testInfo) => {
+        const collector = await setup(page, testInfo.project.use, [['styleBreakage', 'missing_styles_or_fonts']], runSoon, {
+            fakeClock: false,
+        });
         await navigateTo(page, '/web-detection/pages/numeric-styles-missing.html');
         await page.waitForFunction(() => [...document.fonts].some((face) => face.status === 'error'));
-        await page.clock.fastForward(5000);
+        await waitForRuns(collector, 1);
 
-        // Chromium gives a stylesheet that failed with a 404 an empty sheet rather than none, so
-        // `where: {sheet: null}` counts only stylesheets still loading
         const events = await notifications(collector, 'webEvent');
-        expect(events).toEqual([{ type: 'stylesMissing', data: { unloadedStylesheets: '0', failedFontFaces: '1' } }]);
+        expect(events).toEqual([{ type: 'stylesMissing', data: { failedStylesheets: '1', failedFontFaces: '1' } }]);
     });
 
     test('errorPage.soft404_phrases_count counts error phrases in rendered text only', async ({ page }, testInfo) => {
@@ -131,7 +131,7 @@ test.describe('WebDetection numeric detectors', () => {
         await page.clock.fastForward(1000);
 
         const events = await notifications(collector, 'webEvent');
-        expect(events).toEqual([{ type: 'errorPage', data: { keywordCount: '2-4' } }]);
+        expect(events).toEqual([{ type: 'errorPhraseCount', data: { keywordCount: '2-4' } }]);
     });
 
     test('errorPage.soft404_features reports an error page served with little text for its bytes', async ({ page }, testInfo) => {
@@ -140,7 +140,7 @@ test.describe('WebDetection numeric detectors', () => {
         await waitForRuns(collector, 1);
 
         const events = await notifications(collector, 'webEvent');
-        expect(events).toEqual([{ type: 'errorPage', data: { contentByteRatio: '0-0.05', keywordCount: '5-9' } }]);
+        expect(events).toEqual([{ type: 'soft404Features', data: { contentByteRatio: '0-0.05', keywordCount: '5-9' } }]);
     });
 
     test('errorPage.soft404_features does not fire on a working page', async ({ page }, testInfo) => {

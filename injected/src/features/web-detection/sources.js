@@ -113,18 +113,22 @@ export function selectItem(item, where, field, ctx, track) {
 export const SKIP = Symbol('skip');
 
 /**
- * Parse `where` and `field`, the keys `element` and `api` share.
+ * Parse `where`, `field` and `allowGetter`, the keys `element` and `api` share.
  *
  * @param {Record<string, unknown>} raw
  * @param {string} path
  * @param {PredicateHooks} hooks
- * @returns {{ where?: CompiledPredicate, field?: CompiledField }}
+ * @returns {{ where?: CompiledPredicate, field?: CompiledField, allowGetter: boolean }}
  */
 export function parseItemKeys(raw, path, hooks) {
-    /** @type {{ where?: CompiledPredicate, field?: CompiledField }} */
-    const keys = {};
-    if (raw.where !== undefined) keys.where = compilePredicate(raw.where, 'item', `${path}.where`, hooks);
-    if (raw.field !== undefined) keys.field = compileField(raw.field, `${path}.field`, hooks.names);
+    if (raw.allowGetter !== undefined && typeof raw.allowGetter !== 'boolean') {
+        throw new ConfigParseError(`${path}.allowGetter`, 'expected a boolean');
+    }
+    const allowGetter = raw.allowGetter === true;
+    /** @type {{ where?: CompiledPredicate, field?: CompiledField, allowGetter: boolean }} */
+    const keys = { allowGetter };
+    if (raw.where !== undefined) keys.where = compilePredicate(raw.where, 'item', `${path}.where`, hooks, allowGetter);
+    if (raw.field !== undefined) keys.field = compileField(raw.field, `${path}.field`, hooks.names, allowGetter);
     return keys;
 }
 
@@ -145,6 +149,7 @@ export function rejectUnknownKeys(raw, allowed, path) {
  * @property {Arg[]} [args]
  * @property {CompiledPredicate} [where]
  * @property {CompiledField} [field]
+ * @property {boolean} allowGetter
  */
 
 /** @type {ReadonlySet<Placement>} */
@@ -162,7 +167,7 @@ export function apiSource(global) {
         key: 'api',
         parse(raw, path, hooks) {
             if (!isPlainObject(raw)) throw new ConfigParseError(path, '`api` takes an object');
-            rejectUnknownKeys(raw, ['path', 'args', 'where', 'field'], path);
+            rejectUnknownKeys(raw, ['path', 'args', 'where', 'field', 'allowGetter'], path);
             const names = compilePath(raw.path, `${path}.path`);
             names.forEach((name) => hooks.names.add(name));
             /** @type {ApiBody} */
@@ -177,7 +182,7 @@ export function apiSource(global) {
         items(bodies, ctx, track) {
             // `api` takes one body
             const body = /** @type {ApiBody} */ (bodies[0]);
-            const result = readPath(ctx.reader, global, body.names, body.args, 'noValue');
+            const result = readPath(ctx.reader, global, body.names, body.args, 'noValue', body.allowGetter);
             if (isFailure(result)) return result;
             if (result === NO_VALUE) return [][Symbol.iterator]();
             return selectApiItems(members(result, ctx), body, ctx, track);

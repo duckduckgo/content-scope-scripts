@@ -19,14 +19,16 @@ import { FEATURES, isFeatureName } from './features.js';
  */
 
 /**
- * Reads properties and calls methods through the browser's own getters and methods, captured when the
- * reader is created, so a getter or method the page defines is never called.
+ * Reads properties and calls methods, preferring the getters and methods captured when the reader is
+ * created, so one a page replaces afterwards is not called.
  *
  * Holders are the global object, each namespace object such as `CSS`, and the prototype of every global
  * interface constructor. For each name config uses, the reader records the own accessor, method or
- * value with that name on each holder. A read walks the object and its prototype chain and uses the
- * first record found on a holder. A value the page defines on an object, or on a prototype it
- * substitutes, has no record, and reads as `absent`.
+ * value with that name on each holder. A read walks the object and its prototype chain for a holder
+ * with a record. With none, it reads the property as it stands on the object or its chain, whoever
+ * defined it.
+ *
+ * A getter runs only when the read allows getters; a data value needs no permission.
  */
 export class NativeReader {
     /** @type {Map<object, Map<PropertyKey, PropertyDescriptor>>} */
@@ -66,44 +68,53 @@ export class NativeReader {
     }
 
     /**
+     * The captured record for a key on the target's chain, else the property as it stands.
+     *
      * @param {unknown} target
      * @param {PropertyKey} key
      * @returns {PropertyDescriptor | undefined}
      */
     _find(target, key) {
+        const start = typeof target === 'object' || typeof target === 'function' ? target : getPrototypeOf(target);
         /** @type {unknown} */
-        let current = typeof target === 'object' || typeof target === 'function' ? target : getPrototypeOf(target);
+        let current = start;
         while (current !== null && current !== undefined) {
             const record = this.#holders.get(/** @type {object} */ (current))?.get(key);
             if (record) return record;
+            current = getPrototypeOf(current);
+        }
+        current = start;
+        while (current !== null && current !== undefined) {
+            const descriptor = getOwnPropertyDescriptor(current, key);
+            if (descriptor) return descriptor;
             current = getPrototypeOf(current);
         }
         return undefined;
     }
 
     /**
-     * Read one property through its native getter.
+     * Read one property.
      *
      * @param {unknown} target - any value but `null` and `undefined`
      * @param {string} name
+     * @param {boolean} allowGetter - whether an accessor's getter may run
      * @returns {unknown} the value, or a `Failure`
      */
-    read(target, name) {
+    read(target, name, allowGetter) {
         const record = this._find(target, name);
         if (!record) return ABSENT;
-        if (record.get) {
-            try {
-                return ReflectApply(record.get, target, []);
-            } catch {
-                return DENIED;
-            }
-        }
         if ('value' in record) return record.value;
-        return ABSENT;
+        if (!record.get) return ABSENT;
+        if (!allowGetter) throw new DetectionError(`'${name}' is a getter, and the read does not set allowGetter`);
+        try {
+            return ReflectApply(record.get, target, []);
+        } catch {
+            return DENIED;
+        }
     }
 
     /**
-     * Call a native method.
+     * Call a method.
      *
      * @param {unknown} target - any value but `null` and `undefined`
      * @param {string} name
@@ -122,7 +133,7 @@ export class NativeReader {
     }
 
     /**
-     * The native iterator method of a value, when it has one.
+     * The iterator method of a value, when it has one.
      *
      * @param {unknown} target
      * @returns {Function | undefined}
@@ -150,9 +161,10 @@ export const NO_VALUE = Symbol('noValue');
  * @param {readonly string[]} names
  * @param {readonly Arg[] | undefined} args
  * @param {'undefined' | 'noValue'} onNullish
+ * @param {boolean} allowGetter
  * @returns {unknown} the value, `NO_VALUE`, or a `Failure`
  */
-export function readPath(reader, root, names, args, onNullish) {
+export function readPath(reader, root, names, args, onNullish, allowGetter) {
     let current = root;
     for (let i = 0; i < names.length; i++) {
         if (current === null || current === undefined) {
@@ -164,7 +176,7 @@ export function readPath(reader, root, names, args, onNullish) {
         } else if (name === 'length' && (typeof current === 'string' || isArray(current))) {
             current = current.length;
         } else {
-            current = reader.read(current, name);
+            current = reader.read(current, name, allowGetter);
         }
         if (isFailure(current)) return current;
     }
@@ -176,6 +188,7 @@ export function readPath(reader, root, names, args, onNullish) {
  * @property {string[]} names - empty when the value is the item itself
  * @property {Arg[]} [args]
  * @property {FeatureName} [feature]
+ * @property {boolean} allowGetter - set on the `field` or on the source around it
  */
 
 /**
@@ -206,24 +219,29 @@ export function compilePath(raw, path) {
 }
 
 /**
- * Compile a `field`: a string, short for `{path}`, or an object of `path`, `args` and `feature`.
+ * Compile a `field`: a string, short for `{path}`, or an object of `path`, `args`, `feature` and
+ * `allowGetter`.
  *
  * @param {unknown} raw
  * @param {string} path
- * @param {Set<string>} names - collects every name read, for the native reader
+ * @param {Set<string>} names - collects every name read, for the reader's capture
+ * @param {boolean} allowGetter - set by the source around the `field`
  * @returns {CompiledField}
  */
-export function compileField(raw, path, names) {
+export function compileField(raw, path, names, allowGetter) {
     if (typeof raw === 'string') {
         const pathNames = compilePath(raw, path);
         pathNames.forEach((name) => names.add(name));
-        return { names: pathNames };
+        return { names: pathNames, allowGetter };
     }
     if (!isPlainObject(raw)) throw new ConfigParseError(path, '`field` must be a string or an object');
     for (const key of objectKeys(raw)) {
-        if (key !== 'path' && key !== 'args' && key !== 'feature') {
+        if (key !== 'path' && key !== 'args' && key !== 'feature' && key !== 'allowGetter') {
             throw new ConfigParseError(path, `unknown key '${key}' in field`);
         }
+    }
+    if (raw.allowGetter !== undefined && typeof raw.allowGetter !== 'boolean') {
+        throw new ConfigParseError(`${path}.allowGetter`, 'expected a boolean');
     }
     if (raw.path === undefined && raw.args === undefined && raw.feature === undefined) {
         throw new ConfigParseError(path, '`field` needs at least one of path, args and feature');
@@ -232,7 +250,10 @@ export function compileField(raw, path, names) {
         throw new ConfigParseError(path, '`args` needs `path`');
     }
     /** @type {CompiledField} */
-    const field = { names: raw.path === undefined ? [] : compilePath(raw.path, `${path}.path`) };
+    const field = {
+        names: raw.path === undefined ? [] : compilePath(raw.path, `${path}.path`),
+        allowGetter: allowGetter || raw.allowGetter === true,
+    };
     field.names.forEach((name) => names.add(name));
     if (raw.args !== undefined) field.args = compileArgs(raw.args, `${path}.args`);
     if (raw.feature !== undefined) {
@@ -253,7 +274,7 @@ export function compileField(raw, path, names) {
  * @returns {unknown} the value, or a `Failure`
  */
 export function readField(reader, root, field) {
-    const value = readPath(reader, root, field.names, field.args, 'undefined');
+    const value = readPath(reader, root, field.names, field.args, 'undefined', field.allowGetter);
     if (isFailure(value) || !field.feature) return value;
     return FEATURES[field.feature](value);
 }
@@ -321,18 +342,19 @@ function equalsLiteral(literal) {
  * @param {Level} level
  * @param {string} path
  * @param {PredicateHooks} hooks
+ * @param {boolean} [allowGetter] - whether the predicate's reads may run getters, as the source around it sets
  * @returns {CompiledPredicate}
  */
-export function compilePredicate(raw, level, path, hooks) {
+export function compilePredicate(raw, level, path, hooks, allowGetter = false) {
     if (isScalar(raw)) return equalsLiteral(raw);
     if (isArray(raw)) {
         return combine(
             'any',
-            raw.map((entry, i) => compilePredicate(entry, level, `${path}[${i}]`, hooks)),
+            raw.map((entry, i) => compilePredicate(entry, level, `${path}[${i}]`, hooks, allowGetter)),
         );
     }
     if (!isPlainObject(raw)) throw new ConfigParseError(path, 'a predicate must be a literal, an array or an object');
-    return compileObject(raw, level, path, hooks);
+    return compileObject(raw, level, path, hooks, allowGetter);
 }
 
 /**
@@ -378,9 +400,10 @@ function combine(combinator, entries) {
  * @param {Level} level
  * @param {string} path
  * @param {PredicateHooks} hooks
+ * @param {boolean} allowGetter
  * @returns {CompiledPredicate}
  */
-function compileObject(raw, level, path, hooks) {
+function compileObject(raw, level, path, hooks, allowGetter) {
     const keys = objectKeys(raw);
     const hasField = keys.includes('field');
     const hasIs = keys.includes('is');
@@ -403,18 +426,18 @@ function compileObject(raw, level, path, hooks) {
             entries.push(
                 combine(
                     key,
-                    asArray(value).map((entry, i) => compilePredicate(entry, level, `${keyPath}[${i}]`, hooks)),
+                    asArray(value).map((entry, i) => compilePredicate(entry, level, `${keyPath}[${i}]`, hooks, allowGetter)),
                 ),
             );
         } else if (key === 'field') {
-            const field = compileField(value, keyPath, hooks.names);
-            entries.push(readThen(field, compilePredicate(raw.is, 'value', `${path}.is`, hooks)));
+            const field = compileField(value, keyPath, hooks.names, allowGetter);
+            entries.push(readThen(field, compilePredicate(raw.is, 'value', `${path}.is`, hooks, allowGetter)));
         } else if (level === 'value' && OPERATORS.has(key)) {
             entries.push(compileOperator(key, value, keyPath, hooks));
         } else {
             const names = compilePath(key, keyPath);
             names.forEach((name) => hooks.names.add(name));
-            entries.push(readThen({ names }, compilePredicate(value, 'value', keyPath, hooks)));
+            entries.push(readThen({ names, allowGetter }, compilePredicate(value, 'value', keyPath, hooks, allowGetter)));
         }
     }
     if (entries.length === 0) {
