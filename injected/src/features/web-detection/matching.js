@@ -1,25 +1,20 @@
-// eslint-disable-next-line no-redeclare
-import { hasOwnProperty, objectKeys } from '../../captured-globals.js';
+import { isArray } from '../../captured-globals.js';
+import { ConfigParseError, isFailure, isPlainObject } from './core.js';
+import { SKIP, parseItemKeys, rejectUnknownKeys, selectItem } from './sources.js';
 
 /**
  * @typedef {import('@duckduckgo/privacy-configuration/schema/features/web-detection.ts').ConditionTypes} ConditionTypes
+ * @typedef {import('./core.js').Track} Track
+ * @typedef {import('./predicates.js').CompiledField} CompiledField
+ * @typedef {import('./predicates.js').CompiledPredicate} CompiledPredicate
+ * @typedef {import('./predicates.js').PredicateContext} PredicateContext
+ * @typedef {import('./sources.js').Placement} Placement
  */
 
 /**
- * @template Final
- * @typedef {import('@duckduckgo/privacy-configuration/schema/features/web-detection.ts').ConditionBranch<Final>} ConditionBranch
+ * @template Body
+ * @typedef {import('./sources.js').Source<Body>} Source
  */
-
-/**
- * @template T
- * @param {T | T[] | undefined} value
- * @param {T[]} [defaultValue]
- * @returns {T[]}
- */
-function asArray(value, defaultValue = []) {
-    if (value === undefined) return defaultValue;
-    return Array.isArray(value) ? value : [value];
-}
 
 /**
  * Check if an element is visible.
@@ -242,16 +237,16 @@ function resolveXPathConfig(config) {
 }
 
 /**
- * Reduce a scanned buffer to its trailing `chunkTail` characters, extending the
- * cut backwards to the nearest non-word character.
+ * Where to cut a scanned buffer so that its trailing `chunkTail` characters are retained, extending
+ * the cut backwards to the nearest non-word character.
  *
  * @param {string} buffer
  * @param {number} chunkTail
- * @returns {string}
+ * @returns {number} the index the retained tail starts at
  */
-function retainTail(buffer, chunkTail) {
+function tailStart(buffer, chunkTail) {
     let cut = buffer.length - chunkTail;
-    if (cut <= 0) return buffer;
+    if (cut <= 0) return 0;
     // Ceiling on the walk, so an unbroken run of word characters cannot grow the buffer
     // without limit. Reaching it leaves position 0 mid-word, giving up the guarantee below
     // for this flush - a hard bound is worth more than exact `\b` semantics inside a blob
@@ -263,29 +258,33 @@ function retainTail(buffer, chunkTail) {
     // asserts at position 0 of every chunk and matches mid-word. This only lengthens the
     // tail, so it introduces no false negative.
     while (cut > limit && isWordCode(buffer.charCodeAt(cut - 1))) cut--;
-    return buffer.slice(cut);
+    return cut;
 }
 
 /**
- * Test a pattern against the text of every node selected by an XPath expression,
+ * Yield once per match of a pattern in the text of every node selected by an XPath expression,
  * scanning in bounded chunks rather than concatenating the whole selection.
  *
  * Nodes are joined without a separator so matching is equivalent to `textContent`
  * over the selected set: a pattern may span node boundaries, so `//div//text()`
  * still matches "adblocker detected" in `<div>adblocker <b>detected</b></div>`.
  *
+ * At each flush, matches starting before the retained tail are counted, and the next buffer starts
+ * after the last of them, so a match lying across the tail is counted once. Matches inside the tail
+ * are found again with the text that follows.
+ *
  * An invalid expression throws `SyntaxError`, which propagates and surfaces as
  * `detected: 'error'` for the detector - the same behaviour as an invalid CSS
  * selector passed to `querySelectorAll`.
  *
- * @param {RegExp} pattern Must be free of `g`/`y`, so `.test()` is stateless and
- *   the overlap between chunks cannot corrupt `lastIndex`.
+ * @param {RegExp} pattern - global, so `exec` walks the matches
  * @param {string} expression
+ * @param {Node} contextNode
  * @param {{ chunkSize: number, chunkTail: number }} chunking
- * @returns {boolean}
+ * @returns {Generator<undefined>}
  */
-function xpathMatches(pattern, expression, { chunkSize, chunkTail }) {
-    const snapshot = compileXPath(expression).evaluate(document, ORDERED_NODE_SNAPSHOT_TYPE, null);
+function* xpathMatches(pattern, expression, contextNode, { chunkSize, chunkTail }) {
+    const snapshot = compileXPath(expression).evaluate(contextNode, ORDERED_NODE_SNAPSHOT_TYPE, null);
     let buffer = '';
     // Characters added since the last test, rather than the length of the buffer. Each test
     // then advances `chunkSize` fresh characters whatever `chunkTail` is, so an oversized tail
@@ -296,186 +295,283 @@ function xpathMatches(pattern, expression, { chunkSize, chunkTail }) {
         const text = snapshot.snapshotItem(i)?.textContent || '';
         buffer += text;
         pending += text.length;
-        // chunkSize 0 disables chunking, accumulating everything for the single test below
+        // chunkSize 0 disables chunking, accumulating everything for the single scan below
         if (chunkSize > 0 && pending >= chunkSize) {
-            if (pattern.test(buffer)) return true;
+            const cut = tailStart(buffer, chunkTail);
+            let next = cut;
+            for (const match of matchesIn(pattern, buffer)) {
+                if (match.index >= cut) break;
+                next = Math.max(cut, match.index + match[0].length);
+                yield undefined;
+            }
             // Retained text is contiguous with what follows, so a phrase split across nodes
             // still matches across a flush
-            buffer = retainTail(buffer, chunkTail);
+            buffer = buffer.slice(next);
             pending = 0;
         }
     }
-    return pattern.test(buffer);
+    const rest = matchesIn(pattern, buffer);
+    while (!rest.next().done) yield undefined;
 }
 
 /**
- * Evaluate text pattern match condition.
+ * Non-overlapping matches of a global pattern, skipping empty matches.
+ *
+ * @param {RegExp} pattern
+ * @param {string} text
+ * @returns {Generator<RegExpExecArray>}
+ */
+function* matchesIn(pattern, text) {
+    pattern.lastIndex = 0;
+    let match;
+    while ((match = pattern.exec(text)) !== null) {
+        if (match[0] === '') {
+            pattern.lastIndex++;
+            continue;
+        }
+        yield match;
+    }
+}
+
+/**
+ * @param {unknown} raw
+ * @param {string} path
+ * @returns {string[]}
+ */
+function stringList(raw, path) {
+    const list = isArray(raw) ? raw : [raw];
+    if (list.some((entry) => typeof entry !== 'string')) throw new ConfigParseError(path, 'expected a string or an array of strings');
+    return /** @type {string[]} */ (list);
+}
+
+/**
+ * The scope `root` selects: the union of the elements its selectors match, with an element inside
+ * another matched element dropped. Without `root`, the document.
+ *
+ * @param {string[] | undefined} root
+ * @returns {ParentNode[]}
+ */
+function resolveRoots(root) {
+    if (!root) return [document];
+    /** @type {Element[]} */
+    const roots = [];
+    for (const element of document.querySelectorAll(root.join(', '))) {
+        const last = roots[roots.length - 1];
+        // Matches come in document order, so an element inside a kept root follows it directly
+        if (last && last.contains(element)) continue;
+        roots.push(element);
+    }
+    return roots;
+}
+
+/**
+ * @typedef {object} TextBody
+ * @property {RegExp} pattern - case-insensitive, global
+ * @property {string[]} selectors
+ * @property {string[]} xpaths
+ * @property {{ chunkSize: number, chunkTail: number }} chunking
+ * @property {string[]} [root]
+ * @property {boolean} rootIsSource - with `root` and neither `selector` nor `xpath`, each root's text is the source
+ */
+
+/** @type {ReadonlySet<Placement>} */
+const TEXT_PLACEMENTS = new Set(['boolean', 'items']);
+
+/**
+ * Matches of a text pattern, case-insensitive, in each source: each `selector` element's
+ * `textContent`, and each `xpath` expression's joined text.
  *
  * `pattern` (disj): Array of regex patterns (or string representing a single pattern) - ANY pattern matching = success.
  *   Equivalent to `pattern: "foo|bar"` for `pattern: ["foo", "bar"]`.
  *
- * `selector` (disj): Array of CSS selectors (or string representing a single selector) - ANY selector matching = success.
- *   Equivalent to `selector: ".a, .b"` for `selector: [".a", ".b"]`.
- *   Defaults to `body` when neither `selector` nor `xpath` is provided.
+ * `selector` (disj): Array of CSS selectors (or string representing a single selector).
+ *   Defaults to `body` when neither `selector` nor `xpath` is provided, and to the roots themselves under `root`.
  *
- * `xpath` (disj): Array of XPath expressions (or a single expression) - ANY expression matching = success.
- *   Unlike `selector`, an expression may select text nodes and filter on ancestry, so it can exclude
- *   text that is present in the DOM but never rendered - eg text inside `<script>`:
- *   `//body//text()[not(ancestor::script)]`. The text of all nodes selected by one expression is
- *   matched as a whole, but is scanned in bounded chunks rather than concatenated in full, so a
- *   large page does not allocate its entire rendered text on each evaluation.
+ * `xpath` (disj): Array of XPath expressions (or a single expression). Unlike `selector`, an expression may
+ *   select text nodes and filter on ancestry, so it can exclude text that is present in the DOM but never
+ *   rendered - eg text inside `<script>`: `//body//text()[not(ancestor::script)]`. The text of all nodes
+ *   selected by one expression is matched as a whole, but is scanned in bounded chunks rather than
+ *   concatenated in full, so a large page does not allocate its entire rendered text on each evaluation.
  *
  * `xpathConfig` [optional]: Tunes that chunking, and applies to `xpath` only. A match longer than
  *   `chunkTail` that straddles a chunk boundary is missed; `chunkSize: 0` turns chunking off
  *   entirely. See `xpathMatches` and `resolveXPathConfig`.
  *
- * The overall condition matches if ANY pattern matches the text of ANY source (selected element or
- * XPath expression).
+ * `root` [optional]: Scopes the sources. Selectors are queried from each root and XPath expressions
+ *   evaluated with the root as context node.
  *
- * @param {ConditionTypes['text']} condition
- * @returns {boolean}
+ * Selectors are read before XPath expressions because CSS matching avoids the per-call expression
+ * parse and snapshot allocation that `document.evaluate` requires.
+ *
+ * @type {Source<TextBody>}
  */
-function evaluateSingleTextCondition(condition) {
-    const patterns = asArray(condition.pattern);
-    const xpaths = asArray(condition.xpath);
-    // `body` is only the implicit source when the condition names no source of its own
-    const selectors = asArray(condition.selector, xpaths.length > 0 ? [] : ['body']);
+export const textSource = {
+    key: 'text',
+    parse(raw, path) {
+        if (!isPlainObject(raw)) throw new ConfigParseError(path, '`text` takes an object');
+        rejectUnknownKeys(raw, ['pattern', 'selector', 'xpath', 'xpathConfig', 'root'], path);
+        const patterns = stringList(raw.pattern, `${path}.pattern`);
+        const xpaths = raw.xpath === undefined ? [] : stringList(raw.xpath, `${path}.xpath`);
+        const root = raw.root === undefined ? undefined : stringList(raw.root, `${path}.root`);
+        /** @type {string[]} */
+        let selectors;
+        if (raw.selector !== undefined) {
+            selectors = stringList(raw.selector, `${path}.selector`);
+        } else {
+            // `body` is only the implicit source when the condition names no source of its own
+            selectors = xpaths.length > 0 || root ? [] : ['body'];
+        }
+        return {
+            pattern: new RegExp(patterns.join('|'), 'gi'),
+            selectors,
+            xpaths,
+            chunking: resolveXPathConfig(/** @type {ConditionTypes['text']['xpathConfig']} */ (raw.xpathConfig)),
+            root,
+            rootIsSource: root !== undefined && raw.selector === undefined && xpaths.length === 0,
+        };
+    },
+    placements: () => TEXT_PLACEMENTS,
+    items(bodies) {
+        return textMatches(bodies);
+    },
+};
 
-    const patternComb = new RegExp(patterns.join('|'), 'i');
-
-    // Disjunction: any selector having a matching element is success.
-    // Checked before xpath because CSS matching avoids the per-call expression
-    // parse and snapshot allocation that `document.evaluate` requires.
-    const selectorMatch = selectors.some((selector) => {
-        const elements = document.querySelectorAll(selector);
-        for (const element of elements) {
-            if (patternComb.test(element.textContent || '')) {
-                return true;
+/**
+ * @param {TextBody[]} bodies
+ * @returns {Generator<undefined>}
+ */
+function* textMatches(bodies) {
+    for (const body of bodies) {
+        // A copy per read, since `exec` keeps state on a global pattern
+        const pattern = new RegExp(body.pattern);
+        for (const root of resolveRoots(body.root)) {
+            /** @type {Iterable<Element | ParentNode>} */
+            const elements = body.selectors.length > 0 ? root.querySelectorAll(body.selectors.join(', ')) : body.rootIsSource ? [root] : [];
+            for (const element of elements) {
+                const matches = matchesIn(pattern, element.textContent || '');
+                while (!matches.next().done) yield undefined;
+            }
+            for (const expression of body.xpaths) {
+                yield* xpathMatches(pattern, expression, root, body.chunking);
             }
         }
-        return false;
-    });
-    if (selectorMatch) {
-        return true;
     }
-
-    // Disjunction: any expression whose selected text matches is success
-    if (xpaths.length === 0) {
-        return false;
-    }
-    const chunking = resolveXPathConfig(condition.xpathConfig);
-    return xpaths.some((expression) => xpathMatches(patternComb, expression, chunking));
 }
 
 /**
- * Evaluate element presence condition.
+ * @typedef {object} ElementBody
+ * @property {string} selector - the selectors joined into one selector list
+ * @property {'visible' | 'hidden' | 'any' | 'content'} visibility
+ * @property {string[]} [root]
+ * @property {CompiledPredicate} [where]
+ * @property {CompiledField} [field]
+ */
+
+const VISIBILITIES = ['visible', 'hidden', 'any', 'content'];
+
+/** @type {ReadonlySet<Placement>} */
+const ELEMENT_PLACEMENTS = new Set(['boolean', 'items']);
+/** @type {ReadonlySet<Placement>} */
+const ELEMENT_FIELD_PLACEMENTS = new Set(['value', 'items', 'values']);
+
+/**
+ * @param {ElementBody} body
+ * @returns {boolean}
+ */
+function isPresenceOnly(body) {
+    return body.visibility === 'any' && !body.where && !body.field;
+}
+
+/**
+ * Elements matching a selector, in document order, distinct across selectors and roots.
  *
- * `selector` (disj): Array of CSS selectors (or string representing a single selector) - ANY selector matching = success.
+ * `selector` (disj): Array of CSS selectors (or string representing a single selector).
  *   Equivalent to `selector: ".a, .b"` for `selector: [".a", ".b"]`.
  *
  * `visibility` [optional]: Whether the element must be 'visible', 'hidden', 'content'
  *   (layout-free content-presence proxy, see hasContent), or 'any' (default).
  *
- * @param {ConditionTypes['element']} config
+ * `where` [optional]: A predicate each element passing `visibility` must pass.
+ *
+ * `field` [optional]: The value read from each element that passes.
+ *
+ * `root` [optional]: Selectors are queried from each root.
+ *
+ * @type {Source<ElementBody>}
+ */
+export const elementSource = {
+    key: 'element',
+    parse(raw, path, hooks) {
+        if (!isPlainObject(raw)) throw new ConfigParseError(path, '`element` takes an object');
+        rejectUnknownKeys(raw, ['selector', 'visibility', 'where', 'field', 'root'], path);
+        const visibility = raw.visibility ?? 'any';
+        if (typeof visibility !== 'string' || !VISIBILITIES.includes(visibility)) {
+            throw new ConfigParseError(`${path}.visibility`, `unknown visibility '${String(visibility)}'`);
+        }
+        return {
+            selector: stringList(raw.selector, `${path}.selector`).join(', '),
+            visibility: /** @type {ElementBody['visibility']} */ (visibility),
+            root: raw.root === undefined ? undefined : stringList(raw.root, `${path}.root`),
+            ...parseItemKeys(raw, path, hooks),
+        };
+    },
+    placements: (body) => (body.field ? ELEMENT_FIELD_PLACEMENTS : ELEMENT_PLACEMENTS),
+    items(bodies, ctx, track) {
+        return selectElements(bodies, ctx, track);
+    },
+    hasAny(bodies) {
+        // With no state to read, a quick existence check suffices
+        if (!bodies.every(isPresenceOnly)) return undefined;
+        return bodies.some((body) => resolveRoots(body.root).some((root) => root.querySelector(body.selector) !== null));
+    },
+    countAll(bodies) {
+        if (bodies.length !== 1 || !bodies.every(isPresenceOnly)) return undefined;
+        const body = /** @type {ElementBody} */ (bodies[0]);
+        return resolveRoots(body.root).reduce((sum, root) => sum + root.querySelectorAll(body.selector).length, 0);
+    },
+};
+
+/**
+ * @param {Element} element
+ * @param {ElementBody['visibility']} visibility
  * @returns {boolean}
  */
-function evaluateSingleElementCondition(config) {
-    const visibility = config.visibility ?? 'any';
-    // Disjunction: any selector having a matching element is success
-    return asArray(config.selector).some((selector) => {
-        if (visibility === 'any') {
-            // if we don't care about visibility, we can just do a quick existence check
-            return document.querySelector(selector) !== null;
-        }
-        for (const element of document.querySelectorAll(selector)) {
-            if (visibility === 'visible' && isVisible(element)) {
-                return true;
-            }
-            if (visibility === 'hidden' && !isVisible(element)) {
-                return true;
-            }
+function passesVisibility(element, visibility) {
+    switch (visibility) {
+        case 'any':
+            return true;
+        case 'visible':
+            return isVisible(element);
+        case 'hidden':
+            return !isVisible(element);
+        case 'content':
             // layout-free content-presence proxy (see hasContent)
-            if (visibility === 'content' && hasContent(element)) {
-                return true;
+            return hasContent(element);
+    }
+}
+
+/**
+ * @param {ElementBody[]} bodies
+ * @param {PredicateContext} ctx
+ * @param {Track} track
+ * @returns {Generator<unknown>}
+ */
+function* selectElements(bodies, ctx, track) {
+    /** @type {Set<Element> | undefined} */
+    const seen = bodies.length > 1 ? new Set() : undefined;
+    for (const body of bodies) {
+        for (const root of resolveRoots(body.root)) {
+            for (const element of root.querySelectorAll(body.selector)) {
+                if (seen) {
+                    if (seen.has(element)) continue;
+                    seen.add(element);
+                }
+                if (!passesVisibility(element, body.visibility)) continue;
+                const value = selectItem(element, body.where, body.field, ctx, track);
+                if (value === SKIP) continue;
+                yield value;
+                if (isFailure(value)) return;
             }
         }
-        return false;
-    });
-}
-
-/**
- * Evaluate a condition node that may be a final-condition object, an operator
- * block (`{ any | all | none: ... }`), or an array (treated as `any`).
- *
- * Operator blocks and final-condition objects are mutually exclusive at the
- * same node — mixing operator keys with leaf fields throws (surfaced as
- * `detected: 'error'` by the caller in web-detection.js).
- *
- * Sibling operator keys are AND-combined.
- *
- * @template Final
- * @param {ConditionBranch<Final> | undefined} node
- * @param {(final: Final) => boolean} evalFinal
- * @returns {boolean}
- */
-function evaluateNode(node, evalFinal) {
-    if (node === undefined) return true;
-    if (Array.isArray(node)) {
-        return node.some((n) => evaluateNode(n, evalFinal));
     }
-    if (node === null || typeof node !== 'object') {
-        return evalFinal(/** @type {Final} */ (node));
-    }
-
-    const operatorKeys = ['any', 'all', 'none'];
-
-    const opKeys = operatorKeys.filter((k) => hasOwnProperty.call(node, k));
-    if (opKeys.length === 0) {
-        return evalFinal(/** @type {Final} */ (node));
-    }
-    const otherKeys = objectKeys(node).filter((k) => !operatorKeys.includes(k));
-    if (otherKeys.length > 0) {
-        throw new Error(`Condition node mixes operator keys [${opKeys.join(', ')}] with leaf fields [${otherKeys.join(', ')}]`);
-    }
-
-    const block = /** @type {Partial<Record<'all' | 'any' | 'none', ConditionBranch<Final>>>} */ (node);
-    if (hasOwnProperty.call(block, 'all') && !asArray(block.all).every((n) => evaluateNode(n, evalFinal))) return false;
-    if (hasOwnProperty.call(block, 'any') && !asArray(block.any).some((n) => evaluateNode(n, evalFinal))) return false;
-    if (hasOwnProperty.call(block, 'none') && asArray(block.none).some((n) => evaluateNode(n, evalFinal))) return false;
-    return true;
-}
-
-/**
- * Evaluate match conditions for a detector.
- *
- * Each key references a condition which must match (conjunction on keys).
- * Each per-key value is itself a condition node, which may be a final-condition
- * object, an array (OR), or an operator block.
- *
- * @param {import('./parse.js').MatchConditionSingle} condition
- * @returns {boolean}
- */
-function evaluateSingleMatchCondition(condition) {
-    if (!evaluateNode(condition.text, evaluateSingleTextCondition)) {
-        return false;
-    }
-    if (!evaluateNode(condition.element, evaluateSingleElementCondition)) {
-        return false;
-    }
-    return true;
-}
-
-/**
- * Evaluate match conditions for a detector.
- *
- * This determines whether the detector is considered to have successfully matched when run.
- *
- * Objects represent conjunction on their keys (AND); arrays represent disjunction (OR);
- * operator blocks (`{ any | all | none: ... }`) are supported recursively at every layer.
- *
- * @param {import('./parse.js').MatchCondition} conditions
- * @returns {boolean}
- */
-export function evaluateMatch(conditions) {
-    return evaluateNode(conditions, evaluateSingleMatchCondition);
 }
