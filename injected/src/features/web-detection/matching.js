@@ -463,7 +463,6 @@ function* textMatches(bodies) {
  * @property {string[]} [root]
  * @property {CompiledPredicate} [where]
  * @property {CompiledField} [field]
- * @property {boolean} allowGetter
  */
 
 const VISIBILITIES = ['visible', 'hidden', 'any', 'content'];
@@ -502,7 +501,7 @@ export const elementSource = {
     key: 'element',
     parse(raw, path, hooks) {
         if (!isPlainObject(raw)) throw new ConfigParseError(path, '`element` takes an object');
-        rejectUnknownKeys(raw, ['selector', 'visibility', 'where', 'field', 'root', 'allowGetter'], path);
+        rejectUnknownKeys(raw, ['selector', 'visibility', 'where', 'field', 'root'], path);
         const visibility = raw.visibility ?? 'any';
         if (typeof visibility !== 'string' || !VISIBILITIES.includes(visibility)) {
             throw new ConfigParseError(`${path}.visibility`, `unknown visibility '${String(visibility)}'`);

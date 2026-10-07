@@ -27,8 +27,6 @@ import { FEATURES, isFeatureName } from './features.js';
  * value with that name on each holder. A read walks the object and its prototype chain for a holder
  * with a record. With none, it reads the property as it stands on the object or its chain, whoever
  * defined it.
- *
- * A getter runs only when the read allows getters; a data value needs no permission.
  */
 export class NativeReader {
     /** @type {Map<object, Map<PropertyKey, PropertyDescriptor>>} */
@@ -97,15 +95,13 @@ export class NativeReader {
      *
      * @param {unknown} target - any value but `null` and `undefined`
      * @param {string} name
-     * @param {boolean} allowGetter - whether an accessor's getter may run
      * @returns {unknown} the value, or a `Failure`
      */
-    read(target, name, allowGetter) {
+    read(target, name) {
         const record = this._find(target, name);
         if (!record) return ABSENT;
         if ('value' in record) return record.value;
         if (!record.get) return ABSENT;
-        if (!allowGetter) throw new DetectionError(`'${name}' is a getter, and the read does not set allowGetter`);
         try {
             return ReflectApply(record.get, target, []);
         } catch {
@@ -161,10 +157,9 @@ export const NO_VALUE = Symbol('noValue');
  * @param {readonly string[]} names
  * @param {readonly Arg[] | undefined} args
  * @param {'undefined' | 'noValue'} onNullish
- * @param {boolean} allowGetter
  * @returns {unknown} the value, `NO_VALUE`, or a `Failure`
  */
-export function readPath(reader, root, names, args, onNullish, allowGetter) {
+export function readPath(reader, root, names, args, onNullish) {
     let current = root;
     for (let i = 0; i < names.length; i++) {
         if (current === null || current === undefined) {
@@ -176,7 +171,7 @@ export function readPath(reader, root, names, args, onNullish, allowGetter) {
         } else if (name === 'length' && (typeof current === 'string' || isArray(current))) {
             current = current.length;
         } else {
-            current = reader.read(current, name, allowGetter);
+            current = reader.read(current, name);
         }
         if (isFailure(current)) return current;
     }
@@ -188,7 +183,6 @@ export function readPath(reader, root, names, args, onNullish, allowGetter) {
  * @property {string[]} names - empty when the value is the item itself
  * @property {Arg[]} [args]
  * @property {FeatureName} [feature]
- * @property {boolean} allowGetter - set on the `field` or on the source around it
  */
 
 /**
@@ -219,29 +213,24 @@ export function compilePath(raw, path) {
 }
 
 /**
- * Compile a `field`: a string, short for `{path}`, or an object of `path`, `args`, `feature` and
- * `allowGetter`.
+ * Compile a `field`: a string, short for `{path}`, or an object of `path`, `args` and `feature`.
  *
  * @param {unknown} raw
  * @param {string} path
  * @param {Set<string>} names - collects every name read, for the reader's capture
- * @param {boolean} allowGetter - set by the source around the `field`
  * @returns {CompiledField}
  */
-export function compileField(raw, path, names, allowGetter) {
+export function compileField(raw, path, names) {
     if (typeof raw === 'string') {
         const pathNames = compilePath(raw, path);
         pathNames.forEach((name) => names.add(name));
-        return { names: pathNames, allowGetter };
+        return { names: pathNames };
     }
     if (!isPlainObject(raw)) throw new ConfigParseError(path, '`field` must be a string or an object');
     for (const key of objectKeys(raw)) {
-        if (key !== 'path' && key !== 'args' && key !== 'feature' && key !== 'allowGetter') {
+        if (key !== 'path' && key !== 'args' && key !== 'feature') {
             throw new ConfigParseError(path, `unknown key '${key}' in field`);
         }
-    }
-    if (raw.allowGetter !== undefined && typeof raw.allowGetter !== 'boolean') {
-        throw new ConfigParseError(`${path}.allowGetter`, 'expected a boolean');
     }
     if (raw.path === undefined && raw.args === undefined && raw.feature === undefined) {
         throw new ConfigParseError(path, '`field` needs at least one of path, args and feature');
@@ -250,10 +239,7 @@ export function compileField(raw, path, names, allowGetter) {
         throw new ConfigParseError(path, '`args` needs `path`');
     }
     /** @type {CompiledField} */
-    const field = {
-        names: raw.path === undefined ? [] : compilePath(raw.path, `${path}.path`),
-        allowGetter: allowGetter || raw.allowGetter === true,
-    };
+    const field = { names: raw.path === undefined ? [] : compilePath(raw.path, `${path}.path`) };
     field.names.forEach((name) => names.add(name));
     if (raw.args !== undefined) field.args = compileArgs(raw.args, `${path}.args`);
     if (raw.feature !== undefined) {
@@ -274,7 +260,7 @@ export function compileField(raw, path, names, allowGetter) {
  * @returns {unknown} the value, or a `Failure`
  */
 export function readField(reader, root, field) {
-    const value = readPath(reader, root, field.names, field.args, 'undefined', field.allowGetter);
+    const value = readPath(reader, root, field.names, field.args, 'undefined');
     if (isFailure(value) || !field.feature) return value;
     return FEATURES[field.feature](value);
 }
@@ -342,19 +328,18 @@ function equalsLiteral(literal) {
  * @param {Level} level
  * @param {string} path
  * @param {PredicateHooks} hooks
- * @param {boolean} [allowGetter] - whether the predicate's reads may run getters, as the source around it sets
  * @returns {CompiledPredicate}
  */
-export function compilePredicate(raw, level, path, hooks, allowGetter = false) {
+export function compilePredicate(raw, level, path, hooks) {
     if (isScalar(raw)) return equalsLiteral(raw);
     if (isArray(raw)) {
         return combine(
             'any',
-            raw.map((entry, i) => compilePredicate(entry, level, `${path}[${i}]`, hooks, allowGetter)),
+            raw.map((entry, i) => compilePredicate(entry, level, `${path}[${i}]`, hooks)),
         );
     }
     if (!isPlainObject(raw)) throw new ConfigParseError(path, 'a predicate must be a literal, an array or an object');
-    return compileObject(raw, level, path, hooks, allowGetter);
+    return compileObject(raw, level, path, hooks);
 }
 
 /**
@@ -400,10 +385,9 @@ function combine(combinator, entries) {
  * @param {Level} level
  * @param {string} path
  * @param {PredicateHooks} hooks
- * @param {boolean} allowGetter
  * @returns {CompiledPredicate}
  */
-function compileObject(raw, level, path, hooks, allowGetter) {
+function compileObject(raw, level, path, hooks) {
     const keys = objectKeys(raw);
     const hasField = keys.includes('field');
     const hasIs = keys.includes('is');
@@ -426,18 +410,18 @@ function compileObject(raw, level, path, hooks, allowGetter) {
             entries.push(
                 combine(
                     key,
-                    asArray(value).map((entry, i) => compilePredicate(entry, level, `${keyPath}[${i}]`, hooks, allowGetter)),
+                    asArray(value).map((entry, i) => compilePredicate(entry, level, `${keyPath}[${i}]`, hooks)),
                 ),
             );
         } else if (key === 'field') {
-            const field = compileField(value, keyPath, hooks.names, allowGetter);
-            entries.push(readThen(field, compilePredicate(raw.is, 'value', `${path}.is`, hooks, allowGetter)));
+            const field = compileField(value, keyPath, hooks.names);
+            entries.push(readThen(field, compilePredicate(raw.is, 'value', `${path}.is`, hooks)));
         } else if (level === 'value' && OPERATORS.has(key)) {
             entries.push(compileOperator(key, value, keyPath, hooks));
         } else {
             const names = compilePath(key, keyPath);
             names.forEach((name) => hooks.names.add(name));
-            entries.push(readThen({ names, allowGetter }, compilePredicate(value, 'value', keyPath, hooks, allowGetter)));
+            entries.push(readThen({ names }, compilePredicate(value, 'value', keyPath, hooks)));
         }
     }
     if (entries.length === 0) {
