@@ -234,10 +234,10 @@ With `enablePastedAttachments`, a paste into the Duck.ai prompt is handled as fo
 - Sent when the user submits a chat message to Duck.ai
 - requires `chat` (the chat message) and `target` (where to open the chat)
 - optional fields:
-  - `modelId` — the selected AI model identifier. Omitted when in image-generation mode.
-  - `reasoningEffort` — stable server key (e.g. `"none"`, `"low"`, `"medium"`) for the reasoning-effort selection. Omitted when the active model doesn't expose a reasoning picker, or in image-generation mode.
-  - `mode` — `"chat"` or `"image-generation"`. Sent as `"image-generation"` when the Create Image tool is active. Omitted for normal chat (defaults to `"chat"`).
-  - `toolChoice` — `["WebSearch"]` when the user has the Web Search tool active. Omitted otherwise.
+  - `modelId` — the selected AI model identifier. Omitted when in image-generation mode. With `enableUpdatedCreateImage`, Create Image sends the native-resolved image model instead.
+  - `reasoningEffort` — stable server key (e.g. `"none"`, `"low"`, `"medium"`) for the reasoning-effort selection. Omitted when the active model doesn't expose a reasoning picker, or when Create Image is active.
+  - `mode` — `"chat"` or `"image-generation"`. Sent as `"image-generation"` when the Create Image tool is active and `enableUpdatedCreateImage` is off. Omitted for normal chat (defaults to `"chat"`).
+  - `toolChoice` — `["WebSearch"]` when the user has the Web Search tool active, or `["GenerateImage"]` when Create Image is active and `enableUpdatedCreateImage` is on. Omitted otherwise.
   - `images` — array of `{ data, format }` objects for attached images. Omitted when no images are attached.
   - `launcherPromoVisible` — `true` when the `launcherPromo` drawer was on screen as the prompt went out; native treats the prompt as passing over it. Omitted otherwise.
   - `pageContext` — array of {@link "NewTab Messages".PageContext} objects echoed back from `omnibar_getTabContent`. Each entry **always** includes `tabId` so native can attribute attachments to their source tab. Omitted when no tabs are attached so existing native handlers continue to work unchanged.
