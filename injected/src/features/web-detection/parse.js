@@ -117,8 +117,6 @@ const EXPRESSION_KEYS = new Set([
     'api',
     'count',
     'only',
-    'first',
-    'last',
     'sum',
     'mul',
     'min',
@@ -318,8 +316,6 @@ function compileKey(key, body, position, path, scope) {
             expectPosition(position, FILLS.number, key, path);
             return compileUnary('count', body, 'list', position, path, scope);
         case 'only':
-        case 'first':
-        case 'last':
             expectPosition(position, FILLS.number, key, path);
             return compileUnary(key, body, 'list', position, path, scope);
         case 'sum':
@@ -374,7 +370,7 @@ function expectPosition(position, fills, key, path) {
 }
 
 /**
- * @param {'count' | 'only' | 'first' | 'last'} kind
+ * @param {'count' | 'only'} kind
  * @param {unknown} body
  * @param {Position} operandPosition
  * @param {Position} position
@@ -520,8 +516,6 @@ function fillsOf(node, visiting = new Set()) {
         }
         case 'count':
         case 'only':
-        case 'first':
-        case 'last':
         case 'sum':
         case 'mul':
         case 'min':
