@@ -31,6 +31,8 @@ import { FEATURES, isFeatureName } from './features.js';
 export class NativeReader {
     /** @type {Map<object, Map<PropertyKey, PropertyDescriptor>>} */
     #holders = new Map();
+    /** @type {object | undefined} */
+    #nodePrototype;
 
     /**
      * @param {object} global - the global object to capture from
@@ -39,6 +41,8 @@ export class NativeReader {
     constructor(global, names) {
         /** @type {PropertyKey[]} */
         const keys = [...names, Symbol.iterator];
+        const nodeConstructor = getOwnPropertyDescriptor(global, 'Node')?.value;
+        if (typeof nodeConstructor === 'function') this.#nodePrototype = getOwnPropertyDescriptor(nodeConstructor, 'prototype')?.value;
         /** @type {object[]} */
         const holders = [global];
         for (const name of getOwnPropertyNames(global)) {
@@ -129,6 +133,20 @@ export class NativeReader {
     }
 
     /**
+     * Whether a value is a DOM node: the global's `Node.prototype` is on its prototype chain.
+     *
+     * @param {unknown} target
+     * @returns {boolean}
+     */
+    isNode(target) {
+        if (!this.#nodePrototype || typeof target !== 'object' || target === null) return false;
+        for (let current = getPrototypeOf(target); current !== null; current = getPrototypeOf(current)) {
+            if (current === this.#nodePrototype) return true;
+        }
+        return false;
+    }
+
+    /**
      * The iterator method of a value, when it has one.
      *
      * @param {unknown} target
@@ -142,29 +160,22 @@ export class NativeReader {
     }
 }
 
-/** A `readPath` result: the path read `null` or `undefined` before its last name. */
-export const NO_VALUE = Symbol('noValue');
-
 /**
  * Read a path of names from a root, calling the last name with `args` when given.
  *
  * `length` on a string or an array reads it directly. A name after `null` or `undefined` gives
- * `undefined` when `onNullish` is `'undefined'` (`field` and property paths), and `NO_VALUE` when it
- * is `'noValue'` (`api`, which then selects no items).
+ * `undefined`, as `?.` does.
  *
  * @param {NativeReader} reader
  * @param {unknown} root
  * @param {readonly string[]} names
  * @param {readonly Arg[] | undefined} args
- * @param {'undefined' | 'noValue'} onNullish
- * @returns {unknown} the value, `NO_VALUE`, or a `Failure`
+ * @returns {unknown} the value, or a `Failure`
  */
-export function readPath(reader, root, names, args, onNullish) {
+export function readPath(reader, root, names, args) {
     let current = root;
     for (let i = 0; i < names.length; i++) {
-        if (current === null || current === undefined) {
-            return onNullish === 'undefined' ? undefined : NO_VALUE;
-        }
+        if (current === null || current === undefined) return undefined;
         const name = /** @type {string} */ (names[i]);
         if (args && i === names.length - 1) {
             current = reader.call(current, name, args);
@@ -260,7 +271,7 @@ export function compileField(raw, path, names) {
  * @returns {unknown} the value, or a `Failure`
  */
 export function readField(reader, root, field) {
-    const value = readPath(reader, root, field.names, field.args, 'undefined');
+    const value = readPath(reader, root, field.names, field.args);
     if (isFailure(value) || !field.feature) return value;
     return FEATURES[field.feature](value);
 }
@@ -271,6 +282,7 @@ export function readField(reader, root, field) {
  * @typedef {object} PredicateContext
  * @property {NativeReader} reader
  * @property {(operand: unknown, track: Track) => unknown} operand - evaluates a compiled operand expression once per run, giving its value or a `Failure`
+ * @property {(expression: unknown, track: Track) => unknown} read - evaluates a compiled expression in the position it was compiled for, giving its value or a `Failure`
  */
 
 /**
@@ -281,11 +293,13 @@ export function readField(reader, root, field) {
  * @typedef {object} CompiledPredicate
  * @property {PredicateTest} test - `subject` may be a `Failure`, which `exists` and `type` read
  * @property {number} bound - the count from which the result on a count is fixed ([Early exit](implementation.md))
+ * @property {boolean} scalar - whether it compares the value: a literal, `eq`, `lt`, `lte`, `gt` or `gte` at its top level or in its combinators. A selected list under it gives its one item
  */
 
 /**
  * @typedef {object} PredicateHooks
  * @property {(raw: unknown, path: string) => unknown} operand - compiles an operand expression in number position
+ * @property {(raw: unknown, path: string, position: import('./expressions.js').Position) => unknown} expression - compiles an expression a source reads, such as its `root`
  * @property {Set<string>} names - collects every name read, for the native reader
  */
 
@@ -315,6 +329,7 @@ function equalsLiteral(literal) {
     return {
         test: (subject) => (isFailure(subject) ? subject : subject === literal),
         bound: typeof literal === 'number' ? Math.max(0, Math.floor(literal) + 1) : 0,
+        scalar: true,
     };
 }
 
@@ -377,7 +392,7 @@ function combine(combinator, entries) {
             return true;
         };
     }
-    return { test, bound };
+    return { test, bound, scalar: entries.some((entry) => entry.scalar) };
 }
 
 /**
@@ -425,7 +440,7 @@ function compileObject(raw, level, path, hooks) {
         }
     }
     if (entries.length === 0) {
-        return { test: (subject) => (isFailure(subject) ? subject : true), bound: 0 };
+        return { test: (subject) => (isFailure(subject) ? subject : true), bound: 0, scalar: false };
     }
     return combine('all', entries);
 }
@@ -443,6 +458,7 @@ function readThen(field, next) {
         },
         // A property of a count is not a count
         bound: Infinity,
+        scalar: false,
     };
 }
 
@@ -495,6 +511,7 @@ function compileOperator(operator, raw, path, hooks) {
                     return subject === value;
                 },
                 bound: Infinity,
+                scalar: true,
             };
         }
         default:
@@ -509,7 +526,7 @@ function compileOperator(operator, raw, path, hooks) {
  * @returns {CompiledPredicate}
  */
 function fixed(test) {
-    return { test, bound: 0 };
+    return { test, bound: 0, scalar: false };
 }
 
 /**
@@ -558,6 +575,7 @@ function compileComparison(operator, raw, path, hooks) {
                 return compare(expectNumber(subject, operator), raw);
             },
             bound: Math.max(0, COMPARISON_BOUND[operator](raw)),
+            scalar: true,
         };
     }
     const operand = hooks.operand(raw, path);
@@ -569,6 +587,7 @@ function compileComparison(operator, raw, path, hooks) {
             return compare(expectNumber(subject, operator), expectNumber(value, operator));
         },
         bound: Infinity,
+        scalar: true,
     };
 }
 

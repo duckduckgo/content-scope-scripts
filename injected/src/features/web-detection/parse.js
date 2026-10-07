@@ -18,7 +18,6 @@ import { apiSource, rejectUnknownKeys } from './sources.js';
  * @typedef {import('./expressions.js').Branch} Branch
  * @typedef {import('./expressions.js').Position} Position
  * @typedef {import('./expressions.js').CompiledPayloadField} CompiledPayloadField
- * @typedef {import('./sources.js').Placement} Placement
  */
 
 /**
@@ -117,6 +116,7 @@ const EXPRESSION_KEYS = new Set([
     'text',
     'api',
     'count',
+    'only',
     'first',
     'last',
     'sum',
@@ -144,8 +144,8 @@ const FILLS = {
 };
 
 /**
- * The positions an operand of `sum`, `mul`, `min` and `max`, or of `any`, `all` and `none`, fills
- * is decided once refs are resolved: a list of values when the operand gives one.
+ * The position of an operand of `sum`, `mul`, `min` and `max`, or of `any`, `all` and `none`, is
+ * decided once refs are resolved: `spread` when the operand can give a list.
  *
  * @typedef {{ node: Node, single: 'number' | 'boolean' }} Slot
  */
@@ -179,8 +179,9 @@ class Scope {
         /** @type {import('./predicates.js').PredicateHooks} */
         this.hooks = {
             names: this.readerNames,
-            operand: (raw, path) => {
-                const node = compileExpr(raw, 'number', path, this);
+            operand: (raw, path) => this.hooks.expression(raw, path, 'number'),
+            expression: (raw, path, position) => {
+                const node = compileExpr(raw, position, path, this);
                 this.operandSinks[this.operandSinks.length - 1]?.push(node);
                 return node;
             },
@@ -315,11 +316,12 @@ function compileKey(key, body, position, path, scope) {
             return compileSource(key, body, position, path, scope);
         case 'count':
             expectPosition(position, FILLS.number, key, path);
-            return compileUnary('count', body, 'items', position, path, scope);
+            return compileUnary('count', body, 'list', position, path, scope);
+        case 'only':
         case 'first':
         case 'last':
             expectPosition(position, FILLS.number, key, path);
-            return compileUnary(key, body, 'values', position, path, scope);
+            return compileUnary(key, body, 'list', position, path, scope);
         case 'sum':
         case 'mul':
         case 'min':
@@ -365,14 +367,14 @@ function compileKey(key, body, position, path, scope) {
  * @param {string} path
  */
 function expectPosition(position, fills, key, path) {
-    if (!fills.has(position)) {
+    if (!fits(fills, position)) {
         const hint = position === 'boolean' ? '; numbers become booleans only through `is`' : '';
         throw new ConfigParseError(path, `'${key}' does not fill ${position} position${hint}`);
     }
 }
 
 /**
- * @param {'count' | 'first' | 'last'} kind
+ * @param {'count' | 'only' | 'first' | 'last'} kind
  * @param {unknown} body
  * @param {Position} operandPosition
  * @param {Position} position
@@ -410,7 +412,7 @@ function compileLogic(kind, raws, position, path, scope) {
  * @returns {Node}
  */
 function compileIf(body, position, path, scope) {
-    if (position === 'items' || position === 'values') throw new ConfigParseError(path, `'if' does not fill ${position} position`);
+    if (position === 'list') throw new ConfigParseError(path, `'if' does not fill list position`);
     if (!isPlainObject(body)) throw new ConfigParseError(path, '`if` takes an object of test, then and else');
     rejectUnknownKeys(body, ['test', 'then', 'else'], `${path}.if`);
     for (const key of ['test', 'then', 'else']) {
@@ -513,17 +515,11 @@ function fillsOf(node, visiting = new Set()) {
         case 'literal':
             return typeof node.value === 'number' ? FILLS.number : FILLS.boolean;
         case 'source': {
-            /** @type {Set<Position>} */
-            const fills = new Set();
-            const placements = node.bodies.map((body) => node.source.placements(body));
-            for (const placement of /** @type {Placement[]} */ (['boolean', 'value', 'items', 'values'])) {
-                if (!placements.every((set) => set.has(placement))) continue;
-                fills.add(placement);
-                if (placement === 'value') fills.add('number');
-            }
-            return fills;
+            const [first, ...rest] = node.bodies.map((body) => node.source.fills(body));
+            return new Set([...(first ?? [])].filter((position) => rest.every((fills) => fills.has(position))));
         }
         case 'count':
+        case 'only':
         case 'first':
         case 'last':
         case 'sum':
@@ -540,7 +536,7 @@ function fillsOf(node, visiting = new Set()) {
             return FILLS.boolean;
         case 'if': {
             const elseFills = fillsOf(node.else, visiting);
-            return new Set([...fillsOf(node.then, visiting)].filter((p) => elseFills.has(p) && p !== 'items' && p !== 'values'));
+            return new Set([...fillsOf(node.then, visiting)].filter((p) => elseFills.has(p) && p !== 'list'));
         }
         case 'ref':
             return node.target ? fillsOf(node.target, visiting) : FILLS.none;
@@ -562,13 +558,12 @@ function resolve(scope) {
     }
     checkCycles(scope);
     for (const { node, single } of scope.slots) {
-        const fills = fillsOf(node);
-        // Under any / all / none, an operand that is a boolean stays one
-        if (single === 'boolean' && fills.has('boolean')) node.position = 'boolean';
-        else node.position = fills.has('values') ? 'values' : single;
+        // `element` without `field` and `text` are the condition leaf under any / all / none: a boolean
+        const leaf = single === 'boolean' && isPresenceLeaf(node);
+        node.position = fillsOf(node).has('list') && !leaf ? 'spread' : single;
     }
     for (const node of scope.nodes) {
-        if (!fillsOf(node).has(node.position)) {
+        if (!fits(fillsOf(node), node.position)) {
             const what =
                 node.kind === 'source'
                     ? `'${/** @type {SourceNode} */ (node).source.key}'${node.bodies.some((b) => /** @type {any} */ (b).field) ? ' with field' : ''}`
@@ -579,6 +574,37 @@ function resolve(scope) {
     for (const node of scope.nodes) {
         if (node.kind === 'count') node.bound = countBound(node, scope);
     }
+}
+
+/**
+ * Whether an expression is the condition leaf: `element` without `field`, or `text`, directly or
+ * through refs.
+ *
+ * @param {Node} node
+ * @returns {boolean}
+ */
+function isPresenceLeaf(node) {
+    /** @type {Node | undefined} */
+    let current = node;
+    const seen = new Set();
+    while (current?.kind === 'ref' && !seen.has(current)) {
+        seen.add(current);
+        current = current.target;
+    }
+    if (current?.kind !== 'source') return false;
+    const key = current.source.key;
+    return key === 'text' || (key === 'element' && current.bodies.every((body) => !(/** @type {{ field?: unknown }} */ (body).field)));
+}
+
+/**
+ * @param {ReadonlySet<Position>} fills
+ * @param {Position} position
+ * @returns {boolean}
+ */
+function fits(fills, position) {
+    if (position === 'spread') return fills.has('list');
+    if (position === 'root') return fills.has('list') || fills.has('value');
+    return fills.has(position);
 }
 
 /**

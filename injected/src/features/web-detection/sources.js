@@ -1,6 +1,6 @@
 import { isArray, objectKeys, ReflectApply } from '../../captured-globals.js';
 import { ConfigParseError, DetectionError, isFailure, isPlainObject } from './core.js';
-import { NO_VALUE, compileField, compilePath, compilePredicate, readField, readPath } from './predicates.js';
+import { compileField, compilePath, compilePredicate, readField, readPath } from './predicates.js';
 
 /**
  * @typedef {import('./core.js').Failure} Failure
@@ -10,32 +10,33 @@ import { NO_VALUE, compileField, compilePath, compilePredicate, readField, readP
  * @typedef {import('./predicates.js').PredicateContext} PredicateContext
  * @typedef {import('./predicates.js').PredicateHooks} PredicateHooks
  * @typedef {import('./predicates.js').Arg} Arg
+ * @typedef {import('./expressions.js').Position} Position
  */
 
 /**
- * What a source in a given position gives: a boolean, its only item's value, its items, or each
- * item's value.
- *
- * @typedef {'boolean' | 'value' | 'items' | 'values'} Placement
- */
-
-/**
- * A source reads the page. It yields items lazily, each as its value (`field`), the item itself
- * without `field`, or a `Failure` for an item whose `where` or `field` read failed.
+ * A source reads the page. `element` and `text` give a list, and `api` the value it reads: a list
+ * with `where`, or with `field` on a list.
  *
  * @template Body
  * @typedef {object} Source
  * @property {string} key - the expression key in config
  * @property {(raw: unknown, path: string, hooks: PredicateHooks) => Body} parse - throws a `ConfigParseError`
- * @property {(body: Body) => ReadonlySet<Placement>} placements
- * @property {(bodies: Body[], ctx: PredicateContext, track: Track) => Iterator<unknown> | Failure} items - a `Failure` for the source as a whole
- * @property {(bodies: Body[]) => boolean | undefined} [hasAny] - a boolean placement that skips the iterator, or `undefined` where it does not apply
- * @property {(bodies: Body[]) => number | undefined} [countAll] - a count that skips the iterator, or `undefined` where it does not apply
+ * @property {(body: Body) => ReadonlySet<Position>} fills - the positions config shows the source fills
+ * @property {(bodies: Body[], ctx: PredicateContext, track: Track) => unknown} read - the value: an `ItemBuffer` for a list, or a `Failure` for the source as a whole
  */
 
 /**
- * The items a source expression has read so far in one run. Placements of one expression share it,
- * so each source walks the page at most once per run.
+ * Reads that skip a list's iterator, each `undefined` where it does not apply.
+ *
+ * @typedef {object} ListShortcuts
+ * @property {() => boolean | undefined} [hasAny]
+ * @property {() => number | undefined} [countAll]
+ */
+
+/**
+ * A list: the items read so far in one run, each as its value (`field`), the item itself without
+ * `field`, or a `Failure` for an item whose `where` or `field` read failed. Every expression reading
+ * a list shares its buffer, so each source walks the page at most once per run.
  */
 export class ItemBuffer {
     /** @type {unknown[]} */
@@ -51,9 +52,11 @@ export class ItemBuffer {
     /**
      * @param {Iterator<unknown> | Failure} iterator
      * @param {Track} track - cleared when a `where` operand is not measured
+     * @param {ListShortcuts} [shortcuts]
      */
-    constructor(iterator, track) {
+    constructor(iterator, track, shortcuts = {}) {
         this.track = track;
+        this.shortcuts = shortcuts;
         if (isFailure(iterator)) {
             this.failure = iterator;
             this.done = true;
@@ -143,16 +146,19 @@ export function rejectUnknownKeys(raw, allowed, path) {
  * @typedef {object} ApiBody
  * @property {string[]} names
  * @property {Arg[]} [args]
+ * @property {unknown} [root] - a compiled expression giving the value `path` reads from
  * @property {CompiledPredicate} [where]
  * @property {CompiledField} [field]
  */
 
-/** @type {ReadonlySet<Placement>} */
-const API_PLACEMENTS = new Set(['value', 'items', 'values']);
+/** @type {ReadonlySet<Position>} */
+const API_FILLS = new Set(['boolean', 'value', 'number', 'list']);
+/** @type {ReadonlySet<Position>} */
+const LIST_FILLS = new Set(['list', 'value', 'number']);
 
 /**
- * Reads a Web API by path from the global object. Its items are the members of an iterable result
- * other than a string, or the result as one item.
+ * Reads a Web API by path, from the global object or `root`, and gives the value it reads. With
+ * `where`, or `field` on a list, it gives the list of the members that pass, or of their values.
  *
  * @param {object} global
  * @returns {Source<ApiBody>}
@@ -162,7 +168,7 @@ export function apiSource(global) {
         key: 'api',
         parse(raw, path, hooks) {
             if (!isPlainObject(raw)) throw new ConfigParseError(path, '`api` takes an object');
-            rejectUnknownKeys(raw, ['path', 'args', 'where', 'field'], path);
+            rejectUnknownKeys(raw, ['path', 'args', 'root', 'where', 'field'], path);
             const names = compilePath(raw.path, `${path}.path`);
             names.forEach((name) => hooks.names.add(name));
             /** @type {ApiBody} */
@@ -171,32 +177,69 @@ export function apiSource(global) {
                 if (!isArray(raw.args)) throw new ConfigParseError(`${path}.args`, '`args` must be an array');
                 body.args = /** @type {Arg[]} */ (raw.args);
             }
+            if (raw.root !== undefined) body.root = hooks.expression(raw.root, `${path}.root`, 'value');
             return body;
         },
-        placements: () => API_PLACEMENTS,
-        items(bodies, ctx, track) {
+        fills: (body) => (body.where ? LIST_FILLS : API_FILLS),
+        read(bodies, ctx, track) {
             // `api` takes one body
             const body = /** @type {ApiBody} */ (bodies[0]);
-            const result = readPath(ctx.reader, global, body.names, body.args, 'noValue');
+            let base = body.root === undefined ? global : ctx.read(body.root, track);
+            if (isFailure(base)) return base;
+            if (base instanceof ItemBuffer) {
+                // A selected list reaches `path` as an array
+                const failure = base.pull(Infinity);
+                if (failure) return failure;
+                if (!base.track.measured) track.measured = false;
+                base = base.values;
+            }
+            const result = readPath(ctx.reader, base, body.names, body.args);
             if (isFailure(result)) return result;
-            if (result === NO_VALUE) return [][Symbol.iterator]();
-            return selectApiItems(members(result, ctx), body, ctx, track);
+            if (body.where || (body.field && isList(result, ctx))) {
+                if (!isList(result, ctx)) throw new DetectionError('`where` on a value that is not a list');
+                return new ItemBuffer(selectApiItems(members(result, ctx), body, ctx, track), track);
+            }
+            return body.field ? readField(ctx.reader, result, body.field) : result;
         },
     };
 }
 
 /**
- * @param {unknown} result
+ * Whether a value is a list: an `ItemBuffer`, or an iterable other than a string or a node.
+ *
+ * @param {unknown} value
+ * @param {PredicateContext} ctx
+ * @returns {boolean}
+ */
+export function isList(value, ctx) {
+    if (value instanceof ItemBuffer || isArray(value)) return true;
+    return ctx.reader.iteratorMethod(value) !== undefined && !ctx.reader.isNode(value);
+}
+
+/**
+ * The members of an iterable value, through its iterator as captured or as it stands.
+ *
+ * @param {unknown} value - an array, or an iterable `isList` holds for
  * @param {PredicateContext} ctx
  * @returns {Iterable<unknown>}
  */
-function members(result, ctx) {
-    if (isArray(result)) return result;
-    const iteratorMethod = ctx.reader.iteratorMethod(result);
-    if (!iteratorMethod) return [result];
+export function members(value, ctx) {
+    if (isArray(value)) return value;
+    const iteratorMethod = /** @type {Function} */ (ctx.reader.iteratorMethod(value));
     return {
-        [Symbol.iterator]: () => /** @type {Iterator<unknown>} */ (ReflectApply(iteratorMethod, result, [])),
+        [Symbol.iterator]: () => /** @type {Iterator<unknown>} */ (ReflectApply(iteratorMethod, value, [])),
     };
+}
+
+/**
+ * Iterate the members of an iterable value lazily, as a list.
+ *
+ * @param {unknown} value - an array, or an iterable `isList` holds for
+ * @param {PredicateContext} ctx
+ * @returns {Generator<unknown>}
+ */
+export function* eachMember(value, ctx) {
+    yield* each(members(value, ctx));
 }
 
 /**
