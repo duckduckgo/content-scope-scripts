@@ -294,10 +294,7 @@ function compileExpr(raw, position, path, scope) {
     }
     if (hasIs) {
         const sink = /** @type {Node[]} */ (scope.deps.get(node));
-        // A source's `allowGetter` covers an `is` on it
-        const allowGetter =
-            node.kind === 'source' && node.bodies.some((body) => /** @type {{ allowGetter?: boolean }} */ (body).allowGetter === true);
-        node.is = scope.collecting(sink, () => compilePredicate(raw.is, 'value', `${path}.is`, scope.hooks, allowGetter));
+        node.is = scope.collecting(sink, () => compilePredicate(raw.is, 'value', `${path}.is`, scope.hooks));
     }
     return node;
 }

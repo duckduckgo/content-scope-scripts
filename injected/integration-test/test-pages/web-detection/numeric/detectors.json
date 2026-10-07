@@ -10,7 +10,6 @@
                             "args": [
                                 "navigation"
                             ],
-                            "allowGetter": true,
                             "field": "loadEventEnd"
                         },
                         "as": "loadEventEnd",
@@ -27,8 +26,7 @@
                             {
                                 "api": {
                                     "path": "performance.now",
-                                    "args": [],
-                                    "allowGetter": true
+                                    "args": []
                                 },
                                 "is": {
                                     "gte": 15000
@@ -81,7 +79,6 @@
                     "args": [
                         "navigation"
                     ],
-                    "allowGetter": true,
                     "field": "loadEventEnd"
                 },
                 "as": "loadEventEnd",
@@ -204,7 +201,6 @@
                                     "args": [
                                         "navigation"
                                     ],
-                                    "allowGetter": true,
                                     "field": "decodedBodySize"
                                 }
                             }
@@ -229,7 +225,6 @@
                             {
                                 "api": {
                                     "path": "document",
-                                    "allowGetter": true,
                                     "field": {
                                         "path": "title",
                                         "feature": "wordCount"
@@ -447,7 +442,6 @@
                                     "args": [
                                         "navigation"
                                     ],
-                                    "allowGetter": true,
                                     "field": "responseStatus"
                                 },
                                 "as": "status",
@@ -537,7 +531,6 @@
                                     "args": [
                                         "navigation"
                                     ],
-                                    "allowGetter": true,
                                     "field": "responseStatus"
                                 },
                                 "as": "status",
@@ -625,7 +618,6 @@
                                     "args": [
                                         "navigation"
                                     ],
-                                    "allowGetter": true,
                                     "field": "responseStatus"
                                 },
                                 "catch": {
@@ -703,7 +695,6 @@
                             "args": [
                                 "navigation"
                             ],
-                            "allowGetter": true,
                             "field": "loadEventEnd"
                         },
                         "as": "loadEventEnd",
@@ -716,8 +707,7 @@
                             {
                                 "api": {
                                     "path": "performance.now",
-                                    "args": [],
-                                    "allowGetter": true
+                                    "args": []
                                 }
                             },
                             {
@@ -786,7 +776,6 @@
                                         "args": [
                                             "resource"
                                         ],
-                                        "allowGetter": true,
                                         "where": {
                                             "initiatorType": "script",
                                             "responseStatus": {
@@ -844,7 +833,6 @@
                                     "args": [
                                         "navigation"
                                     ],
-                                    "allowGetter": true,
                                     "field": "decodedBodySize"
                                 }
                             },
@@ -905,7 +893,6 @@
                                 "args": [
                                     "resource"
                                 ],
-                                "allowGetter": true,
                                 "where": {
                                     "initiatorType": "link",
                                     "responseStatus": {
@@ -924,7 +911,6 @@
                         "count": {
                             "api": {
                                 "path": "document.fonts",
-                                "allowGetter": true,
                                 "where": {
                                     "status": "error"
                                 }
@@ -999,7 +985,6 @@
                 "count": {
                     "element": {
                         "selector": "img",
-                        "allowGetter": true,
                         "where": {
                             "complete": true,
                             "naturalWidth": 0,
@@ -1113,7 +1098,6 @@
                         "count": {
                             "element": {
                                 "selector": "img",
-                                "allowGetter": true,
                                 "where": {
                                     "complete": true,
                                     "naturalWidth": {
@@ -1157,7 +1141,6 @@
                                 "count": {
                                     "element": {
                                         "selector": "img",
-                                        "allowGetter": true,
                                         "where": {
                                             "complete": true,
                                             "naturalWidth": 0,
