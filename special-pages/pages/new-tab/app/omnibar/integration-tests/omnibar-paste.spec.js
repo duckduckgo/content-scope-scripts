@@ -4,8 +4,8 @@ import { NewtabPage } from '../../../integration-tests/new-tab.page.js';
 import { OmnibarPage } from './omnibar.page.js';
 
 /**
- * Clipboard paste into the Duck.ai prompt and image attachment telemetry, driven through the dev
- * mock transport (`omnibar.mock-transport.js`).
+ * Clipboard paste and drag-and-drop into the Duck.ai prompt, and image attachment telemetry, driven
+ * through the dev mock transport (`omnibar.mock-transport.js`).
  */
 
 /** Supports images but not PDFs */
@@ -177,5 +177,46 @@ test.describe('omnibar paste', () => {
         expect(result.defaultPrevented).toBe(false);
         await expect(omnibar.imagePreviews()).toHaveCount(0);
         expect(await omnibar.telemetryEvents()).toEqual([]);
+    });
+});
+
+test.describe('omnibar drag and drop', () => {
+    test('attaches a dropped image like a picked one', async ({ page }, workerInfo) => {
+        const { omnibar } = await setup(page, workerInfo);
+        const photo = await makePng(page, 1000, 200);
+
+        const result = await omnibar.dropOnChatInput({ files: [{ name: 'photo.png', type: 'image/png', base64: photo }] });
+        expect(result.accepted).toBe(true);
+        await expect(omnibar.imagePreviews()).toHaveCount(1);
+        await expect.poll(() => omnibar.telemetryEvents()).toEqual([{ name: 'omnibar_image_attached', value: { source: 'file' } }]);
+
+        await omnibar.chatInput().fill('look');
+        await omnibar.chatInput().press('Enter');
+        const params = await omnibar.lastSubmitChatParams();
+        expect(pngWidth(params.images?.[0].data ?? '')).toBe(512);
+    });
+
+    test('routes a dropped PDF to the file chips', async ({ page }, workerInfo) => {
+        const { omnibar } = await setup(page, workerInfo, { 'omnibar.selectedModelId': IMAGE_AND_PDF_MODEL });
+
+        const result = await omnibar.dropOnChatInput({ files: [{ name: 'report.pdf', type: 'application/pdf', base64: PDF_BASE64 }] });
+        expect(result.accepted).toBe(true);
+        await expect(omnibar.fileChip()).toHaveCount(1);
+        await expect(omnibar.imagePreviews()).toHaveCount(0);
+    });
+
+    test('does not accept files when the model cannot take attachments', async ({ page }, workerInfo) => {
+        const { omnibar } = await setup(page, workerInfo, { 'omnibar.selectedModelId': TEXT_ONLY_MODEL });
+
+        const result = await omnibar.dropOnChatInput({ files: [{ name: 'photo.png', type: 'image/png', base64: TINY_PNG_BASE64 }] });
+        expect(result.accepted).toBe(false);
+        await expect(omnibar.imagePreviews()).toHaveCount(0);
+    });
+
+    test('leaves a text drag to the browser', async ({ page }, workerInfo) => {
+        const { omnibar } = await setup(page, workerInfo);
+
+        const result = await omnibar.dropOnChatInput({ text: 'hello' });
+        expect(result.accepted).toBe(false);
     });
 });

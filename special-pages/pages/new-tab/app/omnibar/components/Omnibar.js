@@ -24,6 +24,7 @@ import { usePastedAttachments } from './chat-tools/image-attachment/usePastedAtt
 import { useScreenshotCapture } from './chat-tools/image-attachment/useScreenshotCapture';
 import { AttachmentChips } from './chat-tools/attachments/AttachmentChips';
 import { AttachmentsProvider, useAttachmentsContext } from './chat-tools/attachments/AttachmentsProvider';
+import { useDroppedAttachments } from './chat-tools/attachments/useDroppedAttachments';
 import { ModelSelectorTool } from './chat-tools/model-selector/ModelSelectorTool';
 import { ReasoningPickerTool } from './chat-tools/reasoning-picker/ReasoningPickerTool';
 import { ToolsMenu } from './chat-tools/tools-menu/ToolsMenu';
@@ -289,6 +290,11 @@ function AiChatContent({
         processOtherFiles: canAttachFiles ? fileState.processFiles : null,
         enabled: state.config?.enablePastedAttachments === true && !blocksPrompt,
     });
+    const droppedAttachments = useDroppedAttachments({
+        processImages: canAttachImages ? imageState.processFiles : null,
+        processOtherFiles: canAttachFiles ? fileState.processFiles : null,
+        enabled: !blocksPrompt,
+    });
     // Screenshots land in the image list; without an image-capable model the row shows greyed out.
     const screenshotModes = state.config?.screenshotModes ?? [];
     const canCaptureScreenshot = screenshotModes.length > 0;
@@ -470,6 +476,8 @@ function AiChatContent({
                     combobox={mention.combobox}
                     textareaRef={textareaRef}
                     onPaste={pastedAttachments.handlePaste}
+                    onDragOver={droppedAttachments.handleDragOver}
+                    onDrop={droppedAttachments.handleDrop}
                     toolbarLeft={
                         <Fragment>
                             {(canAttachImages || canAttachFiles || canAttachTabs || canCaptureScreenshot) && (
