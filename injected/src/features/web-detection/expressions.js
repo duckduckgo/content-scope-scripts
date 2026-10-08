@@ -1,5 +1,5 @@
 import { numberIsFinite } from '../../captured-globals.js';
-import { DetectionError, NOT_READ, isFailure, typeName } from './core.js';
+import { DetectionError, NOT_READ, isFailure, isScalar, typeName } from './core.js';
 import { compileDetector } from './parse.js';
 import { NativeReader, readPath } from './predicates.js';
 import { ItemBuffer, eachMember, isList } from './sources.js';
@@ -248,14 +248,6 @@ function checkType(value, position) {
     }
     if (position === 'number' && typeof value !== 'number') throw new DetectionError(`expected a number, got ${typeName(value)}`);
     if (position === 'boolean' && typeof value !== 'boolean') throw new DetectionError(`expected a boolean, got ${typeName(value)}`);
-}
-
-/**
- * @param {unknown} value
- * @returns {boolean}
- */
-function isScalar(value) {
-    return value === null || typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean';
 }
 
 /**
@@ -613,9 +605,7 @@ function payloadValue(field, ctx) {
         }
         return OMIT;
     }
-    if (value === null || typeof value === 'string' || typeof value === 'boolean') return value;
-    if (typeof value === 'number' && numberIsFinite(value)) return value;
-    return OMIT;
+    return isScalar(value) && (typeof value !== 'number' || numberIsFinite(value)) ? value : OMIT;
 }
 
 /**

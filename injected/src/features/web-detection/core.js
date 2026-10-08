@@ -96,6 +96,14 @@ export function asArray(value) {
 }
 
 /**
+ * @param {unknown} value
+ * @returns {value is string | number | boolean | null}
+ */
+export function isScalar(value) {
+    return value === null || typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean';
+}
+
+/**
  * Name of a value's type, as `type` in predicates tests it.
  *
  * @param {unknown} value
