@@ -40,7 +40,7 @@ async function setup(page, projectUse, detectors, modify, { fakeClock = true } =
     config.features.webDetection.settings.detectors = installed;
 
     const collector = ResultsCollector.create(page, projectUse);
-    collector.withMockResponse({ webDetectionAutoRun: null, webEvent: null });
+    collector.withMockResponse({ webDetectionAutoRun: null, webEvent: null, breakageReportResult: null });
     if (fakeClock) await page.clock.install();
     await collector.load('/web-detection/index.html', config);
     return collector;
@@ -87,6 +87,20 @@ async function notifications(collector, method) {
         .map((c) => /** @type {import("@duckduckgo/messaging").NotificationMessage} */ (c.payload))
         .filter((payload) => payload.method === method)
         .map((payload) => /** @type {Record<string, any>} */ (payload.params));
+}
+
+/**
+ * Request a breakage report and return its `webDetection` results.
+ *
+ * @param {ResultsCollector} collector
+ * @returns {Promise<Array<Record<string, any>>>}
+ */
+async function breakageReport(collector) {
+    await collector.simulateSubscriptionMessage('breakageReporting', 'getBreakageReportValues', {});
+    const [reportCall] = await collector.waitForMessage('breakageReportResult');
+    const params = /** @type {Record<string, any>} */ (reportCall.payload).params;
+    if (!params.breakageData) return [];
+    return JSON.parse(decodeURIComponent(String(params.breakageData))).webDetection ?? [];
 }
 
 test.describe('WebDetection numeric detectors', () => {
@@ -154,26 +168,26 @@ test.describe('WebDetection numeric detectors', () => {
     test('regionBreakage.comments_empty reports an empty region and whether its images broke', async ({ page }, testInfo) => {
         // The shipped detector names one site; run it on the test page
         const onAnyPage = (/** @type {Record<string, any>} */ detector) => {
-            detector.triggers.auto.runConditions = { context: { top: true } };
+            detector.triggers.breakageReport.runConditions = { context: { top: true } };
         };
         const collector = await setup(page, testInfo.project.use, [['regionBreakage', 'comments_empty']], onAnyPage);
         await navigateTo(page, '/web-detection/pages/numeric-region-empty.html');
         await page.waitForFunction(() => [...document.images].every((img) => img.complete));
-        await page.clock.fastForward(5000);
 
-        const events = await notifications(collector, 'webEvent');
-        expect(events).toEqual([{ type: 'regionEmpty', data: { brokenImages: '1+' } }]);
+        expect(await breakageReport(collector)).toEqual([
+            { detectorId: 'regionBreakage.comments_empty', detected: true, data: { brokenImages: '1+' } },
+        ]);
+        expect(await notifications(collector, 'webEvent')).toEqual([]);
     });
 
-    test('regionBreakage.comments_empty does not fire on a filled region', async ({ page }, testInfo) => {
+    test('regionBreakage.comments_empty does not match a filled region', async ({ page }, testInfo) => {
         const onAnyPage = (/** @type {Record<string, any>} */ detector) => {
-            detector.triggers.auto.runConditions = { context: { top: true } };
+            detector.triggers.breakageReport.runConditions = { context: { top: true } };
         };
         const collector = await setup(page, testInfo.project.use, [['regionBreakage', 'comments_empty']], onAnyPage);
         await navigateTo(page, '/web-detection/pages/numeric-region-filled.html');
-        await page.clock.fastForward(5000);
 
-        expect(await notifications(collector, 'webEvent')).toEqual([]);
+        expect(await breakageReport(collector)).toEqual([]);
     });
 
     test('pageLoad.load_time reports the load time bucketed, and slow_load does not fire on a fast page', async ({ page }, testInfo) => {
