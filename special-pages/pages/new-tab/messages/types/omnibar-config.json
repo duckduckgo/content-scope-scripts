@@ -295,6 +295,20 @@
       "type": "boolean",
       "default": false
     },
+    "screenshotModes": {
+      "title": "Screenshot Modes",
+      "description": "Screenshot capture modes offered under 'Add Screenshot' in the attach menu, in display order. Absent or empty hides the screenshot UI. Choosing a mode calls `omnibar_captureScreenshot`.",
+      "type": "array",
+      "items": {
+        "$ref": "screenshot-mode.json"
+      }
+    },
+    "enablePastedAttachments": {
+      "title": "Enable Pasted Attachments",
+      "description": "When true, pasting into the Duck.ai prompt attaches copied images and files (unless the clipboard also carries text). When false or absent, paste is left to the browser (text only).",
+      "type": "boolean",
+      "default": false
+    },
     "enableAiChatDeletion": {
       "title": "Enable AI Chat Deletion",
       "description": "Show a delete button on recent AI chat suggestions. When true, clicking the button prompts a native confirmation dialog before deleting the chat.",
@@ -331,6 +345,31 @@
           "type": "boolean",
           "description": "When true or omitted, show a dismiss control. Dismiss notifies native via omnibar_dismissCreateImageModelSwitch.",
           "default": true
+        }
+      }
+    },
+    "launcherPromo": {
+      "title": "Launcher Promo",
+      "description": "Native-resolved Duck.ai launcher promo for the AI-mode drawer. Native owns eligibility, localized copy and what the CTA does; FE renders what it receives, below every other notice. Null/omitted shows nothing.",
+      "type": ["object", "null"],
+      "required": ["message"],
+      "properties": {
+        "message": {
+          "type": "string",
+          "description": "Drawer copy, already localized, shown emphasized."
+        },
+        "secondaryText": {
+          "type": "string",
+          "description": "Optional copy shown after message, already localized and including any leading separator (for example, ' • Add Duck.ai to your menu bar')."
+        },
+        "ctaLabel": {
+          "type": "string",
+          "description": "Button label, already localized. Omitted means no button. Selecting it notifies native via omnibar_selectLauncherPromoCta."
+        },
+        "dismissible": {
+          "type": "boolean",
+          "description": "When true, show a dismiss control. Dismiss notifies native via omnibar_dismissLauncherPromo.",
+          "default": false
         }
       }
     },

@@ -1549,6 +1549,37 @@ test.describe('omnibar widget', () => {
             await expect(omnibar.createImageChip()).toHaveCount(0);
         });
 
+        test('updated create image submit sends GenerateImage tool with the resolved model', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableImageGeneration': 'true',
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.enableUpdatedCreateImage': 'true',
+                    'omnibar.selectedModelId': 'gpt-5-mini',
+                },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.toolsMenuButton().click();
+            await omnibar.createImageMenuItem().click();
+
+            await omnibar.imageGenerationInput().fill('a neon duck flying over mountains');
+            await omnibar.imageGenerationInput().press('Enter');
+
+            await omnibar.expectMethodCalledWith('omnibar_submitChat', {
+                chat: 'a neon duck flying over mountains',
+                target: 'same-tab',
+                modelId: 'gpt-5-mini',
+                toolChoice: ['GenerateImage'],
+            });
+        });
+
         test('image generation submit sends mode and omits modelId', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);

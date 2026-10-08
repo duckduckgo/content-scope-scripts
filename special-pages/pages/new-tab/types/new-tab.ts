@@ -143,6 +143,18 @@ export type EnableAskDuckAiSuggestion = boolean;
  */
 export type EnableAttachTabs = boolean;
 /**
+ * The screenshot capture mode the user chose: `dragToSelect` (drag to select a region) or `selectWindowOrDisplay` (pick a window or a display).
+ */
+export type ScreenshotMode = "dragToSelect" | "selectWindowOrDisplay";
+/**
+ * Screenshot capture modes offered under 'Add Screenshot' in the attach menu, in display order. Absent or empty hides the screenshot UI. Choosing a mode calls `omnibar_captureScreenshot`.
+ */
+export type ScreenshotModes = ScreenshotMode[];
+/**
+ * When true, pasting into the Duck.ai prompt attaches copied images and files (unless the clipboard also carries text). When false or absent, paste is left to the browser (text only).
+ */
+export type EnablePastedAttachments = boolean;
+/**
  * Show a delete button on recent AI chat suggestions. When true, clicking the button prompts a native confirmation dialog before deleting the chat.
  */
 export type EnableAIChatDeletion = boolean;
@@ -168,6 +180,27 @@ export type CreateImageModelSwitchNotice = {
   secondaryText?: string;
   /**
    * When true or omitted, show a dismiss control. Dismiss notifies native via omnibar_dismissCreateImageModelSwitch.
+   */
+  dismissible?: boolean;
+} | null;
+/**
+ * Native-resolved Duck.ai launcher promo for the AI-mode drawer. Native owns eligibility, localized copy and what the CTA does; FE renders what it receives, below every other notice. Null/omitted shows nothing.
+ */
+export type LauncherPromo = {
+  /**
+   * Drawer copy, already localized, shown emphasized.
+   */
+  message: string;
+  /**
+   * Optional copy shown after message, already localized and including any leading separator (for example, ' • Add Duck.ai to your menu bar').
+   */
+  secondaryText?: string;
+  /**
+   * Button label, already localized. Omitted means no button. Selecting it notifies native via omnibar_selectLauncherPromoCta.
+   */
+  ctaLabel?: string;
+  /**
+   * When true, show a dismiss control. Dismiss notifies native via omnibar_dismissLauncherPromo.
    */
   dismissible?: boolean;
 } | null;
@@ -242,6 +275,14 @@ export type Favicon = null | {
   maxAvailableSize?: number;
 };
 export type FeedType = "privacy-stats" | "activity";
+/**
+ * What the user captured: a dragged region, a whole display, or a single window.
+ */
+export type ScreenshotKind = "selection" | "screen" | "window";
+/**
+ * How an image chip was added to the Duck.ai prompt: the file picker, a clipboard paste, or a screenshot capture.
+ */
+export type ImageAttachmentSource = "file" | "paste" | "screenshot";
 /**
  * The visibility state of the widget, as configured by the user
  */
@@ -319,12 +360,15 @@ export interface NewTabMessages {
     | NextStepsSetConfigNotification
     | OmnibarAttachmentPrivacyDisclaimerShownNotification
     | OmnibarDismissCreateImageModelSwitchNotification
+    | OmnibarDismissLauncherPromoNotification
     | OmnibarDismissUsageLimitsNotification
+    | OmnibarLauncherPromoShownNotification
     | OmnibarOpenAiChatNotification
     | OmnibarOpenAttachmentPrivacyLearnMoreNotification
     | OmnibarOpenCustomizeResponsesNotification
     | OmnibarOpenSuggestionNotification
     | OmnibarRemoveSuggestionNotification
+    | OmnibarSelectLauncherPromoCtaNotification
     | OmnibarSelectUsageLimitsCtaNotification
     | OmnibarSetConfigNotification
     | OmnibarSetCustomizeResponsesActiveNotification
@@ -359,6 +403,7 @@ export interface NewTabMessages {
     | InitialSetupRequest
     | NextStepsGetConfigRequest
     | NextStepsGetDataRequest
+    | OmnibarCaptureScreenshotRequest
     | OmnibarConfirmDeleteAiChatRequest
     | OmnibarGetAiChatsRequest
     | OmnibarGetConfigRequest
@@ -713,6 +758,17 @@ export interface OmnibarDismissCreateImageModelSwitchNotification {
  */
 export interface DismissCreateImageModelSwitch {}
 /**
+ * Generated from @see "../messages/omnibar_dismissLauncherPromo.notify.json"
+ */
+export interface OmnibarDismissLauncherPromoNotification {
+  method: "omnibar_dismissLauncherPromo";
+  params: DismissLauncherPromo;
+}
+/**
+ * Sent when the user dismisses the launcher promo. Native persists the dismissal and pushes an updated OmnibarConfig.
+ */
+export interface DismissLauncherPromo {}
+/**
  * Generated from @see "../messages/omnibar_dismissUsageLimits.notify.json"
  */
 export interface OmnibarDismissUsageLimitsNotification {
@@ -723,6 +779,17 @@ export interface OmnibarDismissUsageLimitsNotification {
  * Sent when the user dismisses the AI-mode usage limits drawer. Native owns dismiss persistence and should push an updated OmnibarConfig with usageLimits null/omitted.
  */
 export interface DismissUsageLimitsDrawer {}
+/**
+ * Generated from @see "../messages/omnibar_launcherPromoShown.notify.json"
+ */
+export interface OmnibarLauncherPromoShownNotification {
+  method: "omnibar_launcherPromoShown";
+  params: LauncherPromoShown;
+}
+/**
+ * Sent the first time per page load that the launcher promo drawer is revealed on composer focus.
+ */
+export interface LauncherPromoShown {}
 /**
  * Generated from @see "../messages/omnibar_openAiChat.notify.json"
  */
@@ -833,6 +900,17 @@ export interface RemoveSuggestion {
   url: string;
 }
 /**
+ * Generated from @see "../messages/omnibar_selectLauncherPromoCta.notify.json"
+ */
+export interface OmnibarSelectLauncherPromoCtaNotification {
+  method: "omnibar_selectLauncherPromoCta";
+  params: SelectLauncherPromoCTA;
+}
+/**
+ * Sent when the user activates the launcher promo button. Native runs the action and pushes an updated OmnibarConfig.
+ */
+export interface SelectLauncherPromoCTA {}
+/**
  * Generated from @see "../messages/omnibar_selectUsageLimitsCta.notify.json"
  */
 export interface OmnibarSelectUsageLimitsCtaNotification {
@@ -878,10 +956,13 @@ export interface OmnibarConfig {
   customizationActive?: CustomizationActive;
   enableAskAiSuggestion?: EnableAskDuckAiSuggestion;
   enableAttachTabs?: EnableAttachTabs;
+  screenshotModes?: ScreenshotModes;
+  enablePastedAttachments?: EnablePastedAttachments;
   enableAiChatDeletion?: EnableAIChatDeletion;
   enableSearchSuggestionDeletion?: EnableSearchSuggestionDeletion;
   showAttachmentPrivacyDisclaimer?: ShowAttachmentPrivacyDisclaimer;
   createImageModelSwitch?: CreateImageModelSwitchNotice;
+  launcherPromo?: LauncherPromo;
   usageLimits?: UsageLimitsDrawer;
 }
 /**
@@ -1135,6 +1216,10 @@ export interface SubmitChatAction {
    * Files (PDFs in v1) attached via the paperclip menu. Each entry mirrors Duck.ai's `NativePromptFile` shape so native forwards them through unchanged. Omitted when no files are attached.
    */
   files?: NativePromptFile[];
+  /**
+   * True when the launcherPromo drawer was on screen as the prompt was sent, so native can treat the prompt as passing over it. Omitted otherwise.
+   */
+  launcherPromoVisible?: boolean;
 }
 /**
  * Extracted page content for a specific tab, used as a Duck.ai chat attachment. Mirrors the shape produced by the Duck.ai sidebar's page-context extraction.
@@ -1315,7 +1400,12 @@ export interface NTPTelemetryEvent {
     | OmnibarModelPickerUpgradeShown
     | OmnibarReasoningPickerShown
     | OmnibarReasoningPickerTryForFreeShown
-    | OmnibarReasoningPickerUpgradeShown;
+    | OmnibarReasoningPickerUpgradeShown
+    | OmnibarScreenshotTaken
+    | OmnibarScreenshotRemoved
+    | OmnibarScreenshotFailed
+    | OmnibarImageAttached
+    | OmnibarImageRemoved;
 }
 export interface StatsShowMore {
   name: "stats_toggle";
@@ -1369,6 +1459,48 @@ export interface OmnibarReasoningPickerTryForFreeShown {
  */
 export interface OmnibarReasoningPickerUpgradeShown {
   name: "omnibar_reasoning_picker_upgrade_shown";
+}
+/**
+ * Fired once a screenshot returned by `omnibar_captureScreenshot` has been added to the prompt as an image chip.
+ */
+export interface OmnibarScreenshotTaken {
+  name: "omnibar_screenshot_taken";
+  value: {
+    kind: ScreenshotKind;
+  };
+}
+/**
+ * Fired when the user removes a screenshot image chip.
+ */
+export interface OmnibarScreenshotRemoved {
+  name: "omnibar_screenshot_removed";
+}
+/**
+ * Fired when the page could not process a screenshot returned by `omnibar_captureScreenshot`. `error` replies do not fire this event.
+ */
+export interface OmnibarScreenshotFailed {
+  name: "omnibar_screenshot_failed";
+  value: {
+    reason: "failed";
+  };
+}
+/**
+ * Fired for every image chip added to the prompt, from the file picker, a paste, or a screenshot.
+ */
+export interface OmnibarImageAttached {
+  name: "omnibar_image_attached";
+  value: {
+    source: ImageAttachmentSource;
+  };
+}
+/**
+ * Fired for every image chip the user removes.
+ */
+export interface OmnibarImageRemoved {
+  name: "omnibar_image_removed";
+  value: {
+    source: ImageAttachmentSource;
+  };
 }
 /**
  * Generated from @see "../messages/updateNotification_dismiss.notify.json"
@@ -1645,6 +1777,35 @@ export interface NextStepsGetDataRequest {
 }
 export interface NextStepsData {
   content: null | NextStepsCards;
+}
+/**
+ * Generated from @see "../messages/omnibar_captureScreenshot.request.json"
+ */
+export interface OmnibarCaptureScreenshotRequest {
+  method: "omnibar_captureScreenshot";
+  params: CaptureScreenshotParams;
+  result: CaptureScreenshotResponse;
+}
+/**
+ * Asks native to capture a screenshot for the Duck.ai prompt. The reply comes once the capture is taken, fails or is cancelled, so the request can stay pending for as long as the user takes.
+ */
+export interface CaptureScreenshotParams {
+  mode: ScreenshotMode;
+}
+/**
+ * Result of a screenshot capture. `image` when a capture was taken, `error` when it failed; neither means the user cancelled, and the page shows nothing. The page sends no telemetry for `error` replies.
+ */
+export interface CaptureScreenshotResponse {
+  image?: CapturedScreenshot;
+  error?: "screenshotFailed";
+}
+export interface CapturedScreenshot {
+  /**
+   * Base64-encoded image bytes, without a data-URL prefix, at most 1024px on the long side.
+   */
+  data: string;
+  format: "png" | "jpeg";
+  kind: ScreenshotKind;
 }
 /**
  * Generated from @see "../messages/omnibar_confirmDeleteAiChat.request.json"

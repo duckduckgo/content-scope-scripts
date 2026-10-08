@@ -3,6 +3,14 @@ import { getMockSuggestions, getMockAiChats, getMockOpenTabs, getMockTabContent 
 
 const url = typeof window !== 'undefined' ? new URL(window.location.href) : new URL('https://example.com');
 
+/** @type {import('../../../types/new-tab.js').LauncherPromo} */
+const LAUNCHER_PROMO = {
+    message: 'Chat privately outside the browser',
+    secondaryText: ' • Add Duck.ai to your menu bar',
+    ctaLabel: 'Try Now',
+    dismissible: true,
+};
+
 /**
  * Reads a URL query param as a boolean. Returns null if absent or not 'true'/'false'.
  * @param {string} param
@@ -284,6 +292,16 @@ export function omnibarMockTransport() {
                     subs.get('omnibar_onConfigUpdate')?.(config);
                     break;
                 }
+                case 'omnibar_launcherPromoShown': {
+                    console.warn('Mock: launcherPromoShown');
+                    break;
+                }
+                case 'omnibar_selectLauncherPromoCta':
+                case 'omnibar_dismissLauncherPromo': {
+                    config.launcherPromo = null;
+                    subs.get('omnibar_onConfigUpdate')?.(config);
+                    break;
+                }
                 case 'omnibar_dismissCreateImageModelSwitch': {
                     config.createImageModelSwitch = null;
                     subs.get('omnibar_onConfigUpdate')?.(config);
@@ -484,6 +502,15 @@ export function omnibarMockTransport() {
                     config.enableVoiceChatAccess = parseBooleanQueryParam('omnibar.enableVoiceChatAccess') ?? config.enableVoiceChatAccess;
                     config.enableAskAiSuggestion = parseBooleanQueryParam('omnibar.enableAskAiSuggestion') ?? config.enableAskAiSuggestion;
                     config.enableAttachTabs = parseBooleanQueryParam('omnibar.enableAttachTabs') ?? config.enableAttachTabs;
+                    // Comma-separated, e.g. `omnibar.screenshotModes=dragToSelect,selectWindowOrDisplay`
+                    const screenshotModes = url.searchParams.get('omnibar.screenshotModes');
+                    if (screenshotModes !== null) {
+                        config.screenshotModes = /** @type {import('../../../types/new-tab.js').ScreenshotMode[]} */ (
+                            screenshotModes.split(',').filter(Boolean)
+                        );
+                    }
+                    config.enablePastedAttachments =
+                        parseBooleanQueryParam('omnibar.enablePastedAttachments') ?? config.enablePastedAttachments;
                     config.showAttachmentPrivacyDisclaimer =
                         parseBooleanQueryParam('omnibar.showAttachmentPrivacyDisclaimer') ?? config.showAttachmentPrivacyDisclaimer;
                     config.enableCustomizeResponses =
@@ -507,6 +534,9 @@ export function omnibarMockTransport() {
                     config.enableAiChatDeletion = parseBooleanQueryParam('omnibar.enableAiChatDeletion') ?? config.enableAiChatDeletion;
                     config.enableSearchSuggestionDeletion =
                         parseBooleanQueryParam('omnibar.enableSearchSuggestionDeletion') ?? config.enableSearchSuggestionDeletion;
+                    if (parseBooleanQueryParam('omnibar.launcherPromo') === true) {
+                        config.launcherPromo = LAUNCHER_PROMO;
+                    }
                     // omnibar.usageLimits=false hides; approaching|reached|reached-switch set presets.
                     const usageLimitsPreset = url.searchParams.get('omnibar.usageLimits');
                     if (usageLimitsPreset === 'false') {
@@ -608,6 +638,30 @@ export function omnibarMockTransport() {
                     const openTabsCount = parseInt(url.searchParams.get('omnibar.openTabsCount') ?? '', 10);
                     return getMockOpenTabs(openTabsCount >= 0 ? openTabsCount : undefined);
                 }
+                case 'omnibar_captureScreenshot': {
+                    // Simulates the user taking time to make the capture.
+                    const delay = parseInt(url.searchParams.get('omnibar.screenshotDelay') ?? '', 10);
+                    await new Promise((resolve) => setTimeout(resolve, delay >= 0 ? delay : window.__playwright_01 ? 0 : 600));
+                    const override = window.__playwright_01?.mockResponses?.omnibar_captureScreenshot;
+                    if (override) return /** @type {import('../../../types/new-tab.js').CaptureScreenshotResponse} */ (override);
+                    // `omnibar.screenshotResult=error|cancel|invalid`; anything else returns a capture
+                    switch (url.searchParams.get('omnibar.screenshotResult')) {
+                        case 'error':
+                            return { error: 'screenshotFailed' };
+                        case 'cancel':
+                            return {};
+                        case 'invalid':
+                            return { image: { data: 'bm90IGFuIGltYWdl', format: 'png', kind: 'selection' } };
+                        default:
+                            return {
+                                image: {
+                                    data: mockScreenshotBase64(),
+                                    format: 'png',
+                                    kind: msg.params.mode === 'dragToSelect' ? 'selection' : 'window',
+                                },
+                            };
+                    }
+                }
                 case 'omnibar_getTabContent': {
                     await new Promise((resolve) => setTimeout(resolve, 150));
                     return { pageContext: getMockTabContent(msg.params.tabId) };
@@ -618,4 +672,20 @@ export function omnibarMockTransport() {
             }
         },
     });
+}
+
+/** A 1024x576 PNG with small text (captures are at most 1024px), for judging legibility. */
+function mockScreenshotBase64() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1024;
+    canvas.height = 576;
+    const ctx = /** @type {CanvasRenderingContext2D} */ (canvas.getContext('2d'));
+    ctx.fillStyle = '#f5f5f5';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#222';
+    ctx.font = '14px sans-serif';
+    for (let y = 30; y < canvas.height; y += 22) {
+        ctx.fillText(`Mock screenshot line ${Math.round(y / 22)} - the quick brown fox jumps over the lazy dog`, 24, y);
+    }
+    return canvas.toDataURL('image/png').replace(/^data:image\/png;base64,/, '');
 }

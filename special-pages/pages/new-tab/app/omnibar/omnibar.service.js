@@ -35,6 +35,7 @@ export class OmnibarService {
 
         this.suggestionsService = new OmnibarSuggestionsService(ntp);
         this.aiChatsService = new OmnibarAiChatsService(ntp);
+        this.launcherPromoShownSent = false;
     }
 
     name() {
@@ -240,6 +241,21 @@ export class OmnibarService {
         this.ntp.messaging.notify('omnibar_dismissCreateImageModelSwitch', {});
     }
 
+    /** Notify native the first time per page load that the launcher promo is visible. */
+    launcherPromoShown() {
+        if (this.launcherPromoShownSent) return;
+        this.launcherPromoShownSent = true;
+        this.ntp.messaging.notify('omnibar_launcherPromoShown', {});
+    }
+
+    selectLauncherPromoCta() {
+        this.ntp.messaging.notify('omnibar_selectLauncherPromoCta', {});
+    }
+
+    dismissLauncherPromo() {
+        this.ntp.messaging.notify('omnibar_dismissLauncherPromo', {});
+    }
+
     /** @param {'image' | 'file'} kind */
     attachmentPrivacyDisclaimerShown(kind) {
         this.ntp.messaging.notify('omnibar_attachmentPrivacyDisclaimerShown', { kind });
@@ -345,5 +361,15 @@ export class OmnibarService {
      */
     confirmDeleteAiChat(chatId, title) {
         return this.ntp.messaging.request('omnibar_confirmDeleteAiChat', { chatId, title });
+    }
+
+    /**
+     * Asks native to capture a screenshot. Resolves once the capture is taken, fails or is
+     * cancelled, which can take arbitrarily long.
+     * @param {import('../../types/new-tab.js').ScreenshotMode} mode
+     * @returns {Promise<import('../../types/new-tab.js').CaptureScreenshotResponse>} `image`, `error`, or neither when cancelled
+     */
+    captureScreenshot(mode) {
+        return this.ntp.messaging.request('omnibar_captureScreenshot', { mode });
     }
 }
