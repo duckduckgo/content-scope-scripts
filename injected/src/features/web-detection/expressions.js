@@ -96,8 +96,8 @@ export class EvaluationContext {
     }
 
     /**
-     * @param {unknown} operand - a compiled predicate operand: in number position for a comparison, in
-     * value position for `eq`. A selected list gives its one item
+     * @param {unknown} operand - a compiled operand of `eq` or a comparison, in value position. A selected
+     * list gives its one item
      * @returns {unknown}
      */
     operand(operand) {

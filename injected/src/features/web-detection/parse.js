@@ -175,7 +175,6 @@ class Scope {
         /** @type {import('./predicates.js').PredicateHooks} */
         this.hooks = {
             names: this.readerNames,
-            operand: (raw, path) => this.hooks.expression(raw, path, 'number'),
             expression: (raw, path, position) => {
                 const node = compileExpr(raw, position, path, this);
                 this.operandSinks[this.operandSinks.length - 1]?.push(node);
