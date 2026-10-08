@@ -88,13 +88,13 @@ function expectParseError(detector, message) {
 }
 
 /**
- * A predicate testing the value with `Number.isFinite` or `Number.isNaN` through `call`.
+ * A predicate testing the value with `Number.isFinite` or `Number.isNaN`, passed it through `self`.
  *
  * @param {'isFinite' | 'isNaN'} name
  * @param {boolean} [expected]
  */
 function numberTest(name, expected = true) {
-    return { field: { call: { api: `Number.${name}` } }, is: expected };
+    return { field: { api: { path: `Number.${name}`, args: [{ self: {} }] } }, is: expected };
 }
 
 /**
@@ -1745,21 +1745,36 @@ describe('WebDetection expressions', () => {
             ).toBe('error');
         });
 
-        it('applies call to the value read so far, after path and feature', () => {
+        it('takes an expression, with self the value it reads from', () => {
             const head = '<title>Hello   there world</title>';
             expect(
                 match(
                     '',
-                    { api: { path: 'document', field: { path: 'title', feature: 'wordCount', call: { api: 'String' } } }, is: '3' },
+                    {
+                        api: {
+                            path: 'document',
+                            field: { api: { path: 'String', args: [{ self: { path: 'title', field: { feature: 'wordCount' } } }] } },
+                        },
+                        is: '3',
+                    },
                     { head },
                 ),
             ).toBe(true);
             expect(
-                match('<p></p>', { only: { element: { selector: 'p', field: { path: 'tagName', call: { api: 'String' } } } }, is: 'P' }),
+                match('<p></p>', {
+                    only: { element: { selector: 'p', field: { api: { path: 'String', args: [{ self: 'tagName' }] } } } },
+                    is: 'P',
+                }),
+            ).toBe(true);
+            expect(
+                match('<p p="x"></p>', {
+                    only: { element: { selector: 'p', field: { path: 'getAttribute', args: [{ self: 'tagName' }] } } },
+                    is: 'x',
+                }),
             ).toBe(true);
         });
 
-        it('applies call in where and under is', () => {
+        it('tests a value with Number.isFinite and Number.isNaN in where and under is', () => {
             const install = timeline([
                 { name: 'a', entryType: 'resource', duration: NaN },
                 { name: 'b', entryType: 'resource', duration: Infinity },
@@ -1771,7 +1786,11 @@ describe('WebDetection expressions', () => {
             });
             expect(match('', { ...resources({ duration: numberTest('isFinite') }), is: 1 }, { install })).toBe(true);
             expect(
-                match('', { ...resources({ field: { path: 'duration', call: { api: 'Number.isNaN' } }, is: true }), is: 1 }, { install }),
+                match(
+                    '',
+                    { ...resources({ field: { api: { path: 'Number.isNaN', args: [{ self: 'duration' }] } }, is: true }), is: 1 },
+                    { install },
+                ),
             ).toBe(true);
             expect(match('', { ...resources({ duration: { ...numberTest('isFinite', false), gt: 0 } }), is: 1 }, { install })).toBe(true);
             expect(match('', { ...resources({ duration: { eq: { api: 'Infinity' } } }), is: 1 }, { install })).toBe(true);
@@ -1784,32 +1803,10 @@ describe('WebDetection expressions', () => {
             ).toBe(true);
         });
 
-        it('applies a function with arguments bound through bind', () => {
+        it('passes further arguments beside self', () => {
             const html = IMG('data-complete data-width="3"') + IMG('data-complete data-width="9"');
-            const clamp = { api: { path: 'Math.min.bind', args: [null, 5] } };
-            expect(
-                match(
-                    html,
-                    { sum: { element: { selector: 'img', field: { path: 'naturalWidth', call: clamp } } }, is: 8 },
-                    { install: imageState },
-                ),
-            ).toBe(true);
-        });
-
-        it('reads the operand once per run', () => {
-            let reads = 0;
-            const install = (/** @type {any} */ w) => {
-                Object.defineProperty(w, 'probe', {
-                    get() {
-                        reads++;
-                        return (/** @type {number} */ v) => v > 1;
-                    },
-                });
-            };
-            const html = '<p>a</p><p>bb</p><p>ccc</p>';
-            const where = { field: { path: 'textContent.length', call: { api: 'probe' } }, is: true };
-            expect(match(html, { element: { selector: 'p', where }, using: 'length', is: 2 }, { install })).toBe(true);
-            expect(reads).toBe(1);
+            const clamp = { api: { path: 'Math.min', args: [{ self: 'naturalWidth' }, 5] } };
+            expect(match(html, { sum: { element: { selector: 'img', field: clamp } }, is: 8 }, { install: imageState })).toBe(true);
         });
 
         it('calls the function captured at init', () => {
@@ -1825,22 +1822,132 @@ describe('WebDetection expressions', () => {
             }
         });
 
-        it('errors on an operand that is not a function, and fails with threw when the call throws', () => {
-            expect(match('', { sum: [1], is: { field: { call: 5 }, is: {} } })).toBe('error');
-            expect(match('', { sum: [1], is: { field: { call: { api: 'Math' } }, is: {} } })).toBe('error');
-            const result = run('', { match: { sum: [1.5], is: { field: { call: { api: 'BigInt' } }, is: {} } } });
+        it('fails with threw when the call throws, and with absent on a name that is not a function', () => {
+            const result = run('', { match: { sum: [1.5], is: { field: { api: { path: 'BigInt', args: [{ self: {} }] } }, is: {} } } });
             expect(result.detected).toBe('aborted');
             expect(result.abortKind).toBe('threw');
             expect(result.abortError).toBe('RangeError');
-            expect(run('', { match: { sum: [1], is: { field: { call: { api: 'noSuchFunction' } }, is: {} } } }).abortKind).toBe('absent');
+            const absent = run('', { match: { sum: [1], is: { field: { api: { path: 'Math', args: [{ self: {} }] } }, is: {} } } });
+            expect(absent.abortKind).toBe('absent');
         });
 
         it('rejects malformed fields', () => {
             expectParseError({ match: { only: { element: { selector: 'p', field: {} } }, is: {} } }, 'at least one of');
             expectParseError({ match: { only: { element: { selector: 'p', field: { calls: 1 } } }, is: {} } }, "unknown key 'calls'");
-            expectParseError({ match: { only: { element: { selector: 'p', field: { call: { nope: 1 } } } }, is: {} } });
+            expectParseError(
+                { match: { only: { element: { selector: 'p', field: { call: { api: 'String' } } } }, is: {} } },
+                "unknown key 'call'",
+            );
             expectParseError({ match: { only: { element: { selector: 'p', field: { args: [] } } }, is: {} } }, '`args` needs `path`');
             expectParseError({ match: { only: { element: { selector: 'p', field: { feature: 'nope' } } }, is: {} } }, 'unknown feature');
+        });
+    });
+
+    describe('self', () => {
+        it('reads the value beside using: a value, a list, its length and the value itself', () => {
+            const head = '<title>Hello there</title>';
+            expect(match('', { api: 'document.title', using: { self: {} }, is: 'Hello there' }, { head })).toBe(true);
+            expect(match('', { api: 'document.title', using: { self: 'length' }, is: 11 }, { head })).toBe(true);
+            expect(match('<p></p><p></p>', { element: { selector: 'p' }, using: { self: 'length' }, is: 2 })).toBe(true);
+            const html = IMG('data-complete data-width="3"') + IMG('data-complete data-width="9"');
+            expect(
+                match(
+                    html,
+                    {
+                        element: { selector: 'img', field: 'naturalWidth' },
+                        using: { api: { path: 'Math.max.apply', args: [null, { self: {} }] } },
+                        is: 9,
+                    },
+                    { install: imageState },
+                ),
+            ).toBe(true);
+        });
+
+        it('mixes several reads of the value beside using', () => {
+            const install = timeline([{ name: 'n', entryType: 'navigation', transferSize: 50, decodedBodySize: 200 }]);
+            const navigation = { only: { api: { path: 'performance.getEntriesByType', args: ['navigation'] } } };
+            const ratio = { ...navigation, using: { div: [{ self: 'transferSize' }, { self: 'decodedBodySize' }] } };
+            expect(match('', { ...ratio, is: 0.25 }, { install })).toBe(true);
+            const result = run('', { match: { ...ratio, as: 'ratio', is: { lt: 1 } } }, { install });
+            expect(result.detected).toBe(true);
+            expect(result.ctx.measured.ratio).toBe(0.25);
+        });
+
+        it('reads each item in where, an inherited property included', () => {
+            const items = { path: 'JSON.parse', args: ['[{"a":1},{"b":2},{"a":3}]'] };
+            const has = (/** @type {string} */ name) => ({ field: { api: { path: 'Reflect.has', args: [{ self: {} }, name] } }, is: true });
+            expect(match('', { api: { ...items, where: has('a') }, using: 'length', is: 2 })).toBe(true);
+            expect(match('<p></p><p></p>', { element: { selector: 'p', where: has('tagName') }, using: 'length', is: 2 })).toBe(true);
+            expect(match('<p></p><p></p>', { element: { selector: 'p', where: has('noSuchProperty') }, using: 'length', is: 0 })).toBe(
+                true,
+            );
+        });
+
+        it('compares two fields of one item', () => {
+            const items = { path: 'JSON.parse', args: ['[{"s":1,"e":5},{"s":4,"e":5}]'] };
+            expect(match('', { api: { ...items, where: { e: { gt: { sum: [{ self: 's' }, 2] } } } }, using: 'length', is: 1 })).toBe(true);
+        });
+
+        it('binds self in a nested where to the inner item, and in a field under a key to that value', () => {
+            const outer = { path: 'JSON.parse', args: ['[{"n":0,"xs":[{"n":1,"v":2},{"n":3,"v":2}]}]'] };
+            const field = { self: { path: 'xs', where: { v: { gt: { self: 'n' } } } } };
+            expect(match('', { only: { api: { ...outer, field } }, using: 'length', is: 1 })).toBe(true);
+            const items = { path: 'JSON.parse', args: ['[{"nested":{"x":3}},{"nested":{"x":4}}]'] };
+            expect(match('', { api: { ...items, where: { nested: { field: { self: 'x' }, is: 3 } } }, using: 'length', is: 1 })).toBe(true);
+        });
+
+        it('computes an expression reading self once per item, and one that does not once per run', () => {
+            let calls = 0;
+            let reads = 0;
+            const install = (/** @type {any} */ w) => {
+                Object.defineProperty(w, 'probe', {
+                    value: (/** @type {number} */ v) => {
+                        calls++;
+                        return v > 1;
+                    },
+                });
+                Object.defineProperty(w, 'threshold', {
+                    get() {
+                        reads++;
+                        return 1;
+                    },
+                });
+            };
+            const html = '<p>a</p><p>bb</p><p>ccc</p>';
+            const probe = { field: { api: { path: 'probe', args: [{ self: 'textContent.length' }] } }, is: true };
+            expect(match(html, { element: { selector: 'p', where: probe }, using: 'length', is: 2 }, { install })).toBe(true);
+            expect(calls).toBe(3);
+            const threshold = { 'textContent.length': { gt: { api: 'threshold' } } };
+            expect(match(html, { element: { selector: 'p', where: threshold }, using: 'length', is: 2 }, { install })).toBe(true);
+            expect(reads).toBe(1);
+        });
+
+        it('reads a list once per run inside another where, its own self its own item', () => {
+            const values = {
+                api: { path: 'JSON.parse', args: ['[{"v":1,"w":0},{"v":5,"w":9}]'], where: { v: { gt: { self: 'w' } } }, field: 'v' },
+                as: 'vs',
+            };
+            const detector = {
+                match: {
+                    all: [
+                        { element: { selector: 'p', where: { 'textContent.length': { lte: { sum: values } } } }, using: 'length', is: 2 },
+                        { ref: 'vs', using: 'length', is: 1 },
+                    ],
+                },
+            };
+            expect(run('<p>a</p><p>b</p><p>cc</p>', detector).detected).toBe(true);
+        });
+
+        it('rejects self outside a binder, and a name on an expression read per item', () => {
+            expectParseError({ match: { self: 'x' } }, '`self` reads from `using`, `where` or `field`');
+            expectParseError(withPayload({ self: {} }), '`self` reads from');
+            expectParseError(
+                { match: { element: { selector: 'p', where: { 'textContent.length': { gt: { self: 'x', as: 'n' } } } } } },
+                "'n' names one value per run",
+            );
+            const branch = { if: { test: { self: 'b', is: 1 }, then: { sum: [1], as: 'one' }, else: 2 } };
+            expectParseError({ match: { element: { selector: 'p', where: { a: { gt: branch } } } } }, "'one' names one value per run");
+            expectParseError({ match: { api: 'document', using: {}, is: {} } }, '`using` needs `path` or an expression');
         });
     });
 

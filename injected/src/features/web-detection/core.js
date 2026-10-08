@@ -9,7 +9,7 @@
  * - a `ConfigParseError` is config that does not fit the grammar. It is thrown at parse time.
  */
 
-import { isArray } from '../../captured-globals.js';
+import { isArray, objectKeys } from '../../captured-globals.js';
 
 /** @typedef {'absent' | 'threw'} FailureKind */
 
@@ -55,6 +55,35 @@ export class ConfigParseError extends Error {
 
 /** `^[a-zA-Z][a-zA-Z0-9_]*$` */
 export const NAME_PATTERN = /^[a-zA-Z][a-zA-Z0-9_]*$/;
+
+/** The keys that make an object an expression. */
+export const EXPRESSION_KEYS = new Set([
+    'element',
+    'text',
+    'api',
+    'self',
+    'expr',
+    'only',
+    'sum',
+    'mul',
+    'div',
+    'if',
+    'any',
+    'all',
+    'none',
+    'ref',
+]);
+
+/**
+ * Whether config is an expression object: a plain object with an expression key. `using` and `field`
+ * take one in place of a body, whose keys are never expression keys.
+ *
+ * @param {unknown} raw
+ * @returns {raw is Record<string, unknown>}
+ */
+export function isExpressionObject(raw) {
+    return isPlainObject(raw) && objectKeys(raw).some((key) => EXPRESSION_KEYS.has(key));
+}
 
 /**
  * @param {unknown} value
