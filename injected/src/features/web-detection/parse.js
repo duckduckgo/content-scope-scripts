@@ -1,9 +1,9 @@
 // eslint-disable-next-line no-redeclare
 import { hasOwnProperty, isArray, objectKeys } from '../../captured-globals.js';
-import { ConfigParseError, NAME_PATTERN, asArray, isPlainObject } from './core.js';
+import { ConfigParseError, EXPRESSION_KEYS, NAME_PATTERN, asArray, isExpressionObject, isPlainObject } from './core.js';
 import { elementSource, textSource } from './matching.js';
 import { compilePredicate } from './predicates.js';
-import { apiSource, rejectUnknownKeys } from './sources.js';
+import { apiSource, parseApiBody, rejectUnknownKeys } from './sources.js';
 
 /**
  * @typedef {import('../../utils.js').FeatureState} FeatureState
@@ -16,6 +16,8 @@ import { apiSource, rejectUnknownKeys } from './sources.js';
  * @typedef {import('./expressions.js').ExprNode} ExprNode
  * @typedef {import('./expressions.js').IfNode} IfNode
  * @typedef {import('./expressions.js').Branch} Branch
+ * @typedef {import('./expressions.js').ItemBinder} ItemBinder
+ * @typedef {import('./expressions.js').ItemNode} ItemNode
  * @typedef {import('./expressions.js').Position} Position
  * @typedef {import('./expressions.js').CompiledPayloadField} CompiledPayloadField
  */
@@ -115,7 +117,6 @@ import { apiSource, rejectUnknownKeys } from './sources.js';
  * @property {Set<string>} names - every name config reads or calls, for the native reader
  */
 
-const EXPRESSION_KEYS = new Set(['element', 'text', 'api', 'expr', 'only', 'sum', 'mul', 'div', 'if', 'any', 'all', 'none', 'ref']);
 const MODIFIER_KEYS = new Set(['using', 'as', 'is']);
 /** Keys reserved for later extensions, rejected by this release. */
 const RESERVED_LATER = new Set(['aggregate', 'stable', 'confirm', 'retain']);
@@ -128,6 +129,13 @@ const FILLS = {
     value: new Set(['value']),
     none: new Set(),
 };
+
+/**
+ * What `self` reads from: the expression beside a `using`, or each value a `where` or `field` tests
+ * or reads from.
+ *
+ * @typedef {{ using: Node } | { item: ItemBinder }} Binding
+ */
 
 /**
  * The position of an operand of `sum` and `mul`, or of `any`, `all` and `none`, is
@@ -156,6 +164,8 @@ class Scope {
     inMatch = true;
     /** @type {Set<string>} */
     readerNames = new Set();
+    /** @type {Binding[]} the bindings of `self` enclosing the expression being compiled, innermost last */
+    bindings = [];
 
     /**
      * @param {Record<string, Source<any>>} sources
@@ -171,7 +181,38 @@ class Scope {
                 this.operandSinks[this.operandSinks.length - 1]?.push(node);
                 return node;
             },
+            item: (fn) => {
+                /** @type {ItemBinder} */
+                const binder = {};
+                return this.binding({ item: binder }, () => fn(binder));
+            },
         };
+    }
+
+    /**
+     * Compile within a binding of `self`.
+     *
+     * @template T
+     * @param {Binding} binding
+     * @param {() => T} fn
+     * @returns {T}
+     */
+    binding(binding, fn) {
+        this.bindings.push(binding);
+        try {
+            return fn();
+        } finally {
+            this.bindings.pop();
+        }
+    }
+
+    /** The innermost `where` or `field` enclosing the expression being compiled. */
+    get itemBinder() {
+        for (let i = this.bindings.length - 1; i >= 0; i--) {
+            const binding = /** @type {Binding} */ (this.bindings[i]);
+            if ('item' in binding) return binding.item;
+        }
+        return undefined;
     }
 
     /**
@@ -199,7 +240,8 @@ class Scope {
  * @returns {any}
  */
 function makeNode(scope, fields, deps) {
-    const node = /** @type {Node} */ ({ ...fields, branches: [...scope.branches] });
+    const binder = scope.itemBinder;
+    const node = /** @type {Node} */ ({ ...(binder && { binder }), ...fields, branches: [...scope.branches] });
     scope.nodes.push(node);
     // Copied: operands a predicate compiles are added to the deps later, and are not operands
     scope.deps.set(node, [...deps]);
@@ -289,6 +331,8 @@ function compileKey(key, body, position, path, scope) {
         case 'text':
         case 'api':
             return compileSource(key, body, position, path, scope);
+        case 'self':
+            return compileSelf(body, position, path, scope);
         case 'expr': {
             // An operand with `is` gives a boolean, in boolean position
             const operandIs = isPlainObject(body) && body.is !== undefined;
@@ -350,9 +394,8 @@ function expectPosition(position, fills, key, path) {
 }
 
 /**
- * `using`: a read of a path from the value of the expression beside it, as an `api` reads from the
- * global object. `length` alone is a `length` node, which reads only as many items of a list as the
- * predicates testing it need.
+ * `using`: an expression over the value of the expression beside it, which `self` reads. A path or an
+ * `api` body is short for a `self` with that body.
  *
  * @param {unknown} raw
  * @param {Node} root - the expression `using` reads from, in value position
@@ -362,19 +405,64 @@ function expectPosition(position, fills, key, path) {
  * @returns {Node}
  */
 function compileUsing(raw, root, position, path, scope) {
-    const body = typeof raw === 'string' ? { path: raw } : raw;
-    if (!isPlainObject(body)) throw new ConfigParseError(`${path}.using`, '`using` takes a path or an object');
-    if (body.path === undefined) throw new ConfigParseError(`${path}.using`, '`using` needs `path`');
-    if (body.path === 'length' && objectKeys(body).length === 1) {
+    const usingPath = `${path}.using`;
+    if (isPlainObject(raw) && objectKeys(raw).length === 0) throw new ConfigParseError(usingPath, '`using` needs `path` or an expression');
+    if (!isExpressionObject(raw)) return scope.binding({ using: root }, () => compileSelf(raw, position, path, scope, 'using'));
+    // An operand with `is` gives a boolean, in boolean position
+    const operandIs = raw.is !== undefined;
+    if (operandIs) expectPosition(position, FILLS.boolean, 'using', path);
+    const operand = scope.binding({ using: root }, () => compileExpr(raw, operandIs ? 'boolean' : position, usingPath, scope));
+    // Its own node, so the `as` and `is` beside `using` are not the operand's
+    return makeNode(scope, { kind: 'expr', operand, path, position }, [operand, root]);
+}
+
+/**
+ * `self`: a read from the value the innermost `using`, `where` or `field` binds, as an `api` reads from
+ * the global object. `{}` is the value itself, and `length` alone a `length` node, which reads only as
+ * many items of a list as the predicates testing it need.
+ *
+ * @param {unknown} raw
+ * @param {Position} position
+ * @param {string} path
+ * @param {Scope} scope
+ * @param {string} [key] - the key the body sits under, for messages
+ * @returns {Node}
+ */
+function compileSelf(raw, position, path, scope, key = 'self') {
+    const bodyPath = `${path}.${key}`;
+    const binding = scope.bindings[scope.bindings.length - 1];
+    if (!binding) throw new ConfigParseError(bodyPath, '`self` reads from `using`, `where` or `field`, and none encloses it');
+    const root = 'using' in binding ? binding.using : itemNode(binding.item, scope);
+    if (isPlainObject(raw) && objectKeys(raw).length === 0) {
+        return makeNode(scope, { kind: 'expr', operand: root, path, position }, [root]);
+    }
+    if (raw === 'length' || (isPlainObject(raw) && raw.path === 'length' && objectKeys(raw).length === 1)) {
         scope.readerNames.add('length');
         return makeNode(scope, { kind: 'length', operand: root, path, position, bound: Infinity }, [root]);
     }
     const source = /** @type {Source<ApiBody>} */ (scope.sources.api);
     /** @type {Node[]} */
     const deps = [root];
-    const parsed = scope.collecting(deps, () => source.parse(body, `${path}.using`, scope.hooks));
+    const parsed = scope.collecting(deps, () => parseApiBody(raw, bodyPath, scope.hooks, key === 'using' ? 'using' : 'self'));
     parsed.root = root;
     return makeNode(scope, { kind: 'source', source, bodies: [parsed], path, position }, deps);
+}
+
+/**
+ * The node giving the value a `where` or `field` binds, one per binder.
+ *
+ * @param {ItemBinder} binder
+ * @param {Scope} scope
+ * @returns {ItemNode}
+ */
+function itemNode(binder, scope) {
+    if (!binder.node) {
+        /** @type {ItemNode} */
+        const node = makeNode(scope, { kind: 'item', binder, path: '', position: 'value' }, []);
+        node.perItem = true;
+        binder.node = node;
+    }
+    return binder.node;
 }
 
 /**
@@ -528,6 +616,45 @@ function fillsOf(node, visiting = new Set()) {
             return node.target ? fillsOf(node.target, visiting) : FILLS.none;
         case 'expr':
             return node.operand.is ? FILLS.boolean : fillsOf(node.operand, visiting);
+        case 'item':
+            return ITEM_FILLS;
+    }
+}
+
+/** A bound value may be any value, and is checked where it is read. */
+/** @type {ReadonlySet<Position>} */
+const ITEM_FILLS = new Set(['boolean', 'value', 'number', 'list']);
+
+/**
+ * Mark the expressions computed per item: those reading `self` of the `where` or `field` they sit in.
+ * One per run inside a `where` stays per run. A per-item expression, or one inside a per-item `if`,
+ * takes no `as`, so no `ref` reads one.
+ *
+ * @param {Scope} scope
+ */
+function markPerItem(scope) {
+    /** @type {Map<Node, boolean>} */
+    const marked = new Map();
+    /**
+     * @param {Node} node
+     * @returns {boolean}
+     */
+    const visit = (node) => {
+        const seen = marked.get(node);
+        if (seen !== undefined) return seen;
+        const perItem =
+            node.kind === 'item' ||
+            (node.binder !== undefined && (scope.deps.get(node) ?? []).some((dep) => dep.binder === node.binder && visit(dep)));
+        marked.set(node, perItem);
+        if (perItem) node.perItem = true;
+        return perItem;
+    };
+    scope.nodes.forEach(visit);
+    for (const node of scope.nodes) {
+        if (node.as === undefined) continue;
+        if (node.perItem || node.branches.some((branch) => branch.node.perItem)) {
+            throw new ConfigParseError(node.path, `'${node.as}' names one value per run, and this reads \`self\` per item`);
+        }
     }
 }
 
@@ -545,6 +672,7 @@ function resolve(scope) {
         }
     }
     checkCycles(scope);
+    markPerItem(scope);
     for (const { node, single } of scope.slots) {
         // `element` without `field` and `text` are the condition leaf under any / all / none: a boolean
         const leaf = single === 'boolean' && isPresenceLeaf(node);
