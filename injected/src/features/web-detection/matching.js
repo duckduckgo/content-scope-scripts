@@ -1,5 +1,5 @@
 import { isArray } from '../../captured-globals.js';
-import { ConfigParseError, DetectionError, isFailure, isPlainObject } from './core.js';
+import { ConfigParseError, DetectionError, asArray, isFailure, isPlainObject } from './core.js';
 import { ItemBuffer, SKIP, isList, members, parseItemKeys, rejectUnknownKeys, selectItem } from './sources.js';
 
 /**
@@ -346,10 +346,11 @@ function stringList(raw, path) {
 }
 
 /**
- * A `root`: selectors queried from the document, or a compiled expression giving a node or a list
- * of nodes.
+ * A `root`: compiled expressions, each giving a selector, a node or a list of nodes.
  *
- * @typedef {{ selectors: string[] } | { expression: unknown }} Root
+ * @typedef {object} Root
+ * @property {unknown[]} entries
+ * @property {string[]} [selectors] - every entry, when each is a string literal, for the queries that need no read
  */
 
 /**
@@ -360,16 +361,11 @@ function stringList(raw, path) {
  */
 function parseRoot(raw, path, hooks) {
     if (raw === undefined) return undefined;
-    if (isPlainObject(raw)) return { expression: hooks.expression(raw, path, 'root') };
-    return { selectors: stringList(raw, path) };
-}
-
-/**
- * @param {Root | undefined} root
- * @returns {root is { expression: unknown }}
- */
-function isExpressionRoot(root) {
-    return root !== undefined && 'expression' in root;
+    if (isArray(raw) && raw.length === 0) throw new ConfigParseError(path, '`root` needs at least one entry');
+    const list = asArray(raw);
+    const entries = list.map((entry, i) => hooks.expression(entry, isArray(raw) ? `${path}[${i}]` : path, 'root'));
+    if (!list.every((entry) => typeof entry === 'string')) return { entries };
+    return { entries, selectors: /** @type {string[]} */ (list) };
 }
 
 /**
@@ -382,38 +378,58 @@ function isExpressionRoot(root) {
  * @returns {ParentNode[] | Failure}
  */
 function resolveRoots(root, ctx, track) {
-    if (!root || 'selectors' in root) return selectorRoots(root);
-    const value = ctx.read(root.expression, track);
-    if (isFailure(value)) return value;
-    if (value === null || value === undefined) return [];
-    /** @type {Iterable<unknown>} */
-    let nodes;
-    if (value instanceof ItemBuffer) {
-        const failure = value.pull(Infinity);
-        if (failure) return failure;
-        if (!value.track.measured) track.measured = false;
-        nodes = value.values;
-    } else {
-        nodes = isList(value, ctx) ? members(value, ctx) : [value];
-    }
+    if (!root || root.selectors) return selectorRoots(root?.selectors);
     /** @type {Node[]} */
-    const checked = [];
-    for (const node of nodes) {
-        if (!ctx.reader.isNode(node)) throw new DetectionError('a root is a node or a list of nodes');
-        checked.push(/** @type {Node} */ (node));
+    const nodes = [];
+    for (const entry of root.entries) {
+        const value = ctx.read(entry, track);
+        if (isFailure(value)) return value;
+        const failure = collectRootNodes(value, nodes, ctx, track);
+        if (failure) return failure;
     }
-    return outermost(checked);
+    return outermost(nodes);
 }
 
 /**
- * Roots from selectors, or the document without `root`.
+ * Add the nodes one root value gives: a selector's matches in the document, a node, or each node
+ * of a list. `null` and `undefined` give none.
  *
- * @param {{ selectors: string[] } | undefined} root
+ * @param {unknown} value
+ * @param {Node[]} nodes
+ * @param {PredicateContext} ctx
+ * @param {Track} track
+ * @returns {Failure | undefined}
+ */
+function collectRootNodes(value, nodes, ctx, track) {
+    if (value === null || value === undefined) return undefined;
+    /** @type {Iterable<unknown>} */
+    let values;
+    if (typeof value === 'string') {
+        values = document.querySelectorAll(value);
+    } else if (value instanceof ItemBuffer) {
+        const failure = value.pull(Infinity);
+        if (failure) return failure;
+        if (!value.track.measured) track.measured = false;
+        values = value.values;
+    } else {
+        values = isList(value, ctx) ? members(value, ctx) : [value];
+    }
+    for (const node of values) {
+        if (!ctx.reader.isNode(node)) throw new DetectionError('a root is a selector, a node or a list of nodes');
+        nodes.push(/** @type {Node} */ (node));
+    }
+    return undefined;
+}
+
+/**
+ * Roots from selectors, or the document without them.
+ *
+ * @param {string[] | undefined} selectors
  * @returns {ParentNode[]}
  */
-function selectorRoots(root) {
-    if (!root) return [document];
-    return outermost(document.querySelectorAll(root.selectors.join(', ')));
+function selectorRoots(selectors) {
+    if (!selectors) return [document];
+    return outermost(document.querySelectorAll(selectors.join(', ')));
 }
 
 /**
@@ -548,7 +564,7 @@ const VISIBILITIES = ['visible', 'hidden', 'any', 'content'];
  * @returns {boolean}
  */
 function isPresenceOnly(body) {
-    return body.visibility === 'any' && !body.where && !body.field && !isExpressionRoot(body.root);
+    return body.visibility === 'any' && !body.where && !body.field && (!body.root || body.root.selectors !== undefined);
 }
 
 /**
@@ -592,18 +608,13 @@ export const elementSource = {
                 // With no state to read, a quick existence check suffices
                 if (!bodies.every(isPresenceOnly)) return undefined;
                 return bodies.some((body) =>
-                    selectorRoots(/** @type {{ selectors: string[] } | undefined} */ (body.root)).some(
-                        (root) => root.querySelector(body.selector) !== null,
-                    ),
+                    selectorRoots(body.root?.selectors).some((root) => root.querySelector(body.selector) !== null),
                 );
             },
             countAll() {
                 if (bodies.length !== 1 || !bodies.every(isPresenceOnly)) return undefined;
                 const body = /** @type {ElementBody} */ (bodies[0]);
-                return selectorRoots(/** @type {{ selectors: string[] } | undefined} */ (body.root)).reduce(
-                    (sum, root) => sum + root.querySelectorAll(body.selector).length,
-                    0,
-                );
+                return selectorRoots(body.root?.selectors).reduce((sum, root) => sum + root.querySelectorAll(body.selector).length, 0);
             },
         });
     },

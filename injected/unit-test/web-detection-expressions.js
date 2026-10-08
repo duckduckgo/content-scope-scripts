@@ -1457,10 +1457,23 @@ describe('WebDetection expressions', () => {
             expect(match('<x-widget></x-widget><img>', { count: { element: { selector: 'img', root: shadow } }, is: 0 })).toBe(true);
         });
 
-        it('errors on a root that is not a node', () => {
-            expect(match('<p></p>', { count: { element: { selector: 'p', root: { api: { path: 'document.title' } } } }, is: 0 })).toBe(
-                'error',
-            );
+        it('errors on a root that is not a selector or a node', () => {
+            expect(
+                match('<p></p>', { count: { element: { selector: 'p', root: { api: { path: 'document.title.length' } } } }, is: 0 }),
+            ).toBe('error');
+            expect(match('<p></p>', { count: { element: { selector: 'p', root: [1] } }, is: 0 })).toBe('error');
+        });
+
+        it('scopes to the union of an array of selectors and expressions', () => {
+            const html = '<div id="a"><img></div><div id="b"><img><img></div><img>';
+            const count = (/** @type {unknown} */ root) => ({ count: { element: { selector: 'img', root } } });
+            const images = (/** @type {unknown} */ root) => payload(html, count(root))?.x;
+            expect(images(['#a', { only: { element: { selector: '#b' } } }])).toBe(3);
+            expect(images([{ api: { path: 'document.body' } }, '#a'])).toBe(4);
+            expect(images({ api: { path: 'document.body.firstElementChild.tagName' } })).toBe(3);
+            expect(images(['#a', null])).toBe(1);
+            expectParseError(withPayload(count([])), 'at least one entry');
+            expectParseError(withPayload(count([['#a']])), 'does not fill root position');
         });
 
         it('drops a root inside another', () => {
