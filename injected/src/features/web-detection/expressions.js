@@ -35,6 +35,15 @@ import { ItemBuffer, eachMember, isList } from './sources.js';
  * @property {string} [as]
  * @property {CompiledPredicate} [is]
  * @property {Branch[]} branches - the `if` branches enclosing this expression, outermost first
+ * @property {ItemBinder} [binder] - the innermost `where` or `field` this expression sits in
+ * @property {boolean} [perItem] - whether it reads `self` of `binder`, and so is computed per item
+ */
+
+/**
+ * A `where` or `field`, which binds `self` to each value it tests or reads from. `node` is its item
+ * node, created when an expression inside reads `self`.
+ *
+ * @typedef {{ node?: ItemNode }} ItemBinder
  */
 
 /**
@@ -47,7 +56,8 @@ import { ItemBuffer, eachMember, isList } from './sources.js';
  * @typedef {NodeBase & { kind: 'any' | 'all' | 'none' | 'and', operands: Node[] }} LogicNode
  * @typedef {NodeBase & { kind: 'if', test: Node, then: Node, else: Node }} IfNode
  * @typedef {NodeBase & { kind: 'ref', name: string, target?: Node }} RefNode
- * @typedef {LiteralNode | SourceNode | LengthNode | ExprNode | OnlyNode | ArithmeticNode | LogicNode | IfNode | RefNode} Node
+ * @typedef {NodeBase & { kind: 'item', binder: ItemBinder }} ItemNode - the value `self` is bound to in a `where` or `field`
+ * @typedef {LiteralNode | SourceNode | LengthNode | ExprNode | OnlyNode | ArithmeticNode | LogicNode | IfNode | RefNode | ItemNode} Node
  */
 
 /**
@@ -62,7 +72,8 @@ import { ItemBuffer, eachMember, isList } from './sources.js';
 export const NOT_READ = new Failure(/** @type {FailureKind} */ (/** @type {unknown} */ ('notRead')));
 
 /**
- * Per-run state, threaded to every expression. Each expression is computed at most once per run.
+ * Per-run state, threaded to every expression. Each expression is computed at most once per run, and
+ * one that reads `self` in a `where` or `field` at most once per item.
  *
  * @implements {PredicateContext}
  */
@@ -77,6 +88,8 @@ export class EvaluationContext {
     branchTaken = new Map();
     /** @type {{ path: string, as?: string, message: string } | undefined} the innermost expression an error was thrown from */
     errorAt;
+    /** @type {Map<ItemBinder, { value: unknown, memo: Map<Node, unknown> }>} the value each `where` and `field` is testing or reading from */
+    frames = new Map();
 
     /**
      * @param {NativeReader} reader
@@ -120,6 +133,52 @@ export class EvaluationContext {
         for (let i = 0; i < items.length; i++) array.push(items[i]);
         return array;
     }
+
+    /**
+     * Run `fn` with `self` of a `where` or `field` bound to `value`. A binder no expression reads
+     * `self` of binds nothing.
+     *
+     * @template T
+     * @param {ItemBinder} binder
+     * @param {unknown} value
+     * @param {() => T} fn
+     * @returns {T}
+     */
+    bind(binder, value, fn) {
+        if (!binder.node) return fn();
+        // Frames are keyed by binder: a list read once per run may be pulled from inside another's frame
+        const previous = this.frames.get(binder);
+        this.frames.set(binder, { value, memo: new Map() });
+        try {
+            return fn();
+        } finally {
+            if (previous) this.frames.set(binder, previous);
+            else this.frames.delete(binder);
+        }
+    }
+}
+
+/**
+ * The frame of the `where` or `field` a per-item expression reads `self` of.
+ *
+ * @param {ItemBinder} binder
+ * @param {EvaluationContext} ctx
+ */
+function frameOf(binder, ctx) {
+    const frame = ctx.frames.get(binder);
+    if (!frame) throw new DetectionError('`self` read outside the `where` or `field` it is bound by');
+    return frame;
+}
+
+/**
+ * Where an expression's value is kept: per item when it reads `self` of a `where` or `field`, else per run.
+ *
+ * @param {Node} node
+ * @param {EvaluationContext} ctx
+ * @returns {Map<Node, unknown>}
+ */
+function memoFor(node, ctx) {
+    return node.perItem && node.binder ? frameOf(node.binder, ctx).memo : ctx.memo;
 }
 
 /**
@@ -154,11 +213,16 @@ export function evaluate(node, position, ctx) {
             result = node.operand.is ? evaluateOccurrence(node.operand, ctx) : evaluate(node.operand, position, ctx);
         } else if (node.kind === 'source') {
             result = readSource(node, position, ctx);
-        } else if (ctx.memo.has(node)) {
-            result = ctx.memo.get(node);
+        } else if (node.kind === 'item') {
+            result = frameOf(node.binder, ctx).value;
         } else {
-            result = compute(node, ctx);
-            ctx.memo.set(node, result);
+            const memo = memoFor(node, ctx);
+            if (memo.has(node)) {
+                result = memo.get(node);
+            } else {
+                result = compute(node, ctx);
+                memo.set(node, result);
+            }
         }
         if (node.as && isScalar(result)) ctx.measured[node.as] = result;
         if (!isFailure(result)) checkType(result, position);
@@ -210,8 +274,8 @@ function evaluateRef(ref, position, ctx) {
 }
 
 /**
- * A source's value, read once per run: a list's buffer, or the value an `api` reads. In boolean
- * position, a list gives whether it holds an item.
+ * A source's value, read once per run, or once per item when it reads `self`: a list's buffer, or the
+ * value an `api` reads. In boolean position, a list gives whether it holds an item.
  *
  * @param {SourceNode} node
  * @param {Position} position
@@ -219,10 +283,11 @@ function evaluateRef(ref, position, ctx) {
  * @returns {unknown} the value, or a `Failure`
  */
 function readSource(node, position, ctx) {
-    let value = ctx.memo.get(node);
-    if (!ctx.memo.has(node)) {
+    const memo = memoFor(node, ctx);
+    let value = memo.get(node);
+    if (!memo.has(node)) {
         value = node.source.read(node.bodies, ctx);
-        ctx.memo.set(node, value);
+        memo.set(node, value);
     }
     if (!(value instanceof ItemBuffer)) return value;
     // The condition leaf: `element` and `text` hold when they select an item
@@ -335,7 +400,7 @@ function expectBoolean(value, operator) {
 }
 
 /**
- * @param {Exclude<Node, RefNode | SourceNode | ExprNode>} node
+ * @param {Exclude<Node, RefNode | SourceNode | ExprNode | ItemNode>} node
  * @param {EvaluationContext} ctx
  * @returns {unknown} the value, or a `Failure`
  */

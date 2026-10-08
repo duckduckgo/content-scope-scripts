@@ -6,11 +6,23 @@ import {
     objectKeys,
     ReflectApply,
 } from '../../captured-globals.js';
-import { ABSENT, ConfigParseError, DetectionError, FAILURE_KINDS, Failure, asArray, isFailure, isPlainObject, typeName } from './core.js';
+import {
+    ABSENT,
+    ConfigParseError,
+    DetectionError,
+    FAILURE_KINDS,
+    Failure,
+    asArray,
+    isExpressionObject,
+    isFailure,
+    isPlainObject,
+    typeName,
+} from './core.js';
 import { FEATURES, isFeatureName } from './features.js';
 
 /**
  * @typedef {import('./features.js').FeatureName} FeatureName
+ * @typedef {import('./expressions.js').ItemBinder} ItemBinder
  */
 
 /**
@@ -228,7 +240,8 @@ export function readPath(reader, root, names, args) {
  * @property {string[]} names - empty when the value is the item itself
  * @property {CompiledArg[]} [args]
  * @property {FeatureName} [feature]
- * @property {unknown} [call] - a compiled expression in value position giving the function to apply
+ * @property {unknown} [expression] - a compiled expression in value position, in place of `names`, `args` and `feature`
+ * @property {ItemBinder} [binder] - binds `self` in `args` or `expression` to the value the field reads from
  */
 
 /**
@@ -290,7 +303,8 @@ export function compilePath(raw, path) {
 }
 
 /**
- * Compile a `field`: a string, short for `{path}`, or an object of `path`, `args`, `feature` and `call`.
+ * Compile a `field`: a string, short for `{path}`, an object of `path`, `args` and `feature`, or an
+ * expression. `self` in `args` or the expression is the value the field reads from.
  *
  * @param {unknown} raw
  * @param {string} path
@@ -303,14 +317,17 @@ export function compileField(raw, path, hooks) {
         pathNames.forEach((name) => hooks.names.add(name));
         return { names: pathNames };
     }
-    if (!isPlainObject(raw)) throw new ConfigParseError(path, '`field` must be a string or an object');
+    if (isExpressionObject(raw)) {
+        return hooks.item((binder) => ({ names: [], binder, expression: hooks.expression(raw, path, 'value') }));
+    }
+    if (!isPlainObject(raw)) throw new ConfigParseError(path, '`field` must be a string, an object or an expression');
     for (const key of objectKeys(raw)) {
-        if (key !== 'path' && key !== 'args' && key !== 'feature' && key !== 'call') {
+        if (key !== 'path' && key !== 'args' && key !== 'feature') {
             throw new ConfigParseError(path, `unknown key '${key}' in field`);
         }
     }
-    if (raw.path === undefined && raw.args === undefined && raw.feature === undefined && raw.call === undefined) {
-        throw new ConfigParseError(path, '`field` needs at least one of path, args, feature and call');
+    if (raw.path === undefined && raw.args === undefined && raw.feature === undefined) {
+        throw new ConfigParseError(path, '`field` needs at least one of path, args and feature');
     }
     if (raw.args !== undefined && raw.path === undefined) {
         throw new ConfigParseError(path, '`args` needs `path`');
@@ -318,14 +335,19 @@ export function compileField(raw, path, hooks) {
     /** @type {CompiledField} */
     const field = { names: raw.path === undefined ? [] : compilePath(raw.path, `${path}.path`) };
     field.names.forEach((name) => hooks.names.add(name));
-    if (raw.args !== undefined) field.args = compileArgs(raw.args, `${path}.args`, hooks);
+    if (raw.args !== undefined) {
+        const rawArgs = raw.args;
+        hooks.item((binder) => {
+            field.binder = binder;
+            field.args = compileArgs(rawArgs, `${path}.args`, hooks);
+        });
+    }
     if (raw.feature !== undefined) {
         if (typeof raw.feature !== 'string' || !isFeatureName(raw.feature)) {
             throw new ConfigParseError(path, `unknown feature '${String(raw.feature)}'`);
         }
         field.feature = raw.feature;
     }
-    if (raw.call !== undefined) field.call = hooks.expression(raw.call, `${path}.call`, 'value');
     return field;
 }
 
@@ -338,20 +360,39 @@ export function compileField(raw, path, hooks) {
  * @returns {unknown} the value, or a `Failure`
  */
 export function readField(ctx, root, field) {
+    if (!field.binder) return readFieldOf(ctx, root, field);
+    return ctx.bind(field.binder, root, () => readFieldOf(ctx, root, field));
+}
+
+/**
+ * @param {PredicateContext} ctx
+ * @param {unknown} root
+ * @param {CompiledField} field
+ * @returns {unknown} the value, or a `Failure`
+ */
+function readFieldOf(ctx, root, field) {
+    // A selected list reaches the predicate as an array, as it does in `args`
+    if (field.expression !== undefined) return ctx.arg(field.expression);
     const args = field.args && evaluateArgs(field.args, ctx);
     if (isFailure(args)) return args;
-    let value = readPath(ctx.reader, root, field.names, args);
-    if (isFailure(value)) return value;
-    if (field.feature) value = FEATURES[field.feature](value);
-    if (field.call === undefined) return value;
-    const fn = ctx.read(field.call);
-    if (isFailure(fn)) return fn;
-    if (typeof fn !== 'function') throw new DetectionError(`'call' takes a function, got ${typeName(fn)}`);
-    try {
-        return ReflectApply(fn, undefined, [value]);
-    } catch (e) {
-        return new Failure('threw', errorName(e));
-    }
+    const value = readPath(ctx.reader, root, field.names, args);
+    if (isFailure(value) || !field.feature) return value;
+    return FEATURES[field.feature](value);
+}
+
+/**
+ * Compile a `where`, which binds `self` to each item it tests.
+ *
+ * @param {unknown} raw
+ * @param {string} path
+ * @param {PredicateHooks} hooks
+ * @returns {CompiledPredicate}
+ */
+export function compileWhere(raw, path, hooks) {
+    return hooks.item((binder) => {
+        const predicate = compilePredicate(raw, 'item', path, hooks);
+        return { ...predicate, test: (subject, ctx) => ctx.bind(binder, subject, () => predicate.test(subject, ctx)) };
+    });
 }
 
 /**
@@ -362,6 +403,7 @@ export function readField(ctx, root, field) {
  * @property {(operand: unknown) => unknown} operand - evaluates a compiled operand expression once per run, giving its value or a `Failure`
  * @property {(expression: unknown) => unknown} read - evaluates a compiled expression in the position it was compiled for, giving its value or a `Failure`
  * @property {(expression: unknown) => unknown} arg - evaluates a compiled `args` expression, giving a selected list as an array, or a `Failure`
+ * @property {<T>(binder: ItemBinder, value: unknown, fn: () => T) => T} bind - runs `fn` with `self` of a `where` or `field` bound to `value`
  */
 
 /**
@@ -378,7 +420,8 @@ export function readField(ctx, root, field) {
 /**
  * @typedef {object} PredicateHooks
  * @property {(raw: unknown, path: string) => unknown} operand - compiles an operand expression in number position
- * @property {(raw: unknown, path: string, position: import('./expressions.js').Position) => unknown} expression - compiles an expression in a position: a source's `root`, an `args` entry, an `eq` operand, the operand of a `field`'s `call`, or the body of `using`
+ * @property {(raw: unknown, path: string, position: import('./expressions.js').Position) => unknown} expression - compiles an expression in a position: a source's `root`, an `args` entry, an `eq` operand, or a `field` expression
+ * @property {<T>(fn: (binder: ItemBinder) => T) => T} item - compiles a `where` or `field` that binds `self`
  * @property {Set<string>} names - collects every name read, for the native reader
  */
 

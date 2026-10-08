@@ -1,6 +1,6 @@
 import { isArray, objectKeys, ReflectApply } from '../../captured-globals.js';
 import { ConfigParseError, DetectionError, isFailure, isPlainObject } from './core.js';
-import { compileArgs, compileField, compilePath, compilePredicate, evaluateArgs, readField, readPath } from './predicates.js';
+import { compileArgs, compileField, compilePath, compileWhere, evaluateArgs, readField, readPath } from './predicates.js';
 
 /**
  * @typedef {import('./core.js').Failure} Failure
@@ -122,7 +122,7 @@ export const SKIP = Symbol('skip');
 export function parseItemKeys(raw, path, hooks) {
     /** @type {{ where?: CompiledPredicate, field?: CompiledField }} */
     const keys = {};
-    if (raw.where !== undefined) keys.where = compilePredicate(raw.where, 'item', `${path}.where`, hooks);
+    if (raw.where !== undefined) keys.where = compileWhere(raw.where, `${path}.where`, hooks);
     if (raw.field !== undefined) keys.field = compileField(raw.field, `${path}.field`, hooks);
     return keys;
 }
@@ -142,7 +142,7 @@ export function rejectUnknownKeys(raw, allowed, path) {
  * @typedef {object} ApiBody
  * @property {string[]} names
  * @property {CompiledArg[]} [args]
- * @property {unknown} [root] - the compiled expression beside `using`, giving the value `path` reads from
+ * @property {unknown} [root] - the compiled expression giving the value `path` reads from, for `self`
  * @property {CompiledPredicate} [where]
  * @property {CompiledField} [field]
  */
@@ -153,9 +153,34 @@ const API_FILLS = new Set(['boolean', 'value', 'number', 'list']);
 const LIST_FILLS = new Set(['list', 'value', 'number']);
 
 /**
- * Reads a Web API by path, from the global object or, through `using`, from an expression's value, and
- * gives the value it reads. With
- * `where`, or `field` on a list, it gives the list of the members that pass, or of their values.
+ * Parse an `api` body: a path, or an object of `path`, `args`, `where` and `field`. A `self` body may
+ * leave out `path`, and then reads from the bound value itself.
+ *
+ * @param {unknown} rawBody
+ * @param {string} path
+ * @param {PredicateHooks} hooks
+ * @param {string} key - the expression key, for messages
+ * @returns {ApiBody}
+ */
+export function parseApiBody(rawBody, path, hooks, key = 'api') {
+    // A string is short for `{path}`
+    const raw = typeof rawBody === 'string' ? { path: rawBody } : rawBody;
+    if (!isPlainObject(raw)) throw new ConfigParseError(path, `\`${key}\` takes a path or an object`);
+    rejectUnknownKeys(raw, ['path', 'args', 'where', 'field'], path);
+    const bound = key === 'self' && raw.path === undefined;
+    if (bound && raw.args !== undefined) throw new ConfigParseError(path, '`args` needs `path`');
+    const names = bound ? [] : compilePath(raw.path, `${path}.path`);
+    names.forEach((name) => hooks.names.add(name));
+    /** @type {ApiBody} */
+    const body = { names, ...parseItemKeys(raw, path, hooks) };
+    if (raw.args !== undefined) body.args = compileArgs(raw.args, `${path}.args`, hooks);
+    return body;
+}
+
+/**
+ * Reads a Web API by path, from the global object or, through `self`, from a bound value, and gives
+ * the value it reads. With `where`, or `field` on a list, it gives the list of the members that pass,
+ * or of their values.
  *
  * @param {object} global
  * @returns {Source<ApiBody>}
@@ -163,18 +188,7 @@ const LIST_FILLS = new Set(['list', 'value', 'number']);
 export function apiSource(global) {
     return {
         key: 'api',
-        parse(rawBody, path, hooks) {
-            // A string is short for `{path}`
-            const raw = typeof rawBody === 'string' ? { path: rawBody } : rawBody;
-            if (!isPlainObject(raw)) throw new ConfigParseError(path, '`api` takes a path or an object');
-            rejectUnknownKeys(raw, ['path', 'args', 'where', 'field'], path);
-            const names = compilePath(raw.path, `${path}.path`);
-            names.forEach((name) => hooks.names.add(name));
-            /** @type {ApiBody} */
-            const body = { names, ...parseItemKeys(raw, path, hooks) };
-            if (raw.args !== undefined) body.args = compileArgs(raw.args, `${path}.args`, hooks);
-            return body;
-        },
+        parse: (raw, path, hooks) => parseApiBody(raw, path, hooks),
         fills: (body) => (body.where ? LIST_FILLS : API_FILLS),
         read(bodies, ctx) {
             // `api` takes one body
