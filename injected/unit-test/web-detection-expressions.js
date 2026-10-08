@@ -398,8 +398,9 @@ describe('WebDetection expressions', () => {
             expect(match('<p>foo</p>', { any: [{ text: { pattern: 'foo' } }], element: { selector: '.a' } })).toBe(false);
         });
 
-        it('rejects legacy operator blocks inside a source outside boolean position', () => {
-            expectParseError({ match: { text: { any: [{ pattern: 'a' }] }, using: 'length', is: 1 } }, 'take boolean position');
+        it('rejects operator blocks inside a source', () => {
+            expectParseError({ match: { text: { any: [{ pattern: 'a' }] } } }, "unknown key 'any'");
+            expectParseError({ match: { element: [{ selector: 'p' }, { none: [{ selector: 'a' }] }] } }, "unknown key 'none'");
         });
     });
 
