@@ -7,11 +7,11 @@ import {
     ReflectApply,
 } from '../../captured-globals.js';
 import {
-    ABSENT,
     ConfigParseError,
     DetectionError,
-    FAILURE_KINDS,
     Failure,
+    MISSING,
+    NOT_READ,
     asArray,
     isExpressionObject,
     isFailure,
@@ -109,7 +109,7 @@ export class NativeReader {
     }
 
     /**
-     * Read one property. A getter that throws fails with `threw`.
+     * Read one property. A name present nowhere, or a getter that throws, fails.
      *
      * @param {unknown} target - any value but `null` and `undefined`
      * @param {string} name
@@ -117,18 +117,18 @@ export class NativeReader {
      */
     read(target, name) {
         const record = this._find(target, name);
-        if (!record) return ABSENT;
+        if (!record) return MISSING;
         if ('value' in record) return record.value;
-        if (!record.get) return ABSENT;
+        if (!record.get) return MISSING;
         try {
             return ReflectApply(record.get, target, []);
         } catch (e) {
-            return new Failure('threw', errorName(e));
+            return new Failure(errorName(e));
         }
     }
 
     /**
-     * Call a method. A method that throws fails with `threw`.
+     * Call a method. A name whose value is not a function, or a method that throws, fails.
      *
      * @param {unknown} target - any value but `null` and `undefined`
      * @param {string} name
@@ -138,11 +138,11 @@ export class NativeReader {
     call(target, name, args) {
         const record = this._find(target, name);
         const method = record && 'value' in record ? record.value : undefined;
-        if (typeof method !== 'function') return ABSENT;
+        if (typeof method !== 'function') return MISSING;
         try {
             return ReflectApply(method, target, args);
         } catch (e) {
-            return new Failure('threw', errorName(e));
+            return new Failure(errorName(e));
         }
     }
 
@@ -412,7 +412,7 @@ export function compileWhere(raw, path, hooks) {
 
 /**
  * @typedef {object} CompiledPredicate
- * @property {PredicateTest} test - `subject` may be a `Failure`, which `fails`, `exists` and `type` read
+ * @property {PredicateTest} test - `subject` may be a `Failure`, which `fails` reads
  * @property {number} bound - the length from which the result on a list's length is fixed ([Early exit](implementation.md))
  * @property {boolean} scalar - whether it compares the value: a literal, `eq`, `lt`, `lte`, `gt` or `gte` at its top level or in its combinators. A selected list under it gives its one item
  */
@@ -427,10 +427,10 @@ export function compileWhere(raw, path, hooks) {
 
 /** @typedef {'item' | 'value'} Level */
 
-const OPERATORS = new Set(['eq', 'lt', 'lte', 'gt', 'gte', 'fails', 'exists', 'type']);
+const OPERATORS = new Set(['eq', 'lt', 'lte', 'gt', 'gte', 'fails', 'type']);
 /** Tested before the other keys of their object, whatever the key order. */
 /** @type {string[]} */
-const FIRST_OPERATORS = ['fails', 'exists', 'type'];
+const FIRST_OPERATORS = ['fails', 'type'];
 const TYPE_NAMES = new Set(['number', 'string', 'boolean', 'null', 'undefined', 'array', 'object']);
 /** Keys reserved for later extensions. */
 const RESERVED_LATER = new Set(['match']);
@@ -532,7 +532,7 @@ function compileObject(raw, level, path, hooks) {
         throw new ConfigParseError(path, '`field` and `is` go together in a predicate');
     }
 
-    // `fails`, `exists` and `type` first, then the rest in config order
+    // `fails` and `type` first, then the rest in config order
     const isFirst = (/** @type {string} */ key) => level === 'value' && FIRST_OPERATORS.includes(key);
     const ordered = [...FIRST_OPERATORS.filter((key) => isFirst(key) && keys.includes(key)), ...keys.filter((key) => !isFirst(key))];
 
@@ -596,15 +596,8 @@ function compileOperator(operator, raw, path, hooks) {
         case 'fails': {
             const expected = expectBoolean(raw, path);
             return fixed((subject) => {
-                if (isFailure(subject)) return FAILURE_KINDS.includes(subject.kind) ? expected : subject;
+                if (isFailure(subject)) return subject === NOT_READ ? subject : expected;
                 return !expected;
-            });
-        }
-        case 'exists': {
-            const expected = expectBoolean(raw, path);
-            return fixed((subject) => {
-                if (isFailure(subject) && !FAILURE_KINDS.includes(subject.kind)) return subject;
-                return (isFailure(subject) && subject.kind === 'absent') !== expected;
             });
         }
         case 'type': {
@@ -615,7 +608,7 @@ function compileOperator(operator, raw, path, hooks) {
                 }
             }
             return fixed((subject) => {
-                if (isFailure(subject)) return subject.kind === 'absent' ? names.includes('undefined') : subject;
+                if (isFailure(subject)) return subject;
                 return names.includes(typeName(subject));
             });
         }

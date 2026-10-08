@@ -1,11 +1,11 @@
 import { numberIsFinite } from '../../captured-globals.js';
-import { DetectionError, Failure, isFailure, typeName } from './core.js';
+import { DetectionError, NOT_READ, isFailure, typeName } from './core.js';
 import { compileDetector } from './parse.js';
 import { NativeReader, readPath } from './predicates.js';
 import { ItemBuffer, eachMember, isList } from './sources.js';
 
 /**
- * @typedef {import('./core.js').FailureKind} FailureKind
+ * @typedef {import('./core.js').Failure} Failure
  * @typedef {import('./predicates.js').CompiledPredicate} CompiledPredicate
  * @typedef {import('./predicates.js').PredicateContext} PredicateContext
  */
@@ -67,9 +67,6 @@ import { ItemBuffer, eachMember, isList } from './sources.js';
  * @property {CompiledPredicate} [when]
  * @property {Array<[string, CompiledPredicate]>} [buckets]
  */
-
-/** A payload reading an expression inside an `if` branch not taken. `fails` and `exists` pass it up. */
-export const NOT_READ = new Failure(/** @type {FailureKind} */ (/** @type {unknown} */ ('notRead')));
 
 /**
  * Per-run state, threaded to every expression. Each expression is computed at most once per run, and
@@ -539,11 +536,11 @@ function computeLogic(node, ctx) {
  *
  * @param {Node} match
  * @param {EvaluationContext} ctx
- * @returns {{ detected: MatchResult, abortKind?: FailureKind, abortError?: string }}
+ * @returns {{ detected: MatchResult, abortError?: string }}
  */
 export function evaluateMatchNode(match, ctx) {
     const result = evaluateOccurrence(match, ctx);
-    if (isFailure(result)) return { detected: 'aborted', abortKind: result.kind, ...(result.error && { abortError: result.error }) };
+    if (isFailure(result)) return { detected: 'aborted', ...(result.error && { abortError: result.error }) };
     return { detected: result === true };
 }
 
