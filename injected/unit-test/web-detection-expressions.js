@@ -1994,6 +1994,101 @@ describe('WebDetection expressions', () => {
         });
     });
 
+    describe('expressions in where', () => {
+        const items = { path: 'JSON.parse', args: ['[{"a":1,"b":0},{"a":2,"b":5},{"a":3,"b":0}]'] };
+
+        it('tests each item with a boolean expression over self', () => {
+            const has = (/** @type {string} */ name) => ({ api: { path: 'Reflect.has', args: [{ self: {} }, name] } });
+            const sparse = { path: 'JSON.parse', args: ['[{"a":1},{"b":2},{"a":3}]'] };
+            expect(match('', { api: { ...sparse, where: has('a') }, using: 'length', is: 2 })).toBe(true);
+            expect(match('<p></p><p></p>', { element: { selector: 'p', where: has('noSuchProperty') }, using: 'length', is: 0 })).toBe(
+                true,
+            );
+        });
+
+        it('mixes expressions and predicates under any, all, none and arrays', () => {
+            const countIs = (/** @type {unknown} */ where, /** @type {number} */ n) =>
+                match('', { api: { ...items, where }, using: 'length', is: n });
+            expect(countIs({ self: 'b', is: { gt: 1 } }, 1)).toBe(true);
+            expect(countIs({ any: [{ self: 'b', is: { gt: 1 } }, { a: 1 }] }, 2)).toBe(true);
+            expect(countIs([{ self: 'b', is: 5 }, { a: 3 }], 2)).toBe(true);
+            expect(countIs({ all: [{ a: { gt: 1 } }, { self: 'b', is: 0 }] }, 1)).toBe(true);
+            expect(countIs({ none: [{ self: 'b', is: 0 }], a: { gt: 0 } }, 1)).toBe(true);
+        });
+
+        it('scopes a source to the item', () => {
+            const html = '<div class="card"><img></div><div class="card"></div><div class="card"><p><img></p></div>';
+            const withImage = { element: { selector: 'img', root: { self: {} } } };
+            expect(match(html, { element: { selector: '.card', where: withImage }, using: 'length', is: 2 })).toBe(true);
+            const twoParagraphs = { element: { selector: 'p', root: { self: {} } }, using: 'length', is: { gte: 2 } };
+            expect(
+                match('<div><p></p><p></p></div><div><p></p></div>', {
+                    element: { selector: 'div', where: twoParagraphs },
+                    using: 'length',
+                    is: 1,
+                }),
+            ).toBe(true);
+        });
+
+        it('reads an expression reading no self once per run', () => {
+            let reads = 0;
+            const install = (/** @type {any} */ w) => {
+                Object.defineProperty(w, 'flag', {
+                    get() {
+                        reads++;
+                        return true;
+                    },
+                });
+            };
+            const detector = {
+                match: {
+                    all: [
+                        { api: 'flag', as: 'flag' },
+                        { element: { selector: 'p', where: { ref: 'flag' } }, using: 'length', is: 3 },
+                    ],
+                },
+            };
+            expect(run('<p></p><p></p><p></p>', detector, { install }).detected).toBe(true);
+            expect(reads).toBe(1);
+        });
+
+        it('fails the source on a failed read, unless the test reads it with fails', () => {
+            const install = (/** @type {any} */ w) => {
+                const throwing = Object.defineProperty({}, 'v', {
+                    get() {
+                        throw new w.TypeError('no');
+                    },
+                });
+                Object.defineProperty(w, 'things', { value: [{ v: 1 }, throwing, { v: 1 }] });
+            };
+            expect(match('', { api: { path: 'things', where: { self: 'v', is: 1 } }, using: 'length', is: 2 }, { install })).toBe(
+                'aborted',
+            );
+            const readable = { api: { path: 'things', where: { self: 'v', is: { fails: false, eq: 1 } } }, using: 'length', is: 2 };
+            expect(match('', readable, { install })).toBe(true);
+        });
+
+        it('reads a property named like an expression key through the long form', () => {
+            const html = '<select><option>Sign in</option><option>Other</option></select>';
+            const count = (/** @type {unknown} */ where) =>
+                match(html, { element: { selector: 'option', visibility: 'any', where }, using: 'length', is: 1 });
+            expect(count({ field: 'text', is: 'Sign in' })).toBe(true);
+            expect(count({ self: 'text', is: 'Sign in' })).toBe(true);
+            expectParseError({ match: { element: { selector: 'option', where: { text: 'Sign in' } } } });
+        });
+
+        it('rejects an object mixing expression keys and property paths, and a name on a per-item expression', () => {
+            expectParseError(
+                { match: { api: { ...items, where: { self: 'a', is: 1, b: 0 } }, using: 'length', is: 1 } },
+                "unknown expression key 'b'",
+            );
+            expectParseError(
+                { match: { api: { ...items, where: { self: 'a', as: 'n' } }, using: 'length', is: 1 } },
+                "'n' names one value per run",
+            );
+        });
+    });
+
     describe('the five detectors', () => {
         it('reports a broken image count and share', () => {
             const detector = {
