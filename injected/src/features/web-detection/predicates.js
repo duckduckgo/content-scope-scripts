@@ -15,7 +15,12 @@ import { FEATURES, isFeatureName } from './features.js';
  * @typedef {import('./core.js').Failure} Failure
  * @typedef {import('./core.js').Track} Track
  * @typedef {import('./features.js').FeatureName} FeatureName
- * @typedef {string | number | boolean | null} Arg
+ */
+
+/**
+ * A compiled `args` entry: a literal, an expression in value position, or an array of entries.
+ *
+ * @typedef {{ value: string | number | boolean | null } | { expression: unknown } | { array: CompiledArg[] }} CompiledArg
  */
 
 /**
@@ -33,6 +38,8 @@ export class NativeReader {
     #holders = new Map();
     /** @type {object | undefined} */
     #nodePrototype;
+    /** @type {object[]} the prototypes of the global's `TypeError` and `RangeError` */
+    #argumentErrorPrototypes = [];
 
     /**
      * @param {object} global - the global object to capture from
@@ -43,6 +50,11 @@ export class NativeReader {
         const keys = [...names, Symbol.iterator];
         const nodeConstructor = getOwnPropertyDescriptor(global, 'Node')?.value;
         if (typeof nodeConstructor === 'function') this.#nodePrototype = getOwnPropertyDescriptor(nodeConstructor, 'prototype')?.value;
+        for (const name of ['TypeError', 'RangeError']) {
+            const constructor = getOwnPropertyDescriptor(global, name)?.value;
+            const prototype = typeof constructor === 'function' ? getOwnPropertyDescriptor(constructor, 'prototype')?.value : undefined;
+            if (typeof prototype === 'object' && prototype !== null) this.#argumentErrorPrototypes.push(prototype);
+        }
         /** @type {object[]} */
         const holders = [global];
         for (const name of getOwnPropertyNames(global)) {
@@ -114,7 +126,8 @@ export class NativeReader {
     }
 
     /**
-     * Call a method.
+     * Call a method. A `TypeError` or `RangeError` it throws rejects its arguments, an error; any
+     * other throw fails with `denied`.
      *
      * @param {unknown} target - any value but `null` and `undefined`
      * @param {string} name
@@ -127,7 +140,8 @@ export class NativeReader {
         if (typeof method !== 'function') return ABSENT;
         try {
             return ReflectApply(method, target, args);
-        } catch {
+        } catch (e) {
+            if (hasPrototype(e, this.#argumentErrorPrototypes)) throw new DetectionError(`'${name}' rejected its arguments`);
             return DENIED;
         }
     }
@@ -139,11 +153,7 @@ export class NativeReader {
      * @returns {boolean}
      */
     isNode(target) {
-        if (!this.#nodePrototype || typeof target !== 'object' || target === null) return false;
-        for (let current = getPrototypeOf(target); current !== null; current = getPrototypeOf(current)) {
-            if (current === this.#nodePrototype) return true;
-        }
-        return false;
+        return hasPrototype(target, this.#nodePrototype ? [this.#nodePrototype] : []);
     }
 
     /**
@@ -161,6 +171,22 @@ export class NativeReader {
 }
 
 /**
+ * Whether one of the prototypes is on a value's prototype chain, read through the captured
+ * `getPrototypeOf` so a page override of `Symbol.hasInstance` is not called.
+ *
+ * @param {unknown} target
+ * @param {readonly object[]} prototypes
+ * @returns {boolean}
+ */
+function hasPrototype(target, prototypes) {
+    if (prototypes.length === 0 || typeof target !== 'object' || target === null) return false;
+    for (let current = getPrototypeOf(target); current !== null; current = getPrototypeOf(current)) {
+        if (prototypes.includes(current)) return true;
+    }
+    return false;
+}
+
+/**
  * Read a path of names from a root, calling the last name with `args` when given.
  *
  * `length` on a string or an array reads it directly. A name after `null` or `undefined` gives
@@ -169,7 +195,7 @@ export class NativeReader {
  * @param {NativeReader} reader
  * @param {unknown} root
  * @param {readonly string[]} names
- * @param {readonly Arg[] | undefined} args
+ * @param {readonly unknown[] | undefined} args - the evaluated arguments
  * @returns {unknown} the value, or a `Failure`
  */
 export function readPath(reader, root, names, args) {
@@ -192,23 +218,58 @@ export function readPath(reader, root, names, args) {
 /**
  * @typedef {object} CompiledField
  * @property {string[]} names - empty when the value is the item itself
- * @property {Arg[]} [args]
+ * @property {CompiledArg[]} [args]
  * @property {FeatureName} [feature]
  */
 
 /**
+ * Compile `args`: strings, numbers, booleans and `null` are literals, an object is an expression in
+ * value position, and an array is a JS array of its entries.
+ *
  * @param {unknown} raw
  * @param {string} path
- * @returns {Arg[]}
+ * @param {PredicateHooks} hooks
+ * @returns {CompiledArg[]}
  */
-function compileArgs(raw, path) {
+export function compileArgs(raw, path, hooks) {
     if (!isArray(raw)) throw new ConfigParseError(path, '`args` must be an array');
-    for (const arg of raw) {
-        if (arg !== null && typeof arg !== 'string' && typeof arg !== 'number' && typeof arg !== 'boolean') {
-            throw new ConfigParseError(path, '`args` entries must be strings, numbers, booleans or null');
-        }
+    return raw.map((entry, i) => compileArg(entry, `${path}[${i}]`, hooks));
+}
+
+/**
+ * @param {unknown} raw
+ * @param {string} path
+ * @param {PredicateHooks} hooks
+ * @returns {CompiledArg}
+ */
+function compileArg(raw, path, hooks) {
+    if (isScalar(raw)) return { value: raw };
+    if (isArray(raw)) return { array: raw.map((entry, i) => compileArg(entry, `${path}[${i}]`, hooks)) };
+    if (isPlainObject(raw)) return { expression: hooks.expression(raw, path, 'value') };
+    throw new ConfigParseError(path, '`args` entries are literals, expressions and arrays');
+}
+
+/**
+ * Evaluate compiled `args`.
+ *
+ * @param {readonly CompiledArg[]} args
+ * @param {PredicateContext} ctx
+ * @param {Track} track - cleared when an argument is not measured
+ * @returns {unknown[] | Failure}
+ */
+export function evaluateArgs(args, ctx, track) {
+    /** @type {unknown[]} */
+    const values = [];
+    for (const arg of args) {
+        /** @type {unknown} */
+        let value;
+        if ('value' in arg) value = arg.value;
+        else if ('expression' in arg) value = ctx.arg(arg.expression, track);
+        else value = evaluateArgs(arg.array, ctx, track);
+        if (isFailure(value)) return value;
+        values.push(value);
     }
-    return /** @type {Arg[]} */ (raw);
+    return values;
 }
 
 /**
@@ -228,13 +289,13 @@ export function compilePath(raw, path) {
  *
  * @param {unknown} raw
  * @param {string} path
- * @param {Set<string>} names - collects every name read, for the reader's capture
+ * @param {PredicateHooks} hooks
  * @returns {CompiledField}
  */
-export function compileField(raw, path, names) {
+export function compileField(raw, path, hooks) {
     if (typeof raw === 'string') {
         const pathNames = compilePath(raw, path);
-        pathNames.forEach((name) => names.add(name));
+        pathNames.forEach((name) => hooks.names.add(name));
         return { names: pathNames };
     }
     if (!isPlainObject(raw)) throw new ConfigParseError(path, '`field` must be a string or an object');
@@ -251,8 +312,8 @@ export function compileField(raw, path, names) {
     }
     /** @type {CompiledField} */
     const field = { names: raw.path === undefined ? [] : compilePath(raw.path, `${path}.path`) };
-    field.names.forEach((name) => names.add(name));
-    if (raw.args !== undefined) field.args = compileArgs(raw.args, `${path}.args`);
+    field.names.forEach((name) => hooks.names.add(name));
+    if (raw.args !== undefined) field.args = compileArgs(raw.args, `${path}.args`, hooks);
     if (raw.feature !== undefined) {
         if (typeof raw.feature !== 'string' || !isFeatureName(raw.feature)) {
             throw new ConfigParseError(path, `unknown feature '${String(raw.feature)}'`);
@@ -265,13 +326,16 @@ export function compileField(raw, path, names) {
 /**
  * Read a compiled `field` from an item or value.
  *
- * @param {NativeReader} reader
+ * @param {PredicateContext} ctx
  * @param {unknown} root
  * @param {CompiledField} field
+ * @param {Track} track - cleared when an argument is not measured
  * @returns {unknown} the value, or a `Failure`
  */
-export function readField(reader, root, field) {
-    const value = readPath(reader, root, field.names, field.args);
+export function readField(ctx, root, field, track) {
+    const args = field.args && evaluateArgs(field.args, ctx, track);
+    if (isFailure(args)) return args;
+    const value = readPath(ctx.reader, root, field.names, args);
     if (isFailure(value) || !field.feature) return value;
     return FEATURES[field.feature](value);
 }
@@ -283,6 +347,7 @@ export function readField(reader, root, field) {
  * @property {NativeReader} reader
  * @property {(operand: unknown, track: Track) => unknown} operand - evaluates a compiled operand expression once per run, giving its value or a `Failure`
  * @property {(expression: unknown, track: Track) => unknown} read - evaluates a compiled expression in the position it was compiled for, giving its value or a `Failure`
+ * @property {(expression: unknown, track: Track) => unknown} arg - evaluates a compiled `args` expression, giving a selected list as an array, or a `Failure`
  */
 
 /**
@@ -429,7 +494,7 @@ function compileObject(raw, level, path, hooks) {
                 ),
             );
         } else if (key === 'field') {
-            const field = compileField(value, keyPath, hooks.names);
+            const field = compileField(value, keyPath, hooks);
             entries.push(readThen(field, compilePredicate(raw.is, 'value', `${path}.is`, hooks)));
         } else if (level === 'value' && OPERATORS.has(key)) {
             entries.push(compileOperator(key, value, keyPath, hooks));
@@ -454,7 +519,7 @@ function readThen(field, next) {
     return {
         test: (subject, ctx, track) => {
             if (isFailure(subject)) return subject;
-            return next.test(readField(ctx.reader, subject, field), ctx, track);
+            return next.test(readField(ctx, subject, field, track), ctx, track);
         },
         // A property of a count is not a count
         bound: Infinity,
