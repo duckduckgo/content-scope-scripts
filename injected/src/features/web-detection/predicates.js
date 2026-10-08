@@ -8,12 +8,10 @@ import {
     objectKeys,
     ReflectApply,
 } from '../../captured-globals.js';
-import { ABSENT, ConfigParseError, DENIED, DetectionError, asArray, isFailure, isPlainObject, typeName } from './core.js';
+import { ABSENT, ConfigParseError, DetectionError, FAILURE_KINDS, Failure, asArray, isFailure, isPlainObject, typeName } from './core.js';
 import { FEATURES, isFeatureName } from './features.js';
 
 /**
- * @typedef {import('./core.js').Failure} Failure
- * @typedef {import('./core.js').Track} Track
  * @typedef {import('./features.js').FeatureName} FeatureName
  */
 
@@ -38,8 +36,6 @@ export class NativeReader {
     #holders = new Map();
     /** @type {object | undefined} */
     #nodePrototype;
-    /** @type {object[]} the prototypes of the global's `TypeError` and `RangeError` */
-    #argumentErrorPrototypes = [];
 
     /**
      * @param {object} global - the global object to capture from
@@ -50,11 +46,6 @@ export class NativeReader {
         const keys = [...names, Symbol.iterator];
         const nodeConstructor = getOwnPropertyDescriptor(global, 'Node')?.value;
         if (typeof nodeConstructor === 'function') this.#nodePrototype = getOwnPropertyDescriptor(nodeConstructor, 'prototype')?.value;
-        for (const name of ['TypeError', 'RangeError']) {
-            const constructor = getOwnPropertyDescriptor(global, name)?.value;
-            const prototype = typeof constructor === 'function' ? getOwnPropertyDescriptor(constructor, 'prototype')?.value : undefined;
-            if (typeof prototype === 'object' && prototype !== null) this.#argumentErrorPrototypes.push(prototype);
-        }
         /** @type {object[]} */
         const holders = [global];
         for (const name of getOwnPropertyNames(global)) {
@@ -107,7 +98,7 @@ export class NativeReader {
     }
 
     /**
-     * Read one property.
+     * Read one property. A getter that throws fails with `threw`.
      *
      * @param {unknown} target - any value but `null` and `undefined`
      * @param {string} name
@@ -120,14 +111,13 @@ export class NativeReader {
         if (!record.get) return ABSENT;
         try {
             return ReflectApply(record.get, target, []);
-        } catch {
-            return DENIED;
+        } catch (e) {
+            return new Failure('threw', errorName(e));
         }
     }
 
     /**
-     * Call a method. A `TypeError` or `RangeError` it throws rejects its arguments, an error; any
-     * other throw fails with `denied`.
+     * Call a method. A method that throws fails with `threw`.
      *
      * @param {unknown} target - any value but `null` and `undefined`
      * @param {string} name
@@ -141,8 +131,7 @@ export class NativeReader {
         try {
             return ReflectApply(method, target, args);
         } catch (e) {
-            if (hasPrototype(e, this.#argumentErrorPrototypes)) throw new DetectionError(`'${name}' rejected its arguments`);
-            return DENIED;
+            return new Failure('threw', errorName(e));
         }
     }
 
@@ -168,6 +157,26 @@ export class NativeReader {
         const method = record && 'value' in record ? record.value : undefined;
         return typeof method === 'function' ? method : undefined;
     }
+}
+
+/**
+ * The name of a thrown value's constructor, read from own data properties through captured globals so
+ * no page getter is called.
+ *
+ * @param {unknown} thrown
+ * @returns {string | undefined}
+ */
+function errorName(thrown) {
+    try {
+        for (let current = getPrototypeOf(thrown); current !== null; current = getPrototypeOf(current)) {
+            const constructor = getOwnPropertyDescriptor(current, 'constructor')?.value;
+            const name = typeof constructor === 'function' ? getOwnPropertyDescriptor(constructor, 'name')?.value : undefined;
+            if (typeof name === 'string') return name;
+        }
+    } catch {
+        // A proxy's traps may throw, and `null` or `undefined` has no prototype
+    }
+    return undefined;
 }
 
 /**
@@ -252,17 +261,16 @@ function compileArg(raw, path, hooks) {
  *
  * @param {readonly CompiledArg[]} args
  * @param {PredicateContext} ctx
- * @param {Track} track - cleared when an argument is not measured
  * @returns {unknown[] | Failure}
  */
-export function evaluateArgs(args, ctx, track) {
+export function evaluateArgs(args, ctx) {
     /** @type {unknown[]} */
     const values = [];
     for (const arg of args) {
         /** @type {unknown} */
         let value;
-        if ('expression' in arg) value = ctx.arg(arg.expression, track);
-        else value = evaluateArgs(arg.array, ctx, track);
+        if ('expression' in arg) value = ctx.arg(arg.expression);
+        else value = evaluateArgs(arg.array, ctx);
         if (isFailure(value)) return value;
         values.push(value);
     }
@@ -326,11 +334,10 @@ export function compileField(raw, path, hooks) {
  * @param {PredicateContext} ctx
  * @param {unknown} root
  * @param {CompiledField} field
- * @param {Track} track - cleared when an argument is not measured
  * @returns {unknown} the value, or a `Failure`
  */
-export function readField(ctx, root, field, track) {
-    const args = field.args && evaluateArgs(field.args, ctx, track);
+export function readField(ctx, root, field) {
+    const args = field.args && evaluateArgs(field.args, ctx);
     if (isFailure(args)) return args;
     const value = readPath(ctx.reader, root, field.names, args);
     if (isFailure(value) || !field.feature) return value;
@@ -342,18 +349,18 @@ export function readField(ctx, root, field, track) {
  *
  * @typedef {object} PredicateContext
  * @property {NativeReader} reader
- * @property {(operand: unknown, track: Track) => unknown} operand - evaluates a compiled operand expression once per run, giving its value or a `Failure`
- * @property {(expression: unknown, track: Track) => unknown} read - evaluates a compiled expression in the position it was compiled for, giving its value or a `Failure`
- * @property {(expression: unknown, track: Track) => unknown} arg - evaluates a compiled `args` expression, giving a selected list as an array, or a `Failure`
+ * @property {(operand: unknown) => unknown} operand - evaluates a compiled operand expression once per run, giving its value or a `Failure`
+ * @property {(expression: unknown) => unknown} read - evaluates a compiled expression in the position it was compiled for, giving its value or a `Failure`
+ * @property {(expression: unknown) => unknown} arg - evaluates a compiled `args` expression, giving a selected list as an array, or a `Failure`
  */
 
 /**
- * @typedef {(subject: unknown, ctx: PredicateContext, track: Track) => boolean | Failure} PredicateTest
+ * @typedef {(subject: unknown, ctx: PredicateContext) => boolean | Failure} PredicateTest
  */
 
 /**
  * @typedef {object} CompiledPredicate
- * @property {PredicateTest} test - `subject` may be a `Failure`, which `exists` and `type` read
+ * @property {PredicateTest} test - `subject` may be a `Failure`, which `fails`, `exists` and `type` read
  * @property {number} bound - the count from which the result on a count is fixed ([Early exit](implementation.md))
  * @property {boolean} scalar - whether it compares the value: a literal, `eq`, `lt`, `lte`, `gt` or `gte` at its top level or in its combinators. A selected list under it gives its one item
  */
@@ -367,10 +374,10 @@ export function readField(ctx, root, field, track) {
 
 /** @typedef {'item' | 'value'} Level */
 
-const OPERATORS = new Set(['eq', 'lt', 'lte', 'gt', 'gte', 'exists', 'type', 'finite', 'nan']);
+const OPERATORS = new Set(['eq', 'lt', 'lte', 'gt', 'gte', 'fails', 'exists', 'type', 'finite', 'nan']);
 /** Tested before the other keys of their object, whatever the key order. */
 /** @type {string[]} */
-const FIRST_OPERATORS = ['exists', 'type', 'finite', 'nan'];
+const FIRST_OPERATORS = ['fails', 'exists', 'type', 'finite', 'nan'];
 const TYPE_NAMES = new Set(['number', 'string', 'boolean', 'null', 'undefined', 'array', 'object']);
 /** Keys reserved for later extensions. */
 const RESERVED_LATER = new Set(['match']);
@@ -429,25 +436,25 @@ function combine(combinator, entries) {
     /** @type {PredicateTest} */
     let test;
     if (combinator === 'any') {
-        test = (subject, ctx, track) => {
+        test = (subject, ctx) => {
             for (const entry of entries) {
-                const result = entry.test(subject, ctx, track);
+                const result = entry.test(subject, ctx);
                 if (result !== false) return result;
             }
             return false;
         };
     } else if (combinator === 'all') {
-        test = (subject, ctx, track) => {
+        test = (subject, ctx) => {
             for (const entry of entries) {
-                const result = entry.test(subject, ctx, track);
+                const result = entry.test(subject, ctx);
                 if (result !== true) return result;
             }
             return true;
         };
     } else {
-        test = (subject, ctx, track) => {
+        test = (subject, ctx) => {
             for (const entry of entries) {
-                const result = entry.test(subject, ctx, track);
+                const result = entry.test(subject, ctx);
                 if (isFailure(result)) return result;
                 if (result) return false;
             }
@@ -472,7 +479,7 @@ function compileObject(raw, level, path, hooks) {
         throw new ConfigParseError(path, '`field` and `is` go together in a predicate');
     }
 
-    // `exists`, `type`, `finite` and `nan` first, then the rest in config order
+    // `fails`, `exists`, `type`, `finite` and `nan` first, then the rest in config order
     const isFirst = (/** @type {string} */ key) => level === 'value' && FIRST_OPERATORS.includes(key);
     const ordered = [...FIRST_OPERATORS.filter((key) => isFirst(key) && keys.includes(key)), ...keys.filter((key) => !isFirst(key))];
 
@@ -514,9 +521,9 @@ function compileObject(raw, level, path, hooks) {
  */
 function readThen(field, next) {
     return {
-        test: (subject, ctx, track) => {
+        test: (subject, ctx) => {
             if (isFailure(subject)) return subject;
-            return next.test(readField(ctx, subject, field, track), ctx, track);
+            return next.test(readField(ctx, subject, field), ctx);
         },
         // A property of a count is not a count
         bound: Infinity,
@@ -533,11 +540,18 @@ function readThen(field, next) {
  */
 function compileOperator(operator, raw, path, hooks) {
     switch (operator) {
+        case 'fails': {
+            const expected = expectBoolean(raw, path);
+            return fixed((subject) => {
+                if (isFailure(subject)) return FAILURE_KINDS.includes(subject.kind) ? expected : subject;
+                return !expected;
+            });
+        }
         case 'exists': {
             const expected = expectBoolean(raw, path);
             return fixed((subject) => {
-                if (isFailure(subject)) return subject.kind === 'absent' ? !expected : subject;
-                return expected;
+                if (isFailure(subject) && !FAILURE_KINDS.includes(subject.kind)) return subject;
+                return (isFailure(subject) && subject.kind === 'absent') !== expected;
             });
         }
         case 'type': {
@@ -566,9 +580,9 @@ function compileOperator(operator, raw, path, hooks) {
             }
             const operand = hooks.expression(raw, path, 'value');
             return {
-                test: (subject, ctx, track) => {
+                test: (subject, ctx) => {
                     if (isFailure(subject)) return subject;
-                    const value = ctx.operand(operand, track);
+                    const value = ctx.operand(operand);
                     if (isFailure(value)) return value;
                     return subject === value;
                 },
@@ -642,9 +656,9 @@ function compileComparison(operator, raw, path, hooks) {
     }
     const operand = hooks.operand(raw, path);
     return {
-        test: (subject, ctx, track) => {
+        test: (subject, ctx) => {
             if (isFailure(subject)) return subject;
-            const value = ctx.operand(operand, track);
+            const value = ctx.operand(operand);
             if (isFailure(value)) return value;
             return compare(expectNumber(subject, operator), expectNumber(value, operator));
         },
