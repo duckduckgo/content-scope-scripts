@@ -426,15 +426,15 @@ const TYPE_NAMES = new Set(['number', 'string', 'boolean', 'null', 'undefined', 
 const RESERVED_LATER = new Set(['match']);
 
 /**
- * @param {unknown} literal
+ * A predicate over the value read: a failure passes up, and `test` sees only values.
+ *
+ * @param {PredicateTest} test
+ * @param {number} bound
+ * @param {boolean} scalar
  * @returns {CompiledPredicate}
  */
-function equalsLiteral(literal) {
-    return {
-        test: (subject) => (isFailure(subject) ? subject : subject === literal),
-        bound: typeof literal === 'number' ? Math.max(0, Math.floor(literal) + 1) : 0,
-        scalar: true,
-    };
+function onValue(test, bound, scalar) {
+    return { test: (subject, ctx) => (isFailure(subject) ? subject : test(subject, ctx)), bound, scalar };
 }
 
 /**
@@ -462,7 +462,7 @@ function isItemExpression(raw) {
  * @returns {CompiledPredicate}
  */
 export function compilePredicate(raw, level, path, hooks) {
-    if (isScalar(raw)) return equalsLiteral(raw);
+    if (isScalar(raw)) return compileComparison('eq', raw, path, hooks);
     if (isArray(raw)) {
         return combine(
             'any',
@@ -472,11 +472,7 @@ export function compilePredicate(raw, level, path, hooks) {
     if (!isPlainObject(raw)) throw new ConfigParseError(path, 'a predicate must be a literal, an array or an object');
     if (level === 'item' && isItemExpression(raw)) {
         const node = hooks.expression(raw, path, 'boolean');
-        return {
-            test: (subject, ctx) => (isFailure(subject) ? subject : /** @type {boolean | Failure} */ (ctx.test(node))),
-            bound: Infinity,
-            scalar: false,
-        };
+        return onValue((_, ctx) => /** @type {boolean | Failure} */ (ctx.test(node)), Infinity, false);
     }
     return compileObject(raw, level, path, hooks);
 }
@@ -546,9 +542,7 @@ function compileObject(raw, level, path, hooks) {
             entries.push(readThen({ names }, compilePredicate(value, 'value', keyPath, hooks)));
         }
     }
-    if (entries.length === 0) {
-        return { test: (subject) => (isFailure(subject) ? subject : true), bound: 0, scalar: false };
-    }
+    if (entries.length === 0) return onValue(() => true, 0, false);
     return combine('all', entries);
 }
 
@@ -558,15 +552,8 @@ function compileObject(raw, level, path, hooks) {
  * @returns {CompiledPredicate}
  */
 function readThen(field, next) {
-    return {
-        test: (subject, ctx) => {
-            if (isFailure(subject)) return subject;
-            return next.test(readField(ctx, subject, field), ctx);
-        },
-        // A property of a length is not a length
-        bound: Infinity,
-        scalar: false,
-    };
+    // A property of a length is not a length, so the bound is unknown
+    return onValue((subject, ctx) => next.test(readField(ctx, subject, field), ctx), Infinity, false);
 }
 
 /**
@@ -580,10 +567,11 @@ function compileOperator(operator, raw, path, hooks) {
     switch (operator) {
         case 'fails': {
             const expected = expectBoolean(raw, path);
-            return fixed((subject) => {
-                if (isFailure(subject)) return subject === NOT_READ ? subject : expected;
-                return !expected;
-            });
+            return {
+                test: (subject) => (isFailure(subject) ? (subject === NOT_READ ? subject : expected) : !expected),
+                bound: 0,
+                scalar: false,
+            };
         }
         case 'type': {
             const names = asArray(raw);
@@ -592,38 +580,12 @@ function compileOperator(operator, raw, path, hooks) {
                     throw new ConfigParseError(path, `unknown type name '${String(name)}'`);
                 }
             }
-            return fixed((subject) => {
-                if (isFailure(subject)) return subject;
-                return names.includes(typeName(subject));
-            });
-        }
-        case 'eq': {
-            if (isScalar(raw)) return equalsLiteral(raw);
-            const operand = hooks.expression(raw, path, 'value');
-            return {
-                test: (subject, ctx) => {
-                    if (isFailure(subject)) return subject;
-                    const value = ctx.operand(operand);
-                    if (isFailure(value)) return value;
-                    return subject === value;
-                },
-                bound: Infinity,
-                scalar: true,
-            };
+            // The same for every length
+            return onValue((subject) => names.includes(typeName(subject)), 0, false);
         }
         default:
-            return compileComparison(/** @type {'lt' | 'lte' | 'gt' | 'gte'} */ (operator), raw, path, hooks);
+            return compileComparison(/** @type {Comparison} */ (operator), raw, path, hooks);
     }
-}
-
-/**
- * A predicate whose result is the same for every length.
- *
- * @param {(subject: unknown) => boolean | Failure} test
- * @returns {CompiledPredicate}
- */
-function fixed(test) {
-    return { test, bound: 0, scalar: false };
 }
 
 /**
@@ -636,12 +598,16 @@ function expectBoolean(raw, path) {
     return raw;
 }
 
+/** @typedef {'eq' | 'lt' | 'lte' | 'gt' | 'gte'} Comparison */
+
 /**
- * The JS operators, which coerce what they compare. Values reach them as read, typed as numbers here.
+ * The JS operators, which coerce what `lt`, `lte`, `gt` and `gte` compare. Values reach them as read,
+ * typed as numbers here.
  *
- * @type {Record<'lt' | 'lte' | 'gt' | 'gte', (a: number, b: number) => boolean>}
+ * @type {Record<Comparison, (a: number, b: number) => boolean>}
  */
 const COMPARE = {
+    eq: (a, b) => a === b,
     lt: (a, b) => a < b,
     lte: (a, b) => a <= b,
     gt: (a, b) => a > b,
@@ -651,9 +617,10 @@ const COMPARE = {
 /**
  * The length from which a comparison against `n` is fixed.
  *
- * @type {Record<'lt' | 'lte' | 'gt' | 'gte', (n: number) => number>}
+ * @type {Record<Comparison, (n: number) => number>}
  */
 const COMPARISON_BOUND = {
+    eq: (n) => Math.floor(n) + 1,
     gte: (n) => Math.ceil(n),
     gt: (n) => Math.floor(n) + 1,
     lt: (n) => Math.ceil(n),
@@ -661,7 +628,10 @@ const COMPARISON_BOUND = {
 };
 
 /**
- * @param {'lt' | 'lte' | 'gt' | 'gte'} operator
+ * A comparison against a literal, or against an operand read once per run. `eq` takes any scalar
+ * literal, and the others a number.
+ *
+ * @param {Comparison} operator
  * @param {unknown} raw
  * @param {string} path
  * @param {PredicateHooks} hooks
@@ -669,22 +639,17 @@ const COMPARISON_BOUND = {
  */
 function compileComparison(operator, raw, path, hooks) {
     const compare = COMPARE[operator];
-    if (typeof raw === 'number') {
-        return {
-            test: (subject) => (isFailure(subject) ? subject : compare(/** @type {number} */ (subject), raw)),
-            bound: Math.max(0, COMPARISON_BOUND[operator](raw)),
-            scalar: true,
-        };
+    if (operator === 'eq' ? isScalar(raw) : typeof raw === 'number') {
+        const bound = typeof raw === 'number' ? Math.max(0, COMPARISON_BOUND[operator](raw)) : 0;
+        return onValue((subject) => compare(/** @type {number} */ (subject), /** @type {number} */ (raw)), bound, true);
     }
     const operand = hooks.expression(raw, path, 'value');
-    return {
-        test: (subject, ctx) => {
-            if (isFailure(subject)) return subject;
+    return onValue(
+        (subject, ctx) => {
             const value = ctx.operand(operand);
-            if (isFailure(value)) return value;
-            return compare(/** @type {number} */ (subject), /** @type {number} */ (value));
+            return isFailure(value) ? value : compare(/** @type {number} */ (subject), /** @type {number} */ (value));
         },
-        bound: Infinity,
-        scalar: true,
-    };
+        Infinity,
+        true,
+    );
 }
