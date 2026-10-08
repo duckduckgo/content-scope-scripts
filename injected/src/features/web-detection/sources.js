@@ -1,6 +1,6 @@
 import { isArray, objectKeys, ReflectApply } from '../../captured-globals.js';
 import { ConfigParseError, DetectionError, isFailure, isPlainObject } from './core.js';
-import { compileField, compilePath, compilePredicate, readField, readPath } from './predicates.js';
+import { compileArgs, compileField, compilePath, compilePredicate, evaluateArgs, readField, readPath } from './predicates.js';
 
 /**
  * @typedef {import('./core.js').Failure} Failure
@@ -9,7 +9,7 @@ import { compileField, compilePath, compilePredicate, readField, readPath } from
  * @typedef {import('./predicates.js').CompiledPredicate} CompiledPredicate
  * @typedef {import('./predicates.js').PredicateContext} PredicateContext
  * @typedef {import('./predicates.js').PredicateHooks} PredicateHooks
- * @typedef {import('./predicates.js').Arg} Arg
+ * @typedef {import('./predicates.js').CompiledArg} CompiledArg
  * @typedef {import('./expressions.js').Position} Position
  */
 
@@ -109,7 +109,7 @@ export function selectItem(item, where, field, ctx, track) {
         if (isFailure(held)) return held;
         if (!held) return SKIP;
     }
-    return field ? readField(ctx.reader, item, field) : item;
+    return field ? readField(ctx, item, field, track) : item;
 }
 
 /** A `selectItem` result: `where` does not hold for the item. */
@@ -127,7 +127,7 @@ export function parseItemKeys(raw, path, hooks) {
     /** @type {{ where?: CompiledPredicate, field?: CompiledField }} */
     const keys = {};
     if (raw.where !== undefined) keys.where = compilePredicate(raw.where, 'item', `${path}.where`, hooks);
-    if (raw.field !== undefined) keys.field = compileField(raw.field, `${path}.field`, hooks.names);
+    if (raw.field !== undefined) keys.field = compileField(raw.field, `${path}.field`, hooks);
     return keys;
 }
 
@@ -145,7 +145,7 @@ export function rejectUnknownKeys(raw, allowed, path) {
 /**
  * @typedef {object} ApiBody
  * @property {string[]} names
- * @property {Arg[]} [args]
+ * @property {CompiledArg[]} [args]
  * @property {unknown} [root] - a compiled expression giving the value `path` reads from
  * @property {CompiledPredicate} [where]
  * @property {CompiledField} [field]
@@ -173,11 +173,8 @@ export function apiSource(global) {
             names.forEach((name) => hooks.names.add(name));
             /** @type {ApiBody} */
             const body = { names, ...parseItemKeys(raw, path, hooks) };
-            if (raw.args !== undefined) {
-                if (!isArray(raw.args)) throw new ConfigParseError(`${path}.args`, '`args` must be an array');
-                body.args = /** @type {Arg[]} */ (raw.args);
-            }
             if (raw.root !== undefined) body.root = hooks.expression(raw.root, `${path}.root`, 'value');
+            if (raw.args !== undefined) body.args = compileArgs(raw.args, `${path}.args`, hooks);
             return body;
         },
         fills: (body) => (body.where ? LIST_FILLS : API_FILLS),
@@ -193,13 +190,15 @@ export function apiSource(global) {
                 if (!base.track.measured) track.measured = false;
                 base = base.values;
             }
-            const result = readPath(ctx.reader, base, body.names, body.args);
+            const args = body.args && evaluateArgs(body.args, ctx, track);
+            if (isFailure(args)) return args;
+            const result = readPath(ctx.reader, base, body.names, args);
             if (isFailure(result)) return result;
             if (body.where || (body.field && isList(result, ctx))) {
                 if (!isList(result, ctx)) throw new DetectionError('`where` on a value that is not a list');
                 return new ItemBuffer(selectApiItems(members(result, ctx), body, ctx, track), track);
             }
-            return body.field ? readField(ctx.reader, result, body.field) : result;
+            return body.field ? readField(ctx, result, body.field, track) : result;
         },
     };
 }

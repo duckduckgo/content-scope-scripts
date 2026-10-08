@@ -111,24 +111,7 @@ import { apiSource, rejectUnknownKeys } from './sources.js';
  * @property {Set<string>} names - every name config reads or calls, for the native reader
  */
 
-const EXPRESSION_KEYS = new Set([
-    'element',
-    'text',
-    'api',
-    'count',
-    'only',
-    'sum',
-    'mul',
-    'min',
-    'max',
-    'sub',
-    'div',
-    'if',
-    'any',
-    'all',
-    'none',
-    'ref',
-]);
+const EXPRESSION_KEYS = new Set(['element', 'text', 'api', 'count', 'only', 'sum', 'mul', 'sub', 'div', 'if', 'any', 'all', 'none', 'ref']);
 const MODIFIER_KEYS = new Set(['as', 'catch', 'is']);
 /** Keys reserved for later extensions, rejected by this release. */
 const RESERVED_LATER = new Set(['aggregate', 'stable', 'confirm', 'retain']);
@@ -142,7 +125,7 @@ const FILLS = {
 };
 
 /**
- * The position of an operand of `sum`, `mul`, `min` and `max`, or of `any`, `all` and `none`, is
+ * The position of an operand of `sum` and `mul`, or of `any`, `all` and `none`, is
  * decided once refs are resolved: `spread` when the operand can give a list.
  *
  * @typedef {{ node: Node, single: 'number' | 'boolean' }} Slot
@@ -319,9 +302,7 @@ function compileKey(key, body, position, path, scope) {
             expectPosition(position, FILLS.number, key, path);
             return compileUnary(key, body, 'list', position, path, scope);
         case 'sum':
-        case 'mul':
-        case 'min':
-        case 'max': {
+        case 'mul': {
             expectPosition(position, FILLS.number, key, path);
             const operands = asArray(body).map((raw, i) => {
                 const operand = compileExpr(raw, 'number', `${path}[${i}]`, scope);
@@ -518,8 +499,6 @@ function fillsOf(node, visiting = new Set()) {
         case 'only':
         case 'sum':
         case 'mul':
-        case 'min':
-        case 'max':
         case 'sub':
         case 'div':
             return FILLS.number;
