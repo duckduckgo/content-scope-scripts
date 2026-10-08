@@ -74,13 +74,22 @@ export default class WebDetection extends ContentFeature {
         // Native getters and methods are captured now, before page scripts can replace them
         /** @type {Set<string>} */
         const names = new Set();
-        for (const group of Object.values(this.#detectors)) {
-            for (const detector of Object.values(group)) {
-                if ('names' in detector.compiled) detector.compiled.names.forEach((name) => names.add(name));
-            }
+        for (const { config } of this._eachDetector()) {
+            if ('names' in config.compiled) config.compiled.names.forEach((name) => names.add(name));
         }
         this.#reader = new NativeReader(globalThis, names);
         this._scheduleAutoRunDetectors();
+    }
+
+    /**
+     * Every configured detector, with its group and its full ID, `groupName.detectorId`.
+     *
+     * @returns {Generator<{ groupName: string, detectorId: string, config: DetectorConfig }>}
+     */
+    *_eachDetector() {
+        for (const [groupName, group] of Object.entries(this.#detectors)) {
+            for (const [detectorId, config] of Object.entries(group)) yield { groupName, detectorId: `${groupName}.${detectorId}`, config };
+        }
     }
 
     /**
@@ -113,13 +122,16 @@ export default class WebDetection extends ContentFeature {
     }
 
     /**
-     * Compute a payload after a match.
+     * Compute an action's payload after a match.
      *
-     * @param {import('./web-detection/expressions.js').CompiledPayloadField[] | undefined} fields
+     * @param {DetectorConfig} detectorConfig
+     * @param {'fireEventData' | 'breakageReportData'} key
      * @param {DetectorRun} run
      * @returns {PayloadData | undefined}
      */
-    _payload(fields, run) {
+    _payload(detectorConfig, key, run) {
+        const compiled = detectorConfig.compiled;
+        const fields = 'error' in compiled ? undefined : compiled[key];
         if (!fields || run.detected !== true || !run.ctx) return undefined;
         return evaluatePayload(fields, run.ctx);
     }
@@ -132,24 +144,15 @@ export default class WebDetection extends ContentFeature {
         /** @type {Map<number, Array<{groupName: string, detectorId: string, config: DetectorConfig}>>} */
         const detectorsByInterval = new Map();
 
-        for (const [groupName, groupDetectors] of Object.entries(this.#detectors)) {
-            for (const [detectorId, detectorConfig] of Object.entries(groupDetectors)) {
-                // Check if auto trigger is enabled for this detector
-                if (!this._shouldRunDetector(detectorConfig, { trigger: 'auto' })) continue;
+        for (const detector of this._eachDetector()) {
+            // Check if auto trigger is enabled for this detector
+            if (!this._shouldRunDetector(detector.config, { trigger: 'auto' })) continue;
 
-                const autoTrigger = detectorConfig.triggers.auto;
-                const fullDetectorId = `${groupName}.${detectorId}`;
-
-                // Group by interval
-                for (const interval of autoTrigger.when.intervalMs) {
-                    const atInterval = detectorsByInterval.get(interval) ?? [];
-                    atInterval.push({
-                        groupName,
-                        detectorId: fullDetectorId,
-                        config: detectorConfig,
-                    });
-                    detectorsByInterval.set(interval, atInterval);
-                }
+            // Group by interval
+            for (const interval of detector.config.triggers.auto.when.intervalMs) {
+                const atInterval = detectorsByInterval.get(interval) ?? [];
+                atInterval.push(detector);
+                detectorsByInterval.set(interval, atInterval);
             }
         }
 
@@ -187,8 +190,7 @@ export default class WebDetection extends ContentFeature {
                 this.#matchedDetectors.set(fullDetectorId, true);
             }
 
-            const compiled = detectorConfig.compiled;
-            const data = this._payload('fireEventData' in compiled ? compiled.fireEventData : undefined, run);
+            const data = this._payload(detectorConfig, 'fireEventData', run);
 
             // Debug notification for integration tests (only sends when detection succeeds, errors or aborts)
             if (this.isDebug && detected !== false) {
@@ -268,36 +270,30 @@ export default class WebDetection extends ContentFeature {
         /** @type {DetectorResult[]} */
         const results = [];
 
-        for (const [groupName, groupDetectors] of Object.entries(this.#detectors)) {
-            for (const [detectorId, detectorConfig] of Object.entries(groupDetectors)) {
-                // Check whether the detector should be run for the given trigger.
-                if (!this._shouldRunDetector(detectorConfig, options)) continue;
+        for (const { groupName, detectorId, config: detectorConfig } of this._eachDetector()) {
+            // Check whether the detector should be run for the given trigger.
+            if (!this._shouldRunDetector(detectorConfig, options)) continue;
 
-                const fullDetectorId = `${groupName}.${detectorId}`;
+            // Evaluate match conditions
+            const run = this._evaluateMatch(detectorConfig, groupName, detectorId);
+            const detected = run.detected;
 
-                // Evaluate match conditions
-                const run = this._evaluateMatch(detectorConfig, groupName, fullDetectorId);
-                const detected = run.detected;
-                const compiled = detectorConfig.compiled;
+            // Execute detector actions.
 
-                // Execute detector actions.
-
-                // If we're in the breakage report trigger and the breakage report data action is enabled, add the result to the results.
-                if (options.trigger === 'breakageReport' && this._isStateEnabled(detectorConfig.actions.breakageReportData.state)) {
-                    // Only include if detected, errored or aborted (not false)
-                    if (detected !== false) {
-                        const data = this._payload('breakageReportData' in compiled ? compiled.breakageReportData : undefined, run);
-                        results.push({
-                            detectorId: fullDetectorId,
-                            detected,
-                            ...(data && { data }),
-                        });
-                    }
+            // If we're in the breakage report trigger and the breakage report data action is enabled, add the result to the results.
+            if (options.trigger === 'breakageReport' && this._isStateEnabled(detectorConfig.actions.breakageReportData.state)) {
+                // Only include if detected, errored or aborted (not false)
+                if (detected !== false) {
+                    const data = this._payload(detectorConfig, 'breakageReportData', run);
+                    results.push({
+                        detectorId,
+                        detected,
+                        ...(data && { data }),
+                    });
                 }
-
-                const fireEventData = this._payload('fireEventData' in compiled ? compiled.fireEventData : undefined, run);
-                void this._executeFireEvent(detectorConfig, detected, fireEventData);
             }
+
+            void this._executeFireEvent(detectorConfig, detected, this._payload(detectorConfig, 'fireEventData', run));
         }
         return results;
     }
