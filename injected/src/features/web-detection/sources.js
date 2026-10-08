@@ -1,5 +1,5 @@
 import { isArray, objectKeys, ReflectApply } from '../../captured-globals.js';
-import { ConfigParseError, DetectionError, isFailure, isPlainObject } from './core.js';
+import { ConfigParseError, DetectionError, FILLS, isFailure, isPlainObject } from './core.js';
 import { compileArgs, compileField, compilePath, compileWhere, evaluateArgs, readField, readPath } from './predicates.js';
 
 /**
@@ -147,11 +147,6 @@ export function rejectUnknownKeys(raw, allowed, path) {
  * @property {CompiledField} [field]
  */
 
-/** @type {ReadonlySet<Position>} */
-const API_FILLS = new Set(['boolean', 'value', 'number', 'list']);
-/** @type {ReadonlySet<Position>} */
-const LIST_FILLS = new Set(['list', 'value', 'number']);
-
 /**
  * Parse an `api` body: a path, or an object of `path`, `args`, `where` and `field`. A `self` body may
  * leave out `path`, and then reads from the bound value itself.
@@ -189,7 +184,7 @@ export function apiSource(global) {
     return {
         key: 'api',
         parse: (raw, path, hooks) => parseApiBody(raw, path, hooks),
-        fills: (body) => (body.where ? LIST_FILLS : API_FILLS),
+        fills: (body) => (body.where ? FILLS.list : FILLS.any),
         read(bodies, ctx) {
             // `api` takes one body
             const body = /** @type {ApiBody} */ (bodies[0]);
