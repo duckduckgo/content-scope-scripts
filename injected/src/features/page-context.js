@@ -240,16 +240,6 @@ function renderedTextLength(el) {
 }
 
 /**
- * @param {Element} el
- * @returns {string}
- */
-function describeElement(el) {
-    const id = el.id ? `#${el.id}` : '';
-    const className = typeof el.className === 'string' ? el.className.trim() : '';
-    return `${el.tagName.toLowerCase()}${id}${className ? '.' + className.split(/\s+/).join('.') : ''}`;
-}
-
-/**
  * Pick the rendered candidate with the most text. Returns null when there is none, or when the
  * best one holds less than `minCoverage` of the body's text, so the caller can use the body.
  * @param {ArrayLike<Element>} candidates - in document order
@@ -657,18 +647,16 @@ export default class PageContext extends ContentFeature {
         }
 
         const mainContent = this.getMainContent();
+        const truncated = mainContent.endsWith('...');
 
         const content = {
             favicon: getFaviconList(),
             title: this.getPageTitle(),
-            content: mainContent.content,
-            truncated: mainContent.truncated,
-            fullContentLength: mainContent.fullContentLength, // Include full content length before truncation
+            content: mainContent,
+            truncated,
+            fullContentLength: this.fullContentLength, // Include full content length before truncation
             timestamp: Date.now(),
             url: window.location.href,
-            bodyTextLength: mainContent.bodyTextLength,
-            rootSelection: mainContent.rootSelection,
-            usedBodyFallback: mainContent.usedBodyFallback,
         };
 
         if (this.getFeatureSettingEnabled('includeMetaDescription', 'disabled')) {
@@ -712,16 +700,6 @@ export default class PageContext extends ContentFeature {
         return metaDesc ? metaDesc.getAttribute('content') || '' : '';
     }
 
-    /**
-     * @returns {{
-     *   content: string,
-     *   truncated: boolean,
-     *   fullContentLength: number,
-     *   bodyTextLength: number,
-     *   rootSelection: 'firstMatch' | 'largestVisible',
-     *   usedBodyFallback: boolean,
-     * }}
-     */
     getMainContent() {
         const maxLength = this.getFeatureSetting('maxContentLength') || 9500;
         // Used to avoid large content serialization
@@ -745,28 +723,17 @@ export default class PageContext extends ContentFeature {
         let content = '';
         // Get content from main content areas
         const mainContentSelector = this.getFeatureSetting('mainContentSelector') || 'main, article, .content, .main, #content, #main';
-        const rootSelection = this.getFeatureSetting('rootSelection') === 'largestVisible' ? 'largestVisible' : 'firstMatch';
-        const bodyTextLength = document.body?.innerText.length ?? 0;
-        /** @type {Element | null} */
-        let mainContent;
-        if (rootSelection === 'largestVisible') {
+        let mainContent = document.querySelector(mainContentSelector);
+        const mainContentLength = this.getFeatureSetting('mainContentLength') || 100;
+        // The first match is sometimes a teaser card or sits in a hidden menu, so then look at every match
+        if (mainContent && (!isRendered(mainContent) || renderedTextLength(mainContent) <= mainContentLength)) {
             mainContent = selectLargestVisibleRoot(document.querySelectorAll(mainContentSelector), {
-                bodyTextLength,
+                bodyTextLength: document.body?.innerText.length ?? 0,
                 minCoverage: this.getFeatureSetting('minRootCoverage') || 0.35,
                 maxCandidates: this.getFeatureSetting('maxRootCandidates') || 100,
             });
-        } else {
-            mainContent = document.querySelector(mainContentSelector);
-            const mainContentLength = this.getFeatureSetting('mainContentLength') || 100;
-            // Fast path to avoid processing main content if it's too short
-            if (mainContent && mainContent.innerHTML.trim().length <= mainContentLength) {
-                mainContent = null;
-            }
         }
         let contentRoot = mainContent || document.body;
-        if (contentRoot) {
-            this.log.info('Content root', rootSelection, describeElement(contentRoot));
-        }
 
         // Use a closure to reuse the domToMarkdown parameters
         const extractContent = (root) => {
@@ -791,25 +758,20 @@ export default class PageContext extends ContentFeature {
             content += extractContent(contentRoot);
         }
 
-        const fullContentLength = content.length;
-        const truncated = fullContentLength > maxLength;
-        if (truncated) {
+        // Store the full content length before truncation
+        this.fullContentLength = content.length;
+
+        // Limit content length
+        if (content.length > maxLength) {
             this.log.info('Truncating content', {
                 content,
-                contentLength: fullContentLength,
+                contentLength: content.length,
                 maxLength,
             });
             content = content.substring(0, maxLength) + '...';
         }
 
-        return {
-            content,
-            truncated,
-            fullContentLength,
-            bodyTextLength,
-            rootSelection,
-            usedBodyFallback: contentRoot === document.body,
-        };
+        return content;
     }
 
     getHeadings() {
