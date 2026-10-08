@@ -15,6 +15,7 @@ export function useLauncherPromoNotice() {
     }
 
     return {
+        type: 'informational',
         message: launcherPromo.message,
         secondaryText: launcherPromo.secondaryText ?? '',
         icon: 'announce',

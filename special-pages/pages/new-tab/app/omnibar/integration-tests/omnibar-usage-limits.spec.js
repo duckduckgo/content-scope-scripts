@@ -49,6 +49,19 @@ test.describe('omnibar notice drawer', () => {
         await expect(omnibar.noticeDrawer()).toBeHidden();
     });
 
+    test('shows a prompt-blocking usage limit without focusing the AI input', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { 'omnibar.mode': 'ai', 'omnibar.usageLimits': 'reached' } });
+        await omnibar.ready();
+
+        await expect(omnibar.noticeDrawer()).toBeVisible();
+
+        const drawer = await omnibar.noticeDrawer().boundingBox();
+        const favorites = await page.locator('[data-entry-point="favorites"]').boundingBox();
+        expect(drawer && favorites && drawer.y + drawer.height <= favorites.y).toBe(true);
+    });
+
     test('keeps the drawer and chats list open while focus moves into the drawer', async ({ page }, workerInfo) => {
         const { ntp, omnibar } = setup(page, workerInfo);
         await ntp.reducedMotion();
@@ -95,9 +108,7 @@ test.describe('omnibar notice drawer', () => {
         await expect(omnibar.noticeDrawer()).toContainText('Now using Luna');
     });
 
-    test('keeps usage-limit blocking while Create Image takes visual priority and dismisses independently', async ({
-        page,
-    }, workerInfo) => {
+    test('shows a prompt-blocking usage limit over Create Image', async ({ page }, workerInfo) => {
         const { ntp, omnibar } = setup(page, workerInfo);
         await ntp.reducedMotion();
         await ntp.openPage({ additional: { 'omnibar.mode': 'ai', 'omnibar.usageLimits': 'false' } });
@@ -113,29 +124,23 @@ test.describe('omnibar notice drawer', () => {
             usageLimits: {
                 message: 'Weekly limit reached',
                 blocksPrompt: true,
-                dismissible: true,
             },
         });
 
-        await expect(omnibar.noticeDrawer()).toContainText('Now using Luna');
-        await expect(omnibar.noticeDrawer()).not.toContainText('Weekly limit reached');
+        await expect(omnibar.noticeDrawer()).toContainText('Weekly limit reached');
+        await expect(omnibar.noticeDrawer()).not.toContainText('Now using Luna');
         await expect(omnibar.chatInput()).toHaveAttribute('readonly');
-
-        await omnibar.noticeDismiss().click();
-        await omnibar.expectMethodCalledWith('omnibar_dismissCreateImageModelSwitch', {});
 
         await omnibar.didReceiveConfig({
             mode: 'ai',
             enableAi: true,
-            createImageModelSwitch: null,
-            usageLimits: {
-                message: 'Weekly limit reached',
-                blocksPrompt: true,
+            createImageModelSwitch: {
+                message: 'Now using Luna',
                 dismissible: true,
             },
+            usageLimits: null,
         });
-        await omnibar.chatInput().evaluate((element) => element.focus());
-        await expect(omnibar.noticeDrawer()).toContainText('Weekly limit reached');
+        await expect(omnibar.noticeDrawer()).toContainText('Now using Luna');
     });
 
     test('hides when native pushes usageLimits null', async ({ page }, workerInfo) => {

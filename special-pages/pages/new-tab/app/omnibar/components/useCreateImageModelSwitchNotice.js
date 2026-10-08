@@ -17,6 +17,7 @@ export function useCreateImageModelSwitchNotice() {
     if (!notice) return null;
 
     return {
+        type: 'action',
         message: notice.message,
         secondaryText: notice.secondaryText ?? '',
         secondaryOnNewLine: true,

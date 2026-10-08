@@ -1,0 +1,8 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Open Privacy Terms Action",
+  "description": "Sent when the user clicks the link in the Duck.ai terms disclaimer. Native opens the Duck.ai Privacy Policy and Terms of Service page in a new tab; no parameters are required.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {}
+}
