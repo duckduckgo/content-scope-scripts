@@ -2,8 +2,8 @@
  * Values shared by the web detection evaluator modules.
  *
  * Three outcomes leave an expression other than a value:
- * - a `Failure` is a state of the page: the engine lacks an API, or a getter or method threw. It is
- *   returned, not thrown, so `fails` can test it and `none` cannot invert it.
+ * - a `Failure` is a state of the page: a getter or method threw, or a name called is not a function. It
+ *   is returned, not thrown, so `fails` can test it and `none` cannot invert it.
  * - a `DetectionError` is config that does not fit the page, such as a value of the wrong type. It is
  *   thrown, and ends the run with `'error'`.
  * - a `ConfigParseError` is config that does not fit the grammar. It is thrown at parse time.
@@ -20,9 +20,6 @@ export class Failure {
         this.error = error;
     }
 }
-
-/** A read of a name present nowhere on the object or its prototype chain. */
-export const MISSING = new Failure();
 
 /** A payload reading an expression inside an `if` branch not taken. `fails` passes it up. */
 export const NOT_READ = new Failure();

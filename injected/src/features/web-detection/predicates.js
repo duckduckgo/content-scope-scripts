@@ -6,18 +6,7 @@ import {
     objectKeys,
     ReflectApply,
 } from '../../captured-globals.js';
-import {
-    ConfigParseError,
-    DetectionError,
-    Failure,
-    MISSING,
-    NOT_READ,
-    asArray,
-    isExpressionObject,
-    isFailure,
-    isPlainObject,
-    typeName,
-} from './core.js';
+import { ConfigParseError, Failure, NOT_READ, asArray, isExpressionObject, isFailure, isPlainObject, typeName } from './core.js';
 import { FEATURES, isFeatureName } from './features.js';
 
 /**
@@ -109,7 +98,8 @@ export class NativeReader {
     }
 
     /**
-     * Read one property. A name present nowhere, or a getter that throws, fails.
+     * Read one property, as JS reads it: a name present nowhere, or an accessor with no getter, reads
+     * `undefined`. A getter that throws fails.
      *
      * @param {unknown} target - any value but `null` and `undefined`
      * @param {string} name
@@ -117,9 +107,9 @@ export class NativeReader {
      */
     read(target, name) {
         const record = this._find(target, name);
-        if (!record) return MISSING;
+        if (!record) return undefined;
         if ('value' in record) return record.value;
-        if (!record.get) return MISSING;
+        if (!record.get) return undefined;
         try {
             return ReflectApply(record.get, target, []);
         } catch (e) {
@@ -128,7 +118,8 @@ export class NativeReader {
     }
 
     /**
-     * Call a method. A name whose value is not a function, or a method that throws, fails.
+     * Call a method. A name whose value is not a function fails with `TypeError`, as the call throws in
+     * JS, and so does a method that throws.
      *
      * @param {unknown} target - any value but `null` and `undefined`
      * @param {string} name
@@ -138,7 +129,7 @@ export class NativeReader {
     call(target, name, args) {
         const record = this._find(target, name);
         const method = record && 'value' in record ? record.value : undefined;
-        if (typeof method !== 'function') return MISSING;
+        if (typeof method !== 'function') return new Failure('TypeError');
         try {
             return ReflectApply(method, target, args);
         } catch (e) {
@@ -419,8 +410,7 @@ export function compileWhere(raw, path, hooks) {
 
 /**
  * @typedef {object} PredicateHooks
- * @property {(raw: unknown, path: string) => unknown} operand - compiles an operand expression in number position
- * @property {(raw: unknown, path: string, position: import('./expressions.js').Position) => unknown} expression - compiles an expression in a position: a source's `root`, an `args` entry, an `eq` operand, or a `field` expression
+ * @property {(raw: unknown, path: string, position: import('./expressions.js').Position) => unknown} expression - compiles an expression in a position: a source's `root`, an `args` entry, an operand of `eq` or a comparison, or a `field` expression
  * @property {<T>(fn: (binder: ItemBinder) => T) => T} item - compiles a `where` or `field` that binds `self`
  * @property {Set<string>} names - collects every name read, for the native reader
  */
@@ -653,7 +643,11 @@ function expectBoolean(raw, path) {
     return raw;
 }
 
-/** @type {Record<'lt' | 'lte' | 'gt' | 'gte', (a: number, b: number) => boolean>} */
+/**
+ * The JS operators, which coerce what they compare. Values reach them as read, typed as numbers here.
+ *
+ * @type {Record<'lt' | 'lte' | 'gt' | 'gte', (a: number, b: number) => boolean>}
+ */
 const COMPARE = {
     lt: (a, b) => a < b,
     lte: (a, b) => a <= b,
@@ -684,35 +678,20 @@ function compileComparison(operator, raw, path, hooks) {
     const compare = COMPARE[operator];
     if (typeof raw === 'number') {
         return {
-            test: (subject) => {
-                if (isFailure(subject)) return subject;
-                return compare(expectNumber(subject, operator), raw);
-            },
+            test: (subject) => (isFailure(subject) ? subject : compare(/** @type {number} */ (subject), raw)),
             bound: Math.max(0, COMPARISON_BOUND[operator](raw)),
             scalar: true,
         };
     }
-    const operand = hooks.operand(raw, path);
+    const operand = hooks.expression(raw, path, 'value');
     return {
         test: (subject, ctx) => {
             if (isFailure(subject)) return subject;
             const value = ctx.operand(operand);
             if (isFailure(value)) return value;
-            return compare(expectNumber(subject, operator), expectNumber(value, operator));
+            return compare(/** @type {number} */ (subject), /** @type {number} */ (value));
         },
         bound: Infinity,
         scalar: true,
     };
-}
-
-/**
- * @param {unknown} value
- * @param {string} operator
- * @returns {number}
- */
-function expectNumber(value, operator) {
-    if (typeof value !== 'number') {
-        throw new DetectionError(`'${operator}' takes a number, got ${typeName(value)}`);
-    }
-    return value;
 }
