@@ -1,6 +1,6 @@
 import { isArray } from '../../captured-globals.js';
-import { ConfigParseError, DetectionError, FILLS, asArray, isFailure, isPlainObject } from './core.js';
-import { ItemBuffer, SKIP, isList, members, parseItemKeys, rejectUnknownKeys, selectItem } from './sources.js';
+import { ConfigParseError, DetectionError, FILLS, asArray, isFailure, isPlainObject, rejectUnknownKeys } from './core.js';
+import { ItemBuffer, SKIP, isList, members, parseItemKeys, selectItem } from './sources.js';
 
 /**
  * @typedef {import('@duckduckgo/privacy-configuration/schema/features/web-detection.ts').ConditionTypes} ConditionTypes
