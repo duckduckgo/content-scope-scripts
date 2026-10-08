@@ -6,7 +6,6 @@ import { ItemBuffer, eachMember, isList } from './sources.js';
 
 /**
  * @typedef {import('./core.js').FailureKind} FailureKind
- * @typedef {import('./core.js').Track} Track
  * @typedef {import('./predicates.js').CompiledPredicate} CompiledPredicate
  * @typedef {import('./predicates.js').PredicateContext} PredicateContext
  */
@@ -34,7 +33,6 @@ import { ItemBuffer, eachMember, isList } from './sources.js';
  * @property {string} path - JSON path in the detector config
  * @property {Position} position - the position this occurrence fills. With `is`, the value position the predicate tests
  * @property {string} [as]
- * @property {Partial<Record<FailureKind, Node>>} [catch]
  * @property {CompiledPredicate} [is]
  * @property {Branch[]} branches - the `if` branches enclosing this expression, outermost first
  */
@@ -59,20 +57,7 @@ import { ItemBuffer, eachMember, isList } from './sources.js';
  * @property {Array<[string, CompiledPredicate]>} [buckets]
  */
 
-/**
- * A value an expression read, and whether it was measured: read from the page rather than taken from
- * a `catch` handler or computed from one.
- *
- * @typedef {{ value: unknown, measured: boolean }} Read
- */
-
-/**
- * A list an operator reads, and whether the value holding it was measured.
- *
- * @typedef {{ buffer: ItemBuffer, measured: boolean }} ListRead
- */
-
-/** A payload reading an expression inside an `if` branch not taken. Never reaches `catch`. */
+/** A payload reading an expression inside an `if` branch not taken. `fails` and `exists` pass it up. */
 export const NOT_READ = new Failure(/** @type {FailureKind} */ (/** @type {unknown} */ ('notRead')));
 
 /**
@@ -81,14 +66,12 @@ export const NOT_READ = new Failure(/** @type {FailureKind} */ (/** @type {unkno
  * @implements {PredicateContext}
  */
 export class EvaluationContext {
-    /** @type {Map<Node, Read | Failure>} each computed expression's value after its `catch`, or its failure */
+    /** @type {Map<Node, unknown>} each computed expression's value, or its failure */
     memo = new Map();
     /** @type {Map<object, ItemBuffer>} the buffer over each iterable value a list operator reads */
     lists = new Map();
-    /** @type {Record<string, unknown>} measured scalar values by name */
+    /** @type {Record<string, unknown>} scalar values read, by name, for the debug notification */
     measured = {};
-    /** @type {Array<{ kind: FailureKind, as?: string, path: string }>} failures a `catch` handled */
-    handled = [];
     /** @type {Map<IfNode, 'then' | 'else'>} */
     branchTaken = new Map();
     /** @type {{ path: string, as?: string, message: string } | undefined} the innermost expression an error was thrown from */
@@ -104,50 +87,36 @@ export class EvaluationContext {
     /**
      * @param {unknown} operand - a compiled predicate operand: in number position for a comparison, in
      * value position for `eq`. A selected list gives its one item
-     * @param {Track} track
      * @returns {unknown}
      */
-    operand(operand, track) {
+    operand(operand) {
         const node = /** @type {Node} */ (operand);
-        let read = evaluate(node, node.position, this);
-        if (!isFailure(read) && read.value instanceof ItemBuffer) {
-            const item = single(read.value);
-            read = isFailure(item) ? item : { value: item.value, measured: read.measured && item.measured };
-        }
-        if (isFailure(read)) return read;
-        if (!read.measured) track.measured = false;
-        return read.value;
+        const value = evaluate(node, node.position, this);
+        return value instanceof ItemBuffer ? single(value) : value;
     }
 
     /**
      * @param {unknown} expression - a compiled expression, read in the position it was compiled for
-     * @param {Track} track
      * @returns {unknown}
      */
-    read(expression, track) {
+    read(expression) {
         const node = /** @type {Node} */ (expression);
-        const read = evaluate(node, node.position, this);
-        if (isFailure(read)) return read;
-        if (!read.measured) track.measured = false;
-        return read.value;
+        return evaluate(node, node.position, this);
     }
 
     /**
      * @param {unknown} expression - a compiled `args` expression in value position
-     * @param {Track} track
      * @returns {unknown} the value, with a selected list as a new array of its items, or a `Failure`
      */
-    arg(expression, track) {
-        const value = this.read(expression, track);
+    arg(expression) {
+        const value = this.read(expression);
         if (!(value instanceof ItemBuffer)) return value;
-        const items = allItems({ buffer: value, measured: true });
+        const items = allItems(value);
         if (isFailure(items)) return items;
-        if (!items.measured) track.measured = false;
-        const source = /** @type {unknown[]} */ (items.value);
         // Copied by index: a method may change its argument, and the buffer is shared
         /** @type {unknown[]} */
         const array = [];
-        for (let i = 0; i < source.length; i++) array.push(source[i]);
+        for (let i = 0; i < items.length; i++) array.push(items[i]);
         return array;
     }
 }
@@ -157,16 +126,12 @@ export class EvaluationContext {
  *
  * @param {Node} node
  * @param {EvaluationContext} ctx
- * @returns {Read | Failure}
+ * @returns {unknown} the value, or a `Failure`
  */
 export function evaluateOccurrence(node, ctx) {
-    if (!node.is) return evaluate(node, node.position, ctx);
-    const read = forPredicate(node, evaluate(node, node.position, ctx), node.is, ctx);
-    /** @type {Track} */
-    const track = { measured: true };
-    const result = node.is.test(isFailure(read) ? read : read.value, ctx, track);
-    if (isFailure(result)) return result;
-    return { value: result, measured: (isFailure(read) || read.measured) && track.measured };
+    const value = evaluate(node, node.position, ctx);
+    if (!node.is) return value;
+    return node.is.test(forPredicate(value, node.is), ctx);
 }
 
 /**
@@ -175,29 +140,24 @@ export function evaluateOccurrence(node, ctx) {
  * @param {Node} node
  * @param {Position} position
  * @param {EvaluationContext} ctx
- * @returns {Read | Failure}
+ * @returns {unknown} the value, or a `Failure`
  */
 export function evaluate(node, position, ctx) {
     try {
-        /** @type {Read | Failure} */
+        /** @type {unknown} */
         let result;
         if (node.kind === 'ref') {
             result = evaluateRef(node, position, ctx);
         } else if (node.kind === 'source') {
             result = readSource(node, position, ctx);
+        } else if (ctx.memo.has(node)) {
+            result = ctx.memo.get(node);
         } else {
-            const memoized = ctx.memo.get(node);
-            if (memoized) {
-                result = memoized;
-            } else {
-                result = withCatch(node, ctx, compute(node, ctx));
-                ctx.memo.set(node, result);
-            }
+            result = compute(node, ctx);
+            ctx.memo.set(node, result);
         }
-        if (node.as && !isFailure(result) && result.measured && isScalar(result.value)) {
-            ctx.measured[node.as] = result.value;
-        }
-        if (!isFailure(result)) checkType(result.value, position);
+        if (node.as && isScalar(result)) ctx.measured[node.as] = result;
+        if (!isFailure(result)) checkType(result, position);
         return result;
     } catch (e) {
         ctx.errorAt ??= { path: node.path, as: node.as, message: e instanceof Error ? e.message : String(e) };
@@ -226,32 +186,13 @@ function isScalar(value) {
 }
 
 /**
- * Apply an expression's `catch`: a failure of a listed kind takes the handler's value, which is not
- * measured.
- *
- * @param {Node} node
- * @param {EvaluationContext} ctx
- * @param {Read | Failure} result
- * @returns {Read | Failure}
- */
-function withCatch(node, ctx, result) {
-    if (!isFailure(result) || !node.catch) return result;
-    const handler = node.catch[result.kind];
-    if (!handler) return result;
-    ctx.handled.push({ kind: result.kind, as: node.as, path: node.path });
-    const handled = evaluateOccurrence(handler, ctx);
-    if (isFailure(handled)) return handled;
-    return { value: handled.value, measured: false };
-}
-
-/**
  * Read a target from a `ref`, in the ref's position. A target inside an `if` branch not taken, and
  * not enclosing the ref, is not read.
  *
  * @param {RefNode} ref
  * @param {Position} position
  * @param {EvaluationContext} ctx
- * @returns {Read | Failure}
+ * @returns {unknown} the value, or a `Failure`
  */
 function evaluateRef(ref, position, ctx) {
     const target = /** @type {Node} */ (ref.target);
@@ -271,29 +212,26 @@ function evaluateRef(ref, position, ctx) {
  * @param {SourceNode} node
  * @param {Position} position
  * @param {EvaluationContext} ctx
- * @returns {Read | Failure}
+ * @returns {unknown} the value, or a `Failure`
  */
 function readSource(node, position, ctx) {
-    let read = ctx.memo.get(node);
-    if (!read) {
-        /** @type {Track} */
-        const track = { measured: true };
-        const value = node.source.read(node.bodies, ctx, track);
-        read = withCatch(node, ctx, isFailure(value) ? value : { value, measured: track.measured });
-        ctx.memo.set(node, read);
+    let value = ctx.memo.get(node);
+    if (!ctx.memo.has(node)) {
+        value = node.source.read(node.bodies, ctx);
+        ctx.memo.set(node, value);
     }
-    if (isFailure(read) || !(read.value instanceof ItemBuffer)) return read;
+    if (!(value instanceof ItemBuffer)) return value;
     // The condition leaf: `element` and `text` hold when they select an item
-    if (position === 'boolean' && node.source.key !== 'api') return withCatch(node, ctx, presence(read.value));
-    if (position === 'number') return withCatch(node, ctx, single(read.value));
-    return read;
+    if (position === 'boolean' && node.source.key !== 'api') return presence(value);
+    if (position === 'number') return single(value);
+    return value;
 }
 
 /**
  * A selected list where a scalar is needed: its one item.
  *
  * @param {ItemBuffer} buffer
- * @returns {Read | Failure}
+ * @returns {unknown} the item, or a `Failure`
  */
 function single(buffer) {
     const failure = buffer.pull(2);
@@ -301,39 +239,32 @@ function single(buffer) {
     if (buffer.values.length !== 1) {
         throw new DetectionError(`a list where one value is needed holds ${buffer.values.length === 0 ? 'no item' : 'several items'}`);
     }
-    return { value: buffer.values[0], measured: buffer.track.measured };
+    return buffer.values[0];
 }
 
 /**
  * What a predicate tests when an expression gives a selected list: its one item when the predicate
  * compares, else the list as an array.
  *
- * @param {Node} node
- * @param {Read | Failure} read
+ * @param {unknown} value - a value or a `Failure`
  * @param {CompiledPredicate} predicate
- * @param {EvaluationContext} ctx
- * @returns {Read | Failure}
+ * @returns {unknown}
  */
-function forPredicate(node, read, predicate, ctx) {
-    if (isFailure(read) || !(read.value instanceof ItemBuffer)) return read;
-    const buffer = read.value;
-    const result = withCatch(node, ctx, predicate.scalar ? single(buffer) : allItems({ buffer, measured: true }));
-    if (isFailure(result)) return result;
-    return { value: result.value, measured: read.measured && result.measured };
+function forPredicate(value, predicate) {
+    if (!(value instanceof ItemBuffer)) return value;
+    return predicate.scalar ? single(value) : allItems(value);
 }
 
 /**
  * @param {ItemBuffer} buffer
- * @returns {Read | Failure} whether the list holds an item
+ * @returns {boolean | Failure} whether the list holds an item
  */
 function presence(buffer) {
     if (!buffer.started) {
         const any = buffer.shortcuts.hasAny?.();
-        if (any !== undefined) return { value: any, measured: true };
+        if (any !== undefined) return any;
     }
-    const failure = buffer.pull(1);
-    if (failure) return failure;
-    return { value: buffer.values.length > 0, measured: buffer.track.measured };
+    return buffer.pull(1) ?? buffer.values.length > 0;
 }
 
 /**
@@ -351,7 +282,7 @@ function listOf(value, operator, ctx) {
     const key = /** @type {object} */ (value);
     let buffer = ctx.lists.get(key);
     if (!buffer) {
-        buffer = new ItemBuffer(eachMember(value, ctx), { measured: true });
+        buffer = new ItemBuffer(eachMember(value, ctx));
         ctx.lists.set(key, buffer);
     }
     return buffer;
@@ -361,24 +292,22 @@ function listOf(value, operator, ctx) {
  * @param {Node} operand - in list position
  * @param {string} operator
  * @param {EvaluationContext} ctx
- * @returns {ListRead | Failure}
+ * @returns {ItemBuffer | Failure}
  */
 function readList(operand, operator, ctx) {
-    const read = evaluate(operand, operand.position, ctx);
-    if (isFailure(read)) return read;
-    return { buffer: listOf(read.value, operator, ctx), measured: read.measured };
+    const value = evaluate(operand, operand.position, ctx);
+    if (isFailure(value)) return value;
+    return listOf(value, operator, ctx);
 }
 
 /**
  * Every item of a list.
  *
- * @param {ListRead} list
- * @returns {Read | Failure} a `Read` of an array
+ * @param {ItemBuffer} buffer
+ * @returns {unknown[] | Failure}
  */
-function allItems(list) {
-    const failure = list.buffer.pull(Infinity);
-    if (failure) return failure;
-    return { value: list.buffer.values, measured: list.measured && list.buffer.track.measured };
+function allItems(buffer) {
+    return buffer.pull(Infinity) ?? buffer.values;
 }
 
 /**
@@ -404,23 +333,23 @@ function expectBoolean(value, operator) {
 /**
  * @param {Exclude<Node, RefNode | SourceNode>} node
  * @param {EvaluationContext} ctx
- * @returns {Read | Failure}
+ * @returns {unknown} the value, or a `Failure`
  */
 function compute(node, ctx) {
     switch (node.kind) {
         case 'literal':
-            return { value: node.value, measured: true };
+            return node.value;
         case 'count':
             return computeCount(node, ctx);
         case 'only': {
-            const list = readList(node.operand, node.kind, ctx);
-            if (isFailure(list)) return list;
-            const failure = list.buffer.pull(2);
+            const buffer = readList(node.operand, node.kind, ctx);
+            if (isFailure(buffer)) return buffer;
+            const failure = buffer.pull(2);
             if (failure) return failure;
-            const values = list.buffer.values;
+            const values = buffer.values;
             if (values.length === 0) throw new DetectionError(`'only' over no items`);
             if (values.length > 1) throw new DetectionError(`'only' over several items`);
-            return { value: values[0], measured: list.measured && list.buffer.track.measured };
+            return values[0];
         }
         case 'sum':
         case 'mul':
@@ -434,11 +363,9 @@ function compute(node, ctx) {
         case 'if': {
             const test = evaluateOccurrence(node.test, ctx);
             if (isFailure(test)) return test;
-            const branch = test.value ? 'then' : 'else';
+            const branch = test ? 'then' : 'else';
             ctx.branchTaken.set(node, branch);
-            const result = evaluateOccurrence(node[branch], ctx);
-            if (isFailure(result)) return result;
-            return { value: result.value, measured: test.measured && result.measured };
+            return evaluateOccurrence(node[branch], ctx);
         }
     }
 }
@@ -446,19 +373,16 @@ function compute(node, ctx) {
 /**
  * @param {CountNode} node
  * @param {EvaluationContext} ctx
- * @returns {Read | Failure}
+ * @returns {number | Failure}
  */
 function computeCount(node, ctx) {
-    const list = readList(node.operand, 'count', ctx);
-    if (isFailure(list)) return list;
-    const { buffer } = list;
+    const buffer = readList(node.operand, 'count', ctx);
+    if (isFailure(buffer)) return buffer;
     if (!buffer.started) {
         const count = buffer.shortcuts.countAll?.();
-        if (count !== undefined) return { value: Math.min(count, node.bound), measured: list.measured };
+        if (count !== undefined) return Math.min(count, node.bound);
     }
-    const failure = buffer.pull(node.bound);
-    if (failure) return failure;
-    return { value: Math.min(buffer.values.length, node.bound), measured: list.measured && buffer.track.measured };
+    return buffer.pull(node.bound) ?? Math.min(buffer.values.length, node.bound);
 }
 
 /**
@@ -467,53 +391,42 @@ function computeCount(node, ctx) {
  * @param {Node} operand
  * @param {string} operator
  * @param {EvaluationContext} ctx
- * @returns {{ list: ListRead } | { read: Read } | Failure}
+ * @returns {{ list: ItemBuffer } | { value: unknown } | Failure}
  */
 function readSpread(operand, operator, ctx) {
-    const read = operand.position === 'spread' ? evaluate(operand, 'spread', ctx) : evaluateOccurrence(operand, ctx);
-    if (isFailure(read)) return read;
-    if (operand.position === 'spread' && isList(read.value, ctx)) {
-        return { list: { buffer: listOf(read.value, operator, ctx), measured: read.measured } };
-    }
-    return { read };
+    const value = operand.position === 'spread' ? evaluate(operand, 'spread', ctx) : evaluateOccurrence(operand, ctx);
+    if (isFailure(value)) return value;
+    if (operand.position === 'spread' && isList(value, ctx)) return { list: listOf(value, operator, ctx) };
+    return { value };
 }
 
 /**
  * @param {ArithmeticNode} node
  * @param {EvaluationContext} ctx
- * @returns {Read | Failure}
+ * @returns {number | Failure}
  */
 function computeArithmetic(node, ctx) {
     /** @type {number[]} */
     const values = [];
-    let measured = true;
     for (const operand of node.operands) {
         const spread = readSpread(operand, node.kind, ctx);
         if (isFailure(spread)) return spread;
         if ('list' in spread) {
             const items = allItems(spread.list);
             if (isFailure(items)) return items;
-            measured &&= items.measured;
-            for (const value of /** @type {unknown[]} */ (items.value)) values.push(expectNumber(value, node.kind));
+            for (const value of items) values.push(expectNumber(value, node.kind));
         } else {
-            measured &&= spread.read.measured;
-            values.push(expectNumber(spread.read.value, node.kind));
+            values.push(expectNumber(spread.value, node.kind));
         }
     }
-    /** @type {number} */
-    let value;
     switch (node.kind) {
         case 'sum':
-            value = values.reduce((a, b) => a + b, 0);
-            break;
+            return values.reduce((a, b) => a + b, 0);
         case 'mul':
-            value = values.reduce((a, b) => a * b, 1);
-            break;
+            return values.reduce((a, b) => a * b, 1);
         case 'div':
-            value = /** @type {number} */ (values[0]) / /** @type {number} */ (values[1]);
-            break;
+            return /** @type {number} */ (values[0]) / /** @type {number} */ (values[1]);
     }
-    return { value, measured };
 }
 
 /**
@@ -522,34 +435,28 @@ function computeArithmetic(node, ctx) {
  *
  * @param {LogicNode} node
  * @param {EvaluationContext} ctx
- * @returns {Read | Failure}
+ * @returns {boolean | Failure}
  */
 function computeLogic(node, ctx) {
     // The value that decides the result, and the result it gives
     const decider = node.kind === 'any' || node.kind === 'none';
     const decided = node.kind === 'any';
-    let measured = true;
     for (const operand of node.operands) {
         const spread = readSpread(operand, node.kind, ctx);
         if (isFailure(spread)) return spread;
         if ('list' in spread) {
-            const { buffer } = spread.list;
-            measured &&= spread.list.measured;
+            const buffer = spread.list;
             for (let i = 0; ; i++) {
                 const failure = buffer.pull(i + 1);
                 if (failure) return failure;
                 if (buffer.values.length <= i) break;
-                if (expectBoolean(buffer.values[i], node.kind) === decider) {
-                    return { value: decided, measured: measured && buffer.track.measured };
-                }
+                if (expectBoolean(buffer.values[i], node.kind) === decider) return decided;
             }
-            measured &&= buffer.track.measured;
-        } else {
-            measured &&= spread.read.measured;
-            if (expectBoolean(spread.read.value, node.kind) === decider) return { value: decided, measured };
+        } else if (expectBoolean(spread.value, node.kind) === decider) {
+            return decided;
         }
     }
-    return { value: !decided, measured };
+    return !decided;
 }
 
 /** @typedef {true | false | 'aborted'} MatchResult */
@@ -559,12 +466,12 @@ function computeLogic(node, ctx) {
  *
  * @param {Node} match
  * @param {EvaluationContext} ctx
- * @returns {{ detected: MatchResult, abortKind?: FailureKind }}
+ * @returns {{ detected: MatchResult, abortKind?: FailureKind, abortError?: string }}
  */
 export function evaluateMatchNode(match, ctx) {
-    const read = evaluateOccurrence(match, ctx);
-    if (isFailure(read)) return { detected: 'aborted', abortKind: read.kind };
-    return { detected: read.value === true };
+    const result = evaluateOccurrence(match, ctx);
+    if (isFailure(result)) return { detected: 'aborted', abortKind: result.kind, ...(result.error && { abortError: result.error }) };
+    return { detected: result === true };
 }
 
 /**
@@ -577,9 +484,9 @@ const OMIT = Symbol('omit');
 /**
  * Compute a payload after a match, through the run's memo and buffers.
  *
- * A key is omitted when its value fails, is not measured or JSON cannot carry it as a scalar, when
- * `when` does not hold or fails, and with `buckets` when the value is in no bucket or a bucket fails.
- * A key whose value, `when` or bucket errors is omitted and recorded in `_errors`.
+ * A key is omitted when its value fails or JSON cannot carry it as a scalar, when `when` does not hold
+ * or fails, and with `buckets` when the value is in no bucket or a bucket fails. A key whose value,
+ * `when` or bucket errors is omitted and recorded in `_errors`.
  *
  * @param {CompiledPayloadField[]} fields
  * @param {EvaluationContext} ctx
@@ -610,26 +517,19 @@ export function evaluatePayload(fields, ctx) {
  * @returns {string | number | boolean | null | typeof OMIT}
  */
 function payloadValue(field, ctx) {
-    const read = evaluateOccurrence(field.value, ctx);
-    if (isFailure(read) || !read.measured) return OMIT;
-    const value = read.value;
+    const value = evaluateOccurrence(field.value, ctx);
+    if (isFailure(value)) return OMIT;
     if (value instanceof ItemBuffer && !field.buckets) throw new DetectionError('a list is sent bucketed, or through count or only');
-    /** @type {Track} */
-    const track = { measured: true };
     /**
      * @param {CompiledPredicate} predicate
-     * @returns {boolean | Failure | typeof OMIT}
+     * @returns {boolean | Failure}
      */
-    const test = (predicate) => {
-        const subject = forPredicate(field.value, read, predicate, ctx);
-        if (!isFailure(subject) && !subject.measured) return OMIT;
-        return predicate.test(isFailure(subject) ? subject : subject.value, ctx, track);
-    };
+    const test = (predicate) => predicate.test(forPredicate(value, predicate), ctx);
     if (field.when && test(field.when) !== true) return OMIT;
     if (field.buckets) {
         for (const [name, bucket] of field.buckets) {
             const held = test(bucket);
-            if (held === OMIT || isFailure(held)) return OMIT;
+            if (isFailure(held)) return OMIT;
             if (held) return name;
         }
         return OMIT;

@@ -1,6 +1,6 @@
 // eslint-disable-next-line no-redeclare
 import { hasOwnProperty, isArray, objectKeys } from '../../captured-globals.js';
-import { ConfigParseError, FAILURE_KINDS, NAME_PATTERN, asArray, isPlainObject } from './core.js';
+import { ConfigParseError, NAME_PATTERN, asArray, isPlainObject } from './core.js';
 import { elementSource, textSource } from './matching.js';
 import { compilePredicate } from './predicates.js';
 import { apiSource, rejectUnknownKeys } from './sources.js';
@@ -8,7 +8,6 @@ import { apiSource, rejectUnknownKeys } from './sources.js';
 /**
  * @typedef {import('../../utils.js').FeatureState} FeatureState
  * @typedef {import('../../config-feature.js').ConditionBlockOrArray} ConditionBlockOrArray
- * @typedef {import('./core.js').FailureKind} FailureKind
  * @typedef {import('./expressions.js').Node} Node
  * @typedef {import('./expressions.js').NodeBase} NodeBase
  * @typedef {import('./expressions.js').RefNode} RefNode
@@ -112,7 +111,7 @@ import { apiSource, rejectUnknownKeys } from './sources.js';
  */
 
 const EXPRESSION_KEYS = new Set(['element', 'text', 'api', 'count', 'only', 'sum', 'mul', 'div', 'if', 'any', 'all', 'none', 'ref']);
-const MODIFIER_KEYS = new Set(['as', 'catch', 'is']);
+const MODIFIER_KEYS = new Set(['as', 'is']);
 /** Keys reserved for later extensions, rejected by this release. */
 const RESERVED_LATER = new Set(['aggregate', 'stable', 'confirm', 'retain']);
 const LEGACY_OPERATORS = ['any', 'all', 'none'];
@@ -257,20 +256,6 @@ function compileExpr(raw, position, path, scope) {
         if (scope.names.has(raw.as)) throw new ConfigParseError(`${path}.as`, `duplicate name '${raw.as}'`);
         scope.names.set(raw.as, node);
         node.as = raw.as;
-    }
-    if (raw.catch !== undefined) {
-        if (!isPlainObject(raw.catch)) throw new ConfigParseError(`${path}.catch`, '`catch` takes an object');
-        /** @type {Partial<Record<FailureKind, Node>>} */
-        const handlers = {};
-        for (const kind of objectKeys(raw.catch)) {
-            if (!FAILURE_KINDS.includes(/** @type {FailureKind} */ (kind))) {
-                throw new ConfigParseError(`${path}.catch.${kind}`, `unknown failure kind '${kind}'`);
-            }
-            const handler = compileExpr(raw.catch[kind], node.position, `${path}.catch.${kind}`, scope);
-            handlers[/** @type {FailureKind} */ (kind)] = handler;
-            /** @type {Node[]} */ (scope.deps.get(node)).push(handler);
-        }
-        node.catch = handlers;
     }
     if (hasIs) {
         const sink = /** @type {Node[]} */ (scope.deps.get(node));

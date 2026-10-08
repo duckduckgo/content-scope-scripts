@@ -18,7 +18,7 @@ import WebDetection from '../src/features/web-detection.js';
  * @param {string} body - markup for `<body>`
  * @param {any} detector
  * @param {RunOptions} [options]
- * @returns {{ detected: true | false | 'error' | 'aborted', abortKind?: string, data?: Record<string, unknown>, ctx: EvaluationContext, error?: unknown }}
+ * @returns {{ detected: true | false | 'error' | 'aborted', abortKind?: string, abortError?: string, data?: Record<string, unknown>, ctx: EvaluationContext, error?: unknown }}
  */
 function run(body, detector, options = {}) {
     const dom = new JSDOM(`<!DOCTYPE html><html><head>${options.head ?? ''}</head><body>${body}</body></html>`);
@@ -31,7 +31,7 @@ function run(body, detector, options = {}) {
         const reader = new NativeReader(window, compiled.names);
         options.afterCapture?.(window);
         const ctx = new EvaluationContext(reader);
-        /** @type {{ detected: true | false | 'aborted', abortKind?: string }} */
+        /** @type {{ detected: true | false | 'aborted', abortKind?: string, abortError?: string }} */
         let result;
         try {
             result = evaluateMatchNode(compiled.match, ctx);
@@ -291,8 +291,8 @@ describe('WebDetection expressions', () => {
             expectParseError({ match: { api: { path: 'document.title', allowGetter: true }, is: '' } }, "unknown key 'allowGetter'");
             expectParseError({ match: { count: { element: { selector: 'img' } }, aggregate: 'max', is: 1 } }, "'aggregate' is reserved");
             expectParseError(
-                { match: { count: { element: { selector: 'img' } }, catch: { missing: 0 }, is: 1 } },
-                "unknown failure kind 'missing'",
+                { match: { count: { element: { selector: 'img' } }, catch: { absent: 0 }, is: 1 } },
+                "unknown expression key 'catch'",
             );
             expectParseError({ match: { if: { test: true, then: 1 }, is: 1 } }, "'if' needs 'else'");
             expectParseError({ match: { if: { test: true, then: 1, else: 2, other: 3 }, is: 1 } }, "unknown key 'other'");
@@ -341,7 +341,7 @@ describe('WebDetection expressions', () => {
             expect(payload('', 'x')).toEqual({ x: 'x' });
             expect(payload('', null)).toEqual({ x: null });
             expect(payload('', { if: { test: true, then: 'yes', else: 'no' } })).toEqual({ x: 'yes' });
-            expect(match('', { api: { path: 'document.missing' }, catch: { absent: null }, is: { type: 'null' } })).toBe(true);
+            expect(payload('', { if: { test: false, then: 'yes', else: null } })).toEqual({ x: null });
             expect(match('', { api: { path: 'document.readyState' }, is: { eq: { api: { path: 'document.readyState' } } } })).toBe(true);
             expect(match('<p>a</p>', { only: { text: { pattern: 'a' } }, is: { eq: { text: { pattern: 'a' } } } })).toBe(true);
             expectParseError({ match: 'x' }, "'literal' does not fill boolean position");
@@ -436,10 +436,6 @@ describe('WebDetection expressions', () => {
                 },
                 'cycle',
             );
-            expectParseError(
-                { match: { count: { element: { selector: 'img' } }, as: 'a', catch: { absent: { ref: 'a' } }, is: 1 } },
-                'cycle',
-            );
         });
 
         it('computes a ref whose target short-circuiting skipped', () => {
@@ -502,115 +498,107 @@ describe('WebDetection expressions', () => {
         });
     });
 
-    describe('failures and catch', () => {
+    describe('failures, fails and exists', () => {
         it('aborts on a failure in boolean position', () => {
             const result = run('', { match: { count: { api: { path: 'document.fonts' } }, is: { gt: 0 } } });
             expect(result.detected).toBe('aborted');
             expect(result.abortKind).toBe('absent');
         });
 
-        it('takes the handler for a listed kind, not measured', () => {
+        it('aborts with threw and the thrown value’s constructor name when a read throws', () => {
+            const result = run(
+                IMG('data-complete data-throw'),
+                { match: { count: { element: { selector: 'img', where: { naturalWidth: 0 } } }, is: { gt: 0 } } },
+                { install: imageState },
+            );
+            expect(result.detected).toBe('aborted');
+            expect(result.abortKind).toBe('threw');
+            expect(result.abortError).toBe('Error');
+        });
+
+        it('reads `fails` and `exists` over a value, an absent read and a read that throws', () => {
+            const width = { only: { element: { selector: 'img', field: 'naturalWidth' } } };
+            const missing = { api: { path: 'document.missing' } };
+            const options = { install: imageState };
+            /** @type {Array<[string, object, object, boolean]>} */
+            const cases = [
+                [IMG('data-width="5"'), width, { fails: false }, true],
+                [IMG('data-width="5"'), width, { fails: true }, false],
+                [IMG('data-width="5"'), width, { exists: true }, true],
+                [IMG('data-throw'), width, { fails: true }, true],
+                [IMG('data-throw'), width, { fails: false }, false],
+                [IMG('data-throw'), width, { exists: true }, true],
+                [IMG('data-throw'), width, { exists: false }, false],
+                [IMG('data-throw'), width, { exists: true, fails: true }, true],
+                ['', missing, { fails: true }, true],
+                ['', missing, { exists: false }, true],
+                ['', missing, { exists: true, fails: true }, false],
+                ['', { api: { path: 'document.onclick' } }, { fails: false, type: 'null' }, true],
+            ];
+            for (const [html, expression, predicate, expected] of cases) {
+                expect(match(html, { ...expression, is: predicate }, options))
+                    .withContext(`${html} ${JSON.stringify(predicate)}`)
+                    .toBe(expected);
+            }
+        });
+
+        it('tests `fails` and `exists` first, whatever the key order', () => {
+            const width = { only: { element: { selector: 'img', field: 'naturalWidth' } } };
+            expect(match(IMG('data-throw'), { ...width, is: { gt: 0, fails: false } }, { install: imageState })).toBe(false);
+            expect(match(IMG('data-width="5"'), { ...width, is: { gt: 0, fails: false } }, { install: imageState })).toBe(true);
+            expect(match('', { count: { api: { path: 'document.fonts' } }, is: { gt: 0, exists: true } })).toBe(false);
+        });
+
+        it('tests each item with `fails`, counting the readable items instead of aborting', () => {
+            const html = IMG('data-throw') + IMG('data-width="0"') + IMG('data-width="5"');
+            const readable = { count: { element: { selector: 'img', where: { naturalWidth: { fails: false } } } } };
+            expect(match(html, { ...readable, is: 2 }, { install: imageState })).toBe(true);
+            const thrown = { count: { element: { selector: 'img', where: { naturalWidth: { fails: true } } } } };
+            expect(match(html, { ...thrown, is: 1 }, { install: imageState })).toBe(true);
+        });
+
+        it('reports a value tested with `fails`, and omits a failed one', () => {
             const detector = {
                 match: {
                     count: { api: { path: 'document.fonts', where: { status: 'error' } } },
                     as: 'failedFontFaces',
-                    catch: { absent: 0 },
-                    is: { lt: 3 },
+                    is: { fails: false, lt: 3 },
                 },
                 actions: { fireEvent: { type: 't', data: { failedFontFaces: { value: { ref: 'failedFontFaces' } } } } },
             };
-            const result = run('', detector);
-            expect(result.detected).toBe(true);
-            expect(result.data).toEqual({});
-            expect(result.ctx.handled).toEqual([jasmine.objectContaining({ kind: 'absent', as: 'failedFontFaces' })]);
-            // On an engine with document.fonts the value is measured
+            expect(run('', detector).detected).toBe(false);
             expect(run('', detector, { install: fonts(['loaded', 'error']) }).data).toEqual({ failedFontFaces: 1 });
         });
 
-        it('passes an unlisted kind up', () => {
-            const result = run(
-                IMG('data-complete data-throw'),
-                {
-                    match: {
-                        count: { element: { selector: 'img', where: { naturalWidth: 0 } } },
-                        catch: { absent: 0 },
-                        is: { gt: 0 },
-                    },
-                },
-                { install: imageState },
-            );
-            expect(result.detected).toBe('aborted');
-            expect(result.abortKind).toBe('denied');
-        });
-
-        it('evaluates a handler only when it handles a kind', () => {
-            const result = run('', {
-                match: {
-                    count: { element: { selector: 'img' } },
-                    catch: { absent: { count: { api: { path: 'missingApi' } } } },
-                    is: 0,
-                },
-            });
-            expect(result.detected).toBe(true);
-            expect(result.ctx.handled).toEqual([]);
-        });
-
-        it('passes up a failing handler’s own kind, and handles it with its own catch', () => {
-            const failing = {
-                count: { api: { path: 'document.fonts' } },
-                catch: { absent: { count: { api: { path: 'otherMissing' } } } },
-                is: 0,
-            };
-            expect(run('', { match: failing }).abortKind).toBe('absent');
-            const chained = {
-                count: { api: { path: 'document.fonts' } },
-                catch: { absent: { count: { api: { path: 'otherMissing' } }, catch: { absent: 7 } } },
-                is: 7,
-            };
-            expect(match('', chained)).toBe(true);
-        });
-
-        it('handles the test’s failures with a catch on an all around it', () => {
+        it('falls back through `if` over `fails`, reporting the fallback and omitting the failed read', () => {
             const detector = {
                 match: {
-                    all: {
-                        count: { api: { path: 'document.fonts', where: { status: 'error' } } },
-                        as: 'failedFontFaces',
-                        is: { lt: 3 },
+                    if: {
+                        test: { count: { api: { path: 'document.fonts', where: { status: 'error' } } }, as: 'n', is: { fails: false } },
+                        then: { ref: 'n' },
+                        else: 0,
                     },
-                    catch: { absent: false },
+                    as: 'nOr0',
+                    is: { gte: 0 },
                 },
+                actions: { fireEvent: { type: 't', data: { nOr0: { value: { ref: 'nOr0' } }, n: { value: { ref: 'n' } } } } },
             };
-            expect(match('', detector.match)).toBe(false);
+            expect(run('', detector).data).toEqual({ nOr0: 0 });
+            expect(run('', detector, { install: fonts(['error', 'error']) }).data).toEqual({ nOr0: 2, n: 2 });
         });
 
-        it('reads `exists` and `type` on a failed value, as a measured reading', () => {
-            expect(
-                match('', {
-                    count: { api: { path: 'document.fonts', where: { status: 'error' } } },
-                    is: { exists: true, gt: 0 },
-                }),
-            ).toBe(false);
-            expect(match('', { count: { api: { path: 'document.fonts' } }, is: { exists: false } })).toBe(true);
-            expect(match('', { count: { api: { path: 'document.fonts' } }, is: { type: 'undefined' } })).toBe(true);
-            expect(match('', { count: { api: { path: 'document.fonts' } }, catch: { absent: 0 }, is: { gt: 0 } })).toBe(false);
+        it('lets a tested failure under `none` decide the leaf, and an untested one abort', () => {
+            const failedFonts = { count: { api: { path: 'document.fonts', where: { status: 'error' } } } };
+            expect(match('', { none: { ...failedFonts, is: { exists: true, gt: 0 } } })).toBe(true);
+            expect(match('', { none: { ...failedFonts, is: { gt: 0 } } })).toBe('aborted');
         });
 
-        it('lets a handled failure under `none` decide the leaf, and a failure under `none` abort', () => {
-            expect(
-                match('', {
-                    none: {
-                        count: { api: { path: 'document.fonts', where: { status: 'error' } } },
-                        catch: { absent: 0 },
-                        is: { gt: 0 },
-                    },
-                }),
-            ).toBe(true);
-            expect(
-                match('', {
-                    none: { count: { api: { path: 'document.fonts', where: { status: 'error' } } }, is: { gt: 0 } },
-                }),
-            ).toBe('aborted');
+        it('passes a ref into an untaken branch through `fails`, omitting the key', () => {
+            const detector = {
+                match: { if: { test: false, then: { sum: [1], as: 'inner' }, else: 0 }, is: {} },
+                actions: { fireEvent: { type: 't', data: { x: { value: { ref: 'inner' }, when: { fails: true } } } } },
+            };
+            expect(run('', detector).data).toEqual({});
         });
 
         it('stops at the first failure, so key order decides between a match and an abort', () => {
@@ -690,31 +678,6 @@ describe('WebDetection expressions', () => {
                     is: {},
                 }),
             ).toBe('aborted');
-        });
-
-        it('is not measured when the test or the branch takes a handler’s value', () => {
-            const viaTest = run(
-                '',
-                withPayload({
-                    if: {
-                        test: { count: { api: { path: 'document.fonts' } }, catch: { absent: 0 }, is: 0 },
-                        then: 1,
-                        else: 2,
-                    },
-                }),
-            );
-            expect(viaTest.data).toEqual({});
-            const viaBranch = run(
-                '',
-                withPayload({
-                    if: {
-                        test: true,
-                        then: { count: { api: { path: 'document.fonts' } }, catch: { absent: 0 } },
-                        else: 2,
-                    },
-                }),
-            );
-            expect(viaBranch.data).toEqual({});
         });
     });
 
@@ -1101,13 +1064,13 @@ describe('WebDetection expressions', () => {
             expect(test({ num: { finite: true, gt: 7 } })).toBe(true);
         });
 
-        it('measures a count over exists, where a catch on the count is not', () => {
+        it('reports a count over exists on an engine without the field', () => {
             const install = timeline([{ name: 'r', entryType: 'resource' }], { missing: ['responseStatus'] });
             const where = (/** @type {object} */ status) => ({
                 api: { path: 'performance.getEntriesByType', args: ['resource'], where: { responseStatus: status } },
             });
             expect(payload('', { count: where({ exists: true, gte: 400 }) }, {}, { install })).toEqual({ x: 0 });
-            expect(payload('', { count: where({ gte: 400 }), catch: { absent: 0 } }, {}, { install })).toEqual({});
+            expect(payload('', { count: where({ gte: 400 }) }, {}, { install })).toEqual({});
         });
 
         it('compares against an operand expression, computed once', () => {
@@ -1268,7 +1231,7 @@ describe('WebDetection expressions', () => {
             );
         });
 
-        it('fails with denied when a getter throws', () => {
+        it('fails with threw when a getter throws', () => {
             const install = (/** @type {any} */ w) =>
                 Object.defineProperty(w.Document.prototype, 'cookie', {
                     configurable: true,
@@ -1278,7 +1241,8 @@ describe('WebDetection expressions', () => {
                 });
             const result = run('', { match: { api: { path: 'document.cookie' }, is: { type: 'string' } } }, { install });
             expect(result.detected).toBe('aborted');
-            expect(result.abortKind).toBe('denied');
+            expect(result.abortKind).toBe('threw');
+            expect(match('', { api: { path: 'document.cookie' }, is: { fails: true } }, { install })).toBe(true);
         });
 
         it('calls the captured native method the path names', () => {
@@ -1315,7 +1279,7 @@ describe('WebDetection expressions', () => {
                 true,
             );
             expect(match('', { count: resources({ responseStatus: { gte: 400 } }), is: 0 }, { install })).toBe('aborted');
-            expect(match('', { count: resources({ responseStatus: { gte: 400 } }), catch: { absent: 0 }, is: 0 }, { install })).toBe(true);
+            expect(match('', { count: resources({ responseStatus: { exists: true, gte: 400 } }), is: 0 }, { install })).toBe(true);
         });
 
         it('errors on `where` over a value that is not a list, or an item that is not an object', () => {
@@ -1382,29 +1346,34 @@ describe('WebDetection expressions', () => {
             ).toBe(true);
         });
 
-        it('fails with an argument kind, and is not measured from a handler', () => {
+        it('fails with an argument’s kind', () => {
             const failed = run('', { match: { api: { path: 'Array.of', args: [{ api: { path: 'document.fonts' } }] }, is: {} } });
             expect(failed.detected).toBe('aborted');
             expect(failed.abortKind).toBe('absent');
-            const handled = run('', {
-                match: { api: { path: 'Math.max', args: [{ api: { path: 'document.fonts' }, catch: { absent: 0 } }] }, as: 'n', is: 0 },
-            });
-            expect(handled.detected).toBe(true);
-            expect(handled.ctx.measured.n).toBeUndefined();
             expect(run('', { match: { api: { path: 'Math.max', args: [7] }, as: 'n', is: 7 } }).ctx.measured.n).toBe(7);
         });
 
-        it('errors on a TypeError or RangeError from the call, and fails with denied on any other throw', () => {
-            expect(match('', { api: { path: 'Math.max.apply', args: [null, 5] }, is: {} })).toBe('error');
-            expect(match('', { api: { path: 'Number.prototype.toFixed.call', args: [1, 500] }, is: {} })).toBe('error');
+        it('fails with threw on any throw from the call, which `fails` tests', () => {
             const install = (/** @type {any} */ w) => {
                 w.document.createElement = () => {
                     throw new w.DOMException('refused', 'SecurityError');
                 };
             };
-            const denied = run('', { match: { api: { path: 'document.createElement', args: ['p'] }, is: {} } }, { install });
-            expect(denied.detected).toBe('aborted');
-            expect(denied.abortKind).toBe('denied');
+            /** @type {Array<[object, string, RunOptions | undefined]>} */
+            const calls = [
+                [{ path: 'Math.max.apply', args: [null, 5] }, 'TypeError', undefined],
+                [{ path: 'Number.prototype.toFixed.call', args: [1, 500] }, 'RangeError', undefined],
+                [{ path: 'document.createElement', args: ['p'] }, 'DOMException', { install }],
+            ];
+            for (const [api, name, options] of calls) {
+                const result = run('', { match: { api, is: {} } }, options);
+                expect(result.detected).withContext(name).toBe('aborted');
+                expect(result.abortKind).withContext(name).toBe('threw');
+                expect(result.abortError).withContext(name).toBe(name);
+                expect(match('', { api, is: { fails: true } }, options))
+                    .withContext(name)
+                    .toBe(true);
+            }
         });
 
         it('rejects entries that are not literals, expressions or arrays', () => {
@@ -1512,7 +1481,7 @@ describe('WebDetection expressions', () => {
             );
         });
 
-        it('calls the captured native method, and fails with denied when it throws', () => {
+        it('calls the captured native method, and fails with threw when it throws', () => {
             const html = '<div role="main"></div>';
             const afterCapture = (/** @type {any} */ w) => {
                 w.Element.prototype.getAttribute = () => 'evil';
@@ -1682,9 +1651,8 @@ describe('WebDetection expressions', () => {
                         },
                         {
                             count: { api: { path: 'document.fonts', where: { status: 'error' } } },
-                            catch: { absent: 0 },
                             as: 'failedFontFaces',
-                            is: { gt: 0 },
+                            is: { exists: true, gt: 0 },
                         },
                     ],
                 },
@@ -1714,7 +1682,7 @@ describe('WebDetection expressions', () => {
                 fonts(['error', 'loaded'])(w);
             };
             expect(run('', detector, { install: both }).data).toEqual({ failedStylesheets: '1', failedFontFaces: '1' });
-            // No document.fonts: the font count is a handler's 0, not reported
+            // No document.fonts: the font count fails, and is not reported
             expect(run('', detector, { install: failedSheet }).data).toEqual({ failedStylesheets: '1' });
             const fontOnly = (/** @type {any} */ w) => {
                 loadedSheet(w);
