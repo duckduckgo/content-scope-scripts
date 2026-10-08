@@ -357,7 +357,6 @@ function stringList(raw, path) {
  *
  * @typedef {object} Root
  * @property {unknown[]} entries
- * @property {string[]} [selectors] - every entry, when each is a string literal, for the queries that need no read
  */
 
 /**
@@ -369,10 +368,7 @@ function stringList(raw, path) {
 function parseRoot(raw, path, hooks) {
     if (raw === undefined) return undefined;
     if (isArray(raw) && raw.length === 0) throw new ConfigParseError(path, '`root` needs at least one entry');
-    const list = asArray(raw);
-    const entries = list.map((entry, i) => hooks.expression(entry, isArray(raw) ? `${path}[${i}]` : path, 'root'));
-    if (!list.every((entry) => typeof entry === 'string')) return { entries };
-    return { entries, selectors: /** @type {string[]} */ (list) };
+    return { entries: asArray(raw).map((entry, i) => hooks.expression(entry, isArray(raw) ? `${path}[${i}]` : path, 'root')) };
 }
 
 /**
@@ -384,7 +380,7 @@ function parseRoot(raw, path, hooks) {
  * @returns {ParentNode[] | Failure}
  */
 function resolveRoots(root, ctx) {
-    if (!root || root.selectors) return selectorRoots(root?.selectors);
+    if (!root) return [document];
     /** @type {Node[]} */
     const nodes = [];
     for (const entry of root.entries) {
@@ -426,21 +422,13 @@ function collectRootNodes(value, nodes, ctx) {
 }
 
 /**
- * Roots from selectors, or the document without them.
- *
- * @param {string[] | undefined} selectors
- * @returns {ParentNode[]}
- */
-function selectorRoots(selectors) {
-    if (!selectors) return [document];
-    return outermost(document.querySelectorAll(selectors.join(', ')));
-}
-
-/**
- * @param {Iterable<Node>} nodes
- * @returns {ParentNode[]} the nodes, without those inside another
+ * @param {Node[]} nodes
+ * @returns {ParentNode[]} the nodes in document order, without those inside another
  */
 function outermost(nodes) {
+    // In document order a node comes after any node containing it. 4 is `DOCUMENT_POSITION_FOLLOWING`,
+    // inlined because the `Node` global is not present everywhere this runs
+    nodes.sort((a, b) => (a === b ? 0 : a.compareDocumentPosition(b) & 4 ? -1 : 1));
     /** @type {Node[]} */
     const roots = [];
     for (const node of nodes) {
@@ -617,7 +605,7 @@ const VISIBILITIES = ['visible', 'hidden', 'any', 'content'];
  * @returns {boolean}
  */
 function isPresenceOnly(body) {
-    return body.visibility === 'any' && !body.where && !body.field && (!body.root || body.root.selectors !== undefined);
+    return body.visibility === 'any' && !body.where && !body.field;
 }
 
 /**
@@ -658,16 +646,22 @@ export const elementSource = {
     read(bodies, ctx) {
         return new ItemBuffer(selectElements(bodies, ctx), {
             hasAny() {
-                // With no state to read, a quick existence check suffices
+                // With no state to read, a quick existence check suffices. A root that fails leaves
+                // the iterator to report it
                 if (!bodies.every(isPresenceOnly)) return undefined;
-                return bodies.some((body) =>
-                    selectorRoots(body.root?.selectors).some((root) => root.querySelector(body.selector) !== null),
-                );
+                for (const body of bodies) {
+                    const roots = resolveRoots(body.root, ctx);
+                    if (isFailure(roots)) return undefined;
+                    if (roots.some((root) => root.querySelector(body.selector) !== null)) return true;
+                }
+                return false;
             },
             countUpTo() {
-                if (bodies.length !== 1 || !bodies.every(isPresenceOnly)) return undefined;
                 const body = /** @type {ElementBody} */ (bodies[0]);
-                return selectorRoots(body.root?.selectors).reduce((sum, root) => sum + root.querySelectorAll(body.selector).length, 0);
+                if (bodies.length !== 1 || !isPresenceOnly(body)) return undefined;
+                const roots = resolveRoots(body.root, ctx);
+                if (isFailure(roots)) return undefined;
+                return roots.reduce((sum, root) => sum + root.querySelectorAll(body.selector).length, 0);
             },
         });
     },
