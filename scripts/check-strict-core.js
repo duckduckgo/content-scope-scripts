@@ -109,7 +109,6 @@ const CORE_FILES = new Set([
     'injected/src/features/web-detection/matching.js',
     'injected/src/features/web-detection/core.js',
     'injected/src/features/web-detection/expressions.js',
-    'injected/src/features/web-detection/features.js',
     'injected/src/features/web-detection/parse.js',
     'injected/src/features/web-detection/predicates.js',
     'injected/src/features/web-detection/sources.js',
