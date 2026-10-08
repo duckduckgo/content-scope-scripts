@@ -337,18 +337,15 @@ function compileKey(key, body, position, path, scope) {
         case 'expr': {
             // An operand with `is` gives a boolean, in boolean position
             const operandIs = isPlainObject(body) && body.is !== undefined;
-            if (operandIs) expectPosition(position, FILLS.boolean, key, path);
             const operand = compileExpr(body, operandIs ? 'boolean' : position, `${path}.expr`, scope);
             return makeNode(scope, { kind: 'expr', operand, path, position }, [operand]);
         }
         case 'only': {
-            expectPosition(position, FILLS.number, key, path);
             const operand = compileExpr(body, 'list', `${path}.only`, scope);
             return makeNode(scope, { kind: 'only', operand, path, position }, [operand]);
         }
         case 'sum':
         case 'mul': {
-            expectPosition(position, FILLS.number, key, path);
             const operands = asArray(body).map((raw, i) => {
                 const operand = compileExpr(raw, 'number', `${path}[${i}]`, scope);
                 scope.slots.push({ node: operand, single: 'number' });
@@ -357,7 +354,6 @@ function compileKey(key, body, position, path, scope) {
             return makeNode(scope, { kind: key, operands, path, position }, operands);
         }
         case 'div': {
-            expectPosition(position, FILLS.number, key, path);
             if (!isArray(body) || body.length !== 2) throw new ConfigParseError(path, `'div' takes two operands`);
             const operands = body.map((raw, i) => compileExpr(raw, 'number', `${path}[${i}]`, scope));
             return makeNode(scope, { kind: key, operands, path, position }, operands);
@@ -365,7 +361,6 @@ function compileKey(key, body, position, path, scope) {
         case 'any':
         case 'all':
         case 'none':
-            expectPosition(position, FILLS.boolean, key, path);
             return compileLogic(key, asArray(body), position, path, scope);
         case 'if':
             return compileIf(body, position, path, scope);
@@ -378,19 +373,6 @@ function compileKey(key, body, position, path, scope) {
         }
         default:
             throw new ConfigParseError(path, `unknown expression key '${key}'`);
-    }
-}
-
-/**
- * @param {Position} position
- * @param {ReadonlySet<Position>} fills
- * @param {string} key
- * @param {string} path
- */
-function expectPosition(position, fills, key, path) {
-    if (!fits(fills, position)) {
-        const hint = position === 'boolean' ? '; numbers become booleans only through `is`' : '';
-        throw new ConfigParseError(path, `'${key}' does not fill ${position} position${hint}`);
     }
 }
 
@@ -411,7 +393,6 @@ function compileUsing(raw, root, position, path, scope) {
     if (!isExpressionObject(raw)) return scope.binding({ using: root }, () => compileSelf(raw, position, path, scope, 'using'));
     // An operand with `is` gives a boolean, in boolean position
     const operandIs = raw.is !== undefined;
-    if (operandIs) expectPosition(position, FILLS.boolean, 'using', path);
     const operand = scope.binding({ using: root }, () => compileExpr(raw, operandIs ? 'boolean' : position, usingPath, scope));
     // Its own node, so the `as` and `is` beside `using` are not the operand's
     return makeNode(scope, { kind: 'expr', operand, path, position }, [operand, root]);
