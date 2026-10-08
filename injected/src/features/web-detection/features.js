@@ -4,7 +4,7 @@ import { DetectionError } from './core.js';
  * Values C-S-S computes where no property holds them. Each takes a value of one type, and is an
  * error on another.
  *
- * @typedef {'wordCount' | 'renderedTextLength'} FeatureName
+ * @typedef {'renderedTextLength'} FeatureName
  */
 
 /** Element tags whose descendant text is never rendered. */
@@ -21,23 +21,6 @@ const TEXT_NODE = 3;
  */
 function isElement(value) {
     return typeof value === 'object' && value !== null && /** @type {{nodeType?: unknown}} */ (value).nodeType === ELEMENT_NODE;
-}
-
-/**
- * Whitespace-separated tokens in a string.
- *
- * @param {unknown} value
- * @returns {number}
- */
-function wordCount(value) {
-    if (typeof value !== 'string') {
-        throw new DetectionError(`wordCount takes a string, got ${typeof value}`);
-    }
-    let count = 0;
-    for (const token of value.split(/\s+/)) {
-        if (token !== '') count++;
-    }
-    return count;
 }
 
 /**
@@ -69,7 +52,6 @@ function renderedTextLength(value) {
 
 /** @type {Record<FeatureName, (value: unknown) => number>} */
 export const FEATURES = {
-    wordCount,
     renderedTextLength,
 };
 
@@ -78,5 +60,5 @@ export const FEATURES = {
  * @returns {name is FeatureName}
  */
 export function isFeatureName(name) {
-    return name === 'wordCount' || name === 'renderedTextLength';
+    return name === 'renderedTextLength';
 }
