@@ -1,1 +1,1 @@
-- NTP omnibar: keep Create Image active across browser tabs (#3081)
+- NTP: duck.ai ToS (#3061)

@@ -1,4 +1,6 @@
+import { h } from 'preact';
 import { useContext, useEffect } from 'preact/hooks';
+import { Trans } from '../../../../../shared/components/TranslationsProvider.js';
 import { useTypedTranslationWith } from '../../types';
 import { OmnibarContext } from './OmnibarProvider';
 import { AttachmentPrivacyGrant } from './PersistentOmnibarValuesProvider.js';
@@ -43,10 +45,10 @@ export function useAttachmentPrivacyNotice() {
     const presentation =
         attachmentKind && granted
             ? {
-                  message: t('omnibar_attachmentPrivacyDisclaimer'),
+                  type: /** @type {const} */ ('required'),
+                  message: <Trans str={t('omnibar_attachmentPrivacyDisclaimer')} values={messageValues} />,
                   secondaryText: '',
                   icon: /** @type {const} */ ('info'),
-                  messageValues,
               }
             : null;
 

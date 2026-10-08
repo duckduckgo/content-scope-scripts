@@ -4505,6 +4505,19 @@ body[data-rebrand=true][data-platform-name=windows] .NextStepsListCard_buttonRow
 .AiChatForm_submitButton:focus-visible {
   box-shadow: var(--focus-ring);
 }
+.AiChatForm_termsSubmitButton {
+  border-radius: var(--ds-radius-full);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 16px;
+  padding: 0 var(--sp-3);
+  white-space: nowrap;
+  width: auto;
+}
+.AiChatForm_termsSubmitButton[disabled] {
+  background: var(--ds-color-theme-control-fill-primary);
+  color: color-mix(in srgb, var(--ds-color-theme-text-primary) 30%, transparent);
+}
 .AiChatForm_submitButton:has(.AiChatForm_voiceIcon) {
   background: var(--ds-color-theme-control-fill-primary);
   color: var(--ds-color-theme-icons-primary);
@@ -6734,6 +6747,9 @@ body[data-rebrand=true]:not([data-background-kind=default]) .TabSwitcher_blob {
     animation: none;
   }
 }
+.NoticeDrawer_noSlideIn {
+  animation: none;
+}
 .NoticeDrawer_hidden {
   display: none;
 }
@@ -6794,6 +6810,7 @@ body[data-rebrand=true]:not([data-background-kind=default]) .TabSwitcher_blob {
   fill: var(--ds-color-theme-icons-secondary);
   fill-opacity: 1;
 }
+.NoticeDrawer_shield,
 .NoticeDrawer_announce {
   color: var(--ds-color-theme-icons-secondary);
 }
@@ -6858,6 +6875,16 @@ body[data-rebrand=true]:not([data-background-kind=default]) .TabSwitcher_blob {
 .NoticeDrawer_secondary {
   color: var(--ds-color-theme-text-secondary);
   font-weight: 400;
+}
+.NoticeDrawer_messageMuted {
+  color: var(--ds-color-theme-text-secondary);
+}
+.NoticeDrawer_link {
+  color: var(--ds-color-theme-accent-text-primary);
+  text-decoration: none;
+}
+.NoticeDrawer_link:hover {
+  text-decoration: underline;
 }
 .NoticeDrawer_dismiss {
   border-radius: 50%;

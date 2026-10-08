@@ -84,6 +84,10 @@ export const OmnibarContext = createContext({
         throw new Error('must implement');
     },
     /** @type {() => void} */
+    openPrivacyTerms: () => {
+        throw new Error('must implement');
+    },
+    /** @type {() => void} */
     dismissUsageLimits: () => {
         throw new Error('must implement');
     },
@@ -306,6 +310,11 @@ export function OmnibarProvider(props) {
     }, [service]);
 
     /** @type {() => void} */
+    const openPrivacyTerms = useCallback(() => {
+        service.current?.openPrivacyTerms();
+    }, [service]);
+
+    /** @type {() => void} */
     const dismissUsageLimits = useCallback(() => {
         service.current?.dismissUsageLimits();
     }, [service]);
@@ -450,6 +459,7 @@ export function OmnibarProvider(props) {
                 openAiChat,
                 viewAllAiChats,
                 openCustomizeResponses,
+                openPrivacyTerms,
                 dismissUsageLimits,
                 dismissCreateImageModelSwitch,
                 setImageGenerationActive,

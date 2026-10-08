@@ -56,6 +56,10 @@
       "type": "array",
       "items": { "$ref": "./types/page-context.json" }
     },
+    "aiTermsAccepted": {
+      "description": "True when the user explicitly accepted Duck.ai's Privacy Policy and Terms of Service with this submission. Native passes it to Duck.ai with the prompt. Omitted otherwise.",
+      "type": "boolean"
+    },
     "files": {
       "description": "Files (PDFs in v1) attached via the paperclip menu. Each entry mirrors Duck.ai's `NativePromptFile` shape so native forwards them through unchanged. Omitted when no files are attached.",
       "type": "array",

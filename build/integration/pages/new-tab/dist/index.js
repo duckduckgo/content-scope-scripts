@@ -2046,6 +2046,15 @@
       }
     ));
   }
+  function ShieldCheckIcon(props) {
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k(
+      "path",
+      {
+        fill: "currentColor",
+        d: "M7.99984 0.000244141C8.86498 0.000260961 9.7564 0.288216 10.5096 1.01685C10.9909 1.48242 11.798 1.96967 12.9246 2.32935H12.9256C13.657 2.56295 14.4143 2.80083 14.9744 3.3186C15.5744 3.87343 15.8734 4.66309 15.9578 5.80493C16.0791 7.44111 16.0186 9.44702 14.6317 11.6829C13.7812 13.0545 12.5226 14.1252 11.3045 14.8508C10.1054 15.5651 8.85334 15.9992 7.98422 15.9993C7.11424 15.9993 5.86989 15.5643 4.67855 14.8499C3.46793 14.1237 2.21775 13.0536 1.368 11.6838H1.36703C-0.0189801 9.448 -0.0794716 7.44052 0.0418313 5.80493C0.126267 4.66334 0.425243 3.87351 1.02523 3.3186C1.58531 2.80073 2.3425 2.56301 3.07406 2.32935C4.20007 1.96959 5.00882 1.48236 5.49007 1.01685C6.24329 0.288251 7.13471 0.000244141 7.99984 0.000244141ZM7.99984 1.25024C7.42649 1.25024 6.8569 1.43388 6.35922 1.91528C5.70486 2.54822 4.7115 3.1183 3.45492 3.51978C2.65731 3.77454 2.19201 3.94244 1.87386 4.23657C1.59572 4.49392 1.35989 4.92397 1.28793 5.89673C1.17667 7.39642 1.23784 9.10208 2.42953 11.0247C3.14933 12.1851 4.23502 13.1261 5.32113 13.7776C6.42648 14.4406 7.44012 14.7493 7.98422 14.7493C8.52927 14.7492 9.55159 14.4397 10.6649 13.7766C11.759 13.1248 12.8513 12.184 13.5702 11.0247L13.7801 10.6672C14.7692 8.89025 14.8161 7.30402 14.7118 5.89673C14.6398 4.92355 14.4038 4.49376 14.1258 4.23657C13.8077 3.94252 13.3426 3.77462 12.5448 3.51978C11.2869 3.11823 10.2947 2.54814 9.64046 1.91528C9.14278 1.43384 8.5732 1.25026 7.99984 1.25024ZM10.7479 5.52075C10.9887 5.27345 11.3844 5.26724 11.6317 5.50806C11.8787 5.74873 11.8837 6.14455 11.6434 6.39185L7.54867 10.5969C7.3111 10.8404 6.92198 10.8491 6.67367 10.6165L4.37679 8.46411C4.12538 8.22814 4.11285 7.83306 4.34847 7.5813C4.5845 7.32943 4.98039 7.31597 5.23226 7.552L7.08089 9.28442L10.7479 5.52075Z"
+      }
+    ));
+  }
   function Check(props) {
     return /* @__PURE__ */ k("svg", { xmlns: "http://www.w3.org/2000/svg", width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", ...props }, /* @__PURE__ */ k(
       "path",
@@ -9338,6 +9347,12 @@
           this.ntp.messaging.notify("omnibar_openCustomizeResponses", {});
         }
         /**
+         * Notify native to open the Duck.ai Privacy Policy and Terms of Service page in a new tab.
+         */
+        openPrivacyTerms() {
+          this.ntp.messaging.notify("omnibar_openPrivacyTerms", {});
+        }
+        /**
          * Notify native that the user dismissed the AI-mode usage limits drawer.
          * Native owns dismiss persistence and should push updated config.
          */
@@ -9576,6 +9591,9 @@
     const openCustomizeResponses = q2(() => {
       service.current?.openCustomizeResponses();
     }, [service]);
+    const openPrivacyTerms = q2(() => {
+      service.current?.openPrivacyTerms();
+    }, [service]);
     const dismissUsageLimits = q2(() => {
       service.current?.dismissUsageLimits();
     }, [service]);
@@ -9682,6 +9700,7 @@
           openAiChat,
           viewAllAiChats,
           openCustomizeResponses,
+          openPrivacyTerms,
           dismissUsageLimits,
           dismissCreateImageModelSwitch,
           setImageGenerationActive,
@@ -9793,6 +9812,10 @@
         },
         /** @type {() => void} */
         openCustomizeResponses: () => {
+          throw new Error("must implement");
+        },
+        /** @type {() => void} */
+        openPrivacyTerms: () => {
           throw new Error("must implement");
         },
         /** @type {() => void} */
@@ -10112,6 +10135,7 @@
         rightButtons: "AiChatForm_rightButtons",
         submitButton: "AiChatForm_submitButton",
         fadeIn: "AiChatForm_fadeIn",
+        termsSubmitButton: "AiChatForm_termsSubmitButton",
         voiceIcon: "AiChatForm_voiceIcon"
       };
     }
@@ -10168,7 +10192,7 @@
     const handleSubmit = (event) => {
       event.preventDefault();
       if (disabled || readOnly) return;
-      onSubmit(query, "same-tab");
+      onSubmit({ chat: query, target: "same-tab" });
     };
     const handleKeyDown = (event) => {
       const result = onTextareaKeyDown?.(event);
@@ -10211,7 +10235,7 @@
           if (disabled || readOnly) {
             break;
           }
-          onSubmit(query, eventToTarget2(event, platformName));
+          onSubmit({ chat: query, target: eventToTarget2(event, platformName) });
           break;
       }
     };
@@ -15328,6 +15352,7 @@
     }, [dismissCreateImageModelSwitch]);
     if (!notice) return null;
     return {
+      type: "action",
       message: notice.message,
       secondaryText: notice.secondaryText ?? "",
       secondaryOnNewLine: true,
@@ -15343,6 +15368,126 @@
       "use strict";
       init_hooks_module();
       init_OmnibarProvider();
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/useReservedHeight.js
+  function useReservedHeight(enabled, onChange) {
+    const ref = A2(
+      /** @type {HTMLDivElement|null} */
+      null
+    );
+    _2(() => {
+      const element = ref.current;
+      if (!enabled || !element) return;
+      const report = () => onChange(Math.max(0, element.offsetHeight + parseFloat(getComputedStyle(element).marginTop)));
+      report();
+      const observer = new ResizeObserver(report);
+      observer.observe(element);
+      return () => {
+        observer.disconnect();
+        onChange(0);
+      };
+    }, [enabled, onChange]);
+    return ref;
+  }
+  var init_useReservedHeight = __esm({
+    "pages/new-tab/app/omnibar/components/useReservedHeight.js"() {
+      "use strict";
+      init_hooks_module();
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/NoticeDrawer.module.css
+  var NoticeDrawer_default;
+  var init_NoticeDrawer = __esm({
+    "pages/new-tab/app/omnibar/components/NoticeDrawer.module.css"() {
+      NoticeDrawer_default = {
+        drawer: "NoticeDrawer_drawer",
+        slideOpen: "NoticeDrawer_slideOpen",
+        noSlideIn: "NoticeDrawer_noSlideIn",
+        hidden: "NoticeDrawer_hidden",
+        card: "NoticeDrawer_card",
+        content: "NoticeDrawer_content",
+        leading: "NoticeDrawer_leading",
+        glyph: "NoticeDrawer_glyph",
+        info: "NoticeDrawer_info",
+        shield: "NoticeDrawer_shield",
+        announce: "NoticeDrawer_announce",
+        ringTrack: "NoticeDrawer_ringTrack",
+        ringValue: "NoticeDrawer_ringValue",
+        severity_neutral: "NoticeDrawer_severity_neutral",
+        severity_warning: "NoticeDrawer_severity_warning",
+        severity_critical: "NoticeDrawer_severity_critical",
+        alertTriangle: "NoticeDrawer_alertTriangle",
+        alertMark: "NoticeDrawer_alertMark",
+        message: "NoticeDrawer_message",
+        primary: "NoticeDrawer_primary",
+        messageEmphasized: "NoticeDrawer_messageEmphasized",
+        messageStacked: "NoticeDrawer_messageStacked",
+        secondary: "NoticeDrawer_secondary",
+        messageMuted: "NoticeDrawer_messageMuted",
+        link: "NoticeDrawer_link",
+        dismiss: "NoticeDrawer_dismiss",
+        ctaSplit: "NoticeDrawer_ctaSplit",
+        ctaPrimary: "NoticeDrawer_ctaPrimary",
+        ctaPrimarySolo: "NoticeDrawer_ctaPrimarySolo",
+        ctaPrimarySplit: "NoticeDrawer_ctaPrimarySplit",
+        ctaMenu: "NoticeDrawer_ctaMenu",
+        ctaLabel: "NoticeDrawer_ctaLabel",
+        ctaMenuHeader: "NoticeDrawer_ctaMenuHeader",
+        ctaDropdown: "NoticeDrawer_ctaDropdown",
+        ctaModelName: "NoticeDrawer_ctaModelName",
+        ctaModelVariant: "NoticeDrawer_ctaModelVariant",
+        convertIcon: "NoticeDrawer_convertIcon"
+      };
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/useTermsDisclaimerNotice.js
+  function useTermsDisclaimerNotice() {
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {Strings} */
+      {}
+    );
+    const { state, openPrivacyTerms } = x2(OmnibarContext);
+    const { imageGenerationActive } = useActiveTools();
+    if (state.config?.requiresAiTermsAcceptance !== true) return null;
+    const onLinkClick = (event) => {
+      event.preventDefault();
+      openPrivacyTerms();
+    };
+    return {
+      type: "required",
+      message: t4("omnibar_termsDisclaimerAnonymized"),
+      messageId: TERMS_DISCLAIMER_ID,
+      secondaryText: /* @__PURE__ */ k(
+        Trans,
+        {
+          str: imageGenerationActive ? t4("omnibar_termsDisclaimerCreate") : t4("omnibar_termsDisclaimerAsk"),
+          values: { a: { href: "#", class: NoticeDrawer_default.link, click: onLinkClick, auxclick: onLinkClick } }
+        }
+      ),
+      secondaryOnNewLine: true,
+      icon: (
+        /** @type {const} */
+        "shield"
+      ),
+      muted: true
+    };
+  }
+  var TERMS_DISCLAIMER_ID;
+  var init_useTermsDisclaimerNotice = __esm({
+    "pages/new-tab/app/omnibar/components/useTermsDisclaimerNotice.js"() {
+      "use strict";
+      init_preact_module();
+      init_hooks_module();
+      init_TranslationsProvider();
+      init_types();
+      init_useActiveTools();
+      init_OmnibarProvider();
+      init_NoticeDrawer();
+      TERMS_DISCLAIMER_ID = "omnibar-terms-disclaimer";
     }
   });
 
@@ -15374,6 +15519,7 @@
       alternatives: Array.isArray(rawCta.alternatives) ? rawCta.alternatives.filter((alt) => alt && typeof alt.id === "string" && typeof alt.name === "string") : []
     } : null;
     return {
+      type: usageLimits.blocksPrompt === true ? "required" : "informational",
       message: usageLimits.message,
       secondaryText: usageLimits.secondaryText ?? "",
       icon,
@@ -15432,20 +15578,25 @@
       }
     };
     const presentation = attachmentKind && granted ? {
-      message: t4("omnibar_attachmentPrivacyDisclaimer"),
+      type: (
+        /** @type {const} */
+        "required"
+      ),
+      message: /* @__PURE__ */ k(Trans, { str: t4("omnibar_attachmentPrivacyDisclaimer"), values: messageValues }),
       secondaryText: "",
       icon: (
         /** @type {const} */
         "info"
-      ),
-      messageValues
+      )
     } : null;
     return presentation;
   }
   var init_useAttachmentPrivacyNotice = __esm({
     "pages/new-tab/app/omnibar/components/useAttachmentPrivacyNotice.js"() {
       "use strict";
+      init_preact_module();
       init_hooks_module();
+      init_TranslationsProvider();
       init_types();
       init_OmnibarProvider();
       init_PersistentOmnibarValuesProvider();
@@ -15461,6 +15612,7 @@
       return null;
     }
     return {
+      type: "informational",
       message: launcherPromo.message,
       secondaryText: launcherPromo.secondaryText ?? "",
       icon: "announce",
@@ -15474,48 +15626,6 @@
       "use strict";
       init_hooks_module();
       init_OmnibarProvider();
-    }
-  });
-
-  // pages/new-tab/app/omnibar/components/NoticeDrawer.module.css
-  var NoticeDrawer_default;
-  var init_NoticeDrawer = __esm({
-    "pages/new-tab/app/omnibar/components/NoticeDrawer.module.css"() {
-      NoticeDrawer_default = {
-        drawer: "NoticeDrawer_drawer",
-        slideOpen: "NoticeDrawer_slideOpen",
-        hidden: "NoticeDrawer_hidden",
-        card: "NoticeDrawer_card",
-        content: "NoticeDrawer_content",
-        leading: "NoticeDrawer_leading",
-        glyph: "NoticeDrawer_glyph",
-        info: "NoticeDrawer_info",
-        announce: "NoticeDrawer_announce",
-        ringTrack: "NoticeDrawer_ringTrack",
-        ringValue: "NoticeDrawer_ringValue",
-        severity_neutral: "NoticeDrawer_severity_neutral",
-        severity_warning: "NoticeDrawer_severity_warning",
-        severity_critical: "NoticeDrawer_severity_critical",
-        alertTriangle: "NoticeDrawer_alertTriangle",
-        alertMark: "NoticeDrawer_alertMark",
-        message: "NoticeDrawer_message",
-        primary: "NoticeDrawer_primary",
-        messageEmphasized: "NoticeDrawer_messageEmphasized",
-        messageStacked: "NoticeDrawer_messageStacked",
-        secondary: "NoticeDrawer_secondary",
-        dismiss: "NoticeDrawer_dismiss",
-        ctaSplit: "NoticeDrawer_ctaSplit",
-        ctaPrimary: "NoticeDrawer_ctaPrimary",
-        ctaPrimarySolo: "NoticeDrawer_ctaPrimarySolo",
-        ctaPrimarySplit: "NoticeDrawer_ctaPrimarySplit",
-        ctaMenu: "NoticeDrawer_ctaMenu",
-        ctaLabel: "NoticeDrawer_ctaLabel",
-        ctaMenuHeader: "NoticeDrawer_ctaMenuHeader",
-        ctaDropdown: "NoticeDrawer_ctaDropdown",
-        ctaModelName: "NoticeDrawer_ctaModelName",
-        ctaModelVariant: "NoticeDrawer_ctaModelVariant",
-        convertIcon: "NoticeDrawer_convertIcon"
-      };
     }
   });
 
@@ -15589,6 +15699,8 @@
         return /* @__PURE__ */ k(UsageLimitsAlertIcon, null);
       case "convert":
         return /* @__PURE__ */ k(ConvertIcon, null);
+      case "shield":
+        return /* @__PURE__ */ k(ShieldCheckIcon, { class: (0, import_classnames22.default)(NoticeDrawer_default.glyph, NoticeDrawer_default.shield), "aria-hidden": "true" });
       case "announce":
         return /* @__PURE__ */ k(AnnounceIcon, null);
       case "info":
@@ -15706,15 +15818,60 @@
       })
     ) : null) : null);
   }
-  function NoticeDrawer({ revealed, launcherPromoVisibleRef }) {
+  function visibleNotices(notices) {
+    for (const type of NOTICE_TYPES) {
+      const ofType = [];
+      for (const notice of notices) {
+        if (notice?.type === type) ofType.push(notice);
+      }
+      if (ofType.length > 0) return ofType.slice(0, type === "required" ? 2 : 1);
+    }
+    return [];
+  }
+  function NoticeRow({ presentation }) {
+    const {
+      message,
+      messageId,
+      secondaryText,
+      secondaryOnNewLine = false,
+      muted = false,
+      icon,
+      percent = 0,
+      severity = "neutral",
+      cta = null,
+      onSelectCta,
+      onDismiss
+    } = presentation;
+    const emphasize = icon === "ring" || icon === "alert" || icon === "convert" || icon === "announce";
+    return /* @__PURE__ */ k("div", { class: NoticeDrawer_default.content }, /* @__PURE__ */ k("span", { class: NoticeDrawer_default.leading }, /* @__PURE__ */ k(NoticeGlyph, { icon, percent, severity })), /* @__PURE__ */ k(
+      "p",
+      {
+        id: messageId,
+        class: (0, import_classnames22.default)(
+          NoticeDrawer_default.message,
+          emphasize && NoticeDrawer_default.messageEmphasized,
+          secondaryOnNewLine && NoticeDrawer_default.messageStacked,
+          muted && NoticeDrawer_default.messageMuted
+        )
+      },
+      /* @__PURE__ */ k("span", { class: NoticeDrawer_default.primary }, message),
+      secondaryOnNewLine && secondaryText ? " " : null,
+      secondaryText ? /* @__PURE__ */ k("span", { class: NoticeDrawer_default.secondary }, secondaryText) : null
+    ), cta && onSelectCta ? /* @__PURE__ */ k(UsageLimitsCtaControl, { cta, onSelectCta }) : null, onDismiss ? /* @__PURE__ */ k(DismissButton, { className: NoticeDrawer_default.dismiss, onClick: onDismiss }) : null);
+  }
+  function NoticeDrawer({ revealed, onReservedHeightChange, launcherPromoVisibleRef }) {
+    const termsDisclaimer = useTermsDisclaimerNotice();
     const attachmentPrivacy = useAttachmentPrivacyNotice();
     const usageLimits = useUsageLimitsDrawer();
     const createImageModelSwitch = useCreateImageModelSwitchNotice();
     const launcherPromo = useLauncherPromoNotice();
     const { launcherPromoShown } = x2(OmnibarContext);
-    const presentation = attachmentPrivacy ?? createImageModelSwitch ?? usageLimits ?? launcherPromo;
-    const isRevealed = revealed || createImageModelSwitch !== null || attachmentPrivacy !== null;
-    const launcherPromoVisible = isRevealed && presentation !== null && presentation === launcherPromo;
+    const notices = visibleNotices([termsDisclaimer, usageLimits, attachmentPrivacy, createImageModelSwitch, launcherPromo]);
+    const topType = notices[0]?.type;
+    const drawerRef = useReservedHeight(topType === "required", onReservedHeightChange);
+    const isRevealed = topType !== void 0 && (revealed || topType !== "informational");
+    const [shownAtMount] = d2(isRevealed);
+    const launcherPromoVisible = isRevealed && launcherPromo !== null && notices.includes(launcherPromo);
     h2(() => {
       if (launcherPromoVisible) launcherPromoShown();
       launcherPromoVisibleRef.current = launcherPromoVisible;
@@ -15722,35 +15879,23 @@
         launcherPromoVisibleRef.current = false;
       };
     }, [launcherPromoVisible, launcherPromoShown, launcherPromoVisibleRef]);
-    if (!presentation) return null;
-    const {
-      message,
-      secondaryText,
-      secondaryOnNewLine = false,
-      icon,
-      percent = 0,
-      severity = "neutral",
-      cta = null,
-      messageValues,
-      onSelectCta,
-      onDismiss
-    } = presentation;
-    const emphasize = icon === "ring" || icon === "alert" || icon === "convert" || icon === "announce";
+    if (!topType) return null;
     const keepComposerFocus = (event) => {
       event.preventDefault();
     };
     return /* @__PURE__ */ k(
       "div",
       {
-        class: (0, import_classnames22.default)(NoticeDrawer_default.drawer, !isRevealed && NoticeDrawer_default.hidden),
+        ref: drawerRef,
+        class: (0, import_classnames22.default)(NoticeDrawer_default.drawer, shownAtMount && NoticeDrawer_default.noSlideIn, !isRevealed && NoticeDrawer_default.hidden),
         "data-testid": "notice-drawer",
         role: "status",
         onMouseDown: keepComposerFocus
       },
-      /* @__PURE__ */ k("div", { class: NoticeDrawer_default.card }, /* @__PURE__ */ k("div", { class: NoticeDrawer_default.content }, /* @__PURE__ */ k("span", { class: NoticeDrawer_default.leading }, /* @__PURE__ */ k(NoticeGlyph, { icon, percent, severity })), /* @__PURE__ */ k("p", { class: (0, import_classnames22.default)(NoticeDrawer_default.message, emphasize && NoticeDrawer_default.messageEmphasized, secondaryOnNewLine && NoticeDrawer_default.messageStacked) }, /* @__PURE__ */ k("span", { class: NoticeDrawer_default.primary }, messageValues ? /* @__PURE__ */ k(Trans, { str: message, values: messageValues }) : message), secondaryText ? /* @__PURE__ */ k("span", { class: NoticeDrawer_default.secondary }, secondaryText) : null), cta && onSelectCta ? /* @__PURE__ */ k(UsageLimitsCtaControl, { cta, onSelectCta }) : null, onDismiss ? /* @__PURE__ */ k(DismissButton, { className: NoticeDrawer_default.dismiss, onClick: onDismiss }) : null))
+      /* @__PURE__ */ k("div", { class: NoticeDrawer_default.card }, notices.map((presentation, index2) => /* @__PURE__ */ k(NoticeRow, { key: index2, presentation })))
     );
   }
-  var import_classnames22;
+  var import_classnames22, NOTICE_TYPES;
   var init_NoticeDrawer2 = __esm({
     "pages/new-tab/app/omnibar/components/NoticeDrawer.js"() {
       "use strict";
@@ -15760,17 +15905,20 @@
       init_DismissButton2();
       init_Icons2();
       init_types();
-      init_TranslationsProvider();
       init_Dropdown2();
       init_DropdownItem();
       init_useDropdown();
       init_Icons3();
       init_useCreateImageModelSwitchNotice();
+      init_useReservedHeight();
+      init_useTermsDisclaimerNotice();
       init_useUsageLimitsDrawer();
       init_useAttachmentPrivacyNotice();
       init_useLauncherPromoNotice();
       init_OmnibarProvider();
       init_NoticeDrawer();
+      NOTICE_TYPES = /** @type {const} */
+      ["required", "action", "informational"];
     }
   });
 
@@ -15859,6 +16007,7 @@
     );
     const launcherPromoVisibleRef = A2(false);
     const [usageLimitsRevealed, setUsageLimitsRevealed] = d2(false);
+    const [noticeReservedHeight, setNoticeReservedHeight] = d2(0);
     const [query, setQuery] = useQueryWithLocalPersistence(tabId);
     const [resetKey, setResetKey] = d2(0);
     const [autoFocus, setAutoFocus] = d2(false);
@@ -15928,6 +16077,7 @@
         {
           ref: spacerRef,
           class: Omnibar_default.spacer,
+          style: { marginBottom: noticeReservedHeight },
           onFocusCapture: (event) => {
             if (!(event.target instanceof HTMLTextAreaElement)) return;
             setUsageLimitsRevealed(true);
@@ -15959,7 +16109,14 @@
             omnibarRef: spacerRef
           }
         ))),
-        mode === "ai" && /* @__PURE__ */ k(NoticeDrawer, { revealed: usageLimitsRevealed, launcherPromoVisibleRef })
+        mode === "ai" && /* @__PURE__ */ k(
+          NoticeDrawer,
+          {
+            revealed: usageLimitsRevealed,
+            onReservedHeightChange: setNoticeReservedHeight,
+            launcherPromoVisibleRef
+          }
+        )
       )
     ))));
   }
@@ -15983,6 +16140,7 @@
     const { state, setImageGenerationActive } = x2(OmnibarContext);
     const attachmentLimits = state.config?.attachmentLimits;
     const blocksPrompt = state.config?.usageLimits?.blocksPrompt === true;
+    const requiresAiTermsAcceptance = state.config?.requiresAiTermsAcceptance === true;
     const updatedCreateImageEnabled = state.config?.enableUpdatedCreateImage === true;
     const { selectedModel } = useSelectedModel();
     const { selectedEffort } = useSelectedReasoningEffort();
@@ -16053,7 +16211,7 @@
       if (!hasVisibleImagesRef.current && !imageGenerationActive && !mention.pickerActive) showChats();
       mention.handleTextChange(value2, caret);
     };
-    const handleSubmit = async (chat, target) => {
+    const handleSubmit = async ({ chat, target, aiTermsAccepted = false }) => {
       if (blocksPrompt) return;
       if (submittingRef.current) return;
       submittingRef.current = true;
@@ -16078,7 +16236,8 @@
           ...toolChoice && { toolChoice },
           ...images && { images },
           ...files && { files },
-          ...pageContext && { pageContext }
+          ...pageContext && { pageContext },
+          ...aiTermsAccepted && { aiTermsAccepted: true }
         };
         onSubmit(action);
         imageState.clearAttachedImages();
@@ -16111,12 +16270,12 @@
     const showTabWarning = tabWarning && !imageMessageShowing && !showCaptureError && !showFileError && !showFileWarning;
     const hasSendableAttachments = canAttachImages && hasAttachedImages || canAttachFiles && fileState.attachedFiles.length > 0 || canAttachTabs && tabAttachments.attachedTabs.length > 0;
     const disabled = blocksPrompt || !query && !hasSendableAttachments || imageWarning || fileWarning || tabWarning;
-    const isVoiceChatMode = enableVoiceChatAccess && !imageGenerationActive && !hasAttachedImages && fileState.attachedFiles.length === 0 && tabAttachments.attachedTabs.length === 0 && !query;
+    const isVoiceChatMode = enableVoiceChatAccess && !requiresAiTermsAcceptance && !imageGenerationActive && !hasAttachedImages && fileState.attachedFiles.length === 0 && tabAttachments.attachedTabs.length === 0 && !query;
     const handleClickSubmit = (event) => {
       event.preventDefault();
       if (disabled) return;
       event.stopPropagation();
-      handleSubmit(query, eventToTarget2(event, platformName));
+      handleSubmit({ chat: query, target: eventToTarget2(event, platformName), aiTermsAccepted: requiresAiTermsAcceptance });
     };
     const handleClickVoiceChat = (event) => {
       event.preventDefault();
@@ -16124,6 +16283,7 @@
       handleVoiceSubmit(eventToTarget2(event, platformName));
     };
     const showRecentChats = enableRecentAiChats && !imageGenerationActive && !mention.pickerActive;
+    const termsButtonLabel = imageGenerationActive ? t4("omnibar_termsCreateButtonLabel") : t4("omnibar_termsAskButtonLabel");
     return /* @__PURE__ */ k(
       "div",
       {
@@ -16208,13 +16368,17 @@
             {
               tabIndex: 0,
               type: "submit",
-              class: AiChatForm_default.submitButton,
-              "aria-label": t4("omnibar_aiChatFormSubmitButtonLabel"),
+              class: (0, import_classnames23.default)(
+                AiChatForm_default.submitButton,
+                requiresAiTermsAcceptance && AiChatForm_default.termsSubmitButton
+              ),
+              "aria-label": requiresAiTermsAcceptance ? void 0 : t4("omnibar_aiChatFormSubmitButtonLabel"),
+              "aria-describedby": requiresAiTermsAcceptance ? TERMS_DISCLAIMER_ID : void 0,
               disabled,
               onClick: handleClickSubmit,
               onAuxClick: handleClickSubmit
             },
-            /* @__PURE__ */ k(ArrowRightIcon, null)
+            requiresAiTermsAcceptance ? termsButtonLabel : /* @__PURE__ */ k(ArrowRightIcon, null)
           ))
         },
         /* @__PURE__ */ k(
@@ -16253,11 +16417,13 @@
       showRecentChats && /* @__PURE__ */ k(AiChatsList, { className: Omnibar_default.aiChatsList })
     );
   }
+  var import_classnames23;
   var init_Omnibar2 = __esm({
     "pages/new-tab/app/omnibar/components/Omnibar.js"() {
       "use strict";
       init_preact_module();
       init_hooks_module();
+      import_classnames23 = __toESM(require_classnames(), 1);
       init_Icons2();
       init_handlers();
       init_settings_provider();
@@ -16296,6 +16462,7 @@
       init_useMentionPicker();
       init_useTabAttachments();
       init_NoticeDrawer2();
+      init_useTermsDisclaimerNotice();
       init_useKeyboardFocusWithin();
     }
   });
@@ -16707,7 +16874,7 @@
     return /* @__PURE__ */ k(
       "div",
       {
-        class: (0, import_classnames23.default)(Tooltip_default2.tooltipContainer, className),
+        class: (0, import_classnames24.default)(Tooltip_default2.tooltipContainer, className),
         role: "button",
         tabIndex: 0,
         "aria-describedby": isVisible ? tooltipId : void 0,
@@ -16721,14 +16888,14 @@
       isVisible && /* @__PURE__ */ k("div", { id: tooltipId, class: Tooltip_default2.tooltip, role: "tooltip", dangerouslySetInnerHTML: { __html: content2 } })
     );
   }
-  var import_classnames23;
+  var import_classnames24;
   var init_Tooltip4 = __esm({
     "pages/new-tab/app/components/Tooltip/Tooltip.js"() {
       "use strict";
       init_preact_module();
       init_hooks_module();
       init_Tooltip3();
-      import_classnames23 = __toESM(require_classnames(), 1);
+      import_classnames24 = __toESM(require_classnames(), 1);
     }
   });
 
@@ -17006,7 +17173,7 @@
     const isCpmEnabled = totalCookiePopUpsBlockedValue !== void 0 && totalCookiePopUpsBlockedValue !== null;
     const trackersBlockedHeading = animatedTrackersBlocked === 1 ? t4("stats_countBlockedSingular") : t4("stats_countBlockedPlural");
     const cookiePopUpsBlockedHeading = animatedCookiePopUpsBlocked === 1 ? t4("stats_totalCookiePopUpsBlockedSingular") : t4("stats_totalCookiePopUpsBlockedPlural");
-    return /* @__PURE__ */ k("div", { class: PrivacyStats_default.heading, "data-testid": "ProtectionsHeading", ref: headingRef }, /* @__PURE__ */ k("div", { class: (0, import_classnames24.default)(PrivacyStats_default.control, animatedTrackersBlocked === 0 && PrivacyStats_default.noTrackers) }, /* @__PURE__ */ k("span", { class: PrivacyStats_default.headingIcon }, /* @__PURE__ */ k("img", { src: isRebrand ? "./icons/Shield-Color-16.svg" : "./icons/Shield-Check-Color-16.svg", alt: "Privacy Shield" })), /* @__PURE__ */ k("h2", { class: PrivacyStats_default.caption }, t4("protections_menuTitle")), /* @__PURE__ */ k(Tooltip2, { content: t4("stats_protectionsReportInfo") }, /* @__PURE__ */ k(InfoIcon, { class: PrivacyStats_default.infoIcon })), canExpand && /* @__PURE__ */ k("span", { class: PrivacyStats_default.widgetExpander }, /* @__PURE__ */ k(
+    return /* @__PURE__ */ k("div", { class: PrivacyStats_default.heading, "data-testid": "ProtectionsHeading", ref: headingRef }, /* @__PURE__ */ k("div", { class: (0, import_classnames25.default)(PrivacyStats_default.control, animatedTrackersBlocked === 0 && PrivacyStats_default.noTrackers) }, /* @__PURE__ */ k("span", { class: PrivacyStats_default.headingIcon }, /* @__PURE__ */ k("img", { src: isRebrand ? "./icons/Shield-Color-16.svg" : "./icons/Shield-Check-Color-16.svg", alt: "Privacy Shield" })), /* @__PURE__ */ k("h2", { class: PrivacyStats_default.caption }, t4("protections_menuTitle")), /* @__PURE__ */ k(Tooltip2, { content: t4("stats_protectionsReportInfo") }, /* @__PURE__ */ k(InfoIcon, { class: PrivacyStats_default.infoIcon })), canExpand && /* @__PURE__ */ k("span", { class: PrivacyStats_default.widgetExpander }, /* @__PURE__ */ k(
       ShowHideButtonCircle,
       {
         buttonAttrs: {
@@ -17017,9 +17184,9 @@
         onClick: onToggle,
         label: expansion === "expanded" ? t4("stats_hideLabel") : t4("stats_toggleLabel")
       }
-    ))), /* @__PURE__ */ k("div", { class: PrivacyStats_default.counterContainer, ref: counterContainerRef }, /* @__PURE__ */ k("div", { class: PrivacyStats_default.counter }, animatedTrackersBlocked === 0 && /* @__PURE__ */ k("h3", { class: PrivacyStats_default.noRecentTitle }, t4("protections_noRecent")), animatedTrackersBlocked > 0 && /* @__PURE__ */ k("h3", { class: PrivacyStats_default.title }, formatter.format(animatedTrackersBlocked), " ", /* @__PURE__ */ k("span", null, trackersBlockedHeading))), isCpmEnabled && animatedTrackersBlocked > 0 && totalCookiePopUpsBlocked > 0 && /* @__PURE__ */ k("div", { class: (0, import_classnames24.default)(PrivacyStats_default.counter, PrivacyStats_default.cookiePopUpsCounter) }, /* @__PURE__ */ k("h3", { class: PrivacyStats_default.title }, formatter.format(animatedCookiePopUpsBlocked), " ", /* @__PURE__ */ k("span", null, cookiePopUpsBlockedHeading)), showProtectionsReportNewLabel && /* @__PURE__ */ k(NewBadge, null))));
+    ))), /* @__PURE__ */ k("div", { class: PrivacyStats_default.counterContainer, ref: counterContainerRef }, /* @__PURE__ */ k("div", { class: PrivacyStats_default.counter }, animatedTrackersBlocked === 0 && /* @__PURE__ */ k("h3", { class: PrivacyStats_default.noRecentTitle }, t4("protections_noRecent")), animatedTrackersBlocked > 0 && /* @__PURE__ */ k("h3", { class: PrivacyStats_default.title }, formatter.format(animatedTrackersBlocked), " ", /* @__PURE__ */ k("span", null, trackersBlockedHeading))), isCpmEnabled && animatedTrackersBlocked > 0 && totalCookiePopUpsBlocked > 0 && /* @__PURE__ */ k("div", { class: (0, import_classnames25.default)(PrivacyStats_default.counter, PrivacyStats_default.cookiePopUpsCounter) }, /* @__PURE__ */ k("h3", { class: PrivacyStats_default.title }, formatter.format(animatedCookiePopUpsBlocked), " ", /* @__PURE__ */ k("span", null, cookiePopUpsBlockedHeading)), showProtectionsReportNewLabel && /* @__PURE__ */ k(NewBadge, null))));
   }
-  var import_classnames24;
+  var import_classnames25;
   var init_ProtectionsHeading = __esm({
     "pages/new-tab/app/protections/components/ProtectionsHeading.js"() {
       "use strict";
@@ -17027,7 +17194,7 @@
       init_PrivacyStats();
       init_settings_provider();
       init_ShowHideButton();
-      import_classnames24 = __toESM(require_classnames(), 1);
+      import_classnames25 = __toESM(require_classnames(), 1);
       init_preact_module();
       init_Icons2();
       init_NewBadge2();
@@ -17097,9 +17264,9 @@
         onClick: onToggle,
         label: expansion === "expanded" ? t4("stats_hideLabel") : t4("stats_toggleLabel")
       }
-    ))), /* @__PURE__ */ k("div", { class: PrivacyStatsLegacy_default.counter }, none && /* @__PURE__ */ k("h3", { class: PrivacyStatsLegacy_default.title }, t4("protections_noRecent")), some && /* @__PURE__ */ k("h3", { class: PrivacyStatsLegacy_default.title }, " ", /* @__PURE__ */ k(Trans, { str: alltimeTitle, values: { count: alltime } })), /* @__PURE__ */ k("p", { class: (0, import_classnames25.default)(PrivacyStatsLegacy_default.subtitle, PrivacyStatsLegacy_default.indented) }, t4("stats_feedCountBlockedPeriod"))));
+    ))), /* @__PURE__ */ k("div", { class: PrivacyStatsLegacy_default.counter }, none && /* @__PURE__ */ k("h3", { class: PrivacyStatsLegacy_default.title }, t4("protections_noRecent")), some && /* @__PURE__ */ k("h3", { class: PrivacyStatsLegacy_default.title }, " ", /* @__PURE__ */ k(Trans, { str: alltimeTitle, values: { count: alltime } })), /* @__PURE__ */ k("p", { class: (0, import_classnames26.default)(PrivacyStatsLegacy_default.subtitle, PrivacyStatsLegacy_default.indented) }, t4("stats_feedCountBlockedPeriod"))));
   }
-  var import_classnames25;
+  var import_classnames26;
   var init_ProtectionsHeadingLegacy = __esm({
     "pages/new-tab/app/protections/components/ProtectionsHeadingLegacy.js"() {
       "use strict";
@@ -17107,7 +17274,7 @@
       init_hooks_module();
       init_PrivacyStatsLegacy();
       init_ShowHideButton();
-      import_classnames25 = __toESM(require_classnames(), 1);
+      import_classnames26 = __toESM(require_classnames(), 1);
       init_preact_module();
       init_settings_provider();
       init_TranslationsProvider();
@@ -17167,13 +17334,13 @@
       /** @type {enStrings} */
       {}
     );
-    return /* @__PURE__ */ k("div", { class: Protections_default.body, id, "aria-hidden": hidden, "aria-expanded": showing }, expansion === "expanded" && /* @__PURE__ */ k(S, null, /* @__PURE__ */ k("div", { class: (0, import_classnames26.default)(Protections_default.switcher, Protections_default.block), role: "tablist" }, isRebrandEnabled && /* @__PURE__ */ k("div", { class: Protections_default.blob, style: { "--tab-count": 2, "--tab-index": feed === "privacy-stats" ? 0 : 1 } }), /* @__PURE__ */ k(
+    return /* @__PURE__ */ k("div", { class: Protections_default.body, id, "aria-hidden": hidden, "aria-expanded": showing }, expansion === "expanded" && /* @__PURE__ */ k(S, null, /* @__PURE__ */ k("div", { class: (0, import_classnames27.default)(Protections_default.switcher, Protections_default.block), role: "tablist" }, isRebrandEnabled && /* @__PURE__ */ k("div", { class: Protections_default.blob, style: { "--tab-count": 2, "--tab-index": feed === "privacy-stats" ? 0 : 1 } }), /* @__PURE__ */ k(
       "button",
       {
         type: "button",
         role: "tab",
         "aria-selected": feed === "privacy-stats",
-        class: (0, import_classnames26.default)(Protections_default.button, feed === "privacy-stats" && Protections_default.active),
+        class: (0, import_classnames27.default)(Protections_default.button, feed === "privacy-stats" && Protections_default.active),
         onClick: () => setFeed("privacy-stats")
       },
       t4("protections_statsSwitchTitle")
@@ -17183,7 +17350,7 @@
         type: "button",
         role: "tab",
         "aria-selected": feed === "activity",
-        class: (0, import_classnames26.default)(Protections_default.button, feed === "activity" && Protections_default.active),
+        class: (0, import_classnames27.default)(Protections_default.button, feed === "activity" && Protections_default.active),
         onClick: () => setFeed("activity")
       },
       t4("protections_activitySwitchTitle")
@@ -17197,13 +17364,13 @@
       /** @type {enStrings} */
       {}
     );
-    return /* @__PURE__ */ k("div", { class: Protections_default.body, id, "aria-hidden": hidden, "aria-expanded": showing }, expansion === "expanded" && /* @__PURE__ */ k(S, null, /* @__PURE__ */ k("div", { class: (0, import_classnames26.default)(Protections_default.switcher, Protections_default.blockLegacy), role: "tablist" }, isRebrandEnabled && /* @__PURE__ */ k("div", { class: Protections_default.blob, style: { "--tab-count": 2, "--tab-index": feed === "privacy-stats" ? 0 : 1 } }), /* @__PURE__ */ k(
+    return /* @__PURE__ */ k("div", { class: Protections_default.body, id, "aria-hidden": hidden, "aria-expanded": showing }, expansion === "expanded" && /* @__PURE__ */ k(S, null, /* @__PURE__ */ k("div", { class: (0, import_classnames27.default)(Protections_default.switcher, Protections_default.blockLegacy), role: "tablist" }, isRebrandEnabled && /* @__PURE__ */ k("div", { class: Protections_default.blob, style: { "--tab-count": 2, "--tab-index": feed === "privacy-stats" ? 0 : 1 } }), /* @__PURE__ */ k(
       "button",
       {
         type: "button",
         role: "tab",
         "aria-selected": feed === "privacy-stats",
-        class: (0, import_classnames26.default)(Protections_default.button, feed === "privacy-stats" && Protections_default.active),
+        class: (0, import_classnames27.default)(Protections_default.button, feed === "privacy-stats" && Protections_default.active),
         onClick: () => setFeed("privacy-stats")
       },
       t4("protections_statsSwitchTitle")
@@ -17213,25 +17380,25 @@
         type: "button",
         role: "tab",
         "aria-selected": feed === "activity",
-        class: (0, import_classnames26.default)(Protections_default.button, feed === "activity" && Protections_default.active),
+        class: (0, import_classnames27.default)(Protections_default.button, feed === "activity" && Protections_default.active),
         onClick: () => setFeed("activity")
       },
       t4("protections_activitySwitchTitle")
     )), /* @__PURE__ */ k("div", { class: Protections_default.feed }, children)));
   }
   function ProtectionsEmpty({ children }) {
-    return /* @__PURE__ */ k("div", { class: (0, import_classnames26.default)(Protections_default.block, Protections_default.empty) }, children);
+    return /* @__PURE__ */ k("div", { class: (0, import_classnames27.default)(Protections_default.block, Protections_default.empty) }, children);
   }
   function ProtectionsEmptyLegacy({ children }) {
-    return /* @__PURE__ */ k("div", { class: (0, import_classnames26.default)(Protections_default.blockLegacy, Protections_default.empty) }, children);
+    return /* @__PURE__ */ k("div", { class: (0, import_classnames27.default)(Protections_default.blockLegacy, Protections_default.empty) }, children);
   }
-  var import_classnames26;
+  var import_classnames27;
   var init_Protections2 = __esm({
     "pages/new-tab/app/protections/components/Protections.js"() {
       "use strict";
       init_hooks_module();
       init_preact_module();
-      import_classnames26 = __toESM(require_classnames(), 1);
+      import_classnames27 = __toESM(require_classnames(), 1);
       init_Protections();
       init_ProtectionsHeading();
       init_types();
@@ -18288,7 +18455,7 @@
     return /* @__PURE__ */ k("div", { className: Activity_default.controls }, /* @__PURE__ */ k(
       "button",
       {
-        class: (0, import_classnames27.default)(Activity_default.icon, Activity_default.controlIcon, Activity_default.disableWhenBusy),
+        class: (0, import_classnames28.default)(Activity_default.icon, Activity_default.controlIcon, Activity_default.disableWhenBusy),
         title: favoriteTitle,
         "data-action": favorite.value ? ACTION_REMOVE_FAVORITE : ACTION_ADD_FAVORITE,
         "data-title": title,
@@ -18299,7 +18466,7 @@
     ), /* @__PURE__ */ k(
       "button",
       {
-        class: (0, import_classnames27.default)(Activity_default.icon, Activity_default.controlIcon, Activity_default.disableWhenBusy),
+        class: (0, import_classnames28.default)(Activity_default.icon, Activity_default.controlIcon, Activity_default.disableWhenBusy),
         title: secondaryTitle,
         "data-action": canBurn ? ACTION_BURN : ACTION_REMOVE,
         value: url8,
@@ -18314,13 +18481,13 @@
     if (isRebrand) return /* @__PURE__ */ k(FireOutlineIcon, null);
     return /* @__PURE__ */ k(FireIcon, null);
   }
-  var import_classnames27, ActivityItem, ActivityItemLegacy;
+  var import_classnames28, ActivityItem, ActivityItemLegacy;
   var init_ActivityItem = __esm({
     "pages/new-tab/app/activity/components/ActivityItem.js"() {
       "use strict";
       init_preact_module();
       init_types();
-      import_classnames27 = __toESM(require_classnames(), 1);
+      import_classnames28 = __toESM(require_classnames(), 1);
       init_Activity();
       init_ActivityLegacy();
       init_FaviconWithState2();
@@ -18349,7 +18516,7 @@
          */
         function ActivityItem2({ canBurn, documentVisibility, title, url: url8, favoriteSrc, faviconMax, etldPlusOne, children }) {
           const isRebrand = useNewTabPageRebranding();
-          return /* @__PURE__ */ k("li", { key: url8, class: (0, import_classnames27.default)(Activity_default.item), "data-testid": "ActivityItem" }, /* @__PURE__ */ k("div", { class: Activity_default.heading }, /* @__PURE__ */ k("a", { class: Activity_default.title, href: url8, "data-url": url8 }, /* @__PURE__ */ k("span", { className: Activity_default.favicon, "data-url": url8 }, documentVisibility === "visible" && /* @__PURE__ */ k(
+          return /* @__PURE__ */ k("li", { key: url8, class: (0, import_classnames28.default)(Activity_default.item), "data-testid": "ActivityItem" }, /* @__PURE__ */ k("div", { class: Activity_default.heading }, /* @__PURE__ */ k("a", { class: Activity_default.title, href: url8, "data-url": url8 }, /* @__PURE__ */ k("span", { className: Activity_default.favicon, "data-url": url8 }, documentVisibility === "visible" && /* @__PURE__ */ k(
             FaviconWithState,
             {
               faviconSrc: favoriteSrc,
@@ -18378,7 +18545,7 @@
          */
         function ActivityItem3({ canBurn, documentVisibility, title, url: url8, favoriteSrc, faviconMax, etldPlusOne, children }) {
           const isRebrand = useNewTabPageRebranding();
-          return /* @__PURE__ */ k("li", { key: url8, class: (0, import_classnames27.default)(ActivityLegacy_default.item), "data-testid": "ActivityItem" }, /* @__PURE__ */ k("div", { class: ActivityLegacy_default.heading }, /* @__PURE__ */ k("a", { class: ActivityLegacy_default.title, href: url8, "data-url": url8 }, /* @__PURE__ */ k("span", { className: ActivityLegacy_default.favicon, "data-url": url8 }, documentVisibility === "visible" && /* @__PURE__ */ k(
+          return /* @__PURE__ */ k("li", { key: url8, class: (0, import_classnames28.default)(ActivityLegacy_default.item), "data-testid": "ActivityItem" }, /* @__PURE__ */ k("div", { class: ActivityLegacy_default.heading }, /* @__PURE__ */ k("a", { class: ActivityLegacy_default.title, href: url8, "data-url": url8 }, /* @__PURE__ */ k("span", { className: ActivityLegacy_default.favicon, "data-url": url8 }, documentVisibility === "visible" && /* @__PURE__ */ k(
             FaviconWithState,
             {
               faviconSrc: favoriteSrc,
@@ -34808,20 +34975,20 @@
         canceled = true;
       };
     }, [isBurning.value, isExiting.value, url8]);
-    return /* @__PURE__ */ k("div", { class: (0, import_classnames28.default)(Activity_default.anim, isBurning.value && Activity_default.burning), ref }, !isExiting.value && children, !isExiting.value && isBurning.value && showBurnAnimation && /* @__PURE__ */ k(P3, { fallback: null }, /* @__PURE__ */ k(BurnAnimationLazy, { url: url8, doneBurning })), !isExiting.value && isBurning.value && !showBurnAnimation && /* @__PURE__ */ k(NullBurner, { url: url8, doneBurning }));
+    return /* @__PURE__ */ k("div", { class: (0, import_classnames29.default)(Activity_default.anim, isBurning.value && Activity_default.burning), ref }, !isExiting.value && children, !isExiting.value && isBurning.value && showBurnAnimation && /* @__PURE__ */ k(P3, { fallback: null }, /* @__PURE__ */ k(BurnAnimationLazy, { url: url8, doneBurning })), !isExiting.value && isBurning.value && !showBurnAnimation && /* @__PURE__ */ k(NullBurner, { url: url8, doneBurning }));
   }
   function NullBurner({ url: url8, doneBurning }) {
     h2(() => doneBurning(url8), [url8]);
     return null;
   }
-  var import_classnames28, BurnAnimationLazy;
+  var import_classnames29, BurnAnimationLazy;
   var init_ActivityItemAnimationWrapper = __esm({
     "pages/new-tab/app/activity/components/ActivityItemAnimationWrapper.js"() {
       "use strict";
       init_hooks_module();
       init_BurnProvider();
       init_signals_module();
-      import_classnames28 = __toESM(require_classnames(), 1);
+      import_classnames29 = __toESM(require_classnames(), 1);
       init_Activity();
       init_compat_module();
       init_preact_module();
@@ -34931,15 +35098,15 @@
 
   // pages/new-tab/app/components/TickPill/TickPill.js
   function TickPill({ text: text2, className, displayTick = true }) {
-    return /* @__PURE__ */ k("div", { class: (0, import_classnames29.default)(TickPill_default.tickPill, className || "") }, displayTick && /* @__PURE__ */ k("span", { class: TickPill_default.iconWrapper }, /* @__PURE__ */ k(Check, null)), /* @__PURE__ */ k("span", { class: TickPill_default.text }, text2));
+    return /* @__PURE__ */ k("div", { class: (0, import_classnames30.default)(TickPill_default.tickPill, className || "") }, displayTick && /* @__PURE__ */ k("span", { class: TickPill_default.iconWrapper }, /* @__PURE__ */ k(Check, null)), /* @__PURE__ */ k("span", { class: TickPill_default.text }, text2));
   }
-  var import_classnames29;
+  var import_classnames30;
   var init_TickPill2 = __esm({
     "pages/new-tab/app/components/TickPill/TickPill.js"() {
       "use strict";
       init_preact_module();
       init_Icons2();
-      import_classnames29 = __toESM(require_classnames(), 1);
+      import_classnames30 = __toESM(require_classnames(), 1);
       init_TickPill();
     }
   });
@@ -35755,8 +35922,8 @@
 
   // pages/new-tab/app/remote-messaging-framework/components/RemoteMessagingFramework.js
   function TwoActionButtons({ platform, id, message, primaryAction, secondaryAction }) {
-    const primaryBtn = primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ k(Button, { className: (0, import_classnames30.default)(RemoteMessagingFramework_default.actionButton, RemoteMessagingFramework_default.primaryButton), variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText);
-    const secondaryBtn = secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ k(Button, { className: (0, import_classnames30.default)(RemoteMessagingFramework_default.actionButton, RemoteMessagingFramework_default.secondaryButton), variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText);
+    const primaryBtn = primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ k(Button, { className: (0, import_classnames31.default)(RemoteMessagingFramework_default.actionButton, RemoteMessagingFramework_default.primaryButton), variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText);
+    const secondaryBtn = secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ k(Button, { className: (0, import_classnames31.default)(RemoteMessagingFramework_default.actionButton, RemoteMessagingFramework_default.secondaryButton), variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText);
     return /* @__PURE__ */ k("div", { class: RemoteMessagingFramework_default.btnRow }, platform === "windows" ? /* @__PURE__ */ k(S, null, primaryBtn, secondaryBtn) : /* @__PURE__ */ k(S, null, secondaryBtn, primaryBtn));
   }
   function RemoteMessagingFramework({ message, primaryAction, secondaryAction, dismiss }) {
@@ -35765,7 +35932,7 @@
     const isRebrandEnabled = useNewTabPageRebranding();
     const showIcon = messageType !== "small" && Boolean(message.icon);
     const iconSrc = showIcon ? isRebrandEnabled ? `./icons/rebrand/${message.icon}-96.svg` : `./icons/${message.icon}-96.svg` : void 0;
-    return /* @__PURE__ */ k("div", { id, class: (0, import_classnames30.default)(RemoteMessagingFramework_default.root, showIcon && RemoteMessagingFramework_default.icon) }, showIcon && iconSrc && /* @__PURE__ */ k("span", { class: RemoteMessagingFramework_default.iconBlock }, /* @__PURE__ */ k("img", { src: iconSrc, alt: "" })), /* @__PURE__ */ k("div", { class: RemoteMessagingFramework_default.content }, /* @__PURE__ */ k("h2", { class: RemoteMessagingFramework_default.title }, titleText), /* @__PURE__ */ k("p", { class: RemoteMessagingFramework_default.description }, descriptionText), messageType === "big_two_action" && /* @__PURE__ */ k(
+    return /* @__PURE__ */ k("div", { id, class: (0, import_classnames31.default)(RemoteMessagingFramework_default.root, showIcon && RemoteMessagingFramework_default.icon) }, showIcon && iconSrc && /* @__PURE__ */ k("span", { class: RemoteMessagingFramework_default.iconBlock }, /* @__PURE__ */ k("img", { src: iconSrc, alt: "" })), /* @__PURE__ */ k("div", { class: RemoteMessagingFramework_default.content }, /* @__PURE__ */ k("h2", { class: RemoteMessagingFramework_default.title }, titleText), /* @__PURE__ */ k("p", { class: RemoteMessagingFramework_default.description }, descriptionText), messageType === "big_two_action" && /* @__PURE__ */ k(
       TwoActionButtons,
       {
         platform,
@@ -35777,7 +35944,7 @@
     )), messageType === "big_single_action" && message.primaryActionText && primaryAction && /* @__PURE__ */ k("div", { class: RemoteMessagingFramework_default.btnBlock }, /* @__PURE__ */ k(
       Button,
       {
-        className: (0, import_classnames30.default)(RemoteMessagingFramework_default.actionButton, RemoteMessagingFramework_default.secondaryButton),
+        className: (0, import_classnames31.default)(RemoteMessagingFramework_default.actionButton, RemoteMessagingFramework_default.secondaryButton),
         variant: "standard",
         onClick: () => primaryAction(id)
       },
@@ -35799,12 +35966,12 @@
     }
     return null;
   }
-  var import_classnames30;
+  var import_classnames31;
   var init_RemoteMessagingFramework2 = __esm({
     "pages/new-tab/app/remote-messaging-framework/components/RemoteMessagingFramework.js"() {
       "use strict";
       init_preact_module();
-      import_classnames30 = __toESM(require_classnames(), 1);
+      import_classnames31 = __toESM(require_classnames(), 1);
       init_RemoteMessagingFramework();
       init_hooks_module();
       init_RMFProvider();
@@ -35985,7 +36152,7 @@
     const isRebrandEnabled = useNewTabPageRebranding();
     const processedMessageDescription = convertMarkdownToHTMLForStrongTags(message.descriptionText);
     const iconSrc = isRebrandEnabled ? "./icons/rebrand/Subscription-Clock-96.svg" : "./icons/Subscription-Clock-96.svg";
-    return /* @__PURE__ */ k("div", { id: message.id, class: (0, import_classnames31.default)(SubscriptionWinBackBanner_default.root, SubscriptionWinBackBanner_default.icon) }, /* @__PURE__ */ k("span", { class: SubscriptionWinBackBanner_default.iconBlock }, /* @__PURE__ */ k("img", { "aria-hidden": "true", src: iconSrc, alt: "" })), /* @__PURE__ */ k("div", { class: SubscriptionWinBackBanner_default.content }, message.titleText && /* @__PURE__ */ k("h2", { class: SubscriptionWinBackBanner_default.title }, message.titleText), /* @__PURE__ */ k("p", { class: SubscriptionWinBackBanner_default.description, dangerouslySetInnerHTML: { __html: processedMessageDescription } })), message.messageType === "big_single_action" && message?.actionText && action && /* @__PURE__ */ k("div", { class: SubscriptionWinBackBanner_default.btnBlock }, /* @__PURE__ */ k(Button, { size: "md", variant: "accent", onClick: () => action(message.id) }, message.actionText)), message.id && dismiss && /* @__PURE__ */ k(DismissButton, { className: SubscriptionWinBackBanner_default.dismissBtn, onClick: () => dismiss(message.id) }));
+    return /* @__PURE__ */ k("div", { id: message.id, class: (0, import_classnames32.default)(SubscriptionWinBackBanner_default.root, SubscriptionWinBackBanner_default.icon) }, /* @__PURE__ */ k("span", { class: SubscriptionWinBackBanner_default.iconBlock }, /* @__PURE__ */ k("img", { "aria-hidden": "true", src: iconSrc, alt: "" })), /* @__PURE__ */ k("div", { class: SubscriptionWinBackBanner_default.content }, message.titleText && /* @__PURE__ */ k("h2", { class: SubscriptionWinBackBanner_default.title }, message.titleText), /* @__PURE__ */ k("p", { class: SubscriptionWinBackBanner_default.description, dangerouslySetInnerHTML: { __html: processedMessageDescription } })), message.messageType === "big_single_action" && message?.actionText && action && /* @__PURE__ */ k("div", { class: SubscriptionWinBackBanner_default.btnBlock }, /* @__PURE__ */ k(Button, { size: "md", variant: "accent", onClick: () => action(message.id) }, message.actionText)), message.id && dismiss && /* @__PURE__ */ k(DismissButton, { className: SubscriptionWinBackBanner_default.dismissBtn, onClick: () => dismiss(message.id) }));
   }
   function SubscriptionWinBackBannerConsumer() {
     const { state, action, dismiss } = x2(SubscriptionWinBackBannerContext);
@@ -35994,11 +36161,11 @@
     }
     return null;
   }
-  var import_classnames31;
+  var import_classnames32;
   var init_SubscriptionWinBackBanner2 = __esm({
     "pages/new-tab/app/subscription-winback-banner/components/SubscriptionWinBackBanner.js"() {
       "use strict";
-      import_classnames31 = __toESM(require_classnames(), 1);
+      import_classnames32 = __toESM(require_classnames(), 1);
       init_preact_module();
       init_Button2();
       init_DismissButton2();
@@ -36160,7 +36327,7 @@
 
   // pages/new-tab/app/update-notification/components/UpdateNotification.js
   function UpdateNotification({ notes, dismiss, version }) {
-    return /* @__PURE__ */ k("div", { class: UpdateNotification_default.root, "data-reset-layout": "true" }, /* @__PURE__ */ k("div", { class: (0, import_classnames32.default)("layout-centered", UpdateNotification_default.body) }, notes.length > 0 ? /* @__PURE__ */ k(WithNotes, { notes, version }) : /* @__PURE__ */ k(WithoutNotes, { version })), /* @__PURE__ */ k(DismissButton, { onClick: dismiss, className: UpdateNotification_default.dismiss }));
+    return /* @__PURE__ */ k("div", { class: UpdateNotification_default.root, "data-reset-layout": "true" }, /* @__PURE__ */ k("div", { class: (0, import_classnames33.default)("layout-centered", UpdateNotification_default.body) }, notes.length > 0 ? /* @__PURE__ */ k(WithNotes, { notes, version }) : /* @__PURE__ */ k(WithoutNotes, { version })), /* @__PURE__ */ k(DismissButton, { onClick: dismiss, className: UpdateNotification_default.dismiss }));
   }
   function WithNotes({ notes, version }) {
     const id = g2();
@@ -36222,12 +36389,12 @@
     }
     return null;
   }
-  var import_classnames32;
+  var import_classnames33;
   var init_UpdateNotification2 = __esm({
     "pages/new-tab/app/update-notification/components/UpdateNotification.js"() {
       "use strict";
       init_preact_module();
-      import_classnames32 = __toESM(require_classnames(), 1);
+      import_classnames33 = __toESM(require_classnames(), 1);
       init_UpdateNotification();
       init_hooks_module();
       init_UpdateNotificationProvider();
@@ -36267,7 +36434,7 @@
 
   // pages/new-tab/app/components/App.js
   init_preact_module();
-  var import_classnames43 = __toESM(require_classnames(), 1);
+  var import_classnames44 = __toESM(require_classnames(), 1);
 
   // pages/new-tab/app/components/App.module.css
   var App_default = {
@@ -36630,7 +36797,7 @@
   // pages/new-tab/app/customizer/components/CustomizerDrawerInner.js
   init_preact_module();
   init_hooks_module();
-  var import_classnames42 = __toESM(require_classnames(), 1);
+  var import_classnames43 = __toESM(require_classnames(), 1);
 
   // pages/new-tab/app/customizer/components/CustomizerDrawerInner.module.css
   var CustomizerDrawerInner_default = {
@@ -36666,7 +36833,7 @@
 
   // pages/new-tab/app/customizer/components/BackgroundSection.js
   init_preact_module();
-  var import_classnames33 = __toESM(require_classnames(), 1);
+  var import_classnames34 = __toESM(require_classnames(), 1);
   init_values();
   init_Icons2();
   init_signals_module();
@@ -36691,7 +36858,7 @@
     } else {
       gradient = values.gradients.gradient02;
     }
-    return /* @__PURE__ */ k("ul", { class: (0, import_classnames33.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup" }, /* @__PURE__ */ k("li", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ k(
+    return /* @__PURE__ */ k("ul", { class: (0, import_classnames34.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup" }, /* @__PURE__ */ k("li", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ k(
       DefaultPanel,
       {
         checked: data2.value.background.kind === "default",
@@ -36725,7 +36892,7 @@
     return /* @__PURE__ */ k(S, null, /* @__PURE__ */ k(
       "button",
       {
-        class: (0, import_classnames33.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames34.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": main,
         "aria-checked": checked,
         "aria-labelledby": id,
@@ -36745,7 +36912,7 @@
     return /* @__PURE__ */ k(S, null, /* @__PURE__ */ k(
       "button",
       {
-        class: (0, import_classnames33.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames34.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": props.color.colorScheme,
         onClick: props.onClick,
         "aria-checked": props.checked,
@@ -36767,7 +36934,7 @@
       "button",
       {
         onClick: props.onClick,
-        class: (0, import_classnames33.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames34.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": props.gradient.colorScheme,
         "aria-checked": props.checked,
         tabindex: props.checked ? -1 : 0,
@@ -36807,7 +36974,7 @@
       return /* @__PURE__ */ k(S, null, /* @__PURE__ */ k(
         "button",
         {
-          class: (0, import_classnames33.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
+          class: (0, import_classnames34.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
           "data-color-mode": props.browserTheme,
           "aria-checked": props.checked,
           "aria-labelledby": id,
@@ -36822,7 +36989,7 @@
     return /* @__PURE__ */ k(S, null, /* @__PURE__ */ k(
       "button",
       {
-        class: (0, import_classnames33.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames34.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": scheme,
         onClick: props.onClick,
         "aria-checked": props.checked,
@@ -36848,7 +37015,7 @@
   };
 
   // pages/new-tab/app/customizer/components/BrowserThemeSection.js
-  var import_classnames34 = __toESM(require_classnames(), 1);
+  var import_classnames35 = __toESM(require_classnames(), 1);
   init_preact_module();
   init_signals_module();
   init_types();
@@ -36861,7 +37028,7 @@
     return /* @__PURE__ */ k("ul", { class: BrowserThemeSection_default.themeList }, /* @__PURE__ */ k("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ k(
       "button",
       {
-        class: (0, import_classnames34.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonLight),
+        class: (0, import_classnames35.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonLight),
         role: "radio",
         type: "button",
         "aria-checked": current.value === "light",
@@ -36872,7 +37039,7 @@
     ), /* @__PURE__ */ k("span", null, t4("customizer_browser_theme_light"))), /* @__PURE__ */ k("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ k(
       "button",
       {
-        class: (0, import_classnames34.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonDark),
+        class: (0, import_classnames35.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonDark),
         role: "radio",
         type: "button",
         "aria-checked": current.value === "dark",
@@ -36883,7 +37050,7 @@
     ), /* @__PURE__ */ k("span", null, t4("customizer_browser_theme_dark"))), /* @__PURE__ */ k("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ k(
       "button",
       {
-        class: (0, import_classnames34.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonSystem),
+        class: (0, import_classnames35.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonSystem),
         role: "radio",
         type: "button",
         "aria-checked": current.value === "system",
@@ -36897,7 +37064,7 @@
   // pages/new-tab/app/customizer/components/ThemeSection.js
   init_preact_module();
   init_signals_module();
-  var import_classnames35 = __toESM(require_classnames(), 1);
+  var import_classnames36 = __toESM(require_classnames(), 1);
   init_types();
 
   // pages/new-tab/app/customizer/components/ThemeSection.module.css
@@ -36940,7 +37107,7 @@
     return /* @__PURE__ */ k("div", { class: ThemeSection_default.root }, /* @__PURE__ */ k(
       "div",
       {
-        class: (0, import_classnames35.default)(ThemeSection_default.segmentedControl, {
+        class: (0, import_classnames36.default)(ThemeSection_default.segmentedControl, {
           [ThemeSection_default.vertical]: ["pl", "ru"].includes(locale)
         }),
         role: "radiogroup",
@@ -37011,7 +37178,7 @@
   init_CustomizerMenu();
 
   // pages/new-tab/app/customizer/components/VisibilityMenu.js
-  var import_classnames36 = __toESM(require_classnames(), 1);
+  var import_classnames37 = __toESM(require_classnames(), 1);
   init_preact_module();
   init_hooks_module();
   init_Switch2();
@@ -37032,8 +37199,8 @@
   function EmbeddedVisibilityMenu({ rows }) {
     const platformName = usePlatformName();
     const { browser } = x2(CustomizerThemesContext);
-    return /* @__PURE__ */ k("ul", { className: (0, import_classnames36.default)(VisibilityMenu_default.list, VisibilityMenu_default.embedded) }, rows.map((row) => {
-      return /* @__PURE__ */ k("li", { key: row.id }, /* @__PURE__ */ k("div", { class: (0, import_classnames36.default)(VisibilityMenu_default.menuItemLabel, VisibilityMenu_default.menuItemLabelEmbedded) }, /* @__PURE__ */ k("span", { class: VisibilityMenu_default.svg }, row.icon), /* @__PURE__ */ k("span", { class: VisibilityMenu_default.title }, row.title ?? row.id), /* @__PURE__ */ k(
+    return /* @__PURE__ */ k("ul", { className: (0, import_classnames37.default)(VisibilityMenu_default.list, VisibilityMenu_default.embedded) }, rows.map((row) => {
+      return /* @__PURE__ */ k("li", { key: row.id }, /* @__PURE__ */ k("div", { class: (0, import_classnames37.default)(VisibilityMenu_default.menuItemLabel, VisibilityMenu_default.menuItemLabelEmbedded) }, /* @__PURE__ */ k("span", { class: VisibilityMenu_default.svg }, row.icon), /* @__PURE__ */ k("span", { class: VisibilityMenu_default.title }, row.title ?? row.id), /* @__PURE__ */ k(
         Switch,
         {
           theme: browser.value,
@@ -37076,7 +37243,7 @@
 
   // pages/new-tab/app/customizer/components/ColorSelection.js
   init_preact_module();
-  var import_classnames37 = __toESM(require_classnames(), 1);
+  var import_classnames38 = __toESM(require_classnames(), 1);
   init_values();
   init_Icons2();
   init_signals_module();
@@ -37105,7 +37272,7 @@
       if (!(value2 in values.colors)) return console.warn("could not select color", value2);
       select({ background: { kind: "color", value: value2 } });
     }
-    return /* @__PURE__ */ k("div", null, /* @__PURE__ */ k("button", { type: "button", onClick: back, class: (0, import_classnames37.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ k(BackChevron, null), t4("customizer_background_selection_color")), /* @__PURE__ */ k("div", { class: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ k(InlineErrorBoundary, { format: (message) => `Customizer section 'ColorGrid' threw an exception: ` + message }, /* @__PURE__ */ k("div", { class: (0, import_classnames37.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup", onClick }, /* @__PURE__ */ k(PickerPanel, { data: data2, select }), /* @__PURE__ */ k(ColorGrid, { data: data2 })))));
+    return /* @__PURE__ */ k("div", null, /* @__PURE__ */ k("button", { type: "button", onClick: back, class: (0, import_classnames38.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ k(BackChevron, null), t4("customizer_background_selection_color")), /* @__PURE__ */ k("div", { class: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ k(InlineErrorBoundary, { format: (message) => `Customizer section 'ColorGrid' threw an exception: ` + message }, /* @__PURE__ */ k("div", { class: (0, import_classnames38.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup", onClick }, /* @__PURE__ */ k(PickerPanel, { data: data2, select }), /* @__PURE__ */ k(ColorGrid, { data: data2 })))));
   }
   var entries = Object.keys(values.colors);
   function ColorGrid({ data: data2 }) {
@@ -37142,7 +37309,7 @@
     return /* @__PURE__ */ k("div", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ k(
       "button",
       {
-        className: (0, import_classnames37.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty),
+        className: (0, import_classnames38.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty),
         type: "button",
         tabIndex: 0,
         style: { background: hex.value },
@@ -37167,12 +37334,12 @@
           }
         }
       }
-    ), /* @__PURE__ */ k("span", { class: (0, import_classnames37.default)(CustomizerDrawerInner_default.colorInputIcon, CustomizerDrawerInner_default.dynamicPickerIconColor), "data-color-mode": modeSelected }, /* @__PURE__ */ k(Picker, null)));
+    ), /* @__PURE__ */ k("span", { class: (0, import_classnames38.default)(CustomizerDrawerInner_default.colorInputIcon, CustomizerDrawerInner_default.dynamicPickerIconColor), "data-color-mode": modeSelected }, /* @__PURE__ */ k(Picker, null)));
   }
 
   // pages/new-tab/app/customizer/components/GradientSelection.js
   init_preact_module();
-  var import_classnames38 = __toESM(require_classnames(), 1);
+  var import_classnames39 = __toESM(require_classnames(), 1);
   init_values();
   init_signals_module();
   init_Icons2();
@@ -37200,12 +37367,12 @@
       if (!(value2 in values.gradients)) return console.warn("could not select gradient", value2);
       select({ background: { kind: "gradient", value: value2 } });
     }
-    return /* @__PURE__ */ k("div", null, /* @__PURE__ */ k("button", { type: "button", onClick: back, class: (0, import_classnames38.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ k(BackChevron, null), t4("customizer_background_selection_gradient")), /* @__PURE__ */ k("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ k(InlineErrorBoundary, { format: (message) => `Customizer section 'GradientSelection' threw an exception: ` + message }, /* @__PURE__ */ k(GradientGrid, { data: data2 }))));
+    return /* @__PURE__ */ k("div", null, /* @__PURE__ */ k("button", { type: "button", onClick: back, class: (0, import_classnames39.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ k(BackChevron, null), t4("customizer_background_selection_gradient")), /* @__PURE__ */ k("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ k(InlineErrorBoundary, { format: (message) => `Customizer section 'GradientSelection' threw an exception: ` + message }, /* @__PURE__ */ k(GradientGrid, { data: data2 }))));
   }
   var entries2 = Object.keys(values.gradients);
   function GradientGrid({ data: data2 }) {
     const selected = useComputed(() => data2.value.background.kind === "gradient" && data2.value.background.value);
-    return /* @__PURE__ */ k("ul", { className: (0, import_classnames38.default)(CustomizerDrawerInner_default.bgList) }, entries2.map((key2) => {
+    return /* @__PURE__ */ k("ul", { className: (0, import_classnames39.default)(CustomizerDrawerInner_default.bgList) }, entries2.map((key2) => {
       const entry = values.gradients[key2];
       return /* @__PURE__ */ k("li", { className: CustomizerDrawerInner_default.bgListItem, key: key2 }, /* @__PURE__ */ k(
         "button",
@@ -37233,7 +37400,7 @@
 
   // pages/new-tab/app/customizer/components/ImageSelection.js
   init_preact_module();
-  var import_classnames39 = __toESM(require_classnames(), 1);
+  var import_classnames40 = __toESM(require_classnames(), 1);
   init_signals_module();
   init_DismissButton2();
   init_Icons2();
@@ -37277,7 +37444,7 @@
         customizerContextMenu({ id, target: "userImage" });
       }
     }
-    return /* @__PURE__ */ k("div", { onContextMenu }, /* @__PURE__ */ k("button", { type: "button", onClick: back, class: (0, import_classnames39.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ k(BackChevron, null), t4("customizer_background_selection_image_existing")), /* @__PURE__ */ k("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ k(InlineErrorBoundary, { format: (message) => `Customizer section 'ImageSelection' threw an exception: ` + message }, /* @__PURE__ */ k(ImageGrid, { data: data2, deleteImage, onUpload }))), /* @__PURE__ */ k("div", { className: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ k("p", null, t4("customizer_image_privacy"))));
+    return /* @__PURE__ */ k("div", { onContextMenu }, /* @__PURE__ */ k("button", { type: "button", onClick: back, class: (0, import_classnames40.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ k(BackChevron, null), t4("customizer_background_selection_image_existing")), /* @__PURE__ */ k("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ k(InlineErrorBoundary, { format: (message) => `Customizer section 'ImageSelection' threw an exception: ` + message }, /* @__PURE__ */ k(ImageGrid, { data: data2, deleteImage, onUpload }))), /* @__PURE__ */ k("div", { className: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ k("p", null, t4("customizer_image_privacy"))));
   }
   function ImageGrid({ data: data2, deleteImage, onUpload }) {
     const { t: t4 } = useTypedTranslationWith(
@@ -37292,7 +37459,7 @@
     const max = 8;
     const diff = max - entries4.value.length;
     const placeholders = new Array(diff).fill(null);
-    return /* @__PURE__ */ k("ul", { className: (0, import_classnames39.default)(CustomizerDrawerInner_default.bgList) }, entries4.value.map((entry, index2) => {
+    return /* @__PURE__ */ k("ul", { className: (0, import_classnames40.default)(CustomizerDrawerInner_default.bgList) }, entries4.value.map((entry, index2) => {
       $INTEGRATION: (() => {
         if (entry.id === "__will_throw__") throw new Error("Simulated error");
       })();
@@ -37329,7 +37496,7 @@
         {
           type: "button",
           onClick: onUpload,
-          class: (0, import_classnames39.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
+          class: (0, import_classnames40.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
           "data-color-mode": browser
         },
         /* @__PURE__ */ k(PlusIcon, null),
@@ -37340,24 +37507,24 @@
 
   // pages/new-tab/app/customizer/components/CustomizerSection.js
   init_preact_module();
-  var import_classnames40 = __toESM(require_classnames(), 1);
+  var import_classnames41 = __toESM(require_classnames(), 1);
   init_NewBadge2();
   function CustomizerSection({ title, showNewBadge, children }) {
     return /* @__PURE__ */ k("div", { className: CustomizerDrawerInner_default.section }, title === null && children, title !== null && /* @__PURE__ */ k(S, null, /* @__PURE__ */ k("h3", { className: CustomizerDrawerInner_default.sectionTitle }, /* @__PURE__ */ k("span", null, title), showNewBadge && /* @__PURE__ */ k(NewBadge, null)), /* @__PURE__ */ k("div", { className: CustomizerDrawerInner_default.sectionBody }, children)));
   }
   function BorderedSection({ children }) {
-    return /* @__PURE__ */ k("div", { class: (0, import_classnames40.default)(CustomizerDrawerInner_default.section, CustomizerDrawerInner_default.borderedSection) }, children);
+    return /* @__PURE__ */ k("div", { class: (0, import_classnames41.default)(CustomizerDrawerInner_default.section, CustomizerDrawerInner_default.borderedSection) }, children);
   }
 
   // pages/new-tab/app/customizer/components/SettingsLink.js
-  var import_classnames41 = __toESM(require_classnames(), 1);
+  var import_classnames42 = __toESM(require_classnames(), 1);
   init_preact_module();
   function SettingsLink({ title, icon, onClick }) {
     return /* @__PURE__ */ k(
       "a",
       {
         href: "duck://settings",
-        class: (0, import_classnames41.default)(CustomizerDrawerInner_default.settingsLink),
+        class: (0, import_classnames42.default)(CustomizerDrawerInner_default.settingsLink),
         onClick: (event) => {
           event.preventDefault();
           onClick();
@@ -37402,7 +37569,7 @@
     const { customizer } = useInitialSetupData();
     const { showThemeNewBadge } = x2(CustomizerContext);
     const hasThemeVariants = customizer?.themeVariant !== void 0;
-    return /* @__PURE__ */ k("div", { class: CustomizerDrawerInner_default.root }, /* @__PURE__ */ k("header", { class: (0, import_classnames42.default)(CustomizerDrawerInner_default.header, CustomizerDrawerInner_default.internal) }, /* @__PURE__ */ k("h2", null, t4("customizer_drawer_title")), /* @__PURE__ */ k(
+    return /* @__PURE__ */ k("div", { class: CustomizerDrawerInner_default.root }, /* @__PURE__ */ k("header", { class: (0, import_classnames43.default)(CustomizerDrawerInner_default.header, CustomizerDrawerInner_default.internal) }, /* @__PURE__ */ k("h2", null, t4("customizer_drawer_title")), /* @__PURE__ */ k(
       DismissButton,
       {
         onClick: close,
@@ -37472,7 +37639,7 @@
       }
       renderedScreen.value = visibleScreen.value;
     }
-    return /* @__PURE__ */ k("div", { class: CustomizerDrawerInner_default.colwrap }, /* @__PURE__ */ k("div", { class: CustomizerDrawerInner_default.cols, "data-sub": visibleScreen, onTransitionEnd: transitionEnded }, /* @__PURE__ */ k("div", { class: (0, import_classnames42.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col1) }, col1.value && left2({ push })), /* @__PURE__ */ k("div", { class: (0, import_classnames42.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col2) }, renderedScreen.value !== "home" && right2({ id: renderedScreen.value, pop }))));
+    return /* @__PURE__ */ k("div", { class: CustomizerDrawerInner_default.colwrap }, /* @__PURE__ */ k("div", { class: CustomizerDrawerInner_default.cols, "data-sub": visibleScreen, onTransitionEnd: transitionEnded }, /* @__PURE__ */ k("div", { class: (0, import_classnames43.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col1) }, col1.value && left2({ push })), /* @__PURE__ */ k("div", { class: (0, import_classnames43.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col2) }, renderedScreen.value !== "home" && right2({ id: renderedScreen.value, pop }))));
   }
 
   // pages/new-tab/app/customizer/components/CustomizerDrawer.js
@@ -37529,7 +37696,7 @@
         "data-drawer-visibility": visibility,
         "data-has-theme-variants": hasThemeVariants
       },
-      /* @__PURE__ */ k("main", { class: (0, import_classnames43.default)(App_default.main, App_default.mainLayout, App_default.mainScroller), "data-main-scroller": true, "data-theme": main }, /* @__PURE__ */ k("div", { class: App_default.content }, /* @__PURE__ */ k("div", { className: App_default.tube, "data-content-tube": true, "data-platform": platformName }, /* @__PURE__ */ k(WidgetList, null)))),
+      /* @__PURE__ */ k("main", { class: (0, import_classnames44.default)(App_default.main, App_default.mainLayout, App_default.mainScroller), "data-main-scroller": true, "data-theme": main }, /* @__PURE__ */ k("div", { class: App_default.content }, /* @__PURE__ */ k("div", { className: App_default.tube, "data-content-tube": true, "data-platform": platformName }, /* @__PURE__ */ k(WidgetList, null)))),
       /* @__PURE__ */ k("div", { class: App_default.themeContext, "data-theme": main }, /* @__PURE__ */ k(CustomizerMenuPositionedFixed, null, /* @__PURE__ */ k(
         CustomizerButton,
         {
@@ -37544,7 +37711,7 @@
       /* @__PURE__ */ k(
         "aside",
         {
-          class: (0, import_classnames43.default)(App_default.aside, App_default.asideLayout, App_default.asideScroller),
+          class: (0, import_classnames44.default)(App_default.aside, App_default.asideLayout, App_default.asideScroller),
           tabindex: tabIndex,
           "aria-hidden": hidden,
           "data-theme": browser,
@@ -37802,6 +37969,26 @@
     omnibar_aiChatFormVoiceButtonLabel: {
       title: "Start voice chat",
       description: "Accessible label for the voice-chat button shown in place of the AI chat submit button when the input is empty and the feature is enabled."
+    },
+    omnibar_termsDisclaimerAnonymized: {
+      title: "DuckDuckGo anonymizes your chats.",
+      description: "First line of the Duck.ai terms disclaimer shown under the Duck.ai chat input until the user accepts Duck.ai's terms. Followed on the next line by omnibar_termsDisclaimerAsk or omnibar_termsDisclaimerCreate."
+    },
+    omnibar_termsDisclaimerAsk: {
+      title: "By clicking 'Ask' you agree to our <a>Privacy Policy and Terms of Service</a>.",
+      description: "Second line of the Duck.ai terms disclaimer, shown below omnibar_termsDisclaimerAnonymized. 'Ask' must match the omnibar_termsAskButtonLabel button label. The <a> tag is a link to the Privacy Policy and Terms of Service page, please preserve it."
+    },
+    omnibar_termsDisclaimerCreate: {
+      title: "By clicking 'Create' you agree to our <a>Privacy Policy and Terms of Service</a>.",
+      description: "Second line of the Duck.ai terms disclaimer in image creation mode, shown below omnibar_termsDisclaimerAnonymized. 'Create' must match the omnibar_termsCreateButtonLabel button label. The <a> tag is a link to the Privacy Policy and Terms of Service page, please preserve it."
+    },
+    omnibar_termsAskButtonLabel: {
+      title: "Ask",
+      description: "Label of the Duck.ai chat submit button until the user accepts Duck.ai's terms. Clicking it accepts the terms and sends the prompt."
+    },
+    omnibar_termsCreateButtonLabel: {
+      title: "Create",
+      description: "Label of the Duck.ai chat submit button in image creation mode until the user accepts Duck.ai's terms. Clicking it accepts the terms and sends the prompt."
     },
     omnibar_logoAlt: {
       title: "DuckDuckGo",
@@ -43594,6 +43781,7 @@ This is placeholder content used by the NTP mock transport so the attach-tabs fe
           case "omnibar_viewAllAIChats":
           case "omnibar_openAiChat":
           case "omnibar_openCustomizeResponses":
+          case "omnibar_openPrivacyTerms":
           case "omnibar_openSuggestion":
           case "omnibar_submitSearch":
           case "omnibar_submitChat":
@@ -43762,6 +43950,7 @@ This is placeholder content used by the NTP mock transport so the attach-tabs fe
             }
             config.enableAiChatDeletion = parseBooleanQueryParam("omnibar.enableAiChatDeletion") ?? config.enableAiChatDeletion;
             config.enableSearchSuggestionDeletion = parseBooleanQueryParam("omnibar.enableSearchSuggestionDeletion") ?? config.enableSearchSuggestionDeletion;
+            config.requiresAiTermsAcceptance = parseBooleanQueryParam("omnibar.requiresAiTermsAcceptance") ?? config.requiresAiTermsAcceptance;
             if (parseBooleanQueryParam("omnibar.launcherPromo") === true) {
               config.launcherPromo = LAUNCHER_PROMO;
             }

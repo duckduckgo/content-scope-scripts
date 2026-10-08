@@ -62,6 +62,7 @@ export function useUsageLimitsDrawer() {
             : null;
 
     return {
+        type: usageLimits.blocksPrompt === true ? 'required' : 'informational',
         message: usageLimits.message,
         secondaryText: usageLimits.secondaryText ?? '',
         icon,
