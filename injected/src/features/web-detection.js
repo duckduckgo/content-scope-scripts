@@ -9,12 +9,11 @@ import { NativeReader } from './web-detection/predicates.js';
 /**
  * @typedef {import('./web-detection/parse.js').DetectorConfig} DetectorConfig
  * @typedef {import('./web-detection/expressions.js').PayloadData} PayloadData
- * @typedef {import('./web-detection/core.js').FailureKind} FailureKind
  */
 
 /**
  * Whether the detector matched (true), didn't match (false), errored, or could not read the page
- * (`'aborted'`): a read failed and no predicate tested for it with `fails` or `exists`.
+ * (`'aborted'`): a read failed and no predicate tested for it with `fails`.
  *
  * @typedef {true | false | 'error' | 'aborted'} DetectorMatchResult
  */
@@ -34,8 +33,7 @@ import { NativeReader } from './web-detection/predicates.js';
  * @typedef {object} DetectorRun
  * @property {DetectorMatchResult} detected
  * @property {EvaluationContext} [ctx]
- * @property {FailureKind} [abortKind]
- * @property {string} [abortError] - with `threw`, the name of the thrown value's constructor
+ * @property {string} [abortError] - when a getter or method threw, the name of the thrown value's constructor
  * @property {string} [error]
  */
 
@@ -201,7 +199,6 @@ export default class WebDetection extends ContentFeature {
                         timestamp: Date.now(),
                         measured: run.ctx?.measured ?? {},
                         ...(data && { data }),
-                        ...(run.abortKind && { abortKind: run.abortKind }),
                         ...(run.abortError && { abortError: run.abortError }),
                         ...(run.error && { error: run.error }),
                         ...(run.ctx?.errorAt && { errorAt: run.ctx.errorAt }),

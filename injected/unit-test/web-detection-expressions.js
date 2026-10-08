@@ -18,7 +18,7 @@ import WebDetection from '../src/features/web-detection.js';
  * @param {string} body - markup for `<body>`
  * @param {any} detector
  * @param {RunOptions} [options]
- * @returns {{ detected: true | false | 'error' | 'aborted', abortKind?: string, abortError?: string, data?: Record<string, unknown>, ctx: EvaluationContext, error?: unknown }}
+ * @returns {{ detected: true | false | 'error' | 'aborted', abortError?: string, data?: Record<string, unknown>, ctx: EvaluationContext, error?: unknown }}
  */
 function run(body, detector, options = {}) {
     const dom = new JSDOM(`<!DOCTYPE html><html><head>${options.head ?? ''}</head><body>${body}</body></html>`);
@@ -31,7 +31,7 @@ function run(body, detector, options = {}) {
         const reader = new NativeReader(window, compiled.names);
         options.afterCapture?.(window);
         const ctx = new EvaluationContext(reader);
-        /** @type {{ detected: true | false | 'aborted', abortKind?: string, abortError?: string }} */
+        /** @type {{ detected: true | false | 'aborted', abortError?: string }} */
         let result;
         try {
             result = evaluateMatchNode(compiled.match, ctx);
@@ -515,25 +515,24 @@ describe('WebDetection expressions', () => {
         });
     });
 
-    describe('failures, fails and exists', () => {
+    describe('failures and fails', () => {
         it('aborts on a failure in boolean position', () => {
             const result = run('', { match: { api: { path: 'document.fonts' }, using: 'length', is: { gt: 0 } } });
             expect(result.detected).toBe('aborted');
-            expect(result.abortKind).toBe('absent');
+            expect(result.abortError).toBeUndefined();
         });
 
-        it('aborts with threw and the thrown value’s constructor name when a read throws', () => {
+        it('aborts with the thrown value’s constructor name when a read throws', () => {
             const result = run(
                 IMG('data-complete data-throw'),
                 { match: { element: { selector: 'img', where: { naturalWidth: 0 } }, using: 'length', is: { gt: 0 } } },
                 { install: imageState },
             );
             expect(result.detected).toBe('aborted');
-            expect(result.abortKind).toBe('threw');
             expect(result.abortError).toBe('Error');
         });
 
-        it('reads `fails` and `exists` over a value, an absent read and a read that throws', () => {
+        it('reads `fails` over a value, a missing name and a read that throws', () => {
             const width = { only: { element: { selector: 'img', field: 'naturalWidth' } } };
             const missing = { api: { path: 'document.missing' } };
             const options = { install: imageState };
@@ -541,15 +540,10 @@ describe('WebDetection expressions', () => {
             const cases = [
                 [IMG('data-width="5"'), width, { fails: false }, true],
                 [IMG('data-width="5"'), width, { fails: true }, false],
-                [IMG('data-width="5"'), width, { exists: true }, true],
                 [IMG('data-throw'), width, { fails: true }, true],
                 [IMG('data-throw'), width, { fails: false }, false],
-                [IMG('data-throw'), width, { exists: true }, true],
-                [IMG('data-throw'), width, { exists: false }, false],
-                [IMG('data-throw'), width, { exists: true, fails: true }, true],
                 ['', missing, { fails: true }, true],
-                ['', missing, { exists: false }, true],
-                ['', missing, { exists: true, fails: true }, false],
+                ['', missing, { fails: false }, false],
                 ['', { api: { path: 'document.onclick' } }, { fails: false, type: 'null' }, true],
             ];
             for (const [html, expression, predicate, expected] of cases) {
@@ -559,11 +553,33 @@ describe('WebDetection expressions', () => {
             }
         });
 
-        it('tests `fails` and `exists` first, whatever the key order', () => {
+        it('tests `fails` first, whatever the key order', () => {
             const width = { only: { element: { selector: 'img', field: 'naturalWidth' } } };
             expect(match(IMG('data-throw'), { ...width, is: { gt: 0, fails: false } }, { install: imageState })).toBe(false);
             expect(match(IMG('data-width="5"'), { ...width, is: { gt: 0, fails: false } }, { install: imageState })).toBe(true);
-            expect(match('', { api: { path: 'document.fonts' }, using: 'length', is: { gt: 0, exists: true } })).toBe(false);
+            expect(match('', { api: { path: 'document.fonts' }, using: 'length', is: { gt: 0, fails: false } })).toBe(false);
+        });
+
+        it('reads exists as a property name', () => {
+            expect(match('', { api: 'document', is: { exists: true } })).toBe('aborted');
+        });
+
+        it('tests whether a property is present through Reflect.has, per item and on the engine', () => {
+            const install = timeline([{ name: 'r', entryType: 'resource', responseStatus: 404 }]);
+            const lacking = timeline([{ name: 'r', entryType: 'resource' }], { missing: ['responseStatus'] });
+            const has = { field: { api: { path: 'Reflect.has', args: [{ self: {} }, 'responseStatus'] } }, is: true };
+            const errors = {
+                api: { path: 'performance.getEntriesByType', args: ['resource'], where: { ...has, responseStatus: { gte: 400 } } },
+                using: 'length',
+            };
+            expect(match('', { ...errors, is: 1 }, { install })).toBe(true);
+            expect(match('', { ...errors, is: 0 }, { install: lacking })).toBe(true);
+            const engine = {
+                api: { path: 'Reflect.has', args: [{ api: 'FakePerformanceEntry.prototype' }, 'responseStatus'] },
+            };
+            const guarded = { if: { test: engine, then: errors, else: 0 }, is: 0 };
+            expect(match('', guarded, { install: lacking })).toBe(true);
+            expect(match('', { ...guarded, is: 1 }, { install })).toBe(true);
         });
 
         it('tests each item with `fails`, counting the readable items instead of aborting', () => {
@@ -612,7 +628,7 @@ describe('WebDetection expressions', () => {
 
         it('lets a tested failure under `none` decide the leaf, and an untested one abort', () => {
             const failedFonts = { api: { path: 'document.fonts', where: { status: 'error' } }, using: 'length' };
-            expect(match('', { none: { ...failedFonts, is: { exists: true, gt: 0 } } })).toBe(true);
+            expect(match('', { none: { ...failedFonts, is: { fails: false, gt: 0 } } })).toBe(true);
             expect(match('', { none: { ...failedFonts, is: { gt: 0 } } })).toBe('aborted');
         });
 
@@ -999,8 +1015,8 @@ describe('WebDetection expressions', () => {
         });
 
         it('reads finite and nan as property names, not operators', () => {
-            expect(run('', { match: { div: [0, 0], is: { nan: true } } }).abortKind).toBe('absent');
-            expect(run('', { match: { sum: [3], is: { finite: true } } }).abortKind).toBe('absent');
+            expect(match('', { div: [0, 0], is: { nan: true } })).toBe('aborted');
+            expect(match('', { sum: [3], is: { finite: true } })).toBe('aborted');
         });
 
         it('reads property paths at item and value level, beside reserved keys and operators', () => {
@@ -1075,11 +1091,11 @@ describe('WebDetection expressions', () => {
             expect(match('<p></p>', { element: { selector: 'p', where: { noSuchProperty: 1 } }, using: 'length', is: 0 })).toBe('aborted');
         });
 
-        it('tests exists and type first whatever the key order', () => {
-            // `gt` on a missing property would fail; `exists` decides first
+        it('tests fails and type first whatever the key order', () => {
+            // `gt` on a missing property would fail; `fails` decides first
             expect(
                 match('<p></p>', {
-                    element: { selector: 'p', where: { noSuchProperty: { gt: 1, exists: true } } },
+                    element: { selector: 'p', where: { noSuchProperty: { gt: 1, fails: false } } },
                     using: 'length',
                     is: 0,
                 }),
@@ -1112,7 +1128,7 @@ describe('WebDetection expressions', () => {
             ).toBe(true);
         });
 
-        it('tests absence and type over a missing property, undefined, null, a string and a number', () => {
+        it('tests failure and type over a missing property, undefined, null, a string and a number', () => {
             const install = timeline([{ name: 'n', entryType: 'navigation', u: undefined, nul: null, s: '7', num: 8 }]);
             const test = (/** @type {object} */ where) =>
                 match(
@@ -1121,11 +1137,11 @@ describe('WebDetection expressions', () => {
                     { install },
                 );
             expect(test({ missing: 8 })).toBe('aborted');
-            expect(test({ missing: { exists: true } })).toBe(false);
-            expect(test({ missing: { exists: false } })).toBe(true);
-            expect(test({ missing: { type: 'undefined' } })).toBe(true);
-            expect(test({ u: { exists: true, type: 'undefined' } })).toBe(true);
-            expect(test({ nul: { exists: true } })).toBe(true);
+            expect(test({ missing: { fails: false } })).toBe(false);
+            expect(test({ missing: { fails: true } })).toBe(true);
+            expect(test({ missing: { type: 'undefined' } })).toBe('aborted');
+            expect(test({ u: { fails: false, type: 'undefined' } })).toBe(true);
+            expect(test({ nul: { fails: false } })).toBe(true);
             expect(test({ nul: { gt: 7 } })).toBe('error');
             expect(test({ s: { gt: 7 } })).toBe('error');
             expect(test({ s: { type: 'number', gt: 7 } })).toBe(false);
@@ -1133,12 +1149,12 @@ describe('WebDetection expressions', () => {
             expect(test({ s: { ...numberTest('isFinite'), gt: 7 } })).toBe(false);
         });
 
-        it('reports a length over exists on an engine without the field', () => {
+        it('reports a length over fails on an engine without the field', () => {
             const install = timeline([{ name: 'r', entryType: 'resource' }], { missing: ['responseStatus'] });
             const where = (/** @type {object} */ status) => ({
                 api: { path: 'performance.getEntriesByType', args: ['resource'], where: { responseStatus: status } },
             });
-            expect(payload('', { ...where({ exists: true, gte: 400 }), using: 'length' }, {}, { install })).toEqual({ x: 0 });
+            expect(payload('', { ...where({ fails: false, gte: 400 }), using: 'length' }, {}, { install })).toEqual({ x: 0 });
             expect(payload('', { ...where({ gte: 400 }), using: 'length' }, {}, { install })).toEqual({});
         });
 
@@ -1287,7 +1303,7 @@ describe('WebDetection expressions', () => {
             expect(match('', { api: { path: 'document.fonts', field: 'status' }, using: 'length', is: 2 }, { install })).toBe(true);
             expect(match('', { api: { path: 'document.fonts' }, using: 'size', is: 2 }, { install })).toBe(true);
             // `length` reads the iterable's own property, which a `FontFaceSet` lacks
-            expect(run('', { match: { api: { path: 'document.fonts' }, using: 'length', is: 2 } }, { install }).abortKind).toBe('absent');
+            expect(match('', { api: { path: 'document.fonts' }, using: 'length', is: 2 }, { install })).toBe('aborted');
         });
 
         it('reads field from each member of a list, and from a value that is not one', () => {
@@ -1407,7 +1423,7 @@ describe('WebDetection expressions', () => {
                 });
             const result = run('', { match: { api: { path: 'document.cookie' }, is: { type: 'string' } } }, { install });
             expect(result.detected).toBe('aborted');
-            expect(result.abortKind).toBe('threw');
+            expect(result.abortError).toBe('Error');
             expect(match('', { api: { path: 'document.cookie' }, is: { fails: true } }, { install })).toBe(true);
         });
 
@@ -1445,7 +1461,7 @@ describe('WebDetection expressions', () => {
                 match('', { ...resources({ duration: { gt: 1000 }, initiatorType: ['img', 'css'] }), using: 'length', is: 1 }, { install }),
             ).toBe(true);
             expect(match('', { ...resources({ responseStatus: { gte: 400 } }), using: 'length', is: 0 }, { install })).toBe('aborted');
-            expect(match('', { ...resources({ responseStatus: { exists: true, gte: 400 } }), using: 'length', is: 0 }, { install })).toBe(
+            expect(match('', { ...resources({ responseStatus: { fails: false, gte: 400 } }), using: 'length', is: 0 }, { install })).toBe(
                 true,
             );
         });
@@ -1522,14 +1538,14 @@ describe('WebDetection expressions', () => {
             ).toBe(true);
         });
 
-        it('fails with an argument’s kind', () => {
+        it('fails when an argument fails', () => {
             const failed = run('', { match: { api: { path: 'Array.of', args: [{ api: { path: 'document.fonts' } }] }, is: {} } });
             expect(failed.detected).toBe('aborted');
-            expect(failed.abortKind).toBe('absent');
+            expect(failed.abortError).toBeUndefined();
             expect(run('', { match: { api: { path: 'Math.max', args: [7] }, as: 'n', is: 7 } }).ctx.measured.n).toBe(7);
         });
 
-        it('fails with threw on any throw from the call, which `fails` tests', () => {
+        it('fails on any throw from the call, which `fails` tests', () => {
             const install = (/** @type {any} */ w) => {
                 w.document.createElement = () => {
                     throw new w.DOMException('refused', 'SecurityError');
@@ -1544,7 +1560,6 @@ describe('WebDetection expressions', () => {
             for (const [api, name, options] of calls) {
                 const result = run('', { match: { api, is: {} } }, options);
                 expect(result.detected).withContext(name).toBe('aborted');
-                expect(result.abortKind).withContext(name).toBe('threw');
                 expect(result.abortError).withContext(name).toBe(name);
                 expect(match('', { api, is: { fails: true } }, options))
                     .withContext(name)
@@ -1822,13 +1837,13 @@ describe('WebDetection expressions', () => {
             }
         });
 
-        it('fails with threw when the call throws, and with absent on a name that is not a function', () => {
+        it('fails when the call throws, and on a name that is not a function', () => {
             const result = run('', { match: { sum: [1.5], is: { field: { api: { path: 'BigInt', args: [{ self: {} }] } }, is: {} } } });
             expect(result.detected).toBe('aborted');
-            expect(result.abortKind).toBe('threw');
             expect(result.abortError).toBe('RangeError');
-            const absent = run('', { match: { sum: [1], is: { field: { api: { path: 'Math', args: [{ self: {} }] } }, is: {} } } });
-            expect(absent.abortKind).toBe('absent');
+            const missing = run('', { match: { sum: [1], is: { field: { api: { path: 'Math', args: [{ self: {} }] } }, is: {} } } });
+            expect(missing.detected).toBe('aborted');
+            expect(missing.abortError).toBeUndefined();
         });
 
         it('rejects malformed fields', () => {
@@ -2032,7 +2047,7 @@ describe('WebDetection expressions', () => {
                             api: {
                                 path: 'performance.getEntriesByType',
                                 args: ['resource'],
-                                where: { initiatorType: 'link', responseStatus: { exists: true, gte: 400 } },
+                                where: { initiatorType: 'link', responseStatus: { fails: false, gte: 400 } },
                             },
                             using: 'length',
                             as: 'failedStylesheets',
@@ -2042,7 +2057,7 @@ describe('WebDetection expressions', () => {
                             api: { path: 'document.fonts', where: { status: 'error' } },
                             using: 'length',
                             as: 'failedFontFaces',
-                            is: { exists: true, gt: 0 },
+                            is: { fails: false, gt: 0 },
                         },
                     ],
                 },
