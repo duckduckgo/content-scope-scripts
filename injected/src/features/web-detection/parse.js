@@ -12,7 +12,8 @@ import { apiSource, rejectUnknownKeys } from './sources.js';
  * @typedef {import('./expressions.js').NodeBase} NodeBase
  * @typedef {import('./expressions.js').RefNode} RefNode
  * @typedef {import('./expressions.js').SourceNode} SourceNode
- * @typedef {import('./expressions.js').CountNode} CountNode
+ * @typedef {import('./expressions.js').LengthNode} LengthNode
+ * @typedef {import('./expressions.js').ExprNode} ExprNode
  * @typedef {import('./expressions.js').IfNode} IfNode
  * @typedef {import('./expressions.js').Branch} Branch
  * @typedef {import('./expressions.js').Position} Position
@@ -22,6 +23,10 @@ import { apiSource, rejectUnknownKeys } from './sources.js';
 /**
  * @template Body
  * @typedef {import('./sources.js').Source<Body>} Source
+ */
+
+/**
+ * @typedef {import('./sources.js').ApiBody} ApiBody
  */
 
 /**
@@ -110,8 +115,8 @@ import { apiSource, rejectUnknownKeys } from './sources.js';
  * @property {Set<string>} names - every name config reads or calls, for the native reader
  */
 
-const EXPRESSION_KEYS = new Set(['element', 'text', 'api', 'count', 'only', 'sum', 'mul', 'div', 'if', 'any', 'all', 'none', 'ref']);
-const MODIFIER_KEYS = new Set(['as', 'is']);
+const EXPRESSION_KEYS = new Set(['element', 'text', 'api', 'expr', 'only', 'sum', 'mul', 'div', 'if', 'any', 'all', 'none', 'ref']);
+const MODIFIER_KEYS = new Set(['using', 'as', 'is']);
 /** Keys reserved for later extensions, rejected by this release. */
 const RESERVED_LATER = new Set(['aggregate', 'stable', 'confirm', 'retain']);
 const LEGACY_OPERATORS = ['any', 'all', 'none'];
@@ -230,26 +235,31 @@ function compileExpr(raw, position, path, scope) {
     }
 
     const hasIs = raw.is !== undefined;
+    const hasUsing = raw.using !== undefined;
     if (hasIs && position !== 'boolean') throw new ConfigParseError(path, '`is` gives a boolean, and goes in boolean position');
     // With `is`, the expression computes a value for the predicate
     const valuePosition = hasIs ? 'value' : position;
+    // With `using`, the expression keys give the value `using` reads from
+    const keyPosition = hasUsing ? 'value' : valuePosition;
 
     /** @type {Node} */
     let node;
     if (expressionKeys.length === 0) {
+        if (hasUsing) throw new ConfigParseError(path, '`using` reads from an expression, and this object has no expression key');
         if (hasIs || position !== 'boolean') throw new ConfigParseError(path, 'no expression key');
         // An object ANDs its keys, so no keys holds
         node = makeNode(scope, { kind: 'literal', value: true, path, position }, []);
     } else if (expressionKeys.length > 1) {
-        if (hasIs || (position !== 'boolean' && position !== 'value')) {
+        if ((hasIs && !hasUsing) || (keyPosition !== 'boolean' && keyPosition !== 'value')) {
             throw new ConfigParseError(path, 'several expression keys are their AND, in boolean or value position and never beside `is`');
         }
         const operands = expressionKeys.map((key) => compileKey(key, raw[key], 'boolean', `${path}.${key}`, scope));
-        node = makeNode(scope, { kind: 'and', operands, path, position }, operands);
+        node = makeNode(scope, { kind: 'and', operands, path, position: keyPosition }, operands);
     } else {
         const key = /** @type {string} */ (expressionKeys[0]);
-        node = compileKey(key, raw[key], valuePosition, path, scope);
+        node = compileKey(key, raw[key], keyPosition, path, scope);
     }
+    if (hasUsing) node = compileUsing(raw.using, node, valuePosition, path, scope);
 
     if (raw.as !== undefined) {
         if (typeof raw.as !== 'string' || !NAME_PATTERN.test(raw.as)) throw new ConfigParseError(`${path}.as`, 'invalid name');
@@ -278,12 +288,18 @@ function compileKey(key, body, position, path, scope) {
         case 'text':
         case 'api':
             return compileSource(key, body, position, path, scope);
-        case 'count':
+        case 'expr': {
+            // An operand with `is` gives a boolean, in boolean position
+            const operandIs = isPlainObject(body) && body.is !== undefined;
+            if (operandIs) expectPosition(position, FILLS.boolean, key, path);
+            const operand = compileExpr(body, operandIs ? 'boolean' : position, `${path}.expr`, scope);
+            return makeNode(scope, { kind: 'expr', operand, path, position }, [operand]);
+        }
+        case 'only': {
             expectPosition(position, FILLS.number, key, path);
-            return compileUnary('count', body, 'list', position, path, scope);
-        case 'only':
-            expectPosition(position, FILLS.number, key, path);
-            return compileUnary(key, body, 'list', position, path, scope);
+            const operand = compileExpr(body, 'list', `${path}.only`, scope);
+            return makeNode(scope, { kind: 'only', operand, path, position }, [operand]);
+        }
         case 'sum':
         case 'mul': {
             expectPosition(position, FILLS.number, key, path);
@@ -333,17 +349,31 @@ function expectPosition(position, fills, key, path) {
 }
 
 /**
- * @param {'count' | 'only'} kind
- * @param {unknown} body
- * @param {Position} operandPosition
+ * `using`: a read of a path from the value of the expression beside it, as an `api` reads from the
+ * global object. `length` alone is a `length` node, which reads only as many items of a list as the
+ * predicates testing it need.
+ *
+ * @param {unknown} raw
+ * @param {Node} root - the expression `using` reads from, in value position
  * @param {Position} position
  * @param {string} path
  * @param {Scope} scope
  * @returns {Node}
  */
-function compileUnary(kind, body, operandPosition, position, path, scope) {
-    const operand = compileExpr(body, operandPosition, `${path}.${kind}`, scope);
-    return makeNode(scope, { kind, operand, path, position, bound: Infinity }, [operand]);
+function compileUsing(raw, root, position, path, scope) {
+    const body = typeof raw === 'string' ? { path: raw } : raw;
+    if (!isPlainObject(body)) throw new ConfigParseError(`${path}.using`, '`using` takes a path or an object');
+    if (body.path === undefined) throw new ConfigParseError(`${path}.using`, '`using` needs `path`');
+    if (body.path === 'length' && objectKeys(body).length === 1) {
+        scope.readerNames.add('length');
+        return makeNode(scope, { kind: 'length', operand: root, path, position, bound: Infinity }, [root]);
+    }
+    const source = /** @type {Source<ApiBody>} */ (scope.sources.api);
+    /** @type {Node[]} */
+    const deps = [root];
+    const parsed = scope.collecting(deps, () => source.parse(body, `${path}.using`, scope.hooks));
+    parsed.root = root;
+    return makeNode(scope, { kind: 'source', source, bodies: [parsed], path, position }, deps);
 }
 
 /**
@@ -478,7 +508,7 @@ function fillsOf(node, visiting = new Set()) {
             const [first, ...rest] = node.bodies.map((body) => node.source.fills(body));
             return new Set([...(first ?? [])].filter((position) => rest.every((fills) => fills.has(position))));
         }
-        case 'count':
+        case 'length':
         case 'only':
         case 'sum':
         case 'mul':
@@ -495,6 +525,8 @@ function fillsOf(node, visiting = new Set()) {
         }
         case 'ref':
             return node.target ? fillsOf(node.target, visiting) : FILLS.none;
+        case 'expr':
+            return node.operand.is ? FILLS.boolean : fillsOf(node.operand, visiting);
     }
 }
 
@@ -523,17 +555,18 @@ function resolve(scope) {
                 node.kind === 'source'
                     ? `'${/** @type {SourceNode} */ (node).source.key}'${node.bodies.some((b) => /** @type {any} */ (b).field) ? ' with field' : ''}`
                     : `'${node.kind}'`;
-            throw new ConfigParseError(node.path, `${what} does not fill ${node.position} position`);
+            const hint = node.position === 'boolean' && fillsOf(node).has('number') ? '; numbers become booleans only through `is`' : '';
+            throw new ConfigParseError(node.path, `${what} does not fill ${node.position} position${hint}`);
         }
     }
     for (const node of scope.nodes) {
-        if (node.kind === 'count') node.bound = countBound(node, scope);
+        if (node.kind === 'length') node.bound = lengthBound(node, scope);
     }
 }
 
 /**
  * Whether an expression is the condition leaf: `element` without `field`, or `text`, directly or
- * through refs.
+ * through refs and `expr`.
  *
  * @param {Node} node
  * @returns {boolean}
@@ -542,9 +575,9 @@ function isPresenceLeaf(node) {
     /** @type {Node | undefined} */
     let current = node;
     const seen = new Set();
-    while (current?.kind === 'ref' && !seen.has(current)) {
+    while ((current?.kind === 'ref' || (current?.kind === 'expr' && !current.operand.is)) && !seen.has(current)) {
         seen.add(current);
-        current = current.target;
+        current = current.kind === 'ref' ? current.target : current.operand;
     }
     if (current?.kind !== 'source') return false;
     const key = current.source.key;
@@ -583,27 +616,42 @@ function checkCycles(scope) {
 }
 
 /**
- * The count from which every predicate testing a count gives the result the full count would. The
- * predicates testing a count are its `is`, the `is` of each ref to it, and each payload field
- * reading it directly. Any other use reads the full count.
+ * The length from which every predicate testing a `length` gives the result the full length would.
+ * Its uses are the `length` itself, each ref to a use, and each `expr` over a use without `is`. The
+ * predicates testing it are each use's `is`, and the `when` and buckets of each bucketed payload field
+ * reading a use directly. Any other use reads the full length, an unbucketed payload field included,
+ * since it sends the value.
  *
- * @param {CountNode} count
+ * @param {LengthNode} length
  * @param {Scope} scope
  * @returns {number}
  */
-function countBound(count, scope) {
-    /** @type {Node[]} */
-    const uses = [count, ...scope.refs.map(({ ref }) => ref).filter((ref) => ref.target === count)];
+function lengthBound(length, scope) {
+    /** @type {Set<Node>} */
+    const uses = new Set([length]);
+    /** @type {Set<Node>} operands an `expr` passes through, judged at the `expr` */
+    const passed = new Set();
+    // A set iterates the uses added while it runs
+    for (const use of uses) {
+        for (const node of scope.nodes) {
+            if (node.kind === 'ref' && node.target === use) uses.add(node);
+            if (node.kind === 'expr' && node.operand === use && !use.is) {
+                uses.add(node);
+                passed.add(use);
+            }
+        }
+    }
     let bound = 0;
     for (const use of uses) {
         if (use.is) {
             bound = Math.max(bound, use.is.bound);
             continue;
         }
+        if (passed.has(use)) continue;
         const field = scope.payloadRoots.get(use);
-        if (!field || (!field.when && !field.buckets)) return Infinity;
+        if (!field?.buckets) return Infinity;
         if (field.when) bound = Math.max(bound, field.when.bound);
-        for (const [, bucket] of field.buckets ?? []) bound = Math.max(bound, bucket.bound);
+        for (const [, bucket] of field.buckets) bound = Math.max(bound, bucket.bound);
     }
     return bound;
 }

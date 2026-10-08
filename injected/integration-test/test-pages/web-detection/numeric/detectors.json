@@ -131,16 +131,15 @@
         "soft404_phrases_count": {
             "state": "disabled",
             "match": {
-                "count": {
-                    "text": {
-                        "xpath": "//body//text()[not(ancestor::script) and not(ancestor::style) and not(ancestor::template) and not(ancestor::noscript)]",
-                        "pattern": [
-                            "access denied",
-                            "page not found",
-                            "404 not found"
-                        ]
-                    }
+                "text": {
+                    "xpath": "//body//text()[not(ancestor::script) and not(ancestor::style) and not(ancestor::template) and not(ancestor::noscript)]",
+                    "pattern": [
+                        "access denied",
+                        "page not found",
+                        "404 not found"
+                    ]
                 },
+                "using": "length",
                 "as": "keywordCount",
                 "is": {
                     "gte": 1
@@ -213,11 +212,10 @@
                     {
                         "any": [
                             {
-                                "count": {
-                                    "element": {
-                                        "selector": "img"
-                                    }
+                                "element": {
+                                    "selector": "img"
                                 },
+                                "using": "length",
                                 "is": {
                                     "lt": 2
                                 }
@@ -237,44 +235,43 @@
                         ]
                     },
                     {
-                        "count": {
-                            "text": {
-                                "xpath": "//body//text()[not(ancestor::script) and not(ancestor::style) and not(ancestor::template) and not(ancestor::noscript)]",
-                                "pattern": [
-                                    "\\b404\\b",
-                                    "\\berror\\b",
-                                    "\\bfound\\b",
-                                    "\\bpage\\b",
-                                    "\\bfile\\b",
-                                    "\\bresource\\b",
-                                    "\\burl\\b",
-                                    "\\baccess denied\\b",
-                                    "\\bforbidden\\b",
-                                    "\\bunavailable\\b",
-                                    "\\bgone\\b",
-                                    "\\bredirect\\b",
-                                    "\\btemporary\\b",
-                                    "\\bpermanent\\b",
-                                    "\\bserver\\b",
-                                    "\\bclient\\b",
-                                    "\\bbrowser\\b",
-                                    "\\bnetwork\\b",
-                                    "\\bdns\\b",
-                                    "\\btypo\\b",
-                                    "\\bmisspelling\\b",
-                                    "\\bstale\\b",
-                                    "\\bbroken\\b",
-                                    "\\bdead\\b",
-                                    "\\bobsolete\\b",
-                                    "\\bexpired\\b",
-                                    "\\binvalid\\b",
-                                    "\\bmalformed\\b",
-                                    "\\bcorrupt\\b",
-                                    "\\bunreachable\\b",
-                                    "\\bdeleted\\b"
-                                ]
-                            }
+                        "text": {
+                            "xpath": "//body//text()[not(ancestor::script) and not(ancestor::style) and not(ancestor::template) and not(ancestor::noscript)]",
+                            "pattern": [
+                                "\\b404\\b",
+                                "\\berror\\b",
+                                "\\bfound\\b",
+                                "\\bpage\\b",
+                                "\\bfile\\b",
+                                "\\bresource\\b",
+                                "\\burl\\b",
+                                "\\baccess denied\\b",
+                                "\\bforbidden\\b",
+                                "\\bunavailable\\b",
+                                "\\bgone\\b",
+                                "\\bredirect\\b",
+                                "\\btemporary\\b",
+                                "\\bpermanent\\b",
+                                "\\bserver\\b",
+                                "\\bclient\\b",
+                                "\\bbrowser\\b",
+                                "\\bnetwork\\b",
+                                "\\bdns\\b",
+                                "\\btypo\\b",
+                                "\\bmisspelling\\b",
+                                "\\bstale\\b",
+                                "\\bbroken\\b",
+                                "\\bdead\\b",
+                                "\\bobsolete\\b",
+                                "\\bexpired\\b",
+                                "\\binvalid\\b",
+                                "\\bmalformed\\b",
+                                "\\bcorrupt\\b",
+                                "\\bunreachable\\b",
+                                "\\bdeleted\\b"
+                            ]
                         },
+                        "using": "length",
                         "as": "keywordCount",
                         "is": {
                             "gte": 5
@@ -776,20 +773,19 @@
                         },
                         "failedScripts": {
                             "value": {
-                                "count": {
-                                    "api": {
-                                        "path": "performance.getEntriesByType",
-                                        "args": [
-                                            "resource"
-                                        ],
-                                        "where": {
-                                            "initiatorType": "script",
-                                            "responseStatus": {
-                                                "gte": 400
-                                            }
+                                "api": {
+                                    "path": "performance.getEntriesByType",
+                                    "args": [
+                                        "resource"
+                                    ],
+                                    "where": {
+                                        "initiatorType": "script",
+                                        "responseStatus": {
+                                            "gte": 400
                                         }
                                     }
-                                }
+                                },
+                                "using": "length"
                             },
                             "buckets": {
                                 "0": 0,
@@ -859,17 +855,16 @@
                         },
                         "media": {
                             "value": {
-                                "count": {
-                                    "element": {
-                                        "selector": [
-                                            "img",
-                                            "video",
-                                            "canvas",
-                                            "svg",
-                                            "iframe"
-                                        ]
-                                    }
-                                }
+                                "element": {
+                                    "selector": [
+                                        "img",
+                                        "video",
+                                        "canvas",
+                                        "svg",
+                                        "iframe"
+                                    ]
+                                },
+                                "using": "length"
                             },
                             "buckets": {
                                 "0": 0,
@@ -893,35 +888,33 @@
             "match": {
                 "any": [
                     {
-                        "count": {
-                            "api": {
-                                "path": "performance.getEntriesByType",
-                                "args": [
-                                    "resource"
-                                ],
-                                "where": {
-                                    "initiatorType": "link",
-                                    "responseStatus": {
-                                        "exists": true,
-                                        "gte": 400
-                                    }
+                        "api": {
+                            "path": "performance.getEntriesByType",
+                            "args": [
+                                "resource"
+                            ],
+                            "where": {
+                                "initiatorType": "link",
+                                "responseStatus": {
+                                    "exists": true,
+                                    "gte": 400
                                 }
                             }
                         },
+                        "using": "length",
                         "as": "failedStylesheets",
                         "is": {
                             "gt": 0
                         }
                     },
                     {
-                        "count": {
-                            "api": {
-                                "path": "document.fonts",
-                                "where": {
-                                    "status": "error"
-                                }
+                        "api": {
+                            "path": "document.fonts",
+                            "where": {
+                                "status": "error"
                             }
                         },
+                        "using": "length",
                         "as": "failedFontFaces",
                         "is": {
                             "exists": true,
@@ -986,18 +979,17 @@
         "broken_images": {
             "state": "disabled",
             "match": {
-                "count": {
-                    "element": {
-                        "selector": "img",
-                        "where": {
-                            "complete": true,
-                            "naturalWidth": 0,
-                            "currentSrc.length": {
-                                "gt": 0
-                            }
+                "element": {
+                    "selector": "img",
+                    "where": {
+                        "complete": true,
+                        "naturalWidth": 0,
+                        "currentSrc.length": {
+                            "gt": 0
                         }
                     }
                 },
+                "using": "length",
                 "as": "brokenImages",
                 "is": {
                     "gte": 1
@@ -1044,11 +1036,10 @@
                                         "ref": "brokenImages"
                                     },
                                     {
-                                        "count": {
-                                            "element": {
-                                                "selector": "img"
-                                            }
-                                        }
+                                        "element": {
+                                            "selector": "img"
+                                        },
+                                        "using": "length"
                                     }
                                 ]
                             },
@@ -1099,20 +1090,19 @@
                         }
                     },
                     {
-                        "count": {
-                            "element": {
-                                "selector": "img",
-                                "where": {
-                                    "complete": true,
-                                    "naturalWidth": {
-                                        "gt": 0
-                                    }
-                                },
-                                "root": [
-                                    "#comments"
-                                ]
-                            }
+                        "element": {
+                            "selector": "img",
+                            "where": {
+                                "complete": true,
+                                "naturalWidth": {
+                                    "gt": 0
+                                }
+                            },
+                            "root": [
+                                "#comments"
+                            ]
                         },
+                        "using": "length",
                         "is": {
                             "lt": 1
                         }
@@ -1142,21 +1132,20 @@
                     "data": {
                         "brokenImages": {
                             "value": {
-                                "count": {
-                                    "element": {
-                                        "selector": "img",
-                                        "where": {
-                                            "complete": true,
-                                            "naturalWidth": 0,
-                                            "currentSrc.length": {
-                                                "gt": 0
-                                            }
-                                        },
-                                        "root": [
-                                            "#comments"
-                                        ]
-                                    }
-                                }
+                                "element": {
+                                    "selector": "img",
+                                    "where": {
+                                        "complete": true,
+                                        "naturalWidth": 0,
+                                        "currentSrc.length": {
+                                            "gt": 0
+                                        }
+                                    },
+                                    "root": [
+                                        "#comments"
+                                    ]
+                                },
+                                "using": "length"
                             },
                             "buckets": {
                                 "0": 0,

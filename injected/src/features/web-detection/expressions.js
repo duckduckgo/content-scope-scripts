@@ -1,7 +1,7 @@
 import { numberIsFinite } from '../../captured-globals.js';
 import { DetectionError, Failure, isFailure, typeName } from './core.js';
 import { compileDetector } from './parse.js';
-import { NativeReader } from './predicates.js';
+import { NativeReader, readPath } from './predicates.js';
 import { ItemBuffer, eachMember, isList } from './sources.js';
 
 /**
@@ -40,13 +40,14 @@ import { ItemBuffer, eachMember, isList } from './sources.js';
 /**
  * @typedef {NodeBase & { kind: 'literal', value: number | boolean | string | null }} LiteralNode
  * @typedef {NodeBase & { kind: 'source', source: Source<any>, bodies: unknown[] }} SourceNode
- * @typedef {NodeBase & { kind: 'count', operand: Node, bound: number }} CountNode
+ * @typedef {NodeBase & { kind: 'length', operand: Node, bound: number }} LengthNode
+ * @typedef {NodeBase & { kind: 'expr', operand: Node }} ExprNode
  * @typedef {NodeBase & { kind: 'only', operand: Node }} OnlyNode
  * @typedef {NodeBase & { kind: 'sum' | 'mul' | 'div', operands: Node[] }} ArithmeticNode
  * @typedef {NodeBase & { kind: 'any' | 'all' | 'none' | 'and', operands: Node[] }} LogicNode
  * @typedef {NodeBase & { kind: 'if', test: Node, then: Node, else: Node }} IfNode
  * @typedef {NodeBase & { kind: 'ref', name: string, target?: Node }} RefNode
- * @typedef {LiteralNode | SourceNode | CountNode | OnlyNode | ArithmeticNode | LogicNode | IfNode | RefNode} Node
+ * @typedef {LiteralNode | SourceNode | LengthNode | ExprNode | OnlyNode | ArithmeticNode | LogicNode | IfNode | RefNode} Node
  */
 
 /**
@@ -148,6 +149,9 @@ export function evaluate(node, position, ctx) {
         let result;
         if (node.kind === 'ref') {
             result = evaluateRef(node, position, ctx);
+        } else if (node.kind === 'expr') {
+            // `expr` gives its operand's value in its own position, or the boolean the operand's `is` gives
+            result = node.operand.is ? evaluateOccurrence(node.operand, ctx) : evaluate(node.operand, position, ctx);
         } else if (node.kind === 'source') {
             result = readSource(node, position, ctx);
         } else if (ctx.memo.has(node)) {
@@ -171,7 +175,7 @@ export function evaluate(node, position, ctx) {
  */
 function checkType(value, position) {
     if (value instanceof ItemBuffer && position === 'boolean') {
-        throw new DetectionError('a list is read through any, all, none, count or only');
+        throw new DetectionError('a list is read through any, all, none or only, or its length through using');
     }
     if (position === 'number' && typeof value !== 'number') throw new DetectionError(`expected a number, got ${typeName(value)}`);
     if (position === 'boolean' && typeof value !== 'boolean') throw new DetectionError(`expected a boolean, got ${typeName(value)}`);
@@ -331,7 +335,7 @@ function expectBoolean(value, operator) {
 }
 
 /**
- * @param {Exclude<Node, RefNode | SourceNode>} node
+ * @param {Exclude<Node, RefNode | SourceNode | ExprNode>} node
  * @param {EvaluationContext} ctx
  * @returns {unknown} the value, or a `Failure`
  */
@@ -339,8 +343,8 @@ function compute(node, ctx) {
     switch (node.kind) {
         case 'literal':
             return node.value;
-        case 'count':
-            return computeCount(node, ctx);
+        case 'length':
+            return computeLength(node, ctx);
         case 'only': {
             const buffer = readList(node.operand, node.kind, ctx);
             if (isFailure(buffer)) return buffer;
@@ -371,18 +375,22 @@ function compute(node, ctx) {
 }
 
 /**
- * @param {CountNode} node
+ * `"using": "length"`. A selected list's length reads items only up to the bound its predicates need;
+ * any other value's `length` is read as `using` reads a path.
+ *
+ * @param {LengthNode} node
  * @param {EvaluationContext} ctx
- * @returns {number | Failure}
+ * @returns {unknown} the value, or a `Failure`
  */
-function computeCount(node, ctx) {
-    const buffer = readList(node.operand, 'count', ctx);
-    if (isFailure(buffer)) return buffer;
-    if (!buffer.started) {
-        const count = buffer.shortcuts.countAll?.();
+function computeLength(node, ctx) {
+    const value = evaluate(node.operand, node.operand.position, ctx);
+    if (isFailure(value)) return value;
+    if (!(value instanceof ItemBuffer)) return readPath(ctx.reader, value, ['length'], undefined);
+    if (!value.started) {
+        const count = value.shortcuts.countAll?.();
         if (count !== undefined) return Math.min(count, node.bound);
     }
-    return buffer.pull(node.bound) ?? Math.min(buffer.values.length, node.bound);
+    return value.pull(node.bound) ?? Math.min(value.values.length, node.bound);
 }
 
 /**
@@ -519,7 +527,8 @@ export function evaluatePayload(fields, ctx) {
 function payloadValue(field, ctx) {
     const value = evaluateOccurrence(field.value, ctx);
     if (isFailure(value)) return OMIT;
-    if (value instanceof ItemBuffer && !field.buckets) throw new DetectionError('a list is sent bucketed, or through count or only');
+    if (value instanceof ItemBuffer && !field.buckets)
+        throw new DetectionError('a list is sent bucketed, through only, or as its length through using');
     /**
      * @param {CompiledPredicate} predicate
      * @returns {boolean | Failure}
