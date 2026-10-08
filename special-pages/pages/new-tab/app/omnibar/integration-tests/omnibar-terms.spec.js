@@ -131,7 +131,7 @@ test.describe('omnibar terms disclaimer', () => {
         await omnibar.expectMethodNotCalled('omnibar_submitChat');
     });
 
-    test('the voice button sends no acceptance', async ({ page }, workerInfo) => {
+    test('shows a disabled Ask button instead of the voice button until acceptance', async ({ page }, workerInfo) => {
         const { ntp, omnibar } = setup(page, workerInfo);
         await ntp.reducedMotion();
         await ntp.openPage({
@@ -139,11 +139,19 @@ test.describe('omnibar terms disclaimer', () => {
         });
         await omnibar.ready();
 
-        await expect(omnibar.noticeDrawer()).toBeVisible();
-        await omnibar.voiceChatButton().click();
+        await expect(omnibar.askButton()).toBeDisabled();
+        await expect(omnibar.voiceChatButton()).toHaveCount(0);
 
-        await omnibar.expectMethodCalledWith('omnibar_submitChat', { chat: '', target: 'same-tab', mode: 'voice-mode' });
-        await expect(omnibar.noticeDrawer()).toBeVisible();
+        await omnibar.didReceiveConfig({
+            mode: 'ai',
+            enableAi: true,
+            enableAiChatTools: true,
+            enableVoiceChatAccess: true,
+            requiresAiTermsAcceptance: false,
+        });
+
+        await expect(omnibar.voiceChatButton()).toBeVisible();
+        await expect(omnibar.askButton()).toHaveCount(0);
     });
 
     test('the Search tab Ask Duck.ai suggestion sends no acceptance', async ({ page }, workerInfo) => {

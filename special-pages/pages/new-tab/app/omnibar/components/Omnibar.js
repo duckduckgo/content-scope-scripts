@@ -433,6 +433,7 @@ function AiChatContent({
 
     const isVoiceChatMode =
         enableVoiceChatAccess &&
+        !requiresAiTermsAcceptance &&
         !imageGenerationActive &&
         !hasAttachedImages &&
         fileState.attachedFiles.length === 0 &&

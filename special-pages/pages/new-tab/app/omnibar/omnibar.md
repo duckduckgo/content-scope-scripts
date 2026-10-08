@@ -35,7 +35,7 @@ title: Omnibar Widget
   - `enableImageGeneration` — shows "Create Image" in the tools menu (default `false`)
   - `enableUpdatedCreateImage` — enables the native-driven image-capable model switch and localized notice (default `false`)
   - `enableWebSearch` — shows "Web Search" in the tools menu (default `false`)
-  - `enableVoiceChatAccess` — when true and the input is empty, replaces the AI chat submit button with a 1-click voice-chat button. Click/Enter sends `omnibar_submitChat` with an empty `chat` and `mode: "voice-mode"` — native handles the voice handoff (default `false`)
+  - `enableVoiceChatAccess` — when true and the input is empty, replaces the AI chat submit button with a 1-click voice-chat button. Click/Enter sends `omnibar_submitChat` with an empty `chat` and `mode: "voice-mode"` — native handles the voice handoff. Hidden while `requiresAiTermsAcceptance` is `true` (default `false`)
   - `enableAskAiSuggestion` — when `false`, hides the inline "Ask Duck.ai: <query>" entry in the suggestions dropdown. Missing/undefined is treated as `true` (default `true`). Does not affect the Duck.ai mode pill or any other AI affordance — those remain governed by `enableAi`
   - `enableAttachTabs` — when `true`, the omnibar shows the page context entry point and accepts `@` mentions for attaching open tabs as context. Requires native to handle `omnibar_getOpenTabs` and `omnibar_getTabContent` (default `false`).
   - `screenshotModes` — capture modes (`"dragToSelect"`, `"selectWindowOrDisplay"`) listed, in order, under "Add Screenshot" in the paperclip menu. Absent or empty hides the screenshot UI. Requires native to handle `omnibar_captureScreenshot`. The row is disabled while a capture is pending, at the image cap, when the model cannot take images, or when the prompt is blocked.
@@ -356,7 +356,8 @@ While `requiresAiTermsAcceptance` is `true`, the Duck.ai tab shows the terms dis
 - Clicking the button accepts the terms: `omnibar_submitChat` includes `aiTermsAccepted: true`. Native passes it to Duck.ai with the prompt, so Duck.ai sends the prompt without its Continue card.
 - Pressing Enter still submits, but without `aiTermsAccepted`. Legal requires an explicit click to accept.
 - After that submission native should push `requiresAiTermsAcceptance: false` to every open NTP. The NTP doesn't hide the disclaimer on its own.
-- The voice-chat button and the Search tab's "Ask Duck.ai" suggestion never send `aiTermsAccepted`.
+- The voice-chat button is hidden until the terms are accepted. A disabled Ask button shows in its place while the input is empty.
+- The Search tab's "Ask Duck.ai" suggestion never sends `aiTermsAccepted`.
 - The disclaimer's link sends `omnibar_openPrivacyTerms`. Native opens the Duck.ai Privacy Policy and Terms of Service page in a new tab.
 - The disclaimer is the top notice in the [notice drawer](#notice-drawer). `usageLimits.blocksPrompt` still blocks sending.
 - `omnibar_setConfig` sends the whole config, so it echoes `requiresAiTermsAcceptance` back. Native should ignore it there.
