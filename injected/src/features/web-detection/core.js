@@ -119,6 +119,17 @@ export function isScalar(value) {
 }
 
 /**
+ * For `any`, `all` and `none`, the operand value that decides the result, and the result it gives.
+ * Without a deciding operand the result is the opposite. `and` is `all`.
+ *
+ * @param {string} kind
+ * @returns {[decider: boolean, decided: boolean]}
+ */
+export function decides(kind) {
+    return [kind === 'any' || kind === 'none', kind === 'any'];
+}
+
+/**
  * Name of a value's type, as `type` in predicates tests it.
  *
  * @param {unknown} value
