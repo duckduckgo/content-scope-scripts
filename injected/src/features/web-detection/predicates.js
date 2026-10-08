@@ -17,6 +17,7 @@ import {
     isFailure,
     isPlainObject,
     isScalar,
+    rejectUnknownKeys,
     typeName,
 } from './core.js';
 
@@ -291,15 +292,41 @@ export function evaluateArgs(args, ctx) {
 }
 
 /**
+ * Compile a path, adding its names to those the native reader captures.
+ *
  * @param {unknown} raw
  * @param {string} path
+ * @param {PredicateHooks} hooks
  * @returns {string[]}
  */
-export function compilePath(raw, path) {
+function compilePath(raw, path, hooks) {
     if (typeof raw !== 'string' || raw === '') throw new ConfigParseError(path, 'a path must be a non-empty string');
     const names = raw.split('.');
     if (names.some((name) => name === '')) throw new ConfigParseError(path, `empty name in path '${raw}'`);
+    names.forEach((name) => hooks.names.add(name));
     return names;
+}
+
+/**
+ * Parse a body naming a path: a string, short for `{path}`, or an object of `path`, `args` and the
+ * other keys allowed. The caller compiles `args`. A `self` body may leave out `path`, and then reads
+ * from the bound value itself.
+ *
+ * @param {unknown} rawBody
+ * @param {string} path
+ * @param {PredicateHooks} hooks
+ * @param {string} key - the key the body sits under, for messages
+ * @param {readonly string[]} allowed
+ * @returns {{ raw: Record<string, unknown>, names: string[] }}
+ */
+export function parsePathBody(rawBody, path, hooks, key, allowed) {
+    const raw = typeof rawBody === 'string' ? { path: rawBody } : rawBody;
+    if (!isPlainObject(raw)) throw new ConfigParseError(path, `\`${key}\` takes a path or an object`);
+    rejectUnknownKeys(raw, allowed, path);
+    if (raw.path !== undefined) return { raw, names: compilePath(raw.path, `${path}.path`, hooks) };
+    if (raw.args !== undefined) throw new ConfigParseError(path, '`args` needs `path`');
+    if (key !== 'self') throw new ConfigParseError(path, `\`${key}\` needs \`path\``);
+    return { raw, names: [] };
 }
 
 /**
@@ -311,28 +338,14 @@ export function compilePath(raw, path) {
  * @returns {CompiledField}
  */
 export function compileField(raw, path, hooks) {
-    if (typeof raw === 'string') {
-        const pathNames = compilePath(raw, path);
-        pathNames.forEach((name) => hooks.names.add(name));
-        return { names: pathNames };
-    }
     if (isExpressionObject(raw)) {
         return hooks.item((binder) => ({ names: [], binder, expression: hooks.expression(raw, path, 'value') }));
     }
-    if (!isPlainObject(raw)) throw new ConfigParseError(path, '`field` must be a string, an object or an expression');
-    for (const key of objectKeys(raw)) {
-        if (key !== 'path' && key !== 'args') {
-            throw new ConfigParseError(path, `unknown key '${key}' in field`);
-        }
-    }
-    if (raw.path === undefined) {
-        throw new ConfigParseError(path, raw.args === undefined ? '`field` needs `path`' : '`args` needs `path`');
-    }
+    const body = parsePathBody(raw, path, hooks, 'field', ['path', 'args']);
     /** @type {CompiledField} */
-    const field = { names: compilePath(raw.path, `${path}.path`) };
-    field.names.forEach((name) => hooks.names.add(name));
-    if (raw.args !== undefined) {
-        const rawArgs = raw.args;
+    const field = { names: body.names };
+    const rawArgs = body.raw.args;
+    if (rawArgs !== undefined) {
         hooks.item((binder) => {
             field.binder = binder;
             field.args = compileArgs(rawArgs, `${path}.args`, hooks);
@@ -537,8 +550,7 @@ function compileObject(raw, level, path, hooks) {
         } else if (level === 'value' && OPERATORS.has(key)) {
             entries.push(compileOperator(key, value, keyPath, hooks));
         } else {
-            const names = compilePath(key, keyPath);
-            names.forEach((name) => hooks.names.add(name));
+            const names = compilePath(key, keyPath, hooks);
             entries.push(readThen({ names }, compilePredicate(value, 'value', keyPath, hooks)));
         }
     }
