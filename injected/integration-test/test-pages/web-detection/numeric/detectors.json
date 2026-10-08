@@ -445,7 +445,7 @@
                                 "is": {
                                     "any": [
                                         {
-                                            "exists": false
+                                            "fails": true
                                         },
                                         {
                                             "gte": 400
@@ -538,7 +538,7 @@
                                 "is": {
                                     "any": [
                                         {
-                                            "exists": false
+                                            "fails": true
                                         },
                                         {
                                             "gte": 400
@@ -626,7 +626,7 @@
                                     "field": "responseStatus"
                                 },
                                 "is": {
-                                    "exists": true,
+                                    "fails": false,
                                     "gte": 400
                                 }
                             }
@@ -896,7 +896,7 @@
                             "where": {
                                 "initiatorType": "link",
                                 "responseStatus": {
-                                    "exists": true,
+                                    "fails": false,
                                     "gte": 400
                                 }
                             }
@@ -917,7 +917,7 @@
                         "using": "length",
                         "as": "failedFontFaces",
                         "is": {
-                            "exists": true,
+                            "fails": false,
                             "gt": 0
                         }
                     }
