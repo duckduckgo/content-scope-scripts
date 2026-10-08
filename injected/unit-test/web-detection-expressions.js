@@ -210,6 +210,23 @@ function fonts(statuses) {
     };
 }
 
+/**
+ * `document.fonts` whose getter throws.
+ *
+ * @param {any} window
+ */
+function brokenFonts(window) {
+    Object.defineProperty(window.Document.prototype, 'fonts', {
+        configurable: true,
+        get() {
+            throw new Error('refused');
+        },
+    });
+}
+
+/** A read that fails: `JSON.parse` throws on text that does not parse. */
+const FAILING = { api: { path: 'JSON.parse', args: ['{'] } };
+
 const IMG = (/** @type {string} */ attrs = '') => `<img src="a.png" ${attrs}>`;
 const BROKEN = { selector: 'img', where: { complete: true, naturalWidth: 0, 'currentSrc.length': { gt: 0 } } };
 const RENDERED = '//body//text()[not(ancestor::script) and not(ancestor::style) and not(ancestor::template) and not(ancestor::noscript)]';
@@ -363,10 +380,7 @@ describe('WebDetection expressions', () => {
             expectParseError({ match: [null] }, "'literal' does not fill boolean position");
             expectParseError({ match: { sum: ['x', 1], is: { gt: 0 } } }, "'literal' does not fill number position");
             expectParseError({ match: { only: 'x', is: 1 } }, "'literal' does not fill list position");
-            expectParseError(
-                { match: { element: { selector: 'p' }, using: 'length', is: { gt: 'x' } } },
-                "'literal' does not fill number position",
-            );
+            expect(match('<p></p>', { element: { selector: 'p' }, using: 'length', is: { gt: '0' } })).toBe(true);
         });
 
         it('names the AND of a multi-key object', () => {
@@ -414,7 +428,8 @@ describe('WebDetection expressions', () => {
             const install = timeline([{ name: 'n', entryType: 'navigation', loadEventEnd: 5 }]);
             const entries = { api: { path: 'performance.getEntriesByType', args: ['navigation'] } };
             expect(match('', { ...entries, is: { length: 1 } }, { install })).toBe(true);
-            expect(match('', { ...entries, is: { lt: 1 } }, { install })).toBe('error');
+            // `lt` compares the array as JS does: `[entry] < 1` coerces the entry to `NaN`
+            expect(match('', { ...entries, is: { lt: 1 } }, { install })).toBe(false);
         });
 
         it('sends a selected list bucketed, each bucket unwrapping it, and errors on one unbucketed', () => {
@@ -517,9 +532,9 @@ describe('WebDetection expressions', () => {
 
     describe('failures and fails', () => {
         it('aborts on a failure in boolean position', () => {
-            const result = run('', { match: { api: { path: 'document.fonts' }, using: 'length', is: { gt: 0 } } });
+            const result = run('', { match: { ...FAILING, using: 'length', is: { gt: 0 } } });
             expect(result.detected).toBe('aborted');
-            expect(result.abortError).toBeUndefined();
+            expect(result.abortError).toBe('SyntaxError');
         });
 
         it('aborts with the thrown value’s constructor name when a read throws', () => {
@@ -532,7 +547,7 @@ describe('WebDetection expressions', () => {
             expect(result.abortError).toBe('Error');
         });
 
-        it('reads `fails` over a value, a missing name and a read that throws', () => {
+        it('reads `fails` over a value, a missing name, which reads `undefined`, and a read that throws', () => {
             const width = { only: { element: { selector: 'img', field: 'naturalWidth' } } };
             const missing = { api: { path: 'document.missing' } };
             const options = { install: imageState };
@@ -542,8 +557,9 @@ describe('WebDetection expressions', () => {
                 [IMG('data-width="5"'), width, { fails: true }, false],
                 [IMG('data-throw'), width, { fails: true }, true],
                 [IMG('data-throw'), width, { fails: false }, false],
-                ['', missing, { fails: true }, true],
-                ['', missing, { fails: false }, false],
+                ['', missing, { fails: true }, false],
+                ['', missing, { fails: false, type: 'undefined' }, true],
+                ['', FAILING, { fails: true }, true],
                 ['', { api: { path: 'document.onclick' } }, { fails: false, type: 'null' }, true],
             ];
             for (const [html, expression, predicate, expected] of cases) {
@@ -557,11 +573,12 @@ describe('WebDetection expressions', () => {
             const width = { only: { element: { selector: 'img', field: 'naturalWidth' } } };
             expect(match(IMG('data-throw'), { ...width, is: { gt: 0, fails: false } }, { install: imageState })).toBe(false);
             expect(match(IMG('data-width="5"'), { ...width, is: { gt: 0, fails: false } }, { install: imageState })).toBe(true);
-            expect(match('', { api: { path: 'document.fonts' }, using: 'length', is: { gt: 0, fails: false } })).toBe(false);
+            expect(match('', { ...FAILING, using: 'length', is: { gt: 0, fails: false } })).toBe(false);
         });
 
         it('reads exists as a property name', () => {
-            expect(match('', { api: 'document', is: { exists: true } })).toBe('aborted');
+            expect(match('', { api: 'document', is: { exists: true } })).toBe(false);
+            expect(match('', { api: 'document', is: { exists: { type: 'undefined' } } })).toBe(true);
         });
 
         it('tests whether a property is present through Reflect.has, per item and on the engine', () => {
@@ -600,7 +617,7 @@ describe('WebDetection expressions', () => {
                 },
                 actions: { fireEvent: { type: 't', data: { failedFontFaces: { value: { ref: 'failedFontFaces' } } } } },
             };
-            expect(run('', detector).detected).toBe(false);
+            expect(run('', detector, { install: brokenFonts }).detected).toBe(false);
             expect(run('', detector, { install: fonts(['loaded', 'error']) }).data).toEqual({ failedFontFaces: 1 });
         });
 
@@ -622,14 +639,14 @@ describe('WebDetection expressions', () => {
                 },
                 actions: { fireEvent: { type: 't', data: { nOr0: { value: { ref: 'nOr0' } }, n: { value: { ref: 'n' } } } } },
             };
-            expect(run('', detector).data).toEqual({ nOr0: 0 });
+            expect(run('', detector, { install: brokenFonts }).data).toEqual({ nOr0: 0 });
             expect(run('', detector, { install: fonts(['error', 'error']) }).data).toEqual({ nOr0: 2, n: 2 });
         });
 
         it('lets a tested failure under `none` decide the leaf, and an untested one abort', () => {
             const failedFonts = { api: { path: 'document.fonts', where: { status: 'error' } }, using: 'length' };
-            expect(match('', { none: { ...failedFonts, is: { fails: false, gt: 0 } } })).toBe(true);
-            expect(match('', { none: { ...failedFonts, is: { gt: 0 } } })).toBe('aborted');
+            expect(match('', { none: { ...failedFonts, is: { fails: false, gt: 0 } } }, { install: brokenFonts })).toBe(true);
+            expect(match('', { none: { ...failedFonts, is: { gt: 0 } } }, { install: brokenFonts })).toBe('aborted');
         });
 
         it('passes a ref into an untaken branch through `fails`, omitting the key', () => {
@@ -641,7 +658,7 @@ describe('WebDetection expressions', () => {
         });
 
         it('stops at the first failure, so key order decides between a match and an abort', () => {
-            const failing = { api: { path: 'document.fonts' }, using: 'length', is: { gt: 0 } };
+            const failing = { ...FAILING, using: 'length', is: { gt: 0 } };
             expect(match('<p>foo</p>', { any: [{ text: { pattern: 'foo' } }, failing] })).toBe(true);
             expect(match('<p>foo</p>', { any: [failing, { text: { pattern: 'foo' } }] })).toBe('aborted');
         });
@@ -713,7 +730,7 @@ describe('WebDetection expressions', () => {
         it('passes up a failure in test', () => {
             expect(
                 match('', {
-                    if: { test: { api: { path: 'document.fonts' }, using: 'length', is: { gt: 0 } }, then: 1, else: 2 },
+                    if: { test: { ...FAILING, using: 'length', is: { gt: 0 } }, then: 1, else: 2 },
                     is: {},
                 }),
             ).toBe('aborted');
@@ -727,7 +744,7 @@ describe('WebDetection expressions', () => {
             expect(match('', { mul: { element: { selector: 'img', field: 'naturalWidth' } }, is: 1 })).toBe(true);
             const at = { element: { selector: 'img', field: 'naturalWidth' }, using: { path: 'at', args: [0] } };
             expect(match('', { ...at, is: { type: 'undefined' } })).toBe(true);
-            expect(match('', { ...at, is: { gte: 0 } })).toBe('error');
+            expect(match('', { ...at, is: { gte: 0 } })).toBe(false);
         });
 
         it('mixes lists of values with numbers', () => {
@@ -767,7 +784,7 @@ describe('WebDetection expressions', () => {
 
         it('errors on a value of the wrong type', () => {
             expect(match('<p>x</p>', { sum: [{ element: { selector: 'p', field: 'tagName' } }], is: 1 })).toBe('error');
-            expect(match('<p>x</p>', { only: { element: { selector: 'p', field: 'tagName' } }, is: { gt: 1 } })).toBe('error');
+            expect(match('<p>x</p>', { only: { element: { selector: 'p', field: 'tagName' } }, is: { gt: 1 } })).toBe(false);
             expect(match('<p>x</p>', { all: { element: { selector: 'p', field: 'tagName' } } })).toBe('error');
             expect(match('', { only: { api: { path: 'document.title' } }, is: 0 })).toBe('error');
             expect(match('', { div: [{ api: { path: 'document.styleSheets' } }, 1], is: 0 })).toBe('error');
@@ -885,13 +902,13 @@ describe('WebDetection expressions', () => {
 
         it('omits a value in no bucket, or one whose bucket fails', () => {
             expect(payload('', 30, { buckets: { low: { lt: 5 } } })).toEqual({});
-            expect(payload('', { api: { path: 'document.fonts' }, using: 'length' }, { buckets: { any: {} } })).toEqual({});
+            expect(payload('', { ...FAILING, using: 'length' }, { buckets: { any: {} } })).toEqual({});
         });
 
         it('omits the key when `when` does not hold or fails', () => {
             expect(payload('', 3, { when: { gt: 5 } })).toEqual({});
             expect(payload('', 3, { when: { gt: 1 } })).toEqual({ x: 3 });
-            expect(payload('', 3, { when: { gt: { api: { path: 'document.fonts' }, using: 'length' } } })).toEqual({});
+            expect(payload('', 3, { when: { gt: { ...FAILING, using: 'length' } } })).toEqual({});
         });
 
         it('buckets a string by length', () => {
@@ -977,7 +994,7 @@ describe('WebDetection expressions', () => {
             expect(match('', nav({ type: { none: ['navigate', 'reload'] } }), { install })).toBe(false);
         });
 
-        it('errors on a comparison over a value that is not a number', () => {
+        it('compares a value that is not a number as JS does', () => {
             const install = timeline([{ name: 'n', entryType: 'navigation', type: 'reload' }]);
             expect(
                 match(
@@ -989,11 +1006,12 @@ describe('WebDetection expressions', () => {
                             where: { type: { gt: 1 } },
                         },
                         using: 'length',
-                        is: 1,
+                        is: 0,
                     },
                     { install },
                 ),
-            ).toBe('error');
+            ).toBe(true);
+            expect(match('<p>x</p>', { only: { element: { selector: 'p', field: 'tagName' } }, is: { gte: 'O' } })).toBe(true);
         });
 
         it('tests Number.isFinite and Number.isNaN through call over NaN, the infinities, a finite number and a string', () => {
@@ -1015,8 +1033,8 @@ describe('WebDetection expressions', () => {
         });
 
         it('reads finite and nan as property names, not operators', () => {
-            expect(match('', { div: [0, 0], is: { nan: true } })).toBe('aborted');
-            expect(match('', { sum: [3], is: { finite: true } })).toBe('aborted');
+            expect(match('', { div: [0, 0], is: { nan: true } })).toBe(false);
+            expect(match('', { sum: [3], is: { finite: { type: 'undefined' } } })).toBe(true);
         });
 
         it('reads property paths at item and value level, beside reserved keys and operators', () => {
@@ -1088,17 +1106,24 @@ describe('WebDetection expressions', () => {
         });
 
         it('fails the source when a read fails', () => {
-            expect(match('<p></p>', { element: { selector: 'p', where: { noSuchProperty: 1 } }, using: 'length', is: 0 })).toBe('aborted');
+            expect(
+                match(
+                    IMG('data-throw'),
+                    { element: { selector: 'img', where: { naturalWidth: 1 } }, using: 'length', is: 0 },
+                    { install: imageState },
+                ),
+            ).toBe('aborted');
+            expect(match('<p></p>', { element: { selector: 'p', where: { noSuchProperty: 1 } }, using: 'length', is: 0 })).toBe(true);
         });
 
         it('tests fails and type first whatever the key order', () => {
-            // `gt` on a missing property would fail; `fails` decides first
+            // `gt` on a throwing property would fail; `fails` decides first
             expect(
-                match('<p></p>', {
-                    element: { selector: 'p', where: { noSuchProperty: { gt: 1, fails: false } } },
-                    using: 'length',
-                    is: 0,
-                }),
+                match(
+                    IMG('data-throw'),
+                    { element: { selector: 'img', where: { naturalWidth: { gt: 1, fails: false } } }, using: 'length', is: 0 },
+                    { install: imageState },
+                ),
             ).toBe(true);
             expect(
                 match('<p></p>', {
@@ -1136,26 +1161,32 @@ describe('WebDetection expressions', () => {
                     { api: { path: 'performance.getEntriesByType', args: ['navigation'], where }, using: 'length', is: 1 },
                     { install },
                 );
-            expect(test({ missing: 8 })).toBe('aborted');
-            expect(test({ missing: { fails: false } })).toBe(false);
-            expect(test({ missing: { fails: true } })).toBe(true);
-            expect(test({ missing: { type: 'undefined' } })).toBe('aborted');
+            expect(test({ missing: 8 })).toBe(false);
+            expect(test({ missing: { fails: false } })).toBe(true);
+            expect(test({ missing: { fails: true } })).toBe(false);
+            expect(test({ missing: { type: 'undefined' } })).toBe(true);
+            expect(test({ missing: { gte: 0 } })).toBe(false);
             expect(test({ u: { fails: false, type: 'undefined' } })).toBe(true);
             expect(test({ nul: { fails: false } })).toBe(true);
-            expect(test({ nul: { gt: 7 } })).toBe('error');
-            expect(test({ s: { gt: 7 } })).toBe('error');
+            // Comparisons coerce as JS does: `null > 7` is false, `null >= 0` and `"7" >= 7` are true
+            expect(test({ nul: { gt: 7 } })).toBe(false);
+            expect(test({ nul: { gte: 0 } })).toBe(true);
+            expect(test({ s: { gt: 7 } })).toBe(false);
+            expect(test({ s: { gte: 7 } })).toBe(true);
             expect(test({ s: { type: 'number', gt: 7 } })).toBe(false);
             expect(test({ num: { ...numberTest('isFinite'), gt: 7 } })).toBe(true);
             expect(test({ s: { ...numberTest('isFinite'), gt: 7 } })).toBe(false);
         });
 
-        it('reports a length over fails on an engine without the field', () => {
+        it('reports a length over a comparison on an engine without the field', () => {
             const install = timeline([{ name: 'r', entryType: 'resource' }], { missing: ['responseStatus'] });
             const where = (/** @type {object} */ status) => ({
                 api: { path: 'performance.getEntriesByType', args: ['resource'], where: { responseStatus: status } },
             });
-            expect(payload('', { ...where({ fails: false, gte: 400 }), using: 'length' }, {}, { install })).toEqual({ x: 0 });
-            expect(payload('', { ...where({ gte: 400 }), using: 'length' }, {}, { install })).toEqual({});
+            expect(payload('', { ...where({ gte: 400 }), using: 'length' }, {}, { install })).toEqual({ x: 0 });
+            expect(payload('', { ...where({ any: [{ type: 'undefined' }, { gte: 400 }] }), using: 'length' }, {}, { install })).toEqual({
+                x: 1,
+            });
         });
 
         it('compares against an operand expression, computed once', () => {
@@ -1303,7 +1334,7 @@ describe('WebDetection expressions', () => {
             expect(match('', { api: { path: 'document.fonts', field: 'status' }, using: 'length', is: 2 }, { install })).toBe(true);
             expect(match('', { api: { path: 'document.fonts' }, using: 'size', is: 2 }, { install })).toBe(true);
             // `length` reads the iterable's own property, which a `FontFaceSet` lacks
-            expect(match('', { api: { path: 'document.fonts' }, using: 'length', is: 2 }, { install })).toBe('aborted');
+            expect(match('', { api: { path: 'document.fonts' }, using: 'length', is: { type: 'undefined' } }, { install })).toBe(true);
         });
 
         it('reads field from each member of a list, and from a value that is not one', () => {
@@ -1354,7 +1385,7 @@ describe('WebDetection expressions', () => {
         });
 
         it('reads undefined through null', () => {
-            expect(match('', { api: { path: 'document.activeElementNope' }, using: 'length', is: 0 })).toBe('aborted');
+            expect(match('', { api: { path: 'document.activeElementNope' }, using: 'length', is: { type: 'undefined' } })).toBe(true);
             expect(
                 match(
                     '',
@@ -1445,7 +1476,7 @@ describe('WebDetection expressions', () => {
             expect(match('', read, { install, afterCapture })).toBe(true);
         });
 
-        it('filters the timeline on numeric and string fields, and fails on a field the engine lacks', () => {
+        it('filters the timeline on numeric and string fields, and reads a field the engine lacks as undefined', () => {
             const install = timeline(
                 [
                     { name: 'a', entryType: 'resource', duration: 1500, initiatorType: 'img' },
@@ -1460,10 +1491,7 @@ describe('WebDetection expressions', () => {
             expect(
                 match('', { ...resources({ duration: { gt: 1000 }, initiatorType: ['img', 'css'] }), using: 'length', is: 1 }, { install }),
             ).toBe(true);
-            expect(match('', { ...resources({ responseStatus: { gte: 400 } }), using: 'length', is: 0 }, { install })).toBe('aborted');
-            expect(match('', { ...resources({ responseStatus: { fails: false, gte: 400 } }), using: 'length', is: 0 }, { install })).toBe(
-                true,
-            );
+            expect(match('', { ...resources({ responseStatus: { gte: 400 } }), using: 'length', is: 0 }, { install })).toBe(true);
         });
 
         it('errors on `where` over a value that is not a list, or an item that is not an object', () => {
@@ -1539,9 +1567,9 @@ describe('WebDetection expressions', () => {
         });
 
         it('fails when an argument fails', () => {
-            const failed = run('', { match: { api: { path: 'Array.of', args: [{ api: { path: 'document.fonts' } }] }, is: {} } });
+            const failed = run('', { match: { api: { path: 'Array.of', args: [FAILING] }, is: {} } });
             expect(failed.detected).toBe('aborted');
-            expect(failed.abortError).toBeUndefined();
+            expect(failed.abortError).toBe('SyntaxError');
             expect(run('', { match: { api: { path: 'Math.max', args: [7] }, as: 'n', is: 7 } }).ctx.measured.n).toBe(7);
         });
 
@@ -1843,7 +1871,7 @@ describe('WebDetection expressions', () => {
             expect(result.abortError).toBe('RangeError');
             const missing = run('', { match: { sum: [1], is: { field: { api: { path: 'Math', args: [{ self: {} }] } }, is: {} } } });
             expect(missing.detected).toBe('aborted');
-            expect(missing.abortError).toBeUndefined();
+            expect(missing.abortError).toBe('TypeError');
         });
 
         it('rejects malformed fields', () => {
@@ -2047,7 +2075,7 @@ describe('WebDetection expressions', () => {
                             api: {
                                 path: 'performance.getEntriesByType',
                                 args: ['resource'],
-                                where: { initiatorType: 'link', responseStatus: { fails: false, gte: 400 } },
+                                where: { initiatorType: 'link', responseStatus: { gte: 400 } },
                             },
                             using: 'length',
                             as: 'failedStylesheets',
@@ -2057,7 +2085,7 @@ describe('WebDetection expressions', () => {
                             api: { path: 'document.fonts', where: { status: 'error' } },
                             using: 'length',
                             as: 'failedFontFaces',
-                            is: { fails: false, gt: 0 },
+                            is: { gt: 0 },
                         },
                     ],
                 },
@@ -2087,8 +2115,12 @@ describe('WebDetection expressions', () => {
                 fonts(['error', 'loaded'])(w);
             };
             expect(run('', detector, { install: both }).data).toEqual({ failedStylesheets: '1', failedFontFaces: '1' });
-            // No document.fonts: the font count fails, and is not reported
-            expect(run('', detector, { install: failedSheet }).data).toEqual({ failedStylesheets: '1' });
+            // A `document.fonts` that throws: the font count fails, and is not reported
+            const throwingFonts = (/** @type {any} */ w) => {
+                failedSheet(w);
+                brokenFonts(w);
+            };
+            expect(run('', detector, { install: throwingFonts }).data).toEqual({ failedStylesheets: '1' });
             const fontOnly = (/** @type {any} */ w) => {
                 loadedSheet(w);
                 fonts(['error'])(w);
@@ -2193,7 +2225,7 @@ describe('WebDetection expressions', () => {
             globalThis.window = originalWindow;
         });
 
-        const aborting = { api: { path: 'noSuchGlobalApi' }, using: 'length', is: { gt: 0 } };
+        const aborting = { ...FAILING, using: 'length', is: { gt: 0 } };
 
         it('lists an aborted detector in breakage results, with no data', () => {
             const instance = createInstance({
