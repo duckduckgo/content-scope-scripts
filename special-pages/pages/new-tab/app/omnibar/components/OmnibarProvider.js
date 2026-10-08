@@ -96,11 +96,14 @@ export const OmnibarContext = createContext({
         throw new Error('must implement');
     },
     /**
-     * Whether Create Image is active for this page. The omnibar remounts per tab, so this lives here
-     * to keep Create Image in step across tabs, matching the single per-window state native keeps.
-     * @type {boolean}
+     * The omnibar remounts per tab, so the selected tool lives here to persist across tab switches.
+     * @type {import('./chat-tools/tools-menu/ToolsMenu').ToolId | null}
      */
-    imageGenerationActive: false,
+    activeTool: null,
+    /** @type {(tool: import('./chat-tools/tools-menu/ToolsMenu').ToolId | null) => void} */
+    setActiveTool: () => {
+        throw new Error('must implement');
+    },
     /** @type {(kind: 'image' | 'file') => void} */
     attachmentPrivacyDisclaimerShown: () => {
         throw new Error('must implement');
@@ -312,12 +315,11 @@ export function OmnibarProvider(props) {
         service.current?.dismissCreateImageModelSwitch();
     }, [service]);
 
-    const [imageGenerationActive, setImageGenerationActiveState] = useState(false);
+    const [activeTool, setActiveTool] = useState(/** @type {import('./chat-tools/tools-menu/ToolsMenu').ToolId | null} */ (null));
 
     /** @type {(active: boolean) => void} */
     const setImageGenerationActive = useCallback(
         (active) => {
-            setImageGenerationActiveState(active);
             service.current?.setImageGenerationActive(active);
         },
         [service],
@@ -451,7 +453,8 @@ export function OmnibarProvider(props) {
                 dismissUsageLimits,
                 dismissCreateImageModelSwitch,
                 setImageGenerationActive,
-                imageGenerationActive,
+                activeTool,
+                setActiveTool,
                 attachmentPrivacyDisclaimerShown,
                 openAttachmentPrivacyLearnMore,
                 selectUsageLimitsCta,
