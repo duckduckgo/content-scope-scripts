@@ -201,7 +201,8 @@ class Scope {
 function makeNode(scope, fields, deps) {
     const node = /** @type {Node} */ ({ ...fields, branches: [...scope.branches] });
     scope.nodes.push(node);
-    scope.deps.set(node, deps);
+    // Copied: operands a predicate compiles are added to the deps later, and are not operands
+    scope.deps.set(node, [...deps]);
     return node;
 }
 
