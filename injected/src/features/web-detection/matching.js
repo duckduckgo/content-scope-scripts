@@ -1,6 +1,6 @@
 import { isArray } from '../../captured-globals.js';
 import { ConfigParseError, DetectionError, FILLS, asArray, isFailure, isPlainObject, rejectUnknownKeys } from './core.js';
-import { ItemBuffer, SKIP, isList, members, parseItemKeys, selectItem } from './sources.js';
+import { ItemBuffer, isList, members, parseItemKeys, selectItems } from './sources.js';
 
 /**
  * @typedef {import('@duckduckgo/privacy-configuration/schema/features/web-detection.ts').ConditionTypes} ConditionTypes
@@ -700,18 +700,28 @@ function* selectElements(bodies, ctx) {
             yield roots;
             return;
         }
-        for (const root of roots) {
-            for (const element of root.querySelectorAll(body.selector)) {
-                if (seen) {
-                    if (seen.has(element)) continue;
-                    seen.add(element);
-                }
-                if (!passesVisibility(element, body.visibility)) continue;
-                const value = selectItem(element, body.where, body.field, ctx);
-                if (value === SKIP) continue;
-                yield value;
-                if (isFailure(value)) return;
+        // A failure ends the buffer reading this, so later bodies are not read
+        yield* selectItems(visibleElements(body, roots, seen), body, ctx);
+    }
+}
+
+/**
+ * The elements a body's selector matches in its roots that pass `visibility`, skipping any `seen`
+ * holds.
+ *
+ * @param {ElementBody} body
+ * @param {ParentNode[]} roots
+ * @param {Set<Element> | undefined} seen - the elements earlier bodies gave
+ * @returns {Generator<Element>}
+ */
+function* visibleElements(body, roots, seen) {
+    for (const root of roots) {
+        for (const element of root.querySelectorAll(body.selector)) {
+            if (seen) {
+                if (seen.has(element)) continue;
+                seen.add(element);
             }
+            if (passesVisibility(element, body.visibility)) yield element;
         }
     }
 }
