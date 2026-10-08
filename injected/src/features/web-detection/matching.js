@@ -4,7 +4,6 @@ import { ItemBuffer, SKIP, isList, members, parseItemKeys, rejectUnknownKeys, se
 
 /**
  * @typedef {import('@duckduckgo/privacy-configuration/schema/features/web-detection.ts').ConditionTypes} ConditionTypes
- * @typedef {import('./core.js').Track} Track
  * @typedef {import('./predicates.js').CompiledField} CompiledField
  * @typedef {import('./predicates.js').CompiledPredicate} CompiledPredicate
  * @typedef {import('./predicates.js').PredicateContext} PredicateContext
@@ -374,17 +373,16 @@ function parseRoot(raw, path, hooks) {
  *
  * @param {Root | undefined} root
  * @param {PredicateContext} ctx
- * @param {Track} track
  * @returns {ParentNode[] | Failure}
  */
-function resolveRoots(root, ctx, track) {
+function resolveRoots(root, ctx) {
     if (!root || root.selectors) return selectorRoots(root?.selectors);
     /** @type {Node[]} */
     const nodes = [];
     for (const entry of root.entries) {
-        const value = ctx.read(entry, track);
+        const value = ctx.read(entry);
         if (isFailure(value)) return value;
-        const failure = collectRootNodes(value, nodes, ctx, track);
+        const failure = collectRootNodes(value, nodes, ctx);
         if (failure) return failure;
     }
     return outermost(nodes);
@@ -397,10 +395,9 @@ function resolveRoots(root, ctx, track) {
  * @param {unknown} value
  * @param {Node[]} nodes
  * @param {PredicateContext} ctx
- * @param {Track} track
  * @returns {Failure | undefined}
  */
-function collectRootNodes(value, nodes, ctx, track) {
+function collectRootNodes(value, nodes, ctx) {
     if (value === null || value === undefined) return undefined;
     /** @type {Iterable<unknown>} */
     let values;
@@ -409,7 +406,6 @@ function collectRootNodes(value, nodes, ctx, track) {
     } else if (value instanceof ItemBuffer) {
         const failure = value.pull(Infinity);
         if (failure) return failure;
-        if (!value.track.measured) track.measured = false;
         values = value.values;
     } else {
         values = isList(value, ctx) ? members(value, ctx) : [value];
@@ -515,22 +511,21 @@ export const textSource = {
         };
     },
     fills: () => PRESENCE_FILLS,
-    read(bodies, ctx, track) {
-        return new ItemBuffer(textMatches(bodies, ctx, track), track);
+    read(bodies, ctx) {
+        return new ItemBuffer(textMatches(bodies, ctx));
     },
 };
 
 /**
  * @param {TextBody[]} bodies
  * @param {PredicateContext} ctx
- * @param {Track} track
  * @returns {Generator<string | Failure>}
  */
-function* textMatches(bodies, ctx, track) {
+function* textMatches(bodies, ctx) {
     for (const body of bodies) {
         // A copy per read, since `exec` keeps state on a global pattern
         const pattern = new RegExp(body.pattern);
-        const roots = resolveRoots(body.root, ctx, track);
+        const roots = resolveRoots(body.root, ctx);
         if (isFailure(roots)) {
             yield roots;
             return;
@@ -602,8 +597,8 @@ export const elementSource = {
         };
     },
     fills: (body) => (body.field ? LIST_FILLS : PRESENCE_FILLS),
-    read(bodies, ctx, track) {
-        return new ItemBuffer(selectElements(bodies, ctx, track), track, {
+    read(bodies, ctx) {
+        return new ItemBuffer(selectElements(bodies, ctx), {
             hasAny() {
                 // With no state to read, a quick existence check suffices
                 if (!bodies.every(isPresenceOnly)) return undefined;
@@ -642,14 +637,13 @@ function passesVisibility(element, visibility) {
 /**
  * @param {ElementBody[]} bodies
  * @param {PredicateContext} ctx
- * @param {Track} track
  * @returns {Generator<unknown>}
  */
-function* selectElements(bodies, ctx, track) {
+function* selectElements(bodies, ctx) {
     /** @type {Set<Element> | undefined} */
     const seen = bodies.length > 1 ? new Set() : undefined;
     for (const body of bodies) {
-        const roots = resolveRoots(body.root, ctx, track);
+        const roots = resolveRoots(body.root, ctx);
         if (isFailure(roots)) {
             yield roots;
             return;
@@ -661,7 +655,7 @@ function* selectElements(bodies, ctx, track) {
                     seen.add(element);
                 }
                 if (!passesVisibility(element, body.visibility)) continue;
-                const value = selectItem(element, body.where, body.field, ctx, track);
+                const value = selectItem(element, body.where, body.field, ctx);
                 if (value === SKIP) continue;
                 yield value;
                 if (isFailure(value)) return;

@@ -4,7 +4,6 @@ import { compileArgs, compileField, compilePath, compilePredicate, evaluateArgs,
 
 /**
  * @typedef {import('./core.js').Failure} Failure
- * @typedef {import('./core.js').Track} Track
  * @typedef {import('./predicates.js').CompiledField} CompiledField
  * @typedef {import('./predicates.js').CompiledPredicate} CompiledPredicate
  * @typedef {import('./predicates.js').PredicateContext} PredicateContext
@@ -22,7 +21,7 @@ import { compileArgs, compileField, compilePath, compilePredicate, evaluateArgs,
  * @property {string} key - the expression key in config
  * @property {(raw: unknown, path: string, hooks: PredicateHooks) => Body} parse - throws a `ConfigParseError`
  * @property {(body: Body) => ReadonlySet<Position>} fills - the positions config shows the source fills
- * @property {(bodies: Body[], ctx: PredicateContext, track: Track) => unknown} read - the value: an `ItemBuffer` for a list, or a `Failure` for the source as a whole
+ * @property {(bodies: Body[], ctx: PredicateContext) => unknown} read - the value: an `ItemBuffer` for a list, or a `Failure` for the source as a whole
  */
 
 /**
@@ -51,11 +50,9 @@ export class ItemBuffer {
 
     /**
      * @param {Iterator<unknown> | Failure} iterator
-     * @param {Track} track - cleared when a `where` operand is not measured
      * @param {ListShortcuts} [shortcuts]
      */
-    constructor(iterator, track, shortcuts = {}) {
-        this.track = track;
+    constructor(iterator, shortcuts = {}) {
         this.shortcuts = shortcuts;
         if (isFailure(iterator)) {
             this.failure = iterator;
@@ -100,16 +97,15 @@ export class ItemBuffer {
  * @param {CompiledPredicate | undefined} where
  * @param {CompiledField | undefined} field
  * @param {PredicateContext} ctx
- * @param {Track} track
  * @returns {unknown} the item's value, `SKIP` when `where` does not hold, or a `Failure`
  */
-export function selectItem(item, where, field, ctx, track) {
+export function selectItem(item, where, field, ctx) {
     if (where) {
-        const held = where.test(item, ctx, track);
+        const held = where.test(item, ctx);
         if (isFailure(held)) return held;
         if (!held) return SKIP;
     }
-    return field ? readField(ctx, item, field, track) : item;
+    return field ? readField(ctx, item, field) : item;
 }
 
 /** A `selectItem` result: `where` does not hold for the item. */
@@ -178,27 +174,26 @@ export function apiSource(global) {
             return body;
         },
         fills: (body) => (body.where ? LIST_FILLS : API_FILLS),
-        read(bodies, ctx, track) {
+        read(bodies, ctx) {
             // `api` takes one body
             const body = /** @type {ApiBody} */ (bodies[0]);
-            let base = body.root === undefined ? global : ctx.read(body.root, track);
+            let base = body.root === undefined ? global : ctx.read(body.root);
             if (isFailure(base)) return base;
             if (base instanceof ItemBuffer) {
                 // A selected list reaches `path` as an array
                 const failure = base.pull(Infinity);
                 if (failure) return failure;
-                if (!base.track.measured) track.measured = false;
                 base = base.values;
             }
-            const args = body.args && evaluateArgs(body.args, ctx, track);
+            const args = body.args && evaluateArgs(body.args, ctx);
             if (isFailure(args)) return args;
             const result = readPath(ctx.reader, base, body.names, args);
             if (isFailure(result)) return result;
             if (body.where || (body.field && isList(result, ctx))) {
                 if (!isList(result, ctx)) throw new DetectionError('`where` on a value that is not a list');
-                return new ItemBuffer(selectApiItems(members(result, ctx), body, ctx, track), track);
+                return new ItemBuffer(selectApiItems(members(result, ctx), body, ctx));
             }
-            return body.field ? readField(ctx, result, body.field, track) : result;
+            return body.field ? readField(ctx, result, body.field) : result;
         },
     };
 }
@@ -259,15 +254,14 @@ function* each(items) {
  * @param {Iterable<unknown>} items
  * @param {ApiBody} body
  * @param {PredicateContext} ctx
- * @param {Track} track
  * @returns {Generator<unknown>}
  */
-function* selectApiItems(items, body, ctx, track) {
+function* selectApiItems(items, body, ctx) {
     for (const item of each(items)) {
         if (body.where && (typeof item !== 'object' || item === null)) {
             throw new DetectionError('`where` on an item that is not an object');
         }
-        const value = selectItem(item, body.where, body.field, ctx, track);
+        const value = selectItem(item, body.where, body.field, ctx);
         if (value === SKIP) continue;
         yield value;
         if (isFailure(value)) return;
