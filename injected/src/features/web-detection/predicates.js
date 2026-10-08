@@ -15,6 +15,7 @@ import {
     isExpressionObject,
     isFailure,
     isPlainObject,
+    isScalar,
     typeName,
 } from './core.js';
 
@@ -424,14 +425,6 @@ const TYPE_NAMES = new Set(['number', 'string', 'boolean', 'null', 'undefined', 
 const RESERVED_LATER = new Set(['match']);
 
 /**
- * @param {unknown} raw
- * @returns {raw is string | number | boolean | null}
- */
-function isScalar(raw) {
-    return raw === null || typeof raw === 'string' || typeof raw === 'number' || typeof raw === 'boolean';
-}
-
-/**
  * @param {unknown} literal
  * @returns {CompiledPredicate}
  */
@@ -621,9 +614,7 @@ function compileOperator(operator, raw, path, hooks) {
             });
         }
         case 'eq': {
-            if (raw === null || typeof raw === 'string' || typeof raw === 'boolean' || typeof raw === 'number') {
-                return equalsLiteral(raw);
-            }
+            if (isScalar(raw)) return equalsLiteral(raw);
             const operand = hooks.expression(raw, path, 'value');
             return {
                 test: (subject, ctx) => {
