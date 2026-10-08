@@ -44,7 +44,7 @@ import { ItemBuffer, eachMember, isList } from './sources.js';
  * @typedef {NodeBase & { kind: 'source', source: Source<any>, bodies: unknown[] }} SourceNode
  * @typedef {NodeBase & { kind: 'count', operand: Node, bound: number }} CountNode
  * @typedef {NodeBase & { kind: 'only', operand: Node }} OnlyNode
- * @typedef {NodeBase & { kind: 'sum' | 'mul' | 'sub' | 'div', operands: Node[] }} ArithmeticNode
+ * @typedef {NodeBase & { kind: 'sum' | 'mul' | 'div', operands: Node[] }} ArithmeticNode
  * @typedef {NodeBase & { kind: 'any' | 'all' | 'none' | 'and', operands: Node[] }} LogicNode
  * @typedef {NodeBase & { kind: 'if', test: Node, then: Node, else: Node }} IfNode
  * @typedef {NodeBase & { kind: 'ref', name: string, target?: Node }} RefNode
@@ -424,7 +424,6 @@ function compute(node, ctx) {
         }
         case 'sum':
         case 'mul':
-        case 'sub':
         case 'div':
             return computeArithmetic(node, ctx);
         case 'any':
@@ -509,9 +508,6 @@ function computeArithmetic(node, ctx) {
             break;
         case 'mul':
             value = values.reduce((a, b) => a * b, 1);
-            break;
-        case 'sub':
-            value = /** @type {number} */ (values[0]) - /** @type {number} */ (values[1]);
             break;
         case 'div':
             value = /** @type {number} */ (values[0]) / /** @type {number} */ (values[1]);
