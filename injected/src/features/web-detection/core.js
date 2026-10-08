@@ -102,6 +102,17 @@ export function isPlainObject(value) {
 }
 
 /**
+ * @param {Record<string, unknown>} raw
+ * @param {readonly string[]} allowed
+ * @param {string} path
+ */
+export function rejectUnknownKeys(raw, allowed, path) {
+    for (const key of objectKeys(raw)) {
+        if (!allowed.includes(key)) throw new ConfigParseError(path, `unknown key '${key}'`);
+    }
+}
+
+/**
  * @template T
  * @param {T | T[]} value
  * @returns {T[]}

@@ -1,6 +1,6 @@
-import { isArray, objectKeys, ReflectApply } from '../../captured-globals.js';
-import { ConfigParseError, DetectionError, FILLS, isFailure, isPlainObject } from './core.js';
-import { compileArgs, compileField, compilePath, compileWhere, evaluateArgs, readField, readPath } from './predicates.js';
+import { isArray, ReflectApply } from '../../captured-globals.js';
+import { DetectionError, FILLS, isFailure } from './core.js';
+import { compileArgs, compileField, compileWhere, evaluateArgs, parsePathBody, readField, readPath } from './predicates.js';
 
 /**
  * @typedef {import('./core.js').Failure} Failure
@@ -128,17 +128,6 @@ export function parseItemKeys(raw, path, hooks) {
 }
 
 /**
- * @param {Record<string, unknown>} raw
- * @param {readonly string[]} allowed
- * @param {string} path
- */
-export function rejectUnknownKeys(raw, allowed, path) {
-    for (const key of objectKeys(raw)) {
-        if (!allowed.includes(key)) throw new ConfigParseError(path, `unknown key '${key}'`);
-    }
-}
-
-/**
  * @typedef {object} ApiBody
  * @property {string[]} names
  * @property {CompiledArg[]} [args]
@@ -158,14 +147,7 @@ export function rejectUnknownKeys(raw, allowed, path) {
  * @returns {ApiBody}
  */
 export function parseApiBody(rawBody, path, hooks, key = 'api') {
-    // A string is short for `{path}`
-    const raw = typeof rawBody === 'string' ? { path: rawBody } : rawBody;
-    if (!isPlainObject(raw)) throw new ConfigParseError(path, `\`${key}\` takes a path or an object`);
-    rejectUnknownKeys(raw, ['path', 'args', 'where', 'field'], path);
-    const bound = key === 'self' && raw.path === undefined;
-    if (bound && raw.args !== undefined) throw new ConfigParseError(path, '`args` needs `path`');
-    const names = bound ? [] : compilePath(raw.path, `${path}.path`);
-    names.forEach((name) => hooks.names.add(name));
+    const { raw, names } = parsePathBody(rawBody, path, hooks, key, ['path', 'args', 'where', 'field']);
     /** @type {ApiBody} */
     const body = { names, ...parseItemKeys(raw, path, hooks) };
     if (raw.args !== undefined) body.args = compileArgs(raw.args, `${path}.args`, hooks);

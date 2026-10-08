@@ -1,9 +1,19 @@
 // eslint-disable-next-line no-redeclare
 import { hasOwnProperty, isArray, objectKeys } from '../../captured-globals.js';
-import { ConfigParseError, EXPRESSION_KEYS, FILLS, NAME_PATTERN, asArray, isExpressionObject, isPlainObject, isScalar } from './core.js';
+import {
+    ConfigParseError,
+    EXPRESSION_KEYS,
+    FILLS,
+    NAME_PATTERN,
+    asArray,
+    isExpressionObject,
+    isPlainObject,
+    isScalar,
+    rejectUnknownKeys,
+} from './core.js';
 import { elementSource, textSource } from './matching.js';
 import { compilePredicate } from './predicates.js';
-import { apiSource, parseApiBody, rejectUnknownKeys } from './sources.js';
+import { apiSource, parseApiBody } from './sources.js';
 
 /**
  * @typedef {import('../../utils.js').FeatureState} FeatureState
