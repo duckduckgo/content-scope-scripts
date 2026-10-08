@@ -72,20 +72,26 @@ export function resolveFileInput({ t, image, file }) {
     const onChange = async (event) => {
         const input = /** @type {HTMLInputElement} */ (event.currentTarget);
         if (!input.files || input.files.length === 0) return;
-        const all = Array.from(input.files);
-        /** @type {Promise<unknown>[]} */
-        const tasks = [];
-        if (image) {
-            const images = all.filter((file) => file.type.startsWith('image/'));
-            if (images.length > 0) tasks.push(image.processFiles(images));
-        }
-        if (file) {
-            const others = all.filter((file) => !file.type.startsWith('image/'));
-            if (others.length > 0) tasks.push(file.processFiles(others));
-        }
-        await Promise.all(tasks);
+        await routeFiles(Array.from(input.files), image?.processFiles ?? null, file?.processFiles ?? null);
         input.value = '';
     };
 
     return { label, accept, disabled, onChange };
+}
+
+/**
+ * Sends `image/*` files to `processImages` and the rest to `processOtherFiles`. Files whose channel is null are ignored.
+ *
+ * @param {File[]} files
+ * @param {((files: File[]) => Promise<unknown>) | null} processImages
+ * @param {((files: File[]) => Promise<unknown>) | null} processOtherFiles
+ */
+export async function routeFiles(files, processImages, processOtherFiles) {
+    const images = files.filter((file) => file.type.startsWith('image/'));
+    const others = files.filter((file) => !file.type.startsWith('image/'));
+    /** @type {Promise<unknown>[]} */
+    const tasks = [];
+    if (processImages && images.length > 0) tasks.push(processImages(images));
+    if (processOtherFiles && others.length > 0) tasks.push(processOtherFiles(others));
+    await Promise.all(tasks);
 }

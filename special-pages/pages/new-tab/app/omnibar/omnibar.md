@@ -167,7 +167,7 @@ The four CTA events retain their historical `_shown` names, but they represent a
 
 Sent as `telemetryEvent` with `{ attributes: { name, value } }`:
 
-- `omnibar_image_attached` — every image chip added, with `value.source`: `file` (picker), `paste` or `screenshot`.
+- `omnibar_image_attached` — every image chip added, with `value.source`: `file` (picker or drag and drop), `paste` or `screenshot`.
 - `omnibar_image_removed` — every image chip the user removes (its × button), with the chip's `value.source`. Clearing on submit or on a model switch does not count.
 - `omnibar_screenshot_taken` — once a screenshot has been added as a chip, with `value.kind` from the capture.
 - `omnibar_screenshot_removed` — the user removed a screenshot chip (sent alongside `omnibar_image_removed`).
@@ -179,6 +179,10 @@ With `enablePastedAttachments`, a paste into the Duck.ai prompt is handled as fo
 
 - If the clipboard has any text, the browser pastes the text and nothing is attached. Office apps put a picture of the copied cells next to the text; the text wins.
 - Otherwise a clipboard bitmap is attached at up to 1024px, so text in it stays legible, named "Pasted image" (numbered on repeats); copied image files are resized like picked ones (512px); copied PDFs go to the file chips. Images need an image-capable model and files a model that supports them, as with the picker. An image in an unsupported format shows the "Failed to process image" error.
+
+## Drag and drop
+
+Files dragged onto the Duck.ai prompt (e.g. from Finder) are attached like picked ones: images are resized to 512px and PDFs go to the file chips, with the same model requirements. The page accepts a file drag only when the selected model can take images or files and the prompt isn't blocked; otherwise the drag is left to the browser, which opens the file. Text drags are always left to the browser. No config flag or native support is needed.
 
 ## Subscriptions:
 
