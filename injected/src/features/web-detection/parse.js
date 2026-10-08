@@ -1,6 +1,6 @@
 // eslint-disable-next-line no-redeclare
 import { hasOwnProperty, isArray, objectKeys } from '../../captured-globals.js';
-import { ConfigParseError, EXPRESSION_KEYS, NAME_PATTERN, asArray, isExpressionObject, isPlainObject, isScalar } from './core.js';
+import { ConfigParseError, EXPRESSION_KEYS, FILLS, NAME_PATTERN, asArray, isExpressionObject, isPlainObject, isScalar } from './core.js';
 import { elementSource, textSource } from './matching.js';
 import { compilePredicate } from './predicates.js';
 import { apiSource, parseApiBody, rejectUnknownKeys } from './sources.js';
@@ -121,14 +121,6 @@ const MODIFIER_KEYS = new Set(['using', 'as', 'is']);
 /** Keys reserved for later extensions, rejected by this release. */
 const RESERVED_LATER = new Set(['aggregate', 'stable', 'confirm', 'retain']);
 const LEGACY_OPERATORS = ['any', 'all', 'none'];
-
-/** @type {{ number: ReadonlySet<Position>, boolean: ReadonlySet<Position>, value: ReadonlySet<Position>, none: ReadonlySet<Position> }} */
-const FILLS = {
-    number: new Set(['number', 'value']),
-    boolean: new Set(['boolean', 'value']),
-    value: new Set(['value']),
-    none: new Set(),
-};
 
 /**
  * What `self` reads from: the expression beside a `using`, or each value a `where` or `field` tests
@@ -616,13 +608,10 @@ function fillsOf(node, visiting = new Set()) {
         case 'expr':
             return node.operand.is ? FILLS.boolean : fillsOf(node.operand, visiting);
         case 'item':
-            return ITEM_FILLS;
+            // A bound value may be any value, and is checked where it is read
+            return FILLS.any;
     }
 }
-
-/** A bound value may be any value, and is checked where it is read. */
-/** @type {ReadonlySet<Position>} */
-const ITEM_FILLS = new Set(['boolean', 'value', 'number', 'list']);
 
 /**
  * Mark the expressions computed per item: those reading `self` of the `where` or `field` they sit in.

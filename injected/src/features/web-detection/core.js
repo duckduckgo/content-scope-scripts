@@ -46,6 +46,21 @@ export class ConfigParseError extends Error {
     }
 }
 
+/**
+ * The positions a kind of expression fills. `list` is a list of values, and `any` a value that may be
+ * a list, such as a source read in boolean position for whether it holds an item.
+ *
+ * @type {Record<'number' | 'boolean' | 'value' | 'list' | 'any' | 'none', ReadonlySet<import('./expressions.js').Position>>}
+ */
+export const FILLS = {
+    number: new Set(['number', 'value']),
+    boolean: new Set(['boolean', 'value']),
+    value: new Set(['value']),
+    list: new Set(['list', 'value', 'number']),
+    any: new Set(['boolean', 'value', 'number', 'list']),
+    none: new Set(),
+};
+
 /** `^[a-zA-Z][a-zA-Z0-9_]*$` */
 export const NAME_PATTERN = /^[a-zA-Z][a-zA-Z0-9_]*$/;
 

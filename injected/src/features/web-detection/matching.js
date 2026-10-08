@@ -1,5 +1,5 @@
 import { isArray } from '../../captured-globals.js';
-import { ConfigParseError, DetectionError, asArray, isFailure, isPlainObject } from './core.js';
+import { ConfigParseError, DetectionError, FILLS, asArray, isFailure, isPlainObject } from './core.js';
 import { ItemBuffer, SKIP, isList, members, parseItemKeys, rejectUnknownKeys, selectItem } from './sources.js';
 
 /**
@@ -9,7 +9,6 @@ import { ItemBuffer, SKIP, isList, members, parseItemKeys, rejectUnknownKeys, se
  * @typedef {import('./predicates.js').PredicateContext} PredicateContext
  * @typedef {import('./predicates.js').PredicateHooks} PredicateHooks
  * @typedef {import('./core.js').Failure} Failure
- * @typedef {import('./expressions.js').Position} Position
  */
 
 /**
@@ -503,11 +502,6 @@ function outermost(nodes) {
  * @property {boolean} rootIsSource - with `root` and neither `selector` nor `xpath`, each root's text is the source
  */
 
-/** @type {ReadonlySet<Position>} */
-const PRESENCE_FILLS = new Set(['boolean', 'list', 'value', 'number']);
-/** @type {ReadonlySet<Position>} */
-const LIST_FILLS = new Set(['list', 'value', 'number']);
-
 /**
  * Matches of a text pattern, case-insensitive, in each source: each `selector` element's
  * `textContent`, and each `xpath` expression's joined text.
@@ -561,7 +555,7 @@ export const textSource = {
             rootIsSource: root !== undefined && raw.selector === undefined && xpaths.length === 0,
         };
     },
-    fills: () => PRESENCE_FILLS,
+    fills: () => FILLS.any,
     read(bodies, ctx) {
         return new ItemBuffer(textMatches(bodies, ctx), {
             countUpTo: (bound) => countTextMatches(bodies, ctx, bound),
@@ -693,7 +687,7 @@ export const elementSource = {
             ...parseItemKeys(raw, path, hooks),
         };
     },
-    fills: (body) => (body.field ? LIST_FILLS : PRESENCE_FILLS),
+    fills: (body) => (body.field ? FILLS.list : FILLS.any),
     read(bodies, ctx) {
         return new ItemBuffer(selectElements(bodies, ctx), {
             hasAny() {
