@@ -1,13 +1,16 @@
-import { useContext, useState } from 'preact/hooks';
+import { useContext } from 'preact/hooks';
 import { OmnibarContext } from '../OmnibarProvider';
 import { useSelectedModel } from '../useSelectedModel';
 
 /** @typedef {import('./tools-menu/ToolsMenu').ToolId} ToolId */
 
+/**
+ * Exposes the shared tool selection, filtered by feature configuration and selected model support.
+ * Selecting or clearing a tool updates the selection for every NTP tab in the page.
+ */
 export function useActiveTools() {
-    const { state } = useContext(OmnibarContext);
+    const { state, activeTool, setActiveTool } = useContext(OmnibarContext);
     const { selectedModel } = useSelectedModel();
-    const [activeTool, setActiveTool] = useState(/** @type {ToolId|null} */ (null));
 
     const modelSupportedTools = selectedModel?.supportedTools ?? [];
 

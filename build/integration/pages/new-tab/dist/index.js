@@ -9582,6 +9582,10 @@
     const dismissCreateImageModelSwitch = q2(() => {
       service.current?.dismissCreateImageModelSwitch();
     }, [service]);
+    const [activeTool, setActiveTool] = d2(
+      /** @type {import('./chat-tools/tools-menu/ToolsMenu').ToolId | null} */
+      null
+    );
     const setImageGenerationActive = q2(
       (active2) => {
         service.current?.setImageGenerationActive(active2);
@@ -9681,6 +9685,8 @@
           dismissUsageLimits,
           dismissCreateImageModelSwitch,
           setImageGenerationActive,
+          activeTool,
+          setActiveTool,
           attachmentPrivacyDisclaimerShown,
           openAttachmentPrivacyLearnMore,
           selectUsageLimitsCta,
@@ -9799,6 +9805,15 @@
         },
         /** @type {(active: boolean) => void} */
         setImageGenerationActive: () => {
+          throw new Error("must implement");
+        },
+        /**
+         * The omnibar remounts per tab, so the selected tool lives here to persist across tab switches.
+         * @type {import('./chat-tools/tools-menu/ToolsMenu').ToolId | null}
+         */
+        activeTool: null,
+        /** @type {(tool: import('./chat-tools/tools-menu/ToolsMenu').ToolId | null) => void} */
+        setActiveTool: () => {
           throw new Error("must implement");
         },
         /** @type {(kind: 'image' | 'file') => void} */
@@ -14331,12 +14346,8 @@
 
   // pages/new-tab/app/omnibar/components/chat-tools/useActiveTools.js
   function useActiveTools() {
-    const { state } = x2(OmnibarContext);
+    const { state, activeTool, setActiveTool } = x2(OmnibarContext);
     const { selectedModel } = useSelectedModel();
-    const [activeTool, setActiveTool] = d2(
-      /** @type {ToolId|null} */
-      null
-    );
     const modelSupportedTools = selectedModel?.supportedTools ?? [];
     const availableTools = [
       ...state.config?.enableImageGeneration === true ? [
