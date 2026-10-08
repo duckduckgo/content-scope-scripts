@@ -375,7 +375,7 @@ describe('WebDetection expressions', () => {
         const width = { element: { selector: 'img', field: 'naturalWidth' } };
 
         it('gives a selected list’s one item in number position, and errors over none or several', () => {
-            const read = { sub: [width, 1], is: 4 };
+            const read = { div: [width, 5], is: 1 };
             expect(match(widths([5]), read, { install: imageState })).toBe(true);
             expect(match('', read, { install: imageState })).toBe('error');
             expect(match(widths([5, 5]), read, { install: imageState })).toBe('error');
@@ -483,7 +483,7 @@ describe('WebDetection expressions', () => {
         });
 
         it('carries NaN through each operator', () => {
-            for (const op of ['sum', 'mul', 'sub', 'div']) {
+            for (const op of ['sum', 'mul', 'div']) {
                 expect(match('', { [op]: [{ div: [0, 0] }, 2], is: { nan: true } }))
                     .withContext(op)
                     .toBe(true);
@@ -496,8 +496,9 @@ describe('WebDetection expressions', () => {
             expect(match('', { none: { div: [0, 0], is: { lt: 5 } } })).toBe(true);
         });
 
-        it('computes negation through sub', () => {
-            expect(match('', { sub: [0, 3], is: -3 })).toBe(true);
+        it('computes negation and subtraction through mul by -1', () => {
+            expect(match('', { mul: [3, -1], is: -3 })).toBe(true);
+            expect(match('', { sum: [5, { mul: [3, -1] }], is: 2 })).toBe(true);
         });
     });
 
@@ -767,7 +768,7 @@ describe('WebDetection expressions', () => {
             expect(match('<p>x</p>', { only: { element: { selector: 'p', field: 'tagName' } }, is: { gt: 1 } })).toBe('error');
             expect(match('<p>x</p>', { all: { element: { selector: 'p', field: 'tagName' } } })).toBe('error');
             expect(match('', { count: { api: { path: 'document.title' } }, is: 0 })).toBe('error');
-            expect(match('', { sub: [{ api: { path: 'document.styleSheets' } }, 1], is: 0 })).toBe('error');
+            expect(match('', { div: [{ api: { path: 'document.styleSheets' } }, 1], is: 0 })).toBe('error');
             expect(match('', { sum: { api: { path: 'document.styleSheets' } }, is: 0 })).toBe(true);
         });
 
