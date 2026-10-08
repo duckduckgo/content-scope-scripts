@@ -17,8 +17,8 @@ import { ItemBuffer, eachMember, isList } from './sources.js';
  */
 
 /**
- * What an expression's position expects. `spread` is an operand of `sum`, `mul`, `min`, `max`, `any`,
- * `all` and `none` that may be a list, contributing each item. `root` is a node or a list of nodes.
+ * What an expression's position expects. `spread` is an operand of `sum`, `mul`, `any`, `all` and
+ * `none` that may be a list, contributing each item. `root` is a node or a list of nodes.
  *
  * @typedef {'boolean' | 'value' | 'number' | 'list' | 'spread' | 'root'} Position
  */
@@ -44,7 +44,7 @@ import { ItemBuffer, eachMember, isList } from './sources.js';
  * @typedef {NodeBase & { kind: 'source', source: Source<any>, bodies: unknown[] }} SourceNode
  * @typedef {NodeBase & { kind: 'count', operand: Node, bound: number }} CountNode
  * @typedef {NodeBase & { kind: 'only', operand: Node }} OnlyNode
- * @typedef {NodeBase & { kind: 'sum' | 'mul' | 'min' | 'max' | 'sub' | 'div', operands: Node[] }} ArithmeticNode
+ * @typedef {NodeBase & { kind: 'sum' | 'mul' | 'sub' | 'div', operands: Node[] }} ArithmeticNode
  * @typedef {NodeBase & { kind: 'any' | 'all' | 'none' | 'and', operands: Node[] }} LogicNode
  * @typedef {NodeBase & { kind: 'if', test: Node, then: Node, else: Node }} IfNode
  * @typedef {NodeBase & { kind: 'ref', name: string, target?: Node }} RefNode
@@ -124,6 +124,25 @@ export class EvaluationContext {
         if (isFailure(read)) return read;
         if (!read.measured) track.measured = false;
         return read.value;
+    }
+
+    /**
+     * @param {unknown} expression - a compiled `args` expression in value position
+     * @param {Track} track
+     * @returns {unknown} the value, with a selected list as a new array of its items, or a `Failure`
+     */
+    arg(expression, track) {
+        const value = this.read(expression, track);
+        if (!(value instanceof ItemBuffer)) return value;
+        const items = allItems({ buffer: value, measured: true });
+        if (isFailure(items)) return items;
+        if (!items.measured) track.measured = false;
+        const source = /** @type {unknown[]} */ (items.value);
+        // Copied by index: a method may change its argument, and the buffer is shared
+        /** @type {unknown[]} */
+        const array = [];
+        for (let i = 0; i < source.length; i++) array.push(source[i]);
+        return array;
     }
 }
 
@@ -399,8 +418,6 @@ function compute(node, ctx) {
         }
         case 'sum':
         case 'mul':
-        case 'min':
-        case 'max':
         case 'sub':
         case 'div':
             return computeArithmetic(node, ctx);
@@ -486,11 +503,6 @@ function computeArithmetic(node, ctx) {
             break;
         case 'mul':
             value = values.reduce((a, b) => a * b, 1);
-            break;
-        case 'min':
-        case 'max':
-            if (values.length === 0) throw new DetectionError(`'${node.kind}' over no values`);
-            value = node.kind === 'min' ? Math.min(...values) : Math.max(...values);
             break;
         case 'sub':
             value = /** @type {number} */ (values[0]) - /** @type {number} */ (values[1]);

@@ -466,7 +466,7 @@ describe('WebDetection expressions', () => {
         });
 
         it('carries NaN through each operator', () => {
-            for (const op of ['sum', 'mul', 'min', 'max', 'sub', 'div']) {
+            for (const op of ['sum', 'mul', 'sub', 'div']) {
                 expect(match('', { [op]: [{ div: [0, 0] }, 2], is: { nan: true } }))
                     .withContext(op)
                     .toBe(true);
@@ -701,13 +701,8 @@ describe('WebDetection expressions', () => {
     });
 
     describe('operators', () => {
-        it('errors on only, min and max over no items', () => {
-            for (const op of ['only', 'min', 'max']) {
-                const result = run('', {
-                    match: { [op]: { element: { selector: 'img', field: 'naturalWidth' } }, is: {} },
-                });
-                expect(result.detected).withContext(op).toBe('error');
-            }
+        it('errors on only over no items', () => {
+            expect(run('', { match: { only: { element: { selector: 'img', field: 'naturalWidth' } }, is: {} } }).detected).toBe('error');
             expect(match('', { sum: { element: { selector: 'img', field: 'naturalWidth' } }, is: 0 })).toBe(true);
             expect(match('', { mul: { element: { selector: 'img', field: 'naturalWidth' } }, is: 1 })).toBe(true);
             const at = { api: { root: { element: { selector: 'img', field: 'naturalWidth' } }, path: 'at', args: [0] } };
@@ -717,12 +712,6 @@ describe('WebDetection expressions', () => {
 
         it('mixes lists of values with numbers', () => {
             const html = IMG('data-width="3"') + IMG('data-width="9"');
-            expect(match(html, { max: [{ element: { selector: 'img', field: 'naturalWidth' } }, 4], is: 9 }, { install: imageState })).toBe(
-                true,
-            );
-            expect(
-                match(html, { max: [{ element: { selector: 'img', field: 'naturalWidth' } }, 100], is: 100 }, { install: imageState }),
-            ).toBe(true);
             expect(
                 match(html, { sum: [{ element: { selector: 'img', field: 'naturalWidth' } }, 1], is: 13 }, { install: imageState }),
             ).toBe(true);
@@ -1317,6 +1306,98 @@ describe('WebDetection expressions', () => {
                 w.myList = ['a', 'b'];
             };
             expect(match('', { count: { api: { path: 'myList', where: { length: 1 } } }, is: 2 }, { afterCapture: install })).toBe('error');
+        });
+    });
+
+    describe('arguments', () => {
+        const html = IMG('data-width="3"') + IMG('data-width="9"');
+        const widths = { element: { selector: 'img', field: 'naturalWidth' } };
+        const options = { install: imageState };
+
+        it('takes the largest and smallest item through Math.max.apply and Math.min.apply', () => {
+            expect(match(html, { api: { path: 'Math.max.apply', args: [null, widths] }, is: 9 }, options)).toBe(true);
+            expect(match(html, { api: { path: 'Math.min.apply', args: [null, widths] }, is: 3 }, options)).toBe(true);
+            expect(match('', { api: { path: 'Math.max.apply', args: [null, widths] }, is: { finite: false, lt: 0 } }, options)).toBe(true);
+            expect(match('', { api: { path: 'Math.max.apply', args: [null, { api: { path: 'undefined' } }] }, is: { lt: 0 } })).toBe(true);
+        });
+
+        it('extends and joins lists through concat', () => {
+            const extended = { api: { root: widths, path: 'concat', args: [100] } };
+            expect(match(html, { api: { path: 'Math.max.apply', args: [null, extended] }, is: 100 }, options)).toBe(true);
+            const leading = { api: { path: 'Array.prototype.concat.call', args: [[100], widths] } };
+            expect(match(html, { api: { root: leading, path: 'at', args: [0] }, is: 100 }, options)).toBe(true);
+            expect(match(html, { api: { root: leading, path: 'length' }, is: 3 }, options)).toBe(true);
+        });
+
+        it('builds arrays from literals and expressions, nested arrays included', () => {
+            const built = { api: { path: 'Array.of', args: [[1, { count: { element: { selector: 'img' } } }], 'x', null] } };
+            expect(match(html, { api: { path: 'JSON.stringify', args: [built] }, is: '[[1,2],"x",null]' })).toBe(true);
+        });
+
+        it('passes a selected list as a new array, so a method changing it leaves the list', () => {
+            expect(match(html, { api: { path: 'Array.isArray', args: [widths] }, is: true }, options)).toBe(true);
+            const detector = {
+                match: {
+                    all: [
+                        { api: { path: 'Array.prototype.reverse.call', args: [{ ...widths, as: 'widths' }] }, is: {} },
+                        { api: { root: { ref: 'widths' }, path: 'at', args: [0] }, is: 3 },
+                    ],
+                },
+            };
+            expect(run(html, detector, options).detected).toBe(true);
+        });
+
+        it('builds objects through JSON.parse and Object.fromEntries', () => {
+            expect(match('', { api: { path: 'JSON.parse', args: ['{"a": 5}'], field: 'a' }, is: 5 })).toBe(true);
+            const entries = [[['images', { count: { element: { selector: 'img' } } }]]];
+            expect(match(html, { api: { path: 'Object.fromEntries', args: entries, field: 'images' }, is: 2 })).toBe(true);
+        });
+
+        it('reads undefined through api', () => {
+            expect(match('', { api: { path: 'undefined' }, is: { type: 'undefined' } })).toBe(true);
+        });
+
+        it('takes expressions in field args', () => {
+            const id = { api: { path: 'String', args: ['id'] } };
+            expect(
+                match('<p id="a"></p>', { only: { element: { selector: 'p', field: { path: 'getAttribute', args: [id] } } }, is: 'a' }),
+            ).toBe(true);
+        });
+
+        it('fails with an argument kind, and is not measured from a handler', () => {
+            const failed = run('', { match: { api: { path: 'Array.of', args: [{ api: { path: 'document.fonts' } }] }, is: {} } });
+            expect(failed.detected).toBe('aborted');
+            expect(failed.abortKind).toBe('absent');
+            const handled = run('', {
+                match: { api: { path: 'Math.max', args: [{ api: { path: 'document.fonts' }, catch: { absent: 0 } }] }, as: 'n', is: 0 },
+            });
+            expect(handled.detected).toBe(true);
+            expect(handled.ctx.measured.n).toBeUndefined();
+            expect(run('', { match: { api: { path: 'Math.max', args: [7] }, as: 'n', is: 7 } }).ctx.measured.n).toBe(7);
+        });
+
+        it('errors on a TypeError or RangeError from the call, and fails with denied on any other throw', () => {
+            expect(match('', { api: { path: 'Math.max.apply', args: [null, 5] }, is: {} })).toBe('error');
+            expect(match('', { api: { path: 'Number.prototype.toFixed.call', args: [1, 500] }, is: {} })).toBe('error');
+            const install = (/** @type {any} */ w) => {
+                w.document.createElement = () => {
+                    throw new w.DOMException('refused', 'SecurityError');
+                };
+            };
+            const denied = run('', { match: { api: { path: 'document.createElement', args: ['p'] }, is: {} } }, { install });
+            expect(denied.detected).toBe('aborted');
+            expect(denied.abortKind).toBe('denied');
+        });
+
+        it('rejects entries that are not literals, expressions or arrays', () => {
+            expectParseError(
+                { match: { api: { path: 'Array.of', args: [{ composed: true }] }, is: {} } },
+                "unknown expression key 'composed'",
+            );
+            expectParseError(
+                { match: { api: { path: 'Array.of', args: [{ count: { element: { selector: 'p' } }, is: 1 }] }, is: {} } },
+                '`is`',
+            );
         });
     });
 
