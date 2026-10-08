@@ -111,7 +111,7 @@ import { apiSource, rejectUnknownKeys } from './sources.js';
  * @property {Set<string>} names - every name config reads or calls, for the native reader
  */
 
-const EXPRESSION_KEYS = new Set(['element', 'text', 'api', 'count', 'only', 'sum', 'mul', 'sub', 'div', 'if', 'any', 'all', 'none', 'ref']);
+const EXPRESSION_KEYS = new Set(['element', 'text', 'api', 'count', 'only', 'sum', 'mul', 'div', 'if', 'any', 'all', 'none', 'ref']);
 const MODIFIER_KEYS = new Set(['as', 'catch', 'is']);
 /** Keys reserved for later extensions, rejected by this release. */
 const RESERVED_LATER = new Set(['aggregate', 'stable', 'confirm', 'retain']);
@@ -309,10 +309,9 @@ function compileKey(key, body, position, path, scope) {
             });
             return makeNode(scope, { kind: key, operands, path, position }, operands);
         }
-        case 'sub':
         case 'div': {
             expectPosition(position, FILLS.number, key, path);
-            if (!isArray(body) || body.length !== 2) throw new ConfigParseError(path, `'${key}' takes two operands`);
+            if (!isArray(body) || body.length !== 2) throw new ConfigParseError(path, `'div' takes two operands`);
             const operands = body.map((raw, i) => compileExpr(raw, 'number', `${path}[${i}]`, scope));
             return makeNode(scope, { kind: key, operands, path, position }, operands);
         }
@@ -498,7 +497,6 @@ function fillsOf(node, visiting = new Set()) {
         case 'only':
         case 'sum':
         case 'mul':
-        case 'sub':
         case 'div':
             return FILLS.number;
         case 'any':
