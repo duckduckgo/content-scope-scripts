@@ -1731,10 +1731,8 @@ describe('WebDetection expressions', () => {
             );
         });
 
-        it('computes each feature on its input type, and errors on another', () => {
-            const head = '<title>Hello   there world</title>';
-            expect(match('', { api: { path: 'document', field: { path: 'title', feature: 'wordCount' } }, is: 3 }, { head })).toBe(true);
-            expect(match('', { api: { path: 'document', field: { feature: 'wordCount' } }, is: {} })).toBe('error');
+        it('errors on a feature given another input type', () => {
+            expect(match('', { api: { path: 'document', field: { path: 'title', feature: 'renderedTextLength' } }, is: {} })).toBe('error');
             expect(
                 match('<p>x</p>', {
                     only: { element: { selector: 'p', field: { path: 'tagName', feature: 'renderedTextLength' } } },
@@ -1743,21 +1741,14 @@ describe('WebDetection expressions', () => {
             ).toBe('error');
         });
 
-        it('counts no words in an empty or whitespace-only string', () => {
-            expect(
-                match(
-                    '',
-                    { api: { path: 'document', field: { path: 'title', feature: 'wordCount' } }, is: 0 },
-                    { head: '<title></title>' },
-                ),
-            ).toBe(true);
-            expect(
-                match(
-                    '',
-                    { api: { path: 'document', field: { path: 'title', feature: 'wordCount' } }, is: 0 },
-                    { head: '<title>   </title>' },
-                ),
-            ).toBe(true);
+        it('counts words with matchAll, and none in an empty or whitespace-only string', () => {
+            const words = {
+                api: { path: 'Array.from', args: [{ api: { path: 'document.title.matchAll', args: ['\\S+'] } }] },
+                using: 'length',
+            };
+            expect(match('', { ...words, is: 3 }, { head: '<title>Hello   there\tworld</title>' })).toBe(true);
+            expect(match('', { ...words, is: 0 }, { head: '<title></title>' })).toBe(true);
+            expect(match('', { ...words, is: 0 }, { head: '<title>   </title>' })).toBe(true);
         });
 
         it('counts rendered text excluding script, style, template and noscript', () => {
@@ -1796,9 +1787,9 @@ describe('WebDetection expressions', () => {
                     {
                         api: {
                             path: 'document',
-                            field: { api: { path: 'String', args: [{ self: { path: 'title', field: { feature: 'wordCount' } } }] } },
+                            field: { api: { path: 'String', args: [{ self: { path: 'title', field: 'length' } }] } },
                         },
-                        is: '3',
+                        is: '17',
                     },
                     { head },
                 ),
@@ -1883,6 +1874,10 @@ describe('WebDetection expressions', () => {
             );
             expectParseError({ match: { only: { element: { selector: 'p', field: { args: [] } } }, is: {} } }, '`args` needs `path`');
             expectParseError({ match: { only: { element: { selector: 'p', field: { feature: 'nope' } } }, is: {} } }, 'unknown feature');
+            expectParseError(
+                { match: { api: { path: 'document', field: { path: 'title', feature: 'wordCount' } }, is: {} } },
+                'unknown feature',
+            );
         });
     });
 
