@@ -10117,7 +10117,9 @@
     onTextareaKeyDown,
     combobox = null,
     textareaRef,
-    onPaste
+    onPaste,
+    onDragOver,
+    onDrop
   }) {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {Strings} */
@@ -10220,6 +10222,9 @@
         ref: formRef,
         class: AiChatForm_default.form,
         onSubmit: handleSubmit,
+        onDragEnter: onDragOver,
+        onDragOver,
+        onDrop,
         onClick: (e4) => {
           if (e4.target === e4.currentTarget || e4.target === textareaRef.current) {
             textareaRef.current?.focus();
@@ -12680,20 +12685,18 @@
         event.currentTarget
       );
       if (!input.files || input.files.length === 0) return;
-      const all2 = Array.from(input.files);
-      const tasks = [];
-      if (image) {
-        const images = all2.filter((file2) => file2.type.startsWith("image/"));
-        if (images.length > 0) tasks.push(image.processFiles(images));
-      }
-      if (file) {
-        const others = all2.filter((file2) => !file2.type.startsWith("image/"));
-        if (others.length > 0) tasks.push(file.processFiles(others));
-      }
-      await Promise.all(tasks);
+      await routeFiles(Array.from(input.files), image?.processFiles ?? null, file?.processFiles ?? null);
       input.value = "";
     };
     return { label, accept, disabled, onChange };
+  }
+  async function routeFiles(files, processImages, processOtherFiles) {
+    const images = files.filter((file) => file.type.startsWith("image/"));
+    const others = files.filter((file) => !file.type.startsWith("image/"));
+    const tasks = [];
+    if (processImages && images.length > 0) tasks.push(processImages(images));
+    if (processOtherFiles && others.length > 0) tasks.push(processOtherFiles(others));
+    await Promise.all(tasks);
   }
   var IMAGE_ACCEPT, FILE_EXTENSIONS;
   var init_fileChannels = __esm({
@@ -12834,6 +12837,34 @@
       init_useFileAttachments();
       init_useImageAttachments();
       AttachmentsContext = X(null);
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/attachments/useDroppedAttachments.js
+  function useDroppedAttachments({ processImages, processOtherFiles, enabled }) {
+    const acceptsFiles = enabled && (processImages !== null || processOtherFiles !== null);
+    const isFileDrag = (event) => acceptsFiles && (event.dataTransfer?.types.includes("Files") ?? false);
+    const handleDragOver = (event) => {
+      if (!isFileDrag(event) || !event.dataTransfer) return;
+      event.preventDefault();
+      event.stopPropagation();
+      event.dataTransfer.dropEffect = "copy";
+    };
+    const handleDrop = async (event) => {
+      if (!isFileDrag(event) || !event.dataTransfer) return;
+      event.preventDefault();
+      try {
+        await routeFiles(Array.from(event.dataTransfer.files), processImages, processOtherFiles);
+      } catch (err) {
+        console.warn("Dropped attachment failed", err);
+      }
+    };
+    return { handleDragOver, handleDrop };
+  }
+  var init_useDroppedAttachments = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/attachments/useDroppedAttachments.js"() {
+      "use strict";
+      init_fileChannels();
     }
   });
 
@@ -15965,6 +15996,11 @@
       processOtherFiles: canAttachFiles ? fileState.processFiles : null,
       enabled: state.config?.enablePastedAttachments === true && !blocksPrompt
     });
+    const droppedAttachments = useDroppedAttachments({
+      processImages: canAttachImages ? imageState.processFiles : null,
+      processOtherFiles: canAttachFiles ? fileState.processFiles : null,
+      enabled: !blocksPrompt
+    });
     const screenshotModes = state.config?.screenshotModes ?? [];
     const canCaptureScreenshot = screenshotModes.length > 0;
     const screenshotCapture = useScreenshotCapture({ imageState });
@@ -16109,6 +16145,8 @@
           combobox: mention.combobox,
           textareaRef,
           onPaste: pastedAttachments.handlePaste,
+          onDragOver: droppedAttachments.handleDragOver,
+          onDrop: droppedAttachments.handleDrop,
           toolbarLeft: /* @__PURE__ */ k(S, null, (canAttachImages || canAttachFiles || canAttachTabs || canCaptureScreenshot) && /* @__PURE__ */ k(
             AttachMenu,
             {
@@ -16233,6 +16271,7 @@
       init_useScreenshotCapture();
       init_AttachmentChips2();
       init_AttachmentsProvider();
+      init_useDroppedAttachments();
       init_ModelSelectorTool();
       init_ReasoningPickerTool();
       init_ToolsMenu2();

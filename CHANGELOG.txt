@@ -1,1 +1,1 @@
-- NTP omnibar: submit Create Image via GenerateImage tool (#3093)
+- NTP omnibar: attach files dropped onto the Duck.ai prompt (#3092)
