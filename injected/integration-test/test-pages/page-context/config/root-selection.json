@@ -1,0 +1,19 @@
+{
+    "readme": "Enables page-context collection with the largestVisible root selection strategy.",
+    "version": 1,
+    "features": {
+        "pageContext": {
+            "state": "enabled",
+            "exceptions": [],
+            "settings": {
+                "collectOnInit": "enabled",
+                "subscribeToCollect": "enabled",
+                "bodyFallback": "enabled",
+                "trimBlankLinks": "enabled",
+                "maxContentLength": 9500,
+                "rootSelection": "largestVisible"
+            }
+        }
+    },
+    "unprotectedTemporary": []
+}
