@@ -1688,6 +1688,13 @@ describe('WebDetection expressions', () => {
             expect(match(nested, { element: { selector: 'img', root: '.r' }, using: 'length', is: 1 })).toBe(true);
         });
 
+        it('drops a root inside a later entry', () => {
+            const html = '<div id="a"><img>x</div><img>x';
+            const roots = ['#a', { api: { path: 'document.body' } }];
+            expect(match(html, { element: { selector: 'img', root: roots }, using: 'length', is: 2 })).toBe(true);
+            expect(match(html, { text: { pattern: 'x', root: roots }, using: 'length', is: 2 })).toBe(true);
+        });
+
         it('selects no items when root matches nothing', () => {
             expect(match(html, { element: { selector: 'img', root: '#missing' }, using: 'length', is: 0 })).toBe(true);
             expect(match(html, { text: { pattern: 'hello', root: '#missing' } })).toBe(false);
