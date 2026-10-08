@@ -3,6 +3,7 @@ import { useTypedTranslationWith } from '../../../../types';
 import { TabChip } from '../tab-attachment/TabChips';
 import { FileChip } from '../file-attachment/FileChip';
 import { ImageChip } from '../image-attachment/ImageChip';
+import { useScrollToNewestChip } from './useScrollToNewestChip';
 import styles from './AttachmentChips.module.css';
 
 /**
@@ -55,11 +56,14 @@ export function AttachmentChips({ tabs, files, images, onRemoveTab, onRemoveFile
         ),
     ].sort((a, b) => a.addedAtRelative - b.addedAtRelative);
 
+    const listRef = useScrollToNewestChip(items.length);
+
     if (items.length === 0) return null;
 
     return (
-        <div class={styles.chipsArea} data-testid="omnibar-attachment-chips">
-            {items.map((item) => {
+        <div ref={listRef} class={styles.chipsArea} data-testid="omnibar-attachment-chips">
+            {items.map((item, index) => {
+                const enteringAnimationDelay = index * 50;
                 switch (item.kind) {
                     case 'tab':
                         return (
@@ -68,6 +72,7 @@ export function AttachmentChips({ tabs, files, images, onRemoveTab, onRemoveFile
                                 tab={item.tab}
                                 onRemove={() => onRemoveTab(item.tab.tabId)}
                                 removeLabel={t('omnibar_removeAttachedTabLabel', { title: item.tab.title })}
+                                enteringAnimationDelay={enteringAnimationDelay}
                             />
                         );
                     case 'file':
@@ -77,6 +82,7 @@ export function AttachmentChips({ tabs, files, images, onRemoveTab, onRemoveFile
                                 file={item.file}
                                 onRemove={() => onRemoveFile(item.originalIndex)}
                                 removeLabel={t('omnibar_removeAttachedFileLabel', { fileName: item.file.fileName })}
+                                enteringAnimationDelay={enteringAnimationDelay}
                             />
                         );
                     case 'image':
@@ -86,6 +92,7 @@ export function AttachmentChips({ tabs, files, images, onRemoveTab, onRemoveFile
                                 image={item.image}
                                 onRemove={() => onRemoveImage(item.originalIndex)}
                                 removeLabel={t('omnibar_removeImageLabel')}
+                                enteringAnimationDelay={enteringAnimationDelay}
                             />
                         );
                     default: {

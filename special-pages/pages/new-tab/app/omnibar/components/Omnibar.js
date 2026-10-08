@@ -86,6 +86,7 @@ export function Omnibar({
 }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const spacerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
+    const launcherPromoVisibleRef = useRef(false);
     const [usageLimitsRevealed, setUsageLimitsRevealed] = useState(false);
     const [noticeReservedHeight, setNoticeReservedHeight] = useState(0);
 
@@ -139,7 +140,7 @@ export function Omnibar({
 
     /** @type {(params: SubmitChatAction) => void} */
     const handleSubmitChat = (params) => {
-        submitChat(params);
+        submitChat(launcherPromoVisibleRef.current ? { ...params, launcherPromoVisible: true } : params);
         resetForm();
     };
 
@@ -228,7 +229,11 @@ export function Omnibar({
                                     )}
                                 </div>
                                 {mode === 'ai' && (
-                                    <NoticeDrawer revealed={usageLimitsRevealed} onReservedHeightChange={setNoticeReservedHeight} />
+                                    <NoticeDrawer
+                                        revealed={usageLimitsRevealed}
+                                        onReservedHeightChange={setNoticeReservedHeight}
+                                        launcherPromoVisibleRef={launcherPromoVisibleRef}
+                                    />
                                 )}
                             </ActiveToolsProvider>
                         </div>
@@ -361,17 +366,20 @@ function AiChatContent({
             const images = canAttachImages ? imageState.getImagesForSubmission() : null;
             const files = canAttachFiles ? fileState.getFilesForSubmission() : null;
             const pageContext = canAttachTabs ? await tabAttachments.getTabsForSubmission() : null;
-            const modelId = imageGenerationActive ? null : (selectedModel?.id ?? null);
+            // The updated flow submits the native-resolved image model through the GenerateImage tool,
+            // because native treats mode "image-generation" as the legacy path and drops the model.
+            const updatedImageGeneration = imageGenerationActive && updatedCreateImageEnabled;
+            const legacyImageGeneration = imageGenerationActive && !updatedCreateImageEnabled;
+            const modelId = legacyImageGeneration ? null : (selectedModel?.id ?? null);
             const reasoningEffort = imageGenerationActive ? null : selectedEffort;
-            const toolChoice = webSearchActive
-                ? /** @type {import('../../../types/new-tab.js').SubmitChatAction['toolChoice']} */ (['WebSearch'])
-                : null;
+            /** @type {import('../../../types/new-tab.js').SubmitChatAction['toolChoice'] | null} */
+            const toolChoice = updatedImageGeneration ? ['GenerateImage'] : webSearchActive ? ['WebSearch'] : null;
 
             /** @type {SubmitChatAction} */
             const action = {
                 chat,
                 target,
-                ...(imageGenerationActive && { mode: /** @type {const} */ ('image-generation') }),
+                ...(legacyImageGeneration && { mode: /** @type {const} */ ('image-generation') }),
                 ...(modelId && { modelId }),
                 ...(reasoningEffort && { reasoningEffort }),
                 ...(toolChoice && { toolChoice }),

@@ -35,6 +35,7 @@ export class OmnibarService {
 
         this.suggestionsService = new OmnibarSuggestionsService(ntp);
         this.aiChatsService = new OmnibarAiChatsService(ntp);
+        this.launcherPromoShownSent = false;
     }
 
     name() {
@@ -245,6 +246,21 @@ export class OmnibarService {
      */
     dismissCreateImageModelSwitch() {
         this.ntp.messaging.notify('omnibar_dismissCreateImageModelSwitch', {});
+    }
+
+    /** Notify native the first time per page load that the launcher promo is visible. */
+    launcherPromoShown() {
+        if (this.launcherPromoShownSent) return;
+        this.launcherPromoShownSent = true;
+        this.ntp.messaging.notify('omnibar_launcherPromoShown', {});
+    }
+
+    selectLauncherPromoCta() {
+        this.ntp.messaging.notify('omnibar_selectLauncherPromoCta', {});
+    }
+
+    dismissLauncherPromo() {
+        this.ntp.messaging.notify('omnibar_dismissLauncherPromo', {});
     }
 
     /** @param {'image' | 'file'} kind */

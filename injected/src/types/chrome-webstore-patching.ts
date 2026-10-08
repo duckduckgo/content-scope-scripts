@@ -10,8 +10,36 @@
  * Requests, Notifications and Subscriptions from the ChromeWebstorePatching feature
  */
 export interface ChromeWebstorePatchingMessages {
-  requests: GetExtensionStatusRequest | InitialSetupRequest | InstallExtensionRequest | RemoveExtensionRequest;
+  requests:
+    | GetCatalogExtensionIdsRequest
+    | GetExtensionStatusRequest
+    | InitialSetupRequest
+    | InstallExtensionRequest
+    | RemoveExtensionRequest;
   subscriptions: ExtensionChangedSubscription;
+}
+/**
+ * Generated from @see "../messages/chrome-webstore-patching/getCatalogExtensionIds.request.json"
+ */
+export interface GetCatalogExtensionIdsRequest {
+  method: "getCatalogExtensionIds";
+  params: GetCatalogExtensionIdsParams;
+  result: GetCatalogExtensionIdsResponse;
+}
+/**
+ * Asks native for the extension catalog the Chrome Web Store may offer. Takes no parameters.
+ */
+export interface GetCatalogExtensionIdsParams {}
+/**
+ * The extension catalog as resolved by native, after rollout, version and native-only gates.
+ */
+export interface GetCatalogExtensionIdsResponse {
+  /**
+   * Chrome Web Store extension IDs the store may offer for install. Empty when extension management is off. Native replies with an error, not an empty list, before its config is ready.
+   *
+   * Items: A Chrome Web Store extension ID
+   */
+  extensionIds: string[];
 }
 /**
  * Generated from @see "../messages/chrome-webstore-patching/getExtensionStatus.request.json"

@@ -111,6 +111,18 @@ export const OmnibarContext = createContext({
     selectUsageLimitsCta: () => {
         throw new Error('must implement');
     },
+    /** @type {() => void} */
+    launcherPromoShown: () => {
+        throw new Error('must implement');
+    },
+    /** @type {() => void} */
+    selectLauncherPromoCta: () => {
+        throw new Error('must implement');
+    },
+    /** @type {() => void} */
+    dismissLauncherPromo: () => {
+        throw new Error('must implement');
+    },
     /** @type {(active: boolean) => void} */
     setCustomizeResponsesActive: () => {
         throw new Error('must implement');
@@ -335,6 +347,21 @@ export function OmnibarProvider(props) {
         [service],
     );
 
+    /** @type {() => void} */
+    const launcherPromoShown = useCallback(() => {
+        service.current?.launcherPromoShown();
+    }, [service]);
+
+    /** @type {() => void} */
+    const selectLauncherPromoCta = useCallback(() => {
+        service.current?.selectLauncherPromoCta();
+    }, [service]);
+
+    /** @type {() => void} */
+    const dismissLauncherPromo = useCallback(() => {
+        service.current?.dismissLauncherPromo();
+    }, [service]);
+
     /** @type {(active: boolean) => void} */
     const setCustomizeResponsesActive = useCallback(
         (active) => {
@@ -428,6 +455,9 @@ export function OmnibarProvider(props) {
                 attachmentPrivacyDisclaimerShown,
                 openAttachmentPrivacyLearnMore,
                 selectUsageLimitsCta,
+                launcherPromoShown,
+                selectLauncherPromoCta,
+                dismissLauncherPromo,
                 setCustomizeResponsesActive,
                 showUpsell,
                 getOpenTabs,

@@ -1,5 +1,5 @@
 import { h, Fragment } from 'preact';
-import { useRef, useState } from 'preact/hooks';
+import { useContext, useEffect, useRef, useState } from 'preact/hooks';
 import cn from 'classnames';
 import { DismissButton } from '../../components/DismissButton';
 import { ChevronSmall, InfoIcon, ShieldCheckIcon } from '../../components/Icons';
@@ -13,6 +13,8 @@ import { useReservedHeight } from './useReservedHeight';
 import { useTermsDisclaimerNotice } from './useTermsDisclaimerNotice';
 import { useUsageLimitsDrawer } from './useUsageLimitsDrawer';
 import { useAttachmentPrivacyNotice } from './useAttachmentPrivacyNotice';
+import { useLauncherPromoNotice } from './useLauncherPromoNotice';
+import { OmnibarContext } from './OmnibarProvider';
 import styles from './NoticeDrawer.module.css';
 
 /** @typedef {typeof import('../strings.json')} Strings */
@@ -22,7 +24,7 @@ const NOTICE_TYPES = /** @type {const} */ (['required', 'action', 'informational
 
 /**
  * @typedef {typeof NOTICE_TYPES[number]} NoticeType
- * @typedef {'info' | 'ring' | 'alert' | 'convert' | 'shield'} NoticeIcon
+ * @typedef {'info' | 'ring' | 'alert' | 'convert' | 'shield' | 'announce'} NoticeIcon
  * @typedef {'neutral' | 'warning' | 'critical'} NoticeSeverity
  * @typedef {'none' | 'convert'} UsageLimitsCtaLeadingIcon
  * @typedef {{ id: string, name: string, variant?: string }} UsageLimitsCtaAlternative
@@ -133,6 +135,8 @@ function NoticeGlyph({ icon, percent, severity }) {
             return <ConvertIcon />;
         case 'shield':
             return <ShieldCheckIcon class={cn(styles.glyph, styles.shield)} aria-hidden="true" />;
+        case 'announce':
+            return <AnnounceIcon />;
         case 'info':
             return infoIcon;
         default: {
@@ -142,6 +146,24 @@ function NoticeGlyph({ icon, percent, severity }) {
             return infoIcon;
         }
     }
+}
+
+/** Announce-16 from DDG Icons. */
+function AnnounceIcon() {
+    return (
+        <svg class={cn(styles.glyph, styles.announce)} viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path
+                fill="currentColor"
+                fill-rule="evenodd"
+                clip-rule="evenodd"
+                d="M12 2.625a.625.625 0 1 0-1.25 0V3L1.243 5.907A.625.625 0 0 0 0 6v4a.625.625 0 0 0 1.243.092l2.382.728v.574a2.59 2.59 0 0 0 4.76 1.418l.293-.449 2.072.633v.379a.625.625 0 1 0 1.25 0V2.625ZM1.25 8.787V7.212l9.497-2.904-.022 7.373L1.25 8.787Zm3.625 2.415 2.558.78-.095.146a1.34 1.34 0 0 1-2.463-.734v-.192Z"
+            />
+            <path
+                fill="currentColor"
+                d="M15.107 4.205a.625.625 0 0 0-.464-1.16l-1.25.5a.625.625 0 0 0 .464 1.16l1.25-.5Zm-.982 3.045a.625.625 0 1 0 0 1.25h1.25a.625.625 0 1 0 0-1.25h-1.25Zm-.268 4.045a.625.625 0 1 0-.464 1.16l1.25.5a.625.625 0 1 0 .464-1.16l-1.25-.5Z"
+            />
+        </svg>
+    );
 }
 
 /** Convert / switch-model glyph (Convert-16 from DDG Icons). */
@@ -284,7 +306,7 @@ function NoticeRow({ presentation }) {
         onDismiss,
     } = presentation;
 
-    const emphasize = icon === 'ring' || icon === 'alert' || icon === 'convert';
+    const emphasize = icon === 'ring' || icon === 'alert' || icon === 'convert' || icon === 'announce';
 
     return (
         <div class={styles.content}>
@@ -314,19 +336,31 @@ function NoticeRow({ presentation }) {
  * @param {object} props
  * @param {boolean} props.revealed - Whether focus-gated notices should be shown.
  * @param {(height: number) => void} props.onReservedHeightChange - Room the page must keep below the omnibar for a notice that stays open at rest.
+ * @param {{ current: boolean }} props.launcherPromoVisibleRef - Whether the launcher promo drawer is on screen, for submitChat.
  */
-export function NoticeDrawer({ revealed, onReservedHeightChange }) {
+export function NoticeDrawer({ revealed, onReservedHeightChange, launcherPromoVisibleRef }) {
     const termsDisclaimer = useTermsDisclaimerNotice();
     const attachmentPrivacy = useAttachmentPrivacyNotice();
     const usageLimits = useUsageLimitsDrawer();
     const createImageModelSwitch = useCreateImageModelSwitchNotice();
-    const notices = visibleNotices([termsDisclaimer, usageLimits, attachmentPrivacy, createImageModelSwitch]);
+    const launcherPromo = useLauncherPromoNotice();
+    const { launcherPromoShown } = useContext(OmnibarContext);
+    const notices = visibleNotices([termsDisclaimer, usageLimits, attachmentPrivacy, createImageModelSwitch, launcherPromo]);
     const topType = notices[0]?.type;
 
     const drawerRef = useReservedHeight(topType === 'required', onReservedHeightChange);
 
     const isRevealed = topType !== undefined && (revealed || topType !== 'informational');
     const [shownAtMount] = useState(isRevealed);
+
+    const launcherPromoVisible = isRevealed && launcherPromo !== null && notices.includes(launcherPromo);
+    useEffect(() => {
+        if (launcherPromoVisible) launcherPromoShown();
+        launcherPromoVisibleRef.current = launcherPromoVisible;
+        return () => {
+            launcherPromoVisibleRef.current = false;
+        };
+    }, [launcherPromoVisible, launcherPromoShown, launcherPromoVisibleRef]);
 
     if (!topType) return null;
 

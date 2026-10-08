@@ -3,6 +3,14 @@ import { getMockSuggestions, getMockAiChats, getMockOpenTabs, getMockTabContent 
 
 const url = typeof window !== 'undefined' ? new URL(window.location.href) : new URL('https://example.com');
 
+/** @type {import('../../../types/new-tab.js').LauncherPromo} */
+const LAUNCHER_PROMO = {
+    message: 'Chat privately outside the browser',
+    secondaryText: ' • Add Duck.ai to your menu bar',
+    ctaLabel: 'Try Now',
+    dismissible: true,
+};
+
 /**
  * Reads a URL query param as a boolean. Returns null if absent or not 'true'/'false'.
  * @param {string} param
@@ -284,6 +292,16 @@ export function omnibarMockTransport() {
                     subs.get('omnibar_onConfigUpdate')?.(config);
                     break;
                 }
+                case 'omnibar_launcherPromoShown': {
+                    console.warn('Mock: launcherPromoShown');
+                    break;
+                }
+                case 'omnibar_selectLauncherPromoCta':
+                case 'omnibar_dismissLauncherPromo': {
+                    config.launcherPromo = null;
+                    subs.get('omnibar_onConfigUpdate')?.(config);
+                    break;
+                }
                 case 'omnibar_dismissCreateImageModelSwitch': {
                     config.createImageModelSwitch = null;
                     subs.get('omnibar_onConfigUpdate')?.(config);
@@ -519,6 +537,9 @@ export function omnibarMockTransport() {
                         parseBooleanQueryParam('omnibar.enableSearchSuggestionDeletion') ?? config.enableSearchSuggestionDeletion;
                     config.requiresAiTermsAcceptance =
                         parseBooleanQueryParam('omnibar.requiresAiTermsAcceptance') ?? config.requiresAiTermsAcceptance;
+                    if (parseBooleanQueryParam('omnibar.launcherPromo') === true) {
+                        config.launcherPromo = LAUNCHER_PROMO;
+                    }
                     // omnibar.usageLimits=false hides; approaching|reached|reached-switch set presets.
                     const usageLimitsPreset = url.searchParams.get('omnibar.usageLimits');
                     if (usageLimitsPreset === 'false') {

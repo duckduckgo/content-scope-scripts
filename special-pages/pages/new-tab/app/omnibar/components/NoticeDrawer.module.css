@@ -94,7 +94,8 @@
     }
 }
 
-.shield {
+.shield,
+.announce {
     color: var(--ds-color-theme-icons-secondary);
 }
 

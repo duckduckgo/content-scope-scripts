@@ -188,6 +188,27 @@ export type CreateImageModelSwitchNotice = {
   dismissible?: boolean;
 } | null;
 /**
+ * Native-resolved Duck.ai launcher promo for the AI-mode drawer. Native owns eligibility, localized copy and what the CTA does; FE renders what it receives, below every other notice. Null/omitted shows nothing.
+ */
+export type LauncherPromo = {
+  /**
+   * Drawer copy, already localized, shown emphasized.
+   */
+  message: string;
+  /**
+   * Optional copy shown after message, already localized and including any leading separator (for example, ' • Add Duck.ai to your menu bar').
+   */
+  secondaryText?: string;
+  /**
+   * Button label, already localized. Omitted means no button. Selecting it notifies native via omnibar_selectLauncherPromoCta.
+   */
+  ctaLabel?: string;
+  /**
+   * When true, show a dismiss control. Dismiss notifies native via omnibar_dismissLauncherPromo.
+   */
+  dismissible?: boolean;
+} | null;
+/**
  * Native-resolved presentation for the AI-mode usage limits drawer under the omnibar pill. Non-null shows the drawer; null/omitted hides it. FE does not derive content.
  */
 export type UsageLimitsDrawer = {
@@ -343,13 +364,16 @@ export interface NewTabMessages {
     | NextStepsSetConfigNotification
     | OmnibarAttachmentPrivacyDisclaimerShownNotification
     | OmnibarDismissCreateImageModelSwitchNotification
+    | OmnibarDismissLauncherPromoNotification
     | OmnibarDismissUsageLimitsNotification
+    | OmnibarLauncherPromoShownNotification
     | OmnibarOpenAiChatNotification
     | OmnibarOpenAttachmentPrivacyLearnMoreNotification
     | OmnibarOpenCustomizeResponsesNotification
     | OmnibarOpenPrivacyTermsNotification
     | OmnibarOpenSuggestionNotification
     | OmnibarRemoveSuggestionNotification
+    | OmnibarSelectLauncherPromoCtaNotification
     | OmnibarSelectUsageLimitsCtaNotification
     | OmnibarSetConfigNotification
     | OmnibarSetCustomizeResponsesActiveNotification
@@ -739,6 +763,17 @@ export interface OmnibarDismissCreateImageModelSwitchNotification {
  */
 export interface DismissCreateImageModelSwitch {}
 /**
+ * Generated from @see "../messages/omnibar_dismissLauncherPromo.notify.json"
+ */
+export interface OmnibarDismissLauncherPromoNotification {
+  method: "omnibar_dismissLauncherPromo";
+  params: DismissLauncherPromo;
+}
+/**
+ * Sent when the user dismisses the launcher promo. Native persists the dismissal and pushes an updated OmnibarConfig.
+ */
+export interface DismissLauncherPromo {}
+/**
  * Generated from @see "../messages/omnibar_dismissUsageLimits.notify.json"
  */
 export interface OmnibarDismissUsageLimitsNotification {
@@ -749,6 +784,17 @@ export interface OmnibarDismissUsageLimitsNotification {
  * Sent when the user dismisses the AI-mode usage limits drawer. Native owns dismiss persistence and should push an updated OmnibarConfig with usageLimits null/omitted.
  */
 export interface DismissUsageLimitsDrawer {}
+/**
+ * Generated from @see "../messages/omnibar_launcherPromoShown.notify.json"
+ */
+export interface OmnibarLauncherPromoShownNotification {
+  method: "omnibar_launcherPromoShown";
+  params: LauncherPromoShown;
+}
+/**
+ * Sent the first time per page load that the launcher promo drawer is revealed on composer focus.
+ */
+export interface LauncherPromoShown {}
 /**
  * Generated from @see "../messages/omnibar_openAiChat.notify.json"
  */
@@ -870,6 +916,17 @@ export interface RemoveSuggestion {
   url: string;
 }
 /**
+ * Generated from @see "../messages/omnibar_selectLauncherPromoCta.notify.json"
+ */
+export interface OmnibarSelectLauncherPromoCtaNotification {
+  method: "omnibar_selectLauncherPromoCta";
+  params: SelectLauncherPromoCTA;
+}
+/**
+ * Sent when the user activates the launcher promo button. Native runs the action and pushes an updated OmnibarConfig.
+ */
+export interface SelectLauncherPromoCTA {}
+/**
  * Generated from @see "../messages/omnibar_selectUsageLimitsCta.notify.json"
  */
 export interface OmnibarSelectUsageLimitsCtaNotification {
@@ -922,6 +979,7 @@ export interface OmnibarConfig {
   requiresAiTermsAcceptance?: RequiresAITermsAcceptance;
   showAttachmentPrivacyDisclaimer?: ShowAttachmentPrivacyDisclaimer;
   createImageModelSwitch?: CreateImageModelSwitchNotice;
+  launcherPromo?: LauncherPromo;
   usageLimits?: UsageLimitsDrawer;
 }
 /**
@@ -1179,6 +1237,10 @@ export interface SubmitChatAction {
    * Files (PDFs in v1) attached via the paperclip menu. Each entry mirrors Duck.ai's `NativePromptFile` shape so native forwards them through unchanged. Omitted when no files are attached.
    */
   files?: NativePromptFile[];
+  /**
+   * True when the launcherPromo drawer was on screen as the prompt was sent, so native can treat the prompt as passing over it. Omitted otherwise.
+   */
+  launcherPromoVisible?: boolean;
 }
 /**
  * Extracted page content for a specific tab, used as a Duck.ai chat attachment. Mirrors the shape produced by the Duck.ai sidebar's page-context extraction.
