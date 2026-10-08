@@ -6,7 +6,17 @@ import {
     objectKeys,
     ReflectApply,
 } from '../../captured-globals.js';
-import { ConfigParseError, Failure, NOT_READ, asArray, isExpressionObject, isFailure, isPlainObject, typeName } from './core.js';
+import {
+    ConfigParseError,
+    EXPRESSION_KEYS,
+    Failure,
+    NOT_READ,
+    asArray,
+    isExpressionObject,
+    isFailure,
+    isPlainObject,
+    typeName,
+} from './core.js';
 import { FEATURES, isFeatureName } from './features.js';
 
 /**
@@ -394,6 +404,7 @@ export function compileWhere(raw, path, hooks) {
  * @property {(operand: unknown) => unknown} operand - evaluates a compiled operand expression once per run, giving its value or a `Failure`
  * @property {(expression: unknown) => unknown} read - evaluates a compiled expression in the position it was compiled for, giving its value or a `Failure`
  * @property {(expression: unknown) => unknown} arg - evaluates a compiled `args` expression, giving a selected list as an array, or a `Failure`
+ * @property {(expression: unknown) => unknown} test - evaluates a compiled boolean expression with its `is`, giving the boolean or a `Failure`
  * @property {<T>(binder: ItemBinder, value: unknown, fn: () => T) => T} bind - runs `fn` with `self` of a `where` or `field` bound to `value`
  */
 
@@ -410,7 +421,7 @@ export function compileWhere(raw, path, hooks) {
 
 /**
  * @typedef {object} PredicateHooks
- * @property {(raw: unknown, path: string, position: import('./expressions.js').Position) => unknown} expression - compiles an expression in a position: a source's `root`, an `args` entry, an operand of `eq` or a comparison, or a `field` expression
+ * @property {(raw: unknown, path: string, position: import('./expressions.js').Position) => unknown} expression - compiles an expression in a position: a source's `root`, an `args` entry, an operand of `eq` or a comparison, a `field` expression, or an expression in `where`
  * @property {<T>(fn: (binder: ItemBinder) => T) => T} item - compiles a `where` or `field` that binds `self`
  * @property {Set<string>} names - collects every name read, for the native reader
  */
@@ -418,6 +429,8 @@ export function compileWhere(raw, path, hooks) {
 /** @typedef {'item' | 'value'} Level */
 
 const OPERATORS = new Set(['eq', 'lt', 'lte', 'gt', 'gte', 'fails', 'type']);
+/** Keys a predicate and an expression share, with the same meaning. */
+const COMBINATORS = new Set(['any', 'all', 'none']);
 /** Tested before the other keys of their object, whatever the key order. */
 /** @type {string[]} */
 const FIRST_OPERATORS = ['fails', 'type'];
@@ -446,10 +459,22 @@ function equalsLiteral(literal) {
 }
 
 /**
+ * Whether config at item level is a boolean expression over `self`: an object with an expression key
+ * other than `any`, `all` and `none`, which a predicate shares.
+ *
+ * @param {unknown} raw
+ * @returns {raw is Record<string, unknown>}
+ */
+function isItemExpression(raw) {
+    return isPlainObject(raw) && objectKeys(raw).some((key) => EXPRESSION_KEYS.has(key) && !COMBINATORS.has(key));
+}
+
+/**
  * Compile a predicate.
  *
- * At item level an object's keys other than the reserved ones are property paths; at value level the
- * operator names are operators. Arrays and `any` / `all` / `none` keep the level.
+ * At item level an object's keys other than the reserved ones are property paths, and an object with
+ * an expression key other than `any`, `all` and `none` is a boolean expression over `self`; at value
+ * level the operator names are operators. Arrays and `any` / `all` / `none` keep the level.
  *
  * @param {unknown} raw
  * @param {Level} level
@@ -466,6 +491,14 @@ export function compilePredicate(raw, level, path, hooks) {
         );
     }
     if (!isPlainObject(raw)) throw new ConfigParseError(path, 'a predicate must be a literal, an array or an object');
+    if (level === 'item' && isItemExpression(raw)) {
+        const node = hooks.expression(raw, path, 'boolean');
+        return {
+            test: (subject, ctx) => (isFailure(subject) ? subject : /** @type {boolean | Failure} */ (ctx.test(node))),
+            bound: Infinity,
+            scalar: false,
+        };
+    }
     return compileObject(raw, level, path, hooks);
 }
 
