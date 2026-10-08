@@ -1,5 +1,4 @@
-// eslint-disable-next-line no-redeclare
-import { hasOwnProperty, isArray, objectKeys } from '../../captured-globals.js';
+import { isArray, objectKeys } from '../../captured-globals.js';
 import {
     ConfigParseError,
     EXPRESSION_KEYS,
@@ -130,7 +129,6 @@ import { apiSource, parseApiBody } from './sources.js';
 const MODIFIER_KEYS = new Set(['using', 'as', 'is']);
 /** Keys reserved for later extensions, rejected by this release. */
 const RESERVED_LATER = new Set(['aggregate', 'stable', 'confirm', 'retain']);
-const LEGACY_OPERATORS = ['any', 'all', 'none'];
 
 /**
  * What `self` reads from: the expression beside a `using`, or each value a `where` or `field` tests
@@ -474,14 +472,6 @@ function compileIf(body, position, path, scope) {
 }
 
 /**
- * @param {unknown} body
- * @returns {boolean}
- */
-function isLegacyBlock(body) {
-    return isPlainObject(body) && LEGACY_OPERATORS.some((key) => hasOwnProperty.call(body, key));
-}
-
-/**
  * @param {'element' | 'text' | 'api'} key
  * @param {unknown} body
  * @param {Position} position
@@ -492,10 +482,6 @@ function isLegacyBlock(body) {
 function compileSource(key, body, position, path, scope) {
     const source = /** @type {Source<any>} */ (scope.sources[key]);
     const bodyPath = `${path}.${key}`;
-    if (key !== 'api' && (isLegacyBlock(body) || (isArray(body) && body.some(isLegacyBlock)))) {
-        if (position !== 'boolean') throw new ConfigParseError(bodyPath, '`any`, `all` and `none` inside a source take boolean position');
-        return compileLegacy(source, body, bodyPath, scope);
-    }
     if (key === 'api' && isArray(body)) throw new ConfigParseError(bodyPath, '`api` takes one body');
     /** @type {Node[]} */
     const deps = [];
@@ -504,41 +490,6 @@ function compileSource(key, body, position, path, scope) {
     );
     if (bodies.length === 0) throw new ConfigParseError(bodyPath, 'no bodies');
     return makeNode(scope, { kind: 'source', source, bodies, path, position }, deps);
-}
-
-/**
- * `{"text": {"all": [...]}}`, the form shipped before expressions: operator blocks over bodies, in
- * boolean position.
- *
- * @param {Source<any>} source
- * @param {unknown} body
- * @param {string} path
- * @param {Scope} scope
- * @returns {Node}
- */
-function compileLegacy(source, body, path, scope) {
-    if (isArray(body)) {
-        const operands = body.map((entry, i) => compileLegacy(source, entry, `${path}[${i}]`, scope));
-        return makeNode(scope, { kind: 'any', operands, path, position: 'boolean' }, operands);
-    }
-    if (!isLegacyBlock(body)) {
-        /** @type {Node[]} */
-        const deps = [];
-        const bodies = within(scope.operandSinks, deps, () => [source.parse(body, path, scope.hooks)]);
-        return makeNode(scope, { kind: 'source', source, bodies, path, position: 'boolean' }, deps);
-    }
-    const block = /** @type {Record<string, unknown>} */ (body);
-    const keys = objectKeys(block);
-    const leafKeys = keys.filter((key) => !LEGACY_OPERATORS.includes(key));
-    if (leafKeys.length > 0) {
-        throw new ConfigParseError(path, `condition node mixes operator keys with leaf fields [${leafKeys.join(', ')}]`);
-    }
-    const blocks = keys.map((key) => {
-        const operands = asArray(block[key]).map((entry, i) => compileLegacy(source, entry, `${path}.${key}[${i}]`, scope));
-        return makeNode(scope, { kind: key, operands, path: `${path}.${key}`, position: 'boolean' }, operands);
-    });
-    if (blocks.length === 1) return blocks[0];
-    return makeNode(scope, { kind: 'and', operands: blocks, path, position: 'boolean' }, blocks);
 }
 
 /**
