@@ -88,6 +88,16 @@ function expectParseError(detector, message) {
 }
 
 /**
+ * A predicate testing the value with `Number.isFinite` or `Number.isNaN` through `call`.
+ *
+ * @param {'isFinite' | 'isNaN'} name
+ * @param {boolean} [expected]
+ */
+function numberTest(name, expected = true) {
+    return { field: { call: { api: `Number.${name}` } }, is: expected };
+}
+
+/**
  * JSDOM loads no images. These getters derive image state from attributes, installed before the
  * capture so the reader takes them as the browser's own: `data-complete`, `data-width`, and
  * `data-throw` making `naturalWidth` throw.
@@ -468,14 +478,14 @@ describe('WebDetection expressions', () => {
 
     describe('values', () => {
         it('divides by 0 as JS does', () => {
-            expect(payload('', { div: [1, 0] }, { when: { finite: false, gt: 0 } })).toEqual({});
+            expect(payload('', { div: [1, 0] }, { when: { ...numberTest('isFinite', false), gt: 0 } })).toEqual({});
             expect(run('', withPayload({ div: [1, 0] })).ctx.memo.size).toBeGreaterThan(0);
             const result = run('', {
                 match: {
                     all: [
-                        { div: [1, 0], as: 'pos', is: { finite: false, gt: 0 } },
+                        { div: [1, 0], as: 'pos', is: { eq: { api: 'Infinity' } } },
                         { div: [-1, 0], as: 'neg', is: { lt: 0 } },
-                        { div: [0, 0], as: 'nan', is: { nan: true } },
+                        { div: [0, 0], as: 'nan', is: numberTest('isNaN') },
                     ],
                 },
             });
@@ -487,7 +497,7 @@ describe('WebDetection expressions', () => {
 
         it('carries NaN through each operator', () => {
             for (const op of ['sum', 'mul', 'div']) {
-                expect(match('', { [op]: [{ div: [0, 0] }, 2], is: { nan: true } }))
+                expect(match('', { [op]: [{ div: [0, 0] }, 2], is: numberTest('isNaN') }))
                     .withContext(op)
                     .toBe(true);
             }
@@ -970,7 +980,7 @@ describe('WebDetection expressions', () => {
             ).toBe('error');
         });
 
-        it('tests finite and nan over NaN, the infinities, a finite number and a string', () => {
+        it('tests Number.isFinite and Number.isNaN through call over NaN, the infinities, a finite number and a string', () => {
             /** @type {Array<[unknown, boolean, boolean]>} */
             const cases = [
                 [{ div: [0, 0] }, false, true],
@@ -979,13 +989,18 @@ describe('WebDetection expressions', () => {
                 [3, true, false],
             ];
             for (const [value, finite, nan] of cases) {
-                expect(match('', { sum: [value], is: { finite: true } })).toBe(finite);
-                expect(match('', { sum: [value], is: { nan: true } })).toBe(nan);
+                expect(match('', { sum: [value], is: numberTest('isFinite') })).toBe(finite);
+                expect(match('', { sum: [value], is: numberTest('isNaN') })).toBe(nan);
             }
             const install = timeline([{ name: 'n', entryType: 'navigation', type: 'reload' }]);
             const type = { only: { api: { path: 'performance.getEntriesByType', args: ['navigation'], field: 'type' } } };
-            expect(match('', { ...type, is: { finite: false } }, { install })).toBe(true);
-            expect(match('', { ...type, is: { nan: false } }, { install })).toBe(true);
+            expect(match('', { ...type, is: numberTest('isFinite', false) }, { install })).toBe(true);
+            expect(match('', { ...type, is: numberTest('isNaN', false) }, { install })).toBe(true);
+        });
+
+        it('reads finite and nan as property names, not operators', () => {
+            expect(run('', { match: { div: [0, 0], is: { nan: true } } }).abortKind).toBe('absent');
+            expect(run('', { match: { sum: [3], is: { finite: true } } }).abortKind).toBe('absent');
         });
 
         it('reads property paths at item and value level, beside reserved keys and operators', () => {
@@ -1060,7 +1075,7 @@ describe('WebDetection expressions', () => {
             expect(match('<p></p>', { element: { selector: 'p', where: { noSuchProperty: 1 } }, using: 'length', is: 0 })).toBe('aborted');
         });
 
-        it('tests exists, type, finite and nan first whatever the key order', () => {
+        it('tests exists and type first whatever the key order', () => {
             // `gt` on a missing property would fail; `exists` decides first
             expect(
                 match('<p></p>', {
@@ -1114,7 +1129,8 @@ describe('WebDetection expressions', () => {
             expect(test({ nul: { gt: 7 } })).toBe('error');
             expect(test({ s: { gt: 7 } })).toBe('error');
             expect(test({ s: { type: 'number', gt: 7 } })).toBe(false);
-            expect(test({ num: { finite: true, gt: 7 } })).toBe(true);
+            expect(test({ num: { ...numberTest('isFinite'), gt: 7 } })).toBe(true);
+            expect(test({ s: { ...numberTest('isFinite'), gt: 7 } })).toBe(false);
         });
 
         it('reports a length over exists on an engine without the field', () => {
@@ -1249,6 +1265,15 @@ describe('WebDetection expressions', () => {
     });
 
     describe('api', () => {
+        it('takes a path as short for a body with that path', () => {
+            const head = '<title>Hello there</title>';
+            expect(match('', { api: 'document.title', is: 'Hello there' }, { head })).toBe(true);
+            expect(match('', { api: { path: 'Math.max', args: [1, { api: 'document.title.length' }] }, is: 11 }, { head })).toBe(true);
+            expect(match('', { api: 'document.title', using: 'length', is: 11 }, { head })).toBe(true);
+            expectParseError({ match: { api: 5 } }, '`api` takes a path or an object');
+            expectParseError({ match: { api: '' } }, 'non-empty');
+        });
+
         it('gives a scalar path its value, and a string is not a list', () => {
             const head = '<title>Hello there</title>';
             expect(match('', { api: { path: 'document.title' }, is: 'Hello there' }, { head })).toBe(true);
@@ -1444,7 +1469,13 @@ describe('WebDetection expressions', () => {
         it('takes the largest and smallest item through Math.max.apply and Math.min.apply', () => {
             expect(match(html, { api: { path: 'Math.max.apply', args: [null, widths] }, is: 9 }, options)).toBe(true);
             expect(match(html, { api: { path: 'Math.min.apply', args: [null, widths] }, is: 3 }, options)).toBe(true);
-            expect(match('', { api: { path: 'Math.max.apply', args: [null, widths] }, is: { finite: false, lt: 0 } }, options)).toBe(true);
+            expect(
+                match(
+                    '',
+                    { api: { path: 'Math.max.apply', args: [null, widths] }, is: { ...numberTest('isFinite', false), lt: 0 } },
+                    options,
+                ),
+            ).toBe(true);
             expect(match('', { api: { path: 'Math.max.apply', args: [null, { api: { path: 'undefined' } }] }, is: { lt: 0 } })).toBe(true);
         });
 
@@ -1714,8 +1745,100 @@ describe('WebDetection expressions', () => {
             ).toBe('error');
         });
 
+        it('applies call to the value read so far, after path and feature', () => {
+            const head = '<title>Hello   there world</title>';
+            expect(
+                match(
+                    '',
+                    { api: { path: 'document', field: { path: 'title', feature: 'wordCount', call: { api: 'String' } } }, is: '3' },
+                    { head },
+                ),
+            ).toBe(true);
+            expect(
+                match('<p></p>', { only: { element: { selector: 'p', field: { path: 'tagName', call: { api: 'String' } } } }, is: 'P' }),
+            ).toBe(true);
+        });
+
+        it('applies call in where and under is', () => {
+            const install = timeline([
+                { name: 'a', entryType: 'resource', duration: NaN },
+                { name: 'b', entryType: 'resource', duration: Infinity },
+                { name: 'c', entryType: 'resource', duration: 5 },
+            ]);
+            const resources = (/** @type {object} */ where) => ({
+                api: { path: 'performance.getEntriesByType', args: ['resource'], where },
+                using: 'length',
+            });
+            expect(match('', { ...resources({ duration: numberTest('isFinite') }), is: 1 }, { install })).toBe(true);
+            expect(
+                match('', { ...resources({ field: { path: 'duration', call: { api: 'Number.isNaN' } }, is: true }), is: 1 }, { install }),
+            ).toBe(true);
+            expect(match('', { ...resources({ duration: { ...numberTest('isFinite', false), gt: 0 } }), is: 1 }, { install })).toBe(true);
+            expect(match('', { ...resources({ duration: { eq: { api: 'Infinity' } } }), is: 1 }, { install })).toBe(true);
+            expect(
+                match(
+                    '',
+                    { ...resources({ duration: { all: [numberTest('isNaN', false), numberTest('isFinite', false)] } }), is: 1 },
+                    { install },
+                ),
+            ).toBe(true);
+        });
+
+        it('applies a function with arguments bound through bind', () => {
+            const html = IMG('data-complete data-width="3"') + IMG('data-complete data-width="9"');
+            const clamp = { api: { path: 'Math.min.bind', args: [null, 5] } };
+            expect(
+                match(
+                    html,
+                    { sum: { element: { selector: 'img', field: { path: 'naturalWidth', call: clamp } } }, is: 8 },
+                    { install: imageState },
+                ),
+            ).toBe(true);
+        });
+
+        it('reads the operand once per run', () => {
+            let reads = 0;
+            const install = (/** @type {any} */ w) => {
+                Object.defineProperty(w, 'probe', {
+                    get() {
+                        reads++;
+                        return (/** @type {number} */ v) => v > 1;
+                    },
+                });
+            };
+            const html = '<p>a</p><p>bb</p><p>ccc</p>';
+            const where = { field: { path: 'textContent.length', call: { api: 'probe' } }, is: true };
+            expect(match(html, { element: { selector: 'p', where }, using: 'length', is: 2 }, { install })).toBe(true);
+            expect(reads).toBe(1);
+        });
+
+        it('calls the function captured at init', () => {
+            // JSDOM shares the JS builtins of this realm, so the override is undone after the run
+            const original = Number.isFinite;
+            const afterCapture = (/** @type {any} */ w) => {
+                w.Number.isFinite = () => true;
+            };
+            try {
+                expect(match('', { div: [1, 0], is: numberTest('isFinite') }, { afterCapture })).toBe(false);
+            } finally {
+                Number.isFinite = original;
+            }
+        });
+
+        it('errors on an operand that is not a function, and fails with threw when the call throws', () => {
+            expect(match('', { sum: [1], is: { field: { call: 5 }, is: {} } })).toBe('error');
+            expect(match('', { sum: [1], is: { field: { call: { api: 'Math' } }, is: {} } })).toBe('error');
+            const result = run('', { match: { sum: [1.5], is: { field: { call: { api: 'BigInt' } }, is: {} } } });
+            expect(result.detected).toBe('aborted');
+            expect(result.abortKind).toBe('threw');
+            expect(result.abortError).toBe('RangeError');
+            expect(run('', { match: { sum: [1], is: { field: { call: { api: 'noSuchFunction' } }, is: {} } } }).abortKind).toBe('absent');
+        });
+
         it('rejects malformed fields', () => {
             expectParseError({ match: { only: { element: { selector: 'p', field: {} } }, is: {} } }, 'at least one of');
+            expectParseError({ match: { only: { element: { selector: 'p', field: { calls: 1 } } }, is: {} } }, "unknown key 'calls'");
+            expectParseError({ match: { only: { element: { selector: 'p', field: { call: { nope: 1 } } } }, is: {} } });
             expectParseError({ match: { only: { element: { selector: 'p', field: { args: [] } } }, is: {} } }, '`args` needs `path`');
             expectParseError({ match: { only: { element: { selector: 'p', field: { feature: 'nope' } } }, is: {} } }, 'unknown feature');
         });

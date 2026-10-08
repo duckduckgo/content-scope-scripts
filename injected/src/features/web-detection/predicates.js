@@ -3,8 +3,6 @@ import {
     getOwnPropertyNames,
     getPrototypeOf,
     isArray,
-    numberIsFinite,
-    numberIsNaN,
     objectKeys,
     ReflectApply,
 } from '../../captured-globals.js';
@@ -25,8 +23,8 @@ import { FEATURES, isFeatureName } from './features.js';
  * Reads properties and calls methods, preferring the getters and methods captured when the reader is
  * created, so one a page replaces afterwards is not called.
  *
- * Holders are the global object, each namespace object such as `CSS`, and the prototype of every global
- * interface constructor. For each name config uses, the reader records the own accessor, method or
+ * Holders are the global object, each namespace object such as `CSS`, and every global constructor and
+ * its prototype, so static methods such as `Number.isFinite` are captured too. For each name config uses, the reader records the own accessor, method or
  * value with that name on each holder. A read walks the object and its prototype chain for a holder
  * with a record. With none, it reads the property as it stands on the object or its chain, whoever
  * defined it.
@@ -53,6 +51,7 @@ export class NativeReader {
             if (!descriptor || !('value' in descriptor)) continue;
             const value = descriptor.value;
             if (typeof value === 'function') {
+                holders.push(value);
                 const prototype = getOwnPropertyDescriptor(value, 'prototype')?.value;
                 if (typeof prototype === 'object' && prototype !== null) holders.push(prototype);
             } else if (typeof value === 'object' && value !== null && value !== global) {
@@ -229,6 +228,7 @@ export function readPath(reader, root, names, args) {
  * @property {string[]} names - empty when the value is the item itself
  * @property {CompiledArg[]} [args]
  * @property {FeatureName} [feature]
+ * @property {unknown} [call] - a compiled expression in value position giving the function to apply
  */
 
 /**
@@ -290,7 +290,7 @@ export function compilePath(raw, path) {
 }
 
 /**
- * Compile a `field`: a string, short for `{path}`, or an object of `path`, `args` and `feature`.
+ * Compile a `field`: a string, short for `{path}`, or an object of `path`, `args`, `feature` and `call`.
  *
  * @param {unknown} raw
  * @param {string} path
@@ -305,12 +305,12 @@ export function compileField(raw, path, hooks) {
     }
     if (!isPlainObject(raw)) throw new ConfigParseError(path, '`field` must be a string or an object');
     for (const key of objectKeys(raw)) {
-        if (key !== 'path' && key !== 'args' && key !== 'feature') {
+        if (key !== 'path' && key !== 'args' && key !== 'feature' && key !== 'call') {
             throw new ConfigParseError(path, `unknown key '${key}' in field`);
         }
     }
-    if (raw.path === undefined && raw.args === undefined && raw.feature === undefined) {
-        throw new ConfigParseError(path, '`field` needs at least one of path, args and feature');
+    if (raw.path === undefined && raw.args === undefined && raw.feature === undefined && raw.call === undefined) {
+        throw new ConfigParseError(path, '`field` needs at least one of path, args, feature and call');
     }
     if (raw.args !== undefined && raw.path === undefined) {
         throw new ConfigParseError(path, '`args` needs `path`');
@@ -325,6 +325,7 @@ export function compileField(raw, path, hooks) {
         }
         field.feature = raw.feature;
     }
+    if (raw.call !== undefined) field.call = hooks.expression(raw.call, `${path}.call`, 'value');
     return field;
 }
 
@@ -339,9 +340,18 @@ export function compileField(raw, path, hooks) {
 export function readField(ctx, root, field) {
     const args = field.args && evaluateArgs(field.args, ctx);
     if (isFailure(args)) return args;
-    const value = readPath(ctx.reader, root, field.names, args);
-    if (isFailure(value) || !field.feature) return value;
-    return FEATURES[field.feature](value);
+    let value = readPath(ctx.reader, root, field.names, args);
+    if (isFailure(value)) return value;
+    if (field.feature) value = FEATURES[field.feature](value);
+    if (field.call === undefined) return value;
+    const fn = ctx.read(field.call);
+    if (isFailure(fn)) return fn;
+    if (typeof fn !== 'function') throw new DetectionError(`'call' takes a function, got ${typeName(fn)}`);
+    try {
+        return ReflectApply(fn, undefined, [value]);
+    } catch (e) {
+        return new Failure('threw', errorName(e));
+    }
 }
 
 /**
@@ -368,16 +378,16 @@ export function readField(ctx, root, field) {
 /**
  * @typedef {object} PredicateHooks
  * @property {(raw: unknown, path: string) => unknown} operand - compiles an operand expression in number position
- * @property {(raw: unknown, path: string, position: import('./expressions.js').Position) => unknown} expression - compiles an expression in a position: a source's `root`, an `args` entry, an `eq` operand, or the body of `using`
+ * @property {(raw: unknown, path: string, position: import('./expressions.js').Position) => unknown} expression - compiles an expression in a position: a source's `root`, an `args` entry, an `eq` operand, the operand of a `field`'s `call`, or the body of `using`
  * @property {Set<string>} names - collects every name read, for the native reader
  */
 
 /** @typedef {'item' | 'value'} Level */
 
-const OPERATORS = new Set(['eq', 'lt', 'lte', 'gt', 'gte', 'fails', 'exists', 'type', 'finite', 'nan']);
+const OPERATORS = new Set(['eq', 'lt', 'lte', 'gt', 'gte', 'fails', 'exists', 'type']);
 /** Tested before the other keys of their object, whatever the key order. */
 /** @type {string[]} */
-const FIRST_OPERATORS = ['fails', 'exists', 'type', 'finite', 'nan'];
+const FIRST_OPERATORS = ['fails', 'exists', 'type'];
 const TYPE_NAMES = new Set(['number', 'string', 'boolean', 'null', 'undefined', 'array', 'object']);
 /** Keys reserved for later extensions. */
 const RESERVED_LATER = new Set(['match']);
@@ -479,7 +489,7 @@ function compileObject(raw, level, path, hooks) {
         throw new ConfigParseError(path, '`field` and `is` go together in a predicate');
     }
 
-    // `fails`, `exists`, `type`, `finite` and `nan` first, then the rest in config order
+    // `fails`, `exists` and `type` first, then the rest in config order
     const isFirst = (/** @type {string} */ key) => level === 'value' && FIRST_OPERATORS.includes(key);
     const ordered = [...FIRST_OPERATORS.filter((key) => isFirst(key) && keys.includes(key)), ...keys.filter((key) => !isFirst(key))];
 
@@ -565,14 +575,6 @@ function compileOperator(operator, raw, path, hooks) {
                 if (isFailure(subject)) return subject.kind === 'absent' ? names.includes('undefined') : subject;
                 return names.includes(typeName(subject));
             });
-        }
-        case 'finite': {
-            const expected = expectBoolean(raw, path);
-            return fixed((subject) => (isFailure(subject) ? subject : numberIsFinite(subject) === expected));
-        }
-        case 'nan': {
-            const expected = expectBoolean(raw, path);
-            return fixed((subject) => (isFailure(subject) ? subject : numberIsNaN(subject) === expected));
         }
         case 'eq': {
             if (raw === null || typeof raw === 'string' || typeof raw === 'boolean' || typeof raw === 'number') {

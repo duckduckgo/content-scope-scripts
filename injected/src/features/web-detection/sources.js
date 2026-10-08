@@ -163,8 +163,10 @@ const LIST_FILLS = new Set(['list', 'value', 'number']);
 export function apiSource(global) {
     return {
         key: 'api',
-        parse(raw, path, hooks) {
-            if (!isPlainObject(raw)) throw new ConfigParseError(path, '`api` takes an object');
+        parse(rawBody, path, hooks) {
+            // A string is short for `{path}`
+            const raw = typeof rawBody === 'string' ? { path: rawBody } : rawBody;
+            if (!isPlainObject(raw)) throw new ConfigParseError(path, '`api` takes a path or an object');
             rejectUnknownKeys(raw, ['path', 'args', 'where', 'field'], path);
             const names = compilePath(raw.path, `${path}.path`);
             names.forEach((name) => hooks.names.add(name));
