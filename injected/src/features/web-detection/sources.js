@@ -91,25 +91,30 @@ export class ItemBuffer {
 }
 
 /**
- * Test `where` on an item and read its `field`.
+ * The value of each item `where` holds for: its `field`, or the item itself without `field`. A failing
+ * `where` or `field` gives its `Failure`, and ends the list.
  *
- * @param {unknown} item
- * @param {CompiledPredicate | undefined} where
- * @param {CompiledField | undefined} field
+ * @param {Iterable<unknown>} items
+ * @param {{ where?: CompiledPredicate, field?: CompiledField }} keys
  * @param {PredicateContext} ctx
- * @returns {unknown} the item's value, `SKIP` when `where` does not hold, or a `Failure`
+ * @returns {Generator<unknown>}
  */
-export function selectItem(item, where, field, ctx) {
-    if (where) {
-        const held = where.test(item, ctx);
-        if (isFailure(held)) return held;
-        if (!held) return SKIP;
+export function* selectItems(items, { where, field }, ctx) {
+    for (const item of items) {
+        if (where) {
+            if (typeof item !== 'object' || item === null) throw new DetectionError('`where` on an item that is not an object');
+            const held = where.test(item, ctx);
+            if (isFailure(held)) {
+                yield held;
+                return;
+            }
+            if (!held) continue;
+        }
+        const value = field ? readField(ctx, item, field) : item;
+        yield value;
+        if (isFailure(value)) return;
     }
-    return field ? readField(ctx, item, field) : item;
 }
-
-/** A `selectItem` result: `where` does not hold for the item. */
-export const SKIP = Symbol('skip');
 
 /**
  * Parse `where` and `field`, the keys `element` and `api` share.
@@ -184,7 +189,7 @@ export function apiSource(global) {
             if (isFailure(result)) return result;
             if (body.where || (body.field && isList(result, ctx))) {
                 if (!isList(result, ctx)) throw new DetectionError('`where` on a value that is not a list');
-                return new ItemBuffer(selectApiItems(members(result, ctx), body, ctx));
+                return new ItemBuffer(selectItems(eachMember(result, ctx), body, ctx));
             }
             return body.field ? readField(ctx, result, body.field) : result;
         },
@@ -240,23 +245,5 @@ function* each(items) {
         for (let i = 0; i < items.length; i++) yield items[i];
     } else {
         yield* items;
-    }
-}
-
-/**
- * @param {Iterable<unknown>} items
- * @param {ApiBody} body
- * @param {PredicateContext} ctx
- * @returns {Generator<unknown>}
- */
-function* selectApiItems(items, body, ctx) {
-    for (const item of each(items)) {
-        if (body.where && (typeof item !== 'object' || item === null)) {
-            throw new DetectionError('`where` on an item that is not an object');
-        }
-        const value = selectItem(item, body.where, body.field, ctx);
-        if (value === SKIP) continue;
-        yield value;
-        if (isFailure(value)) return;
     }
 }
