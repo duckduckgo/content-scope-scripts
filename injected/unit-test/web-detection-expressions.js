@@ -337,6 +337,23 @@ describe('WebDetection expressions', () => {
             expect(match('', [])).toBe(false);
         });
 
+        it('takes string and null literals in value position only', () => {
+            expect(payload('', 'x')).toEqual({ x: 'x' });
+            expect(payload('', null)).toEqual({ x: null });
+            expect(payload('', { if: { test: true, then: 'yes', else: 'no' } })).toEqual({ x: 'yes' });
+            expect(match('', { api: { path: 'document.missing' }, catch: { absent: null }, is: { type: 'null' } })).toBe(true);
+            expect(match('', { api: { path: 'document.readyState' }, is: { eq: { api: { path: 'document.readyState' } } } })).toBe(true);
+            expect(match('<p>a</p>', { only: { text: { pattern: 'a' } }, is: { eq: { text: { pattern: 'a' } } } })).toBe(true);
+            expectParseError({ match: 'x' }, "'literal' does not fill boolean position");
+            expectParseError({ match: [null] }, "'literal' does not fill boolean position");
+            expectParseError({ match: { sum: ['x', 1], is: { gt: 0 } } }, "'literal' does not fill number position");
+            expectParseError({ match: { count: 'x', is: 1 } }, "'literal' does not fill list position");
+            expectParseError(
+                { match: { count: { element: { selector: 'p' } }, is: { gt: 'x' } } },
+                "'literal' does not fill number position",
+            );
+        });
+
         it('names the AND of a multi-key object', () => {
             const result = run('<p class="a">foo</p>', { match: { text: { pattern: 'foo' }, element: { selector: '.a' }, as: 'both' } });
             expect(result.detected).toBe(true);

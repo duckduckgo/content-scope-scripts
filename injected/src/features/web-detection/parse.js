@@ -117,10 +117,11 @@ const MODIFIER_KEYS = new Set(['as', 'catch', 'is']);
 const RESERVED_LATER = new Set(['aggregate', 'stable', 'confirm', 'retain']);
 const LEGACY_OPERATORS = ['any', 'all', 'none'];
 
-/** @type {{ number: ReadonlySet<Position>, boolean: ReadonlySet<Position>, none: ReadonlySet<Position> }} */
+/** @type {{ number: ReadonlySet<Position>, boolean: ReadonlySet<Position>, value: ReadonlySet<Position>, none: ReadonlySet<Position> }} */
 const FILLS = {
     number: new Set(['number', 'value']),
     boolean: new Set(['boolean', 'value']),
+    value: new Set(['value']),
     none: new Set(),
 };
 
@@ -210,10 +211,7 @@ function makeNode(scope, fields, deps) {
  * @returns {Node}
  */
 function compileExpr(raw, position, path, scope) {
-    if (typeof raw === 'number') {
-        return makeNode(scope, { kind: 'literal', value: raw, path, position }, []);
-    }
-    if (typeof raw === 'boolean') {
+    if (raw === null || typeof raw === 'string' || typeof raw === 'number' || typeof raw === 'boolean') {
         return makeNode(scope, { kind: 'literal', value: raw, path, position }, []);
     }
     if (isArray(raw)) {
@@ -490,7 +488,8 @@ function fillsOf(node, visiting = new Set()) {
     visiting.add(node);
     switch (node.kind) {
         case 'literal':
-            return typeof node.value === 'number' ? FILLS.number : FILLS.boolean;
+            if (typeof node.value === 'number') return FILLS.number;
+            return typeof node.value === 'boolean' ? FILLS.boolean : FILLS.value;
         case 'source': {
             const [first, ...rest] = node.bodies.map((body) => node.source.fills(body));
             return new Set([...(first ?? [])].filter((position) => rest.every((fills) => fills.has(position))));

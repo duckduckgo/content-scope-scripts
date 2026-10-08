@@ -40,7 +40,7 @@ import { ItemBuffer, eachMember, isList } from './sources.js';
  */
 
 /**
- * @typedef {NodeBase & { kind: 'literal', value: number | boolean }} LiteralNode
+ * @typedef {NodeBase & { kind: 'literal', value: number | boolean | string | null }} LiteralNode
  * @typedef {NodeBase & { kind: 'source', source: Source<any>, bodies: unknown[] }} SourceNode
  * @typedef {NodeBase & { kind: 'count', operand: Node, bound: number }} CountNode
  * @typedef {NodeBase & { kind: 'only', operand: Node }} OnlyNode
@@ -102,12 +102,18 @@ export class EvaluationContext {
     }
 
     /**
-     * @param {unknown} operand - a compiled expression in number position
+     * @param {unknown} operand - a compiled predicate operand: in number position for a comparison, in
+     * value position for `eq`. A selected list gives its one item
      * @param {Track} track
      * @returns {unknown}
      */
     operand(operand, track) {
-        const read = evaluate(/** @type {Node} */ (operand), 'number', this);
+        const node = /** @type {Node} */ (operand);
+        let read = evaluate(node, node.position, this);
+        if (!isFailure(read) && read.value instanceof ItemBuffer) {
+            const item = single(read.value);
+            read = isFailure(item) ? item : { value: item.value, measured: read.measured && item.measured };
+        }
         if (isFailure(read)) return read;
         if (!read.measured) track.measured = false;
         return read.value;

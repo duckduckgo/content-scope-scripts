@@ -18,9 +18,9 @@ import { FEATURES, isFeatureName } from './features.js';
  */
 
 /**
- * A compiled `args` entry: a literal, an expression in value position, or an array of entries.
+ * A compiled `args` entry: an expression in value position, or an array of entries.
  *
- * @typedef {{ value: string | number | boolean | null } | { expression: unknown } | { array: CompiledArg[] }} CompiledArg
+ * @typedef {{ expression: unknown } | { array: CompiledArg[] }} CompiledArg
  */
 
 /**
@@ -223,8 +223,8 @@ export function readPath(reader, root, names, args) {
  */
 
 /**
- * Compile `args`: strings, numbers, booleans and `null` are literals, an object is an expression in
- * value position, and an array is a JS array of its entries.
+ * Compile `args`: an array is a JS array of its entries, and any other entry is an expression in value
+ * position.
  *
  * @param {unknown} raw
  * @param {string} path
@@ -243,10 +243,8 @@ export function compileArgs(raw, path, hooks) {
  * @returns {CompiledArg}
  */
 function compileArg(raw, path, hooks) {
-    if (isScalar(raw)) return { value: raw };
     if (isArray(raw)) return { array: raw.map((entry, i) => compileArg(entry, `${path}[${i}]`, hooks)) };
-    if (isPlainObject(raw)) return { expression: hooks.expression(raw, path, 'value') };
-    throw new ConfigParseError(path, '`args` entries are literals, expressions and arrays');
+    return { expression: hooks.expression(raw, path, 'value') };
 }
 
 /**
@@ -263,8 +261,7 @@ export function evaluateArgs(args, ctx, track) {
     for (const arg of args) {
         /** @type {unknown} */
         let value;
-        if ('value' in arg) value = arg.value;
-        else if ('expression' in arg) value = ctx.arg(arg.expression, track);
+        if ('expression' in arg) value = ctx.arg(arg.expression, track);
         else value = evaluateArgs(arg.array, ctx, track);
         if (isFailure(value)) return value;
         values.push(value);
@@ -364,7 +361,7 @@ export function readField(ctx, root, field, track) {
 /**
  * @typedef {object} PredicateHooks
  * @property {(raw: unknown, path: string) => unknown} operand - compiles an operand expression in number position
- * @property {(raw: unknown, path: string, position: import('./expressions.js').Position) => unknown} expression - compiles an expression a source reads, such as its `root`
+ * @property {(raw: unknown, path: string, position: import('./expressions.js').Position) => unknown} expression - compiles an expression in a position: a source's `root`, an `args` entry or an `eq` operand
  * @property {Set<string>} names - collects every name read, for the native reader
  */
 
@@ -567,7 +564,7 @@ function compileOperator(operator, raw, path, hooks) {
             if (raw === null || typeof raw === 'string' || typeof raw === 'boolean' || typeof raw === 'number') {
                 return equalsLiteral(raw);
             }
-            const operand = hooks.operand(raw, path);
+            const operand = hooks.expression(raw, path, 'value');
             return {
                 test: (subject, ctx, track) => {
                     if (isFailure(subject)) return subject;
