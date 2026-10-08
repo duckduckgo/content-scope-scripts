@@ -1,6 +1,6 @@
 // eslint-disable-next-line no-redeclare
 import { hasOwnProperty, isArray, objectKeys } from '../../captured-globals.js';
-import { ConfigParseError, EXPRESSION_KEYS, NAME_PATTERN, asArray, isExpressionObject, isPlainObject } from './core.js';
+import { ConfigParseError, EXPRESSION_KEYS, NAME_PATTERN, asArray, isExpressionObject, isPlainObject, isScalar } from './core.js';
 import { elementSource, textSource } from './matching.js';
 import { compilePredicate } from './predicates.js';
 import { apiSource, parseApiBody, rejectUnknownKeys } from './sources.js';
@@ -257,7 +257,7 @@ function makeNode(scope, fields, deps) {
  * @returns {Node}
  */
 function compileExpr(raw, position, path, scope) {
-    if (raw === null || typeof raw === 'string' || typeof raw === 'number' || typeof raw === 'boolean') {
+    if (isScalar(raw)) {
         return makeNode(scope, { kind: 'literal', value: raw, path, position }, []);
     }
     if (isArray(raw)) {
