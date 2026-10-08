@@ -25,11 +25,12 @@ import { usePastedAttachments } from './chat-tools/image-attachment/usePastedAtt
 import { useScreenshotCapture } from './chat-tools/image-attachment/useScreenshotCapture';
 import { AttachmentChips } from './chat-tools/attachments/AttachmentChips';
 import { AttachmentsProvider, useAttachmentsContext } from './chat-tools/attachments/AttachmentsProvider';
+import { useDroppedAttachments } from './chat-tools/attachments/useDroppedAttachments';
 import { ModelSelectorTool } from './chat-tools/model-selector/ModelSelectorTool';
 import { ReasoningPickerTool } from './chat-tools/reasoning-picker/ReasoningPickerTool';
 import { ToolsMenu } from './chat-tools/tools-menu/ToolsMenu';
 import { useToolsMenu } from './chat-tools/tools-menu/useToolsMenu';
-import { ActiveToolsProvider, useActiveTools } from './chat-tools/useActiveTools';
+import { useActiveTools } from './chat-tools/useActiveTools';
 import { useSelectedModel } from './useSelectedModel';
 import { useSelectedReasoningEffort } from './useSelectedReasoningEffort';
 import { AttachMenu } from './chat-tools/tab-attachment/AttachMenu';
@@ -197,45 +198,42 @@ export function Omnibar({
                                 setUsageLimitsRevealed(false);
                             }}
                         >
-                            {/* Remounting resets the active tool: key={mode} on mode switch */}
-                            <ActiveToolsProvider key={mode}>
-                                <div class={styles.popup} {...keyboardFocusWithinProps}>
-                                    {mode === 'search' ? (
-                                        <>
-                                            <ResizingContainer className={styles.field}>
-                                                <SearchForm
-                                                    autoFocus={autoFocus}
-                                                    onOpenSuggestion={handleOpenSuggestion}
-                                                    onSubmit={handleSubmitSearch}
-                                                    onSubmitChat={handleSubmitChat}
-                                                />
-                                            </ResizingContainer>
-                                            <SuggestionsList onOpenSuggestion={handleOpenSuggestion} onSubmitChat={handleSubmitChat} />
-                                        </>
-                                    ) : (
-                                        <OpenTabsProvider tabId={tabId} enabled={enableAttachTabs}>
-                                            <AiChatContent
-                                                query={query}
+                            <div class={styles.popup} {...keyboardFocusWithinProps}>
+                                {mode === 'search' ? (
+                                    <>
+                                        <ResizingContainer className={styles.field}>
+                                            <SearchForm
                                                 autoFocus={autoFocus}
-                                                enableRecentAiChats={enableRecentAiChats}
-                                                enableVoiceChatAccess={enableVoiceChatAccess}
-                                                enableAttachTabs={enableAttachTabs}
-                                                tabId={tabId}
-                                                onChange={setQuery}
-                                                onSubmit={handleSubmitChat}
-                                                omnibarRef={spacerRef}
+                                                onOpenSuggestion={handleOpenSuggestion}
+                                                onSubmit={handleSubmitSearch}
+                                                onSubmitChat={handleSubmitChat}
                                             />
-                                        </OpenTabsProvider>
-                                    )}
-                                </div>
-                                {mode === 'ai' && (
-                                    <NoticeDrawer
-                                        revealed={usageLimitsRevealed}
-                                        onReservedHeightChange={setNoticeReservedHeight}
-                                        launcherPromoVisibleRef={launcherPromoVisibleRef}
-                                    />
+                                        </ResizingContainer>
+                                        <SuggestionsList onOpenSuggestion={handleOpenSuggestion} onSubmitChat={handleSubmitChat} />
+                                    </>
+                                ) : (
+                                    <OpenTabsProvider tabId={tabId} enabled={enableAttachTabs}>
+                                        <AiChatContent
+                                            query={query}
+                                            autoFocus={autoFocus}
+                                            enableRecentAiChats={enableRecentAiChats}
+                                            enableVoiceChatAccess={enableVoiceChatAccess}
+                                            enableAttachTabs={enableAttachTabs}
+                                            tabId={tabId}
+                                            onChange={setQuery}
+                                            onSubmit={handleSubmitChat}
+                                            omnibarRef={spacerRef}
+                                        />
+                                    </OpenTabsProvider>
                                 )}
-                            </ActiveToolsProvider>
+                            </div>
+                            {mode === 'ai' && (
+                                <NoticeDrawer
+                                    revealed={usageLimitsRevealed}
+                                    onReservedHeightChange={setNoticeReservedHeight}
+                                    launcherPromoVisibleRef={launcherPromoVisibleRef}
+                                />
+                            )}
                         </div>
                     </AiChatsProvider>
                 </AttachmentsProvider>
@@ -300,6 +298,11 @@ function AiChatContent({
         canAttachImages,
         processOtherFiles: canAttachFiles ? fileState.processFiles : null,
         enabled: state.config?.enablePastedAttachments === true && !blocksPrompt,
+    });
+    const droppedAttachments = useDroppedAttachments({
+        processImages: canAttachImages ? imageState.processFiles : null,
+        processOtherFiles: canAttachFiles ? fileState.processFiles : null,
+        enabled: !blocksPrompt,
     });
     // Screenshots land in the image list; without an image-capable model the row shows greyed out.
     const screenshotModes = state.config?.screenshotModes ?? [];
@@ -490,6 +493,8 @@ function AiChatContent({
                     combobox={mention.combobox}
                     textareaRef={textareaRef}
                     onPaste={pastedAttachments.handlePaste}
+                    onDragOver={droppedAttachments.handleDragOver}
+                    onDrop={droppedAttachments.handleDrop}
                     toolbarLeft={
                         <Fragment>
                             {(canAttachImages || canAttachFiles || canAttachTabs || canCaptureScreenshot) && (

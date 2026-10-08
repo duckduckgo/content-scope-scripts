@@ -1520,6 +1520,35 @@ test.describe('omnibar widget', () => {
             expect(calls.map((call) => call.payload.params)).toEqual([{ active: true }, { active: false }]);
         });
 
+        test('updated create image stays active across browser tabs', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: {
+                    tabs: true,
+                    omnibar: true,
+                    'omnibar.mode': 'ai',
+                    'omnibar.enableImageGeneration': 'true',
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.enableUpdatedCreateImage': 'true',
+                },
+            });
+            await omnibar.ready();
+
+            await omnibar.toolsMenuButton().click();
+            await omnibar.createImageMenuItem().click();
+            await expect(omnibar.createImageChip()).toBeVisible();
+
+            await omnibar.didSwitchToTab('02', ['01', '02']);
+            await expect(omnibar.createImageChip()).toBeVisible();
+
+            await omnibar.createImageChip().click();
+            await omnibar.didSwitchToTab('01', ['01', '02']);
+            await expect(omnibar.createImageChip()).toHaveCount(0);
+        });
+
         test('updated create image submit sends GenerateImage tool with the resolved model', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);
@@ -1631,27 +1660,116 @@ test.describe('omnibar widget', () => {
             await expect(omnibar.createImageChip()).toHaveCount(0);
             await expect(omnibar.imageGenerationInput()).toHaveCount(0);
         });
+    });
 
-        test('switching to Search and back resets image generation', async ({ page }, workerInfo) => {
+    test.describe('AI chat tool persistence', () => {
+        for (const tool of ['web-search', 'image-generation', 'legacy-image-generation']) {
+            test(`${tool} stays active across tabs and clears across tabs`, async ({ page }, workerInfo) => {
+                const ntp = NewtabPage.create(page, workerInfo);
+                const omnibar = new OmnibarPage(ntp);
+                await ntp.reducedMotion();
+                await ntp.openPage({
+                    additional: {
+                        tabs: true,
+                        omnibar: true,
+                        'omnibar.mode': 'ai',
+                        'omnibar.enableImageGeneration': 'true',
+                        'omnibar.enableWebSearch': 'true',
+                        'omnibar.enableAiChatTools': 'true',
+                        'omnibar.enableUpdatedCreateImage': tool === 'legacy-image-generation' ? 'false' : 'true',
+                    },
+                });
+                await omnibar.ready();
+
+                const chip = tool === 'web-search' ? omnibar.webSearchChip() : omnibar.createImageChip();
+                const menuItem = tool === 'web-search' ? omnibar.webSearchMenuItem() : omnibar.createImageMenuItem();
+                await omnibar.toolsMenuButton().click();
+                await menuItem.click();
+                await expect(chip).toBeVisible();
+
+                await omnibar.didSwitchToTab('02', ['01', '02']);
+                await expect(chip).toBeVisible();
+                await chip.click();
+                await omnibar.didSwitchToTab('01', ['01', '02']);
+                await expect(chip).toHaveCount(0);
+
+                await omnibar.toolsMenuButton().click();
+                await menuItem.click();
+                await omnibar.didSwitchToTab('02', ['01', '02']);
+                const input = tool === 'web-search' ? omnibar.chatInput() : omnibar.imageGenerationInput();
+                await input.fill('a duck in a forest');
+                await input.press('Enter');
+                await expect(chip).toHaveCount(0);
+                await omnibar.didSwitchToTab('01', ['01', '02']);
+                await expect(chip).toHaveCount(0);
+            });
+        }
+
+        test('web search remains unavailable across tabs with an unsupported model', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
-
             await ntp.openPage({
-                additional: { omnibar: true, 'omnibar.enableImageGeneration': 'true', 'omnibar.enableAiChatTools': 'true' },
+                additional: {
+                    tabs: true,
+                    omnibar: true,
+                    'omnibar.mode': 'ai',
+                    'omnibar.enableWebSearch': 'true',
+                    'omnibar.enableAiChatTools': 'true',
+                },
+            });
+            await omnibar.ready();
+            await omnibar.toolsMenuButton().click();
+            await omnibar.webSearchMenuItem().click();
+            await omnibar.modelSelectorButton().click();
+            await omnibar.modelOption('GPT-OSS').click();
+            await expect(omnibar.webSearchChip()).toHaveCount(0);
+            await omnibar.didSwitchToTab('02', ['01', '02']);
+            await expect(omnibar.webSearchChip()).toHaveCount(0);
+            await omnibar.chatInput().fill('hello');
+            await omnibar.chatInput().press('Enter');
+            await omnibar.expectMethodCalledWith('omnibar_submitChat', {
+                chat: 'hello',
+                target: 'same-tab',
+                modelId: 'openai_gpt-oss-120b',
+            });
+        });
+
+        test('switching tools persists the replacement across tabs', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({
+                additional: {
+                    tabs: true,
+                    omnibar: true,
+                    'omnibar.mode': 'ai',
+                    'omnibar.enableImageGeneration': 'true',
+                    'omnibar.enableWebSearch': 'true',
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.enableUpdatedCreateImage': 'true',
+                },
             });
             await omnibar.ready();
 
-            await omnibar.aiTab().click();
+            await omnibar.toolsMenuButton().click();
+            await omnibar.webSearchMenuItem().click();
+            await omnibar.didSwitchToTab('02', ['01', '02']);
+            await expect(omnibar.webSearchChip()).toBeVisible();
             await omnibar.toolsMenuButton().click();
             await omnibar.createImageMenuItem().click();
-            await expect(omnibar.imageGenerationInput()).toBeVisible();
+            await omnibar.didSwitchToTab('01', ['01', '02']);
+            await expect(omnibar.createImageChip()).toBeVisible();
+            await expect(omnibar.webSearchChip()).toHaveCount(0);
 
-            await omnibar.searchTab().click();
-            await omnibar.aiTab().click();
-
-            await expect(omnibar.chatInput()).toBeVisible();
+            await omnibar.toolsMenuButton().click();
+            await omnibar.webSearchMenuItem().click();
+            await omnibar.didSwitchToTab('02', ['01', '02']);
+            await expect(omnibar.webSearchChip()).toBeVisible();
             await expect(omnibar.createImageChip()).toHaveCount(0);
+
+            const calls = await ntp.mocks.waitForCallCount({ method: 'omnibar_setImageGenerationActive', count: 2 });
+            expect(calls.map((call) => call.payload.params)).toEqual([{ active: true }, { active: false }]);
         });
     });
 

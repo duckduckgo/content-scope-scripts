@@ -1,37 +1,16 @@
-import { createContext, h } from 'preact';
-import { useContext, useState } from 'preact/hooks';
+import { useContext } from 'preact/hooks';
 import { OmnibarContext } from '../OmnibarProvider';
 import { useSelectedModel } from '../useSelectedModel';
 
 /** @typedef {import('./tools-menu/ToolsMenu').ToolId} ToolId */
-/**
- * @typedef {{
- *   activeTool: ToolId | null,
- *   availableTools: ToolId[],
- *   imageGenerationActive: boolean,
- *   webSearchActive: boolean,
- *   setActiveTool: (tool: ToolId | null) => void,
- * }} ActiveTools
- */
-
-const ActiveToolsContext = createContext(
-    /** @type {ActiveTools} */ ({
-        activeTool: null,
-        availableTools: [],
-        imageGenerationActive: false,
-        webSearchActive: false,
-        setActiveTool: () => {},
-    }),
-);
 
 /**
- * @param {object} props
- * @param {import('preact').ComponentChildren} props.children
+ * Exposes the shared tool selection, filtered by feature configuration and selected model support.
+ * Selecting or clearing a tool updates the selection for every NTP tab in the page.
  */
-export function ActiveToolsProvider({ children }) {
-    const { state } = useContext(OmnibarContext);
+export function useActiveTools() {
+    const { state, activeTool, setActiveTool } = useContext(OmnibarContext);
     const { selectedModel } = useSelectedModel();
-    const [activeTool, setActiveTool] = useState(/** @type {ToolId|null} */ (null));
 
     const modelSupportedTools = selectedModel?.supportedTools ?? [];
 
@@ -47,17 +26,11 @@ export function ActiveToolsProvider({ children }) {
     const imageGenerationActive = validActiveTool === 'image-generation';
     const webSearchActive = validActiveTool === 'web-search';
 
-    const value = {
+    return {
         activeTool: validActiveTool,
         availableTools,
         imageGenerationActive,
         webSearchActive,
         setActiveTool,
     };
-
-    return <ActiveToolsContext.Provider value={value}>{children}</ActiveToolsContext.Provider>;
-}
-
-export function useActiveTools() {
-    return useContext(ActiveToolsContext);
 }
