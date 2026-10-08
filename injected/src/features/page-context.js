@@ -232,6 +232,25 @@ function isRendered(el) {
 }
 
 /**
+ * Whether extracting the body would keep this element: the element and its ancestors all pass
+ * the visibility and exclusion checks that `domToMarkdown` applies.
+ * @param {Element} el
+ * @param {string} excludeSelectors
+ * @returns {boolean}
+ */
+function isExtractable(el, excludeSelectors) {
+    /** @type {Element | null} */
+    let node = el;
+    while (node) {
+        if (!checkNodeIsVisible(node) || (excludeSelectors && node.matches(excludeSelectors))) {
+            return false;
+        }
+        node = node.parentElement;
+    }
+    return true;
+}
+
+/**
  * @param {Element} el
  * @returns {number}
  */
@@ -240,20 +259,20 @@ function renderedTextLength(el) {
 }
 
 /**
- * Pick the rendered candidate with the most text. Returns null when there is none, or when the
+ * Pick the eligible candidate with the most text. Returns null when there is none, or when the
  * best one holds less than `minCoverage` of the body's text, so the caller can use the body.
  * @param {ArrayLike<Element>} candidates - in document order
  * @param {object} options
  * @param {number} options.bodyTextLength
  * @param {number} options.minCoverage - share of `bodyTextLength`, 0 to 1
  * @param {number} options.maxCandidates - caps how many candidates are measured
- * @param {(el: Element) => boolean} [options.isRendered]
+ * @param {(el: Element) => boolean} options.isEligible
  * @param {(el: Element) => number} [options.textLength]
  * @returns {Element | null}
  */
 export function selectLargestVisibleRoot(
     candidates,
-    { bodyTextLength, minCoverage, maxCandidates, isRendered: isCandidateRendered = isRendered, textLength = renderedTextLength },
+    { bodyTextLength, minCoverage, maxCandidates, isEligible, textLength = renderedTextLength },
 ) {
     /** @type {Element | null} */
     let best = null;
@@ -266,7 +285,7 @@ export function selectLargestVisibleRoot(
             continue;
         }
         examined++;
-        if (!isCandidateRendered(el)) {
+        if (!isEligible(el)) {
             continue;
         }
         const length = textLength(el);
@@ -731,6 +750,7 @@ export default class PageContext extends ContentFeature {
                 bodyTextLength: document.body?.innerText.length ?? 0,
                 minCoverage: this.getFeatureSetting('minRootCoverage') || 0.35,
                 maxCandidates: this.getFeatureSetting('maxRootCandidates') || 100,
+                isEligible: (el) => isExtractable(el, excludeSelectorsString),
             });
         }
         let contentRoot = mainContent || document.body;

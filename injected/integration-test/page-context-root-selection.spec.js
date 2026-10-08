@@ -59,6 +59,24 @@ test.describe('page-context root selection', () => {
         expect(result.content).not.toContain('Annual reports');
     });
 
+    test('skips a larger menu inside a transparent overlay', async ({ page }, testInfo) => {
+        const result = await collect(page, testInfo, `${PAGES}/transparent-menu.html`);
+        expect(result.content).toContain('Bridge reopens after a year of repairs');
+        expect(result.content).not.toContain('league tables');
+    });
+
+    test('skips a larger list inside an excluded sidebar', async ({ page }, testInfo) => {
+        const result = await collect(page, testInfo, `${PAGES}/sidebar-content.html`);
+        expect(result.content).toContain('Bakery wins national bread award');
+        expect(result.content).not.toContain('Harbour reopens after storm repairs');
+    });
+
+    test('keeps a first match inside a wrapper that is still fading in', async ({ page }, testInfo) => {
+        const result = await collect(page, testInfo, `${PAGES}/fade-in.html`);
+        expect(result.content).toContain('Orchestra announces summer concerts');
+        expect(result.content).toContain('short break in the middle');
+    });
+
     test('uses the body for a list of small cards', async ({ page }, testInfo) => {
         const result = await collect(page, testInfo, `${PAGES}/card-list.html`);
         expect(result.content).toContain('Website design services');

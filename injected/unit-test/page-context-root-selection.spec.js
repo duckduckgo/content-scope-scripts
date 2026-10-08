@@ -29,7 +29,7 @@ function select(bodyHtml, { minCoverage = 0.35, maxCandidates = 100 } = {}) {
         bodyTextLength: textLength(document.body),
         minCoverage,
         maxCandidates,
-        isRendered,
+        isEligible: isRendered,
         textLength,
     });
     return root ? root.id : null;
@@ -87,7 +87,7 @@ describe('page-context.js - selectLargestVisibleRoot', () => {
             bodyTextLength: 4,
             minCoverage: 0.5,
             maxCandidates: 20,
-            isRendered,
+            isEligible: isRendered,
             textLength: (el) => {
                 measured.push(el.id);
                 return textLength(el);
