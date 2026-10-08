@@ -230,6 +230,10 @@ const FAILING = { api: { path: 'JSON.parse', args: ['{'] } };
 const IMG = (/** @type {string} */ attrs = '') => `<img src="a.png" ${attrs}>`;
 const BROKEN = { selector: 'img', where: { complete: true, naturalWidth: 0, 'currentSrc.length': { gt: 0 } } };
 const RENDERED = '//body//text()[not(ancestor::script) and not(ancestor::style) and not(ancestor::template) and not(ancestor::noscript)]';
+/** `RENDERED` relative to a `root`. */
+const RENDERED_WITHIN = './/text()[not(ancestor::script) and not(ancestor::style) and not(ancestor::template) and not(ancestor::noscript)]';
+/** Non-whitespace characters of rendered text in each root, one match each. */
+const renderedText = (/** @type {unknown} */ root) => ({ text: { xpath: RENDERED_WITHIN, pattern: '\\S', root } });
 
 describe('WebDetection expressions', () => {
     describe('iterators', () => {
@@ -1731,16 +1735,6 @@ describe('WebDetection expressions', () => {
             );
         });
 
-        it('errors on a feature given another input type', () => {
-            expect(match('', { api: { path: 'document', field: { path: 'title', feature: 'renderedTextLength' } }, is: {} })).toBe('error');
-            expect(
-                match('<p>x</p>', {
-                    only: { element: { selector: 'p', field: { path: 'tagName', feature: 'renderedTextLength' } } },
-                    is: {},
-                }),
-            ).toBe('error');
-        });
-
         it('counts words with matchAll, and none in an empty or whitespace-only string', () => {
             const words = {
                 api: { path: 'Array.from', args: [{ api: { path: 'document.title.matchAll', args: ['\\S+'] } }] },
@@ -1751,32 +1745,60 @@ describe('WebDetection expressions', () => {
             expect(match('', { ...words, is: 0 }, { head: '<title>   </title>' })).toBe(true);
         });
 
-        it('counts rendered text excluding script, style, template and noscript', () => {
+        it('counts rendered text as non-whitespace matches, excluding script, style, template and noscript', () => {
             const html =
                 '<div id="r">ab c<script>xxxx</script><style>yy</style><template>zz</template><noscript>ww</noscript><span>d</span></div>';
-            expect(match(html, { only: { element: { selector: '#r', field: { feature: 'renderedTextLength' } } }, is: 4 })).toBe(true);
-            expect(
-                match(html, {
-                    element: { selector: 'span', where: { field: { feature: 'renderedTextLength' }, is: 1 } },
-                    using: 'length',
-                    is: 1,
-                }),
-            ).toBe(true);
-            expect(match(html, { api: { path: 'document.body', field: { feature: 'renderedTextLength' } }, is: 4 })).toBe(true);
+            expect(match(html, { text: { xpath: RENDERED, pattern: '\\S' }, using: 'length', is: 4 })).toBe(true);
+            expect(match(html, { ...renderedText('#r'), using: 'length', is: 4 })).toBe(true);
+            expect(match(html, { ...renderedText('span'), using: 'length', is: 1 })).toBe(true);
         });
 
-        it('counts text inside two selected elements in both', () => {
-            const html = '<div class="c">ab<div class="c">cd</div></div>';
-            expect(match(html, { sum: { element: { selector: '.c', field: { feature: 'renderedTextLength' } } }, is: 6 })).toBe(true);
-            expect(match(html, { sum: { element: { selector: '.c:not(.c .c)', field: { feature: 'renderedTextLength' } } }, is: 4 })).toBe(
+        it('counts rendered text per item, through root self in field and where', () => {
+            const html = '<p class="i">ab c</p><p class="i"> </p><p class="i"><script>x</script></p>';
+            expect(
+                match(html, { sum: { element: { selector: '.i', field: { ...renderedText({ self: {} }), using: 'length' } } }, is: 3 }),
+            ).toBe(true);
+            expect(match(html, { element: { selector: '.i', where: { none: renderedText({ self: {} }) } }, using: 'length', is: 2 })).toBe(
                 true,
             );
         });
 
-        it('errors on only over a selector matching nothing', () => {
-            expect(
-                match('', { only: { element: { selector: '#comments', field: { feature: 'renderedTextLength' } } }, is: { lt: 1 } }),
-            ).toBe('error');
+        it('counts text inside two selected items in both', () => {
+            const html = '<div class="c">ab<div class="c">cd</div></div>';
+            const count = { ...renderedText({ self: {} }), using: 'length' };
+            expect(match(html, { sum: { element: { selector: '.c', field: count } }, is: 6 })).toBe(true);
+            expect(match(html, { sum: { element: { selector: '.c:not(.c .c)', field: count } }, is: 4 })).toBe(true);
+            expect(match(html, { ...renderedText('.c'), using: 'length', is: 4 })).toBe(true);
+        });
+
+        it('counts text matches through the count shortcut as the iterator yields them', () => {
+            const html = '<span>abc de</span>'.repeat(50) + '<p>ab<b>c d</b>e</p>';
+            const joined = 'abc de'.repeat(50) + 'abc de';
+            for (const pattern of ['\\S', 'c d', '\\bde\\b', 'e ?a']) {
+                const expected = joined.match(new RegExp(pattern, 'gi'))?.length ?? 0;
+                for (const xpathConfig of [{ chunkSize: 7, chunkTail: 3 }, { chunkSize: 0 }]) {
+                    const text = { text: { xpath: RENDERED, pattern, xpathConfig } };
+                    // `using: "length"` counts through the shortcut, and a property path reads the items
+                    expect(match(html, { ...text, using: 'length', is: expected })).toBe(true);
+                    expect(match(html, { ...text, is: { length: expected } })).toBe(true);
+                }
+                // Each selected element is matched on its own
+                const perElement = 51 * ('abc de'.match(new RegExp(pattern, 'gi'))?.length ?? 0);
+                expect(match(html, { text: { selector: ['span', 'p'], pattern }, using: 'length', is: perElement })).toBe(true);
+                expect(match(html, { text: { selector: ['span', 'p'], pattern }, is: { length: perElement } })).toBe(true);
+            }
+            expect(match(html, { text: { xpath: RENDERED, pattern: '\\S' }, using: 'length', is: { lt: 10 } })).toBe(false);
+        });
+
+        it('counts no rendered text in a root matching nothing', () => {
+            expect(match('<p>ab</p>', { ...renderedText('#comments'), using: 'length', is: 0 })).toBe(true);
+        });
+
+        it('counts rendered text across XPath chunk boundaries once', () => {
+            const html = '<span>abc de</span>'.repeat(50);
+            for (const xpathConfig of [{ chunkSize: 7, chunkTail: 2 }, { chunkSize: 4, chunkTail: 0 }, { chunkSize: 0 }]) {
+                expect(match(html, { text: { xpath: RENDERED, pattern: '\\S', xpathConfig }, using: 'length', is: 250 })).toBe(true);
+            }
         });
 
         it('takes an expression, with self the value it reads from', () => {
@@ -1866,17 +1888,16 @@ describe('WebDetection expressions', () => {
         });
 
         it('rejects malformed fields', () => {
-            expectParseError({ match: { only: { element: { selector: 'p', field: {} } }, is: {} } }, 'at least one of');
+            expectParseError({ match: { only: { element: { selector: 'p', field: {} } }, is: {} } }, '`field` needs `path`');
             expectParseError({ match: { only: { element: { selector: 'p', field: { calls: 1 } } }, is: {} } }, "unknown key 'calls'");
             expectParseError(
                 { match: { only: { element: { selector: 'p', field: { call: { api: 'String' } } } }, is: {} } },
                 "unknown key 'call'",
             );
             expectParseError({ match: { only: { element: { selector: 'p', field: { args: [] } } }, is: {} } }, '`args` needs `path`');
-            expectParseError({ match: { only: { element: { selector: 'p', field: { feature: 'nope' } } }, is: {} } }, 'unknown feature');
             expectParseError(
-                { match: { api: { path: 'document', field: { path: 'title', feature: 'wordCount' } }, is: {} } },
-                'unknown feature',
+                { match: { only: { element: { selector: 'p', field: { feature: 'renderedTextLength' } } }, is: {} } },
+                "unknown key 'feature'",
             );
         });
     });
@@ -2229,7 +2250,7 @@ describe('WebDetection expressions', () => {
                 match: {
                     all: [
                         { element: { selector: ['#comments'] }, as: 'comments' },
-                        { element: { selector: '#comments', field: { feature: 'renderedTextLength' } }, is: { lt: 1 } },
+                        { none: renderedText({ ref: 'comments' }) },
                         {
                             element: {
                                 selector: 'img',

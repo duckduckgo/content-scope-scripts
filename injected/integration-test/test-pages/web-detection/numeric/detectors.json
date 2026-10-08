@@ -187,12 +187,13 @@
                     {
                         "div": [
                             {
-                                "element": {
-                                    "selector": "body",
-                                    "field": {
-                                        "feature": "renderedTextLength"
-                                    }
-                                }
+                                "text": {
+                                    "xpath": "//body//text()[not(ancestor::script) and not(ancestor::style) and not(ancestor::template) and not(ancestor::noscript)]",
+                                    "pattern": [
+                                        "\\S"
+                                    ]
+                                },
+                                "using": "length"
                             },
                             {
                                 "api": {
@@ -354,12 +355,13 @@
                         }
                     },
                     {
-                        "element": {
-                            "selector": "body",
-                            "field": {
-                                "feature": "renderedTextLength"
-                            }
+                        "text": {
+                            "xpath": "//body//text()[not(ancestor::script) and not(ancestor::style) and not(ancestor::template) and not(ancestor::noscript)]",
+                            "pattern": [
+                                "\\S"
+                            ]
                         },
+                        "using": "length",
                         "as": "bodyTextLength",
                         "is": {
                             "lt": 2000
@@ -613,12 +615,13 @@
                     {
                         "any": [
                             {
-                                "element": {
-                                    "selector": "body",
-                                    "field": {
-                                        "feature": "renderedTextLength"
-                                    }
+                                "text": {
+                                    "xpath": "//body//text()[not(ancestor::script) and not(ancestor::style) and not(ancestor::template) and not(ancestor::noscript)]",
+                                    "pattern": [
+                                        "\\S"
+                                    ]
                                 },
+                                "using": "length",
                                 "as": "bodyTextLength",
                                 "is": {
                                     "lt": 2000
@@ -1080,17 +1083,20 @@
                             "selector": [
                                 "#comments"
                             ]
-                        }
+                        },
+                        "as": "comments"
                     },
                     {
-                        "element": {
-                            "selector": "#comments",
-                            "field": {
-                                "feature": "renderedTextLength"
+                        "none": {
+                            "text": {
+                                "xpath": ".//text()[not(ancestor::script) and not(ancestor::style) and not(ancestor::template) and not(ancestor::noscript)]",
+                                "pattern": [
+                                    "\\S"
+                                ],
+                                "root": {
+                                    "ref": "comments"
+                                }
                             }
-                        },
-                        "is": {
-                            "lt": 1
                         }
                     },
                     {
@@ -1102,9 +1108,9 @@
                                     "gt": 0
                                 }
                             },
-                            "root": [
-                                "#comments"
-                            ]
+                            "root": {
+                                "ref": "comments"
+                            }
                         },
                         "using": "length",
                         "is": {
@@ -1145,9 +1151,9 @@
                                             "gt": 0
                                         }
                                     },
-                                    "root": [
-                                        "#comments"
-                                    ]
+                                    "root": {
+                                        "ref": "comments"
+                                    }
                                 },
                                 "using": "length"
                             },

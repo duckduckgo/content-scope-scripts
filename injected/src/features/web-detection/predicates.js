@@ -17,10 +17,8 @@ import {
     isPlainObject,
     typeName,
 } from './core.js';
-import { FEATURES, isFeatureName } from './features.js';
 
 /**
- * @typedef {import('./features.js').FeatureName} FeatureName
  * @typedef {import('./expressions.js').ItemBinder} ItemBinder
  */
 
@@ -238,10 +236,9 @@ export function readPath(reader, root, names, args) {
 
 /**
  * @typedef {object} CompiledField
- * @property {string[]} names - empty when the value is the item itself
+ * @property {string[]} names - empty for an expression
  * @property {CompiledArg[]} [args]
- * @property {FeatureName} [feature]
- * @property {unknown} [expression] - a compiled expression in value position, in place of `names`, `args` and `feature`
+ * @property {unknown} [expression] - a compiled expression in value position, in place of `names` and `args`
  * @property {ItemBinder} [binder] - binds `self` in `args` or `expression` to the value the field reads from
  */
 
@@ -304,8 +301,7 @@ export function compilePath(raw, path) {
 }
 
 /**
- * Compile a `field`: a string, short for `{path}`, an object of `path`, `args` and `feature`, or an
- * expression. `self` in `args` or the expression is the value the field reads from.
+ * Compile a `field`: a string, short for `{path}`, an object of `path` and `args`, or an expression. `self` in `args` or the expression is the value the field reads from.
  *
  * @param {unknown} raw
  * @param {string} path
@@ -323,18 +319,15 @@ export function compileField(raw, path, hooks) {
     }
     if (!isPlainObject(raw)) throw new ConfigParseError(path, '`field` must be a string, an object or an expression');
     for (const key of objectKeys(raw)) {
-        if (key !== 'path' && key !== 'args' && key !== 'feature') {
+        if (key !== 'path' && key !== 'args') {
             throw new ConfigParseError(path, `unknown key '${key}' in field`);
         }
     }
-    if (raw.path === undefined && raw.args === undefined && raw.feature === undefined) {
-        throw new ConfigParseError(path, '`field` needs at least one of path, args and feature');
-    }
-    if (raw.args !== undefined && raw.path === undefined) {
-        throw new ConfigParseError(path, '`args` needs `path`');
+    if (raw.path === undefined) {
+        throw new ConfigParseError(path, raw.args === undefined ? '`field` needs `path`' : '`args` needs `path`');
     }
     /** @type {CompiledField} */
-    const field = { names: raw.path === undefined ? [] : compilePath(raw.path, `${path}.path`) };
+    const field = { names: compilePath(raw.path, `${path}.path`) };
     field.names.forEach((name) => hooks.names.add(name));
     if (raw.args !== undefined) {
         const rawArgs = raw.args;
@@ -342,12 +335,6 @@ export function compileField(raw, path, hooks) {
             field.binder = binder;
             field.args = compileArgs(rawArgs, `${path}.args`, hooks);
         });
-    }
-    if (raw.feature !== undefined) {
-        if (typeof raw.feature !== 'string' || !isFeatureName(raw.feature)) {
-            throw new ConfigParseError(path, `unknown feature '${String(raw.feature)}'`);
-        }
-        field.feature = raw.feature;
     }
     return field;
 }
@@ -376,9 +363,7 @@ function readFieldOf(ctx, root, field) {
     if (field.expression !== undefined) return ctx.arg(field.expression);
     const args = field.args && evaluateArgs(field.args, ctx);
     if (isFailure(args)) return args;
-    const value = readPath(ctx.reader, root, field.names, args);
-    if (isFailure(value) || !field.feature) return value;
-    return FEATURES[field.feature](value);
+    return readPath(ctx.reader, root, field.names, args);
 }
 
 /**

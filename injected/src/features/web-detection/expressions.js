@@ -457,7 +457,7 @@ function computeLength(node, ctx) {
     if (isFailure(value)) return value;
     if (!(value instanceof ItemBuffer)) return readPath(ctx.reader, value, ['length'], undefined);
     if (!value.started) {
-        const count = value.shortcuts.countAll?.();
+        const count = value.shortcuts.countUpTo?.(node.bound);
         if (count !== undefined) return Math.min(count, node.bound);
     }
     return value.pull(node.bound) ?? Math.min(value.values.length, node.bound);

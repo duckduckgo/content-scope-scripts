@@ -29,7 +29,7 @@ import { compileArgs, compileField, compilePath, compileWhere, evaluateArgs, rea
  *
  * @typedef {object} ListShortcuts
  * @property {() => boolean | undefined} [hasAny]
- * @property {() => number | undefined} [countAll]
+ * @property {(bound: number) => number | undefined} [countUpTo] - the number of items, or any number from `bound` up
  */
 
 /**

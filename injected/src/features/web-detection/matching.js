@@ -263,8 +263,18 @@ function tailStart(buffer, chunkTail) {
 }
 
 /**
- * Yield each match of a pattern, as the matched string, in the text of every node selected by an XPath expression,
- * scanning in bounded chunks rather than concatenating the whole selection.
+ * A stretch of the text an XPath expression selects. Matches starting before `end` belong to this
+ * chunk; the scanner sets `next` past the last of them, and the following chunk starts there.
+ *
+ * @typedef {object} XPathChunk
+ * @property {string} text
+ * @property {number} end
+ * @property {number} next
+ */
+
+/**
+ * The text of every node selected by an XPath expression, in bounded chunks rather than concatenated
+ * in full.
  *
  * Nodes are joined without a separator so matching is equivalent to `textContent`
  * over the selected set: a pattern may span node boundaries, so `//div//text()`
@@ -278,13 +288,12 @@ function tailStart(buffer, chunkTail) {
  * `detected: 'error'` for the detector - the same behaviour as an invalid CSS
  * selector passed to `querySelectorAll`.
  *
- * @param {RegExp} pattern - global, so `exec` walks the matches
  * @param {string} expression
  * @param {Node} contextNode
  * @param {{ chunkSize: number, chunkTail: number }} chunking
- * @returns {Generator<string>}
+ * @returns {Generator<XPathChunk>}
  */
-function* xpathMatches(pattern, expression, contextNode, { chunkSize, chunkTail }) {
+function* xpathChunks(expression, contextNode, { chunkSize, chunkTail }) {
     const snapshot = compileXPath(expression).evaluate(contextNode, ORDERED_NODE_SNAPSHOT_TYPE, null);
     let buffer = '';
     // Characters added since the last test, rather than the length of the buffer. Each test
@@ -298,20 +307,36 @@ function* xpathMatches(pattern, expression, contextNode, { chunkSize, chunkTail 
         pending += text.length;
         // chunkSize 0 disables chunking, accumulating everything for the single scan below
         if (chunkSize > 0 && pending >= chunkSize) {
-            const cut = tailStart(buffer, chunkTail);
-            let next = cut;
-            for (const match of matchesIn(pattern, buffer)) {
-                if (match.index >= cut) break;
-                next = Math.max(cut, match.index + match[0].length);
-                yield match[0];
-            }
+            const end = tailStart(buffer, chunkTail);
+            /** @type {XPathChunk} */
+            const chunk = { text: buffer, end, next: end };
+            yield chunk;
             // Retained text is contiguous with what follows, so a phrase split across nodes
             // still matches across a flush
-            buffer = buffer.slice(next);
+            buffer = buffer.slice(chunk.next);
             pending = 0;
         }
     }
-    for (const match of matchesIn(pattern, buffer)) yield match[0];
+    yield { text: buffer, end: buffer.length, next: buffer.length };
+}
+
+/**
+ * Yield each match of a pattern, as the matched string, in the text an XPath expression selects.
+ *
+ * @param {RegExp} pattern - global, so `exec` walks the matches
+ * @param {string} expression
+ * @param {Node} contextNode
+ * @param {{ chunkSize: number, chunkTail: number }} chunking
+ * @returns {Generator<string>}
+ */
+function* xpathMatches(pattern, expression, contextNode, chunking) {
+    for (const chunk of xpathChunks(expression, contextNode, chunking)) {
+        for (const match of matchesIn(pattern, chunk.text)) {
+            if (match.index >= chunk.end) break;
+            chunk.next = Math.max(chunk.end, match.index + match[0].length);
+            yield match[0];
+        }
+    }
 }
 
 /**
@@ -331,6 +356,32 @@ function* matchesIn(pattern, text) {
         }
         yield match;
     }
+}
+
+/**
+ * Count the matches `matchesIn` yields that start before `end`, up to `limit`, without building them.
+ *
+ * @param {RegExp} pattern - global
+ * @param {string} text
+ * @param {number} end
+ * @param {number} limit
+ * @returns {{ count: number, next: number }} the count, and the index after the last match counted
+ */
+function countIn(pattern, text, end, limit) {
+    pattern.lastIndex = 0;
+    let count = 0;
+    let next = 0;
+    let match;
+    while (count < limit && (match = pattern.exec(text)) !== null) {
+        if (match[0] === '') {
+            pattern.lastIndex++;
+            continue;
+        }
+        if (match.index >= end) break;
+        count++;
+        next = pattern.lastIndex;
+    }
+    return { count, next };
 }
 
 /**
@@ -512,9 +563,23 @@ export const textSource = {
     },
     fills: () => PRESENCE_FILLS,
     read(bodies, ctx) {
-        return new ItemBuffer(textMatches(bodies, ctx));
+        return new ItemBuffer(textMatches(bodies, ctx), {
+            countUpTo: (bound) => countTextMatches(bodies, ctx, bound),
+        });
     },
 };
+
+/**
+ * The elements whose `textContent` a body reads within one root.
+ *
+ * @param {TextBody} body
+ * @param {ParentNode} root
+ * @returns {Iterable<Element | ParentNode>}
+ */
+function textElements(body, root) {
+    if (body.selectors.length > 0) return root.querySelectorAll(body.selectors.join(', '));
+    return body.rootIsSource ? [root] : [];
+}
 
 /**
  * @param {TextBody[]} bodies
@@ -531,9 +596,7 @@ function* textMatches(bodies, ctx) {
             return;
         }
         for (const root of roots) {
-            /** @type {Iterable<Element | ParentNode>} */
-            const elements = body.selectors.length > 0 ? root.querySelectorAll(body.selectors.join(', ')) : body.rootIsSource ? [root] : [];
-            for (const element of elements) {
+            for (const element of textElements(body, root)) {
                 for (const match of matchesIn(pattern, element.textContent || '')) yield match[0];
             }
             for (const expression of body.xpaths) {
@@ -541,6 +604,40 @@ function* textMatches(bodies, ctx) {
             }
         }
     }
+}
+
+/**
+ * The number of matches `textMatches` yields, counted without building them, stopping once it
+ * reaches `bound`. A count reads the whole page where a predicate on it needs every match, so this
+ * skips the per-match generator step and buffered string.
+ *
+ * @param {TextBody[]} bodies
+ * @param {PredicateContext} ctx
+ * @param {number} bound
+ * @returns {number | undefined} `undefined` when a root fails, for the iterator to report
+ */
+function countTextMatches(bodies, ctx, bound) {
+    let count = 0;
+    for (const body of bodies) {
+        const pattern = new RegExp(body.pattern);
+        const roots = resolveRoots(body.root, ctx);
+        if (isFailure(roots)) return undefined;
+        for (const root of roots) {
+            for (const element of textElements(body, root)) {
+                count += countIn(pattern, element.textContent || '', Infinity, bound - count).count;
+                if (count >= bound) return count;
+            }
+            for (const expression of body.xpaths) {
+                for (const chunk of xpathChunks(expression, root, body.chunking)) {
+                    const counted = countIn(pattern, chunk.text, chunk.end, bound - count);
+                    count += counted.count;
+                    chunk.next = Math.max(chunk.end, counted.next);
+                    if (count >= bound) return count;
+                }
+            }
+        }
+    }
+    return count;
 }
 
 /**
@@ -606,7 +703,7 @@ export const elementSource = {
                     selectorRoots(body.root?.selectors).some((root) => root.querySelector(body.selector) !== null),
                 );
             },
-            countAll() {
+            countUpTo() {
                 if (bodies.length !== 1 || !bodies.every(isPresenceOnly)) return undefined;
                 const body = /** @type {ElementBody} */ (bodies[0]);
                 return selectorRoots(body.root?.selectors).reduce((sum, root) => sum + root.querySelectorAll(body.selector).length, 0);
