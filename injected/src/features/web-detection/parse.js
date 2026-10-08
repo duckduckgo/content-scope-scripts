@@ -562,15 +562,12 @@ function compileLegacy(source, body, path, scope) {
 }
 
 /**
- * The positions an expression fills.
+ * The positions an expression fills, once refs are resolved and `checkCycles` has passed.
  *
  * @param {Node} node
- * @param {Set<Node>} [visiting] - guards against cycles, which `checkCycles` reports
  * @returns {ReadonlySet<Position>}
  */
-function fillsOf(node, visiting = new Set()) {
-    if (visiting.has(node)) return FILLS.none;
-    visiting.add(node);
+function fillsOf(node) {
     switch (node.kind) {
         case 'literal':
             if (typeof node.value === 'number') return FILLS.number;
@@ -591,13 +588,13 @@ function fillsOf(node, visiting = new Set()) {
         case 'and':
             return FILLS.boolean;
         case 'if': {
-            const elseFills = fillsOf(node.else, visiting);
-            return new Set([...fillsOf(node.then, visiting)].filter((p) => elseFills.has(p) && p !== 'list'));
+            const elseFills = fillsOf(node.else);
+            return new Set([...fillsOf(node.then)].filter((p) => elseFills.has(p) && p !== 'list'));
         }
         case 'ref':
-            return node.target ? fillsOf(node.target, visiting) : FILLS.none;
+            return fillsOf(/** @type {Node} */ (node.target));
         case 'expr':
-            return node.operand.is ? FILLS.boolean : fillsOf(node.operand, visiting);
+            return node.operand.is ? FILLS.boolean : fillsOf(node.operand);
         case 'item':
             // A bound value may be any value, and is checked where it is read
             return FILLS.any;
@@ -680,14 +677,11 @@ function resolve(scope) {
  * @returns {boolean}
  */
 function isPresenceLeaf(node) {
-    /** @type {Node | undefined} */
     let current = node;
-    const seen = new Set();
-    while ((current?.kind === 'ref' || (current?.kind === 'expr' && !current.operand.is)) && !seen.has(current)) {
-        seen.add(current);
-        current = current.kind === 'ref' ? current.target : current.operand;
+    while (current.kind === 'ref' || (current.kind === 'expr' && !current.operand.is)) {
+        current = current.kind === 'ref' ? /** @type {Node} */ (current.target) : current.operand;
     }
-    if (current?.kind !== 'source') return false;
+    if (current.kind !== 'source') return false;
     const key = current.source.key;
     return key === 'text' || (key === 'element' && current.bodies.every((body) => !(/** @type {{ field?: unknown }} */ (body).field)));
 }
