@@ -1,5 +1,5 @@
 import { numberIsFinite } from '../../captured-globals.js';
-import { DetectionError, NOT_READ, isFailure, isScalar, typeName } from './core.js';
+import { DetectionError, NOT_READ, decides, isFailure, isScalar, typeName } from './core.js';
 import { compileDetector } from './parse.js';
 import { NativeReader, readPath } from './predicates.js';
 import { ItemBuffer, eachMember, isList } from './sources.js';
@@ -508,9 +508,7 @@ function computeArithmetic(node, ctx) {
  * @returns {boolean | Failure}
  */
 function computeLogic(node, ctx) {
-    // The value that decides the result, and the result it gives
-    const decider = node.kind === 'any' || node.kind === 'none';
-    const decided = node.kind === 'any';
+    const [decider, decided] = decides(node.kind);
     for (const operand of node.operands) {
         const spread = readSpread(operand, node.kind, ctx);
         if (isFailure(spread)) return spread;

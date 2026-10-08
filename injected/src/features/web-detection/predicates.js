@@ -12,6 +12,7 @@ import {
     Failure,
     NOT_READ,
     asArray,
+    decides,
     isExpressionObject,
     isFailure,
     isPlainObject,
@@ -486,36 +487,19 @@ export function compilePredicate(raw, level, path, hooks) {
  * @returns {CompiledPredicate}
  */
 function combine(combinator, entries) {
-    const bound = entries.reduce((max, entry) => Math.max(max, entry.bound), 0);
-    /** @type {PredicateTest} */
-    let test;
-    if (combinator === 'any') {
-        test = (subject, ctx) => {
-            for (const entry of entries) {
-                const result = entry.test(subject, ctx);
-                if (result !== false) return result;
-            }
-            return false;
-        };
-    } else if (combinator === 'all') {
-        test = (subject, ctx) => {
-            for (const entry of entries) {
-                const result = entry.test(subject, ctx);
-                if (result !== true) return result;
-            }
-            return true;
-        };
-    } else {
-        test = (subject, ctx) => {
+    const [decider, decided] = decides(combinator);
+    return {
+        test: (subject, ctx) => {
             for (const entry of entries) {
                 const result = entry.test(subject, ctx);
                 if (isFailure(result)) return result;
-                if (result) return false;
+                if (result === decider) return decided;
             }
-            return true;
-        };
-    }
-    return { test, bound, scalar: entries.some((entry) => entry.scalar) };
+            return !decided;
+        },
+        bound: entries.reduce((max, entry) => Math.max(max, entry.bound), 0),
+        scalar: entries.some((entry) => entry.scalar),
+    };
 }
 
 /**
