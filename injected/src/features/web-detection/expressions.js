@@ -116,6 +116,14 @@ export class EvaluationContext {
     }
 
     /**
+     * @param {unknown} expression - a compiled expression in boolean position, such as one in `where`
+     * @returns {unknown} the boolean, with `is` the one its predicate gives, or a `Failure`
+     */
+    test(expression) {
+        return evaluateOccurrence(/** @type {Node} */ (expression), this);
+    }
+
+    /**
      * @param {unknown} expression - a compiled `args` expression in value position
      * @returns {unknown} the value, with a selected list as a new array of its items, or a `Failure`
      */
