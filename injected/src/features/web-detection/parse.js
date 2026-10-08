@@ -185,26 +185,9 @@ class Scope {
             item: (fn) => {
                 /** @type {ItemBinder} */
                 const binder = {};
-                return this.binding({ item: binder }, () => fn(binder));
+                return within(this.bindings, { item: binder }, () => fn(binder));
             },
         };
-    }
-
-    /**
-     * Compile within a binding of `self`.
-     *
-     * @template T
-     * @param {Binding} binding
-     * @param {() => T} fn
-     * @returns {T}
-     */
-    binding(binding, fn) {
-        this.bindings.push(binding);
-        try {
-            return fn();
-        } finally {
-            this.bindings.pop();
-        }
     }
 
     /** The innermost `where` or `field` enclosing the expression being compiled. */
@@ -215,22 +198,24 @@ class Scope {
         }
         return undefined;
     }
+}
 
-    /**
-     * Compile within a node, recording the operands predicates compile as its dependencies.
-     *
-     * @template T
-     * @param {Node[]} sink
-     * @param {() => T} fn
-     * @returns {T}
-     */
-    collecting(sink, fn) {
-        this.operandSinks.push(sink);
-        try {
-            return fn();
-        } finally {
-            this.operandSinks.pop();
-        }
+/**
+ * Run `fn` with `entry` innermost on `stack`: a binding of `self`, the `if` branch being compiled, or
+ * the node recording the operands predicates compile as its dependencies.
+ *
+ * @template E, T
+ * @param {E[]} stack
+ * @param {E} entry
+ * @param {() => T} fn
+ * @returns {T}
+ */
+function within(stack, entry, fn) {
+    stack.push(entry);
+    try {
+        return fn();
+    } finally {
+        stack.pop();
     }
 }
 
@@ -313,7 +298,7 @@ function compileExpr(raw, position, path, scope) {
     }
     if (hasIs) {
         const sink = /** @type {Node[]} */ (scope.deps.get(node));
-        node.is = scope.collecting(sink, () => compilePredicate(raw.is, 'value', `${path}.is`, scope.hooks));
+        node.is = within(scope.operandSinks, sink, () => compilePredicate(raw.is, 'value', `${path}.is`, scope.hooks));
     }
     return node;
 }
@@ -390,10 +375,10 @@ function compileKey(key, body, position, path, scope) {
 function compileUsing(raw, root, position, path, scope) {
     const usingPath = `${path}.using`;
     if (isPlainObject(raw) && objectKeys(raw).length === 0) throw new ConfigParseError(usingPath, '`using` needs `path` or an expression');
-    if (!isExpressionObject(raw)) return scope.binding({ using: root }, () => compileSelf(raw, position, path, scope, 'using'));
+    if (!isExpressionObject(raw)) return within(scope.bindings, { using: root }, () => compileSelf(raw, position, path, scope, 'using'));
     // An operand with `is` gives a boolean, in boolean position
     const operandIs = raw.is !== undefined;
-    const operand = scope.binding({ using: root }, () => compileExpr(raw, operandIs ? 'boolean' : position, usingPath, scope));
+    const operand = within(scope.bindings, { using: root }, () => compileExpr(raw, operandIs ? 'boolean' : position, usingPath, scope));
     // Its own node, so the `as` and `is` beside `using` are not the operand's
     return makeNode(scope, { kind: 'expr', operand, path, position }, [operand, root]);
 }
@@ -425,7 +410,7 @@ function compileSelf(raw, position, path, scope, key = 'self') {
     const source = /** @type {Source<ApiBody>} */ (scope.sources.api);
     /** @type {Node[]} */
     const deps = [root];
-    const parsed = scope.collecting(deps, () => parseApiBody(raw, bodyPath, scope.hooks, key === 'using' ? 'using' : 'self'));
+    const parsed = within(scope.operandSinks, deps, () => parseApiBody(raw, bodyPath, scope.hooks, key === 'using' ? 'using' : 'self'));
     parsed.root = root;
     return makeNode(scope, { kind: 'source', source, bodies: [parsed], path, position }, deps);
 }
@@ -482,12 +467,7 @@ function compileIf(body, position, path, scope) {
     /** @type {IfNode} */
     const node = makeNode(scope, { kind: 'if', test, path, position }, [test]);
     for (const branch of /** @type {const} */ (['then', 'else'])) {
-        scope.branches.push({ node, branch });
-        try {
-            node[branch] = compileExpr(body[branch], position, `${path}.if.${branch}`, scope);
-        } finally {
-            scope.branches.pop();
-        }
+        node[branch] = within(scope.branches, { node, branch }, () => compileExpr(body[branch], position, `${path}.if.${branch}`, scope));
         /** @type {Node[]} */ (scope.deps.get(node)).push(node[branch]);
     }
     return node;
@@ -519,7 +499,7 @@ function compileSource(key, body, position, path, scope) {
     if (key === 'api' && isArray(body)) throw new ConfigParseError(bodyPath, '`api` takes one body');
     /** @type {Node[]} */
     const deps = [];
-    const bodies = scope.collecting(deps, () =>
+    const bodies = within(scope.operandSinks, deps, () =>
         asArray(body).map((raw, i) => source.parse(raw, isArray(body) ? `${bodyPath}[${i}]` : bodyPath, scope.hooks)),
     );
     if (bodies.length === 0) throw new ConfigParseError(bodyPath, 'no bodies');
@@ -544,7 +524,7 @@ function compileLegacy(source, body, path, scope) {
     if (!isLegacyBlock(body)) {
         /** @type {Node[]} */
         const deps = [];
-        const bodies = scope.collecting(deps, () => [source.parse(body, path, scope.hooks)]);
+        const bodies = within(scope.operandSinks, deps, () => [source.parse(body, path, scope.hooks)]);
         return makeNode(scope, { kind: 'source', source, bodies, path, position: 'boolean' }, deps);
     }
     const block = /** @type {Record<string, unknown>} */ (body);
@@ -778,7 +758,7 @@ function compilePayload(raw, path, scope) {
         const field = { key, value };
         /** @type {Node[]} */
         const deps = [];
-        scope.collecting(deps, () => {
+        within(scope.operandSinks, deps, () => {
             if (spec.when !== undefined) field.when = compilePredicate(spec.when, 'value', `${fieldPath}.when`, scope.hooks);
             if (spec.buckets !== undefined) {
                 const buckets = spec.buckets;
