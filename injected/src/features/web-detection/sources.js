@@ -45,7 +45,7 @@ export class ItemBuffer {
     done = false;
     /** @type {Iterator<unknown> | undefined} */
     #iterator;
-    /** Whether the source failed as a whole, which every placement reaches, a count cut at 0 included */
+    /** Whether the source failed as a whole, which every placement reaches, a length cut at 0 included */
     #failedWhole = false;
 
     /**
@@ -142,7 +142,7 @@ export function rejectUnknownKeys(raw, allowed, path) {
  * @typedef {object} ApiBody
  * @property {string[]} names
  * @property {CompiledArg[]} [args]
- * @property {unknown} [root] - a compiled expression giving the value `path` reads from
+ * @property {unknown} [root] - the compiled expression beside `using`, giving the value `path` reads from
  * @property {CompiledPredicate} [where]
  * @property {CompiledField} [field]
  */
@@ -153,7 +153,8 @@ const API_FILLS = new Set(['boolean', 'value', 'number', 'list']);
 const LIST_FILLS = new Set(['list', 'value', 'number']);
 
 /**
- * Reads a Web API by path, from the global object or `root`, and gives the value it reads. With
+ * Reads a Web API by path, from the global object or, through `using`, from an expression's value, and
+ * gives the value it reads. With
  * `where`, or `field` on a list, it gives the list of the members that pass, or of their values.
  *
  * @param {object} global
@@ -164,12 +165,11 @@ export function apiSource(global) {
         key: 'api',
         parse(raw, path, hooks) {
             if (!isPlainObject(raw)) throw new ConfigParseError(path, '`api` takes an object');
-            rejectUnknownKeys(raw, ['path', 'args', 'root', 'where', 'field'], path);
+            rejectUnknownKeys(raw, ['path', 'args', 'where', 'field'], path);
             const names = compilePath(raw.path, `${path}.path`);
             names.forEach((name) => hooks.names.add(name));
             /** @type {ApiBody} */
             const body = { names, ...parseItemKeys(raw, path, hooks) };
-            if (raw.root !== undefined) body.root = hooks.expression(raw.root, `${path}.root`, 'value');
             if (raw.args !== undefined) body.args = compileArgs(raw.args, `${path}.args`, hooks);
             return body;
         },

@@ -361,14 +361,14 @@ export function readField(ctx, root, field) {
 /**
  * @typedef {object} CompiledPredicate
  * @property {PredicateTest} test - `subject` may be a `Failure`, which `fails`, `exists` and `type` read
- * @property {number} bound - the count from which the result on a count is fixed ([Early exit](implementation.md))
+ * @property {number} bound - the length from which the result on a list's length is fixed ([Early exit](implementation.md))
  * @property {boolean} scalar - whether it compares the value: a literal, `eq`, `lt`, `lte`, `gt` or `gte` at its top level or in its combinators. A selected list under it gives its one item
  */
 
 /**
  * @typedef {object} PredicateHooks
  * @property {(raw: unknown, path: string) => unknown} operand - compiles an operand expression in number position
- * @property {(raw: unknown, path: string, position: import('./expressions.js').Position) => unknown} expression - compiles an expression in a position: a source's `root`, an `args` entry or an `eq` operand
+ * @property {(raw: unknown, path: string, position: import('./expressions.js').Position) => unknown} expression - compiles an expression in a position: a source's `root`, an `args` entry, an `eq` operand, or the body of `using`
  * @property {Set<string>} names - collects every name read, for the native reader
  */
 
@@ -525,7 +525,7 @@ function readThen(field, next) {
             if (isFailure(subject)) return subject;
             return next.test(readField(ctx, subject, field), ctx);
         },
-        // A property of a count is not a count
+        // A property of a length is not a length
         bound: Infinity,
         scalar: false,
     };
@@ -596,7 +596,7 @@ function compileOperator(operator, raw, path, hooks) {
 }
 
 /**
- * A predicate whose result is the same for every count.
+ * A predicate whose result is the same for every length.
  *
  * @param {(subject: unknown) => boolean | Failure} test
  * @returns {CompiledPredicate}
@@ -624,7 +624,7 @@ const COMPARE = {
 };
 
 /**
- * The count from which a comparison against `n` is fixed.
+ * The length from which a comparison against `n` is fixed.
  *
  * @type {Record<'lt' | 'lte' | 'gt' | 'gte', (n: number) => number>}
  */
