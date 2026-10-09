@@ -424,6 +424,36 @@ test.describe('omnibar tab attachment', () => {
         await expect(omnibar.tabChip()).toHaveCount(0);
     });
 
+    test('a usage limit that freezes the input closes the @-mention picker', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({
+            additional: { 'omnibar.mode': 'ai', 'omnibar.enableAttachTabs': 'true', 'omnibar.selectedModelId': 'openai_gpt-oss-120b' },
+        });
+        await omnibar.ready();
+
+        await omnibar.chatInput().click();
+        await omnibar.chatInput().pressSequentially('@star');
+        await expect(omnibar.mentionOption('Starbucks Coffee Company')).toBeVisible();
+
+        await omnibar.didReceiveConfig({
+            mode: 'ai',
+            enableAi: true,
+            enableAttachTabs: true,
+            selectedModelId: 'openai_gpt-oss-120b',
+            usageLimits: { message: 'Weekly limit reached', blocksPrompt: true, dismissible: true },
+        });
+        await expect(omnibar.chatInput()).toHaveAttribute('readonly');
+        await expect(omnibar.mentionPicker()).toHaveCount(0);
+
+        await omnibar.chatInput().focus();
+        await page.keyboard.press('Enter');
+        await page.keyboard.press('Tab');
+
+        await omnibar.expectChatValue('@star');
+        await expect(omnibar.tabChip()).toHaveCount(0);
+    });
+
     test('a very long tab title is cropped instead of widening either picker', async ({ page }, workerInfo) => {
         const { ntp, omnibar } = setup(page, workerInfo);
         await ntp.reducedMotion();

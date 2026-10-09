@@ -296,7 +296,7 @@ function AiChatContent({
     const tabAttachments = useTabAttachments(tabId, attachmentLimits?.tabs?.maxAttached);
     const textareaRef = useRef(/** @type {HTMLTextAreaElement|null} */ (null));
     const mention = useMentionPicker({
-        enabled: canAttachTabs,
+        enabled: canAttachTabs && !blocksPrompt,
         query,
         onChange,
         hideChats,
