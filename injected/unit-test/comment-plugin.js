@@ -1,4 +1,4 @@
-import { convertToLegalComments } from '../scripts/utils/comment-plugin.js';
+import { convertToLegalComments, stripComments } from '../scripts/utils/comment-plugin.js';
 
 describe('convertToLegalComments', () => {
     it('should convert single line comments with copyright', () => {
@@ -195,5 +195,95 @@ const foo = 'bar';`;
 const foo = 'bar';`;
 
         expect(convertToLegalComments(input)).toEqual(expected);
+    });
+});
+
+describe('stripComments', () => {
+    it('should remove comments on their own line, including the line', () => {
+        const input = `(() => {
+  // src/features/example.js
+  /**
+   * Docs
+   * @param {string} name
+   */
+  function greet(name) {
+    // say hello
+    return name;
+  }
+})();`;
+
+        const expected = `(() => {
+  function greet(name) {
+    return name;
+  }
+})();`;
+
+        expect(stripComments(input)).toEqual(expected);
+    });
+
+    it('should remove trailing comments and the whitespace before them', () => {
+        const input = `const a = 1; // one
+const b = 2; /* two */
+`;
+
+        const expected = `const a = 1;
+const b = 2;
+`;
+
+        expect(stripComments(input)).toEqual(expected);
+    });
+
+    it('should keep indentation when a comment leads a line', () => {
+        const input = `{
+    /** @type {number} */ const a = 1;
+}`;
+
+        const expected = `{
+    const a = 1;
+}`;
+
+        expect(stripComments(input)).toEqual(expected);
+    });
+
+    it('should keep tokens separated when removing a comment between them', () => {
+        expect(stripComments('const a = /* @__PURE__ */ f();')).toEqual('const a = f();');
+        expect(stripComments('typeof/**/x;')).toEqual('typeof x;');
+        expect(stripComments('a +/**/+b;')).toEqual('a + +b;');
+        expect(stripComments('f(/* a */ x, /* b */ y);')).toEqual('f(x,y);');
+    });
+
+    it('should keep the line break of a multi-line comment between tokens', () => {
+        const input = `function f() { return /*
+*/ 1; }`;
+
+        expect(stripComments(input)).toEqual(`function f() { return\n1; }`);
+    });
+
+    it('should keep legal comments and directives', () => {
+        const input = `/*! © DuckDuckGo */
+//! Copyright (C) 2010
+/* @license MIT */
+// @preserve
+const a = 1;
+//# sourceURL=example.js`;
+
+        expect(stripComments(input)).toEqual(input);
+    });
+
+    it('should not touch comment-like text in strings, templates and regular expressions', () => {
+        const input = `const a = '// not a comment';
+const b = \`/* not a comment */ \${1 /* comment */}\`;
+const c = /\\/\\/ not a comment/;`;
+
+        const expected = `const a = '// not a comment';
+const b = \`/* not a comment */ \${1}\`;
+const c = /\\/\\/ not a comment/;`;
+
+        expect(stripComments(input)).toEqual(expected);
+    });
+
+    it('should handle several comments on one line', () => {
+        expect(stripComments('  /* a */ /* b */ x();')).toEqual('  x();');
+        expect(stripComments('x(); /* a */ // b\ny();')).toEqual('x();\ny();');
     });
 });
