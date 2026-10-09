@@ -1,0 +1,246 @@
+name: Hotfix Release
+
+# Cuts a patch release from an existing release tag, for a fix that cannot wait
+# for the next `main` release.
+#
+# Mirrors the build steps in build.yml, but starts from the release tag instead
+# of `main`, so only the cherry-picked commits ship. Do not add a `patch` option
+# to build.yml instead: that workflow rebuilds `main`, so a patch number there
+# ships everything on main wearing a hotfix version.
+#
+# The run stops at a draft release. Review the compare link in the job summary
+# before publishing. See guides/hotfix-release.md for the manual equivalent.
+
+on:
+    workflow_dispatch:
+        inputs:
+            base_tag:
+                required: true
+                description: 'Release tag to hotfix (e.g. 17.13.0)'
+                type: string
+            commits:
+                required: true
+                description: 'Commits on main to cherry-pick, oldest first (space or comma separated)'
+                type: string
+            dry_run:
+                required: false
+                default: false
+                description: 'Build and verify only. Pushes nothing and creates no release.'
+                type: boolean
+
+permissions:
+    contents: write
+
+jobs:
+    hotfix:
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v7
+              with:
+                  fetch-depth: 0
+
+            - name: Validate input and calculate version
+              id: version
+              env:
+                  BASE_TAG: ${{ inputs.base_tag }}
+              run: |
+                  if ! echo "$BASE_TAG" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+                    echo "::error::base_tag must be a bare semver tag such as 17.13.0 (got '$BASE_TAG')"
+                    exit 1
+                  fi
+
+                  if ! git rev-parse -q --verify "refs/tags/${BASE_TAG}" >/dev/null; then
+                    echo "::error::Tag ${BASE_TAG} does not exist"
+                    exit 1
+                  fi
+
+                  MAJOR=$(echo "$BASE_TAG" | cut -d. -f1)
+                  MINOR=$(echo "$BASE_TAG" | cut -d. -f2)
+                  PATCH=$(echo "$BASE_TAG" | cut -d. -f3)
+                  NEXT_VERSION="${MAJOR}.${MINOR}.$((PATCH + 1))"
+
+                  if git rev-parse -q --verify "refs/tags/${NEXT_VERSION}" >/dev/null; then
+                    echo "::error::Tag ${NEXT_VERSION} already exists. Hotfix that tag instead."
+                    exit 1
+                  fi
+
+                  echo "Hotfixing ${BASE_TAG} as ${NEXT_VERSION}"
+                  echo "version=${NEXT_VERSION}" >> "$GITHUB_OUTPUT"
+                  echo "branch=hotfix/${NEXT_VERSION}" >> "$GITHUB_OUTPUT"
+
+            - name: Verify the commits are on main
+              id: commits
+              env:
+                  COMMITS: ${{ inputs.commits }}
+              run: |
+                  git fetch --no-tags origin main
+
+                  # Accept either separator so a pasted list works as-is.
+                  LIST=$(echo "$COMMITS" | tr ',' ' ' | xargs)
+                  if [ -z "$LIST" ]; then
+                    echo "::error::No commits supplied"
+                    exit 1
+                  fi
+
+                  for SHA in $LIST; do
+                    if ! git rev-parse -q --verify "${SHA}^{commit}" >/dev/null; then
+                      echo "::error::${SHA} is not a commit in this repository"
+                      exit 1
+                    fi
+                    # A fix that is not on main is reverted by the next regular
+                    # release, so refuse to ship one.
+                    if ! git merge-base --is-ancestor "$SHA" origin/main; then
+                      echo "::error::${SHA} is not an ancestor of main. Land the fix on main first."
+                      exit 1
+                    fi
+                  done
+
+                  echo "list=${LIST}" >> "$GITHUB_OUTPUT"
+
+            - name: Create hotfix branch and cherry-pick
+              env:
+                  BASE_TAG: ${{ inputs.base_tag }}
+                  BRANCH: ${{ steps.version.outputs.branch }}
+                  COMMIT_LIST: ${{ steps.commits.outputs.list }}
+              run: |
+                  git config user.name 'github-actions[bot]'
+                  git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
+                  git checkout -b "$BRANCH" "refs/tags/${BASE_TAG}"
+
+                  for SHA in $COMMIT_LIST; do
+                    echo "Cherry-picking ${SHA}"
+                    # `rev-list --parents` prints the commit then its parents, so
+                    # more than two words means a merge commit, which needs -m.
+                    if [ "$(git rev-list --parents -n 1 "$SHA" | wc -w)" -gt 2 ]; then
+                      PICK_ARGS='-m 1'
+                    else
+                      PICK_ARGS=''
+                    fi
+
+                    if ! git cherry-pick $PICK_ARGS "$SHA"; then
+                      git cherry-pick --abort || true
+                      echo "::error::${SHA} did not apply cleanly onto ${BASE_TAG}. Cut this hotfix by hand, see guides/hotfix-release.md"
+                      exit 1
+                    fi
+                  done
+
+            # Read .nvmrc and package-lock.json from the tag, not from the
+            # dispatch ref, so an older release builds on the Node it shipped on.
+            - uses: actions/setup-node@v7
+              with:
+                  node-version-file: '.nvmrc'
+                  cache: 'npm'
+
+            - name: Build release
+              run: |
+                  npm ci
+                  npm run build
+
+            - name: Check in build artifacts
+              env:
+                  BASE_TAG: ${{ inputs.base_tag }}
+                  VERSION: ${{ steps.version.outputs.version }}
+              run: |
+                  # Matches build.yml. A narrower add misses generated sources the
+                  # release tags track, such as surrogates-generated.js.
+                  git add -f . ':!node_modules' ':!CHANGELOG.txt'
+                  git commit -m "Hotfix release of ${VERSION} based on ${BASE_TAG}"
+
+                  # Anything left over means the build wrote a file the add missed.
+                  LEFTOVER=$(git status --porcelain -- . ':!CHANGELOG.txt')
+                  if [ -n "$LEFTOVER" ]; then
+                    echo "::error::Working tree is not clean after the commit:"
+                    echo "$LEFTOVER"
+                    exit 1
+                  fi
+
+            - name: Write release notes
+              env:
+                  BASE_TAG: ${{ inputs.base_tag }}
+                  VERSION: ${{ steps.version.outputs.version }}
+                  COMMIT_LIST: ${{ steps.commits.outputs.list }}
+                  REPO_URL: ${{ github.server_url }}/${{ github.repository }}
+              run: |
+                  {
+                    echo "Hotfix of ${BASE_TAG}, containing only the commits below."
+                    echo
+                    for SHA in $COMMIT_LIST; do
+                      FULL=$(git rev-parse "$SHA")
+                      echo "- $(git log -1 --format='%s' "$FULL") (${REPO_URL}/commit/${FULL})"
+                    done
+                    echo
+                    echo "Compare against ${BASE_TAG}: ${REPO_URL}/compare/${BASE_TAG}...${VERSION}"
+                  } > "${RUNNER_TEMP}/HOTFIX_NOTES.md"
+
+                  cat "${RUNNER_TEMP}/HOTFIX_NOTES.md"
+
+            - name: Push hotfix branch
+              if: ${{ !inputs.dry_run }}
+              env:
+                  BRANCH: ${{ steps.version.outputs.branch }}
+              run: git push -u origin "$BRANCH"
+
+            - name: Push changelog anchor
+              if: ${{ !inputs.dry_run }}
+              env:
+                  BASE_TAG: ${{ inputs.base_tag }}
+                  VERSION: ${{ steps.version.outputs.version }}
+              run: |
+                  # scripts/changelog.sh anchors a release's notes on
+                  # `released/<highest semver tag>`. The hotfix tag can become that
+                  # highest tag, and without a matching anchor the script falls back
+                  # to a date boundary and silently drops commits from the next
+                  # release. A hotfix does not advance main's release frontier, so
+                  # the base release's anchor commit is the correct one to reuse.
+                  if git rev-parse -q --verify "refs/tags/released/${BASE_TAG}" >/dev/null; then
+                    git tag "released/${VERSION}" "$(git rev-parse "released/${BASE_TAG}^{commit}")"
+                    git push origin "released/${VERSION}"
+                    echo "Anchored released/${VERSION} at the released/${BASE_TAG} commit"
+                  else
+                    echo "::warning::No released/${BASE_TAG} anchor exists; releases before 15.14.0 predate anchoring. Tag released/${VERSION} by hand at the main commit ${BASE_TAG} was built from, or the next release's changelog will be wrong."
+                  fi
+
+            - name: Create draft release
+              if: ${{ !inputs.dry_run }}
+              uses: softprops/action-gh-release@v3
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  body_path: ${{ runner.temp }}/HOTFIX_NOTES.md
+                  draft: true
+                  prerelease: false
+                  make_latest: 'false'
+                  tag_name: ${{ steps.version.outputs.version }}
+                  target_commitish: ${{ steps.version.outputs.branch }}
+
+            - name: Summary
+              env:
+                  BASE_TAG: ${{ inputs.base_tag }}
+                  BRANCH: ${{ steps.version.outputs.branch }}
+                  DRY_RUN: ${{ inputs.dry_run }}
+                  REPO_URL: ${{ github.server_url }}/${{ github.repository }}
+                  VERSION: ${{ steps.version.outputs.version }}
+              run: |
+                  if [ "$DRY_RUN" = 'true' ]; then
+                    {
+                      echo "## Hotfix ${VERSION}, based on ${BASE_TAG}"
+                      echo
+                      echo "Dry run: it built and verified, but pushed nothing and created no release."
+                    } >> "$GITHUB_STEP_SUMMARY"
+                    exit 0
+                  fi
+
+                  {
+                    echo "## Hotfix ${VERSION}, based on ${BASE_TAG}"
+                    echo
+                    echo "Branch \`${BRANCH}\` is pushed and a **draft** release is waiting."
+                    echo
+                    echo "1. Review [${BASE_TAG}...${BRANCH}](${REPO_URL}/compare/${BASE_TAG}...${BRANCH}) and check the compiled output is what you expect"
+                    echo "2. Open [the draft](${REPO_URL}/releases) and confirm **Set as the latest release** is unticked, unless this really is the latest"
+                    echo "3. Publish, which creates the \`${VERSION}\` tag"
+                    echo "4. Point applications at the tag rather than the branch, and keep the branch"
+                    echo
+                    echo "> Anything reading the \`releases/latest\` endpoint, Android automation included, picks up whatever is flagged latest."
+                  } >> "$GITHUB_STEP_SUMMARY"
