@@ -1,0 +1,33 @@
+{
+    "_comment": "Sites for capture-sites.mjs. Categories group fixtures in the cost matrix; a site that serves the crawler a challenge still lands in its category, and its fixture header shows the near-empty band. Edit freely: captures are local and gitignored.",
+    "sites": [
+        { "name": "news-cnn", "category": "heavy-news", "url": "https://edition.cnn.com/" },
+        { "name": "news-dailymail", "category": "heavy-news", "url": "https://www.dailymail.co.uk/home/index.html" },
+        { "name": "news-guardian", "category": "heavy-news", "url": "https://www.theguardian.com/international" },
+        { "name": "news-spiegel", "category": "heavy-news", "url": "https://www.spiegel.de/" },
+        { "name": "news-bbc", "category": "heavy-news", "url": "https://www.bbc.com/news" },
+
+        { "name": "shop-amazon", "category": "ecommerce", "url": "https://www.amazon.com/" },
+        { "name": "shop-ebay", "category": "ecommerce", "url": "https://www.ebay.com/" },
+        { "name": "shop-etsy", "category": "ecommerce", "url": "https://www.etsy.com/" },
+        { "name": "shop-ikea", "category": "ecommerce", "url": "https://www.ikea.com/us/en/" },
+
+        { "name": "spa-youtube", "category": "spa", "url": "https://www.youtube.com/" },
+        { "name": "spa-reddit", "category": "spa", "url": "https://www.reddit.com/r/programming/" },
+        { "name": "spa-github", "category": "spa", "url": "https://github.com/duckduckgo/content-scope-scripts" },
+        { "name": "spa-linkedin", "category": "spa", "url": "https://www.linkedin.com/" },
+
+        { "name": "doc-wikipedia", "category": "long-doc", "url": "https://en.wikipedia.org/wiki/United_States" },
+        { "name": "doc-mdn", "category": "long-doc", "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array" },
+        { "name": "doc-whatwg", "category": "long-doc", "url": "https://html.spec.whatwg.org/multipage/parsing.html" },
+
+        { "name": "small-example", "category": "small", "url": "https://example.com/" },
+        { "name": "small-hn", "category": "small", "url": "https://news.ycombinator.com/" },
+        { "name": "small-pg", "category": "small", "url": "https://paulgraham.com/avg.html" },
+        { "name": "small-danluu", "category": "small", "url": "https://danluu.com/" },
+
+        { "name": "walled-zillow", "category": "bot-walled", "url": "https://www.zillow.com/" },
+        { "name": "walled-walmart", "category": "bot-walled", "url": "https://www.walmart.com/" },
+        { "name": "walled-indeed", "category": "bot-walled", "url": "https://www.indeed.com/" }
+    ]
+}
