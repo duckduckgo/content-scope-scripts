@@ -3,7 +3,7 @@ import { readFileSync } from 'fs';
 import { cwd } from '../../../scripts/script-utils.js';
 import { join } from 'path';
 import * as esbuild from 'esbuild';
-import { commentPlugin } from './comment-plugin.js';
+import { commentPlugin, stripComments } from './comment-plugin.js';
 const ROOT = join(cwd(import.meta.url), '..', '..');
 const DEBUG = false;
 
@@ -69,7 +69,9 @@ export async function bundle(params) {
     }
 
     if (result.errors.length === 0 && result.outputFiles) {
-        return result.outputFiles[0].text || '';
+        const text = result.outputFiles[0].text || '';
+        // Stripping shifts code positions, which would invalidate the inline source map
+        return sourcemap ? text : stripComments(text);
     } else {
         console.log(result.errors);
         console.log(result.warnings);
