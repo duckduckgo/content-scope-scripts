@@ -1,0 +1,196 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>Chrome Webstore Patching | @duckduckgo/content-scope-scripts</title><meta name="description" content="Documentation for @duckduckgo/content-scope-scripts"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">@duckduckgo/content-scope-scripts</a>
+<div id="tsd-toolbar-links"></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="" aria-current="page">Chrome Webstore Patching</a></li></ul></div>
+<div class="tsd-panel tsd-typography"><h1 id="chrome-webstore-patching" class="tsd-anchor-link">Chrome Webstore Patching<a href="#chrome-webstore-patching" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h1>
+<p>Patches the Chrome Web Store UI (<code>chromewebstore.google.com</code>) in the DuckDuckGo Windows and macOS browsers:</p>
+<ul>
+<li>Hides every extension install button via injected CSS before the page hydrates (<strong>fail closed</strong>)</li>
+<li>On detail pages for extensions in the <strong>catalog</strong>, restyles the button as a DDG-branded pill (accent <code>#F05F2B</code>, radius 48px, per Figma) with &quot;Add to DuckDuckGo&quot; / &quot;Remove from DuckDuckGo&quot; copy</li>
+<li>On detail pages for extensions <strong>not in the catalog</strong>, shows a disabled grey pill (<code>#E4E4E4</code>) labelled &quot;Unsupported extension&quot; with an explanatory tooltip</li>
+<li>Hides &quot;Switch to Chrome&quot;-style promo banners (CSS only, no reveal path)</li>
+</ul>
+<p>Pill styling values are deliberately literal in the feature (not remote config): they are DDG design tokens, not Google-shaped, so they don't rot with store markup. Hiding and revealing are deliberately asymmetric: the <strong>hide</strong> is a stylesheet rule (one per validated selector) because it has to cover buttons the store has not mounted yet, while the <strong>reveal</strong> is an inline <code>display: inline-flex !important</code> applied per button as part of the pill styling. Inline important beats the injected stylesheet, so no root attribute or other page-readable state is written. That is a privacy requirement, not a style preference: a marker on <code>&lt;html&gt;</code> would tell any script on the store that this is the DuckDuckGo browser and, per page, whether that extension is in our catalog, and it would let the page reveal buttons we decided to keep hidden. The navigation reset clears the inline <code>display</code> so those nodes fall back under the hide rule. The label is <strong>feature-owned</strong> (<code>span[data-ddg-webstore-label]</code>, appended to the button; every other child is hidden): live testing showed the store's internal label spans rotate between button states and re-renders, so writing into them is unreliable. A capture-phase click interceptor (registered at document-start, ahead of the store's delegated jsaction handler) blocks activation of the unsupported pill and re-evaluates install state after catalog clicks, flipping the pill Add ↔ Remove without a navigation.</p>
+<p>On both platforms the feature asks native for the catalog (below). Where install state comes from depends on the platform. Windows reads install state from the page-world private API <code>chrome.webstorePrivate.getExtensionStatus()</code>; the store's existing handlers perform install/removal, with status rechecks after 1.5 and 5 seconds. macOS uses native messaging for status and operations (see macOS native integration).</p>
+<h2 id="catalog-native-owns-it" class="tsd-anchor-link">Catalog: native owns it<a href="#catalog-native-owns-it" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>The browser decides which extensions the store may offer. The feature asks for them on every page evaluation; nothing is read from remote config.</p>
+<p>Native owns the catalog so the store offers exactly what the browser's own Settings page does. The catalog lives in the <code>extensionsCatalog</code> remote-config feature, one sub-feature per extension with its own state, <code>minSupportedVersion</code> and rollout. C-S-S can't evaluate rollout, and it never sees native-only gates such as <code>disabledExtensionIds</code> or the Chromium-level Web Store switch. When C-S-S read the catalog itself, the store could offer installs that Settings did not.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Context / feature</td>
+<td><code>contentScopeScripts</code> (Windows) or <code>contentScopeScriptsIsolated</code> (macOS) / <code>chromeWebstorePatching</code></td>
+</tr>
+<tr>
+<td>Method</td>
+<td><code>getCatalogExtensionIds</code> (request, no params)</td>
+</tr>
+<tr>
+<td>Reply</td>
+<td><code>{ &quot;extensionIds&quot;: string[] }</code>: the IDs the store may offer</td>
+</tr>
+<tr>
+<td>Schemas</td>
+<td><code>injected/src/messages/chrome-webstore-patching/getCatalogExtensionIds.{request,response}.json</code></td>
+</tr>
+</tbody>
+</table>
+<p>Native replies within about 1 s: an empty list when extension management is off, and a JSON-RPC-style error before its own config is ready or on failure. The answer isn't cached, so each evaluation picks up remote-config changes.</p>
+<p>How the reply maps to the page:</p>
+<ul>
+<li><strong>ID in the list</strong> → install or remove pill, depending on install status (<code>webstorePrivate</code> on Windows, native <code>getExtensionStatus</code> on macOS).</li>
+<li><strong>ID not in the list, including an empty list</strong> → &quot;Unsupported extension&quot; pill.</li>
+<li><strong>Catalog unknown</strong> → button stays hidden, with no pill at all. This covers an error reply, a malformed reply (not an object whose <code>extensionIds</code> is an array of strings) and no reply within 3 s. Showing the unsupported pill here would tell users a catalog extension isn't supported whenever native misbehaves, so an unknown catalog fails closed instead.</li>
+</ul>
+<p>The feature no longer reads <code>extensionManagement.features.curatedExtensions</code> (<code>catalog</code> / <code>catalogInternal</code>), and the <code>internal</code> platform flag no longer affects which catalog applies. This change must ship together with the native <code>getCatalogExtensionIds</code> handler on each platform. A build without the handler never replies, so every lookup times out and the store shows nothing installable.</p>
+<p>On macOS the click interceptor must decide synchronously, so it does not ask native again. It only acts on an ID that the latest evaluation found in the catalog; any navigation or re-evaluation clears that ID first.</p>
+<h2 id="macos-native-integration" class="tsd-anchor-link">macOS native integration<a href="#macos-native-integration" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>macOS uses <code>src/features/chrome-webstore-patching/macos.js</code> and does not access or create any <code>chrome.*</code> APIs. The feature is included in the Apple <strong>isolated-world</strong> bundle (<code>contentScopeIsolated.js</code>). Native registers <code>ChromeWebStoreSubfeature</code> on <code>contentScopeUserScriptIsolated</code>; it is not permitted on the page-world message handler. DOM mutations detect URL changes before reapplying button state, with a 250 ms URL check covering navigation without DOM changes. This also works on WebKit versions without the Navigation API, where the shared History wrappers cannot observe page-world calls from an isolated world. iOS explicitly skips the feature. Native must enable <code>chromeWebstorePatching</code> and its <code>patchWebstore</code> domain gate and answer <code>getCatalogExtensionIds</code> (see Catalog above); adding it to the bundle alone does not enable it.</p>
+<p>Messages use the existing C-S-S messaging layer: requests for the catalog, status and operations, and a subscription for native removal events.</p>
+<p>Machine-readable request/response schemas live in <code>injected/src/messages/chrome-webstore-patching/</code>; <code>npm run build-types -w injected</code> generates the corresponding typed feature contract.</p>
+<ul>
+<li><strong>Context:</strong> <code>contentScopeScriptsIsolated</code></li>
+<li><strong>Feature name:</strong> <code>chromeWebstorePatching</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Parameters</th>
+<th>Response result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>initialSetup</code></td>
+<td><code>{}</code></td>
+<td><code>{ &quot;enabled&quot;: true }</code> for DMG builds, <code>{ &quot;enabled&quot;: false }</code> for App Store builds</td>
+</tr>
+<tr>
+<td><code>getCatalogExtensionIds</code></td>
+<td><code>{}</code></td>
+<td><code>{ &quot;extensionIds&quot;: [&quot;&lt;ID&gt;&quot;, ...] }</code>; an error before native config is ready (see Catalog above)</td>
+</tr>
+<tr>
+<td><code>getExtensionStatus</code></td>
+<td><code>{ &quot;extensionId&quot;: &quot;&lt;32-character store ID&gt;&quot; }</code></td>
+<td><code>{ &quot;status&quot;: &quot;installable&quot; }</code>, <code>{ &quot;status&quot;: &quot;installed&quot; }</code>, <code>{ &quot;status&quot;: &quot;unsupported&quot; }</code>, or <code>{ &quot;status&quot;: &quot;unknown&quot; }</code></td>
+</tr>
+<tr>
+<td><code>installExtension</code></td>
+<td><code>{ &quot;extensionId&quot;: &quot;&lt;ID&gt;&quot;, &quot;crxUrl&quot;: &quot;https://clients2.google.com/service/update2/crx?...&quot; }</code></td>
+<td><code>{ &quot;success&quot;: true }</code> on completion, <code>{ &quot;success&quot;: false }</code> on failure/cancellation</td>
+</tr>
+<tr>
+<td><code>removeExtension</code></td>
+<td><code>{ &quot;extensionId&quot;: &quot;&lt;ID&gt;&quot; }</code></td>
+<td><code>{ &quot;success&quot;: true }</code> on completion, <code>{ &quot;success&quot;: false }</code> on failure/cancellation</td>
+</tr>
+</tbody>
+</table>
+<p>These are the request <code>params</code> and response <code>result</code>, inside the standard messaging envelopes. Native must return the final operation response <strong>after</strong> its stored status has been updated, not merely acknowledge that a download started. Native owns confirmation, progress, and error UI. Rejected operation requests are also supported. After any completion, including cancellation or rejection, the script queries status again; the <code>success</code> field is informational and does not determine button state. Unrecognized/malformed status responses or status request errors leave the button hidden.</p>
+<p>On activation, macOS consumes the event before the store's document handlers, verifies a trusted user event and an ID the latest evaluation found in the catalog, and sends the native request. Mouse/touch clicks and Enter/Space are supported. Buttons for an extension stay hidden while its native operation is pending, including across SPA navigation; repeated activation cannot start another operation for that extension. Navigation invalidates older status responses, even when returning to the same ID.</p>
+<p>Before any macOS page changes, event interception, or change subscription, C-S-S sends <code>initialSetup</code> once per document. Only a response with <code>enabled === true</code> allows initialization to continue; disabled, malformed, or rejected requests leave the page untouched. Remote configuration gates still apply. Windows does not use this handshake, and iOS continues to skip the feature.</p>
+<p>Native must register the isolated-world bridge on both macOS build types so App Store builds can return <code>enabled: false</code>. Validate the origin and main frame before answering setup, without requiring an extension ID. App Store builds must also reject status/install/remove requests and must not create the native store service.</p>
+<h3 id="extension-state-changes" class="tsd-anchor-link">Extension state changes<a href="#extension-state-changes" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<p>Native pushes <code>extensionChanged</code> with <code>{ &quot;extensionId&quot;: &quot;&lt;32-character store ID&gt;&quot; }</code> through the <code>chromeWebstorePatching</code> feature in the <code>contentScopeScriptsIsolated</code> context. Send this after successful installation or removal and after updating stored installation state, including changes from browser settings or another tab. This is a native-to-script subscription; JavaScript registration sends no request or acknowledgment to native.</p>
+<p>If the ID matches the currently displayed extension detail page, the script queries <code>getExtensionStatus</code> with the event's <code>extensionId</code> and refreshes the button from the returned status. Other IDs and non-detail pages are ignored. The usual curated catalog, pending-operation and stale-response guards still apply; the notification itself does not assert that installation is permitted. No page-world event or Chrome API is involved.</p>
+<h3 id="crx-download-url" class="tsd-anchor-link">CRX download URL<a href="#crx-download-url" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<p>The script constructs a Google update-service URL from the validated extension ID, following Chromium's <a href="https://raw.githubusercontent.com/chromium/chromium/main/extensions/browser/webstore_installer.cc">WebstoreInstaller download URL construction</a>. This is a <strong>download URL that redirects to a CRX</strong>, not the final, version-specific blob URL. Native follows the redirect and downloads the file; JavaScript does not fetch the package or depend on cross-origin fetch permissions.</p>
+<p>Parameters are <code>response=redirect</code>, <code>acceptformat=crx3</code>, <code>prodversion=9999.0.0.0</code>, and an encoded <code>x=id=&lt;ID&gt;&amp;installsource=ondemand&amp;uc</code>. The deliberately high product version requests the latest package rather than claiming a Safari version is a Chrome version or pinning an arbitrary Chrome release. It does <strong>not</strong> assert compatibility with WebKit. Native must check package identity, CRX signature and supported extension APIs/manifest before installation. The URL was checked against the live endpoint with the curated Bitwarden ID and returned a redirect to a <code>.crx</code> file; package installation still needs verification in the macOS app.</p>
+<p>Native must authorize these messages against the actual frame/origin and its own curated catalog, and validate the supplied URL/extension ID rather than treating page-provided parameters as installation authority.</p>
+<h3 id="completion-and-the-stores-javascript" class="tsd-anchor-link">Completion and the store's JavaScript<a href="#completion-and-the-stores-javascript" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<p>There is no store install callback to invoke on macOS: the script intercepts activation before the store starts its Chromium-only flow. Native completion updates the feature-owned button via the subsequent status request. No fabricated <code>chrome.webstorePrivate</code> object, page event, or Google callback is required for this implementation. If the store later overwrites the button, the existing observer reapplies its current state.</p>
+<p>The native handlers, macOS remote-config rollout and on-device verification live outside this repository. Test with no Chrome APIs: install and cancel an extension, remove it, navigate while installation is pending, and confirm the real store's button/promo selectors still match its WebKit-rendered DOM.</p>
+<h2 id="fail-closed-contract" class="tsd-anchor-link">Fail-closed contract<a href="#fail-closed-contract" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>Every failure path degrades to &quot;install button stays hidden&quot;, never to a working &quot;Add to Chrome&quot; for an extension outside the catalog: selector misses, a native catalog error, malformed reply or timeout, a missing/erroring <code>webstorePrivate</code> API, unknown status strings, malformed config, and SPA navigations mid-decision (the verdict is reset before re-deciding, and a stale-response guard re-checks the URL after the catalog await and again after the status await). The one documented gap: a selector that matches nothing hides nothing, so selector rot on Google's side degrades to unpatched Chrome UI — hot-fix the selectors via remote config.</p>
+<h2 id="remote-config" class="tsd-anchor-link">Remote config<a href="#remote-config" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>Feature key <code>chromeWebstorePatching</code> (schema: <code>privacy-configuration/schema/features/chrome-webstore-patching.ts</code>). All settings are top-level defaults; a single <code>domains</code> patch scoped to <code>chromewebstore.google.com</code> flips the <code>patchWebstore</code> gate:</p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>patchWebstore</code></td>
+<td><code>{state}</code> execution gate — disabled everywhere, enabled on the store domain via <code>domains</code> patch. <code>init()</code> early-returns unless enabled.</td>
+</tr>
+<tr>
+<td><code>installButtonSelectors</code></td>
+<td><code>{type: 'css'|'xpath', value}</code> list targeting the install <code>&lt;button&gt;</code>. Every entry applies together (one hide rule each, matches unioned), not first-match-wins. Only <code>css</code> is consumed; see below. Primary: <code>button[jsname=&quot;wQO0od&quot;]</code>.</td>
+</tr>
+<tr>
+<td><code>promoSelectors</code></td>
+<td>Chrome promo banners to hide. Same <code>{type, value}</code> shape as above but <code>css</code> only, since promo hiding has no JS pass.</td>
+</tr>
+<tr>
+<td><code>apiDetectionTimeoutMs</code></td>
+<td>Reserved for a future <code>webstorePrivate</code> retry/poll (POC does a single attempt).</td>
+</tr>
+</tbody>
+</table>
+<p><strong><code>xpath</code> is accepted by the schema but not implemented</strong>: entries of that type are dropped in <code>init()</code>, so none are shipped in the override. XPath is the rot-proof way to target the button (it can match on visible text, e.g. &quot;Add to Chrome&quot;, which CSS cannot express at all), so it is worth adding eventually. The blocker is that the fail-closed hide has to be a stylesheet rule, since it must cover buttons the store has not rendered yet, and xpath cannot appear in a stylesheet. An xpath-only match would therefore be styled by the JS pass without ever having been hidden, which is worse than not matching. Wiring it up means a second, JS-driven hide path that trades a frame of flash for surviving selector rot. <code>promoSelectors</code> is typed <code>css</code>-only for the same reason, one step further: promos have no JS pass at all, so there would be nothing for an xpath entry to feed.</p>
+<p>Both selector lists take <code>{type, value}</code> entries. <code>promoSelectors</code> previously took bare strings; that format was dropped rather than kept alongside, since the feature is internal-only and not yet enabled by default, so the worst case of a config update reaching a build before the release does is promo banners showing on internal builds.</p>
+<p>Button copy is <strong>not</strong> remote config. <code>buttonCopy</code> used to be the only source, which meant a config without it resolved to no copy and left every button hidden; it was removed from the schema and the override once the bundled locale strings took over. See Localization below.</p>
+<p>Catalog extension IDs are <strong>not</strong> remote config for this feature: native supplies them through <code>getCatalogExtensionIds</code> (see Catalog above).</p>
+<h2 id="localization" class="tsd-anchor-link">Localization<a href="#localization" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>Button copy lives in <code>injected/src/locales/chrome-webstore-patching/&lt;locale&gt;/chrome-store-strings.json</code> (<code>en</code> is the source of truth; other locales come from the translation pipeline), bundled by <code>scripts/buildLocales.js</code> into <code>build/locales/chrome-webstore-patching-locales.js</code> as part of <code>npm run build</code>. The locale comes from the platform init args (<code>args.locale || args.language || 'en'</code>, the duck-player pattern — never from remote config). Resolution order per string: bundled locale → bundled English. Remote config is not consulted, so English lives in <code>en/chrome-store-strings.json</code> alone and cannot drift from a second copy. The fail-closed rule is unchanged: a verdict whose copy resolves to nothing keeps the button hidden.</p>
+<p>The file is named for the feature rather than a generic <code>strings.json</code> because Smartling scopes one project per repo, so every locale file in it must be distinguishable by name (<code>click-to-load</code> and <code>duckplayer</code> follow the same rule). <code>buildLocales.js</code> keys the bundle by filename, so renaming it means updating <code>STRINGS_FILE</code> in the feature.</p>
+<h2 id="testing" class="tsd-anchor-link">Testing<a href="#testing" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<ul>
+<li>Unit (Jasmine): <code>injected/unit-test/chrome-webstore-patching.spec.js</code> covers only the pure helpers in <code>src/features/chrome-webstore-patching/helpers.js</code>: ID parsing, validation of native's catalog reply (<code>parseCatalogExtensionIds</code>), and the <code>chrome.*</code> type guards. The specs deliberately do not import the feature module, which pulls in SVG assets that plain Node cannot load. Copy resolution and the live <code>webstorePrivate</code> calls are covered by integration instead. Keep new pure logic in the helpers module so this stays true.</li>
+<li>Integration (Playwright, <code>windows</code> project): <code>injected/integration-test/chrome-webstore-patching.spec.js</code> against fixtures in <code>integration-test/test-pages/chrome-webstore-patching/</code>. <code>chrome.webstorePrivate</code> is mocked via <code>page.addInitScript</code>; the mock installs a <code>window.chrome</code> accessor because the windows messaging test harness later reassigns <code>window.chrome</code>. Native's <code>getCatalogExtensionIds</code> reply is mocked through the results collector (<code>setup()</code> defaults to a catalog holding the Bitwarden fixture ID; <code>catalogReply</code> overrides it, <code>catalogFailure: 'error' | 'none'</code> simulates an error reply or no reply). Config fixtures retarget the <code>domains</code> patch to <code>localhost</code>.</li>
+<li>Fixtures ship the feature at <code>state: &quot;internal&quot;</code>, matching the windows override, so <code>setup()</code> reports an internal build by default. A new spec that bypasses that helper must pass <code>platform.internal</code>, or the feature will silently not load and any &quot;feature inert&quot; assertion will pass for the wrong reason. <code>setup(page, testInfo, { internal: false })</code> covers the public-build case on purpose. The flag only gates the feature's own state.</li>
+<li>Run: <code>npx playwright test --project=windows chrome-webstore-patching --reporter=list</code></li>
+<li>macOS: <code>injected/integration-test/chrome-webstore-patching-macos.spec.js</code> uses the Apple isolated bundle and mocked native requests. Page navigation uses saved History methods with the Navigation API disabled to simulate calls made outside the isolated world. It covers the native catalog (including error, malformed and missing replies), native status/install/removal, rejected/cancelled operations, keyboard input, synthetic-event rejection, pending operations, stale status responses, DOM re-renders, configuration gates and iOS exclusion. Run from <code>injected/</code>: <code>npx playwright test --project=apple-isolated --project=windows chrome-webstore-patching --reporter list</code>.</li>
+</ul>
+<p>Still requires manual verification on a Windows internal build: real <code>webstorePrivate</code> availability/status strings, install/uninstall events, promo markup (only renders on de-Googled Chromium), and real store DOM against the fixture snapshots.</p>
+</div></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
+<details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>On This Page</h3></summary>
+<div class="tsd-accordion-details"><a href="#chrome-webstore-patching"><span>Chrome <wbr/>Webstore <wbr/>Patching</span></a>
+<ul>
+<li><a href="#catalog-native-owns-it"><span>Catalog: native owns it</span></a></li>
+<li><a href="#macos-native-integration"><span>mac<wbr/>OS native integration</span></a></li>
+<li>
+<ul>
+<li><a href="#extension-state-changes"><span>Extension state changes</span></a></li>
+<li><a href="#crx-download-url"><span>CRX download <wbr/>URL</span></a></li>
+<li><a href="#completion-and-the-stores-javascript"><span>Completion and the store&#39;s <wbr/>Java<wbr/>Script</span></a></li></ul></li>
+<li><a href="#fail-closed-contract"><span>Fail-<wbr/>closed contract</span></a></li>
+<li><a href="#remote-config"><span>Remote config</span></a></li>
+<li><a href="#localization"><span>Localization</span></a></li>
+<li><a href="#testing"><span>Testing</span></a></li></ul></div></details></div>
+<div class="site-menu">
+<nav class="tsd-navigation"><a href="../index.html">@duckduckgo/content-scope-scripts</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer>
+<p class="tsd-generator">Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></footer>
+<div class="overlay"></div></body></html>
