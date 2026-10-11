@@ -212,3 +212,17 @@ test('favicon includes SVGs on non-iOS platforms', async ({ page, baseURL }, tes
         documentUrl: 'http://localhost:3220/favicon/svg-test.html',
     });
 });
+
+test('favicon excludes Safari mask-icon links', async ({ page, baseURL }, testInfo) => {
+    const favicon = ResultsCollector.create(page, testInfo.project.use);
+    await favicon.load(SVG_HTML, CONFIG, { name: 'macos' });
+
+    const messages = await favicon.waitForMessage('faviconFound', 1);
+    const favicons = messages[0].payload.params.favicons;
+
+    expect(favicons.every((entry) => !/mask-icon/i.test(entry.rel))).toBe(true);
+    expect(favicons.some((entry) => entry.rel === 'icon' && entry.href.endsWith('/favicon.svg'))).toBe(true);
+
+    const maskIconUrl = new URL('/favicon/safari-pinned-tab.svg', baseURL);
+    expect(favicons.some((entry) => entry.href === maskIconUrl.href)).toBe(false);
+});
