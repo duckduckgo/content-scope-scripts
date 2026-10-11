@@ -1,6 +1,7 @@
-import { getSupportingCodeToInject } from '../captcha-services/captcha.service';
-import { ErrorResponse, SuccessResponse } from '../types';
-import { buildUrl } from './build-url';
+import { getSupportingCodeToInject } from '../captcha-services/captcha.service.js';
+import { ErrorResponse, SuccessResponse } from '../types.js';
+import { buildUrl } from './build-url.js';
+import { resolveUrlFromDataSource } from './resolve-url-from-data-source.js';
 
 /**
  * This builds the proper URL given the URL template and userData.
@@ -12,7 +13,7 @@ import { buildUrl } from './build-url';
  */
 export function navigate(action, userData) {
     const { id: actionID, actionType } = action;
-    const urlResult = buildUrl(action, userData);
+    const urlResult = resolveUrlFromDataSource(action, userData) ?? buildUrl(action, userData);
     if (urlResult instanceof ErrorResponse) {
         return urlResult;
     }
