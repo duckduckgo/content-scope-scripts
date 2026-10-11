@@ -2,7 +2,16 @@ import { DDGProxy, DDGReflect } from '../utils';
 import { computeOffScreenCanvas } from '../canvas';
 import ContentFeature from '../content-feature';
 
+/**
+ * @typedef {object} FingerprintingCanvasInitArgs
+ * @property {string} sessionKey
+ * @property {{domain: string | null}} site
+ */
+
 export default class FingerprintingCanvas extends ContentFeature {
+    /**
+     * @param {FingerprintingCanvasInitArgs} args
+     */
     init(args) {
         const { sessionKey, site } = args;
         const domainKey = site.domain;
