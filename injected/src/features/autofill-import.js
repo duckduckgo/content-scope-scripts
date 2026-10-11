@@ -29,6 +29,14 @@ const MANAGE_ARCHIVE_DEFAULT_BASE = '/manage/archive';
  */
 
 /**
+ * @typedef {object} ButtonSettings
+ * @property {string} [path]
+ * @property {string[]} [selectors]
+ * @property {string[]} [labelTexts]
+ * @property {boolean} [shouldAutotap]
+ */
+
+/**
  * This feature is responsible for animating some buttons passwords.google.com,
  * during a password import flow. The overall approach is:
  * 1. Check if the path is supported,
@@ -36,26 +44,32 @@ const MANAGE_ARCHIVE_DEFAULT_BASE = '/manage/archive';
  * 3. Animate the element, or tap it if it should be autotapped.
  */
 export default class AutofillImport extends ActionExecutorBase {
+    /** @type {ButtonSettings|undefined} */
     #exportButtonSettings;
 
+    /** @type {ButtonSettings|undefined} */
     #settingsButtonSettings;
 
+    /** @type {ButtonSettings|undefined} */
     #signInButtonSettings;
 
+    /** @type {ButtonSettings|undefined} */
     #exportConfirmButtonSettings;
 
     /** @type {HTMLElement|Element|SVGElement|null} */
-    #elementToCenterOn;
+    #elementToCenterOn = null;
 
     /** @type {HTMLElement|null} */
-    #currentOverlay;
+    #currentOverlay = null;
 
     /** @type {ElementConfig|null} */
-    #currentElementConfig;
+    #currentElementConfig = null;
 
-    #domLoaded;
+    /** @type {Promise<void>} */
+    #domLoaded = Promise.resolve();
 
-    #processingBookmark;
+    /** @type {boolean} */
+    #processingBookmark = false;
 
     #isBookmarkModalVisible = false;
 
@@ -139,7 +153,8 @@ export default class AutofillImport extends ActionExecutorBase {
     }
 
     /**
-     * @returns {Promise<Element|HTMLElement|null>}
+     * @param {() => Element|HTMLElement|string|null|undefined} fn
+     * @returns {Promise<Element|HTMLElement|string|null|undefined>}
      */
     async runWithRetry(fn, maxAttempts = 4, delay = 500, strategy = 'exponential') {
         try {
@@ -384,12 +399,20 @@ export default class AutofillImport extends ActionExecutorBase {
         }
     }
 
+    /**
+     * @param {HTMLElement|Element} element
+     */
     autotapElement(element) {
-        element.click();
+        if ('click' in element && typeof element.click === 'function') {
+            element.click();
+        } else {
+            element.dispatchEvent(new MouseEvent('click'));
+        }
     }
 
     async findExportConfirmElement() {
-        return await this.runWithRetry(() => document.querySelector(this.exportConfirmButtonSelector));
+        const result = await this.runWithRetry(() => document.querySelector(this.exportConfirmButtonSelector));
+        return result instanceof Element ? result : null;
     }
 
     /**
@@ -408,7 +431,8 @@ export default class AutofillImport extends ActionExecutorBase {
             return document.querySelector(this.exportButtonLabelTextSelector);
         };
 
-        return await this.runWithRetry(() => findInContainer() ?? findWithLabel());
+        const result = await this.runWithRetry(() => findInContainer() ?? findWithLabel());
+        return result instanceof Element ? result : null;
     }
 
     /**
@@ -419,14 +443,16 @@ export default class AutofillImport extends ActionExecutorBase {
             const settingsButton = document.querySelector(this.settingsButtonSelector);
             return settingsButton;
         };
-        return await this.runWithRetry(fn);
+        const result = await this.runWithRetry(fn);
+        return result instanceof Element ? result : null;
     }
 
     /**
      * @returns {Promise<HTMLElement|Element|null>}
      */
     async findSignInButton() {
-        return await this.runWithRetry(() => document.querySelector(this.signinButtonSelector));
+        const result = await this.runWithRetry(() => document.querySelector(this.signinButtonSelector));
+        return result instanceof Element ? result : null;
     }
 
     /**
@@ -466,6 +492,9 @@ export default class AutofillImport extends ActionExecutorBase {
         ].includes(path);
     }
 
+    /**
+     * @param {string} pathname
+     */
     async handlePasswordManagerPath(pathname) {
         this.removeOverlayIfNeeded();
         if (this.isSupportedPath(pathname)) {
@@ -484,10 +513,10 @@ export default class AutofillImport extends ActionExecutorBase {
     }
 
     /**
-     * @returns {Array<Record<string, any>>}
+     * @returns {Array<import('./broker-protection/types.js').PirAction>}
      */
     get bookmarkImportActionSettings() {
-        return this.getFeatureSetting('actions') || [];
+        return /** @type {Array<import('./broker-protection/types.js').PirAction>} */ (this.getFeatureSetting('actions') || []);
     }
 
     /**
@@ -544,49 +573,53 @@ export default class AutofillImport extends ActionExecutorBase {
      * @returns {string}
      */
     get exportButtonContainerSelector() {
-        return this.#exportButtonSettings?.selectors?.join(',');
+        return this.#exportButtonSettings?.selectors?.join(',') ?? '';
     }
 
     /**
      * @returns {string}
      */
     get exportConfirmButtonSelector() {
-        return this.#exportConfirmButtonSettings?.selectors?.join(',');
+        return this.#exportConfirmButtonSettings?.selectors?.join(',') ?? '';
     }
 
     /**
      * @returns {string}
      */
     get exportButtonLabelTextSelector() {
-        return this.#exportButtonSettings?.labelTexts.map((text) => `button[aria-label="${text}"]`).join(',');
+        return this.#exportButtonSettings?.labelTexts?.map((/** @type {string} */ text) => `button[aria-label="${text}"]`).join(',') ?? '';
     }
 
     /**
      * @returns {string}
      */
     get signinLabelTextSelector() {
-        return this.#signInButtonSettings?.labelTexts.map((text) => `a[aria-label="${text}"]:not([target="_top"])`).join(',');
+        return (
+            this.#signInButtonSettings?.labelTexts
+                ?.map((/** @type {string} */ text) => `a[aria-label="${text}"]:not([target="_top"])`)
+                .join(',') ?? ''
+        );
     }
 
     /**
      * @returns {string}
      */
     get signinButtonSelector() {
-        return `${this.#signInButtonSettings?.selectors?.join(',')}, ${this.signinLabelTextSelector}`;
+        return `${this.#signInButtonSettings?.selectors?.join(',') ?? ''}, ${this.signinLabelTextSelector}`;
     }
 
     /**
      * @returns {string}
      */
     get settingsLabelTextSelector() {
-        return this.#settingsButtonSettings?.labelTexts.map((text) => `a[aria-label="${text}"]`).join(',');
+        return this.#settingsButtonSettings?.labelTexts?.map((/** @type {string} */ text) => `a[aria-label="${text}"]`).join(',') ?? '';
     }
 
     /**
      * @returns {string}
      */
     get settingsButtonSelector() {
-        return `${this.#settingsButtonSettings?.selectors?.join(',')}, ${this.settingsLabelTextSelector}`;
+        return `${this.#settingsButtonSettings?.selectors?.join(',') ?? ''}, ${this.settingsLabelTextSelector}`;
     }
 
     /** Bookmark import code */
@@ -632,6 +665,7 @@ export default class AutofillImport extends ActionExecutorBase {
     /**
      * Here we ignore the action and return a default retry config
      * as for now the retry doesn't need to be per action.
+     * @param {unknown} _
      */
     retryConfigFor(_) {
         const { interval, maxAttempts } = this.defaultRetrySettings;
@@ -641,6 +675,10 @@ export default class AutofillImport extends ActionExecutorBase {
         };
     }
 
+    /**
+     * @param {string} name
+     * @param {unknown} data
+     */
     postBookmarkImportMessage(name, data) {
         globalThis.ddgBookmarkImport?.postMessage(
             JSON.stringify({
@@ -650,6 +688,9 @@ export default class AutofillImport extends ActionExecutorBase {
         );
     }
 
+    /**
+     * @param {import('./broker-protection/types.js').PirAction} action
+     */
     patchMessagingAndProcessAction(action) {
         // Ideally we should be usuing standard messaging in Android, but we are not ready yet
         // So just patching the notify method to post a message to the Android side
@@ -657,6 +698,9 @@ export default class AutofillImport extends ActionExecutorBase {
         return this.processActionAndNotify(action, {});
     }
 
+    /**
+     * @param {string} pathname
+     */
     async handleBookmarkImportPath(pathname) {
         if (pathname === '/' && !this.#isBookmarkModalVisible) {
             for (const action of this.bookmarkImportActionSettings) {
@@ -665,7 +709,9 @@ export default class AutofillImport extends ActionExecutorBase {
 
             // Parse the export id from the page and then navigate to the 'manage' page
             const exportId = await this.getExportId();
-            window.location.href = `${MANAGE_ARCHIVE_DEFAULT_BASE}/${exportId}`;
+            if (exportId != null && exportId !== '') {
+                window.location.href = `${MANAGE_ARCHIVE_DEFAULT_BASE}/${exportId}`;
+            }
         } else if (pathname.startsWith(MANAGE_ARCHIVE_DEFAULT_BASE)) {
             // If we're on the 'manage' page, we can download the data
             await this.downloadData();
@@ -682,8 +728,12 @@ export default class AutofillImport extends ActionExecutorBase {
     }
 
     findExportId() {
-        const panels = document.querySelectorAll(this.bookmarkImportSelectorSettings.tabPanel);
+        const tabPanelSelector = this.bookmarkImportSelectorSettings.tabPanel ?? 'div';
+        const panels = document.querySelectorAll(tabPanelSelector);
         const exportPanel = panels[panels.length - 1];
+        if (exportPanel == null) {
+            return undefined;
+        }
         const dataArchiveIdSelector = this.bookmarkImportSelectorSettings.dataArchiveId ?? `div[data-archive-id]`;
         return exportPanel.querySelector(dataArchiveIdSelector)?.getAttribute('data-archive-id');
     }
@@ -709,7 +759,6 @@ export default class AutofillImport extends ActionExecutorBase {
 
         this.#domLoaded = new Promise((resolve) => {
             if (document.readyState !== 'loading') {
-                // @ts-expect-error - caller doesn't expect a value here
                 resolve();
                 return;
             }
@@ -717,7 +766,6 @@ export default class AutofillImport extends ActionExecutorBase {
             document.addEventListener(
                 'DOMContentLoaded',
                 async () => {
-                    // @ts-expect-error - caller doesn't expect a value here
                     resolve();
                     await handleLocation(window.location);
                 },
