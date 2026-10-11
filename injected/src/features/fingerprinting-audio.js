@@ -2,24 +2,39 @@ import { iterateDataKey, DDGProxy, DDGReflect } from '../utils';
 import { getDataKeySync } from '../crypto';
 import ContentFeature from '../content-feature';
 
+/**
+ * @typedef {object} FingerprintingAudioInitArgs
+ * @property {string} sessionKey
+ * @property {{domain: string | null}} site
+ */
+
 export default class FingerprintingAudio extends ContentFeature {
+    /**
+     * @param {FingerprintingAudioInitArgs} args
+     */
     init(args) {
         const { sessionKey, site } = args;
         const domainKey = site.domain;
 
         // In place modify array data to remove fingerprinting
+        /**
+         * @param {Float32Array|Uint8Array} channelData
+         * @param {string | null} domainKey
+         * @param {string} sessionKey
+         * @param {object} thisArg - AudioBuffer or AnalyserNode, used as cache key
+         */
         function transformArrayData(channelData, domainKey, sessionKey, thisArg) {
             let { audioKey } = getCachedResponse(thisArg, args);
             if (!audioKey) {
                 let cdSum = 0;
                 for (const k in channelData) {
-                    cdSum += channelData[k];
+                    cdSum += channelData[k] ?? 0;
                 }
                 // If the buffer is blank, skip adding data
                 if (cdSum === 0) {
                     return;
                 }
-                audioKey = getDataKeySync(sessionKey, domainKey, cdSum);
+                audioKey = getDataKeySync(sessionKey, domainKey ?? '', cdSum);
                 setCache(thisArg, args, audioKey);
             }
             iterateDataKey(audioKey, (item, byte) => {
@@ -29,28 +44,32 @@ export default class FingerprintingAudio extends ContentFeature {
                 if (byte ^ 0x1) {
                     factor = 0 - factor;
                 }
-                channelData[itemAudioIndex] = channelData[itemAudioIndex] + factor;
+                channelData[itemAudioIndex] = (channelData[itemAudioIndex] ?? 0) + factor;
             });
         }
 
         const copyFromChannelProxy = new DDGProxy(this, AudioBuffer.prototype, 'copyFromChannel', {
+            /**
+             * @param {Function} target
+             * @param {AudioBuffer | undefined} thisArg
+             * @param {unknown[]} args
+             */
             apply(target, thisArg, args) {
-                const [source, channelNumber, startInChannel] = args;
-                // This is implemented in a different way to canvas purely because calling the function copied the original value, which is not ideal
+                const source = args[0];
+                const channelNumber = args[1];
+                const startInChannelRaw = args[2];
                 if (
-                    // If channelNumber is longer than arrayBuffer number of channels then call the default method to throw
-                    // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
+                    !thisArg ||
+                    !(source instanceof Float32Array || source instanceof Uint8Array) ||
+                    typeof channelNumber !== 'number' ||
+                    (startInChannelRaw !== undefined && typeof startInChannelRaw !== 'number') ||
                     channelNumber > thisArg.numberOfChannels ||
-                    // If startInChannel is longer than the arrayBuffer length then call the default method to throw
-                    // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
-                    startInChannel > thisArg.length
+                    (typeof startInChannelRaw === 'number' ? startInChannelRaw : 0) > thisArg.length
                 ) {
-                    // The normal return value
                     return DDGReflect.apply(target, thisArg, args);
                 }
+                const startInChannel = typeof startInChannelRaw === 'number' ? startInChannelRaw : 0;
                 try {
-                    // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
-                    // Call the protected getChannelData we implement, slice from the startInChannel value and assign to the source array
                     thisArg
                         .getChannelData(channelNumber)
                         .slice(startInChannel)
@@ -66,6 +85,11 @@ export default class FingerprintingAudio extends ContentFeature {
 
         const cacheExpiry = 60;
         const cacheData = new WeakMap();
+        /**
+         * @param {object} thisArg
+         * @param {unknown} args - init args or proxy args, used for cache key
+         * @returns {{ audioKey: string | null }}
+         */
         function getCachedResponse(thisArg, args) {
             const data = cacheData.get(thisArg);
             const timeNow = Date.now();
@@ -77,19 +101,28 @@ export default class FingerprintingAudio extends ContentFeature {
             return { audioKey: null };
         }
 
+        /**
+         * @param {object} thisArg
+         * @param {unknown} args - init args or proxy args, used for cache key
+         * @param {string} audioKey
+         */
         function setCache(thisArg, args, audioKey) {
             cacheData.set(thisArg, { args: JSON.stringify(args), expires: Date.now() + cacheExpiry, audioKey });
         }
 
         const getChannelDataProxy = new DDGProxy(this, AudioBuffer.prototype, 'getChannelData', {
+            /**
+             * @param {Function} target
+             * @param {AudioBuffer | undefined} thisArg
+             * @param {unknown[]} args
+             */
             apply(target, thisArg, args) {
-                // The normal return value
                 const channelData = DDGReflect.apply(target, thisArg, args);
-                // Anything we do here should be caught and ignored silently
-                try {
-                    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                    transformArrayData(channelData, domainKey, sessionKey, thisArg, args);
-                } catch {}
+                if (thisArg && (channelData instanceof Float32Array || channelData instanceof Uint8Array)) {
+                    try {
+                        transformArrayData(channelData, domainKey, sessionKey, thisArg);
+                    } catch {}
+                }
                 return channelData;
             },
         });
@@ -98,13 +131,19 @@ export default class FingerprintingAudio extends ContentFeature {
         const audioMethods = ['getByteTimeDomainData', 'getFloatTimeDomainData', 'getByteFrequencyData', 'getFloatFrequencyData'];
         for (const methodName of audioMethods) {
             const proxy = new DDGProxy(this, AnalyserNode.prototype, methodName, {
+                /**
+                 * @param {Function} target
+                 * @param {AnalyserNode | undefined} thisArg
+                 * @param {unknown[]} args
+                 */
                 apply(target, thisArg, args) {
                     DDGReflect.apply(target, thisArg, args);
-                    // Anything we do here should be caught and ignored silently
-                    try {
-                        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                        transformArrayData(args[0], domainKey, sessionKey, thisArg, args);
-                    } catch {}
+                    const dest = args[0];
+                    if (thisArg && (dest instanceof Float32Array || dest instanceof Uint8Array)) {
+                        try {
+                            transformArrayData(dest, domainKey, sessionKey, thisArg);
+                        } catch {}
+                    }
                 },
             });
             proxy.overload();
