@@ -102,7 +102,7 @@ async function getFeatures() {
 }
 
 /**
- * @param {any} args
+ * @param {LoadArgs} args
  */
 export async function init(args) {
     const mark = performanceMonitor.mark('init');
