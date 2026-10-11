@@ -46,6 +46,10 @@ jobs:
               if: ${{ matrix.workspace == 'injected' }}
               run: npm run build -w injected
             - run: npm run test-unit -w ${{ matrix.workspace }}
+            - name: Smoke test coverage report tooling (injected only)
+              if: ${{ matrix.workspace == 'injected' }}
+              run: npm run coverage-report -w injected
+
     github-scripts-unit:
         name: Unit tests (github scripts)
         runs-on: ubuntu-latest
