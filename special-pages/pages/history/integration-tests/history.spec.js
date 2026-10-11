@@ -319,5 +319,111 @@ test.describe('history', () => {
             const calls = await hp.mocks.outgoing({ names: ['reportInitException'] });
             expect(calls).toHaveLength(0);
         });
+
+        test('falls back to ErrorEvent.message when event.error is null', async ({ page }, workerInfo) => {
+            const hp = HistoryTestPage.create(page, workerInfo).withEntries(0);
+            await hp.openPage();
+            await hp.hasEmptyState();
+
+            await page.evaluate(() => {
+                window.dispatchEvent(new ErrorEvent('error', { message: 'Script error.', error: null }));
+            });
+
+            const calls = await hp.mocks.waitForCallCount({ method: 'reportInitException', count: 1 });
+            expect(calls).toMatchObject([
+                {
+                    payload: {
+                        params: { message: '[uncaught] Script error.' },
+                    },
+                },
+            ]);
+        });
+
+        test("falls back to 'unknown error' when ErrorEvent has neither error nor message", async ({ page }, workerInfo) => {
+            const hp = HistoryTestPage.create(page, workerInfo).withEntries(0);
+            await hp.openPage();
+            await hp.hasEmptyState();
+
+            await page.evaluate(() => {
+                window.dispatchEvent(new ErrorEvent('error', { error: null }));
+            });
+
+            const calls = await hp.mocks.waitForCallCount({ method: 'reportInitException', count: 1 });
+            expect(calls).toMatchObject([
+                {
+                    payload: {
+                        params: { message: '[uncaught] unknown error' },
+                    },
+                },
+            ]);
+        });
+
+        test('stringifies a thrown non-Error value', async ({ page }, workerInfo) => {
+            const hp = HistoryTestPage.create(page, workerInfo).withEntries(0);
+            await hp.openPage();
+            await hp.hasEmptyState();
+
+            await page.evaluate(() => {
+                setTimeout(() => {
+                    // eslint-disable-next-line no-throw-literal -- intentional: a non-Error throw surfaces via event.error
+                    throw 'raw string';
+                }, 0);
+            });
+
+            const calls = await hp.mocks.waitForCallCount({ method: 'reportInitException', count: 1 });
+            expect(calls).toMatchObject([
+                {
+                    payload: {
+                        params: { message: '[uncaught] raw string' },
+                    },
+                },
+            ]);
+        });
+
+        test('reports primitive and nullish rejection reasons distinctly', async ({ page }, workerInfo) => {
+            const hp = HistoryTestPage.create(page, workerInfo).withEntries(0);
+            await hp.openPage();
+            await hp.hasEmptyState();
+
+            await page.evaluate(() => {
+                /* eslint-disable prefer-promise-reject-errors -- intentional: testing non-Error rejection reasons */
+                setTimeout(() => Promise.reject(undefined), 0);
+                setTimeout(() => Promise.reject(null), 0);
+                setTimeout(() => Promise.reject(0), 0);
+                /* eslint-enable prefer-promise-reject-errors */
+            });
+
+            const calls = await hp.mocks.waitForCallCount({ method: 'reportInitException', count: 3 });
+            const messages = calls.map((c) => c.payload.params.message);
+            expect(messages).toEqual(
+                expect.arrayContaining(['[unhandledrejection] undefined', '[unhandledrejection] null', '[unhandledrejection] 0']),
+            );
+        });
+    });
+
+    test.describe('sidebar icons', () => {
+        test('uses default icons on non-macOS platforms', async ({ page }, workerInfo) => {
+            const hp = HistoryTestPage.create(page, workerInfo).withEntries(100);
+            await hp.openPage({ additional: { platform: 'windows' } });
+            await hp.didMakeInitialQueries({ term: '' });
+
+            await hp.expectSidebarIconSrc('Show all history', 'icons/all\\.svg');
+            await hp.expectSidebarIconSrc('Show history for today', 'icons/today\\.svg');
+            await hp.expectSidebarIconSrc('Show history for yesterday', 'icons/yesterday\\.svg');
+            await hp.expectSidebarIconSrc('Show older history', 'icons/older\\.svg');
+            await hp.expectSidebarIconSrc('Show history for sites', 'icons/sites\\.svg');
+        });
+
+        test('uses rebranding icons on macOS', async ({ page }, workerInfo) => {
+            const hp = HistoryTestPage.create(page, workerInfo).withEntries(100);
+            await hp.openPage({ additional: { platform: 'macos' } });
+            await hp.didMakeInitialQueries({ term: '' });
+
+            await hp.expectSidebarIconSrc('Show all history', 'icons/all-rebranding\\.svg');
+            await hp.expectSidebarIconSrc('Show history for today', 'icons/today-rebranding\\.svg');
+            await hp.expectSidebarIconSrc('Show history for yesterday', 'icons/yesterday-rebranding\\.svg');
+            await hp.expectSidebarIconSrc('Show older history', 'icons/older-rebranding\\.svg');
+            await hp.expectSidebarIconSrc('Show history for sites', 'icons/sites-rebranding\\.svg');
+        });
     });
 });
