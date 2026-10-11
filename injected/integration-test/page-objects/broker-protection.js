@@ -191,10 +191,6 @@ export class BrokerProtectionPage {
         await expect(this.page.locator(selector)).not.toHaveAttribute(callbackAttribute, 'test_token');
     }
 
-    async hasNoNotifiedWidget() {
-        await expect(this.page.locator('.g-recaptcha[data-callback-token="test_token"]')).toHaveCount(0);
-    }
-
     /**
      * @param {number} widgetId
      */
@@ -242,11 +238,8 @@ export class BrokerProtectionPage {
         }
     }
 
-    /**
-     * @param {string} [actionID]
-     */
-    async isCaptchaError(actionID) {
-        expect(await this.getErrorMessage(actionID)).not.toBeFalsy();
+    async isCaptchaError() {
+        expect(await this.getErrorMessage()).not.toBeFalsy();
     }
 
     /**
@@ -301,57 +294,35 @@ export class BrokerProtectionPage {
         return await this.collector.waitForMessage('actionCompleted');
     }
 
-    /**
-     * @param {string} [actionID]
-     */
-    async getSuccessResponse(actionID) {
-        if (!actionID) {
-            const response = await this.getActionCompletedParams();
-            this.isSuccessMessage(response);
-            return this._getResultFromResponse(response).success.response;
-        }
-
-        await expect.poll(async () => this._getResultFromResponse(await this.getActionCompletedParams(), actionID)).toBeDefined();
-
+    async getSuccessResponse() {
         const response = await this.getActionCompletedParams();
-        this.isSuccessMessage(response, actionID);
-        return this._getResultFromResponse(response, actionID).success.response;
+        this.isSuccessMessage(response);
+        return this._getResultFromResponse(response).success.response;
     }
 
-    async getErrorMessage(actionID) {
-        if (actionID) {
-            await expect.poll(async () => this._getResultFromResponse(await this.getActionCompletedParams(), actionID)).toBeDefined();
-        }
-
+    async getErrorMessage() {
         const response = await this.getActionCompletedParams();
-        this.isErrorMessage(response, actionID);
-        return this._getResultFromResponse(response, actionID).error.message;
+        this.isErrorMessage(response);
+        return this._getResultFromResponse(response).error.message;
     }
 
     /**
      * @param {object} response
-     * @param {string} [actionID]
      */
-    isErrorMessage(response, actionID) {
-        expect('error' in this._getResultFromResponse(response, actionID)).toBe(true);
+    isErrorMessage(response) {
+        expect('error' in this._getResultFromResponse(response)).toBe(true);
     }
 
-    isSuccessMessage(response, actionID) {
-        const result = this._getResultFromResponse(response, actionID);
+    isSuccessMessage(response) {
+        const result = this._getResultFromResponse(response);
         expect('success' in result, JSON.stringify(result)).toBe(true);
     }
 
     /**
      * @param {object} response
-     * @param {string} [actionID]
      */
-    _getResultFromResponse(response, actionID) {
-        const results = response.map((message) => message.payload?.params?.result);
-        if (!actionID) {
-            return results[0];
-        }
-
-        return results.find((result) => (result?.success ?? result?.error)?.actionID === actionID);
+    _getResultFromResponse(response) {
+        return response[0].payload?.params?.result;
     }
 
     /**
