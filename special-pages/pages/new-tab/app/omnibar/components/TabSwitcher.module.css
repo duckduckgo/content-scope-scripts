@@ -76,7 +76,8 @@
  */
 :global(body[data-rebrand="true"]) {
     .tabSwitcher {
-        background: var(--ds-input-control-secondary-background-color);
+        /* Not input-control-secondary: in default dark it's the same #1c1c1c as the page canvas, so the track disappears. */
+        background: var(--ds-color-theme-control-fill-primary);
         backdrop-filter: none;
     }
 
