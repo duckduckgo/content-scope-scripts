@@ -744,14 +744,19 @@ export default class PageContext extends ContentFeature {
         const mainContentSelector = this.getFeatureSetting('mainContentSelector') || 'main, article, .content, .main, #content, #main';
         let mainContent = document.querySelector(mainContentSelector);
         const mainContentLength = this.getFeatureSetting('mainContentLength') || 100;
-        // The first match is sometimes a teaser card or sits in a hidden menu, so then look at every match
-        if (mainContent && (!isRendered(mainContent) || renderedTextLength(mainContent) <= mainContentLength)) {
-            mainContent = selectLargestVisibleRoot(document.querySelectorAll(mainContentSelector), {
-                bodyTextLength: document.body?.innerText.length ?? 0,
-                minCoverage: this.getFeatureSetting('minRootCoverage') || 0.35,
-                maxCandidates: this.getFeatureSetting('maxRootCandidates') || 100,
-                isEligible: (el) => isExtractable(el, excludeSelectorsString),
-            });
+        const minMainContentCoverage = this.getFeatureSetting('minMainContentCoverage') || 0.25;
+        if (mainContent) {
+            const bodyTextLength = document.body?.innerText.length ?? 0;
+            const firstLength = renderedTextLength(mainContent);
+            // The first match is sometimes a teaser card, a nav menu or sits in a hidden menu, so then look at every match
+            if (!isRendered(mainContent) || firstLength <= mainContentLength || firstLength < bodyTextLength * minMainContentCoverage) {
+                mainContent = selectLargestVisibleRoot(document.querySelectorAll(mainContentSelector), {
+                    bodyTextLength,
+                    minCoverage: this.getFeatureSetting('minRootCoverage') || 0.35,
+                    maxCandidates: this.getFeatureSetting('maxRootCandidates') || 100,
+                    isEligible: (el) => isExtractable(el, excludeSelectorsString),
+                });
+            }
         }
         let contentRoot = mainContent || document.body;
 

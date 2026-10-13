@@ -84,6 +84,12 @@ test.describe('page-context root selection', () => {
         expect(result.content).toContain('Speed optimisation audit');
     });
 
+    test('uses the body when the first match is a menu with little of the page text', async ({ page }, testInfo) => {
+        const result = await collect(page, testInfo, `${PAGES}/menu-first-match.html`);
+        expect(result.content).toContain("Hospital opens new children's wing");
+        expect(result.content).toContain('starting with the youngest children');
+    });
+
     test('uses the body when main holds only part of the content', async ({ page }, testInfo) => {
         const result = await collect(page, testInfo, `${PAGES}/partial-main.html`);
         expect(result.content).toContain('City opens new public library');
