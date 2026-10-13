@@ -55,16 +55,18 @@ export class NativeReader {
         /** @type {PropertyKey[]} */
         const keys = [...names, Symbol.iterator];
         const nodeConstructor = getOwnPropertyDescriptor(global, 'Node')?.value;
-        if (typeof nodeConstructor === 'function') this.#nodePrototype = getOwnPropertyDescriptor(nodeConstructor, 'prototype')?.value;
+        if (typeof nodeConstructor === 'function') this.#nodePrototype = tryOwnDescriptor(nodeConstructor, 'prototype')?.value;
         /** @type {object[]} */
         const holders = [global];
+        // A cross-origin frame's WindowProxy, reached as `window[0]`, and a page's Proxy can throw on
+        // any descriptor read. Such a value is not a holder.
         for (const name of getOwnPropertyNames(global)) {
             const descriptor = getOwnPropertyDescriptor(global, name);
             if (!descriptor || !('value' in descriptor)) continue;
             const value = descriptor.value;
             if (typeof value === 'function') {
                 holders.push(value);
-                const prototype = getOwnPropertyDescriptor(value, 'prototype')?.value;
+                const prototype = tryOwnDescriptor(value, 'prototype')?.value;
                 if (typeof prototype === 'object' && prototype !== null) holders.push(prototype);
             } else if (typeof value === 'object' && value !== null && value !== global) {
                 holders.push(value);
@@ -73,11 +75,15 @@ export class NativeReader {
         for (const holder of holders) {
             /** @type {Map<PropertyKey, PropertyDescriptor> | undefined} */
             let records;
-            for (const key of keys) {
-                const descriptor = getOwnPropertyDescriptor(holder, key);
-                if (!descriptor) continue;
-                records ??= new Map();
-                records.set(key, descriptor);
+            try {
+                for (const key of keys) {
+                    const descriptor = getOwnPropertyDescriptor(holder, key);
+                    if (!descriptor) continue;
+                    records ??= new Map();
+                    records.set(key, descriptor);
+                }
+            } catch {
+                continue;
             }
             if (records) this.#holders.set(holder, records);
         }
@@ -169,6 +175,19 @@ export class NativeReader {
         const record = this._find(target, Symbol.iterator);
         const method = record && 'value' in record ? record.value : undefined;
         return typeof method === 'function' ? method : undefined;
+    }
+}
+
+/**
+ * @param {object} target
+ * @param {PropertyKey} key
+ * @returns {PropertyDescriptor | undefined} the own descriptor, or `undefined` where reading it throws
+ */
+function tryOwnDescriptor(target, key) {
+    try {
+        return getOwnPropertyDescriptor(target, key);
+    } catch {
+        return undefined;
     }
 }
 
