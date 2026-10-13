@@ -44753,10 +44753,10 @@ This is placeholder content used by the NTP mock transport so the attach-tabs fe
       this.messaging.notify("stats_showLess");
     }
   };
-  var baseEnvironment = new Environment().withInjectName("integration").withEnv("development");
+  var baseEnvironment = new Environment().withInjectName("integration").withEnv("production");
   var rawMessaging = createSpecialPageMessaging({
     injectName: "integration",
-    env: "development",
+    env: "production",
     pageName: "newTabPage",
     mockTransport: () => {
       if (baseEnvironment.injectName !== "integration") return null;
@@ -44816,4 +44816,3 @@ lottie-web/build/player/lottie.js:
    License: MIT, header required.
    *)
 */
-//# sourceMappingURL=index.js.map

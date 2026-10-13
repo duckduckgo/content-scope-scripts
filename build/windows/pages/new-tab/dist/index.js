@@ -42358,10 +42358,10 @@
       this.messaging.notify("stats_showLess");
     }
   };
-  var baseEnvironment = new Environment().withInjectName("windows").withEnv("development");
+  var baseEnvironment = new Environment().withInjectName("windows").withEnv("production");
   var rawMessaging = createSpecialPageMessaging({
     injectName: "windows",
-    env: "development",
+    env: "production",
     pageName: "newTabPage",
     mockTransport: () => {
       if (baseEnvironment.injectName !== "integration") return null;
@@ -42420,4 +42420,3 @@ lottie-web/build/player/lottie.js:
    License: MIT, header required.
    *)
 */
-//# sourceMappingURL=index.js.map
