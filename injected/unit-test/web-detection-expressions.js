@@ -1434,6 +1434,25 @@ describe('WebDetection expressions', () => {
             expect(match('', { api: { path: 'fakeLocation.href' }, is: 'https://example.com/' }, { install })).toBe(true);
         });
 
+        it('skips a global whose descriptor read throws, and captures from the rest', () => {
+            // As a cross-origin frame's WindowProxy, reached as `window[0]`, throws on every read
+            const install = (/** @type {any} */ w) => {
+                const blocked = () => {
+                    throw new w.DOMException('Blocked a frame from accessing a cross-origin frame.', 'SecurityError');
+                };
+                w.crossOriginFrame = new Proxy({}, { getOwnPropertyDescriptor: blocked });
+                w.TrappedConstructor = new Proxy(function () {}, {
+                    getOwnPropertyDescriptor: (target, key) =>
+                        key === 'prototype' ? blocked() : Reflect.getOwnPropertyDescriptor(target, key),
+                });
+            };
+            const afterCapture = (/** @type {any} */ w) => {
+                Object.defineProperty(w.Document.prototype, 'title', { configurable: true, get: () => 'page override' });
+            };
+            expect(match('', { api: { path: 'document.title' }, is: '' }, { install })).toBe(true);
+            expect(match('', { api: { path: 'document.title' }, is: '' }, { install, afterCapture })).toBe(true);
+        });
+
         it('does not call a page override of iteration', () => {
             const afterCapture = (/** @type {any} */ w) => {
                 w.FakeFontFaceSet.prototype[Symbol.iterator] = () => {
