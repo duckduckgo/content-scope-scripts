@@ -15554,6 +15554,7 @@
     const { state, attachmentPrivacyDisclaimerShown, openAttachmentPrivacyLearnMore } = x2(OmnibarContext);
     const { imageState, fileState, tabId } = useAttachmentsContext();
     const allowed = state.config?.showAttachmentPrivacyDisclaimer === true;
+    const blocked = state.config?.usageLimits?.blocksPrompt === true;
     const [granted, setGranted] = AttachmentPrivacyGrant.useStateWithLocalPersistence(tabId);
     let attachmentKind = null;
     if (imageState.attachedImages.length > 0) {
@@ -15566,10 +15567,10 @@
         if (granted) setGranted(false);
         return;
       }
-      if (granted || !allowed) return;
+      if (granted || !allowed || blocked) return;
       setGranted(true);
       attachmentPrivacyDisclaimerShown(attachmentKind);
-    }, [attachmentKind, granted, allowed, setGranted, attachmentPrivacyDisclaimerShown]);
+    }, [attachmentKind, granted, allowed, blocked, setGranted, attachmentPrivacyDisclaimerShown]);
     const messageValues = {
       button: {
         click: () => {
@@ -15577,13 +15578,15 @@
         }
       }
     };
-    const presentation = attachmentKind && granted ? {
+    const presentation = attachmentKind && granted && !blocked ? {
       type: (
         /** @type {const} */
         "required"
       ),
       message: /* @__PURE__ */ k(Trans, { str: t4("omnibar_attachmentPrivacyDisclaimer"), values: messageValues }),
       secondaryText: "",
+      messageId: "omnibar-attachment-privacy-disclaimer",
+      muted: true,
       icon: (
         /** @type {const} */
         "info"
