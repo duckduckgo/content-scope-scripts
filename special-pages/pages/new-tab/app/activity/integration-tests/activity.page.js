@@ -217,7 +217,7 @@ export class ActivityPage {
 
         await expect(burnButton).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
         await burnButton.hover();
-        await expect(burnButton).toHaveCSS('background-color', 'rgba(0, 0, 0, 0.09)');
+        await expect(burnButton).toHaveCSS('background-color', 'rgba(0, 0, 0, 0.086)');
     }
 
     /**
@@ -229,7 +229,7 @@ export class ActivityPage {
 
         await expect(burnButton).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
         await burnButton.hover();
-        await expect(burnButton).toHaveCSS('background-color', 'rgba(255, 255, 255, 0.18)');
+        await expect(burnButton).toHaveCSS('background-color', 'rgba(255, 255, 255, 0.176)');
     }
 
     /**
