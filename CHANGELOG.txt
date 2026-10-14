@@ -1,2 +1,1 @@
-- NTP omnibar: attach the highlighted @-mention tab with Tab (#3094)
-- Bump design-tokens to v0.44 and fix activity hover tests (#3104)
+- Support maxSupportedVersion on features for config v6 (#3100)

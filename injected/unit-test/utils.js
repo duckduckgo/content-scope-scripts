@@ -206,6 +206,123 @@ describe('Helpers checks', () => {
         });
     });
 
+    it('processes config in expected way for maxSupportedVersion and numeric versions', () => {
+        const configIn = {
+            features: {
+                testFeature: {
+                    state: 'enabled',
+                    settings: {},
+                    exceptions: [],
+                },
+                testFeatureBig: {
+                    state: 'enabled',
+                    maxSupportedVersion: 100,
+                    settings: {},
+                    exceptions: [],
+                },
+                testFeatureEqual: {
+                    state: 'enabled',
+                    maxSupportedVersion: 99,
+                    settings: {},
+                    exceptions: [],
+                },
+                testFeatureTooSmall: {
+                    state: 'enabled',
+                    maxSupportedVersion: 98,
+                    settings: {},
+                    exceptions: [],
+                },
+            },
+            unprotectedTemporary: [],
+        };
+        const processedConfig = processConfig(
+            configIn,
+            [],
+            {
+                platform: {
+                    name: 'android',
+                },
+                versionNumber: 99,
+                sessionKey: 'testSessionKey',
+            },
+            [],
+        );
+        expect(processedConfig.site.enabledFeatures).toEqual(['testFeature', 'testFeatureBig', 'testFeatureEqual']);
+    });
+
+    it('processes config in expected way for maxSupportedVersion and string versions', () => {
+        const configIn = {
+            features: {
+                testFeature: {
+                    state: 'enabled',
+                    settings: {},
+                    exceptions: [],
+                },
+                testFeatureBig: {
+                    state: 'enabled',
+                    maxSupportedVersion: '1.0.0',
+                    settings: {},
+                    exceptions: [],
+                },
+                testFeatureEqual: {
+                    state: 'enabled',
+                    maxSupportedVersion: '0.9.9',
+                    settings: {},
+                    exceptions: [],
+                },
+                testFeatureTooSmall: {
+                    state: 'enabled',
+                    maxSupportedVersion: '0.9.8',
+                    settings: {},
+                    exceptions: [],
+                },
+                testFeatureInRange: {
+                    state: 'enabled',
+                    minSupportedVersion: '0.9.0',
+                    maxSupportedVersion: '0.9.9',
+                    settings: {},
+                    exceptions: [],
+                },
+                testFeatureOutOfRange: {
+                    state: 'enabled',
+                    minSupportedVersion: '0.9.0',
+                    maxSupportedVersion: '0.9.8',
+                    settings: {},
+                    exceptions: [],
+                },
+            },
+            unprotectedTemporary: [],
+        };
+        const processedConfig = processConfig(
+            configIn,
+            [],
+            {
+                platform: {
+                    name: 'ios',
+                },
+                versionString: '0.9.9',
+                sessionKey: 'testSessionKey',
+            },
+            [],
+        );
+        expect(processedConfig.site.enabledFeatures).toEqual(['testFeature', 'testFeatureBig', 'testFeatureEqual', 'testFeatureInRange']);
+    });
+
+    it('ignores maxSupportedVersion when the platform has no version', () => {
+        const configIn = {
+            features: {
+                testFeatureTooSmall: {
+                    state: 'enabled',
+                    maxSupportedVersion: '0.9.8',
+                    settings: {},
+                    exceptions: [],
+                },
+            },
+            unprotectedTemporary: [],
+        };
+        expect(computeEnabledFeatures(configIn, 'localhost', { name: 'ios' })).toEqual(['testFeatureTooSmall']);
+    });
+
     it('does not enable features with state "preview" when preview flag is not set', () => {
         const configIn = {
             features: {
