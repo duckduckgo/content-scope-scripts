@@ -1,9 +1,12 @@
 import ContentFeature from '../content-feature.js';
+import { isIndexedDBDisabled, isWebKitPlatform } from './duck-ai/storage.js';
 
 /**
  * @typedef {'localStorage' | 'indexedDB' | 'unexpected'} ClearStage
  * @typedef {{ stage: ClearStage, error: Error }} ClearFailure
  */
+
+const INDEXED_DB_DISABLED = 'IndexedDBDisabled';
 
 /**
  * @param {unknown} error
@@ -101,8 +104,7 @@ export class DuckAiDataClearing extends ContentFeature {
     }
 
     get shouldDeleteRecordsIndividually() {
-        const isWebKitPlatform = this.platform.name === 'ios' || this.platform.name === 'macos';
-        return isWebKitPlatform && this.getFeatureSettingEnabled('deleteRecordsIndividually', 'enabled');
+        return isWebKitPlatform(this.platform.name) && this.getFeatureSettingEnabled('deleteRecordsIndividually', 'enabled');
     }
 
     /**
@@ -176,6 +178,10 @@ export class DuckAiDataClearing extends ContentFeature {
      * @param {ClearFailure[]} errors - Array to collect any errors
      */
     async withAllIndexedDBs(operation, errors) {
+        if (isIndexedDBDisabled(this.platform.name)) {
+            errors.push({ stage: 'indexedDB', error: new DOMException('IndexedDB is disabled', INDEXED_DB_DISABLED) });
+            return;
+        }
         const pairs = this.getFeatureSetting('chatImagesIndexDbNameObjectStoreNamePairs');
         for (const [dbName, storeName] of pairs) {
             try {
@@ -192,13 +198,15 @@ export class DuckAiDataClearing extends ContentFeature {
     /**
      * Sends the appropriate completion or failure notification based on errors.
      * `errorName` (e.g. a `DOMException` name) and `stage` let the native side report the cause without free text.
+     * A real failure is reported over `IndexedDBDisabled`, which the page can do nothing about.
      * @param {ClearFailure[]} errors - Failures that occurred during operations
      */
     notifyCompletionResult(errors) {
         if (errors.length === 0) {
             this.notify('duckAiClearDataCompleted');
         } else {
-            const { stage, error } = errors[errors.length - 1];
+            const realFailures = errors.filter((failure) => failure.error.name !== INDEXED_DB_DISABLED);
+            const { stage, error } = realFailures[realFailures.length - 1] ?? errors[errors.length - 1];
             this.notify('duckAiClearDataFailed', {
                 error: error.message,
                 errorName: error.name,

@@ -398,3 +398,46 @@ test.describe('duck-ai-chat-history', () => {
         expect(result.chats).toHaveLength(3);
     });
 });
+
+test.describe('duck-ai-chat-history without the IndexedDB API', () => {
+    /**
+     * Lockdown Mode removes `window.indexedDB` from WebKit pages.
+     * @param {import('@playwright/test').Page} page
+     * @param {import('@playwright/test').TestInfo} testInfo
+     * @param {'ios' | 'macos' | 'windows'} platform
+     */
+    async function loadWithoutIndexedDB(page, testInfo, platform) {
+        const collector = ResultsCollector.create(page, testInfo.project.use);
+        collector.withUserPreferences({
+            messageSecret: 'ABC',
+            javascriptInterface: 'javascriptInterface',
+            messageCallback: 'messageCallback',
+        });
+        await collector.load(HTML, CONFIG, { name: platform });
+        await page.click('#setup-data');
+        await page.evaluate(() => {
+            // @ts-expect-error - simulating a page without the IndexedDB API
+            delete window.indexedDB;
+        });
+        expect(await page.evaluate(() => 'indexedDB' in window)).toBe(false);
+        await collector.simulateSubscriptionMessage('duckAiChatHistory', 'getDuckAiChats', {});
+        const messages = await collector.waitForMessage('duckAiChatsResult', 1);
+        return messages[0].payload.params;
+    }
+
+    for (const platform of /** @type {const} */ (['ios', 'macos'])) {
+        test(`falls back to localStorage on ${platform}`, async ({ page }, testInfo) => {
+            const result = await loadWithoutIndexedDB(page, testInfo, platform);
+
+            expect(result.success).toBe(true);
+            expect(result.pinnedChats).toHaveLength(1);
+            expect(result.chats).toHaveLength(1);
+        });
+    }
+
+    test('keeps failing outside Apple platforms', async ({ page }, testInfo) => {
+        const result = await loadWithoutIndexedDB(page, testInfo, 'windows');
+
+        expect(result.success).toBe(false);
+    });
+});
