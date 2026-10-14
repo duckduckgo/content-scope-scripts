@@ -1,9 +1,11 @@
 import ContentFeature from '../content-feature.js';
-import { Promise as CapturedPromise, DOMException as CapturedDOMException } from '../captured-globals.js';
-
-const CapturedAbortController = globalThis.AbortController;
-const CapturedAbortSignal = globalThis.AbortSignal;
-const capturedSetTimeout = globalThis.setTimeout?.bind(globalThis);
+import {
+    Promise as CapturedPromise,
+    DOMException as CapturedDOMException,
+    AbortController as CapturedAbortController,
+    AbortSignal as CapturedAbortSignal,
+    objectCreate,
+} from '../captured-globals.js';
 
 const MEDIATION_CONDITIONAL = 'conditional';
 // How long to wait for an aborted conditional request to settle before letting other requests proceed.
@@ -44,8 +46,7 @@ export default class PasskeyRequestCancellation extends ContentFeature {
         if (
             typeof CredentialsContainer === 'undefined' ||
             typeof CapturedAbortController !== 'function' ||
-            typeof CapturedAbortSignal !== 'function' ||
-            typeof capturedSetTimeout !== 'function'
+            typeof CapturedAbortSignal !== 'function'
         ) {
             return;
         }
@@ -104,7 +105,7 @@ export default class PasskeyRequestCancellation extends ContentFeature {
      * @returns {Promise<void>}
      */
     sleep(ms) {
-        return new CapturedPromise((resolve) => capturedSetTimeout(resolve, ms));
+        return new CapturedPromise((resolve) => setTimeout(resolve, ms));
     }
 
     /**
@@ -132,7 +133,7 @@ export default class PasskeyRequestCancellation extends ContentFeature {
         const forward = () => controller.abort(pageSignal?.reason);
         pageSignal?.addEventListener('abort', forward, { once: true });
         // Inherit the page's options so WebKit sees them unchanged, apart from the signal.
-        const forwarded = Object.create(options, { signal: { value: controller.signal, enumerable: true } });
+        const forwarded = objectCreate(options, { signal: { value: controller.signal, enumerable: true } });
         /** @type {Promise<Credential | null>} */
         const result = originalGet.call(receiver, forwarded);
         /** @type {ConditionalRequest} */

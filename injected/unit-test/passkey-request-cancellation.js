@@ -1,5 +1,6 @@
 import PasskeyRequestCancellation from '../src/features/passkey-request-cancellation.js';
 import WebCompat from '../src/features/web-compat.js';
+import { platformSupport } from '../src/features.js';
 
 /**
  * @typedef {object} NativeCall
@@ -350,6 +351,18 @@ describe('PasskeyRequestCancellation', () => {
 
             expect(calls[0].options.publicKey).toBe(publicKey);
             expect(calls[0].options.mediation).toBe('conditional');
+        });
+    });
+
+    describe('apple bundle', () => {
+        // Features initialise in bundle order, and each wrapper goes around the previous ones. webCompat's
+        // passkey detection must wrap first so it only observes requests this feature lets through;
+        // otherwise this feature's own rejections would be reported as passkey failures.
+        it('lists webCompat before passkeyRequestCancellation', () => {
+            const apple = platformSupport.apple;
+
+            expect(apple.indexOf('webCompat')).toBeGreaterThanOrEqual(0);
+            expect(apple.indexOf('webCompat')).toBeLessThan(apple.indexOf('passkeyRequestCancellation'));
         });
     });
 });
