@@ -228,6 +228,16 @@ describe('WebDetection actions', () => {
             ]);
         });
 
+        it('stores the boolean an `is` gives, not the value it tests', () => {
+            const global = makeGlobal();
+            const d = detector([{ define: { seen: { api: 'page.live.n', is: { gt: 0 } } } }], global);
+            d.run();
+            expect(d.state.defined.get('seen')).toBe(false);
+            global.page.live.n = 3;
+            d.run();
+            expect(d.state.defined.get('seen')).toBe(true);
+        });
+
         it('computes every value in one `define` before storing any', () => {
             const d = detector([{ define: { a: 1, b: { ref: 'a' } } }]);
             d.run();
@@ -281,6 +291,16 @@ describe('WebDetection actions', () => {
             d.run();
             expect(d.state.done).toBe(false);
             global.page.live.ready = true;
+            d.run();
+            expect(d.state.done).toBe(true);
+        });
+
+        it('takes a test, and ends the detector once it holds', () => {
+            const global = makeGlobal();
+            const d = detector([{ define: { done: { api: 'page.live.n', is: { gt: 0 } } } }], global);
+            d.run();
+            expect(d.state.done).toBe(false);
+            global.page.live.n = 1;
             d.run();
             expect(d.state.done).toBe(true);
         });

@@ -252,7 +252,8 @@ function compileExpr(raw, position, path, scope) {
 
     const hasIs = raw.is !== undefined;
     const hasUsing = raw.using !== undefined;
-    if (hasIs && position !== 'boolean') throw new ConfigParseError(path, '`is` gives a boolean, and goes in boolean position');
+    if (hasIs && position !== 'boolean' && position !== 'value')
+        throw new ConfigParseError(path, '`is` gives a boolean, in boolean or value position');
     // With `is`, the expression computes a value for the predicate
     const valuePosition = hasIs ? 'value' : position;
     // With `using`, the expression keys give the value `using` reads from
@@ -289,6 +290,8 @@ function compileExpr(raw, position, path, scope) {
     if (hasIs) {
         const sink = /** @type {Node[]} */ (scope.deps.get(node));
         node.is = within(scope.operandSinks, sink, () => compilePredicate(raw.is, 'value', `${path}.is`, scope.hooks));
+        // Value-position reads skip `is`, and an `expr` over it gives its boolean. `as` stays on the tested value
+        if (position === 'value') return makeNode(scope, { kind: 'expr', operand: node, path, position }, [node]);
     }
     return node;
 }
@@ -310,7 +313,7 @@ function compileKey(key, body, position, path, scope) {
         case 'self':
             return compileSelf(body, position, path, scope);
         case 'expr': {
-            // An operand with `is` gives a boolean, in boolean position
+            // An operand with `is` gives a boolean, which `as` beside `expr` names
             const operandIs = isPlainObject(body) && body.is !== undefined;
             const operand = compileExpr(body, operandIs ? 'boolean' : position, `${path}.expr`, scope);
             return makeNode(scope, { kind: 'expr', operand, path, position }, [operand]);

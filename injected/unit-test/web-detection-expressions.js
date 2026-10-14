@@ -341,7 +341,7 @@ describe('WebDetection expressions', () => {
             expect(holds('', { api: { path: 'document.fonts', field: 'status' } }, { install: fonts(['loaded']) })).toBe('error');
         });
 
-        it('rejects `is` outside boolean position, and several expression keys beside it', () => {
+        it('rejects `is` outside boolean and value position, and several expression keys beside it', () => {
             expectParseError(
                 { actions: [{ when: { sum: [{ element: { selector: 'img' }, using: 'length', is: { gt: 1 } }], is: 1 }, exit: true }] },
                 '`is` gives a boolean',
@@ -350,7 +350,6 @@ describe('WebDetection expressions', () => {
                 { actions: [{ when: { text: { pattern: 'a' }, element: { selector: 'p' }, is: true }, exit: true }] },
                 'several expression keys',
             );
-            expectParseError(withPayload({ element: { selector: 'img' }, using: 'length', is: { gt: 1 } }), '`is` gives a boolean');
         });
 
         it('rejects unknown keys and reserved keys', () => {
@@ -1030,6 +1029,13 @@ describe('WebDetection expressions', () => {
             expect(result.detected).toBe(true);
             expect(result.ctx.measured.n).toBe(2);
         });
+
+        it('cuts a length short at the bound of an `is` in value position', () => {
+            const html = Array.from({ length: 7 }, () => IMG()).join('');
+            const result = run(html, withPayload({ element: { selector: 'img', where: {} }, using: 'length', as: 'n', is: { gte: 2 } }));
+            expect(result.data).toEqual({ x: true });
+            expect(result.ctx.measured.n).toBe(2);
+        });
     });
 
     describe('payloads', () => {
@@ -1477,6 +1483,14 @@ describe('WebDetection expressions', () => {
             );
         });
 
+        it('gives the boolean an `is` gives in value position, and names the value it tests', () => {
+            const test = { element: { selector: 'img' }, using: 'length', as: 'n', is: { gte: 2 } };
+            const detector = { actions: [{ fireEvent: { type: 't', data: { enough: { value: test }, n: { value: { ref: 'n' } } } } }] };
+            expect(run(widths, detector).data).toEqual({ enough: true, n: 2 });
+            expect(run(IMG(), detector).data).toEqual({ enough: false, n: 1 });
+            expect(payload(widths, { api: { path: 'String', args: [{ element: { selector: 'img' }, is: {} }] } })).toEqual({ x: 'true' });
+        });
+
         it('gives its operand in its own position: a list operand of `sum`, and the condition leaf', () => {
             const sum = { sum: { expr: { element: { selector: 'img', field: 'naturalWidth' }, as: 'w' } }, is: 3 };
             expect(holds(widths, sum, { install: imageState })).toBe(true);
@@ -1812,17 +1826,6 @@ describe('WebDetection expressions', () => {
             expectParseError(
                 { actions: [{ when: { api: { path: 'Array.of', args: [{ composed: true }] }, is: {} }, exit: true }] },
                 "unknown expression key 'composed'",
-            );
-            expectParseError(
-                {
-                    actions: [
-                        {
-                            when: { api: { path: 'Array.of', args: [{ element: { selector: 'p' }, using: 'length', is: 1 }] }, is: {} },
-                            exit: true,
-                        },
-                    ],
-                },
-                '`is`',
             );
         });
     });
