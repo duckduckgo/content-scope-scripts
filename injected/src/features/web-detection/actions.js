@@ -1,6 +1,6 @@
 import { objectKeys } from '../../captured-globals.js';
 import { isFailure, isScalar } from './core.js';
-import { evaluateOccurrence, evaluatePayload, evaluateWhen } from './expressions.js';
+import { evaluatePayload, evaluateWhen } from './expressions.js';
 
 /**
  * @typedef {import('./expressions.js').EvaluationContext} EvaluationContext
@@ -143,8 +143,8 @@ function runItem(item, index, state, ctx, run, fire) {
     let failure;
     for (const [name, node] of item.define) {
         try {
-            // `done` is a boolean in boolean position; any other value is stored as read, a list as an array
-            const value = name === 'done' ? evaluateOccurrence(node, ctx) : ctx.arg(node);
+            // Stored as read, a list as an array
+            const value = ctx.arg(node);
             if (isFailure(value)) {
                 failure ??= 'aborted';
                 if (value.error) run.abortError ??= value.error;

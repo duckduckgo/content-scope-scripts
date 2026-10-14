@@ -304,6 +304,21 @@ describe('WebDetection actions', () => {
             d.run();
             expect(d.state.done).toBe(true);
         });
+
+        it('takes any value, and leaves the detector running on a value other than `true`', () => {
+            const global = { page: { live: { list: [{ ready: true }] } } };
+            const d = detector(
+                [
+                    { define: { done: 5 } },
+                    { define: { done: { sum: [1, 2] } } },
+                    { define: { done: { api: { path: 'page.live.list', where: {} } } } },
+                ],
+                global,
+            );
+            d.run();
+            expect(d.state.defined.get('done')).toEqual([{ ready: true }]);
+            expect(d.state.done).toBe(false);
+        });
     });
 
     describe('breakage entries', () => {
@@ -399,11 +414,6 @@ describe('WebDetection actions', () => {
         it('rejects a name both `define`d and given by `as`, and `done` given by `as`', () => {
             expectParseError([{ when: { api: 'page.live.n', as: 'x', is: 1 }, define: { x: 1 } }], 'a name is one or the other');
             expectParseError([{ when: { api: 'page.live.n', as: 'done', is: 1 }, exit: true }], "'done' is reserved");
-        });
-
-        it('rejects a `done` that config shows is not a boolean', () => {
-            expectParseError([{ define: { done: 5 } }], 'does not fill boolean position');
-            expectParseError([{ define: { done: { sum: [1, 2] } } }], 'does not fill boolean position');
         });
 
         it('reads a `define`d name through `ref` without an `as`', () => {
