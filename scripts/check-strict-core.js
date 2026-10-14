@@ -107,6 +107,7 @@ const CORE_FILES = new Set([
     'injected/src/features/detector-perf.js',
     'injected/src/features/web-detection.js',
     'injected/src/features/web-detection/matching.js',
+    'injected/src/features/web-detection/actions.js',
     'injected/src/features/web-detection/core.js',
     'injected/src/features/web-detection/expressions.js',
     'injected/src/features/web-detection/parse.js',

@@ -1,8 +1,13 @@
 import { JSDOM } from 'jsdom';
 import { parseDetectors } from '../src/features/web-detection/parse.js';
-import { evaluateMatch } from '../src/features/web-detection/expressions.js';
+import { evaluateCondition } from '../src/features/web-detection/expressions.js';
 import WebDetection from '../src/features/web-detection.js';
 import WebEvents from '../src/features/web-events.js';
+
+/**
+ * @typedef {import('../src/features/web-detection/parse.js').RawDetectorConfig} RawDetectorConfig
+ * @typedef {import('../src/features/web-detection/actions.js').BreakageEntry} BreakageEntry
+ */
 
 /**
  * @typedef {object} TestEnv
@@ -17,7 +22,7 @@ import WebEvents from '../src/features/web-events.js';
  *
  * @param {object} detectorsConfig - The detectors config (group -> detector -> config)
  * @param {TestEnv} [env] - Environment options
- * @returns {import('../src/features/web-detection.js').DetectorResult[]}
+ * @returns {BreakageEntry[]}
  */
 function runDetectorsInEnv(detectorsConfig, env = {}) {
     const { platform = {}, domain = 'example.com', isTopFrame = true } = env;
@@ -48,27 +53,34 @@ function runDetectorsInEnv(detectorsConfig, env = {}) {
  * Run a single detector and return results.
  * Wraps detector in standard group/detector structure.
  *
- * @param {import('@duckduckgo/privacy-configuration/schema/features/web-detection').DetectorConfig} detectorConfig
+ * @param {RawDetectorConfig} detectorConfig
  * @param {TestEnv} [env]
- * @returns {import('../src/features/web-detection.js').DetectorResult[]}
+ * @returns {BreakageEntry[]}
  */
 function runDetector(detectorConfig, env = {}) {
     return runDetectorsInEnv({ group: { detector: detectorConfig } }, env);
 }
 
+/**
+ * A detector whose one item writes its breakage entry when `when` holds.
+ *
+ * @param {unknown} when
+ * @param {Omit<RawDetectorConfig, 'actions'>} [rest]
+ * @returns {RawDetectorConfig}
+ */
+const detects = (when, rest = {}) => ({ ...rest, actions: [{ when, breakageReportData: {} }] });
+
 describe('WebDetection', () => {
     describe('parseDetectors', () => {
         it('should return empty object for invalid input', () => {
-            // @ts-expect-error - null is not a valid input
-            expect(parseDetectors(null)).toEqual({});
             expect(parseDetectors(undefined)).toEqual({});
         });
 
         it('should skip invalid group names', () => {
             const config = {
-                '123invalid': { detector1: { match: { text: { pattern: 'test' } } } },
-                'invalid-name': { detector2: { match: { text: { pattern: 'test' } } } },
-                '': { detector3: { match: { text: { pattern: 'test' } } } },
+                '123invalid': { detector1: detects(true) },
+                'invalid-name': { detector2: detects(true) },
+                '': { detector3: detects(true) },
             };
             const result = parseDetectors(config);
             expect(Object.keys(result)).toEqual([]);
@@ -76,14 +88,14 @@ describe('WebDetection', () => {
 
         it('should accept valid group and detector names', () => {
             const config = {
-                ValidGroup: { Detector1: { match: {} } },
-                validGroup: { detector1: { match: {} } },
+                ValidGroup: { Detector1: detects(true) },
+                validGroup: { detector1: detects(true) },
                 adwalls: {
-                    generic: { match: {} },
-                    specific1: { match: {} },
+                    generic: detects(true),
+                    specific1: detects(true),
                 },
                 my_group_01: {
-                    my_detector07: { match: {} },
+                    my_detector07: detects(true),
                 },
             };
             const result = parseDetectors(config);
@@ -100,31 +112,19 @@ describe('WebDetection', () => {
         });
 
         it('should apply defaults to detectors', () => {
-            const config = {
-                adwalls: {
-                    generic: { match: { text: { pattern: 'adblocker' } } },
-                },
-            };
-            const result = parseDetectors(config);
+            const result = parseDetectors({ adwalls: { generic: detects({ text: { pattern: 'adblocker' } }) } });
             const detector = result.adwalls.generic;
 
             expect(detector.state).toBe('enabled');
             expect(detector.triggers.breakageReport.state).toBe('enabled');
             expect(detector.triggers.breakageReport.runConditions).toEqual([{ context: { top: true } }]);
-            expect(detector.actions.breakageReportData.state).toBe('enabled');
+            expect(detector.hasBreakageReportData).toBe(true);
         });
 
         it('should allow custom runConditions to override defaults', () => {
             const config = {
                 adwalls: {
-                    iframeDetector: {
-                        match: { text: { pattern: 'test' } },
-                        triggers: {
-                            breakageReport: {
-                                runConditions: [],
-                            },
-                        },
-                    },
+                    iframeDetector: detects({ text: { pattern: 'test' } }, { triggers: { breakageReport: { runConditions: [] } } }),
                 },
             };
             const result = parseDetectors(config);
@@ -134,14 +134,10 @@ describe('WebDetection', () => {
         it('should allow domain-specific runConditions', () => {
             const config = {
                 adwalls: {
-                    domainSpecific: {
-                        match: { text: { pattern: 'test' } },
-                        triggers: {
-                            breakageReport: {
-                                runConditions: [{ domain: 'example.com' }],
-                            },
-                        },
-                    },
+                    domainSpecific: detects(
+                        { text: { pattern: 'test' } },
+                        { triggers: { breakageReport: { runConditions: [{ domain: 'example.com' }] } } },
+                    ),
                 },
             };
             const result = parseDetectors(config);
@@ -149,203 +145,113 @@ describe('WebDetection', () => {
         });
 
         /**
-         * @param {import('@duckduckgo/privacy-configuration/schema/features/web-detection').DetectorConfig} detectorConfig
+         * @param {unknown} detectorConfig
          * @returns {import('../src/features/web-detection/parse.js').DetectorConfig}
          */
         const oneDetectorConfigParsed = (detectorConfig) => {
             const result = parseDetectors({
                 group: {
-                    detector: detectorConfig,
+                    detector: /** @type {RawDetectorConfig} */ (detectorConfig),
                 },
             });
             return result.group.detector;
         };
 
+        /**
+         * @param {unknown} detectorConfig
+         * @returns {import('../src/features/web-detection/parse.js').CompiledDetector}
+         */
+        const compiledOf = (detectorConfig) => {
+            const compiled = oneDetectorConfigParsed(detectorConfig).compiled;
+            if ('error' in compiled) throw new Error(compiled.error);
+            return compiled;
+        };
+
+        /**
+         * @param {unknown} detectorConfig
+         * @returns {string}
+         */
+        const parseErrorOf = (detectorConfig) => {
+            const compiled = oneDetectorConfigParsed(detectorConfig).compiled;
+            return 'error' in compiled ? compiled.error : '';
+        };
+
         it('should allow disabling detector state', () => {
-            const result = oneDetectorConfigParsed({
-                state: 'disabled',
-                match: { text: { pattern: 'test' } },
-            });
+            const result = oneDetectorConfigParsed(detects({ text: { pattern: 'test' } }, { state: 'disabled' }));
             expect(result.state).toBe('disabled');
         });
 
         it('should allow disabling trigger state', () => {
-            const result = oneDetectorConfigParsed({
-                match: { text: { pattern: 'test' } },
-                triggers: {
-                    breakageReport: { state: 'disabled' },
-                },
-            });
+            const result = oneDetectorConfigParsed(
+                detects({ text: { pattern: 'test' } }, { triggers: { breakageReport: { state: 'disabled' } } }),
+            );
             expect(result.triggers.breakageReport.state).toBe('disabled');
         });
 
-        it('should allow disabling action state', () => {
-            const result = oneDetectorConfigParsed({
-                match: { text: { pattern: 'test' } },
-                actions: {
-                    breakageReportData: { state: 'disabled' },
-                },
+        it('should compile each item in order', () => {
+            const compiled = compiledOf({
+                actions: [
+                    { when: { text: { pattern: 'test' } }, exit: true },
+                    { fireEvent: { type: 'adwall' }, breakageReportData: {}, define: { done: true } },
+                ],
             });
-            expect(result.actions.breakageReportData.state).toBe('disabled');
+            expect(compiled.items.length).toBe(2);
+            expect(compiled.items[0].when).toBeDefined();
+            expect(compiled.items[0].exit).toBe(true);
+            expect(compiled.items[0].gate).toBe(true);
+            expect(compiled.items[1].when).toBeUndefined();
+            expect(compiled.items[1].fireEvent).toEqual({ type: 'adwall' });
+            expect(compiled.items[1].breakageReportData).toEqual({});
+            expect(compiled.items[1].exit).toBe(false);
+            expect(compiled.items[1].gate).toBe(true);
         });
 
-        it('should preserve fireEvent action when present and default state to enabled', () => {
-            const result = oneDetectorConfigParsed({
-                match: { text: { pattern: 'test' } },
-                actions: /** @type {any} - fireEvent not yet in published schema */ ({
-                    fireEvent: { type: 'adwall' },
-                }),
-            });
-            expect(result.actions.fireEvent).toEqual({ type: 'adwall', state: 'enabled' });
+        it('should record whether an item writes the breakage entry, even when parsing fails', () => {
+            expect(oneDetectorConfigParsed({ actions: [{ fireEvent: { type: 'adwall' } }] }).hasBreakageReportData).toBe(false);
+            const broken = oneDetectorConfigParsed({ actions: [{ when: 5, breakageReportData: {} }] });
+            expect('error' in broken.compiled).toBe(true);
+            expect(broken.hasBreakageReportData).toBe(true);
         });
 
-        it('should preserve fireEvent state when configured', () => {
-            const result = oneDetectorConfigParsed({
-                match: { text: { pattern: 'test' } },
-                actions: /** @type {any} */ ({
-                    fireEvent: { type: 'adwall', state: 'disabled' },
-                }),
-            });
-            expect(result.actions.fireEvent).toEqual({ type: 'adwall', state: 'disabled' });
-        });
-
-        it('should not have fireEvent when not configured', () => {
-            const result = oneDetectorConfigParsed({
-                match: { text: { pattern: 'test' } },
-            });
-            expect(result.actions.fireEvent).toBeUndefined();
-        });
-
-        it('should preserve both breakageReportData and fireEvent actions', () => {
-            const result = oneDetectorConfigParsed({
-                match: { text: { pattern: 'test' } },
-                actions: /** @type {any} - fireEvent not yet in published schema */ ({
-                    breakageReportData: { state: 'enabled' },
-                    fireEvent: { type: 'adwall' },
-                }),
-            });
-            expect(result.actions.breakageReportData.state).toBe('enabled');
-            expect(result.actions.fireEvent).toEqual({ type: 'adwall', state: 'enabled' });
-        });
-
-        /**
-         *
-         * @template T
-         * @param {T | T[]} value
-         * @returns {T}
-         */
-        const asSingle = (value) => {
-            expect(Array.isArray(value)).toBe(false);
-            // @ts-expect-error - we know it's not an array
-            return value;
-        };
-
-        /**
-         *
-         * @template T
-         * @param {T | T[]} value
-         * @returns {T[]}
-         */
-        const asArray = (value) => {
-            expect(Array.isArray(value)).toBe(true);
-            // @ts-expect-error - we know it's an array
-            return value;
-        };
-
-        it('should preserve match conditions from config', () => {
-            const result = oneDetectorConfigParsed({
-                match: { text: { pattern: ['adblocker', 'disable'] }, element: { selector: '.overlay', visibility: 'visible' } },
-            });
-            const leaf = /** @type {import('../src/features/web-detection/parse.js').MatchConditionSingle} */ (asSingle(result.match));
-            expect(leaf.text).toEqual({ pattern: ['adblocker', 'disable'] });
-            expect(leaf.element).toEqual({ selector: '.overlay', visibility: 'visible' });
-        });
-
-        it('should handle array of match conditions (OR)', () => {
-            const result = oneDetectorConfigParsed({
-                match: [{ text: { pattern: 'option1' } }, { element: { selector: '.option2' } }],
-            });
-            expect(asArray(result.match).length).toBe(2);
+        it('should reject the shape before action lists', () => {
+            expect(parseErrorOf({ match: { text: { pattern: 'test' } } })).toContain("unknown key 'match'");
+            expect(parseErrorOf({ actions: { fireEvent: { type: 'adwall' } } })).toContain('`actions` takes an array');
+            expect(parseErrorOf({ actions: [{ fireEvent: { type: 'adwall', state: 'enabled' } }] })).toContain("unknown key 'state'");
         });
 
         describe('auto trigger defaults', () => {
+            const auto = (/** @type {object} */ triggers) => detects({ text: { pattern: 'test' } }, { triggers });
+
             it('should apply default state (disabled) to auto trigger', () => {
-                const result = oneDetectorConfigParsed({
-                    match: { text: { pattern: 'test' } },
-                    triggers: {
-                        auto: {
-                            when: {
-                                intervalMs: [100],
-                            },
-                        },
-                    },
-                });
+                const result = oneDetectorConfigParsed(auto({ auto: { when: { intervalMs: [100] } } }));
                 expect(result.triggers.auto.state).toBe('disabled');
             });
 
             it('should apply default runConditions to auto trigger', () => {
-                const result = oneDetectorConfigParsed({
-                    match: { text: { pattern: 'test' } },
-                    triggers: {
-                        auto: {
-                            when: {
-                                intervalMs: [100],
-                            },
-                        },
-                    },
-                });
+                const result = oneDetectorConfigParsed(auto({ auto: { when: { intervalMs: [100] } } }));
                 expect(result.triggers.auto.runConditions).toEqual([{ context: { top: true } }]);
             });
 
             it('should allow overriding state to enabled', () => {
-                const result = oneDetectorConfigParsed({
-                    match: { text: { pattern: 'test' } },
-                    triggers: {
-                        auto: {
-                            state: 'enabled',
-                            when: {
-                                intervalMs: [100, 500],
-                            },
-                        },
-                    },
-                });
+                const result = oneDetectorConfigParsed(auto({ auto: { state: 'enabled', when: { intervalMs: [100, 500] } } }));
                 expect(result.triggers.auto.state).toBe('enabled');
                 expect(result.triggers.auto.when.intervalMs).toEqual([100, 500]);
             });
 
             it('should allow overriding runConditions', () => {
-                const result = oneDetectorConfigParsed({
-                    match: { text: { pattern: 'test' } },
-                    triggers: {
-                        auto: {
-                            runConditions: [{ domain: 'example.com' }],
-                            when: {
-                                intervalMs: [100],
-                            },
-                        },
-                    },
-                });
+                const result = oneDetectorConfigParsed(
+                    auto({ auto: { runConditions: [{ domain: 'example.com' }], when: { intervalMs: [100] } } }),
+                );
                 expect(result.triggers.auto.runConditions).toEqual([{ domain: 'example.com' }]);
             });
 
             it('should handle multiple intervals', () => {
-                const result = oneDetectorConfigParsed({
-                    match: { text: { pattern: 'test' } },
-                    triggers: {
-                        auto: {
-                            when: {
-                                intervalMs: [100, 500, 1000, 5000],
-                            },
-                        },
-                    },
-                });
+                const result = oneDetectorConfigParsed(auto({ auto: { when: { intervalMs: [100, 500, 1000, 5000] } } }));
                 expect(result.triggers.auto.when.intervalMs).toEqual([100, 500, 1000, 5000]);
             });
 
             it('should apply default auto trigger when not specified in config', () => {
-                const result = oneDetectorConfigParsed({
-                    match: { text: { pattern: 'test' } },
-                });
+                const result = oneDetectorConfigParsed(detects({ text: { pattern: 'test' } }));
                 // Defaults should be applied for auto trigger
                 expect(result.triggers.auto).toBeDefined();
                 expect(result.triggers.auto.state).toBe('disabled');
@@ -353,16 +259,7 @@ describe('WebDetection', () => {
             });
 
             it('should not interfere with breakageReport trigger defaults', () => {
-                const result = oneDetectorConfigParsed({
-                    match: { text: { pattern: 'test' } },
-                    triggers: {
-                        auto: {
-                            when: {
-                                intervalMs: [100],
-                            },
-                        },
-                    },
-                });
+                const result = oneDetectorConfigParsed(auto({ auto: { when: { intervalMs: [100] } } }));
                 // breakageReport defaults should still be applied
                 expect(result.triggers.breakageReport.state).toBe('enabled');
                 expect(result.triggers.breakageReport.runConditions).toEqual([{ context: { top: true } }]);
@@ -375,83 +272,63 @@ describe('WebDetection', () => {
             expect(runDetectorsInEnv({})).toEqual([]);
         });
 
-        it('should include matching detector (match: {} always matches)', () => {
-            const results = runDetector({ match: {} });
-            expect(results.length).toBe(1);
-            expect(results[0].detectorId).toBe('group.detector');
-            expect(results[0].detected).toBe(true);
+        it('should include a detector whose breakageReportData item ran', () => {
+            const results = runDetector(detects(true));
+            expect(results).toEqual([{ detectorId: 'group.detector', detected: true }]);
         });
 
-        it('should exclude non-matching detector (match: [] never matches)', () => {
-            expect(runDetector({ match: [] })).toEqual([]);
+        it('should exclude a detector whose item did not run', () => {
+            expect(runDetector(detects(false))).toEqual([]);
+        });
+
+        it('should exclude a detector with no breakageReportData item', () => {
+            expect(runDetector({ actions: [{ fireEvent: { type: 'adwall' } }] })).toEqual([]);
         });
 
         it('should not run when detector state is disabled', () => {
-            expect(runDetector({ state: 'disabled', match: {} })).toEqual([]);
+            expect(runDetector(detects(true, { state: 'disabled' }))).toEqual([]);
         });
 
         it('should not run when trigger state is disabled', () => {
-            expect(
-                runDetector({
-                    match: {},
-                    triggers: { breakageReport: { state: 'disabled' } },
-                }),
-            ).toEqual([]);
-        });
-
-        it('should not run when breakageReportData action is disabled', () => {
-            expect(
-                runDetector({
-                    match: {},
-                    actions: { breakageReportData: { state: 'disabled' } },
-                }),
-            ).toEqual([]);
+            expect(runDetector(detects(true, { triggers: { breakageReport: { state: 'disabled' } } }))).toEqual([]);
         });
 
         it('should not run in iframe when default runConditions require top frame', () => {
-            expect(runDetector({ match: {} }, { isTopFrame: false })).toEqual([]);
+            expect(runDetector(detects(true), { isTopFrame: false })).toEqual([]);
         });
 
         it('should run in top frame when runConditions require top frame', () => {
-            expect(runDetector({ match: {} }, { isTopFrame: true }).length).toBe(1);
+            expect(runDetector(detects(true), { isTopFrame: true }).length).toBe(1);
         });
 
         it('should not run when domain runCondition does not match', () => {
             expect(
-                runDetector(
-                    {
-                        match: {},
-                        triggers: { breakageReport: { runConditions: [{ domain: 'example.com' }] } },
-                    },
-                    { domain: 'other.com' },
-                ),
+                runDetector(detects(true, { triggers: { breakageReport: { runConditions: [{ domain: 'example.com' }] } } }), {
+                    domain: 'other.com',
+                }),
             ).toEqual([]);
         });
 
         it('should run when domain runCondition matches', () => {
             expect(
-                runDetector(
-                    {
-                        match: {},
-                        triggers: { breakageReport: { runConditions: [{ domain: 'example.com' }] } },
-                    },
-                    { domain: 'example.com' },
-                ).length,
+                runDetector(detects(true, { triggers: { breakageReport: { runConditions: [{ domain: 'example.com' }] } } }), {
+                    domain: 'example.com',
+                }).length,
             ).toBe(1);
         });
 
         it('should run internal detector when platform.internal is true', () => {
-            expect(runDetector({ state: 'internal', match: {} }, { platform: { internal: true } }).length).toBe(1);
+            expect(runDetector(detects(true, { state: 'internal' }), { platform: { internal: true } }).length).toBe(1);
         });
 
         it('should not run internal detector when platform.internal is false', () => {
-            expect(runDetector({ state: 'internal', match: {} }, { platform: { internal: false } })).toEqual([]);
+            expect(runDetector(detects(true, { state: 'internal' }), { platform: { internal: false } })).toEqual([]);
         });
 
-        it('should return multiple matching detectors from different groups', () => {
+        it('should return multiple detectors from different groups', () => {
             const results = runDetectorsInEnv({
-                adwalls: { generic: { match: {} }, specific: { match: {} } },
-                paywalls: { detector1: { match: {} } },
+                adwalls: { generic: detects(true), specific: detects(true) },
+                paywalls: { detector1: detects(true) },
             });
             expect(results.length).toBe(3);
             expect(results.map((r) => r.detectorId).sort()).toEqual(['adwalls.generic', 'adwalls.specific', 'paywalls.detector1']);
@@ -460,42 +337,44 @@ describe('WebDetection', () => {
         it('should only include enabled detectors from mixed set', () => {
             const results = runDetectorsInEnv({
                 group: {
-                    enabled1: { match: {} },
-                    disabled1: { state: 'disabled', match: {} },
-                    enabled2: { match: {} },
-                    disabledTrigger: { match: {}, triggers: { breakageReport: { state: 'disabled' } } },
+                    enabled1: detects(true),
+                    disabled1: detects(true, { state: 'disabled' }),
+                    enabled2: detects(true),
+                    disabledTrigger: detects(true, { triggers: { breakageReport: { state: 'disabled' } } }),
                 },
             });
             expect(results.map((r) => r.detectorId).sort()).toEqual(['group.enabled1', 'group.enabled2']);
         });
 
         it('should return error for detector with invalid regex', () => {
-            const results = runDetector({ match: { text: { pattern: '[invalid(regex' } } });
+            const results = runDetector(detects({ text: { pattern: '[invalid(regex' } }));
             expect(results.length).toBe(1);
             expect(results[0].detected).toBe('error');
         });
 
         it('should return error for detector with invalid selector', () => {
-            const results = runDetector({ match: { element: { selector: '!!!invalid' } } });
+            const results = runDetector(detects({ element: { selector: '!!!invalid' } }));
             expect(results.length).toBe(1);
             expect(results[0].detected).toBe('error');
         });
 
         it('should return error when condition mixes operator keys with leaf fields', () => {
-            const results = runDetector({
-                match: /** @type {any} - intentionally invalid: mixes operator + leaf keys */ ({
-                    text: { all: [{ pattern: 'foo' }], pattern: 'bar' },
-                }),
-            });
+            const results = runDetector(detects({ text: { all: [{ pattern: 'foo' }], pattern: 'bar' } }));
             expect(results.length).toBe(1);
             expect(results[0].detected).toBe('error');
+        });
+
+        it('should return error for detector that fails to parse', () => {
+            expect(runDetector(/** @type {RawDetectorConfig} */ ({ match: {}, actions: [{ breakageReportData: {} }] }))).toEqual([
+                { detectorId: 'group.detector', detected: 'error' },
+            ]);
         });
 
         it('should continue processing other detectors after error', () => {
             const results = runDetectorsInEnv({
                 group: {
-                    broken: { match: { text: { pattern: '[invalid' } } },
-                    working: { match: {} },
+                    broken: detects({ text: { pattern: '[invalid' } }),
+                    working: detects(true),
                 },
             });
             expect(results.length).toBe(2);
@@ -529,39 +408,20 @@ describe('WebDetection', () => {
             }
         }
 
-        /**
-         * @param {Partial<import('../src/features/web-detection/parse.js').DetectorActions>} overrides
-         * @returns {import('../src/features/web-detection/parse.js').DetectorConfig}
-         */
-        const actionsConfig = (overrides) => /** @type {any} */ ({ actions: { breakageReportData: { state: 'enabled' }, ...overrides } });
-
-        it('should fire when fireEvent state is enabled', async () => {
+        it('should send the type', async () => {
             const instance = createInstance();
             spyOn(instance, 'callFeatureMethod').and.resolveTo(undefined);
-            await instance._executeFireEvent(actionsConfig({ fireEvent: { type: 'adwall', state: 'enabled' } }), true);
+            await instance._executeFireEvent('adwall');
             // @ts-expect-error - Jasmine spy type inference doesn't match callFeatureMethod's overloaded signature
             expect(instance.callFeatureMethod).toHaveBeenCalledWith('webEvents', 'fireEvent', { type: 'adwall' });
         });
 
-        it('should not fire when fireEvent state is disabled', async () => {
+        it('should send the payload when there is one', async () => {
             const instance = createInstance();
             spyOn(instance, 'callFeatureMethod').and.resolveTo(undefined);
-            await instance._executeFireEvent(actionsConfig({ fireEvent: { type: 'adwall', state: 'disabled' } }), true);
-            expect(instance.callFeatureMethod).not.toHaveBeenCalled();
-        });
-
-        it('should not fire when detected is false', async () => {
-            const instance = createInstance();
-            spyOn(instance, 'callFeatureMethod').and.resolveTo(undefined);
-            await instance._executeFireEvent(actionsConfig({ fireEvent: { type: 'adwall', state: 'enabled' } }), false);
-            expect(instance.callFeatureMethod).not.toHaveBeenCalled();
-        });
-
-        it('should not fire when fireEvent action is absent', async () => {
-            const instance = createInstance();
-            spyOn(instance, 'callFeatureMethod').and.resolveTo(undefined);
-            await instance._executeFireEvent(actionsConfig({}), true);
-            expect(instance.callFeatureMethod).not.toHaveBeenCalled();
+            await instance._executeFireEvent('adwall', { n: 1 });
+            // @ts-expect-error - Jasmine spy type inference doesn't match callFeatureMethod's overloaded signature
+            expect(instance.callFeatureMethod).toHaveBeenCalledWith('webEvents', 'fireEvent', { type: 'adwall', data: { n: 1 } });
         });
     });
 
@@ -588,20 +448,12 @@ describe('WebDetection', () => {
             messagingContextName: 'test',
         };
 
-        /**
-         * @param {Partial<import('../src/features/web-detection/parse.js').DetectorActions>} overrides
-         * @returns {import('../src/features/web-detection/parse.js').DetectorConfig}
-         */
-        const actionsConfig = (overrides) => /** @type {any} */ ({ actions: { breakageReportData: { state: 'enabled' }, ...overrides } });
-
-        const fireEventConfig = actionsConfig({ fireEvent: { type: 'adwall', state: 'enabled' } });
-
         it('should not fire when webEvents feature is not loaded', async () => {
             const instance = new WebDetection('webDetection', undefined, {}, defaultArgs);
             instance.init();
 
             // callFeatureMethod will return CallFeatureMethodError (feature not found)
-            await instance._executeFireEvent(fireEventConfig, true);
+            await instance._executeFireEvent('adwall');
             // Completes without error
         });
 
@@ -617,7 +469,7 @@ describe('WebDetection', () => {
             instance.init();
 
             // callFeatureMethod will return CallFeatureMethodError (skipped)
-            await instance._executeFireEvent(fireEventConfig, true);
+            await instance._executeFireEvent('adwall');
             expect(fireEventSpy).not.toHaveBeenCalled();
         });
 
@@ -632,19 +484,19 @@ describe('WebDetection', () => {
             const instance = new WebDetection('webDetection', undefined, features, defaultArgs);
             instance.init();
 
-            await instance._executeFireEvent(fireEventConfig, true);
+            await instance._executeFireEvent('adwall');
             expect(fireEventSpy).toHaveBeenCalledWith({ type: 'adwall' });
         });
     });
 
-    describe('evaluateMatch', () => {
+    describe('evaluateCondition', () => {
         /**
-         * Set up a DOM with given HTML and run evaluateMatch.
+         * Set up a DOM with given HTML and run evaluateCondition.
          * By default, all elements have non-zero dimensions (appear layouted).
          * Use `zeroSizeSelectors` to specify elements that should have 0x0 dimensions.
          *
          * @param {string} html
-         * @param {import('../src/features/web-detection/parse.js').MatchCondition} match
+         * @param {unknown} match
          * @param {object} [options]
          * @param {string[]} [options.zeroSizeSelectors] - Selectors for elements with 0x0 dimensions
          * @returns {boolean | 'aborted'}
@@ -692,7 +544,7 @@ describe('WebDetection', () => {
             };
 
             try {
-                return evaluateMatch(match);
+                return evaluateCondition(match);
             } finally {
                 globalThis.document = originalDocument;
                 globalThis.getComputedStyle = originalGetComputedStyle;
@@ -888,9 +740,9 @@ describe('WebDetection', () => {
                 globalThis.document = dom.window.document;
                 try {
                     const match = { text: { pattern: 'adblocker detected', xpath: RENDERED_TEXT } };
-                    expect(evaluateMatch(match)).toBe(false);
+                    expect(evaluateCondition(match)).toBe(false);
                     dom.window.document.body.insertAdjacentHTML('beforeend', '<div class="wall">adblocker detected</div>');
-                    expect(evaluateMatch(match)).toBe(true);
+                    expect(evaluateCondition(match)).toBe(true);
                 } finally {
                     globalThis.document = originalDocument;
                 }
@@ -1520,7 +1372,7 @@ describe('WebDetection', () => {
         // intentionally NOT used: a loaded captcha library is not a visible challenge and
         // would inflate the per-navigation ratio.
         describe('captcha vendor detectors', () => {
-            /** @type {Record<string, import('../src/features/web-detection/parse.js').MatchCondition>} */
+            /** @type {Record<string, unknown>} */
             const captcha = {
                 recaptcha: {
                     element: {
