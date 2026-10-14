@@ -14,6 +14,7 @@ const currentDirname = dirname(currentFilename);
  * @property {string} excludeSelectors - CSS selectors to exclude from processing
  * @property {boolean} includeIframes - Whether to include iframe content
  * @property {boolean} trimBlankLinks - Whether to trim blank links
+ * @property {boolean} stripLinkUrls - Whether to keep only the link text and drop its URL
  */
 
 describe('page-context.js - domToMarkdown', () => {
@@ -25,7 +26,14 @@ describe('page-context.js - domToMarkdown', () => {
         mkdirSync(outputDir, { recursive: true });
     }
 
-    const defaultSettings = { maxLength: 10000, maxDepth: 100, excludeSelectors: null, includeIframes: false, trimBlankLinks: false };
+    const defaultSettings = {
+        maxLength: 10000,
+        maxDepth: 100,
+        excludeSelectors: null,
+        includeIframes: false,
+        trimBlankLinks: false,
+        stripLinkUrls: false,
+    };
 
     const testCases = [
         {
@@ -52,6 +60,16 @@ describe('page-context.js - domToMarkdown', () => {
             name: 'links',
             html: '<p>Visit <a href="https://example.com">our website</a> for more info.</p>',
             settings: defaultSettings,
+        },
+        {
+            name: 'links-stripped',
+            html: '<p>Visit <a href="https://example.com">our <strong>website</strong></a> or <a href="/docs">the docs</a> for more info.</p>',
+            settings: { ...defaultSettings, stripLinkUrls: true },
+        },
+        {
+            name: 'empty-link-stripped-without-trim',
+            html: '<p>Before <a href="https://example.com"></a>after</p>',
+            settings: { ...defaultSettings, stripLinkUrls: true },
         },
         {
             name: 'unordered-list',
@@ -96,22 +114,50 @@ describe('page-context.js - domToMarkdown', () => {
         {
             name: 'excluded-selectors',
             html: '<div><p>Keep this</p><div class="ad">Remove this ad</div><p>Keep this too</p></div>',
-            settings: { maxLength: 10000, maxDepth: 100, excludeSelectors: '.ad', includeIframes: false, trimBlankLinks: false },
+            settings: {
+                maxLength: 10000,
+                maxDepth: 100,
+                excludeSelectors: '.ad',
+                includeIframes: false,
+                trimBlankLinks: false,
+                stripLinkUrls: false,
+            },
         },
         {
             name: 'max-length-truncation',
             html: '<p>This is a very long paragraph that should be truncated at the maximum length setting.</p>',
-            settings: { maxLength: 30, maxDepth: 100, excludeSelectors: null, includeIframes: false, trimBlankLinks: false },
+            settings: {
+                maxLength: 30,
+                maxDepth: 100,
+                excludeSelectors: null,
+                includeIframes: false,
+                trimBlankLinks: false,
+                stripLinkUrls: false,
+            },
         },
         {
             name: 'empty-link-with-trim',
             html: '<a href="https://example.com"></a>',
-            settings: { maxLength: 10000, maxDepth: 100, excludeSelectors: null, includeIframes: false, trimBlankLinks: true },
+            settings: {
+                maxLength: 10000,
+                maxDepth: 100,
+                excludeSelectors: null,
+                includeIframes: false,
+                trimBlankLinks: true,
+                stripLinkUrls: false,
+            },
         },
         {
             name: 'empty-link-without-trim',
             html: '<a href="https://example.com"></a>',
-            settings: { maxLength: 10000, maxDepth: 100, excludeSelectors: null, includeIframes: false, trimBlankLinks: false },
+            settings: {
+                maxLength: 10000,
+                maxDepth: 100,
+                excludeSelectors: null,
+                includeIframes: false,
+                trimBlankLinks: false,
+                stripLinkUrls: false,
+            },
         },
         {
             name: 'mixed-formatting',

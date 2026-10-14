@@ -32,6 +32,12 @@ test.describe('page-context root selection', () => {
         expect(result.content).not.toContain('Harbour reopens after storm repairs');
     });
 
+    test('keeps a short article when a much bigger feed follows it', async ({ page }, testInfo) => {
+        const result = await collect(page, testInfo, `${PAGES}/small-main-feed.html`);
+        expect(result.content).toContain('Town replaces its last coal boiler');
+        expect(result.content).toContain('first full year of running costs');
+    });
+
     test('treats a display: contents main as rendered', async ({ page }, testInfo) => {
         const result = await collect(page, testInfo, `${PAGES}/display-contents.html`);
         expect(result.content).toContain('Element: checkVisibility() method');

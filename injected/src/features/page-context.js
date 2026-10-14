@@ -112,6 +112,7 @@ function domToMarkdownChildren(childNodes, settings, depth = 0) {
  * @property {string | null} excludeSelectors - CSS selectors to exclude from processing
  * @property {boolean} includeIframes - Whether to include iframe content
  * @property {boolean} trimBlankLinks - Whether to trim blank links
+ * @property {boolean} stripLinkUrls - Whether to keep only the link text and drop its URL
  */
 
 /**
@@ -206,7 +207,7 @@ function collapseAndTrim(str) {
 /**
  * Note: The whitespace difference between href/non-href cases is intentional.
  * With href: collapse AND trim (for clean markdown links)
- * Without href: collapse only (retain surrounding space context)
+ * Without href, or with URLs stripped: collapse only (retain surrounding space context)
  */
 function getLinkText(node, children, settings) {
     const href = node.getAttribute('href');
@@ -214,7 +215,7 @@ function getLinkText(node, children, settings) {
     if (settings.trimBlankLinks && trimmedContent.length === 0) {
         return '';
     }
-    return href ? `[${trimmedContent}](${href})` : collapseWhitespace(children);
+    return href && !settings.stripLinkUrls ? `[${trimmedContent}](${href})` : collapseWhitespace(children);
 }
 
 /**
@@ -744,18 +745,21 @@ export default class PageContext extends ContentFeature {
         const mainContentSelector = this.getFeatureSetting('mainContentSelector') || 'main, article, .content, .main, #content, #main';
         let mainContent = document.querySelector(mainContentSelector);
         const mainContentLength = this.getFeatureSetting('mainContentLength') || 100;
-        const minMainContentCoverage = this.getFeatureSetting('minMainContentCoverage') || 0.25;
+        const minMainContentCoverage = this.clampedNumericSetting('minMainContentCoverage', 0.25, 1);
         if (mainContent) {
             const bodyTextLength = document.body?.innerText.length ?? 0;
             const firstLength = renderedTextLength(mainContent);
-            // The first match is sometimes a teaser card, a nav menu or sits in a hidden menu, so then look at every match
-            if (!isRendered(mainContent) || firstLength <= mainContentLength || firstLength < bodyTextLength * minMainContentCoverage) {
+            // The first match is sometimes a teaser card or sits in a hidden menu, so then look at every match
+            if (!isRendered(mainContent) || firstLength <= mainContentLength) {
                 mainContent = selectLargestVisibleRoot(document.querySelectorAll(mainContentSelector), {
                     bodyTextLength,
-                    minCoverage: this.getFeatureSetting('minRootCoverage') || 0.35,
-                    maxCandidates: this.getFeatureSetting('maxRootCandidates') || 100,
+                    minCoverage: this.clampedNumericSetting('minRootCoverage', 0.35, 1),
+                    maxCandidates: this.clampedNumericSetting('maxRootCandidates', 100, 1000),
                     isEligible: (el) => isExtractable(el, excludeSelectorsString),
                 });
+            } else if (firstLength < bodyTextLength * minMainContentCoverage) {
+                // Another match could be a related-stories feed beside a short article, so take the body, which holds both
+                mainContent = null;
             }
         }
         let contentRoot = mainContent || document.body;
@@ -769,6 +773,7 @@ export default class PageContext extends ContentFeature {
                 includeIframes: this.getFeatureSettingEnabled('includeIframes', 'enabled'),
                 excludeSelectors: excludeSelectorsString,
                 trimBlankLinks: this.getFeatureSettingEnabled('trimBlankLinks', 'enabled'),
+                stripLinkUrls: this.getFeatureSettingEnabled('stripLinkUrls', 'disabled'),
             }).trim();
             this.log.info('Content markdown', result, root);
             return result;
