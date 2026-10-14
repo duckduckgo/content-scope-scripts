@@ -8,8 +8,6 @@ import {
 } from '../captured-globals.js';
 
 const MEDIATION_CONDITIONAL = 'conditional';
-// How long to wait for an aborted conditional request to settle before letting other requests proceed.
-const WAIT_LIMIT_MS = 1000;
 
 /**
  * @typedef {object} ConditionalRequest
@@ -26,7 +24,7 @@ const WAIT_LIMIT_MS = 1000;
  * - When the page is hidden, it aborts the pending conditional request and rejects new ones until the
  *   page is shown again.
  * - Before a modal `get` or a `create`, it aborts the pending conditional request and waits for it to
- *   settle (up to 1 s). Conditional requests started meanwhile are held until the modal request settles.
+ *   settle. Conditional requests started meanwhile are held until the modal request settles.
  * - A second conditional request is rejected with `NotAllowedError` without reaching WebKit, as the
  *   system would reject it anyway.
  *
@@ -109,12 +107,13 @@ export default class PasskeyRequestCancellation extends ContentFeature {
     }
 
     /**
-     * Aborts the pending conditional request and waits for it to settle, giving up after `WAIT_LIMIT_MS`.
+     * Aborts the pending conditional request and waits for it to settle. WebKit settles an aborted request
+     * when the system reports the cancel complete, the same moment it starts sending new requests again.
      * @param {ConditionalRequest} request
      */
     async abortCurrent(request) {
         request.controller.abort();
-        await CapturedPromise.race([request.settled, this.sleep(WAIT_LIMIT_MS)]);
+        await request.settled;
         if (this.#current === request) {
             this.#current = null;
         }

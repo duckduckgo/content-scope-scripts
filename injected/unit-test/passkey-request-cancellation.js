@@ -222,18 +222,17 @@ describe('PasskeyRequestCancellation', () => {
             expect(calls.map((call) => call.kind)).toEqual(['conditional', 'modal', 'conditional']);
         });
 
-        it('proceeds after one second when the conditional request ignores the abort', async () => {
+        it('holds the modal request until the cancelled conditional request settles', async () => {
             start(conditional({ publicKey: { ignoreAbort: true } }));
-            const startedAt = Date.now();
             start(modal());
-            while (calls.length < 2) {
-                await wait(20);
-            }
-            const firstWait = Date.now() - startedAt;
-            start(modal());
+            await wait(50);
+            const callsWhileSettling = calls.length;
+            calls[0].resolve(null);
+            await wait(0);
 
-            expect(firstWait).toBeGreaterThanOrEqual(900);
-            expect(calls.length).toBe(3);
+            expect(calls[0].signal?.aborted).toBeTrue();
+            expect(callsWhileSettling).toBe(1);
+            expect(calls.map((call) => call.kind)).toEqual(['conditional', 'modal']);
         });
 
         it('returns the native promise when there is nothing to wait for', () => {
