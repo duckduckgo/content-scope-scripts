@@ -159,11 +159,17 @@ test.describe('DetectorPerf Feature', () => {
         const config = buildConfig();
         config.features.webDetection.settings.detectors.failureTest = {
             invalidSelector: {
-                match: {
-                    element: {
-                        selector: '[',
+                actions: [
+                    {
+                        when: {
+                            element: {
+                                selector: '[',
+                            },
+                        },
+                        breakageReportData: {},
+                        define: { done: true },
                     },
-                },
+                ],
             },
         };
         await collector.load('/web-detection/index.html', config);
@@ -178,6 +184,7 @@ test.describe('DetectorPerf Feature', () => {
         expect(breakageData.webDetection).toContainEqual({
             detectorId: 'failureTest.invalidSelector',
             detected: 'error',
+            errors: { 0: 'error' },
         });
     });
 

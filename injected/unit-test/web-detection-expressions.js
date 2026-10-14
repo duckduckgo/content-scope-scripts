@@ -1,6 +1,6 @@
 import { JSDOM } from 'jsdom';
 import { compileDetector, parseDetectors } from '../src/features/web-detection/parse.js';
-import { EvaluationContext, evaluateMatchNode, evaluatePayload } from '../src/features/web-detection/expressions.js';
+import { EvaluationContext, evaluatePayload, evaluateWhen } from '../src/features/web-detection/expressions.js';
 import { NativeReader } from '../src/features/web-detection/predicates.js';
 import { ConfigParseError } from '../src/features/web-detection/core.js';
 import WebDetection from '../src/features/web-detection.js';
@@ -31,14 +31,16 @@ function run(body, detector, options = {}) {
         const reader = new NativeReader(window, compiled.names);
         options.afterCapture?.(window);
         const ctx = new EvaluationContext(reader);
+        const item = /** @type {import('../src/features/web-detection/parse.js').CompiledItem} */ (compiled.items[0]);
         /** @type {{ detected: true | false | 'aborted', abortError?: string }} */
         let result;
         try {
-            result = evaluateMatchNode(compiled.match, ctx);
+            const { result: detected, abortError } = item.when ? evaluateWhen(item.when, ctx) : { result: true };
+            result = { detected, ...(abortError && { abortError }) };
         } catch (error) {
             return { detected: 'error', ctx, error };
         }
-        const data = result.detected === true && compiled.fireEventData ? evaluatePayload(compiled.fireEventData, ctx) : undefined;
+        const data = result.detected === true && item.fireEvent?.data ? evaluatePayload(item.fireEvent.data, ctx) : undefined;
         return { ...result, data, ctx };
     } finally {
         globalThis.document = originalDocument;
@@ -47,22 +49,22 @@ function run(body, detector, options = {}) {
 
 /**
  * @param {string} body
- * @param {unknown} match
+ * @param {unknown} when
  * @param {RunOptions} [options]
  */
-function match(body, match, options) {
-    return run(body, { match }, options).detected;
+function holds(body, when, options) {
+    return run(body, { actions: [{ when, exit: true }] }, options).detected;
 }
 
 /**
- * A detector that always matches and sends one payload field `x`.
+ * A detector whose item always runs and sends one payload field `x`.
  *
  * @param {unknown} value
  * @param {object} [extra] - `when` and `buckets`
- * @param {unknown} [matchCondition]
+ * @param {unknown} [when]
  */
-function withPayload(value, extra = {}, matchCondition = true) {
-    return { match: matchCondition, actions: { fireEvent: { type: 't', data: { x: { value, ...extra } } } } };
+function withPayload(value, extra = {}, when = true) {
+    return { actions: [{ when, fireEvent: { type: 't', data: { x: { value, ...extra } } } }] };
 }
 
 /**
@@ -239,23 +241,33 @@ describe('WebDetection expressions', () => {
     describe('iterators', () => {
         it('text in boolean position agrees with a length of at least one', () => {
             for (const html of ['<p>foo</p>', '<p>bar</p>', '<p>foo foo</p>']) {
-                const asBoolean = match(html, { text: { pattern: 'foo' } });
-                const asCount = match(html, { text: { pattern: 'foo' }, using: 'length', is: { gte: 1 } });
+                const asBoolean = holds(html, { text: { pattern: 'foo' } });
+                const asCount = holds(html, { text: { pattern: 'foo' }, using: 'length', is: { gte: 1 } });
                 expect(asBoolean).toBe(asCount);
             }
         });
 
         it('element in boolean position agrees with a length of at least one', () => {
             for (const html of ['<p class="a"></p>', '<p></p>']) {
-                expect(match(html, { element: { selector: '.a' } })).toBe(
-                    match(html, { element: { selector: '.a' }, using: 'length', is: { gte: 1 } }),
+                expect(holds(html, { element: { selector: '.a' } })).toBe(
+                    holds(html, { element: { selector: '.a' }, using: 'length', is: { gte: 1 } }),
                 );
             }
         });
 
         it('counts non-overlapping matches across selectors and XPath expressions', () => {
             const result = run('<h1>error</h1><p>error and error</p>', {
-                match: { text: { selector: 'h1', xpath: '//p//text()', pattern: 'error' }, using: 'length', as: 'n', is: { lt: 100 } },
+                actions: [
+                    {
+                        when: {
+                            text: { selector: 'h1', xpath: '//p//text()', pattern: 'error' },
+                            using: 'length',
+                            as: 'n',
+                            is: { lt: 100 },
+                        },
+                        exit: true,
+                    },
+                ],
             });
             expect(result.ctx.measured.n).toBe(3);
         });
@@ -266,12 +278,17 @@ describe('WebDetection expressions', () => {
             const html = `<p>${filler}</p><p>page</p><p> not </p><p>found</p><p>${filler}</p><p>page not found</p>`;
             for (const chunkSize of [0, 8, 16, 1024]) {
                 const result = run(html, {
-                    match: {
-                        text: { xpath: '//p/text()', pattern: 'page not found', xpathConfig: { chunkSize, chunkTail: 32 } },
-                        using: 'length',
-                        as: 'n',
-                        is: { lt: 100 },
-                    },
+                    actions: [
+                        {
+                            when: {
+                                text: { xpath: '//p/text()', pattern: 'page not found', xpathConfig: { chunkSize, chunkTail: 32 } },
+                                using: 'length',
+                                as: 'n',
+                                is: { lt: 100 },
+                            },
+                            exit: true,
+                        },
+                    ],
                 });
                 expect(result.ctx.measured.n).withContext(`chunkSize ${chunkSize}`).toBe(2);
             }
@@ -280,7 +297,7 @@ describe('WebDetection expressions', () => {
         it('matches across a chunk boundary in boolean position as before', () => {
             const html = `<p>${'x '.repeat(50)}</p><p>adblocker </p><p>detected</p>`;
             expect(
-                match(html, {
+                holds(html, {
                     text: { xpath: '//p/text()', pattern: 'adblocker detected', xpathConfig: { chunkSize: 16, chunkTail: 32 } },
                 }),
             ).toBe(true);
@@ -289,55 +306,83 @@ describe('WebDetection expressions', () => {
 
     describe('types', () => {
         it('rejects each expression in a position whose type config shows is wrong', () => {
-            expectParseError({ match: { element: { selector: 'img', field: 'naturalWidth' } } }, 'does not fill boolean');
-            expectParseError({ match: { api: { path: 'document.fonts', where: { status: 'error' } } } }, 'does not fill boolean');
-            expectParseError({ match: { element: { selector: 'img' }, using: 'length' } }, 'numbers become booleans only through `is`');
-            expectParseError({ match: { only: 5, is: 1 } }, 'does not fill list');
-            expectParseError({ match: { only: { element: { selector: 'img' }, using: 'length' }, is: 1 } }, "'length' does not fill list");
-            expectParseError({ match: 5 }, 'does not fill boolean');
-            expectParseError({ match: { sum: [true], is: 1 } }, 'does not fill number');
-            expectParseError({ match: { only: { if: { test: true, then: 1, else: 2 } }, is: 1 } }, "'if' does not fill list");
+            expectParseError(
+                { actions: [{ when: { element: { selector: 'img', field: 'naturalWidth' } }, exit: true }] },
+                'does not fill boolean',
+            );
+            expectParseError(
+                { actions: [{ when: { api: { path: 'document.fonts', where: { status: 'error' } } }, exit: true }] },
+                'does not fill boolean',
+            );
+            expectParseError(
+                { actions: [{ when: { element: { selector: 'img' }, using: 'length' }, exit: true }] },
+                'numbers become booleans only through `is`',
+            );
+            expectParseError({ actions: [{ when: { only: 5, is: 1 }, exit: true }] }, 'does not fill list');
+            expectParseError(
+                { actions: [{ when: { only: { element: { selector: 'img' }, using: 'length' }, is: 1 }, exit: true }] },
+                "'length' does not fill list",
+            );
+            expectParseError({ actions: [{ when: 5, exit: true }] }, 'does not fill boolean');
+            expectParseError({ actions: [{ when: { sum: [true], is: 1 }, exit: true }] }, 'does not fill number');
+            expectParseError(
+                { actions: [{ when: { only: { if: { test: true, then: 1, else: 2 } }, is: 1 }, exit: true }] },
+                "'if' does not fill list",
+            );
         });
 
         it('takes an api value of the type its position expects, checked as it is read', () => {
             const hidden = (/** @type {boolean} */ value) => (/** @type {any} */ w) =>
                 Object.defineProperty(w.Document.prototype, 'hidden', { configurable: true, get: () => value });
-            expect(match('', { api: { path: 'document.hidden' } }, { install: hidden(true) })).toBe(true);
-            expect(match('', { api: { path: 'document.hidden' } }, { install: hidden(false) })).toBe(false);
-            expect(match('', { api: { path: 'document.title' } })).toBe('error');
-            expect(match('', { any: { api: { path: 'document.hidden' } } }, { install: hidden(true) })).toBe(true);
-            expect(match('', { api: { path: 'document.fonts', field: 'status' } }, { install: fonts(['loaded']) })).toBe('error');
+            expect(holds('', { api: { path: 'document.hidden' } }, { install: hidden(true) })).toBe(true);
+            expect(holds('', { api: { path: 'document.hidden' } }, { install: hidden(false) })).toBe(false);
+            expect(holds('', { api: { path: 'document.title' } })).toBe('error');
+            expect(holds('', { any: { api: { path: 'document.hidden' } } }, { install: hidden(true) })).toBe(true);
+            expect(holds('', { api: { path: 'document.fonts', field: 'status' } }, { install: fonts(['loaded']) })).toBe('error');
         });
 
         it('rejects `is` outside boolean position, and several expression keys beside it', () => {
             expectParseError(
-                { match: { sum: [{ element: { selector: 'img' }, using: 'length', is: { gt: 1 } }], is: 1 } },
+                { actions: [{ when: { sum: [{ element: { selector: 'img' }, using: 'length', is: { gt: 1 } }], is: 1 }, exit: true }] },
                 '`is` gives a boolean',
             );
-            expectParseError({ match: { text: { pattern: 'a' }, element: { selector: 'p' }, is: true } }, 'several expression keys');
+            expectParseError(
+                { actions: [{ when: { text: { pattern: 'a' }, element: { selector: 'p' }, is: true }, exit: true }] },
+                'several expression keys',
+            );
             expectParseError(withPayload({ element: { selector: 'img' }, using: 'length', is: { gt: 1 } }), '`is` gives a boolean');
         });
 
         it('rejects unknown keys and reserved keys', () => {
-            expectParseError({ match: { pageFeature: 'x' } }, "unknown expression key 'pageFeature'");
-            expectParseError({ match: { element: { selector: 'img', foo: 1 } } }, "unknown key 'foo'");
-            expectParseError({ match: { api: { path: 'document.title', allowGetter: true }, is: '' } }, "unknown key 'allowGetter'");
+            expectParseError({ actions: [{ when: { pageFeature: 'x' }, exit: true }] }, "unknown expression key 'pageFeature'");
+            expectParseError({ actions: [{ when: { element: { selector: 'img', foo: 1 } }, exit: true }] }, "unknown key 'foo'");
             expectParseError(
-                { match: { element: { selector: 'img' }, using: 'length', aggregate: 'max', is: 1 } },
+                { actions: [{ when: { api: { path: 'document.title', allowGetter: true }, is: '' }, exit: true }] },
+                "unknown key 'allowGetter'",
+            );
+            expectParseError(
+                { actions: [{ when: { element: { selector: 'img' }, using: 'length', aggregate: 'max', is: 1 }, exit: true }] },
                 "'aggregate' is reserved",
             );
             expectParseError(
-                { match: { element: { selector: 'img' }, using: 'length', catch: { absent: 0 }, is: 1 } },
+                { actions: [{ when: { element: { selector: 'img' }, using: 'length', catch: { absent: 0 }, is: 1 }, exit: true }] },
                 "unknown expression key 'catch'",
             );
-            expectParseError({ match: { if: { test: true, then: 1 }, is: 1 } }, "'if' needs 'else'");
-            expectParseError({ match: { if: { test: true, then: 1, else: 2, other: 3 }, is: 1 } }, "unknown key 'other'");
+            expectParseError({ actions: [{ when: { if: { test: true, then: 1 }, is: 1 }, exit: true }] }, "'if' needs 'else'");
+            expectParseError(
+                { actions: [{ when: { if: { test: true, then: 1, else: 2, other: 3 }, is: 1 }, exit: true }] },
+                "unknown key 'other'",
+            );
         });
 
         it('reads one named source as a boolean in match and as a list in a payload', () => {
             const detector = {
-                match: { element: { selector: 'img' }, as: 'images' },
-                actions: { fireEvent: { type: 't', data: { images: { value: { ref: 'images', using: 'length' } } } } },
+                actions: [
+                    {
+                        when: { element: { selector: 'img' }, as: 'images' },
+                        fireEvent: { type: 't', data: { images: { value: { ref: 'images', using: 'length' } } } },
+                    },
+                ],
             };
             expect(run(IMG() + IMG(), detector).data).toEqual({ images: 2 });
         });
@@ -345,18 +390,18 @@ describe('WebDetection expressions', () => {
         it('reads text matches and elements through list operators', () => {
             const html = '<p>Page not found</p><p>Error 404</p>';
             const matches = { text: { pattern: ['not found', 'error'] } };
-            expect(match(html, { ...matches, using: { path: 'at', args: [0] }, is: 'not found' })).toBe(true);
-            expect(match(html, { ...matches, using: { path: 'at', args: [-1] }, is: 'Error' })).toBe(true);
-            expect(match('<p>one match</p>', { only: { text: { pattern: 'match' } }, is: 'match' })).toBe(true);
-            expect(match('<p>match match</p>', { only: { text: { pattern: 'match' } }, is: 'match' })).toBe('error');
-            expect(match('<p id="a"></p>', { only: { element: { selector: 'p' } }, is: { tagName: 'P', id: 'a' } })).toBe(true);
+            expect(holds(html, { ...matches, using: { path: 'at', args: [0] }, is: 'not found' })).toBe(true);
+            expect(holds(html, { ...matches, using: { path: 'at', args: [-1] }, is: 'Error' })).toBe(true);
+            expect(holds('<p>one match</p>', { only: { text: { pattern: 'match' } }, is: 'match' })).toBe(true);
+            expect(holds('<p>match match</p>', { only: { text: { pattern: 'match' } }, is: 'match' })).toBe('error');
+            expect(holds('<p id="a"></p>', { only: { element: { selector: 'p' } }, is: { tagName: 'P', id: 'a' } })).toBe(true);
             expect(payload('<p>x</p>', { only: { text: { pattern: 'x' } } })).toEqual({ x: 'x' });
             expect(payload('<p>x</p>', { only: { element: { selector: 'p' } } })).toEqual({});
         });
 
         it('reads an element source under any as a boolean', () => {
-            expect(match('<p></p>', { any: [{ element: { selector: 'p' } }, false] })).toBe(true);
-            expect(match('', { all: { element: { selector: 'p' } } })).toBe(false);
+            expect(holds('<p></p>', { any: [{ element: { selector: 'p' } }, false] })).toBe(true);
+            expect(holds('', { all: { element: { selector: 'p' } } })).toBe(false);
         });
 
         it('takes booleans, arrays and multi-key objects in value position', () => {
@@ -367,10 +412,10 @@ describe('WebDetection expressions', () => {
         });
 
         it('takes boolean literals and an empty object in boolean position', () => {
-            expect(match('', true)).toBe(true);
-            expect(match('', false)).toBe(false);
-            expect(match('', {})).toBe(true);
-            expect(match('', [])).toBe(false);
+            expect(holds('', true)).toBe(true);
+            expect(holds('', false)).toBe(false);
+            expect(holds('', {})).toBe(true);
+            expect(holds('', [])).toBe(false);
         });
 
         it('takes string and null literals in value position only', () => {
@@ -378,29 +423,37 @@ describe('WebDetection expressions', () => {
             expect(payload('', null)).toEqual({ x: null });
             expect(payload('', { if: { test: true, then: 'yes', else: 'no' } })).toEqual({ x: 'yes' });
             expect(payload('', { if: { test: false, then: 'yes', else: null } })).toEqual({ x: null });
-            expect(match('', { api: { path: 'document.readyState' }, is: { eq: { api: { path: 'document.readyState' } } } })).toBe(true);
-            expect(match('<p>a</p>', { only: { text: { pattern: 'a' } }, is: { eq: { text: { pattern: 'a' } } } })).toBe(true);
-            expectParseError({ match: 'x' }, "'literal' does not fill boolean position");
-            expectParseError({ match: [null] }, "'literal' does not fill boolean position");
-            expectParseError({ match: { sum: ['x', 1], is: { gt: 0 } } }, "'literal' does not fill number position");
-            expectParseError({ match: { only: 'x', is: 1 } }, "'literal' does not fill list position");
-            expect(match('<p></p>', { element: { selector: 'p' }, using: 'length', is: { gt: '0' } })).toBe(true);
+            expect(holds('', { api: { path: 'document.readyState' }, is: { eq: { api: { path: 'document.readyState' } } } })).toBe(true);
+            expect(holds('<p>a</p>', { only: { text: { pattern: 'a' } }, is: { eq: { text: { pattern: 'a' } } } })).toBe(true);
+            expectParseError({ actions: [{ when: 'x', exit: true }] }, "'literal' does not fill boolean position");
+            expectParseError({ actions: [{ when: [null], exit: true }] }, "'literal' does not fill boolean position");
+            expectParseError(
+                { actions: [{ when: { sum: ['x', 1], is: { gt: 0 } }, exit: true }] },
+                "'literal' does not fill number position",
+            );
+            expectParseError({ actions: [{ when: { only: 'x', is: 1 }, exit: true }] }, "'literal' does not fill list position");
+            expect(holds('<p></p>', { element: { selector: 'p' }, using: 'length', is: { gt: '0' } })).toBe(true);
         });
 
         it('names the AND of a multi-key object', () => {
-            const result = run('<p class="a">foo</p>', { match: { text: { pattern: 'foo' }, element: { selector: '.a' }, as: 'both' } });
+            const result = run('<p class="a">foo</p>', {
+                actions: [{ when: { text: { pattern: 'foo' }, element: { selector: '.a' }, as: 'both' }, exit: true }],
+            });
             expect(result.detected).toBe(true);
             expect(result.ctx.measured.both).toBe(true);
         });
 
         it('ANDs `any` with a source key in one object', () => {
-            expect(match('<p class="a">foo</p>', { any: [{ text: { pattern: 'foo' } }], element: { selector: '.a' } })).toBe(true);
-            expect(match('<p>foo</p>', { any: [{ text: { pattern: 'foo' } }], element: { selector: '.a' } })).toBe(false);
+            expect(holds('<p class="a">foo</p>', { any: [{ text: { pattern: 'foo' } }], element: { selector: '.a' } })).toBe(true);
+            expect(holds('<p>foo</p>', { any: [{ text: { pattern: 'foo' } }], element: { selector: '.a' } })).toBe(false);
         });
 
         it('rejects operator blocks inside a source', () => {
-            expectParseError({ match: { text: { any: [{ pattern: 'a' }] } } }, "unknown key 'any'");
-            expectParseError({ match: { element: [{ selector: 'p' }, { none: [{ selector: 'a' }] }] } }, "unknown key 'none'");
+            expectParseError({ actions: [{ when: { text: { any: [{ pattern: 'a' }] } }, exit: true }] }, "unknown key 'any'");
+            expectParseError(
+                { actions: [{ when: { element: [{ selector: 'p' }, { none: [{ selector: 'a' }] }] }, exit: true }] },
+                "unknown key 'none'",
+            );
         });
     });
 
@@ -410,31 +463,31 @@ describe('WebDetection expressions', () => {
 
         it('gives a selected list’s one item in number position, and errors over none or several', () => {
             const read = { div: [width, 5], is: 1 };
-            expect(match(widths([5]), read, { install: imageState })).toBe(true);
-            expect(match('', read, { install: imageState })).toBe('error');
-            expect(match(widths([5, 5]), read, { install: imageState })).toBe('error');
+            expect(holds(widths([5]), read, { install: imageState })).toBe(true);
+            expect(holds('', read, { install: imageState })).toBe('error');
+            expect(holds(widths([5, 5]), read, { install: imageState })).toBe('error');
         });
 
         it('gives the one item to a predicate that compares, and the list as an array to one that does not', () => {
-            expect(match(widths([5]), { ...width, is: { gt: 4 } }, { install: imageState })).toBe(true);
-            expect(match(widths([5]), { ...width, is: 5 }, { install: imageState })).toBe(true);
-            expect(match(widths([5, 6]), { ...width, is: { gt: 4 } }, { install: imageState })).toBe('error');
-            expect(match(widths([5, 6]), { ...width, is: { length: 2 } }, { install: imageState })).toBe(true);
-            expect(match(widths([5, 6]), { ...width, is: { type: 'array' } }, { install: imageState })).toBe(true);
-            expect(match('', { ...width, is: {} }, { install: imageState })).toBe(true);
+            expect(holds(widths([5]), { ...width, is: { gt: 4 } }, { install: imageState })).toBe(true);
+            expect(holds(widths([5]), { ...width, is: 5 }, { install: imageState })).toBe(true);
+            expect(holds(widths([5, 6]), { ...width, is: { gt: 4 } }, { install: imageState })).toBe('error');
+            expect(holds(widths([5, 6]), { ...width, is: { length: 2 } }, { install: imageState })).toBe(true);
+            expect(holds(widths([5, 6]), { ...width, is: { type: 'array' } }, { install: imageState })).toBe(true);
+            expect(holds('', { ...width, is: {} }, { install: imageState })).toBe(true);
         });
 
         it('keeps element and text in boolean position as presence', () => {
-            expect(match(IMG() + IMG(), { element: { selector: 'img' } })).toBe(true);
-            expect(match('<p>a a</p>', { text: { pattern: 'a' } })).toBe(true);
+            expect(holds(IMG() + IMG(), { element: { selector: 'img' } })).toBe(true);
+            expect(holds('<p>a a</p>', { text: { pattern: 'a' } })).toBe(true);
         });
 
         it('does not unwrap an iterable an api reads', () => {
             const install = timeline([{ name: 'n', entryType: 'navigation', loadEventEnd: 5 }]);
             const entries = { api: { path: 'performance.getEntriesByType', args: ['navigation'] } };
-            expect(match('', { ...entries, is: { length: 1 } }, { install })).toBe(true);
+            expect(holds('', { ...entries, is: { length: 1 } }, { install })).toBe(true);
             // `lt` compares the array as JS does: `[entry] < 1` coerces the entry to `NaN`
-            expect(match('', { ...entries, is: { lt: 1 } }, { install })).toBe(false);
+            expect(holds('', { ...entries, is: { lt: 1 } }, { install })).toBe(false);
         });
 
         it('sends a selected list bucketed, each bucket unwrapping it, and errors on one unbucketed', () => {
@@ -454,20 +507,29 @@ describe('WebDetection expressions', () => {
         it('rejects a duplicate name, an unresolved ref and a cycle', () => {
             expectParseError(
                 {
-                    match: {
-                        all: [
-                            { element: { selector: 'a' }, as: 'x' },
-                            { element: { selector: 'b' }, as: 'x' },
-                        ],
-                    },
+                    actions: [
+                        {
+                            when: {
+                                all: [
+                                    { element: { selector: 'a' }, as: 'x' },
+                                    { element: { selector: 'b' }, as: 'x' },
+                                ],
+                            },
+                            exit: true,
+                        },
+                    ],
                 },
                 "duplicate name 'x'",
             );
-            expectParseError({ match: { ref: 'nope' } }, "unresolved ref 'nope'");
+            expectParseError({ actions: [{ when: { ref: 'nope' }, exit: true }] }, "unresolved ref 'nope'");
             expectParseError(
                 {
-                    match: { sum: [{ ref: 'b' }], as: 'a', is: 1 },
-                    actions: { fireEvent: { type: 't', data: { b: { value: { sum: [{ ref: 'a' }], as: 'b' } } } } },
+                    actions: [
+                        {
+                            when: { sum: [{ ref: 'b' }], as: 'a', is: 1 },
+                            fireEvent: { type: 't', data: { b: { value: { sum: [{ ref: 'a' }], as: 'b' } } } },
+                        },
+                    ],
                 },
                 'cycle',
             );
@@ -475,10 +537,17 @@ describe('WebDetection expressions', () => {
 
         it('computes a ref whose target short-circuiting skipped', () => {
             const result = run('<p>foo</p>' + IMG(), {
-                match: {
-                    any: [{ text: { pattern: 'foo' } }, { element: { selector: 'img' }, using: 'length', as: 'images', is: { gt: 0 } }],
-                },
-                actions: { fireEvent: { type: 't', data: { images: { value: { ref: 'images' } } } } },
+                actions: [
+                    {
+                        when: {
+                            any: [
+                                { text: { pattern: 'foo' } },
+                                { element: { selector: 'img' }, using: 'length', as: 'images', is: { gt: 0 } },
+                            ],
+                        },
+                        fireEvent: { type: 't', data: { images: { value: { ref: 'images' } } } },
+                    },
+                ],
             });
             expect(result.data).toEqual({ images: 1 });
         });
@@ -486,7 +555,7 @@ describe('WebDetection expressions', () => {
         it('reads the value a name holds, not the boolean `is` gives', () => {
             const html = IMG() + IMG() + IMG();
             expect(
-                match(html, {
+                holds(html, {
                     all: [
                         { element: { selector: 'img' }, using: 'length', as: 'images', is: { gte: 1 } },
                         { ref: 'images', is: 3 },
@@ -501,13 +570,18 @@ describe('WebDetection expressions', () => {
             expect(payload('', { div: [1, 0] }, { when: { ...numberTest('isFinite', false), gt: 0 } })).toEqual({});
             expect(run('', withPayload({ div: [1, 0] })).ctx.memo.size).toBeGreaterThan(0);
             const result = run('', {
-                match: {
-                    all: [
-                        { div: [1, 0], as: 'pos', is: { eq: { api: 'Infinity' } } },
-                        { div: [-1, 0], as: 'neg', is: { lt: 0 } },
-                        { div: [0, 0], as: 'nan', is: numberTest('isNaN') },
-                    ],
-                },
+                actions: [
+                    {
+                        when: {
+                            all: [
+                                { div: [1, 0], as: 'pos', is: { eq: { api: 'Infinity' } } },
+                                { div: [-1, 0], as: 'neg', is: { lt: 0 } },
+                                { div: [0, 0], as: 'nan', is: numberTest('isNaN') },
+                            ],
+                        },
+                        exit: true,
+                    },
+                ],
             });
             expect(result.detected).toBe(true);
             expect(result.ctx.measured.pos).toBe(Infinity);
@@ -517,27 +591,27 @@ describe('WebDetection expressions', () => {
 
         it('carries NaN through each operator', () => {
             for (const op of ['sum', 'mul', 'div']) {
-                expect(match('', { [op]: [{ div: [0, 0] }, 2], is: numberTest('isNaN') }))
+                expect(holds('', { [op]: [{ div: [0, 0] }, 2], is: numberTest('isNaN') }))
                     .withContext(op)
                     .toBe(true);
             }
         });
 
         it('compares NaN as within no bound, so `none` over a comparison on NaN holds', () => {
-            expect(match('', { div: [0, 0], is: { lt: 5 } })).toBe(false);
-            expect(match('', { div: [0, 0], is: { gte: 5 } })).toBe(false);
-            expect(match('', { none: { div: [0, 0], is: { lt: 5 } } })).toBe(true);
+            expect(holds('', { div: [0, 0], is: { lt: 5 } })).toBe(false);
+            expect(holds('', { div: [0, 0], is: { gte: 5 } })).toBe(false);
+            expect(holds('', { none: { div: [0, 0], is: { lt: 5 } } })).toBe(true);
         });
 
         it('computes negation and subtraction through mul by -1', () => {
-            expect(match('', { mul: [3, -1], is: -3 })).toBe(true);
-            expect(match('', { sum: [5, { mul: [3, -1] }], is: 2 })).toBe(true);
+            expect(holds('', { mul: [3, -1], is: -3 })).toBe(true);
+            expect(holds('', { sum: [5, { mul: [3, -1] }], is: 2 })).toBe(true);
         });
     });
 
     describe('failures and fails', () => {
         it('aborts on a failure in boolean position', () => {
-            const result = run('', { match: { ...FAILING, using: 'length', is: { gt: 0 } } });
+            const result = run('', { actions: [{ when: { ...FAILING, using: 'length', is: { gt: 0 } }, exit: true }] });
             expect(result.detected).toBe('aborted');
             expect(result.abortError).toBe('SyntaxError');
         });
@@ -545,7 +619,11 @@ describe('WebDetection expressions', () => {
         it('aborts with the thrown value’s constructor name when a read throws', () => {
             const result = run(
                 IMG('data-complete data-throw'),
-                { match: { element: { selector: 'img', where: { naturalWidth: 0 } }, using: 'length', is: { gt: 0 } } },
+                {
+                    actions: [
+                        { when: { element: { selector: 'img', where: { naturalWidth: 0 } }, using: 'length', is: { gt: 0 } }, exit: true },
+                    ],
+                },
                 { install: imageState },
             );
             expect(result.detected).toBe('aborted');
@@ -568,7 +646,7 @@ describe('WebDetection expressions', () => {
                 ['', { api: { path: 'document.onclick' } }, { fails: false, type: 'null' }, true],
             ];
             for (const [html, expression, predicate, expected] of cases) {
-                expect(match(html, { ...expression, is: predicate }, options))
+                expect(holds(html, { ...expression, is: predicate }, options))
                     .withContext(`${html} ${JSON.stringify(predicate)}`)
                     .toBe(expected);
             }
@@ -576,14 +654,14 @@ describe('WebDetection expressions', () => {
 
         it('tests `fails` first, whatever the key order', () => {
             const width = { only: { element: { selector: 'img', field: 'naturalWidth' } } };
-            expect(match(IMG('data-throw'), { ...width, is: { gt: 0, fails: false } }, { install: imageState })).toBe(false);
-            expect(match(IMG('data-width="5"'), { ...width, is: { gt: 0, fails: false } }, { install: imageState })).toBe(true);
-            expect(match('', { ...FAILING, using: 'length', is: { gt: 0, fails: false } })).toBe(false);
+            expect(holds(IMG('data-throw'), { ...width, is: { gt: 0, fails: false } }, { install: imageState })).toBe(false);
+            expect(holds(IMG('data-width="5"'), { ...width, is: { gt: 0, fails: false } }, { install: imageState })).toBe(true);
+            expect(holds('', { ...FAILING, using: 'length', is: { gt: 0, fails: false } })).toBe(false);
         });
 
         it('reads exists as a property name', () => {
-            expect(match('', { api: 'document', is: { exists: true } })).toBe(false);
-            expect(match('', { api: 'document', is: { exists: { type: 'undefined' } } })).toBe(true);
+            expect(holds('', { api: 'document', is: { exists: true } })).toBe(false);
+            expect(holds('', { api: 'document', is: { exists: { type: 'undefined' } } })).toBe(true);
         });
 
         it('tests whether a property is present through Reflect.has, per item and on the engine', () => {
@@ -594,33 +672,37 @@ describe('WebDetection expressions', () => {
                 api: { path: 'performance.getEntriesByType', args: ['resource'], where: { ...has, responseStatus: { gte: 400 } } },
                 using: 'length',
             };
-            expect(match('', { ...errors, is: 1 }, { install })).toBe(true);
-            expect(match('', { ...errors, is: 0 }, { install: lacking })).toBe(true);
+            expect(holds('', { ...errors, is: 1 }, { install })).toBe(true);
+            expect(holds('', { ...errors, is: 0 }, { install: lacking })).toBe(true);
             const engine = {
                 api: { path: 'Reflect.has', args: [{ api: 'FakePerformanceEntry.prototype' }, 'responseStatus'] },
             };
             const guarded = { if: { test: engine, then: errors, else: 0 }, is: 0 };
-            expect(match('', guarded, { install: lacking })).toBe(true);
-            expect(match('', { ...guarded, is: 1 }, { install })).toBe(true);
+            expect(holds('', guarded, { install: lacking })).toBe(true);
+            expect(holds('', { ...guarded, is: 1 }, { install })).toBe(true);
         });
 
         it('tests each item with `fails`, counting the readable items instead of aborting', () => {
             const html = IMG('data-throw') + IMG('data-width="0"') + IMG('data-width="5"');
             const readable = { element: { selector: 'img', where: { naturalWidth: { fails: false } } }, using: 'length' };
-            expect(match(html, { ...readable, is: 2 }, { install: imageState })).toBe(true);
+            expect(holds(html, { ...readable, is: 2 }, { install: imageState })).toBe(true);
             const thrown = { element: { selector: 'img', where: { naturalWidth: { fails: true } } }, using: 'length' };
-            expect(match(html, { ...thrown, is: 1 }, { install: imageState })).toBe(true);
+            expect(holds(html, { ...thrown, is: 1 }, { install: imageState })).toBe(true);
         });
 
         it('reports a value tested with `fails`, and omits a failed one', () => {
             const detector = {
-                match: {
-                    api: { path: 'document.fonts', where: { status: 'error' } },
-                    using: 'length',
-                    as: 'failedFontFaces',
-                    is: { fails: false, lt: 3 },
-                },
-                actions: { fireEvent: { type: 't', data: { failedFontFaces: { value: { ref: 'failedFontFaces' } } } } },
+                actions: [
+                    {
+                        when: {
+                            api: { path: 'document.fonts', where: { status: 'error' } },
+                            using: 'length',
+                            as: 'failedFontFaces',
+                            is: { fails: false, lt: 3 },
+                        },
+                        fireEvent: { type: 't', data: { failedFontFaces: { value: { ref: 'failedFontFaces' } } } },
+                    },
+                ],
             };
             expect(run('', detector, { install: brokenFonts }).detected).toBe(false);
             expect(run('', detector, { install: fonts(['loaded', 'error']) }).data).toEqual({ failedFontFaces: 1 });
@@ -628,21 +710,25 @@ describe('WebDetection expressions', () => {
 
         it('falls back through `if` over `fails`, reporting the fallback and omitting the failed read', () => {
             const detector = {
-                match: {
-                    if: {
-                        test: {
-                            api: { path: 'document.fonts', where: { status: 'error' } },
-                            using: 'length',
-                            as: 'n',
-                            is: { fails: false },
+                actions: [
+                    {
+                        when: {
+                            if: {
+                                test: {
+                                    api: { path: 'document.fonts', where: { status: 'error' } },
+                                    using: 'length',
+                                    as: 'n',
+                                    is: { fails: false },
+                                },
+                                then: { ref: 'n' },
+                                else: 0,
+                            },
+                            as: 'nOr0',
+                            is: { gte: 0 },
                         },
-                        then: { ref: 'n' },
-                        else: 0,
+                        fireEvent: { type: 't', data: { nOr0: { value: { ref: 'nOr0' } }, n: { value: { ref: 'n' } } } },
                     },
-                    as: 'nOr0',
-                    is: { gte: 0 },
-                },
-                actions: { fireEvent: { type: 't', data: { nOr0: { value: { ref: 'nOr0' } }, n: { value: { ref: 'n' } } } } },
+                ],
             };
             expect(run('', detector, { install: brokenFonts }).data).toEqual({ nOr0: 0 });
             expect(run('', detector, { install: fonts(['error', 'error']) }).data).toEqual({ nOr0: 2, n: 2 });
@@ -650,22 +736,26 @@ describe('WebDetection expressions', () => {
 
         it('lets a tested failure under `none` decide the leaf, and an untested one abort', () => {
             const failedFonts = { api: { path: 'document.fonts', where: { status: 'error' } }, using: 'length' };
-            expect(match('', { none: { ...failedFonts, is: { fails: false, gt: 0 } } }, { install: brokenFonts })).toBe(true);
-            expect(match('', { none: { ...failedFonts, is: { gt: 0 } } }, { install: brokenFonts })).toBe('aborted');
+            expect(holds('', { none: { ...failedFonts, is: { fails: false, gt: 0 } } }, { install: brokenFonts })).toBe(true);
+            expect(holds('', { none: { ...failedFonts, is: { gt: 0 } } }, { install: brokenFonts })).toBe('aborted');
         });
 
         it('passes a ref into an untaken branch through `fails`, omitting the key', () => {
             const detector = {
-                match: { if: { test: false, then: { sum: [1], as: 'inner' }, else: 0 }, is: {} },
-                actions: { fireEvent: { type: 't', data: { x: { value: { ref: 'inner' }, when: { fails: true } } } } },
+                actions: [
+                    {
+                        when: { if: { test: false, then: { sum: [1], as: 'inner' }, else: 0 }, is: {} },
+                        fireEvent: { type: 't', data: { x: { value: { ref: 'inner' }, when: { fails: true } } } },
+                    },
+                ],
             };
             expect(run('', detector).data).toEqual({});
         });
 
         it('stops at the first failure, so key order decides between a match and an abort', () => {
             const failing = { ...FAILING, using: 'length', is: { gt: 0 } };
-            expect(match('<p>foo</p>', { any: [{ text: { pattern: 'foo' } }, failing] })).toBe(true);
-            expect(match('<p>foo</p>', { any: [failing, { text: { pattern: 'foo' } }] })).toBe('aborted');
+            expect(holds('<p>foo</p>', { any: [{ text: { pattern: 'foo' } }, failing] })).toBe(true);
+            expect(holds('<p>foo</p>', { any: [failing, { text: { pattern: 'foo' } }] })).toBe('aborted');
         });
     });
 
@@ -696,24 +786,35 @@ describe('WebDetection expressions', () => {
 
         it('does not evaluate the other branch', () => {
             const result = run('', {
-                match: { if: { test: true, then: 1, else: { api: { path: 'document.fonts' }, using: 'length' } }, is: 1 },
+                actions: [
+                    {
+                        when: { if: { test: true, then: 1, else: { api: { path: 'document.fonts' }, using: 'length' } }, is: 1 },
+                        exit: true,
+                    },
+                ],
             });
             expect(result.detected).toBe(true);
         });
 
         it('omits a payload reading the branch not taken', () => {
             const detector = {
-                match: {
-                    if: { test: false, then: { sum: [1], as: 'thenValue' }, else: { sum: [2], as: 'elseValue' } },
-                    as: 'chosen',
-                    is: {},
-                },
-                actions: {
-                    fireEvent: {
-                        type: 't',
-                        data: { a: { value: { ref: 'thenValue' } }, b: { value: { ref: 'elseValue' } }, c: { value: { ref: 'chosen' } } },
+                actions: [
+                    {
+                        when: {
+                            if: { test: false, then: { sum: [1], as: 'thenValue' }, else: { sum: [2], as: 'elseValue' } },
+                            as: 'chosen',
+                            is: {},
+                        },
+                        fireEvent: {
+                            type: 't',
+                            data: {
+                                a: { value: { ref: 'thenValue' } },
+                                b: { value: { ref: 'elseValue' } },
+                                c: { value: { ref: 'chosen' } },
+                            },
+                        },
                     },
-                },
+                ],
             };
             expect(run('', detector).data).toEqual({ b: 2, c: 2 });
         });
@@ -721,12 +822,17 @@ describe('WebDetection expressions', () => {
         it('rejects a ref in match into a branch from outside it', () => {
             expectParseError(
                 {
-                    match: {
-                        all: [
-                            { if: { test: true, then: { sum: [1], as: 'inner' }, else: 0 }, is: {} },
-                            { ref: 'inner', is: 1 },
-                        ],
-                    },
+                    actions: [
+                        {
+                            when: {
+                                all: [
+                                    { if: { test: true, then: { sum: [1], as: 'inner' }, else: 0 }, is: {} },
+                                    { ref: 'inner', is: 1 },
+                                ],
+                            },
+                            exit: true,
+                        },
+                    ],
                 },
                 "reads into an 'if' branch",
             );
@@ -734,7 +840,7 @@ describe('WebDetection expressions', () => {
 
         it('passes up a failure in test', () => {
             expect(
-                match('', {
+                holds('', {
                     if: { test: { ...FAILING, using: 'length', is: { gt: 0 } }, then: 1, else: 2 },
                     is: {},
                 }),
@@ -744,36 +850,39 @@ describe('WebDetection expressions', () => {
 
     describe('operators', () => {
         it('errors on only over no items', () => {
-            expect(run('', { match: { only: { element: { selector: 'img', field: 'naturalWidth' } }, is: {} } }).detected).toBe('error');
-            expect(match('', { sum: { element: { selector: 'img', field: 'naturalWidth' } }, is: 0 })).toBe(true);
-            expect(match('', { mul: { element: { selector: 'img', field: 'naturalWidth' } }, is: 1 })).toBe(true);
+            expect(
+                run('', { actions: [{ when: { only: { element: { selector: 'img', field: 'naturalWidth' } }, is: {} }, exit: true }] })
+                    .detected,
+            ).toBe('error');
+            expect(holds('', { sum: { element: { selector: 'img', field: 'naturalWidth' } }, is: 0 })).toBe(true);
+            expect(holds('', { mul: { element: { selector: 'img', field: 'naturalWidth' } }, is: 1 })).toBe(true);
             const at = { element: { selector: 'img', field: 'naturalWidth' }, using: { path: 'at', args: [0] } };
-            expect(match('', { ...at, is: { type: 'undefined' } })).toBe(true);
-            expect(match('', { ...at, is: { gte: 0 } })).toBe(false);
+            expect(holds('', { ...at, is: { type: 'undefined' } })).toBe(true);
+            expect(holds('', { ...at, is: { gte: 0 } })).toBe(false);
         });
 
         it('mixes lists of values with numbers', () => {
             const html = IMG('data-width="3"') + IMG('data-width="9"');
             expect(
-                match(html, { sum: [{ element: { selector: 'img', field: 'naturalWidth' } }, 1], is: 13 }, { install: imageState }),
+                holds(html, { sum: [{ element: { selector: 'img', field: 'naturalWidth' } }, 1], is: 13 }, { install: imageState }),
             ).toBe(true);
         });
 
         it('reads the one item with only, and errors over none or several', () => {
             const read = { only: { element: { selector: 'img', field: 'naturalWidth' } }, is: { gte: 0 } };
-            expect(match(IMG(), read, { install: imageState })).toBe(true);
-            expect(match('', read, { install: imageState })).toBe('error');
-            expect(match(IMG() + IMG(), read, { install: imageState })).toBe('error');
+            expect(holds(IMG(), read, { install: imageState })).toBe(true);
+            expect(holds('', read, { install: imageState })).toBe('error');
+            expect(holds(IMG() + IMG(), read, { install: imageState })).toBe('error');
         });
 
         it('picks an item by position with at on a root, in document order', () => {
             const html = IMG('data-width="1"') + IMG('data-width="2"') + IMG('data-width="3"');
             const widths = { element: { selector: 'img', field: 'naturalWidth' } };
-            expect(match(html, { ...widths, using: { path: 'at', args: [0] }, is: 1 }, { install: imageState })).toBe(true);
-            expect(match(html, { ...widths, using: { path: 'at', args: [-1] }, is: 3 }, { install: imageState })).toBe(true);
+            expect(holds(html, { ...widths, using: { path: 'at', args: [0] }, is: 1 }, { install: imageState })).toBe(true);
+            expect(holds(html, { ...widths, using: { path: 'at', args: [-1] }, is: 3 }, { install: imageState })).toBe(true);
             const images = { element: { selector: 'img' } };
             expect(
-                match(html, { ...images, using: { path: 'at', args: [1], field: 'naturalWidth' }, is: 2 }, { install: imageState }),
+                holds(html, { ...images, using: { path: 'at', args: [1], field: 'naturalWidth' }, is: 2 }, { install: imageState }),
             ).toBe(true);
         });
 
@@ -783,24 +892,24 @@ describe('WebDetection expressions', () => {
                 { name: 'b', entryType: 'resource', duration: 7 },
             ]);
             const durations = { api: { path: 'performance.getEntriesByType', args: ['resource'], field: 'duration' } };
-            expect(match('', { ...durations, using: { path: 'at', args: [0] }, is: 5 }, { install })).toBe(true);
-            expect(match('', { ...durations, using: { path: 'at', args: [-1] }, is: 7 }, { install })).toBe(true);
+            expect(holds('', { ...durations, using: { path: 'at', args: [0] }, is: 5 }, { install })).toBe(true);
+            expect(holds('', { ...durations, using: { path: 'at', args: [-1] }, is: 7 }, { install })).toBe(true);
         });
 
         it('errors on a value of the wrong type', () => {
-            expect(match('<p>x</p>', { sum: [{ element: { selector: 'p', field: 'tagName' } }], is: 1 })).toBe('error');
-            expect(match('<p>x</p>', { only: { element: { selector: 'p', field: 'tagName' } }, is: { gt: 1 } })).toBe(false);
-            expect(match('<p>x</p>', { all: { element: { selector: 'p', field: 'tagName' } } })).toBe('error');
-            expect(match('', { only: { api: { path: 'document.title' } }, is: 0 })).toBe('error');
-            expect(match('', { div: [{ api: { path: 'document.styleSheets' } }, 1], is: 0 })).toBe('error');
-            expect(match('', { sum: { api: { path: 'document.styleSheets' } }, is: 0 })).toBe(true);
+            expect(holds('<p>x</p>', { sum: [{ element: { selector: 'p', field: 'tagName' } }], is: 1 })).toBe('error');
+            expect(holds('<p>x</p>', { only: { element: { selector: 'p', field: 'tagName' } }, is: { gt: 1 } })).toBe(false);
+            expect(holds('<p>x</p>', { all: { element: { selector: 'p', field: 'tagName' } } })).toBe('error');
+            expect(holds('', { only: { api: { path: 'document.title' } }, is: 0 })).toBe('error');
+            expect(holds('', { div: [{ api: { path: 'document.styleSheets' } }, 1], is: 0 })).toBe('error');
+            expect(holds('', { sum: { api: { path: 'document.styleSheets' } }, is: 0 })).toBe(true);
         });
 
         it('takes all, any and none over a list of booleans', () => {
             const html = IMG('data-complete') + IMG();
-            expect(match(html, { all: { element: { selector: 'img', field: 'complete' } } }, { install: imageState })).toBe(false);
-            expect(match(html, { any: { element: { selector: 'img', field: 'complete' } } }, { install: imageState })).toBe(true);
-            expect(match(IMG(), { none: { element: { selector: 'img', field: 'complete' } } }, { install: imageState })).toBe(true);
+            expect(holds(html, { all: { element: { selector: 'img', field: 'complete' } } }, { install: imageState })).toBe(false);
+            expect(holds(html, { any: { element: { selector: 'img', field: 'complete' } } }, { install: imageState })).toBe(true);
+            expect(holds(IMG(), { none: { element: { selector: 'img', field: 'complete' } } }, { install: imageState })).toBe(true);
         });
     });
 
@@ -808,13 +917,15 @@ describe('WebDetection expressions', () => {
         it('gives a length cut short at its bound the results a full length gives', () => {
             const html = Array.from({ length: 7 }, () => IMG('data-complete')).join('');
             const detector = {
-                match: { element: { selector: 'img', where: { complete: true } }, using: 'length', as: 'n', is: { gte: 1 } },
-                actions: {
-                    fireEvent: {
-                        type: 't',
-                        data: { n: { value: { ref: 'n' }, buckets: { 1: 1, '2-4': { gte: 2, lt: 5 }, '5+': { gte: 5 } } } },
+                actions: [
+                    {
+                        when: { element: { selector: 'img', where: { complete: true } }, using: 'length', as: 'n', is: { gte: 1 } },
+                        fireEvent: {
+                            type: 't',
+                            data: { n: { value: { ref: 'n' }, buckets: { 1: 1, '2-4': { gte: 2, lt: 5 }, '5+': { gte: 5 } } } },
+                        },
                     },
-                },
+                ],
             };
             const result = run(html, detector, { install: imageState });
             expect(result.data).toEqual({ n: '5+' });
@@ -824,10 +935,10 @@ describe('WebDetection expressions', () => {
         it('does not reach a where failure past the bound', () => {
             const html = IMG('data-width="1"') + IMG('data-width="1"') + IMG('data-throw');
             const where = { naturalWidth: { gt: 0 } };
-            expect(match(html, { element: { selector: 'img', where }, using: 'length', is: { gte: 2 } }, { install: imageState })).toBe(
+            expect(holds(html, { element: { selector: 'img', where }, using: 'length', is: { gte: 2 } }, { install: imageState })).toBe(
                 true,
             );
-            expect(match(html, { element: { selector: 'img', where }, using: 'length', is: { gte: 3 } }, { install: imageState })).toBe(
+            expect(holds(html, { element: { selector: 'img', where }, using: 'length', is: { gte: 3 } }, { install: imageState })).toBe(
                 'aborted',
             );
         });
@@ -835,8 +946,12 @@ describe('WebDetection expressions', () => {
         it('runs a length with an unbucketed payload to the end', () => {
             const html = Array.from({ length: 7 }, () => IMG()).join('');
             const detector = {
-                match: { element: { selector: 'img' }, using: 'length', as: 'n', is: { gte: 1 } },
-                actions: { fireEvent: { type: 't', data: { n: { value: { ref: 'n' } } } } },
+                actions: [
+                    {
+                        when: { element: { selector: 'img' }, using: 'length', as: 'n', is: { gte: 1 } },
+                        fireEvent: { type: 't', data: { n: { value: { ref: 'n' } } } },
+                    },
+                ],
             };
             expect(run(html, detector).data).toEqual({ n: 7 });
         });
@@ -847,12 +962,17 @@ describe('WebDetection expressions', () => {
             const result = run(
                 IMG('data-complete') + IMG('data-complete') + IMG(),
                 {
-                    match: {
-                        all: [
-                            { element: { selector: 'img', where: { complete: true } }, as: 'images' },
-                            { ref: 'images', using: 'length', as: 'n', is: { lt: 100 } },
-                        ],
-                    },
+                    actions: [
+                        {
+                            when: {
+                                all: [
+                                    { element: { selector: 'img', where: { complete: true } }, as: 'images' },
+                                    { ref: 'images', using: 'length', as: 'n', is: { lt: 100 } },
+                                ],
+                            },
+                            exit: true,
+                        },
+                    ],
                 },
                 {
                     install: (w) => {
@@ -869,8 +989,12 @@ describe('WebDetection expressions', () => {
         it('runs a length with a payload sending it under `when` to the end', () => {
             const html = Array.from({ length: 7 }, () => IMG()).join('');
             const detector = {
-                match: { element: { selector: 'img' }, using: 'length', as: 'n', is: { gte: 1 } },
-                actions: { fireEvent: { type: 't', data: { n: { value: { ref: 'n' }, when: { gte: 1 } } } } },
+                actions: [
+                    {
+                        when: { element: { selector: 'img' }, using: 'length', as: 'n', is: { gte: 1 } },
+                        fireEvent: { type: 't', data: { n: { value: { ref: 'n' }, when: { gte: 1 } } } },
+                    },
+                ],
             };
             expect(run(html, detector).data).toEqual({ n: 7 });
         });
@@ -878,13 +1002,17 @@ describe('WebDetection expressions', () => {
         it('runs a length read through a ref to a ref to the end', () => {
             const html = Array.from({ length: 7 }, () => IMG()).join('');
             const detector = {
-                match: {
-                    all: [
-                        { element: { selector: 'img' }, using: 'length', as: 'n', is: { gte: 1 } },
-                        { ref: 'n', as: 'm', is: { gte: 1 } },
-                    ],
-                },
-                actions: { fireEvent: { type: 't', data: { m: { value: { ref: 'm' } } } } },
+                actions: [
+                    {
+                        when: {
+                            all: [
+                                { element: { selector: 'img' }, using: 'length', as: 'n', is: { gte: 1 } },
+                                { ref: 'n', as: 'm', is: { gte: 1 } },
+                            ],
+                        },
+                        fireEvent: { type: 't', data: { m: { value: { ref: 'm' } } } },
+                    },
+                ],
             };
             expect(run(html, detector).data).toEqual({ m: 7 });
         });
@@ -892,7 +1020,12 @@ describe('WebDetection expressions', () => {
         it('cuts a length short at the bound of an `is` on an `expr` over it', () => {
             const html = Array.from({ length: 7 }, () => IMG()).join('');
             const result = run(html, {
-                match: { expr: { element: { selector: 'img', where: {} }, using: 'length', as: 'n' }, as: 'm', is: { gte: 2 } },
+                actions: [
+                    {
+                        when: { expr: { element: { selector: 'img', where: {} }, using: 'length', as: 'n' }, as: 'm', is: { gte: 2 } },
+                        exit: true,
+                    },
+                ],
             });
             expect(result.detected).toBe(true);
             expect(result.ctx.measured.n).toBe(2);
@@ -942,21 +1075,23 @@ describe('WebDetection expressions', () => {
 
         it('records errored keys in `_errors`, sorted by key', () => {
             const detector = {
-                match: true,
-                actions: {
-                    fireEvent: {
-                        type: 't',
-                        data: {
-                            zeta: { value: { only: { element: { selector: 'img', field: 'naturalWidth' } } } },
-                            alpha: {
-                                value: 'x'.length === 1 ? 1 : 0,
-                                when: { gt: { only: { element: { selector: 'img', field: 'naturalWidth' } } } },
+                actions: [
+                    {
+                        when: true,
+                        fireEvent: {
+                            type: 't',
+                            data: {
+                                zeta: { value: { only: { element: { selector: 'img', field: 'naturalWidth' } } } },
+                                alpha: {
+                                    value: 'x'.length === 1 ? 1 : 0,
+                                    when: { gt: { only: { element: { selector: 'img', field: 'naturalWidth' } } } },
+                                },
+                                ok: { value: 1 },
+                                beta: { value: 1, buckets: { a: { field: 'nope', is: { gt: 1 } } } },
                             },
-                            ok: { value: 1 },
-                            beta: { value: 1, buckets: { a: { field: 'nope', is: { gt: 1 } } } },
                         },
                     },
-                },
+                ],
             };
             const data = run('<p></p>', detector).data;
             expect(data).toEqual({
@@ -974,10 +1109,10 @@ describe('WebDetection expressions', () => {
 
         it('rejects invalid payload keys and empty buckets', () => {
             expectParseError(
-                { match: true, actions: { fireEvent: { type: 't', data: { nativeData: { value: 1 } } } } },
+                { actions: [{ when: true, fireEvent: { type: 't', data: { nativeData: { value: 1 } } } }] },
                 'invalid payload key',
             );
-            expectParseError({ match: true, actions: { fireEvent: { type: 't', data: { _x: { value: 1 } } } } }, 'invalid payload key');
+            expectParseError({ actions: [{ when: true, fireEvent: { type: 't', data: { _x: { value: 1 } } } }] }, 'invalid payload key');
             expectParseError(withPayload(1, { buckets: {} }), 'at least one bucket');
         });
     });
@@ -990,19 +1125,19 @@ describe('WebDetection expressions', () => {
                 using: 'length',
                 is: 1,
             });
-            expect(match('', nav({ type: 'reload' }), { install })).toBe(true);
-            expect(match('', nav({ type: { eq: 'reload' } }), { install })).toBe(true);
-            expect(match('', nav({ size: 0 }), { install })).toBe(true);
-            expect(match('', nav({ size: '0' }), { install })).toBe(false);
-            expect(match('', nav({ nothing: null }), { install })).toBe(true);
-            expect(match('', nav({ type: ['navigate', 'reload'] }), { install })).toBe(true);
-            expect(match('', nav({ type: { none: ['navigate', 'reload'] } }), { install })).toBe(false);
+            expect(holds('', nav({ type: 'reload' }), { install })).toBe(true);
+            expect(holds('', nav({ type: { eq: 'reload' } }), { install })).toBe(true);
+            expect(holds('', nav({ size: 0 }), { install })).toBe(true);
+            expect(holds('', nav({ size: '0' }), { install })).toBe(false);
+            expect(holds('', nav({ nothing: null }), { install })).toBe(true);
+            expect(holds('', nav({ type: ['navigate', 'reload'] }), { install })).toBe(true);
+            expect(holds('', nav({ type: { none: ['navigate', 'reload'] } }), { install })).toBe(false);
         });
 
         it('compares a value that is not a number as JS does', () => {
             const install = timeline([{ name: 'n', entryType: 'navigation', type: 'reload' }]);
             expect(
-                match(
+                holds(
                     '',
                     {
                         api: {
@@ -1016,7 +1151,7 @@ describe('WebDetection expressions', () => {
                     { install },
                 ),
             ).toBe(true);
-            expect(match('<p>x</p>', { only: { element: { selector: 'p', field: 'tagName' } }, is: { gte: 'O' } })).toBe(true);
+            expect(holds('<p>x</p>', { only: { element: { selector: 'p', field: 'tagName' } }, is: { gte: 'O' } })).toBe(true);
         });
 
         it('tests Number.isFinite and Number.isNaN through call over NaN, the infinities, a finite number and a string', () => {
@@ -1028,37 +1163,37 @@ describe('WebDetection expressions', () => {
                 [3, true, false],
             ];
             for (const [value, finite, nan] of cases) {
-                expect(match('', { sum: [value], is: numberTest('isFinite') })).toBe(finite);
-                expect(match('', { sum: [value], is: numberTest('isNaN') })).toBe(nan);
+                expect(holds('', { sum: [value], is: numberTest('isFinite') })).toBe(finite);
+                expect(holds('', { sum: [value], is: numberTest('isNaN') })).toBe(nan);
             }
             const install = timeline([{ name: 'n', entryType: 'navigation', type: 'reload' }]);
             const type = { only: { api: { path: 'performance.getEntriesByType', args: ['navigation'], field: 'type' } } };
-            expect(match('', { ...type, is: numberTest('isFinite', false) }, { install })).toBe(true);
-            expect(match('', { ...type, is: numberTest('isNaN', false) }, { install })).toBe(true);
+            expect(holds('', { ...type, is: numberTest('isFinite', false) }, { install })).toBe(true);
+            expect(holds('', { ...type, is: numberTest('isNaN', false) }, { install })).toBe(true);
         });
 
         it('reads finite and nan as property names, not operators', () => {
-            expect(match('', { div: [0, 0], is: { nan: true } })).toBe(false);
-            expect(match('', { sum: [3], is: { finite: { type: 'undefined' } } })).toBe(true);
+            expect(holds('', { div: [0, 0], is: { nan: true } })).toBe(false);
+            expect(holds('', { sum: [3], is: { finite: { type: 'undefined' } } })).toBe(true);
         });
 
         it('reads property paths at item and value level, beside reserved keys and operators', () => {
             const html = `<input type="checkbox" checked><input type="text" value="abc">`;
             expect(
-                match(html, {
+                holds(html, {
                     element: { selector: 'input', where: { type: 'checkbox', checked: true } },
                     using: 'length',
                     is: 1,
                 }),
             ).toBe(true);
             expect(
-                match(html, {
+                holds(html, {
                     element: { selector: 'input', where: { 'value.length': { gt: 2 }, any: [{ type: 'text' }] } },
                     using: 'length',
                     is: 1,
                 }),
             ).toBe(true);
-            expect(match(html, { api: { path: 'document.title' }, is: { type: 'string', length: 0 } })).toBe(true);
+            expect(holds(html, { api: { path: 'document.title' }, is: { type: 'string', length: 0 } })).toBe(true);
         });
 
         it('buckets a value by length', () => {
@@ -1070,25 +1205,28 @@ describe('WebDetection expressions', () => {
         it('reads a property named like an operator under `is` through the long form', () => {
             const install = timeline([{ name: 'n', entryType: 'navigation', type: 'reload' }]);
             const nav = { only: { api: { path: 'performance.getEntriesByType', args: ['navigation'] } } };
-            expect(match('', { ...nav, is: { field: 'type', is: 'reload' } }, { install })).toBe(true);
+            expect(holds('', { ...nav, is: { field: 'type', is: 'reload' } }, { install })).toBe(true);
         });
 
         it('rejects field or is without the other, and an unknown type name', () => {
             expectParseError(
-                { match: { element: { selector: 'p', where: { field: 'id' } }, using: 'length', is: 1 } },
+                { actions: [{ when: { element: { selector: 'p', where: { field: 'id' } }, using: 'length', is: 1 }, exit: true }] },
                 '`field` and `is` go together',
             );
             expectParseError(
-                { match: { element: { selector: 'p', where: { is: 1 } }, using: 'length', is: 1 } },
+                { actions: [{ when: { element: { selector: 'p', where: { is: 1 } }, using: 'length', is: 1 }, exit: true }] },
                 '`field` and `is` go together',
             );
-            expectParseError({ match: { element: { selector: 'p' }, using: 'length', is: { type: 'integer' } } }, 'unknown type name');
+            expectParseError(
+                { actions: [{ when: { element: { selector: 'p' }, using: 'length', is: { type: 'integer' } }, exit: true }] },
+                'unknown type name',
+            );
         });
 
         it('reads a property named like a reserved key in the long form, inside combinators at item level', () => {
             const html = '<div role="dialog"></div><div></div>';
             expect(
-                match(html, {
+                holds(html, {
                     element: {
                         selector: 'div',
                         where: { field: { path: 'getAttribute', args: ['role'] }, is: 'dialog' },
@@ -1098,7 +1236,7 @@ describe('WebDetection expressions', () => {
                 }),
             ).toBe(true);
             expect(
-                match(html, {
+                holds(html, {
                     element: {
                         selector: 'div',
                         where: { any: [{ field: { path: 'getAttribute', args: ['role'] }, is: 'dialog' }, { id: 'x' }] },
@@ -1107,31 +1245,31 @@ describe('WebDetection expressions', () => {
                     is: 1,
                 }),
             ).toBe(true);
-            expect(match(html, { element: { selector: 'div', where: { none: [{ hidden: true }] } }, using: 'length', is: 2 })).toBe(true);
+            expect(holds(html, { element: { selector: 'div', where: { none: [{ hidden: true }] } }, using: 'length', is: 2 })).toBe(true);
         });
 
         it('fails the source when a read fails', () => {
             expect(
-                match(
+                holds(
                     IMG('data-throw'),
                     { element: { selector: 'img', where: { naturalWidth: 1 } }, using: 'length', is: 0 },
                     { install: imageState },
                 ),
             ).toBe('aborted');
-            expect(match('<p></p>', { element: { selector: 'p', where: { noSuchProperty: 1 } }, using: 'length', is: 0 })).toBe(true);
+            expect(holds('<p></p>', { element: { selector: 'p', where: { noSuchProperty: 1 } }, using: 'length', is: 0 })).toBe(true);
         });
 
         it('tests fails and type first whatever the key order', () => {
             // `gt` on a throwing property would fail; `fails` decides first
             expect(
-                match(
+                holds(
                     IMG('data-throw'),
                     { element: { selector: 'img', where: { naturalWidth: { gt: 1, fails: false } } }, using: 'length', is: 0 },
                     { install: imageState },
                 ),
             ).toBe(true);
             expect(
-                match('<p></p>', {
+                holds('<p></p>', {
                     element: { selector: 'p', where: { id: { gt: 1, type: 'number' } } },
                     using: 'length',
                     is: 0,
@@ -1142,7 +1280,7 @@ describe('WebDetection expressions', () => {
         it('treats exists and type as property names on items', () => {
             const install = timeline([{ name: 'n', entryType: 'navigation', exists: 'yes', type: 'reload' }]);
             expect(
-                match(
+                holds(
                     '',
                     {
                         api: {
@@ -1161,7 +1299,7 @@ describe('WebDetection expressions', () => {
         it('tests failure and type over a missing property, undefined, null, a string and a number', () => {
             const install = timeline([{ name: 'n', entryType: 'navigation', u: undefined, nul: null, s: '7', num: 8 }]);
             const test = (/** @type {object} */ where) =>
-                match(
+                holds(
                     '',
                     { api: { path: 'performance.getEntriesByType', args: ['navigation'], where }, using: 'length', is: 1 },
                     { install },
@@ -1201,24 +1339,29 @@ describe('WebDetection expressions', () => {
                 { name: 'b', entryType: 'resource', responseEnd: 150 },
             ]);
             const detector = {
-                match: {
-                    all: [
-                        {
-                            only: { api: { path: 'performance.getEntriesByType', args: ['navigation'], field: 'loadEventEnd' } },
-                            as: 'loadEventEnd',
-                            is: {},
+                actions: [
+                    {
+                        when: {
+                            all: [
+                                {
+                                    only: { api: { path: 'performance.getEntriesByType', args: ['navigation'], field: 'loadEventEnd' } },
+                                    as: 'loadEventEnd',
+                                    is: {},
+                                },
+                                {
+                                    api: {
+                                        path: 'performance.getEntriesByType',
+                                        args: ['resource'],
+                                        where: { responseEnd: { gt: { ref: 'loadEventEnd' } } },
+                                    },
+                                    using: 'length',
+                                    is: 1,
+                                },
+                            ],
                         },
-                        {
-                            api: {
-                                path: 'performance.getEntriesByType',
-                                args: ['resource'],
-                                where: { responseEnd: { gt: { ref: 'loadEventEnd' } } },
-                            },
-                            using: 'length',
-                            is: 1,
-                        },
-                    ],
-                },
+                        exit: true,
+                    },
+                ],
             };
             expect(run('', detector, { install }).detected).toBe(true);
         });
@@ -1228,9 +1371,9 @@ describe('WebDetection expressions', () => {
             const afterCapture = (/** @type {any} */ w) => {
                 Object.defineProperty(w.HTMLImageElement.prototype, 'naturalWidth', { configurable: true, get: () => 999 });
             };
-            expect(match(html, { element: BROKEN, using: 'length', is: 1 }, { install: imageState, afterCapture })).toBe(true);
+            expect(holds(html, { element: BROKEN, using: 'length', is: 1 }, { install: imageState, afterCapture })).toBe(true);
             expect(
-                match(
+                holds(
                     html,
                     { only: { element: { selector: 'img', field: 'naturalWidth' } }, is: 0 },
                     { install: imageState, afterCapture },
@@ -1244,14 +1387,14 @@ describe('WebDetection expressions', () => {
 
         it('reads a path, or a body of path, args, where and field, from the value beside it', () => {
             const install = fonts(['loaded', 'error', 'error']);
-            expect(match('', { api: { path: 'document' }, using: 'fonts', is: { type: 'object' } }, { install })).toBe(true);
+            expect(holds('', { api: { path: 'document' }, using: 'fonts', is: { type: 'object' } }, { install })).toBe(true);
             const failed = { api: { path: 'document' }, using: { path: 'fonts', where: { status: 'error' } } };
             expect(
-                match('', { api: { path: 'document' }, using: { path: 'fonts', field: 'status' }, is: { length: 3 } }, { install }),
+                holds('', { api: { path: 'document' }, using: { path: 'fonts', field: 'status' }, is: { length: 3 } }, { install }),
             ).toBe(true);
-            expect(match('', { expr: failed, using: 'length', is: 2 }, { install })).toBe(true);
+            expect(holds('', { expr: failed, using: 'length', is: 2 }, { install })).toBe(true);
             expect(
-                match(
+                holds(
                     widths,
                     { element: { selector: 'img', field: 'naturalWidth' }, using: { path: 'at', args: [-1] }, is: 2 },
                     { install: imageState },
@@ -1261,33 +1404,56 @@ describe('WebDetection expressions', () => {
 
         it('applies `using`, then `as`, then `is`', () => {
             const result = run(widths, {
-                match: { element: { selector: 'img' }, using: 'length', as: 'n', is: { gte: 2 } },
-                actions: { fireEvent: { type: 't', data: { n: { value: { ref: 'n' } } } } },
+                actions: [
+                    {
+                        when: { element: { selector: 'img' }, using: 'length', as: 'n', is: { gte: 2 } },
+                        fireEvent: { type: 't', data: { n: { value: { ref: 'n' } } } },
+                    },
+                ],
             });
             expect(result.detected).toBe(true);
             expect(result.data).toEqual({ n: 2 });
         });
 
         it('rejects `using` without an expression, without a path or with an unknown key, and `root` on `api`', () => {
-            expectParseError({ match: { using: 'length', is: 1 } }, '`using` reads from an expression');
-            expectParseError({ match: { element: { selector: 'img' }, using: {}, is: 1 } }, '`using` needs `path`');
-            expectParseError({ match: { element: { selector: 'img' }, using: 1, is: 1 } }, '`using` takes a path or an object');
-            expectParseError({ match: { element: { selector: 'img' }, using: { path: 'at', root: 'x' }, is: 1 } }, "unknown key 'root'");
-            expectParseError({ match: { api: { root: { element: { selector: 'img' } }, path: 'length' }, is: 1 } }, "unknown key 'root'");
+            expectParseError({ actions: [{ when: { using: 'length', is: 1 }, exit: true }] }, '`using` reads from an expression');
+            expectParseError(
+                { actions: [{ when: { element: { selector: 'img' }, using: {}, is: 1 }, exit: true }] },
+                '`using` needs `path`',
+            );
+            expectParseError(
+                { actions: [{ when: { element: { selector: 'img' }, using: 1, is: 1 }, exit: true }] },
+                '`using` takes a path or an object',
+            );
+            expectParseError(
+                { actions: [{ when: { element: { selector: 'img' }, using: { path: 'at', root: 'x' }, is: 1 }, exit: true }] },
+                "unknown key 'root'",
+            );
+            expectParseError(
+                { actions: [{ when: { api: { root: { element: { selector: 'img' } }, path: 'length' }, is: 1 }, exit: true }] },
+                "unknown key 'root'",
+            );
         });
 
         it('names a value and what `using` reads from it through `expr`', () => {
             const result = run(widths, {
-                match: { expr: { element: { selector: 'img' }, as: 'imageElements' }, using: 'length', as: 'imageCount', is: { gte: 2 } },
-                actions: {
-                    fireEvent: {
-                        type: 't',
-                        data: {
-                            imageCount: { value: { ref: 'imageCount' } },
-                            elements: { value: { ref: 'imageElements' }, buckets: { two: { length: 2 } } },
+                actions: [
+                    {
+                        when: {
+                            expr: { element: { selector: 'img' }, as: 'imageElements' },
+                            using: 'length',
+                            as: 'imageCount',
+                            is: { gte: 2 },
+                        },
+                        fireEvent: {
+                            type: 't',
+                            data: {
+                                imageCount: { value: { ref: 'imageCount' } },
+                                elements: { value: { ref: 'imageElements' }, buckets: { two: { length: 2 } } },
+                            },
                         },
                     },
-                },
+                ],
             });
             expect(result.detected).toBe(true);
             expect(result.data).toEqual({ imageCount: 2, elements: 'two' });
@@ -1295,104 +1461,116 @@ describe('WebDetection expressions', () => {
 
         it('names the boolean an `is` inside `expr` gives', () => {
             const detector = {
-                match: { expr: { element: { selector: 'img' }, using: 'length', is: { gte: 2 } }, as: 'enoughImages' },
-                actions: { fireEvent: { type: 't', data: { enough: { value: { ref: 'enoughImages' } } } } },
+                actions: [
+                    {
+                        when: { expr: { element: { selector: 'img' }, using: 'length', is: { gte: 2 } }, as: 'enoughImages' },
+                        fireEvent: { type: 't', data: { enough: { value: { ref: 'enoughImages' } } } },
+                    },
+                ],
             };
             expect(run(widths, detector).data).toEqual({ enough: true });
             expect(run(IMG(), detector).detected).toBe(false);
             expect(payload(widths, { expr: { element: { selector: 'img' }, using: 'length', is: { gte: 2 } } })).toEqual({ x: true });
             expectParseError(
-                { match: { sum: [{ expr: { element: { selector: 'img' }, using: 'length', is: 1 } }], is: 1 } },
+                { actions: [{ when: { sum: [{ expr: { element: { selector: 'img' }, using: 'length', is: 1 } }], is: 1 }, exit: true }] },
                 "'expr' does not fill number",
             );
         });
 
         it('gives its operand in its own position: a list operand of `sum`, and the condition leaf', () => {
             const sum = { sum: { expr: { element: { selector: 'img', field: 'naturalWidth' }, as: 'w' } }, is: 3 };
-            expect(match(widths, sum, { install: imageState })).toBe(true);
-            expect(match(widths, { expr: { element: { selector: 'img' } } })).toBe(true);
-            expect(match('', { any: [{ expr: { element: { selector: 'img' } } }] })).toBe(false);
-            expectParseError({ match: { expr: { element: { selector: 'img', field: 'naturalWidth' } } } }, 'does not fill boolean');
+            expect(holds(widths, sum, { install: imageState })).toBe(true);
+            expect(holds(widths, { expr: { element: { selector: 'img' } } })).toBe(true);
+            expect(holds('', { any: [{ expr: { element: { selector: 'img' } } }] })).toBe(false);
+            expectParseError(
+                { actions: [{ when: { expr: { element: { selector: 'img', field: 'naturalWidth' } } }, exit: true }] },
+                'does not fill boolean',
+            );
         });
     });
 
     describe('api', () => {
         it('takes a path as short for a body with that path', () => {
             const head = '<title>Hello there</title>';
-            expect(match('', { api: 'document.title', is: 'Hello there' }, { head })).toBe(true);
-            expect(match('', { api: { path: 'Math.max', args: [1, { api: 'document.title.length' }] }, is: 11 }, { head })).toBe(true);
-            expect(match('', { api: 'document.title', using: 'length', is: 11 }, { head })).toBe(true);
-            expectParseError({ match: { api: 5 } }, '`api` takes a path or an object');
-            expectParseError({ match: { api: '' } }, 'non-empty');
+            expect(holds('', { api: 'document.title', is: 'Hello there' }, { head })).toBe(true);
+            expect(holds('', { api: { path: 'Math.max', args: [1, { api: 'document.title.length' }] }, is: 11 }, { head })).toBe(true);
+            expect(holds('', { api: 'document.title', using: 'length', is: 11 }, { head })).toBe(true);
+            expectParseError({ actions: [{ when: { api: 5 }, exit: true }] }, '`api` takes a path or an object');
+            expectParseError({ actions: [{ when: { api: '' }, exit: true }] }, 'non-empty');
         });
 
         it('gives a scalar path its value, and a string is not a list', () => {
             const head = '<title>Hello there</title>';
-            expect(match('', { api: { path: 'document.title' }, is: 'Hello there' }, { head })).toBe(true);
-            expect(match('', { only: { api: { path: 'document.title' } }, is: 'Hello there' }, { head })).toBe('error');
-            expect(match('', { api: { path: 'document.title' }, using: 'length', is: 11 }, { head })).toBe(true);
+            expect(holds('', { api: { path: 'document.title' }, is: 'Hello there' }, { head })).toBe(true);
+            expect(holds('', { only: { api: { path: 'document.title' } }, is: 'Hello there' }, { head })).toBe('error');
+            expect(holds('', { api: { path: 'document.title' }, using: 'length', is: 11 }, { head })).toBe(true);
         });
 
         it('gives an iterable as a value under is and using, and as a list under only and with field', () => {
             const install = fonts(['loaded', 'error']);
-            expect(match('', { api: { path: 'document.fonts' }, is: { type: 'object' } }, { install })).toBe(true);
-            expect(match('', { api: { path: 'document.fonts', field: 'status' }, using: 'length', is: 2 }, { install })).toBe(true);
-            expect(match('', { api: { path: 'document.fonts' }, using: 'size', is: 2 }, { install })).toBe(true);
+            expect(holds('', { api: { path: 'document.fonts' }, is: { type: 'object' } }, { install })).toBe(true);
+            expect(holds('', { api: { path: 'document.fonts', field: 'status' }, using: 'length', is: 2 }, { install })).toBe(true);
+            expect(holds('', { api: { path: 'document.fonts' }, using: 'size', is: 2 }, { install })).toBe(true);
             // `length` reads the iterable's own property, which a `FontFaceSet` lacks
-            expect(match('', { api: { path: 'document.fonts' }, using: 'length', is: { type: 'undefined' } }, { install })).toBe(true);
+            expect(holds('', { api: { path: 'document.fonts' }, using: 'length', is: { type: 'undefined' } }, { install })).toBe(true);
         });
 
         it('reads field from each member of a list, and from a value that is not one', () => {
             const install = fonts(['loaded', 'error']);
             expect(
-                match(
+                holds(
                     '',
                     { api: { path: 'document.fonts', field: 'status' }, using: { path: 'at', args: [-1] }, is: 'error' },
                     { install },
                 ),
             ).toBe(true);
-            expect(match('', { api: { path: 'document', field: 'title.length' }, is: 0 })).toBe(true);
+            expect(holds('', { api: { path: 'document', field: 'title.length' }, is: 0 })).toBe(true);
         });
 
         it('reads a path from root', () => {
             const install = timeline([{ name: 'n', entryType: 'navigation', loadEventEnd: 900, responseStatus: 200 }]);
             const detector = {
-                match: {
-                    all: [
-                        { only: { api: { path: 'performance.getEntriesByType', args: ['navigation'] } }, as: 'navigation', is: {} },
-                        { ref: 'navigation', using: 'loadEventEnd', is: 900 },
-                        { ref: 'navigation', using: 'responseStatus', is: 200 },
-                    ],
-                },
+                actions: [
+                    {
+                        when: {
+                            all: [
+                                { only: { api: { path: 'performance.getEntriesByType', args: ['navigation'] } }, as: 'navigation', is: {} },
+                                { ref: 'navigation', using: 'loadEventEnd', is: 900 },
+                                { ref: 'navigation', using: 'responseStatus', is: 200 },
+                            ],
+                        },
+                        exit: true,
+                    },
+                ],
             };
             expect(run('', detector, { install }).detected).toBe(true);
             const ids = '<p id="a"></p><p id="b"></p>';
-            expect(match(ids, { element: { selector: 'p', field: 'id' }, using: { path: 'at', args: [-1] }, is: 'b' })).toBe(true);
-            expect(match(ids, { element: { selector: 'p' }, using: 'length', is: 2 })).toBe(true);
+            expect(holds(ids, { element: { selector: 'p', field: 'id' }, using: { path: 'at', args: [-1] }, is: 'b' })).toBe(true);
+            expect(holds(ids, { element: { selector: 'p' }, using: 'length', is: 2 })).toBe(true);
         });
 
         it('yields the members of an iterable', () => {
             expect(
-                match(
+                holds(
                     '',
                     { api: { path: 'document.fonts', field: 'status' }, using: 'length', is: 3 },
                     { install: fonts(['loaded', 'error', 'error']) },
                 ),
             ).toBe(true);
             expect(
-                match(
+                holds(
                     '',
                     { api: { path: 'document.fonts', where: { status: 'error' } }, using: 'length', is: 2 },
                     { install: fonts(['loaded', 'error', 'error']) },
                 ),
             ).toBe(true);
-            expect(match('<p></p><p></p>', { api: { path: 'document.body.children' }, using: 'length', is: 2 })).toBe(true);
+            expect(holds('<p></p><p></p>', { api: { path: 'document.body.children' }, using: 'length', is: 2 })).toBe(true);
         });
 
         it('reads undefined through null', () => {
-            expect(match('', { api: { path: 'document.activeElementNope' }, using: 'length', is: { type: 'undefined' } })).toBe(true);
+            expect(holds('', { api: { path: 'document.activeElementNope' }, using: 'length', is: { type: 'undefined' } })).toBe(true);
             expect(
-                match(
+                holds(
                     '',
                     { api: { path: 'document.fullscreenElement.tagName' }, is: { type: 'undefined' } },
                     {
@@ -1407,21 +1585,21 @@ describe('WebDetection expressions', () => {
             const definesValue = (/** @type {any} */ w) => {
                 w.document.myValue = 3;
             };
-            expect(match('', { api: { path: 'document.myValue' }, is: 3 }, { afterCapture: definesValue })).toBe(true);
+            expect(holds('', { api: { path: 'document.myValue' }, is: 3 }, { afterCapture: definesValue })).toBe(true);
             // On body rather than document, whose event methods JSDOM still needs after the run
             const substitutes = (/** @type {any} */ w) => {
                 Object.setPrototypeOf(w.document.body, { tagName: 'FAKE' });
             };
-            expect(match('', { api: { path: 'document.body.tagName' }, is: 'FAKE' }, { afterCapture: substitutes })).toBe(true);
+            expect(holds('', { api: { path: 'document.body.tagName' }, is: 'FAKE' }, { afterCapture: substitutes })).toBe(true);
         });
 
         it('reads a data value and a captured getter', () => {
             const definesValue = (/** @type {any} */ w) => {
                 w.myData = { count: 3 };
             };
-            expect(match('', { api: { path: 'myData.count' }, is: 3 }, { afterCapture: definesValue })).toBe(true);
-            expect(match('', { api: { path: 'document.title' }, is: '' })).toBe(true);
-            expect(match('<p id="a"></p>', { only: { element: { selector: 'p' } }, is: { id: 'a' } })).toBe(true);
+            expect(holds('', { api: { path: 'myData.count' }, is: 3 }, { afterCapture: definesValue })).toBe(true);
+            expect(holds('', { api: { path: 'document.title' }, is: '' })).toBe(true);
+            expect(holds('<p id="a"></p>', { only: { element: { selector: 'p' } }, is: { id: 'a' } })).toBe(true);
         });
 
         it('reads a getter defined on the object itself, where nothing was captured', () => {
@@ -1431,7 +1609,7 @@ describe('WebDetection expressions', () => {
                 Object.defineProperty(location, 'href', { get: () => 'https://example.com/', enumerable: true });
                 Object.defineProperty(w, 'fakeLocation', { get: () => location });
             };
-            expect(match('', { api: { path: 'fakeLocation.href' }, is: 'https://example.com/' }, { install })).toBe(true);
+            expect(holds('', { api: { path: 'fakeLocation.href' }, is: 'https://example.com/' }, { install })).toBe(true);
         });
 
         it('skips a global whose descriptor read throws, and captures from the rest', () => {
@@ -1449,8 +1627,8 @@ describe('WebDetection expressions', () => {
             const afterCapture = (/** @type {any} */ w) => {
                 Object.defineProperty(w.Document.prototype, 'title', { configurable: true, get: () => 'page override' });
             };
-            expect(match('', { api: { path: 'document.title' }, is: '' }, { install })).toBe(true);
-            expect(match('', { api: { path: 'document.title' }, is: '' }, { install, afterCapture })).toBe(true);
+            expect(holds('', { api: { path: 'document.title' }, is: '' }, { install })).toBe(true);
+            expect(holds('', { api: { path: 'document.title' }, is: '' }, { install, afterCapture })).toBe(true);
         });
 
         it('does not call a page override of iteration', () => {
@@ -1460,7 +1638,7 @@ describe('WebDetection expressions', () => {
                 };
             };
             expect(
-                match(
+                holds(
                     '',
                     { api: { path: 'document.fonts', field: 'status' }, using: 'length', is: 2 },
                     { install: fonts(['a', 'b']), afterCapture },
@@ -1476,10 +1654,14 @@ describe('WebDetection expressions', () => {
                         throw new Error('sandboxed');
                     },
                 });
-            const result = run('', { match: { api: { path: 'document.cookie' }, is: { type: 'string' } } }, { install });
+            const result = run(
+                '',
+                { actions: [{ when: { api: { path: 'document.cookie' }, is: { type: 'string' } }, exit: true }] },
+                { install },
+            );
             expect(result.detected).toBe('aborted');
             expect(result.abortError).toBe('Error');
-            expect(match('', { api: { path: 'document.cookie' }, is: { fails: true } }, { install })).toBe(true);
+            expect(holds('', { api: { path: 'document.cookie' }, is: { fails: true } }, { install })).toBe(true);
         });
 
         it('calls the captured native method the path names', () => {
@@ -1497,7 +1679,7 @@ describe('WebDetection expressions', () => {
                 },
                 is: 120,
             };
-            expect(match('', read, { install, afterCapture })).toBe(true);
+            expect(holds('', read, { install, afterCapture })).toBe(true);
         });
 
         it('filters the timeline on numeric and string fields, and reads a field the engine lacks as undefined', () => {
@@ -1513,17 +1695,17 @@ describe('WebDetection expressions', () => {
                 api: { path: 'performance.getEntriesByType', args: ['resource'], where },
             });
             expect(
-                match('', { ...resources({ duration: { gt: 1000 }, initiatorType: ['img', 'css'] }), using: 'length', is: 1 }, { install }),
+                holds('', { ...resources({ duration: { gt: 1000 }, initiatorType: ['img', 'css'] }), using: 'length', is: 1 }, { install }),
             ).toBe(true);
-            expect(match('', { ...resources({ responseStatus: { gte: 400 } }), using: 'length', is: 0 }, { install })).toBe(true);
+            expect(holds('', { ...resources({ responseStatus: { gte: 400 } }), using: 'length', is: 0 }, { install })).toBe(true);
         });
 
         it('errors on `where` over a value that is not a list, or an item that is not an object', () => {
-            expect(match('', { api: { path: 'document.title', where: { length: 0 } }, using: 'length', is: 1 })).toBe('error');
+            expect(holds('', { api: { path: 'document.title', where: { length: 0 } }, using: 'length', is: 1 })).toBe('error');
             const install = (/** @type {any} */ w) => {
                 w.myList = ['a', 'b'];
             };
-            expect(match('', { api: { path: 'myList', where: { length: 1 } }, using: 'length', is: 2 }, { afterCapture: install })).toBe(
+            expect(holds('', { api: { path: 'myList', where: { length: 1 } }, using: 'length', is: 2 }, { afterCapture: install })).toBe(
                 'error',
             );
         });
@@ -1535,66 +1717,73 @@ describe('WebDetection expressions', () => {
         const options = { install: imageState };
 
         it('takes the largest and smallest item through Math.max.apply and Math.min.apply', () => {
-            expect(match(html, { api: { path: 'Math.max.apply', args: [null, widths] }, is: 9 }, options)).toBe(true);
-            expect(match(html, { api: { path: 'Math.min.apply', args: [null, widths] }, is: 3 }, options)).toBe(true);
+            expect(holds(html, { api: { path: 'Math.max.apply', args: [null, widths] }, is: 9 }, options)).toBe(true);
+            expect(holds(html, { api: { path: 'Math.min.apply', args: [null, widths] }, is: 3 }, options)).toBe(true);
             expect(
-                match(
+                holds(
                     '',
                     { api: { path: 'Math.max.apply', args: [null, widths] }, is: { ...numberTest('isFinite', false), lt: 0 } },
                     options,
                 ),
             ).toBe(true);
-            expect(match('', { api: { path: 'Math.max.apply', args: [null, { api: { path: 'undefined' } }] }, is: { lt: 0 } })).toBe(true);
+            expect(holds('', { api: { path: 'Math.max.apply', args: [null, { api: { path: 'undefined' } }] }, is: { lt: 0 } })).toBe(true);
         });
 
         it('extends and joins lists through concat', () => {
             const extended = { ...widths, using: { path: 'concat', args: [100] } };
-            expect(match(html, { api: { path: 'Math.max.apply', args: [null, extended] }, is: 100 }, options)).toBe(true);
+            expect(holds(html, { api: { path: 'Math.max.apply', args: [null, extended] }, is: 100 }, options)).toBe(true);
             const leading = { api: { path: 'Array.prototype.concat.call', args: [[100], widths] } };
-            expect(match(html, { ...leading, using: { path: 'at', args: [0] }, is: 100 }, options)).toBe(true);
-            expect(match(html, { ...leading, using: 'length', is: 3 }, options)).toBe(true);
+            expect(holds(html, { ...leading, using: { path: 'at', args: [0] }, is: 100 }, options)).toBe(true);
+            expect(holds(html, { ...leading, using: 'length', is: 3 }, options)).toBe(true);
         });
 
         it('builds arrays from literals and expressions, nested arrays included', () => {
             const built = { api: { path: 'Array.of', args: [[1, { element: { selector: 'img' }, using: 'length' }], 'x', null] } };
-            expect(match(html, { api: { path: 'JSON.stringify', args: [built] }, is: '[[1,2],"x",null]' })).toBe(true);
+            expect(holds(html, { api: { path: 'JSON.stringify', args: [built] }, is: '[[1,2],"x",null]' })).toBe(true);
         });
 
         it('passes a selected list as a new array, so a method changing it leaves the list', () => {
-            expect(match(html, { api: { path: 'Array.isArray', args: [widths] }, is: true }, options)).toBe(true);
+            expect(holds(html, { api: { path: 'Array.isArray', args: [widths] }, is: true }, options)).toBe(true);
             const detector = {
-                match: {
-                    all: [
-                        { api: { path: 'Array.prototype.reverse.call', args: [{ ...widths, as: 'widths' }] }, is: {} },
-                        { ref: 'widths', using: { path: 'at', args: [0] }, is: 3 },
-                    ],
-                },
+                actions: [
+                    {
+                        when: {
+                            all: [
+                                { api: { path: 'Array.prototype.reverse.call', args: [{ ...widths, as: 'widths' }] }, is: {} },
+                                { ref: 'widths', using: { path: 'at', args: [0] }, is: 3 },
+                            ],
+                        },
+                        exit: true,
+                    },
+                ],
             };
             expect(run(html, detector, options).detected).toBe(true);
         });
 
         it('builds objects through JSON.parse and Object.fromEntries', () => {
-            expect(match('', { api: { path: 'JSON.parse', args: ['{"a": 5}'], field: 'a' }, is: 5 })).toBe(true);
+            expect(holds('', { api: { path: 'JSON.parse', args: ['{"a": 5}'], field: 'a' }, is: 5 })).toBe(true);
             const entries = [[['images', { element: { selector: 'img' }, using: 'length' }]]];
-            expect(match(html, { api: { path: 'Object.fromEntries', args: entries, field: 'images' }, is: 2 })).toBe(true);
+            expect(holds(html, { api: { path: 'Object.fromEntries', args: entries, field: 'images' }, is: 2 })).toBe(true);
         });
 
         it('reads undefined through api', () => {
-            expect(match('', { api: { path: 'undefined' }, is: { type: 'undefined' } })).toBe(true);
+            expect(holds('', { api: { path: 'undefined' }, is: { type: 'undefined' } })).toBe(true);
         });
 
         it('takes expressions in field args', () => {
             const id = { api: { path: 'String', args: ['id'] } };
             expect(
-                match('<p id="a"></p>', { only: { element: { selector: 'p', field: { path: 'getAttribute', args: [id] } } }, is: 'a' }),
+                holds('<p id="a"></p>', { only: { element: { selector: 'p', field: { path: 'getAttribute', args: [id] } } }, is: 'a' }),
             ).toBe(true);
         });
 
         it('fails when an argument fails', () => {
-            const failed = run('', { match: { api: { path: 'Array.of', args: [FAILING] }, is: {} } });
+            const failed = run('', { actions: [{ when: { api: { path: 'Array.of', args: [FAILING] }, is: {} }, exit: true }] });
             expect(failed.detected).toBe('aborted');
             expect(failed.abortError).toBe('SyntaxError');
-            expect(run('', { match: { api: { path: 'Math.max', args: [7] }, as: 'n', is: 7 } }).ctx.measured.n).toBe(7);
+            expect(
+                run('', { actions: [{ when: { api: { path: 'Math.max', args: [7] }, as: 'n', is: 7 }, exit: true }] }).ctx.measured.n,
+            ).toBe(7);
         });
 
         it('fails on any throw from the call, which `fails` tests', () => {
@@ -1610,10 +1799,10 @@ describe('WebDetection expressions', () => {
                 [{ path: 'document.createElement', args: ['p'] }, 'DOMException', { install }],
             ];
             for (const [api, name, options] of calls) {
-                const result = run('', { match: { api, is: {} } }, options);
+                const result = run('', { actions: [{ when: { api, is: {} }, exit: true }] }, options);
                 expect(result.detected).withContext(name).toBe('aborted');
                 expect(result.abortError).withContext(name).toBe(name);
-                expect(match('', { api, is: { fails: true } }, options))
+                expect(holds('', { api, is: { fails: true } }, options))
                     .withContext(name)
                     .toBe(true);
             }
@@ -1621,11 +1810,18 @@ describe('WebDetection expressions', () => {
 
         it('rejects entries that are not literals, expressions or arrays', () => {
             expectParseError(
-                { match: { api: { path: 'Array.of', args: [{ composed: true }] }, is: {} } },
+                { actions: [{ when: { api: { path: 'Array.of', args: [{ composed: true }] }, is: {} }, exit: true }] },
                 "unknown expression key 'composed'",
             );
             expectParseError(
-                { match: { api: { path: 'Array.of', args: [{ element: { selector: 'p' }, using: 'length', is: 1 }] }, is: {} } },
+                {
+                    actions: [
+                        {
+                            when: { api: { path: 'Array.of', args: [{ element: { selector: 'p' }, using: 'length', is: 1 }] }, is: {} },
+                            exit: true,
+                        },
+                    ],
+                },
                 '`is`',
             );
         });
@@ -1635,17 +1831,17 @@ describe('WebDetection expressions', () => {
         const html = '<div id="comments"><img src="a.png"><p>hello</p></div><img src="b.png"><p>hello</p>';
 
         it('scopes element and text in every position', () => {
-            expect(match(html, { element: { selector: 'img', root: '#comments' }, using: 'length', is: 1 })).toBe(true);
-            expect(match(html, { text: { pattern: 'hello', root: '#comments' }, using: 'length', is: 1 })).toBe(true);
-            expect(match(html, { text: { selector: 'p', pattern: 'hello', root: '#comments' }, using: 'length', is: 1 })).toBe(true);
-            expect(match(html, { text: { xpath: './/text()', pattern: 'hello', root: '#comments' }, using: 'length', is: 1 })).toBe(true);
-            expect(match(html, { element: { selector: 'img', root: '#comments' } })).toBe(true);
-            expect(match(html, { only: { element: { selector: 'img', field: 'tagName', root: '#comments' } }, is: 'IMG' })).toBe(true);
+            expect(holds(html, { element: { selector: 'img', root: '#comments' }, using: 'length', is: 1 })).toBe(true);
+            expect(holds(html, { text: { pattern: 'hello', root: '#comments' }, using: 'length', is: 1 })).toBe(true);
+            expect(holds(html, { text: { selector: 'p', pattern: 'hello', root: '#comments' }, using: 'length', is: 1 })).toBe(true);
+            expect(holds(html, { text: { xpath: './/text()', pattern: 'hello', root: '#comments' }, using: 'length', is: 1 })).toBe(true);
+            expect(holds(html, { element: { selector: 'img', root: '#comments' } })).toBe(true);
+            expect(holds(html, { only: { element: { selector: 'img', field: 'tagName', root: '#comments' } }, is: 'IMG' })).toBe(true);
         });
 
         it('scopes element and text by an expression giving a node or a list of nodes', () => {
             const guarded = (/** @type {object} */ scoped) => ({
-                match: { all: [{ element: { selector: '#comments' }, as: 'comments' }, scoped] },
+                actions: [{ when: { all: [{ element: { selector: '#comments' }, as: 'comments' }, scoped] }, exit: true }],
             });
             expect(run(html, guarded({ element: { selector: 'img', root: { ref: 'comments' } }, using: 'length', is: 1 })).detected).toBe(
                 true,
@@ -1657,13 +1853,13 @@ describe('WebDetection expressions', () => {
                 run('<img>', guarded({ element: { selector: 'img', root: { ref: 'comments' } }, using: 'length', is: 0 })).detected,
             ).toBe(false);
             expect(
-                match(html, {
+                holds(html, {
                     element: { selector: 'img', root: { only: { element: { selector: '#comments' } } } },
                     using: 'length',
                     is: 1,
                 }),
             ).toBe(true);
-            expect(match(html, { element: { selector: 'img', root: { api: { path: 'document.body' } } }, using: 'length', is: 2 })).toBe(
+            expect(holds(html, { element: { selector: 'img', root: { api: { path: 'document.body' } } }, using: 'length', is: 2 })).toBe(
                 true,
             );
         });
@@ -1675,20 +1871,20 @@ describe('WebDetection expressions', () => {
             };
             const shadow = { only: { element: { selector: 'x-widget' } }, using: 'shadowRoot' };
             expect(
-                match(
+                holds(
                     '<x-widget></x-widget><img>',
                     { element: { selector: 'img', root: shadow }, using: 'length', is: 2 },
                     { afterCapture },
                 ),
             ).toBe(true);
-            expect(match('<x-widget></x-widget><img>', { element: { selector: 'img', root: shadow }, using: 'length', is: 0 })).toBe(true);
+            expect(holds('<x-widget></x-widget><img>', { element: { selector: 'img', root: shadow }, using: 'length', is: 0 })).toBe(true);
         });
 
         it('errors on a root that is not a selector or a node', () => {
             expect(
-                match('<p></p>', { element: { selector: 'p', root: { api: { path: 'document.title.length' } } }, using: 'length', is: 0 }),
+                holds('<p></p>', { element: { selector: 'p', root: { api: { path: 'document.title.length' } } }, using: 'length', is: 0 }),
             ).toBe('error');
-            expect(match('<p></p>', { element: { selector: 'p', root: [1] }, using: 'length', is: 0 })).toBe('error');
+            expect(holds('<p></p>', { element: { selector: 'p', root: [1] }, using: 'length', is: 0 })).toBe('error');
         });
 
         it('scopes to the union of an array of selectors and expressions', () => {
@@ -1705,30 +1901,30 @@ describe('WebDetection expressions', () => {
 
         it('drops a root inside another', () => {
             const nested = '<div class="r"><div class="r"><img></div></div>';
-            expect(match(nested, { element: { selector: 'img', root: '.r' }, using: 'length', is: 1 })).toBe(true);
+            expect(holds(nested, { element: { selector: 'img', root: '.r' }, using: 'length', is: 1 })).toBe(true);
         });
 
         it('drops a root inside a later entry', () => {
             const html = '<div id="a"><img>x</div><img>x';
             const roots = ['#a', { api: { path: 'document.body' } }];
-            expect(match(html, { element: { selector: 'img', root: roots }, using: 'length', is: 2 })).toBe(true);
-            expect(match(html, { text: { pattern: 'x', root: roots }, using: 'length', is: 2 })).toBe(true);
+            expect(holds(html, { element: { selector: 'img', root: roots }, using: 'length', is: 2 })).toBe(true);
+            expect(holds(html, { text: { pattern: 'x', root: roots }, using: 'length', is: 2 })).toBe(true);
         });
 
         it('selects no items when root matches nothing', () => {
-            expect(match(html, { element: { selector: 'img', root: '#missing' }, using: 'length', is: 0 })).toBe(true);
-            expect(match(html, { text: { pattern: 'hello', root: '#missing' } })).toBe(false);
+            expect(holds(html, { element: { selector: 'img', root: '#missing' }, using: 'length', is: 0 })).toBe(true);
+            expect(holds(html, { text: { pattern: 'hello', root: '#missing' } })).toBe(false);
         });
     });
 
     describe('field', () => {
         it('reads a path of several names, and length on a string, an array and a DOM collection', () => {
             const html = '<select><option>a</option><option>b</option></select>';
-            expect(match(html, { only: { element: { selector: 'select', field: 'options.length' } }, is: 2 })).toBe(true);
-            expect(match(html, { only: { element: { selector: 'select', field: 'tagName.length' } }, is: 6 })).toBe(true);
+            expect(holds(html, { only: { element: { selector: 'select', field: 'options.length' } }, is: 2 })).toBe(true);
+            expect(holds(html, { only: { element: { selector: 'select', field: 'tagName.length' } }, is: 6 })).toBe(true);
             const install = timeline([{ name: 'n', entryType: 'navigation', list: [1, 2, 3] }]);
             expect(
-                match(
+                holds(
                     '',
                     { only: { api: { path: 'performance.getEntriesByType', args: ['navigation'], field: 'list.length' } }, is: 3 },
                     { install },
@@ -1739,9 +1935,9 @@ describe('WebDetection expressions', () => {
         it('gives undefined for a name after null or undefined, in field and in a property path', () => {
             const install = timeline([{ name: 'n', entryType: 'navigation', nothing: null }]);
             const nav = { path: 'performance.getEntriesByType', args: ['navigation'] };
-            expect(match('', { only: { api: { ...nav, field: 'nothing.length' } }, is: { type: 'undefined' } }, { install })).toBe(true);
+            expect(holds('', { only: { api: { ...nav, field: 'nothing.length' } }, is: { type: 'undefined' } }, { install })).toBe(true);
             expect(
-                match('', { api: { ...nav, where: { 'nothing.length': { type: 'undefined' } } }, using: 'length', is: 1 }, { install }),
+                holds('', { api: { ...nav, where: { 'nothing.length': { type: 'undefined' } } }, using: 'length', is: 1 }, { install }),
             ).toBe(true);
         });
 
@@ -1751,13 +1947,13 @@ describe('WebDetection expressions', () => {
                 w.Element.prototype.getAttribute = () => 'evil';
             };
             expect(
-                match(
+                holds(
                     html,
                     { only: { element: { selector: 'div', field: { path: 'getAttribute', args: ['role'] } } }, is: 'main' },
                     { afterCapture },
                 ),
             ).toBe(true);
-            expect(match(html, { only: { element: { selector: 'div', field: { path: 'querySelector', args: ['::::'] } } }, is: {} })).toBe(
+            expect(holds(html, { only: { element: { selector: 'div', field: { path: 'querySelector', args: ['::::'] } } }, is: {} })).toBe(
                 'aborted',
             );
         });
@@ -1767,25 +1963,25 @@ describe('WebDetection expressions', () => {
                 api: { path: 'Array.from', args: [{ api: { path: 'document.title.matchAll', args: ['\\S+'] } }] },
                 using: 'length',
             };
-            expect(match('', { ...words, is: 3 }, { head: '<title>Hello   there\tworld</title>' })).toBe(true);
-            expect(match('', { ...words, is: 0 }, { head: '<title></title>' })).toBe(true);
-            expect(match('', { ...words, is: 0 }, { head: '<title>   </title>' })).toBe(true);
+            expect(holds('', { ...words, is: 3 }, { head: '<title>Hello   there\tworld</title>' })).toBe(true);
+            expect(holds('', { ...words, is: 0 }, { head: '<title></title>' })).toBe(true);
+            expect(holds('', { ...words, is: 0 }, { head: '<title>   </title>' })).toBe(true);
         });
 
         it('counts rendered text as non-whitespace matches, excluding script, style, template and noscript', () => {
             const html =
                 '<div id="r">ab c<script>xxxx</script><style>yy</style><template>zz</template><noscript>ww</noscript><span>d</span></div>';
-            expect(match(html, { text: { xpath: RENDERED, pattern: '\\S' }, using: 'length', is: 4 })).toBe(true);
-            expect(match(html, { ...renderedText('#r'), using: 'length', is: 4 })).toBe(true);
-            expect(match(html, { ...renderedText('span'), using: 'length', is: 1 })).toBe(true);
+            expect(holds(html, { text: { xpath: RENDERED, pattern: '\\S' }, using: 'length', is: 4 })).toBe(true);
+            expect(holds(html, { ...renderedText('#r'), using: 'length', is: 4 })).toBe(true);
+            expect(holds(html, { ...renderedText('span'), using: 'length', is: 1 })).toBe(true);
         });
 
         it('counts rendered text per item, through root self in field and where', () => {
             const html = '<p class="i">ab c</p><p class="i"> </p><p class="i"><script>x</script></p>';
             expect(
-                match(html, { sum: { element: { selector: '.i', field: { ...renderedText({ self: {} }), using: 'length' } } }, is: 3 }),
+                holds(html, { sum: { element: { selector: '.i', field: { ...renderedText({ self: {} }), using: 'length' } } }, is: 3 }),
             ).toBe(true);
-            expect(match(html, { element: { selector: '.i', where: { none: renderedText({ self: {} }) } }, using: 'length', is: 2 })).toBe(
+            expect(holds(html, { element: { selector: '.i', where: { none: renderedText({ self: {} }) } }, using: 'length', is: 2 })).toBe(
                 true,
             );
         });
@@ -1793,9 +1989,9 @@ describe('WebDetection expressions', () => {
         it('counts text inside two selected items in both', () => {
             const html = '<div class="c">ab<div class="c">cd</div></div>';
             const count = { ...renderedText({ self: {} }), using: 'length' };
-            expect(match(html, { sum: { element: { selector: '.c', field: count } }, is: 6 })).toBe(true);
-            expect(match(html, { sum: { element: { selector: '.c:not(.c .c)', field: count } }, is: 4 })).toBe(true);
-            expect(match(html, { ...renderedText('.c'), using: 'length', is: 4 })).toBe(true);
+            expect(holds(html, { sum: { element: { selector: '.c', field: count } }, is: 6 })).toBe(true);
+            expect(holds(html, { sum: { element: { selector: '.c:not(.c .c)', field: count } }, is: 4 })).toBe(true);
+            expect(holds(html, { ...renderedText('.c'), using: 'length', is: 4 })).toBe(true);
         });
 
         it('counts text matches through the count shortcut as the iterator yields them', () => {
@@ -1806,32 +2002,32 @@ describe('WebDetection expressions', () => {
                 for (const xpathConfig of [{ chunkSize: 7, chunkTail: 3 }, { chunkSize: 0 }]) {
                     const text = { text: { xpath: RENDERED, pattern, xpathConfig } };
                     // `using: "length"` counts through the shortcut, and a property path reads the items
-                    expect(match(html, { ...text, using: 'length', is: expected })).toBe(true);
-                    expect(match(html, { ...text, is: { length: expected } })).toBe(true);
+                    expect(holds(html, { ...text, using: 'length', is: expected })).toBe(true);
+                    expect(holds(html, { ...text, is: { length: expected } })).toBe(true);
                 }
                 // Each selected element is matched on its own
                 const perElement = 51 * ('abc de'.match(new RegExp(pattern, 'gi'))?.length ?? 0);
-                expect(match(html, { text: { selector: ['span', 'p'], pattern }, using: 'length', is: perElement })).toBe(true);
-                expect(match(html, { text: { selector: ['span', 'p'], pattern }, is: { length: perElement } })).toBe(true);
+                expect(holds(html, { text: { selector: ['span', 'p'], pattern }, using: 'length', is: perElement })).toBe(true);
+                expect(holds(html, { text: { selector: ['span', 'p'], pattern }, is: { length: perElement } })).toBe(true);
             }
-            expect(match(html, { text: { xpath: RENDERED, pattern: '\\S' }, using: 'length', is: { lt: 10 } })).toBe(false);
+            expect(holds(html, { text: { xpath: RENDERED, pattern: '\\S' }, using: 'length', is: { lt: 10 } })).toBe(false);
         });
 
         it('counts no rendered text in a root matching nothing', () => {
-            expect(match('<p>ab</p>', { ...renderedText('#comments'), using: 'length', is: 0 })).toBe(true);
+            expect(holds('<p>ab</p>', { ...renderedText('#comments'), using: 'length', is: 0 })).toBe(true);
         });
 
         it('counts rendered text across XPath chunk boundaries once', () => {
             const html = '<span>abc de</span>'.repeat(50);
             for (const xpathConfig of [{ chunkSize: 7, chunkTail: 2 }, { chunkSize: 4, chunkTail: 0 }, { chunkSize: 0 }]) {
-                expect(match(html, { text: { xpath: RENDERED, pattern: '\\S', xpathConfig }, using: 'length', is: 250 })).toBe(true);
+                expect(holds(html, { text: { xpath: RENDERED, pattern: '\\S', xpathConfig }, using: 'length', is: 250 })).toBe(true);
             }
         });
 
         it('takes an expression, with self the value it reads from', () => {
             const head = '<title>Hello   there world</title>';
             expect(
-                match(
+                holds(
                     '',
                     {
                         api: {
@@ -1844,13 +2040,13 @@ describe('WebDetection expressions', () => {
                 ),
             ).toBe(true);
             expect(
-                match('<p></p>', {
+                holds('<p></p>', {
                     only: { element: { selector: 'p', field: { api: { path: 'String', args: [{ self: 'tagName' }] } } } },
                     is: 'P',
                 }),
             ).toBe(true);
             expect(
-                match('<p p="x"></p>', {
+                holds('<p p="x"></p>', {
                     only: { element: { selector: 'p', field: { path: 'getAttribute', args: [{ self: 'tagName' }] } } },
                     is: 'x',
                 }),
@@ -1867,18 +2063,18 @@ describe('WebDetection expressions', () => {
                 api: { path: 'performance.getEntriesByType', args: ['resource'], where },
                 using: 'length',
             });
-            expect(match('', { ...resources({ duration: numberTest('isFinite') }), is: 1 }, { install })).toBe(true);
+            expect(holds('', { ...resources({ duration: numberTest('isFinite') }), is: 1 }, { install })).toBe(true);
             expect(
-                match(
+                holds(
                     '',
                     { ...resources({ field: { api: { path: 'Number.isNaN', args: [{ self: 'duration' }] } }, is: true }), is: 1 },
                     { install },
                 ),
             ).toBe(true);
-            expect(match('', { ...resources({ duration: { ...numberTest('isFinite', false), gt: 0 } }), is: 1 }, { install })).toBe(true);
-            expect(match('', { ...resources({ duration: { eq: { api: 'Infinity' } } }), is: 1 }, { install })).toBe(true);
+            expect(holds('', { ...resources({ duration: { ...numberTest('isFinite', false), gt: 0 } }), is: 1 }, { install })).toBe(true);
+            expect(holds('', { ...resources({ duration: { eq: { api: 'Infinity' } } }), is: 1 }, { install })).toBe(true);
             expect(
-                match(
+                holds(
                     '',
                     { ...resources({ duration: { all: [numberTest('isNaN', false), numberTest('isFinite', false)] } }), is: 1 },
                     { install },
@@ -1889,7 +2085,7 @@ describe('WebDetection expressions', () => {
         it('passes further arguments beside self', () => {
             const html = IMG('data-complete data-width="3"') + IMG('data-complete data-width="9"');
             const clamp = { api: { path: 'Math.min', args: [{ self: 'naturalWidth' }, 5] } };
-            expect(match(html, { sum: { element: { selector: 'img', field: clamp } }, is: 8 }, { install: imageState })).toBe(true);
+            expect(holds(html, { sum: { element: { selector: 'img', field: clamp } }, is: 8 }, { install: imageState })).toBe(true);
         });
 
         it('calls the function captured at init', () => {
@@ -1899,31 +2095,48 @@ describe('WebDetection expressions', () => {
                 w.Number.isFinite = () => true;
             };
             try {
-                expect(match('', { div: [1, 0], is: numberTest('isFinite') }, { afterCapture })).toBe(false);
+                expect(holds('', { div: [1, 0], is: numberTest('isFinite') }, { afterCapture })).toBe(false);
             } finally {
                 Number.isFinite = original;
             }
         });
 
         it('fails when the call throws, and on a name that is not a function', () => {
-            const result = run('', { match: { sum: [1.5], is: { field: { api: { path: 'BigInt', args: [{ self: {} }] } }, is: {} } } });
+            const result = run('', {
+                actions: [{ when: { sum: [1.5], is: { field: { api: { path: 'BigInt', args: [{ self: {} }] } }, is: {} } }, exit: true }],
+            });
             expect(result.detected).toBe('aborted');
             expect(result.abortError).toBe('RangeError');
-            const missing = run('', { match: { sum: [1], is: { field: { api: { path: 'Math', args: [{ self: {} }] } }, is: {} } } });
+            const missing = run('', {
+                actions: [{ when: { sum: [1], is: { field: { api: { path: 'Math', args: [{ self: {} }] } }, is: {} } }, exit: true }],
+            });
             expect(missing.detected).toBe('aborted');
             expect(missing.abortError).toBe('TypeError');
         });
 
         it('rejects malformed fields', () => {
-            expectParseError({ match: { only: { element: { selector: 'p', field: {} } }, is: {} } }, '`field` needs `path`');
-            expectParseError({ match: { only: { element: { selector: 'p', field: { calls: 1 } } }, is: {} } }, "unknown key 'calls'");
             expectParseError(
-                { match: { only: { element: { selector: 'p', field: { call: { api: 'String' } } } }, is: {} } },
+                { actions: [{ when: { only: { element: { selector: 'p', field: {} } }, is: {} }, exit: true }] },
+                '`field` needs `path`',
+            );
+            expectParseError(
+                { actions: [{ when: { only: { element: { selector: 'p', field: { calls: 1 } } }, is: {} }, exit: true }] },
+                "unknown key 'calls'",
+            );
+            expectParseError(
+                { actions: [{ when: { only: { element: { selector: 'p', field: { call: { api: 'String' } } } }, is: {} }, exit: true }] },
                 "unknown key 'call'",
             );
-            expectParseError({ match: { only: { element: { selector: 'p', field: { args: [] } } }, is: {} } }, '`args` needs `path`');
             expectParseError(
-                { match: { only: { element: { selector: 'p', field: { feature: 'renderedTextLength' } } }, is: {} } },
+                { actions: [{ when: { only: { element: { selector: 'p', field: { args: [] } } }, is: {} }, exit: true }] },
+                '`args` needs `path`',
+            );
+            expectParseError(
+                {
+                    actions: [
+                        { when: { only: { element: { selector: 'p', field: { feature: 'renderedTextLength' } } }, is: {} }, exit: true },
+                    ],
+                },
                 "unknown key 'feature'",
             );
         });
@@ -1932,12 +2145,12 @@ describe('WebDetection expressions', () => {
     describe('self', () => {
         it('reads the value beside using: a value, a list, its length and the value itself', () => {
             const head = '<title>Hello there</title>';
-            expect(match('', { api: 'document.title', using: { self: {} }, is: 'Hello there' }, { head })).toBe(true);
-            expect(match('', { api: 'document.title', using: { self: 'length' }, is: 11 }, { head })).toBe(true);
-            expect(match('<p></p><p></p>', { element: { selector: 'p' }, using: { self: 'length' }, is: 2 })).toBe(true);
+            expect(holds('', { api: 'document.title', using: { self: {} }, is: 'Hello there' }, { head })).toBe(true);
+            expect(holds('', { api: 'document.title', using: { self: 'length' }, is: 11 }, { head })).toBe(true);
+            expect(holds('<p></p><p></p>', { element: { selector: 'p' }, using: { self: 'length' }, is: 2 })).toBe(true);
             const html = IMG('data-complete data-width="3"') + IMG('data-complete data-width="9"');
             expect(
-                match(
+                holds(
                     html,
                     {
                         element: { selector: 'img', field: 'naturalWidth' },
@@ -1953,8 +2166,8 @@ describe('WebDetection expressions', () => {
             const install = timeline([{ name: 'n', entryType: 'navigation', transferSize: 50, decodedBodySize: 200 }]);
             const navigation = { only: { api: { path: 'performance.getEntriesByType', args: ['navigation'] } } };
             const ratio = { ...navigation, using: { div: [{ self: 'transferSize' }, { self: 'decodedBodySize' }] } };
-            expect(match('', { ...ratio, is: 0.25 }, { install })).toBe(true);
-            const result = run('', { match: { ...ratio, as: 'ratio', is: { lt: 1 } } }, { install });
+            expect(holds('', { ...ratio, is: 0.25 }, { install })).toBe(true);
+            const result = run('', { actions: [{ when: { ...ratio, as: 'ratio', is: { lt: 1 } }, exit: true }] }, { install });
             expect(result.detected).toBe(true);
             expect(result.ctx.measured.ratio).toBe(0.25);
         });
@@ -1962,24 +2175,24 @@ describe('WebDetection expressions', () => {
         it('reads each item in where, an inherited property included', () => {
             const items = { path: 'JSON.parse', args: ['[{"a":1},{"b":2},{"a":3}]'] };
             const has = (/** @type {string} */ name) => ({ field: { api: { path: 'Reflect.has', args: [{ self: {} }, name] } }, is: true });
-            expect(match('', { api: { ...items, where: has('a') }, using: 'length', is: 2 })).toBe(true);
-            expect(match('<p></p><p></p>', { element: { selector: 'p', where: has('tagName') }, using: 'length', is: 2 })).toBe(true);
-            expect(match('<p></p><p></p>', { element: { selector: 'p', where: has('noSuchProperty') }, using: 'length', is: 0 })).toBe(
+            expect(holds('', { api: { ...items, where: has('a') }, using: 'length', is: 2 })).toBe(true);
+            expect(holds('<p></p><p></p>', { element: { selector: 'p', where: has('tagName') }, using: 'length', is: 2 })).toBe(true);
+            expect(holds('<p></p><p></p>', { element: { selector: 'p', where: has('noSuchProperty') }, using: 'length', is: 0 })).toBe(
                 true,
             );
         });
 
         it('compares two fields of one item', () => {
             const items = { path: 'JSON.parse', args: ['[{"s":1,"e":5},{"s":4,"e":5}]'] };
-            expect(match('', { api: { ...items, where: { e: { gt: { sum: [{ self: 's' }, 2] } } } }, using: 'length', is: 1 })).toBe(true);
+            expect(holds('', { api: { ...items, where: { e: { gt: { sum: [{ self: 's' }, 2] } } } }, using: 'length', is: 1 })).toBe(true);
         });
 
         it('binds self in a nested where to the inner item, and in a field under a key to that value', () => {
             const outer = { path: 'JSON.parse', args: ['[{"n":0,"xs":[{"n":1,"v":2},{"n":3,"v":2}]}]'] };
             const field = { self: { path: 'xs', where: { v: { gt: { self: 'n' } } } } };
-            expect(match('', { only: { api: { ...outer, field } }, using: 'length', is: 1 })).toBe(true);
+            expect(holds('', { only: { api: { ...outer, field } }, using: 'length', is: 1 })).toBe(true);
             const items = { path: 'JSON.parse', args: ['[{"nested":{"x":3}},{"nested":{"x":4}}]'] };
-            expect(match('', { api: { ...items, where: { nested: { field: { self: 'x' }, is: 3 } } }, using: 'length', is: 1 })).toBe(true);
+            expect(holds('', { api: { ...items, where: { nested: { field: { self: 'x' }, is: 3 } } }, using: 'length', is: 1 })).toBe(true);
         });
 
         it('computes an expression reading self once per item, and one that does not once per run', () => {
@@ -2001,10 +2214,10 @@ describe('WebDetection expressions', () => {
             };
             const html = '<p>a</p><p>bb</p><p>ccc</p>';
             const probe = { field: { api: { path: 'probe', args: [{ self: 'textContent.length' }] } }, is: true };
-            expect(match(html, { element: { selector: 'p', where: probe }, using: 'length', is: 2 }, { install })).toBe(true);
+            expect(holds(html, { element: { selector: 'p', where: probe }, using: 'length', is: 2 }, { install })).toBe(true);
             expect(calls).toBe(3);
             const threshold = { 'textContent.length': { gt: { api: 'threshold' } } };
-            expect(match(html, { element: { selector: 'p', where: threshold }, using: 'length', is: 2 }, { install })).toBe(true);
+            expect(holds(html, { element: { selector: 'p', where: threshold }, using: 'length', is: 2 }, { install })).toBe(true);
             expect(reads).toBe(1);
         });
 
@@ -2014,26 +2227,48 @@ describe('WebDetection expressions', () => {
                 as: 'vs',
             };
             const detector = {
-                match: {
-                    all: [
-                        { element: { selector: 'p', where: { 'textContent.length': { lte: { sum: values } } } }, using: 'length', is: 2 },
-                        { ref: 'vs', using: 'length', is: 1 },
-                    ],
-                },
+                actions: [
+                    {
+                        when: {
+                            all: [
+                                {
+                                    element: { selector: 'p', where: { 'textContent.length': { lte: { sum: values } } } },
+                                    using: 'length',
+                                    is: 2,
+                                },
+                                { ref: 'vs', using: 'length', is: 1 },
+                            ],
+                        },
+                        exit: true,
+                    },
+                ],
             };
             expect(run('<p>a</p><p>b</p><p>cc</p>', detector).detected).toBe(true);
         });
 
         it('rejects self outside a binder, and a name on an expression read per item', () => {
-            expectParseError({ match: { self: 'x' } }, '`self` reads from `using`, `where` or `field`');
+            expectParseError({ actions: [{ when: { self: 'x' }, exit: true }] }, '`self` reads from `using`, `where` or `field`');
             expectParseError(withPayload({ self: {} }), '`self` reads from');
             expectParseError(
-                { match: { element: { selector: 'p', where: { 'textContent.length': { gt: { self: 'x', as: 'n' } } } } } },
+                {
+                    actions: [
+                        {
+                            when: { element: { selector: 'p', where: { 'textContent.length': { gt: { self: 'x', as: 'n' } } } } },
+                            exit: true,
+                        },
+                    ],
+                },
                 "'n' names one value per run",
             );
             const branch = { if: { test: { self: 'b', is: 1 }, then: { sum: [1], as: 'one' }, else: 2 } };
-            expectParseError({ match: { element: { selector: 'p', where: { a: { gt: branch } } } } }, "'one' names one value per run");
-            expectParseError({ match: { api: 'document', using: {}, is: {} } }, '`using` needs `path` or an expression');
+            expectParseError(
+                { actions: [{ when: { element: { selector: 'p', where: { a: { gt: branch } } } }, exit: true }] },
+                "'one' names one value per run",
+            );
+            expectParseError(
+                { actions: [{ when: { api: 'document', using: {}, is: {} }, exit: true }] },
+                '`using` needs `path` or an expression',
+            );
         });
     });
 
@@ -2043,15 +2278,15 @@ describe('WebDetection expressions', () => {
         it('tests each item with a boolean expression over self', () => {
             const has = (/** @type {string} */ name) => ({ api: { path: 'Reflect.has', args: [{ self: {} }, name] } });
             const sparse = { path: 'JSON.parse', args: ['[{"a":1},{"b":2},{"a":3}]'] };
-            expect(match('', { api: { ...sparse, where: has('a') }, using: 'length', is: 2 })).toBe(true);
-            expect(match('<p></p><p></p>', { element: { selector: 'p', where: has('noSuchProperty') }, using: 'length', is: 0 })).toBe(
+            expect(holds('', { api: { ...sparse, where: has('a') }, using: 'length', is: 2 })).toBe(true);
+            expect(holds('<p></p><p></p>', { element: { selector: 'p', where: has('noSuchProperty') }, using: 'length', is: 0 })).toBe(
                 true,
             );
         });
 
         it('mixes expressions and predicates under any, all, none and arrays', () => {
             const countIs = (/** @type {unknown} */ where, /** @type {number} */ n) =>
-                match('', { api: { ...items, where }, using: 'length', is: n });
+                holds('', { api: { ...items, where }, using: 'length', is: n });
             expect(countIs({ self: 'b', is: { gt: 1 } }, 1)).toBe(true);
             expect(countIs({ any: [{ self: 'b', is: { gt: 1 } }, { a: 1 }] }, 2)).toBe(true);
             expect(countIs([{ self: 'b', is: 5 }, { a: 3 }], 2)).toBe(true);
@@ -2062,10 +2297,10 @@ describe('WebDetection expressions', () => {
         it('scopes a source to the item', () => {
             const html = '<div class="card"><img></div><div class="card"></div><div class="card"><p><img></p></div>';
             const withImage = { element: { selector: 'img', root: { self: {} } } };
-            expect(match(html, { element: { selector: '.card', where: withImage }, using: 'length', is: 2 })).toBe(true);
+            expect(holds(html, { element: { selector: '.card', where: withImage }, using: 'length', is: 2 })).toBe(true);
             const twoParagraphs = { element: { selector: 'p', root: { self: {} } }, using: 'length', is: { gte: 2 } };
             expect(
-                match('<div><p></p><p></p></div><div><p></p></div>', {
+                holds('<div><p></p><p></p></div><div><p></p></div>', {
                     element: { selector: 'div', where: twoParagraphs },
                     using: 'length',
                     is: 1,
@@ -2084,12 +2319,17 @@ describe('WebDetection expressions', () => {
                 });
             };
             const detector = {
-                match: {
-                    all: [
-                        { api: 'flag', as: 'flag' },
-                        { element: { selector: 'p', where: { ref: 'flag' } }, using: 'length', is: 3 },
-                    ],
-                },
+                actions: [
+                    {
+                        when: {
+                            all: [
+                                { api: 'flag', as: 'flag' },
+                                { element: { selector: 'p', where: { ref: 'flag' } }, using: 'length', is: 3 },
+                            ],
+                        },
+                        exit: true,
+                    },
+                ],
             };
             expect(run('<p></p><p></p><p></p>', detector, { install }).detected).toBe(true);
             expect(reads).toBe(1);
@@ -2104,29 +2344,29 @@ describe('WebDetection expressions', () => {
                 });
                 Object.defineProperty(w, 'things', { value: [{ v: 1 }, throwing, { v: 1 }] });
             };
-            expect(match('', { api: { path: 'things', where: { self: 'v', is: 1 } }, using: 'length', is: 2 }, { install })).toBe(
+            expect(holds('', { api: { path: 'things', where: { self: 'v', is: 1 } }, using: 'length', is: 2 }, { install })).toBe(
                 'aborted',
             );
             const readable = { api: { path: 'things', where: { self: 'v', is: { fails: false, eq: 1 } } }, using: 'length', is: 2 };
-            expect(match('', readable, { install })).toBe(true);
+            expect(holds('', readable, { install })).toBe(true);
         });
 
         it('reads a property named like an expression key through the long form', () => {
             const html = '<select><option>Sign in</option><option>Other</option></select>';
             const count = (/** @type {unknown} */ where) =>
-                match(html, { element: { selector: 'option', visibility: 'any', where }, using: 'length', is: 1 });
+                holds(html, { element: { selector: 'option', visibility: 'any', where }, using: 'length', is: 1 });
             expect(count({ field: 'text', is: 'Sign in' })).toBe(true);
             expect(count({ self: 'text', is: 'Sign in' })).toBe(true);
-            expectParseError({ match: { element: { selector: 'option', where: { text: 'Sign in' } } } });
+            expectParseError({ actions: [{ when: { element: { selector: 'option', where: { text: 'Sign in' } } }, exit: true }] });
         });
 
         it('rejects an object mixing expression keys and property paths, and a name on a per-item expression', () => {
             expectParseError(
-                { match: { api: { ...items, where: { self: 'a', is: 1, b: 0 } }, using: 'length', is: 1 } },
+                { actions: [{ when: { api: { ...items, where: { self: 'a', is: 1, b: 0 } }, using: 'length', is: 1 }, exit: true }] },
                 "unknown expression key 'b'",
             );
             expectParseError(
-                { match: { api: { ...items, where: { self: 'a', as: 'n' } }, using: 'length', is: 1 } },
+                { actions: [{ when: { api: { ...items, where: { self: 'a', as: 'n' } }, using: 'length', is: 1 }, exit: true }] },
                 "'n' names one value per run",
             );
         });
@@ -2135,27 +2375,29 @@ describe('WebDetection expressions', () => {
     describe('the five detectors', () => {
         it('reports a broken image count and share', () => {
             const detector = {
-                match: { element: BROKEN, using: 'length', as: 'brokenImages', is: { gte: 1 } },
-                actions: {
-                    fireEvent: {
-                        type: 'brokenImages',
-                        data: {
-                            brokenImages: {
-                                value: { ref: 'brokenImages' },
-                                buckets: { 1: 1, '2-4': { gte: 2, lt: 5 }, '5-9': { gte: 5, lt: 10 }, '10+': { gte: 10 } },
-                            },
-                            brokenShare: {
-                                value: { div: [{ ref: 'brokenImages' }, { element: { selector: 'img' }, using: 'length' }] },
-                                buckets: {
-                                    under10: { gte: 0, lt: 0.1 },
-                                    '10-50': { gte: 0.1, lt: 0.5 },
-                                    '50-90': { gte: 0.5, lt: 0.9 },
-                                    '90+': { gte: 0.9 },
+                actions: [
+                    {
+                        when: { element: BROKEN, using: 'length', as: 'brokenImages', is: { gte: 1 } },
+                        fireEvent: {
+                            type: 'brokenImages',
+                            data: {
+                                brokenImages: {
+                                    value: { ref: 'brokenImages' },
+                                    buckets: { 1: 1, '2-4': { gte: 2, lt: 5 }, '5-9': { gte: 5, lt: 10 }, '10+': { gte: 10 } },
+                                },
+                                brokenShare: {
+                                    value: { div: [{ ref: 'brokenImages' }, { element: { selector: 'img' }, using: 'length' }] },
+                                    buckets: {
+                                        under10: { gte: 0, lt: 0.1 },
+                                        '10-50': { gte: 0.1, lt: 0.5 },
+                                        '50-90': { gte: 0.5, lt: 0.9 },
+                                        '90+': { gte: 0.9 },
+                                    },
                                 },
                             },
                         },
                     },
-                },
+                ],
             };
             const html = IMG('data-complete') + IMG('data-complete') + IMG('data-complete data-width="4"') + '<img data-complete>';
             const result = run(html, detector, { install: imageState });
@@ -2165,32 +2407,34 @@ describe('WebDetection expressions', () => {
 
         it('reports a slow page load, or a load still running', () => {
             const slowLoad = {
-                match: {
-                    any: [
-                        {
-                            api: { path: 'performance.getEntriesByType', args: ['navigation'], field: 'loadEventEnd' },
-                            as: 'loadEventEnd',
-                            is: { gte: 8000 },
-                        },
-                        {
-                            all: [
-                                { ref: 'loadEventEnd', is: 0 },
-                                { api: { path: 'performance.now', args: [] }, is: { gte: 15000 } },
+                actions: [
+                    {
+                        when: {
+                            any: [
+                                {
+                                    api: { path: 'performance.getEntriesByType', args: ['navigation'], field: 'loadEventEnd' },
+                                    as: 'loadEventEnd',
+                                    is: { gte: 8000 },
+                                },
+                                {
+                                    all: [
+                                        { ref: 'loadEventEnd', is: 0 },
+                                        { api: { path: 'performance.now', args: [] }, is: { gte: 15000 } },
+                                    ],
+                                },
                             ],
                         },
-                    ],
-                },
-                actions: {
-                    fireEvent: {
-                        type: 'slowPageLoad',
-                        data: {
-                            loadEventEnd: {
-                                value: { ref: 'loadEventEnd' },
-                                buckets: { loading: 0, '8-15s': { gte: 8000, lt: 15000 }, '15s+': { gte: 15000 } },
+                        fireEvent: {
+                            type: 'slowPageLoad',
+                            data: {
+                                loadEventEnd: {
+                                    value: { ref: 'loadEventEnd' },
+                                    buckets: { loading: 0, '8-15s': { gte: 8000, lt: 15000 }, '15s+': { gte: 15000 } },
+                                },
                             },
                         },
                     },
-                },
+                ],
             };
             const slow = run('', slowLoad, { install: timeline([{ name: 'n', entryType: 'navigation', loadEventEnd: 9000 }]) });
             expect(slow.data).toEqual({ loadEventEnd: '8-15s' });
@@ -2207,41 +2451,43 @@ describe('WebDetection expressions', () => {
 
         it('reports failed stylesheets and fonts, both counts either way', () => {
             const detector = {
-                match: {
-                    any: [
-                        {
-                            api: {
-                                path: 'performance.getEntriesByType',
-                                args: ['resource'],
-                                where: { initiatorType: 'link', responseStatus: { gte: 400 } },
-                            },
-                            using: 'length',
-                            as: 'failedStylesheets',
-                            is: { gt: 0 },
+                actions: [
+                    {
+                        when: {
+                            any: [
+                                {
+                                    api: {
+                                        path: 'performance.getEntriesByType',
+                                        args: ['resource'],
+                                        where: { initiatorType: 'link', responseStatus: { gte: 400 } },
+                                    },
+                                    using: 'length',
+                                    as: 'failedStylesheets',
+                                    is: { gt: 0 },
+                                },
+                                {
+                                    api: { path: 'document.fonts', where: { status: 'error' } },
+                                    using: 'length',
+                                    as: 'failedFontFaces',
+                                    is: { gt: 0 },
+                                },
+                            ],
                         },
-                        {
-                            api: { path: 'document.fonts', where: { status: 'error' } },
-                            using: 'length',
-                            as: 'failedFontFaces',
-                            is: { gt: 0 },
-                        },
-                    ],
-                },
-                actions: {
-                    fireEvent: {
-                        type: 'stylesMissing',
-                        data: {
-                            failedStylesheets: {
-                                value: { ref: 'failedStylesheets' },
-                                buckets: { 0: 0, 1: 1, '2-4': { gte: 2, lt: 5 }, '5+': { gte: 5 } },
-                            },
-                            failedFontFaces: {
-                                value: { ref: 'failedFontFaces' },
-                                buckets: { 0: 0, 1: 1, '2-4': { gte: 2, lt: 5 }, '5+': { gte: 5 } },
+                        fireEvent: {
+                            type: 'stylesMissing',
+                            data: {
+                                failedStylesheets: {
+                                    value: { ref: 'failedStylesheets' },
+                                    buckets: { 0: 0, 1: 1, '2-4': { gte: 2, lt: 5 }, '5+': { gte: 5 } },
+                                },
+                                failedFontFaces: {
+                                    value: { ref: 'failedFontFaces' },
+                                    buckets: { 0: 0, 1: 1, '2-4': { gte: 2, lt: 5 }, '5+': { gte: 5 } },
+                                },
                             },
                         },
                     },
-                },
+                ],
             };
             const failedSheet = timeline([
                 { name: 'a.css', entryType: 'resource', initiatorType: 'link', responseStatus: 404 },
@@ -2274,32 +2520,34 @@ describe('WebDetection expressions', () => {
 
         it('reports an empty known region', () => {
             const detector = {
-                match: {
-                    all: [
-                        { element: { selector: ['#comments'] }, as: 'comments' },
-                        { none: renderedText({ ref: 'comments' }) },
-                        {
-                            element: {
-                                selector: 'img',
-                                where: { complete: true, naturalWidth: { gt: 0 } },
-                                root: { ref: 'comments' },
-                            },
-                            using: 'length',
-                            is: { lt: 1 },
+                actions: [
+                    {
+                        when: {
+                            all: [
+                                { element: { selector: ['#comments'] }, as: 'comments' },
+                                { none: renderedText({ ref: 'comments' }) },
+                                {
+                                    element: {
+                                        selector: 'img',
+                                        where: { complete: true, naturalWidth: { gt: 0 } },
+                                        root: { ref: 'comments' },
+                                    },
+                                    using: 'length',
+                                    is: { lt: 1 },
+                                },
+                            ],
                         },
-                    ],
-                },
-                actions: {
-                    fireEvent: {
-                        type: 'regionEmpty',
-                        data: {
-                            brokenImages: {
-                                value: { element: { ...BROKEN, root: { ref: 'comments' } }, using: 'length' },
-                                buckets: { 0: 0, '1+': { gte: 1 } },
+                        fireEvent: {
+                            type: 'regionEmpty',
+                            data: {
+                                brokenImages: {
+                                    value: { element: { ...BROKEN, root: { ref: 'comments' } }, using: 'length' },
+                                    buckets: { 0: 0, '1+': { gte: 1 } },
+                                },
                             },
                         },
                     },
-                },
+                ],
             };
             expect(run('', detector, { install: imageState }).detected).toBe(false);
             expect(run('<div id="comments">hi</div>', detector, { install: imageState }).detected).toBe(false);
@@ -2311,20 +2559,25 @@ describe('WebDetection expressions', () => {
 
         it('counts error phrases in rendered text', () => {
             const detector = {
-                match: {
-                    text: { xpath: RENDERED, pattern: ['access denied', 'page not found', '404 not found'] },
-                    using: 'length',
-                    as: 'keywordCount',
-                    is: { gte: 1 },
-                },
-                actions: {
-                    fireEvent: {
-                        type: 'errorPage',
-                        data: {
-                            keywordCount: { value: { ref: 'keywordCount' }, buckets: { 1: 1, '2-4': { gte: 2, lt: 5 }, '5+': { gte: 5 } } },
+                actions: [
+                    {
+                        when: {
+                            text: { xpath: RENDERED, pattern: ['access denied', 'page not found', '404 not found'] },
+                            using: 'length',
+                            as: 'keywordCount',
+                            is: { gte: 1 },
+                        },
+                        fireEvent: {
+                            type: 'errorPage',
+                            data: {
+                                keywordCount: {
+                                    value: { ref: 'keywordCount' },
+                                    buckets: { 1: 1, '2-4': { gte: 2, lt: 5 }, '5+': { gte: 5 } },
+                                },
+                            },
                         },
                     },
-                },
+                ],
             };
             expect(run('<h1>Page not found</h1><p>404 Not Found</p><script>page not found</script>', detector).data).toEqual({
                 keywordCount: '2-4',
@@ -2367,41 +2620,45 @@ describe('WebDetection expressions', () => {
 
         it('lists an aborted detector in breakage results, with no data', () => {
             const instance = createInstance({
-                g: { d: { match: aborting, actions: { breakageReportData: { data: { x: { value: 1 } } } } } },
+                g: { d: { actions: [{ when: aborting, breakageReportData: { data: { x: { value: 1 } } } }] } },
             });
-            expect(instance.runDetectors({ trigger: 'breakageReport' })).toEqual([{ detectorId: 'g.d', detected: 'aborted' }]);
+            expect(instance.runDetectors({ trigger: 'breakageReport' })).toEqual([
+                { detectorId: 'g.d', detected: 'aborted', errors: { 0: 'aborted' } },
+            ]);
         });
 
         it('adds breakageReportData data on a match', () => {
-            const instance = createInstance({ g: { d: { match: true, actions: { breakageReportData: { data: { x: { value: 1 } } } } } } });
+            const instance = createInstance({ g: { d: { actions: [{ when: true, breakageReportData: { data: { x: { value: 1 } } } }] } } });
             expect(instance.runDetectors({ trigger: 'breakageReport' })).toEqual([{ detectorId: 'g.d', detected: true, data: { x: 1 } }]);
         });
 
         it('returns error for a detector that fails to parse', () => {
-            const instance = createInstance({ g: { d: { match: { element: { selector: 'img' }, using: 'length' } } } });
+            const instance = createInstance({
+                g: { d: { actions: [{ when: { element: { selector: 'img' }, using: 'length' }, breakageReportData: {} }] } },
+            });
             expect(instance.runDetectors({ trigger: 'breakageReport' })).toEqual([{ detectorId: 'g.d', detected: 'error' }]);
         });
 
-        it('skips fireEvent and first-success on an aborted run', async () => {
-            const detectors = { g: { d: { match: aborting, actions: { fireEvent: { type: 't' } } } } };
+        it('fires nothing on an aborted gate, and runs again on the next trigger', async () => {
+            const detectors = { g: { d: { actions: [{ when: aborting, fireEvent: { type: 't' }, define: { done: true } }] } } };
             const instance = createInstance(detectors);
             spyOn(instance, 'callFeatureMethod').and.resolveTo(undefined);
-            const evaluate = spyOn(instance, '_evaluateMatch').and.callThrough();
-            const config = parseDetectors(/** @type {any} */ (detectors)).g.d;
-            instance._runAutoDetector('g', 'g.d', config);
-            instance._runAutoDetector('g', 'g.d', config);
+            const run = spyOn(instance, '_runDetector').and.callThrough();
+            const detector = { groupName: 'g', detectorId: 'g.d', config: parseDetectors(/** @type {any} */ (detectors)).g.d };
+            instance._runAutoDetector(detector);
+            instance._runAutoDetector(detector);
             await Promise.resolve();
-            expect(evaluate).toHaveBeenCalledTimes(2);
+            expect(run).toHaveBeenCalledTimes(2);
             expect(instance.callFeatureMethod).not.toHaveBeenCalled();
         });
 
         it('fires the event with its data on a match', async () => {
             const detectors = {
-                g: { d: { match: true, actions: { fireEvent: { type: 't', data: { x: { value: 2, buckets: { two: 2 } } } } } } },
+                g: { d: { actions: [{ when: true, fireEvent: { type: 't', data: { x: { value: 2, buckets: { two: 2 } } } } }] } },
             };
             const instance = createInstance(detectors);
             spyOn(instance, 'callFeatureMethod').and.resolveTo(undefined);
-            instance._runAutoDetector('g', 'g.d', parseDetectors(/** @type {any} */ (detectors)).g.d);
+            instance._runAutoDetector({ groupName: 'g', detectorId: 'g.d', config: parseDetectors(/** @type {any} */ (detectors)).g.d });
             await Promise.resolve();
             // @ts-expect-error - Jasmine spy type inference doesn't match callFeatureMethod's overloaded signature
             expect(instance.callFeatureMethod).toHaveBeenCalledWith('webEvents', 'fireEvent', { type: 't', data: { x: 'two' } });

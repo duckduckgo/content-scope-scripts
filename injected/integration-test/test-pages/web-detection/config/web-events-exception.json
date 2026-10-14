@@ -11,22 +11,30 @@
                 "detectors": {
                     "adwall": {
                         "fire_event_text": {
-                            "match": {
-                                "text": {
-                                    "pattern": "ad ?block(er)? detected"
+                            "actions": [
+                                {
+                                    "when": {
+                                        "text": {
+                                            "pattern": "ad ?block(er)? detected"
+                                        }
+                                    },
+                                    "fireEvent": {
+                                        "type": "adwall"
+                                    },
+                                    "breakageReportData": {},
+                                    "define": {
+                                        "done": true
+                                    }
                                 }
-                            },
+                            ],
                             "triggers": {
                                 "auto": {
                                     "state": "enabled",
                                     "when": {
-                                        "intervalMs": [50]
+                                        "intervalMs": [
+                                            50
+                                        ]
                                     }
-                                }
-                            },
-                            "actions": {
-                                "fireEvent": {
-                                    "type": "adwall"
                                 }
                             }
                         }
@@ -42,9 +50,15 @@
                 "additionalCheck": "enabled",
                 "conditionalChanges": [
                     {
-                        "condition": { "domain": "localhost" },
+                        "condition": {
+                            "domain": "localhost"
+                        },
                         "patchSettings": [
-                            { "op": "replace", "path": "/additionalCheck", "value": "disabled" }
+                            {
+                                "op": "replace",
+                                "path": "/additionalCheck",
+                                "value": "disabled"
+                            }
                         ]
                     }
                 ]

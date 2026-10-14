@@ -55,7 +55,7 @@ import { ItemBuffer, eachMember, isList } from './sources.js';
  * @typedef {NodeBase & { kind: 'sum' | 'mul' | 'div', operands: Node[] }} ArithmeticNode
  * @typedef {NodeBase & { kind: 'any' | 'all' | 'none' | 'and', operands: Node[] }} LogicNode
  * @typedef {NodeBase & { kind: 'if', test: Node, then: Node, else: Node }} IfNode
- * @typedef {NodeBase & { kind: 'ref', name: string, target?: Node }} RefNode
+ * @typedef {NodeBase & { kind: 'ref', name: string, target?: Node, stored?: boolean }} RefNode - `stored` when `define` gives the name
  * @typedef {NodeBase & { kind: 'item', binder: ItemBinder }} ItemNode - the value `self` is bound to in a `where` or `field`
  * @typedef {LiteralNode | SourceNode | LengthNode | ExprNode | OnlyNode | ArithmeticNode | LogicNode | IfNode | RefNode | ItemNode} Node
  */
@@ -90,9 +90,11 @@ export class EvaluationContext {
 
     /**
      * @param {NativeReader} reader
+     * @param {Map<string, unknown>} [defined] - the detector's `define`d values, which outlive the run
      */
-    constructor(reader) {
+    constructor(reader, defined = new Map()) {
         this.reader = reader;
+        this.defined = defined;
     }
 
     /**
@@ -251,7 +253,7 @@ function checkType(value, position) {
 }
 
 /**
- * Read a target from a `ref`, in the ref's position. A target inside an `if` branch not taken, and
+ * Read a target from a `ref`, in the ref's position, or the value `define` stored. A target inside an `if` branch not taken, and
  * not enclosing the ref, is not read.
  *
  * @param {RefNode} ref
@@ -260,6 +262,8 @@ function checkType(value, position) {
  * @returns {unknown} the value, or a `Failure`
  */
 function evaluateRef(ref, position, ctx) {
+    // A name no `define` has stored reads `undefined`
+    if (ref.stored) return ctx.defined.get(ref.name);
     const target = /** @type {Node} */ (ref.target);
     for (const branch of target.branches) {
         if (ref.branches.includes(branch)) continue;
@@ -527,19 +531,19 @@ function computeLogic(node, ctx) {
     return !decided;
 }
 
-/** @typedef {true | false | 'aborted'} MatchResult */
+/** @typedef {true | false | 'aborted'} ConditionResult */
 
 /**
- * Evaluate a detector's `match`.
+ * Evaluate an item's `when`. An error is thrown, for the caller to report as `'error'`.
  *
- * @param {Node} match
+ * @param {Node} when
  * @param {EvaluationContext} ctx
- * @returns {{ detected: MatchResult, abortError?: string }}
+ * @returns {{ result: ConditionResult, abortError?: string }}
  */
-export function evaluateMatchNode(match, ctx) {
-    const result = evaluateOccurrence(match, ctx);
-    if (isFailure(result)) return { detected: 'aborted', ...(result.error && { abortError: result.error }) };
-    return { detected: result === true };
+export function evaluateWhen(when, ctx) {
+    const result = evaluateOccurrence(when, ctx);
+    if (isFailure(result)) return { result: 'aborted', ...(result.error && { abortError: result.error }) };
+    return { result: result === true };
 }
 
 /**
@@ -550,7 +554,7 @@ export function evaluateMatchNode(match, ctx) {
 const OMIT = Symbol('omit');
 
 /**
- * Compute a payload after a match, through the run's memo and buffers.
+ * Compute a payload when its item runs, through the run's memo and buffers.
  *
  * A key is omitted when its value fails or JSON cannot carry it as a scalar, when `when` does not hold
  * or fails, and with `buckets` when the value is in no bucket or a bucket fails. A key whose value,
@@ -607,13 +611,14 @@ function payloadValue(field, ctx) {
 }
 
 /**
- * Compile and evaluate a `match` on its own.
+ * Compile and evaluate a condition on its own, as an item's `when`.
  *
- * @param {unknown} match
+ * @param {unknown} when
  * @param {object} [global] - the global object reads go through
- * @returns {MatchResult} throws on a parse error or an error
+ * @returns {ConditionResult} throws on a parse error or an error
  */
-export function evaluateMatch(match, global = globalThis) {
-    const compiled = compileDetector({ match: /** @type {any} */ (match) }, global);
-    return evaluateMatchNode(compiled.match, new EvaluationContext(new NativeReader(global, compiled.names))).detected;
+export function evaluateCondition(when, global = globalThis) {
+    const compiled = compileDetector({ actions: [{ when, exit: true }] }, global);
+    const node = /** @type {Node} */ (compiled.items[0]?.when);
+    return evaluateWhen(node, new EvaluationContext(new NativeReader(global, compiled.names))).result;
 }

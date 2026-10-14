@@ -16,50 +16,93 @@
                 "detectors": {
                     "adwall": {
                         "generic_text": {
-                            "match": {
-                                "text": {
-                                    "pattern": ["ad ?block(er)? detected", "disable your ad ?blocker"]
+                            "actions": [
+                                {
+                                    "when": {
+                                        "text": {
+                                            "pattern": [
+                                                "ad ?block(er)? detected",
+                                                "disable your ad ?blocker"
+                                            ]
+                                        }
+                                    },
+                                    "breakageReportData": {},
+                                    "define": {
+                                        "done": true
+                                    }
                                 }
-                            }
+                            ]
                         },
                         "paywall_element": {
-                            "match": {
-                                "element": {
-                                    "selector": ".paywall-overlay",
-                                    "visibility": "visible"
+                            "actions": [
+                                {
+                                    "when": {
+                                        "element": {
+                                            "selector": ".paywall-overlay",
+                                            "visibility": "visible"
+                                        }
+                                    },
+                                    "breakageReportData": {},
+                                    "define": {
+                                        "done": true
+                                    }
                                 }
-                            }
+                            ]
                         }
                     },
                     "video": {
                         "unavailable": {
-                            "match": {
-                                "text": {
-                                    "pattern": "video (is )?unavailable",
-                                    "selector": ".video-error, .player-error"
+                            "actions": [
+                                {
+                                    "when": {
+                                        "text": {
+                                            "pattern": "video (is )?unavailable",
+                                            "selector": ".video-error, .player-error"
+                                        }
+                                    },
+                                    "breakageReportData": {},
+                                    "define": {
+                                        "done": true
+                                    }
                                 }
-                            }
+                            ]
                         }
                     },
                     "combined": {
                         "text_and_element": {
-                            "match": {
-                                "text": {
-                                    "pattern": "subscribe to continue"
-                                },
-                                "element": {
-                                    "selector": ".subscribe-modal"
+                            "actions": [
+                                {
+                                    "when": {
+                                        "text": {
+                                            "pattern": "subscribe to continue"
+                                        },
+                                        "element": {
+                                            "selector": ".subscribe-modal"
+                                        }
+                                    },
+                                    "breakageReportData": {},
+                                    "define": {
+                                        "done": true
+                                    }
                                 }
-                            }
+                            ]
                         }
                     },
                     "custom": {
                         "trigger_disabled": {
-                            "match": {
-                                "text": {
-                                    "pattern": "trigger disabled test"
+                            "actions": [
+                                {
+                                    "when": {
+                                        "text": {
+                                            "pattern": "trigger disabled test"
+                                        }
+                                    },
+                                    "breakageReportData": {},
+                                    "define": {
+                                        "done": true
+                                    }
                                 }
-                            },
+                            ],
                             "triggers": {
                                 "breakageReport": {
                                     "state": "disabled"
@@ -67,31 +110,49 @@
                             }
                         },
                         "action_disabled": {
-                            "match": {
-                                "text": {
-                                    "pattern": "action disabled test"
+                            "actions": [
+                                {
+                                    "when": {
+                                        "text": {
+                                            "pattern": "action disabled test"
+                                        }
+                                    },
+                                    "define": {
+                                        "done": true
+                                    }
                                 }
-                            },
-                            "actions": {
-                                "breakageReportData": {
-                                    "state": "disabled"
-                                }
-                            }
+                            ]
                         },
                         "detector_disabled": {
                             "state": "disabled",
-                            "match": {
-                                "text": {
-                                    "pattern": "detector disabled test"
+                            "actions": [
+                                {
+                                    "when": {
+                                        "text": {
+                                            "pattern": "detector disabled test"
+                                        }
+                                    },
+                                    "breakageReportData": {},
+                                    "define": {
+                                        "done": true
+                                    }
                                 }
-                            }
+                            ]
                         },
                         "domain_restricted": {
-                            "match": {
-                                "text": {
-                                    "pattern": "domain restricted test"
+                            "actions": [
+                                {
+                                    "when": {
+                                        "text": {
+                                            "pattern": "domain restricted test"
+                                        }
+                                    },
+                                    "breakageReportData": {},
+                                    "define": {
+                                        "done": true
+                                    }
                                 }
-                            },
+                            ],
                             "triggers": {
                                 "breakageReport": {
                                     "runConditions": {
@@ -103,46 +164,79 @@
                     },
                     "autorun": {
                         "basic_auto": {
-                            "match": {
-                                "text": {
-                                    "pattern": "auto run test"
+                            "actions": [
+                                {
+                                    "when": {
+                                        "text": {
+                                            "pattern": "auto run test"
+                                        }
+                                    },
+                                    "breakageReportData": {},
+                                    "define": {
+                                        "done": true
+                                    }
                                 }
-                            },
+                            ],
                             "triggers": {
                                 "auto": {
                                     "state": "enabled",
                                     "when": {
-                                        "intervalMs": [100, 300]
+                                        "intervalMs": [
+                                            100,
+                                            300
+                                        ]
                                     }
                                 }
                             }
                         },
                         "delayed_content": {
-                            "match": {
-                                "text": {
-                                    "pattern": "first success test"
+                            "actions": [
+                                {
+                                    "when": {
+                                        "text": {
+                                            "pattern": "first success test"
+                                        }
+                                    },
+                                    "breakageReportData": {},
+                                    "define": {
+                                        "done": true
+                                    }
                                 }
-                            },
+                            ],
                             "triggers": {
                                 "auto": {
                                     "state": "enabled",
                                     "when": {
-                                        "intervalMs": [100, 200, 300]
+                                        "intervalMs": [
+                                            100,
+                                            200,
+                                            300
+                                        ]
                                     }
                                 }
                             }
                         },
                         "auto_disabled": {
-                            "match": {
-                                "text": {
-                                    "pattern": "auto disabled test"
+                            "actions": [
+                                {
+                                    "when": {
+                                        "text": {
+                                            "pattern": "auto disabled test"
+                                        }
+                                    },
+                                    "breakageReportData": {},
+                                    "define": {
+                                        "done": true
+                                    }
                                 }
-                            },
+                            ],
                             "triggers": {
                                 "auto": {
                                     "state": "disabled",
                                     "when": {
-                                        "intervalMs": [100]
+                                        "intervalMs": [
+                                            100
+                                        ]
                                     }
                                 }
                             }

@@ -41,22 +41,19 @@ import { apiSource, parseApiBody } from './sources.js';
  */
 
 /**
- * Raw detector config. `match` and the payloads are read as `unknown` and validated by the compiler,
- * since the pinned privacy-configuration schema predates expressions.
+ * Raw detector config. Item conditions, payloads and `define` values are read as `unknown` and
+ * validated by the compiler, since the pinned privacy-configuration schema predates action lists.
  *
- * @typedef {import('@duckduckgo/privacy-configuration/schema/features/web-detection').DetectorConfig} RawDetectorConfig
+ * @typedef {object} RawDetectorConfig
+ * @property {FeatureState} [state]
+ * @property {RawTriggers} [triggers]
+ * @property {unknown} [actions] - an array of action items
  */
 
 /**
- * Condition used to determine if a detector has matched.
- *
- * @typedef {RawDetectorConfig['match']} MatchCondition
- */
-
-/**
- * Final-condition shape of the form shipped before expressions.
- *
- * @typedef {import('@duckduckgo/privacy-configuration/schema/features/web-detection.ts').MatchConditionSingle} MatchConditionSingle
+ * @typedef {object} RawTriggers
+ * @property {{ state?: FeatureState, runConditions?: unknown }} [breakageReport]
+ * @property {{ state?: FeatureState, runConditions?: unknown, when?: { intervalMs: number[] } }} [auto]
  */
 
 /**
@@ -82,27 +79,6 @@ import { apiSource, parseApiBody } from './sources.js';
  */
 
 /**
- * @typedef {object} FireEventAction
- * @property {FeatureState} state - whether this action is enabled
- * @property {string} type
- */
-
-/**
- * Actions to take when a detector matches.
- * breakageReportData is always present (defaults to enabled).
- * fireEvent is opt-in by presence; when present, sub-fields are fully resolved.
- *
- * @typedef {object} ActionState
- * @property {FeatureState} state - whether the action is enabled
- */
-
-/**
- * @typedef {object} DetectorActions
- * @property {ActionState} breakageReportData - Whether to include in breakage report data
- * @property {FireEventAction} [fireEvent] - fire a detection event to the client via webEvents
- */
-
-/**
  * Normalized detector configuration.
  *
  * Every optional field from the raw config is resolved to a concrete value.
@@ -110,19 +86,29 @@ import { apiSource, parseApiBody } from './sources.js';
  *
  * @typedef {object} DetectorConfig
  * @property {FeatureState} state - Whether the detector is enabled
- * @property {MatchCondition} match - Conditions for the detector to match, as configured
- * @property {CompiledDetector | { error: string }} compiled - `match` and the payloads compiled, or why they failed to parse
+ * @property {CompiledDetector | { error: string }} compiled - the action items compiled, or why they failed to parse
+ * @property {boolean} hasBreakageReportData - whether an item writes the detector's breakage entry, read from
+ * the raw items so a detector that fails to parse still reports the error
  * @property {Triggers} triggers - Trigger configurations
- * @property {DetectorActions} actions - Actions to take on match
  */
 
 /**
- * Compiled `match` and payloads of one detector.
+ * One compiled action item.
+ *
+ * @typedef {object} CompiledItem
+ * @property {Node} [when] - in boolean position. An item without one always runs
+ * @property {{ type: string, data?: CompiledPayloadField[] }} [fireEvent]
+ * @property {{ data?: CompiledPayloadField[] }} [breakageReportData]
+ * @property {Array<[string, Node]>} [define] - each name and its value, `done` in boolean position
+ * @property {boolean} exit
+ * @property {boolean} gate - whether the item holds `exit` or defines `done`, so a `when` that fails ends the run
+ */
+
+/**
+ * Compiled action items of one detector.
  *
  * @typedef {object} CompiledDetector
- * @property {Node} match
- * @property {CompiledPayloadField[]} [fireEventData]
- * @property {CompiledPayloadField[]} [breakageReportData]
+ * @property {CompiledItem[]} items
  * @property {Set<string>} names - every name config reads or calls, for the native reader
  */
 
@@ -147,7 +133,7 @@ const RESERVED_LATER = new Set(['aggregate', 'stable', 'confirm', 'retain']);
 class Scope {
     /** @type {Map<string, Node>} */
     names = new Map();
-    /** @type {Array<{ ref: RefNode, inMatch: boolean }>} */
+    /** @type {Array<{ ref: RefNode, inCondition: boolean }>} */
     refs = [];
     /** @type {Node[]} */
     nodes = [];
@@ -161,7 +147,10 @@ class Scope {
     branches = [];
     /** @type {Node[][]} where operands compiled inside predicates are recorded as dependencies */
     operandSinks = [];
-    inMatch = true;
+    /** whether the expression being compiled is in a `when` or a `define`, where no `ref` reads into an `if` branch from outside it */
+    inCondition = true;
+    /** @type {Set<string>} the names `define` stores, which a `ref` reads from the detector's store */
+    defined = new Set();
     /** @type {Set<string>} */
     readerNames = new Set();
     /** @type {Binding[]} the bindings of `self` enclosing the expression being compiled, innermost last */
@@ -291,6 +280,9 @@ function compileExpr(raw, position, path, scope) {
     if (raw.as !== undefined) {
         if (typeof raw.as !== 'string' || !NAME_PATTERN.test(raw.as)) throw new ConfigParseError(`${path}.as`, 'invalid name');
         if (scope.names.has(raw.as)) throw new ConfigParseError(`${path}.as`, `duplicate name '${raw.as}'`);
+        if (scope.defined.has(raw.as))
+            throw new ConfigParseError(`${path}.as`, `'${raw.as}' is given by \`define\`, and a name is one or the other`);
+        if (raw.as === 'done') throw new ConfigParseError(`${path}.as`, `'done' is reserved, and given only by \`define\``);
         scope.names.set(raw.as, node);
         node.as = raw.as;
     }
@@ -351,7 +343,7 @@ function compileKey(key, body, position, path, scope) {
             if (typeof body !== 'string') throw new ConfigParseError(path, '`ref` takes a name');
             /** @type {RefNode} */
             const ref = makeNode(scope, { kind: 'ref', name: body, path, position }, []);
-            scope.refs.push({ ref, inMatch: scope.inMatch });
+            scope.refs.push({ ref, inCondition: scope.inCondition });
             return ref;
         }
         default:
@@ -523,7 +515,8 @@ function fillsOf(node) {
             return new Set([...fillsOf(node.then)].filter((p) => elseFills.has(p) && p !== 'list'));
         }
         case 'ref':
-            return fillsOf(/** @type {Node} */ (node.target));
+            // A stored value may be any value, and is checked where it is read
+            return node.stored ? FILLS.any : fillsOf(/** @type {Node} */ (node.target));
         case 'expr':
             return node.operand.is ? FILLS.boolean : fillsOf(node.operand);
         case 'item':
@@ -569,12 +562,17 @@ function markPerItem(scope) {
  * @param {Scope} scope
  */
 function resolve(scope) {
-    for (const { ref, inMatch } of scope.refs) {
+    for (const { ref, inCondition } of scope.refs) {
+        if (scope.defined.has(ref.name)) {
+            // Reads the value stored by the latest `define`, so it has no target and adds no edge
+            ref.stored = true;
+            continue;
+        }
         const target = scope.names.get(ref.name);
         if (!target) throw new ConfigParseError(ref.path, `unresolved ref '${ref.name}'`);
         ref.target = target;
         /** @type {Node[]} */ (scope.deps.get(ref)).push(target);
-        if (inMatch && !target.branches.every((branch) => ref.branches.includes(branch))) {
+        if (inCondition && !target.branches.every((branch) => ref.branches.includes(branch))) {
             throw new ConfigParseError(ref.path, `ref '${ref.name}' reads into an 'if' branch from outside it`);
         }
     }
@@ -609,7 +607,7 @@ function resolve(scope) {
  */
 function isPresenceLeaf(node) {
     let current = node;
-    while (current.kind === 'ref' || (current.kind === 'expr' && !current.operand.is)) {
+    while ((current.kind === 'ref' && !current.stored) || (current.kind === 'expr' && !current.operand.is)) {
         current = current.kind === 'ref' ? /** @type {Node} */ (current.target) : current.operand;
     }
     if (current.kind !== 'source') return false;
@@ -727,28 +725,92 @@ function compilePayload(raw, path, scope) {
     });
 }
 
+const DETECTOR_KEYS = ['state', 'triggers', 'actions'];
+const ITEM_KEYS = ['when', 'fireEvent', 'breakageReportData', 'define', 'exit'];
+const ACTION_KEYS = ['fireEvent', 'breakageReportData', 'define', 'exit'];
+
 /**
- * Compile a detector's `match` and payloads.
+ * Compile a detector's action items: each `when`, payload and `define` value, in one name scope.
  *
  * @param {RawDetectorConfig} config
  * @param {object} global - the global object `api` reads from
  * @returns {CompiledDetector} throws a `ConfigParseError`
  */
 export function compileDetector(config, global) {
+    if (!isPlainObject(config)) throw new ConfigParseError('detector', 'a detector takes an object');
+    rejectUnknownKeys(config, DETECTOR_KEYS, 'detector');
+    const raws = config.actions;
+    if (!isArray(raws)) throw new ConfigParseError('actions', '`actions` takes an array of items');
     const scope = new Scope({ element: elementSource, text: textSource, api: apiSource(global) });
-    const match = compileExpr(config.match ?? {}, 'boolean', 'match', scope);
-    scope.inMatch = false;
-    const actions = /** @type {Record<string, { data?: unknown } | undefined>} */ (config.actions ?? {});
-    /** @type {CompiledDetector} */
-    const compiled = { match, names: scope.readerNames };
-    if (actions.fireEvent?.data !== undefined) {
-        compiled.fireEventData = compilePayload(actions.fireEvent.data, 'actions.fireEvent.data', scope);
-    }
-    if (actions.breakageReportData?.data !== undefined) {
-        compiled.breakageReportData = compilePayload(actions.breakageReportData.data, 'actions.breakageReportData.data', scope);
-    }
+
+    // Defined names first, so `as` and `ref` know them wherever they sit
+    raws.forEach((raw, index) => {
+        const path = `actions[${index}]`;
+        if (!isPlainObject(raw)) throw new ConfigParseError(path, 'an item takes an object');
+        rejectUnknownKeys(raw, ITEM_KEYS, path);
+        if (!ACTION_KEYS.some((key) => raw[key] !== undefined)) {
+            throw new ConfigParseError(path, 'an item holds at least one of `fireEvent`, `breakageReportData`, `define` and `exit`');
+        }
+        if (raw.define === undefined) return;
+        const define = raw.define;
+        if (!isPlainObject(define) || objectKeys(define).length === 0) {
+            throw new ConfigParseError(`${path}.define`, '`define` takes an object of at least one name');
+        }
+        for (const name of objectKeys(define)) {
+            if (!NAME_PATTERN.test(name)) throw new ConfigParseError(`${path}.define.${name}`, 'invalid name');
+            scope.defined.add(name);
+        }
+    });
+
+    const items = raws.map((raw, index) => compileItem(/** @type {Record<string, unknown>} */ (raw), `actions[${index}]`, scope));
     resolve(scope);
-    return compiled;
+    return { items, names: scope.readerNames };
+}
+
+/**
+ * @param {Record<string, unknown>} raw - checked by `compileDetector` to be an item
+ * @param {string} path
+ * @param {Scope} scope
+ * @returns {CompiledItem}
+ */
+function compileItem(raw, path, scope) {
+    if (raw.exit !== undefined && raw.exit !== true) throw new ConfigParseError(`${path}.exit`, '`exit` takes `true`');
+    /** @type {CompiledItem} */
+    const item = { exit: raw.exit === true, gate: raw.exit === true };
+
+    scope.inCondition = true;
+    if (raw.when !== undefined) item.when = compileExpr(raw.when, 'boolean', `${path}.when`, scope);
+    if (raw.define !== undefined) {
+        const define = /** @type {Record<string, unknown>} */ (raw.define);
+        item.define = objectKeys(define).map((name) => {
+            // `done` ends the detector only on `true`, so config gives it a boolean
+            const position = name === 'done' ? 'boolean' : 'value';
+            return [name, compileExpr(define[name], position, `${path}.define.${name}`, scope)];
+        });
+        if (objectKeys(define).includes('done')) item.gate = true;
+    }
+
+    scope.inCondition = false;
+    if (raw.fireEvent !== undefined) {
+        const fireEvent = raw.fireEvent;
+        const actionPath = `${path}.fireEvent`;
+        if (!isPlainObject(fireEvent)) throw new ConfigParseError(actionPath, '`fireEvent` takes an object');
+        rejectUnknownKeys(fireEvent, ['type', 'data'], actionPath);
+        if (typeof fireEvent.type !== 'string') throw new ConfigParseError(`${actionPath}.type`, '`type` takes a string');
+        item.fireEvent = { type: fireEvent.type };
+        if (fireEvent.data !== undefined) item.fireEvent.data = compilePayload(fireEvent.data, `${actionPath}.data`, scope);
+    }
+    if (raw.breakageReportData !== undefined) {
+        const breakageReportData = raw.breakageReportData;
+        const actionPath = `${path}.breakageReportData`;
+        if (!isPlainObject(breakageReportData)) throw new ConfigParseError(actionPath, '`breakageReportData` takes an object');
+        rejectUnknownKeys(breakageReportData, ['data'], actionPath);
+        item.breakageReportData = {};
+        if (breakageReportData.data !== undefined) {
+            item.breakageReportData.data = compilePayload(breakageReportData.data, `${actionPath}.data`, scope);
+        }
+    }
+    return item;
 }
 
 /**
@@ -780,19 +842,14 @@ function isValidName(name) {
  * - Detector is enabled
  * - breakageReport trigger is enabled, restricted to top frame
  * - auto trigger is disabled (opt-in only), restricted to top frame, no intervals
- * - breakageReportData action is enabled (results included in breakage reports)
- * - other actions are enabled by default if present, but can be explicitly disabled. If omitted they are not enabled
  *
- * A detector whose `match` or payloads fail to parse keeps the parse error, and returns `'error'` on
- * every run.
+ * A detector whose items fail to parse keeps the parse error, and does not run.
  *
  * @param {RawDetectorConfig} config
  * @param {object} global - the global object `api` reads from
  * @returns {DetectorConfig}
  */
 function normalizeDetector(config, global) {
-    const fireEvent = config.actions?.fireEvent;
-
     /** @type {DetectorConfig['compiled']} */
     let compiled;
     try {
@@ -800,12 +857,13 @@ function normalizeDetector(config, global) {
     } catch (e) {
         compiled = { error: e instanceof Error ? e.message : String(e) };
     }
+    const actions = config.actions;
 
     return {
         // Detectors are enabled by default
         state: config.state ?? 'enabled',
-        match: config.match,
         compiled,
+        hasBreakageReportData: isArray(actions) && actions.some((item) => isPlainObject(item) && item.breakageReportData !== undefined),
         triggers: {
             // breakageReport: enabled by default - detectors participate in breakage report flow
             breakageReport: {
@@ -821,24 +879,13 @@ function normalizeDetector(config, global) {
                 when: config.triggers?.auto?.when ?? { intervalMs: [] },
             },
         },
-        actions: {
-            // breakageReportData: enabled by default - detection results included in breakage reports
-            breakageReportData: { state: config.actions?.breakageReportData?.state ?? 'enabled' },
-            // fireEvent: only present when configured - opt-in action that sends events to the client via webEvents
-            ...(fireEvent && {
-                fireEvent: {
-                    state: fireEvent.state ?? 'enabled',
-                    type: fireEvent.type,
-                },
-            }),
-        },
     };
 }
 
 /**
  * Parse detector configurations from raw config.
  *
- * @param {import('@duckduckgo/privacy-configuration/schema/features/web-detection').WebDetectionSettings['detectors']} detectorsConfig
+ * @param {Record<string, Record<string, RawDetectorConfig>> | undefined} detectorsConfig
  * @param {object} [global] - the global object `api` reads from
  * @returns {Record<string, Record<string, DetectorConfig>>}
  */

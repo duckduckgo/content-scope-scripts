@@ -3,44 +3,25 @@ import ContentFeature from '../content-feature.js';
 import { hasOwnProperty } from '../captured-globals.js';
 import { timeDetector } from './detector-perf.js';
 import { parseDetectors } from './web-detection/parse.js';
-import { EvaluationContext, evaluateMatchNode, evaluatePayload } from './web-detection/expressions.js';
+import { EvaluationContext } from './web-detection/expressions.js';
 import { NativeReader } from './web-detection/predicates.js';
+import { breakageEntry, createDetectorState, definedScalars, runActions } from './web-detection/actions.js';
 
 /**
  * @typedef {import('./web-detection/parse.js').DetectorConfig} DetectorConfig
  * @typedef {import('./web-detection/expressions.js').PayloadData} PayloadData
- */
-
-/**
- * Whether the detector matched (true), didn't match (false), errored, or could not read the page
- * (`'aborted'`): a read failed and no predicate tested for it with `fails`.
- *
- * @typedef {true | false | 'error' | 'aborted'} DetectorMatchResult
- */
-
-/**
- * Result from running a detector.
- *
- * @typedef {object} DetectorResult
- * @property {string} detectorId - ID of the detector
- * @property {DetectorMatchResult} detected
- * @property {PayloadData} [data] - the `breakageReportData` payload, only when `detected` is `true`
- */
-
-/**
- * One detector run: the result, and the context its payloads are computed through.
- *
- * @typedef {object} DetectorRun
- * @property {DetectorMatchResult} detected
- * @property {EvaluationContext} [ctx]
- * @property {string} [abortError] - when a getter or method threw, the name of the thrown value's constructor
- * @property {string} [error]
+ * @typedef {import('./web-detection/actions.js').DetectorState} DetectorState
+ * @typedef {import('./web-detection/actions.js').BreakageEntry} BreakageEntry
  */
 
 /**
  * @typedef {{
  *  trigger: 'breakageReport' | 'auto';
  * }} RunDetectionOptions
+ */
+
+/**
+ * @typedef {{ groupName: string, detectorId: string, config: DetectorConfig }} DetectorEntry
  */
 
 /**
@@ -54,8 +35,11 @@ export default class WebDetection extends ContentFeature {
     /** @type {Record<string, Record<string, DetectorConfig>>} */
     #detectors = {};
 
-    /** @type {Map<string, boolean>} */
-    #matchedDetectors = new Map();
+    /** @type {Map<string, DetectorState>} each detector's state in the frame, by `groupName.detectorId` */
+    #states = new Map();
+
+    /** @type {Array<{ timer: ReturnType<typeof setTimeout>, detectors: DetectorEntry[] }>} */
+    #timers = [];
 
     #detectorPerfEnabled = false;
 
@@ -84,7 +68,7 @@ export default class WebDetection extends ContentFeature {
     /**
      * Every configured detector, with its group and its full ID, `groupName.detectorId`.
      *
-     * @returns {Generator<{ groupName: string, detectorId: string, config: DetectorConfig }>}
+     * @returns {Generator<DetectorEntry>}
      */
     *_eachDetector() {
         for (const [groupName, group] of Object.entries(this.#detectors)) {
@@ -101,39 +85,61 @@ export default class WebDetection extends ContentFeature {
     }
 
     /**
-     * Evaluate one configured detector and record its execution time.
-     *
-     * @param {DetectorConfig} detectorConfig
-     * @param {string} groupName - detector group, e.g. `adwalls`
-     * @param {string} fullDetectorId - `groupName.detectorId`, e.g. `adwalls.generic_en`
-     * @returns {DetectorRun}
+     * @param {string} fullDetectorId
+     * @returns {DetectorState}
      */
-    _evaluateMatch(detectorConfig, groupName, fullDetectorId) {
-        const compiled = detectorConfig.compiled;
-        if ('error' in compiled) return { detected: 'error', error: compiled.error };
-        const ctx = new EvaluationContext(this._reader);
-        try {
-            const evaluate = () => evaluateMatchNode(compiled.match, ctx);
-            const result = this.#detectorPerfEnabled ? timeDetector(this, groupName, evaluate, fullDetectorId) : evaluate();
-            return { ...result, ctx };
-        } catch (e) {
-            return { detected: 'error', ctx, error: e instanceof Error ? e.message : String(e) };
+    _stateOf(fullDetectorId) {
+        let state = this.#states.get(fullDetectorId);
+        if (!state) {
+            state = createDetectorState();
+            this.#states.set(fullDetectorId, state);
         }
+        return state;
     }
 
     /**
-     * Compute an action's payload after a match.
+     * Run one detector's action items, unless it is done, then send the events its items fired.
      *
-     * @param {DetectorConfig} detectorConfig
-     * @param {'fireEventData' | 'breakageReportData'} key
-     * @param {DetectorRun} run
-     * @returns {PayloadData | undefined}
+     * @param {DetectorEntry} detector
+     * @param {RunDetectionOptions} options
      */
-    _payload(detectorConfig, key, run) {
-        const compiled = detectorConfig.compiled;
-        const fields = 'error' in compiled ? undefined : compiled[key];
-        if (!fields || run.detected !== true || !run.ctx) return undefined;
-        return evaluatePayload(fields, run.ctx);
+    _runDetector({ groupName, detectorId, config }, options) {
+        const compiled = config.compiled;
+        const state = this._stateOf(detectorId);
+        if (state.done || 'error' in compiled) return;
+
+        const ctx = new EvaluationContext(this._reader, state.defined);
+        /** @type {Array<{ type: string, data?: PayloadData }>} */
+        const events = [];
+        const run = () =>
+            runActions(compiled, state, ctx, (type, data) => {
+                events.push({ type, ...(data && { data }) });
+            });
+        // A run in which an item errored is a failed run
+        const result = this.#detectorPerfEnabled ? timeDetector(this, groupName, run, detectorId, (r) => r.error !== undefined) : run();
+
+        for (const event of events) void this._executeFireEvent(event.type, event.data);
+        if (state.done) this._cancelFinishedTimers();
+
+        // Debug notification for integration tests, for a run in which an item ran or failed
+        if (this.isDebug && options.trigger === 'auto' && result.outcomes.some((outcome) => outcome !== 'skipped')) {
+            try {
+                this.messaging?.notify('webDetectionAutoRun', {
+                    detectorId,
+                    timestamp: Date.now(),
+                    items: result.outcomes,
+                    ...(result.endedAt !== undefined && { endedAt: result.endedAt }),
+                    defined: definedScalars(state),
+                    measured: ctx.measured,
+                    events,
+                    ...(result.abortError && { abortError: result.abortError }),
+                    ...(result.error && { error: result.error }),
+                    ...(ctx.errorAt && { errorAt: ctx.errorAt }),
+                });
+            } catch {
+                // Messaging may not be ready - silently fail
+            }
+        }
     }
 
     /**
@@ -141,7 +147,7 @@ export default class WebDetection extends ContentFeature {
      */
     _scheduleAutoRunDetectors() {
         // Group detectors by interval: interval → [{groupName, detectorId, config}, ...]
-        /** @type {Map<number, Array<{groupName: string, detectorId: string, config: DetectorConfig}>>} */
+        /** @type {Map<number, DetectorEntry[]>} */
         const detectorsByInterval = new Map();
 
         for (const detector of this._eachDetector()) {
@@ -158,82 +164,50 @@ export default class WebDetection extends ContentFeature {
 
         // Create one timer per unique interval
         for (const [interval, detectors] of detectorsByInterval.entries()) {
-            setTimeout(() => {
+            const timer = setTimeout(() => {
                 // Run all detectors scheduled for this interval
-                for (const { groupName, detectorId, config } of detectors) {
-                    this._runAutoDetector(groupName, detectorId, config);
-                }
+                for (const detector of detectors) this._runAutoDetector(detector);
             }, interval);
+            this.#timers.push({ timer, detectors });
         }
+    }
+
+    /**
+     * Cancel each pending timer whose detectors are all done.
+     */
+    _cancelFinishedTimers() {
+        this.#timers = this.#timers.filter(({ timer, detectors }) => {
+            if (!detectors.every(({ detectorId }) => this.#states.get(detectorId)?.done)) return true;
+            clearTimeout(timer);
+            return false;
+        });
     }
 
     /**
      * Run a single detector with the auto trigger
-     * @param {string} groupName - The detector group
-     * @param {string} fullDetectorId - The full detector ID (groupName.detectorId)
-     * @param {DetectorConfig} detectorConfig - The detector configuration
+     *
+     * @param {DetectorEntry} detector
      */
-    _runAutoDetector(groupName, fullDetectorId, detectorConfig) {
+    _runAutoDetector(detector) {
         try {
-            // Auto detectors use first-success behavior (skip if already matched)
-            if (this.#matchedDetectors.get(fullDetectorId)) {
-                return;
-            }
-
-            // Evaluate match conditions
-            const run = this._evaluateMatch(detectorConfig, groupName, fullDetectorId);
-            const detected = run.detected;
-
-            // Track successful matches (allows us to skip subsequent runs if already successful (first-success)).
-            // An aborted run is not recorded, so the next tick runs the detector again.
-            if (detected === true) {
-                this.#matchedDetectors.set(fullDetectorId, true);
-            }
-
-            const data = this._payload(detectorConfig, 'fireEventData', run);
-
-            // Debug notification for integration tests (only sends when detection succeeds, errors or aborts)
-            if (this.isDebug && detected !== false) {
-                try {
-                    this.messaging?.notify('webDetectionAutoRun', {
-                        detectorId: fullDetectorId,
-                        detected,
-                        timestamp: Date.now(),
-                        measured: run.ctx?.measured ?? {},
-                        ...(data && { data }),
-                        ...(run.abortError && { abortError: run.abortError }),
-                        ...(run.error && { error: run.error }),
-                        ...(run.ctx?.errorAt && { errorAt: run.ctx.errorAt }),
-                    });
-                } catch {
-                    // Messaging may not be ready - silently fail
-                }
-            }
-
-            void this._executeFireEvent(detectorConfig, detected, data);
+            this._runDetector(detector, { trigger: 'auto' });
         } catch (e) {
             // Silently fail - don't break the page
             if (this.isDebug) {
-                this.log.error(`Error running auto-detector ${fullDetectorId}:`, e);
+                this.log.error(`Error running auto-detector ${detector.detectorId}:`, e);
             }
         }
     }
 
     /**
-     * Fire a web event via webEvents if the detector has a fireEvent action and detection succeeded.
+     * Fire a web event via webEvents.
      *
-     * @param {DetectorConfig} detectorConfig
-     * @param {DetectorMatchResult} detected
+     * @param {string} type
      * @param {PayloadData} [data] - the `fireEvent` payload, when the action names one
      */
-    async _executeFireEvent(detectorConfig, detected, data) {
+    async _executeFireEvent(type, data) {
         try {
-            if (detected !== true || !detectorConfig.actions.fireEvent) return;
-            if (!this._isStateEnabled(detectorConfig.actions.fireEvent.state)) return;
-            await this.callFeatureMethod('webEvents', 'fireEvent', {
-                type: detectorConfig.actions.fireEvent.type,
-                ...(data && { data }),
-            });
+            await this.callFeatureMethod('webEvents', 'fireEvent', { type, ...(data && { data }) });
         } catch {
             // webEvents may not be loaded on this platform or guard checks failed - silently ignore
         }
@@ -261,39 +235,28 @@ export default class WebDetection extends ContentFeature {
     }
 
     /**
-     * Run all detectors for a specific trigger.
+     * Run every detector the trigger enables and that is not done, then return the breakage entries
+     * of the detectors with a `breakageReportData` item, written by this run or earlier ones.
      *
      * @param {RunDetectionOptions} options
-     * @returns {DetectorResult[]}
+     * @returns {BreakageEntry[]}
      */
     runDetectors(options) {
-        /** @type {DetectorResult[]} */
+        /** @type {BreakageEntry[]} */
         const results = [];
 
-        for (const { groupName, detectorId, config: detectorConfig } of this._eachDetector()) {
-            // Check whether the detector should be run for the given trigger.
-            if (!this._shouldRunDetector(detectorConfig, options)) continue;
+        for (const detector of this._eachDetector()) {
+            const runs = this._shouldRunDetector(detector.config, options);
+            if (runs) this._runDetector(detector, options);
 
-            // Evaluate match conditions
-            const run = this._evaluateMatch(detectorConfig, groupName, detectorId);
-            const detected = run.detected;
-
-            // Execute detector actions.
-
-            // If we're in the breakage report trigger and the breakage report data action is enabled, add the result to the results.
-            if (options.trigger === 'breakageReport' && this._isStateEnabled(detectorConfig.actions.breakageReportData.state)) {
-                // Only include if detected, errored or aborted (not false)
-                if (detected !== false) {
-                    const data = this._payload(detectorConfig, 'breakageReportData', run);
-                    results.push({
-                        detectorId,
-                        detected,
-                        ...(data && { data }),
-                    });
-                }
+            if (!detector.config.hasBreakageReportData) continue;
+            if ('error' in detector.config.compiled) {
+                if (runs) results.push({ detectorId: detector.detectorId, detected: 'error' });
+                continue;
             }
-
-            void this._executeFireEvent(detectorConfig, detected, this._payload(detectorConfig, 'fireEventData', run));
+            const state = this.#states.get(detector.detectorId);
+            const entry = state && breakageEntry(detector.detectorId, state);
+            if (entry) results.push(entry);
         }
         return results;
     }
