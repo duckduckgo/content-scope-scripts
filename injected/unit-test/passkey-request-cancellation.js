@@ -1,4 +1,4 @@
-import PasskeyRequestGuard from '../src/features/passkey-request-guard.js';
+import PasskeyRequestCancellation from '../src/features/passkey-request-cancellation.js';
 import WebCompat from '../src/features/web-compat.js';
 
 /**
@@ -54,7 +54,7 @@ function makeFakeCredentialsApi() {
     return { CredentialsContainer, credentials: Object.create(CredentialsContainer.prototype), calls };
 }
 
-describe('PasskeyRequestGuard', () => {
+describe('PasskeyRequestCancellation', () => {
     let originalCredentialsContainer;
     let originalAddEventListener;
     /** @type {EventTarget} */
@@ -81,7 +81,7 @@ describe('PasskeyRequestGuard', () => {
         Object.defineProperty(globalThis, 'navigator', { value: { credentials }, configurable: true, writable: true });
 
         // The apple bundle initialises webCompat before this feature, so its passkey detection wraps the
-        // native methods first and only observes requests the guard lets through.
+        // native methods first and only observes requests this feature lets through.
         const webCompat = new WebCompat(
             'webCompat',
             undefined,
@@ -105,8 +105,8 @@ describe('PasskeyRequestGuard', () => {
         };
         webCompat.init();
 
-        const feature = new PasskeyRequestGuard(
-            'passkeyRequestGuard',
+        const feature = new PasskeyRequestCancellation(
+            'passkeyRequestCancellation',
             {},
             {},
             {

@@ -50,10 +50,10 @@ function generateConfig() {
             // Exclude features requiring a messaging backend (clickToLoad) or
             // platform-specific globals (brokerProtection, autofillImport) that
             // would fail or slow down initialization in the integration test context.
-            // autofillPasskeys and passkeyRequestGuard globally wrap navigator.credentials,
+            // autofillPasskeys and passkeyRequestCancellation globally wrap navigator.credentials,
             // so keep them out of the generic integration context as well.
             enabledFeatures: (platformSupport.integration ?? []).filter(
-                (f) => !['clickToLoad', 'brokerProtection', 'autofillImport', 'autofillPasskeys', 'passkeyRequestGuard'].includes(f),
+                (f) => !['clickToLoad', 'brokerProtection', 'autofillImport', 'autofillPasskeys', 'passkeyRequestCancellation'].includes(f),
             ),
         },
     };

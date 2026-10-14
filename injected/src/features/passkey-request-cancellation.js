@@ -30,7 +30,7 @@ const WAIT_LIMIT_MS = 1000;
  *
  * Requests are tracked per frame. Everything else passes through to the native implementation.
  */
-export default class PasskeyRequestGuard extends ContentFeature {
+export default class PasskeyRequestCancellation extends ContentFeature {
     /** @type {ConditionalRequest | null} */
     #current = null;
     #hidden = false;
