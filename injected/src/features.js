@@ -125,8 +125,6 @@ export const platformSupport = {
         'webTelemetry',
         'windowsPermissionUsage',
         'uaChBrands',
-        'duckPlayer',
-        'brokerProtection',
         'breakageReporting',
         'messageBridge',
         'webCompat',
