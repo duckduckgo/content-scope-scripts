@@ -36,6 +36,7 @@ JavaScript features injected into web pages for privacy protections. Features ex
 - `navigator-interface` - Navigator API modifications
 - `page-context` - Extracts page content and sends it to native on request
 - `page-observer` - Notifies native when the DOM has loaded
+- `passkey-request-guard` - Keeps conditional passkey requests from getting stuck in WebKit (Apple)
 - `performance-metrics` - Performance tracking
 - `print` - Overrides `window.print()` so native handles printing (iOS)
 - `referrer` - Referrer protection

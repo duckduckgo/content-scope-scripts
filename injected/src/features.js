@@ -55,13 +55,14 @@ const otherFeatures = /** @type {FeatureName[]} */ ([
     'trackerProtection',
     'tabSuspension',
     'autofillPasskeys',
+    'passkeyRequestGuard',
     'textSelection',
     'chromeWebstorePatching',
 ]);
 
 /** @type {Record<string, FeatureName[]>} */
 export const platformSupport = {
-    apple: ['webCompat', 'duckPlayerNative', ...baseFeatures, 'pageContext', 'print', 'trackerProtection'],
+    apple: ['webCompat', 'duckPlayerNative', ...baseFeatures, 'pageContext', 'print', 'trackerProtection', 'passkeyRequestGuard'],
     'apple-isolated': [
         'contextMenu',
         'duckPlayer',
