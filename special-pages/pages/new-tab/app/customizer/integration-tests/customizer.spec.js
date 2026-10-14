@@ -331,6 +331,57 @@ test.describe('newtab customizer', () => {
         });
         await ntp.hasBackgroundColor({ hex: '#ff5733' }); // custom hex overrides orange
     });
+    test.describe('wallpaperNearBlackOrWhite dataset', () => {
+        test('flags near-black custom hex backgrounds for input-control compensation', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const cp = new CustomizerPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: { background: 'hex:000000' } });
+            await cp.hasWallpaperNearBlackOrWhite('dark');
+        });
+
+        test('flags near-white custom hex backgrounds for input-control compensation', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const cp = new CustomizerPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: { background: 'hex:ffffff' } });
+            await cp.hasWallpaperNearBlackOrWhite('light');
+        });
+
+        test('omits the dataset for mid-range custom hex backgrounds', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const cp = new CustomizerPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: { background: 'hex:808080' } });
+            await cp.lacksWallpaperNearBlackOrWhite();
+        });
+
+        test('omits the dataset for default backgrounds without a flat color', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const cp = new CustomizerPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage();
+            await cp.lacksWallpaperNearBlackOrWhite();
+        });
+
+        test('derives the dataset from a gradient fallback color when it is near white', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const cp = new CustomizerPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage();
+            await cp.acceptsBackgroundUpdate({ kind: 'gradient', value: 'gradient01' });
+            await cp.hasWallpaperNearBlackOrWhite('light');
+        });
+
+        test('omits the dataset when a gradient fallback is mid-range', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const cp = new CustomizerPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage();
+            await cp.acceptsBackgroundUpdate({ kind: 'gradient', value: 'gradient03' });
+            await cp.lacksWallpaperNearBlackOrWhite();
+        });
+    });
     test('changing browser theme preserves theme variant', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const cp = new CustomizerPage(ntp);

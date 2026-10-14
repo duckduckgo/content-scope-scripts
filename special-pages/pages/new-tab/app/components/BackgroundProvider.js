@@ -3,7 +3,7 @@ import styles from './BackgroundReceiver.module.css';
 import { values } from '../customizer/values.js';
 import { useContext, useEffect, useState } from 'preact/hooks';
 import { CustomizerContext } from '../customizer/CustomizerProvider.js';
-import { detectThemeFromHex, detectThemeNearBlackOrWhiteFromHex } from '../customizer/utils.js';
+import { detectThemeNearBlackOrWhiteFromHex } from '../customizer/utils.js';
 import { useSignalEffect } from '@preact/signals';
 import { memo } from 'preact/compat';
 
@@ -11,46 +11,7 @@ import { memo } from 'preact/compat';
  * @import { BackgroundVariant, BrowserTheme, ThemeVariant } from "../../types/new-tab"
  */
 
-/**
- * @param {BackgroundVariant} background
- * @param {BrowserTheme} browserTheme
- * @param {'light' | 'dark'} system
- * @return {{bg: 'light' | 'dark', browser: 'light' | 'dark'}}
- */
-export function inferSchemeFrom(background, browserTheme, system) {
-    const browser = themeFromBrowser(browserTheme, system);
-    switch (background.kind) {
-        case 'default':
-            return { bg: browser, browser };
-        case 'color': {
-            const color = values.colors[background.value];
-            return { bg: color.colorScheme, browser };
-        }
-
-        case 'gradient': {
-            const gradient = values.gradients[background.value];
-            return { bg: gradient.colorScheme, browser };
-        }
-
-        case 'userImage':
-            return { bg: background.value.colorScheme, browser };
-
-        case 'hex':
-            return { bg: detectThemeFromHex(background.value), browser };
-    }
-}
-
-/**
- * @param {BrowserTheme} browserTheme
- * @param {'light' | 'dark'} system
- * @return {'light' | 'dark'}
- */
-export function themeFromBrowser(browserTheme, system) {
-    if (browserTheme === 'system') {
-        return system;
-    }
-    return browserTheme;
-}
+export { inferSchemeFrom, themeFromBrowser } from './backgroundScheme.js';
 
 /**
  * @param {object} props

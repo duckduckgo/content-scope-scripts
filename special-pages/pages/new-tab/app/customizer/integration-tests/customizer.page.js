@@ -147,6 +147,19 @@ export class CustomizerPage {
         await expect(page.locator('body')).toHaveCSS('background-color', expectedRGB);
     }
 
+    /**
+     * @param {'dark' | 'light'} expected
+     */
+    async hasWallpaperNearBlackOrWhite(expected) {
+        const { page } = this.ntp;
+        await expect(page.locator('body')).toHaveAttribute('data-wallpaper-near-black-or-white', expected);
+    }
+
+    async lacksWallpaperNearBlackOrWhite() {
+        const { page } = this.ntp;
+        await expect(page.locator('body')).not.toHaveAttribute('data-wallpaper-near-black-or-white');
+    }
+
     async selectsColor() {
         const { page } = this.ntp;
         await this.showsColorSelectionPanel();
