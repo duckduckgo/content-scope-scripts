@@ -99,7 +99,7 @@ import { apiSource, parseApiBody } from './sources.js';
  * @property {Node} [when] - in boolean position. An item without one always runs
  * @property {{ type: string, data?: CompiledPayloadField[] }} [fireEvent]
  * @property {{ data?: CompiledPayloadField[] }} [breakageReportData]
- * @property {Array<[string, Node]>} [define] - each name and its value, `done` in boolean position
+ * @property {Array<[string, Node]>} [define] - each name and its value, in value position
  * @property {boolean} exit
  * @property {boolean} gate - whether the item holds `exit` or defines `done`, so a `when` that fails ends the run
  */
@@ -785,11 +785,7 @@ function compileItem(raw, path, scope) {
     if (raw.when !== undefined) item.when = compileExpr(raw.when, 'boolean', `${path}.when`, scope);
     if (raw.define !== undefined) {
         const define = /** @type {Record<string, unknown>} */ (raw.define);
-        item.define = objectKeys(define).map((name) => {
-            // `done` ends the detector only on `true`, so config gives it a boolean
-            const position = name === 'done' ? 'boolean' : 'value';
-            return [name, compileExpr(define[name], position, `${path}.define.${name}`, scope)];
-        });
+        item.define = objectKeys(define).map((name) => [name, compileExpr(define[name], 'value', `${path}.define.${name}`, scope)]);
         if (objectKeys(define).includes('done')) item.gate = true;
     }
 
