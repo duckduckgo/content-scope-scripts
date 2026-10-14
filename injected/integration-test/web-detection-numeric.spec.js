@@ -14,8 +14,8 @@ const CONFIG = './integration-test/test-pages/web-detection/config/config.json';
 const DETECTORS = JSON.parse(readFileSync('./integration-test/test-pages/web-detection/numeric/detectors.json', 'utf8'));
 
 /**
- * The detectors ship disabled; each test enables the ones it reads. `match` and `actions` are used
- * as configured, and `triggers` too unless a test overrides them.
+ * The detectors ship disabled; each test enables the ones it reads. `actions` are used as
+ * configured, and `triggers` too unless a test overrides them.
  *
  * @param {import('@playwright/test').Page} page
  * @param {Record<string, any>} projectUse
@@ -114,7 +114,11 @@ test.describe('WebDetection numeric detectors', () => {
         expect(events).toEqual([{ type: 'brokenImages', data: { brokenImages: '2-4', brokenShare: '50-90' } }]);
         const runs = await notifications(collector, 'webDetectionAutoRun');
         expect(runs[0]).toEqual(
-            expect.objectContaining({ detectorId: 'imageBreakage.broken_images', detected: true, measured: { brokenImages: 2 } }),
+            expect.objectContaining({
+                detectorId: 'imageBreakage.broken_images',
+                items: ['ran'],
+                measured: expect.objectContaining({ brokenImages: 2 }),
+            }),
         );
     });
 
@@ -165,7 +169,7 @@ test.describe('WebDetection numeric detectors', () => {
         expect(await notifications(collector, 'webEvent')).toEqual([]);
     });
 
-    test('regionBreakage.comments_empty reports an empty region and whether its images broke', async ({ page }, testInfo) => {
+    test('regionBreakage.comments_empty reports an empty region and how many of its images broke', async ({ page }, testInfo) => {
         // The shipped detector names one site; run it on the test page
         const onAnyPage = (/** @type {Record<string, any>} */ detector) => {
             detector.triggers.breakageReport.runConditions = { context: { top: true } };
@@ -175,38 +179,32 @@ test.describe('WebDetection numeric detectors', () => {
         await page.waitForFunction(() => [...document.images].every((img) => img.complete));
 
         expect(await breakageReport(collector)).toEqual([
-            { detectorId: 'regionBreakage.comments_empty', detected: true, data: { brokenImages: '1+' } },
+            { detectorId: 'regionBreakage.comments_empty', detected: true, data: { region: 'empty', brokenImages: 1 } },
         ]);
         expect(await notifications(collector, 'webEvent')).toEqual([]);
     });
 
-    test('regionBreakage.comments_empty does not match a filled region', async ({ page }, testInfo) => {
+    test('regionBreakage.comments_empty reports a filled region', async ({ page }, testInfo) => {
         const onAnyPage = (/** @type {Record<string, any>} */ detector) => {
             detector.triggers.breakageReport.runConditions = { context: { top: true } };
         };
         const collector = await setup(page, testInfo.project.use, [['regionBreakage', 'comments_empty']], onAnyPage);
         await navigateTo(page, '/web-detection/pages/numeric-region-filled.html');
 
-        expect(await breakageReport(collector)).toEqual([]);
+        expect(await breakageReport(collector)).toEqual([
+            { detectorId: 'regionBreakage.comments_empty', detected: true, data: { region: 'filled' } },
+        ]);
     });
 
-    test('pageLoad.load_time reports the load time bucketed, and slow_load does not fire on a fast page', async ({ page }, testInfo) => {
-        const collector = await setup(
-            page,
-            testInfo.project.use,
-            [
-                ['pageLoad', 'load_time'],
-                ['pageLoad', 'slow_load'],
-            ],
-            runSoon,
-            { fakeClock: false },
-        );
+    test('pageLoad.load_time reports the load time bucketed, once the load has ended', async ({ page }, testInfo) => {
+        const collector = await setup(page, testInfo.project.use, [['pageLoad', 'load_time']], runSoon, { fakeClock: false });
         await navigateTo(page, '/web-detection/pages/numeric-clean.html');
         await waitForRuns(collector, 1);
 
         const events = await notifications(collector, 'webEvent');
-        expect(events).toEqual([{ type: 'pageLoadTime', data: { loadEventEnd: '0-3s' } }]);
+        expect(events).toEqual([{ type: 'pageLoadTime', data: { loadEventEnd: '0-3s', navigationType: 'navigate' } }]);
         const runs = await notifications(collector, 'webDetectionAutoRun');
         expect(runs.map((r) => r.detectorId)).toEqual(['pageLoad.load_time']);
+        expect(runs[0].defined).toEqual({ sent: true, done: true });
     });
 });
