@@ -41,6 +41,7 @@ import { useTabAttachments } from './chat-tools/tab-attachment/useTabAttachments
 import { NoticeDrawer } from './NoticeDrawer';
 import { TERMS_DISCLAIMER_ID } from './useTermsDisclaimerNotice';
 import { useKeyboardFocusWithin } from './useKeyboardFocusWithin.js';
+import { SuggestedPrompts } from './suggested-prompts/SuggestedPrompts.js';
 
 /**
  * @typedef {typeof import('../strings.json')} Strings
@@ -71,6 +72,7 @@ function focusStaysWithin(ref, event) {
  * @param {boolean} [props.enableVoiceChatAccess]
  * @param {boolean} [props.enableAskAiSuggestion]
  * @param {boolean} [props.enableAttachTabs]
+ * @param {boolean} [props.showSuggestedPrompts]
  * @param {string|null|undefined} props.tabId
  */
 export function Omnibar({
@@ -83,6 +85,7 @@ export function Omnibar({
     enableVoiceChatAccess = false,
     enableAskAiSuggestion = true,
     enableAttachTabs = false,
+    showSuggestedPrompts = false,
     tabId,
 }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
@@ -235,6 +238,7 @@ export function Omnibar({
                                 />
                             )}
                         </div>
+                        {mode === 'ai' && showSuggestedPrompts && <SuggestedPrompts onSubmit={handleSubmitChat} />}
                     </AiChatsProvider>
                 </AttachmentsProvider>
             </SearchFormProvider>

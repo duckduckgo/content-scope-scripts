@@ -42,6 +42,7 @@ Web Search and Create Image share one selection across NTP tabs in the window. S
   - `enableVoiceChatAccess` — when true and the input is empty, replaces the AI chat submit button with a 1-click voice-chat button. Click/Enter sends `omnibar_submitChat` with an empty `chat` and `mode: "voice-mode"` — native handles the voice handoff. Hidden while `requiresAiTermsAcceptance` is `true` (default `false`)
   - `enableAskAiSuggestion` — when `false`, hides the inline "Ask Duck.ai: <query>" entry in the suggestions dropdown. Missing/undefined is treated as `true` (default `true`). Does not affect the Duck.ai mode pill or any other AI affordance — those remain governed by `enableAi`
   - `enableAttachTabs` — when `true`, the omnibar shows the page context entry point and accepts `@` mentions for attaching open tabs as context. Requires native to handle `omnibar_getOpenTabs` and `omnibar_getTabContent` (default `false`).
+  - `showSuggestedPrompts` — when `true`, shows the Duck.ai suggested-prompt chips below the input in Duck.ai mode: "How Duck.ai Works", "Chat Suggestions" and, when `enableImageGeneration` is on, "Create & Edit Images". Selecting a prompt sends `omnibar_submitChat`; "Edit Photo" turns on Create Image and opens the image picker instead (default `false`).
   - `screenshotModes` — capture modes (`"dragToSelect"`, `"selectWindowOrDisplay"`) listed, in order, under "Add Screenshot" in the paperclip menu. Absent or empty hides the screenshot UI. Requires native to handle `omnibar_captureScreenshot`. The row is disabled while a capture is pending, at the image cap, when the model cannot take images, or when the prompt is blocked.
   - `enablePastedAttachments` — when `true`, pasting into the Duck.ai prompt attaches copied images and files (see [Paste](#paste)). When `false` or absent, paste is left to the browser (text only) (default `false`). The page needs no native support to paste; the flag lets native roll the behaviour out and switch it off remotely.
   - `aiModelSections` — array of model sections for the model selector. Each model may include `supportedReasoningEffort` (e.g. `["none", "low", "medium"]`) to surface the reasoning picker
@@ -59,6 +60,7 @@ Web Search and Create Image share one selection across NTP tabs in the window. S
    "enableVoiceChatAccess": false,
    "enableAskAiSuggestion": true,
    "enableAttachTabs": false,
+   "showSuggestedPrompts": false,
    "screenshotModes": ["dragToSelect", "selectWindowOrDisplay"],
    "enablePastedAttachments": true
 }
