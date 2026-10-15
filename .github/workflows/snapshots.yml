@@ -2,8 +2,8 @@ name: Test Snapshots
 description: |
     Runs snapshot tests and uploads test reports as artifacts
 
-    If this workflow fails, you can trigger `update-snapshots.yml` from the
-    GitHub UI.
+    If this workflow fails, you can trigger `snapshots-update.yml` from the
+    GitHub UI, dispatched from the PR's branch.
 
 on:
     push:

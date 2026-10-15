@@ -4,6 +4,10 @@ description: |
 
     Your PR will receive a commit with the changes so you can manually verify before merging.
 
+    Dispatch it from the PR's branch ("Use workflow from"), not `main`: the PR's
+    code runs in this workflow, and this keeps anything it does to the actions
+    cache out of `main`'s cache scope.
+
 on:
     workflow_dispatch:
         inputs:
@@ -30,6 +34,7 @@ jobs:
               env:
                   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   PR_NUMBER: ${{ github.event.inputs.pr_number }}
+                  DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
               run: |
                   pr_json=$(gh pr view "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --json state,isCrossRepository,headRefName,headRefOid)
 
@@ -49,6 +54,19 @@ jobs:
                   head_sha=$(jq -r '.headRefOid' <<< "$pr_json")
                   if ! git check-ref-format --branch "$head_ref" > /dev/null || [[ ! "$head_sha" =~ ^[0-9a-f]{40}$ ]]; then
                       echo "::error::Unexpected head ref or SHA for PR #$PR_NUMBER"
+                      exit 1
+                  fi
+
+                  if [ "$head_ref" = "$DEFAULT_BRANCH" ] || [ "$head_ref" = "releases" ] || [[ "$head_ref" == pr-releases/* ]]; then
+                      echo "::error::Refusing to push snapshots to $head_ref"
+                      exit 1
+                  fi
+
+                  # Cache entries written during a run are scoped to the ref it
+                  # was dispatched on, so a run from main would let the PR's code
+                  # plant entries that trusted main runs later restore.
+                  if [ "$GITHUB_REF" != "refs/heads/$head_ref" ]; then
+                      echo "::error::Dispatch this workflow from the PR branch '$head_ref' (\"Use workflow from\"), not $GITHUB_REF"
                       exit 1
                   fi
 
@@ -73,10 +91,11 @@ jobs:
                   persist-credentials: false
 
             - name: Use Node.js
-              # No `cache: 'npm'`: its post step would save a cache entry.
+              # No npm cache: its post step would save a cache entry.
               uses: actions/setup-node@v7
               with:
                   node-version-file: '.nvmrc'
+                  package-manager-cache: false
             - name: Restore node_modules
               id: cache-node-modules
               uses: actions/cache/restore@v6
@@ -148,6 +167,8 @@ jobs:
                   echo "Collected $count updated snapshot(s)"
                   if [ "$count" -gt 0 ]; then
                       echo "has_changes=true" >> "$GITHUB_OUTPUT"
+                  else
+                      echo "::warning::Snapshot tests failed but no snapshots changed; check the test logs"
                   fi
 
             - name: Upload updated snapshots
@@ -179,7 +200,7 @@ jobs:
                   HEAD_SHA: ${{ needs.resolve-pr.outputs.head_sha }}
               run: |
                   if [ "$(git rev-parse HEAD)" != "$HEAD_SHA" ]; then
-                      echo "::error::The PR branch changed after this workflow started; re-run it"
+                      echo "::error::The PR branch changed after this workflow started; dispatch the workflow again"
                       exit 1
                   fi
 
@@ -202,8 +223,9 @@ jobs:
                   while IFS= read -r -d '' src; do
                       rel=${src#"$SRC"/}
 
-                      # Only plain relative paths to PNG files, outside .git
+                      # Only plain relative paths to PNGs in Playwright snapshot directories, outside .git
                       if [[ ! "$rel" =~ ^[A-Za-z0-9._@+-]+(/[A-Za-z0-9._@+-]+)*\.png$ ]] \
+                          || [[ "/$rel" != */*.spec.js-snapshots/* ]] \
                           || [[ "/$rel/" == *"/../"* || "/$rel/" == *"/./"* ]] \
                           || [[ "$rel" == .git/* ]]; then
                           echo "::error::Rejected unexpected path in artifact: $rel"
