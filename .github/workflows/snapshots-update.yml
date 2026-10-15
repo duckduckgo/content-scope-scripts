@@ -12,31 +12,74 @@ on:
                 required: true
                 type: number
 
-permissions:
-    pull-requests: write
-    contents: write
+# Least privilege: each job opts in to only the scopes it needs.
+permissions: {}
 
 jobs:
-    update-pr-with-snapshots:
-        name: Update PR With Snapshots
-        runs-on: macos-15
+    resolve-pr:
+        name: Resolve PR
+        runs-on: ubuntu-latest
+        permissions:
+            pull-requests: read
+        outputs:
+            head_ref: ${{ steps.pr.outputs.head_ref }}
+            head_sha: ${{ steps.pr.outputs.head_sha }}
         steps:
-            - uses: actions/checkout@v7
-            - name: Checkout PR ${{ github.event.inputs.pr_number }}
-              if: github.event_name == 'workflow_dispatch'
+            - name: Look up PR ${{ github.event.inputs.pr_number }}
+              id: pr
               env:
                   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   PR_NUMBER: ${{ github.event.inputs.pr_number }}
-              run: gh pr checkout "$PR_NUMBER"
+              run: |
+                  pr_json=$(gh pr view "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --json state,isCrossRepository,headRefName,headRefOid)
+
+                  if [ "$(jq -r '.state' <<< "$pr_json")" != "OPEN" ]; then
+                      echo "::error::PR #$PR_NUMBER is not open"
+                      exit 1
+                  fi
+
+                  # GITHUB_TOKEN cannot push to forks, and fork content must not
+                  # be fed to this workflow's write-scoped job.
+                  if [ "$(jq -r '.isCrossRepository' <<< "$pr_json")" != "false" ]; then
+                      echo "::error::PR #$PR_NUMBER is from a fork; update its snapshots locally instead"
+                      exit 1
+                  fi
+
+                  head_ref=$(jq -r '.headRefName' <<< "$pr_json")
+                  head_sha=$(jq -r '.headRefOid' <<< "$pr_json")
+                  if ! git check-ref-format --branch "$head_ref" > /dev/null || [[ ! "$head_sha" =~ ^[0-9a-f]{40}$ ]]; then
+                      echo "::error::Unexpected head ref or SHA for PR #$PR_NUMBER"
+                      exit 1
+                  fi
+
+                  echo "head_ref=$head_ref" >> "$GITHUB_OUTPUT"
+                  echo "head_sha=$head_sha" >> "$GITHUB_OUTPUT"
+
+    update-snapshots:
+        # Runs the PR's own code (npm scripts, dependencies, test config), so it
+        # gets a read-only token that is never written to disk, and saves no
+        # caches that trusted runs could restore.
+        name: Update Snapshots
+        needs: resolve-pr
+        runs-on: macos-15
+        permissions:
+            contents: read
+        outputs:
+            has_changes: ${{ steps.collect.outputs.has_changes }}
+        steps:
+            - uses: actions/checkout@v7
+              with:
+                  ref: ${{ needs.resolve-pr.outputs.head_sha }}
+                  persist-credentials: false
 
             - name: Use Node.js
+              # No `cache: 'npm'`: its post step would save a cache entry.
               uses: actions/setup-node@v7
               with:
                   node-version-file: '.nvmrc'
-                  cache: 'npm'
-            - name: Cache node_modules
+            - name: Restore node_modules
               id: cache-node-modules
-              uses: actions/cache@v6
+              uses: actions/cache/restore@v6
               with:
                   path: |
                       node_modules
@@ -45,8 +88,8 @@ jobs:
                       messaging/node_modules
                       types-generator/node_modules
                   key: ${{ runner.os }}-node-modules-${{ hashFiles('.nvmrc') }}-${{ hashFiles('**/package-lock.json') }}
-            - name: Cache Playwright browsers
-              uses: actions/cache@v6
+            - name: Restore Playwright browsers
+              uses: actions/cache/restore@v6
               with:
                   path: ~/.cache/ms-playwright
                   key: ${{ runner.os }}-playwright-${{ hashFiles('**/package-lock.json') }}
@@ -74,34 +117,132 @@ jobs:
 
             - name: Run Screenshot tests
               id: screenshot_tests
+              # Failures are expected; the next step updates the failing snapshots
+              continue-on-error: true
               # Disable retries to fail fast - we just need to identify failing tests
               run: npm run test-int-snapshots -- --retries=0
 
-            - if: ${{ steps.screenshot_tests.conclusion == 'success' }}
+            - if: ${{ steps.screenshot_tests.outcome == 'success' }}
               run: |
                   echo "nothing to update - tests all passed"
 
             - name: Re-Running Playwright to update snapshots
               id: screenshot_tests_update
-              if: ${{ failure() && steps.screenshot_tests.conclusion == 'failure' }}
+              if: ${{ steps.screenshot_tests.outcome == 'failure' }}
               # Disable retries since we're updating snapshots, not verifying them
               run: npm run test-int-snapshots-update -- --retries=0
 
-            - name: Commit the updated files to the PR branch
-              if: ${{ failure() && steps.screenshot_tests_update.conclusion == 'success' }}
+            - name: Collect updated snapshots
+              id: collect
+              if: ${{ steps.screenshot_tests_update.outcome == 'success' }}
+              run: |
+                  mkdir -p "$RUNNER_TEMP/snapshot-changes"
+                  count=0
+                  while IFS= read -r -d '' file; do
+                      [ -f "$file" ] || continue
+                      mkdir -p "$RUNNER_TEMP/snapshot-changes/$(dirname "$file")"
+                      cp "$file" "$RUNNER_TEMP/snapshot-changes/$file"
+                      count=$((count + 1))
+                  done < <(git ls-files -z --modified --others --exclude-standard -- '*.png')
+
+                  echo "Collected $count updated snapshot(s)"
+                  if [ "$count" -gt 0 ]; then
+                      echo "has_changes=true" >> "$GITHUB_OUTPUT"
+                  fi
+
+            - name: Upload updated snapshots
+              if: ${{ steps.collect.outputs.has_changes == 'true' }}
+              uses: actions/upload-artifact@v7
+              with:
+                  name: updated-snapshots
+                  path: ${{ runner.temp }}/snapshot-changes/
+                  # Handoff to `commit-snapshots` only; no reason to retain it.
+                  retention-days: 1
+
+    commit-snapshots:
+        # Split from `update-snapshots` so the token that can write to this repo
+        # never shares a runner with the PR's code. This job only handles the
+        # produced PNG files as data and runs nothing from the PR branch.
+        name: Commit Snapshots to PR
+        needs: [resolve-pr, update-snapshots]
+        if: ${{ needs.update-snapshots.outputs.has_changes == 'true' }}
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+        steps:
+            - uses: actions/checkout@v7
+              with:
+                  ref: ${{ needs.resolve-pr.outputs.head_ref }}
+
+            - name: Check the PR head has not moved
               env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  HEAD_SHA: ${{ needs.resolve-pr.outputs.head_sha }}
+              run: |
+                  if [ "$(git rev-parse HEAD)" != "$HEAD_SHA" ]; then
+                      echo "::error::The PR branch changed after this workflow started; re-run it"
+                      exit 1
+                  fi
+
+            - name: Download updated snapshots
+              uses: actions/download-artifact@v8
+              with:
+                  name: updated-snapshots
+                  path: ${{ runner.temp }}/snapshot-changes
+
+            - name: Copy validated snapshots into the PR branch
+              env:
+                  SRC: ${{ runner.temp }}/snapshot-changes
+              run: |
+                  if [ -n "$(find "$SRC" ! -type f ! -type d -print -quit)" ]; then
+                      echo "::error::Artifact contains entries that are not regular files"
+                      exit 1
+                  fi
+
+                  workspace=$(realpath "$GITHUB_WORKSPACE")
+                  while IFS= read -r -d '' src; do
+                      rel=${src#"$SRC"/}
+
+                      # Only plain relative paths to PNG files, outside .git
+                      if [[ ! "$rel" =~ ^[A-Za-z0-9._@+-]+(/[A-Za-z0-9._@+-]+)*\.png$ ]] \
+                          || [[ "/$rel/" == *"/../"* || "/$rel/" == *"/./"* ]] \
+                          || [[ "$rel" == .git/* ]]; then
+                          echo "::error::Rejected unexpected path in artifact: $rel"
+                          exit 1
+                      fi
+
+                      if [ "$(head -c 8 "$src" | od -An -tx1 | tr -d ' \n')" != "89504e470d0a1a0a" ]; then
+                          echo "::error::Not a PNG file: $rel"
+                          exit 1
+                      fi
+
+                      # Resolve symlinks in the checked-out tree too
+                      dest=$(realpath -m "$workspace/$rel")
+                      if [[ "$dest" != "$workspace"/* || "$dest" == "$workspace"/.git/* ]]; then
+                          echo "::error::Path escapes the repository: $rel"
+                          exit 1
+                      fi
+
+                      mkdir -p "$(dirname "$dest")"
+                      cp "$src" "$dest"
+                      git add -- "$rel"
+                  done < <(find "$SRC" -type f -print0)
+
+            - name: Commit the updated files to the PR branch
+              env:
+                  HEAD_REF: ${{ needs.resolve-pr.outputs.head_ref }}
               run: |
                   # Configure Git with a bot's username and email for committing changes
                   # This makes it easy to identify in the PR
                   git config user.name "github-actions[bot]"
                   git config user.email "github-actions[bot]@users.noreply.github.com"
 
-                  # Stage all updated PNG files for commit
-                  git add "*.png"
+                  if git diff --cached --quiet; then
+                      echo "nothing to commit"
+                      exit 0
+                  fi
 
                   # Commit the changes with a descriptive message
                   git commit -m "Updated snapshots via workflow"
 
-                  # Push the changes to the current branch in the PR
-                  git push origin HEAD
+                  # Push the changes to the PR branch
+                  git push origin "HEAD:refs/heads/$HEAD_REF"
