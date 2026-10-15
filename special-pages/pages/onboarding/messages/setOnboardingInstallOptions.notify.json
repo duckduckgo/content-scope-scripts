@@ -2,13 +2,12 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "OnboardingInstallOptions",
   "type": "object",
-  "required": ["installExtensions", "launchOnStartup"],
   "additionalProperties": false,
   "properties": {
-    "installExtensions": {
+    "sideloadExtensions": {
       "type": "boolean"
     },
-    "launchOnStartup": {
+    "openAtStartup": {
       "type": "boolean"
     }
   }

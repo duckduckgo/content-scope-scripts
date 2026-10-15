@@ -954,7 +954,9 @@ test.describe('onboarding v4', () => {
                     },
                 },
             ]);
-            expect(await onboarding.mocks.outgoing({ names: ['setOnboardingInstallOptions'] })).toHaveLength(0);
+            expect(await onboarding.mocks.outgoing({ names: ['setOnboardingInstallOptions'] })).toHaveLength(
+                workerInfo.project.name === 'windows' ? 1 : 0,
+            );
         });
 
         test('advancing with checkbox unchecked does NOT send requestChromeExtensionInstall', async ({ page }, workerInfo) => {
@@ -982,18 +984,20 @@ test.describe('onboarding v4', () => {
 
         for (const showExtensions of [false, true]) {
             for (const showStartup of [false, true]) {
-                test(`visibility and defaults: extensions=${showExtensions}, startup=${showStartup}`, async ({ page }, workerInfo) => {
+                test(`visibility and optional payload: extensions=${showExtensions}, startup=${showStartup}`, async ({
+                    page,
+                }, workerInfo) => {
                     const onboarding = OnboardingV4Page.create(page, workerInfo);
                     const options = [];
-                    if (showExtensions) options.push('extension-install');
-                    if (showStartup) options.push('launch-on-startup');
+                    if (showExtensions) options.push('sideload-extensions');
+                    if (showStartup) options.push('open-at-startup');
                     onboarding.withInitData({ stepDefinitions: { getStarted: { options } } });
                     await onboarding.reducedMotion();
                     await onboarding.openPage({ env: 'app', page: 'getStarted' });
 
+                    const isWindows = workerInfo.project.name === 'windows';
                     const extensions = page.getByRole('checkbox', { name: extensionLabel });
                     const startup = page.getByRole('checkbox', { name: startupLabel });
-                    const isWindows = workerInfo.project.name === 'windows';
                     if (isWindows && showExtensions) {
                         await expect(extensions).toBeVisible();
                         await expect(extensions).not.toBeChecked();
@@ -1008,29 +1012,41 @@ test.describe('onboarding v4', () => {
                     }
 
                     await page
-                        .getByRole('button', { name: isWindows && options.length > 0 ? 'Start Browser Setup' : 'Let’s get started!' })
+                        .getByRole('button', { name: isWindows && options.length ? 'Start Browser Setup' : 'Let’s get started!' })
                         .click();
                     await expect(page.getByRole('heading', { name: 'Protections activated' })).toBeVisible();
                     const calls = await onboarding.mocks.outgoing({ names: ['setOnboardingInstallOptions'] });
-                    expect(calls).toHaveLength(isWindows && options.length > 0 ? 1 : 0);
-                    if (calls.length > 0) {
-                        expect(calls[0].payload.params).toEqual({ installExtensions: false, launchOnStartup: showStartup });
+                    expect(calls).toHaveLength(isWindows ? 1 : 0);
+                    if (isWindows) {
+                        expect(calls[0].payload.params).toEqual({
+                            ...(showExtensions ? { sideloadExtensions: false } : {}),
+                            ...(showStartup ? { openAtStartup: true } : {}),
+                        });
                     }
                 });
             }
         }
 
-        for (const installExtensions of [false, true]) {
-            for (const launchOnStartup of [false, true]) {
-                test(`submits choices: extensions=${installExtensions}, startup=${launchOnStartup}`, async ({ page }, workerInfo) => {
+        test('missing native options keep both Windows controls hidden', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({ stepDefinitions: {} });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'getStarted' });
+            await expect(page.getByRole('checkbox', { name: extensionLabel })).not.toBeVisible();
+            await expect(page.getByRole('checkbox', { name: startupLabel })).not.toBeVisible();
+        });
+
+        for (const sideloadExtensions of [false, true]) {
+            for (const openAtStartup of [false, true]) {
+                test(`submits choices: extensions=${sideloadExtensions}, startup=${openAtStartup}`, async ({ page }, workerInfo) => {
                     test.skip(workerInfo.project.name !== 'windows', 'Installation choices are offered on Windows only');
                     const onboarding = OnboardingV4Page.create(page, workerInfo);
-                    onboarding.withInitData({ stepDefinitions: { getStarted: { options: ['extension-install', 'launch-on-startup'] } } });
+                    onboarding.withInitData({ stepDefinitions: { getStarted: { options: ['sideload-extensions', 'open-at-startup'] } } });
                     await onboarding.reducedMotion();
                     await onboarding.openPage({ env: 'app', page: 'getStarted' });
 
-                    await page.getByRole('checkbox', { name: extensionLabel }).setChecked(installExtensions);
-                    await page.getByRole('checkbox', { name: startupLabel }).setChecked(launchOnStartup);
+                    await page.getByRole('checkbox', { name: extensionLabel }).setChecked(sideloadExtensions);
+                    await page.getByRole('checkbox', { name: startupLabel }).setChecked(openAtStartup);
                     expect(await onboarding.mocks.outgoing({ names: ['setOnboardingInstallOptions'] })).toHaveLength(0);
                     await page.getByRole('button', { name: 'Start Browser Setup' }).click();
                     await expect(page.getByRole('heading', { name: 'Protections activated' })).toBeVisible();
@@ -1041,8 +1057,15 @@ test.describe('onboarding v4', () => {
                         context: 'specialPages',
                         featureName: 'onboarding',
                         method: 'setOnboardingInstallOptions',
-                        params: { installExtensions, launchOnStartup },
+                        params: { sideloadExtensions, openAtStartup },
                     });
+                    const messages = await onboarding.mocks.outgoing({ names: ['setOnboardingInstallOptions', 'stepCompleted'] });
+                    const choicesIndex = messages.findIndex((message) => message.payload.method === 'setOnboardingInstallOptions');
+                    const completedIndex = messages.findIndex(
+                        (message) => message.payload.method === 'stepCompleted' && message.payload.params.id === 'getStarted',
+                    );
+                    expect(choicesIndex).toBeGreaterThanOrEqual(0);
+                    expect(completedIndex).toBeGreaterThan(choicesIndex);
                     expect(
                         await onboarding.mocks.outgoing({
                             names: ['requestChromeExtensionInstall', 'reportPageException', 'reportInitException'],
@@ -1055,7 +1078,7 @@ test.describe('onboarding v4', () => {
         test('choices can be toggled and submitted with the keyboard', async ({ page }, workerInfo) => {
             test.skip(workerInfo.project.name !== 'windows', 'Installation choices are offered on Windows only');
             const onboarding = OnboardingV4Page.create(page, workerInfo);
-            onboarding.withInitData({ stepDefinitions: { getStarted: { options: ['extension-install', 'launch-on-startup'] } } });
+            onboarding.withInitData({ stepDefinitions: { getStarted: { options: ['sideload-extensions', 'open-at-startup'] } } });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'getStarted' });
 
@@ -1077,7 +1100,7 @@ test.describe('onboarding v4', () => {
 
             const calls = await onboarding.mocks.outgoing({ names: ['setOnboardingInstallOptions'] });
             expect(calls).toHaveLength(1);
-            expect(calls[0].payload.params).toEqual({ installExtensions: true, launchOnStartup: false });
+            expect(calls[0].payload.params).toEqual({ sideloadExtensions: true, openAtStartup: false });
         });
 
         for (const colorScheme of /** @type {const} */ (['light', 'dark'])) {
@@ -1085,7 +1108,7 @@ test.describe('onboarding v4', () => {
                 test(`layout in ${colorScheme} mode at height ${height}`, async ({ page }, workerInfo) => {
                     test.skip(workerInfo.project.name !== 'windows', 'Installation choices are offered on Windows only');
                     const onboarding = OnboardingV4Page.create(page, workerInfo);
-                    onboarding.withInitData({ stepDefinitions: { getStarted: { options: ['extension-install', 'launch-on-startup'] } } });
+                    onboarding.withInitData({ stepDefinitions: { getStarted: { options: ['sideload-extensions', 'open-at-startup'] } } });
                     await page.emulateMedia({ colorScheme });
                     await page.setViewportSize({ width: 1024, height });
                     await onboarding.reducedMotion();

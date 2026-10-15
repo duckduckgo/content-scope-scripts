@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { useState } from 'preact/hooks';
+import { useRef, useState } from 'preact/hooks';
 import cn from 'classnames';
 import { useTypedTranslation } from '../../types';
 import { Typed } from './Typed';
@@ -13,7 +13,6 @@ import styles from './GetStartedContent.module.css';
 /**
  * Bubble content for the getStarted step.
  * Renders title, body text, and CTA button.
- * Native step options determine which installation checkboxes are offered.
  *
  * @param {object} props
  * @param {() => void} props.advance
@@ -25,28 +24,30 @@ export function GetStartedContent({ advance, onTitleComplete }) {
     const { activeStepVisible, step } = useGlobalState();
     const dispatch = useGlobalDispatch();
     const [chromeExtensionChecked, setChromeExtensionChecked] = useState(false);
-    const [installExtensions, setInstallExtensions] = useState(false);
-    const [launchOnStartup, setLaunchOnStartup] = useState(true);
-
-    const options = /** @type {import('../../types').GetStartedStep} */ (step).options;
+    const [sideloadExtensions, setInstallExtensions] = useState(false);
+    const [openAtStartup, setLaunchOnStartup] = useState(true);
+    const submitted = useRef(false);
+    const { options } = /** @type {import('../../types').GetStartedStep} */ (step);
     const isWindows = usePlatformName() === 'windows';
     const showChromeExtension = options?.includes('chrome-extension-install');
-    const showExtensions = isWindows && options?.includes('extension-install');
-    const showLaunchOnStartup = isWindows && options?.includes('launch-on-startup');
+    const showExtensions = isWindows && options?.includes('sideload-extensions');
+    const showLaunchOnStartup = isWindows && options?.includes('open-at-startup');
 
     const [title, ...paragraphs] = t('getStarted_title_v4', { newline: '\n' }).split('{paragraph}');
     const body = paragraphs.join('\n\n');
 
     function handleAdvance() {
+        if (submitted.current) return;
+        submitted.current = true;
         if (showChromeExtension && chromeExtensionChecked) {
             dispatch({ kind: 'request-chrome-extension' });
         }
-        if (showExtensions || showLaunchOnStartup) {
+        if (isWindows) {
             dispatch({
                 kind: 'set-onboarding-install-options',
                 payload: {
-                    installExtensions: !!showExtensions && installExtensions,
-                    launchOnStartup: !!showLaunchOnStartup && launchOnStartup,
+                    ...(showExtensions ? { sideloadExtensions } : {}),
+                    ...(showLaunchOnStartup ? { openAtStartup } : {}),
                 },
             });
         }
@@ -101,7 +102,7 @@ export function GetStartedContent({ advance, onTitleComplete }) {
                 >
                     {showExtensions && (
                         <OnboardingCheckbox
-                            checked={installExtensions}
+                            checked={sideloadExtensions}
                             onChange={setInstallExtensions}
                             label={t('getStarted_extensions_label')}
                             tooltip={t('getStarted_extensions_tooltip')}
@@ -109,7 +110,7 @@ export function GetStartedContent({ advance, onTitleComplete }) {
                     )}
                     {showLaunchOnStartup && (
                         <OnboardingCheckbox
-                            checked={launchOnStartup}
+                            checked={openAtStartup}
                             onChange={setLaunchOnStartup}
                             label={t('getStarted_launchOnStartup_label')}
                         />

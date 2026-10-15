@@ -34,7 +34,7 @@ import { useContext } from 'preact/hooks';
  * } Step
  * @typedef {Record<Step['id'], Step>} StepDefinitions
  * @typedef {{ kind: 'info'; id: 'welcome' }} WelcomeStep
- * @typedef {'chrome-extension-install' | 'extension-install' | 'launch-on-startup'} GetStartedOption
+ * @typedef {'chrome-extension-install' | 'sideload-extensions' | 'open-at-startup'} GetStartedOption
  * @typedef {{ kind: 'info'; id: 'getStarted'; options?: GetStartedOption[] }} GetStartedStep
  * @typedef {{ kind: 'settings'; id: 'systemSettings'; rows: SystemValueId[]; }} SystemSettingsStep
  * @typedef {{ kind: 'settings'; id: 'customize'; rows: SystemValueId[]; }} CustomizeStep

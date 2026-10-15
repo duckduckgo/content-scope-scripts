@@ -20,8 +20,8 @@ export interface SetOnboardingInstallOptionsNotification {
   params: OnboardingInstallOptions;
 }
 export interface OnboardingInstallOptions {
-  installExtensions: boolean;
-  launchOnStartup: boolean;
+  sideloadExtensions?: boolean;
+  openAtStartup?: boolean;
 }
 /**
  * Generated from @see "../messages/telemetryEvent.notify.json"

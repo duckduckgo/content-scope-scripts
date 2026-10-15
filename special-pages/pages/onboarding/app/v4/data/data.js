@@ -29,7 +29,7 @@ export const stepsConfig = {
         const showInstallOptions = /** @type {import('../../types').GetStartedStep} */ (globalState.step).options?.some(
             (option) =>
                 option === 'chrome-extension-install' ||
-                (platformName === 'windows' && (option === 'extension-install' || option === 'launch-on-startup')),
+                (platformName === 'windows' && (option === 'sideload-extensions' || option === 'open-at-startup')),
         );
         return {
             bottomBubble: {
