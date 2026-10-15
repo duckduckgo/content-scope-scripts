@@ -183,8 +183,7 @@ test.describe('DetectorPerf Feature', () => {
         const breakageData = JSON.parse(decodeURIComponent(String(params.breakageData)));
         expect(breakageData.webDetection).toContainEqual({
             detectorId: 'failureTest.invalidSelector',
-            detected: 'error',
-            errors: { 0: 'error' },
+            errors: { '0.when': 'error' },
         });
     });
 

@@ -547,8 +547,12 @@ export function evaluateWhen(when, ctx) {
 }
 
 /**
- * @typedef {{ type: 'payloadEval', payloadKey: string }} DataError
- * @typedef {Record<string, string | number | boolean | null | DataError[]>} PayloadData
+ * @typedef {Record<string, string | number | boolean | null>} PayloadData
+ * @typedef {object} PayloadFailure
+ * @property {string} key - the payload key whose value, `when` or bucket failed
+ * @property {'aborted' | 'error'} result
+ * @property {string} [abortError] - for an abort by a throw, the thrown value's constructor name
+ * @property {string} [error] - for an error, its message
  */
 
 const OMIT = Symbol('omit');
@@ -556,41 +560,42 @@ const OMIT = Symbol('omit');
 /**
  * Compute a payload when its item runs, through the run's memo and buffers.
  *
- * A key is omitted when its value fails or JSON cannot carry it as a scalar, when `when` does not hold
- * or fails, and with `buckets` when the value is in no bucket or a bucket fails. A key whose value,
- * `when` or bucket errors is omitted and recorded in `_errors`.
+ * A key is omitted when its value reads an `if` branch not taken or JSON cannot carry it as a scalar,
+ * when `when` does not hold, and with `buckets` when the value is in no bucket. A failed value reaches
+ * `when` and the buckets, where `fails` handles it. A value, `when` or bucket that fails or errors
+ * unhandled fails the payload, at the first such key.
  *
  * @param {CompiledPayloadField[]} fields
  * @param {EvaluationContext} ctx
- * @returns {PayloadData}
+ * @returns {{ data: PayloadData } | { failure: PayloadFailure }}
  */
 export function evaluatePayload(fields, ctx) {
     /** @type {PayloadData} */
     const data = {};
-    /** @type {DataError[]} */
-    const errors = [];
     for (const field of fields) {
+        /** @type {ReturnType<typeof payloadValue>} */
+        let value;
         try {
-            const value = payloadValue(field, ctx);
-            if (value !== OMIT) data[field.key] = value;
-        } catch {
-            errors.push({ type: 'payloadEval', payloadKey: field.key });
+            value = payloadValue(field, ctx);
+        } catch (e) {
+            return { failure: { key: field.key, result: 'error', error: e instanceof Error ? e.message : String(e) } };
         }
+        if (isFailure(value)) {
+            return { failure: { key: field.key, result: 'aborted', ...(value.error && { abortError: value.error }) } };
+        }
+        if (value !== OMIT) data[field.key] = value;
     }
-    if (errors.length > 0) {
-        data._errors = errors.sort((a, b) => (a.payloadKey < b.payloadKey ? -1 : a.payloadKey > b.payloadKey ? 1 : 0));
-    }
-    return data;
+    return { data };
 }
 
 /**
  * @param {CompiledPayloadField} field
  * @param {EvaluationContext} ctx
- * @returns {string | number | boolean | null | typeof OMIT}
+ * @returns {string | number | boolean | null | Failure | typeof OMIT}
  */
 function payloadValue(field, ctx) {
     const value = evaluateOccurrence(field.value, ctx);
-    if (isFailure(value)) return OMIT;
+    if (value === NOT_READ) return OMIT;
     if (value instanceof ItemBuffer && !field.buckets)
         throw new DetectionError('a list is sent bucketed, through only, or as its length through using');
     /**
@@ -598,15 +603,20 @@ function payloadValue(field, ctx) {
      * @returns {boolean | Failure}
      */
     const test = (predicate) => predicate.test(forPredicate(value, predicate), ctx);
-    if (field.when && test(field.when) !== true) return OMIT;
+    if (field.when) {
+        const held = test(field.when);
+        if (isFailure(held)) return held;
+        if (held !== true) return OMIT;
+    }
     if (field.buckets) {
         for (const [name, bucket] of field.buckets) {
             const held = test(bucket);
-            if (isFailure(held)) return OMIT;
+            if (isFailure(held)) return held;
             if (held) return name;
         }
-        return OMIT;
+        return isFailure(value) ? value : OMIT;
     }
+    if (isFailure(value)) return value;
     return isScalar(value) && (typeof value !== 'number' || numberIsFinite(value)) ? value : OMIT;
 }
 

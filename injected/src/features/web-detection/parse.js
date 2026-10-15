@@ -87,8 +87,6 @@ import { apiSource, parseApiBody } from './sources.js';
  * @typedef {object} DetectorConfig
  * @property {FeatureState} state - Whether the detector is enabled
  * @property {CompiledDetector | { error: string }} compiled - the action items compiled, or why they failed to parse
- * @property {boolean} hasBreakageReportData - whether an item writes the detector's breakage entry, read from
- * the raw items so a detector that fails to parse still reports the error
  * @property {Triggers} triggers - Trigger configurations
  */
 
@@ -101,7 +99,6 @@ import { apiSource, parseApiBody } from './sources.js';
  * @property {{ data?: CompiledPayloadField[] }} [breakageReportData]
  * @property {Array<[string, Node]>} [define] - each name and its value, in value position
  * @property {boolean} exit
- * @property {boolean} gate - whether the item holds `exit` or defines `done`, so a `when` that fails ends the run
  */
 
 /**
@@ -779,14 +776,13 @@ export function compileDetector(config, global) {
 function compileItem(raw, path, scope) {
     if (raw.exit !== undefined && raw.exit !== true) throw new ConfigParseError(`${path}.exit`, '`exit` takes `true`');
     /** @type {CompiledItem} */
-    const item = { exit: raw.exit === true, gate: raw.exit === true };
+    const item = { exit: raw.exit === true };
 
     scope.inCondition = true;
     if (raw.when !== undefined) item.when = compileExpr(raw.when, 'boolean', `${path}.when`, scope);
     if (raw.define !== undefined) {
         const define = /** @type {Record<string, unknown>} */ (raw.define);
         item.define = objectKeys(define).map((name) => [name, compileExpr(define[name], 'value', `${path}.define.${name}`, scope)]);
-        if (objectKeys(define).includes('done')) item.gate = true;
     }
 
     scope.inCondition = false;
@@ -856,13 +852,11 @@ function normalizeDetector(config, global) {
     } catch (e) {
         compiled = { error: e instanceof Error ? e.message : String(e) };
     }
-    const actions = config.actions;
 
     return {
         // Detectors are enabled by default
         state: config.state ?? 'enabled',
         compiled,
-        hasBreakageReportData: isArray(actions) && actions.some((item) => isPlainObject(item) && item.breakageReportData !== undefined),
         triggers: {
             // breakageReport: enabled by default - detectors participate in breakage report flow
             breakageReport: {

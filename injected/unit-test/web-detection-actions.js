@@ -119,21 +119,59 @@ describe('WebDetection actions', () => {
         });
     });
 
-    describe('unreadable conditions', () => {
-        it('skips an item whose `when` aborts, and evaluates the next', () => {
-            const d = detector([{ when: aborting, fireEvent: { type: 'a' } }, { fireEvent: { type: 'b' } }]);
+    describe('failures', () => {
+        it('ends the run when a `when` aborts, keeping what earlier items did', () => {
+            const d = detector([{ fireEvent: { type: 'a' } }, { when: aborting, fireEvent: { type: 'b' } }, { fireEvent: { type: 'c' } }]);
             const run = d.run();
-            expect(run.outcomes).toEqual(['aborted', 'ran']);
+            expect(run.outcomes).toEqual(['ran', 'aborted']);
+            expect(run.endedAt).toBe(1);
+            expect(run.failedAt).toBe('1.when');
             expect(run.abortError).toBe('TypeError');
-            expect(d.types()).toEqual(['b']);
+            expect(d.types()).toEqual(['a']);
         });
 
-        it('skips an item whose `when` errors, and evaluates the next', () => {
+        it('ends the run when a `when` errors', () => {
             const d = detector([{ when: erroring, fireEvent: { type: 'a' } }, { fireEvent: { type: 'b' } }]);
             const run = d.run();
-            expect(run.outcomes).toEqual(['error', 'ran']);
+            expect(run.outcomes).toEqual(['error']);
             expect(run.error).toContain('expected a boolean');
-            expect(d.types()).toEqual(['b']);
+            expect(d.types()).toEqual([]);
+        });
+
+        it('ends the run on a failed payload value, leaving every action of the item undone', () => {
+            const d = detector([
+                {
+                    fireEvent: { type: 'a', data: { x: { value: { api: 'page.live.bad' } } } },
+                    breakageReportData: {},
+                    define: { seen: true },
+                },
+                { fireEvent: { type: 'b' } },
+            ]);
+            const run = d.run();
+            expect(run.outcomes).toEqual(['aborted']);
+            expect(run.failedAt).toBe('0.fireEvent.x');
+            expect(d.types()).toEqual([]);
+            expect(d.state.defined.has('seen')).toBe(false);
+            expect(d.entry()).toEqual({ detectorId: 'g.d', errors: { '0.fireEvent.x': 'aborted' } });
+        });
+
+        it('keys a failed breakage value by its action', () => {
+            const d = detector([{ breakageReportData: { data: { x: { value: { api: 'page.live.bad' } } } } }]);
+            expect(d.run().failedAt).toBe('0.breakageReportData.x');
+            expect(d.entry()).toEqual({ detectorId: 'g.d', errors: { '0.breakageReportData.x': 'aborted' } });
+        });
+
+        it('sends a payload whose failed value a `when` testing `fails` handles', () => {
+            const d = detector([{ fireEvent: { type: 'a', data: { x: { value: { api: 'page.live.bad' }, when: { fails: false } } } } }]);
+            expect(d.run().outcomes).toEqual(['ran']);
+            expect(d.events).toEqual([{ type: 'a', data: {} }]);
+            expect(d.entry()).toBeUndefined();
+        });
+
+        it('keeps `done` an earlier item stored when a later item fails', () => {
+            const d = detector([{ define: { done: true } }, { when: aborting, fireEvent: { type: 'a' } }]);
+            d.run();
+            expect(d.state.done).toBe(true);
         });
 
         it('ends the run when the `when` of an item holding `exit` fails, and runs again on the next trigger', () => {
@@ -246,7 +284,7 @@ describe('WebDetection actions', () => {
             expect(d.state.defined.get('b')).toBe(1);
         });
 
-        it('leaves a stored value unchanged when its value fails, and records the failure', () => {
+        it('ends the run when a value fails, leaving the stored value unchanged', () => {
             const global = makeGlobal();
             global.page.live.throws = false;
             const d = detector([{ define: { x: { api: 'page.live.bad' } } }], global);
@@ -254,9 +292,11 @@ describe('WebDetection actions', () => {
             expect(d.state.defined.get('x')).toBe(1);
 
             global.page.live.throws = true;
-            expect(d.run().outcomes).toEqual(['ran']);
+            const run = d.run();
+            expect(run.outcomes).toEqual(['aborted']);
+            expect(run.failedAt).toBe('0.define.x');
             expect(d.state.defined.get('x')).toBe(1);
-            expect(d.entry()).toEqual({ detectorId: 'g.d', detected: 'aborted', errors: { 0: 'aborted' } });
+            expect(d.entry()).toEqual({ detectorId: 'g.d', errors: { '0.define.x': 'aborted' } });
         });
 
         it('guards an event sent once beside a measurement refreshed on every run', () => {
@@ -353,26 +393,26 @@ describe('WebDetection actions', () => {
             expect(d.entry()).toEqual({ detectorId: 'g.d', detected: true, data: { n: 5, small: 1 } });
         });
 
-        it('records an item failure by index, and clears it when the item next reads', () => {
+        it('records a failure by where it arose, and keeps it after a clean run', () => {
             const global = makeGlobal();
             const d = detector([{ when: aborting, breakageReportData: {} }], global);
             d.run();
-            expect(d.entry()).toEqual({ detectorId: 'g.d', detected: 'aborted', errors: { 0: 'aborted' } });
+            expect(d.entry()).toEqual({ detectorId: 'g.d', errors: { '0.when': 'aborted' } });
             global.page.live.throws = false;
             d.run();
-            expect(d.entry()).toEqual({ detectorId: 'g.d', detected: true });
+            expect(d.entry()).toEqual({ detectorId: 'g.d', detected: true, errors: { '0.when': 'aborted' } });
         });
 
-        it('gives `detected: "error"` when a recorded failure is an error', () => {
+        it('records an error as `error`, and only the failure that ended the run', () => {
             const d = detector([
-                { when: aborting, fireEvent: { type: 'a' } },
-                { when: erroring, breakageReportData: {} },
+                { when: erroring, fireEvent: { type: 'a' } },
+                { when: aborting, breakageReportData: {} },
             ]);
             d.run();
-            expect(d.entry()).toEqual({ detectorId: 'g.d', detected: 'error', errors: { 0: 'aborted', 1: 'error' } });
+            expect(d.entry()).toEqual({ detectorId: 'g.d', errors: { '0.when': 'error' } });
         });
 
-        it('keeps a failure on an item the run did not reach', () => {
+        it('keeps a failure when later runs end before reaching its item', () => {
             const global = makeGlobal();
             const d = detector(
                 [
@@ -384,7 +424,7 @@ describe('WebDetection actions', () => {
             d.run();
             global.page.live.ready = true;
             d.run();
-            expect(d.entry()).toEqual({ detectorId: 'g.d', detected: 'aborted', errors: { 1: 'aborted' } });
+            expect(d.entry()).toEqual({ detectorId: 'g.d', errors: { '1.when': 'aborted' } });
         });
     });
 

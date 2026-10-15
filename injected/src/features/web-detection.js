@@ -129,6 +129,7 @@ export default class WebDetection extends ContentFeature {
                     timestamp: Date.now(),
                     items: result.outcomes,
                     ...(result.endedAt !== undefined && { endedAt: result.endedAt }),
+                    ...(result.failedAt && { failedAt: result.failedAt }),
                     defined: definedScalars(state),
                     measured: ctx.measured,
                     events,
@@ -236,7 +237,7 @@ export default class WebDetection extends ContentFeature {
 
     /**
      * Run every detector the trigger enables and that is not done, then return the breakage entries
-     * of the detectors with a `breakageReportData` item, written by this run or earlier ones.
+     * of the detectors that have written one or recorded a failure, in this run or earlier ones.
      *
      * @param {RunDetectionOptions} options
      * @returns {BreakageEntry[]}
@@ -249,9 +250,8 @@ export default class WebDetection extends ContentFeature {
             const runs = this._shouldRunDetector(detector.config, options);
             if (runs) this._runDetector(detector, options);
 
-            if (!detector.config.hasBreakageReportData) continue;
             if ('error' in detector.config.compiled) {
-                if (runs) results.push({ detectorId: detector.detectorId, detected: 'error' });
+                if (runs) results.push({ detectorId: detector.detectorId, errors: { parse: 'error' } });
                 continue;
             }
             const state = this.#states.get(detector.detectorId);
