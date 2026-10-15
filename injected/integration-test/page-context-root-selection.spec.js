@@ -77,6 +77,12 @@ test.describe('page-context root selection', () => {
         expect(result.content).not.toContain('Harbour reopens after storm repairs');
     });
 
+    test('ignores a hidden html element when picking among matches', async ({ page }, testInfo) => {
+        const result = await collect(page, testInfo, `${PAGES}/hidden-html.html`);
+        expect(result.content).toContain('Ferry service returns to the island');
+        expect(result.content).not.toContain('Culture');
+    });
+
     test('keeps a first match inside a wrapper that is still fading in', async ({ page }, testInfo) => {
         const result = await collect(page, testInfo, `${PAGES}/fade-in.html`);
         expect(result.content).toContain('Orchestra announces summer concerts');

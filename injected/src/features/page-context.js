@@ -233,7 +233,7 @@ function isRendered(el) {
 }
 
 /**
- * Whether extracting the body would keep this element: the element and its ancestors all pass
+ * Whether extracting the body would keep this element: the element and its ancestors up to the body all pass
  * the visibility and exclusion checks that `domToMarkdown` applies.
  * @param {Element} el
  * @param {string} excludeSelectors
@@ -246,7 +246,7 @@ function isExtractable(el, excludeSelectors) {
         if (!checkNodeIsVisible(node) || (excludeSelectors && node.matches(excludeSelectors))) {
             return false;
         }
-        node = node.parentElement;
+        node = node === document.body ? null : node.parentElement;
     }
     return true;
 }
