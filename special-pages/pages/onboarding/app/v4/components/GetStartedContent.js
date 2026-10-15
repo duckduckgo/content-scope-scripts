@@ -100,19 +100,19 @@ export function GetStartedContent({ advance, onTitleComplete }) {
                         [styles.hidden]: hasTypingEffect && !activeStepVisible,
                     })}
                 >
+                    {showLaunchOnStartup && (
+                        <OnboardingCheckbox
+                            checked={openAtStartup}
+                            onChange={setLaunchOnStartup}
+                            label={t('getStarted_launchOnStartup_label')}
+                        />
+                    )}
                     {showExtensions && (
                         <OnboardingCheckbox
                             checked={sideloadExtensions}
                             onChange={setInstallExtensions}
                             label={t('getStarted_extensions_label')}
                             tooltip={t('getStarted_extensions_tooltip')}
-                        />
-                    )}
-                    {showLaunchOnStartup && (
-                        <OnboardingCheckbox
-                            checked={openAtStartup}
-                            onChange={setLaunchOnStartup}
-                            label={t('getStarted_launchOnStartup_label')}
                         />
                     )}
                 </div>

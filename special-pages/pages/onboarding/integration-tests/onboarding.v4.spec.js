@@ -1085,15 +1085,15 @@ test.describe('onboarding v4', () => {
             const button = page.getByRole('button', { name: 'Start Browser Setup' });
             await button.focus();
             await page.keyboard.press('Tab');
-            const extensions = page.getByRole('checkbox', { name: extensionLabel });
-            await expect(extensions).toBeFocused();
-            await page.keyboard.press('Space');
-            await expect(extensions).toBeChecked();
-            await page.keyboard.press('Tab');
             const startup = page.getByRole('checkbox', { name: startupLabel });
             await expect(startup).toBeFocused();
             await page.keyboard.press('Space');
             await expect(startup).not.toBeChecked();
+            await page.keyboard.press('Tab');
+            const extensions = page.getByRole('checkbox', { name: extensionLabel });
+            await expect(extensions).toBeFocused();
+            await page.keyboard.press('Space');
+            await expect(extensions).toBeChecked();
             await button.focus();
             await page.keyboard.press('Enter');
             await expect(page.getByRole('heading', { name: 'Protections activated' })).toBeVisible();
@@ -1123,8 +1123,8 @@ test.describe('onboarding v4', () => {
                     const buttonBox = await button.boundingBox();
                     const extensionBox = await extensions.boundingBox();
                     const startupBox = await startup.boundingBox();
-                    expect(extensionBox?.y).toBeGreaterThanOrEqual((buttonBox?.y ?? 0) + (buttonBox?.height ?? 0));
-                    expect(startupBox?.y).toBeGreaterThan((extensionBox?.y ?? 0) + (extensionBox?.height ?? 0));
+                    expect(startupBox?.y).toBeGreaterThanOrEqual((buttonBox?.y ?? 0) + (buttonBox?.height ?? 0));
+                    expect(extensionBox?.y).toBeGreaterThan((startupBox?.y ?? 0) + (startupBox?.height ?? 0));
                     await page.screenshot({ path: workerInfo.outputPath('install-options.png') });
 
                     await page.getByLabel('More information').hover();

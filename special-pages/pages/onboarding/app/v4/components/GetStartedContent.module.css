@@ -69,8 +69,9 @@
 .installOptions {
     display: flex;
     flex-direction: column;
-    gap: var(--sp-3);
+    gap: var(--sp-4);
     align-self: stretch;
+    margin-top: calc(-8 * var(--px-in-rem));
 }
 
 .checkboxRow {
