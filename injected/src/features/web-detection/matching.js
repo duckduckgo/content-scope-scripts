@@ -157,7 +157,7 @@ const compiledXPaths = new WeakMap();
  * Compile an XPath expression, reusing a previously compiled one where possible.
  *
  * An invalid expression throws `SyntaxError` here rather than at evaluation time;
- * either way it propagates to the caller and surfaces as `detected: 'error'`.
+ * either way it propagates to the caller and is recorded as an `'error'` in the detector's breakage entry.
  *
  * @param {string} expression
  * @returns {XPathExpression}
@@ -284,9 +284,9 @@ function tailStart(buffer, chunkTail) {
  * after the last of them, so a match lying across the tail is counted once. Matches inside the tail
  * are found again with the text that follows.
  *
- * An invalid expression throws `SyntaxError`, which propagates and surfaces as
- * `detected: 'error'` for the detector - the same behaviour as an invalid CSS
- * selector passed to `querySelectorAll`.
+ * An invalid expression throws `SyntaxError`, which propagates and is recorded as an
+ * `'error'` for the detector - the same behaviour as an invalid CSS selector passed to
+ * `querySelectorAll`.
  *
  * @param {string} expression
  * @param {Node} contextNode
