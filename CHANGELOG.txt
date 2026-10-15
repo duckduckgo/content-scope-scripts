@@ -1,1 +1,2 @@
-- Support maxSupportedVersion on features for config v6 (#3100)
+- Duck.ai: report IndexedDB disabled by Lockdown Mode on Apple platforms (#3111)
+- Measure bundle size without comments or whitespace (#3099)

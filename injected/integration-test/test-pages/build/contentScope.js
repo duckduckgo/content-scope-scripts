@@ -15628,6 +15628,18 @@ ul.messages {
 
   // src/features/duck-ai-data-clearing.js
   init_define_import_meta_trackerLookup();
+
+  // src/features/duck-ai/storage.js
+  init_define_import_meta_trackerLookup();
+  function isWebKitPlatform(platformName) {
+    return platformName === "ios" || platformName === "macos";
+  }
+  function isIndexedDBDisabled(platformName) {
+    return isWebKitPlatform(platformName) && !("indexedDB" in window);
+  }
+
+  // src/features/duck-ai-data-clearing.js
+  var INDEXED_DB_DISABLED = "IndexedDBDisabled";
   function toError(error) {
     return error instanceof Error ? error : new Error(String(error));
   }
@@ -15696,8 +15708,7 @@ ul.messages {
       }
     }
     get shouldDeleteRecordsIndividually() {
-      const isWebKitPlatform = this.platform.name === "ios" || this.platform.name === "macos";
-      return isWebKitPlatform && this.getFeatureSettingEnabled("deleteRecordsIndividually", "enabled");
+      return isWebKitPlatform(this.platform.name) && this.getFeatureSettingEnabled("deleteRecordsIndividually", "enabled");
     }
     /**
      * @param {IDBObjectStore} objectStore
@@ -15761,6 +15772,10 @@ ul.messages {
      * @param {ClearFailure[]} errors - Array to collect any errors
      */
     async withAllIndexedDBs(operation, errors) {
+      if (isIndexedDBDisabled(this.platform.name)) {
+        errors.push({ stage: "indexedDB", error: new DOMException("IndexedDB is disabled", INDEXED_DB_DISABLED) });
+        return;
+      }
       const pairs = this.getFeatureSetting("chatImagesIndexDbNameObjectStoreNamePairs");
       for (const [dbName, storeName] of pairs) {
         try {
@@ -15776,13 +15791,15 @@ ul.messages {
     /**
      * Sends the appropriate completion or failure notification based on errors.
      * `errorName` (e.g. a `DOMException` name) and `stage` let the native side report the cause without free text.
+     * A real failure is reported over `IndexedDBDisabled`, which the page can do nothing about.
      * @param {ClearFailure[]} errors - Failures that occurred during operations
      */
     notifyCompletionResult(errors) {
       if (errors.length === 0) {
         this.notify("duckAiClearDataCompleted");
       } else {
-        const { stage, error } = errors[errors.length - 1];
+        const realFailures = errors.filter((failure) => failure.error.name !== INDEXED_DB_DISABLED);
+        const { stage, error } = realFailures[realFailures.length - 1] ?? errors[errors.length - 1];
         this.notify("duckAiClearDataFailed", {
           error: error.message,
           errorName: error.name,
@@ -15942,6 +15959,10 @@ ul.messages {
      * @returns {Promise<Array<object>>} Array of chat objects from IndexedDB
      */
     retrieveChatsFromIndexedDB() {
+      if (isIndexedDBDisabled(this.platform.name)) {
+        this.log.info("IndexedDB is disabled, falling back to localStorage");
+        return Promise.resolve([]);
+      }
       const dbName = this.getFeatureSetting("savedChatsIndexDbName") || _DuckAiChatHistory.DEFAULT_INDEXED_DB_NAME;
       const storeName = this.getFeatureSetting("savedChatsStoreName") || _DuckAiChatHistory.DEFAULT_SAVED_CHATS_STORE;
       return (
