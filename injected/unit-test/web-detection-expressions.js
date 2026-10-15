@@ -18,7 +18,7 @@ import WebDetection from '../src/features/web-detection.js';
  * @param {string} body - markup for `<body>`
  * @param {any} detector
  * @param {RunOptions} [options]
- * @returns {{ detected: true | false | 'error' | 'aborted', abortError?: string, data?: Record<string, unknown>, ctx: EvaluationContext, error?: unknown }}
+ * @returns {{ detected: true | false | 'error' | 'aborted', abortError?: string, data?: Record<string, unknown>, payloadFailure?: import('../src/features/web-detection/expressions.js').PayloadFailure, ctx: EvaluationContext, error?: unknown }}
  */
 function run(body, detector, options = {}) {
     const dom = new JSDOM(`<!DOCTYPE html><html><head>${options.head ?? ''}</head><body>${body}</body></html>`);
@@ -40,8 +40,9 @@ function run(body, detector, options = {}) {
         } catch (error) {
             return { detected: 'error', ctx, error };
         }
-        const data = result.detected === true && item.fireEvent?.data ? evaluatePayload(item.fireEvent.data, ctx) : undefined;
-        return { ...result, data, ctx };
+        const payload = result.detected === true && item.fireEvent?.data ? evaluatePayload(item.fireEvent.data, ctx) : undefined;
+        if (payload && 'failure' in payload) return { ...result, payloadFailure: payload.failure, ctx };
+        return { ...result, data: payload?.data, ctx };
     } finally {
         globalThis.document = originalDocument;
     }
@@ -493,12 +494,12 @@ describe('WebDetection expressions', () => {
             const buckets = { small: { lt: 10 }, large: { gte: 10 } };
             expect(run(widths([5]), withPayload(width, { buckets }), { install: imageState }).data).toEqual({ x: 'small' });
             expect(run(widths([5]), withPayload(width, { buckets: { two: { length: 2 } } }), { install: imageState }).data).toEqual({});
-            expect(run(widths([5]), withPayload(width), { install: imageState }).data).toEqual({
-                _errors: [{ type: 'payloadEval', payloadKey: 'x' }],
-            });
-            expect(run(widths([5, 6]), withPayload(width, { buckets }), { install: imageState }).data).toEqual({
-                _errors: [{ type: 'payloadEval', payloadKey: 'x' }],
-            });
+            expect(run(widths([5]), withPayload(width), { install: imageState }).payloadFailure).toEqual(
+                jasmine.objectContaining({ key: 'x', result: 'error' }),
+            );
+            expect(run(widths([5, 6]), withPayload(width, { buckets }), { install: imageState }).payloadFailure).toEqual(
+                jasmine.objectContaining({ key: 'x', result: 'error' }),
+            );
         });
     });
 
@@ -707,8 +708,9 @@ describe('WebDetection expressions', () => {
             expect(run('', detector, { install: fonts(['loaded', 'error']) }).data).toEqual({ failedFontFaces: 1 });
         });
 
-        it('falls back through `if` over `fails`, reporting the fallback and omitting the failed read', () => {
-            const detector = {
+        it('falls back through `if` over `fails`, reporting the fallback, and fails on the failed read unless handled', () => {
+            /** @param {object} n - the payload field for `n` */
+            const detector = (n) => ({
                 actions: [
                     {
                         when: {
@@ -725,12 +727,19 @@ describe('WebDetection expressions', () => {
                             as: 'nOr0',
                             is: { gte: 0 },
                         },
-                        fireEvent: { type: 't', data: { nOr0: { value: { ref: 'nOr0' } }, n: { value: { ref: 'n' } } } },
+                        fireEvent: {
+                            type: 't',
+                            data: { nOr0: { value: { ref: 'nOr0' } }, n },
+                        },
                     },
                 ],
-            };
-            expect(run('', detector, { install: brokenFonts }).data).toEqual({ nOr0: 0 });
-            expect(run('', detector, { install: fonts(['error', 'error']) }).data).toEqual({ nOr0: 2, n: 2 });
+            });
+            const handled = detector({ value: { ref: 'n' }, when: { fails: false } });
+            expect(run('', handled, { install: brokenFonts }).data).toEqual({ nOr0: 0 });
+            expect(run('', handled, { install: fonts(['error', 'error']) }).data).toEqual({ nOr0: 2, n: 2 });
+            expect(run('', detector({ value: { ref: 'n' } }), { install: brokenFonts }).payloadFailure).toEqual(
+                jasmine.objectContaining({ key: 'n', result: 'aborted' }),
+            );
         });
 
         it('lets a tested failure under `none` decide the leaf, and an untested one abort', () => {
@@ -1044,15 +1053,26 @@ describe('WebDetection expressions', () => {
             expect(payload('', 3, { buckets: { any: {}, low: { lt: 5 } } })).toEqual({ x: 'any' });
         });
 
-        it('omits a value in no bucket, or one whose bucket fails', () => {
+        it('omits a value in no bucket, and fails on a failed value no bucket handles', () => {
+            const failing = { ...FAILING, using: 'length' };
             expect(payload('', 30, { buckets: { low: { lt: 5 } } })).toEqual({});
-            expect(payload('', { ...FAILING, using: 'length' }, { buckets: { any: {} } })).toEqual({});
+            expect(run('', withPayload(failing, { buckets: { any: {} } })).payloadFailure).toEqual(
+                jasmine.objectContaining({ key: 'x', result: 'aborted' }),
+            );
+            expect(payload('', failing, { buckets: { unreadable: { fails: true }, any: {} } })).toEqual({ x: 'unreadable' });
         });
 
-        it('omits the key when `when` does not hold or fails', () => {
+        it('omits the key when `when` does not hold, and fails when `when` fails', () => {
             expect(payload('', 3, { when: { gt: 5 } })).toEqual({});
             expect(payload('', 3, { when: { gt: 1 } })).toEqual({ x: 3 });
-            expect(payload('', 3, { when: { gt: { ...FAILING, using: 'length' } } })).toEqual({});
+            expect(run('', withPayload(3, { when: { gt: { ...FAILING, using: 'length' } } })).payloadFailure).toEqual(
+                jasmine.objectContaining({ key: 'x', result: 'aborted' }),
+            );
+        });
+
+        it('omits a failed value through a `when` testing `fails`', () => {
+            expect(payload('', { ...FAILING, using: 'length' }, { when: { fails: false } })).toEqual({});
+            expect(payload('', 3, { when: { fails: false } })).toEqual({ x: 3 });
         });
 
         it('buckets a string by length', () => {
@@ -1079,7 +1099,7 @@ describe('WebDetection expressions', () => {
             expect(payload('', { div: [1, 0] })).toEqual({});
         });
 
-        it('records errored keys in `_errors`, sorted by key', () => {
+        it('fails at the first key whose value, `when` or bucket fails or errors, in key order', () => {
             const detector = {
                 actions: [
                     {
@@ -1087,29 +1107,18 @@ describe('WebDetection expressions', () => {
                         fireEvent: {
                             type: 't',
                             data: {
-                                zeta: { value: { only: { element: { selector: 'img', field: 'naturalWidth' } } } },
-                                alpha: {
-                                    value: 'x'.length === 1 ? 1 : 0,
-                                    when: { gt: { only: { element: { selector: 'img', field: 'naturalWidth' } } } },
-                                },
                                 ok: { value: 1 },
-                                beta: { value: 1, buckets: { a: { field: 'nope', is: { gt: 1 } } } },
+                                zeta: { value: { only: { element: { selector: 'img', field: 'naturalWidth' } } } },
+                                alpha: { value: { ...FAILING, using: 'length' } },
                             },
                         },
                     },
                 ],
             };
-            const data = run('<p></p>', detector).data;
-            expect(data).toEqual({
-                ok: 1,
-                _errors: [
-                    { type: 'payloadEval', payloadKey: 'alpha' },
-                    { type: 'payloadEval', payloadKey: 'zeta' },
-                ],
-            });
+            expect(run('<p></p>', detector).payloadFailure).toEqual(jasmine.objectContaining({ key: 'zeta', result: 'error' }));
         });
 
-        it('sends no `_errors` when nothing errored', () => {
+        it('sends every key when nothing fails', () => {
             expect(payload('', 1)).toEqual({ x: 1 });
         });
 
@@ -2502,12 +2511,14 @@ describe('WebDetection expressions', () => {
                 fonts(['error', 'loaded'])(w);
             };
             expect(run('', detector, { install: both }).data).toEqual({ failedStylesheets: '1', failedFontFaces: '1' });
-            // A `document.fonts` that throws: the font count fails, and is not reported
+            // A `document.fonts` that throws: the font count fails, and the payload with it
             const throwingFonts = (/** @type {any} */ w) => {
                 failedSheet(w);
                 brokenFonts(w);
             };
-            expect(run('', detector, { install: throwingFonts }).data).toEqual({ failedStylesheets: '1' });
+            expect(run('', detector, { install: throwingFonts }).payloadFailure).toEqual(
+                jasmine.objectContaining({ key: 'failedFontFaces', result: 'aborted' }),
+            );
             const fontOnly = (/** @type {any} */ w) => {
                 loadedSheet(w);
                 fonts(['error'])(w);
@@ -2625,9 +2636,17 @@ describe('WebDetection expressions', () => {
             const instance = createInstance({
                 g: { d: { actions: [{ when: aborting, breakageReportData: { data: { x: { value: 1 } } } }] } },
             });
-            expect(instance.runDetectors({ trigger: 'breakageReport' })).toEqual([
-                { detectorId: 'g.d', detected: 'aborted', errors: { 0: 'aborted' } },
-            ]);
+            expect(instance.runDetectors({ trigger: 'breakageReport' })).toEqual([{ detectorId: 'g.d', errors: { '0.when': 'aborted' } }]);
+        });
+
+        it('lists a detector with no breakageReportData item once a run fails', () => {
+            const instance = createInstance({ g: { d: { actions: [{ when: aborting, fireEvent: { type: 't' } }] } } });
+            expect(instance.runDetectors({ trigger: 'breakageReport' })).toEqual([{ detectorId: 'g.d', errors: { '0.when': 'aborted' } }]);
+        });
+
+        it('lists no entry for a detector with no breakageReportData item that has not failed', () => {
+            const instance = createInstance({ g: { d: { actions: [{ when: false, fireEvent: { type: 't' } }] } } });
+            expect(instance.runDetectors({ trigger: 'breakageReport' })).toEqual([]);
         });
 
         it('adds breakageReportData data on a match', () => {
@@ -2639,7 +2658,7 @@ describe('WebDetection expressions', () => {
             const instance = createInstance({
                 g: { d: { actions: [{ when: { element: { selector: 'img' }, using: 'length' }, breakageReportData: {} }] } },
             });
-            expect(instance.runDetectors({ trigger: 'breakageReport' })).toEqual([{ detectorId: 'g.d', detected: 'error' }]);
+            expect(instance.runDetectors({ trigger: 'breakageReport' })).toEqual([{ detectorId: 'g.d', errors: { parse: 'error' } }]);
         });
 
         it('fires nothing on an aborted gate, and runs again on the next trigger', async () => {
