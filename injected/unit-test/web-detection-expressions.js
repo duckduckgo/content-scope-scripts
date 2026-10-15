@@ -404,9 +404,9 @@ describe('WebDetection expressions', () => {
             expect(holds('', { all: { element: { selector: 'p' } } })).toBe(false);
         });
 
-        it('takes booleans, arrays and multi-key objects in value position', () => {
+        it('takes booleans and multi-key objects in value position', () => {
             expect(payload('<p>a</p>', { all: [{ text: { pattern: 'a' } }], as: 'hasA' })).toEqual({ x: true });
-            expect(payload('<p>a</p>', [{ text: { pattern: 'b' } }])).toEqual({ x: false });
+            expect(payload('<p>a</p>', { any: [{ text: { pattern: 'b' } }] })).toEqual({ x: false });
             expect(payload('<p class="c">a</p>', { text: { pattern: 'a' }, element: { selector: '.c' } })).toEqual({ x: true });
             expect(payload('', false)).toEqual({ x: false });
         });
@@ -415,7 +415,19 @@ describe('WebDetection expressions', () => {
             expect(holds('', true)).toBe(true);
             expect(holds('', false)).toBe(false);
             expect(holds('', {})).toBe(true);
-            expect(holds('', [])).toBe(false);
+            expect(holds('', { any: [] })).toBe(false);
+        });
+
+        it('rejects an array in every expression position', () => {
+            const notExpression = 'an array is not an expression';
+            expectParseError({ actions: [{ when: [], exit: true }] }, notExpression);
+            expectParseError({ actions: [{ when: [true], exit: true }] }, notExpression);
+            expectParseError({ actions: [{ when: { all: [true, [true, false]] }, exit: true }] }, notExpression);
+            expectParseError({ actions: [{ when: { if: { test: [true], then: true, else: false } }, exit: true }] }, notExpression);
+            expectParseError({ actions: [{ define: { x: [1, 2] } }] }, notExpression);
+            expectParseError(withPayload([1, 2]), notExpression);
+            expectParseError(withPayload({ sum: [1, [2, 3]] }), notExpression);
+            expectParseError({ actions: [{ when: { api: { path: 'document.title' }, is: { eq: ['a'] } }, exit: true }] }, notExpression);
         });
 
         it('takes string and null literals in value position only', () => {
@@ -426,7 +438,7 @@ describe('WebDetection expressions', () => {
             expect(holds('', { api: { path: 'document.readyState' }, is: { eq: { api: { path: 'document.readyState' } } } })).toBe(true);
             expect(holds('<p>a</p>', { only: { text: { pattern: 'a' } }, is: { eq: { text: { pattern: 'a' } } } })).toBe(true);
             expectParseError({ actions: [{ when: 'x', exit: true }] }, "'literal' does not fill boolean position");
-            expectParseError({ actions: [{ when: [null], exit: true }] }, "'literal' does not fill boolean position");
+            expectParseError({ actions: [{ when: { any: [null] }, exit: true }] }, "'literal' does not fill boolean position");
             expectParseError(
                 { actions: [{ when: { sum: ['x', 1], is: { gt: 0 } }, exit: true }] },
                 "'literal' does not fill number position",
@@ -1145,8 +1157,74 @@ describe('WebDetection expressions', () => {
             expect(holds('', nav({ size: 0 }), { install })).toBe(true);
             expect(holds('', nav({ size: '0' }), { install })).toBe(false);
             expect(holds('', nav({ nothing: null }), { install })).toBe(true);
-            expect(holds('', nav({ type: ['navigate', 'reload'] }), { install })).toBe(true);
+            expect(holds('', nav({ type: { in: ['navigate', 'reload'] } }), { install })).toBe(true);
             expect(holds('', nav({ type: { none: ['navigate', 'reload'] } }), { install })).toBe(false);
+            expect(holds('', nav({ type: { none: { in: ['navigate', 'reload'] } } }), { install })).toBe(false);
+        });
+
+        it('rejects an array as a predicate', () => {
+            const notPredicate = 'an array is not a predicate';
+            expectParseError({ actions: [{ when: { api: { path: 'document.title' }, is: ['a', 'b'] }, exit: true }] }, notPredicate);
+            expectParseError(
+                { actions: [{ when: { api: { path: 'performance.getEntries', where: [{ a: 1 }] } }, exit: true }] },
+                notPredicate,
+            );
+            expectParseError(
+                { actions: [{ when: { api: { path: 'document.title' }, is: { length: [1, 2] } }, exit: true }] },
+                notPredicate,
+            );
+            expectParseError(withPayload(1, { when: [1, 2] }), notPredicate);
+            expectParseError(withPayload(1, { buckets: { low: [0, 1] } }), notPredicate);
+        });
+
+        it('tests for one of several values with in', () => {
+            const title = (/** @type {unknown} */ is) => holds('<title>b</title>', { api: { path: 'document.title' }, is }, {});
+            expect(title({ in: ['a', 'b'] })).toBe(true);
+            expect(title({ in: ['a', 'c'] })).toBe(false);
+            expect(title({ in: 'b' })).toBe(true);
+            expect(title({ in: [] })).toBe(false);
+            expect(title({ in: [{ api: { path: 'String', args: ['b'] } }] })).toBe(true);
+            // A list entry contributes each item, and `{"in": {"expr": [...]}}` is `{"in": [...]}`
+            expect(title({ in: { expr: ['a', 'b'] } })).toBe(true);
+            expect(title({ in: [{ expr: ['a'] }, 'c'] })).toBe(false);
+            expect(title({ in: [{ api: { path: 'Array.of', args: ['a', 'b'] } }] })).toBe(true);
+            // `===`: no coercion, and `NaN` is in no list
+            expect(holds('', { api: { path: 'Number', args: ['7'] }, is: { in: ['7'] } })).toBe(false);
+            expect(holds('', { api: { path: 'Number', args: ['x'] }, is: { in: [{ api: { path: 'Number', args: ['x'] } }] } })).toBe(false);
+            expect(
+                holds('', { api: { path: 'Number', args: ['x'] }, is: { in: { expr: [{ api: { path: 'Number', args: ['x'] } }] } } }),
+            ).toBe(false);
+            // A selected list gives its one item, as `eq` does, and in a list entry contributes each item
+            expect(holds('<p>b</p>', { text: { pattern: 'b' }, is: { in: ['a', 'b'] } })).toBe(true);
+            expect(
+                holds('<p>a</p><p>b</p>', {
+                    api: { path: 'document.title' },
+                    is: { in: { element: { selector: 'p', field: 'textContent' } } },
+                }),
+            ).toBe(false);
+            expect(
+                holds('<title>b</title><p>a</p><p>b</p>', {
+                    api: { path: 'document.title' },
+                    is: { in: { element: { selector: 'p', field: 'textContent' } } },
+                }),
+            ).toBe(true);
+            // A failed entry fails the test, and an entry after a match is not read
+            expect(
+                holds('<title>b</title>', { api: { path: 'document.title' }, is: { in: [{ api: { path: 'JSON.parse', args: ['{'] } }] } }),
+            ).toBe('aborted');
+            expect(
+                holds('<title>b</title>', {
+                    api: { path: 'document.title' },
+                    is: { in: ['b', { api: { path: 'JSON.parse', args: ['{'] } }] },
+                }),
+            ).toBe(true);
+            // At item level, `in` is a property path
+            const items = (/** @type {object} */ where) => ({ api: { path: 'myItems', where }, using: 'length' });
+            const afterCapture = (/** @type {any} */ w) => {
+                w.myItems = [{ in: 'x', k: 1 }, { k: 2 }, { k: 3 }];
+            };
+            expect(holds('', { ...items({ in: 'x' }), is: 1 }, { afterCapture })).toBe(true);
+            expect(holds('', { ...items({ k: { in: [1, 3] } }), is: 2 }, { afterCapture })).toBe(true);
         });
 
         it('compares a value that is not a number as JS does', () => {
@@ -1510,6 +1588,33 @@ describe('WebDetection expressions', () => {
                 'does not fill boolean',
             );
         });
+
+        it('gives a list of its entries values over an array', () => {
+            expect(holds('', { sum: { expr: [1, 2] }, is: 3 })).toBe(true);
+            expect(holds('', { sum: [{ expr: [1, 2] }, 3], is: 6 })).toBe(true);
+            expect(holds('', { any: { expr: [false, true] } })).toBe(true);
+            expect(holds('', { all: { expr: [true, false] } })).toBe(false);
+            expect(holds('<title>x</title>', { any: { expr: [{ api: { path: 'document.title' }, is: 'x' }] } })).toBe(true);
+            expect(holds('', { only: { expr: ['a'] }, is: 'a' })).toBe(true);
+            expect(holds('', { only: { expr: [] }, is: 'a' })).toBe('error');
+            expect(holds('', { expr: [1, 2, 3], using: 'length', is: 3 })).toBe(true);
+            expect(holds('', { expr: [1, 2, 3], using: { path: 'at', args: [-1] }, is: 3 })).toBe(true);
+            expect(holds('', { expr: [], is: { type: 'array' } })).toBe(true);
+            // A selected list entry is an array of its items, as in `args`
+            const nested = {
+                expr: [{ element: { selector: 'img', field: 'naturalWidth' } }],
+                using: { path: 'at', args: [0] },
+                is: { length: 2 },
+            };
+            expect(holds(widths, nested, { install: imageState })).toBe(true);
+            // A failed entry fails the list
+            expect(holds('', { expr: [1, { api: { path: 'JSON.parse', args: ['{'] } }], using: 'length', is: 2 })).toBe('aborted');
+            // Not a JSON scalar, so a payload omits it
+            expect(payload('', { expr: [1] })).toEqual({});
+            // A list stays one: it is not unwrapped to a number, nor read as a boolean
+            expectParseError(withPayload({ div: [{ expr: [6] }, 2] }), "'list' does not fill number position");
+            expectParseError({ actions: [{ when: { expr: [true] }, exit: true }] }, "'list' does not fill boolean position");
+        });
     });
 
     describe('api', () => {
@@ -1718,7 +1823,11 @@ describe('WebDetection expressions', () => {
                 api: { path: 'performance.getEntriesByType', args: ['resource'], where },
             });
             expect(
-                holds('', { ...resources({ duration: { gt: 1000 }, initiatorType: ['img', 'css'] }), using: 'length', is: 1 }, { install }),
+                holds(
+                    '',
+                    { ...resources({ duration: { gt: 1000 }, initiatorType: { in: ['img', 'css'] } }), using: 'length', is: 1 },
+                    { install },
+                ),
             ).toBe(true);
             expect(holds('', { ...resources({ responseStatus: { gte: 400 } }), using: 'length', is: 0 }, { install })).toBe(true);
         });
@@ -1755,14 +1864,20 @@ describe('WebDetection expressions', () => {
         it('extends and joins lists through concat', () => {
             const extended = { ...widths, using: { path: 'concat', args: [100] } };
             expect(holds(html, { api: { path: 'Math.max.apply', args: [null, extended] }, is: 100 }, options)).toBe(true);
-            const leading = { api: { path: 'Array.prototype.concat.call', args: [[100], widths] } };
+            const leading = { api: { path: 'Array.prototype.concat.call', args: [{ expr: [100] }, widths] } };
             expect(holds(html, { ...leading, using: { path: 'at', args: [0] }, is: 100 }, options)).toBe(true);
             expect(holds(html, { ...leading, using: 'length', is: 3 }, options)).toBe(true);
         });
 
-        it('builds arrays from literals and expressions, nested arrays included', () => {
-            const built = { api: { path: 'Array.of', args: [[1, { element: { selector: 'img' }, using: 'length' }], 'x', null] } };
+        it('builds arrays from literals and expressions, inner arrays through expr', () => {
+            const built = {
+                api: { path: 'Array.of', args: [{ expr: [1, { element: { selector: 'img' }, using: 'length' }] }, 'x', null] },
+            };
             expect(holds(html, { api: { path: 'JSON.stringify', args: [built] }, is: '[[1,2],"x",null]' })).toBe(true);
+            expectParseError(
+                { actions: [{ when: { api: { path: 'Array.of', args: [[1]] }, is: {} }, exit: true }] },
+                'an array is not an expression',
+            );
         });
 
         it('passes a selected list as a new array, so a method changing it leaves the list', () => {
@@ -1785,7 +1900,7 @@ describe('WebDetection expressions', () => {
 
         it('builds objects through JSON.parse and Object.fromEntries', () => {
             expect(holds('', { api: { path: 'JSON.parse', args: ['{"a": 5}'], field: 'a' }, is: 5 })).toBe(true);
-            const entries = [[['images', { element: { selector: 'img' }, using: 'length' }]]];
+            const entries = [{ expr: [{ expr: ['images', { element: { selector: 'img' }, using: 'length' }] }] }];
             expect(holds(html, { api: { path: 'Object.fromEntries', args: entries, field: 'images' }, is: 2 })).toBe(true);
         });
 
@@ -1908,7 +2023,7 @@ describe('WebDetection expressions', () => {
             expect(images({ api: { path: 'document.body.firstElementChild.tagName' } })).toBe(3);
             expect(images(['#a', null])).toBe(1);
             expectParseError(withPayload(scoped([])), 'at least one entry');
-            expectParseError(withPayload(scoped([['#a']])), 'does not fill root position');
+            expectParseError(withPayload(scoped([['#a']])), 'an array is not an expression');
         });
 
         it('drops a root inside another', () => {
@@ -2296,12 +2411,12 @@ describe('WebDetection expressions', () => {
             );
         });
 
-        it('mixes expressions and predicates under any, all, none and arrays', () => {
+        it('mixes expressions and predicates under any, all and none', () => {
             const countIs = (/** @type {unknown} */ where, /** @type {number} */ n) =>
                 holds('', { api: { ...items, where }, using: 'length', is: n });
             expect(countIs({ self: 'b', is: { gt: 1 } }, 1)).toBe(true);
             expect(countIs({ any: [{ self: 'b', is: { gt: 1 } }, { a: 1 }] }, 2)).toBe(true);
-            expect(countIs([{ self: 'b', is: 5 }, { a: 3 }], 2)).toBe(true);
+            expect(countIs({ any: [{ self: 'b', is: 5 }, { a: 3 }] }, 2)).toBe(true);
             expect(countIs({ all: [{ a: { gt: 1 } }, { self: 'b', is: 0 }] }, 1)).toBe(true);
             expect(countIs({ none: [{ self: 'b', is: 0 }], a: { gt: 0 } }, 1)).toBe(true);
         });

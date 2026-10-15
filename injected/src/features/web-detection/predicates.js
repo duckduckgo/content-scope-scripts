@@ -26,9 +26,9 @@ import {
  */
 
 /**
- * A compiled `args` entry: an expression in value position, or an array of entries.
+ * A compiled `args` entry: an expression in value position.
  *
- * @typedef {{ expression: unknown } | { array: CompiledArg[] }} CompiledArg
+ * @typedef {{ expression: unknown }} CompiledArg
  */
 
 /**
@@ -265,8 +265,8 @@ export function readPath(reader, root, names, args) {
  */
 
 /**
- * Compile `args`: an array is a JS array of its entries, and any other entry is an expression in value
- * position.
+ * Compile `args`: a JS array of its entries, each an expression in value position. An inner array is
+ * `{"expr": [...]}`, since an array is never an expression.
  *
  * @param {unknown} raw
  * @param {string} path
@@ -275,18 +275,7 @@ export function readPath(reader, root, names, args) {
  */
 export function compileArgs(raw, path, hooks) {
     if (!isArray(raw)) throw new ConfigParseError(path, '`args` must be an array');
-    return raw.map((entry, i) => compileArg(entry, `${path}[${i}]`, hooks));
-}
-
-/**
- * @param {unknown} raw
- * @param {string} path
- * @param {PredicateHooks} hooks
- * @returns {CompiledArg}
- */
-function compileArg(raw, path, hooks) {
-    if (isArray(raw)) return { array: raw.map((entry, i) => compileArg(entry, `${path}[${i}]`, hooks)) };
-    return { expression: hooks.expression(raw, path, 'value') };
+    return raw.map((entry, i) => ({ expression: hooks.expression(entry, `${path}[${i}]`, 'value') }));
 }
 
 /**
@@ -300,10 +289,7 @@ export function evaluateArgs(args, ctx) {
     /** @type {unknown[]} */
     const values = [];
     for (const arg of args) {
-        /** @type {unknown} */
-        let value;
-        if ('expression' in arg) value = ctx.arg(arg.expression);
-        else value = evaluateArgs(arg.array, ctx);
+        const value = ctx.arg(arg.expression);
         if (isFailure(value)) return value;
         values.push(value);
     }
@@ -424,6 +410,7 @@ export function compileWhere(raw, path, hooks) {
  * @property {(expression: unknown) => unknown} read - evaluates a compiled expression in the position it was compiled for, giving its value or a `Failure`
  * @property {(expression: unknown) => unknown} arg - evaluates a compiled `args` expression, giving a selected list as an array, or a `Failure`
  * @property {(expression: unknown) => unknown} test - evaluates a compiled boolean expression with its `is`, giving the boolean or a `Failure`
+ * @property {(value: unknown, operator: string) => unknown[] | Failure | undefined} items - the items of a list value, or `undefined` for any other value
  * @property {<T>(binder: ItemBinder, value: unknown, fn: () => T) => T} bind - runs `fn` with `self` of a `where` or `field` bound to `value`
  */
 
@@ -435,7 +422,7 @@ export function compileWhere(raw, path, hooks) {
  * @typedef {object} CompiledPredicate
  * @property {PredicateTest} test - `subject` may be a `Failure`, which `fails` reads
  * @property {number} bound - the length from which the result on a list's length is fixed ([Early exit](implementation.md))
- * @property {boolean} scalar - whether it compares the value: a literal, `eq`, `lt`, `lte`, `gt` or `gte` at its top level or in its combinators. A selected list under it gives its one item
+ * @property {boolean} scalar - whether it compares the value: a literal, `eq`, `in`, `lt`, `lte`, `gt` or `gte` at its top level or in its combinators. A selected list under it gives its one item
  */
 
 /**
@@ -447,7 +434,7 @@ export function compileWhere(raw, path, hooks) {
 
 /** @typedef {'item' | 'value'} Level */
 
-const OPERATORS = new Set(['eq', 'lt', 'lte', 'gt', 'gte', 'fails', 'type']);
+const OPERATORS = new Set(['eq', 'in', 'lt', 'lte', 'gt', 'gte', 'fails', 'type']);
 /** Keys a predicate and an expression share, with the same meaning. */
 const COMBINATORS = new Set(['any', 'all', 'none']);
 /** Tested before the other keys of their object, whatever the key order. */
@@ -485,7 +472,8 @@ function isItemExpression(raw) {
  *
  * At item level an object's keys other than the reserved ones are property paths, and an object with
  * an expression key other than `any`, `all` and `none` is a boolean expression over `self`; at value
- * level the operator names are operators. Arrays and `any` / `all` / `none` keep the level.
+ * level the operator names are operators. `any` / `all` / `none` keep the level. An array is not a
+ * predicate: `in` owns a list of values, and `any` combines predicates.
  *
  * @param {unknown} raw
  * @param {Level} level
@@ -496,12 +484,12 @@ function isItemExpression(raw) {
 export function compilePredicate(raw, level, path, hooks) {
     if (isScalar(raw)) return compileComparison('eq', raw, path, hooks);
     if (isArray(raw)) {
-        return combine(
-            'any',
-            raw.map((entry, i) => compilePredicate(entry, level, `${path}[${i}]`, hooks)),
+        throw new ConfigParseError(
+            path,
+            'an array is not a predicate: `{"in": [...]}` tests for one of several values, and `{"any": [...]}` one of several predicates',
         );
     }
-    if (!isPlainObject(raw)) throw new ConfigParseError(path, 'a predicate must be a literal, an array or an object');
+    if (!isPlainObject(raw)) throw new ConfigParseError(path, 'a predicate must be a literal or an object');
     if (level === 'item' && isItemExpression(raw)) {
         const node = hooks.expression(raw, path, 'boolean');
         return onValue((_, ctx) => /** @type {boolean | Failure} */ (ctx.test(node)), Infinity, false);
@@ -614,6 +602,8 @@ function compileOperator(operator, raw, path, hooks) {
             // The same for every length
             return onValue((subject) => names.includes(typeName(subject)), 0, false);
         }
+        case 'in':
+            return compileIn(raw, path, hooks);
         default:
             return compileComparison(/** @type {Comparison} */ (operator), raw, path, hooks);
     }
@@ -627,6 +617,50 @@ function compileOperator(operator, raw, path, hooks) {
 function expectBoolean(raw, path) {
     if (typeof raw !== 'boolean') throw new ConfigParseError(path, 'expected a boolean');
     return raw;
+}
+
+/**
+ * `in`: the value `===` one of the entries, tested in order. A literal entry is compared as written, and
+ * an expression entry giving a list contributes each item.
+ *
+ * @param {unknown} raw
+ * @param {string} path
+ * @param {PredicateHooks} hooks
+ * @returns {CompiledPredicate}
+ */
+function compileIn(raw, path, hooks) {
+    /** @type {Array<{ literal: unknown } | { operand: unknown }>} */
+    const entries = asArray(raw).map((entry, i) =>
+        isScalar(entry) ? { literal: entry } : { operand: hooks.expression(entry, isArray(raw) ? `${path}[${i}]` : path, 'value') },
+    );
+    let bound = 0;
+    for (const entry of entries) {
+        if (!('literal' in entry)) bound = Infinity;
+        else if (typeof entry.literal === 'number') bound = Math.max(bound, COMPARISON_BOUND.eq(entry.literal));
+    }
+    return onValue(
+        (subject, ctx) => {
+            for (const entry of entries) {
+                if ('literal' in entry) {
+                    if (subject === entry.literal) return true;
+                    continue;
+                }
+                const value = ctx.read(entry.operand);
+                if (isFailure(value)) return value;
+                const items = ctx.items(value, 'in');
+                if (isFailure(items)) return items;
+                if (!items) {
+                    if (subject === value) return true;
+                    continue;
+                }
+                // By index and `===`, so `NaN` is in no list and a page's `Array.prototype` is not called
+                for (let j = 0; j < items.length; j++) if (items[j] === subject) return true;
+            }
+            return false;
+        },
+        bound,
+        true,
+    );
 }
 
 /** @typedef {'eq' | 'lt' | 'lte' | 'gt' | 'gte'} Comparison */

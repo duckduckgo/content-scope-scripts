@@ -47,16 +47,18 @@ export class ConfigParseError extends Error {
 }
 
 /**
- * The positions a kind of expression fills. `list` is a list of values, and `any` a value that may be
- * a list, such as a source read in boolean position for whether it holds an item.
+ * The positions a kind of expression fills. `list` is a selected list, which gives its one item in
+ * number position, `array` a list that stays one, such as `{"expr": [...]}`, and `any` a value that may
+ * be a list, such as a source read in boolean position for whether it holds an item.
  *
- * @type {Record<'number' | 'boolean' | 'value' | 'list' | 'any', ReadonlySet<import('./expressions.js').Position>>}
+ * @type {Record<'number' | 'boolean' | 'value' | 'list' | 'array' | 'any', ReadonlySet<import('./expressions.js').Position>>}
  */
 export const FILLS = {
     number: new Set(['number', 'value']),
     boolean: new Set(['boolean', 'value']),
     value: new Set(['value']),
     list: new Set(['list', 'value', 'number']),
+    array: new Set(['list', 'value']),
     any: new Set(['boolean', 'value', 'number', 'list']),
 };
 

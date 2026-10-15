@@ -559,8 +559,8 @@ describe('WebDetection', () => {
                 expect(matchInDOM('<p>content</p>', {})).toBe(true);
             });
 
-            it('should not match with empty array (no alternatives)', () => {
-                expect(matchInDOM('<p>content</p>', [])).toBe(false);
+            it('should reject an array, which is not an expression', () => {
+                expect(() => matchInDOM('<p>content</p>', /** @type {any} */ ([]))).toThrowError(/an array is not an expression/);
             });
         });
 
@@ -1158,16 +1158,15 @@ describe('WebDetection', () => {
             });
         });
 
-        describe('OR conditions (array of alternatives)', () => {
-            it('should match if any alternative matches', () => {
-                // First alternative matches
-                expect(matchInDOM('<p>adblocker</p>', [{ text: { pattern: 'adblocker' } }, { text: { pattern: 'paywall' } }])).toBe(true);
-
-                // Second alternative matches
-                expect(matchInDOM('<p>paywall</p>', [{ text: { pattern: 'adblocker' } }, { text: { pattern: 'paywall' } }])).toBe(true);
-
-                // Neither matches
-                expect(matchInDOM('<p>welcome</p>', [{ text: { pattern: 'adblocker' } }, { text: { pattern: 'paywall' } }])).toBe(false);
+        describe('OR conditions (alternatives)', () => {
+            it('should reject a bare array of alternatives', () => {
+                const alternatives = [{ text: { pattern: 'adblocker' } }, { text: { pattern: 'paywall' } }];
+                expect(() => matchInDOM('<p>adblocker</p>', /** @type {any} */ (alternatives))).toThrowError(
+                    /an array is not an expression/,
+                );
+                expect(() => matchInDOM('<p>adblocker</p>', { all: [text('adblocker'), /** @type {any} */ (alternatives)] })).toThrowError(
+                    /an array is not an expression/,
+                );
             });
 
             it('should support OR within text conditions', () => {
@@ -1216,9 +1215,14 @@ describe('WebDetection', () => {
                 expect(matchInDOM('<p>baz</p>', condition)).toBe(false);
             });
 
-            it('should be equivalent to bare-array OR form', () => {
-                const html = '<p>foo</p>';
-                expect(matchInDOM(html, { any: [text('foo'), text('bar')] })).toBe(matchInDOM(html, [text('foo'), text('bar')]));
+            it('should be equivalent to any over a list of the same booleans', () => {
+                // In a list, an entry is in value position, so `text` gives its matches and `is` tests them
+                const found = (/** @type {string} */ pattern) => ({ ...text(pattern), is: { length: { gt: 0 } } });
+                for (const html of ['<p>foo</p>', '<p>baz</p>']) {
+                    expect(matchInDOM(html, { any: [text('foo'), text('bar')] })).toBe(
+                        matchInDOM(html, { any: { expr: [found('foo'), found('bar')] } }),
+                    );
+                }
             });
 
             it('should be vacuously false on empty array', () => {
@@ -1340,9 +1344,9 @@ describe('WebDetection', () => {
                 expect(matchInDOM('<p>danger</p>', condition)).toBe(false);
             });
 
-            it('should allow operator and leaf siblings inside a bare-array OR', () => {
-                // [ all[text=foo, text=bar], text=quick ]
-                const condition = [{ all: [text('foo'), text('bar')] }, text('quick')];
+            it('should allow operator and leaf siblings inside any', () => {
+                // any[ all[text=foo, text=bar], text=quick ]
+                const condition = { any: [{ all: [text('foo'), text('bar')] }, text('quick')] };
                 // operator child satisfied
                 expect(matchInDOM('<p>foo bar</p>', condition)).toBe(true);
                 // leaf child satisfied
