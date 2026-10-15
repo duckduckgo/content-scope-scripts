@@ -35,7 +35,6 @@ export class OnboardingPage {
             reportPageException: {},
             reportInitException: {},
             setOnboardingInstallOptions: {},
-            telemetryEvent: {},
             init: {
                 stepDefinitions: {
                     systemSettings: {
