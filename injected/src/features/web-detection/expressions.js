@@ -51,13 +51,14 @@ import { ItemBuffer, eachMember, isList } from './sources.js';
  * @typedef {NodeBase & { kind: 'source', source: Source<any>, bodies: unknown[] }} SourceNode
  * @typedef {NodeBase & { kind: 'length', operand: Node, bound: number }} LengthNode
  * @typedef {NodeBase & { kind: 'expr', operand: Node }} ExprNode
+ * @typedef {NodeBase & { kind: 'list', entries: Node[] }} ListNode - `{"expr": [...]}`, each entry in value position
  * @typedef {NodeBase & { kind: 'only', operand: Node }} OnlyNode
  * @typedef {NodeBase & { kind: 'sum' | 'mul' | 'div', operands: Node[] }} ArithmeticNode
  * @typedef {NodeBase & { kind: 'any' | 'all' | 'none' | 'and', operands: Node[] }} LogicNode
  * @typedef {NodeBase & { kind: 'if', test: Node, then: Node, else: Node }} IfNode
  * @typedef {NodeBase & { kind: 'ref', name: string, target?: Node, stored?: boolean }} RefNode - `stored` when `define` gives the name
  * @typedef {NodeBase & { kind: 'item', binder: ItemBinder }} ItemNode - the value `self` is bound to in a `where` or `field`
- * @typedef {LiteralNode | SourceNode | LengthNode | ExprNode | OnlyNode | ArithmeticNode | LogicNode | IfNode | RefNode | ItemNode} Node
+ * @typedef {LiteralNode | SourceNode | LengthNode | ExprNode | ListNode | OnlyNode | ArithmeticNode | LogicNode | IfNode | RefNode | ItemNode} Node
  */
 
 /**
@@ -139,6 +140,16 @@ export class EvaluationContext {
         const array = [];
         for (let i = 0; i < items.length; i++) array.push(items[i]);
         return array;
+    }
+
+    /**
+     * @param {unknown} value - a value read, such as an operand of `in`
+     * @param {string} operator
+     * @returns {unknown[] | Failure | undefined} the items of a list, or `undefined` for any other value
+     */
+    items(value, operator) {
+        if (!isList(value, this)) return undefined;
+        return allItems(listOf(value, operator, this));
     }
 
     /**
@@ -409,6 +420,17 @@ function compute(node, ctx) {
     switch (node.kind) {
         case 'literal':
             return node.value;
+        case 'list': {
+            // Every entry, in order, as `args` passes it: a selected list as an array of its items
+            /** @type {unknown[]} */
+            const values = [];
+            for (const entry of node.entries) {
+                const value = ctx.arg(entry);
+                if (isFailure(value)) return value;
+                values.push(value);
+            }
+            return values;
+        }
         case 'length':
             return computeLength(node, ctx);
         case 'only': {
