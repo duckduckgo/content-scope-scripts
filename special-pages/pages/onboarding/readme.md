@@ -51,4 +51,4 @@ URL parameters can be used to override the default values of the onboarding flow
 - `extensions=true` - Offers the Windows extension checkbox in the integration preview.
 - `openAtStartup=true` - Offers the Windows Open at Startup checkbox in the integration preview.
 
-Preview both at `/onboarding/?platform=windows&page=getStarted&extensions=true&openAtStartup=true`. Native `init.stepDefinitions.getStarted.options` controls visibility. FE defaults are unchecked for extensions and checked for Open at Startup. The notification includes only visible choices; omitted choices leave native settings unchanged.
+Preview both at `/onboarding/?platform=windows&page=getStarted&extensions=true&openAtStartup=true`.
