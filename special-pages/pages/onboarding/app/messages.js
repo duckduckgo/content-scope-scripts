@@ -203,7 +203,7 @@ export class OnboardingMessages {
     }
 
     /**
-     * Submits the Windows installation choices without waiting for native actions to complete.
+     * Sends the selected Windows onboarding options to native.
      * @param {import('../types/onboarding.ts').OnboardingInstallOptions} params
      */
     setOnboardingInstallOptions(params) {
