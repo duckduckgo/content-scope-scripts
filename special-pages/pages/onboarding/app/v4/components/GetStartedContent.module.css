@@ -74,6 +74,7 @@
     margin-top: calc(-8 * var(--px-in-rem));
 }
 
+/* Chrome extension checkbox row */
 .checkboxRow {
     display: flex;
     align-items: flex-start;

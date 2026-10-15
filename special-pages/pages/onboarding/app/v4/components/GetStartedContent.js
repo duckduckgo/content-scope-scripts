@@ -13,6 +13,7 @@ import styles from './GetStartedContent.module.css';
 /**
  * Bubble content for the getStarted step.
  * Renders title, body text, and CTA button.
+ * Optionally renders a Chrome extension install checkbox when configured via step rows.
  *
  * @param {object} props
  * @param {() => void} props.advance
@@ -24,12 +25,12 @@ export function GetStartedContent({ advance, onTitleComplete }) {
     const { activeStepVisible, step } = useGlobalState();
     const dispatch = useGlobalDispatch();
     const [chromeExtensionChecked, setChromeExtensionChecked] = useState(false);
-    const [sideloadExtensions, setInstallExtensions] = useState(false);
-    const [openAtStartup, setLaunchOnStartup] = useState(true);
+    const [sideloadExtensions, setSideloadExtensions] = useState(false);
+    const [openAtStartup, setOpenAtStartup] = useState(true);
     const submitted = useRef(false);
     const { options } = /** @type {import('../../types').GetStartedStep} */ (step);
     const isWindows = usePlatformName() === 'windows';
-    const showChromeExtension = options?.includes('chrome-extension-install');
+    const showChromeExtension = /** @type {import('../../types').GetStartedStep} */ (step).options?.includes('chrome-extension-install');
     const showExtensions = isWindows && options?.includes('sideload-extensions');
     const showLaunchOnStartup = isWindows && options?.includes('open-at-startup');
 
@@ -37,8 +38,10 @@ export function GetStartedContent({ advance, onTitleComplete }) {
     const body = paragraphs.join('\n\n');
 
     function handleAdvance() {
-        if (submitted.current) return;
-        submitted.current = true;
+        if (isWindows) {
+            if (submitted.current) return;
+            submitted.current = true;
+        }
         if (showChromeExtension && chromeExtensionChecked) {
             dispatch({ kind: 'request-chrome-extension' });
         }
@@ -85,7 +88,7 @@ export function GetStartedContent({ advance, onTitleComplete }) {
                 {t(showChromeExtension || showExtensions || showLaunchOnStartup ? 'getStartedButton_v4' : 'getStartedButtonDefault_v4')}
             </Button>
             {showChromeExtension && (
-                <OnboardingCheckbox
+                <ChromeExtensionCheckbox
                     class={cn({ [styles.revealable]: hasTypingEffect, [styles.hidden]: hasTypingEffect && !activeStepVisible })}
                     checked={chromeExtensionChecked}
                     onChange={setChromeExtensionChecked}
@@ -101,16 +104,16 @@ export function GetStartedContent({ advance, onTitleComplete }) {
                     })}
                 >
                     {showLaunchOnStartup && (
-                        <OnboardingCheckbox
+                        <WindowsInstallCheckbox
                             checked={openAtStartup}
-                            onChange={setLaunchOnStartup}
+                            onChange={setOpenAtStartup}
                             label={t('getStarted_launchOnStartup_label')}
                         />
                     )}
                     {showExtensions && (
-                        <OnboardingCheckbox
+                        <WindowsInstallCheckbox
                             checked={sideloadExtensions}
-                            onChange={setInstallExtensions}
+                            onChange={setSideloadExtensions}
                             label={t('getStarted_extensions_label')}
                             tooltip={t('getStarted_extensions_tooltip')}
                         />
@@ -126,10 +129,65 @@ export function GetStartedContent({ advance, onTitleComplete }) {
  * @param {boolean} props.checked
  * @param {(checked: boolean) => void} props.onChange
  * @param {string} props.label
+ * @param {string} props.tooltip
+ * @param {string} [props.class]
+ */
+function ChromeExtensionCheckbox({ checked, onChange, label, tooltip, class: className }) {
+    const [showTooltip, setShowTooltip] = useState(false);
+
+    return (
+        <div class={cn(styles.checkboxRow, className)}>
+            <label class={styles.checkboxLabel}>
+                <span class={cn(styles.checkbox, { [styles.checked]: checked })}>
+                    <input
+                        type="checkbox"
+                        class={styles.checkboxInput}
+                        checked={checked}
+                        onChange={(e) => onChange(/** @type {HTMLInputElement} */ (e.target).checked)}
+                    />
+                    {checked && (
+                        <svg class={styles.checkmark} viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M2.5 6L5 8.5L9.5 3.5"
+                                stroke="currentColor"
+                                stroke-width="1.5"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            />
+                        </svg>
+                    )}
+                </span>
+                <span class={styles.checkboxText}>{label}</span>
+            </label>
+            <span class={styles.infoIconWrapper} onMouseEnter={() => setShowTooltip(true)} onMouseLeave={() => setShowTooltip(false)}>
+                <span class={styles.infoIcon} aria-label="More information">
+                    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+                        <circle cx="8" cy="8" r="7" fill="currentColor" />
+                        <path
+                            d="M7.25 7h1.5v4h-1.5V7ZM8 4.5a.875.875 0 1 1 0 1.75.875.875 0 0 1 0-1.75Z"
+                            fill="var(--ds-surface-tertiary, white)"
+                        />
+                    </svg>
+                </span>
+                {showTooltip && (
+                    <span class={styles.tooltip} role="tooltip">
+                        {tooltip}
+                    </span>
+                )}
+            </span>
+        </div>
+    );
+}
+
+/**
+ * @param {object} props
+ * @param {boolean} props.checked
+ * @param {(checked: boolean) => void} props.onChange
+ * @param {string} props.label
  * @param {string} [props.tooltip]
  * @param {string} [props.class]
  */
-function OnboardingCheckbox({ checked, onChange, label, tooltip, class: className }) {
+function WindowsInstallCheckbox({ checked, onChange, label, tooltip, class: className }) {
     const [showTooltip, setShowTooltip] = useState(false);
 
     return (

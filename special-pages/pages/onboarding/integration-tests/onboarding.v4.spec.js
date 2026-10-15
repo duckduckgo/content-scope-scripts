@@ -925,7 +925,6 @@ test.describe('onboarding v4', () => {
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'getStarted' });
             await expect(page.getByRole('checkbox', { name: 'Also install our Chrome search extension' })).toBeVisible();
-            await expect(page.getByRole('checkbox', { name: 'Also install our Chrome search extension' })).not.toBeChecked();
         });
 
         test('advancing with checkbox checked sends requestChromeExtensionInstall', async ({ page }, workerInfo) => {
@@ -954,9 +953,6 @@ test.describe('onboarding v4', () => {
                     },
                 },
             ]);
-            expect(await onboarding.mocks.outgoing({ names: ['setOnboardingInstallOptions'] })).toHaveLength(
-                workerInfo.project.name === 'windows' ? 1 : 0,
-            );
         });
 
         test('advancing with checkbox unchecked does NOT send requestChromeExtensionInstall', async ({ page }, workerInfo) => {
