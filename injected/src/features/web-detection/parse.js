@@ -232,9 +232,8 @@ function compileExpr(raw, position, path, scope) {
         return makeNode(scope, { kind: 'literal', value: raw, path, position }, []);
     }
     if (isArray(raw)) {
-        // An array is the OR of its entries, a boolean
-        if (position !== 'boolean' && position !== 'value') throw new ConfigParseError(path, `an array does not fill ${position} position`);
-        return compileLogic('any', raw, position, path, scope);
+        // The key holding an array decides what it means, and an array is never an expression
+        throw new ConfigParseError(path, 'an array is not an expression: `{"expr": [...]}` gives a list, and `{"any": [...]}` an OR');
     }
     if (!isPlainObject(raw)) throw new ConfigParseError(path, 'expected an expression');
 
@@ -310,6 +309,11 @@ function compileKey(key, body, position, path, scope) {
         case 'self':
             return compileSelf(body, position, path, scope);
         case 'expr': {
+            if (isArray(body)) {
+                // A list of the entries' values
+                const entries = body.map((raw, i) => compileExpr(raw, 'value', `${path}.expr[${i}]`, scope));
+                return makeNode(scope, { kind: 'list', entries, path, position }, entries);
+            }
             // An operand with `is` gives a boolean, which `as` beside `expr` names
             const operandIs = isPlainObject(body) && body.is !== undefined;
             const operand = compileExpr(body, operandIs ? 'boolean' : position, `${path}.expr`, scope);
@@ -519,6 +523,8 @@ function fillsOf(node) {
             return node.stored ? FILLS.any : fillsOf(/** @type {Node} */ (node.target));
         case 'expr':
             return node.operand.is ? FILLS.boolean : fillsOf(node.operand);
+        case 'list':
+            return FILLS.array;
         case 'item':
             // A bound value may be any value, and is checked where it is read
             return FILLS.any;

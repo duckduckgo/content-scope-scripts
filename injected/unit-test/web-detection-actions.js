@@ -276,6 +276,22 @@ describe('WebDetection actions', () => {
             expect(d.state.defined.get('seen')).toBe(true);
         });
 
+        it('stores a list as an array, which `in` reads in later runs', () => {
+            const global = makeGlobal();
+            const d = detector(
+                [
+                    { when: { api: 'page.live.label', is: { in: { ref: 'seen' } } }, fireEvent: { type: 'seen' }, define: { done: true } },
+                    { define: { seen: { expr: ['y', 'z'] } } },
+                ],
+                global,
+            );
+            d.run();
+            expect(d.state.defined.get('seen')).toEqual(['y', 'z']);
+            global.page.live.label = 'z';
+            d.run();
+            expect(d.types()).toEqual(['seen']);
+        });
+
         it('computes every value in one `define` before storing any', () => {
             const d = detector([{ define: { a: 1, b: { ref: 'a' } } }]);
             d.run();
