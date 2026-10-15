@@ -1,5 +1,6 @@
 import { Fragment, h } from 'preact';
 import { useCallback, useContext, useRef, useState } from 'preact/hooks';
+import cn from 'classnames';
 import { ArrowRightIcon, LogoStacked, VoiceIcon } from '../../components/Icons';
 import { eventToTarget } from '../../../../../shared/handlers';
 import { usePlatformName, useNewTabPageRebranding } from '../../settings.provider';
@@ -24,6 +25,7 @@ import { usePastedAttachments } from './chat-tools/image-attachment/usePastedAtt
 import { useScreenshotCapture } from './chat-tools/image-attachment/useScreenshotCapture';
 import { AttachmentChips } from './chat-tools/attachments/AttachmentChips';
 import { AttachmentsProvider, useAttachmentsContext } from './chat-tools/attachments/AttachmentsProvider';
+import { useDroppedAttachments } from './chat-tools/attachments/useDroppedAttachments';
 import { ModelSelectorTool } from './chat-tools/model-selector/ModelSelectorTool';
 import { ReasoningPickerTool } from './chat-tools/reasoning-picker/ReasoningPickerTool';
 import { ToolsMenu } from './chat-tools/tools-menu/ToolsMenu';
@@ -37,6 +39,7 @@ import { OpenTabsProvider } from './chat-tools/tab-attachment/OpenTabsProvider';
 import { useMentionPicker } from './chat-tools/tab-attachment/useMentionPicker';
 import { useTabAttachments } from './chat-tools/tab-attachment/useTabAttachments';
 import { NoticeDrawer } from './NoticeDrawer';
+import { TERMS_DISCLAIMER_ID } from './useTermsDisclaimerNotice';
 import { useKeyboardFocusWithin } from './useKeyboardFocusWithin.js';
 
 /**
@@ -86,6 +89,7 @@ export function Omnibar({
     const spacerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const launcherPromoVisibleRef = useRef(false);
     const [usageLimitsRevealed, setUsageLimitsRevealed] = useState(false);
+    const [noticeReservedHeight, setNoticeReservedHeight] = useState(0);
 
     const [query, setQuery] = useQueryWithLocalPersistence(tabId);
     const [resetKey, setResetKey] = useState(0);
@@ -183,6 +187,7 @@ export function Omnibar({
                         <div
                             ref={spacerRef}
                             class={styles.spacer}
+                            style={{ marginBottom: noticeReservedHeight }}
                             onFocusCapture={(event) => {
                                 // Toolbar/drawer focus must not reveal the drawer — only the composer itself.
                                 if (!(event.target instanceof HTMLTextAreaElement)) return;
@@ -223,7 +228,11 @@ export function Omnibar({
                                 )}
                             </div>
                             {mode === 'ai' && (
-                                <NoticeDrawer revealed={usageLimitsRevealed} launcherPromoVisibleRef={launcherPromoVisibleRef} />
+                                <NoticeDrawer
+                                    revealed={usageLimitsRevealed}
+                                    onReservedHeightChange={setNoticeReservedHeight}
+                                    launcherPromoVisibleRef={launcherPromoVisibleRef}
+                                />
                             )}
                         </div>
                     </AiChatsProvider>
@@ -262,6 +271,7 @@ function AiChatContent({
     const { state, setImageGenerationActive } = useContext(OmnibarContext);
     const attachmentLimits = state.config?.attachmentLimits;
     const blocksPrompt = state.config?.usageLimits?.blocksPrompt === true;
+    const requiresAiTermsAcceptance = state.config?.requiresAiTermsAcceptance === true;
     const updatedCreateImageEnabled = state.config?.enableUpdatedCreateImage === true;
     const { selectedModel } = useSelectedModel();
     const { selectedEffort } = useSelectedReasoningEffort();
@@ -289,6 +299,11 @@ function AiChatContent({
         processOtherFiles: canAttachFiles ? fileState.processFiles : null,
         enabled: state.config?.enablePastedAttachments === true && !blocksPrompt,
     });
+    const droppedAttachments = useDroppedAttachments({
+        processImages: canAttachImages ? imageState.processFiles : null,
+        processOtherFiles: canAttachFiles ? fileState.processFiles : null,
+        enabled: !blocksPrompt,
+    });
     // Screenshots land in the image list; without an image-capable model the row shows greyed out.
     const screenshotModes = state.config?.screenshotModes ?? [];
     const canCaptureScreenshot = screenshotModes.length > 0;
@@ -296,7 +311,7 @@ function AiChatContent({
     const tabAttachments = useTabAttachments(tabId, attachmentLimits?.tabs?.maxAttached);
     const textareaRef = useRef(/** @type {HTMLTextAreaElement|null} */ (null));
     const mention = useMentionPicker({
-        enabled: canAttachTabs,
+        enabled: canAttachTabs && !blocksPrompt,
         query,
         onChange,
         hideChats,
@@ -341,10 +356,12 @@ function AiChatContent({
     };
 
     /**
-     * @param {string} chat
-     * @param {import('../../../types/new-tab.js').OpenTarget} target
+     * @param {object} params
+     * @param {string} params.chat
+     * @param {import('../../../types/new-tab.js').OpenTarget} params.target
+     * @param {boolean} [params.aiTermsAccepted] - Only a click on Ask/Create accepts the terms; Enter submits without it.
      */
-    const handleSubmit = async (chat, target) => {
+    const handleSubmit = async ({ chat, target, aiTermsAccepted = false }) => {
         if (blocksPrompt) return;
         if (submittingRef.current) return;
         submittingRef.current = true;
@@ -372,6 +389,7 @@ function AiChatContent({
                 ...(images && { images }),
                 ...(files && { files }),
                 ...(pageContext && { pageContext }),
+                ...(aiTermsAccepted && { aiTermsAccepted: true }),
             };
 
             onSubmit(action);
@@ -418,6 +436,7 @@ function AiChatContent({
 
     const isVoiceChatMode =
         enableVoiceChatAccess &&
+        !requiresAiTermsAcceptance &&
         !imageGenerationActive &&
         !hasAttachedImages &&
         fileState.attachedFiles.length === 0 &&
@@ -429,7 +448,7 @@ function AiChatContent({
         event.preventDefault();
         if (disabled) return;
         event.stopPropagation();
-        handleSubmit(query, eventToTarget(event, platformName));
+        handleSubmit({ chat: query, target: eventToTarget(event, platformName), aiTermsAccepted: requiresAiTermsAcceptance });
     };
 
     /** @type {(event: MouseEvent) => void} */
@@ -440,6 +459,7 @@ function AiChatContent({
     };
 
     const showRecentChats = enableRecentAiChats && !imageGenerationActive && !mention.pickerActive;
+    const termsButtonLabel = imageGenerationActive ? t('omnibar_termsCreateButtonLabel') : t('omnibar_termsAskButtonLabel');
 
     return (
         <div
@@ -473,6 +493,8 @@ function AiChatContent({
                     combobox={mention.combobox}
                     textareaRef={textareaRef}
                     onPaste={pastedAttachments.handlePaste}
+                    onDragOver={droppedAttachments.handleDragOver}
+                    onDrop={droppedAttachments.handleDrop}
                     toolbarLeft={
                         <Fragment>
                             {(canAttachImages || canAttachFiles || canAttachTabs || canCaptureScreenshot) && (
@@ -547,13 +569,17 @@ function AiChatContent({
                                 <button
                                     tabIndex={0}
                                     type="submit"
-                                    class={aiChatFormStyles.submitButton}
-                                    aria-label={t('omnibar_aiChatFormSubmitButtonLabel')}
+                                    class={cn(
+                                        aiChatFormStyles.submitButton,
+                                        requiresAiTermsAcceptance && aiChatFormStyles.termsSubmitButton,
+                                    )}
+                                    aria-label={requiresAiTermsAcceptance ? undefined : t('omnibar_aiChatFormSubmitButtonLabel')}
+                                    aria-describedby={requiresAiTermsAcceptance ? TERMS_DISCLAIMER_ID : undefined}
                                     disabled={disabled}
                                     onClick={handleClickSubmit}
                                     onAuxClick={handleClickSubmit}
                                 >
-                                    <ArrowRightIcon />
+                                    {requiresAiTermsAcceptance ? termsButtonLabel : <ArrowRightIcon />}
                                 </button>
                             )}
                         </Fragment>

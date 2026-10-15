@@ -776,7 +776,7 @@ export function isMaxSupportedVersion(maxSupportedVersion, currentVersion) {
 
 /**
  * @typedef RemoteConfig
- * @property {Record<string, { state: string; settings: any; exceptions: { domain: string }[], minSupportedVersion?: string|number }>} features
+ * @property {Record<string, { state: string; settings: any; exceptions: { domain: string }[], minSupportedVersion?: string|number, maxSupportedVersion?: string|number }>} features
  * @property {{domain: string}[]} unprotectedTemporary
  */
 
@@ -873,9 +873,14 @@ export function computeEnabledFeatures(data, topLevelHostname, platform, platfor
         .filter((featureName) => {
             const feature = data.features[featureName];
             if (!feature) return false;
-            // Check that the platform supports minSupportedVersion checks and that the feature has a minSupportedVersion
+            // Version bounds are inclusive, and only checked when the platform reports a version
             if (feature.minSupportedVersion && platform?.version) {
                 if (!isSupportedVersion(feature.minSupportedVersion, platform.version)) {
+                    return false;
+                }
+            }
+            if (feature.maxSupportedVersion && platform?.version) {
+                if (!isMaxSupportedVersion(feature.maxSupportedVersion, platform.version)) {
                     return false;
                 }
             }

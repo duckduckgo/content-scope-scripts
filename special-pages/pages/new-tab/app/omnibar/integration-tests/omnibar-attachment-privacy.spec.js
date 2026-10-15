@@ -253,4 +253,18 @@ test.describe('omnibar attachment privacy disclaimer', () => {
         await expect(omnibar.noticeDrawer()).toContainText(DISCLAIMER);
         await expect(omnibar.noticeDrawer()).not.toContainText('Now using GPT-5.4');
     });
+
+    test('stacks under the terms disclaimer on a first prompt', async ({ page }, workerInfo) => {
+        const harness = setup(page, workerInfo);
+        await openAiOmnibar(harness, true, { 'omnibar.requiresAiTermsAcceptance': 'true' });
+        const { omnibar } = harness;
+
+        await expect(omnibar.noticeDrawer()).toHaveText(/anonymizes your chats/);
+        await expect(omnibar.noticeDrawer()).not.toContainText(DISCLAIMER);
+
+        await attachFile(omnibar);
+
+        await expect(omnibar.noticeDrawer()).toHaveText(/anonymizes your chats.*Files are automatically scanned/);
+        await omnibar.expectMethodCalledWith('omnibar_attachmentPrivacyDisclaimerShown', { kind: 'file' });
+    });
 });

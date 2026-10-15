@@ -16,6 +16,10 @@
     }
 }
 
+.noSlideIn {
+    animation: none;
+}
+
 /* Hide focus-gated notices until the composer has focus. */
 .hidden {
     display: none;
@@ -90,6 +94,7 @@
     }
 }
 
+.shield,
 .announce {
     color: var(--ds-color-theme-icons-secondary);
 }
@@ -170,6 +175,19 @@
 .secondary {
     color: var(--ds-color-theme-text-secondary);
     font-weight: 400;
+}
+
+.messageMuted {
+    color: var(--ds-color-theme-text-secondary);
+}
+
+.link {
+    color: var(--ds-color-theme-accent-text-primary);
+    text-decoration: none;
+
+    &:hover {
+        text-decoration: underline;
+    }
 }
 
 .dismiss {

@@ -140,6 +140,14 @@ export function useMentionPicker({ enabled, query, onChange, hideChats, onToggle
                 if (tab) handleTabSelect(tab);
                 return { handled: true };
             }
+            // Tab accepts like Enter, as in most autocomplete UIs. With nothing to accept, Tab still moves focus.
+            case 'Tab': {
+                const tab = filtered[activeIndex];
+                if (event.shiftKey || !tab) return { handled: false };
+                event.preventDefault();
+                handleTabSelect(tab);
+                return { handled: true };
+            }
             case 'Escape':
                 event.preventDefault();
                 closePicker();

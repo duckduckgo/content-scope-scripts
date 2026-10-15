@@ -51,6 +51,18 @@ export class OmnibarPage {
         return this.context().getByRole('button', { name: 'Start voice chat' });
     }
 
+    askButton() {
+        return this.context().getByRole('button', { name: 'Ask', exact: true });
+    }
+
+    createButton() {
+        return this.context().getByRole('button', { name: 'Create', exact: true });
+    }
+
+    termsLink() {
+        return this.noticeDrawer().getByRole('link', { name: 'Privacy Policy and Terms of Service' });
+    }
+
     tabList() {
         return this.context().getByRole('tablist');
     }
@@ -482,6 +494,40 @@ export class OmnibarPage {
                 const event = new ClipboardEvent('paste', { clipboardData: data, bubbles: true, cancelable: true });
                 textarea.dispatchEvent(event);
                 return { defaultPrevented: event.defaultPrevented };
+            },
+            { text, files },
+        );
+    }
+
+    /**
+     * Drags data over the Duck.ai prompt with synthetic `dragenter`/`dragover` events, and drops it
+     * only if the page accepted the drag, as a browser would. Chromium ignores `dropEffect` on a
+     * script-made `DataTransfer`, so only acceptance can be checked.
+     *
+     * @param {object} drag
+     * @param {string} [drag.text]
+     * @param {{ name: string, type: string, base64: string }[]} [drag.files]
+     * @returns {Promise<{ accepted: boolean }>}
+     */
+    async dropOnChatInput({ text, files = [] }) {
+        return await this.chatInput().evaluate(
+            (textarea, { text, files }) => {
+                const data = new DataTransfer();
+                if (text) data.setData('text/plain', text);
+                for (const file of files) {
+                    const bytes = Uint8Array.from(atob(file.base64), (c) => c.charCodeAt(0));
+                    data.items.add(new File([bytes], file.name, { type: file.type }));
+                }
+                /** @param {string} type */
+                const fire = (type) => {
+                    const event = new DragEvent(type, { dataTransfer: data, bubbles: true, cancelable: true });
+                    textarea.dispatchEvent(event);
+                    return event.defaultPrevented;
+                };
+                fire('dragenter');
+                const accepted = fire('dragover');
+                if (accepted) fire('drop');
+                return { accepted };
             },
             { text, files },
         );
