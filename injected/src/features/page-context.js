@@ -741,28 +741,7 @@ export default class PageContext extends ContentFeature {
         const excludeSelectorsString = excludeSelectors.join(',');
 
         let content = '';
-        // Get content from main content areas
-        const mainContentSelector = this.getFeatureSetting('mainContentSelector') || 'main, article, .content, .main, #content, #main';
-        let mainContent = document.querySelector(mainContentSelector);
-        const mainContentLength = this.getFeatureSetting('mainContentLength') || 100;
-        const minMainContentCoverage = this.clampedNumericSetting('minMainContentCoverage', 0.25, 1);
-        if (mainContent && this.getFeatureSettingEnabled('mainContentFallback', 'enabled')) {
-            const bodyTextLength = document.body?.innerText.length ?? 0;
-            const firstLength = renderedTextLength(mainContent);
-            // The first match is sometimes a teaser card or sits in a hidden menu, so then look at every match
-            if (!isRendered(mainContent) || firstLength <= mainContentLength) {
-                mainContent = selectLargestVisibleRoot(document.querySelectorAll(mainContentSelector), {
-                    bodyTextLength,
-                    minCoverage: this.clampedNumericSetting('minRootCoverage', 0.35, 1),
-                    maxCandidates: this.clampedNumericSetting('maxRootCandidates', 100, 1000),
-                    isEligible: (el) => isExtractable(el, excludeSelectorsString),
-                });
-            } else if (firstLength < bodyTextLength * minMainContentCoverage) {
-                // Another match could be a related-stories feed beside a short article, so take the body, which holds both
-                mainContent = null;
-            }
-        }
-        let contentRoot = mainContent || document.body;
+        let contentRoot = this.findContentRoot(excludeSelectorsString) || document.body;
 
         // Use a closure to reuse the domToMarkdown parameters
         const extractContent = (root) => {
@@ -802,6 +781,34 @@ export default class PageContext extends ContentFeature {
         }
 
         return content;
+    }
+
+    /**
+     * @param {string} excludeSelectors
+     * @returns {Element | null}
+     */
+    findContentRoot(excludeSelectors) {
+        const selector = this.getFeatureSetting('mainContentSelector') || 'main, article, .content, .main, #content, #main';
+        const candidates = document.querySelectorAll(selector);
+        const first = candidates[0] ?? null;
+        if (!first || !this.getFeatureSettingEnabled('mainContentFallback', 'enabled')) {
+            return first;
+        }
+
+        const bodyTextLength = document.body?.innerText.length ?? 0;
+        const firstLength = renderedTextLength(first);
+        const firstIsUsable = isRendered(first) && firstLength > (this.getFeatureSetting('mainContentLength') || 100);
+        if (!firstIsUsable) {
+            return selectLargestVisibleRoot(candidates, {
+                bodyTextLength,
+                minCoverage: this.clampedNumericSetting('minRootCoverage', 0.35, 1),
+                maxCandidates: this.clampedNumericSetting('maxRootCandidates', 100, 1000),
+                isEligible: (el) => isExtractable(el, excludeSelectors),
+            });
+        }
+
+        const minCoverage = this.clampedNumericSetting('minMainContentCoverage', 0.25, 1);
+        return firstLength < bodyTextLength * minCoverage ? null : first;
     }
 
     getHeadings() {
