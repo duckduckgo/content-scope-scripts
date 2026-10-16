@@ -24,6 +24,7 @@ export default defineConfig({
                 'integration-test/web-events.spec.js',
                 'integration-test/web-interference-detection-events.spec.js',
                 'integration-test/page-type-signals.spec.js',
+                'integration-test/page-context-root-selection.spec.js',
                 'integration-test/chrome-webstore-patching.spec.js',
             ],
             use: { injectName: 'windows', platform: 'windows' },
@@ -63,6 +64,11 @@ export default defineConfig({
                 'integration-test/favicon.spec.js',
             ],
             use: { injectName: 'apple-isolated', platform: 'ios', ...devices['iPhone 13'] },
+        },
+        {
+            name: 'ios-main-world',
+            testMatch: ['integration-test/page-context-root-selection.spec.js'],
+            use: { injectName: 'apple', platform: 'ios', ...devices['iPhone 13'] },
         },
         {
             name: 'android',
