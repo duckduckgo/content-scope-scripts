@@ -64,104 +64,230 @@ export class ProtectionsPage {
     }
 
     /**
-     * Test that no-activity state is rendered and cookie popup stats stay hidden
-     * even when CPM is enabled but trackers count is zero.
+     * @return {Promise<Record<string, unknown> | undefined>}
      */
-    async displaysNoRecentState() {
-        const heading = this.context().getByTestId('ProtectionsHeading');
-        await expect(heading.getByText(/no recent tracking activity/i)).toBeVisible();
-        await expect(heading.getByText(/cookie pop-up/i)).not.toBeVisible();
+    async lastSetConfig() {
+        const calls = await this.ntp.mocks.outgoing({ names: ['protections_setConfig'] });
+        return /** @type {any} */ (calls[calls.length - 1]?.payload)?.params;
+    }
+
+    report() {
+        return this.context().getByTestId('ProtectionsReport');
     }
 
     /**
-     * Test that cookie popup blocking stats are displayed when both trackers and cookie popups are > 0
+     * Report with nothing blocked this week: placeholder rows, no cookie footer.
      */
-    async displaysCookiePopupStats() {
+    async displaysEmptyReport() {
+        const report = this.report();
+        await expect(report.getByTestId('ProtectionsReportHeadline')).toHaveText('No trackers yet this week.');
+        await expect(
+            report
+                .getByTestId('ProtectionsReportSummary')
+                .getByText('As you browse, we’ll block them and show you who tried to watch you.'),
+        ).toBeVisible();
+        await expect(report.getByTestId('ProtectionsReportEmpty')).toContainText('Why we blocked them');
+        await expect(report.getByText('Your report fills in as you browse.')).toBeVisible();
+        await expect(report.getByTestId('ProtectionsReportCookies')).toHaveCount(0);
+        await expect(report.getByTestId('PryingEye')).toHaveCount(0);
+    }
+
+    async displaysHeadline() {
+        const report = this.report();
+        await expect(report.getByRole('heading', { level: 2 })).toHaveText('Protections Report');
+        await expect(report.getByTestId('ProtectionsReportHeadline')).toHaveText('47 companies tried to watch you browse this week.');
+        await expect(
+            report.getByTestId('ProtectionsReportSummary').getByText('We blocked 3,193 of their attempts to track you.'),
+        ).toBeVisible();
+    }
+
+    /**
+     * Rows are plain-language purposes, in display order, with company names joined naturally.
+     */
+    async displaysPurposes() {
+        const rows = this.report().getByTestId('ProtectionsReportPurposes').getByRole('listitem');
+        // most companies first
+        await expect(rows).toHaveCount(5);
+        await expect(rows.nth(0)).toContainText('Follows you with ads based on where you go');
+        await expect(rows.nth(0)).toContainText('Google, Facebook, and 28 others');
+        await expect(rows.nth(0)).toContainText('+27');
+        await expect(rows.nth(1)).toContainText('Recognizes your computer (even after you clear cookies)');
+        await expect(rows.nth(2)).toContainText('Measures what you read and click');
+        await expect(rows.nth(3)).toContainText('Tells social networks what you do on other sites');
+        await expect(rows.nth(4)).toContainText('Records your clicks and scrolls');
+        await expect(rows.nth(4)).toContainText('Microsoft and Hotjar');
+        await expect(rows.first()).toContainText('Blocked');
+    }
+
+    async displaysCompanies() {
+        const rows = this.report().getByTestId('ProtectionsReportCompanies').getByRole('listitem');
+        await expect(rows).toHaveCount(5);
+        await expect(rows.nth(0)).toContainText('Google was on 4 out of 5 sites you visited');
+        await expect(rows.nth(0)).toContainText(
+            'Follows you with ads based on where you go, recognizes your computer (even after you clear cookies), and measures what you read and click.',
+        );
+        await expect(rows.nth(1)).toContainText('Facebook was on almost half the sites you visited');
+        await expect(rows.nth(1)).toContainText(
+            'Follows you with ads based on where you go and tells social networks what you do on other sites.',
+        );
+        await expect(rows.nth(3)).toContainText('Amazon was on more than 1 in 4 sites you visited');
+
+        const more = this.report().getByTestId('ProtectionsReportMoreCompanies');
+        await expect(more).toContainText('43 more companies tried too');
+        await expect(more).toContainText('Including Criteo, Oracle, and The Trade Desk');
+    }
+
+    /**
+     * Each detail shows this device's own value (which varies by machine) and how
+     * many of this week's companies are known to read it.
+     */
+    async displaysRecognition() {
+        const view = this.report().getByTestId('ProtectionsReportRecognition');
+        await expect(view.getByText(/Of the companies we blocked this week, \d+ are known to read details like these/)).toBeVisible();
+        const rows = view.locator('[data-surface]');
+        await expect(rows).toHaveCount(7);
+        // most companies first
+        const counts = (await rows.allTextContents()).map((text) => Number(/(\d+) compan/.exec(text)?.[1]));
+        expect(counts).toEqual([...counts].sort((a, b) => b - a));
+        const screen = view.locator('[data-surface="screen"]');
+        await expect(screen).toContainText(/\d+ × \d+ · \d+-bit color/);
+        await expect(screen).toContainText(/\d+ compan(y|ies)/);
+        await expect(view.locator('[data-surface="locale"]')).toContainText(/ · /);
+        await expect(view.locator('[data-surface="fonts"]')).toContainText(/\d+ of 40 common fonts/);
+        await expect(view.locator('[data-surface="hardware"]')).toContainText(/\d+ cores/);
+        // the voice list loads a moment later; headless browsers may have none
+        await expect(view.locator('[data-surface="voices"]')).toContainText(/\d+ installed|Not available/);
+        await expect(view.getByText(/single out your device, like a fingerprint/)).toBeVisible();
+    }
+
+    async displaysTopSites() {
+        const view = this.report().getByTestId('ProtectionsReportTopSites');
+        await expect(view.getByText('Nosiest site this week')).toBeVisible();
+        await expect(view.getByText('cnn.com')).toBeVisible();
+        await expect(view.getByText('31 companies')).toBeVisible();
+        await expect(view.getByText('were watching, including Google and Facebook.')).toBeVisible();
+        const rows = view.getByRole('listitem');
+        // the next four; a site with no trackers is left out
+        await expect(rows).toHaveCount(4);
+        await expect(rows.first()).toContainText('allrecipes.com');
+        await expect(rows.first()).toContainText('26 companies');
+    }
+
+    /**
+     * Without native categories, purposes come from the table built from Tracker Radar.
+     */
+    async displaysPurposesFromBuiltInTable() {
+        const purposes = this.report().getByTestId('ProtectionsReportPurposes').getByRole('listitem');
+        await expect(purposes.first()).toContainText('Follows you with ads based on where you go');
+        await expect(purposes.first()).toContainText('Google, Facebook, and');
+        await this.choosesView('Who we blocked the most', 'companies');
+        const rows = this.report().getByTestId('ProtectionsReportCompanies').getByRole('listitem');
+        await expect(rows.nth(0)).toContainText('Google was on 4 out of 5 sites you visited');
+        await expect(rows.nth(0)).toContainText(
+            'Follows you with ads based on where you go, recognizes your computer (even after you clear cookies), and measures what you read and click.',
+        );
+    }
+
+    /**
+     * @param {string[]} expected - menu item labels, in order
+     */
+    async hasViewOptions(expected) {
+        await this.report().getByTestId('ProtectionsReportViewMenu').click();
+        const items = this.page.getByRole('menuitemradio');
+        await expect(items).toHaveText(expected);
+        await expect(this.page.getByRole('menu')).toBeFocused();
+        await this.page.keyboard.press('Escape');
+        await expect(items).toHaveCount(0);
+    }
+
+    /**
+     * @param {string} label
+     * @param {import('../../../types/new-tab.js').FeedType} feed
+     */
+    async choosesView(label, feed) {
+        const trigger = this.report().getByTestId('ProtectionsReportViewMenu');
+        await trigger.click();
+        await this.page.getByRole('menuitemradio', { name: label }).click();
+        await expect(trigger).toHaveText(label);
+        await expect(trigger).toBeFocused();
+        await expect.poll(() => this.lastSetConfig()).toMatchObject({ feed });
+    }
+
+    /**
+     * @param {number} count
+     */
+    async displaysCookieFooter(count) {
+        await expect(this.report().getByTestId('ProtectionsReportCookies')).toHaveText(
+            `We also handled ${count.toLocaleString('en-US')} annoying cookie pop-ups for you.`,
+        );
+    }
+
+    /**
+     * @param {number | null} totalCookiePopUpsBlocked
+     */
+    async hidesCookieFooterFor(totalCookiePopUpsBlocked) {
         /** @type {ProtectionsData} */
-        const data = {
-            totalCount: 100,
-            totalCookiePopUpsBlocked: 25,
-        };
+        const data = { totalCount: 100, totalCookiePopUpsBlocked };
         await this.ntp.mocks.simulateSubscriptionMessage(named.subscription('protections_onDataUpdate'), data);
-        await expect(this.context().getByRole('heading', { level: 3 }).first()).toContainText('100 Tracking attempts blocked');
-        // Cookie popup stats should be visible in the ProtectionsHeading
-        const heading = this.context().getByTestId('ProtectionsHeading');
-        await expect(heading.getByText(/cookie pop-up/i)).toBeVisible();
+        await expect(
+            this.report().getByTestId('ProtectionsReportSummary').getByText('We blocked 100 of their attempts to track you.'),
+        ).toBeVisible();
+        await expect(this.report().getByTestId('ProtectionsReportCookies')).toHaveCount(0);
     }
 
     /**
-     * Test that cookie popup stats are NOT displayed when totalCookiePopUpsBlocked is null (CPM disabled)
+     * @param {number} totalCookiePopUpsBlocked
      */
-    async hidesCookiePopupStatsWhenDisabled() {
+    async receivesCookieCount(totalCookiePopUpsBlocked) {
         /** @type {ProtectionsData} */
-        const data = {
-            totalCount: 100,
-            totalCookiePopUpsBlocked: null,
-        };
+        const data = { totalCount: 3193, totalCookiePopUpsBlocked };
         await this.ntp.mocks.simulateSubscriptionMessage(named.subscription('protections_onDataUpdate'), data);
-        // Cookie popup stats should not be visible in the ProtectionsHeading
-        const heading = this.context().getByTestId('ProtectionsHeading');
-        await expect(heading.getByText(/cookie pop-up/i)).not.toBeVisible();
+        await this.displaysCookieFooter(totalCookiePopUpsBlocked);
     }
 
     /**
-     * Test that cookie popup stats are NOT displayed when totalCookiePopUpsBlocked is 0
+     * The info button opens on hover and click, and closes with Escape.
      */
-    async hidesCookiePopupStatsWhenZero() {
-        /** @type {ProtectionsData} */
-        const data = {
-            totalCount: 100,
-            totalCookiePopUpsBlocked: 0,
-        };
-        await this.ntp.mocks.simulateSubscriptionMessage(named.subscription('protections_onDataUpdate'), data);
-        // Cookie popup stats should not be visible when count is 0 in the ProtectionsHeading
-        const heading = this.context().getByTestId('ProtectionsHeading');
-        await expect(heading.getByText(/cookie pop-up/i)).not.toBeVisible();
+    async hasInfoPopover() {
+        const button = this.report().getByRole('button', { name: 'Why this matters' });
+        const popover = this.page.getByRole('dialog', { name: 'Why this matters' });
+
+        await button.hover();
+        await expect(popover).toBeVisible();
+        await expect(popover).toContainText('Trackers aren’t just on sensitive sites.');
+        await expect(button).toHaveAttribute('aria-expanded', 'true');
+
+        await this.page.keyboard.press('Escape');
+        await expect(popover).not.toBeVisible();
+
+        await this.page.mouse.move(0, 0);
+        await button.focus();
+        await this.page.keyboard.press('Enter');
+        await expect(popover).toBeVisible();
+        await this.page.keyboard.press('Enter');
+        await expect(popover).not.toBeVisible();
     }
 
     /**
-     * Test that the info tooltip is displayed and keyboard accessible
+     * Collapsing keeps the headline but hides the views and persists the state.
      */
-    async hasInfoTooltip() {
-        const heading = this.context().getByTestId('ProtectionsHeading');
-        // The InfoIcon should be present
-        await expect(heading.locator('[class*="infoIcon"]')).toBeVisible();
+    async collapsesReport() {
+        const report = this.report();
+        const toggle = report.getByRole('button', { name: 'Collapse Protections Report' });
+        await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+        await toggle.click();
 
-        // Find the tooltip container (parent of InfoIcon)
-        const tooltipTrigger = heading.locator('[class*="infoIcon"]').locator('..');
+        const expand = report.getByRole('button', { name: 'Expand Protections Report' });
+        await expect(expand).toHaveAttribute('aria-expanded', 'false');
+        await expect(report.getByTestId('ProtectionsReportHeadline')).toBeVisible();
+        const body = report.getByTestId('ProtectionsReportBody');
+        await expect(body).toHaveAttribute('aria-hidden', 'true');
+        await expect.poll(() => body.evaluate((el) => el.getBoundingClientRect().height)).toBe(0);
+        await expect.poll(() => this.lastSetConfig()).toMatchObject({ expansion: 'collapsed' });
 
-        // Verify it's keyboard focusable
-        await expect(tooltipTrigger).toHaveAttribute('tabindex', '0');
-        await expect(tooltipTrigger).toHaveAttribute('role', 'button');
-
-        // Test keyboard navigation - focus the tooltip trigger
-        await tooltipTrigger.focus();
-
-        // Tooltip should appear on focus
-        const tooltip = this.page.locator('[role="tooltip"]');
-        await expect(tooltip).toBeVisible();
-
-        // Verify the tooltip has content about tracking attempts
-        await expect(tooltip).toContainText(/tracking attempts/i);
-
-        // Verify aria-describedby is present when tooltip is visible
-        await expect(tooltipTrigger).toHaveAttribute('aria-describedby');
-
-        // Test keyboard interaction - press Escape to hide tooltip
-        await tooltipTrigger.press('Escape');
-        await expect(tooltip).not.toBeVisible();
-
-        // Test keyboard toggle - press Enter to show tooltip again
-        await tooltipTrigger.press('Enter');
-        await expect(tooltip).toBeVisible();
-
-        // Press Enter again to toggle it off
-        await tooltipTrigger.press('Enter');
-        await expect(tooltip).not.toBeVisible();
-
-        // Test Space key
-        await tooltipTrigger.press('Space');
-        await expect(tooltip).toBeVisible();
+        await expand.click();
+        await expect(body).toHaveAttribute('aria-hidden', 'false');
+        await expect.poll(() => body.evaluate((el) => el.getBoundingClientRect().height)).toBeGreaterThan(0);
     }
 
     /**

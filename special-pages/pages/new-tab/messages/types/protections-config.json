@@ -12,9 +12,14 @@
     },
     "feed": {
       "title": "Feed Type",
+      "description": "Which view of the Protections Report is shown: 'purposes' (why we blocked them), 'recognition' (how they try to recognize you), 'companies' (who we blocked the most), 'activity' (where they tried to track you) or 'top-sites' (which sites had the most trackers). 'privacy-stats' is the retired summary, now only used by the legacy UI and treated as 'purposes' otherwise.",
       "enum": [
         "privacy-stats",
-        "activity"
+        "activity",
+        "purposes",
+        "recognition",
+        "companies",
+        "top-sites"
       ]
     },
     "showBurnAnimation": {

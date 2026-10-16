@@ -8,9 +8,10 @@
   "scripts": {
     "prebuild": "node types.mjs && node translations.mjs",
     "build": "node index.mjs",
+    "build-tracker-purposes": "node tracker-purposes.mjs",
     "build.dev": "npm run build -- --env development",
     "lint-fix": "cd ../ && npm run lint-fix",
-    "test-unit": "node --test \"unit-test/*\" \"pages/history/unit-tests/*\" \"pages/duckplayer/unit-tests/*\" \"pages/new-tab/app/omnibar/unit-tests/*\"",
+    "test-unit": "node --test \"unit-test/*\" \"pages/history/unit-tests/*\" \"pages/duckplayer/unit-tests/*\" \"pages/new-tab/app/omnibar/unit-tests/*\" \"pages/new-tab/app/protections/unit-tests/*\"",
     "test-int": "playwright test --grep-invert '@screenshots'",
     "test-int-x": "npm run test-int",
     "test-int-snapshots": "playwright test --grep '@screenshots'",

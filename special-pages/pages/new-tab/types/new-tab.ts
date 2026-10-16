@@ -278,7 +278,10 @@ export type Favicon = null | {
   src: string;
   maxAvailableSize?: number;
 };
-export type FeedType = "privacy-stats" | "activity";
+/**
+ * Which view of the Protections Report is shown: 'purposes' (why we blocked them), 'recognition' (how they try to recognize you), 'companies' (who we blocked the most), 'activity' (where they tried to track you) or 'top-sites' (which sites had the most trackers). 'privacy-stats' is the retired summary, now only used by the legacy UI and treated as 'purposes' otherwise.
+ */
+export type FeedType = "privacy-stats" | "activity" | "purposes" | "recognition" | "companies" | "top-sites";
 /**
  * What the user captured: a dragged region, a whole display, or a single window.
  */
@@ -335,6 +338,32 @@ export type RMFIcon =
   | "Subscription"
   | "VeryCriticalUpdate"
   | "YoutubeNew";
+/**
+ * A Tracker Radar category
+ */
+export type TrackerCategory =
+  | "Action Pixels"
+  | "Ad Fraud"
+  | "Ad Motivated Tracking"
+  | "Advertising"
+  | "Analytics"
+  | "Audience Measurement"
+  | "Badge"
+  | "CDN"
+  | "Embedded Content"
+  | "Federated Login"
+  | "Malware"
+  | "Non-tracking"
+  | "Online Payment"
+  | "Obscure Ownership"
+  | "SSO"
+  | "Session Replay"
+  | "Social Network"
+  | "Social - Comment"
+  | "Social - Share"
+  | "Tag Manager"
+  | "Third-Party Analytics Marketing"
+  | "Unknown High Risk Behavior";
 
 /**
  * Requests, Notifications and Subscriptions from the NewTab feature
@@ -2055,10 +2084,49 @@ export interface StatsGetDataRequest {
 }
 export interface PrivacyStatsData {
   trackerCompanies: TrackerCompany[];
+  /**
+   * Number of distinct tracker companies blocked in the reporting period, including those grouped under '__other__'. Falls back to the number of named companies when omitted.
+   */
+  totalCompanies?: number;
+  /**
+   * Number of distinct sites (eTLD+1) visited in the reporting period. Used to express how widespread each company is, e.g. 'was on 4 out of 5 sites you visited'.
+   */
+  totalSitesVisited?: number;
+  /**
+   * The sites visited in the reporting period with the most tracking companies blocked, most first. Up to 5. Powers the 'Which sites had the most trackers' view; omit to hide that view.
+   */
+  topSites?: SiteTrackers[];
 }
 export interface TrackerCompany {
   displayName: string;
   count: number;
+  /**
+   * Number of distinct sites visited in the reporting period where this company's trackers were blocked
+   */
+  sitesCount?: number;
+  /**
+   * Tracker Radar categories of this company's blocked tracker domains (union across domains). See https://github.com/duckduckgo/tracker-radar/blob/main/docs/CATEGORIES.md
+   */
+  categories?: TrackerCategory[];
+  /**
+   * Highest Tracker Radar fingerprinting score (0-3) across this company's blocked tracker domains. 2 or above means likely fingerprinting.
+   */
+  fingerprinting?: number;
+}
+export interface SiteTrackers {
+  /**
+   * The site, as eTLD+1 (eg: cnn.com). Also used for the fallback favicon.
+   */
+  etldPlusOne: string;
+  /**
+   * A URL on the site, used to load its favicon
+   */
+  url?: string;
+  favicon?: Favicon;
+  /**
+   * Display names of every tracking company blocked on this site in the reporting period, matching TrackerCompany.displayName
+   */
+  trackerCompanies: string[];
 }
 /**
  * Generated from @see "../messages/winBackOffer_getData.request.json"

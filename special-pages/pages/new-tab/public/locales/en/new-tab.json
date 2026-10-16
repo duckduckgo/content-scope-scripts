@@ -73,6 +73,330 @@
     "title": "No recent tracking activity",
     "note": "Placeholder text shown in the Details view when no tracking activity was blocked in the last 7 days. Keep concise if possible."
   },
+  "protections_report_infoLabel": {
+    "title": "Why this matters",
+    "note": "Accessible label for the info button next to the Protections Report title."
+  },
+  "protections_report_infoTitle": {
+    "title": "Why this matters",
+    "note": "Title of the pop-over explaining why tracker blocking matters."
+  },
+  "protections_report_infoBody1": {
+    "title": "Trackers aren’t just on sensitive sites. They’re on the news you read, the recipes you save, the stores you browse, and more. And they’re quietly piecing it all together into a detailed (and frankly, creepy!) profile of you.",
+    "note": "First paragraph of the 'Why this matters' pop-over."
+  },
+  "protections_report_infoBody2": {
+    "title": "The more of your everyday browsing happens on DuckDuckGo, the less of it they get to see.",
+    "note": "Second paragraph of the 'Why this matters' pop-over."
+  },
+  "protections_report_headlineSingular": {
+    "title": "<b>1 company</b> tried to watch you browse this week.",
+    "note": "Main headline when trackers from exactly one company were blocked in the last 7 days. Keep the <b></b> tags around the company count; it is visually highlighted."
+  },
+  "protections_report_headlinePlural": {
+    "title": "<b>{count} companies</b> tried to watch you browse this week.",
+    "note": "Main headline. {count} is the number of distinct tracking companies blocked in the last 7 days, eg: '47 companies tried to watch you browse this week.' Keep the <b></b> tags around the company count; it is visually highlighted."
+  },
+  "protections_report_blockedSingular": {
+    "title": "We blocked <b>1</b> of their attempts to track you.",
+    "note": "Sub-headline under the main headline when exactly one tracking attempt was blocked. Keep the <b></b> tags around the number."
+  },
+  "protections_report_blockedPlural": {
+    "title": "We blocked <b>{count}</b> of their attempts to track you.",
+    "note": "Sub-headline under the main headline. {count} is the number of tracking attempts blocked in the last 7 days. Keep the <b></b> tags around the number."
+  },
+  "protections_report_emptyTitle": {
+    "title": "No trackers yet this week.",
+    "note": "Main headline of the Protections Report when nothing has been blocked in the last 7 days."
+  },
+  "protections_report_emptyBody": {
+    "title": "As you browse, we’ll block them and show you who tried to watch you.",
+    "note": "Sub-headline of the Protections Report when nothing has been blocked in the last 7 days."
+  },
+  "protections_report_emptyFooter": {
+    "title": "Your report fills in as you browse.",
+    "note": "Shown under placeholder rows in the empty Protections Report."
+  },
+  "protections_report_cookiePopUpsSingular": {
+    "title": "We also handled 1 annoying cookie pop-up for you.",
+    "note": "Footer of the Protections Report when one cookie consent pop-up was handled automatically."
+  },
+  "protections_report_cookiePopUpsPlural": {
+    "title": "We also handled {count} annoying cookie pop-ups for you.",
+    "note": "Footer of the Protections Report. {count} is the number of cookie consent pop-ups handled automatically."
+  },
+  "protections_report_viewMenuLabel": {
+    "title": "Choose a view",
+    "note": "Accessible label for the menu that switches between the Protections Report views."
+  },
+  "protections_report_viewPurposes": {
+    "title": "<b>Why</b> we blocked them",
+    "note": "Option in the Protections Report view menu. Groups blocked trackers by what they were trying to do (eg: follow you with ads). The <b></b> tags bold the question word (why, who, where, when, how) in the menu; keep them around the equivalent word."
+  },
+  "protections_report_viewCompanies": {
+    "title": "<b>Who</b> we blocked the most",
+    "note": "Option in the Protections Report view menu. Lists the tracking companies blocked on the most sites. The <b></b> tags bold the question word (why, who, where, when, how) in the menu; keep them around the equivalent word."
+  },
+  "protections_report_viewSites": {
+    "title": "<b>When</b> they tried to track you",
+    "note": "Option in the Protections Report view menu. Lists the sites you visited, most recent first, and how many trackers were blocked on each. The <b></b> tags bold the question word (why, who, where, when, how) in the menu; keep them around the equivalent word."
+  },
+  "protections_report_blocked": {
+    "title": "Blocked",
+    "note": "Status label at the end of a row, meaning these trackers were blocked."
+  },
+  "protections_report_purposeAdvertising": {
+    "title": "Follows you with ads based on where you go",
+    "note": "Describes what a tracker does (advertising trackers). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who we blocked the most'. The subject is the company or its trackers, eg: 'Google: Follows you with ads based on where you go.'"
+  },
+  "protections_report_purposeSocial": {
+    "title": "Tells social networks what you do on other sites",
+    "note": "Describes what a tracker does (social network trackers such as share buttons and pixels). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who we blocked the most'. The subject is the company or its trackers, eg: 'Google: Follows you with ads based on where you go.'"
+  },
+  "protections_report_purposeFingerprinting": {
+    "title": "Recognizes your computer (even after you clear cookies)",
+    "note": "Describes what a tracker does (browser fingerprinting). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who we blocked the most'. The subject is the company or its trackers, eg: 'Google: Follows you with ads based on where you go.'"
+  },
+  "protections_report_purposeSessionReplay": {
+    "title": "Records your clicks and scrolls",
+    "note": "Describes what a tracker does (session replay scripts that record mouse movement, clicks and scrolls). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who we blocked the most'. The subject is the company or its trackers, eg: 'Google: Follows you with ads based on where you go.'"
+  },
+  "protections_report_purposeAnalytics": {
+    "title": "Measures what you read and click",
+    "note": "Describes what a tracker does (analytics and audience measurement trackers). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who we blocked the most'. The subject is the company or its trackers, eg: 'Google: Follows you with ads based on where you go.'"
+  },
+  "protections_report_othersSingular": {
+    "title": "1 other",
+    "note": "Used at the end of a list of company names, eg: 'Google, Amazon and 1 other'."
+  },
+  "protections_report_othersPlural": {
+    "title": "{count} others",
+    "note": "Used at the end of a list of company names, eg: 'Google, Amazon and 23 others'. {count} is a number."
+  },
+  "protections_report_moreCompanies": {
+    "title": "+{count}",
+    "note": "Shown after a few company logos to say how many more companies there are, eg: '+22'."
+  },
+  "protections_report_companyWasOn": {
+    "title": "{company} was on {frequency}",
+    "note": "Row title in the 'Who we blocked the most' view. {company} is a tracking company name (eg: Google). {frequency} is one of the 'sites you visited' phrases, eg: 'Google was on 4 out of 5 sites you visited'."
+  },
+  "protections_report_freqNearlyAll": {
+    "title": "nearly every site you visited",
+    "note": "Completes 'Google was on …'. Used when the company was on 90% or more of sites visited this week."
+  },
+  "protections_report_freqFourInFive": {
+    "title": "4 out of 5 sites you visited",
+    "note": "Completes 'Google was on …'."
+  },
+  "protections_report_freqTwoInThree": {
+    "title": "2 out of 3 sites you visited",
+    "note": "Completes 'Google was on …'."
+  },
+  "protections_report_freqMoreThanHalf": {
+    "title": "more than half the sites you visited",
+    "note": "Completes 'Google was on …'."
+  },
+  "protections_report_freqHalf": {
+    "title": "half the sites you visited",
+    "note": "Completes 'Google was on …'."
+  },
+  "protections_report_freqAlmostHalf": {
+    "title": "almost half the sites you visited",
+    "note": "Completes 'Google was on …'."
+  },
+  "protections_report_freqOneInThree": {
+    "title": "1 in 3 sites you visited",
+    "note": "Completes 'Google was on …'."
+  },
+  "protections_report_freqMoreThanOneInFour": {
+    "title": "more than 1 in 4 sites you visited",
+    "note": "Completes 'Google was on …'."
+  },
+  "protections_report_freqOneInFive": {
+    "title": "1 in 5 sites you visited",
+    "note": "Completes 'Google was on …'."
+  },
+  "protections_report_freqSitesSingular": {
+    "title": "1 site you visited",
+    "note": "Completes 'Google was on …'."
+  },
+  "protections_report_freqSitesPlural": {
+    "title": "{count} sites you visited",
+    "note": "Completes 'Google was on …'. {count} is a number."
+  },
+  "protections_report_attemptsSingular": {
+    "title": "1 tracking attempt blocked",
+    "note": "Fallback description in the 'Who we blocked the most' view when we don't know what the company's trackers do."
+  },
+  "protections_report_attemptsPlural": {
+    "title": "{count} tracking attempts blocked",
+    "note": "Fallback description in the 'Who we blocked the most' view when we don't know what the company's trackers do. {count} is a number."
+  },
+  "protections_report_expandLabel": {
+    "title": "Expand Protections Report",
+    "note": "Accessible label for the button that expands the Protections Report."
+  },
+  "protections_report_collapseLabel": {
+    "title": "Collapse Protections Report",
+    "note": "Accessible label for the button that collapses the Protections Report."
+  },
+  "protections_report_moreCompaniesSingular": {
+    "title": "1 more company tried too",
+    "note": "Last row in the 'Who we blocked the most' view, summarizing the one tracking company not listed above."
+  },
+  "protections_report_moreCompaniesPlural": {
+    "title": "{count} more companies tried too",
+    "note": "Last row in the 'Who we blocked the most' view, summarizing the tracking companies not listed above. {count} is a number, eg: '43 more companies tried too'."
+  },
+  "protections_report_including": {
+    "title": "Including {companies}",
+    "note": "Under '43 more companies tried too'. {companies} is a short list of company names, eg: 'Including Criteo, Oracle, and The Trade Desk'."
+  },
+  "protections_report_purposeAdvertisingInline": {
+    "title": "follows you with ads based on where you go",
+    "note": "Same as protections_report_purposeAdvertising, but used after the first item in a list, eg: 'Follows you with ads based on where you go and follows you with ads based on where you go.' Use the casing that fits mid-sentence."
+  },
+  "protections_report_purposeSocialInline": {
+    "title": "tells social networks what you do on other sites",
+    "note": "Same as protections_report_purposeSocial, but used after the first item in a list, eg: 'Follows you with ads based on where you go and tells social networks what you do on other sites.' Use the casing that fits mid-sentence."
+  },
+  "protections_report_purposeFingerprintingInline": {
+    "title": "recognizes your computer (even after you clear cookies)",
+    "note": "Same as protections_report_purposeFingerprinting, but used after the first item in a list, eg: 'Follows you with ads based on where you go and recognizes your computer (even after you clear cookies).' Use the casing that fits mid-sentence."
+  },
+  "protections_report_purposeSessionReplayInline": {
+    "title": "records your clicks and scrolls",
+    "note": "Same as protections_report_purposeSessionReplay, but used after the first item in a list, eg: 'Follows you with ads based on where you go and records your clicks and scrolls.' Use the casing that fits mid-sentence."
+  },
+  "protections_report_purposeAnalyticsInline": {
+    "title": "measures what you read and click",
+    "note": "Same as protections_report_purposeAnalytics, but used after the first item in a list, eg: 'Follows you with ads based on where you go and measures what you read and click.' Use the casing that fits mid-sentence."
+  },
+  "protections_report_companyPurposes": {
+    "title": "{purposes}.",
+    "note": "Sentence under a company in 'Who we blocked the most'. {purposes} is a list of what its trackers do, eg: 'Follows you with ads based on where you go and records your clicks and scrolls.'"
+  },
+  "protections_report_viewRecognition": {
+    "title": "<b>How</b> they try to recognize you",
+    "note": "Option in the Protections Report view menu. Shows the details about your device that tracking companies are known to read to recognize it (fingerprinting). The <b></b> tags bold the question word (why, who, where, when, how) in the menu; keep them around the equivalent word."
+  },
+  "protections_report_viewTopSites": {
+    "title": "<b>Where</b> they tried to track you",
+    "note": "Option in the Protections Report view menu. Shows the sites you visited this week with the most tracking companies. The <b></b> tags bold the question word (why, who, where, when, how) in the menu; keep them around the equivalent word."
+  },
+  "protections_report_recognitionIntroSingular": {
+    "title": "Of the companies we blocked this week, <b>1</b> is known to read details like these from your device:",
+    "note": "Introduces a list of details about your device (graphics card, screen…). Of the tracking companies blocked this week, one is known to read them. Keep the <b></b> tags."
+  },
+  "protections_report_recognitionIntroPlural": {
+    "title": "Of the companies we blocked this week, <b>{count}</b> are known to read details like these from your device to create a <b>digital fingerprint</b> of you:",
+    "note": "Introduces a list of details about your device (graphics card, screen…). {count} is how many of the tracking companies blocked this week are known to read them. Keep the <b></b> tags."
+  },
+  "protections_report_surfaceGraphics": {
+    "title": "Graphics card",
+    "note": "Label for a detail about your device in 'How they try to recognize you'. The value next to it is the graphics card's name."
+  },
+  "protections_report_surfaceScreen": {
+    "title": "Screen",
+    "note": "Label for a detail about your device in 'How they try to recognize you'. The value next to it is the screen size and color depth."
+  },
+  "protections_report_surfaceLocale": {
+    "title": "Time zone",
+    "note": "Label for a detail about your device in 'How they try to recognize you'. The value next to it is the time zone and language, eg: 'America/New_York · en-US'."
+  },
+  "protections_report_surfaceFonts": {
+    "title": "Fonts",
+    "note": "Label for a detail about your device in 'How they try to recognize you'. The value next to it says how many common fonts are installed."
+  },
+  "protections_report_surfaceAudio": {
+    "title": "Audio",
+    "note": "Label for a detail about your device in 'How they try to recognize you'. The value next to it is the audio sample rate and number of channels."
+  },
+  "protections_report_screenValue": {
+    "title": "{width} × {height} · {depth}-bit color",
+    "note": "Screen size and color depth, eg: '2560 × 1440 · 30-bit color'."
+  },
+  "protections_report_localeValue": {
+    "title": "{timeZone} · {language}",
+    "note": "Time zone and language, eg: 'America/New_York · en-US'. Usually no translation needed."
+  },
+  "protections_report_fontsValue": {
+    "title": "{found} of {checked} common fonts",
+    "note": "How many of a list of common fonts are installed, eg: '21 of 40 common fonts'."
+  },
+  "protections_report_audioValue": {
+    "title": "{rate} kHz · {channels} channels",
+    "note": "Audio sample rate and channel count, eg: '48 kHz · 2 channels'."
+  },
+  "protections_report_valueUnavailable": {
+    "title": "Not available",
+    "note": "Shown when the browser can't read a detail about the device."
+  },
+  "protections_report_knownBySingular": {
+    "title": "1 company",
+    "note": "How many tracking companies are known to read this detail about your device."
+  },
+  "protections_report_knownByPlural": {
+    "title": "{count} companies",
+    "note": "How many tracking companies are known to read this detail about your device. {count} is a number."
+  },
+  "protections_report_recognitionFooter": {
+    "title": "Alone, these details may look innocent. Together, they can be unique to you and can single out your device, like a fingerprint. Blocking these trackers stops them reading yours.",
+    "note": "Explains fingerprinting under the list in 'How they try to recognize you'."
+  },
+  "protections_report_topSiteLabel": {
+    "title": "Nosiest site this week",
+    "note": "Label above the site with the most tracking companies this week."
+  },
+  "protections_report_topSiteCountSingular": {
+    "title": "1 company",
+    "note": "Large number under the nosiest site: how many tracking companies were on it."
+  },
+  "protections_report_topSiteCountPlural": {
+    "title": "{count} companies",
+    "note": "Large number under the nosiest site: how many tracking companies were on it. {count} is a number."
+  },
+  "protections_report_topSiteWatchingSingular": {
+    "title": "was watching: {companies}.",
+    "note": "Follows '1 company' under the nosiest site. {companies} is the company name."
+  },
+  "protections_report_topSiteWatchingPlural": {
+    "title": "were watching, including {companies}.",
+    "note": "Follows '31 companies' under the nosiest site. {companies} lists the most widespread ones, eg: 'were watching, including Google and Facebook.'"
+  },
+  "protections_report_siteCompaniesSingular": {
+    "title": "1 company",
+    "note": "Next to a site in 'Where they tried to track you': how many tracking companies were on it."
+  },
+  "protections_report_siteCompaniesPlural": {
+    "title": "{count} companies",
+    "note": "Next to a site in 'Where they tried to track you': how many tracking companies were on it. {count} is a number."
+  },
+  "protections_report_surfaceHardware": {
+    "title": "Hardware",
+    "note": "Label for a detail about your device in 'How they try to recognize you'. The value next to it is the number of processor cores and, where available, the amount of memory."
+  },
+  "protections_report_surfaceVoices": {
+    "title": "Speech voices",
+    "note": "Label for a detail about your device in 'How they try to recognize you'. The value next to it is how many text-to-speech voices are installed."
+  },
+  "protections_report_hardwareValue": {
+    "title": "{cores} cores · {memory} GB memory",
+    "note": "Processor cores and memory, eg: '8 cores · 8 GB memory'."
+  },
+  "protections_report_hardwareCoresValue": {
+    "title": "{cores} cores",
+    "note": "Processor cores, eg: '8 cores'. Shown when memory isn't available."
+  },
+  "protections_report_voicesValueSingular": {
+    "title": "1 installed",
+    "note": "How many text-to-speech voices are installed, when there's one."
+  },
+  "protections_report_voicesValuePlural": {
+    "title": "{count} installed",
+    "note": "How many text-to-speech voices are installed, eg: '84 installed'."
+  },
   "stats_menuTitle": {
     "title": "Blocked Tracking Attempts",
     "note": "Used as a label in a customization menu"

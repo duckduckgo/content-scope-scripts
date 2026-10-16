@@ -1,4 +1,4 @@
-import { test } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import { NewtabPage } from '../../../integration-tests/new-tab.page.js';
 import { ProtectionsPage } from './protections.page.js';
 
@@ -58,55 +58,152 @@ test.describe('protections report', () => {
         await protections.hasPolishText();
     });
 
-    test('displays cookie popup blocking stats when enabled and counts > 0', async ({ page }, workerInfo) => {
-        const ntp = NewtabPage.create(page, workerInfo);
-        await ntp.reducedMotion();
-        await ntp.openPage({ additional: { protections_feed: 'activity' } });
+    test.describe('report (new schema)', () => {
+        /** @type {Record<string, string>} */
+        const report = { protections: 'report', stats: 'report' };
 
-        const protections = new ProtectionsPage(ntp);
-        await protections.ready();
-        await protections.displaysCookiePopupStats();
-    });
+        test('shows the headline and what trackers were trying to do', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: report });
 
-    test('hides cookie popup stats when CPM is disabled (null)', async ({ page }, workerInfo) => {
-        const ntp = NewtabPage.create(page, workerInfo);
-        await ntp.reducedMotion();
-        await ntp.openPage({ additional: { protections_feed: 'activity' } });
+            const protections = new ProtectionsPage(ntp);
+            await protections.ready();
+            await protections.displaysHeadline();
+            await protections.displaysPurposes();
+            await protections.displaysCookieFooter(762);
+        });
 
-        const protections = new ProtectionsPage(ntp);
-        await protections.ready();
-        await protections.hidesCookiePopupStatsWhenDisabled();
-    });
+        test('the retired summary feed opens on the first view', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: { ...report, protections_feed: 'privacy-stats' } });
 
-    test('hides cookie popup stats when count is 0', async ({ page }, workerInfo) => {
-        const ntp = NewtabPage.create(page, workerInfo);
-        await ntp.reducedMotion();
-        await ntp.openPage({ additional: { protections_feed: 'activity' } });
+            const protections = new ProtectionsPage(ntp);
+            await protections.ready();
+            await protections.displaysPurposes();
+        });
 
-        const protections = new ProtectionsPage(ntp);
-        await protections.ready();
-        await protections.hidesCookiePopupStatsWhenZero();
-    });
+        test('switches views from the menu and persists the choice', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: report });
 
-    test('shows no recent activity state when trackers are zero', async ({ page }, workerInfo) => {
-        const ntp = NewtabPage.create(page, workerInfo);
-        await ntp.reducedMotion();
-        await ntp.openPage({ additional: { protections_feed: 'activity', activity: 'empty', cpm: 'true' } });
+            const protections = new ProtectionsPage(ntp);
+            await protections.ready();
+            await protections.hasViewOptions([
+                'Why we blocked them',
+                'Who we blocked the most',
+                'Where they tried to track you',
+                'When they tried to track you',
+                'How they try to recognize you',
+            ]);
 
-        const protections = new ProtectionsPage(ntp);
-        await protections.ready();
-        await protections.displaysNoRecentState();
-    });
+            await protections.choosesView('Who we blocked the most', 'companies');
+            await protections.displaysCompanies();
 
-    test('displays info tooltip', async ({ page }, workerInfo) => {
-        const ntp = NewtabPage.create(page, workerInfo);
-        await ntp.reducedMotion();
-        // Use cpm: 'null' to enable new UI (feature available but disabled)
-        await ntp.openPage({ additional: { protections_feed: 'activity', cpm: 'null' } });
+            await protections.choosesView('When they tried to track you', 'activity');
+            await ntp.mocks.waitForCallCount({ method: 'activity_getData', count: 1 });
+            await expect(protections.report().getByTestId('Activity')).toBeVisible();
+        });
 
-        const protections = new ProtectionsPage(ntp);
-        await protections.ready();
-        await protections.hasInfoTooltip();
+        test('shows what companies are known to read from this device', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: report });
+
+            const protections = new ProtectionsPage(ntp);
+            await protections.ready();
+            await protections.choosesView('How they try to recognize you', 'recognition');
+            await protections.displaysRecognition();
+        });
+
+        test('shows which sites had the most trackers', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: { ...report, protections_feed: 'top-sites' } });
+
+            const protections = new ProtectionsPage(ntp);
+            await protections.ready();
+            await protections.displaysTopSites();
+        });
+
+        test('uses the built-in Tracker Radar table when native sends no categories', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: { protections: 'report', stats: 'reportWithoutCategories' } });
+
+            const protections = new ProtectionsPage(ntp);
+            await protections.ready();
+            // no topSites in this mock, so that view is left out
+            await protections.hasViewOptions([
+                'Why we blocked them',
+                'Who we blocked the most',
+                'When they tried to track you',
+                'How they try to recognize you',
+            ]);
+            await protections.displaysPurposesFromBuiltInTable();
+        });
+
+        test('updates the cookie pop-up footer from subscription data', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: report });
+
+            const protections = new ProtectionsPage(ntp);
+            await protections.ready();
+            await protections.receivesCookieCount(25);
+        });
+
+        test('hides the cookie pop-up footer when CPM is disabled (null)', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: report });
+
+            const protections = new ProtectionsPage(ntp);
+            await protections.ready();
+            await protections.hidesCookieFooterFor(null);
+        });
+
+        test('hides the cookie pop-up footer when the count is 0', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: report });
+
+            const protections = new ProtectionsPage(ntp);
+            await protections.ready();
+            await protections.hidesCookieFooterFor(0);
+        });
+
+        test('shows the empty state when nothing was blocked this week', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: { protections: 'empty', stats: 'none' } });
+
+            const protections = new ProtectionsPage(ntp);
+            await protections.ready();
+            await protections.displaysEmptyReport();
+        });
+
+        test('explains why this matters', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: report });
+
+            const protections = new ProtectionsPage(ntp);
+            await protections.ready();
+            await protections.hasInfoPopover();
+        });
+
+        test('collapses and expands', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: report });
+
+            const protections = new ProtectionsPage(ntp);
+            await protections.ready();
+            await protections.collapsesReport();
+        });
     });
 
     test('scrolls to protections heading via subscription message', async ({ page }, workerInfo) => {

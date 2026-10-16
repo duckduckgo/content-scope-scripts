@@ -2,6 +2,8 @@ import { TestTransportConfig } from '@duckduckgo/messaging';
 import { protectionsMocks } from './protections.mocks.js';
 import { AnimationConstants } from '../utils/animateCount.js';
 
+/** @typedef {import('../../../types/new-tab.ts').ProtectionsConfig} ProtectionsConfig */
+
 const url = typeof window !== 'undefined' ? new URL(window.location.href) : new URL('https://example.com');
 
 /**
@@ -97,7 +99,10 @@ export function protectionsMockTransport() {
                     // platforms adopt the new schema
                     // @todo legacyProtections: Remove next line once all
                     // platforms support the new UI
-                    dataset.totalCookiePopUpsBlocked = undefined;
+                    // An explicit `?protections=<mock>` keeps that mock's value.
+                    if (!url.searchParams.has('protections')) {
+                        dataset.totalCookiePopUpsBlocked = undefined;
+                    }
 
                     if (url.searchParams.get('cpm') === 'true') {
                         dataset.totalCookiePopUpsBlocked = AnimationConstants.MAX_DISPLAY_COUNT;
@@ -120,9 +125,11 @@ export function protectionsMockTransport() {
 
                     return Promise.resolve(dataset);
                 case 'protections_getConfig': {
-                    if (url.searchParams.get('protections_feed') === 'activity') {
-                        config.feed = 'activity';
-                    }
+                    const feed = url.searchParams.get('protections_feed');
+                    /** @type {ProtectionsConfig['feed'][]} */
+                    const feeds = ['privacy-stats', 'activity', 'purposes', 'recognition', 'companies', 'top-sites'];
+                    const known = feeds.find((f) => f === feed);
+                    if (known) config.feed = known;
 
                     if (url.searchParams.get('protections.burn') === 'false') {
                         config.showBurnAnimation = false;
