@@ -773,7 +773,7 @@ export default class PageContext extends ContentFeature {
                 includeIframes: this.getFeatureSettingEnabled('includeIframes', 'enabled'),
                 excludeSelectors: excludeSelectorsString,
                 trimBlankLinks: this.getFeatureSettingEnabled('trimBlankLinks', 'enabled'),
-                stripLinkUrls: this.getFeatureSettingEnabled('stripLinkUrls', 'enabled'),
+                stripLinkUrls: this.getFeatureSettingEnabled('stripLinkUrls', 'disabled'),
             }).trim();
             this.log.info('Content markdown', result, root);
             return result;
