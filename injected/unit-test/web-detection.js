@@ -62,13 +62,13 @@ function runDetector(detectorConfig, env = {}) {
 }
 
 /**
- * A detector whose one item writes its breakage entry when `when` holds.
+ * A detector that writes its breakage entry when `match` holds.
  *
- * @param {unknown} when
- * @param {Omit<RawDetectorConfig, 'actions'>} [rest]
+ * @param {unknown} match
+ * @param {Omit<RawDetectorConfig, 'match' | 'actions'>} [rest]
  * @returns {RawDetectorConfig}
  */
-const detects = (when, rest = {}) => ({ ...rest, actions: [{ when, breakageReportData: {} }] });
+const detects = (match, rest = {}) => ({ ...rest, match, actions: { breakageReportData: {} } });
 
 describe('WebDetection', () => {
     describe('parseDetectors', () => {
@@ -187,26 +187,24 @@ describe('WebDetection', () => {
             expect(result.triggers.breakageReport.state).toBe('disabled');
         });
 
-        it('should compile each item in order', () => {
+        it('should compile `match` and `actions`, several action keys as a sequence in config order', () => {
             const compiled = compiledOf({
-                actions: [
-                    { when: { text: { pattern: 'test' } }, exit: true },
-                    { fireEvent: { type: 'adwall' }, breakageReportData: {}, define: { done: true } },
-                ],
+                match: { text: { pattern: 'test' } },
+                actions: { fireEvent: { type: 'adwall' }, breakageReportData: {} },
             });
-            expect(compiled.items.length).toBe(2);
-            expect(compiled.items[0].when).toBeDefined();
-            expect(compiled.items[0].exit).toBe(true);
-            expect(compiled.items[1].when).toBeUndefined();
-            expect(compiled.items[1].fireEvent).toEqual({ type: 'adwall' });
-            expect(compiled.items[1].breakageReportData).toEqual({});
-            expect(compiled.items[1].exit).toBe(false);
+            expect(compiled.match?.kind).toBe('source');
+            expect(compiled.actions.kind).toBe('sequence');
+            if (compiled.actions.kind !== 'sequence') return;
+            expect(compiled.actions.elements.map((element) => element.kind)).toEqual(['fireEvent', 'breakageReportData']);
+            expect(compiledOf({ actions: { breakageReportData: {} } }).match).toBeUndefined();
         });
 
-        it('should reject the shape before action lists', () => {
-            expect(parseErrorOf({ match: { text: { pattern: 'test' } } })).toContain("unknown key 'match'");
-            expect(parseErrorOf({ actions: { fireEvent: { type: 'adwall' } } })).toContain('`actions` takes an array');
-            expect(parseErrorOf({ actions: [{ fireEvent: { type: 'adwall', state: 'enabled' } }] })).toContain("unknown key 'state'");
+        it('should reject the shipped shape and the action-list shape', () => {
+            expect(parseErrorOf({ match: { text: { pattern: 'test' } } })).toContain('a detector needs `actions`');
+            expect(parseErrorOf({ match: true, actions: { fireEvent: { type: 'adwall', state: 'enabled' } } })).toContain(
+                "unknown key 'state'",
+            );
+            expect(parseErrorOf({ actions: [{ when: true, fireEvent: { type: 'adwall' } }] })).toContain("'when' is not an action");
         });
 
         describe('auto trigger defaults', () => {
@@ -262,22 +260,22 @@ describe('WebDetection', () => {
             expect(runDetectorsInEnv({})).toEqual([]);
         });
 
-        it('should include a detector whose breakageReportData item ran', () => {
+        it('should include a detector whose breakageReportData action ran', () => {
             const results = runDetector(detects(true));
             expect(results).toEqual([{ detectorId: 'group.detector', detected: true }]);
         });
 
-        it('should exclude a detector whose item did not run', () => {
+        it('should exclude a detector whose `match` did not hold', () => {
             expect(runDetector(detects(false))).toEqual([]);
         });
 
-        it('should exclude a detector with no breakageReportData item that has not failed', () => {
-            expect(runDetector({ actions: [{ fireEvent: { type: 'adwall' } }] })).toEqual([]);
+        it('should exclude a detector with no breakageReportData action that has not failed', () => {
+            expect(runDetector({ actions: { fireEvent: { type: 'adwall' } } })).toEqual([]);
         });
 
-        it('should include a detector with no breakageReportData item once a run fails', () => {
-            expect(runDetector({ actions: [{ when: { element: { selector: '!!!invalid' } }, fireEvent: { type: 'adwall' } }] })).toEqual([
-                { detectorId: 'group.detector', errors: { '0.when': 'error' } },
+        it('should include a detector with no breakageReportData action once a run fails', () => {
+            expect(runDetector({ match: { element: { selector: '!!!invalid' } }, actions: { fireEvent: { type: 'adwall' } } })).toEqual([
+                { detectorId: 'group.detector', errors: { 'match.element': 'error' } },
             ]);
         });
 
@@ -350,7 +348,7 @@ describe('WebDetection', () => {
 
         it('should return error for detector with invalid selector', () => {
             expect(runDetector(detects({ element: { selector: '!!!invalid' } }))).toEqual([
-                { detectorId: 'group.detector', errors: { '0.when': 'error' } },
+                { detectorId: 'group.detector', errors: { 'match.element': 'error' } },
             ]);
         });
 
@@ -361,7 +359,7 @@ describe('WebDetection', () => {
         });
 
         it('should return error for detector that fails to parse', () => {
-            expect(runDetector(/** @type {RawDetectorConfig} */ ({ match: {}, actions: [{ breakageReportData: {} }] }))).toEqual([
+            expect(runDetector(/** @type {RawDetectorConfig} */ ({ match: {}, actions: [{ when: true }] }))).toEqual([
                 { detectorId: 'group.detector', errors: { parse: 'error' } },
             ]);
         });

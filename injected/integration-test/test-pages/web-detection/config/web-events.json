@@ -11,22 +11,17 @@
                 "detectors": {
                     "adwall": {
                         "fire_event_text": {
-                            "actions": [
-                                {
-                                    "when": {
-                                        "text": {
-                                            "pattern": "ad ?block(er)? detected"
-                                        }
-                                    },
-                                    "fireEvent": {
-                                        "type": "adwall"
-                                    },
-                                    "breakageReportData": {},
-                                    "define": {
-                                        "done": true
-                                    }
+                            "match": {
+                                "text": {
+                                    "pattern": "ad ?block(er)? detected"
                                 }
-                            ],
+                            },
+                            "actions": {
+                                "fireEvent": {
+                                    "type": "adwall"
+                                },
+                                "breakageReportData": {}
+                            },
                             "triggers": {
                                 "auto": {
                                     "state": "enabled",

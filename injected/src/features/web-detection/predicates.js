@@ -10,7 +10,6 @@ import {
     ConfigParseError,
     EXPRESSION_KEYS,
     Failure,
-    NOT_READ,
     asArray,
     decides,
     isExpressionObject,
@@ -258,6 +257,7 @@ export function readPath(reader, root, names, args) {
 
 /**
  * @typedef {object} CompiledField
+ * @property {string} path - the config path a failed read is reported at
  * @property {string[]} names - empty for an expression
  * @property {CompiledArg[]} [args]
  * @property {unknown} [expression] - a compiled expression in value position, in place of `names` and `args`
@@ -275,7 +275,7 @@ export function readPath(reader, root, names, args) {
  */
 export function compileArgs(raw, path, hooks) {
     if (!isArray(raw)) throw new ConfigParseError(path, '`args` must be an array');
-    return raw.map((entry, i) => ({ expression: hooks.expression(entry, `${path}[${i}]`, 'value') }));
+    return raw.map((entry, i) => ({ expression: hooks.expression(entry, `${path}.${i}`, 'value') }));
 }
 
 /**
@@ -344,11 +344,11 @@ export function parsePathBody(rawBody, path, hooks, key, allowed) {
  */
 export function compileField(raw, path, hooks) {
     if (isExpressionObject(raw)) {
-        return hooks.item((binder) => ({ names: [], binder, expression: hooks.expression(raw, path, 'value') }));
+        return hooks.item((binder) => ({ path, names: [], binder, expression: hooks.expression(raw, path, 'value') }));
     }
     const body = parsePathBody(raw, path, hooks, 'field', ['path', 'args']);
     /** @type {CompiledField} */
-    const field = { names: body.names };
+    const field = { path, names: body.names };
     const rawArgs = body.raw.args;
     if (rawArgs !== undefined) {
         hooks.item((binder) => {
@@ -368,8 +368,9 @@ export function compileField(raw, path, hooks) {
  * @returns {unknown} the value, or a `Failure`
  */
 export function readField(ctx, root, field) {
-    if (!field.binder) return readFieldOf(ctx, root, field);
-    return ctx.bind(field.binder, root, () => readFieldOf(ctx, root, field));
+    const binder = field.binder;
+    const value = binder ? ctx.bind(binder, root, () => readFieldOf(ctx, root, field)) : readFieldOf(ctx, root, field);
+    return isFailure(value) ? value.at(field.path) : value;
 }
 
 /**
@@ -406,7 +407,7 @@ export function compileWhere(raw, path, hooks) {
  *
  * @typedef {object} PredicateContext
  * @property {NativeReader} reader
- * @property {(operand: unknown) => unknown} operand - evaluates a compiled operand expression once per run, giving its value or a `Failure`
+ * @property {(operand: unknown) => unknown} operand - evaluates a compiled operand expression, giving its value or a `Failure`
  * @property {(expression: unknown) => unknown} read - evaluates a compiled expression in the position it was compiled for, giving its value or a `Failure`
  * @property {(expression: unknown) => unknown} arg - evaluates a compiled `args` expression, giving a selected list as an array, or a `Failure`
  * @property {(expression: unknown) => unknown} test - evaluates a compiled boolean expression with its `is`, giving the boolean or a `Failure`
@@ -421,7 +422,6 @@ export function compileWhere(raw, path, hooks) {
 /**
  * @typedef {object} CompiledPredicate
  * @property {PredicateTest} test - `subject` may be a `Failure`, which `fails` reads
- * @property {number} bound - the length from which the result on a list's length is fixed ([Early exit](implementation.md))
  * @property {boolean} scalar - whether it compares the value: a literal, `eq`, `in`, `lt`, `lte`, `gt` or `gte` at its top level or in its combinators. A selected list under it gives its one item
  */
 
@@ -448,12 +448,11 @@ const RESERVED_LATER = new Set(['match']);
  * A predicate over the value read: a failure passes up, and `test` sees only values.
  *
  * @param {PredicateTest} test
- * @param {number} bound
  * @param {boolean} scalar
  * @returns {CompiledPredicate}
  */
-function onValue(test, bound, scalar) {
-    return { test: (subject, ctx) => (isFailure(subject) ? subject : test(subject, ctx)), bound, scalar };
+function onValue(test, scalar) {
+    return { test: (subject, ctx) => (isFailure(subject) ? subject : test(subject, ctx)), scalar };
 }
 
 /**
@@ -492,12 +491,14 @@ export function compilePredicate(raw, level, path, hooks) {
     if (!isPlainObject(raw)) throw new ConfigParseError(path, 'a predicate must be a literal or an object');
     if (level === 'item' && isItemExpression(raw)) {
         const node = hooks.expression(raw, path, 'boolean');
-        return onValue((_, ctx) => /** @type {boolean | Failure} */ (ctx.test(node)), Infinity, false);
+        return onValue((_, ctx) => /** @type {boolean | Failure} */ (ctx.test(node)), false);
     }
     return compileObject(raw, level, path, hooks);
 }
 
 /**
+ * Every entry is tested, in order. A failure ends the test where it arises.
+ *
  * @param {'any' | 'all' | 'none'} combinator
  * @param {CompiledPredicate[]} entries
  * @returns {CompiledPredicate}
@@ -506,14 +507,14 @@ function combine(combinator, entries) {
     const [decider, decided] = decides(combinator);
     return {
         test: (subject, ctx) => {
+            let result = !decided;
             for (const entry of entries) {
-                const result = entry.test(subject, ctx);
-                if (isFailure(result)) return result;
-                if (result === decider) return decided;
+                const held = entry.test(subject, ctx);
+                if (isFailure(held)) return held;
+                if (held === decider) result = decided;
             }
-            return !decided;
+            return result;
         },
-        bound: entries.reduce((max, entry) => Math.max(max, entry.bound), 0),
         scalar: entries.some((entry) => entry.scalar),
     };
 }
@@ -533,22 +534,24 @@ function compileObject(raw, level, path, hooks) {
         throw new ConfigParseError(path, '`field` and `is` go together in a predicate');
     }
 
-    // `fails` and `type` first, then the rest in config order
+    // `fails` and `type` guard the rest: when either does not hold, the object is `false`
     const isFirst = (/** @type {string} */ key) => level === 'value' && FIRST_OPERATORS.includes(key);
-    const ordered = [...FIRST_OPERATORS.filter((key) => isFirst(key) && keys.includes(key)), ...keys.filter((key) => !isFirst(key))];
 
     /** @type {CompiledPredicate[]} */
-    const entries = [];
-    for (const key of ordered) {
+    const first = [];
+    /** @type {CompiledPredicate[]} */
+    const rest = [];
+    for (const key of [...FIRST_OPERATORS.filter((key) => isFirst(key) && keys.includes(key)), ...keys.filter((key) => !isFirst(key))]) {
         const keyPath = `${path}.${key}`;
         const value = raw[key];
         if (RESERVED_LATER.has(key)) throw new ConfigParseError(keyPath, `'${key}' is reserved`);
         if (key === 'is') continue;
+        const entries = isFirst(key) ? first : rest;
         if (key === 'any' || key === 'all' || key === 'none') {
             entries.push(
                 combine(
                     key,
-                    asArray(value).map((entry, i) => compilePredicate(entry, level, `${keyPath}[${i}]`, hooks)),
+                    asArray(value).map((entry, i) => compilePredicate(entry, level, isArray(value) ? `${keyPath}.${i}` : keyPath, hooks)),
                 ),
             );
         } else if (key === 'field') {
@@ -558,11 +561,21 @@ function compileObject(raw, level, path, hooks) {
             entries.push(compileOperator(key, value, keyPath, hooks));
         } else {
             const names = compilePath(key, keyPath, hooks);
-            entries.push(readThen({ names }, compilePredicate(value, 'value', keyPath, hooks)));
+            entries.push(readThen({ path: keyPath, names }, compilePredicate(value, 'value', keyPath, hooks)));
         }
     }
-    if (entries.length === 0) return onValue(() => true, 0, false);
-    return combine('all', entries);
+    if (first.length === 0 && rest.length === 0) return onValue(() => true, false);
+    if (first.length === 0) return combine('all', rest);
+    const guard = combine('all', first);
+    const others = combine('all', rest);
+    return {
+        test: (subject, ctx) => {
+            const held = guard.test(subject, ctx);
+            if (held !== true) return held;
+            return others.test(subject, ctx);
+        },
+        scalar: guard.scalar || others.scalar,
+    };
 }
 
 /**
@@ -571,8 +584,7 @@ function compileObject(raw, level, path, hooks) {
  * @returns {CompiledPredicate}
  */
 function readThen(field, next) {
-    // A property of a length is not a length, so the bound is unknown
-    return onValue((subject, ctx) => next.test(readField(ctx, subject, field), ctx), Infinity, false);
+    return onValue((subject, ctx) => next.test(readField(ctx, subject, field), ctx), false);
 }
 
 /**
@@ -586,11 +598,7 @@ function compileOperator(operator, raw, path, hooks) {
     switch (operator) {
         case 'fails': {
             const expected = expectBoolean(raw, path);
-            return {
-                test: (subject) => (isFailure(subject) ? (subject === NOT_READ ? subject : expected) : !expected),
-                bound: 0,
-                scalar: false,
-            };
+            return { test: (subject) => (isFailure(subject) ? expected : !expected), scalar: false };
         }
         case 'type': {
             const names = asArray(raw);
@@ -599,8 +607,7 @@ function compileOperator(operator, raw, path, hooks) {
                     throw new ConfigParseError(path, `unknown type name '${String(name)}'`);
                 }
             }
-            // The same for every length
-            return onValue((subject) => names.includes(typeName(subject)), 0, false);
+            return onValue((subject) => names.includes(typeName(subject)), false);
         }
         case 'in':
             return compileIn(raw, path, hooks);
@@ -620,8 +627,8 @@ function expectBoolean(raw, path) {
 }
 
 /**
- * `in`: the value `===` one of the entries, tested in order. A literal entry is compared as written, and
- * an expression entry giving a list contributes each item.
+ * `in`: the value `===` one of the entries. Every entry is read, in order. A literal entry is compared
+ * as written, and an expression entry giving a list contributes each item.
  *
  * @param {unknown} raw
  * @param {string} path
@@ -631,36 +638,28 @@ function expectBoolean(raw, path) {
 function compileIn(raw, path, hooks) {
     /** @type {Array<{ literal: unknown } | { operand: unknown }>} */
     const entries = asArray(raw).map((entry, i) =>
-        isScalar(entry) ? { literal: entry } : { operand: hooks.expression(entry, isArray(raw) ? `${path}[${i}]` : path, 'value') },
+        isScalar(entry) ? { literal: entry } : { operand: hooks.expression(entry, isArray(raw) ? `${path}.${i}` : path, 'value') },
     );
-    let bound = 0;
-    for (const entry of entries) {
-        if (!('literal' in entry)) bound = Infinity;
-        else if (typeof entry.literal === 'number') bound = Math.max(bound, COMPARISON_BOUND.eq(entry.literal));
-    }
-    return onValue(
-        (subject, ctx) => {
-            for (const entry of entries) {
-                if ('literal' in entry) {
-                    if (subject === entry.literal) return true;
-                    continue;
-                }
-                const value = ctx.read(entry.operand);
-                if (isFailure(value)) return value;
-                const items = ctx.items(value, 'in');
-                if (isFailure(items)) return items;
-                if (!items) {
-                    if (subject === value) return true;
-                    continue;
-                }
-                // By index and `===`, so `NaN` is in no list and a page's `Array.prototype` is not called
-                for (let j = 0; j < items.length; j++) if (items[j] === subject) return true;
+    return onValue((subject, ctx) => {
+        let found = false;
+        for (const entry of entries) {
+            if ('literal' in entry) {
+                if (subject === entry.literal) found = true;
+                continue;
             }
-            return false;
-        },
-        bound,
-        true,
-    );
+            const value = ctx.read(entry.operand);
+            if (isFailure(value)) return value;
+            const items = ctx.items(value, 'in');
+            if (isFailure(items)) return items;
+            if (!items) {
+                if (subject === value) found = true;
+                continue;
+            }
+            // By index and `===`, so `NaN` is in no list and a page's `Array.prototype` is not called
+            for (let j = 0; j < items.length; j++) if (items[j] === subject) found = true;
+        }
+        return found;
+    }, true);
 }
 
 /** @typedef {'eq' | 'lt' | 'lte' | 'gt' | 'gte'} Comparison */
@@ -680,21 +679,8 @@ const COMPARE = {
 };
 
 /**
- * The length from which a comparison against `n` is fixed.
- *
- * @type {Record<Comparison, (n: number) => number>}
- */
-const COMPARISON_BOUND = {
-    eq: (n) => Math.floor(n) + 1,
-    gte: (n) => Math.ceil(n),
-    gt: (n) => Math.floor(n) + 1,
-    lt: (n) => Math.ceil(n),
-    lte: (n) => Math.floor(n) + 1,
-};
-
-/**
- * A comparison against a literal, or against an operand read once per run. `eq` takes any scalar
- * literal, and the others a number.
+ * A comparison against a literal, or against an operand read each time it is tested. `eq` takes any
+ * scalar literal, and the others a number.
  *
  * @param {Comparison} operator
  * @param {unknown} raw
@@ -705,16 +691,11 @@ const COMPARISON_BOUND = {
 function compileComparison(operator, raw, path, hooks) {
     const compare = COMPARE[operator];
     if (operator === 'eq' ? isScalar(raw) : typeof raw === 'number') {
-        const bound = typeof raw === 'number' ? Math.max(0, COMPARISON_BOUND[operator](raw)) : 0;
-        return onValue((subject) => compare(/** @type {number} */ (subject), /** @type {number} */ (raw)), bound, true);
+        return onValue((subject) => compare(/** @type {number} */ (subject), /** @type {number} */ (raw)), true);
     }
     const operand = hooks.expression(raw, path, 'value');
-    return onValue(
-        (subject, ctx) => {
-            const value = ctx.operand(operand);
-            return isFailure(value) ? value : compare(/** @type {number} */ (subject), /** @type {number} */ (value));
-        },
-        Infinity,
-        true,
-    );
+    return onValue((subject, ctx) => {
+        const value = ctx.operand(operand);
+        return isFailure(value) ? value : compare(/** @type {number} */ (subject), /** @type {number} */ (value));
+    }, true);
 }

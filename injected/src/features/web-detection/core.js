@@ -14,15 +14,25 @@ import { isArray, objectKeys } from '../../captured-globals.js';
 export class Failure {
     /**
      * @param {string} [error] - for a throw, the name of the thrown value's constructor, for debugging
+     * @param {string} [path] - the config path of the expression it arose at
      */
-    constructor(error) {
+    constructor(error, path) {
         /** @readonly */
         this.error = error;
+        /** @readonly */
+        this.path = path;
+    }
+
+    /**
+     * The failure at the expression it arose at: itself once it has a path, which it keeps as it propagates.
+     *
+     * @param {string} path
+     * @returns {Failure}
+     */
+    at(path) {
+        return this.path === undefined ? new Failure(this.error, path) : this;
     }
 }
-
-/** A payload reading an expression inside an `if` branch not taken. `fails` passes it up. */
-export const NOT_READ = new Failure();
 
 /**
  * @param {unknown} value
@@ -33,7 +43,26 @@ export function isFailure(value) {
 }
 
 /** Config that does not fit the page. */
-export class DetectionError extends Error {}
+export class DetectionError extends Error {
+    /** @type {string | undefined} the config path of the expression it arose at, set as it leaves that expression */
+    path;
+}
+
+/**
+ * The config path an error arose at, set on the error the first time it leaves an expression, so the
+ * innermost expression it passed through names it.
+ *
+ * @param {unknown} error
+ * @param {string} path
+ * @returns {string}
+ */
+export function errorPath(error, path) {
+    if (error instanceof DetectionError) {
+        error.path ??= path;
+        return error.path;
+    }
+    return path;
+}
 
 /** Config that does not fit the grammar. */
 export class ConfigParseError extends Error {
@@ -62,8 +91,14 @@ export const FILLS = {
     any: new Set(['boolean', 'value', 'number', 'list']),
 };
 
-/** `^[a-zA-Z][a-zA-Z0-9_]*$` */
+/** `^[a-zA-Z][a-zA-Z0-9_]*$`: group, detector and payload key names */
 export const NAME_PATTERN = /^[a-zA-Z][a-zA-Z0-9_]*$/;
+
+/** `^(this\.)?[a-zA-Z][a-zA-Z0-9_]*$`: a run name, or with `this.` a detector name */
+export const DEFINE_NAME_PATTERN = /^(this\.)?[a-zA-Z][a-zA-Z0-9_]*$/;
+
+/** The keys that make an object an action. */
+export const ACTION_KEYS = new Set(['fireEvent', 'breakageReportData', 'define']);
 
 /** The keys that make an object an expression. */
 export const EXPRESSION_KEYS = new Set([
@@ -132,7 +167,8 @@ export function isScalar(value) {
 
 /**
  * For `any`, `all` and `none`, the operand value that decides the result, and the result it gives.
- * Without a deciding operand the result is the opposite. `and` is `all`.
+ * Without a deciding operand the result is the opposite. `and` is `all`. Every operand is still
+ * evaluated: the decider fixes the result, not where evaluation stops.
  *
  * @param {string} kind
  * @returns {[decider: boolean, decided: boolean]}

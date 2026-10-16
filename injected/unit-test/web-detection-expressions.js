@@ -1,8 +1,9 @@
 import { JSDOM } from 'jsdom';
 import { compileDetector, parseDetectors } from '../src/features/web-detection/parse.js';
-import { EvaluationContext, evaluatePayload, evaluateWhen } from '../src/features/web-detection/expressions.js';
+import { EvaluationContext } from '../src/features/web-detection/expressions.js';
 import { NativeReader } from '../src/features/web-detection/predicates.js';
 import { ConfigParseError } from '../src/features/web-detection/core.js';
+import { createDetectorState, runDetector } from '../src/features/web-detection/actions.js';
 import WebDetection from '../src/features/web-detection.js';
 
 /**
@@ -12,13 +13,19 @@ import WebDetection from '../src/features/web-detection.js';
  * @property {(window: any) => void} [afterCapture] - runs after the capture, as a page script would
  */
 
+/** The actions of a detector whose `match` is under test. */
+const REPORT = { breakageReportData: {} };
+
 /**
  * Compile and run a detector against a JSDOM page, reading through that window's globals.
+ *
+ * `detected` is the `match` result, or `true` without `match`. `data` is the first event's payload,
+ * and `failure` the failure that ended `actions`.
  *
  * @param {string} body - markup for `<body>`
  * @param {any} detector
  * @param {RunOptions} [options]
- * @returns {{ detected: true | false | 'error' | 'aborted', abortError?: string, data?: Record<string, unknown>, payloadFailure?: import('../src/features/web-detection/expressions.js').PayloadFailure, ctx: EvaluationContext, error?: unknown }}
+ * @returns {{ detected: boolean | 'error' | 'aborted', abortError?: string, error?: string, failedAt?: string, data?: Record<string, unknown>, failure?: { path: string, result: 'aborted' | 'error' }, names: Map<string, unknown>, ctx: EvaluationContext }}
  */
 function run(body, detector, options = {}) {
     const dom = new JSDOM(`<!DOCTYPE html><html><head>${options.head ?? ''}</head><body>${body}</body></html>`);
@@ -30,19 +37,24 @@ function run(body, detector, options = {}) {
         const compiled = compileDetector(detector, window);
         const reader = new NativeReader(window, compiled.names);
         options.afterCapture?.(window);
-        const ctx = new EvaluationContext(reader);
-        const item = /** @type {import('../src/features/web-detection/parse.js').CompiledItem} */ (compiled.items[0]);
-        /** @type {{ detected: true | false | 'aborted', abortError?: string }} */
-        let result;
-        try {
-            const { result: detected, abortError } = item.when ? evaluateWhen(item.when, ctx) : { result: true };
-            result = { detected, ...(abortError && { abortError }) };
-        } catch (error) {
-            return { detected: 'error', ctx, error };
-        }
-        const payload = result.detected === true && item.fireEvent?.data ? evaluatePayload(item.fireEvent.data, ctx) : undefined;
-        if (payload && 'failure' in payload) return { ...result, payloadFailure: payload.failure, ctx };
-        return { ...result, data: payload?.data, ctx };
+        const state = createDetectorState();
+        const ctx = new EvaluationContext(reader, state.names, state);
+        const result = runDetector(compiled, state, ctx);
+        const detected = result.match ?? true;
+        const failure =
+            result.failedAt !== undefined && result.failedAt.startsWith('actions')
+                ? { path: result.failedAt, result: /** @type {'aborted' | 'error'} */ (result.error === undefined ? 'aborted' : 'error') }
+                : undefined;
+        return {
+            detected,
+            ...(result.abortError && { abortError: result.abortError }),
+            ...(result.error !== undefined && { error: result.error }),
+            ...(result.failedAt !== undefined && { failedAt: result.failedAt }),
+            data: ctx.events[0]?.data,
+            ...(failure && { failure }),
+            names: ctx.runNames,
+            ctx,
+        };
     } finally {
         globalThis.document = originalDocument;
     }
@@ -50,22 +62,34 @@ function run(body, detector, options = {}) {
 
 /**
  * @param {string} body
- * @param {unknown} when
+ * @param {unknown} match
  * @param {RunOptions} [options]
  */
-function holds(body, when, options) {
-    return run(body, { actions: [{ when, exit: true }] }, options).detected;
+function holds(body, match, options) {
+    return run(body, { match, actions: REPORT }, options).detected;
 }
 
 /**
- * A detector whose item always runs and sends one payload field `x`.
+ * Run a detector against a page, and give a run name it binds.
+ *
+ * @param {string} body
+ * @param {unknown} actions
+ * @param {string} name
+ * @param {RunOptions} [options]
+ */
+function bound(body, actions, name, options) {
+    return run(body, { actions }, options).names.get(name);
+}
+
+/**
+ * A detector whose `match` holds, by default, and that sends one payload field `x`.
  *
  * @param {unknown} value
  * @param {object} [extra] - `when` and `buckets`
- * @param {unknown} [when]
+ * @param {unknown} [match]
  */
-function withPayload(value, extra = {}, when = true) {
-    return { actions: [{ when, fireEvent: { type: 't', data: { x: { value, ...extra } } } }] };
+function withPayload(value, extra = {}, match = true) {
+    return { match, actions: { fireEvent: { type: 't', data: { x: { value, ...extra } } } } };
 }
 
 /**
@@ -257,20 +281,12 @@ describe('WebDetection expressions', () => {
         });
 
         it('counts non-overlapping matches across selectors and XPath expressions', () => {
-            const result = run('<h1>error</h1><p>error and error</p>', {
-                actions: [
-                    {
-                        when: {
-                            text: { selector: 'h1', xpath: '//p//text()', pattern: 'error' },
-                            using: 'length',
-                            as: 'n',
-                            is: { lt: 100 },
-                        },
-                        exit: true,
-                    },
-                ],
-            });
-            expect(result.ctx.measured.n).toBe(3);
+            const n = bound(
+                '<h1>error</h1><p>error and error</p>',
+                { define: { n: { text: { selector: 'h1', xpath: '//p//text()', pattern: 'error' }, using: 'length' } } },
+                'n',
+            );
+            expect(n).toBe(3);
         });
 
         it('counts a match straddling an XPath chunk boundary once', () => {
@@ -278,20 +294,19 @@ describe('WebDetection expressions', () => {
             // Many short nodes so chunks flush mid-phrase
             const html = `<p>${filler}</p><p>page</p><p> not </p><p>found</p><p>${filler}</p><p>page not found</p>`;
             for (const chunkSize of [0, 8, 16, 1024]) {
-                const result = run(html, {
-                    actions: [
-                        {
-                            when: {
+                const n = bound(
+                    html,
+                    {
+                        define: {
+                            n: {
                                 text: { xpath: '//p/text()', pattern: 'page not found', xpathConfig: { chunkSize, chunkTail: 32 } },
                                 using: 'length',
-                                as: 'n',
-                                is: { lt: 100 },
                             },
-                            exit: true,
                         },
-                    ],
-                });
-                expect(result.ctx.measured.n).withContext(`chunkSize ${chunkSize}`).toBe(2);
+                    },
+                    'n',
+                );
+                expect(n).withContext(`chunkSize ${chunkSize}`).toBe(2);
             }
         });
 
@@ -307,29 +322,23 @@ describe('WebDetection expressions', () => {
 
     describe('types', () => {
         it('rejects each expression in a position whose type config shows is wrong', () => {
+            expectParseError({ match: { element: { selector: 'img', field: 'naturalWidth' } }, actions: REPORT }, 'does not fill boolean');
             expectParseError(
-                { actions: [{ when: { element: { selector: 'img', field: 'naturalWidth' } }, exit: true }] },
+                { match: { api: { path: 'document.fonts', where: { status: 'error' } } }, actions: REPORT },
                 'does not fill boolean',
             );
             expectParseError(
-                { actions: [{ when: { api: { path: 'document.fonts', where: { status: 'error' } } }, exit: true }] },
-                'does not fill boolean',
-            );
-            expectParseError(
-                { actions: [{ when: { element: { selector: 'img' }, using: 'length' }, exit: true }] },
+                { match: { element: { selector: 'img' }, using: 'length' }, actions: REPORT },
                 'numbers become booleans only through `is`',
             );
-            expectParseError({ actions: [{ when: { only: 5, is: 1 }, exit: true }] }, 'does not fill list');
+            expectParseError({ match: { only: 5, is: 1 }, actions: REPORT }, 'does not fill list');
             expectParseError(
-                { actions: [{ when: { only: { element: { selector: 'img' }, using: 'length' }, is: 1 }, exit: true }] },
+                { match: { only: { element: { selector: 'img' }, using: 'length' }, is: 1 }, actions: REPORT },
                 "'length' does not fill list",
             );
-            expectParseError({ actions: [{ when: 5, exit: true }] }, 'does not fill boolean');
-            expectParseError({ actions: [{ when: { sum: [true], is: 1 }, exit: true }] }, 'does not fill number');
-            expectParseError(
-                { actions: [{ when: { only: { if: { test: true, then: 1, else: 2 } }, is: 1 }, exit: true }] },
-                "'if' does not fill list",
-            );
+            expectParseError({ match: 5, actions: REPORT }, 'does not fill boolean');
+            expectParseError({ match: { sum: [true], is: 1 }, actions: REPORT }, 'does not fill number');
+            expectParseError({ match: { only: { if: true, then: 1, else: 2 }, is: 1 }, actions: REPORT }, "'if' does not fill list");
         });
 
         it('takes an api value of the type its position expects, checked as it is read', () => {
@@ -344,47 +353,57 @@ describe('WebDetection expressions', () => {
 
         it('rejects `is` outside boolean and value position, and several expression keys beside it', () => {
             expectParseError(
-                { actions: [{ when: { sum: [{ element: { selector: 'img' }, using: 'length', is: { gt: 1 } }], is: 1 }, exit: true }] },
+                { match: { sum: [{ element: { selector: 'img' }, using: 'length', is: { gt: 1 } }], is: 1 }, actions: REPORT },
                 '`is` gives a boolean',
             );
             expectParseError(
-                { actions: [{ when: { text: { pattern: 'a' }, element: { selector: 'p' }, is: true }, exit: true }] },
+                { match: { text: { pattern: 'a' }, element: { selector: 'p' }, is: true }, actions: REPORT },
                 'several expression keys',
             );
         });
 
         it('rejects unknown keys and reserved keys', () => {
-            expectParseError({ actions: [{ when: { pageFeature: 'x' }, exit: true }] }, "unknown expression key 'pageFeature'");
-            expectParseError({ actions: [{ when: { element: { selector: 'img', foo: 1 } }, exit: true }] }, "unknown key 'foo'");
+            expectParseError({ match: { pageFeature: 'x' }, actions: REPORT }, "unknown expression key 'pageFeature'");
+            expectParseError({ match: { element: { selector: 'img', foo: 1 } }, actions: REPORT }, "unknown key 'foo'");
             expectParseError(
-                { actions: [{ when: { api: { path: 'document.title', allowGetter: true }, is: '' }, exit: true }] },
+                { match: { api: { path: 'document.title', allowGetter: true }, is: '' }, actions: REPORT },
                 "unknown key 'allowGetter'",
             );
             expectParseError(
-                { actions: [{ when: { element: { selector: 'img' }, using: 'length', aggregate: 'max', is: 1 }, exit: true }] },
+                { match: { element: { selector: 'img' }, using: 'length', aggregate: 'max', is: 1 }, actions: REPORT },
                 "'aggregate' is reserved",
             );
             expectParseError(
-                { actions: [{ when: { element: { selector: 'img' }, using: 'length', catch: { absent: 0 }, is: 1 }, exit: true }] },
+                { match: { element: { selector: 'img' }, using: 'length', catch: { absent: 0 }, is: 1 }, actions: REPORT },
                 "unknown expression key 'catch'",
             );
-            expectParseError({ actions: [{ when: { if: { test: true, then: 1 }, is: 1 }, exit: true }] }, "'if' needs 'else'");
-            expectParseError(
-                { actions: [{ when: { if: { test: true, then: 1, else: 2, other: 3 }, is: 1 }, exit: true }] },
-                "unknown key 'other'",
-            );
+            expectParseError({ match: { if: true, is: 1 }, actions: REPORT }, "'if' needs 'then'");
+            expectParseError({ match: { if: true, then: 1, else: 2, other: 3, is: 1 }, actions: REPORT }, "unknown expression key 'other'");
+            expectParseError({ match: { api: 'x', as: 'y' }, actions: REPORT }, "unknown expression key 'as'");
         });
 
-        it('reads one named source as a boolean in match and as a list in a payload', () => {
+        it('reads one bound source as a boolean in an `if` condition and as a list in a payload', () => {
             const detector = {
                 actions: [
+                    { define: { images: { element: { selector: 'img' } } } },
                     {
-                        when: { element: { selector: 'img' }, as: 'images' },
-                        fireEvent: { type: 't', data: { images: { value: { ref: 'images', using: 'length' } } } },
+                        if: { ref: 'images' },
+                        then: { fireEvent: { type: 't', data: { images: { value: { ref: 'images', using: 'length' } } } } },
                     },
                 ],
             };
             expect(run(IMG() + IMG(), detector).data).toEqual({ images: 2 });
+            expect(run('', detector).data).toBeUndefined();
+        });
+
+        it('reads a ref in two positions, its type checked as it is read', () => {
+            const detector = (/** @type {unknown} */ value) => ({
+                actions: [{ define: { v: value } }, { define: { asNumber: { sum: [{ ref: 'v' }] }, asValue: { ref: 'v' } } }],
+            });
+            const ran = run('', detector(2));
+            expect(ran.names.get('asNumber')).toBe(2);
+            expect(ran.names.get('asValue')).toBe(2);
+            expect(run('', detector('x')).failure).toEqual({ path: 'actions.1.define.asNumber.sum', result: 'error' });
         });
 
         it('reads text matches and elements through list operators', () => {
@@ -405,7 +424,7 @@ describe('WebDetection expressions', () => {
         });
 
         it('takes booleans and multi-key objects in value position', () => {
-            expect(payload('<p>a</p>', { all: [{ text: { pattern: 'a' } }], as: 'hasA' })).toEqual({ x: true });
+            expect(payload('<p>a</p>', { all: [{ text: { pattern: 'a' } }] })).toEqual({ x: true });
             expect(payload('<p>a</p>', { any: [{ text: { pattern: 'b' } }] })).toEqual({ x: false });
             expect(payload('<p class="c">a</p>', { text: { pattern: 'a' }, element: { selector: '.c' } })).toEqual({ x: true });
             expect(payload('', false)).toEqual({ x: false });
@@ -420,39 +439,38 @@ describe('WebDetection expressions', () => {
 
         it('rejects an array in every expression position', () => {
             const notExpression = 'an array is not an expression';
-            expectParseError({ actions: [{ when: [], exit: true }] }, notExpression);
-            expectParseError({ actions: [{ when: [true], exit: true }] }, notExpression);
-            expectParseError({ actions: [{ when: { all: [true, [true, false]] }, exit: true }] }, notExpression);
-            expectParseError({ actions: [{ when: { if: { test: [true], then: true, else: false } }, exit: true }] }, notExpression);
+            expectParseError({ match: [], actions: REPORT }, notExpression);
+            expectParseError({ match: [true], actions: REPORT }, notExpression);
+            expectParseError({ match: { all: [true, [true, false]] }, actions: REPORT }, notExpression);
+            expectParseError({ match: { if: [true], then: true, else: false }, actions: REPORT }, notExpression);
+            expect(holds('', { if: true, then: [true], else: false })).toBe(true);
+            expectParseError({ match: { if: true, then: [true, 1], else: false }, actions: REPORT }, "'literal' does not fill boolean");
             expectParseError({ actions: [{ define: { x: [1, 2] } }] }, notExpression);
+            expectParseError({ actions: [[{ define: { x: 1 } }]] }, notExpression);
+            expectParseError({ actions: { define: { x: { sum: [1, { api: { path: 'Math.max', args: [[1]] } }] } } } }, notExpression);
             expectParseError(withPayload([1, 2]), notExpression);
             expectParseError(withPayload({ sum: [1, [2, 3]] }), notExpression);
-            expectParseError({ actions: [{ when: { api: { path: 'document.title' }, is: { eq: ['a'] } }, exit: true }] }, notExpression);
+            expectParseError({ match: { api: { path: 'document.title' }, is: { eq: ['a'] } }, actions: REPORT }, notExpression);
         });
 
         it('takes string and null literals in value position only', () => {
             expect(payload('', 'x')).toEqual({ x: 'x' });
             expect(payload('', null)).toEqual({ x: null });
-            expect(payload('', { if: { test: true, then: 'yes', else: 'no' } })).toEqual({ x: 'yes' });
-            expect(payload('', { if: { test: false, then: 'yes', else: null } })).toEqual({ x: null });
+            expect(payload('', { if: true, then: 'yes', else: 'no' })).toEqual({ x: 'yes' });
+            expect(payload('', { if: false, then: 'yes', else: null })).toEqual({ x: null });
             expect(holds('', { api: { path: 'document.readyState' }, is: { eq: { api: { path: 'document.readyState' } } } })).toBe(true);
             expect(holds('<p>a</p>', { only: { text: { pattern: 'a' } }, is: { eq: { text: { pattern: 'a' } } } })).toBe(true);
-            expectParseError({ actions: [{ when: 'x', exit: true }] }, "'literal' does not fill boolean position");
-            expectParseError({ actions: [{ when: { any: [null] }, exit: true }] }, "'literal' does not fill boolean position");
-            expectParseError(
-                { actions: [{ when: { sum: ['x', 1], is: { gt: 0 } }, exit: true }] },
-                "'literal' does not fill number position",
-            );
-            expectParseError({ actions: [{ when: { only: 'x', is: 1 }, exit: true }] }, "'literal' does not fill list position");
+            expectParseError({ match: 'x', actions: REPORT }, "'literal' does not fill boolean position");
+            expectParseError({ match: { any: [null] }, actions: REPORT }, "'literal' does not fill boolean position");
+            expectParseError({ match: { sum: ['x', 1], is: { gt: 0 } }, actions: REPORT }, "'literal' does not fill number position");
+            expectParseError({ match: { only: 'x', is: 1 }, actions: REPORT }, "'literal' does not fill list position");
             expect(holds('<p></p>', { element: { selector: 'p' }, using: 'length', is: { gt: '0' } })).toBe(true);
         });
 
-        it('names the AND of a multi-key object', () => {
-            const result = run('<p class="a">foo</p>', {
-                actions: [{ when: { text: { pattern: 'foo' }, element: { selector: '.a' }, as: 'both' }, exit: true }],
-            });
-            expect(result.detected).toBe(true);
-            expect(result.ctx.measured.both).toBe(true);
+        it('binds the AND of a multi-key object', () => {
+            expect(
+                bound('<p class="a">foo</p>', { define: { both: { text: { pattern: 'foo' }, element: { selector: '.a' } } } }, 'both'),
+            ).toBe(true);
         });
 
         it('ANDs `any` with a source key in one object', () => {
@@ -461,9 +479,9 @@ describe('WebDetection expressions', () => {
         });
 
         it('rejects operator blocks inside a source', () => {
-            expectParseError({ actions: [{ when: { text: { any: [{ pattern: 'a' }] } }, exit: true }] }, "unknown key 'any'");
+            expectParseError({ match: { text: { any: [{ pattern: 'a' }] } }, actions: REPORT }, "unknown key 'any'");
             expectParseError(
-                { actions: [{ when: { element: [{ selector: 'p' }, { none: [{ selector: 'a' }] }] }, exit: true }] },
+                { match: { element: [{ selector: 'p' }, { none: [{ selector: 'a' }] }] }, actions: REPORT },
                 "unknown key 'none'",
             );
         });
@@ -506,99 +524,79 @@ describe('WebDetection expressions', () => {
             const buckets = { small: { lt: 10 }, large: { gte: 10 } };
             expect(run(widths([5]), withPayload(width, { buckets }), { install: imageState }).data).toEqual({ x: 'small' });
             expect(run(widths([5]), withPayload(width, { buckets: { two: { length: 2 } } }), { install: imageState }).data).toEqual({});
-            expect(run(widths([5]), withPayload(width), { install: imageState }).payloadFailure).toEqual(
-                jasmine.objectContaining({ key: 'x', result: 'error' }),
-            );
-            expect(run(widths([5, 6]), withPayload(width, { buckets }), { install: imageState }).payloadFailure).toEqual(
-                jasmine.objectContaining({ key: 'x', result: 'error' }),
-            );
+            expect(run(widths([5]), withPayload(width), { install: imageState }).failure).toEqual({
+                path: 'actions.fireEvent.data.x.value',
+                result: 'error',
+            });
+            expect(run(widths([5, 6]), withPayload(width, { buckets }), { install: imageState }).failure).toEqual({
+                path: 'actions.fireEvent.data.x.value',
+                result: 'error',
+            });
         });
     });
 
     describe('names and refs', () => {
-        it('rejects a duplicate name, an unresolved ref and a cycle', () => {
-            expectParseError(
-                {
-                    actions: [
-                        {
-                            when: {
-                                all: [
-                                    { element: { selector: 'a' }, as: 'x' },
-                                    { element: { selector: 'b' }, as: 'x' },
-                                ],
-                            },
-                            exit: true,
-                        },
-                    ],
-                },
-                "duplicate name 'x'",
-            );
-            expectParseError({ actions: [{ when: { ref: 'nope' }, exit: true }] }, "unresolved ref 'nope'");
-            expectParseError(
-                {
-                    actions: [
-                        {
-                            when: { sum: [{ ref: 'b' }], as: 'a', is: 1 },
-                            fireEvent: { type: 't', data: { b: { value: { sum: [{ ref: 'a' }], as: 'b' } } } },
-                        },
-                    ],
-                },
-                'cycle',
-            );
+        it('compiles a ref to a name nothing binds, which reads `undefined`', () => {
+            expect(holds('', { ref: 'nope', is: { type: 'undefined' } })).toBe(true);
+            expect(holds('', { ref: 'nope', is: true })).toBe(false);
+            expect(holds('', { ref: 'nope' })).toBe('error');
         });
 
-        it('computes a ref whose target short-circuiting skipped', () => {
-            const result = run('<p>foo</p>' + IMG(), {
+        it('evaluates every operand, so a value bound in a later operand is read', () => {
+            const detector = {
                 actions: [
                     {
-                        when: {
-                            any: [
-                                { text: { pattern: 'foo' } },
-                                { element: { selector: 'img' }, using: 'length', as: 'images', is: { gt: 0 } },
-                            ],
+                        define: {
+                            either: {
+                                any: [
+                                    { text: { pattern: 'foo' } },
+                                    {
+                                        expr: { define: { images: { element: { selector: 'img' }, using: 'length' } } },
+                                        is: { type: 'undefined' },
+                                    },
+                                ],
+                            },
                         },
-                        fireEvent: { type: 't', data: { images: { value: { ref: 'images' } } } },
                     },
+                    { fireEvent: { type: 't', data: { images: { value: { ref: 'images' } } } } },
                 ],
-            });
-            expect(result.data).toEqual({ images: 1 });
+            };
+            expect(run('<p>foo</p>' + IMG(), detector).data).toEqual({ images: 1 });
         });
 
         it('reads the value a name holds, not the boolean `is` gives', () => {
             const html = IMG() + IMG() + IMG();
-            expect(
-                holds(html, {
-                    all: [
-                        { element: { selector: 'img' }, using: 'length', as: 'images', is: { gte: 1 } },
-                        { ref: 'images', is: 3 },
-                    ],
-                }),
-            ).toBe(true);
+            const actions = [
+                { define: { images: { element: { selector: 'img' }, using: 'length' } } },
+                { define: { three: { ref: 'images', is: 3 } } },
+            ];
+            expect(bound(html, actions, 'three')).toBe(true);
+        });
+
+        it('reads a bound condition leaf as a boolean under `all`', () => {
+            const actions = [{ define: { p: { element: { selector: 'p' } } } }, { define: { has: { all: [{ ref: 'p' }, true] } } }];
+            expect(bound('<p></p>', actions, 'has')).toBe(true);
+            expect(bound('', actions, 'has')).toBe(false);
         });
     });
 
     describe('values', () => {
         it('divides by 0 as JS does', () => {
             expect(payload('', { div: [1, 0] }, { when: { ...numberTest('isFinite', false), gt: 0 } })).toEqual({});
-            expect(run('', withPayload({ div: [1, 0] })).ctx.memo.size).toBeGreaterThan(0);
             const result = run('', {
-                actions: [
-                    {
-                        when: {
-                            all: [
-                                { div: [1, 0], as: 'pos', is: { eq: { api: 'Infinity' } } },
-                                { div: [-1, 0], as: 'neg', is: { lt: 0 } },
-                                { div: [0, 0], as: 'nan', is: numberTest('isNaN') },
-                            ],
-                        },
-                        exit: true,
+                actions: {
+                    define: {
+                        pos: { div: [1, 0] },
+                        neg: { div: [-1, 0] },
+                        nan: { div: [0, 0] },
+                        nanTested: { ref: 'nan', is: numberTest('isNaN') },
                     },
-                ],
+                },
             });
-            expect(result.detected).toBe(true);
-            expect(result.ctx.measured.pos).toBe(Infinity);
-            expect(result.ctx.measured.neg).toBe(-Infinity);
-            expect(result.ctx.measured.nan).toBeNaN();
+            expect(result.names.get('pos')).toBe(Infinity);
+            expect(result.names.get('neg')).toBe(-Infinity);
+            expect(result.names.get('nan')).toBeNaN();
+            expect(result.names.get('nanTested')).toBe(true);
         });
 
         it('carries NaN through each operator', () => {
@@ -623,7 +621,7 @@ describe('WebDetection expressions', () => {
 
     describe('failures and fails', () => {
         it('aborts on a failure in boolean position', () => {
-            const result = run('', { actions: [{ when: { ...FAILING, using: 'length', is: { gt: 0 } }, exit: true }] });
+            const result = run('', { match: { ...FAILING, using: 'length', is: { gt: 0 } }, actions: REPORT });
             expect(result.detected).toBe('aborted');
             expect(result.abortError).toBe('SyntaxError');
         });
@@ -631,15 +629,12 @@ describe('WebDetection expressions', () => {
         it('aborts with the thrown value’s constructor name when a read throws', () => {
             const result = run(
                 IMG('data-complete data-throw'),
-                {
-                    actions: [
-                        { when: { element: { selector: 'img', where: { naturalWidth: 0 } }, using: 'length', is: { gt: 0 } }, exit: true },
-                    ],
-                },
+                { match: { element: { selector: 'img', where: { naturalWidth: 0 } }, using: 'length', is: { gt: 0 } }, actions: REPORT },
                 { install: imageState },
             );
             expect(result.detected).toBe('aborted');
             expect(result.abortError).toBe('Error');
+            expect(result.failedAt).toBe('match.element.where.naturalWidth');
         });
 
         it('reads `fails` over a value, a missing name, which reads `undefined`, and a read that throws', () => {
@@ -689,7 +684,7 @@ describe('WebDetection expressions', () => {
             const engine = {
                 api: { path: 'Reflect.has', args: [{ api: 'FakePerformanceEntry.prototype' }, 'responseStatus'] },
             };
-            const guarded = { if: { test: engine, then: errors, else: 0 }, is: 0 };
+            const guarded = { if: engine, then: errors, else: 0, is: 0 };
             expect(holds('', guarded, { install: lacking })).toBe(true);
             expect(holds('', { ...guarded, is: 1 }, { install })).toBe(true);
         });
@@ -704,54 +699,38 @@ describe('WebDetection expressions', () => {
 
         it('reports a value tested with `fails`, and omits a failed one', () => {
             const detector = {
-                actions: [
-                    {
-                        when: {
-                            api: { path: 'document.fonts', where: { status: 'error' } },
-                            using: 'length',
-                            as: 'failedFontFaces',
-                            is: { fails: false, lt: 3 },
+                actions: {
+                    fireEvent: {
+                        type: 't',
+                        data: {
+                            failedFontFaces: {
+                                value: { api: { path: 'document.fonts', where: { status: 'error' } }, using: 'length' },
+                                when: { fails: false },
+                            },
                         },
-                        fireEvent: { type: 't', data: { failedFontFaces: { value: { ref: 'failedFontFaces' } } } },
                     },
-                ],
+                },
             };
-            expect(run('', detector, { install: brokenFonts }).detected).toBe(false);
+            expect(run('', detector, { install: brokenFonts }).data).toEqual({});
             expect(run('', detector, { install: fonts(['loaded', 'error']) }).data).toEqual({ failedFontFaces: 1 });
         });
 
         it('falls back through `if` over `fails`, reporting the fallback, and fails on the failed read unless handled', () => {
+            const failed = { api: { path: 'document.fonts', where: { status: 'error' } }, using: 'length' };
             /** @param {object} n - the payload field for `n` */
             const detector = (n) => ({
                 actions: [
-                    {
-                        when: {
-                            if: {
-                                test: {
-                                    api: { path: 'document.fonts', where: { status: 'error' } },
-                                    using: 'length',
-                                    as: 'n',
-                                    is: { fails: false },
-                                },
-                                then: { ref: 'n' },
-                                else: 0,
-                            },
-                            as: 'nOr0',
-                            is: { gte: 0 },
-                        },
-                        fireEvent: {
-                            type: 't',
-                            data: { nOr0: { value: { ref: 'nOr0' } }, n },
-                        },
-                    },
+                    { define: { nOr0: { if: { ...failed, is: { fails: false } }, then: { expr: failed }, else: 0 } } },
+                    { fireEvent: { type: 't', data: { nOr0: { value: { ref: 'nOr0' } }, n } } },
                 ],
             });
-            const handled = detector({ value: { ref: 'n' }, when: { fails: false } });
+            const handled = detector({ value: failed, when: { fails: false } });
             expect(run('', handled, { install: brokenFonts }).data).toEqual({ nOr0: 0 });
             expect(run('', handled, { install: fonts(['error', 'error']) }).data).toEqual({ nOr0: 2, n: 2 });
-            expect(run('', detector({ value: { ref: 'n' } }), { install: brokenFonts }).payloadFailure).toEqual(
-                jasmine.objectContaining({ key: 'n', result: 'aborted' }),
-            );
+            expect(run('', detector({ value: failed }), { install: brokenFonts }).failure).toEqual({
+                path: 'actions.1.fireEvent.data.n.value.api',
+                result: 'aborted',
+            });
         });
 
         it('lets a tested failure under `none` decide the leaf, and an untested one abort', () => {
@@ -760,71 +739,56 @@ describe('WebDetection expressions', () => {
             expect(holds('', { none: { ...failedFonts, is: { gt: 0 } } }, { install: brokenFonts })).toBe('aborted');
         });
 
-        it('passes a ref into an untaken branch through `fails`, omitting the key', () => {
-            const detector = {
-                actions: [
-                    {
-                        when: { if: { test: false, then: { sum: [1], as: 'inner' }, else: 0 }, is: {} },
-                        fireEvent: { type: 't', data: { x: { value: { ref: 'inner' }, when: { fails: true } } } },
-                    },
-                ],
-            };
-            expect(run('', detector).data).toEqual({});
+        it('evaluates every operand, so a later failure aborts whatever an earlier operand gives', () => {
+            const failing = { ...FAILING, using: 'length', is: { gt: 0 } };
+            expect(holds('<p>foo</p>', { any: [{ text: { pattern: 'foo' } }, failing] })).toBe('aborted');
+            expect(holds('<p>foo</p>', { any: [failing, { text: { pattern: 'foo' } }] })).toBe('aborted');
+            expect(holds('', { all: [false, failing] })).toBe('aborted');
+            expect(run('', { match: { all: [false, failing] }, actions: REPORT }).failedAt).toBe('match.all.1.api');
         });
 
-        it('stops at the first failure, so key order decides between a match and an abort', () => {
-            const failing = { ...FAILING, using: 'length', is: { gt: 0 } };
-            expect(holds('<p>foo</p>', { any: [{ text: { pattern: 'foo' } }, failing] })).toBe(true);
-            expect(holds('<p>foo</p>', { any: [failing, { text: { pattern: 'foo' } }] })).toBe('aborted');
+        it('tests every key of a predicate object, `fails` and `type` first', () => {
+            expect(holds('', { api: 'document', is: { type: 'string', title: { field: FAILING, is: 1 } } })).toBe(false);
+            expect(holds('', { api: 'document', is: { nodeType: 2, title: { field: FAILING, is: 1 } } })).toBe('aborted');
         });
     });
 
     describe('if', () => {
-        const brokenRatio = {
-            if: {
-                test: { element: { selector: 'img' }, using: 'length', as: 'images', is: { gt: 0 } },
-                then: { div: [{ element: BROKEN, using: 'length' }, { ref: 'images' }] },
-                else: 0,
-            },
-            as: 'brokenRatio',
-        };
-
-        it('takes the branch the test chooses, measured', () => {
-            const none = run('<p></p>', withPayload({ ref: 'brokenRatio' }, {}, { all: [{ ...brokenRatio, is: { gte: 0 } }] }), {
-                install: imageState,
-            });
-            expect(none.data).toEqual({ x: 0 });
-            const half = run(
-                IMG('data-complete') + IMG('data-complete data-width="5"'),
-                withPayload({ ref: 'brokenRatio' }, {}, { all: [{ ...brokenRatio, is: { gte: 0 } }] }),
-                {
-                    install: imageState,
+        const images = { element: { selector: 'img' }, using: 'length' };
+        const brokenRatio = [
+            { define: { images } },
+            {
+                define: {
+                    brokenRatio: {
+                        if: { ref: 'images', is: { gt: 0 } },
+                        then: { div: [{ element: BROKEN, using: 'length' }, { ref: 'images' }] },
+                        else: 0,
+                    },
                 },
-            );
-            expect(half.data).toEqual({ x: 0.5 });
+            },
+        ];
+
+        it('takes the branch the condition chooses', () => {
+            expect(bound('<p></p>', brokenRatio, 'brokenRatio', { install: imageState })).toBe(0);
+            expect(
+                bound(IMG('data-complete') + IMG('data-complete data-width="5"'), brokenRatio, 'brokenRatio', { install: imageState }),
+            ).toBe(0.5);
         });
 
         it('does not evaluate the other branch', () => {
-            const result = run('', {
-                actions: [
-                    {
-                        when: { if: { test: true, then: 1, else: { api: { path: 'document.fonts' }, using: 'length' } }, is: 1 },
-                        exit: true,
-                    },
-                ],
-            });
-            expect(result.detected).toBe(true);
+            expect(holds('', { if: true, then: 1, else: { api: { path: 'document.fonts' }, using: 'length' }, is: 1 })).toBe(true);
         });
 
-        it('omits a payload reading the branch not taken', () => {
+        it('applies `using` and `is` beside `if` to the branch taken', () => {
+            expect(holds('', { if: true, then: { expr: ['a', 'b'] }, else: { expr: [] }, using: 'length', is: 2 })).toBe(true);
+            expect(holds('', { if: false, then: true, else: 3, is: 3 })).toBe(true);
+        });
+
+        it('omits a payload key reading a name bound in the branch not taken', () => {
             const detector = {
                 actions: [
+                    { define: { chosen: { if: false, then: [{ define: { thenValue: 1 } }, 1], else: [{ define: { elseValue: 2 } }, 2] } } },
                     {
-                        when: {
-                            if: { test: false, then: { sum: [1], as: 'thenValue' }, else: { sum: [2], as: 'elseValue' } },
-                            as: 'chosen',
-                            is: {},
-                        },
                         fireEvent: {
                             type: 't',
                             data: {
@@ -839,40 +803,26 @@ describe('WebDetection expressions', () => {
             expect(run('', detector).data).toEqual({ b: 2, c: 2 });
         });
 
-        it('rejects a ref in match into a branch from outside it', () => {
-            expectParseError(
-                {
-                    actions: [
-                        {
-                            when: {
-                                all: [
-                                    { if: { test: true, then: { sum: [1], as: 'inner' }, else: 0 }, is: {} },
-                                    { ref: 'inner', is: 1 },
-                                ],
-                            },
-                            exit: true,
-                        },
-                    ],
-                },
-                "reads into an 'if' branch",
+        it('takes a branch carrying `is` in boolean position', () => {
+            expect(holds('<p>a</p>', { if: true, then: { text: { pattern: 'a' }, using: 'length', is: { gte: 1 } }, else: false })).toBe(
+                true,
             );
+            expect(holds('<p>a</p>', { if: false, then: true, else: { text: { pattern: 'a' }, using: 'length', is: 0 } })).toBe(false);
         });
 
-        it('passes up a failure in test', () => {
-            expect(
-                holds('', {
-                    if: { test: { ...FAILING, using: 'length', is: { gt: 0 } }, then: 1, else: 2 },
-                    is: {},
-                }),
-            ).toBe('aborted');
+        it('takes a sequence in a branch, giving its last value', () => {
+            expect(holds('', { if: true, then: [{ define: { x: 1 } }, { ref: 'x', is: 1 }], else: false })).toBe(true);
+        });
+
+        it('passes up a failure in its condition', () => {
+            expect(holds('', { if: { ...FAILING, using: 'length', is: { gt: 0 } }, then: true, else: false })).toBe('aborted');
         });
     });
 
     describe('operators', () => {
         it('errors on only over no items', () => {
             expect(
-                run('', { actions: [{ when: { only: { element: { selector: 'img', field: 'naturalWidth' } }, is: {} }, exit: true }] })
-                    .detected,
+                run('', { match: { only: { element: { selector: 'img', field: 'naturalWidth' } }, is: {} }, actions: REPORT }).detected,
             ).toBe('error');
             expect(holds('', { sum: { element: { selector: 'img', field: 'naturalWidth' } }, is: 0 })).toBe(true);
             expect(holds('', { mul: { element: { selector: 'img', field: 'naturalWidth' } }, is: 1 })).toBe(true);
@@ -933,129 +883,97 @@ describe('WebDetection expressions', () => {
         });
     });
 
-    describe('early exit', () => {
-        it('gives a length cut short at its bound the results a full length gives', () => {
-            const html = Array.from({ length: 7 }, () => IMG('data-complete')).join('');
-            const detector = {
-                actions: [
-                    {
-                        when: { element: { selector: 'img', where: { complete: true } }, using: 'length', as: 'n', is: { gte: 1 } },
-                        fireEvent: {
-                            type: 't',
-                            data: { n: { value: { ref: 'n' }, buckets: { 1: 1, '2-4': { gte: 2, lt: 5 }, '5+': { gte: 5 } } } },
-                        },
-                    },
-                ],
-            };
-            const result = run(html, detector, { install: imageState });
-            expect(result.data).toEqual({ n: '5+' });
-            expect(result.ctx.measured.n).toBe(5);
+    describe('eager evaluation', () => {
+        /**
+         * Run with the image getters installed, and give the number of `complete` reads.
+         *
+         * @param {string} html
+         * @param {any} detector
+         */
+        function completeReads(html, detector) {
+            /** @type {any} */
+            let window;
+            const result = run(html, detector, {
+                install: (w) => {
+                    imageState(w);
+                    window = w;
+                },
+            });
+            return { result, reads: window.__imageReads.complete };
+        }
+
+        const three = IMG('data-complete') + IMG('data-complete') + IMG();
+
+        it('reads every item of a length, whatever the predicate on it', () => {
+            const { result, reads } = completeReads(three, {
+                match: { element: { selector: 'img', where: { complete: true } }, using: 'length', is: { gte: 1 } },
+                actions: REPORT,
+            });
+            expect(result.detected).toBe(true);
+            expect(reads).toBe(3);
         });
 
-        it('does not reach a where failure past the bound', () => {
+        it('reaches a where failure past the items a predicate needs', () => {
             const html = IMG('data-width="1"') + IMG('data-width="1"') + IMG('data-throw');
             const where = { naturalWidth: { gt: 0 } };
             expect(holds(html, { element: { selector: 'img', where }, using: 'length', is: { gte: 2 } }, { install: imageState })).toBe(
-                true,
-            );
-            expect(holds(html, { element: { selector: 'img', where }, using: 'length', is: { gte: 3 } }, { install: imageState })).toBe(
                 'aborted',
             );
         });
 
-        it('runs a length with an unbucketed payload to the end', () => {
-            const html = Array.from({ length: 7 }, () => IMG()).join('');
-            const detector = {
-                actions: [
-                    {
-                        when: { element: { selector: 'img' }, using: 'length', as: 'n', is: { gte: 1 } },
-                        fireEvent: { type: 't', data: { n: { value: { ref: 'n' } } } },
-                    },
-                ],
-            };
-            expect(run(html, detector).data).toEqual({ n: 7 });
-        });
-
-        it('pulls each item once for a boolean then a length over one named source', () => {
-            /** @type {any} */
-            let window;
-            const result = run(
-                IMG('data-complete') + IMG('data-complete') + IMG(),
-                {
-                    actions: [
-                        {
-                            when: {
-                                all: [
-                                    { element: { selector: 'img', where: { complete: true } }, as: 'images' },
-                                    { ref: 'images', using: 'length', as: 'n', is: { lt: 100 } },
-                                ],
-                            },
-                            exit: true,
-                        },
-                    ],
-                },
-                {
-                    install: (w) => {
-                        imageState(w);
-                        window = w;
-                    },
-                },
-            );
-            expect(result.detected).toBe(true);
-            expect(result.ctx.measured.n).toBe(2);
-            expect(window.__imageReads.complete).toBe(3);
-        });
-
-        it('runs a length with a payload sending it under `when` to the end', () => {
-            const html = Array.from({ length: 7 }, () => IMG()).join('');
-            const detector = {
-                actions: [
-                    {
-                        when: { element: { selector: 'img' }, using: 'length', as: 'n', is: { gte: 1 } },
-                        fireEvent: { type: 't', data: { n: { value: { ref: 'n' }, when: { gte: 1 } } } },
-                    },
-                ],
-            };
-            expect(run(html, detector).data).toEqual({ n: 7 });
-        });
-
-        it('runs a length read through a ref to a ref to the end', () => {
-            const html = Array.from({ length: 7 }, () => IMG()).join('');
-            const detector = {
-                actions: [
-                    {
-                        when: {
-                            all: [
-                                { element: { selector: 'img' }, using: 'length', as: 'n', is: { gte: 1 } },
-                                { ref: 'n', as: 'm', is: { gte: 1 } },
-                            ],
-                        },
-                        fireEvent: { type: 't', data: { m: { value: { ref: 'm' } } } },
-                    },
-                ],
-            };
-            expect(run(html, detector).data).toEqual({ m: 7 });
-        });
-
-        it('cuts a length short at the bound of an `is` on an `expr` over it', () => {
-            const html = Array.from({ length: 7 }, () => IMG()).join('');
-            const result = run(html, {
-                actions: [
-                    {
-                        when: { expr: { element: { selector: 'img', where: {} }, using: 'length', as: 'n' }, as: 'm', is: { gte: 2 } },
-                        exit: true,
-                    },
-                ],
+        it('reads every item of a list under `any`', () => {
+            const { result, reads } = completeReads(three, {
+                match: { any: { element: { selector: 'img', field: 'complete' } } },
+                actions: REPORT,
             });
             expect(result.detected).toBe(true);
-            expect(result.ctx.measured.n).toBe(2);
+            expect(reads).toBe(3);
         });
 
-        it('cuts a length short at the bound of an `is` in value position', () => {
-            const html = Array.from({ length: 7 }, () => IMG()).join('');
-            const result = run(html, withPayload({ element: { selector: 'img', where: {} }, using: 'length', as: 'n', is: { gte: 2 } }));
-            expect(result.data).toEqual({ x: true });
-            expect(result.ctx.measured.n).toBe(2);
+        it('evaluates every operand of `any`, `all`, `none` and the implicit AND', () => {
+            const read = { element: { selector: 'img', where: { complete: true } }, using: 'length', is: { gte: 0 } };
+            for (const match of [
+                { any: [true, read] },
+                { all: [false, read] },
+                { none: [true, read] },
+                { element: { selector: 'p' }, expr: read },
+            ]) {
+                expect(completeReads(three, { match, actions: REPORT }).reads)
+                    .withContext(JSON.stringify(match))
+                    .toBe(3);
+            }
+        });
+
+        it('pulls a bound list once across its refs', () => {
+            const { result, reads } = completeReads(three, {
+                actions: [
+                    { define: { images: { element: { selector: 'img', where: { complete: true } } } } },
+                    { define: { any: { ref: 'images' }, n: { ref: 'images', using: 'length' } } },
+                ],
+            });
+            expect(result.names.get('n')).toBe(2);
+            expect(reads).toBe(3);
+        });
+
+        it('reads the value beside `using` once for several `self` reads', () => {
+            const { result, reads } = completeReads(three, {
+                actions: {
+                    define: {
+                        n: {
+                            element: { selector: 'img', where: { complete: true } },
+                            using: { sum: [{ self: 'length' }, { self: 'length' }] },
+                        },
+                    },
+                },
+            });
+            expect(result.names.get('n')).toBe(4);
+            expect(reads).toBe(3);
+        });
+
+        it('reads a source again each time evaluation reaches it', () => {
+            const read = { element: { selector: 'img', where: { complete: true } }, using: 'length' };
+            const { reads } = completeReads(three, { actions: { define: { a: read, b: read } } });
+            expect(reads).toBe(6);
         });
     });
 
@@ -1068,18 +986,20 @@ describe('WebDetection expressions', () => {
         it('omits a value in no bucket, and fails on a failed value no bucket handles', () => {
             const failing = { ...FAILING, using: 'length' };
             expect(payload('', 30, { buckets: { low: { lt: 5 } } })).toEqual({});
-            expect(run('', withPayload(failing, { buckets: { any: {} } })).payloadFailure).toEqual(
-                jasmine.objectContaining({ key: 'x', result: 'aborted' }),
-            );
+            expect(run('', withPayload(failing, { buckets: { any: {} } })).failure).toEqual({
+                path: 'actions.fireEvent.data.x.value.api',
+                result: 'aborted',
+            });
             expect(payload('', failing, { buckets: { unreadable: { fails: true }, any: {} } })).toEqual({ x: 'unreadable' });
         });
 
         it('omits the key when `when` does not hold, and fails when `when` fails', () => {
             expect(payload('', 3, { when: { gt: 5 } })).toEqual({});
             expect(payload('', 3, { when: { gt: 1 } })).toEqual({ x: 3 });
-            expect(run('', withPayload(3, { when: { gt: { ...FAILING, using: 'length' } } })).payloadFailure).toEqual(
-                jasmine.objectContaining({ key: 'x', result: 'aborted' }),
-            );
+            expect(run('', withPayload(3, { when: { gt: { ...FAILING, using: 'length' } } })).failure).toEqual({
+                path: 'actions.fireEvent.data.x.when.gt.api',
+                result: 'aborted',
+            });
         });
 
         it('omits a failed value through a `when` testing `fails`', () => {
@@ -1113,21 +1033,18 @@ describe('WebDetection expressions', () => {
 
         it('fails at the first key whose value, `when` or bucket fails or errors, in key order', () => {
             const detector = {
-                actions: [
-                    {
-                        when: true,
-                        fireEvent: {
-                            type: 't',
-                            data: {
-                                ok: { value: 1 },
-                                zeta: { value: { only: { element: { selector: 'img', field: 'naturalWidth' } } } },
-                                alpha: { value: { ...FAILING, using: 'length' } },
-                            },
+                actions: {
+                    fireEvent: {
+                        type: 't',
+                        data: {
+                            ok: { value: 1 },
+                            zeta: { value: { only: { element: { selector: 'img', field: 'naturalWidth' } } } },
+                            alpha: { value: { ...FAILING, using: 'length' } },
                         },
                     },
-                ],
+                },
             };
-            expect(run('<p></p>', detector).payloadFailure).toEqual(jasmine.objectContaining({ key: 'zeta', result: 'error' }));
+            expect(run('<p></p>', detector).failure).toEqual({ path: 'actions.fireEvent.data.zeta.value.only', result: 'error' });
         });
 
         it('sends every key when nothing fails', () => {
@@ -1135,11 +1052,8 @@ describe('WebDetection expressions', () => {
         });
 
         it('rejects invalid payload keys and empty buckets', () => {
-            expectParseError(
-                { actions: [{ when: true, fireEvent: { type: 't', data: { nativeData: { value: 1 } } } }] },
-                'invalid payload key',
-            );
-            expectParseError({ actions: [{ when: true, fireEvent: { type: 't', data: { _x: { value: 1 } } } }] }, 'invalid payload key');
+            expectParseError({ actions: { fireEvent: { type: 't', data: { nativeData: { value: 1 } } } } }, 'invalid payload key');
+            expectParseError({ actions: { fireEvent: { type: 't', data: { _x: { value: 1 } } } } }, 'invalid payload key');
             expectParseError(withPayload(1, { buckets: {} }), 'at least one bucket');
         });
     });
@@ -1164,15 +1078,9 @@ describe('WebDetection expressions', () => {
 
         it('rejects an array as a predicate', () => {
             const notPredicate = 'an array is not a predicate';
-            expectParseError({ actions: [{ when: { api: { path: 'document.title' }, is: ['a', 'b'] }, exit: true }] }, notPredicate);
-            expectParseError(
-                { actions: [{ when: { api: { path: 'performance.getEntries', where: [{ a: 1 }] } }, exit: true }] },
-                notPredicate,
-            );
-            expectParseError(
-                { actions: [{ when: { api: { path: 'document.title' }, is: { length: [1, 2] } }, exit: true }] },
-                notPredicate,
-            );
+            expectParseError({ match: { api: { path: 'document.title' }, is: ['a', 'b'] }, actions: REPORT }, notPredicate);
+            expectParseError({ match: { api: { path: 'performance.getEntries', where: [{ a: 1 }] } }, actions: REPORT }, notPredicate);
+            expectParseError({ match: { api: { path: 'document.title' }, is: { length: [1, 2] } }, actions: REPORT }, notPredicate);
             expectParseError(withPayload(1, { when: [1, 2] }), notPredicate);
             expectParseError(withPayload(1, { buckets: { low: [0, 1] } }), notPredicate);
         });
@@ -1208,7 +1116,7 @@ describe('WebDetection expressions', () => {
                     is: { in: { element: { selector: 'p', field: 'textContent' } } },
                 }),
             ).toBe(true);
-            // A failed entry fails the test, and an entry after a match is not read
+            // Every entry is read, and a failed entry fails the test, after a match too
             expect(
                 holds('<title>b</title>', { api: { path: 'document.title' }, is: { in: [{ api: { path: 'JSON.parse', args: ['{'] } }] } }),
             ).toBe('aborted');
@@ -1217,7 +1125,7 @@ describe('WebDetection expressions', () => {
                     api: { path: 'document.title' },
                     is: { in: ['b', { api: { path: 'JSON.parse', args: ['{'] } }] },
                 }),
-            ).toBe(true);
+            ).toBe('aborted');
             // At item level, `in` is a property path
             const items = (/** @type {object} */ where) => ({ api: { path: 'myItems', where }, using: 'length' });
             const afterCapture = (/** @type {any} */ w) => {
@@ -1303,15 +1211,15 @@ describe('WebDetection expressions', () => {
 
         it('rejects field or is without the other, and an unknown type name', () => {
             expectParseError(
-                { actions: [{ when: { element: { selector: 'p', where: { field: 'id' } }, using: 'length', is: 1 }, exit: true }] },
+                { match: { element: { selector: 'p', where: { field: 'id' } }, using: 'length', is: 1 }, actions: REPORT },
                 '`field` and `is` go together',
             );
             expectParseError(
-                { actions: [{ when: { element: { selector: 'p', where: { is: 1 } }, using: 'length', is: 1 }, exit: true }] },
+                { match: { element: { selector: 'p', where: { is: 1 } }, using: 'length', is: 1 }, actions: REPORT },
                 '`field` and `is` go together',
             );
             expectParseError(
-                { actions: [{ when: { element: { selector: 'p' }, using: 'length', is: { type: 'integer' } }, exit: true }] },
+                { match: { element: { selector: 'p' }, using: 'length', is: { type: 'integer' } }, actions: REPORT },
                 'unknown type name',
             );
         });
@@ -1425,38 +1333,34 @@ describe('WebDetection expressions', () => {
             });
         });
 
-        it('compares against an operand expression, computed once', () => {
+        it('compares against an operand expression, bound once', () => {
             const install = timeline([
                 { name: 'nav', entryType: 'navigation', loadEventEnd: 100 },
                 { name: 'a', entryType: 'resource', responseEnd: 50 },
                 { name: 'b', entryType: 'resource', responseEnd: 150 },
             ]);
-            const detector = {
-                actions: [
-                    {
-                        when: {
-                            all: [
-                                {
-                                    only: { api: { path: 'performance.getEntriesByType', args: ['navigation'], field: 'loadEventEnd' } },
-                                    as: 'loadEventEnd',
-                                    is: {},
-                                },
-                                {
-                                    api: {
-                                        path: 'performance.getEntriesByType',
-                                        args: ['resource'],
-                                        where: { responseEnd: { gt: { ref: 'loadEventEnd' } } },
-                                    },
-                                    using: 'length',
-                                    is: 1,
-                                },
-                            ],
+            const actions = [
+                {
+                    define: {
+                        loadEventEnd: {
+                            only: { api: { path: 'performance.getEntriesByType', args: ['navigation'], field: 'loadEventEnd' } },
                         },
-                        exit: true,
                     },
-                ],
-            };
-            expect(run('', detector, { install }).detected).toBe(true);
+                },
+                {
+                    define: {
+                        late: {
+                            api: {
+                                path: 'performance.getEntriesByType',
+                                args: ['resource'],
+                                where: { responseEnd: { gt: { ref: 'loadEventEnd' } } },
+                            },
+                            using: 'length',
+                        },
+                    },
+                },
+            ];
+            expect(bound('', actions, 'late', { install })).toBe(1);
         });
 
         it('reads the native getter when the page overrides the prototype’s', () => {
@@ -1495,96 +1399,60 @@ describe('WebDetection expressions', () => {
             ).toBe(true);
         });
 
-        it('applies `using`, then `as`, then `is`', () => {
-            const result = run(widths, {
-                actions: [
-                    {
-                        when: { element: { selector: 'img' }, using: 'length', as: 'n', is: { gte: 2 } },
-                        fireEvent: { type: 't', data: { n: { value: { ref: 'n' } } } },
-                    },
-                ],
-            });
-            expect(result.detected).toBe(true);
-            expect(result.data).toEqual({ n: 2 });
+        it('applies `using`, then `is`', () => {
+            expect(holds(widths, { element: { selector: 'img' }, using: 'length', is: { gte: 2 } })).toBe(true);
+            expect(payload(widths, { element: { selector: 'img' }, using: 'length' })).toEqual({ x: 2 });
         });
 
         it('rejects `using` without an expression, without a path or with an unknown key, and `root` on `api`', () => {
-            expectParseError({ actions: [{ when: { using: 'length', is: 1 }, exit: true }] }, '`using` reads from an expression');
+            expectParseError({ match: { using: 'length', is: 1 }, actions: REPORT }, '`using` reads from an expression');
+            expectParseError({ match: { element: { selector: 'img' }, using: {}, is: 1 }, actions: REPORT }, '`using` needs `path`');
             expectParseError(
-                { actions: [{ when: { element: { selector: 'img' }, using: {}, is: 1 }, exit: true }] },
-                '`using` needs `path`',
-            );
-            expectParseError(
-                { actions: [{ when: { element: { selector: 'img' }, using: 1, is: 1 }, exit: true }] },
+                { match: { element: { selector: 'img' }, using: 1, is: 1 }, actions: REPORT },
                 '`using` takes a path or an object',
             );
             expectParseError(
-                { actions: [{ when: { element: { selector: 'img' }, using: { path: 'at', root: 'x' }, is: 1 }, exit: true }] },
+                { match: { element: { selector: 'img' }, using: { path: 'at', root: 'x' }, is: 1 }, actions: REPORT },
                 "unknown key 'root'",
             );
             expectParseError(
-                { actions: [{ when: { api: { root: { element: { selector: 'img' } }, path: 'length' }, is: 1 }, exit: true }] },
+                { match: { api: { root: { element: { selector: 'img' } }, path: 'length' }, is: 1 }, actions: REPORT },
                 "unknown key 'root'",
             );
         });
 
-        it('names a value and what `using` reads from it through `expr`', () => {
-            const result = run(widths, {
-                actions: [
-                    {
-                        when: {
-                            expr: { element: { selector: 'img' }, as: 'imageElements' },
-                            using: 'length',
-                            as: 'imageCount',
-                            is: { gte: 2 },
-                        },
-                        fireEvent: {
-                            type: 't',
-                            data: {
-                                imageCount: { value: { ref: 'imageCount' } },
-                                elements: { value: { ref: 'imageElements' }, buckets: { two: { length: 2 } } },
-                            },
-                        },
-                    },
-                ],
-            });
-            expect(result.detected).toBe(true);
-            expect(result.data).toEqual({ imageCount: 2, elements: 'two' });
+        it('takes a second set of modifiers through `expr`', () => {
+            expect(
+                holds(widths, { expr: { element: { selector: 'img' }, using: 'length' }, using: { sum: [{ self: {} }, 1] }, is: 3 }),
+            ).toBe(true);
         });
 
-        it('names the boolean an `is` inside `expr` gives', () => {
-            const detector = {
-                actions: [
-                    {
-                        when: { expr: { element: { selector: 'img' }, using: 'length', is: { gte: 2 } }, as: 'enoughImages' },
-                        fireEvent: { type: 't', data: { enough: { value: { ref: 'enoughImages' } } } },
-                    },
-                ],
-            };
-            expect(run(widths, detector).data).toEqual({ enough: true });
-            expect(run(IMG(), detector).detected).toBe(false);
+        it('gives the boolean an `is` inside `expr` gives', () => {
+            const actions = { define: { enough: { expr: { element: { selector: 'img' }, using: 'length', is: { gte: 2 } } } } };
+            expect(bound(widths, actions, 'enough')).toBe(true);
+            expect(bound(IMG(), actions, 'enough')).toBe(false);
             expect(payload(widths, { expr: { element: { selector: 'img' }, using: 'length', is: { gte: 2 } } })).toEqual({ x: true });
             expectParseError(
-                { actions: [{ when: { sum: [{ expr: { element: { selector: 'img' }, using: 'length', is: 1 } }], is: 1 }, exit: true }] },
+                { match: { sum: [{ expr: { element: { selector: 'img' }, using: 'length', is: 1 } }], is: 1 }, actions: REPORT },
                 "'expr' does not fill number",
             );
         });
 
-        it('gives the boolean an `is` gives in value position, and names the value it tests', () => {
-            const test = { element: { selector: 'img' }, using: 'length', as: 'n', is: { gte: 2 } };
-            const detector = { actions: [{ fireEvent: { type: 't', data: { enough: { value: test }, n: { value: { ref: 'n' } } } } }] };
-            expect(run(widths, detector).data).toEqual({ enough: true, n: 2 });
-            expect(run(IMG(), detector).data).toEqual({ enough: false, n: 1 });
+        it('gives the boolean an `is` gives in value position', () => {
+            const test = { element: { selector: 'img' }, using: 'length', is: { gte: 2 } };
+            const detector = { actions: { fireEvent: { type: 't', data: { enough: { value: test } } } } };
+            expect(run(widths, detector).data).toEqual({ enough: true });
+            expect(run(IMG(), detector).data).toEqual({ enough: false });
             expect(payload(widths, { api: { path: 'String', args: [{ element: { selector: 'img' }, is: {} }] } })).toEqual({ x: 'true' });
         });
 
         it('gives its operand in its own position: a list operand of `sum`, and the condition leaf', () => {
-            const sum = { sum: { expr: { element: { selector: 'img', field: 'naturalWidth' }, as: 'w' } }, is: 3 };
+            const sum = { sum: { expr: { element: { selector: 'img', field: 'naturalWidth' } } }, is: 3 };
             expect(holds(widths, sum, { install: imageState })).toBe(true);
             expect(holds(widths, { expr: { element: { selector: 'img' } } })).toBe(true);
             expect(holds('', { any: [{ expr: { element: { selector: 'img' } } }] })).toBe(false);
             expectParseError(
-                { actions: [{ when: { expr: { element: { selector: 'img', field: 'naturalWidth' } } }, exit: true }] },
+                { match: { expr: { element: { selector: 'img', field: 'naturalWidth' } } }, actions: REPORT },
                 'does not fill boolean',
             );
         });
@@ -1613,7 +1481,7 @@ describe('WebDetection expressions', () => {
             expect(payload('', { expr: [1] })).toEqual({});
             // A list stays one: it is not unwrapped to a number, nor read as a boolean
             expectParseError(withPayload({ div: [{ expr: [6] }, 2] }), "'list' does not fill number position");
-            expectParseError({ actions: [{ when: { expr: [true] }, exit: true }] }, "'list' does not fill boolean position");
+            expectParseError({ match: { expr: [true] }, actions: REPORT }, "'list' does not fill boolean position");
         });
     });
 
@@ -1623,8 +1491,8 @@ describe('WebDetection expressions', () => {
             expect(holds('', { api: 'document.title', is: 'Hello there' }, { head })).toBe(true);
             expect(holds('', { api: { path: 'Math.max', args: [1, { api: 'document.title.length' }] }, is: 11 }, { head })).toBe(true);
             expect(holds('', { api: 'document.title', using: 'length', is: 11 }, { head })).toBe(true);
-            expectParseError({ actions: [{ when: { api: 5 }, exit: true }] }, '`api` takes a path or an object');
-            expectParseError({ actions: [{ when: { api: '' }, exit: true }] }, 'non-empty');
+            expectParseError({ match: { api: 5 }, actions: REPORT }, '`api` takes a path or an object');
+            expectParseError({ match: { api: '' }, actions: REPORT }, 'non-empty');
         });
 
         it('gives a scalar path its value, and a string is not a list', () => {
@@ -1657,21 +1525,20 @@ describe('WebDetection expressions', () => {
 
         it('reads a path from root', () => {
             const install = timeline([{ name: 'n', entryType: 'navigation', loadEventEnd: 900, responseStatus: 200 }]);
-            const detector = {
-                actions: [
-                    {
-                        when: {
+            const actions = [
+                { define: { navigation: { only: { api: { path: 'performance.getEntriesByType', args: ['navigation'] } } } } },
+                {
+                    define: {
+                        read: {
                             all: [
-                                { only: { api: { path: 'performance.getEntriesByType', args: ['navigation'] } }, as: 'navigation', is: {} },
                                 { ref: 'navigation', using: 'loadEventEnd', is: 900 },
                                 { ref: 'navigation', using: 'responseStatus', is: 200 },
                             ],
                         },
-                        exit: true,
                     },
-                ],
-            };
-            expect(run('', detector, { install }).detected).toBe(true);
+                },
+            ];
+            expect(bound('', actions, 'read', { install })).toBe(true);
             const ids = '<p id="a"></p><p id="b"></p>';
             expect(holds(ids, { element: { selector: 'p', field: 'id' }, using: { path: 'at', args: [-1] }, is: 'b' })).toBe(true);
             expect(holds(ids, { element: { selector: 'p' }, using: 'length', is: 2 })).toBe(true);
@@ -1782,11 +1649,7 @@ describe('WebDetection expressions', () => {
                         throw new Error('sandboxed');
                     },
                 });
-            const result = run(
-                '',
-                { actions: [{ when: { api: { path: 'document.cookie' }, is: { type: 'string' } }, exit: true }] },
-                { install },
-            );
+            const result = run('', { match: { api: { path: 'document.cookie' }, is: { type: 'string' } }, actions: REPORT }, { install });
             expect(result.detected).toBe('aborted');
             expect(result.abortError).toBe('Error');
             expect(holds('', { api: { path: 'document.cookie' }, is: { fails: true } }, { install })).toBe(true);
@@ -1875,27 +1738,19 @@ describe('WebDetection expressions', () => {
             };
             expect(holds(html, { api: { path: 'JSON.stringify', args: [built] }, is: '[[1,2],"x",null]' })).toBe(true);
             expectParseError(
-                { actions: [{ when: { api: { path: 'Array.of', args: [[1]] }, is: {} }, exit: true }] },
+                { match: { api: { path: 'Array.of', args: [[1]] }, is: {} }, actions: REPORT },
                 'an array is not an expression',
             );
         });
 
         it('passes a selected list as a new array, so a method changing it leaves the list', () => {
             expect(holds(html, { api: { path: 'Array.isArray', args: [widths] }, is: true }, options)).toBe(true);
-            const detector = {
-                actions: [
-                    {
-                        when: {
-                            all: [
-                                { api: { path: 'Array.prototype.reverse.call', args: [{ ...widths, as: 'widths' }] }, is: {} },
-                                { ref: 'widths', using: { path: 'at', args: [0] }, is: 3 },
-                            ],
-                        },
-                        exit: true,
-                    },
-                ],
-            };
-            expect(run(html, detector, options).detected).toBe(true);
+            const actions = [
+                { define: { widths } },
+                { define: { reversed: { api: { path: 'Array.prototype.reverse.call', args: [{ ref: 'widths' }] } } } },
+                { define: { first: { ref: 'widths', using: { path: 'at', args: [0] } } } },
+            ];
+            expect(bound(html, actions, 'first', options)).toBe(3);
         });
 
         it('builds objects through JSON.parse and Object.fromEntries', () => {
@@ -1916,12 +1771,10 @@ describe('WebDetection expressions', () => {
         });
 
         it('fails when an argument fails', () => {
-            const failed = run('', { actions: [{ when: { api: { path: 'Array.of', args: [FAILING] }, is: {} }, exit: true }] });
+            const failed = run('', { match: { api: { path: 'Array.of', args: [FAILING] }, is: {} }, actions: REPORT });
             expect(failed.detected).toBe('aborted');
             expect(failed.abortError).toBe('SyntaxError');
-            expect(
-                run('', { actions: [{ when: { api: { path: 'Math.max', args: [7] }, as: 'n', is: 7 }, exit: true }] }).ctx.measured.n,
-            ).toBe(7);
+            expect(holds('', { api: { path: 'Math.max', args: [7] }, is: 7 })).toBe(true);
         });
 
         it('fails on any throw from the call, which `fails` tests', () => {
@@ -1937,7 +1790,7 @@ describe('WebDetection expressions', () => {
                 [{ path: 'document.createElement', args: ['p'] }, 'DOMException', { install }],
             ];
             for (const [api, name, options] of calls) {
-                const result = run('', { actions: [{ when: { api, is: {} }, exit: true }] }, options);
+                const result = run('', { match: { api, is: {} }, actions: REPORT }, options);
                 expect(result.detected).withContext(name).toBe('aborted');
                 expect(result.abortError).withContext(name).toBe(name);
                 expect(holds('', { api, is: { fails: true } }, options))
@@ -1948,7 +1801,7 @@ describe('WebDetection expressions', () => {
 
         it('rejects entries that are not literals, expressions or arrays', () => {
             expectParseError(
-                { actions: [{ when: { api: { path: 'Array.of', args: [{ composed: true }] }, is: {} }, exit: true }] },
+                { match: { api: { path: 'Array.of', args: [{ composed: true }] }, is: {} }, actions: REPORT },
                 "unknown expression key 'composed'",
             );
         });
@@ -1967,17 +1820,18 @@ describe('WebDetection expressions', () => {
         });
 
         it('scopes element and text by an expression giving a node or a list of nodes', () => {
-            const guarded = (/** @type {object} */ scoped) => ({
-                actions: [{ when: { all: [{ element: { selector: '#comments' }, as: 'comments' }, scoped] }, exit: true }],
-            });
-            expect(run(html, guarded({ element: { selector: 'img', root: { ref: 'comments' } }, using: 'length', is: 1 })).detected).toBe(
+            const guarded = (/** @type {object} */ scoped) => [
+                { define: { comments: { element: { selector: '#comments' } } } },
+                { define: { held: { all: [{ ref: 'comments' }, scoped] } } },
+            ];
+            expect(bound(html, guarded({ element: { selector: 'img', root: { ref: 'comments' } }, using: 'length', is: 1 }), 'held')).toBe(
                 true,
             );
-            expect(run(html, guarded({ text: { pattern: 'hello', root: { ref: 'comments' } }, using: 'length', is: 1 })).detected).toBe(
+            expect(bound(html, guarded({ text: { pattern: 'hello', root: { ref: 'comments' } }, using: 'length', is: 1 }), 'held')).toBe(
                 true,
             );
             expect(
-                run('<img>', guarded({ element: { selector: 'img', root: { ref: 'comments' } }, using: 'length', is: 0 })).detected,
+                bound('<img>', guarded({ element: { selector: 'img', root: { ref: 'comments' } }, using: 'length', is: 0 }), 'held'),
             ).toBe(false);
             expect(
                 holds(html, {
@@ -2230,12 +2084,14 @@ describe('WebDetection expressions', () => {
 
         it('fails when the call throws, and on a name that is not a function', () => {
             const result = run('', {
-                actions: [{ when: { sum: [1.5], is: { field: { api: { path: 'BigInt', args: [{ self: {} }] } }, is: {} } }, exit: true }],
+                match: { sum: [1.5], is: { field: { api: { path: 'BigInt', args: [{ self: {} }] } }, is: {} } },
+                actions: REPORT,
             });
             expect(result.detected).toBe('aborted');
             expect(result.abortError).toBe('RangeError');
             const missing = run('', {
-                actions: [{ when: { sum: [1], is: { field: { api: { path: 'Math', args: [{ self: {} }] } }, is: {} } }, exit: true }],
+                match: { sum: [1], is: { field: { api: { path: 'Math', args: [{ self: {} }] } }, is: {} } },
+                actions: REPORT,
             });
             expect(missing.detected).toBe('aborted');
             expect(missing.abortError).toBe('TypeError');
@@ -2243,27 +2099,23 @@ describe('WebDetection expressions', () => {
 
         it('rejects malformed fields', () => {
             expectParseError(
-                { actions: [{ when: { only: { element: { selector: 'p', field: {} } }, is: {} }, exit: true }] },
+                { match: { only: { element: { selector: 'p', field: {} } }, is: {} }, actions: REPORT },
                 '`field` needs `path`',
             );
             expectParseError(
-                { actions: [{ when: { only: { element: { selector: 'p', field: { calls: 1 } } }, is: {} }, exit: true }] },
+                { match: { only: { element: { selector: 'p', field: { calls: 1 } } }, is: {} }, actions: REPORT },
                 "unknown key 'calls'",
             );
             expectParseError(
-                { actions: [{ when: { only: { element: { selector: 'p', field: { call: { api: 'String' } } } }, is: {} }, exit: true }] },
+                { match: { only: { element: { selector: 'p', field: { call: { api: 'String' } } } }, is: {} }, actions: REPORT },
                 "unknown key 'call'",
             );
             expectParseError(
-                { actions: [{ when: { only: { element: { selector: 'p', field: { args: [] } } }, is: {} }, exit: true }] },
+                { match: { only: { element: { selector: 'p', field: { args: [] } } }, is: {} }, actions: REPORT },
                 '`args` needs `path`',
             );
             expectParseError(
-                {
-                    actions: [
-                        { when: { only: { element: { selector: 'p', field: { feature: 'renderedTextLength' } } }, is: {} }, exit: true },
-                    ],
-                },
+                { match: { only: { element: { selector: 'p', field: { feature: 'renderedTextLength' } } }, is: {} }, actions: REPORT },
                 "unknown key 'feature'",
             );
         });
@@ -2294,9 +2146,7 @@ describe('WebDetection expressions', () => {
             const navigation = { only: { api: { path: 'performance.getEntriesByType', args: ['navigation'] } } };
             const ratio = { ...navigation, using: { div: [{ self: 'transferSize' }, { self: 'decodedBodySize' }] } };
             expect(holds('', { ...ratio, is: 0.25 }, { install })).toBe(true);
-            const result = run('', { actions: [{ when: { ...ratio, as: 'ratio', is: { lt: 1 } }, exit: true }] }, { install });
-            expect(result.detected).toBe(true);
-            expect(result.ctx.measured.ratio).toBe(0.25);
+            expect(bound('', { define: { ratio } }, 'ratio', { install })).toBe(0.25);
         });
 
         it('reads each item in where, an inherited property included', () => {
@@ -2348,54 +2198,23 @@ describe('WebDetection expressions', () => {
             expect(reads).toBe(1);
         });
 
-        it('reads a list once per run inside another where, its own self its own item', () => {
+        it('reads a list inside another where, its own self its own item', () => {
             const values = {
                 api: { path: 'JSON.parse', args: ['[{"v":1,"w":0},{"v":5,"w":9}]'], where: { v: { gt: { self: 'w' } } }, field: 'v' },
-                as: 'vs',
             };
-            const detector = {
-                actions: [
-                    {
-                        when: {
-                            all: [
-                                {
-                                    element: { selector: 'p', where: { 'textContent.length': { lte: { sum: values } } } },
-                                    using: 'length',
-                                    is: 2,
-                                },
-                                { ref: 'vs', using: 'length', is: 1 },
-                            ],
-                        },
-                        exit: true,
-                    },
-                ],
-            };
-            expect(run('<p>a</p><p>b</p><p>cc</p>', detector).detected).toBe(true);
+            expect(
+                holds('<p>a</p><p>b</p><p>cc</p>', {
+                    element: { selector: 'p', where: { 'textContent.length': { lte: { sum: values } } } },
+                    using: 'length',
+                    is: 2,
+                }),
+            ).toBe(true);
         });
 
-        it('rejects self outside a binder, and a name on an expression read per item', () => {
-            expectParseError({ actions: [{ when: { self: 'x' }, exit: true }] }, '`self` reads from `using`, `where` or `field`');
+        it('rejects self outside a binder, and `using` without a path or an expression', () => {
+            expectParseError({ match: { self: 'x' }, actions: REPORT }, '`self` reads from `using`, `where` or `field`');
             expectParseError(withPayload({ self: {} }), '`self` reads from');
-            expectParseError(
-                {
-                    actions: [
-                        {
-                            when: { element: { selector: 'p', where: { 'textContent.length': { gt: { self: 'x', as: 'n' } } } } },
-                            exit: true,
-                        },
-                    ],
-                },
-                "'n' names one value per run",
-            );
-            const branch = { if: { test: { self: 'b', is: 1 }, then: { sum: [1], as: 'one' }, else: 2 } };
-            expectParseError(
-                { actions: [{ when: { element: { selector: 'p', where: { a: { gt: branch } } } }, exit: true }] },
-                "'one' names one value per run",
-            );
-            expectParseError(
-                { actions: [{ when: { api: 'document', using: {}, is: {} }, exit: true }] },
-                '`using` needs `path` or an expression',
-            );
+            expectParseError({ match: { api: 'document', using: {}, is: {} }, actions: REPORT }, '`using` needs `path` or an expression');
         });
     });
 
@@ -2435,7 +2254,7 @@ describe('WebDetection expressions', () => {
             ).toBe(true);
         });
 
-        it('reads an expression reading no self once per run', () => {
+        it('reads an expression reading no self once per evaluation of the source', () => {
             let reads = 0;
             const install = (/** @type {any} */ w) => {
                 Object.defineProperty(w, 'flag', {
@@ -2445,21 +2264,11 @@ describe('WebDetection expressions', () => {
                     },
                 });
             };
-            const detector = {
-                actions: [
-                    {
-                        when: {
-                            all: [
-                                { api: 'flag', as: 'flag' },
-                                { element: { selector: 'p', where: { ref: 'flag' } }, using: 'length', is: 3 },
-                            ],
-                        },
-                        exit: true,
-                    },
-                ],
-            };
-            expect(run('<p></p><p></p><p></p>', detector, { install }).detected).toBe(true);
+            const count = { element: { selector: 'p', where: { api: 'flag' } }, using: 'length', is: 3 };
+            expect(holds('<p></p><p></p><p></p>', count, { install })).toBe(true);
             expect(reads).toBe(1);
+            expect(holds('<p></p><p></p><p></p>', { all: [count, count] }, { install })).toBe(true);
+            expect(reads).toBe(3);
         });
 
         it('fails the source on a failed read, unless the test reads it with fails', () => {
@@ -2484,44 +2293,41 @@ describe('WebDetection expressions', () => {
                 holds(html, { element: { selector: 'option', visibility: 'any', where }, using: 'length', is: 1 });
             expect(count({ field: 'text', is: 'Sign in' })).toBe(true);
             expect(count({ self: 'text', is: 'Sign in' })).toBe(true);
-            expectParseError({ actions: [{ when: { element: { selector: 'option', where: { text: 'Sign in' } } }, exit: true }] });
+            expectParseError({ match: { element: { selector: 'option', where: { text: 'Sign in' } } }, actions: REPORT });
         });
 
-        it('rejects an object mixing expression keys and property paths, and a name on a per-item expression', () => {
+        it('rejects an object mixing expression keys and property paths', () => {
             expectParseError(
-                { actions: [{ when: { api: { ...items, where: { self: 'a', is: 1, b: 0 } }, using: 'length', is: 1 }, exit: true }] },
+                { match: { api: { ...items, where: { self: 'a', is: 1, b: 0 } }, using: 'length', is: 1 }, actions: REPORT },
                 "unknown expression key 'b'",
-            );
-            expectParseError(
-                { actions: [{ when: { api: { ...items, where: { self: 'a', as: 'n' } }, using: 'length', is: 1 }, exit: true }] },
-                "'n' names one value per run",
             );
         });
     });
 
     describe('the five detectors', () => {
         it('reports a broken image count and share', () => {
+            const brokenImages = { element: BROKEN, using: 'length' };
             const detector = {
+                match: { ...brokenImages, is: { gte: 1 } },
                 actions: [
                     {
-                        when: { element: BROKEN, using: 'length', as: 'brokenImages', is: { gte: 1 } },
-                        fireEvent: {
-                            type: 'brokenImages',
-                            data: {
-                                brokenImages: {
-                                    value: { ref: 'brokenImages' },
-                                    buckets: { 1: 1, '2-4': { gte: 2, lt: 5 }, '5-9': { gte: 5, lt: 10 }, '10+': { gte: 10 } },
-                                },
-                                brokenShare: {
-                                    value: { div: [{ ref: 'brokenImages' }, { element: { selector: 'img' }, using: 'length' }] },
-                                    buckets: {
-                                        under10: { gte: 0, lt: 0.1 },
-                                        '10-50': { gte: 0.1, lt: 0.5 },
-                                        '50-90': { gte: 0.5, lt: 0.9 },
-                                        '90+': { gte: 0.9 },
-                                    },
-                                },
-                            },
+                        define: {
+                            brokenImages,
+                            brokenShare: { div: [{ ref: 'brokenImages' }, { element: { selector: 'img' }, using: 'length' }] },
+                        },
+                    },
+                    {
+                        breakageReportData: {
+                            data: { brokenImages: { value: { ref: 'brokenImages' } }, brokenShare: { value: { ref: 'brokenShare' } } },
+                        },
+                    },
+                    {
+                        if: { ref: 'brokenImages', is: 1 },
+                        then: { fireEvent: { type: 'brokenImages_count1' } },
+                        else: {
+                            if: { ref: 'brokenImages', is: { lt: 5 } },
+                            then: { fireEvent: { type: 'brokenImages_count2to4' } },
+                            else: { fireEvent: { type: 'brokenImages_count5Plus' } },
                         },
                     },
                 ],
@@ -2529,88 +2335,89 @@ describe('WebDetection expressions', () => {
             const html = IMG('data-complete') + IMG('data-complete') + IMG('data-complete data-width="4"') + '<img data-complete>';
             const result = run(html, detector, { install: imageState });
             expect(result.detected).toBe(true);
-            expect(result.data).toEqual({ brokenImages: '2-4', brokenShare: '50-90' });
+            expect(result.ctx.events).toEqual([{ type: 'brokenImages_count2to4' }]);
+            expect(result.ctx.entry.data).toEqual({ brokenImages: 2, brokenShare: 0.5 });
         });
 
-        it('reports a slow page load, or a load still running', () => {
+        it('reports a slow page load once, refreshing its breakage data on every run until the load ends', () => {
             const slowLoad = {
-                actions: [
-                    {
-                        when: {
-                            any: [
-                                {
-                                    api: { path: 'performance.getEntriesByType', args: ['navigation'], field: 'loadEventEnd' },
-                                    as: 'loadEventEnd',
-                                    is: { gte: 8000 },
-                                },
-                                {
-                                    all: [
-                                        { ref: 'loadEventEnd', is: 0 },
-                                        { api: { path: 'performance.now', args: [] }, is: { gte: 15000 } },
-                                    ],
-                                },
-                            ],
-                        },
-                        fireEvent: {
-                            type: 'slowPageLoad',
-                            data: {
+                actions: {
+                    if: { none: [{ ref: 'this.finished', is: true }] },
+                    then: [
+                        {
+                            define: {
                                 loadEventEnd: {
-                                    value: { ref: 'loadEventEnd' },
-                                    buckets: { loading: 0, '8-15s': { gte: 8000, lt: 15000 }, '15s+': { gte: 15000 } },
+                                    only: { api: { path: 'performance.getEntriesByType', args: ['navigation'], field: 'loadEventEnd' } },
                                 },
+                                elapsed: { api: { path: 'performance.now', args: [] } },
                             },
                         },
-                    },
-                ],
+                        { breakageReportData: { data: { loadEventEnd: { value: { ref: 'loadEventEnd' } } } } },
+                        {
+                            if: {
+                                all: [
+                                    {
+                                        any: [
+                                            { ref: 'loadEventEnd', is: { gte: 8000 } },
+                                            { ref: 'elapsed', is: { gte: 15000 } },
+                                        ],
+                                    },
+                                    { none: [{ ref: 'this.sent', is: true }] },
+                                ],
+                            },
+                            then: [
+                                {
+                                    if: { ref: 'loadEventEnd', is: 0 },
+                                    then: { fireEvent: { type: 'pageLoadTime_loadLoading' } },
+                                    else: { fireEvent: { type: 'pageLoadTime_load8sPlus' } },
+                                },
+                                { define: { 'this.sent': true } },
+                            ],
+                        },
+                        { define: { 'this.finished': { ref: 'loadEventEnd', is: { gt: 0 } } } },
+                    ],
+                },
             };
             const slow = run('', slowLoad, { install: timeline([{ name: 'n', entryType: 'navigation', loadEventEnd: 9000 }]) });
-            expect(slow.data).toEqual({ loadEventEnd: '8-15s' });
+            expect(slow.ctx.events).toEqual([{ type: 'pageLoadTime_load8sPlus' }]);
+            expect(slow.ctx.detectorNames.get('this.finished')).toBe(true);
             const fast = run('', slowLoad, { install: timeline([{ name: 'n', entryType: 'navigation', loadEventEnd: 900 }]) });
-            expect(fast.detected).toBe(false);
+            expect(fast.ctx.events).toEqual([]);
+            expect(fast.ctx.entry.data).toEqual({ loadEventEnd: 900 });
             const stillLoading = run('', slowLoad, {
                 install: (w) => {
                     timeline([{ name: 'n', entryType: 'navigation', loadEventEnd: 0 }])(w);
                     Object.defineProperty(w.Performance.prototype, 'now', { configurable: true, writable: true, value: () => 16000 });
                 },
             });
-            expect(stillLoading.data).toEqual({ loadEventEnd: 'loading' });
+            expect(stillLoading.ctx.events).toEqual([{ type: 'pageLoadTime_loadLoading' }]);
+            expect(stillLoading.ctx.detectorNames.get('this.finished')).toBe(false);
         });
 
         it('reports failed stylesheets and fonts, both counts either way', () => {
+            const failedStylesheets = {
+                api: {
+                    path: 'performance.getEntriesByType',
+                    args: ['resource'],
+                    where: { initiatorType: 'link', responseStatus: { gte: 400 } },
+                },
+                using: 'length',
+            };
+            const failedFontFaces = { api: { path: 'document.fonts', where: { status: 'error' } }, using: 'length' };
             const detector = {
+                match: {
+                    any: [
+                        { ...failedStylesheets, is: { gt: 0 } },
+                        { ...failedFontFaces, is: { gt: 0 } },
+                    ],
+                },
                 actions: [
+                    { define: { failedStylesheets, failedFontFaces } },
                     {
-                        when: {
-                            any: [
-                                {
-                                    api: {
-                                        path: 'performance.getEntriesByType',
-                                        args: ['resource'],
-                                        where: { initiatorType: 'link', responseStatus: { gte: 400 } },
-                                    },
-                                    using: 'length',
-                                    as: 'failedStylesheets',
-                                    is: { gt: 0 },
-                                },
-                                {
-                                    api: { path: 'document.fonts', where: { status: 'error' } },
-                                    using: 'length',
-                                    as: 'failedFontFaces',
-                                    is: { gt: 0 },
-                                },
-                            ],
-                        },
-                        fireEvent: {
-                            type: 'stylesMissing',
+                        breakageReportData: {
                             data: {
-                                failedStylesheets: {
-                                    value: { ref: 'failedStylesheets' },
-                                    buckets: { 0: 0, 1: 1, '2-4': { gte: 2, lt: 5 }, '5+': { gte: 5 } },
-                                },
-                                failedFontFaces: {
-                                    value: { ref: 'failedFontFaces' },
-                                    buckets: { 0: 0, 1: 1, '2-4': { gte: 2, lt: 5 }, '5+': { gte: 5 } },
-                                },
+                                failedStylesheets: { value: { ref: 'failedStylesheets' } },
+                                failedFontFaces: { value: { ref: 'failedFontFaces' } },
                             },
                         },
                     },
@@ -2625,92 +2432,88 @@ describe('WebDetection expressions', () => {
                 failedSheet(w);
                 fonts(['error', 'loaded'])(w);
             };
-            expect(run('', detector, { install: both }).data).toEqual({ failedStylesheets: '1', failedFontFaces: '1' });
-            // A `document.fonts` that throws: the font count fails, and the payload with it
+            expect(run('', detector, { install: both }).ctx.entry.data).toEqual({ failedStylesheets: 1, failedFontFaces: 1 });
+            // A `document.fonts` that throws fails `match`, since every operand is evaluated
             const throwingFonts = (/** @type {any} */ w) => {
                 failedSheet(w);
                 brokenFonts(w);
             };
-            expect(run('', detector, { install: throwingFonts }).payloadFailure).toEqual(
-                jasmine.objectContaining({ key: 'failedFontFaces', result: 'aborted' }),
-            );
+            const throwing = run('', detector, { install: throwingFonts });
+            expect(throwing.detected).toBe('aborted');
+            expect(throwing.failedAt).toBe('match.any.1.api');
             const fontOnly = (/** @type {any} */ w) => {
                 loadedSheet(w);
                 fonts(['error'])(w);
             };
-            expect(run('', detector, { install: fontOnly }).data).toEqual({ failedStylesheets: '0', failedFontFaces: '1' });
+            expect(run('', detector, { install: fontOnly }).ctx.entry.data).toEqual({ failedStylesheets: 0, failedFontFaces: 1 });
             // An engine without responseStatus counts 0, a reading
             const noStatus = (/** @type {any} */ w) => {
                 timeline([{ name: 'a.css', entryType: 'resource', initiatorType: 'link' }], { missing: ['responseStatus'] })(w);
                 fonts(['error'])(w);
             };
-            expect(run('', detector, { install: noStatus }).data).toEqual({ failedStylesheets: '0', failedFontFaces: '1' });
+            expect(run('', detector, { install: noStatus }).ctx.entry.data).toEqual({ failedStylesheets: 0, failedFontFaces: 1 });
         });
 
         it('reports an empty known region', () => {
             const detector = {
                 actions: [
+                    { define: { comments: { element: { selector: ['#comments'] } } } },
                     {
-                        when: {
-                            all: [
-                                { element: { selector: ['#comments'] }, as: 'comments' },
-                                { none: renderedText({ ref: 'comments' }) },
-                                {
-                                    element: {
-                                        selector: 'img',
-                                        where: { complete: true, naturalWidth: { gt: 0 } },
-                                        root: { ref: 'comments' },
+                        if: { ref: 'comments' },
+                        then: {
+                            if: {
+                                all: [
+                                    { none: renderedText({ ref: 'comments' }) },
+                                    {
+                                        element: {
+                                            selector: 'img',
+                                            where: { complete: true, naturalWidth: { gt: 0 } },
+                                            root: { ref: 'comments' },
+                                        },
+                                        using: 'length',
+                                        is: { lt: 1 },
                                     },
-                                    using: 'length',
-                                    is: { lt: 1 },
-                                },
-                            ],
-                        },
-                        fireEvent: {
-                            type: 'regionEmpty',
-                            data: {
-                                brokenImages: {
-                                    value: { element: { ...BROKEN, root: { ref: 'comments' } }, using: 'length' },
-                                    buckets: { 0: 0, '1+': { gte: 1 } },
+                                ],
+                            },
+                            then: {
+                                breakageReportData: {
+                                    data: {
+                                        region: { value: 'empty' },
+                                        brokenImages: { value: { element: { ...BROKEN, root: { ref: 'comments' } }, using: 'length' } },
+                                    },
                                 },
                             },
+                            else: { breakageReportData: { data: { region: { value: 'filled' } } } },
                         },
                     },
                 ],
             };
-            expect(run('', detector, { install: imageState }).detected).toBe(false);
-            expect(run('<div id="comments">hi</div>', detector, { install: imageState }).detected).toBe(false);
-            expect(run(`<div id="comments">${IMG('data-complete')}</div>`, detector, { install: imageState }).data).toEqual({
-                brokenImages: '1+',
-            });
-            expect(run('<div id="comments"> </div>', detector, { install: imageState }).data).toEqual({ brokenImages: '0' });
+            const entry = (/** @type {string} */ html) => {
+                const { ctx } = run(html, detector, { install: imageState });
+                return ctx.entry.written ? ctx.entry.data : undefined;
+            };
+            expect(entry('')).toBeUndefined();
+            expect(entry('<div id="comments">hi</div>')).toEqual({ region: 'filled' });
+            expect(entry(`<div id="comments">${IMG('data-complete')}</div>`)).toEqual({ region: 'empty', brokenImages: 1 });
+            expect(entry('<div id="comments"> </div>')).toEqual({ region: 'empty', brokenImages: 0 });
         });
 
         it('counts error phrases in rendered text', () => {
+            const keywordCount = {
+                text: { xpath: RENDERED, pattern: ['access denied', 'page not found', '404 not found'] },
+                using: 'length',
+            };
             const detector = {
+                match: { ...keywordCount, is: { gte: 1 } },
                 actions: [
-                    {
-                        when: {
-                            text: { xpath: RENDERED, pattern: ['access denied', 'page not found', '404 not found'] },
-                            using: 'length',
-                            as: 'keywordCount',
-                            is: { gte: 1 },
-                        },
-                        fireEvent: {
-                            type: 'errorPage',
-                            data: {
-                                keywordCount: {
-                                    value: { ref: 'keywordCount' },
-                                    buckets: { 1: 1, '2-4': { gte: 2, lt: 5 }, '5+': { gte: 5 } },
-                                },
-                            },
-                        },
-                    },
+                    { define: { keywordCount } },
+                    { breakageReportData: { data: { keywordCount: { value: { ref: 'keywordCount' } } } } },
+                    { if: { ref: 'keywordCount', is: { gte: 2 } }, then: { fireEvent: { type: 'errorPhraseCount_count2Plus' } } },
                 ],
             };
-            expect(run('<h1>Page not found</h1><p>404 Not Found</p><script>page not found</script>', detector).data).toEqual({
-                keywordCount: '2-4',
-            });
+            const result = run('<h1>Page not found</h1><p>404 Not Found</p><script>page not found</script>', detector);
+            expect(result.ctx.entry.data).toEqual({ keywordCount: 2 });
+            expect(result.ctx.events).toEqual([{ type: 'errorPhraseCount_count2Plus' }]);
         });
     });
 
@@ -2749,35 +2552,39 @@ describe('WebDetection expressions', () => {
 
         it('lists an aborted detector in breakage results, with no data', () => {
             const instance = createInstance({
-                g: { d: { actions: [{ when: aborting, breakageReportData: { data: { x: { value: 1 } } } }] } },
+                g: { d: { match: aborting, actions: { breakageReportData: { data: { x: { value: 1 } } } } } },
             });
-            expect(instance.runDetectors({ trigger: 'breakageReport' })).toEqual([{ detectorId: 'g.d', errors: { '0.when': 'aborted' } }]);
+            expect(instance.runDetectors({ trigger: 'breakageReport' })).toEqual([
+                { detectorId: 'g.d', errors: { 'match.api': 'aborted' } },
+            ]);
         });
 
-        it('lists a detector with no breakageReportData item once a run fails', () => {
-            const instance = createInstance({ g: { d: { actions: [{ when: aborting, fireEvent: { type: 't' } }] } } });
-            expect(instance.runDetectors({ trigger: 'breakageReport' })).toEqual([{ detectorId: 'g.d', errors: { '0.when': 'aborted' } }]);
+        it('lists a detector with no breakageReportData action once a run fails', () => {
+            const instance = createInstance({ g: { d: { actions: [{ if: aborting, then: { fireEvent: { type: 't' } } }] } } });
+            expect(instance.runDetectors({ trigger: 'breakageReport' })).toEqual([
+                { detectorId: 'g.d', errors: { 'actions.0.if.api': 'aborted' } },
+            ]);
         });
 
-        it('lists no entry for a detector with no breakageReportData item that has not failed', () => {
-            const instance = createInstance({ g: { d: { actions: [{ when: false, fireEvent: { type: 't' } }] } } });
+        it('lists no entry for a detector with no breakageReportData action that has not failed', () => {
+            const instance = createInstance({ g: { d: { match: false, actions: { fireEvent: { type: 't' } } } } });
             expect(instance.runDetectors({ trigger: 'breakageReport' })).toEqual([]);
         });
 
         it('adds breakageReportData data on a match', () => {
-            const instance = createInstance({ g: { d: { actions: [{ when: true, breakageReportData: { data: { x: { value: 1 } } } }] } } });
+            const instance = createInstance({ g: { d: { match: true, actions: { breakageReportData: { data: { x: { value: 1 } } } } } } });
             expect(instance.runDetectors({ trigger: 'breakageReport' })).toEqual([{ detectorId: 'g.d', detected: true, data: { x: 1 } }]);
         });
 
         it('returns error for a detector that fails to parse', () => {
             const instance = createInstance({
-                g: { d: { actions: [{ when: { element: { selector: 'img' }, using: 'length' }, breakageReportData: {} }] } },
+                g: { d: { match: { element: { selector: 'img' }, using: 'length' }, actions: { breakageReportData: {} } } },
             });
             expect(instance.runDetectors({ trigger: 'breakageReport' })).toEqual([{ detectorId: 'g.d', errors: { parse: 'error' } }]);
         });
 
-        it('fires nothing on an aborted gate, and runs again on the next trigger', async () => {
-            const detectors = { g: { d: { actions: [{ when: aborting, fireEvent: { type: 't' }, define: { done: true } }] } } };
+        it('fires nothing on an aborted `match`, and runs again on the next trigger', async () => {
+            const detectors = { g: { d: { match: aborting, actions: { fireEvent: { type: 't' } } } } };
             const instance = createInstance(detectors);
             spyOn(instance, 'callFeatureMethod').and.resolveTo(undefined);
             const run = spyOn(instance, '_runDetector').and.callThrough();
@@ -2791,7 +2598,7 @@ describe('WebDetection expressions', () => {
 
         it('fires the event with its data on a match', async () => {
             const detectors = {
-                g: { d: { actions: [{ when: true, fireEvent: { type: 't', data: { x: { value: 2, buckets: { two: 2 } } } } }] } },
+                g: { d: { match: true, actions: { fireEvent: { type: 't', data: { x: { value: 2, buckets: { two: 2 } } } } } } },
             };
             const instance = createInstance(detectors);
             spyOn(instance, 'callFeatureMethod').and.resolveTo(undefined);

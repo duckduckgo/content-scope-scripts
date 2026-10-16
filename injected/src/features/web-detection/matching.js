@@ -368,7 +368,7 @@ function stringList(raw, path) {
 function parseRoot(raw, path, hooks) {
     if (raw === undefined) return undefined;
     if (isArray(raw) && raw.length === 0) throw new ConfigParseError(path, '`root` needs at least one entry');
-    return { entries: asArray(raw).map((entry, i) => hooks.expression(entry, isArray(raw) ? `${path}[${i}]` : path, 'root')) };
+    return { entries: asArray(raw).map((entry, i) => hooks.expression(entry, isArray(raw) ? `${path}.${i}` : path, 'root')) };
 }
 
 /**
@@ -504,7 +504,7 @@ export const textSource = {
     fills: () => FILLS.any,
     read(bodies, ctx) {
         return new ItemBuffer(textMatches(bodies, ctx), {
-            countUpTo: (bound) => countTextMatches(bodies, ctx, bound),
+            count: () => countTextMatches(bodies, ctx),
         });
     },
 };
@@ -570,21 +570,18 @@ function* textMatches(bodies, ctx) {
 }
 
 /**
- * The number of matches `textMatches` yields, stopping once it reaches `bound`. A count reads the
- * whole page where a predicate on it needs every match, so this skips the per-match generator step
- * and buffered string.
+ * The number of matches `textMatches` yields. A count reads the whole page, so this skips the
+ * per-match generator step and buffered string.
  *
  * @param {TextBody[]} bodies
  * @param {PredicateContext} ctx
- * @param {number} bound
  * @returns {number | undefined} `undefined` when a root fails, for the iterator to report
  */
-function countTextMatches(bodies, ctx, bound) {
+function countTextMatches(bodies, ctx) {
     let count = 0;
     for (const segment of textSegments(bodies, ctx)) {
         if (isFailure(segment)) return undefined;
-        while (count < bound && nextMatch(segment) !== undefined) count++;
-        if (count >= bound) return count;
+        while (nextMatch(segment) !== undefined) count++;
     }
     return count;
 }
@@ -656,7 +653,7 @@ export const elementSource = {
                 }
                 return false;
             },
-            countUpTo() {
+            count() {
                 const body = /** @type {ElementBody} */ (bodies[0]);
                 if (bodies.length !== 1 || !isPresenceOnly(body)) return undefined;
                 const roots = resolveRoots(body.root, ctx);
