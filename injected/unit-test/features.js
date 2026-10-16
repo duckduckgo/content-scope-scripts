@@ -90,7 +90,7 @@ describe('test-pages/*/config/*.json schema validation', () => {
         path.resolve(__dirname, '../integration-test/test-pages/web-interference-detection/config/youtube-detection-events.json'),
         // Includes an xpath promoSelectors entry on purpose, to test that it is dropped; the schema allows css only
         path.resolve(__dirname, '../integration-test/test-pages/chrome-webstore-patching/config/config-promo-unusable-entries.json'),
-        // webDetection action lists are not yet in the published schema
+        // webDetection `match` and `actions` expressions are not yet in the published schema
         path.resolve(__dirname, '../integration-test/test-pages/web-detection/config/config.json'),
         path.resolve(__dirname, '../integration-test/test-pages/web-detection/config/web-events.json'),
         path.resolve(__dirname, '../integration-test/test-pages/web-detection/config/web-events-disabled.json'),

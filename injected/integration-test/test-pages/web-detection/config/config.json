@@ -16,93 +16,68 @@
                 "detectors": {
                     "adwall": {
                         "generic_text": {
-                            "actions": [
-                                {
-                                    "when": {
-                                        "text": {
-                                            "pattern": [
-                                                "ad ?block(er)? detected",
-                                                "disable your ad ?blocker"
-                                            ]
-                                        }
-                                    },
-                                    "breakageReportData": {},
-                                    "define": {
-                                        "done": true
-                                    }
+                            "match": {
+                                "text": {
+                                    "pattern": [
+                                        "ad ?block(er)? detected",
+                                        "disable your ad ?blocker"
+                                    ]
                                 }
-                            ]
+                            },
+                            "actions": {
+                                "breakageReportData": {}
+                            }
                         },
                         "paywall_element": {
-                            "actions": [
-                                {
-                                    "when": {
-                                        "element": {
-                                            "selector": ".paywall-overlay",
-                                            "visibility": "visible"
-                                        }
-                                    },
-                                    "breakageReportData": {},
-                                    "define": {
-                                        "done": true
-                                    }
+                            "match": {
+                                "element": {
+                                    "selector": ".paywall-overlay",
+                                    "visibility": "visible"
                                 }
-                            ]
+                            },
+                            "actions": {
+                                "breakageReportData": {}
+                            }
                         }
                     },
                     "video": {
                         "unavailable": {
-                            "actions": [
-                                {
-                                    "when": {
-                                        "text": {
-                                            "pattern": "video (is )?unavailable",
-                                            "selector": ".video-error, .player-error"
-                                        }
-                                    },
-                                    "breakageReportData": {},
-                                    "define": {
-                                        "done": true
-                                    }
+                            "match": {
+                                "text": {
+                                    "pattern": "video (is )?unavailable",
+                                    "selector": ".video-error, .player-error"
                                 }
-                            ]
+                            },
+                            "actions": {
+                                "breakageReportData": {}
+                            }
                         }
                     },
                     "combined": {
                         "text_and_element": {
-                            "actions": [
-                                {
-                                    "when": {
-                                        "text": {
-                                            "pattern": "subscribe to continue"
-                                        },
-                                        "element": {
-                                            "selector": ".subscribe-modal"
-                                        }
-                                    },
-                                    "breakageReportData": {},
-                                    "define": {
-                                        "done": true
-                                    }
+                            "match": {
+                                "text": {
+                                    "pattern": "subscribe to continue"
+                                },
+                                "element": {
+                                    "selector": ".subscribe-modal"
                                 }
-                            ]
+                            },
+                            "actions": {
+                                "breakageReportData": {}
+                            }
                         }
                     },
                     "custom": {
                         "trigger_disabled": {
-                            "actions": [
-                                {
-                                    "when": {
-                                        "text": {
-                                            "pattern": "trigger disabled test"
-                                        }
-                                    },
-                                    "breakageReportData": {},
-                                    "define": {
-                                        "done": true
-                                    }
+                            "match": {
+                                "text": {
+                                    "pattern": "trigger disabled test"
                                 }
-                            ],
+                            },
+                            "actions": {
+                                "breakageReportData": {}
+                            },
                             "triggers": {
                                 "breakageReport": {
                                     "state": "disabled"
@@ -110,49 +85,37 @@
                             }
                         },
                         "action_disabled": {
-                            "actions": [
-                                {
-                                    "when": {
-                                        "text": {
-                                            "pattern": "action disabled test"
-                                        }
-                                    },
-                                    "define": {
-                                        "done": true
-                                    }
+                            "match": {
+                                "text": {
+                                    "pattern": "action disabled test"
                                 }
-                            ]
+                            },
+                            "actions": {
+                                "define": {
+                                    "matched": true
+                                }
+                            }
                         },
                         "detector_disabled": {
                             "state": "disabled",
-                            "actions": [
-                                {
-                                    "when": {
-                                        "text": {
-                                            "pattern": "detector disabled test"
-                                        }
-                                    },
-                                    "breakageReportData": {},
-                                    "define": {
-                                        "done": true
-                                    }
+                            "match": {
+                                "text": {
+                                    "pattern": "detector disabled test"
                                 }
-                            ]
+                            },
+                            "actions": {
+                                "breakageReportData": {}
+                            }
                         },
                         "domain_restricted": {
-                            "actions": [
-                                {
-                                    "when": {
-                                        "text": {
-                                            "pattern": "domain restricted test"
-                                        }
-                                    },
-                                    "breakageReportData": {},
-                                    "define": {
-                                        "done": true
-                                    }
+                            "match": {
+                                "text": {
+                                    "pattern": "domain restricted test"
                                 }
-                            ],
+                            },
+                            "actions": {
+                                "breakageReportData": {}
+                            },
                             "triggers": {
                                 "breakageReport": {
                                     "runConditions": {
@@ -164,19 +127,14 @@
                     },
                     "autorun": {
                         "basic_auto": {
-                            "actions": [
-                                {
-                                    "when": {
-                                        "text": {
-                                            "pattern": "auto run test"
-                                        }
-                                    },
-                                    "breakageReportData": {},
-                                    "define": {
-                                        "done": true
-                                    }
+                            "match": {
+                                "text": {
+                                    "pattern": "auto run test"
                                 }
-                            ],
+                            },
+                            "actions": {
+                                "breakageReportData": {}
+                            },
                             "triggers": {
                                 "auto": {
                                     "state": "enabled",
@@ -190,19 +148,14 @@
                             }
                         },
                         "delayed_content": {
-                            "actions": [
-                                {
-                                    "when": {
-                                        "text": {
-                                            "pattern": "first success test"
-                                        }
-                                    },
-                                    "breakageReportData": {},
-                                    "define": {
-                                        "done": true
-                                    }
+                            "match": {
+                                "text": {
+                                    "pattern": "first success test"
                                 }
-                            ],
+                            },
+                            "actions": {
+                                "breakageReportData": {}
+                            },
                             "triggers": {
                                 "auto": {
                                     "state": "enabled",
@@ -217,19 +170,14 @@
                             }
                         },
                         "auto_disabled": {
-                            "actions": [
-                                {
-                                    "when": {
-                                        "text": {
-                                            "pattern": "auto disabled test"
-                                        }
-                                    },
-                                    "breakageReportData": {},
-                                    "define": {
-                                        "done": true
-                                    }
+                            "match": {
+                                "text": {
+                                    "pattern": "auto disabled test"
                                 }
-                            ],
+                            },
+                            "actions": {
+                                "breakageReportData": {}
+                            },
                             "triggers": {
                                 "auto": {
                                     "state": "disabled",

@@ -29,17 +29,20 @@ import { compileArgs, compileField, compileWhere, evaluateArgs, parsePathBody, r
  *
  * @typedef {object} ListShortcuts
  * @property {() => boolean | undefined} [hasAny]
- * @property {(bound: number) => number | undefined} [countUpTo] - the number of items, or any number from `bound` up
+ * @property {() => number | undefined} [count]
  */
 
 /**
- * A list: the items read so far in one run, each as its value (`field`), the item itself without
- * `field`, or a `Failure` for an item whose `where` or `field` read failed. Every expression reading
- * a list shares its buffer, so each source walks the page at most once per run.
+ * A list: the items read so far, each as its value (`field`), the item itself without `field`, or a
+ * `Failure` for an item whose `where` or `field` read failed. One evaluation of a source gives one
+ * buffer, which every read of that value shares: `self` under `using`, and each `ref` to a name bound
+ * to it.
  */
 export class ItemBuffer {
     /** @type {unknown[]} */
     values = [];
+    /** Whether it is the condition leaf, `element` without `field` or `text`, which holds in boolean position when it has an item */
+    leaf = false;
     /** @type {Failure | undefined} */
     failure;
     done = false;

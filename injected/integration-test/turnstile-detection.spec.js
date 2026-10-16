@@ -15,7 +15,8 @@ function captchaConfig(visibility) {
     const autoTrigger = { auto: { state: 'enabled', when: { intervalMs: [50] } } };
     const element = (selector) => ({
         triggers: autoTrigger,
-        actions: [{ when: { element: { selector, visibility } }, breakageReportData: {}, define: { done: true } }],
+        match: { element: { selector, visibility } },
+        actions: { breakageReportData: {} },
     });
     return {
         readme: 'Captcha detector regression config',
@@ -129,7 +130,7 @@ async function run(page, projectUse, visibility, html = HTML) {
     const autoRuns = (await collector.outgoingMessages())
         .map((c) => /** @type {any} */ (c.payload))
         .filter((p) => p.method === 'webDetectionAutoRun')
-        .map((p) => ({ id: p.params?.detectorId, detected: /** @type {string[]} */ (p.params?.items ?? []).includes('ran') }));
+        .map((p) => ({ id: p.params?.detectorId, detected: p.params?.match === true }));
 
     const fl = await readForcedLayout(page);
     return { autoRuns, fl };
