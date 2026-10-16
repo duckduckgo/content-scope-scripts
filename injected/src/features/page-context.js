@@ -746,7 +746,7 @@ export default class PageContext extends ContentFeature {
         let mainContent = document.querySelector(mainContentSelector);
         const mainContentLength = this.getFeatureSetting('mainContentLength') || 100;
         const minMainContentCoverage = this.clampedNumericSetting('minMainContentCoverage', 0.25, 1);
-        if (mainContent) {
+        if (mainContent && this.getFeatureSettingEnabled('mainContentFallback', 'enabled')) {
             const bodyTextLength = document.body?.innerText.length ?? 0;
             const firstLength = renderedTextLength(mainContent);
             // The first match is sometimes a teaser card or sits in a hidden menu, so then look at every match
@@ -773,7 +773,7 @@ export default class PageContext extends ContentFeature {
                 includeIframes: this.getFeatureSettingEnabled('includeIframes', 'enabled'),
                 excludeSelectors: excludeSelectorsString,
                 trimBlankLinks: this.getFeatureSettingEnabled('trimBlankLinks', 'enabled'),
-                stripLinkUrls: this.getFeatureSettingEnabled('stripLinkUrls', 'disabled'),
+                stripLinkUrls: this.getFeatureSettingEnabled('stripLinkUrls', 'enabled'),
             }).trim();
             this.log.info('Content markdown', result, root);
             return result;
