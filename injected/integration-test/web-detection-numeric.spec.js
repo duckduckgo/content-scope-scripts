@@ -144,13 +144,16 @@ test.describe('WebDetection numeric detectors', () => {
 
         const events = await notifications(collector, 'webEvent');
         expect(events).toEqual([{ type: 'stylesMissing_sheets1', data: {} }]);
-        expect(await breakageReport(collector)).toEqual([
+        const report = await breakageReport(collector);
+        expect(report).toEqual([
             expect.objectContaining({
                 detectorId: 'styleBreakage.missing_styles_or_fonts',
                 detected: true,
                 data: expect.objectContaining({ failedStylesheets: 1, failedFontFaces: 1 }),
             }),
         ]);
+        // pageLoad.navigation writes the load end
+        expect(report[0].data).not.toHaveProperty('loadEventEnd');
     });
 
     test('errorPage.soft404_phrases_count counts error phrases in rendered text only', async ({ page }, testInfo) => {
@@ -206,7 +209,7 @@ test.describe('WebDetection numeric detectors', () => {
         ]);
     });
 
-    test('pageLoad.load_time writes a fast load to breakage reports, sends no event, and finishes', async ({ page }, testInfo) => {
+    test('pageLoad.load_time sends no event on a fast load, writes no breakage entry, and finishes', async ({ page }, testInfo) => {
         const collector = await setup(page, testInfo.project.use, [['pageLoad', 'load_time']], runSoon, { fakeClock: false });
         await navigateTo(page, '/web-detection/pages/numeric-clean.html');
         await waitForRuns(collector, 1);
@@ -215,12 +218,35 @@ test.describe('WebDetection numeric detectors', () => {
         const runs = await notifications(collector, 'webDetectionAutoRun');
         expect(runs.map((r) => r.detectorId)).toEqual(['pageLoad.load_time']);
         expect(runs[0].names).toEqual({ 'this.finished': true });
-        expect(await breakageReport(collector)).toEqual([
-            expect.objectContaining({
-                detectorId: 'pageLoad.load_time',
-                detected: true,
-                data: expect.objectContaining({ navigationType: 'navigate', hiddenDuringLoad: false }),
-            }),
-        ]);
+        expect(await breakageReport(collector)).toEqual([]);
+    });
+
+    test('pageLoad.navigation writes the navigation values only when a report is filed', async ({ page }, testInfo) => {
+        const collector = await setup(page, testInfo.project.use, [['pageLoad', 'navigation']], undefined, { fakeClock: false });
+        await navigateTo(page, '/web-detection/pages/numeric-clean.html');
+        await page.waitForFunction(() => performance.getEntriesByType('navigation')[0]?.loadEventEnd > 0);
+
+        const [entry, ...rest] = await breakageReport(collector);
+        expect(rest).toEqual([]);
+        expect(await notifications(collector, 'webDetectionAutoRun')).toEqual([]);
+        expect(await notifications(collector, 'webEvent')).toEqual([]);
+        expect(entry).toEqual({
+            detectorId: 'pageLoad.navigation',
+            detected: true,
+            data: {
+                loadEventEnd: expect.any(Number),
+                elapsed: expect.any(Number),
+                navigationType: 'navigate',
+                hiddenDuringLoad: expect.anything(),
+                status: expect.anything(),
+                bodySize: expect.any(Number),
+            },
+        });
+        expect(entry.data.loadEventEnd).toBeGreaterThan(0);
+        expect(entry.data.elapsed).toBeGreaterThanOrEqual(entry.data.loadEventEnd);
+        const responseStatus = await page.evaluate(() => 'responseStatus' in PerformanceResourceTiming.prototype);
+        expect(entry.data.status).toBe(responseStatus ? 200 : 'unsupported');
+        const visibilityEntries = await page.evaluate(() => PerformanceObserver.supportedEntryTypes.includes('visibility-state'));
+        expect(entry.data.hiddenDuringLoad).toBe(visibilityEntries ? false : 'unsupported');
     });
 });
