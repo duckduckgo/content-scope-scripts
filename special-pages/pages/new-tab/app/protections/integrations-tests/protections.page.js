@@ -160,6 +160,63 @@ export class ProtectionsPage {
         await expect(view.getByText(/single out your device, like a fingerprint/)).toBeVisible();
     }
 
+    /**
+     * The share button downloads a PNG of the card.
+     */
+    async sharesAsImage() {
+        const button = this.report().getByRole('button', { name: 'Share as image' });
+        const [download] = await Promise.all([this.page.waitForEvent('download'), button.click()]);
+        expect(download.suggestedFilename()).toBe('duckduckgo-protections-report.png');
+        const path = await download.path();
+        const { readFile } = await import('node:fs/promises');
+        const bytes = await readFile(path);
+        // PNG signature
+        expect([...bytes.subarray(0, 4)]).toEqual([0x89, 0x50, 0x4e, 0x47]);
+        // exported at 1x: the 504px card plus 80px either side
+        expect(bytes.readUInt32BE(16)).toBe(664);
+        await expect(button).toBeEnabled();
+        return bytes;
+    }
+
+    /**
+     * Pretends the browser can share files, recording what it's given. Call
+     * before opening the page.
+     *
+     * @param {'share' | 'refuse'} behaviour - `refuse` throws like a share sheet
+     *   opened too long after the click
+     */
+    async stubShareSheet(behaviour) {
+        await this.page.addInitScript((behaviour) => {
+            /** @type {any} */ (window).__shared = [];
+            Object.defineProperty(navigator, 'canShare', { configurable: true, value: () => true });
+            Object.defineProperty(navigator, 'share', {
+                configurable: true,
+                value: (/** @type {ShareData} */ data) => {
+                    if (behaviour === 'refuse') return Promise.reject(new DOMException('too late', 'NotAllowedError'));
+                    /** @type {any} */ (window).__shared.push(
+                        ...(data.files ?? []).map((f) => ({ name: f.name, type: f.type, size: f.size })),
+                    );
+                    return Promise.resolve();
+                },
+            });
+        }, behaviour);
+    }
+
+    /**
+     * With the share sheet available, the picture goes there instead of downloading.
+     */
+    async sharesViaShareSheet() {
+        let downloaded = false;
+        this.page.on('download', () => {
+            downloaded = true;
+        });
+        await this.report().getByRole('button', { name: 'Share as image' }).click();
+        await expect
+            .poll(() => this.page.evaluate(() => /** @type {any} */ (window).__shared))
+            .toEqual([{ name: 'duckduckgo-protections-report.png', type: 'image/png', size: expect.any(Number) }]);
+        expect(downloaded).toBe(false);
+    }
+
     async displaysTopSites() {
         const view = this.report().getByTestId('ProtectionsReportTopSites');
         await expect(view.getByText('Nosiest site this week')).toBeVisible();

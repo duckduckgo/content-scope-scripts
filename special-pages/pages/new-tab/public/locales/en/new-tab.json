@@ -397,6 +397,22 @@
     "title": "{count} installed",
     "note": "How many text-to-speech voices are installed, eg: '84 installed'."
   },
+  "protections_report_shareLabel": {
+    "title": "Share as image",
+    "note": "Accessible label and tooltip for the button that saves a picture of the Protections Report to share."
+  },
+  "protections_report_shareTitle": {
+    "title": "My browser has my back.",
+    "note": "Headline of the picture people can share of their Protections Report. Written in the first person, as the sharer."
+  },
+  "protections_report_shareBody": {
+    "title": "DuckDuckGo blocks trackers as you go. Here’s how it protected me this week.",
+    "note": "Text under 'My browser has my back.' in the shared picture, introducing the report below it."
+  },
+  "protections_report_shareCta": {
+    "title": "Try it free at <b>duckduckgo.com/app</b>",
+    "note": "Call to action at the bottom of the shared picture. Keep the <b></b> tags around the address, which is shown bold and underlined."
+  },
   "stats_menuTitle": {
     "title": "Blocked Tracking Attempts",
     "note": "Used as a label in a customization menu"

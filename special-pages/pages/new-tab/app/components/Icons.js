@@ -1206,3 +1206,21 @@ export function FingerprintIcon(props) {
         </svg>
     );
 }
+
+/**
+ * Share glyph: an open box with an arrow leaving it
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
+ */
+export function ShareIcon(props) {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" {...props}>
+            <path
+                d="M8 10V2.5M5.25 5.25 8 2.5l2.75 2.75M5.5 7H4.75A1.75 1.75 0 0 0 3 8.75v3.5A1.75 1.75 0 0 0 4.75 14h6.5A1.75 1.75 0 0 0 13 12.25v-3.5A1.75 1.75 0 0 0 11.25 7h-.75"
+                stroke="currentColor"
+                stroke-width="1.25"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+            />
+        </svg>
+    );
+}

@@ -103,6 +103,8 @@ test.describe('protections report', () => {
             await protections.displaysCompanies();
 
             await protections.choosesView('When they tried to track you', 'activity');
+            // personal browsing history isn't offered for sharing
+            await expect(protections.report().getByRole('button', { name: 'Share as image' })).toHaveCount(0);
             await ntp.mocks.waitForCallCount({ method: 'activity_getData', count: 1 });
             await expect(protections.report().getByTestId('Activity')).toBeVisible();
         });
@@ -116,6 +118,37 @@ test.describe('protections report', () => {
             await protections.ready();
             await protections.choosesView('How they try to recognize you', 'recognition');
             await protections.displaysRecognition();
+        });
+
+        test('shares the report as an image', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: report });
+
+            const protections = new ProtectionsPage(ntp);
+            await protections.ready();
+            const png = await protections.sharesAsImage();
+            await workerInfo.attach('protections-report.png', { body: png, contentType: 'image/png' });
+        });
+
+        test('shares the image through the share sheet when available', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            const protections = new ProtectionsPage(ntp);
+            await protections.stubShareSheet('share');
+            await ntp.openPage({ additional: report });
+            await protections.ready();
+            await protections.sharesViaShareSheet();
+        });
+
+        test('downloads the image when the share sheet refuses', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            const protections = new ProtectionsPage(ntp);
+            await protections.stubShareSheet('refuse');
+            await ntp.openPage({ additional: report });
+            await protections.ready();
+            await protections.sharesAsImage();
         });
 
         test('shows which sites had the most trackers', async ({ page }, workerInfo) => {

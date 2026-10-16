@@ -5,7 +5,8 @@ import styles from './ProtectionsReport.module.css';
 import protectionsStyles from './Protections.module.css';
 import { useTypedTranslationWith } from '../../types.js';
 import { ShowHideButtonCircle } from '../../components/ShowHideButton.jsx';
-import { InfoIcon, ShieldCheckIcon, ChevronSmall, FingerprintIcon } from '../../components/Icons.js';
+import { InfoIcon, ShieldCheckIcon, ChevronSmall, FingerprintIcon, ShareIcon } from '../../components/Icons.js';
+import { CAPTURE_EXCLUDE, shareAsImage } from '../utils/share-image.js';
 import { FaviconWithState } from '../../../../../shared/components/FaviconWithState.js';
 import { DDG_FALLBACK_ICON, DDG_FALLBACK_ICON_DARK } from '../../favorites/constants.js';
 import { loadVoices, readDeviceDetails } from '../utils/device-details.js';
@@ -205,7 +206,12 @@ export function ProtectionsReport({
                                     {view === 'top-sites' && <TopSitesView sites={topSites} />}
                                 </div>
                             </div>
-                            <CookiePopUpsFooter count={cookiePopUpsBlocked} />
+                            <ReportFooter
+                                cookiePopUpsBlocked={cookiePopUpsBlocked}
+                                captureRef={rootRef}
+                                // the by-site list is personal browsing history, so it isn't offered for sharing
+                                canShare={view !== 'activity'}
+                            />
                         </Fragment>
                     )}
                 </div>
@@ -270,7 +276,7 @@ function TitleRow({ expanded, toggle, bodyId }) {
             <img class={styles.titleIcon} src="./icons/Shield-Color-16.svg" alt="" />
             <h2 class={styles.title}>{t('protections_menuTitle')}</h2>
             <InfoButton />
-            <span class={styles.toggle}>
+            <span class={styles.toggle} {...{ [CAPTURE_EXCLUDE]: '' }}>
                 <ShowHideButtonCircle
                     buttonAttrs={{
                         'aria-controls': bodyId,
@@ -328,7 +334,7 @@ function InfoButton() {
     };
 
     return (
-        <div class={styles.info} ref={wrapperRef} onMouseEnter={show} onMouseLeave={hideSoon}>
+        <div class={styles.info} ref={wrapperRef} onMouseEnter={show} onMouseLeave={hideSoon} {...{ [CAPTURE_EXCLUDE]: '' }}>
             <button
                 type="button"
                 class={styles.infoButton}
@@ -577,7 +583,10 @@ function ViewMenu({ views, current, onSelect }) {
                 <span class={styles.viewLabel}>
                     <ViewLabel view={current} />
                 </span>
-                <ChevronSmall />
+                {/* left out of the shared image: there's no menu to open there */}
+                <span class={styles.viewChevron} {...{ [CAPTURE_EXCLUDE]: '' }}>
+                    <ChevronSmall />
+                </span>
             </button>
             {menu.isOpen && menu.dropdownPos && (
                 <Dropdown
@@ -798,27 +807,85 @@ function CompanyTitle({ name, sitesCount, totalSitesVisited }) {
     );
 }
 
+/** Name of the downloaded picture */
+const SHARE_FILENAME = 'duckduckgo-protections-report.png';
+
 /**
+ * The cookie pop-up count (when there is one) and the share button.
+ *
  * @param {object} props
- * @param {number | null | undefined} props.count - undefined = unsupported, null = feature disabled
+ * @param {number | null | undefined} props.cookiePopUpsBlocked - undefined = unsupported, null = feature disabled
+ * @param {import('preact').RefObject<HTMLElement>} props.captureRef - the card to capture
+ * @param {boolean} props.canShare - whether to show the share button
  */
-function CookiePopUpsFooter({ count }) {
+function ReportFooter({ cookiePopUpsBlocked: count, captureRef, canShare }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const locale = useLocale();
     const formatter = useMemo(() => getLocalizedNumberFormatter(locale), [locale]);
-    if (typeof count !== 'number' || !Number.isFinite(count) || count < 1) return null;
-    const text =
-        count === 1
-            ? t('protections_report_cookiePopUpsSingular')
-            : t('protections_report_cookiePopUpsPlural', { count: formatter.format(Math.floor(count)) });
+    const showCookies = typeof count === 'number' && Number.isFinite(count) && count >= 1;
+    const text = !showCookies
+        ? null
+        : count === 1
+          ? t('protections_report_cookiePopUpsSingular')
+          : t('protections_report_cookiePopUpsPlural', { count: formatter.format(Math.floor(count)) });
+    if (!text && !canShare) return null;
     return (
         <Fragment>
             <hr class={styles.divider} />
-            <p class={styles.cookieFooter} data-testid="ProtectionsReportCookies">
-                <img class={styles.cookieIcon} src="./icons/Cookie-Color-24.svg" alt="" />
-                {text}
-            </p>
+            <div class={styles.footer}>
+                {text && (
+                    <p class={styles.cookieFooter} data-testid="ProtectionsReportCookies">
+                        <img class={styles.cookieIcon} src="./icons/Cookie-Color-24.svg" alt="" />
+                        {text}
+                    </p>
+                )}
+                {canShare && <ShareButton captureRef={captureRef} />}
+            </div>
         </Fragment>
+    );
+}
+
+/**
+ * Shares a picture of the report through the system share sheet, or
+ * downloads it where sharing files isn't available.
+ *
+ * @param {object} props
+ * @param {import('preact').RefObject<HTMLElement>} props.captureRef
+ */
+function ShareButton({ captureRef }) {
+    const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
+    const [busy, setBusy] = useState(false);
+    const share = async () => {
+        const node = captureRef.current;
+        if (!node || busy) return;
+        setBusy(true);
+        try {
+            await shareAsImage(node, SHARE_FILENAME, {
+                title: t('protections_report_shareTitle'),
+                body: t('protections_report_shareBody'),
+                cta: t('protections_report_shareCta'),
+            });
+        } catch (e) {
+            // eg: a resource the capture couldn't read; nothing useful to show the user
+            console.warn('Could not save the Protections Report as an image', e);
+        } finally {
+            setBusy(false);
+        }
+    };
+    return (
+        <button
+            type="button"
+            class={styles.shareButton}
+            aria-label={t('protections_report_shareLabel')}
+            title={t('protections_report_shareLabel')}
+            aria-busy={busy}
+            disabled={busy}
+            onClick={share}
+            data-testid="ProtectionsReportShare"
+            {...{ [CAPTURE_EXCLUDE]: '' }}
+        >
+            <ShareIcon aria-hidden="true" />
+        </button>
     );
 }
 

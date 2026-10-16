@@ -244,6 +244,19 @@
     margin: -14px -14px -14px 0;
 }
 
+/* the eye isn't part of the shared image; hidden rather than removed so the
+   headline wraps exactly as it does on the page */
+.report[data-capturing] .eyeSlot {
+    visibility: hidden;
+}
+
+/* nor any hover state the pointer happens to be causing */
+.report[data-capturing] .viewTrigger {
+    background: transparent !important;
+    box-shadow: none !important;
+    transition: none !important;
+}
+
 .eye {
     display: block;
     width: 112px;
@@ -356,6 +369,10 @@
     letter-spacing: -0.24px;
     color: var(--ds-color-theme-text-primary);
     white-space: nowrap;
+}
+
+.viewChevron {
+    display: flex;
 }
 
 .viewDropdown {
@@ -587,8 +604,58 @@
     color: var(--ds-color-theme-text-secondary);
 }
 
-.divider:has(+ .cookieFooter) {
+.divider:has(+ .footer) {
     margin: 6px 0 12px;
+}
+
+/* cookie line on the left, share button on the right */
+.footer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 28px;
+}
+
+.footer .cookieFooter {
+    flex: 1;
+    min-width: 0;
+}
+
+.shareButton {
+    margin-left: auto;
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    margin-top: -6px;
+    margin-bottom: -6px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--ds-color-theme-text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 100ms ease;
+
+    &:hover {
+        background: var(--ds-color-theme-control-fill-primary);
+    }
+
+    &:active {
+        background: var(--ds-color-theme-control-fill-secondary);
+    }
+
+    &:focus-visible {
+        outline: none;
+        box-shadow: var(--focus-ring);
+    }
+
+    &:disabled {
+        cursor: progress;
+        opacity: 0.5;
+    }
 }
 
 .cookieIcon {
