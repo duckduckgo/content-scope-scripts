@@ -34,6 +34,7 @@ export class OnboardingPage {
             setAdBlocking: {},
             reportPageException: {},
             reportInitException: {},
+            setOnboardingInstallOptions: {},
             init: {
                 stepDefinitions: {
                     systemSettings: {

@@ -25,10 +25,15 @@ export const stepsConfig = {
             content: <WelcomeContent onComplete={advance} />,
         };
     },
-    getStarted: ({ enqueueNext, onTitleComplete, isShortViewport, globalState }) => {
+    getStarted: ({ enqueueNext, onTitleComplete, isShortViewport, globalState, platformName }) => {
         const showChromeExtension = /** @type {import('../../types').GetStartedStep} */ (globalState.step).options?.includes(
             'chrome-extension-install',
         );
+        const showWindowsInstallOptions =
+            platformName === 'windows' &&
+            /** @type {import('../../types').GetStartedStep} */ (globalState.step).options?.some(
+                (option) => option === 'sideload-extensions' || option === 'open-at-startup',
+            );
         return {
             bottomBubble: {
                 content: <GetStartedContent advance={enqueueNext} onTitleComplete={onTitleComplete} />,
@@ -39,7 +44,7 @@ export const stepsConfig = {
                 : {
                       foreground: <GetStartedAnimation />,
                   },
-            bubbleWidth: showChromeExtension ? 'chromeExtension' : 'narrow',
+            bubbleWidth: showChromeExtension || showWindowsInstallOptions ? 'chromeExtension' : 'narrow',
         };
     },
     makeDefaultSingle: ({ enqueueNext, onTitleComplete, updateSystemValue }) => {
