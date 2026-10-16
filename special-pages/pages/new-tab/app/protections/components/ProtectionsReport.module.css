@@ -663,6 +663,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+    .orbitLid {
+        display: none;
+    }
+
     .collapsible,
     .collapsibleInner,
     .headSwitch,
@@ -826,6 +830,29 @@
         width: 100%;
         height: 100%;
     }
+}
+
+.ringEye {
+    display: block;
+}
+
+/* An eyelid that now and then blinks shut over the logo, in the eye's
+   colours; its curved lower edge is the lash line. It rests open, above the
+   logo; useRingBlinks plays the blinks. */
+.orbitLogo > .orbitLid {
+    position: absolute;
+    inset: 0;
+    background: #d3b9eb;
+    border-bottom: 1px solid #521a61;
+    border-radius: 0 0 50% 50% / 0 0 35% 35%;
+    transform: translateY(-110%);
+    pointer-events: none;
+}
+
+/* no blinking when motion is reduced, nor in the shared picture (it could
+   catch a logo with its eye shut) */
+.shareCopy .orbitLid {
+    display: none;
 }
 
 .topSiteText {

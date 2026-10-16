@@ -386,11 +386,13 @@ function download(blob, filename) {
  * @param {HTMLElement} node - the report card
  * @param {string} filename
  * @param {ShareStrings} strings
+ * @param {object} [options]
+ * @param {boolean} [options.download] - save the picture straight away, without the share sheet
  */
-export async function shareAsImage(node, filename, strings) {
+export async function shareAsImage(node, filename, strings, { download: saveOnly = false } = {}) {
     const blob = await renderShareImage(node, strings);
     const file = new File([blob], filename, { type: 'image/png' });
-    if (navigator.canShare?.({ files: [file] })) {
+    if (!saveOnly && navigator.canShare?.({ files: [file] })) {
         try {
             await navigator.share({ files: [file] });
             return;

@@ -46,6 +46,12 @@ export function useShareCopy(liveRef) {
 const SHARE_FILENAME = 'duckduckgo-protections-report.png';
 
 /**
+ * `?protections.share=download` saves the picture instead of opening the
+ * share sheet, eg: to grab it while trying things out in a desktop browser.
+ */
+const SAVE_INSTEAD = new URLSearchParams(location.search).get('protections.share') === 'download';
+
+/**
  * Shares a picture of the report through the system share sheet, or
  * downloads it where sharing files isn't available.
  *
@@ -81,7 +87,7 @@ export function ShareButton({ copy }) {
         try {
             const node = await copy.ready();
             if (!node) throw new Error('the report has gone');
-            await shareAsImage(node, SHARE_FILENAME, strings());
+            await shareAsImage(node, SHARE_FILENAME, strings(), { download: SAVE_INSTEAD });
         } catch (e) {
             // eg: a resource the capture couldn't read; nothing useful to show the user
             console.warn('Could not save the Protections Report as an image', e);

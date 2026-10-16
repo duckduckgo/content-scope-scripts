@@ -169,6 +169,17 @@ test.describe('protections report', () => {
             await protections.dropsShareCopyWhenNotShareable();
         });
 
+        test('saves the image instead of sharing with protections.share=download', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            const protections = new ProtectionsPage(ntp);
+            await protections.stubShareSheet('share');
+            await ntp.openPage({ additional: { ...report, 'protections.share': 'download' } });
+            await protections.ready();
+            await protections.sharesAsImage();
+            expect(await page.evaluate(() => /** @type {any} */ (window).__shared)).toEqual([]);
+        });
+
         test('downloads the image when the share sheet refuses', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             await ntp.reducedMotion();

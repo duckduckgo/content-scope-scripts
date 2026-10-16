@@ -1,5 +1,5 @@
 import { Fragment, h } from 'preact';
-import { useEffect, useMemo, useState } from 'preact/hooks';
+import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import cn from 'classnames';
 import styles from './ProtectionsReport.module.css';
 import { ShieldCheckIcon, FingerprintIcon } from '../../components/Icons.js';
@@ -7,7 +7,7 @@ import { CompanyIcon } from '../../components/CompanyIcon.js';
 import { FaviconWithState } from '../../../../../shared/components/FaviconWithState.js';
 import { DDG_FALLBACK_ICON, DDG_FALLBACK_ICON_DARK } from '../../favorites/constants.js';
 import { Trans } from '../../../../../shared/components/TranslationsProvider.js';
-import { useLocale } from '../../../../../shared/components/EnvironmentProvider.js';
+import { useEnv, useLocale } from '../../../../../shared/components/EnvironmentProvider.js';
 import { displayNameForCompany } from '../../privacy-stats/privacy-stats.utils.js';
 import { loadVoices, readDeviceDetails } from '../utils/device-details.js';
 import {
@@ -376,6 +376,126 @@ function SiteFavicon({ site, large = false }) {
 /** Orbit geometry for the top site, in px: the ring's centre and radius, and logo sizes */
 const ORBIT = { center: 92, radius: 70, lead: 30, rest: 22, leadCount: 3 };
 
+/** How many little eyes join the logos around the nosiest site */
+const RING_EYES = 3;
+
+/**
+ * Random numbers from 0 to 1 that always come out the same for the same
+ * seed (a string hash feeding mulberry32). Used so the eyes land in random
+ * looking places that don't move between renders.
+ *
+ * @param {string} seed
+ */
+function seededRandom(seed) {
+    let h = 1779033703 ^ seed.length;
+    for (let i = 0; i < seed.length; i++) {
+        h = Math.imul(h ^ seed.charCodeAt(i), 3432918353);
+        h = (h << 13) | (h >>> 19);
+    }
+    return () => {
+        h = Math.imul(h ^ (h >>> 16), 2246822507);
+        h = Math.imul(h ^ (h >>> 13), 3266489909);
+        return ((h ^= h >>> 16) >>> 0) / 4294967296;
+    };
+}
+
+/**
+ * What goes around the ring: up to `TOP_SITE_ORBIT_LIMIT` places, the
+ * companies in order with a few eyes mixed in at random. The eyes stay out of
+ * the first few (larger) places, which belong to the companies on most sites,
+ * and apart from each other while there are companies enough to go between.
+ *
+ * @param {string[]} companies - most widespread first
+ * @param {string} seed - eg: the site, so each site gets its own layout
+ * @return {({kind: 'company', name: string} | {kind: 'eye', id: number})[]}
+ */
+function ringItems(companies, seed) {
+    /** @type {({kind: 'company', name: string} | {kind: 'eye', id: number})[]} */
+    const items = companies.slice(0, TOP_SITE_ORBIT_LIMIT - RING_EYES).map((name) => ({ kind: 'company', name }));
+    const random = seededRandom(seed);
+    const first = Math.min(ORBIT.leadCount, items.length);
+    // the gaps between companies (after the first few) an eye can go in, in a random order
+    const gaps = Array.from({ length: items.length - first + 1 }, (_, i) => first + i);
+    for (let i = gaps.length - 1; i > 0; i--) {
+        const j = Math.floor(random() * (i + 1));
+        [gaps[i], gaps[j]] = [gaps[j], gaps[i]];
+    }
+    // one eye per gap keeps them apart; with only a company or two, some have to share
+    const chosen = Array.from({ length: RING_EYES }, (_, id) => gaps[id] ?? gaps[Math.floor(random() * gaps.length)]);
+    // from the last gap back, so inserting doesn't shift the gaps still to fill
+    chosen
+        .map((gap, id) => ({ gap, id }))
+        .sort((a, b) => b.gap - a.gap)
+        .forEach(({ gap, id }) => items.splice(gap, 0, { kind: 'eye', id }));
+    return items;
+}
+
+/**
+ * A little eye in the style of the report's big one, looking in at the site
+ * in the middle of the ring.
+ *
+ * @param {object} props
+ * @param {number} props.angle - where it sits on the ring, in radians
+ */
+function RingEye({ angle }) {
+    // the iris shifts toward the centre of the ring
+    const x = 12 - Math.cos(angle) * 2.2;
+    const y = 12 - Math.sin(angle) * 2.2;
+    return (
+        <svg viewBox="0 0 24 24" class={styles.ringEye}>
+            <circle cx="12" cy="12" r="11.5" fill="#FBF7FF" />
+            <path d="M3 15.5a10 10 0 0 0 18 0a12 12 0 0 1-18 0z" fill="#EADAFD" />
+            <circle cx={x} cy={y} r="5.6" fill="#9F6EB8" stroke="#682A7A" stroke-width="1" />
+            <circle cx={x} cy={y} r="2.7" fill="#521A61" />
+            <circle cx={x - 1.7} cy={y - 1.7} r="1.1" fill="#F5EDFF" />
+            <circle cx="12" cy="12" r="11.4" fill="none" stroke="#521A61" stroke-width="1" />
+        </svg>
+    );
+}
+
+/** Time between blinks around the ring: a random time in this range, in ms */
+const BLINK_GAP = { min: 3000, max: 5000 };
+
+/** One blink: the lid closes and opens again */
+const BLINK = {
+    keyframes: [{ transform: 'translateY(-110%)' }, { transform: 'translateY(0)' }, { transform: 'translateY(-110%)' }],
+    options: { duration: 300, easing: 'ease-in-out' },
+};
+
+/**
+ * Every few seconds, one of the logos in the ring blinks: a random one, never
+ * the same one twice in a row. Played straight on the lids, so the view
+ * doesn't re-render for each blink.
+ *
+ * @param {import('preact').RefObject<HTMLElement>} ringRef
+ * @param {boolean} enabled - false when motion is reduced
+ */
+function useRingBlinks(ringRef, enabled) {
+    useEffect(() => {
+        const ring = ringRef.current;
+        if (!ring || !enabled) return;
+        /** @type {Element | null} */
+        let last = null;
+        /** @type {ReturnType<typeof setTimeout>} */
+        let timer;
+        const schedule = () => {
+            timer = setTimeout(blink, BLINK_GAP.min + Math.random() * (BLINK_GAP.max - BLINK_GAP.min));
+        };
+        const blink = () => {
+            const lids = [...ring.querySelectorAll(`.${styles.orbitLid}`)];
+            const choices = lids.length > 1 ? lids.filter((lid) => lid !== last) : lids;
+            const lid = choices[Math.floor(Math.random() * choices.length)];
+            if (lid) {
+                lid.animate(BLINK.keyframes, BLINK.options);
+                last = lid;
+            }
+            schedule();
+        };
+        schedule();
+        return () => clearTimeout(timer);
+    }, [ringRef, enabled]);
+}
+
 /**
  * "Which sites had the most trackers": the nosiest site with its companies
  * circling it, then the next few.
@@ -387,27 +507,31 @@ export function TopSitesView({ sites }) {
     const { t } = useReportTranslation();
     const format = useReportFormat();
     const [top, ...rest] = sites;
+    const orbit = useMemo(() => (top ? ringItems(top.companies, top.site.etldPlusOne) : []), [top]);
+    const { isReducedMotion } = useEnv();
+    const ringRef = useRef(/** @type {HTMLDivElement | null} */ (null));
+    useRingBlinks(ringRef, !isReducedMotion);
     if (!top) return null;
 
-    const orbit = top.companies.slice(0, TOP_SITE_ORBIT_LIMIT);
     const count = top.companies.length;
 
     return (
         <div data-testid="ProtectionsReportTopSites">
             <div class={styles.topSite}>
-                <div class={styles.orbit} aria-hidden="true">
+                <div class={styles.orbit} aria-hidden="true" ref={ringRef}>
                     <span class={styles.orbitRing} />
                     <span class={styles.orbitCenter}>
                         <SiteFavicon site={top.site} large />
                     </span>
-                    {orbit.map((name, k) => {
-                        const size = k < ORBIT.leadCount ? ORBIT.lead : ORBIT.rest;
+                    {orbit.map((item, k) => {
+                        // the first few companies are larger; the eyes stay small
+                        const size = item.kind === 'company' && k < ORBIT.leadCount ? ORBIT.lead : ORBIT.rest;
                         const angle = -Math.PI / 2 + (k * 2 * Math.PI) / orbit.length;
                         return (
                             <span
-                                key={name}
+                                key={item.kind === 'company' ? item.name : `eye-${item.id}`}
                                 class={styles.orbitLogo}
-                                title={name}
+                                title={item.kind === 'company' ? item.name : undefined}
                                 style={{
                                     width: `${size}px`,
                                     height: `${size}px`,
@@ -415,7 +539,8 @@ export function TopSitesView({ sites }) {
                                     top: `${Math.round(ORBIT.center + ORBIT.radius * Math.sin(angle) - size / 2)}px`,
                                 }}
                             >
-                                <CompanyIcon displayName={name} />
+                                {item.kind === 'company' ? <CompanyIcon displayName={item.name} /> : <RingEye angle={angle} />}
+                                <span class={styles.orbitLid} />
                             </span>
                         );
                     })}
@@ -429,7 +554,10 @@ export function TopSitesView({ sites }) {
                     <span class={styles.topSiteWatching}>
                         {count === 1
                             ? t('protections_report_topSiteWatchingSingular', { companies: top.companies[0] })
-                            : t('protections_report_topSiteWatchingPlural', { companies: format.list(top.companies.slice(0, 2)) })}
+                            : t('protections_report_topSiteWatchingPlural', {
+                                  // the same companies as the larger logos in the ring
+                                  companies: format.list(top.companies.slice(0, ORBIT.leadCount)),
+                              })}
                     </span>
                 </div>
             </div>

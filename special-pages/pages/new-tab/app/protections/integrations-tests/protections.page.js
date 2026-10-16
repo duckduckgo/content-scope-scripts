@@ -284,7 +284,7 @@ export class ProtectionsPage {
         await expect(view.getByText('Nosiest site this week')).toBeVisible();
         await expect(view.getByText('cnn.com')).toBeVisible();
         await expect(view.getByText('31 companies')).toBeVisible();
-        await expect(view.getByText('were watching, including Google and Facebook.')).toBeVisible();
+        await expect(view.getByText('were trying to watch, including Google, Facebook, and Microsoft.')).toBeVisible();
         const rows = view.getByRole('listitem');
         // the next four; a site with no trackers is left out
         await expect(rows).toHaveCount(4);

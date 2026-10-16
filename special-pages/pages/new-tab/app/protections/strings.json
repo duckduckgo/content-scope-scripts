@@ -436,12 +436,12 @@
     "note": "Large number under the nosiest site: how many tracking companies were on it. {count} is a number."
   },
   "protections_report_topSiteWatchingSingular": {
-    "title": "was watching: {companies}.",
+    "title": "was trying to watch: {companies}.",
     "note": "Follows '1 company' under the nosiest site. {companies} is the company name."
   },
   "protections_report_topSiteWatchingPlural": {
-    "title": "were watching, including {companies}.",
-    "note": "Follows '31 companies' under the nosiest site. {companies} lists the most widespread ones, eg: 'were watching, including Google and Facebook.'"
+    "title": "were trying to watch, including {companies}.",
+    "note": "Follows '31 companies' under the nosiest site. {companies} lists the three most widespread ones (the larger logos in the ring), eg: 'were trying to watch, including Google, Facebook, and Microsoft.'"
   },
   "protections_report_siteCompaniesSingular": {
     "title": "1 company",
