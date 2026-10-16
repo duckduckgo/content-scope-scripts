@@ -120,44 +120,44 @@
     "note": "Status label at the end of a row, meaning these trackers were blocked."
   },
   "protections_report_purposeAdvertising": {
-    "title": "Follows you with ads based on where you go",
-    "note": "Describes what a tracker does (advertising trackers). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who we blocked the most'. The subject is the company or its trackers, eg: 'Google: Follows you with ads based on where you go.'"
+    "title": "Targets you with ads based on the sites you visit",
+    "note": "Describes what a tracker does (advertising trackers). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who we blocked the most'. The subject is the company or its trackers, eg: 'Google: Targets you with ads based on the sites you visit.'"
   },
   "protections_report_purposeAdvertisingFirstPerson": {
-    "title": "Follows me with ads based on where I go",
-    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “Follows you with ads based on where you go” — Describes what a tracker does (advertising trackers). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who we blocked the most'. The subject is the company or its trackers, eg: 'Google: Follows you with ads based on where you go.'"
+    "title": "Targets me with ads based on the sites I visit",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “Targets you with ads based on the sites you visit” — Describes what a tracker does (advertising trackers). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who we blocked the most'. The subject is the company or its trackers, eg: 'Google: Targets you with ads based on the sites you visit.'"
   },
   "protections_report_purposeSocial": {
     "title": "Tells social networks what you do on other sites",
-    "note": "Describes what a tracker does (social network trackers such as share buttons and pixels). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who we blocked the most'. The subject is the company or its trackers, eg: 'Google: Follows you with ads based on where you go.'"
+    "note": "Describes what a tracker does (social network trackers such as share buttons and pixels). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who we blocked the most'. The subject is the company or its trackers, eg: 'Google: Targets you with ads based on the sites you visit.'"
   },
   "protections_report_purposeSocialFirstPerson": {
     "title": "Tells social networks what I do on other sites",
-    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “Tells social networks what you do on other sites” — Describes what a tracker does (social network trackers such as share buttons and pixels). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who we blocked the most'. The subject is the company or its trackers, eg: 'Google: Follows you with ads based on where you go.'"
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “Tells social networks what you do on other sites” — Describes what a tracker does (social network trackers such as share buttons and pixels). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who we blocked the most'. The subject is the company or its trackers, eg: 'Google: Targets you with ads based on the sites you visit.'"
   },
   "protections_report_purposeFingerprinting": {
-    "title": "Recognizes your computer (even after you clear cookies)",
-    "note": "Describes what a tracker does (browser fingerprinting). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who we blocked the most'. The subject is the company or its trackers, eg: 'Google: Follows you with ads based on where you go.'"
+    "title": "Fingerprints your device to recognize you, even without cookies",
+    "note": "Describes what a tracker does (browser fingerprinting). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who we blocked the most'. The subject is the company or its trackers, eg: 'Google: Targets you with ads based on the sites you visit.'"
   },
   "protections_report_purposeFingerprintingFirstPerson": {
-    "title": "Recognizes my computer (even after I clear cookies)",
-    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “Recognizes your computer (even after you clear cookies)” — Describes what a tracker does (browser fingerprinting). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who we blocked the most'. The subject is the company or its trackers, eg: 'Google: Follows you with ads based on where you go.'"
+    "title": "Fingerprints my device to recognize me, even without cookies",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “Fingerprints your device to recognize you, even without cookies” — Describes what a tracker does (browser fingerprinting). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who we blocked the most'. The subject is the company or its trackers, eg: 'Google: Targets you with ads based on the sites you visit.'"
   },
   "protections_report_purposeSessionReplay": {
-    "title": "Records your clicks and scrolls",
-    "note": "Describes what a tracker does (session replay scripts that record mouse movement, clicks and scrolls). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who we blocked the most'. The subject is the company or its trackers, eg: 'Google: Follows you with ads based on where you go.'"
+    "title": "Records what you click, type, and scroll",
+    "note": "Describes what a tracker does (session replay scripts that record mouse movement, clicks, typing and scrolls). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who we blocked the most'. The subject is the company or its trackers, eg: 'Google: Targets you with ads based on the sites you visit.'"
   },
   "protections_report_purposeSessionReplayFirstPerson": {
-    "title": "Records my clicks and scrolls",
-    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “Records your clicks and scrolls” — Describes what a tracker does (session replay scripts that record mouse movement, clicks and scrolls). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who we blocked the most'. The subject is the company or its trackers, eg: 'Google: Follows you with ads based on where you go.'"
+    "title": "Records what I click, type, and scroll",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “Records what you click, type, and scroll” — Describes what a tracker does (session replay scripts that record mouse movement, clicks, typing and scrolls). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who we blocked the most'. The subject is the company or its trackers, eg: 'Google: Targets you with ads based on the sites you visit.'"
   },
   "protections_report_purposeAnalytics": {
-    "title": "Measures what you read and click",
-    "note": "Describes what a tracker does (analytics and audience measurement trackers). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who we blocked the most'. The subject is the company or its trackers, eg: 'Google: Follows you with ads based on where you go.'"
+    "title": "Watches what you read and where you browse",
+    "note": "Describes what a tracker does (analytics and audience measurement trackers). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who we blocked the most'. The subject is the company or its trackers, eg: 'Google: Targets you with ads based on the sites you visit.'"
   },
   "protections_report_purposeAnalyticsFirstPerson": {
-    "title": "Measures what I read and click",
-    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “Measures what you read and click” — Describes what a tracker does (analytics and audience measurement trackers). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who we blocked the most'. The subject is the company or its trackers, eg: 'Google: Follows you with ads based on where you go.'"
+    "title": "Watches what I read and where I browse",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “Watches what you read and where you browse” — Describes what a tracker does (analytics and audience measurement trackers). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who we blocked the most'. The subject is the company or its trackers, eg: 'Google: Targets you with ads based on the sites you visit.'"
   },
   "protections_report_othersSingular": {
     "title": "1 other",
@@ -292,48 +292,48 @@
     "note": "Under '43 more companies tried too'. {companies} is a short list of company names, eg: 'Including Criteo, Oracle, and The Trade Desk'."
   },
   "protections_report_purposeAdvertisingInline": {
-    "title": "follows you with ads based on where you go",
-    "note": "Same as protections_report_purposeAdvertising, but used after the first item in a list, eg: 'Follows you with ads based on where you go and follows you with ads based on where you go.' Use the casing that fits mid-sentence."
+    "title": "targets you with ads based on the sites you visit",
+    "note": "Same as protections_report_purposeAdvertising, but used after the first item in a list, eg: 'Targets you with ads based on the sites you visit and targets you with ads based on the sites you visit.' Use the casing that fits mid-sentence."
   },
   "protections_report_purposeAdvertisingInlineFirstPerson": {
-    "title": "follows me with ads based on where I go",
-    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “follows you with ads based on where you go” — Same as protections_report_purposeAdvertising, but used after the first item in a list, eg: 'Follows you with ads based on where you go and follows you with ads based on where you go.' Use the casing that fits mid-sentence."
+    "title": "targets me with ads based on the sites I visit",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “targets you with ads based on the sites you visit” — Same as protections_report_purposeAdvertising, but used after the first item in a list, eg: 'Targets you with ads based on the sites you visit and targets you with ads based on the sites you visit.' Use the casing that fits mid-sentence."
   },
   "protections_report_purposeSocialInline": {
     "title": "tells social networks what you do on other sites",
-    "note": "Same as protections_report_purposeSocial, but used after the first item in a list, eg: 'Follows you with ads based on where you go and tells social networks what you do on other sites.' Use the casing that fits mid-sentence."
+    "note": "Same as protections_report_purposeSocial, but used after the first item in a list, eg: 'Targets you with ads based on the sites you visit and tells social networks what you do on other sites.' Use the casing that fits mid-sentence."
   },
   "protections_report_purposeSocialInlineFirstPerson": {
     "title": "tells social networks what I do on other sites",
-    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “tells social networks what you do on other sites” — Same as protections_report_purposeSocial, but used after the first item in a list, eg: 'Follows you with ads based on where you go and tells social networks what you do on other sites.' Use the casing that fits mid-sentence."
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “tells social networks what you do on other sites” — Same as protections_report_purposeSocial, but used after the first item in a list, eg: 'Targets you with ads based on the sites you visit and tells social networks what you do on other sites.' Use the casing that fits mid-sentence."
   },
   "protections_report_purposeFingerprintingInline": {
-    "title": "recognizes your computer (even after you clear cookies)",
-    "note": "Same as protections_report_purposeFingerprinting, but used after the first item in a list, eg: 'Follows you with ads based on where you go and recognizes your computer (even after you clear cookies).' Use the casing that fits mid-sentence."
+    "title": "fingerprints your device to recognize you",
+    "note": "Same as protections_report_purposeFingerprinting, but used after the first item in a list, eg: 'Targets you with ads based on the sites you visit and fingerprints your device to recognize you.' Use the casing that fits mid-sentence."
   },
   "protections_report_purposeFingerprintingInlineFirstPerson": {
-    "title": "recognizes my computer (even after I clear cookies)",
-    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “recognizes your computer (even after you clear cookies)” — Same as protections_report_purposeFingerprinting, but used after the first item in a list, eg: 'Follows you with ads based on where you go and recognizes your computer (even after you clear cookies).' Use the casing that fits mid-sentence."
+    "title": "fingerprints my device to recognize me",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “fingerprints your device to recognize you” — Same as protections_report_purposeFingerprinting, but used after the first item in a list, eg: 'Targets you with ads based on the sites you visit and fingerprints your device to recognize you.' Use the casing that fits mid-sentence."
   },
   "protections_report_purposeSessionReplayInline": {
-    "title": "records your clicks and scrolls",
-    "note": "Same as protections_report_purposeSessionReplay, but used after the first item in a list, eg: 'Follows you with ads based on where you go and records your clicks and scrolls.' Use the casing that fits mid-sentence."
+    "title": "records what you click, type, and scroll",
+    "note": "Same as protections_report_purposeSessionReplay, but used after the first item in a list, eg: 'Targets you with ads based on the sites you visit and records what you click, type, and scroll.' Use the casing that fits mid-sentence."
   },
   "protections_report_purposeSessionReplayInlineFirstPerson": {
-    "title": "records my clicks and scrolls",
-    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “records your clicks and scrolls” — Same as protections_report_purposeSessionReplay, but used after the first item in a list, eg: 'Follows you with ads based on where you go and records your clicks and scrolls.' Use the casing that fits mid-sentence."
+    "title": "records what I click, type, and scroll",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “records what you click, type, and scroll” — Same as protections_report_purposeSessionReplay, but used after the first item in a list, eg: 'Targets you with ads based on the sites you visit and records what you click, type, and scroll.' Use the casing that fits mid-sentence."
   },
   "protections_report_purposeAnalyticsInline": {
-    "title": "measures what you read and click",
-    "note": "Same as protections_report_purposeAnalytics, but used after the first item in a list, eg: 'Follows you with ads based on where you go and measures what you read and click.' Use the casing that fits mid-sentence."
+    "title": "watches what you read and where you browse",
+    "note": "Same as protections_report_purposeAnalytics, but used after the first item in a list, eg: 'Targets you with ads based on the sites you visit and watches what you read and where you browse.' Use the casing that fits mid-sentence."
   },
   "protections_report_purposeAnalyticsInlineFirstPerson": {
-    "title": "measures what I read and click",
-    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “measures what you read and click” — Same as protections_report_purposeAnalytics, but used after the first item in a list, eg: 'Follows you with ads based on where you go and measures what you read and click.' Use the casing that fits mid-sentence."
+    "title": "watches what I read and where I browse",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “watches what you read and where you browse” — Same as protections_report_purposeAnalytics, but used after the first item in a list, eg: 'Targets you with ads based on the sites you visit and watches what you read and where you browse.' Use the casing that fits mid-sentence."
   },
   "protections_report_companyPurposes": {
     "title": "{purposes}.",
-    "note": "Sentence under a company in 'Who we blocked the most'. {purposes} is a list of what its trackers do, eg: 'Follows you with ads based on where you go and records your clicks and scrolls.'"
+    "note": "Sentence under a company in 'Who we blocked the most'. {purposes} is a list of what its trackers do, eg: 'Targets you with ads based on the sites you visit and records what you click, type, and scroll.'"
   },
   "protections_report_viewRecognition": {
     "title": "<b>How</b> they try to recognize you",

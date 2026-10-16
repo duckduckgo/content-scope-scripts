@@ -112,8 +112,8 @@
         position: relative;
         margin: 0;
         padding: 0 16px;
-        font-size: 13px;
-        line-height: 18px;
+        font-size: 14px;
+        line-height: 20px;
         color: var(--ds-color-theme-text-secondary);
         /* no text-wrap: pretty here: in a column this narrow it breaks every
            line early, so paragraphs look squeezed */
@@ -163,10 +163,6 @@
     min-width: 0;
     mix-blend-mode: plus-lighter;
     transition: opacity var(--head-fade);
-
-    &[data-active="true"] {
-        opacity: 1;
-    }
 
     &[data-active="false"] {
         opacity: 0;
@@ -286,7 +282,6 @@
 .collapsibleInner {
     /* contain child margins, so the measured height matches the settled one */
     display: flow-root;
-    opacity: 1;
     transition: opacity 260ms ease 90ms;
 
     [data-expanded="false"] > & {
@@ -602,8 +597,8 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 13px;
-    line-height: 16px;
+    font-size: 14px;
+    line-height: 20px;
     color: var(--ds-color-theme-text-secondary);
 }
 
@@ -655,7 +650,7 @@
         box-shadow: var(--focus-ring);
     }
 
-    &:disabled {
+    &[aria-busy="true"] {
         cursor: progress;
         opacity: 0.5;
     }
@@ -704,8 +699,8 @@
     display: flex;
     align-items: flex-start;
     gap: 8px;
-    font-size: 13px;
-    line-height: 18px;
+    font-size: 14px;
+    line-height: 20px;
     color: var(--ds-color-theme-text-secondary);
     text-wrap: pretty;
 }
@@ -842,8 +837,8 @@
 }
 
 .topSiteLabel {
-    font-size: 13px;
-    line-height: 16px;
+    font-size: 14px;
+    line-height: 18px;
     color: var(--ds-color-theme-text-secondary);
 }
 
@@ -865,8 +860,8 @@
 }
 
 .topSiteWatching {
-    font-size: 13px;
-    line-height: 18px;
+    font-size: 14px;
+    line-height: 20px;
     color: var(--ds-color-theme-text-secondary);
     text-wrap: pretty;
 }
@@ -903,7 +898,7 @@
 .siteDomain {
     flex: 1;
     min-width: 0;
-    font-size: 13px;
+    font-size: 14px;
     line-height: 18px;
     font-weight: 600;
     overflow: hidden;

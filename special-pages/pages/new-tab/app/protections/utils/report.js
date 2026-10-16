@@ -3,8 +3,6 @@ import { displayNameForCompany } from '../../privacy-stats/privacy-stats.utils.j
 import { FINGERPRINTING_THRESHOLD, PURPOSES } from './purposes.js';
 import { PURPOSE_ORDER, SURFACE_ORDER, TRACKER_PURPOSES, TRACKER_SURFACES } from '../data/tracker-purposes.js';
 
-export { FINGERPRINTING_THRESHOLD, PURPOSES };
-
 /**
  * @import { TrackerCompany, PrivacyStatsData, SiteTrackers } from "../../../types/new-tab"
  * @typedef {import('./purposes.js').PurposeId} PurposeId
@@ -24,7 +22,7 @@ export const MORE_COMPANIES_NAME_LIMIT = 3;
 export const PURPOSE_AVATAR_LIMIT = 3;
 
 /** Sites shown in "Which sites had the most trackers": the top one, then a short list */
-export const TOP_SITES_LIMIT = 5;
+const TOP_SITES_LIMIT = 5;
 
 /** Company logos circling the top site */
 export const TOP_SITE_ORBIT_LIMIT = 12;
@@ -36,12 +34,12 @@ export const SITE_AVATAR_LIMIT = 3;
  * Below this many visited sites, ratios like "1 in 3" are misleading, so we
  * show the plain site count instead.
  */
-export const MIN_SITES_FOR_RATIO = 10;
+const MIN_SITES_FOR_RATIO = 10;
 
 /**
  * @param {TrackerCompany} company
  */
-export function isFingerprinting(company) {
+function isFingerprinting(company) {
     return (company.fingerprinting ?? 0) >= FINGERPRINTING_THRESHOLD;
 }
 

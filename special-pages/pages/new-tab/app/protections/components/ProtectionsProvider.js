@@ -122,3 +122,17 @@ export function useCookiePopUpsBlockedCount(initial) {
 
     return signal;
 }
+
+/**
+ * Scrolls the widget into view when native asks (`protections_scroll`).
+ *
+ * @param {import('preact').RefObject<HTMLElement>} ref
+ */
+export function useScrollIntoViewOnRequest(ref) {
+    const ntp = useMessaging();
+    useEffect(() => {
+        return ntp.messaging.subscribe('protections_scroll', () => {
+            ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    }, [ntp, ref]);
+}

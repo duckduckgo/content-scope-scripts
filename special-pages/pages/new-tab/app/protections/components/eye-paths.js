@@ -1,8 +1,9 @@
 /**
  * Paths for the 'prying eye' illustration (144x144 viewBox). Paths marked
- * `iris` move together to follow the pointer. The `reflection` stays put,
- * drawn over the iris, like a highlight from a fixed light. `irisShape` marks
- * the iris disc, which the reflection is clipped to.
+ * `iris` move together to follow the pointer. The `reflection` is drawn over
+ * the iris and moves a little less than it (see `EYE.reflection` in
+ * PryingEye.js). `irisShape` marks the iris disc, which the reflection is
+ * clipped to.
  *
  * The original artwork outlined the pupil and the reflection with a single
  * even-odd path; that's replaced by strokes on each, so they can move apart.

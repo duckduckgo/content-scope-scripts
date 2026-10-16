@@ -46,8 +46,8 @@ function standardStyleProperties() {
  */
 function keep(node) {
     if (!(node instanceof HTMLElement)) return true;
-    // the share button and other controls, plus any open menu or pop-over
-    return !node.hasAttribute(CAPTURE_EXCLUDE) && node.getAttribute('role') !== 'menu' && node.getAttribute('role') !== 'dialog';
+    // the share button and other controls
+    return !node.hasAttribute(CAPTURE_EXCLUDE);
 }
 
 /**
@@ -386,7 +386,6 @@ function download(blob, filename) {
  * @param {HTMLElement} node - the report card
  * @param {string} filename
  * @param {ShareStrings} strings
- * @return {Promise<'shared' | 'cancelled' | 'downloaded'>}
  */
 export async function shareAsImage(node, filename, strings) {
     const blob = await renderShareImage(node, strings);
@@ -394,13 +393,12 @@ export async function shareAsImage(node, filename, strings) {
     if (navigator.canShare?.({ files: [file] })) {
         try {
             await navigator.share({ files: [file] });
-            return 'shared';
+            return;
         } catch (e) {
             // closing the share sheet isn't an error
-            if (e instanceof DOMException && e.name === 'AbortError') return 'cancelled';
+            if (e instanceof DOMException && e.name === 'AbortError') return;
             // otherwise (eg: NotAllowedError when the click is too long ago) fall back to a download
         }
     }
     download(blob, filename);
-    return 'downloaded';
 }

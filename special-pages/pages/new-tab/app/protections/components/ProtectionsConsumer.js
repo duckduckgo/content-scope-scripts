@@ -1,6 +1,5 @@
-import { useContext, useEffect, useRef } from 'preact/hooks';
-import { useMessaging } from '../../types.js';
-import { ProtectionsContext, useBlockedCount, useCookiePopUpsBlockedCount } from './ProtectionsProvider.js';
+import { useContext, useRef } from 'preact/hooks';
+import { ProtectionsContext, useBlockedCount, useCookiePopUpsBlockedCount, useScrollIntoViewOnRequest } from './ProtectionsProvider.js';
 import { h } from 'preact';
 import { Protections } from './Protections.js';
 import { ActivityProvider } from '../../activity/ActivityProvider.js';
@@ -75,10 +74,7 @@ function ProtectionsReadyState({ data, config }) {
         >
             {legacyFeed === 'activity' && (
                 <ActivityProvider>
-                    <ActivityConsumer
-                        showBurnAnimation={config.showBurnAnimation ?? true}
-                        shouldDisplayLegacyActivity={totalCookiePopUpsBlockedSignal.value === undefined}
-                    />
+                    <ActivityConsumer showBurnAnimation={config.showBurnAnimation ?? true} shouldDisplayLegacyActivity />
                 </ActivityProvider>
             )}
             {legacyFeed === 'privacy-stats' && (
@@ -92,9 +88,13 @@ function ProtectionsReadyState({ data, config }) {
     );
 }
 
+/** Shown when the weekly stats can't be loaded */
+/** @type {import('../../../types/new-tab.js').PrivacyStatsData} */
+const NO_STATS = { totalCompanies: 0, trackerCompanies: [] };
+
 /**
- * Waits for the weekly company stats, which the headline and the first two
- * views are built from. The by-site view reuses the activity feed.
+ * Waits for the weekly company stats, which the headline and the views are
+ * built from. The by-site view reuses the activity feed.
  *
  * @param {object} props
  * @param {ProtectionsConfig} props.config
@@ -104,18 +104,15 @@ function ProtectionsReadyState({ data, config }) {
  * @param {number | null} props.cookiePopUpsBlocked
  */
 function ProtectionsReportReadyState({ config, toggle, setFeed, blockedCount, cookiePopUpsBlocked }) {
-    const { state } = useContext(PrivacyStatsContext);
-    const ntp = useMessaging();
+    const { state, failed } = useContext(PrivacyStatsContext);
     const rootRef = useRef(/** @type {HTMLElement|null} */ (null));
+    useScrollIntoViewOnRequest(rootRef);
 
-    // native can ask for the report to be scrolled into view
-    useEffect(() => {
-        return ntp.messaging.subscribe('protections_scroll', () => {
-            rootRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        });
-    }, [ntp]);
-
-    if (state.status !== 'ready') return null;
+    // nothing while the stats load (usually a moment); if they can't be
+    // loaded, the empty report, so the widget is still there to fill in
+    // should stats arrive later
+    const stats = state.status === 'ready' ? state.data : failed ? NO_STATS : null;
+    if (!stats) return null;
     return (
         <ProtectionsReport
             rootRef={rootRef}
@@ -125,7 +122,7 @@ function ProtectionsReportReadyState({ config, toggle, setFeed, blockedCount, co
             setFeed={setFeed}
             blockedCount={blockedCount}
             cookiePopUpsBlocked={cookiePopUpsBlocked}
-            stats={state.data}
+            stats={stats}
             sites={
                 <ActivityProvider>
                     <ActivityConsumer showBurnAnimation={config.showBurnAnimation ?? true} shouldDisplayLegacyActivity={false} />

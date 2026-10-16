@@ -14,7 +14,7 @@ import { protectionsMocks } from '../mocks/protections.mocks.js';
  * @param {object} props
  * @param {PrivacyStatsData} props.stats
  * @param {number} props.blockedCount
- * @param {number | null} props.cookiePopUpsBlocked
+ * @param {number | null | undefined} props.cookiePopUpsBlocked
  * @param {FeedType} [props.feed]
  * @param {Expansion} [props.expansion]
  */
@@ -44,7 +44,7 @@ function ReportExample({
 const report = {
     stats: privacyStatsMocks.report,
     blockedCount: protectionsMocks.report.totalCount,
-    cookiePopUpsBlocked: protectionsMocks.report.totalCookiePopUpsBlocked ?? null,
+    cookiePopUpsBlocked: protectionsMocks.report.totalCookiePopUpsBlocked,
 };
 
 /** @type {Record<string, {factory: () => import("preact").ComponentChild}>} */

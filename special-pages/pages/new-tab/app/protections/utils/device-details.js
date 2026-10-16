@@ -23,7 +23,7 @@
  * fonts, but scripts can tell whether a named one is present by measuring text
  * set in it, which is what font fingerprinting does.
  */
-export const FONT_PROBES = [
+const FONT_PROBES = [
     'Arial',
     'Arial Black',
     'Arial Narrow',
@@ -102,7 +102,7 @@ function backendName(text) {
 }
 
 /** @return {string | null} */
-export function readGraphics() {
+function readGraphics() {
     try {
         const canvas = document.createElement('canvas');
         const gl = canvas.getContext('webgl');
@@ -117,14 +117,14 @@ export function readGraphics() {
 }
 
 /** @return {DeviceDetails['screen']} */
-export function readScreen() {
+function readScreen() {
     const { width, height, colorDepth } = window.screen ?? {};
     if (!width || !height) return null;
     return { width, height, colorDepth };
 }
 
 /** @return {DeviceDetails['locale']} */
-export function readLocale() {
+function readLocale() {
     try {
         const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         const language = navigator.language;
@@ -136,7 +136,7 @@ export function readLocale() {
 }
 
 /** @return {DeviceDetails['fonts']} */
-export function readFonts() {
+function readFonts() {
     try {
         const ctx = document.createElement('canvas').getContext('2d');
         if (!ctx) return null;
@@ -157,7 +157,7 @@ export function readFonts() {
 }
 
 /** @return {DeviceDetails['audio']} */
-export function readAudio() {
+function readAudio() {
     try {
         const Ctx = window.AudioContext;
         if (!Ctx) return null;
@@ -183,7 +183,7 @@ async function closeQuietly(ctx) {
 }
 
 /** @return {DeviceDetails['hardware']} */
-export function readHardware() {
+function readHardware() {
     const cores = navigator.hardwareConcurrency;
     if (!cores) return null;
     // Chromium only, rounded by the browser to a power of two (eg: 8)

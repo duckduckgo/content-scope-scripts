@@ -5,6 +5,7 @@ import { DDG_STATS_OTHER_COMPANY_IDENTIFIER } from '../constants.js';
  * @type {{
  *     few: PrivacyStatsData,
  *     report: PrivacyStatsData,
+ *     sparse: PrivacyStatsData,
  *     reportWithoutCategories: PrivacyStatsData,
  *     single: PrivacyStatsData,
  *     norecent: PrivacyStatsData,
@@ -275,6 +276,23 @@ export const privacyStatsMocks = {
         ],
     },
     /** Native that sends site counts but not Tracker Radar categories yet */
+    /**
+     * A quiet week for the Protections Report: two companies, on a couple of
+     * the three sites visited.
+     */
+    sparse: {
+        totalCompanies: 2,
+        totalSitesVisited: 3,
+        topSites: [
+            { etldPlusOne: 'example.com', url: 'https://example.com', favicon: null, trackerCompanies: ['Google', 'Hotjar'] },
+            { etldPlusOne: 'news.example', url: 'https://news.example', favicon: null, trackerCompanies: ['Google'] },
+            { etldPlusOne: 'wikipedia.org', url: 'https://wikipedia.org', favicon: null, trackerCompanies: [] },
+        ],
+        trackerCompanies: [
+            { displayName: 'Google', count: 3, sitesCount: 2, categories: ['Advertising', 'Analytics'], fingerprinting: 1 },
+            { displayName: 'Hotjar', count: 1, sitesCount: 1, categories: ['Session Replay'], fingerprinting: 0 },
+        ],
+    },
     reportWithoutCategories: {
         totalCompanies: 47,
         totalSitesVisited: 64,

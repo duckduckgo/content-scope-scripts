@@ -1,141 +1,31 @@
-import { createContext, Fragment, h } from 'preact';
-import { useContext, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'preact/hooks';
+import { Fragment, h } from 'preact';
+import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'preact/hooks';
 import cn from 'classnames';
 import styles from './ProtectionsReport.module.css';
 import protectionsStyles from './Protections.module.css';
-import { useTypedTranslationWith } from '../../types.js';
 import { ShowHideButtonCircle } from '../../components/ShowHideButton.jsx';
-import { InfoIcon, ShieldCheckIcon, ChevronSmall, FingerprintIcon, ShareIcon } from '../../components/Icons.js';
-import { CAPTURE_EXCLUDE, prepareShareImage, shareAsImage, whenSettled } from '../utils/share-image.js';
-import { FaviconWithState } from '../../../../../shared/components/FaviconWithState.js';
-import { DDG_FALLBACK_ICON, DDG_FALLBACK_ICON_DARK } from '../../favorites/constants.js';
-import { loadVoices, readDeviceDetails } from '../utils/device-details.js';
-import { CompanyIcon } from '../../components/CompanyIcon.js';
+import { InfoIcon, ChevronSmall } from '../../components/Icons.js';
+import { CAPTURE_EXCLUDE } from '../utils/share-image.js';
 import { Dropdown } from '../../omnibar/components/chat-tools/dropdown/Dropdown.js';
 import { DropdownItem } from '../../omnibar/components/chat-tools/dropdown/DropdownItem.js';
 import { useDropdown } from '../../omnibar/components/chat-tools/useDropdown.js';
 import { Trans } from '../../../../../shared/components/TranslationsProvider.js';
-import { useEnv, useLocale } from '../../../../../shared/components/EnvironmentProvider.js';
-import { getLocalizedNumberFormatter } from '../../../../../shared/utils.js';
+import { useEnv } from '../../../../../shared/components/EnvironmentProvider.js';
 import { useAnimatedCount } from '../utils/useAnimatedCount.js';
 import { PryingEye } from './PryingEye.js';
-import {
-    frequencyOf,
-    groupByPurpose,
-    groupBySurface,
-    hasPurposeData,
-    MORE_COMPANIES_AVATAR_LIMIT,
-    MORE_COMPANIES_NAME_LIMIT,
-    namedCompanies,
-    purposesFor,
-    PURPOSE_AVATAR_LIMIT,
-    rankTopSites,
-    SITE_AVATAR_LIMIT,
-    TOP_SITE_ORBIT_LIMIT,
-    TOP_COMPANIES_LIMIT,
-    totalCompanies,
-} from '../utils/report.js';
-import { displayNameForCompany } from '../../privacy-stats/privacy-stats.utils.js';
+import { groupBySurface, hasPurposeData, rankTopSites, totalCompanies } from '../utils/report.js';
+import { VoiceContext, useReportFormat, useReportTranslation } from './report-text.js';
+import { CompaniesView, PurposesView, RecognitionView, TopSitesView } from './ReportViews.js';
+import { ShareButton, useShareCopy } from './ShareButton.js';
 
 /**
- * @import enStrings from "../strings.json"
- * @typedef {enStrings} Strings
+ * @import {Strings} from './report-text.js'
+ * @import {ShareCopy} from './ShareButton.js'
  * @typedef {import('../../../types/new-tab.js').Expansion} Expansion
  * @typedef {import('../../../types/new-tab.js').ProtectionsConfig} ProtectionsConfig
  * @typedef {import('../../../types/new-tab.js').PrivacyStatsData} PrivacyStatsData
- * @typedef {import('../../../types/new-tab.js').TrackerCompany} TrackerCompany
- * @typedef {import('../utils/report.js').PurposeId} PurposeId
- * @typedef {import('../utils/report.js').SurfaceId} SurfaceId
  * @typedef {'purposes' | 'recognition' | 'companies' | 'activity' | 'top-sites'} ReportView
  */
-
-/**
- * Who the report speaks to. On the page it addresses the reader ("trackers
- * tried to watch you"); in the picture they share, it speaks as them
- * ("trackers tried to watch me", "DuckDuckGo blocked…").
- *
- * @typedef {'you' | 'me'} Voice
- */
-const VoiceContext = createContext(/** @type {Voice} */ ('you'));
-
-/**
- * Strings with a first-person version (the same key plus `FirstPerson`), used
- * in the shared picture. Everything else reads the same either way.
- *
- * @type {Set<keyof Strings>}
- */
-const FIRST_PERSON = new Set(
-    /** @type {(keyof Strings)[]} */ ([
-        'protections_report_headlineSingular',
-        'protections_report_headlinePlural',
-        'protections_report_blockedSingular',
-        'protections_report_blockedPlural',
-        'protections_report_cookiePopUpsSingular',
-        'protections_report_cookiePopUpsPlural',
-        'protections_report_viewPurposes',
-        'protections_report_viewCompanies',
-        'protections_report_viewRecognition',
-        'protections_report_viewTopSites',
-        'protections_report_purposeAdvertising',
-        'protections_report_purposeSocial',
-        'protections_report_purposeFingerprinting',
-        'protections_report_purposeSessionReplay',
-        'protections_report_purposeAnalytics',
-        'protections_report_purposeAdvertisingInline',
-        'protections_report_purposeSocialInline',
-        'protections_report_purposeFingerprintingInline',
-        'protections_report_purposeSessionReplayInline',
-        'protections_report_purposeAnalyticsInline',
-        'protections_report_freqNearlyAll',
-        'protections_report_freqFourInFive',
-        'protections_report_freqTwoInThree',
-        'protections_report_freqMoreThanHalf',
-        'protections_report_freqHalf',
-        'protections_report_freqAlmostHalf',
-        'protections_report_freqOneInThree',
-        'protections_report_freqMoreThanOneInFour',
-        'protections_report_freqOneInFive',
-        'protections_report_freqSitesSingular',
-        'protections_report_freqSitesPlural',
-        'protections_report_recognitionIntroSingular',
-        'protections_report_recognitionIntroPlural',
-        'protections_report_recognitionFooter',
-    ]),
-);
-
-/**
- * Translations in the report's current voice (see `VoiceContext`).
- */
-function useReportTranslation() {
-    const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
-    const voice = useContext(VoiceContext);
-    return {
-        /**
-         * @param {keyof Strings} key
-         * @param {Record<string, string>} [values]
-         */
-        t: (key, values) => t(voice === 'me' && FIRST_PERSON.has(key) ? /** @type {keyof Strings} */ (`${key}FirstPerson`) : key, values),
-    };
-}
-
-/** @type {Record<PurposeId, keyof Strings>} */
-const PURPOSE_TITLES = {
-    advertising: 'protections_report_purposeAdvertising',
-    social: 'protections_report_purposeSocial',
-    fingerprinting: 'protections_report_purposeFingerprinting',
-    sessionReplay: 'protections_report_purposeSessionReplay',
-    analytics: 'protections_report_purposeAnalytics',
-};
-
-/** Mid-sentence forms, for the 2nd+ items in a list */
-/** @type {Record<PurposeId, keyof Strings>} */
-const PURPOSE_INLINE = {
-    advertising: 'protections_report_purposeAdvertisingInline',
-    social: 'protections_report_purposeSocialInline',
-    fingerprinting: 'protections_report_purposeFingerprintingInline',
-    sessionReplay: 'protections_report_purposeSessionReplayInline',
-    analytics: 'protections_report_purposeAnalyticsInline',
-};
 
 /** @type {Record<ReportView, keyof Strings>} */
 const VIEW_LABELS = {
@@ -153,29 +43,17 @@ const VIEW_LABELS = {
  */
 const VIEW_ORDER = ['purposes', 'companies', 'top-sites', 'activity', 'recognition'];
 
-/** @type {Record<SurfaceId, keyof Strings>} */
-const SURFACE_LABELS = {
-    graphics: 'protections_report_surfaceGraphics',
-    screen: 'protections_report_surfaceScreen',
-    locale: 'protections_report_surfaceLocale',
-    fonts: 'protections_report_surfaceFonts',
-    audio: 'protections_report_surfaceAudio',
-    hardware: 'protections_report_surfaceHardware',
-    voices: 'protections_report_surfaceVoices',
-};
-
 /**
  * Maps the persisted feed onto a view this report can show: the saved view if
  * there's data for it, otherwise the first one that has data. `privacy-stats`
  * is the retired Summary tab, so it always lands on the first view.
  *
  * @param {ProtectionsConfig['feed']} feed
- * @param {ReportView[]} available - in menu order
+ * @param {ReportView[]} available - in menu order; never empty (some views are always available)
  * @return {ReportView}
  */
-export function resolveView(feed, available) {
-    const saved = available.find((v) => v === feed);
-    return saved ?? available[0] ?? 'activity';
+function resolveView(feed, available) {
+    return available.find((v) => v === feed) ?? available[0];
 }
 
 /**
@@ -209,8 +87,9 @@ export function ProtectionsReport({
     const rootRef = externalRef ?? ownRef;
     const bodyId = useId();
     const expanded = expansion === 'expanded';
+    const companyCount = totalCompanies(stats);
     // the blocked count and the weekly stats arrive separately, so they can briefly disagree
-    const isEmpty = blockedCount === 0 || totalCompanies(stats) === 0;
+    const isEmpty = blockedCount === 0 || companyCount === 0;
     const recognition = useMemo(() => groupBySurface(stats.trackerCompanies), [stats.trackerCompanies]);
     const topSites = useMemo(() => rankTopSites(stats), [stats]);
     /** @type {Record<ReportView, boolean>} */
@@ -245,7 +124,7 @@ export function ProtectionsReport({
                 ) : (
                     <Headline
                         expanded={expanded}
-                        companyCount={totalCompanies(stats)}
+                        companyCount={companyCount}
                         blockedCount={blockedCount}
                         countUp={!shareCopy}
                         eye={<PryingEye zoneRef={rootRef} tracking={!shareCopy && expanded && !isReducedMotion} />}
@@ -265,7 +144,7 @@ export function ProtectionsReport({
                     <div class={styles.collapsibleInner} ref={body.innerRef}>
                         <hr class={styles.divider} />
                         {isEmpty ? (
-                            <EmptyBody label="purposes" />
+                            <EmptyBody />
                         ) : (
                             <Fragment>
                                 <ViewMenu
@@ -318,48 +197,6 @@ export function ProtectionsReport({
 }
 
 function noop() {}
-
-/**
- * The shared picture shows a copy of the report rather than the report
- * itself: the copy speaks in the reader's voice ("me"), so it reads right
- * when they post it, and capturing it leaves the report on the page alone.
- * It's laid out off-screen at the report's width, only while it's needed:
- * from when a share looks likely (the pointer reaches the button) until it's
- * done.
- *
- * @param {import('preact').RefObject<HTMLElement>} liveRef - the report on the page
- */
-function useShareCopy(liveRef) {
-    const [width, setWidth] = useState(/** @type {number | null} */ (null));
-    const copyRef = useRef(/** @type {HTMLElement | null} */ (null));
-
-    return {
-        width,
-        copyRef,
-        /** Lays out the copy, if it isn't already */
-        mount: () => {
-            const live = liveRef.current;
-            if (live) setWidth(live.offsetWidth);
-        },
-        /** Removes the copy; the next share lays it out again */
-        release: () => setWidth(null),
-        /**
-         * The copy, once it's laid out and its images have loaded.
-         *
-         * @return {Promise<HTMLElement | null>}
-         */
-        ready: async () => {
-            const live = liveRef.current;
-            if (!live) return null;
-            setWidth(live.offsetWidth);
-            return await whenSettled(() => copyRef.current);
-        },
-    };
-}
-
-/**
- * @typedef {ReturnType<typeof useShareCopy>} ShareCopy
- */
 
 /** Longest we'll wait for a view to render before letting the panel shrink */
 const HOLD_HEIGHT_TIMEOUT = 2000;
@@ -522,20 +359,17 @@ function InfoButton() {
  */
 function Headline({ expanded, companyCount, blockedCount, countUp, eye }) {
     const { t } = useReportTranslation();
-    const locale = useLocale();
-    const formatter = useMemo(() => getLocalizedNumberFormatter(locale), [locale]);
+    const format = useReportFormat();
     const countRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const animatedBlocked = useAnimatedCount(blockedCount, countRef);
     const shownBlocked = countUp ? animatedBlocked : blockedCount;
 
-    const headline =
-        companyCount === 1
-            ? t('protections_report_headlineSingular')
-            : t('protections_report_headlinePlural', { count: formatter.format(companyCount) });
+    const headline = format.plural(companyCount, 'protections_report_headlineSingular', 'protections_report_headlinePlural');
+    // the wording follows the final count, so it doesn't change as the number counts up
     const blocked =
         blockedCount === 1
             ? t('protections_report_blockedSingular')
-            : t('protections_report_blockedPlural', { count: formatter.format(shownBlocked) });
+            : t('protections_report_blockedPlural', { count: format.number(shownBlocked) });
 
     /** @param {boolean} active */
     const text = (active) => (
@@ -674,17 +508,16 @@ function EmptyHeadline() {
 }
 
 /**
- * Placeholder rows that preview what fills in once trackers are blocked.
- * @param {object} props
- * @param {ReportView} props.label - the view whose name is shown, greyed out
+ * Placeholder rows, under the first view's name greyed out, that preview
+ * what fills in once trackers are blocked.
  */
-function EmptyBody({ label }) {
+function EmptyBody() {
     const { t } = useReportTranslation();
     return (
         <div data-testid="ProtectionsReportEmpty">
             <div class={cn(styles.viewTrigger, styles.viewTriggerDisabled)} aria-hidden="true">
                 <span class={styles.viewLabel}>
-                    <ViewLabel view={label} />
+                    <ViewLabel view={VIEW_ORDER[0]} />
                 </span>
                 <ChevronSmall />
             </div>
@@ -781,201 +614,6 @@ function ViewMenu({ views, current, onSelect }) {
 }
 
 /**
- * Joins names using the locale's list rules, collapsing everything past the
- * first two into "N others".
- */
-function useCompanyList() {
-    const { t } = useReportTranslation();
-    const locale = useLocale();
-    const formatter = useMemo(() => getLocalizedNumberFormatter(locale), [locale]);
-    const list = useMemo(() => new Intl.ListFormat(locale, { style: 'long', type: 'conjunction' }), [locale]);
-    /** @param {string[]} names */
-    return (names) => {
-        if (names.length <= 2) return list.format(names);
-        const rest = names.length - 2;
-        const others =
-            rest === 1 ? t('protections_report_othersSingular') : t('protections_report_othersPlural', { count: formatter.format(rest) });
-        return list.format([names[0], names[1], others]);
-    };
-}
-
-function BlockedBadge() {
-    const { t } = useReportTranslation();
-    return (
-        <span class={styles.blocked}>
-            <ShieldCheckIcon class={styles.blockedIcon} aria-hidden="true" />
-            {t('protections_report_blocked')}
-        </span>
-    );
-}
-
-/**
- * "Why we blocked them"
- *
- * @param {object} props
- * @param {TrackerCompany[]} props.companies
- */
-function PurposesView({ companies }) {
-    const { t } = useReportTranslation();
-    const locale = useLocale();
-    const formatter = useMemo(() => getLocalizedNumberFormatter(locale), [locale]);
-    const groups = groupByPurpose(companies);
-    const formatList = useCompanyList();
-
-    return (
-        <ul class={styles.list} data-testid="ProtectionsReportPurposes">
-            {groups.map((group) => {
-                const shown = group.companies.slice(0, PURPOSE_AVATAR_LIMIT);
-                const more = group.companies.length - shown.length;
-                return (
-                    <li key={group.id} class={styles.row} data-purpose={group.id}>
-                        <span class={styles.avatars} aria-hidden="true">
-                            {shown.map((name) => (
-                                <span key={name} class={styles.avatar}>
-                                    <CompanyIcon displayName={name} />
-                                </span>
-                            ))}
-                            {more > 0 && (
-                                <span class={styles.avatarMore}>
-                                    {t('protections_report_moreCompanies', { count: formatter.format(more) })}
-                                </span>
-                            )}
-                        </span>
-                        <span class={styles.rowText}>
-                            <span class={styles.rowTitle}>{t(PURPOSE_TITLES[group.id])}</span>
-                            <span class={styles.rowLine}>{formatList(group.companies)}</span>
-                        </span>
-                        <BlockedBadge />
-                    </li>
-                );
-            })}
-        </ul>
-    );
-}
-
-/**
- * "Who we blocked the most"
- *
- * @param {object} props
- * @param {PrivacyStatsData} props.stats
- */
-function CompaniesView({ stats }) {
-    const { t } = useReportTranslation();
-    const locale = useLocale();
-    const formatter = useMemo(() => getLocalizedNumberFormatter(locale), [locale]);
-    const list = useMemo(() => new Intl.ListFormat(locale, { style: 'long', type: 'conjunction' }), [locale]);
-    const named = namedCompanies(stats.trackerCompanies);
-    const top = named.slice(0, TOP_COMPANIES_LIMIT);
-    const rest = named.slice(TOP_COMPANIES_LIMIT).map((c) => displayNameForCompany(c.displayName));
-    // includes companies native grouped under `__other__`, which have no names
-    const moreCount = totalCompanies(stats) - top.length;
-
-    return (
-        <ul class={styles.list} data-testid="ProtectionsReportCompanies">
-            {top.map((company) => {
-                const name = displayNameForCompany(company.displayName);
-                const purposes = purposesFor(company);
-                const description =
-                    purposes.length > 0
-                        ? t('protections_report_companyPurposes', {
-                              purposes: list.format(purposes.map((id, i) => t(i === 0 ? PURPOSE_TITLES[id] : PURPOSE_INLINE[id]))),
-                          })
-                        : company.count === 1
-                          ? t('protections_report_attemptsSingular')
-                          : t('protections_report_attemptsPlural', { count: formatter.format(company.count) });
-
-                return (
-                    <li key={company.displayName} class={styles.row}>
-                        <span class={styles.companyIcon} aria-hidden="true">
-                            <CompanyIcon displayName={name} />
-                        </span>
-                        <span class={styles.rowText}>
-                            <span class={styles.rowLineEmphasis}>
-                                <CompanyTitle name={name} sitesCount={company.sitesCount} totalSitesVisited={stats.totalSitesVisited} />
-                            </span>
-                            <span class={styles.rowLine}>{description}</span>
-                        </span>
-                        <BlockedBadge />
-                    </li>
-                );
-            })}
-            {moreCount > 0 && <MoreCompaniesRow count={moreCount} names={rest} />}
-        </ul>
-    );
-}
-
-/**
- * Closes the "Who we blocked the most" list with everyone else, eg:
- * "43 more companies tried too / Including Criteo, Oracle, and The Trade Desk"
- *
- * @param {object} props
- * @param {number} props.count - companies not listed above
- * @param {string[]} props.names - their names, most widespread first (may be fewer than `count`)
- */
-function MoreCompaniesRow({ count, names }) {
-    const { t } = useReportTranslation();
-    const locale = useLocale();
-    const formatter = useMemo(() => getLocalizedNumberFormatter(locale), [locale]);
-    const list = useMemo(() => new Intl.ListFormat(locale, { style: 'long', type: 'conjunction' }), [locale]);
-    const logos = names.slice(0, MORE_COMPANIES_AVATAR_LIMIT);
-    const listed = names.slice(0, MORE_COMPANIES_NAME_LIMIT);
-
-    return (
-        <li class={styles.row} data-testid="ProtectionsReportMoreCompanies">
-            {logos.length > 0 && (
-                <span class={cn(styles.avatars, styles.avatarsAuto)} aria-hidden="true">
-                    {logos.map((name) => (
-                        <span key={name} class={styles.avatar}>
-                            <CompanyIcon displayName={name} />
-                        </span>
-                    ))}
-                </span>
-            )}
-            <span class={styles.rowText}>
-                <span class={styles.rowTitle}>
-                    {count === 1
-                        ? t('protections_report_moreCompaniesSingular')
-                        : t('protections_report_moreCompaniesPlural', { count: formatter.format(count) })}
-                </span>
-                {listed.length > 0 && (
-                    <span class={styles.rowLine}>{t('protections_report_including', { companies: list.format(listed) })}</span>
-                )}
-            </span>
-            <BlockedBadge />
-        </li>
-    );
-}
-
-/**
- * "<b>Google</b> was on 4 out of 5 sites you visited". The company name is
- * rendered as a node rather than injected as markup.
- *
- * @param {object} props
- * @param {string} props.name
- * @param {number | undefined} props.sitesCount
- * @param {number | undefined} props.totalSitesVisited
- */
-function CompanyTitle({ name, sitesCount, totalSitesVisited }) {
-    const { t } = useReportTranslation();
-    if (sitesCount === undefined) return <strong>{name}</strong>;
-
-    const freq = frequencyOf(sitesCount, totalSitesVisited);
-    const frequency = t(freq.key, freq.count === undefined ? undefined : { count: String(freq.count) });
-    // leave {company} in place so it can be swapped for a node
-    const [before, after = ''] = t('protections_report_companyWasOn', { frequency }).split('{company}');
-    return (
-        <Fragment>
-            {before}
-            <strong>{name}</strong>
-            {after}
-        </Fragment>
-    );
-}
-
-/** Name of the downloaded picture */
-const SHARE_FILENAME = 'duckduckgo-protections-report.png';
-
-/**
  * The cookie pop-up count (when there is one) and the share button.
  *
  * @param {object} props
@@ -984,15 +622,10 @@ const SHARE_FILENAME = 'duckduckgo-protections-report.png';
  * @param {ShareCopy | null} props.share - what the share button captures; `null` for a button that does nothing
  */
 function ReportFooter({ cookiePopUpsBlocked: count, canShare, share }) {
-    const { t } = useReportTranslation();
-    const locale = useLocale();
-    const formatter = useMemo(() => getLocalizedNumberFormatter(locale), [locale]);
-    const showCookies = typeof count === 'number' && Number.isFinite(count) && count >= 1;
-    const text = !showCookies
-        ? null
-        : count === 1
-          ? t('protections_report_cookiePopUpsSingular')
-          : t('protections_report_cookiePopUpsPlural', { count: formatter.format(Math.floor(count)) });
+    const format = useReportFormat();
+    const cookies = typeof count === 'number' && Number.isFinite(count) ? Math.floor(count) : 0;
+    const text =
+        cookies >= 1 ? format.plural(cookies, 'protections_report_cookiePopUpsSingular', 'protections_report_cookiePopUpsPlural') : null;
     if (!text && !canShare) return null;
     return (
         <Fragment>
@@ -1007,296 +640,5 @@ function ReportFooter({ cookiePopUpsBlocked: count, canShare, share }) {
                 {canShare && <ShareButton copy={share} />}
             </div>
         </Fragment>
-    );
-}
-
-/**
- * Shares a picture of the report through the system share sheet, or
- * downloads it where sharing files isn't available.
- *
- * @param {object} props
- * @param {ShareCopy | null} props.copy - the copy of the report to capture; `null` in the copy itself
- */
-function ShareButton({ copy }) {
-    const { t } = useReportTranslation();
-    const [busy, setBusy] = useState(false);
-    // read by handlers that can run before a re-render: disabling the button
-    // while busy blurs it, for one
-    const busyRef = useRef(false);
-    const engaged = useRef(false);
-    const strings = () => ({
-        title: t('protections_report_shareTitle'),
-        body: t('protections_report_shareBody'),
-        cta: t('protections_report_shareCta'),
-    });
-    // a click usually follows, so get the copy and the slow part of the picture ready now
-    const prepare = async () => {
-        engaged.current = true;
-        if (!copy || busyRef.current) return;
-        const node = await copy.ready();
-        if (node) await prepareShareImage(node, strings());
-    };
-    const disengage = () => {
-        engaged.current = false;
-        if (!busyRef.current) copy?.release();
-    };
-    const share = async () => {
-        if (!copy || busyRef.current) return;
-        busyRef.current = true;
-        setBusy(true);
-        try {
-            const node = await copy.ready();
-            if (!node) throw new Error('the report has gone');
-            await shareAsImage(node, SHARE_FILENAME, strings());
-        } catch (e) {
-            // eg: a resource the capture couldn't read; nothing useful to show the user
-            console.warn('Could not save the Protections Report as an image', e);
-        } finally {
-            busyRef.current = false;
-            setBusy(false);
-            if (!engaged.current) copy.release();
-        }
-    };
-    return (
-        <button
-            type="button"
-            class={styles.shareButton}
-            aria-label={t('protections_report_shareLabel')}
-            title={t('protections_report_shareLabel')}
-            aria-busy={busy}
-            disabled={busy}
-            onClick={copy ? share : undefined}
-            onPointerEnter={copy ? prepare : undefined}
-            onPointerLeave={copy ? disengage : undefined}
-            onFocus={copy ? prepare : undefined}
-            onBlur={copy ? disengage : undefined}
-            data-testid={copy ? 'ProtectionsReportShare' : undefined}
-            {...{ [CAPTURE_EXCLUDE]: '' }}
-        >
-            <ShareIcon aria-hidden="true" />
-        </button>
-    );
-}
-
-/**
- * "How they try to recognize you": this device's own details, next to how many
- * of the companies blocked this week are known to read each one.
- *
- * @param {object} props
- * @param {ReturnType<typeof groupBySurface>} props.recognition
- */
-function RecognitionView({ recognition }) {
-    const { t } = useReportTranslation();
-    const locale = useLocale();
-    const formatter = useMemo(() => getLocalizedNumberFormatter(locale), [locale]);
-    const kilo = useMemo(() => new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }), [locale]);
-    // read once, when the view is opened
-    const [device, setDevice] = useState(readDeviceDetails);
-
-    // the voice list can arrive a moment later
-    useEffect(() => {
-        let cancelled = false;
-        const fillVoices = async () => {
-            const voices = await loadVoices();
-            if (!cancelled) setDevice((prev) => ({ ...prev, voices }));
-        };
-        fillVoices();
-        return () => {
-            cancelled = true;
-        };
-    }, []);
-
-    /** @param {SurfaceId} id */
-    const value = (id) => {
-        switch (id) {
-            case 'graphics':
-                return device.graphics;
-            case 'screen':
-                return (
-                    device.screen &&
-                    t('protections_report_screenValue', {
-                        // no thousands separators: screen sizes read as 2560 × 1440
-                        width: String(device.screen.width),
-                        height: String(device.screen.height),
-                        depth: String(device.screen.colorDepth),
-                    })
-                );
-            case 'locale':
-                return device.locale && t('protections_report_localeValue', device.locale);
-            case 'fonts':
-                return (
-                    device.fonts &&
-                    t('protections_report_fontsValue', {
-                        found: formatter.format(device.fonts.found),
-                        checked: formatter.format(device.fonts.checked),
-                    })
-                );
-            case 'hardware':
-                if (!device.hardware) return null;
-                return device.hardware.memory
-                    ? t('protections_report_hardwareValue', {
-                          cores: formatter.format(device.hardware.cores),
-                          memory: kilo.format(device.hardware.memory),
-                      })
-                    : t('protections_report_hardwareCoresValue', { cores: formatter.format(device.hardware.cores) });
-            case 'voices':
-                if (!device.voices) return null;
-                return device.voices === 1
-                    ? t('protections_report_voicesValueSingular')
-                    : t('protections_report_voicesValuePlural', { count: formatter.format(device.voices) });
-            case 'audio':
-                return (
-                    device.audio &&
-                    t('protections_report_audioValue', {
-                        rate: kilo.format(device.audio.sampleRate / 1000),
-                        channels: formatter.format(device.audio.channels),
-                    })
-                );
-        }
-    };
-
-    const intro =
-        recognition.total === 1
-            ? t('protections_report_recognitionIntroSingular')
-            : t('protections_report_recognitionIntroPlural', { count: formatter.format(recognition.total) });
-
-    return (
-        <div data-testid="ProtectionsReportRecognition">
-            <p class={styles.viewIntro}>
-                <Trans str={intro} values={{}} />
-            </p>
-            <dl class={styles.deviceCard}>
-                {recognition.surfaces.map((surface) => (
-                    <div key={surface.id} class={styles.deviceRow} data-surface={surface.id}>
-                        <dt class={styles.deviceKey}>{t(SURFACE_LABELS[surface.id])}</dt>
-                        <dd class={styles.deviceValue}>{value(surface.id) ?? t('protections_report_valueUnavailable')}</dd>
-                        <dd class={styles.deviceCount}>
-                            {surface.count === 1
-                                ? t('protections_report_knownBySingular')
-                                : t('protections_report_knownByPlural', { count: formatter.format(surface.count) })}
-                        </dd>
-                    </div>
-                ))}
-            </dl>
-            <p class={styles.viewFootnote}>
-                <span class={styles.footnoteIcon}>
-                    <FingerprintIcon aria-hidden="true" />
-                </span>
-                {t('protections_report_recognitionFooter')}
-            </p>
-        </div>
-    );
-}
-
-/**
- * @param {object} props
- * @param {import('../../../types/new-tab.js').SiteTrackers} props.site
- * @param {boolean} [props.large] - favorites-sized, so the letter fallback scales up too
- */
-function SiteFavicon({ site, large = false }) {
-    return (
-        <FaviconWithState
-            faviconSrc={site.favicon?.src}
-            faviconMax={site.favicon?.maxAvailableSize ?? 32}
-            etldPlusOne={site.etldPlusOne}
-            theme={'light'}
-            displayKind={large ? 'favorite-tile' : 'history-favicon'}
-            key={`${site.favicon?.src}:${site.etldPlusOne}`}
-            fallback={DDG_FALLBACK_ICON}
-            fallbackDark={DDG_FALLBACK_ICON_DARK}
-        />
-    );
-}
-
-/** Orbit geometry for the top site, in px: the ring's centre and radius, and logo sizes */
-const ORBIT = { center: 92, radius: 70, lead: 30, rest: 22, leadCount: 3 };
-
-/**
- * "Which sites had the most trackers": the nosiest site with its companies
- * circling it, then the next few.
- *
- * @param {object} props
- * @param {import('../utils/report.js').RankedSite[]} props.sites
- */
-function TopSitesView({ sites }) {
-    const { t } = useReportTranslation();
-    const locale = useLocale();
-    const formatter = useMemo(() => getLocalizedNumberFormatter(locale), [locale]);
-    const list = useMemo(() => new Intl.ListFormat(locale, { style: 'long', type: 'conjunction' }), [locale]);
-    const [top, ...rest] = sites;
-    if (!top) return null;
-
-    const orbit = top.companies.slice(0, TOP_SITE_ORBIT_LIMIT);
-    const count = top.companies.length;
-    /** @param {number} n */
-    const companies = (n) =>
-        n === 1
-            ? t('protections_report_siteCompaniesSingular')
-            : t('protections_report_siteCompaniesPlural', { count: formatter.format(n) });
-
-    return (
-        <div data-testid="ProtectionsReportTopSites">
-            <div class={styles.topSite}>
-                <div class={styles.orbit} aria-hidden="true">
-                    <span class={styles.orbitRing} />
-                    <span class={styles.orbitCenter}>
-                        <SiteFavicon site={top.site} large />
-                    </span>
-                    {orbit.map((name, k) => {
-                        const size = k < ORBIT.leadCount ? ORBIT.lead : ORBIT.rest;
-                        const angle = -Math.PI / 2 + (k * 2 * Math.PI) / orbit.length;
-                        return (
-                            <span
-                                key={name}
-                                class={styles.orbitLogo}
-                                title={name}
-                                style={{
-                                    width: `${size}px`,
-                                    height: `${size}px`,
-                                    left: `${Math.round(ORBIT.center + ORBIT.radius * Math.cos(angle) - size / 2)}px`,
-                                    top: `${Math.round(ORBIT.center + ORBIT.radius * Math.sin(angle) - size / 2)}px`,
-                                }}
-                            >
-                                <CompanyIcon displayName={name} />
-                            </span>
-                        );
-                    })}
-                </div>
-                <div class={styles.topSiteText}>
-                    <span class={styles.topSiteLabel}>{t('protections_report_topSiteLabel')}</span>
-                    <span class={styles.topSiteDomain}>{top.site.etldPlusOne}</span>
-                    <span class={styles.topSiteCount}>
-                        {count === 1
-                            ? t('protections_report_topSiteCountSingular')
-                            : t('protections_report_topSiteCountPlural', { count: formatter.format(count) })}
-                    </span>
-                    <span class={styles.topSiteWatching}>
-                        {count === 1
-                            ? t('protections_report_topSiteWatchingSingular', { companies: top.companies[0] })
-                            : t('protections_report_topSiteWatchingPlural', { companies: list.format(top.companies.slice(0, 2)) })}
-                    </span>
-                </div>
-            </div>
-            {rest.length > 0 && (
-                <ul class={styles.siteList}>
-                    {rest.map(({ site, companies: names }) => (
-                        <li key={site.etldPlusOne} class={styles.siteRow}>
-                            <span class={styles.siteIcon}>
-                                <SiteFavicon site={site} />
-                            </span>
-                            <span class={styles.siteDomain}>{site.etldPlusOne}</span>
-                            <span class={cn(styles.avatars, styles.avatarsAuto, styles.avatarsSmall)} aria-hidden="true">
-                                {names.slice(0, SITE_AVATAR_LIMIT).map((name) => (
-                                    <span key={name} class={styles.avatar}>
-                                        <CompanyIcon displayName={name} />
-                                    </span>
-                                ))}
-                            </span>
-                            <span class={styles.siteCount}>{companies(names.length)}</span>
-                        </li>
-                    ))}
-                </ul>
-            )}
-        </div>
     );
 }

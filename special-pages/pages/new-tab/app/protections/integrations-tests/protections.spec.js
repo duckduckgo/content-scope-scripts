@@ -149,6 +149,26 @@ test.describe('protections report', () => {
             await protections.sharesViaShareSheet();
         });
 
+        test('keeps focus on the share button after sharing from the keyboard', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            const protections = new ProtectionsPage(ntp);
+            await protections.stubShareSheet('share');
+            await ntp.openPage({ additional: report });
+            await protections.ready();
+            await protections.sharesFromKeyboard();
+        });
+
+        test('drops the hidden copy when the view changes to one that is not shared', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: report });
+
+            const protections = new ProtectionsPage(ntp);
+            await protections.ready();
+            await protections.dropsShareCopyWhenNotShareable();
+        });
+
         test('downloads the image when the share sheet refuses', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             await ntp.reducedMotion();
@@ -226,6 +246,16 @@ test.describe('protections report', () => {
             await protections.displaysEmptyReport();
         });
 
+        test('shows the empty state when the weekly stats fail to load, then fills in', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: { protections: 'report', stats: 'error' } });
+
+            const protections = new ProtectionsPage(ntp);
+            await protections.ready();
+            await protections.recoversFromMissingStats();
+        });
+
         test('explains why this matters', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             await ntp.reducedMotion();
@@ -245,16 +275,16 @@ test.describe('protections report', () => {
             await protections.ready();
             await protections.collapsesReport();
         });
-    });
 
-    test('scrolls to protections heading via subscription message', async ({ page }, workerInfo) => {
-        const ntp = NewtabPage.create(page, workerInfo);
-        await ntp.reducedMotion();
-        await ntp.openPage({ additional: { protections_feed: 'activity' } });
+        test('scrolls into view via subscription message', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: report });
 
-        const protections = new ProtectionsPage(ntp);
-        await protections.ready();
-        await protections.scrollsToProtectionsHeading();
+            const protections = new ProtectionsPage(ntp);
+            await protections.ready();
+            await protections.scrollsIntoViewOnRequest();
+        });
     });
 
     test('toggles collapsed/expanded from heading button', async ({ page }, workerInfo) => {

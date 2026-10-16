@@ -5,7 +5,7 @@ import styles from './ShareScene.module.css';
  * Space around the report card in the share image, in CSS px. The promo card
  * above it lines up with the same edges.
  */
-export const SCENE_GUTTER = 80;
+const SCENE_GUTTER = 80;
 
 /** Room above and below the report card, in CSS px */
 const STAGE = { top: 40, bottom: 84, skyOverlap: 40 };
@@ -73,8 +73,9 @@ function Surface({ width, height, radius, fill, shadow }) {
 /**
  * The picture saved by "Share as image": a promo card on a blue sky, then the
  * report card, tilted and stacked on a second card, above a landscape.
- * Rendered off-screen only while saving; never shown on the page. The report
- * card itself is drawn into the `data-share-card` slot afterwards.
+ * Rendered off-screen only while preparing or saving it; never shown on the
+ * page. The report card itself is drawn into the `data-share-card` slot
+ * afterwards.
  *
  * @param {ShareSceneProps} props
  */
@@ -94,7 +95,6 @@ export function ShareScene({ cardWidth, cardHeight, cardRadius, cardBackground, 
             class={styles.scene}
             style={{
                 width: `${width}px`,
-                '--card-radius': cardRadius,
                 '--gutter': `${SCENE_GUTTER}px`,
                 '--stage-top': `${STAGE.top}px`,
             }}

@@ -440,6 +440,9 @@ export function mockTransport() {
             switch (msg.method) {
                 case 'stats_getData': {
                     const statsVariant = url.searchParams.get('stats');
+                    if (statsVariant === 'error') {
+                        return Promise.reject(new Error('stats unavailable'));
+                    }
                     if (statsVariant && statsVariant in privacyStatsMocks) {
                         return Promise.resolve(privacyStatsMocks[statsVariant]);
                     }

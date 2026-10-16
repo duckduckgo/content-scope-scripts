@@ -1,4 +1,5 @@
 import { expect } from '@playwright/test';
+import { privacyStatsMocks } from '../../privacy-stats/mocks/privacy-stats.mocks.js';
 
 /**
  * @typedef {import('../../../types/new-tab.js').NewTabMessages['subscriptions']['subscriptionEvent']} SubscriptionEventNames
@@ -92,6 +93,19 @@ export class ProtectionsPage {
         await expect(report.getByTestId('PryingEye')).toHaveCount(0);
     }
 
+    /**
+     * When the weekly stats can't be loaded the report shows its empty state,
+     * then fills in once native pushes stats.
+     */
+    async recoversFromMissingStats() {
+        await this.displaysEmptyReport();
+        await expect(this.report().getByRole('button', { name: 'Collapse Protections Report' })).toBeVisible();
+
+        await this.ntp.mocks.simulateSubscriptionMessage(named.subscription('stats_onDataUpdate'), privacyStatsMocks.report);
+        await this.displaysHeadline();
+        await this.displaysPurposes();
+    }
+
     async displaysHeadline() {
         const report = this.report();
         await expect(report.getByRole('heading', { level: 2 })).toHaveText('Protections Report');
@@ -108,13 +122,13 @@ export class ProtectionsPage {
         const rows = this.report().getByTestId('ProtectionsReportPurposes').getByRole('listitem');
         // most companies first
         await expect(rows).toHaveCount(5);
-        await expect(rows.nth(0)).toContainText('Follows you with ads based on where you go');
+        await expect(rows.nth(0)).toContainText('Targets you with ads based on the sites you visit');
         await expect(rows.nth(0)).toContainText('Google, Facebook, and 28 others');
         await expect(rows.nth(0)).toContainText('+27');
-        await expect(rows.nth(1)).toContainText('Recognizes your computer (even after you clear cookies)');
-        await expect(rows.nth(2)).toContainText('Measures what you read and click');
+        await expect(rows.nth(1)).toContainText('Fingerprints your device to recognize you, even without cookies');
+        await expect(rows.nth(2)).toContainText('Watches what you read and where you browse');
         await expect(rows.nth(3)).toContainText('Tells social networks what you do on other sites');
-        await expect(rows.nth(4)).toContainText('Records your clicks and scrolls');
+        await expect(rows.nth(4)).toContainText('Records what you click, type, and scroll');
         await expect(rows.nth(4)).toContainText('Microsoft and Hotjar');
         await expect(rows.first()).toContainText('Blocked');
     }
@@ -124,11 +138,11 @@ export class ProtectionsPage {
         await expect(rows).toHaveCount(5);
         await expect(rows.nth(0)).toContainText('Google was on 4 out of 5 sites you visited');
         await expect(rows.nth(0)).toContainText(
-            'Follows you with ads based on where you go, recognizes your computer (even after you clear cookies), and measures what you read and click.',
+            'Targets you with ads based on the sites you visit, fingerprints your device to recognize you, and watches what you read and where you browse.',
         );
         await expect(rows.nth(1)).toContainText('Facebook was on almost half the sites you visited');
         await expect(rows.nth(1)).toContainText(
-            'Follows you with ads based on where you go and tells social networks what you do on other sites.',
+            'Targets you with ads based on the sites you visit and tells social networks what you do on other sites.',
         );
         await expect(rows.nth(3)).toContainText('Amazon was on more than 1 in 4 sites you visited');
 
@@ -217,7 +231,7 @@ export class ProtectionsPage {
         await button.hover();
         await expect(copy.getByTestId('ProtectionsReportHeadline')).toHaveText(/^47 companies tried to\s*watch me browse this week\.$/);
         await expect(copy).toContainText('DuckDuckGo blocked 3,193 of their attempts to track me.');
-        await expect(copy).toContainText('Follows me with ads based on where I go');
+        await expect(copy).toContainText('Targets me with ads based on the sites I visit');
         await expect(copy).toContainText('DuckDuckGo also handled 762 annoying cookie pop-ups for me.');
         // while the report on the page is unchanged
         await expect(this.report().getByTestId('ProtectionsReportHeadline')).toHaveText(
@@ -232,6 +246,36 @@ export class ProtectionsPage {
 
         // and the copy goes once the pointer has moved on
         await this.page.mouse.move(0, 0);
+        await expect(copy).toHaveCount(0);
+    }
+
+    /**
+     * Sharing with Enter leaves focus where it was, rather than dropping it
+     * while the picture is made.
+     */
+    async sharesFromKeyboard() {
+        const button = this.report().getByRole('button', { name: 'Share as image' });
+        await button.focus();
+        await this.page.keyboard.press('Enter');
+        await expect.poll(() => this.page.evaluate(() => /** @type {any} */ (window).__shared.length)).toBe(1);
+        await expect(button).toBeFocused();
+        await expect(button).toBeEnabled();
+    }
+
+    /**
+     * The hidden copy goes when the share button does, even without the pointer
+     * leaving it (eg: native switches to the by-site view, which isn't shared).
+     */
+    async dropsShareCopyWhenNotShareable() {
+        const copy = this.context().getByTestId('ProtectionsReportShareCopy');
+        await this.report().getByRole('button', { name: 'Share as image' }).hover();
+        await expect(copy).toHaveCount(1);
+
+        await this.ntp.mocks.simulateSubscriptionMessage(named.subscription('protections_onConfigUpdate'), {
+            expansion: 'expanded',
+            feed: 'activity',
+        });
+        await expect(this.report().getByRole('button', { name: 'Share as image' })).toHaveCount(0);
         await expect(copy).toHaveCount(0);
     }
 
@@ -253,13 +297,13 @@ export class ProtectionsPage {
      */
     async displaysPurposesFromBuiltInTable() {
         const purposes = this.report().getByTestId('ProtectionsReportPurposes').getByRole('listitem');
-        await expect(purposes.first()).toContainText('Follows you with ads based on where you go');
+        await expect(purposes.first()).toContainText('Targets you with ads based on the sites you visit');
         await expect(purposes.first()).toContainText('Google, Facebook, and');
         await this.choosesView('Who we blocked the most', 'companies');
         const rows = this.report().getByTestId('ProtectionsReportCompanies').getByRole('listitem');
         await expect(rows.nth(0)).toContainText('Google was on 4 out of 5 sites you visited');
         await expect(rows.nth(0)).toContainText(
-            'Follows you with ads based on where you go, recognizes your computer (even after you clear cookies), and measures what you read and click.',
+            'Targets you with ads based on the sites you visit, fingerprints your device to recognize you, and watches what you read and where you browse.',
         );
     }
 
@@ -386,22 +430,18 @@ export class ProtectionsPage {
     }
 
     /**
-     * Triggers the scroll to protections heading via subscription message
+     * Native's `protections_scroll` brings the report's title back into view.
      */
-    async scrollsToProtectionsHeading() {
-        const heading = this.context().getByTestId('ProtectionsHeading');
-        await expect(heading).toBeVisible();
+    async scrollsIntoViewOnRequest() {
+        const title = this.report().getByRole('heading', { level: 2 });
+        await expect(title).toBeVisible();
 
-        // Scroll away from the element first
+        // a short window, so scrolling to the bottom takes the title out of view
+        await this.page.setViewportSize({ width: 1024, height: 400 });
         await this.page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+        await expect(title).not.toBeInViewport();
 
-        // Trigger the scroll message
         await this.ntp.mocks.simulateSubscriptionMessage(named.subscription('protections_scroll'), {});
-
-        // Wait for smooth scroll animation to complete
-        await this.page.waitForTimeout(500);
-
-        // Verify the heading is now in viewport
-        await expect(heading).toBeInViewport();
+        await expect(title).toBeInViewport();
     }
 }
