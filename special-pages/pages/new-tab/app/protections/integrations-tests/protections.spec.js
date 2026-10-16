@@ -38,6 +38,14 @@ test.describe('protections report', () => {
             ntp.mocks.waitForCallCount({ method: 'activity_getData', count: 1 }),
         ]);
     });
+    test('the legacy UI shows the summary for a view only the new UI has', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { protections_feed: 'recognition' } });
+        await ntp.mocks.waitForCallCount({ method: 'stats_getData', count: 1 });
+        await expect(page.getByRole('tab', { name: 'Summary' })).toHaveAttribute('aria-selected', 'true');
+    });
     test('receives total count update', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         await ntp.reducedMotion();

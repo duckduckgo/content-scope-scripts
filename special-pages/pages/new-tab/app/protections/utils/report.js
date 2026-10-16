@@ -77,6 +77,19 @@ function hasNativePurposeData(company) {
 }
 
 /**
+ * A company's entry in one of the built-in tables, by name (any case).
+ * Own entries only, so a name like "constructor" can't match a built-in.
+ *
+ * @param {Record<string, number>} table
+ * @param {string} displayName
+ * @return {number | undefined}
+ */
+function lookup(table, displayName) {
+    const key = displayName.toLowerCase();
+    return Object.prototype.hasOwnProperty.call(table, key) ? table[key] : undefined;
+}
+
+/**
  * What the company's trackers generally do, from the table built from Tracker
  * Radar (see `special-pages/tracker-purposes.mjs`). `null` when it isn't listed.
  *
@@ -84,19 +97,20 @@ function hasNativePurposeData(company) {
  * @return {Set<PurposeId> | null}
  */
 function builtInPurposes(company) {
-    const mask = TRACKER_PURPOSES[company.displayName.toLowerCase()];
+    const mask = lookup(TRACKER_PURPOSES, company.displayName);
     if (mask === undefined) return null;
     return new Set(PURPOSE_ORDER.filter((_, bit) => mask & (1 << bit)));
 }
 
 /**
  * True when we can say what at least one company was trying to do, from
- * native data or the built-in table.
+ * native data or the built-in table. Data that maps to no purpose (eg: only
+ * a CDN category) doesn't count: the view would be empty.
  *
  * @param {TrackerCompany[]} companies
  */
 export function hasPurposeData(companies) {
-    return namedCompanies(companies).some((c) => hasNativePurposeData(c) || builtInPurposes(c) !== null);
+    return namedCompanies(companies).some((c) => purposesFor(c).length > 0);
 }
 
 /**
@@ -197,7 +211,7 @@ export function groupBySurface(companies) {
     const counts = new Map(SURFACE_ORDER.map((id) => [id, 0]));
     let total = 0;
     for (const company of namedCompanies(companies)) {
-        const mask = TRACKER_SURFACES[company.displayName.toLowerCase()];
+        const mask = lookup(TRACKER_SURFACES, company.displayName);
         if (!mask) continue;
         total += 1;
         SURFACE_ORDER.forEach((id, bit) => {
@@ -232,11 +246,16 @@ export function rankTopSites(stats) {
     const byRank = (/** @type {string} */ a, /** @type {string} */ b) =>
         (rank.get(a) ?? Number.MAX_SAFE_INTEGER) - (rank.get(b) ?? Number.MAX_SAFE_INTEGER);
     return (stats.topSites ?? [])
-        .filter((site) => site.trackerCompanies.length > 0)
-        .sort((a, b) => b.trackerCompanies.length - a.trackerCompanies.length)
-        .slice(0, TOP_SITES_LIMIT)
         .map((site) => ({
             site,
-            companies: [...new Set(site.trackerCompanies)].sort(byRank).map(displayNameForCompany),
+            // each company once, and only named ones (`__other__` isn't a company)
+            names: [...new Set(site.trackerCompanies)].filter((name) => name !== DDG_STATS_OTHER_COMPANY_IDENTIFIER),
+        }))
+        .filter(({ names }) => names.length > 0)
+        .sort((a, b) => b.names.length - a.names.length)
+        .slice(0, TOP_SITES_LIMIT)
+        .map(({ site, names }) => ({
+            site,
+            companies: names.sort(byRank).map(displayNameForCompany),
         }));
 }

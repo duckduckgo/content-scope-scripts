@@ -182,7 +182,6 @@
 .headlineRow {
     display: flex;
     align-items: center;
-    gap: 12px;
 }
 
 .headlineText {
@@ -207,7 +206,7 @@
 
 .headline {
     font-family: var(--ds-font-family-display, var(--theme-font-family, system-ui));
-    font-size: 30px;
+    font-size: 28px;
     line-height: 38px;
     font-weight: 500;
     letter-spacing: -0.4px;
@@ -229,7 +228,9 @@
     font-size: 14px;
     line-height: 20px;
     color: var(--ds-color-theme-text-secondary);
-    text-wrap: pretty;
+    /* always one line; where it's longer than the headline (eg: the shared
+       picture's "DuckDuckGo blocked…") it runs on into the eye's space */
+    white-space: nowrap;
 
     b {
         font-weight: 600;
@@ -241,20 +242,22 @@
     flex-shrink: 0;
     width: 112px;
     height: 112px;
-    margin: -14px -14px -14px 0;
+    /* the artwork has room around it, so the headline can run into the
+       slot's left edge: enough for "watch you browse this week." on one line */
+    margin: -14px -14px -14px -18px;
+    /* nudged up and out, without moving the text */
+    position: relative;
+    top: -15px;
+    right: -4px;
 }
 
-/* the eye isn't part of the shared image; hidden rather than removed so the
-   headline wraps exactly as it does on the page */
-.report[data-capturing] .eyeSlot {
-    visibility: hidden;
-}
-
-/* nor any hover state the pointer happens to be causing */
-.report[data-capturing] .viewTrigger {
-    background: transparent !important;
-    box-shadow: none !important;
-    transition: none !important;
+/* the copy of the report drawn into the shared picture: laid out at the
+   report's width, out of sight (see useShareCopy) */
+.shareCopy {
+    position: fixed;
+    top: 0;
+    left: -10000px;
+    pointer-events: none;
 }
 
 .eye {

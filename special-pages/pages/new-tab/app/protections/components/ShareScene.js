@@ -14,10 +14,11 @@ const STAGE = { top: 40, bottom: 84, skyOverlap: 40 };
 export const REPORT_TILT = 3;
 
 /**
- * Dax with the shield, relative to the report card's top-right corner (CSS px).
- * Drawn with the card, on top of the saved image (see share-image.js).
+ * The hand-drawn arrow from the promo copy down to the report card, relative
+ * to the report card's top-left corner before its tilt (CSS px). Drawn last,
+ * untilted, over both cards (see share-image.js).
  */
-export const DAX_SHIELD = { src: './protections/share-dax-shield.svg', right: -46, top: -12, width: 190 };
+export const ARROW = { src: './protections/share-arrow.png', left: 256, top: -149, width: 160, height: 212 };
 
 /** Intrinsic size of share-background.svg */
 const LANDSCAPE = { width: 1402, height: 502 };
@@ -118,7 +119,7 @@ export function ShareScene({ cardWidth, cardHeight, cardRadius, cardBackground, 
                             <span dangerouslySetInnerHTML={{ __html: strings.cta }} />
                         </p>
                     </div>
-                    <img class={styles.pictograph} src="./protections/share-pictograph.svg" alt="" />
+                    <img class={styles.daxShield} src="./protections/share-dax-shield.svg" alt="" />
                 </div>
             </div>
             <div class={styles.stage} style={stage}>
@@ -126,7 +127,7 @@ export function ShareScene({ cardWidth, cardHeight, cardRadius, cardBackground, 
                 <div class={styles.stack} style={card}>
                     <Surface {...surface} fill={cardBackground} shadow={{ y: 6, blur: 18, color: 'rgba(3, 65, 128, 0.14)' }} />
                 </div>
-                {/* the report card and Dax are drawn into this slot afterwards (see
+                {/* the report card is drawn into this slot afterwards (see
                     share-image.js): WebKit can leave a large image blank when it's
                     part of the snapshot, so the card isn't */}
                 <div class={styles.tilted} style={{ ...card, transform: `rotate(${REPORT_TILT}deg)` }} data-share-card>

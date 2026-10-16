@@ -1,12 +1,12 @@
-import { Fragment, h } from 'preact';
-import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'preact/hooks';
+import { createContext, Fragment, h } from 'preact';
+import { useContext, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'preact/hooks';
 import cn from 'classnames';
 import styles from './ProtectionsReport.module.css';
 import protectionsStyles from './Protections.module.css';
 import { useTypedTranslationWith } from '../../types.js';
 import { ShowHideButtonCircle } from '../../components/ShowHideButton.jsx';
 import { InfoIcon, ShieldCheckIcon, ChevronSmall, FingerprintIcon, ShareIcon } from '../../components/Icons.js';
-import { CAPTURE_EXCLUDE, shareAsImage } from '../utils/share-image.js';
+import { CAPTURE_EXCLUDE, prepareShareImage, shareAsImage, whenSettled } from '../utils/share-image.js';
 import { FaviconWithState } from '../../../../../shared/components/FaviconWithState.js';
 import { DDG_FALLBACK_ICON, DDG_FALLBACK_ICON_DARK } from '../../favorites/constants.js';
 import { loadVoices, readDeviceDetails } from '../utils/device-details.js';
@@ -48,6 +48,75 @@ import { displayNameForCompany } from '../../privacy-stats/privacy-stats.utils.j
  * @typedef {import('../utils/report.js').SurfaceId} SurfaceId
  * @typedef {'purposes' | 'recognition' | 'companies' | 'activity' | 'top-sites'} ReportView
  */
+
+/**
+ * Who the report speaks to. On the page it addresses the reader ("trackers
+ * tried to watch you"); in the picture they share, it speaks as them
+ * ("trackers tried to watch me", "DuckDuckGo blocked…").
+ *
+ * @typedef {'you' | 'me'} Voice
+ */
+const VoiceContext = createContext(/** @type {Voice} */ ('you'));
+
+/**
+ * Strings with a first-person version (the same key plus `FirstPerson`), used
+ * in the shared picture. Everything else reads the same either way.
+ *
+ * @type {Set<keyof Strings>}
+ */
+const FIRST_PERSON = new Set(
+    /** @type {(keyof Strings)[]} */ ([
+        'protections_report_headlineSingular',
+        'protections_report_headlinePlural',
+        'protections_report_blockedSingular',
+        'protections_report_blockedPlural',
+        'protections_report_cookiePopUpsSingular',
+        'protections_report_cookiePopUpsPlural',
+        'protections_report_viewPurposes',
+        'protections_report_viewCompanies',
+        'protections_report_viewRecognition',
+        'protections_report_viewTopSites',
+        'protections_report_purposeAdvertising',
+        'protections_report_purposeSocial',
+        'protections_report_purposeFingerprinting',
+        'protections_report_purposeSessionReplay',
+        'protections_report_purposeAnalytics',
+        'protections_report_purposeAdvertisingInline',
+        'protections_report_purposeSocialInline',
+        'protections_report_purposeFingerprintingInline',
+        'protections_report_purposeSessionReplayInline',
+        'protections_report_purposeAnalyticsInline',
+        'protections_report_freqNearlyAll',
+        'protections_report_freqFourInFive',
+        'protections_report_freqTwoInThree',
+        'protections_report_freqMoreThanHalf',
+        'protections_report_freqHalf',
+        'protections_report_freqAlmostHalf',
+        'protections_report_freqOneInThree',
+        'protections_report_freqMoreThanOneInFour',
+        'protections_report_freqOneInFive',
+        'protections_report_freqSitesSingular',
+        'protections_report_freqSitesPlural',
+        'protections_report_recognitionIntroSingular',
+        'protections_report_recognitionIntroPlural',
+        'protections_report_recognitionFooter',
+    ]),
+);
+
+/**
+ * Translations in the report's current voice (see `VoiceContext`).
+ */
+function useReportTranslation() {
+    const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
+    const voice = useContext(VoiceContext);
+    return {
+        /**
+         * @param {keyof Strings} key
+         * @param {Record<string, string>} [values]
+         */
+        t: (key, values) => t(voice === 'me' && FIRST_PERSON.has(key) ? /** @type {keyof Strings} */ (`${key}FirstPerson`) : key, values),
+    };
+}
 
 /** @type {Record<PurposeId, keyof Strings>} */
 const PURPOSE_TITLES = {
@@ -120,6 +189,8 @@ export function resolveView(feed, available) {
  * @param {PrivacyStatsData} props.stats
  * @param {import('preact').ComponentChild} [props.sites] - the by-site view, rendered when that view is active
  * @param {import('preact').RefObject<HTMLElement>} [props.rootRef] - lets the caller scroll the report into view
+ * @param {boolean} [props.shareCopy] - this is the hidden copy drawn into the shared picture (see `useShareCopy`):
+ *   in the reader's own voice, with a still eye, and with the final numbers rather than counting up to them
  */
 export function ProtectionsReport({
     expansion,
@@ -131,13 +202,15 @@ export function ProtectionsReport({
     stats,
     sites,
     rootRef: externalRef,
+    shareCopy = false,
 }) {
     const { isReducedMotion } = useEnv();
     const ownRef = useRef(/** @type {HTMLElement|null} */ (null));
     const rootRef = externalRef ?? ownRef;
     const bodyId = useId();
     const expanded = expansion === 'expanded';
-    const isEmpty = blockedCount === 0;
+    // the blocked count and the weekly stats arrive separately, so they can briefly disagree
+    const isEmpty = blockedCount === 0 || totalCompanies(stats) === 0;
     const recognition = useMemo(() => groupBySurface(stats.trackerCompanies), [stats.trackerCompanies]);
     const topSites = useMemo(() => rankTopSites(stats), [stats]);
     /** @type {Record<ReportView, boolean>} */
@@ -152,73 +225,141 @@ export function ProtectionsReport({
     const view = resolveView(feed, views);
     const panel = useHeldHeight(view);
     const body = useCollapse(expanded, isReducedMotion);
+    // the by-site list fetches when shown, so leave it out once fully collapsed
+    // (but keep it while collapsing, so it animates closed with the rest)
+    const bodyOpen = expanded || !body.shut;
+    const copy = useShareCopy(rootRef);
 
     return (
-        <section
-            class={cn(protectionsStyles.root, styles.report)}
-            ref={rootRef}
-            data-expanded={expanded}
-            data-empty={isEmpty}
-            data-testid="ProtectionsReport"
-        >
-            <TitleRow expanded={expanded} toggle={toggle} bodyId={bodyId} />
-            {isEmpty ? (
-                <EmptyHeadline />
-            ) : (
-                <Headline
-                    expanded={expanded}
-                    companyCount={totalCompanies(stats)}
-                    blockedCount={blockedCount}
-                    eye={<PryingEye zoneRef={rootRef} tracking={expanded && !isReducedMotion} />}
-                />
-            )}
-            <div
-                class={styles.collapsible}
+        <VoiceContext.Provider value={shareCopy ? 'me' : 'you'}>
+            <section
+                class={cn(protectionsStyles.root, styles.report)}
+                ref={rootRef}
                 data-expanded={expanded}
-                data-settled={body.height === 'auto'}
-                style={{ height: body.height }}
-                data-testid="ProtectionsReportBody"
-                id={bodyId}
-                aria-hidden={!expanded}
-                inert={!expanded}
+                data-empty={isEmpty}
+                data-testid={shareCopy ? 'ProtectionsReportShareCopy' : 'ProtectionsReport'}
             >
-                <div class={styles.collapsibleInner} ref={body.innerRef}>
-                    <hr class={styles.divider} />
-                    {isEmpty ? (
-                        <EmptyBody label="purposes" />
-                    ) : (
-                        <Fragment>
-                            <ViewMenu
-                                views={views}
-                                current={view}
-                                onSelect={(next) => {
-                                    // re-picking the current view renders nothing new, so there'd be nothing to release the hold
-                                    if (next !== view) panel.hold();
-                                    setFeed(next);
-                                }}
-                            />
-                            <div class={styles.panel} data-view={view} ref={panel.panelRef}>
-                                <div ref={panel.contentRef}>
-                                    {view === 'purposes' && <PurposesView companies={stats.trackerCompanies} />}
-                                    {view === 'recognition' && <RecognitionView recognition={recognition} />}
-                                    {view === 'companies' && <CompaniesView stats={stats} />}
-                                    {view === 'activity' && expanded && sites}
-                                    {view === 'top-sites' && <TopSitesView sites={topSites} />}
+                <TitleRow expanded={expanded} toggle={toggle} bodyId={bodyId} />
+                {isEmpty ? (
+                    <EmptyHeadline />
+                ) : (
+                    <Headline
+                        expanded={expanded}
+                        companyCount={totalCompanies(stats)}
+                        blockedCount={blockedCount}
+                        countUp={!shareCopy}
+                        eye={<PryingEye zoneRef={rootRef} tracking={!shareCopy && expanded && !isReducedMotion} />}
+                    />
+                )}
+                <div
+                    class={styles.collapsible}
+                    ref={body.outerRef}
+                    data-expanded={expanded}
+                    data-settled={body.height === 'auto'}
+                    style={{ height: body.height }}
+                    data-testid="ProtectionsReportBody"
+                    id={bodyId}
+                    aria-hidden={!expanded}
+                    inert={!expanded}
+                >
+                    <div class={styles.collapsibleInner} ref={body.innerRef}>
+                        <hr class={styles.divider} />
+                        {isEmpty ? (
+                            <EmptyBody label="purposes" />
+                        ) : (
+                            <Fragment>
+                                <ViewMenu
+                                    views={views}
+                                    current={view}
+                                    onSelect={(next) => {
+                                        // re-picking the current view renders nothing new, so there'd be nothing to release the hold
+                                        if (next !== view) panel.hold();
+                                        setFeed(next);
+                                    }}
+                                />
+                                <div class={styles.panel} data-view={view} ref={panel.panelRef}>
+                                    <div ref={panel.contentRef}>
+                                        {view === 'purposes' && <PurposesView companies={stats.trackerCompanies} />}
+                                        {view === 'recognition' && <RecognitionView recognition={recognition} />}
+                                        {view === 'companies' && <CompaniesView stats={stats} />}
+                                        {view === 'activity' && bodyOpen && sites}
+                                        {view === 'top-sites' && <TopSitesView sites={topSites} />}
+                                    </div>
                                 </div>
-                            </div>
-                            <ReportFooter
-                                cookiePopUpsBlocked={cookiePopUpsBlocked}
-                                captureRef={rootRef}
-                                // the by-site list is personal browsing history, so it isn't offered for sharing
-                                canShare={view !== 'activity'}
-                            />
-                        </Fragment>
-                    )}
+                                <ReportFooter
+                                    cookiePopUpsBlocked={cookiePopUpsBlocked}
+                                    // the by-site list is personal browsing history, so it isn't offered for sharing
+                                    canShare={view !== 'activity'}
+                                    // the copy keeps the button (it's left out of the picture) so it lays out the same
+                                    share={shareCopy ? null : copy}
+                                />
+                            </Fragment>
+                        )}
+                    </div>
                 </div>
-            </div>
-        </section>
+            </section>
+            {copy.width !== null && (
+                <div class={styles.shareCopy} style={{ width: `${copy.width}px` }} aria-hidden="true" inert>
+                    <ProtectionsReport
+                        expansion="expanded"
+                        toggle={noop}
+                        feed={view}
+                        setFeed={noop}
+                        blockedCount={blockedCount}
+                        cookiePopUpsBlocked={cookiePopUpsBlocked}
+                        stats={stats}
+                        rootRef={copy.copyRef}
+                        shareCopy
+                    />
+                </div>
+            )}
+        </VoiceContext.Provider>
     );
 }
+
+function noop() {}
+
+/**
+ * The shared picture shows a copy of the report rather than the report
+ * itself: the copy speaks in the reader's voice ("me"), so it reads right
+ * when they post it, and capturing it leaves the report on the page alone.
+ * It's laid out off-screen at the report's width, only while it's needed:
+ * from when a share looks likely (the pointer reaches the button) until it's
+ * done.
+ *
+ * @param {import('preact').RefObject<HTMLElement>} liveRef - the report on the page
+ */
+function useShareCopy(liveRef) {
+    const [width, setWidth] = useState(/** @type {number | null} */ (null));
+    const copyRef = useRef(/** @type {HTMLElement | null} */ (null));
+
+    return {
+        width,
+        copyRef,
+        /** Lays out the copy, if it isn't already */
+        mount: () => {
+            const live = liveRef.current;
+            if (live) setWidth(live.offsetWidth);
+        },
+        /** Removes the copy; the next share lays it out again */
+        release: () => setWidth(null),
+        /**
+         * The copy, once it's laid out and its images have loaded.
+         *
+         * @return {Promise<HTMLElement | null>}
+         */
+        ready: async () => {
+            const live = liveRef.current;
+            if (!live) return null;
+            setWidth(live.offsetWidth);
+            return await whenSettled(() => copyRef.current);
+        },
+    };
+}
+
+/**
+ * @typedef {ReturnType<typeof useShareCopy>} ShareCopy
+ */
 
 /** Longest we'll wait for a view to render before letting the panel shrink */
 const HOLD_HEIGHT_TIMEOUT = 2000;
@@ -270,7 +411,7 @@ function useHeldHeight(view) {
  * @param {string} props.bodyId
  */
 function TitleRow({ expanded, toggle, bodyId }) {
-    const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
+    const { t } = useReportTranslation();
     return (
         <div class={styles.titleRow}>
             <img class={styles.titleIcon} src="./icons/Shield-Color-16.svg" alt="" />
@@ -298,11 +439,13 @@ const INFO_CLOSE_DELAY = 160;
  * Opens on hover or click; closes on pointer leave, Escape or outside click.
  */
 function InfoButton() {
-    const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
+    const { t } = useReportTranslation();
     const [open, setOpen] = useState(false);
     const popoverId = useId();
     const wrapperRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const closeTimer = useRef(/** @type {ReturnType<typeof setTimeout>|undefined} */ (undefined));
+    // opened by the pointer arriving, so the click that usually follows keeps it open
+    const openedByHover = useRef(false);
 
     useEffect(() => {
         if (!open) return;
@@ -326,11 +469,15 @@ function InfoButton() {
 
     const show = () => {
         clearTimeout(closeTimer.current);
+        if (!open) openedByHover.current = true;
         setOpen(true);
     };
     const hideSoon = () => {
         clearTimeout(closeTimer.current);
-        closeTimer.current = setTimeout(() => setOpen(false), INFO_CLOSE_DELAY);
+        closeTimer.current = setTimeout(() => {
+            openedByHover.current = false;
+            setOpen(false);
+        }, INFO_CLOSE_DELAY);
     };
 
     return (
@@ -343,7 +490,8 @@ function InfoButton() {
                 aria-controls={popoverId}
                 onClick={() => {
                     clearTimeout(closeTimer.current);
-                    setOpen((x) => !x);
+                    setOpen((x) => openedByHover.current || !x);
+                    openedByHover.current = false;
                 }}
             >
                 <InfoIcon />
@@ -369,14 +517,16 @@ function InfoButton() {
  * @param {boolean} props.expanded
  * @param {number} props.companyCount
  * @param {number} props.blockedCount
+ * @param {boolean} props.countUp - whether to count up to `blockedCount` when it first comes into view
  * @param {import('preact').ComponentChild} props.eye
  */
-function Headline({ expanded, companyCount, blockedCount, eye }) {
-    const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
+function Headline({ expanded, companyCount, blockedCount, countUp, eye }) {
+    const { t } = useReportTranslation();
     const locale = useLocale();
     const formatter = useMemo(() => getLocalizedNumberFormatter(locale), [locale]);
     const countRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const animatedBlocked = useAnimatedCount(blockedCount, countRef);
+    const shownBlocked = countUp ? animatedBlocked : blockedCount;
 
     const headline =
         companyCount === 1
@@ -385,7 +535,7 @@ function Headline({ expanded, companyCount, blockedCount, eye }) {
     const blocked =
         blockedCount === 1
             ? t('protections_report_blockedSingular')
-            : t('protections_report_blockedPlural', { count: formatter.format(animatedBlocked) });
+            : t('protections_report_blockedPlural', { count: formatter.format(shownBlocked) });
 
     /** @param {boolean} active */
     const text = (active) => (
@@ -468,8 +618,11 @@ const COLLAPSE_MS = 340;
  * @param {boolean} reducedMotion
  */
 function useCollapse(expanded, reducedMotion) {
+    const outerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const innerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const [height, setHeight] = useState(expanded ? 'auto' : '0px');
+    // true once the body has finished collapsing
+    const [shut, setShut] = useState(!expanded);
     const isFirstRender = useRef(true);
 
     useLayoutEffect(() => {
@@ -477,21 +630,27 @@ function useCollapse(expanded, reducedMotion) {
             isFirstRender.current = false;
             return;
         }
+        const outer = outerRef.current;
         const inner = innerRef.current;
-        if (!inner || reducedMotion) {
+        if (!outer || !inner || reducedMotion) {
             setHeight(expanded ? 'auto' : '0px');
+            setShut(!expanded);
             return;
         }
-        // start from a concrete height, since `auto` can't be transitioned
-        setHeight(`${inner.offsetHeight}px`);
         let frame = 0;
         let timer;
         if (expanded) {
+            setShut(false);
+            // animate to the content's height, then let it grow freely
+            setHeight(`${inner.offsetHeight}px`);
             timer = setTimeout(() => setHeight('auto'), COLLAPSE_MS + 20);
         } else {
+            // start from where it is now (it may still be opening), since `auto` can't be transitioned
+            setHeight(`${outer.getBoundingClientRect().height}px`);
             frame = requestAnimationFrame(() => {
                 frame = requestAnimationFrame(() => setHeight('0px'));
             });
+            timer = setTimeout(() => setShut(true), COLLAPSE_MS + 20);
         }
         return () => {
             cancelAnimationFrame(frame);
@@ -499,11 +658,11 @@ function useCollapse(expanded, reducedMotion) {
         };
     }, [expanded, reducedMotion]);
 
-    return { innerRef, height };
+    return { outerRef, innerRef, height, shut };
 }
 
 function EmptyHeadline() {
-    const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
+    const { t } = useReportTranslation();
     return (
         <div class={styles.headlineText} data-testid="ProtectionsReportSummary">
             <h3 class={styles.headline} data-testid="ProtectionsReportHeadline">
@@ -520,7 +679,7 @@ function EmptyHeadline() {
  * @param {ReportView} props.label - the view whose name is shown, greyed out
  */
 function EmptyBody({ label }) {
-    const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
+    const { t } = useReportTranslation();
     return (
         <div data-testid="ProtectionsReportEmpty">
             <div class={cn(styles.viewTrigger, styles.viewTriggerDisabled)} aria-hidden="true">
@@ -556,7 +715,7 @@ function EmptyBody({ label }) {
  * @param {ReportView} props.view
  */
 function ViewLabel({ view }) {
-    const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
+    const { t } = useReportTranslation();
     return <Trans str={t(VIEW_LABELS[view])} values={{}} />;
 }
 
@@ -567,7 +726,7 @@ function ViewLabel({ view }) {
  * @param {(feed: ProtectionsConfig['feed']) => void} props.onSelect
  */
 function ViewMenu({ views, current, onSelect }) {
-    const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
+    const { t } = useReportTranslation();
     const menu = useDropdown({ align: 'left', offsetY: 4 });
     return (
         <div class={styles.viewMenu}>
@@ -626,20 +785,22 @@ function ViewMenu({ views, current, onSelect }) {
  * first two into "N others".
  */
 function useCompanyList() {
-    const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
+    const { t } = useReportTranslation();
     const locale = useLocale();
+    const formatter = useMemo(() => getLocalizedNumberFormatter(locale), [locale]);
     const list = useMemo(() => new Intl.ListFormat(locale, { style: 'long', type: 'conjunction' }), [locale]);
     /** @param {string[]} names */
     return (names) => {
         if (names.length <= 2) return list.format(names);
         const rest = names.length - 2;
-        const others = rest === 1 ? t('protections_report_othersSingular') : t('protections_report_othersPlural', { count: String(rest) });
+        const others =
+            rest === 1 ? t('protections_report_othersSingular') : t('protections_report_othersPlural', { count: formatter.format(rest) });
         return list.format([names[0], names[1], others]);
     };
 }
 
 function BlockedBadge() {
-    const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
+    const { t } = useReportTranslation();
     return (
         <span class={styles.blocked}>
             <ShieldCheckIcon class={styles.blockedIcon} aria-hidden="true" />
@@ -655,7 +816,9 @@ function BlockedBadge() {
  * @param {TrackerCompany[]} props.companies
  */
 function PurposesView({ companies }) {
-    const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
+    const { t } = useReportTranslation();
+    const locale = useLocale();
+    const formatter = useMemo(() => getLocalizedNumberFormatter(locale), [locale]);
     const groups = groupByPurpose(companies);
     const formatList = useCompanyList();
 
@@ -673,7 +836,9 @@ function PurposesView({ companies }) {
                                 </span>
                             ))}
                             {more > 0 && (
-                                <span class={styles.avatarMore}>{t('protections_report_moreCompanies', { count: String(more) })}</span>
+                                <span class={styles.avatarMore}>
+                                    {t('protections_report_moreCompanies', { count: formatter.format(more) })}
+                                </span>
                             )}
                         </span>
                         <span class={styles.rowText}>
@@ -695,7 +860,7 @@ function PurposesView({ companies }) {
  * @param {PrivacyStatsData} props.stats
  */
 function CompaniesView({ stats }) {
-    const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
+    const { t } = useReportTranslation();
     const locale = useLocale();
     const formatter = useMemo(() => getLocalizedNumberFormatter(locale), [locale]);
     const list = useMemo(() => new Intl.ListFormat(locale, { style: 'long', type: 'conjunction' }), [locale]);
@@ -748,7 +913,7 @@ function CompaniesView({ stats }) {
  * @param {string[]} props.names - their names, most widespread first (may be fewer than `count`)
  */
 function MoreCompaniesRow({ count, names }) {
-    const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
+    const { t } = useReportTranslation();
     const locale = useLocale();
     const formatter = useMemo(() => getLocalizedNumberFormatter(locale), [locale]);
     const list = useMemo(() => new Intl.ListFormat(locale, { style: 'long', type: 'conjunction' }), [locale]);
@@ -791,7 +956,7 @@ function MoreCompaniesRow({ count, names }) {
  * @param {number | undefined} props.totalSitesVisited
  */
 function CompanyTitle({ name, sitesCount, totalSitesVisited }) {
-    const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
+    const { t } = useReportTranslation();
     if (sitesCount === undefined) return <strong>{name}</strong>;
 
     const freq = frequencyOf(sitesCount, totalSitesVisited);
@@ -815,11 +980,11 @@ const SHARE_FILENAME = 'duckduckgo-protections-report.png';
  *
  * @param {object} props
  * @param {number | null | undefined} props.cookiePopUpsBlocked - undefined = unsupported, null = feature disabled
- * @param {import('preact').RefObject<HTMLElement>} props.captureRef - the card to capture
  * @param {boolean} props.canShare - whether to show the share button
+ * @param {ShareCopy | null} props.share - what the share button captures; `null` for a button that does nothing
  */
-function ReportFooter({ cookiePopUpsBlocked: count, captureRef, canShare }) {
-    const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
+function ReportFooter({ cookiePopUpsBlocked: count, canShare, share }) {
+    const { t } = useReportTranslation();
     const locale = useLocale();
     const formatter = useMemo(() => getLocalizedNumberFormatter(locale), [locale]);
     const showCookies = typeof count === 'number' && Number.isFinite(count) && count >= 1;
@@ -839,7 +1004,7 @@ function ReportFooter({ cookiePopUpsBlocked: count, captureRef, canShare }) {
                         {text}
                     </p>
                 )}
-                {canShare && <ShareButton captureRef={captureRef} />}
+                {canShare && <ShareButton copy={share} />}
             </div>
         </Fragment>
     );
@@ -850,26 +1015,46 @@ function ReportFooter({ cookiePopUpsBlocked: count, captureRef, canShare }) {
  * downloads it where sharing files isn't available.
  *
  * @param {object} props
- * @param {import('preact').RefObject<HTMLElement>} props.captureRef
+ * @param {ShareCopy | null} props.copy - the copy of the report to capture; `null` in the copy itself
  */
-function ShareButton({ captureRef }) {
-    const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
+function ShareButton({ copy }) {
+    const { t } = useReportTranslation();
     const [busy, setBusy] = useState(false);
+    // read by handlers that can run before a re-render: disabling the button
+    // while busy blurs it, for one
+    const busyRef = useRef(false);
+    const engaged = useRef(false);
+    const strings = () => ({
+        title: t('protections_report_shareTitle'),
+        body: t('protections_report_shareBody'),
+        cta: t('protections_report_shareCta'),
+    });
+    // a click usually follows, so get the copy and the slow part of the picture ready now
+    const prepare = async () => {
+        engaged.current = true;
+        if (!copy || busyRef.current) return;
+        const node = await copy.ready();
+        if (node) await prepareShareImage(node, strings());
+    };
+    const disengage = () => {
+        engaged.current = false;
+        if (!busyRef.current) copy?.release();
+    };
     const share = async () => {
-        const node = captureRef.current;
-        if (!node || busy) return;
+        if (!copy || busyRef.current) return;
+        busyRef.current = true;
         setBusy(true);
         try {
-            await shareAsImage(node, SHARE_FILENAME, {
-                title: t('protections_report_shareTitle'),
-                body: t('protections_report_shareBody'),
-                cta: t('protections_report_shareCta'),
-            });
+            const node = await copy.ready();
+            if (!node) throw new Error('the report has gone');
+            await shareAsImage(node, SHARE_FILENAME, strings());
         } catch (e) {
             // eg: a resource the capture couldn't read; nothing useful to show the user
             console.warn('Could not save the Protections Report as an image', e);
         } finally {
+            busyRef.current = false;
             setBusy(false);
+            if (!engaged.current) copy.release();
         }
     };
     return (
@@ -880,8 +1065,12 @@ function ShareButton({ captureRef }) {
             title={t('protections_report_shareLabel')}
             aria-busy={busy}
             disabled={busy}
-            onClick={share}
-            data-testid="ProtectionsReportShare"
+            onClick={copy ? share : undefined}
+            onPointerEnter={copy ? prepare : undefined}
+            onPointerLeave={copy ? disengage : undefined}
+            onFocus={copy ? prepare : undefined}
+            onBlur={copy ? disengage : undefined}
+            data-testid={copy ? 'ProtectionsReportShare' : undefined}
             {...{ [CAPTURE_EXCLUDE]: '' }}
         >
             <ShareIcon aria-hidden="true" />
@@ -897,7 +1086,7 @@ function ShareButton({ captureRef }) {
  * @param {ReturnType<typeof groupBySurface>} props.recognition
  */
 function RecognitionView({ recognition }) {
-    const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
+    const { t } = useReportTranslation();
     const locale = useLocale();
     const formatter = useMemo(() => getLocalizedNumberFormatter(locale), [locale]);
     const kilo = useMemo(() => new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }), [locale]);
@@ -937,16 +1126,19 @@ function RecognitionView({ recognition }) {
             case 'fonts':
                 return (
                     device.fonts &&
-                    t('protections_report_fontsValue', { found: String(device.fonts.found), checked: String(device.fonts.checked) })
+                    t('protections_report_fontsValue', {
+                        found: formatter.format(device.fonts.found),
+                        checked: formatter.format(device.fonts.checked),
+                    })
                 );
             case 'hardware':
                 if (!device.hardware) return null;
                 return device.hardware.memory
                     ? t('protections_report_hardwareValue', {
-                          cores: String(device.hardware.cores),
+                          cores: formatter.format(device.hardware.cores),
                           memory: kilo.format(device.hardware.memory),
                       })
-                    : t('protections_report_hardwareCoresValue', { cores: String(device.hardware.cores) });
+                    : t('protections_report_hardwareCoresValue', { cores: formatter.format(device.hardware.cores) });
             case 'voices':
                 if (!device.voices) return null;
                 return device.voices === 1
@@ -957,7 +1149,7 @@ function RecognitionView({ recognition }) {
                     device.audio &&
                     t('protections_report_audioValue', {
                         rate: kilo.format(device.audio.sampleRate / 1000),
-                        channels: String(device.audio.channels),
+                        channels: formatter.format(device.audio.channels),
                     })
                 );
         }
@@ -1027,7 +1219,7 @@ const ORBIT = { center: 92, radius: 70, lead: 30, rest: 22, leadCount: 3 };
  * @param {import('../utils/report.js').RankedSite[]} props.sites
  */
 function TopSitesView({ sites }) {
-    const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
+    const { t } = useReportTranslation();
     const locale = useLocale();
     const formatter = useMemo(() => getLocalizedNumberFormatter(locale), [locale]);
     const list = useMemo(() => new Intl.ListFormat(locale, { style: 'long', type: 'conjunction' }), [locale]);

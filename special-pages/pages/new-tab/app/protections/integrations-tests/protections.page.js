@@ -95,7 +95,7 @@ export class ProtectionsPage {
     async displaysHeadline() {
         const report = this.report();
         await expect(report.getByRole('heading', { level: 2 })).toHaveText('Protections Report');
-        await expect(report.getByTestId('ProtectionsReportHeadline')).toHaveText('47 companies tried to watch you browse this week.');
+        await expect(report.getByTestId('ProtectionsReportHeadline')).toHaveText(/^47 companies tried to\s*watch you browse this week\.$/);
         await expect(
             report.getByTestId('ProtectionsReportSummary').getByText('We blocked 3,193 of their attempts to track you.'),
         ).toBeVisible();
@@ -172,8 +172,8 @@ export class ProtectionsPage {
         const bytes = await readFile(path);
         // PNG signature
         expect([...bytes.subarray(0, 4)]).toEqual([0x89, 0x50, 0x4e, 0x47]);
-        // exported at 1x: the 504px card plus 80px either side
-        expect(bytes.readUInt32BE(16)).toBe(664);
+        // exported at 1x: the 504px card, 80px either side, and a 12px white frame
+        expect(bytes.readUInt32BE(16)).toBe(688);
         await expect(button).toBeEnabled();
         return bytes;
     }
@@ -210,11 +210,29 @@ export class ProtectionsPage {
         this.page.on('download', () => {
             downloaded = true;
         });
-        await this.report().getByRole('button', { name: 'Share as image' }).click();
+        const button = this.report().getByRole('button', { name: 'Share as image' });
+        const copy = this.context().getByTestId('ProtectionsReportShareCopy');
+
+        // the picture is taken of a hidden copy, in the reader's own voice
+        await button.hover();
+        await expect(copy.getByTestId('ProtectionsReportHeadline')).toHaveText(/^47 companies tried to\s*watch me browse this week\.$/);
+        await expect(copy).toContainText('DuckDuckGo blocked 3,193 of their attempts to track me.');
+        await expect(copy).toContainText('Follows me with ads based on where I go');
+        await expect(copy).toContainText('DuckDuckGo also handled 762 annoying cookie pop-ups for me.');
+        // while the report on the page is unchanged
+        await expect(this.report().getByTestId('ProtectionsReportHeadline')).toHaveText(
+            /^47 companies tried to\s*watch you browse this week\.$/,
+        );
+
+        await button.click();
         await expect
             .poll(() => this.page.evaluate(() => /** @type {any} */ (window).__shared))
             .toEqual([{ name: 'duckduckgo-protections-report.png', type: 'image/png', size: expect.any(Number) }]);
         expect(downloaded).toBe(false);
+
+        // and the copy goes once the pointer has moved on
+        await this.page.mouse.move(0, 0);
+        await expect(copy).toHaveCount(0);
     }
 
     async displaysTopSites() {
@@ -322,6 +340,13 @@ export class ProtectionsPage {
         await this.page.keyboard.press('Enter');
         await expect(popover).toBeVisible();
         await this.page.keyboard.press('Enter');
+        await expect(popover).not.toBeVisible();
+
+        // the click that follows hovering keeps it open; the next one closes it
+        await button.hover();
+        await button.click();
+        await expect(popover).toBeVisible();
+        await button.click();
         await expect(popover).not.toBeVisible();
     }
 

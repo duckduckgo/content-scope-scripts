@@ -60,17 +60,20 @@ function ProtectionsReadyState({ data, config }) {
         );
     }
 
+    // the legacy UI only has these two; a view saved by the new UI falls back to the summary
+    const legacyFeed = config.feed === 'activity' ? 'activity' : 'privacy-stats';
+
     return (
         <Protections
             blockedCountSignal={blockedCountSignal}
             expansion={config.expansion}
             toggle={toggle}
-            feed={config.feed}
+            feed={legacyFeed}
             setFeed={setFeed}
             totalCookiePopUpsBlockedSignal={totalCookiePopUpsBlockedSignal}
             showProtectionsReportNewLabel={config.showProtectionsReportNewLabel}
         >
-            {config.feed === 'activity' && (
+            {legacyFeed === 'activity' && (
                 <ActivityProvider>
                     <ActivityConsumer
                         showBurnAnimation={config.showBurnAnimation ?? true}
@@ -78,7 +81,7 @@ function ProtectionsReadyState({ data, config }) {
                     />
                 </ActivityProvider>
             )}
-            {config.feed === 'privacy-stats' && (
+            {legacyFeed === 'privacy-stats' && (
                 <PrivacyStatsProvider>
                     <BodyExpanderProvider>
                         <PrivacyStatsConsumer />

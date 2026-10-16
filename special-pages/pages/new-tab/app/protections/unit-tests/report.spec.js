@@ -76,8 +76,13 @@ test('non-tracking categories never produce a purpose', () => {
     deepEqual(groupByPurpose([{ displayName: 'Cloudflare', count: 5, categories: ['CDN', 'Embedded Content'] }]), []);
 });
 
-test('hasPurposeData is true when native sends data or a company is in the built-in table', () => {
-    equal(hasPurposeData([{ displayName: 'Unknown Co', count: 1, fingerprinting: 0 }]), true);
+test('hasPurposeData is true when native data or the built-in table gives a company a purpose', () => {
+    equal(hasPurposeData([{ displayName: 'Unknown Co', count: 1, fingerprinting: 3 }]), true);
+    // data that maps to no purpose would leave the view empty
+    equal(hasPurposeData([{ displayName: 'Unknown Co', count: 1, fingerprinting: 0 }]), false);
+    equal(hasPurposeData([{ displayName: 'Unknown Co', count: 1, categories: ['CDN'] }]), false);
+    // only the table's own entries match
+    equal(hasPurposeData([{ displayName: 'constructor', count: 1 }]), false);
     equal(hasPurposeData([{ displayName: 'Google', count: 1, sitesCount: 1 }]), true);
     equal(hasPurposeData([{ displayName: 'Unknown Co', count: 1, sitesCount: 1 }]), false);
     // the __other__ bucket isn't a company
@@ -165,4 +170,22 @@ test('rankTopSites orders sites by company count and each site’s companies by 
     // deduplicated, most widespread first, unranked last, display names tidied
     deepEqual(ranked[0].companies, ['Google', 'Amazon', 'Hotjar', 'Not Ranked']);
     deepEqual(rankTopSites({ trackerCompanies: [] }), []);
+});
+
+test('rankTopSites counts each named company once', () => {
+    const ranked = rankTopSites({
+        trackerCompanies: [],
+        topSites: [
+            { etldPlusOne: 'repeats.com', trackerCompanies: ['Google', 'Google', 'Google', '__other__'] },
+            { etldPlusOne: 'varied.com', trackerCompanies: ['Google', 'Hotjar'] },
+            { etldPlusOne: 'unnamed.com', trackerCompanies: ['__other__'] },
+        ],
+    });
+    deepEqual(
+        ranked.map((r) => [r.site.etldPlusOne, r.companies]),
+        [
+            ['varied.com', ['Google', 'Hotjar']],
+            ['repeats.com', ['Google']],
+        ],
+    );
 });

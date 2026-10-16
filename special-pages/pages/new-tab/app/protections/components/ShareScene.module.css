@@ -67,7 +67,7 @@
     font-weight: 700;
     letter-spacing: calc(-0.4px * var(--promo-scale));
     text-wrap: balance;
-    /* the headline sits beside the pictograph, so it never gets wider than
+    /* the headline sits beside Dax, so it never gets wider than
        the space left of it, whatever the font or translation */
     max-width: 280px;
 }
@@ -106,12 +106,14 @@
     flex-shrink: 0;
 }
 
-.pictograph {
+/* Dax with the shield, peeking over the card's top-right corner */
+.daxShield {
     position: absolute;
-    right: -30px;
-    top: -60px;
-    width: 230px;
-    transform: rotate(3deg);
+    right: -52px;
+    top: -14px;
+    width: 218px;
+    /* facing into the card */
+    transform: scaleX(-1);
 }
 
 /* Report card, tilted on a stack, above the landscape */

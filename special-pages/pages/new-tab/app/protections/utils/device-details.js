@@ -218,14 +218,20 @@ export function loadVoices() {
     });
 }
 
+/** @type {DeviceDetails | null} */
+let cached = null;
+
 /**
  * Everything that can be read straight away. `voices` starts out `null`; use
  * `loadVoices` to fill it in.
  *
+ * Read once per page: it creates a WebGL and an audio context and measures
+ * dozens of fonts, which isn't worth repeating each time the view opens.
+ *
  * @return {DeviceDetails}
  */
 export function readDeviceDetails() {
-    return {
+    cached ??= {
         graphics: readGraphics(),
         screen: readScreen(),
         locale: readLocale(),
@@ -234,4 +240,5 @@ export function readDeviceDetails() {
         hardware: readHardware(),
         voices: null,
     };
+    return cached;
 }

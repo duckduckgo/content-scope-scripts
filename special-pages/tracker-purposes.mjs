@@ -24,7 +24,7 @@
  */
 import { execFileSync } from 'node:child_process';
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 import * as prettier from 'prettier';
 import { parseArgs, cwd } from '../scripts/script-utils.js';
 import { FINGERPRINTING_THRESHOLD, PURPOSES, SURFACES } from './pages/new-tab/app/protections/utils/purposes.js';
@@ -40,7 +40,7 @@ const MIN_SHARE = 0.25;
 const MIN_SCRIPT_PREVALENCE = 0.0005;
 
 const args = parseArgs(process.argv.slice(2), []);
-const radarDir = args.radar ? join(process.cwd(), args.radar) : join(CWD, '../tracker-radar');
+const radarDir = args.radar ? resolve(args.radar) : join(CWD, '../tracker-radar');
 const region = args.region || 'US';
 const domainsDir = join(radarDir, 'domains', region);
 
