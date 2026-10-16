@@ -111,12 +111,15 @@ test.describe('WebDetection numeric detectors', () => {
         await page.clock.fastForward(5000);
 
         const events = await notifications(collector, 'webEvent');
-        expect(events).toEqual([{ type: 'brokenImages', data: { brokenImages: '2-4', brokenShare: '50-90' } }]);
+        expect(events).toEqual([
+            { type: 'brokenImages_count2to4', data: {} },
+            { type: 'brokenImages_share50to90', data: {} },
+        ]);
         const runs = await notifications(collector, 'webDetectionAutoRun');
         expect(runs[0]).toEqual(
             expect.objectContaining({
                 detectorId: 'imageBreakage.broken_images',
-                items: ['ran'],
+                match: true,
                 measured: expect.objectContaining({ brokenImages: 2 }),
             }),
         );
@@ -140,7 +143,14 @@ test.describe('WebDetection numeric detectors', () => {
         await waitForRuns(collector, 1);
 
         const events = await notifications(collector, 'webEvent');
-        expect(events).toEqual([{ type: 'stylesMissing', data: { failedStylesheets: '1', failedFontFaces: '1' } }]);
+        expect(events).toEqual([{ type: 'stylesMissing_sheets1', data: {} }]);
+        expect(await breakageReport(collector)).toEqual([
+            expect.objectContaining({
+                detectorId: 'styleBreakage.missing_styles_or_fonts',
+                detected: true,
+                data: expect.objectContaining({ failedStylesheets: 1, failedFontFaces: 1 }),
+            }),
+        ]);
     });
 
     test('errorPage.soft404_phrases_count counts error phrases in rendered text only', async ({ page }, testInfo) => {
@@ -149,7 +159,7 @@ test.describe('WebDetection numeric detectors', () => {
         await page.clock.fastForward(1000);
 
         const events = await notifications(collector, 'webEvent');
-        expect(events).toEqual([{ type: 'errorPhraseCount', data: { keywordCount: '2-4' } }]);
+        expect(events).toEqual([{ type: 'errorPhraseCount_count2to4', data: {} }]);
     });
 
     test('errorPage.soft404_features reports an error page served with little text for its bytes', async ({ page }, testInfo) => {
@@ -158,7 +168,7 @@ test.describe('WebDetection numeric detectors', () => {
         await waitForRuns(collector, 1);
 
         const events = await notifications(collector, 'webEvent');
-        expect(events).toEqual([{ type: 'soft404Features', data: { contentByteRatio: '0-0.05', keywordCount: '5-9' } }]);
+        expect(events).toEqual([{ type: 'soft404Features_keywords5to9', data: {} }]);
     });
 
     test('errorPage.soft404_features does not fire on a working page', async ({ page }, testInfo) => {
@@ -196,15 +206,21 @@ test.describe('WebDetection numeric detectors', () => {
         ]);
     });
 
-    test('pageLoad.load_time reports the load time bucketed, once the load has ended', async ({ page }, testInfo) => {
+    test('pageLoad.load_time writes a fast load to breakage reports, sends no event, and finishes', async ({ page }, testInfo) => {
         const collector = await setup(page, testInfo.project.use, [['pageLoad', 'load_time']], runSoon, { fakeClock: false });
         await navigateTo(page, '/web-detection/pages/numeric-clean.html');
         await waitForRuns(collector, 1);
 
-        const events = await notifications(collector, 'webEvent');
-        expect(events).toEqual([{ type: 'pageLoadTime', data: { loadEventEnd: '0-3s', navigationType: 'navigate' } }]);
+        expect(await notifications(collector, 'webEvent')).toEqual([]);
         const runs = await notifications(collector, 'webDetectionAutoRun');
         expect(runs.map((r) => r.detectorId)).toEqual(['pageLoad.load_time']);
-        expect(runs[0].defined).toEqual({ sent: true, done: true });
+        expect(runs[0].names).toEqual({ 'this.finished': true });
+        expect(await breakageReport(collector)).toEqual([
+            expect.objectContaining({
+                detectorId: 'pageLoad.load_time',
+                detected: true,
+                data: expect.objectContaining({ navigationType: 'navigate', hiddenDuringLoad: false }),
+            }),
+        ]);
     });
 });

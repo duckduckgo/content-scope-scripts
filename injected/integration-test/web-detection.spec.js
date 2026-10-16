@@ -13,93 +13,63 @@ const CONFIG = './integration-test/test-pages/web-detection/config/config.json';
 const CAPTCHA_DETECTORS = {
     recaptcha: {
         triggers: { auto: { state: 'enabled', when: { intervalMs: [100] } } },
-        actions: [
-            {
-                when: {
-                    element: {
-                        selector: ['.g-recaptcha', "iframe[src*='recaptcha']", "iframe[title*='recaptcha' i]"],
-                        visibility: 'visible',
-                    },
-                },
-                fireEvent: { type: 'captcha_recaptcha' },
-                breakageReportData: {},
-                define: { done: true },
+        match: {
+            element: {
+                selector: ['.g-recaptcha', "iframe[src*='recaptcha']", "iframe[title*='recaptcha' i]"],
+                visibility: 'visible',
             },
-        ],
+        },
+        actions: { fireEvent: { type: 'captcha_recaptcha' }, breakageReportData: {} },
     },
     hcaptcha: {
         triggers: { auto: { state: 'enabled', when: { intervalMs: [100] } } },
-        actions: [
-            {
-                when: {
-                    element: {
-                        selector: ['.h-captcha', "iframe[src*='hcaptcha.com']", "iframe[title*='hcaptcha' i]"],
-                        visibility: 'visible',
-                    },
-                },
-                fireEvent: { type: 'captcha_hcaptcha' },
-                breakageReportData: {},
-                define: { done: true },
+        match: {
+            element: {
+                selector: ['.h-captcha', "iframe[src*='hcaptcha.com']", "iframe[title*='hcaptcha' i]"],
+                visibility: 'visible',
             },
-        ],
+        },
+        actions: { fireEvent: { type: 'captcha_hcaptcha' }, breakageReportData: {} },
     },
     turnstile: {
         triggers: { auto: { state: 'enabled', when: { intervalMs: [100] } } },
-        actions: [
-            {
-                when: {
-                    element: {
-                        selector: ['.cf-turnstile:not(#turnstile-wrapper)', '.cf-turnstile:not(#turnstile-wrapper) iframe'],
-                        visibility: 'visible',
-                    },
-                },
-                fireEvent: { type: 'captcha_turnstile' },
-                breakageReportData: {},
-                define: { done: true },
+        match: {
+            element: {
+                selector: ['.cf-turnstile:not(#turnstile-wrapper)', '.cf-turnstile:not(#turnstile-wrapper) iframe'],
+                visibility: 'visible',
             },
-        ],
+        },
+        actions: { fireEvent: { type: 'captcha_turnstile' }, breakageReportData: {} },
     },
     cloudflare: {
         triggers: { auto: { state: 'enabled', when: { intervalMs: [100] } } },
-        actions: [
-            {
-                when: {
-                    element: {
-                        selector: [
-                            '#challenge-form',
-                            '#cf-wrapper',
-                            '.cf-browser-verification',
-                            '#challenge-running',
-                            '#cf-challenge-running',
-                            '#challenge-stage',
-                        ],
-                        visibility: 'visible',
-                    },
-                },
-                fireEvent: { type: 'captcha_cloudflare' },
-                breakageReportData: {},
-                define: { done: true },
+        match: {
+            element: {
+                selector: [
+                    '#challenge-form',
+                    '#cf-wrapper',
+                    '.cf-browser-verification',
+                    '#challenge-running',
+                    '#cf-challenge-running',
+                    '#challenge-stage',
+                ],
+                visibility: 'visible',
             },
-        ],
+        },
+        actions: { fireEvent: { type: 'captcha_cloudflare' }, breakageReportData: {} },
     },
     other: {
         triggers: { auto: { state: 'enabled', when: { intervalMs: [100] } } },
-        actions: [
-            {
-                when: {
-                    text: {
-                        pattern: [
-                            'press (and|&) hold to (confirm|verify)',
-                            'slide( right)? to (verify|complete)',
-                            'complete the security check to (access|continue)',
-                        ],
-                    },
-                },
-                fireEvent: { type: 'captcha_other' },
-                breakageReportData: {},
-                define: { done: true },
+        match: {
+            text: {
+                pattern: [
+                    'press (and|&) hold to (confirm|verify)',
+                    'slide( right)? to (verify|complete)',
+                    'complete the security check to (access|continue)',
+                ],
             },
-        ],
+        },
+        actions: { fireEvent: { type: 'captcha_other' }, breakageReportData: {} },
     },
 };
 
@@ -110,32 +80,15 @@ const CAPTCHA_DETECTORS = {
  */
 const XPATH_DETECTORS = {
     rendered_text: {
-        actions: [
-            {
-                when: {
-                    text: {
-                        pattern: ['ad ?block(er)? detected'],
-                        xpath: '//body//text()[not(ancestor::script) and not(ancestor::style) and not(ancestor::template) and not(ancestor::noscript)]',
-                    },
-                },
-                breakageReportData: {},
-                define: { done: true },
+        match: {
+            text: {
+                pattern: ['ad ?block(er)? detected'],
+                xpath: '//body//text()[not(ancestor::script) and not(ancestor::style) and not(ancestor::template) and not(ancestor::noscript)]',
             },
-        ],
+        },
+        actions: { breakageReportData: {} },
     },
 };
-
-/**
- * What an auto run of a one-item detector found, from its item outcomes: `true` when the item ran, its
- * failure when it failed, else `false`.
- *
- * @param {string[] | undefined} items
- * @returns {boolean | 'error' | 'aborted'}
- */
-function detectedOf(items = []) {
-    if (items.includes('ran')) return true;
-    return /** @type {'error' | 'aborted' | undefined} */ (items.find((outcome) => outcome === 'error' || outcome === 'aborted')) ?? false;
-}
 
 /**
  * Helper class for web-detection tests.
@@ -195,7 +148,7 @@ class WebDetectionTestHelper {
             const payload = /** @type {import("@duckduckgo/messaging").NotificationMessage} */ (m.payload);
             return {
                 detectorId: payload.params?.detectorId || '',
-                detected: detectedOf(payload.params?.items),
+                detected: payload.params?.match ?? false,
                 timestamp: payload.params?.timestamp || 0,
             };
         });
@@ -234,7 +187,7 @@ class WebDetectionTestHelper {
     static async setupFireEventTest(page, projectUse, configModifier) {
         const config = JSON.parse(readFileSync(CONFIG, 'utf8'));
         config.features.webEvents = { state: 'enabled', hash: 'test', exceptions: [] };
-        config.features.webDetection.settings.detectors.autorun.basic_auto.actions[0].fireEvent = { type: 'adwall' };
+        config.features.webDetection.settings.detectors.autorun.basic_auto.actions.fireEvent = { type: 'adwall' };
         if (configModifier) configModifier(config);
 
         const collector = ResultsCollector.create(page, projectUse);
@@ -546,7 +499,7 @@ test.describe('WebDetection Feature', () => {
             // Fast-forward timers (content is added at 150ms)
             await page.clock.fastForward(100); // First run - no match yet
             await page.clock.fastForward(100); // Now at 200ms - content added, second run matches
-            await page.clock.fastForward(100); // Now at 300ms - skipped, since the match defined `done`
+            await page.clock.fastForward(100); // Now at 300ms - skipped, since `match` held and the detector is done
 
             const notifications = await helper.getAutoRunNotifications();
 
@@ -658,9 +611,9 @@ test.describe('WebDetection Feature', () => {
             expect(webEvents.length).toBe(0);
         });
 
-        test('does not send webEvent when the item has no fireEvent', async ({ page }, testInfo) => {
+        test('does not send webEvent when the actions hold no fireEvent', async ({ page }, testInfo) => {
             const { helper } = await WebDetectionTestHelper.setupFireEventTest(page, testInfo.project.use, (config) => {
-                delete config.features.webDetection.settings.detectors.autorun.basic_auto.actions[0].fireEvent;
+                delete config.features.webDetection.settings.detectors.autorun.basic_auto.actions.fireEvent;
             });
             await helper.navigateTo('/web-detection/pages/auto-run-basic.html');
 
@@ -686,7 +639,7 @@ test.describe('WebDetection Feature', () => {
                 config.features.webDetection.settings.conditionalChanges = [
                     {
                         domain: 'localhost',
-                        patchSettings: [{ op: 'remove', path: '/detectors/autorun/basic_auto/actions/0/fireEvent' }],
+                        patchSettings: [{ op: 'remove', path: '/detectors/autorun/basic_auto/actions/fireEvent' }],
                     },
                 ];
             });
@@ -702,13 +655,11 @@ test.describe('WebDetection Feature', () => {
         test('sends webEvent when fireEvent is added on this site via conditionalChanges', async ({ page }, testInfo) => {
             const { helper } = await WebDetectionTestHelper.setupFireEventTest(page, testInfo.project.use, (config) => {
                 // Start without fireEvent, and add it on localhost
-                delete config.features.webDetection.settings.detectors.autorun.basic_auto.actions[0].fireEvent;
+                delete config.features.webDetection.settings.detectors.autorun.basic_auto.actions.fireEvent;
                 config.features.webDetection.settings.conditionalChanges = [
                     {
                         domain: 'localhost',
-                        patchSettings: [
-                            { op: 'add', path: '/detectors/autorun/basic_auto/actions/0/fireEvent', value: { type: 'adwall' } },
-                        ],
+                        patchSettings: [{ op: 'add', path: '/detectors/autorun/basic_auto/actions/fireEvent', value: { type: 'adwall' } }],
                     },
                 ];
             });
@@ -773,7 +724,7 @@ test.describe('WebDetection Feature', () => {
             await page.clock.fastForward(300);
 
             const webEvents = await helper.getWebEventNotifications();
-            // The item defines `done`: only 1 webEvent despite 3 intervals
+            // `match` held, so the detector is done: only 1 webEvent despite 3 intervals
             expect(webEvents.length).toBe(1);
             expect(webEvents[0].type).toBe('adwall');
         });

@@ -5,7 +5,7 @@ import { timeDetector } from './detector-perf.js';
 import { parseDetectors } from './web-detection/parse.js';
 import { EvaluationContext } from './web-detection/expressions.js';
 import { NativeReader } from './web-detection/predicates.js';
-import { breakageEntry, createDetectorState, definedScalars, runActions } from './web-detection/actions.js';
+import { breakageEntry, createDetectorState, detectorNameScalars, runDetector } from './web-detection/actions.js';
 
 /**
  * @typedef {import('./web-detection/parse.js').DetectorConfig} DetectorConfig
@@ -98,7 +98,7 @@ export default class WebDetection extends ContentFeature {
     }
 
     /**
-     * Run one detector's action items, unless it is done, then send the events its items fired.
+     * Run one detector, unless it is done, then send the events its actions fired.
      *
      * @param {DetectorEntry} detector
      * @param {RunDetectionOptions} options
@@ -108,29 +108,26 @@ export default class WebDetection extends ContentFeature {
         const state = this._stateOf(detectorId);
         if (state.done || 'error' in compiled) return;
 
-        const ctx = new EvaluationContext(this._reader, state.defined);
-        /** @type {Array<{ type: string, data?: PayloadData }>} */
-        const events = [];
-        const run = () =>
-            runActions(compiled, state, ctx, (type, data) => {
-                events.push({ type, ...(data && { data }) });
-            });
-        // A run in which an item errored is a failed run
+        const ctx = new EvaluationContext(this._reader, state.names, state);
+        const run = () => runDetector(compiled, state, ctx);
+        // A run that errored is a failed run
         const result = this.#detectorPerfEnabled ? timeDetector(this, groupName, run, detectorId, (r) => r.error !== undefined) : run();
 
+        // Sent after the run, those before a failure included
+        const events = ctx.events;
         for (const event of events) void this._executeFireEvent(event.type, event.data);
         if (state.done) this._cancelFinishedTimers();
 
-        // Debug notification for integration tests, for a run in which an item ran or failed
-        if (this.isDebug && options.trigger === 'auto' && result.outcomes.some((outcome) => outcome !== 'skipped')) {
+        // Debug notification for integration tests, for a run in which `match` held or failed, or of a detector with no `match`
+        if (this.isDebug && options.trigger === 'auto' && result.match !== false) {
             try {
                 this.messaging?.notify('webDetectionAutoRun', {
                     detectorId,
                     timestamp: Date.now(),
-                    items: result.outcomes,
-                    ...(result.endedAt !== undefined && { endedAt: result.endedAt }),
+                    ...(result.match !== undefined && { match: result.match }),
+                    actions: result.actions,
                     ...(result.failedAt && { failedAt: result.failedAt }),
-                    defined: definedScalars(state),
+                    names: detectorNameScalars(state),
                     measured: ctx.measured,
                     events,
                     ...(result.abortError && { abortError: result.abortError }),
