@@ -388,6 +388,72 @@ test.describe('omnibar tab attachment', () => {
         await expect(omnibar.chatInput()).toHaveAttribute('aria-activedescendant', firstOptionId ?? '');
     });
 
+    test('Tab attaches the highlighted tab from the @-mention picker', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({
+            additional: { 'omnibar.mode': 'ai', 'omnibar.enableAttachTabs': 'true', 'omnibar.selectedModelId': 'openai_gpt-oss-120b' },
+        });
+        await omnibar.ready();
+
+        await omnibar.chatInput().click();
+        await omnibar.chatInput().pressSequentially('Summarize @star');
+        await expect(omnibar.mentionOption('Starbucks Coffee Company')).toBeVisible();
+        await page.keyboard.press('Tab');
+
+        await omnibar.expectChatValue('Summarize ');
+        await expect(omnibar.tabChip()).toHaveCount(1);
+        await expect(omnibar.mentionPicker()).toHaveCount(0);
+        await expect(omnibar.chatInput()).toBeFocused();
+    });
+
+    test('Tab still moves focus when the @-mention picker has no matches', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({
+            additional: { 'omnibar.mode': 'ai', 'omnibar.enableAttachTabs': 'true', 'omnibar.selectedModelId': 'openai_gpt-oss-120b' },
+        });
+        await omnibar.ready();
+
+        await omnibar.chatInput().click();
+        await omnibar.chatInput().pressSequentially('@zzznomatch');
+        await expect(omnibar.mentionPicker().getByText('No matching tabs')).toBeVisible();
+        await page.keyboard.press('Tab');
+
+        await expect(omnibar.chatInput()).not.toBeFocused();
+        await expect(omnibar.tabChip()).toHaveCount(0);
+    });
+
+    test('a usage limit that freezes the input closes the @-mention picker', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({
+            additional: { 'omnibar.mode': 'ai', 'omnibar.enableAttachTabs': 'true', 'omnibar.selectedModelId': 'openai_gpt-oss-120b' },
+        });
+        await omnibar.ready();
+
+        await omnibar.chatInput().click();
+        await omnibar.chatInput().pressSequentially('@star');
+        await expect(omnibar.mentionOption('Starbucks Coffee Company')).toBeVisible();
+
+        await omnibar.didReceiveConfig({
+            mode: 'ai',
+            enableAi: true,
+            enableAttachTabs: true,
+            selectedModelId: 'openai_gpt-oss-120b',
+            usageLimits: { message: 'Weekly limit reached', blocksPrompt: true, dismissible: true },
+        });
+        await expect(omnibar.chatInput()).toHaveAttribute('readonly');
+        await expect(omnibar.mentionPicker()).toHaveCount(0);
+
+        await omnibar.chatInput().focus();
+        await page.keyboard.press('Enter');
+        await page.keyboard.press('Tab');
+
+        await omnibar.expectChatValue('@star');
+        await expect(omnibar.tabChip()).toHaveCount(0);
+    });
+
     test('a very long tab title is cropped instead of widening either picker', async ({ page }, workerInfo) => {
         const { ntp, omnibar } = setup(page, workerInfo);
         await ntp.reducedMotion();

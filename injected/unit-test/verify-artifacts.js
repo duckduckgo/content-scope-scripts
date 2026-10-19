@@ -1,5 +1,6 @@
 import { join, relative } from 'node:path';
-import { readFileSync, statSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
+import { transformSync } from 'esbuild';
 import { cwd } from '../../scripts/script-utils.js';
 
 // path helpers
@@ -7,6 +8,16 @@ const ROOT = join(cwd(import.meta.url), '..', '..');
 console.log(ROOT);
 const BUILD = join(ROOT, 'build');
 const APPLE_BUILD = join(ROOT, 'Sources/ContentScopeScripts/dist');
+
+/**
+ * The size limit applies to code, not to the shipped file: the bundle is measured with whitespace minified and all
+ * comments removed, including legal ones. Shipped bundles are not minified.
+ *
+ * @param {string} file
+ */
+function minifiedForSizeCheck(file) {
+    return transformSync(readFileSync(file, 'utf8'), { minifyWhitespace: true, legalComments: 'none' }).code;
+}
 
 let CSS_OUTPUT_SIZE = 920_000;
 if (process.platform === 'win32') {
@@ -63,9 +74,9 @@ describe('checks', () => {
         for (const check of platformChecks.tests) {
             const localPath = relative(ROOT, platformChecks.file);
             if (check.kind === 'maxFileSize') {
-                it(`${platformName} bundle size: '${localPath}' is smaller than ${check.value}`, () => {
-                    const stats = statSync(platformChecks.file);
-                    expect(stats.size).withContext('Contact a code owner to discuss a bundle size test failure').toBeLessThan(check.value);
+                it(`${platformName} bundle size: '${localPath}' is smaller than ${check.value} without comments or whitespace`, () => {
+                    const size = Buffer.byteLength(minifiedForSizeCheck(platformChecks.file));
+                    expect(size).withContext('Contact a code owner to discuss a bundle size test failure').toBeLessThan(check.value);
                 });
             }
             if (check.kind === 'containsString') {

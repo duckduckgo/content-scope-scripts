@@ -88,6 +88,8 @@ describe('test-pages/*/config/*.json schema validation', () => {
         path.resolve(__dirname, '../integration-test/test-pages/ua-ch-brands/config/domain-brand-override-legacy.json'),
         // Uses fireDetectionEvents which is not yet in the published schema
         path.resolve(__dirname, '../integration-test/test-pages/web-interference-detection/config/youtube-detection-events.json'),
+        // Includes an xpath promoSelectors entry on purpose, to test that it is dropped; the schema allows css only
+        path.resolve(__dirname, '../integration-test/test-pages/chrome-webstore-patching/config/config-promo-unusable-entries.json'),
     ];
     for (const configPath of configFiles) {
         if (legacyAllowlist.includes(configPath)) {
