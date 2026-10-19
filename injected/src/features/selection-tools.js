@@ -1,0 +1,330 @@
+import ContentFeature from '../content-feature.js';
+import { isBeingFramed } from '../utils.js';
+import { ASK_ACTION_ID, contextMenuActions, directParameter, optionsFor, rankActions, splitForToolbar } from './selection-tools/actions.js';
+import { classify, primaryLanguage } from './selection-tools/classify.js';
+import { isInCode, isInTopLayer, isSelectionCollapsed, markedLanguageOf, readSelection } from './selection-tools/selection.js';
+import { SelectionToolbar } from './selection-tools/toolbar.js';
+// Bundled by scripts/buildLocales.js from src/locales/selection-tools/
+import localesJSON from '../../../build/locales/selection-tools-locales.js';
+
+/**
+ * @typedef {import('../types/selection-tools.js').SelectionAction} SelectionAction
+ * @typedef {import('../types/selection-tools.js').ActionRequestedParams} ActionRequestedParams
+ * @typedef {import('./selection-tools/selection.js').SelectionSnapshot} SelectionSnapshot
+ * @typedef {import('./selection-tools/classify.js').SelectionContext} SelectionContext
+ * @typedef {import('./selection-tools/toolbar.js').ToolbarModel} ToolbarModel
+ * @typedef {import('./selection-tools/toolbar.js').ToolbarStrings} ToolbarStrings
+ *
+ * @typedef {object} Config SelectionToolsConfig with its defaults filled in
+ * @property {boolean} enabled
+ * @property {boolean} showToolbar
+ * @property {boolean} startCollapsed
+ * @property {string} userLanguage
+ * @property {SelectionAction[]} actions
+ */
+
+/** @type {Record<string, Record<string, Record<string, string>>>} locale → file → key → string */
+const STRINGS = JSON.parse(localesJSON);
+const STRINGS_FILE = 'selection-tools-strings.json';
+/** @type {(keyof ToolbarStrings)[]} */
+const STRING_KEYS = ['toolbarLabel', 'ask', 'more', 'hideTools', 'openSettings', 'sent'];
+
+const DEFAULT_MAX_VISIBLE_ACTIONS = 5;
+const DEFAULT_MIN_CHARS = 2;
+
+/**
+ * Duck.ai actions for selected text: a toolbar over the selection, and the actions that fit it for the native context
+ * menu. Native owns the action catalog, runs the actions and decides whether the tools are on (initialSetup).
+ * Top frame only.
+ */
+export default class SelectionTools extends ContentFeature {
+    /** @type {Config | null} */
+    _config = null;
+
+    /** @type {Promise<Config | null> | null} */
+    _pendingConfig = null;
+
+    /** @type {SelectionToolbar | null} */
+    _toolbar = null;
+
+    /** @type {string | null} the text the toolbar is showing for */
+    _shownText = null;
+
+    _maxVisibleActions = DEFAULT_MAX_VISIBLE_ACTIONS;
+    _minChars = DEFAULT_MIN_CHARS;
+    _locale = 'en';
+    _repositionFrame = 0;
+
+    /** @param {any} [args] */
+    init(args) {
+        if (isBeingFramed()) return;
+        this._locale = primaryLanguage(args?.locale) ?? 'en';
+        const maxVisible = this.getFeatureSetting('maxVisibleActions');
+        if (typeof maxVisible === 'number' && maxVisible >= 1) this._maxVisibleActions = Math.floor(maxVisible);
+        const minChars = this.getFeatureSetting('minChars');
+        if (typeof minChars === 'number' && minChars >= 1) this._minChars = Math.floor(minChars);
+
+        this.subscribe('selectionToolsConfigChanged', (value) => {
+            const config = toConfig(value);
+            if (!config) return;
+            this._config = config;
+            if (!config.enabled || !config.showToolbar) this._hide();
+        });
+        void this._getConfig();
+
+        for (const type of ['mousedown', 'mouseup', 'keyup', 'contextmenu']) {
+            document.addEventListener(type, this, true);
+        }
+        document.addEventListener('selectionchange', this);
+        window.addEventListener('keydown', this, true);
+        window.addEventListener('scroll', this, { capture: true, passive: true });
+        window.addEventListener('resize', this);
+    }
+
+    /** @param {Event} event */
+    handleEvent(event) {
+        if (this._toolbar?.contains(event)) return;
+        switch (event.type) {
+            case 'mousedown':
+                // A right-click leaves the toolbar to the contextmenu handler, which shrinks it rather than hiding it.
+                if (/** @type {MouseEvent} */ (event).button !== 2) this._hide();
+                break;
+            case 'mouseup':
+                // Only a primary-button release can finish a selection. The selection settles after mouseup.
+                if (/** @type {MouseEvent} */ (event).button === 0)
+                    setTimeout(() => {
+                        void this._refresh();
+                    }, 0);
+                break;
+            case 'keyup': {
+                const key = /** @type {KeyboardEvent} */ (event);
+                const selectAll = (key.ctrlKey || key.metaKey) && key.key.toLowerCase() === 'a';
+                if (key.shiftKey || key.key === 'Shift' || selectAll) void this._refresh();
+                break;
+            }
+            case 'contextmenu':
+                void this._contextMenu();
+                break;
+            case 'selectionchange':
+                if (this._toolbar?.isShowing && !this._toolbar.isMenuOpen && isSelectionCollapsed()) this._hide();
+                break;
+            case 'keydown':
+                if (/** @type {KeyboardEvent} */ (event).key === 'Escape') this._hide();
+                break;
+            case 'scroll':
+            case 'resize':
+                this._scheduleReposition();
+                break;
+        }
+    }
+
+    /**
+     * Asked once at start-up, then kept current by selectionToolsConfigChanged. If that request fails, the next
+     * selection asks again. Callers at the same time share one request.
+     * @returns {Promise<Config | null>}
+     */
+    async _getConfig() {
+        if (this._config) return this._config;
+        if (this._pendingConfig) return this._pendingConfig;
+        this._pendingConfig = this._fetchConfig();
+        try {
+            return await this._pendingConfig;
+        } finally {
+            this._pendingConfig = null;
+        }
+    }
+
+    /** @returns {Promise<Config | null>} */
+    async _fetchConfig() {
+        try {
+            // A push that arrived while this was pending is newer.
+            this._config ??= toConfig(await this.request('initialSetup', {}));
+        } catch {
+            // A request made while the browser is starting can fail; the next selection asks again.
+        }
+        return this._config;
+    }
+
+    async _refresh() {
+        const snapshot = readSelection(this._minChars);
+        if (!snapshot) {
+            if (!this._toolbar?.isMenuOpen) this._hide();
+            return;
+        }
+        const config = await this._getConfig();
+        // The user may have moved on while native answered.
+        if (readSelection(this._minChars)?.text !== snapshot.text) return;
+        this._offer(config, snapshot, true);
+    }
+
+    /**
+     * @param {Config | null} config
+     * @param {SelectionSnapshot} snapshot
+     * @param {boolean} expanded
+     */
+    _offer(config, snapshot, expanded) {
+        if (!config?.enabled || !config.showToolbar || isInTopLayer(snapshot.element)) {
+            this._hide();
+            return;
+        }
+        const toolbar = this._ensureToolbar();
+        if (toolbar.isShowing && this._shownText === snapshot.text) {
+            // The same selection reported again (a Shift key-up, say) keeps the toolbar as it is.
+            toolbar.track(snapshot.bounds);
+            if (!expanded) toolbar.collapse();
+            return;
+        }
+        const context = this._contextOf(config, snapshot);
+        const ranked = rankActions(config.actions, context, snapshot.editable);
+        this._shownText = snapshot.text;
+        toolbar.show(this._model(snapshot, context, ranked), snapshot.bounds, { expanded: expanded && !config.startCollapsed });
+        this.addDebugFlag();
+    }
+
+    /**
+     * The native menu has the same actions, so the toolbar shrinks to its chip while the menu is open. Covers
+     * right-click as well as the Menu key and Shift+F10. The report goes out within the event when the config is
+     * already known, so native has it as early as possible.
+     */
+    async _contextMenu() {
+        const snapshot = readSelection(this._minChars);
+        if (!snapshot) {
+            this._hide();
+            if (this._config?.enabled) this.notify('contextMenuOpened', { text: '', actions: [] });
+            return;
+        }
+        const config = this._config ?? (await this._getConfig());
+        if (!config?.enabled) {
+            this._hide();
+            return;
+        }
+        const context = this._contextOf(config, snapshot);
+        const ranked = rankActions(config.actions, context, snapshot.editable);
+        const sourceLanguage = markedLanguageOf(snapshot.element);
+        this.notify('contextMenuOpened', {
+            text: snapshot.text,
+            ...(sourceLanguage ? { sourceLanguage } : {}),
+            actions: contextMenuActions(ranked, context),
+        });
+        this._offer(config, snapshot, false);
+    }
+
+    /**
+     * @param {Config} config
+     * @param {SelectionSnapshot} snapshot
+     * @returns {SelectionContext}
+     */
+    _contextOf(config, snapshot) {
+        return classify(snapshot.text, {
+            userLanguage: config.userLanguage,
+            inCodeElement: isInCode(snapshot.element),
+            markedLanguage: markedLanguageOf(snapshot.element),
+        });
+    }
+
+    /**
+     * @param {SelectionSnapshot} snapshot
+     * @param {SelectionContext} context
+     * @param {SelectionAction[]} ranked
+     * @returns {ToolbarModel}
+     */
+    _model(snapshot, context, ranked) {
+        const items = ranked.map((action) => ({
+            label: action.label,
+            icon: action.icon,
+            choices: optionsFor(action, context).map((option) => ({
+                label: option.label,
+                run: () => this._requestAction(snapshot, action, option.value),
+            })),
+            run: () => this._requestAction(snapshot, action, directParameter(action, context)),
+        }));
+        const { visible, overflow } = splitForToolbar(items, this._maxVisibleActions);
+        return {
+            visible,
+            overflow,
+            ask: () => this._requestAction(snapshot, null),
+            hideTools: () => {
+                this.notify('hideSelectionTools', {});
+                // Native turns the setting off and pushes the change; until then, hide locally.
+                if (this._config) this._config = { ...this._config, showToolbar: false };
+                this._hide();
+            },
+            openSettings: () => {
+                this.notify('openAiSettings', {});
+                this._toolbar?.collapse();
+            },
+        };
+    }
+
+    /**
+     * @param {SelectionSnapshot} snapshot
+     * @param {SelectionAction | null} action null for Ask
+     * @param {string} [parameter]
+     */
+    _requestAction(snapshot, action, parameter) {
+        /** @type {ActionRequestedParams} */
+        const params = { actionId: action?.id ?? ASK_ACTION_ID, text: snapshot.text };
+        if (parameter !== undefined) params.parameter = parameter;
+        if (action?.parameter?.kind === 'language') {
+            const sourceLanguage = markedLanguageOf(snapshot.element);
+            if (sourceLanguage) params.sourceLanguage = sourceLanguage;
+        }
+        this.notify('actionRequested', params);
+    }
+
+    _ensureToolbar() {
+        if (!this._toolbar) {
+            this._toolbar = new SelectionToolbar({ strings: this._strings(), testMode: this.isDebug });
+        }
+        return this._toolbar;
+    }
+
+    _hide() {
+        this._shownText = null;
+        this._toolbar?.hide();
+    }
+
+    _scheduleReposition() {
+        if (!this._toolbar?.isShowing) return;
+        cancelAnimationFrame(this._repositionFrame);
+        this._repositionFrame = requestAnimationFrame(() => this._toolbar?.reposition());
+    }
+
+    /**
+     * The bundled locale, then bundled English.
+     * @returns {ToolbarStrings}
+     */
+    _strings() {
+        const localized = STRINGS[this._locale]?.[STRINGS_FILE] ?? {};
+        const english = STRINGS.en?.[STRINGS_FILE] ?? {};
+        return /** @type {ToolbarStrings} */ (Object.fromEntries(STRING_KEYS.map((key) => [key, localized[key] ?? english[key] ?? ''])));
+    }
+}
+
+/**
+ * Only the fields this feature knows, so nothing native adds is passed on.
+ * @param {unknown} value
+ * @returns {Config | null}
+ */
+function toConfig(value) {
+    if (typeof value !== 'object' || value === null) return null;
+    const { enabled, showToolbar, startCollapsed, userLanguage, actions } = /** @type {Record<string, unknown>} */ (value);
+    if (typeof enabled !== 'boolean' || !Array.isArray(actions) || !actions.every(isAction)) return null;
+    return {
+        enabled,
+        showToolbar: showToolbar === true,
+        startCollapsed: startCollapsed === true,
+        userLanguage: typeof userLanguage === 'string' ? userLanguage : 'en',
+        actions,
+    };
+}
+
+/**
+ * @param {unknown} value
+ * @returns {value is SelectionAction}
+ */
+function isAction(value) {
+    if (typeof value !== 'object' || value === null) return false;
+    const action = /** @type {Record<string, unknown>} */ (value);
+    return typeof action.id === 'string' && action.id !== ASK_ACTION_ID && typeof action.label === 'string';
+}

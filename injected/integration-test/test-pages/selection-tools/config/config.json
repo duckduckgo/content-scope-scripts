@@ -1,0 +1,12 @@
+{
+    "readme": "Test fixture for the selectionTools feature.",
+    "version": 1,
+    "features": {
+        "selectionTools": {
+            "state": "enabled",
+            "exceptions": [],
+            "settings": {}
+        }
+    },
+    "unprotectedTemporary": []
+}
