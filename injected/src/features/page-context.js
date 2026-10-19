@@ -784,7 +784,7 @@ export default class PageContext extends ContentFeature {
         const candidates = document.querySelectorAll(selector);
         const first = candidates[0] ?? null;
         if (!first || !this.getFeatureSettingEnabled('mainContentFallback', 'enabled')) {
-            return first;
+            return first && first.innerHTML.trim().length > (this.getFeatureSetting('mainContentLength') || 100) ? first : null;
         }
 
         const bodyTextLength = document.body?.innerText.length ?? 0;

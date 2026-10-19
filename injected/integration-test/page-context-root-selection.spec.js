@@ -3,15 +3,17 @@ import { ResultsCollector } from './page-objects/results-collector.js';
 
 const PAGES = '/page-context/pages/root-selection';
 const CONFIG = './integration-test/test-pages/page-context/config/page-context.json';
+const FALLBACK_DISABLED_CONFIG = './integration-test/test-pages/page-context/config/page-context-fallback-disabled.json';
 
 /**
  * @param {import('@playwright/test').Page} page
  * @param {import('@playwright/test').TestInfo} testInfo
  * @param {string} html
+ * @param {string} [config]
  */
-async function collect(page, testInfo, html) {
+async function collect(page, testInfo, html, config = CONFIG) {
     const collector = ResultsCollector.create(page, testInfo.project.use);
-    await collector.load(html, CONFIG);
+    await collector.load(html, config);
     const [message] = await collector.waitForMessage('collectionResult', 1);
     const params = /** @type {{ serializedPageData: string }} */ (message.payload.params);
     return JSON.parse(params.serializedPageData);
@@ -112,5 +114,10 @@ test.describe('page-context root selection', () => {
         const result = await collect(page, testInfo, `${PAGES}/partial-main.html`);
         expect(result.content).toContain('City opens new public library');
         expect(result.content).toContain('two more branches in the northern districts');
+    });
+
+    test('uses the body for a tiny first match when the fallback is off', async ({ page }, testInfo) => {
+        const result = await collect(page, testInfo, `${PAGES}/tiny-first-match.html`, FALLBACK_DISABLED_CONFIG);
+        expect(result.content).toContain('Market square gets new trees');
     });
 });
