@@ -783,13 +783,14 @@ export default class PageContext extends ContentFeature {
         const selector = this.getFeatureSetting('mainContentSelector') || 'main, article, .content, .main, #content, #main';
         const candidates = document.querySelectorAll(selector);
         const first = candidates[0] ?? null;
+        const minMainContentLength = this.getFeatureSetting('mainContentLength') || 100;
         if (!first || !this.getFeatureSettingEnabled('mainContentFallback', 'enabled')) {
-            return first && first.innerHTML.trim().length > (this.getFeatureSetting('mainContentLength') || 100) ? first : null;
+            return first && first.innerHTML.trim().length > minMainContentLength ? first : null;
         }
 
         const bodyTextLength = document.body?.innerText.length ?? 0;
         const firstLength = first instanceof HTMLElement ? first.innerText.length : 0;
-        const firstIsUsable = isRendered(first) && firstLength > (this.getFeatureSetting('mainContentLength') || 100);
+        const firstIsUsable = isRendered(first) && firstLength > minMainContentLength;
         if (!firstIsUsable) {
             return selectLargestVisibleRoot(candidates, {
                 bodyTextLength,
