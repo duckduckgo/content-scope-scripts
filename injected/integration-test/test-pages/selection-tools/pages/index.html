@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Selection tools</title>
+        <style>
+            body {
+                font: 16px/1.5 system-ui, sans-serif;
+                max-width: 640px;
+                margin: 120px auto;
+            }
+        </style>
+    </head>
+    <body>
+        <p id="english">The quick brown fox jumps over the lazy dog and runs into the forest.</p>
+        <p id="spanish" lang="es">El perro de la casa es muy grande y le gusta correr por el parque.</p>
+        <p>A single <span id="word">serendipity</span> here.</p>
+        <pre id="code">const answer = () => { return 42; };</pre>
+        <textarea id="field">This sentence have a grammar mistake in it.</textarea>
+        <input id="password" type="password" value="hunter2hunter2" />
+        <button id="open-dialog" type="button">Open dialog</button>
+        <dialog id="dialog">
+            <p id="in-dialog">Text inside a modal dialog that the toolbar would sit behind.</p>
+        </dialog>
+        <script>
+            document.getElementById('open-dialog').addEventListener('click', () => document.getElementById('dialog').showModal());
+        </script>
+    </body>
+</html>

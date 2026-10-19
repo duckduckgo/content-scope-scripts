@@ -26,6 +26,7 @@ export default defineConfig({
                 'integration-test/page-type-signals.spec.js',
                 'integration-test/page-context-root-selection.spec.js',
                 'integration-test/chrome-webstore-patching.spec.js',
+                'integration-test/selection-tools.spec.js',
             ],
             use: { injectName: 'windows', platform: 'windows' },
         },
