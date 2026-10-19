@@ -15448,13 +15448,21 @@
   });
 
   // pages/new-tab/app/omnibar/components/useTermsDisclaimerNotice.js
+  function useTermsButtonLabel() {
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {Strings} */
+      {}
+    );
+    const { imageGenerationActive } = useActiveTools();
+    return imageGenerationActive ? t4("omnibar_termsCreateButtonLabel") : t4("omnibar_termsAskButtonLabel");
+  }
   function useTermsDisclaimerNotice() {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {Strings} */
       {}
     );
     const { state, openPrivacyTerms } = x2(OmnibarContext);
-    const { imageGenerationActive } = useActiveTools();
+    const buttonLabel = useTermsButtonLabel();
     if (state.config?.requiresAiTermsAcceptance !== true) return null;
     const onLinkClick = (event) => {
       event.preventDefault();
@@ -15467,7 +15475,7 @@
       secondaryText: /* @__PURE__ */ k(
         Trans,
         {
-          str: imageGenerationActive ? t4("omnibar_termsDisclaimerCreate") : t4("omnibar_termsDisclaimerAsk"),
+          str: t4("omnibar_termsDisclaimerAgree", { actionLabel: buttonLabel }),
           values: { a: { href: "#", class: NoticeDrawer_default.link, click: onLinkClick, auxclick: onLinkClick } }
         }
       ),
@@ -16286,7 +16294,7 @@
       handleVoiceSubmit(eventToTarget2(event, platformName));
     };
     const showRecentChats = enableRecentAiChats && !imageGenerationActive && !mention.pickerActive;
-    const termsButtonLabel = imageGenerationActive ? t4("omnibar_termsCreateButtonLabel") : t4("omnibar_termsAskButtonLabel");
+    const termsButtonLabel = useTermsButtonLabel();
     return /* @__PURE__ */ k(
       "div",
       {
@@ -37967,15 +37975,11 @@
     },
     omnibar_termsDisclaimerAnonymized: {
       title: "DuckDuckGo anonymizes your chats.",
-      description: "First line of the Duck.ai terms disclaimer shown under the Duck.ai chat input until the user accepts Duck.ai's terms. Followed on the next line by omnibar_termsDisclaimerAsk or omnibar_termsDisclaimerCreate."
+      description: "First line of the Duck.ai terms disclaimer shown under the Duck.ai chat input until the user accepts Duck.ai's terms. Followed on the next line by omnibar_termsDisclaimerAgree."
     },
-    omnibar_termsDisclaimerAsk: {
-      title: "By clicking 'Ask' you agree to our <a>Privacy Policy and Terms of Service</a>.",
-      description: "Second line of the Duck.ai terms disclaimer, shown below omnibar_termsDisclaimerAnonymized. 'Ask' must match the omnibar_termsAskButtonLabel button label. The <a> tag is a link to the Privacy Policy and Terms of Service page, please preserve it."
-    },
-    omnibar_termsDisclaimerCreate: {
-      title: "By clicking 'Create' you agree to our <a>Privacy Policy and Terms of Service</a>.",
-      description: "Second line of the Duck.ai terms disclaimer in image creation mode, shown below omnibar_termsDisclaimerAnonymized. 'Create' must match the omnibar_termsCreateButtonLabel button label. The <a> tag is a link to the Privacy Policy and Terms of Service page, please preserve it."
+    omnibar_termsDisclaimerAgree: {
+      title: "By clicking '{actionLabel}' you agree to our <a>Privacy Policy and Terms of Service</a>.",
+      note: "Second line of the Duck.ai terms disclaimer, shown below omnibar_termsDisclaimerAnonymized. {actionLabel} is replaced with the label of the send button: omnibar_termsAskButtonLabel ('Ask') for chat, or omnibar_termsCreateButtonLabel ('Create') for image creation. Keep {actionLabel} unchanged, inside your language's quotation marks. The <a> tag is a link to the Privacy Policy and Terms of Service page, please preserve it."
     },
     omnibar_termsAskButtonLabel: {
       title: "Ask",

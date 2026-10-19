@@ -1,2 +1,3 @@
-- Duck.ai: report IndexedDB disabled by Lockdown Mode on Apple platforms (#3111)
-- Measure bundle size without comments or whitespace (#3099)
+- Page context: pick a better content root when the first match is too small (#3108)
+- NTP: one terms disclaimer string for Ask and Create (#3107)
+- NTP omnibar: restore visible Search/Duck.ai track on default backgrounds (#3101)

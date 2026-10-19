@@ -5241,7 +5241,7 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
   }
 }
 body[data-rebrand=true] .TabSwitcher_tabSwitcher {
-  background: var(--ds-input-control-secondary-background-color);
+  background: var(--ds-color-theme-control-fill-primary);
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
