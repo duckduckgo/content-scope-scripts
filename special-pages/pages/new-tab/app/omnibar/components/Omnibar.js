@@ -39,7 +39,7 @@ import { OpenTabsProvider } from './chat-tools/tab-attachment/OpenTabsProvider';
 import { useMentionPicker } from './chat-tools/tab-attachment/useMentionPicker';
 import { useTabAttachments } from './chat-tools/tab-attachment/useTabAttachments';
 import { NoticeDrawer } from './NoticeDrawer';
-import { TERMS_DISCLAIMER_ID } from './useTermsDisclaimerNotice';
+import { TERMS_DISCLAIMER_ID, useTermsButtonLabel } from './useTermsDisclaimerNotice';
 import { useKeyboardFocusWithin } from './useKeyboardFocusWithin.js';
 
 /**
@@ -459,7 +459,7 @@ function AiChatContent({
     };
 
     const showRecentChats = enableRecentAiChats && !imageGenerationActive && !mention.pickerActive;
-    const termsButtonLabel = imageGenerationActive ? t('omnibar_termsCreateButtonLabel') : t('omnibar_termsAskButtonLabel');
+    const termsButtonLabel = useTermsButtonLabel();
 
     return (
         <div
