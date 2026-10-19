@@ -252,14 +252,6 @@ function isExtractable(el, excludeSelectors) {
 }
 
 /**
- * @param {Element} el
- * @returns {number}
- */
-function renderedTextLength(el) {
-    return el instanceof HTMLElement ? el.innerText.length : 0;
-}
-
-/**
  * Pick the eligible candidate with the most text. Returns null when there is none, or when the
  * best one holds less than `minCoverage` of the body's text, so the caller can use the body.
  * @param {ArrayLike<Element>} candidates - in document order
@@ -273,7 +265,7 @@ function renderedTextLength(el) {
  */
 export function selectLargestVisibleRoot(
     candidates,
-    { bodyTextLength, minCoverage, maxCandidates, isEligible, textLength = renderedTextLength },
+    { bodyTextLength, minCoverage, maxCandidates, isEligible, textLength = (el) => (el instanceof HTMLElement ? el.innerText.length : 0) },
 ) {
     /** @type {Element | null} */
     let best = null;
@@ -796,18 +788,18 @@ export default class PageContext extends ContentFeature {
         }
 
         const bodyTextLength = document.body?.innerText.length ?? 0;
-        const firstLength = renderedTextLength(first);
+        const firstLength = first instanceof HTMLElement ? first.innerText.length : 0;
         const firstIsUsable = isRendered(first) && firstLength > (this.getFeatureSetting('mainContentLength') || 100);
         if (!firstIsUsable) {
             return selectLargestVisibleRoot(candidates, {
                 bodyTextLength,
-                minCoverage: this.clampedNumericSetting('minRootCoverage', 0.35, 1),
-                maxCandidates: this.clampedNumericSetting('maxRootCandidates', 100, 1000),
+                minCoverage: this.getFeatureSetting('minRootCoverage') || 0.35,
+                maxCandidates: this.getFeatureSetting('maxRootCandidates') || 100,
                 isEligible: (el) => isExtractable(el, excludeSelectors),
             });
         }
 
-        const minCoverage = this.clampedNumericSetting('minMainContentCoverage', 0.25, 1);
+        const minCoverage = this.getFeatureSetting('minMainContentCoverage') || 0.25;
         return firstLength < bodyTextLength * minCoverage ? null : first;
     }
 
@@ -845,23 +837,9 @@ export default class PageContext extends ContentFeature {
 
     getPageTypeSignals() {
         return extractPageTypeSignals(document, {
-            maxTypes: this.clampedNumericSetting('maxPageTypeSignals', 10, 50),
-            maxBlockLength: this.clampedNumericSetting('maxJsonLdBlockLength', 100000, 1000000),
+            maxTypes: this.getFeatureSetting('maxPageTypeSignals') || 10,
+            maxBlockLength: this.getFeatureSetting('maxJsonLdBlockLength') || 100000,
         });
-    }
-
-    /**
-     * Read a numeric feature setting, clamped to a safe ceiling. Malformed (non-finite) config
-     * falls back to the default rather than producing NaN — which would disable the cap — while an
-     * explicit 0 is still honored.
-     * @param {string} key
-     * @param {number} fallback
-     * @param {number} max
-     * @returns {number}
-     */
-    clampedNumericSetting(key, fallback, max) {
-        const value = this.getFeatureSetting(key);
-        return Math.min(typeof value === 'number' && Number.isFinite(value) ? value : fallback, max);
     }
 
     getImages() {
