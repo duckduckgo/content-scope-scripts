@@ -1,5 +1,5 @@
 import css from './toolbar.css';
-import { ICONS } from './icons.js';
+import { DUCK_AI_LOGO, ICONS } from './icons.js';
 import { menuPosition, submenuPosition, toolbarPosition } from './placement.js';
 
 /**
@@ -68,6 +68,50 @@ function icon(path, className) {
     const shape = document.createElementNS(SVG_NS, 'path');
     shape.setAttribute('d', path);
     svg.append(shape);
+    return svg;
+}
+
+/**
+ * The Duck.ai logo in one colour variant; the stylesheet shows the one for the colour scheme. Its gradient ids are
+ * prefixed and per variant, since both variants are in the shadow root at once.
+ * @param {'light' | 'dark'} variant
+ */
+function duckAiLogo(variant) {
+    const colors = DUCK_AI_LOGO.colors[variant];
+    /** @param {string} name */
+    const id = (name) => `${HOST_TAG}-logo-${variant}-${name}`;
+    const svg = document.createElementNS(SVG_NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 16 16');
+    svg.setAttribute('aria-hidden', 'true');
+    svg.setAttribute('class', `logo logo-${variant}`);
+    const defs = document.createElementNS(SVG_NS, 'defs');
+    for (const { name, y1, y2 } of DUCK_AI_LOGO.gradients) {
+        const gradient = document.createElementNS(SVG_NS, 'linearGradient');
+        for (const [attribute, value] of Object.entries({
+            id: id(name),
+            x1: '8',
+            x2: '8',
+            y1: `${y1}`,
+            y2: `${y2}`,
+            gradientUnits: 'userSpaceOnUse',
+        })) {
+            gradient.setAttribute(attribute, value);
+        }
+        colors[name].forEach((color, offset) => {
+            const stop = document.createElementNS(SVG_NS, 'stop');
+            stop.setAttribute('offset', `${offset}`);
+            stop.setAttribute('stop-color', color);
+            gradient.append(stop);
+        });
+        defs.append(gradient);
+    }
+    svg.append(defs);
+    for (const { fill, d } of DUCK_AI_LOGO.paths) {
+        const shape = document.createElementNS(SVG_NS, 'path');
+        shape.setAttribute('fill', fill === 'base' || fill === 'sparkle' ? colors[fill] : `url(#${id(fill)})`);
+        shape.setAttribute('d', d);
+        svg.append(shape);
+    }
     return svg;
 }
 
@@ -284,7 +328,7 @@ export class SelectionToolbar {
         clearTimeout(this._sentTimer);
         this._collapsed = !expanded;
 
-        const ask = el('button', 'action ask', icon(ICONS.ask));
+        const ask = el('button', 'action ask', duckAiLogo('light'), duckAiLogo('dark'));
         ask.addEventListener('mouseenter', this._closeMenus);
         ask.addEventListener(
             'click',

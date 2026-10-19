@@ -61,6 +61,25 @@ svg {
     stroke-linejoin: round;
 }
 
+/* The Duck.ai logo is filled, not stroked, and comes in a variant per colour scheme. */
+.logo {
+    stroke: none;
+}
+
+.logo-dark {
+    display: none;
+}
+
+@media (prefers-color-scheme: dark) {
+    .logo-light {
+        display: none;
+    }
+
+    .logo-dark {
+        display: block;
+    }
+}
+
 .panel {
     position: fixed;
     left: 0;

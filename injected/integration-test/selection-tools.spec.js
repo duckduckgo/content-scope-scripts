@@ -284,6 +284,19 @@ test.describe('selectionTools', () => {
         expect(await sent(collector, 'initialSetup')).toHaveLength(1);
     });
 
+    test('Ask shows the Duck.ai logo for the colour scheme', async ({ page }, testInfo) => {
+        await setup(page, testInfo);
+        await selectParagraph(page, '#english');
+        const ask = selectionToolbar(page).getByRole('button', { name: 'Ask Duck.ai…' });
+        await expect(ask.locator('svg.logo-light')).toBeVisible();
+        await expect(ask.locator('svg.logo-dark')).toBeHidden();
+
+        await page.emulateMedia({ colorScheme: 'dark' });
+        await expect(ask.locator('svg.logo-dark')).toBeVisible();
+        await expect(ask.locator('svg.logo-light')).toBeHidden();
+        await expect(ask.locator('svg.logo-dark linearGradient')).toHaveCount(3);
+    });
+
     test('ignores clicks made by page script', async ({ page }, testInfo) => {
         const collector = await setup(page, testInfo);
         await selectParagraph(page, '#english');
