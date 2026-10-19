@@ -65,6 +65,12 @@ test.describe('page-context root selection', () => {
         expect(result.content).not.toContain('Annual reports');
     });
 
+    test('skips a larger menu inside a closed details element', async ({ page }, testInfo) => {
+        const result = await collect(page, testInfo, `${PAGES}/closed-details.html`);
+        expect(result.content).toContain('Library extends its opening hours');
+        expect(result.content).not.toContain('Weather');
+    });
+
     test('skips a larger menu inside a transparent overlay', async ({ page }, testInfo) => {
         const result = await collect(page, testInfo, `${PAGES}/transparent-menu.html`);
         expect(result.content).toContain('Bridge reopens after a year of repairs');
