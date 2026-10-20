@@ -28,7 +28,7 @@ interface ImportMeta {
         | 'android-ai-clear';
     trackerLookup?: import('./trackers.js').TrackerNode;
     pageName?: string;
-    // C-S-S release version, or null for unversioned builds
+    // C-S-S release version from the root package.json, or null for unversioned builds
     cssVersion?: string | null;
 }
 
