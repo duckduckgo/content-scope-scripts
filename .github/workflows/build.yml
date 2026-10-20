@@ -109,8 +109,6 @@ jobs:
                   git checkout main -- .
 
             - name: Build release
-              env:
-                  CSS_RELEASE_VERSION: ${{ steps.version.outputs.version }}
               run: |
                   npm ci
                   npm pkg set version="${{ steps.version.outputs.version }}"
