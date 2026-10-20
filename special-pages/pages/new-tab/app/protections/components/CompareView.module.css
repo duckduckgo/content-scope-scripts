@@ -1,0 +1,823 @@
+/* "How Chrome compares": two little browser windows side by side */
+
+.columns {
+    --compare-page: var(--report-popover-bg);
+    --compare-toolbar: var(--ds-color-theme-surface-secondary, var(--color-gray-10));
+    --compare-text: var(--color-gray-20);
+    --compare-heading: var(--color-gray-40);
+    --compare-light: var(--color-gray-30);
+
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 12px;
+
+    & + & {
+        margin-top: 10px;
+    }
+}
+
+[data-theme='dark'] .columns {
+    --compare-text: var(--color-gray-80);
+    --compare-heading: var(--color-gray-70);
+    --compare-light: var(--color-gray-70);
+}
+
+.intro {
+    margin: 0;
+    padding: 8px 0 12px;
+    font-size: 14px;
+    line-height: 20px;
+    text-wrap: pretty;
+
+    b {
+        font-weight: 600;
+    }
+}
+
+.column {
+    min-width: 0;
+}
+
+.window {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow:
+        0 0 0 1px var(--report-divider),
+        0 2px 6px rgba(0, 0, 0, 0.05);
+    background: var(--compare-page);
+}
+
+.toolbar {
+    height: 26px;
+    padding: 0 8px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--compare-toolbar);
+    border-bottom: 1px solid var(--report-divider);
+}
+
+.light {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--compare-light);
+}
+
+.address {
+    flex: 1;
+    min-width: 0;
+    margin-left: 6px;
+    height: 16px;
+    border-radius: 8px;
+    background: var(--compare-page);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    line-height: 12px;
+    color: var(--ds-color-theme-text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.page {
+    position: relative;
+    height: 177px;
+}
+
+/* placeholder copy: headings, text lines and a picture */
+.line,
+.text {
+    display: block;
+    flex-shrink: 0;
+    border-radius: 3px;
+}
+
+.line {
+    height: 9px;
+}
+
+.text {
+    height: 6px;
+    background: var(--compare-text);
+}
+
+.picture {
+    flex-shrink: 0;
+    height: 56px;
+    border-radius: 6px;
+    overflow: hidden;
+    background: var(--compare-text);
+
+    svg {
+        display: block;
+        width: 100%;
+        height: 100%;
+    }
+}
+
+/* the picture: sky, sun, far mountains, a grassy hill and a tree, in the
+   page's colours softened with white */
+.landscape {
+    background: color-mix(in srgb, var(--color-blue-10), white 55%);
+}
+
+.landscapeSun {
+    fill: color-mix(in srgb, var(--color-yellow-50), white 25%);
+}
+
+.landscapeFar {
+    fill: color-mix(in srgb, var(--color-blue-10), white 25%);
+}
+
+.landscapeNear {
+    fill: color-mix(in srgb, var(--color-green-50), white 45%);
+}
+
+.landscapeTrunk {
+    fill: var(--color-gray-50);
+}
+
+/* a little deeper than the grass, so the tree stands out against it */
+.landscapeTree {
+    fill: color-mix(in srgb, var(--color-green-50), white 10%);
+}
+
+.cleanPage {
+    position: absolute;
+    inset: 0;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    background: var(--compare-page);
+    box-sizing: border-box;
+}
+
+/* Chrome's page: a banner ad, a video ad and a cookie prompt */
+
+.adPage {
+    position: absolute;
+    inset: 0;
+    background: var(--compare-page);
+    overflow: hidden;
+    isolation: isolate;
+}
+
+.adBanner {
+    margin: 8px 8px 0;
+    height: 28px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--color-blue-50), var(--color-blue-10));
+    padding: 0 6px 0 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    font-size: 9px;
+    line-height: 10px;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    color: #fff;
+
+    span {
+        min-width: 0;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+}
+
+.adBannerArt {
+    display: block;
+    flex-shrink: 0;
+    width: 44px;
+    height: 24px;
+}
+
+.adCopy {
+    padding: 9px 14px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.adRow {
+    display: flex;
+    gap: 6px;
+    margin: 9px 8px 0;
+}
+
+/* article text beside the ad, lined up with the text above */
+.adRowCopy {
+    flex: 1;
+    min-width: 0;
+    padding-left: 6px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+}
+
+/* a video ad: colours panning behind an "AD" badge, a level meter and a progress bar */
+.adVideo {
+    flex: 1;
+    height: 48px;
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+    background: var(--color-gray-90);
+}
+
+/* Two lengths of the colours, three times the ad's width each, slid one
+   length to the left and round again. Sliding the element (rather than its
+   background) lets the browser move it without repainting every frame. */
+/* The ad's three scenes (see AdScenes), each on screen for a third of the
+   loop, which matches the progress bar */
+.adScenes {
+    position: absolute;
+    inset: 0;
+}
+
+.adScene {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    opacity: 0;
+    animation: 4s linear infinite;
+}
+
+.sceneSpray {
+    background: var(--color-blue-50);
+    animation-name: adScene1;
+}
+
+.sceneWipe {
+    background: #ffe9a8;
+    animation-name: adScene2;
+}
+
+/* the one showing when nothing animates (reduced motion turns animations off) */
+.sceneShine {
+    opacity: 1;
+    background: #8fdcf5;
+    animation-name: adScene3;
+}
+
+/* the bottle: a trigger head, a neck and a body with a label */
+.bottle {
+    position: absolute;
+    left: 50%;
+    bottom: 8px;
+    width: 14px;
+    height: 34px;
+    margin-left: -7px;
+}
+
+/* rounded at the back, with the nozzle out front (to the right, where the mist goes) */
+.bottleHead {
+    position: absolute;
+    top: 0;
+    left: 2px;
+    width: 13px;
+    height: 6px;
+    border-radius: 5px 1px 1px 2px;
+    background: #fff;
+}
+
+.bottleNeck {
+    position: absolute;
+    top: 5px;
+    left: 4px;
+    width: 6px;
+    height: 5px;
+    background: #fff;
+}
+
+.bottleBody {
+    position: absolute;
+    top: 9px;
+    left: 0;
+    width: 14px;
+    height: 25px;
+    border-radius: 4px 4px 3px 3px;
+    background: #2bb38c;
+}
+
+.bottleLabel {
+    position: absolute;
+    left: 3px;
+    right: 3px;
+    top: 8px;
+    height: 8px;
+    border-radius: 2px;
+    background: #fff;
+}
+
+/* 1: the bottle slides in and mists the air */
+.sceneSpray .bottle {
+    left: 34%;
+    animation: adSlideIn 4s ease-out infinite;
+}
+
+.mist {
+    position: absolute;
+    left: calc(34% + 9px);
+    top: 6px;
+
+    span {
+        position: absolute;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.85);
+        opacity: 0;
+        animation: adMist 4s ease-out infinite;
+    }
+
+    span:nth-child(1) {
+        --mist-x: 16px;
+        --mist-y: -5px;
+    }
+
+    span:nth-child(2) {
+        --mist-x: 22px;
+        --mist-y: 2px;
+    }
+
+    span:nth-child(3) {
+        --mist-x: 13px;
+        --mist-y: 8px;
+    }
+}
+
+/* 2: a sponge wipes a smudge away */
+.smudge {
+    position: absolute;
+    left: 30%;
+    top: 12px;
+    width: 34px;
+    height: 18px;
+    border-radius: 50% 40% 55% 45%;
+    background: #8a6d3b;
+    animation: adSmudge 4s linear infinite;
+}
+
+.sponge {
+    position: absolute;
+    left: 0;
+    top: 10px;
+    width: 22px;
+    height: 15px;
+    border-radius: 4px;
+    background: var(--color-yellow-50);
+    box-shadow: inset 0 -5px 0 #2bb38c;
+    animation: adWipe 4s ease-in-out infinite;
+}
+
+/* 3: the product, shining */
+.burst {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 70px;
+    height: 70px;
+    margin: -35px 0 0 -35px;
+    border-radius: 50%;
+    background: repeating-conic-gradient(rgba(255, 255, 255, 0.28) 0deg 15deg, transparent 15deg 30deg);
+    animation: adBurst 4s linear infinite;
+}
+
+.sceneShine .bottle {
+    animation: adPop 4s ease-out infinite;
+}
+
+/* four-pointed sparkles */
+.sparkle {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: #fff;
+    clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+    opacity: 0;
+}
+
+.sparkleWipe {
+    left: 44%;
+    top: 14px;
+    animation: adSparkleWipe 4s ease-out infinite;
+}
+
+.sparkleA {
+    left: calc(50% + 10px);
+    top: 6px;
+    animation: adTwinkle 4s ease-in-out infinite;
+}
+
+.sparkleB {
+    left: calc(50% - 20px);
+    top: 20px;
+    width: 6px;
+    height: 6px;
+    animation: adTwinkle 4s ease-in-out -0.3s infinite;
+}
+
+.adBadge {
+    position: absolute;
+    left: 4px;
+    top: 4px;
+    padding: 1px 3px;
+    border-radius: 2px;
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    font-size: 7px;
+    line-height: 8px;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+}
+
+.adBars {
+    position: absolute;
+    right: 5px;
+    bottom: 6px;
+    display: flex;
+    align-items: flex-end;
+    gap: 1.5px;
+    height: 10px;
+
+    span {
+        width: 2px;
+        height: 10px;
+        background: #fff;
+        border-radius: 1px;
+        transform-origin: 50% 100%;
+        animation: adBar 0.5s ease-in-out infinite;
+    }
+
+    span:nth-child(2) {
+        animation-duration: 0.65s;
+    }
+
+    span:nth-child(3) {
+        animation-duration: 0.8s;
+    }
+}
+
+.adProgress {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.35);
+
+    span {
+        display: block;
+        height: 100%;
+        background: #fff;
+        transform-origin: 0 50%;
+        animation: adProgress 4s linear infinite;
+    }
+}
+
+.adMoreCopy {
+    padding: 10px 14px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* a still picture (reduced motion, the shared picture), and nothing playing
+   while the page is off screen (eg: the report collapsed) */
+:is([data-still='true'], [data-playing='false']) .adVideo * {
+    animation-play-state: paused;
+}
+
+/* a still picture shows the last scene: the product, shining */
+[data-still='true'] .adVideo * {
+    animation-delay: -3.3s;
+}
+
+@keyframes adScene1 {
+    0%,
+    31% {
+        opacity: 1;
+    }
+    33%,
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes adScene2 {
+    0%,
+    31% {
+        opacity: 0;
+    }
+    33%,
+    64% {
+        opacity: 1;
+    }
+    66%,
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes adScene3 {
+    0%,
+    64% {
+        opacity: 0;
+    }
+    66%,
+    98% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes adSlideIn {
+    0% {
+        transform: translateX(-40px) rotate(-12deg);
+    }
+    10%,
+    100% {
+        transform: translateX(0) rotate(0);
+    }
+}
+
+@keyframes adMist {
+    0%,
+    11% {
+        opacity: 0;
+        transform: translate(0, 0) scale(0.4);
+    }
+    15% {
+        opacity: 1;
+    }
+    29%,
+    100% {
+        opacity: 0;
+        transform: translate(var(--mist-x), var(--mist-y)) scale(1.4);
+    }
+}
+
+@keyframes adSmudge {
+    0%,
+    42% {
+        opacity: 1;
+    }
+    56%,
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes adWipe {
+    0%,
+    35% {
+        transform: translateX(-26px) rotate(-10deg);
+    }
+    46% {
+        transform: translateX(42px) rotate(6deg);
+    }
+    56%,
+    100% {
+        transform: translateX(110px) rotate(10deg);
+    }
+}
+
+@keyframes adSparkleWipe {
+    0%,
+    54% {
+        opacity: 0;
+        transform: scale(0.2) rotate(0);
+    }
+    58% {
+        opacity: 1;
+        transform: scale(1.3) rotate(45deg);
+    }
+    64%,
+    100% {
+        opacity: 0;
+        transform: scale(0.6) rotate(90deg);
+    }
+}
+
+@keyframes adBurst {
+    from {
+        transform: rotate(0);
+    }
+    to {
+        transform: rotate(90deg);
+    }
+}
+
+@keyframes adPop {
+    0%,
+    66% {
+        transform: scale(0.6);
+    }
+    71% {
+        transform: scale(1.12);
+    }
+    75%,
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes adTwinkle {
+    0%,
+    70% {
+        opacity: 0;
+        transform: scale(0.3);
+    }
+    78% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    86% {
+        opacity: 0.3;
+        transform: scale(0.6);
+    }
+    92% {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+    98%,
+    100% {
+        opacity: 0;
+        transform: scale(0.3);
+    }
+}
+
+@keyframes adProgress {
+    from {
+        transform: scaleX(0);
+    }
+    to {
+        transform: scaleX(1);
+    }
+}
+
+@keyframes adBar {
+    0%,
+    100% {
+        transform: scaleY(0.3);
+    }
+    50% {
+        transform: scaleY(1);
+    }
+}
+
+/* a cookie prompt along the bottom of the page */
+.cookieBar {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--color-gray-90);
+    padding: 8px 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.cookieText {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    font-size: 8px;
+    line-height: 10px;
+    font-weight: 700;
+    color: #fff;
+}
+
+/* "decline" outlined, "accept" filled */
+.cookieButton,
+.cookieButtonOutline {
+    flex-shrink: 0;
+    height: 14px;
+    padding: 0 5px;
+    border-radius: 4px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    font-size: 7px;
+    line-height: 8px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.cookieButton {
+    background: #fff;
+    color: var(--color-gray-95);
+}
+
+.cookieButtonOutline {
+    border: 1px solid var(--color-gray-60);
+    color: var(--color-gray-30);
+}
+
+/* the pointer and the companies circling it (moved by useCursorTrail) */
+
+.cursor {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 7;
+    pointer-events: none;
+    will-change: transform;
+    transform: translate(50%, 50%);
+    /* clicks shrink it around its tip */
+    transform-origin: 2px 2px;
+
+    svg {
+        display: block;
+        filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+    }
+}
+
+.trail {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 5;
+}
+
+.tracker {
+    position: absolute;
+    left: -9px;
+    top: -9px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    box-shadow:
+        0 0 0 2px #fff,
+        0 2px 6px rgba(0, 0, 0, 0.25);
+    will-change: transform;
+
+    > *,
+    img {
+        width: 100%;
+        height: 100%;
+    }
+}
+
+/* under each window */
+
+.caption {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    text-align: center;
+}
+
+.browser {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 13px;
+    line-height: 16px;
+    font-weight: 600;
+
+    img {
+        display: block;
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+    }
+}
+
+/* under each window, the same style for both */
+.verdict {
+    font-size: 12px;
+    line-height: 16px;
+    text-wrap: pretty;
+    color: var(--ds-color-theme-text-secondary);
+}
+
+/* who makes Chrome, and how widely they tried to track */
+.google {
+    margin: 0;
+    padding: 14px 0 0;
+    font-size: 14px;
+    line-height: 20px;
+    text-wrap: pretty;
+}
+
+.footnote {
+    margin: 0;
+    padding: 10px 0 4px;
+    font-size: 12px;
+    line-height: 16px;
+    color: var(--ds-color-theme-text-tertiary);
+}

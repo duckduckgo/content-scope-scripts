@@ -46,6 +46,17 @@ export function protectionsMockTransport() {
                     subs.get('protections_onConfigUpdate')?.(config);
                     break;
                 }
+                case 'protections_dismissDefaultBrowserPrompt': {
+                    // as native would: stop flagging it
+                    delete dataset.isDefaultBrowser;
+                    break;
+                }
+                case 'protections_makeDefaultBrowser': {
+                    // as if the user went along with it
+                    dataset.isDefaultBrowser = true;
+                    subs.get('protections_onDataUpdate')?.(dataset);
+                    break;
+                }
                 default: {
                     console.warn('unhandled notification', msg);
                 }
@@ -123,11 +134,16 @@ export function protectionsMockTransport() {
                         dataset.totalCookiePopUpsBlocked = null;
                     }
 
+                    // `protections.default=false`: DuckDuckGo isn't the default browser
+                    if (url.searchParams.has('protections.default')) {
+                        dataset.isDefaultBrowser = url.searchParams.get('protections.default') === 'true';
+                    }
+
                     return Promise.resolve(dataset);
                 case 'protections_getConfig': {
                     const feed = url.searchParams.get('protections_feed');
                     /** @type {ProtectionsConfig['feed'][]} */
-                    const feeds = ['privacy-stats', 'activity', 'purposes', 'recognition', 'companies', 'top-sites'];
+                    const feeds = ['privacy-stats', 'activity', 'purposes', 'recognition', 'companies', 'top-sites', 'compare'];
                     const known = feeds.find((f) => f === feed);
                     if (known) config.feed = known;
 

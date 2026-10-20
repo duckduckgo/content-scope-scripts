@@ -101,16 +101,17 @@ test.describe('protections report', () => {
             await protections.ready();
             await protections.hasViewOptions([
                 'Why we blocked them',
-                'Who we blocked the most',
-                'Where they tried to track you',
-                'When they tried to track you',
-                'How they try to recognize you',
+                'Who tried to watch you',
+                'Where they tried to watch you',
+                'When they tried to watch you',
+                'What they use to identify you',
+                'How Chrome compares',
             ]);
 
-            await protections.choosesView('Who we blocked the most', 'companies');
+            await protections.choosesView('Who tried to watch you', 'companies');
             await protections.displaysCompanies();
 
-            await protections.choosesView('When they tried to track you', 'activity');
+            await protections.choosesView('When they tried to watch you', 'activity');
             // personal browsing history isn't offered for sharing
             await expect(protections.report().getByRole('button', { name: 'Share as image' })).toHaveCount(0);
             await ntp.mocks.waitForCallCount({ method: 'activity_getData', count: 1 });
@@ -124,7 +125,7 @@ test.describe('protections report', () => {
 
             const protections = new ProtectionsPage(ntp);
             await protections.ready();
-            await protections.choosesView('How they try to recognize you', 'recognition');
+            await protections.choosesView('What they use to identify you', 'recognition');
             await protections.displaysRecognition();
         });
 
@@ -190,6 +191,16 @@ test.describe('protections report', () => {
             await protections.sharesAsImage();
         });
 
+        test('compares the nosiest site in DuckDuckGo and Chrome', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: { ...report, protections_feed: 'compare' } });
+
+            const protections = new ProtectionsPage(ntp);
+            await protections.ready();
+            await protections.displaysComparison();
+        });
+
         test('shows which sites had the most trackers', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             await ntp.reducedMotion();
@@ -207,12 +218,12 @@ test.describe('protections report', () => {
 
             const protections = new ProtectionsPage(ntp);
             await protections.ready();
-            // no topSites in this mock, so that view is left out
+            // no topSites in this mock, so "Where" and the Chrome comparison are left out
             await protections.hasViewOptions([
                 'Why we blocked them',
-                'Who we blocked the most',
-                'When they tried to track you',
-                'How they try to recognize you',
+                'Who tried to watch you',
+                'When they tried to watch you',
+                'What they use to identify you',
             ]);
             await protections.displaysPurposesFromBuiltInTable();
         });
@@ -265,6 +276,38 @@ test.describe('protections report', () => {
             const protections = new ProtectionsPage(ntp);
             await protections.ready();
             await protections.recoversFromMissingStats();
+        });
+
+        test('flags an issue when DuckDuckGo isn’t the default browser, with a fix', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: { ...report, 'protections.default': 'false' } });
+
+            const protections = new ProtectionsPage(ntp);
+            await protections.ready();
+            await protections.makesDefaultBrowser();
+        });
+
+        test('dismisses the default browser issue', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: { ...report, 'protections.default': 'false' } });
+
+            const protections = new ProtectionsPage(ntp);
+            await protections.ready();
+            await protections.dismissesDefaultBrowserIssue();
+        });
+
+        test('doesn’t offer it when DuckDuckGo is already the default', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: { ...report, 'protections.default': 'true' } });
+
+            const protections = new ProtectionsPage(ntp);
+            await protections.ready();
+            await protections.displaysHeadline();
+            await expect(protections.report().getByRole('button', { name: '1 issue: privacy isn’t your default' })).toHaveCount(0);
+            await expect(protections.report().getByRole('button', { name: 'Why this matters' })).toBeVisible();
         });
 
         test('explains why this matters', async ({ page }, workerInfo) => {

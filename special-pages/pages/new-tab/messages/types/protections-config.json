@@ -12,14 +12,15 @@
     },
     "feed": {
       "title": "Feed Type",
-      "description": "Which view of the Protections Report is shown: 'purposes' (why we blocked them), 'companies' (who we blocked the most), 'top-sites' (where they tried to track you), 'activity' (when they tried to track you) or 'recognition' (how they try to recognize you). A view with no data this week opens the first one that has data instead. 'privacy-stats' is the retired summary, now only used by the legacy UI; the new UI opens the first view that has data in its place.",
+      "description": "Which view of the Protections Report is shown: 'purposes' (why we blocked them), 'companies' (who tried to watch you), 'top-sites' (where they tried to watch you), 'activity' (when they tried to watch you), 'recognition' (what they use to identify you) or 'compare' (how Chrome compares). A view with no data this week opens the first one that has data instead. 'privacy-stats' is the retired summary, now only used by the legacy UI; the new UI opens the first view that has data in its place.",
       "enum": [
         "privacy-stats",
         "activity",
         "purposes",
         "recognition",
         "companies",
-        "top-sites"
+        "top-sites",
+        "compare"
       ]
     },
     "showBurnAnimation": {

@@ -144,7 +144,7 @@ export function PurposesView({ companies }) {
 }
 
 /**
- * "Who we blocked the most"
+ * "Who tried to watch you"
  *
  * @param {object} props
  * @param {PrivacyStatsData} props.stats
@@ -191,7 +191,7 @@ export function CompaniesView({ stats }) {
 }
 
 /**
- * Closes the "Who we blocked the most" list with everyone else, eg:
+ * Closes the "Who tried to watch you" list with everyone else, eg:
  * "43 more companies tried too / Including Criteo, Oracle, and The Trade Desk"
  *
  * @param {object} props
@@ -247,7 +247,7 @@ function CompanyTitle({ name, sitesCount, totalSitesVisited }) {
 }
 
 /**
- * "How they try to recognize you": this device's own details, next to how many
+ * "What they use to identify you": this device's own details, next to how many
  * of the companies blocked this week are known to read each one.
  *
  * @param {object} props
@@ -430,24 +430,30 @@ function ringItems(companies, seed) {
     return items;
 }
 
+/** How far the iris shifts toward what a little eye is looking at, in its 24-unit drawing */
+export const RING_EYE_LOOK = 2.2;
+
 /**
- * A little eye in the style of the report's big one, looking in at the site
- * in the middle of the ring.
+ * A little eye in the style of the report's big one. Around the nosiest site
+ * it looks in at the site; in the Chrome comparison it watches the cursor,
+ * steered through `irisRef`.
  *
  * @param {object} props
- * @param {number} props.angle - where it sits on the ring, in radians
+ * @param {number} [props.angle] - where it sits on the ring, in radians; it looks the other way, at the middle
+ * @param {(el: SVGGElement | null) => void} [props.irisRef] - to move the iris (its `transform`) from outside
  */
-function RingEye({ angle }) {
-    // the iris shifts toward the centre of the ring
-    const x = 12 - Math.cos(angle) * 2.2;
-    const y = 12 - Math.sin(angle) * 2.2;
+export function RingEye({ angle = Math.PI / 2, irisRef }) {
+    const dx = -Math.cos(angle) * RING_EYE_LOOK;
+    const dy = -Math.sin(angle) * RING_EYE_LOOK;
     return (
         <svg viewBox="0 0 24 24" class={styles.ringEye}>
             <circle cx="12" cy="12" r="11.5" fill="#FBF7FF" />
             <path d="M3 15.5a10 10 0 0 0 18 0a12 12 0 0 1-18 0z" fill="#EADAFD" />
-            <circle cx={x} cy={y} r="5.6" fill="#9F6EB8" stroke="#682A7A" stroke-width="1" />
-            <circle cx={x} cy={y} r="2.7" fill="#521A61" />
-            <circle cx={x - 1.7} cy={y - 1.7} r="1.1" fill="#F5EDFF" />
+            <g ref={irisRef} transform={`translate(${dx} ${dy})`}>
+                <circle cx="12" cy="12" r="5.6" fill="#9F6EB8" stroke="#682A7A" stroke-width="1" />
+                <circle cx="12" cy="12" r="2.7" fill="#521A61" />
+                <circle cx="10.3" cy="10.3" r="1.1" fill="#F5EDFF" />
+            </g>
             <circle cx="12" cy="12" r="11.4" fill="none" stroke="#521A61" stroke-width="1" />
         </svg>
     );
@@ -465,7 +471,8 @@ const BLINK = {
 /**
  * Every few seconds, one of the logos in the ring blinks: a random one, never
  * the same one twice in a row. Played straight on the lids, so the view
- * doesn't re-render for each blink.
+ * doesn't re-render for each blink, and only while the ring is on screen
+ * (not, say, with the report collapsed).
  *
  * @param {import('preact').RefObject<HTMLElement>} ringRef
  * @param {boolean} enabled - false when motion is reduced
@@ -491,8 +498,15 @@ function useRingBlinks(ringRef, enabled) {
             }
             schedule();
         };
-        schedule();
-        return () => clearTimeout(timer);
+        const observer = new IntersectionObserver(([entry]) => {
+            clearTimeout(timer);
+            if (entry?.isIntersecting) schedule();
+        });
+        observer.observe(ring);
+        return () => {
+            observer.disconnect();
+            clearTimeout(timer);
+        };
     }, [ringRef, enabled]);
 }
 

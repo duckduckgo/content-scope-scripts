@@ -4,6 +4,7 @@ import cn from 'classnames';
 import styles from './ProtectionsReport.module.css';
 import protectionsStyles from './Protections.module.css';
 import { ShowHideButtonCircle } from '../../components/ShowHideButton.jsx';
+import { Button } from '../../../../../shared/components/Button/Button.js';
 import { InfoIcon, ChevronSmall } from '../../components/Icons.js';
 import { CAPTURE_EXCLUDE } from '../utils/share-image.js';
 import { Dropdown } from '../../omnibar/components/chat-tools/dropdown/Dropdown.js';
@@ -13,9 +14,10 @@ import { Trans } from '../../../../../shared/components/TranslationsProvider.js'
 import { useEnv } from '../../../../../shared/components/EnvironmentProvider.js';
 import { useAnimatedCount } from '../utils/useAnimatedCount.js';
 import { PryingEye } from './PryingEye.js';
-import { groupBySurface, hasPurposeData, rankTopSites, totalCompanies } from '../utils/report.js';
+import { groupBySurface, hasPurposeData, rankTopSites, totalCompanies, typicalTopSite, googleReach } from '../utils/report.js';
 import { VoiceContext, useReportFormat, useReportTranslation } from './report-text.js';
 import { CompaniesView, PurposesView, RecognitionView, TopSitesView } from './ReportViews.js';
+import { CompareView } from './CompareView.js';
 import { ShareButton, useShareCopy } from './ShareButton.js';
 
 /**
@@ -24,7 +26,8 @@ import { ShareButton, useShareCopy } from './ShareButton.js';
  * @typedef {import('../../../types/new-tab.js').Expansion} Expansion
  * @typedef {import('../../../types/new-tab.js').ProtectionsConfig} ProtectionsConfig
  * @typedef {import('../../../types/new-tab.js').PrivacyStatsData} PrivacyStatsData
- * @typedef {'purposes' | 'recognition' | 'companies' | 'activity' | 'top-sites'} ReportView
+ * @typedef {{make: () => void, dismiss: () => void}} DefaultPrompt - DuckDuckGo isn't the default browser: offer to make it so, or let the user dismiss that
+ * @typedef {'purposes' | 'recognition' | 'companies' | 'activity' | 'top-sites' | 'compare'} ReportView
  */
 
 /** @type {Record<ReportView, keyof Strings>} */
@@ -34,6 +37,7 @@ const VIEW_LABELS = {
     companies: 'protections_report_viewCompanies',
     activity: 'protections_report_viewSites',
     'top-sites': 'protections_report_viewTopSites',
+    compare: 'protections_report_viewCompare',
 };
 
 /**
@@ -41,7 +45,7 @@ const VIEW_LABELS = {
  *
  * @type {ReportView[]}
  */
-const VIEW_ORDER = ['purposes', 'companies', 'top-sites', 'activity', 'recognition'];
+const VIEW_ORDER = ['purposes', 'companies', 'top-sites', 'activity', 'recognition', 'compare'];
 
 /**
  * Maps the persisted feed onto a view this report can show: the saved view if
@@ -64,6 +68,9 @@ function resolveView(feed, available) {
  * @param {(feed: ProtectionsConfig['feed']) => void} props.setFeed
  * @param {number} props.blockedCount - tracking attempts blocked this week
  * @param {number | null | undefined} props.cookiePopUpsBlocked
+ * @param {boolean} [props.isDefaultBrowser] - when false, the report offers to make DuckDuckGo the default
+ * @param {() => void} [props.makeDefaultBrowser]
+ * @param {() => void} [props.dismissDefaultBrowserPrompt]
  * @param {PrivacyStatsData} props.stats
  * @param {import('preact').ComponentChild} [props.sites] - the by-site view, rendered when that view is active
  * @param {import('preact').RefObject<HTMLElement>} [props.rootRef] - lets the caller scroll the report into view
@@ -77,12 +84,28 @@ export function ProtectionsReport({
     setFeed,
     blockedCount,
     cookiePopUpsBlocked,
+    isDefaultBrowser,
+    makeDefaultBrowser,
+    dismissDefaultBrowserPrompt,
     stats,
     sites,
     rootRef: externalRef,
     shareCopy = false,
 }) {
     const { isReducedMotion } = useEnv();
+    // dismissed for this page; native remembers it from here (see protections_dismissDefaultBrowserPrompt)
+    const [promptDismissed, setPromptDismissed] = useState(false);
+    /** @type {DefaultPrompt | null} */
+    const defaultPrompt =
+        isDefaultBrowser === false && makeDefaultBrowser && !promptDismissed
+            ? {
+                  make: makeDefaultBrowser,
+                  dismiss: () => {
+                      setPromptDismissed(true);
+                      dismissDefaultBrowserPrompt?.();
+                  },
+              }
+            : null;
     const ownRef = useRef(/** @type {HTMLElement|null} */ (null));
     const rootRef = externalRef ?? ownRef;
     const bodyId = useId();
@@ -92,6 +115,7 @@ export function ProtectionsReport({
     const isEmpty = blockedCount === 0 || companyCount === 0;
     const recognition = useMemo(() => groupBySurface(stats.trackerCompanies), [stats.trackerCompanies]);
     const topSites = useMemo(() => rankTopSites(stats), [stats]);
+    const typical = useMemo(() => typicalTopSite(stats), [stats]);
     /** @type {Record<ReportView, boolean>} */
     const hasData = {
         purposes: hasPurposeData(stats.trackerCompanies),
@@ -99,6 +123,7 @@ export function ProtectionsReport({
         companies: true,
         activity: true,
         'top-sites': topSites.length > 0,
+        compare: typical !== null,
     };
     const views = VIEW_ORDER.filter((v) => hasData[v]);
     const view = resolveView(feed, views);
@@ -118,7 +143,7 @@ export function ProtectionsReport({
                 data-empty={isEmpty}
                 data-testid={shareCopy ? 'ProtectionsReportShareCopy' : 'ProtectionsReport'}
             >
-                <TitleRow expanded={expanded} toggle={toggle} bodyId={bodyId} />
+                <TitleRow expanded={expanded} toggle={toggle} bodyId={bodyId} defaultPrompt={defaultPrompt} />
                 {isEmpty ? (
                     <EmptyHeadline />
                 ) : (
@@ -163,6 +188,7 @@ export function ProtectionsReport({
                                         {view === 'companies' && <CompaniesView stats={stats} />}
                                         {view === 'activity' && bodyOpen && sites}
                                         {view === 'top-sites' && <TopSitesView sites={topSites} />}
+                                        {view === 'compare' && typical && <CompareView site={typical} google={googleReach(stats)} />}
                                     </div>
                                 </div>
                                 <ReportFooter
@@ -246,14 +272,15 @@ function useHeldHeight(view) {
  * @param {boolean} props.expanded
  * @param {() => void} props.toggle
  * @param {string} props.bodyId
+ * @param {DefaultPrompt | null} props.defaultPrompt - set when DuckDuckGo isn't the default browser
  */
-function TitleRow({ expanded, toggle, bodyId }) {
+function TitleRow({ expanded, toggle, bodyId, defaultPrompt }) {
     const { t } = useReportTranslation();
     return (
         <div class={styles.titleRow}>
             <img class={styles.titleIcon} src="./icons/Shield-Color-16.svg" alt="" />
             <h2 class={styles.title}>{t('protections_menuTitle')}</h2>
-            <InfoButton />
+            <InfoButton defaultPrompt={defaultPrompt} />
             <span class={styles.toggle} {...{ [CAPTURE_EXCLUDE]: '' }}>
                 <ShowHideButtonCircle
                     buttonAttrs={{
@@ -274,9 +301,15 @@ const INFO_CLOSE_DELAY = 160;
 
 /**
  * Opens on hover or click; closes on pointer leave, Escape or outside click.
+ * When DuckDuckGo isn't the default browser it's flagged as an issue: the
+ * button becomes an orange "1 issue" pill, and the pop-over offers to fix it.
+ *
+ * @param {object} props
+ * @param {DefaultPrompt | null} props.defaultPrompt - set when DuckDuckGo isn't the default browser
  */
-function InfoButton() {
+function InfoButton({ defaultPrompt }) {
     const { t } = useReportTranslation();
+    const title = defaultPrompt ? t('protections_report_notDefaultTitle') : t('protections_report_infoTitle');
     const [open, setOpen] = useState(false);
     const popoverId = useId();
     const wrapperRef = useRef(/** @type {HTMLDivElement|null} */ (null));
@@ -321,8 +354,8 @@ function InfoButton() {
         <div class={styles.info} ref={wrapperRef} onMouseEnter={show} onMouseLeave={hideSoon} {...{ [CAPTURE_EXCLUDE]: '' }}>
             <button
                 type="button"
-                class={styles.infoButton}
-                aria-label={t('protections_report_infoLabel')}
+                class={defaultPrompt ? styles.issuePill : styles.infoButton}
+                aria-label={defaultPrompt ? t('protections_report_issueLabel') : t('protections_report_infoLabel')}
                 aria-expanded={open}
                 aria-controls={popoverId}
                 onClick={() => {
@@ -331,13 +364,35 @@ function InfoButton() {
                     openedByHover.current = false;
                 }}
             >
-                <InfoIcon />
+                {defaultPrompt ? t('protections_report_issueCount') : <InfoIcon />}
             </button>
             {open && (
-                <div class={styles.infoPopover} id={popoverId} role="dialog" aria-label={t('protections_report_infoTitle')}>
-                    <h3 class={styles.infoTitle}>{t('protections_report_infoTitle')}</h3>
+                <div class={styles.infoPopover} id={popoverId} role="dialog" aria-label={title}>
+                    <h3 class={styles.infoTitle}>{title}</h3>
                     <p>{t('protections_report_infoBody1')}</p>
-                    <p>{t('protections_report_infoBody2')}</p>
+                    <p class={styles.infoEmphasis}>{t('protections_report_infoBody2')}</p>
+                    {defaultPrompt && (
+                        <div class={styles.infoAction}>
+                            <Button
+                                variant="accentBrand"
+                                onClick={() => {
+                                    setOpen(false);
+                                    defaultPrompt.make();
+                                }}
+                            >
+                                {t('protections_report_makeDefault')}
+                            </Button>
+                            <Button
+                                variant="standard"
+                                onClick={() => {
+                                    setOpen(false);
+                                    defaultPrompt.dismiss();
+                                }}
+                            >
+                                {t('protections_report_dismiss')}
+                            </Button>
+                        </div>
+                    )}
                 </div>
             )}
         </div>

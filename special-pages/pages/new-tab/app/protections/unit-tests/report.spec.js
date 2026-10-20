@@ -8,6 +8,8 @@ import {
     namedCompanies,
     purposesFor,
     rankTopSites,
+    typicalTopSite,
+    googleReach,
     totalCompanies,
 } from '../utils/report.js';
 
@@ -188,4 +190,32 @@ test('rankTopSites counts each named company once', () => {
             ['repeats.com', ['Google']],
         ],
     );
+});
+
+test('typicalTopSite stands for the sites where you were tracked most', () => {
+    const trackerCompanies = Array.from({ length: 14 }, (_, i) => ({ displayName: `Co ${i}`, count: 1, sitesCount: 20 - i }));
+    // 12 and 9 named companies (each counted once) on the two top sites: 11 on average (10.5, rounded)
+    const site = typicalTopSite({
+        trackerCompanies,
+        topSites: [
+            { etldPlusOne: 'a.com', trackerCompanies: [...trackerCompanies.slice(0, 12).map((c) => c.displayName), 'Co 0', '__other__'] },
+            { etldPlusOne: 'b.com', trackerCompanies: trackerCompanies.slice(0, 9).map((c) => c.displayName) },
+        ],
+    });
+    equal(site?.count, 11);
+    // the most widespread companies this week, no more than 7
+    deepEqual(
+        site?.companies,
+        trackerCompanies.slice(0, 7).map((c) => c.displayName),
+    );
+    equal(typicalTopSite({ trackerCompanies }), null);
+});
+
+test('googleReach counts the sites Google was on', () => {
+    deepEqual(googleReach({ totalSitesVisited: 64, trackerCompanies: [{ displayName: 'Google', count: 812, sitesCount: 51 }] }), {
+        sites: 51,
+        visited: 64,
+    });
+    equal(googleReach({ totalSitesVisited: 64, trackerCompanies: [{ displayName: 'Facebook', count: 1, sitesCount: 1 }] }), null);
+    equal(googleReach({ trackerCompanies: [{ displayName: 'Google', count: 1, sitesCount: 1 }] }), null);
 });

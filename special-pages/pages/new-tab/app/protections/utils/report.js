@@ -9,10 +9,10 @@ import { PURPOSE_ORDER, SURFACE_ORDER, TRACKER_PURPOSES, TRACKER_SURFACES } from
  * @typedef {import('./purposes.js').SurfaceId} SurfaceId
  */
 
-/** Rows shown in the "Who we blocked the most" view */
+/** Rows shown in the "Who tried to watch you" view */
 export const TOP_COMPANIES_LIMIT = 4;
 
-/** Logos in the "N more companies" row that closes the "Who we blocked the most" view */
+/** Logos in the "N more companies" row that closes the "Who tried to watch you" view */
 export const MORE_COMPANIES_AVATAR_LIMIT = 3;
 
 /** Names listed under the "N more companies" row, eg: "Including Criteo, Oracle, and The Trade Desk" */
@@ -256,4 +256,47 @@ export function rankTopSites(stats) {
             site,
             companies: names.sort(byRank).map(displayNameForCompany),
         }));
+}
+
+/**
+ * At most this many companies circle the cursor in the Chrome comparison
+ * (with its eyes, 10 in all): any more and the last ones, which follow the
+ * most lazily, trail far behind
+ */
+export const TYPICAL_SITE_LIMIT = 7;
+
+/**
+ * A site like the ones where you were tracked most this week (the top sites
+ * native sends): how many tracking companies such a site has (their average,
+ * rounded), and which ones: the most widespread this week, as many as that,
+ * up to `TYPICAL_SITE_LIMIT`. `null` without top sites.
+ *
+ * @param {PrivacyStatsData} stats
+ * @return {{count: number, companies: string[]} | null}
+ */
+export function typicalTopSite(stats) {
+    const sites = rankTopSites(stats);
+    if (sites.length === 0) return null;
+    const count = Math.max(1, Math.round(sites.reduce((sum, { companies }) => sum + companies.length, 0) / sites.length));
+    return {
+        count,
+        companies: namedCompanies(stats.trackerCompanies)
+            .slice(0, Math.min(count, TYPICAL_SITE_LIMIT))
+            .map((c) => displayNameForCompany(c.displayName)),
+    };
+}
+
+/**
+ * How many of the week's sites Google (who make Chrome) was on, out of all
+ * the sites visited. `null` when native doesn't send the counts, or Google
+ * wasn't seen.
+ *
+ * @param {PrivacyStatsData} stats
+ * @return {{sites: number, visited: number} | null}
+ */
+export function googleReach(stats) {
+    const google = stats.trackerCompanies.find((c) => c.displayName.toLowerCase() === 'google');
+    const visited = stats.totalSitesVisited;
+    if (!google?.sitesCount || !visited) return null;
+    return { sites: Math.min(google.sitesCount, visited), visited };
 }

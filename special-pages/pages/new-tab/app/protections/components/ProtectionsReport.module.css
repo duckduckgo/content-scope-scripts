@@ -1,5 +1,5 @@
 .report {
-    --report-ease: cubic-bezier(.4, 0, .2, 1);
+    --report-ease: cubic-bezier(0.4, 0, 0.2, 1);
     --report-gutter: 16px;
     --report-divider: var(--ds-color-theme-container-border-primary);
     /* opaque, so overlapping placeholder circles don't darken each other */
@@ -77,7 +77,7 @@
     }
 
     &:hover,
-    &[aria-expanded="true"] {
+    &[aria-expanded='true'] {
         color: var(--ds-color-theme-text-secondary);
     }
 
@@ -99,13 +99,15 @@
     box-sizing: content-box;
 
     &::before {
-        content: "";
+        content: '';
         position: absolute;
         inset: 6px 0 0;
         z-index: -1;
         border-radius: 12px;
         background: var(--report-popover-bg);
-        box-shadow: 0 0 0 1px var(--report-divider), 0 8px 24px rgba(0, 0, 0, 0.12);
+        box-shadow:
+            0 0 0 1px var(--report-divider),
+            0 8px 24px rgba(0, 0, 0, 0.12);
     }
 
     > * {
@@ -132,9 +134,44 @@
     }
 }
 
-.infoTitle {
+/* DuckDuckGo isn't the default browser: flagged as an issue */
+.issuePill {
+    cursor: pointer;
+    height: 20px;
+    padding: 0 8px;
+    border: 0;
+    border-radius: 10px;
+    background: var(--color-red-50);
+    color: #fff;
+    font-size: 12px;
+    line-height: 16px;
     font-weight: 600;
+    white-space: nowrap;
+
+    &:hover,
+    &[aria-expanded="true"] {
+        background: color-mix(in srgb, var(--color-red-50), black 10%);
+    }
+}
+
+/* the fix, at the bottom of the pop-over */
+.infoAction {
+    padding-top: 6px !important;
+    display: flex;
+    gap: 8px;
+}
+
+/* the NTP's Title 2 text style */
+.infoTitle {
+    font-size: var(--title-2-font-size) !important;
+    line-height: var(--title-2-line-height) !important;
+    font-weight: var(--title-2-font-weight);
     color: var(--ds-color-theme-text-primary) !important;
+}
+
+/* "The more of your everyday browsing…" */
+.infoEmphasis {
+    font-weight: 600;
 }
 
 /* Headline */
@@ -164,7 +201,7 @@
     mix-blend-mode: plus-lighter;
     transition: opacity var(--head-fade);
 
-    &[data-active="false"] {
+    &[data-active='false'] {
         opacity: 0;
         pointer-events: none;
     }
@@ -192,10 +229,10 @@
 /* Same breathing room as .headlineCompact gives the populated widget. It goes
    on the card's padding, below the body, so nothing above it moves while the
    body animates. */
-.report[data-empty="true"] {
+.report[data-empty='true'] {
     transition: padding-bottom 340ms var(--report-ease);
 
-    &[data-expanded="false"] {
+    &[data-expanded='false'] {
         padding-bottom: 28px;
     }
 }
@@ -274,7 +311,7 @@
     margin: 0 calc(var(--report-gutter) * -1);
 
     /* once the expand has finished, nothing needs clipping */
-    &[data-settled="true"] {
+    &[data-settled='true'] {
         overflow: visible;
     }
 }
@@ -284,7 +321,7 @@
     display: flow-root;
     transition: opacity 260ms ease 90ms;
 
-    [data-expanded="false"] > & {
+    [data-expanded='false'] > & {
         opacity: 0;
         transition: opacity 180ms ease;
     }
@@ -318,7 +355,9 @@
     background: transparent;
     color: var(--ds-color-theme-text-secondary);
     user-select: none;
-    transition: background 100ms ease, box-shadow 100ms ease;
+    transition:
+        background 100ms ease,
+        box-shadow 100ms ease;
 
     /* hint that it's a control while the pointer is anywhere on the widget;
        hovering the trigger itself adds the fill */
@@ -327,9 +366,9 @@
     }
 
     &:hover,
-    &[aria-expanded="true"],
+    &[aria-expanded='true'],
     .report:hover &:hover,
-    .report:hover &[aria-expanded="true"] {
+    .report:hover &[aria-expanded='true'] {
         background: var(--ds-color-theme-control-fill-primary);
         box-shadow: inset 0 0 0 1px var(--report-divider);
     }
@@ -393,17 +432,19 @@
     z-index: 1;
 
     /* the activity list brings its own top margin for the old tabbed layout */
-    &[data-view="activity"] [data-testid="Activity"] > ul {
+    &[data-view='activity'] [data-testid='Activity'] > ul {
         margin-top: 0;
     }
 
     /* the activity list's favicon tiles, styled like the other site tiles in
        the report (.siteIcon): solid, with a hairline ring and a soft shadow */
-    &[data-view="activity"] [data-testid="Activity"] span[data-url] {
+    &[data-view='activity'] [data-testid='Activity'] span[data-url] {
         background: var(--report-popover-bg);
         border: 0;
         border-radius: 8px;
-        box-shadow: 0 0 0 1px var(--report-divider), 0 1px 2px rgba(0, 0, 0, 0.06);
+        box-shadow:
+            0 0 0 1px var(--report-divider),
+            0 1px 2px rgba(0, 0, 0, 0.06);
         backdrop-filter: none;
         /* flush left, lined up with the cookie icon; the 3px moves to the
            right so the title and history text don't shift */
@@ -650,7 +691,7 @@
         box-shadow: var(--focus-ring);
     }
 
-    &[aria-busy="true"] {
+    &[aria-busy='true'] {
         cursor: progress;
         opacity: 0.5;
     }
@@ -667,16 +708,20 @@
         display: none;
     }
 
+    .deviceValue {
+        transition: none;
+    }
+
     .collapsible,
     .collapsibleInner,
     .headSwitch,
     .headLayer,
-    .report[data-empty="true"] {
+    .report[data-empty='true'] {
         transition: none !important;
     }
 }
 
-[data-theme="dark"] .report {
+[data-theme='dark'] .report {
     --report-skeleton: var(--color-gray-80);
     --report-popover-bg: var(--color-gray-85);
     --report-more-bg: var(--color-gray-80);
@@ -718,7 +763,7 @@
     margin-top: 1px;
 }
 
-/* How they try to recognize you */
+/* What they use to identify you */
 
 .deviceCard {
     margin: 0;
@@ -755,6 +800,13 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    /* this device's own details stay blurred until you point at one */
+    filter: blur(5px);
+    transition: filter 240ms ease;
+
+    &:hover {
+        filter: blur(0);
+    }
 }
 
 .deviceCount {
@@ -793,7 +845,9 @@
     align-items: center;
     justify-content: center;
     background: var(--report-popover-bg);
-    box-shadow: 0 0 0 1px var(--report-divider), 0 1px 2px rgba(0, 0, 0, 0.06);
+    box-shadow:
+        0 0 0 1px var(--report-divider),
+        0 1px 2px rgba(0, 0, 0, 0.06);
 
     img {
         display: block;
@@ -836,10 +890,10 @@
     display: block;
 }
 
-/* An eyelid that now and then blinks shut over the logo, in the eye's
+/* An eyelid that now and then blinks shut over a round logo, in the eye's
    colours; its curved lower edge is the lash line. It rests open, above the
    logo; useRingBlinks plays the blinks. */
-.orbitLogo > .orbitLid {
+.orbitLid {
     position: absolute;
     inset: 0;
     background: #d3b9eb;

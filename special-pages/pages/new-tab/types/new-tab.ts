@@ -279,9 +279,10 @@ export type Favicon = null | {
   maxAvailableSize?: number;
 };
 /**
- * Which view of the Protections Report is shown: 'purposes' (why we blocked them), 'companies' (who we blocked the most), 'top-sites' (where they tried to track you), 'activity' (when they tried to track you) or 'recognition' (how they try to recognize you). A view with no data this week opens the first one that has data instead. 'privacy-stats' is the retired summary, now only used by the legacy UI; the new UI opens the first view that has data in its place.
+ * Which view of the Protections Report is shown: 'purposes' (why we blocked them), 'companies' (who tried to watch you), 'top-sites' (where they tried to watch you), 'activity' (when they tried to watch you), 'recognition' (what they use to identify you) or 'compare' (how Chrome compares). A view with no data this week opens the first one that has data instead. 'privacy-stats' is the retired summary, now only used by the legacy UI; the new UI opens the first view that has data in its place.
  */
-export type FeedType = "privacy-stats" | "activity" | "purposes" | "recognition" | "companies" | "top-sites";
+export type FeedType =
+  "privacy-stats" | "activity" | "purposes" | "recognition" | "companies" | "top-sites" | "compare";
 /**
  * What the user captured: a dragged region, a whole display, or a single window.
  */
@@ -413,6 +414,8 @@ export interface NewTabMessages {
     | OmnibarSubmitSearchNotification
     | OmnibarViewAllAIChatsNotification
     | OpenNotification
+    | ProtectionsDismissDefaultBrowserPromptNotification
+    | ProtectionsMakeDefaultBrowserNotification
     | ProtectionsSetConfigNotification
     | ReportInitExceptionNotification
     | ReportPageExceptionNotification
@@ -1353,6 +1356,28 @@ export interface OpenAction {
   target: "settings";
 }
 /**
+ * Generated from @see "../messages/protections_dismissDefaultBrowserPrompt.notify.json"
+ */
+export interface ProtectionsDismissDefaultBrowserPromptNotification {
+  method: "protections_dismissDefaultBrowserPrompt";
+  params: DismissDefaultBrowserPrompt;
+}
+/**
+ * The user dismissed the Protections Report's '1 issue' prompt to make DuckDuckGo their default browser. The report stops showing it for now; native should remember the choice and omit isDefaultBrowser (rather than send false) while it wants the prompt kept away.
+ */
+export interface DismissDefaultBrowserPrompt {}
+/**
+ * Generated from @see "../messages/protections_makeDefaultBrowser.notify.json"
+ */
+export interface ProtectionsMakeDefaultBrowserNotification {
+  method: "protections_makeDefaultBrowser";
+  params: MakeDefaultBrowser;
+}
+/**
+ * The user asked, from the Protections Report, to make DuckDuckGo their default browser. Native shows the system prompt (or settings) and, if it changes, sends 'protections_onDataUpdate' with isDefaultBrowser: true.
+ */
+export interface MakeDefaultBrowser {}
+/**
  * Generated from @see "../messages/protections_setConfig.notify.json"
  */
 export interface ProtectionsSetConfigNotification {
@@ -2031,6 +2056,10 @@ export interface ProtectionsData {
    * Total number of cookie pop-ups blocked since install
    */
   totalCookiePopUpsBlocked?: null | number;
+  /**
+   * Whether DuckDuckGo is the default browser. When false, the Protections Report offers to make it the default (sending 'protections_makeDefaultBrowser'); send an update through 'protections_onDataUpdate' once that changes. Omit if unknown: nothing is shown.
+   */
+  isDefaultBrowser?: boolean;
 }
 /**
  * Generated from @see "../messages/rmf_getData.request.json"

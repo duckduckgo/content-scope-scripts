@@ -81,6 +81,8 @@ export function PryingEye({ zoneRef, tracking }) {
         // expand), so the eye looks over straight away instead of waiting
         // for the next movement
         let pointer = lastPointer.current;
+        /** Where the eye is on screen, measured when a frame is asked for (see `aimSoon`) */
+        let eyeRect = /** @type {DOMRect | null} */ (null);
 
         /**
          * @param {number} x - iris offset from rest, in artwork units
@@ -115,10 +117,8 @@ export function PryingEye({ zoneRef, tracking }) {
 
         const aim = () => {
             frame = 0;
-            const svg = svgRef.current;
-            if (!pointer || !svg) return;
-            const r = svg.getBoundingClientRect();
-            if (!r.width) return;
+            const r = eyeRect;
+            if (!pointer || !r?.width) return;
             // the artwork is mirrored, so screen-right is artwork-left
             const dx = -(pointer.x - (r.left + r.width / 2));
             const rawDy = pointer.y - (r.top + r.height / 2);
@@ -131,10 +131,20 @@ export function PryingEye({ zoneRef, tracking }) {
             move(targetX - restX, targetY - restY, 'transform 240ms ease-out');
         };
 
+        // Measured here, between frames, rather than in `aim`: by then other
+        // animations (eg: the Chrome comparison's cursor) may have moved
+        // things that frame, and measuring would make the browser lay out
+        // the page an extra time.
+        const aimSoon = () => {
+            if (frame) return;
+            eyeRect = svgRef.current?.getBoundingClientRect() ?? null;
+            frame = requestAnimationFrame(aim);
+        };
+
         /** @param {PointerEvent} e */
         const onMove = (e) => {
             pointer = { x: e.clientX, y: e.clientY };
-            if (!frame) frame = requestAnimationFrame(aim);
+            aimSoon();
         };
         const onLeave = () => {
             pointer = null;
@@ -145,7 +155,7 @@ export function PryingEye({ zoneRef, tracking }) {
 
         zone.addEventListener('pointermove', onMove, { passive: true });
         zone.addEventListener('pointerleave', onLeave);
-        if (pointer) frame = requestAnimationFrame(aim);
+        if (pointer) aimSoon();
         return () => {
             zone.removeEventListener('pointermove', onMove);
             zone.removeEventListener('pointerleave', onLeave);

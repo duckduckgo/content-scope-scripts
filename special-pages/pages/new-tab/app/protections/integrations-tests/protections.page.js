@@ -279,6 +279,49 @@ export class ProtectionsPage {
         await expect(copy).toHaveCount(0);
     }
 
+    /**
+     * Not the default browser: an orange "1 issue" pill in place of the info
+     * button, whose pop-over offers to fix it. Once native says it's the
+     * default, the plain info button is back.
+     */
+    async makesDefaultBrowser() {
+        const pill = this.report().getByRole('button', { name: '1 issue: privacy isn’t your default' });
+        await expect(pill).toHaveText('1 issue');
+        await pill.click();
+        const popover = this.page.getByRole('dialog', { name: 'Privacy isn’t your default' });
+        await expect(popover).toBeVisible();
+        await popover.getByRole('button', { name: 'Set DuckDuckGo as Default' }).click();
+        await this.ntp.mocks.waitForCallCount({ method: 'protections_makeDefaultBrowser', count: 1 });
+        /** @type {import('../../../types/new-tab.ts').ProtectionsData} */
+        const data = { totalCount: 3193, totalCookiePopUpsBlocked: 762, isDefaultBrowser: true };
+        await this.ntp.mocks.simulateSubscriptionMessage(named.subscription('protections_onDataUpdate'), data);
+        await expect(pill).toHaveCount(0);
+        await expect(this.report().getByRole('button', { name: 'Why this matters' })).toBeVisible();
+    }
+
+    async dismissesDefaultBrowserIssue() {
+        const pill = this.report().getByRole('button', { name: '1 issue: privacy isn’t your default' });
+        await pill.click();
+        await this.page.getByRole('dialog', { name: 'Privacy isn’t your default' }).getByRole('button', { name: 'Dismiss' }).click();
+        await this.ntp.mocks.waitForCallCount({ method: 'protections_dismissDefaultBrowserPrompt', count: 1 });
+        await expect(pill).toHaveCount(0);
+        await expect(this.report().getByRole('button', { name: 'Why this matters' })).toBeVisible();
+    }
+
+    async displaysComparison() {
+        const view = this.report().getByTestId('ProtectionsReportCompare');
+        await expect(view).toContainText(
+            'Same page, two browsers. Here’s who would have watched you on a site like the ones where you were tracked most this week:',
+        );
+        // the mock's top sites have 31, 26, 22, 18 and 15 companies: 22 on average
+        await expect(view).toContainText('22 companies blocked');
+        await expect(view).toContainText('Trackers from all 22 companies load');
+        await expect(view).toContainText(
+            'Chrome is made by Google. Google tried to track you on 51 of the 64 sites you visited this week. We blocked them on all 51.',
+        );
+        await expect(view).toContainText('Google Chrome');
+    }
+
     async displaysTopSites() {
         const view = this.report().getByTestId('ProtectionsReportTopSites');
         await expect(view.getByText('Nosiest site this week')).toBeVisible();
@@ -299,7 +342,7 @@ export class ProtectionsPage {
         const purposes = this.report().getByTestId('ProtectionsReportPurposes').getByRole('listitem');
         await expect(purposes.first()).toContainText('Targets you with ads based on the sites you visit');
         await expect(purposes.first()).toContainText('Google, Facebook, and');
-        await this.choosesView('Who we blocked the most', 'companies');
+        await this.choosesView('Who tried to watch you', 'companies');
         const rows = this.report().getByTestId('ProtectionsReportCompanies').getByRole('listitem');
         await expect(rows.nth(0)).toContainText('Google was on 4 out of 5 sites you visited');
         await expect(rows.nth(0)).toContainText(

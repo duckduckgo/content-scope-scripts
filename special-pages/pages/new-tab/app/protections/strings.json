@@ -97,23 +97,23 @@
   },
   "protections_report_viewPurposes": {
     "title": "<b>Why</b> we blocked them",
-    "note": "Option in the Protections Report view menu. Groups blocked trackers by what they were trying to do (eg: follow you with ads). The <b></b> tags bold the question word (why, who, where, when, how) in the menu; keep them around the equivalent word."
+    "note": "Option in the Protections Report view menu. Groups blocked trackers by what they were trying to do (eg: follow you with ads). The <b></b> tags bold the question word (why, who, where, when, what, how) in the menu; keep them around the equivalent word."
   },
   "protections_report_viewPurposesFirstPerson": {
     "title": "<b>Why</b> DuckDuckGo blocked them",
-    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “<b>Why</b> we blocked them” — Option in the Protections Report view menu. Groups blocked trackers by what they were trying to do (eg: follow you with ads). The <b></b> tags bold the question word (why, who, where, when, how) in the menu; keep them around the equivalent word."
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “<b>Why</b> we blocked them” — Option in the Protections Report view menu. Groups blocked trackers by what they were trying to do (eg: follow you with ads). The <b></b> tags bold the question word (why, who, where, when, what, how) in the menu; keep them around the equivalent word."
   },
   "protections_report_viewCompanies": {
-    "title": "<b>Who</b> we blocked the most",
-    "note": "Option in the Protections Report view menu. Lists the tracking companies blocked on the most sites. The <b></b> tags bold the question word (why, who, where, when, how) in the menu; keep them around the equivalent word."
+    "title": "<b>Who</b> tried to watch you",
+    "note": "Option in the Protections Report view menu. Lists the tracking companies blocked on the most sites. The <b></b> tags bold the question word (why, who, where, when, what, how) in the menu; keep them around the equivalent word."
   },
   "protections_report_viewCompaniesFirstPerson": {
-    "title": "<b>Who</b> DuckDuckGo blocked the most",
-    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “<b>Who</b> we blocked the most” — Option in the Protections Report view menu. Lists the tracking companies blocked on the most sites. The <b></b> tags bold the question word (why, who, where, when, how) in the menu; keep them around the equivalent word."
+    "title": "<b>Who</b> tried to watch me",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “<b>Who</b> tried to watch you” — Option in the Protections Report view menu. Lists the tracking companies blocked on the most sites. The <b></b> tags bold the question word (why, who, where, when, what, how) in the menu; keep them around the equivalent word."
   },
   "protections_report_viewSites": {
-    "title": "<b>When</b> they tried to track you",
-    "note": "Option in the Protections Report view menu. Lists the sites you visited, most recent first, and how many trackers were blocked on each. The <b></b> tags bold the question word (why, who, where, when, how) in the menu; keep them around the equivalent word."
+    "title": "<b>When</b> they tried to watch you",
+    "note": "Option in the Protections Report view menu. Lists the sites you visited, most recent first, and how many trackers were blocked on each. The <b></b> tags bold the question word (why, who, where, when, what, how) in the menu; keep them around the equivalent word."
   },
   "protections_report_blocked": {
     "title": "Blocked",
@@ -121,43 +121,43 @@
   },
   "protections_report_purposeAdvertising": {
     "title": "Targets you with ads based on the sites you visit",
-    "note": "Describes what a tracker does (advertising trackers). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who we blocked the most'. The subject is the company or its trackers, eg: 'Google: Targets you with ads based on the sites you visit.'"
+    "note": "Describes what a tracker does (advertising trackers). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who tried to watch you'. The subject is the company or its trackers, eg: 'Google: Targets you with ads based on the sites you visit.'"
   },
   "protections_report_purposeAdvertisingFirstPerson": {
     "title": "Targets me with ads based on the sites I visit",
-    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “Targets you with ads based on the sites you visit” — Describes what a tracker does (advertising trackers). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who we blocked the most'. The subject is the company or its trackers, eg: 'Google: Targets you with ads based on the sites you visit.'"
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “Targets you with ads based on the sites you visit” — Describes what a tracker does (advertising trackers). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who tried to watch you'. The subject is the company or its trackers, eg: 'Google: Targets you with ads based on the sites you visit.'"
   },
   "protections_report_purposeSocial": {
     "title": "Tells social networks what you do on other sites",
-    "note": "Describes what a tracker does (social network trackers such as share buttons and pixels). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who we blocked the most'. The subject is the company or its trackers, eg: 'Google: Targets you with ads based on the sites you visit.'"
+    "note": "Describes what a tracker does (social network trackers such as share buttons and pixels). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who tried to watch you'. The subject is the company or its trackers, eg: 'Google: Targets you with ads based on the sites you visit.'"
   },
   "protections_report_purposeSocialFirstPerson": {
     "title": "Tells social networks what I do on other sites",
-    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “Tells social networks what you do on other sites” — Describes what a tracker does (social network trackers such as share buttons and pixels). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who we blocked the most'. The subject is the company or its trackers, eg: 'Google: Targets you with ads based on the sites you visit.'"
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “Tells social networks what you do on other sites” — Describes what a tracker does (social network trackers such as share buttons and pixels). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who tried to watch you'. The subject is the company or its trackers, eg: 'Google: Targets you with ads based on the sites you visit.'"
   },
   "protections_report_purposeFingerprinting": {
     "title": "Fingerprints your device to recognize you, even without cookies",
-    "note": "Describes what a tracker does (browser fingerprinting). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who we blocked the most'. The subject is the company or its trackers, eg: 'Google: Targets you with ads based on the sites you visit.'"
+    "note": "Describes what a tracker does (browser fingerprinting). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who tried to watch you'. The subject is the company or its trackers, eg: 'Google: Targets you with ads based on the sites you visit.'"
   },
   "protections_report_purposeFingerprintingFirstPerson": {
     "title": "Fingerprints my device to recognize me, even without cookies",
-    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “Fingerprints your device to recognize you, even without cookies” — Describes what a tracker does (browser fingerprinting). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who we blocked the most'. The subject is the company or its trackers, eg: 'Google: Targets you with ads based on the sites you visit.'"
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “Fingerprints your device to recognize you, even without cookies” — Describes what a tracker does (browser fingerprinting). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who tried to watch you'. The subject is the company or its trackers, eg: 'Google: Targets you with ads based on the sites you visit.'"
   },
   "protections_report_purposeSessionReplay": {
     "title": "Records what you click, type, and scroll",
-    "note": "Describes what a tracker does (session replay scripts that record mouse movement, clicks, typing and scrolls). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who we blocked the most'. The subject is the company or its trackers, eg: 'Google: Targets you with ads based on the sites you visit.'"
+    "note": "Describes what a tracker does (session replay scripts that record mouse movement, clicks, typing and scrolls). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who tried to watch you'. The subject is the company or its trackers, eg: 'Google: Targets you with ads based on the sites you visit.'"
   },
   "protections_report_purposeSessionReplayFirstPerson": {
     "title": "Records what I click, type, and scroll",
-    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “Records what you click, type, and scroll” — Describes what a tracker does (session replay scripts that record mouse movement, clicks, typing and scrolls). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who we blocked the most'. The subject is the company or its trackers, eg: 'Google: Targets you with ads based on the sites you visit.'"
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “Records what you click, type, and scroll” — Describes what a tracker does (session replay scripts that record mouse movement, clicks, typing and scrolls). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who tried to watch you'. The subject is the company or its trackers, eg: 'Google: Targets you with ads based on the sites you visit.'"
   },
   "protections_report_purposeAnalytics": {
     "title": "Watches what you read and where you browse",
-    "note": "Describes what a tracker does (analytics and audience measurement trackers). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who we blocked the most'. The subject is the company or its trackers, eg: 'Google: Targets you with ads based on the sites you visit.'"
+    "note": "Describes what a tracker does (analytics and audience measurement trackers). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who tried to watch you'. The subject is the company or its trackers, eg: 'Google: Targets you with ads based on the sites you visit.'"
   },
   "protections_report_purposeAnalyticsFirstPerson": {
     "title": "Watches what I read and where I browse",
-    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “Watches what you read and where you browse” — Describes what a tracker does (analytics and audience measurement trackers). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who we blocked the most'. The subject is the company or its trackers, eg: 'Google: Targets you with ads based on the sites you visit.'"
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “Watches what you read and where you browse” — Describes what a tracker does (analytics and audience measurement trackers). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who tried to watch you'. The subject is the company or its trackers, eg: 'Google: Targets you with ads based on the sites you visit.'"
   },
   "protections_report_othersSingular": {
     "title": "1 other",
@@ -173,7 +173,7 @@
   },
   "protections_report_companyWasOn": {
     "title": "{company} was on {frequency}",
-    "note": "Row title in the 'Who we blocked the most' view. {company} is a tracking company name (eg: Google). {frequency} is one of the 'sites you visited' phrases, eg: 'Google was on 4 out of 5 sites you visited'."
+    "note": "Row title in the 'Who tried to watch you' view. {company} is a tracking company name (eg: Google). {frequency} is one of the 'sites you visited' phrases, eg: 'Google was on 4 out of 5 sites you visited'."
   },
   "protections_report_freqNearlyAll": {
     "title": "nearly every site you visited",
@@ -265,11 +265,11 @@
   },
   "protections_report_attemptsSingular": {
     "title": "1 tracking attempt blocked",
-    "note": "Fallback description in the 'Who we blocked the most' view when we don't know what the company's trackers do."
+    "note": "Fallback description in the 'Who tried to watch you' view when we don't know what the company's trackers do."
   },
   "protections_report_attemptsPlural": {
     "title": "{count} tracking attempts blocked",
-    "note": "Fallback description in the 'Who we blocked the most' view when we don't know what the company's trackers do. {count} is a number."
+    "note": "Fallback description in the 'Who tried to watch you' view when we don't know what the company's trackers do. {count} is a number."
   },
   "protections_report_expandLabel": {
     "title": "Expand Protections Report",
@@ -281,11 +281,11 @@
   },
   "protections_report_moreCompaniesSingular": {
     "title": "1 more company tried too",
-    "note": "Last row in the 'Who we blocked the most' view, summarizing the one tracking company not listed above."
+    "note": "Last row in the 'Who tried to watch you' view, summarizing the one tracking company not listed above."
   },
   "protections_report_moreCompaniesPlural": {
     "title": "{count} more companies tried too",
-    "note": "Last row in the 'Who we blocked the most' view, summarizing the tracking companies not listed above. {count} is a number, eg: '43 more companies tried too'."
+    "note": "Last row in the 'Who tried to watch you' view, summarizing the tracking companies not listed above. {count} is a number, eg: '43 more companies tried too'."
   },
   "protections_report_including": {
     "title": "Including {companies}",
@@ -333,26 +333,26 @@
   },
   "protections_report_companyPurposes": {
     "title": "{purposes}.",
-    "note": "Sentence under a company in 'Who we blocked the most'. {purposes} is a list of what its trackers do, eg: 'Targets you with ads based on the sites you visit and records what you click, type, and scroll.'"
+    "note": "Sentence under a company in 'Who tried to watch you'. {purposes} is a list of what its trackers do, eg: 'Targets you with ads based on the sites you visit and records what you click, type, and scroll.'"
   },
   "protections_report_viewRecognition": {
-    "title": "<b>How</b> they try to recognize you",
-    "note": "Option in the Protections Report view menu. Shows the details about your device that tracking companies are known to read to recognize it (fingerprinting). The <b></b> tags bold the question word (why, who, where, when, how) in the menu; keep them around the equivalent word."
+    "title": "<b>What</b> they use to identify you",
+    "note": "Option in the Protections Report view menu. Shows the details about your device that tracking companies are known to read to recognize it (fingerprinting). The <b></b> tags bold the question word (why, who, where, when, what, how) in the menu; keep them around the equivalent word."
   },
   "protections_report_viewRecognitionFirstPerson": {
-    "title": "<b>How</b> they try to recognize me",
-    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “<b>How</b> they try to recognize you” — Option in the Protections Report view menu. Shows the details about your device that tracking companies are known to read to recognize it (fingerprinting). The <b></b> tags bold the question word (why, who, where, when, how) in the menu; keep them around the equivalent word."
+    "title": "<b>What</b> they use to identify me",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “<b>What</b> they use to identify you” — Option in the Protections Report view menu. Shows the details about your device that tracking companies are known to read to recognize it (fingerprinting). The <b></b> tags bold the question word (why, who, where, when, what, how) in the menu; keep them around the equivalent word."
   },
   "protections_report_viewTopSites": {
-    "title": "<b>Where</b> they tried to track you",
-    "note": "Option in the Protections Report view menu. Shows the sites you visited this week with the most tracking companies. The <b></b> tags bold the question word (why, who, where, when, how) in the menu; keep them around the equivalent word."
+    "title": "<b>Where</b> they tried to watch you",
+    "note": "Option in the Protections Report view menu. Shows the sites you visited this week with the most tracking companies. The <b></b> tags bold the question word (why, who, where, when, what, how) in the menu; keep them around the equivalent word."
   },
   "protections_report_viewTopSitesFirstPerson": {
-    "title": "<b>Where</b> they tried to track me",
-    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “<b>Where</b> they tried to track you” — Option in the Protections Report view menu. Shows the sites you visited this week with the most tracking companies. The <b></b> tags bold the question word (why, who, where, when, how) in the menu; keep them around the equivalent word."
+    "title": "<b>Where</b> they tried to watch me",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “<b>Where</b> they tried to watch you” — Option in the Protections Report view menu. Shows the sites you visited this week with the most tracking companies. The <b></b> tags bold the question word (why, who, where, when, what, how) in the menu; keep them around the equivalent word."
   },
   "protections_report_recognitionIntroSingular": {
-    "title": "Of the companies we blocked this week, <b>1</b> is known to read details like these from your device:",
+    "title": "Of the companies we blocked this week, <b>1</b> is known to read details like these from your device. Hover over them to reveal what we keep private:",
     "note": "Introduces a list of details about your device (graphics card, screen…). Of the tracking companies blocked this week, one is known to read them. Keep the <b></b> tags."
   },
   "protections_report_recognitionIntroSingularFirstPerson": {
@@ -360,7 +360,7 @@
     "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “Of the companies we blocked this week, <b>1</b> is known to read details like these from your device:” — Introduces a list of details about your device (graphics card, screen…). Of the tracking companies blocked this week, one is known to read them. Keep the <b></b> tags."
   },
   "protections_report_recognitionIntroPlural": {
-    "title": "Of the companies we blocked this week, <b>{count}</b> are known to read details like these from your device to create a <b>digital fingerprint</b> of you:",
+    "title": "Of the companies we blocked this week, <b>{count}</b> are known to read details like these from your device to create a <b>digital fingerprint</b> of you. Hover over them to reveal what we keep private:",
     "note": "Introduces a list of details about your device (graphics card, screen…). {count} is how many of the tracking companies blocked this week are known to read them. Keep the <b></b> tags."
   },
   "protections_report_recognitionIntroPluralFirstPerson": {
@@ -369,23 +369,23 @@
   },
   "protections_report_surfaceGraphics": {
     "title": "Graphics card",
-    "note": "Label for a detail about your device in 'How they try to recognize you'. The value next to it is the graphics card's name."
+    "note": "Label for a detail about your device in 'What they use to identify you'. The value next to it is the graphics card's name."
   },
   "protections_report_surfaceScreen": {
     "title": "Screen",
-    "note": "Label for a detail about your device in 'How they try to recognize you'. The value next to it is the screen size and color depth."
+    "note": "Label for a detail about your device in 'What they use to identify you'. The value next to it is the screen size and color depth."
   },
   "protections_report_surfaceLocale": {
     "title": "Time zone",
-    "note": "Label for a detail about your device in 'How they try to recognize you'. The value next to it is the time zone and language, eg: 'America/New_York · en-US'."
+    "note": "Label for a detail about your device in 'What they use to identify you'. The value next to it is the time zone and language, eg: 'America/New_York · en-US'."
   },
   "protections_report_surfaceFonts": {
     "title": "Fonts",
-    "note": "Label for a detail about your device in 'How they try to recognize you'. The value next to it says how many common fonts are installed."
+    "note": "Label for a detail about your device in 'What they use to identify you'. The value next to it says how many common fonts are installed."
   },
   "protections_report_surfaceAudio": {
     "title": "Audio",
-    "note": "Label for a detail about your device in 'How they try to recognize you'. The value next to it is the audio sample rate and number of channels."
+    "note": "Label for a detail about your device in 'What they use to identify you'. The value next to it is the audio sample rate and number of channels."
   },
   "protections_report_screenValue": {
     "title": "{width} × {height} · {depth}-bit color",
@@ -417,11 +417,11 @@
   },
   "protections_report_recognitionFooter": {
     "title": "Alone, these details may look innocent. Together, they can be unique to you and can single out your device, like a fingerprint. Blocking these trackers stops them reading yours.",
-    "note": "Explains fingerprinting under the list in 'How they try to recognize you'."
+    "note": "Explains fingerprinting under the list in 'What they use to identify you'."
   },
   "protections_report_recognitionFooterFirstPerson": {
     "title": "Alone, these details may look innocent. Together, they can be unique to me and can single out my device, like a fingerprint. Blocking these trackers stops them reading mine.",
-    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “Alone, these details may look innocent. Together, they can be unique to you and can single out your device, like a fingerprint. Blocking these trackers stops them reading yours.” — Explains fingerprinting under the list in 'How they try to recognize you'."
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “Alone, these details may look innocent. Together, they can be unique to you and can single out your device, like a fingerprint. Blocking these trackers stops them reading yours.” — Explains fingerprinting under the list in 'What they use to identify you'."
   },
   "protections_report_topSiteLabel": {
     "title": "Nosiest site this week",
@@ -445,19 +445,19 @@
   },
   "protections_report_siteCompaniesSingular": {
     "title": "1 company",
-    "note": "Next to a site in 'Where they tried to track you': how many tracking companies were on it."
+    "note": "Next to a site in 'Where they tried to watch you': how many tracking companies were on it."
   },
   "protections_report_siteCompaniesPlural": {
     "title": "{count} companies",
-    "note": "Next to a site in 'Where they tried to track you': how many tracking companies were on it. {count} is a number."
+    "note": "Next to a site in 'Where they tried to watch you': how many tracking companies were on it. {count} is a number."
   },
   "protections_report_surfaceHardware": {
     "title": "Hardware",
-    "note": "Label for a detail about your device in 'How they try to recognize you'. The value next to it is the number of processor cores and, where available, the amount of memory."
+    "note": "Label for a detail about your device in 'What they use to identify you'. The value next to it is the number of processor cores and, where available, the amount of memory."
   },
   "protections_report_surfaceVoices": {
     "title": "Speech voices",
-    "note": "Label for a detail about your device in 'How they try to recognize you'. The value next to it is how many text-to-speech voices are installed."
+    "note": "Label for a detail about your device in 'What they use to identify you'. The value next to it is how many text-to-speech voices are installed."
   },
   "protections_report_hardwareValue": {
     "title": "{cores} cores · {memory} GB memory",
@@ -490,5 +490,93 @@
   "protections_report_shareCta": {
     "title": "Try it free at <b>duckduckgo.com/app</b>",
     "note": "Call to action at the bottom of the shared picture. Keep the <b></b> tags around the address, which is shown bold and underlined."
+  },
+  "protections_report_viewCompare": {
+    "title": "<b>How</b> Chrome compares",
+    "note": "Menu item for the view comparing the nosiest site in DuckDuckGo and in Chrome. Keep the <b></b> tags around the question word; it is shown in bold."
+  },
+  "protections_report_compareIntro": {
+    "title": "Same page, two browsers. Here’s who would have watched you on a site like the ones where you were tracked most this week:",
+    "note": "Introduces two small illustrated browser windows showing the same page: DuckDuckGo (clean) and Chrome (ads, a cookie banner, and trackers following the cursor). The page stands for the sites where the user was tracked most this week."
+  },
+  "protections_report_compareIntroFirstPerson": {
+    "title": "Same page, two browsers. Here’s who would have watched me on a site like the ones where I was tracked most this week:",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “Same page, two browsers. Here’s who would have watched you on a site like the ones where you were tracked most this week:” — Introduces two small illustrated browser windows showing the same page: DuckDuckGo (clean) and Chrome (ads, a cookie banner, and trackers following the cursor). The page stands for the sites where the user was tracked most this week."
+  },
+  "protections_report_compareBlockedSingular": {
+    "title": "1 company blocked",
+    "note": "Under the DuckDuckGo window, when one company track on a site like the ones where the user was tracked most this week."
+  },
+  "protections_report_compareBlockedPlural": {
+    "title": "{count} companies blocked",
+    "note": "Under the DuckDuckGo window. {count} is the number of companies that track on a site like the ones where the user was tracked most this week, eg: '31 companies blocked'."
+  },
+  "protections_report_compareLoadSingular": {
+    "title": "Trackers from 1 company load",
+    "note": "Under the Chrome window, when one company track on a site like the ones where the user was tracked most this week."
+  },
+  "protections_report_compareLoadPlural": {
+    "title": "Trackers from all {count} companies load",
+    "note": "Under the Chrome window. {count} is the number of companies that track on a site like the ones where the user was tracked most this week, eg: 'Trackers from all 31 companies load'."
+  },
+  "protections_report_compareFootnote": {
+    "title": "Compared with Chrome’s default settings. Illustration only.",
+    "note": "Small print under the DuckDuckGo vs Chrome comparison."
+  },
+  "protections_report_compareAdBanner": {
+    "title": "LIMITED TIME OFFER",
+    "note": "Text on a fake banner ad in the illustrated Chrome window. Very small, all caps."
+  },
+  "protections_report_compareAd": {
+    "title": "AD",
+    "note": "Text on a fake ad tile in the illustrated Chrome window. Very small, all caps."
+  },
+  "protections_report_compareCookieDecline": {
+    "title": "Decline",
+    "note": "Button label on a fake cookie consent banner in the illustrated Chrome window. Very small; keep it short."
+  },
+  "protections_report_compareCookieAccept": {
+    "title": "Accept",
+    "note": "Button label on a fake cookie consent banner in the illustrated Chrome window. Very small; keep it short."
+  },
+  "protections_report_compareCookies": {
+    "title": "We use cookies<br>to spy on you",
+    "note": "Text of a fake, tongue-in-cheek cookie consent banner at the bottom of the illustrated Chrome window, next to its Decline and Accept buttons. The <br> starts the second line; keep both lines short."
+  },
+  "protections_report_compareGooglePlural": {
+    "title": "Chrome is made by Google. Google tried to track you on {count} of the {total} sites you visited this week. We blocked them on all {count}.",
+    "note": "Under the DuckDuckGo vs Chrome comparison. {count} is how many of the sites the user visited this week had Google trackers; {total} is how many sites they visited, eg: 'Google tried to track you on 51 of the 64 sites you visited this week. We blocked them on all 51.'"
+  },
+  "protections_report_compareGooglePluralFirstPerson": {
+    "title": "Chrome is made by Google. Google tried to track me on {count} of the {total} sites I visited this week. DuckDuckGo blocked them on all {count}.",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “Chrome is made by Google. Google tried to track you on {count} of the {total} sites you visited this week. We blocked them on all {count}.” — Under the DuckDuckGo vs Chrome comparison. {count} is how many of the sites the user visited this week had Google trackers; {total} is how many sites they visited, eg: 'Google tried to track you on 51 of the 64 sites you visited this week. We blocked them on all 51.'"
+  },
+  "protections_report_compareGoogleSingular": {
+    "title": "Chrome is made by Google. Google tried to track you on 1 of the {total} sites you visited this week. We blocked them there.",
+    "note": "Under the DuckDuckGo vs Chrome comparison, when Google trackers were on just one site. {total} is how many sites the user visited this week."
+  },
+  "protections_report_compareGoogleSingularFirstPerson": {
+    "title": "Chrome is made by Google. Google tried to track me on 1 of the {total} sites I visited this week. DuckDuckGo blocked them there.",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “Chrome is made by Google. Google tried to track you on 1 of the {total} sites you visited this week. We blocked them there.” — Under the DuckDuckGo vs Chrome comparison, when Google trackers were on just one site. {total} is how many sites the user visited this week."
+  },
+  "protections_report_makeDefault": {
+    "title": "Set DuckDuckGo as Default",
+    "note": "Button in the Protections Report, shown when DuckDuckGo isn't the default browser. Makes it the default browser."
+  },
+  "protections_report_issueCount": {
+    "title": "1 issue",
+    "note": "Shown in a small orange pill beside the Protections Report title when DuckDuckGo isn't the default browser. Opens a pop-over explaining it."
+  },
+  "protections_report_issueLabel": {
+    "title": "1 issue: privacy isn’t your default",
+    "note": "Accessible label for the '1 issue' pill (read by screen readers)."
+  },
+  "protections_report_notDefaultTitle": {
+    "title": "Privacy isn’t your default",
+    "note": "Title of the pop-over from the '1 issue' pill, when DuckDuckGo isn't the default browser. Followed by a button to make it the default."
+  },
+  "protections_report_dismiss": {
+    "title": "Dismiss",
+    "note": "Button next to 'Set DuckDuckGo as Default' in the '1 issue' pop-over. Hides the issue."
   }
 }

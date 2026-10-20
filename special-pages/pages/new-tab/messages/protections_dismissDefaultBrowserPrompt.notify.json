@@ -1,0 +1,6 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Dismiss Default Browser Prompt",
+    "description": "The user dismissed the Protections Report's '1 issue' prompt to make DuckDuckGo their default browser. The report stops showing it for now; native should remember the choice and omit isDefaultBrowser (rather than send false) while it wants the prompt kept away.",
+    "type": "object"
+}

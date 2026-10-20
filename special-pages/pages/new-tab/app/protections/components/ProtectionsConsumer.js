@@ -1,5 +1,12 @@
 import { useContext, useRef } from 'preact/hooks';
-import { ProtectionsContext, useBlockedCount, useCookiePopUpsBlockedCount, useScrollIntoViewOnRequest } from './ProtectionsProvider.js';
+import {
+    ProtectionsContext,
+    ProtectionsServiceContext,
+    useBlockedCount,
+    useCookiePopUpsBlockedCount,
+    useIsDefaultBrowser,
+    useScrollIntoViewOnRequest,
+} from './ProtectionsProvider.js';
 import { h } from 'preact';
 import { Protections } from './Protections.js';
 import { ActivityProvider } from '../../activity/ActivityProvider.js';
@@ -42,6 +49,8 @@ function ProtectionsReadyState({ data, config }) {
     const { toggle, setFeed } = useContext(ProtectionsContext);
     const blockedCountSignal = useBlockedCount(data.totalCount);
     const totalCookiePopUpsBlockedSignal = useCookiePopUpsBlockedCount(data.totalCookiePopUpsBlocked);
+    const isDefaultBrowserSignal = useIsDefaultBrowser(data.isDefaultBrowser);
+    const service = useContext(ProtectionsServiceContext);
 
     // `undefined` means native hasn't adopted the new schema yet
     // @todo legacyProtections: remove the legacy branch once all platforms support the new UI
@@ -54,6 +63,9 @@ function ProtectionsReadyState({ data, config }) {
                     setFeed={setFeed}
                     blockedCount={blockedCountSignal.value}
                     cookiePopUpsBlocked={totalCookiePopUpsBlockedSignal.value}
+                    isDefaultBrowser={isDefaultBrowserSignal.value}
+                    makeDefaultBrowser={() => service?.makeDefaultBrowser()}
+                    dismissDefaultBrowserPrompt={() => service?.dismissDefaultBrowserPrompt()}
                 />
             </PrivacyStatsProvider>
         );
@@ -102,8 +114,20 @@ const NO_STATS = { totalCompanies: 0, trackerCompanies: [] };
  * @param {(feed: ProtectionsConfig['feed']) => void} props.setFeed
  * @param {number} props.blockedCount
  * @param {number | null} props.cookiePopUpsBlocked
+ * @param {boolean | undefined} props.isDefaultBrowser
+ * @param {() => void} props.makeDefaultBrowser
+ * @param {() => void} props.dismissDefaultBrowserPrompt
  */
-function ProtectionsReportReadyState({ config, toggle, setFeed, blockedCount, cookiePopUpsBlocked }) {
+function ProtectionsReportReadyState({
+    config,
+    toggle,
+    setFeed,
+    blockedCount,
+    cookiePopUpsBlocked,
+    isDefaultBrowser,
+    makeDefaultBrowser,
+    dismissDefaultBrowserPrompt,
+}) {
     const { state, failed } = useContext(PrivacyStatsContext);
     const rootRef = useRef(/** @type {HTMLElement|null} */ (null));
     useScrollIntoViewOnRequest(rootRef);
@@ -122,6 +146,9 @@ function ProtectionsReportReadyState({ config, toggle, setFeed, blockedCount, co
             setFeed={setFeed}
             blockedCount={blockedCount}
             cookiePopUpsBlocked={cookiePopUpsBlocked}
+            isDefaultBrowser={isDefaultBrowser}
+            makeDefaultBrowser={makeDefaultBrowser}
+            dismissDefaultBrowserPrompt={dismissDefaultBrowserPrompt}
             stats={stats}
             sites={
                 <ActivityProvider>
