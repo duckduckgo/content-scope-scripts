@@ -53,6 +53,12 @@ export default class SelectionTools extends ContentFeature {
     /** @type {string | null} the text the toolbar is showing for */
     _shownText = null;
 
+    /** @type {string | null} the text toolbarShown was last sent for, so each selection is counted once */
+    _announcedText = null;
+
+    /** @type {string | null} the selection the native context menu opened on, while it's open */
+    _menuText = null;
+
     _maxVisibleActions = DEFAULT_MAX_VISIBLE_ACTIONS;
     _minChars = DEFAULT_MIN_CHARS;
     _locale = 'en';
@@ -75,6 +81,7 @@ export default class SelectionTools extends ContentFeature {
             // A toolbar built from the old config could offer something native now refuses.
             this._hide();
         });
+        this.subscribe('contextMenuClosed', () => this._contextMenuClosed());
         for (const type of ['mousedown', 'mouseup', 'keyup', 'contextmenu']) {
             document.addEventListener(type, this, true);
         }
@@ -150,6 +157,8 @@ export default class SelectionTools extends ContentFeature {
     }
 
     async _refresh() {
+        // A selection gesture after the menu replaces its selection.
+        this._menuText = null;
         const snapshot = readSelection(this._minChars);
         if (!snapshot) {
             if (!this._toolbar?.isMenuOpen) this._hide();
@@ -188,14 +197,17 @@ export default class SelectionTools extends ContentFeature {
         this._shownText = snapshot.text;
         const state = expanded && !config.startCollapsed ? 'expanded' : 'collapsed';
         toolbar.show(this._model(snapshot, context, ranked, config.askAvailable), snapshot.bounds, { expanded: state === 'expanded' });
-        this.notify('toolbarShown', { state, selectionType: context.shape, editable: snapshot.editable });
+        if (this._announcedText !== snapshot.text) {
+            this._announcedText = snapshot.text;
+            this.notify('toolbarShown', { state, selectionType: context.shape, editable: snapshot.editable });
+        }
         this.addDebugFlag();
     }
 
     /**
-     * The native menu has the same actions, so the toolbar shrinks to its chip while the menu is open. Covers
-     * right-click as well as the Menu key and Shift+F10. The report goes out within the event when the config is
-     * already known, so native has it as early as possible.
+     * The native menu has the same actions, so the toolbar hides while the menu is open, and comes back as the chip
+     * when native says it closed (contextMenuClosed). Covers right-click as well as the Menu key and Shift+F10. The
+     * report goes out within the event when the config is already known, so native has it as early as possible.
      */
     async _contextMenu() {
         const snapshot = readSelection(this._minChars);
@@ -219,6 +231,24 @@ export default class SelectionTools extends ContentFeature {
             editable: snapshot.editable,
             actions: contextMenuActions(ranked, context),
         });
+        this._menuText = snapshot.text;
+        const announced = this._announcedText;
+        this._hide();
+        // Hiding for the menu isn't a new selection: the chip that comes back afterwards isn't counted again.
+        this._announcedText = announced;
+    }
+
+    /**
+     * Brings the toolbar back as the chip if the menu's selection is still there. Natives that never send this leave the
+     * toolbar hidden until the next selection, as a click away would.
+     */
+    _contextMenuClosed() {
+        const text = this._menuText;
+        this._menuText = null;
+        const config = this._config;
+        if (text === null || !config) return;
+        const snapshot = readSelection(this._minChars);
+        if (!snapshot || snapshot.text !== text) return;
         this._offer(config, snapshot, false);
     }
 
@@ -305,6 +335,7 @@ export default class SelectionTools extends ContentFeature {
 
     _hide() {
         this._shownText = null;
+        this._announcedText = null;
         this._toolbar?.hide();
     }
 
