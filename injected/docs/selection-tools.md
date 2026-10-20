@@ -63,7 +63,8 @@ user's language). Otherwise their options are offered, minus the selection's own
 The toolbar shows Ask, then up to `maxVisibleActions - 1` actions, then a "more" button whose menu holds the rest,
 "Hide selection tools" and "Open AI Settings". After an action the toolbar collapses to the
 Ask chip; pointing at the chip expands it again. While the native context menu is open the toolbar is hidden, and it
-comes back as the chip when native sends `contextMenuClosed`, if the menu's selection is still there.
+comes back as the chip when native sends `contextMenuClosed`, if the menu's selection is still there. A left click that
+dismisses the menu without changing the selection brings back the chip too, whichever arrives first.
 
 ## Requests
 

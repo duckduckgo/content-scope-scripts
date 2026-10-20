@@ -92,6 +92,18 @@ async function closeContextMenu(collector) {
 }
 
 /**
+ * The left click that dismisses the native context menu: the menu takes the press, and only the release reaches the
+ * page, leaving the selection. A real mouse release here would also end Chromium's selection gesture and clear it.
+ * @param {import('@playwright/test').Page} page
+ */
+async function releaseOnSelection(page) {
+    await page.evaluate(() => {
+        const target = window.getSelection()?.anchorNode?.parentElement ?? document.body;
+        target.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, button: 0 }));
+    });
+}
+
+/**
  * Triple-click selects the paragraph with a real, trusted mouse.
  * @param {import('@playwright/test').Page} page
  * @param {string} selector
@@ -326,6 +338,30 @@ test.describe('selectionTools', () => {
         // Back as the chip: Ask's label and the actions are folded away.
         await closeContextMenu(collector);
         await expect(selectionToolbar(page)).toBeVisible();
+        await expect(selectionToolbar(page).locator('.fold:not(.sent)')).toHaveClass(['fold folded', 'fold folded']);
+    });
+
+    test('brings the chip back when a left click dismisses the context menu before it reports closing', async ({ page }, testInfo) => {
+        const collector = await setup(page, testInfo);
+        await selectParagraph(page, '#spanish');
+        await page.locator('#spanish').click({ button: 'right' });
+        await expect.poll(() => sent(collector, 'contextMenuOpened')).toHaveLength(1);
+        await releaseOnSelection(page);
+        await expect(selectionToolbar(page)).toBeVisible();
+        await closeContextMenu(collector);
+        await expect(selectionToolbar(page).locator('.fold:not(.sent)')).toHaveClass(['fold folded', 'fold folded']);
+    });
+
+    test('keeps the chip when a left click dismisses the context menu after it reports closing', async ({ page }, testInfo) => {
+        const collector = await setup(page, testInfo);
+        await selectParagraph(page, '#spanish');
+        await page.locator('#spanish').click({ button: 'right' });
+        await expect.poll(() => sent(collector, 'contextMenuOpened')).toHaveLength(1);
+        await closeContextMenu(collector);
+        await expect(selectionToolbar(page)).toBeVisible();
+        await releaseOnSelection(page);
+        // The release checks the selection on the next task; let that run.
+        await page.evaluate(() => new Promise((resolve) => setTimeout(() => setTimeout(resolve, 0), 0)));
         await expect(selectionToolbar(page).locator('.fold:not(.sent)')).toHaveClass(['fold folded', 'fold folded']);
     });
 
