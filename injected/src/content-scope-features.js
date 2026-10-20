@@ -53,6 +53,7 @@ export function load(args) {
     const importConfig = {
         trackerLookup: import.meta.trackerLookup,
         injectName: import.meta.injectName,
+        cssVersion: import.meta.cssVersion,
     };
 
     const bundledFeatureNames = typeof importConfig.injectName === 'string' ? (platformSupport[importConfig.injectName] ?? []) : [];

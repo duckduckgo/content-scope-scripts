@@ -38,6 +38,7 @@ Work in a **clean clone or worktree** — step 4 force-adds files, and stray loc
     ```sh
     nvm use
     npm ci        # not `npm install` — ci installs the lockfile exactly, as build.yml does
+    export CSS_RELEASE_VERSION=4.21.2 # {hotfix tag}; build.yml sets this for releases
     npm run build
     ```
 
@@ -58,8 +59,10 @@ Work in a **clean clone or worktree** — step 4 force-adds files, and stray loc
 1. **Rebuild and assert the tree is clean.** This proves the checked-in artifacts match the checked-in source:
 
     ```sh
-    npm run test-clean-tree
+    CSS_RELEASE_VERSION=4.21.2 npm run test-clean-tree # {hotfix tag}
     ```
+
+    The bundles embed `CSS_RELEASE_VERSION`, so a rebuild without it differs from the checked-in output.
 
 2. **Compare against the base tag on GitHub** and confirm only the expected changes are present, source and compiled:
 

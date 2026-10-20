@@ -19,6 +19,8 @@ import { URLPattern as URLPatternPolyfill } from 'urlpattern-polyfill';
  * @property {object} [urlPattern]
  * @property {string | number} [minSupportedVersion]
  * @property {string | number} [maxSupportedVersion]
+ * @property {string} [minSupportedCSSVersion] - minimum C-S-S release version
+ * @property {string} [maxSupportedCSSVersion] - maximum C-S-S release version
  * @property {object} [experiment]
  * @property {string} [experiment.experimentName]
  * @property {string} [experiment.cohort]
@@ -123,6 +125,14 @@ export default class ConfigFeature {
     }
 
     /**
+     * Getter for the C-S-S release version, will be overridden by subclasses (namely ContentFeature)
+     * @returns {string | null}
+     */
+    get cssVersion() {
+        return null;
+    }
+
+    /**
      * Given a config key, interpret the value as a list of conditionals objects, and return the elements that match the current page
      * Consider in your feature using patchSettings instead as per `getFeatureSetting`.
      * @param {string} featureKeyName
@@ -185,6 +195,8 @@ export default class ConfigFeature {
             experiment: this._matchExperimentConditional,
             minSupportedVersion: this._matchMinSupportedVersion,
             maxSupportedVersion: this._matchMaxSupportedVersion,
+            minSupportedCSSVersion: this._matchMinSupportedCSSVersion,
+            maxSupportedCSSVersion: this._matchMaxSupportedCSSVersion,
             injectName: this._matchInjectNameConditional,
             internal: this._matchInternalConditional,
             preview: this._matchPreviewConditional,
@@ -353,6 +365,32 @@ export default class ConfigFeature {
     _matchMaxSupportedVersion(conditionBlock) {
         if (!conditionBlock.maxSupportedVersion) return false;
         return isMaxSupportedVersion(conditionBlock.maxSupportedVersion, this.#args?.platform?.version);
+    }
+
+    /**
+     * Takes a condition block and returns true if the C-S-S version satisfies the `minSupportedCSSVersion`.
+     * Unversioned builds never match.
+     * @param {ConditionBlock} conditionBlock
+     * @returns {boolean}
+     */
+    _matchMinSupportedCSSVersion(conditionBlock) {
+        if (!conditionBlock.minSupportedCSSVersion) return false;
+        const cssVersion = this.cssVersion;
+        if (!cssVersion) return false;
+        return isSupportedVersion(conditionBlock.minSupportedCSSVersion, cssVersion);
+    }
+
+    /**
+     * Takes a condition block and returns true if the C-S-S version satisfies the `maxSupportedCSSVersion`.
+     * Unversioned builds never match.
+     * @param {ConditionBlock} conditionBlock
+     * @returns {boolean}
+     */
+    _matchMaxSupportedCSSVersion(conditionBlock) {
+        if (!conditionBlock.maxSupportedCSSVersion) return false;
+        const cssVersion = this.cssVersion;
+        if (!cssVersion) return false;
+        return isMaxSupportedVersion(conditionBlock.maxSupportedCSSVersion, cssVersion);
     }
 
     /**
