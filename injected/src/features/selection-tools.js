@@ -96,7 +96,7 @@ export default class SelectionTools extends ContentFeature {
         if (this._toolbar?.contains(event)) return;
         switch (event.type) {
             case 'mousedown':
-                // A right-click leaves the toolbar to the contextmenu handler, which shrinks it rather than hiding it.
+                // A right-click leaves the toolbar to the contextmenu handler, which hides it for the menu.
                 if (/** @type {MouseEvent} */ (event).button !== 2) this._hide();
                 break;
             case 'mouseup':
@@ -157,7 +157,9 @@ export default class SelectionTools extends ContentFeature {
     }
 
     async _refresh() {
-        // A selection gesture after the menu replaces its selection.
+        // A selection gesture after the menu replaces its selection. A click that only dismissed the menu, leaving its
+        // selection, brings the chip back as closing the menu would; contextMenuClosed may arrive before or after it.
+        const menuText = this._menuText;
         this._menuText = null;
         const snapshot = readSelection(this._minChars);
         if (!snapshot) {
@@ -167,7 +169,7 @@ export default class SelectionTools extends ContentFeature {
         const config = await this._getConfig();
         // The user may have moved on while native answered.
         if (readSelection(this._minChars)?.text !== snapshot.text) return;
-        this._offer(config, snapshot, true);
+        this._offer(config, snapshot, snapshot.text !== menuText);
     }
 
     /**
