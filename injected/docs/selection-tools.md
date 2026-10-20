@@ -69,7 +69,8 @@ collapses to the Ask chip; pointing at the chip expands it again.
 ### `initialSetup`
 
 - {@link "SelectionTools Messages".InitialSetupRequest}
-- Sent once at start-up, and again on the next selection if that failed. Nothing shows until it's answered.
+- Sent on the first selection, or the first context menu on one, and again on the next if that failed. A page where
+  the user selects nothing sends nothing. Nothing shows until it's answered.
 - Response: {@link "SelectionTools Messages".SelectionToolsConfig}
 
 **Example**

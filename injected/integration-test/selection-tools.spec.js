@@ -58,7 +58,6 @@ async function setup(page, testInfo, overrides) {
     const collector = ResultsCollector.create(page, testInfo.project.use);
     collector.withMockResponse({ initialSetup: selectionToolsConfig(overrides) });
     await collector.load(HTML, CONFIG);
-    await collector.waitForMessage('initialSetup');
     return collector;
 }
 
@@ -93,10 +92,11 @@ async function selectParagraph(page, selector) {
 }
 
 test.describe('selectionTools', () => {
-    test('adds nothing to the page until text is selected, and removes it again', async ({ page }, testInfo) => {
-        await setup(page, testInfo);
+    test('adds nothing to the page and asks native nothing until text is selected', async ({ page }, testInfo) => {
+        const collector = await setup(page, testInfo);
         await page.locator('#english').click();
         await expect(host(page)).toHaveCount(0);
+        expect(await sent(collector, 'initialSetup')).toEqual([]);
 
         await selectParagraph(page, '#english');
         await expect(selectionToolbar(page)).toBeVisible();
@@ -231,10 +231,20 @@ test.describe('selectionTools', () => {
         await expect(selectionToolbar(page)).toBeVisible();
     });
 
-    test('reports an empty context menu without a selection', async ({ page }, testInfo) => {
+    test('reports an empty context menu after an earlier report, and nothing before one', async ({ page }, testInfo) => {
         const collector = await setup(page, testInfo);
         await page.locator('body').click({ button: 'right', position: { x: 5, y: 5 } });
-        expect(await sent(collector, 'contextMenuOpened')).toEqual([{ text: '', actions: [] }]);
+        expect(await sent(collector, 'contextMenuOpened')).toEqual([]);
+        expect(await sent(collector, 'initialSetup')).toEqual([]);
+
+        await selectParagraph(page, '#english');
+        await page.locator('#english').click({ button: 'right' });
+        await expect.poll(() => sent(collector, 'contextMenuOpened')).toHaveLength(1);
+        await page.mouse.click(5, 5);
+        await page.locator('body').click({ button: 'right', position: { x: 5, y: 5 } });
+        const reports = await sent(collector, 'contextMenuOpened');
+        expect(reports).toHaveLength(2);
+        expect(reports[1]).toEqual({ text: '', actions: [] });
     });
 
     test('still reports context menu actions with the toolbar turned off', async ({ page }, testInfo) => {
