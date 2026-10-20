@@ -1744,6 +1744,20 @@ export interface Favorite {
   id: string;
   title: string;
   favicon: Favicon;
+  trackers?: FavoriteTrackers;
+}
+/**
+ * Trackers blocked on this favorite's site in the past 7 days. Omitted when none were blocked.
+ */
+export interface FavoriteTrackers {
+  /**
+   * Display names of the tracking companies blocked on the site, most blocked first. Matches TrackerCompany.displayName
+   */
+  companies: string[];
+  /**
+   * Total tracking attempts blocked on the site
+   */
+  blocked: number;
 }
 /**
  * Generated from @see "../messages/freemiumPIRBanner_getData.request.json"

@@ -2,7 +2,7 @@ import { TestTransportConfig } from '@duckduckgo/messaging';
 
 import { privacyStatsMocks } from './privacy-stats/mocks/privacy-stats.mocks.js';
 import { rmfDataExamples } from './remote-messaging-framework/mocks/rmf.data.js';
-import { favorites, gen } from './favorites/mocks/favorites.data.js';
+import { favorites, gen, withTrackers } from './favorites/mocks/favorites.data.js';
 import { updateNotificationExamples } from './update-notification/mocks/update-notification.data.js';
 import { customizerData, customizerMockTransport } from './customizer/mocks.js';
 import { freemiumPIRDataExamples } from './freemium-pir-banner/mocks/freemiumPIRBanner.data.js';
@@ -516,6 +516,11 @@ export function mockTransport() {
                     } else {
                         data = param ? gen(Number(url.searchParams.get('favorites'))) : read('favorites_data') || favorites.many;
                     }
+                    // tracker badges are opt-in, so the screenshots of the plain tiles stay put
+                    // (and dropped again when the param goes, since the data is kept between visits)
+                    data = url.searchParams.has('favorites.trackers')
+                        ? withTrackers(data)
+                        : { favorites: data.favorites.map(({ trackers: _, ...favorite }) => favorite) };
 
                     write('favorites_data', data);
                     // return new Promise((resolve) => setTimeout(() => resolve(dataToWrite), 1000))

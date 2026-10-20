@@ -55,30 +55,39 @@
 
 .infoButton {
     cursor: pointer;
-    width: 22px;
-    height: 22px;
+    /* the "1 issue" pill's height, colours and hover */
+    width: 20px;
+    height: 20px;
     padding: 0;
     border: 0;
     border-radius: 50%;
-    background: transparent;
+    background: var(--report-more-bg);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--ds-color-theme-text-tertiary);
-    transition: color 100ms ease;
+    color: var(--ds-color-theme-text-primary);
+    transition: background-color 100ms ease;
 
     svg {
-        width: 15px;
-        height: 15px;
+        width: 16px;
+        height: 16px;
     }
 
-    :global(.info-icon-fill) {
+    /* full strength: the icon's global style fades it */
+    :global(.info-icon-fill),
+    [data-theme='dark'] & :global(.info-icon-fill) {
         fill: currentColor;
+        fill-opacity: 1;
+    }
+
+    /* just the "i": the circle is the button's own background */
+    svg path:last-child {
+        display: none;
     }
 
     &:hover,
     &[aria-expanded='true'] {
-        color: var(--ds-color-theme-text-secondary);
+        background: color-mix(in srgb, var(--report-more-bg), currentColor 10%);
     }
 
     &:focus-visible {
@@ -141,8 +150,9 @@
     padding: 0 8px;
     border: 0;
     border-radius: 10px;
-    background: var(--color-red-50);
-    color: #fff;
+    /* the grey of the "+N" logo pills */
+    background: var(--report-more-bg);
+    color: var(--ds-color-theme-text-primary);
     font-size: 12px;
     line-height: 16px;
     font-weight: 600;
@@ -150,7 +160,7 @@
 
     &:hover,
     &[aria-expanded="true"] {
-        background: color-mix(in srgb, var(--color-red-50), black 10%);
+        background: color-mix(in srgb, var(--report-more-bg), currentColor 10%);
     }
 }
 
@@ -873,11 +883,63 @@
     }
 }
 
+/* The logos slowly circle the site. Each one turns back as the ring turns, so
+   it stays upright, and the eyes' irises swing round with the ring, so they
+   keep looking at the site. All three share a duration, so they stay in step.
+   The ring turns only while it's on screen (useRingBlinks sets data-playing);
+   at rest (reduced motion, or the shared picture) it's where it started. */
+@keyframes orbit-turn {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes orbit-unturn {
+    to {
+        transform: rotate(-360deg);
+    }
+}
+
+.orbitSpin {
+    --orbit-turn: 90s;
+
+    position: absolute;
+    inset: 0;
+    animation: orbit-turn var(--orbit-turn) linear infinite;
+}
+
+.orbitSpin .orbitLogo {
+    animation: orbit-unturn var(--orbit-turn) linear infinite;
+}
+
+.irisTurn {
+    transform-box: view-box;
+    transform-origin: 12px 12px;
+    animation: orbit-turn var(--orbit-turn) linear infinite;
+}
+
+.irisUnturn {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: orbit-unturn var(--orbit-turn) linear infinite;
+}
+
+.orbit:not([data-playing]) :is(.orbitSpin, .orbitLogo, .irisTurn, .irisUnturn) {
+    animation-play-state: paused;
+}
+
+.shareCopy :is(.orbitSpin, .orbitLogo, .irisTurn, .irisUnturn) {
+    animation: none;
+}
+
 .orbitLogo {
     position: absolute;
     display: flex;
     border-radius: 50%;
     overflow: hidden;
+    /* the rounded overflow clip isn't kept while the logo turns (see
+       .orbitSpin), which let the blinking lid show as a square */
+    clip-path: circle(50%);
 
     > *,
     img {

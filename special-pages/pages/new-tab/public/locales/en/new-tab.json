@@ -1313,6 +1313,38 @@
     "title": "Add Favorite",
     "note": "A button that allows a user to add a new 'favorite' bookmark to their existing list"
   },
+  "favorites_trackers_badgeLabel": {
+    "title": "Trackers from {count} companies blocked on this site",
+    "note": "Accessible label for a small badge on a favorite tile. {count} is a number greater than 1. Example: 'Trackers from 12 companies blocked on this site'"
+  },
+  "favorites_trackers_badgeLabelSingular": {
+    "title": "Trackers from 1 company blocked on this site",
+    "note": "Accessible label for a small badge on a favorite tile, when trackers from exactly one company were blocked"
+  },
+  "favorites_trackers_companies": {
+    "title": "{count} companies tried to watch you browse {site} this week",
+    "note": "Title of a list of tracking companies blocked on a favorite site in the past 7 days. {count} is a number greater than 1. {site} is the site's domain, eg: 'cnn.com'"
+  },
+  "favorites_trackers_companiesSingular": {
+    "title": "1 company tried to watch you browse {site} this week",
+    "note": "Title of a list of tracking companies blocked on a favorite site in the past 7 days, when there's exactly one. {site} is the site's domain, eg: 'cnn.com'"
+  },
+  "favorites_trackers_more": {
+    "title": "and {count} more",
+    "note": "Closes a short list of tracking companies, counting the ones not listed. {count} is a number greater than 1. Example: 'and 9 more'"
+  },
+  "favorites_trackers_moreSingular": {
+    "title": "and 1 more",
+    "note": "Closes a short list of tracking companies when exactly one wasn't listed"
+  },
+  "favorites_trackers_blocked": {
+    "title": "DuckDuckGo blocked them all {count} times they tried.",
+    "note": "Closes a list of tracking companies on a favorite site: DuckDuckGo blocked every tracking attempt in the past 7 days. {count} is the number of attempts, always greater than 1"
+  },
+  "favorites_trackers_blockedSingular": {
+    "title": "DuckDuckGo blocked it the one time it tried.",
+    "note": "Closes a list of tracking companies on a favorite site, when there was exactly one tracking attempt in the past 7 days, and DuckDuckGo blocked it"
+  },
   "customizer_image_privacy": {
     "title": "Images are stored on your device so DuckDuckGo can’t see or access them.",
     "note": "Shown near a button that allows a user to upload an image to be used as a background."

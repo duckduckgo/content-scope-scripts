@@ -441,18 +441,25 @@ export const RING_EYE_LOOK = 2.2;
  * @param {object} props
  * @param {number} [props.angle] - where it sits on the ring, in radians; it looks the other way, at the middle
  * @param {(el: SVGGElement | null) => void} [props.irisRef] - to move the iris (its `transform`) from outside
+ * @param {boolean} [props.turning] - on the turning ring: the iris swings round with it, to keep looking at the middle
  */
-export function RingEye({ angle = Math.PI / 2, irisRef }) {
+export function RingEye({ angle = Math.PI / 2, irisRef, turning = false }) {
     const dx = -Math.cos(angle) * RING_EYE_LOOK;
     const dy = -Math.sin(angle) * RING_EYE_LOOK;
     return (
         <svg viewBox="0 0 24 24" class={styles.ringEye}>
             <circle cx="12" cy="12" r="11.5" fill="#FBF7FF" />
             <path d="M3 15.5a10 10 0 0 0 18 0a12 12 0 0 1-18 0z" fill="#EADAFD" />
-            <g ref={irisRef} transform={`translate(${dx} ${dy})`}>
-                <circle cx="12" cy="12" r="5.6" fill="#9F6EB8" stroke="#682A7A" stroke-width="1" />
-                <circle cx="12" cy="12" r="2.7" fill="#521A61" />
-                <circle cx="10.3" cy="10.3" r="1.1" fill="#F5EDFF" />
+            {/* swings the iris round the eye's middle as the ring turns, while
+                its glint turns back, so the light keeps coming from the top left */}
+            <g class={turning ? styles.irisTurn : undefined}>
+                <g ref={irisRef} transform={`translate(${dx} ${dy})`}>
+                    <g class={turning ? styles.irisUnturn : undefined}>
+                        <circle cx="12" cy="12" r="5.6" fill="#9F6EB8" stroke="#682A7A" stroke-width="1" />
+                        <circle cx="12" cy="12" r="2.7" fill="#521A61" />
+                        <circle cx="10.3" cy="10.3" r="1.1" fill="#F5EDFF" />
+                    </g>
+                </g>
             </g>
             <circle cx="12" cy="12" r="11.4" fill="none" stroke="#521A61" stroke-width="1" />
         </svg>
@@ -500,6 +507,8 @@ function useRingBlinks(ringRef, enabled) {
         };
         const observer = new IntersectionObserver(([entry]) => {
             clearTimeout(timer);
+            // the ring only turns while it's on screen, too (see .orbitSpin)
+            ring.toggleAttribute('data-playing', Boolean(entry?.isIntersecting));
             if (entry?.isIntersecting) schedule();
         });
         observer.observe(ring);
@@ -537,27 +546,29 @@ export function TopSitesView({ sites }) {
                     <span class={styles.orbitCenter}>
                         <SiteFavicon site={top.site} large />
                     </span>
-                    {orbit.map((item, k) => {
-                        // the first few companies are larger; the eyes stay small
-                        const size = item.kind === 'company' && k < ORBIT.leadCount ? ORBIT.lead : ORBIT.rest;
-                        const angle = -Math.PI / 2 + (k * 2 * Math.PI) / orbit.length;
-                        return (
-                            <span
-                                key={item.kind === 'company' ? item.name : `eye-${item.id}`}
-                                class={styles.orbitLogo}
-                                title={item.kind === 'company' ? item.name : undefined}
-                                style={{
-                                    width: `${size}px`,
-                                    height: `${size}px`,
-                                    left: `${Math.round(ORBIT.center + ORBIT.radius * Math.cos(angle) - size / 2)}px`,
-                                    top: `${Math.round(ORBIT.center + ORBIT.radius * Math.sin(angle) - size / 2)}px`,
-                                }}
-                            >
-                                {item.kind === 'company' ? <CompanyIcon displayName={item.name} /> : <RingEye angle={angle} />}
-                                <span class={styles.orbitLid} />
-                            </span>
-                        );
-                    })}
+                    <span class={styles.orbitSpin}>
+                        {orbit.map((item, k) => {
+                            // the first few companies are larger; the eyes stay small
+                            const size = item.kind === 'company' && k < ORBIT.leadCount ? ORBIT.lead : ORBIT.rest;
+                            const angle = -Math.PI / 2 + (k * 2 * Math.PI) / orbit.length;
+                            return (
+                                <span
+                                    key={item.kind === 'company' ? item.name : `eye-${item.id}`}
+                                    class={styles.orbitLogo}
+                                    title={item.kind === 'company' ? item.name : undefined}
+                                    style={{
+                                        width: `${size}px`,
+                                        height: `${size}px`,
+                                        left: `${Math.round(ORBIT.center + ORBIT.radius * Math.cos(angle) - size / 2)}px`,
+                                        top: `${Math.round(ORBIT.center + ORBIT.radius * Math.sin(angle) - size / 2)}px`,
+                                    }}
+                                >
+                                    {item.kind === 'company' ? <CompanyIcon displayName={item.name} /> : <RingEye angle={angle} turning />}
+                                    <span class={styles.orbitLid} />
+                                </span>
+                            );
+                        })}
+                    </span>
                 </div>
                 <div class={styles.topSiteText}>
                     <span class={styles.topSiteLabel}>{t('protections_report_topSiteLabel')}</span>
