@@ -124,21 +124,48 @@ on the next selection.
 
 - {@link "SelectionTools Messages".ActionRequestedNotification}
 - The user clicked an action. `actionId` is `"ask"` for Ask.
+- For native's usage measurement it also says how the user got there:
+    - `state`: the toolbar's state when they came to it. `collapsed` means they came to it as the chip, even though
+      pointing at the chip expands it.
+    - `placement`: `toolbar` for a toolbar button (Ask included), `overflow` for the more menu. A choice inherits its
+      action's placement.
+    - `selectionType` and `editable` describe the selection.
 
 ```json
-{ "actionId": "translate", "text": "El perro", "parameter": "en", "sourceLanguage": "es" }
+{
+    "actionId": "translate",
+    "text": "El perro",
+    "parameter": "en",
+    "sourceLanguage": "es",
+    "state": "expanded",
+    "placement": "toolbar",
+    "selectionType": "text",
+    "editable": false
+}
+```
+
+### `toolbarShown`
+
+- {@link "SelectionTools Messages".ToolbarShownNotification}
+- The toolbar appeared for a new selection: `expanded`, or `collapsed` when a context menu on a selection without a
+  toolbar shows the chip. Not sent when the same selection is tracked again, or when the chip expands on hover.
+
+```json
+{ "state": "expanded", "selectionType": "word", "editable": false }
 ```
 
 ### `contextMenuOpened`
 
 - {@link "SelectionTools Messages".ContextMenuOpenedNotification}
 - Sent on `contextmenu` while `enabled`, with or without the toolbar. Without a selection, `text` and `actions` are
-  empty.
+  empty and `selectionType` and `editable` are left out.
 
 ```json
 {
     "text": "El perro",
     "sourceLanguage": "es",
+    "selectionType": "text",
+    "editable": false,
     "actions": [{ "id": "translate", "parameter": "en" }, { "id": "explain" }, { "id": "tone", "options": ["formal", "casual"] }]
 }
 ```

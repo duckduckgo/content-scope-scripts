@@ -114,7 +114,14 @@ test.describe('selectionTools', () => {
         await selectionToolbar(page).getByRole('button', { name: 'Explain' }).click();
 
         const [params] = await sent(collector, 'actionRequested');
-        expect(params).toEqual({ actionId: 'explain', text: expect.stringContaining('The quick brown fox') });
+        expect(params).toEqual({
+            actionId: 'explain',
+            text: expect.stringContaining('The quick brown fox'),
+            state: 'expanded',
+            placement: 'toolbar',
+            selectionType: 'text',
+            editable: false,
+        });
         await expect(selectionToolbar(page).getByText('Sent to Duck.ai')).toBeVisible();
     });
 
@@ -124,7 +131,26 @@ test.describe('selectionTools', () => {
         await selectionToolbar(page).getByRole('button', { name: 'Ask Duck.ai…' }).click();
 
         const [params] = await sent(collector, 'actionRequested');
-        expect(params).toEqual({ actionId: 'ask', text: expect.stringContaining('The quick brown fox') });
+        expect(params).toEqual({
+            actionId: 'ask',
+            text: expect.stringContaining('The quick brown fox'),
+            state: 'expanded',
+            placement: 'toolbar',
+            selectionType: 'text',
+            editable: false,
+        });
+    });
+
+    test('reports the chip state for an action picked after coming to the toolbar as the chip', async ({ page }, testInfo) => {
+        const collector = await setup(page, testInfo);
+        await selectParagraph(page, '#english');
+        await selectionToolbar(page).getByRole('button', { name: 'Explain' }).click();
+        // The toolbar is the chip now; pointing at it again expands it.
+        await page.mouse.move(5, 5);
+        await selectionToolbar(page).getByRole('button', { name: 'Ask Duck.ai…' }).click();
+
+        const [, params] = await sent(collector, 'actionRequested');
+        expect(params).toMatchObject({ actionId: 'ask', state: 'collapsed', placement: 'toolbar' });
     });
 
     test('translates foreign text into the user language straight away', async ({ page }, testInfo) => {
@@ -140,6 +166,10 @@ test.describe('selectionTools', () => {
             text: expect.stringContaining('El perro'),
             parameter: 'en',
             sourceLanguage: 'es',
+            state: 'expanded',
+            placement: 'toolbar',
+            selectionType: 'text',
+            editable: false,
         });
     });
 
@@ -153,7 +183,8 @@ test.describe('selectionTools', () => {
         await menu.getByRole('menuitem', { name: 'Spanish' }).click();
 
         const [params] = await sent(collector, 'actionRequested');
-        expect(params).toMatchObject({ actionId: 'translate', parameter: 'es', sourceLanguage: 'en' });
+        // A choice inherits its action's placement.
+        expect(params).toMatchObject({ actionId: 'translate', parameter: 'es', sourceLanguage: 'en', placement: 'toolbar' });
     });
 
     test('the more menu holds the overflow and the toolbar options', async ({ page }, testInfo) => {
@@ -165,6 +196,51 @@ test.describe('selectionTools', () => {
         await expect(menu.getByRole('menuitem')).toHaveText(['Rewrite', 'Hide selection tools', 'Open AI Settings']);
         await menu.getByRole('menuitem', { name: 'Open AI Settings' }).click();
         expect(await sent(collector, 'openAiSettings')).toEqual([{}]);
+    });
+
+    test('reports the more menu as the placement of its actions', async ({ page }, testInfo) => {
+        const collector = await setup(page, testInfo);
+        await selectParagraph(page, '#english');
+        await selectionToolbar(page).getByRole('button', { name: 'More Duck.ai actions' }).click();
+        await host(page).getByRole('menuitem', { name: 'Rewrite' }).click();
+
+        const [params] = await sent(collector, 'actionRequested');
+        expect(params).toMatchObject({ actionId: 'rewrite', state: 'expanded', placement: 'overflow' });
+    });
+
+    test('reports each new toolbar once, with its state and selection', async ({ page }, testInfo) => {
+        const collector = await setup(page, testInfo);
+        await selectParagraph(page, '#english');
+        await expect(selectionToolbar(page)).toBeVisible();
+        // The same selection again, and the context menu shrinking it to the chip, are not new toolbars.
+        await page.keyboard.press('Shift');
+        await page.locator('#english').click({ button: 'right' });
+        await expect.poll(() => sent(collector, 'contextMenuOpened')).toHaveLength(1);
+        expect(await sent(collector, 'toolbarShown')).toEqual([{ state: 'expanded', selectionType: 'text', editable: false }]);
+
+        await page.mouse.click(5, 5);
+        await page.locator('#field').focus();
+        await page.keyboard.press('Control+A');
+        await expect(selectionToolbar(page)).toBeVisible();
+        await page.mouse.click(5, 5);
+        await page.locator('#word').dblclick();
+        await expect(selectionToolbar(page)).toBeVisible();
+
+        // A right-click on a selection with no toolbar yet shows the chip straight away. The click away schedules a
+        // selection check for the next task; let it run before selecting, or it would show the toolbar first.
+        await page.mouse.click(5, 5);
+        await page.evaluate(() => new Promise((resolve) => setTimeout(resolve, 0)));
+        await page.evaluate(() => {
+            const paragraph = document.getElementById('spanish');
+            if (paragraph) window.getSelection()?.selectAllChildren(paragraph);
+        });
+        await page.locator('#spanish').click({ button: 'right' });
+        await expect(selectionToolbar(page)).toBeVisible();
+        expect((await sent(collector, 'toolbarShown')).slice(1)).toEqual([
+            { state: 'expanded', selectionType: 'text', editable: true },
+            { state: 'expanded', selectionType: 'word', editable: false },
+            { state: 'collapsed', selectionType: 'text', editable: false },
+        ]);
     });
 
     test('hiding the tools turns the toolbar off', async ({ page }, testInfo) => {
@@ -220,6 +296,8 @@ test.describe('selectionTools', () => {
         expect(params).toEqual({
             text: expect.stringContaining('El perro'),
             sourceLanguage: 'es',
+            selectionType: 'text',
+            editable: false,
             actions: [
                 { id: 'translate', parameter: 'en' },
                 { id: 'explain' },

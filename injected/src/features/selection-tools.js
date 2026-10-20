@@ -15,6 +15,7 @@ import localesJSON from '../../../build/locales/selection-tools-locales.js';
  * @typedef {import('./selection-tools/classify.js').SelectionContext} SelectionContext
  * @typedef {import('./selection-tools/toolbar.js').ToolbarModel} ToolbarModel
  * @typedef {import('./selection-tools/toolbar.js').ToolbarStrings} ToolbarStrings
+ * @typedef {import('./selection-tools/toolbar.js').ActionOrigin} ActionOrigin
  *
  * @typedef {object} Config SelectionToolsConfig with its defaults filled in
  * @property {boolean} enabled
@@ -185,9 +186,9 @@ export default class SelectionTools extends ContentFeature {
             return;
         }
         this._shownText = snapshot.text;
-        toolbar.show(this._model(snapshot, context, ranked, config.askAvailable), snapshot.bounds, {
-            expanded: expanded && !config.startCollapsed,
-        });
+        const state = expanded && !config.startCollapsed ? 'expanded' : 'collapsed';
+        toolbar.show(this._model(snapshot, context, ranked, config.askAvailable), snapshot.bounds, { expanded: state === 'expanded' });
+        this.notify('toolbarShown', { state, selectionType: context.shape, editable: snapshot.editable });
         this.addDebugFlag();
     }
 
@@ -214,6 +215,8 @@ export default class SelectionTools extends ContentFeature {
         this.notify('contextMenuOpened', {
             text: snapshot.text,
             ...(sourceLanguage ? { sourceLanguage } : {}),
+            selectionType: context.shape,
+            editable: snapshot.editable,
             actions: contextMenuActions(ranked, context),
         });
         this._offer(config, snapshot, false);
@@ -245,15 +248,16 @@ export default class SelectionTools extends ContentFeature {
             icon: action.icon,
             choices: optionsFor(action, context).map((option) => ({
                 label: option.label,
-                run: () => this._requestAction(snapshot, action, option.value),
+                run: (/** @type {ActionOrigin} */ origin) => this._requestAction(snapshot, context, origin, action, option.value),
             })),
-            run: () => this._requestAction(snapshot, action, directParameter(action, context)),
+            run: (/** @type {ActionOrigin} */ origin) =>
+                this._requestAction(snapshot, context, origin, action, directParameter(action, context)),
         }));
         const { visible, overflow } = splitForToolbar(items, this._maxVisibleActions);
         return {
             visible,
             overflow,
-            ask: askAvailable ? () => this._requestAction(snapshot, null) : null,
+            ask: askAvailable ? (/** @type {ActionOrigin} */ origin) => this._requestAction(snapshot, context, origin, null) : null,
             hideTools: () => {
                 this.notify('hideSelectionTools', {});
                 // Native turns the setting off and pushes the change; until then, hide locally.
@@ -269,12 +273,21 @@ export default class SelectionTools extends ContentFeature {
 
     /**
      * @param {SelectionSnapshot} snapshot
+     * @param {SelectionContext} context
+     * @param {ActionOrigin} origin
      * @param {SelectionAction | null} action null for Ask
      * @param {string} [parameter]
      */
-    _requestAction(snapshot, action, parameter) {
+    _requestAction(snapshot, context, origin, action, parameter) {
         /** @type {ActionRequestedParams} */
-        const params = { actionId: action?.id ?? ASK_ACTION_ID, text: snapshot.text };
+        const params = {
+            actionId: action?.id ?? ASK_ACTION_ID,
+            text: snapshot.text,
+            state: origin.state,
+            placement: origin.placement,
+            selectionType: context.shape,
+            editable: snapshot.editable,
+        };
         if (parameter !== undefined) params.parameter = parameter;
         if (action?.parameter?.kind === 'language') {
             const sourceLanguage = markedLanguageOf(snapshot.element);
