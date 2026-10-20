@@ -33,7 +33,7 @@ const promptButtons = (page) => page.getByRole('tabpanel').getByRole('listitem')
 async function lastSubmittedIds(ntp) {
     await ntp.mocks.waitForCallCount({ method: 'omnibar_setConfig', count: 1 });
     const calls = await ntp.mocks.outgoing({ names: ['omnibar_setConfig'] });
-    return /** @type {any} */ (calls.at(-1)?.payload).params.submittedSuggestedPromptIds;
+    return /** @type {any} */ (calls[calls.length - 1]?.payload).params.submittedSuggestedPromptIds;
 }
 
 test.describe('omnibar suggested prompts', () => {
