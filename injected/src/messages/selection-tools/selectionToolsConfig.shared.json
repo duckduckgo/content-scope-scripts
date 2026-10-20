@@ -22,6 +22,10 @@
       "type": "boolean",
       "description": "Show the toolbar as the collapsed chip, expanding on hover. Defaults to false."
     },
+    "askAvailable": {
+      "type": "boolean",
+      "description": "Whether the built-in Ask is offered. When false, the toolbar has no Ask button and actionRequested is never sent with \"ask\". Defaults to true."
+    },
     "userLanguage": {
       "type": "string",
       "description": "The user's language as a BCP 47 tag, e.g. \"fr-FR\". Text in another language counts as foreign. Absent when enabled is false."
@@ -64,8 +68,11 @@
           "description": "Localized label."
         },
         "icon": {
-          "type": "string",
-          "description": "SVG path data for a 16×16 stroked icon. A default icon is used when absent."
+          "type": "array",
+          "description": "A 16×16 glyph as filled paths, drawn in the toolbar's text colour. The default icon is used when absent.",
+          "items": {
+            "$ref": "#/definitions/glyphPath"
+          }
         },
         "selectionTypes": {
           "type": "array",
@@ -130,6 +137,28 @@
         "label": {
           "type": "string",
           "description": "Localized label."
+        }
+      }
+    },
+    "glyphPath": {
+      "title": "GlyphPath",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "d"
+      ],
+      "properties": {
+        "d": {
+          "type": "string",
+          "description": "SVG path data in a 16×16 box."
+        },
+        "fillRule": {
+          "type": "string",
+          "enum": [
+            "evenodd",
+            "nonzero"
+          ],
+          "description": "SVG fill-rule. Nonzero when absent."
         }
       }
     }

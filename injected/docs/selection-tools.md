@@ -12,18 +12,14 @@ Runs in the top frame only. Windows only for now.
 
 ## Turning it on
 
-Two gates, as with `pageContext`:
+Native decides. `initialSetup` answers `enabled`, `showToolbar` and the actions, and `selectionToolsConfigChanged` pushes
+changes. On Windows these come from the `aiChat` → `selectionTools` sub-feature, the global AI toggle and the user's
+setting, so they can change while a page is open. Nothing visible happens until `initialSetup` says the feature is
+enabled.
 
-1. **Remote config:** the top-level `selectionTools` feature in the privacy config native injects. C-S-S only runs
-   `init()` when its `state` is enabled and the site isn't in its `exceptions`. This is the kill switch and the
-   per-site breakage control; it can't change while a page is open.
-2. **Native:** `initialSetup` answers `enabled`, `showToolbar` and the actions, and `selectionToolsConfigChanged`
-   pushes changes. Native derives these from its own rollout flag (`aiChat` → `selectionTools`), the global AI
-   toggle and the user's setting, so they can change while a page is open. Like `duckPlayer` and
-   `chromeWebstorePatching`, the feature does nothing visible until `initialSetup` says it's enabled.
-
-`pageContext` needs no `initialSetup`, because it only acts when native asks it to. This feature acts on the user's
-selections by itself, so it has to know native's answer first.
+The feature is in `platformSpecificFeatures`, like `contextMenu` and `textSelection`, so it starts without a top-level
+`selectionTools` entry in the privacy config, and also runs on sites where protections are off. If the privacy config
+does have that entry, its `state` is still a kill switch and its `exceptions` turn the feature off on those sites.
 
 ## Page footprint
 
@@ -84,7 +80,12 @@ collapses to the Ask chip; pointing at the chip expands it again.
     "showToolbar": true,
     "userLanguage": "en-US",
     "actions": [
-        { "id": "explain", "label": "Explain", "icon": "M2 8h12", "selectionTypes": ["code", "text", "long"] },
+        {
+            "id": "explain",
+            "label": "Explain",
+            "icon": [{ "d": "M2 2h12v12H2z" }, { "d": "M4 4h8v8H4z", "fillRule": "evenodd" }],
+            "selectionTypes": ["code", "text", "long"]
+        },
         { "id": "fixGrammar", "label": "Fix grammar", "editable": true },
         {
             "id": "translate",
@@ -103,7 +104,11 @@ collapses to the Ask chip; pointing at the chip expands it again.
 
 `enabled` turns the whole feature off for the page, context-menu reports included; `userLanguage` is then absent.
 Native also answers `enabled: false` on its own sites, such as Duck.ai itself. `showToolbar` is the user's setting for
-the toolbar alone.
+the toolbar alone. `askAvailable` (default `true`) says whether the built-in Ask is offered; without it the toolbar keeps the Duck.ai logo
+as a mark, and shows nothing at all when no action fits either.
+
+Pushes may repeat the current config; only a real change hides a showing toolbar, so it's rebuilt from the new config
+on the next selection.
 
 ## Subscriptions
 
@@ -148,20 +153,23 @@ the toolbar alone.
 
 ## Remote Config
 
-The feature's `state` and `exceptions` turn it off everywhere or on particular sites (see
-[Turning it on](#turning-it-on)). Settings:
+Settings are read from a top-level `selectionTools` entry when there is one (see [Turning it on](#turning-it-on)):
 
 | Setting             | Default | Meaning                                     |
 | ------------------- | ------- | ------------------------------------------- |
 | `maxVisibleActions` | `5`     | Toolbar buttons before "more", Ask included |
 | `minChars`          | `2`     | Shortest selection, ignoring whitespace     |
 
-## Strings
+## Strings and icons
 
 The toolbar's own strings are in `src/locales/selection-tools/` and are picked by the locale C-S-S is given, falling
-back to English. Action and option labels come from native, already localised. The toolbar's glyphs (Ask, more, hide,
-settings, the default action icon) are bundled in `src/features/selection-tools/icons.js`; action icons are path data
-from native, set as an attribute rather than markup.
+back to English. Action and option labels come from native, already localised.
+
+Icons are the design system's 16px glyphs, drawn as filled paths in the toolbar's text colour. The toolbar's own (the
+Duck.ai logo, more, hide, AI settings, chevrons, check and the default action sparkle) are in
+`src/features/selection-tools/icons.js`. An action's `icon` comes from native as a list of `{ d, fillRule? }` paths and
+is set through attributes, never markup; an icon in any other form gets the default sparkle. An action with choices has
+no trailing chevron: while its choices are open, a chevron takes its icon's place.
 
 ## Testing
 

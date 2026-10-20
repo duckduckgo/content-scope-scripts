@@ -134,6 +134,10 @@ export interface SelectionToolsConfig {
    */
   startCollapsed?: boolean;
   /**
+   * Whether the built-in Ask is offered. When false, the toolbar has no Ask button and actionRequested is never sent with "ask". Defaults to true.
+   */
+  askAvailable?: boolean;
+  /**
    * The user's language as a BCP 47 tag, e.g. "fr-FR". Text in another language counts as foreign. Absent when enabled is false.
    */
   userLanguage?: string;
@@ -152,9 +156,9 @@ export interface SelectionAction {
    */
   label: string;
   /**
-   * SVG path data for a 16×16 stroked icon. A default icon is used when absent.
+   * A 16×16 glyph as filled paths, drawn in the toolbar's text colour. The default icon is used when absent.
    */
-  icon?: string;
+  icon?: GlyphPath[];
   /**
    * Selection types the action fits. Absent or empty fits every type.
    */
@@ -168,6 +172,16 @@ export interface SelectionAction {
    */
   condition?: "differentLanguage";
   parameter?: ActionParameter;
+}
+export interface GlyphPath {
+  /**
+   * SVG path data in a 16×16 box.
+   */
+  d: string;
+  /**
+   * SVG fill-rule. Nonzero when absent.
+   */
+  fillRule?: "evenodd" | "nonzero";
 }
 export interface ActionParameter {
   /**
