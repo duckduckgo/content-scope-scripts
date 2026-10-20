@@ -945,6 +945,7 @@ export const platformSpecificFeatures = [
     'textSelection',
     'uaChBrands',
     'chromeWebstorePatching',
+    'selectionTools',
 ];
 /**
  * Features that bypass exception-based disabling in computeEnabledFeatures.

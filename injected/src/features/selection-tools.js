@@ -1,4 +1,5 @@
 import ContentFeature from '../content-feature.js';
+import { JSONstringify } from '../captured-globals.js';
 import { isBeingFramed } from '../utils.js';
 import { ASK_ACTION_ID, contextMenuActions, directParameter, optionsFor, rankActions, splitForToolbar } from './selection-tools/actions.js';
 import { classify, primaryLanguage } from './selection-tools/classify.js';
@@ -19,6 +20,7 @@ import localesJSON from '../../../build/locales/selection-tools-locales.js';
  * @property {boolean} enabled
  * @property {boolean} showToolbar
  * @property {boolean} startCollapsed
+ * @property {boolean} askAvailable
  * @property {string} userLanguage
  * @property {SelectionAction[]} actions
  */
@@ -66,9 +68,11 @@ export default class SelectionTools extends ContentFeature {
 
         this.subscribe('selectionToolsConfigChanged', (value) => {
             const config = toConfig(value);
-            if (!config) return;
+            // Native may push the config it last sent; only a real change affects a showing toolbar.
+            if (!config || JSONstringify(config) === JSONstringify(this._config)) return;
             this._config = config;
-            if (!config.enabled || !config.showToolbar) this._hide();
+            // A toolbar built from the old config could offer something native now refuses.
+            this._hide();
         });
         void this._getConfig();
 
@@ -176,8 +180,15 @@ export default class SelectionTools extends ContentFeature {
         }
         const context = this._contextOf(config, snapshot);
         const ranked = rankActions(config.actions, context, snapshot.editable);
+        // Without Ask or a fitting action, only the toolbar's own options would be left.
+        if (!config.askAvailable && ranked.length === 0) {
+            this._hide();
+            return;
+        }
         this._shownText = snapshot.text;
-        toolbar.show(this._model(snapshot, context, ranked), snapshot.bounds, { expanded: expanded && !config.startCollapsed });
+        toolbar.show(this._model(snapshot, context, ranked, config.askAvailable), snapshot.bounds, {
+            expanded: expanded && !config.startCollapsed,
+        });
         this.addDebugFlag();
     }
 
@@ -226,9 +237,10 @@ export default class SelectionTools extends ContentFeature {
      * @param {SelectionSnapshot} snapshot
      * @param {SelectionContext} context
      * @param {SelectionAction[]} ranked
+     * @param {boolean} askAvailable
      * @returns {ToolbarModel}
      */
-    _model(snapshot, context, ranked) {
+    _model(snapshot, context, ranked, askAvailable) {
         const items = ranked.map((action) => ({
             label: action.label,
             icon: action.icon,
@@ -242,7 +254,7 @@ export default class SelectionTools extends ContentFeature {
         return {
             visible,
             overflow,
-            ask: () => this._requestAction(snapshot, null),
+            ask: askAvailable ? () => this._requestAction(snapshot, null) : null,
             hideTools: () => {
                 this.notify('hideSelectionTools', {});
                 // Native turns the setting off and pushes the change; until then, hide locally.
@@ -308,15 +320,44 @@ export default class SelectionTools extends ContentFeature {
  */
 function toConfig(value) {
     if (typeof value !== 'object' || value === null) return null;
-    const { enabled, showToolbar, startCollapsed, userLanguage, actions } = /** @type {Record<string, unknown>} */ (value);
+    const { enabled, showToolbar, startCollapsed, askAvailable, userLanguage, actions } = /** @type {Record<string, unknown>} */ (value);
     if (typeof enabled !== 'boolean' || !Array.isArray(actions) || !actions.every(isAction)) return null;
     return {
         enabled,
         showToolbar: showToolbar === true,
         startCollapsed: startCollapsed === true,
+        // Older native doesn't send it, and always offered Ask.
+        askAvailable: askAvailable !== false,
         userLanguage: typeof userLanguage === 'string' ? userLanguage : 'en',
-        actions,
+        actions: actions.map(({ icon, ...action }) => {
+            // An icon in a form this page doesn't know (such as older native's single path) falls back to the default.
+            const glyph = toGlyph(icon);
+            return glyph ? { ...action, icon: glyph } : action;
+        }),
     };
+}
+
+/**
+ * @param {unknown} value
+ * @returns {import('./selection-tools/icons.js').Glyph | undefined}
+ */
+function toGlyph(value) {
+    if (!Array.isArray(value) || value.length === 0) return undefined;
+    /** @type {import('./selection-tools/icons.js').Glyph} */
+    const glyph = [];
+    for (const entry of value) {
+        if (typeof entry !== 'object' || entry === null) return undefined;
+        const { d, fillRule } = /** @type {Record<string, unknown>} */ (entry);
+        if (typeof d !== 'string') return undefined;
+        if (fillRule === 'evenodd' || fillRule === 'nonzero') {
+            glyph.push({ d, fillRule: /** @type {'evenodd' | 'nonzero'} */ (fillRule) });
+        } else if (fillRule === undefined) {
+            glyph.push({ d });
+        } else {
+            return undefined;
+        }
+    }
+    return glyph;
 }
 
 /**
