@@ -212,6 +212,13 @@ export default class ContentFeature extends ConfigFeature {
     }
 
     /**
+     * @returns {string | null}
+     */
+    get cssVersion() {
+        return this.#importConfig.cssVersion ?? null;
+    }
+
+    /**
      * @returns {boolean}
      */
     get documentOriginIsTracker() {
