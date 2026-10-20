@@ -6,6 +6,10 @@
  * @module SelectionTools Messages
  */
 
+/**
+ * expanded, or the collapsed chip.
+ */
+export type ToolbarState = "expanded" | "collapsed";
 export type SelectionType = "word" | "code" | "question" | "long" | "text";
 
 /**
@@ -16,7 +20,8 @@ export interface SelectionToolsMessages {
     | ActionRequestedNotification
     | ContextMenuOpenedNotification
     | HideSelectionToolsNotification
-    | OpenAiSettingsNotification;
+    | OpenAiSettingsNotification
+    | ToolbarShownNotification;
   requests: InitialSetupRequest;
   subscriptions: SelectionToolsConfigChangedSubscription;
 }
@@ -28,7 +33,7 @@ export interface ActionRequestedNotification {
   params: ActionRequestedParams;
 }
 /**
- * The user clicked an action. Only sent for trusted clicks.
+ * The user clicked an action. Only sent for trusted clicks. state is the toolbar's state when the user came to it: collapsed when they came to it as the chip, even though pointing at the chip expands it.
  */
 export interface ActionRequestedParams {
   /**
@@ -47,6 +52,16 @@ export interface ActionRequestedParams {
    * The page's language tag for the selection, from the nearest lang attribute. Only sent for language parameters.
    */
   sourceLanguage?: string;
+  state?: ToolbarState;
+  /**
+   * Where the action was picked: a toolbar button (Ask included), or the more menu. A choice inherits its action's placement.
+   */
+  placement?: "toolbar" | "overflow";
+  selectionType?: SelectionType;
+  /**
+   * Whether the selection is in an editable field.
+   */
+  editable?: boolean;
 }
 /**
  * Generated from @see "../messages/selection-tools/contextMenuOpened.notify.json"
@@ -67,6 +82,11 @@ export interface ContextMenuOpenedParams {
    * The page's language tag for the selection, from the nearest lang attribute.
    */
   sourceLanguage?: string;
+  selectionType?: SelectionType;
+  /**
+   * Whether the selection is in an editable field. Absent without a selection.
+   */
+  editable?: boolean;
   /**
    * The actions that fit, ranked, without "ask".
    */
@@ -105,6 +125,24 @@ export interface OpenAiSettingsNotification {
  * The user chose to open AI Settings.
  */
 export interface OpenAiSettingsParams {}
+/**
+ * Generated from @see "../messages/selection-tools/toolbarShown.notify.json"
+ */
+export interface ToolbarShownNotification {
+  method: "toolbarShown";
+  params: ToolbarShownParams;
+}
+/**
+ * The toolbar appeared for a new selection, expanded or as the collapsed chip (as when the context menu opens). Not sent when the same selection is tracked again, or when the chip expands on hover.
+ */
+export interface ToolbarShownParams {
+  state: ToolbarState;
+  selectionType: SelectionType;
+  /**
+   * Whether the selection is in an editable field.
+   */
+  editable: boolean;
+}
 /**
  * Generated from @see "../messages/selection-tools/initialSetup.request.json"
  */

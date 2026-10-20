@@ -14,20 +14,24 @@ import { menuPosition, submenuPosition, toolbarPosition } from './placement.js';
  * @property {string} openSettings
  * @property {string} sent
  *
+ * @typedef {'expanded' | 'collapsed'} ToolbarState
+ * @typedef {'toolbar' | 'overflow'} Placement
+ * @typedef {{ state: ToolbarState, placement: Placement }} ActionOrigin How the user came to an action
+ *
  * @typedef {object} ToolbarChoice
  * @property {string} label
- * @property {() => void} run
+ * @property {(origin: ActionOrigin) => void} run
  *
  * @typedef {object} ToolbarItem An action. Items with choices open them in a menu; the others run when clicked.
  * @property {string} label
  * @property {Glyph} [icon] the default action icon when absent
  * @property {ToolbarChoice[]} [choices]
- * @property {() => void} [run]
+ * @property {(origin: ActionOrigin) => void} [run]
  *
  * @typedef {object} ToolbarModel
  * @property {ToolbarItem[]} visible Shown on the toolbar after Ask
  * @property {ToolbarItem[]} overflow In the "more" menu
- * @property {(() => void) | null} ask null when Ask isn't available: the Duck.ai logo still leads, as a mark only
+ * @property {((origin: ActionOrigin) => void) | null} ask null when Ask isn't available: the Duck.ai logo still leads, as a mark only
  * @property {() => void} hideTools
  * @property {() => void} openSettings
  *
@@ -175,6 +179,8 @@ export class SelectionToolbar {
     /** @type {((scratch: Node) => Rect) | null} */
     _bounds = null;
     _collapsed = false;
+    /** Whether the user came to the toolbar as the collapsed chip, which pointing at expands */
+    _enteredCollapsed = false;
     _sentTimer = 0;
     _menuCloseTimer = 0;
     _strings;
@@ -202,6 +208,7 @@ export class SelectionToolbar {
 
         // Pointing at the collapsed chip opens the full toolbar; nothing the user does collapses it.
         this._bar.addEventListener('mouseenter', () => {
+            this._enteredCollapsed = this._collapsed;
             if (this._collapsed) this._expand();
         });
         // A toolbar that grows near the right edge is pulled back on screen once it has finished growing.
@@ -332,6 +339,7 @@ export class SelectionToolbar {
     _render(model, expanded) {
         clearTimeout(this._sentTimer);
         this._collapsed = !expanded;
+        this._enteredCollapsed = false;
 
         // The Duck.ai logo always leads, so the collapsed chip has something to show. With Ask it's Ask's button.
         const runAsk = model.ask;
@@ -342,7 +350,7 @@ export class SelectionToolbar {
         if (runAsk) {
             lead.addEventListener(
                 'click',
-                trusted(() => this._runAndConfirm(runAsk)),
+                trusted(() => this._runAndConfirm(() => runAsk(this._origin('toolbar')))),
             );
             const askFold = el('span', 'fold', el('span', 'ask-text', this._strings.ask));
             lead.append(askFold);
@@ -359,14 +367,14 @@ export class SelectionToolbar {
                 // No trailing chevron: while the choices are open, a chevron takes the icon's place.
                 glyph.classList.add('when-closed');
                 button.prepend(icon(ICONS.chevronDown, 'when-open'));
-                this._opensMenu(button, () => this._choiceEntries(choices));
+                this._opensMenu(button, () => this._choiceEntries(choices, 'toolbar'));
             } else {
                 const run = item.run;
                 button.addEventListener('mouseenter', this._closeMenus);
                 if (run)
                     button.addEventListener(
                         'click',
-                        trusted(() => this._runAndConfirm(run)),
+                        trusted(() => this._runAndConfirm(() => run(this._origin('toolbar')))),
                     );
             }
             return button;
@@ -409,11 +417,23 @@ export class SelectionToolbar {
     }
 
     /**
+     * @param {Placement} placement
+     * @returns {ActionOrigin}
+     */
+    _origin(placement) {
+        return { state: this._collapsed || this._enteredCollapsed ? 'collapsed' : 'expanded', placement };
+    }
+
+    /**
      * @param {ToolbarChoice[]} choices
+     * @param {Placement} placement
      * @returns {MenuEntry[]}
      */
-    _choiceEntries(choices) {
-        return choices.map((choice) => ({ label: choice.label, run: () => this._runAndConfirm(choice.run) }));
+    _choiceEntries(choices, placement) {
+        return choices.map((choice) => ({
+            label: choice.label,
+            run: () => this._runAndConfirm(() => choice.run(this._origin(placement))),
+        }));
     }
 
     /**
@@ -425,7 +445,7 @@ export class SelectionToolbar {
         const icon = item.icon ?? ICONS.defaultAction;
         const run = item.run;
         if (item.choices?.length) return { label: item.label, icon, choices: item.choices };
-        return { label: item.label, icon, run: run && (() => this._runAndConfirm(run)) };
+        return { label: item.label, icon, run: run && (() => this._runAndConfirm(() => run(this._origin('overflow')))) };
     }
 
     /**
@@ -467,7 +487,7 @@ export class SelectionToolbar {
         this._menu.querySelector('.option.active')?.classList.remove('active');
         item.classList.add('active');
         this._submenuAnchor = item;
-        this._fillMenu(this._submenu, this._choiceEntries(choices), false);
+        this._fillMenu(this._submenu, this._choiceEntries(choices, 'overflow'), false);
         this._submenu.hidden = false;
         retrigger(this._submenu, 'fade');
         this._placeSubmenu();
