@@ -40,31 +40,30 @@ function textPrompt(id, label, topic, Icon) {
     return { kind: 'text', id, label, prompt: topic + DEFAULT_TEXT_PROMPT, Icon };
 }
 
-/** @type {TextPrompt[][]} */
-export const TEXT_PROMPT_PAGES = [
-    [
-        textPrompt('jobapplication', 'omnibar_suggestedPromptsTextJobApplication', 'Improve a job application', EditIcon),
-        textPrompt('homefix', 'omnibar_suggestedPromptsTextHomeFix', 'Fix something in my home', HomeIcon),
-        textPrompt('financialterms', 'omnibar_suggestedPromptsTextFinancialTerms', 'Understand common financial terms', PaidIcon),
-        textPrompt('fitnessplan', 'omnibar_suggestedPromptsTextFitnessPlan', 'Build a fitness plan', ChartIcon),
-    ],
-    [
-        textPrompt('writeemail', 'omnibar_suggestedPromptsTextWriteEmail', 'Write an important email', EmailIcon),
-        textPrompt('plantrip', 'omnibar_suggestedPromptsTextPlanTrip', 'Plan an upcoming trip', GlobeIcon),
-        textPrompt('buyinghouse', 'omnibar_suggestedPromptsTextBuyingHouse', 'Learn about buying a house', KeyLoginIcon),
-        textPrompt('gettingfit', 'omnibar_suggestedPromptsTextGettingFit', 'Tips to start getting fit', LightThemeIcon),
-    ],
-    [
-        textPrompt(
-            'difficultconversation',
-            'omnibar_suggestedPromptsTextDifficultConversation',
-            'Prepare for a difficult conversation',
-            ChatsIcon,
-        ),
-        textPrompt('newskill', 'omnibar_suggestedPromptsTextNewSkill', 'Learn a new skill', PuzzleIcon),
-        textPrompt('moneyhabits', 'omnibar_suggestedPromptsTextMoneyHabits', 'Develop better money habits', CreditCardIcon),
-        textPrompt('improvesleep', 'omnibar_suggestedPromptsTextImproveSleep', 'Improve my sleep', DarkThemeIcon),
-    ],
+export const TEXT_PROMPTS_PER_PAGE = 4;
+
+/**
+ * In default display order. Submitted prompts move to the end (see `orderPrompts`), then the list is paged.
+ * @type {TextPrompt[]}
+ */
+export const TEXT_PROMPTS = [
+    textPrompt('jobapplication', 'omnibar_suggestedPromptsTextJobApplication', 'Improve a job application', EditIcon),
+    textPrompt('homefix', 'omnibar_suggestedPromptsTextHomeFix', 'Fix something in my home', HomeIcon),
+    textPrompt('financialterms', 'omnibar_suggestedPromptsTextFinancialTerms', 'Understand common financial terms', PaidIcon),
+    textPrompt('fitnessplan', 'omnibar_suggestedPromptsTextFitnessPlan', 'Build a fitness plan', ChartIcon),
+    textPrompt('writeemail', 'omnibar_suggestedPromptsTextWriteEmail', 'Write an important email', EmailIcon),
+    textPrompt('plantrip', 'omnibar_suggestedPromptsTextPlanTrip', 'Plan an upcoming trip', GlobeIcon),
+    textPrompt('buyinghouse', 'omnibar_suggestedPromptsTextBuyingHouse', 'Learn about buying a house', KeyLoginIcon),
+    textPrompt('gettingfit', 'omnibar_suggestedPromptsTextGettingFit', 'Tips to start getting fit', LightThemeIcon),
+    textPrompt(
+        'difficultconversation',
+        'omnibar_suggestedPromptsTextDifficultConversation',
+        'Prepare for a difficult conversation',
+        ChatsIcon,
+    ),
+    textPrompt('newskill', 'omnibar_suggestedPromptsTextNewSkill', 'Learn a new skill', PuzzleIcon),
+    textPrompt('moneyhabits', 'omnibar_suggestedPromptsTextMoneyHabits', 'Develop better money habits', CreditCardIcon),
+    textPrompt('improvesleep', 'omnibar_suggestedPromptsTextImproveSleep', 'Improve my sleep', DarkThemeIcon),
 ];
 
 /** @type {ImagePrompt[]} */
@@ -100,7 +99,11 @@ export const IMAGE_PROMPTS = [
 
 /** @type {{ icon: string, title: StringKey, body: StringKey }[]} */
 export const HOW_DUCKAI_WORKS_CARDS = [
-    { icon: './suggested-prompts/duckai-chat-56.svg', title: 'omnibar_suggestedPromptsChatTitle', body: 'omnibar_suggestedPromptsChatBody' },
+    {
+        icon: './suggested-prompts/duckai-chat-56.svg',
+        title: 'omnibar_suggestedPromptsChatTitle',
+        body: 'omnibar_suggestedPromptsChatBody',
+    },
     {
         icon: './suggested-prompts/mask-green-56.svg',
         title: 'omnibar_suggestedPromptsAnonymizedTitle',

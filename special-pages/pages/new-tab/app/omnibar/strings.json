@@ -355,6 +355,10 @@
     "title": "Close panel",
     "description": "Accessible label for the X button that closes a suggested-prompts panel."
   },
+  "omnibar_suggestedPromptsDismissAria": {
+    "title": "Hide suggestions",
+    "description": "Accessible label for the round X button after the Duck.ai suggested-prompt chips (How Duck.ai Works, Chat Suggestions, Create & Edit Images). Selecting it hides the chips permanently."
+  },
   "omnibar_suggestedPromptsChatTitle": {
     "title": "You Chat",
     "description": "Heading of the chat card in the How Duck.ai Works panel."

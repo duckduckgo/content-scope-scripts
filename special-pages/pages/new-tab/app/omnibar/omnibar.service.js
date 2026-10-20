@@ -1,6 +1,7 @@
 import { Service } from '../service.js';
 import { OmnibarSuggestionsService } from './omnibar.suggestions.service.js';
 import { OmnibarAiChatsService } from './omnibar.ai-chats.service.js';
+import { appendSubmittedId } from './components/suggested-prompts/suggestedPromptsOrder.js';
 
 /**
  * @typedef {import("../../types/new-tab.js").OmnibarConfig} OmnibarConfig
@@ -261,6 +262,27 @@ export class OmnibarService {
 
     dismissLauncherPromo() {
         this.ntp.messaging.notify('omnibar_dismissLauncherPromo', {});
+    }
+
+    /**
+     * Notify native that the user closed the suggested-prompt chips.
+     * Native owns dismiss persistence and should push `showSuggestedPrompts: false`.
+     */
+    dismissSuggestedPrompts() {
+        this.ntp.messaging.notify('omnibar_dismissSuggestedPrompts', {});
+    }
+
+    /**
+     * Records a submitted Chat Suggestions prompt so it is listed last; native persists it via `omnibar_setConfig`.
+     * @param {string} id
+     */
+    markSuggestedPromptSubmitted(id) {
+        this.configService.update((old) => {
+            return {
+                ...old,
+                submittedSuggestedPromptIds: appendSubmittedId(old.submittedSuggestedPromptIds ?? [], id),
+            };
+        });
     }
 
     /** @param {'image' | 'file'} kind */

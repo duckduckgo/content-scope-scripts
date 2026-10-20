@@ -11,7 +11,8 @@ import { useAttachmentsContext } from '../chat-tools/attachments/AttachmentsProv
 import { useSelectedModel } from '../useSelectedModel';
 import { useSelectedReasoningEffort } from '../useSelectedReasoningEffort';
 import { ChevronLeftMediumIcon, ChevronRightMediumIcon, IdeaIcon, ImagesIcon } from './SuggestedPromptsIcons.js';
-import { HOW_DUCKAI_WORKS_CARDS, IMAGE_PROMPTS, TEXT_PROMPT_PAGES } from './suggestedPrompts.data.js';
+import { HOW_DUCKAI_WORKS_CARDS, IMAGE_PROMPTS, TEXT_PROMPTS, TEXT_PROMPTS_PER_PAGE } from './suggestedPrompts.data.js';
+import { chunk, orderPrompts } from './suggestedPromptsOrder.js';
 import styles from './SuggestedPrompts.module.css';
 
 /**
@@ -49,20 +50,26 @@ const TABS = [
 /**
  * Duck.ai's new-chat chips, shown below the Duck.ai input when native sets `showSuggestedPrompts`.
  *
+ * Selecting a prompt sends it once the user has accepted the Duck.ai terms; until then it only fills the input,
+ * so the user sees the terms disclaimer before sending.
+ *
  * @param {object} props
  * @param {(params: SubmitChatAction) => void} props.onSubmit
+ * @param {(params: { chat: string, promptId?: string }) => void} props.onFill
  */
-export function SuggestedPrompts({ onSubmit }) {
+export function SuggestedPrompts({ onSubmit, onFill }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
     const baseId = useId();
-    const { state, setImageGenerationActive } = useContext(OmnibarContext);
-    const { availableTools, setActiveTool } = useActiveTools();
+    const { state, setImageGenerationActive, dismissSuggestedPrompts, markSuggestedPromptSubmitted } = useContext(OmnibarContext);
+    const { availableTools, imageGenerationActive, setActiveTool } = useActiveTools();
     const { selectedModel } = useSelectedModel();
     const { selectedEffort } = useSelectedReasoningEffort();
     const { imageState } = useAttachmentsContext();
     const updatedCreateImageEnabled = state.config?.enableUpdatedCreateImage === true;
     const blocksPrompt = state.config?.usageLimits?.blocksPrompt === true;
+    const requiresAiTermsAcceptance = state.config?.requiresAiTermsAcceptance === true;
+    const submittedIds = state.config?.submittedSuggestedPromptIds ?? [];
     const canGenerateImages = availableTools.includes('image-generation');
 
     const [activeTabId, setActiveTabId] = useState(/** @type {TabId | null} */ (null));
@@ -138,6 +145,13 @@ export function SuggestedPrompts({ onSubmit }) {
         setActiveTool('image-generation');
     };
 
+    /** A filled text prompt must go out as a chat, not an image request. */
+    const disableImageGeneration = () => {
+        if (!imageGenerationActive) return;
+        if (updatedCreateImageEnabled) setImageGenerationActive(false);
+        setActiveTool(null);
+    };
+
     /**
      * @param {Prompt} prompt
      * @param {MouseEvent} event
@@ -150,8 +164,21 @@ export function SuggestedPrompts({ onSubmit }) {
             return;
         }
 
+        if (requiresAiTermsAcceptance) {
+            if (prompt.kind === 'image') {
+                enableImageGeneration();
+            } else {
+                disableImageGeneration();
+            }
+            setActiveTabId(null);
+            // Only text prompts reorder; the image prompts are few enough to stay put.
+            onFill({ chat: prompt.prompt, ...(prompt.kind === 'text' && { promptId: prompt.id }) });
+            return;
+        }
+
         const target = eventToTarget(event, platformName);
         if (prompt.kind === 'text') {
+            markSuggestedPromptSubmitted(prompt.id);
             onSubmit({
                 chat: prompt.prompt,
                 target,
@@ -188,40 +215,44 @@ export function SuggestedPrompts({ onSubmit }) {
 
     return (
         <div ref={containerRef} class={styles.root}>
-            <div role="tablist" aria-orientation="horizontal" class={styles.chips}>
-                {tabs.map((tab, index) => {
-                    const selected = tab.id === activeTab?.id;
-                    return (
-                        <button
-                            key={tab.id}
-                            ref={(el) => {
-                                tabRefs.current[tab.id] = el;
-                            }}
-                            id={tabId(tab.id)}
-                            type="button"
-                            role="tab"
-                            aria-selected={selected}
-                            aria-controls={panelId(tab.id)}
-                            aria-label={t(tab.ariaLabel)}
-                            tabIndex={selected || (!activeTab && index === 0) ? 0 : -1}
-                            class={cn(styles.chip, selected && styles.chipSelected)}
-                            onClick={() => (selected ? close({ restoreFocus: true }) : setActiveTabId(tab.id))}
-                            onKeyDown={(event) => handleTabKeyDown(event, index)}
-                        >
-                            <tab.Icon class={styles.chipIcon} aria-hidden="true" />
-                            <span>{t(tab.label)}</span>
-                        </button>
-                    );
-                })}
+            <div class={styles.chipRow}>
+                <div role="tablist" aria-orientation="horizontal" class={styles.chips}>
+                    {tabs.map((tab, index) => {
+                        const selected = tab.id === activeTab?.id;
+                        return (
+                            <button
+                                key={tab.id}
+                                ref={(el) => {
+                                    tabRefs.current[tab.id] = el;
+                                }}
+                                id={tabId(tab.id)}
+                                type="button"
+                                role="tab"
+                                aria-selected={selected}
+                                aria-controls={panelId(tab.id)}
+                                aria-label={t(tab.ariaLabel)}
+                                tabIndex={selected || (!activeTab && index === 0) ? 0 : -1}
+                                class={cn(styles.chip, selected && styles.chipSelected)}
+                                onClick={() => (selected ? close({ restoreFocus: true }) : setActiveTabId(tab.id))}
+                                onKeyDown={(event) => handleTabKeyDown(event, index)}
+                            >
+                                <tab.Icon class={styles.chipIcon} aria-hidden="true" />
+                                <span>{t(tab.label)}</span>
+                            </button>
+                        );
+                    })}
+                </div>
+                <button
+                    type="button"
+                    class={cn(styles.chip, styles.dismissButton)}
+                    aria-label={t('omnibar_suggestedPromptsDismissAria')}
+                    onClick={dismissSuggestedPrompts}
+                >
+                    <CloseSmallIcon aria-hidden="true" />
+                </button>
             </div>
             {activeTab && (
-                <section
-                    id={panelId(activeTab.id)}
-                    role="tabpanel"
-                    aria-labelledby={tabId(activeTab.id)}
-                    tabIndex={0}
-                    class={styles.panel}
-                >
+                <section id={panelId(activeTab.id)} role="tabpanel" aria-labelledby={tabId(activeTab.id)} tabIndex={0} class={styles.panel}>
                     <button
                         type="button"
                         class={styles.closeButton}
@@ -231,7 +262,9 @@ export function SuggestedPrompts({ onSubmit }) {
                         <CloseSmallIcon />
                     </button>
                     {activeTab.id === 'how-duckai-works' && <HowDuckAiWorksPanel />}
-                    {activeTab.id === 'suggestions' && <TextPromptsPanel onSelect={handleSelectPrompt} />}
+                    {activeTab.id === 'suggestions' && (
+                        <TextPromptsPanel prompts={orderPrompts(TEXT_PROMPTS, submittedIds)} onSelect={handleSelectPrompt} />
+                    )}
                     {activeTab.id === 'create-image' && <ImagePromptsPanel onSelect={handleSelectPrompt} />}
                 </section>
             )}
@@ -264,17 +297,19 @@ function HowDuckAiWorksPanel() {
 
 /**
  * @param {object} props
+ * @param {import('./suggestedPrompts.data.js').TextPrompt[]} props.prompts - In display order; paged here.
  * @param {(prompt: Prompt, event: MouseEvent) => void} props.onSelect
  */
-function TextPromptsPanel({ onSelect }) {
+function TextPromptsPanel({ prompts, onSelect }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const [pageIndex, setPageIndex] = useState(0);
-    const prompts = TEXT_PROMPT_PAGES[pageIndex];
+    const pages = chunk(prompts, TEXT_PROMPTS_PER_PAGE);
+    const pagePrompts = pages[pageIndex] ?? [];
 
     return (
         <div class={styles.textPanel}>
             <ul key={pageIndex} class={styles.textList}>
-                {prompts.map((prompt) => (
+                {pagePrompts.map((prompt) => (
                     <li key={prompt.id}>
                         <button
                             type="button"
@@ -301,7 +336,7 @@ function TextPromptsPanel({ onSelect }) {
                 <button
                     type="button"
                     class={styles.pageButton}
-                    disabled={pageIndex === TEXT_PROMPT_PAGES.length - 1}
+                    disabled={pageIndex === pages.length - 1}
                     aria-label={t('omnibar_suggestedPromptsNextPageAria')}
                     onClick={() => setPageIndex(pageIndex + 1)}
                 >

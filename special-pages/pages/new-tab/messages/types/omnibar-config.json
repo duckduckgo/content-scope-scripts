@@ -297,9 +297,17 @@
     },
     "showSuggestedPrompts": {
       "title": "Show Suggested Prompts",
-      "description": "Show the Duck.ai suggested-prompt chips (How Duck.ai Works, Chat Suggestions, Create & Edit Images) below the input in Duck.ai mode. Native decides who sees them, e.g. new Duck.ai users.",
+      "description": "Show the Duck.ai suggested-prompt chips (How Duck.ai Works, Chat Suggestions, Create & Edit Images) below the input in Duck.ai mode. Native decides who sees them, e.g. new Duck.ai users. Closing the chips notifies native via omnibar_dismissSuggestedPrompts.",
       "type": "boolean",
       "default": false
+    },
+    "submittedSuggestedPromptIds": {
+      "title": "Submitted Suggested Prompt IDs",
+      "description": "IDs of the Chat Suggestions prompts the user has submitted, oldest first. The FE moves these prompts to the end of the list in this order, and appends to the list via omnibar_setConfig when a prompt is submitted. Native persists it.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
     },
     "screenshotModes": {
       "title": "Screenshot Modes",

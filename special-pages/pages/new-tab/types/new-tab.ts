@@ -147,9 +147,13 @@ export type EnableAskDuckAiSuggestion = boolean;
  */
 export type EnableAttachTabs = boolean;
 /**
- * Show the Duck.ai suggested-prompt chips (How Duck.ai Works, Chat Suggestions, Create & Edit Images) below the input in Duck.ai mode. Native decides who sees them, e.g. new Duck.ai users.
+ * Show the Duck.ai suggested-prompt chips (How Duck.ai Works, Chat Suggestions, Create & Edit Images) below the input in Duck.ai mode. Native decides who sees them, e.g. new Duck.ai users. Closing the chips notifies native via omnibar_dismissSuggestedPrompts.
  */
 export type ShowSuggestedPrompts = boolean;
+/**
+ * IDs of the Chat Suggestions prompts the user has submitted, oldest first. The FE moves these prompts to the end of the list in this order, and appends to the list via omnibar_setConfig when a prompt is submitted. Native persists it.
+ */
+export type SubmittedSuggestedPromptIDs = string[];
 /**
  * The screenshot capture mode the user chose: `dragToSelect` (drag to select a region) or `selectWindowOrDisplay` (pick a window or a display).
  */
@@ -373,6 +377,7 @@ export interface NewTabMessages {
     | OmnibarAttachmentPrivacyDisclaimerShownNotification
     | OmnibarDismissCreateImageModelSwitchNotification
     | OmnibarDismissLauncherPromoNotification
+    | OmnibarDismissSuggestedPromptsNotification
     | OmnibarDismissUsageLimitsNotification
     | OmnibarLauncherPromoShownNotification
     | OmnibarOpenAiChatNotification
@@ -782,6 +787,17 @@ export interface OmnibarDismissLauncherPromoNotification {
  */
 export interface DismissLauncherPromo {}
 /**
+ * Generated from @see "../messages/omnibar_dismissSuggestedPrompts.notify.json"
+ */
+export interface OmnibarDismissSuggestedPromptsNotification {
+  method: "omnibar_dismissSuggestedPrompts";
+  params: DismissSuggestedPrompts;
+}
+/**
+ * Sent when the user closes the Duck.ai suggested-prompt chips with the X button. Native persists the dismissal and pushes an updated OmnibarConfig with `showSuggestedPrompts: false`.
+ */
+export interface DismissSuggestedPrompts {}
+/**
  * Generated from @see "../messages/omnibar_dismissUsageLimits.notify.json"
  */
 export interface OmnibarDismissUsageLimitsNotification {
@@ -981,6 +997,7 @@ export interface OmnibarConfig {
   enableAskAiSuggestion?: EnableAskDuckAiSuggestion;
   enableAttachTabs?: EnableAttachTabs;
   showSuggestedPrompts?: ShowSuggestedPrompts;
+  submittedSuggestedPromptIds?: SubmittedSuggestedPromptIDs;
   screenshotModes?: ScreenshotModes;
   enablePastedAttachments?: EnablePastedAttachments;
   enableAiChatDeletion?: EnableAIChatDeletion;

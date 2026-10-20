@@ -10,9 +10,17 @@
     display: flex;
     flex-direction: column;
     gap: var(--ds-space-x02);
-    margin: var(--ds-space-x03) auto 0;
+    margin: var(--ds-space-x06) auto 0;
     max-width: 560px;
     width: 100%;
+}
+
+.chipRow {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--ds-space-x02);
+    justify-content: center;
 }
 
 .chips {
@@ -50,6 +58,14 @@
         box-shadow: var(--focus-ring);
         outline: none;
     }
+}
+
+/* Round X after the chips that hides them for good. */
+.dismissButton {
+    color: var(--ds-color-theme-icons-primary);
+    justify-content: center;
+    padding: 0;
+    width: 28px;
 }
 
 .chipSelected,
