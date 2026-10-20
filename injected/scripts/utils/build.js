@@ -1,5 +1,6 @@
 import { platformSupport } from '../../src/features.js';
 import { readFileSync } from 'fs';
+import { env } from 'process';
 import { cwd } from '../../../scripts/script-utils.js';
 import { join } from 'path';
 import * as esbuild from 'esbuild';
@@ -52,6 +53,8 @@ export async function bundle(params) {
             'import.meta.env': 'development',
             'import.meta.injectName': JSON.stringify(platform),
             'import.meta.trackerLookup': trackerLookup,
+            // Set by the release workflow; unversioned builds get null
+            'import.meta.cssVersion': JSON.stringify(env.CSS_RELEASE_VERSION || null),
         },
         plugins: [loadFeaturesPlugin, commentPlugin()],
         banner: {

@@ -372,6 +372,88 @@ describe('ContentFeature class', () => {
         expect(didRun).withContext('Should run').toBeTrue();
     });
 
+    describe('C-S-S version conditions', () => {
+        /**
+         * @param {string} conditionKey
+         * @param {string} conditionVersion
+         */
+        function conditionalChange(conditionKey, conditionVersion) {
+            return {
+                condition: { [conditionKey]: conditionVersion },
+                patchSettings: [{ op: 'add', path: `/${conditionKey}_${conditionVersion}`, value: 'enabled' }],
+            };
+        }
+
+        /**
+         * @param {string | null | undefined} cssVersion
+         * @returns {Record<string, unknown>}
+         */
+        function settingsFor(cssVersion) {
+            /** @type {Record<string, unknown>} */
+            const settings = {};
+            class CSSVersionTestFeature extends BaseTestFeature {
+                init() {
+                    for (const key of ['minSupportedCSSVersion', 'maxSupportedCSSVersion']) {
+                        for (const version of ['17.29.0', '17.30.0', '17.31.0']) {
+                            const name = `${key}_${version}`;
+                            settings[name] = this.getFeatureSetting(name);
+                        }
+                    }
+                }
+            }
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+                platform: {
+                    version: '1.1.0',
+                },
+                bundledConfig: {
+                    features: {
+                        test: {
+                            state: 'enabled',
+                            exceptions: [],
+                            settings: {
+                                conditionalChanges: [
+                                    conditionalChange('minSupportedCSSVersion', '17.29.0'),
+                                    conditionalChange('minSupportedCSSVersion', '17.30.0'),
+                                    conditionalChange('minSupportedCSSVersion', '17.31.0'),
+                                    conditionalChange('maxSupportedCSSVersion', '17.29.0'),
+                                    conditionalChange('maxSupportedCSSVersion', '17.30.0'),
+                                    conditionalChange('maxSupportedCSSVersion', '17.31.0'),
+                                ],
+                            },
+                        },
+                    },
+                    unprotectedTemporary: [],
+                },
+            };
+            const me = new CSSVersionTestFeature('test', { cssVersion }, args);
+            me.callInit(args);
+            return settings;
+        }
+
+        it('applies min and max bounds inclusively', () => {
+            const settings = settingsFor('17.30.0');
+            expect(settings['minSupportedCSSVersion_17.29.0']).toBe('enabled');
+            expect(settings['minSupportedCSSVersion_17.30.0']).toBe('enabled');
+            expect(settings['minSupportedCSSVersion_17.31.0']).toBeUndefined();
+            expect(settings['maxSupportedCSSVersion_17.29.0']).toBeUndefined();
+            expect(settings['maxSupportedCSSVersion_17.30.0']).toBe('enabled');
+            expect(settings['maxSupportedCSSVersion_17.31.0']).toBe('enabled');
+        });
+
+        for (const cssVersion of [null, undefined]) {
+            it(`never matches an unversioned build (${cssVersion})`, () => {
+                const settings = settingsFor(cssVersion);
+                for (const [key, value] of Object.entries(settings)) {
+                    expect(value).withContext(key).toBeUndefined();
+                }
+            });
+        }
+    });
+
     it('Should respect maxSupportedVersion as a condition', () => {
         let didRun = false;
         class MyTestFeature4 extends BaseTestFeature {
