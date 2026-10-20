@@ -269,10 +269,11 @@ export const TYPICAL_SITE_LIMIT = 7;
  * A site like the ones where you were tracked most this week (the top sites
  * native sends): how many tracking companies such a site has (their average,
  * rounded), and which ones: the most widespread this week, as many as that,
- * up to `TYPICAL_SITE_LIMIT`. `null` without top sites.
+ * up to `TYPICAL_SITE_LIMIT`. `examples` names the top one or two of those
+ * sites. `null` without top sites.
  *
  * @param {PrivacyStatsData} stats
- * @return {{count: number, companies: string[]} | null}
+ * @return {{count: number, companies: string[], examples: string[]} | null}
  */
 export function typicalTopSite(stats) {
     const sites = rankTopSites(stats);
@@ -283,6 +284,7 @@ export function typicalTopSite(stats) {
         companies: namedCompanies(stats.trackerCompanies)
             .slice(0, Math.min(count, TYPICAL_SITE_LIMIT))
             .map((c) => displayNameForCompany(c.displayName)),
+        examples: sites.slice(0, 2).map(({ site }) => site.etldPlusOne),
     };
 }
 

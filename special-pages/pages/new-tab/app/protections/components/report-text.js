@@ -61,6 +61,7 @@ const FIRST_PERSON = new Set(
         'protections_report_recognitionIntroPlural',
         'protections_report_recognitionFooter',
         'protections_report_compareIntro',
+        'protections_report_compareFootnote',
         'protections_report_compareGoogleSingular',
         'protections_report_compareGooglePlural',
     ]),

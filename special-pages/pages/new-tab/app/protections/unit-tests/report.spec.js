@@ -203,6 +203,8 @@ test('typicalTopSite stands for the sites where you were tracked most', () => {
         ],
     });
     equal(site?.count, 11);
+    // the top one or two sites, to name as examples
+    deepEqual(site?.examples, ['a.com', 'b.com']);
     // the most widespread companies this week, no more than 7
     deepEqual(
         site?.companies,

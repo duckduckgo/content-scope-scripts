@@ -442,6 +442,17 @@ function Landscape() {
 }
 
 /**
+ * A site's domain, in bold, for markup like the intro. Domains come from the
+ * browser, so they're escaped rather than trusted as markup.
+ *
+ * @param {string} domain
+ */
+function boldDomain(domain) {
+    const text = domain.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+    return `<b>${text}</b>`;
+}
+
+/**
  * A small browser window around a page.
  *
  * @param {object} props
@@ -491,7 +502,7 @@ export function CompareView({ site, google }) {
     return (
         <div data-testid="ProtectionsReportCompare" data-still={still}>
             <p class={styles.intro}>
-                <Trans str={t('protections_report_compareIntro')} values={{}} />
+                <Trans str={t('protections_report_compareIntro', { sites: format.list(site.examples.map(boldDomain)) })} values={{}} />
             </p>
             <div class={styles.columns} aria-hidden="true">
                 <div class={styles.column}>

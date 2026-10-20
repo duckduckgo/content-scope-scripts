@@ -496,12 +496,12 @@
     "note": "Menu item for the view comparing the nosiest site in DuckDuckGo and in Chrome. Keep the <b></b> tags around the question word; it is shown in bold."
   },
   "protections_report_compareIntro": {
-    "title": "Same page, two browsers. Here’s who would have watched you on a site like the ones where you were tracked most this week:",
-    "note": "Introduces two small illustrated browser windows showing the same page: DuckDuckGo (clean) and Chrome (ads, a cookie banner, and trackers following the cursor). The page stands for the sites where the user was tracked most this week."
+    "title": "Same page, two browsers. Here’s who’d watch you on sites like {sites}:",
+    "note": "Introduces two small illustrated browser windows showing the same page: DuckDuckGo (clean) and Chrome (ads, a cookie banner, and trackers following the cursor). {sites} names one or two of the sites where the user was tracked most this week, each in bold, eg: 'cnn.com and allrecipes.com'."
   },
   "protections_report_compareIntroFirstPerson": {
-    "title": "Same page, two browsers. Here’s who would have watched me on a site like the ones where I was tracked most this week:",
-    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “Same page, two browsers. Here’s who would have watched you on a site like the ones where you were tracked most this week:” — Introduces two small illustrated browser windows showing the same page: DuckDuckGo (clean) and Chrome (ads, a cookie banner, and trackers following the cursor). The page stands for the sites where the user was tracked most this week."
+    "title": "Same page, two browsers. Here’s who’d watch me on sites like {sites}:",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “Same page, two browsers. Here’s who’d watch you on sites like {sites}:” — Introduces two small illustrated browser windows showing the same page: DuckDuckGo (clean) and Chrome (ads, a cookie banner, and trackers following the cursor). {sites} names one or two of the sites where the user was tracked most this week, each in bold, eg: 'cnn.com and allrecipes.com'."
   },
   "protections_report_compareBlockedSingular": {
     "title": "1 company blocked",
@@ -520,8 +520,12 @@
     "note": "Under the Chrome window. {count} is the number of companies that track on a site like the ones where the user was tracked most this week, eg: 'Trackers from all 31 companies load'."
   },
   "protections_report_compareFootnote": {
-    "title": "Compared with Chrome’s default settings. Illustration only.",
-    "note": "Small print under the DuckDuckGo vs Chrome comparison."
+    "title": "Based on the sites that tracked you most this week. Compared with Chrome’s default settings. Illustration only.",
+    "note": "Small print under the DuckDuckGo vs Chrome comparison. Says where the numbers come from (the sites where the user was tracked most this week) and that the picture is an illustration."
+  },
+  "protections_report_compareFootnoteFirstPerson": {
+    "title": "Based on the sites that tracked me most this week. Compared with Chrome’s default settings. Illustration only.",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “Based on the sites that tracked you most this week. Compared with Chrome’s default settings. Illustration only.” — Small print under the DuckDuckGo vs Chrome comparison. Says where the numbers come from (the sites where the user was tracked most this week) and that the picture is an illustration."
   },
   "protections_report_compareAdBanner": {
     "title": "LIMITED TIME OFFER",

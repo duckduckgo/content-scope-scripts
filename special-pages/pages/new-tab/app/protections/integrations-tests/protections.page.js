@@ -310,9 +310,7 @@ export class ProtectionsPage {
 
     async displaysComparison() {
         const view = this.report().getByTestId('ProtectionsReportCompare');
-        await expect(view).toContainText(
-            'Same page, two browsers. Here’s who would have watched you on a site like the ones where you were tracked most this week:',
-        );
+        await expect(view).toContainText('Same page, two browsers. Here’s who’d watch you on sites like cnn.com and allrecipes.com:');
         // the mock's top sites have 31, 26, 22, 18 and 15 companies: 22 on average
         await expect(view).toContainText('22 companies blocked');
         await expect(view).toContainText('Trackers from all 22 companies load');
