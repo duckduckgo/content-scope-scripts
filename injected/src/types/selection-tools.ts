@@ -114,7 +114,7 @@ export interface InitialSetupRequest {
   result: SelectionToolsConfig;
 }
 /**
- * Sent once at start-up, and again on the next selection if that failed. Until native answers, nothing shows.
+ * Sent on the first selection, or the first context menu on one, and again on the next if that failed. Never sent on page load alone. Until native answers, nothing shows.
  */
 export interface InitialSetupParams {}
 /**

@@ -74,8 +74,6 @@ export default class SelectionTools extends ContentFeature {
             // A toolbar built from the old config could offer something native now refuses.
             this._hide();
         });
-        void this._getConfig();
-
         for (const type of ['mousedown', 'mouseup', 'keyup', 'contextmenu']) {
             document.addEventListener(type, this, true);
         }
@@ -123,8 +121,9 @@ export default class SelectionTools extends ContentFeature {
     }
 
     /**
-     * Asked once at start-up, then kept current by selectionToolsConfigChanged. If that request fails, the next
-     * selection asks again. Callers at the same time share one request.
+     * Asked on the first selection (or context menu on one), so a page where the user selects nothing sends native
+     * nothing, then kept current by selectionToolsConfigChanged. If that request fails, the next selection asks
+     * again. Callers at the same time share one request.
      * @returns {Promise<Config | null>}
      */
     async _getConfig() {
