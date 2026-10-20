@@ -11,6 +11,10 @@
  */
 export type ToolbarState = "expanded" | "collapsed";
 export type SelectionType = "word" | "code" | "question" | "long" | "text";
+/**
+ * Pushed to the main frame when a native context menu closes, by any path, on a page where the tools are enabled. The page brings back the toolbar it hid for the menu, as the chip, if the menu's selection is still there. Carries no data; native sends null params.
+ */
+export type ContextMenuClosedParams = {} | null;
 
 /**
  * Requests, Notifications and Subscriptions from the SelectionTools feature
@@ -23,7 +27,7 @@ export interface SelectionToolsMessages {
     | OpenAiSettingsNotification
     | ToolbarShownNotification;
   requests: InitialSetupRequest;
-  subscriptions: SelectionToolsConfigChangedSubscription;
+  subscriptions: ContextMenuClosedSubscription | SelectionToolsConfigChangedSubscription;
 }
 /**
  * Generated from @see "../messages/selection-tools/actionRequested.notify.json"
@@ -133,7 +137,7 @@ export interface ToolbarShownNotification {
   params: ToolbarShownParams;
 }
 /**
- * The toolbar appeared for a new selection, expanded or as the collapsed chip (as when the context menu opens). Not sent when the same selection is tracked again, or when the chip expands on hover.
+ * The toolbar appeared for a new selection, once per selection: expanded, or collapsed when it first appears as the chip after a context menu on a selection that had no toolbar yet. Not sent when the same selection is tracked again, when the chip comes back after a context menu, or when the chip expands on hover.
  */
 export interface ToolbarShownParams {
   state: ToolbarState;
@@ -234,6 +238,13 @@ export interface ParameterOption {
    * Localized label.
    */
   label: string;
+}
+/**
+ * Generated from @see "../messages/selection-tools/contextMenuClosed.subscribe.json"
+ */
+export interface ContextMenuClosedSubscription {
+  subscriptionEvent: "contextMenuClosed";
+  params: ContextMenuClosedParams;
 }
 /**
  * Generated from @see "../messages/selection-tools/selectionToolsConfigChanged.subscribe.json"

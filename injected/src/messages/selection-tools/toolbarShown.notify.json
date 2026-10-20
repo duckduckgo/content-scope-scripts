@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "ToolbarShownParams",
-  "description": "The toolbar appeared for a new selection, expanded or as the collapsed chip (as when the context menu opens). Not sent when the same selection is tracked again, or when the chip expands on hover.",
+  "description": "The toolbar appeared for a new selection, once per selection: expanded, or collapsed when it first appears as the chip after a context menu on a selection that had no toolbar yet. Not sent when the same selection is tracked again, when the chip comes back after a context menu, or when the chip expands on hover.",
   "type": "object",
   "additionalProperties": false,
   "required": [

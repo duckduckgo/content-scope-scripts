@@ -61,8 +61,9 @@ with a `language` parameter lead for text in another language, and run straight 
 user's language). Otherwise their options are offered, minus the selection's own language.
 
 The toolbar shows Ask, then up to `maxVisibleActions - 1` actions, then a "more" button whose menu holds the rest,
-"Hide selection tools" and "Open AI Settings". After an action, or while the context menu is open, the toolbar
-collapses to the Ask chip; pointing at the chip expands it again.
+"Hide selection tools" and "Open AI Settings". After an action the toolbar collapses to the
+Ask chip; pointing at the chip expands it again. While the native context menu is open the toolbar is hidden, and it
+comes back as the chip when native sends `contextMenuClosed`, if the menu's selection is still there.
 
 ## Requests
 
@@ -118,6 +119,13 @@ on the next selection.
 - {@link "SelectionTools Messages".SelectionToolsConfigChangedSubscription}
 - The whole config again, pushed to the main frame whenever it changes for that page.
 
+### `contextMenuClosed`
+
+- {@link "SelectionTools Messages".ContextMenuClosedSubscription}
+- Pushed to the main frame when a native context menu closes, by any path. If the selection the menu opened on is still
+  selected, the toolbar comes back as the chip. Without it (older native), the toolbar stays hidden until the next
+  selection.
+
 ## Notifications
 
 ### `actionRequested`
@@ -147,8 +155,9 @@ on the next selection.
 ### `toolbarShown`
 
 - {@link "SelectionTools Messages".ToolbarShownNotification}
-- The toolbar appeared for a new selection: `expanded`, or `collapsed` when a context menu on a selection without a
-  toolbar shows the chip. Not sent when the same selection is tracked again, or when the chip expands on hover.
+- The toolbar appeared for a new selection, once per selection: `expanded`, or `collapsed` when it first appears as
+  the chip after a context menu on a selection that had no toolbar yet. Not sent when the same selection is tracked
+  again, when the chip comes back after a context menu, or when the chip expands on hover.
 
 ```json
 { "state": "expanded", "selectionType": "word", "editable": false }

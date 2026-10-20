@@ -83,6 +83,15 @@ async function sent(collector, method) {
 }
 
 /**
+ * What native sends when its context menu closes.
+ * @param {ResultsCollector} collector
+ */
+async function closeContextMenu(collector) {
+    // Native sends null params, from its shared empty-payload event.
+    await collector.simulateSubscriptionMessage('selectionTools', 'contextMenuClosed', /** @type {any} */ (null));
+}
+
+/**
  * Triple-click selects the paragraph with a real, trusted mouse.
  * @param {import('@playwright/test').Page} page
  * @param {string} selector
@@ -212,10 +221,12 @@ test.describe('selectionTools', () => {
         const collector = await setup(page, testInfo);
         await selectParagraph(page, '#english');
         await expect(selectionToolbar(page)).toBeVisible();
-        // The same selection again, and the context menu shrinking it to the chip, are not new toolbars.
+        // The same selection again, and the chip coming back after the context menu, are not new toolbars.
         await page.keyboard.press('Shift');
         await page.locator('#english').click({ button: 'right' });
         await expect.poll(() => sent(collector, 'contextMenuOpened')).toHaveLength(1);
+        await closeContextMenu(collector);
+        await expect(selectionToolbar(page)).toBeVisible();
         expect(await sent(collector, 'toolbarShown')).toEqual([{ state: 'expanded', selectionType: 'text', editable: false }]);
 
         await page.mouse.click(5, 5);
@@ -226,8 +237,8 @@ test.describe('selectionTools', () => {
         await page.locator('#word').dblclick();
         await expect(selectionToolbar(page)).toBeVisible();
 
-        // A right-click on a selection with no toolbar yet shows the chip straight away. The click away schedules a
-        // selection check for the next task; let it run before selecting, or it would show the toolbar first.
+        // A selection with no toolbar yet gets its first showing as the chip, once the context menu closes. The click
+        // away schedules a selection check for the next task; let it run before selecting, or it would show the toolbar.
         await page.mouse.click(5, 5);
         await page.evaluate(() => new Promise((resolve) => setTimeout(resolve, 0)));
         await page.evaluate(() => {
@@ -235,6 +246,9 @@ test.describe('selectionTools', () => {
             if (paragraph) window.getSelection()?.selectAllChildren(paragraph);
         });
         await page.locator('#spanish').click({ button: 'right' });
+        await expect.poll(() => sent(collector, 'contextMenuOpened')).toHaveLength(2);
+        await expect(host(page)).toHaveCount(0);
+        await closeContextMenu(collector);
         await expect(selectionToolbar(page)).toBeVisible();
         expect((await sent(collector, 'toolbarShown')).slice(1)).toEqual([
             { state: 'expanded', selectionType: 'text', editable: true },
@@ -287,9 +301,10 @@ test.describe('selectionTools', () => {
         await expect(host(page)).toHaveCount(0);
     });
 
-    test('reports the fitting actions when the context menu opens, and keeps the chip', async ({ page }, testInfo) => {
+    test('reports the fitting actions when the context menu opens, and hides the toolbar until it closes', async ({ page }, testInfo) => {
         const collector = await setup(page, testInfo);
         await selectParagraph(page, '#spanish');
+        await expect(selectionToolbar(page)).toBeVisible();
         await page.locator('#spanish').click({ button: 'right' });
 
         const [params] = await sent(collector, 'contextMenuOpened');
@@ -306,7 +321,25 @@ test.describe('selectionTools', () => {
                 { id: 'rewrite' },
             ],
         });
+        await expect(host(page)).toHaveCount(0);
+
+        // Back as the chip: Ask's label and the actions are folded away.
+        await closeContextMenu(collector);
         await expect(selectionToolbar(page)).toBeVisible();
+        await expect(selectionToolbar(page).locator('.fold:not(.sent)')).toHaveClass(['fold folded', 'fold folded']);
+    });
+
+    test('leaves the toolbar hidden when the selection changed while the context menu was open', async ({ page }, testInfo) => {
+        const collector = await setup(page, testInfo);
+        await selectParagraph(page, '#spanish');
+        await page.locator('#spanish').click({ button: 'right' });
+        await expect.poll(() => sent(collector, 'contextMenuOpened')).toHaveLength(1);
+        await page.evaluate(() => {
+            const paragraph = document.getElementById('english');
+            if (paragraph) window.getSelection()?.selectAllChildren(paragraph);
+        });
+        await closeContextMenu(collector);
+        await expect(host(page)).toHaveCount(0);
     });
 
     test('reports an empty context menu after an earlier report, and nothing before one', async ({ page }, testInfo) => {
