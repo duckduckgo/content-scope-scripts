@@ -3,10 +3,17 @@ import { ResultsCollector } from './page-objects/results-collector.js';
 
 const HTML = '/selection-tools/pages/index.html';
 const CONFIG = './integration-test/test-pages/selection-tools/config/config.json';
+const DISABLED_CONFIG = './integration-test/test-pages/selection-tools/config/disabled.json';
 
 const ACTIONS = [
-    { id: 'explain', label: 'Explain', selectionTypes: ['code', 'text', 'long'] },
-    { id: 'summarize', label: 'Summarize', selectionTypes: ['text', 'long'] },
+    {
+        id: 'explain',
+        label: 'Explain',
+        icon: [{ d: 'M2 2h12v12H2z' }, { d: 'M4 4h8v8H4z', fillRule: 'evenodd' }],
+        selectionTypes: ['code', 'text', 'long'],
+    },
+    // An icon in older native's form, a single stroked path: the default icon stands in.
+    { id: 'summarize', label: 'Summarize', icon: 'M2 8h12', selectionTypes: ['text', 'long'] },
     {
         id: 'translate',
         label: 'Translate',
@@ -246,6 +253,17 @@ test.describe('selectionTools', () => {
         await expect(host(page)).toHaveCount(0);
     });
 
+    test('a top-level remote config entry still acts as a kill switch', async ({ page }, testInfo) => {
+        const collector = ResultsCollector.create(page, testInfo.project.use);
+        collector.withMockResponse({ initialSetup: selectionToolsConfig() });
+        await collector.load(HTML, DISABLED_CONFIG);
+        await selectParagraph(page, '#english');
+        await page.locator('#english').click({ button: 'right' });
+        await expect(host(page)).toHaveCount(0);
+        expect(await sent(collector, 'initialSetup')).toEqual([]);
+        expect(await sent(collector, 'contextMenuOpened')).toEqual([]);
+    });
+
     test('does nothing while disabled', async ({ page }, testInfo) => {
         const collector = await setup(page, testInfo, { enabled: false, showToolbar: false, userLanguage: undefined, actions: [] });
         await selectParagraph(page, '#english');
@@ -257,6 +275,10 @@ test.describe('selectionTools', () => {
     test('follows config pushed by native', async ({ page }, testInfo) => {
         const collector = await setup(page, testInfo);
         await selectParagraph(page, '#english');
+        await expect(selectionToolbar(page)).toBeVisible();
+
+        // The same config again changes nothing.
+        await collector.simulateSubscriptionMessage('selectionTools', 'selectionToolsConfigChanged', selectionToolsConfig());
         await expect(selectionToolbar(page)).toBeVisible();
 
         await collector.simulateSubscriptionMessage(
@@ -295,6 +317,49 @@ test.describe('selectionTools', () => {
         await expect(ask.locator('svg.logo-dark')).toBeVisible();
         await expect(ask.locator('svg.logo-light')).toBeHidden();
         await expect(ask.locator('svg.logo-dark linearGradient')).toHaveCount(3);
+    });
+
+    test('leaves Ask out when native says it is unavailable', async ({ page }, testInfo) => {
+        await setup(page, testInfo, { askAvailable: false });
+        await selectParagraph(page, '#english');
+        await expect(selectionToolbar(page).getByRole('button')).toHaveText(['Explain', 'Summarize', 'Translate', 'Change tone', '']);
+        // The logo still leads, as a mark the chip can collapse to.
+        await expect(selectionToolbar(page).locator('.mark svg.logo-light')).toBeVisible();
+    });
+
+    test('shows nothing without Ask or a fitting action', async ({ page }, testInfo) => {
+        await setup(page, testInfo, { askAvailable: false, actions: ACTIONS.filter((action) => action.id === 'define') });
+        await selectParagraph(page, '#english');
+        await page.locator('#english').click({ button: 'right' });
+        await expect(host(page)).toHaveCount(0);
+    });
+
+    test('draws native glyphs filled, and the default icon for anything else', async ({ page }, testInfo) => {
+        await setup(page, testInfo);
+        await selectParagraph(page, '#english');
+        const explain = selectionToolbar(page).getByRole('button', { name: 'Explain' }).locator('path');
+        await expect(explain).toHaveCount(2);
+        await expect(explain.nth(0)).toHaveAttribute('fill', 'currentColor');
+        await expect(explain.nth(0)).not.toHaveAttribute('fill-rule', /.*/);
+        await expect(explain.nth(1)).toHaveAttribute('fill-rule', 'evenodd');
+        const summarize = selectionToolbar(page).getByRole('button', { name: 'Summarize' }).locator('path');
+        await expect(summarize).toHaveCount(1);
+        await expect(summarize).toHaveAttribute('d', /^M6\.81286 1\.53649/);
+    });
+
+    test('an action with choices swaps its icon for a chevron while they are open', async ({ page }, testInfo) => {
+        await setup(page, testInfo);
+        await selectParagraph(page, '#english');
+        const translate = selectionToolbar(page).getByRole('button', { name: 'Translate' });
+        await expect(translate.locator('svg.when-closed')).toBeVisible();
+        await expect(translate.locator('svg.when-open')).toBeHidden();
+        await expect(translate.locator('svg')).toHaveCount(2);
+
+        await translate.hover();
+        await expect(host(page).getByRole('menu')).toBeVisible();
+        await expect(translate).toHaveClass('action active');
+        await expect(translate.locator('svg.when-open')).toBeVisible();
+        await expect(translate.locator('svg.when-closed')).toBeHidden();
     });
 
     test('ignores clicks made by page script', async ({ page }, testInfo) => {

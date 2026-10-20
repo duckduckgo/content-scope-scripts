@@ -10,6 +10,8 @@ const SELECTION_GAP = 8;
 /** Lifted a little further off the bottom edge than the usual margin when floating over the selection */
 const PINNED_LIFT = 30;
 const MENU_GAP = 4;
+/** Between the toolbar and a menu that opens below or above it */
+const TOOLBAR_MENU_GAP = 0;
 
 /**
  * @param {number} value
@@ -55,9 +57,9 @@ export function toolbarPosition(selection, toolbar, viewport) {
  * @param {Size} viewport
  */
 export function menuPosition(button, toolbar, menu, viewport) {
-    let top = toolbar.bottom + MENU_GAP;
+    let top = toolbar.bottom + TOOLBAR_MENU_GAP;
     if (top + menu.height > viewport.height - VIEWPORT_MARGIN) {
-        top = toolbar.top - MENU_GAP - menu.height;
+        top = toolbar.top - TOOLBAR_MENU_GAP - menu.height;
     }
     return {
         left: Math.round(clamp(button.left - MENU_GAP, VIEWPORT_MARGIN, viewport.width - menu.width - VIEWPORT_MARGIN)),

@@ -1,12 +1,6 @@
 {
-    "readme": "Test fixture for the selectionTools feature.",
+    "readme": "Test fixture for the selectionTools feature: no top-level entry, as on Windows, where native gates it.",
     "version": 1,
-    "features": {
-        "selectionTools": {
-            "state": "enabled",
-            "exceptions": [],
-            "settings": {}
-        }
-    },
+    "features": {},
     "unprotectedTemporary": []
 }

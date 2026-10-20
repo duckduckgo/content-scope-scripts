@@ -194,9 +194,9 @@ describe('selectionTools placement', () => {
     it('opens menus below the toolbar, or above when there is no room', () => {
         const button = { left: 200, top: 256, right: 240, bottom: 292 };
         const bar = { left: 100, top: 256, right: 400, bottom: 292 };
-        expect(menuPosition(button, bar, { width: 170, height: 100 }, viewport)).toEqual({ left: 196, top: 296 });
+        expect(menuPosition(button, bar, { width: 170, height: 100 }, viewport)).toEqual({ left: 196, top: 292 });
         const low = { left: 100, top: 740, right: 400, bottom: 776 };
-        expect(menuPosition({ ...button, top: 740, bottom: 776 }, low, { width: 170, height: 100 }, viewport).top).toBe(636);
+        expect(menuPosition({ ...button, top: 740, bottom: 776 }, low, { width: 170, height: 100 }, viewport).top).toBe(640);
     });
 
     it('opens submenus on the right, or the left near the edge', () => {

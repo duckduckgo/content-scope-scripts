@@ -4,6 +4,7 @@ import { menuPosition, submenuPosition, toolbarPosition } from './placement.js';
 
 /**
  * @typedef {import('./selection.js').Rect} Rect
+ * @typedef {import('./icons.js').Glyph} Glyph
  *
  * @typedef {object} ToolbarStrings
  * @property {string} toolbarLabel
@@ -19,18 +20,18 @@ import { menuPosition, submenuPosition, toolbarPosition } from './placement.js';
  *
  * @typedef {object} ToolbarItem An action. Items with choices open them in a menu; the others run when clicked.
  * @property {string} label
- * @property {string} [icon] SVG path data; the default action icon when absent
+ * @property {Glyph} [icon] the default action icon when absent
  * @property {ToolbarChoice[]} [choices]
  * @property {() => void} [run]
  *
  * @typedef {object} ToolbarModel
  * @property {ToolbarItem[]} visible Shown on the toolbar after Ask
  * @property {ToolbarItem[]} overflow In the "more" menu
- * @property {() => void} ask
+ * @property {(() => void) | null} ask null when Ask isn't available: the Duck.ai logo still leads, as a mark only
  * @property {() => void} hideTools
  * @property {() => void} openSettings
  *
- * @typedef {{ separator: true } | { separator?: false, label: string, icon?: string, choices?: ToolbarChoice[], run?: () => void }} MenuEntry
+ * @typedef {{ separator: true } | { separator?: false, label: string, icon?: Glyph, choices?: ToolbarChoice[], run?: () => void }} MenuEntry
  */
 
 // Captured before page script runs, so a page can't patch it to reach into the closed shadow root.
@@ -56,18 +57,22 @@ function el(tag, className, ...children) {
 }
 
 /**
- * Path data goes in as an attribute, never as markup.
- * @param {string} path
+ * A filled glyph in currentColor. Path data goes in as attributes, never as markup.
+ * @param {Glyph} glyph
  * @param {string} [className]
  */
-function icon(path, className) {
+function icon(glyph, className) {
     const svg = document.createElementNS(SVG_NS, 'svg');
     svg.setAttribute('viewBox', '0 0 16 16');
     svg.setAttribute('aria-hidden', 'true');
     if (className) svg.setAttribute('class', className);
-    const shape = document.createElementNS(SVG_NS, 'path');
-    shape.setAttribute('d', path);
-    svg.append(shape);
+    for (const { d, fillRule } of glyph) {
+        const shape = document.createElementNS(SVG_NS, 'path');
+        shape.setAttribute('d', d);
+        shape.setAttribute('fill', 'currentColor');
+        if (fillRule) shape.setAttribute('fill-rule', fillRule);
+        svg.append(shape);
+    }
     return svg;
 }
 
@@ -328,20 +333,32 @@ export class SelectionToolbar {
         clearTimeout(this._sentTimer);
         this._collapsed = !expanded;
 
-        const ask = el('button', 'action ask', duckAiLogo('light'), duckAiLogo('dark'));
-        ask.addEventListener('mouseenter', this._closeMenus);
-        ask.addEventListener(
-            'click',
-            trusted(() => this._runAndConfirm(model.ask)),
-        );
-        const askFold = el('span', 'fold', el('span', 'ask-text', this._strings.ask));
-        ask.append(askFold);
+        // The Duck.ai logo always leads, so the collapsed chip has something to show. With Ask it's Ask's button.
+        const runAsk = model.ask;
+        const lead = el(runAsk ? 'button' : 'span', runAsk ? 'action ask' : 'action ask mark', duckAiLogo('light'), duckAiLogo('dark'));
+        lead.addEventListener('mouseenter', this._closeMenus);
+        /** @type {HTMLElement[]} */
+        const folds = [];
+        if (runAsk) {
+            lead.addEventListener(
+                'click',
+                trusted(() => this._runAndConfirm(runAsk)),
+            );
+            const askFold = el('span', 'fold', el('span', 'ask-text', this._strings.ask));
+            lead.append(askFold);
+            folds.push(askFold);
+        } else {
+            lead.setAttribute('aria-hidden', 'true');
+        }
 
         const buttons = model.visible.map((item) => {
-            const button = el('button', 'action', icon(item.icon ?? ICONS.defaultAction), el('span', undefined, item.label));
             const choices = item.choices;
+            const glyph = icon(item.icon ?? ICONS.defaultAction);
+            const button = el('button', 'action', glyph, el('span', undefined, item.label));
             if (choices?.length) {
-                button.append(icon(ICONS.chevronDown, 'chevron'));
+                // No trailing chevron: while the choices are open, a chevron takes the icon's place.
+                glyph.classList.add('when-closed');
+                button.prepend(icon(ICONS.chevronDown, 'when-open'));
                 this._opensMenu(button, () => this._choiceEntries(choices));
             } else {
                 const run = item.run;
@@ -368,8 +385,8 @@ export class SelectionToolbar {
         const actionsFold = el('div', 'fold', ...buttons.flatMap((button) => [el('div', 'divider'), button]));
         const sentFold = el('div', 'fold sent folded', icon(ICONS.check), el('span', undefined, this._strings.sent));
         sentFold.style.maxWidth = '0px';
-        this._bar.replaceChildren(ask, actionsFold, sentFold);
-        this._folds = [askFold, actionsFold];
+        this._bar.replaceChildren(lead, actionsFold, sentFold);
+        this._folds = [...folds, actionsFold];
         this._sentFold = sentFold;
         // From max-width "none" the first size isn't animated, so a fresh toolbar appears at its starting size.
         for (const node of this._folds) fold(node, expanded);
@@ -479,7 +496,7 @@ export class SelectionToolbar {
                 }
                 const item = el('button', 'option');
                 item.setAttribute('role', 'menuitem');
-                if (entry.icon || anyIcon) item.append(icon(entry.icon ?? ''));
+                if (entry.icon || anyIcon) item.append(icon(entry.icon ?? []));
                 item.append(el('span', undefined, entry.label));
                 const { choices, run } = entry;
                 if (choices?.length) {
