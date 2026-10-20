@@ -161,6 +161,15 @@
           "description": "SVG fill-rule. Nonzero when absent."
         }
       }
+    },
+    "toolbarState": {
+      "title": "ToolbarState",
+      "description": "expanded, or the collapsed chip.",
+      "type": "string",
+      "enum": [
+        "expanded",
+        "collapsed"
+      ]
     }
   }
 }
