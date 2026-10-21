@@ -50,6 +50,7 @@ export const DOMException = globalThis.DOMException;
 export const charCodeAt = globalThis.String.prototype.charCodeAt;
 export const ReflectDeleteProperty = Reflect.deleteProperty.bind(Reflect);
 export const ReflectApply = Reflect.apply.bind(Reflect);
+export const ReflectGet = Reflect.get.bind(Reflect);
 export const getRandomValues = globalThis.crypto?.getRandomValues?.bind(globalThis.crypto);
 
 // Secure context only - crypto.subtle is unavailable on HTTP

@@ -5,6 +5,7 @@ import {
     isArray,
     objectKeys,
     ReflectApply,
+    ReflectGet,
 } from '../../captured-globals.js';
 import {
     ConfigParseError,
@@ -46,6 +47,13 @@ export class NativeReader {
     #holders = new Map();
     /** @type {object | undefined} */
     #nodePrototype;
+    /**
+     * Per key, the record found walking up from a prototype, or `null` for none. A page can change a
+     * prototype's chain between runs, so it is kept for one run.
+     *
+     * @type {Map<PropertyKey, Map<object, PropertyDescriptor | null>>}
+     */
+    #records = new Map();
 
     /**
      * @param {object} global - the global object to capture from
@@ -89,23 +97,58 @@ export class NativeReader {
         }
     }
 
+    /** Start a run: records found from a prototype are looked up again. */
+    beginRun() {
+        this.#records.clear();
+    }
+
+    /**
+     * The captured record for a key on the target's chain: on the target itself when it is a holder,
+     * else the one found walking up from its prototype.
+     *
+     * @param {unknown} target - any value but `null` and `undefined`
+     * @param {PropertyKey} key
+     * @returns {PropertyDescriptor | undefined}
+     */
+    _captured(target, key) {
+        if (typeof target === 'object' || typeof target === 'function') {
+            const own = this.#holders.get(/** @type {object} */ (target))?.get(key);
+            if (own) return own;
+        }
+        const from = getPrototypeOf(target);
+        if (from === null) return undefined;
+        let byPrototype = this.#records.get(key);
+        if (!byPrototype) {
+            byPrototype = new Map();
+            this.#records.set(key, byPrototype);
+        }
+        let record = byPrototype.get(from);
+        if (record === undefined) {
+            record = null;
+            for (let current = from; current !== null; current = getPrototypeOf(current)) {
+                const found = this.#holders.get(current)?.get(key);
+                if (found) {
+                    record = found;
+                    break;
+                }
+            }
+            byPrototype.set(from, record);
+        }
+        return record ?? undefined;
+    }
+
     /**
      * The captured record for a key on the target's chain, else the property as it stands.
      *
-     * @param {unknown} target
+     * @param {unknown} target - any value but `null` and `undefined`
      * @param {PropertyKey} key
      * @returns {PropertyDescriptor | undefined}
      */
     _find(target, key) {
-        const start = typeof target === 'object' || typeof target === 'function' ? target : getPrototypeOf(target);
+        const record = this._captured(target, key);
+        if (record) return record;
         /** @type {unknown} */
-        let current = start;
-        while (current !== null && current !== undefined) {
-            const record = this.#holders.get(/** @type {object} */ (current))?.get(key);
-            if (record) return record;
-            current = getPrototypeOf(current);
-        }
-        current = start;
+        let current = typeof target === 'object' || typeof target === 'function' ? target : getPrototypeOf(target);
         while (current !== null && current !== undefined) {
             const descriptor = getOwnPropertyDescriptor(current, key);
             if (descriptor) return descriptor;
@@ -116,18 +159,22 @@ export class NativeReader {
 
     /**
      * Read one property, as JS reads it: a name present nowhere, or an accessor with no getter, reads
-     * `undefined`. A getter that throws fails.
+     * `undefined`. A getter that throws fails, and so does a page's Proxy trap that throws.
      *
      * @param {unknown} target - any value but `null` and `undefined`
      * @param {string} name
      * @returns {unknown} the value, or a `Failure`
      */
     read(target, name) {
-        const record = this._find(target, name);
-        if (!record) return undefined;
-        if ('value' in record) return record.value;
-        if (!record.get) return undefined;
+        const record = this._captured(target, name);
         try {
+            if (!record) {
+                // A primitive is read from its prototype, with itself as the getter's receiver
+                const start = typeof target === 'object' || typeof target === 'function' ? target : getPrototypeOf(target);
+                return ReflectGet(/** @type {object} */ (start), name, target);
+            }
+            if ('value' in record) return record.value;
+            if (!record.get) return undefined;
             return ReflectApply(record.get, target, []);
         } catch (e) {
             return new Failure(errorName(e));

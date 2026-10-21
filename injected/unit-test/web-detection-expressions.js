@@ -1777,6 +1777,63 @@ describe('WebDetection expressions', () => {
             expect(holds('', { api: { path: 'fakeLocation.href' }, is: 'https://example.com/' }, { install })).toBe(true);
         });
 
+        /**
+         * Two captured classes whose `label` getters differ, a class between them and an item, and an
+         * item of the second class.
+         *
+         * @param {any} w
+         */
+        const labelled = (w) => {
+            w.LabelOne = class {
+                get label() {
+                    return 'one';
+                }
+            };
+            w.LabelTwo = class {
+                get label() {
+                    return 'two';
+                }
+            };
+            w.LabelMiddle = class extends w.LabelOne {};
+            w.LabelLeaf = class extends w.LabelMiddle {};
+            w.labelItems = [new w.LabelLeaf(), new w.LabelTwo(), new w.LabelLeaf()];
+        };
+
+        it('reads each item through its own chain', () => {
+            const detector = { api: { path: 'labelItems', where: { label: 'two' } }, using: 'length', is: 1 };
+            expect(holds('', detector, { install: labelled })).toBe(true);
+        });
+
+        it('reads through a chain the page changes between runs of one reader', () => {
+            const window = new JSDOM('<!DOCTYPE html><html><body></body></html>').window;
+            labelled(window);
+            const compiled = compileDetector({ actions: { define: { label: { api: { path: 'labelItems.0.label' } } } } }, window);
+            const reader = new NativeReader(window, compiled.names);
+            const label = () => {
+                const state = createDetectorState();
+                const ctx = new EvaluationContext(reader, state.names, state);
+                runDetector(compiled, state, ctx);
+                return ctx.runNames.get('label');
+            };
+            expect(label()).toBe('one');
+            Object.setPrototypeOf(window.LabelMiddle.prototype, window.LabelTwo.prototype);
+            expect(label()).toBe('two');
+        });
+
+        it('fails when a page Proxy throws on a read', () => {
+            const afterCapture = (/** @type {any} */ w) => {
+                w.trapped = new Proxy(
+                    {},
+                    {
+                        get: () => {
+                            throw new w.TypeError('trapped');
+                        },
+                    },
+                );
+            };
+            expect(holds('', { api: { path: 'trapped.anything' }, is: { fails: true } }, { afterCapture })).toBe(true);
+        });
+
         it('skips a global whose descriptor read throws, and captures from the rest', () => {
             // As a cross-origin frame's WindowProxy, reached as `window[0]`, throws on every read
             const install = (/** @type {any} */ w) => {
