@@ -47,7 +47,7 @@ Each selection is classified locally, from its text and the element it starts in
 | `code`     | Inside `pre`, `code`, `kbd` or `samp`, or dense with code punctuation and keywords |
 | `word`     | One word of 2–30 letters in the user's language                                    |
 | `question` | Ends with a question mark                                                          |
-| `long`     | Over 280 characters or more than two sentences                                     |
+| `long`     | Over 500 characters                                                                |
 | `text`     | Anything else                                                                      |
 
 The language comes from the text's writing system or common words, then the nearest `lang` attribute, then the user's
