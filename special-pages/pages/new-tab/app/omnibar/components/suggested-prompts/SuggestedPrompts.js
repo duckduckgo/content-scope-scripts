@@ -5,7 +5,7 @@ import { eventToTarget } from '../../../../../../shared/handlers';
 import { useEnv } from '../../../../../../shared/components/EnvironmentProvider.js';
 import { usePlatformName } from '../../../settings.provider';
 import { useTypedTranslationWith } from '../../../types';
-import { AiChatColorIcon, CloseSmallIcon } from '../../../components/Icons';
+import { AiChatColorIcon, CloseSmallIcon, VoiceIcon } from '../../../components/Icons';
 import { OmnibarContext } from '../OmnibarProvider';
 import { useActiveTools } from '../chat-tools/useActiveTools';
 import { useAttachmentsContext } from '../chat-tools/attachments/AttachmentsProvider';
@@ -58,8 +58,9 @@ const TABS = [
  * @param {object} props
  * @param {(params: SubmitChatAction) => void} props.onSubmit
  * @param {boolean} [props.animateIn] - Plays the chips' enter animation; set when the user switched to Duck.ai, not on page load.
+ * @param {boolean} [props.enableVoiceChatAccess] - Adds a Voice Chat chip, shown on narrow windows only.
  */
-export function SuggestedPrompts({ onSubmit, animateIn = false }) {
+export function SuggestedPrompts({ onSubmit, animateIn = false, enableVoiceChatAccess = false }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
     const baseId = useId();
@@ -74,6 +75,8 @@ export function SuggestedPrompts({ onSubmit, animateIn = false }) {
     const dismissed = state.config?.suggestedPromptsDismissed === true;
     const submittedCountReached = (state.config?.suggestedPromptsSubmitCount ?? 0) >= MAX_SUBMITTED_PROMPTS;
     const canGenerateImages = availableTools.includes('image-generation');
+    // Same gate as the input's voice button.
+    const canStartVoiceChat = enableVoiceChatAccess && state.config?.requiresAiTermsAcceptance !== true;
 
     const [activeTabId, setActiveTabId] = useState(/** @type {TabId | null} */ (null));
     /** Tab whose panel is still playing its close animation. */
@@ -209,6 +212,11 @@ export function SuggestedPrompts({ onSubmit, animateIn = false }) {
         );
     };
 
+    /** @param {MouseEvent} event */
+    const handleVoiceChat = (event) => {
+        onSubmit({ chat: '', target: eventToTarget(event, platformName), mode: 'voice-mode' });
+    };
+
     /** @param {Event} event */
     const handleFileChange = async (event) => {
         const input = /** @type {HTMLInputElement} */ (event.currentTarget);
@@ -243,6 +251,7 @@ export function SuggestedPrompts({ onSubmit, animateIn = false }) {
                         return (
                             <button
                                 key={tab.id}
+                                data-chip-id={tab.id}
                                 ref={(el) => {
                                     tabRefs.current[tab.id] = el;
                                 }}
@@ -264,10 +273,24 @@ export function SuggestedPrompts({ onSubmit, animateIn = false }) {
                         );
                     })}
                 </div>
+                {canStartVoiceChat && (
+                    <button
+                        type="button"
+                        data-chip-id="voice"
+                        class={cn(styles.chip, styles.voiceChip)}
+                        style={{ '--chip-index': tabs.length }}
+                        onClick={handleVoiceChat}
+                        onAuxClick={handleVoiceChat}
+                    >
+                        <VoiceIcon class={styles.chipIcon} aria-hidden="true" />
+                        <span>{t('omnibar_suggestedPromptsVoiceChatLabel')}</span>
+                    </button>
+                )}
                 <button
                     type="button"
+                    data-chip-id="dismiss"
                     class={cn(styles.chip, styles.dismissButton)}
-                    style={{ '--chip-index': tabs.length }}
+                    style={{ '--chip-index': tabs.length + 1 }}
                     aria-label={t('omnibar_suggestedPromptsDismissAria')}
                     onClick={dismissSuggestedPrompts}
                 >

@@ -239,7 +239,13 @@ export function Omnibar({
                             )}
                         </div>
                         {/* `autoFocus` is only set by a mode switch, so the chips don't animate on page load. */}
-                        {mode === 'ai' && showSuggestedPrompts && <SuggestedPrompts onSubmit={handleSubmitChat} animateIn={autoFocus} />}
+                        {mode === 'ai' && showSuggestedPrompts && (
+                            <SuggestedPrompts
+                                onSubmit={handleSubmitChat}
+                                animateIn={autoFocus}
+                                enableVoiceChatAccess={enableVoiceChatAccess}
+                            />
+                        )}
                     </AiChatsProvider>
                 </AttachmentsProvider>
             </SearchFormProvider>

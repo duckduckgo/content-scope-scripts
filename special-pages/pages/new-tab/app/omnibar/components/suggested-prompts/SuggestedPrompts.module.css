@@ -99,6 +99,42 @@
     }
 }
 
+/* Narrow windows only, like Duck.ai's Voice Chat chip. */
+.voiceChip {
+    display: none;
+}
+
+/* Duck.ai's narrow-width chip order. Arrow keys still match the visual order: it's a rotation of the tab order. */
+@media screen and (max-width: 900px) {
+    .chips {
+        display: contents;
+    }
+
+    .voiceChip {
+        display: inline-flex;
+    }
+
+    .chipRow [data-chip-id='suggestions'] {
+        order: 1;
+    }
+
+    .chipRow [data-chip-id='create-image'] {
+        order: 2;
+    }
+
+    .chipRow [data-chip-id='voice'] {
+        order: 3;
+    }
+
+    .chipRow [data-chip-id='how-duckai-works'] {
+        order: 4;
+    }
+
+    .chipRow [data-chip-id='dismiss'] {
+        order: 5;
+    }
+}
+
 /* Round X after the chips that hides them for good. */
 .dismissButton {
     color: var(--ds-color-theme-icons-primary);
