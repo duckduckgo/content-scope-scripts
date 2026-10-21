@@ -168,7 +168,8 @@ export class TrackerProtection extends ContentFeature {
         const xhrTracked = new WeakSet();
 
         // wrapMethod keeps the native descriptor, name, length and toString, so pages can't detect the wrapper.
-        this.wrapMethod(XMLHttpRequest.prototype, 'open', function (originalOpen, ...args) {
+        /** @this {XMLHttpRequest} @param {Function} originalOpen @param {any[]} args */
+        const wrappedOpen = function (originalOpen, ...args) {
             try {
                 if (args.length > 1) {
                     xhrUrls.set(this, String(args[1]));
@@ -177,9 +178,11 @@ export class TrackerProtection extends ContentFeature {
                 // Never break the original call
             }
             return originalOpen.apply(this, args);
-        });
+        };
+        this.wrapMethod(XMLHttpRequest.prototype, 'open', wrappedOpen);
 
-        this.wrapMethod(XMLHttpRequest.prototype, 'send', function (originalSend, ...args) {
+        /** @this {XMLHttpRequest} @param {Function} originalSend @param {any[]} args */
+        const wrappedSend = function (originalSend, ...args) {
             try {
                 if (!xhrTracked.has(this)) {
                     xhrTracked.add(this);
@@ -191,7 +194,8 @@ export class TrackerProtection extends ContentFeature {
                 // Never break the original call
             }
             return originalSend.apply(this, args);
-        });
+        };
+        this.wrapMethod(XMLHttpRequest.prototype, 'send', wrappedSend);
     }
 
     _setupFetchInterception() {
@@ -199,7 +203,8 @@ export class TrackerProtection extends ContentFeature {
 
         // A plain `window.fetch = function…` is detectable via Function.prototype.toString and breaks sites that
         // check for a native fetch (e.g. upwork.com). wrapMethod returns a Proxy that reports as native code.
-        this.wrapMethod(globalThis, 'fetch', function (originalFetch, ...args) {
+        /** @this {unknown} @param {Function} originalFetch @param {any[]} args */
+        const wrappedFetch = function (originalFetch, ...args) {
             try {
                 if (args.length > 0) {
                     const input = args[0];
@@ -216,7 +221,8 @@ export class TrackerProtection extends ContentFeature {
             }
             // Pass `this` through so invalid receivers fail exactly like native fetch.
             return originalFetch.apply(this, args);
-        });
+        };
+        this.wrapMethod(globalThis, 'fetch', wrappedFetch);
     }
 
     _setupImageSrcInterception() {
