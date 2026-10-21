@@ -237,7 +237,7 @@ test.describe('chromeWebstorePatching', () => {
         await setup(page, testInfo);
         await navigateTo(page, NON_CATALOG_PATH);
         await expect(page.locator(LABEL)).toHaveText('Unsupported extension');
-        const link = page.getByRole('link', { name: 'Internal: Add to DuckDuckGo' });
+        const link = page.getByRole('link', { name: 'Internal override' });
         await expect(link).toBeVisible();
         await link.click();
         await expect(page.locator(LABEL)).toHaveText('Add to DuckDuckGo');
@@ -251,7 +251,7 @@ test.describe('chromeWebstorePatching', () => {
     test('internal override link is removed on navigation to a catalog extension', async ({ page }, testInfo) => {
         await setup(page, testInfo);
         await navigateTo(page, NON_CATALOG_PATH);
-        await expect(page.getByRole('link', { name: 'Internal: Add to DuckDuckGo' })).toBeVisible();
+        await expect(page.getByRole('link', { name: 'Internal override' })).toBeVisible();
         await navigateTo(page, CATALOG_PATH);
         await expect(page.locator(LABEL)).toHaveText('Add to DuckDuckGo');
         await expect(page.locator('[data-ddg-webstore-internal-override]')).toHaveCount(0);

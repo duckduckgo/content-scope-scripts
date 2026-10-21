@@ -68,7 +68,7 @@ const ICON_BACKGROUNDS = {
 };
 
 // Internal builds only, so deliberately not localized or sent to Smartling
-const INTERNAL_OVERRIDE_TEXT = 'Internal: Add to DuckDuckGo';
+const INTERNAL_OVERRIDE_TEXT = 'Internal override';
 const INTERNAL_OVERRIDE_STYLES = {
     display: 'block',
     'margin-top': '8px',
