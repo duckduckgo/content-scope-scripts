@@ -1,0 +1,1532 @@
+{
+  "smartling": {
+    "string_format": "icu",
+    "translate_paths": [
+      {
+        "path": "*/title",
+        "key": "{*}/title",
+        "instruction": "*/note"
+      }
+    ]
+  },
+  "newBadge": {
+    "title": "New",
+    "note": "Badge text indicating a new feature."
+  },
+  "ntp_show_less": {
+    "title": "Show Less",
+    "note": "Button that reduces the number of items or content displayed."
+  },
+  "ntp_show_more": {
+    "title": "Show More",
+    "note": "Button that increases the number of items or content displayed."
+  },
+  "ntp_dismiss": {
+    "title": "Dismiss",
+    "note": "Button that closes or hides the current popup or notification."
+  },
+  "ntp_customizer_button": {
+    "title": "Customize",
+    "note": "Button opens a menu. The menu allows the user to customize the page, such as showing/hiding sections."
+  },
+  "widgets_visibility_menu_title": {
+    "title": "Customize New Tab Page",
+    "note": "Heading text describing that there's a list of toggles for customizing the page layout."
+  },
+  "ntp_popover_close_button": {
+    "title": "Close",
+    "note": "Button that closes the current popover."
+  },
+  "customizer_themeVariantPopoverTitle": {
+    "title": "Pick a color theme that suits you",
+    "note": "Title for the popover that introduces the theme variant customization feature."
+  },
+  "customizer_themeVariantPopoverDescription": {
+    "title": "You can now choose a color for the look that you want. Give it a try!",
+    "note": "Description message in the theme variant popover."
+  },
+  "updateNotification_updated_version": {
+    "title": "Browser Updated to version {version}.",
+    "note": "Text to indicate which new version was updated. `{version}` will be formatted like `1.22.0`"
+  },
+  "updateNotification_whats_new": {
+    "title": "See <a>what's new</a> in this release.",
+    "note": "The `<a>` tag represents a clickable link, please preserve it."
+  },
+  "updateNotification_dismiss_btn": {
+    "title": "Dismiss",
+    "note": "Button label text for an action that removes the widget from the screen."
+  },
+  "protections_menuTitle": {
+    "title": "Protections Report",
+    "note": "Used as a label in the main navigation menu. 'Protections' refers to the privacy features that block trackers."
+  },
+  "protections_statsSwitchTitle": {
+    "title": "Summary",
+    "note": "Used as a label in a toggle switch that shows aggregated privacy statistics. This is one of two options in a view selector (the other is 'Details')."
+  },
+  "protections_activitySwitchTitle": {
+    "title": "Details",
+    "note": "Used as a label in a toggle switch that shows recent browsing activity with tracking information. This is one of two options in a view selector (the other is 'Summary')."
+  },
+  "protections_noRecent": {
+    "title": "No recent tracking activity",
+    "note": "Placeholder text shown in the Details view when no tracking activity was blocked in the last 7 days. Keep concise if possible."
+  },
+  "protections_report_infoLabel": {
+    "title": "Why this matters",
+    "note": "Accessible label for the info button next to the Protections Report title."
+  },
+  "protections_report_infoTitle": {
+    "title": "Why this matters",
+    "note": "Title of the pop-over explaining why tracker blocking matters."
+  },
+  "protections_report_infoBody1": {
+    "title": "Trackers aren’t just on sensitive sites. They’re on the news you read, the recipes you save, the stores you browse, and more. And they’re quietly piecing it all together into a detailed (and frankly, creepy!) profile of you.",
+    "note": "First paragraph of the 'Why this matters' pop-over."
+  },
+  "protections_report_infoBody2": {
+    "title": "The more of your everyday browsing happens on DuckDuckGo, the less of it they get to see.",
+    "note": "Second paragraph of the 'Why this matters' pop-over."
+  },
+  "protections_report_headlineSingular": {
+    "title": "<b>1 company</b> tried to<br>watch you browse this week.",
+    "note": "Main headline when trackers from exactly one company were blocked in the last 7 days. Keep the <b></b> tags around the company count; it is visually highlighted. The <br> starts the second line; place it where the sentence reads best split over two lines."
+  },
+  "protections_report_headlineSingularFirstPerson": {
+    "title": "<b>1 company</b> tried to<br>watch me browse this week.",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “<b>1 company</b> tried to<br>watch you browse this week.” — Main headline when trackers from exactly one company were blocked in the last 7 days. Keep the <b></b> tags around the company count; it is visually highlighted. The <br> starts the second line; place it where the sentence reads best split over two lines."
+  },
+  "protections_report_headlinePlural": {
+    "title": "<b>{count} companies</b> tried to<br>watch you browse this week.",
+    "note": "Main headline. {count} is the number of distinct tracking companies blocked in the last 7 days, eg: '47 companies tried to<br>watch you browse this week.' Keep the <b></b> tags around the company count; it is visually highlighted. The <br> starts the second line; place it where the sentence reads best split over two lines."
+  },
+  "protections_report_headlinePluralFirstPerson": {
+    "title": "<b>{count} companies</b> tried to<br>watch me browse this week.",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “<b>{count} companies</b> tried to<br>watch you browse this week.” — Main headline. {count} is the number of distinct tracking companies blocked in the last 7 days, eg: '47 companies tried to<br>watch you browse this week.' Keep the <b></b> tags around the company count; it is visually highlighted. The <br> starts the second line; place it where the sentence reads best split over two lines."
+  },
+  "protections_report_blockedSingular": {
+    "title": "We blocked <b>1</b> of their attempts to track you.",
+    "note": "Sub-headline under the main headline when exactly one tracking attempt was blocked. Keep the <b></b> tags around the number."
+  },
+  "protections_report_blockedSingularFirstPerson": {
+    "title": "DuckDuckGo blocked <b>1</b> of their attempts to track me.",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “We blocked <b>1</b> of their attempts to track you.” — Sub-headline under the main headline when exactly one tracking attempt was blocked. Keep the <b></b> tags around the number."
+  },
+  "protections_report_blockedPlural": {
+    "title": "We blocked <b>{count}</b> of their attempts to track you.",
+    "note": "Sub-headline under the main headline. {count} is the number of tracking attempts blocked in the last 7 days. Keep the <b></b> tags around the number."
+  },
+  "protections_report_blockedPluralFirstPerson": {
+    "title": "DuckDuckGo blocked <b>{count}</b> of their attempts to track me.",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “We blocked <b>{count}</b> of their attempts to track you.” — Sub-headline under the main headline. {count} is the number of tracking attempts blocked in the last 7 days. Keep the <b></b> tags around the number."
+  },
+  "protections_report_emptyTitle": {
+    "title": "No trackers yet this week.",
+    "note": "Main headline of the Protections Report when nothing has been blocked in the last 7 days."
+  },
+  "protections_report_emptyBody": {
+    "title": "As you browse, we’ll block them and show you who tried to watch you.",
+    "note": "Sub-headline of the Protections Report when nothing has been blocked in the last 7 days."
+  },
+  "protections_report_emptyFooter": {
+    "title": "Your report fills in as you browse.",
+    "note": "Shown under placeholder rows in the empty Protections Report."
+  },
+  "protections_report_cookiePopUpsSingular": {
+    "title": "We also handled 1 annoying cookie pop-up for you.",
+    "note": "Footer of the Protections Report when one cookie consent pop-up was handled automatically."
+  },
+  "protections_report_cookiePopUpsSingularFirstPerson": {
+    "title": "DuckDuckGo also handled 1 annoying cookie pop-up for me.",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “We also handled 1 annoying cookie pop-up for you.” — Footer of the Protections Report when one cookie consent pop-up was handled automatically."
+  },
+  "protections_report_cookiePopUpsPlural": {
+    "title": "We also handled {count} annoying cookie pop-ups for you.",
+    "note": "Footer of the Protections Report. {count} is the number of cookie consent pop-ups handled automatically."
+  },
+  "protections_report_cookiePopUpsPluralFirstPerson": {
+    "title": "DuckDuckGo also handled {count} annoying cookie pop-ups for me.",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “We also handled {count} annoying cookie pop-ups for you.” — Footer of the Protections Report. {count} is the number of cookie consent pop-ups handled automatically."
+  },
+  "protections_report_viewMenuLabel": {
+    "title": "Choose a view",
+    "note": "Accessible label for the menu that switches between the Protections Report views."
+  },
+  "protections_report_viewPurposes": {
+    "title": "<b>Why</b> we blocked them",
+    "note": "Option in the Protections Report view menu. Groups blocked trackers by what they were trying to do (eg: follow you with ads). The <b></b> tags bold the question word (why, who, where, when, what, how) in the menu; keep them around the equivalent word."
+  },
+  "protections_report_viewPurposesFirstPerson": {
+    "title": "<b>Why</b> DuckDuckGo blocked them",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “<b>Why</b> we blocked them” — Option in the Protections Report view menu. Groups blocked trackers by what they were trying to do (eg: follow you with ads). The <b></b> tags bold the question word (why, who, where, when, what, how) in the menu; keep them around the equivalent word."
+  },
+  "protections_report_viewCompanies": {
+    "title": "<b>Who</b> tried to watch you",
+    "note": "Option in the Protections Report view menu. Lists the tracking companies blocked on the most sites. The <b></b> tags bold the question word (why, who, where, when, what, how) in the menu; keep them around the equivalent word."
+  },
+  "protections_report_viewCompaniesFirstPerson": {
+    "title": "<b>Who</b> tried to watch me",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “<b>Who</b> tried to watch you” — Option in the Protections Report view menu. Lists the tracking companies blocked on the most sites. The <b></b> tags bold the question word (why, who, where, when, what, how) in the menu; keep them around the equivalent word."
+  },
+  "protections_report_viewSites": {
+    "title": "<b>When</b> they tried to watch you",
+    "note": "Option in the Protections Report view menu. Lists the sites you visited, most recent first, and how many trackers were blocked on each. The <b></b> tags bold the question word (why, who, where, when, what, how) in the menu; keep them around the equivalent word."
+  },
+  "protections_report_blocked": {
+    "title": "Blocked",
+    "note": "Status label at the end of a row, meaning these trackers were blocked."
+  },
+  "protections_report_purposeAdvertising": {
+    "title": "They target you with ads based on the sites you visit",
+    "note": "Describes what a tracker does (advertising trackers). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who tried to watch you'. Starts with 'They', meaning the tracking companies (or one company's trackers), eg: 'Google: They target you with ads based on the sites you visit.'"
+  },
+  "protections_report_purposeAdvertisingFirstPerson": {
+    "title": "They target me with ads based on the sites I visit",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “They target you with ads based on the sites you visit” — Describes what a tracker does (advertising trackers). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who tried to watch you'. Starts with 'They', meaning the tracking companies (or one company's trackers), eg: 'Google: They target you with ads based on the sites you visit.'"
+  },
+  "protections_report_purposeSocial": {
+    "title": "They tell social networks what you do on other sites",
+    "note": "Describes what a tracker does (social network trackers such as share buttons and pixels). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who tried to watch you'. Starts with 'They', meaning the tracking companies (or one company's trackers), eg: 'Google: They target you with ads based on the sites you visit.'"
+  },
+  "protections_report_purposeSocialFirstPerson": {
+    "title": "They tell social networks what I do on other sites",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “They tell social networks what you do on other sites” — Describes what a tracker does (social network trackers such as share buttons and pixels). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who tried to watch you'. Starts with 'They', meaning the tracking companies (or one company's trackers), eg: 'Google: They target you with ads based on the sites you visit.'"
+  },
+  "protections_report_purposeFingerprinting": {
+    "title": "They fingerprint your device to recognize you, even without cookies",
+    "note": "Describes what a tracker does (browser fingerprinting). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who tried to watch you'. Starts with 'They', meaning the tracking companies (or one company's trackers), eg: 'Google: They target you with ads based on the sites you visit.'"
+  },
+  "protections_report_purposeFingerprintingFirstPerson": {
+    "title": "They fingerprint my device to recognize me, even without cookies",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “They fingerprint your device to recognize you, even without cookies” — Describes what a tracker does (browser fingerprinting). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who tried to watch you'. Starts with 'They', meaning the tracking companies (or one company's trackers), eg: 'Google: They target you with ads based on the sites you visit.'"
+  },
+  "protections_report_purposeSessionReplay": {
+    "title": "They record what you click, type, and scroll",
+    "note": "Describes what a tracker does (session replay scripts that record mouse movement, clicks, typing and scrolls). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who tried to watch you'. Starts with 'They', meaning the tracking companies (or one company's trackers), eg: 'Google: They target you with ads based on the sites you visit.'"
+  },
+  "protections_report_purposeSessionReplayFirstPerson": {
+    "title": "They record what I click, type, and scroll",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “They record what you click, type, and scroll” — Describes what a tracker does (session replay scripts that record mouse movement, clicks, typing and scrolls). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who tried to watch you'. Starts with 'They', meaning the tracking companies (or one company's trackers), eg: 'Google: They target you with ads based on the sites you visit.'"
+  },
+  "protections_report_purposeAnalytics": {
+    "title": "They watch what you read and where you browse",
+    "note": "Describes what a tracker does (analytics and audience measurement trackers). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who tried to watch you'. Starts with 'They', meaning the tracking companies (or one company's trackers), eg: 'Google: They target you with ads based on the sites you visit.'"
+  },
+  "protections_report_purposeAnalyticsFirstPerson": {
+    "title": "They watch what I read and where I browse",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “They watch what you read and where you browse” — Describes what a tracker does (analytics and audience measurement trackers). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who tried to watch you'. Starts with 'They', meaning the tracking companies (or one company's trackers), eg: 'Google: They target you with ads based on the sites you visit.'"
+  },
+  "protections_report_othersSingular": {
+    "title": "1 other",
+    "note": "Used at the end of a list of company names, eg: 'Google, Amazon and 1 other'."
+  },
+  "protections_report_othersPlural": {
+    "title": "{count} others",
+    "note": "Used at the end of a list of company names, eg: 'Google, Amazon and 23 others'. {count} is a number."
+  },
+  "protections_report_moreCompanies": {
+    "title": "+{count}",
+    "note": "Shown after a few company logos to say how many more companies there are, eg: '+22'."
+  },
+  "protections_report_companyWasOn": {
+    "title": "{company} was on {frequency}",
+    "note": "Row title in the 'Who tried to watch you' view. {company} is a tracking company name (eg: Google). {frequency} is one of the 'sites you visited' phrases, eg: 'Google was on 4 out of 5 sites you visited'."
+  },
+  "protections_report_freqNearlyAll": {
+    "title": "nearly every site you visited",
+    "note": "Completes 'Google was on …'. Used when the company was on 90% or more of sites visited this week."
+  },
+  "protections_report_freqNearlyAllFirstPerson": {
+    "title": "nearly every site I visited",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “nearly every site you visited” — Completes 'Google was on …'. Used when the company was on 90% or more of sites visited this week."
+  },
+  "protections_report_freqFourInFive": {
+    "title": "4 out of 5 sites you visited",
+    "note": "Completes 'Google was on …'."
+  },
+  "protections_report_freqFourInFiveFirstPerson": {
+    "title": "4 out of 5 sites I visited",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “4 out of 5 sites you visited” — Completes 'Google was on …'."
+  },
+  "protections_report_freqTwoInThree": {
+    "title": "2 out of 3 sites you visited",
+    "note": "Completes 'Google was on …'."
+  },
+  "protections_report_freqTwoInThreeFirstPerson": {
+    "title": "2 out of 3 sites I visited",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “2 out of 3 sites you visited” — Completes 'Google was on …'."
+  },
+  "protections_report_freqMoreThanHalf": {
+    "title": "more than half the sites you visited",
+    "note": "Completes 'Google was on …'."
+  },
+  "protections_report_freqMoreThanHalfFirstPerson": {
+    "title": "more than half the sites I visited",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “more than half the sites you visited” — Completes 'Google was on …'."
+  },
+  "protections_report_freqHalf": {
+    "title": "half the sites you visited",
+    "note": "Completes 'Google was on …'."
+  },
+  "protections_report_freqHalfFirstPerson": {
+    "title": "half the sites I visited",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “half the sites you visited” — Completes 'Google was on …'."
+  },
+  "protections_report_freqAlmostHalf": {
+    "title": "almost half the sites you visited",
+    "note": "Completes 'Google was on …'."
+  },
+  "protections_report_freqAlmostHalfFirstPerson": {
+    "title": "almost half the sites I visited",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “almost half the sites you visited” — Completes 'Google was on …'."
+  },
+  "protections_report_freqOneInThree": {
+    "title": "1 in 3 sites you visited",
+    "note": "Completes 'Google was on …'."
+  },
+  "protections_report_freqOneInThreeFirstPerson": {
+    "title": "1 in 3 sites I visited",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “1 in 3 sites you visited” — Completes 'Google was on …'."
+  },
+  "protections_report_freqMoreThanOneInFour": {
+    "title": "more than 1 in 4 sites you visited",
+    "note": "Completes 'Google was on …'."
+  },
+  "protections_report_freqMoreThanOneInFourFirstPerson": {
+    "title": "more than 1 in 4 sites I visited",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “more than 1 in 4 sites you visited” — Completes 'Google was on …'."
+  },
+  "protections_report_freqOneInFive": {
+    "title": "1 in 5 sites you visited",
+    "note": "Completes 'Google was on …'."
+  },
+  "protections_report_freqOneInFiveFirstPerson": {
+    "title": "1 in 5 sites I visited",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “1 in 5 sites you visited” — Completes 'Google was on …'."
+  },
+  "protections_report_freqSitesSingular": {
+    "title": "1 site you visited",
+    "note": "Completes 'Google was on …'."
+  },
+  "protections_report_freqSitesSingularFirstPerson": {
+    "title": "1 site I visited",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “1 site you visited” — Completes 'Google was on …'."
+  },
+  "protections_report_freqSitesPlural": {
+    "title": "{count} sites you visited",
+    "note": "Completes 'Google was on …'. {count} is a number."
+  },
+  "protections_report_freqSitesPluralFirstPerson": {
+    "title": "{count} sites I visited",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “{count} sites you visited” — Completes 'Google was on …'. {count} is a number."
+  },
+  "protections_report_attemptsSingular": {
+    "title": "1 tracking attempt blocked",
+    "note": "Fallback description in the 'Who tried to watch you' view when we don't know what the company's trackers do."
+  },
+  "protections_report_attemptsPlural": {
+    "title": "{count} tracking attempts blocked",
+    "note": "Fallback description in the 'Who tried to watch you' view when we don't know what the company's trackers do. {count} is a number."
+  },
+  "protections_report_expandLabel": {
+    "title": "Expand Protections Report",
+    "note": "Accessible label for the button that expands the Protections Report."
+  },
+  "protections_report_collapseLabel": {
+    "title": "Collapse Protections Report",
+    "note": "Accessible label for the button that collapses the Protections Report."
+  },
+  "protections_report_moreCompaniesSingular": {
+    "title": "1 more company tried too",
+    "note": "Last row in the 'Who tried to watch you' view, summarizing the one tracking company not listed above."
+  },
+  "protections_report_moreCompaniesPlural": {
+    "title": "{count} more companies tried too",
+    "note": "Last row in the 'Who tried to watch you' view, summarizing the tracking companies not listed above. {count} is a number, eg: '43 more companies tried too'."
+  },
+  "protections_report_including": {
+    "title": "Including {companies}",
+    "note": "Under '43 more companies tried too'. {companies} is a short list of company names, eg: 'Including Criteo, Oracle, and The Trade Desk'."
+  },
+  "protections_report_purposeAdvertisingInline": {
+    "title": "target you with ads based on the sites you visit",
+    "note": "Same as protections_report_purposeAdvertising, but used after the first item in a list, without 'They', since the list shares the first item's subject, eg: 'They target you with ads based on the sites you visit and record what you click, type, and scroll.' Use the casing that fits mid-sentence."
+  },
+  "protections_report_purposeAdvertisingInlineFirstPerson": {
+    "title": "target me with ads based on the sites I visit",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “target you with ads based on the sites you visit” — Same as protections_report_purposeAdvertising, but used after the first item in a list, without 'They', since the list shares the first item's subject, eg: 'They target you with ads based on the sites you visit and record what you click, type, and scroll.' Use the casing that fits mid-sentence."
+  },
+  "protections_report_purposeSocialInline": {
+    "title": "tell social networks what you do on other sites",
+    "note": "Same as protections_report_purposeSocial, but used after the first item in a list, without 'They', since the list shares the first item's subject, eg: 'They target you with ads based on the sites you visit and tell social networks what you do on other sites.' Use the casing that fits mid-sentence."
+  },
+  "protections_report_purposeSocialInlineFirstPerson": {
+    "title": "tell social networks what I do on other sites",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “tell social networks what you do on other sites” — Same as protections_report_purposeSocial, but used after the first item in a list, without 'They', since the list shares the first item's subject, eg: 'They target you with ads based on the sites you visit and tell social networks what you do on other sites.' Use the casing that fits mid-sentence."
+  },
+  "protections_report_purposeFingerprintingInline": {
+    "title": "fingerprint your device to recognize you",
+    "note": "Same as protections_report_purposeFingerprinting, but used after the first item in a list, without 'They', since the list shares the first item's subject, eg: 'They target you with ads based on the sites you visit and fingerprint your device to recognize you.' Use the casing that fits mid-sentence."
+  },
+  "protections_report_purposeFingerprintingInlineFirstPerson": {
+    "title": "fingerprint my device to recognize me",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “fingerprint your device to recognize you” — Same as protections_report_purposeFingerprinting, but used after the first item in a list, without 'They', since the list shares the first item's subject, eg: 'They target you with ads based on the sites you visit and fingerprint your device to recognize you.' Use the casing that fits mid-sentence."
+  },
+  "protections_report_purposeSessionReplayInline": {
+    "title": "record what you click, type, and scroll",
+    "note": "Same as protections_report_purposeSessionReplay, but used after the first item in a list, without 'They', since the list shares the first item's subject, eg: 'They target you with ads based on the sites you visit and record what you click, type, and scroll.' Use the casing that fits mid-sentence."
+  },
+  "protections_report_purposeSessionReplayInlineFirstPerson": {
+    "title": "record what I click, type, and scroll",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “record what you click, type, and scroll” — Same as protections_report_purposeSessionReplay, but used after the first item in a list, without 'They', since the list shares the first item's subject, eg: 'They target you with ads based on the sites you visit and record what you click, type, and scroll.' Use the casing that fits mid-sentence."
+  },
+  "protections_report_purposeAnalyticsInline": {
+    "title": "watch what you read and where you browse",
+    "note": "Same as protections_report_purposeAnalytics, but used after the first item in a list, without 'They', since the list shares the first item's subject, eg: 'They target you with ads based on the sites you visit and watch what you read and where you browse.' Use the casing that fits mid-sentence."
+  },
+  "protections_report_purposeAnalyticsInlineFirstPerson": {
+    "title": "watch what I read and where I browse",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “watch what you read and where you browse” — Same as protections_report_purposeAnalytics, but used after the first item in a list, without 'They', since the list shares the first item's subject, eg: 'They target you with ads based on the sites you visit and watch what you read and where you browse.' Use the casing that fits mid-sentence."
+  },
+  "protections_report_companyPurposes": {
+    "title": "{purposes}.",
+    "note": "Sentence under a company in 'Who tried to watch you'. {purposes} is a list of what its trackers do, eg: 'They target you with ads based on the sites you visit and record what you click, type, and scroll.'"
+  },
+  "protections_report_viewRecognition": {
+    "title": "<b>What</b> they use to identify you",
+    "note": "Option in the Protections Report view menu. Shows the details about your device that tracking companies are known to read to recognize it (fingerprinting). The <b></b> tags bold the question word (why, who, where, when, what, how) in the menu; keep them around the equivalent word."
+  },
+  "protections_report_viewRecognitionFirstPerson": {
+    "title": "<b>What</b> they use to identify me",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “<b>What</b> they use to identify you” — Option in the Protections Report view menu. Shows the details about your device that tracking companies are known to read to recognize it (fingerprinting). The <b></b> tags bold the question word (why, who, where, when, what, how) in the menu; keep them around the equivalent word."
+  },
+  "protections_report_viewTopSites": {
+    "title": "<b>Where</b> they tried to watch you",
+    "note": "Option in the Protections Report view menu. Shows the sites you visited this week with the most tracking companies. The <b></b> tags bold the question word (why, who, where, when, what, how) in the menu; keep them around the equivalent word."
+  },
+  "protections_report_viewTopSitesFirstPerson": {
+    "title": "<b>Where</b> they tried to watch me",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “<b>Where</b> they tried to watch you” — Option in the Protections Report view menu. Shows the sites you visited this week with the most tracking companies. The <b></b> tags bold the question word (why, who, where, when, what, how) in the menu; keep them around the equivalent word."
+  },
+  "protections_report_recognitionIntroSingular": {
+    "title": "Of the companies we blocked this week, <b>1</b> is known to read details like these from your device. Hover over them to reveal what we keep private:",
+    "note": "Introduces a list of details about your device (graphics card, screen…). Of the tracking companies blocked this week, one is known to read them. Keep the <b></b> tags."
+  },
+  "protections_report_recognitionIntroSingularFirstPerson": {
+    "title": "Of the companies DuckDuckGo blocked this week, <b>1</b> is known to read details like these from my device:",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “Of the companies we blocked this week, <b>1</b> is known to read details like these from your device:” — Introduces a list of details about your device (graphics card, screen…). Of the tracking companies blocked this week, one is known to read them. Keep the <b></b> tags."
+  },
+  "protections_report_recognitionIntroPlural": {
+    "title": "Of the companies we blocked this week, <b>{count}</b> are known to read details like these from your device to create a <b>digital fingerprint</b> of you. Hover over them to reveal what we keep private:",
+    "note": "Introduces a list of details about your device (graphics card, screen…). {count} is how many of the tracking companies blocked this week are known to read them. Keep the <b></b> tags."
+  },
+  "protections_report_recognitionIntroPluralFirstPerson": {
+    "title": "Of the companies DuckDuckGo blocked this week, <b>{count}</b> are known to read details like these from my device to create a <b>digital fingerprint</b> of me:",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “Of the companies we blocked this week, <b>{count}</b> are known to read details like these from your device to create a <b>digital fingerprint</b> of you:” — Introduces a list of details about your device (graphics card, screen…). {count} is how many of the tracking companies blocked this week are known to read them. Keep the <b></b> tags."
+  },
+  "protections_report_surfaceGraphics": {
+    "title": "Graphics card",
+    "note": "Label for a detail about your device in 'What they use to identify you'. The value next to it is the graphics card's name."
+  },
+  "protections_report_surfaceScreen": {
+    "title": "Screen",
+    "note": "Label for a detail about your device in 'What they use to identify you'. The value next to it is the screen size and color depth."
+  },
+  "protections_report_surfaceLocale": {
+    "title": "Time zone",
+    "note": "Label for a detail about your device in 'What they use to identify you'. The value next to it is the time zone and language, eg: 'America/New_York · en-US'."
+  },
+  "protections_report_surfaceFonts": {
+    "title": "Fonts",
+    "note": "Label for a detail about your device in 'What they use to identify you'. The value next to it says how many common fonts are installed."
+  },
+  "protections_report_surfaceAudio": {
+    "title": "Audio",
+    "note": "Label for a detail about your device in 'What they use to identify you'. The value next to it is the audio sample rate and number of channels."
+  },
+  "protections_report_screenValue": {
+    "title": "{width} × {height} · {depth}-bit color",
+    "note": "Screen size and color depth, eg: '2560 × 1440 · 30-bit color'."
+  },
+  "protections_report_localeValue": {
+    "title": "{timeZone} · {language}",
+    "note": "Time zone and language, eg: 'America/New_York · en-US'. Usually no translation needed."
+  },
+  "protections_report_fontsValue": {
+    "title": "{found} of {checked} common fonts",
+    "note": "How many of a list of common fonts are installed, eg: '21 of 40 common fonts'."
+  },
+  "protections_report_audioValue": {
+    "title": "{rate} kHz · {channels} channels",
+    "note": "Audio sample rate and channel count, eg: '48 kHz · 2 channels'."
+  },
+  "protections_report_valueUnavailable": {
+    "title": "Not available",
+    "note": "Shown when the browser can't read a detail about the device."
+  },
+  "protections_report_knownBySingular": {
+    "title": "1 company",
+    "note": "How many tracking companies are known to read this detail about your device."
+  },
+  "protections_report_knownByPlural": {
+    "title": "{count} companies",
+    "note": "How many tracking companies are known to read this detail about your device. {count} is a number."
+  },
+  "protections_report_recognitionFooter": {
+    "title": "Alone, these details may look innocent. Together, they can be unique to you and can single out your device, like a fingerprint. Blocking these trackers stops them reading yours.",
+    "note": "Explains fingerprinting under the list in 'What they use to identify you'."
+  },
+  "protections_report_recognitionFooterFirstPerson": {
+    "title": "Alone, these details may look innocent. Together, they can be unique to me and can single out my device, like a fingerprint. Blocking these trackers stops them reading mine.",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “Alone, these details may look innocent. Together, they can be unique to you and can single out your device, like a fingerprint. Blocking these trackers stops them reading yours.” — Explains fingerprinting under the list in 'What they use to identify you'."
+  },
+  "protections_report_topSiteLabel": {
+    "title": "Nosiest site this week",
+    "note": "Label above the site with the most tracking companies this week."
+  },
+  "protections_report_topSiteCountSingular": {
+    "title": "1 company",
+    "note": "Large number under the nosiest site: how many tracking companies were on it."
+  },
+  "protections_report_topSiteCountPlural": {
+    "title": "{count} companies",
+    "note": "Large number under the nosiest site: how many tracking companies were on it. {count} is a number."
+  },
+  "protections_report_topSiteWatchingSingular": {
+    "title": "was trying to watch: {companies}.",
+    "note": "Follows '1 company' under the nosiest site. {companies} is the company name."
+  },
+  "protections_report_topSiteWatchingPlural": {
+    "title": "were trying to watch, including {companies}.",
+    "note": "Follows '31 companies' under the nosiest site. {companies} lists the three most widespread ones (the larger logos in the ring), eg: 'were trying to watch, including Google, Facebook, and Microsoft.'"
+  },
+  "protections_report_siteCompaniesSingular": {
+    "title": "1 company",
+    "note": "Next to a site in 'Where they tried to watch you': how many tracking companies were on it."
+  },
+  "protections_report_siteCompaniesPlural": {
+    "title": "{count} companies",
+    "note": "Next to a site in 'Where they tried to watch you': how many tracking companies were on it. {count} is a number."
+  },
+  "protections_report_surfaceHardware": {
+    "title": "Hardware",
+    "note": "Label for a detail about your device in 'What they use to identify you'. The value next to it is the number of processor cores and, where available, the amount of memory."
+  },
+  "protections_report_surfaceVoices": {
+    "title": "Speech voices",
+    "note": "Label for a detail about your device in 'What they use to identify you'. The value next to it is how many text-to-speech voices are installed."
+  },
+  "protections_report_hardwareValue": {
+    "title": "{cores} cores · {memory} GB memory",
+    "note": "Processor cores and memory, eg: '8 cores · 8 GB memory'."
+  },
+  "protections_report_hardwareCoresValue": {
+    "title": "{cores} cores",
+    "note": "Processor cores, eg: '8 cores'. Shown when memory isn't available."
+  },
+  "protections_report_voicesValueSingular": {
+    "title": "1 installed",
+    "note": "How many text-to-speech voices are installed, when there's one."
+  },
+  "protections_report_voicesValuePlural": {
+    "title": "{count} installed",
+    "note": "How many text-to-speech voices are installed, eg: '84 installed'."
+  },
+  "protections_report_shareLabel": {
+    "title": "Share as image",
+    "note": "Accessible label and tooltip for the button that saves a picture of the Protections Report to share."
+  },
+  "protections_report_shareTitle": {
+    "title": "My browser has my back.",
+    "note": "Headline of the picture people can share of their Protections Report. Written in the first person, as the sharer."
+  },
+  "protections_report_shareBody": {
+    "title": "DuckDuckGo blocks trackers as you go. Here’s how it protected me this week.",
+    "note": "Text under 'My browser has my back.' in the shared picture, introducing the report below it."
+  },
+  "protections_report_shareCta": {
+    "title": "Try it free at <b>duckduckgo.com/app</b>",
+    "note": "Call to action at the bottom of the shared picture. Keep the <b></b> tags around the address, which is shown bold and underlined."
+  },
+  "protections_report_viewCompare": {
+    "title": "<b>How</b> Chrome compares",
+    "note": "Menu item for the view comparing the nosiest site in DuckDuckGo and in Chrome. Keep the <b></b> tags around the question word; it is shown in bold."
+  },
+  "protections_report_compareIntro": {
+    "title": "Same page, two browsers. Here’s who’d watch you on sites like {sites}:",
+    "note": "Introduces two small illustrated browser windows showing the same page: DuckDuckGo (clean) and Chrome (ads, a cookie banner, and trackers following the cursor). {sites} names one or two of the sites where the user was tracked most this week, each in bold, eg: 'cnn.com and allrecipes.com'."
+  },
+  "protections_report_compareIntroFirstPerson": {
+    "title": "Same page, two browsers. Here’s who’d watch me on sites like {sites}:",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “Same page, two browsers. Here’s who’d watch you on sites like {sites}:” — Introduces two small illustrated browser windows showing the same page: DuckDuckGo (clean) and Chrome (ads, a cookie banner, and trackers following the cursor). {sites} names one or two of the sites where the user was tracked most this week, each in bold, eg: 'cnn.com and allrecipes.com'."
+  },
+  "protections_report_compareBlockedSingular": {
+    "title": "1 company blocked",
+    "note": "Under the DuckDuckGo window, when one company track on a site like the ones where the user was tracked most this week."
+  },
+  "protections_report_compareBlockedPlural": {
+    "title": "{count} companies blocked",
+    "note": "Under the DuckDuckGo window. {count} is the number of companies that track on a site like the ones where the user was tracked most this week, eg: '31 companies blocked'."
+  },
+  "protections_report_compareLoadSingular": {
+    "title": "Trackers from 1 company load",
+    "note": "Under the Chrome window, when one company track on a site like the ones where the user was tracked most this week."
+  },
+  "protections_report_compareLoadPlural": {
+    "title": "Trackers from all {count} companies load",
+    "note": "Under the Chrome window. {count} is the number of companies that track on a site like the ones where the user was tracked most this week, eg: 'Trackers from all 31 companies load'."
+  },
+  "protections_report_compareFootnote": {
+    "title": "Based on the sites that tracked you most this week. Compared with Chrome’s default settings. Illustration only.",
+    "note": "Small print under the DuckDuckGo vs Chrome comparison. Says where the numbers come from (the sites where the user was tracked most this week) and that the picture is an illustration."
+  },
+  "protections_report_compareFootnoteFirstPerson": {
+    "title": "Based on the sites that tracked me most this week. Compared with Chrome’s default settings. Illustration only.",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “Based on the sites that tracked you most this week. Compared with Chrome’s default settings. Illustration only.” — Small print under the DuckDuckGo vs Chrome comparison. Says where the numbers come from (the sites where the user was tracked most this week) and that the picture is an illustration."
+  },
+  "protections_report_compareAdBanner": {
+    "title": "LIMITED TIME OFFER",
+    "note": "Text on a fake banner ad in the illustrated Chrome window. Very small, all caps."
+  },
+  "protections_report_compareAd": {
+    "title": "AD",
+    "note": "Text on a fake ad tile in the illustrated Chrome window. Very small, all caps."
+  },
+  "protections_report_compareCookieDecline": {
+    "title": "Decline",
+    "note": "Button label on a fake cookie consent banner in the illustrated Chrome window. Very small; keep it short."
+  },
+  "protections_report_compareCookieAccept": {
+    "title": "Accept",
+    "note": "Button label on a fake cookie consent banner in the illustrated Chrome window. Very small; keep it short."
+  },
+  "protections_report_compareCookies": {
+    "title": "We use cookies<br>to spy on you",
+    "note": "Text of a fake, tongue-in-cheek cookie consent banner at the bottom of the illustrated Chrome window, next to its Decline and Accept buttons. The <br> starts the second line; keep both lines short."
+  },
+  "protections_report_compareGooglePlural": {
+    "title": "Chrome is made by Google. Google tried to track you on {count} of the {total} sites you visited this week. We blocked them on all {count}.",
+    "note": "Under the DuckDuckGo vs Chrome comparison. {count} is how many of the sites the user visited this week had Google trackers; {total} is how many sites they visited, eg: 'Google tried to track you on 51 of the 64 sites you visited this week. We blocked them on all 51.'"
+  },
+  "protections_report_compareGooglePluralFirstPerson": {
+    "title": "Chrome is made by Google. Google tried to track me on {count} of the {total} sites I visited this week. DuckDuckGo blocked them on all {count}.",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “Chrome is made by Google. Google tried to track you on {count} of the {total} sites you visited this week. We blocked them on all {count}.” — Under the DuckDuckGo vs Chrome comparison. {count} is how many of the sites the user visited this week had Google trackers; {total} is how many sites they visited, eg: 'Google tried to track you on 51 of the 64 sites you visited this week. We blocked them on all 51.'"
+  },
+  "protections_report_compareGoogleSingular": {
+    "title": "Chrome is made by Google. Google tried to track you on 1 of the {total} sites you visited this week. We blocked them there.",
+    "note": "Under the DuckDuckGo vs Chrome comparison, when Google trackers were on just one site. {total} is how many sites the user visited this week."
+  },
+  "protections_report_compareGoogleSingularFirstPerson": {
+    "title": "Chrome is made by Google. Google tried to track me on 1 of the {total} sites I visited this week. DuckDuckGo blocked them there.",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “Chrome is made by Google. Google tried to track you on 1 of the {total} sites you visited this week. We blocked them there.” — Under the DuckDuckGo vs Chrome comparison, when Google trackers were on just one site. {total} is how many sites the user visited this week."
+  },
+  "protections_report_makeDefault": {
+    "title": "Set DuckDuckGo as Default",
+    "note": "Button in the Protections Report, shown when DuckDuckGo isn't the default browser. Makes it the default browser."
+  },
+  "protections_report_issueCount": {
+    "title": "1 issue",
+    "note": "Shown in a small orange pill beside the Protections Report title when DuckDuckGo isn't the default browser. Opens a pop-over explaining it."
+  },
+  "protections_report_issueLabel": {
+    "title": "1 issue: privacy isn’t your default",
+    "note": "Accessible label for the '1 issue' pill (read by screen readers)."
+  },
+  "protections_report_notDefaultTitle": {
+    "title": "Privacy isn’t your default",
+    "note": "Title of the pop-over from the '1 issue' pill, when DuckDuckGo isn't the default browser. Followed by a button to make it the default."
+  },
+  "protections_report_dismiss": {
+    "title": "Dismiss",
+    "note": "Button next to 'Set DuckDuckGo as Default' in the '1 issue' pop-over. Hides the issue."
+  },
+  "stats_menuTitle": {
+    "title": "Blocked Tracking Attempts",
+    "note": "Used as a label in a customization menu"
+  },
+  "stats_menuTitle_v2": {
+    "title": "Protection Stats",
+    "note": "Used as a label in a customization menu"
+  },
+  "stats_noActivity": {
+    "title": "DuckDuckGo blocks tracking attempts as you browse. Visit a few sites to see how many we block!",
+    "note": "Placeholder for when we cannot report any blocked trackers yet"
+  },
+  "stats_noRecent": {
+    "title": "Tracking protections active",
+    "note": "Placeholder to indicate that no tracking activity was blocked in the last 7 days"
+  },
+  "stats_countBlockedSingular": {
+    "title": "Tracking attempt blocked",
+    "note": "The sub headline indicating that a single tracker was blocked. This sub headline starts with a capital letter"
+  },
+  "stats_countBlockedSingularLegacy": {
+    "title": "1 tracking attempt blocked",
+    "note": "The main headline indicating that a single tracker was blocked"
+  },
+  "stats_countBlockedPlural": {
+    "title": "Tracking attempts blocked",
+    "note": "The sub headline indicating that more than 1 tracker has been blocked. This sub headline starts with a capital letter"
+  },
+  "stats_countBlockedPluralLegacy": {
+    "title": "{count} tracking attempts blocked",
+    "note": "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 tracking attempts blocked'"
+  },
+  "stats_noActivityAdsAndTrackers": {
+    "title": "DuckDuckGo blocks ads and tracking attempts as you browse. Visit a few sites to see how many we block!",
+    "note": "Placeholder for when we cannot report any blocked ads and trackers yet"
+  },
+  "stats_noRecentAdsAndTrackers": {
+    "title": "Protections active",
+    "note": "Placeholder to indicate that no ads or tracking activity was blocked in the last 7 days"
+  },
+  "stats_countBlockedAdsAndTrackersSingularLegacy": {
+    "title": "<b>1</b> advertising & tracking attempt blocked",
+    "note": "The main headline indicating that a single ad or tracking attempt was blocked"
+  },
+  "stats_countBlockedAdsAndTrackersPluralLegacy": {
+    "title": "<b>{count}</b> advertising & tracking attempts blocked",
+    "note": "The main headline indicating that more than 1 ad or tracking attempt has been blocked. Eg: '2 advertising & tracking attempts blocked"
+  },
+  "stats_totalCookiePopUpsBlockedSingular": {
+    "title": "Cookie pop-up blocked",
+    "note": "The heading indicating that a single cookie pop-up was handled by the CPM"
+  },
+  "stats_totalCookiePopUpsBlockedPlural": {
+    "title": "Cookie pop-ups blocked",
+    "note": "The heading indicating multiple cookie pop-ups were handled by the CPM"
+  },
+  "stats_protectionsReportInfo": {
+    "title": "Displays tracking attempts blocked in the last 7 days, and the number of cookie pop-ups blocked since you started using the browser.",
+    "note": "Text explaining how to reset the protections stats"
+  },
+  "stats_feedCountBlockedSingular": {
+    "title": "1 attempt blocked by DuckDuckGo in the last 7 days",
+    "note": "A summary description of how many tracking attempts where blocked, when only one exists."
+  },
+  "stats_feedCountBlockedPeriod": {
+    "title": "Past 7 days",
+    "note": "A summary description indicating the time period of the blocked tracking attempts, which is the past 7 days."
+  },
+  "stats_feedCountBlockedPlural": {
+    "title": "{count} tracking attempts blocked",
+    "note": "A summary description of how many tracking attempts were blocked by DuckDuckGo in the last 7 days when there is more than one. E.g., '1,028 tracking attempts blocked."
+  },
+  "stats_toggleLabel": {
+    "title": "Show recent activity",
+    "note": "The aria-label text for a toggle button that shows the detailed activity feed"
+  },
+  "stats_hideLabel": {
+    "title": "Hide recent activity",
+    "note": "The aria-label text for a toggle button that hides the detailed activity feed"
+  },
+  "stats_otherCompanyName": {
+    "title": "Other",
+    "note": "A placeholder to represent an aggregated count of entries, not present in the rest of the list. For example, 'Other: 200', which would mean 200 entries excluding the ones already shown"
+  },
+  "stats_otherCount": {
+    "title": "{count} attempts from other networks",
+    "note": "An aggregated count of blocked entries not present in the main list. For example, '200 attempts from other networks'"
+  },
+  "omnibar_menuTitle": {
+    "title": "Search",
+    "description": "Title of the omnibar widget in the customizer panel."
+  },
+  "omnibar_aiChatFormPlaceholder": {
+    "title": "Ask anything privately",
+    "description": "Placeholder text for the AI chat input field."
+  },
+  "omnibar_aiChatFormSubmitButtonLabel": {
+    "title": "Send",
+    "description": "Accesible label for the AI chat submit button."
+  },
+  "omnibar_aiChatFormVoiceButtonLabel": {
+    "title": "Start voice chat",
+    "description": "Accessible label for the voice-chat button shown in place of the AI chat submit button when the input is empty and the feature is enabled."
+  },
+  "omnibar_termsDisclaimerAnonymized": {
+    "title": "DuckDuckGo anonymizes your chats.",
+    "description": "First line of the Duck.ai terms disclaimer shown under the Duck.ai chat input until the user accepts Duck.ai's terms. Followed on the next line by omnibar_termsDisclaimerAsk or omnibar_termsDisclaimerCreate."
+  },
+  "omnibar_termsDisclaimerAsk": {
+    "title": "By clicking 'Ask' you agree to our <a>Privacy Policy and Terms of Service</a>.",
+    "description": "Second line of the Duck.ai terms disclaimer, shown below omnibar_termsDisclaimerAnonymized. 'Ask' must match the omnibar_termsAskButtonLabel button label. The <a> tag is a link to the Privacy Policy and Terms of Service page, please preserve it."
+  },
+  "omnibar_termsDisclaimerCreate": {
+    "title": "By clicking 'Create' you agree to our <a>Privacy Policy and Terms of Service</a>.",
+    "description": "Second line of the Duck.ai terms disclaimer in image creation mode, shown below omnibar_termsDisclaimerAnonymized. 'Create' must match the omnibar_termsCreateButtonLabel button label. The <a> tag is a link to the Privacy Policy and Terms of Service page, please preserve it."
+  },
+  "omnibar_termsAskButtonLabel": {
+    "title": "Ask",
+    "description": "Label of the Duck.ai chat submit button until the user accepts Duck.ai's terms. Clicking it accepts the terms and sends the prompt."
+  },
+  "omnibar_termsCreateButtonLabel": {
+    "title": "Create",
+    "description": "Label of the Duck.ai chat submit button in image creation mode until the user accepts Duck.ai's terms. Clicking it accepts the terms and sends the prompt."
+  },
+  "omnibar_logoAlt": {
+    "title": "DuckDuckGo",
+    "description": "Alt text for the DuckDuckGo logo."
+  },
+  "omnibar_tabSwitcherLabel": {
+    "title": "Search & Duck.ai tab switcher",
+    "description": "Accessible label for the tab switcher between search and AI modes."
+  },
+  "omnibar_searchTabLabel": {
+    "title": "Search",
+    "description": "Label for the search tab."
+  },
+  "omnibar_aiTabLabel": {
+    "title": "Duck.ai",
+    "description": "Label for the AI chat tab."
+  },
+  "omnibar_searchFormPlaceholder": {
+    "title": "Search privately",
+    "description": "Placeholder text for the search input field."
+  },
+  "omnibar_searchFormCloseButtonLabel": {
+    "title": "Close",
+    "description": "Accessible label for the close button in the search form."
+  },
+  "omnibar_toggleDuckAi": {
+    "title": "Duck.ai",
+    "description": "Label for the button to toggle the Duck.ai chat interface."
+  },
+  "omnibar_searchDuckDuckGoSuffix": {
+    "title": "Search DuckDuckGo",
+    "description": "Text placed after suggestions that will search DuckDuckGo."
+  },
+  "omnibar_duckDuckGoSuffix": {
+    "title": "DuckDuckGo",
+    "description": "Text placed after suggestions that will open a DuckDuckGo page."
+  },
+  "omnibar_visitSuffix": {
+    "title": "Visit {url}",
+    "description": "Text placed after suggestions that will open a webpage."
+  },
+  "omnibar_askDuckAiSuffix": {
+    "title": "Ask Duck.ai",
+    "description": "Text placed after aiChat suggestions that will submit a chat query."
+  },
+  "omnibar_switchToTab": {
+    "title": "Switch to Tab",
+    "description": "Badge text shown next to open tab suggestions."
+  },
+  "omnibar_customizePopoverTitle": {
+    "title": "Toggle between search and AI chat",
+    "description": "Title for the popover that introduces the search/AI toggle feature."
+  },
+  "omnibar_customizePopoverDescription": {
+    "title": "Either way, your info stays private.<br />Don't want this? <button>Customize</button>",
+    "description": "Description message in the popover including privacy statement and customize option."
+  },
+  "omnibar_attachImageLabel": {
+    "title": "Add Images",
+    "description": "Label for the attach-image entry — both the standalone paperclip button (aria-label) and the menu item in the combined attach dropdown."
+  },
+  "omnibar_removeImageLabel": {
+    "title": "Remove image",
+    "description": "Accessible label for the button to remove an attached image thumbnail."
+  },
+  "omnibar_modelSelectorLabel": {
+    "title": "Select model",
+    "description": "Accessible label for the AI model selector dropdown."
+  },
+  "omnibar_imageAttachmentLimitWarning": {
+    "title": "You can only attach {limit} images at a time.",
+    "description": "Warning shown when user attaches more images than the allowed maximum."
+  },
+  "omnibar_fileAttachmentLimitWarning": {
+    "title": "You can only attach {limit} files at a time.",
+    "description": "Warning shown when user attaches more files than the allowed maximum."
+  },
+  "omnibar_tabAttachmentLimitWarning": {
+    "title": "You can only attach {limit} tabs at a time.",
+    "description": "Warning shown when user attaches more open tabs than the allowed maximum."
+  },
+  "omnibar_imageTooLargeError": {
+    "title": "Image is too large. Please use an image smaller than 10000×10000 pixels.",
+    "description": "Error shown when a user tries to attach an image that exceeds the maximum pixel dimensions."
+  },
+  "omnibar_fileTooLargeError": {
+    "title": "File is too large. Please use a file smaller than {limit} MB.",
+    "description": "Error shown when a user tries to attach a file that exceeds the maximum allowed size. {limit} is the size limit in megabytes."
+  },
+  "omnibar_imageProcessingError": {
+    "title": "Failed to process image. Please try a different file.",
+    "description": "Error shown when an attached image cannot be processed."
+  },
+  "omnibar_advancedModelsSectionHeader": {
+    "title": "Subscriber Exclusive",
+    "description": "Section header in the model picker for premium models that require a subscription."
+  },
+  "omnibar_viewAllChats": {
+    "title": "View all chats",
+    "description": "Link text to view all AI chat history."
+  },
+  "omnibar_openDuckAi": {
+    "title": "Open Duck.ai",
+    "description": "Link text to open the Duck.ai chat interface."
+  },
+  "omnibar_createImageLabel": {
+    "title": "Create Image",
+    "description": "Label for the toggle button to enable image generation mode in the AI chat toolbar."
+  },
+  "omnibar_imageGenerationPlaceholder": {
+    "title": "Describe the image you want to create",
+    "description": "Placeholder text for the AI chat input when image generation mode is active."
+  },
+  "omnibar_toolsMenuLabel": {
+    "title": "Tools",
+    "description": "Accessible label for the tools menu button in the AI chat toolbar."
+  },
+  "omnibar_createImageDescription": {
+    "title": "Turn text into images",
+    "description": "Description for the Create Image tool shown in the tools menu dropdown."
+  },
+  "omnibar_webSearchLabel": {
+    "title": "Web Search",
+    "description": "Label for the Web Search tool shown in the tools menu dropdown."
+  },
+  "omnibar_webSearchDescription": {
+    "title": "Source answers from the web",
+    "description": "Description for the Web Search tool shown in the tools menu dropdown."
+  },
+  "omnibar_customizeResponsesLabel": {
+    "title": "Customize Responses",
+    "description": "Label for the Customize Responses entry shown in the tools menu dropdown. Selecting it opens a modal to control how Duck.ai responds."
+  },
+  "omnibar_customizeResponsesDescription": {
+    "title": "Control tone, length, and more",
+    "description": "Description for the Customize Responses entry shown in the tools menu dropdown."
+  },
+  "omnibar_customizeResponsesToggleLabel": {
+    "title": "Apply response customization",
+    "description": "Accessible label for the on/off toggle that applies or unapplies the saved response customization, shown on the Customize Responses tools menu row."
+  },
+  "omnibar_attachmentPrivacyDisclaimer": {
+    "title": "Files are automatically scanned for illegal content. Flagged chats have limited data retention. <button>Learn more</button>",
+    "description": "Privacy disclaimer shown under the Duck.ai omnibar while a file or image is attached. The button opens the Duck.ai privacy help page."
+  },
+  "omnibar_usageLimitsCtaMenuLabel": {
+    "title": "Show more models",
+    "description": "Accessible label for the usage-limits CTA chevron that opens the alternatives menu."
+  },
+  "omnibar_usageLimitsCtaMenuFallback": {
+    "title": "Switch model",
+    "description": "Accessible name for the usage-limits alternatives menu when native did not send menuHeader."
+  },
+  "omnibar_imageGenerationWithAttachmentPlaceholder": {
+    "title": "Describe changes based on the image",
+    "description": "Placeholder text for the AI chat input when image generation mode is active and an image is attached."
+  },
+  "omnibar_reasoningPickerLabel": {
+    "title": "Reasoning",
+    "description": "Accessible label (and chip text) for the reasoning-effort picker in the AI chat toolbar."
+  },
+  "omnibar_reasoningEffortFastLabel": {
+    "title": "Fast",
+    "description": "Label for the 'fast' reasoning-effort option (answers right away, no deliberate reasoning)."
+  },
+  "omnibar_reasoningEffortFastDescription": {
+    "title": "Answers right away",
+    "description": "Subtitle for the 'fast' reasoning-effort option in the reasoning picker dropdown."
+  },
+  "omnibar_reasoningEffortReasoningLabel": {
+    "title": "Reasoning",
+    "description": "Label for the 'reasoning' reasoning-effort option (model spends a moment reasoning)."
+  },
+  "omnibar_reasoningEffortReasoningDescription": {
+    "title": "Takes a moment to respond",
+    "description": "Subtitle for the 'reasoning' reasoning-effort option in the reasoning picker dropdown."
+  },
+  "omnibar_reasoningEffortExtendedReasoningLabel": {
+    "title": "Extended Reasoning",
+    "description": "Label for the 'extended reasoning' reasoning-effort option (model researches before responding)."
+  },
+  "omnibar_reasoningEffortExtendedReasoningDescription": {
+    "title": "Researches before responding",
+    "description": "Subtitle for the 'extended reasoning' reasoning-effort option in the reasoning picker dropdown."
+  },
+  "omnibar_attachMenuLabel": {
+    "title": "Add Attachment",
+    "description": "Accessible label for the paperclip button that opens a menu offering image attachments and tab content attachments."
+  },
+  "omnibar_attachImageOrFileLabel": {
+    "title": "Add Images or PDFs",
+    "description": "Label for the attach entry when the active model accepts both images and PDFs — covers the menu item in the combined dropdown and the standalone paperclip button's aria-label."
+  },
+  "omnibar_attachFileLabel": {
+    "title": "Add PDFs",
+    "description": "Label for the attach-PDF entry — both the standalone paperclip button (aria-label) and the menu item in the combined attach dropdown."
+  },
+  "omnibar_removeAttachedFileLabel": {
+    "title": "Remove {fileName}",
+    "description": "Accessible label for the button that removes an attached file chip from the AI chat input. {fileName} is the original filename."
+  },
+  "omnibar_attachPageContentLabel": {
+    "title": "Add Tabs",
+    "description": "Menu item in the attach dropdown that opens the Add Tabs dialog so the user can attach extracted page content from open tabs."
+  },
+  "omnibar_addScreenshotLabel": {
+    "title": "Add Screenshot",
+    "description": "Menu item in the attach dropdown that opens a submenu of screenshot capture modes."
+  },
+  "omnibar_screenshotDragToSelectLabel": {
+    "title": "Drag to Select",
+    "description": "Screenshot submenu item: the user drags to select a region of the screen to capture."
+  },
+  "omnibar_screenshotSelectWindowOrDisplayLabel": {
+    "title": "Select Window or Display",
+    "description": "Screenshot submenu item: the user picks a window or a whole display to capture."
+  },
+  "omnibar_screenshotFileName": {
+    "title": "Screenshot",
+    "description": "File name given to a screenshot attached to the AI chat input. Repeats are numbered, e.g. 'Screenshot 2'."
+  },
+  "omnibar_pastedImageFileName": {
+    "title": "Pasted image",
+    "description": "File name given to an image pasted from the clipboard into the AI chat input. Repeats are numbered, e.g. 'Pasted image 2'."
+  },
+  "omnibar_screenshotCaptureError": {
+    "title": "Couldn't capture screenshot",
+    "description": "Inline error shown under the AI chat input when the browser failed to capture a screenshot."
+  },
+  "omnibar_attachTabsModalTitle": {
+    "title": "Add Tabs",
+    "description": "Title and accessible name of the Add Tabs dialog opened from the attach dropdown menu."
+  },
+  "omnibar_attachTabsSearchLabel": {
+    "title": "Search",
+    "description": "Placeholder and accessibility label for the search input that filters the list of open tabs in the Add Tabs dialog."
+  },
+  "omnibar_attachTabsConfirm": {
+    "title": "Add",
+    "description": "Primary button in the Add Tabs dialog that attaches the tabs the user checked."
+  },
+  "omnibar_attachTabsCancel": {
+    "title": "Cancel",
+    "description": "Secondary button in the Add Tabs dialog that dismisses it without attaching anything."
+  },
+  "omnibar_attachTabsRecentTabs": {
+    "title": "Recent Tabs",
+    "description": "Section header for the list of recent open tabs, shown in the attach dropdown menu and the @-mention tab picker."
+  },
+  "omnibar_attachTabsLoading": {
+    "title": "Loading tabs…",
+    "description": "Status text displayed while the list of open tabs is loading."
+  },
+  "omnibar_attachTabsPickerLabel": {
+    "title": "Pick an open tab to add",
+    "description": "Accessible label for the open-tabs picker panel (the dialog wrapper around the listbox)."
+  },
+  "omnibar_attachTabsNoMatches": {
+    "title": "No matching tabs",
+    "description": "Empty-state message shown when no open tabs match what the user typed, in the @-mention tab picker and the Add Tabs dialog search."
+  },
+  "omnibar_attachTabsNoPageContent": {
+    "title": "No page content available",
+    "description": "Empty-state message shown in the attach dropdown and the Add Tabs dialog when there are no open tabs with attachable page content."
+  },
+  "omnibar_attachmentTypeWebpage": {
+    "title": "Webpage",
+    "description": "Attachment kind label shown next to the favicon in an attached-tab chip in the AI chat input."
+  },
+  "omnibar_removeAttachedTabLabel": {
+    "title": "Remove {title}",
+    "description": "Accessible label for the close button on an attached-tab chip. {title} is the tab title."
+  },
+  "omnibar_removeSuggestion": {
+    "title": "Remove from browsing history",
+    "description": "Accessible label and tooltip for the button that removes a search suggestion from browsing history."
+  },
+  "omnibar_removeAiChat": {
+    "title": "Delete this chat",
+    "description": "Accessible label and tooltip for the button that deletes a recent AI chat."
+  },
+  "omnibar_modelBadgeInternal": {
+    "title": "Internal",
+    "description": "Badge shown next to an AI model in the model selector that is only available to internal users."
+  },
+  "nextStepsList_sectionTitle": {
+    "title": "Next Steps",
+    "note": "Text that goes in the Next Steps bubble label above the card"
+  },
+  "nextStepsList_maybeLater": {
+    "title": "No Thanks",
+    "note": "Secondary button text for dismissing a Next Steps List item"
+  },
+  "nextStepsList_pinAppToTaskbarWindows_title": {
+    "title": "Pin to Taskbar",
+    "note": "Title of the Next Steps List card for pinning DDG app to Windows taskbar"
+  },
+  "nextStepsList_pinAppToTaskbarWindows_summary": {
+    "title": "Access DuckDuckGo more easily by pinning it your taskbar.",
+    "note": "Summary of the Next Steps List card for pinning DDG app to Windows taskbar"
+  },
+  "nextStepsList_pinAppToTaskbarWindows_actionText": {
+    "title": "Pin to Taskbar",
+    "note": "Button text of the Next Steps List card for pinning DDG app to Windows taskbar"
+  },
+  "nextStepsList_addAppToDockMac_title": {
+    "title": "Add to Dock",
+    "note": "Title of the Next Steps List card for adding DDG app to macOS dock"
+  },
+  "nextStepsList_addAppToDockMac_summary": {
+    "title": "Access DuckDuckGo more easily by adding it to your Dock.",
+    "note": "Summary of the Next Steps List card for adding DDG app to macOS dock"
+  },
+  "nextStepsList_addAppToDockMac_actionText": {
+    "title": "Add to Dock",
+    "note": "Button text of the Next Steps List card for adding DDG app to macOS dock"
+  },
+  "nextStepsList_personalizeBrowser_title": {
+    "title": "Personalize Your Browser",
+    "note": "Title of the Next Steps List card for personalizing the browser"
+  },
+  "nextStepsList_personalizeBrowser_summary": {
+    "title": "Browse your way by changing background color, updating your theme, and more.",
+    "note": "Summary of the Next Steps List card for personalizing the browser"
+  },
+  "nextStepsList_personalizeBrowser_actionText": {
+    "title": "Personalize Now",
+    "note": "Button text of the Next Steps List card for personalizing the browser"
+  },
+  "nextStepsList_duckplayer_title": {
+    "title": "YouTube with Fewer Ads",
+    "note": "Title of the Next Steps List card for Duck Player"
+  },
+  "nextStepsList_duckplayer_summary": {
+    "title": "Enjoy a clean viewing experience without creepy, personalized ads.",
+    "note": "Summary of the Next Steps List card for Duck Player"
+  },
+  "nextStepsList_duckplayer_actionText": {
+    "title": "Try Duck Player",
+    "note": "Button text of the Next Steps List card for Duck Player"
+  },
+  "nextStepsList_youtubeAdBlocking_title": {
+    "title": "Watch YouTube Without Ads",
+    "note": "Title of the Next Steps List card for YouTube ad blocking"
+  },
+  "nextStepsList_youtubeAdBlocking_summary": {
+    "title": "Enjoy a clean viewing experience without creepy, personalized ads.",
+    "note": "Summary of the Next Steps List card for YouTube ad blocking"
+  },
+  "nextStepsList_youtubeAdBlocking_actionText": {
+    "title": "Visit YouTube",
+    "note": "Button text of the Next Steps List card for YouTube ad blocking"
+  },
+  "nextStepsList_emailProtection_title": {
+    "title": "Protect Your Email Address and Block Trackers",
+    "note": "Title of the Next Steps List card for email protection"
+  },
+  "nextStepsList_emailProtection_summary": {
+    "title": "Hide your email with our forwarding service that stops junk and blocks hidden trackers.",
+    "note": "Summary of the Next Steps List card for email protection"
+  },
+  "nextStepsList_emailProtection_actionText": {
+    "title": "Get Email Protection",
+    "note": "Button text of the Next Steps List card for email protection"
+  },
+  "nextStepsList_bringStuff_title": {
+    "title": "Import Your Bookmarks and Passwords to DuckDuckGo",
+    "note": "Title of the Next Steps List card for importing bookmarks, passwords, and more"
+  },
+  "nextStepsList_bringStuff_summary": {
+    "title": "Securely bring over your bookmarks, passwords, and credit card details.",
+    "note": "Summary of the Next Steps List card for importing bookmarks, passwords, and more"
+  },
+  "nextStepsList_bringStuff_actionText": {
+    "title": "Import Now",
+    "note": "Button text of the Next Steps List card for importing bookmarks, passwords, and more"
+  },
+  "nextStepsList_defaultApp_title": {
+    "title": "Open Links in DuckDuckGo",
+    "note": "Title of the Next Steps List card for setting DDG as default browser"
+  },
+  "nextStepsList_defaultApp_summary": {
+    "title": "Set DuckDuckGo as your default browser and search privately every time.",
+    "note": "Summary of the Next Steps List card for setting DDG as default browser"
+  },
+  "nextStepsList_defaultApp_actionText": {
+    "title": "Open Links in DuckDuckGo",
+    "note": "Button text of the Next Steps List card for setting DDG as default browser"
+  },
+  "nextStepsList_subscription_title": {
+    "title": "Get a Secure VPN + Private, Advanced AI",
+    "note": "Title of the Next Steps List card for DuckDuckGo subscription"
+  },
+  "nextStepsList_subscription_summary": {
+    "title": "Subscribe to DuckDuckGo and protect more of what you do online.",
+    "note": "Summary of the Next Steps List card for DuckDuckGo subscription"
+  },
+  "nextStepsList_subscription_actionText": {
+    "title": "Try for Free",
+    "note": "Button text of the Next Steps List card for DuckDuckGo subscription"
+  },
+  "nextStepsList_sync_title": {
+    "title": "Sync and Back Up Your Bookmarks, Passwords, and Chats",
+    "note": "Title of the Next Steps List card for syncing data across devices"
+  },
+  "nextStepsList_sync_summary": {
+    "title": "Securely sync your bookmarks, autofill data, and Duck.ai chats with end-to-end encryption between your devices.",
+    "note": "Summary of the Next Steps List card for syncing data across devices"
+  },
+  "nextStepsList_sync_actionText": {
+    "title": "Sync Now",
+    "note": "Button text of the Next Steps List card for syncing data across devices"
+  },
+  "nextSteps_sectionTitle": {
+    "title": "Next Steps",
+    "note": "Text that goes in the Next Steps bubble above the first card"
+  },
+  "nextSteps_bringStuff_title": {
+    "title": "Bring Your Stuff",
+    "note": "Title of the Next Steps card for importing bookmarks and favorites"
+  },
+  "nextSteps_bringStuff_summary": {
+    "title": "Import bookmarks, favorites, and passwords for a smooth transition from your old browser.",
+    "note": "Summary of the Next Steps card for importing bookmarks and favorites"
+  },
+  "nextSteps_bringStuff_actionText": {
+    "title": "Import Now",
+    "note": "Button text of the Next Steps card for importing bookmarks and favorites"
+  },
+  "nextSteps_defaultApp_title": {
+    "title": "Set as Default Browser",
+    "note": "Title of the Next Steps card for making DDG the user's default browser"
+  },
+  "nextSteps_defaultApp_summary": {
+    "title": "We automatically block trackers as you browse. It’s privacy, simplified.",
+    "note": "Summary of the Next Steps card for making DDG the user's default browser"
+  },
+  "nextSteps_defaultApp_actionText": {
+    "title": "Make Default Browser",
+    "note": "Button text of the Next Steps card for making DDG the user's default browser"
+  },
+  "nextSteps_blockCookies_title": {
+    "title": "Block Cookie Pop-ups",
+    "note": "Title of the Next Steps card for blocking cookie pop-ups"
+  },
+  "nextSteps_blockCookies_summary": {
+    "title": "We need your permission to say no to cookies on your behalf. Easy choice.",
+    "note": "Summary of the Next Steps card for blocking cookie pop-ups"
+  },
+  "nextSteps_blockCookies_actionText": {
+    "title": "Block Cookie Pop-ups",
+    "note": "Button text of the Next Steps card for blocking cookie pop-ups"
+  },
+  "nextSteps_emailProtection_title": {
+    "title": "Protect Your Email Address and Block Trackers",
+    "note": "Title of the Next Steps card for email protection"
+  },
+  "nextSteps_emailProtection_summary": {
+    "title": "Hide your email with our forwarding service that stops junk and blocks hidden trackers.",
+    "note": "Summary of the Next Steps card for email protection"
+  },
+  "nextSteps_emailProtection_actionText": {
+    "title": "Get Email Protection",
+    "note": "Button text of the Next Steps card for email protection"
+  },
+  "nextSteps_duckPlayer_title": {
+    "title": "YouTube Without Creepy Ads",
+    "note": "Title of the Next Steps card for adopting DuckPlayer"
+  },
+  "nextSteps_duckPlayer_summary": {
+    "title": "Enjoy a clean viewing experience without personalized ads.",
+    "note": "Summary of the Next Steps card for adopting DuckPlayer"
+  },
+  "nextSteps_duckPlayer_actionText": {
+    "title": "Try Duck Player",
+    "note": "Button text of the Next Steps card for adopting DuckPlayer"
+  },
+  "nextSteps_youtubeAdBlocking_title": {
+    "title": "Watch YouTube Without Ads",
+    "note": "Title of the Next Steps card for YouTube ad blocking"
+  },
+  "nextSteps_youtubeAdBlocking_summary": {
+    "title": "Enjoy a clean viewing experience without creepy, personalized ads.",
+    "note": "Summary of the Next Steps card for YouTube ad blocking"
+  },
+  "nextSteps_youtubeAdBlocking_actionText": {
+    "title": "Visit YouTube",
+    "note": "Button text of the Next Steps card for YouTube ad blocking"
+  },
+  "nextSteps_addAppDockMac_title": {
+    "title": "Add App to the Dock",
+    "note": "Title of the Next Steps card for adding DDG app to OS dock"
+  },
+  "nextSteps_addAppDockMac_summary": {
+    "title": "Access DuckDuckGo faster by adding it to the Dock.",
+    "note": "Summary of the Next Steps card for adding DDG app to OS dock"
+  },
+  "nextSteps_addAppDockMac_actionText": {
+    "title": "Add to Dock",
+    "note": "Initial button text of the Next Steps card for adding DDG app to OS dock"
+  },
+  "nextSteps_addAppDockMac_confirmationText": {
+    "title": "Added to Dock!",
+    "note": "Button text after clicking on the Next Steps card for adding DDG app to OS dock"
+  },
+  "nextSteps_pinAppToTaskbarWindows_title": {
+    "title": "Pin App to the Taskbar",
+    "note": "Title of the Next Steps card for adding DDG app to OS dock"
+  },
+  "nextSteps_pinAppToTaskbarWindows_summary": {
+    "title": "Access DuckDuckGo faster by pinning it to the Taskbar.",
+    "note": "Summary of the Next Steps card for adding DDG app to OS dock"
+  },
+  "nextSteps_pinAppToTaskbarWindows_actionText": {
+    "title": "Pin to Taskbar",
+    "note": "Initial button text of the Next Steps card for adding DDG app to OS dock"
+  },
+  "nextSteps_pinAppToTaskbarWindows_confirmationText": {
+    "title": "Pinned to Taskbar!",
+    "note": "Button text after clicking on the Next Steps card for adding DDG app to OS dock"
+  },
+  "nextSteps_subscription_title": {
+    "title": "Unlock Premium Features",
+    "note": "Title of the Next Steps card for unlocking your free trial of DuckDuckGo subscription"
+  },
+  "nextSteps_subscription_summary": {
+    "title": "Get a free trial of our subscription featuring VPN + more advanced features.",
+    "note": "Summary of the Next Steps card about the DuckDuckGo subscription"
+  },
+  "nextSteps_subscription_actionText": {
+    "title": "Try for Free",
+    "note": "Button text of the Next Steps card for trying the DuckDuckGo subscription"
+  },
+  "favorites_show_less": {
+    "title": "Show less",
+    "note": "Button label to display fewer items"
+  },
+  "favorites_show_more": {
+    "title": "Show more ({count} remaining)",
+    "note": "Button text to show hidden items. {count} will be replaced with the number of remaining favorite items to show, including the parentheses. Example: 'Show more (18 remaining)'"
+  },
+  "favorites_menu_title": {
+    "title": "Favorites",
+    "note": "Used as a label in a customization menu"
+  },
+  "favorites_add": {
+    "title": "Add Favorite",
+    "note": "A button that allows a user to add a new 'favorite' bookmark to their existing list"
+  },
+  "favorites_trackers_badgeLabel": {
+    "title": "Trackers from {count} companies blocked on this site",
+    "note": "Accessible label for a small badge on a favorite tile. {count} is a number greater than 1. Example: 'Trackers from 12 companies blocked on this site'"
+  },
+  "favorites_trackers_badgeLabelSingular": {
+    "title": "Trackers from 1 company blocked on this site",
+    "note": "Accessible label for a small badge on a favorite tile, when trackers from exactly one company were blocked"
+  },
+  "favorites_trackers_companies": {
+    "title": "{count} companies tried to watch you browse {site} this week:",
+    "note": "Title of a list of tracking companies blocked on a favorite site in the past 7 days. {count} is a number greater than 1. {site} is the site's domain, eg: 'cnn.com'"
+  },
+  "favorites_trackers_companiesSingular": {
+    "title": "1 company tried to watch you browse {site} this week:",
+    "note": "Title of a list of tracking companies blocked on a favorite site in the past 7 days, when there's exactly one. {site} is the site's domain, eg: 'cnn.com'"
+  },
+  "favorites_trackers_more": {
+    "title": "and {count} more",
+    "note": "Closes a short list of tracking companies, counting the ones not listed. {count} is a number greater than 1. Example: 'and 9 more'"
+  },
+  "favorites_trackers_moreSingular": {
+    "title": "and 1 more",
+    "note": "Closes a short list of tracking companies when exactly one wasn't listed"
+  },
+  "favorites_trackers_blocked": {
+    "title": "DuckDuckGo blocked them all {count} times they tried.",
+    "note": "Closes a list of tracking companies on a favorite site: DuckDuckGo blocked every tracking attempt in the past 7 days. {count} is the number of attempts, always greater than 1"
+  },
+  "favorites_trackers_blockedSingular": {
+    "title": "DuckDuckGo blocked it the one time it tried.",
+    "note": "Closes a list of tracking companies on a favorite site, when there was exactly one tracking attempt in the past 7 days, and DuckDuckGo blocked it"
+  },
+  "customizer_image_privacy": {
+    "title": "Images are stored on your device so DuckDuckGo can’t see or access them.",
+    "note": "Shown near a button that allows a user to upload an image to be used as a background."
+  },
+  "customizer_drawer_title": {
+    "title": "Customize",
+    "note": "Title in a slide-out drawer that contains options for customizing the browser."
+  },
+  "customizer_section_title_background": {
+    "title": "Background",
+    "note": "Section title displayed in the UI for customizing the background."
+  },
+  "customizer_section_title_theme": {
+    "title": "Browser Theme",
+    "note": "Section title for a section where users can customize the browser theme. (for example, 'light' or 'dark')"
+  },
+  "customizer_section_title_sections": {
+    "title": "Sections",
+    "note": "Section title for a list of toggles for showing/hiding certain sections of the page."
+  },
+  "customizer_browser_theme_light": {
+    "title": "Light",
+    "note": "The label for a button that sets the browser theme to 'light' mode"
+  },
+  "customizer_browser_theme_dark": {
+    "title": "Dark",
+    "note": "The label for a button that sets the browser theme to 'dark' mode"
+  },
+  "customizer_browser_theme_system": {
+    "title": "System",
+    "note": "The label for a button that sets the browser theme to 'system', which matches the operating system setting"
+  },
+  "customizer_browser_theme_label": {
+    "title": "Select {type} theme",
+    "note": "The label text on a button, for assistive technologies (like screen readers). {type} will be replace with 'light', 'dark' or 'system'"
+  },
+  "customizer_settings_link": {
+    "title": "Go to Settings",
+    "note": "The label text on a link that opens the Settings"
+  },
+  "customizer_background_selection_default": {
+    "title": "Default",
+    "note": "Label text below a button that selects a 'default' background"
+  },
+  "customizer_background_selection_color": {
+    "title": "Solid Colors",
+    "note": "Label text below a button that allows a color background"
+  },
+  "customizer_background_selection_gradient": {
+    "title": "Gradients",
+    "note": "Label text below a button that allows a gradient background"
+  },
+  "customizer_background_selection_image_add": {
+    "title": "Add Background",
+    "note": "Label text shown on a button that allows an image to be uploaded"
+  },
+  "customizer_background_selection_image_existing": {
+    "title": "My Backgrounds",
+    "note": "Label text shown on a button navigates to list of existing background (that the user previously uploaded)"
+  },
+  "customizer_image_select": {
+    "title": "Select image {number}",
+    "note": "Label text on a button, for assistive technologies (like screen readers). {number} will be replaced with a numeric reference of 1-8, eg: 'Select image 1'"
+  },
+  "customizer_image_delete": {
+    "title": "Delete image {number}",
+    "note": "Label text on a button that deletes an image. {number} will be replaced with a numeric reference of 1-8, eg: 'Delete image 1'"
+  },
+  "customizer_section_title_theme_variant": {
+    "title": "Theme",
+    "note": "Section title for theme selection including theme variants"
+  },
+  "customizer_theme_variant_grid_label": {
+    "title": "Theme variant",
+    "note": "Accessibility label for the grid of theme variant options (Default, Cool Grey, Slate, etc.)"
+  },
+  "customizer_theme_variant_default": {
+    "title": "Default",
+    "note": "Label for the default theme variant"
+  },
+  "customizer_theme_variant_coolGray": {
+    "title": "Cool Grey",
+    "note": "Label for the cool grey theme variant"
+  },
+  "customizer_theme_variant_slateBlue": {
+    "title": "Slate",
+    "note": "Label for the slate blue theme variant"
+  },
+  "customizer_theme_variant_green": {
+    "title": "Green",
+    "note": "Label for the green theme variant"
+  },
+  "customizer_theme_variant_violet": {
+    "title": "Violet",
+    "note": "Label for the violet theme variant"
+  },
+  "customizer_theme_variant_rose": {
+    "title": "Rose",
+    "note": "Label for the rose theme variant"
+  },
+  "customizer_theme_variant_orange": {
+    "title": "Orange",
+    "note": "Label for the orange theme variant"
+  },
+  "customizer_theme_variant_desert": {
+    "title": "Desert",
+    "note": "Label for the desert theme variant"
+  },
+  "activity_noRecent_title": {
+    "title": "No recent browsing activity",
+    "note": "Placeholder to indicate that no browsing activity was seen in the last 7 days"
+  },
+  "activity_empty": {
+    "title": "Recently visited sites will appear here. Keep browsing to see how many trackers we block.",
+    "note": "Shown in the place a list of browsing history entries will be displayed."
+  },
+  "activity_no_trackers": {
+    "title": "No trackers found",
+    "note": "Placeholder message indicating that no trackers are detected"
+  },
+  "activity_no_trackers_blocked": {
+    "title": "No trackers blocked",
+    "note": "Placeholder message indicating that no trackers are blocked"
+  },
+  "activity_countBlockedPlural": {
+    "title": "{count} Tracking attempts blocked",
+    "note": "New pill text indicating that more than 1 attempt has been blocked. Eg: '2 Tracking attempts blocked'. Uppercase T is by design"
+  },
+  "activity_countBlockedPluralLegacy": {
+    "title": "<b>{count}</b> tracking attempts blocked",
+    "note": "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 tracking attempts blocked'"
+  },
+  "activity_countBlockedSingular": {
+    "title": "{count} Tracking attempt blocked",
+    "note": "Pill text indicating that 1 attempt has been blocked. Eg: '1 Tracking attempt blocked'"
+  },
+  "activity_cookiePopUpBlocked": {
+    "title": "Cookie pop-up blocked",
+    "note": "Pill text indicating that we have blocked cookie pop-ups"
+  },
+  "activity_noRecentAdsAndTrackers_subtitle": {
+    "title": "Recently visited sites will appear here. Keep browsing to see how many ads and trackers we block.",
+    "note": "Shown in the place a list of browsing history entries will be displayed."
+  },
+  "activity_no_adsAndTrackers": {
+    "title": "No ads + tracking attempts found",
+    "note": "Placeholder message indicating that no ads and trackers are detected"
+  },
+  "activity_no_adsAndTrackers_blocked": {
+    "title": "No ads + tracking attempts blocked",
+    "note": "Placeholder message indicating that no ads and trackers are blocked"
+  },
+  "activity_countBlockedAdsAndTrackersPlural": {
+    "title": "<b>{count}</b> ads + tracking attempts blocked",
+    "note": "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 ads + tracking attempts blocked'"
+  },
+  "activity_favoriteAdd": {
+    "title": "Add {domain} to favorites",
+    "note": "Button label, allows the user to add the specified domain to their favorites"
+  },
+  "activity_favoriteRemove": {
+    "title": "Remove {domain} from favorites",
+    "note": "Button label, allows the user to remove the specified domain from their favorites"
+  },
+  "activity_itemRemove": {
+    "title": "Remove {domain} from history",
+    "note": "Button label for clearing browsing history for a given domain."
+  },
+  "activity_burn": {
+    "title": "Clear browsing history and data for {domain}",
+    "note": "Button label for clearing browsing history and data exclusively for the specified domain"
+  },
+  "activity_menuTitle": {
+    "title": "Recent Activity",
+    "note": "Used as a label in a customization menu"
+  },
+  "activity_show_more_history": {
+    "title": "Show {count} more",
+    "note": "Button label that expands the list of browsing history with the specified count of additional items. Example: 'Show 5 more'"
+  },
+  "activity_show_less_history": {
+    "title": "Hide additional",
+    "note": "Button label that hides the expanded browsing history items."
+  }
+}
