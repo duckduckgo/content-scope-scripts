@@ -8,6 +8,7 @@ import {
 } from '../../captured-globals.js';
 import {
     ConfigParseError,
+    DetectionError,
     EXPRESSION_KEYS,
     Failure,
     asArray,
@@ -398,7 +399,7 @@ function readFieldOf(ctx, root, field) {
 export function compileWhere(raw, path, hooks) {
     return hooks.item((binder) => {
         const predicate = compilePredicate(raw, 'item', path, hooks);
-        return { ...predicate, test: (subject, ctx) => ctx.bind(binder, subject, () => predicate.test(subject, ctx)) };
+        return { kind: 'where', binder, predicate, path, scalar: predicate.scalar };
     });
 }
 
@@ -416,13 +417,27 @@ export function compileWhere(raw, path, hooks) {
  */
 
 /**
- * @typedef {(subject: unknown, ctx: PredicateContext) => boolean | Failure} PredicateTest
+ * A compiled predicate, which `testPredicate` tests. Its `kind`s differ from the expression kinds, so a
+ * walker of the compiled tree tells the two apart.
+ *
+ * @typedef {object} PredicateBase
+ * @property {string} path - the config path it compiles from
+ * @property {boolean} scalar - whether it compares the value: a literal, `eq`, `in`, `lt`, `lte`, `gt` or `gte` at its top level or in its combinators. A selected list under it gives its one item
  */
 
 /**
- * @typedef {object} CompiledPredicate
- * @property {PredicateTest} test - `subject` may be a `Failure`, which `fails` reads
- * @property {boolean} scalar - whether it compares the value: a literal, `eq`, `in`, `lt`, `lte`, `gt` or `gte` at its top level or in its combinators. A selected list under it gives its one item
+ * @typedef {PredicateBase & { kind: 'compare', op: Comparison, value: unknown }} LiteralComparePredicate - against a literal
+ * @typedef {PredicateBase & { kind: 'compare', op: Comparison, operand: unknown }} OperandComparePredicate - against an expression in value position
+ * @typedef {PredicateBase & { kind: 'in', entries: Array<{ literal: unknown } | { operand: unknown }> }} InPredicate
+ * @typedef {PredicateBase & { kind: 'combine', combinator: 'any' | 'all' | 'none', entries: CompiledPredicate[] }} CombinePredicate
+ * @typedef {PredicateBase & { kind: 'guarded', guard: CompiledPredicate, rest: CompiledPredicate }} GuardedPredicate - `fails` and `type`, tested before the other keys of their object
+ * @typedef {PredicateBase & { kind: 'read', field: CompiledField, next: CompiledPredicate }} ReadPredicate - `field` with `is`, or a property path at item level
+ * @typedef {PredicateBase & { kind: 'fails', expected: boolean }} FailsPredicate
+ * @typedef {PredicateBase & { kind: 'type', names: unknown[] }} TypePredicate
+ * @typedef {PredicateBase & { kind: 'always' }} AlwaysPredicate - an object with no keys
+ * @typedef {PredicateBase & { kind: 'expression', expression: unknown }} ExpressionPredicate - a boolean expression over `self`, at item level
+ * @typedef {PredicateBase & { kind: 'where', binder: ItemBinder, predicate: CompiledPredicate }} WherePredicate - binds `self` to the item it tests
+ * @typedef {LiteralComparePredicate | OperandComparePredicate | InPredicate | CombinePredicate | GuardedPredicate | ReadPredicate | FailsPredicate | TypePredicate | AlwaysPredicate | ExpressionPredicate | WherePredicate} CompiledPredicate
  */
 
 /**
@@ -445,14 +460,91 @@ const TYPE_NAMES = new Set(['number', 'string', 'boolean', 'null', 'undefined', 
 const RESERVED_LATER = new Set(['match']);
 
 /**
- * A predicate over the value read: a failure passes up, and `test` sees only values.
+ * Test a predicate against a value. A failure passes up, except through `fails`, which reads it, and
+ * through the predicates holding others, which pass it to them.
  *
- * @param {PredicateTest} test
- * @param {boolean} scalar
- * @returns {CompiledPredicate}
+ * @param {CompiledPredicate} predicate
+ * @param {unknown} subject - a value, or a `Failure`
+ * @param {PredicateContext} ctx
+ * @returns {boolean | Failure}
  */
-function onValue(test, scalar) {
-    return { test: (subject, ctx) => (isFailure(subject) ? subject : test(subject, ctx)), scalar };
+export function testPredicate(predicate, subject, ctx) {
+    switch (predicate.kind) {
+        case 'compare': {
+            if (isFailure(subject)) return subject;
+            const compare = COMPARE[predicate.op];
+            if (!('operand' in predicate)) return compare(/** @type {number} */ (subject), /** @type {number} */ (predicate.value));
+            const value = ctx.operand(predicate.operand);
+            return isFailure(value) ? value : compare(/** @type {number} */ (subject), /** @type {number} */ (value));
+        }
+        case 'combine': {
+            // Every entry is tested, in order. A failure ends the test where it arises
+            const [decider, decided] = decides(predicate.combinator);
+            let result = !decided;
+            for (const entry of predicate.entries) {
+                const held = testPredicate(entry, subject, ctx);
+                if (isFailure(held)) return held;
+                if (held === decider) result = decided;
+            }
+            return result;
+        }
+        case 'read':
+            if (isFailure(subject)) return subject;
+            return testPredicate(predicate.next, readField(ctx, subject, predicate.field), ctx);
+        case 'where':
+            return ctx.bind(predicate.binder, subject, () => testPredicate(predicate.predicate, subject, ctx));
+        case 'in':
+            if (isFailure(subject)) return subject;
+            return testIn(predicate.entries, subject, ctx);
+        case 'guarded': {
+            // When a guard does not hold, the object is `false`
+            const held = testPredicate(predicate.guard, subject, ctx);
+            if (held !== true) return held;
+            return testPredicate(predicate.rest, subject, ctx);
+        }
+        case 'fails':
+            return isFailure(subject) ? predicate.expected : !predicate.expected;
+        case 'type':
+            if (isFailure(subject)) return subject;
+            return predicate.names.includes(typeName(subject));
+        case 'always':
+            return isFailure(subject) ? subject : true;
+        case 'expression':
+            if (isFailure(subject)) return subject;
+            return /** @type {boolean | Failure} */ (ctx.test(predicate.expression));
+        default:
+            throw new DetectionError(`unknown predicate '${/** @type {{ kind: string }} */ (predicate).kind}'`);
+    }
+}
+
+/**
+ * `in`: the value `===` one of the entries. Every entry is read, in order. A literal entry is compared
+ * as written, and an expression entry giving a list contributes each item.
+ *
+ * @param {InPredicate['entries']} entries
+ * @param {unknown} subject
+ * @param {PredicateContext} ctx
+ * @returns {boolean | Failure}
+ */
+function testIn(entries, subject, ctx) {
+    let found = false;
+    for (const entry of entries) {
+        if ('literal' in entry) {
+            if (subject === entry.literal) found = true;
+            continue;
+        }
+        const value = ctx.read(entry.operand);
+        if (isFailure(value)) return value;
+        const items = ctx.items(value, 'in');
+        if (isFailure(items)) return items;
+        if (!items) {
+            if (subject === value) found = true;
+            continue;
+        }
+        // By index and `===`, so `NaN` is in no list and a page's `Array.prototype` is not called
+        for (let j = 0; j < items.length; j++) if (items[j] === subject) found = true;
+    }
+    return found;
 }
 
 /**
@@ -490,33 +582,19 @@ export function compilePredicate(raw, level, path, hooks) {
     }
     if (!isPlainObject(raw)) throw new ConfigParseError(path, 'a predicate must be a literal or an object');
     if (level === 'item' && isItemExpression(raw)) {
-        const node = hooks.expression(raw, path, 'boolean');
-        return onValue((_, ctx) => /** @type {boolean | Failure} */ (ctx.test(node)), false);
+        return { kind: 'expression', expression: hooks.expression(raw, path, 'boolean'), path, scalar: false };
     }
     return compileObject(raw, level, path, hooks);
 }
 
 /**
- * Every entry is tested, in order. A failure ends the test where it arises.
- *
  * @param {'any' | 'all' | 'none'} combinator
  * @param {CompiledPredicate[]} entries
+ * @param {string} path
  * @returns {CompiledPredicate}
  */
-function combine(combinator, entries) {
-    const [decider, decided] = decides(combinator);
-    return {
-        test: (subject, ctx) => {
-            let result = !decided;
-            for (const entry of entries) {
-                const held = entry.test(subject, ctx);
-                if (isFailure(held)) return held;
-                if (held === decider) result = decided;
-            }
-            return result;
-        },
-        scalar: entries.some((entry) => entry.scalar),
-    };
+function combine(combinator, entries, path) {
+    return { kind: 'combine', combinator, entries, path, scalar: entries.some((entry) => entry.scalar) };
 }
 
 /**
@@ -552,39 +630,34 @@ function compileObject(raw, level, path, hooks) {
                 combine(
                     key,
                     asArray(value).map((entry, i) => compilePredicate(entry, level, isArray(value) ? `${keyPath}.${i}` : keyPath, hooks)),
+                    keyPath,
                 ),
             );
         } else if (key === 'field') {
             const field = compileField(value, keyPath, hooks);
-            entries.push(readThen(field, compilePredicate(raw.is, 'value', `${path}.is`, hooks)));
+            entries.push(readThen(field, compilePredicate(raw.is, 'value', `${path}.is`, hooks), keyPath));
         } else if (level === 'value' && OPERATORS.has(key)) {
             entries.push(compileOperator(key, value, keyPath, hooks));
         } else {
             const names = compilePath(key, keyPath, hooks);
-            entries.push(readThen({ path: keyPath, names }, compilePredicate(value, 'value', keyPath, hooks)));
+            entries.push(readThen({ path: keyPath, names }, compilePredicate(value, 'value', keyPath, hooks), keyPath));
         }
     }
-    if (first.length === 0 && rest.length === 0) return onValue(() => true, false);
-    if (first.length === 0) return combine('all', rest);
-    const guard = combine('all', first);
-    const others = combine('all', rest);
-    return {
-        test: (subject, ctx) => {
-            const held = guard.test(subject, ctx);
-            if (held !== true) return held;
-            return others.test(subject, ctx);
-        },
-        scalar: guard.scalar || others.scalar,
-    };
+    if (first.length === 0 && rest.length === 0) return { kind: 'always', path, scalar: false };
+    if (first.length === 0) return combine('all', rest, path);
+    const guard = combine('all', first, path);
+    const others = combine('all', rest, path);
+    return { kind: 'guarded', guard, rest: others, path, scalar: guard.scalar || others.scalar };
 }
 
 /**
  * @param {CompiledField} field
  * @param {CompiledPredicate} next
+ * @param {string} path
  * @returns {CompiledPredicate}
  */
-function readThen(field, next) {
-    return onValue((subject, ctx) => next.test(readField(ctx, subject, field), ctx), false);
+function readThen(field, next, path) {
+    return { kind: 'read', field, next, path, scalar: false };
 }
 
 /**
@@ -596,10 +669,8 @@ function readThen(field, next) {
  */
 function compileOperator(operator, raw, path, hooks) {
     switch (operator) {
-        case 'fails': {
-            const expected = expectBoolean(raw, path);
-            return { test: (subject) => (isFailure(subject) ? expected : !expected), scalar: false };
-        }
+        case 'fails':
+            return { kind: 'fails', expected: expectBoolean(raw, path), path, scalar: false };
         case 'type': {
             const names = asArray(raw);
             for (const name of names) {
@@ -607,7 +678,7 @@ function compileOperator(operator, raw, path, hooks) {
                     throw new ConfigParseError(path, `unknown type name '${String(name)}'`);
                 }
             }
-            return onValue((subject) => names.includes(typeName(subject)), false);
+            return { kind: 'type', names, path, scalar: false };
         }
         case 'in':
             return compileIn(raw, path, hooks);
@@ -627,8 +698,7 @@ function expectBoolean(raw, path) {
 }
 
 /**
- * `in`: the value `===` one of the entries. Every entry is read, in order. A literal entry is compared
- * as written, and an expression entry giving a list contributes each item.
+ * `in`, whose entries are literals or expressions in value position.
  *
  * @param {unknown} raw
  * @param {string} path
@@ -636,30 +706,11 @@ function expectBoolean(raw, path) {
  * @returns {CompiledPredicate}
  */
 function compileIn(raw, path, hooks) {
-    /** @type {Array<{ literal: unknown } | { operand: unknown }>} */
+    /** @type {InPredicate['entries']} */
     const entries = asArray(raw).map((entry, i) =>
         isScalar(entry) ? { literal: entry } : { operand: hooks.expression(entry, isArray(raw) ? `${path}.${i}` : path, 'value') },
     );
-    return onValue((subject, ctx) => {
-        let found = false;
-        for (const entry of entries) {
-            if ('literal' in entry) {
-                if (subject === entry.literal) found = true;
-                continue;
-            }
-            const value = ctx.read(entry.operand);
-            if (isFailure(value)) return value;
-            const items = ctx.items(value, 'in');
-            if (isFailure(items)) return items;
-            if (!items) {
-                if (subject === value) found = true;
-                continue;
-            }
-            // By index and `===`, so `NaN` is in no list and a page's `Array.prototype` is not called
-            for (let j = 0; j < items.length; j++) if (items[j] === subject) found = true;
-        }
-        return found;
-    }, true);
+    return { kind: 'in', entries, path, scalar: true };
 }
 
 /** @typedef {'eq' | 'lt' | 'lte' | 'gt' | 'gte'} Comparison */
@@ -689,13 +740,8 @@ const COMPARE = {
  * @returns {CompiledPredicate}
  */
 function compileComparison(operator, raw, path, hooks) {
-    const compare = COMPARE[operator];
     if (operator === 'eq' ? isScalar(raw) : typeof raw === 'number') {
-        return onValue((subject) => compare(/** @type {number} */ (subject), /** @type {number} */ (raw)), true);
+        return { kind: 'compare', op: operator, value: raw, path, scalar: true };
     }
-    const operand = hooks.expression(raw, path, 'value');
-    return onValue((subject, ctx) => {
-        const value = ctx.operand(operand);
-        return isFailure(value) ? value : compare(/** @type {number} */ (subject), /** @type {number} */ (value));
-    }, true);
+    return { kind: 'compare', op: operator, operand: hooks.expression(raw, path, 'value'), path, scalar: true };
 }

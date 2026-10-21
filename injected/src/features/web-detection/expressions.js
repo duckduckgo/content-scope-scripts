@@ -1,7 +1,7 @@
 import { numberIsFinite, objectKeys } from '../../captured-globals.js';
 import { DetectionError, decides, errorPath, isFailure, isScalar, typeName } from './core.js';
 import { compileDetector } from './parse.js';
-import { NativeReader, readPath } from './predicates.js';
+import { NativeReader, readPath, testPredicate } from './predicates.js';
 import { ItemBuffer, eachMember, isList } from './sources.js';
 
 /**
@@ -220,7 +220,7 @@ export function evaluateOccurrence(node, ctx) {
     const is = node.is;
     if (!is) return value;
     try {
-        const held = is.test(forPredicate(value, is), ctx);
+        const held = testPredicate(is, forPredicate(value, is), ctx);
         return isFailure(held) ? held.at(`${node.path}.is`) : held;
     } catch (e) {
         throw atPath(e, node.path, ctx);
@@ -733,7 +733,7 @@ function payloadValue(field, ctx) {
      * @returns {boolean | Failure}
      */
     const test = (predicate, path) => {
-        const held = predicate.test(forPredicate(value, predicate), ctx);
+        const held = testPredicate(predicate, forPredicate(value, predicate), ctx);
         return isFailure(held) ? held.at(path) : held;
     };
     if (field.when) {
