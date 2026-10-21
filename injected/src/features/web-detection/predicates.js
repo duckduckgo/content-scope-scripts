@@ -469,49 +469,105 @@ const RESERVED_LATER = new Set(['match']);
  * @returns {boolean | Failure}
  */
 export function testPredicate(predicate, subject, ctx) {
+    return lowered(predicate)(subject, ctx);
+}
+
+/** @typedef {(subject: unknown, ctx: PredicateContext) => boolean | Failure} PredicateTest */
+
+/**
+ * Each predicate's test, lowered the first time it is tested and kept beside the compiled tree, which
+ * holds no function.
+ *
+ * @type {WeakMap<CompiledPredicate, PredicateTest>}
+ */
+const LOWERED = new WeakMap();
+
+/**
+ * @param {CompiledPredicate} predicate
+ * @returns {PredicateTest}
+ */
+function lowered(predicate) {
+    let test = LOWERED.get(predicate);
+    if (!test) {
+        test = lower(predicate);
+        LOWERED.set(predicate, test);
+    }
+    return test;
+}
+
+/**
+ * A predicate as a function closing over its parts and the tests of the predicates it holds.
+ *
+ * @param {CompiledPredicate} predicate
+ * @returns {PredicateTest}
+ */
+function lower(predicate) {
     switch (predicate.kind) {
         case 'compare': {
-            if (isFailure(subject)) return subject;
             const compare = COMPARE[predicate.op];
-            if (!('operand' in predicate)) return compare(/** @type {number} */ (subject), /** @type {number} */ (predicate.value));
-            const value = ctx.operand(predicate.operand);
-            return isFailure(value) ? value : compare(/** @type {number} */ (subject), /** @type {number} */ (value));
+            if (!('operand' in predicate)) {
+                const literal = /** @type {number} */ (predicate.value);
+                return (subject) => (isFailure(subject) ? subject : compare(/** @type {number} */ (subject), literal));
+            }
+            const operand = predicate.operand;
+            return (subject, ctx) => {
+                if (isFailure(subject)) return subject;
+                const value = ctx.operand(operand);
+                return isFailure(value) ? value : compare(/** @type {number} */ (subject), /** @type {number} */ (value));
+            };
         }
         case 'combine': {
-            // Every entry is tested, in order. A failure ends the test where it arises
             const [decider, decided] = decides(predicate.combinator);
-            let result = !decided;
-            for (const entry of predicate.entries) {
-                const held = testPredicate(entry, subject, ctx);
-                if (isFailure(held)) return held;
-                if (held === decider) result = decided;
-            }
-            return result;
+            const entries = predicate.entries.map(lowered);
+            // Every entry is tested, in order. A failure ends the test where it arises
+            return (subject, ctx) => {
+                let result = !decided;
+                for (const entry of entries) {
+                    const held = entry(subject, ctx);
+                    if (isFailure(held)) return held;
+                    if (held === decider) result = decided;
+                }
+                return result;
+            };
         }
-        case 'read':
-            if (isFailure(subject)) return subject;
-            return testPredicate(predicate.next, readField(ctx, subject, predicate.field), ctx);
-        case 'where':
-            return ctx.bind(predicate.binder, subject, () => testPredicate(predicate.predicate, subject, ctx));
-        case 'in':
-            if (isFailure(subject)) return subject;
-            return testIn(predicate.entries, subject, ctx);
+        case 'read': {
+            const field = predicate.field;
+            const next = lowered(predicate.next);
+            return (subject, ctx) => (isFailure(subject) ? subject : next(readField(ctx, subject, field), ctx));
+        }
+        case 'where': {
+            const binder = predicate.binder;
+            const inner = lowered(predicate.predicate);
+            return (subject, ctx) => ctx.bind(binder, subject, () => inner(subject, ctx));
+        }
+        case 'in': {
+            const entries = predicate.entries;
+            return (subject, ctx) => (isFailure(subject) ? subject : testIn(entries, subject, ctx));
+        }
         case 'guarded': {
+            const guard = lowered(predicate.guard);
+            const rest = lowered(predicate.rest);
             // When a guard does not hold, the object is `false`
-            const held = testPredicate(predicate.guard, subject, ctx);
-            if (held !== true) return held;
-            return testPredicate(predicate.rest, subject, ctx);
+            return (subject, ctx) => {
+                const held = guard(subject, ctx);
+                if (held !== true) return held;
+                return rest(subject, ctx);
+            };
         }
-        case 'fails':
-            return isFailure(subject) ? predicate.expected : !predicate.expected;
-        case 'type':
-            if (isFailure(subject)) return subject;
-            return predicate.names.includes(typeName(subject));
+        case 'fails': {
+            const expected = predicate.expected;
+            return (subject) => (isFailure(subject) ? expected : !expected);
+        }
+        case 'type': {
+            const names = predicate.names;
+            return (subject) => (isFailure(subject) ? subject : names.includes(typeName(subject)));
+        }
         case 'always':
-            return isFailure(subject) ? subject : true;
-        case 'expression':
-            if (isFailure(subject)) return subject;
-            return /** @type {boolean | Failure} */ (ctx.test(predicate.expression));
+            return (subject) => (isFailure(subject) ? subject : true);
+        case 'expression': {
+            const expression = predicate.expression;
+            return (subject, ctx) => (isFailure(subject) ? subject : /** @type {boolean | Failure} */ (ctx.test(expression)));
+        }
         default:
             throw new DetectionError(`unknown predicate '${/** @type {{ kind: string }} */ (predicate).kind}'`);
     }
