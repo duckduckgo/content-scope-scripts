@@ -381,7 +381,7 @@ function TextPromptsPanel({ onSelect }) {
     };
 
     /**
-     * @param {Prompt[]} pagePrompts
+     * @param {import('./suggestedPrompts.data.js').TextPrompt[]} pagePrompts
      * @param {boolean} entering
      */
     const renderItems = (pagePrompts, entering) =>
