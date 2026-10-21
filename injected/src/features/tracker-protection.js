@@ -15,7 +15,8 @@
 
 import ContentFeature from '../content-feature.js';
 import { isUnprotectedDomain } from '../utils.js';
-import { objectEntries, objectFromEntries } from '../captured-globals.js';
+import { objectEntries, objectFromEntries, objectDefineProperty } from '../captured-globals.js';
+import { wrapToString } from '../wrapper-utils.js';
 import { TrackerResolver } from './tracker-protection/tracker-resolver.js';
 import { surrogates as bundledSurrogates } from './tracker-protection/surrogates-generated.js';
 
@@ -161,40 +162,49 @@ export class TrackerProtection extends ContentFeature {
 
     _setupXHRInterception() {
         const reportResource = this._reportResource.bind(this);
-        const xhrProto = XMLHttpRequest.prototype;
-        const originalOpen = xhrProto.open;
-        const originalSend = xhrProto.send;
         /** @type {WeakMap<XMLHttpRequest, string>} */
         const xhrUrls = new WeakMap();
         /** @type {WeakSet<XMLHttpRequest>} */
         const xhrTracked = new WeakSet();
 
-        // @ts-expect-error - Overload signature doesn't match our wrapper
-        xhrProto.open = function (method, url, async, username, password) {
-            xhrUrls.set(this, String(url));
-            const asyncValue = async === undefined ? true : async;
-            return originalOpen.call(this, method, url, asyncValue, username, password);
+        // wrapMethod keeps the native descriptor, name, length and toString, so pages can't detect the wrapper.
+        /** @this {XMLHttpRequest} @param {Function} originalOpen @param {any[]} args */
+        const wrappedOpen = function (originalOpen, ...args) {
+            try {
+                if (args.length > 1) {
+                    xhrUrls.set(this, String(args[1]));
+                }
+            } catch {
+                // Never break the original call
+            }
+            return originalOpen.apply(this, args);
         };
+        this.wrapMethod(XMLHttpRequest.prototype, 'open', wrappedOpen);
 
-        xhrProto.send = function (...args) {
-            if (!xhrTracked.has(this)) {
-                xhrTracked.add(this);
-                this.addEventListener('error', () => {
-                    reportResource(xhrUrls.get(this) || '', 'xmlhttprequest', true);
-                });
+        /** @this {XMLHttpRequest} @param {Function} originalSend @param {any[]} args */
+        const wrappedSend = function (originalSend, ...args) {
+            try {
+                if (!xhrTracked.has(this)) {
+                    xhrTracked.add(this);
+                    this.addEventListener('error', () => {
+                        reportResource(xhrUrls.get(this) || '', 'xmlhttprequest', true);
+                    });
+                }
+            } catch {
+                // Never break the original call
             }
             return originalSend.apply(this, args);
         };
-
-        this._originalXHROpen = originalOpen;
-        this._originalXHRSend = originalSend;
+        this.wrapMethod(XMLHttpRequest.prototype, 'send', wrappedSend);
     }
 
     _setupFetchInterception() {
         const reportResource = this._reportResource.bind(this);
-        const originalFetch = window.fetch;
 
-        window.fetch = function (...args) {
+        // A plain `window.fetch = function…` is detectable via Function.prototype.toString and breaks sites that
+        // check for a native fetch (e.g. upwork.com). wrapMethod returns a Proxy that reports as native code.
+        /** @this {unknown} @param {Function} originalFetch @param {any[]} args */
+        const wrappedFetch = function (originalFetch, ...args) {
             try {
                 if (args.length > 0) {
                     const input = args[0];
@@ -209,38 +219,50 @@ export class TrackerProtection extends ContentFeature {
             } catch {
                 // Never break the original fetch call
             }
-            return originalFetch.apply(window, args);
+            // Pass `this` through so invalid receivers fail exactly like native fetch.
+            return originalFetch.apply(this, args);
         };
-
-        this._originalFetch = originalFetch;
+        this.wrapMethod(globalThis, 'fetch', wrappedFetch);
     }
 
     _setupImageSrcInterception() {
         const reportResource = this._reportResource.bind(this);
-        const originalDescriptor = Object.getOwnPropertyDescriptor(Image.prototype, 'src');
+        const imgProto = HTMLImageElement.prototype;
+        const originalDescriptor = Object.getOwnPropertyDescriptor(imgProto, 'src');
         if (!originalDescriptor?.get || !originalDescriptor?.set) return;
 
-        this._originalImageSrc = originalDescriptor;
         /** @type {WeakSet<HTMLImageElement>} */
         const imgTracked = new WeakSet();
         const origGet = originalDescriptor.get;
         const origSet = originalDescriptor.set;
 
-        delete Image.prototype.src;
-        Object.defineProperty(Image.prototype, 'src', {
-            configurable: true,
-            get: function () {
-                return origGet.call(this);
-            },
-            set: function (value) {
+        /** @this {HTMLImageElement} */
+        const srcGet = function () {
+            return origGet.call(this);
+        };
+        /** @this {HTMLImageElement} @param {string} value */
+        const srcSet = function (value) {
+            try {
                 if (!imgTracked.has(this)) {
                     imgTracked.add(this);
                     this.addEventListener('error', () => {
                         reportResource(origGet.call(this), 'image', true);
                     });
                 }
-                origSet.call(this, value);
-            },
+            } catch {
+                // Never break the original setter
+            }
+            origSet.call(this, value);
+        };
+        // Unlike wrapMethod, wrapProperty doesn't mask accessors against the originals: without this, `.toString()`
+        // on the getter/setter returns our source and `.name` is "srcGet"/"srcSet" instead of "get src"/"set src".
+        objectDefineProperty(srcGet, 'name', { value: origGet.name, configurable: true });
+        objectDefineProperty(srcSet, 'name', { value: origSet.name, configurable: true });
+
+        // wrapProperty keeps the native descriptor (enumerable/configurable).
+        this.wrapProperty(imgProto, 'src', {
+            get: wrapToString(srcGet, origGet),
+            set: wrapToString(srcSet, origSet),
         });
     }
 
