@@ -114,6 +114,7 @@ export class EvaluationContext {
      */
     constructor(reader, detectorNames = new Map(), entry = { written: false, data: {} }) {
         this.reader = reader;
+        reader.beginRun();
         this.detectorNames = detectorNames;
         this.entry = entry;
     }
