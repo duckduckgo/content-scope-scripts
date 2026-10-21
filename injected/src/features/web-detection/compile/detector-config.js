@@ -55,7 +55,7 @@ import { compileDetector } from './compile.js';
  *
  * @typedef {object} DetectorConfig
  * @property {FeatureState} state - Whether the detector is enabled
- * @property {CompiledDetector | { error: string }} compiled - `match` and `actions` compiled, or why they failed to parse
+ * @property {RawDetectorConfig} raw - the config as given, which `compileDetectorConfig` compiles
  * @property {Triggers} triggers - Trigger configurations
  */
 
@@ -89,25 +89,14 @@ function isValidName(name) {
  * - breakageReport trigger is enabled, restricted to top frame
  * - auto trigger is disabled (opt-in only), restricted to top frame, no intervals
  *
- * A detector that fails to parse keeps the parse error, and does not run.
- *
  * @param {RawDetectorConfig} config
- * @param {object} global - the global object `api` reads from
  * @returns {DetectorConfig}
  */
-function normalizeDetector(config, global) {
-    /** @type {DetectorConfig['compiled']} */
-    let compiled;
-    try {
-        compiled = compileDetector(config, pageSources(global));
-    } catch (e) {
-        compiled = { error: e instanceof Error ? e.message : String(e) };
-    }
-
+function normalizeDetector(config) {
     return {
         // Detectors are enabled by default
         state: config.state ?? 'enabled',
-        compiled,
+        raw: config,
         triggers: {
             // breakageReport: enabled by default - detectors participate in breakage report flow
             breakageReport: {
@@ -127,13 +116,29 @@ function normalizeDetector(config, global) {
 }
 
 /**
- * Parse detector configurations from raw config.
+ * Compile a detector's `match` and `actions`. A detector that fails to parse keeps the parse error, and
+ * does not run.
+ *
+ * @param {DetectorConfig} config
+ * @param {object} global - the global object `api` reads from
+ * @returns {CompiledDetector | { error: string }}
+ */
+export function compileDetectorConfig(config, global) {
+    try {
+        return compileDetector(config.raw, pageSources(global));
+    } catch (e) {
+        return { error: e instanceof Error ? e.message : String(e) };
+    }
+}
+
+/**
+ * Parse detector configurations from raw config. `match` and `actions` are compiled separately, by
+ * `compileDetectorConfig`.
  *
  * @param {Record<string, Record<string, RawDetectorConfig>> | undefined} detectorsConfig
- * @param {object} [global] - the global object `api` reads from
  * @returns {Record<string, Record<string, DetectorConfig>>}
  */
-export function parseDetectors(detectorsConfig, global = globalThis) {
+export function parseDetectors(detectorsConfig) {
     /** @type {Record<string, Record<string, DetectorConfig>>} */
     const detectors = {};
 
@@ -154,7 +159,7 @@ export function parseDetectors(detectorsConfig, global = globalThis) {
                 continue;
             }
 
-            groupDetectors[detectorId] = normalizeDetector(detectorConfig, global);
+            groupDetectors[detectorId] = normalizeDetector(detectorConfig);
         }
 
         detectors[groupName] = groupDetectors;

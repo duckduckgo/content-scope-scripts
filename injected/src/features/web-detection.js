@@ -2,13 +2,14 @@ import ContentFeature from '../content-feature.js';
 // eslint-disable-next-line no-redeclare
 import { hasOwnProperty } from '../captured-globals.js';
 import { timeDetector } from './detector-perf.js';
-import { parseDetectors } from './web-detection/compile/detector-config.js';
+import { compileDetectorConfig, parseDetectors } from './web-detection/compile/detector-config.js';
 import { EvaluationContext } from './web-detection/evaluate/context.js';
 import { NativeReader } from './web-detection/evaluate/native-reader.js';
 import { breakageEntry, createDetectorState, detectorNameScalars, runDetector } from './web-detection/evaluate/run.js';
 
 /**
  * @typedef {import('./web-detection/compile/detector-config.js').DetectorConfig} DetectorConfig
+ * @typedef {import('./web-detection/compile/compile.js').CompiledDetector} CompiledDetector
  * @typedef {import('./web-detection/model/types.js').PayloadData} PayloadData
  * @typedef {import('./web-detection/evaluate/run.js').DetectorState} DetectorState
  * @typedef {import('./web-detection/evaluate/run.js').BreakageEntry} BreakageEntry
@@ -38,6 +39,9 @@ export default class WebDetection extends ContentFeature {
     /** @type {Map<string, DetectorState>} each detector's state in the frame, by `groupName.detectorId` */
     #states = new Map();
 
+    /** @type {Map<string, CompiledDetector | { error: string }>} each compiled detector, or its parse error, by `groupName.detectorId` */
+    #compiled = new Map();
+
     /** @type {Array<{ timer: ReturnType<typeof setTimeout>, detectors: DetectorEntry[] }>} */
     #timers = [];
 
@@ -54,15 +58,53 @@ export default class WebDetection extends ContentFeature {
     init() {
         this.#detectorPerfEnabled = hasOwnProperty.call(this.featureSettings ?? {}, 'detectorPerf');
         const detectorsConfig = this.getFeatureSetting('detectors');
-        this.#detectors = parseDetectors(detectorsConfig, globalThis);
-        // Native getters and methods are captured now, before page scripts can replace them
+        this.#detectors = parseDetectors(detectorsConfig);
         /** @type {Set<string>} */
         const names = new Set();
-        for (const { config } of this._eachDetector()) {
-            if ('names' in config.compiled) config.compiled.names.forEach((name) => names.add(name));
+        let anyRuns = false;
+        for (const detector of this._eachDetector()) {
+            if (!this._runsInFrame(detector.config)) continue;
+            anyRuns = true;
+            const compiled = this._compiledOf(detector);
+            if ('names' in compiled) compiled.names.forEach((name) => names.add(name));
         }
-        this.#reader = new NativeReader(globalThis, names);
+        // Native getters and methods are captured now, before page scripts can replace them
+        if (anyRuns) this.#reader = new NativeReader(globalThis, names);
         this._scheduleAutoRunDetectors();
+    }
+
+    /**
+     * Whether a trigger runs the detector in this frame. The state, platform and site a trigger tests
+     * are fixed for the frame, so a detector no trigger runs at init is never compiled.
+     *
+     * @param {DetectorConfig} config
+     * @returns {boolean}
+     */
+    _runsInFrame(config) {
+        return this._shouldRunDetector(config, { trigger: 'breakageReport' }) || this._shouldRunDetector(config, { trigger: 'auto' });
+    }
+
+    /**
+     * The detector compiled, or its parse error. Each detector compiles once.
+     *
+     * @param {DetectorEntry} detector
+     * @returns {CompiledDetector | { error: string }}
+     */
+    _compiledOf({ detectorId, config }) {
+        let compiled = this.#compiled.get(detectorId);
+        if (!compiled) {
+            compiled = this._compile(config);
+            this.#compiled.set(detectorId, compiled);
+        }
+        return compiled;
+    }
+
+    /**
+     * @param {DetectorConfig} config
+     * @returns {CompiledDetector | { error: string }}
+     */
+    _compile(config) {
+        return compileDetectorConfig(config, globalThis);
     }
 
     /**
@@ -103,8 +145,10 @@ export default class WebDetection extends ContentFeature {
      * @param {DetectorEntry} detector
      * @param {RunDetectionOptions} options
      */
-    _runDetector({ groupName, detectorId, config }, options) {
-        const compiled = config.compiled;
+    _runDetector(detector, options) {
+        const { groupName, detectorId } = detector;
+        // `init` compiles every detector a trigger runs in the frame, so the reader captures the names it reads
+        const compiled = this._compiledOf(detector);
         const state = this._stateOf(detectorId);
         if (state.done || 'error' in compiled) return;
 
@@ -247,7 +291,8 @@ export default class WebDetection extends ContentFeature {
             const runs = this._shouldRunDetector(detector.config, options);
             if (runs) this._runDetector(detector, options);
 
-            if ('error' in detector.config.compiled) {
+            const compiled = this.#compiled.get(detector.detectorId);
+            if (compiled && 'error' in compiled) {
                 if (runs) results.push({ detectorId: detector.detectorId, errors: { parse: 'error' } });
                 continue;
             }

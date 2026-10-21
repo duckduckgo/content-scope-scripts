@@ -1,5 +1,5 @@
 import { compileDetector } from '../../src/features/web-detection/compile/compile.js';
-import { parseDetectors } from '../../src/features/web-detection/compile/detector-config.js';
+import { compileDetectorConfig, parseDetectors } from '../../src/features/web-detection/compile/detector-config.js';
 import { pageSources } from '../../src/features/web-detection/sources/index.js';
 import { IMG, REPORT, bound, detects, expectParseError, fonts, holds, imageState, payload, run, timeline, withPayload } from './support.js';
 
@@ -522,7 +522,7 @@ describe('WebDetection compile', () => {
          * @returns {import('../../src/features/web-detection/compile/compile.js').CompiledDetector}
          */
         const compiledOf = (detectorConfig) => {
-            const compiled = oneDetectorConfigParsed(detectorConfig).compiled;
+            const compiled = compileDetectorConfig(oneDetectorConfigParsed(detectorConfig), globalThis);
             if ('error' in compiled) throw new Error(compiled.error);
             return compiled;
         };
@@ -532,9 +532,15 @@ describe('WebDetection compile', () => {
          * @returns {string}
          */
         const parseErrorOf = (detectorConfig) => {
-            const compiled = oneDetectorConfigParsed(detectorConfig).compiled;
+            const compiled = compileDetectorConfig(oneDetectorConfigParsed(detectorConfig), globalThis);
             return 'error' in compiled ? compiled.error : '';
         };
+
+        it('should keep the config as given, and not compile it', () => {
+            const config = { match: { element: { selector: 'img' }, using: 'length' }, actions: { breakageReportData: {} } };
+            expect(oneDetectorConfigParsed(config).raw).toBe(config);
+            expect(parseErrorOf(config)).toContain('length');
+        });
 
         it('should allow disabling detector state', () => {
             const result = oneDetectorConfigParsed(detects({ text: { pattern: 'test' } }, { state: 'disabled' }));

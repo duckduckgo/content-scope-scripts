@@ -318,5 +318,56 @@ describe('WebDetection feature', () => {
                 { detectorId: 'g.d', detected: true, data: { runs: 4 } },
             ]);
         });
+
+        describe('compiling', () => {
+            const unparseable = { match: { element: { selector: 'img' }, using: 'length' }, actions: { breakageReportData: {} } };
+
+            it('compiles at init only the detectors a trigger runs in the frame', () => {
+                const compile = spyOn(WebDetection.prototype, '_compile').and.callThrough();
+                const on = detects(true);
+                const autoOnly = {
+                    triggers: { breakageReport: { state: 'disabled' }, ...auto },
+                    match: true,
+                    actions: { breakageReportData: {} },
+                };
+                createInstance({
+                    on,
+                    disabled: detects(true, { state: 'disabled' }),
+                    noTrigger: detects(true, { triggers: { breakageReport: { state: 'disabled' } } }),
+                    otherDomain: detects(true, { triggers: { breakageReport: { runConditions: [{ domain: 'other.com' }] } } }),
+                    autoOnly,
+                });
+                expect(compile.calls.allArgs().map(([config]) => /** @type {unknown} */ (config.raw))).toEqual([on, autoOnly]);
+            });
+
+            it('compiles nothing in a frame where no detector runs', () => {
+                const compile = spyOn(WebDetection.prototype, '_compile').and.callThrough();
+                // @ts-expect-error - mocking for test
+                globalThis.window.top = {};
+                const instance = createInstance({
+                    d: detects(true),
+                    a: { triggers: auto, match: true, actions: { breakageReportData: {} } },
+                });
+                jasmine.clock().tick(1000);
+                expect(instance.runDetectors({ trigger: 'breakageReport' })).toEqual([]);
+                expect(compile).not.toHaveBeenCalled();
+            });
+
+            it('compiles a detector once, however often it runs', () => {
+                const compile = spyOn(WebDetection.prototype, '_compile').and.callThrough();
+                const instance = createInstance({ d: { triggers: auto, actions: { fireEvent: { type: 'a' } } } });
+                jasmine.clock().tick(1000);
+                instance.runDetectors({ trigger: 'breakageReport' });
+                expect(instance.callFeatureMethod).toHaveBeenCalledTimes(4);
+                expect(compile).toHaveBeenCalledTimes(1);
+            });
+
+            it('reports the parse error of a detector that runs, and not of one that does not', () => {
+                const instance = createInstance({ runs: unparseable, disabled: { ...unparseable, state: 'disabled' } });
+                expect(instance.runDetectors({ trigger: 'breakageReport' })).toEqual([
+                    { detectorId: 'g.runs', errors: { parse: 'error' } },
+                ]);
+            });
+        });
     });
 });
