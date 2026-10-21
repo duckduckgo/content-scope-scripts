@@ -233,6 +233,41 @@ test.describe('chromeWebstorePatching', () => {
         await expect(page.locator(BUTTON)).toHaveAttribute('title', /isn't supported/);
     });
 
+    test('internal build → override link under the unsupported pill reveals the install pill', async ({ page }, testInfo) => {
+        await setup(page, testInfo);
+        await navigateTo(page, NON_CATALOG_PATH);
+        await expect(page.locator(LABEL)).toHaveText('Unsupported extension');
+        const link = page.getByRole('link', { name: 'Internal: Add to DuckDuckGo' });
+        await expect(link).toBeVisible();
+        await link.click();
+        await expect(page.locator(LABEL)).toHaveText('Add to DuckDuckGo');
+        await expect(page.locator(BUTTON)).toBeEnabled();
+        await expect(link).toHaveCount(0);
+        // the store's own install flow now runs for this extension
+        await page.locator(BUTTON).click();
+        await expect.poll(() => page.evaluate(() => /** @type {any} */ (window).__installClicked)).toBe(true);
+    });
+
+    test('internal override link is removed on navigation to a catalog extension', async ({ page }, testInfo) => {
+        await setup(page, testInfo);
+        await navigateTo(page, NON_CATALOG_PATH);
+        await expect(page.getByRole('link', { name: 'Internal: Add to DuckDuckGo' })).toBeVisible();
+        await navigateTo(page, CATALOG_PATH);
+        await expect(page.locator(LABEL)).toHaveText('Add to DuckDuckGo');
+        await expect(page.locator('[data-ddg-webstore-internal-override]')).toHaveCount(0);
+    });
+
+    // The feature itself may ship enabled for everyone; the override must not
+    test('public build with the feature enabled → unsupported pill, no override link', async ({ page }, testInfo) => {
+        await setup(page, testInfo, {
+            internal: false,
+            config: './integration-test/test-pages/chrome-webstore-patching/config/config-enabled.json',
+        });
+        await navigateTo(page, NON_CATALOG_PATH);
+        await expect(page.locator(LABEL)).toHaveText('Unsupported extension');
+        await expect(page.locator('[data-ddg-webstore-internal-override]')).toHaveCount(0);
+    });
+
     // The tooltip is unsupported-only: a node that flips verdict in place must
     // not keep claiming the extension isn't supported
     test('tooltip cleared when the same button flips to a catalog verdict', async ({ page }, testInfo) => {
