@@ -36,7 +36,7 @@ const STOPWORDS = {
 const ACCENT_HINTS = { es: /[ñ¿¡]/i, fr: /[çœèêàù]/i, de: /[ßäöü]/i, pt: /[ãõ]/i };
 const CODE_SIGNALS = /[{};]|=>|\(\)|===?|!==?|\b(function|const|let|var|def|return|import|public|private|async|await)\b/g;
 const WORD = /^[\p{L}'’-]{2,30}$/u;
-const LONG_TEXT_CHARS = 280;
+const LONG_TEXT_CHARS = 500;
 
 /**
  * "es-MX" → "es"; null for anything that isn't a language tag.
@@ -105,7 +105,6 @@ export function classify(rawText, { userLanguage, inCodeElement = false, markedL
     // When the text alone can't tell, the page's own marking decides: a selection inside lang="nl" is Dutch even though
     // the word lists don't know Dutch. Without either, it's taken to be in the user's language.
     const languageTag = detectLanguage(text) ?? primaryLanguage(markedLanguage) ?? userTag;
-    const sentences = text.match(/[.!?](\s|$)/g)?.length ?? 0;
     /** @type {SelectionType} */
     let shape = 'text';
     if (isCode) {
@@ -114,7 +113,7 @@ export function classify(rawText, { userLanguage, inCodeElement = false, markedL
         shape = 'word';
     } else if (/\?\s*$/.test(text)) {
         shape = 'question';
-    } else if (text.length > LONG_TEXT_CHARS || sentences > 2) {
+    } else if (text.length > LONG_TEXT_CHARS) {
         shape = 'long';
     }
     return { shape, languageTag, differentLanguage: !isCode && languageTag !== userTag };
