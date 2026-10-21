@@ -1,9 +1,11 @@
 import { JSDOM } from 'jsdom';
-import { compileDetector, parseDetectors } from '../src/features/web-detection/parse.js';
-import { EvaluationContext } from '../src/features/web-detection/expressions.js';
-import { NativeReader } from '../src/features/web-detection/predicates.js';
-import { ConfigParseError } from '../src/features/web-detection/core.js';
-import { createDetectorState, runDetector } from '../src/features/web-detection/actions.js';
+import { compileDetector } from '../src/features/web-detection/compile/compile.js';
+import { parseDetectors } from '../src/features/web-detection/compile/detector-config.js';
+import { pageSources } from '../src/features/web-detection/sources/index.js';
+import { EvaluationContext } from '../src/features/web-detection/evaluate/context.js';
+import { NativeReader } from '../src/features/web-detection/evaluate/native-reader.js';
+import { ConfigParseError } from '../src/features/web-detection/model/core.js';
+import { createDetectorState, runDetector } from '../src/features/web-detection/evaluate/run.js';
 import WebDetection from '../src/features/web-detection.js';
 
 /**
@@ -34,7 +36,7 @@ function run(body, detector, options = {}) {
     const originalDocument = globalThis.document;
     globalThis.document = window.document;
     try {
-        const compiled = compileDetector(detector, window);
+        const compiled = compileDetector(detector, pageSources(window));
         const reader = new NativeReader(window, compiled.names);
         options.afterCapture?.(window);
         const state = createDetectorState();
@@ -107,7 +109,7 @@ function payload(body, value, extra, options) {
  * @param {RegExp | string} [message]
  */
 function expectParseError(detector, message) {
-    expect(() => compileDetector(/** @type {any} */ (detector), {})).toThrowMatching(
+    expect(() => compileDetector(/** @type {any} */ (detector), pageSources({}))).toThrowMatching(
         (e) =>
             e instanceof ConfigParseError &&
             (!message || (typeof message === 'string' ? e.message.includes(message) : message.test(e.message))),
@@ -1384,7 +1386,7 @@ describe('WebDetection expressions', () => {
          * @param {any} detector
          * @returns {any}
          */
-        const compile = (detector) => compileDetector(detector, {});
+        const compile = (detector) => compileDetector(detector, pageSources({}));
 
         it('compiles a predicate to nodes with their config paths', () => {
             const { match } = compile({ match: { ref: 'loadEventEnd', is: { gt: 0, lt: 8000 } }, actions: REPORT });
@@ -1807,7 +1809,10 @@ describe('WebDetection expressions', () => {
         it('reads through a chain the page changes between runs of one reader', () => {
             const window = new JSDOM('<!DOCTYPE html><html><body></body></html>').window;
             labelled(window);
-            const compiled = compileDetector({ actions: { define: { label: { api: { path: 'labelItems.0.label' } } } } }, window);
+            const compiled = compileDetector(
+                { actions: { define: { label: { api: { path: 'labelItems.0.label' } } } } },
+                pageSources(window),
+            );
             const reader = new NativeReader(window, compiled.names);
             const label = () => {
                 const state = createDetectorState();

@@ -1,13 +1,13 @@
-import { objectKeys } from '../../captured-globals.js';
-import { isFailure, isScalar } from './core.js';
-import { evaluateOccurrence } from './expressions.js';
+import { objectKeys } from '../../../captured-globals.js';
+import { isFailure, isScalar } from '../model/core.js';
+import { evaluateOccurrence } from './evaluate.js';
 
 /**
- * @typedef {import('./expressions.js').EvaluationContext} EvaluationContext
- * @typedef {import('./expressions.js').PayloadData} PayloadData
- * @typedef {import('./expressions.js').ActionOutcome} ActionOutcome
- * @typedef {import('./expressions.js').Node} Node
- * @typedef {import('./parse.js').CompiledDetector} CompiledDetector
+ * @typedef {import('./context.js').EvaluationContext} EvaluationContext
+ * @typedef {import('../model/types.js').PayloadData} PayloadData
+ * @typedef {import('../model/types.js').ActionOutcome} ActionOutcome
+ * @typedef {import('../model/types.js').Node} Node
+ * @typedef {import('../compile/compile.js').CompiledDetector} CompiledDetector
  */
 
 /** @typedef {'aborted' | 'error'} RunFailure */
