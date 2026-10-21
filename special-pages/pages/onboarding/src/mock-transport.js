@@ -69,7 +69,7 @@ export function mockTransport() {
                     }
 
                     const installOptions = /** @type {import('../app/types.js').GetStartedOption[]} */ ([]);
-                    if (url.searchParams.get('extensions') === 'true') installOptions.push('sideload-extensions');
+                    if (url.searchParams.get('sideloadExtensions') === 'true') installOptions.push('sideload-extensions');
                     if (url.searchParams.get('openAtStartup') === 'true') installOptions.push('open-at-startup');
                     if (installOptions.length > 0) {
                         stepDefinitions.getStarted = {
