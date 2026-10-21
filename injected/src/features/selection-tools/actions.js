@@ -13,6 +13,15 @@ import { primaryLanguage } from './classify.js';
 export const ASK_ACTION_ID = 'ask';
 
 /**
+ * A length limit native sent, or undefined for none: anything but an integer is ignored.
+ * @param {unknown} value
+ * @returns {number | undefined}
+ */
+function lengthLimit(value) {
+    return Number.isInteger(value) ? /** @type {number} */ (value) : undefined;
+}
+
+/**
  * Unknown conditions never match: an action gated on something the toolbar can't evaluate stays hidden.
  * @param {SelectionAction} action
  * @param {SelectionContext} context
@@ -23,6 +32,10 @@ export function fits(action, context, editable) {
     if (action.selectionTypes?.length && !action.selectionTypes.includes(context.shape)) return false;
     if (action.editable !== undefined && action.editable !== editable) return false;
     if (action.condition !== undefined && !(action.condition === 'differentLanguage' && context.differentLanguage)) return false;
+    const minLength = lengthLimit(action.minLength);
+    const maxLength = lengthLimit(action.maxLength);
+    if (minLength !== undefined && context.textLength < minLength) return false;
+    if (maxLength !== undefined && context.textLength > maxLength) return false;
     return true;
 }
 

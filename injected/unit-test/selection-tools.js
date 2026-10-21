@@ -51,9 +51,9 @@ const tone = {
 };
 
 /** @type {SelectionContext} */
-const englishText = { shape: 'text', languageTag: 'en', differentLanguage: false };
+const englishText = { shape: 'text', languageTag: 'en', differentLanguage: false, textLength: 40 };
 /** @type {SelectionContext} */
-const spanishText = { shape: 'text', languageTag: 'es', differentLanguage: true };
+const spanishText = { shape: 'text', languageTag: 'es', differentLanguage: true, textLength: 40 };
 
 describe('selectionTools classify', () => {
     it('reads primary language subtags', () => {
@@ -98,6 +98,7 @@ describe('selectionTools classify', () => {
             shape: 'word',
             languageTag: 'es',
             differentLanguage: true,
+            textLength: 5,
         });
     });
 
@@ -132,6 +133,7 @@ describe('selectionTools classify', () => {
             shape: 'text',
             languageTag: 'es',
             differentLanguage: true,
+            textLength: 33,
         });
         expect(classify('const a = 1; let b = 2; var c = 3;', { userLanguage: 'de' }).differentLanguage).toBeFalse();
     });
@@ -150,6 +152,44 @@ describe('selectionTools actions', () => {
         expect(fits(fixGrammar, englishText, true)).toBeTrue();
         expect(fits({ id: 'x', label: 'X', condition: 'differentLanguage' }, englishText, false)).toBeFalse();
         expect(fits({ id: 'x', label: 'X', condition: 'differentLanguage' }, spanishText, false)).toBeTrue();
+    });
+
+    it('counts the trimmed text for length limits', () => {
+        expect(classify('  hello world  ', english).textLength).toBe(11);
+    });
+
+    it('fits an action only within its inclusive length limits', () => {
+        /** @param {number} length */
+        const at = (length) => ({ ...englishText, textLength: length });
+        /** @type {SelectionAction} */
+        const summary = { id: 'summarize', label: 'Summarize', minLength: 150, maxLength: 1499 };
+        /** @type {SelectionAction} */
+        const keyPoints = { id: 'keyPoints', label: 'Key points', minLength: 1500 };
+        /** @type {SelectionAction} */
+        const expand = { id: 'expand', label: 'Expand', maxLength: 200 };
+        expect([149, 150, 1499, 1500].map((length) => fits(summary, at(length), false))).toEqual([false, true, true, false]);
+        expect([1499, 1500, 100000].map((length) => fits(keyPoints, at(length), false))).toEqual([false, true, true]);
+        expect([0, 200, 201].map((length) => fits(expand, at(length), false))).toEqual([true, true, false]);
+        // Summarize and Key points never both fit.
+        for (const length of [149, 150, 1499, 1500]) {
+            expect(fits(summary, at(length), false) && fits(keyPoints, at(length), false))
+                .withContext(String(length))
+                .toBeFalse();
+        }
+    });
+
+    it('ignores length limits that are not integers', () => {
+        for (const limit of [150.5, '150', null, NaN, Infinity, true]) {
+            const action = /** @type {SelectionAction} */ (
+                /** @type {unknown} */ ({ id: 'x', label: 'X', minLength: limit, maxLength: limit })
+            );
+            expect(fits(action, { ...englishText, textLength: 1 }, false))
+                .withContext(String(limit))
+                .toBeTrue();
+            expect(fits(action, { ...englishText, textLength: 1000 }, false))
+                .withContext(String(limit))
+                .toBeTrue();
+        }
     });
 
     it('never matches unknown conditions or a native "ask"', () => {

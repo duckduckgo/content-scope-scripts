@@ -213,6 +213,14 @@ export interface SelectionAction {
    * An extra requirement. Unknown conditions never match.
    */
   condition?: "differentLanguage";
+  /**
+   * Only fits selections at least this many characters long, counted after trimming. Absent, or not an integer, means no lower limit.
+   */
+  minLength?: number;
+  /**
+   * Only fits selections at most this many characters long, counted after trimming. Absent, or not an integer, means no upper limit.
+   */
+  maxLength?: number;
   parameter?: ActionParameter;
 }
 export interface GlyphPath {

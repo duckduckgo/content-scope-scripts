@@ -7,6 +7,7 @@
  * @property {SelectionType} shape
  * @property {string} languageTag Primary language subtag, e.g. "es"
  * @property {boolean} differentLanguage Not code, and not in the user's language
+ * @property {number} textLength Characters in the trimmed text
  */
 
 const HAN = /\p{Script=Han}/gu;
@@ -134,5 +135,5 @@ export function classify(rawText, { userLanguage, inCodeElement = false, markedL
     } else if (text.length > LONG_TEXT_CHARS) {
         shape = 'long';
     }
-    return { shape, languageTag, differentLanguage: !isCode && languageTag !== userTag };
+    return { shape, languageTag, differentLanguage: !isCode && languageTag !== userTag, textLength: text.length };
 }
