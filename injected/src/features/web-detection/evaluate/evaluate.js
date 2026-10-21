@@ -1,201 +1,28 @@
-import { numberIsFinite, objectKeys } from '../../captured-globals.js';
-import { DetectionError, decides, errorPath, isFailure, isScalar, typeName } from './core.js';
-import { compileDetector } from './parse.js';
-import { NativeReader, readPath, testPredicate } from './predicates.js';
-import { ItemBuffer, eachMember, isList } from './sources.js';
+import { numberIsFinite, objectKeys } from '../../../captured-globals.js';
+import { DetectionError, decides, errorPath, isFailure, isScalar, typeName } from '../model/core.js';
+import { ItemBuffer, eachMember, isList } from '../model/lists.js';
+import { readPath } from '../predicates/fields.js';
+import { testPredicate } from '../predicates/predicates.js';
 
 /**
- * @typedef {import('./core.js').Failure} Failure
- * @typedef {import('./predicates.js').CompiledPredicate} CompiledPredicate
- * @typedef {import('./predicates.js').PredicateContext} PredicateContext
+ * @typedef {import('../model/core.js').Failure} Failure
+ * @typedef {import('../model/types.js').ActionNode} ActionNode
+ * @typedef {import('../model/types.js').ArithmeticNode} ArithmeticNode
+ * @typedef {import('../model/types.js').CompiledPayloadField} CompiledPayloadField
+ * @typedef {import('../model/types.js').ExprNode} ExprNode
+ * @typedef {import('../model/types.js').ItemBinder} ItemBinder
+ * @typedef {import('../model/types.js').ItemNode} ItemNode
+ * @typedef {import('../model/types.js').LengthNode} LengthNode
+ * @typedef {import('../model/types.js').LogicNode} LogicNode
+ * @typedef {import('../model/types.js').Node} Node
+ * @typedef {import('../model/types.js').PayloadData} PayloadData
+ * @typedef {import('../model/types.js').Position} Position
+ * @typedef {import('../model/types.js').RefNode} RefNode
+ * @typedef {import('../model/types.js').SourceNode} SourceNode
+ * @typedef {import('../model/types.js').UsingNode} UsingNode
+ * @typedef {import('../predicates/predicates.js').CompiledPredicate} CompiledPredicate
+ * @typedef {import('./context.js').EvaluationContext} EvaluationContext
  */
-
-/**
- * @template Body
- * @typedef {import('./sources.js').Source<Body>} Source
- */
-
-/**
- * What an expression's position expects. `spread` is an operand of `sum`, `mul`, `any`, `all` and
- * `none` that may be a list, contributing each item. `root` is a node or a list of nodes.
- *
- * @typedef {'boolean' | 'value' | 'number' | 'list' | 'spread' | 'root'} Position
- */
-
-/**
- * @typedef {object} NodeBase
- * @property {string} path - the config path of the key the expression compiles from, which a failure or error arising at it takes
- * @property {Position} position - the position this occurrence fills. With `is`, the value position the predicate tests
- * @property {CompiledPredicate} [is]
- * @property {ItemBinder} [binder] - the innermost `using`, `where` or `field` this expression sits in
- * @property {boolean} [perItem] - whether it reads `self` of `binder`, and so is computed per item
- * @property {'number' | 'boolean'} [single] - for an operand of `sum`, `mul`, `any`, `all` or `none`, what it gives when it is not a list
- */
-
-/**
- * A `using`, `where` or `field`, which binds `self` to each value it reads from or tests. `node` is its
- * item node, created when an expression inside reads `self`.
- *
- * @typedef {{ node?: ItemNode }} ItemBinder
- */
-
-/**
- * @typedef {NodeBase & { kind: 'literal', value: number | boolean | string | null }} LiteralNode
- * @typedef {NodeBase & { kind: 'source', source: Source<any>, bodies: unknown[], binders: ItemBinder[] }} SourceNode - `binders`: the `where` and `field` its bodies hold
- * @typedef {NodeBase & { kind: 'length', operand: Node }} LengthNode
- * @typedef {NodeBase & { kind: 'expr', operand: Node }} ExprNode
- * @typedef {NodeBase & { kind: 'using', root: Node, operand: Node, binds: ItemBinder }} UsingNode - `operand` reads `root`'s value through `self`
- * @typedef {NodeBase & { kind: 'list', entries: Node[] }} ListNode - `{"expr": [...]}`, each entry in value position
- * @typedef {NodeBase & { kind: 'only', operand: Node }} OnlyNode
- * @typedef {NodeBase & { kind: 'sum' | 'mul' | 'div', operands: Node[] }} ArithmeticNode
- * @typedef {NodeBase & { kind: 'any' | 'all' | 'none' | 'and', operands: Node[] }} LogicNode
- * @typedef {NodeBase & { kind: 'if', test: Node, then: Node, else?: Node }} IfNode
- * @typedef {NodeBase & { kind: 'sequence', elements: Node[] }} SequenceNode - its elements in order, giving the last one's value
- * @typedef {NodeBase & { kind: 'ref', name: string }} RefNode
- * @typedef {NodeBase & { kind: 'item', binder: ItemBinder }} ItemNode - the value `self` is bound to in a `using`, `where` or `field`
- * @typedef {NodeBase & { kind: 'define', name: string, value: Node }} DefineNode
- * @typedef {NodeBase & { kind: 'fireEvent', type: string, data?: CompiledPayloadField[] }} FireEventNode
- * @typedef {NodeBase & { kind: 'breakageReportData', data?: CompiledPayloadField[] }} BreakageReportDataNode
- * @typedef {DefineNode | FireEventNode | BreakageReportDataNode} ActionNode
- * @typedef {LiteralNode | SourceNode | LengthNode | ExprNode | UsingNode | ListNode | OnlyNode | ArithmeticNode | LogicNode | IfNode | SequenceNode | RefNode | ItemNode | ActionNode} Node
- */
-
-/**
- * @typedef {object} CompiledPayloadField
- * @property {string} key
- * @property {string} path - the config path of the field, `<action>.data.<key>`
- * @property {Node} value
- * @property {CompiledPredicate} [when]
- * @property {Array<[string, CompiledPredicate]>} [buckets]
- */
-
-/**
- * What an action did in a run: it sent or wrote or bound, or a value it computes failed or errored.
- *
- * @typedef {'ran' | 'aborted' | 'error'} ActionOutcome
- */
-
-/**
- * @typedef {Record<string, string | number | boolean | null>} PayloadData
- */
-
-/**
- * The breakage entry `breakageReportData` writes: whether it has written, and the merged `data`.
- *
- * @typedef {{ written: boolean, data: PayloadData }} EntryWrites
- */
-
-/**
- * One run's state, threaded to every expression. An expression is computed each time evaluation
- * reaches it, and one that reads `self` of a `using`, `where` or `field` once per value bound.
- *
- * @implements {PredicateContext}
- */
-export class EvaluationContext {
-    /** @type {Map<string, unknown>} the run names `define` has bound */
-    runNames = new Map();
-    /** @type {Record<string, unknown>} scalar values bound, by name, for the debug notification */
-    measured = {};
-    /** @type {Array<{ type: string, data?: PayloadData }>} the events `fireEvent` has sent, in order */
-    events = [];
-    /** @type {Record<string, ActionOutcome>} each action evaluated, by config path */
-    outcomes = {};
-    /** @type {{ path: string, message: string } | undefined} the innermost expression an error was thrown from */
-    errorAt;
-    /** @type {Map<ItemBinder, { value: unknown, memo: Map<Node, unknown> }>} the value each `using`, `where` and `field` is binding */
-    frames = new Map();
-    /** @type {Map<ItemBinder, Map<Node, unknown>>} per `where` and `field`, the values of the expressions inside reading no `self`, for one evaluation of the source */
-    shared = new Map();
-
-    /**
-     * @param {NativeReader} reader
-     * @param {Map<string, unknown>} [detectorNames] - the detector's names, which outlive the run
-     * @param {EntryWrites} [entry] - the detector's breakage entry, which `breakageReportData` writes
-     */
-    constructor(reader, detectorNames = new Map(), entry = { written: false, data: {} }) {
-        this.reader = reader;
-        reader.beginRun();
-        this.detectorNames = detectorNames;
-        this.entry = entry;
-    }
-
-    /**
-     * @param {unknown} operand - a compiled operand of `eq` or a comparison, in value position. A selected
-     * list gives its one item
-     * @returns {unknown}
-     */
-    operand(operand) {
-        const node = /** @type {Node} */ (operand);
-        const value = evaluate(node, node.position, this);
-        return value instanceof ItemBuffer ? single(value) : value;
-    }
-
-    /**
-     * @param {unknown} expression - a compiled expression, read in the position it was compiled for
-     * @returns {unknown}
-     */
-    read(expression) {
-        const node = /** @type {Node} */ (expression);
-        return evaluate(node, node.position, this);
-    }
-
-    /**
-     * @param {unknown} expression - a compiled expression in boolean position, such as one in `where`
-     * @returns {unknown} the boolean, with `is` the one its predicate gives, or a `Failure`
-     */
-    test(expression) {
-        return evaluateOccurrence(/** @type {Node} */ (expression), this);
-    }
-
-    /**
-     * @param {unknown} expression - a compiled `args` expression in value position
-     * @returns {unknown} the value, with a selected list as a new array of its items, or a `Failure`
-     */
-    arg(expression) {
-        const value = this.read(expression);
-        if (!(value instanceof ItemBuffer)) return value;
-        const items = allItems(value);
-        if (isFailure(items)) return items;
-        // Copied by index: a method may change its argument, and the buffer is shared
-        /** @type {unknown[]} */
-        const array = [];
-        for (let i = 0; i < items.length; i++) array.push(items[i]);
-        return array;
-    }
-
-    /**
-     * @param {unknown} value - a value read, such as an operand of `in`
-     * @param {string} operator
-     * @returns {unknown[] | Failure | undefined} the items of a list, or `undefined` for any other value
-     */
-    items(value, operator) {
-        if (!isList(value, this)) return undefined;
-        return allItems(listOf(value, operator, this));
-    }
-
-    /**
-     * Run `fn` with `self` of a `using`, `where` or `field` bound to `value`. A binder no expression
-     * reads `self` of binds nothing.
-     *
-     * @template T
-     * @param {ItemBinder} binder
-     * @param {unknown} value
-     * @param {() => T} fn
-     * @returns {T}
-     */
-    bind(binder, value, fn) {
-        if (!binder.node) return fn();
-        // Frames are keyed by binder: a list may be pulled from inside another binder's frame
-        const previous = this.frames.get(binder);
-        this.frames.set(binder, { value, memo: new Map() });
-        try {
-            return fn();
-        } finally {
-            if (previous) this.frames.set(binder, previous);
-            else this.frames.delete(binder);
-        }
-    }
-}
 
 /**
  * The frame of the `using`, `where` or `field` a per-item expression reads `self` of.
@@ -391,7 +218,7 @@ function readSource(node, position, ctx) {
  * @param {ItemBuffer} buffer
  * @returns {unknown} the item, or a `Failure`
  */
-function single(buffer) {
+export function single(buffer) {
     const failure = buffer.pull(2);
     if (failure) return failure;
     if (buffer.values.length !== 1) {
@@ -434,7 +261,7 @@ function presence(buffer) {
  * @param {EvaluationContext} ctx
  * @returns {ItemBuffer}
  */
-function listOf(value, operator, ctx) {
+export function listOf(value, operator, ctx) {
     if (value instanceof ItemBuffer) return value;
     if (!isList(value, ctx)) throw new DetectionError(`'${operator}' takes a list, got ${typeName(value)}`);
     return new ItemBuffer(eachMember(value, ctx));
@@ -458,7 +285,7 @@ function readList(operand, operator, ctx) {
  * @param {ItemBuffer} buffer
  * @returns {unknown[] | Failure}
  */
-function allItems(buffer) {
+export function allItems(buffer) {
     return buffer.pull(Infinity) ?? buffer.values;
 }
 
@@ -752,19 +579,4 @@ function payloadValue(field, ctx) {
     }
     if (isFailure(value)) return value;
     return isScalar(value) && (typeof value !== 'number' || numberIsFinite(value)) ? value : OMIT;
-}
-
-/** @typedef {true | false | 'aborted'} ConditionResult */
-
-/**
- * Compile and evaluate a condition on its own, as a detector's `match`.
- *
- * @param {unknown} match
- * @param {object} [global] - the global object reads go through
- * @returns {ConditionResult} throws on a parse error or an error
- */
-export function evaluateCondition(match, global = globalThis) {
-    const compiled = compileDetector({ match, actions: { breakageReportData: {} } }, global);
-    const value = evaluateOccurrence(/** @type {Node} */ (compiled.match), new EvaluationContext(new NativeReader(global, compiled.names)));
-    return isFailure(value) ? 'aborted' : value === true;
 }

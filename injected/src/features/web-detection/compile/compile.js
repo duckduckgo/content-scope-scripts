@@ -1,92 +1,37 @@
-import { isArray, objectKeys } from '../../captured-globals.js';
+import { isArray, objectKeys } from '../../../captured-globals.js';
 import {
     ACTION_KEYS,
     ConfigParseError,
     DEFINE_NAME_PATTERN,
     EXPRESSION_KEYS,
-    FILLS,
     NAME_PATTERN,
     asArray,
     isExpressionObject,
     isPlainObject,
     isScalar,
     rejectUnknownKeys,
-} from './core.js';
-import { elementSource, textSource } from './matching.js';
-import { compilePredicate } from './predicates.js';
-import { apiSource, parseApiBody } from './sources.js';
+} from '../model/core.js';
+import { compilePredicate } from '../predicates/predicates.js';
+import { finish } from './positions.js';
 
 /**
- * @typedef {import('../../utils.js').FeatureState} FeatureState
- * @typedef {import('../../config-feature.js').ConditionBlockOrArray} ConditionBlockOrArray
- * @typedef {import('./expressions.js').Node} Node
- * @typedef {import('./expressions.js').NodeBase} NodeBase
- * @typedef {import('./expressions.js').SourceNode} SourceNode
- * @typedef {import('./expressions.js').IfNode} IfNode
- * @typedef {import('./expressions.js').ItemBinder} ItemBinder
- * @typedef {import('./expressions.js').ItemNode} ItemNode
- * @typedef {import('./expressions.js').Position} Position
- * @typedef {import('./expressions.js').CompiledPayloadField} CompiledPayloadField
+ * @typedef {import('../model/types.js').Node} Node
+ * @typedef {import('../model/types.js').NodeBase} NodeBase
+ * @typedef {import('../model/types.js').IfNode} IfNode
+ * @typedef {import('../model/types.js').ItemBinder} ItemBinder
+ * @typedef {import('../model/types.js').ItemNode} ItemNode
+ * @typedef {import('../model/types.js').Position} Position
+ * @typedef {import('../model/types.js').CompiledPayloadField} CompiledPayloadField
+ * @typedef {import('./detector-config.js').RawDetectorConfig} RawDetectorConfig
  */
 
 /**
  * @template Body
- * @typedef {import('./sources.js').Source<Body>} Source
+ * @typedef {import('../model/types.js').Source<Body>} Source
  */
 
 /**
- * @typedef {import('./sources.js').ApiBody} ApiBody
- */
-
-/**
- * Raw detector config. `match` and `actions` are read as `unknown` and validated by the compiler,
- * since the pinned privacy-configuration schema predates them.
- *
- * @typedef {object} RawDetectorConfig
- * @property {FeatureState} [state]
- * @property {RawTriggers} [triggers]
- * @property {unknown} [match] - an expression in boolean position
- * @property {unknown} [actions] - an expression, or a sequence of them
- */
-
-/**
- * @typedef {object} RawTriggers
- * @property {{ state?: FeatureState, runConditions?: unknown }} [breakageReport]
- * @property {{ state?: FeatureState, runConditions?: unknown, when?: { intervalMs: number[] } }} [auto]
- */
-
-/**
- * Base properties supported by all triggers.
- *
- * @typedef {object} TriggerBase
- * @property {FeatureState} state - Whether this trigger is enabled
- * @property {import('../../config-feature.js').ConditionBlockOrArray} [runConditions] - Conditions that must be met to run
- */
-
-/**
- * @typedef {TriggerBase & {
- *  when: {
- *    intervalMs: number[];
- *  };
- * }} AutoTrigger
- */
-
-/**
- * @typedef {object} Triggers
- * @property {TriggerBase} breakageReport - Whether to run in the breakage report flow
- * @property {AutoTrigger} auto - Whether to run automatically at specified intervals
- */
-
-/**
- * Normalized detector configuration.
- *
- * Every optional field from the raw config is resolved to a concrete value.
- * Consumers never need fallback defaults.
- *
- * @typedef {object} DetectorConfig
- * @property {FeatureState} state - Whether the detector is enabled
- * @property {CompiledDetector | { error: string }} compiled - `match` and `actions` compiled, or why they failed to parse
- * @property {Triggers} triggers - Trigger configurations
+ * @typedef {import('../sources/api.js').ApiBody} ApiBody
  */
 
 /**
@@ -111,7 +56,7 @@ const RESERVED_LATER = new Set(['aggregate', 'stable', 'confirm', 'retain']);
  * @typedef {{ node: Node, single: 'number' | 'boolean' }} Slot
  */
 
-class Scope {
+export class Scope {
     /** @type {Node[]} */
     nodes = [];
     /** @type {Slot[]} */
@@ -132,7 +77,7 @@ class Scope {
      */
     constructor(sources) {
         this.sources = sources;
-        /** @type {import('./predicates.js').PredicateHooks} */
+        /** @type {import('../model/types.js').PredicateHooks} */
         this.hooks = {
             names: this.readerNames,
             expression: (raw, path, position) => {
@@ -490,7 +435,7 @@ function compileSelf(raw, position, path, scope, key = 'self') {
     /** @type {ItemBinder[]} */
     const binders = [];
     const parsed = within(scope.binderSinks, binders, () =>
-        within(scope.operandSinks, deps, () => parseApiBody(raw, path, scope.hooks, key === 'using' ? 'using' : 'self')),
+        within(scope.operandSinks, deps, () => source.parse(raw, path, scope.hooks, key === 'using' ? 'using' : 'self')),
     );
     parsed.root = root;
     return makeNode(scope, { kind: 'source', source, bodies: [parsed], binders, path, position }, deps);
@@ -538,148 +483,6 @@ function compileSource(key, body, position, path, scope) {
 }
 
 /**
- * The positions an expression fills.
- *
- * @param {Node} node
- * @returns {ReadonlySet<Position>}
- */
-function fillsOf(node) {
-    switch (node.kind) {
-        case 'literal':
-            if (typeof node.value === 'number') return FILLS.number;
-            return typeof node.value === 'boolean' ? FILLS.boolean : FILLS.value;
-        case 'source': {
-            const [first, ...rest] = node.bodies.map((body) => node.source.fills(body));
-            return new Set([...(first ?? [])].filter((position) => rest.every((fills) => fills.has(position))));
-        }
-        case 'length':
-        case 'only':
-        case 'sum':
-        case 'mul':
-        case 'div':
-            return FILLS.number;
-        case 'any':
-        case 'all':
-        case 'none':
-        case 'and':
-            return FILLS.boolean;
-        case 'if': {
-            // With no branch taken, `undefined`, which fills value position only
-            const elseFills = node.else ? occurrenceFills(node.else) : FILLS.value;
-            return new Set([...occurrenceFills(node.then)].filter((p) => elseFills.has(p) && p !== 'list'));
-        }
-        case 'sequence':
-            return occurrenceFills(/** @type {Node} */ (node.elements[node.elements.length - 1]));
-        case 'ref':
-        case 'item':
-            // A bound value may be any value, and is checked where it is read
-            return FILLS.any;
-        case 'expr':
-        case 'using':
-            return occurrenceFills(node.operand);
-        case 'list':
-            return FILLS.array;
-        case 'define':
-        case 'fireEvent':
-        case 'breakageReportData':
-            // An action gives `undefined`
-            return FILLS.value;
-    }
-}
-
-/**
- * The positions an expression fills where it sits: with `is`, a boolean.
- *
- * @param {Node} node
- * @returns {ReadonlySet<Position>}
- */
-function occurrenceFills(node) {
-    return node.is ? FILLS.boolean : fillsOf(node);
-}
-
-/**
- * Mark the expressions computed per item: those reading `self` of the `using`, `where` or `field` they
- * sit in. One reading no `self` inside a `where` is computed once per evaluation of the source.
- *
- * @param {Scope} scope
- */
-function markPerItem(scope) {
-    /** @type {Map<Node, boolean>} */
-    const marked = new Map();
-    /**
-     * @param {Node} node
-     * @returns {boolean}
-     */
-    const visit = (node) => {
-        const seen = marked.get(node);
-        if (seen !== undefined) return seen;
-        const perItem =
-            node.kind === 'item' ||
-            (node.binder !== undefined && (scope.deps.get(node) ?? []).some((dep) => dep.binder === node.binder && visit(dep)));
-        marked.set(node, perItem);
-        if (perItem) node.perItem = true;
-        return perItem;
-    };
-    scope.nodes.forEach(visit);
-}
-
-/**
- * Settle each operand slot's position, then check every expression fills its position.
- *
- * @param {Scope} scope
- */
-function finish(scope) {
-    markPerItem(scope);
-    for (const { node, single } of scope.slots) {
-        // `element` without `field` and `text` are the condition leaf under any / all / none: a boolean
-        const leaf = single === 'boolean' && isPresenceLeaf(node);
-        node.position = fillsOf(node).has('list') && !leaf ? 'spread' : single;
-        node.single = single;
-    }
-    for (const node of scope.nodes) {
-        if (!fits(fillsOf(node), node.position)) {
-            const what =
-                node.kind === 'source'
-                    ? `'${/** @type {SourceNode} */ (node).source.key}'${node.bodies.some((b) => /** @type {any} */ (b).field) ? ' with field' : ''}`
-                    : `'${node.kind}'`;
-            const hint =
-                node.position === 'boolean' && fillsOf(node).has('number')
-                    ? '; numbers become booleans only through `is`'
-                    : node.kind === 'if' && !node.else
-                      ? '; without `else` it gives `undefined` when the condition does not hold'
-                      : '';
-            throw new ConfigParseError(node.path, `${what} does not fill ${node.position} position${hint}`);
-        }
-    }
-}
-
-/**
- * Whether an expression is the condition leaf: `element` without `field`, or `text`, directly or
- * through `expr`.
- *
- * @param {Node} node
- * @returns {boolean}
- */
-function isPresenceLeaf(node) {
-    let current = node;
-    while ((current.kind === 'expr' || current.kind === 'using') && !current.operand.is) current = current.operand;
-    if (current.kind !== 'source') return false;
-    const key = current.source.key;
-    return key === 'text' || (key === 'element' && current.bodies.every((body) => !(/** @type {{ field?: unknown }} */ (body).field)));
-}
-
-/**
- * @param {ReadonlySet<Position>} fills
- * @param {Position} position
- * @returns {boolean}
- */
-function fits(fills, position) {
-    if (position === 'spread') return fills.has('list');
-    if (position === 'root') return fills.has('list') || fills.has('value');
-    return fills.has(position);
-}
-
-/**
  * @param {unknown} raw
  * @param {string} path
  * @param {Scope} scope
@@ -723,120 +526,16 @@ const DETECTOR_KEYS = ['state', 'triggers', 'match', 'actions'];
  * exists when evaluation reaches it.
  *
  * @param {RawDetectorConfig} config
- * @param {object} global - the global object `api` reads from
+ * @param {Record<string, Source<any>>} sources - the sources by expression key, such as `pageSources(global)`
  * @returns {CompiledDetector} throws a `ConfigParseError`
  */
-export function compileDetector(config, global) {
+export function compileDetector(config, sources) {
     if (!isPlainObject(config)) throw new ConfigParseError('detector', 'a detector takes an object');
     rejectUnknownKeys(config, DETECTOR_KEYS, 'detector');
     if (config.actions === undefined) throw new ConfigParseError('actions', 'a detector needs `actions`');
-    const scope = new Scope({ element: elementSource, text: textSource, api: apiSource(global) });
+    const scope = new Scope(sources);
     const match = config.match === undefined ? undefined : compileExpr(config.match, 'boolean', 'match', scope);
     const actions = compileBody(config.actions, 'value', 'actions', scope);
     finish(scope);
     return { ...(match && { match }), actions, names: scope.readerNames };
-}
-
-/**
- * Default runConditions — by default, detectors only trigger in the top frame.
- * Specifying custom runConditions in config replaces (not merges) these defaults.
- */
-const DEFAULT_RUN_CONDITIONS = /** @type {import('../../config-feature.js').ConditionBlock[]} */ ([
-    {
-        context: { top: true },
-    },
-]);
-
-/**
- * Validate that a name matches the required format.
- * Names must start with a letter and contain only alphanumeric characters and underscores.
- *
- * @param {string} name
- * @returns {boolean}
- */
-function isValidName(name) {
-    return NAME_PATTERN.test(name);
-}
-
-/**
- * Normalize a raw detector configuration by resolving all optional fields to concrete values.
- * After normalization, consumers never need fallback defaults.
- *
- * Default behavior (when fields are omitted from config):
- * - Detector is enabled
- * - breakageReport trigger is enabled, restricted to top frame
- * - auto trigger is disabled (opt-in only), restricted to top frame, no intervals
- *
- * A detector that fails to parse keeps the parse error, and does not run.
- *
- * @param {RawDetectorConfig} config
- * @param {object} global - the global object `api` reads from
- * @returns {DetectorConfig}
- */
-function normalizeDetector(config, global) {
-    /** @type {DetectorConfig['compiled']} */
-    let compiled;
-    try {
-        compiled = compileDetector(config, global);
-    } catch (e) {
-        compiled = { error: e instanceof Error ? e.message : String(e) };
-    }
-
-    return {
-        // Detectors are enabled by default
-        state: config.state ?? 'enabled',
-        compiled,
-        triggers: {
-            // breakageReport: enabled by default - detectors participate in breakage report flow
-            breakageReport: {
-                state: config.triggers?.breakageReport?.state ?? 'enabled',
-                runConditions: /** @type {ConditionBlockOrArray} */ (
-                    config.triggers?.breakageReport?.runConditions ?? DEFAULT_RUN_CONDITIONS
-                ),
-            },
-            // auto: disabled by default - detectors must opt in to automatic execution
-            auto: {
-                state: config.triggers?.auto?.state ?? 'disabled',
-                runConditions: /** @type {ConditionBlockOrArray} */ (config.triggers?.auto?.runConditions ?? DEFAULT_RUN_CONDITIONS),
-                when: config.triggers?.auto?.when ?? { intervalMs: [] },
-            },
-        },
-    };
-}
-
-/**
- * Parse detector configurations from raw config.
- *
- * @param {Record<string, Record<string, RawDetectorConfig>> | undefined} detectorsConfig
- * @param {object} [global] - the global object `api` reads from
- * @returns {Record<string, Record<string, DetectorConfig>>}
- */
-export function parseDetectors(detectorsConfig, global = globalThis) {
-    /** @type {Record<string, Record<string, DetectorConfig>>} */
-    const detectors = {};
-
-    if (!detectorsConfig) {
-        return detectors;
-    }
-
-    for (const [groupName, groupConfig] of Object.entries(detectorsConfig)) {
-        if (!isValidName(groupName)) {
-            continue;
-        }
-
-        /** @type {Record<string, DetectorConfig>} */
-        const groupDetectors = {};
-
-        for (const [detectorId, detectorConfig] of Object.entries(groupConfig)) {
-            if (!isValidName(detectorId)) {
-                continue;
-            }
-
-            groupDetectors[detectorId] = normalizeDetector(detectorConfig, global);
-        }
-
-        detectors[groupName] = groupDetectors;
-    }
-
-    return detectors;
 }

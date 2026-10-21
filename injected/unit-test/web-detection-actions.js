@@ -1,8 +1,9 @@
-import { compileDetector } from '../src/features/web-detection/parse.js';
-import { EvaluationContext } from '../src/features/web-detection/expressions.js';
-import { NativeReader } from '../src/features/web-detection/predicates.js';
-import { ConfigParseError } from '../src/features/web-detection/core.js';
-import { breakageEntry, createDetectorState, runDetector } from '../src/features/web-detection/actions.js';
+import { compileDetector } from '../src/features/web-detection/compile/compile.js';
+import { pageSources } from '../src/features/web-detection/sources/index.js';
+import { EvaluationContext } from '../src/features/web-detection/evaluate/context.js';
+import { NativeReader } from '../src/features/web-detection/evaluate/native-reader.js';
+import { ConfigParseError } from '../src/features/web-detection/model/core.js';
+import { breakageEntry, createDetectorState, runDetector } from '../src/features/web-detection/evaluate/run.js';
 import WebDetection from '../src/features/web-detection.js';
 
 /**
@@ -35,7 +36,7 @@ function makeGlobal() {
  * @param {object} [global]
  */
 function detector(config, global = makeGlobal()) {
-    const compiled = compileDetector(config, global);
+    const compiled = compileDetector(config, pageSources(global));
     const reader = new NativeReader(global, compiled.names);
     const state = createDetectorState();
     /** @type {Array<{ type: string, data?: object }>} */
@@ -59,7 +60,7 @@ function detector(config, global = makeGlobal()) {
  * @param {string} message
  */
 function expectParseError(config, message) {
-    expect(() => compileDetector(/** @type {any} */ (config), {})).toThrowMatching(
+    expect(() => compileDetector(/** @type {any} */ (config), pageSources({}))).toThrowMatching(
         (e) => e instanceof ConfigParseError && e.message.includes(message),
     );
 }
@@ -552,7 +553,7 @@ describe('WebDetection actions', () => {
         });
 
         it('compiles a `ref` to a name no `define` binds', () => {
-            expect(() => compileDetector({ actions: { define: { x: { ref: 'never' } } } }, {})).not.toThrow();
+            expect(() => compileDetector({ actions: { define: { x: { ref: 'never' } } } }, pageSources({}))).not.toThrow();
         });
     });
 

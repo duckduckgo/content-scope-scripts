@@ -1,12 +1,17 @@
 import { JSDOM } from 'jsdom';
-import { parseDetectors } from '../src/features/web-detection/parse.js';
-import { evaluateCondition } from '../src/features/web-detection/expressions.js';
+import { parseDetectors } from '../src/features/web-detection/compile/detector-config.js';
+import { compileDetector } from '../src/features/web-detection/compile/compile.js';
+import { EvaluationContext } from '../src/features/web-detection/evaluate/context.js';
+import { evaluateOccurrence } from '../src/features/web-detection/evaluate/evaluate.js';
+import { NativeReader } from '../src/features/web-detection/evaluate/native-reader.js';
+import { isFailure } from '../src/features/web-detection/model/core.js';
+import { pageSources } from '../src/features/web-detection/sources/index.js';
 import WebDetection from '../src/features/web-detection.js';
 import WebEvents from '../src/features/web-events.js';
 
 /**
- * @typedef {import('../src/features/web-detection/parse.js').RawDetectorConfig} RawDetectorConfig
- * @typedef {import('../src/features/web-detection/actions.js').BreakageEntry} BreakageEntry
+ * @typedef {import('../src/features/web-detection/compile/detector-config.js').RawDetectorConfig} RawDetectorConfig
+ * @typedef {import('../src/features/web-detection/evaluate/run.js').BreakageEntry} BreakageEntry
  */
 
 /**
@@ -69,6 +74,22 @@ function runDetector(detectorConfig, env = {}) {
  * @returns {RawDetectorConfig}
  */
 const detects = (match, rest = {}) => ({ ...rest, match, actions: { breakageReportData: {} } });
+
+/**
+ * Compile and evaluate a condition on its own, as a detector's `match`.
+ *
+ * @param {unknown} match
+ * @param {object} [global] - the global object reads go through
+ * @returns {true | false | 'aborted'} throws on a parse error or an error
+ */
+function evaluateCondition(match, global = globalThis) {
+    const compiled = compileDetector({ match, actions: { breakageReportData: {} } }, pageSources(global));
+    const value = evaluateOccurrence(
+        /** @type {import('../src/features/web-detection/model/types.js').Node} */ (compiled.match),
+        new EvaluationContext(new NativeReader(global, compiled.names)),
+    );
+    return isFailure(value) ? 'aborted' : value === true;
+}
 
 describe('WebDetection', () => {
     describe('parseDetectors', () => {
@@ -145,7 +166,7 @@ describe('WebDetection', () => {
 
         /**
          * @param {unknown} detectorConfig
-         * @returns {import('../src/features/web-detection/parse.js').DetectorConfig}
+         * @returns {import('../src/features/web-detection/compile/detector-config.js').DetectorConfig}
          */
         const oneDetectorConfigParsed = (detectorConfig) => {
             const result = parseDetectors({
@@ -158,7 +179,7 @@ describe('WebDetection', () => {
 
         /**
          * @param {unknown} detectorConfig
-         * @returns {import('../src/features/web-detection/parse.js').CompiledDetector}
+         * @returns {import('../src/features/web-detection/compile/compile.js').CompiledDetector}
          */
         const compiledOf = (detectorConfig) => {
             const compiled = oneDetectorConfigParsed(detectorConfig).compiled;

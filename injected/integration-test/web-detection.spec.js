@@ -117,7 +117,7 @@ class WebDetectionTestHelper {
     /**
      * Run detectors via breakageReporting messaging and extract webDetection results.
      * WebDetection is invoked by breakageReporting via callFeatureMethod().
-     * @returns {Promise<import('../src/features/web-detection/actions.js').BreakageEntry[]>}
+     * @returns {Promise<import('../src/features/web-detection/evaluate/run.js').BreakageEntry[]>}
      */
     async runDetectors() {
         await this.collector.simulateSubscriptionMessage('breakageReporting', 'getBreakageReportValues', {});

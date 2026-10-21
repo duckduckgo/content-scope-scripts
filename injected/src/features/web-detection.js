@@ -2,16 +2,16 @@ import ContentFeature from '../content-feature.js';
 // eslint-disable-next-line no-redeclare
 import { hasOwnProperty } from '../captured-globals.js';
 import { timeDetector } from './detector-perf.js';
-import { parseDetectors } from './web-detection/parse.js';
-import { EvaluationContext } from './web-detection/expressions.js';
-import { NativeReader } from './web-detection/predicates.js';
-import { breakageEntry, createDetectorState, detectorNameScalars, runDetector } from './web-detection/actions.js';
+import { parseDetectors } from './web-detection/compile/detector-config.js';
+import { EvaluationContext } from './web-detection/evaluate/context.js';
+import { NativeReader } from './web-detection/evaluate/native-reader.js';
+import { breakageEntry, createDetectorState, detectorNameScalars, runDetector } from './web-detection/evaluate/run.js';
 
 /**
- * @typedef {import('./web-detection/parse.js').DetectorConfig} DetectorConfig
- * @typedef {import('./web-detection/expressions.js').PayloadData} PayloadData
- * @typedef {import('./web-detection/actions.js').DetectorState} DetectorState
- * @typedef {import('./web-detection/actions.js').BreakageEntry} BreakageEntry
+ * @typedef {import('./web-detection/compile/detector-config.js').DetectorConfig} DetectorConfig
+ * @typedef {import('./web-detection/model/types.js').PayloadData} PayloadData
+ * @typedef {import('./web-detection/evaluate/run.js').DetectorState} DetectorState
+ * @typedef {import('./web-detection/evaluate/run.js').BreakageEntry} BreakageEntry
  */
 
 /**

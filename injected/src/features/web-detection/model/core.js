@@ -9,7 +9,7 @@
  * - a `ConfigParseError` is config that does not fit the grammar. It is thrown at parse time.
  */
 
-import { isArray, objectKeys } from '../../captured-globals.js';
+import { isArray, objectKeys } from '../../../captured-globals.js';
 
 export class Failure {
     /**
@@ -80,7 +80,7 @@ export class ConfigParseError extends Error {
  * number position, `array` a list that stays one, such as `{"expr": [...]}`, and `any` a value that may
  * be a list, such as a source read in boolean position for whether it holds an item.
  *
- * @type {Record<'number' | 'boolean' | 'value' | 'list' | 'array' | 'any', ReadonlySet<import('./expressions.js').Position>>}
+ * @type {Record<'number' | 'boolean' | 'value' | 'list' | 'array' | 'any', ReadonlySet<import('./types.js').Position>>}
  */
 export const FILLS = {
     number: new Set(['number', 'value']),
