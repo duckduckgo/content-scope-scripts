@@ -1379,6 +1379,176 @@ describe('WebDetection expressions', () => {
         });
     });
 
+    describe('compiled tree', () => {
+        /**
+         * @param {any} detector
+         * @returns {any}
+         */
+        const compile = (detector) => compileDetector(detector, {});
+
+        it('compiles a predicate to nodes with their config paths', () => {
+            const { match } = compile({ match: { ref: 'loadEventEnd', is: { gt: 0, lt: 8000 } }, actions: REPORT });
+            expect(match.is).toEqual({
+                kind: 'combine',
+                combinator: 'all',
+                entries: [
+                    { kind: 'compare', op: 'gt', value: 0, path: 'match.is.gt', scalar: true },
+                    { kind: 'compare', op: 'lt', value: 8000, path: 'match.is.lt', scalar: true },
+                ],
+                path: 'match.is',
+                scalar: true,
+            });
+        });
+
+        it('keeps the operands of in and of comparisons as expressions', () => {
+            const { match } = compile({
+                match: { ref: 'type', is: { in: ['reload', { ref: 'other' }], eq: { ref: 'other' } } },
+                actions: REPORT,
+            });
+            const [within, equal] = match.is.entries;
+            expect(within).toEqual(
+                jasmine.objectContaining({
+                    kind: 'in',
+                    entries: [{ literal: 'reload' }, { operand: jasmine.objectContaining({ kind: 'ref', name: 'other' }) }],
+                    path: 'match.is.in',
+                }),
+            );
+            expect(equal).toEqual(
+                jasmine.objectContaining({ kind: 'compare', op: 'eq', operand: jasmine.objectContaining({ kind: 'ref', name: 'other' }) }),
+            );
+        });
+
+        it('guards the other keys with fails and type', () => {
+            const { match } = compile({ match: { ref: 'n', is: { gte: 1, fails: false } }, actions: REPORT });
+            expect(match.is).toEqual(
+                jasmine.objectContaining({
+                    kind: 'guarded',
+                    guard: jasmine.objectContaining({
+                        kind: 'combine',
+                        entries: [{ kind: 'fails', expected: false, path: 'match.is.fails', scalar: false }],
+                    }),
+                    rest: jasmine.objectContaining({
+                        kind: 'combine',
+                        entries: [jasmine.objectContaining({ kind: 'compare', op: 'gte' })],
+                    }),
+                }),
+            );
+        });
+
+        it('reads item properties under where', () => {
+            const { match } = compile({
+                match: { element: { selector: 'img', where: { complete: true } }, using: 'length', is: 1 },
+                actions: REPORT,
+            });
+            expect(match.root.bodies[0].where).toEqual(
+                jasmine.objectContaining({
+                    kind: 'where',
+                    path: 'match.element.where',
+                    predicate: jasmine.objectContaining({
+                        kind: 'combine',
+                        entries: [
+                            {
+                                kind: 'read',
+                                field: { path: 'match.element.where.complete', names: ['complete'] },
+                                next: { kind: 'compare', op: 'eq', value: true, path: 'match.element.where.complete', scalar: true },
+                                path: 'match.element.where.complete',
+                                scalar: false,
+                            },
+                        ],
+                    }),
+                }),
+            );
+        });
+
+        it('compiles payload buckets in order', () => {
+            const { actions } = compile({
+                actions: { breakageReportData: { data: { n: { value: { ref: 'n' }, buckets: { low: { lt: 5 }, high: { gte: 5 } } } } } },
+            });
+            const buckets = actions.data[0].buckets;
+            expect(buckets.map((/** @type {[string, any]} */ [name, bucket]) => [name, bucket.entries[0].op, bucket.path])).toEqual([
+                ['low', 'lt', 'actions.breakageReportData.data.n.buckets.low'],
+                ['high', 'gte', 'actions.breakageReportData.data.n.buckets.high'],
+            ]);
+        });
+
+        it('holds no function outside the sources, and every kind of predicate', () => {
+            const detectors = [
+                { match: { ref: 'n', is: { gt: 0, lt: 8000, in: [1, { ref: 'm' }], eq: { ref: 'm' } } }, actions: REPORT },
+                { match: { ref: 'n', is: { fails: false, type: ['number', 'string'], any: [1, 2] } }, actions: REPORT },
+                { match: { ref: 'n', is: {} }, actions: REPORT },
+                {
+                    match: {
+                        element: {
+                            selector: 'img',
+                            where: { complete: true, field: 'naturalWidth', is: 0, all: [{ self: 'alt', is: '' }] },
+                        },
+                        using: 'length',
+                        is: { gte: 1 },
+                    },
+                    actions: REPORT,
+                },
+                {
+                    actions: {
+                        breakageReportData: {
+                            data: {
+                                n: {
+                                    value: { ref: 'n' },
+                                    when: { type: 'number' },
+                                    buckets: { low: { lt: 5 }, high: { none: [{ lt: 5 }] } },
+                                },
+                            },
+                        },
+                    },
+                },
+            ];
+            /** @type {string[]} */
+            const functions = [];
+            /** @type {Set<string>} */
+            const kinds = new Set();
+            /** @type {Set<object>} */
+            const seen = new Set();
+            /**
+             * @param {unknown} value
+             * @param {string} at
+             */
+            const visit = (value, at) => {
+                if (typeof value === 'function') {
+                    functions.push(at);
+                    return;
+                }
+                if (typeof value !== 'object' || value === null || seen.has(value)) return;
+                seen.add(value);
+                const node = /** @type {Record<string, unknown>} */ (value);
+                // Predicates carry `scalar`, which no expression node does
+                if ('scalar' in node) {
+                    kinds.add(String(node.kind));
+                    expect(typeof node.path)
+                        .withContext(at)
+                        .toBe('string');
+                }
+                for (const [key, child] of Object.entries(node)) {
+                    // A source node's `source` is the source's methods
+                    if (key === 'source' && node.kind === 'source') continue;
+                    visit(child, `${at}.${key}`);
+                }
+            };
+            detectors.forEach((detector, i) => visit(compile(detector), `detectors.${i}`));
+            expect(functions).toEqual([]);
+            expect([...kinds].sort()).toEqual([
+                'always',
+                'combine',
+                'compare',
+                'expression',
+                'fails',
+                'guarded',
+                'in',
+                'read',
+                'type',
+                'where',
+            ]);
+        });
+    });
+
     describe('using and expr', () => {
         const widths = IMG('data-width="1"') + IMG('data-width="2"');
 
