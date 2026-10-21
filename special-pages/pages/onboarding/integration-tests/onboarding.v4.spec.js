@@ -994,22 +994,20 @@ test.describe('onboarding v4', () => {
                     const isWindows = workerInfo.project.name === 'windows';
                     const extensions = page.getByRole('checkbox', { name: extensionLabel });
                     const startup = page.getByRole('checkbox', { name: startupLabel });
-                    if (isWindows && showExtensions) {
+                    if (showExtensions) {
                         await expect(extensions).toBeVisible();
                         await expect(extensions).not.toBeChecked();
                     } else {
                         await expect(extensions).not.toBeVisible();
                     }
-                    if (isWindows && showStartup) {
+                    if (showStartup) {
                         await expect(startup).toBeVisible();
                         await expect(startup).toBeChecked();
                     } else {
                         await expect(startup).not.toBeVisible();
                     }
 
-                    await page
-                        .getByRole('button', { name: isWindows && options.length ? 'Start Browser Setup' : 'Let’s get started!' })
-                        .click();
+                    await page.getByRole('button', { name: options.length ? 'Start Browser Setup' : 'Let’s get started!' }).click();
                     await expect(page.getByRole('heading', { name: 'Protections activated' })).toBeVisible();
                     const calls = await onboarding.mocks.outgoing({ names: ['setOnboardingInstallOptions'] });
                     expect(calls).toHaveLength(isWindows ? 1 : 0);

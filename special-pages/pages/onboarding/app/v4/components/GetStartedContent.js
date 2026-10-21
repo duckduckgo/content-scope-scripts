@@ -31,8 +31,8 @@ export function GetStartedContent({ advance, onTitleComplete }) {
     const { options } = /** @type {import('../../types').GetStartedStep} */ (step);
     const isWindows = usePlatformName() === 'windows';
     const showChromeExtension = /** @type {import('../../types').GetStartedStep} */ (step).options?.includes('chrome-extension-install');
-    const showExtensions = isWindows && options?.includes('sideload-extensions');
-    const showLaunchOnStartup = isWindows && options?.includes('open-at-startup');
+    const showExtensions = options?.includes('sideload-extensions');
+    const showLaunchOnStartup = options?.includes('open-at-startup');
 
     const [title, ...paragraphs] = t('getStarted_title_v4', { newline: '\n' }).split('{paragraph}');
     const body = paragraphs.join('\n\n');
