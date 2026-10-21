@@ -1,0 +1,1 @@
+export default `{"en":{"selection-tools-strings.json":{"toolbarLabel":"Duck.ai actions","ask":"Ask Duck.ai…","more":"More Duck.ai actions","hideTools":"Hide selection tools","openSettings":"Open AI Settings","sent":"Sent to Duck.ai"}}}`
