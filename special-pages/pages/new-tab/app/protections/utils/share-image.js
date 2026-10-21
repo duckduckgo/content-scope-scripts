@@ -1,6 +1,7 @@
 import { h, render } from 'preact';
 import { toCanvas } from 'html-to-image';
 import { ARROW, REPORT_TILT, ShareScene } from '../components/ShareScene.js';
+import { DDG_FALLBACK_ICON } from '../../favorites/constants.js';
 
 /** Add to an element (and its children) to leave it out of the captured image */
 export const CAPTURE_EXCLUDE = 'data-capture-exclude';
@@ -80,8 +81,9 @@ function solidCardBackground(node) {
  * @param {HTMLElement} node
  * @param {string} background - solid colour to give the card
  */
-function captureCard(node, background) {
-    return toCanvas(node, {
+async function captureCard(node, background) {
+    await embedImages(node);
+    return await toCanvas(node, {
         pixelRatio: PIXEL_RATIO,
         filter: keep,
         imagePlaceholder: TRANSPARENT_PIXEL,
@@ -89,6 +91,73 @@ function captureCard(node, background) {
         skipFonts: true,
         includeStyleProperties: standardStyleProperties(),
         style: { margin: '0', backgroundColor: background },
+    });
+}
+
+/**
+ * The capture re-downloads every image to draw it, which some images don't
+ * allow (eg: site favicons in the browsers, served by the app), leaving a
+ * hole in the picture. So each image is embedded in the page first: from a
+ * download if that works, else from the copy already on screen, else it's
+ * swapped for the generic icon that favicons fall back to anyway. Only for
+ * the copy of the report made to be captured.
+ *
+ * @param {HTMLElement} root
+ */
+async function embedImages(root) {
+    const images = [...root.querySelectorAll('img')].filter((img) => !img.src.startsWith('data:'));
+    await Promise.all(
+        images.map(async (img) => {
+            const src = img.src;
+            img.src = (await downloaded(src)) ?? onScreen(img) ?? DDG_FALLBACK_ICON;
+            if (img.src === DDG_FALLBACK_ICON) console.warn('Could not put an image in the Protections Report picture', src);
+            await img.decode().catch(() => {});
+        }),
+    );
+}
+
+/**
+ * @param {string} src
+ * @return {Promise<string | null>} the image as a data URL, or `null` if it can't be downloaded
+ */
+async function downloaded(src) {
+    try {
+        const response = await fetch(src);
+        if (!response.ok) return null;
+        return await asDataUrl(await response.blob());
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * @param {HTMLImageElement} img - loaded
+ * @return {string | null} the image as a data URL, or `null` if it isn't loaded or the browser won't hand it over
+ */
+function onScreen(img) {
+    if (!img.complete || !img.naturalWidth) return null;
+    const canvas = document.createElement('canvas');
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+    try {
+        canvas.getContext('2d')?.drawImage(img, 0, 0);
+        // throws for an image from another origin
+        return canvas.toDataURL();
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * @param {Blob} blob
+ * @return {Promise<string>}
+ */
+function asDataUrl(blob) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(/** @type {string} */ (reader.result));
+        reader.onerror = () => reject(reader.error);
+        reader.readAsDataURL(blob);
     });
 }
 

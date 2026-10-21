@@ -36,6 +36,12 @@
     border-radius: var(--tile-radius);
 }
 
+/* the tile with its tracker pop-over open sits over the rest of the row, so
+   the next tiles' titles (each tile is its own stacking context) stay under it */
+.item:has([role='tooltip']) {
+    z-index: 1;
+}
+
 /* the tracker badge hangs off the tile's corner */
 .draggable {
     position: relative;

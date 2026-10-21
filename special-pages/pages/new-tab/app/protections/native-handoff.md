@@ -38,6 +38,8 @@ Add these fields for the past 7 days:
 
 "Share as image" uses the Web Share API with a PNG file and falls back to a download. Check that each platform's web view supports one of these.
 
+The picture embeds site favicons by fetching them, or else by copying the loaded image through a canvas. If favicons show as a generic globe in the picture, the favicon URL scheme blocks both: have its handler send `Access-Control-Allow-Origin` for the New Tab page's origin.
+
 ## Open questions
 
 - **Licence:** `app/protections/data/tracker-purposes.js` is derived from Tracker Radar (CC BY-NC-SA 4.0). It needs a licence check before shipping.
