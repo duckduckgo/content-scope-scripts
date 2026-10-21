@@ -1,0 +1,119 @@
+/**
+ * Shapes the stages share: the compiled tree `compile/` builds and `evaluate/` walks, and the
+ * interfaces predicates and sources call back through, so they import neither the compiler nor the
+ * evaluator.
+ */
+
+/**
+ * @typedef {import('./core.js').Failure} Failure
+ * @typedef {import('../predicates/predicates.js').CompiledPredicate} CompiledPredicate
+ */
+
+/**
+ * What an expression's position expects. `spread` is an operand of `sum`, `mul`, `any`, `all` and
+ * `none` that may be a list, contributing each item. `root` is a node or a list of nodes.
+ *
+ * @typedef {'boolean' | 'value' | 'number' | 'list' | 'spread' | 'root'} Position
+ */
+
+/**
+ * @typedef {object} NodeBase
+ * @property {string} path - the config path of the key the expression compiles from, which a failure or error arising at it takes
+ * @property {Position} position - the position this occurrence fills. With `is`, the value position the predicate tests
+ * @property {CompiledPredicate} [is]
+ * @property {ItemBinder} [binder] - the innermost `using`, `where` or `field` this expression sits in
+ * @property {boolean} [perItem] - whether it reads `self` of `binder`, and so is computed per item
+ * @property {'number' | 'boolean'} [single] - for an operand of `sum`, `mul`, `any`, `all` or `none`, what it gives when it is not a list
+ */
+
+/**
+ * A `using`, `where` or `field`, which binds `self` to each value it reads from or tests. `node` is its
+ * item node, created when an expression inside reads `self`.
+ *
+ * @typedef {{ node?: ItemNode }} ItemBinder
+ */
+
+/**
+ * @typedef {NodeBase & { kind: 'literal', value: number | boolean | string | null }} LiteralNode
+ * @typedef {NodeBase & { kind: 'source', source: Source<any>, bodies: unknown[], binders: ItemBinder[] }} SourceNode - `binders`: the `where` and `field` its bodies hold
+ * @typedef {NodeBase & { kind: 'length', operand: Node }} LengthNode
+ * @typedef {NodeBase & { kind: 'expr', operand: Node }} ExprNode
+ * @typedef {NodeBase & { kind: 'using', root: Node, operand: Node, binds: ItemBinder }} UsingNode - `operand` reads `root`'s value through `self`
+ * @typedef {NodeBase & { kind: 'list', entries: Node[] }} ListNode - `{"expr": [...]}`, each entry in value position
+ * @typedef {NodeBase & { kind: 'only', operand: Node }} OnlyNode
+ * @typedef {NodeBase & { kind: 'sum' | 'mul' | 'div', operands: Node[] }} ArithmeticNode
+ * @typedef {NodeBase & { kind: 'any' | 'all' | 'none' | 'and', operands: Node[] }} LogicNode
+ * @typedef {NodeBase & { kind: 'if', test: Node, then: Node, else?: Node }} IfNode
+ * @typedef {NodeBase & { kind: 'sequence', elements: Node[] }} SequenceNode - its elements in order, giving the last one's value
+ * @typedef {NodeBase & { kind: 'ref', name: string }} RefNode
+ * @typedef {NodeBase & { kind: 'item', binder: ItemBinder }} ItemNode - the value `self` is bound to in a `using`, `where` or `field`
+ * @typedef {NodeBase & { kind: 'define', name: string, value: Node }} DefineNode
+ * @typedef {NodeBase & { kind: 'fireEvent', type: string, data?: CompiledPayloadField[] }} FireEventNode
+ * @typedef {NodeBase & { kind: 'breakageReportData', data?: CompiledPayloadField[] }} BreakageReportDataNode
+ * @typedef {DefineNode | FireEventNode | BreakageReportDataNode} ActionNode
+ * @typedef {LiteralNode | SourceNode | LengthNode | ExprNode | UsingNode | ListNode | OnlyNode | ArithmeticNode | LogicNode | IfNode | SequenceNode | RefNode | ItemNode | ActionNode} Node
+ */
+
+/**
+ * @typedef {object} CompiledPayloadField
+ * @property {string} key
+ * @property {string} path - the config path of the field, `<action>.data.<key>`
+ * @property {Node} value
+ * @property {CompiledPredicate} [when]
+ * @property {Array<[string, CompiledPredicate]>} [buckets]
+ */
+
+/**
+ * What an action did in a run: it sent or wrote or bound, or a value it computes failed or errored.
+ *
+ * @typedef {'ran' | 'aborted' | 'error'} ActionOutcome
+ */
+
+/**
+ * @typedef {Record<string, string | number | boolean | null>} PayloadData
+ */
+
+/**
+ * A source reads the page. `element` and `text` give a list, and `api` the value it reads: a list
+ * with `where`, or with `field` on a list.
+ *
+ * @template Body
+ * @typedef {object} Source
+ * @property {string} key - the expression key in config
+ * @property {(raw: unknown, path: string, hooks: PredicateHooks, key?: string) => Body} parse - throws a `ConfigParseError`. `key` names the expression key in messages, where the source parses a `self` or `using` body
+ * @property {(body: Body) => ReadonlySet<Position>} fills - the positions config shows the source fills
+ * @property {(bodies: Body[], ctx: PredicateContext) => unknown} read - the value: an `ItemBuffer` for a list, or a `Failure` for the source as a whole
+ */
+
+/**
+ * What a predicate needs from the evaluation it runs in.
+ *
+ * @typedef {object} PredicateContext
+ * @property {Reader} reader
+ * @property {(operand: unknown) => unknown} operand - evaluates a compiled operand expression, giving its value or a `Failure`
+ * @property {(expression: unknown) => unknown} read - evaluates a compiled expression in the position it was compiled for, giving its value or a `Failure`
+ * @property {(expression: unknown) => unknown} arg - evaluates a compiled `args` expression, giving a selected list as an array, or a `Failure`
+ * @property {(expression: unknown) => unknown} test - evaluates a compiled boolean expression with its `is`, giving the boolean or a `Failure`
+ * @property {(value: unknown, operator: string) => unknown[] | Failure | undefined} items - the items of a list value, or `undefined` for any other value
+ * @property {<T>(binder: ItemBinder, value: unknown, fn: () => T) => T} bind - runs `fn` with `self` of a `where` or `field` bound to `value`
+ */
+
+/**
+ * @typedef {object} PredicateHooks
+ * @property {(raw: unknown, path: string, position: Position) => unknown} expression - compiles an expression in a position: a source's `root`, an `args` entry, an operand of `eq` or a comparison, a `field` expression, or an expression in `where`
+ * @property {<T>(fn: (binder: ItemBinder) => T) => T} item - compiles a `where` or `field` that binds `self`
+ * @property {Set<string>} names - collects every name read, for the native reader
+ */
+
+/**
+ * Reads properties and calls methods on page values. `evaluate/native-reader.js` implements it.
+ *
+ * @typedef {object} Reader
+ * @property {() => void} beginRun - start a run
+ * @property {(target: unknown, name: string) => unknown} read - one property, or a `Failure`
+ * @property {(target: unknown, name: string, args: readonly unknown[]) => unknown} call - a method's result, or a `Failure`
+ * @property {(target: unknown) => boolean} isNode - whether a value is a DOM node
+ * @property {(target: unknown) => Function | undefined} iteratorMethod - the iterator method of a value, when it has one
+ */
+
+export {};
