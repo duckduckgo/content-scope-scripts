@@ -7,6 +7,8 @@ import {
     createSolveImageCaptchaAction,
     createGetCloudFlareCaptchaInfoAction,
     createSolveCloudFlareCaptchaAction,
+    createGetCaptchaInfoAction,
+    createSolveCaptchaAction,
 } from '../mocks/broker-protection/captcha.js';
 import { createProfileMatchParent, createUserProfile } from '../mocks/broker-protection/profile.js';
 
@@ -298,6 +300,69 @@ test.describe('Broker Protection Captcha', () => {
                 dbp.getSuccessResponse();
 
                 await dbp.isCaptchaTokenFilled(imageCaptchaResponseSelector);
+            });
+        });
+    });
+
+    test.describe('llm-prompt captcha', () => {
+        // Any page with a text input works: the prompt comes from the profile, not the DOM.
+        const promptCaptchaTargetPage = 'image-captcha.html';
+        const promptCaptchaResponseSelector = '#svgCaptchaInputId';
+        const userProfile = createUserProfile({ city: 'austin', state: 'TX', zip: '78701' });
+
+        test.describe('getCaptchaInfo', () => {
+            test('returns the prompt filled with the user profile as the siteKey', async ({ dbp }) => {
+                await dbp.navigatesTo(promptCaptchaTargetPage);
+                await dbp.receivesInlineAction(
+                    createGetCaptchaInfoAction({
+                        // eslint-disable-next-line no-template-curly-in-string
+                        action: { captchaType: 'llm-prompt', selector: 'What is a ZIP code for ${city}, ${state|upcase}?' },
+                        data: { userProfile },
+                    }),
+                );
+                const successResponse = await dbp.getSuccessResponse();
+
+                expect(successResponse.siteKey).toBe('What is a ZIP code for Austin, TX?');
+                expect(successResponse.type).toBe('llm-prompt');
+                expect(successResponse.url).toContain(promptCaptchaTargetPage);
+            });
+
+            test('returns an error response when the prompt references a field outside the allowlist', async ({ dbp }) => {
+                await dbp.navigatesTo(promptCaptchaTargetPage);
+                await dbp.receivesInlineAction(
+                    createGetCaptchaInfoAction({
+                        // eslint-disable-next-line no-template-curly-in-string
+                        action: { captchaType: 'llm-prompt', selector: 'Hello ${firstName} ${lastName}' },
+                        data: { userProfile },
+                    }),
+                );
+
+                await dbp.isCaptchaError();
+            });
+
+            test('returns an error response when the profile has no value for a prompt field', async ({ dbp }) => {
+                await dbp.navigatesTo(promptCaptchaTargetPage);
+                await dbp.receivesInlineAction(
+                    createGetCaptchaInfoAction({
+                        // eslint-disable-next-line no-template-curly-in-string
+                        action: { captchaType: 'llm-prompt', selector: 'ZIP near ${zip}' },
+                        data: { userProfile: createUserProfile() },
+                    }),
+                );
+
+                await dbp.isCaptchaError();
+            });
+        });
+
+        test.describe('solveCaptchaInfo', () => {
+            test('fills the answer into the input', async ({ dbp }) => {
+                await dbp.navigatesTo(promptCaptchaTargetPage);
+                await dbp.receivesInlineAction(
+                    createSolveCaptchaAction({ action: { captchaType: 'llm-prompt', selector: promptCaptchaResponseSelector } }),
+                );
+                await dbp.getSuccessResponse();
+
+                await dbp.isCaptchaTokenFilled(promptCaptchaResponseSelector);
             });
         });
     });
