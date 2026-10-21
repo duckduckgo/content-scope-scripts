@@ -122,13 +122,13 @@ export class ProtectionsPage {
         const rows = this.report().getByTestId('ProtectionsReportPurposes').getByRole('listitem');
         // most companies first
         await expect(rows).toHaveCount(5);
-        await expect(rows.nth(0)).toContainText('Targets you with ads based on the sites you visit');
+        await expect(rows.nth(0)).toContainText('They target you with ads based on the sites you visit');
         await expect(rows.nth(0)).toContainText('Google, Facebook, and 28 others');
         await expect(rows.nth(0)).toContainText('+27');
-        await expect(rows.nth(1)).toContainText('Fingerprints your device to recognize you, even without cookies');
-        await expect(rows.nth(2)).toContainText('Watches what you read and where you browse');
-        await expect(rows.nth(3)).toContainText('Tells social networks what you do on other sites');
-        await expect(rows.nth(4)).toContainText('Records what you click, type, and scroll');
+        await expect(rows.nth(1)).toContainText('They fingerprint your device to recognize you, even without cookies');
+        await expect(rows.nth(2)).toContainText('They watch what you read and where you browse');
+        await expect(rows.nth(3)).toContainText('They tell social networks what you do on other sites');
+        await expect(rows.nth(4)).toContainText('They record what you click, type, and scroll');
         await expect(rows.nth(4)).toContainText('Microsoft and Hotjar');
         await expect(rows.first()).toContainText('Blocked');
     }
@@ -138,11 +138,11 @@ export class ProtectionsPage {
         await expect(rows).toHaveCount(5);
         await expect(rows.nth(0)).toContainText('Google was on 4 out of 5 sites you visited');
         await expect(rows.nth(0)).toContainText(
-            'Targets you with ads based on the sites you visit, fingerprints your device to recognize you, and watches what you read and where you browse.',
+            'They target you with ads based on the sites you visit, fingerprint your device to recognize you, and watch what you read and where you browse.',
         );
         await expect(rows.nth(1)).toContainText('Facebook was on almost half the sites you visited');
         await expect(rows.nth(1)).toContainText(
-            'Targets you with ads based on the sites you visit and tells social networks what you do on other sites.',
+            'They target you with ads based on the sites you visit and tell social networks what you do on other sites.',
         );
         await expect(rows.nth(3)).toContainText('Amazon was on more than 1 in 4 sites you visited');
 
@@ -231,7 +231,7 @@ export class ProtectionsPage {
         await button.hover();
         await expect(copy.getByTestId('ProtectionsReportHeadline')).toHaveText(/^47 companies tried to\s*watch me browse this week\.$/);
         await expect(copy).toContainText('DuckDuckGo blocked 3,193 of their attempts to track me.');
-        await expect(copy).toContainText('Targets me with ads based on the sites I visit');
+        await expect(copy).toContainText('They target me with ads based on the sites I visit');
         await expect(copy).toContainText('DuckDuckGo also handled 762 annoying cookie pop-ups for me.');
         // while the report on the page is unchanged
         await expect(this.report().getByTestId('ProtectionsReportHeadline')).toHaveText(
@@ -338,13 +338,13 @@ export class ProtectionsPage {
      */
     async displaysPurposesFromBuiltInTable() {
         const purposes = this.report().getByTestId('ProtectionsReportPurposes').getByRole('listitem');
-        await expect(purposes.first()).toContainText('Targets you with ads based on the sites you visit');
+        await expect(purposes.first()).toContainText('They target you with ads based on the sites you visit');
         await expect(purposes.first()).toContainText('Google, Facebook, and');
         await this.choosesView('Who tried to watch you', 'companies');
         const rows = this.report().getByTestId('ProtectionsReportCompanies').getByRole('listitem');
         await expect(rows.nth(0)).toContainText('Google was on 4 out of 5 sites you visited');
         await expect(rows.nth(0)).toContainText(
-            'Targets you with ads based on the sites you visit, fingerprints your device to recognize you, and watches what you read and where you browse.',
+            'They target you with ads based on the sites you visit, fingerprint your device to recognize you, and watch what you read and where you browse.',
         );
     }
 

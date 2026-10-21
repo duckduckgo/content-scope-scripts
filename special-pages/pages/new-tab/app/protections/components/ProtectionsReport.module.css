@@ -1074,8 +1074,9 @@
 }
 
 .siteCount {
-    width: 92px;
+    /* as wide as its text, so the logos sit right beside it */
     flex-shrink: 0;
+    margin-left: -4px;
     text-align: right;
     font-size: 12px;
     line-height: 16px;

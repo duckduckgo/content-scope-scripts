@@ -8,6 +8,7 @@ import {
     namedCompanies,
     purposesFor,
     rankTopSites,
+    distinctSiteLogos,
     typicalTopSite,
     googleReach,
     totalCompanies,
@@ -220,4 +221,15 @@ test('googleReach counts the sites Google was on', () => {
     });
     equal(googleReach({ totalSitesVisited: 64, trackerCompanies: [{ displayName: 'Facebook', count: 1, sitesCount: 1 }] }), null);
     equal(googleReach({ trackerCompanies: [{ displayName: 'Google', count: 1, sitesCount: 1 }] }), null);
+});
+
+test('distinctSiteLogos shows each company once, on the first site it’s on', () => {
+    const site = (/** @type {string[]} */ companies) => ({ site: { etldPlusOne: 'x.com', trackerCompanies: companies }, companies });
+    deepEqual(
+        distinctSiteLogos(
+            [site(['Google', 'Facebook', 'Criteo', 'Oracle']), site(['Google', 'Facebook', 'Oracle', 'Taboola']), site(['Google'])],
+            2,
+        ),
+        [['Google', 'Facebook'], ['Oracle', 'Taboola'], []],
+    );
 });

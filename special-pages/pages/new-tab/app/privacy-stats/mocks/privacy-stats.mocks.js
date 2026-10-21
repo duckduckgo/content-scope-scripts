@@ -72,6 +72,8 @@ export const privacyStatsMocks = {
                 favicon: { src: './protections/demo-favicons/allrecipes.com.png', maxAvailableSize: 64 },
                 trackerCompanies: [
                     'Google',
+                    'Facebook',
+                    'Microsoft',
                     'Amazon.com',
                     'Criteo',
                     'Oracle',
@@ -95,8 +97,6 @@ export const privacyStatsMocks = {
                     'Sharethrough',
                     'TripleLift',
                     'Teads',
-                    'Mediavine',
-                    '33Across',
                 ],
             },
             {
@@ -104,7 +104,9 @@ export const privacyStatsMocks = {
                 url: 'https://weather.com',
                 favicon: { src: './protections/demo-favicons/weather.com.png', maxAvailableSize: 64 },
                 trackerCompanies: [
+                    'Google',
                     'Facebook',
+                    'Microsoft',
                     'Oracle',
                     'The Trade Desk',
                     'Taboola',
@@ -124,8 +126,6 @@ export const privacyStatsMocks = {
                     'Quantcast',
                     'Lotame Solutions',
                     'Sharethrough',
-                    'TripleLift',
-                    'Media.net Advertising',
                 ],
             },
             {
@@ -133,6 +133,8 @@ export const privacyStatsMocks = {
                 url: 'https://webmd.com',
                 favicon: { src: './protections/demo-favicons/webmd.com.png', maxAvailableSize: 64 },
                 trackerCompanies: [
+                    'Google',
+                    'Facebook',
                     'Microsoft',
                     'Comscore',
                     'LiveRamp',
@@ -149,8 +151,6 @@ export const privacyStatsMocks = {
                     'TripleLift',
                     'Teads',
                     'GumGum',
-                    'Cloudflare',
-                    'Mediavine',
                 ],
             },
             {
@@ -160,6 +160,7 @@ export const privacyStatsMocks = {
                 trackerCompanies: [
                     'Google',
                     'Facebook',
+                    'Microsoft',
                     'Pinterest',
                     'LinkedIn',
                     'Snap',
@@ -172,7 +173,6 @@ export const privacyStatsMocks = {
                     'Sharethrough',
                     'TripleLift',
                     'Teads',
-                    'GumGum',
                 ],
             },
             { etldPlusOne: 'en.wikipedia.org', url: 'https://en.wikipedia.org', favicon: null, trackerCompanies: [] },

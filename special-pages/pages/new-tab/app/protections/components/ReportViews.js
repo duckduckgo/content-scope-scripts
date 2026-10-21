@@ -19,6 +19,7 @@ import {
     purposesFor,
     PURPOSE_AVATAR_LIMIT,
     SITE_AVATAR_LIMIT,
+    distinctSiteLogos,
     TOP_SITE_ORBIT_LIMIT,
     TOP_COMPANIES_LIMIT,
     totalCompanies,
@@ -533,6 +534,7 @@ export function TopSitesView({ sites }) {
     const format = useReportFormat();
     const [top, ...rest] = sites;
     const orbit = useMemo(() => (top ? ringItems(top.companies, top.site.etldPlusOne) : []), [top]);
+    const restLogos = useMemo(() => distinctSiteLogos(sites.slice(1), SITE_AVATAR_LIMIT), [sites]);
     const { isReducedMotion } = useEnv();
     const ringRef = useRef(/** @type {HTMLDivElement | null} */ (null));
     useRingBlinks(ringRef, !isReducedMotion);
@@ -590,16 +592,13 @@ export function TopSitesView({ sites }) {
             </div>
             {rest.length > 0 && (
                 <ul class={styles.siteList}>
-                    {rest.map(({ site, companies }) => (
+                    {rest.map(({ site, companies }, i) => (
                         <li key={site.etldPlusOne} class={styles.siteRow}>
                             <span class={styles.siteIcon}>
                                 <SiteFavicon site={site} />
                             </span>
                             <span class={styles.siteDomain}>{site.etldPlusOne}</span>
-                            <Avatars
-                                names={companies.slice(0, SITE_AVATAR_LIMIT)}
-                                className={cn(styles.avatarsAuto, styles.avatarsSmall)}
-                            />
+                            <Avatars names={restLogos[i] ?? []} className={cn(styles.avatarsAuto, styles.avatarsSmall)} />
                             <span class={styles.siteCount}>
                                 {format.plural(
                                     companies.length,

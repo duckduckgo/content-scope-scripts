@@ -259,6 +259,25 @@ export function rankTopSites(stats) {
 }
 
 /**
+ * Logos for each site in a list: its most widespread companies, but each
+ * company only once, on the first site it's on. The same few companies are on
+ * most sites, so this shows who else is there instead of repeating them. A
+ * site whose companies are all shown already gets fewer logos, or none.
+ *
+ * @param {RankedSite[]} sites - in the order they're listed
+ * @param {number} limit - logos per site
+ * @return {string[][]} display names, one list per site
+ */
+export function distinctSiteLogos(sites, limit) {
+    const shown = new Set();
+    return sites.map(({ companies }) => {
+        const logos = companies.filter((name) => !shown.has(name)).slice(0, limit);
+        logos.forEach((name) => shown.add(name));
+        return logos;
+    });
+}
+
+/**
  * At most this many companies circle the cursor in the Chrome comparison
  * (with its eyes, 10 in all): any more and the last ones, which follow the
  * most lazily, trail far behind
