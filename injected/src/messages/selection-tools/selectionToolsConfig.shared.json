@@ -92,6 +92,14 @@
             "differentLanguage"
           ]
         },
+        "minLength": {
+          "type": "integer",
+          "description": "Only fits selections at least this many characters long, counted after trimming. Absent, or not an integer, means no lower limit."
+        },
+        "maxLength": {
+          "type": "integer",
+          "description": "Only fits selections at most this many characters long, counted after trimming. Absent, or not an integer, means no upper limit."
+        },
         "parameter": {
           "$ref": "#/definitions/actionParameter"
         }

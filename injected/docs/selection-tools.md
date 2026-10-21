@@ -59,8 +59,9 @@ language. Text that isn't code and isn't in the user's language is `differentLan
 
 ## Ranking
 
-An action fits when its `selectionTypes` (if any) include the type, its `editable` (if set) matches, and its
-`condition` (if set) holds. Unknown conditions never hold. Fitting actions keep native's order, except that actions
+An action fits when its `selectionTypes` (if any) include the type, its `editable` (if set) matches, its
+`condition` (if set) holds, and the trimmed selection's length is within its `minLength` and `maxLength` (if set, both
+inclusive). Unknown conditions never hold; a length limit that isn't an integer is ignored. Fitting actions keep native's order, except that actions
 with a `language` parameter lead for text in another language, and run straight away with the first option (the
 user's language). Otherwise their options are offered, minus the selection's own language.
 
