@@ -35,7 +35,14 @@ const STOPWORDS = {
 /** @type {Record<string, RegExp>} */
 const ACCENT_HINTS = { es: /[ñ¿¡]/i, fr: /[çœèêàù]/i, de: /[ßäöü]/i, pt: /[ãõ]/i };
 const CODE_SIGNALS = /[{};]|=>|\(\)|===?|!==?|\b(function|const|let|var|def|return|import|public|private|async|await)\b/g;
-const WORD = /^[\p{L}'’-]{2,30}$/u;
+// Letters and digits, with apostrophes or hyphens between them: "don't", "19th", "COVID-19".
+const WORD = /^[\p{L}\p{M}\p{N}]+(?:['’\-‐][\p{L}\p{M}\p{N}]+)*$/u;
+// Abbreviations such as "U.S." and "e.g.": parts this short keep a domain name from passing as a word.
+const ABBREVIATION = /^\p{L}{1,2}(?:\.\p{L}{1,2})+$/u;
+// What a drag picks up around a word: punctuation, quotes and brackets, such as "duck," or «palabra».
+const EDGE_PUNCTUATION = /^\p{P}+|\p{P}+$/gu;
+// Writing systems without spaces between words, where a run of letters can be a whole sentence.
+const UNSPACED = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Thai}\p{Script=Lao}\p{Script=Khmer}\p{Script=Myanmar}]/u;
 const LONG_TEXT_CHARS = 500;
 
 /**
@@ -91,6 +98,16 @@ export function looksLikeCode(text) {
 }
 
 /**
+ * One word in any language, without the punctuation around it, and with at least one letter, so a bare number isn't one.
+ * @param {string} text
+ */
+function isWord(text) {
+    const core = text.replace(EDGE_PUNCTUATION, '');
+    if (!/\p{L}/u.test(core) || !(WORD.test(core) || ABBREVIATION.test(core))) return false;
+    return core.length >= 2 && core.length <= (UNSPACED.test(core) ? 4 : 30);
+}
+
+/**
  * @param {string} rawText
  * @param {object} hints
  * @param {string} hints.userLanguage BCP 47 tag
@@ -109,10 +126,11 @@ export function classify(rawText, { userLanguage, inCodeElement = false, markedL
     let shape = 'text';
     if (isCode) {
         shape = 'code';
-    } else if (!/\s/.test(text) && languageTag === userTag && WORD.test(text)) {
-        shape = 'word';
     } else if (/\?\s*$/.test(text)) {
+        // Before the word test, which would drop the question mark from "why?".
         shape = 'question';
+    } else if (isWord(text)) {
+        shape = 'word';
     } else if (text.length > LONG_TEXT_CHARS) {
         shape = 'long';
     }

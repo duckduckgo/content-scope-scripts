@@ -42,13 +42,17 @@ Toolbar buttons only act on trusted clicks, so page script calling `click()` doe
 
 Each selection is classified locally, from its text and the element it starts in:
 
-| Type       | When                                                                               |
-| ---------- | ---------------------------------------------------------------------------------- |
-| `code`     | Inside `pre`, `code`, `kbd` or `samp`, or dense with code punctuation and keywords |
-| `word`     | One word of 2–30 letters in the user's language                                    |
-| `question` | Ends with a question mark                                                          |
-| `long`     | Over 500 characters                                                                |
-| `text`     | Anything else                                                                      |
+| Type       | When                                                                                 |
+| ---------- | ------------------------------------------------------------------------------------ |
+| `code`     | Inside `pre`, `code`, `kbd` or `samp`, or dense with code punctuation and keywords   |
+| `word`     | One word of 2–30 characters, in any language, not counting the punctuation around it |
+| `question` | Ends with a question mark                                                            |
+| `long`     | Over 500 characters                                                                  |
+| `text`     | Anything else                                                                        |
+
+A word needs a letter, so a bare number is text; it may have digits ("19th"), apostrophes, hyphens and abbreviation
+dots ("U.S."). In writing systems without spaces between words, such as Chinese and Japanese, a word is at most 4
+characters, so a sentence isn't taken for one.
 
 The language comes from the text's writing system or common words, then the nearest `lang` attribute, then the user's
 language. Text that isn't code and isn't in the user's language is `differentLanguage`.
