@@ -2,6 +2,7 @@ import { h } from 'preact';
 import { useContext, useEffect, useId, useRef, useState } from 'preact/hooks';
 import cn from 'classnames';
 import { eventToTarget } from '../../../../../../shared/handlers';
+import { useEnv } from '../../../../../../shared/components/EnvironmentProvider.js';
 import { usePlatformName } from '../../../settings.provider';
 import { useTypedTranslationWith } from '../../../types';
 import { AiChatColorIcon, CloseSmallIcon } from '../../../components/Icons';
@@ -20,6 +21,7 @@ import styles from './SuggestedPrompts.module.css';
  * @typedef {import('./suggestedPrompts.data.js').Prompt} Prompt
  * @typedef {import('./suggestedPrompts.data.js').TabId} TabId
  * @typedef {import('./suggestedPrompts.data.js').StringKey} StringKey
+ * @typedef {'left' | 'right'} SwapDirection
  */
 
 const IMAGE_ACCEPT = 'image/jpeg,image/png,image/webp';
@@ -61,6 +63,7 @@ export function SuggestedPrompts({ onSubmit, animateIn = false }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
     const baseId = useId();
+    const { isReducedMotion } = useEnv();
     const { state, setImageGenerationActive, dismissSuggestedPrompts, countSuggestedPromptSubmitted } = useContext(OmnibarContext);
     const { availableTools, setActiveTool } = useActiveTools();
     const { selectedModel } = useSelectedModel();
@@ -73,6 +76,10 @@ export function SuggestedPrompts({ onSubmit, animateIn = false }) {
     const canGenerateImages = availableTools.includes('image-generation');
 
     const [activeTabId, setActiveTabId] = useState(/** @type {TabId | null} */ (null));
+    /** Tab whose panel is still playing its close animation. */
+    const [exitingTabId, setExitingTabId] = useState(/** @type {TabId | null} */ (null));
+    /** Previous tab's content sliding out while the newly selected one slides in. */
+    const [swap, setSwap] = useState(/** @type {{ tabId: TabId, direction: SwapDirection } | null} */ (null));
     const containerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const fileInputRef = useRef(/** @type {HTMLInputElement|null} */ (null));
     /** @type {import('preact/hooks').MutableRef<Partial<Record<TabId, HTMLButtonElement|null>>>} */
@@ -80,10 +87,25 @@ export function SuggestedPrompts({ onSubmit, animateIn = false }) {
 
     const tabs = canGenerateImages ? TABS : TABS.filter((tab) => tab.id !== 'create-image');
     const activeTab = tabs.find((tab) => tab.id === activeTabId) ?? null;
+    const renderedTab = activeTab ?? tabs.find((tab) => tab.id === exitingTabId) ?? null;
+    const panelExiting = !activeTab && renderedTab !== null;
+
+    /** @param {TabId} id */
+    const openTab = (id) => {
+        setExitingTabId(null);
+        if (activeTabId && activeTabId !== id && !isReducedMotion) {
+            const fromIndex = tabs.findIndex((tab) => tab.id === activeTabId);
+            const toIndex = tabs.findIndex((tab) => tab.id === id);
+            setSwap({ tabId: activeTabId, direction: toIndex >= fromIndex ? 'right' : 'left' });
+        }
+        setActiveTabId(id);
+    };
 
     /** @param {{ restoreFocus?: boolean }} [options] */
     const close = (options) => {
         const id = activeTabId;
+        setExitingTabId(isReducedMotion ? null : id);
+        setSwap(null);
         setActiveTabId(null);
         if (options?.restoreFocus && id) tabRefs.current[id]?.focus();
     };
@@ -93,12 +115,16 @@ export function SuggestedPrompts({ onSubmit, animateIn = false }) {
         /** @param {PointerEvent} event */
         const handlePointerDown = (event) => {
             if (event.target instanceof Node && containerRef.current?.contains(event.target)) return;
+            setExitingTabId(isReducedMotion ? null : activeTabId);
+            setSwap(null);
             setActiveTabId(null);
         };
         /** @param {KeyboardEvent} event */
         const handleKeyDown = (event) => {
             if (event.defaultPrevented || event.key !== 'Escape') return;
             event.preventDefault();
+            setExitingTabId(isReducedMotion ? null : activeTabId);
+            setSwap(null);
             setActiveTabId(null);
             tabRefs.current[activeTabId]?.focus();
         };
@@ -108,7 +134,7 @@ export function SuggestedPrompts({ onSubmit, animateIn = false }) {
             document.removeEventListener('pointerdown', handlePointerDown);
             document.removeEventListener('keydown', handleKeyDown);
         };
-    }, [activeTabId]);
+    }, [activeTabId, isReducedMotion]);
 
     /**
      * @param {KeyboardEvent} event
@@ -135,7 +161,7 @@ export function SuggestedPrompts({ onSubmit, animateIn = false }) {
         }
         event.preventDefault();
         const nextTab = tabs[next];
-        setActiveTabId(nextTab.id);
+        openTab(nextTab.id);
         tabRefs.current[nextTab.id]?.focus();
     };
 
@@ -152,7 +178,7 @@ export function SuggestedPrompts({ onSubmit, animateIn = false }) {
     const handleSelectPrompt = (prompt, event) => {
         if (prompt.kind === 'image' && prompt.mode === 'open-file-picker') {
             enableImageGeneration();
-            setActiveTabId(null);
+            close();
             fileInputRef.current?.click();
             return;
         }
@@ -196,6 +222,18 @@ export function SuggestedPrompts({ onSubmit, animateIn = false }) {
     const tabId = (/** @type {TabId} */ id) => `${baseId}-tab-${id}`;
     const panelId = (/** @type {TabId} */ id) => `${baseId}-panel-${id}`;
 
+    /** @param {TabId} id */
+    const renderPanelContent = (id) => {
+        if (id === 'how-duckai-works') return <HowDuckAiWorksPanel />;
+        if (id === 'suggestions') return <TextPromptsPanel onSelect={handleSelectPrompt} />;
+        return <ImagePromptsPanel onSelect={handleSelectPrompt} />;
+    };
+
+    /** @param {AnimationEvent} event */
+    const handlePanelAnimationEnd = (event) => {
+        if (event.target === event.currentTarget && panelExiting) setExitingTabId(null);
+    };
+
     return (
         <div ref={containerRef} class={styles.root}>
             <div class={cn(styles.chipRow, animateIn && styles.chipRowEnter)}>
@@ -217,7 +255,7 @@ export function SuggestedPrompts({ onSubmit, animateIn = false }) {
                                 tabIndex={selected || (!activeTab && index === 0) ? 0 : -1}
                                 class={cn(styles.chip, selected && styles.chipSelected)}
                                 style={{ '--chip-index': index }}
-                                onClick={() => (selected ? close({ restoreFocus: true }) : setActiveTabId(tab.id))}
+                                onClick={() => (selected ? close({ restoreFocus: true }) : openTab(tab.id))}
                                 onKeyDown={(event) => handleTabKeyDown(event, index)}
                             >
                                 <tab.Icon class={styles.chipIcon} aria-hidden="true" />
@@ -236,19 +274,42 @@ export function SuggestedPrompts({ onSubmit, animateIn = false }) {
                     <CloseSmallIcon aria-hidden="true" />
                 </button>
             </div>
-            {activeTab && (
-                <section id={panelId(activeTab.id)} role="tabpanel" aria-labelledby={tabId(activeTab.id)} tabIndex={0} class={styles.panel}>
-                    <button
-                        type="button"
-                        class={styles.closeButton}
-                        aria-label={t('omnibar_suggestedPromptsCloseAria')}
-                        onClick={() => close({ restoreFocus: true })}
+            {renderedTab && (
+                <section
+                    id={panelId(renderedTab.id)}
+                    role="tabpanel"
+                    aria-labelledby={tabId(renderedTab.id)}
+                    tabIndex={0}
+                    class={cn(styles.panel, panelExiting && styles.panelExiting)}
+                    onAnimationEnd={handlePanelAnimationEnd}
+                >
+                    {!panelExiting && (
+                        <button
+                            type="button"
+                            class={styles.closeButton}
+                            aria-label={t('omnibar_suggestedPromptsCloseAria')}
+                            onClick={() => close({ restoreFocus: true })}
+                        >
+                            <CloseSmallIcon />
+                        </button>
+                    )}
+                    <div
+                        key={renderedTab.id}
+                        class={cn(swap && styles.contentEntering, swap?.direction === 'left' && styles.contentEnteringLeft)}
                     >
-                        <CloseSmallIcon />
-                    </button>
-                    {activeTab.id === 'how-duckai-works' && <HowDuckAiWorksPanel />}
-                    {activeTab.id === 'suggestions' && <TextPromptsPanel onSelect={handleSelectPrompt} />}
-                    {activeTab.id === 'create-image' && <ImagePromptsPanel onSelect={handleSelectPrompt} />}
+                        {renderPanelContent(renderedTab.id)}
+                    </div>
+                    {swap && (
+                        <div
+                            key={`exiting-${swap.tabId}`}
+                            aria-hidden="true"
+                            inert
+                            class={cn(styles.contentExiting, swap.direction === 'right' && styles.contentExitingRight)}
+                            onAnimationEnd={(event) => event.target === event.currentTarget && setSwap(null)}
+                        >
+                            {renderPanelContent(swap.tabId)}
+                        </div>
+                    )}
                 </section>
             )}
             <input ref={fileInputRef} type="file" accept={IMAGE_ACCEPT} multiple hidden onChange={handleFileChange} />
@@ -284,33 +345,65 @@ function HowDuckAiWorksPanel() {
  */
 function TextPromptsPanel({ onSelect }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
+    const { isReducedMotion } = useEnv();
     const [pageIndex, setPageIndex] = useState(0);
+    /** Previous page sliding out while the new one slides in. */
+    const [swap, setSwap] = useState(/** @type {{ pageIndex: number, direction: SwapDirection } | null} */ (null));
     const prompts = TEXT_PROMPT_PAGES[pageIndex];
+
+    /** @param {number} delta */
+    const goToPage = (delta) => {
+        if (!isReducedMotion) setSwap({ pageIndex, direction: delta > 0 ? 'right' : 'left' });
+        setPageIndex(pageIndex + delta);
+    };
+
+    /**
+     * @param {Prompt[]} pagePrompts
+     * @param {boolean} entering
+     */
+    const renderItems = (pagePrompts, entering) =>
+        pagePrompts.map((prompt, index) => (
+            <li key={prompt.id} class={cn(entering && styles.textItemEntering)} style={entering ? { '--i': index } : undefined}>
+                <button
+                    type="button"
+                    class={styles.textPrompt}
+                    onClick={(event) => onSelect(prompt, event)}
+                    onAuxClick={(event) => onSelect(prompt, event)}
+                >
+                    <prompt.Icon class={styles.textPromptIcon} aria-hidden="true" />
+                    <span>{t(prompt.label)}</span>
+                </button>
+            </li>
+        ));
 
     return (
         <div class={styles.textPanel}>
-            <ul key={pageIndex} class={styles.textList}>
-                {prompts.map((prompt) => (
-                    <li key={prompt.id}>
-                        <button
-                            type="button"
-                            class={styles.textPrompt}
-                            onClick={(event) => onSelect(prompt, event)}
-                            onAuxClick={(event) => onSelect(prompt, event)}
-                        >
-                            <prompt.Icon class={styles.textPromptIcon} aria-hidden="true" />
-                            <span>{t(prompt.label)}</span>
-                        </button>
-                    </li>
-                ))}
-            </ul>
+            <div class={styles.listSlot}>
+                <ul
+                    key={pageIndex}
+                    class={cn(styles.textList, swap && styles.textListEntering, swap?.direction === 'left' && styles.textListEnteringLeft)}
+                >
+                    {renderItems(prompts, swap !== null)}
+                </ul>
+                {swap && (
+                    <ul
+                        key={`exiting-${swap.pageIndex}`}
+                        aria-hidden="true"
+                        inert
+                        class={cn(styles.textList, styles.textListExiting, swap.direction === 'left' && styles.textListExitingRight)}
+                        onAnimationEnd={(event) => event.target === event.currentTarget && setSwap(null)}
+                    >
+                        {renderItems(TEXT_PROMPT_PAGES[swap.pageIndex], false)}
+                    </ul>
+                )}
+            </div>
             <div class={styles.pagination}>
                 <button
                     type="button"
                     class={styles.pageButton}
                     disabled={pageIndex === 0}
                     aria-label={t('omnibar_suggestedPromptsPrevPageAria')}
-                    onClick={() => setPageIndex(pageIndex - 1)}
+                    onClick={() => goToPage(-1)}
                 >
                     <ChevronLeftMediumIcon aria-hidden="true" />
                 </button>
@@ -319,7 +412,7 @@ function TextPromptsPanel({ onSelect }) {
                     class={styles.pageButton}
                     disabled={pageIndex === TEXT_PROMPT_PAGES.length - 1}
                     aria-label={t('omnibar_suggestedPromptsNextPageAria')}
-                    onClick={() => setPageIndex(pageIndex + 1)}
+                    onClick={() => goToPage(1)}
                 >
                     <ChevronRightMediumIcon aria-hidden="true" />
                 </button>
