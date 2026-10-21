@@ -87,8 +87,9 @@ describe('selectionTools classify', () => {
         expect(classify('serendipity', english).shape).toBe('word');
         expect(classify('What time is it?', english).shape).toBe('question');
         expect(classify('A short line of text', english).shape).toBe('text');
-        expect(classify('One. Two. Three. Four.', english).shape).toBe('long');
-        expect(classify('x'.repeat(300), english).shape).toBe('long');
+        expect(classify('One. Two. Three. Four.', english).shape).toBe('text');
+        expect(classify('x'.repeat(500), english).shape).toBe('text');
+        expect(classify('x'.repeat(501), english).shape).toBe('long');
         expect(classify('plain words', { ...english, inCodeElement: true }).shape).toBe('code');
     });
 
