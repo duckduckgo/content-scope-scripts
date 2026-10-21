@@ -1,8 +1,0 @@
-{
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "Dismiss Suggested Prompts",
-  "description": "Sent when the user closes the Duck.ai suggested-prompt chips with the X button. Native persists the dismissal and pushes an updated OmnibarConfig with `showSuggestedPrompts: false`.",
-  "type": "object",
-  "additionalProperties": false,
-  "properties": {}
-}

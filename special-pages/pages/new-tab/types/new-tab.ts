@@ -8,11 +8,7 @@
 
 export type OpenTarget = "same-tab" | "new-tab" | "new-window";
 export type BackgroundVariant =
-  | DefaultBackground
-  | SolidColorBackground
-  | HexValueBackground
-  | GradientBackground
-  | UserImageBackground;
+  DefaultBackground | SolidColorBackground | HexValueBackground | GradientBackground | UserImageBackground;
 export type PredefinedColor =
   | "color01"
   | "color02"
@@ -147,13 +143,17 @@ export type EnableAskDuckAiSuggestion = boolean;
  */
 export type EnableAttachTabs = boolean;
 /**
- * Show the Duck.ai suggested-prompt chips (How Duck.ai Works, Chat Suggestions, Create & Edit Images) below the input in Duck.ai mode. Native decides who sees them, e.g. new Duck.ai users. Closing the chips notifies native via omnibar_dismissSuggestedPrompts.
+ * Show the Duck.ai suggested-prompt chips (How Duck.ai Works, Chat Suggestions, Create & Edit Images) below the input in Duck.ai mode. Native decides who sees them, e.g. new Duck.ai users.
  */
 export type ShowSuggestedPrompts = boolean;
 /**
- * IDs of the Chat Suggestions prompts the user has submitted, oldest first. The FE moves these prompts to the end of the list in this order, and appends to the list via omnibar_setConfig when a prompt is submitted. Native persists it.
+ * True once the user closed the suggested-prompt chips with the X. The FE sets it via omnibar_setConfig and hides the chips; native persists it and only ever moves it from false to true.
  */
-export type SubmittedSuggestedPromptIDs = string[];
+export type SuggestedPromptsDismissed = boolean;
+/**
+ * How many suggested prompts the user has submitted. The FE increments it via omnibar_setConfig on each submission and hides the chips once it reaches 5. Native persists it.
+ */
+export type SuggestedPromptsSubmitCount = number;
 /**
  * The screenshot capture mode the user chose: `dragToSelect` (drag to select a region) or `selectWindowOrDisplay` (pick a window or a display).
  */
@@ -377,7 +377,6 @@ export interface NewTabMessages {
     | OmnibarAttachmentPrivacyDisclaimerShownNotification
     | OmnibarDismissCreateImageModelSwitchNotification
     | OmnibarDismissLauncherPromoNotification
-    | OmnibarDismissSuggestedPromptsNotification
     | OmnibarDismissUsageLimitsNotification
     | OmnibarLauncherPromoShownNotification
     | OmnibarOpenAiChatNotification
@@ -787,17 +786,6 @@ export interface OmnibarDismissLauncherPromoNotification {
  */
 export interface DismissLauncherPromo {}
 /**
- * Generated from @see "../messages/omnibar_dismissSuggestedPrompts.notify.json"
- */
-export interface OmnibarDismissSuggestedPromptsNotification {
-  method: "omnibar_dismissSuggestedPrompts";
-  params: DismissSuggestedPrompts;
-}
-/**
- * Sent when the user closes the Duck.ai suggested-prompt chips with the X button. Native persists the dismissal and pushes an updated OmnibarConfig with `showSuggestedPrompts: false`.
- */
-export interface DismissSuggestedPrompts {}
-/**
  * Generated from @see "../messages/omnibar_dismissUsageLimits.notify.json"
  */
 export interface OmnibarDismissUsageLimitsNotification {
@@ -997,7 +985,8 @@ export interface OmnibarConfig {
   enableAskAiSuggestion?: EnableAskDuckAiSuggestion;
   enableAttachTabs?: EnableAttachTabs;
   showSuggestedPrompts?: ShowSuggestedPrompts;
-  submittedSuggestedPromptIds?: SubmittedSuggestedPromptIDs;
+  suggestedPromptsDismissed?: SuggestedPromptsDismissed;
+  suggestedPromptsSubmitCount?: SuggestedPromptsSubmitCount;
   screenshotModes?: ScreenshotModes;
   enablePastedAttachments?: EnablePastedAttachments;
   enableAiChatDeletion?: EnableAIChatDeletion;
@@ -1267,6 +1256,10 @@ export interface SubmitChatAction {
    * True when the launcherPromo drawer was on screen as the prompt was sent, so native can treat the prompt as passing over it. Omitted otherwise.
    */
   launcherPromoVisible?: boolean;
+  /**
+   * Fixed catalog ID of the suggested-prompt chip the prompt came from (e.g. 'jobapplication', 'createcomic'), so native can attribute the submission. Omitted for typed prompts.
+   */
+  suggestedPromptId?: string;
 }
 /**
  * Extracted page content for a specific tab, used as a Duck.ai chat attachment. Mirrors the shape produced by the Duck.ai sidebar's page-context extraction.

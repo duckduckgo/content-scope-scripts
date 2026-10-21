@@ -68,6 +68,10 @@
     "launcherPromoVisible": {
       "description": "True when the launcherPromo drawer was on screen as the prompt was sent, so native can treat the prompt as passing over it. Omitted otherwise.",
       "type": "boolean"
+    },
+    "suggestedPromptId": {
+      "description": "Fixed catalog ID of the suggested-prompt chip the prompt came from (e.g. 'jobapplication', 'createcomic'), so native can attribute the submission. Omitted for typed prompts.",
+      "type": "string"
     }
   }
 }

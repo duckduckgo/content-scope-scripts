@@ -303,11 +303,6 @@ export function omnibarMockTransport() {
                     subs.get('omnibar_onConfigUpdate')?.(config);
                     break;
                 }
-                case 'omnibar_dismissSuggestedPrompts': {
-                    config.showSuggestedPrompts = false;
-                    subs.get('omnibar_onConfigUpdate')?.(config);
-                    break;
-                }
                 case 'omnibar_dismissCreateImageModelSwitch': {
                     config.createImageModelSwitch = null;
                     subs.get('omnibar_onConfigUpdate')?.(config);
@@ -510,10 +505,9 @@ export function omnibarMockTransport() {
                     config.enableAskAiSuggestion = parseBooleanQueryParam('omnibar.enableAskAiSuggestion') ?? config.enableAskAiSuggestion;
                     config.enableAttachTabs = parseBooleanQueryParam('omnibar.enableAttachTabs') ?? config.enableAttachTabs;
                     config.showSuggestedPrompts = parseBooleanQueryParam('omnibar.showSuggestedPrompts') ?? config.showSuggestedPrompts;
-                    // Comma-separated, oldest first, e.g. `omnibar.submittedSuggestedPromptIds=jobapplication,homefix`
-                    const submittedSuggestedPromptIds = url.searchParams.get('omnibar.submittedSuggestedPromptIds');
-                    if (submittedSuggestedPromptIds !== null) {
-                        config.submittedSuggestedPromptIds = submittedSuggestedPromptIds.split(',').filter(Boolean);
+                    const suggestedPromptsSubmitCount = parseInt(url.searchParams.get('omnibar.suggestedPromptsSubmitCount') ?? '', 10);
+                    if (suggestedPromptsSubmitCount >= 0) {
+                        config.suggestedPromptsSubmitCount = suggestedPromptsSubmitCount;
                     }
                     // Comma-separated, e.g. `omnibar.screenshotModes=dragToSelect,selectWindowOrDisplay`
                     const screenshotModes = url.searchParams.get('omnibar.screenshotModes');

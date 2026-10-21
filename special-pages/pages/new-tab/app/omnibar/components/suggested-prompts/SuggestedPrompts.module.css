@@ -5,6 +5,13 @@
     }
 }
 
+@keyframes chipEnter {
+    from {
+        opacity: 0;
+        transform: translate3d(0, -4px, 0);
+    }
+}
+
 .root {
     align-self: stretch;
     display: flex;
@@ -21,6 +28,16 @@
     flex-wrap: wrap;
     gap: var(--ds-space-x02);
     justify-content: center;
+}
+
+/* Switching to Duck.ai: chips fade and settle in, left to right. `--chip-index` is set per chip. */
+.chipRowEnter .chip {
+    animation: chipEnter 220ms cubic-bezier(0.2, 0, 0, 1) both;
+    animation-delay: calc(var(--chip-index, 0) * 30ms);
+
+    @media (prefers-reduced-motion: reduce) {
+        animation: none;
+    }
 }
 
 .chips {

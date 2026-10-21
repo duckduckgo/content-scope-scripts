@@ -110,10 +110,7 @@ export function Omnibar({
      */
     const rebrand = useNewTabPageRebranding();
     const { keyboardFocusWithinProps } = useKeyboardFocusWithin({ enabled: rebrand });
-    const { openSuggestion, submitSearch, submitChat, setShowCustomizePopover, markSuggestedPromptSubmitted } = useContext(OmnibarContext);
-    const textareaRef = useRef(/** @type {HTMLTextAreaElement|null} */ (null));
-    /** A suggested prompt filled into the input; submitting it unedited counts as submitting the prompt. */
-    const filledPromptRef = useRef(/** @type {{ id: string, chat: string } | null} */ (null));
+    const { openSuggestion, submitSearch, submitChat, setShowCustomizePopover } = useContext(OmnibarContext);
 
     const { open: openCustomizer } = useDrawerControls();
     useDrawerEventListeners(
@@ -147,21 +144,8 @@ export function Omnibar({
 
     /** @type {(params: SubmitChatAction) => void} */
     const handleSubmitChat = (params) => {
-        const filledPrompt = filledPromptRef.current;
-        filledPromptRef.current = null;
-        if (filledPrompt && filledPrompt.chat === params.chat) markSuggestedPromptSubmitted(filledPrompt.id);
         submitChat(launcherPromoVisibleRef.current ? { ...params, launcherPromoVisible: true } : params);
         resetForm();
-    };
-
-    /**
-     * Puts a suggested prompt in the Duck.ai input for the user to review and send.
-     * @param {{ chat: string, promptId?: string }} params - `promptId` only for prompts that move last once submitted.
-     */
-    const handleFillPrompt = ({ chat, promptId }) => {
-        filledPromptRef.current = promptId ? { id: promptId, chat } : null;
-        setQuery(chat);
-        textareaRef.current?.focus();
     };
 
     /** @type {(mode: OmnibarConfig['mode']) => void} */
@@ -242,7 +226,6 @@ export function Omnibar({
                                             onChange={setQuery}
                                             onSubmit={handleSubmitChat}
                                             omnibarRef={spacerRef}
-                                            textareaRef={textareaRef}
                                         />
                                     </OpenTabsProvider>
                                 )}
@@ -255,9 +238,8 @@ export function Omnibar({
                                 />
                             )}
                         </div>
-                        {mode === 'ai' && showSuggestedPrompts && (
-                            <SuggestedPrompts onSubmit={handleSubmitChat} onFill={handleFillPrompt} />
-                        )}
+                        {/* `autoFocus` is only set by a mode switch, so the chips don't animate on page load. */}
+                        {mode === 'ai' && showSuggestedPrompts && <SuggestedPrompts onSubmit={handleSubmitChat} animateIn={autoFocus} />}
                     </AiChatsProvider>
                 </AttachmentsProvider>
             </SearchFormProvider>
@@ -276,7 +258,6 @@ export function Omnibar({
  * @param {(query: string) => void} props.onChange
  * @param {(params: SubmitChatAction) => void} props.onSubmit
  * @param {{ current: HTMLElement | null }} props.omnibarRef - Focus staying inside this subtree keeps the chats list open.
- * @param {import('preact').RefObject<HTMLTextAreaElement>} props.textareaRef - Owned by Omnibar so filling a suggested prompt can focus the input.
  */
 function AiChatContent({
     query,
@@ -288,7 +269,6 @@ function AiChatContent({
     onChange,
     onSubmit,
     omnibarRef,
-    textareaRef,
 }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
@@ -334,6 +314,7 @@ function AiChatContent({
     const canCaptureScreenshot = screenshotModes.length > 0;
     const screenshotCapture = useScreenshotCapture({ imageState });
     const tabAttachments = useTabAttachments(tabId, attachmentLimits?.tabs?.maxAttached);
+    const textareaRef = useRef(/** @type {HTMLTextAreaElement|null} */ (null));
     const mention = useMentionPicker({
         enabled: canAttachTabs && !blocksPrompt,
         query,

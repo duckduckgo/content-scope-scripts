@@ -11,8 +11,7 @@ import { useAttachmentsContext } from '../chat-tools/attachments/AttachmentsProv
 import { useSelectedModel } from '../useSelectedModel';
 import { useSelectedReasoningEffort } from '../useSelectedReasoningEffort';
 import { ChevronLeftMediumIcon, ChevronRightMediumIcon, IdeaIcon, ImagesIcon } from './SuggestedPromptsIcons.js';
-import { HOW_DUCKAI_WORKS_CARDS, IMAGE_PROMPTS, TEXT_PROMPTS, TEXT_PROMPTS_PER_PAGE } from './suggestedPrompts.data.js';
-import { chunk, orderPrompts } from './suggestedPromptsOrder.js';
+import { HOW_DUCKAI_WORKS_CARDS, IMAGE_PROMPTS, TEXT_PROMPT_PAGES } from './suggestedPrompts.data.js';
 import styles from './SuggestedPrompts.module.css';
 
 /**
@@ -24,6 +23,9 @@ import styles from './SuggestedPrompts.module.css';
  */
 
 const IMAGE_ACCEPT = 'image/jpeg,image/png,image/webp';
+
+/** The chips hide for good once this many suggested prompts have been submitted. */
+export const MAX_SUBMITTED_PROMPTS = 5;
 
 /** @type {{ id: TabId, label: StringKey, ariaLabel: StringKey, Icon: import('./suggestedPrompts.data.js').IconComponent }[]} */
 const TABS = [
@@ -48,28 +50,26 @@ const TABS = [
 ];
 
 /**
- * Duck.ai's new-chat chips, shown below the Duck.ai input when native sets `showSuggestedPrompts`.
- *
- * Selecting a prompt sends it once the user has accepted the Duck.ai terms; until then it only fills the input,
- * so the user sees the terms disclaimer before sending.
+ * Duck.ai's new-chat chips, shown below the Duck.ai input when native sets `showSuggestedPrompts`,
+ * until the user has submitted {@link MAX_SUBMITTED_PROMPTS} of them.
  *
  * @param {object} props
  * @param {(params: SubmitChatAction) => void} props.onSubmit
- * @param {(params: { chat: string, promptId?: string }) => void} props.onFill
+ * @param {boolean} [props.animateIn] - Plays the chips' enter animation; set when the user switched to Duck.ai, not on page load.
  */
-export function SuggestedPrompts({ onSubmit, onFill }) {
+export function SuggestedPrompts({ onSubmit, animateIn = false }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
     const baseId = useId();
-    const { state, setImageGenerationActive, dismissSuggestedPrompts, markSuggestedPromptSubmitted } = useContext(OmnibarContext);
-    const { availableTools, imageGenerationActive, setActiveTool } = useActiveTools();
+    const { state, setImageGenerationActive, dismissSuggestedPrompts, countSuggestedPromptSubmitted } = useContext(OmnibarContext);
+    const { availableTools, setActiveTool } = useActiveTools();
     const { selectedModel } = useSelectedModel();
     const { selectedEffort } = useSelectedReasoningEffort();
     const { imageState } = useAttachmentsContext();
     const updatedCreateImageEnabled = state.config?.enableUpdatedCreateImage === true;
     const blocksPrompt = state.config?.usageLimits?.blocksPrompt === true;
-    const requiresAiTermsAcceptance = state.config?.requiresAiTermsAcceptance === true;
-    const submittedIds = state.config?.submittedSuggestedPromptIds ?? [];
+    const dismissed = state.config?.suggestedPromptsDismissed === true;
+    const submittedCountReached = (state.config?.suggestedPromptsSubmitCount ?? 0) >= MAX_SUBMITTED_PROMPTS;
     const canGenerateImages = availableTools.includes('image-generation');
 
     const [activeTabId, setActiveTabId] = useState(/** @type {TabId | null} */ (null));
@@ -145,13 +145,6 @@ export function SuggestedPrompts({ onSubmit, onFill }) {
         setActiveTool('image-generation');
     };
 
-    /** A filled text prompt must go out as a chat, not an image request. */
-    const disableImageGeneration = () => {
-        if (!imageGenerationActive) return;
-        if (updatedCreateImageEnabled) setImageGenerationActive(false);
-        setActiveTool(null);
-    };
-
     /**
      * @param {Prompt} prompt
      * @param {MouseEvent} event
@@ -164,24 +157,13 @@ export function SuggestedPrompts({ onSubmit, onFill }) {
             return;
         }
 
-        if (requiresAiTermsAcceptance) {
-            if (prompt.kind === 'image') {
-                enableImageGeneration();
-            } else {
-                disableImageGeneration();
-            }
-            setActiveTabId(null);
-            // Only text prompts reorder; the image prompts are few enough to stay put.
-            onFill({ chat: prompt.prompt, ...(prompt.kind === 'text' && { promptId: prompt.id }) });
-            return;
-        }
-
+        countSuggestedPromptSubmitted();
         const target = eventToTarget(event, platformName);
         if (prompt.kind === 'text') {
-            markSuggestedPromptSubmitted(prompt.id);
             onSubmit({
                 chat: prompt.prompt,
                 target,
+                suggestedPromptId: prompt.id,
                 ...(selectedModel && { modelId: selectedModel.id }),
                 ...(selectedEffort && { reasoningEffort: selectedEffort }),
             });
@@ -193,10 +175,11 @@ export function SuggestedPrompts({ onSubmit, onFill }) {
                 ? {
                       chat: prompt.prompt,
                       target,
+                      suggestedPromptId: prompt.id,
                       toolChoice: ['GenerateImage'],
                       ...(selectedModel && { modelId: selectedModel.id }),
                   }
-                : { chat: prompt.prompt, target, mode: 'image-generation' },
+                : { chat: prompt.prompt, target, suggestedPromptId: prompt.id, mode: 'image-generation' },
         );
     };
 
@@ -208,14 +191,14 @@ export function SuggestedPrompts({ onSubmit, onFill }) {
         if (files.length > 0) await imageState.processFiles(files);
     };
 
-    if (blocksPrompt) return null;
+    if (blocksPrompt || dismissed || submittedCountReached) return null;
 
     const tabId = (/** @type {TabId} */ id) => `${baseId}-tab-${id}`;
     const panelId = (/** @type {TabId} */ id) => `${baseId}-panel-${id}`;
 
     return (
         <div ref={containerRef} class={styles.root}>
-            <div class={styles.chipRow}>
+            <div class={cn(styles.chipRow, animateIn && styles.chipRowEnter)}>
                 <div role="tablist" aria-orientation="horizontal" class={styles.chips}>
                     {tabs.map((tab, index) => {
                         const selected = tab.id === activeTab?.id;
@@ -233,6 +216,7 @@ export function SuggestedPrompts({ onSubmit, onFill }) {
                                 aria-label={t(tab.ariaLabel)}
                                 tabIndex={selected || (!activeTab && index === 0) ? 0 : -1}
                                 class={cn(styles.chip, selected && styles.chipSelected)}
+                                style={{ '--chip-index': index }}
                                 onClick={() => (selected ? close({ restoreFocus: true }) : setActiveTabId(tab.id))}
                                 onKeyDown={(event) => handleTabKeyDown(event, index)}
                             >
@@ -245,6 +229,7 @@ export function SuggestedPrompts({ onSubmit, onFill }) {
                 <button
                     type="button"
                     class={cn(styles.chip, styles.dismissButton)}
+                    style={{ '--chip-index': tabs.length }}
                     aria-label={t('omnibar_suggestedPromptsDismissAria')}
                     onClick={dismissSuggestedPrompts}
                 >
@@ -262,9 +247,7 @@ export function SuggestedPrompts({ onSubmit, onFill }) {
                         <CloseSmallIcon />
                     </button>
                     {activeTab.id === 'how-duckai-works' && <HowDuckAiWorksPanel />}
-                    {activeTab.id === 'suggestions' && (
-                        <TextPromptsPanel prompts={orderPrompts(TEXT_PROMPTS, submittedIds)} onSelect={handleSelectPrompt} />
-                    )}
+                    {activeTab.id === 'suggestions' && <TextPromptsPanel onSelect={handleSelectPrompt} />}
                     {activeTab.id === 'create-image' && <ImagePromptsPanel onSelect={handleSelectPrompt} />}
                 </section>
             )}
@@ -297,19 +280,17 @@ function HowDuckAiWorksPanel() {
 
 /**
  * @param {object} props
- * @param {import('./suggestedPrompts.data.js').TextPrompt[]} props.prompts - In display order; paged here.
  * @param {(prompt: Prompt, event: MouseEvent) => void} props.onSelect
  */
-function TextPromptsPanel({ prompts, onSelect }) {
+function TextPromptsPanel({ onSelect }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const [pageIndex, setPageIndex] = useState(0);
-    const pages = chunk(prompts, TEXT_PROMPTS_PER_PAGE);
-    const pagePrompts = pages[pageIndex] ?? [];
+    const prompts = TEXT_PROMPT_PAGES[pageIndex];
 
     return (
         <div class={styles.textPanel}>
             <ul key={pageIndex} class={styles.textList}>
-                {pagePrompts.map((prompt) => (
+                {prompts.map((prompt) => (
                     <li key={prompt.id}>
                         <button
                             type="button"
@@ -336,7 +317,7 @@ function TextPromptsPanel({ prompts, onSelect }) {
                 <button
                     type="button"
                     class={styles.pageButton}
-                    disabled={pageIndex === pages.length - 1}
+                    disabled={pageIndex === TEXT_PROMPT_PAGES.length - 1}
                     aria-label={t('omnibar_suggestedPromptsNextPageAria')}
                     onClick={() => setPageIndex(pageIndex + 1)}
                 >
