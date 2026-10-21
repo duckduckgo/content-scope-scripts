@@ -93,8 +93,38 @@ describe('selectionTools classify', () => {
         expect(classify('plain words', { ...english, inCodeElement: true }).shape).toBe('code');
     });
 
-    it('does not call a foreign single word a word', () => {
-        expect(classify('perro', { ...english, markedLanguage: 'es' }).shape).toBe('text');
+    it('calls a single word in another language a word, in that language', () => {
+        expect(classify('perro', { ...english, markedLanguage: 'es' })).toEqual({
+            shape: 'word',
+            languageTag: 'es',
+            differentLanguage: true,
+        });
+    });
+
+    it('leaves out the punctuation a drag picks up around a word', () => {
+        for (const text of ['duck,', 'duck.', '(duck)', '"duck"', '«palabra»', '¡hola']) {
+            expect(classify(text, english).shape).withContext(text).toBe('word');
+        }
+    });
+
+    it('keeps a single word with a question mark a question', () => {
+        expect(classify('why?', english).shape).toBe('question');
+        expect(classify('¿qué?', english).shape).toBe('question');
+    });
+
+    it('allows digits and abbreviation dots in a word, but not a bare number', () => {
+        for (const text of ['19th', '3D', 'COVID-19', "don't", 'U.S.', 'e.g.']) {
+            expect(classify(text, english).shape).withContext(text).toBe('word');
+        }
+        for (const text of ['2024', '3.14', 'example.com', 'x']) {
+            expect(classify(text, english).shape).withContext(text).toBe('text');
+        }
+    });
+
+    it('takes a long run of a writing system without spaces as text, not a word', () => {
+        expect(classify('猫', english).shape).toBe('text');
+        expect(classify('日本語', english).shape).toBe('word');
+        expect(classify('これは日本語の文章です', english).shape).toBe('text');
     });
 
     it('marks text in another language, but never code', () => {
