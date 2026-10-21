@@ -14,7 +14,7 @@
     align-items: center;
     gap: 3px;
     height: 14px;
-    padding: 0 6px 0 5px;
+    padding: 0 8px 0 5px;
     box-sizing: border-box;
     border-radius: 6px 0 var(--tile-radius) 0;
     background: var(--tracker-tab);
@@ -34,9 +34,6 @@
     width: 10px;
     height: 10px;
     flex-shrink: 0;
-    /* sits a touch high beside the digits otherwise */
-    position: relative;
-    top: 1px;
     /* the shield fills its whole drawing, so at some scales its bottom edge
        falls just past the box and gets clipped */
     overflow: visible;

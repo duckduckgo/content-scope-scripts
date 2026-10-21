@@ -106,6 +106,9 @@
     z-index: 30;
     width: 320px;
     box-sizing: content-box;
+    /* eases in from the icon, like the favorites' tracker pop-over */
+    --info-from: -4px;
+    animation: info-in 0.14s cubic-bezier(0.4, 0, 0.2, 1);
 
     &::before {
         content: '';
@@ -143,8 +146,24 @@
     }
 }
 
+/* The card's backdrop blur makes it its own stacking context, so the
+   pop-over's z-index only counts inside it; while it's open, the card itself
+   goes above the rest of the page (eg: the search box, when it opens upward) */
+.report:has(.infoPopover) {
+    position: relative;
+    z-index: 1000;
+}
+
+@keyframes info-in {
+    from {
+        opacity: 0;
+        transform: translateY(var(--info-from));
+    }
+}
+
 /* bottom-left corner sits on the icon instead */
 .infoPopoverAbove {
+    --info-from: 4px;
     top: auto;
     bottom: 22px;
     padding-top: 0;
