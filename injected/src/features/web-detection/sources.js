@@ -1,6 +1,6 @@
 import { isArray, ReflectApply } from '../../captured-globals.js';
 import { DetectionError, FILLS, isFailure } from './core.js';
-import { compileArgs, compileField, compileWhere, evaluateArgs, parsePathBody, readField, readPath } from './predicates.js';
+import { compileArgs, compileField, compileWhere, evaluateArgs, parsePathBody, readField, readPath, testPredicate } from './predicates.js';
 
 /**
  * @typedef {import('./core.js').Failure} Failure
@@ -106,7 +106,7 @@ export function* selectItems(items, { where, field }, ctx) {
     for (const item of items) {
         if (where) {
             if (typeof item !== 'object' || item === null) throw new DetectionError('`where` on an item that is not an object');
-            const held = where.test(item, ctx);
+            const held = testPredicate(where, item, ctx);
             if (isFailure(held)) {
                 yield held;
                 return;
