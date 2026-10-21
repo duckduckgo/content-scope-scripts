@@ -515,6 +515,8 @@ function useRingBlinks(ringRef, enabled) {
         return () => {
             observer.disconnect();
             clearTimeout(timer);
+            // stops the ring turning too, eg: when motion is reduced from here on
+            ring.removeAttribute('data-playing');
         };
     }, [ringRef, enabled]);
 }

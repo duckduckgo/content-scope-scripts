@@ -1322,11 +1322,11 @@
     "note": "Accessible label for a small badge on a favorite tile, when trackers from exactly one company were blocked"
   },
   "favorites_trackers_companies": {
-    "title": "{count} companies tried to watch you browse {site} this week",
+    "title": "{count} companies tried to watch you browse {site} this week:",
     "note": "Title of a list of tracking companies blocked on a favorite site in the past 7 days. {count} is a number greater than 1. {site} is the site's domain, eg: 'cnn.com'"
   },
   "favorites_trackers_companiesSingular": {
-    "title": "1 company tried to watch you browse {site} this week",
+    "title": "1 company tried to watch you browse {site} this week:",
     "note": "Title of a list of tracking companies blocked on a favorite site in the past 7 days, when there's exactly one. {site} is the site's domain, eg: 'cnn.com'"
   },
   "favorites_trackers_more": {

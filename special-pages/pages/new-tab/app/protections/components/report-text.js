@@ -2,7 +2,7 @@ import { createContext } from 'preact';
 import { useContext, useMemo } from 'preact/hooks';
 import { useTypedTranslationWith } from '../../types.js';
 import { useLocale } from '../../../../../shared/components/EnvironmentProvider.js';
-import { getLocalizedNumberFormatter } from '../../../../../shared/utils.js';
+import { useCountFormat } from '../../utils.js';
 
 /**
  * @import enStrings from "../strings.json"
@@ -89,18 +89,11 @@ export function useReportTranslation() {
 export function useReportFormat() {
     const { t } = useReportTranslation();
     const locale = useLocale();
-    const numbers = useMemo(() => getLocalizedNumberFormatter(locale), [locale]);
+    const counts = useCountFormat(t);
     const lists = useMemo(() => new Intl.ListFormat(locale, { style: 'long', type: 'conjunction' }), [locale]);
     return {
-        /** @param {number} n */
-        number: (n) => numbers.format(n),
+        ...counts,
         /** @param {string[]} items - joined by the locale's rules, eg: "Google, Facebook, and Amazon" */
         list: (items) => lists.format(items),
-        /**
-         * @param {number} n
-         * @param {keyof Strings} one - the string for exactly 1
-         * @param {keyof Strings} many - the string for any other count, with a `{count}` placeholder
-         */
-        plural: (n, one, many) => (n === 1 ? t(one) : t(many, { count: numbers.format(n) })),
     };
 }

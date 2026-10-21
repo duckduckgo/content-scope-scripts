@@ -280,7 +280,7 @@ function TitleRow({ expanded, toggle, bodyId, defaultPrompt }) {
         <div class={styles.titleRow}>
             <img class={styles.titleIcon} src="./icons/Shield-Color-16.svg" alt="" />
             <h2 class={styles.title}>{t('protections_menuTitle')}</h2>
-            <InfoButton defaultPrompt={defaultPrompt} />
+            <InfoButton defaultPrompt={defaultPrompt} above={!expanded} />
             <span class={styles.toggle} {...{ [CAPTURE_EXCLUDE]: '' }}>
                 <ShowHideButtonCircle
                     buttonAttrs={{
@@ -302,12 +302,13 @@ const INFO_CLOSE_DELAY = 160;
 /**
  * Opens on hover or click; closes on pointer leave, Escape or outside click.
  * When DuckDuckGo isn't the default browser it's flagged as an issue: the
- * button becomes an orange "1 issue" pill, and the pop-over offers to fix it.
+ * button becomes a grey "1 issue" pill, and the pop-over offers to fix it.
  *
  * @param {object} props
  * @param {DefaultPrompt | null} props.defaultPrompt - set when DuckDuckGo isn't the default browser
+ * @param {boolean} props.above - opens upward, eg: with the report collapsed there's no room below it on the card
  */
-function InfoButton({ defaultPrompt }) {
+function InfoButton({ defaultPrompt, above }) {
     const { t } = useReportTranslation();
     const title = defaultPrompt ? t('protections_report_notDefaultTitle') : t('protections_report_infoTitle');
     const [open, setOpen] = useState(false);
@@ -367,7 +368,7 @@ function InfoButton({ defaultPrompt }) {
                 {defaultPrompt ? t('protections_report_issueCount') : <InfoIcon />}
             </button>
             {open && (
-                <div class={styles.infoPopover} id={popoverId} role="dialog" aria-label={title}>
+                <div class={cn(styles.infoPopover, above && styles.infoPopoverAbove)} id={popoverId} role="dialog" aria-label={title}>
                     <h3 class={styles.infoTitle}>{title}</h3>
                     <p>{t('protections_report_infoBody1')}</p>
                     <p class={styles.infoEmphasis}>{t('protections_report_infoBody2')}</p>

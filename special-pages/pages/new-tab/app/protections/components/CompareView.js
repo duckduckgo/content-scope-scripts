@@ -498,6 +498,9 @@ export function CompareView({ site, google }) {
 
     const count = site.count;
     const trail = swarmItems(site.companies);
+    // the refs below fill these by place; drop places left over from a longer trail
+    trailRef.current.length = trail.length;
+    irisesRef.current.length = trail.length;
 
     return (
         <div data-testid="ProtectionsReportCompare" data-still={still}>

@@ -143,6 +143,18 @@
     }
 }
 
+/* bottom-left corner sits on the icon instead */
+.infoPopoverAbove {
+    top: auto;
+    bottom: 22px;
+    padding-top: 0;
+    padding-bottom: 6px;
+
+    &::before {
+        inset: 0 0 6px;
+    }
+}
+
 /* DuckDuckGo isn't the default browser: flagged as an issue */
 .issuePill {
     cursor: pointer;
@@ -552,16 +564,6 @@
     flex-shrink: 0;
     display: flex;
     overflow: hidden;
-
-    > * {
-        width: 100%;
-        height: 100%;
-    }
-
-    img {
-        width: 100%;
-        height: 100%;
-    }
 }
 
 .avatarMore {
@@ -580,12 +582,11 @@
     height: 32px;
     flex-shrink: 0;
     display: flex;
+}
 
-    > * {
-        width: 100%;
-        height: 100%;
-    }
-
+/* the company logo fills its circle */
+:is(.avatar, .companyIcon) {
+    > *,
     img {
         width: 100%;
         height: 100%;

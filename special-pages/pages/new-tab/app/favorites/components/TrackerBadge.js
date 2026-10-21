@@ -1,13 +1,12 @@
 import { h } from 'preact';
-import { useMemo, useState } from 'preact/hooks';
+import { useState } from 'preact/hooks';
 import cn from 'classnames';
 import styles from './TrackerBadge.module.css';
 import { useTypedTranslationWith } from '../../types.js';
 import { CompanyIcon } from '../../components/CompanyIcon.js';
 import { ShieldCheckIcon } from '../../components/Icons.js';
 import { displayNameForCompany } from '../../privacy-stats/privacy-stats.utils.js';
-import { useLocale } from '../../../../../shared/components/EnvironmentProvider.js';
-import { getLocalizedNumberFormatter } from '../../../../../shared/utils.js';
+import { useCountFormat } from '../../utils.js';
 
 /**
  * @import enStrings from '../strings.json'
@@ -34,19 +33,7 @@ export function siteName(etldPlusOne, url) {
 
 function useStrings() {
     const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
-    const locale = useLocale();
-    const numbers = useMemo(() => getLocalizedNumberFormatter(locale), [locale]);
-    return {
-        /** @param {number} n */
-        number: (n) => numbers.format(n),
-        /**
-         * @param {number} n
-         * @param {keyof enStrings} one - the string for exactly 1
-         * @param {keyof enStrings} many - the string for any other count, with a `{count}` placeholder
-         * @param {Record<string, string>} [values] - any other placeholders
-         */
-        plural: (n, one, many, values) => (n === 1 ? t(one, values) : t(many, { ...values, count: numbers.format(n) })),
-    };
+    return useCountFormat(t);
 }
 
 /**
@@ -76,13 +63,16 @@ export function useTrackerTip() {
  * @param {object} props
  * @param {FavoriteTrackers} props.trackers
  * @param {ReturnType<typeof useTrackerTip>['pillEvents']} props.events
+ * @param {string} props.id - so the tile can point to it for its description
  */
-export function TrackerPill({ trackers, events }) {
+export function TrackerPill({ trackers, events, id }) {
     const { number, plural } = useStrings();
     const count = trackers.companies.length;
     return (
         <span
             class={styles.pill}
+            id={id}
+            role="img"
             aria-label={plural(count, 'favorites_trackers_badgeLabelSingular', 'favorites_trackers_badgeLabel')}
             {...events}
         >

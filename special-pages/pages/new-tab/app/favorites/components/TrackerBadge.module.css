@@ -52,7 +52,8 @@
     position: absolute;
     /* just under the tile, over its title */
     top: calc(var(--icon-width) + 10px);
-    left: 4px;
+    /* flush with the tile's edge, by eye */
+    left: calc(var(--sp-3) - 4px);
     z-index: 1;
     width: 232px;
     box-sizing: border-box;
@@ -67,16 +68,22 @@
     font-size: 13px;
     line-height: 18px;
     pointer-events: none;
+    /* long domains wrap rather than spill out of the pop-over */
+    overflow-wrap: break-word;
     animation: tip-in 0.14s cubic-bezier(0.4, 0, 0.2, 1);
 
     p {
         margin: 0;
     }
+
+    @media (prefers-reduced-motion: reduce) {
+        animation: none;
+    }
 }
 
 .alignEnd {
     left: auto;
-    right: 4px;
+    right: calc(var(--sp-3) - 4px);
 }
 
 .divider {
@@ -91,6 +98,8 @@
     align-items: center;
     /* the list's gap, so this line's text starts where the names do */
     gap: 8px;
+    /* no lone word on the second line */
+    text-wrap: pretty;
     font-size: 12px;
     line-height: 16px;
     font-weight: 500;
@@ -125,7 +134,6 @@
 }
 
 /* The list */
-
 
 .listTitle {
     font-weight: 600;

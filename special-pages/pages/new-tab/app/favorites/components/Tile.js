@@ -39,6 +39,7 @@ export const Tile = memo(
         });
 
         const tileId = useId();
+        const trackersId = useId();
         const tip = useTrackerTip();
         const showTrackers = trackers && trackers.companies.length > 0;
 
@@ -51,6 +52,7 @@ export const Tile = memo(
                 data-index={index}
                 data-edge={'closestEdge' in state && state.closestEdge}
                 aria-labelledby={tileId}
+                aria-describedby={showTrackers ? trackersId : undefined}
                 style={animateItems ? { viewTransitionName: `Tile-${id}` } : undefined}
                 ref={ref}
                 {...(showTrackers ? tip.tileEvents : {})}
@@ -67,7 +69,7 @@ export const Tile = memo(
                             fallbackDark={DDG_FALLBACK_ICON_DARK}
                         />
                     )}
-                    {showTrackers && <TrackerPill trackers={trackers} events={tip.pillEvents} />}
+                    {showTrackers && <TrackerPill trackers={trackers} events={tip.pillEvents} id={trackersId} />}
                 </div>
                 <div class={styles.text} id={tileId}>
                     {title}
