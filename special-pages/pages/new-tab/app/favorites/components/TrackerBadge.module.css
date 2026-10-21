@@ -37,6 +37,9 @@
     /* sits a touch high beside the digits otherwise */
     position: relative;
     top: 1px;
+    /* the shield fills its whole drawing, so at some scales its bottom edge
+       falls just past the box and gets clipped */
+    overflow: visible;
 }
 
 /* Pop-over */
