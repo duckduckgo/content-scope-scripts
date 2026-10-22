@@ -857,6 +857,28 @@ export function isStateEnabled(state, platform) {
 }
 
 /**
+ * Deletes feature config the bundle never reads, so it can be garbage collected.
+ * Every bundled feature must be kept: platform specific features are enabled when absent from the config.
+ * @param {RemoteConfig} data - mutated in place
+ * @param {string[]} featureNames - features compiled into this bundle
+ * @param {Partial<Record<string, string[]>>} [dependencies] - extra config keys each feature reads
+ */
+export function pruneConfigFeatures(data, featureNames, dependencies = {}) {
+    if (!data?.features) return;
+    const keep = new Set(featureNames);
+    for (const featureName of featureNames) {
+        for (const dependency of dependencies[featureName] ?? []) {
+            keep.add(dependency);
+        }
+    }
+    for (const featureName of Object.keys(data.features)) {
+        if (!keep.has(featureName)) {
+            delete data.features[featureName];
+        }
+    }
+}
+
+/**
  * Returns a list of enabled features
  * @param {RemoteConfig} data
  * @param {string | null} topLevelHostname

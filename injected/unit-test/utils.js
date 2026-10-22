@@ -5,6 +5,7 @@ import {
     processConfig,
     computeEnabledFeatures,
     parseFeatureSettings,
+    pruneConfigFeatures,
     satisfiesMinVersion,
     isMaxSupportedVersion,
     getTabHostname,
@@ -1446,6 +1447,27 @@ describe('Helpers checks', () => {
             };
             const result = parseFeatureSettings(data, ['featureA', 'navigatorInterface', 'messageBridge']);
             expect(result).toEqual({ featureA: { key: 'value' } });
+        });
+    });
+
+    describe('pruneConfigFeatures', () => {
+        it('keeps only bundled features and their dependencies', () => {
+            const data = {
+                unprotectedTemporary: [],
+                features: {
+                    trackerProtection: { state: 'enabled', settings: {}, exceptions: [] },
+                    contentBlocking: { state: 'enabled', settings: {}, exceptions: [] },
+                    autofill: { state: 'enabled', settings: {}, exceptions: [] },
+                    gpc: { state: 'enabled', settings: {}, exceptions: [] },
+                },
+            };
+            pruneConfigFeatures(data, ['trackerProtection', 'gpc'], { trackerProtection: ['contentBlocking'] });
+            expect(Object.keys(data.features).sort()).toEqual(['contentBlocking', 'gpc', 'trackerProtection']);
+            expect(data.unprotectedTemporary).toEqual([]);
+        });
+
+        it('ignores a config without features', () => {
+            expect(() => pruneConfigFeatures(/** @type {any} */ ({}), ['gpc'])).not.toThrow();
         });
     });
 });
