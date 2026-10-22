@@ -1,4 +1,6 @@
-import { useEffect } from 'preact/hooks';
+import { useEffect, useMemo } from 'preact/hooks';
+import { useLocale } from '../../../shared/components/EnvironmentProvider.js';
+import { getLocalizedNumberFormatter } from '../../../shared/utils.js';
 
 /**
  * Use this to verify the result of updating some local state.
@@ -96,4 +98,26 @@ export function useOnMiddleClick(ref, handler) {
             element.removeEventListener('auxclick', handleAuxClick);
         };
     }, [ref, handler]);
+}
+
+/**
+ * Numbers in the page's locale, and strings that change with a count.
+ *
+ * @template {string} Key
+ * @param {(key: Key, values?: Record<string, string>) => string} t - translates a key
+ */
+export function useCountFormat(t) {
+    const locale = useLocale();
+    const numbers = useMemo(() => getLocalizedNumberFormatter(locale), [locale]);
+    return {
+        /** @param {number} n */
+        number: (n) => numbers.format(n),
+        /**
+         * @param {number} n
+         * @param {Key} one - the string for exactly 1
+         * @param {Key} many - the string for any other count, with a `{count}` placeholder
+         * @param {Record<string, string>} [values] - any other placeholders
+         */
+        plural: (n, one, many, values) => (n === 1 ? t(one, values) : t(many, { ...values, count: numbers.format(n) })),
+    };
 }

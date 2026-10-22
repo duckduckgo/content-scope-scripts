@@ -13,13 +13,106 @@
       "items": {
         "type": "object",
         "title": "TrackerCompany",
-        "required": ["displayName", "count"],
+        "required": [
+          "displayName",
+          "count"
+        ],
         "properties": {
           "displayName": {
             "type": "string"
           },
           "count": {
             "type": "number"
+          },
+          "sitesCount": {
+            "description": "Number of distinct sites visited in the reporting period where this company's trackers were blocked",
+            "type": "number"
+          },
+          "categories": {
+            "description": "Tracker Radar categories of this company's blocked tracker domains (union across domains). See https://github.com/duckduckgo/tracker-radar/blob/main/docs/CATEGORIES.md",
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/TrackerCategory"
+            }
+          },
+          "fingerprinting": {
+            "description": "Highest Tracker Radar fingerprinting score (0-3) across this company's blocked tracker domains. 2 or above means likely fingerprinting.",
+            "type": "number",
+            "minimum": 0,
+            "maximum": 3
+          }
+        }
+      }
+    },
+    "totalCompanies": {
+      "description": "Number of distinct tracker companies blocked in the reporting period, including those grouped under '__other__'. Falls back to the number of named companies when omitted.",
+      "type": "number"
+    },
+    "totalSitesVisited": {
+      "description": "Number of distinct sites (eTLD+1) visited in the reporting period. Used to express how widespread each company is, e.g. 'was on 4 out of 5 sites you visited'.",
+      "type": "number"
+    },
+    "topSites": {
+      "description": "The sites visited in the reporting period with the most tracking companies blocked, most first. Up to 5. Powers the 'Which sites had the most trackers' view; omit to hide that view.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/SiteTrackers"
+      }
+    }
+  },
+  "definitions": {
+    "TrackerCategory": {
+      "title": "Tracker Category",
+      "description": "A Tracker Radar category",
+      "enum": [
+        "Action Pixels",
+        "Ad Fraud",
+        "Ad Motivated Tracking",
+        "Advertising",
+        "Analytics",
+        "Audience Measurement",
+        "Badge",
+        "CDN",
+        "Embedded Content",
+        "Federated Login",
+        "Malware",
+        "Non-tracking",
+        "Online Payment",
+        "Obscure Ownership",
+        "SSO",
+        "Session Replay",
+        "Social Network",
+        "Social - Comment",
+        "Social - Share",
+        "Tag Manager",
+        "Third-Party Analytics Marketing",
+        "Unknown High Risk Behavior"
+      ]
+    },
+    "SiteTrackers": {
+      "title": "Site Trackers",
+      "type": "object",
+      "required": [
+        "etldPlusOne",
+        "trackerCompanies"
+      ],
+      "properties": {
+        "etldPlusOne": {
+          "type": "string",
+          "description": "The site, as eTLD+1 (eg: cnn.com). Also used for the fallback favicon."
+        },
+        "url": {
+          "type": "string",
+          "description": "A URL on the site, used to load its favicon"
+        },
+        "favicon": {
+          "$ref": "./favicon.json"
+        },
+        "trackerCompanies": {
+          "type": "array",
+          "description": "Display names of every tracking company blocked on this site in the reporting period, matching TrackerCompany.displayName",
+          "items": {
+            "type": "string"
           }
         }
       }

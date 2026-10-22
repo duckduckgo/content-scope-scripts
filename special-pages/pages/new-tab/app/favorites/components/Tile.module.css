@@ -1,5 +1,10 @@
 .item {
     --icon-width: 4rem;
+    --tile-radius: var(--border-radius-lg);
+    /* tracker badges and their pop-over (see TrackerBadge.module.css) */
+    --tracker-surface: var(--color-white);
+    --tracker-border: var(--ds-color-theme-container-border-primary);
+    --tracker-tab: var(--color-black-at-6);
 
     display: block;
     position: relative;
@@ -28,7 +33,23 @@
     width: var(--icon-width);
     height: var(--icon-width);
     margin-bottom: 6px;
-    border-radius: var(--border-radius-lg);
+    border-radius: var(--tile-radius);
+}
+
+/* the tile with its tracker pop-over open sits over the rest of the row, so
+   the next tiles' titles (each tile is its own stacking context) stay under it */
+.item:has([role='tooltip']) {
+    z-index: 1;
+}
+
+/* the tracker badge hangs off the tile's corner */
+.draggable {
+    position: relative;
+}
+
+[data-theme='dark'] .item {
+    --tracker-surface: var(--color-gray-85);
+    --tracker-tab: var(--color-white-at-9);
 }
 
 .preview {
@@ -144,6 +165,10 @@
 
 /* @todo rebrand: fold into base rules when the flag is retired. */
 body[data-rebrand="true"] {
+    .item {
+        --tile-radius: var(--ds-radius-x04);
+    }
+
     .icon {
         margin-bottom: var(--ds-space-x02-5);
     }

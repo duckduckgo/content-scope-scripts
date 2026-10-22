@@ -11,6 +11,16 @@ export const protectionsMocks = {
         totalCount: 86,
         totalCookiePopUpsBlocked: 21,
     },
+    // matches the weekly stats in `privacyStatsMocks.report`
+    report: {
+        totalCount: 3193,
+        totalCookiePopUpsBlocked: 762,
+    },
+    // matches the weekly stats in `privacyStatsMocks.sparse`
+    sparse: {
+        totalCount: 4,
+        totalCookiePopUpsBlocked: 1,
+    },
     many: {
         totalCount: 1_000_020,
         totalCookiePopUpsBlocked: 5_432,

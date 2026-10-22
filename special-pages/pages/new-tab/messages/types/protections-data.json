@@ -21,6 +21,10 @@
           "type": "number"
         }
       ]
+    },
+    "isDefaultBrowser": {
+      "description": "Whether DuckDuckGo is the default browser. When false, the Protections Report offers to make it the default (sending 'protections_makeDefaultBrowser'); send an update through 'protections_onDataUpdate' once that changes. Omit if unknown: nothing is shown.",
+      "type": "boolean"
     }
   }
 }

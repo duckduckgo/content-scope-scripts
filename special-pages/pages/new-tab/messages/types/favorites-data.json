@@ -45,6 +45,25 @@
           },
           "favicon": {
             "$ref": "./favicon.json"
+          },
+          "trackers": {
+            "type": "object",
+            "title": "Favorite Trackers",
+            "description": "Trackers blocked on this favorite's site in the past 7 days. Omitted when none were blocked.",
+            "required": ["companies", "blocked"],
+            "properties": {
+              "companies": {
+                "description": "Display names of the tracking companies blocked on the site, most blocked first. Matches TrackerCompany.displayName",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "blocked": {
+                "description": "Total tracking attempts blocked on the site",
+                "type": "number"
+              }
+            }
           }
         }
       }
