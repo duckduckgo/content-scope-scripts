@@ -69,7 +69,8 @@ function occurrenceFills(node) {
 
 /**
  * Mark the expressions computed per item: those reading `self` of the `using`, `where` or `field` they
- * sit in. One reading no `self` inside a `where` is computed once per evaluation of the source.
+ * sit in, or a `ref` inside one, since a `define` there can bind the name again for each item. One
+ * reading neither inside a `where` is computed once per evaluation of the source.
  *
  * @param {Scope} scope
  */
@@ -85,6 +86,7 @@ function markPerItem(scope) {
         if (seen !== undefined) return seen;
         const perItem =
             node.kind === 'item' ||
+            (node.kind === 'ref' && node.binder !== undefined) ||
             (node.binder !== undefined && (scope.deps.get(node) ?? []).some((dep) => dep.binder === node.binder && visit(dep)));
         marked.set(node, perItem);
         if (perItem) node.perItem = true;
