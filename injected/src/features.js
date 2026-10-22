@@ -139,6 +139,15 @@ export const platformSupport = {
     ],
     firefox: ['cookie', ...baseFeatures, 'clickToLoad', 'webDetection', 'webEvents', 'webInterferenceDetection', 'breakageReporting'],
     chrome: ['cookie', ...baseFeatures, 'clickToLoad', 'webDetection', 'webEvents', 'webInterferenceDetection', 'breakageReporting'],
-    'chrome-mv3': ['cookie', ...baseFeatures, 'clickToLoad', 'webDetection', 'webEvents', 'webInterferenceDetection', 'breakageReporting'],
+    'chrome-mv3': [
+        'cookie',
+        ...baseFeatures,
+        'clickToLoad',
+        'webDetection',
+        'webEvents',
+        'webInterferenceDetection',
+        'breakageReporting',
+        'messageBridge',
+    ],
     integration: [...baseFeatures, ...otherFeatures],
 };
