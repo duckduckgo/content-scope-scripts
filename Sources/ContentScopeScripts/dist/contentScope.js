@@ -13392,32 +13392,35 @@ ${iframeContent}
     }
     _setupXHRInterception() {
       const reportResource = this._reportResource.bind(this);
-      const xhrProto = XMLHttpRequest.prototype;
-      const originalOpen = xhrProto.open;
-      const originalSend = xhrProto.send;
       const xhrUrls = /* @__PURE__ */ new WeakMap();
       const xhrTracked = /* @__PURE__ */ new WeakSet();
-      xhrProto.open = function(method, url, async, username, password) {
-        xhrUrls.set(this, String(url));
-        const asyncValue = async === void 0 ? true : async;
-        return originalOpen.call(this, method, url, asyncValue, username, password);
+      const wrappedOpen = function(originalOpen, ...args) {
+        try {
+          if (args.length > 1) {
+            xhrUrls.set(this, String(args[1]));
+          }
+        } catch {
+        }
+        return originalOpen.apply(this, args);
       };
-      xhrProto.send = function(...args) {
-        if (!xhrTracked.has(this)) {
-          xhrTracked.add(this);
-          this.addEventListener("error", () => {
-            reportResource(xhrUrls.get(this) || "", "xmlhttprequest", true);
-          });
+      this.wrapMethod(XMLHttpRequest.prototype, "open", wrappedOpen);
+      const wrappedSend = function(originalSend, ...args) {
+        try {
+          if (!xhrTracked.has(this)) {
+            xhrTracked.add(this);
+            this.addEventListener("error", () => {
+              reportResource(xhrUrls.get(this) || "", "xmlhttprequest", true);
+            });
+          }
+        } catch {
         }
         return originalSend.apply(this, args);
       };
-      this._originalXHROpen = originalOpen;
-      this._originalXHRSend = originalSend;
+      this.wrapMethod(XMLHttpRequest.prototype, "send", wrappedSend);
     }
     _setupFetchInterception() {
       const reportResource = this._reportResource.bind(this);
-      const originalFetch = window.fetch;
-      window.fetch = function(...args) {
+      const wrappedFetch = function(originalFetch, ...args) {
         try {
           if (args.length > 0) {
             const input = args[0];
@@ -13431,33 +13434,38 @@ ${iframeContent}
           }
         } catch {
         }
-        return originalFetch.apply(window, args);
+        return originalFetch.apply(this, args);
       };
-      this._originalFetch = originalFetch;
+      this.wrapMethod(globalThis, "fetch", wrappedFetch);
     }
     _setupImageSrcInterception() {
       const reportResource = this._reportResource.bind(this);
-      const originalDescriptor = Object.getOwnPropertyDescriptor(Image.prototype, "src");
+      const imgProto = HTMLImageElement.prototype;
+      const originalDescriptor = Object.getOwnPropertyDescriptor(imgProto, "src");
       if (!originalDescriptor?.get || !originalDescriptor?.set) return;
-      this._originalImageSrc = originalDescriptor;
       const imgTracked = /* @__PURE__ */ new WeakSet();
       const origGet = originalDescriptor.get;
       const origSet = originalDescriptor.set;
-      delete Image.prototype.src;
-      Object.defineProperty(Image.prototype, "src", {
-        configurable: true,
-        get: function() {
-          return origGet.call(this);
-        },
-        set: function(value) {
+      const srcGet = function() {
+        return origGet.call(this);
+      };
+      const srcSet = function(value) {
+        try {
           if (!imgTracked.has(this)) {
             imgTracked.add(this);
             this.addEventListener("error", () => {
               reportResource(origGet.call(this), "image", true);
             });
           }
-          origSet.call(this, value);
+        } catch {
         }
+        origSet.call(this, value);
+      };
+      objectDefineProperty(srcGet, "name", { value: origGet.name, configurable: true });
+      objectDefineProperty(srcSet, "name", { value: origSet.name, configurable: true });
+      this.wrapProperty(imgProto, "src", {
+        get: wrapToString(srcGet, origGet),
+        set: wrapToString(srcSet, origSet)
       });
     }
     /**

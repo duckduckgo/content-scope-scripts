@@ -1,3 +1,2 @@
-- Page context: pick a better content root when the first match is too small (#3108)
-- NTP: one terms disclaimer string for Ask and Create (#3107)
-- NTP omnibar: restore visible Search/Duck.ai track on default backgrounds (#3101)
+- Patch fetch in tracker-protection to mitigate site detection of wrapper (#3131)
+- Stamp release version into package.json during build (#2699)
