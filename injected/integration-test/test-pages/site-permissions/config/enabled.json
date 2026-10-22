@@ -6,8 +6,7 @@
       "state": "enabled",
       "exceptions": [],
       "settings": {
-        "capability": "test-capability",
-        "installImmediately": true
+        "capability": "test-capability"
       }
     },
     "sitePermissionsMediaCapture": {

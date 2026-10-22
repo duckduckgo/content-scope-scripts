@@ -1,8 +1,25 @@
 import ContentFeature from '../content-feature.js';
-import { permissionsPolicy, randomHexToken } from './site-permissions/shared.js';
-
-// Each frame exposes its policy check here so same-origin children can inherit it.
-const INHERITED_POLICY_PROPERTY = '__ddgMediaCapturePolicy';
+import { isBeingFramed, matchHostname } from '../utils.js';
+import {
+    CustomEvent as NativeCustomEvent,
+    DOMException as NativeDOMException,
+    Event as NativeEvent,
+    EventTarget as NativeEventTarget,
+    addEventListener as addWindowEventListener,
+    ReflectApply as apply,
+    getOwnPropertyDescriptor,
+    objectDefineProperty as defineProperty,
+    objectGetPrototypeOf as getPrototypeOf,
+    promiseReject as rejectPromise,
+} from '../captured-globals.js';
+import {
+    callThen,
+    embeddingFrameAllows,
+    isSameOriginAsTopLevel,
+    mediaCapturePolicyEvent,
+    permissionsPolicy,
+    randomHexToken,
+} from './site-permissions/shared.js';
 
 /**
  * Delays a website's getUserMedia call so the iOS app can ask for site permission first.
@@ -21,25 +38,19 @@ const INHERITED_POLICY_PROPERTY = '__ddgMediaCapturePolicy';
 export default class SitePermissionsMediaCapture extends ContentFeature {
     load() {
         const capability = this.getFeatureSetting('capability');
-        if (typeof capability !== 'string' || capability.length === 0 || INHERITED_POLICY_PROPERTY in globalThis) {
+        const messageSecret = /** @type {{ messageSecret?: unknown } | undefined} */ (this.args)?.messageSecret;
+        if (typeof capability !== 'string' || capability.length === 0 || typeof messageSecret !== 'string' || messageSecret.length === 0) {
             return;
         }
 
         // Save native methods before page scripts can replace them.
         const messaging = this.messaging;
-        const apply = Reflect.apply;
-        const getPrototypeOf = Object.getPrototypeOf;
-        const getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
-        const defineProperty = Object.defineProperty;
         const toBoolean = Boolean;
-        const rejectPromise = Promise.reject.bind(Promise);
-        const callThen = Function.prototype.call.bind(Promise.prototype.then);
-        const NativeDOMException = DOMException;
-        const getAttribute = Element.prototype.getAttribute;
-        const baseURIGetter = getOwnPropertyDescriptor(Node.prototype, 'baseURI')?.get;
+        const dispatchEventOn = NativeEventTarget.prototype.dispatchEvent;
+        const preventDefault = NativeEvent.prototype.preventDefault;
         const mediaDevices = navigator.mediaDevices;
-        const prototype = mediaDevices && apply(getPrototypeOf, Object, [mediaDevices]);
-        const descriptor = prototype && apply(getOwnPropertyDescriptor, Object, [prototype, 'getUserMedia']);
+        const prototype = mediaDevices && getPrototypeOf(mediaDevices);
+        const descriptor = prototype && getOwnPropertyDescriptor(prototype, 'getUserMedia');
         const nativeGetUserMedia = descriptor && descriptor.value;
 
         if (typeof nativeGetUserMedia !== 'function') {
@@ -54,87 +65,39 @@ export default class SitePermissionsMediaCapture extends ContentFeature {
         const locationProtocol = globalThis.location.protocol;
         const isSecureContext = globalThis.isSecureContext === true;
         const hostname = globalThis.location.hostname.toLowerCase();
-        const isDuckAIHost = hostname === 'duck.ai' || hostname === 'duckduckgo.com' || hostname.endsWith('.duckduckgo.com');
+        const isDuckAIHost = hostname === 'duck.ai' || matchHostname(hostname, 'duckduckgo.com');
         const hasNonOpaqueOrigin = origin !== 'null' && origin.length > 0;
         const isSyntheticDocument = locationProtocol === 'about:';
-        const isSameOriginAsTopLevel = (() => {
-            if (globalThis.top === globalThis.window) {
-                return true;
-            }
-            try {
-                return globalThis.top?.location.origin === origin;
-            } catch (_) {
-                return false;
-            }
-        })();
+        const sameOriginAsTopLevel = isSameOriginAsTopLevel(origin);
         // WebKit owns each document's effective sandbox restrictions, including after navigation.
         // An allow-same-origin sandbox may request media; opaque origins are marked ineligible.
         const policy = permissionsPolicy();
         const allowsFeature = policy?.allowsFeature;
         const hasPolicyIntrospection = typeof allowsFeature === 'function';
         // Some WebKit versions don't expose whether an embedded page (iframe) may use media.
-        // Fall back to its HTML allow attribute and retain the parent's restrictions for nested
-        // frames. This is a best-effort precheck; WebKit makes the final capture decision.
+        // Fall back to the iframe's allow attribute, and keep the parent's restrictions for nested
+        // frames. A document's policy is fixed when it loads, so the parent answers from its own
+        // load-time result; a parent without this feature never answers, which fails closed.
+        // This is a best-effort precheck; WebKit makes the final capture decision.
+        /**
+         * @param {'camera' | 'microphone'} feature
+         */
+        const parentPolicyAllows = (feature) => {
+            const question = new NativeCustomEvent(mediaCapturePolicyEvent(feature, messageSecret), { cancelable: true });
+            return !apply(dispatchEventOn, globalThis.parent, [question]);
+        };
         /**
          * @param {'camera' | 'microphone'} feature
          */
         const fallbackPolicyAllows = (feature) => {
-            if (!isSameOriginAsTopLevel) {
+            if (!sameOriginAsTopLevel) {
                 return false;
             }
-            if (globalThis.top === globalThis.window) {
+            if (!isBeingFramed()) {
                 return true;
             }
             try {
-                const parent = globalThis.parent;
-                const inheritedPolicy = /** @type {Record<string, unknown>} */ (/** @type {unknown} */ (parent))[INHERITED_POLICY_PROPERTY];
-                if (typeof inheritedPolicy !== 'function' || !inheritedPolicy(feature)) {
-                    return false;
-                }
-                const frame = globalThis.frameElement;
-                if (!frame) {
-                    return false;
-                }
-                const allowAttribute = apply(getAttribute, frame, ['allow']) ?? '';
-                const source = apply(getAttribute, frame, ['src']);
-                let sourceOrigin = parent.location.origin;
-                if (source !== null && apply(getAttribute, frame, ['srcdoc']) === null && baseURIGetter) {
-                    try {
-                        const sourceURL = new URL(source, apply(baseURIGetter, frame, []));
-                        sourceOrigin = sourceURL.protocol === 'http:' || sourceURL.protocol === 'https:' ? sourceURL.origin : origin;
-                    } catch (_) {}
-                }
-                for (const directive of allowAttribute.split(';')) {
-                    const value = directive.trim();
-                    if (!value.startsWith(feature)) {
-                        continue;
-                    }
-                    // WebKit also accepts the legacy colon separator after a feature name.
-                    const allowlist = value.slice(feature.length).replace(/^:/, '').trim();
-                    if (!allowlist) {
-                        return sourceOrigin === origin;
-                    }
-                    let allowed = false;
-                    for (const token of allowlist.split(/[\t\n\f\r ]+/)) {
-                        if (token === '*') {
-                            return true;
-                        }
-                        if (token.toLowerCase() === "'none'") {
-                            return false;
-                        }
-                        if (token.toLowerCase() === "'self'") {
-                            allowed ||= parent.location.origin === origin;
-                        } else if (token.toLowerCase() === "'src'") {
-                            allowed ||= sourceOrigin === origin;
-                        } else {
-                            try {
-                                allowed ||= new URL(token).origin === origin;
-                            } catch (_) {}
-                        }
-                    }
-                    return allowed;
-                }
-                return true;
+                return parentPolicyAllows(feature) && embeddingFrameAllows(globalThis.window, feature, { legacyColonSeparator: true });
             } catch (_) {
                 return false;
             }
@@ -154,7 +117,13 @@ export default class SitePermissionsMediaCapture extends ContentFeature {
                 return false;
             }
         };
-        apply(defineProperty, Object, [globalThis, INHERITED_POLICY_PROPERTY, { value: policyAllows }]);
+        for (const feature of /** @type {const} */ (['camera', 'microphone'])) {
+            addWindowEventListener(mediaCapturePolicyEvent(feature, messageSecret), (event) => {
+                if (policyAllows(feature)) {
+                    apply(preventDefault, event, []);
+                }
+            });
+        }
         let nextRequestID = 0;
 
         const permissionDenied = () => new NativeDOMException('Permission denied', 'NotAllowedError');
@@ -225,13 +194,6 @@ export default class SitePermissionsMediaCapture extends ContentFeature {
             );
         };
 
-        apply(defineProperty, Object, [
-            prototype,
-            'getUserMedia',
-            {
-                ...descriptor,
-                value: getUserMedia,
-            },
-        ]);
+        defineProperty(prototype, 'getUserMedia', { ...descriptor, value: getUserMedia });
     }
 }

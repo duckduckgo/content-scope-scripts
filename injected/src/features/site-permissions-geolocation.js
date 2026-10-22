@@ -1,12 +1,37 @@
 import ContentFeature from '../content-feature.js';
-import { isDuckAiHostname, permissionsPolicy, randomHexToken } from './site-permissions/shared.js';
-
-// Native code reads this page-world global; see `load()`.
-const DOCUMENT_ID_PROPERTY = '__ddgSitePermissionsGeolocationDocumentID';
+import {
+    CustomEvent as NativeCustomEvent,
+    Event as NativeEvent,
+    EventTarget as NativeEventTarget,
+    JSONparse,
+    Map as NativeMap,
+    ReflectApply as apply,
+    addEventListener as addWindowEventListener,
+    dispatchEvent as dispatchWindowEvent,
+    getOwnPropertyDescriptor,
+    mapDelete,
+    mapGet,
+    mapHas,
+    mapSet,
+    objectDefineProperty as defineProperty,
+    objectFreeze as freeze,
+    objectGetPrototypeOf as getPrototypeOf,
+    promiseResolve,
+    queueMicrotask as queueTask,
+    setTimeout as scheduleTask,
+} from '../captured-globals.js';
+import { matchHostname } from '../utils.js';
+import {
+    callThen,
+    geolocationBridgeEvent,
+    hasNetworkOrigin,
+    isSameOriginAsTopLevel,
+    permissionsPolicy,
+    randomHexToken,
+} from './site-permissions/shared.js';
 
 /**
  * @typedef {{ success: PositionCallback, error: PositionErrorCallback | null | undefined }} WatchCallbacks
- * @typedef {{ isSecureContext: boolean, isPolicyAllowed: boolean, isSandboxed: boolean }} Constraints
  * @typedef {{ status?: string, code?: number, message?: string, coords?: GeolocationCoordinates, timestamp?: number }} PositionResult
  * @typedef {{ status: EventTarget, initialize: (state: PermissionState) => void, update: (state: unknown) => void }} PermissionStatusRecord
  */
@@ -20,19 +45,23 @@ const DOCUMENT_ID_PROPERTY = '__ddgSitePermissionsGeolocationDocumentID';
  * their native behavior.
  *
  * `sitePermissionsGeolocationPolicy` checks frame restrictions in the isolated world,
- * and native code obtains authoritative policy from it. Native code activates this
- * feature by injecting its settings: `capability` authenticates every message, and
- * `installImmediately` hardens the page API before registration replies.
+ * and native code obtains authoritative policy from it. The two features share this
+ * document's identity, and native updates arrive through that feature, over
+ * `geolocationBridgeEvent` events. This feature defines no globals.
+ *
+ * Native code activates this feature only in the app's tab web views, by injecting the
+ * `capability` setting that authenticates every message. It then hardens the page API at
+ * document start, except on Duck.ai. Each request carries this document's identity, which
+ * native code checks against the isolated feature's report, so frames need no registration.
  */
 export default class SitePermissionsGeolocation extends ContentFeature {
     load() {
         const capability = this.getFeatureSetting('capability');
-        if (typeof capability !== 'string' || capability.length === 0 || DOCUMENT_ID_PROPERTY in globalThis) {
+        const messageSecret = /** @type {{ messageSecret?: unknown } | undefined} */ (this.args)?.messageSecret;
+        if (typeof capability !== 'string' || capability.length === 0 || typeof messageSecret !== 'string' || messageSecret.length === 0) {
             return;
         }
-        const installImmediately = this.getFeatureSetting('installImmediately') === true;
-        const initialHostname = globalThis.location.hostname.toLowerCase();
-        if (installImmediately && isDuckAiHostname(initialHostname)) {
+        if (matchHostname(globalThis.location.hostname.toLowerCase(), 'duck.ai')) {
             return;
         }
 
@@ -40,61 +69,34 @@ export default class SitePermissionsGeolocation extends ContentFeature {
         const messaging = this.messaging;
         /** @type {(method: string, params: Record<string, unknown>) => Promise<any>} */
         const request = (method, params) => messaging.request(method, params);
-        /** @type {(name: string, callback: (params: any) => boolean) => void} */
-        const subscribe = (name, callback) => {
-            messaging.subscribe(name, callback);
-        };
-        const callThen = Function.prototype.call.bind(Promise.prototype.then);
-        const scheduleTask = globalThis.setTimeout.bind(globalThis);
-        const queueTask = globalThis.queueMicrotask.bind(globalThis);
-        const apply = globalThis.Reflect.apply;
-        const mapGet = globalThis.Map.prototype.get;
-        const mapHas = globalThis.Map.prototype.has;
-        const mapSet = globalThis.Map.prototype.set;
-        const mapDelete = globalThis.Map.prototype.delete;
-        const NativeEvent = globalThis.Event;
-        const NativeEventTarget = globalThis.EventTarget;
-        const dispatchEvent = NativeEventTarget.prototype.dispatchEvent;
-        const freeze = globalThis.Object.freeze;
-        const defineProperty = globalThis.Object.defineProperty;
-        const getPrototypeOf = globalThis.Object.getPrototypeOf;
+        const dispatchStatusEvent = NativeEventTarget.prototype.dispatchEvent;
+        const preventDefault = NativeEvent.prototype.preventDefault;
+        const customEventDetail = getOwnPropertyDescriptor(NativeCustomEvent.prototype, 'detail')?.get;
         const nativeGeolocation = navigator.geolocation;
         const nativePermissions = navigator.permissions;
         const nativePermissionsQuery = nativePermissions?.query;
         /** @type {Map<string, WatchCallbacks>} */
-        const activeWatches = new Map();
+        const activeWatches = new NativeMap();
         /** @type {Map<string, PermissionStatusRecord>} */
-        const permissionStatuses = new Map();
-        // Registration and callback identities are local to this document.
-        const nonce = randomHexToken();
-        const frameNonce = randomHexToken() ?? 'unavailable';
+        const permissionStatuses = new NativeMap();
+        // Request and callback identities are local to this document.
+        const documentID = randomHexToken();
+        const frameNonce = documentID ?? 'unavailable';
         let nextWatchID = 1;
         let nextPermissionStatusID = 1;
 
-        // Native code checks this before delivering a callback, so a WKFrameInfo that
-        // outlives its document cannot reach the replacement document.
-        defineProperty(globalThis, DOCUMENT_ID_PROPERTY, {
-            configurable: false,
-            value: frameNonce,
-        });
+        // The isolated feature reports this identity to native code alongside its own, so native code
+        // can tell when a WKFrameInfo outlives its document. Answer requests, and announce it in case
+        // the isolated feature loaded first.
+        const announceDocument = () => {
+            dispatchWindowEvent(new NativeCustomEvent(geolocationBridgeEvent('document', messageSecret), { detail: frameNonce }));
+        };
+        addWindowEventListener(geolocationBridgeEvent('document-request', messageSecret), announceDocument);
+        announceDocument();
 
         // Cross-origin frames are unsupported. Same-origin frames also need the
         // platform's effective policy: origin alone cannot prove that an iframe's
         // allow attribute or response headers permit geolocation.
-        const isSameOriginAsTopLevel = (() => {
-            if (globalThis.top === globalThis.window) {
-                return true;
-            }
-            try {
-                return globalThis.top?.location.origin === globalThis.location.origin;
-            } catch (_) {
-                return false;
-            }
-        })();
-        const hasNetworkOrigin =
-            globalThis.origin !== 'null' &&
-            globalThis.location.hostname.length > 0 &&
-            (globalThis.location.protocol === 'https:' || globalThis.location.protocol === 'http:');
         const nativePermissionsPolicy = permissionsPolicy();
         const nativePolicyAllowsFeature = nativePermissionsPolicy?.allowsFeature;
         const policyAllowsGeolocation = () => {
@@ -102,52 +104,35 @@ export default class SitePermissionsGeolocation extends ContentFeature {
                 if (typeof nativePolicyAllowsFeature === 'function') {
                     return apply(nativePolicyAllowsFeature, nativePermissionsPolicy, ['geolocation']) === true;
                 }
-                // Native code checks the top-level response policy. Without this API,
-                // subframe response policies cannot be verified, so deny subframes.
-                return globalThis.top === globalThis.window;
+                // Without this API, the isolated feature checks each embedding frame's
+                // allow attribute and native code checks the top-level response policy.
+                return true;
             } catch (_) {
                 return false;
             }
         };
 
         const isSecureContext = globalThis.isSecureContext === true;
-        const isFramePolicyEligible = hasNetworkOrigin && isSameOriginAsTopLevel;
-        const deniedConstraints = freeze({ isSecureContext: false, isPolicyAllowed: false, isSandboxed: true });
-        /** @type {Readonly<Constraints>} */
-        let constraints = deniedConstraints;
-
-        const isContextEligible = () => nonce !== null && isSecureContext && isFramePolicyEligible;
-        const isAllowedByPlatform = () =>
-            isContextEligible() &&
-            constraints.isSecureContext &&
-            constraints.isPolicyAllowed &&
-            policyAllowsGeolocation() &&
-            !constraints.isSandboxed;
+        const isFramePolicyEligible = hasNetworkOrigin() && isSameOriginAsTopLevel();
+        const isContextEligible = () => documentID !== null && isSecureContext && isFramePolicyEligible;
+        // A precheck: native code enforces the isolated feature's policy on every request.
+        const isAllowedByPlatform = () => isContextEligible() && policyAllowsGeolocation();
 
         /**
          * @param {Record<string, unknown>} [values]
          */
-        const message = (values = {}) => ({ capability, nonce, documentID: frameNonce, ...values });
+        const message = (values = {}) => ({ capability, documentID: frameNonce, ...values });
 
-        // Native registration obtains policy in the isolated world and rechecks activation.
-        /** @returns {Promise<boolean>} */
-        const registerFrame = () =>
-            callThen(request('registerFrame', message()), (/** @type {any} */ result) => {
-                if (result?.status === 'error' && result.code === 1) {
-                    constraints = deniedConstraints;
-                    return false;
-                }
-                if (result?.status !== 'registered') {
-                    throw new Error('Unable to register geolocation frame');
-                }
-                constraints = freeze({
-                    isSecureContext: result.constraints?.isSecureContext === true,
-                    isPolicyAllowed: result.constraints?.isPolicyAllowed === true,
-                    isSandboxed: result.constraints?.isSandboxed !== false,
-                });
-                return result.enabled === true;
-            });
-        const registration = registerFrame();
+        /**
+         * Sends `method` when the platform allows it; otherwise resolves a denial without asking native code.
+         *
+         * @param {string} method
+         * @param {Record<string, unknown>} [values]
+         * @param {() => boolean} [stillWanted] - checked again before sending
+         * @returns {Promise<any>}
+         */
+        const requestIfAllowed = (method, values, stillWanted = () => true) =>
+            isAllowedByPlatform() && stillWanted() ? request(method, message(values)) : promiseResolve(deniedResult());
 
         /**
          * @param {PositionOptions | null} [options]
@@ -267,7 +252,7 @@ export default class SitePermissionsGeolocation extends ContentFeature {
                     }
                     state = normalizedState;
                     const event = new NativeEvent('change');
-                    apply(dispatchEvent, status, [event]);
+                    apply(dispatchStatusEvent, status, [event]);
                     const onchange = handlers.onchange;
                     if (typeof onchange === 'function') {
                         try {
@@ -297,12 +282,8 @@ export default class SitePermissionsGeolocation extends ContentFeature {
                 return;
             }
 
-            callThen(
-                callThen(registerFrame(), (/** @type {boolean} */ enabled) =>
-                    enabled && isAllowedByPlatform()
-                        ? request('getCurrentPosition', message({ options: optionsPayload(options) }))
-                        : deniedResult(),
-                ),
+            void callThen(
+                requestIfAllowed('getCurrentPosition', { options: optionsPayload(options) }),
                 (/** @type {PositionResult} */ result) => settlePosition(isAllowedByPlatform() ? result : deniedResult(), success, error),
                 () => invokeError(error, positionError(2, 'Geolocation is unavailable')),
             );
@@ -331,21 +312,24 @@ export default class SitePermissionsGeolocation extends ContentFeature {
                 return watchID;
             }
 
-            callThen(
-                callThen(registerFrame(), (/** @type {boolean} */ enabled) =>
-                    enabled && isAllowedByPlatform()
-                        ? request('startWatch', message({ requestID, options: optionsPayload(options) }))
-                        : deniedResult(),
+            // Start after the current task, so a watch the page clears straight away never starts
+            // native location updates or a permission prompt.
+            const start = callThen(promiseResolve(undefined), () =>
+                requestIfAllowed('startWatch', { requestID, options: optionsPayload(options) }, () =>
+                    apply(mapHas, activeWatches, [requestID]),
                 ),
+            );
+            void callThen(
+                start,
                 (/** @type {PositionResult} */ result) => {
                     // clearWatch can run while native creation is pending; cancel a late start.
                     if (!apply(mapHas, activeWatches, [requestID]) && result?.status === 'started') {
-                        callThen(request('clearWatch', message({ requestID })), undefined, () => {});
+                        void callThen(request('clearWatch', message({ requestID })), undefined, () => {});
                         return;
                     }
                     if (result?.status === 'started' && !isAllowedByPlatform()) {
                         apply(mapDelete, activeWatches, [requestID]);
-                        callThen(request('clearWatch', message({ requestID })), undefined, () => {});
+                        void callThen(request('clearWatch', message({ requestID })), undefined, () => {});
                         invokeError(error, deniedError());
                         return;
                     }
@@ -370,11 +354,7 @@ export default class SitePermissionsGeolocation extends ContentFeature {
             if (!apply(mapDelete, activeWatches, [requestID])) {
                 return;
             }
-            callThen(
-                callThen(registerFrame(), (/** @type {boolean} */ enabled) => enabled && request('clearWatch', message({ requestID }))),
-                undefined,
-                () => {},
-            );
+            void callThen(request('clearWatch', message({ requestID })), undefined, () => {});
         };
 
         // Receivers acknowledge ownership. Native code cancels subscriptions when the
@@ -387,7 +367,7 @@ export default class SitePermissionsGeolocation extends ContentFeature {
             if (callbacks) {
                 if (!isAllowedByPlatform()) {
                     apply(mapDelete, activeWatches, [requestID]);
-                    callThen(request('clearWatch', message({ requestID })), undefined, () => {});
+                    void callThen(request('clearWatch', message({ requestID })), undefined, () => {});
                     invokeError(callbacks.error, deniedError());
                     return false;
                 }
@@ -444,9 +424,7 @@ export default class SitePermissionsGeolocation extends ContentFeature {
             const record = permissionStatus();
             apply(mapSet, permissionStatuses, [statusID, record]);
             return callThen(
-                callThen(registerFrame(), (/** @type {boolean} */ enabled) =>
-                    enabled && isAllowedByPlatform() ? request('queryPermission', message({ statusID })) : null,
-                ),
+                requestIfAllowed('queryPermission', { statusID }),
                 (/** @type {any} */ result) => {
                     if (result?.status !== 'permission') {
                         apply(mapDelete, permissionStatuses, [statusID]);
@@ -510,24 +488,26 @@ export default class SitePermissionsGeolocation extends ContentFeature {
                 return false;
             }
 
-            subscribe('geolocationWatchResult', receiveWatchResult);
-            subscribe('geolocationTerminalWatchResult', receiveTerminalWatchResult);
-            subscribe('geolocationPermissionState', receivePermissionState);
+            // The isolated feature forwards native updates after checking this document's identity.
+            // Handling one acknowledges ownership: native code cancels the watch or status otherwise.
+            /** @type {Record<string, (params: any) => boolean>} */
+            const receivers = {
+                geolocationWatchResult: receiveWatchResult,
+                geolocationTerminalWatchResult: receiveTerminalWatchResult,
+                geolocationPermissionState: receivePermissionState,
+            };
+            addWindowEventListener(geolocationBridgeEvent('deliver', messageSecret), (event) => {
+                try {
+                    const delivery = customEventDetail ? JSONparse(apply(customEventDetail, event, [])) : null;
+                    const receive = typeof delivery?.subscriptionName === 'string' ? receivers[delivery.subscriptionName] : undefined;
+                    if (receive?.(delivery.params ?? {})) {
+                        apply(preventDefault, event, []);
+                    }
+                } catch (_) {}
+            });
             return true;
         };
 
-        if (installImmediately) {
-            installShim();
-        }
-
-        callThen(
-            registration,
-            (/** @type {boolean} */ enabled) => {
-                if (enabled && !installImmediately) {
-                    installShim();
-                }
-            },
-            () => {},
-        );
+        installShim();
     }
 }

@@ -28,11 +28,6 @@ export type QueryPermissionParams = GeolocationMessageIdentity & {
   statusID: string;
 };
 export type QueryPermissionResponse = QueryPermissionState | GeolocationErrorResult;
-/**
- * Registers the document with native code, which reads its policy from the isolated world. Sent at document start and before each operation.
- */
-export type RegisterFrameParams = GeolocationMessageIdentity;
-export type RegisterFrameResponse = RegisterFrameRegistered | GeolocationErrorResult;
 export type StartWatchParams = GeolocationMessageIdentity & {
   /**
    * `<documentID>:<watchID>`. Native code delivers results for this watch with `geolocationWatchResult`.
@@ -46,8 +41,7 @@ export type StartWatchResponse = StartWatchStarted | GeolocationErrorResult;
  * Requests, Notifications and Subscriptions from the SitePermissionsGeolocation feature
  */
 export interface SitePermissionsGeolocationMessages {
-  requests:
-    ClearWatchRequest | GetCurrentPositionRequest | QueryPermissionRequest | RegisterFrameRequest | StartWatchRequest;
+  requests: ClearWatchRequest | GetCurrentPositionRequest | QueryPermissionRequest | StartWatchRequest;
   subscriptions:
     | GeolocationPermissionStateSubscription
     | GeolocationTerminalWatchResultSubscription
@@ -70,11 +64,7 @@ export interface GeolocationMessageIdentity {
    */
   capability: string;
   /**
-   * Registration nonce, random per document.
-   */
-  nonce: string;
-  /**
-   * The page document's identity, also exposed as `__ddgSitePermissionsGeolocationDocumentID` for native checks. `unavailable` without crypto.
+   * The page document's identity. Native code checks it against the identity the isolated policy feature reports for the frame. `unavailable` without crypto.
    */
   documentID: string;
 }
@@ -132,29 +122,6 @@ export interface QueryPermissionRequest {
 export interface QueryPermissionState {
   status: "permission";
   state: "granted" | "prompt" | "denied";
-}
-/**
- * Generated from @see "../messages/site-permissions-geolocation/registerFrame.request.json"
- */
-export interface RegisterFrameRequest {
-  method: "registerFrame";
-  params: RegisterFrameParams;
-  result: RegisterFrameResponse;
-}
-export interface RegisterFrameRegistered {
-  status: "registered";
-  /**
-   * Whether the app activates geolocation for this frame. The shim installs only when true, unless `installImmediately` is set.
-   */
-  enabled: boolean;
-  /**
-   * Policy from the isolated world. Absent when disabled.
-   */
-  constraints?: {
-    isSecureContext: boolean;
-    isSandboxed: boolean;
-    isPolicyAllowed: boolean;
-  };
 }
 /**
  * Generated from @see "../messages/site-permissions-geolocation/startWatch.request.json"

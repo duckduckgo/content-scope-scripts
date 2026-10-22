@@ -5,12 +5,6 @@ const HTML = '/site-permissions/index.html';
 const CONFIG_ENABLED = './integration-test/test-pages/site-permissions/config/enabled.json';
 const CONFIG_NOT_CONFIGURED = './integration-test/test-pages/site-permissions/config/not-configured.json';
 
-const ALLOWED_REGISTRATION = {
-    status: 'registered',
-    enabled: true,
-    constraints: { isSecureContext: true, isPolicyAllowed: true, isSandboxed: false },
-};
-
 const POSITION = {
     status: 'success',
     coords: { latitude: 51.5, longitude: -0.12, accuracy: 10, altitude: null, altitudeAccuracy: null, heading: null, speed: null },
@@ -37,20 +31,42 @@ async function stubNativeGetUserMedia(page) {
     });
 }
 
+// The collector's default `messageSecret`; bridge event names between the two features include it.
+const MESSAGE_SECRET = 'duckduckgo-android-messaging-secret';
+
 /**
- * Calls a subscription the way native code does and returns the page's acknowledgement.
+ * Forwards a native update the way the isolated policy feature does, and returns the page's acknowledgement.
  * @param {import('@playwright/test').Page} page
  * @param {string} subscriptionName
  * @param {Record<string, unknown>} params
  */
 async function pushToPage(page, subscriptionName, params) {
     return await page.evaluate(
-        ({ subscriptionName, params }) => {
-            const handler = navigator.duckduckgo?.messageHandlers?.[subscriptionName];
-            return handler?.({ context: 'contentScopeScripts', featureName: 'sitePermissionsGeolocation', subscriptionName, params });
+        ({ subscriptionName, params, secret }) => {
+            const event = new CustomEvent(`ddg-site-permissions-geolocation-deliver-${secret}`, {
+                cancelable: true,
+                detail: JSON.stringify({ subscriptionName, params }),
+            });
+            return !window.dispatchEvent(event);
         },
-        { subscriptionName, params },
+        { subscriptionName, params, secret: MESSAGE_SECRET },
     );
+}
+
+/**
+ * Asks the page feature for its document identity, as the isolated policy feature does.
+ * @param {import('@playwright/test').Page} page
+ */
+async function requestPageDocument(page) {
+    return await page.evaluate((secret) => {
+        /** @type {unknown} */
+        let announced = null;
+        window.addEventListener(`ddg-site-permissions-geolocation-document-${secret}`, (event) => {
+            announced = /** @type {CustomEvent} */ (event).detail;
+        });
+        window.dispatchEvent(new CustomEvent(`ddg-site-permissions-geolocation-document-request-${secret}`));
+        return announced;
+    }, MESSAGE_SECRET);
 }
 
 test.describe('site permissions without native settings', () => {
@@ -62,35 +78,47 @@ test.describe('site permissions without native settings', () => {
             getCurrentPosition: navigator.geolocation.getCurrentPosition.toString(),
             query: navigator.permissions.query.toString(),
             getUserMedia: navigator.mediaDevices.getUserMedia.toString(),
-            documentID: '__ddgSitePermissionsGeolocationDocumentID' in window,
         }));
         expect(state.getCurrentPosition).toContain('[native code]');
         expect(state.query).toContain('[native code]');
         expect(state.getUserMedia).toContain('[native code]');
-        expect(state.documentID).toBe(false);
+        expect(await requestPageDocument(page)).toBeNull();
         expect(await collector.outgoingMessages()).toEqual([]);
     });
 });
 
 test.describe('sitePermissionsGeolocation', () => {
-    test('registers the frame with the capability and document identity', async ({ page }, testInfo) => {
+    test('sends nothing until the page asks, then sends the capability and document identity', async ({ page }, testInfo) => {
         const collector = ResultsCollector.create(page, testInfo.project.use);
-        collector.withMockResponse({ registerFrame: ALLOWED_REGISTRATION });
+        collector.withMockResponse({ getCurrentPosition: POSITION });
         await collector.load(HTML, CONFIG_ENABLED);
+        expect(await collector.outgoingMessages()).toEqual([]);
 
-        const [registration] = await collector.waitForMessage('registerFrame');
-        expect(registration.payload.featureName).toBe('sitePermissionsGeolocation');
-        expect(registration.payload.params.capability).toBe('test-capability');
-        expect(registration.payload.params.nonce).toMatch(/^[0-9a-f]{32}$/);
-        expect(registration.payload.params.documentID).toMatch(/^[0-9a-f]{32}$/);
-        // @ts-expect-error DDG custom global
-        const documentID = await page.evaluate(() => window.__ddgSitePermissionsGeolocationDocumentID);
-        expect(documentID).toBe(registration.payload.params.documentID);
+        await page.evaluate(() => new Promise((resolve) => navigator.geolocation.getCurrentPosition(resolve, resolve)));
+        const [request] = await collector.waitForMessage('getCurrentPosition');
+        expect(request.payload.featureName).toBe('sitePermissionsGeolocation');
+        expect(request.payload.params.capability).toBe('test-capability');
+        expect(request.payload.params.documentID).toMatch(/^[0-9a-f]{32}$/);
+        expect(await requestPageDocument(page)).toBe(request.payload.params.documentID);
+        const methods = (await collector.outgoingMessages()).map((call) => /** @type {{ method?: string }} */ (call.payload).method);
+        expect(methods).toEqual(['getCurrentPosition']);
     });
 
-    test('installs before registration and keeps the replacement after deletion', async ({ page }, testInfo) => {
+    test('defines no globals or subscriptions in the page world', async ({ page }, testInfo) => {
         const collector = ResultsCollector.create(page, testInfo.project.use);
-        collector.withMockResponse({ registerFrame: ALLOWED_REGISTRATION });
+        await collector.load(HTML, CONFIG_ENABLED);
+
+        const exposed = await page.evaluate(() => ({
+            globals: Object.getOwnPropertyNames(window).filter((name) => /SitePermissions|MediaCapture/i.test(name)),
+            subscriptions: Object.getOwnPropertyNames(navigator.duckduckgo?.messageHandlers ?? {}).filter((name) =>
+                name.startsWith('geolocation'),
+            ),
+        }));
+        expect(exposed).toEqual({ globals: [], subscriptions: [] });
+    });
+
+    test('installs at document start and keeps the replacement after deletion', async ({ page }, testInfo) => {
+        const collector = ResultsCollector.create(page, testInfo.project.use);
         await collector.load(HTML, CONFIG_ENABLED);
 
         const state = await page.evaluate(() => {
@@ -109,7 +137,7 @@ test.describe('sitePermissionsGeolocation', () => {
 
     test('delivers the native position to getCurrentPosition', async ({ page }, testInfo) => {
         const collector = ResultsCollector.create(page, testInfo.project.use);
-        collector.withMockResponse({ registerFrame: ALLOWED_REGISTRATION, getCurrentPosition: POSITION });
+        collector.withMockResponse({ getCurrentPosition: POSITION });
         await collector.load(HTML, CONFIG_ENABLED);
 
         const position = await page.evaluate(
@@ -129,11 +157,10 @@ test.describe('sitePermissionsGeolocation', () => {
         expect(request.payload.params.options).toEqual({ enableHighAccuracy: true, timeout: 5000, maximumAge: 'infinity' });
     });
 
-    test('denies without asking native code when the frame is sandboxed', async ({ page }, testInfo) => {
+    test('passes a native policy denial to the page', async ({ page }, testInfo) => {
         const collector = ResultsCollector.create(page, testInfo.project.use);
         collector.withMockResponse({
-            registerFrame: { ...ALLOWED_REGISTRATION, constraints: { ...ALLOWED_REGISTRATION.constraints, isSandboxed: true } },
-            getCurrentPosition: POSITION,
+            getCurrentPosition: { status: 'error', code: 1, message: 'Geolocation is not allowed in this context' },
         });
         await collector.load(HTML, CONFIG_ENABLED);
 
@@ -147,14 +174,29 @@ test.describe('sitePermissionsGeolocation', () => {
                 }),
         );
         expect(code).toBe(1);
+    });
+
+    test('never starts a watch that the page clears straight away', async ({ page }, testInfo) => {
+        const collector = ResultsCollector.create(page, testInfo.project.use);
+        collector.withMockResponse({
+            startWatch: { status: 'started' },
+            clearWatch: { status: 'cleared' },
+            queryPermission: { status: 'permission', state: 'prompt' },
+        });
+        await collector.load(HTML, CONFIG_ENABLED);
+
+        await page.evaluate(async () => {
+            navigator.geolocation.clearWatch(navigator.geolocation.watchPosition(() => {}));
+            await navigator.permissions.query({ name: 'geolocation' });
+        });
+        await collector.waitForMessage('queryPermission');
         const methods = (await collector.outgoingMessages()).map((call) => /** @type {{ method?: string }} */ (call.payload).method);
-        expect(methods).not.toContain('getCurrentPosition');
+        expect(methods).not.toContain('startWatch');
     });
 
     test('routes watch results to the page and acknowledges them until clearWatch', async ({ page }, testInfo) => {
         const collector = ResultsCollector.create(page, testInfo.project.use);
         collector.withMockResponse({
-            registerFrame: ALLOWED_REGISTRATION,
             startWatch: { status: 'started' },
             clearWatch: { status: 'cleared' },
         });
@@ -185,7 +227,7 @@ test.describe('sitePermissionsGeolocation', () => {
 
     test('updates a geolocation PermissionStatus when native code pushes a change', async ({ page }, testInfo) => {
         const collector = ResultsCollector.create(page, testInfo.project.use);
-        collector.withMockResponse({ registerFrame: ALLOWED_REGISTRATION, queryPermission: { status: 'permission', state: 'prompt' } });
+        collector.withMockResponse({ queryPermission: { status: 'permission', state: 'prompt' } });
         await collector.load(HTML, CONFIG_ENABLED);
 
         const initialState = await page.evaluate(async () => {
@@ -218,7 +260,7 @@ test.describe('sitePermissionsMediaCapture', () => {
         }, testInfo) => {
             await stubNativeGetUserMedia(page);
             const collector = ResultsCollector.create(page, testInfo.project.use);
-            collector.withMockResponse({ registerFrame: ALLOWED_REGISTRATION, requestPermission: { decision } });
+            collector.withMockResponse({ requestPermission: { decision } });
             await collector.load(HTML, CONFIG_ENABLED);
 
             const outcome = await page.evaluate(async () => {
@@ -247,7 +289,6 @@ test.describe('sitePermissionsMediaCapture', () => {
     test('passes requests without video or audio straight to the native getUserMedia', async ({ page }, testInfo) => {
         await stubNativeGetUserMedia(page);
         const collector = ResultsCollector.create(page, testInfo.project.use);
-        collector.withMockResponse({ registerFrame: ALLOWED_REGISTRATION });
         await collector.load(HTML, CONFIG_ENABLED);
 
         expect(await page.evaluate(() => navigator.mediaDevices.getUserMedia({}))).toBe('native-stream');

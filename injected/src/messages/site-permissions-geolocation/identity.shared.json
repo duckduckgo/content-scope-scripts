@@ -5,7 +5,6 @@
   "type": "object",
   "required": [
     "capability",
-    "nonce",
     "documentID"
   ],
   "properties": {
@@ -13,14 +12,9 @@
       "type": "string",
       "description": "Native-provided token that authenticates the message; see the feature's `capability` setting."
     },
-    "nonce": {
-      "type": "string",
-      "pattern": "^[0-9a-f]{32}$",
-      "description": "Registration nonce, random per document."
-    },
     "documentID": {
       "type": "string",
-      "description": "The page document's identity, also exposed as `__ddgSitePermissionsGeolocationDocumentID` for native checks. `unavailable` without crypto."
+      "description": "The page document's identity. Native code checks it against the identity the isolated policy feature reports for the frame. `unavailable` without crypto."
     }
   }
 }
