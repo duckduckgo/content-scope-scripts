@@ -816,6 +816,23 @@ describe('WebDetection predicates', () => {
             expect(reads).toBe(3);
         });
 
+        it('reads a name a define inside the where binds again for each item', () => {
+            const big = (/** @type {unknown} */ read) => ({
+                if: { self: 'a', is: { gt: 0 } },
+                then: [{ define: { current: { self: 'a' } } }, read],
+                else: false,
+            });
+            expect(holds('', { api: { ...items, where: big({ ref: 'current', is: { gt: 1 } }) }, using: 'length', is: 2 })).toBe(true);
+            const sum = { sum: [{ ref: 'current' }, 0], is: { gt: 1 } };
+            expect(holds('', { api: { ...items, where: big(sum) }, using: 'length', is: 2 })).toBe(true);
+        });
+
+        it('runs an action reading no self once per evaluation of the source', () => {
+            const where = { if: true, then: [{ fireEvent: { type: 'item' } }, true], else: false };
+            const { ctx } = run('', { actions: { define: { n: { api: { ...items, where }, using: 'length' } } } });
+            expect(ctx.events.length).toBe(1);
+        });
+
         it('fails the source on a failed read, unless the test reads it with fails', () => {
             const install = (/** @type {any} */ w) => {
                 const throwing = Object.defineProperty({}, 'v', {

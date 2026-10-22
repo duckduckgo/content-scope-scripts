@@ -20,7 +20,9 @@ import { allItems, evaluate, evaluateOccurrence, listOf, single } from './evalua
 
 /**
  * One run's state, threaded to every expression. An expression is computed each time evaluation
- * reaches it, and one that reads `self` of a `using`, `where` or `field` once per value bound.
+ * reaches it, and one that reads `self` of a `using`, `where` or `field`, or a `ref` inside one, once
+ * per value bound. One inside a `where` or `field` reading neither is computed once per evaluation of
+ * the source, so a call or action there runs once for all its items.
  *
  * @implements {PredicateContext}
  */
