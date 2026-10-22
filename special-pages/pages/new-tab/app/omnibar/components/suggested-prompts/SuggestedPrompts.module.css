@@ -1,0 +1,487 @@
+@keyframes panelEnter {
+    from {
+        opacity: 0;
+        transform: translate3d(0, -8px, 0);
+    }
+}
+
+@keyframes panelExit {
+    to {
+        opacity: 0;
+        transform: translate3d(0, 24px, 0);
+    }
+}
+
+/* Tab and page swaps; `--motion-*-x` sets the slide direction. */
+@keyframes contentEnter {
+    from {
+        opacity: 0;
+        transform: translate3d(var(--motion-enter-x, 0), 0, 0);
+    }
+}
+
+@keyframes contentExit {
+    to {
+        opacity: 0;
+        transform: translate3d(var(--motion-exit-x, 0), 0, 0);
+    }
+}
+
+@keyframes chipEnter {
+    from {
+        opacity: 0;
+        transform: translate3d(0, -4px, 0);
+    }
+}
+
+.root {
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+    gap: var(--ds-space-x02);
+    margin: var(--ds-space-x06) auto 0;
+    max-width: 560px;
+    width: 100%;
+}
+
+.chipRow {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--ds-space-x02);
+    justify-content: center;
+}
+
+/* Switching to Duck.ai: chips fade and settle in, left to right. `--chip-index` is set per chip. */
+.chipRowEnter .chip {
+    animation: chipEnter 220ms cubic-bezier(0.2, 0, 0, 1) both;
+    animation-delay: calc(var(--chip-index, 0) * 30ms);
+
+    @media (prefers-reduced-motion: reduce) {
+        animation: none;
+    }
+}
+
+.chips {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--ds-space-x02);
+    justify-content: center;
+}
+
+.chip {
+    align-items: center;
+    background: var(--ds-color-theme-control-raised-backdrop);
+    border: 1px solid transparent;
+    border-radius: var(--ds-radius-full);
+    color: var(--ds-color-theme-text-primary);
+    cursor: pointer;
+    display: inline-flex;
+    font-size: 13px;
+    font-weight: 600;
+    gap: var(--ds-space-x01);
+    height: 28px;
+    padding: 0 var(--ds-space-x03);
+    white-space: nowrap;
+
+    body:not([data-background-kind="default"]) & {
+        backdrop-filter: blur(48px);
+    }
+
+    &:hover {
+        background: var(--ds-color-theme-control-fill-secondary);
+    }
+
+    &:focus-visible {
+        box-shadow: var(--focus-ring);
+        outline: none;
+    }
+}
+
+/* Narrow windows only, like Duck.ai's Voice Chat chip. */
+.voiceChip {
+    display: none;
+}
+
+/* Duck.ai's narrow-width chip order. Arrow keys still match the visual order: it's a rotation of the tab order. */
+@media screen and (max-width: 900px) {
+    .chips {
+        display: contents;
+    }
+
+    .voiceChip {
+        display: inline-flex;
+    }
+
+    .chipRow [data-chip-id='suggestions'] {
+        order: 1;
+    }
+
+    .chipRow [data-chip-id='create-image'] {
+        order: 2;
+    }
+
+    .chipRow [data-chip-id='voice'] {
+        order: 3;
+    }
+
+    .chipRow [data-chip-id='how-duckai-works'] {
+        order: 4;
+    }
+}
+
+.chipSelected,
+.chipSelected:hover {
+    background: var(--ds-color-theme-accent-glow-secondary);
+    border-color: var(--ds-color-theme-accent-primary);
+}
+
+.chipIcon {
+    color: var(--ds-color-theme-icons-primary);
+    flex-shrink: 0;
+}
+
+.panel {
+    animation: panelEnter 280ms cubic-bezier(0.2, 0, 0, 1) both;
+    background: var(--ds-color-theme-surface-tertiary);
+    border-radius: var(--ds-radius-x08);
+    box-shadow: 0 0.25px 1px 0 var(--ds-color-theme-shadow-primary), 0 1px 4px 0 var(--ds-color-theme-shadow-secondary);
+    box-sizing: border-box;
+    color: var(--ds-color-theme-text-primary);
+    outline: none;
+    position: relative;
+
+    [data-background-kind="color"] [data-theme="light"] &,
+    [data-background-kind="gradient"] [data-theme="light"] &,
+    [data-background-kind="userImage"] [data-theme="light"] & {
+        backdrop-filter: blur(48px);
+        background: rgba(255, 255, 255, 0.54);
+    }
+
+    [data-background-kind="color"] [data-theme="dark"] &,
+    [data-background-kind="gradient"] [data-theme="dark"] & {
+        backdrop-filter: blur(48px);
+        background: rgba(255, 255, 255, 0.12);
+    }
+
+    [data-background-kind="userImage"] [data-theme="dark"] & {
+        backdrop-filter: blur(48px);
+        background: rgba(0, 0, 0, 0.3);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        animation: none;
+    }
+}
+
+.panelExiting {
+    animation: panelExit 280ms cubic-bezier(0.2, 0, 0, 1) both;
+    pointer-events: none;
+}
+
+.contentEntering {
+    --motion-enter-x: 8px;
+    animation: contentEnter 180ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.contentEnteringLeft {
+    --motion-enter-x: -8px;
+}
+
+.contentExiting {
+    --motion-exit-x: -8px;
+    animation: contentExit 180ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    inset: 0;
+    pointer-events: none;
+    position: absolute;
+}
+
+.contentExitingRight {
+    --motion-exit-x: 8px;
+}
+
+.closeButton {
+    align-items: center;
+    background: none;
+    border: 1px solid var(--ds-color-theme-control-border-primary);
+    border-radius: var(--ds-radius-full);
+    color: var(--ds-color-theme-icons-primary);
+    cursor: pointer;
+    display: flex;
+    height: 28px;
+    justify-content: center;
+    padding: 0;
+    position: absolute;
+    right: var(--ds-space-x03);
+    top: var(--ds-space-x03);
+    width: 28px;
+    z-index: 1;
+
+    &:hover {
+        background: var(--ds-color-theme-control-fill-primary);
+    }
+
+    &:focus-visible {
+        box-shadow: var(--focus-ring);
+        outline: none;
+    }
+}
+
+/* How Duck.ai Works */
+.howItWorks {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: var(--ds-space-x01);
+    padding: var(--ds-space-x10) var(--ds-space-x05) var(--ds-space-x04);
+}
+
+.howItWorksGrid {
+    display: flex;
+    gap: var(--ds-space-x01);
+    justify-content: center;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.howItWorksCard {
+    align-items: center;
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    gap: var(--ds-space-x02);
+    min-width: 0;
+    padding: var(--ds-space-x09) var(--ds-space-x02) var(--ds-space-x06);
+    position: relative;
+}
+
+.pictogram {
+    height: 40px;
+    left: 50%;
+    position: absolute;
+    top: -14px;
+    transform: translateX(-50%);
+    width: 40px;
+}
+
+.howItWorksTitle,
+.howItWorksBody {
+    margin: 0;
+    text-align: center;
+}
+
+.howItWorksTitle {
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.howItWorksBody {
+    color: var(--ds-color-theme-text-secondary);
+    font-size: 13px;
+    line-height: 18px;
+}
+
+.divider {
+    background: var(--ds-color-theme-surface-decoration-secondary);
+    height: 1px;
+    width: 100%;
+}
+
+.banner {
+    align-items: center;
+    display: flex;
+    font-size: 13px;
+    gap: var(--ds-space-x01);
+    justify-content: center;
+    margin: 0;
+    padding: var(--ds-space-x05) var(--ds-space-x04) var(--ds-space-x01);
+}
+
+.bannerLogo {
+    flex-shrink: 0;
+    height: 16px;
+    width: 16px;
+}
+
+/* Chat Suggestions */
+.textPanel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ds-space-x03);
+    padding: var(--ds-space-x04) var(--ds-space-x02) var(--ds-space-x06);
+}
+
+.listSlot {
+    position: relative;
+}
+
+.textList {
+    display: flex;
+    flex-direction: column;
+    list-style: none;
+    margin: 0;
+    padding: 0 var(--ds-space-x12) 0 var(--ds-space-x02);
+}
+
+.textListEntering {
+    --motion-enter-x: 8px;
+}
+
+.textListEnteringLeft {
+    --motion-enter-x: -8px;
+}
+
+/* Staggered by `--i`, the item's index on the page. */
+.textItemEntering {
+    animation: contentEnter 180ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: calc(var(--i, 0) * 12ms);
+}
+
+.textListExiting {
+    --motion-exit-x: -8px;
+    animation: contentExit 180ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    inset: 0;
+    pointer-events: none;
+    position: absolute;
+}
+
+.textListExitingRight {
+    --motion-exit-x: 8px;
+}
+
+.textPrompt {
+    align-items: center;
+    background: transparent;
+    border: none;
+    border-radius: var(--ds-radius-x04);
+    color: var(--ds-color-theme-text-primary);
+    cursor: pointer;
+    display: flex;
+    font-size: 13px;
+    gap: var(--ds-space-x03);
+    padding: var(--ds-space-x02) var(--ds-space-x04) var(--ds-space-x02) var(--ds-space-x03);
+    text-align: left;
+    width: 100%;
+
+    &:hover {
+        background: var(--ds-color-theme-control-fill-primary);
+    }
+
+    &:focus-visible {
+        background: var(--ds-color-theme-control-fill-primary);
+        box-shadow: var(--focus-ring);
+        outline: none;
+    }
+}
+
+.textPromptIcon {
+    color: var(--ds-color-theme-icons-primary);
+    flex-shrink: 0;
+}
+
+.pagination {
+    display: flex;
+    gap: var(--ds-space-x02);
+    padding: 0 var(--ds-space-x04);
+}
+
+.pageButton {
+    align-items: center;
+    background: var(--ds-color-theme-control-fill-primary);
+    border: none;
+    border-radius: var(--ds-radius-full);
+    color: var(--ds-color-theme-icons-primary);
+    cursor: pointer;
+    display: flex;
+    height: 24px;
+    justify-content: center;
+    padding: 0;
+    width: 24px;
+
+    &:hover:not(:disabled) {
+        background: var(--ds-color-theme-control-fill-secondary);
+    }
+
+    &:disabled {
+        cursor: default;
+        opacity: 0.4;
+    }
+
+    &:focus-visible {
+        box-shadow: var(--focus-ring);
+        outline: none;
+    }
+}
+
+/* Create & Edit Images */
+.imageRow {
+    display: flex;
+    gap: var(--ds-space-x02);
+    list-style: none;
+    margin: 0;
+    padding: var(--ds-space-x10);
+}
+
+.imageItem {
+    flex: 1 0 0;
+    min-width: 0;
+}
+
+.imageButton {
+    background: var(--ds-color-theme-control-fill-primary);
+    border: none;
+    border-radius: var(--ds-radius-x04);
+    cursor: pointer;
+    height: 200px;
+    overflow: hidden;
+    padding: 0;
+    position: relative;
+    width: 100%;
+
+    &:hover {
+        opacity: 0.92;
+    }
+
+    &:focus-visible {
+        box-shadow: var(--focus-ring);
+        outline: none;
+    }
+}
+
+.image {
+    display: block;
+    height: 100%;
+    inset: 0;
+    object-fit: cover;
+    position: absolute;
+    width: 100%;
+}
+
+.imageDefault {
+    transition: opacity 220ms ease-out;
+
+    .imageButton:hover & {
+        opacity: 0;
+    }
+}
+
+.imageChip {
+    align-items: center;
+    background: var(--ds-color-theme-surface-tertiary);
+    border-radius: var(--ds-radius-x04);
+    bottom: var(--ds-space-x02);
+    color: var(--ds-color-theme-text-primary);
+    display: flex;
+    font-size: 13px;
+    font-weight: 700;
+    justify-content: center;
+    left: var(--ds-space-x02);
+    min-height: 28px;
+    padding: var(--ds-space-x02);
+    pointer-events: none;
+    position: absolute;
+    right: var(--ds-space-x02);
+}

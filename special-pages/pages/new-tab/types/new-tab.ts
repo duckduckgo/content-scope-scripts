@@ -143,6 +143,10 @@ export type EnableAskDuckAiSuggestion = boolean;
  */
 export type EnableAttachTabs = boolean;
 /**
+ * Show the Duck.ai suggested-prompt chips (How Duck.ai Works, Chat Suggestions, Create & Edit Images) below the input in Duck.ai mode. Native decides who sees them, e.g. new Duck.ai users, and turns it off once enough Duck.ai prompts have been sent from the NTP.
+ */
+export type ShowSuggestedPrompts = boolean;
+/**
  * The screenshot capture mode the user chose: `dragToSelect` (drag to select a region) or `selectWindowOrDisplay` (pick a window or a display).
  */
 export type ScreenshotMode = "dragToSelect" | "selectWindowOrDisplay";
@@ -972,6 +976,7 @@ export interface OmnibarConfig {
   customizationActive?: CustomizationActive;
   enableAskAiSuggestion?: EnableAskDuckAiSuggestion;
   enableAttachTabs?: EnableAttachTabs;
+  showSuggestedPrompts?: ShowSuggestedPrompts;
   screenshotModes?: ScreenshotModes;
   enablePastedAttachments?: EnablePastedAttachments;
   enableAiChatDeletion?: EnableAIChatDeletion;
@@ -1241,6 +1246,10 @@ export interface SubmitChatAction {
    * True when the launcherPromo drawer was on screen as the prompt was sent, so native can treat the prompt as passing over it. Omitted otherwise.
    */
   launcherPromoVisible?: boolean;
+  /**
+   * Fixed catalog ID of the suggested-prompt chip the prompt came from (e.g. 'jobapplication', 'createcomic'), so native can attribute the submission. Omitted for typed prompts.
+   */
+  suggestedPromptId?: string;
 }
 /**
  * Extracted page content for a specific tab, used as a Duck.ai chat attachment. Mirrors the shape produced by the Duck.ai sidebar's page-context extraction.
