@@ -3,13 +3,13 @@ import { createPortal } from 'preact/compat';
 import { useEffect, useRef } from 'preact/hooks';
 import styles from './EmojiBurst.module.css';
 
-const PIECES = 100;
+const PIECES = 44;
 export const DURATION_MS = 2400;
 /** px/s² — strong enough that pieces arc back down within the duration */
 const GRAVITY = 1700;
 const FRAMES = 16;
 /** Launches are staggered over this window so the eruption keeps going (total ≈ LAUNCH_WINDOW_MS + DURATION_MS) */
-export const LAUNCH_WINDOW_MS = 1700;
+export const LAUNCH_WINDOW_MS = 350;
 
 /**
  * Full-screen confetti-style eruption of claps and ducks, fired from both bottom corners.
