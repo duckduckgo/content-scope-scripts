@@ -158,18 +158,16 @@ describe('page-context.js - extractNudgeSignals', () => {
         expect(signalsFor('<title>Online Banking</title>').sensitive.banking).toBe(true);
     });
 
-    it('reads YouTube watch page details and an open transcript', () => {
+    it('reads YouTube watch page details', () => {
         const html = `<head><title>Old - YouTube</title><meta itemprop="duration" content="PT4M13S"></head><body>
             <ytd-watch-flexy video-id="abc123"><ytd-watch-metadata><h1> How bridges work </h1>
             <ytd-channel-name><a>Engineering Explained</a></ytd-channel-name></ytd-watch-metadata></ytd-watch-flexy>
-            <ytd-transcript-segment-renderer><div class="segment-timestamp">0:00</div><div class="segment-text">Hello</div></ytd-transcript-segment-renderer>
             </body>`;
         expect(signalsFor(html, 'https://www.youtube.com/watch?v=abc123').youtube).toEqual({
             videoId: 'abc123',
             title: 'How bridges work',
             channel: 'Engineering Explained',
             durationSec: 253,
-            transcript: '0:00 Hello',
         });
     });
 
@@ -182,6 +180,12 @@ describe('page-context.js - extractNudgeSignals', () => {
             channel: null,
             durationSec: null,
         });
+    });
+
+    it('ignores meta tags that still describe the previous video', () => {
+        const html = `<head><title>New video - YouTube</title><meta itemprop="identifier" content="old"><meta itemprop="duration" content="PT4M13S"></head>
+            <body><ytd-watch-flexy video-id="new"></ytd-watch-flexy></body>`;
+        expect(signalsFor(html, 'https://www.youtube.com/watch?v=new').youtube?.durationSec).toBe(null);
     });
 
     it('omits youtube off watch pages', () => {

@@ -7,6 +7,7 @@ import { getFaviconList } from './favicon.js';
 import { isDuckAi, isBeingFramed, getTabUrl } from '../utils.js';
 // eslint-disable-next-line no-redeclare
 import { JSONparse, Set, hasOwnProperty } from '../captured-globals.js';
+import { fetchYouTubeTranscript, youTubeVideoId } from './youtube-transcript.js';
 const MSG_PAGE_CONTEXT_RESPONSE = 'collectionResult';
 
 // Bail past this nesting depth when walking JSON-LD so adversarially deep blocks
@@ -404,7 +405,6 @@ function extractLang(document) {
 
 const WORDS_PER_MINUTE = 230;
 const MAX_FIELD_LENGTH = 200;
-const MAX_TRANSCRIPT_LENGTH = 20000;
 const CODE_SELECTOR = 'pre, textarea#read-only-cursor-text-area, table.highlight, .react-code-lines';
 
 /**
@@ -726,12 +726,14 @@ function parseIsoDuration(iso) {
  * @param {Location | null} location
  */
 function extractYouTube(document, location) {
-    if (!location || !/(^|\.)youtube\.com$/.test(location.hostname) || location.pathname !== '/watch') return null;
-    const videoId = new URLSearchParams(location.search).get('v');
+    const videoId = location && youTubeVideoId(location);
     if (!videoId) return null;
-    const flexy = document.querySelector('ytd-watch-flexy');
-    const metaIsCurrent = !flexy || flexy.getAttribute('video-id') === videoId;
-    const video = document.querySelector('video');
+    const metaVideoId =
+        document.querySelector('meta[itemprop="identifier"]')?.getAttribute('content') ||
+        document.querySelector('ytd-watch-flexy')?.getAttribute('video-id');
+    const metaIsCurrent = !metaVideoId || metaVideoId === videoId;
+    // While an ad plays, the <video> element holds the ad.
+    const video = /** @type {HTMLVideoElement | null} */ (document.querySelector('#movie_player:not(.ad-showing) video'));
     const duration = video && Number.isFinite(video.duration) && video.duration > 0 ? Math.round(video.duration) : null;
     /** @type {Record<string, unknown>} */
     const result = {
@@ -747,19 +749,6 @@ function extractYouTube(document, location) {
             duration ??
             (metaIsCurrent ? parseIsoDuration(document.querySelector('meta[itemprop="duration"]')?.getAttribute('content') ?? null) : null),
     };
-    // Fetching captions needs a token YouTube only gives its own player, so this only works
-    // when the user has opened the transcript panel.
-    const segments = document.querySelectorAll('ytd-transcript-segment-renderer');
-    if (segments.length) {
-        const transcript = Array.from(segments)
-            .map((segment) => {
-                const time = segment.querySelector('.segment-timestamp')?.textContent?.trim() || '';
-                const text = collapseWhitespace(segment.querySelector('.segment-text')?.textContent || '').trim();
-                return time ? `${time} ${text}` : text;
-            })
-            .join('\n');
-        result.transcript = transcript.slice(0, MAX_TRANSCRIPT_LENGTH);
-    }
     return result;
 }
 
@@ -778,6 +767,10 @@ export default class PageContext extends ContentFeature {
     #activeCapture = true;
     /** @type {Element | null} */
     contentRoot = null;
+    /** @type {{ videoId: string, text: string } | null} */
+    #youtubeTranscript = null;
+    /** @type {string | null} */
+    #youtubeTranscriptPending = null;
 
     get shouldListenForUrlChanges() {
         return this.#activeCapture && this.getFeatureSettingEnabled('subscribeToUrlChange', 'enabled');
@@ -867,6 +860,14 @@ export default class PageContext extends ContentFeature {
             });
         }
 
+        if (this.youtubeTranscriptEnabled) {
+            // YouTube swaps videos without a page load; this is its own "navigation done" event.
+            window.addEventListener('yt-navigate-finish', () => {
+                this.invalidateCache();
+                this.handleContentCollectionRequest();
+            });
+        }
+
         // Set up content collection infrastructure
         if (this.getFeatureSettingEnabled('collectOnInit', 'enabled')) {
             if (document.body) {
@@ -896,6 +897,45 @@ export default class PageContext extends ContentFeature {
     setup() {
         this.handleContentCollectionRequest();
         this.startObserving();
+    }
+
+    get youtubeTranscriptEnabled() {
+        return /(^|\.)youtube\.com$/.test(window.location.hostname) && this.getFeatureSettingEnabled('youtubeTranscript', 'enabled');
+    }
+
+    /**
+     * @returns {string | null} the transcript of the video on screen, once it has loaded
+     */
+    get currentYouTubeTranscript() {
+        const videoId = youTubeVideoId(window.location);
+        return videoId && this.#youtubeTranscript?.videoId === videoId ? this.#youtubeTranscript.text : null;
+    }
+
+    /**
+     * Starts loading the current video's transcript, and sends the content again once it arrives,
+     * because collection itself is synchronous.
+     */
+    async loadYouTubeTranscript() {
+        const videoId = youTubeVideoId(window.location);
+        if (!videoId || !this.youtubeTranscriptEnabled) return;
+        if (this.#youtubeTranscript?.videoId === videoId || this.#youtubeTranscriptPending === videoId) return;
+        this.#youtubeTranscriptPending = videoId;
+        try {
+            const text = await fetchYouTubeTranscript(videoId, {
+                timeoutMs: this.getFeatureSetting('youtubeTranscriptTimeoutMs') || 8000,
+                log: this.log,
+            });
+            if (!text) return;
+            this.#youtubeTranscript = { videoId, text };
+            if (youTubeVideoId(window.location) === videoId) {
+                this.invalidateCache();
+                this.handleContentCollectionRequest(false);
+            }
+        } catch (error) {
+            this.log.error('YouTube transcript failed', error);
+        } finally {
+            if (this.#youtubeTranscriptPending === videoId) this.#youtubeTranscriptPending = null;
+        }
     }
 
     get cachedContent() {
@@ -1021,6 +1061,7 @@ export default class PageContext extends ContentFeature {
             return this.cachedContent;
         }
 
+        void this.loadYouTubeTranscript();
         const mainContent = this.getMainContent();
         const truncated = mainContent.endsWith('...');
 
@@ -1076,6 +1117,10 @@ export default class PageContext extends ContentFeature {
     }
 
     getMainContent() {
+        const transcript = this.currentYouTubeTranscript;
+        if (transcript !== null) {
+            return this.getYouTubeTranscriptContent(transcript);
+        }
         const maxLength = this.getFeatureSetting('maxContentLength') || 9500;
         // Used to avoid large content serialization
         const upperLimit = this.getFeatureSetting('upperLimit') || 500000;
@@ -1137,6 +1182,25 @@ export default class PageContext extends ContentFeature {
             content = content.substring(0, maxLength) + '...';
         }
 
+        return content;
+    }
+
+    /**
+     * For a video, the transcript says far more than the description and comments around it, so it
+     * replaces them, with a higher length cap so a typical 10–20 minute video fits.
+     * @param {string} transcript
+     */
+    getYouTubeTranscriptContent(transcript) {
+        const maxLength = this.getFeatureSetting('youtubeTranscriptMaxLength') || 40000;
+        const video = extractYouTube(document, window.location);
+        const title = video?.title || document.title;
+        const channel = video?.channel;
+        let content = `# ${title}\n${channel ? `Channel: ${channel}\n` : ''}\n## Transcript\n\n${transcript}`;
+        this.contentRoot = document.body;
+        this.fullContentLength = content.length;
+        if (content.length > maxLength) {
+            content = content.substring(0, maxLength) + '...';
+        }
         return content;
     }
 
@@ -1203,13 +1267,15 @@ export default class PageContext extends ContentFeature {
 
     getPageTypeSignals() {
         const maxBlockLength = this.getFeatureSetting('maxJsonLdBlockLength') || 100000;
-        return {
+        const signals = {
             ...extractPageTypeSignals(document, {
                 maxTypes: this.getFeatureSetting('maxPageTypeSignals') || 10,
                 maxBlockLength,
             }),
             ...extractNudgeSignals(document, { contentRoot: this.contentRoot, maxBlockLength }),
         };
+        if (signals.youtube) signals.youtube.hasTranscript = this.currentYouTubeTranscript !== null;
+        return signals;
     }
 
     getImages() {

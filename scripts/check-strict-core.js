@@ -111,6 +111,7 @@ const CORE_FILES = new Set([
     'injected/src/features/web-interference-detection.js',
     'injected/src/features/tab-suspension.js',
     'injected/src/features/text-selection.js',
+    'injected/src/features/youtube-transcript.js',
     'injected/src/detectors/detections/bot-detection.js',
     'injected/src/detectors/utils/detection-utils.js',
     'injected/src/features/exception-handler.js',
