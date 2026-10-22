@@ -1,4 +1,5 @@
 import { parseDetectors } from '../../src/features/web-detection/compile/detector-config.js';
+import { TaskReadCache } from '../../src/features/web-detection/evaluate/task-read-cache.js';
 import WebDetection from '../../src/features/web-detection.js';
 import { BROKEN, FAILING, IMG, RENDERED, brokenFonts, fonts, imageState, renderedText, run, timeline } from './support.js';
 
@@ -288,8 +289,8 @@ describe('WebDetection detectors', () => {
             spyOn(instance, 'callFeatureMethod').and.resolveTo(undefined);
             const run = spyOn(instance, '_runDetector').and.callThrough();
             const detector = { groupName: 'g', detectorId: 'g.d', config: parseDetectors(/** @type {any} */ (detectors)).g.d };
-            instance._runAutoDetector(detector);
-            instance._runAutoDetector(detector);
+            instance._runAutoDetector(detector, new TaskReadCache());
+            instance._runAutoDetector(detector, new TaskReadCache());
             await Promise.resolve();
             expect(run).toHaveBeenCalledTimes(2);
             expect(instance.callFeatureMethod).not.toHaveBeenCalled();
@@ -301,7 +302,10 @@ describe('WebDetection detectors', () => {
             };
             const instance = createInstance(detectors);
             spyOn(instance, 'callFeatureMethod').and.resolveTo(undefined);
-            instance._runAutoDetector({ groupName: 'g', detectorId: 'g.d', config: parseDetectors(/** @type {any} */ (detectors)).g.d });
+            instance._runAutoDetector(
+                { groupName: 'g', detectorId: 'g.d', config: parseDetectors(/** @type {any} */ (detectors)).g.d },
+                new TaskReadCache(),
+            );
             await Promise.resolve();
             // @ts-expect-error - Jasmine spy type inference doesn't match callFeatureMethod's overloaded signature
             expect(instance.callFeatureMethod).toHaveBeenCalledWith('webEvents', 'fireEvent', { type: 't', data: { x: 'two' } });

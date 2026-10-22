@@ -23,7 +23,8 @@ import { parseRoot, resolveRoots } from './roots.js';
  *
  * A snapshot (rather than an iterator) is required: `iterateNext()` throws
  * `InvalidStateError` if the document mutates during iteration, and detectors
- * run against live pages that mutate underneath them.
+ * run against live pages that mutate underneath them. A snapshot is also what
+ * the detectors of one task share (see `selectedText`).
  */
 const ORDERED_NODE_SNAPSHOT_TYPE = 7;
 
@@ -161,6 +162,43 @@ function tailStart(buffer, chunkTail) {
  */
 
 /**
+ * The text of each node an XPath expression selects from one root, by index in document order.
+ *
+ * @typedef {object} SelectedText
+ * @property {number} length
+ * @property {(i: number) => string} at
+ */
+
+/**
+ * The text an XPath expression selects from a root, evaluated once per task and shared by every
+ * detector in it that names the expression. A node's text is read when a scan first reaches it, so
+ * a scan that stops early leaves the rest unread.
+ *
+ * @param {string} expression
+ * @param {Node} contextNode
+ * @param {PredicateContext} ctx
+ * @returns {SelectedText}
+ */
+function selectedText(expression, contextNode, ctx) {
+    return ctx.task.of(contextNode, `xpath:${expression}`, () => {
+        const snapshot = compileXPath(expression).evaluate(contextNode, ORDERED_NODE_SNAPSHOT_TYPE, null);
+        /** @type {string[]} */
+        const texts = [];
+        return {
+            length: snapshot.snapshotLength,
+            at(i) {
+                let text = texts[i];
+                if (text === undefined) {
+                    text = snapshot.snapshotItem(i)?.textContent || '';
+                    texts[i] = text;
+                }
+                return text;
+            },
+        };
+    });
+}
+
+/**
  * The text of every node selected by an XPath expression, in bounded chunks rather than concatenated
  * in full.
  *
@@ -172,25 +210,19 @@ function tailStart(buffer, chunkTail) {
  * after the last of them, so a match lying across the tail is counted once. Matches inside the tail
  * are found again with the text that follows.
  *
- * An invalid expression throws `SyntaxError`, which propagates and is recorded as an
- * `'error'` for the detector - the same behaviour as an invalid CSS selector passed to
- * `querySelectorAll`.
- *
- * @param {string} expression
- * @param {Node} contextNode
+ * @param {SelectedText} selected
  * @param {{ chunkSize: number, chunkTail: number }} chunking
  * @returns {Generator<TextChunk>}
  */
-function* xpathChunks(expression, contextNode, { chunkSize, chunkTail }) {
-    const snapshot = compileXPath(expression).evaluate(contextNode, ORDERED_NODE_SNAPSHOT_TYPE, null);
+function* xpathChunks(selected, { chunkSize, chunkTail }) {
     let buffer = '';
     // Characters added since the last test, rather than the length of the buffer. Each test
     // then advances `chunkSize` fresh characters whatever `chunkTail` is, so an oversized tail
     // costs proportionally more scanning instead of re-testing the whole buffer per node -
     // which is what makes configured values safe to use unvalidated.
     let pending = 0;
-    for (let i = 0; i < snapshot.snapshotLength; i++) {
-        const text = snapshot.snapshotItem(i)?.textContent || '';
+    for (let i = 0; i < selected.length; i++) {
+        const text = selected.at(i);
         buffer += text;
         pending += text.length;
         // chunkSize 0 disables chunking, accumulating everything for the single scan below
@@ -253,7 +285,8 @@ function nextMatch({ pattern, chunk }) {
  *   select text nodes and filter on ancestry, so it can exclude text that is present in the DOM but never
  *   rendered - eg text inside `<script>`: `//body//text()[not(ancestor::script)]`. The text of all nodes
  *   selected by one expression is matched as a whole, but is scanned in bounded chunks rather than
- *   concatenated in full, so a large page does not allocate its entire rendered text on each evaluation.
+ *   concatenated in full. The detectors of one task share each expression's selection from a root,
+ *   and each node's text, read once.
  *
  * `xpathConfig` [optional]: Tunes that chunking, and applies to `xpath` only. A match longer than
  *   `chunkTail` that straddles a chunk boundary is missed; `chunkSize: 0` turns chunking off
@@ -331,12 +364,14 @@ function* textSegments(bodies, ctx) {
         }
         for (const root of roots) {
             for (const element of textElements(body, root)) {
-                const text = element.textContent || '';
+                const text = ctx.task.of(element, 'textContent', () => element.textContent || '');
                 pattern.lastIndex = 0;
                 yield { pattern, chunk: { text, end: text.length, next: text.length } };
             }
             for (const expression of body.xpaths) {
-                for (const chunk of xpathChunks(expression, root, body.chunking)) {
+                // An invalid expression throws `SyntaxError` here, recorded as an `'error'` for the
+                // detector, as an invalid selector does from `querySelectorAll`
+                for (const chunk of xpathChunks(selectedText(expression, root, ctx), body.chunking)) {
                     pattern.lastIndex = 0;
                     yield { pattern, chunk };
                 }

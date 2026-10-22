@@ -1,6 +1,7 @@
 import { isFailure } from '../model/core.js';
 import { ItemBuffer, isList } from '../model/lists.js';
 import { allItems, evaluate, evaluateOccurrence, listOf, single } from './evaluate.js';
+import { TaskReadCache } from './task-read-cache.js';
 
 /**
  * @typedef {import('../model/core.js').Failure} Failure
@@ -10,6 +11,7 @@ import { allItems, evaluate, evaluateOccurrence, listOf, single } from './evalua
  * @typedef {import('../model/types.js').PayloadData} PayloadData
  * @typedef {import('../model/types.js').PredicateContext} PredicateContext
  * @typedef {import('../model/types.js').Reader} Reader
+ * @typedef {import('../model/types.js').TaskReads} TaskReads
  */
 
 /**
@@ -46,12 +48,14 @@ export class EvaluationContext {
      * @param {Reader} reader
      * @param {Map<string, unknown>} [detectorNames] - the detector's names, which outlive the run
      * @param {EntryWrites} [entry] - the detector's breakage entry, which `breakageReportData` writes
+     * @param {TaskReads} [task] - the page reads shared with the other detectors of the task
      */
-    constructor(reader, detectorNames = new Map(), entry = { written: false, data: {} }) {
+    constructor(reader, detectorNames = new Map(), entry = { written: false, data: {} }, task = new TaskReadCache()) {
         this.reader = reader;
         reader.beginRun();
         this.detectorNames = detectorNames;
         this.entry = entry;
+        this.task = task;
     }
 
     /**

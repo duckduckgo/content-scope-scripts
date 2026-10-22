@@ -3,6 +3,7 @@ import { compileDetector } from '../../src/features/web-detection/compile/compil
 import { EvaluationContext } from '../../src/features/web-detection/evaluate/context.js';
 import { NativeReader } from '../../src/features/web-detection/evaluate/native-reader.js';
 import { createDetectorState, runDetector } from '../../src/features/web-detection/evaluate/run.js';
+import { TaskReadCache } from '../../src/features/web-detection/evaluate/task-read-cache.js';
 import { pageSources } from '../../src/features/web-detection/sources/index.js';
 import { REPORT, bound, expectParseError, fonts, holds, payload, run, timeline, withPayload } from './support.js';
 
@@ -433,6 +434,107 @@ describe('WebDetection sources', () => {
         it('selects no items when root matches nothing', () => {
             expect(holds(html, { element: { selector: 'img', root: '#missing' }, using: 'length', is: 0 })).toBe(true);
             expect(holds(html, { text: { pattern: 'hello', root: '#missing' } })).toBe(false);
+        });
+    });
+
+    describe('reads in a task', () => {
+        const PAGE = '<div id="a"><p>adblocker detected</p></div><div id="b"><p>adblocker detected</p></div>';
+        const RENDERED = '//body//text()[not(ancestor::script)]';
+
+        /**
+         * Run detectors one after another on one page, each with its own state, all in `task`.
+         * `between` runs after each detector, as a detector's `call` could change the page.
+         *
+         * @param {string} body
+         * @param {Array<{ match?: unknown, actions: unknown }>} detectors
+         * @param {object} [options]
+         * @param {(document: Document) => void} [options.between]
+         * @param {(i: number) => TaskReadCache} [options.taskFor] - the task of the i-th detector
+         */
+        function runInTask(body, detectors, { between = () => {}, taskFor } = {}) {
+            const window = new JSDOM(`<!DOCTYPE html><html><body>${body}</body></html>`).window;
+            const originalDocument = globalThis.document;
+            globalThis.document = window.document;
+            const shared = new TaskReadCache();
+            try {
+                return detectors.map((detector, i) => {
+                    const compiled = compileDetector(detector, pageSources(window));
+                    const state = createDetectorState();
+                    const ctx = new EvaluationContext(new NativeReader(window, compiled.names), state.names, state, taskFor?.(i) ?? shared);
+                    const result = runDetector(compiled, state, ctx);
+                    between(window.document);
+                    return { ...result, names: ctx.runNames };
+                });
+            } finally {
+                globalThis.document = originalDocument;
+            }
+        }
+
+        /** @param {Document} document */
+        const clearText = (document) => {
+            for (const p of document.querySelectorAll('p')) p.textContent = 'nothing here';
+        };
+
+        /** @param {unknown} text */
+        const matching = (text) => ({ match: { text }, actions: REPORT });
+
+        it('reads an XPath selection once for the detectors of a task', () => {
+            const detector = matching({ xpath: RENDERED, pattern: 'adblocker detected' });
+            const [first, second] = runInTask(PAGE, [detector, detector], { between: clearText });
+            expect(first.match).toBe(true);
+            expect(second.match).toBe(true);
+        });
+
+        it('reads the page again in a new task', () => {
+            const detector = matching({ xpath: RENDERED, pattern: 'adblocker detected' });
+            const [, second] = runInTask(PAGE, [detector, detector], { between: clearText, taskFor: () => new TaskReadCache() });
+            expect(second.match).toBe(false);
+        });
+
+        it('shares a selection by expression and root', () => {
+            const first = matching({ xpath: RENDERED, pattern: 'adblocker detected', root: '#a' });
+            const results = runInTask(
+                PAGE,
+                [
+                    first,
+                    matching({ xpath: RENDERED, pattern: 'adblocker detected', root: '#a' }),
+                    matching({ xpath: RENDERED, pattern: 'adblocker detected', root: '#b' }),
+                    matching({ xpath: '//p/text()', pattern: 'adblocker detected', root: '#a' }),
+                ],
+                { between: clearText },
+            );
+            expect(results.map((result) => result.match)).toEqual([true, true, false, false]);
+        });
+
+        it("reads an element's text once for the detectors of a task", () => {
+            const detector = matching({ selector: 'p', pattern: 'adblocker detected' });
+            const [, shared] = runInTask(PAGE, [detector, detector], { between: clearText });
+            expect(shared.match).toBe(true);
+            const [, fresh] = runInTask(PAGE, [detector, detector], { between: clearText, taskFor: () => new TaskReadCache() });
+            expect(fresh.match).toBe(false);
+        });
+
+        it('gives each detector the text a detector that stopped early left unread', () => {
+            const filler = '<p>' + 'x '.repeat(20) + '</p>';
+            const body = `<p>first</p>${filler.repeat(4)}<p>last</p>`;
+            const chunked = (/** @type {string} */ pattern) =>
+                matching({ xpath: '//p/text()', pattern, xpathConfig: { chunkSize: 16, chunkTail: 4 } });
+            const results = runInTask(body, [chunked('first'), chunked('last'), chunked('first|last')]);
+            expect(results.map((result) => result.match)).toEqual([true, true, true]);
+        });
+
+        it('counts the same matches from a shared selection', () => {
+            const count = { actions: { define: { n: { text: { xpath: RENDERED, pattern: 'detected' }, using: 'length' } } } };
+            const results = runInTask(PAGE, [count, count]);
+            expect(results.map((result) => result.names.get('n'))).toEqual([2, 2]);
+        });
+
+        it('records an invalid expression as an error in each detector that names it', () => {
+            const detector = matching({ xpath: '//[', pattern: 'x' });
+            const results = runInTask(PAGE, [detector, detector]);
+            expect(results.map((result) => result.match)).toEqual(['error', 'error']);
+            expect(results[0].failedAt).toBeDefined();
+            expect(results[1].failedAt).toBe(results[0].failedAt);
         });
     });
 });
