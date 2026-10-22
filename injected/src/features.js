@@ -59,6 +59,18 @@ const otherFeatures = /** @type {FeatureName[]} */ ([
     'chromeWebstorePatching',
 ]);
 
+/**
+ * Remote config keys a feature reads beyond its own, used to keep them when pruning the config.
+ * Add an entry whenever a feature reads another feature's config (`bundledConfig.features.x`
+ * or `getFeatureSetting(key, 'x')`), otherwise that read returns nothing once pruned.
+ * @type {Partial<Record<FeatureName, string[]>>}
+ */
+export const featureConfigDependencies = {
+    trackerProtection: ['contentBlocking', 'trackerAllowlist', 'clickToLoad'],
+    breakageReporting: ['webInterferenceDetection'],
+    cookie: ['adClickAttribution'],
+};
+
 /** @type {Record<string, FeatureName[]>} */
 export const platformSupport = {
     apple: ['webCompat', 'duckPlayerNative', ...baseFeatures, 'pageContext', 'print', 'trackerProtection'],

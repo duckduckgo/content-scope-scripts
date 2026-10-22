@@ -1,5 +1,6 @@
 /* eslint-disable no-redeclare, no-global-assign */
 import { Set } from './captured-globals.js';
+import { platformSupport, featureConfigDependencies } from './features.js';
 
 // Only use globalThis for testing this breaks window.wrappedJSObject code in Firefox
 
@@ -785,8 +786,13 @@ export function isMaxSupportedVersion(maxSupportedVersion, currentVersion) {
  * @param {string[]} userList
  * @param {UserPreferences} preferences
  * @param {string[]} platformSpecificFeatures
+ * @param {string} [injectName] - the bundle being run, used to drop config for features it doesn't include
  */
-export function processConfig(data, userList, preferences, platformSpecificFeatures = []) {
+export function processConfig(data, userList, preferences, platformSpecificFeatures = [], injectName = import.meta.injectName) {
+    const bundledFeatureNames = injectName ? platformSupport[injectName] : undefined;
+    if (bundledFeatureNames) {
+        data = pruneConfigFeatures(data, bundledFeatureNames, featureConfigDependencies);
+    }
     const topLevelHostname = getTabHostname();
     const site = computeLimitedSiteObject();
     const allowlisted = userList.filter((domain) => domain === topLevelHostname).length > 0;
@@ -854,6 +860,32 @@ export function isStateEnabled(state, platform) {
         default:
             return false;
     }
+}
+
+/**
+ * Returns a copy of the config without the features a bundle never reads, so the rest can be garbage collected.
+ * Every bundled feature must be kept: platform specific features are enabled when absent from the config.
+ * @param {RemoteConfig} data
+ * @param {string[]} featureNames - features compiled into this bundle
+ * @param {Partial<Record<string, string[]>>} [dependencies] - extra config keys each feature reads
+ * @returns {RemoteConfig}
+ */
+export function pruneConfigFeatures(data, featureNames, dependencies = {}) {
+    if (!data?.features) return data;
+    const keep = new Set(featureNames);
+    for (const featureName of featureNames) {
+        for (const dependency of dependencies[featureName] ?? []) {
+            keep.add(dependency);
+        }
+    }
+    /** @type {RemoteConfig['features']} */
+    const features = {};
+    for (const [featureName, feature] of Object.entries(data.features)) {
+        if (keep.has(featureName)) {
+            features[featureName] = feature;
+        }
+    }
+    return { ...data, features };
 }
 
 /**
