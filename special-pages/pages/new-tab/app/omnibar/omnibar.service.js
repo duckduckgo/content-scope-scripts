@@ -273,7 +273,7 @@ export class OmnibarService {
         this.configService.update((old) => {
             return {
                 ...old,
-                suggestedPromptsSubmitCount: (old.suggestedPromptsSubmitCount ?? 0) + 1,
+                suggestedPromptsPromptCount: (old.suggestedPromptsPromptCount ?? 0) + 1,
             };
         });
     }

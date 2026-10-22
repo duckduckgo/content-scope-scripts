@@ -147,9 +147,13 @@ export type EnableAttachTabs = boolean;
  */
 export type ShowSuggestedPrompts = boolean;
 /**
- * How many Duck.ai prompts the user has sent from the NTP while the chips were offered, from the chips or typed (voice chats excluded). The FE increments it via omnibar_setConfig on each submission and hides the chips once it reaches 5. Native persists it.
+ * How many Duck.ai prompts the user has sent from the NTP while the chips were offered, from the chips or typed (voice chats excluded). The FE increments it via omnibar_setConfig on each submission and hides the chips once it reaches suggestedPromptsPromptLimit. Native persists it.
  */
-export type SuggestedPromptsSubmitCount = number;
+export type SuggestedPromptsPromptCount = number;
+/**
+ * How many Duck.ai prompts can be sent before the suggested-prompt chips hide for good. Native resolves it from remote config.
+ */
+export type SuggestedPromptsPromptLimit = number;
 /**
  * The screenshot capture mode the user chose: `dragToSelect` (drag to select a region) or `selectWindowOrDisplay` (pick a window or a display).
  */
@@ -981,7 +985,8 @@ export interface OmnibarConfig {
   enableAskAiSuggestion?: EnableAskDuckAiSuggestion;
   enableAttachTabs?: EnableAttachTabs;
   showSuggestedPrompts?: ShowSuggestedPrompts;
-  suggestedPromptsSubmitCount?: SuggestedPromptsSubmitCount;
+  suggestedPromptsPromptCount?: SuggestedPromptsPromptCount;
+  suggestedPromptsPromptLimit?: SuggestedPromptsPromptLimit;
   screenshotModes?: ScreenshotModes;
   enablePastedAttachments?: EnablePastedAttachments;
   enableAiChatDeletion?: EnableAIChatDeletion;

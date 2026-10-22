@@ -30,7 +30,7 @@ const suggestionsTab = (page) => page.getByRole('tab', { name: 'Open chat sugges
 async function lastSubmitCount(ntp) {
     await ntp.mocks.waitForCallCount({ method: 'omnibar_setConfig', count: 1 });
     const calls = await ntp.mocks.outgoing({ names: ['omnibar_setConfig'] });
-    return /** @type {any} */ (calls[calls.length - 1].payload).params.suggestedPromptsSubmitCount;
+    return /** @type {any} */ (calls[calls.length - 1].payload).params.suggestedPromptsPromptCount;
 }
 
 /**
@@ -65,12 +65,12 @@ test.describe('omnibar suggested prompts', () => {
 
         await omnibar.expectMethodCallCount('omnibar_submitChat', 1);
         const calls = await ntp.mocks.outgoing({ names: ['omnibar_setConfig'] });
-        expect(calls.some((call) => /** @type {any} */ (call.payload).params.suggestedPromptsSubmitCount !== undefined)).toBe(false);
+        expect(calls.some((call) => /** @type {any} */ (call.payload).params.suggestedPromptsPromptCount !== undefined)).toBe(false);
     });
 
     test('a fifth typed prompt hides the chips', async ({ page }, workerInfo) => {
         const { ntp, omnibar } = setup(page, workerInfo);
-        await openWithPrompts(ntp, { 'omnibar.suggestedPromptsSubmitCount': 4 });
+        await openWithPrompts(ntp, { 'omnibar.suggestedPromptsPromptCount': 4 });
         await omnibar.ready();
 
         await omnibar.chatInput().fill('pizza');
@@ -123,7 +123,7 @@ test.describe('omnibar suggested prompts', () => {
 
     test('a fifth prompt from the chips hides them', async ({ page }, workerInfo) => {
         const { ntp, omnibar } = setup(page, workerInfo);
-        await openWithPrompts(ntp, { 'omnibar.suggestedPromptsSubmitCount': 4 });
+        await openWithPrompts(ntp, { 'omnibar.suggestedPromptsPromptCount': 4 });
         await omnibar.ready();
 
         await suggestionsTab(page).click();
@@ -135,10 +135,24 @@ test.describe('omnibar suggested prompts', () => {
 
     test('the chips stay hidden once 5 prompts were submitted', async ({ page }, workerInfo) => {
         const { ntp, omnibar } = setup(page, workerInfo);
-        await openWithPrompts(ntp, { 'omnibar.suggestedPromptsSubmitCount': 5 });
+        await openWithPrompts(ntp, { 'omnibar.suggestedPromptsPromptCount': 5 });
         await omnibar.ready();
 
         await expect(omnibar.chatInput()).toBeVisible();
+        await expect(suggestionsTab(page)).toBeHidden();
+    });
+
+    test('the limit comes from native config', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await openWithPrompts(ntp, { 'omnibar.suggestedPromptsPromptCount': 5, 'omnibar.suggestedPromptsPromptLimit': 6 });
+        await omnibar.ready();
+
+        await expect(suggestionsTab(page)).toBeVisible();
+
+        await omnibar.chatInput().fill('pizza');
+        await omnibar.chatInput().press('Enter');
+
+        expect(await lastSubmitCount(ntp)).toBe(6);
         await expect(suggestionsTab(page)).toBeHidden();
     });
 });
