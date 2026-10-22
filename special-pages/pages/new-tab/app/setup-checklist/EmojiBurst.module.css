@@ -9,7 +9,7 @@
 .piece {
     line-height: 1;
     position: absolute;
-    translate: -50% -50%;
+    translate: -50% 0;
     user-select: none;
     will-change: transform, opacity;
 }

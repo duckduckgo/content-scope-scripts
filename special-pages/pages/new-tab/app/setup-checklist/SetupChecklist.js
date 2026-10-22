@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { useEffect, useRef, useState } from 'preact/hooks';
+import { useEffect, useState } from 'preact/hooks';
 import cn from 'classnames';
 import { EmojiBurst } from './EmojiBurst.js';
 import styles from './SetupChecklist.module.css';
@@ -116,9 +116,6 @@ function writeList(storage, key, value) {
     }
 }
 
-/** Demo switch for comparing celebrations: `&burst=ring` erupts from the progress ring, the default fills the screen */
-const BURST_VARIANT = new URLSearchParams(window.location.search).get('burst') === 'ring' ? 'ring' : 'screen';
-
 /** Fake hand-off time for browser/OS prompts like pinning or importing */
 const SYSTEM_PROMPT_MS = 1100;
 const TOAST_MS = 3200;
@@ -137,7 +134,6 @@ export function SetupChecklist() {
         return seen ? stored.filter((id) => seen.includes(id)) : stored;
     });
     const [expanded, setExpanded] = useState(false);
-    const ringRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const [pending, setPending] = useState(/** @type {string|null} */ (null));
     const [toast, setToast] = useState(/** @type {{ text: string, undoId?: string, key: number } | null} */ (null));
 
@@ -234,9 +230,7 @@ export function SetupChecklist() {
             <div class={styles.outerInner}>
                 <div class={cn(styles.card, { [styles.expanded]: expanded && !celebrating, [styles.celebrating]: celebrating })}>
                     <div class={styles.header} onClick={celebrating ? undefined : toggle}>
-                        <div ref={ringRef} class={styles.ringSlot}>
-                            <ProgressRing value={doneCount} total={total} complete={celebrating} showDots={BURST_VARIANT === 'screen'} />
-                        </div>
+                        <ProgressRing value={doneCount} total={total} complete={celebrating} />
                         <div class={styles.headings}>
                             <h2 class={styles.title}>
                                 <Swap show={celebrating ? 'b' : 'a'} a="Finish setting up" b="You’re all set!" />
@@ -319,7 +313,7 @@ export function SetupChecklist() {
                     </div>
                 </div>
             </div>
-            {(stage === 'celebrating' || stage === 'leaving') && <EmojiBurst variant={BURST_VARIANT} originRef={ringRef} />}
+            {(stage === 'celebrating' || stage === 'leaving') && <EmojiBurst />}
             {toast && (
                 <div key={toast.key} class={styles.toast} role="status">
                     <CheckSmallIcon />
@@ -371,9 +365,8 @@ function Swap({ show, a, b, c }) {
  * @param {number} props.value
  * @param {number} props.total
  * @param {boolean} props.complete
- * @param {boolean} [props.showDots] - small dot burst on completion
  */
-export function ProgressRing({ value, total, complete, showDots = true }) {
+export function ProgressRing({ value, total, complete }) {
     const size = 44;
     const stroke = 4;
     const radius = (size - stroke) / 2;
@@ -412,13 +405,11 @@ export function ProgressRing({ value, total, complete, showDots = true }) {
                     />
                 </svg>
             </span>
-            {showDots && (
-                <span class={styles.burst} aria-hidden="true">
-                    {Array.from({ length: 8 }, (_, i) => (
-                        <i key={i} style={{ '--a': `${i * 45}deg` }} />
-                    ))}
-                </span>
-            )}
+            <span class={styles.burst} aria-hidden="true">
+                {Array.from({ length: 8 }, (_, i) => (
+                    <i key={i} style={{ '--a': `${i * 45}deg` }} />
+                ))}
+            </span>
         </div>
     );
 }
