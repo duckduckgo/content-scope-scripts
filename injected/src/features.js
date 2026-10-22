@@ -57,6 +57,7 @@ const otherFeatures = /** @type {FeatureName[]} */ ([
     'autofillPasskeys',
     'textSelection',
     'chromeWebstorePatching',
+    'selectionTools',
 ]);
 
 /** @type {Record<string, FeatureName[]>} */
@@ -136,6 +137,7 @@ export const platformSupport = {
         'duckAiChatHistory',
         'autofillPasskeys',
         'chromeWebstorePatching',
+        'selectionTools',
     ],
     firefox: ['cookie', ...baseFeatures, 'clickToLoad', 'webDetection', 'webEvents', 'webInterferenceDetection', 'breakageReporting'],
     chrome: ['cookie', ...baseFeatures, 'clickToLoad', 'webDetection', 'webEvents', 'webInterferenceDetection', 'breakageReporting'],

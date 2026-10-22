@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ToolbarShownParams",
+  "description": "The toolbar appeared for a new selection, once per selection: expanded, or collapsed when it first appears as the chip after a context menu on a selection that had no toolbar yet. Not sent when the same selection is tracked again, when the chip comes back after a context menu, or when the chip expands on hover.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "state",
+    "selectionType",
+    "editable"
+  ],
+  "properties": {
+    "state": {
+      "$ref": "selectionToolsConfig.shared.json#/definitions/toolbarState"
+    },
+    "selectionType": {
+      "$ref": "selectionToolsConfig.shared.json#/definitions/selectionType"
+    },
+    "editable": {
+      "type": "boolean",
+      "description": "Whether the selection is in an editable field."
+    }
+  }
+}

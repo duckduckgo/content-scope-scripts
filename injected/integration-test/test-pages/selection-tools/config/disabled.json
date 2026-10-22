@@ -1,0 +1,12 @@
+{
+    "readme": "Test fixture for the selectionTools feature: the top-level entry acting as a kill switch.",
+    "version": 1,
+    "features": {
+        "selectionTools": {
+            "state": "disabled",
+            "exceptions": [],
+            "settings": {}
+        }
+    },
+    "unprotectedTemporary": []
+}

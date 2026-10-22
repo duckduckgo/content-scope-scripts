@@ -39,6 +39,7 @@ JavaScript features injected into web pages for privacy protections. Features ex
 - `performance-metrics` - Performance tracking
 - `print` - Overrides `window.print()` so native handles printing (iOS)
 - `referrer` - Referrer protection
+- `selection-tools` - Duck.ai actions for selected text: a toolbar over the selection, and the fitting actions for the native context menu (Windows)
 - `tab-suspension` - Reports whether the tab can be suspended
 - `text-selection` - Reports text selection state to native
 - `tracker-protection` - In-page tracker blocking and surrogate injection

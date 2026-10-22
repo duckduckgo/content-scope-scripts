@@ -1,0 +1,183 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SelectionToolsConfig",
+  "description": "What the selection tools may do on this page, and the actions they offer.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "enabled",
+    "showToolbar",
+    "actions"
+  ],
+  "properties": {
+    "enabled": {
+      "type": "boolean",
+      "description": "False when the remote flag or the AI toggle is off, and on native's own sites: no toolbar shows and contextMenuOpened is not sent."
+    },
+    "showToolbar": {
+      "type": "boolean",
+      "description": "The user's setting for the toolbar. When false, no toolbar shows, but contextMenuOpened is still sent while enabled."
+    },
+    "startCollapsed": {
+      "type": "boolean",
+      "description": "Show the toolbar as the collapsed chip, expanding on hover. Defaults to false."
+    },
+    "askAvailable": {
+      "type": "boolean",
+      "description": "Whether the built-in Ask is offered. When false, the toolbar has no Ask button and actionRequested is never sent with \"ask\". Defaults to true."
+    },
+    "userLanguage": {
+      "type": "string",
+      "description": "The user's language as a BCP 47 tag, e.g. \"fr-FR\". Text in another language counts as foreign. Absent when enabled is false."
+    },
+    "actions": {
+      "type": "array",
+      "description": "Actions in the order they should appear. \"Ask\" is built in and must not be listed.",
+      "items": {
+        "$ref": "#/definitions/selectionAction"
+      }
+    }
+  },
+  "definitions": {
+    "selectionType": {
+      "title": "SelectionType",
+      "type": "string",
+      "enum": [
+        "word",
+        "code",
+        "question",
+        "long",
+        "text"
+      ]
+    },
+    "selectionAction": {
+      "title": "SelectionAction",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "label"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Sent back as actionId. Must not be \"ask\"."
+        },
+        "label": {
+          "type": "string",
+          "description": "Localized label."
+        },
+        "icon": {
+          "type": "array",
+          "description": "A 16×16 glyph as filled paths, drawn in the toolbar's text colour. The default icon is used when absent.",
+          "items": {
+            "$ref": "#/definitions/glyphPath"
+          }
+        },
+        "selectionTypes": {
+          "type": "array",
+          "description": "Selection types the action fits. Absent or empty fits every type.",
+          "items": {
+            "$ref": "#/definitions/selectionType"
+          }
+        },
+        "editable": {
+          "type": "boolean",
+          "description": "Only fits editable selections when true, only non-editable ones when false. Absent fits both."
+        },
+        "condition": {
+          "type": "string",
+          "description": "An extra requirement. Unknown conditions never match.",
+          "enum": [
+            "differentLanguage"
+          ]
+        },
+        "minLength": {
+          "type": "integer",
+          "description": "Only fits selections at least this many characters long, counted after trimming. Absent, or not an integer, means no lower limit."
+        },
+        "maxLength": {
+          "type": "integer",
+          "description": "Only fits selections at most this many characters long, counted after trimming. Absent, or not an integer, means no upper limit."
+        },
+        "parameter": {
+          "$ref": "#/definitions/actionParameter"
+        }
+      }
+    },
+    "actionParameter": {
+      "title": "ActionParameter",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "options"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "description": "\"language\" options are BCP 47 tags with the user's language first: text in another language runs with that first option, and the selection's own language is never offered.",
+          "enum": [
+            "language",
+            "choice"
+          ]
+        },
+        "options": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/parameterOption"
+          }
+        }
+      }
+    },
+    "parameterOption": {
+      "title": "ParameterOption",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "label"
+      ],
+      "properties": {
+        "value": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string",
+          "description": "Localized label."
+        }
+      }
+    },
+    "glyphPath": {
+      "title": "GlyphPath",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "d"
+      ],
+      "properties": {
+        "d": {
+          "type": "string",
+          "description": "SVG path data in a 16×16 box."
+        },
+        "fillRule": {
+          "type": "string",
+          "enum": [
+            "evenodd",
+            "nonzero"
+          ],
+          "description": "SVG fill-rule. Nonzero when absent."
+        }
+      }
+    },
+    "toolbarState": {
+      "title": "ToolbarState",
+      "description": "expanded, or the collapsed chip.",
+      "type": "string",
+      "enum": [
+        "expanded",
+        "collapsed"
+      ]
+    }
+  }
+}
