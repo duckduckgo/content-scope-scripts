@@ -104,6 +104,40 @@ describe('page-context.js - extractNudgeSignals', () => {
         });
     });
 
+    it('lists the places on a tourist trip itinerary', () => {
+        const head = scriptLd({
+            '@type': 'TouristTrip',
+            name: '8-Day Portugal Explorer',
+            departureTime: '15:00',
+            itinerary: {
+                '@type': 'ItemList',
+                itemListElement: [
+                    { '@type': 'ListItem', position: 1, item: { '@type': 'Place', name: 'Lisbon' } },
+                    { '@type': 'ListItem', position: 2, item: { '@type': 'Place', name: 'Sintra - Cascais' } },
+                ],
+            },
+        });
+        expect(signalsFor(head).jsonLd).toEqual({
+            trip: { name: '8-Day Portugal Explorer', startDate: null, endDate: null, itinerary: ['Lisbon', 'Sintra - Cascais'] },
+        });
+    });
+
+    it('reads trip dates and a plain list of places', () => {
+        const head = scriptLd({
+            '@type': 'Trip',
+            name: 'Japan 2027',
+            startDate: '2027-03-29',
+            endDate: '2027-04-05',
+            itinerary: [{ '@type': 'City', name: 'Tokyo' }, 'Kyoto'],
+        });
+        expect(signalsFor(head).jsonLd.trip).toEqual({
+            name: 'Japan 2027',
+            startDate: '2027-03-29',
+            endDate: '2027-04-05',
+            itinerary: ['Tokyo', 'Kyoto'],
+        });
+    });
+
     it('extracts product name, brand, price and rating', () => {
         const head = scriptLd({
             '@type': 'Product',

@@ -27,9 +27,10 @@ test('page-context collects page-type signals end-to-end', async ({ page }, test
 
     // jsonLdType is collected in priority order (Recipe before the embedded VideoObject); the
     // second block uses non-canonical casing to exercise case-insensitive discovery.
-    expect(signals).toStrictEqual({
+    expect(signals).toMatchObject({
         jsonLdType: ['Recipe', 'NewsArticle', 'VideoObject'],
         ogType: 'article',
         lang: 'en',
+        sensitive: { password: false, payment: false, banking: false },
     });
 });

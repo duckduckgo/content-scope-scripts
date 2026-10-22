@@ -405,6 +405,7 @@ function extractLang(document) {
 
 const WORDS_PER_MINUTE = 230;
 const MAX_FIELD_LENGTH = 200;
+const MAX_TRIP_PLACES = 20;
 const CODE_SELECTOR = 'pre, textarea#read-only-cursor-text-area, table.highlight, .react-code-lines';
 
 /**
@@ -529,8 +530,8 @@ function typesOf(node) {
 }
 
 /**
- * Pull the handful of fields each nudge needs out of the first Recipe, Event, Product and
- * Reservation found anywhere in the page's JSON-LD.
+ * Pull the handful of fields each nudge needs out of the first Recipe, Event, Product,
+ * Reservation and Trip found anywhere in the page's JSON-LD.
  * @param {Document} document
  * @param {number} maxBlockLength
  */
@@ -558,7 +559,9 @@ function extractJsonLdFields(document, maxBlockLength) {
                         ? 'reservation'
                         : type.endsWith('Event')
                           ? 'event'
-                          : null;
+                          : type.endsWith('Trip')
+                            ? 'trip'
+                            : null;
             if (kind === 'product' && !record.offers && !record.aggregateRating && !record.hasVariant) continue;
             if (kind && !found[kind]) found[kind] = record;
         }
@@ -584,6 +587,7 @@ function extractJsonLdFields(document, maxBlockLength) {
     if (found.event) result.event = eventFields(found.event);
     if (found.product) result.product = productFields(found.product);
     if (found.reservation) result.reservation = reservationFields(found.reservation);
+    if (found.trip) result.trip = tripFields(found.trip);
     return result;
 }
 
@@ -661,6 +665,35 @@ function reservationFields(node) {
 }
 
 /**
+ * Trip departure and arrival times may be just a time of day, which is no use for a calendar.
+ * @param {unknown} value
+ */
+function dateText(value) {
+    const text = str(value);
+    return text && /^\d{4}-\d{2}-\d{2}/.test(text) ? text : null;
+}
+
+/** @param {Record<string, unknown>} node */
+function tripFields(node) {
+    // itinerary is a Place, a list of Places, or an ItemList whose elements wrap them in ListItems.
+    const itinerary = obj(node.itinerary)?.itemListElement ?? node.itinerary;
+    const stops = Array.isArray(itinerary) ? itinerary : itinerary ? [itinerary] : [];
+    const places = stops
+        .map((stop) => {
+            const item = obj(stop)?.item ?? stop;
+            return str(item) || str(obj(item)?.name);
+        })
+        .filter((name) => name !== null)
+        .slice(0, MAX_TRIP_PLACES);
+    return {
+        name: str(node.name),
+        startDate: dateText(node.startDate) || dateText(node.departureTime),
+        endDate: dateText(node.endDate) || dateText(node.arrivalTime),
+        itinerary: places,
+    };
+}
+
+/**
  * @param {Document} document
  * @param {Location | null} location
  * @returns {'tos' | 'privacy' | null}
@@ -671,7 +704,11 @@ function extractLegalHint(document, location) {
     // Check the most specific source first: site-wide titles like "Privacy & Terms" name both.
     for (const text of [path, heading, document.title]) {
         if (/privacy|datenschutz|confidentialit|privacidad|cookie (policy|notice)/i.test(text)) return 'privacy';
-        if (/\b(terms|tos|eula)\b|conditions of (use|service)|user agreement|nutzungsbedingungen|\bagb\b|conditions g[ée]n[ée]rales/i.test(text)) {
+        if (
+            /\b(terms|tos|eula)\b|conditions of (use|service)|user agreement|nutzungsbedingungen|\bagb\b|conditions g[ée]n[ée]rales/i.test(
+                text,
+            )
+        ) {
             return 'tos';
         }
     }
