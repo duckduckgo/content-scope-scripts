@@ -9,7 +9,7 @@ Background on why build output lives on a separate branch: [CONTRIBUTING.md → 
 ## Before you start
 
 - **The fix must already be merged to `main`.** You cherry-pick from `main` onto the hotfix branch. If the commit only exists on the hotfix branch, the next regular release silently reverts it.
-- **Nothing to bump in the repo.** The root `package.json` has no `version` field; the version is the git tag and nothing else.
+- **Bump the root `package.json` version.** The release workflow stamps the tag into the root `package.json` `version`, and the bundles embed it. A hotfix sets it to the hotfix tag before building.
 - **The patch digit is yours.** `build.yml` always emits `${MAJOR}.${MINOR}.0` and ignores the patch component when computing the next version, so `x.y.1`, `x.y.2` … can never collide with an automated release, and a hotfix tag does not skew the next minor. Apple consumers need this: Swift Package Manager only accepts a strict `major.minor.patch` trio, so the patch slot is the only room a hotfix has.
 
 > [!WARNING]
@@ -38,6 +38,7 @@ Work in a **clean clone or worktree** — step 4 force-adds files, and stray loc
     ```sh
     nvm use
     npm ci        # not `npm install` — ci installs the lockfile exactly, as build.yml does
+    npm pkg set version=4.21.2 # {hotfix tag}
     npm run build
     ```
 

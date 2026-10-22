@@ -1,5 +1,6 @@
 import fc from 'fast-check';
 import ConfigFeature from '../src/config-feature.js';
+import { isMaxSupportedVersion, isSupportedVersion } from '../src/utils.js';
 import { polyfillProcessGlobals } from './helpers/polyfill-process-globals.js';
 
 polyfillProcessGlobals();
@@ -51,6 +52,8 @@ describe('ConfigFeature._matchConditionalBlock properties', () => {
             'experiment',
             'minSupportedVersion',
             'maxSupportedVersion',
+            'minSupportedCSSVersion',
+            'maxSupportedCSSVersion',
             'injectName',
             'internal',
             'preview',
@@ -146,6 +149,76 @@ describe('ConfigFeature version matching properties', () => {
         const feature = createFeature({ version: '1.0.0' });
         expect(feature._matchMinSupportedVersion({})).toBeFalse();
         expect(feature._matchMaxSupportedVersion({})).toBeFalse();
+    });
+});
+
+describe('ConfigFeature C-S-S version matching properties', () => {
+    /**
+     * @param {string | null} cssVersion
+     */
+    function createVersionedFeature(cssVersion) {
+        const feature = createFeature();
+        Object.defineProperty(feature, 'cssVersion', { value: cssVersion });
+        return feature;
+    }
+
+    const semver = () =>
+        fc
+            .tuple(fc.integer({ min: 0, max: 50 }), fc.integer({ min: 0, max: 50 }), fc.integer({ min: 0, max: 50 }))
+            .map(([major, minor, patch]) => `${major}.${minor}.${patch}`);
+
+    it('minSupportedCSSVersion matches exactly when the C-S-S version is at or above it', () => {
+        fc.assert(
+            fc.property(semver(), semver(), (cssVersion, conditionVersion) => {
+                const feature = createVersionedFeature(cssVersion);
+                expect(feature._matchMinSupportedCSSVersion({ minSupportedCSSVersion: conditionVersion })).toBe(
+                    isSupportedVersion(conditionVersion, cssVersion),
+                );
+                expect(feature._matchMinSupportedCSSVersion({ minSupportedCSSVersion: cssVersion })).toBeTrue();
+            }),
+            { numRuns: 100 },
+        );
+    });
+
+    it('maxSupportedCSSVersion matches exactly when the C-S-S version is at or below it', () => {
+        fc.assert(
+            fc.property(semver(), semver(), (cssVersion, conditionVersion) => {
+                const feature = createVersionedFeature(cssVersion);
+                expect(feature._matchMaxSupportedCSSVersion({ maxSupportedCSSVersion: conditionVersion })).toBe(
+                    isMaxSupportedVersion(conditionVersion, cssVersion),
+                );
+                expect(feature._matchMaxSupportedCSSVersion({ maxSupportedCSSVersion: cssVersion })).toBeTrue();
+            }),
+            { numRuns: 100 },
+        );
+    });
+
+    it('ignores the app version', () => {
+        fc.assert(
+            fc.property(semver(), (version) => {
+                const feature = createFeature({ version });
+                expect(feature._matchConditionalBlock({ minSupportedCSSVersion: version })).toBeFalse();
+                expect(feature._matchConditionalBlock({ maxSupportedCSSVersion: version })).toBeFalse();
+            }),
+            { numRuns: 50 },
+        );
+    });
+
+    it('unversioned builds never match', () => {
+        fc.assert(
+            fc.property(semver(), (conditionVersion) => {
+                const feature = createVersionedFeature(null);
+                expect(feature._matchMinSupportedCSSVersion({ minSupportedCSSVersion: conditionVersion })).toBeFalse();
+                expect(feature._matchMaxSupportedCSSVersion({ maxSupportedCSSVersion: conditionVersion })).toBeFalse();
+            }),
+            { numRuns: 50 },
+        );
+    });
+
+    it('missing version in condition block returns false', () => {
+        const feature = createVersionedFeature('17.30.0');
+        expect(feature._matchMinSupportedCSSVersion({})).toBeFalse();
+        expect(feature._matchMaxSupportedCSSVersion({})).toBeFalse();
     });
 });
 

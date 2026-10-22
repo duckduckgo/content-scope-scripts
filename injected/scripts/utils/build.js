@@ -5,6 +5,8 @@ import { join } from 'path';
 import * as esbuild from 'esbuild';
 import { commentPlugin } from './comment-plugin.js';
 const ROOT = join(cwd(import.meta.url), '..', '..');
+// The release workflow stamps the tag into the root package.json; main has no version
+const { version: cssVersion = null } = JSON.parse(readFileSync(join(ROOT, '..', 'package.json'), 'utf8'));
 const DEBUG = false;
 
 const prefixMessage = '/*! © DuckDuckGo ContentScopeScripts $INJECT_NAME$ https://github.com/duckduckgo/content-scope-scripts/ */';
@@ -52,6 +54,7 @@ export async function bundle(params) {
             'import.meta.env': 'development',
             'import.meta.injectName': JSON.stringify(platform),
             'import.meta.trackerLookup': trackerLookup,
+            'import.meta.cssVersion': JSON.stringify(cssVersion),
         },
         plugins: [loadFeaturesPlugin, commentPlugin()],
         banner: {
