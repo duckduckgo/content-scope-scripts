@@ -498,7 +498,11 @@ function placeText(value) {
     const place = obj(value);
     if (!place) return null;
     const address = str(place.address) ? [str(place.address)] : addressParts(obj(place.address) || place);
-    const parts = [str(place.name), ...address].filter((part, i, all) => part && all.indexOf(part) === i);
+    const candidates = [str(place.name), ...address].filter((part) => part !== null);
+    // Street addresses often repeat the venue name or city, so drop parts another part already contains.
+    const parts = candidates.filter(
+        (part, i) => !candidates.some((other, j) => j !== i && (other.includes(part) ? other !== part || j < i : false)),
+    );
     return parts.length ? parts.join(', ').slice(0, MAX_FIELD_LENGTH) : null;
 }
 
@@ -555,9 +559,14 @@ function extractJsonLdFields(document, maxBlockLength) {
                         : type.endsWith('Event')
                           ? 'event'
                           : null;
+            if (kind === 'product' && !record.offers && !record.aggregateRating && !record.hasVariant) continue;
             if (kind && !found[kind]) found[kind] = record;
         }
-        for (const key of Object.keys(record)) walk(record[key], depth + 1);
+        for (const key of Object.keys(record)) {
+            // News sites mark the publication itself as a Product here for paywall markup.
+            if (key === 'isPartOf' || key === 'publisher') continue;
+            walk(record[key], depth + 1);
+        }
     };
     for (const block of document.querySelectorAll('script[type="application/ld+json" i]')) {
         const text = block.textContent || '';
@@ -659,14 +668,12 @@ function reservationFields(node) {
 function extractLegalHint(document, location) {
     const path = decodeURIComponent(location?.pathname || '').replace(/[-_/]+/g, ' ');
     const heading = document.querySelector('h1')?.textContent || '';
-    const haystack = [path, document.title, heading].join(' ');
-    if (/privacy|datenschutz|confidentialit|privacidad|cookie (policy|notice)/i.test(haystack)) return 'privacy';
-    if (
-        /\b(terms|tos|eula)\b|conditions of (use|service)|user agreement|nutzungsbedingungen|\bagb\b|conditions g[ée]n[ée]rales/i.test(
-            haystack,
-        )
-    ) {
-        return 'tos';
+    // Check the most specific source first: site-wide titles like "Privacy & Terms" name both.
+    for (const text of [path, heading, document.title]) {
+        if (/privacy|datenschutz|confidentialit|privacidad|cookie (policy|notice)/i.test(text)) return 'privacy';
+        if (/\b(terms|tos|eula)\b|conditions of (use|service)|user agreement|nutzungsbedingungen|\bagb\b|conditions g[ée]n[ée]rales/i.test(text)) {
+            return 'tos';
+        }
     }
     return null;
 }
@@ -679,15 +686,27 @@ function extractSensitiveSignals(document, location) {
     const host = location?.hostname || '';
     const path = location?.pathname || '';
     const payment =
-        !!document.querySelector(
+        anyShown(
+            document,
             'input[autocomplete^="cc-" i], input[name*="cardnumber" i], input[name*="card_number" i], input[id*="cardnumber" i], iframe[src*="js.stripe.com"], iframe[src*="adyen"], iframe[src*="braintree"]',
         ) || /\/(checkout|payment|pay)(\/|$)/i.test(path);
     const banking = /bank|credit-?union/i.test(host) || /online banking|netbanking/i.test(document.title);
     return {
-        password: !!document.querySelector('input[type="password" i]'),
+        password: anyShown(document, 'input[type="password" i]'),
         payment,
         banking,
     };
+}
+
+/**
+ * Many sites keep a hidden sign-in or payment form in every page's markup, so only count visible ones.
+ * @param {Document} document
+ * @param {string} selector
+ */
+function anyShown(document, selector) {
+    return Array.from(document.querySelectorAll(selector)).some((el) =>
+        typeof el.checkVisibility === 'function' ? el.checkVisibility({ visibilityProperty: true, opacityProperty: true }) : true,
+    );
 }
 
 /**

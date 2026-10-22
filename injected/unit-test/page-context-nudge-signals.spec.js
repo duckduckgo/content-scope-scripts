@@ -117,10 +117,37 @@ describe('page-context.js - extractNudgeSignals', () => {
         });
     });
 
+    it('drops address parts repeated elsewhere in the location', () => {
+        const head = scriptLd({
+            '@type': 'MusicEvent',
+            location: {
+                name: 'Alexandra Palace',
+                address: { streetAddress: 'Alexandra Palace Way, London N22 7AY', addressLocality: 'London', addressCountry: 'GB' },
+            },
+        });
+        expect(signalsFor(head).jsonLd.event?.location).toBe('Alexandra Palace Way, London N22 7AY, GB');
+    });
+
+    it('ignores the publication marked as a Product in news paywall markup', () => {
+        const head = scriptLd({
+            '@type': 'NewsArticle',
+            isPartOf: { '@type': ['CreativeWork', 'Product'], name: 'The Guardian' },
+        });
+        expect(signalsFor(head).jsonLd).toEqual({});
+    });
+
+    it('ignores password fields the page keeps hidden', () => {
+        const dom = new JSDOM('<div id="modal"><input type="password"></div>', { url: 'https://example.com/' });
+        const input = /** @type {any} */ (dom.window.document.querySelector('input'));
+        input.checkVisibility = () => false;
+        expect(extractNudgeSignals(dom.window.document).sensitive.password).toBe(false);
+    });
+
     it('flags terms and privacy pages', () => {
         expect(signalsFor('<title>Privacy Policy</title>').legalHint).toBe('privacy');
         expect(signalsFor('<title>Help</title>', 'https://example.com/legal/terms-of-service').legalHint).toBe('tos');
         expect(signalsFor('<title>Blog</title><h1>Ten terminals</h1>').legalHint).toBe(null);
+        expect(signalsFor('<title>Terms – Privacy & Terms</title>', 'https://example.com/terms').legalHint).toBe('tos');
     });
 
     it('flags login, payment and banking pages', () => {
