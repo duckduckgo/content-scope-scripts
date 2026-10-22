@@ -168,7 +168,7 @@ Use this when a feature "is not working" to confirm it is enabled and wired end-
 
 ### 1) Platform sends and parses the feature config
 
-- Confirm the platform injects the feature config into `$CONTENT_SCOPE$`.
+- Confirm the platform injects the feature config into `$CONTENT_SCOPE$` (Apple: `$CONTENT_SCOPE_JSON$`).
 - Apple: check any feature denylist filtering in the platform layer.
 - Android: ensure the feature config has a parser implemented.
 
