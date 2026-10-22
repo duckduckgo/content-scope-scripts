@@ -1,0 +1,75 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GeolocationPositionResult",
+  "description": "A position delivered to getCurrentPosition or a watch.",
+  "oneOf": [
+    {
+      "title": "GeolocationPositionSuccess",
+      "type": "object",
+      "required": [
+        "status",
+        "coords",
+        "timestamp"
+      ],
+      "properties": {
+        "status": {
+          "const": "success"
+        },
+        "coords": {
+          "type": "object",
+          "required": [
+            "latitude",
+            "longitude",
+            "accuracy",
+            "altitude",
+            "altitudeAccuracy",
+            "heading",
+            "speed"
+          ],
+          "properties": {
+            "latitude": {
+              "type": "number"
+            },
+            "longitude": {
+              "type": "number"
+            },
+            "accuracy": {
+              "type": "number"
+            },
+            "altitude": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "altitudeAccuracy": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "heading": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "speed": {
+              "type": [
+                "number",
+                "null"
+              ]
+            }
+          }
+        },
+        "timestamp": {
+          "type": "number",
+          "description": "Milliseconds since the Unix epoch."
+        }
+      }
+    },
+    {
+      "$ref": "error.shared.json"
+    }
+  ]
+}

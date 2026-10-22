@@ -62,12 +62,13 @@ export default defineConfig({
                 'integration-test/duckplayer-mobile-drawer.spec.js',
                 'integration-test/duckplayer-native.spec.js',
                 'integration-test/favicon.spec.js',
+                'integration-test/site-permissions-policy.spec.js',
             ],
             use: { injectName: 'apple-isolated', platform: 'ios', ...devices['iPhone 13'] },
         },
         {
             name: 'ios-main-world',
-            testMatch: ['integration-test/page-context-root-selection.spec.js'],
+            testMatch: ['integration-test/page-context-root-selection.spec.js', 'integration-test/site-permissions.spec.js'],
             use: { injectName: 'apple', platform: 'ios', ...devices['iPhone 13'] },
         },
         {

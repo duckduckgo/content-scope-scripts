@@ -56,12 +56,24 @@ const otherFeatures = /** @type {FeatureName[]} */ ([
     'tabSuspension',
     'autofillPasskeys',
     'textSelection',
+    'sitePermissionsGeolocation',
+    'sitePermissionsGeolocationPolicy',
+    'sitePermissionsMediaCapture',
     'chromeWebstorePatching',
 ]);
 
 /** @type {Record<string, FeatureName[]>} */
 export const platformSupport = {
-    apple: ['webCompat', 'duckPlayerNative', ...baseFeatures, 'pageContext', 'print', 'trackerProtection'],
+    apple: [
+        'webCompat',
+        'duckPlayerNative',
+        ...baseFeatures,
+        'pageContext',
+        'print',
+        'trackerProtection',
+        'sitePermissionsGeolocation',
+        'sitePermissionsMediaCapture',
+    ],
     'apple-isolated': [
         'contextMenu',
         'duckPlayer',
@@ -82,6 +94,7 @@ export const platformSupport = {
         'tabSuspension',
         'textSelection',
         'chromeWebstorePatching',
+        'sitePermissionsGeolocationPolicy',
     ],
     'apple-ai-clear': ['duckAiDataClearing'],
     'apple-ai-history': ['duckAiChatHistory'],

@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GeolocationErrorResult",
+  "description": "A failed operation. Codes follow GeolocationPositionError: 1 permission denied, 2 position unavailable, 3 timeout.",
+  "type": "object",
+  "required": [
+    "status",
+    "code",
+    "message"
+  ],
+  "properties": {
+    "status": {
+      "const": "error"
+    },
+    "code": {
+      "type": "integer",
+      "enum": [
+        1,
+        2,
+        3
+      ]
+    },
+    "message": {
+      "type": "string"
+    }
+  }
+}
