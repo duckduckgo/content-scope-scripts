@@ -288,6 +288,24 @@ describe('WebDetection feature', () => {
             expect(instance.callFeatureMethod).toHaveBeenCalledTimes(3);
         });
 
+        it('shares one task among the detectors of a timer or a report, and starts a new one for the next', () => {
+            const instance = createInstance({
+                a: { triggers: auto, actions: { fireEvent: { type: 'a' } } },
+                b: { triggers: auto, actions: { fireEvent: { type: 'b' } } },
+            });
+            const run = spyOn(instance, '_runDetector').and.callThrough();
+            const tasks = () => run.calls.allArgs().map((args) => args[2]);
+            jasmine.clock().tick(100);
+            jasmine.clock().tick(100);
+            instance.runDetectors({ trigger: 'breakageReport' });
+            const [first, second, third, fourth, fifth, sixth] = tasks();
+            expect(second).toBe(first);
+            expect(fourth).toBe(third);
+            expect(third).not.toBe(first);
+            expect(sixth).toBe(fifth);
+            expect(fifth).not.toBe(third);
+        });
+
         it('returns entries written by `auto` runs, and does not run a done detector for the report', () => {
             testGlobal.wdTestPage = { n: 3 };
             const instance = createInstance({

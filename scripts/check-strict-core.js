@@ -113,6 +113,7 @@ const CORE_FILES = new Set([
     'injected/src/features/web-detection/evaluate/evaluate.js',
     'injected/src/features/web-detection/evaluate/native-reader.js',
     'injected/src/features/web-detection/evaluate/run.js',
+    'injected/src/features/web-detection/evaluate/task-read-cache.js',
     'injected/src/features/web-detection/model/core.js',
     'injected/src/features/web-detection/model/lists.js',
     'injected/src/features/web-detection/model/types.js',
