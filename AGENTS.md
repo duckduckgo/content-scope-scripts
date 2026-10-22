@@ -49,6 +49,8 @@ JavaScript features injected into web pages for privacy protections. Features ex
 - `web-interference-detection` / `web-telemetry` - Monitoring
 - `windows-permission-usage` - Reports geolocation, camera and microphone usage (Windows)
 
+**Standalone scripts** (in `injected/src/site-permissions/`): iOS geolocation and media capture permission scripts, copied verbatim to Apple rather than bundled. See the folder's `README.md`.
+
 **Docs:** `injected/docs/README.md` (index to all docs)
 
 ### `special-pages/` - Embedded Browser Pages

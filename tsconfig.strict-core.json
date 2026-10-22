@@ -12,6 +12,7 @@
         "injected/src/globals.d.ts"
     ],
     "exclude": [
+        "injected/src/site-permissions",
         "injected/integration-test",
         "injected/unit-test",
         "injected/scripts",

@@ -13,3 +13,5 @@ injected/integration-test/extension/contentScope.js
 **/*.har
 **/*.css
 Sources/**/*
+# Copied verbatim to native apps, whose tests assert on the exact source
+injected/src/site-permissions/*.js
