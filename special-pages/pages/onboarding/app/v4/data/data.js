@@ -59,7 +59,7 @@ export const stepsConfig = {
             topBubble: {
                 content: (
                     <StepHeader
-                        title={t('systemSettings_title_v3')}
+                        title={globalState.resumeFirst === activeStep ? t('resume_title') : t('systemSettings_title_v3')}
                         subtitle={t('systemSettings_subtitle_v3')}
                         onTitleComplete={onTitleComplete}
                     />
@@ -113,7 +113,11 @@ export const stepsConfig = {
         return {
             topBubble: {
                 content: (
-                    <StepHeader title={t('customize_title_v3')} subtitle={t('customize_subtitle_v3')} onTitleComplete={onTitleComplete} />
+                    <StepHeader
+                        title={globalState.resumeFirst === activeStep ? t('resume_title') : t('customize_title_v3')}
+                        subtitle={t('customize_subtitle_v3')}
+                        onTitleComplete={onTitleComplete}
+                    />
                 ),
             },
             bottomBubble: { content: <SettingsContent advance={enqueueNext} dismiss={dismiss} updateSystemValue={updateSystemValue} /> },

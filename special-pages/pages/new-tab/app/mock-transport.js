@@ -594,6 +594,11 @@ export function initialSetup(url) {
 
     // Insert nextStepsList after omnibar (or at the beginning if omnibar is not present) and before favorites
     // Note: nextStepsList uses the same nextSteps_* messages, just a different widget ID
+    if (url.searchParams.has('setup-checklist')) {
+        const favoritesWidgetIndex = widgetsFromStorage.findIndex((widget) => widget.id === 'favorites') ?? 0;
+        widgetsFromStorage.splice(favoritesWidgetIndex, 0, { id: 'setupChecklist' });
+    }
+
     if (url.searchParams.has('next-steps-list')) {
         const favoritesWidgetIndex = widgetsFromStorage.findIndex((widget) => widget.id === 'favorites') ?? 0;
         widgetsFromStorage.splice(favoritesWidgetIndex, 0, { id: 'nextStepsList' });

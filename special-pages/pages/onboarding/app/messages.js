@@ -10,6 +10,7 @@
  * @property {ImportMeta['env']} [env] - optional override for the running override
  * @property {string} locale
  * @property {{ name: 'macos'|'windows'|'android'|'ios'}} [platform]
+ * @property {{ done: import('./types').SystemValueId[] }} [resume] - rows already completed, when reopened from the setup checklist
  */
 
 /**
@@ -141,6 +142,14 @@ export class OnboardingMessages {
      */
     dismissToSettings() {
         this.messaging.notify('dismissToSettings');
+    }
+
+    /**
+     * Sent when the user leaves onboarding early with "Finish later", so native can save progress and unlock the browser.
+     * @param {{ step: import('./types').Step['id'], values: import('./types').GlobalState['UIValues'] }} params
+     */
+    finishLater(params) {
+        this.messaging.notify('finishLater', params);
     }
 
     /**

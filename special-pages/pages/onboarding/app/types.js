@@ -83,6 +83,9 @@ export const ORDER_V4 = ['welcome', 'getStarted', 'makeDefaultSingle', 'systemSe
  * @property {Partial<Record<SystemValueId, SystemValue>>} values
  * @property {Record<SystemValueId, UIValue>} UIValues
  * @property {OverlayId|null} overlay
+ * @property {boolean} [resumed] - true when onboarding was reopened from the setup checklist
+ * @property {Step['id']} [resumeFirst] - the step the resumed session opened on
+ * @property {Step['id'] | null} [jumpTo] - step to show after the current one exits, when jumping via the progress dots
  */
 
 /**
@@ -99,9 +102,13 @@ export const ORDER_V4 = ['welcome', 'getStarted', 'makeDefaultSingle', 'systemSe
  *   | DismissOverlayEvent
  *   | ConfigUpdateEvent
  *   | TelemetryEvent
- *   | RequestChromeExtensionEvent} GlobalEvents
+ *   | RequestChromeExtensionEvent
+ *   | FinishLaterEvent
+ *   | JumpToStepEvent} GlobalEvents
  *  All the events that the UI can dispatch
  * @typedef {{ kind: "enqueue-next"; }} NextEvent
+ * @typedef {{ kind: "finish-later" }} FinishLaterEvent
+ * @typedef {{ kind: "jump-to-step"; id: Step["id"] }} JumpToStepEvent
  * @typedef {{ kind: "advance" }} AdvanceEvent
  * @typedef {{ kind: "update-system-value"; id: SystemValueId; payload: SystemValue; current: boolean;}} UpdateSystemValueEvent
  * @typedef {{ kind: "exec-complete"; id: SystemValueId; payload: SystemValue }} ExecCompleteEvent

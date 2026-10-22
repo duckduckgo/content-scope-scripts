@@ -1,0 +1,131 @@
+.root {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    animation: appear 267ms cubic-bezier(0.66, 0, 0.34, 1) 900ms backwards;
+    transition: opacity 100ms cubic-bezier(0.66, 0, 0.34, 1);
+}
+
+.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.button {
+    /* Leaf green from the onboarding illustrations */
+    --finish-later-green: #14735d;
+    --finish-later-green-strong: #11604d;
+
+    align-items: center;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--sp-16);
+    color: var(--finish-later-green);
+    cursor: pointer;
+    display: inline-flex;
+    font-family: var(--font-product);
+    font-size: calc(15 * var(--px-in-rem));
+    font-weight: 500;
+    gap: var(--sp-2);
+    height: var(--sp-10);
+    line-height: 1;
+    padding: 0 var(--sp-5) 0 var(--sp-4);
+    transition:
+        background-color 150ms ease,
+        border-color 150ms ease,
+        color 150ms ease;
+
+    &:hover,
+    &:focus-visible {
+        background: rgba(20, 115, 93, 0.1);
+        border-color: rgba(20, 115, 93, 0.24);
+        color: var(--finish-later-green-strong);
+    }
+
+    &:active {
+        background: rgba(20, 115, 93, 0.16);
+    }
+
+    &:focus-visible {
+        outline: 2px solid rgba(20, 115, 93, 0.4);
+        outline-offset: 2px;
+    }
+}
+
+.icon {
+    flex: none;
+    overflow: visible;
+}
+
+/* The ribbon dips like a bookmark being tucked in */
+.ribbon {
+    transform-origin: 50% 0;
+    transition: transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    .button:hover &,
+    .button:focus-visible & {
+        transform: scaleY(1.12);
+    }
+}
+
+.tooltip {
+    background: var(--bubble-bg, var(--ds-surface-tertiary));
+    border: 1.5px solid var(--bubble-border, var(--ds-accent-alt-primary));
+    border-radius: var(--sp-3);
+    bottom: calc(100% + var(--sp-3));
+    box-shadow: 0 7px 12px rgba(0, 0, 0, 0.05);
+    color: var(--ds-text-primary);
+    font-family: var(--font-product);
+    font-size: calc(13 * var(--px-in-rem));
+    line-height: 1.4;
+    opacity: 0;
+    padding: var(--sp-2) var(--sp-3);
+    pointer-events: none;
+    position: absolute;
+    text-align: center;
+    transform: translateY(4px);
+    transition:
+        opacity 150ms ease,
+        transform 200ms cubic-bezier(0.17, 0, 0.34, 1);
+    width: max-content;
+    max-width: 252px;
+
+    /* Tail: a rotated square sharing the bubble border */
+    &::after {
+        background: inherit;
+        border-bottom: inherit;
+        border-right: inherit;
+        bottom: -6px;
+        content: '';
+        height: 10px;
+        left: calc(50% - 5px);
+        position: absolute;
+        transform: rotate(45deg);
+        width: 10px;
+    }
+
+    .button:hover + &,
+    .button:focus-visible + & {
+        opacity: 1;
+        transform: translateY(0);
+        transition-delay: 250ms;
+    }
+}
+
+@keyframes appear {
+    from {
+        opacity: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .root {
+        animation: none;
+    }
+
+    .ribbon,
+    .tooltip {
+        transition: none;
+    }
+}

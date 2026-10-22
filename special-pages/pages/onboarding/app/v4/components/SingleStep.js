@@ -2,6 +2,7 @@ import { h } from 'preact';
 import { useState } from 'preact/hooks';
 import cn from 'classnames';
 import { Bubble } from './Bubble';
+import { FinishLater } from './FinishLater';
 import { useStepConfig } from '../hooks/useStepConfig';
 import { useTypingEffect } from '../../shared/components/SettingsProvider';
 import { useGlobalState } from '../../global';
@@ -103,6 +104,12 @@ export function SingleStep() {
             {illustration?.foreground && <div class={styles.illustrationForeground}>{illustration.foreground}</div>}
 
             {content}
+
+            {showProgress && progress.current < progress.total && (
+                <div class={styles.finishLater}>
+                    <FinishLater />
+                </div>
+            )}
         </div>
     );
 }

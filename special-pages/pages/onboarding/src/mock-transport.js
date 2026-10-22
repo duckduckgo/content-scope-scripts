@@ -6,6 +6,56 @@ import { TestTransportConfig } from '@duckduckgo/messaging';
 
 const url = new URL(window.location.href);
 
+/**
+ * Demo only: progress shared with the New Tab Page's setup checklist through localStorage
+ * (both pages are served from the same origin in the integration build).
+ */
+const SETUP_DEMO_KEY = 'ddg-setup-demo-done';
+const ROW_TO_CHECKLIST = {
+    'default-browser': 'defaultBrowser',
+    dock: 'taskbar',
+    import: 'import',
+    bookmarks: 'bookmarksBar',
+    'session-restore': 'sessionRestore',
+    'home-shortcut': 'homeButton',
+};
+
+/** @returns {string[]} */
+function readSetupDone() {
+    try {
+        return JSON.parse(localStorage.getItem(SETUP_DEMO_KEY) || '[]');
+    } catch {
+        return [];
+    }
+}
+
+/**
+ * @param {string} rowId
+ * @param {boolean} enabled
+ */
+function markSetupRow(rowId, enabled) {
+    const item = ROW_TO_CHECKLIST[rowId];
+    if (!item) return;
+    const done = readSetupDone().filter((id) => id !== item);
+    if (enabled) done.push(item);
+    localStorage.setItem(SETUP_DEMO_KEY, JSON.stringify(done));
+}
+
+function goToNewTabPage() {
+    const ntp = new URL('../new-tab/', window.location.href);
+    ntp.searchParams.set('platform', url.searchParams.get('platform') || 'windows');
+    ntp.searchParams.set('rebrand', 'enabled');
+    ntp.searchParams.set('setup-checklist', '');
+    ntp.searchParams.set('favorites', '6');
+    document.body.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 450, easing: 'ease-in', fill: 'forwards' });
+    setTimeout(() => window.location.assign(ntp.href), 450);
+}
+
+// A normal (non-resumed) start begins the demo story from scratch
+if (!url.searchParams.has('resume')) {
+    localStorage.removeItem(SETUP_DEMO_KEY);
+}
+
 export function mockTransport() {
     if (typeof window !== 'undefined' && window.__playwright_01) {
         window.__playwright_01.publishSubscriptionEvent = (/** @type {{ subscriptionName: string; params?: unknown }} */ evt) => {
@@ -19,6 +69,25 @@ export function mockTransport() {
             window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
             const msg = /** @type {any} */ (_msg);
             switch (msg.method) {
+                case 'finishLater': {
+                    // Demo story: the default browser was set before leaving
+                    markSetupRow('default-browser', true);
+                    goToNewTabPage();
+                    break;
+                }
+                case 'dismissToAddressBar': {
+                    if (url.searchParams.has('resume')) goToNewTabPage();
+                    break;
+                }
+                case 'setBookmarksBar':
+                    markSetupRow('bookmarks', msg.params?.enabled);
+                    break;
+                case 'setSessionRestore':
+                    markSetupRow('session-restore', msg.params?.enabled);
+                    break;
+                case 'setShowHomeButton':
+                    markSetupRow('home-shortcut', msg.params?.enabled);
+                    break;
                 default: {
                     console.warn('unhandled notification', msg);
                 }
@@ -74,16 +143,27 @@ export function mockTransport() {
                         };
                     }
 
+                    const resume = url.searchParams.has('resume')
+                        ? {
+                              done: Object.entries(ROW_TO_CHECKLIST)
+                                  .filter(([, item]) => readSetupDone().includes(item))
+                                  .map(([row]) => row),
+                          }
+                        : undefined;
+
                     return Promise.resolve({
                         stepDefinitions,
                         exclude: [],
                         locale: 'en',
                         env: 'development',
+                        resume,
                     });
                 }
                 case 'requestImport':
                 case 'requestSetAsDefault':
                 case 'requestDockOptIn': {
+                    const row = { requestImport: 'import', requestSetAsDefault: 'default-browser', requestDockOptIn: 'dock' }[msg.method];
+                    markSetupRow(row, true);
                     return Promise.resolve({
                         enabled: true,
                     });
