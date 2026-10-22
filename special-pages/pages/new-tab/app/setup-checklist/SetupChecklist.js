@@ -1,7 +1,7 @@
-import { h } from 'preact';
-import { useEffect, useState } from 'preact/hooks';
+import { h, Fragment } from 'preact';
+import { useEffect, useRef, useState } from 'preact/hooks';
 import cn from 'classnames';
-import { EmojiBurst } from './EmojiBurst.js';
+import { EmojiBurst, LAUNCH_WINDOW_MS, DURATION_MS as BURST_DURATION_MS } from './EmojiBurst.js';
 import styles from './SetupChecklist.module.css';
 
 /**
@@ -134,6 +134,8 @@ export function SetupChecklist() {
         return seen ? stored.filter((id) => seen.includes(id)) : stored;
     });
     const [expanded, setExpanded] = useState(false);
+    const [burstDone, setBurstDone] = useState(false);
+    const celebratedRef = useRef(false);
     const [pending, setPending] = useState(/** @type {string|null} */ (null));
     const [toast, setToast] = useState(/** @type {{ text: string, undoId?: string, key: number } | null} */ (null));
 
@@ -162,10 +164,13 @@ export function SetupChecklist() {
     const nextItem = ITEMS.find((item) => !done.includes(item.id));
 
     useEffect(() => {
-        if (remaining > 0 || stage !== 'active') return;
+        // Keyed on `remaining` only: re-running on stage changes would cancel these timers
+        if (remaining > 0 || celebratedRef.current) return;
+        celebratedRef.current = true;
         // The celebration replaces the last confirmation (an Undo there would be confusing)
         setToast(null);
         setStage('celebrating');
+        const burstEnd = setTimeout(() => setBurstDone(true), LAUNCH_WINDOW_MS + BURST_DURATION_MS + 100);
         const leave = setTimeout(() => setStage('leaving'), CELEBRATION_MS);
         const gone = setTimeout(() => {
             setStage('gone');
@@ -176,10 +181,13 @@ export function SetupChecklist() {
         return () => {
             clearTimeout(leave);
             clearTimeout(gone);
+            clearTimeout(burstEnd);
         };
-    }, [remaining, stage]);
+    }, [remaining]);
 
-    if (stage === 'gone') return null;
+    // The burst outlives the card, which tucks away while emoji are still falling
+    const bursting = stage !== 'active' && !burstDone;
+    if (stage === 'gone' && !bursting) return null;
 
     const markDone = (/** @type {string} */ id) => setDone((prev) => (prev.includes(id) ? prev : [...prev, id]));
     const undo = (/** @type {string} */ id) => {
@@ -222,110 +230,114 @@ export function SetupChecklist() {
     const celebrating = stage !== 'active';
 
     return (
-        <section
-            class={cn(styles.outer, { [styles.leaving]: stage === 'leaving' })}
-            aria-label="Finish setting up"
-            data-testid="SetupChecklist"
-        >
-            <div class={styles.outerInner}>
-                <div class={cn(styles.card, { [styles.expanded]: expanded && !celebrating, [styles.celebrating]: celebrating })}>
-                    <div class={styles.header} onClick={celebrating ? undefined : toggle}>
-                        <ProgressRing value={doneCount} total={total} complete={celebrating} />
-                        <div class={styles.headings}>
-                            <h2 class={styles.title}>
-                                <Swap show={celebrating ? 'b' : 'a'} a="Finish setting up" b="You’re all set!" />
-                            </h2>
-                            <p class={styles.subtitle}>
-                                <Swap
-                                    show={celebrating ? 'c' : expanded ? 'b' : 'a'}
-                                    a={nextItem ? `Next: ${nextItem.next}` : ''}
-                                    b={`${remaining} quick ${remaining === 1 ? 'step' : 'steps'} left`}
-                                    c="Enjoy browsing privately."
-                                />
-                            </p>
-                        </div>
-                        <div class={cn(styles.control, { [styles.controlHidden]: celebrating })}>
-                            <button
-                                type="button"
-                                class={styles.continueBtn}
-                                tabIndex={celebrating ? -1 : 0}
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    resumeSetup();
-                                }}
-                            >
-                                Continue
-                            </button>
-                            <button
-                                type="button"
-                                class={styles.chevronBtn}
-                                tabIndex={celebrating ? -1 : 0}
-                                aria-label={expanded ? 'Collapse checklist' : 'Expand checklist'}
-                                aria-expanded={expanded}
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    toggle();
-                                }}
-                            >
-                                <ChevronIcon />
-                            </button>
-                        </div>
-                    </div>
+        <Fragment>
+            {stage !== 'gone' && (
+                <section
+                    class={cn(styles.outer, { [styles.leaving]: stage === 'leaving' })}
+                    aria-label="Finish setting up"
+                    data-testid="SetupChecklist"
+                >
+                    <div class={styles.outerInner}>
+                        <div class={cn(styles.card, { [styles.expanded]: expanded && !celebrating, [styles.celebrating]: celebrating })}>
+                            <div class={styles.header} onClick={celebrating ? undefined : toggle}>
+                                <ProgressRing value={doneCount} total={total} complete={celebrating} />
+                                <div class={styles.headings}>
+                                    <h2 class={styles.title}>
+                                        <Swap show={celebrating ? 'b' : 'a'} a="Finish setting up" b="You’re all set!" />
+                                    </h2>
+                                    <p class={styles.subtitle}>
+                                        <Swap
+                                            show={celebrating ? 'c' : expanded ? 'b' : 'a'}
+                                            a={nextItem ? `Next: ${nextItem.next}` : ''}
+                                            b={`${remaining} quick ${remaining === 1 ? 'step' : 'steps'} left`}
+                                            c="Enjoy browsing privately."
+                                        />
+                                    </p>
+                                </div>
+                                <div class={cn(styles.control, { [styles.controlHidden]: celebrating })}>
+                                    <button
+                                        type="button"
+                                        class={styles.continueBtn}
+                                        tabIndex={celebrating ? -1 : 0}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            resumeSetup();
+                                        }}
+                                    >
+                                        Continue
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class={styles.chevronBtn}
+                                        tabIndex={celebrating ? -1 : 0}
+                                        aria-label={expanded ? 'Collapse checklist' : 'Expand checklist'}
+                                        aria-expanded={expanded}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            toggle();
+                                        }}
+                                    >
+                                        <ChevronIcon />
+                                    </button>
+                                </div>
+                            </div>
 
-                    <div class={styles.listWrap} aria-hidden={!expanded}>
-                        <div class={styles.listInner}>
-                            <ul class={styles.list}>
-                                {ITEMS.map((item, index) => {
-                                    const isDone = done.includes(item.id);
-                                    const isNext = nextItem?.id === item.id;
-                                    const isPending = pending === item.id;
-                                    return (
-                                        <li
-                                            key={item.id}
-                                            class={cn(styles.row, {
-                                                [styles.rowDone]: isDone,
-                                                [styles.rowNext]: isNext,
-                                                [styles.rowPending]: isPending,
-                                            })}
-                                            style={{ '--i': index }}
-                                        >
-                                            <StatusDot done={isDone} />
-                                            <img class={styles.rowIcon} src={item.icon} alt="" width={24} height={24} />
-                                            <span class={styles.rowText}>
-                                                <span class={styles.rowTitle}>{item.title}</span>
-                                                <span class={styles.rowHint}>{item.hint}</span>
-                                            </span>
-                                            <button
-                                                type="button"
-                                                class={cn(styles.actionBtn, { [styles.actionPrimary]: isNext })}
-                                                tabIndex={expanded && !isDone ? 0 : -1}
-                                                disabled={!!pending}
-                                                onClick={() => complete(item)}
-                                            >
-                                                <span class={styles.actionLabel}>{item.action}</span>
-                                                <span class={styles.spinner} aria-hidden="true" />
-                                            </button>
-                                        </li>
-                                    );
-                                })}
-                            </ul>
+                            <div class={styles.listWrap} aria-hidden={!expanded}>
+                                <div class={styles.listInner}>
+                                    <ul class={styles.list}>
+                                        {ITEMS.map((item, index) => {
+                                            const isDone = done.includes(item.id);
+                                            const isNext = nextItem?.id === item.id;
+                                            const isPending = pending === item.id;
+                                            return (
+                                                <li
+                                                    key={item.id}
+                                                    class={cn(styles.row, {
+                                                        [styles.rowDone]: isDone,
+                                                        [styles.rowNext]: isNext,
+                                                        [styles.rowPending]: isPending,
+                                                    })}
+                                                    style={{ '--i': index }}
+                                                >
+                                                    <StatusDot done={isDone} />
+                                                    <img class={styles.rowIcon} src={item.icon} alt="" width={24} height={24} />
+                                                    <span class={styles.rowText}>
+                                                        <span class={styles.rowTitle}>{item.title}</span>
+                                                        <span class={styles.rowHint}>{item.hint}</span>
+                                                    </span>
+                                                    <button
+                                                        type="button"
+                                                        class={cn(styles.actionBtn, { [styles.actionPrimary]: isNext })}
+                                                        tabIndex={expanded && !isDone ? 0 : -1}
+                                                        disabled={!!pending}
+                                                        onClick={() => complete(item)}
+                                                    >
+                                                        <span class={styles.actionLabel}>{item.action}</span>
+                                                        <span class={styles.spinner} aria-hidden="true" />
+                                                    </button>
+                                                </li>
+                                            );
+                                        })}
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
-            {(stage === 'celebrating' || stage === 'leaving') && <EmojiBurst />}
-            {toast && (
-                <div key={toast.key} class={styles.toast} role="status">
-                    <CheckSmallIcon />
-                    <span>{toast.text}</span>
-                    {toast.undoId && (
-                        <button type="button" class={styles.toastUndo} onClick={() => toast.undoId && undo(toast.undoId)}>
-                            Undo
-                        </button>
+                    {toast && (
+                        <div key={toast.key} class={styles.toast} role="status">
+                            <CheckSmallIcon />
+                            <span>{toast.text}</span>
+                            {toast.undoId && (
+                                <button type="button" class={styles.toastUndo} onClick={() => toast.undoId && undo(toast.undoId)}>
+                                    Undo
+                                </button>
+                            )}
+                        </div>
                     )}
-                </div>
+                </section>
             )}
-        </section>
+            {bursting && <EmojiBurst />}
+        </Fragment>
     );
 }
 
