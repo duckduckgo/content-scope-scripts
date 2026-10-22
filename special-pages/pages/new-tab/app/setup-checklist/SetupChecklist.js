@@ -1,6 +1,7 @@
 import { h } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
 import cn from 'classnames';
+import { EmojiBurst } from './EmojiBurst.js';
 import styles from './SetupChecklist.module.css';
 
 /**
@@ -312,6 +313,7 @@ export function SetupChecklist() {
                     </div>
                 </div>
             </div>
+            {(stage === 'celebrating' || stage === 'leaving') && <EmojiBurst />}
             {toast && (
                 <div key={toast.key} class={styles.toast} role="status">
                     <CheckSmallIcon />
