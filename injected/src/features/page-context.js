@@ -402,6 +402,348 @@ function extractLang(document) {
     return (document.documentElement?.getAttribute('lang') || '').trim();
 }
 
+const WORDS_PER_MINUTE = 230;
+const MAX_FIELD_LENGTH = 200;
+const MAX_TRANSCRIPT_LENGTH = 20000;
+const CODE_SELECTOR = 'pre, textarea#read-only-cursor-text-area, table.highlight, .react-code-lines';
+
+/**
+ * Cheap signals native uses to decide whether Duck.ai could help with the page. They stay on the
+ * device; only the page content goes to Duck.ai, and only when the user asks.
+ * @param {Document} document
+ * @param {{ contentRoot?: Element | null, maxBlockLength?: number }} [options]
+ * @returns {{
+ *   wordCount: number, readMinutes: number, codeRatio: number, codeBlockCount: number,
+ *   jsonLd: Record<string, Record<string, unknown>>, legalHint: 'tos' | 'privacy' | null,
+ *   sensitive: { password: boolean, payment: boolean, banking: boolean }, youtube?: Record<string, unknown>
+ * }}
+ */
+export function extractNudgeSignals(document, { contentRoot = null, maxBlockLength = 100000 } = {}) {
+    const location = document.location;
+    const wordCount = countWords(textOf(contentRoot || document.body));
+    /** @type {ReturnType<typeof extractNudgeSignals>} */
+    const signals = {
+        wordCount,
+        readMinutes: Math.round(wordCount / WORDS_PER_MINUTE),
+        ...extractCodeSignals(document),
+        jsonLd: extractJsonLdFields(document, maxBlockLength),
+        legalHint: extractLegalHint(document, location),
+        sensitive: extractSensitiveSignals(document, location),
+    };
+    const youtube = extractYouTube(document, location);
+    if (youtube) signals.youtube = youtube;
+    return signals;
+}
+
+/**
+ * @param {Element | null | undefined} el
+ * @returns {string}
+ */
+function textOf(el) {
+    if (!el) return '';
+    return /** @type {HTMLElement} */ (el).innerText || el.textContent || '';
+}
+
+/**
+ * Chinese and Japanese don't separate words with spaces, so count two characters as a word.
+ * @param {string} text
+ */
+function countWords(text) {
+    const cjk = text.match(/[぀-ヿ㐀-鿿가-힯]/g)?.length ?? 0;
+    const spaced = text.replace(/[぀-ヿ㐀-鿿가-힯]/g, ' ').match(/\S+/g)?.length ?? 0;
+    return spaced + Math.round(cjk / 2);
+}
+
+/**
+ * @param {Document} document
+ * @returns {{ codeRatio: number, codeBlockCount: number }}
+ */
+function extractCodeSignals(document) {
+    const blocks = Array.from(document.querySelectorAll(CODE_SELECTOR)).filter((el) => !el.parentElement?.closest(CODE_SELECTOR));
+    const codeLength = blocks.reduce(
+        (sum, el) => sum + (el.tagName === 'TEXTAREA' ? /** @type {HTMLTextAreaElement} */ (el).value : el.textContent || '').length,
+        0,
+    );
+    const totalLength = Math.max(textOf(document.body).length, codeLength, 1);
+    return { codeRatio: Math.round((codeLength / totalLength) * 100) / 100, codeBlockCount: blocks.length };
+}
+
+/**
+ * @param {unknown} value
+ * @returns {string | null}
+ */
+function str(value) {
+    if (typeof value === 'number') return String(value);
+    if (typeof value !== 'string') return null;
+    const trimmed = collapseWhitespace(value).trim();
+    return trimmed ? trimmed.slice(0, MAX_FIELD_LENGTH) : null;
+}
+
+/**
+ * @param {unknown} value
+ * @returns {Record<string, unknown> | null}
+ */
+function obj(value) {
+    if (Array.isArray(value)) value = value[0];
+    return value && typeof value === 'object' ? /** @type {Record<string, unknown>} */ (value) : null;
+}
+
+/**
+ * @param {unknown} value - a schema.org Place, PostalAddress, or plain string
+ * @returns {string | null}
+ */
+function placeText(value) {
+    const direct = str(Array.isArray(value) ? value[0] : value);
+    if (direct) return direct;
+    const place = obj(value);
+    if (!place) return null;
+    const address = str(place.address) ? [str(place.address)] : addressParts(obj(place.address) || place);
+    const parts = [str(place.name), ...address].filter((part, i, all) => part && all.indexOf(part) === i);
+    return parts.length ? parts.join(', ').slice(0, MAX_FIELD_LENGTH) : null;
+}
+
+/**
+ * @param {Record<string, unknown>} address
+ */
+function addressParts(address) {
+    return [
+        str(address.streetAddress),
+        str(address.addressLocality),
+        str(address.addressRegion),
+        str(address.postalCode),
+        str(address.addressCountry) || str(obj(address.addressCountry)?.name),
+    ];
+}
+
+/**
+ * @param {Record<string, unknown>} node
+ * @returns {string[]}
+ */
+function typesOf(node) {
+    const type = hasOwnProperty.call(node, '@type') ? node['@type'] : null;
+    return (Array.isArray(type) ? type : [type]).filter((t) => typeof t === 'string');
+}
+
+/**
+ * Pull the handful of fields each nudge needs out of the first Recipe, Event, Product and
+ * Reservation found anywhere in the page's JSON-LD.
+ * @param {Document} document
+ * @param {number} maxBlockLength
+ */
+function extractJsonLdFields(document, maxBlockLength) {
+    /** @type {Record<string, Record<string, unknown>>} */
+    const found = {};
+    /**
+     * @param {unknown} node
+     * @param {number} depth
+     */
+    const walk = (node, depth) => {
+        if (depth > MAX_JSON_LD_DEPTH || !node || typeof node !== 'object') return;
+        if (Array.isArray(node)) {
+            for (const item of node) walk(item, depth + 1);
+            return;
+        }
+        const record = /** @type {Record<string, unknown>} */ (node);
+        for (const type of typesOf(record)) {
+            const kind =
+                type === 'Recipe'
+                    ? 'recipe'
+                    : type === 'Product' || type === 'ProductGroup'
+                      ? 'product'
+                      : type.endsWith('Reservation')
+                        ? 'reservation'
+                        : type.endsWith('Event')
+                          ? 'event'
+                          : null;
+            if (kind && !found[kind]) found[kind] = record;
+        }
+        for (const key of Object.keys(record)) walk(record[key], depth + 1);
+    };
+    for (const block of document.querySelectorAll('script[type="application/ld+json" i]')) {
+        const text = block.textContent || '';
+        if (!text || text.length > maxBlockLength) continue;
+        try {
+            walk(JSONparse(text), 0);
+        } catch (e) {
+            continue;
+        }
+    }
+
+    /** @type {Record<string, Record<string, unknown>>} */
+    const result = {};
+    if (found.recipe) result.recipe = recipeFields(found.recipe);
+    if (found.event) result.event = eventFields(found.event);
+    if (found.product) result.product = productFields(found.product);
+    if (found.reservation) result.reservation = reservationFields(found.reservation);
+    return result;
+}
+
+/** @param {Record<string, unknown>} node */
+function recipeFields(node) {
+    const recipeYield = Array.isArray(node.recipeYield) ? node.recipeYield.map(str).filter(Boolean).join(' / ') : str(node.recipeYield);
+    const ingredients = node.recipeIngredient || node.ingredients;
+    return {
+        name: str(node.name),
+        yield: recipeYield || null,
+        ingredientCount: Array.isArray(ingredients) ? ingredients.length : 0,
+    };
+}
+
+/** @param {Record<string, unknown>} node */
+function eventFields(node) {
+    return {
+        name: str(node.name),
+        startDate: str(node.startDate),
+        endDate: str(node.endDate),
+        location: placeText(node.location),
+    };
+}
+
+/** @param {Record<string, unknown>} node */
+function productFields(node) {
+    const offer = obj(node.offers) || obj(obj(node.hasVariant)?.offers);
+    const rating = obj(node.aggregateRating);
+    return {
+        name: str(node.name),
+        brand: str(node.brand) || str(obj(node.brand)?.name),
+        price: str(offer?.price) || str(offer?.lowPrice) || str(obj(offer?.priceSpecification)?.price),
+        currency: str(offer?.priceCurrency) || str(obj(offer?.priceSpecification)?.priceCurrency),
+        rating: str(rating?.ratingValue),
+    };
+}
+
+/** @param {Record<string, unknown>} node */
+function reservationFields(node) {
+    const type = typesOf(node).find((t) => t.endsWith('Reservation')) || 'Reservation';
+    const subject = obj(node.reservationFor) || {};
+    if (type === 'FlightReservation') {
+        const airline = obj(subject.airline);
+        const from = obj(subject.departureAirport);
+        const to = obj(subject.arrivalAirport);
+        const flight = [str(airline?.iataCode) || str(airline?.name), str(subject.flightNumber)].filter(Boolean).join(' ');
+        const route = [str(from?.iataCode), str(to?.iataCode)].filter(Boolean).join(' → ');
+        return {
+            type,
+            name: [flight, route].filter(Boolean).join(' ') || null,
+            start: str(subject.departureTime),
+            end: str(subject.arrivalTime),
+            location: placeText(from),
+        };
+    }
+    return {
+        type,
+        name: str(subject.name) || str(node.name),
+        start:
+            str(node.checkinTime) ||
+            str(node.checkinDate) ||
+            str(node.startTime) ||
+            str(node.pickupTime) ||
+            str(subject.startDate) ||
+            str(subject.departureTime),
+        end:
+            str(node.checkoutTime) ||
+            str(node.checkoutDate) ||
+            str(node.endTime) ||
+            str(node.dropoffTime) ||
+            str(subject.endDate) ||
+            str(subject.arrivalTime),
+        location: placeText(subject.address ? { name: subject.name, address: subject.address } : subject.location || node.pickupLocation),
+    };
+}
+
+/**
+ * @param {Document} document
+ * @param {Location | null} location
+ * @returns {'tos' | 'privacy' | null}
+ */
+function extractLegalHint(document, location) {
+    const path = decodeURIComponent(location?.pathname || '').replace(/[-_/]+/g, ' ');
+    const heading = document.querySelector('h1')?.textContent || '';
+    const haystack = [path, document.title, heading].join(' ');
+    if (/privacy|datenschutz|confidentialit|privacidad|cookie (policy|notice)/i.test(haystack)) return 'privacy';
+    if (
+        /\b(terms|tos|eula)\b|conditions of (use|service)|user agreement|nutzungsbedingungen|\bagb\b|conditions g[ée]n[ée]rales/i.test(
+            haystack,
+        )
+    ) {
+        return 'tos';
+    }
+    return null;
+}
+
+/**
+ * @param {Document} document
+ * @param {Location | null} location
+ */
+function extractSensitiveSignals(document, location) {
+    const host = location?.hostname || '';
+    const path = location?.pathname || '';
+    const payment =
+        !!document.querySelector(
+            'input[autocomplete^="cc-" i], input[name*="cardnumber" i], input[name*="card_number" i], input[id*="cardnumber" i], iframe[src*="js.stripe.com"], iframe[src*="adyen"], iframe[src*="braintree"]',
+        ) || /\/(checkout|payment|pay)(\/|$)/i.test(path);
+    const banking = /bank|credit-?union/i.test(host) || /online banking|netbanking/i.test(document.title);
+    return {
+        password: !!document.querySelector('input[type="password" i]'),
+        payment,
+        banking,
+    };
+}
+
+/**
+ * @param {string | null} iso - an ISO 8601 duration such as PT1H2M3S
+ */
+function parseIsoDuration(iso) {
+    const match = iso?.match(/^P(?:(\d+)D)?T?(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/);
+    if (!match) return null;
+    const [, d, h, m, s] = match.map((n) => Number(n) || 0);
+    return (((d ?? 0) * 24 + (h ?? 0)) * 60 + (m ?? 0)) * 60 + (s ?? 0);
+}
+
+/**
+ * YouTube is a single-page app and leaves the static meta tags from the first load in place, so
+ * prefer the live watch-page elements and fall back to the meta tags.
+ * @param {Document} document
+ * @param {Location | null} location
+ */
+function extractYouTube(document, location) {
+    if (!location || !/(^|\.)youtube\.com$/.test(location.hostname) || location.pathname !== '/watch') return null;
+    const videoId = new URLSearchParams(location.search).get('v');
+    if (!videoId) return null;
+    const flexy = document.querySelector('ytd-watch-flexy');
+    const metaIsCurrent = !flexy || flexy.getAttribute('video-id') === videoId;
+    const video = document.querySelector('video');
+    const duration = video && Number.isFinite(video.duration) && video.duration > 0 ? Math.round(video.duration) : null;
+    /** @type {Record<string, unknown>} */
+    const result = {
+        videoId,
+        title:
+            str(document.querySelector('ytd-watch-metadata h1')?.textContent) ||
+            (metaIsCurrent ? str(document.querySelector('meta[name="title"]')?.getAttribute('content')) : null) ||
+            str(document.title.replace(/ - YouTube$/, '')),
+        channel:
+            str(document.querySelector('ytd-watch-metadata ytd-channel-name a')?.textContent) ||
+            (metaIsCurrent ? str(document.querySelector('[itemprop="author"] [itemprop="name"]')?.getAttribute('content')) : null),
+        durationSec:
+            duration ??
+            (metaIsCurrent ? parseIsoDuration(document.querySelector('meta[itemprop="duration"]')?.getAttribute('content') ?? null) : null),
+    };
+    // Fetching captions needs a token YouTube only gives its own player, so this only works
+    // when the user has opened the transcript panel.
+    const segments = document.querySelectorAll('ytd-transcript-segment-renderer');
+    if (segments.length) {
+        const transcript = Array.from(segments)
+            .map((segment) => {
+                const time = segment.querySelector('.segment-timestamp')?.textContent?.trim() || '';
+                const text = collapseWhitespace(segment.querySelector('.segment-text')?.textContent || '').trim();
+                return time ? `${time} ${text}` : text;
+            })
+            .join('\n');
+        result.transcript = transcript.slice(0, MAX_TRANSCRIPT_LENGTH);
+    }
+    return result;
+}
+
 export default class PageContext extends ContentFeature {
     /** @type {any} */
     #cachedContent = undefined;
@@ -415,6 +757,8 @@ export default class PageContext extends ContentFeature {
     recheckLimit = 0;
     /** @type {boolean} */
     #activeCapture = true;
+    /** @type {Element | null} */
+    contentRoot = null;
 
     get shouldListenForUrlChanges() {
         return this.#activeCapture && this.getFeatureSettingEnabled('subscribeToUrlChange', 'enabled');
@@ -734,6 +1078,7 @@ export default class PageContext extends ContentFeature {
 
         let content = '';
         let contentRoot = this.findContentRoot(excludeSelectorsString) || document.body;
+        this.contentRoot = contentRoot;
 
         // Use a closure to reuse the domToMarkdown parameters
         const extractContent = (root) => {
@@ -756,6 +1101,7 @@ export default class PageContext extends ContentFeature {
         // If the main content is empty, use the body
         if (content.length === 0 && contentRoot !== document.body && this.getFeatureSettingEnabled('bodyFallback', 'enabled')) {
             contentRoot = document.body;
+            this.contentRoot = contentRoot;
             content += extractContent(contentRoot);
         }
 
@@ -837,10 +1183,14 @@ export default class PageContext extends ContentFeature {
     }
 
     getPageTypeSignals() {
-        return extractPageTypeSignals(document, {
-            maxTypes: this.getFeatureSetting('maxPageTypeSignals') || 10,
-            maxBlockLength: this.getFeatureSetting('maxJsonLdBlockLength') || 100000,
-        });
+        const maxBlockLength = this.getFeatureSetting('maxJsonLdBlockLength') || 100000;
+        return {
+            ...extractPageTypeSignals(document, {
+                maxTypes: this.getFeatureSetting('maxPageTypeSignals') || 10,
+                maxBlockLength,
+            }),
+            ...extractNudgeSignals(document, { contentRoot: this.contentRoot, maxBlockLength }),
+        };
     }
 
     getImages() {
