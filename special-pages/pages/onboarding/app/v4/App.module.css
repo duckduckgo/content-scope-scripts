@@ -1,5 +1,5 @@
 @import url('./fonts.css');
-@import url('@duckduckgo/design-tokens/build/desktop-browsers/onboarding.css');
+@import url('@duckduckgo/design-tokens/build/embedded-fe/onboarding.css');
 
 :root {
     --font-display: 'DuckSansDisplay', system-ui, sans-serif;
