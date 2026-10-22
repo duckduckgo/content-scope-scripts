@@ -167,6 +167,10 @@
 
 /* ---------- progress ring ---------- */
 
+.ringSlot {
+    flex: none;
+}
+
 .ring {
     flex: none;
     height: 44px;
