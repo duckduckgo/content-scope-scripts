@@ -22,6 +22,8 @@ captchaFactory.registerProvider(
 );
 
 captchaFactory.registerProvider(new CloudFlareTurnstileProvider());
-captchaFactory.registerProvider(new ImageProvider(), { aliases: ['red-circle', 'basic-math'] });
+// 'llm-prompt' has no image to extract (see ../prompt.js), but its answer is typed into an input
+// just like an image captcha's, so it shares the image provider's solve path.
+captchaFactory.registerProvider(new ImageProvider(), { aliases: ['red-circle', 'basic-math', 'llm-prompt'] });
 
 export { captchaFactory };
