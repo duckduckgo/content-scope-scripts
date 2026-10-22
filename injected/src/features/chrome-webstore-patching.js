@@ -67,6 +67,17 @@ const ICON_BACKGROUNDS = {
     unsupported: `url("${DAX_DATA_URI}") center / contain no-repeat`,
 };
 
+// Internal builds only, so deliberately not localized or sent to Smartling
+const INTERNAL_OVERRIDE_TEXT = 'Internal override';
+const INTERNAL_OVERRIDE_STYLES = {
+    display: 'block',
+    'margin-top': '8px',
+    'font-size': '12px',
+    color: '#8A8A8A',
+    'text-decoration': 'underline',
+    cursor: 'pointer',
+};
+
 const VERDICT_COPY_KEY = /** @type {const} */ ({ install: 'install', remove: 'remove', unsupported: 'unavailable' });
 
 // Native replies within ~1 s by contract, even before its config is ready, so
@@ -105,6 +116,9 @@ export class ChromeWebstorePatching extends ContentFeature {
 
     /** @type {Promise<unknown> | undefined} catalog request native hasn't answered yet */
     _pendingCatalogRequest;
+
+    /** @type {Set<string>} IDs an internal user chose to treat as in the catalog for this document */
+    _internalOverrides = new Set();
 
     /** @param {any} [args] */
     async init(args) {
@@ -237,9 +251,7 @@ export class ChromeWebstorePatching extends ContentFeature {
         // Reset to fail-closed so nothing stale survives navigation. Dropping the
         // inline display hands each button back to the stylesheet's hide rule.
         this._verdict = null;
-        for (const button of this._matchingButtons()) {
-            button.style.removeProperty('display');
-        }
+        this._resetButtons();
 
         const extensionId = parseExtensionId(window.location.pathname);
         if (!extensionId) return;
@@ -274,8 +286,71 @@ export class ChromeWebstorePatching extends ContentFeature {
         const catalog = await this.getCatalogExtensionIds();
         if (!isCurrent() || catalog === null) return false;
         if (catalog.includes(extensionId)) return true;
+        if (this._isInternalBuild() && this._internalOverrides.has(extensionId)) return true;
         this._reveal('unsupported');
         return false;
+    }
+
+    /**
+     * Only `platform.internal`, which native sets for internal builds. Never
+     * remote config: the feature's own state may go public, the override must not.
+     * @returns {boolean}
+     */
+    _isInternalBuild() {
+        return this.platform?.internal === true;
+    }
+
+    /**
+     * Back to fail-closed: dropping the inline display hands each button back to
+     * the stylesheet's hide rule, and the internal override link goes with it.
+     */
+    _resetButtons() {
+        for (const button of this._matchingButtons()) {
+            button.style.removeProperty('display');
+            this._overrideLinkFor(button)?.remove();
+        }
+    }
+
+    /**
+     * @param {HTMLElement} button
+     * @returns {Element | null}
+     */
+    _overrideLinkFor(button) {
+        const next = button.nextElementSibling;
+        return next?.hasAttribute('data-ddg-webstore-internal-override') ? next : null;
+    }
+
+    /**
+     * Internal builds get a link under the unsupported pill that treats this
+     * extension as in the catalog for the rest of the document, so the real
+     * install (or remove) pill appears. Other verdicts and public builds get none.
+     * @param {HTMLElement} button
+     * @param {boolean} show
+     */
+    _syncOverrideLink(button, show) {
+        const existing = this._overrideLinkFor(button);
+        if (!show || !this._isInternalBuild()) {
+            existing?.remove();
+            return;
+        }
+        if (existing) return;
+        const link = document.createElement('a');
+        link.setAttribute('data-ddg-webstore-internal-override', '');
+        link.href = '#';
+        link.textContent = INTERNAL_OVERRIDE_TEXT;
+        for (const [prop, value] of Object.entries(INTERNAL_OVERRIDE_STYLES)) {
+            link.style.setProperty(prop, value, 'important');
+        }
+        link.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            if (!event.isTrusted || !this._isInternalBuild()) return;
+            const extensionId = parseExtensionId(window.location.pathname);
+            if (!extensionId) return;
+            this._internalOverrides.add(extensionId);
+            void this._evaluatePage();
+        });
+        button.after(link);
     }
 
     /**
@@ -413,6 +488,7 @@ export class ChromeWebstorePatching extends ContentFeature {
                 child.style.setProperty('display', 'none', 'important');
             }
         }
+        this._syncOverrideLink(button, isUnsupported);
         if (button.getAttribute('aria-label') !== text) {
             button.setAttribute('aria-label', text);
         }

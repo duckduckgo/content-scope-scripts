@@ -1,2 +1,1 @@
-- Patch fetch in tracker-protection to mitigate site detection of wrapper (#3131)
-- Stamp release version into package.json during build (#2699)
+- Chrome Web Store: internal override for unsupported extensions (#3129)

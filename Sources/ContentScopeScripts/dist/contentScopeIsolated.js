@@ -18995,7 +18995,7 @@ ul.messages {
       const evaluation = ++this._evaluation;
       this._evaluatedExtensionId = null;
       this.feature._verdict = null;
-      for (const button of this.feature._matchingButtons()) button.style.removeProperty("display");
+      this.feature._resetButtons();
       if (!extensionId || this._pending.has(extensionId)) return;
       const isCurrent = () => evaluation === this._evaluation && extensionId === parseExtensionId(window.location.pathname);
       if (!await this.feature._isInCatalog(extensionId, isCurrent)) return;
@@ -19096,6 +19096,15 @@ ul.messages {
     remove: `url("${TRASH_DATA_URI}") center / contain no-repeat`,
     unsupported: `url("${DAX_DATA_URI}") center / contain no-repeat`
   };
+  var INTERNAL_OVERRIDE_TEXT = "Internal override";
+  var INTERNAL_OVERRIDE_STYLES = {
+    display: "block",
+    "margin-top": "8px",
+    "font-size": "12px",
+    color: "#8A8A8A",
+    "text-decoration": "underline",
+    cursor: "pointer"
+  };
   var VERDICT_COPY_KEY = (
     /** @type {const} */
     { install: "install", remove: "remove", unsupported: "unavailable" }
@@ -19120,6 +19129,8 @@ ul.messages {
       __publicField(this, "_macOS");
       /** @type {Promise<unknown> | undefined} catalog request native hasn't answered yet */
       __publicField(this, "_pendingCatalogRequest");
+      /** @type {Set<string>} IDs an internal user chose to treat as in the catalog for this document */
+      __publicField(this, "_internalOverrides", /* @__PURE__ */ new Set());
     }
     /** @param {any} [args] */
     async init(args) {
@@ -19195,9 +19206,7 @@ ul.messages {
     async _evaluatePage() {
       if (this._macOS) return this._macOS.evaluatePage();
       this._verdict = null;
-      for (const button of this._matchingButtons()) {
-        button.style.removeProperty("display");
-      }
+      this._resetButtons();
       const extensionId = parseExtensionId(window.location.pathname);
       if (!extensionId) return;
       const isCurrent = () => extensionId === parseExtensionId(window.location.pathname);
@@ -19224,8 +19233,67 @@ ul.messages {
       const catalog = await this.getCatalogExtensionIds();
       if (!isCurrent() || catalog === null) return false;
       if (catalog.includes(extensionId)) return true;
+      if (this._isInternalBuild() && this._internalOverrides.has(extensionId)) return true;
       this._reveal("unsupported");
       return false;
+    }
+    /**
+     * Only `platform.internal`, which native sets for internal builds. Never
+     * remote config: the feature's own state may go public, the override must not.
+     * @returns {boolean}
+     */
+    _isInternalBuild() {
+      return this.platform?.internal === true;
+    }
+    /**
+     * Back to fail-closed: dropping the inline display hands each button back to
+     * the stylesheet's hide rule, and the internal override link goes with it.
+     */
+    _resetButtons() {
+      for (const button of this._matchingButtons()) {
+        button.style.removeProperty("display");
+        this._overrideLinkFor(button)?.remove();
+      }
+    }
+    /**
+     * @param {HTMLElement} button
+     * @returns {Element | null}
+     */
+    _overrideLinkFor(button) {
+      const next = button.nextElementSibling;
+      return next?.hasAttribute("data-ddg-webstore-internal-override") ? next : null;
+    }
+    /**
+     * Internal builds get a link under the unsupported pill that treats this
+     * extension as in the catalog for the rest of the document, so the real
+     * install (or remove) pill appears. Other verdicts and public builds get none.
+     * @param {HTMLElement} button
+     * @param {boolean} show
+     */
+    _syncOverrideLink(button, show) {
+      const existing = this._overrideLinkFor(button);
+      if (!show || !this._isInternalBuild()) {
+        existing?.remove();
+        return;
+      }
+      if (existing) return;
+      const link = document.createElement("a");
+      link.setAttribute("data-ddg-webstore-internal-override", "");
+      link.href = "#";
+      link.textContent = INTERNAL_OVERRIDE_TEXT;
+      for (const [prop, value] of Object.entries(INTERNAL_OVERRIDE_STYLES)) {
+        link.style.setProperty(prop, value, "important");
+      }
+      link.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        if (!event.isTrusted || !this._isInternalBuild()) return;
+        const extensionId = parseExtensionId(window.location.pathname);
+        if (!extensionId) return;
+        this._internalOverrides.add(extensionId);
+        void this._evaluatePage();
+      });
+      button.after(link);
     }
     /**
      * Localized copy for a key: the bundled locale, then bundled English.
@@ -19346,6 +19414,7 @@ ul.messages {
           child.style.setProperty("display", "none", "important");
         }
       }
+      this._syncOverrideLink(button, isUnsupported);
       if (button.getAttribute("aria-label") !== text2) {
         button.setAttribute("aria-label", text2);
       }
