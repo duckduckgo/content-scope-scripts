@@ -26,9 +26,6 @@ import styles from './SuggestedPrompts.module.css';
 
 const IMAGE_ACCEPT = 'image/jpeg,image/png,image/webp';
 
-/** Used when native doesn't send `suggestedPromptsPromptLimit`. */
-const DEFAULT_PROMPT_LIMIT = 5;
-
 /** @type {{ id: TabId, label: StringKey, ariaLabel: StringKey, Icon: import('./suggestedPrompts.data.js').IconComponent }[]} */
 const TABS = [
     {
@@ -52,8 +49,8 @@ const TABS = [
 ];
 
 /**
- * Duck.ai's new-chat chips, shown below the Duck.ai input when native sets `showSuggestedPrompts`,
- * until the user has sent `suggestedPromptsPromptLimit` Duck.ai prompts from the NTP, from the chips or typed.
+ * Duck.ai's new-chat chips, shown below the Duck.ai input while native sets `showSuggestedPrompts`.
+ * Native turns it off once enough Duck.ai prompts have been sent from the NTP.
  *
  * @param {object} props
  * @param {(params: SubmitChatAction) => void} props.onSubmit
@@ -72,8 +69,6 @@ export function SuggestedPrompts({ onSubmit, animateIn = false, enableVoiceChatA
     const { imageState } = useAttachmentsContext();
     const updatedCreateImageEnabled = state.config?.enableUpdatedCreateImage === true;
     const blocksPrompt = state.config?.usageLimits?.blocksPrompt === true;
-    const promptLimitReached =
-        (state.config?.suggestedPromptsPromptCount ?? 0) >= (state.config?.suggestedPromptsPromptLimit ?? DEFAULT_PROMPT_LIMIT);
     const canGenerateImages = availableTools.includes('image-generation');
     // Same gate as the input's voice button.
     const canStartVoiceChat = enableVoiceChatAccess && state.config?.requiresAiTermsAcceptance !== true;
@@ -224,7 +219,7 @@ export function SuggestedPrompts({ onSubmit, animateIn = false, enableVoiceChatA
         if (files.length > 0) await imageState.processFiles(files);
     };
 
-    if (blocksPrompt || promptLimitReached) return null;
+    if (blocksPrompt) return null;
 
     const tabId = (/** @type {TabId} */ id) => `${baseId}-tab-${id}`;
     const panelId = (/** @type {TabId} */ id) => `${baseId}-panel-${id}`;

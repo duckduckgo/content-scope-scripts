@@ -297,23 +297,9 @@
     },
     "showSuggestedPrompts": {
       "title": "Show Suggested Prompts",
-      "description": "Show the Duck.ai suggested-prompt chips (How Duck.ai Works, Chat Suggestions, Create & Edit Images) below the input in Duck.ai mode. Native decides who sees them, e.g. new Duck.ai users.",
+      "description": "Show the Duck.ai suggested-prompt chips (How Duck.ai Works, Chat Suggestions, Create & Edit Images) below the input in Duck.ai mode. Native decides who sees them, e.g. new Duck.ai users, and turns it off once enough Duck.ai prompts have been sent from the NTP.",
       "type": "boolean",
       "default": false
-    },
-    "suggestedPromptsPromptCount": {
-      "title": "Suggested Prompts Prompt Count",
-      "description": "How many Duck.ai prompts the user has sent from the NTP while the chips were offered, from the chips or typed (voice chats excluded). The FE increments it via omnibar_setConfig on each submission and hides the chips once it reaches suggestedPromptsPromptLimit. Native persists it.",
-      "type": "integer",
-      "minimum": 0,
-      "default": 0
-    },
-    "suggestedPromptsPromptLimit": {
-      "title": "Suggested Prompts Prompt Limit",
-      "description": "How many Duck.ai prompts can be sent before the suggested-prompt chips hide for good. Native resolves it from remote config.",
-      "type": "integer",
-      "minimum": 1,
-      "default": 5
     },
     "screenshotModes": {
       "title": "Screenshot Modes",

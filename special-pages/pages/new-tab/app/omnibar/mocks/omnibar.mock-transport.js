@@ -505,14 +505,6 @@ export function omnibarMockTransport() {
                     config.enableAskAiSuggestion = parseBooleanQueryParam('omnibar.enableAskAiSuggestion') ?? config.enableAskAiSuggestion;
                     config.enableAttachTabs = parseBooleanQueryParam('omnibar.enableAttachTabs') ?? config.enableAttachTabs;
                     config.showSuggestedPrompts = parseBooleanQueryParam('omnibar.showSuggestedPrompts') ?? config.showSuggestedPrompts;
-                    const suggestedPromptsPromptCount = parseInt(url.searchParams.get('omnibar.suggestedPromptsPromptCount') ?? '', 10);
-                    if (suggestedPromptsPromptCount >= 0) {
-                        config.suggestedPromptsPromptCount = suggestedPromptsPromptCount;
-                    }
-                    const suggestedPromptsPromptLimit = parseInt(url.searchParams.get('omnibar.suggestedPromptsPromptLimit') ?? '', 10);
-                    if (suggestedPromptsPromptLimit >= 1) {
-                        config.suggestedPromptsPromptLimit = suggestedPromptsPromptLimit;
-                    }
                     // Comma-separated, e.g. `omnibar.screenshotModes=dragToSelect,selectWindowOrDisplay`
                     const screenshotModes = url.searchParams.get('omnibar.screenshotModes');
                     if (screenshotModes !== null) {

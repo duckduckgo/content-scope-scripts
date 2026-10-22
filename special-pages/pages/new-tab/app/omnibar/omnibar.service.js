@@ -180,7 +180,6 @@ export class OmnibarService {
      * @param {SubmitChatAction} params
      */
     submitChat(params) {
-        if (params.mode !== 'voice-mode') this.countSuggestedPromptsSubmission();
         this.ntp.messaging.notify('omnibar_submitChat', params);
     }
 
@@ -261,21 +260,6 @@ export class OmnibarService {
 
     dismissLauncherPromo() {
         this.ntp.messaging.notify('omnibar_dismissLauncherPromo', {});
-    }
-
-    /**
-     * Counts a prompt sent from the chips or typed; the chips hide once enough are sent. Only counts while native
-     * offers the chips, so prompts sent with the feature off don't use them up. Native persists it via `omnibar_setConfig`.
-     * @private
-     */
-    countSuggestedPromptsSubmission() {
-        if (this.configService.data?.showSuggestedPrompts !== true) return;
-        this.configService.update((old) => {
-            return {
-                ...old,
-                suggestedPromptsPromptCount: (old.suggestedPromptsPromptCount ?? 0) + 1,
-            };
-        });
     }
 
     /** @param {'image' | 'file'} kind */

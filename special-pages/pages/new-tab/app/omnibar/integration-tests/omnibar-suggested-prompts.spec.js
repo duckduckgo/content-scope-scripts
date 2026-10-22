@@ -25,16 +25,6 @@ const suggestionsTab = (page) => page.getByRole('tab', { name: 'Open chat sugges
 
 /**
  * @param {NewtabPage} ntp
- * @returns {Promise<number | undefined>}
- */
-async function lastSubmitCount(ntp) {
-    await ntp.mocks.waitForCallCount({ method: 'omnibar_setConfig', count: 1 });
-    const calls = await ntp.mocks.outgoing({ names: ['omnibar_setConfig'] });
-    return /** @type {any} */ (calls[calls.length - 1].payload).params.suggestedPromptsPromptCount;
-}
-
-/**
- * @param {NewtabPage} ntp
  * @returns {Promise<any>}
  */
 async function submittedChat(ntp) {
@@ -43,44 +33,7 @@ async function submittedChat(ntp) {
 }
 
 test.describe('omnibar suggested prompts', () => {
-    test('a typed prompt is counted while the chips are offered', async ({ page }, workerInfo) => {
-        const { ntp, omnibar } = setup(page, workerInfo);
-        await openWithPrompts(ntp);
-        await omnibar.ready();
-
-        await omnibar.chatInput().fill('pizza');
-        await omnibar.chatInput().press('Enter');
-
-        expect((await submittedChat(ntp)).suggestedPromptId).toBeUndefined();
-        expect(await lastSubmitCount(ntp)).toBe(1);
-    });
-
-    test('a typed prompt is not counted when the chips are not offered', async ({ page }, workerInfo) => {
-        const { ntp, omnibar } = setup(page, workerInfo);
-        await openWithPrompts(ntp, { 'omnibar.showSuggestedPrompts': false });
-        await omnibar.ready();
-
-        await omnibar.chatInput().fill('pizza');
-        await omnibar.chatInput().press('Enter');
-
-        await omnibar.expectMethodCallCount('omnibar_submitChat', 1);
-        const calls = await ntp.mocks.outgoing({ names: ['omnibar_setConfig'] });
-        expect(calls.some((call) => /** @type {any} */ (call.payload).params.suggestedPromptsPromptCount !== undefined)).toBe(false);
-    });
-
-    test('a fifth typed prompt hides the chips', async ({ page }, workerInfo) => {
-        const { ntp, omnibar } = setup(page, workerInfo);
-        await openWithPrompts(ntp, { 'omnibar.suggestedPromptsPromptCount': 4 });
-        await omnibar.ready();
-
-        await omnibar.chatInput().fill('pizza');
-        await omnibar.chatInput().press('Enter');
-
-        expect(await lastSubmitCount(ntp)).toBe(5);
-        await expect(suggestionsTab(page)).toBeHidden();
-    });
-
-    test('a chat suggestion is submitted with its ID and counted', async ({ page }, workerInfo) => {
+    test('a chat suggestion is submitted with its ID', async ({ page }, workerInfo) => {
         const { ntp, omnibar } = setup(page, workerInfo);
         await openWithPrompts(ntp);
         await omnibar.ready();
@@ -91,7 +44,6 @@ test.describe('omnibar suggested prompts', () => {
         const params = await submittedChat(ntp);
         expect(params.chat).toMatch(JOB_APPLICATION_PROMPT);
         expect(params.suggestedPromptId).toBe('jobapplication');
-        expect(await lastSubmitCount(ntp)).toBe(1);
     });
 
     test('a suggestion is submitted even before the terms are accepted, without accepting them', async ({ page }, workerInfo) => {
@@ -107,7 +59,7 @@ test.describe('omnibar suggested prompts', () => {
         expect(params.aiTermsAccepted).toBeUndefined();
     });
 
-    test('an image suggestion is submitted and counted', async ({ page }, workerInfo) => {
+    test('an image suggestion is submitted with its ID', async ({ page }, workerInfo) => {
         const { ntp, omnibar } = setup(page, workerInfo);
         await openWithPrompts(ntp, { 'omnibar.enableImageGeneration': true });
         await omnibar.ready();
@@ -118,41 +70,29 @@ test.describe('omnibar suggested prompts', () => {
         const params = await submittedChat(ntp);
         expect(params.chat).toMatch(/^Draw a comic-style illustration/);
         expect(params.suggestedPromptId).toBe('createcomic');
-        expect(await lastSubmitCount(ntp)).toBe(1);
     });
 
-    test('a fifth prompt from the chips hides them', async ({ page }, workerInfo) => {
+    /** Native counts prompts from `omnibar_submitChat`; the page must not send a config change per prompt. */
+    test('sending a prompt leaves the config alone', async ({ page }, workerInfo) => {
         const { ntp, omnibar } = setup(page, workerInfo);
-        await openWithPrompts(ntp, { 'omnibar.suggestedPromptsPromptCount': 4 });
+        await openWithPrompts(ntp);
         await omnibar.ready();
-
-        await suggestionsTab(page).click();
-        await page.getByRole('button', { name: 'Improve a job application' }).click();
-
-        expect(await lastSubmitCount(ntp)).toBe(5);
-        await expect(suggestionsTab(page)).toBeHidden();
-    });
-
-    test('the chips stay hidden once 5 prompts were submitted', async ({ page }, workerInfo) => {
-        const { ntp, omnibar } = setup(page, workerInfo);
-        await openWithPrompts(ntp, { 'omnibar.suggestedPromptsPromptCount': 5 });
-        await omnibar.ready();
-
-        await expect(omnibar.chatInput()).toBeVisible();
-        await expect(suggestionsTab(page)).toBeHidden();
-    });
-
-    test('the limit comes from native config', async ({ page }, workerInfo) => {
-        const { ntp, omnibar } = setup(page, workerInfo);
-        await openWithPrompts(ntp, { 'omnibar.suggestedPromptsPromptCount': 5, 'omnibar.suggestedPromptsPromptLimit': 6 });
-        await omnibar.ready();
-
-        await expect(suggestionsTab(page)).toBeVisible();
 
         await omnibar.chatInput().fill('pizza');
         await omnibar.chatInput().press('Enter');
 
-        expect(await lastSubmitCount(ntp)).toBe(6);
+        expect((await submittedChat(ntp)).suggestedPromptId).toBeUndefined();
+        await omnibar.expectMethodNotCalled('omnibar_setConfig');
+    });
+
+    test('the chips hide when native turns them off', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await openWithPrompts(ntp);
+        await omnibar.ready();
+        await expect(suggestionsTab(page)).toBeVisible();
+
+        await omnibar.didReceiveConfig({ mode: 'ai', enableAi: true, showSuggestedPrompts: false });
+
         await expect(suggestionsTab(page)).toBeHidden();
     });
 });
