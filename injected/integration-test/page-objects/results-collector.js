@@ -248,6 +248,8 @@ export class ResultsCollector {
         // read the built file from disk and do replacements
         const injectedJS = wrapFn(this.build.artifact, {
             $CONTENT_SCOPE$: config,
+            // Apple bundles read the config as a JSON string
+            $CONTENT_SCOPE_JSON$: JSON.stringify(config),
             $USER_UNPROTECTED_DOMAINS$: this.#userUnprotectedDomains,
             $USER_PREFERENCES$: {
                 platform: { name: this.platform.name, ...platform },
