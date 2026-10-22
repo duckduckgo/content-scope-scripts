@@ -132,14 +132,6 @@ export const OmnibarContext = createContext({
     dismissLauncherPromo: () => {
         throw new Error('must implement');
     },
-    /** @type {() => void} */
-    dismissSuggestedPrompts: () => {
-        throw new Error('must implement');
-    },
-    /** @type {() => void} */
-    countSuggestedPromptSubmitted: () => {
-        throw new Error('must implement');
-    },
     /** @type {(active: boolean) => void} */
     setCustomizeResponsesActive: () => {
         throw new Error('must implement');
@@ -381,16 +373,6 @@ export function OmnibarProvider(props) {
         service.current?.dismissLauncherPromo();
     }, [service]);
 
-    /** @type {() => void} */
-    const dismissSuggestedPrompts = useCallback(() => {
-        service.current?.dismissSuggestedPrompts();
-    }, [service]);
-
-    /** @type {() => void} */
-    const countSuggestedPromptSubmitted = useCallback(() => {
-        service.current?.countSuggestedPromptSubmitted();
-    }, [service]);
-
     /** @type {(active: boolean) => void} */
     const setCustomizeResponsesActive = useCallback(
         (active) => {
@@ -489,8 +471,6 @@ export function OmnibarProvider(props) {
                 launcherPromoShown,
                 selectLauncherPromoCta,
                 dismissLauncherPromo,
-                dismissSuggestedPrompts,
-                countSuggestedPromptSubmitted,
                 setCustomizeResponsesActive,
                 showUpsell,
                 getOpenTabs,

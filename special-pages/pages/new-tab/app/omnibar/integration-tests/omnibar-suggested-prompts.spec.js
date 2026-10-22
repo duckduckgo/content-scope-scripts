@@ -21,9 +21,6 @@ async function openWithPrompts(ntp, additional = {}) {
 }
 
 /** @param {import('@playwright/test').Page} page */
-const hideButton = (page) => page.getByRole('button', { name: 'Hide suggestions' });
-
-/** @param {import('@playwright/test').Page} page */
 const suggestionsTab = (page) => page.getByRole('tab', { name: 'Open chat suggestions' });
 
 /**
@@ -46,26 +43,40 @@ async function submittedChat(ntp) {
 }
 
 test.describe('omnibar suggested prompts', () => {
-    test('the X hides the chips and saves the dismissal to native config', async ({ page }, workerInfo) => {
+    test('a typed prompt is counted while the chips are offered', async ({ page }, workerInfo) => {
         const { ntp, omnibar } = setup(page, workerInfo);
         await openWithPrompts(ntp);
         await omnibar.ready();
 
-        await hideButton(page).click();
+        await omnibar.chatInput().fill('pizza');
+        await omnibar.chatInput().press('Enter');
 
-        await expect(suggestionsTab(page)).toBeHidden();
-        await expect(hideButton(page)).toBeHidden();
-        const calls = await ntp.mocks.waitForCallCount({ method: 'omnibar_setConfig', count: 1 });
-        expect(/** @type {any} */ (calls[0].payload).params.suggestedPromptsDismissed).toBe(true);
+        expect((await submittedChat(ntp)).suggestedPromptId).toBeUndefined();
+        expect(await lastSubmitCount(ntp)).toBe(1);
     });
 
-    test('the chips stay hidden when native config says they were dismissed', async ({ page }, workerInfo) => {
+    test('a typed prompt is not counted when the chips are not offered', async ({ page }, workerInfo) => {
         const { ntp, omnibar } = setup(page, workerInfo);
-        await openWithPrompts(ntp);
+        await openWithPrompts(ntp, { 'omnibar.showSuggestedPrompts': false });
         await omnibar.ready();
 
-        await omnibar.didReceiveConfig({ mode: 'ai', enableAi: true, showSuggestedPrompts: true, suggestedPromptsDismissed: true });
+        await omnibar.chatInput().fill('pizza');
+        await omnibar.chatInput().press('Enter');
 
+        await omnibar.expectMethodCallCount('omnibar_submitChat', 1);
+        const calls = await ntp.mocks.outgoing({ names: ['omnibar_setConfig'] });
+        expect(calls.some((call) => /** @type {any} */ (call.payload).params.suggestedPromptsSubmitCount !== undefined)).toBe(false);
+    });
+
+    test('a fifth typed prompt hides the chips', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await openWithPrompts(ntp, { 'omnibar.suggestedPromptsSubmitCount': 4 });
+        await omnibar.ready();
+
+        await omnibar.chatInput().fill('pizza');
+        await omnibar.chatInput().press('Enter');
+
+        expect(await lastSubmitCount(ntp)).toBe(5);
         await expect(suggestionsTab(page)).toBeHidden();
     });
 
@@ -110,7 +121,7 @@ test.describe('omnibar suggested prompts', () => {
         expect(await lastSubmitCount(ntp)).toBe(1);
     });
 
-    test('the fifth submission hides the chips', async ({ page }, workerInfo) => {
+    test('a fifth prompt from the chips hides them', async ({ page }, workerInfo) => {
         const { ntp, omnibar } = setup(page, workerInfo);
         await openWithPrompts(ntp, { 'omnibar.suggestedPromptsSubmitCount': 4 });
         await omnibar.ready();
@@ -120,7 +131,6 @@ test.describe('omnibar suggested prompts', () => {
 
         expect(await lastSubmitCount(ntp)).toBe(5);
         await expect(suggestionsTab(page)).toBeHidden();
-        await expect(hideButton(page)).toBeHidden();
     });
 
     test('the chips stay hidden once 5 prompts were submitted', async ({ page }, workerInfo) => {

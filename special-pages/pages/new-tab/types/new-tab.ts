@@ -147,11 +147,7 @@ export type EnableAttachTabs = boolean;
  */
 export type ShowSuggestedPrompts = boolean;
 /**
- * True once the user closed the suggested-prompt chips with the X. The FE sets it via omnibar_setConfig and hides the chips; native persists it and only ever moves it from false to true.
- */
-export type SuggestedPromptsDismissed = boolean;
-/**
- * How many suggested prompts the user has submitted. The FE increments it via omnibar_setConfig on each submission and hides the chips once it reaches 5. Native persists it.
+ * How many Duck.ai prompts the user has sent from the NTP while the chips were offered, from the chips or typed (voice chats excluded). The FE increments it via omnibar_setConfig on each submission and hides the chips once it reaches 5. Native persists it.
  */
 export type SuggestedPromptsSubmitCount = number;
 /**
@@ -985,7 +981,6 @@ export interface OmnibarConfig {
   enableAskAiSuggestion?: EnableAskDuckAiSuggestion;
   enableAttachTabs?: EnableAttachTabs;
   showSuggestedPrompts?: ShowSuggestedPrompts;
-  suggestedPromptsDismissed?: SuggestedPromptsDismissed;
   suggestedPromptsSubmitCount?: SuggestedPromptsSubmitCount;
   screenshotModes?: ScreenshotModes;
   enablePastedAttachments?: EnablePastedAttachments;

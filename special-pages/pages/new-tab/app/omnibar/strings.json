@@ -359,10 +359,6 @@
     "title": "Voice Chat",
     "description": "Label for the Voice Chat chip shown among the Duck.ai suggested-prompt chips on narrow windows. Selecting it starts a Duck.ai voice chat."
   },
-  "omnibar_suggestedPromptsDismissAria": {
-    "title": "Hide suggestions",
-    "description": "Accessible label for the round X button after the Duck.ai suggested-prompt chips (How Duck.ai Works, Chat Suggestions, Create & Edit Images). Selecting it hides the chips permanently."
-  },
   "omnibar_suggestedPromptsChatTitle": {
     "title": "You Chat",
     "description": "Heading of the chat card in the How Duck.ai Works panel."

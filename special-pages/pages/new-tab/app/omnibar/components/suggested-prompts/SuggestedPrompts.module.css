@@ -129,18 +129,6 @@
     .chipRow [data-chip-id='how-duckai-works'] {
         order: 4;
     }
-
-    .chipRow [data-chip-id='dismiss'] {
-        order: 5;
-    }
-}
-
-/* Round X after the chips that hides them for good. */
-.dismissButton {
-    color: var(--ds-color-theme-icons-primary);
-    justify-content: center;
-    padding: 0;
-    width: 28px;
 }
 
 .chipSelected,

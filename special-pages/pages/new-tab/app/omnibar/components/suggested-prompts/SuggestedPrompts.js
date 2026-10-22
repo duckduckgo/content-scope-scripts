@@ -26,7 +26,7 @@ import styles from './SuggestedPrompts.module.css';
 
 const IMAGE_ACCEPT = 'image/jpeg,image/png,image/webp';
 
-/** The chips hide for good once this many suggested prompts have been submitted. */
+/** The chips hide for good once this many Duck.ai prompts (from the chips or typed) have been sent. */
 export const MAX_SUBMITTED_PROMPTS = 5;
 
 /** @type {{ id: TabId, label: StringKey, ariaLabel: StringKey, Icon: import('./suggestedPrompts.data.js').IconComponent }[]} */
@@ -53,7 +53,7 @@ const TABS = [
 
 /**
  * Duck.ai's new-chat chips, shown below the Duck.ai input when native sets `showSuggestedPrompts`,
- * until the user has submitted {@link MAX_SUBMITTED_PROMPTS} of them.
+ * until the user has sent {@link MAX_SUBMITTED_PROMPTS} Duck.ai prompts from the NTP.
  *
  * @param {object} props
  * @param {(params: SubmitChatAction) => void} props.onSubmit
@@ -65,14 +65,13 @@ export function SuggestedPrompts({ onSubmit, animateIn = false, enableVoiceChatA
     const platformName = usePlatformName();
     const baseId = useId();
     const { isReducedMotion } = useEnv();
-    const { state, setImageGenerationActive, dismissSuggestedPrompts, countSuggestedPromptSubmitted } = useContext(OmnibarContext);
+    const { state, setImageGenerationActive } = useContext(OmnibarContext);
     const { availableTools, setActiveTool } = useActiveTools();
     const { selectedModel } = useSelectedModel();
     const { selectedEffort } = useSelectedReasoningEffort();
     const { imageState } = useAttachmentsContext();
     const updatedCreateImageEnabled = state.config?.enableUpdatedCreateImage === true;
     const blocksPrompt = state.config?.usageLimits?.blocksPrompt === true;
-    const dismissed = state.config?.suggestedPromptsDismissed === true;
     const submittedCountReached = (state.config?.suggestedPromptsSubmitCount ?? 0) >= MAX_SUBMITTED_PROMPTS;
     const canGenerateImages = availableTools.includes('image-generation');
     // Same gate as the input's voice button.
@@ -186,7 +185,6 @@ export function SuggestedPrompts({ onSubmit, animateIn = false, enableVoiceChatA
             return;
         }
 
-        countSuggestedPromptSubmitted();
         const target = eventToTarget(event, platformName);
         if (prompt.kind === 'text') {
             onSubmit({
@@ -225,7 +223,7 @@ export function SuggestedPrompts({ onSubmit, animateIn = false, enableVoiceChatA
         if (files.length > 0) await imageState.processFiles(files);
     };
 
-    if (blocksPrompt || dismissed || submittedCountReached) return null;
+    if (blocksPrompt || submittedCountReached) return null;
 
     const tabId = (/** @type {TabId} */ id) => `${baseId}-tab-${id}`;
     const panelId = (/** @type {TabId} */ id) => `${baseId}-panel-${id}`;
@@ -286,16 +284,6 @@ export function SuggestedPrompts({ onSubmit, animateIn = false, enableVoiceChatA
                         <span>{t('omnibar_suggestedPromptsVoiceChatLabel')}</span>
                     </button>
                 )}
-                <button
-                    type="button"
-                    data-chip-id="dismiss"
-                    class={cn(styles.chip, styles.dismissButton)}
-                    style={{ '--chip-index': tabs.length + 1 }}
-                    aria-label={t('omnibar_suggestedPromptsDismissAria')}
-                    onClick={dismissSuggestedPrompts}
-                >
-                    <CloseSmallIcon aria-hidden="true" />
-                </button>
             </div>
             {renderedTab && (
                 <section
