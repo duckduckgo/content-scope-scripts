@@ -68,8 +68,7 @@ export default tseslint.config(
         languageOptions: {
             parserOptions: {
                 projectService: {
-                    // site-permissions is excluded from tsconfig.json, see the note in .prettierignore
-                    allowDefaultProject: ['eslint.config.js', 'build-output.eslint.config.js', 'injected/src/site-permissions/*.js'],
+                    allowDefaultProject: ['eslint.config.js', 'build-output.eslint.config.js'],
                 },
             },
         },
@@ -82,13 +81,6 @@ export default tseslint.config(
         rules: {
             '@typescript-eslint/no-floating-promises': 'error',
             'no-void': ['error', { allowAsStatement: true }],
-        },
-    },
-    {
-        // Native code replaces the `${...}` placeholders when loading these scripts
-        files: ['injected/src/site-permissions/*.js'],
-        rules: {
-            'no-template-curly-in-string': 'off',
         },
     },
     {

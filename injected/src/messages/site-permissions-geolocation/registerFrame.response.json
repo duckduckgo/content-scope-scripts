@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RegisterFrameResponse",
+  "oneOf": [
+    {
+      "title": "RegisterFrameRegistered",
+      "type": "object",
+      "required": [
+        "status",
+        "enabled"
+      ],
+      "properties": {
+        "status": {
+          "const": "registered"
+        },
+        "enabled": {
+          "type": "boolean",
+          "description": "Whether the app activates geolocation for this frame. The shim installs only when true, unless `installImmediately` is set."
+        },
+        "constraints": {
+          "type": "object",
+          "description": "Policy from the isolated world. Absent when disabled.",
+          "required": [
+            "isSecureContext",
+            "isSandboxed",
+            "isPolicyAllowed"
+          ],
+          "properties": {
+            "isSecureContext": {
+              "type": "boolean"
+            },
+            "isSandboxed": {
+              "type": "boolean"
+            },
+            "isPolicyAllowed": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    {
+      "$ref": "error.shared.json"
+    }
+  ]
+}

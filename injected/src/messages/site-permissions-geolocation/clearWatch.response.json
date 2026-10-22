@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ClearWatchResponse",
+  "oneOf": [
+    {
+      "title": "ClearWatchCleared",
+      "type": "object",
+      "required": [
+        "status"
+      ],
+      "properties": {
+        "status": {
+          "const": "cleared"
+        }
+      }
+    },
+    {
+      "$ref": "error.shared.json"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RegisterFrameParams",
+  "description": "Registers the document with native code, which reads its policy from the isolated world. Sent at document start and before each operation.",
+  "allOf": [
+    {
+      "$ref": "identity.shared.json"
+    }
+  ]
+}

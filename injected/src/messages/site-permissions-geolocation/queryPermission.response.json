@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "QueryPermissionResponse",
+  "oneOf": [
+    {
+      "title": "QueryPermissionState",
+      "type": "object",
+      "required": [
+        "status",
+        "state"
+      ],
+      "properties": {
+        "status": {
+          "const": "permission"
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "granted",
+            "prompt",
+            "denied"
+          ]
+        }
+      }
+    },
+    {
+      "$ref": "error.shared.json"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "readme": "Native code injects these feature entries and settings on iOS; remote config does not carry them.",
+  "version": 1,
+  "features": {
+    "sitePermissionsGeolocation": {
+      "state": "enabled",
+      "exceptions": [],
+      "settings": {
+        "capability": "test-capability",
+        "installImmediately": true
+      }
+    },
+    "sitePermissionsMediaCapture": {
+      "state": "enabled",
+      "exceptions": [],
+      "settings": {
+        "capability": "test-capability"
+      }
+    }
+  },
+  "unprotectedTemporary": []
+}
