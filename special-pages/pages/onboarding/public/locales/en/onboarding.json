@@ -13,6 +13,18 @@
     "title": "Skip",
     "note": "Used to advance to the next step in the process"
   },
+  "finishLater": {
+    "title": "Finish Later",
+    "note": "Button text used to leave the setup process early and come back to it later"
+  },
+  "finishLaterTooltip": {
+    "title": "I’ll save your progress. Pick up where you left off from any new tab.",
+    "note": "Tooltip explaining that leaving setup early keeps the user’s progress and that they can resume it from the New Tab page"
+  },
+  "resume_title": {
+    "title": "Welcome back! Let’s finish up.",
+    "note": "Title shown when the user returns to the setup process after leaving it early"
+  },
   "getStartedButton": {
     "title": "Get Started",
     "note": "Button text in the button used to start the process"

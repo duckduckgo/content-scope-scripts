@@ -77,6 +77,14 @@
     }
 }
 
+.finishLater {
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: calc(var(--bubble-leading) + var(--bubble-height) + var(--sp-6));
+    transition: top 333ms cubic-bezier(0.17, 0, 0.34, 1) 67ms;
+}
+
 .illustrationBackground,
 .illustrationForeground {
     left: 0;

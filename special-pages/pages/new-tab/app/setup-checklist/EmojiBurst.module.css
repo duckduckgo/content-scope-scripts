@@ -1,0 +1,15 @@
+.overlay {
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    position: fixed;
+    z-index: 1000;
+}
+
+.piece {
+    line-height: 1;
+    position: absolute;
+    translate: -50% 0;
+    user-select: none;
+    will-change: transform, opacity;
+}

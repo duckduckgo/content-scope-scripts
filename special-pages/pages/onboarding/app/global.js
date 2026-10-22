@@ -17,6 +17,19 @@ export const GlobalDispatch = createContext(/** @type {import("preact/hooks").Di
  * @param {GlobalEvents} action
  * @return {GlobalState}
  */
+/**
+ * First row in a settings step the user hasn't acted on yet, so resumed sessions skip finished rows.
+ *
+ * @param {import('./types').Step | undefined} step
+ * @param {GlobalState['UIValues']} uiValues
+ * @param {number} [from]
+ */
+function firstIdleRow(step, uiValues, from = 0) {
+    if (!step || step.kind !== 'settings') return from;
+    const index = step.rows.findIndex((row, i) => i >= from && uiValues[row] === 'idle');
+    return index === -1 ? step.rows.length : index;
+}
+
 export function reducer(state, action) {
     // console.group('reducer')
     // console.log('state', state)
@@ -63,13 +76,14 @@ export function reducer(state, action) {
                 }
                 case 'advance': {
                     const currentPageIndex = state.order.indexOf(state.activeStep);
-                    const nextPageIndex = currentPageIndex + 1;
+                    const nextPageIndex = state.jumpTo ? state.order.indexOf(state.jumpTo) : currentPageIndex + 1;
                     if (nextPageIndex < state.order.length) {
                         return {
                             ...state,
+                            jumpTo: null,
                             activeStep: state.order[nextPageIndex],
                             nextStep: state.order[nextPageIndex + 1],
-                            activeRow: 0,
+                            activeRow: firstIdleRow(state.stepDefinitions[state.order[nextPageIndex]], state.UIValues),
                             activeStepVisible: false,
                             exiting: false,
                             overlay: null,
@@ -82,6 +96,14 @@ export function reducer(state, action) {
                     return {
                         ...state,
                         exiting: true,
+                    };
+                }
+                case 'jump-to-step': {
+                    if (action.id === state.activeStep || state.exiting) return state;
+                    return {
+                        ...state,
+                        exiting: true,
+                        jumpTo: action.id,
                     };
                 }
                 case 'show-overlay': {
@@ -136,7 +158,9 @@ export function reducer(state, action) {
                                 ...state.step,
                             },
                             order: nextOrder,
-                            activeRow: isCurrent ? state.activeRow + 1 : state.activeRow,
+                            activeRow: isCurrent
+                                ? firstIdleRow(state.step, { ...state.UIValues, [action.id]: nextUIState }, state.activeRow + 1)
+                                : state.activeRow,
                             values: {
                                 ...state.values,
                                 // store the updated value in global state
@@ -178,6 +202,33 @@ export function reducer(state, action) {
 }
 
 /**
+ * Pre-fills rows the user already finished, so a resumed session opens on the first thing left to do.
+ *
+ * @param {GlobalState} state
+ * @param {{ done: import('./types').SystemValueId[] } | undefined} resume
+ * @param {import('./types').Step['id']} firstPage
+ * @return {GlobalState}
+ */
+function withResume(state, resume, firstPage) {
+    if (!resume) return state;
+    const UIValues = { ...state.UIValues };
+    /** @type {GlobalState['values']} */
+    const values = { ...state.values };
+    for (const id of resume.done) {
+        UIValues[id] = 'accepted';
+        values[id] = { enabled: true };
+    }
+    return {
+        ...state,
+        UIValues,
+        values,
+        resumed: true,
+        resumeFirst: firstPage,
+        activeRow: firstIdleRow(state.step, UIValues),
+    };
+}
+
+/**
  * Provides navigation functionality for the application.
  * @param {Object} props - The properties for the NavigationProvider component.
  * @param {import('./types').Step['id'][]} props.order - The order of screens to display
@@ -185,35 +236,42 @@ export function reducer(state, action) {
  * @param {import('./types').StepDefinitions} props.stepDefinitions -
  * @param {import("./messages.js").OnboardingMessages} props.messaging - The messaging object used for communication.
  * @param {import('./types').Step['id']} [props.firstPage]
+ * @param {{ done: import('./types').SystemValueId[] }} [props.resume] - rows already completed, when reopened from the setup checklist
  */
-export function GlobalProvider({ order, children, stepDefinitions, messaging, firstPage = 'welcome' }) {
-    const [state, dispatch] = useReducer(reducer, {
-        status: { kind: 'idle' },
-        order,
-        stepDefinitions,
-        step: stepDefinitions[firstPage],
-        activeStep: firstPage,
-        nextStep: order[1],
-        activeRow: 0,
-        activeStepVisible: false,
-        exiting: false,
-        overlay: null,
-        values: {},
-        UIValues: {
-            dock: 'idle',
-            import: 'idle',
-            'default-browser': 'idle',
-            bookmarks: 'idle',
-            'session-restore': 'idle',
-            'home-shortcut': 'idle',
-            'placebo-ad-blocking': 'idle',
-            'aggressive-ad-blocking': 'idle',
-            'youtube-ad-blocking': 'idle',
-            'address-bar-mode': 'idle',
-            'dock-instructions': 'idle',
-            'chrome-extension-install': 'idle',
-        },
-    });
+export function GlobalProvider({ order, children, stepDefinitions, messaging, firstPage = 'welcome', resume }) {
+    const [state, dispatch] = useReducer(reducer, null, () =>
+        withResume(
+            {
+                status: { kind: 'idle' },
+                order,
+                stepDefinitions,
+                step: stepDefinitions[firstPage],
+                activeStep: firstPage,
+                nextStep: order[order.indexOf(firstPage) + 1],
+                activeRow: 0,
+                activeStepVisible: false,
+                exiting: false,
+                overlay: null,
+                values: {},
+                UIValues: {
+                    dock: 'idle',
+                    import: 'idle',
+                    'default-browser': 'idle',
+                    bookmarks: 'idle',
+                    'session-restore': 'idle',
+                    'home-shortcut': 'idle',
+                    'placebo-ad-blocking': 'idle',
+                    'aggressive-ad-blocking': 'idle',
+                    'youtube-ad-blocking': 'idle',
+                    'address-bar-mode': 'idle',
+                    'dock-instructions': 'idle',
+                    'chrome-extension-install': 'idle',
+                },
+            },
+            resume,
+            firstPage,
+        ),
+    );
 
     const platform = usePlatformName();
     const proxy = useCallback(
@@ -252,6 +310,9 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
             }
             if (msg.kind === 'dismiss') {
                 messaging.dismissToAddressBar();
+            }
+            if (msg.kind === 'finish-later') {
+                messaging.finishLater({ step: state.activeStep, values: state.UIValues });
             }
             if (msg.kind === 'request-chrome-extension') {
                 messaging.requestChromeExtensionInstall();

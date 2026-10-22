@@ -100,6 +100,7 @@ async function init() {
                             order={settings.order}
                             stepDefinitions={settings.stepDefinitions}
                             firstPage={settings.first}
+                            resume={init.resume}
                         >
                             <App>{environment.env === 'development' && <SkipLink />}</App>
                         </GlobalProvider>

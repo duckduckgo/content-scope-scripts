@@ -10,9 +10,47 @@
     gap: var(--sp-1); /* 4px */
 }
 
+.dots > span {
+    display: flex;
+}
+
 .dot {
     display: block;
     border-radius: 50%;
+    transition:
+        transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1),
+        background-color 200ms ease;
+}
+
+/* Resumed sessions: bigger hit targets for jumping between steps */
+.jumpable {
+    gap: 0;
+}
+
+.dotButton {
+    align-items: center;
+    background: none;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    height: 16px;
+    justify-content: center;
+    margin: -5px 0;
+    padding: 0;
+    width: 14px;
+
+    &:hover .dot {
+        transform: scale(1.5);
+    }
+
+    &:hover .incomplete {
+        background: var(--ds-accent-primary);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--ds-accent-alt-primary);
+    }
 }
 
 .active {
