@@ -6,6 +6,7 @@ import { compileDetectorConfig, parseDetectors } from './web-detection/compile/d
 import { EvaluationContext } from './web-detection/evaluate/context.js';
 import { NativeReader } from './web-detection/evaluate/native-reader.js';
 import { breakageEntry, createDetectorState, detectorNameScalars, runDetector } from './web-detection/evaluate/run.js';
+import { TaskReadCache } from './web-detection/evaluate/task-read-cache.js';
 
 /**
  * @typedef {import('./web-detection/compile/detector-config.js').DetectorConfig} DetectorConfig
@@ -144,15 +145,16 @@ export default class WebDetection extends ContentFeature {
      *
      * @param {DetectorEntry} detector
      * @param {RunDetectionOptions} options
+     * @param {TaskReadCache} task - the page reads shared by the detectors run with it
      */
-    _runDetector(detector, options) {
+    _runDetector(detector, options, task) {
         const { groupName, detectorId } = detector;
         // `init` compiles every detector a trigger runs in the frame, so the reader captures the names it reads
         const compiled = this._compiledOf(detector);
         const state = this._stateOf(detectorId);
         if (state.done || 'error' in compiled) return;
 
-        const ctx = new EvaluationContext(this._reader, state.names, state);
+        const ctx = new EvaluationContext(this._reader, state.names, state, task);
         const run = () => runDetector(compiled, state, ctx);
         // A run that errored is a failed run
         const result = this.#detectorPerfEnabled ? timeDetector(this, groupName, run, detectorId, (r) => r.error !== undefined) : run();
@@ -207,8 +209,8 @@ export default class WebDetection extends ContentFeature {
         // Create one timer per unique interval
         for (const [interval, detectors] of detectorsByInterval.entries()) {
             const timer = setTimeout(() => {
-                // Run all detectors scheduled for this interval
-                for (const detector of detectors) this._runAutoDetector(detector);
+                const task = new TaskReadCache();
+                for (const detector of detectors) this._runAutoDetector(detector, task);
             }, interval);
             this.#timers.push({ timer, detectors });
         }
@@ -229,10 +231,11 @@ export default class WebDetection extends ContentFeature {
      * Run a single detector with the auto trigger
      *
      * @param {DetectorEntry} detector
+     * @param {TaskReadCache} task
      */
-    _runAutoDetector(detector) {
+    _runAutoDetector(detector, task) {
         try {
-            this._runDetector(detector, { trigger: 'auto' });
+            this._runDetector(detector, { trigger: 'auto' }, task);
         } catch (e) {
             // Silently fail - don't break the page
             if (this.isDebug) {
@@ -286,10 +289,11 @@ export default class WebDetection extends ContentFeature {
     runDetectors(options) {
         /** @type {BreakageEntry[]} */
         const results = [];
+        const task = new TaskReadCache();
 
         for (const detector of this._eachDetector()) {
             const runs = this._shouldRunDetector(detector.config, options);
-            if (runs) this._runDetector(detector, options);
+            if (runs) this._runDetector(detector, options, task);
 
             const compiled = this.#compiled.get(detector.detectorId);
             if (compiled && 'error' in compiled) {
