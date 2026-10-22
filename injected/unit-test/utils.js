@@ -1451,7 +1451,7 @@ describe('Helpers checks', () => {
     });
 
     describe('pruneConfigFeatures', () => {
-        it('keeps only bundled features and their dependencies', () => {
+        it('keeps only bundled features and their dependencies, without mutating the input', () => {
             const data = {
                 unprotectedTemporary: [],
                 features: {
@@ -1461,13 +1461,31 @@ describe('Helpers checks', () => {
                     gpc: { state: 'enabled', settings: {}, exceptions: [] },
                 },
             };
-            pruneConfigFeatures(data, ['trackerProtection', 'gpc'], { trackerProtection: ['contentBlocking'] });
-            expect(Object.keys(data.features).sort()).toEqual(['contentBlocking', 'gpc', 'trackerProtection']);
-            expect(data.unprotectedTemporary).toEqual([]);
+            const pruned = pruneConfigFeatures(data, ['trackerProtection', 'gpc'], { trackerProtection: ['contentBlocking'] });
+            expect(Object.keys(pruned.features).sort()).toEqual(['contentBlocking', 'gpc', 'trackerProtection']);
+            expect(pruned.unprotectedTemporary).toBe(data.unprotectedTemporary);
+            expect(Object.keys(data.features).length).toBe(4);
         });
 
-        it('ignores a config without features', () => {
-            expect(() => pruneConfigFeatures(/** @type {any} */ ({}), ['gpc'])).not.toThrow();
+        it('returns a config without features as is', () => {
+            const data = /** @type {any} */ ({});
+            expect(pruneConfigFeatures(data, ['gpc'])).toBe(data);
+        });
+
+        it('is applied by processConfig for the given inject name', () => {
+            const data = {
+                unprotectedTemporary: [],
+                features: {
+                    gpc: { state: 'enabled', settings: {}, exceptions: [] },
+                    autofill: { state: 'enabled', settings: {}, exceptions: [] },
+                },
+            };
+            /** @type {import('../src/utils.js').UserPreferences} */
+            const preferences = { platform: { name: 'ios' }, sessionKey: 'testSessionKey' };
+            const pruned = processConfig(data, [], preferences, [], 'apple');
+            expect(Object.keys(pruned.bundledConfig.features)).toEqual(['gpc']);
+            const unpruned = processConfig(data, [], preferences, []);
+            expect(Object.keys(unpruned.bundledConfig.features).sort()).toEqual(['autofill', 'gpc']);
         });
     });
 });
