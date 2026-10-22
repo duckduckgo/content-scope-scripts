@@ -105,7 +105,7 @@ export function SingleStep() {
 
             {content}
 
-            {showProgress && progress.current < progress.total && (
+            {showProgress && (
                 <div class={styles.finishLater}>
                     <FinishLater />
                 </div>
