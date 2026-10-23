@@ -1,6 +1,6 @@
 import { numberIsFinite, objectKeys } from '../../../captured-globals.js';
 import { DetectionError, decides, errorPath, isFailure, isScalar, typeName } from '../model/core.js';
-import { ItemBuffer, eachMember, isItemBuffer, isList } from '../model/lists.js';
+import { ItemBuffer, asList, isItemBuffer, listMembers } from '../model/lists.js';
 import { readPath } from '../predicates/fields.js';
 import { testPredicate } from '../predicates/predicates.js';
 
@@ -262,11 +262,9 @@ function presence(buffer) {
  * @returns {ItemBuffer}
  */
 export function listOf(value, operator, ctx) {
-    if (isItemBuffer(value)) return value;
-    const list = isList(value, ctx);
-    if (isFailure(list)) return new ItemBuffer(list);
+    const list = asList(value, ctx);
     if (!list) throw new DetectionError(`'${operator}' takes a list, got ${typeName(value)}`);
-    return new ItemBuffer(eachMember(value, ctx));
+    return list;
 }
 
 /**
@@ -447,11 +445,10 @@ function computeLength(node, ctx) {
  * An operand that may be a list: its items when it is one, else itself.
  *
  * @param {Node} operand
- * @param {string} operator
  * @param {EvaluationContext} ctx
  * @returns {{ list: ItemBuffer } | { value: unknown } | Failure}
  */
-function readSpread(operand, operator, ctx) {
+function readSpread(operand, ctx) {
     const value = operand.position === 'spread' ? evaluate(operand, 'spread', ctx) : evaluateOccurrence(operand, ctx);
     if (isFailure(value)) return value;
     if (operand.position !== 'spread') return { value };
@@ -460,9 +457,10 @@ function readSpread(operand, operator, ctx) {
         const held = presence(value);
         return isFailure(held) ? held.at(operand.path) : { value: held };
     }
-    const list = isList(value, ctx);
-    if (isFailure(list)) return list.at(operand.path);
-    return list ? { list: listOf(value, operator, ctx) } : { value };
+    if (isItemBuffer(value)) return { list: value };
+    const members = listMembers(value, ctx);
+    if (isFailure(members)) return members.at(operand.path);
+    return members ? { list: new ItemBuffer(members) } : { value };
 }
 
 /**
@@ -474,7 +472,7 @@ function computeArithmetic(node, ctx) {
     /** @type {number[]} */
     const values = [];
     for (const operand of node.operands) {
-        const spread = readSpread(operand, node.kind, ctx);
+        const spread = readSpread(operand, ctx);
         if (isFailure(spread)) return spread;
         if ('list' in spread) {
             const items = allItems(spread.list);
@@ -506,7 +504,7 @@ function computeLogic(node, ctx) {
     const [decider, decided] = decides(node.kind);
     let result = !decided;
     for (const operand of node.operands) {
-        const spread = readSpread(operand, node.kind, ctx);
+        const spread = readSpread(operand, ctx);
         if (isFailure(spread)) return spread;
         if ('list' in spread) {
             const items = allItems(spread.list);

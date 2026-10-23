@@ -93,52 +93,64 @@ export function isItemBuffer(value) {
 }
 
 /**
- * Whether a value is a list: an `ItemBuffer`, or an iterable other than a string or a node. A page's
- * Proxy trap that throws on the lookup fails.
+ * The members of a list, an array or an iterable other than a string or a node, read lazily: an array
+ * by index, so a page override of `Array.prototype[Symbol.iterator]` is not called, and an iterable
+ * through its iterator as captured or as it stands. `undefined` for any other value, and a `Failure`
+ * where a page's Proxy trap throws on the lookup. A throw from the page while iterating gives a
+ * `Failure` and ends the members.
  *
- * @param {unknown} value
+ * @param {unknown} value - any value but an `ItemBuffer`
  * @param {PredicateContext} ctx
- * @returns {boolean | Failure}
+ * @returns {Generator<unknown> | Failure | undefined}
  */
-export function isList(value, ctx) {
-    if (isItemBuffer(value) || isArray(value)) return true;
+export function listMembers(value, ctx) {
+    if (isArray(value)) return arrayMembers(value);
     const iteratorMethod = ctx.reader.iteratorMethod(value);
-    if (iteratorMethod === undefined || isFailure(iteratorMethod)) return iteratorMethod ?? false;
+    if (iteratorMethod === undefined || isFailure(iteratorMethod)) return iteratorMethod;
     const node = ctx.reader.isNode(value);
-    return isFailure(node) ? node : !node;
+    if (isFailure(node)) return node;
+    return node ? undefined : iteratedMembers(value, iteratorMethod);
 }
 
 /**
- * Iterate the members of an iterable value lazily, as a list: an array by index, so a page override of
- * `Array.prototype[Symbol.iterator]` is not called, and any other value through its iterator as
- * captured or as it stands. A throw from the page, such as its iterator's, gives a `Failure` and ends
- * the list.
+ * The list a value is: an `ItemBuffer` itself, or a new one over a list's members, failed where
+ * looking them up fails. `undefined` for any other value.
  *
- * @param {unknown} value - an array, or an iterable `isList` holds for
+ * @param {unknown} value
  * @param {PredicateContext} ctx
+ * @returns {ItemBuffer | undefined}
+ */
+export function asList(value, ctx) {
+    if (isItemBuffer(value)) return value;
+    const members = listMembers(value, ctx);
+    return members === undefined ? undefined : new ItemBuffer(members);
+}
+
+/**
+ * @param {unknown[]} array
  * @returns {Generator<unknown>}
  */
-export function* eachMember(value, ctx) {
-    if (isArray(value)) {
-        for (let i = 0; ; i++) {
-            /** @type {unknown} */
-            let item;
-            try {
-                if (i >= value.length) return;
-                item = value[i];
-            } catch (e) {
-                yield new Failure(errorName(e));
-                return;
-            }
-            yield item;
+function* arrayMembers(array) {
+    for (let i = 0; ; i++) {
+        /** @type {unknown} */
+        let item;
+        try {
+            if (i >= array.length) return;
+            item = array[i];
+        } catch (e) {
+            yield new Failure(errorName(e));
+            return;
         }
+        yield item;
     }
-    const iteratorMethod = ctx.reader.iteratorMethod(value);
-    if (typeof iteratorMethod !== 'function') {
-        // The page can change the value between `isList` and here
-        yield isFailure(iteratorMethod) ? iteratorMethod : new Failure('TypeError');
-        return;
-    }
+}
+
+/**
+ * @param {unknown} value
+ * @param {Function} iteratorMethod
+ * @returns {Generator<unknown>}
+ */
+function* iteratedMembers(value, iteratorMethod) {
     /** @type {Iterator<unknown> | undefined} */
     let iterator;
     for (;;) {
