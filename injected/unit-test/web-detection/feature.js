@@ -1,4 +1,5 @@
 import WebDetection from '../../src/features/web-detection.js';
+import { NativeReader } from '../../src/features/web-detection/evaluate/native-reader.js';
 import WebEvents from '../../src/features/web-events.js';
 import { counter, detects, runDetector, runDetectorsInEnv, testGlobal } from './support.js';
 
@@ -383,6 +384,73 @@ describe('WebDetection feature', () => {
                 expect(instance.runDetectors({ trigger: 'breakageReport' })).toEqual([
                     { detectorId: 'g.runs', errors: { parse: 'error' } },
                 ]);
+            });
+        });
+
+        describe('parsing at load and init', () => {
+            const reads = (/** @type {string} */ name) => ({ match: { api: name }, actions: { breakageReportData: {} } });
+
+            /**
+             * @param {Record<string, unknown> | undefined} detectors - the detectors at load, or none
+             */
+            function loadInstance(detectors) {
+                const args = {
+                    site: { domain: 'example.com', url: 'https://example.com/page' },
+                    platform: {},
+                    featureSettings: detectors ? { webDetection: { detectors: { g: detectors } } } : {},
+                    bundledConfig: undefined,
+                    messagingContextName: 'test',
+                };
+                const instance = new WebDetection('webDetection', undefined, {}, args);
+                instance.load();
+                return { instance, args };
+            }
+
+            /**
+             * @param {WebDetection} instance
+             * @param {object} args
+             * @param {Record<string, unknown>} detectors
+             */
+            function initWith(instance, args, detectors) {
+                instance.setArgs({ ...args, featureSettings: { webDetection: { detectors: { g: detectors } } } });
+                instance.init();
+            }
+
+            it('parses once when init has the settings load parsed', () => {
+                const compile = spyOn(WebDetection.prototype, '_compile').and.callThrough();
+                const capture = spyOn(NativeReader.prototype, 'capture').and.callThrough();
+                const { instance } = loadInstance({ d: detects(true) });
+                instance.init();
+                expect(compile).toHaveBeenCalledTimes(1);
+                expect(capture).toHaveBeenCalledTimes(1);
+                expect(instance.runDetectors({ trigger: 'breakageReport' })).toEqual([{ detectorId: 'g.d', detected: true }]);
+            });
+
+            it('takes the detectors from settings init has that differ from those load parsed, and captures the names added', () => {
+                const capture = spyOn(NativeReader.prototype, 'capture').and.callThrough();
+                const { instance, args } = loadInstance({ a: reads('wdLoaded') });
+                initWith(instance, args, { a: reads('wdLoaded'), b: reads('wdAdded') });
+                expect(capture).toHaveBeenCalledTimes(2);
+                expect([...capture.calls.mostRecent().args[0]]).toContain('wdAdded');
+                testGlobal.wdLoaded = true;
+                testGlobal.wdAdded = true;
+                try {
+                    expect(instance.runDetectors({ trigger: 'breakageReport' }).map((entry) => entry.detectorId)).toEqual(['g.a', 'g.b']);
+                } finally {
+                    delete testGlobal.wdLoaded;
+                    delete testGlobal.wdAdded;
+                }
+            });
+
+            it('parses at init when load had no detectors', () => {
+                const compile = spyOn(WebDetection.prototype, '_compile').and.callThrough();
+                const capture = spyOn(NativeReader.prototype, 'capture').and.callThrough();
+                const { instance, args } = loadInstance(undefined);
+                expect(compile).not.toHaveBeenCalled();
+                initWith(instance, args, { d: detects(true) });
+                expect(compile).toHaveBeenCalledTimes(1);
+                expect(capture).toHaveBeenCalledTimes(1);
+                expect(instance.runDetectors({ trigger: 'breakageReport' })).toEqual([{ detectorId: 'g.d', detected: true }]);
             });
         });
 

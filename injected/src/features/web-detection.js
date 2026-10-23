@@ -51,15 +51,40 @@ export default class WebDetection extends ContentFeature {
     /** @type {NativeReader | undefined} */
     #reader;
 
+    /** @type {unknown} the feature settings object the detectors were parsed from */
+    #parsedSettings;
+
     _exposedMethods = this._declareExposedMethods(['runDetectors']);
 
     /**
-     * Initialize the feature by loading detector configurations
+     * Parse the detectors when the injected config has them. `webDetection` loads before every other
+     * feature, so the reader captures native getters and methods before any feature or page script
+     * replaces them.
+     */
+    load() {
+        this._parseDetectors();
+    }
+
+    /**
+     * Parse the detectors unless `load` parsed these settings, then schedule their automatic runs
      */
     init() {
         this.#detectorPerfEnabled = hasOwnProperty.call(this.featureSettings ?? {}, 'detectorPerf');
-        const detectorsConfig = this.getFeatureSetting('detectors');
-        this.#detectors = parseDetectors(detectorsConfig);
+        this._parseDetectors();
+        this._scheduleAutoRunDetectors();
+    }
+
+    /**
+     * Parse the detectors, compile those a trigger runs in the frame, and capture the names they read.
+     * Settings already parsed are skipped. Settings that differ from those parsed at `load` replace them,
+     * and the reader adds the names it lacks.
+     */
+    _parseDetectors() {
+        const settings = this._getFeatureSettings();
+        if (settings === undefined || settings === this.#parsedSettings) return;
+        this.#parsedSettings = settings;
+        this.#detectors = parseDetectors(this.getFeatureSetting('detectors'));
+        this.#compiled.clear();
         /** @type {Set<string>} */
         const names = new Set();
         let anyRuns = false;
@@ -69,14 +94,14 @@ export default class WebDetection extends ContentFeature {
             const compiled = this._compiledOf(detector);
             if ('names' in compiled) compiled.names.forEach((name) => names.add(name));
         }
-        // Native getters and methods are captured now, before page scripts can replace them
-        if (anyRuns) this.#reader = new NativeReader(globalThis, names);
-        this._scheduleAutoRunDetectors();
+        if (!anyRuns) return;
+        if (this.#reader) this.#reader.capture(names);
+        else this.#reader = new NativeReader(globalThis, names);
     }
 
     /**
      * Whether a trigger runs the detector in this frame. The state, platform and site a trigger tests
-     * are fixed for the frame, so a detector no trigger runs at init is never compiled.
+     * are fixed for the frame, so a detector no trigger runs when the detectors are parsed is never compiled.
      *
      * @param {DetectorConfig} config
      * @returns {boolean}
@@ -149,7 +174,7 @@ export default class WebDetection extends ContentFeature {
      */
     _runDetector(detector, options, task) {
         const { groupName, detectorId } = detector;
-        // `init` compiles every detector a trigger runs in the frame, so the reader captures the names it reads
+        // Parsing compiles every detector a trigger runs in the frame, so the reader captures the names it reads
         const compiled = this._compiledOf(detector);
         const state = this._stateOf(detectorId);
         if (state.done || 'error' in compiled) return;
