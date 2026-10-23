@@ -495,5 +495,17 @@
   "getStarted_chromeExtension_tooltip" : {
     "title" : "Imposta DuckDuckGo come motore di ricerca predefinito in Chrome per effettuare ricerche online evitando il tracciamento.",
     "note" : "Tooltip text shown when hovering over the info icon next to the Chrome extension checkbox."
+  },
+  "getStarted_extensions_label" : {
+    "title" : "Installa la nostra estensione per cercare privatamente su altri browser",
+    "note" : "Windows onboarding checkbox for installing DuckDuckGo extensions in eligible Chrome, Edge, and Firefox browsers."
+  },
+  "getStarted_extensions_tooltip" : {
+    "title" : "Imposta DuckDuckGo come motore di ricerca predefinito per effettuare ricerche online evitando il tracciamento",
+    "note" : "Tooltip explaining the Windows onboarding extension installation option."
+  },
+  "getStarted_launchOnStartup_label" : {
+    "title" : "Apri DuckDuckGo all'avvio del computer",
+    "note" : "Windows onboarding checkbox for opening the browser at Windows sign-in."
   }
 }

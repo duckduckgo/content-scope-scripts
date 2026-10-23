@@ -495,5 +495,17 @@
   "getStarted_chromeExtension_tooltip" : {
     "title" : "Stel DuckDuckGo in als je standaard zoekmachine in Chrome om online te zoeken zonder gevolgd te worden.",
     "note" : "Tooltip text shown when hovering over the info icon next to the Chrome extension checkbox."
+  },
+  "getStarted_extensions_label" : {
+    "title" : "Installeer onze extensie om privé te zoeken in andere browsers",
+    "note" : "Windows onboarding checkbox for installing DuckDuckGo extensions in eligible Chrome, Edge, and Firefox browsers."
+  },
+  "getStarted_extensions_tooltip" : {
+    "title" : "Stel DuckDuckGo in als je standaard zoekmachine om online te zoeken zonder gevolgd te worden",
+    "note" : "Tooltip explaining the Windows onboarding extension installation option."
+  },
+  "getStarted_launchOnStartup_label" : {
+    "title" : "DuckDuckGo openen wanneer je computer opstart",
+    "note" : "Windows onboarding checkbox for opening the browser at Windows sign-in."
   }
 }
