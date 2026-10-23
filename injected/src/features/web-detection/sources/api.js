@@ -1,5 +1,5 @@
 import { DetectionError, FILLS, isFailure } from '../model/core.js';
-import { ItemBuffer, eachMember, isItemBuffer, isList } from '../model/lists.js';
+import { ItemBuffer, isItemBuffer, listMembers } from '../model/lists.js';
 import { compileArgs, evaluateArgs, parsePathBody, readField, readPath } from '../predicates/fields.js';
 import { parseItemKeys, selectItems } from './common.js';
 
@@ -71,9 +71,9 @@ export function apiSource(global) {
             const result = readPath(ctx.reader, base, body.names, args);
             if (isFailure(result)) return result;
             if (body.where || body.field) {
-                const list = isList(result, ctx);
-                if (isFailure(list)) return list;
-                if (list) return new ItemBuffer(selectItems(eachMember(result, ctx), body, ctx));
+                const members = listMembers(result, ctx);
+                if (isFailure(members)) return members;
+                if (members) return new ItemBuffer(selectItems(members, body, ctx));
                 if (body.where) throw new DetectionError('`where` on a value that is not a list');
             }
             return body.field ? readField(ctx, result, body.field) : result;
