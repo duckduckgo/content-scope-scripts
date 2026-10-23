@@ -332,9 +332,7 @@ describe('WebDetection feature', () => {
                 },
             });
             jasmine.clock().tick(1000);
-            expect(instance.runDetectors({ trigger: 'breakageReport' })).toEqual([
-                { detectorId: 'g.d', detected: true, data: { runs: 4 } },
-            ]);
+            expect(instance.runDetectors({ trigger: 'breakageReport' })).toEqual([{ detectorId: 'g.d', data: { runs: 4 } }]);
         });
 
         describe('compiling', () => {
