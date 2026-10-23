@@ -86,11 +86,14 @@ export const elementSource = {
                 return false;
             },
             count() {
-                const body = /** @type {ElementBody} */ (bodies[0]);
-                if (bodies.length !== 1 || !isPresenceOnly(body)) return undefined;
-                const roots = resolveRoots(body.root, ctx);
-                if (isFailure(roots)) return undefined;
-                return roots.reduce((sum, root) => sum + root.querySelectorAll(body.selector).length, 0);
+                if (!bodies.every(isPresenceOnly)) return undefined;
+                let count = 0;
+                for (const body of bodies) {
+                    const roots = resolveRoots(body.root, ctx);
+                    if (isFailure(roots)) return undefined;
+                    for (const root of roots) count += root.querySelectorAll(body.selector).length;
+                }
+                return count;
             },
         });
     },
