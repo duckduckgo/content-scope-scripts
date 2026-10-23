@@ -50,16 +50,12 @@ describe('WebDetection compile', () => {
             );
         });
 
-        it('rejects unknown keys and reserved keys', () => {
+        it('rejects unknown keys', () => {
             expectParseError({ match: { pageFeature: 'x' }, actions: REPORT }, "unknown expression key 'pageFeature'");
             expectParseError({ match: { element: { selector: 'img', foo: 1 } }, actions: REPORT }, "unknown key 'foo'");
             expectParseError(
                 { match: { api: { path: 'document.title', allowGetter: true }, is: '' }, actions: REPORT },
                 "unknown key 'allowGetter'",
-            );
-            expectParseError(
-                { match: { element: { selector: 'img' }, using: 'length', aggregate: 'max', is: 1 }, actions: REPORT },
-                "'aggregate' is reserved",
             );
             expectParseError(
                 { match: { element: { selector: 'img' }, using: 'length', catch: { absent: 0 }, is: 1 }, actions: REPORT },

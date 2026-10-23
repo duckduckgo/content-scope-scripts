@@ -68,8 +68,6 @@ const COMBINATORS = new Set(['any', 'all', 'none']);
 /** @type {string[]} */
 const FIRST_OPERATORS = ['fails', 'type'];
 const TYPE_NAMES = new Set(['number', 'string', 'boolean', 'null', 'undefined', 'array', 'object']);
-/** Keys reserved for later extensions. */
-const RESERVED_LATER = new Set(['match']);
 
 /**
  * Test a predicate against a value. A failure passes up, except through `fails`, which reads it, and
@@ -229,9 +227,9 @@ function isItemExpression(raw) {
 /**
  * Compile a predicate.
  *
- * At item level an object's keys other than the reserved ones are property paths, and an object with
- * an expression key other than `any`, `all` and `none` is a boolean expression over `self`; at value
- * level the operator names are operators. `any` / `all` / `none` keep the level. An array is not a
+ * At item level an object's keys other than `any`, `all`, `none`, `field` and `is` are property
+ * paths, and an object with an expression key other than `any`, `all` and `none` is a boolean
+ * expression over `self`; at value level the operator names are operators. `any` / `all` / `none` keep the level. An array is not a
  * predicate: `in` owns a list of values, and `any` combines predicates.
  *
  * @param {unknown} raw
@@ -290,7 +288,6 @@ function compileObject(raw, level, path, hooks) {
     for (const key of [...FIRST_OPERATORS.filter((key) => isFirst(key) && keys.includes(key)), ...keys.filter((key) => !isFirst(key))]) {
         const keyPath = `${path}.${key}`;
         const value = raw[key];
-        if (RESERVED_LATER.has(key)) throw new ConfigParseError(keyPath, `'${key}' is reserved`);
         if (key === 'is') continue;
         const entries = isFirst(key) ? first : rest;
         if (key === 'any' || key === 'all' || key === 'none') {

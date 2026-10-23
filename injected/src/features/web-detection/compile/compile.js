@@ -46,8 +46,6 @@ import { finish } from './positions.js';
 const MODIFIER_KEYS = new Set(['using', 'is']);
 /** Keys valid only beside `if`. */
 const BRANCH_KEYS = new Set(['then', 'else']);
-/** Keys reserved for later extensions, rejected by this release. */
-const RESERVED_LATER = new Set(['aggregate', 'stable', 'confirm', 'retain']);
 
 /**
  * The position of an operand of `sum` and `mul`, or of `any`, `all` and `none`, is
@@ -177,7 +175,6 @@ function compileExpr(raw, position, path, scope) {
     const expressionKeys = [];
     for (const key of keys) {
         if (EXPRESSION_KEYS.has(key)) expressionKeys.push(key);
-        else if (RESERVED_LATER.has(key)) throw new ConfigParseError(`${path}.${key}`, `'${key}' is reserved`);
         else if (BRANCH_KEYS.has(key)) {
             if (raw.if === undefined) throw new ConfigParseError(`${path}.${key}`, `'${key}' sits beside 'if' only`);
         } else if (!MODIFIER_KEYS.has(key)) throw new ConfigParseError(`${path}.${key}`, `unknown expression key '${key}'`);
