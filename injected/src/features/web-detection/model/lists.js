@@ -1,8 +1,7 @@
 import { isArray, ReflectApply } from '../../../captured-globals.js';
-import { isFailure } from './core.js';
+import { Failure, errorName, isFailure } from './core.js';
 
 /**
- * @typedef {import('./core.js').Failure} Failure
  * @typedef {import('./types.js').PredicateContext} PredicateContext
  */
 
@@ -110,41 +109,50 @@ export function isList(value, ctx) {
 }
 
 /**
- * The members of an iterable value, through its iterator as captured or as it stands.
- *
- * @param {unknown} value - an array, or an iterable `isList` holds for
- * @param {PredicateContext} ctx
- * @returns {Iterable<unknown>}
- */
-export function members(value, ctx) {
-    if (isArray(value)) return value;
-    const iteratorMethod = /** @type {Function} */ (ctx.reader.iteratorMethod(value));
-    return {
-        [Symbol.iterator]: () => /** @type {Iterator<unknown>} */ (ReflectApply(iteratorMethod, value, [])),
-    };
-}
-
-/**
- * Iterate the members of an iterable value lazily, as a list.
+ * Iterate the members of an iterable value lazily, as a list: an array by index, so a page override of
+ * `Array.prototype[Symbol.iterator]` is not called, and any other value through its iterator as
+ * captured or as it stands. A throw from the page, such as its iterator's, gives a `Failure` and ends
+ * the list.
  *
  * @param {unknown} value - an array, or an iterable `isList` holds for
  * @param {PredicateContext} ctx
  * @returns {Generator<unknown>}
  */
 export function* eachMember(value, ctx) {
-    yield* each(members(value, ctx));
-}
-
-/**
- * Iterate an array by index, so a page override of `Array.prototype[Symbol.iterator]` is not called.
- *
- * @param {Iterable<unknown>} items
- * @returns {Iterable<unknown>}
- */
-function* each(items) {
-    if (isArray(items)) {
-        for (let i = 0; i < items.length; i++) yield items[i];
-    } else {
-        yield* items;
+    if (isArray(value)) {
+        for (let i = 0; ; i++) {
+            /** @type {unknown} */
+            let item;
+            try {
+                if (i >= value.length) return;
+                item = value[i];
+            } catch (e) {
+                yield new Failure(errorName(e));
+                return;
+            }
+            yield item;
+        }
+    }
+    const iteratorMethod = ctx.reader.iteratorMethod(value);
+    if (typeof iteratorMethod !== 'function') {
+        // The page can change the value between `isList` and here
+        yield isFailure(iteratorMethod) ? iteratorMethod : new Failure('TypeError');
+        return;
+    }
+    /** @type {Iterator<unknown> | undefined} */
+    let iterator;
+    for (;;) {
+        /** @type {unknown} */
+        let item;
+        try {
+            iterator ??= /** @type {Iterator<unknown>} */ (ReflectApply(iteratorMethod, value, []));
+            const next = iterator.next();
+            if (next.done) return;
+            item = next.value;
+        } catch (e) {
+            yield new Failure(errorName(e));
+            return;
+        }
+        yield item;
     }
 }
