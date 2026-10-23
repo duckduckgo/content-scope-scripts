@@ -201,7 +201,7 @@ function testIn(entries, subject, ctx) {
         }
         const value = ctx.read(entry.operand);
         if (isFailure(value)) return value;
-        const items = ctx.items(value, 'in');
+        const items = ctx.items(value);
         if (isFailure(items)) return items;
         if (!items) {
             if (subject === value) found = true;

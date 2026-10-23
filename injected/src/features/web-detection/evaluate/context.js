@@ -1,6 +1,6 @@
 import { isFailure } from '../model/core.js';
-import { isItemBuffer, isList } from '../model/lists.js';
-import { allItems, evaluate, evaluateOccurrence, listOf, single } from './evaluate.js';
+import { asList, isItemBuffer } from '../model/lists.js';
+import { allItems, evaluate, evaluateOccurrence, single } from './evaluate.js';
 import { TaskReadCache } from './task-read-cache.js';
 
 /**
@@ -104,14 +104,11 @@ export class EvaluationContext {
 
     /**
      * @param {unknown} value - a value read, such as an operand of `in`
-     * @param {string} operator
      * @returns {unknown[] | Failure | undefined} the items of a list, or `undefined` for any other value
      */
-    items(value, operator) {
-        const list = isList(value, this);
-        if (isFailure(list)) return list;
-        if (!list) return undefined;
-        return allItems(listOf(value, operator, this));
+    items(value) {
+        const list = asList(value, this);
+        return list && allItems(list);
     }
 
     /**
