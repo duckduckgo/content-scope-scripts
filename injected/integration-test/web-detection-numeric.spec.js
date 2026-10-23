@@ -192,7 +192,7 @@ test.describe('WebDetection numeric detectors', () => {
         await page.waitForFunction(() => [...document.images].every((img) => img.complete));
 
         expect(await breakageReport(collector)).toEqual([
-            { detectorId: 'regionBreakage.comments_empty', detected: true, data: { region: 'empty', brokenImages: 1 } },
+            { detectorId: 'regionBreakage.comments_empty', data: { region: 'empty', brokenImages: 1 } },
         ]);
         expect(await notifications(collector, 'webEvent')).toEqual([]);
     });
@@ -204,9 +204,7 @@ test.describe('WebDetection numeric detectors', () => {
         const collector = await setup(page, testInfo.project.use, [['regionBreakage', 'comments_empty']], onAnyPage);
         await navigateTo(page, '/web-detection/pages/numeric-region-filled.html');
 
-        expect(await breakageReport(collector)).toEqual([
-            { detectorId: 'regionBreakage.comments_empty', detected: true, data: { region: 'filled' } },
-        ]);
+        expect(await breakageReport(collector)).toEqual([{ detectorId: 'regionBreakage.comments_empty', data: { region: 'filled' } }]);
     });
 
     test('pageLoad.load_time sends no event on a fast load, writes no breakage entry, and finishes', async ({ page }, testInfo) => {
@@ -232,7 +230,6 @@ test.describe('WebDetection numeric detectors', () => {
         expect(await notifications(collector, 'webEvent')).toEqual([]);
         expect(entry).toEqual({
             detectorId: 'pageLoad.navigation',
-            detected: true,
             data: {
                 loadEventEnd: expect.any(Number),
                 elapsed: expect.any(Number),

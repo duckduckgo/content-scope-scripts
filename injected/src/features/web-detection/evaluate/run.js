@@ -28,7 +28,7 @@ import { evaluateOccurrence } from './evaluate.js';
  *
  * @typedef {object} BreakageEntry
  * @property {string} detectorId
- * @property {true} [detected] - once a `breakageReportData` action has written
+ * @property {true} [detected] - once `match` has held and a `breakageReportData` action has written
  * @property {PayloadData} [data]
  * @property {Record<string, RunFailure>} [errors] - by the config path of the expression the failure arose at, or `parse`
  */
@@ -107,7 +107,7 @@ function evaluatePart(node, state, ctx, run) {
 
 /**
  * The detector's breakage entry, or `undefined` when no `breakageReportData` action has run and no
- * failure is recorded.
+ * failure is recorded. A detector with no `match` writes its data but is never `detected`.
  *
  * @param {string} detectorId
  * @param {DetectorState} state
@@ -117,7 +117,7 @@ export function breakageEntry(detectorId, state) {
     if (!state.written && state.errors.size === 0) return undefined;
     /** @type {BreakageEntry} */
     const entry = { detectorId };
-    if (state.written) entry.detected = true;
+    if (state.written && state.done) entry.detected = true;
     if (objectKeys(state.data).length > 0) entry.data = { ...state.data };
     if (state.errors.size > 0) {
         /** @type {Record<string, RunFailure>} */
