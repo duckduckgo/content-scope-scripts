@@ -65,6 +65,24 @@ export function thrownFailure(thrown) {
 }
 
 /**
+ * A thrown value described for debugging, with none of its code called: a primitive as a string, an
+ * object's own string `message`, else the name of its constructor.
+ *
+ * @param {unknown} thrown
+ * @returns {string}
+ */
+export function thrownMessage(thrown) {
+    if (thrown === null || (typeof thrown !== 'object' && typeof thrown !== 'function')) return String(thrown);
+    try {
+        const message = getOwnPropertyDescriptor(thrown, 'message')?.value;
+        if (typeof message === 'string') return message;
+    } catch {
+        // A proxy's traps may throw
+    }
+    return errorName(thrown) ?? 'unknown';
+}
+
+/**
  * The name of a thrown value's constructor, read from own data properties through captured globals so
  * no page getter is called.
  *

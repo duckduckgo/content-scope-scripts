@@ -1,5 +1,5 @@
 import { objectKeys } from '../../../captured-globals.js';
-import { isFailure, isScalar } from '../model/core.js';
+import { isFailure, isScalar, thrownMessage } from '../model/core.js';
 import { evaluateOccurrence } from './evaluate.js';
 
 /**
@@ -30,7 +30,7 @@ import { evaluateOccurrence } from './evaluate.js';
  * @property {string} detectorId
  * @property {true} [detected] - once `match` has held and a `breakageReportData` action has written
  * @property {PayloadData} [data]
- * @property {Record<string, RunFailure>} [errors] - by the config path of the expression the failure arose at, or `parse`
+ * @property {Record<string, RunFailure>} [errors] - by the config path of the expression the failure arose at, `parse`, or `run` for an error outside any expression
  */
 
 /**
@@ -98,7 +98,7 @@ function evaluatePart(node, state, ctx, run) {
     } catch (e) {
         path = ctx.errorAt?.path ?? node.path;
         failure = 'error';
-        run.error = e instanceof Error ? e.message : String(e);
+        run.error = thrownMessage(e);
     }
     state.errors.set(path, failure);
     run.failedAt = path;

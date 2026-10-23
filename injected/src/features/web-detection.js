@@ -245,6 +245,25 @@ export default class WebDetection extends ContentFeature {
     }
 
     /**
+     * Run a single detector for a report. A throw that escapes the run is recorded under `run`, so the
+     * report still holds the other detectors' entries.
+     *
+     * @param {DetectorEntry} detector
+     * @param {RunDetectionOptions} options
+     * @param {TaskReadCache} task
+     */
+    _runReportDetector(detector, options, task) {
+        try {
+            this._runDetector(detector, options, task);
+        } catch (e) {
+            this._stateOf(detector.detectorId).errors.set('run', 'error');
+            if (this.isDebug) {
+                this.log.error(`Error running detector ${detector.detectorId}:`, e);
+            }
+        }
+    }
+
+    /**
      * Fire a web event via webEvents.
      *
      * @param {string} type
@@ -293,7 +312,7 @@ export default class WebDetection extends ContentFeature {
 
         for (const detector of this._eachDetector()) {
             const runs = this._shouldRunDetector(detector.config, options);
-            if (runs) this._runDetector(detector, options, task);
+            if (runs) this._runReportDetector(detector, options, task);
 
             const compiled = this.#compiled.get(detector.detectorId);
             if (compiled && 'error' in compiled) {

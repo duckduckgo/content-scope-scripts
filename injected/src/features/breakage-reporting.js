@@ -46,9 +46,13 @@ export default class BreakageReporting extends ContentFeature {
             }
 
             // Run webDetection detectors for the breakageReport trigger
-            const webDetectionResults = await this.callFeatureMethod('webDetection', 'runDetectors', { trigger: 'breakageReport' });
-            if (!(webDetectionResults instanceof CallFeatureMethodError) && webDetectionResults.length > 0) {
-                breakageDataPayload.webDetection = webDetectionResults;
+            try {
+                const webDetectionResults = await this.callFeatureMethod('webDetection', 'runDetectors', { trigger: 'breakageReport' });
+                if (!(webDetectionResults instanceof CallFeatureMethodError) && webDetectionResults.length > 0) {
+                    breakageDataPayload.webDetection = webDetectionResults;
+                }
+            } catch {
+                // A throw from webDetection leaves its results out, and the rest of the report is still sent
             }
 
             // Runs detector functions directly using webInterferenceDetection's config.
