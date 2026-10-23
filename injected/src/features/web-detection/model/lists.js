@@ -34,6 +34,14 @@ export class ItemBuffer {
     #failedWhole = false;
 
     /**
+     * @param {object} value
+     * @returns {boolean}
+     */
+    static has(value) {
+        return #iterator in value;
+    }
+
+    /**
      * @param {Iterator<unknown> | Failure} iterator
      * @param {ListShortcuts} [shortcuts]
      */
@@ -76,15 +84,29 @@ export class ItemBuffer {
 }
 
 /**
- * Whether a value is a list: an `ItemBuffer`, or an iterable other than a string or a node.
+ * A brand check, so no trap of a page's Proxy is called.
+ *
+ * @param {unknown} value
+ * @returns {value is ItemBuffer}
+ */
+export function isItemBuffer(value) {
+    return typeof value === 'object' && value !== null && ItemBuffer.has(value);
+}
+
+/**
+ * Whether a value is a list: an `ItemBuffer`, or an iterable other than a string or a node. A page's
+ * Proxy trap that throws on the lookup fails.
  *
  * @param {unknown} value
  * @param {PredicateContext} ctx
- * @returns {boolean}
+ * @returns {boolean | Failure}
  */
 export function isList(value, ctx) {
-    if (value instanceof ItemBuffer || isArray(value)) return true;
-    return ctx.reader.iteratorMethod(value) !== undefined && !ctx.reader.isNode(value);
+    if (isItemBuffer(value) || isArray(value)) return true;
+    const iteratorMethod = ctx.reader.iteratorMethod(value);
+    if (iteratorMethod === undefined || isFailure(iteratorMethod)) return iteratorMethod ?? false;
+    const node = ctx.reader.isNode(value);
+    return isFailure(node) ? node : !node;
 }
 
 /**

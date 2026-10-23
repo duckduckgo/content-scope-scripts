@@ -12,6 +12,8 @@
 import { isArray, objectKeys } from '../../../captured-globals.js';
 
 export class Failure {
+    #brand = true;
+
     /**
      * @param {string} [error] - for a throw, the name of the thrown value's constructor, for debugging
      * @param {string} [path] - the config path of the expression it arose at
@@ -32,14 +34,24 @@ export class Failure {
     at(path) {
         return this.path === undefined ? new Failure(this.error, path) : this;
     }
+
+    /**
+     * @param {object} value
+     * @returns {boolean}
+     */
+    static has(value) {
+        return #brand in value;
+    }
 }
 
 /**
+ * A brand check, so no trap of a page's Proxy is called.
+ *
  * @param {unknown} value
  * @returns {value is Failure}
  */
 export function isFailure(value) {
-    return value instanceof Failure;
+    return typeof value === 'object' && value !== null && Failure.has(value);
 }
 
 /** Config that does not fit the page. */

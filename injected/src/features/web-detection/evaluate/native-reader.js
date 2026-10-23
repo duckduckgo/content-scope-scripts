@@ -141,8 +141,8 @@ export class NativeReader {
      * @returns {unknown} the value, or a `Failure`
      */
     read(target, name) {
-        const record = this._captured(target, name);
         try {
+            const record = this._captured(target, name);
             if (!record) {
                 // A primitive is read from its prototype, with itself as the getter's receiver
                 const start = typeof target === 'object' || typeof target === 'function' ? target : getPrototypeOf(target);
@@ -158,7 +158,7 @@ export class NativeReader {
 
     /**
      * Call a method. A name whose value is not a function fails with `TypeError`, as the call throws in
-     * JS, and so does a method that throws.
+     * JS. A method that throws fails, and so does a page's Proxy trap that throws.
      *
      * @param {unknown} target - any value but `null` and `undefined`
      * @param {string} name
@@ -166,10 +166,10 @@ export class NativeReader {
      * @returns {unknown} the result, or a `Failure`
      */
     call(target, name, args) {
-        const record = this._find(target, name);
-        const method = record && 'value' in record ? record.value : undefined;
-        if (typeof method !== 'function') return new Failure('TypeError');
         try {
+            const record = this._find(target, name);
+            const method = record && 'value' in record ? record.value : undefined;
+            if (typeof method !== 'function') return new Failure('TypeError');
             return ReflectApply(method, target, args);
         } catch (e) {
             return new Failure(errorName(e));
@@ -177,26 +177,35 @@ export class NativeReader {
     }
 
     /**
-     * Whether a value is a DOM node: the global's `Node.prototype` is on its prototype chain.
+     * Whether a value is a DOM node: the global's `Node.prototype` is on its prototype chain. A page's
+     * Proxy trap that throws fails.
      *
      * @param {unknown} target
-     * @returns {boolean}
+     * @returns {boolean | Failure}
      */
     isNode(target) {
-        return hasPrototype(target, this.#nodePrototype ? [this.#nodePrototype] : []);
+        try {
+            return hasPrototype(target, this.#nodePrototype ? [this.#nodePrototype] : []);
+        } catch (e) {
+            return new Failure(errorName(e));
+        }
     }
 
     /**
-     * The iterator method of a value, when it has one.
+     * The iterator method of a value, when it has one. A page's Proxy trap that throws fails.
      *
      * @param {unknown} target
-     * @returns {Function | undefined}
+     * @returns {Function | undefined | Failure}
      */
     iteratorMethod(target) {
         if (target === null || target === undefined || typeof target === 'string') return undefined;
-        const record = this._find(target, Symbol.iterator);
-        const method = record && 'value' in record ? record.value : undefined;
-        return typeof method === 'function' ? method : undefined;
+        try {
+            const record = this._find(target, Symbol.iterator);
+            const method = record && 'value' in record ? record.value : undefined;
+            return typeof method === 'function' ? method : undefined;
+        } catch (e) {
+            return new Failure(errorName(e));
+        }
     }
 }
 
