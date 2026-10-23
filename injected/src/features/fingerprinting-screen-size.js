@@ -1,6 +1,8 @@
 import ContentFeature from '../content-feature';
 
 export default class FingerprintingScreenSize extends ContentFeature {
+    initImmediately = true;
+
     origPropertyValues = {};
 
     init() {
