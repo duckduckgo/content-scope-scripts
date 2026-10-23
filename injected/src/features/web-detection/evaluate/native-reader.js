@@ -1,5 +1,5 @@
 import { getOwnPropertyDescriptor, getOwnPropertyNames, getPrototypeOf, ReflectApply, ReflectGet } from '../../../captured-globals.js';
-import { Failure, errorName } from '../model/core.js';
+import { Failure, thrownFailure } from '../model/core.js';
 
 /**
  * @typedef {import('../model/types.js').Reader} Reader
@@ -133,6 +133,18 @@ export class NativeReader {
     }
 
     /**
+     * The data value for a key on the target's chain, as `_find` gives it: for a method, the function.
+     *
+     * @param {unknown} target - any value but `null` and `undefined`
+     * @param {PropertyKey} key
+     * @returns {unknown}
+     */
+    _method(target, key) {
+        const record = this._find(target, key);
+        return record && 'value' in record ? record.value : undefined;
+    }
+
+    /**
      * Read one property, as JS reads it: a name present nowhere, or an accessor with no getter, reads
      * `undefined`. A getter that throws fails, and so does a page's Proxy trap that throws.
      *
@@ -152,7 +164,7 @@ export class NativeReader {
             if (!record.get) return undefined;
             return ReflectApply(record.get, target, []);
         } catch (e) {
-            return new Failure(errorName(e));
+            return thrownFailure(e);
         }
     }
 
@@ -167,12 +179,11 @@ export class NativeReader {
      */
     call(target, name, args) {
         try {
-            const record = this._find(target, name);
-            const method = record && 'value' in record ? record.value : undefined;
+            const method = this._method(target, name);
             if (typeof method !== 'function') return new Failure('TypeError');
             return ReflectApply(method, target, args);
         } catch (e) {
-            return new Failure(errorName(e));
+            return thrownFailure(e);
         }
     }
 
@@ -187,7 +198,7 @@ export class NativeReader {
         try {
             return hasPrototype(target, this.#nodePrototype ? [this.#nodePrototype] : []);
         } catch (e) {
-            return new Failure(errorName(e));
+            return thrownFailure(e);
         }
     }
 
@@ -200,11 +211,10 @@ export class NativeReader {
     iteratorMethod(target) {
         if (target === null || target === undefined || typeof target === 'string') return undefined;
         try {
-            const record = this._find(target, Symbol.iterator);
-            const method = record && 'value' in record ? record.value : undefined;
+            const method = this._method(target, Symbol.iterator);
             return typeof method === 'function' ? method : undefined;
         } catch (e) {
-            return new Failure(errorName(e));
+            return thrownFailure(e);
         }
     }
 }
