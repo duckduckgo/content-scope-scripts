@@ -704,6 +704,19 @@ describe('WebDetection conditions', () => {
                     }),
                 ).toBe(true);
             });
+
+            it('should match an element a later body accepts after an earlier body rejects it', () => {
+                expect(
+                    matchInDOM('<div class="modal"></div>', {
+                        element: [{ selector: '.modal', visibility: 'hidden' }, { selector: '.modal' }],
+                    }),
+                ).toBe(true);
+                expect(
+                    matchInDOM('<div class="modal"></div>', {
+                        element: [{ selector: '.modal', where: { id: 'other' } }, { selector: '.modal' }],
+                    }),
+                ).toBe(true);
+            });
         });
 
         describe('all operator', () => {

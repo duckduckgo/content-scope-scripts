@@ -36,7 +36,9 @@ function isPresenceOnly(body) {
 }
 
 /**
- * Elements matching a selector, in document order, distinct across selectors and roots.
+ * Elements matching a selector, in document order, each once across a body's selectors and roots.
+ * Several bodies give their elements one body after another, so an element two bodies select is
+ * there twice.
  *
  * `selector` (disj): Array of CSS selectors (or string representing a single selector).
  *   Equivalent to `selector: ".a, .b"` for `selector: [".a", ".b"]`.
@@ -119,8 +121,6 @@ function passesVisibility(element, visibility) {
  * @returns {Generator<unknown>}
  */
 function* selectElements(bodies, ctx) {
-    /** @type {Set<Element> | undefined} */
-    const seen = bodies.length > 1 ? new Set() : undefined;
     for (const body of bodies) {
         const roots = resolveRoots(body.root, ctx);
         if (isFailure(roots)) {
@@ -128,26 +128,20 @@ function* selectElements(bodies, ctx) {
             return;
         }
         // A failure ends the buffer reading this, so later bodies are not read
-        yield* selectItems(visibleElements(body, roots, seen), body, ctx);
+        yield* selectItems(visibleElements(body, roots), body, ctx);
     }
 }
 
 /**
- * The elements a body's selector matches in its roots that pass `visibility`, skipping any `seen`
- * holds.
+ * The elements a body's selector matches in its roots that pass `visibility`.
  *
  * @param {ElementBody} body
  * @param {ParentNode[]} roots
- * @param {Set<Element> | undefined} seen - the elements earlier bodies gave
  * @returns {Generator<Element>}
  */
-function* visibleElements(body, roots, seen) {
+function* visibleElements(body, roots) {
     for (const root of roots) {
         for (const element of root.querySelectorAll(body.selector)) {
-            if (seen) {
-                if (seen.has(element)) continue;
-                seen.add(element);
-            }
             if (passesVisibility(element, body.visibility)) yield element;
         }
     }

@@ -340,6 +340,21 @@ describe('WebDetection predicates', () => {
                 ),
             ).toBe(true);
         });
+
+        it('gives the elements of several bodies one body after another, each with its own field', () => {
+            const html = '<img id="a" class="x"><img id="b">';
+            const bodies = [{ selector: 'img', where: { id: 'b' } }, { selector: 'img.x' }];
+            expect(holds(html, { element: bodies, using: 'length', is: 2 })).toBe(true);
+            expect(holds(html, { element: [...bodies].reverse(), using: 'length', is: 2 })).toBe(true);
+            const overlapping = {
+                element: [
+                    { selector: 'img', field: 'id' },
+                    { selector: 'img.x', field: 'className' },
+                ],
+            };
+            expect(holds(html, { expr: overlapping, using: 'length', is: 3 })).toBe(true);
+            expect(holds(html, { expr: overlapping, using: '2', is: 'x' })).toBe(true);
+        });
     });
 
     describe('arguments', () => {
