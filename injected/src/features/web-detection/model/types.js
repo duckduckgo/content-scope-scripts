@@ -28,9 +28,10 @@
 
 /**
  * A `using`, `where` or `field`, which binds `self` to each value it reads from or tests. `node` is its
- * item node, created when an expression inside reads `self`.
+ * item node, created when an expression inside reads `self`. `framed` is set when an expression inside
+ * is computed per item, so binding it makes a frame.
  *
- * @typedef {{ node?: ItemNode }} ItemBinder
+ * @typedef {{ node?: ItemNode, framed?: boolean }} ItemBinder
  */
 
 /**

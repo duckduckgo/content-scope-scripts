@@ -113,8 +113,8 @@ export class EvaluationContext {
     }
 
     /**
-     * Run `fn` with `self` of a `using`, `where` or `field` bound to `value`. A binder no expression
-     * reads `self` of binds nothing.
+     * Run `fn` with `self` of a `using`, `where` or `field` bound to `value`. A binder with no expression
+     * inside computed per item binds nothing.
      *
      * @template T
      * @param {ItemBinder} binder
@@ -123,7 +123,7 @@ export class EvaluationContext {
      * @returns {T}
      */
     bind(binder, value, fn) {
-        if (!binder.node) return fn();
+        if (!binder.framed) return fn();
         // Frames are keyed by binder: a list may be pulled from inside another binder's frame
         const previous = this.frames.get(binder);
         this.frames.set(binder, { value, memo: new Map() });

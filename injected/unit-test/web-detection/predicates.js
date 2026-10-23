@@ -833,6 +833,14 @@ describe('WebDetection predicates', () => {
             expect(ctx.events.length).toBe(1);
         });
 
+        it('computes an expression over a ref inside a where, field or using that reads no self', () => {
+            const defined = (/** @type {unknown} */ n) => run('', { actions: [{ define: { lim: 1 } }, { define: { n } }] }).names.get('n');
+            const overLim = (/** @type {number} */ add) => ({ sum: [{ ref: 'lim' }, add] });
+            expect(defined({ api: { ...items, where: { a: { gt: overLim(0) } } }, using: 'length' })).toBe(2);
+            expect(defined({ sum: { api: { ...items, field: overLim(1) } } })).toBe(6);
+            expect(defined({ expr: { api: items, using: 'length' }, using: overLim(1) })).toBe(2);
+        });
+
         it('fails the source on a failed read, unless the test reads it with fails', () => {
             const install = (/** @type {any} */ w) => {
                 const throwing = Object.defineProperty({}, 'v', {
