@@ -247,6 +247,29 @@ describe('WebDetection sources', () => {
             expect(holds('', { api: { path: 'trapped.anything' }, is: { fails: true } }, { afterCapture })).toBe(true);
         });
 
+        it('fails when a page Proxy throws on a prototype or descriptor lookup', () => {
+            const detected = (/** @type {string} */ trap, /** @type {unknown} */ match) => {
+                const afterCapture = (/** @type {any} */ w) => {
+                    w.trapped = new Proxy(
+                        {},
+                        {
+                            [trap]: () => {
+                                throw new w.TypeError('trapped');
+                            },
+                        },
+                    );
+                };
+                return run('', { match, actions: REPORT }, { afterCapture }).detected;
+            };
+            expect(detected('getPrototypeOf', { api: 'trapped.anything' })).toBe('aborted');
+            for (const trap of ['getPrototypeOf', 'getOwnPropertyDescriptor']) {
+                expect(detected(trap, { api: { path: 'trapped.anything', args: [] } })).toBe('aborted');
+                expect(detected(trap, { api: 'document.title', is: { in: { api: 'trapped' } } })).toBe('aborted');
+                expect(detected(trap, { api: { path: 'trapped', where: { a: 1 } }, using: 'length', is: 0 })).toBe('aborted');
+                expect(detected(trap, { element: { selector: 'p', root: { api: 'trapped' } } })).toBe('aborted');
+            }
+        });
+
         it('skips a global whose descriptor read throws, and captures from the rest', () => {
             // As a cross-origin frame's WindowProxy, reached as `window[0]`, throws on every read
             const install = (/** @type {any} */ w) => {

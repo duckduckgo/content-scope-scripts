@@ -1,5 +1,5 @@
 import { isFailure } from '../model/core.js';
-import { ItemBuffer, isList } from '../model/lists.js';
+import { isItemBuffer, isList } from '../model/lists.js';
 import { allItems, evaluate, evaluateOccurrence, listOf, single } from './evaluate.js';
 import { TaskReadCache } from './task-read-cache.js';
 
@@ -66,7 +66,7 @@ export class EvaluationContext {
     operand(operand) {
         const node = /** @type {Node} */ (operand);
         const value = evaluate(node, node.position, this);
-        return value instanceof ItemBuffer ? single(value) : value;
+        return isItemBuffer(value) ? single(value) : value;
     }
 
     /**
@@ -92,7 +92,7 @@ export class EvaluationContext {
      */
     arg(expression) {
         const value = this.read(expression);
-        if (!(value instanceof ItemBuffer)) return value;
+        if (!isItemBuffer(value)) return value;
         const items = allItems(value);
         if (isFailure(items)) return items;
         // Copied by index: a method may change its argument, and the buffer is shared
@@ -108,7 +108,9 @@ export class EvaluationContext {
      * @returns {unknown[] | Failure | undefined} the items of a list, or `undefined` for any other value
      */
     items(value, operator) {
-        if (!isList(value, this)) return undefined;
+        const list = isList(value, this);
+        if (isFailure(list)) return list;
+        if (!list) return undefined;
         return allItems(listOf(value, operator, this));
     }
 

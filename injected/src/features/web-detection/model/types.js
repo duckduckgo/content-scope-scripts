@@ -121,8 +121,8 @@
  * @property {() => void} beginRun - start a run
  * @property {(target: unknown, name: string) => unknown} read - one property, or a `Failure`
  * @property {(target: unknown, name: string, args: readonly unknown[]) => unknown} call - a method's result, or a `Failure`
- * @property {(target: unknown) => boolean} isNode - whether a value is a DOM node
- * @property {(target: unknown) => Function | undefined} iteratorMethod - the iterator method of a value, when it has one
+ * @property {(target: unknown) => boolean | Failure} isNode - whether a value is a DOM node, or a `Failure`
+ * @property {(target: unknown) => Function | undefined | Failure} iteratorMethod - the iterator method of a value, when it has one, or a `Failure`
  */
 
 export {};
