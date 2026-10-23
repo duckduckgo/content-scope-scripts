@@ -109,6 +109,7 @@ const CORE_FILES = new Set([
     'injected/src/features/web-detection/compile/compile.js',
     'injected/src/features/web-detection/compile/detector-config.js',
     'injected/src/features/web-detection/compile/positions.js',
+    'injected/src/features/web-detection/evaluate/breakage-entries.js',
     'injected/src/features/web-detection/evaluate/context.js',
     'injected/src/features/web-detection/evaluate/evaluate.js',
     'injected/src/features/web-detection/evaluate/native-reader.js',

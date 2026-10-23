@@ -1,7 +1,5 @@
-import { parseDetectors } from '../../src/features/web-detection/compile/detector-config.js';
-import { TaskReadCache } from '../../src/features/web-detection/evaluate/task-read-cache.js';
 import WebDetection from '../../src/features/web-detection.js';
-import { BROKEN, FAILING, IMG, RENDERED, brokenFonts, fonts, imageState, renderedText, run, timeline } from './support.js';
+import { BROKEN, FAILING, IMG, RENDERED, brokenFonts, fonts, imageState, renderedText, report, run, timeline } from './support.js';
 
 describe('WebDetection detectors', () => {
     describe('the five detectors', () => {
@@ -35,8 +33,8 @@ describe('WebDetection detectors', () => {
             const html = IMG('data-complete') + IMG('data-complete') + IMG('data-complete data-width="4"') + '<img data-complete>';
             const result = run(html, detector, { install: imageState });
             expect(result.detected).toBe(true);
-            expect(result.ctx.events).toEqual([{ type: 'brokenImages_count2to4' }]);
-            expect(result.ctx.entry.data).toEqual({ brokenImages: 2, brokenShare: 0.5 });
+            expect(result.events).toEqual([{ type: 'brokenImages_count2to4' }]);
+            expect(result.entry?.data).toEqual({ brokenImages: 2, brokenShare: 0.5 });
         });
 
         it('reports a slow page load once, refreshing its breakage data on every run until the load ends', () => {
@@ -79,18 +77,18 @@ describe('WebDetection detectors', () => {
                 },
             };
             const slow = run('', slowLoad, { install: timeline([{ name: 'n', entryType: 'navigation', loadEventEnd: 9000 }]) });
-            expect(slow.ctx.events).toEqual([{ type: 'pageLoadTime_load8sPlus' }]);
+            expect(slow.events).toEqual([{ type: 'pageLoadTime_load8sPlus' }]);
             expect(slow.ctx.detectorNames.get('this.finished')).toBe(true);
             const fast = run('', slowLoad, { install: timeline([{ name: 'n', entryType: 'navigation', loadEventEnd: 900 }]) });
-            expect(fast.ctx.events).toEqual([]);
-            expect(fast.ctx.entry.data).toEqual({ loadEventEnd: 900 });
+            expect(fast.events).toEqual([]);
+            expect(fast.entry?.data).toEqual({ loadEventEnd: 900 });
             const stillLoading = run('', slowLoad, {
                 install: (w) => {
                     timeline([{ name: 'n', entryType: 'navigation', loadEventEnd: 0 }])(w);
                     Object.defineProperty(w.Performance.prototype, 'now', { configurable: true, writable: true, value: () => 16000 });
                 },
             });
-            expect(stillLoading.ctx.events).toEqual([{ type: 'pageLoadTime_loadLoading' }]);
+            expect(stillLoading.events).toEqual([{ type: 'pageLoadTime_loadLoading' }]);
             expect(stillLoading.ctx.detectorNames.get('this.finished')).toBe(false);
         });
 
@@ -132,7 +130,7 @@ describe('WebDetection detectors', () => {
                 failedSheet(w);
                 fonts(['error', 'loaded'])(w);
             };
-            expect(run('', detector, { install: both }).ctx.entry.data).toEqual({ failedStylesheets: 1, failedFontFaces: 1 });
+            expect(run('', detector, { install: both }).entry?.data).toEqual({ failedStylesheets: 1, failedFontFaces: 1 });
             // A `document.fonts` that throws fails `match`, since every operand is evaluated
             const throwingFonts = (/** @type {any} */ w) => {
                 failedSheet(w);
@@ -145,13 +143,13 @@ describe('WebDetection detectors', () => {
                 loadedSheet(w);
                 fonts(['error'])(w);
             };
-            expect(run('', detector, { install: fontOnly }).ctx.entry.data).toEqual({ failedStylesheets: 0, failedFontFaces: 1 });
+            expect(run('', detector, { install: fontOnly }).entry?.data).toEqual({ failedStylesheets: 0, failedFontFaces: 1 });
             // An engine without responseStatus counts 0, a reading
             const noStatus = (/** @type {any} */ w) => {
                 timeline([{ name: 'a.css', entryType: 'resource', initiatorType: 'link' }], { missing: ['responseStatus'] })(w);
                 fonts(['error'])(w);
             };
-            expect(run('', detector, { install: noStatus }).ctx.entry.data).toEqual({ failedStylesheets: 0, failedFontFaces: 1 });
+            expect(run('', detector, { install: noStatus }).entry?.data).toEqual({ failedStylesheets: 0, failedFontFaces: 1 });
         });
 
         it('reports an empty known region', () => {
@@ -189,8 +187,7 @@ describe('WebDetection detectors', () => {
                 ],
             };
             const entry = (/** @type {string} */ html) => {
-                const { ctx } = run(html, detector, { install: imageState });
-                return ctx.entry.written ? ctx.entry.data : undefined;
+                return run(html, detector, { install: imageState }).entry?.data;
             };
             expect(entry('')).toBeUndefined();
             expect(entry('<div id="comments">hi</div>')).toEqual({ region: 'filled' });
@@ -212,8 +209,8 @@ describe('WebDetection detectors', () => {
                 ],
             };
             const result = run('<h1>Page not found</h1><p>404 Not Found</p><script>page not found</script>', detector);
-            expect(result.ctx.entry.data).toEqual({ keywordCount: 2 });
-            expect(result.ctx.events).toEqual([{ type: 'errorPhraseCount_count2Plus' }]);
+            expect(result.entry?.data).toEqual({ keywordCount: 2 });
+            expect(result.events).toEqual([{ type: 'errorPhraseCount_count2Plus' }]);
         });
     });
 
@@ -254,33 +251,29 @@ describe('WebDetection detectors', () => {
             const instance = createInstance({
                 g: { d: { match: aborting, actions: { breakageReportData: { data: { x: { value: 1 } } } } } },
             });
-            expect(instance.runDetectors({ trigger: 'breakageReport' })).toEqual([
-                { detectorId: 'g.d', errors: { 'match.api': 'aborted' } },
-            ]);
+            expect(report(instance)).toEqual([{ detectorId: 'g.d', errors: { 'match.api': 'aborted' } }]);
         });
 
         it('lists a detector with no breakageReportData action once a run fails', () => {
             const instance = createInstance({ g: { d: { actions: [{ if: aborting, then: { fireEvent: { type: 't' } } }] } } });
-            expect(instance.runDetectors({ trigger: 'breakageReport' })).toEqual([
-                { detectorId: 'g.d', errors: { 'actions.0.if.api': 'aborted' } },
-            ]);
+            expect(report(instance)).toEqual([{ detectorId: 'g.d', errors: { 'actions.0.if.api': 'aborted' } }]);
         });
 
         it('lists no entry for a detector with no breakageReportData action that has not failed', () => {
             const instance = createInstance({ g: { d: { match: false, actions: { fireEvent: { type: 't' } } } } });
-            expect(instance.runDetectors({ trigger: 'breakageReport' })).toEqual([]);
+            expect(report(instance)).toEqual([]);
         });
 
         it('adds breakageReportData data on a match', () => {
             const instance = createInstance({ g: { d: { match: true, actions: { breakageReportData: { data: { x: { value: 1 } } } } } } });
-            expect(instance.runDetectors({ trigger: 'breakageReport' })).toEqual([{ detectorId: 'g.d', detected: true, data: { x: 1 } }]);
+            expect(report(instance)).toEqual([{ detectorId: 'g.d', detected: true, data: { x: 1 } }]);
         });
 
         it('returns error for a detector that fails to parse', () => {
             const instance = createInstance({
                 g: { d: { match: { element: { selector: 'img' }, using: 'length' }, actions: { breakageReportData: {} } } },
             });
-            expect(instance.runDetectors({ trigger: 'breakageReport' })).toEqual([{ detectorId: 'g.d', errors: { parse: 'error' } }]);
+            expect(report(instance)).toEqual([{ detectorId: 'g.d', errors: { parse: 'error' } }]);
         });
 
         it('fires nothing on an aborted `match`, and runs again on the next trigger', async () => {
@@ -288,9 +281,8 @@ describe('WebDetection detectors', () => {
             const instance = createInstance(detectors);
             spyOn(instance, 'callFeatureMethod').and.resolveTo(undefined);
             const run = spyOn(instance, '_runDetector').and.callThrough();
-            const detector = { groupName: 'g', detectorId: 'g.d', config: parseDetectors(/** @type {any} */ (detectors)).g.d };
-            instance._runAutoDetector(detector, new TaskReadCache());
-            instance._runAutoDetector(detector, new TaskReadCache());
+            instance.runDetectors({ trigger: 'breakageReport' });
+            instance.runDetectors({ trigger: 'breakageReport' });
             await Promise.resolve();
             expect(run).toHaveBeenCalledTimes(2);
             expect(instance.callFeatureMethod).not.toHaveBeenCalled();
@@ -302,10 +294,7 @@ describe('WebDetection detectors', () => {
             };
             const instance = createInstance(detectors);
             spyOn(instance, 'callFeatureMethod').and.resolveTo(undefined);
-            instance._runAutoDetector(
-                { groupName: 'g', detectorId: 'g.d', config: parseDetectors(/** @type {any} */ (detectors)).g.d },
-                new TaskReadCache(),
-            );
+            instance.runDetectors({ trigger: 'breakageReport' });
             await Promise.resolve();
             // @ts-expect-error - Jasmine spy type inference doesn't match callFeatureMethod's overloaded signature
             expect(instance.callFeatureMethod).toHaveBeenCalledWith('webEvents', 'fireEvent', { type: 't', data: { x: 'two' } });

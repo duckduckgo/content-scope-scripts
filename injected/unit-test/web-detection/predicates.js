@@ -858,8 +858,8 @@ describe('WebDetection predicates', () => {
 
         it('runs an action reading no self once per evaluation of the source', () => {
             const where = { if: true, then: [{ fireEvent: { type: 'item' } }, true], else: false };
-            const { ctx } = run('', { actions: { define: { n: { api: { ...items, where }, using: 'length' } } } });
-            expect(ctx.events.length).toBe(1);
+            const { events } = run('', { actions: { define: { n: { api: { ...items, where }, using: 'length' } } } });
+            expect(events.length).toBe(1);
         });
 
         it('computes an expression over a ref inside a where, field or using that reads no self', () => {

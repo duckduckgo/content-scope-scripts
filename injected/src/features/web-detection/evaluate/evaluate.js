@@ -1,4 +1,4 @@
-import { numberIsFinite, objectKeys } from '../../../captured-globals.js';
+import { numberIsFinite } from '../../../captured-globals.js';
 import { DetectionError, decides, errorPath, isFailure, isScalar, thrownMessage, typeName } from '../model/core.js';
 import { ItemBuffer, asList, isItemBuffer, listMembers } from '../model/lists.js';
 import { readPath } from '../predicates/fields.js';
@@ -412,13 +412,8 @@ function applyAction(node, ctx) {
     }
     const data = node.data && evaluatePayload(node.data, ctx);
     if (isFailure(data)) return data;
-    if (node.kind === 'fireEvent') {
-        ctx.events.push({ type: node.type, ...(data && { data }) });
-    } else {
-        ctx.entry.written = true;
-        // A key takes its most recent value, and a key the write omits keeps its value
-        if (data) for (const key of objectKeys(data)) ctx.entry.data[key] = /** @type {PayloadData[string]} */ (data[key]);
-    }
+    if (node.kind === 'fireEvent') ctx.sink.fireEvent(node.type, data);
+    else ctx.sink.breakageReportData(data ?? {});
     return undefined;
 }
 

@@ -3,9 +3,9 @@
  */
 
 /**
- * The page reads one task shares: one timer callback of the auto trigger, or one `runDetectors`
- * call. A task runs its detectors synchronously, so each reads the page as the task's first read
- * of it found it.
+ * The page reads one task shares: one `runDetectors` call, for a timer of the auto trigger or for a
+ * breakage report. A task runs its detectors synchronously, so each reads the page as the task's
+ * first read of it found it.
  *
  * @implements {TaskReads}
  */

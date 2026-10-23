@@ -3,23 +3,25 @@ import ContentFeature from '../content-feature.js';
 import { hasOwnProperty } from '../captured-globals.js';
 import { timeDetector } from './detector-perf.js';
 import { compileDetectorConfig, parseDetectors } from './web-detection/compile/detector-config.js';
+import { BreakageEntries } from './web-detection/evaluate/breakage-entries.js';
 import { EvaluationContext } from './web-detection/evaluate/context.js';
 import { NativeReader } from './web-detection/evaluate/native-reader.js';
-import { breakageEntry, createDetectorState, detectorNameScalars, runDetector } from './web-detection/evaluate/run.js';
+import { createDetectorState, detectorNameScalars, runDetector } from './web-detection/evaluate/run.js';
 import { TaskReadCache } from './web-detection/evaluate/task-read-cache.js';
 
 /**
  * @typedef {import('./web-detection/compile/detector-config.js').DetectorConfig} DetectorConfig
  * @typedef {import('./web-detection/compile/compile.js').CompiledDetector} CompiledDetector
+ * @typedef {import('./web-detection/model/types.js').ActionSink} ActionSink
  * @typedef {import('./web-detection/model/types.js').PayloadData} PayloadData
  * @typedef {import('./web-detection/evaluate/run.js').DetectorState} DetectorState
- * @typedef {import('./web-detection/evaluate/run.js').BreakageEntry} BreakageEntry
+ * @typedef {import('./web-detection/evaluate/breakage-entries.js').BreakageEntry} BreakageEntry
  */
 
 /**
- * @typedef {{
- *  trigger: 'breakageReport' | 'auto';
- * }} RunDetectionOptions
+ * What triggered a run of the detectors: a breakage report, or an `auto` timer at one of its intervals.
+ *
+ * @typedef {{ trigger: 'breakageReport' } | { trigger: 'auto', intervalMs: number }} TriggerInfo
  */
 
 /**
@@ -43,6 +45,12 @@ export default class WebDetection extends ContentFeature {
     /** @type {Map<string, CompiledDetector | { error: string }>} each compiled detector, or its parse error, by `groupName.detectorId` */
     #compiled = new Map();
 
+    /** each detector's breakage entry in the frame */
+    #breakage = new BreakageEntries();
+
+    /** @type {Map<number, DetectorEntry[]>} the detectors the `auto` trigger runs at each interval */
+    #autoDetectors = new Map();
+
     /** @type {Array<{ timer: ReturnType<typeof setTimeout>, detectors: DetectorEntry[] }>} */
     #timers = [];
 
@@ -54,7 +62,7 @@ export default class WebDetection extends ContentFeature {
     /** @type {unknown} the feature settings object the detectors were parsed from */
     #parsedSettings;
 
-    _exposedMethods = this._declareExposedMethods(['runDetectors']);
+    _exposedMethods = this._declareExposedMethods(['runDetectors', 'getBreakageReportData']);
 
     /**
      * Parse the detectors when the injected config has them. `webDetection` loads before every other
@@ -166,31 +174,45 @@ export default class WebDetection extends ContentFeature {
     }
 
     /**
-     * Run one detector, unless it is done, then send the events its actions fired.
+     * Run one detector, unless it is done. Its actions send events and write its breakage entry as each
+     * runs, and the failure that ends the run is recorded in the entry. A detector that failed to parse
+     * records `parse` instead of running.
      *
      * @param {DetectorEntry} detector
-     * @param {RunDetectionOptions} options
+     * @param {TriggerInfo} triggerInfo
      * @param {TaskReadCache} task - the page reads shared by the detectors run with it
      */
-    _runDetector(detector, options, task) {
+    _runDetector(detector, triggerInfo, task) {
         const { groupName, detectorId } = detector;
         // Parsing compiles every detector a trigger runs in the frame, so the reader captures the names it reads
         const compiled = this._compiledOf(detector);
         const state = this._stateOf(detectorId);
-        if (state.done || 'error' in compiled) return;
+        if (state.done) return;
+        if ('error' in compiled) {
+            this.#breakage.fail(detectorId, 'parse', 'error');
+            return;
+        }
 
-        const ctx = new EvaluationContext(this._reader, state.names, state, task);
+        /** @type {Array<{ type: string, data?: PayloadData }>} the events sent, for the debug notification */
+        const events = [];
+        /** @type {ActionSink} */
+        const sink = {
+            fireEvent: (type, data) => {
+                events.push({ type, ...(data && { data }) });
+                void this._executeFireEvent(type, data);
+            },
+            breakageReportData: (data) => this.#breakage.write(detectorId, data),
+        };
+        const ctx = new EvaluationContext(this._reader, state.names, task, sink);
         const run = () => runDetector(compiled, state, ctx);
         // A run that errored is a failed run
         const result = this.#detectorPerfEnabled ? timeDetector(this, groupName, run, detectorId, (r) => r.error !== undefined) : run();
 
-        // Sent after the run, those before a failure included
-        const events = ctx.events;
-        for (const event of events) void this._executeFireEvent(event.type, event.data);
+        if (result.failedAt !== undefined && result.failure !== undefined) this.#breakage.fail(detectorId, result.failedAt, result.failure);
         if (state.done) this._cancelFinishedTimers();
 
         // Debug notification for integration tests, for a run in which `match` held or failed, or of a detector with no `match`
-        if (this.isDebug && options.trigger === 'auto' && result.match !== false) {
+        if (this.isDebug && triggerInfo.trigger === 'auto' && result.match !== false) {
             try {
                 this.messaging?.notify('webDetectionAutoRun', {
                     detectorId,
@@ -215,28 +237,21 @@ export default class WebDetection extends ContentFeature {
      * Schedule automatic detector execution based on configured intervals.
      */
     _scheduleAutoRunDetectors() {
-        // Group detectors by interval: interval → [{groupName, detectorId, config}, ...]
-        /** @type {Map<number, DetectorEntry[]>} */
-        const detectorsByInterval = new Map();
-
         for (const detector of this._eachDetector()) {
             // Check if auto trigger is enabled for this detector
             if (!this._shouldRunDetector(detector.config, { trigger: 'auto' })) continue;
 
             // Group by interval
             for (const interval of detector.config.triggers.auto.when.intervalMs) {
-                const atInterval = detectorsByInterval.get(interval) ?? [];
+                const atInterval = this.#autoDetectors.get(interval) ?? [];
                 atInterval.push(detector);
-                detectorsByInterval.set(interval, atInterval);
+                this.#autoDetectors.set(interval, atInterval);
             }
         }
 
         // Create one timer per unique interval
-        for (const [interval, detectors] of detectorsByInterval.entries()) {
-            const timer = setTimeout(() => {
-                const task = new TaskReadCache();
-                for (const detector of detectors) this._runAutoDetector(detector, task);
-            }, interval);
+        for (const [interval, detectors] of this.#autoDetectors) {
+            const timer = setTimeout(() => this.runDetectors({ trigger: 'auto', intervalMs: interval }), interval);
             this.#timers.push({ timer, detectors });
         }
     }
@@ -250,42 +265,6 @@ export default class WebDetection extends ContentFeature {
             clearTimeout(timer);
             return false;
         });
-    }
-
-    /**
-     * Run a single detector with the auto trigger
-     *
-     * @param {DetectorEntry} detector
-     * @param {TaskReadCache} task
-     */
-    _runAutoDetector(detector, task) {
-        try {
-            this._runDetector(detector, { trigger: 'auto' }, task);
-        } catch (e) {
-            // Silently fail - don't break the page
-            if (this.isDebug) {
-                this.log.error(`Error running auto-detector ${detector.detectorId}:`, e);
-            }
-        }
-    }
-
-    /**
-     * Run a single detector for a report. A throw that escapes the run is recorded under `run`, so the
-     * report still holds the other detectors' entries.
-     *
-     * @param {DetectorEntry} detector
-     * @param {RunDetectionOptions} options
-     * @param {TaskReadCache} task
-     */
-    _runReportDetector(detector, options, task) {
-        try {
-            this._runDetector(detector, options, task);
-        } catch (e) {
-            this._stateOf(detector.detectorId).errors.set('run', 'error');
-            if (this.isDebug) {
-                this.log.error(`Error running detector ${detector.detectorId}:`, e);
-            }
-        }
     }
 
     /**
@@ -306,14 +285,14 @@ export default class WebDetection extends ContentFeature {
      * Check if a detector should be triggered.
      *
      * @param {DetectorConfig} config
-     * @param {RunDetectionOptions} options
+     * @param {{ trigger: TriggerInfo['trigger'] }} triggerInfo
      * @returns {boolean}
      */
-    _shouldRunDetector(config, options) {
+    _shouldRunDetector(config, { trigger }) {
         // Don't run if the detector is not enabled.
         if (!this._isStateEnabled(config.state)) return false;
 
-        const triggerSettings = config.triggers[options.trigger];
+        const triggerSettings = config.triggers[trigger];
         // Don't run if the trigger is not enabled.
         if (!triggerSettings || !this._isStateEnabled(triggerSettings.state)) return false;
 
@@ -324,28 +303,48 @@ export default class WebDetection extends ContentFeature {
     }
 
     /**
-     * Run every detector the trigger enables and that is not done, then return the breakage entries
-     * of the detectors that have written one or recorded a failure, in this run or earlier ones.
+     * The detectors a trigger runs: for a breakage report, every detector its trigger enables; for an
+     * `auto` timer, those scheduled at its interval.
      *
-     * @param {RunDetectionOptions} options
+     * @param {TriggerInfo} triggerInfo
+     * @returns {Iterable<DetectorEntry>}
+     */
+    _detectorsFor(triggerInfo) {
+        if (triggerInfo.trigger === 'auto') return this.#autoDetectors.get(triggerInfo.intervalMs) ?? [];
+        return [...this._eachDetector()].filter((detector) => this._shouldRunDetector(detector.config, triggerInfo));
+    }
+
+    /**
+     * Run every detector the trigger runs that is not done, sharing one task's page reads. A throw that
+     * escapes a detector's run is recorded in its entry under `run`, and the other detectors still run.
+     *
+     * @param {TriggerInfo} triggerInfo
+     */
+    runDetectors(triggerInfo) {
+        const task = new TaskReadCache();
+        for (const detector of this._detectorsFor(triggerInfo)) {
+            try {
+                this._runDetector(detector, triggerInfo, task);
+            } catch (e) {
+                this.#breakage.fail(detector.detectorId, 'run', 'error');
+                if (this.isDebug) {
+                    this.log.error(`Error running detector ${detector.detectorId}:`, e);
+                }
+            }
+        }
+    }
+
+    /**
+     * The breakage entries of the detectors that have written one or recorded a failure, parse errors
+     * included, by whichever trigger ran them.
+     *
      * @returns {BreakageEntry[]}
      */
-    runDetectors(options) {
+    getBreakageReportData() {
         /** @type {BreakageEntry[]} */
         const results = [];
-        const task = new TaskReadCache();
-
-        for (const detector of this._eachDetector()) {
-            const runs = this._shouldRunDetector(detector.config, options);
-            if (runs) this._runReportDetector(detector, options, task);
-
-            const compiled = this.#compiled.get(detector.detectorId);
-            if (compiled && 'error' in compiled) {
-                if (runs) results.push({ detectorId: detector.detectorId, errors: { parse: 'error' } });
-                continue;
-            }
-            const state = this.#states.get(detector.detectorId);
-            const entry = state && breakageEntry(detector.detectorId, state);
+        for (const { detectorId } of this._eachDetector()) {
+            const entry = this.#breakage.entry(detectorId, this.#states.get(detectorId)?.done ?? false);
             if (entry) results.push(entry);
         }
         return results;

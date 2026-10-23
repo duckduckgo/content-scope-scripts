@@ -1,17 +1,36 @@
 import { JSDOM } from 'jsdom';
 import { compileDetector } from '../../src/features/web-detection/compile/compile.js';
+import { BreakageEntries } from '../../src/features/web-detection/evaluate/breakage-entries.js';
 import { EvaluationContext } from '../../src/features/web-detection/evaluate/context.js';
 import { evaluateOccurrence } from '../../src/features/web-detection/evaluate/evaluate.js';
 import { NativeReader } from '../../src/features/web-detection/evaluate/native-reader.js';
-import { breakageEntry, createDetectorState, runDetector as runCompiledDetector } from '../../src/features/web-detection/evaluate/run.js';
+import { createDetectorState, runDetector as runCompiledDetector } from '../../src/features/web-detection/evaluate/run.js';
 import { ConfigParseError, isFailure } from '../../src/features/web-detection/model/core.js';
 import { pageSources } from '../../src/features/web-detection/sources/index.js';
 import WebDetection from '../../src/features/web-detection.js';
 
 /**
  * @typedef {import('../../src/features/web-detection/compile/detector-config.js').RawDetectorConfig} RawDetectorConfig
- * @typedef {import('../../src/features/web-detection/evaluate/run.js').BreakageEntry} BreakageEntry
+ * @typedef {import('../../src/features/web-detection/evaluate/breakage-entries.js').BreakageEntry} BreakageEntry
+ * @typedef {import('../../src/features/web-detection/model/types.js').ActionSink} ActionSink
  */
+
+/**
+ * An action sink that keeps the events sent, in order, and the writes in a `BreakageEntries` under
+ * `g.d`, as the feature keeps them.
+ */
+export class Recorder {
+    /** @type {Array<{ type: string, data?: object }>} */
+    events = [];
+    entries = new BreakageEntries();
+    /** @type {ActionSink} */
+    sink = {
+        fireEvent: (type, data) => {
+            this.events.push({ type, ...(data && { data }) });
+        },
+        breakageReportData: (data) => this.entries.write('g.d', data),
+    };
+}
 
 /**
  * @typedef {object} RunOptions
@@ -34,12 +53,13 @@ export const REPORT = { breakageReportData: {} };
  * Compile and run a detector against a JSDOM page, reading through that window's globals.
  *
  * `detected` is the `match` result, or `true` without `match`. `data` is the first event's payload,
- * and `failure` the failure that ended `actions`.
+ * `failure` the failure that ended `actions`, `events` the events sent, and `entry` the breakage entry
+ * the run's writes made, with no failure in it.
  *
  * @param {string} body - markup for `<body>`
  * @param {any} detector
  * @param {RunOptions} [options]
- * @returns {{ detected: boolean | 'error' | 'aborted', abortError?: string, error?: string, failedAt?: string, data?: Record<string, unknown>, failure?: { path: string, result: 'aborted' | 'error' }, names: Map<string, unknown>, ctx: EvaluationContext }}
+ * @returns {{ detected: boolean | 'error' | 'aborted', abortError?: string, error?: string, failedAt?: string, data?: Record<string, unknown>, failure?: { path: string, result: 'aborted' | 'error' }, names: Map<string, unknown>, events: Array<{ type: string, data?: object }>, entry: BreakageEntry | undefined, ctx: EvaluationContext }}
  */
 export function run(body, detector, options = {}) {
     const dom = new JSDOM(`<!DOCTYPE html><html><head>${options.head ?? ''}</head><body>${body}</body></html>`);
@@ -52,7 +72,8 @@ export function run(body, detector, options = {}) {
         const reader = new NativeReader(window, compiled.names);
         options.afterCapture?.(window);
         const state = createDetectorState();
-        const ctx = new EvaluationContext(reader, state.names, state);
+        const recorder = new Recorder();
+        const ctx = new EvaluationContext(reader, state.names, undefined, recorder.sink);
         const result = runCompiledDetector(compiled, state, ctx);
         const detected = result.match ?? true;
         const failure =
@@ -64,9 +85,11 @@ export function run(body, detector, options = {}) {
             ...(result.abortError && { abortError: result.abortError }),
             ...(result.error !== undefined && { error: result.error }),
             ...(result.failedAt !== undefined && { failedAt: result.failedAt }),
-            data: ctx.events[0]?.data,
+            data: recorder.events[0]?.data,
             ...(failure && { failure }),
             names: ctx.runNames,
+            events: recorder.events,
+            entry: recorder.entries.entry('g.d', state.done),
             ctx,
         };
     } finally {
@@ -302,7 +325,8 @@ export function makeGlobal() {
 }
 
 /**
- * Compile a detector over `global`, and run it against one detector state.
+ * Compile a detector over `global`, and run it against one detector state, recording each run's
+ * failure in its breakage entry as the feature does.
  *
  * @param {{ match?: unknown, actions: unknown }} config
  * @param {object} [global]
@@ -311,19 +335,18 @@ export function detector(config, global = makeGlobal()) {
     const compiled = compileDetector(config, pageSources(global));
     const reader = new NativeReader(global, compiled.names);
     const state = createDetectorState();
-    /** @type {Array<{ type: string, data?: object }>} */
-    const events = [];
+    const recorder = new Recorder();
     return {
         state,
-        events,
-        types: () => events.map((event) => event.type),
+        events: recorder.events,
+        types: () => recorder.events.map((event) => event.type),
         run: () => {
-            const ctx = new EvaluationContext(reader, state.names, state);
+            const ctx = new EvaluationContext(reader, state.names, undefined, recorder.sink);
             const run = runCompiledDetector(compiled, state, ctx);
-            events.push(...ctx.events);
+            if (run.failedAt !== undefined && run.failure !== undefined) recorder.entries.fail('g.d', run.failedAt, run.failure);
             return { ...run, ctx };
         },
-        entry: () => breakageEntry('g.d', state),
+        entry: () => recorder.entries.entry('g.d', state.done),
     };
 }
 
@@ -365,10 +388,21 @@ export function runDetectorsInEnv(detectorsConfig, env = {}) {
         };
         const instance = new WebDetection('webDetection', undefined, {}, args);
         instance.init();
-        return instance.runDetectors({ trigger: 'breakageReport' });
+        return report(instance);
     } finally {
         globalThis.window = originalWindow;
     }
+}
+
+/**
+ * Run the detectors for a breakage report, then read the report's entries, as `breakageReporting` does.
+ *
+ * @param {WebDetection} instance
+ * @returns {BreakageEntry[]}
+ */
+export function report(instance) {
+    instance.runDetectors({ trigger: 'breakageReport' });
+    return instance.getBreakageReportData();
 }
 
 /**
