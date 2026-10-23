@@ -177,6 +177,77 @@ describe('WebDetection sources', () => {
             expect(holds('<p id="a"></p>', { only: { element: { selector: 'p' } }, is: { id: 'a' } })).toBe(true);
         });
 
+        it('reads an own value in place of a value captured on a prototype', () => {
+            const afterCapture = (/** @type {any} */ w) => {
+                class NetworkError extends w.Error {
+                    constructor() {
+                        super('timed out');
+                        this.name = 'NetworkError';
+                    }
+                }
+                w.lastError = new NetworkError();
+                w.bareError = new w.Error();
+                class PagePlayer extends w.HTMLElement {}
+                w.customElements.define('page-player', PagePlayer);
+                w.player = w.document.createElement('page-player');
+                w.queue = [];
+                w.queue.push = function pagePush() {};
+            };
+            expect(holds('', { api: 'lastError.message', is: 'timed out' }, { afterCapture })).toBe(true);
+            expect(holds('', { api: 'lastError', using: 'name', is: 'NetworkError' }, { afterCapture })).toBe(true);
+            expect(holds('', { api: 'bareError.message', is: '' }, { afterCapture })).toBe(true);
+            expect(holds('', { api: 'player.constructor.name', is: 'PagePlayer' }, { afterCapture })).toBe(true);
+            expect(holds('', { api: 'queue.push.name', is: 'pagePush' }, { afterCapture })).toBe(true);
+            // A call still uses the captured method
+            expect(holds('', { api: { path: 'queue.push', args: [1] }, is: 1 }, { afterCapture })).toBe(true);
+        });
+
+        it('fails rather than call a page getter in place of a value captured on a prototype', () => {
+            let calls = 0;
+            const install = (/** @type {any} */ w) => {
+                w.Defaults = class {};
+                w.Defaults.prototype.label = 'default';
+                w.plain = new w.Defaults();
+            };
+            const afterCapture = (/** @type {any} */ w) => {
+                w.owned = new w.Defaults();
+                w.owned.label = 'own';
+                w.shadowed = new w.Defaults();
+                const get = () => {
+                    calls++;
+                    return 'page';
+                };
+                Object.defineProperty(w.shadowed, 'label', { get });
+                Object.defineProperty(w.Defaults.prototype, 'label', { get });
+            };
+            const result = run('', { match: { api: 'shadowed.label', is: 'page' }, actions: REPORT }, { install, afterCapture });
+            expect(result.detected).toBe('aborted');
+            expect(result.abortError).toBe('PageAccessor');
+            expect(holds('', { api: 'plain.label', is: 'default' }, { install, afterCapture })).toBe(true);
+            expect(holds('', { api: 'owned.label', is: 'own' }, { install, afterCapture })).toBe(true);
+            expect(calls).toBe(0);
+        });
+
+        it('reads the length of a page Proxy over an array by descriptor', () => {
+            const detected = (/** @type {string} */ trap, /** @type {unknown} */ match) => {
+                const afterCapture = (/** @type {any} */ w) => {
+                    w.trapped = new Proxy([1, 2], {
+                        [trap]: () => {
+                            throw new w.TypeError('trapped');
+                        },
+                    });
+                };
+                return run('', { match, actions: REPORT }, { afterCapture }).detected;
+            };
+            for (const match of [
+                { api: 'trapped.length', is: 2 },
+                { api: 'trapped', using: 'length', is: 2 },
+            ]) {
+                expect(detected('getOwnPropertyDescriptor', match)).toBe('aborted');
+                expect(detected('get', match)).toBe(true);
+            }
+        });
+
         it('reads a getter defined on the object itself, where nothing was captured', () => {
             // A getter on the instance, as browsers define `location.href`
             const install = (/** @type {any} */ w) => {
