@@ -440,6 +440,45 @@ describe('WebDetection sources', () => {
             expect(holds('', read, { install, afterCapture })).toBe(true);
         });
 
+        it('calls the captured Function.prototype methods', () => {
+            // JSDOM shares this process's `Function`, so the override is undone before anything else runs
+            const original = Object.getOwnPropertyDescriptor(Function.prototype, 'apply');
+            let calls = 0;
+            const afterCapture = (/** @type {any} */ w) => {
+                Object.defineProperty(w.Function.prototype, 'apply', {
+                    configurable: true,
+                    writable: true,
+                    value(/** @type {unknown[]} */ ...args) {
+                        if (this === w.Math.max) {
+                            calls++;
+                            return -1;
+                        }
+                        return Reflect.apply(/** @type {Function} */ (original?.value), this, args);
+                    },
+                });
+            };
+            try {
+                expect(holds('', { api: { path: 'Math.max.apply', args: [null, { expr: [3, 9, 4] }] }, is: 9 }, { afterCapture })).toBe(
+                    true,
+                );
+            } finally {
+                // eslint-disable-next-line no-extend-native -- intentional: restoring the native the page override replaced
+                Object.defineProperty(Function.prototype, 'apply', /** @type {PropertyDescriptor} */ (original));
+            }
+            expect(calls).toBe(0);
+        });
+
+        it("reads a function's own name and length over the captured Function.prototype defaults", () => {
+            const afterCapture = (/** @type {any} */ w) => {
+                w.handler = function handler(/** @type {unknown} */ event, /** @type {unknown} */ extra) {
+                    return [event, extra];
+                };
+            };
+            expect(holds('', { api: 'handler.constructor.name', is: 'Function' }, { afterCapture })).toBe(true);
+            expect(holds('', { api: 'handler.name', is: 'handler' }, { afterCapture })).toBe(true);
+            expect(holds('', { api: 'handler', using: 'length', is: 2 }, { afterCapture })).toBe(true);
+        });
+
         it('filters the timeline on numeric and string fields, and reads a field the engine lacks as undefined', () => {
             const install = timeline(
                 [
