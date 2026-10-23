@@ -141,7 +141,7 @@ describe('WebDetection predicates', () => {
             expect(holds('', { sum: [3], is: { finite: { type: 'undefined' } } })).toBe(true);
         });
 
-        it('reads property paths at item and value level, beside reserved keys and operators', () => {
+        it('reads property paths at item and value level, beside combinators and operators', () => {
             const html = `<input type="checkbox" checked><input type="text" value="abc">`;
             expect(
                 holds(html, {
@@ -187,7 +187,7 @@ describe('WebDetection predicates', () => {
             );
         });
 
-        it('reads a property named like a reserved key in the long form, inside combinators at item level', () => {
+        it('reads a property through the long form, inside combinators at item level', () => {
             const html = '<div role="dialog"></div><div></div>';
             expect(
                 holds(html, {
