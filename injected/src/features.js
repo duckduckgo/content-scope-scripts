@@ -82,6 +82,7 @@ export const platformSupport = {
         'tabSuspension',
         'textSelection',
         'chromeWebstorePatching',
+        'browserUiLock',
     ],
     'apple-ai-clear': ['duckAiDataClearing'],
     'apple-ai-history': ['duckAiChatHistory'],
