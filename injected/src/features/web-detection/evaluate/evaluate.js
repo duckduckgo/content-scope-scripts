@@ -1,5 +1,5 @@
 import { numberIsFinite, objectKeys } from '../../../captured-globals.js';
-import { DetectionError, decides, errorPath, isFailure, isScalar, typeName } from '../model/core.js';
+import { DetectionError, decides, errorPath, isFailure, isScalar, thrownMessage, typeName } from '../model/core.js';
 import { ItemBuffer, asList, isItemBuffer, listMembers } from '../model/lists.js';
 import { readPath } from '../predicates/fields.js';
 import { testPredicate } from '../predicates/predicates.js';
@@ -106,7 +106,7 @@ export function evaluate(node, position, ctx) {
  */
 function atPath(error, path, ctx) {
     const at = errorPath(error, path);
-    ctx.errorAt ??= { path: at, message: error instanceof Error ? error.message : String(error) };
+    ctx.errorAt ??= { path: at, message: thrownMessage(error) };
     return error;
 }
 

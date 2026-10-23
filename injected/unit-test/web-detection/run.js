@@ -1,4 +1,5 @@
 import { aborting, counter, detector, erroring, expectParseError, makeGlobal } from './support.js';
+import { thrownMessage } from '../../src/features/web-detection/model/core.js';
 
 describe('WebDetection run', () => {
     describe('actions', () => {
@@ -385,6 +386,31 @@ describe('WebDetection run', () => {
                 global,
             );
             expect(d.run().failedAt).toBe('actions.define.n.api.where.bad');
+        });
+    });
+
+    describe('thrownMessage', () => {
+        it("gives an object's own string `message`, else its constructor's name", () => {
+            expect(thrownMessage(new TypeError('boom'))).toBe('boom');
+            expect(thrownMessage(new RangeError())).toBe('RangeError');
+            expect(thrownMessage({ message: 3 })).toBe('Object');
+        });
+
+        it('gives a primitive as a string', () => {
+            expect(thrownMessage('boom')).toBe('boom');
+            expect(thrownMessage(null)).toBe('null');
+            expect(thrownMessage(undefined)).toBe('undefined');
+            expect(thrownMessage(Symbol('s'))).toBe('Symbol(s)');
+        });
+
+        it('calls no code of the thrown value', () => {
+            const called = jasmine.createSpy('called').and.throwError('called');
+            const getter = Object.create(Error.prototype, { message: { get: called } });
+            const traps = new Proxy({}, { getOwnPropertyDescriptor: called, getPrototypeOf: called, get: called });
+            expect(thrownMessage({ toString: called, [Symbol.toPrimitive]: called })).toBe('Object');
+            expect(thrownMessage(getter)).toBe('Error');
+            expect(thrownMessage(traps)).toBe('unknown');
+            expect(called).toHaveBeenCalledTimes(2);
         });
     });
 
