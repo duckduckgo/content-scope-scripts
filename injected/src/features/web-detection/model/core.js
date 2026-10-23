@@ -55,13 +55,23 @@ export function isFailure(value) {
 }
 
 /**
+ * The failure a page throw gives, named by the thrown value's constructor.
+ *
+ * @param {unknown} thrown
+ * @returns {Failure}
+ */
+export function thrownFailure(thrown) {
+    return new Failure(errorName(thrown));
+}
+
+/**
  * The name of a thrown value's constructor, read from own data properties through captured globals so
  * no page getter is called.
  *
  * @param {unknown} thrown
  * @returns {string | undefined}
  */
-export function errorName(thrown) {
+function errorName(thrown) {
     try {
         for (let current = getPrototypeOf(thrown); current !== null; current = getPrototypeOf(current)) {
             const constructor = getOwnPropertyDescriptor(current, 'constructor')?.value;
