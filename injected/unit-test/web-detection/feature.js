@@ -385,5 +385,40 @@ describe('WebDetection feature', () => {
                 ]);
             });
         });
+
+        describe('a throw in a report-time run', () => {
+            it('records a page value thrown past the reader at its path, calling none of its code', () => {
+                testGlobal.wdTestPage = { x: 1 };
+                const instance = createInstance({
+                    thrown: { match: { api: 'wdTestPage.x', is: 1 }, actions: { breakageReportData: {} } },
+                    working: detects(true),
+                });
+                /** @type {object} */
+                const thrown = {
+                    toString() {
+                        throw thrown;
+                    },
+                };
+                spyOn(instance._reader, 'read').and.callFake(() => {
+                    throw thrown;
+                });
+                expect(instance.runDetectors({ trigger: 'breakageReport' })).toEqual([
+                    { detectorId: 'g.thrown', errors: { 'match.api': 'error' } },
+                    { detectorId: 'g.working', detected: true },
+                ]);
+            });
+
+            it('records a throw outside any expression under `run`, and runs the other detectors', () => {
+                const instance = createInstance({
+                    thrown: { match: true, actions: { fireEvent: { type: 'a' } } },
+                    working: detects(true),
+                });
+                spyOn(instance, '_executeFireEvent').and.throwError('boom');
+                expect(instance.runDetectors({ trigger: 'breakageReport' })).toEqual([
+                    { detectorId: 'g.thrown', errors: { run: 'error' } },
+                    { detectorId: 'g.working', detected: true },
+                ]);
+            });
+        });
     });
 });

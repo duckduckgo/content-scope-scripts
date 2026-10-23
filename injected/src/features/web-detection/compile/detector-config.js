@@ -1,4 +1,4 @@
-import { NAME_PATTERN } from '../model/core.js';
+import { NAME_PATTERN, thrownMessage } from '../model/core.js';
 import { pageSources } from '../sources/index.js';
 import { compileDetector } from './compile.js';
 
@@ -127,7 +127,7 @@ export function compileDetectorConfig(config, global) {
     try {
         return compileDetector(config.raw, pageSources(global));
     } catch (e) {
-        return { error: e instanceof Error ? e.message : String(e) };
+        return { error: thrownMessage(e) };
     }
 }
 
