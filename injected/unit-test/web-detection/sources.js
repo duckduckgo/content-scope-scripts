@@ -468,6 +468,18 @@ describe('WebDetection sources', () => {
             expect(calls).toBe(0);
         });
 
+        it('captures names added later, and keeps those it already captured', () => {
+            const window = new JSDOM('<!DOCTYPE html><title>native</title>').window;
+            const replace = (/** @type {object} */ prototype, /** @type {string} */ name) =>
+                Object.defineProperty(prototype, name, { configurable: true, get: () => 'page' });
+            const reader = new NativeReader(window, ['title']);
+            replace(window.Document.prototype, 'title');
+            reader.capture(['title', 'nodeName']);
+            replace(window.Node.prototype, 'nodeName');
+            expect(reader.read(window.document, 'title')).toBe('native');
+            expect(reader.read(window.document, 'nodeName')).toBe('#document');
+        });
+
         it("reads a function's own name and length over the captured Function.prototype defaults", () => {
             const afterCapture = (/** @type {any} */ w) => {
                 w.handler = function handler(/** @type {unknown} */ event, /** @type {unknown} */ extra) {
