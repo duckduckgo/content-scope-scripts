@@ -355,6 +355,20 @@ describe('WebDetection predicates', () => {
             expect(holds(html, { expr: overlapping, using: 'length', is: 3 })).toBe(true);
             expect(holds(html, { expr: overlapping, using: '2', is: 'x' })).toBe(true);
         });
+
+        it('counts the elements of several bodies with nothing to test, failing on a root that fails', () => {
+            const html = '<img id="a" class="x"><img id="b">';
+            expect(holds(html, { element: [{ selector: 'img' }, { selector: 'img.x' }], using: 'length', is: 3 })).toBe(true);
+            const install = (/** @type {any} */ w) => {
+                Object.defineProperty(w, 'brokenRoot', {
+                    get() {
+                        throw new w.TypeError('broken');
+                    },
+                });
+            };
+            const bodies = [{ selector: 'img' }, { selector: 'img', root: { api: 'brokenRoot' } }];
+            expect(holds(html, { element: bodies, using: 'length', is: { fails: true } }, { install })).toBe(true);
+        });
     });
 
     describe('arguments', () => {
