@@ -1,6 +1,6 @@
 import { numberIsFinite, objectKeys } from '../../../captured-globals.js';
 import { DetectionError, decides, errorPath, isFailure, isScalar, typeName } from '../model/core.js';
-import { ItemBuffer, eachMember, isList } from '../model/lists.js';
+import { ItemBuffer, eachMember, isItemBuffer, isList } from '../model/lists.js';
 import { readPath } from '../predicates/fields.js';
 import { testPredicate } from '../predicates/predicates.js';
 
@@ -145,7 +145,7 @@ function withinBinder(node, binder, ctx) {
  * @param {Position} position
  */
 function checkType(value, position) {
-    if (value instanceof ItemBuffer && position === 'boolean') {
+    if (isItemBuffer(value) && position === 'boolean') {
         throw new DetectionError('a list is read through any, all, none or only, or its length through using');
     }
     if (position === 'number' && typeof value !== 'number') throw new DetectionError(`expected a number, got ${typeName(value)}`);
@@ -161,7 +161,7 @@ function checkType(value, position) {
  * @returns {unknown} the value, or a `Failure`
  */
 function positioned(value, position) {
-    if (!(value instanceof ItemBuffer)) return value;
+    if (!isItemBuffer(value)) return value;
     if (position === 'boolean' && value.leaf) return presence(value);
     if (position === 'number') return single(value);
     return value;
@@ -202,7 +202,7 @@ function readSource(node, position, ctx) {
         // A new evaluation of the source: what its `where` and `field` read once is read again
         for (const binder of node.binders) ctx.shared.set(binder, new Map());
         value = node.source.read(node.bodies, ctx);
-        if (value instanceof ItemBuffer) {
+        if (isItemBuffer(value)) {
             const key = node.source.key;
             value.leaf =
                 key === 'text' || (key === 'element' && node.bodies.every((body) => !(/** @type {{ field?: unknown }} */ (body).field)));
@@ -236,7 +236,7 @@ export function single(buffer) {
  * @returns {unknown}
  */
 function forPredicate(value, predicate) {
-    if (!(value instanceof ItemBuffer)) return value;
+    if (!isItemBuffer(value)) return value;
     return predicate.scalar ? single(value) : allItems(value);
 }
 
@@ -262,8 +262,10 @@ function presence(buffer) {
  * @returns {ItemBuffer}
  */
 export function listOf(value, operator, ctx) {
-    if (value instanceof ItemBuffer) return value;
-    if (!isList(value, ctx)) throw new DetectionError(`'${operator}' takes a list, got ${typeName(value)}`);
+    if (isItemBuffer(value)) return value;
+    const list = isList(value, ctx);
+    if (isFailure(list)) return new ItemBuffer(list);
+    if (!list) throw new DetectionError(`'${operator}' takes a list, got ${typeName(value)}`);
     return new ItemBuffer(eachMember(value, ctx));
 }
 
@@ -402,7 +404,7 @@ function applyAction(node, ctx) {
         const value = evaluate(node.value, node.value.position, ctx);
         if (isFailure(value)) return value;
         // A list is held as its buffer, read in full now, so every `ref` reads the same items
-        if (value instanceof ItemBuffer) {
+        if (isItemBuffer(value)) {
             const failure = value.pull(Infinity);
             if (failure) return failure.at(node.value.path);
         }
@@ -433,7 +435,7 @@ function applyAction(node, ctx) {
 function computeLength(node, ctx) {
     const value = evaluate(node.operand, node.operand.position, ctx);
     if (isFailure(value)) return value;
-    if (!(value instanceof ItemBuffer)) return readPath(ctx.reader, value, ['length'], undefined);
+    if (!isItemBuffer(value)) return readPath(ctx.reader, value, ['length'], undefined);
     if (!value.started) {
         const count = value.shortcuts.count?.();
         if (count !== undefined) return count;
@@ -454,11 +456,13 @@ function readSpread(operand, operator, ctx) {
     if (isFailure(value)) return value;
     if (operand.position !== 'spread') return { value };
     // A bound condition leaf under any / all / none is a boolean, as the leaf itself is
-    if (value instanceof ItemBuffer && value.leaf && operand.single === 'boolean') {
+    if (isItemBuffer(value) && value.leaf && operand.single === 'boolean') {
         const held = presence(value);
         return isFailure(held) ? held.at(operand.path) : { value: held };
     }
-    return isList(value, ctx) ? { list: listOf(value, operator, ctx) } : { value };
+    const list = isList(value, ctx);
+    if (isFailure(list)) return list.at(operand.path);
+    return list ? { list: listOf(value, operator, ctx) } : { value };
 }
 
 /**
@@ -553,7 +557,7 @@ export function evaluatePayload(fields, ctx) {
  */
 function payloadValue(field, ctx) {
     const value = evaluateOccurrence(field.value, ctx);
-    if (value instanceof ItemBuffer && !field.buckets)
+    if (isItemBuffer(value) && !field.buckets)
         throw new DetectionError('a list is sent bucketed, through only, or as its length through using');
     /**
      * @param {CompiledPredicate} predicate
