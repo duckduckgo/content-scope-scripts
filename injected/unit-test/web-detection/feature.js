@@ -1,7 +1,7 @@
 import WebDetection from '../../src/features/web-detection.js';
 import { NativeReader } from '../../src/features/web-detection/evaluate/native-reader.js';
 import WebEvents from '../../src/features/web-events.js';
-import { counter, detects, runDetector, runDetectorsInEnv, testGlobal } from './support.js';
+import { counter, detects, report, runDetector, runDetectorsInEnv, testGlobal } from './support.js';
 
 /**
  * @typedef {import('../../src/features/web-detection/compile/detector-config.js').RawDetectorConfig} RawDetectorConfig
@@ -318,7 +318,7 @@ describe('WebDetection feature', () => {
             });
             jasmine.clock().tick(100);
             testGlobal.wdTestPage.n = 9;
-            expect(instance.runDetectors({ trigger: 'breakageReport' })).toEqual([{ detectorId: 'g.d', detected: true, data: { n: 3 } }]);
+            expect(report(instance)).toEqual([{ detectorId: 'g.d', detected: true, data: { n: 3 } }]);
             expect(instance.callFeatureMethod).toHaveBeenCalledTimes(1);
         });
 
@@ -333,7 +333,7 @@ describe('WebDetection feature', () => {
                 },
             });
             jasmine.clock().tick(1000);
-            expect(instance.runDetectors({ trigger: 'breakageReport' })).toEqual([{ detectorId: 'g.d', data: { runs: 4 } }]);
+            expect(report(instance)).toEqual([{ detectorId: 'g.d', data: { runs: 4 } }]);
         });
 
         describe('compiling', () => {
@@ -366,7 +366,7 @@ describe('WebDetection feature', () => {
                     a: { triggers: auto, match: true, actions: { breakageReportData: {} } },
                 });
                 jasmine.clock().tick(1000);
-                expect(instance.runDetectors({ trigger: 'breakageReport' })).toEqual([]);
+                expect(report(instance)).toEqual([]);
                 expect(compile).not.toHaveBeenCalled();
             });
 
@@ -381,9 +381,14 @@ describe('WebDetection feature', () => {
 
             it('reports the parse error of a detector that runs, and not of one that does not', () => {
                 const instance = createInstance({ runs: unparseable, disabled: { ...unparseable, state: 'disabled' } });
-                expect(instance.runDetectors({ trigger: 'breakageReport' })).toEqual([
-                    { detectorId: 'g.runs', errors: { parse: 'error' } },
-                ]);
+                expect(report(instance)).toEqual([{ detectorId: 'g.runs', errors: { parse: 'error' } }]);
+            });
+
+            it('reports the parse error of an `auto`-only detector once its timer has run', () => {
+                const instance = createInstance({ d: { ...unparseable, triggers: { breakageReport: { state: 'disabled' }, ...auto } } });
+                expect(report(instance)).toEqual([]);
+                jasmine.clock().tick(100);
+                expect(report(instance)).toEqual([{ detectorId: 'g.d', errors: { parse: 'error' } }]);
             });
         });
 
@@ -423,7 +428,7 @@ describe('WebDetection feature', () => {
                 instance.init();
                 expect(compile).toHaveBeenCalledTimes(1);
                 expect(capture).toHaveBeenCalledTimes(1);
-                expect(instance.runDetectors({ trigger: 'breakageReport' })).toEqual([{ detectorId: 'g.d', detected: true }]);
+                expect(report(instance)).toEqual([{ detectorId: 'g.d', detected: true }]);
             });
 
             it('takes the detectors from settings init has that differ from those load parsed, and captures the names added', () => {
@@ -435,7 +440,7 @@ describe('WebDetection feature', () => {
                 testGlobal.wdLoaded = true;
                 testGlobal.wdAdded = true;
                 try {
-                    expect(instance.runDetectors({ trigger: 'breakageReport' }).map((entry) => entry.detectorId)).toEqual(['g.a', 'g.b']);
+                    expect(report(instance).map((entry) => entry.detectorId)).toEqual(['g.a', 'g.b']);
                 } finally {
                     delete testGlobal.wdLoaded;
                     delete testGlobal.wdAdded;
@@ -450,7 +455,7 @@ describe('WebDetection feature', () => {
                 initWith(instance, args, { d: detects(true) });
                 expect(compile).toHaveBeenCalledTimes(1);
                 expect(capture).toHaveBeenCalledTimes(1);
-                expect(instance.runDetectors({ trigger: 'breakageReport' })).toEqual([{ detectorId: 'g.d', detected: true }]);
+                expect(report(instance)).toEqual([{ detectorId: 'g.d', detected: true }]);
             });
         });
 
@@ -470,7 +475,7 @@ describe('WebDetection feature', () => {
                 spyOn(instance._reader, 'read').and.callFake(() => {
                     throw thrown;
                 });
-                expect(instance.runDetectors({ trigger: 'breakageReport' })).toEqual([
+                expect(report(instance)).toEqual([
                     { detectorId: 'g.thrown', errors: { 'match.api': 'error' } },
                     { detectorId: 'g.working', detected: true },
                 ]);
@@ -481,12 +486,74 @@ describe('WebDetection feature', () => {
                     thrown: { match: true, actions: { fireEvent: { type: 'a' } } },
                     working: detects(true),
                 });
-                spyOn(instance, '_executeFireEvent').and.throwError('boom');
-                expect(instance.runDetectors({ trigger: 'breakageReport' })).toEqual([
+                throwOutsideRun(instance, 'g.thrown');
+                expect(report(instance)).toEqual([
                     { detectorId: 'g.thrown', errors: { run: 'error' } },
                     { detectorId: 'g.working', detected: true },
                 ]);
             });
         });
+
+        describe('a throw in an `auto` run', () => {
+            it('records a throw outside any expression under `run`, in the next report', () => {
+                const instance = createInstance({
+                    thrown: {
+                        triggers: { breakageReport: { state: 'disabled' }, ...auto },
+                        match: true,
+                        actions: { breakageReportData: {} },
+                    },
+                    working: {
+                        triggers: { breakageReport: { state: 'disabled' }, ...auto },
+                        match: true,
+                        actions: { breakageReportData: {} },
+                    },
+                });
+                throwOutsideRun(instance, 'g.thrown');
+                jasmine.clock().tick(100);
+                expect(report(instance)).toEqual([
+                    { detectorId: 'g.thrown', errors: { run: 'error' } },
+                    { detectorId: 'g.working', detected: true },
+                ]);
+            });
+        });
+
+        describe('actions', () => {
+            it('send events and write the breakage entry as each runs, in config order', () => {
+                const instance = createInstance({
+                    d: {
+                        actions: [
+                            { fireEvent: { type: 'a' } },
+                            { breakageReportData: { data: { x: { value: 1 } } } },
+                            { fireEvent: { type: 'b' } },
+                        ],
+                    },
+                });
+                /** @type {unknown[]} */
+                const sent = [];
+                spyOn(instance, '_executeFireEvent').and.callFake((type) => {
+                    sent.push([type, instance.getBreakageReportData()]);
+                    return Promise.resolve();
+                });
+                instance.runDetectors({ trigger: 'breakageReport' });
+                expect(sent).toEqual([
+                    ['a', []],
+                    ['b', [{ detectorId: 'g.d', data: { x: 1 } }]],
+                ]);
+            });
+        });
+
+        /**
+         * Make the run of one detector throw outside any expression, before it evaluates.
+         *
+         * @param {WebDetection} instance
+         * @param {string} detectorId
+         */
+        function throwOutsideRun(instance, detectorId) {
+            const compiledOf = instance._compiledOf.bind(instance);
+            spyOn(instance, '_compiledOf').and.callFake((detector) => {
+                if (detector.detectorId === detectorId) throw new Error('boom');
+                return compiledOf(detector);
+            });
+        }
     });
 });

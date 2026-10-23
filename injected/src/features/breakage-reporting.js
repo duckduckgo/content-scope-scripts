@@ -1,4 +1,4 @@
-import ContentFeature, { CallFeatureMethodError } from '../content-feature';
+import ContentFeature, { CallFeatureMethodError } from '../content-feature.js';
 import { getExpandedPerformanceMetrics, getJsPerformanceMetrics } from './breakage-reporting/utils.js';
 import { runBotDetection } from '../detectors/detections/bot-detection.js';
 import { runFraudDetection } from '../detectors/detections/fraud-detection.js';
@@ -47,7 +47,12 @@ export default class BreakageReporting extends ContentFeature {
 
             // Run webDetection detectors for the breakageReport trigger
             try {
-                const webDetectionResults = await this.callFeatureMethod('webDetection', 'runDetectors', { trigger: 'breakageReport' });
+                await this.callFeatureMethod('webDetection', 'runDetectors', { trigger: 'breakageReport' });
+            } catch {
+                // A throw from the report run still leaves the entries earlier runs wrote
+            }
+            try {
+                const webDetectionResults = await this.callFeatureMethod('webDetection', 'getBreakageReportData');
                 if (!(webDetectionResults instanceof CallFeatureMethodError) && webDetectionResults.length > 0) {
                     breakageDataPayload.webDetection = webDetectionResults;
                 }

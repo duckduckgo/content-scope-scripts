@@ -7,18 +7,15 @@ import { TaskReadCache } from './task-read-cache.js';
  * @typedef {import('../model/core.js').Failure} Failure
  * @typedef {import('../model/types.js').ActionOutcome} ActionOutcome
  * @typedef {import('../model/types.js').ItemBinder} ItemBinder
+ * @typedef {import('../model/types.js').ActionSink} ActionSink
  * @typedef {import('../model/types.js').Node} Node
- * @typedef {import('../model/types.js').PayloadData} PayloadData
  * @typedef {import('../model/types.js').PredicateContext} PredicateContext
  * @typedef {import('../model/types.js').Reader} Reader
  * @typedef {import('../model/types.js').TaskReads} TaskReads
  */
 
-/**
- * The breakage entry `breakageReportData` writes: whether it has written, and the merged `data`.
- *
- * @typedef {{ written: boolean, data: PayloadData }} EntryWrites
- */
+/** @type {ActionSink} for a run whose actions go nowhere */
+const NO_SINK = { fireEvent() {}, breakageReportData() {} };
 
 /**
  * One run's state, threaded to every expression. An expression is computed each time evaluation
@@ -33,8 +30,6 @@ export class EvaluationContext {
     runNames = new Map();
     /** @type {Record<string, unknown>} scalar values bound, by name, for the debug notification */
     measured = {};
-    /** @type {Array<{ type: string, data?: PayloadData }>} the events `fireEvent` has sent, in order */
-    events = [];
     /** @type {Record<string, ActionOutcome>} each action evaluated, by config path */
     outcomes = {};
     /** @type {{ path: string, message: string } | undefined} the innermost expression an error was thrown from */
@@ -47,15 +42,15 @@ export class EvaluationContext {
     /**
      * @param {Reader} reader
      * @param {Map<string, unknown>} [detectorNames] - the detector's names, which outlive the run
-     * @param {EntryWrites} [entry] - the detector's breakage entry, which `breakageReportData` writes
      * @param {TaskReads} [task] - the page reads shared with the other detectors of the task
+     * @param {ActionSink} [sink] - where `fireEvent` and `breakageReportData` send, as each runs
      */
-    constructor(reader, detectorNames = new Map(), entry = { written: false, data: {} }, task = new TaskReadCache()) {
+    constructor(reader, detectorNames = new Map(), task = new TaskReadCache(), sink = NO_SINK) {
         this.reader = reader;
         reader.beginRun();
         this.detectorNames = detectorNames;
-        this.entry = entry;
         this.task = task;
+        this.sink = sink;
     }
 
     /**
