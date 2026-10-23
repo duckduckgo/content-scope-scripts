@@ -1,7 +1,8 @@
 import { isArray, ReflectApply } from '../../../captured-globals.js';
-import { Failure, errorName, isFailure } from './core.js';
+import { isFailure, thrownFailure } from './core.js';
 
 /**
+ * @typedef {import('./core.js').Failure} Failure
  * @typedef {import('./types.js').PredicateContext} PredicateContext
  */
 
@@ -138,7 +139,7 @@ function* arrayMembers(array) {
             if (i >= array.length) return;
             item = array[i];
         } catch (e) {
-            yield new Failure(errorName(e));
+            yield thrownFailure(e);
             return;
         }
         yield item;
@@ -162,7 +163,7 @@ function* iteratedMembers(value, iteratorMethod) {
             if (next.done) return;
             item = next.value;
         } catch (e) {
-            yield new Failure(errorName(e));
+            yield thrownFailure(e);
             return;
         }
         yield item;
