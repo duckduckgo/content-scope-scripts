@@ -17,6 +17,8 @@ import { ensureNavigatorDuckDuckGo } from '../navigator-global.js';
 const store = {};
 
 export default class NavigatorInterface extends ContentFeature {
+    initImmediately = true;
+
     /**
      * @param {NavigatorInterfaceArgs} args
      */
