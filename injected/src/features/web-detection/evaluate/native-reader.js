@@ -1,8 +1,14 @@
 import { getOwnPropertyDescriptor, getOwnPropertyNames, getPrototypeOf, ReflectApply, ReflectGet } from '../../../captured-globals.js';
-import { Failure, thrownFailure } from '../model/core.js';
+import { Failure, isFailure, thrownFailure } from '../model/core.js';
 
 /**
  * @typedef {import('../model/types.js').Reader} Reader
+ */
+
+/**
+ * An own descriptor captured from a holder.
+ *
+ * @typedef {{ holder: object, descriptor: PropertyDescriptor }} CapturedRecord
  */
 
 /**
@@ -11,14 +17,19 @@ import { Failure, thrownFailure } from '../model/core.js';
  *
  * Holders are the global object, each namespace object such as `CSS`, and every global constructor and
  * its prototype, so static methods such as `Number.isFinite` are captured too. For each name config uses, the reader records the own accessor, method or
- * value with that name on each holder. A read walks the object and its prototype chain for a holder
- * with a record. With none, it reads the property as it stands on the object or its chain, whoever
+ * value with that name on each holder. A read walks the object and its prototype chain for the nearest
+ * holder with a record. With none, it reads the property as it stands on the object or its chain, whoever
  * defined it.
+ *
+ * A captured getter is used whatever the object defines, and so is a captured method in a call. Any
+ * other captured value, such as `Error.prototype.message`, is the holder's default: an own data property
+ * of the object, or of a prototype below the holder, takes its place. That property is read by descriptor,
+ * so no page code runs. A getter found there is not called, and the read fails.
  *
  * @implements {Reader}
  */
 export class NativeReader {
-    /** @type {Map<object, Map<PropertyKey, PropertyDescriptor>>} */
+    /** @type {Map<object, Map<PropertyKey, CapturedRecord>>} */
     #holders = new Map();
     /** @type {object | undefined} */
     #nodePrototype;
@@ -26,7 +37,7 @@ export class NativeReader {
      * Per key, the record found walking up from a prototype, or `null` for none. A page can change a
      * prototype's chain between runs, so it is kept for one run.
      *
-     * @type {Map<PropertyKey, Map<object, PropertyDescriptor | null>>}
+     * @type {Map<PropertyKey, Map<object, CapturedRecord | null>>}
      */
     #records = new Map();
 
@@ -56,14 +67,14 @@ export class NativeReader {
             }
         }
         for (const holder of holders) {
-            /** @type {Map<PropertyKey, PropertyDescriptor> | undefined} */
+            /** @type {Map<PropertyKey, CapturedRecord> | undefined} */
             let records;
             try {
                 for (const key of keys) {
                     const descriptor = getOwnPropertyDescriptor(holder, key);
                     if (!descriptor) continue;
                     records ??= new Map();
-                    records.set(key, descriptor);
+                    records.set(key, { holder, descriptor });
                 }
             } catch {
                 continue;
@@ -83,7 +94,7 @@ export class NativeReader {
      *
      * @param {unknown} target - any value but `null` and `undefined`
      * @param {PropertyKey} key
-     * @returns {PropertyDescriptor | undefined}
+     * @returns {CapturedRecord | undefined}
      */
     _captured(target, key) {
         if (typeof target === 'object' || typeof target === 'function') {
@@ -113,15 +124,40 @@ export class NativeReader {
     }
 
     /**
-     * The captured record for a key on the target's chain, else the property as it stands.
+     * The descriptor a captured record gives the target: the record's own for a getter, and for a
+     * method when `method` holds. For any other value, the first own property from the target up to the
+     * holder takes its place, read by descriptor. A getter there gives a failure, uncalled.
      *
      * @param {unknown} target - any value but `null` and `undefined`
      * @param {PropertyKey} key
-     * @returns {PropertyDescriptor | undefined}
+     * @param {CapturedRecord} record - the record `_captured` gives for the target
+     * @param {boolean} method - whether a captured function value is used whatever the target defines
+     * @returns {PropertyDescriptor | Failure}
+     */
+    _resolve(target, key, record, method) {
+        const descriptor = record.descriptor;
+        if (!('value' in descriptor) || (method && typeof descriptor.value === 'function')) return descriptor;
+        /** @type {unknown} */
+        let current = target;
+        while (current !== null && current !== record.holder) {
+            const own = getOwnPropertyDescriptor(current, key);
+            if (own) return 'value' in own ? own : new Failure('PageAccessor');
+            current = getPrototypeOf(current);
+        }
+        return descriptor;
+    }
+
+    /**
+     * The descriptor a call uses for a key on the target's chain: from the captured record, else the
+     * property as it stands.
+     *
+     * @param {unknown} target - any value but `null` and `undefined`
+     * @param {PropertyKey} key
+     * @returns {PropertyDescriptor | Failure | undefined}
      */
     _find(target, key) {
         const record = this._captured(target, key);
-        if (record) return record;
+        if (record) return this._resolve(target, key, record, true);
         /** @type {unknown} */
         let current = typeof target === 'object' || typeof target === 'function' ? target : getPrototypeOf(target);
         while (current !== null && current !== undefined) {
@@ -140,13 +176,14 @@ export class NativeReader {
      * @returns {unknown}
      */
     _method(target, key) {
-        const record = this._find(target, key);
-        return record && 'value' in record ? record.value : undefined;
+        const found = this._find(target, key);
+        return found && !isFailure(found) && 'value' in found ? found.value : undefined;
     }
 
     /**
      * Read one property, as JS reads it: a name present nowhere, or an accessor with no getter, reads
-     * `undefined`. A getter that throws fails, and so does a page's Proxy trap that throws.
+     * `undefined`. A getter that throws fails, and so does a page's Proxy trap that throws. A page getter
+     * in place of a captured value fails with `PageAccessor`.
      *
      * @param {unknown} target - any value but `null` and `undefined`
      * @param {string} name
@@ -160,9 +197,11 @@ export class NativeReader {
                 const start = typeof target === 'object' || typeof target === 'function' ? target : getPrototypeOf(target);
                 return ReflectGet(/** @type {object} */ (start), name, target);
             }
-            if ('value' in record) return record.value;
-            if (!record.get) return undefined;
-            return ReflectApply(record.get, target, []);
+            const descriptor = this._resolve(target, name, record, false);
+            if (isFailure(descriptor)) return descriptor;
+            if ('value' in descriptor) return descriptor.value;
+            if (!descriptor.get) return undefined;
+            return ReflectApply(descriptor.get, target, []);
         } catch (e) {
             return thrownFailure(e);
         }

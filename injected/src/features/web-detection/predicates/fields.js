@@ -18,8 +18,8 @@ import { ConfigParseError, isExpressionObject, isFailure, isPlainObject, rejectU
 /**
  * Read a path of names from a root, calling the last name with `args` when given.
  *
- * `length` on a string or an array reads it directly. A name after `null` or `undefined` gives
- * `undefined`, as `?.` does.
+ * `length` on a string reads it directly. A name after `null` or `undefined` gives `undefined`, as
+ * `?.` does.
  *
  * @param {Reader} reader
  * @param {unknown} root
@@ -34,7 +34,7 @@ export function readPath(reader, root, names, args) {
         const name = /** @type {string} */ (names[i]);
         if (args && i === names.length - 1) {
             current = reader.call(current, name, args);
-        } else if (name === 'length' && (typeof current === 'string' || isArray(current))) {
+        } else if (name === 'length' && typeof current === 'string') {
             current = current.length;
         } else {
             current = reader.read(current, name);
