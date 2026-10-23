@@ -61,7 +61,8 @@ export class NativeReader {
             if (typeof value === 'function') {
                 holders.push(value);
                 const prototype = tryOwnDescriptor(value, 'prototype')?.value;
-                if (typeof prototype === 'object' && prototype !== null) holders.push(prototype);
+                // `Function.prototype` is itself a function
+                if ((typeof prototype === 'object' || typeof prototype === 'function') && prototype !== null) holders.push(prototype);
             } else if (typeof value === 'object' && value !== null && value !== global) {
                 holders.push(value);
             }
