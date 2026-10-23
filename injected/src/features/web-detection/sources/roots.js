@@ -1,6 +1,6 @@
 import { isArray } from '../../../captured-globals.js';
 import { ConfigParseError, DetectionError, asArray, isFailure } from '../model/core.js';
-import { isItemBuffer, isList, members } from '../model/lists.js';
+import { eachMember, isItemBuffer, isList } from '../model/lists.js';
 
 /**
  * @typedef {import('../model/core.js').Failure} Failure
@@ -70,9 +70,10 @@ function collectRootNodes(value, nodes, ctx) {
     } else {
         const list = isList(value, ctx);
         if (isFailure(list)) return list;
-        values = list ? members(value, ctx) : [value];
+        values = list ? eachMember(value, ctx) : [value];
     }
     for (const node of values) {
+        if (isFailure(node)) return node;
         const isNode = ctx.reader.isNode(node);
         if (isFailure(isNode)) return isNode;
         if (!isNode) throw new DetectionError('a root is a selector, a node or a list of nodes');

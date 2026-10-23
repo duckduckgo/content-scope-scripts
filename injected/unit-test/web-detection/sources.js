@@ -270,6 +270,39 @@ describe('WebDetection sources', () => {
             }
         });
 
+        it('fails when iterating a page list throws', () => {
+            /** @type {Record<string, (w: any) => unknown>} */
+            const lists = {
+                iterator: (w) => ({
+                    [Symbol.iterator]() {
+                        throw new w.TypeError('page');
+                    },
+                }),
+                next: (w) => ({
+                    *[Symbol.iterator]() {
+                        yield w.document.body;
+                        throw new w.TypeError('page');
+                    },
+                }),
+                index: (w) =>
+                    Object.defineProperty([w.document.body, w.document.body], 1, {
+                        get() {
+                            throw new w.TypeError('page');
+                        },
+                    }),
+            };
+            for (const list of Object.values(lists)) {
+                const afterCapture = (/** @type {any} */ w) => {
+                    w.pageList = list(w);
+                };
+                const detected = (/** @type {unknown} */ match) => run('', { match, actions: REPORT }, { afterCapture }).detected;
+                expect(detected({ sum: { api: 'pageList' }, is: 0 })).toBe('aborted');
+                expect(detected({ api: 'document.title', is: { in: { api: 'pageList' } } })).toBe('aborted');
+                expect(detected({ api: { path: 'pageList', where: { a: 1 } }, using: 'length', is: 0 })).toBe('aborted');
+                expect(detected({ element: { selector: 'p', root: { api: 'pageList' } } })).toBe('aborted');
+            }
+        });
+
         it('skips a global whose descriptor read throws, and captures from the rest', () => {
             // As a cross-origin frame's WindowProxy, reached as `window[0]`, throws on every read
             const install = (/** @type {any} */ w) => {

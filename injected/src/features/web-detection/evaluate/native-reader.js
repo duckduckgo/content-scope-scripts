@@ -1,5 +1,5 @@
 import { getOwnPropertyDescriptor, getOwnPropertyNames, getPrototypeOf, ReflectApply, ReflectGet } from '../../../captured-globals.js';
-import { Failure } from '../model/core.js';
+import { Failure, errorName } from '../model/core.js';
 
 /**
  * @typedef {import('../model/types.js').Reader} Reader
@@ -220,26 +220,6 @@ function tryOwnDescriptor(target, key) {
     } catch {
         return undefined;
     }
-}
-
-/**
- * The name of a thrown value's constructor, read from own data properties through captured globals so
- * no page getter is called.
- *
- * @param {unknown} thrown
- * @returns {string | undefined}
- */
-function errorName(thrown) {
-    try {
-        for (let current = getPrototypeOf(thrown); current !== null; current = getPrototypeOf(current)) {
-            const constructor = getOwnPropertyDescriptor(current, 'constructor')?.value;
-            const name = typeof constructor === 'function' ? getOwnPropertyDescriptor(constructor, 'name')?.value : undefined;
-            if (typeof name === 'string') return name;
-        }
-    } catch {
-        // A proxy's traps may throw, and `null` or `undefined` has no prototype
-    }
-    return undefined;
 }
 
 /**
