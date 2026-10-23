@@ -29,6 +29,8 @@ import { Failure, isFailure, thrownFailure } from '../model/core.js';
  * @implements {Reader}
  */
 export class NativeReader {
+    /** @type {object[]} the global object, its namespace objects, and its constructors and their prototypes */
+    #holderObjects;
     /** @type {Map<object, Map<PropertyKey, CapturedRecord>>} */
     #holders = new Map();
     /** @type {object | undefined} */
@@ -46,8 +48,6 @@ export class NativeReader {
      * @param {Iterable<string>} names - every name config reads or calls
      */
     constructor(global, names) {
-        /** @type {PropertyKey[]} */
-        const keys = [...names, Symbol.iterator];
         const nodeConstructor = getOwnPropertyDescriptor(global, 'Node')?.value;
         if (typeof nodeConstructor === 'function') this.#nodePrototype = tryOwnDescriptor(nodeConstructor, 'prototype')?.value;
         /** @type {object[]} */
@@ -67,11 +67,24 @@ export class NativeReader {
                 holders.push(value);
             }
         }
-        for (const holder of holders) {
+        this.#holderObjects = holders;
+        this.capture([...names, Symbol.iterator]);
+    }
+
+    /**
+     * Capture more names from the holders found at construction. A name already captured keeps its
+     * record, and a getter or method a page replaced since construction is captured as it now stands.
+     *
+     * @param {Iterable<PropertyKey>} keys
+     */
+    capture(keys) {
+        for (const holder of this.#holderObjects) {
+            const captured = this.#holders.get(holder);
             /** @type {Map<PropertyKey, CapturedRecord> | undefined} */
             let records;
             try {
                 for (const key of keys) {
+                    if (captured?.has(key)) continue;
                     const descriptor = getOwnPropertyDescriptor(holder, key);
                     if (!descriptor) continue;
                     records ??= new Map();
@@ -80,8 +93,11 @@ export class NativeReader {
             } catch {
                 continue;
             }
-            if (records) this.#holders.set(holder, records);
+            if (!records) continue;
+            if (captured) records.forEach((record, key) => captured.set(key, record));
+            else this.#holders.set(holder, records);
         }
+        this.#records.clear();
     }
 
     /** Start a run: records found from a prototype are looked up again. */

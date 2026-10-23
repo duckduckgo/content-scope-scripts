@@ -53,6 +53,13 @@ describe('Features definition', () => {
         }
         expect(missing).toEqual([]);
     });
+
+    it('loads `webDetection` first, so it captures native APIs before other features replace them', () => {
+        for (const [platform, features] of Object.entries(platformSupport)) {
+            if (!features.includes('webDetection')) continue;
+            expect(features.indexOf('webDetection')).withContext(platform).toBe(0);
+        }
+    });
 });
 
 describe('test-pages/*/config/*.json schema validation', () => {
