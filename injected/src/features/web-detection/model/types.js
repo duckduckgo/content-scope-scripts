@@ -75,6 +75,14 @@
  */
 
 /**
+ * Where a detector's actions send what they do, as each runs. The feature implements it.
+ *
+ * @typedef {object} ActionSink
+ * @property {(type: string, data?: PayloadData) => void} fireEvent - sends an event
+ * @property {(data: PayloadData) => void} breakageReportData - writes to the detector's breakage entry
+ */
+
+/**
  * A source reads the page. `element` and `text` give a list, and `api` the value it reads: a list
  * with `where`, or with `field` on a list.
  *

@@ -295,7 +295,7 @@ describe('WebDetection sources', () => {
             const reader = new NativeReader(window, compiled.names);
             const label = () => {
                 const state = createDetectorState();
-                const ctx = new EvaluationContext(reader, state.names, state);
+                const ctx = new EvaluationContext(reader, state.names);
                 runDetector(compiled, state, ctx);
                 return ctx.runNames.get('label');
             };
@@ -638,7 +638,7 @@ describe('WebDetection sources', () => {
                 return detectors.map((detector, i) => {
                     const compiled = compileDetector(detector, pageSources(window));
                     const state = createDetectorState();
-                    const ctx = new EvaluationContext(new NativeReader(window, compiled.names), state.names, state, taskFor?.(i) ?? shared);
+                    const ctx = new EvaluationContext(new NativeReader(window, compiled.names), state.names, taskFor?.(i) ?? shared);
                     const result = runDetector(compiled, state, ctx);
                     between(window.document);
                     return { ...result, names: ctx.runNames };
