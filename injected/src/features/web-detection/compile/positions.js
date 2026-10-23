@@ -89,7 +89,10 @@ function markPerItem(scope) {
             (node.kind === 'ref' && node.binder !== undefined) ||
             (node.binder !== undefined && (scope.deps.get(node) ?? []).some((dep) => dep.binder === node.binder && visit(dep)));
         marked.set(node, perItem);
-        if (perItem) node.perItem = true;
+        if (perItem) {
+            node.perItem = true;
+            if (node.binder) node.binder.framed = true;
+        }
         return perItem;
     };
     scope.nodes.forEach(visit);
