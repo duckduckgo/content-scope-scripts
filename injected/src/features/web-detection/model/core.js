@@ -9,7 +9,7 @@
  * - a `ConfigParseError` is config that does not fit the grammar. It is thrown at parse time.
  */
 
-import { isArray, objectKeys } from '../../../captured-globals.js';
+import { getOwnPropertyDescriptor, getPrototypeOf, isArray, objectKeys } from '../../../captured-globals.js';
 
 export class Failure {
     #brand = true;
@@ -52,6 +52,26 @@ export class Failure {
  */
 export function isFailure(value) {
     return typeof value === 'object' && value !== null && Failure.has(value);
+}
+
+/**
+ * The name of a thrown value's constructor, read from own data properties through captured globals so
+ * no page getter is called.
+ *
+ * @param {unknown} thrown
+ * @returns {string | undefined}
+ */
+export function errorName(thrown) {
+    try {
+        for (let current = getPrototypeOf(thrown); current !== null; current = getPrototypeOf(current)) {
+            const constructor = getOwnPropertyDescriptor(current, 'constructor')?.value;
+            const name = typeof constructor === 'function' ? getOwnPropertyDescriptor(constructor, 'name')?.value : undefined;
+            if (typeof name === 'string') return name;
+        }
+    } catch {
+        // A proxy's traps may throw, and `null` or `undefined` has no prototype
+    }
+    return undefined;
 }
 
 /** Config that does not fit the page. */
