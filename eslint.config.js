@@ -110,7 +110,7 @@ export default tseslint.config(
         },
     },
     {
-        files: ['**/unit-test/*.js'],
+        files: ['**/unit-test/**/*.js'],
         languageOptions: {
             globals: {
                 ...globals.jasmine,

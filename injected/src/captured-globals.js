@@ -5,6 +5,11 @@ export const customElementsGet = globalThis.customElements?.get.bind(globalThis.
 export const customElementsDefine = globalThis.customElements?.define.bind(globalThis.customElements);
 export const getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
 export const getOwnPropertyDescriptors = Object.getOwnPropertyDescriptors;
+export const getOwnPropertyNames = Object.getOwnPropertyNames;
+export const getPrototypeOf = Object.getPrototypeOf;
+export const isArray = Array.isArray;
+export const numberIsFinite = Number.isFinite;
+export const numberIsNaN = Number.isNaN;
 export const toString = Object.prototype.toString;
 export const objectKeys = Object.keys;
 export const objectEntries = Object.entries;
@@ -45,6 +50,7 @@ export const DOMException = globalThis.DOMException;
 export const charCodeAt = globalThis.String.prototype.charCodeAt;
 export const ReflectDeleteProperty = Reflect.deleteProperty.bind(Reflect);
 export const ReflectApply = Reflect.apply.bind(Reflect);
+export const ReflectGet = Reflect.get.bind(Reflect);
 export const getRandomValues = globalThis.crypto?.getRandomValues?.bind(globalThis.crypto);
 
 // Secure context only - crypto.subtle is unavailable on HTTP

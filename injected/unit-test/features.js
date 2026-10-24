@@ -29,6 +29,13 @@ describe('Features definition', () => {
         expect(fpScreenSizeIdx).not.toBe(-1);
         expect(webCompatIdx).toBeLessThan(fpScreenSizeIdx);
     });
+
+    it('loads `webDetection` first, so it captures native APIs before other features replace them', () => {
+        for (const [platform, features] of Object.entries(platformSupport)) {
+            if (!features.includes('webDetection')) continue;
+            expect(features.indexOf('webDetection')).withContext(platform).toBe(0);
+        }
+    });
 });
 
 describe('test-pages/*/config/*.json schema validation', () => {
@@ -90,6 +97,11 @@ describe('test-pages/*/config/*.json schema validation', () => {
         path.resolve(__dirname, '../integration-test/test-pages/web-interference-detection/config/youtube-detection-events.json'),
         // Includes an xpath promoSelectors entry on purpose, to test that it is dropped; the schema allows css only
         path.resolve(__dirname, '../integration-test/test-pages/chrome-webstore-patching/config/config-promo-unusable-entries.json'),
+        // webDetection `match` and `actions` expressions are not yet in the published schema
+        path.resolve(__dirname, '../integration-test/test-pages/web-detection/config/config.json'),
+        path.resolve(__dirname, '../integration-test/test-pages/web-detection/config/web-events.json'),
+        path.resolve(__dirname, '../integration-test/test-pages/web-detection/config/web-events-disabled.json'),
+        path.resolve(__dirname, '../integration-test/test-pages/web-detection/config/web-events-exception.json'),
     ];
     for (const configPath of configFiles) {
         if (legacyAllowlist.includes(configPath)) {

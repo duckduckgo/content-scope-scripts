@@ -7,7 +7,6 @@
  * @typedef {import('./types/feature-map').FeatureName} FeatureName
  */
 
-// Features must exist in either `baseFeatures` or `otherFeatures`
 export const baseFeatures = /** @type {FeatureName[]} */ ([
     'fingerprintingAudio',
     'fingerprintingBattery',
@@ -35,7 +34,6 @@ const otherFeatures = /** @type {FeatureName[]} */ ([
     'duckAiChatHistory',
     'harmfulApis',
     'webCompat',
-    'webDetection',
     'webEvents',
     'webInterferenceDetection',
     'detectorPerf',
@@ -59,10 +57,16 @@ const otherFeatures = /** @type {FeatureName[]} */ ([
     'chromeWebstorePatching',
 ]);
 
-/** @type {Record<string, FeatureName[]>} */
+/**
+ * Features load and init in the order listed. `webDetection` comes first so its reader captures native
+ * getters and methods before any other feature replaces them.
+ *
+ * @type {Record<string, FeatureName[]>}
+ */
 export const platformSupport = {
     apple: ['webCompat', 'duckPlayerNative', ...baseFeatures, 'pageContext', 'print', 'trackerProtection'],
     'apple-isolated': [
+        'webDetection',
         'contextMenu',
         'duckPlayer',
         'duckPlayerNative',
@@ -72,7 +76,6 @@ export const platformSupport = {
         'clickToLoad',
         'messageBridge',
         'favicon',
-        'webDetection',
         'webEvents',
         'webInterferenceDetection',
         'detectorPerf',
@@ -86,9 +89,9 @@ export const platformSupport = {
     'apple-ai-clear': ['duckAiDataClearing'],
     'apple-ai-history': ['duckAiChatHistory'],
     android: [
+        'webDetection',
         ...baseFeatures,
         'webCompat',
-        'webDetection',
         'webEvents',
         'webInterferenceDetection',
         'detectorPerf',
@@ -103,6 +106,7 @@ export const platformSupport = {
     'android-ai-history': ['duckAiChatHistory'],
     'android-autofill-import': ['autofillImport'],
     'android-adsjs': [
+        'webDetection',
         'apiManipulation',
         'webCompat',
         'fingerprintingHardware',
@@ -111,14 +115,13 @@ export const platformSupport = {
         'fingerprintingAudio',
         'fingerprintingBattery',
         'gpc',
-        'webDetection',
         'webEvents',
         'breakageReporting',
     ],
     windows: [
+        'webDetection',
         'cookie',
         ...baseFeatures,
-        'webDetection',
         'webEvents',
         'webInterferenceDetection',
         'detectorPerf',
@@ -137,8 +140,8 @@ export const platformSupport = {
         'autofillPasskeys',
         'chromeWebstorePatching',
     ],
-    firefox: ['cookie', ...baseFeatures, 'clickToLoad', 'webDetection', 'webEvents', 'webInterferenceDetection', 'breakageReporting'],
-    chrome: ['cookie', ...baseFeatures, 'clickToLoad', 'webDetection', 'webEvents', 'webInterferenceDetection', 'breakageReporting'],
-    'chrome-mv3': ['cookie', ...baseFeatures, 'clickToLoad', 'webDetection', 'webEvents', 'webInterferenceDetection', 'breakageReporting'],
-    integration: [...baseFeatures, ...otherFeatures],
+    firefox: ['webDetection', 'cookie', ...baseFeatures, 'clickToLoad', 'webEvents', 'webInterferenceDetection', 'breakageReporting'],
+    chrome: ['webDetection', 'cookie', ...baseFeatures, 'clickToLoad', 'webEvents', 'webInterferenceDetection', 'breakageReporting'],
+    'chrome-mv3': ['webDetection', 'cookie', ...baseFeatures, 'clickToLoad', 'webEvents', 'webInterferenceDetection', 'breakageReporting'],
+    integration: ['webDetection', ...baseFeatures, ...otherFeatures],
 };
