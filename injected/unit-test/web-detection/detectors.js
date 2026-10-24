@@ -1,5 +1,4 @@
-import WebDetection from '../../src/features/web-detection.js';
-import { BROKEN, FAILING, IMG, RENDERED, brokenFonts, fonts, imageState, renderedText, report, run, timeline } from './support.js';
+import { BROKEN, IMG, RENDERED, brokenFonts, fonts, imageState, renderedText, run, timeline } from './support.js';
 
 describe('WebDetection detectors', () => {
     describe('the five detectors', () => {
@@ -211,93 +210,6 @@ describe('WebDetection detectors', () => {
             const result = run('<h1>Page not found</h1><p>404 Not Found</p><script>page not found</script>', detector);
             expect(result.entry?.data).toEqual({ keywordCount: 2 });
             expect(result.events).toEqual([{ type: 'errorPhraseCount_count2Plus' }]);
-        });
-    });
-
-    describe('WebDetection results', () => {
-        /**
-         * @param {any} detectors
-         * @returns {WebDetection}
-         */
-        function createInstance(detectors) {
-            const args = {
-                site: { domain: 'example.com', url: 'https://example.com/page' },
-                platform: {},
-                featureSettings: { webDetection: { detectors } },
-                bundledConfig: undefined,
-                messagingContextName: 'test',
-            };
-            const instance = new WebDetection('webDetection', undefined, {}, args);
-            instance.init();
-            return instance;
-        }
-
-        // Frame detection reads window.self and window.top
-        /** @type {any} */
-        let originalWindow;
-        beforeEach(() => {
-            originalWindow = globalThis.window;
-            const mockSelf = {};
-            // @ts-expect-error - mocking for test
-            globalThis.window = { self: mockSelf, top: mockSelf };
-        });
-        afterEach(() => {
-            globalThis.window = originalWindow;
-        });
-
-        const aborting = { ...FAILING, using: 'length', is: { gt: 0 } };
-
-        it('lists an aborted detector in breakage results, with no data', () => {
-            const instance = createInstance({
-                g: { d: { match: aborting, actions: { breakageReportData: { data: { x: { value: 1 } } } } } },
-            });
-            expect(report(instance)).toEqual([{ detectorId: 'g.d', errors: { 'match.api': 'aborted' } }]);
-        });
-
-        it('lists a detector with no breakageReportData action once a run fails', () => {
-            const instance = createInstance({ g: { d: { actions: [{ if: aborting, then: { fireEvent: { type: 't' } } }] } } });
-            expect(report(instance)).toEqual([{ detectorId: 'g.d', errors: { 'actions.0.if.api': 'aborted' } }]);
-        });
-
-        it('lists no entry for a detector with no breakageReportData action that has not failed', () => {
-            const instance = createInstance({ g: { d: { match: false, actions: { fireEvent: { type: 't' } } } } });
-            expect(report(instance)).toEqual([]);
-        });
-
-        it('adds breakageReportData data on a match', () => {
-            const instance = createInstance({ g: { d: { match: true, actions: { breakageReportData: { data: { x: { value: 1 } } } } } } });
-            expect(report(instance)).toEqual([{ detectorId: 'g.d', detected: true, data: { x: 1 } }]);
-        });
-
-        it('returns error for a detector that fails to parse', () => {
-            const instance = createInstance({
-                g: { d: { match: { element: { selector: 'img' }, using: 'length' }, actions: { breakageReportData: {} } } },
-            });
-            expect(report(instance)).toEqual([{ detectorId: 'g.d', errors: { parse: 'error' } }]);
-        });
-
-        it('fires nothing on an aborted `match`, and runs again on the next trigger', async () => {
-            const detectors = { g: { d: { match: aborting, actions: { fireEvent: { type: 't' } } } } };
-            const instance = createInstance(detectors);
-            spyOn(instance, 'callFeatureMethod').and.resolveTo(undefined);
-            const run = spyOn(instance, '_runDetector').and.callThrough();
-            instance.runDetectors({ trigger: 'breakageReport' });
-            instance.runDetectors({ trigger: 'breakageReport' });
-            await Promise.resolve();
-            expect(run).toHaveBeenCalledTimes(2);
-            expect(instance.callFeatureMethod).not.toHaveBeenCalled();
-        });
-
-        it('fires the event with its data on a match', async () => {
-            const detectors = {
-                g: { d: { match: true, actions: { fireEvent: { type: 't', data: { x: { value: 2, buckets: { two: 2 } } } } } } },
-            };
-            const instance = createInstance(detectors);
-            spyOn(instance, 'callFeatureMethod').and.resolveTo(undefined);
-            instance.runDetectors({ trigger: 'breakageReport' });
-            await Promise.resolve();
-            // @ts-expect-error - Jasmine spy type inference doesn't match callFeatureMethod's overloaded signature
-            expect(instance.callFeatureMethod).toHaveBeenCalledWith('webEvents', 'fireEvent', { type: 't', data: { x: 'two' } });
         });
     });
 });

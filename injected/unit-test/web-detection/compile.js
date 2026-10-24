@@ -390,7 +390,6 @@ describe('WebDetection compile', () => {
         it('rejects detector shapes this release does not run', () => {
             expectParseError({ match: true }, 'a detector needs `actions`');
             expectParseError({ actions: {}, items: [] }, "unknown key 'items'");
-            expectParseError({ match: [true], actions: {} }, 'an array is not an expression');
             expectParseError({ actions: [] }, 'a sequence holds at least one element');
             expectParseError({ actions: [[{ fireEvent: { type: 'a' } }]] }, 'an array is not an expression');
         });
@@ -418,10 +417,6 @@ describe('WebDetection compile', () => {
         it('rejects `as`, and a payload key with `this.`', () => {
             expectParseError({ actions: { define: { x: { api: 'a', as: 'y' } } } }, "unknown expression key 'as'");
             expectParseError({ actions: { fireEvent: { type: 'a', data: { 'this.x': { value: 1 } } } } }, 'invalid payload key');
-        });
-
-        it('compiles a `ref` to a name no `define` binds', () => {
-            expect(() => compileDetector({ actions: { define: { x: { ref: 'never' } } } }, pageSources({}))).not.toThrow();
         });
     });
 

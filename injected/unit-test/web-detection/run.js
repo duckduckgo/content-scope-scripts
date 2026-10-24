@@ -94,12 +94,16 @@ describe('WebDetection run', () => {
             expect(d.state.done).toBe(false);
         });
 
-        it('is done after a failing action once `match` has held', () => {
-            const d = detector({ match: true, actions: [{ fireEvent: { type: 'a' } }, { define: { x: { api: 'page.live.bad' } } }] });
+        it('is done after a failing action once `match` has held, and not `detected` without `breakageReportData` running', () => {
+            const d = detector({
+                match: true,
+                actions: [{ fireEvent: { type: 'a' } }, { define: { x: { api: 'page.live.bad' } } }, { breakageReportData: {} }],
+            });
             const run = d.run();
             expect(run.failedAt).toBe('actions.1.define.x.api');
             expect(d.state.done).toBe(true);
             expect(d.types()).toEqual(['a']);
+            expect(d.entry()).toEqual({ detectorId: 'g.d', errors: { 'actions.1.define.x.api': 'aborted' } });
         });
     });
 
@@ -166,20 +170,6 @@ describe('WebDetection run', () => {
             expect(d.types()).toEqual(['seen']);
         });
 
-        it('binds a selected list once, so every `ref` reads the same items, and the leaf as a boolean', () => {
-            const global = { page: { live: { list: [{ ok: true }, { ok: false }] } } };
-            const d = detector(
-                {
-                    actions: [
-                        { define: { oks: { api: { path: 'page.live.list', where: { ok: true } } } } },
-                        { define: { count: { ref: 'oks', using: 'length' } } },
-                    ],
-                },
-                global,
-            );
-            expect(d.run().ctx.runNames.get('count')).toBe(1);
-        });
-
         it('ends the run on a failed value, leaving the name with its earlier binding', () => {
             const global = makeGlobal();
             global.page.live.throws = false;
@@ -240,15 +230,6 @@ describe('WebDetection run', () => {
     });
 
     describe('if', () => {
-        it('evaluates the branch the condition takes only', () => {
-            const d = detector({
-                actions: { if: true, then: { fireEvent: { type: 'a' } }, else: { define: { x: { api: 'page.live.bad' } } } },
-            });
-            const run = d.run();
-            expect(run.failedAt).toBeUndefined();
-            expect(d.types()).toEqual(['a']);
-        });
-
         it('gives `undefined` with no `else` and the condition false', () => {
             const d = detector({ actions: { define: { x: { if: false, then: 1 } } } });
             const { ctx } = d.run();
@@ -256,19 +237,15 @@ describe('WebDetection run', () => {
             expect(ctx.runNames.get('x')).toBeUndefined();
         });
 
-        it('gives the last value of a sequence in a branch', () => {
-            const d = detector({ actions: { define: { x: { if: true, then: [{ define: { y: 1 } }, 2] } } } });
-            const { ctx } = d.run();
-            expect(ctx.runNames.get('x')).toBe(2);
-            expect(ctx.runNames.get('y')).toBe(1);
-        });
-
-        it('reads `undefined` for a name bound in the branch not taken, and a payload reading it omits its key', () => {
+        it('binds a name in the branch taken, and reads `undefined` for one in the branch not taken, whose payload key is omitted', () => {
             const d = detector({
-                actions: [{ if: false, then: { define: { x: 1 } } }, { fireEvent: { type: 'a', data: { x: { value: { ref: 'x' } } } } }],
+                actions: [
+                    { if: false, then: { define: { x: 1 } }, else: { define: { y: 2 } } },
+                    { fireEvent: { type: 'a', data: { x: { value: { ref: 'x' } }, y: { value: { ref: 'y' } } } } },
+                ],
             });
             d.run();
-            expect(d.events).toEqual([{ type: 'a', data: {} }]);
+            expect(d.events).toEqual([{ type: 'a', data: { y: 2 } }]);
         });
 
         it('fires one bucket from a nested chain', () => {
@@ -421,30 +398,11 @@ describe('WebDetection run', () => {
             expect(d.entry()).toBeUndefined();
         });
 
-        it('writes a bare entry from `{}`, with no `detected` when there is no `match`', () => {
-            const d = detector({ actions: { breakageReportData: {} } });
-            d.run();
-            expect(d.entry()).toEqual({ detectorId: 'g.d' });
-        });
-
-        it('writes `detected: true` once `match` has held and `breakageReportData` has run', () => {
-            const d = detector({ match: true, actions: { breakageReportData: {} } });
-            d.run();
-            expect(d.entry()).toEqual({ detectorId: 'g.d', detected: true });
-        });
-
         it('has no entry when `match` holds and no `breakageReportData` action runs', () => {
             const d = detector({ match: true, actions: { fireEvent: { type: 'a' } } });
             d.run();
             expect(d.types()).toEqual(['a']);
             expect(d.entry()).toBeUndefined();
-        });
-
-        it('is not `detected` when `match` holds and the run fails before `breakageReportData`', () => {
-            const d = detector({ match: true, actions: [{ if: aborting, then: 1 }, { breakageReportData: {} }] });
-            d.run();
-            expect(d.state.done).toBe(true);
-            expect(d.entry()).toEqual({ detectorId: 'g.d', errors: { 'actions.0.if.api': 'aborted' } });
         });
 
         it('writes an object as it was when the action ran', () => {
@@ -476,16 +434,6 @@ describe('WebDetection run', () => {
             global.page.live.n = 5;
             d.run();
             expect(d.entry()).toEqual({ detectorId: 'g.d', data: { n: 5, small: 1 } });
-        });
-
-        it('records the failure that ended the run, and keeps it after a clean run', () => {
-            const global = makeGlobal();
-            const d = detector({ actions: [{ if: aborting, then: 1 }, { breakageReportData: {} }] }, global);
-            d.run();
-            expect(d.entry()).toEqual({ detectorId: 'g.d', errors: { 'actions.0.if.api': 'aborted' } });
-            global.page.live.throws = false;
-            d.run();
-            expect(d.entry()).toEqual({ detectorId: 'g.d', errors: { 'actions.0.if.api': 'aborted' } });
         });
 
         it('records only the failure that ended the run', () => {

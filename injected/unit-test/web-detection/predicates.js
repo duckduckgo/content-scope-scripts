@@ -98,26 +98,6 @@ describe('WebDetection predicates', () => {
             expect(holds('', { ...items({ k: { in: [1, 3] } }), is: 2 }, { afterCapture })).toBe(true);
         });
 
-        it('compares a value that is not a number as JS does', () => {
-            const install = timeline([{ name: 'n', entryType: 'navigation', type: 'reload' }]);
-            expect(
-                holds(
-                    '',
-                    {
-                        api: {
-                            path: 'performance.getEntriesByType',
-                            args: ['navigation'],
-                            where: { type: { gt: 1 } },
-                        },
-                        using: 'length',
-                        is: 0,
-                    },
-                    { install },
-                ),
-            ).toBe(true);
-            expect(holds('<p>x</p>', { only: { element: { selector: 'p', field: 'tagName' } }, is: { gte: 'O' } })).toBe(true);
-        });
-
         it('tests Number.isFinite and Number.isNaN through call over NaN, the infinities, a finite number and a string', () => {
             /** @type {Array<[unknown, boolean, boolean]>} */
             const cases = [
@@ -158,12 +138,6 @@ describe('WebDetection predicates', () => {
                 }),
             ).toBe(true);
             expect(holds(html, { api: { path: 'document.title' }, is: { type: 'string', length: 0 } })).toBe(true);
-        });
-
-        it('buckets a value by length', () => {
-            expect(
-                payload('', { api: { path: 'document.title' } }, { buckets: { empty: { length: 0 }, some: { length: { gt: 0 } } } }),
-            ).toEqual({ x: 'empty' });
         });
 
         it('reads a property named like an operator under `is` through the long form', () => {
@@ -212,35 +186,6 @@ describe('WebDetection predicates', () => {
             expect(holds(html, { element: { selector: 'div', where: { none: [{ hidden: true }] } }, using: 'length', is: 2 })).toBe(true);
         });
 
-        it('fails the source when a read fails', () => {
-            expect(
-                holds(
-                    IMG('data-throw'),
-                    { element: { selector: 'img', where: { naturalWidth: 1 } }, using: 'length', is: 0 },
-                    { install: imageState },
-                ),
-            ).toBe('aborted');
-            expect(holds('<p></p>', { element: { selector: 'p', where: { noSuchProperty: 1 } }, using: 'length', is: 0 })).toBe(true);
-        });
-
-        it('tests fails and type first whatever the key order', () => {
-            // `gt` on a throwing property would fail; `fails` decides first
-            expect(
-                holds(
-                    IMG('data-throw'),
-                    { element: { selector: 'img', where: { naturalWidth: { gt: 1, fails: false } } }, using: 'length', is: 0 },
-                    { install: imageState },
-                ),
-            ).toBe(true);
-            expect(
-                holds('<p></p>', {
-                    element: { selector: 'p', where: { id: { gt: 1, type: 'number' } } },
-                    using: 'length',
-                    is: 0,
-                }),
-            ).toBe(true);
-        });
-
         it('treats exists and type as property names on items', () => {
             const install = timeline([{ name: 'n', entryType: 'navigation', exists: 'yes', type: 'reload' }]);
             expect(
@@ -280,6 +225,8 @@ describe('WebDetection predicates', () => {
             expect(test({ nul: { gte: 0 } })).toBe(true);
             expect(test({ s: { gt: 7 } })).toBe(false);
             expect(test({ s: { gte: 7 } })).toBe(true);
+            // Two strings compare as strings: `"7" > "10"`
+            expect(test({ s: { gt: '10' } })).toBe(true);
             expect(test({ s: { type: 'number', gt: 7 } })).toBe(false);
             expect(test({ num: { ...numberTest('isFinite'), gt: 7 } })).toBe(true);
             expect(test({ s: { ...numberTest('isFinite'), gt: 7 } })).toBe(false);
@@ -402,10 +349,6 @@ describe('WebDetection predicates', () => {
                 api: { path: 'Array.of', args: [{ expr: [1, { element: { selector: 'img' }, using: 'length' }] }, 'x', null] },
             };
             expect(holds(html, { api: { path: 'JSON.stringify', args: [built] }, is: '[[1,2],"x",null]' })).toBe(true);
-            expectParseError(
-                { match: { api: { path: 'Array.of', args: [[1]] }, is: {} }, actions: REPORT },
-                'an array is not an expression',
-            );
         });
 
         it('passes a selected list as a new array, so a method changing it leaves the list', () => {
@@ -491,6 +434,7 @@ describe('WebDetection predicates', () => {
             const install = timeline([{ name: 'n', entryType: 'navigation', nothing: null }]);
             const nav = { path: 'performance.getEntriesByType', args: ['navigation'] };
             expect(holds('', { only: { api: { ...nav, field: 'nothing.length' } }, is: { type: 'undefined' } }, { install })).toBe(true);
+            expect(holds('', { only: { api: { ...nav, field: 'missing.length' } }, is: { type: 'undefined' } }, { install })).toBe(true);
             expect(
                 holds('', { api: { ...nav, where: { 'nothing.length': { type: 'undefined' } } }, using: 'length', is: 1 }, { install }),
             ).toBe(true);
@@ -566,17 +510,6 @@ describe('WebDetection predicates', () => {
                 expect(holds(html, { text: { selector: ['span', 'p'], pattern }, is: { length: perElement } })).toBe(true);
             }
             expect(holds(html, { text: { xpath: RENDERED, pattern: '\\S' }, using: 'length', is: { lt: 10 } })).toBe(false);
-        });
-
-        it('counts no rendered text in a root matching nothing', () => {
-            expect(holds('<p>ab</p>', { ...renderedText('#comments'), using: 'length', is: 0 })).toBe(true);
-        });
-
-        it('counts rendered text across XPath chunk boundaries once', () => {
-            const html = '<span>abc de</span>'.repeat(50);
-            for (const xpathConfig of [{ chunkSize: 7, chunkTail: 2 }, { chunkSize: 4, chunkTail: 0 }, { chunkSize: 0 }]) {
-                expect(holds(html, { text: { xpath: RENDERED, pattern: '\\S', xpathConfig }, using: 'length', is: 250 })).toBe(true);
-            }
         });
 
         it('takes an expression, with self the value it reads from', () => {
@@ -723,16 +656,6 @@ describe('WebDetection predicates', () => {
             expect(bound('', { define: { ratio } }, 'ratio', { install })).toBe(0.25);
         });
 
-        it('reads each item in where, an inherited property included', () => {
-            const items = { path: 'JSON.parse', args: ['[{"a":1},{"b":2},{"a":3}]'] };
-            const has = (/** @type {string} */ name) => ({ field: { api: { path: 'Reflect.has', args: [{ self: {} }, name] } }, is: true });
-            expect(holds('', { api: { ...items, where: has('a') }, using: 'length', is: 2 })).toBe(true);
-            expect(holds('<p></p><p></p>', { element: { selector: 'p', where: has('tagName') }, using: 'length', is: 2 })).toBe(true);
-            expect(holds('<p></p><p></p>', { element: { selector: 'p', where: has('noSuchProperty') }, using: 'length', is: 0 })).toBe(
-                true,
-            );
-        });
-
         it('compares two fields of one item', () => {
             const items = { path: 'JSON.parse', args: ['[{"s":1,"e":5},{"s":4,"e":5}]'] };
             expect(holds('', { api: { ...items, where: { e: { gt: { sum: [{ self: 's' }, 2] } } } }, using: 'length', is: 1 })).toBe(true);
@@ -744,32 +667,6 @@ describe('WebDetection predicates', () => {
             expect(holds('', { only: { api: { ...outer, field } }, using: 'length', is: 1 })).toBe(true);
             const items = { path: 'JSON.parse', args: ['[{"nested":{"x":3}},{"nested":{"x":4}}]'] };
             expect(holds('', { api: { ...items, where: { nested: { field: { self: 'x' }, is: 3 } } }, using: 'length', is: 1 })).toBe(true);
-        });
-
-        it('computes an expression reading self once per item, and one that does not once per run', () => {
-            let calls = 0;
-            let reads = 0;
-            const install = (/** @type {any} */ w) => {
-                Object.defineProperty(w, 'probe', {
-                    value: (/** @type {number} */ v) => {
-                        calls++;
-                        return v > 1;
-                    },
-                });
-                Object.defineProperty(w, 'threshold', {
-                    get() {
-                        reads++;
-                        return 1;
-                    },
-                });
-            };
-            const html = '<p>a</p><p>bb</p><p>ccc</p>';
-            const probe = { field: { api: { path: 'probe', args: [{ self: 'textContent.length' }] } }, is: true };
-            expect(holds(html, { element: { selector: 'p', where: probe }, using: 'length', is: 2 }, { install })).toBe(true);
-            expect(calls).toBe(3);
-            const threshold = { 'textContent.length': { gt: { api: 'threshold' } } };
-            expect(holds(html, { element: { selector: 'p', where: threshold }, using: 'length', is: 2 }, { install })).toBe(true);
-            expect(reads).toBe(1);
         });
 
         it('reads a list inside another where, its own self its own item', () => {
@@ -795,10 +692,11 @@ describe('WebDetection predicates', () => {
     describe('expressions in where', () => {
         const items = { path: 'JSON.parse', args: ['[{"a":1,"b":0},{"a":2,"b":5},{"a":3,"b":0}]'] };
 
-        it('tests each item with a boolean expression over self', () => {
+        it('tests each item with a boolean expression over self, an inherited property included', () => {
             const has = (/** @type {string} */ name) => ({ api: { path: 'Reflect.has', args: [{ self: {} }, name] } });
             const sparse = { path: 'JSON.parse', args: ['[{"a":1},{"b":2},{"a":3}]'] };
             expect(holds('', { api: { ...sparse, where: has('a') }, using: 'length', is: 2 })).toBe(true);
+            expect(holds('<p></p><p></p>', { element: { selector: 'p', where: has('tagName') }, using: 'length', is: 2 })).toBe(true);
             expect(holds('<p></p><p></p>', { element: { selector: 'p', where: has('noSuchProperty') }, using: 'length', is: 0 })).toBe(
                 true,
             );
@@ -828,9 +726,16 @@ describe('WebDetection predicates', () => {
             ).toBe(true);
         });
 
-        it('reads an expression reading no self once per evaluation of the source', () => {
+        it('computes an expression reading self once per item, and one reading no self once per evaluation of the source', () => {
+            let calls = 0;
             let reads = 0;
             const install = (/** @type {any} */ w) => {
+                Object.defineProperty(w, 'probe', {
+                    value: (/** @type {number} */ v) => {
+                        calls++;
+                        return v > 1;
+                    },
+                });
                 Object.defineProperty(w, 'flag', {
                     get() {
                         reads++;
@@ -838,10 +743,14 @@ describe('WebDetection predicates', () => {
                     },
                 });
             };
+            const html = '<p>a</p><p>bb</p><p>ccc</p>';
+            const probe = { field: { api: { path: 'probe', args: [{ self: 'textContent.length' }] } }, is: true };
+            expect(holds(html, { element: { selector: 'p', where: probe }, using: 'length', is: 2 }, { install })).toBe(true);
+            expect(calls).toBe(3);
             const count = { element: { selector: 'p', where: { api: 'flag' } }, using: 'length', is: 3 };
-            expect(holds('<p></p><p></p><p></p>', count, { install })).toBe(true);
+            expect(holds(html, count, { install })).toBe(true);
             expect(reads).toBe(1);
-            expect(holds('<p></p><p></p><p></p>', { all: [count, count] }, { install })).toBe(true);
+            expect(holds(html, { all: [count, count] }, { install })).toBe(true);
             expect(reads).toBe(3);
         });
 

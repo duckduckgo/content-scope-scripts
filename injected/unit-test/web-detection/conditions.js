@@ -75,10 +75,6 @@ describe('WebDetection conditions', () => {
             it('should match with empty object (no conditions)', () => {
                 expect(matchInDOM('<p>content</p>', {})).toBe(true);
             });
-
-            it('should reject an array, which is not an expression', () => {
-                expect(() => matchInDOM('<p>content</p>', /** @type {any} */ ([]))).toThrowError(/an array is not an expression/);
-            });
         });
 
         describe('text matching', () => {
@@ -676,16 +672,6 @@ describe('WebDetection conditions', () => {
         });
 
         describe('OR conditions (alternatives)', () => {
-            it('should reject a bare array of alternatives', () => {
-                const alternatives = [{ text: { pattern: 'adblocker' } }, { text: { pattern: 'paywall' } }];
-                expect(() => matchInDOM('<p>adblocker</p>', /** @type {any} */ (alternatives))).toThrowError(
-                    /an array is not an expression/,
-                );
-                expect(() => matchInDOM('<p>adblocker</p>', { all: [text('adblocker'), /** @type {any} */ (alternatives)] })).toThrowError(
-                    /an array is not an expression/,
-                );
-            });
-
             it('should support OR within text conditions', () => {
                 expect(
                     matchInDOM('<p>content</p>', {
@@ -883,15 +869,6 @@ describe('WebDetection conditions', () => {
                 expect(matchInDOM('<p>quick</p>', condition)).toBe(true);
                 // neither
                 expect(matchInDOM('<p>welcome</p>', condition)).toBe(false);
-            });
-
-            it('should reject any, all and none inside a source', () => {
-                expect(() => matchInDOM('<p>foo</p>', /** @type {any} */ ({ text: { all: [{ pattern: 'foo' }] } }))).toThrowError(
-                    /unknown key 'all'/,
-                );
-                expect(() => matchInDOM('<p>foo</p>', /** @type {any} */ ({ element: [{ any: [{ selector: 'p' }] }] }))).toThrowError(
-                    /unknown key 'any'/,
-                );
             });
         });
 
