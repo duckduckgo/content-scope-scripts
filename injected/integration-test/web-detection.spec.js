@@ -12,37 +12,32 @@ const CONFIG = './integration-test/test-pages/web-detection/config/config.json';
  */
 const CAPTCHA_DETECTORS = {
     recaptcha: {
-        triggers: { auto: { state: 'enabled', when: { intervalMs: [100] } } },
         match: {
-            element: {
-                selector: ['.g-recaptcha', "iframe[src*='recaptcha']", "iframe[title*='recaptcha' i]"],
-                visibility: 'visible',
-            },
+            element: { selector: ['.g-recaptcha', "iframe[src*='recaptcha']", "iframe[title*='recaptcha' i]"], visibility: 'visible' },
         },
+        triggers: { auto: { state: 'enabled', when: { intervalMs: [100] } } },
         actions: { fireEvent: { type: 'captcha_recaptcha' }, breakageReportData: {} },
     },
     hcaptcha: {
-        triggers: { auto: { state: 'enabled', when: { intervalMs: [100] } } },
         match: {
-            element: {
-                selector: ['.h-captcha', "iframe[src*='hcaptcha.com']", "iframe[title*='hcaptcha' i]"],
-                visibility: 'visible',
-            },
+            element: { selector: ['.h-captcha', "iframe[src*='hcaptcha.com']", "iframe[title*='hcaptcha' i]"], visibility: 'visible' },
         },
+        triggers: { auto: { state: 'enabled', when: { intervalMs: [100] } } },
         actions: { fireEvent: { type: 'captcha_hcaptcha' }, breakageReportData: {} },
     },
     turnstile: {
-        triggers: { auto: { state: 'enabled', when: { intervalMs: [100] } } },
+        // :not(#turnstile-wrapper) excludes the Cloudflare interstitial's own Turnstile wrapper, so an
+        // interstitial is counted as `cloudflare`, not `turnstile`.
         match: {
             element: {
                 selector: ['.cf-turnstile:not(#turnstile-wrapper)', '.cf-turnstile:not(#turnstile-wrapper) iframe'],
                 visibility: 'visible',
             },
         },
+        triggers: { auto: { state: 'enabled', when: { intervalMs: [100] } } },
         actions: { fireEvent: { type: 'captcha_turnstile' }, breakageReportData: {} },
     },
     cloudflare: {
-        triggers: { auto: { state: 'enabled', when: { intervalMs: [100] } } },
         match: {
             element: {
                 selector: [
@@ -56,10 +51,10 @@ const CAPTCHA_DETECTORS = {
                 visibility: 'visible',
             },
         },
+        triggers: { auto: { state: 'enabled', when: { intervalMs: [100] } } },
         actions: { fireEvent: { type: 'captcha_cloudflare' }, breakageReportData: {} },
     },
     other: {
-        triggers: { auto: { state: 'enabled', when: { intervalMs: [100] } } },
         match: {
             text: {
                 pattern: [
@@ -69,6 +64,7 @@ const CAPTCHA_DETECTORS = {
                 ],
             },
         },
+        triggers: { auto: { state: 'enabled', when: { intervalMs: [100] } } },
         actions: { fireEvent: { type: 'captcha_other' }, breakageReportData: {} },
     },
 };

@@ -16,21 +16,19 @@
                                     "pattern": "ad ?block(er)? detected"
                                 }
                             },
+                            "triggers": {
+                                "auto": {
+                                    "state": "enabled",
+                                    "when": {
+                                        "intervalMs": [50]
+                                    }
+                                }
+                            },
                             "actions": {
                                 "fireEvent": {
                                     "type": "adwall"
                                 },
                                 "breakageReportData": {}
-                            },
-                            "triggers": {
-                                "auto": {
-                                    "state": "enabled",
-                                    "when": {
-                                        "intervalMs": [
-                                            50
-                                        ]
-                                    }
-                                }
                             }
                         }
                     }

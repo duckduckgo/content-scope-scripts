@@ -541,7 +541,7 @@ describe('DetectorPerf', () => {
             expect(captured).toEqual(['detectorPerf_measured']);
         });
 
-        it('accepts dotted detector names', async () => {
+        it('accepts namespaced names for future detector call sites', async () => {
             const { feature, captured } = createFeature();
             feature.record('youtube.sweep', 10);
             await settle();

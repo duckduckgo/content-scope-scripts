@@ -159,7 +159,11 @@ test.describe('DetectorPerf Feature', () => {
         const config = buildConfig();
         config.features.webDetection.settings.detectors.failureTest = {
             invalidSelector: {
-                match: { element: { selector: '[' } },
+                match: {
+                    element: {
+                        selector: '[',
+                    },
+                },
                 actions: { breakageReportData: {} },
             },
         };
