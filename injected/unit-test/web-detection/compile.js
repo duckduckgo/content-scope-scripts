@@ -99,7 +99,7 @@ describe('WebDetection compile', () => {
             expect(holds('<p>match match</p>', { only: { text: { pattern: 'match' } }, is: 'match' })).toBe('error');
             expect(holds('<p id="a"></p>', { only: { element: { selector: 'p' } }, is: { tagName: 'P', id: 'a' } })).toBe(true);
             expect(payload('<p>x</p>', { only: { text: { pattern: 'x' } } })).toEqual({ x: 'x' });
-            expect(payload('<p>x</p>', { only: { element: { selector: 'p' } } })).toEqual({});
+            expect(payload('<p>x</p>', { only: { element: { selector: 'p' } } })).toEqual({ x: {} });
         });
 
         it('reads an element source under any as a boolean', () => {
@@ -204,14 +204,11 @@ describe('WebDetection compile', () => {
             expect(holds('', { ...entries, is: { lt: 1 } }, { install })).toBe(false);
         });
 
-        it('sends a selected list bucketed, each bucket unwrapping it, and errors on one unbucketed', () => {
+        it('sends a selected list bucketed, each bucket unwrapping it, and unbucketed as an array', () => {
             const buckets = { small: { lt: 10 }, large: { gte: 10 } };
             expect(run(widths([5]), withPayload(width, { buckets }), { install: imageState }).data).toEqual({ x: 'small' });
             expect(run(widths([5]), withPayload(width, { buckets: { two: { length: 2 } } }), { install: imageState }).data).toEqual({});
-            expect(run(widths([5]), withPayload(width), { install: imageState }).failure).toEqual({
-                path: 'actions.fireEvent.data.x.value',
-                result: 'error',
-            });
+            expect(run(widths([5, 6]), withPayload(width), { install: imageState }).data).toEqual({ x: [5, 6] });
             expect(run(widths([5, 6]), withPayload(width, { buckets }), { install: imageState }).failure).toEqual({
                 path: 'actions.fireEvent.data.x.value',
                 result: 'error',

@@ -447,6 +447,18 @@ describe('WebDetection run', () => {
             expect(d.entry()).toEqual({ detectorId: 'g.d', errors: { 'actions.0.if.api': 'aborted' } });
         });
 
+        it('writes an object as it was when the action ran', () => {
+            const global = makeGlobal();
+            global.page.live.throws = false;
+            const d = detector({ actions: { breakageReportData: { data: { live: { value: { api: 'page.live' } } } } } }, global);
+            d.run();
+            global.page.live.n = 5;
+            expect(d.entry()).toEqual({
+                detectorId: 'g.d',
+                data: { live: { n: 0, ready: false, label: 'x', throws: false, bad: 1 } },
+            });
+        });
+
         it('merges `data` across writes, most recent per key, keeping a key a later write omits', () => {
             const global = makeGlobal();
             global.page.live.n = 1;
