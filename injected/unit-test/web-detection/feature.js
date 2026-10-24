@@ -1,7 +1,18 @@
 import WebDetection from '../../src/features/web-detection.js';
 import { NativeReader } from '../../src/features/web-detection/evaluate/native-reader.js';
 import WebEvents from '../../src/features/web-events.js';
-import { counter, detects, report, runDetector, runDetectorsInEnv, testGlobal } from './support.js';
+import {
+    FAILING,
+    counter,
+    createInstance,
+    detects,
+    inTopFrame,
+    instanceArgs,
+    report,
+    runDetector,
+    runDetectorsInEnv,
+    testGlobal,
+} from './support.js';
 
 /**
  * @typedef {import('../../src/features/web-detection/compile/detector-config.js').RawDetectorConfig} RawDetectorConfig
@@ -131,32 +142,10 @@ describe('WebDetection feature', () => {
     });
 
     describe('_executeFireEvent', () => {
-        /**
-         * @returns {WebDetection}
-         */
-        function createInstance() {
-            const args = {
-                site: { domain: 'example.com', url: 'https://example.com/page' },
-                platform: {},
-                featureSettings: { webDetection: { detectors: {} } },
-                bundledConfig: undefined,
-                messagingContextName: 'test',
-            };
-            const originalWindow = globalThis.window;
-            const mockSelf = {};
-            // @ts-expect-error - mocking for test
-            globalThis.window = { self: mockSelf, top: mockSelf };
-            try {
-                const instance = new WebDetection('webDetection', undefined, {}, args);
-                instance.init();
-                return instance;
-            } finally {
-                globalThis.window = originalWindow;
-            }
-        }
+        inTopFrame();
 
         it('should send the type', async () => {
-            const instance = createInstance();
+            const instance = createInstance({});
             spyOn(instance, 'callFeatureMethod').and.resolveTo(undefined);
             await instance._executeFireEvent('adwall');
             // @ts-expect-error - Jasmine spy type inference doesn't match callFeatureMethod's overloaded signature
@@ -164,7 +153,7 @@ describe('WebDetection feature', () => {
         });
 
         it('should send the payload when there is one', async () => {
-            const instance = createInstance();
+            const instance = createInstance({});
             spyOn(instance, 'callFeatureMethod').and.resolveTo(undefined);
             await instance._executeFireEvent('adwall', { n: 1 });
             // @ts-expect-error - Jasmine spy type inference doesn't match callFeatureMethod's overloaded signature
@@ -173,31 +162,11 @@ describe('WebDetection feature', () => {
     });
 
     describe('fireEvent with webEvents feature lifecycle', () => {
-        /** @type {typeof globalThis.window} */
-        let originalWindow;
-
-        beforeEach(() => {
-            originalWindow = globalThis.window;
-            const mockSelf = {};
-            // @ts-expect-error - mocking for test
-            globalThis.window = { self: mockSelf, top: mockSelf };
-        });
-
-        afterEach(() => {
-            globalThis.window = originalWindow;
-        });
-
-        const defaultArgs = {
-            site: { domain: 'example.com', url: 'https://example.com/page' },
-            platform: {},
-            featureSettings: { webDetection: { detectors: {} } },
-            bundledConfig: undefined,
-            messagingContextName: 'test',
-        };
+        inTopFrame();
+        const defaultArgs = instanceArgs({});
 
         it('should not fire when webEvents feature is not loaded', async () => {
-            const instance = new WebDetection('webDetection', undefined, {}, defaultArgs);
-            instance.init();
+            const instance = createInstance({});
 
             // callFeatureMethod will return CallFeatureMethodError (feature not found)
             await instance._executeFireEvent('adwall');
@@ -211,9 +180,7 @@ describe('WebDetection feature', () => {
             features.webEvents = webEvents;
             webEvents.markFeatureAsSkipped('feature disabled for this site');
             const fireEventSpy = spyOn(webEvents, 'fireEvent');
-
-            const instance = new WebDetection('webDetection', undefined, features, defaultArgs);
-            instance.init();
+            const instance = createInstance({}, { features });
 
             // callFeatureMethod will return CallFeatureMethodError (skipped)
             await instance._executeFireEvent('adwall');
@@ -227,9 +194,7 @@ describe('WebDetection feature', () => {
             features.webEvents = webEvents;
             await webEvents.callInit(defaultArgs);
             const fireEventSpy = spyOn(webEvents, 'fireEvent');
-
-            const instance = new WebDetection('webDetection', undefined, features, defaultArgs);
-            instance.init();
+            const instance = createInstance({}, { features });
 
             await instance._executeFireEvent('adwall');
             expect(fireEventSpy).toHaveBeenCalledWith({ type: 'adwall' });
@@ -237,43 +202,23 @@ describe('WebDetection feature', () => {
     });
 
     describe('in the feature', () => {
-        /** @type {any} */
-        let originalWindow;
+        inTopFrame();
         beforeEach(() => {
-            originalWindow = globalThis.window;
-            const mockSelf = {};
-            // @ts-expect-error - mocking for test
-            globalThis.window = { self: mockSelf, top: mockSelf };
             jasmine.clock().install();
+            spyOn(WebDetection.prototype, 'callFeatureMethod').and.resolveTo(undefined);
         });
         afterEach(() => {
             jasmine.clock().uninstall();
-            globalThis.window = originalWindow;
             delete testGlobal.wdTestPage;
         });
 
-        /**
-         * @param {Record<string, unknown>} detectors
-         * @returns {WebDetection}
-         */
-        function createInstance(detectors) {
-            const args = {
-                site: { domain: 'example.com', url: 'https://example.com/page' },
-                platform: {},
-                featureSettings: { webDetection: { detectors: { g: detectors } } },
-                bundledConfig: undefined,
-                messagingContextName: 'test',
-            };
-            const instance = new WebDetection('webDetection', undefined, {}, args);
-            spyOn(instance, 'callFeatureMethod').and.resolveTo(undefined);
-            instance.init();
-            return instance;
-        }
+        /** An instance over the detectors of group `g`. */
+        const create = (/** @type {Record<string, unknown>} */ detectors) => createInstance({ g: detectors });
 
         const auto = { auto: { state: 'enabled', when: { intervalMs: [100, 200, 300] } } };
 
         it('cancels the timers of a detector once its `match` holds', () => {
-            const instance = createInstance({ d: { triggers: auto, match: true, actions: { fireEvent: { type: 'a' } } } });
+            const instance = create({ d: { triggers: auto, match: true, actions: { fireEvent: { type: 'a' } } } });
             const run = spyOn(instance, '_runDetector').and.callThrough();
             jasmine.clock().tick(1000);
             expect(run).toHaveBeenCalledTimes(1);
@@ -281,7 +226,7 @@ describe('WebDetection feature', () => {
         });
 
         it('keeps the timers shared with a detector that is not done', () => {
-            const instance = createInstance({
+            const instance = create({
                 done: { triggers: auto, match: true, actions: { breakageReportData: {} } },
                 running: { triggers: auto, actions: { fireEvent: { type: 'a' } } },
             });
@@ -290,7 +235,7 @@ describe('WebDetection feature', () => {
         });
 
         it('shares one task among the detectors of a timer or a report, and starts a new one for the next', () => {
-            const instance = createInstance({
+            const instance = create({
                 a: { triggers: auto, actions: { fireEvent: { type: 'a' } } },
                 b: { triggers: auto, actions: { fireEvent: { type: 'b' } } },
             });
@@ -309,7 +254,7 @@ describe('WebDetection feature', () => {
 
         it('returns entries written by `auto` runs, and does not run a done detector for the report', () => {
             testGlobal.wdTestPage = { n: 3 };
-            const instance = createInstance({
+            const instance = create({
                 d: {
                     triggers: auto,
                     match: true,
@@ -322,8 +267,24 @@ describe('WebDetection feature', () => {
             expect(instance.callFeatureMethod).toHaveBeenCalledTimes(1);
         });
 
+        it('lists an aborted detector in breakage results, with no data', () => {
+            const failing = { ...FAILING, using: 'length', is: { gt: 0 } };
+            const instance = create({ d: { match: failing, actions: { breakageReportData: { data: { x: { value: 1 } } } } } });
+            expect(report(instance)).toEqual([{ detectorId: 'g.d', errors: { 'match.api': 'aborted' } }]);
+        });
+
+        it('fires the event with its data on a match', async () => {
+            const instance = create({
+                d: { match: true, actions: { fireEvent: { type: 't', data: { x: { value: 2, buckets: { two: 2 } } } } } },
+            });
+            instance.runDetectors({ trigger: 'breakageReport' });
+            await Promise.resolve();
+            // @ts-expect-error - Jasmine spy type inference doesn't match callFeatureMethod's overloaded signature
+            expect(instance.callFeatureMethod).toHaveBeenCalledWith('webEvents', 'fireEvent', { type: 't', data: { x: 'two' } });
+        });
+
         it('runs a detector with no `match` for the report, which reads its detector names', () => {
-            const instance = createInstance({
+            const instance = create({
                 d: {
                     triggers: auto,
                     actions: [
@@ -347,7 +308,7 @@ describe('WebDetection feature', () => {
                     match: true,
                     actions: { breakageReportData: {} },
                 };
-                createInstance({
+                create({
                     on,
                     disabled: detects(true, { state: 'disabled' }),
                     noTrigger: detects(true, { triggers: { breakageReport: { state: 'disabled' } } }),
@@ -361,7 +322,7 @@ describe('WebDetection feature', () => {
                 const compile = spyOn(WebDetection.prototype, '_compile').and.callThrough();
                 // @ts-expect-error - mocking for test
                 globalThis.window.top = {};
-                const instance = createInstance({
+                const instance = create({
                     d: detects(true),
                     a: { triggers: auto, match: true, actions: { breakageReportData: {} } },
                 });
@@ -372,7 +333,7 @@ describe('WebDetection feature', () => {
 
             it('compiles a detector once, however often it runs', () => {
                 const compile = spyOn(WebDetection.prototype, '_compile').and.callThrough();
-                const instance = createInstance({ d: { triggers: auto, actions: { fireEvent: { type: 'a' } } } });
+                const instance = create({ d: { triggers: auto, actions: { fireEvent: { type: 'a' } } } });
                 jasmine.clock().tick(1000);
                 instance.runDetectors({ trigger: 'breakageReport' });
                 expect(instance.callFeatureMethod).toHaveBeenCalledTimes(4);
@@ -380,12 +341,12 @@ describe('WebDetection feature', () => {
             });
 
             it('reports the parse error of a detector that runs, and not of one that does not', () => {
-                const instance = createInstance({ runs: unparseable, disabled: { ...unparseable, state: 'disabled' } });
+                const instance = create({ runs: unparseable, disabled: { ...unparseable, state: 'disabled' } });
                 expect(report(instance)).toEqual([{ detectorId: 'g.runs', errors: { parse: 'error' } }]);
             });
 
             it('reports the parse error of an `auto`-only detector once its timer has run', () => {
-                const instance = createInstance({ d: { ...unparseable, triggers: { breakageReport: { state: 'disabled' }, ...auto } } });
+                const instance = create({ d: { ...unparseable, triggers: { breakageReport: { state: 'disabled' }, ...auto } } });
                 expect(report(instance)).toEqual([]);
                 jasmine.clock().tick(100);
                 expect(report(instance)).toEqual([{ detectorId: 'g.d', errors: { parse: 'error' } }]);
@@ -395,36 +356,23 @@ describe('WebDetection feature', () => {
         describe('parsing at load and init', () => {
             const reads = (/** @type {string} */ name) => ({ match: { api: name }, actions: { breakageReportData: {} } });
 
-            /**
-             * @param {Record<string, unknown> | undefined} detectors - the detectors at load, or none
-             */
-            function loadInstance(detectors) {
-                const args = {
-                    site: { domain: 'example.com', url: 'https://example.com/page' },
-                    platform: {},
-                    featureSettings: detectors ? { webDetection: { detectors: { g: detectors } } } : {},
-                    bundledConfig: undefined,
-                    messagingContextName: 'test',
-                };
-                const instance = new WebDetection('webDetection', undefined, {}, args);
-                instance.load();
-                return { instance, args };
-            }
+            /** An instance after `load` with the detectors of group `g`, or none. */
+            const loadInstance = (/** @type {Record<string, unknown> | undefined} */ detectors) =>
+                createInstance(detectors && { g: detectors }, { load: true });
 
             /**
              * @param {WebDetection} instance
-             * @param {object} args
              * @param {Record<string, unknown>} detectors
              */
-            function initWith(instance, args, detectors) {
-                instance.setArgs({ ...args, featureSettings: { webDetection: { detectors: { g: detectors } } } });
+            function initWith(instance, detectors) {
+                instance.setArgs(instanceArgs({ g: detectors }));
                 instance.init();
             }
 
             it('parses once when init has the settings load parsed', () => {
                 const compile = spyOn(WebDetection.prototype, '_compile').and.callThrough();
                 const capture = spyOn(NativeReader.prototype, 'capture').and.callThrough();
-                const { instance } = loadInstance({ d: detects(true) });
+                const instance = loadInstance({ d: detects(true) });
                 instance.init();
                 expect(compile).toHaveBeenCalledTimes(1);
                 expect(capture).toHaveBeenCalledTimes(1);
@@ -433,8 +381,8 @@ describe('WebDetection feature', () => {
 
             it('takes the detectors from settings init has that differ from those load parsed, and captures the names added', () => {
                 const capture = spyOn(NativeReader.prototype, 'capture').and.callThrough();
-                const { instance, args } = loadInstance({ a: reads('wdLoaded') });
-                initWith(instance, args, { a: reads('wdLoaded'), b: reads('wdAdded') });
+                const instance = loadInstance({ a: reads('wdLoaded') });
+                initWith(instance, { a: reads('wdLoaded'), b: reads('wdAdded') });
                 expect(capture).toHaveBeenCalledTimes(2);
                 expect([...capture.calls.mostRecent().args[0]]).toContain('wdAdded');
                 testGlobal.wdLoaded = true;
@@ -450,9 +398,9 @@ describe('WebDetection feature', () => {
             it('parses at init when load had no detectors', () => {
                 const compile = spyOn(WebDetection.prototype, '_compile').and.callThrough();
                 const capture = spyOn(NativeReader.prototype, 'capture').and.callThrough();
-                const { instance, args } = loadInstance(undefined);
+                const instance = loadInstance(undefined);
                 expect(compile).not.toHaveBeenCalled();
-                initWith(instance, args, { d: detects(true) });
+                initWith(instance, { d: detects(true) });
                 expect(compile).toHaveBeenCalledTimes(1);
                 expect(capture).toHaveBeenCalledTimes(1);
                 expect(report(instance)).toEqual([{ detectorId: 'g.d', detected: true }]);
@@ -462,7 +410,7 @@ describe('WebDetection feature', () => {
         describe('a throw in a report-time run', () => {
             it('records a page value thrown past the reader at its path, calling none of its code', () => {
                 testGlobal.wdTestPage = { x: 1 };
-                const instance = createInstance({
+                const instance = create({
                     thrown: { match: { api: 'wdTestPage.x', is: 1 }, actions: { breakageReportData: {} } },
                     working: detects(true),
                 });
@@ -482,7 +430,7 @@ describe('WebDetection feature', () => {
             });
 
             it('records a throw outside any expression under `run`, and runs the other detectors', () => {
-                const instance = createInstance({
+                const instance = create({
                     thrown: { match: true, actions: { fireEvent: { type: 'a' } } },
                     working: detects(true),
                 });
@@ -496,7 +444,7 @@ describe('WebDetection feature', () => {
 
         describe('a throw in an `auto` run', () => {
             it('records a throw outside any expression under `run`, in the next report', () => {
-                const instance = createInstance({
+                const instance = create({
                     thrown: {
                         triggers: { breakageReport: { state: 'disabled' }, ...auto },
                         match: true,
@@ -519,7 +467,7 @@ describe('WebDetection feature', () => {
 
         describe('actions', () => {
             it('send events and write the breakage entry as each runs, in config order', () => {
-                const instance = createInstance({
+                const instance = create({
                     d: {
                         actions: [
                             { fireEvent: { type: 'a' } },
