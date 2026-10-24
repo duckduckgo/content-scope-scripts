@@ -3,9 +3,11 @@ import { NativeReader } from '../../src/features/web-detection/evaluate/native-r
 import WebEvents from '../../src/features/web-events.js';
 import {
     FAILING,
+    REPORT,
     counter,
     createInstance,
     detects,
+    fires,
     inTopFrame,
     instanceArgs,
     report,
@@ -16,79 +18,86 @@ import {
 
 /**
  * @typedef {import('../../src/features/web-detection/compile/detector-config.js').RawDetectorConfig} RawDetectorConfig
+ * @typedef {import('../../src/features/web-detection/compile/detector-config.js').RawTriggers} RawTriggers
+ * @typedef {import('../../src/features/web-detection/evaluate/breakage-entries.js').BreakageEntry} BreakageEntry
+ * @typedef {import('./support.js').TestEnv} TestEnv
  */
 
 describe('WebDetection feature', () => {
+    /** @type {RawTriggers} */
+    const OFF = { breakageReport: { state: 'disabled' } };
+
     describe('runDetectors', () => {
+        /** @type {BreakageEntry[]} */
+        const DETECTED = [{ detectorId: 'group.detector', detected: true }];
+        const failed = (/** @type {NonNullable<BreakageEntry['errors']>} */ errors) => [{ detectorId: 'group.detector', errors }];
+        const onDomain = detects(true, { triggers: { breakageReport: { runConditions: [{ domain: 'example.com' }] } } });
+        const internal = detects(true, { state: 'internal' });
+
         it('should return empty array when no detectors configured', () => {
             expect(runDetectorsInEnv({})).toEqual([]);
         });
 
-        it('should include a detector whose breakageReportData action ran', () => {
-            const results = runDetector(detects(true));
-            expect(results).toEqual([{ detectorId: 'group.detector', detected: true }]);
-        });
-
-        it('should exclude a detector whose `match` did not hold', () => {
-            expect(runDetector(detects(false))).toEqual([]);
-        });
-
-        it('should exclude a detector with no breakageReportData action that has not failed', () => {
-            expect(runDetector({ actions: { fireEvent: { type: 'adwall' } } })).toEqual([]);
-        });
-
-        it('should include a detector with no breakageReportData action once a run fails', () => {
-            expect(runDetector({ match: { element: { selector: '!!!invalid' } }, actions: { fireEvent: { type: 'adwall' } } })).toEqual([
-                { detectorId: 'group.detector', errors: { 'match.element': 'error' } },
-            ]);
-        });
-
-        it('should not run when detector state is disabled', () => {
-            expect(runDetector(detects(true, { state: 'disabled' }))).toEqual([]);
-        });
-
-        it('should not run when trigger state is disabled', () => {
-            expect(runDetector(detects(true, { triggers: { breakageReport: { state: 'disabled' } } }))).toEqual([]);
-        });
-
-        it('should not run in iframe when default runConditions require top frame', () => {
-            expect(runDetector(detects(true), { isTopFrame: false })).toEqual([]);
-        });
-
-        it('should run in top frame when runConditions require top frame', () => {
-            expect(runDetector(detects(true), { isTopFrame: true }).length).toBe(1);
-        });
-
-        it('should not run when domain runCondition does not match', () => {
-            expect(
-                runDetector(detects(true, { triggers: { breakageReport: { runConditions: [{ domain: 'example.com' }] } } }), {
-                    domain: 'other.com',
-                }),
-            ).toEqual([]);
-        });
-
-        it('should run when domain runCondition matches', () => {
-            expect(
-                runDetector(detects(true, { triggers: { breakageReport: { runConditions: [{ domain: 'example.com' }] } } }), {
-                    domain: 'example.com',
-                }).length,
-            ).toBe(1);
-        });
-
-        it('should run internal detector when platform.internal is true', () => {
-            expect(runDetector(detects(true, { state: 'internal' }), { platform: { internal: true } }).length).toBe(1);
-        });
-
-        it('should not run internal detector when platform.internal is false', () => {
-            expect(runDetector(detects(true, { state: 'internal' }), { platform: { internal: false } })).toEqual([]);
-        });
+        /** @type {Array<[string, RawDetectorConfig, TestEnv, BreakageEntry[]]>} */
+        const cases = [
+            ['include a detector whose breakageReportData action ran', detects(true), {}, DETECTED],
+            ['exclude a detector whose `match` did not hold', detects(false), {}, []],
+            [
+                'exclude a detector with no breakageReportData action that has not failed',
+                { actions: { fireEvent: { type: 'adwall' } } },
+                {},
+                [],
+            ],
+            [
+                'include a detector with no breakageReportData action once a run fails',
+                { match: { element: { selector: '!!!invalid' } }, actions: { fireEvent: { type: 'adwall' } } },
+                {},
+                failed({ 'match.element': 'error' }),
+            ],
+            ['not run when detector state is disabled', detects(true, { state: 'disabled' }), {}, []],
+            ['not run when trigger state is disabled', detects(true, { triggers: OFF }), {}, []],
+            ['not run in iframe when default runConditions require top frame', detects(true), { isTopFrame: false }, []],
+            ['run in top frame when runConditions require top frame', detects(true), { isTopFrame: true }, DETECTED],
+            ['not run when domain runCondition does not match', onDomain, { domain: 'other.com' }, []],
+            ['run when domain runCondition matches', onDomain, { domain: 'example.com' }, DETECTED],
+            ['run internal detector when platform.internal is true', internal, { platform: { internal: true } }, DETECTED],
+            ['not run internal detector when platform.internal is false', internal, { platform: { internal: false } }, []],
+            [
+                'return error for detector with invalid regex',
+                detects({ text: { pattern: '[invalid(regex' } }),
+                {},
+                failed({ parse: 'error' }),
+            ],
+            [
+                'return error for detector with invalid selector',
+                detects({ element: { selector: '!!!invalid' } }),
+                {},
+                failed({ 'match.element': 'error' }),
+            ],
+            [
+                'return error when condition mixes operator keys with leaf fields',
+                detects({ text: { all: [{ pattern: 'foo' }], pattern: 'bar' } }),
+                {},
+                failed({ parse: 'error' }),
+            ],
+            [
+                'return error for detector that fails to parse',
+                /** @type {RawDetectorConfig} */ ({ match: {}, actions: [{ when: true }] }),
+                {},
+                failed({ parse: 'error' }),
+            ],
+        ];
+        for (const [title, config, env, expected] of cases) {
+            it(`should ${title}`, () => {
+                expect(runDetector(config, env)).toEqual(expected);
+            });
+        }
 
         it('should return multiple detectors from different groups', () => {
             const results = runDetectorsInEnv({
                 adwalls: { generic: detects(true), specific: detects(true) },
                 paywalls: { detector1: detects(true) },
             });
-            expect(results.length).toBe(3);
             expect(results.map((r) => r.detectorId).sort()).toEqual(['adwalls.generic', 'adwalls.specific', 'paywalls.detector1']);
         });
 
@@ -98,66 +107,32 @@ describe('WebDetection feature', () => {
                     enabled1: detects(true),
                     disabled1: detects(true, { state: 'disabled' }),
                     enabled2: detects(true),
-                    disabledTrigger: detects(true, { triggers: { breakageReport: { state: 'disabled' } } }),
+                    disabledTrigger: detects(true, { triggers: OFF }),
                 },
             });
             expect(results.map((r) => r.detectorId).sort()).toEqual(['group.enabled1', 'group.enabled2']);
         });
 
-        it('should return error for detector with invalid regex', () => {
-            expect(runDetector(detects({ text: { pattern: '[invalid(regex' } }))).toEqual([
-                { detectorId: 'group.detector', errors: { parse: 'error' } },
-            ]);
-        });
-
-        it('should return error for detector with invalid selector', () => {
-            expect(runDetector(detects({ element: { selector: '!!!invalid' } }))).toEqual([
-                { detectorId: 'group.detector', errors: { 'match.element': 'error' } },
-            ]);
-        });
-
-        it('should return error when condition mixes operator keys with leaf fields', () => {
-            expect(runDetector(detects({ text: { all: [{ pattern: 'foo' }], pattern: 'bar' } }))).toEqual([
-                { detectorId: 'group.detector', errors: { parse: 'error' } },
-            ]);
-        });
-
-        it('should return error for detector that fails to parse', () => {
-            expect(runDetector(/** @type {RawDetectorConfig} */ ({ match: {}, actions: [{ when: true }] }))).toEqual([
-                { detectorId: 'group.detector', errors: { parse: 'error' } },
-            ]);
-        });
-
         it('should continue processing other detectors after error', () => {
-            const results = runDetectorsInEnv({
-                group: {
-                    broken: detects({ text: { pattern: '[invalid' } }),
-                    working: detects(true),
-                },
-            });
-            expect(results.length).toBe(2);
-            expect(results.find((r) => r.detectorId === 'group.broken')?.errors).toEqual({ parse: 'error' });
-            expect(results.find((r) => r.detectorId === 'group.working')?.detected).toBe(true);
+            expect(runDetectorsInEnv({ group: { broken: detects({ text: { pattern: '[invalid' } }), working: detects(true) } })).toEqual([
+                { detectorId: 'group.broken', errors: { parse: 'error' } },
+                { detectorId: 'group.working', detected: true },
+            ]);
         });
     });
 
     describe('_executeFireEvent', () => {
         inTopFrame();
 
-        it('should send the type', async () => {
+        it('should send the type, and the payload when there is one', async () => {
             const instance = createInstance({});
-            spyOn(instance, 'callFeatureMethod').and.resolveTo(undefined);
+            const send = spyOn(instance, 'callFeatureMethod').and.resolveTo(undefined);
             await instance._executeFireEvent('adwall');
-            // @ts-expect-error - Jasmine spy type inference doesn't match callFeatureMethod's overloaded signature
-            expect(instance.callFeatureMethod).toHaveBeenCalledWith('webEvents', 'fireEvent', { type: 'adwall' });
-        });
-
-        it('should send the payload when there is one', async () => {
-            const instance = createInstance({});
-            spyOn(instance, 'callFeatureMethod').and.resolveTo(undefined);
             await instance._executeFireEvent('adwall', { n: 1 });
-            // @ts-expect-error - Jasmine spy type inference doesn't match callFeatureMethod's overloaded signature
-            expect(instance.callFeatureMethod).toHaveBeenCalledWith('webEvents', 'fireEvent', { type: 'adwall', data: { n: 1 } });
+            expect(/** @type {readonly unknown[][]} */ (send.calls.allArgs())).toEqual([
+                ['webEvents', 'fireEvent', { type: 'adwall' }],
+                ['webEvents', 'fireEvent', { type: 'adwall', data: { n: 1 } }],
+            ]);
         });
     });
 
@@ -165,38 +140,25 @@ describe('WebDetection feature', () => {
         inTopFrame();
         const defaultArgs = instanceArgs({});
 
-        it('should not fire when webEvents feature is not loaded', async () => {
-            const instance = createInstance({});
-
-            // callFeatureMethod will return CallFeatureMethodError (feature not found)
-            await instance._executeFireEvent('adwall');
-            // Completes without error
-        });
-
-        it('should not fire when webEvents feature is skipped (disabled on page)', async () => {
+        it('should not fire when webEvents feature is not loaded, or is skipped (disabled on page)', async () => {
+            // callFeatureMethod returns CallFeatureMethodError, for a feature not found and for one skipped
+            await expectAsync(createInstance({})._executeFireEvent('adwall')).toBeResolved();
             /** @type {Partial<import('../../src/features.js').FeatureMap>} */
             const features = {};
-            const webEvents = new WebEvents('webEvents', undefined, features, defaultArgs);
-            features.webEvents = webEvents;
+            const webEvents = (features.webEvents = new WebEvents('webEvents', undefined, features, defaultArgs));
             webEvents.markFeatureAsSkipped('feature disabled for this site');
             const fireEventSpy = spyOn(webEvents, 'fireEvent');
-            const instance = createInstance({}, { features });
-
-            // callFeatureMethod will return CallFeatureMethodError (skipped)
-            await instance._executeFireEvent('adwall');
+            await createInstance({}, { features })._executeFireEvent('adwall');
             expect(fireEventSpy).not.toHaveBeenCalled();
         });
 
         it('should fire when webEvents feature is loaded and ready', async () => {
             /** @type {Partial<import('../../src/features.js').FeatureMap>} */
             const features = {};
-            const webEvents = new WebEvents('webEvents', undefined, features, defaultArgs);
-            features.webEvents = webEvents;
+            const webEvents = (features.webEvents = new WebEvents('webEvents', undefined, features, defaultArgs));
             await webEvents.callInit(defaultArgs);
             const fireEventSpy = spyOn(webEvents, 'fireEvent');
-            const instance = createInstance({}, { features });
-
-            await instance._executeFireEvent('adwall');
+            await createInstance({}, { features })._executeFireEvent('adwall');
             expect(fireEventSpy).toHaveBeenCalledWith({ type: 'adwall' });
         });
     });
@@ -215,10 +177,15 @@ describe('WebDetection feature', () => {
         /** An instance over the detectors of group `g`. */
         const create = (/** @type {Record<string, unknown>} */ detectors) => createInstance({ g: detectors });
 
+        /** @type {RawTriggers} */
         const auto = { auto: { state: 'enabled', when: { intervalMs: [100, 200, 300] } } };
+        /** A detector that `auto` runs, and the breakage report does not. */
+        const autoOnly = detects(true, { triggers: { ...OFF, ...auto } });
+        /** A detector with no `match` that `auto` runs, and that sends an event on every run. */
+        const firing = (/** @type {string} */ type) => ({ triggers: auto, actions: { fireEvent: { type } } });
 
         it('cancels the timers of a detector once its `match` holds', () => {
-            const instance = create({ d: { triggers: auto, match: true, actions: { fireEvent: { type: 'a' } } } });
+            const instance = create({ d: { ...firing('a'), match: true } });
             const run = spyOn(instance, '_runDetector').and.callThrough();
             jasmine.clock().tick(1000);
             expect(run).toHaveBeenCalledTimes(1);
@@ -226,25 +193,18 @@ describe('WebDetection feature', () => {
         });
 
         it('keeps the timers shared with a detector that is not done', () => {
-            const instance = create({
-                done: { triggers: auto, match: true, actions: { breakageReportData: {} } },
-                running: { triggers: auto, actions: { fireEvent: { type: 'a' } } },
-            });
+            const instance = create({ done: detects(true, { triggers: auto }), running: firing('a') });
             jasmine.clock().tick(1000);
             expect(instance.callFeatureMethod).toHaveBeenCalledTimes(3);
         });
 
         it('shares one task among the detectors of a timer or a report, and starts a new one for the next', () => {
-            const instance = create({
-                a: { triggers: auto, actions: { fireEvent: { type: 'a' } } },
-                b: { triggers: auto, actions: { fireEvent: { type: 'b' } } },
-            });
+            const instance = create({ a: firing('a'), b: firing('b') });
             const run = spyOn(instance, '_runDetector').and.callThrough();
-            const tasks = () => run.calls.allArgs().map((args) => args[2]);
             jasmine.clock().tick(100);
             jasmine.clock().tick(100);
             instance.runDetectors({ trigger: 'breakageReport' });
-            const [first, second, third, fourth, fifth, sixth] = tasks();
+            const [first, second, third, fourth, fifth, sixth] = run.calls.allArgs().map((args) => args[2]);
             expect(second).toBe(first);
             expect(fourth).toBe(third);
             expect(third).not.toBe(first);
@@ -274,9 +234,7 @@ describe('WebDetection feature', () => {
         });
 
         it('fires the event with its data on a match', async () => {
-            const instance = create({
-                d: { match: true, actions: { fireEvent: { type: 't', data: { x: { value: 2, buckets: { two: 2 } } } } } },
-            });
+            const instance = create({ d: { match: true, actions: fires({ x: { value: 2, buckets: { two: 2 } } }) } });
             instance.runDetectors({ trigger: 'breakageReport' });
             await Promise.resolve();
             // @ts-expect-error - Jasmine spy type inference doesn't match callFeatureMethod's overloaded signature
@@ -298,20 +256,15 @@ describe('WebDetection feature', () => {
         });
 
         describe('compiling', () => {
-            const unparseable = { match: { element: { selector: 'img' }, using: 'length' }, actions: { breakageReportData: {} } };
+            const unparseable = { match: { element: { selector: 'img' }, using: 'length' }, actions: REPORT };
 
             it('compiles at init only the detectors a trigger runs in the frame', () => {
                 const compile = spyOn(WebDetection.prototype, '_compile').and.callThrough();
                 const on = detects(true);
-                const autoOnly = {
-                    triggers: { breakageReport: { state: 'disabled' }, ...auto },
-                    match: true,
-                    actions: { breakageReportData: {} },
-                };
                 create({
                     on,
                     disabled: detects(true, { state: 'disabled' }),
-                    noTrigger: detects(true, { triggers: { breakageReport: { state: 'disabled' } } }),
+                    noTrigger: detects(true, { triggers: OFF }),
                     otherDomain: detects(true, { triggers: { breakageReport: { runConditions: [{ domain: 'other.com' }] } } }),
                     autoOnly,
                 });
@@ -322,10 +275,7 @@ describe('WebDetection feature', () => {
                 const compile = spyOn(WebDetection.prototype, '_compile').and.callThrough();
                 // @ts-expect-error - mocking for test
                 globalThis.window.top = {};
-                const instance = create({
-                    d: detects(true),
-                    a: { triggers: auto, match: true, actions: { breakageReportData: {} } },
-                });
+                const instance = create({ d: detects(true), a: detects(true, { triggers: auto }) });
                 jasmine.clock().tick(1000);
                 expect(report(instance)).toEqual([]);
                 expect(compile).not.toHaveBeenCalled();
@@ -333,7 +283,7 @@ describe('WebDetection feature', () => {
 
             it('compiles a detector once, however often it runs', () => {
                 const compile = spyOn(WebDetection.prototype, '_compile').and.callThrough();
-                const instance = create({ d: { triggers: auto, actions: { fireEvent: { type: 'a' } } } });
+                const instance = create({ d: firing('a') });
                 jasmine.clock().tick(1000);
                 instance.runDetectors({ trigger: 'breakageReport' });
                 expect(instance.callFeatureMethod).toHaveBeenCalledTimes(4);
@@ -346,7 +296,7 @@ describe('WebDetection feature', () => {
             });
 
             it('reports the parse error of an `auto`-only detector once its timer has run', () => {
-                const instance = create({ d: { ...unparseable, triggers: { breakageReport: { state: 'disabled' }, ...auto } } });
+                const instance = create({ d: { ...unparseable, triggers: { ...OFF, ...auto } } });
                 expect(report(instance)).toEqual([]);
                 jasmine.clock().tick(100);
                 expect(report(instance)).toEqual([{ detectorId: 'g.d', errors: { parse: 'error' } }]);
@@ -354,8 +304,6 @@ describe('WebDetection feature', () => {
         });
 
         describe('parsing at load and init', () => {
-            const reads = (/** @type {string} */ name) => ({ match: { api: name }, actions: { breakageReportData: {} } });
-
             /** An instance after `load` with the detectors of group `g`, or none. */
             const loadInstance = (/** @type {Record<string, unknown> | undefined} */ detectors) =>
                 createInstance(detectors && { g: detectors }, { load: true });
@@ -381,18 +329,13 @@ describe('WebDetection feature', () => {
 
             it('takes the detectors from settings init has that differ from those load parsed, and captures the names added', () => {
                 const capture = spyOn(NativeReader.prototype, 'capture').and.callThrough();
-                const instance = loadInstance({ a: reads('wdLoaded') });
-                initWith(instance, { a: reads('wdLoaded'), b: reads('wdAdded') });
+                const loaded = detects({ api: 'wdTestPage.loaded' });
+                const instance = loadInstance({ a: loaded });
+                initWith(instance, { a: loaded, b: detects({ api: 'wdTestPage.added' }) });
                 expect(capture).toHaveBeenCalledTimes(2);
-                expect([...capture.calls.mostRecent().args[0]]).toContain('wdAdded');
-                testGlobal.wdLoaded = true;
-                testGlobal.wdAdded = true;
-                try {
-                    expect(report(instance).map((entry) => entry.detectorId)).toEqual(['g.a', 'g.b']);
-                } finally {
-                    delete testGlobal.wdLoaded;
-                    delete testGlobal.wdAdded;
-                }
+                expect([...capture.calls.mostRecent().args[0]]).toContain('added');
+                testGlobal.wdTestPage = { loaded: true, added: true };
+                expect(report(instance).map((entry) => entry.detectorId)).toEqual(['g.a', 'g.b']);
             });
 
             it('parses at init when load had no detectors', () => {
@@ -410,10 +353,7 @@ describe('WebDetection feature', () => {
         describe('a throw in a report-time run', () => {
             it('records a page value thrown past the reader at its path, calling none of its code', () => {
                 testGlobal.wdTestPage = { x: 1 };
-                const instance = create({
-                    thrown: { match: { api: 'wdTestPage.x', is: 1 }, actions: { breakageReportData: {} } },
-                    working: detects(true),
-                });
+                const instance = create({ thrown: detects({ api: 'wdTestPage.x', is: 1 }), working: detects(true) });
                 /** @type {object} */
                 const thrown = {
                     toString() {
@@ -430,10 +370,7 @@ describe('WebDetection feature', () => {
             });
 
             it('records a throw outside any expression under `run`, and runs the other detectors', () => {
-                const instance = create({
-                    thrown: { match: true, actions: { fireEvent: { type: 'a' } } },
-                    working: detects(true),
-                });
+                const instance = create({ thrown: { match: true, actions: { fireEvent: { type: 'a' } } }, working: detects(true) });
                 throwOutsideRun(instance, 'g.thrown');
                 expect(report(instance)).toEqual([
                     { detectorId: 'g.thrown', errors: { run: 'error' } },
@@ -444,18 +381,7 @@ describe('WebDetection feature', () => {
 
         describe('a throw in an `auto` run', () => {
             it('records a throw outside any expression under `run`, in the next report', () => {
-                const instance = create({
-                    thrown: {
-                        triggers: { breakageReport: { state: 'disabled' }, ...auto },
-                        match: true,
-                        actions: { breakageReportData: {} },
-                    },
-                    working: {
-                        triggers: { breakageReport: { state: 'disabled' }, ...auto },
-                        match: true,
-                        actions: { breakageReportData: {} },
-                    },
-                });
+                const instance = create({ thrown: autoOnly, working: autoOnly });
                 throwOutsideRun(instance, 'g.thrown');
                 jasmine.clock().tick(100);
                 expect(report(instance)).toEqual([
