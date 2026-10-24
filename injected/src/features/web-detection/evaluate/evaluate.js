@@ -1,5 +1,5 @@
-import { numberIsFinite } from '../../../captured-globals.js';
-import { DetectionError, decides, errorPath, isFailure, isScalar, thrownMessage, typeName } from '../model/core.js';
+import { JSONparse, JSONstringify } from '../../../captured-globals.js';
+import { DetectionError, decides, errorPath, isFailure, isScalar, thrownFailure, thrownMessage, typeName } from '../model/core.js';
 import { ItemBuffer, asList, isItemBuffer, listMembers } from '../model/lists.js';
 import { readPath } from '../predicates/fields.js';
 import { testPredicate } from '../predicates/predicates.js';
@@ -517,10 +517,10 @@ const OMIT = Symbol('omit');
 /**
  * Compute a payload, every key in order.
  *
- * A key is omitted when its value is not a JSON scalar, when `when` does not hold, and with `buckets`
- * when the value is in no bucket. A failed value reaches `when` and the buckets, where `fails` handles
- * it. A value, `when` or bucket that fails unhandled fails the payload at the first such key, and one
- * that errors throws.
+ * A value is sent as JSON writes it, a list as the array of its items. A key is omitted when JSON writes
+ * its value as nothing, when `when` does not hold, and with `buckets` when the value is in no bucket. A
+ * failed value reaches `when` and the buckets, where `fails` handles it. A value, `when` or bucket that
+ * fails unhandled fails the payload at the first such key, and one that errors throws.
  *
  * @param {CompiledPayloadField[]} fields
  * @param {EvaluationContext} ctx
@@ -546,12 +546,10 @@ export function evaluatePayload(fields, ctx) {
 /**
  * @param {CompiledPayloadField} field
  * @param {EvaluationContext} ctx
- * @returns {string | number | boolean | null | Failure | typeof OMIT}
+ * @returns {unknown} the value as JSON parses it, a bucket name, a `Failure` or `OMIT`
  */
 function payloadValue(field, ctx) {
     const value = evaluateOccurrence(field.value, ctx);
-    if (isItemBuffer(value) && !field.buckets)
-        throw new DetectionError('a list is sent bucketed, through only, or as its length through using');
     /**
      * @param {CompiledPredicate} predicate
      * @param {string} path
@@ -575,5 +573,26 @@ function payloadValue(field, ctx) {
         return isFailure(value) ? value : OMIT;
     }
     if (isFailure(value)) return value;
-    return isScalar(value) && (typeof value !== 'number' || numberIsFinite(value)) ? value : OMIT;
+    return payloadJson(value, `${field.path}.value`);
+}
+
+/**
+ * A value as JSON writes it, parsed back so the payload holds plain data from when the action ran and
+ * no page object reaches the breakage entry or messaging. A throw while writing it, such as from a cycle
+ * or a page getter, fails at the value.
+ *
+ * @param {unknown} value
+ * @param {string} path - the config path of the value
+ * @returns {unknown} the value as JSON parses it, a `Failure` or `OMIT`
+ */
+function payloadJson(value, path) {
+    const items = isItemBuffer(value) ? allItems(value) : value;
+    if (isFailure(items)) return items.at(path);
+    try {
+        /** @type {string | undefined} */
+        const json = JSONstringify(items);
+        return json === undefined ? OMIT : JSONparse(json);
+    } catch (e) {
+        return thrownFailure(e).at(path);
+    }
 }
