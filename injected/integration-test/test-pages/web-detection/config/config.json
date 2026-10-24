@@ -18,10 +18,7 @@
                         "generic_text": {
                             "match": {
                                 "text": {
-                                    "pattern": [
-                                        "ad ?block(er)? detected",
-                                        "disable your ad ?blocker"
-                                    ]
+                                    "pattern": ["ad ?block(er)? detected", "disable your ad ?blocker"]
                                 }
                             },
                             "actions": {
@@ -139,10 +136,7 @@
                                 "auto": {
                                     "state": "enabled",
                                     "when": {
-                                        "intervalMs": [
-                                            100,
-                                            300
-                                        ]
+                                        "intervalMs": [100, 300]
                                     }
                                 }
                             }
@@ -160,11 +154,7 @@
                                 "auto": {
                                     "state": "enabled",
                                     "when": {
-                                        "intervalMs": [
-                                            100,
-                                            200,
-                                            300
-                                        ]
+                                        "intervalMs": [100, 200, 300]
                                     }
                                 }
                             }
@@ -182,9 +172,7 @@
                                 "auto": {
                                     "state": "disabled",
                                     "when": {
-                                        "intervalMs": [
-                                            100
-                                        ]
+                                        "intervalMs": [100]
                                     }
                                 }
                             }

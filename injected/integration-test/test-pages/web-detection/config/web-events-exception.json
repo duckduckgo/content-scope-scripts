@@ -16,21 +16,19 @@
                                     "pattern": "ad ?block(er)? detected"
                                 }
                             },
+                            "triggers": {
+                                "auto": {
+                                    "state": "enabled",
+                                    "when": {
+                                        "intervalMs": [50]
+                                    }
+                                }
+                            },
                             "actions": {
                                 "fireEvent": {
                                     "type": "adwall"
                                 },
                                 "breakageReportData": {}
-                            },
-                            "triggers": {
-                                "auto": {
-                                    "state": "enabled",
-                                    "when": {
-                                        "intervalMs": [
-                                            50
-                                        ]
-                                    }
-                                }
                             }
                         }
                     }
@@ -45,15 +43,9 @@
                 "additionalCheck": "enabled",
                 "conditionalChanges": [
                     {
-                        "condition": {
-                            "domain": "localhost"
-                        },
+                        "condition": { "domain": "localhost" },
                         "patchSettings": [
-                            {
-                                "op": "replace",
-                                "path": "/additionalCheck",
-                                "value": "disabled"
-                            }
+                            { "op": "replace", "path": "/additionalCheck", "value": "disabled" }
                         ]
                     }
                 ]

@@ -14,8 +14,8 @@ const WIDGETS_HTML = '/web-detection/pages/captcha-widgets.html';
 function captchaConfig(visibility) {
     const autoTrigger = { auto: { state: 'enabled', when: { intervalMs: [50] } } };
     const element = (selector) => ({
-        triggers: autoTrigger,
         match: { element: { selector, visibility } },
+        triggers: autoTrigger,
         actions: { breakageReportData: {} },
     });
     return {
