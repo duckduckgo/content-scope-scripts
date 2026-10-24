@@ -64,7 +64,7 @@ describe('WebDetection evaluate', () => {
 
     describe('values', () => {
         it('divides by 0 as JS does', () => {
-            expect(payload('', { div: [1, 0] }, { when: { ...numberTest('isFinite', false), gt: 0 } })).toEqual({});
+            expect(payload('', { div: [1, 0] }, { when: { ...numberTest('isFinite', false), gt: 0 } })).toEqual({ x: null });
             const result = run('', {
                 actions: {
                     define: {
@@ -507,10 +507,28 @@ describe('WebDetection evaluate', () => {
             expect(payload('', read('flag'), {}, { install })).toEqual({ x: true });
         });
 
-        it('omits an object, NaN and Infinity unbucketed', () => {
-            expect(payload('<p></p>', { only: { element: { selector: 'p', field: 'style' } } })).toEqual({});
-            expect(payload('', { div: [0, 0] })).toEqual({});
-            expect(payload('', { div: [1, 0] })).toEqual({});
+        it('sends an object, a node, NaN and Infinity unbucketed as JSON writes them', () => {
+            expect(payload('', { api: { path: 'JSON.parse', args: ['{"a":[1,{"b":null}]}'] } })).toEqual({ x: { a: [1, { b: null }] } });
+            expect(payload('<p></p>', { only: { element: { selector: 'p' } } })).toEqual({ x: {} });
+            expect(payload('', { div: [0, 0] })).toEqual({ x: null });
+            expect(payload('', { div: [1, 0] })).toEqual({ x: null });
+        });
+
+        it('omits a value JSON writes as nothing, and fails a key at a value JSON cannot write', () => {
+            expect(payload('', { api: { path: 'JSON.parse' } })).toEqual({});
+            const install = (/** @type {any} */ window) => {
+                const cyclic = { a: 1 };
+                window.cyclic = Object.assign(cyclic, { self: cyclic });
+                window.throwing = {
+                    get a() {
+                        throw new RangeError('thrown');
+                    },
+                };
+            };
+            const cyclic = run('', withPayload({ api: { path: 'cyclic' } }), { install });
+            expect(cyclic.failure).toEqual({ path: 'actions.fireEvent.data.x.value', result: 'aborted' });
+            expect(cyclic.abortError).toBe('TypeError');
+            expect(run('', withPayload({ api: { path: 'throwing' } }), { install }).abortError).toBe('RangeError');
         });
 
         it('fails at the first key whose value, `when` or bucket fails or errors, in key order', () => {
@@ -638,8 +656,7 @@ describe('WebDetection evaluate', () => {
             expect(holds(widths, nested, { install: imageState })).toBe(true);
             // A failed entry fails the list
             expect(holds('', { expr: [1, { api: { path: 'JSON.parse', args: ['{'] } }], using: 'length', is: 2 })).toBe('aborted');
-            // Not a JSON scalar, so a payload omits it
-            expect(payload('', { expr: [1] })).toEqual({});
+            expect(payload('', { expr: [1, 'a', { expr: [true] }] })).toEqual({ x: [1, 'a', [true]] });
             // A list stays one: it is not unwrapped to a number, nor read as a boolean
             expectParseError(withPayload({ div: [{ expr: [6] }, 2] }), "'list' does not fill number position");
             expectParseError({ match: { expr: [true] }, actions: REPORT }, "'list' does not fill boolean position");

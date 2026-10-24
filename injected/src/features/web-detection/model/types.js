@@ -71,7 +71,9 @@
  */
 
 /**
- * @typedef {Record<string, string | number | boolean | null>} PayloadData
+ * Each key's value as JSON parses it.
+ *
+ * @typedef {Record<string, unknown>} PayloadData
  */
 
 /**

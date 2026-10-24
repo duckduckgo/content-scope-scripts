@@ -52,7 +52,7 @@ export class BreakageEntries {
     write(detectorId, data) {
         const record = this._recordOf(detectorId);
         record.written = true;
-        for (const key of objectKeys(data)) record.data[key] = /** @type {PayloadData[string]} */ (data[key]);
+        for (const key of objectKeys(data)) record.data[key] = data[key];
     }
 
     /**
