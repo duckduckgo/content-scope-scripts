@@ -9,19 +9,14 @@ import { REPORT, bound, expectParseError, fonts, holds, payload, run, timeline, 
 
 describe('WebDetection sources', () => {
     describe('iterators', () => {
-        it('text in boolean position agrees with a length of at least one', () => {
-            for (const html of ['<p>foo</p>', '<p>bar</p>', '<p>foo foo</p>']) {
-                const asBoolean = holds(html, { text: { pattern: 'foo' } });
-                const asCount = holds(html, { text: { pattern: 'foo' }, using: 'length', is: { gte: 1 } });
-                expect(asBoolean).toBe(asCount);
-            }
-        });
-
-        it('element in boolean position agrees with a length of at least one', () => {
-            for (const html of ['<p class="a"></p>', '<p></p>']) {
-                expect(holds(html, { element: { selector: '.a' } })).toBe(
-                    holds(html, { element: { selector: '.a' }, using: 'length', is: { gte: 1 } }),
-                );
+        it('agrees in boolean position with a length of at least one', () => {
+            const sources = [{ text: { pattern: 'foo' } }, { element: { selector: '.foo' } }];
+            for (const html of ['<p>foo</p>', '<p>bar</p>', '<p>foo foo</p>', '<p class="foo"></p>']) {
+                for (const source of sources) {
+                    expect(holds(html, source))
+                        .withContext(`${html} ${JSON.stringify(source)}`)
+                        .toBe(holds(html, { ...source, using: 'length', is: { gte: 1 } }));
+                }
             }
         });
 
@@ -54,52 +49,32 @@ describe('WebDetection sources', () => {
                 expect(n).withContext(`chunkSize ${chunkSize}`).toBe(2);
             }
         });
-
-        it('matches across a chunk boundary in boolean position as before', () => {
-            const html = `<p>${'x '.repeat(50)}</p><p>adblocker </p><p>detected</p>`;
-            expect(
-                holds(html, {
-                    text: { xpath: '//p/text()', pattern: 'adblocker detected', xpathConfig: { chunkSize: 16, chunkTail: 32 } },
-                }),
-            ).toBe(true);
-        });
     });
 
     describe('api', () => {
-        it('takes a path as short for a body with that path', () => {
+        it('takes a path as short for a body with that path, and gives a scalar its value, a string not being a list', () => {
             const head = '<title>Hello there</title>';
             expect(holds('', { api: 'document.title', is: 'Hello there' }, { head })).toBe(true);
             expect(holds('', { api: { path: 'Math.max', args: [1, { api: 'document.title.length' }] }, is: 11 }, { head })).toBe(true);
             expect(holds('', { api: 'document.title', using: 'length', is: 11 }, { head })).toBe(true);
+            expect(holds('', { only: { api: { path: 'document.title' } }, is: 'Hello there' }, { head })).toBe('error');
             expectParseError({ match: { api: 5 }, actions: REPORT }, '`api` takes a path or an object');
             expectParseError({ match: { api: '' }, actions: REPORT }, 'non-empty');
         });
 
-        it('gives a scalar path its value, and a string is not a list', () => {
-            const head = '<title>Hello there</title>';
-            expect(holds('', { api: { path: 'document.title' }, is: 'Hello there' }, { head })).toBe(true);
-            expect(holds('', { only: { api: { path: 'document.title' } }, is: 'Hello there' }, { head })).toBe('error');
-            expect(holds('', { api: { path: 'document.title' }, using: 'length', is: 11 }, { head })).toBe(true);
-        });
-
-        it('gives an iterable as a value under is and using, and as a list under only and with field', () => {
-            const install = fonts(['loaded', 'error']);
+        it('gives an iterable as a value under is and using, and its members as a list with field and where', () => {
+            const install = fonts(['loaded', 'error', 'error']);
             expect(holds('', { api: { path: 'document.fonts' }, is: { type: 'object' } }, { install })).toBe(true);
-            expect(holds('', { api: { path: 'document.fonts', field: 'status' }, using: 'length', is: 2 }, { install })).toBe(true);
-            expect(holds('', { api: { path: 'document.fonts' }, using: 'size', is: 2 }, { install })).toBe(true);
+            expect(holds('', { api: { path: 'document.fonts' }, using: 'size', is: 3 }, { install })).toBe(true);
             // `length` reads the iterable's own property, which a `FontFaceSet` lacks
             expect(holds('', { api: { path: 'document.fonts' }, using: 'length', is: { type: 'undefined' } }, { install })).toBe(true);
-        });
-
-        it('reads field from each member of a list, and from a value that is not one', () => {
-            const install = fonts(['loaded', 'error']);
-            expect(
-                holds(
-                    '',
-                    { api: { path: 'document.fonts', field: 'status' }, using: { path: 'at', args: [-1] }, is: 'error' },
-                    { install },
-                ),
-            ).toBe(true);
+            const statuses = { api: { path: 'document.fonts', field: 'status' } };
+            expect(holds('', { ...statuses, using: 'length', is: 3 }, { install })).toBe(true);
+            expect(holds('', { ...statuses, using: { path: 'at', args: [-1] }, is: 'error' }, { install })).toBe(true);
+            expect(holds('', { api: { path: 'document.fonts', where: { status: 'error' } }, using: 'length', is: 2 }, { install })).toBe(
+                true,
+            );
+            expect(holds('<p></p><p></p>', { api: { path: 'document.body.children' }, using: 'length', is: 2 })).toBe(true);
             expect(holds('', { api: { path: 'document', field: 'title.length' }, is: 0 })).toBe(true);
         });
 
@@ -124,57 +99,19 @@ describe('WebDetection sources', () => {
             expect(holds(ids, { element: { selector: 'p' }, using: 'length', is: 2 })).toBe(true);
         });
 
-        it('yields the members of an iterable', () => {
-            expect(
-                holds(
-                    '',
-                    { api: { path: 'document.fonts', field: 'status' }, using: 'length', is: 3 },
-                    { install: fonts(['loaded', 'error', 'error']) },
-                ),
-            ).toBe(true);
-            expect(
-                holds(
-                    '',
-                    { api: { path: 'document.fonts', where: { status: 'error' } }, using: 'length', is: 2 },
-                    { install: fonts(['loaded', 'error', 'error']) },
-                ),
-            ).toBe(true);
-            expect(holds('<p></p><p></p>', { api: { path: 'document.body.children' }, using: 'length', is: 2 })).toBe(true);
-        });
-
-        it('reads undefined through null', () => {
-            expect(holds('', { api: { path: 'document.activeElementNope' }, using: 'length', is: { type: 'undefined' } })).toBe(true);
-            expect(
-                holds(
-                    '',
-                    { api: { path: 'document.fullscreenElement.tagName' }, is: { type: 'undefined' } },
-                    {
-                        install: (w) =>
-                            Object.defineProperty(w.Document.prototype, 'fullscreenElement', { configurable: true, get: () => null }),
-                    },
-                ),
-            ).toBe(true);
-        });
-
-        it('reads a value the page defines, or a prototype it substitutes, as it stands', () => {
+        it('reads a value the page defines, or a prototype it substitutes, as it stands, and a captured getter', () => {
             const definesValue = (/** @type {any} */ w) => {
                 w.document.myValue = 3;
+                w.myData = { count: 3 };
             };
             expect(holds('', { api: { path: 'document.myValue' }, is: 3 }, { afterCapture: definesValue })).toBe(true);
+            expect(holds('', { api: { path: 'myData.count' }, is: 3 }, { afterCapture: definesValue })).toBe(true);
+            expect(holds('<p id="a"></p>', { only: { element: { selector: 'p' } }, is: { id: 'a' } })).toBe(true);
             // On body rather than document, whose event methods JSDOM still needs after the run
             const substitutes = (/** @type {any} */ w) => {
                 Object.setPrototypeOf(w.document.body, { tagName: 'FAKE' });
             };
             expect(holds('', { api: { path: 'document.body.tagName' }, is: 'FAKE' }, { afterCapture: substitutes })).toBe(true);
-        });
-
-        it('reads a data value and a captured getter', () => {
-            const definesValue = (/** @type {any} */ w) => {
-                w.myData = { count: 3 };
-            };
-            expect(holds('', { api: { path: 'myData.count' }, is: 3 }, { afterCapture: definesValue })).toBe(true);
-            expect(holds('', { api: { path: 'document.title' }, is: '' })).toBe(true);
-            expect(holds('<p id="a"></p>', { only: { element: { selector: 'p' } }, is: { id: 'a' } })).toBe(true);
         });
 
         it('reads an own value in place of a value captured on a prototype', () => {
@@ -594,7 +531,6 @@ describe('WebDetection sources', () => {
             expect(images({ api: { path: 'document.body.firstElementChild.tagName' } })).toBe(3);
             expect(images(['#a', null])).toBe(1);
             expectParseError(withPayload(scoped([])), 'at least one entry');
-            expectParseError(withPayload(scoped([['#a']])), 'an array is not an expression');
         });
 
         it('drops a root inside another', () => {

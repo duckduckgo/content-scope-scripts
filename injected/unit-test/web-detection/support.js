@@ -10,6 +10,7 @@ import { pageSources } from '../../src/features/web-detection/sources/index.js';
 import WebDetection from '../../src/features/web-detection.js';
 
 /**
+ * @typedef {import('../../src/features.js').FeatureMap} FeatureMap
  * @typedef {import('../../src/features/web-detection/compile/detector-config.js').RawDetectorConfig} RawDetectorConfig
  * @typedef {import('../../src/features/web-detection/evaluate/breakage-entries.js').BreakageEntry} BreakageEntry
  * @typedef {import('../../src/features/web-detection/model/types.js').ActionSink} ActionSink
@@ -19,7 +20,7 @@ import WebDetection from '../../src/features/web-detection.js';
  * An action sink that keeps the events sent, in order, and the writes in a `BreakageEntries` under
  * `g.d`, as the feature keeps them.
  */
-export class Recorder {
+class Recorder {
     /** @type {Array<{ type: string, data?: object }>} */
     events = [];
     entries = new BreakageEntries();
@@ -33,10 +34,11 @@ export class Recorder {
 }
 
 /**
+ * @typedef {(window: any) => void} Install
  * @typedef {object} RunOptions
  * @property {string} [head] - markup for `<head>`
- * @property {(window: any) => void} [install] - runs before the reader captures native getters, so what it defines is native
- * @property {(window: any) => void} [afterCapture] - runs after the capture, as a page script would
+ * @property {Install | Install[]} [install] - runs before the reader captures native getters, so what it defines is native
+ * @property {Install} [afterCapture] - runs after the capture, as a page script would
  */
 
 /**
@@ -50,7 +52,8 @@ export class Recorder {
 export const REPORT = { breakageReportData: {} };
 
 /**
- * Compile and run a detector against a JSDOM page, reading through that window's globals.
+ * Compile and run a detector against a JSDOM page, reading through that window's globals. The image
+ * getters of `imageState` are installed first, as JSDOM loads no images.
  *
  * `detected` is the `match` result, or `true` without `match`. `data` is the first event's payload,
  * `failure` the failure that ended `actions`, `events` the events sent, and `entry` the breakage entry
@@ -59,12 +62,13 @@ export const REPORT = { breakageReportData: {} };
  * @param {string} body - markup for `<body>`
  * @param {any} detector
  * @param {RunOptions} [options]
- * @returns {{ detected: boolean | 'error' | 'aborted', abortError?: string, error?: string, failedAt?: string, data?: Record<string, unknown>, failure?: { path: string, result: 'aborted' | 'error' }, names: Map<string, unknown>, events: Array<{ type: string, data?: object }>, entry: BreakageEntry | undefined, ctx: EvaluationContext }}
+ * @returns {{ detected: boolean | 'error' | 'aborted', abortError?: string, error?: string, failedAt?: string, data?: Record<string, unknown>, failure?: { path: string, result: 'aborted' | 'error' }, names: Map<string, unknown>, events: Array<{ type: string, data?: object }>, entry: BreakageEntry | undefined, ctx: EvaluationContext, window: any }}
  */
 export function run(body, detector, options = {}) {
     const dom = new JSDOM(`<!DOCTYPE html><html><head>${options.head ?? ''}</head><body>${body}</body></html>`);
     const window = dom.window;
-    options.install?.(window);
+    imageState(window);
+    for (const install of [options.install ?? []].flat()) install(window);
     const originalDocument = globalThis.document;
     globalThis.document = window.document;
     try {
@@ -91,6 +95,7 @@ export function run(body, detector, options = {}) {
             events: recorder.events,
             entry: recorder.entries.entry('g.d', state.done),
             ctx,
+            window,
         };
     } finally {
         globalThis.document = originalDocument;
@@ -107,6 +112,29 @@ export function holds(body, match, options) {
 }
 
 /**
+ * The number of items a source gives, read through a payload.
+ *
+ * @param {string} body
+ * @param {object} source
+ * @param {RunOptions} [options]
+ */
+export function count(body, source, options) {
+    return payload(body, { ...source, using: 'length' }, undefined, options)?.x;
+}
+
+/**
+ * The name of what aborted a `match`, or what it gave when it did not abort.
+ *
+ * @param {string} body
+ * @param {unknown} match
+ * @param {RunOptions} [options]
+ */
+export function abortError(body, match, options) {
+    const result = run(body, { match, actions: REPORT }, options);
+    return result.detected === 'aborted' ? result.abortError : `not aborted: ${result.detected}`;
+}
+
+/**
  * Run a detector against a page, and give a run name it binds.
  *
  * @param {string} body
@@ -119,14 +147,21 @@ export function bound(body, actions, name, options) {
 }
 
 /**
- * A detector whose `match` holds, by default, and that sends one payload field `x`.
+ * A `fireEvent` action sending `data`.
+ *
+ * @param {object} data
+ * @param {string} [type]
+ */
+export const fires = (data, type = 't') => ({ fireEvent: { type, data } });
+
+/**
+ * A detector whose `match` holds, and that sends one payload field `x`.
  *
  * @param {unknown} value
  * @param {object} [extra] - `when` and `buckets`
- * @param {unknown} [match]
  */
-export function withPayload(value, extra = {}, match = true) {
-    return { match, actions: { fireEvent: { type: 't', data: { x: { value, ...extra } } } } };
+export function withPayload(value, extra = {}) {
+    return { match: true, actions: fires({ x: { value, ...extra } }) };
 }
 
 /**
@@ -149,6 +184,14 @@ export function expectParseError(detector, message) {
             e instanceof ConfigParseError &&
             (!message || (typeof message === 'string' ? e.message.includes(message) : message.test(e.message))),
     );
+}
+
+/**
+ * @param {unknown} match
+ * @param {RegExp | string} [message]
+ */
+export function rejectsMatch(match, message) {
+    expectParseError({ match, actions: REPORT }, message);
 }
 
 /**
@@ -275,29 +318,47 @@ export function fonts(statuses) {
 }
 
 /**
+ * @param {object} object
+ * @param {string} name
+ * @param {() => unknown} get
+ */
+export const defineGetter = (object, name, get) => Object.defineProperty(object, name, { configurable: true, get });
+
+/** A getter that throws `error`. */
+export const throwing = (/** @type {unknown} */ error) => () => {
+    throw error;
+};
+
+/** Sets data properties on the window. */
+export const assign = (/** @type {object} */ values) => (/** @type {any} */ window) => Object.assign(window, values);
+
+/**
  * `document.fonts` whose getter throws.
  *
  * @param {any} window
  */
 export function brokenFonts(window) {
-    Object.defineProperty(window.Document.prototype, 'fonts', {
-        configurable: true,
-        get() {
-            throw new Error('refused');
-        },
-    });
+    defineGetter(window.Document.prototype, 'fonts', throwing(new Error('refused')));
 }
 
 /** A read that fails: `JSON.parse` throws on text that does not parse. */
 export const FAILING = { api: { path: 'JSON.parse', args: ['{'] } };
 
+/**
+ * Entries of the performance timeline of one type.
+ *
+ * @param {string} type
+ * @param {object} [rest] - `where` and `field`
+ */
+export const entriesOf = (type, rest = {}) => ({ api: { path: 'performance.getEntriesByType', args: [type], ...rest } });
+
 export const IMG = (/** @type {string} */ attrs = '') => `<img src="a.png" ${attrs}>`;
+export const NATURAL_WIDTH = { element: { selector: 'img', field: 'naturalWidth' } };
 export const BROKEN = { selector: 'img', where: { complete: true, naturalWidth: 0, 'currentSrc.length': { gt: 0 } } };
 export const RENDERED =
     '//body//text()[not(ancestor::script) and not(ancestor::style) and not(ancestor::template) and not(ancestor::noscript)]';
 /** `RENDERED` relative to a `root`. */
-export const RENDERED_WITHIN =
-    './/text()[not(ancestor::script) and not(ancestor::style) and not(ancestor::template) and not(ancestor::noscript)]';
+const RENDERED_WITHIN = './/text()[not(ancestor::script) and not(ancestor::style) and not(ancestor::template) and not(ancestor::noscript)]';
 /** Non-whitespace characters of rendered text in each root, one match each. */
 export const renderedText = (/** @type {unknown} */ root) => ({ text: { xpath: RENDERED_WITHIN, pattern: '\\S', root } });
 
@@ -328,27 +389,50 @@ export function makeGlobal() {
  * Compile a detector over `global`, and run it against one detector state, recording each run's
  * failure in its breakage entry as the feature does.
  *
+ * `run(live)` first sets the values in `live` on `global.page.live`. Its result carries, after the
+ * run, whether the detector is `done`, the `types` of the events sent so far, its `entry` and the run
+ * `names`.
+ *
  * @param {{ match?: unknown, actions: unknown }} config
- * @param {object} [global]
+ * @param {any} [global]
  */
 export function detector(config, global = makeGlobal()) {
     const compiled = compileDetector(config, pageSources(global));
     const reader = new NativeReader(global, compiled.names);
     const state = createDetectorState();
     const recorder = new Recorder();
+    const types = () => recorder.events.map((event) => event.type);
+    const entry = () => recorder.entries.entry('g.d', state.done);
     return {
+        global,
         state,
         events: recorder.events,
-        types: () => recorder.events.map((event) => event.type),
-        run: () => {
+        types,
+        entry,
+        run: (/** @type {object} */ live = {}) => {
+            Object.assign(global.page?.live ?? {}, live);
             const ctx = new EvaluationContext(reader, state.names, undefined, recorder.sink);
             const run = runCompiledDetector(compiled, state, ctx);
             if (run.failedAt !== undefined && run.failure !== undefined) recorder.entries.fail('g.d', run.failedAt, run.failure);
-            return { ...run, ctx };
+            return { ...run, ctx, done: state.done, types: types(), entry: entry(), names: ctx.runNames };
         },
-        entry: () => recorder.entries.entry('g.d', state.done),
     };
 }
+
+/**
+ * @param {object} run
+ * @param {object} expected - the keys of `run` to compare
+ */
+export function expectRun(run, expected) {
+    expect(run).toEqual(jasmine.objectContaining(expected));
+}
+
+/**
+ * The names a run bound, as an object.
+ *
+ * @param {{ names: Map<string, unknown> }} run
+ */
+export const bindings = (run) => Object.fromEntries(run.names);
 
 /** The global `api` reads from in the feature tests. */
 export const testGlobal = /** @type {Record<string, any>} */ (globalThis);
@@ -362,35 +446,73 @@ export const counter = {
 };
 
 /**
- * Test harness for running detectors in controlled environment.
- * Handles setup/teardown of window mocks automatically.
+ * Mock `window.self` and `window.top`, which frame detection reads, as a top frame or a subframe.
  *
- * @param {object} detectorsConfig - The detectors config (group -> detector -> config)
- * @param {TestEnv} [env] - Environment options
+ * @param {boolean} [isTopFrame]
+ * @returns {() => void} restores `window`
+ */
+export function mockFrame(isTopFrame = true) {
+    const originalWindow = globalThis.window;
+    const self = {};
+    // @ts-expect-error - mocking for test
+    globalThis.window = { self, top: isTopFrame ? self : {} };
+    return () => {
+        globalThis.window = originalWindow;
+    };
+}
+
+/** Run each spec of the enclosing `describe` in a top frame. */
+export function inTopFrame() {
+    /** @type {() => void} */
+    let restore;
+    beforeEach(() => {
+        restore = mockFrame();
+    });
+    afterEach(() => restore());
+}
+
+/**
+ * The arguments of a `WebDetection` instance with these detectors in its settings, or with no settings.
+ *
+ * @param {object | undefined} detectors - group -> detector -> config
+ * @param {TestEnv} [env]
+ */
+export function instanceArgs(detectors, { platform = {}, domain = 'example.com' } = {}) {
+    return {
+        site: { domain, url: `https://${domain}/page` },
+        platform,
+        featureSettings: detectors ? { webDetection: { detectors } } : {},
+        bundledConfig: undefined,
+        messagingContextName: 'test',
+    };
+}
+
+/**
+ * A `WebDetection` instance over these detectors, after `init`, or after `load` alone.
+ *
+ * @param {object | undefined} detectors - group -> detector -> config
+ * @param {TestEnv & { features?: Partial<FeatureMap>, load?: boolean }} [options]
+ */
+export function createInstance(detectors, { features = {}, load = false, ...env } = {}) {
+    const instance = new WebDetection('webDetection', undefined, features, instanceArgs(detectors, env));
+    if (load) instance.load();
+    else instance.init();
+    return instance;
+}
+
+/**
+ * Run the detectors for a breakage report, in a top frame unless `env` says otherwise.
+ *
+ * @param {object} detectorsConfig - group -> detector -> config
+ * @param {TestEnv} [env]
  * @returns {BreakageEntry[]}
  */
 export function runDetectorsInEnv(detectorsConfig, env = {}) {
-    const { platform = {}, domain = 'example.com', isTopFrame = true } = env;
-
-    // Mock window.self/top for frame detection
-    const originalWindow = globalThis.window;
-    const mockSelf = {};
-    // @ts-expect-error - mocking for test
-    globalThis.window = { self: mockSelf, top: isTopFrame ? mockSelf : { different: true } };
-
+    const restore = mockFrame(env.isTopFrame);
     try {
-        const args = {
-            site: { domain, url: `https://${domain}/page` },
-            platform,
-            featureSettings: { webDetection: { detectors: detectorsConfig } },
-            bundledConfig: undefined,
-            messagingContextName: 'test',
-        };
-        const instance = new WebDetection('webDetection', undefined, {}, args);
-        instance.init();
-        return report(instance);
+        return report(createInstance(detectorsConfig, env));
     } finally {
-        globalThis.window = originalWindow;
+        restore();
     }
 }
 

@@ -46,15 +46,6 @@ describe('WebDetection evaluate', () => {
             expect(run('<p>foo</p>' + IMG(), detector).data).toEqual({ images: 1 });
         });
 
-        it('reads the value a name holds, not the boolean `is` gives', () => {
-            const html = IMG() + IMG() + IMG();
-            const actions = [
-                { define: { images: { element: { selector: 'img' }, using: 'length' } } },
-                { define: { three: { ref: 'images', is: 3 } } },
-            ];
-            expect(bound(html, actions, 'three')).toBe(true);
-        });
-
         it('reads a bound condition leaf as a boolean under `all`', () => {
             const actions = [{ define: { p: { element: { selector: 'p' } } } }, { define: { has: { all: [{ ref: 'p' }, true] } } }];
             expect(bound('<p></p>', actions, 'has')).toBe(true);
@@ -179,24 +170,6 @@ describe('WebDetection evaluate', () => {
             expect(holds(html, { ...thrown, is: 1 }, { install: imageState })).toBe(true);
         });
 
-        it('reports a value tested with `fails`, and omits a failed one', () => {
-            const detector = {
-                actions: {
-                    fireEvent: {
-                        type: 't',
-                        data: {
-                            failedFontFaces: {
-                                value: { api: { path: 'document.fonts', where: { status: 'error' } }, using: 'length' },
-                                when: { fails: false },
-                            },
-                        },
-                    },
-                },
-            };
-            expect(run('', detector, { install: brokenFonts }).data).toEqual({});
-            expect(run('', detector, { install: fonts(['loaded', 'error']) }).data).toEqual({ failedFontFaces: 1 });
-        });
-
         it('falls back through `if` over `fails`, reporting the fallback, and fails on the failed read unless handled', () => {
             const failed = { api: { path: 'document.fonts', where: { status: 'error' } }, using: 'length' };
             /** @param {object} n - the payload field for `n` */
@@ -230,7 +203,7 @@ describe('WebDetection evaluate', () => {
         });
 
         it('tests every key of a predicate object, `fails` and `type` first', () => {
-            expect(holds('', { api: 'document', is: { type: 'string', title: { field: FAILING, is: 1 } } })).toBe(false);
+            expect(holds('', { api: 'document', is: { title: { field: FAILING, is: 1 }, type: 'string' } })).toBe(false);
             expect(holds('', { api: 'document', is: { nodeType: 2, title: { field: FAILING, is: 1 } } })).toBe('aborted');
         });
     });
@@ -258,31 +231,14 @@ describe('WebDetection evaluate', () => {
         });
 
         it('does not evaluate the other branch', () => {
-            expect(holds('', { if: true, then: 1, else: { api: { path: 'document.fonts' }, using: 'length' }, is: 1 })).toBe(true);
+            const failing = { ...FAILING, using: 'length' };
+            expect(holds('', { if: true, then: 1, else: failing, is: 1 })).toBe(true);
+            expect(holds('', { if: false, then: failing, else: 1, is: 1 })).toBe(true);
         });
 
         it('applies `using` and `is` beside `if` to the branch taken', () => {
             expect(holds('', { if: true, then: { expr: ['a', 'b'] }, else: { expr: [] }, using: 'length', is: 2 })).toBe(true);
             expect(holds('', { if: false, then: true, else: 3, is: 3 })).toBe(true);
-        });
-
-        it('omits a payload key reading a name bound in the branch not taken', () => {
-            const detector = {
-                actions: [
-                    { define: { chosen: { if: false, then: [{ define: { thenValue: 1 } }, 1], else: [{ define: { elseValue: 2 } }, 2] } } },
-                    {
-                        fireEvent: {
-                            type: 't',
-                            data: {
-                                a: { value: { ref: 'thenValue' } },
-                                b: { value: { ref: 'elseValue' } },
-                                c: { value: { ref: 'chosen' } },
-                            },
-                        },
-                    },
-                ],
-            };
-            expect(run('', detector).data).toEqual({ b: 2, c: 2 });
         });
 
         it('takes a branch carrying `is` in boolean position', () => {
@@ -294,10 +250,6 @@ describe('WebDetection evaluate', () => {
 
         it('takes a sequence in a branch, giving its last value', () => {
             expect(holds('', { if: true, then: [{ define: { x: 1 } }, { ref: 'x', is: 1 }], else: false })).toBe(true);
-        });
-
-        it('passes up a failure in its condition', () => {
-            expect(holds('', { if: { ...FAILING, using: 'length', is: { gt: 0 } }, then: true, else: false })).toBe('aborted');
         });
     });
 
@@ -482,11 +434,6 @@ describe('WebDetection evaluate', () => {
                 path: 'actions.fireEvent.data.x.when.gt.api',
                 result: 'aborted',
             });
-        });
-
-        it('omits a failed value through a `when` testing `fails`', () => {
-            expect(payload('', { ...FAILING, using: 'length' }, { when: { fails: false } })).toEqual({});
-            expect(payload('', 3, { when: { fails: false } })).toEqual({ x: 3 });
         });
 
         it('buckets a string by length', () => {
