@@ -1,4 +1,8 @@
-import { BROKEN, IMG, RENDERED, brokenFonts, fonts, imageState, renderedText, run, timeline } from './support.js';
+import { BROKEN, IMG, RENDERED, brokenFonts, fonts, renderedText, run, timeline } from './support.js';
+
+/**
+ * @typedef {import('./support.js').Install} Install
+ */
 
 describe('WebDetection detectors', () => {
     describe('the five detectors', () => {
@@ -30,7 +34,7 @@ describe('WebDetection detectors', () => {
                 ],
             };
             const html = IMG('data-complete') + IMG('data-complete') + IMG('data-complete data-width="4"') + '<img data-complete>';
-            const result = run(html, detector, { install: imageState });
+            const result = run(html, detector);
             expect(result.detected).toBe(true);
             expect(result.events).toEqual([{ type: 'brokenImages_count2to4' }]);
             expect(result.entry?.data).toEqual({ brokenImages: 2, brokenShare: 0.5 });
@@ -81,12 +85,9 @@ describe('WebDetection detectors', () => {
             const fast = run('', slowLoad, { install: timeline([{ name: 'n', entryType: 'navigation', loadEventEnd: 900 }]) });
             expect(fast.events).toEqual([]);
             expect(fast.entry?.data).toEqual({ loadEventEnd: 900 });
-            const stillLoading = run('', slowLoad, {
-                install: (w) => {
-                    timeline([{ name: 'n', entryType: 'navigation', loadEventEnd: 0 }])(w);
-                    Object.defineProperty(w.Performance.prototype, 'now', { configurable: true, writable: true, value: () => 16000 });
-                },
-            });
+            const now = (/** @type {any} */ w) =>
+                Object.defineProperty(w.Performance.prototype, 'now', { configurable: true, value: () => 16000 });
+            const stillLoading = run('', slowLoad, { install: [timeline([{ name: 'n', entryType: 'navigation', loadEventEnd: 0 }]), now] });
             expect(stillLoading.events).toEqual([{ type: 'pageLoadTime_loadLoading' }]);
             expect(stillLoading.ctx.detectorNames.get('this.finished')).toBe(false);
         });
@@ -125,30 +126,16 @@ describe('WebDetection detectors', () => {
                 { name: 'b.css', entryType: 'resource', initiatorType: 'link', responseStatus: 200 },
             ]);
             const loadedSheet = timeline([{ name: 'b.css', entryType: 'resource', initiatorType: 'link', responseStatus: 200 }]);
-            const both = (/** @type {any} */ w) => {
-                failedSheet(w);
-                fonts(['error', 'loaded'])(w);
-            };
-            expect(run('', detector, { install: both }).entry?.data).toEqual({ failedStylesheets: 1, failedFontFaces: 1 });
+            const data = (/** @type {Install[]} */ install) => run('', detector, { install }).entry?.data;
+            expect(data([failedSheet, fonts(['error', 'loaded'])])).toEqual({ failedStylesheets: 1, failedFontFaces: 1 });
             // A `document.fonts` that throws fails `match`, since every operand is evaluated
-            const throwingFonts = (/** @type {any} */ w) => {
-                failedSheet(w);
-                brokenFonts(w);
-            };
-            const throwing = run('', detector, { install: throwingFonts });
+            const throwing = run('', detector, { install: [failedSheet, brokenFonts] });
             expect(throwing.detected).toBe('aborted');
             expect(throwing.failedAt).toBe('match.any.1.api');
-            const fontOnly = (/** @type {any} */ w) => {
-                loadedSheet(w);
-                fonts(['error'])(w);
-            };
-            expect(run('', detector, { install: fontOnly }).entry?.data).toEqual({ failedStylesheets: 0, failedFontFaces: 1 });
+            expect(data([loadedSheet, fonts(['error'])])).toEqual({ failedStylesheets: 0, failedFontFaces: 1 });
             // An engine without responseStatus counts 0, a reading
-            const noStatus = (/** @type {any} */ w) => {
-                timeline([{ name: 'a.css', entryType: 'resource', initiatorType: 'link' }], { missing: ['responseStatus'] })(w);
-                fonts(['error'])(w);
-            };
-            expect(run('', detector, { install: noStatus }).entry?.data).toEqual({ failedStylesheets: 0, failedFontFaces: 1 });
+            const noStatus = timeline([{ name: 'a.css', entryType: 'resource', initiatorType: 'link' }], { missing: ['responseStatus'] });
+            expect(data([noStatus, fonts(['error'])])).toEqual({ failedStylesheets: 0, failedFontFaces: 1 });
         });
 
         it('reports an empty known region', () => {
@@ -185,9 +172,7 @@ describe('WebDetection detectors', () => {
                     },
                 ],
             };
-            const entry = (/** @type {string} */ html) => {
-                return run(html, detector, { install: imageState }).entry?.data;
-            };
+            const entry = (/** @type {string} */ html) => run(html, detector).entry?.data;
             expect(entry('')).toBeUndefined();
             expect(entry('<div id="comments">hi</div>')).toEqual({ region: 'filled' });
             expect(entry(`<div id="comments">${IMG('data-complete')}</div>`)).toEqual({ region: 'empty', brokenImages: 1 });

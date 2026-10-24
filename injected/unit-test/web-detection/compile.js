@@ -1,7 +1,25 @@
 import { compileDetector } from '../../src/features/web-detection/compile/compile.js';
 import { compileDetectorConfig, parseDetectors } from '../../src/features/web-detection/compile/detector-config.js';
 import { pageSources } from '../../src/features/web-detection/sources/index.js';
-import { IMG, REPORT, bound, detects, expectParseError, fonts, holds, imageState, payload, run, timeline, withPayload } from './support.js';
+import {
+    IMG,
+    NATURAL_WIDTH,
+    REPORT,
+    bindings,
+    bound,
+    defineGetter,
+    detects,
+    entriesOf,
+    expectParseError,
+    fires,
+    fonts,
+    holds,
+    payload,
+    rejectsMatch,
+    run,
+    timeline,
+    withPayload,
+} from './support.js';
 
 /**
  * @typedef {import('../../src/features/web-detection/compile/detector-config.js').RawDetectorConfig} RawDetectorConfig
@@ -10,28 +28,19 @@ import { IMG, REPORT, bound, detects, expectParseError, fonts, holds, imageState
 describe('WebDetection compile', () => {
     describe('types', () => {
         it('rejects each expression in a position whose type config shows is wrong', () => {
-            expectParseError({ match: { element: { selector: 'img', field: 'naturalWidth' } }, actions: REPORT }, 'does not fill boolean');
-            expectParseError(
-                { match: { api: { path: 'document.fonts', where: { status: 'error' } } }, actions: REPORT },
-                'does not fill boolean',
-            );
-            expectParseError(
-                { match: { element: { selector: 'img' }, using: 'length' }, actions: REPORT },
-                'numbers become booleans only through `is`',
-            );
-            expectParseError({ match: { only: 5, is: 1 }, actions: REPORT }, 'does not fill list');
-            expectParseError(
-                { match: { only: { element: { selector: 'img' }, using: 'length' }, is: 1 }, actions: REPORT },
-                "'length' does not fill list",
-            );
-            expectParseError({ match: 5, actions: REPORT }, 'does not fill boolean');
-            expectParseError({ match: { sum: [true], is: 1 }, actions: REPORT }, 'does not fill number');
-            expectParseError({ match: { only: { if: true, then: 1, else: 2 }, is: 1 }, actions: REPORT }, "'if' does not fill list");
+            rejectsMatch({ element: { selector: 'img', field: 'naturalWidth' } }, 'does not fill boolean');
+            rejectsMatch({ api: { path: 'document.fonts', where: { status: 'error' } } }, 'does not fill boolean');
+            rejectsMatch({ element: { selector: 'img' }, using: 'length' }, 'numbers become booleans only through `is`');
+            rejectsMatch({ only: 5, is: 1 }, 'does not fill list');
+            rejectsMatch({ only: { element: { selector: 'img' }, using: 'length' }, is: 1 }, "'length' does not fill list");
+            rejectsMatch(5, 'does not fill boolean');
+            rejectsMatch({ sum: [true], is: 1 }, 'does not fill number');
+            rejectsMatch({ only: { if: true, then: 1, else: 2 }, is: 1 }, "'if' does not fill list");
         });
 
         it('takes an api value of the type its position expects, checked as it is read', () => {
             const hidden = (/** @type {boolean} */ value) => (/** @type {any} */ w) =>
-                Object.defineProperty(w.Document.prototype, 'hidden', { configurable: true, get: () => value });
+                defineGetter(w.Document.prototype, 'hidden', () => value);
             expect(holds('', { api: { path: 'document.hidden' } }, { install: hidden(true) })).toBe(true);
             expect(holds('', { api: { path: 'document.hidden' } }, { install: hidden(false) })).toBe(false);
             expect(holds('', { api: { path: 'document.title' } })).toBe('error');
@@ -40,40 +49,25 @@ describe('WebDetection compile', () => {
         });
 
         it('rejects `is` outside boolean and value position, and several expression keys beside it', () => {
-            expectParseError(
-                { match: { sum: [{ element: { selector: 'img' }, using: 'length', is: { gt: 1 } }], is: 1 }, actions: REPORT },
-                '`is` gives a boolean',
-            );
-            expectParseError(
-                { match: { text: { pattern: 'a' }, element: { selector: 'p' }, is: true }, actions: REPORT },
-                'several expression keys',
-            );
+            rejectsMatch({ sum: [{ element: { selector: 'img' }, using: 'length', is: { gt: 1 } }], is: 1 }, '`is` gives a boolean');
+            rejectsMatch({ text: { pattern: 'a' }, element: { selector: 'p' }, is: true }, 'several expression keys');
         });
 
         it('rejects unknown keys', () => {
-            expectParseError({ match: { pageFeature: 'x' }, actions: REPORT }, "unknown expression key 'pageFeature'");
-            expectParseError({ match: { element: { selector: 'img', foo: 1 } }, actions: REPORT }, "unknown key 'foo'");
-            expectParseError(
-                { match: { api: { path: 'document.title', allowGetter: true }, is: '' }, actions: REPORT },
-                "unknown key 'allowGetter'",
-            );
-            expectParseError(
-                { match: { element: { selector: 'img' }, using: 'length', catch: { absent: 0 }, is: 1 }, actions: REPORT },
-                "unknown expression key 'catch'",
-            );
-            expectParseError({ match: { if: true, is: 1 }, actions: REPORT }, "'if' needs 'then'");
-            expectParseError({ match: { if: true, then: 1, else: 2, other: 3, is: 1 }, actions: REPORT }, "unknown expression key 'other'");
-            expectParseError({ match: { api: 'x', as: 'y' }, actions: REPORT }, "unknown expression key 'as'");
+            rejectsMatch({ pageFeature: 'x' }, "unknown expression key 'pageFeature'");
+            rejectsMatch({ element: { selector: 'img', foo: 1 } }, "unknown key 'foo'");
+            rejectsMatch({ api: { path: 'document.title', allowGetter: true }, is: '' }, "unknown key 'allowGetter'");
+            rejectsMatch({ element: { selector: 'img' }, using: 'length', catch: { absent: 0 }, is: 1 }, "unknown expression key 'catch'");
+            rejectsMatch({ if: true, is: 1 }, "'if' needs 'then'");
+            rejectsMatch({ if: true, then: 1, else: 2, other: 3, is: 1 }, "unknown expression key 'other'");
+            rejectsMatch({ api: 'x', as: 'y' }, "unknown expression key 'as'");
         });
 
         it('reads one bound source as a boolean in an `if` condition and as a list in a payload', () => {
             const detector = {
                 actions: [
                     { define: { images: { element: { selector: 'img' } } } },
-                    {
-                        if: { ref: 'images' },
-                        then: { fireEvent: { type: 't', data: { images: { value: { ref: 'images', using: 'length' } } } } },
-                    },
+                    { if: { ref: 'images' }, then: fires({ images: { value: { ref: 'images', using: 'length' } } }) },
                 ],
             };
             expect(run(IMG() + IMG(), detector).data).toEqual({ images: 2 });
@@ -84,9 +78,7 @@ describe('WebDetection compile', () => {
             const detector = (/** @type {unknown} */ value) => ({
                 actions: [{ define: { v: value } }, { define: { asNumber: { sum: [{ ref: 'v' }] }, asValue: { ref: 'v' } } }],
             });
-            const ran = run('', detector(2));
-            expect(ran.names.get('asNumber')).toBe(2);
-            expect(ran.names.get('asValue')).toBe(2);
+            expect(bindings(run('', detector(2)))).toEqual({ v: 2, asNumber: 2, asValue: 2 });
             expect(run('', detector('x')).failure).toEqual({ path: 'actions.1.define.asNumber.sum', result: 'error' });
         });
 
@@ -123,18 +115,18 @@ describe('WebDetection compile', () => {
 
         it('rejects an array in every expression position', () => {
             const notExpression = 'an array is not an expression';
-            expectParseError({ match: [], actions: REPORT }, notExpression);
-            expectParseError({ match: [true], actions: REPORT }, notExpression);
-            expectParseError({ match: { all: [true, [true, false]] }, actions: REPORT }, notExpression);
-            expectParseError({ match: { if: [true], then: true, else: false }, actions: REPORT }, notExpression);
+            rejectsMatch([], notExpression);
+            rejectsMatch([true], notExpression);
+            rejectsMatch({ all: [true, [true, false]] }, notExpression);
+            rejectsMatch({ if: [true], then: true, else: false }, notExpression);
             expect(holds('', { if: true, then: [true], else: false })).toBe(true);
-            expectParseError({ match: { if: true, then: [true, 1], else: false }, actions: REPORT }, "'literal' does not fill boolean");
+            rejectsMatch({ if: true, then: [true, 1], else: false }, "'literal' does not fill boolean");
             expectParseError({ actions: [{ define: { x: [1, 2] } }] }, notExpression);
             expectParseError({ actions: [[{ define: { x: 1 } }]] }, notExpression);
             expectParseError({ actions: { define: { x: { sum: [1, { api: { path: 'Math.max', args: [[1]] } }] } } } }, notExpression);
             expectParseError(withPayload([1, 2]), notExpression);
             expectParseError(withPayload({ sum: [1, [2, 3]] }), notExpression);
-            expectParseError({ match: { api: { path: 'document.title' }, is: { eq: ['a'] } }, actions: REPORT }, notExpression);
+            rejectsMatch({ api: { path: 'document.title' }, is: { eq: ['a'] } }, notExpression);
         });
 
         it('takes string and null literals in value position only', () => {
@@ -144,10 +136,10 @@ describe('WebDetection compile', () => {
             expect(payload('', { if: false, then: 'yes', else: null })).toEqual({ x: null });
             expect(holds('', { api: { path: 'document.readyState' }, is: { eq: { api: { path: 'document.readyState' } } } })).toBe(true);
             expect(holds('<p>a</p>', { only: { text: { pattern: 'a' } }, is: { eq: { text: { pattern: 'a' } } } })).toBe(true);
-            expectParseError({ match: 'x', actions: REPORT }, "'literal' does not fill boolean position");
-            expectParseError({ match: { any: [null] }, actions: REPORT }, "'literal' does not fill boolean position");
-            expectParseError({ match: { sum: ['x', 1], is: { gt: 0 } }, actions: REPORT }, "'literal' does not fill number position");
-            expectParseError({ match: { only: 'x', is: 1 }, actions: REPORT }, "'literal' does not fill list position");
+            rejectsMatch('x', "'literal' does not fill boolean position");
+            rejectsMatch({ any: [null] }, "'literal' does not fill boolean position");
+            rejectsMatch({ sum: ['x', 1], is: { gt: 0 } }, "'literal' does not fill number position");
+            rejectsMatch({ only: 'x', is: 1 }, "'literal' does not fill list position");
             expect(holds('<p></p>', { element: { selector: 'p' }, using: 'length', is: { gt: '0' } })).toBe(true);
         });
 
@@ -163,32 +155,29 @@ describe('WebDetection compile', () => {
         });
 
         it('rejects operator blocks inside a source', () => {
-            expectParseError({ match: { text: { any: [{ pattern: 'a' }] } }, actions: REPORT }, "unknown key 'any'");
-            expectParseError(
-                { match: { element: [{ selector: 'p' }, { none: [{ selector: 'a' }] }] }, actions: REPORT },
-                "unknown key 'none'",
-            );
+            rejectsMatch({ text: { any: [{ pattern: 'a' }] } }, "unknown key 'any'");
+            rejectsMatch({ element: [{ selector: 'p' }, { none: [{ selector: 'a' }] }] }, "unknown key 'none'");
         });
     });
 
     describe('unwrapping', () => {
         const widths = (/** @type {number[]} */ list) => list.map((w) => IMG(`data-width="${w}"`)).join('');
-        const width = { element: { selector: 'img', field: 'naturalWidth' } };
+        const width = NATURAL_WIDTH;
 
         it('gives a selected list’s one item in number position, and errors over none or several', () => {
             const read = { div: [width, 5], is: 1 };
-            expect(holds(widths([5]), read, { install: imageState })).toBe(true);
-            expect(holds('', read, { install: imageState })).toBe('error');
-            expect(holds(widths([5, 5]), read, { install: imageState })).toBe('error');
+            expect(holds(widths([5]), read)).toBe(true);
+            expect(holds('', read)).toBe('error');
+            expect(holds(widths([5, 5]), read)).toBe('error');
         });
 
         it('gives the one item to a predicate that compares, and the list as an array to one that does not', () => {
-            expect(holds(widths([5]), { ...width, is: { gt: 4 } }, { install: imageState })).toBe(true);
-            expect(holds(widths([5]), { ...width, is: 5 }, { install: imageState })).toBe(true);
-            expect(holds(widths([5, 6]), { ...width, is: { gt: 4 } }, { install: imageState })).toBe('error');
-            expect(holds(widths([5, 6]), { ...width, is: { length: 2 } }, { install: imageState })).toBe(true);
-            expect(holds(widths([5, 6]), { ...width, is: { type: 'array' } }, { install: imageState })).toBe(true);
-            expect(holds('', { ...width, is: {} }, { install: imageState })).toBe(true);
+            expect(holds(widths([5]), { ...width, is: { gt: 4 } })).toBe(true);
+            expect(holds(widths([5]), { ...width, is: 5 })).toBe(true);
+            expect(holds(widths([5, 6]), { ...width, is: { gt: 4 } })).toBe('error');
+            expect(holds(widths([5, 6]), { ...width, is: { length: 2 } })).toBe(true);
+            expect(holds(widths([5, 6]), { ...width, is: { type: 'array' } })).toBe(true);
+            expect(holds('', { ...width, is: {} })).toBe(true);
         });
 
         it('keeps element and text in boolean position as presence', () => {
@@ -198,18 +187,17 @@ describe('WebDetection compile', () => {
 
         it('does not unwrap an iterable an api reads', () => {
             const install = timeline([{ name: 'n', entryType: 'navigation', loadEventEnd: 5 }]);
-            const entries = { api: { path: 'performance.getEntriesByType', args: ['navigation'] } };
-            expect(holds('', { ...entries, is: { length: 1 } }, { install })).toBe(true);
+            expect(holds('', { ...entriesOf('navigation'), is: { length: 1 } }, { install })).toBe(true);
             // `lt` compares the array as JS does: `[entry] < 1` coerces the entry to `NaN`
-            expect(holds('', { ...entries, is: { lt: 1 } }, { install })).toBe(false);
+            expect(holds('', { ...entriesOf('navigation'), is: { lt: 1 } }, { install })).toBe(false);
         });
 
         it('sends a selected list bucketed, each bucket unwrapping it, and unbucketed as an array', () => {
             const buckets = { small: { lt: 10 }, large: { gte: 10 } };
-            expect(run(widths([5]), withPayload(width, { buckets }), { install: imageState }).data).toEqual({ x: 'small' });
-            expect(run(widths([5]), withPayload(width, { buckets: { two: { length: 2 } } }), { install: imageState }).data).toEqual({});
-            expect(run(widths([5, 6]), withPayload(width), { install: imageState }).data).toEqual({ x: [5, 6] });
-            expect(run(widths([5, 6]), withPayload(width, { buckets }), { install: imageState }).failure).toEqual({
+            expect(payload(widths([5]), width, { buckets })).toEqual({ x: 'small' });
+            expect(payload(widths([5]), width, { buckets: { two: { length: 2 } } })).toEqual({});
+            expect(payload(widths([5, 6]), width)).toEqual({ x: [5, 6] });
+            expect(run(widths([5, 6]), withPayload(width, { buckets })).failure).toEqual({
                 path: 'actions.fireEvent.data.x.value',
                 result: 'error',
             });
@@ -224,7 +212,7 @@ describe('WebDetection compile', () => {
         const compile = (detector) => compileDetector(detector, pageSources({}));
 
         it('compiles a predicate to nodes with their config paths', () => {
-            const { match } = compile({ match: { ref: 'loadEventEnd', is: { gt: 0, lt: 8000 } }, actions: REPORT });
+            const { match } = compile(detects({ ref: 'loadEventEnd', is: { gt: 0, lt: 8000 } }));
             expect(match.is).toEqual({
                 kind: 'combine',
                 combinator: 'all',
@@ -238,10 +226,7 @@ describe('WebDetection compile', () => {
         });
 
         it('keeps the operands of in and of comparisons as expressions', () => {
-            const { match } = compile({
-                match: { ref: 'type', is: { in: ['reload', { ref: 'other' }], eq: { ref: 'other' } } },
-                actions: REPORT,
-            });
+            const { match } = compile(detects({ ref: 'type', is: { in: ['reload', { ref: 'other' }], eq: { ref: 'other' } } }));
             const [within, equal] = match.is.entries;
             expect(within).toEqual(
                 jasmine.objectContaining({
@@ -256,7 +241,7 @@ describe('WebDetection compile', () => {
         });
 
         it('guards the other keys with fails and type', () => {
-            const { match } = compile({ match: { ref: 'n', is: { gte: 1, fails: false } }, actions: REPORT });
+            const { match } = compile(detects({ ref: 'n', is: { gte: 1, fails: false } }));
             expect(match.is).toEqual(
                 jasmine.objectContaining({
                     kind: 'guarded',
@@ -273,10 +258,7 @@ describe('WebDetection compile', () => {
         });
 
         it('reads item properties under where', () => {
-            const { match } = compile({
-                match: { element: { selector: 'img', where: { complete: true } }, using: 'length', is: 1 },
-                actions: REPORT,
-            });
+            const { match } = compile(detects({ element: { selector: 'img', where: { complete: true } }, using: 'length', is: 1 }));
             expect(match.root.bodies[0].where).toEqual(
                 jasmine.objectContaining({
                     kind: 'where',
@@ -309,34 +291,14 @@ describe('WebDetection compile', () => {
         });
 
         it('holds no function outside the sources, and every kind of predicate', () => {
+            const where = { complete: true, field: 'naturalWidth', is: 0, all: [{ self: 'alt', is: '' }] };
+            const buckets = { low: { lt: 5 }, high: { none: [{ lt: 5 }] } };
             const detectors = [
-                { match: { ref: 'n', is: { gt: 0, lt: 8000, in: [1, { ref: 'm' }], eq: { ref: 'm' } } }, actions: REPORT },
-                { match: { ref: 'n', is: { fails: false, type: ['number', 'string'], any: [1, 2] } }, actions: REPORT },
-                { match: { ref: 'n', is: {} }, actions: REPORT },
-                {
-                    match: {
-                        element: {
-                            selector: 'img',
-                            where: { complete: true, field: 'naturalWidth', is: 0, all: [{ self: 'alt', is: '' }] },
-                        },
-                        using: 'length',
-                        is: { gte: 1 },
-                    },
-                    actions: REPORT,
-                },
-                {
-                    actions: {
-                        breakageReportData: {
-                            data: {
-                                n: {
-                                    value: { ref: 'n' },
-                                    when: { type: 'number' },
-                                    buckets: { low: { lt: 5 }, high: { none: [{ lt: 5 }] } },
-                                },
-                            },
-                        },
-                    },
-                },
+                detects({ ref: 'n', is: { gt: 0, lt: 8000, in: [1, { ref: 'm' }], eq: { ref: 'm' } } }),
+                detects({ ref: 'n', is: { fails: false, type: ['number', 'string'], any: [1, 2] } }),
+                detects({ ref: 'n', is: {} }),
+                detects({ element: { selector: 'img', where }, using: 'length', is: { gte: 1 } }),
+                { actions: { breakageReportData: { data: { n: { value: { ref: 'n' }, when: { type: 'number' }, buckets } } } } },
             ];
             /** @type {string[]} */
             const functions = [];
@@ -394,9 +356,10 @@ describe('WebDetection compile', () => {
             expectParseError({ actions: [[{ fireEvent: { type: 'a' } }]] }, 'an array is not an expression');
         });
 
-        it('rejects an action beside an expression key or a modifier', () => {
+        it('rejects an action beside an expression key or a modifier, and a key that is not an action', () => {
             expectParseError({ actions: { fireEvent: { type: 'a' }, api: 'x' } }, "'api' is not an action");
             expectParseError({ actions: { define: { x: 1 }, is: true } }, "'is' is not an action");
+            expectParseError({ actions: [{ when: true, fireEvent: { type: 'adwall' } }] }, "'when' is not an action");
         });
 
         it('rejects unknown keys in the actions, and the shipped `state`', () => {
@@ -416,42 +379,33 @@ describe('WebDetection compile', () => {
 
         it('rejects `as`, and a payload key with `this.`', () => {
             expectParseError({ actions: { define: { x: { api: 'a', as: 'y' } } } }, "unknown expression key 'as'");
-            expectParseError({ actions: { fireEvent: { type: 'a', data: { 'this.x': { value: 1 } } } } }, 'invalid payload key');
+            expectParseError({ actions: fires({ 'this.x': { value: 1 } }) }, 'invalid payload key');
         });
     });
 
     describe('parseDetectors', () => {
-        it('should return empty object for invalid input', () => {
-            expect(parseDetectors(undefined)).toEqual({});
-        });
+        const on = detects(true);
+        const TOP = [{ context: { top: true } }];
+        const DOMAIN = [{ domain: 'example.com' }];
+        const parsedOne = (/** @type {unknown} */ config) =>
+            parseDetectors({ group: { detector: /** @type {RawDetectorConfig} */ (config) } }).group.detector;
+        /** @returns {any} */
+        const compiledOf = (/** @type {unknown} */ config) => compileDetectorConfig(parsedOne(config), globalThis);
 
-        it('should skip invalid group names', () => {
-            const config = {
-                '123invalid': { detector1: detects(true) },
-                'invalid-name': { detector2: detects(true) },
-                '': { detector3: detects(true) },
-            };
-            const result = parseDetectors(config);
-            expect(Object.keys(result)).toEqual([]);
+        it('should return empty object for invalid input, and skip invalid group names', () => {
+            expect(parseDetectors(undefined)).toEqual({});
+            expect(parseDetectors({ '123invalid': { d: on }, 'invalid-name': { d: on }, '': { d: on } })).toEqual({});
         });
 
         it('should accept valid group and detector names', () => {
-            const config = {
-                ValidGroup: { Detector1: detects(true) },
-                validGroup: { detector1: detects(true) },
-                adwalls: {
-                    generic: detects(true),
-                    specific1: detects(true),
-                },
-                my_group_01: {
-                    my_detector07: detects(true),
-                },
-            };
-            const result = parseDetectors(config);
-            // correct group names
+            const result = parseDetectors({
+                ValidGroup: { Detector1: on },
+                validGroup: { detector1: on },
+                adwalls: { generic: on, specific1: on },
+                my_group_01: { my_detector07: on },
+            });
             expect(Object.keys(result).sort()).toEqual(['ValidGroup', 'adwalls', 'my_group_01', 'validGroup']);
-            // correct detector names (get flattened list)
-            expect(Object.keys(result).flatMap((group) => Object.keys(result[group]))).toEqual([
+            expect(Object.values(result).flatMap((group) => Object.keys(group))).toEqual([
                 'Detector1',
                 'detector1',
                 'generic',
@@ -460,86 +414,63 @@ describe('WebDetection compile', () => {
             ]);
         });
 
-        it('should apply defaults to detectors', () => {
-            const result = parseDetectors({ adwalls: { generic: detects({ text: { pattern: 'adblocker' } }) } });
-            const detector = result.adwalls.generic;
-
-            expect(detector.state).toBe('enabled');
-            expect(detector.triggers.breakageReport.state).toBe('enabled');
-            expect(detector.triggers.breakageReport.runConditions).toEqual([{ context: { top: true } }]);
+        it('should default the detector state to enabled, which config can disable', () => {
+            expect(parsedOne(on).state).toBe('enabled');
+            expect(parsedOne(detects(true, { state: 'disabled' })).state).toBe('disabled');
         });
 
-        it('should allow custom runConditions to override defaults', () => {
-            const config = {
-                adwalls: {
-                    iframeDetector: detects({ text: { pattern: 'test' } }, { triggers: { breakageReport: { runConditions: [] } } }),
-                },
-            };
-            const result = parseDetectors(config);
-            expect(result.adwalls.iframeDetector.triggers.breakageReport.runConditions).toEqual([]);
-        });
-
-        it('should allow domain-specific runConditions', () => {
-            const config = {
-                adwalls: {
-                    domainSpecific: detects(
-                        { text: { pattern: 'test' } },
-                        { triggers: { breakageReport: { runConditions: [{ domain: 'example.com' }] } } },
-                    ),
-                },
-            };
-            const result = parseDetectors(config);
-            expect(result.adwalls.domainSpecific.triggers.breakageReport.runConditions).toEqual([{ domain: 'example.com' }]);
-        });
-
-        /**
-         * @param {unknown} detectorConfig
-         * @returns {import('../../src/features/web-detection/compile/detector-config.js').DetectorConfig}
-         */
-        const oneDetectorConfigParsed = (detectorConfig) => {
-            const result = parseDetectors({
-                group: {
-                    detector: /** @type {RawDetectorConfig} */ (detectorConfig),
-                },
+        /** @type {Array<[string, any, 'breakageReport' | 'auto', object]>} */
+        const triggerCases = [
+            ['apply breakageReport defaults', undefined, 'breakageReport', { state: 'enabled', runConditions: TOP }],
+            [
+                'allow custom runConditions to override defaults',
+                { breakageReport: { runConditions: [] } },
+                'breakageReport',
+                { runConditions: [] },
+            ],
+            [
+                'allow domain-specific runConditions',
+                { breakageReport: { runConditions: DOMAIN } },
+                'breakageReport',
+                { runConditions: DOMAIN },
+            ],
+            ['allow disabling trigger state', { breakageReport: { state: 'disabled' } }, 'breakageReport', { state: 'disabled' }],
+            ['apply auto defaults when auto is not configured', undefined, 'auto', { state: 'disabled', runConditions: TOP }],
+            [
+                'apply auto defaults beside its intervals',
+                { auto: { when: { intervalMs: [100] } } },
+                'auto',
+                { state: 'disabled', runConditions: TOP },
+            ],
+            [
+                'allow enabling auto, with several intervals',
+                { auto: { state: 'enabled', when: { intervalMs: [100, 500, 1000, 5000] } } },
+                'auto',
+                { state: 'enabled', when: { intervalMs: [100, 500, 1000, 5000] } },
+            ],
+            [
+                'allow overriding auto runConditions',
+                { auto: { runConditions: DOMAIN, when: { intervalMs: [100] } } },
+                'auto',
+                { runConditions: DOMAIN },
+            ],
+            [
+                'keep breakageReport defaults beside auto',
+                { auto: { when: { intervalMs: [100] } } },
+                'breakageReport',
+                { state: 'enabled', runConditions: TOP },
+            ],
+        ];
+        for (const [title, triggers, name, expected] of triggerCases) {
+            it(`should ${title}`, () => {
+                expect(parsedOne(detects(true, triggers && { triggers })).triggers[name]).toEqual(jasmine.objectContaining(expected));
             });
-            return result.group.detector;
-        };
-
-        /**
-         * @param {unknown} detectorConfig
-         * @returns {import('../../src/features/web-detection/compile/compile.js').CompiledDetector}
-         */
-        const compiledOf = (detectorConfig) => {
-            const compiled = compileDetectorConfig(oneDetectorConfigParsed(detectorConfig), globalThis);
-            if ('error' in compiled) throw new Error(compiled.error);
-            return compiled;
-        };
-
-        /**
-         * @param {unknown} detectorConfig
-         * @returns {string}
-         */
-        const parseErrorOf = (detectorConfig) => {
-            const compiled = compileDetectorConfig(oneDetectorConfigParsed(detectorConfig), globalThis);
-            return 'error' in compiled ? compiled.error : '';
-        };
+        }
 
         it('should keep the config as given, and not compile it', () => {
-            const config = { match: { element: { selector: 'img' }, using: 'length' }, actions: { breakageReportData: {} } };
-            expect(oneDetectorConfigParsed(config).raw).toBe(config);
-            expect(parseErrorOf(config)).toContain('length');
-        });
-
-        it('should allow disabling detector state', () => {
-            const result = oneDetectorConfigParsed(detects({ text: { pattern: 'test' } }, { state: 'disabled' }));
-            expect(result.state).toBe('disabled');
-        });
-
-        it('should allow disabling trigger state', () => {
-            const result = oneDetectorConfigParsed(
-                detects({ text: { pattern: 'test' } }, { triggers: { breakageReport: { state: 'disabled' } } }),
-            );
-            expect(result.triggers.breakageReport.state).toBe('disabled');
+            const config = { match: { element: { selector: 'img' }, using: 'length' }, actions: REPORT };
+            expect(parsedOne(config).raw).toBe(config);
+            expect(compiledOf(config).error).toContain('length');
         });
 
         it('should compile `match` and `actions`, several action keys as a sequence in config order', () => {
@@ -547,66 +478,13 @@ describe('WebDetection compile', () => {
                 match: { text: { pattern: 'test' } },
                 actions: { fireEvent: { type: 'adwall' }, breakageReportData: {} },
             });
-            expect(compiled.match?.kind).toBe('source');
+            expect(compiled.match.kind).toBe('source');
             expect(compiled.actions.kind).toBe('sequence');
-            if (compiled.actions.kind !== 'sequence') return;
-            expect(compiled.actions.elements.map((element) => element.kind)).toEqual(['fireEvent', 'breakageReportData']);
-            expect(compiledOf({ actions: { breakageReportData: {} } }).match).toBeUndefined();
-        });
-
-        it('should reject the shipped shape and the action-list shape', () => {
-            expect(parseErrorOf({ match: { text: { pattern: 'test' } } })).toContain('a detector needs `actions`');
-            expect(parseErrorOf({ match: true, actions: { fireEvent: { type: 'adwall', state: 'enabled' } } })).toContain(
-                "unknown key 'state'",
-            );
-            expect(parseErrorOf({ actions: [{ when: true, fireEvent: { type: 'adwall' } }] })).toContain("'when' is not an action");
-        });
-
-        describe('auto trigger defaults', () => {
-            const auto = (/** @type {object} */ triggers) => detects({ text: { pattern: 'test' } }, { triggers });
-
-            it('should apply default state (disabled) to auto trigger', () => {
-                const result = oneDetectorConfigParsed(auto({ auto: { when: { intervalMs: [100] } } }));
-                expect(result.triggers.auto.state).toBe('disabled');
-            });
-
-            it('should apply default runConditions to auto trigger', () => {
-                const result = oneDetectorConfigParsed(auto({ auto: { when: { intervalMs: [100] } } }));
-                expect(result.triggers.auto.runConditions).toEqual([{ context: { top: true } }]);
-            });
-
-            it('should allow overriding state to enabled', () => {
-                const result = oneDetectorConfigParsed(auto({ auto: { state: 'enabled', when: { intervalMs: [100, 500] } } }));
-                expect(result.triggers.auto.state).toBe('enabled');
-                expect(result.triggers.auto.when.intervalMs).toEqual([100, 500]);
-            });
-
-            it('should allow overriding runConditions', () => {
-                const result = oneDetectorConfigParsed(
-                    auto({ auto: { runConditions: [{ domain: 'example.com' }], when: { intervalMs: [100] } } }),
-                );
-                expect(result.triggers.auto.runConditions).toEqual([{ domain: 'example.com' }]);
-            });
-
-            it('should handle multiple intervals', () => {
-                const result = oneDetectorConfigParsed(auto({ auto: { when: { intervalMs: [100, 500, 1000, 5000] } } }));
-                expect(result.triggers.auto.when.intervalMs).toEqual([100, 500, 1000, 5000]);
-            });
-
-            it('should apply default auto trigger when not specified in config', () => {
-                const result = oneDetectorConfigParsed(detects({ text: { pattern: 'test' } }));
-                // Defaults should be applied for auto trigger
-                expect(result.triggers.auto).toBeDefined();
-                expect(result.triggers.auto.state).toBe('disabled');
-                expect(result.triggers.auto.runConditions).toEqual([{ context: { top: true } }]);
-            });
-
-            it('should not interfere with breakageReport trigger defaults', () => {
-                const result = oneDetectorConfigParsed(auto({ auto: { when: { intervalMs: [100] } } }));
-                // breakageReport defaults should still be applied
-                expect(result.triggers.breakageReport.state).toBe('enabled');
-                expect(result.triggers.breakageReport.runConditions).toEqual([{ context: { top: true } }]);
-            });
+            expect(compiled.actions.elements.map((/** @type {any} */ element) => element.kind)).toEqual([
+                'fireEvent',
+                'breakageReportData',
+            ]);
+            expect(compiledOf({ actions: REPORT }).match).toBeUndefined();
         });
     });
 });
