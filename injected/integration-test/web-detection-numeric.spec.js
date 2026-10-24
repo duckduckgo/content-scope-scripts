@@ -222,7 +222,10 @@ test.describe('WebDetection numeric detectors', () => {
     test('pageLoad.navigation writes the navigation values only when a report is filed', async ({ page }, testInfo) => {
         const collector = await setup(page, testInfo.project.use, [['pageLoad', 'navigation']], undefined, { fakeClock: false });
         await navigateTo(page, '/web-detection/pages/numeric-clean.html');
-        await page.waitForFunction(() => performance.getEntriesByType('navigation')[0]?.loadEventEnd > 0);
+        await page.waitForFunction(() => {
+            const navigation = /** @type {PerformanceNavigationTiming | undefined} */ (performance.getEntriesByType('navigation')[0]);
+            return (navigation?.loadEventEnd ?? 0) > 0;
+        });
 
         const [entry, ...rest] = await breakageReport(collector);
         expect(rest).toEqual([]);
