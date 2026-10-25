@@ -189,7 +189,8 @@ export function Omnibar({
                     >
                         <div
                             ref={spacerRef}
-                            class={styles.spacer}
+                            // Ease the room open with the drawer revealed on focus; notices open at load take it instantly.
+                            class={cn(styles.spacer, usageLimitsRevealed && styles.spacerReserveTransition)}
                             style={{ marginBottom: noticeReservedHeight }}
                             onFocusCapture={(event) => {
                                 // Toolbar/drawer focus must not reveal the drawer — only the composer itself.
@@ -234,6 +235,8 @@ export function Omnibar({
                                 <NoticeDrawer
                                     revealed={usageLimitsRevealed}
                                     onReservedHeightChange={setNoticeReservedHeight}
+                                    // The chips sit right below the drawer, so push them down instead of covering them.
+                                    reserveSpace={showSuggestedPrompts}
                                     launcherPromoVisibleRef={launcherPromoVisibleRef}
                                 />
                             )}

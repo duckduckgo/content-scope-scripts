@@ -85,6 +85,21 @@ test.describe('omnibar suggested prompts', () => {
         await omnibar.expectMethodNotCalled('omnibar_setConfig');
     });
 
+    test('a drawer revealed on focus pushes the chips down instead of covering them', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await openWithPrompts(ntp, { 'omnibar.launcherPromo': true });
+        await omnibar.ready();
+
+        await omnibar.focusChatInput();
+        await expect(omnibar.noticeDrawer()).toBeVisible();
+
+        await expect(async () => {
+            const drawer = await omnibar.noticeDrawer().boundingBox();
+            const chips = await suggestionsTab(page).boundingBox();
+            expect(drawer && chips && chips.y >= drawer.y + drawer.height).toBe(true);
+        }).toPass();
+    });
+
     test('the chips hide when native turns them off', async ({ page }, workerInfo) => {
         const { ntp, omnibar } = setup(page, workerInfo);
         await openWithPrompts(ntp);

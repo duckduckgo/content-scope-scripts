@@ -336,9 +336,10 @@ function NoticeRow({ presentation }) {
  * @param {object} props
  * @param {boolean} props.revealed - Whether focus-gated notices should be shown.
  * @param {(height: number) => void} props.onReservedHeightChange - Room the page must keep below the omnibar for a notice that stays open at rest.
+ * @param {boolean} [props.reserveSpace] - Also reserve room for focus-revealed notices, so they push content below down instead of covering it.
  * @param {{ current: boolean }} props.launcherPromoVisibleRef - Whether the launcher promo drawer is on screen, for submitChat.
  */
-export function NoticeDrawer({ revealed, onReservedHeightChange, launcherPromoVisibleRef }) {
+export function NoticeDrawer({ revealed, onReservedHeightChange, reserveSpace = false, launcherPromoVisibleRef }) {
     const termsDisclaimer = useTermsDisclaimerNotice();
     const attachmentPrivacy = useAttachmentPrivacyNotice();
     const usageLimits = useUsageLimitsDrawer();
@@ -348,7 +349,8 @@ export function NoticeDrawer({ revealed, onReservedHeightChange, launcherPromoVi
     const notices = visibleNotices([termsDisclaimer, usageLimits, attachmentPrivacy, createImageModelSwitch, launcherPromo]);
     const topType = notices[0]?.type;
 
-    const drawerRef = useReservedHeight(topType === 'required', onReservedHeightChange);
+    // A hidden drawer measures 0, so reserving for focus-revealed notices only takes room while they show.
+    const drawerRef = useReservedHeight(topType === 'required' || (reserveSpace && topType !== undefined), onReservedHeightChange);
 
     const isRevealed = topType !== undefined && (revealed || topType !== 'informational');
     const [shownAtMount] = useState(isRevealed);
