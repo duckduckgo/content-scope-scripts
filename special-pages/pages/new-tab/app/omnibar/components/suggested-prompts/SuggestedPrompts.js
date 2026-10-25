@@ -325,7 +325,7 @@ export function SuggestedPrompts({ onSubmit, animateIn = false, enableVoiceChatA
                             key={`exiting-${swap.tabId}`}
                             aria-hidden="true"
                             inert
-                            class={cn(styles.contentExiting, swap.direction === 'right' && styles.contentExitingRight)}
+                            class={cn(styles.contentExiting, swap.direction === 'left' && styles.contentExitingRight)}
                             onAnimationEnd={(event) => event.target === event.currentTarget && setSwap(null)}
                         >
                             {renderPanelContent(swap.tabId)}
