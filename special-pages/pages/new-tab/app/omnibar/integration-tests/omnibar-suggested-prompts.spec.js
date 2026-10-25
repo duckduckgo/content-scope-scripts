@@ -46,6 +46,17 @@ test.describe('omnibar suggested prompts', () => {
         expect(params.suggestedPromptId).toBe('jobapplication');
     });
 
+    test('double-clicking a suggestion sends it once', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await openWithPrompts(ntp);
+        await omnibar.ready();
+
+        await suggestionsTab(page).click();
+        await page.getByRole('button', { name: 'Improve a job application' }).dblclick();
+
+        await omnibar.expectExactMethodCallCount('omnibar_submitChat', 1);
+    });
+
     test('sending a suggestion keeps the typed draft', async ({ page }, workerInfo) => {
         const { ntp, omnibar } = setup(page, workerInfo);
         await openWithPrompts(ntp);

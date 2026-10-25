@@ -51,6 +51,9 @@ import { SuggestedPrompts } from './suggested-prompts/SuggestedPrompts.js';
  * @typedef {import('../../../types/new-tab.js').SubmitChatAction} SubmitChatAction
  */
 
+/** Long enough to swallow a double-click on a suggested prompt. */
+const SUGGESTED_PROMPT_REPEAT_GUARD_MS = 1000;
+
 /**
  * Whether a focus change landed on another element inside `ref`, rather than leaving its subtree.
  * @param {{ current: HTMLElement | null }} ref
@@ -91,6 +94,7 @@ export function Omnibar({
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const spacerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const suggestedPromptsRef = useRef(/** @type {HTMLDivElement|null} */ (null));
+    const lastSameTabSuggestedPromptAt = useRef(0);
     const launcherPromoVisibleRef = useRef(false);
     const [usageLimitsRevealed, setUsageLimitsRevealed] = useState(false);
     const [noticeReservedHeight, setNoticeReservedHeight] = useState(0);
@@ -161,9 +165,16 @@ export function Omnibar({
 
     /**
      * A suggested prompt sends its own text, not the composer's, so the draft, attachments and tool stay as they were.
+     * With no form reset to disable it, a double-click would send twice, so a repeat same-tab send is dropped briefly.
+     * New-tab opens stay repeatable.
      * @type {(params: SubmitChatAction) => void}
      */
     const handleSubmitSuggestedPrompt = (params) => {
+        if (params.target === 'same-tab') {
+            const now = Date.now();
+            if (now - lastSameTabSuggestedPromptAt.current < SUGGESTED_PROMPT_REPEAT_GUARD_MS) return;
+            lastSameTabSuggestedPromptAt.current = now;
+        }
         submitChat(launcherPromoVisibleRef.current ? { ...params, launcherPromoVisible: true } : params);
     };
 
