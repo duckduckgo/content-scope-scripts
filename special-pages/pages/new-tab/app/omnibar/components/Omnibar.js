@@ -147,7 +147,6 @@ export function Omnibar({
         resetForm();
     };
 
-    /** @type {(params: SubmitChatAction) => void} */
     /**
      * Moving focus from the composer into the chips keeps focus-revealed notices open. Hiding them would drop the room
      * they reserve and shift the chips mid-click.
@@ -158,6 +157,7 @@ export function Omnibar({
         setUsageLimitsRevealed(false);
     };
 
+    /** @type {(params: SubmitChatAction) => void} */
     const handleSubmitChat = (params) => {
         submitChat(launcherPromoVisibleRef.current ? { ...params, launcherPromoVisible: true } : params);
         resetForm();
