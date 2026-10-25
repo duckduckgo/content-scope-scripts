@@ -105,7 +105,7 @@ export function SuggestedPrompts({ onSubmit, animateIn = false, enableVoiceChatA
         const target = eventToTarget(event, platformName);
         if (prompt.kind === 'text') {
             onSubmit({
-                chat: prompt.prompt,
+                chat: t('omnibar_suggestedPromptsTextPromptTemplate', { topic: t(prompt.label) }),
                 target,
                 suggestedPromptId: prompt.id,
                 ...(selectedModel && { modelId: selectedModel.id }),
@@ -114,17 +114,18 @@ export function SuggestedPrompts({ onSubmit, animateIn = false, enableVoiceChatA
             return;
         }
 
+        const chat = t(prompt.prompt);
         // Without an image model to name, the legacy mode lets native resolve one.
         onSubmit(
             updatedCreateImageEnabled && imageModel
                 ? {
-                      chat: prompt.prompt,
+                      chat,
                       target,
                       suggestedPromptId: prompt.id,
                       toolChoice: ['GenerateImage'],
                       modelId: imageModel.id,
                   }
-                : { chat: prompt.prompt, target, suggestedPromptId: prompt.id, mode: 'image-generation' },
+                : { chat, target, suggestedPromptId: prompt.id, mode: 'image-generation' },
         );
     };
 

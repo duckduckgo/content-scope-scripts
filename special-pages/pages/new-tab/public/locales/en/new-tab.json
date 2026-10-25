@@ -609,6 +609,18 @@
     "title": "Edit Photo",
     "description": "Label on an image card in the Create & Edit Images panel. Keep it short; it sits on a small chip over a thumbnail."
   },
+  "omnibar_suggestedPromptsTextPromptTemplate": {
+    "title": "{topic}. If needed, ask me 1-2 questions that I can answer in just a few words - to help guide me to the most useful information. Speak in a conversational way, and ensure the response is easy for me to understand.",
+    "description": "The message sent to Duck.ai when a suggested chat prompt is selected. {topic} is replaced with the translated suggestion, for example \"Improve a job application\". Keep {topic} as is."
+  },
+  "omnibar_suggestedPromptsImageCreateComicPrompt": {
+    "title": "Draw a comic-style illustration of a duck shredding some confidential information.",
+    "description": "The message sent to Duck.ai's image generator when the Create Comic card is selected."
+  },
+  "omnibar_suggestedPromptsImageDesignSpacePrompt": {
+    "title": "Visualize a modern living room space.",
+    "description": "The message sent to Duck.ai's image generator when the Design Your Space card is selected."
+  },
   "nextStepsList_sectionTitle": {
     "title": "Next Steps",
     "note": "Text that goes in the Next Steps bubble label above the card"
