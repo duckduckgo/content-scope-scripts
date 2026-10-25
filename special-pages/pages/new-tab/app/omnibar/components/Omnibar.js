@@ -148,6 +148,14 @@ export function Omnibar({
         resetForm();
     };
 
+    /**
+     * A suggested prompt sends its own text, not the composer's, so the draft, attachments and tool stay as they were.
+     * @type {(params: SubmitChatAction) => void}
+     */
+    const handleSubmitSuggestedPrompt = (params) => {
+        submitChat(launcherPromoVisibleRef.current ? { ...params, launcherPromoVisible: true } : params);
+    };
+
     /** @type {(mode: OmnibarConfig['mode']) => void} */
     const handleChangeMode = (nextMode) => {
         setAutoFocus(true);
@@ -244,7 +252,7 @@ export function Omnibar({
                         {/* `autoFocus` is only set by a mode switch, so the chips don't animate on page load. */}
                         {mode === 'ai' && showSuggestedPrompts && (
                             <SuggestedPrompts
-                                onSubmit={handleSubmitChat}
+                                onSubmit={handleSubmitSuggestedPrompt}
                                 animateIn={autoFocus}
                                 enableVoiceChatAccess={enableVoiceChatAccess}
                             />

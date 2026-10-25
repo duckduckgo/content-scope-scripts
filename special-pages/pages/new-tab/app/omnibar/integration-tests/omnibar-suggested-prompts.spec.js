@@ -46,6 +46,19 @@ test.describe('omnibar suggested prompts', () => {
         expect(params.suggestedPromptId).toBe('jobapplication');
     });
 
+    test('sending a suggestion keeps the typed draft', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await openWithPrompts(ntp);
+        await omnibar.ready();
+
+        await omnibar.chatInput().fill('my draft');
+        await suggestionsTab(page).click();
+        await page.getByRole('button', { name: 'Improve a job application' }).click({ button: 'middle' });
+
+        expect((await submittedChat(ntp)).chat).toMatch(JOB_APPLICATION_PROMPT);
+        await expect(omnibar.chatInput()).toHaveValue('my draft');
+    });
+
     test('a right-click on a suggestion does not send it; a middle-click opens it in a new tab', async ({ page }, workerInfo) => {
         const { ntp, omnibar } = setup(page, workerInfo);
         await openWithPrompts(ntp);
