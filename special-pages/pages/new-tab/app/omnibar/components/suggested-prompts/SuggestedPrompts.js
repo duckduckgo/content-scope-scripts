@@ -26,6 +26,15 @@ import styles from './SuggestedPrompts.module.css';
 
 const IMAGE_ACCEPT = 'image/jpeg,image/png,image/webp';
 
+/**
+ * Chromium also fires `auxclick` for a right-click, which must not send a prompt; only middle-click opens a new tab.
+ * @param {(event: MouseEvent) => void} handler
+ * @returns {(event: MouseEvent) => void}
+ */
+const onMiddleClick = (handler) => (event) => {
+    if (event.button === 1) handler(event);
+};
+
 /** @type {{ id: TabId, label: StringKey, ariaLabel: StringKey, Icon: import('./suggestedPrompts.data.js').IconComponent }[]} */
 const TABS = [
     {
@@ -274,7 +283,7 @@ export function SuggestedPrompts({ onSubmit, animateIn = false, enableVoiceChatA
                         class={cn(styles.chip, styles.voiceChip)}
                         style={{ '--chip-index': tabs.length }}
                         onClick={handleVoiceChat}
-                        onAuxClick={handleVoiceChat}
+                        onAuxClick={onMiddleClick(handleVoiceChat)}
                     >
                         <VoiceIcon class={styles.chipIcon} aria-hidden="true" />
                         <span>{t('omnibar_suggestedPromptsVoiceChatLabel')}</span>
@@ -375,7 +384,7 @@ function TextPromptsPanel({ onSelect }) {
                     type="button"
                     class={styles.textPrompt}
                     onClick={(event) => onSelect(prompt, event)}
-                    onAuxClick={(event) => onSelect(prompt, event)}
+                    onAuxClick={onMiddleClick((event) => onSelect(prompt, event))}
                 >
                     <prompt.Icon class={styles.textPromptIcon} aria-hidden="true" />
                     <span>{t(prompt.label)}</span>
@@ -443,7 +452,7 @@ function ImagePromptsPanel({ onSelect }) {
                         class={styles.imageButton}
                         aria-label={t(prompt.label)}
                         onClick={(event) => onSelect(prompt, event)}
-                        onAuxClick={prompt.mode === 'send' ? (event) => onSelect(prompt, event) : undefined}
+                        onAuxClick={prompt.mode === 'send' ? onMiddleClick((event) => onSelect(prompt, event)) : undefined}
                     >
                         <img src={prompt.hoverImage} alt="" aria-hidden="true" class={styles.image} />
                         <img src={prompt.image} alt="" aria-hidden="true" class={cn(styles.image, styles.imageDefault)} />

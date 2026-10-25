@@ -46,6 +46,20 @@ test.describe('omnibar suggested prompts', () => {
         expect(params.suggestedPromptId).toBe('jobapplication');
     });
 
+    test('a right-click on a suggestion does not send it; a middle-click opens it in a new tab', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await openWithPrompts(ntp);
+        await omnibar.ready();
+
+        await suggestionsTab(page).click();
+        const prompt = page.getByRole('button', { name: 'Improve a job application' });
+        await prompt.dispatchEvent('auxclick', { button: 2 });
+        await omnibar.expectMethodNotCalled('omnibar_submitChat');
+
+        await prompt.dispatchEvent('auxclick', { button: 1 });
+        expect((await submittedChat(ntp)).target).toBe('new-tab');
+    });
+
     test('a suggestion is submitted even before the terms are accepted, without accepting them', async ({ page }, workerInfo) => {
         const { ntp, omnibar } = setup(page, workerInfo);
         await openWithPrompts(ntp, { 'omnibar.requiresAiTermsAcceptance': true });
