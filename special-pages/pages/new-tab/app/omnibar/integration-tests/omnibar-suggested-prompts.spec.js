@@ -145,6 +145,22 @@ test.describe('omnibar suggested prompts', () => {
         }).toPass();
     });
 
+    test('clicking a chip while a revealed drawer is open keeps the drawer, so the chips do not move', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await openWithPrompts(ntp, { 'omnibar.launcherPromo': true });
+        await omnibar.ready();
+
+        await omnibar.focusChatInput();
+        await expect(omnibar.noticeDrawer()).toBeVisible();
+        const before = await suggestionsTab(page).boundingBox();
+
+        await suggestionsTab(page).click();
+
+        await expect(page.getByRole('tabpanel')).toBeVisible();
+        await expect(omnibar.noticeDrawer()).toBeVisible();
+        expect((await suggestionsTab(page).boundingBox())?.y).toBe(before?.y);
+    });
+
     test('the chips hide when native turns them off', async ({ page }, workerInfo) => {
         const { ntp, omnibar } = setup(page, workerInfo);
         await openWithPrompts(ntp);

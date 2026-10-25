@@ -90,6 +90,7 @@ export function Omnibar({
 }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const spacerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
+    const suggestedPromptsRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const launcherPromoVisibleRef = useRef(false);
     const [usageLimitsRevealed, setUsageLimitsRevealed] = useState(false);
     const [noticeReservedHeight, setNoticeReservedHeight] = useState(0);
@@ -143,6 +144,16 @@ export function Omnibar({
     };
 
     /** @type {(params: SubmitChatAction) => void} */
+    /**
+     * Moving focus from the composer into the chips keeps focus-revealed notices open. Hiding them would drop the room
+     * they reserve and shift the chips mid-click.
+     * @param {FocusEvent} event
+     */
+    const hideNoticesOnFocusLeave = (event) => {
+        if (focusStaysWithin(spacerRef, event) || focusStaysWithin(suggestedPromptsRef, event)) return;
+        setUsageLimitsRevealed(false);
+    };
+
     const handleSubmitChat = (params) => {
         submitChat(launcherPromoVisibleRef.current ? { ...params, launcherPromoVisible: true } : params);
         resetForm();
@@ -205,10 +216,7 @@ export function Omnibar({
                                 if (!(event.target instanceof HTMLTextAreaElement)) return;
                                 setUsageLimitsRevealed(true);
                             }}
-                            onBlurCapture={(event) => {
-                                if (focusStaysWithin(spacerRef, event)) return;
-                                setUsageLimitsRevealed(false);
-                            }}
+                            onBlurCapture={hideNoticesOnFocusLeave}
                         >
                             <div class={styles.popup} {...keyboardFocusWithinProps}>
                                 {mode === 'search' ? (
@@ -255,6 +263,8 @@ export function Omnibar({
                                 onSubmit={handleSubmitSuggestedPrompt}
                                 animateIn={autoFocus}
                                 enableVoiceChatAccess={enableVoiceChatAccess}
+                                containerRef={suggestedPromptsRef}
+                                onBlurCapture={hideNoticesOnFocusLeave}
                             />
                         )}
                     </AiChatsProvider>

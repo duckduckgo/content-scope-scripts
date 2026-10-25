@@ -65,8 +65,10 @@ const TABS = [
  * @param {(params: SubmitChatAction) => void} props.onSubmit
  * @param {boolean} [props.animateIn] - Plays the chips' enter animation; set when the user switched to Duck.ai, not on page load.
  * @param {boolean} [props.enableVoiceChatAccess] - Adds a Voice Chat chip, shown on narrow windows only.
+ * @param {import('preact').RefObject<HTMLDivElement>} [props.containerRef] - Lets the omnibar treat focus in the chips as its own.
+ * @param {(event: FocusEvent) => void} [props.onBlurCapture]
  */
-export function SuggestedPrompts({ onSubmit, animateIn = false, enableVoiceChatAccess = false }) {
+export function SuggestedPrompts({ onSubmit, animateIn = false, enableVoiceChatAccess = false, containerRef: providedRef, onBlurCapture }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
     const baseId = useId();
@@ -91,7 +93,8 @@ export function SuggestedPrompts({ onSubmit, animateIn = false, enableVoiceChatA
     const [exitingTabId, setExitingTabId] = useState(/** @type {TabId | null} */ (null));
     /** Previous tab's content sliding out while the newly selected one slides in. */
     const [swap, setSwap] = useState(/** @type {{ tabId: TabId, direction: SwapDirection } | null} */ (null));
-    const containerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
+    const ownRef = useRef(/** @type {HTMLDivElement|null} */ (null));
+    const containerRef = providedRef ?? ownRef;
     const fileInputRef = useRef(/** @type {HTMLInputElement|null} */ (null));
     /** @type {import('preact/hooks').MutableRef<Partial<Record<TabId, HTMLButtonElement|null>>>} */
     const tabRefs = useRef({});
@@ -145,7 +148,7 @@ export function SuggestedPrompts({ onSubmit, animateIn = false, enableVoiceChatA
             document.removeEventListener('pointerdown', handlePointerDown);
             document.removeEventListener('keydown', handleKeyDown);
         };
-    }, [activeTabId, isReducedMotion]);
+    }, [activeTabId, isReducedMotion, containerRef]);
 
     /**
      * @param {KeyboardEvent} event
@@ -251,7 +254,7 @@ export function SuggestedPrompts({ onSubmit, animateIn = false, enableVoiceChatA
     };
 
     return (
-        <div ref={containerRef} class={styles.root}>
+        <div ref={containerRef} class={styles.root} onBlurCapture={onBlurCapture}>
             <div class={cn(styles.chipRow, animateIn && styles.chipRowEnter)}>
                 <div role="tablist" aria-orientation="horizontal" class={styles.chips}>
                     {tabs.map((tab, index) => {
