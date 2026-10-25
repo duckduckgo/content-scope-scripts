@@ -73,7 +73,11 @@ export function SuggestedPrompts({ onSubmit, animateIn = false, enableVoiceChatA
     const { isReducedMotion } = useEnv();
     const { state, setImageGenerationActive } = useContext(OmnibarContext);
     const { availableTools, setActiveTool } = useActiveTools();
-    const { selectedModel } = useSelectedModel();
+    const { selectedModel, allModels } = useSelectedModel();
+    // Image chips skip the Create Image toggle, which is where native swaps to an image model, so pick one here.
+    const imageModel = selectedModel?.supportedTools?.includes('GenerateImage')
+        ? selectedModel
+        : allModels.find((model) => model.isAvailable && model.supportedTools?.includes('GenerateImage'));
     const { selectedEffort } = useSelectedReasoningEffort();
     const { imageState } = useAttachmentsContext();
     const updatedCreateImageEnabled = state.config?.enableUpdatedCreateImage === true;
@@ -202,14 +206,15 @@ export function SuggestedPrompts({ onSubmit, animateIn = false, enableVoiceChatA
             return;
         }
 
+        // Without an image model to name, the legacy mode lets native resolve one.
         onSubmit(
-            updatedCreateImageEnabled
+            updatedCreateImageEnabled && imageModel
                 ? {
                       chat: prompt.prompt,
                       target,
                       suggestedPromptId: prompt.id,
                       toolChoice: ['GenerateImage'],
-                      ...(selectedModel && { modelId: selectedModel.id }),
+                      modelId: imageModel.id,
                   }
                 : { chat: prompt.prompt, target, suggestedPromptId: prompt.id, mode: 'image-generation' },
         );

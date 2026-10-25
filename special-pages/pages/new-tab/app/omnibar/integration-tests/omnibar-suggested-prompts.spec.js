@@ -86,6 +86,24 @@ test.describe('omnibar suggested prompts', () => {
         expect(params.suggestedPromptId).toBe('createcomic');
     });
 
+    test('an image suggestion uses an image-capable model when the selected one cannot make images', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await openWithPrompts(ntp, {
+            'omnibar.enableImageGeneration': true,
+            'omnibar.enableUpdatedCreateImage': true,
+            'omnibar.enableAiChatTools': true,
+            'omnibar.selectedModelId': 'gpt-4o-mini',
+        });
+        await omnibar.ready();
+
+        await page.getByRole('tab', { name: 'Open create and edit images suggestions' }).click();
+        await page.getByRole('button', { name: 'Create Comic' }).click();
+
+        const params = await submittedChat(ntp);
+        expect(params.toolChoice).toEqual(['GenerateImage']);
+        expect(params.modelId).toBe('gpt-5-mini');
+    });
+
     /** Native counts prompts from `omnibar_submitChat`; the page must not send a config change per prompt. */
     test('sending a prompt leaves the config alone', async ({ page }, workerInfo) => {
         const { ntp, omnibar } = setup(page, workerInfo);
