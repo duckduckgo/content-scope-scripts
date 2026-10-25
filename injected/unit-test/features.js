@@ -1,4 +1,4 @@
-import { platformSupport } from '../src/features.js';
+import { platformSupport, featureConfigDependencies } from '../src/features.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { readFile } from 'fs/promises';
@@ -28,6 +28,30 @@ describe('Features definition', () => {
         expect(webCompatIdx).not.toBe(-1);
         expect(fpScreenSizeIdx).not.toBe(-1);
         expect(webCompatIdx).toBeLessThan(fpScreenSizeIdx);
+    });
+
+    it('lists every cross-feature config read in featureConfigDependencies', async () => {
+        const featuresDir = path.join(__dirname, '../src/features');
+        const missing = [];
+        for (const file of glob.sync('**/*.js', { cwd: featuresDir })) {
+            // `tracker-protection.js` and `tracker-protection/*.js` both belong to `trackerProtection`
+            const featureName = file
+                .split('/')[0]
+                .replace(/\.js$/, '')
+                .replace(/-([a-z])/g, (_, c) => c.toUpperCase());
+            const source = await readFile(path.join(featuresDir, file), 'utf-8');
+            const reads = [
+                ...source.matchAll(/bundledConfig\??\.features\??\.([a-zA-Z]+)/g),
+                ...source.matchAll(/getFeatureSetting\([^,()]+,\s*'([a-zA-Z]+)'\)/g),
+                ...source.matchAll(/getFeatureSettingEnabled\([^,()]+,[^,()]+,\s*'([a-zA-Z]+)'\)/g),
+            ].map(([, name]) => name);
+            for (const name of reads) {
+                if (name !== featureName && !featureConfigDependencies[featureName]?.includes(name)) {
+                    missing.push(`${featureName} reads ${name}`);
+                }
+            }
+        }
+        expect(missing).toEqual([]);
     });
 });
 
