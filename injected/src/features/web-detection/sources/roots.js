@@ -4,14 +4,14 @@ import { isItemBuffer, listMembers } from '../model/lists.js';
 
 /**
  * @import { Failure } from '../model/core.js'
- * @import { PredicateContext, PredicateHooks } from '../model/types.js'
+ * @import { CompiledExpression, PredicateContext, PredicateHooks } from '../model/types.js'
  */
 
 /**
  * A `root`: compiled expressions, each giving a selector, a node or a list of nodes.
  *
  * @typedef {object} Root
- * @property {unknown[]} entries
+ * @property {CompiledExpression[]} entries
  */
 
 /**

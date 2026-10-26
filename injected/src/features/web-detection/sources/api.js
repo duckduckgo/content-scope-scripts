@@ -4,16 +4,16 @@ import { compileArgs, evaluateArgs, parsePathBody, readField, readPath } from '.
 import { parseItemKeys, selectItems } from './common.js';
 
 /**
- * @import { PredicateHooks, Source } from '../model/types.js'
- * @import { CompiledArg, CompiledField } from '../predicates/fields.js'
+ * @import { CompiledExpression, PredicateHooks, Source } from '../model/types.js'
+ * @import { CompiledField } from '../predicates/fields.js'
  * @import { CompiledPredicate } from '../predicates/predicates.js'
  */
 
 /**
  * @typedef {object} ApiBody
  * @property {string[]} names
- * @property {CompiledArg[]} [args]
- * @property {unknown} [root] - the compiled expression giving the value `path` reads from, for `self`
+ * @property {CompiledExpression[]} [args] - in value position
+ * @property {CompiledExpression} [root] - the expression giving the value `path` reads from, for `self`
  * @property {CompiledPredicate} [where]
  * @property {CompiledField} [field]
  */
