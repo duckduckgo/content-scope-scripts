@@ -161,11 +161,12 @@ export class WebkitMessagingTransport {
             configurable: true,
             writable: false,
             value: (data) => {
+                // The callback's result is the value native code gets back from evaluating the event
                 if (data && isSubscriptionEventFor(msg, data)) {
-                    callback(data.params);
-                } else {
-                    console.warn('Received a message that did not match the subscription', data);
+                    return callback(data.params);
                 }
+                console.warn('Received a message that did not match the subscription', data);
+                return undefined;
             },
         });
         return () => {

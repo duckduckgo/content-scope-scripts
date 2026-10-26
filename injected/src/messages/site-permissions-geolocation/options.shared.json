@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GeolocationRequestOptions",
+  "description": "The page's PositionOptions. Times are milliseconds; `infinity` stands for an infinite maximumAge.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "enableHighAccuracy"
+  ],
+  "properties": {
+    "enableHighAccuracy": {
+      "type": "boolean"
+    },
+    "timeout": {
+      "type": "number",
+      "minimum": 0
+    },
+    "maximumAge": {
+      "oneOf": [
+        {
+          "type": "number",
+          "minimum": 0
+        },
+        {
+          "const": "infinity"
+        }
+      ]
+    }
+  }
+}

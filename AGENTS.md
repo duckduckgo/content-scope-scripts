@@ -39,6 +39,7 @@ JavaScript features injected into web pages for privacy protections. Features ex
 - `performance-metrics` - Performance tracking
 - `print` - Overrides `window.print()` so native handles printing (iOS)
 - `referrer` - Referrer protection
+- `site-permissions-geolocation` / `site-permissions-geolocation-policy` / `site-permissions-media-capture` - Route geolocation and camera/microphone requests through the iOS per-site permission flow (inert until native injects their settings)
 - `tab-suspension` - Reports whether the tab can be suspended
 - `text-selection` - Reports text selection state to native
 - `tracker-protection` - In-page tracker blocking and surrogate injection

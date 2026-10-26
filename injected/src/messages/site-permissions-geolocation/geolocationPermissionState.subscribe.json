@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GeolocationPermissionStateChange",
+  "description": "A new state for a queried PermissionStatus. The page returns `true` while it still owns the status.",
+  "type": "object",
+  "required": [
+    "statusID",
+    "state"
+  ],
+  "properties": {
+    "statusID": {
+      "type": "string"
+    },
+    "state": {
+      "type": "string",
+      "enum": [
+        "granted",
+        "prompt",
+        "denied"
+      ]
+    }
+  }
+}
