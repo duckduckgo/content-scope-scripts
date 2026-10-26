@@ -2002,7 +2002,7 @@ test.describe('omnibar widget', () => {
                 expect(await dropdown.evaluate((el) => el.scrollHeight - el.clientHeight)).toBe(0);
             });
 
-            test(`caps a long free-user model list at 400px (${platformName})`, async ({ page }, workerInfo) => {
+            test(`shows the full free-user model list when the window has room (${platformName})`, async ({ page }, workerInfo) => {
                 const ntp = NewtabPage.create(page, workerInfo);
                 const omnibar = new OmnibarPage(ntp);
                 await ntp.reducedMotion();
@@ -2016,8 +2016,8 @@ test.describe('omnibar widget', () => {
 
                 const dropdown = omnibar.modelDropdown();
                 await expect(dropdown.getByRole('option')).toHaveCount(14);
-                await expect.poll(() => dropdown.evaluate((el) => el.getBoundingClientRect().height)).toBe(400);
-                expect(await dropdown.evaluate((el) => el.scrollHeight - el.clientHeight)).toBeGreaterThan(0);
+                await expect.poll(() => dropdown.evaluate((el) => el.scrollHeight - el.clientHeight)).toBe(0);
+                await expect(omnibar.modelOption('Claude 4 Sonnet')).toBeInViewport({ ratio: 1 });
             });
 
             test(`keeps the model list inside a short window and allows scrolling to gated models (${platformName})`, async ({

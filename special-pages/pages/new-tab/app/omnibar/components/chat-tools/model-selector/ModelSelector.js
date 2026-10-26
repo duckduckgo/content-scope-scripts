@@ -89,6 +89,7 @@ export function ModelSelector({
                     sections={aiModelSections}
                     selectedModelId={selectedModel?.id}
                     dropdownPos={dropdownPos}
+                    maxHeight={`calc(100vh - ${modelButtonRef.current?.getBoundingClientRect().bottom ?? 0}px - 4px - 8px)`}
                     onClose={handleClose}
                     onSelect={selectModel}
                     onUpsell={handleUpsell}
