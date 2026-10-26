@@ -2020,21 +2020,34 @@ test.describe('omnibar widget', () => {
                 await expect(omnibar.modelOption('Claude 4 Sonnet')).toBeInViewport({ ratio: 1 });
             });
 
-            test(`scrolls a 24-model list and selects an artificial model (${platformName})`, async ({ page }, workerInfo) => {
+            test(`scrolls a long model list and selects the last model (${platformName})`, async ({ page }, workerInfo) => {
                 const ntp = NewtabPage.create(page, workerInfo);
                 const omnibar = new OmnibarPage(ntp);
                 await ntp.reducedMotion();
                 await page.setViewportSize({ width: 1280, height: 600 });
                 await ntp.openPage({
                     platformName,
-                    additional: {
-                        omnibar: true,
-                        'omnibar.mode': 'ai',
-                        'omnibar.enableAiChatTools': 'true',
-                        'omnibar.manyModels': 'true',
-                    },
+                    additional: { omnibar: true, 'omnibar.mode': 'ai', 'omnibar.enableAiChatTools': 'true' },
                 });
                 await omnibar.ready();
+                await omnibar.didReceiveConfig({
+                    mode: 'ai',
+                    enableAi: true,
+                    enableAiChatTools: true,
+                    selectedModelId: 'test-model-1',
+                    aiModelSections: [
+                        {
+                            items: Array.from({ length: 24 }, (_, index) => ({
+                                id: `test-model-${index + 1}`,
+                                name: `Test model ${index + 1}`,
+                                shortName: `Test ${index + 1}`,
+                                description: 'Model for scrolling tests',
+                                isAvailable: true,
+                                supportsImageUpload: false,
+                            })),
+                        },
+                    ],
+                });
                 await omnibar.modelSelectorButton().click();
 
                 const dropdown = omnibar.modelDropdown();
@@ -2045,14 +2058,14 @@ test.describe('omnibar widget', () => {
                 expect(await dropdown.evaluate((el) => el.getBoundingClientRect().bottom)).toBeLessThanOrEqual(580);
                 await dropdown.hover();
                 await page.mouse.wheel(0, 1000);
-                await expect(omnibar.modelOption('Claude 4 Sonnet')).toBeInViewport({ ratio: 1 });
-                await omnibar.modelOption('Test model 10').click();
-                await expect(omnibar.modelSelectorButton()).toContainText('Test 10');
+                await expect(omnibar.modelOption('Test model 24')).toBeInViewport({ ratio: 1 });
+                await omnibar.modelOption('Test model 24').click();
+                await expect(omnibar.modelSelectorButton()).toContainText('Test 24');
                 await expect(dropdown).toHaveCount(0);
 
                 await omnibar.modelSelectorButton().click();
                 await expect(dropdown.getByRole('option')).toHaveCount(24);
-                await expect(omnibar.modelOption('Test model 10')).toHaveAttribute('aria-selected', 'true');
+                await expect(omnibar.modelOption('Test model 24')).toHaveAttribute('aria-selected', 'true');
             });
 
             for (const viewport of [
