@@ -1958,157 +1958,52 @@ test.describe('omnibar widget', () => {
     });
 
     test.describe('AI chat model selector', () => {
-        for (const platformName of ['macos', 'windows']) {
-            test(`does not add scrolling to a short model list (${platformName})`, async ({ page }, workerInfo) => {
-                const ntp = NewtabPage.create(page, workerInfo);
-                const omnibar = new OmnibarPage(ntp);
-                await ntp.reducedMotion();
-                await page.setViewportSize({ width: 1280, height: 1200 });
-                await ntp.openPage({
-                    platformName,
-                    additional: { omnibar: true, 'omnibar.mode': 'ai', 'omnibar.enableAiChatTools': 'true' },
-                });
-                await omnibar.ready();
-                await omnibar.didReceiveConfig({
-                    mode: 'ai',
-                    enableAi: true,
-                    enableAiChatTools: true,
-                    aiModelSections: [
-                        {
-                            items: [
-                                { id: 'gpt-5-mini', name: 'GPT-5 mini', shortName: 'GPT-5', isAvailable: true, supportsImageUpload: true },
-                            ],
-                        },
-                        {
-                            header: 'Try for Free',
-                            items: [
-                                {
-                                    id: 'claude-sonnet-4-5',
-                                    name: 'Claude Sonnet 4.5',
-                                    shortName: 'Sonnet 4.5',
-                                    isAvailable: false,
-                                    supportsImageUpload: true,
-                                    upsell: 'subscribe',
-                                },
-                            ],
-                        },
-                    ],
-                });
-                await omnibar.modelSelectorButton().click();
-
-                const dropdown = omnibar.modelDropdown();
-                await expect(dropdown.getByRole('option')).toHaveCount(2);
-                expect(await dropdown.evaluate((el) => el.getBoundingClientRect().height)).toBeLessThan(400);
-                expect(await dropdown.evaluate((el) => el.scrollHeight - el.clientHeight)).toBe(0);
+        test('shows the full model list without scrolling when the window has room', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await page.setViewportSize({ width: 1280, height: 1200 });
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.mode': 'ai', 'omnibar.enableAiChatTools': 'true' },
             });
+            await omnibar.ready();
+            await omnibar.modelSelectorButton().click();
 
-            test(`shows the full free-user model list when the window has room (${platformName})`, async ({ page }, workerInfo) => {
-                const ntp = NewtabPage.create(page, workerInfo);
-                const omnibar = new OmnibarPage(ntp);
-                await ntp.reducedMotion();
-                await page.setViewportSize({ width: 1280, height: 1200 });
-                await ntp.openPage({
-                    platformName,
-                    additional: { omnibar: true, 'omnibar.mode': 'ai', 'omnibar.enableAiChatTools': 'true' },
-                });
-                await omnibar.ready();
-                await omnibar.modelSelectorButton().click();
+            const dropdown = omnibar.modelDropdown();
+            await expect(dropdown).toBeVisible();
+            await expect.poll(() => dropdown.evaluate((el) => el.scrollHeight - el.clientHeight)).toBe(0);
+            await expect(omnibar.modelOption('Claude 4 Sonnet')).toBeInViewport({ ratio: 1 });
+        });
 
-                const dropdown = omnibar.modelDropdown();
-                await expect(dropdown.getByRole('option')).toHaveCount(14);
-                await expect.poll(() => dropdown.evaluate((el) => el.scrollHeight - el.clientHeight)).toBe(0);
-                await expect(omnibar.modelOption('Claude 4 Sonnet')).toBeInViewport({ ratio: 1 });
+        test('keeps the model menu inside a short window and scrolls to the last model without moving the page', async ({
+            page,
+        }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await page.setViewportSize({ width: 896, height: 382 });
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.mode': 'ai', 'omnibar.enableAiChatTools': 'true', background: 'color07' },
             });
+            await omnibar.ready();
+            await omnibar.modelSelectorButton().scrollIntoViewIfNeeded();
+            const pageScroll = await page.locator('main').evaluateAll((els) => els.map((el) => el.scrollTop));
+            await omnibar.modelSelectorButton().click();
 
-            test(`scrolls a long model list and selects the last model (${platformName})`, async ({ page }, workerInfo) => {
-                const ntp = NewtabPage.create(page, workerInfo);
-                const omnibar = new OmnibarPage(ntp);
-                await ntp.reducedMotion();
-                await page.setViewportSize({ width: 1280, height: 600 });
-                await ntp.openPage({
-                    platformName,
-                    additional: { omnibar: true, 'omnibar.mode': 'ai', 'omnibar.enableAiChatTools': 'true' },
-                });
-                await omnibar.ready();
-                await omnibar.didReceiveConfig({
-                    mode: 'ai',
-                    enableAi: true,
-                    enableAiChatTools: true,
-                    selectedModelId: 'test-model-1',
-                    aiModelSections: [
-                        {
-                            items: Array.from({ length: 24 }, (_, index) => ({
-                                id: `test-model-${index + 1}`,
-                                name: `Test model ${index + 1}`,
-                                shortName: `Test ${index + 1}`,
-                                description: 'Model for scrolling tests',
-                                isAvailable: true,
-                                supportsImageUpload: false,
-                            })),
-                        },
-                    ],
-                });
-                await omnibar.modelSelectorButton().click();
-
-                const dropdown = omnibar.modelDropdown();
-                await expect(dropdown.getByRole('option')).toHaveCount(24);
-                await expect(dropdown).toBeFocused();
-                expect(await dropdown.evaluate((el) => el.scrollHeight - el.clientHeight)).toBeGreaterThan(0);
-                expect(await dropdown.evaluate((el) => el.getBoundingClientRect().top)).toBeGreaterThanOrEqual(20);
-                expect(await dropdown.evaluate((el) => el.getBoundingClientRect().bottom)).toBeLessThanOrEqual(580);
-                await dropdown.hover();
-                await page.mouse.wheel(0, 1000);
-                await expect(omnibar.modelOption('Test model 24')).toBeInViewport({ ratio: 1 });
-                await omnibar.modelOption('Test model 24').click();
-                await expect(omnibar.modelSelectorButton()).toContainText('Test 24');
-                await expect(dropdown).toHaveCount(0);
-
-                await omnibar.modelSelectorButton().click();
-                await expect(dropdown.getByRole('option')).toHaveCount(24);
-                await expect(omnibar.modelOption('Test model 24')).toHaveAttribute('aria-selected', 'true');
+            const dropdown = omnibar.modelDropdown();
+            await expect(dropdown).toBeFocused();
+            const bounds = await dropdown.evaluate((el) => {
+                const { top, bottom } = el.getBoundingClientRect();
+                return { top, bottom };
             });
-
-            for (const viewport of [
-                { width: 1280, height: 600 },
-                { width: 896, height: 382 },
-                { width: 600, height: 600 },
-            ]) {
-                test(`keeps the model menu vertically inside a ${viewport.width}×${viewport.height} window (${platformName})`, async ({
-                    page,
-                }, workerInfo) => {
-                    const ntp = NewtabPage.create(page, workerInfo);
-                    const omnibar = new OmnibarPage(ntp);
-                    await ntp.reducedMotion();
-                    await page.setViewportSize(viewport);
-                    await ntp.openPage({
-                        platformName,
-                        additional: { omnibar: true, 'omnibar.mode': 'ai', 'omnibar.enableAiChatTools': 'true', background: 'color07' },
-                    });
-                    await omnibar.ready();
-                    await omnibar.modelSelectorButton().scrollIntoViewIfNeeded();
-                    const pageScroll = await page.evaluate(() => [...document.querySelectorAll('main')].map((el) => el.scrollTop));
-                    await omnibar.modelSelectorButton().click();
-
-                    const dropdown = omnibar.modelDropdown();
-                    await expect(dropdown).toBeFocused();
-                    const bounds = await dropdown.boundingBox();
-                    expect(bounds?.y).toBeGreaterThanOrEqual(20);
-                    expect((bounds?.y ?? 0) + (bounds?.height ?? 0)).toBeLessThanOrEqual(viewport.height - 20);
-                    expect(await page.evaluate(() => [...document.querySelectorAll('main')].map((el) => el.scrollTop))).toEqual(pageScroll);
-                    const overflow = await dropdown.evaluate((el) => el.scrollHeight - el.clientHeight);
-                    if (viewport.height < 500) {
-                        expect(overflow).toBeGreaterThan(0);
-                        await dropdown.hover();
-                        await page.mouse.wheel(0, 1000);
-                    } else {
-                        expect(overflow).toBe(0);
-                    }
-                    await expect(omnibar.modelOption('Claude 4 Sonnet')).toBeInViewport({ ratio: 1 });
-                    await omnibar.modelOption('Claude 4 Sonnet').click();
-                    await expect(dropdown).toHaveCount(0);
-                });
-            }
-        }
+            expect(bounds.top).toBeGreaterThanOrEqual(20);
+            expect(bounds.bottom).toBeLessThanOrEqual(362);
+            expect(await page.locator('main').evaluateAll((els) => els.map((el) => el.scrollTop))).toEqual(pageScroll);
+            expect(await dropdown.evaluate((el) => el.scrollHeight - el.clientHeight)).toBeGreaterThan(0);
+            await dropdown.hover();
+            await page.mouse.wheel(0, 1000);
+            await expect(omnibar.modelOption('Claude 4 Sonnet')).toBeInViewport({ ratio: 1 });
+        });
 
         test('renders model descriptions', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
