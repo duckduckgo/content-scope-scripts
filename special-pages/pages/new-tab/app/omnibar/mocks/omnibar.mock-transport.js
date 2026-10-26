@@ -263,6 +263,19 @@ export function omnibarMockTransport() {
         enableSearchSuggestionDeletion: false,
     };
 
+    if (parseBooleanQueryParam('omnibar.manyModels') === true) {
+        config.aiModelSections?.[0]?.items.push(
+            ...Array.from({ length: 10 }, (_, index) => ({
+                id: `test-model-${index + 1}`,
+                name: `Test model ${index + 1}`,
+                shortName: `Test ${index + 1}`,
+                description: 'Artificial model for scrolling tests',
+                isAvailable: true,
+                supportsImageUpload: false,
+            })),
+        );
+    }
+
     /** @type {Map<string, (d: any) => void>} */
     const subs = new Map();
 

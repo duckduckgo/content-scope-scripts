@@ -2020,6 +2020,39 @@ test.describe('omnibar widget', () => {
                 await expect(omnibar.modelOption('Claude 4 Sonnet')).toBeInViewport({ ratio: 1 });
             });
 
+            test(`scrolls a 24-model list and selects an artificial model (${platformName})`, async ({ page }, workerInfo) => {
+                const ntp = NewtabPage.create(page, workerInfo);
+                const omnibar = new OmnibarPage(ntp);
+                await ntp.reducedMotion();
+                await page.setViewportSize({ width: 1280, height: 1200 });
+                await ntp.openPage({
+                    platformName,
+                    additional: {
+                        omnibar: true,
+                        'omnibar.mode': 'ai',
+                        'omnibar.enableAiChatTools': 'true',
+                        'omnibar.manyModels': 'true',
+                    },
+                });
+                await omnibar.ready();
+                await omnibar.modelSelectorButton().click();
+
+                const dropdown = omnibar.modelDropdown();
+                await expect(dropdown.getByRole('option')).toHaveCount(24);
+                expect(await dropdown.evaluate((el) => el.scrollHeight - el.clientHeight)).toBeGreaterThan(0);
+                expect(await dropdown.evaluate((el) => el.getBoundingClientRect().bottom)).toBeLessThanOrEqual(1192);
+                await dropdown.hover();
+                await page.mouse.wheel(0, 1000);
+                await expect(omnibar.modelOption('Claude 4 Sonnet')).toBeInViewport({ ratio: 1 });
+                await omnibar.modelOption('Test model 10').click();
+                await expect(omnibar.modelSelectorButton()).toContainText('Test 10');
+                await expect(dropdown).toHaveCount(0);
+
+                await omnibar.modelSelectorButton().click();
+                await expect(dropdown.getByRole('option')).toHaveCount(24);
+                await expect(omnibar.modelOption('Test model 10')).toHaveAttribute('aria-selected', 'true');
+            });
+
             test(`keeps the model list inside a short window and allows scrolling to gated models (${platformName})`, async ({
                 page,
             }, workerInfo) => {

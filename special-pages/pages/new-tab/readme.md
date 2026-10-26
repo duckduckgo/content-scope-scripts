@@ -288,6 +288,14 @@
    - `true`
    - `false`
 
+### Many AI Models (scrolling example)
+ - **Purpose**: Adds 10 artificial free models to the default mock list, giving 24 models total for testing menu scrolling.
+ - **Parameter**: `omnibar.manyModels`
+ - **Example**: `?omnibar.mode=ai&omnibar.enableAiChatTools=true&omnibar.manyModels=true`
+ - **Options**:
+   - `true`
+   - `false` (default)
+
 ### Enable Image Generation
  - **Purpose**: Shows the "Create Image" tool in the AI chat toolbar's tools menu
  - **Parameter**: `omnibar.enableImageGeneration`
