@@ -1,5 +1,5 @@
 import { getOwnPropertyDescriptor, getOwnPropertyNames, getPrototypeOf, ReflectApply, ReflectGet } from '../../../captured-globals.js';
-import { Failure, isFailure, thrownFailure } from '../model/core.js';
+import { Failure, getOrCreate, isFailure, newMap, thrownFailure } from '../model/core.js';
 
 /**
  * @typedef {import('../model/types.js').Reader} Reader
@@ -120,11 +120,7 @@ export class NativeReader {
         }
         const from = getPrototypeOf(target);
         if (from === null) return undefined;
-        let byPrototype = this.#records.get(key);
-        if (!byPrototype) {
-            byPrototype = new Map();
-            this.#records.set(key, byPrototype);
-        }
+        const byPrototype = getOrCreate(this.#records, key, newMap);
         let record = byPrototype.get(from);
         if (record === undefined) {
             record = null;

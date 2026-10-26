@@ -5,6 +5,7 @@ import {
     EXPRESSION_KEYS,
     asArray,
     decides,
+    getOrCreate,
     isFailure,
     isPlainObject,
     isScalar,
@@ -97,12 +98,7 @@ const LOWERED = new WeakMap();
  * @returns {PredicateTest}
  */
 function lowered(predicate) {
-    let test = LOWERED.get(predicate);
-    if (!test) {
-        test = lower(predicate);
-        LOWERED.set(predicate, test);
-    }
-    return test;
+    return getOrCreate(LOWERED, predicate, lower);
 }
 
 /**

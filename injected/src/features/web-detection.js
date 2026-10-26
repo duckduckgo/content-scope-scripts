@@ -8,6 +8,7 @@ import { EvaluationContext } from './web-detection/evaluate/context.js';
 import { NativeReader } from './web-detection/evaluate/native-reader.js';
 import { createDetectorState, detectorNameScalars, runDetector } from './web-detection/evaluate/run.js';
 import { TaskReadCache } from './web-detection/evaluate/task-read-cache.js';
+import { getOrCreate } from './web-detection/model/core.js';
 
 /**
  * @typedef {import('./web-detection/compile/detector-config.js').DetectorConfig} DetectorConfig
@@ -125,12 +126,7 @@ export default class WebDetection extends ContentFeature {
      * @returns {CompiledDetector | { error: string }}
      */
     _compiledOf({ detectorId, config }) {
-        let compiled = this.#compiled.get(detectorId);
-        if (!compiled) {
-            compiled = this._compile(config);
-            this.#compiled.set(detectorId, compiled);
-        }
-        return compiled;
+        return getOrCreate(this.#compiled, detectorId, () => this._compile(config));
     }
 
     /**
@@ -165,12 +161,7 @@ export default class WebDetection extends ContentFeature {
      * @returns {DetectorState}
      */
     _stateOf(fullDetectorId) {
-        let state = this.#states.get(fullDetectorId);
-        if (!state) {
-            state = createDetectorState();
-            this.#states.set(fullDetectorId, state);
-        }
-        return state;
+        return getOrCreate(this.#states, fullDetectorId, createDetectorState);
     }
 
     /**
@@ -243,9 +234,7 @@ export default class WebDetection extends ContentFeature {
 
             // Group by interval
             for (const interval of detector.config.triggers.auto.when.intervalMs) {
-                const atInterval = this.#autoDetectors.get(interval) ?? [];
-                atInterval.push(detector);
-                this.#autoDetectors.set(interval, atInterval);
+                getOrCreate(this.#autoDetectors, interval, () => []).push(detector);
             }
         }
 
