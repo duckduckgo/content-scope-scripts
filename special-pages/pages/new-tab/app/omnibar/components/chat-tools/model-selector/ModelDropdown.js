@@ -1,5 +1,5 @@
 import { Fragment, h } from 'preact';
-import { useEffect, useLayoutEffect, useState } from 'preact/hooks';
+import { useEffect, useState } from 'preact/hooks';
 import cn from 'classnames';
 import { useTypedTranslationWith } from '../../../../types';
 import { DropdownSectionHeader } from '../dropdown/DropdownSectionHeader';
@@ -75,10 +75,6 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
 
     const [activeIndex, setActiveIndex] = useState(getInitialActiveIndex);
     const clearActiveIndex = () => setActiveIndex(-1);
-
-    useLayoutEffect(() => {
-        dropdownRef?.current?.querySelectorAll('[role="option"]')[activeIndex]?.scrollIntoView({ block: 'nearest' });
-    }, [activeIndex, dropdownRef]);
 
     /**
      * @param {'subscribe' | 'upgrade'} type
@@ -169,7 +165,12 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
             role="listbox"
             aria-label={ariaLabel}
             aria-activedescendant={activeIndex >= 0 ? getOptionId(activeIndex) : undefined}
-            style={{ right: dropdownPos.right, left: dropdownPos.left, top: dropdownPos.top, maxHeight: dropdownPos.maxHeight }}
+            style={{
+                right: dropdownPos.right,
+                left: dropdownPos.left,
+                top: dropdownPos.top,
+                '--menu-top': `${dropdownPos.viewportTop ?? dropdownPos.top}px`,
+            }}
             onKeyDown={handleKeyDown}
             onMouseLeave={clearActiveIndex}
         >

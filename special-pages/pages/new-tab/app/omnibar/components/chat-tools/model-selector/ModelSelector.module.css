@@ -73,11 +73,11 @@
     box-shadow: 0 6px 24px var(--ds-color-theme-shadow-primary);
     list-style: none;
     margin: 0;
+    max-height: min(400px, calc(100vh - var(--menu-top) - 8px));
     min-width: 280px;
     overflow-y: auto;
     padding: 3px;
     position: fixed;
-    scroll-padding: 3px;
     z-index: 100;
 
     &:focus-visible {
