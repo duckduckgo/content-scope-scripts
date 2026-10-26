@@ -48,35 +48,33 @@ export class EvaluationContext {
     }
 
     /**
-     * @param {unknown} operand - a compiled operand of `eq` or a comparison, in value position. A selected
+     * @param {Node} operand - a compiled operand of `eq` or a comparison, in value position. A selected
      * list gives its one item
      * @returns {unknown}
      */
     operand(operand) {
-        const node = /** @type {Node} */ (operand);
-        const value = evaluate(node, node.position, this);
+        const value = evaluate(operand, operand.position, this);
         return isItemBuffer(value) ? single(value) : value;
     }
 
     /**
-     * @param {unknown} expression - a compiled expression, read in the position it was compiled for
+     * @param {Node} expression - a compiled expression, read in the position it was compiled for
      * @returns {unknown}
      */
     read(expression) {
-        const node = /** @type {Node} */ (expression);
-        return evaluate(node, node.position, this);
+        return evaluate(expression, expression.position, this);
     }
 
     /**
-     * @param {unknown} expression - a compiled expression in boolean position, such as one in `where`
+     * @param {Node} expression - a compiled expression in boolean position, such as one in `where`
      * @returns {unknown} the boolean, with `is` the one its predicate gives, or a `Failure`
      */
     test(expression) {
-        return evaluateOccurrence(/** @type {Node} */ (expression), this);
+        return evaluateOccurrence(expression, this);
     }
 
     /**
-     * @param {unknown} expression - a compiled `args` expression in value position
+     * @param {Node} expression - a compiled `args` expression in value position
      * @returns {unknown} the value, with a selected list as a new array of its items, or a `Failure`
      */
     arg(expression) {

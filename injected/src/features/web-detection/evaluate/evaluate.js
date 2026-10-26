@@ -1,7 +1,7 @@
 import { JSONparse, JSONstringify } from '../../../captured-globals.js';
 import { DetectionError, decides, errorPath, isFailure, isScalar, thrownFailure, thrownMessage, typeName } from '../model/core.js';
 import { ItemBuffer, asList, isItemBuffer, listMembers } from '../model/lists.js';
-import { readPath } from '../predicates/fields.js';
+import { evaluateArgs, readPath } from '../predicates/fields.js';
 import { testPredicate } from '../predicates/predicates.js';
 
 /**
@@ -306,17 +306,9 @@ function compute(node, ctx) {
     switch (node.kind) {
         case 'literal':
             return node.value;
-        case 'list': {
+        case 'list':
             // Every entry, in order, as `args` passes it: a selected list as an array of its items
-            /** @type {unknown[]} */
-            const values = [];
-            for (const entry of node.entries) {
-                const value = ctx.arg(entry);
-                if (isFailure(value)) return value;
-                values.push(value);
-            }
-            return values;
-        }
+            return evaluateArgs(node.entries, ctx);
         case 'length':
             return computeLength(node, ctx);
         case 'only': {

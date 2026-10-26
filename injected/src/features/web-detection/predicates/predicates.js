@@ -15,7 +15,7 @@ import { compileField, compilePath, readField } from './fields.js';
 
 /**
  * @import { Failure } from '../model/core.js'
- * @import { ItemBinder, PredicateContext, PredicateHooks } from '../model/types.js'
+ * @import { CompiledExpression, ItemBinder, PredicateContext, PredicateHooks } from '../model/types.js'
  * @import { CompiledField } from './fields.js'
  */
 
@@ -45,15 +45,15 @@ export function compileWhere(raw, path, hooks) {
 
 /**
  * @typedef {PredicateBase & { kind: 'compare', op: Comparison, value: unknown }} LiteralComparePredicate - against a literal
- * @typedef {PredicateBase & { kind: 'compare', op: Comparison, operand: unknown }} OperandComparePredicate - against an expression in value position
- * @typedef {PredicateBase & { kind: 'in', entries: Array<{ literal: unknown } | { operand: unknown }> }} InPredicate
+ * @typedef {PredicateBase & { kind: 'compare', op: Comparison, operand: CompiledExpression }} OperandComparePredicate - against an expression in value position
+ * @typedef {PredicateBase & { kind: 'in', entries: Array<{ literal: unknown } | { operand: CompiledExpression }> }} InPredicate
  * @typedef {PredicateBase & { kind: 'combine', combinator: 'any' | 'all' | 'none', entries: CompiledPredicate[] }} CombinePredicate
  * @typedef {PredicateBase & { kind: 'guarded', guard: CompiledPredicate, rest: CompiledPredicate }} GuardedPredicate - `fails` and `type`, tested before the other keys of their object
  * @typedef {PredicateBase & { kind: 'read', field: CompiledField, next: CompiledPredicate }} ReadPredicate - `field` with `is`, or a property path at item level
  * @typedef {PredicateBase & { kind: 'fails', expected: boolean }} FailsPredicate
  * @typedef {PredicateBase & { kind: 'type', names: unknown[] }} TypePredicate
  * @typedef {PredicateBase & { kind: 'always' }} AlwaysPredicate - an object with no keys
- * @typedef {PredicateBase & { kind: 'expression', expression: unknown }} ExpressionPredicate - a boolean expression over `self`, at item level
+ * @typedef {PredicateBase & { kind: 'expression', expression: CompiledExpression }} ExpressionPredicate - a boolean expression over `self`, at item level
  * @typedef {PredicateBase & { kind: 'where', binder: ItemBinder, predicate: CompiledPredicate }} WherePredicate - binds `self` to the item it tests
  * @typedef {LiteralComparePredicate | OperandComparePredicate | InPredicate | CombinePredicate | GuardedPredicate | ReadPredicate | FailsPredicate | TypePredicate | AlwaysPredicate | ExpressionPredicate | WherePredicate} CompiledPredicate
  */

@@ -56,6 +56,13 @@
  */
 
 /**
+ * A compiled expression as predicates and sources hold it: what `PredicateHooks.expression` gives,
+ * passed back to the `PredicateContext` to evaluate. Named apart from `Node` since sources read DOM nodes.
+ *
+ * @typedef {Node} CompiledExpression
+ */
+
+/**
  * @typedef {object} CompiledPayloadField
  * @property {string} key
  * @property {string} path - the config path of the field, `<action>.data.<key>`
@@ -101,10 +108,10 @@
  *
  * @typedef {object} PredicateContext
  * @property {Reader} reader
- * @property {(operand: unknown) => unknown} operand - evaluates a compiled operand expression, giving its value or a `Failure`
- * @property {(expression: unknown) => unknown} read - evaluates a compiled expression in the position it was compiled for, giving its value or a `Failure`
- * @property {(expression: unknown) => unknown} arg - evaluates a compiled `args` expression, giving a selected list as an array, or a `Failure`
- * @property {(expression: unknown) => unknown} test - evaluates a compiled boolean expression with its `is`, giving the boolean or a `Failure`
+ * @property {(operand: CompiledExpression) => unknown} operand - evaluates a compiled operand expression, giving its value or a `Failure`
+ * @property {(expression: CompiledExpression) => unknown} read - evaluates a compiled expression in the position it was compiled for, giving its value or a `Failure`
+ * @property {(expression: CompiledExpression) => unknown} arg - evaluates a compiled `args` expression, giving a selected list as an array, or a `Failure`
+ * @property {(expression: CompiledExpression) => unknown} test - evaluates a compiled boolean expression with its `is`, giving the boolean or a `Failure`
  * @property {(value: unknown) => unknown[] | Failure | undefined} items - the items of a list value, or `undefined` for any other value
  * @property {<T>(binder: ItemBinder, value: unknown, fn: () => T) => T} bind - runs `fn` with `self` of a `where` or `field` bound to `value`
  * @property {TaskReads} task - the page reads shared by the detectors of the task this run is part of
@@ -119,7 +126,7 @@
 
 /**
  * @typedef {object} PredicateHooks
- * @property {(raw: unknown, path: string, position: Position) => unknown} expression - compiles an expression in a position: a source's `root`, an `args` entry, an operand of `eq` or a comparison, a `field` expression, or an expression in `where`
+ * @property {(raw: unknown, path: string, position: Position) => CompiledExpression} expression - compiles an expression in a position: a source's `root`, an `args` entry, an operand of `eq` or a comparison, a `field` expression, or an expression in `where`
  * @property {<T>(fn: (binder: ItemBinder) => T) => T} item - compiles a `where` or `field` that binds `self`
  * @property {Set<string>} names - collects every name read, for the native reader
  */

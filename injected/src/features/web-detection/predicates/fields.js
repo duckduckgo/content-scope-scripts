@@ -3,13 +3,7 @@ import { ConfigParseError, isExpressionObject, isFailure, isPlainObject, rejectU
 
 /**
  * @import { Failure } from '../model/core.js'
- * @import { ItemBinder, PredicateContext, PredicateHooks, Reader } from '../model/types.js'
- */
-
-/**
- * A compiled `args` entry: an expression in value position.
- *
- * @typedef {{ expression: unknown }} CompiledArg
+ * @import { CompiledExpression, ItemBinder, PredicateContext, PredicateHooks, Reader } from '../model/types.js'
  */
 
 /**
@@ -45,8 +39,8 @@ export function readPath(reader, root, names, args) {
  * @typedef {object} CompiledField
  * @property {string} path - the config path a failed read is reported at
  * @property {string[]} names - empty for an expression
- * @property {CompiledArg[]} [args]
- * @property {unknown} [expression] - a compiled expression in value position, in place of `names` and `args`
+ * @property {CompiledExpression[]} [args] - in value position
+ * @property {CompiledExpression} [expression] - in value position, in place of `names` and `args`
  * @property {ItemBinder} [binder] - binds `self` in `args` or `expression` to the value the field reads from
  */
 
@@ -57,25 +51,25 @@ export function readPath(reader, root, names, args) {
  * @param {unknown} raw
  * @param {string} path
  * @param {PredicateHooks} hooks
- * @returns {CompiledArg[]}
+ * @returns {CompiledExpression[]}
  */
 export function compileArgs(raw, path, hooks) {
     if (!isArray(raw)) throw new ConfigParseError(path, '`args` must be an array');
-    return raw.map((entry, i) => ({ expression: hooks.expression(entry, `${path}.${i}`, 'value') }));
+    return raw.map((entry, i) => hooks.expression(entry, `${path}.${i}`, 'value'));
 }
 
 /**
- * Evaluate compiled `args`.
+ * Evaluate compiled `args`, or the entries of `{"expr": [...]}`, in order. The first failure ends them.
  *
- * @param {readonly CompiledArg[]} args
+ * @param {readonly CompiledExpression[]} expressions
  * @param {PredicateContext} ctx
  * @returns {unknown[] | Failure}
  */
-export function evaluateArgs(args, ctx) {
+export function evaluateArgs(expressions, ctx) {
     /** @type {unknown[]} */
     const values = [];
-    for (const arg of args) {
-        const value = ctx.arg(arg.expression);
+    for (const expression of expressions) {
+        const value = ctx.arg(expression);
         if (isFailure(value)) return value;
         values.push(value);
     }
