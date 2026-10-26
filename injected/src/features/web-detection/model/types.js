@@ -7,6 +7,15 @@
 /**
  * @import { Failure } from './core.js'
  * @import { CompiledPredicate } from '../predicates/predicates.js'
+ * @import { ApiBody } from '../sources/api.js'
+ * @import { ElementBody } from '../sources/element.js'
+ * @import { TextBody } from '../sources/text.js'
+ */
+
+/**
+ * A body of `element`, `text` or `api`, as its source parsed it.
+ *
+ * @typedef {ApiBody | ElementBody | TextBody} SourceBody
  */
 
 /**
@@ -36,7 +45,7 @@
 
 /**
  * @typedef {NodeBase & { kind: 'literal', value: number | boolean | string | null }} LiteralNode
- * @typedef {NodeBase & { kind: 'source', source: Source<any>, bodies: unknown[], binders: ItemBinder[] }} SourceNode - `binders`: the `where` and `field` its bodies hold
+ * @typedef {NodeBase & { kind: 'source', source: Source<any>, bodies: SourceBody[], binders: ItemBinder[], withField: boolean, leaf: boolean }} SourceNode - `source` reads only the bodies it parsed, a pairing a union of sources can't express, hence `any`. `binders`: the `where` and `field` its bodies hold. `withField`: some body has `field`. `leaf`: `text`, or `element` without `field`, the condition leaf
  * @typedef {NodeBase & { kind: 'length', operand: Node }} LengthNode
  * @typedef {NodeBase & { kind: 'expr', operand: Node }} ExprNode
  * @typedef {NodeBase & { kind: 'using', root: Node, operand: Node, binds: ItemBinder }} UsingNode - `operand` reads `root`'s value through `self`
@@ -111,7 +120,7 @@
  * @property {(operand: CompiledExpression) => unknown} operand - evaluates a compiled operand expression, giving its value or a `Failure`
  * @property {(expression: CompiledExpression) => unknown} read - evaluates a compiled expression in the position it was compiled for, giving its value or a `Failure`
  * @property {(expression: CompiledExpression) => unknown} arg - evaluates a compiled `args` expression, giving a selected list as an array, or a `Failure`
- * @property {(expression: CompiledExpression) => unknown} test - evaluates a compiled boolean expression with its `is`, giving the boolean or a `Failure`
+ * @property {(expression: CompiledExpression) => boolean | Failure} test - evaluates a compiled boolean expression with its `is`, giving the boolean or a `Failure`
  * @property {(value: unknown) => unknown[] | Failure | undefined} items - the items of a list value, or `undefined` for any other value
  * @property {<T>(binder: ItemBinder, value: unknown, fn: () => T) => T} bind - runs `fn` with `self` of a `where` or `field` bound to `value`
  * @property {TaskReads} task - the page reads shared by the detectors of the task this run is part of

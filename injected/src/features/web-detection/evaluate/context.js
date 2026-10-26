@@ -67,10 +67,11 @@ export class EvaluationContext {
 
     /**
      * @param {Node} expression - a compiled expression in boolean position, such as one in `where`
-     * @returns {unknown} the boolean, with `is` the one its predicate gives, or a `Failure`
+     * @returns {boolean | Failure} the boolean, with `is` the one its predicate gives
      */
     test(expression) {
-        return evaluateOccurrence(expression, this);
+        // Compile puts a tested expression in boolean position, where it gives a boolean or a `Failure`
+        return /** @type {boolean | Failure} */ (evaluateOccurrence(expression, this));
     }
 
     /**

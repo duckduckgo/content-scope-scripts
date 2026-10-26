@@ -237,11 +237,13 @@ export function decides(kind) {
     return [kind === 'any' || kind === 'none', kind === 'any'];
 }
 
+/** @typedef {'number' | 'string' | 'boolean' | 'null' | 'undefined' | 'array' | 'object'} TypeName */
+
 /**
  * Name of a value's type, as `type` in predicates tests it.
  *
  * @param {unknown} value
- * @returns {'number' | 'string' | 'boolean' | 'null' | 'undefined' | 'array' | 'object'}
+ * @returns {TypeName}
  */
 export function typeName(value) {
     if (value === null) return 'null';

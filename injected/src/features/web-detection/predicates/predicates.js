@@ -14,7 +14,7 @@ import {
 import { compileField, compilePath, readField } from './fields.js';
 
 /**
- * @import { Failure } from '../model/core.js'
+ * @import { Failure, TypeName } from '../model/core.js'
  * @import { CompiledExpression, ItemBinder, PredicateContext, PredicateHooks } from '../model/types.js'
  * @import { CompiledField } from './fields.js'
  */
@@ -51,7 +51,7 @@ export function compileWhere(raw, path, hooks) {
  * @typedef {PredicateBase & { kind: 'guarded', guard: CompiledPredicate, rest: CompiledPredicate }} GuardedPredicate - `fails` and `type`, tested before the other keys of their object
  * @typedef {PredicateBase & { kind: 'read', field: CompiledField, next: CompiledPredicate }} ReadPredicate - `field` with `is`, or a property path at item level
  * @typedef {PredicateBase & { kind: 'fails', expected: boolean }} FailsPredicate
- * @typedef {PredicateBase & { kind: 'type', names: unknown[] }} TypePredicate
+ * @typedef {PredicateBase & { kind: 'type', names: TypeName[] }} TypePredicate
  * @typedef {PredicateBase & { kind: 'always' }} AlwaysPredicate - an object with no keys
  * @typedef {PredicateBase & { kind: 'expression', expression: CompiledExpression }} ExpressionPredicate - a boolean expression over `self`, at item level
  * @typedef {PredicateBase & { kind: 'where', binder: ItemBinder, predicate: CompiledPredicate }} WherePredicate - binds `self` to the item it tests
@@ -66,7 +66,14 @@ const COMBINATORS = new Set(['any', 'all', 'none']);
 /** Tested before the other keys of their object, whatever the key order. */
 /** @type {string[]} */
 const FIRST_OPERATORS = ['fails', 'type'];
+/** @type {ReadonlySet<unknown>} */
 const TYPE_NAMES = new Set(['number', 'string', 'boolean', 'null', 'undefined', 'array', 'object']);
+
+/**
+ * @param {unknown} name
+ * @returns {name is TypeName}
+ */
+const isTypeName = (name) => TYPE_NAMES.has(name);
 
 /**
  * Test a predicate against a value. A failure passes up, except through `fails`, which reads it, and
@@ -170,7 +177,7 @@ function lower(predicate) {
             return (subject) => (isFailure(subject) ? subject : true);
         case 'expression': {
             const expression = predicate.expression;
-            return (subject, ctx) => (isFailure(subject) ? subject : /** @type {boolean | Failure} */ (ctx.test(expression)));
+            return (subject, ctx) => (isFailure(subject) ? subject : ctx.test(expression));
         }
         default:
             throw new DetectionError(`unknown predicate '${/** @type {{ kind: string }} */ (predicate).kind}'`);
@@ -332,10 +339,8 @@ function compileOperator(operator, raw, path, hooks) {
             return { kind: 'fails', expected: expectBoolean(raw, path), path, scalar: false };
         case 'type': {
             const names = asArray(raw);
-            for (const name of names) {
-                if (typeof name !== 'string' || !TYPE_NAMES.has(name)) {
-                    throw new ConfigParseError(path, `unknown type name '${String(name)}'`);
-                }
+            if (!names.every(isTypeName)) {
+                throw new ConfigParseError(path, `unknown type name '${String(names.find((name) => !isTypeName(name)))}'`);
             }
             return { kind: 'type', names, path, scalar: false };
         }
