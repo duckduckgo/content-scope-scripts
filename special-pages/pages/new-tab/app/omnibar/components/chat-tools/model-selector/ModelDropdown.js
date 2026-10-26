@@ -79,9 +79,12 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
     useLayoutEffect(() => {
         const dropdown = dropdownRef?.current;
         if (!dropdown) return;
-        const availableHeight = window.innerHeight - dropdown.getBoundingClientRect().top - 20;
-        dropdown.style.maxHeight = `${Math.max(400, availableHeight)}px`;
-    }, [dropdownRef]);
+        const rect = dropdown.getBoundingClientRect();
+        const shiftY = Math.max(20 - rect.top, Math.min(0, window.innerHeight - 20 - rect.bottom));
+
+        // Apply viewport corrections to the existing position, which may be relative to a containing block.
+        dropdown.style.top = `${parseFloat(dropdown.style.top) + shiftY}px`;
+    }, [dropdownRef, dropdownPos, sections]);
 
     /**
      * @param {'subscribe' | 'upgrade'} type
@@ -109,7 +112,7 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
 
     useEffect(() => {
         const frameId = window.requestAnimationFrame(() => {
-            dropdownRef?.current?.focus();
+            dropdownRef?.current?.focus({ preventScroll: true });
         });
 
         return () => window.cancelAnimationFrame(frameId);
