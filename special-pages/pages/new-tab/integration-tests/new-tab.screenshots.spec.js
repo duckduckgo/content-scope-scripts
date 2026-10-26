@@ -454,6 +454,43 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             await omnibar.ready();
             await expect(page).toHaveScreenshot('omnibar-reasoning-picker-selected-medium.png', { maxDiffPixels });
         });
+
+        for (const platformName of ['macos', 'windows']) {
+            test(`model selector dropdown open (${platformName})`, async ({ page }, workerInfo) => {
+                const ntp = NewtabPage.create(page, workerInfo);
+                const omnibar = new OmnibarPage(ntp);
+                await ntp.reducedMotion();
+                await ntp.openPage({
+                    platformName,
+                    additional: {
+                        'omnibar.mode': 'ai',
+                        'omnibar.enableAiChatTools': 'true',
+                        'omnibar.selectedModelId': 'claude-haiku-4-5',
+                    },
+                });
+                await omnibar.ready();
+                await omnibar.modelSelectorButton().click();
+                await expect(page).toHaveScreenshot(`omnibar-model-selector-dropdown-open-${platformName}.png`, { maxDiffPixels });
+            });
+        }
+
+        test('reasoning picker dropdown open (windows)', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({
+                platformName: 'windows',
+                additional: {
+                    'omnibar.mode': 'ai',
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.subscription': 'true',
+                    'omnibar.selectedModelId': 'claude-opus-4-6',
+                },
+            });
+            await omnibar.ready();
+            await omnibar.reasoningPickerButton().click();
+            await expect(page).toHaveScreenshot('omnibar-reasoning-picker-dropdown-open-windows.png', { maxDiffPixels });
+        });
     });
 
     test.describe('omnibar attachments @screenshots', () => {

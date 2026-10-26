@@ -2587,8 +2587,14 @@ test.describe('omnibar widget', () => {
             await omnibar.expectMode('ai');
             await omnibar.reasoningPickerButton().click();
 
-            await expect(omnibar.reasoningOption('For complex tasks').locator('svg')).toHaveAttribute('viewBox', '0 0 13.9693 13.9694');
-            await expect(omnibar.reasoningOption('For analytical tasks').locator('svg')).toHaveAttribute('viewBox', '0 0 16 16.0001');
+            await expect(omnibar.reasoningOption('For complex tasks').locator(':scope > svg')).toHaveAttribute(
+                'viewBox',
+                '0 0 13.9693 13.9694',
+            );
+            await expect(omnibar.reasoningOption('For analytical tasks').locator(':scope > svg')).toHaveAttribute(
+                'viewBox',
+                '0 0 16 16.0001',
+            );
         });
 
         test('an unavailable reasoning-effort option shows a gated-section header and opens the subscription upsell', async ({

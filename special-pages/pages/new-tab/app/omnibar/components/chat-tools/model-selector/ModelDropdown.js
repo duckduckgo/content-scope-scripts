@@ -4,6 +4,8 @@ import cn from 'classnames';
 import { useTypedTranslationWith } from '../../../../types';
 import { DropdownSectionHeader } from '../dropdown/DropdownSectionHeader';
 import { DropdownSeparator } from '../dropdown/DropdownSeparator';
+import { DropdownCheckmark } from '../dropdown/DropdownCheckmark';
+import dropdownStyles from '../dropdown/Dropdown.module.css';
 import styles from './ModelSelector.module.css';
 import { getModelIcon } from './Icons';
 
@@ -160,7 +162,7 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
     return (
         <ul
             ref={dropdownRef}
-            class={cn(styles.modelDropdown, className)}
+            class={cn(dropdownStyles.dropdown, styles.modelDropdown, className)}
             tabIndex={-1}
             role="listbox"
             aria-label={ariaLabel}
@@ -198,11 +200,10 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
                                     aria-describedby={isUpsellRow ? gatedSectionDescriptionId : undefined}
                                     aria-disabled={(!model.isAvailable && !isUpsellRow) || undefined}
                                     class={cn(
-                                        styles.modelOption,
-                                        isInteractive && activeIndex === optionIndex && styles.modelOptionActive,
-                                        isUpsellRow && styles.modelOptionUpsell,
-                                        !model.isAvailable && !isUpsellRow && styles.modelOptionDisabled,
-                                        model.isAvailable && model.id === selectedModelId && styles.modelOptionSelected,
+                                        dropdownStyles.item,
+                                        isInteractive && activeIndex === optionIndex && dropdownStyles.itemActive,
+                                        !model.isAvailable && !isUpsellRow && dropdownStyles.itemDisabled,
+                                        model.isAvailable && model.id === selectedModelId && dropdownStyles.itemSelected,
                                     )}
                                     onMouseOver={isInteractive ? () => setActiveIndex(optionIndex) : undefined}
                                     onClick={
@@ -219,10 +220,11 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
                                               : undefined
                                     }
                                 >
+                                    <DropdownCheckmark />
                                     {Icon && <Icon />}
-                                    <div class={styles.modelOptionLabel}>
-                                        <span class={styles.modelOptionName}>{model.isAvailable ? model.name : `${model.name}…`}</span>
-                                        {model.description && <span class={styles.modelOptionDescription}>{model.description}</span>}
+                                    <div class={dropdownStyles.itemLabel}>
+                                        <span class={dropdownStyles.itemName}>{model.isAvailable ? model.name : `${model.name}…`}</span>
+                                        {model.description && <span class={dropdownStyles.itemDescription}>{model.description}</span>}
                                     </div>
                                     {badgeLabel && <span class={styles.modelOptionBadge}>{badgeLabel}</span>}
                                 </li>

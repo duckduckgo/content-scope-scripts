@@ -103,6 +103,7 @@ export function DropdownSubmenu({
                 // Keys pressed inside the panel belong to it; don't let the parent navigate as well.
                 <li
                     role="presentation"
+                    class={styles.submenuPanel}
                     onKeyDown={(e) => {
                         e.stopPropagation();
                         if (e.key === 'ArrowLeft') {

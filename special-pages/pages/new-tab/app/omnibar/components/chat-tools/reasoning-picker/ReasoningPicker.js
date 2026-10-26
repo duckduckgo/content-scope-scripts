@@ -8,7 +8,6 @@ import { DropdownItem } from '../dropdown/DropdownItem';
 import { DropdownSeparator } from '../dropdown/DropdownSeparator';
 import { DropdownSectionHeader } from '../dropdown/DropdownSectionHeader';
 import { getUpsellTelemetryType } from '../../../utils.js';
-import dropdownStyles from '../dropdown/Dropdown.module.css';
 import styles from './ReasoningPicker.module.css';
 
 /**
@@ -155,7 +154,6 @@ export function ReasoningPicker({
                     position={dropdownPos}
                     onClose={handleClose}
                     idPrefix="reasoning-option"
-                    className={dropdownStyles.roomy}
                 >
                     {dropdownItems}
                 </Dropdown>
