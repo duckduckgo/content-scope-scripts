@@ -1,5 +1,5 @@
 import { Fragment, h } from 'preact';
-import { useEffect, useState } from 'preact/hooks';
+import { useEffect, useLayoutEffect, useState } from 'preact/hooks';
 import cn from 'classnames';
 import { useTypedTranslationWith } from '../../../../types';
 import { DropdownSectionHeader } from '../dropdown/DropdownSectionHeader';
@@ -30,7 +30,6 @@ function getRowBadgeLabel(model, t) {
  * @param {import('../../../../../types/new-tab.js').AIModelSections} props.sections
  * @param {string} [props.selectedModelId]
  * @param {import('../useDropdown.js').DropdownPosition} props.dropdownPos
- * @param {string} props.maxHeight - Space below the trigger, excluding the dropdown gap and bottom margin.
  * @param {(options: {restoreFocus: boolean}) => void} props.onClose
  * @param {(id: string) => void} props.onSelect
  * @param {(type?: 'subscribe' | 'upgrade') => void} props.onUpsell
@@ -38,18 +37,7 @@ function getRowBadgeLabel(model, t) {
  * @param {string} props.ariaLabel
  * @param {import('preact').RefObject<HTMLUListElement>} [props.dropdownRef]
  */
-export function ModelDropdown({
-    sections,
-    selectedModelId,
-    dropdownPos,
-    maxHeight,
-    onClose,
-    onSelect,
-    onUpsell,
-    className,
-    ariaLabel,
-    dropdownRef,
-}) {
+export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose, onSelect, onUpsell, className, ariaLabel, dropdownRef }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const allModels = sections.flatMap((section) => section.items);
     const optionIndexById = new Map(allModels.map((model, index) => [model.id, index]));
@@ -87,6 +75,12 @@ export function ModelDropdown({
 
     const [activeIndex, setActiveIndex] = useState(getInitialActiveIndex);
     const clearActiveIndex = () => setActiveIndex(-1);
+
+    useLayoutEffect(() => {
+        const dropdown = dropdownRef?.current;
+        if (!dropdown) return;
+        dropdown.style.maxHeight = `${window.innerHeight - dropdown.getBoundingClientRect().top - 8}px`;
+    }, [dropdownRef]);
 
     /**
      * @param {'subscribe' | 'upgrade'} type
@@ -177,7 +171,7 @@ export function ModelDropdown({
             role="listbox"
             aria-label={ariaLabel}
             aria-activedescendant={activeIndex >= 0 ? getOptionId(activeIndex) : undefined}
-            style={{ right: dropdownPos.right, left: dropdownPos.left, top: dropdownPos.top, maxHeight }}
+            style={{ right: dropdownPos.right, left: dropdownPos.left, top: dropdownPos.top }}
             onKeyDown={handleKeyDown}
             onMouseLeave={clearActiveIndex}
         >
