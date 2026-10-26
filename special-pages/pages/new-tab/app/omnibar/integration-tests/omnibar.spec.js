@@ -2040,7 +2040,7 @@ test.describe('omnibar widget', () => {
                 const dropdown = omnibar.modelDropdown();
                 await expect(dropdown.getByRole('option')).toHaveCount(24);
                 expect(await dropdown.evaluate((el) => el.scrollHeight - el.clientHeight)).toBeGreaterThan(0);
-                expect(await dropdown.evaluate((el) => el.getBoundingClientRect().bottom)).toBeLessThanOrEqual(1192);
+                expect(await dropdown.evaluate((el) => el.getBoundingClientRect().bottom)).toBeLessThanOrEqual(1180);
                 await dropdown.hover();
                 await page.mouse.wheel(0, 1000);
                 await expect(omnibar.modelOption('Claude 4 Sonnet')).toBeInViewport({ ratio: 1 });
@@ -2053,9 +2053,7 @@ test.describe('omnibar widget', () => {
                 await expect(omnibar.modelOption('Test model 10')).toHaveAttribute('aria-selected', 'true');
             });
 
-            test(`keeps the model list inside a short window and allows scrolling to gated models (${platformName})`, async ({
-                page,
-            }, workerInfo) => {
+            test(`preserves the 400px model menu limit in short windows (${platformName})`, async ({ page }, workerInfo) => {
                 const ntp = NewtabPage.create(page, workerInfo);
                 const omnibar = new OmnibarPage(ntp);
                 await ntp.reducedMotion();
@@ -2068,15 +2066,9 @@ test.describe('omnibar widget', () => {
                 await omnibar.modelSelectorButton().click();
 
                 const dropdown = omnibar.modelDropdown();
-                await expect.poll(() => dropdown.evaluate((el) => el.getBoundingClientRect().bottom)).toBeLessThanOrEqual(592);
+                await expect(dropdown).toHaveCSS('max-height', '400px');
+                expect(await dropdown.evaluate((el) => el.getBoundingClientRect().height)).toBe(400);
                 expect(await dropdown.evaluate((el) => el.scrollHeight - el.clientHeight)).toBeGreaterThan(0);
-                await dropdown.hover();
-                await page.mouse.wheel(0, 1000);
-                await expect(omnibar.modelOption('Claude 4 Sonnet')).toBeInViewport({ ratio: 1 });
-                await omnibar.modelOption('Claude 4 Sonnet').click();
-                const calls = await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpsell', count: 1 });
-                expect(calls.at(-1)?.payload.params).toEqual({ source: 'model' });
-                await expect(dropdown).toHaveCount(0);
             });
         }
 

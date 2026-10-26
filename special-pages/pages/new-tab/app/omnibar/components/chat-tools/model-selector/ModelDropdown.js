@@ -79,7 +79,8 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
     useLayoutEffect(() => {
         const dropdown = dropdownRef?.current;
         if (!dropdown) return;
-        dropdown.style.maxHeight = `${window.innerHeight - dropdown.getBoundingClientRect().top - 8}px`;
+        const availableHeight = window.innerHeight - dropdown.getBoundingClientRect().top - 20;
+        dropdown.style.maxHeight = `${Math.max(400, availableHeight)}px`;
     }, [dropdownRef]);
 
     /**
