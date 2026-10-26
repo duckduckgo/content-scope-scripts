@@ -15,23 +15,9 @@ import { compilePredicate } from '../predicates/predicates.js';
 import { finish } from './positions.js';
 
 /**
- * @typedef {import('../model/types.js').Node} Node
- * @typedef {import('../model/types.js').NodeBase} NodeBase
- * @typedef {import('../model/types.js').IfNode} IfNode
- * @typedef {import('../model/types.js').ItemBinder} ItemBinder
- * @typedef {import('../model/types.js').ItemNode} ItemNode
- * @typedef {import('../model/types.js').Position} Position
- * @typedef {import('../model/types.js').CompiledPayloadField} CompiledPayloadField
- * @typedef {import('./detector-config.js').RawDetectorConfig} RawDetectorConfig
- */
-
-/**
- * @template Body
- * @typedef {import('../model/types.js').Source<Body>} Source
- */
-
-/**
- * @typedef {import('../sources/api.js').ApiBody} ApiBody
+ * @import { Node, NodeBase, IfNode, ItemBinder, ItemNode, Position, CompiledPayloadField, Source } from '../model/types.js'
+ * @import { RawDetectorConfig } from './detector-config.js'
+ * @import { ApiBody } from '../sources/api.js'
  */
 
 /**

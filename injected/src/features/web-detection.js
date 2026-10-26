@@ -11,12 +11,11 @@ import { TaskReadCache } from './web-detection/evaluate/task-read-cache.js';
 import { getOrCreate } from './web-detection/model/core.js';
 
 /**
- * @typedef {import('./web-detection/compile/detector-config.js').DetectorConfig} DetectorConfig
- * @typedef {import('./web-detection/compile/compile.js').CompiledDetector} CompiledDetector
- * @typedef {import('./web-detection/model/types.js').ActionSink} ActionSink
- * @typedef {import('./web-detection/model/types.js').PayloadData} PayloadData
- * @typedef {import('./web-detection/evaluate/run.js').DetectorState} DetectorState
- * @typedef {import('./web-detection/evaluate/breakage-entries.js').BreakageEntry} BreakageEntry
+ * @import { DetectorConfig } from './web-detection/compile/detector-config.js'
+ * @import { CompiledDetector } from './web-detection/compile/compile.js'
+ * @import { ActionSink, PayloadData } from './web-detection/model/types.js'
+ * @import { DetectorState } from './web-detection/evaluate/run.js'
+ * @import { BreakageEntry } from './web-detection/evaluate/breakage-entries.js'
  */
 
 /**

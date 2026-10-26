@@ -3,9 +3,8 @@ import { ConfigParseError, DetectionError, asArray, isFailure } from '../model/c
 import { isItemBuffer, listMembers } from '../model/lists.js';
 
 /**
- * @typedef {import('../model/core.js').Failure} Failure
- * @typedef {import('../model/types.js').PredicateContext} PredicateContext
- * @typedef {import('../model/types.js').PredicateHooks} PredicateHooks
+ * @import { Failure } from '../model/core.js'
+ * @import { PredicateContext, PredicateHooks } from '../model/types.js'
  */
 
 /**

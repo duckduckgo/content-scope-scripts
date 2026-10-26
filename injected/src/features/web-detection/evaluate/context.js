@@ -4,14 +4,8 @@ import { allItems, evaluate, evaluateOccurrence, single } from './evaluate.js';
 import { TaskReadCache } from './task-read-cache.js';
 
 /**
- * @typedef {import('../model/core.js').Failure} Failure
- * @typedef {import('../model/types.js').ActionOutcome} ActionOutcome
- * @typedef {import('../model/types.js').ItemBinder} ItemBinder
- * @typedef {import('../model/types.js').ActionSink} ActionSink
- * @typedef {import('../model/types.js').Node} Node
- * @typedef {import('../model/types.js').PredicateContext} PredicateContext
- * @typedef {import('../model/types.js').Reader} Reader
- * @typedef {import('../model/types.js').TaskReads} TaskReads
+ * @import { Failure } from '../model/core.js'
+ * @import { ActionOutcome, ItemBinder, ActionSink, Node, PredicateContext, Reader, TaskReads } from '../model/types.js'
  */
 
 /** @type {ActionSink} for a run whose actions go nowhere */

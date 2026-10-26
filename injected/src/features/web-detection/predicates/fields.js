@@ -2,11 +2,8 @@ import { isArray } from '../../../captured-globals.js';
 import { ConfigParseError, isExpressionObject, isFailure, isPlainObject, rejectUnknownKeys } from '../model/core.js';
 
 /**
- * @typedef {import('../model/core.js').Failure} Failure
- * @typedef {import('../model/types.js').ItemBinder} ItemBinder
- * @typedef {import('../model/types.js').PredicateContext} PredicateContext
- * @typedef {import('../model/types.js').PredicateHooks} PredicateHooks
- * @typedef {import('../model/types.js').Reader} Reader
+ * @import { Failure } from '../model/core.js'
+ * @import { ItemBinder, PredicateContext, PredicateHooks, Reader } from '../model/types.js'
  */
 
 /**

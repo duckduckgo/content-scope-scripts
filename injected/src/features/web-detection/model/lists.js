@@ -2,8 +2,8 @@ import { isArray, ReflectApply } from '../../../captured-globals.js';
 import { isFailure, thrownFailure } from './core.js';
 
 /**
- * @typedef {import('./core.js').Failure} Failure
- * @typedef {import('./types.js').PredicateContext} PredicateContext
+ * @import { Failure } from './core.js'
+ * @import { PredicateContext } from './types.js'
  */
 
 /**

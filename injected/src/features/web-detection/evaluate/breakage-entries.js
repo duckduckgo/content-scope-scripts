@@ -2,8 +2,8 @@ import { objectKeys } from '../../../captured-globals.js';
 import { getOrCreate } from '../model/core.js';
 
 /**
- * @typedef {import('../model/types.js').PayloadData} PayloadData
- * @typedef {import('./run.js').RunFailure} RunFailure
+ * @import { PayloadData } from '../model/types.js'
+ * @import { RunFailure } from './run.js'
  */
 
 /**

@@ -2,7 +2,7 @@ import { getOwnPropertyDescriptor, getOwnPropertyNames, getPrototypeOf, ReflectA
 import { Failure, getOrCreate, isFailure, newMap, thrownFailure } from '../model/core.js';
 
 /**
- * @typedef {import('../model/types.js').Reader} Reader
+ * @import { Reader } from '../model/types.js'
  */
 
 /**

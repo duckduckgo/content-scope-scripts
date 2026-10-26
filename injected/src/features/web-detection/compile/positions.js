@@ -1,10 +1,8 @@
 import { ConfigParseError, FILLS } from '../model/core.js';
 
 /**
- * @typedef {import('../model/types.js').Node} Node
- * @typedef {import('../model/types.js').Position} Position
- * @typedef {import('../model/types.js').SourceNode} SourceNode
- * @typedef {import('./compile.js').Scope} Scope
+ * @import { Node, Position, SourceNode } from '../model/types.js'
+ * @import { Scope } from './compile.js'
  */
 
 /**

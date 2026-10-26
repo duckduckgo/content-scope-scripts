@@ -14,11 +14,9 @@ import {
 import { compileField, compilePath, readField } from './fields.js';
 
 /**
- * @typedef {import('../model/core.js').Failure} Failure
- * @typedef {import('../model/types.js').ItemBinder} ItemBinder
- * @typedef {import('../model/types.js').PredicateContext} PredicateContext
- * @typedef {import('../model/types.js').PredicateHooks} PredicateHooks
- * @typedef {import('./fields.js').CompiledField} CompiledField
+ * @import { Failure } from '../model/core.js'
+ * @import { ItemBinder, PredicateContext, PredicateHooks } from '../model/types.js'
+ * @import { CompiledField } from './fields.js'
  */
 
 /**
