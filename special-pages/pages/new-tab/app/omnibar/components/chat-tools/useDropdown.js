@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 
 /**
- * @typedef {{left?: number, right?: number, top: number}} DropdownPosition
+ * @typedef {{left?: number, right?: number, top: number, maxHeight?: number}} DropdownPosition
  * @typedef {ReturnType<typeof useDropdown>} DropdownState
  */
 
@@ -41,12 +41,15 @@ export function findContainingBlock(el) {
 function computePosition({ buttonRect, cbRect, align, offsetY }) {
     const topOffset = cbRect?.top ?? 0;
     const top = buttonRect.bottom - topOffset + offsetY;
+    // Available space is measured in viewport coordinates, even when a backdrop
+    // filter makes the dropdown's position relative to a containing block.
+    const maxHeight = Math.max(0, window.innerHeight - buttonRect.bottom - offsetY - 8);
     if (align === 'right') {
         const rightEdge = cbRect?.right ?? window.innerWidth;
-        return { right: rightEdge - buttonRect.right, top };
+        return { right: rightEdge - buttonRect.right, top, maxHeight };
     }
     const leftOffset = cbRect?.left ?? 0;
-    return { left: buttonRect.left - leftOffset, top };
+    return { left: buttonRect.left - leftOffset, top, maxHeight };
 }
 
 /**
