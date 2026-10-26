@@ -16,14 +16,14 @@ const CAPTCHA_DETECTORS = {
             element: { selector: ['.g-recaptcha', "iframe[src*='recaptcha']", "iframe[title*='recaptcha' i]"], visibility: 'visible' },
         },
         triggers: { auto: { state: 'enabled', when: { intervalMs: [100] } } },
-        actions: { fireEvent: { type: 'captcha_recaptcha' }, breakageReportData: {} },
+        actions: { fireEvent: { type: 'captcha_recaptcha' } },
     },
     hcaptcha: {
         match: {
             element: { selector: ['.h-captcha', "iframe[src*='hcaptcha.com']", "iframe[title*='hcaptcha' i]"], visibility: 'visible' },
         },
         triggers: { auto: { state: 'enabled', when: { intervalMs: [100] } } },
-        actions: { fireEvent: { type: 'captcha_hcaptcha' }, breakageReportData: {} },
+        actions: { fireEvent: { type: 'captcha_hcaptcha' } },
     },
     turnstile: {
         // :not(#turnstile-wrapper) excludes the Cloudflare interstitial's own Turnstile wrapper, so an
@@ -35,7 +35,7 @@ const CAPTCHA_DETECTORS = {
             },
         },
         triggers: { auto: { state: 'enabled', when: { intervalMs: [100] } } },
-        actions: { fireEvent: { type: 'captcha_turnstile' }, breakageReportData: {} },
+        actions: { fireEvent: { type: 'captcha_turnstile' } },
     },
     cloudflare: {
         match: {
@@ -52,7 +52,7 @@ const CAPTCHA_DETECTORS = {
             },
         },
         triggers: { auto: { state: 'enabled', when: { intervalMs: [100] } } },
-        actions: { fireEvent: { type: 'captcha_cloudflare' }, breakageReportData: {} },
+        actions: { fireEvent: { type: 'captcha_cloudflare' } },
     },
     other: {
         match: {
@@ -65,7 +65,7 @@ const CAPTCHA_DETECTORS = {
             },
         },
         triggers: { auto: { state: 'enabled', when: { intervalMs: [100] } } },
-        actions: { fireEvent: { type: 'captcha_other' }, breakageReportData: {} },
+        actions: { fireEvent: { type: 'captcha_other' } },
     },
 };
 
