@@ -4,15 +4,9 @@ import { compileArgs, evaluateArgs, parsePathBody, readField, readPath } from '.
 import { parseItemKeys, selectItems } from './common.js';
 
 /**
- * @typedef {import('../model/types.js').PredicateHooks} PredicateHooks
- * @typedef {import('../predicates/fields.js').CompiledArg} CompiledArg
- * @typedef {import('../predicates/fields.js').CompiledField} CompiledField
- * @typedef {import('../predicates/predicates.js').CompiledPredicate} CompiledPredicate
- */
-
-/**
- * @template Body
- * @typedef {import('../model/types.js').Source<Body>} Source
+ * @import { PredicateHooks, Source } from '../model/types.js'
+ * @import { CompiledArg, CompiledField } from '../predicates/fields.js'
+ * @import { CompiledPredicate } from '../predicates/predicates.js'
  */
 
 /**

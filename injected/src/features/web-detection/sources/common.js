@@ -4,10 +4,9 @@ import { compileField, readField } from '../predicates/fields.js';
 import { compileWhere, testPredicate } from '../predicates/predicates.js';
 
 /**
- * @typedef {import('../model/types.js').PredicateContext} PredicateContext
- * @typedef {import('../model/types.js').PredicateHooks} PredicateHooks
- * @typedef {import('../predicates/fields.js').CompiledField} CompiledField
- * @typedef {import('../predicates/predicates.js').CompiledPredicate} CompiledPredicate
+ * @import { PredicateContext, PredicateHooks } from '../model/types.js'
+ * @import { CompiledField } from '../predicates/fields.js'
+ * @import { CompiledPredicate } from '../predicates/predicates.js'
  */
 
 /**

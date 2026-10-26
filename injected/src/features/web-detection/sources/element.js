@@ -5,15 +5,10 @@ import { parseRoot, resolveRoots } from './roots.js';
 import { hasContent, isVisible } from './visibility.js';
 
 /**
- * @typedef {import('../model/types.js').PredicateContext} PredicateContext
- * @typedef {import('../predicates/fields.js').CompiledField} CompiledField
- * @typedef {import('../predicates/predicates.js').CompiledPredicate} CompiledPredicate
- * @typedef {import('./roots.js').Root} Root
- */
-
-/**
- * @template Body
- * @typedef {import('../model/types.js').Source<Body>} Source
+ * @import { PredicateContext, Source } from '../model/types.js'
+ * @import { CompiledField } from '../predicates/fields.js'
+ * @import { CompiledPredicate } from '../predicates/predicates.js'
+ * @import { Root } from './roots.js'
  */
 
 /**

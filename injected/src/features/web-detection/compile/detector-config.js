@@ -3,9 +3,9 @@ import { pageSources } from '../sources/index.js';
 import { compileDetector } from './compile.js';
 
 /**
- * @typedef {import('../../../utils.js').FeatureState} FeatureState
- * @typedef {import('../../../config-feature.js').ConditionBlockOrArray} ConditionBlockOrArray
- * @typedef {import('./compile.js').CompiledDetector} CompiledDetector
+ * @import { FeatureState } from '../../../utils.js'
+ * @import { ConditionBlockOrArray } from '../../../config-feature.js'
+ * @import { CompiledDetector } from './compile.js'
  */
 
 /**

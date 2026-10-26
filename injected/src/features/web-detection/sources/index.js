@@ -3,8 +3,7 @@ import { elementSource } from './element.js';
 import { textSource } from './text.js';
 
 /**
- * @template Body
- * @typedef {import('../model/types.js').Source<Body>} Source
+ * @import { Source } from '../model/types.js'
  */
 
 /**

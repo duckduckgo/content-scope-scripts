@@ -2,10 +2,9 @@ import { isFailure, isScalar, thrownMessage } from '../model/core.js';
 import { evaluateOccurrence } from './evaluate.js';
 
 /**
- * @typedef {import('./context.js').EvaluationContext} EvaluationContext
- * @typedef {import('../model/types.js').ActionOutcome} ActionOutcome
- * @typedef {import('../model/types.js').Node} Node
- * @typedef {import('../compile/compile.js').CompiledDetector} CompiledDetector
+ * @import { EvaluationContext } from './context.js'
+ * @import { ActionOutcome, Node } from '../model/types.js'
+ * @import { CompiledDetector } from '../compile/compile.js'
  */
 
 /** @typedef {'aborted' | 'error'} RunFailure */

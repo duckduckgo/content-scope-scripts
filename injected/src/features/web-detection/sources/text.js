@@ -4,15 +4,10 @@ import { stringList } from './common.js';
 import { parseRoot, resolveRoots } from './roots.js';
 
 /**
- * @typedef {import('@duckduckgo/privacy-configuration/schema/features/web-detection.ts').ConditionTypes} ConditionTypes
- * @typedef {import('../model/core.js').Failure} Failure
- * @typedef {import('../model/types.js').PredicateContext} PredicateContext
- * @typedef {import('./roots.js').Root} Root
- */
-
-/**
- * @template Body
- * @typedef {import('../model/types.js').Source<Body>} Source
+ * @import { ConditionTypes } from '@duckduckgo/privacy-configuration/schema/features/web-detection.js'
+ * @import { Failure } from '../model/core.js'
+ * @import { PredicateContext, Source } from '../model/types.js'
+ * @import { Root } from './roots.js'
  */
 
 /**

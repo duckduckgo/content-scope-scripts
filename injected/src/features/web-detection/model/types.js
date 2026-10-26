@@ -5,8 +5,8 @@
  */
 
 /**
- * @typedef {import('./core.js').Failure} Failure
- * @typedef {import('../predicates/predicates.js').CompiledPredicate} CompiledPredicate
+ * @import { Failure } from './core.js'
+ * @import { CompiledPredicate } from '../predicates/predicates.js'
  */
 
 /**

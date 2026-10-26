@@ -1,7 +1,7 @@
 import { getOrCreate, newMap } from '../model/core.js';
 
 /**
- * @typedef {import('../model/types.js').TaskReads} TaskReads
+ * @import { TaskReads } from '../model/types.js'
  */
 
 /**

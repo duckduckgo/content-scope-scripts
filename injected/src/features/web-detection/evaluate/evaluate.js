@@ -5,23 +5,11 @@ import { readPath } from '../predicates/fields.js';
 import { testPredicate } from '../predicates/predicates.js';
 
 /**
- * @typedef {import('../model/core.js').Failure} Failure
- * @typedef {import('../model/types.js').ActionNode} ActionNode
- * @typedef {import('../model/types.js').ArithmeticNode} ArithmeticNode
- * @typedef {import('../model/types.js').CompiledPayloadField} CompiledPayloadField
- * @typedef {import('../model/types.js').ExprNode} ExprNode
- * @typedef {import('../model/types.js').ItemBinder} ItemBinder
- * @typedef {import('../model/types.js').ItemNode} ItemNode
- * @typedef {import('../model/types.js').LengthNode} LengthNode
- * @typedef {import('../model/types.js').LogicNode} LogicNode
- * @typedef {import('../model/types.js').Node} Node
- * @typedef {import('../model/types.js').PayloadData} PayloadData
- * @typedef {import('../model/types.js').Position} Position
- * @typedef {import('../model/types.js').RefNode} RefNode
- * @typedef {import('../model/types.js').SourceNode} SourceNode
- * @typedef {import('../model/types.js').UsingNode} UsingNode
- * @typedef {import('../predicates/predicates.js').CompiledPredicate} CompiledPredicate
- * @typedef {import('./context.js').EvaluationContext} EvaluationContext
+ * @import { Failure } from '../model/core.js'
+ * @import { ActionNode, ArithmeticNode, CompiledPayloadField, ExprNode, ItemBinder, ItemNode, LengthNode } from '../model/types.js'
+ * @import { LogicNode, Node, PayloadData, Position, RefNode, SourceNode, UsingNode } from '../model/types.js'
+ * @import { CompiledPredicate } from '../predicates/predicates.js'
+ * @import { EvaluationContext } from './context.js'
  */
 
 /**
