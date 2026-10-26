@@ -15,9 +15,9 @@ import { compilePredicate } from '../predicates/predicates.js';
 import { finish } from './positions.js';
 
 /**
- * @import { Node, NodeBase, IfNode, ItemBinder, ItemNode, Position, CompiledPayloadField, Source } from '../model/types.js'
+ * @import { Node, NodeBase, IfNode, ItemBinder, ItemNode, Position, CompiledPayloadField, SourceBody } from '../model/types.js'
  * @import { RawDetectorConfig } from './detector-config.js'
- * @import { ApiBody } from '../sources/api.js'
+ * @import { PageSources } from '../sources/index.js'
  */
 
 /**
@@ -57,7 +57,7 @@ export class Scope {
     binderSinks = [];
 
     /**
-     * @param {Record<string, Source<any>>} sources
+     * @param {PageSources} sources
      */
     constructor(sources) {
         this.sources = sources;
@@ -412,7 +412,7 @@ function compileSelf(raw, position, path, scope, key = 'self') {
         scope.readerNames.add('length');
         return makeNode(scope, { kind: 'length', operand: root, path, position }, [root]);
     }
-    const source = /** @type {Source<ApiBody>} */ (scope.sources.api);
+    const source = scope.sources.api;
     /** @type {Node[]} */
     const deps = [root];
     /** @type {ItemBinder[]} */
@@ -421,7 +421,8 @@ function compileSelf(raw, position, path, scope, key = 'self') {
         within(scope.operandSinks, deps, () => source.parse(raw, path, scope.hooks, key === 'using' ? 'using' : 'self')),
     );
     parsed.root = root;
-    return makeNode(scope, { kind: 'source', source, bodies: [parsed], binders, path, position }, deps);
+    const withField = parsed.field !== undefined;
+    return makeNode(scope, { kind: 'source', source, bodies: [parsed], binders, withField, leaf: false, path, position }, deps);
 }
 
 /**
@@ -450,7 +451,7 @@ function itemNode(binder, scope) {
  * @returns {Node}
  */
 function compileSource(key, body, position, path, scope) {
-    const source = /** @type {Source<any>} */ (scope.sources[key]);
+    const source = scope.sources[key];
     if (key === 'api' && isArray(body)) throw new ConfigParseError(path, '`api` takes one body');
     /** @type {Node[]} */
     const deps = [];
@@ -462,7 +463,18 @@ function compileSource(key, body, position, path, scope) {
         ),
     );
     if (bodies.length === 0) throw new ConfigParseError(path, 'no bodies');
-    return makeNode(scope, { kind: 'source', source, bodies, binders, path, position }, deps);
+    const withField = bodies.some(hasField);
+    // `text`, and `element` without `field`, are the condition leaf: a boolean under any / all / none
+    const leaf = key === 'text' || (key === 'element' && !withField);
+    return makeNode(scope, { kind: 'source', source, bodies, binders, withField, leaf, path, position }, deps);
+}
+
+/**
+ * @param {SourceBody} body
+ * @returns {boolean}
+ */
+function hasField(body) {
+    return 'field' in body && body.field !== undefined;
 }
 
 /**
@@ -509,7 +521,7 @@ const DETECTOR_KEYS = ['state', 'triggers', 'match', 'actions'];
  * exists when evaluation reaches it.
  *
  * @param {RawDetectorConfig} config
- * @param {Record<string, Source<any>>} sources - the sources by expression key, such as `pageSources(global)`
+ * @param {PageSources} sources - the sources by expression key, such as `pageSources(global)`
  * @returns {CompiledDetector} throws a `ConfigParseError`
  */
 export function compileDetector(config, sources) {

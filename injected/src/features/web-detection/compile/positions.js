@@ -1,7 +1,7 @@
 import { ConfigParseError, FILLS } from '../model/core.js';
 
 /**
- * @import { Node, Position, SourceNode } from '../model/types.js'
+ * @import { Node, Position } from '../model/types.js'
  * @import { Scope } from './compile.js'
  */
 
@@ -111,10 +111,7 @@ export function finish(scope) {
     }
     for (const node of scope.nodes) {
         if (!fits(fillsOf(node), node.position)) {
-            const what =
-                node.kind === 'source'
-                    ? `'${/** @type {SourceNode} */ (node).source.key}'${node.bodies.some((b) => /** @type {any} */ (b).field) ? ' with field' : ''}`
-                    : `'${node.kind}'`;
+            const what = node.kind === 'source' ? `'${node.source.key}'${node.withField ? ' with field' : ''}` : `'${node.kind}'`;
             const hint =
                 node.position === 'boolean' && fillsOf(node).has('number')
                     ? '; numbers become booleans only through `is`'
@@ -136,9 +133,7 @@ export function finish(scope) {
 function isPresenceLeaf(node) {
     let current = node;
     while ((current.kind === 'expr' || current.kind === 'using') && !current.operand.is) current = current.operand;
-    if (current.kind !== 'source') return false;
-    const key = current.source.key;
-    return key === 'text' || (key === 'element' && current.bodies.every((body) => !(/** @type {{ field?: unknown }} */ (body).field)));
+    return current.kind === 'source' && current.leaf;
 }
 
 /**

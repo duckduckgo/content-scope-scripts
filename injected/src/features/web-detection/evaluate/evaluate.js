@@ -190,11 +190,7 @@ function readSource(node, position, ctx) {
         // A new evaluation of the source: what its `where` and `field` read once is read again
         for (const binder of node.binders) ctx.shared.set(binder, new Map());
         value = node.source.read(node.bodies, ctx);
-        if (isItemBuffer(value)) {
-            const key = node.source.key;
-            value.leaf =
-                key === 'text' || (key === 'element' && node.bodies.every((body) => !(/** @type {{ field?: unknown }} */ (body).field)));
-        }
+        if (isItemBuffer(value)) value.leaf = node.leaf;
         memo?.set(node, value);
     }
     return positioned(value, position);
