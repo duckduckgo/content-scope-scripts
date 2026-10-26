@@ -1,3 +1,5 @@
+import { getOrCreate, newMap } from '../model/core.js';
+
 /**
  * @typedef {import('../model/types.js').TaskReads} TaskReads
  */
@@ -21,11 +23,7 @@ export class TaskReadCache {
      * @returns {T}
      */
     of(node, key, compute) {
-        let values = this.#byNode.get(node);
-        if (!values) {
-            values = new Map();
-            this.#byNode.set(node, values);
-        }
+        const values = getOrCreate(this.#byNode, node, newMap);
         if (values.has(key)) return /** @type {T} */ (values.get(key));
         const value = compute();
         values.set(key, value);

@@ -256,3 +256,24 @@ export function typeName(value) {
             return 'object';
     }
 }
+
+/**
+ * Get a value from a map, creating and setting it if it does not exist.
+ *
+ * @template K, V
+ * @param {{ get(key: K): V | undefined, set(key: K, value: V): unknown }} map
+ * @param {K} key
+ * @param {(key: K) => NoInfer<V>} create - note that type is inferred from the `map`.
+ * @returns {V}
+ */
+export function getOrCreate(map, key, create) {
+    let value = map.get(key);
+    if (value === undefined) {
+        value = create(key);
+        map.set(key, value);
+    }
+    return value;
+}
+
+/** Create a new `Map`, suitable for use with `getOrCreate`.  */
+export const newMap = () => new Map();

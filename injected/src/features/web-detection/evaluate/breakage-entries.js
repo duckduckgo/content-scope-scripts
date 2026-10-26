@@ -1,4 +1,5 @@
 import { objectKeys } from '../../../captured-globals.js';
+import { getOrCreate } from '../model/core.js';
 
 /**
  * @typedef {import('../model/types.js').PayloadData} PayloadData
@@ -34,12 +35,7 @@ export class BreakageEntries {
      * @returns {EntryRecord}
      */
     _recordOf(detectorId) {
-        let record = this.#records.get(detectorId);
-        if (!record) {
-            record = { written: false, data: {}, errors: new Map() };
-            this.#records.set(detectorId, record);
-        }
-        return record;
+        return getOrCreate(this.#records, detectorId, () => ({ written: false, data: {}, errors: new Map() }));
     }
 
     /**

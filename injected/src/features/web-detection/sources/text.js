@@ -1,4 +1,4 @@
-import { ConfigParseError, FILLS, isFailure, isPlainObject, rejectUnknownKeys } from '../model/core.js';
+import { ConfigParseError, FILLS, getOrCreate, isFailure, isPlainObject, newMap, rejectUnknownKeys } from '../model/core.js';
 import { ItemBuffer } from '../model/lists.js';
 import { stringList } from './common.js';
 import { parseRoot, resolveRoots } from './roots.js';
@@ -52,18 +52,12 @@ const compiledXPaths = new WeakMap();
  * @returns {XPathExpression}
  */
 function compileXPath(expression) {
-    let cache = compiledXPaths.get(document);
-    if (!cache) {
-        cache = new Map();
-        compiledXPaths.set(document, cache);
-    }
-    let compiled = cache.get(expression);
-    if (!compiled) {
-        compiled = document.createExpression(expression, null);
-        cache.set(expression, compiled);
-    }
-    return compiled;
+    const byExpression = getOrCreate(compiledXPaths, document, newMap);
+    return getOrCreate(byExpression, expression, createExpression);
 }
+
+/** @param {string} expression */
+const createExpression = (expression) => document.createExpression(expression, null);
 
 /** Characters accumulated between pattern tests when scanning XPath text. */
 const DEFAULT_CHUNK_SIZE = 8192;
