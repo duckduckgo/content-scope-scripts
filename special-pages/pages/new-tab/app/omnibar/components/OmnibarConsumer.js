@@ -1,7 +1,7 @@
 import { Fragment, h } from 'preact';
 import { useContext } from 'preact/hooks';
 import { useCustomizer } from '../../customizer/components/CustomizerMenu.js';
-import { useTypedTranslationWith } from '../../types.js';
+import { useInitialSetupData, useTypedTranslationWith } from '../../types.js';
 import { useVisibility } from '../../widget-list/widget-config.provider.js';
 import { Omnibar } from './Omnibar.js';
 import styles from './Omnibar.module.css';
@@ -48,11 +48,19 @@ export function OmnibarConsumer() {
     );
 }
 
+/**
+ * Reserves the Omnibar's height until config arrives, using the subset sent in
+ * `initialSetup` so nothing below it shifts. Falls back to search mode with the
+ * tab switcher when native doesn't send it.
+ */
 function OmnibarPlaceholder() {
+    const { omnibar } = useInitialSetupData();
+    const showTabs = omnibar ? omnibar.showAiSetting && omnibar.enableAi : true;
+    const mode = (showTabs && omnibar?.mode) || 'search';
     return (
-        <div class={styles.root} aria-hidden="true">
+        <div class={styles.root} data-mode={mode} aria-hidden="true">
             <LogoStacked class={styles.logo} />
-            <div class={styles.placeholderTabs} />
+            {showTabs && <div class={styles.placeholderTabs} />}
             <div class={styles.spacer} />
         </div>
     );
