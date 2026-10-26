@@ -27,8 +27,7 @@
                             "actions": {
                                 "fireEvent": {
                                     "type": "adwall"
-                                },
-                                "breakageReportData": {}
+                                }
                             }
                         }
                     }
