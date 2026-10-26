@@ -1975,9 +1975,7 @@ test.describe('omnibar widget', () => {
             await expect(omnibar.modelOption('Claude 4 Sonnet')).toBeInViewport({ ratio: 1 });
         });
 
-        test('keeps the model menu inside a short window and scrolls to the last model without moving the page', async ({
-            page,
-        }, workerInfo) => {
+        test('keeps the model menu visible and scrollable in a short window', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
