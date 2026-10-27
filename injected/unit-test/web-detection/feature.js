@@ -348,6 +348,27 @@ describe('WebDetection feature', () => {
                 expect(capture).toHaveBeenCalledTimes(1);
                 expect(report(instance)).toEqual([{ detectorId: 'g.d', detected: true }]);
             });
+
+            it('does not throw from load when parsing throws, and parses again at init', () => {
+                const compile = spyOn(WebDetection.prototype, '_compile').and.throwError('parse');
+                const instance = loadInstance({ d: detects(true) });
+                compile.and.callThrough();
+                instance.init();
+                expect(report(instance)).toEqual([{ detectorId: 'g.d', detected: true }]);
+            });
+
+            it('drops a group or detector whose config is not an object, and keeps the others', () => {
+                const instance = createInstance({ empty: null, g: { nulled: null, listed: [], d: detects(true) } }, { load: true });
+                instance.init();
+                expect(report(instance)).toEqual([{ detectorId: 'g.d', detected: true }]);
+            });
+
+            it('does not run a detector whose runConditions throw, and runs the others', () => {
+                const invalid = detects(true, { triggers: { breakageReport: { runConditions: { urlPattern: 'https://[' } } } });
+                const instance = loadInstance({ invalid, d: detects(true) });
+                instance.init();
+                expect(report(instance)).toEqual([{ detectorId: 'g.d', detected: true }]);
+            });
         });
 
         describe('a throw in a report-time run', () => {

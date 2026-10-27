@@ -70,7 +70,11 @@ export default class WebDetection extends ContentFeature {
      * replaces them.
      */
     load() {
-        this._parseDetectors();
+        try {
+            this._parseDetectors();
+        } catch {
+            this.#parsedSettings = undefined;
+        }
     }
 
     /**
@@ -284,10 +288,14 @@ export default class WebDetection extends ContentFeature {
         // Don't run if the trigger is not enabled.
         if (!triggerSettings || !this._isStateEnabled(triggerSettings.state)) return false;
 
-        // Don't run if the run conditions are not met.
-        if (triggerSettings.runConditions && !this._matchConditionalBlockOrArray(triggerSettings.runConditions)) return false;
-
-        return true;
+        // Don't run if the run conditions are not met. Conditions that throw, such as an invalid
+        // `urlPattern`, are not met.
+        if (!triggerSettings.runConditions) return true;
+        try {
+            return this._matchConditionalBlockOrArray(triggerSettings.runConditions);
+        } catch {
+            return false;
+        }
     }
 
     /**
