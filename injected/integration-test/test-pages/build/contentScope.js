@@ -2464,7 +2464,7 @@
     ]
   );
   var platformSupport = {
-    apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "pageContext", "print", "trackerProtection"],
+    apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "pageContext", "print", "trackerProtection", "textSelection"],
     "apple-isolated": [
       "contextMenu",
       "duckPlayer",
@@ -2483,7 +2483,6 @@
       "pageObserver",
       "hover",
       "tabSuspension",
-      "textSelection",
       "chromeWebstorePatching"
     ],
     "apple-ai-clear": ["duckAiDataClearing"],
@@ -28925,6 +28924,9 @@ ${iframeContent}
   var TextSelection = class extends ContentFeature {
     constructor() {
       super(...arguments);
+      // Runs in the page world, so the selection readers are captured at load, before page scripts can replace them.
+      __publicField(this, "_getSelection", window.getSelection.bind(window));
+      __publicField(this, "_selectionToString", window.Selection.prototype.toString);
       /** @type {boolean | null} */
       __publicField(this, "_lastHasSelection", null);
       /** @type {number | null} */
@@ -28954,8 +28956,8 @@ ${iframeContent}
       this._publish(this._selectionText());
     }
     _selectionText() {
-      const selection = window.getSelection();
-      return selection ? String(selection) : "";
+      const selection = this._getSelection();
+      return selection ? ReflectApply(this._selectionToString, selection, []) : "";
     }
     /** @param {Event} event */
     _selectionChanged(event) {

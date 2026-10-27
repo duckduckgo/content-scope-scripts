@@ -2469,7 +2469,7 @@
     cookie: ["adClickAttribution"]
   };
   var platformSupport = {
-    apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "pageContext", "print", "trackerProtection"],
+    apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "pageContext", "print", "trackerProtection", "textSelection"],
     "apple-isolated": [
       "contextMenu",
       "duckPlayer",
@@ -2488,7 +2488,6 @@
       "pageObserver",
       "hover",
       "tabSuspension",
-      "textSelection",
       "chromeWebstorePatching"
     ],
     "apple-ai-clear": ["duckAiDataClearing"],

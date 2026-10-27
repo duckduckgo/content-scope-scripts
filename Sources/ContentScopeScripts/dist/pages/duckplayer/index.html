@@ -1971,7 +1971,7 @@ html[data-focus-mode=on] .MobileApp_embed {
     ]
   );
   var platformSupport = {
-    apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "pageContext", "print", "trackerProtection"],
+    apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "pageContext", "print", "trackerProtection", "textSelection"],
     "apple-isolated": [
       "contextMenu",
       "duckPlayer",
@@ -1990,7 +1990,6 @@ html[data-focus-mode=on] .MobileApp_embed {
       "pageObserver",
       "hover",
       "tabSuspension",
-      "textSelection",
       "chromeWebstorePatching"
     ],
     "apple-ai-clear": ["duckAiDataClearing"],

@@ -1,1 +1,2 @@
-- Prune unused feature config in processConfig (#3138)
+- Move textSelection into the Apple page world (#3145)
+- Bump Node to 24.22.1 (latest LTS) (#3146)

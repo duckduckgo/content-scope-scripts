@@ -67,7 +67,7 @@ export default defineConfig({
         },
         {
             name: 'ios-main-world',
-            testMatch: ['integration-test/page-context-root-selection.spec.js'],
+            testMatch: ['integration-test/page-context-root-selection.spec.js', 'integration-test/text-selection.spec.js'],
             use: { injectName: 'apple', platform: 'ios', ...devices['iPhone 13'] },
         },
         {
