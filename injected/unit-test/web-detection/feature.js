@@ -349,11 +349,11 @@ describe('WebDetection feature', () => {
                 expect(report(instance)).toEqual([{ detectorId: 'g.d', detected: true }]);
             });
 
-            it('does not throw from load when parsing throws, and parses again at init', () => {
+            it('parses the settings init has when parsing at load throws', () => {
                 const compile = spyOn(WebDetection.prototype, '_compile').and.throwError('parse');
                 const instance = loadInstance({ d: detects(true) });
                 compile.and.callThrough();
-                instance.init();
+                initWith(instance, { d: detects(true) });
                 expect(report(instance)).toEqual([{ detectorId: 'g.d', detected: true }]);
             });
 
