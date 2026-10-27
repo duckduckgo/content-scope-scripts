@@ -70,8 +70,9 @@ export const featureConfigDependencies = {
 };
 
 /**
- * Features load and init in the order listed. `webDetection` comes first so its reader captures native
- * getters and methods before any other feature replaces them.
+ * Features load and init in the order listed. `webDetection` comes first, after `cookie` where a platform
+ * has it, so its reader captures native getters and methods before any other feature replaces them.
+ * `cookie` replaces only `Document.prototype.cookie`.
  *
  * @type {Record<string, FeatureName[]>}
  */
@@ -131,8 +132,8 @@ export const platformSupport = {
         'breakageReporting',
     ],
     windows: [
-        'webDetection',
         'cookie',
+        'webDetection',
         ...baseFeatures,
         'webEvents',
         'webInterferenceDetection',
@@ -152,8 +153,8 @@ export const platformSupport = {
         'autofillPasskeys',
         'chromeWebstorePatching',
     ],
-    firefox: ['webDetection', 'cookie', ...baseFeatures, 'clickToLoad', 'webEvents', 'webInterferenceDetection', 'breakageReporting'],
-    chrome: ['webDetection', 'cookie', ...baseFeatures, 'clickToLoad', 'webEvents', 'webInterferenceDetection', 'breakageReporting'],
-    'chrome-mv3': ['webDetection', 'cookie', ...baseFeatures, 'clickToLoad', 'webEvents', 'webInterferenceDetection', 'breakageReporting'],
+    firefox: ['cookie', 'webDetection', ...baseFeatures, 'clickToLoad', 'webEvents', 'webInterferenceDetection', 'breakageReporting'],
+    chrome: ['cookie', 'webDetection', ...baseFeatures, 'clickToLoad', 'webEvents', 'webInterferenceDetection', 'breakageReporting'],
+    'chrome-mv3': ['cookie', 'webDetection', ...baseFeatures, 'clickToLoad', 'webEvents', 'webInterferenceDetection', 'breakageReporting'],
     integration: ['webDetection', ...baseFeatures, ...otherFeatures],
 };
