@@ -65,9 +65,11 @@ export default class WebDetection extends ContentFeature {
     _exposedMethods = this._declareExposedMethods(['runDetectors', 'getBreakageReportData']);
 
     /**
-     * Parse the detectors when the injected config has them. `webDetection` loads before every other
-     * feature, so the reader captures native getters and methods before any feature or page script
-     * replaces them.
+     * Parse the detectors when the injected config has them. `webDetection` loads before every feature
+     * but `cookie`, so the reader captures native getters and methods before any feature or page script
+     * replaces them. A parse that throws is left to `init`: the extension loads with its embedded config
+     * and inits with the live one, which may parse, so the feature stays loaded rather than falling to
+     * the load loop's catch.
      */
     load() {
         try {
