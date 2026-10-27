@@ -1740,7 +1740,8 @@
       "pageObserver",
       "hover",
       "tabSuspension",
-      "chromeWebstorePatching"
+      "chromeWebstorePatching",
+      "browserUiLock"
     ],
     "apple-ai-clear": ["duckAiDataClearing"],
     "apple-ai-history": ["duckAiChatHistory"],
@@ -5598,10 +5599,22 @@
       const [name, cb] = args;
       return this.messaging.subscribe(name, cb);
     }
+    /**
+     * Load the feature. A throw from `load` is caught, so the features after this one still load.
+     *
+     * @returns {boolean} whether `load` returned without throwing
+     */
     callLoad() {
       const mark = this.monitor.mark(this.name + "CallLoad");
-      this.load(this.args);
-      mark.end();
+      try {
+        this.load(this.args);
+        return true;
+      } catch (error) {
+        this.log.error("load failed:", error);
+        return false;
+      } finally {
+        mark.end();
+      }
     }
     measure() {
       if (this.isDebug) {
@@ -19394,6 +19407,195 @@ ul.messages {
   };
   var chrome_webstore_patching_default = ChromeWebstorePatching;
 
+  // src/features/browser-ui-lock.js
+  init_define_import_meta_trackerLookup();
+  var BrowserUiLock = class extends ContentFeature {
+    constructor() {
+      super(...arguments);
+      /** @type {boolean | null} Null ensures the first evaluation always sends a notification */
+      __publicField(this, "_currentLockState", null);
+      /** @type {MutationObserver | null} */
+      __publicField(this, "_mutationObserver", null);
+      /** @type {ResizeObserver | null} */
+      __publicField(this, "_resizeObserver", null);
+      /** @type {number | null} */
+      __publicField(this, "_rafId", null);
+      /**
+       * Enable URL change listening to reset and re-evaluate on SPA navigations
+       */
+      __publicField(this, "listenForUrlChanges", true);
+    }
+    init() {
+      if (window.self !== window.top) {
+        return;
+      }
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", () => this._startObserving(), { once: true });
+      } else {
+        this._startObserving();
+      }
+    }
+    /**
+     * Called when URL changes (SPA navigation).
+     */
+    urlChanged() {
+      this._scheduleEvaluation();
+    }
+    /**
+     * Start observing for changes that could affect scrollbar visibility.
+     */
+    _startObserving() {
+      this._scheduleEvaluation();
+      this._setupMutationObserver();
+      this._setupResizeObserver();
+    }
+    /**
+     * Set up MutationObserver to watch for style/class/content changes on html and body.
+     */
+    _setupMutationObserver() {
+      if (this._mutationObserver) {
+        this._mutationObserver.disconnect();
+      }
+      this._mutationObserver = new MutationObserver(() => {
+        this._scheduleEvaluation();
+      });
+      if (document.documentElement) {
+        this._mutationObserver.observe(document.documentElement, {
+          attributes: true,
+          attributeFilter: ["style", "class"]
+        });
+      }
+      if (document.body) {
+        this._mutationObserver.observe(document.body, {
+          attributes: true,
+          attributeFilter: ["style", "class"]
+        });
+      }
+    }
+    /**
+     * Set up ResizeObserver to detect content size changes (images loading, dynamic content).
+     */
+    _setupResizeObserver() {
+      if (this._resizeObserver) {
+        this._resizeObserver.disconnect();
+      }
+      this._resizeObserver = new ResizeObserver(() => {
+        this._scheduleEvaluation();
+      });
+      if (document.documentElement) {
+        this._resizeObserver.observe(document.documentElement);
+      }
+      if (document.body) {
+        this._resizeObserver.observe(document.body);
+      }
+    }
+    /**
+     * Schedule evaluation using requestAnimationFrame to debounce
+     */
+    _scheduleEvaluation() {
+      if (this._rafId !== null) {
+        return;
+      }
+      this._rafId = requestAnimationFrame(() => {
+        this._rafId = null;
+        this._evaluateLockState();
+      });
+    }
+    /**
+     * Evaluate scrollbar visibility and determine lock state
+     */
+    _evaluateLockState() {
+      const shouldLock = this._detectShouldLock();
+      this._notifyIfChanged(shouldLock);
+    }
+    /**
+     * Determine if UI should be locked based on scrollbar visibility or content type.
+     * Lock if the `isLockedPage` feature setting is enabled for the current page
+     * (configured via privacy-config `conditionalChanges` / `patchSettings`);
+     * otherwise lock if the page is a direct image display, or if there is no
+     * visible vertical scrollbar AND a locking `overflow-y` value is explicitly
+     * set on html or body. The set of locking overflow values is controlled by
+     * the `overflowTypes` setting (default: `['hidden', 'clip']`).
+     * @returns {boolean}
+     */
+    _detectShouldLock() {
+      try {
+        if (this.getFeatureSettingEnabled("isLockedPage")) {
+          return true;
+        }
+        if (this.getFeatureSettingEnabled("lockImagePages", "enabled") && this._isImageDisplayPage()) {
+          return true;
+        }
+        const html2 = document.documentElement;
+        const body = document.body;
+        if (html2 && this._hasExplicitlyVisibleScrollbar(html2)) {
+          return false;
+        }
+        if (body && this._hasExplicitlyVisibleScrollbar(body)) {
+          return false;
+        }
+        return Boolean(html2 && this._hasLockingOverflowY(html2) || body && this._hasLockingOverflowY(body));
+      } catch (e) {
+        this.log.warn("Failed to detect scroll state:", e);
+        return false;
+      }
+    }
+    /**
+     * Get the list of `overflow-y` values that indicate the page is in lock mode
+     * (no usable scrollbar). Configurable via the `overflowTypes` feature setting.
+     * @returns {string[]}
+     */
+    _getOverflowTypes() {
+      return this.getFeatureSetting("overflowTypes") ?? ["hidden", "clip"];
+    }
+    /**
+     * Detect if the current page is a browser-rendered image display page.
+     * When navigating directly to an image URL, the browser renders a minimal page
+     * with the document's contentType set to an image MIME type (e.g. image/jpeg).
+     * @returns {boolean}
+     */
+    _isImageDisplayPage() {
+      return typeof document.contentType === "string" && document.contentType.startsWith("image/");
+    }
+    /**
+     * Check if an element has a visible vertical scrollbar.
+     * A scrollbar is visible when content overflows AND `overflow-y` is not in
+     * the configured `overflowTypes` list.
+     * @param {Element} el
+     * @returns {boolean}
+     */
+    _hasExplicitlyVisibleScrollbar(el) {
+      const overflowY = getComputedStyle(el).overflowY;
+      return el.scrollHeight > el.clientHeight && !this._getOverflowTypes().includes(overflowY);
+    }
+    /**
+     * Check if the element's computed `overflow-y` matches a configured locking
+     * value (default: `hidden`, `clip`).
+     * @param {Element} el
+     * @returns {boolean}
+     */
+    _hasLockingOverflowY(el) {
+      return this._getOverflowTypes().includes(getComputedStyle(el).overflowY);
+    }
+    /**
+     * Notify native if lock state changed
+     * @param {boolean} locked
+     */
+    _notifyIfChanged(locked) {
+      if (locked === this._currentLockState) {
+        return;
+      }
+      this._currentLockState = locked;
+      if (locked) {
+        this.addDebugFlag();
+      }
+      this.messaging.notify("uiLockChanged", { locked });
+      if (this.shouldLog) {
+        this.log.info("UI lock state changed:", locked);
+      }
+    }
+  };
+
   // ddg:platformFeatures:ddg:platformFeatures
   var ddg_platformFeatures_default = {
     ddg_feature_contextMenu: ContextMenu,
@@ -19413,7 +19615,8 @@ ul.messages {
     ddg_feature_pageObserver: page_observer_default,
     ddg_feature_hover: hover_default,
     ddg_feature_tabSuspension: tab_suspension_default,
-    ddg_feature_chromeWebstorePatching: chrome_webstore_patching_default
+    ddg_feature_chromeWebstorePatching: chrome_webstore_patching_default,
+    ddg_feature_browserUiLock: BrowserUiLock
   };
 
   // src/url-change.js
@@ -19509,7 +19712,9 @@ ul.messages {
         if (!featureInstance.getFeatureSettingEnabled("additionalCheck", "enabled")) {
           continue;
         }
-        featureInstance.callLoad();
+        if (!featureInstance.callLoad()) {
+          continue;
+        }
         _features2[featureName] = featureInstance;
       }
     }

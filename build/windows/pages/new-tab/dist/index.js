@@ -40713,7 +40713,8 @@
       "pageObserver",
       "hover",
       "tabSuspension",
-      "chromeWebstorePatching"
+      "chromeWebstorePatching",
+      "browserUiLock"
     ],
     "apple-ai-clear": ["duckAiDataClearing"],
     "apple-ai-history": ["duckAiChatHistory"],

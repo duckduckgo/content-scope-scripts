@@ -1,2 +1,2 @@
-- Move textSelection into the Apple page world (#3145)
-- Bump Node to 24.22.1 (latest LTS) (#3146)
+- Ship browserUiLock in the Apple isolated bundle (#3143)
+- Skip a feature whose load throws, and load the rest (#3156)
