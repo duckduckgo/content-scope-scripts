@@ -58,6 +58,7 @@ export default defineConfig({
         {
             name: 'ios',
             testMatch: [
+                'integration-test/browser-ui-lock.spec.js',
                 'integration-test/duckplayer-mobile.spec.js',
                 'integration-test/duckplayer-mobile-drawer.spec.js',
                 'integration-test/duckplayer-native.spec.js',
