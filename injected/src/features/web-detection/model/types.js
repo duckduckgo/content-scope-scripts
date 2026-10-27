@@ -34,10 +34,10 @@
  */
 
 /**
- * A `using`, `where` or `field`, which binds `self` to each value it reads from or tests. `node` is its
- * item node, created when an expression inside reads `self`. Without one, binding it binds nothing.
+ * A `using`, `where` or `field`, which binds `self` to each value it reads from or tests. `readsSelf`
+ * is set when an expression inside reads `self`; without it, binding it binds nothing.
  *
- * @typedef {{ node?: ItemNode }} ItemBinder
+ * @typedef {{ readsSelf?: true }} ItemBinder
  */
 
 /**

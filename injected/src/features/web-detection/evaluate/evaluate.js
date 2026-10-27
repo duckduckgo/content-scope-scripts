@@ -6,8 +6,8 @@ import { testPredicate } from '../predicates/predicates.js';
 
 /**
  * @import { Failure } from '../model/core.js'
- * @import { ActionNode, ArithmeticNode, CompiledPayloadField, ExprNode, ItemBinder, ItemNode, LengthNode } from '../model/types.js'
- * @import { LogicNode, Node, PayloadData, Position, RefNode, SourceNode, UsingNode } from '../model/types.js'
+ * @import { ActionNode, ArithmeticNode, CompiledPayloadField, IfNode, ItemBinder, LengthNode, LogicNode } from '../model/types.js'
+ * @import { Node, OnlyNode, PayloadData, Position, SequenceNode, SourceNode, UsingNode } from '../model/types.js'
  * @import { CompiledPredicate } from '../predicates/predicates.js'
  * @import { EvaluationContext } from './context.js'
  */
@@ -73,8 +73,41 @@ export function evaluate(node, position, ctx) {
             case 'item':
                 result = boundValue(node.binder, ctx);
                 break;
-            default:
-                result = compute(node, ctx);
+            case 'literal':
+                result = node.value;
+                break;
+            case 'list':
+                // Every entry, in order, as `args` passes it: a selected list as an array of its items
+                result = evaluateArgs(node.entries, ctx);
+                break;
+            case 'length':
+                result = computeLength(node, ctx);
+                break;
+            case 'only':
+                result = computeOnly(node, ctx);
+                break;
+            case 'sum':
+            case 'mul':
+            case 'div':
+                result = computeArithmetic(node, ctx);
+                break;
+            case 'any':
+            case 'all':
+            case 'none':
+            case 'and':
+                result = computeLogic(node, ctx);
+                break;
+            case 'if':
+                result = computeIf(node, ctx);
+                break;
+            case 'sequence':
+                result = computeSequence(node, ctx);
+                break;
+            case 'define':
+            case 'fireEvent':
+            case 'breakageReportData':
+                result = runAction(node, ctx);
+                break;
         }
         if (isFailure(result)) return result.at(node.path);
         checkType(result, position);
@@ -253,59 +286,48 @@ function expectBoolean(value, operator) {
 }
 
 /**
- * @param {Exclude<Node, RefNode | SourceNode | ExprNode | UsingNode | ItemNode>} node
+ * @param {OnlyNode} node
+ * @param {EvaluationContext} ctx
+ * @returns {unknown} the one item, or a `Failure`
+ */
+function computeOnly(node, ctx) {
+    const buffer = readList(node.operand, node.kind, ctx);
+    if (isFailure(buffer)) return buffer;
+    const failure = buffer.pull(2);
+    if (failure) return failure;
+    const values = buffer.values;
+    if (values.length === 0) throw new DetectionError(`'only' over no items`);
+    if (values.length > 1) throw new DetectionError(`'only' over several items`);
+    return values[0];
+}
+
+/**
+ * The one expression that skips part of its config: only the branch taken is evaluated.
+ *
+ * @param {IfNode} node
  * @param {EvaluationContext} ctx
  * @returns {unknown} the value, or a `Failure`
  */
-function compute(node, ctx) {
-    switch (node.kind) {
-        case 'literal':
-            return node.value;
-        case 'list':
-            // Every entry, in order, as `args` passes it: a selected list as an array of its items
-            return evaluateArgs(node.entries, ctx);
-        case 'length':
-            return computeLength(node, ctx);
-        case 'only': {
-            const buffer = readList(node.operand, node.kind, ctx);
-            if (isFailure(buffer)) return buffer;
-            const failure = buffer.pull(2);
-            if (failure) return failure;
-            const values = buffer.values;
-            if (values.length === 0) throw new DetectionError(`'only' over no items`);
-            if (values.length > 1) throw new DetectionError(`'only' over several items`);
-            return values[0];
-        }
-        case 'sum':
-        case 'mul':
-        case 'div':
-            return computeArithmetic(node, ctx);
-        case 'any':
-        case 'all':
-        case 'none':
-        case 'and':
-            return computeLogic(node, ctx);
-        case 'if': {
-            // The one expression that skips part of its config: only the branch taken is evaluated
-            const test = evaluateOccurrence(node.test, ctx);
-            if (isFailure(test)) return test;
-            const branch = test ? node.then : node.else;
-            return branch ? evaluateOccurrence(branch, ctx) : undefined;
-        }
-        case 'sequence': {
-            /** @type {unknown} */
-            let value;
-            for (const element of node.elements) {
-                value = evaluateOccurrence(element, ctx);
-                if (isFailure(value)) return value;
-            }
-            return value;
-        }
-        case 'define':
-        case 'fireEvent':
-        case 'breakageReportData':
-            return runAction(node, ctx);
+function computeIf(node, ctx) {
+    const test = evaluateOccurrence(node.test, ctx);
+    if (isFailure(test)) return test;
+    const branch = test ? node.then : node.else;
+    return branch ? evaluateOccurrence(branch, ctx) : undefined;
+}
+
+/**
+ * @param {SequenceNode} node
+ * @param {EvaluationContext} ctx
+ * @returns {unknown} the last element's value, or a `Failure`
+ */
+function computeSequence(node, ctx) {
+    /** @type {unknown} */
+    let value;
+    for (const element of node.elements) {
+        value = evaluateOccurrence(element, ctx);
+        if (isFailure(value)) return value;
     }
+    return value;
 }
 
 /**

@@ -382,7 +382,9 @@ function compileUsing(raw, root, position, path, scope) {
 function compileSelf(raw, position, path, scope, key = 'self') {
     const binder = scope.itemBinder;
     if (!binder) throw new ConfigParseError(path, '`self` reads from `using`, `where` or `field`, and none encloses it');
-    const root = itemNode(binder, scope);
+    binder.readsSelf = true;
+    /** @type {ItemNode} */
+    const root = makeNode(scope, { kind: 'item', binder, path: '', position: 'value' });
     if (isPlainObject(raw) && objectKeys(raw).length === 0) {
         return makeNode(scope, { kind: 'expr', operand: root, path, position });
     }
@@ -395,22 +397,6 @@ function compileSelf(raw, position, path, scope, key = 'self') {
     parsed.root = root;
     const withField = parsed.field !== undefined;
     return makeNode(scope, { kind: 'source', source, bodies: [parsed], withField, leaf: false, path, position });
-}
-
-/**
- * The node giving the value a `using`, `where` or `field` binds, one per binder.
- *
- * @param {ItemBinder} binder
- * @param {Scope} scope
- * @returns {ItemNode}
- */
-function itemNode(binder, scope) {
-    if (!binder.node) {
-        /** @type {ItemNode} */
-        const node = makeNode(scope, { kind: 'item', binder, path: '', position: 'value' });
-        binder.node = node;
-    }
-    return binder.node;
 }
 
 /**
