@@ -34,13 +34,6 @@ export function OmnibarConsumer() {
     const { current } = useTabState();
     const { visibility } = useVisibility();
     const visible = visibility.value === 'visible';
-    const config = state.status === 'ready' ? state.config : null;
-    const hintMode = config?.mode;
-    const hintEnableAi = config ? config.showAiSetting !== false && config.enableAi !== false : null;
-
-    useEffect(() => {
-        if (hintMode && hintEnableAi !== null) writeLayoutHint({ mode: hintMode, enableAi: hintEnableAi });
-    }, [hintMode, hintEnableAi]);
 
     if (state.status !== 'ready') {
         return visible ? <OmnibarPlaceholder /> : null;
@@ -68,9 +61,7 @@ function readLayoutHint() {
     try {
         const hint = JSON.parse(localStorage.getItem(LAYOUT_HINT_KEY) ?? 'null');
         if ((hint?.mode === 'search' || hint?.mode === 'ai') && typeof hint.enableAi === 'boolean') return hint;
-    } catch {
-        // storage unavailable or corrupt: fall back to the default layout
-    }
+    } catch {}
     return { mode: 'search', enableAi: true };
 }
 
@@ -80,15 +71,20 @@ function readLayoutHint() {
 function writeLayoutHint(hint) {
     try {
         localStorage.setItem(LAYOUT_HINT_KEY, JSON.stringify(hint));
-    } catch {
-        // storage unavailable: the placeholder falls back to the default layout
-    }
+    } catch {}
+}
+
+/**
+ * @param {OmnibarConfig} config
+ */
+function isAiEnabled({ showAiSetting = true, enableAi = true }) {
+    return showAiSetting && enableAi;
 }
 
 function OmnibarPlaceholder() {
     const [{ mode, enableAi }] = useState(readLayoutHint);
     return (
-        <div class={styles.root} data-mode={mode} aria-hidden="true" inert>
+        <div class={styles.root} data-mode={mode} inert>
             <LogoStacked class={styles.logo} />
             {enableAi && (
                 <div class={styles.tabSwitcherContainer}>
@@ -109,8 +105,6 @@ function OmnibarPlaceholder() {
  */
 function OmnibarReadyState({ config, tabId }) {
     const {
-        enableAi = true,
-        showAiSetting = true,
         showCustomizePopover = false,
         enableRecentAiChats = false,
         showViewAllAiChats = false,
@@ -121,12 +115,17 @@ function OmnibarReadyState({ config, tabId }) {
     } = config;
     const { setMode } = useContext(OmnibarContext);
     const modeForCurrentTab = useModeWithLocalPersistence(tabId, defaultMode);
+    const enableAi = isAiEnabled(config);
+
+    useEffect(() => {
+        writeLayoutHint({ mode: defaultMode, enableAi });
+    }, [defaultMode, enableAi]);
 
     return (
         <Omnibar
             mode={modeForCurrentTab}
             setMode={setMode}
-            enableAi={showAiSetting && enableAi}
+            enableAi={enableAi}
             enableRecentAiChats={enableRecentAiChats}
             showViewAllAiChats={showViewAllAiChats}
             showCustomizePopover={showCustomizePopover}

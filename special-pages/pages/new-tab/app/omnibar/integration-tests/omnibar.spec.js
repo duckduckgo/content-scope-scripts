@@ -17,13 +17,14 @@ test.describe('omnibar widget', () => {
     });
 
     const layoutCases = [
+        { name: 'first load', params: {}, remembered: false },
         { name: 'default', params: {} },
         { name: 'rebrand, search mode', params: { rebrand: 'enabled' } },
         { name: 'rebrand, Duck.ai mode', params: { rebrand: 'enabled', 'omnibar.mode': 'ai' } },
         { name: 'rebrand, Duck.ai disabled', params: { rebrand: 'enabled', 'omnibar.enableAi': false } },
         { name: 'Duck.ai disabled', params: { 'omnibar.enableAi': false } },
     ];
-    for (const { name, params } of layoutCases) {
+    for (const { name, params, remembered = true } of layoutCases) {
         test(`reserves its height while config is loading (no layout shift): ${name}`, async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);
@@ -35,16 +36,17 @@ test.describe('omnibar widget', () => {
             const favorites = page.locator('[data-entry-point="favorites"]');
             const input = omnibar.searchInput().or(omnibar.chatInput());
 
-            // The placeholder reuses the layout from the previous load, so load once to record it.
-            await page.clock.fastForward(1000);
-            await input.waitFor();
-            await page.reload();
+            if (remembered) {
+                // The placeholder reuses the layout from the previous load, so load once to record it.
+                await page.clock.fastForward(1000);
+                await input.waitFor();
+                await page.reload();
+            }
             await favorites.waitFor();
 
             // Measure while config is still pending.
             await expect(input).toHaveCount(0);
             const reservedHeight = (await omnibar.context().boundingBox())?.height ?? 0;
-            expect(reservedHeight).toBeGreaterThan(200);
             const favTopWhileLoading = (await favorites.boundingBox())?.y ?? 0;
 
             // Advance the clock so the config resolves.
@@ -52,8 +54,10 @@ test.describe('omnibar widget', () => {
 
             // Measure after config has loaded.
             await input.waitFor({ state: 'visible' });
+            const loadedHeight = (await omnibar.context().boundingBox())?.height ?? 0;
             const favTopAfterLoad = (await favorites.boundingBox())?.y ?? 0;
 
+            expect(Math.abs(loadedHeight - reservedHeight)).toBeLessThanOrEqual(1);
             expect(Math.abs(favTopAfterLoad - favTopWhileLoading)).toBeLessThanOrEqual(1);
         });
     }
