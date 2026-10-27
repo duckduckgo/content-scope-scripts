@@ -305,6 +305,29 @@ test.describe('selectionTools', () => {
         await expect(host(page)).toHaveCount(0);
     });
 
+    test('shows nothing for select-all on the page, but does in an editable region', async ({ page }, testInfo) => {
+        await setup(page, testInfo);
+        await selectParagraph(page, '#english');
+        await expect(selectionToolbar(page)).toBeVisible();
+        expect(await selectionToolbar(page).evaluate((toolbar) => getComputedStyle(toolbar.closest('.layer') ?? toolbar).userSelect)).toBe(
+            'none',
+        );
+
+        await page.keyboard.press('Control+A');
+        await expect(host(page)).toHaveCount(0);
+
+        await page.evaluate(() => {
+            const editable = document.createElement('div');
+            editable.id = 'editable';
+            editable.contentEditable = 'true';
+            editable.textContent = 'This sentence have a grammar mistake in it.';
+            document.body.append(editable);
+        });
+        await page.locator('#editable').focus();
+        await page.keyboard.press('Control+A');
+        await expect(selectionToolbar(page).getByRole('button', { name: 'Fix grammar' })).toBeVisible();
+    });
+
     test('shows nothing for selections in a modal dialog', async ({ page }, testInfo) => {
         await setup(page, testInfo);
         await page.locator('#open-dialog').click();

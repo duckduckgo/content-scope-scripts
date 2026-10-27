@@ -177,6 +177,14 @@ export function isSelectionCollapsed() {
 }
 
 /**
+ * Whether focus is somewhere the user edits text, where select-all takes only that text rather than the whole page.
+ */
+export function isEditingFocused() {
+    const active = deepActiveElement();
+    return isTextField(active) || (active instanceof HTMLElement && active.isContentEditable);
+}
+
+/**
  * @param {Element | null} element
  */
 export function isInCode(element) {
