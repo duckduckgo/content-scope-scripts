@@ -107,7 +107,7 @@ export class EvaluationContext {
      * @returns {T}
      */
     bind(binder, value, fn) {
-        if (!binder.node) return fn();
+        if (!binder.readsSelf) return fn();
         // Frames are keyed by binder: a list may be pulled from inside another binder's frame
         const bound = this.frames.has(binder);
         const previous = this.frames.get(binder);
