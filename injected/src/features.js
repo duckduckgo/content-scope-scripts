@@ -73,7 +73,7 @@ export const featureConfigDependencies = {
 
 /** @type {Record<string, FeatureName[]>} */
 export const platformSupport = {
-    apple: ['webCompat', 'duckPlayerNative', ...baseFeatures, 'pageContext', 'print', 'trackerProtection'],
+    apple: ['webCompat', 'duckPlayerNative', ...baseFeatures, 'pageContext', 'print', 'trackerProtection', 'textSelection'],
     'apple-isolated': [
         'contextMenu',
         'duckPlayer',
@@ -92,7 +92,6 @@ export const platformSupport = {
         'pageObserver',
         'hover',
         'tabSuspension',
-        'textSelection',
         'chromeWebstorePatching',
     ],
     'apple-ai-clear': ['duckAiDataClearing'],
