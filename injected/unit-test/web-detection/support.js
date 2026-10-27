@@ -11,7 +11,8 @@ import WebDetection from '../../src/features/web-detection.js';
 
 /**
  * @typedef {import('../../src/features.js').FeatureMap} FeatureMap
- * @typedef {import('../../src/features/web-detection/compile/detector-config.js').RawDetectorConfig} RawDetectorConfig
+ * @typedef {import('@duckduckgo/privacy-configuration/schema/features/web-detection.js').DetectorConfig} RawDetectorConfig
+ * @typedef {import('@duckduckgo/privacy-configuration/schema/features/web-detection.js').Expr} Expr
  * @typedef {import('../../src/features/web-detection/evaluate/breakage-entries.js').BreakageEntry} BreakageEntry
  * @typedef {import('../../src/features/web-detection/model/types.js').ActionSink} ActionSink
  */
@@ -401,7 +402,7 @@ export function makeGlobal() {
  * run, whether the detector is `done`, the `types` of the events sent so far, its `entry` and the run
  * `names`.
  *
- * @param {{ match?: unknown, actions: unknown }} config
+ * @param {RawDetectorConfig} config
  * @param {any} [global]
  */
 export function detector(config, global = makeGlobal()) {
@@ -447,6 +448,7 @@ export const testGlobal = /** @type {Record<string, any>} */ (globalThis);
 
 export const aborting = { api: 'page.live.bad', is: { gt: 0 } };
 export const erroring = { api: 'page.live.label' };
+/** @type {Expr} */
 export const counter = {
     if: { ref: 'this.count', is: { type: 'undefined' } },
     then: 1,
@@ -550,7 +552,7 @@ export function runDetector(detectorConfig, env = {}) {
 /**
  * A detector that writes its breakage entry when `match` holds.
  *
- * @param {unknown} match
+ * @param {Expr} match
  * @param {Omit<RawDetectorConfig, 'match' | 'actions'>} [rest]
  * @returns {RawDetectorConfig}
  */
@@ -559,7 +561,7 @@ export const detects = (match, rest = {}) => ({ ...rest, match, actions: { break
 /**
  * Compile and evaluate a condition on its own, as a detector's `match`.
  *
- * @param {unknown} match
+ * @param {Expr} match
  * @param {object} [global] - the global object reads go through
  * @returns {true | false | 'aborted'} throws on a parse error or an error
  */

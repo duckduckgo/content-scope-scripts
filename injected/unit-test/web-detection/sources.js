@@ -22,6 +22,11 @@ import {
     timeline,
 } from './support.js';
 
+/**
+ * @typedef {import('@duckduckgo/privacy-configuration/schema/features/web-detection.js').DetectorConfig} RawDetectorConfig
+ * @typedef {import('@duckduckgo/privacy-configuration/schema/features/web-detection.js').TextBody} TextBody
+ */
+
 describe('WebDetection sources', () => {
     describe('iterators', () => {
         it('agrees in boolean position with a length of at least one', () => {
@@ -513,7 +518,7 @@ describe('WebDetection sources', () => {
          * `between` runs after each detector, as a detector's `call` could change the page.
          *
          * @param {string} body
-         * @param {Array<{ match?: unknown, actions: unknown }>} detectors
+         * @param {RawDetectorConfig[]} detectors
          * @param {object} [options]
          * @param {(document: Document) => void} [options.between]
          * @param {(i: number) => TaskReadCache} [options.taskFor] - the task of the i-th detector
@@ -549,9 +554,10 @@ describe('WebDetection sources', () => {
             for (const p of document.querySelectorAll('p')) p.textContent = 'nothing here';
         };
 
-        /** @param {unknown} text */
+        /** @param {TextBody} text */
         const matching = (text) => ({ match: { text }, actions: REPORT });
-        const wall = (/** @type {object} */ extra = {}) => matching({ xpath: RENDERED, pattern: 'adblocker detected', ...extra });
+        const wall = (/** @type {Partial<TextBody>} */ extra = {}) =>
+            matching({ xpath: RENDERED, pattern: 'adblocker detected', ...extra });
         const newTask = () => new TaskReadCache();
 
         it('reads an XPath selection once for the detectors of a task, and the page again in a new task', () => {

@@ -1,6 +1,12 @@
 import { JSDOM } from 'jsdom';
 import { RENDERED, evaluateCondition } from './support.js';
 
+/**
+ * @typedef {import('@duckduckgo/privacy-configuration/schema/features/web-detection.js').Expr} Expr
+ * @typedef {import('@duckduckgo/privacy-configuration/schema/features/web-detection.js').ElementBody} ElementBody
+ * @typedef {import('@duckduckgo/privacy-configuration/schema/features/web-detection.js').TextBody} TextBody
+ */
+
 describe('WebDetection conditions', () => {
     describe('evaluateCondition', () => {
         /**
@@ -9,7 +15,7 @@ describe('WebDetection conditions', () => {
          * Use `zeroSizeSelectors` to specify elements that should have 0x0 dimensions.
          *
          * @param {string} html
-         * @param {unknown} match
+         * @param {Expr} match
          * @param {object} [options]
          * @param {string[]} [options.zeroSizeSelectors] - Selectors for elements with 0x0 dimensions
          * @returns {boolean | 'aborted'}
@@ -68,12 +74,12 @@ describe('WebDetection conditions', () => {
 
         /**
          * @param {string | string[]} pattern
-         * @param {object} [rest] - `selector` and `xpath`
+         * @param {Omit<TextBody, 'pattern'>} [rest] - `selector` and `xpath`
          */
         const text = (pattern, rest = {}) => ({ text: { pattern, ...rest } });
 
         /** An element of class `overlay`, with the visibility given, or none. */
-        const overlay = (/** @type {string | undefined} */ visibility) => ({
+        const overlay = (/** @type {ElementBody['visibility']} */ visibility) => ({
             element: { selector: '.overlay', ...(visibility && { visibility }) },
         });
 
@@ -342,7 +348,7 @@ describe('WebDetection conditions', () => {
             const ABSENT = '<div class="other">content</div>';
             const ZERO = { zeroSizeSelectors: ['.overlay'] };
             const CHALLENGE = 'https://challenges.cloudflare.com/cdn-cgi/challenge';
-            /** @type {Array<[string | undefined, string, string, boolean, { zeroSizeSelectors: string[] }?]>} */
+            /** @type {Array<[ElementBody['visibility'], string, string, boolean, { zeroSizeSelectors: string[] }?]>} */
             const cases = [
                 ['any', 'match when element exists', div(), true],
                 ['any', 'not match when element does not exist', ABSENT, false],
@@ -405,6 +411,7 @@ describe('WebDetection conditions', () => {
 
             describe('multiple selectors (OR)', () => {
                 it('should match if ANY selector matches', () => {
+                    /** @type {Expr} */
                     const match = { element: { selector: ['.a', '.b'], visibility: 'any' } };
                     expect(matchInDOM('<div class="a"></div>', match)).toBe(true);
                     expect(matchInDOM('<div class="b"></div>', match)).toBe(true);
@@ -611,7 +618,7 @@ describe('WebDetection conditions', () => {
         // intentionally NOT used: a loaded captcha library is not a visible challenge and
         // would inflate the per-navigation ratio.
         describe('captcha vendor detectors', () => {
-            /** @type {Record<string, unknown>} */
+            /** @type {Record<string, Expr>} */
             const captcha = {
                 recaptcha: {
                     element: {

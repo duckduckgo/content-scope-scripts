@@ -17,7 +17,7 @@ import {
 } from './support.js';
 
 /**
- * @typedef {import('../../src/features/web-detection/compile/detector-config.js').RawDetectorConfig} RawDetectorConfig
+ * @typedef {import('@duckduckgo/privacy-configuration/schema/features/web-detection.js').DetectorConfig} RawDetectorConfig
  * @typedef {import('../../src/features/web-detection/compile/detector-config.js').RawTriggers} RawTriggers
  * @typedef {import('../../src/features/web-detection/evaluate/breakage-entries.js').BreakageEntry} BreakageEntry
  * @typedef {import('./support.js').TestEnv} TestEnv
