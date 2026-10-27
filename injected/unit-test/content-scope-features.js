@@ -271,9 +271,10 @@ describe('content-scope-features additionalCheck conditional', () => {
                 callLoad() {
                     // Simulate the additionalCheck gate in content-scope-features.js load function
                     if (!this.getFeatureSettingEnabled('additionalCheck', 'enabled')) {
-                        return; // Early return when disabled
+                        return false; // Early return when disabled
                     }
                     this.loadCalled = true;
+                    return true;
                 }
 
                 init() {

@@ -1469,6 +1469,32 @@ describe('ContentFeature class', () => {
                     expect(result.message).toContain('init failed');
                 });
 
+                it('should return false from callLoad, and error from callFeatureMethod, if target feature load throws', async () => {
+                    class FailingFeature extends ContentFeature {
+                        constructor() {
+                            super('failingFeature', {}, {}, {});
+                            this._exposedMethods = this._declareExposedMethods(['someMethod']);
+                        }
+                        load() {
+                            throw new Error('load failed');
+                        }
+                        someMethod() {
+                            return 'should not reach';
+                        }
+                    }
+                    const CallerFeature = createFeatureClass('callerFeature', {}, []);
+
+                    const failingFeature = new FailingFeature();
+                    const callerFeature = new CallerFeature({ failingFeature });
+
+                    expect(failingFeature.callLoad()).toBe(false);
+
+                    const result = await callerFeature.callFeatureMethod('failingFeature', 'someMethod');
+                    expect(result).toBeInstanceOf(CallFeatureMethodError);
+                    expect(result.message).toContain("Initialisation of feature 'failingFeature' failed");
+                    expect(result.message).toContain('load failed');
+                });
+
                 it('should handle multiple callers waiting for the same feature', async () => {
                     const targetMethod = jasmine.createSpy('targetMethod').and.returnValue('shared result');
                     const TargetFeature = createFeatureClass('targetFeature', { getData: targetMethod }, ['getData']);

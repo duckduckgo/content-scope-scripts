@@ -79,7 +79,10 @@ export function load(args) {
             if (!featureInstance.getFeatureSettingEnabled('additionalCheck', 'enabled')) {
                 continue;
             }
-            featureInstance.callLoad();
+            // A feature whose load threw is not registered, so its init never runs
+            if (!featureInstance.callLoad()) {
+                continue;
+            }
             // @ts-expect-error - ignore typing for simplicity (avoids introducing runtime proofs for featureName => featureInstance)
             _features[featureName] = featureInstance;
         }
