@@ -13,6 +13,7 @@ import {
     expectParseError,
     holds,
     numberTest,
+    reaching,
     rejectsMatch,
     renderedText,
     run,
@@ -180,11 +181,14 @@ describe('WebDetection predicates', () => {
             expect(bound('', actions, 'late', { install })).toBe(1);
         });
 
-        it('reads the native getter when the page overrides the prototype’s', () => {
+        it('reads the native getter when the page overrides the prototype’s that a path reaches, and the page’s where none does', () => {
             const html = IMG('data-complete data-width="0"');
             const afterCapture = (/** @type {any} */ w) => defineGetter(w.HTMLImageElement.prototype, 'naturalWidth', () => 999);
-            expect(count(html, { element: BROKEN }, { afterCapture })).toBe(1);
-            expect(holds(html, { only: NATURAL_WIDTH, is: 0 }, { afterCapture })).toBe(true);
+            const broken = { element: BROKEN, using: 'length', is: 1 };
+            expect(holds(html, reaching('HTMLImageElement.prototype', broken), { afterCapture })).toBe(true);
+            expect(holds(html, reaching('HTMLImageElement.prototype', { only: NATURAL_WIDTH, is: 0 }), { afterCapture })).toBe(true);
+            expect(count(html, { element: BROKEN }, { afterCapture })).toBe(0);
+            expect(holds(html, { only: NATURAL_WIDTH, is: 999 }, { afterCapture })).toBe(true);
         });
 
         it('gives the elements of several bodies one body after another, each with its own field', () => {
@@ -273,7 +277,7 @@ describe('WebDetection predicates', () => {
 
         it('fails on any throw from the call, which `fails` tests', () => {
             const install = (/** @type {any} */ w) => {
-                w.document.createElement = throwing(new w.DOMException('refused', 'SecurityError'));
+                w.Document.prototype.createElement = throwing(new w.DOMException('refused', 'SecurityError'));
             };
             /** @type {Array<[object, string, RunOptions | undefined]>} */
             const calls = [
@@ -313,13 +317,14 @@ describe('WebDetection predicates', () => {
             expect(count('', entriesOf('navigation', { where: { 'nothing.length': { type: 'undefined' } } }), { install })).toBe(1);
         });
 
-        it('calls the captured native method, and fails with threw when it throws', () => {
+        it('calls the captured native method where a path reaches its holder, the page method where none does, and fails with threw when it throws', () => {
             const html = '<div role="main"></div>';
             const afterCapture = (/** @type {any} */ w) => {
                 w.Element.prototype.getAttribute = () => 'evil';
             };
             const role = { only: { element: { selector: 'div', field: { path: 'getAttribute', args: ['role'] } } } };
-            expect(holds(html, { ...role, is: 'main' }, { afterCapture })).toBe(true);
+            expect(holds(html, reaching('Element.prototype', { ...role, is: 'main' }), { afterCapture })).toBe(true);
+            expect(holds(html, { ...role, is: 'evil' }, { afterCapture })).toBe(true);
             expect(holds(html, { only: { element: { selector: 'div', field: { path: 'querySelector', args: ['::::'] } } }, is: {} })).toBe(
                 'aborted',
             );
@@ -523,15 +528,17 @@ describe('WebDetection predicates', () => {
                 reads++;
                 return true;
             };
-            const install = [assign({ probe }), (/** @type {any} */ w) => defineGetter(w, 'flag', flag)];
+            const install = assign({ probe });
+            // Defined after the capture, which reads a path through any getter it captured
+            const afterCapture = (/** @type {any} */ w) => defineGetter(w, 'flag', flag);
             const html = '<p>a</p><p>bb</p><p>ccc</p>';
             const probed = { field: { api: { path: 'probe', args: [{ self: 'textContent.length' }] } }, is: true };
             expect(count(html, { element: { selector: 'p', where: probed } }, { install })).toBe(2);
             expect(calls).toBe(3);
             const flagged = { element: { selector: 'p', where: { api: 'flag' } }, using: 'length', is: 3 };
-            expect(holds(html, flagged, { install })).toBe(true);
+            expect(holds(html, flagged, { afterCapture })).toBe(true);
             expect(reads).toBe(1);
-            expect(holds(html, { all: [flagged, flagged] }, { install })).toBe(true);
+            expect(holds(html, { all: [flagged, flagged] }, { afterCapture })).toBe(true);
             expect(reads).toBe(3);
         });
 

@@ -27,6 +27,7 @@ import { finish } from './positions.js';
  * @property {Node} [match] - in boolean position
  * @property {Node} actions - in value position
  * @property {Set<string>} names - every name config reads or calls, for the native reader
+ * @property {Set<string>} paths - every path config reads from the global object, up to the method it calls, for the native reader
  */
 
 const MODIFIER_KEYS = new Set(['using', 'is']);
@@ -51,6 +52,8 @@ export class Scope {
     operandSinks = [];
     /** @type {Set<string>} */
     readerNames = new Set();
+    /** @type {Set<string>} */
+    readerPaths = new Set();
     /** @type {ItemBinder[]} the `using`, `where` and `field` binding `self` around the expression being compiled, innermost last */
     bindings = [];
     /** @type {ItemBinder[][]} where the `where` and `field` binders a source's bodies create are recorded */
@@ -64,6 +67,7 @@ export class Scope {
         /** @type {import('../model/types.js').PredicateHooks} */
         this.hooks = {
             names: this.readerNames,
+            paths: this.readerPaths,
             expression: (raw, path, position) => {
                 const node = compileExpr(raw, position, path, this);
                 this.operandSinks[this.operandSinks.length - 1]?.push(node);
@@ -532,5 +536,5 @@ export function compileDetector(config, sources) {
     const match = config.match === undefined ? undefined : compileExpr(config.match, 'boolean', 'match', scope);
     const actions = compileBody(config.actions, 'value', 'actions', scope);
     finish(scope);
-    return { ...(match && { match }), actions, names: scope.readerNames };
+    return { ...(match && { match }), actions, names: scope.readerNames, paths: scope.readerPaths };
 }
