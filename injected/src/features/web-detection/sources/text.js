@@ -142,7 +142,8 @@ function tailStart(buffer, chunkTail) {
 /**
  * A stretch of text a `text` body reads: an element's `textContent`, or a chunk of the text an XPath
  * expression selects. Matches starting before `end` belong to this chunk; the scanner sets `next` past
- * the last of them, and the following XPath chunk starts there.
+ * the last of them, and the following XPath chunk starts there. A source's last chunk has `end` `Infinity`,
+ * so a match at the end of its text, such as `$`, belongs to it.
  *
  * @typedef {object} TextChunk
  * @property {string} text
@@ -226,7 +227,7 @@ function* xpathChunks(selected, { chunkSize, chunkTail }) {
             pending = 0;
         }
     }
-    yield { text: buffer, end: buffer.length, next: buffer.length };
+    yield { text: buffer, end: Infinity, next: buffer.length };
 }
 
 /**
@@ -237,15 +238,16 @@ function* xpathChunks(selected, { chunkSize, chunkTail }) {
  */
 
 /**
- * The next non-empty match in a segment that starts before the chunk's end, setting `next` past it.
+ * The next match in a segment that starts before the chunk's end, setting `next` past it.
  *
  * @param {TextSegment} segment
  * @returns {string | undefined} the match, or `undefined` once there are no more
  */
 function nextMatch({ pattern, chunk }) {
-    let match;
-    while ((match = pattern.exec(chunk.text)) !== null && match[0] === '') pattern.lastIndex++;
+    const match = pattern.exec(chunk.text);
     if (!match || match.index >= chunk.end) return undefined;
+    // An empty match leaves `lastIndex` in place, and the next `exec` would find it again
+    if (match[0] === '') pattern.lastIndex++;
     chunk.next = Math.max(chunk.end, pattern.lastIndex);
     return match[0];
 }
@@ -265,7 +267,7 @@ function nextMatch({ pattern, chunk }) {
  * `textContent`, and each `xpath` expression's joined text.
  *
  * `pattern` (disj): Array of regex patterns (or string representing a single pattern) - ANY pattern matching = success.
- *   Equivalent to `pattern: "foo|bar"` for `pattern: ["foo", "bar"]`.
+ *   Equivalent to `pattern: "foo|bar"` for `pattern: ["foo", "bar"]`. An empty array matches nothing.
  *
  * `selector` (disj): Array of CSS selectors (or string representing a single selector).
  *   Defaults to `body` when neither `selector` nor `xpath` is provided, and to the roots themselves under `root`.
@@ -279,7 +281,8 @@ function nextMatch({ pattern, chunk }) {
  *
  * `xpathConfig` [optional]: Tunes that chunking, and applies to `xpath` only. A match longer than
  *   `chunkTail` that straddles a chunk boundary is missed; `chunkSize: 0` turns chunking off
- *   entirely. See `xpathChunks` and `resolveXPathConfig`.
+ *   entirely. `^` and lookbehinds take each chunk's start as the start of the text. See `xpathChunks`
+ *   and `resolveXPathConfig`.
  *
  * `root` [optional]: Scopes the sources: selectors, or an expression giving a node or a list of nodes.
  *   Selectors are queried from each root and XPath expressions evaluated with the root as context node.
@@ -306,7 +309,8 @@ export const textSource = {
             selectors = xpaths.length > 0 || root ? [] : ['body'];
         }
         return {
-            pattern: new RegExp(patterns.join('|'), 'gi'),
+            // A disjunction of no patterns matches nothing, where joining them would give '', which matches everywhere
+            pattern: new RegExp(patterns.length > 0 ? patterns.join('|') : '(?!)', 'gi'),
             selectors,
             xpaths,
             chunking: resolveXPathConfig(/** @type {ConditionTypes['text']['xpathConfig']} */ (raw.xpathConfig)),
@@ -355,7 +359,7 @@ function* textSegments(bodies, ctx) {
             for (const element of textElements(body, root)) {
                 const text = ctx.task.of(element, 'textContent', () => element.textContent || '');
                 pattern.lastIndex = 0;
-                yield { pattern, chunk: { text, end: text.length, next: text.length } };
+                yield { pattern, chunk: { text, end: Infinity, next: text.length } };
             }
             for (const expression of body.xpaths) {
                 // An invalid expression throws `SyntaxError` here, recorded as an `'error'` for the

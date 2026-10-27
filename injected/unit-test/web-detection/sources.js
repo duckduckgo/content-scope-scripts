@@ -50,6 +50,17 @@ describe('WebDetection sources', () => {
                 expect(count(html, { text })).withContext(`chunkSize ${chunkSize}`).toBe(2);
             }
         });
+
+        it('counts empty matches as matchAll does, across XPath chunk sizes', () => {
+            for (const pattern of ['', 'x?', 'b|', '$']) {
+                const expected = [...'abcd'.matchAll(new RegExp(pattern, 'gi'))].length;
+                for (const chunkSize of [0, 1, 2, 1024]) {
+                    const text = { xpath: '//p/text()', pattern, xpathConfig: { chunkSize, chunkTail: 1 } };
+                    expect(count('<p>ab</p><p>cd</p>', { text })).withContext(`${pattern} at chunkSize ${chunkSize}`).toBe(expected);
+                }
+            }
+            expect(count('<p>abc</p>', { text: { pattern: [] } })).toBe(0);
+        });
     });
 
     describe('api', () => {

@@ -110,6 +110,22 @@ describe('WebDetection conditions', () => {
                 expect(matchInDOM('<p>Error code: 12345</p>', text('code:\\s*\\d+'))).toBe(true);
             });
 
+            it('should match patterns that match the empty string, as a regex test does', () => {
+                for (const pattern of ['', '^', '$', 'x?', ['abc', '']]) {
+                    expect(matchInDOM('<p>abc</p>', text(pattern)))
+                        .withContext(JSON.stringify(pattern))
+                        .toBe(true);
+                }
+                expect(matchInDOM('', text(''))).toBe(true);
+                expect(matchInDOM('<p>hello</p>', text('(?=hello)'))).toBe(true);
+                expect(matchInDOM('<p>welcome</p>', text('(?=hello)'))).toBe(false);
+            });
+
+            it('should not match an empty list of patterns, as a disjunction of none', () => {
+                expect(matchInDOM('<p>abc</p>', text([]))).toBe(false);
+                expect(matchInDOM('', text([]))).toBe(false);
+            });
+
             it('should match text within specific selector', () => {
                 const match = text('adblocker', { selector: '#overlay' });
                 expect(matchInDOM('<div id="overlay">Disable adblocker</div><p>Normal content</p>', match)).toBe(true);
