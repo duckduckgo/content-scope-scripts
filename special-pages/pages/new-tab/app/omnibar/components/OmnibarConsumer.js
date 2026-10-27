@@ -1,5 +1,5 @@
 import { Fragment, h } from 'preact';
-import { useContext } from 'preact/hooks';
+import { useContext, useEffect, useState } from 'preact/hooks';
 import { useCustomizer } from '../../customizer/components/CustomizerMenu.js';
 import { useTypedTranslationWith } from '../../types.js';
 import { useVisibility } from '../../widget-list/widget-config.provider.js';
@@ -9,6 +9,7 @@ import { OmnibarContext } from './OmnibarProvider.js';
 import { ArrowIndentCenteredIcon, LogoStacked } from '../../components/Icons.js';
 import { useModeWithLocalPersistence } from './PersistentOmnibarValuesProvider.js';
 import { useTabState } from '../../tabs/TabsProvider.js';
+import { TabSwitcher } from './TabSwitcher.js';
 
 /**
  * @typedef {import('../strings.json')} Strings
@@ -33,6 +34,13 @@ export function OmnibarConsumer() {
     const { current } = useTabState();
     const { visibility } = useVisibility();
     const visible = visibility.value === 'visible';
+    const config = state.status === 'ready' ? state.config : null;
+    const hintMode = config?.mode;
+    const hintEnableAi = config ? config.showAiSetting !== false && config.enableAi !== false : null;
+
+    useEffect(() => {
+        if (hintMode && hintEnableAi !== null) writeLayoutHint({ mode: hintMode, enableAi: hintEnableAi });
+    }, [hintMode, hintEnableAi]);
 
     if (state.status !== 'ready') {
         return visible ? <OmnibarPlaceholder /> : null;
@@ -48,12 +56,48 @@ export function OmnibarConsumer() {
     );
 }
 
+const LAYOUT_HINT_KEY = 'omnibar-layout-hint';
+
+/**
+ * The config arrives asynchronously, so the placeholder reuses the last-seen layout
+ * to reserve the same space and avoid shifting the widgets below once it's ready.
+ *
+ * @returns {{ mode: Mode, enableAi: boolean }}
+ */
+function readLayoutHint() {
+    try {
+        const hint = JSON.parse(localStorage.getItem(LAYOUT_HINT_KEY) ?? 'null');
+        if ((hint?.mode === 'search' || hint?.mode === 'ai') && typeof hint.enableAi === 'boolean') return hint;
+    } catch {
+        // storage unavailable or corrupt: fall back to the default layout
+    }
+    return { mode: 'search', enableAi: true };
+}
+
+/**
+ * @param {{ mode: Mode, enableAi: boolean }} hint
+ */
+function writeLayoutHint(hint) {
+    try {
+        localStorage.setItem(LAYOUT_HINT_KEY, JSON.stringify(hint));
+    } catch {
+        // storage unavailable: the placeholder falls back to the default layout
+    }
+}
+
 function OmnibarPlaceholder() {
+    const [{ mode, enableAi }] = useState(readLayoutHint);
     return (
-        <div class={styles.root} aria-hidden="true">
+        <div class={styles.root} data-mode={mode} aria-hidden="true" inert>
             <LogoStacked class={styles.logo} />
-            <div class={styles.placeholderTabs} />
-            <div class={styles.spacer} />
+            {enableAi && (
+                <div class={styles.tabSwitcherContainer}>
+                    <TabSwitcher mode={mode} onChange={() => {}} />
+                </div>
+            )}
+            <div class={styles.spacer}>
+                <div class={`${styles.popup} ${styles.placeholderPopup}`} />
+            </div>
         </div>
     );
 }

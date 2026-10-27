@@ -15,8 +15,12 @@
     position: relative;
 }
 
-.placeholderTabs {
-    height: calc(var(--sp-7) + var(--sp-0_5) * 2);
+.placeholderPopup {
+    height: var(--sp-10);
+
+    [data-mode="ai"] & {
+        height: var(--sp-20);
+    }
 }
 
 .popover {

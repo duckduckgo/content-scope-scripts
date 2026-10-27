@@ -16,33 +16,47 @@ test.describe('omnibar widget', () => {
         await ntp.mocks.waitForCallCount({ method: 'omnibar_getConfig', count: 1 });
     });
 
-    test('reserves its height while config is loading (no layout shift)', async ({ page }, workerInfo) => {
-        const ntp = NewtabPage.create(page, workerInfo);
-        const omnibar = new OmnibarPage(ntp);
-        await ntp.reducedMotion();
-        await page.clock.install();
+    const layoutCases = [
+        { name: 'default', params: {} },
+        { name: 'rebrand, search mode', params: { rebrand: 'enabled' } },
+        { name: 'rebrand, Duck.ai mode', params: { rebrand: 'enabled', 'omnibar.mode': 'ai' } },
+        { name: 'rebrand, Duck.ai disabled', params: { rebrand: 'enabled', 'omnibar.enableAi': false } },
+        { name: 'Duck.ai disabled', params: { 'omnibar.enableAi': false } },
+    ];
+    for (const { name, params } of layoutCases) {
+        test(`reserves its height while config is loading (no layout shift): ${name}`, async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await page.clock.install();
 
-        // Delay the omnibar config so we can observe the loading state.
-        await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.configDelay': 1000 } });
+            // Delay the omnibar config so we can observe the loading state.
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAi': true, ...params, 'omnibar.configDelay': 1000 } });
+            const favorites = page.locator('[data-entry-point="favorites"]');
+            const input = omnibar.searchInput().or(omnibar.chatInput());
 
-        const favorites = page.locator('[data-entry-point="favorites"]');
-        await favorites.waitFor();
+            // The placeholder reuses the layout from the previous load, so load once to record it.
+            await page.clock.fastForward(1000);
+            await input.waitFor();
+            await page.reload();
+            await favorites.waitFor();
 
-        // Measure while config is still pending.
-        await expect(omnibar.searchInput()).toHaveCount(0);
-        const reservedHeight = (await omnibar.context().boundingBox())?.height ?? 0;
-        expect(reservedHeight).toBeGreaterThan(250);
-        const favTopWhileLoading = (await favorites.boundingBox())?.y ?? 0;
+            // Measure while config is still pending.
+            await expect(input).toHaveCount(0);
+            const reservedHeight = (await omnibar.context().boundingBox())?.height ?? 0;
+            expect(reservedHeight).toBeGreaterThan(200);
+            const favTopWhileLoading = (await favorites.boundingBox())?.y ?? 0;
 
-        // Advance the clock so the config resolves.
-        await page.clock.fastForward(1000);
+            // Advance the clock so the config resolves.
+            await page.clock.fastForward(1000);
 
-        // Measure after config has loaded.
-        await omnibar.searchInput().waitFor({ state: 'visible' });
-        const favTopAfterLoad = (await favorites.boundingBox())?.y ?? 0;
+            // Measure after config has loaded.
+            await input.waitFor({ state: 'visible' });
+            const favTopAfterLoad = (await favorites.boundingBox())?.y ?? 0;
 
-        expect(Math.abs(favTopAfterLoad - favTopWhileLoading)).toBeLessThanOrEqual(1);
-    });
+            expect(Math.abs(favTopAfterLoad - favTopWhileLoading)).toBeLessThanOrEqual(1);
+        });
+    }
 
     test('search form submission', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
