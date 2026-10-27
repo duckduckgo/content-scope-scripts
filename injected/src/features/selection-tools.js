@@ -3,7 +3,14 @@ import { JSONstringify } from '../captured-globals.js';
 import { isBeingFramed } from '../utils.js';
 import { ASK_ACTION_ID, contextMenuActions, directParameter, optionsFor, rankActions, splitForToolbar } from './selection-tools/actions.js';
 import { classify, primaryLanguage } from './selection-tools/classify.js';
-import { isInCode, isInTopLayer, isSelectionCollapsed, markedLanguageOf, readSelection } from './selection-tools/selection.js';
+import {
+    isEditingFocused,
+    isInCode,
+    isInTopLayer,
+    isSelectionCollapsed,
+    markedLanguageOf,
+    readSelection,
+} from './selection-tools/selection.js';
 import { SelectionToolbar } from './selection-tools/toolbar.js';
 // Bundled by scripts/buildLocales.js from src/locales/selection-tools/
 import localesJSON from '../../../build/locales/selection-tools-locales.js';
@@ -109,7 +116,9 @@ export default class SelectionTools extends ContentFeature {
             case 'keyup': {
                 const key = /** @type {KeyboardEvent} */ (event);
                 const selectAll = (key.ctrlKey || key.metaKey) && key.key.toLowerCase() === 'a';
-                if (key.shiftKey || key.key === 'Shift' || selectAll) void this._refresh();
+                // Select-all on the page takes everything, which no action fits, and would pin the toolbar to a corner.
+                if (selectAll && !isEditingFocused()) this._hide();
+                else if (key.shiftKey || key.key === 'Shift' || selectAll) void this._refresh();
                 break;
             }
             case 'contextmenu':

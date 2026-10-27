@@ -10,6 +10,8 @@
     position: fixed;
     inset: 0;
     pointer-events: none;
+    /* Select-all on the page would otherwise highlight the toolbar's labels too */
+    user-select: none;
     font: 13px/1.4 system-ui, sans-serif;
     color: var(--text);
     --surface: #ffffff;
