@@ -138,6 +138,7 @@
  * @property {(raw: unknown, path: string, position: Position) => CompiledExpression} expression - compiles an expression in a position: a source's `root`, an `args` entry, an operand of `eq` or a comparison, a `field` expression, or an expression in `where`
  * @property {<T>(fn: (binder: ItemBinder) => T) => T} item - compiles a `where` or `field` that binds `self`
  * @property {Set<string>} names - collects every name read, for the native reader
+ * @property {Set<string>} paths - collects every path read from the global object, up to the method it calls, for the native reader
  */
 
 /**

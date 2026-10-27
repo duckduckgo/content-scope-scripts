@@ -1,4 +1,4 @@
-import { getOwnPropertyDescriptor, getOwnPropertyNames, getPrototypeOf, ReflectApply, ReflectGet } from '../../../captured-globals.js';
+import { getOwnPropertyDescriptor, getPrototypeOf, ReflectApply, ReflectGet } from '../../../captured-globals.js';
 import { Failure, getOrCreate, isFailure, newMap, thrownFailure } from '../model/core.js';
 
 /**
@@ -15,11 +15,17 @@ import { Failure, getOrCreate, isFailure, newMap, thrownFailure } from '../model
  * Reads properties and calls methods, preferring the getters and methods captured when the reader is
  * created, so one a page replaces afterwards is not called.
  *
- * Holders are the global object, each namespace object such as `CSS`, and every global constructor and
- * its prototype, so static methods such as `Number.isFinite` are captured too. For each name config uses, the reader records the own accessor, method or
- * value with that name on each holder. A read walks the object and its prototype chain for the nearest
- * holder with a record. With none, it reads the property as it stands on the object or its chain, whoever
- * defined it.
+ * Holders are the global object and its prototype chain, and what each path config reads from the
+ * global reaches at capture. A path's first name, when it is a data property of the global such as
+ * `CSS` or `Number`, adds that value as a holder, and a constructor adds its prototype too, so static
+ * methods such as `Number.isFinite` are captured. Each value a path reaches adds its prototype chain,
+ * so `document.title` adds `String.prototype`. A path that calls a method is followed to its receiver
+ * only, and the method is not called. Following a path calls only getters captured, and at `load`, before
+ * any page script, those are the browser's own. For each name config uses, the reader records the own accessor,
+ * method or value with that name on each holder. A read walks the object and its prototype chain for
+ * the nearest holder with a record. With none, it reads the property as it stands on the object or its
+ * chain, whoever defined it, as it does for a value no path reaches, such as an element or an entry a
+ * call gives.
  *
  * A captured getter is used whatever the object defines, and so is a captured method in a call. Any
  * other captured value, such as `Error.prototype.message`, is the holder's default: an own data property
@@ -29,10 +35,12 @@ import { Failure, getOrCreate, isFailure, newMap, thrownFailure } from '../model
  * @implements {Reader}
  */
 export class NativeReader {
-    /** @type {object[]} the global object, its namespace objects, and its constructors and their prototypes */
-    #holderObjects;
-    /** @type {Map<object, Map<PropertyKey, CapturedRecord>>} */
+    /** @type {object} */
+    #global;
+    /** @type {Map<object, Map<PropertyKey, CapturedRecord>>} each holder's records */
     #holders = new Map();
+    /** @type {Set<PropertyKey>} every key captured */
+    #keys = new Set();
     /** @type {object | undefined} */
     #nodePrototype;
     /**
@@ -46,58 +54,109 @@ export class NativeReader {
     /**
      * @param {object} global - the global object to capture from
      * @param {Iterable<string>} names - every name config reads or calls
+     * @param {Iterable<string>} [paths] - every path config reads from the global, up to the method it calls
      */
-    constructor(global, names) {
+    constructor(global, names, paths = []) {
+        this.#global = global;
         const nodeConstructor = getOwnPropertyDescriptor(global, 'Node')?.value;
         if (typeof nodeConstructor === 'function') this.#nodePrototype = tryOwnDescriptor(nodeConstructor, 'prototype')?.value;
-        /** @type {object[]} */
-        const holders = [global];
-        // A cross-origin frame's WindowProxy, reached as `window[0]`, and a page's Proxy can throw on
-        // any descriptor read. Such a value is not a holder.
-        for (const name of getOwnPropertyNames(global)) {
-            const descriptor = getOwnPropertyDescriptor(global, name);
-            if (!descriptor || !('value' in descriptor)) continue;
-            const value = descriptor.value;
-            if (typeof value === 'function') {
-                holders.push(value);
-                const prototype = tryOwnDescriptor(value, 'prototype')?.value;
-                // `Function.prototype` is itself a function
-                if ((typeof prototype === 'object' || typeof prototype === 'function') && prototype !== null) holders.push(prototype);
-            } else if (typeof value === 'object' && value !== null && value !== global) {
-                holders.push(value);
-            }
-        }
-        this.#holderObjects = holders;
-        this.capture([...names, Symbol.iterator]);
+        this._addHolder(global);
+        this._addChain(global);
+        this.capture([...names, Symbol.iterator], paths);
     }
 
     /**
-     * Capture more names from the holders found at construction. A name already captured keeps its
-     * record, and a getter or method a page replaced since construction is captured as it now stands.
+     * Capture more names, and the holders more paths reach. A name already captured keeps its record,
+     * and a getter or method a page replaced since construction is captured as it now stands. A path is
+     * read through the getters already captured.
      *
      * @param {Iterable<PropertyKey>} keys
+     * @param {Iterable<string>} [paths]
      */
-    capture(keys) {
-        for (const holder of this.#holderObjects) {
-            const captured = this.#holders.get(holder);
-            /** @type {Map<PropertyKey, CapturedRecord> | undefined} */
-            let records;
-            try {
-                for (const key of keys) {
-                    if (captured?.has(key)) continue;
-                    const descriptor = getOwnPropertyDescriptor(holder, key);
-                    if (!descriptor) continue;
-                    records ??= new Map();
-                    records.set(key, { holder, descriptor });
-                }
-            } catch {
-                continue;
-            }
-            if (!records) continue;
-            if (captured) records.forEach((record, key) => captured.set(key, record));
-            else this.#holders.set(holder, records);
+    capture(keys, paths = []) {
+        /** @type {PropertyKey[]} */
+        const added = [];
+        for (const key of keys) {
+            if (this.#keys.has(key)) continue;
+            this.#keys.add(key);
+            added.push(key);
         }
+        if (added.length > 0) this.#holders.forEach((records, holder) => captureOn(holder, records, added));
+        for (const path of paths) this._reach(path);
         this.#records.clear();
+    }
+
+    /**
+     * Add the holders a path reaches, reading it from the global one name at a time through the
+     * getters captured so far. A name that reads `null`, `undefined` or a failure ends it.
+     *
+     * @param {string} path
+     */
+    _reach(path) {
+        const global = this.#global;
+        /** @type {unknown} */
+        let current = global;
+        try {
+            for (const [i, name] of path.split('.').entries()) {
+                if (i === 0) {
+                    const value = tryOwnDescriptor(global, name)?.value;
+                    if ((typeof value === 'object' && value !== null && value !== global) || typeof value === 'function') {
+                        this._addHolder(value);
+                        // `Function.prototype` is itself a function
+                        const prototype = typeof value === 'function' ? tryOwnDescriptor(value, 'prototype')?.value : undefined;
+                        if ((typeof prototype === 'object' || typeof prototype === 'function') && prototype !== null) {
+                            this._addHolder(prototype);
+                            this._addChain(prototype);
+                        }
+                    }
+                }
+                current = this._peek(current, name);
+                if (current === null || current === undefined || isFailure(current)) return;
+                this._addChain(current);
+            }
+        } catch {
+            // A page's Proxy can throw on reading its prototype
+        }
+    }
+
+    /**
+     * Read one name of a path at capture: through its captured getter or value as `read` does, else a
+     * data property on the target's chain. A getter nothing captured is not called.
+     *
+     * @param {unknown} target - any value but `null` and `undefined`
+     * @param {string} name
+     * @returns {unknown} the value, or a `Failure`
+     */
+    _peek(target, name) {
+        if (this._captured(target, name)) return this.read(target, name);
+        const found = this._find(target, name);
+        return found && !isFailure(found) && 'value' in found ? found.value : undefined;
+    }
+
+    /**
+     * Add a holder, with the records of every key captured.
+     *
+     * @param {object} holder
+     */
+    _addHolder(holder) {
+        if (this.#holders.has(holder)) return;
+        /** @type {Map<PropertyKey, CapturedRecord>} */
+        const records = new Map();
+        this.#holders.set(holder, records);
+        captureOn(holder, records, this.#keys);
+        this.#records.clear();
+    }
+
+    /**
+     * Add each prototype on a value's chain as a holder. A chain whose prototype is a holder is already
+     * added above it.
+     *
+     * @param {unknown} value - any value but `null` and `undefined`
+     */
+    _addChain(value) {
+        for (let current = getPrototypeOf(value); current !== null && !this.#holders.has(current); current = getPrototypeOf(current)) {
+            this._addHolder(current);
+        }
     }
 
     /** Start a run: records found from a prototype are looked up again. */
@@ -282,6 +341,29 @@ function tryOwnDescriptor(target, key) {
     } catch {
         return undefined;
     }
+}
+
+/**
+ * Record each key's own descriptor on a holder, keeping those already recorded. A holder whose
+ * descriptor read throws, as a page's Proxy can, records none of them.
+ *
+ * @param {object} holder
+ * @param {Map<PropertyKey, CapturedRecord>} records
+ * @param {Iterable<PropertyKey>} keys
+ */
+function captureOn(holder, records, keys) {
+    /** @type {Map<PropertyKey, CapturedRecord>} */
+    const found = new Map();
+    try {
+        for (const key of keys) {
+            if (records.has(key)) continue;
+            const descriptor = getOwnPropertyDescriptor(holder, key);
+            if (descriptor) found.set(key, { holder, descriptor });
+        }
+    } catch {
+        return;
+    }
+    found.forEach((record, key) => records.set(key, record));
 }
 
 /**

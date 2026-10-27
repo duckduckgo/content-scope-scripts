@@ -73,7 +73,7 @@ export function run(body, detector, options = {}) {
     globalThis.document = window.document;
     try {
         const compiled = compileDetector(detector, pageSources(window));
-        const reader = new NativeReader(window, compiled.names);
+        const reader = new NativeReader(window, compiled.names, compiled.paths);
         options.afterCapture?.(window);
         const state = createDetectorState();
         const recorder = new Recorder();
@@ -342,6 +342,14 @@ export function brokenFonts(window) {
 }
 
 /** A read that fails: `JSON.parse` throws on text that does not parse. */
+/**
+ * A match that holds `match` and reads `path` from the global object, so the native reader captures
+ * from the holders the path reaches.
+ *
+ * @param {string} path
+ * @param {object} match
+ */
+export const reaching = (path, match) => ({ all: [{ api: path, is: { fails: false } }, match] });
 export const FAILING = { api: { path: 'JSON.parse', args: ['{'] } };
 
 /**
@@ -398,7 +406,7 @@ export function makeGlobal() {
  */
 export function detector(config, global = makeGlobal()) {
     const compiled = compileDetector(config, pageSources(global));
-    const reader = new NativeReader(global, compiled.names);
+    const reader = new NativeReader(global, compiled.names, compiled.paths);
     const state = createDetectorState();
     const recorder = new Recorder();
     const types = () => recorder.events.map((event) => event.type);
@@ -559,7 +567,7 @@ export function evaluateCondition(match, global = globalThis) {
     const compiled = compileDetector({ match, actions: { breakageReportData: {} } }, pageSources(global));
     const value = evaluateOccurrence(
         /** @type {import('../../src/features/web-detection/model/types.js').Node} */ (compiled.match),
-        new EvaluationContext(new NativeReader(global, compiled.names)),
+        new EvaluationContext(new NativeReader(global, compiled.names, compiled.paths)),
     );
     return isFailure(value) ? 'aborted' : value === true;
 }

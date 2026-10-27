@@ -33,6 +33,9 @@ export function parseApiBody(rawBody, path, hooks, key = 'api') {
     /** @type {ApiBody} */
     const body = { names, ...parseItemKeys(raw, path, hooks) };
     if (raw.args !== undefined) body.args = compileArgs(raw.args, `${path}.args`, hooks);
+    // A path from the global object, up to the method it calls, is where the native reader finds holders
+    const receiver = raw.args === undefined ? names : names.slice(0, -1);
+    if (key === 'api' && receiver.length > 0) hooks.paths.add(receiver.join('.'));
     return body;
 }
 

@@ -16,6 +16,7 @@ import {
     entriesOf,
     fonts,
     holds,
+    reaching,
     rejectsMatch,
     throwing,
     timeline,
@@ -128,8 +129,10 @@ describe('WebDetection sources', () => {
             expect(holds('', { api: 'bareError.message', is: '' }, { afterCapture })).toBe(true);
             expect(holds('', { api: 'player.constructor.name', is: 'PagePlayer' }, { afterCapture })).toBe(true);
             expect(holds('', { api: 'queue.push.name', is: 'pagePush' }, { afterCapture })).toBe(true);
-            // A call still uses the captured method
-            expect(holds('', { api: { path: 'queue.push', args: [1] }, is: 1 }, { afterCapture })).toBe(true);
+            // A call uses the captured method where a path reaches its holder, and the page's where none does
+            const push = { api: { path: 'queue.push', args: [1] } };
+            expect(holds('', reaching('Array.prototype', { ...push, is: 1 }), { afterCapture })).toBe(true);
+            expect(holds('', { ...push, is: { type: 'undefined' } }, { afterCapture })).toBe(true);
         });
 
         it('fails rather than call a page getter in place of a value captured on a prototype', () => {
@@ -150,13 +153,15 @@ describe('WebDetection sources', () => {
                 Object.defineProperty(w.shadowed, 'label', { get });
                 Object.defineProperty(w.Defaults.prototype, 'label', { get });
             };
-            expect(abortError('', { api: 'shadowed.label', is: 'page' }, { install, afterCapture })).toBe('PageAccessor');
+            expect(abortError('', reaching('Defaults.prototype', { api: 'shadowed.label', is: 'page' }), { install, afterCapture })).toBe(
+                'PageAccessor',
+            );
             expect(holds('', { api: 'plain.label', is: 'default' }, { install, afterCapture })).toBe(true);
             expect(holds('', { api: 'owned.label', is: 'own' }, { install, afterCapture })).toBe(true);
             expect(calls).toBe(0);
         });
 
-        it('reads the length of a page Proxy over an array by descriptor, and fails when a trap it calls throws', () => {
+        it('reads the length of a page Proxy over an array by descriptor where a path reaches its prototype, and fails when a trap it calls throws', () => {
             const trapped = (/** @type {object} */ target, /** @type {string} */ trap, /** @type {unknown} */ match) => {
                 const afterCapture = (/** @type {any} */ w) => {
                     w.trapped = new Proxy(target, { [trap]: throwing(new w.TypeError('trapped')) });
@@ -167,8 +172,11 @@ describe('WebDetection sources', () => {
                 { api: 'trapped.length', is: 2 },
                 { api: 'trapped', using: 'length', is: 2 },
             ]) {
-                expect(trapped([1, 2], 'getOwnPropertyDescriptor', match)).toBe('aborted');
-                expect(trapped([1, 2], 'get', match)).toBe(true);
+                expect(trapped([1, 2], 'getOwnPropertyDescriptor', reaching('Array.prototype', match))).toBe('aborted');
+                expect(trapped([1, 2], 'get', reaching('Array.prototype', match))).toBe(true);
+                // Where no path reaches `Array.prototype`, `length` is read as it stands
+                expect(trapped([1, 2], 'getOwnPropertyDescriptor', match)).toBe(true);
+                expect(trapped([1, 2], 'get', match)).toBe('aborted');
             }
             expect(trapped({}, 'get', { api: { path: 'trapped.anything' }, is: { fails: true } })).toBe(true);
             expect(trapped({}, 'getPrototypeOf', { api: 'trapped.anything' })).toBe('aborted');
@@ -223,7 +231,7 @@ describe('WebDetection sources', () => {
                 { actions: { define: { label: { api: { path: 'labelItems.0.label' } } } } },
                 pageSources(window),
             );
-            const reader = new NativeReader(window, compiled.names);
+            const reader = new NativeReader(window, compiled.names, compiled.paths);
             const label = () => {
                 const state = createDetectorState();
                 const ctx = new EvaluationContext(reader, state.names);
@@ -259,7 +267,7 @@ describe('WebDetection sources', () => {
             }
         });
 
-        it('skips a global whose descriptor read throws, and captures from the rest', () => {
+        it('skips a holder whose descriptor read throws, and captures from the rest', () => {
             // As a cross-origin frame's WindowProxy, reached as `window[0]`, throws on every read
             const install = (/** @type {any} */ w) => {
                 const blocked = throwing(new w.DOMException('Blocked a frame from accessing a cross-origin frame.', 'SecurityError'));
@@ -270,8 +278,9 @@ describe('WebDetection sources', () => {
                 });
             };
             const afterCapture = (/** @type {any} */ w) => defineGetter(w.Document.prototype, 'title', () => 'page override');
-            expect(holds('', { api: { path: 'document.title' }, is: '' }, { install })).toBe(true);
-            expect(holds('', { api: { path: 'document.title' }, is: '' }, { install, afterCapture })).toBe(true);
+            const title = reaching('crossOriginFrame', reaching('TrappedConstructor', { api: { path: 'document.title' }, is: '' }));
+            expect(holds('', title, { install })).toBe(true);
+            expect(holds('', title, { install, afterCapture })).toBe(true);
         });
 
         it('does not call a page override of iteration', () => {
@@ -329,12 +338,54 @@ describe('WebDetection sources', () => {
         it('captures names added later, and keeps those it already captured', () => {
             const window = new JSDOM('<!DOCTYPE html><title>native</title>').window;
             const replace = (/** @type {object} */ prototype, /** @type {string} */ name) => defineGetter(prototype, name, () => 'page');
-            const reader = new NativeReader(window, ['title']);
+            const reader = new NativeReader(window, ['document', 'title'], ['document']);
             replace(window.Document.prototype, 'title');
             reader.capture(['title', 'nodeName']);
             replace(window.Node.prototype, 'nodeName');
             expect(reader.read(window.document, 'title')).toBe('native');
             expect(reader.read(window.document, 'nodeName')).toBe('#document');
+        });
+
+        it('captures only from the global and its chain with no paths', () => {
+            const window = new JSDOM('<!DOCTYPE html><title>native</title>').window;
+            const reader = new NativeReader(window, ['title'], []);
+            defineGetter(window.Document.prototype, 'title', () => 'page');
+            expect(reader.read(window.document, 'title')).toBe('page');
+        });
+
+        it('captures from the chain of a value a path reaches, for a name read off any value on that chain', () => {
+            const install = (/** @type {any} */ w) => {
+                w.Item = class {
+                    get label() {
+                        return 'native';
+                    }
+                };
+                w.current = new w.Item();
+                w.makeItem = () => new w.Item();
+            };
+            const afterCapture = (/** @type {any} */ w) => defineGetter(w.Item.prototype, 'label', () => 'page');
+            const made = { api: { path: 'makeItem', args: [] }, using: 'label' };
+            expect(holds('', reaching('current', { ...made, is: 'native' }), { install, afterCapture })).toBe(true);
+            expect(holds('', { ...made, is: 'page' }, { install, afterCapture })).toBe(true);
+        });
+
+        it('does not call at capture a getter it did not capture', () => {
+            let reads = 0;
+            const install = (/** @type {any} */ w) => {
+                const box = {};
+                defineGetter(box, 'inner', () => {
+                    reads++;
+                    return { value: 1 };
+                });
+                w.outer = { box };
+            };
+            const window = new JSDOM('<!DOCTYPE html>').window;
+            install(window);
+            const compiled = compileDetector({ actions: { define: { v: { api: 'outer.box.inner.value' } } } }, pageSources(window));
+            const reader = new NativeReader(window, compiled.names, compiled.paths);
+            expect(reads).toBe(0);
+            expect(reader.read(window.outer.box, 'inner')).toEqual({ value: 1 });
+            expect(reads).toBe(1);
         });
 
         it("reads a function's own name and length over the captured Function.prototype defaults", () => {
@@ -465,7 +516,11 @@ describe('WebDetection sources', () => {
                 return detectors.map((detector, i) => {
                     const compiled = compileDetector(detector, pageSources(window));
                     const state = createDetectorState();
-                    const ctx = new EvaluationContext(new NativeReader(window, compiled.names), state.names, taskFor?.(i) ?? shared);
+                    const ctx = new EvaluationContext(
+                        new NativeReader(window, compiled.names, compiled.paths),
+                        state.names,
+                        taskFor?.(i) ?? shared,
+                    );
                     const result = runDetector(compiled, state, ctx);
                     between(window.document);
                     return { ...result, names: ctx.runNames };
