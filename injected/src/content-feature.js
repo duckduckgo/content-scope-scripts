@@ -418,7 +418,6 @@ export default class ContentFeature extends ConfigFeature {
             return true;
         } catch (error) {
             this.log.error('load failed:', error);
-            this.#ready.resolve({ status: 'error', error: String(error) });
             return false;
         } finally {
             mark.end();

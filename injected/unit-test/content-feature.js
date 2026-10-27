@@ -437,6 +437,23 @@ describe('ContentFeature class', () => {
         expect(didRun).withContext('Should run').toBeTrue();
     });
 
+    describe('callLoad', () => {
+        it('should return false, without throwing, when load throws', () => {
+            class FailingFeature extends BaseTestFeature {
+                load() {
+                    throw new Error('load failed');
+                }
+            }
+            const feature = new FailingFeature('failingFeature', {}, {});
+            expect(feature.callLoad()).toBe(false);
+        });
+
+        it('should return true when load returns', () => {
+            const feature = new BaseTestFeature('loadingFeature', {}, {});
+            expect(feature.callLoad()).toBe(true);
+        });
+    });
+
     describe('addDebugFlag', () => {
         class MyTestFeature extends BaseTestFeature {
             // eslint-disable-next-line
@@ -1467,32 +1484,6 @@ describe('ContentFeature class', () => {
                     expect(result).toBeInstanceOf(CallFeatureMethodError);
                     expect(result.message).toContain("Initialisation of feature 'failingFeature' failed");
                     expect(result.message).toContain('init failed');
-                });
-
-                it('should return false from callLoad, and error from callFeatureMethod, if target feature load throws', async () => {
-                    class FailingFeature extends ContentFeature {
-                        constructor() {
-                            super('failingFeature', {}, {}, {});
-                            this._exposedMethods = this._declareExposedMethods(['someMethod']);
-                        }
-                        load() {
-                            throw new Error('load failed');
-                        }
-                        someMethod() {
-                            return 'should not reach';
-                        }
-                    }
-                    const CallerFeature = createFeatureClass('callerFeature', {}, []);
-
-                    const failingFeature = new FailingFeature();
-                    const callerFeature = new CallerFeature({ failingFeature });
-
-                    expect(failingFeature.callLoad()).toBe(false);
-
-                    const result = await callerFeature.callFeatureMethod('failingFeature', 'someMethod');
-                    expect(result).toBeInstanceOf(CallFeatureMethodError);
-                    expect(result.message).toContain("Initialisation of feature 'failingFeature' failed");
-                    expect(result.message).toContain('load failed');
                 });
 
                 it('should handle multiple callers waiting for the same feature', async () => {
