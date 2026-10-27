@@ -66,43 +66,11 @@ function occurrenceFills(node) {
 }
 
 /**
- * Mark the expressions computed per item: those reading `self` of the `using`, `where` or `field` they
- * sit in, or a `ref` inside one, since a `define` there can bind the name again for each item. One
- * reading neither inside a `where` is computed once per evaluation of the source.
- *
- * @param {Scope} scope
- */
-function markPerItem(scope) {
-    /** @type {Map<Node, boolean>} */
-    const marked = new Map();
-    /**
-     * @param {Node} node
-     * @returns {boolean}
-     */
-    const visit = (node) => {
-        const seen = marked.get(node);
-        if (seen !== undefined) return seen;
-        const perItem =
-            node.kind === 'item' ||
-            (node.kind === 'ref' && node.binder !== undefined) ||
-            (node.binder !== undefined && (scope.deps.get(node) ?? []).some((dep) => dep.binder === node.binder && visit(dep)));
-        marked.set(node, perItem);
-        if (perItem) {
-            node.perItem = true;
-            if (node.binder) node.binder.framed = true;
-        }
-        return perItem;
-    };
-    scope.nodes.forEach(visit);
-}
-
-/**
  * Settle each operand slot's position, then check every expression fills its position.
  *
  * @param {Scope} scope
  */
 export function finish(scope) {
-    markPerItem(scope);
     for (const { node, single } of scope.slots) {
         // `element` without `field` and `text` are the condition leaf under any / all / none: a boolean
         const leaf = single === 'boolean' && isPresenceLeaf(node);

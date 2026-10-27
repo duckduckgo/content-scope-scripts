@@ -517,7 +517,7 @@ describe('WebDetection predicates', () => {
             expect(count('<div><p></p><p></p></div><div><p></p></div>', { element: { selector: 'div', where: twoParagraphs } })).toBe(1);
         });
 
-        it('computes an expression reading self once per item, and one reading no self once per evaluation of the source', () => {
+        it('computes an expression once per item, whether it reads self or not', () => {
             let calls = 0;
             let reads = 0;
             const probe = (/** @type {number} */ v) => {
@@ -537,9 +537,24 @@ describe('WebDetection predicates', () => {
             expect(calls).toBe(3);
             const flagged = { element: { selector: 'p', where: { api: 'flag' } }, using: 'length', is: 3 };
             expect(holds(html, flagged, { afterCapture })).toBe(true);
-            expect(reads).toBe(1);
-            expect(holds(html, { all: [flagged, flagged] }, { afterCapture })).toBe(true);
             expect(reads).toBe(3);
+            expect(holds(html, { all: [flagged, flagged] }, { afterCapture })).toBe(true);
+            expect(reads).toBe(9);
+        });
+
+        it('reads a value defined before the where once for every item', () => {
+            let reads = 0;
+            const afterCapture = (/** @type {any} */ w) =>
+                defineGetter(w, 'flag', () => {
+                    reads++;
+                    return true;
+                });
+            const actions = [
+                { define: { f: { api: 'flag' } } },
+                { define: { n: { api: { ...items, where: { ref: 'f' } }, using: 'length' } } },
+            ];
+            expect(run('', { actions }, { afterCapture }).names.get('n')).toBe(3);
+            expect(reads).toBe(1);
         });
 
         it('reads a name a define inside the where binds again for each item', () => {
@@ -550,12 +565,28 @@ describe('WebDetection predicates', () => {
             });
             expect(count('', { api: { ...items, where: big({ ref: 'current', is: { gt: 1 } }) } })).toBe(2);
             expect(count('', { api: { ...items, where: big({ sum: [{ ref: 'current' }, 0], is: { gt: 1 } }) } })).toBe(2);
+            // From a nested where, field or using, which bind `self` again. Only `current` 2 holds each
+            const nestedWhere = { api: { ...items, where: { a: { gt: { ref: 'current' } } } }, using: 'length', is: 1 };
+            const nestedField = { sum: { api: { ...items, field: { ref: 'current' } } }, is: 6 };
+            const nestedUsing = { expr: { api: items, using: 'length' }, using: { sum: [{ self: {} }, { ref: 'current' }] }, is: 5 };
+            for (const nested of [nestedWhere, nestedField, nestedUsing]) {
+                expect(count('', { api: { ...items, where: big({ all: [nested] }) } })).toBe(1);
+            }
         });
 
-        it('runs an action reading no self once per evaluation of the source', () => {
+        it('runs an action once per item', () => {
             const where = { if: true, then: [{ fireEvent: { type: 'item' } }, true], else: false };
             const { events } = run('', { actions: { define: { n: { api: { ...items, where }, using: 'length' } } } });
-            expect(events.length).toBe(1);
+            expect(events.length).toBe(3);
+        });
+
+        it('tests a when or bucket reading self per item', () => {
+            const sent = (/** @type {object} */ extra) => {
+                const where = { if: true, then: [{ fireEvent: { type: 'item', data: { x: { value: 1, ...extra } } } }, true], else: false };
+                return run('', { actions: { define: { n: { api: { ...items, where }, using: 'length' } } } }).events.map((e) => e.data);
+            };
+            expect(sent({ when: { eq: { self: 'a' } } })).toEqual([{ x: 1 }, {}, {}]);
+            expect(sent({ buckets: { first: { eq: { self: 'a' } } } })).toEqual([{ x: 'first' }, {}, {}]);
         });
 
         it('computes an expression over a ref inside a where, field or using that reads no self', () => {
