@@ -46,18 +46,12 @@ export class Scope {
     nodes = [];
     /** @type {Slot[]} */
     slots = [];
-    /** @type {Map<Node, Node[]>} each node's dependencies, for marking the expressions computed per item */
-    deps = new Map();
-    /** @type {Node[][]} where operands compiled inside predicates are recorded as dependencies */
-    operandSinks = [];
     /** @type {Set<string>} */
     readerNames = new Set();
     /** @type {Set<string>} */
     readerPaths = new Set();
     /** @type {ItemBinder[]} the `using`, `where` and `field` binding `self` around the expression being compiled, innermost last */
     bindings = [];
-    /** @type {ItemBinder[][]} where the `where` and `field` binders a source's bodies create are recorded */
-    binderSinks = [];
 
     /**
      * @param {PageSources} sources
@@ -68,16 +62,11 @@ export class Scope {
         this.hooks = {
             names: this.readerNames,
             paths: this.readerPaths,
-            expression: (raw, path, position) => {
-                const node = compileExpr(raw, position, path, this);
-                this.operandSinks[this.operandSinks.length - 1]?.push(node);
-                return node;
-            },
+            expression: (raw, path, position) => compileExpr(raw, position, path, this),
             item: (fn) => {
                 /** @type {ItemBinder} */
                 const binder = {};
-                this.binderSinks[this.binderSinks.length - 1]?.push(binder);
-                return within(this.bindings, binder, () => fn(binder));
+                return within(this, binder, () => fn(binder));
             },
         };
     }
@@ -89,36 +78,31 @@ export class Scope {
 }
 
 /**
- * Run `fn` with `entry` innermost on `stack`: a binding of `self`, or the node recording the operands
- * predicates compile as its dependencies.
+ * Compile `fn` with `binder` the innermost binding of `self`.
  *
- * @template E, T
- * @param {E[]} stack
- * @param {E} entry
+ * @template T
+ * @param {Scope} scope
+ * @param {ItemBinder} binder
  * @param {() => T} fn
  * @returns {T}
  */
-function within(stack, entry, fn) {
-    stack.push(entry);
+function within(scope, binder, fn) {
+    scope.bindings.push(binder);
     try {
         return fn();
     } finally {
-        stack.pop();
+        scope.bindings.pop();
     }
 }
 
 /**
  * @param {Scope} scope
  * @param {NodeBase & Record<string, unknown>} fields
- * @param {Node[]} deps
  * @returns {any}
  */
-function makeNode(scope, fields, deps) {
-    const binder = scope.itemBinder;
-    const node = /** @type {Node} */ ({ ...(binder && { binder }), ...fields });
+function makeNode(scope, fields) {
+    const node = /** @type {Node} */ (fields);
     scope.nodes.push(node);
-    // Copied: operands a predicate compiles are added to the deps later, and are not operands
-    scope.deps.set(node, [...deps]);
     return node;
 }
 
@@ -136,7 +120,7 @@ function compileBody(raw, position, path, scope) {
     if (!isArray(raw)) return compileExpr(raw, position, path, scope);
     if (raw.length === 0) throw new ConfigParseError(path, 'a sequence holds at least one element');
     const elements = raw.map((element, i) => compileExpr(element, i === raw.length - 1 ? position : 'value', `${path}.${i}`, scope));
-    return makeNode(scope, { kind: 'sequence', elements, path, position }, elements);
+    return makeNode(scope, { kind: 'sequence', elements, path, position });
 }
 
 /**
@@ -151,7 +135,7 @@ function compileBody(raw, position, path, scope) {
  */
 function compileExpr(raw, position, path, scope) {
     if (isScalar(raw)) {
-        return makeNode(scope, { kind: 'literal', value: raw, path, position }, []);
+        return makeNode(scope, { kind: 'literal', value: raw, path, position });
     }
     if (isArray(raw)) {
         // The key holding an array decides what it means, and an array is never an expression
@@ -188,13 +172,13 @@ function compileExpr(raw, position, path, scope) {
         if (hasUsing) throw new ConfigParseError(path, '`using` reads from an expression, and this object has no expression key');
         if (hasIs || position !== 'boolean') throw new ConfigParseError(path, 'no expression key');
         // An object ANDs its keys, so no keys holds
-        node = makeNode(scope, { kind: 'literal', value: true, path, position }, []);
+        node = makeNode(scope, { kind: 'literal', value: true, path, position });
     } else if (expressionKeys.length > 1) {
         if ((hasIs && !hasUsing) || (keyPosition !== 'boolean' && keyPosition !== 'value')) {
             throw new ConfigParseError(path, 'several expression keys are their AND, in boolean or value position and never beside `is`');
         }
         const operands = expressionKeys.map((key) => compileKey(key, raw[key], 'boolean', `${path}.${key}`, scope));
-        node = makeNode(scope, { kind: 'and', operands, path, position: keyPosition }, operands);
+        node = makeNode(scope, { kind: 'and', operands, path, position: keyPosition });
     } else {
         const key = /** @type {string} */ (expressionKeys[0]);
         node = key === 'if' ? compileIf(raw, keyPosition, path, scope) : compileKey(key, raw[key], keyPosition, `${path}.${key}`, scope);
@@ -202,10 +186,9 @@ function compileExpr(raw, position, path, scope) {
     if (hasUsing) node = compileUsing(raw.using, node, valuePosition, path, scope);
 
     if (hasIs) {
-        const sink = /** @type {Node[]} */ (scope.deps.get(node));
-        node.is = within(scope.operandSinks, sink, () => compilePredicate(raw.is, 'value', `${path}.is`, scope.hooks));
+        node.is = compilePredicate(raw.is, 'value', `${path}.is`, scope.hooks);
         // Value-position reads skip `is`, and an `expr` over it gives its boolean
-        if (position === 'value') return makeNode(scope, { kind: 'expr', operand: node, path, position }, [node]);
+        if (position === 'value') return makeNode(scope, { kind: 'expr', operand: node, path, position });
     }
     return node;
 }
@@ -237,7 +220,7 @@ function compileActions(raw, keys, position, path, scope) {
         else actions.push(compileAction(/** @type {'fireEvent' | 'breakageReportData'} */ (key), raw[key], actionPath, scope));
     }
     /** @type {Node} */
-    const node = actions.length === 1 ? actions[0] : makeNode(scope, { kind: 'sequence', elements: actions, path, position }, actions);
+    const node = actions.length === 1 ? actions[0] : makeNode(scope, { kind: 'sequence', elements: actions, path, position });
     // Checked once every expression is compiled: an action fills value position only
     node.position = position;
     return node;
@@ -256,7 +239,7 @@ function compileDefine(raw, path, scope) {
         const namePath = `${path}.${name}`;
         if (!DEFINE_NAME_PATTERN.test(name)) throw new ConfigParseError(namePath, `invalid name '${name}'`);
         const value = compileExpr(raw[name], 'value', namePath, scope);
-        return makeNode(scope, { kind: 'define', name, value, path: namePath, position: 'value' }, [value]);
+        return makeNode(scope, { kind: 'define', name, value, path: namePath, position: 'value' });
     });
 }
 
@@ -272,12 +255,7 @@ function compileAction(key, raw, path, scope) {
     rejectUnknownKeys(raw, key === 'fireEvent' ? ['type', 'data'] : ['data'], path);
     if (key === 'fireEvent' && typeof raw.type !== 'string') throw new ConfigParseError(`${path}.type`, '`type` takes a string');
     const data = raw.data === undefined ? undefined : compilePayload(raw.data, `${path}.data`, scope);
-    const operands = data ? data.map((field) => field.value) : [];
-    return makeNode(
-        scope,
-        { kind: key, ...(key === 'fireEvent' && { type: raw.type }), ...(data && { data }), path, position: 'value' },
-        operands,
-    );
+    return makeNode(scope, { kind: key, ...(key === 'fireEvent' && { type: raw.type }), ...(data && { data }), path, position: 'value' });
 }
 
 /**
@@ -300,16 +278,16 @@ function compileKey(key, body, position, path, scope) {
             if (isArray(body)) {
                 // A list of the entries' values
                 const entries = body.map((raw, i) => compileExpr(raw, 'value', `${path}.${i}`, scope));
-                return makeNode(scope, { kind: 'list', entries, path, position }, entries);
+                return makeNode(scope, { kind: 'list', entries, path, position });
             }
             // An operand with `is` gives a boolean
             const operandIs = isPlainObject(body) && body.is !== undefined;
             const operand = compileExpr(body, operandIs ? 'boolean' : position, path, scope);
-            return makeNode(scope, { kind: 'expr', operand, path, position }, [operand]);
+            return makeNode(scope, { kind: 'expr', operand, path, position });
         }
         case 'only': {
             const operand = compileExpr(body, 'list', path, scope);
-            return makeNode(scope, { kind: 'only', operand, path, position }, [operand]);
+            return makeNode(scope, { kind: 'only', operand, path, position });
         }
         case 'sum':
         case 'mul': {
@@ -318,12 +296,12 @@ function compileKey(key, body, position, path, scope) {
                 scope.slots.push({ node: operand, single: 'number' });
                 return operand;
             });
-            return makeNode(scope, { kind: key, operands, path, position }, operands);
+            return makeNode(scope, { kind: key, operands, path, position });
         }
         case 'div': {
             if (!isArray(body) || body.length !== 2) throw new ConfigParseError(path, `'div' takes two operands`);
             const operands = body.map((raw, i) => compileExpr(raw, 'number', `${path}.${i}`, scope));
-            return makeNode(scope, { kind: key, operands, path, position }, operands);
+            return makeNode(scope, { kind: key, operands, path, position });
         }
         case 'any':
         case 'all':
@@ -333,12 +311,12 @@ function compileKey(key, body, position, path, scope) {
                 if (!operand.is) scope.slots.push({ node: operand, single: 'boolean' });
                 return operand;
             });
-            return makeNode(scope, { kind: key, operands, path, position }, operands);
+            return makeNode(scope, { kind: key, operands, path, position });
         }
         case 'ref':
             // The name is read when evaluation reaches it: config decides what is bound then
             if (typeof body !== 'string') throw new ConfigParseError(path, '`ref` takes a name');
-            return makeNode(scope, { kind: 'ref', name: body, path, position }, []);
+            return makeNode(scope, { kind: 'ref', name: body, path, position });
         default:
             throw new ConfigParseError(path, `unknown expression key '${key}'`);
     }
@@ -361,11 +339,7 @@ function compileIf(raw, position, path, scope) {
     const test = compileExpr(raw.if, 'boolean', ifPath, scope);
     const then = compileBody(raw.then, position, `${path}.then`, scope);
     const otherwise = raw.else === undefined ? undefined : compileBody(raw.else, position, `${path}.else`, scope);
-    return makeNode(
-        scope,
-        { kind: 'if', test, then, ...(otherwise && { else: otherwise }), path: ifPath, position },
-        otherwise ? [test, then, otherwise] : [test, then],
-    );
+    return makeNode(scope, { kind: 'if', test, then, ...(otherwise && { else: otherwise }), path: ifPath, position });
 }
 
 /**
@@ -385,13 +359,13 @@ function compileUsing(raw, root, position, path, scope) {
     if (isPlainObject(raw) && objectKeys(raw).length === 0) throw new ConfigParseError(usingPath, '`using` needs `path` or an expression');
     /** @type {ItemBinder} */
     const binder = {};
-    const operand = within(scope.bindings, binder, () => {
+    const operand = within(scope, binder, () => {
         if (!isExpressionObject(raw)) return compileSelf(raw, position, usingPath, scope, 'using');
         // An operand with `is` gives a boolean, in boolean position
         return compileExpr(raw, raw.is !== undefined ? 'boolean' : position, usingPath, scope);
     });
     // Its own node, so the `is` beside `using` is not the operand's
-    return makeNode(scope, { kind: 'using', root, operand, binds: binder, path: usingPath, position }, [operand, root]);
+    return makeNode(scope, { kind: 'using', root, operand, binds: binder, path: usingPath, position });
 }
 
 /**
@@ -410,23 +384,17 @@ function compileSelf(raw, position, path, scope, key = 'self') {
     if (!binder) throw new ConfigParseError(path, '`self` reads from `using`, `where` or `field`, and none encloses it');
     const root = itemNode(binder, scope);
     if (isPlainObject(raw) && objectKeys(raw).length === 0) {
-        return makeNode(scope, { kind: 'expr', operand: root, path, position }, [root]);
+        return makeNode(scope, { kind: 'expr', operand: root, path, position });
     }
     if (raw === 'length' || (isPlainObject(raw) && raw.path === 'length' && objectKeys(raw).length === 1)) {
         scope.readerNames.add('length');
-        return makeNode(scope, { kind: 'length', operand: root, path, position }, [root]);
+        return makeNode(scope, { kind: 'length', operand: root, path, position });
     }
     const source = scope.sources.api;
-    /** @type {Node[]} */
-    const deps = [root];
-    /** @type {ItemBinder[]} */
-    const binders = [];
-    const parsed = within(scope.binderSinks, binders, () =>
-        within(scope.operandSinks, deps, () => source.parse(raw, path, scope.hooks, key === 'using' ? 'using' : 'self')),
-    );
+    const parsed = source.parse(raw, path, scope.hooks, key === 'using' ? 'using' : 'self');
     parsed.root = root;
     const withField = parsed.field !== undefined;
-    return makeNode(scope, { kind: 'source', source, bodies: [parsed], binders, withField, leaf: false, path, position }, deps);
+    return makeNode(scope, { kind: 'source', source, bodies: [parsed], withField, leaf: false, path, position });
 }
 
 /**
@@ -439,8 +407,7 @@ function compileSelf(raw, position, path, scope, key = 'self') {
 function itemNode(binder, scope) {
     if (!binder.node) {
         /** @type {ItemNode} */
-        const node = makeNode(scope, { kind: 'item', path: '', position: 'value' }, []);
-        node.perItem = true;
+        const node = makeNode(scope, { kind: 'item', binder, path: '', position: 'value' });
         binder.node = node;
     }
     return binder.node;
@@ -457,20 +424,12 @@ function itemNode(binder, scope) {
 function compileSource(key, body, position, path, scope) {
     const source = scope.sources[key];
     if (key === 'api' && isArray(body)) throw new ConfigParseError(path, '`api` takes one body');
-    /** @type {Node[]} */
-    const deps = [];
-    /** @type {ItemBinder[]} */
-    const binders = [];
-    const bodies = within(scope.binderSinks, binders, () =>
-        within(scope.operandSinks, deps, () =>
-            asArray(body).map((raw, i) => source.parse(raw, isArray(body) ? `${path}.${i}` : path, scope.hooks)),
-        ),
-    );
+    const bodies = asArray(body).map((raw, i) => source.parse(raw, isArray(body) ? `${path}.${i}` : path, scope.hooks));
     if (bodies.length === 0) throw new ConfigParseError(path, 'no bodies');
     const withField = bodies.some(hasField);
     // `text`, and `element` without `field`, are the condition leaf: a boolean under any / all / none
     const leaf = key === 'text' || (key === 'element' && !withField);
-    return makeNode(scope, { kind: 'source', source, bodies, binders, withField, leaf, path, position }, deps);
+    return makeNode(scope, { kind: 'source', source, bodies, withField, leaf, path, position });
 }
 
 /**
@@ -499,21 +458,17 @@ function compilePayload(raw, path, scope) {
         const value = compileExpr(spec.value, 'value', `${fieldPath}.value`, scope);
         /** @type {CompiledPayloadField} */
         const field = { key, path: fieldPath, value };
-        /** @type {Node[]} */
-        const deps = [];
-        within(scope.operandSinks, deps, () => {
-            if (spec.when !== undefined) field.when = compilePredicate(spec.when, 'value', `${fieldPath}.when`, scope.hooks);
-            if (spec.buckets !== undefined) {
-                const buckets = spec.buckets;
-                if (!isPlainObject(buckets) || objectKeys(buckets).length === 0) {
-                    throw new ConfigParseError(`${fieldPath}.buckets`, '`buckets` takes an object of at least one bucket');
-                }
-                field.buckets = objectKeys(buckets).map((name) => [
-                    name,
-                    compilePredicate(buckets[name], 'value', `${fieldPath}.buckets.${name}`, scope.hooks),
-                ]);
+        if (spec.when !== undefined) field.when = compilePredicate(spec.when, 'value', `${fieldPath}.when`, scope.hooks);
+        if (spec.buckets !== undefined) {
+            const buckets = spec.buckets;
+            if (!isPlainObject(buckets) || objectKeys(buckets).length === 0) {
+                throw new ConfigParseError(`${fieldPath}.buckets`, '`buckets` takes an object of at least one bucket');
             }
-        });
+            field.buckets = objectKeys(buckets).map((name) => [
+                name,
+                compilePredicate(buckets[name], 'value', `${fieldPath}.buckets.${name}`, scope.hooks),
+            ]);
+        }
         return field;
     });
 }

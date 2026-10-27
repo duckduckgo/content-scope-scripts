@@ -13,15 +13,15 @@ import { testPredicate } from '../predicates/predicates.js';
  */
 
 /**
- * The frame of the `using`, `where` or `field` a per-item expression reads `self` of.
+ * The value the `using`, `where` or `field` an expression reads `self` of is binding.
  *
  * @param {ItemBinder} binder
  * @param {EvaluationContext} ctx
+ * @returns {unknown}
  */
-function frameOf(binder, ctx) {
-    const frame = ctx.frames.get(binder);
-    if (!frame) throw new DetectionError('`self` read outside the `using`, `where` or `field` it is bound by');
-    return frame;
+function boundValue(binder, ctx) {
+    if (!ctx.frames.has(binder)) throw new DetectionError('`self` read outside the `using`, `where` or `field` it is bound by');
+    return ctx.frames.get(binder);
 }
 
 /**
@@ -71,10 +71,10 @@ export function evaluate(node, position, ctx) {
                 result = readSource(node, position, ctx);
                 break;
             case 'item':
-                result = frameOf(node.binder, ctx).value;
+                result = boundValue(node.binder, ctx);
                 break;
             default:
-                result = node.binder ? withinBinder(node, node.binder, ctx) : compute(node, ctx);
+                result = compute(node, ctx);
         }
         if (isFailure(result)) return result.at(node.path);
         checkType(result, position);
@@ -96,36 +96,6 @@ function atPath(error, path, ctx) {
     const at = errorPath(error, path);
     ctx.errorAt ??= { path: at, message: thrownMessage(error) };
     return error;
-}
-
-/**
- * Where the value of an expression inside a `using`, `where` or `field` is kept: per value bound when it
- * reads `self`, else per evaluation of the source holding a `where` or `field`.
- *
- * @param {Node} node
- * @param {ItemBinder} binder
- * @param {EvaluationContext} ctx
- * @returns {Map<Node, unknown> | undefined}
- */
-function memoOf(node, binder, ctx) {
-    return node.perItem ? frameOf(binder, ctx).memo : ctx.shared.get(binder);
-}
-
-/**
- * The value of an expression inside a `using`, `where` or `field`, computed once where `memoOf` keeps it.
- *
- * @param {Exclude<Node, RefNode | SourceNode | ExprNode | UsingNode | ItemNode>} node
- * @param {ItemBinder} binder
- * @param {EvaluationContext} ctx
- * @returns {unknown}
- */
-function withinBinder(node, binder, ctx) {
-    const memo = memoOf(node, binder, ctx);
-    if (!memo) return compute(node, ctx);
-    if (memo.has(node)) return memo.get(node);
-    const result = compute(node, ctx);
-    memo.set(node, result);
-    return result;
 }
 
 /**
@@ -171,9 +141,8 @@ function computeUsing(node, position, ctx) {
 }
 
 /**
- * A source's value, read each time evaluation reaches it, or once per item when it reads `self`: a
- * list's buffer, or the value an `api` reads. In boolean position, the condition leaf gives whether it
- * holds an item.
+ * A source's value, read each time evaluation reaches it: a list's buffer, or the value an `api` reads.
+ * In boolean position, the condition leaf gives whether it holds an item.
  *
  * @param {SourceNode} node
  * @param {Position} position
@@ -181,18 +150,8 @@ function computeUsing(node, position, ctx) {
  * @returns {unknown} the value, or a `Failure`
  */
 function readSource(node, position, ctx) {
-    /** @type {unknown} */
-    let value;
-    const memo = node.binder ? memoOf(node, node.binder, ctx) : undefined;
-    if (memo?.has(node)) {
-        value = memo.get(node);
-    } else {
-        // A new evaluation of the source: what its `where` and `field` read once is read again
-        for (const binder of node.binders) ctx.shared.set(binder, new Map());
-        value = node.source.read(node.bodies, ctx);
-        if (isItemBuffer(value)) value.leaf = node.leaf;
-        memo?.set(node, value);
-    }
+    const value = node.source.read(node.bodies, ctx);
+    if (isItemBuffer(value)) value.leaf = node.leaf;
     return positioned(value, position);
 }
 

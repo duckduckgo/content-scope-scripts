@@ -30,22 +30,19 @@
  * @property {string} path - the config path of the key the expression compiles from, which a failure or error arising at it takes
  * @property {Position} position - the position this occurrence fills. With `is`, the value position the predicate tests
  * @property {CompiledPredicate} [is]
- * @property {ItemBinder} [binder] - the innermost `using`, `where` or `field` this expression sits in
- * @property {boolean} [perItem] - whether it reads `self` of `binder`, and so is computed per item
  * @property {'number' | 'boolean'} [single] - for an operand of `sum`, `mul`, `any`, `all` or `none`, what it gives when it is not a list
  */
 
 /**
  * A `using`, `where` or `field`, which binds `self` to each value it reads from or tests. `node` is its
- * item node, created when an expression inside reads `self`. `framed` is set when an expression inside
- * is computed per item, so binding it makes a frame.
+ * item node, created when an expression inside reads `self`. Without one, binding it binds nothing.
  *
- * @typedef {{ node?: ItemNode, framed?: boolean }} ItemBinder
+ * @typedef {{ node?: ItemNode }} ItemBinder
  */
 
 /**
  * @typedef {NodeBase & { kind: 'literal', value: number | boolean | string | null }} LiteralNode
- * @typedef {NodeBase & { kind: 'source', source: Source<any>, bodies: SourceBody[], binders: ItemBinder[], withField: boolean, leaf: boolean }} SourceNode - `source` reads only the bodies it parsed, a pairing a union of sources can't express, hence `any`. `binders`: the `where` and `field` its bodies hold. `withField`: some body has `field`. `leaf`: `text`, or `element` without `field`, the condition leaf
+ * @typedef {NodeBase & { kind: 'source', source: Source<any>, bodies: SourceBody[], withField: boolean, leaf: boolean }} SourceNode - `source` reads only the bodies it parsed, a pairing a union of sources can't express, hence `any`. `withField`: some body has `field`. `leaf`: `text`, or `element` without `field`, the condition leaf
  * @typedef {NodeBase & { kind: 'length', operand: Node }} LengthNode
  * @typedef {NodeBase & { kind: 'expr', operand: Node }} ExprNode
  * @typedef {NodeBase & { kind: 'using', root: Node, operand: Node, binds: ItemBinder }} UsingNode - `operand` reads `root`'s value through `self`

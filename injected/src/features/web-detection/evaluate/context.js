@@ -13,9 +13,8 @@ const NO_SINK = { fireEvent() {}, breakageReportData() {} };
 
 /**
  * One run's state, threaded to every expression. An expression is computed each time evaluation
- * reaches it, and one that reads `self` of a `using`, `where` or `field`, or a `ref` inside one, once
- * per value bound. One inside a `where` or `field` reading neither is computed once per evaluation of
- * the source, so a call or action there runs once for all its items.
+ * reaches it, so one inside a `where` or `field` once per item. A value read for every item is
+ * `define`d before.
  *
  * @implements {PredicateContext}
  */
@@ -28,10 +27,8 @@ export class EvaluationContext {
     outcomes = {};
     /** @type {{ path: string, message: string } | undefined} the innermost expression an error was thrown from */
     errorAt;
-    /** @type {Map<ItemBinder, { value: unknown, memo: Map<Node, unknown> }>} the value each `using`, `where` and `field` is binding */
+    /** @type {Map<ItemBinder, unknown>} the value each `using`, `where` and `field` is binding */
     frames = new Map();
-    /** @type {Map<ItemBinder, Map<Node, unknown>>} per `where` and `field`, the values of the expressions inside reading no `self`, for one evaluation of the source */
-    shared = new Map();
 
     /**
      * @param {Reader} reader
@@ -100,8 +97,8 @@ export class EvaluationContext {
     }
 
     /**
-     * Run `fn` with `self` of a `using`, `where` or `field` bound to `value`. A binder with no expression
-     * inside computed per item binds nothing.
+     * Run `fn` with `self` of a `using`, `where` or `field` bound to `value`. A binder no expression
+     * inside reads `self` of binds nothing.
      *
      * @template T
      * @param {ItemBinder} binder
@@ -110,14 +107,15 @@ export class EvaluationContext {
      * @returns {T}
      */
     bind(binder, value, fn) {
-        if (!binder.framed) return fn();
+        if (!binder.node) return fn();
         // Frames are keyed by binder: a list may be pulled from inside another binder's frame
+        const bound = this.frames.has(binder);
         const previous = this.frames.get(binder);
-        this.frames.set(binder, { value, memo: new Map() });
+        this.frames.set(binder, value);
         try {
             return fn();
         } finally {
-            if (previous) this.frames.set(binder, previous);
+            if (bound) this.frames.set(binder, previous);
             else this.frames.delete(binder);
         }
     }
