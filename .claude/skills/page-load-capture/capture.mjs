@@ -85,15 +85,12 @@ function targetUrl() {
 async function serveBuild(context) {
     await context.route(`${ORIGIN}/**`, (route) => {
         const url = new URL(route.request().url());
-        if (url.pathname === '/__backdrop') {
-            return route.fulfill({ body: backdropHtml, contentType: 'text/html' });
-        }
         let path = join(BUILD_DIR, decodeURIComponent(url.pathname));
         if (path.endsWith('/')) path = join(path, 'index.html');
         if (!existsSync(path)) return route.fulfill({ status: 404, body: 'not found' });
         let body = readFileSync(path);
         if (substituteToken && path.endsWith('index.html')) {
-            body = Buffer.from(body.toString().replace('$LOADING_COLOR$', loadingColor));
+            body = Buffer.from(body.toString().replaceAll('$LOADING_COLOR$', loadingColor));
         }
         return route.fulfill({ body, contentType: MIME[extname(path)] ?? 'application/octet-stream' });
     });
@@ -104,7 +101,7 @@ async function serveBuild(context) {
  * @param {{ trackDom: boolean, duration: number }} config
  */
 function instrument(config) {
-    if (location.pathname === '/__backdrop') return;
+    if (location.protocol === 'about:') return;
     const now = () => performance.timeOrigin + performance.now();
     const events = [];
     /** @type {any} */ (window).__loadCapture = { events };
@@ -175,7 +172,10 @@ function instrument(config) {
         const moved = new Map();
         for (const el of document.body.querySelectorAll('*')) {
             const r = el.getBoundingClientRect();
-            if (r.width * r.height < minArea || r.bottom < 0 || r.right < 0 || r.top > vh || r.left > vw) continue;
+            if (r.width * r.height < minArea || r.bottom < 0 || r.right < 0 || r.top > vh || r.left > vw) {
+                last.delete(el);
+                continue;
+            }
             const cur = rect(r);
             const prev = last.get(el);
             last.set(el, cur);
@@ -189,8 +189,14 @@ function instrument(config) {
         }
         for (const [el, m] of moved) {
             // Report the outermost element of a group that moved together.
-            const parentMove = el.parentElement && moved.get(el.parentElement);
-            if (parentMove && parentMove.dx === m.dx && parentMove.dy === m.dy) continue;
+            let ancestor = el.parentElement;
+            let carried = false;
+            while (ancestor && !carried) {
+                const a = moved.get(ancestor);
+                carried = !!a && a.dx === m.dx && a.dy === m.dy;
+                ancestor = ancestor.parentElement;
+            }
+            if (carried) continue;
             events.push({ kind: 'move', t, element: describe(el), from: m.prev, to: m.cur, dx: m.dx, dy: m.dy });
         }
         if (t - start < config.duration) requestAnimationFrame(tick);
@@ -217,22 +223,22 @@ async function readEvents(page) {
 /** Analyses an existing recording, e.g. a native app screen capture. Times are relative to the first frame. */
 function captureVideo(runDir) {
     execFileSync('ffmpeg', ['-v', 'error', '-i', resolve(opts.video), '-fps_mode', 'passthrough', join(runDir, 'frame-%04d.png')]);
-    const fps = execFileSync('ffprobe', [
+    // Screen recordings are often variable frame rate, so use each frame's own timestamp.
+    const times = execFileSync('ffprobe', [
         '-v',
         'error',
         '-select_streams',
         'v:0',
         '-show_entries',
-        'stream=r_frame_rate',
+        'frame=best_effort_timestamp_time',
         '-of',
         'csv=p=0',
         resolve(opts.video),
     ])
         .toString()
         .trim()
-        .split('/')
-        .map(Number);
-    const frameMs = 1000 / (fps[0] / (fps[1] || 1));
+        .split('\n')
+        .map((line) => parseFloat(line) * 1000);
     [width, height] = execFileSync('ffprobe', [
         '-v',
         'error',
@@ -251,7 +257,7 @@ function captureVideo(runDir) {
     const frames = readdirSync(runDir)
         .filter((f) => f.startsWith('frame-'))
         .sort()
-        .map((f, i) => ({ epoch: i * frameMs, file: join(runDir, f) }));
+        .map((f, i) => ({ epoch: (times[i] ?? 0) - (times[0] ?? 0), file: join(runDir, f) }));
     return { frames, events: [], navStart: 0 };
 }
 
@@ -259,7 +265,7 @@ async function captureChromium(runDir) {
     const browser = await chromium.launch();
     const context = await newContext(browser);
     const page = await context.newPage();
-    if (servingBuild) await page.goto(`${ORIGIN}/__backdrop`);
+    await page.setContent(backdropHtml);
     const cdp = await context.newCDPSession(page);
     if (Number(opts.cpu) > 1) await cdp.send('Emulation.setCPUThrottlingRate', { rate: Number(opts.cpu) });
 
@@ -296,7 +302,7 @@ async function captureWebkit(runDir) {
     const context = await newContext(browser, { recordVideo: { dir: videoDir, size: { width, height } } });
     const page = await context.newPage();
     const videoStart = Date.now();
-    if (servingBuild) await page.goto(`${ORIGIN}/__backdrop`);
+    await page.setContent(backdropHtml);
     await page.waitForTimeout(600);
     const navStart = Date.now();
     await page.goto(targetUrl(), { waitUntil: 'commit' });
@@ -401,10 +407,10 @@ function analyse({ frames, events, navStart }) {
         const next = states[n + 1];
         if (prev && next) {
             // A→B→A: the state is a detour that the page then undoes.
-            const pa = samples[frames.findIndex((f) => f.file === prev.file)];
-            const nb = samples[frames.findIndex((f) => f.file === next.file)];
+            const pa = samples[keep[n - 1]];
+            const nb = samples[keep[n + 1]];
             const there = s.diffFromPrev;
-            const back = diff(samples[frames.findIndex((f) => f.file === s.file)], nb);
+            const back = diff(samples[keep[n]], nb);
             if (there > 0.02 && back > 0.02 && diff(pa, nb) < 0.3 * Math.min(there, back)) s.flags.push('flicker');
         }
     }
@@ -503,7 +509,9 @@ function printRun(run, result, sheet) {
 }
 
 const runs = Number(opts.runs);
-rmSync(opts.out, { recursive: true, force: true });
+for (const dir of existsSync(opts.out) ? readdirSync(opts.out) : []) {
+    if (/^run-\d+$/.test(dir)) rmSync(join(opts.out, dir), { recursive: true, force: true });
+}
 let problems = 0;
 for (let run = 0; run < runs; run++) {
     const runDir = join(opts.out, `run-${run}`);

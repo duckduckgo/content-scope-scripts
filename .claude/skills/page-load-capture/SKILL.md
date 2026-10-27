@@ -63,7 +63,7 @@ Real native responses are slower than the mocks, so delay the messages your chan
 | `--flash-threshold` | `0.15` | Luminance delta (0–1) that counts as a flash |
 | `--shift-threshold` | `3` | px movement that counts as a shift |
 | `--no-dom` | | Disable rAF geometry tracking if its per-frame layout reads skew timing |
-| `--out` | `test-results/page-load-capture` | Wiped on each invocation |
+| `--out` | `test-results/page-load-capture` | Its `run-*` subdirectories are replaced on each invocation |
 
 ## Interpreting results
 
