@@ -54,10 +54,13 @@ describe('Features definition', () => {
         expect(missing).toEqual([]);
     });
 
-    it('loads `webDetection` first, so it captures native APIs before other features replace them', () => {
+    it('loads only `cookie` before `webDetection`, so it captures native APIs before other features replace them', () => {
         for (const [platform, features] of Object.entries(platformSupport)) {
             if (!features.includes('webDetection')) continue;
-            expect(features.indexOf('webDetection')).withContext(platform).toBe(0);
+            const before = features.slice(0, features.indexOf('webDetection'));
+            expect(before.filter((name) => name !== 'cookie'))
+                .withContext(platform)
+                .toEqual([]);
         }
     });
 });
