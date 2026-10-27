@@ -1,2 +1,1 @@
-- Ship browserUiLock in the Apple isolated bundle (#3143)
-- Skip a feature whose load throws, and load the rest (#3156)
+- Parse the Apple config from a $CONTENT_SCOPE_JSON$ string (#3139)

@@ -14035,7 +14035,7 @@ ${iframeContent}
 
   // entry-points/apple.js
   function initCode() {
-    const config = $CONTENT_SCOPE$;
+    const config = JSON.parse($CONTENT_SCOPE_JSON$);
     const userUnprotectedDomains = $USER_UNPROTECTED_DOMAINS$;
     const userPreferences = $USER_PREFERENCES$;
     const processedConfig = processConfig(config, userUnprotectedDomains, userPreferences, platformSpecificFeatures);

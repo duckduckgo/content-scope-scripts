@@ -19780,7 +19780,7 @@ ul.messages {
 
   // entry-points/apple.js
   function initCode() {
-    const config2 = $CONTENT_SCOPE$;
+    const config2 = JSON.parse($CONTENT_SCOPE_JSON$);
     const userUnprotectedDomains = $USER_UNPROTECTED_DOMAINS$;
     const userPreferences = $USER_PREFERENCES$;
     const processedConfig = processConfig(config2, userUnprotectedDomains, userPreferences, platformSpecificFeatures);
