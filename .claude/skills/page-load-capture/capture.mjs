@@ -14,6 +14,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 
 const { values: opts } = parseArgs({
+    allowNegative: true,
     options: {
         url: { type: 'string', default: '' },
         video: { type: 'string', default: '' },
@@ -31,14 +32,13 @@ const { values: opts } = parseArgs({
         'flash-threshold': { type: 'string', default: '0.15' },
         'shift-threshold': { type: 'string', default: '3' },
         dom: { type: 'boolean', default: true },
-        'no-dom': { type: 'boolean', default: false },
     },
 });
 
 let [width, height] = opts.viewport.split('x').map(Number);
 const flashThreshold = Number(opts['flash-threshold']);
 const shiftThreshold = Number(opts['shift-threshold']);
-const trackDom = opts.dom && !opts['no-dom'];
+const trackDom = opts.dom;
 
 const ORIGIN = 'http://special-pages.test';
 const BUILD_DIR = join(ROOT, 'build/integration/pages');
@@ -64,7 +64,6 @@ if (servingBuild && !existsSync(join(BUILD_DIR, opts.page, 'index.html'))) {
 }
 
 const loadingColor = opts['loading-color'] || (opts.scheme === 'dark' ? '#1c1c1c' : '#fafafa');
-// `none` leaves the $LOADING_COLOR$ token in place, as platforms that don't substitute it do.
 const substituteToken = loadingColor !== 'none';
 const backdropColor = opts.backdrop || (substituteToken ? loadingColor : 'white');
 
@@ -105,6 +104,7 @@ function instrument(config) {
     const now = () => performance.timeOrigin + performance.now();
     const events = [];
     /** @type {any} */ (window).__loadCapture = { events };
+    /** @typedef {{x: number, y: number, w: number, h: number}} Rect */
 
     /** @param {Element} el */
     const describe = (el) => {
@@ -155,7 +155,7 @@ function instrument(config) {
     if (!config.trackDom) return;
 
     // Engine-independent shift detection: compare each visible element's position frame to frame.
-    /** @type {WeakMap<Element, {x: number, y: number, w: number, h: number}>} */
+    /** @type {WeakMap<Element, Rect>} */
     const last = new WeakMap();
     const minArea = 400;
     const start = now();
@@ -167,7 +167,6 @@ function instrument(config) {
         const t = now();
         const vw = innerWidth;
         const vh = innerHeight;
-        /** @typedef {{x: number, y: number, w: number, h: number}} Rect */
         /** @type {Map<Element, {dx: number, dy: number, prev: Rect, cur: Rect}>} */
         const moved = new Map();
         for (const el of document.body.querySelectorAll('*')) {
@@ -220,40 +219,24 @@ async function readEvents(page) {
     }
 }
 
+/**
+ * @param {string} entries
+ * @param {string} format
+ */
+function ffprobe(entries, format) {
+    return execFileSync('ffprobe', ['-v', 'error', '-select_streams', 'v:0', '-show_entries', entries, '-of', format, resolve(opts.video)])
+        .toString()
+        .trim();
+}
+
 /** Analyses an existing recording, e.g. a native app screen capture. Times are relative to the first frame. */
 function captureVideo(runDir) {
     execFileSync('ffmpeg', ['-v', 'error', '-i', resolve(opts.video), '-fps_mode', 'passthrough', join(runDir, 'frame-%04d.png')]);
     // Screen recordings are often variable frame rate, so use each frame's own timestamp.
-    const times = execFileSync('ffprobe', [
-        '-v',
-        'error',
-        '-select_streams',
-        'v:0',
-        '-show_entries',
-        'frame=best_effort_timestamp_time',
-        '-of',
-        'csv=p=0',
-        resolve(opts.video),
-    ])
-        .toString()
-        .trim()
+    const times = ffprobe('frame=best_effort_timestamp_time', 'csv=p=0')
         .split('\n')
         .map((line) => parseFloat(line) * 1000);
-    [width, height] = execFileSync('ffprobe', [
-        '-v',
-        'error',
-        '-select_streams',
-        'v:0',
-        '-show_entries',
-        'stream=width,height',
-        '-of',
-        'csv=p=0:s=x',
-        resolve(opts.video),
-    ])
-        .toString()
-        .trim()
-        .split('x')
-        .map(Number);
+    [width, height] = ffprobe('stream=width,height', 'csv=p=0:s=x').split('x').map(Number);
     const frames = readdirSync(runDir)
         .filter((f) => f.startsWith('frame-'))
         .sort()
@@ -271,19 +254,15 @@ async function captureChromium(runDir) {
 
     /** @type {{epoch: number, file: string}[]} */
     const frames = [];
-    /** @param {number} sessionId */
-    const ack = async (sessionId) => {
-        try {
-            await cdp.send('Page.screencastFrameAck', { sessionId });
-        } catch {
-            // the session closes while the last frames are in flight
-        }
-    };
     cdp.on('Page.screencastFrame', async (frame) => {
         const file = join(runDir, `frame-${String(frames.length).padStart(4, '0')}.png`);
         writeFileSync(file, Buffer.from(frame.data, 'base64'));
         frames.push({ epoch: (frame.metadata.timestamp ?? Date.now() / 1000) * 1000, file });
-        await ack(frame.sessionId);
+        try {
+            await cdp.send('Page.screencastFrameAck', { sessionId: frame.sessionId });
+        } catch {
+            // the session closes while the last frames are in flight
+        }
     });
     await cdp.send('Page.startScreencast', { format: 'png', everyNthFrame: 1, maxWidth: width, maxHeight: height });
     await page.waitForTimeout(150);
@@ -407,16 +386,17 @@ function analyse({ frames, events, navStart }) {
         const next = states[n + 1];
         if (prev && next) {
             // A→B→A: the state is a detour that the page then undoes.
-            const pa = samples[keep[n - 1]];
-            const nb = samples[keep[n + 1]];
-            const there = s.diffFromPrev;
-            const back = diff(samples[keep[n]], nb);
-            if (there > 0.02 && back > 0.02 && diff(pa, nb) < 0.3 * Math.min(there, back)) s.flags.push('flicker');
+            const prevSample = samples[keep[n - 1]];
+            const nextSample = samples[keep[n + 1]];
+            const toState = s.diffFromPrev;
+            const fromState = diff(samples[keep[n]], nextSample);
+            if (toState > 0.02 && fromState > 0.02 && diff(prevSample, nextSample) < 0.3 * Math.min(toState, fromState)) {
+                s.flags.push('flicker');
+            }
         }
     }
 
-    const rel = (e) => ({ ...e, t: Math.round(e.t - navStart) });
-    const timeline = events.map(rel).sort((a, b) => a.t - b.t);
+    const timeline = events.map((e) => ({ ...e, t: Math.round(e.t - navStart) })).sort((a, b) => a.t - b.t);
     const fcp = timeline.find((e) => e.kind === 'first-contentful-paint')?.t ?? timeline.find((e) => e.kind === 'appear')?.t ?? 0;
     const shifts = timeline.filter(
         (e) =>
