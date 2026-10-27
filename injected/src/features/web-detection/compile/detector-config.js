@@ -6,23 +6,14 @@ import { compileDetector } from './compile.js';
  * @import { FeatureState } from '../../../utils.js'
  * @import { ConditionBlockOrArray } from '../../../config-feature.js'
  * @import { CompiledDetector } from './compile.js'
+ * @import { DetectorConfig as RawDetectorConfig, WebDetectionSettings } from '@duckduckgo/privacy-configuration/schema/features/web-detection.js'
  */
 
 /**
- * Raw detector config. `match` and `actions` are read as `unknown` and validated by the compiler,
- * since the pinned privacy-configuration schema predates them.
+ * A raw detector's triggers. Raw config takes the privacy-configuration schema's types, and is still
+ * validated here and by the compiler, since config reaches the page unchecked.
  *
- * @typedef {object} RawDetectorConfig
- * @property {FeatureState} [state]
- * @property {RawTriggers} [triggers]
- * @property {unknown} [match] - an expression in boolean position
- * @property {unknown} [actions] - an expression, or a sequence of them
- */
-
-/**
- * @typedef {object} RawTriggers
- * @property {{ state?: FeatureState, runConditions?: unknown }} [breakageReport]
- * @property {{ state?: FeatureState, runConditions?: unknown, when?: { intervalMs: number[] } }} [auto]
+ * @typedef {NonNullable<RawDetectorConfig['triggers']>} RawTriggers
  */
 
 /**
@@ -135,7 +126,7 @@ export function compileDetectorConfig(config, global) {
  * Parse detector configurations from raw config. `match` and `actions` are compiled separately, by
  * `compileDetectorConfig`.
  *
- * @param {Record<string, Record<string, RawDetectorConfig>> | undefined} detectorsConfig
+ * @param {WebDetectionSettings['detectors']} detectorsConfig
  * @returns {Record<string, Record<string, DetectorConfig>>}
  */
 export function parseDetectors(detectorsConfig) {

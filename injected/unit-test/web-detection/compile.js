@@ -22,7 +22,7 @@ import {
 } from './support.js';
 
 /**
- * @typedef {import('../../src/features/web-detection/compile/detector-config.js').RawDetectorConfig} RawDetectorConfig
+ * @typedef {import('@duckduckgo/privacy-configuration/schema/features/web-detection.js').DetectorConfig} RawDetectorConfig
  */
 
 describe('WebDetection compile', () => {

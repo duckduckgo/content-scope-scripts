@@ -16,7 +16,7 @@ import { finish } from './positions.js';
 
 /**
  * @import { Node, NodeBase, IfNode, ItemBinder, ItemNode, Position, CompiledPayloadField, SourceBody } from '../model/types.js'
- * @import { RawDetectorConfig } from './detector-config.js'
+ * @import { DetectorConfig as RawDetectorConfig } from '@duckduckgo/privacy-configuration/schema/features/web-detection.js'
  * @import { PageSources } from '../sources/index.js'
  */
 
