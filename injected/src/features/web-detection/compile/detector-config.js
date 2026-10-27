@@ -1,4 +1,4 @@
-import { NAME_PATTERN, thrownMessage } from '../model/core.js';
+import { NAME_PATTERN, isPlainObject, thrownMessage } from '../model/core.js';
 import { pageSources } from '../sources/index.js';
 import { compileDetector } from './compile.js';
 
@@ -147,7 +147,7 @@ export function parseDetectors(detectorsConfig) {
     }
 
     for (const [groupName, groupConfig] of Object.entries(detectorsConfig)) {
-        if (!isValidName(groupName)) {
+        if (!isValidName(groupName) || !isPlainObject(groupConfig)) {
             continue;
         }
 
@@ -155,7 +155,7 @@ export function parseDetectors(detectorsConfig) {
         const groupDetectors = {};
 
         for (const [detectorId, detectorConfig] of Object.entries(groupConfig)) {
-            if (!isValidName(detectorId)) {
+            if (!isValidName(detectorId) || !isPlainObject(detectorConfig)) {
                 continue;
             }
 
