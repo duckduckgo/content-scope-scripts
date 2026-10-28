@@ -1,8 +1,10 @@
 .dropdown {
     background: var(--ds-color-theme-surface-tertiary);
-    border-radius: 6px;
-    border: 1px solid var(--ds-color-theme-container-border-secondary);
-    box-shadow: 0 10px 24px var(--ds-color-theme-shadow-primary);
+    border-radius: 13px;
+    box-shadow:
+        0 0 0 0.5px rgba(0, 0, 0, 0.2),
+        0 10px 24px rgba(0, 0, 0, 0.32),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.2);
     list-style: none;
     margin: 0;
     min-width: 245px;
@@ -13,6 +15,23 @@
 
     &:focus-visible {
         outline: none;
+    }
+
+    [data-platform='windows'] & {
+        border-radius: 8px;
+        box-shadow:
+            0 0 0 1px var(--ds-color-theme-shadow-secondary),
+            0 8px 8px var(--ds-color-theme-shadow-secondary),
+            0 2px 4px var(--ds-color-theme-shadow-secondary);
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 260px;
+        padding: 4px;
+
+        & > li {
+            flex-shrink: 0;
+        }
     }
 }
 
@@ -37,22 +56,27 @@
 .item {
     align-items: center;
     border-radius: 3px;
+    box-sizing: border-box;
     color: var(--ds-color-theme-text-primary);
     cursor: pointer;
     display: flex;
     font-size: 13px;
     gap: 6px;
-    padding: 6px 9px;
+    min-height: 32px;
+    padding: 5px 9px;
     text-align: left;
     white-space: nowrap;
 
     & > svg {
         flex-shrink: 0;
     }
-}
 
-.dropdown.roomy  {
-    min-width: 300px;
+    [data-platform='windows'] & {
+        border-radius: 4px;
+        font-size: 14px;
+        gap: 10px;
+        padding: 4px 10px;
+    }
 }
 
 .trailingIcon {
@@ -64,6 +88,11 @@
 
 .itemActive .trailingIcon {
     color: var(--ds-color-theme-accent-content-primary);
+}
+
+/* Keeps the open submenu's wrapper out of the parent's layout, so it adds no flex gap. */
+.submenuPanel {
+    display: contents;
 }
 
 /* Right-pointing chevron on a DropdownSubmenu row. Its colour stays put when the row is active. */
@@ -90,32 +119,41 @@
 }
 
 .checkmark {
+    color: transparent;
     flex-shrink: 0;
     height: 12px;
     position: relative;
     width: 4px;
 
-    &::before {
-        color: transparent;
-        content: '\2713';
-        font-size: 13px;
-        font-weight: 700;
+    & > svg {
         left: -5px;
-        line-height: 12px;
+        max-width: none;
         position: absolute;
-        top: 0;
+        top: calc(50% + 0.5px);
+        transform: translateY(-50%);
+    }
+
+    [data-platform='windows'] & {
+        display: flex;
+        height: 16px;
+        width: 16px;
+
+        & > svg {
+            position: static;
+            transform: none;
+        }
     }
 }
 
-.itemSelected .checkmark::before {
+.itemSelected .checkmark {
     color: var(--ds-color-theme-text-primary);
 }
 
-.itemActive .checkmark::before {
+.itemActive .checkmark {
     color: transparent;
 }
 
-.itemActive.itemSelected .checkmark::before {
+.itemActive.itemSelected .checkmark {
     color: var(--ds-color-theme-text-primary);
 }
 
@@ -126,15 +164,18 @@
 }
 
 .separator {
-    border-top: 1px solid var(--ds-color-theme-surface-decoration-secondary);
-    margin: 4px 4px;
+    border-top: 1px solid var(--ds-color-theme-surface-decoration-primary);
+    margin: 8px 0;
+
+    [data-platform='windows'] & {
+        margin: 0 8px;
+    }
 }
 
 .itemLabel {
     display: flex;
     flex: 1;
     flex-direction: column;
-    gap: 1px;
     min-width: 0;
 }
 
@@ -145,16 +186,22 @@
     line-height: 16px;
 
     [data-platform='windows'] & {
+        letter-spacing: normal;
         line-height: 18px;
     }
 }
 
 .itemDescription {
-    line-height: 16px;
+    line-height: 15px;
     color: var(--ds-color-theme-text-secondary);
     font-size: 12px;
     overflow: hidden;
     text-overflow: ellipsis;
+
+    [data-platform='windows'] & {
+        font-size: 14px;
+        line-height: 18px;
+    }
 }
 
 .sectionHeader {
@@ -162,7 +209,13 @@
     color: var(--ds-color-theme-text-tertiary);
     cursor: default;
     display: flex;
-    font-size: 13px;
-    padding: var(--sp-1) 9px var(--sp-1) 19px;
+    font-size: 12px;
+    height: 24px;
+    line-height: 15px;
+    padding: 0 9px 0 19px;
     white-space: nowrap;
+
+    [data-platform='windows'] & {
+        padding: 0 10px 0 36px;
+    }
 }

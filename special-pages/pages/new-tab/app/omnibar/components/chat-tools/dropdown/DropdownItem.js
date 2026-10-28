@@ -1,6 +1,7 @@
 import { h } from 'preact';
 import { useLayoutEffect, useRef } from 'preact/hooks';
 import cn from 'classnames';
+import { DropdownCheckmark } from './DropdownCheckmark';
 import styles from './Dropdown.module.css';
 
 /**
@@ -95,7 +96,7 @@ export function DropdownItem({
             onMouseEnter={onHover}
             onClick={onClick}
         >
-            {showCheckGutter && <span class={styles.checkmark} aria-hidden="true" />}
+            {showCheckGutter && <DropdownCheckmark />}
             {icon}
             <div class={styles.itemLabel}>
                 <span class={styles.itemName}>{name}</span>
