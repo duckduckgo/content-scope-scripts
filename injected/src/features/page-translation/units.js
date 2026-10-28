@@ -25,11 +25,10 @@ const LETTER = /\p{L}/u;
 /**
  * Finds the translatable units under `root`, in document order.
  * @param {Element} root
- * @param {{ sourceLanguage: string, skip?: (node: Node) => boolean }} options
  * @returns {UnitTarget[]}
  */
-export function findUnits(root, options) {
-    const walk = new Walk(options.sourceLanguage);
+export function findUnits(root) {
+    const walk = new Walk();
     /** @type {UnitTarget[]} */
     const units = [];
     walk.visit(root, units);
@@ -57,18 +56,39 @@ export function isInViewport(target) {
 }
 
 /**
- * Whether `el` and everything inside it must stay as it is.
+ * Whether `el` and everything inside it must stay as it is, whatever the page's language.
+ * @param {Element} el
+ * @returns {boolean}
+ */
+export function isExcluded(el) {
+    if (el.matches(EXCLUDED_TAGS)) return true;
+    if (el.getAttribute('translate')?.trim().toLowerCase() === 'no' || el.classList.contains('notranslate')) return true;
+    return !!(/** @type {HTMLElement} */ (el).isContentEditable);
+}
+
+/**
+ * Whether `el` is marked as a language other than `sourceLanguage`. Checked at apply time, once native knows the
+ * page's language: such content is extracted and translated, but never written back.
  * @param {Element} el
  * @param {string} sourceLanguage
  * @returns {boolean}
  */
-export function isExcluded(el, sourceLanguage) {
-    if (el.matches(EXCLUDED_TAGS)) return true;
-    if (el.getAttribute('translate')?.trim().toLowerCase() === 'no' || el.classList.contains('notranslate')) return true;
-    if (/** @type {HTMLElement} */ (el).isContentEditable) return true;
+export function isOtherLanguage(el, sourceLanguage) {
+    if (!sourceLanguage.trim()) return false;
     // The <html> lang is ignored: it's often wrong, and we overwrite it.
     const lang = el === document.documentElement ? null : el.getAttribute('lang');
     return !!lang?.trim() && primaryLanguage(lang) !== primaryLanguage(sourceLanguage);
+}
+
+/**
+ * Whether `el` or an ancestor below <html> is marked as another language. The nearest `lang` wins.
+ * @param {Element} el
+ * @param {string} sourceLanguage
+ * @returns {boolean}
+ */
+export function isInOtherLanguage(el, sourceLanguage) {
+    const marked = el.closest('[lang]');
+    return !!marked && isOtherLanguage(marked, sourceLanguage);
 }
 
 /** @param {string} tag */
@@ -84,11 +104,6 @@ function primaryLanguage(tag) {
 
 /** Per-walk state, so computed styles are read once per element. */
 class Walk {
-    /** @param {string} sourceLanguage */
-    constructor(sourceLanguage) {
-        this.sourceLanguage = sourceLanguage;
-    }
-
     /** @type {Map<Element, boolean>} */
     #inline = new Map();
     /** @type {Map<Element, boolean>} */
@@ -145,7 +160,7 @@ class Walk {
 
     /** @param {Element} el */
     isExcluded(el) {
-        return isExcluded(el, this.sourceLanguage);
+        return isExcluded(el);
     }
 
     /** @param {Element} el */

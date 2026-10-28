@@ -17,17 +17,16 @@ const NEVER_SENT = new Set(['script', 'style', 'template']);
  * element is reduced to its tag and a per-unit `data-t` id. Attributes stay on the live nodes.
  * Excluded elements inside a unit go as empty tags: the engine never sees their text and they're put back as they are.
  * @param {UnitTarget} target
- * @param {string} sourceLanguage
  * @returns {Serialized}
  */
-export function serializeUnit(target, sourceLanguage) {
+export function serializeUnit(target) {
     /** @type {Element[]} */
     const elements = [];
     if (target.kind === 'attribute') {
         return { text: stripSoftHyphens(target.element.getAttribute(target.attribute) || ''), html: false, wrapped: false, elements };
     }
     const nodes = target.kind === 'run' ? target.nodes : [...target.element.childNodes];
-    const html = serializeNodes(nodes, elements, sourceLanguage);
+    const html = serializeNodes(nodes, elements);
     if (elements.length === 0) {
         return {
             text: stripSoftHyphens(nodes.map((node) => (node.nodeType === TEXT_NODE ? node.nodeValue : '')).join('')),
@@ -52,10 +51,9 @@ export function serializeUnit(target, sourceLanguage) {
 /**
  * @param {Iterable<ChildNode>} nodes
  * @param {Element[]} elements
- * @param {string} sourceLanguage
  * @returns {string}
  */
-function serializeNodes(nodes, elements, sourceLanguage) {
+function serializeNodes(nodes, elements) {
     let out = '';
     for (const node of nodes) {
         if (node.nodeType === TEXT_NODE) {
@@ -68,7 +66,7 @@ function serializeNodes(nodes, elements, sourceLanguage) {
             if (VOID.has(tag)) {
                 out += `<${tag} data-t="${id}">`;
             } else {
-                const inner = isExcluded(el, sourceLanguage) ? '' : serializeNodes(el.childNodes, elements, sourceLanguage);
+                const inner = isExcluded(el) ? '' : serializeNodes(el.childNodes, elements);
                 out += `<${tag} data-t="${id}">${inner}</${tag}>`;
             }
         }

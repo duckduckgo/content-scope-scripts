@@ -5,9 +5,19 @@
   "type": "object",
   "additionalProperties": false,
   "required": [
+    "sourceLanguage",
+    "targetLanguage",
     "updates"
   ],
   "properties": {
+    "sourceLanguage": {
+      "type": "string",
+      "description": "Detected page language (BCP 47). Content marked as another language is not written back."
+    },
+    "targetLanguage": {
+      "type": "string",
+      "description": "Language translated into (BCP 47). Set as the page lang on the first write."
+    },
     "updates": {
       "type": "array",
       "items": {
