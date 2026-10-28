@@ -5,7 +5,7 @@ const PAGES = '/page-translation/pages';
 const CONFIG = './integration-test/test-pages/page-translation/config/page-translation.json';
 
 /**
- * @typedef {{ id: number, text: string, vp: 0 | 1 }} Unit
+ * @typedef {{ id: number, text: string, html: boolean, vp: 0 | 1 }} Unit
  * @typedef {{ id: number, text: string }} Update
  * @typedef {object} Fixture
  * @property {string} page
@@ -102,27 +102,30 @@ async function send(collector, name, params, reply) {
 }
 
 /** @param {ResultsCollector} collector @returns {Promise<Unit[]>} */
-const extract = async (collector) => (await send(collector, 'extract', {}, 'extractResult')).units;
+const extract = async (collector) =>
+    (await send(collector, 'extract', { sourceLanguage: 'en', targetLanguage: 'de' }, 'extractResult')).units;
 /** @param {ResultsCollector} collector @param {Update[]} updates @returns {Promise<number>} */
 const apply = async (collector, updates) => (await send(collector, 'apply', { updates }, 'applyResult')).count;
 /** @param {ResultsCollector} collector @returns {Promise<number>} */
 const revert = async (collector) => (await send(collector, 'revert', {}, 'revertResult')).count;
 
 /** @param {Unit[]} units @returns {Update[]} */
-const translateAll = (units) => units.map(({ id, text }) => ({ id, text: pseudoTranslate(text) }));
+const translateAll = (units) => units.map(({ id, text, html }) => ({ id, text: html ? pseudoTranslate(text) : `‹${text}›` }));
 
 /**
- * Each unit's text as a reader sees it: markup parsed, whitespace collapsed.
+ * Each unit's text as a reader sees it: HTML units parsed, whitespace collapsed.
  * @param {import('@playwright/test').Page} page
  * @param {Unit[]} units
  */
 function plainTexts(page, units) {
     return page.evaluate(
-        (texts) => {
+        (list) => {
             const parser = new DOMParser();
-            return texts.map((t) => (parser.parseFromString(t, 'text/html').body.textContent || '').replace(/\s+/g, ' ').trim());
+            return list.map(({ text, html }) =>
+                ((html ? parser.parseFromString(text, 'text/html').body.textContent : text) || '').replace(/\s+/g, ' ').trim(),
+            );
         },
-        units.map((u) => u.text),
+        units.map(({ text, html }) => ({ text, html })),
     );
 }
 
@@ -214,6 +217,21 @@ test.describe('pageTranslation', () => {
             });
         });
     }
+
+    test('serializes inline elements with per-unit ids and no attributes', async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'merge.html');
+        const units = await extract(collector);
+        expect(units.map(({ text, html }) => ({ text, html }))).toEqual([
+            { text: 'The <b data-t="0">quick</b> brown <a data-t="1">fox</a> jumps.', html: true },
+            { text: 'Plain heading', html: false },
+        ]);
+        expect(new Set(units.map((u) => u.id)).size).toBe(units.length);
+    });
+
+    test('extracts every paragraph of a large page', async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'large.html');
+        expect((await extract(collector)).length).toBe(2000);
+    });
 
     test('marks only units on screen as in the viewport', async ({ page }, testInfo) => {
         const collector = await openPage(page, testInfo, 'article.html');
