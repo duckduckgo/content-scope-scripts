@@ -20,8 +20,8 @@ export default class ApiManipulation extends ContentFeature {
     init() {
         const apiChanges = this.getFeatureSetting('apiChanges');
         if (apiChanges) {
-            // A scope is applied before the scopes beneath it, whatever the key order
-            const scopes = objectKeys(apiChanges).sort((a, b) => a.split('.').length - b.split('.').length);
+            // A scope sorts before the scopes beneath it, so it is applied first whatever the key order
+            const scopes = objectKeys(apiChanges).sort();
             for (const scope of scopes) {
                 const change = apiChanges[scope];
                 if (!this.checkIsValidAPIChange(change)) {

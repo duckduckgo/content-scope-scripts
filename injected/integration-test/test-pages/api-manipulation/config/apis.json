@@ -121,7 +121,7 @@
                             "value": "an accessor takes no value, so this change throws"
                         }
                     },
-                    "Navigator.prototype.afterThrowingChange": {
+                    "Navigator.prototype.sortedAfterThrowingChange": {
                         "type": "descriptor",
                         "getterValue": {
                             "type": "number",
