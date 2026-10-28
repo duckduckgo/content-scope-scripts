@@ -452,6 +452,49 @@ describe('ContentFeature class', () => {
             const feature = new BaseTestFeature('loadingFeature', {}, {});
             expect(feature.callLoad()).toBe(true);
         });
+
+        describe('additionalCheck', () => {
+            let loaded = false;
+            class GatedFeature extends BaseTestFeature {
+                load() {
+                    loaded = true;
+                }
+            }
+
+            beforeEach(() => {
+                loaded = false;
+            });
+
+            it('should return false, without running load, when additionalCheck is disabled', () => {
+                const feature = new GatedFeature(
+                    'gatedFeature',
+                    {},
+                    { featureSettings: { gatedFeature: { additionalCheck: 'disabled' } } },
+                );
+                expect(feature.callLoad()).toBe(false);
+                expect(loaded).toBe(false);
+            });
+
+            it('should return false, without throwing or running load, when a conditionalChanges condition throws', () => {
+                const args = {
+                    site: { domain: 'example.com', url: 'https://example.com/' },
+                    featureSettings: {
+                        gatedFeature: {
+                            conditionalChanges: [
+                                {
+                                    condition: { urlPattern: 'https://example.com/(' },
+                                    patchSettings: [{ op: 'add', path: '/additionalCheck', value: 'enabled' }],
+                                },
+                            ],
+                        },
+                    },
+                };
+                const feature = new GatedFeature('gatedFeature', {}, args);
+                expect(() => feature.getFeatureSettingEnabled('additionalCheck', 'enabled')).toThrowError(TypeError);
+                expect(feature.callLoad()).toBe(false);
+                expect(loaded).toBe(false);
+            });
+        });
     });
 
     describe('addDebugFlag', () => {
