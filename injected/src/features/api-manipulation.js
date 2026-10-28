@@ -7,7 +7,7 @@
  */
 import ContentFeature from '../content-feature.js';
 // eslint-disable-next-line no-redeclare
-import { ReflectApply, getOwnPropertyDescriptor, hasOwnProperty, objectDefineProperty } from '../captured-globals.js';
+import { ReflectApply, getOwnPropertyDescriptor, hasOwnProperty, objectDefineProperty, objectKeys } from '../captured-globals.js';
 import { processAttr } from '../utils.js';
 import { mergePropertyDescriptors, wrapToString } from '../wrapper-utils.js';
 
@@ -20,12 +20,18 @@ export default class ApiManipulation extends ContentFeature {
     init() {
         const apiChanges = this.getFeatureSetting('apiChanges');
         if (apiChanges) {
-            for (const scope in apiChanges) {
+            // A scope is applied before the scopes beneath it, whatever the key order
+            const scopes = objectKeys(apiChanges).sort((a, b) => a.split('.').length - b.split('.').length);
+            for (const scope of scopes) {
                 const change = apiChanges[scope];
                 if (!this.checkIsValidAPIChange(change)) {
                     continue;
                 }
-                this.applyApiChange(scope, change);
+                try {
+                    this.applyApiChange(scope, change);
+                } catch (e) {
+                    this.log.error(`Failed to apply change to ${scope}:`, e);
+                }
             }
         }
     }

@@ -104,6 +104,21 @@
             ];
         });
 
+        test('Order of apiChanges keys', async () => {
+            return [
+                {
+                    name: "Scope listed before its parent is applied",
+                    result: window.orderedParent?.child,
+                    expected: 1
+                },
+                {
+                    name: "Change listed after a change that throws is applied",
+                    result: navigator.afterThrowingChange,
+                    expected: 1
+                }
+            ];
+        });
+
         // eslint-disable-next-line no-undef
         renderResults();
     </script>
