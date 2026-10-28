@@ -156,8 +156,10 @@ export default class SelectionTools extends ContentFeature {
      * Ask alone is worth a toolbar, and drops repeats.
      * @param {Config | null} config
      * @param {SelectionSnapshot} snapshot
+     * @param {{ forContextMenu?: boolean }} [options] The selection a context menu opened on, which native shows the toolbar
+     *   for, collapsed, once the menu closes
      */
-    _report(config, snapshot) {
+    _report(config, snapshot, { forContextMenu = false } = {}) {
         if (!config?.enabled || !config.showToolbar || isInTopLayer(snapshot.element)) {
             this._clear();
             return;
@@ -167,6 +169,7 @@ export default class SelectionTools extends ContentFeature {
             ...this._describe(config, snapshot),
             ...geometryOf(snapshot),
             maxVisibleActions: this._maxVisibleActions,
+            ...(forContextMenu ? { contextMenu: true } : {}),
         });
         this.addDebugFlag();
     }
@@ -185,6 +188,9 @@ export default class SelectionTools extends ContentFeature {
         if (!config?.enabled) return;
         const { text, sourceLanguage, selectionType, editable, actions } = this._describe(config, snapshot);
         this.notify('contextMenuOpened', { text, ...(sourceLanguage ? { sourceLanguage } : {}), selectionType, editable, actions });
+        // Without a toolbar showing before, the menu's selection still gets the chip once the menu closes, as when the
+        // toolbar was in the page; native needs to know where it is for that.
+        this._report(config, snapshot, { forContextMenu: true });
     }
 
     /**

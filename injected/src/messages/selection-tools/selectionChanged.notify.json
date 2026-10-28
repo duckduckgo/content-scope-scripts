@@ -46,6 +46,10 @@
     "maxVisibleActions": {
       "type": "integer",
       "description": "Toolbar buttons before \"more\", Ask included, from the remote config."
+    },
+    "contextMenu": {
+      "type": "boolean",
+      "description": "True for the selection a context menu opened on: native shows the toolbar for it, collapsed, once the menu closes."
     }
   }
 }

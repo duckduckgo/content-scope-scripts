@@ -97,6 +97,10 @@ export interface SelectionChangedParams {
    * Toolbar buttons before "more", Ask included, from the remote config.
    */
   maxVisibleActions: number;
+  /**
+   * True for the selection a context menu opened on: native shows the toolbar for it, collapsed, once the menu closes.
+   */
+  contextMenu?: boolean;
 }
 /**
  * The selected text's bounds in CSS pixels, relative to the viewport. Multiply by devicePixelRatio for physical pixels.
