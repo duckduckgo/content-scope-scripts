@@ -47,24 +47,16 @@ export class MessageBridge extends ContentFeature {
 
     load(args) {
         /**
-         * In the extension, pages can call `createMessageBridge()` before the remote config arrives,
-         * so the bridge listens from load when the bundled config enables a feature on this page
+         * In the extension, pages can call `createMessageBridge()` before the remote config arrives. At load it exists
+         * only on navigatorInterface's privileged domains, so the bridge listens from load there when the bundled config enables it
          */
-        if (args.platform?.name === 'extension' && this.isAnyFeatureEnabled()) {
+        if (
+            args.platform?.name === 'extension' &&
+            this.featureSettings?.[this.name] &&
+            this.matchConditionalFeatureSetting('privilegedDomains', 'navigatorInterface').length
+        ) {
             this.listen(args);
         }
-    }
-
-    /**
-     * Whether the config lets the page install any feature on this site
-     * @returns {boolean}
-     */
-    isAnyFeatureEnabled() {
-        const settings = this.featureSettings?.[this.name];
-        if (!settings) return false;
-        return Object.keys(settings)
-            .filter((key) => key !== 'domains' && key !== 'conditionalChanges')
-            .some((featureName) => this.getFeatureSettingEnabled(featureName));
     }
 
     init(args) {

@@ -12,6 +12,13 @@ function bundledConfigWithBridge(bridgeState) {
     return {
         unprotectedTemporary: [],
         features: {
+            navigatorInterface: {
+                state: 'enabled',
+                exceptions: [],
+                settings: {
+                    privilegedDomains: [{ domain: 'duckduckgo.com' }],
+                },
+            },
             messageBridge: {
                 state: bridgeState,
                 exceptions: [],
@@ -97,26 +104,30 @@ describe('MessageBridge at load', () => {
         expect(replies[1]).toEqual(jasmine.objectContaining({ id: 'request-1', result: { platform: 'windows' } }));
     });
 
-    it('does not listen on a site where the config enables no feature', () => {
+    it('listens on a privileged domain where the config enables no feature, and installs nothing there', () => {
         const { bridge, args, send, replies } = setUp({ domain: 'duckduckgo.com' });
         bridge.load(args);
-        expect(bridge.installed).toBeFalse();
+        expect(bridge.installed).toBeTrue();
         send(install);
         expect(replies).toEqual([]);
+    });
+
+    it('does not listen outside the privileged domains', () => {
+        const { bridge, args } = setUp({ domain: 'example.com' });
+        bridge.load(args);
+        expect(bridge.installed).toBeFalse();
     });
 
     it('does not listen when the bundled config disables the bridge', () => {
-        const { bridge, args, send, replies } = setUp({ bridgeState: 'disabled' });
+        const { bridge, args } = setUp({ bridgeState: 'disabled' });
         bridge.load(args);
-        send(install);
-        expect(replies).toEqual([]);
+        expect(bridge.installed).toBeFalse();
     });
 
     it('does not listen outside the extension', () => {
-        const { bridge, args, send, replies } = setUp({ platform: 'windows' });
+        const { bridge, args } = setUp({ platform: 'windows' });
         bridge.load(args);
-        send(install);
-        expect(replies).toEqual([]);
+        expect(bridge.installed).toBeFalse();
     });
 
     it('answers each install once when init follows load', async () => {
