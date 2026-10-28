@@ -1,9 +1,9 @@
 import { isArray, ReflectApply } from '../../../captured-globals.js';
-import { isFailure, thrownFailure } from './core.js';
+import { DetectionError, isFailure, thrownFailure } from './core.js';
 
 /**
  * @import { Failure } from './core.js'
- * @import { PredicateContext } from './types.js'
+ * @import { IterNode, PredicateContext } from './types.js'
  */
 
 /**
@@ -32,6 +32,8 @@ export class ItemBuffer {
     #iterator;
     /** Whether the source failed as a whole, which every placement reaches, a length cut at 0 included */
     #failedWhole = false;
+    /** Whether `take` handed the iterator over */
+    #taken = false;
 
     /**
      * @param {object} value
@@ -68,6 +70,7 @@ export class ItemBuffer {
      * @returns {Failure | undefined} the failure reached before `count` values, if any
      */
     pull(count) {
+        if (this.#taken) throw new DetectionError('a list read as it streams is read once');
         while (this.values.length < count && !this.done) {
             const next = /** @type {Iterator<unknown>} */ (this.#iterator).next();
             if (next.done) {
@@ -81,6 +84,82 @@ export class ItemBuffer {
         }
         return this.values.length < count || this.#failedWhole ? this.failure : undefined;
     }
+
+    /**
+     * Hand over the iterator of a list no read has started, so its items are read without being kept.
+     * The buffer is then read through the iterator only.
+     *
+     * @returns {Iterator<unknown> | undefined} `undefined` once a read has started, or for a source that failed as a whole
+     */
+    take() {
+        if (this.started) return undefined;
+        this.#taken = true;
+        this.done = true;
+        return this.#iterator;
+    }
+}
+
+/**
+ * The items of an `iter` an operand of `sum`, `mul`, `any`, `all` or `none` reads, as they are produced
+ * and kept nowhere. A `Failure` item ends them.
+ */
+export class ItemStream {
+    #brand = true;
+
+    /**
+     * @param {Iterable<unknown>} items
+     */
+    constructor(items) {
+        /** @readonly */
+        this.items = items;
+    }
+
+    /**
+     * @param {object} value
+     * @returns {boolean}
+     */
+    static has(value) {
+        return #brand in value;
+    }
+}
+
+/**
+ * @param {unknown} value
+ * @returns {value is ItemStream}
+ */
+export function isItemStream(value) {
+    return typeof value === 'object' && value !== null && ItemStream.has(value);
+}
+
+/**
+ * What `define` binds for an `iter`: the expression, which each `ref` evaluates again.
+ */
+export class IterRecipe {
+    #brand = true;
+
+    /**
+     * @param {IterNode} node
+     */
+    constructor(node) {
+        /** @readonly */
+        this.node = node;
+    }
+
+    /**
+     * @param {object} value
+     * @returns {boolean}
+     */
+    static has(value) {
+        return #brand in value;
+    }
+}
+
+/**
+ * @param {unknown} value
+ * @returns {value is IterRecipe}
+ */
+export function isIterRecipe(value) {
+    return typeof value === 'object' && value !== null && IterRecipe.has(value);
 }
 
 /**

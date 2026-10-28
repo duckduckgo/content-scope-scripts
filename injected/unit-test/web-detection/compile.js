@@ -158,6 +158,17 @@ describe('WebDetection compile', () => {
             rejectsMatch({ text: { any: [{ pattern: 'a' }] } }, "unknown key 'any'");
             rejectsMatch({ element: [{ selector: 'p' }, { none: [{ selector: 'a' }] }] }, "unknown key 'none'");
         });
+
+        it('rejects an iter outside the positions it fills, and keys it does not take', () => {
+            rejectsMatch({ iter: [true] }, "'iter' does not fill boolean position");
+            rejectsMatch({ div: [{ iter: [1] }, 1], is: 1 }, "'iter' does not fill number position");
+            rejectsMatch({ any: { expr: { iter: [true] } } }, "'iter' does not fill boolean position");
+            rejectsMatch({ any: { iter: { ref: 'x' } } }, "'iter' takes 'element', 'text', 'api' or an array");
+            rejectsMatch({ any: { iter: { element: { selector: 'p' }, using: 'length' } } }, "'iter' takes 'element'");
+            rejectsMatch({ iter: [true], element: { selector: 'p' } }, "'iter' takes no other expression key");
+            rejectsMatch({ element: { selector: 'p' }, where: {} }, "'where' sits beside 'iter' only");
+            rejectsMatch({ sum: { expr: [1], field: 'x' }, is: 1 }, "'field' sits beside 'iter' only");
+        });
     });
 
     describe('unwrapping', () => {

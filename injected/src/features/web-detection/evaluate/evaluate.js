@@ -1,12 +1,13 @@
 import { JSONparse, JSONstringify } from '../../../captured-globals.js';
 import { DetectionError, decides, errorPath, isFailure, isScalar, thrownFailure, thrownMessage, typeName } from '../model/core.js';
-import { ItemBuffer, asList, isItemBuffer, listMembers } from '../model/lists.js';
+import { IterRecipe, ItemBuffer, ItemStream, asList, isItemBuffer, isItemStream, isIterRecipe, listMembers } from '../model/lists.js';
 import { evaluateArgs, readPath } from '../predicates/fields.js';
 import { testPredicate } from '../predicates/predicates.js';
+import { selectItems } from '../sources/common.js';
 
 /**
  * @import { Failure } from '../model/core.js'
- * @import { ActionNode, ArithmeticNode, CompiledPayloadField, IfNode, ItemBinder, LengthNode, LogicNode } from '../model/types.js'
+ * @import { ActionNode, ArithmeticNode, CompiledPayloadField, IfNode, ItemBinder, IterNode, LengthNode, LogicNode } from '../model/types.js'
  * @import { Node, OnlyNode, PayloadData, Position, SequenceNode, SourceNode, UsingNode } from '../model/types.js'
  * @import { CompiledPredicate } from '../predicates/predicates.js'
  * @import { EvaluationContext } from './context.js'
@@ -57,9 +58,11 @@ export function evaluate(node, position, ctx) {
         /** @type {unknown} */
         let result;
         switch (node.kind) {
-            case 'ref':
-                result = positioned((node.name.startsWith('this.') ? ctx.detectorNames : ctx.runNames).get(node.name), position);
+            case 'ref': {
+                const value = (node.name.startsWith('this.') ? ctx.detectorNames : ctx.runNames).get(node.name);
+                result = isIterRecipe(value) ? readIter(value.node, position, ctx) : positioned(value, position);
                 break;
+            }
             case 'expr':
                 // `expr` gives its operand's value in its own position, or the boolean the operand's `is` gives
                 result = node.operand.is ? evaluateOccurrence(node.operand, ctx) : evaluate(node.operand, position, ctx);
@@ -79,6 +82,9 @@ export function evaluate(node, position, ctx) {
             case 'list':
                 // Every entry, in order, as `args` passes it: a selected list as an array of its items
                 result = evaluateArgs(node.entries, ctx);
+                break;
+            case 'iter':
+                result = readIter(node, position, ctx);
                 break;
             case 'length':
                 result = computeLength(node, ctx);
@@ -186,6 +192,137 @@ function readSource(node, position, ctx) {
     const value = node.source.read(node.bodies, ctx);
     if (isItemBuffer(value)) value.leaf = node.leaf;
     return positioned(value, position);
+}
+
+/**
+ * An `iter` where it is read: as it streams for an operand of `sum`, `mul`, `any`, `all` and `none`,
+ * else a list read in full, whose length a new stream of it counts.
+ *
+ * @param {IterNode} node
+ * @param {Position} position
+ * @param {EvaluationContext} ctx
+ * @returns {unknown} the value, or a `Failure`
+ */
+function readIter(node, position, ctx) {
+    if (position === 'stream' || position === 'spread') return new ItemStream(iterItems(node, ctx));
+    return positioned(new ItemBuffer(iterItems(node, ctx), { count: () => countIter(node, ctx) }), position);
+}
+
+/**
+ * An `iter`'s values, each read when the reader asks for it: the source's items or the entries'
+ * values, through `where` then `field`. A `Failure` ends them.
+ *
+ * @param {IterNode} node
+ * @param {EvaluationContext} ctx
+ * @returns {Generator<unknown>}
+ */
+function* iterItems(node, ctx) {
+    const items = node.source ? sourceItems(evaluate(node.source, node.source.position, ctx), ctx) : entryItems(node.entries ?? [], ctx);
+    yield* selectItems(items, node, ctx);
+}
+
+/**
+ * The items of a source's value: a list's buffer, read without keeping them, or an iterable's members.
+ *
+ * @param {unknown} value - the value, or a `Failure`
+ * @param {EvaluationContext} ctx
+ * @returns {Generator<unknown>}
+ */
+function* sourceItems(value, ctx) {
+    if (isFailure(value)) {
+        yield value;
+        return;
+    }
+    if (isItemBuffer(value)) {
+        // A source gives a new buffer each time evaluation reaches it, so no other read shares it
+        yield* bufferItems(value, true);
+        return;
+    }
+    const members = listMembers(value, ctx);
+    if (members === undefined) throw new DetectionError(`'iter' takes a list, got ${typeName(value)}`);
+    if (isFailure(members)) yield members;
+    else yield* members;
+}
+
+/**
+ * Each entry's value, evaluated when the one before it has been read. A list entry contributes each item.
+ *
+ * @param {Node[]} entries
+ * @param {EvaluationContext} ctx
+ * @returns {Generator<unknown>}
+ */
+function* entryItems(entries, ctx) {
+    for (const entry of entries) {
+        const spread = readSpread(entry, ctx);
+        if (isFailure(spread)) yield spread;
+        else if ('stream' in spread) yield* spread.stream.items;
+        else if ('list' in spread) yield* bufferItems(spread.list, entry.kind === 'source');
+        else if (isItemBuffer(spread.value)) yield* bufferItems(spread.value, entry.kind === 'source');
+        else {
+            // In value position, a list such as `{"expr": [...]}` contributes each item, as an operand's does
+            const members = listMembers(spread.value, ctx);
+            if (members === undefined) yield spread.value;
+            else if (isFailure(members)) yield members.at(entry.path);
+            else yield* members;
+        }
+    }
+}
+
+/**
+ * A buffer's items: through its iterator when `take` is set and no read has started, keeping none,
+ * else as the buffer keeps them. A `Failure` ends them.
+ *
+ * @param {ItemBuffer} buffer
+ * @param {boolean} take - whether no other read shares the buffer
+ * @returns {Generator<unknown>}
+ */
+function* bufferItems(buffer, take) {
+    const iterator = take ? buffer.take() : undefined;
+    if (iterator) {
+        for (let next = iterator.next(); !next.done; next = iterator.next()) {
+            yield next.value;
+            if (isFailure(next.value)) return;
+        }
+        return;
+    }
+    for (let i = 0; ; i++) {
+        const failure = buffer.pull(i + 1);
+        if (failure) {
+            yield failure;
+            return;
+        }
+        if (i >= buffer.values.length) return;
+        yield buffer.values[i];
+    }
+}
+
+/**
+ * The number of an `iter`'s values, read as they stream, or through the source's own count without
+ * `where` or `field`.
+ *
+ * @param {IterNode} node
+ * @param {EvaluationContext} ctx
+ * @returns {number | undefined} `undefined` where a value fails, for the list read in full to report it
+ */
+function countIter(node, ctx) {
+    /** @type {Iterable<unknown>} */
+    let items;
+    if (node.source && !node.where && !node.field) {
+        const value = evaluate(node.source, node.source.position, ctx);
+        if (isItemBuffer(value) && !value.started) {
+            const count = value.shortcuts.count?.();
+            if (count !== undefined) return count;
+        }
+        items = sourceItems(value, ctx);
+    } else {
+        items = iterItems(node, ctx);
+    }
+    let count = 0;
+    for (const item of items) {
+        if (isFailure(item)) return undefined;
+        count++;
+    }
+    return count;
 }
 
 /**
@@ -356,6 +493,12 @@ function runAction(node, ctx) {
  */
 function applyAction(node, ctx) {
     if (node.kind === 'define') {
+        const names = node.name.startsWith('this.') ? ctx.detectorNames : ctx.runNames;
+        // An `iter` is bound as its expression, which each `ref` evaluates again
+        if (node.value.kind === 'iter') {
+            names.set(node.name, new IterRecipe(node.value));
+            return undefined;
+        }
         const value = evaluate(node.value, node.value.position, ctx);
         if (isFailure(value)) return value;
         // A list is held as its buffer, read in full now, so every `ref` reads the same items
@@ -363,7 +506,7 @@ function applyAction(node, ctx) {
             const failure = value.pull(Infinity);
             if (failure) return failure.at(node.value.path);
         }
-        (node.name.startsWith('this.') ? ctx.detectorNames : ctx.runNames).set(node.name, value);
+        names.set(node.name, value);
         if (isScalar(value)) ctx.measured[node.name] = value;
         return undefined;
     }
@@ -394,16 +537,18 @@ function computeLength(node, ctx) {
 }
 
 /**
- * An operand that may be a list: its items when it is one, else itself.
+ * An operand that may be a list: its items when it is one, an `iter`'s as they stream, else itself.
  *
  * @param {Node} operand
  * @param {EvaluationContext} ctx
- * @returns {{ list: ItemBuffer } | { value: unknown } | Failure}
+ * @returns {{ list: ItemBuffer } | { stream: ItemStream } | { value: unknown } | Failure}
  */
 function readSpread(operand, ctx) {
-    const value = operand.position === 'spread' ? evaluate(operand, 'spread', ctx) : evaluateOccurrence(operand, ctx);
+    const spreads = operand.position === 'spread' || operand.position === 'stream';
+    const value = spreads ? evaluate(operand, operand.position, ctx) : evaluateOccurrence(operand, ctx);
     if (isFailure(value)) return value;
-    if (operand.position !== 'spread') return { value };
+    if (!spreads) return { value };
+    if (isItemStream(value)) return { stream: value };
     // A bound condition leaf under any / all / none is a boolean, as the leaf itself is
     if (isItemBuffer(value) && value.leaf && operand.single === 'boolean') {
         const held = presence(value);
@@ -423,30 +568,37 @@ function readSpread(operand, ctx) {
 function computeArithmetic(node, ctx) {
     /** @type {number[]} */
     const values = [];
+    // `sum` and `mul` fold each value as it is read, so an `iter` operand keeps none
+    let result = node.kind === 'mul' ? 1 : 0;
+    /** @param {unknown} value */
+    const add = (value) => {
+        const number = expectNumber(value, node.kind);
+        if (node.kind === 'sum') result += number;
+        else if (node.kind === 'mul') result *= number;
+        else values.push(number);
+    };
     for (const operand of node.operands) {
         const spread = readSpread(operand, ctx);
         if (isFailure(spread)) return spread;
-        if ('list' in spread) {
+        if ('stream' in spread) {
+            for (const item of spread.stream.items) {
+                if (isFailure(item)) return item;
+                add(item);
+            }
+        } else if ('list' in spread) {
             const items = allItems(spread.list);
             if (isFailure(items)) return items;
-            for (const value of items) values.push(expectNumber(value, node.kind));
+            for (const value of items) add(value);
         } else {
-            values.push(expectNumber(spread.value, node.kind));
+            add(spread.value);
         }
     }
-    switch (node.kind) {
-        case 'sum':
-            return values.reduce((a, b) => a + b, 0);
-        case 'mul':
-            return values.reduce((a, b) => a * b, 1);
-        case 'div':
-            return /** @type {number} */ (values[0]) / /** @type {number} */ (values[1]);
-    }
+    return node.kind === 'div' ? /** @type {number} */ (values[0]) / /** @type {number} */ (values[1]) : result;
 }
 
 /**
- * Evaluate every operand in order. A list operand contributes each value. A failure ends evaluation
- * where it arises.
+ * Evaluate every operand in order. A list operand contributes each value, and an `iter` operand its
+ * values until one decides the result. A failure ends evaluation where it arises.
  *
  * @param {LogicNode} node
  * @param {EvaluationContext} ctx
@@ -462,6 +614,14 @@ function computeLogic(node, ctx) {
             const items = allItems(spread.list);
             if (isFailure(items)) return items.at(operand.path);
             for (let i = 0; i < items.length; i++) if (expectBoolean(items[i], node.kind) === decider) result = decided;
+        } else if ('stream' in spread) {
+            for (const item of spread.stream.items) {
+                if (isFailure(item)) return item.at(operand.path);
+                if (expectBoolean(item, node.kind) === decider) {
+                    result = decided;
+                    break;
+                }
+            }
         } else if (expectBoolean(spread.value, node.kind) === decider) {
             result = decided;
         }

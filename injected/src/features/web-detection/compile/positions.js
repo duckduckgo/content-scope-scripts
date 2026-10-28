@@ -47,6 +47,8 @@ function fillsOf(node) {
             return occurrenceFills(node.operand);
         case 'list':
             return FILLS.array;
+        case 'iter':
+            return FILLS.stream;
         case 'define':
         case 'fireEvent':
         case 'breakageReportData':
@@ -74,7 +76,8 @@ export function finish(scope) {
     for (const { node, single } of scope.slots) {
         // `element` without `field` and `text` are the condition leaf under any / all / none: a boolean
         const leaf = single === 'boolean' && isPresenceLeaf(node);
-        node.position = fillsOf(node).has('list') && !leaf ? 'spread' : single;
+        if (node.kind === 'iter') node.position = 'stream';
+        else node.position = fillsOf(node).has('list') && !leaf ? 'spread' : single;
         node.single = single;
     }
     for (const node of scope.nodes) {
