@@ -1,0 +1,69 @@
+---
+title: Page Translation
+---
+
+# Page Translation
+
+Finds the text on a page that needs translating, writes translations back onto the page's own nodes, and puts the original back. Native does language detection, translation, batching and ordering. Nothing runs until native sends a message.
+
+Bundled for `apple` (page world) and `android`.
+
+## Messages
+
+Native sends subscriptions; the feature replies with notifications.
+
+| Native sends                                   | Feature replies | Params                                                                        |
+| ---------------------------------------------- | --------------- | ----------------------------------------------------------------------------- |
+| `extract` `{ sourceLanguage, targetLanguage }` | `extractResult` | `{ units: Unit[] }`                                                           |
+| `apply` `{ updates: [{ id, text }] }`          | `applyResult`   | `{ count }`: updates written                                                  |
+| `revert` `{}`                                  | `revertResult`  | `{ count }`: units restored                                                   |
+| —                                              | `unitsAdded`    | `{ units: Unit[] }`: content that appeared after `extract` (**not sent yet**) |
+
+`Unit = { id, text, html, vp }`:
+
+- `html: false`: plain text. Translate it as plain text; the result is written as text.
+- `html: true`: an HTML fragment. Translate it as HTML.
+- `vp: 1`: the unit is in the viewport. Translate these first.
+- Ids are never reused while the page is open.
+
+`sourceLanguage` is the detected page language and `targetLanguage` the language translated into (BCP 47). A second `extract` while the page is translated reverts it first, without sending `revertResult`.
+
+## What becomes a unit
+
+- The innermost block element that holds text, such as a `p`, `li`, `h1` or `td`. A block inside an inline element (`<li><a><div>…`) counts as a block.
+- In a container that also holds blocks, each run of text and inline elements between those blocks is one unit.
+- Floated elements count as inline, so a drop cap stays inside its paragraph.
+- A unit needs at least one letter.
+- Never translated: `script`, `style`, `noscript`, `template`, `textarea`, `code`, `kbd`, `samp`, `var`, `math`, `svg`, `iframe`, `embed`, `object`, `select` (for now), `translate="no"`, `.notranslate`, editable content, and elements whose `lang` differs from `sourceLanguage`. The `<html lang>` is ignored for this check.
+- Inside a unit, a never-translated element is sent as an empty tag and comes back untouched: `Use <code data-t="0"></code> to check`.
+
+## What is sent
+
+- A unit without child elements is sent as plain text.
+- Otherwise each element becomes `<tag data-t="N">`, with no other attributes. `N` is the element's index within the unit.
+- A unit that starts with an element (a drop cap: `<span>A</span>iwa…`) is wrapped in `<div>…</div>`, and must come back as a single `div`.
+- Soft hyphens are removed.
+
+## Writing back
+
+The translation is parsed with the browser's parser through a Trusted Types policy (`ddg-translation`), or with a small parser of our own when the page refuses that policy. Either way, output with tags or attributes we didn't send is rejected and the unit stays as it is.
+
+The translation is then merged onto the original nodes. Elements are moved, never recreated, so listeners, form values and framework-managed nodes survive. Text goes into the existing text nodes.
+
+- A tag the engine returns twice: the second gets a copy of the element.
+- A tag returned empty: keeps its original text.
+- A tag the engine dropped: put back at the end of its container.
+- An id we didn't send: its text is kept, no element is created.
+
+The first write sets `<html lang>` to `targetLanguage`. `revert` puts back every text, attribute, node order and the original `lang`.
+
+## Tests
+
+From `injected/`:
+
+```sh
+npm run build && npx playwright test integration-test/page-translation.spec.js --project ios-main-world --project android --reporter list
+npx jasmine --config=unit-test/config.json --filter="page-translation parse"
+```
+
+Fixtures are in `integration-test/test-pages/page-translation/pages/`. Each one lists its expected units in the spec's `FIXTURES`, and runs the extract, apply and revert checks. Apply uses a fake translator that marks each text run as `‹…›`.
