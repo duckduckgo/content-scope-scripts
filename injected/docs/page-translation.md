@@ -6,7 +6,7 @@ title: Page Translation
 
 Finds the text on a page that needs translating, writes translations back onto the page's own nodes, and puts the original back. Native does language detection, translation, batching and ordering. Nothing runs until native sends a message.
 
-Bundled for `apple` (page world) and `android`.
+Bundled for `apple` (page world) and `android`. `extract` and `apply` always reply, even when a unit or the page's DOM throws.
 
 ## Messages
 
@@ -36,6 +36,7 @@ Native sends subscriptions; the feature replies with notifications.
 - A unit needs at least one letter.
 - Never translated: `script`, `style`, `noscript`, `template`, `textarea`, `code`, `kbd`, `samp`, `var`, `math`, `svg`, `iframe`, `embed`, `object`, `select` (for now), `translate="no"`, `.notranslate`, editable content, and elements whose `lang` differs from `sourceLanguage`. The `<html lang>` is ignored for this check.
 - Inside a unit, a never-translated element is sent as an empty tag and comes back untouched: `Use <code data-t="0"></code> to check`.
+- `script`, `style` and `template` inside a unit aren't sent at all. They, and comments, stay before or after the unit's text, as they were.
 
 ## What is sent
 
@@ -53,7 +54,7 @@ The translation is then merged onto the original nodes. Elements are moved, neve
 - A tag the engine returns twice: the second gets a copy of the element.
 - A tag returned empty: keeps its original text.
 - A tag the engine dropped: put back at the end of its container.
-- An id we didn't send: its text is kept, no element is created.
+- An id we didn't send, or a tag that would end up inside itself: its text is kept, no element is created or moved.
 
 The first write sets `<html lang>` to `targetLanguage`. `revert` puts back every text, attribute, node order and the original `lang`.
 

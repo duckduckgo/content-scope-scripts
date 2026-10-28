@@ -29,7 +29,9 @@ export class PageTranslation extends ContentFeature {
     #originalLang = null;
 
     init() {
-        this.subscribe('extract', ({ sourceLanguage, targetLanguage }) => this._extract(sourceLanguage, targetLanguage));
+        this.subscribe('extract', ({ sourceLanguage, targetLanguage }) =>
+            this._extract(String(sourceLanguage ?? ''), String(targetLanguage ?? '')),
+        );
         this.subscribe('apply', ({ updates }) => this._apply(updates));
         this.subscribe('revert', () => {
             this.notify('revertResult', { count: this._revert() });
@@ -49,13 +51,19 @@ export class PageTranslation extends ContentFeature {
         /** @type {Unit[]} */
         const units = [];
         const root = document.body;
-        for (const target of root ? findUnits(root, { sourceLanguage }) : []) {
-            const serialized = serializeUnit(target, sourceLanguage);
-            const id = this.#nextId++;
-            this.#units.set(id, { target, serialized });
-            units.push({ id, text: serialized.text, html: serialized.html, vp: isInViewport(target) ? 1 : 0 });
+        try {
+            for (const target of root ? findUnits(root, { sourceLanguage }) : []) {
+                const serialized = serializeUnit(target, sourceLanguage);
+                const id = this.#nextId++;
+                this.#units.set(id, { target, serialized });
+                units.push({ id, text: serialized.text, html: serialized.html, vp: isInViewport(target) ? 1 : 0 });
+            }
+        } catch (e) {
+            // A page that breaks the walk still gets a reply, with the units found so far.
+            this.log.error('extract failed', e);
+        } finally {
+            this.notify('extractResult', { units });
         }
-        this.notify('extractResult', { units });
     }
 
     /** @param {{ id: number, text: string }[]} updates */
@@ -65,7 +73,13 @@ export class PageTranslation extends ContentFeature {
             const { id, text } = update ?? {};
             const unit = typeof id === 'number' ? this.#units.get(id) : undefined;
             if (!unit || typeof text !== 'string' || !isConnected(unit.target)) continue;
-            if (!this._write(unit, text)) continue;
+            try {
+                if (!this._write(unit, text)) continue;
+            } catch (e) {
+                // Never let one unit stop the reply; whatever it changed is in the journal for revert.
+                this.log.error('apply failed for a unit', e);
+                continue;
+            }
             this.#applied.add(id);
             this._setPageLanguage();
             count++;

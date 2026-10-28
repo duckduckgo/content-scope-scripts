@@ -117,8 +117,9 @@ class Merge {
                 continue;
             }
             const live = this.elements[item.id];
-            if (!live) {
-                // Not an element we sent: keep its words, never create an element.
+            // Not an element we sent, or one that would end up inside itself (the engine turned the nesting inside
+            // out): keep its words, never create or move an element.
+            if (!live || live.contains(parent)) {
                 next.push(this.text(texts, textOf(item.children)));
                 continue;
             }
@@ -133,12 +134,16 @@ class Merge {
         for (const node of current) {
             if (node.nodeType !== ELEMENT_NODE || next.includes(node)) continue;
             const id = this.elements.indexOf(/** @type {Element} */ (node));
-            if (id === -1 || !this.used.has(id)) next.push(node);
+            if (id !== -1 && !this.used.has(id)) next.push(node);
         }
-        // Comments and other non-content nodes stay, at the end of the range.
-        for (const node of current) {
-            if (node.nodeType !== TEXT_NODE && node.nodeType !== ELEMENT_NODE) next.push(node);
-        }
+        // Nodes never sent (comments, <style>, <script>) stay before the content if they were before it, else after.
+        const isContent = (/** @type {ChildNode} */ node) =>
+            node.nodeType === TEXT_NODE || (node.nodeType === ELEMENT_NODE && this.elements.includes(/** @type {Element} */ (node)));
+        const firstContent = current.findIndex(isContent);
+        const leading = current.filter((node, i) => !isContent(node) && (firstContent === -1 || i < firstContent));
+        const trailing = current.filter((node, i) => !isContent(node) && firstContent !== -1 && i > firstContent);
+        next.unshift(...leading);
+        next.push(...trailing);
         if (!sameList(current, next)) {
             if (!this.journal.children.has(parent)) this.journal.children.set(parent, [...parent.childNodes]);
             replaceChildren(parent, current, next, anchor);

@@ -9,6 +9,8 @@ const ELEMENT_NODE = 1;
 const TEXT_NODE = 3;
 
 const VOID = new Set(['area', 'br', 'hr', 'img', 'input', 'wbr']);
+// Not sent at all, not even as an empty tag: the parser rejects them, and the merge puts them back where they were.
+const NEVER_SENT = new Set(['script', 'style', 'template']);
 
 /**
  * What to send the engine for a unit: plain text when it has no child elements, otherwise HTML where each
@@ -36,7 +38,11 @@ export function serializeUnit(target, sourceLanguage) {
     }
     // Bergamot mistranslates a fragment that opens with a tag splitting a word (a drop cap: `<span>A</span>iwa`).
     // A neutral wrapper fixes it; never the unit's own tag, since a bare `<td>` is dropped by HTML parsers.
-    const first = nodes.find((node) => node.nodeType === ELEMENT_NODE || (node.nodeType === TEXT_NODE && (node.nodeValue || '').trim()));
+    const first = nodes.find(
+        (node) =>
+            (node.nodeType === ELEMENT_NODE && !NEVER_SENT.has(/** @type {Element} */ (node).localName)) ||
+            (node.nodeType === TEXT_NODE && (node.nodeValue || '').trim()),
+    );
     if (first?.nodeType === ELEMENT_NODE) {
         return { text: `<div>${html}</div>`, html: true, wrapped: true, elements };
     }
@@ -57,6 +63,7 @@ function serializeNodes(nodes, elements, sourceLanguage) {
         } else if (node.nodeType === ELEMENT_NODE) {
             const el = /** @type {Element} */ (node);
             const tag = el.localName;
+            if (NEVER_SENT.has(tag)) continue;
             const id = elements.push(el) - 1;
             if (VOID.has(tag)) {
                 out += `<${tag} data-t="${id}">`;
