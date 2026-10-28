@@ -336,6 +336,81 @@ test.describe('pageTranslation', () => {
         ).toBe(1);
     });
 
+    /** @type {[string, string, (page: import('@playwright/test').Page) => Promise<void>][]} */
+    const messyOutputs = [
+        [
+            'reorders and keeps nodes',
+            '<a data-t="1">renard</a> <b data-t="0">rapide</b> saute.',
+            async (page) => {
+                expect(await page.evaluate(() => document.getElementById('m-link') === /** @type {any} */ (window).linkBefore)).toBe(true);
+                expect(await page.evaluate(() => document.querySelector('#m')?.firstElementChild?.tagName)).toBe('A');
+            },
+        ],
+        [
+            'clones a duplicated tag',
+            'Le <b data-t="0">vite</b> et <b data-t="0">rapide</b> <a data-t="1">renard</a>.',
+            async (page) => {
+                expect(await page.locator('#m b').count()).toBe(2);
+                expect(await page.locator('#m b').allTextContents()).toEqual(['vite', 'rapide']);
+            },
+        ],
+        [
+            'keeps text in a tag returned empty',
+            'Le <b data-t="0"></b> <a data-t="1">renard</a> saute.',
+            async (page) => {
+                expect(await page.textContent('#m b')).toBe('quick');
+            },
+        ],
+        [
+            'puts back an element missing from the output',
+            'Le renard rapide saute.',
+            async (page) => {
+                expect(
+                    await page.evaluate(() => {
+                        const before = /** @type {any} */ (window).linkBefore;
+                        return document.getElementById('m-link') === before && document.getElementById('m')?.contains(before);
+                    }),
+                ).toBe(true);
+                expect(await page.locator('#m b').count()).toBe(1);
+            },
+        ],
+        [
+            'never creates an element for an unknown id',
+            'Le <i data-t="7">nouveau</i> <b data-t="0">x</b> <a data-t="1">y</a>',
+            async (page) => {
+                expect(await page.locator('#m i').count()).toBe(0);
+                expect(await page.textContent('#m')).toContain('nouveau');
+            },
+        ],
+    ];
+
+    for (const [name, output, check] of messyOutputs) {
+        test(`merge ${name}`, async ({ page }, testInfo) => {
+            const collector = await openPage(page, testInfo, 'merge.html');
+            await page.evaluate(() => {
+                /** @type {any} */ (window).linkBefore = document.getElementById('m-link');
+            });
+            const [unit] = await extract(collector);
+            expect(await apply(collector, [{ id: unit.id, text: output }])).toBe(1);
+            await check(page);
+        });
+    }
+
+    test('leaves a unit untouched when the output does not parse', async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'merge.html');
+        const before = await page.innerHTML('#m');
+        const [unit] = await extract(collector);
+        // A tag without our id isn't something we sent, on either parser path.
+        expect(await apply(collector, [{ id: unit.id, text: 'Le <b>x</b> <a data-t="1">y</a>' }])).toBe(0);
+        expect(await page.innerHTML('#m')).toBe(before);
+    });
+
+    test('leaves a wrapped unit untouched when the div does not come back', async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'drop-cap.html');
+        const [unit] = await extract(collector);
+        expect(await apply(collector, [{ id: unit.id, text: '<span data-t="0">U</span>n mot' }])).toBe(0);
+    });
+
     test('marks only units on screen as in the viewport', async ({ page }, testInfo) => {
         const collector = await openPage(page, testInfo, 'article.html');
         const units = await extract(collector);
