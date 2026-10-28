@@ -130,6 +130,30 @@ describe('MessageBridge at load', () => {
         expect(bridge.installed).toBeFalse();
     });
 
+    it('keeps answering through a proxy installed at load after the remote config arrives', async () => {
+        const { bridge, args, send, replies, requestsToPlatform } = setUp();
+        bridge.load(args);
+        send(install);
+
+        await bridge.callInit({ ...args, featureSettings: { messageBridge: { internalFeedback: 'disabled' } } });
+        send(request);
+        await new Promise((resolve) => setTimeout(resolve));
+
+        expect(requestsToPlatform).toEqual([jasmine.objectContaining({ featureName: 'internalFeedback', method: 'getDeviceInfo' })]);
+        expect(replies[1]).toEqual(jasmine.objectContaining({ id: 'request-1', result: { platform: 'windows' } }));
+    });
+
+    it('decides later installs by the remote config', async () => {
+        const { bridge, args, send, replies } = setUp();
+        bridge.load(args);
+
+        await bridge.callInit({ ...args, featureSettings: { messageBridge: { internalFeedback: 'disabled', aiChat: 'enabled' } } });
+        send(install);
+        send(new InstallProxy({ featureName: 'aiChat', id: 'install-2' }));
+
+        expect(replies).toEqual([jasmine.objectContaining({ id: 'install-2' })]);
+    });
+
     it('answers each install once when init follows load', async () => {
         const { bridge, args, send, replies } = setUp();
         bridge.load(args);
