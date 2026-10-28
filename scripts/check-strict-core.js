@@ -139,6 +139,7 @@ const CORE_FILES = new Set([
     'injected/src/features/selection-tools/selection.js',
     'injected/src/features/selection-tools/text-key.js',
     'injected/src/features/page-translation.js',
+    'injected/src/features/page-translation/merge.js',
     'injected/src/features/page-translation/parse.js',
     'injected/src/features/page-translation/serialize.js',
     'injected/src/features/page-translation/types.js',
