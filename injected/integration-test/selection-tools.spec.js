@@ -376,9 +376,12 @@ test.describe('selectionTools', () => {
                 { id: 'rewrite' },
             ],
         });
-        // Native hides its own toolbar for the menu, so the right-click leaves the report alone.
+        // Native hides its own toolbar for the menu, so the right-click leaves the report alone, and reports the menu's
+        // selection for the chip native shows once the menu closes.
         await settle(page);
         expect(await sent(collector, 'selectionCleared')).toHaveLength(clears);
+        const forMenu = (await sent(collector, 'selectionChanged')).filter((report) => report.contextMenu);
+        expect(forMenu).toEqual([expect.objectContaining({ text: expect.stringContaining('El perro'), contextMenu: true })]);
     });
 
     test('reports an empty context menu after an earlier report, and nothing before one', async ({ page }, testInfo) => {
