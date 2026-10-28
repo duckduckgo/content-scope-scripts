@@ -39,8 +39,18 @@ export function findUnits(root, _options) {
  * @returns {boolean}
  */
 export function isInViewport(target) {
-    const el = target.kind === 'run' ? target.parent : target.element;
-    const rect = el.getBoundingClientRect();
+    let rect;
+    if (target.kind === 'run') {
+        const first = target.nodes[0];
+        const last = target.nodes[target.nodes.length - 1];
+        if (!first || !last) return false;
+        const range = document.createRange();
+        range.setStartBefore(first);
+        range.setEndAfter(last);
+        rect = range.getBoundingClientRect();
+    } else {
+        rect = target.element.getBoundingClientRect();
+    }
     return rect.bottom > 0 && rect.top < window.innerHeight && rect.right > 0 && rect.left < window.innerWidth;
 }
 
@@ -61,7 +71,43 @@ class Walk {
             if (this.hasLetter(el)) units.push({ kind: 'element', element: el });
             return;
         }
-        for (const child of el.children) this.visit(child, units);
+        // A container of blocks: each run of text and inline elements between its blocks is one unit.
+        /** @type {ChildNode[]} */
+        let run = [];
+        for (const child of el.childNodes) {
+            if (child.nodeType !== ELEMENT_NODE) {
+                run.push(child);
+                continue;
+            }
+            const childEl = /** @type {Element} */ (child);
+            if (this.isInline(childEl) && (this.isExcluded(childEl) || !this.hasBlockInside(childEl))) {
+                run.push(child);
+                continue;
+            }
+            this.addRun(el, run, units);
+            run = [];
+            this.visit(childEl, units);
+        }
+        this.addRun(el, run, units);
+    }
+
+    /**
+     * Adds `nodes` as a run unit, trimmed of blank edges, if it holds a letter.
+     * @param {Element} parent
+     * @param {ChildNode[]} nodes
+     * @param {UnitTarget[]} units
+     */
+    addRun(parent, nodes, units) {
+        const isBlank = (/** @type {number} */ i) => {
+            const node = nodes[i];
+            return !!node && node.nodeType !== ELEMENT_NODE && !(node.nodeType === TEXT_NODE && (node.nodeValue || '').trim());
+        };
+        let start = 0;
+        let end = nodes.length;
+        while (start < end && isBlank(start)) start++;
+        while (end > start && isBlank(end - 1)) end--;
+        const trimmed = nodes.slice(start, end);
+        if (trimmed.some((node) => this.nodeHasLetter(node))) units.push({ kind: 'run', parent, nodes: trimmed });
     }
 
     /** @param {Element} el */
@@ -109,15 +155,16 @@ class Walk {
      */
     hasLetter(el) {
         for (const child of el.childNodes) {
-            if (child.nodeType === TEXT_NODE && LETTER.test(child.nodeValue || '')) return true;
-            if (
-                child.nodeType === ELEMENT_NODE &&
-                !this.isExcluded(/** @type {Element} */ (child)) &&
-                this.hasLetter(/** @type {Element} */ (child))
-            ) {
-                return true;
-            }
+            if (this.nodeHasLetter(child)) return true;
         }
         return false;
+    }
+
+    /** @param {ChildNode} node */
+    nodeHasLetter(node) {
+        if (node.nodeType === TEXT_NODE) return LETTER.test(node.nodeValue || '');
+        if (node.nodeType !== ELEMENT_NODE) return false;
+        const el = /** @type {Element} */ (node);
+        return !this.isExcluded(el) && this.hasLetter(el);
     }
 }
