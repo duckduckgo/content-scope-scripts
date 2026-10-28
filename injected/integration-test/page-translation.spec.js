@@ -411,6 +411,39 @@ test.describe('pageTranslation', () => {
         expect(await apply(collector, [{ id: unit.id, text: '<span data-t="0">U</span>n mot' }])).toBe(0);
     });
 
+    test('revert removes clones and restores lang', async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'merge.html');
+        const original = await bodyHTML(page);
+        const [unit] = await extract(collector);
+        await apply(collector, [{ id: unit.id, text: 'Le <b data-t="0">vite</b> et <b data-t="0">rapide</b> <a data-t="1">renard</a>.' }]);
+        expect(await revert(collector)).toBeGreaterThan(0);
+        expect(await bodyHTML(page)).toBe(original);
+        expect(await page.getAttribute('html', 'lang')).toBe('en');
+    });
+
+    test('revert restores a missing lang attribute as missing', async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'article.html');
+        await page.evaluate(() => document.documentElement.removeAttribute('lang'));
+        await apply(collector, translateAll(await extract(collector)));
+        await revert(collector);
+        expect(await page.evaluate(() => document.documentElement.hasAttribute('lang'))).toBe(false);
+    });
+
+    test('revert only counts units that were applied', async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'article.html');
+        const units = await extract(collector);
+        await apply(collector, translateAll(units.slice(0, 2)));
+        expect(await revert(collector)).toBe(2);
+    });
+
+    test('a second extract reverts the page first', async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'article.html');
+        const original = await bodyHTML(page);
+        await apply(collector, translateAll(await extract(collector)));
+        await extract(collector);
+        expect(await bodyHTML(page)).toBe(original);
+    });
+
     test('marks only units on screen as in the viewport', async ({ page }, testInfo) => {
         const collector = await openPage(page, testInfo, 'article.html');
         const units = await extract(collector);
