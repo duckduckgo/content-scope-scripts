@@ -75,7 +75,11 @@ export default defineConfig({
         },
         {
             name: 'ios-main-world',
-            testMatch: ['integration-test/page-context-root-selection.spec.js', 'integration-test/text-selection.spec.js'],
+            testMatch: [
+                'integration-test/page-context-root-selection.spec.js',
+                'integration-test/text-selection.spec.js',
+                'integration-test/page-translation.spec.js',
+            ],
             use: { injectName: 'apple', platform: 'ios', ...devices['iPhone 13'] },
         },
         {
@@ -87,6 +91,7 @@ export default defineConfig({
                 'integration-test/web-compat-android.spec.js',
                 'integration-test/message-bridge-android.spec.js',
                 'integration-test/sponsor-block.spec.js',
+                'integration-test/page-translation.spec.js',
             ],
             use: { injectName: 'android', platform: 'android', ...devices['Galaxy S5'] },
         },

@@ -57,6 +57,7 @@ const otherFeatures = /** @type {FeatureName[]} */ ([
     'chromeWebstorePatching',
     'selectionTools',
     'sponsorBlock',
+    'pageTranslation',
 ]);
 
 /**
@@ -79,7 +80,16 @@ export const featureConfigDependencies = {
  * @type {Record<string, FeatureName[]>}
  */
 export const platformSupport = {
-    apple: ['webCompat', 'duckPlayerNative', ...baseFeatures, 'pageContext', 'print', 'trackerProtection', 'textSelection'],
+    apple: [
+        'webCompat',
+        'duckPlayerNative',
+        ...baseFeatures,
+        'pageContext',
+        'print',
+        'trackerProtection',
+        'textSelection',
+        'pageTranslation',
+    ],
     'apple-isolated': [
         'webDetection',
         'contextMenu',
@@ -117,6 +127,7 @@ export const platformSupport = {
         'pageContext',
         'browserUiLock',
         'sponsorBlock',
+        'pageTranslation',
     ],
     'android-broker-protection': ['brokerProtection'],
     'android-ai-clear': ['duckAiDataClearing'],

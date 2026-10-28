@@ -138,6 +138,7 @@ const CORE_FILES = new Set([
     'injected/src/features/selection-tools/classify.js',
     'injected/src/features/selection-tools/selection.js',
     'injected/src/features/selection-tools/text-key.js',
+    'injected/src/features/page-translation.js',
     'injected/src/detectors/detections/bot-detection.js',
     'injected/src/detectors/utils/detection-utils.js',
     'injected/src/features/exception-handler.js',
