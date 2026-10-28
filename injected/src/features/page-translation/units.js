@@ -17,17 +17,19 @@ const INLINE_DISPLAY = new Set([
     'ruby-base',
     'ruby-text',
 ]);
-const EXCLUDED = 'script, style, noscript, template';
+// Never translated. `select` is temporary: its options would change form values until value pinning exists.
+const EXCLUDED_TAGS =
+    'script, style, noscript, template, textarea, code, kbd, samp, var, math, svg, iframe, embed, object, ddg-autofill, select';
 const LETTER = /\p{L}/u;
 
 /**
  * Finds the translatable units under `root`, in document order.
  * @param {Element} root
- * @param {{ sourceLanguage: string, skip?: (node: Node) => boolean }} _options
+ * @param {{ sourceLanguage: string, skip?: (node: Node) => boolean }} options
  * @returns {UnitTarget[]}
  */
-export function findUnits(root, _options) {
-    const walk = new Walk();
+export function findUnits(root, options) {
+    const walk = new Walk(options.sourceLanguage);
     /** @type {UnitTarget[]} */
     const units = [];
     walk.visit(root, units);
@@ -54,8 +56,39 @@ export function isInViewport(target) {
     return rect.bottom > 0 && rect.top < window.innerHeight && rect.right > 0 && rect.left < window.innerWidth;
 }
 
+/**
+ * Whether `el` and everything inside it must stay as it is.
+ * @param {Element} el
+ * @param {string} sourceLanguage
+ * @returns {boolean}
+ */
+export function isExcluded(el, sourceLanguage) {
+    if (el.matches(EXCLUDED_TAGS)) return true;
+    if (el.getAttribute('translate')?.trim().toLowerCase() === 'no' || el.classList.contains('notranslate')) return true;
+    if (/** @type {HTMLElement} */ (el).isContentEditable) return true;
+    // The <html> lang is ignored: it's often wrong, and we overwrite it.
+    const lang = el === document.documentElement ? null : el.getAttribute('lang');
+    return !!lang?.trim() && primaryLanguage(lang) !== primaryLanguage(sourceLanguage);
+}
+
+/** @param {string} tag */
+function primaryLanguage(tag) {
+    let canonical = tag.trim();
+    try {
+        canonical = Intl.getCanonicalLocales(canonical)[0] ?? canonical;
+    } catch {
+        // Not a valid tag: compare it as written.
+    }
+    return canonical.toLowerCase().split(/[-_]/)[0];
+}
+
 /** Per-walk state, so computed styles are read once per element. */
 class Walk {
+    /** @param {string} sourceLanguage */
+    constructor(sourceLanguage) {
+        this.sourceLanguage = sourceLanguage;
+    }
+
     /** @type {Map<Element, boolean>} */
     #inline = new Map();
     /** @type {Map<Element, boolean>} */
@@ -112,7 +145,7 @@ class Walk {
 
     /** @param {Element} el */
     isExcluded(el) {
-        return el.matches(EXCLUDED);
+        return isExcluded(el, this.sourceLanguage);
     }
 
     /** @param {Element} el */

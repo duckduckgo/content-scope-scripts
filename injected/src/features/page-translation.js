@@ -39,7 +39,7 @@ export class PageTranslation extends ContentFeature {
         const units = [];
         const root = document.body;
         for (const target of root ? findUnits(root, { sourceLanguage: this.#sourceLanguage }) : []) {
-            const serialized = serializeUnit(target);
+            const serialized = serializeUnit(target, this.#sourceLanguage);
             const id = this.#nextId++;
             this.#units.set(id, { target, serialized });
             units.push({ id, text: serialized.text, html: serialized.html, vp: isInViewport(target) ? 1 : 0 });

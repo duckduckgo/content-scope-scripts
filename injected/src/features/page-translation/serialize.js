@@ -3,6 +3,8 @@
  * @typedef {import('./types.js').Serialized} Serialized
  */
 
+import { isExcluded } from './units.js';
+
 const ELEMENT_NODE = 1;
 const TEXT_NODE = 3;
 
@@ -11,20 +13,22 @@ const VOID = new Set(['area', 'br', 'hr', 'img', 'input', 'wbr']);
 /**
  * What to send the engine for a unit: plain text when it has no child elements, otherwise HTML where each
  * element is reduced to its tag and a per-unit `data-t` id. Attributes stay on the live nodes.
+ * Excluded elements inside a unit go as empty tags: the engine never sees their text and they're put back as they are.
  * @param {UnitTarget} target
+ * @param {string} sourceLanguage
  * @returns {Serialized}
  */
-export function serializeUnit(target) {
+export function serializeUnit(target, sourceLanguage) {
     /** @type {Element[]} */
     const elements = [];
     if (target.kind === 'attribute') {
-        return { text: target.element.getAttribute(target.attribute) || '', html: false, wrapped: false, elements };
+        return { text: stripSoftHyphens(target.element.getAttribute(target.attribute) || ''), html: false, wrapped: false, elements };
     }
     const nodes = target.kind === 'run' ? target.nodes : [...target.element.childNodes];
-    const html = serializeNodes(nodes, elements);
+    const html = serializeNodes(nodes, elements, sourceLanguage);
     if (elements.length === 0) {
         return {
-            text: nodes.map((node) => (node.nodeType === TEXT_NODE ? node.nodeValue : '')).join(''),
+            text: stripSoftHyphens(nodes.map((node) => (node.nodeType === TEXT_NODE ? node.nodeValue : '')).join('')),
             html: false,
             wrapped: false,
             elements,
@@ -42,18 +46,24 @@ export function serializeUnit(target) {
 /**
  * @param {Iterable<ChildNode>} nodes
  * @param {Element[]} elements
+ * @param {string} sourceLanguage
  * @returns {string}
  */
-function serializeNodes(nodes, elements) {
+function serializeNodes(nodes, elements, sourceLanguage) {
     let out = '';
     for (const node of nodes) {
         if (node.nodeType === TEXT_NODE) {
-            out += escapeHtml(node.nodeValue || '');
+            out += escapeHtml(stripSoftHyphens(node.nodeValue || ''));
         } else if (node.nodeType === ELEMENT_NODE) {
             const el = /** @type {Element} */ (node);
             const tag = el.localName;
             const id = elements.push(el) - 1;
-            out += VOID.has(tag) ? `<${tag} data-t="${id}">` : `<${tag} data-t="${id}">${serializeNodes(el.childNodes, elements)}</${tag}>`;
+            if (VOID.has(tag)) {
+                out += `<${tag} data-t="${id}">`;
+            } else {
+                const inner = isExcluded(el, sourceLanguage) ? '' : serializeNodes(el.childNodes, elements, sourceLanguage);
+                out += `<${tag} data-t="${id}">${inner}</${tag}>`;
+            }
         }
     }
     return out;
@@ -62,4 +72,12 @@ function serializeNodes(nodes, elements) {
 /** @param {string} text */
 function escapeHtml(text) {
     return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+/**
+ * Soft hyphens are invisible hyphenation hints that split words for the engine.
+ * @param {string} text
+ */
+function stripSoftHyphens(text) {
+    return text.replace(/\u00AD/g, '');
 }
