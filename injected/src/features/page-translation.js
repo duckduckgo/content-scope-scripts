@@ -2,7 +2,7 @@ import ContentFeature from '../content-feature.js';
 import { findUnits, isExcluded, isInViewport } from './page-translation/units.js';
 import { serializeUnit } from './page-translation/serialize.js';
 import { parseTranslation } from './page-translation/parse.js';
-import { createJournal, mergeUnit, writeText } from './page-translation/merge.js';
+import { createJournal, mergeUnit, revertJournal, writeText } from './page-translation/merge.js';
 
 /**
  * @typedef {import('./page-translation/types.js').UnitTarget} UnitTarget
@@ -31,9 +31,8 @@ export class PageTranslation extends ContentFeature {
     init() {
         this.subscribe('extract', ({ sourceLanguage, targetLanguage }) => this._extract(sourceLanguage, targetLanguage));
         this.subscribe('apply', ({ updates }) => this._apply(updates));
-        // shortcut: stub reply until revert is built
         this.subscribe('revert', () => {
-            this.notify('revertResult', { count: 0 });
+            this.notify('revertResult', { count: this._revert() });
         });
     }
 
@@ -42,6 +41,8 @@ export class PageTranslation extends ContentFeature {
      * @param {string} targetLanguage
      */
     _extract(sourceLanguage, targetLanguage) {
+        // Units are found on the original page, never on a translated one.
+        this._revert();
         this.#sourceLanguage = sourceLanguage;
         this.#targetLanguage = targetLanguage;
         this.#units.clear();
@@ -86,6 +87,27 @@ export class PageTranslation extends ContentFeature {
         if (!parsed) return false;
         mergeUnit(target, serialized.elements, parsed, this.#journal, (el) => isExcluded(el, this.#sourceLanguage));
         return true;
+    }
+
+    /**
+     * Puts back everything written since extract.
+     * @returns {number} how many units were restored
+     */
+    _revert() {
+        const count = this.#applied.size;
+        revertJournal(this.#journal);
+        if (this.#originalLang) {
+            const { value } = this.#originalLang;
+            if (value === null) {
+                document.documentElement.removeAttribute('lang');
+            } else {
+                document.documentElement.setAttribute('lang', value);
+            }
+        }
+        this.#originalLang = null;
+        this.#applied.clear();
+        this.#units.clear();
+        return count;
     }
 
     _setPageLanguage() {
