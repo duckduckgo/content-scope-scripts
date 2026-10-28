@@ -91,7 +91,7 @@ describe('MessageBridge at load', () => {
         Reflect.deleteProperty(globalThis, 'isSecureContext');
     });
 
-    it('installs and answers in the extension when the bundled config enables the feature on the page', async () => {
+    it('installs and answers when the bundled config enables the feature on the page', async () => {
         const { bridge, args, send, replies, requestsToPlatform } = setUp();
         bridge.load(args);
 
@@ -118,16 +118,18 @@ describe('MessageBridge at load', () => {
         expect(bridge.installed).toBeFalse();
     });
 
-    it('does not listen when the bundled config disables the bridge', () => {
-        const { bridge, args } = setUp({ bridgeState: 'disabled' });
+    it('installs nothing when the bundled config disables the bridge', () => {
+        const { bridge, args, send, replies } = setUp({ bridgeState: 'disabled' });
         bridge.load(args);
-        expect(bridge.installed).toBeFalse();
+        send(install);
+        expect(replies).toEqual([]);
     });
 
-    it('does not listen outside the extension', () => {
-        const { bridge, args } = setUp({ platform: 'windows' });
+    it('listens from load on other platforms too', () => {
+        const { bridge, args, send, replies } = setUp({ platform: 'windows' });
         bridge.load(args);
-        expect(bridge.installed).toBeFalse();
+        send(install);
+        expect(replies).toEqual([jasmine.objectContaining({ id: 'install-1' })]);
     });
 
     it('keeps answering through a proxy installed at load after the remote config arrives', async () => {
