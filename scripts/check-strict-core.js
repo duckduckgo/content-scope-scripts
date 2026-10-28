@@ -112,6 +112,7 @@ const CORE_FILES = new Set([
     'injected/src/features/tab-suspension.js',
     'injected/src/features/text-selection.js',
     'injected/src/features/page-translation.js',
+    'injected/src/features/page-translation/parse.js',
     'injected/src/features/page-translation/serialize.js',
     'injected/src/features/page-translation/types.js',
     'injected/src/features/page-translation/units.js',
