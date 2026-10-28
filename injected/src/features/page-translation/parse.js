@@ -2,9 +2,10 @@
 
 // Captured at load: the page can replace these later. Both are missing outside a browser.
 const DOMParserRef = globalThis.DOMParser;
-const trustedTypesRef = /** @type {{ createPolicy?: (name: string, rules: { createHTML: (s: string) => string }) => { createHTML: (s: string) => unknown } } | undefined} */ (
-    /** @type {any} */ (globalThis).trustedTypes
-);
+const trustedTypesRef =
+    /** @type {{ createPolicy?: (name: string, rules: { createHTML: (s: string) => string }) => { createHTML: (s: string) => unknown } } | undefined} */ (
+        /** @type {any} */ (globalThis).trustedTypes
+    );
 
 const ELEMENT_NODE = 1;
 const TEXT_NODE = 3;
