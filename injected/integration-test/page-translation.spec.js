@@ -44,7 +44,7 @@ const FIXTURES = [
     },
     {
         page: 'opt-outs.html',
-        units: ['Run the command below to install it.', 'Use git status to check your changes.'],
+        units: ['Run the command below to install it.', 'Use to check your changes.'],
         untranslated: ['pre', 'code', 'kbd', '[translate="no"]', '.notranslate', '[contenteditable]'],
     },
     {
@@ -54,6 +54,21 @@ const FIXTURES = [
     {
         page: 'nav.html',
         units: ['Home World news', 'Footer note'],
+    },
+    {
+        page: 'lang.html',
+        units: ['Untagged paragraph.', 'British colour.'],
+        untranslated: ['[lang="fr"]', '[lang="FR-ca"]'],
+    },
+    {
+        page: 'soft-hyphen.html',
+        units: ['Die Bundesregierung tagt.'],
+    },
+    {
+        // Options stay untranslated until their values are pinned.
+        page: 'select.html',
+        units: ['Size'],
+        untranslated: ['select'],
     },
     {
         page: 'mixed-container.html',
@@ -265,6 +280,24 @@ test.describe('pageTranslation', () => {
         const units = await extract(collector);
         expect(units[1].text).toBe('<div><label data-t="0">Email address</label> <input data-t="1"></div>');
         expect(units[4].text).toBe('<div><button data-t="0">Sign in</button></div>');
+    });
+
+    test('sends an excluded inline element as an empty tag without its text', async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'opt-outs.html');
+        const units = await extract(collector);
+        expect(units[1].text).toBe('Use <code data-t="0"></code> to check your changes.');
+    });
+
+    test('compares lang with the source language, not the page attribute', async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'lang.html');
+        await page.evaluate(() => document.documentElement.removeAttribute('lang'));
+        expect(await plainTexts(page, await extract(collector))).toEqual(['Untagged paragraph.', 'British colour.']);
+    });
+
+    test('strips soft hyphens from the text sent', async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'soft-hyphen.html');
+        const [unit] = await extract(collector);
+        expect(unit.text).toBe('Die Bundesregierung tagt.');
     });
 
     test('marks only units on screen as in the viewport', async ({ page }, testInfo) => {
