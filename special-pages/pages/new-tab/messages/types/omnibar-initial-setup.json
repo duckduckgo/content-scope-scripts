@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Omnibar Initial Setup",
+  "description": "The subset of omnibar config that affects its height, sent up front so the loading placeholder reserves the right space. Same meaning as the matching `omnibar_getConfig` fields.",
+  "type": "object",
+  "required": ["mode", "enableAi", "showAiSetting"],
+  "properties": {
+    "mode": {
+      "$ref": "./omnibar-config.json#/properties/mode"
+    },
+    "enableAi": {
+      "type": "boolean"
+    },
+    "showAiSetting": {
+      "type": "boolean"
+    }
+  }
+}

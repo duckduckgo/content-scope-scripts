@@ -53,21 +53,7 @@
       ]
     },
     "omnibar": {
-      "title": "Omnibar Initial Setup",
-      "description": "The subset of omnibar config that affects its height, sent up front so the loading placeholder reserves the right space. Same meaning as the matching `omnibar_getConfig` fields.",
-      "type": "object",
-      "required": ["mode", "enableAi", "showAiSetting"],
-      "properties": {
-        "mode": {
-          "$ref": "./types/omnibar-config.json#/properties/mode"
-        },
-        "enableAi": {
-          "type": "boolean"
-        },
-        "showAiSetting": {
-          "type": "boolean"
-        }
-      }
+      "$ref": "./types/omnibar-initial-setup.json"
     }
   }
 }
