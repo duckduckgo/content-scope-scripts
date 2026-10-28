@@ -300,6 +300,42 @@ test.describe('pageTranslation', () => {
         expect(unit.text).toBe('Die Bundesregierung tagt.');
     });
 
+    test('keeps the same nodes after apply', async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'merge.html');
+        await page.evaluate(() => {
+            /** @type {any} */ (window).linkBefore = document.getElementById('m-link');
+        });
+        await apply(collector, translateAll(await extract(collector)));
+        expect(await page.evaluate(() => document.getElementById('m-link') === /** @type {any} */ (window).linkBefore)).toBe(true);
+        expect(await page.textContent('#m')).toBe('‹The› ‹quick› ‹brown› ‹fox› ‹jumps.›');
+    });
+
+    test('sets the page lang to the target language on the first apply', async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'article.html');
+        const units = await extract(collector);
+        expect(await page.getAttribute('html', 'lang')).toBe('en');
+        await apply(collector, translateAll(units));
+        expect(await page.getAttribute('html', 'lang')).toBe('de');
+    });
+
+    test('skips a unit removed from the page since extract', async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'article.html');
+        const units = await extract(collector);
+        await page.evaluate(() => document.querySelector('h1')?.remove());
+        expect(await apply(collector, translateAll(units))).toBe(units.length - 1);
+    });
+
+    test('ignores unknown ids', async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'article.html');
+        const [first] = await extract(collector);
+        expect(
+            await apply(collector, [
+                { id: 99999, text: 'x' },
+                { id: first.id, text: '‹x›' },
+            ]),
+        ).toBe(1);
+    });
+
     test('marks only units on screen as in the viewport', async ({ page }, testInfo) => {
         const collector = await openPage(page, testInfo, 'article.html');
         const units = await extract(collector);
@@ -328,6 +364,7 @@ test.describe('pageTranslation', () => {
         await apply(collector, translateAll(units));
         expect(await page.evaluate(() => document.getElementById('email') === /** @type {any} */ (window).emailBefore)).toBe(true);
         expect(await page.inputValue('#email')).toBe('me@example.com');
+        expect(await page.textContent('label')).toBe('‹Email address›');
         await page.click('#submit');
         expect(await page.evaluate(() => /** @type {any} */ (window).submitClicks)).toBe(1);
     });
@@ -336,9 +373,25 @@ test.describe('pageTranslation', () => {
         const collector = await openPage(page, testInfo, 'html-like-text.html');
         const units = await extract(collector);
         expect(units.length).toBe(1);
-        // An engine that unescapes the text it was given.
-        await apply(collector, [{ id: units[0].id, text: '<p>Posted comment: <img src=x onerror="window.injected = true"></p>' }]);
+        // An engine that unescapes the text it was given: a plain-text unit is written as text.
+        const markup = '<p>Posted comment: <img src=x onerror="window.injected = true"></p>';
+        expect(await apply(collector, [{ id: units[0].id, text: markup }])).toBe(1);
         await page.waitForTimeout(200);
         expect(await page.evaluate(() => /** @type {any} */ (window).injected)).toBeUndefined();
+        expect(await page.textContent('p')).toBe(markup);
+    });
+
+    test('rejects an HTML unit whose output carries markup we did not send', async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'merge.html');
+        const [unit, heading] = await extract(collector);
+        const injected = 'Le <img src=x onerror="window.injected = true"> <b data-t="0">x</b> <a data-t="1">y</a>';
+        const count = await apply(collector, [
+            { id: unit.id, text: injected },
+            { id: heading.id, text: '‹Plain heading›' },
+        ]);
+        await page.waitForTimeout(200);
+        expect(count).toBe(1);
+        expect(await page.evaluate(() => /** @type {any} */ (window).injected)).toBeUndefined();
+        expect(await page.locator('#m img').count()).toBe(0);
     });
 });

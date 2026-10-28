@@ -1,6 +1,8 @@
 import ContentFeature from '../content-feature.js';
-import { findUnits, isInViewport } from './page-translation/units.js';
+import { findUnits, isExcluded, isInViewport } from './page-translation/units.js';
 import { serializeUnit } from './page-translation/serialize.js';
+import { parseTranslation } from './page-translation/parse.js';
+import { createJournal, mergeUnit, writeText } from './page-translation/merge.js';
 
 /**
  * @typedef {import('./page-translation/types.js').UnitTarget} UnitTarget
@@ -19,33 +21,88 @@ export class PageTranslation extends ContentFeature {
     /** Ids are never reused for the page's lifetime. */
     #nextId = 0;
     #sourceLanguage = '';
+    #targetLanguage = '';
+    #journal = createJournal();
+    /** @type {Set<number>} ids of units written since extract */
+    #applied = new Set();
+    /** @type {{ value: string | null } | null} the page's `lang` before our first write */
+    #originalLang = null;
 
     init() {
-        this.subscribe('extract', ({ sourceLanguage }) => this._extract(sourceLanguage));
-        // shortcut: stub replies until apply and revert are built
-        this.subscribe('apply', () => {
-            this.notify('applyResult', { count: 0 });
-        });
+        this.subscribe('extract', ({ sourceLanguage, targetLanguage }) => this._extract(sourceLanguage, targetLanguage));
+        this.subscribe('apply', ({ updates }) => this._apply(updates));
+        // shortcut: stub reply until revert is built
         this.subscribe('revert', () => {
             this.notify('revertResult', { count: 0 });
         });
     }
 
-    /** @param {string} sourceLanguage */
-    _extract(sourceLanguage) {
+    /**
+     * @param {string} sourceLanguage
+     * @param {string} targetLanguage
+     */
+    _extract(sourceLanguage, targetLanguage) {
         this.#sourceLanguage = sourceLanguage;
+        this.#targetLanguage = targetLanguage;
         this.#units.clear();
         /** @type {Unit[]} */
         const units = [];
         const root = document.body;
-        for (const target of root ? findUnits(root, { sourceLanguage: this.#sourceLanguage }) : []) {
-            const serialized = serializeUnit(target, this.#sourceLanguage);
+        for (const target of root ? findUnits(root, { sourceLanguage }) : []) {
+            const serialized = serializeUnit(target, sourceLanguage);
             const id = this.#nextId++;
             this.#units.set(id, { target, serialized });
             units.push({ id, text: serialized.text, html: serialized.html, vp: isInViewport(target) ? 1 : 0 });
         }
         this.notify('extractResult', { units });
     }
+
+    /** @param {{ id: number, text: string }[]} updates */
+    _apply(updates) {
+        let count = 0;
+        for (const update of Array.isArray(updates) ? updates : []) {
+            const { id, text } = update ?? {};
+            const unit = typeof id === 'number' ? this.#units.get(id) : undefined;
+            if (!unit || typeof text !== 'string' || !isConnected(unit.target)) continue;
+            if (!this._write(unit, text)) continue;
+            this.#applied.add(id);
+            this._setPageLanguage();
+            count++;
+        }
+        this.notify('applyResult', { count });
+    }
+
+    /**
+     * @param {UnitState} unit
+     * @param {string} text
+     * @returns {boolean} whether anything was written
+     */
+    _write({ target, serialized }, text) {
+        if (!serialized.html) {
+            writeText(target, text, this.#journal);
+            return true;
+        }
+        const parsed = parseTranslation(text, serialized.wrapped);
+        if (!parsed) return false;
+        mergeUnit(target, serialized.elements, parsed, this.#journal, (el) => isExcluded(el, this.#sourceLanguage));
+        return true;
+    }
+
+    _setPageLanguage() {
+        if (this.#originalLang) return;
+        const html = document.documentElement;
+        this.#originalLang = { value: html.getAttribute('lang') };
+        html.setAttribute('lang', this.#targetLanguage);
+    }
+}
+
+/**
+ * Whether the unit is still where we found it.
+ * @param {UnitTarget} target
+ */
+function isConnected(target) {
+    if (target.kind !== 'run') return target.element.isConnected;
+    return target.parent.isConnected && target.nodes.every((node) => node.parentNode === target.parent);
 }
 
 export default PageTranslation;
