@@ -52,6 +52,10 @@ const FIXTURES = [
         units: ['Name', 'Notes', 'Ada wrote the first program.', 'Mathematician'],
     },
     {
+        page: 'nav.html',
+        units: ['Home World news', 'Footer note'],
+    },
+    {
         page: 'mixed-container.html',
         units: ['Intro text sits directly in the container.', 'And this is a normal paragraph.'],
     },
@@ -248,6 +252,19 @@ test.describe('pageTranslation', () => {
         const collector = await openPage(page, testInfo, 'table.html');
         const units = await extract(collector);
         expect(units[2].text).toBe('<div><a data-t="0">Ada</a> wrote the first program.</div>');
+    });
+
+    test('keeps a run beside a block as one unit with its inline tags', async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'mixed-container.html');
+        const [run] = await extract(collector);
+        expect(run).toEqual(expect.objectContaining({ text: 'Intro text sits directly in the container.', html: false }));
+    });
+
+    test('sends form controls inside a unit as empty tags', async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'form.html');
+        const units = await extract(collector);
+        expect(units[1].text).toBe('<div><label data-t="0">Email address</label> <input data-t="1"></div>');
+        expect(units[4].text).toBe('<div><button data-t="0">Sign in</button></div>');
     });
 
     test('marks only units on screen as in the viewport', async ({ page }, testInfo) => {
