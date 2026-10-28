@@ -1,0 +1,8 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SelectionClearedParams",
+  "description": "The reported selection went away: a click or Escape, the selection collapsing, select-all on the page, the page being hidden, or a config that turns the tools or the toolbar off. Only sent after a selectionChanged, once.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {}
+}

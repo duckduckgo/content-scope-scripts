@@ -11,9 +11,12 @@
  * @property {string} text
  * @property {boolean} editable
  * @property {Element | null} element The field or editing host, or else the element the selection starts in
- * @property {(scratch: Node) => Rect} bounds Viewport rect of the selected text, measured now. Fields lay their text
- *   out again in a hidden mirror appended to `scratch`, which should be somewhere the page can't see.
+ * @property {() => Rect} bounds Viewport rect of the selected text in CSS pixels, measured now
  */
+
+// Captured before page script runs, so a page can't patch it to reach into the closed shadow root.
+const attachShadow = Element.prototype.attachShadow;
+const HOST_TAG = 'ddg-selection-tools';
 
 /** Password fields are excluded on purpose: their contents must never be offered anywhere. */
 const TEXT_INPUT_TYPES = ['text', 'search', 'email', 'url', ''];
@@ -85,14 +88,45 @@ function editingHostOf(element) {
 
 /**
  * Text fields expose no geometry for their selection, so lay the field's text out again in a hidden mirror with the
- * same box and font, wrap the selected part in a span, and map the span's boxes back onto the field.
+ * same box and font, wrap the selected part in a span, and map the span's boxes back onto the field. The mirror holds
+ * the field's text, so it goes in a closed shadow root that's in the document only while it's measured.
+ * @param {HTMLInputElement | HTMLTextAreaElement} field
+ * @param {number} start
+ * @param {number} end
+ * @returns {Rect}
+ */
+function fieldSelectionBounds(field, start, end) {
+    const host = document.createElement(HOST_TAG);
+    for (const [name, value] of Object.entries({
+        display: 'block',
+        position: 'fixed',
+        inset: '0',
+        visibility: 'hidden',
+        'pointer-events': 'none',
+    })) {
+        host.style.setProperty(name, value, 'important');
+    }
+    try {
+        const shadow = /** @type {ShadowRoot} */ (attachShadow.call(host, { mode: 'closed' }));
+        document.documentElement.appendChild(host);
+        return measureInMirror(field, start, end, shadow);
+    } catch {
+        // A page that defines this element itself can make attaching the shadow root throw.
+        const box = field.getBoundingClientRect();
+        return { left: box.left, right: box.right, top: box.top, bottom: box.bottom };
+    } finally {
+        host.remove();
+    }
+}
+
+/**
  * @param {HTMLInputElement | HTMLTextAreaElement} field
  * @param {number} start
  * @param {number} end
  * @param {Node} scratch
  * @returns {Rect}
  */
-function fieldSelectionBounds(field, start, end, scratch) {
+function measureInMirror(field, start, end, scratch) {
     const style = getComputedStyle(field);
     const mirror = document.createElement('div');
     for (const name of MIRROR_STYLES) {
@@ -127,7 +161,6 @@ function fieldSelectionBounds(field, start, end, scratch) {
             bottom: Math.min(r.bottom + dy, box.bottom),
         }))
         .filter((r) => r.right > r.left && r.bottom > r.top);
-    mirror.remove();
     if (!lines.length) {
         return { left: box.left, right: box.left, top: box.top, bottom: box.top };
     }
@@ -150,7 +183,7 @@ export function readSelection(minChars) {
         if (start === null || end === null) return null;
         const text = active.value.slice(start, end);
         if (text.trim().length < minChars) return null;
-        return { text, editable: true, element: active, bounds: (scratch) => fieldSelectionBounds(active, start, end, scratch) };
+        return { text, editable: true, element: active, bounds: () => fieldSelectionBounds(active, start, end) };
     }
     // Any other focused field (a password, a read-only input) has a selection we leave alone.
     if (active instanceof HTMLInputElement || active instanceof HTMLTextAreaElement) return null;
@@ -164,11 +197,19 @@ export function readSelection(minChars) {
     // Where the selection starts, rather than the common ancestor: a triple-clicked paragraph's range ends at the start
     // of the next block, so its common ancestor is the parent and would lose the paragraph's lang or code marking.
     const element = host ?? elementOf(range.startContainer);
-    return { text, editable: host !== null, element, bounds: () => range.getBoundingClientRect() };
+    return {
+        text,
+        editable: host !== null,
+        element,
+        bounds: () => {
+            const { left, top, right, bottom } = range.getBoundingClientRect();
+            return { left, top, right, bottom };
+        },
+    };
 }
 
 /**
- * Whether the visible selection is collapsed, for hiding the toolbar as soon as the user clicks away.
+ * Whether the visible selection is collapsed, for clearing the report as soon as the user clicks away.
  */
 export function isSelectionCollapsed() {
     const active = deepActiveElement();
@@ -208,9 +249,8 @@ export function markedLanguageOf(element) {
 }
 
 /**
- * A selection inside an open modal dialog, popover or fullscreen element is in the browser's top layer, above the
- * toolbar, so the toolbar would be hidden behind it (or, behind a modal, unclickable). A fullscreen page is the page
- * itself, so it doesn't count.
+ * Whether a selection is inside an open modal dialog, popover or fullscreen element, in the browser's top layer.
+ * Selections there aren't reported. A fullscreen page is the page itself, so it doesn't count.
  * @param {Element | null} element
  */
 export function isInTopLayer(element) {

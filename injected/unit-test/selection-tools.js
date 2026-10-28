@@ -1,13 +1,5 @@
 import { classify, detectLanguage, looksLikeCode, primaryLanguage } from '../src/features/selection-tools/classify.js';
-import {
-    contextMenuActions,
-    directParameter,
-    fits,
-    optionsFor,
-    rankActions,
-    splitForToolbar,
-} from '../src/features/selection-tools/actions.js';
-import { menuPosition, submenuPosition, toolbarPosition } from '../src/features/selection-tools/placement.js';
+import { contextMenuActions, directParameter, fits, optionsFor, rankActions } from '../src/features/selection-tools/actions.js';
 
 /**
  * @typedef {import('../src/types/selection-tools.js').SelectionAction} SelectionAction
@@ -219,62 +211,11 @@ describe('selectionTools actions', () => {
         expect(optionsFor(explain, englishText)).toEqual([]);
     });
 
-    it('counts Ask among the visible toolbar slots', () => {
-        const ranked = [1, 2, 3, 4, 5, 6];
-        expect(splitForToolbar(ranked, 5)).toEqual({ visible: [1, 2, 3, 4], overflow: [5, 6] });
-        expect(splitForToolbar(ranked, 1)).toEqual({ visible: [], overflow: ranked });
-    });
-
     it('describes context menu entries', () => {
         expect(contextMenuActions([translate, explain, tone], spanishText)).toEqual([
             { id: 'translate', parameter: 'en' },
             { id: 'explain' },
             { id: 'tone', options: ['formal', 'casual'] },
         ]);
-    });
-});
-
-describe('selectionTools placement', () => {
-    const viewport = { width: 1000, height: 800 };
-    const toolbar = { width: 300, height: 36 };
-
-    it('sits above the selection, aligned with its start', () => {
-        expect(toolbarPosition({ left: 100, top: 300, right: 400, bottom: 320 }, toolbar, viewport)).toEqual({
-            left: 100,
-            top: 256,
-            visible: true,
-        });
-    });
-
-    it('goes below a selection at the top of the viewport', () => {
-        expect(toolbarPosition({ left: 100, top: 10, right: 400, bottom: 30 }, toolbar, viewport).top).toBe(38);
-    });
-
-    it('floats near the bottom for a selection running past it', () => {
-        expect(toolbarPosition({ left: 100, top: 20, right: 400, bottom: 2000 }, toolbar, viewport).top).toBe(726);
-    });
-
-    it('stays inside the viewport horizontally', () => {
-        expect(toolbarPosition({ left: 900, top: 300, right: 990, bottom: 320 }, toolbar, viewport).left).toBe(692);
-    });
-
-    it('is hidden while the selection is scrolled out of view', () => {
-        expect(toolbarPosition({ left: 100, top: -200, right: 400, bottom: -180 }, toolbar, viewport).visible).toBeFalse();
-    });
-
-    it('opens menus below the toolbar, or above when there is no room', () => {
-        const button = { left: 200, top: 256, right: 240, bottom: 292 };
-        const bar = { left: 100, top: 256, right: 400, bottom: 292 };
-        expect(menuPosition(button, bar, { width: 170, height: 100 }, viewport)).toEqual({ left: 196, top: 292 });
-        const low = { left: 100, top: 740, right: 400, bottom: 776 };
-        expect(menuPosition({ ...button, top: 740, bottom: 776 }, low, { width: 170, height: 100 }, viewport).top).toBe(640);
-    });
-
-    it('opens submenus on the right, or the left near the edge', () => {
-        const item = { left: 600, top: 300, right: 770, bottom: 330 };
-        const menu = { left: 600, top: 296, right: 770, bottom: 400 };
-        expect(submenuPosition(item, menu, { width: 170, height: 60 }, viewport)).toEqual({ left: 774, top: 296 });
-        const nearEdge = { left: 760, top: 296, right: 930, bottom: 400 };
-        expect(submenuPosition({ ...item, left: 760, right: 930 }, nearEdge, { width: 170, height: 60 }, viewport).left).toBe(586);
     });
 });

@@ -22,7 +22,7 @@ function lengthLimit(value) {
 }
 
 /**
- * Unknown conditions never match: an action gated on something the toolbar can't evaluate stays hidden.
+ * Unknown conditions never match: an action gated on something this page can't evaluate stays hidden.
  * @param {SelectionAction} action
  * @param {SelectionContext} context
  * @param {boolean} editable
@@ -80,18 +80,7 @@ export function optionsFor(action, context) {
 }
 
 /**
- * At most `maxVisible` buttons on the toolbar, Ask among them; the rest go in the "more" menu.
- * @template T
- * @param {T[]} ranked
- * @param {number} maxVisible
- */
-export function splitForToolbar(ranked, maxVisible) {
-    const slots = Math.max(0, maxVisible - 1);
-    return { visible: ranked.slice(0, slots), overflow: ranked.slice(slots) };
-}
-
-/**
- * What the native context menu should offer for a selection.
+ * What native should offer for a selection, in its toolbar or its context menu.
  * @param {SelectionAction[]} ranked
  * @param {SelectionContext} context
  * @returns {ContextMenuAction[]}

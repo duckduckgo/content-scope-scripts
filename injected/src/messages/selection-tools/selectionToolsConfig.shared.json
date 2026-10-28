@@ -12,19 +12,19 @@
   "properties": {
     "enabled": {
       "type": "boolean",
-      "description": "False when the remote flag or the AI toggle is off, and on native's own sites: no toolbar shows and contextMenuOpened is not sent."
+      "description": "False when the remote flag or the AI toggle is off, and on native's own sites: no selection is reported and contextMenuOpened is not sent."
     },
     "showToolbar": {
       "type": "boolean",
-      "description": "The user's setting for the toolbar. When false, no toolbar shows, but contextMenuOpened is still sent while enabled."
+      "description": "The user's setting for the toolbar. When false, no selection is reported, but contextMenuOpened is still sent while enabled."
     },
     "startCollapsed": {
       "type": "boolean",
-      "description": "Show the toolbar as the collapsed chip, expanding on hover. Defaults to false."
+      "description": "Show the toolbar as the collapsed chip, expanding on hover. Defaults to false. Not read by the page, which draws no toolbar."
     },
     "askAvailable": {
       "type": "boolean",
-      "description": "Whether the built-in Ask is offered. When false, the toolbar has no Ask button and actionRequested is never sent with \"ask\". Defaults to true."
+      "description": "Whether the built-in Ask is offered. Defaults to true. Not read by the page, which draws no toolbar."
     },
     "userLanguage": {
       "type": "string",
@@ -170,14 +170,55 @@
         }
       }
     },
-    "toolbarState": {
-      "title": "ToolbarState",
-      "description": "expanded, or the collapsed chip.",
-      "type": "string",
-      "enum": [
-        "expanded",
-        "collapsed"
-      ]
+    "contextMenuAction": {
+      "title": "ContextMenuAction",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "parameter": {
+          "type": "string",
+          "description": "The option to run with directly, when there is one obvious choice."
+        },
+        "options": {
+          "type": "array",
+          "description": "Option values to offer, for actions with a parameter and no direct choice.",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "selectionRect": {
+      "title": "SelectionRect",
+      "description": "The selected text's bounds in CSS pixels, relative to the viewport. Multiply by devicePixelRatio for physical pixels.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "left",
+        "top",
+        "right",
+        "bottom"
+      ],
+      "properties": {
+        "left": {
+          "type": "number"
+        },
+        "top": {
+          "type": "number"
+        },
+        "right": {
+          "type": "number"
+        },
+        "bottom": {
+          "type": "number"
+        }
+      }
     }
   }
 }
