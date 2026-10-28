@@ -1,0 +1,12 @@
+{
+  "readme": "Config for pageTranslation integration tests.",
+  "version": 1,
+  "features": {
+    "pageTranslation": {
+      "state": "enabled",
+      "exceptions": [],
+      "settings": {}
+    }
+  },
+  "unprotectedTemporary": []
+}

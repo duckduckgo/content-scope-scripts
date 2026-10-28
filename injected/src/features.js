@@ -57,6 +57,7 @@ const otherFeatures = /** @type {FeatureName[]} */ ([
     'autofillPasskeys',
     'textSelection',
     'chromeWebstorePatching',
+    'pageTranslation',
 ]);
 
 /**
@@ -73,7 +74,16 @@ export const featureConfigDependencies = {
 
 /** @type {Record<string, FeatureName[]>} */
 export const platformSupport = {
-    apple: ['webCompat', 'duckPlayerNative', ...baseFeatures, 'pageContext', 'print', 'trackerProtection', 'textSelection'],
+    apple: [
+        'webCompat',
+        'duckPlayerNative',
+        ...baseFeatures,
+        'pageContext',
+        'print',
+        'trackerProtection',
+        'textSelection',
+        'pageTranslation',
+    ],
     'apple-isolated': [
         'contextMenu',
         'duckPlayer',
@@ -109,6 +119,7 @@ export const platformSupport = {
         'messageBridge',
         'pageContext',
         'browserUiLock',
+        'pageTranslation',
     ],
     'android-broker-protection': ['brokerProtection'],
     'android-ai-clear': ['duckAiDataClearing'],
