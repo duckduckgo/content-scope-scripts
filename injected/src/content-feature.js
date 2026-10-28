@@ -83,6 +83,14 @@ export default class ContentFeature extends ConfigFeature {
      */
     listenForConfigUpdates = false;
 
+    /**
+     * Set this to true if init() overrides APIs that page scripts can read. Such features start init() in the same call as
+     * the injected script instead of after a microtask, so a page that creates a blank iframe and reads its APIs straight
+     * away (as fingerprinting scripts do to borrow unmodified ones) gets the protected values.
+     * @type {boolean}
+     */
+    initImmediately = false;
+
     /** @type {ImportMeta} */
     #importConfig;
 

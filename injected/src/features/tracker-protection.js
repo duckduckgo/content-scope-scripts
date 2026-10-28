@@ -44,6 +44,8 @@ function getTabURL() {
 }
 
 export class TrackerProtection extends ContentFeature {
+    initImmediately = true;
+
     init() {
         /** @type {TrackerResolver | null} */
         this._resolver = null;
