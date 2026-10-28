@@ -16,6 +16,7 @@
 const insertBefore = Node.prototype.insertBefore;
 const removeChild = Node.prototype.removeChild;
 const createTextNode = Document.prototype.createTextNode;
+const cloneNode = Node.prototype.cloneNode;
 const ReflectApply = Reflect.apply;
 
 const ELEMENT_NODE = 1;
@@ -115,15 +116,24 @@ class Merge {
                 next.push(this.text(texts, item.text));
                 continue;
             }
-            const el = this.elements[item.id];
-            if (!el || this.used.has(item.id)) {
-                // Not an element we sent (or sent once): keep its words, never create an element.
+            const live = this.elements[item.id];
+            if (!live) {
+                // Not an element we sent: keep its words, never create an element.
                 next.push(this.text(texts, textOf(item.children)));
                 continue;
             }
+            // The engine can split one tag into two (`<b>red car</b>` → `<b>voiture</b> … <b>rouge</b>`).
+            const el = this.used.has(item.id) ? /** @type {Element} */ (ReflectApply(cloneNode, live, [true])) : live;
             this.used.add(item.id);
-            if (!this.isExcluded(el)) this.into(el, [...el.childNodes], item.children, null);
+            const emptied = !textOf(item.children).trim() && !!(live.textContent || '').trim();
+            if (!this.isExcluded(live) && !emptied) this.into(el, [...el.childNodes], item.children, null);
             next.push(el);
+        }
+        // An element the engine dropped is put back, so no link, input or image is lost.
+        for (const node of current) {
+            if (node.nodeType !== ELEMENT_NODE || next.includes(node)) continue;
+            const id = this.elements.indexOf(/** @type {Element} */ (node));
+            if (id === -1 || !this.used.has(id)) next.push(node);
         }
         // Comments and other non-content nodes stay, at the end of the range.
         for (const node of current) {
