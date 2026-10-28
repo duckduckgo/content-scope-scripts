@@ -12,6 +12,9 @@ import {
     PaidIcon,
     PuzzleIcon,
 } from './SuggestedPromptsIcons.js';
+import duckAiChatIcon from './duckai-chat-56.data.svg';
+import fireIcon from './fire-56.data.svg';
+import maskGreenIcon from './mask-green-56.data.svg';
 
 /**
  * Ported from Duck.ai's new-chat chips
@@ -81,17 +84,17 @@ export const IMAGE_PROMPTS = [
 /** @type {{ icon: string, title: StringKey, body: StringKey }[]} */
 export const HOW_DUCKAI_WORKS_CARDS = [
     {
-        icon: './suggested-prompts/duckai-chat-56.svg',
+        icon: duckAiChatIcon,
         title: 'omnibar_suggestedPromptsChatTitle',
         body: 'omnibar_suggestedPromptsChatBody',
     },
     {
-        icon: './suggested-prompts/mask-green-56.svg',
+        icon: maskGreenIcon,
         title: 'omnibar_suggestedPromptsAnonymizedTitle',
         body: 'omnibar_suggestedPromptsAnonymizedBody',
     },
     {
-        icon: './suggested-prompts/fire-56.svg',
+        icon: fireIcon,
         title: 'omnibar_suggestedPromptsNoAiTrainingTitle',
         body: 'omnibar_suggestedPromptsNoAiTrainingBody',
     },
