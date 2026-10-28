@@ -1958,6 +1958,51 @@ test.describe('omnibar widget', () => {
     });
 
     test.describe('AI chat model selector', () => {
+        test('shows the full model list without scrolling when the window has room', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await page.setViewportSize({ width: 1280, height: 1200 });
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.mode': 'ai', 'omnibar.enableAiChatTools': 'true' },
+            });
+            await omnibar.ready();
+            await omnibar.modelSelectorButton().click();
+
+            const dropdown = omnibar.modelDropdown();
+            await expect(dropdown).toBeVisible();
+            await expect.poll(() => dropdown.evaluate((el) => el.scrollHeight - el.clientHeight)).toBe(0);
+            await expect(omnibar.modelOption('Claude 4 Sonnet')).toBeInViewport({ ratio: 1 });
+        });
+
+        test('keeps the model menu visible and scrollable in a short window', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await page.setViewportSize({ width: 896, height: 382 });
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.mode': 'ai', 'omnibar.enableAiChatTools': 'true', background: 'color07' },
+            });
+            await omnibar.ready();
+            await omnibar.modelSelectorButton().scrollIntoViewIfNeeded();
+            const pageScroll = await page.locator('main').evaluateAll((els) => els.map((el) => el.scrollTop));
+            await omnibar.modelSelectorButton().click();
+
+            const dropdown = omnibar.modelDropdown();
+            await expect(dropdown).toBeFocused();
+            const bounds = await dropdown.evaluate((el) => {
+                const { top, bottom } = el.getBoundingClientRect();
+                return { top, bottom };
+            });
+            expect(bounds.top).toBeGreaterThanOrEqual(20);
+            expect(bounds.bottom).toBeLessThanOrEqual(362);
+            expect(await page.locator('main').evaluateAll((els) => els.map((el) => el.scrollTop))).toEqual(pageScroll);
+            expect(await dropdown.evaluate((el) => el.scrollHeight - el.clientHeight)).toBeGreaterThan(0);
+            await dropdown.hover();
+            await page.mouse.wheel(0, 1000);
+            await expect(omnibar.modelOption('Claude 4 Sonnet')).toBeInViewport({ ratio: 1 });
+        });
+
         test('renders model descriptions', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);
