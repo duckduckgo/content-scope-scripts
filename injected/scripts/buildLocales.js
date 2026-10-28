@@ -35,7 +35,6 @@ const jobs = {
     'src/locales/click-to-load': '../build/locales/ctl-locales.js',
     'src/locales/duckplayer': '../build/locales/duckplayer-locales.js',
     'src/locales/chrome-webstore-patching': '../build/locales/chrome-webstore-patching-locales.js',
-    'src/locales/selection-tools': '../build/locales/selection-tools-locales.js',
 };
 
 for (const [dir, output] of Object.entries(jobs)) {

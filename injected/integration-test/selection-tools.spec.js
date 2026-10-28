@@ -4,6 +4,7 @@ import { ResultsCollector } from './page-objects/results-collector.js';
 const HTML = '/selection-tools/pages/index.html';
 const CONFIG = './integration-test/test-pages/selection-tools/config/config.json';
 const DISABLED_CONFIG = './integration-test/test-pages/selection-tools/config/disabled.json';
+const ENGLISH = 'The quick brown fox';
 
 const ACTIONS = [
     {
@@ -12,8 +13,7 @@ const ACTIONS = [
         icon: [{ d: 'M2 2h12v12H2z' }, { d: 'M4 4h8v8H4z', fillRule: 'evenodd' }],
         selectionTypes: ['code', 'text', 'long'],
     },
-    // An icon in older native's form, a single stroked path: the default icon stands in.
-    { id: 'summarize', label: 'Summarize', icon: 'M2 8h12', selectionTypes: ['text', 'long'] },
+    { id: 'summarize', label: 'Summarize', selectionTypes: ['text', 'long'] },
     {
         id: 'translate',
         label: 'Translate',
@@ -61,19 +61,10 @@ async function setup(page, testInfo, overrides) {
     return collector;
 }
 
-/** @param {import('@playwright/test').Page} page */
-function host(page) {
-    return page.locator('ddg-selection-tools');
-}
-
-/** @param {import('@playwright/test').Page} page */
-function selectionToolbar(page) {
-    return host(page).getByRole('toolbar');
-}
-
 /**
  * @param {ResultsCollector} collector
  * @param {string} method
+ * @returns {Promise<any[]>}
  */
 async function sent(collector, method) {
     const messages = await collector.outgoingMessages();
@@ -83,28 +74,17 @@ async function sent(collector, method) {
 }
 
 /**
- * What native sends when its context menu closes.
  * @param {ResultsCollector} collector
+ * @param {string} method
  */
-async function closeContextMenu(collector) {
-    // Native sends null params, from its shared empty-payload event.
-    await collector.simulateSubscriptionMessage('selectionTools', 'contextMenuClosed', /** @type {any} */ (null));
+async function lastSent(collector, method) {
+    const messages = await sent(collector, method);
+    return messages[messages.length - 1];
 }
 
 /**
- * The left click that dismisses the native context menu: the menu takes the press, and only the release reaches the
- * page, leaving the selection. A real mouse release here would also end Chromium's selection gesture and clear it.
- * @param {import('@playwright/test').Page} page
- */
-async function releaseOnSelection(page) {
-    await page.evaluate(() => {
-        const target = window.getSelection()?.anchorNode?.parentElement ?? document.body;
-        target.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, button: 0 }));
-    });
-}
-
-/**
- * Triple-click selects the paragraph with a real, trusted mouse.
+ * Triple-click selects the paragraph with a real, trusted mouse. Its second click can report the word under the
+ * pointer on the way, so tests wait for the paragraph's report.
  * @param {import('@playwright/test').Page} page
  * @param {string} selector
  */
@@ -112,210 +92,135 @@ async function selectParagraph(page, selector) {
     await page.locator(selector).click({ clickCount: 3 });
 }
 
+/**
+ * Waits until the last selectionChanged among those after the first `after` is for text containing `text`.
+ * @param {ResultsCollector} collector
+ * @param {string} text
+ * @param {number} [after]
+ */
+async function reportedWith(collector, text, after = 0) {
+    await expect.poll(async () => (await sent(collector, 'selectionChanged')).slice(after).pop()?.text ?? '').toContain(text);
+    return lastSent(collector, 'selectionChanged');
+}
+
+/**
+ * Lets selection checks scheduled for the next task, and any report coalesced to an animation frame, run before
+ * asserting that something wasn't sent.
+ * @param {import('@playwright/test').Page} page
+ */
+async function settle(page) {
+    await page.evaluate(
+        () =>
+            new Promise((resolve) => {
+                requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(resolve, 0)));
+            }),
+    );
+}
+
+/**
+ * @param {import('@playwright/test').Page} page
+ * @param {string} selector
+ */
+function boxOf(page, selector) {
+    return page.locator(selector).evaluate((element) => {
+        const { left, top, right, bottom } = element.getBoundingClientRect();
+        return { left, top, right, bottom };
+    });
+}
+
+/**
+ * @param {{ actions: { id: string }[] }} params
+ */
+function actionIds(params) {
+    return params.actions.map((action) => action.id);
+}
+
 test.describe('selectionTools', () => {
-    test('adds nothing to the page and asks native nothing until text is selected', async ({ page }, testInfo) => {
+    test('sends nothing and asks native nothing until text is selected', async ({ page }, testInfo) => {
         const collector = await setup(page, testInfo);
         await page.locator('#english').click();
-        await expect(host(page)).toHaveCount(0);
+        await settle(page);
         expect(await sent(collector, 'initialSetup')).toEqual([]);
-
-        await selectParagraph(page, '#english');
-        await expect(selectionToolbar(page)).toBeVisible();
-        const buttons = selectionToolbar(page).getByRole('button');
-        await expect(buttons).toHaveText(['Ask Duck.ai…', 'Explain', 'Summarize', 'Translate', 'Change tone', '']);
-        await expect(selectionToolbar(page).getByRole('button', { name: 'More Duck.ai actions' })).toBeVisible();
-
-        await page.mouse.click(5, 5);
-        await expect(host(page)).toHaveCount(0);
+        expect(await sent(collector, 'selectionChanged')).toEqual([]);
+        expect(await sent(collector, 'selectionCleared')).toEqual([]);
     });
 
-    test('sends the selection for a clicked action', async ({ page }, testInfo) => {
+    test('reports a selected paragraph with its actions and where it is', async ({ page }, testInfo) => {
         const collector = await setup(page, testInfo);
         await selectParagraph(page, '#english');
-        await selectionToolbar(page).getByRole('button', { name: 'Explain' }).click();
+        const params = await reportedWith(collector, ENGLISH);
 
-        const [params] = await sent(collector, 'actionRequested');
         expect(params).toEqual({
-            actionId: 'explain',
-            text: expect.stringContaining('The quick brown fox'),
-            state: 'expanded',
-            placement: 'toolbar',
-            selectionType: 'text',
+            text: expect.stringContaining(ENGLISH),
             editable: false,
-        });
-        await expect(selectionToolbar(page).getByText('Sent to Duck.ai')).toBeVisible();
-    });
-
-    test('Ask attaches the selection without an action', async ({ page }, testInfo) => {
-        const collector = await setup(page, testInfo);
-        await selectParagraph(page, '#english');
-        await selectionToolbar(page).getByRole('button', { name: 'Ask Duck.ai…' }).click();
-
-        const [params] = await sent(collector, 'actionRequested');
-        expect(params).toEqual({
-            actionId: 'ask',
-            text: expect.stringContaining('The quick brown fox'),
-            state: 'expanded',
-            placement: 'toolbar',
             selectionType: 'text',
-            editable: false,
+            // The page is marked as English.
+            sourceLanguage: 'en',
+            actions: [
+                { id: 'explain' },
+                { id: 'summarize' },
+                { id: 'translate', options: ['es', 'fr'] },
+                { id: 'tone', options: ['formal', 'casual'] },
+                { id: 'rewrite' },
+            ],
+            rect: { left: expect.any(Number), top: expect.any(Number), right: expect.any(Number), bottom: expect.any(Number) },
+            devicePixelRatio: await page.evaluate(() => window.devicePixelRatio),
+            maxVisibleActions: 5,
         });
-    });
-
-    test('reports the chip state for an action picked after coming to the toolbar as the chip', async ({ page }, testInfo) => {
-        const collector = await setup(page, testInfo);
-        await selectParagraph(page, '#english');
-        await selectionToolbar(page).getByRole('button', { name: 'Explain' }).click();
-        // The toolbar is the chip now; pointing at it again expands it.
-        await page.mouse.move(5, 5);
-        await selectionToolbar(page).getByRole('button', { name: 'Ask Duck.ai…' }).click();
-
-        const [, params] = await sent(collector, 'actionRequested');
-        expect(params).toMatchObject({ actionId: 'ask', state: 'collapsed', placement: 'toolbar' });
+        // The text's own boxes, which sit a little inside the paragraph's line boxes.
+        const paragraph = await boxOf(page, '#english');
+        expect(params.rect.left).toBeCloseTo(paragraph.left, 0);
+        expect(params.rect.top).toBeGreaterThanOrEqual(paragraph.top);
+        expect(params.rect.top).toBeLessThan(paragraph.top + 8);
+        expect(params.rect.right).toBeGreaterThan(params.rect.left);
+        expect(params.rect.right).toBeLessThanOrEqual(paragraph.right);
+        expect(params.rect.bottom).toBeGreaterThan(params.rect.top);
+        expect(params.rect.bottom).toBeLessThanOrEqual(paragraph.bottom);
+        expect(await sent(collector, 'initialSetup')).toHaveLength(1);
     });
 
     test('translates foreign text into the user language straight away', async ({ page }, testInfo) => {
         const collector = await setup(page, testInfo);
         await selectParagraph(page, '#spanish');
-        // Translation leads for foreign text.
-        await expect(selectionToolbar(page).getByRole('button').nth(1)).toHaveText('Translate');
-        await selectionToolbar(page).getByRole('button', { name: 'Translate' }).click();
+        const params = await reportedWith(collector, 'El perro');
 
-        const [params] = await sent(collector, 'actionRequested');
-        expect(params).toEqual({
-            actionId: 'translate',
-            text: expect.stringContaining('El perro'),
-            parameter: 'en',
-            sourceLanguage: 'es',
-            state: 'expanded',
-            placement: 'toolbar',
+        expect(params).toMatchObject({
             selectionType: 'text',
-            editable: false,
+            sourceLanguage: 'es',
+            // Translation leads for foreign text.
+            actions: [
+                { id: 'translate', parameter: 'en' },
+                { id: 'explain' },
+                { id: 'summarize' },
+                { id: 'tone', options: ['formal', 'casual'] },
+                { id: 'rewrite' },
+            ],
         });
     });
 
-    test('offers other languages for text in the user language', async ({ page }, testInfo) => {
+    test('reports a text field selected with Ctrl+A as editable, measured without leaving anything in the page', async ({
+        page,
+    }, testInfo) => {
         const collector = await setup(page, testInfo);
-        await selectParagraph(page, '#english');
-        await selectionToolbar(page).getByRole('button', { name: 'Translate' }).hover();
-
-        const menu = host(page).getByRole('menu');
-        await expect(menu.getByRole('menuitem')).toHaveText(['Spanish', 'French']);
-        await menu.getByRole('menuitem', { name: 'Spanish' }).click();
-
-        const [params] = await sent(collector, 'actionRequested');
-        // A choice inherits its action's placement.
-        expect(params).toMatchObject({ actionId: 'translate', parameter: 'es', sourceLanguage: 'en', placement: 'toolbar' });
-    });
-
-    test('the more menu holds the overflow and the toolbar options', async ({ page }, testInfo) => {
-        const collector = await setup(page, testInfo);
-        await selectParagraph(page, '#english');
-        await selectionToolbar(page).getByRole('button', { name: 'More Duck.ai actions' }).click();
-
-        const menu = host(page).getByRole('menu');
-        await expect(menu.getByRole('menuitem')).toHaveText(['Rewrite', 'Hide selection tools', 'Open AI Settings']);
-        await menu.getByRole('menuitem', { name: 'Open AI Settings' }).click();
-        expect(await sent(collector, 'openAiSettings')).toEqual([{}]);
-    });
-
-    test('reports the more menu as the placement of its actions', async ({ page }, testInfo) => {
-        const collector = await setup(page, testInfo);
-        await selectParagraph(page, '#english');
-        await selectionToolbar(page).getByRole('button', { name: 'More Duck.ai actions' }).click();
-        await host(page).getByRole('menuitem', { name: 'Rewrite' }).click();
-
-        const [params] = await sent(collector, 'actionRequested');
-        expect(params).toMatchObject({ actionId: 'rewrite', state: 'expanded', placement: 'overflow' });
-    });
-
-    test('reports each new toolbar once, with its state and selection', async ({ page }, testInfo) => {
-        const collector = await setup(page, testInfo);
-        await selectParagraph(page, '#english');
-        await expect(selectionToolbar(page)).toBeVisible();
-        // The same selection again, and the chip coming back after the context menu, are not new toolbars.
-        await page.keyboard.press('Shift');
-        await page.locator('#english').click({ button: 'right' });
-        await expect.poll(() => sent(collector, 'contextMenuOpened')).toHaveLength(1);
-        await closeContextMenu(collector);
-        await expect(selectionToolbar(page)).toBeVisible();
-        expect(await sent(collector, 'toolbarShown')).toEqual([{ state: 'expanded', selectionType: 'text', editable: false }]);
-
-        await page.mouse.click(5, 5);
         await page.locator('#field').focus();
         await page.keyboard.press('Control+A');
-        await expect(selectionToolbar(page)).toBeVisible();
-        await page.mouse.click(5, 5);
-        await page.locator('#word').dblclick();
-        await expect(selectionToolbar(page)).toBeVisible();
+        await expect.poll(() => sent(collector, 'selectionChanged')).toHaveLength(1);
 
-        // A selection with no toolbar yet gets its first showing as the chip, once the context menu closes. The click
-        // away schedules a selection check for the next task; let it run before selecting, or it would show the toolbar.
-        await page.mouse.click(5, 5);
-        await page.evaluate(() => new Promise((resolve) => setTimeout(resolve, 0)));
-        await page.evaluate(() => {
-            const paragraph = document.getElementById('spanish');
-            if (paragraph) window.getSelection()?.selectAllChildren(paragraph);
-        });
-        await page.locator('#spanish').click({ button: 'right' });
-        await expect.poll(() => sent(collector, 'contextMenuOpened')).toHaveLength(2);
-        await expect(host(page)).toHaveCount(0);
-        await closeContextMenu(collector);
-        await expect(selectionToolbar(page)).toBeVisible();
-        expect((await sent(collector, 'toolbarShown')).slice(1)).toEqual([
-            { state: 'expanded', selectionType: 'text', editable: true },
-            { state: 'expanded', selectionType: 'word', editable: false },
-            { state: 'collapsed', selectionType: 'text', editable: false },
-        ]);
+        const [params] = await sent(collector, 'selectionChanged');
+        expect(params).toMatchObject({ text: 'This sentence have a grammar mistake in it.', editable: true, selectionType: 'text' });
+        expect(params.actions).toContainEqual({ id: 'fixGrammar' });
+        const field = await boxOf(page, '#field');
+        expect(params.rect.left).toBeGreaterThanOrEqual(field.left);
+        expect(params.rect.top).toBeGreaterThanOrEqual(field.top);
+        expect(params.rect.right).toBeLessThanOrEqual(field.right);
+        expect(params.rect.bottom).toBeLessThanOrEqual(field.bottom);
+        expect(params.rect.right).toBeGreaterThan(params.rect.left);
+        expect(params.rect.bottom).toBeGreaterThan(params.rect.top);
+        await expect(page.locator('ddg-selection-tools')).toHaveCount(0);
     });
 
-    test('hiding the tools turns the toolbar off', async ({ page }, testInfo) => {
+    test('reports editing actions for select-all in an editable region', async ({ page }, testInfo) => {
         const collector = await setup(page, testInfo);
-        await selectParagraph(page, '#english');
-        await selectionToolbar(page).getByRole('button', { name: 'More Duck.ai actions' }).click();
-        await host(page).getByRole('menuitem', { name: 'Hide selection tools' }).click();
-
-        expect(await sent(collector, 'hideSelectionTools')).toEqual([{}]);
-        await expect(host(page)).toHaveCount(0);
-        await selectParagraph(page, '#spanish');
-        await expect(host(page)).toHaveCount(0);
-    });
-
-    test('fits actions to the selection', async ({ page }, testInfo) => {
-        await setup(page, testInfo);
-
-        await page.locator('#word').dblclick();
-        await expect(selectionToolbar(page).getByRole('button', { name: 'Define' })).toBeVisible();
-        await expect(selectionToolbar(page).getByRole('button', { name: 'Explain' })).toHaveCount(0);
-
-        await selectParagraph(page, '#code');
-        await expect(selectionToolbar(page).getByRole('button', { name: 'Explain' })).toBeVisible();
-        await expect(selectionToolbar(page).getByRole('button', { name: 'Summarize' })).toHaveCount(0);
-    });
-
-    test('offers editing actions in text fields, and leaves password fields alone', async ({ page }, testInfo) => {
-        await setup(page, testInfo);
-
-        await page.locator('#field').focus();
-        await page.keyboard.press('Control+A');
-        await expect(selectionToolbar(page).getByRole('button', { name: 'Fix grammar' })).toBeVisible();
-
-        await page.locator('#password').focus();
-        await page.keyboard.press('Control+A');
-        await expect(host(page)).toHaveCount(0);
-    });
-
-    test('shows nothing for select-all on the page, but does in an editable region', async ({ page }, testInfo) => {
-        await setup(page, testInfo);
-        await selectParagraph(page, '#english');
-        await expect(selectionToolbar(page)).toBeVisible();
-        expect(await selectionToolbar(page).evaluate((toolbar) => getComputedStyle(toolbar.closest('.layer') ?? toolbar).userSelect)).toBe(
-            'none',
-        );
-
-        await page.keyboard.press('Control+A');
-        await expect(host(page)).toHaveCount(0);
-
         await page.evaluate(() => {
             const editable = document.createElement('div');
             editable.id = 'editable';
@@ -325,22 +230,137 @@ test.describe('selectionTools', () => {
         });
         await page.locator('#editable').focus();
         await page.keyboard.press('Control+A');
-        await expect(selectionToolbar(page).getByRole('button', { name: 'Fix grammar' })).toBeVisible();
+        await expect.poll(() => sent(collector, 'selectionChanged')).toHaveLength(1);
+        const [params] = await sent(collector, 'selectionChanged');
+        expect(params).toMatchObject({ editable: true });
+        expect(params.actions).toContainEqual({ id: 'fixGrammar' });
     });
 
-    test('shows nothing for selections in a modal dialog', async ({ page }, testInfo) => {
-        await setup(page, testInfo);
+    test('fits actions to the selection', async ({ page }, testInfo) => {
+        const collector = await setup(page, testInfo);
+        await page.locator('#word').dblclick();
+        expect(await reportedWith(collector, 'serendipity')).toMatchObject({
+            selectionType: 'word',
+            actions: [
+                { id: 'translate', options: ['es', 'fr'] },
+                { id: 'define' },
+                { id: 'tone', options: ['formal', 'casual'] },
+                { id: 'rewrite' },
+            ],
+        });
+
+        await selectParagraph(page, '#code');
+        const code = await reportedWith(collector, 'const answer');
+        expect(code.selectionType).toBe('code');
+        expect(actionIds(code)).toContain('explain');
+        expect(actionIds(code)).not.toContain('summarize');
+    });
+
+    test('reports even when no action fits', async ({ page }, testInfo) => {
+        const collector = await setup(page, testInfo, { actions: ACTIONS.filter((action) => action.id === 'define') });
+        await selectParagraph(page, '#english');
+        expect((await reportedWith(collector, ENGLISH)).actions).toEqual([]);
+    });
+
+    test('reports the same selection again, for native to drop', async ({ page }, testInfo) => {
+        const collector = await setup(page, testInfo);
+        await page.locator('#field').focus();
+        await page.keyboard.press('Control+A');
+        await expect.poll(() => sent(collector, 'selectionChanged')).toHaveLength(1);
+        await page.keyboard.press('Shift');
+        await expect.poll(() => sent(collector, 'selectionChanged')).toHaveLength(2);
+        const [first, second] = await sent(collector, 'selectionChanged');
+        expect(second).toEqual(first);
+    });
+
+    test('sends nothing for password fields or selections in a modal dialog', async ({ page }, testInfo) => {
+        const collector = await setup(page, testInfo);
+        await page.locator('#password').focus();
+        await page.keyboard.press('Control+A');
+        await settle(page);
+        expect(await sent(collector, 'initialSetup')).toEqual([]);
+
         await page.locator('#open-dialog').click();
         await selectParagraph(page, '#in-dialog');
         await expect(page.locator('#dialog')).toBeVisible();
-        await expect(host(page)).toHaveCount(0);
+        await expect.poll(() => sent(collector, 'initialSetup')).toHaveLength(1);
+        await settle(page);
+        expect(await sent(collector, 'selectionChanged')).toEqual([]);
     });
 
-    test('reports the fitting actions when the context menu opens, and hides the toolbar until it closes', async ({ page }, testInfo) => {
+    test('clears the report for page-wide select-all and for clicking away, but only after a report', async ({ page }, testInfo) => {
+        const collector = await setup(page, testInfo);
+        await page.keyboard.press('Control+A');
+        await page.mouse.click(5, 5);
+        await settle(page);
+        expect(await sent(collector, 'selectionChanged')).toEqual([]);
+        expect(await sent(collector, 'selectionCleared')).toEqual([]);
+
+        await selectParagraph(page, '#english');
+        await reportedWith(collector, ENGLISH);
+        let reports = (await sent(collector, 'selectionChanged')).length;
+        let clears = (await sent(collector, 'selectionCleared')).length;
+        await page.keyboard.press('Control+A');
+        await expect.poll(() => sent(collector, 'selectionCleared')).toHaveLength(clears + 1);
+        expect(await lastSent(collector, 'selectionCleared')).toEqual({});
+        await settle(page);
+        expect(await sent(collector, 'selectionChanged')).toHaveLength(reports);
+
+        await selectParagraph(page, '#english');
+        await reportedWith(collector, ENGLISH, reports);
+        reports = (await sent(collector, 'selectionChanged')).length;
+        clears = (await sent(collector, 'selectionCleared')).length;
+        await page.mouse.click(5, 5);
+        await expect.poll(() => sent(collector, 'selectionCleared')).toHaveLength(clears + 1);
+        // The collapsing selection and the click's release find nothing reported, so they send nothing more.
+        await settle(page);
+        expect(await sent(collector, 'selectionCleared')).toHaveLength(clears + 1);
+        expect(await sent(collector, 'selectionChanged')).toHaveLength(reports);
+    });
+
+    test('clears the report on Escape', async ({ page }, testInfo) => {
+        const collector = await setup(page, testInfo);
+        await page.locator('#field').focus();
+        await page.keyboard.press('Control+A');
+        await expect.poll(() => sent(collector, 'selectionChanged')).toHaveLength(1);
+        await page.keyboard.press('Escape');
+        await expect.poll(() => sent(collector, 'selectionCleared')).toEqual([{}]);
+    });
+
+    test('reports where the selection moves while it is reported', async ({ page }, testInfo) => {
+        const collector = await setup(page, testInfo);
+        await page.evaluate(() => {
+            const spacer = document.createElement('div');
+            spacer.style.height = '3000px';
+            document.body.append(spacer);
+        });
+        await selectParagraph(page, '#english');
+        const { rect } = await reportedWith(collector, ENGLISH);
+
+        await page.evaluate(() => window.scrollBy(0, 100));
+        await expect.poll(async () => (await sent(collector, 'selectionMoved')).length).toBeGreaterThan(0);
+        const moved = await lastSent(collector, 'selectionMoved');
+        expect(moved).toEqual({
+            rect: { left: rect.left, top: expect.any(Number), right: rect.right, bottom: expect.any(Number) },
+            devicePixelRatio: await page.evaluate(() => window.devicePixelRatio),
+        });
+        expect(moved.rect.top).toBeCloseTo(rect.top - 100, 0);
+
+        await page.keyboard.press('Escape');
+        await expect.poll(async () => (await sent(collector, 'selectionCleared')).length).toBeGreaterThan(0);
+        const moves = (await sent(collector, 'selectionMoved')).length;
+        await page.evaluate(() => window.scrollBy(0, 100));
+        await settle(page);
+        expect(await sent(collector, 'selectionMoved')).toHaveLength(moves);
+    });
+
+    test('reports the fitting actions when the context menu opens', async ({ page }, testInfo) => {
         const collector = await setup(page, testInfo);
         await selectParagraph(page, '#spanish');
-        await expect(selectionToolbar(page)).toBeVisible();
+        await reportedWith(collector, 'El perro');
+        const clears = (await sent(collector, 'selectionCleared')).length;
         await page.locator('#spanish').click({ button: 'right' });
+        await expect.poll(() => sent(collector, 'contextMenuOpened')).toHaveLength(1);
 
         const [params] = await sent(collector, 'contextMenuOpened');
         expect(params).toEqual({
@@ -356,49 +376,9 @@ test.describe('selectionTools', () => {
                 { id: 'rewrite' },
             ],
         });
-        await expect(host(page)).toHaveCount(0);
-
-        // Back as the chip: Ask's label and the actions are folded away.
-        await closeContextMenu(collector);
-        await expect(selectionToolbar(page)).toBeVisible();
-        await expect(selectionToolbar(page).locator('.fold:not(.sent)')).toHaveClass(['fold folded', 'fold folded']);
-    });
-
-    test('brings the chip back when a left click dismisses the context menu before it reports closing', async ({ page }, testInfo) => {
-        const collector = await setup(page, testInfo);
-        await selectParagraph(page, '#spanish');
-        await page.locator('#spanish').click({ button: 'right' });
-        await expect.poll(() => sent(collector, 'contextMenuOpened')).toHaveLength(1);
-        await releaseOnSelection(page);
-        await expect(selectionToolbar(page)).toBeVisible();
-        await closeContextMenu(collector);
-        await expect(selectionToolbar(page).locator('.fold:not(.sent)')).toHaveClass(['fold folded', 'fold folded']);
-    });
-
-    test('keeps the chip when a left click dismisses the context menu after it reports closing', async ({ page }, testInfo) => {
-        const collector = await setup(page, testInfo);
-        await selectParagraph(page, '#spanish');
-        await page.locator('#spanish').click({ button: 'right' });
-        await expect.poll(() => sent(collector, 'contextMenuOpened')).toHaveLength(1);
-        await closeContextMenu(collector);
-        await expect(selectionToolbar(page)).toBeVisible();
-        await releaseOnSelection(page);
-        // The release checks the selection on the next task; let that run.
-        await page.evaluate(() => new Promise((resolve) => setTimeout(() => setTimeout(resolve, 0), 0)));
-        await expect(selectionToolbar(page).locator('.fold:not(.sent)')).toHaveClass(['fold folded', 'fold folded']);
-    });
-
-    test('leaves the toolbar hidden when the selection changed while the context menu was open', async ({ page }, testInfo) => {
-        const collector = await setup(page, testInfo);
-        await selectParagraph(page, '#spanish');
-        await page.locator('#spanish').click({ button: 'right' });
-        await expect.poll(() => sent(collector, 'contextMenuOpened')).toHaveLength(1);
-        await page.evaluate(() => {
-            const paragraph = document.getElementById('english');
-            if (paragraph) window.getSelection()?.selectAllChildren(paragraph);
-        });
-        await closeContextMenu(collector);
-        await expect(host(page)).toHaveCount(0);
+        // Native hides its own toolbar for the menu, so the right-click leaves the report alone.
+        await settle(page);
+        expect(await sent(collector, 'selectionCleared')).toHaveLength(clears);
     });
 
     test('reports an empty context menu after an earlier report, and nothing before one', async ({ page }, testInfo) => {
@@ -417,20 +397,15 @@ test.describe('selectionTools', () => {
         expect(reports[1]).toEqual({ text: '', actions: [] });
     });
 
-    test('still reports context menu actions with the toolbar turned off', async ({ page }, testInfo) => {
+    test('sends no selections with the toolbar turned off, but still reports the context menu', async ({ page }, testInfo) => {
         const collector = await setup(page, testInfo, { showToolbar: false });
         await selectParagraph(page, '#english');
-        await expect(host(page)).toHaveCount(0);
         await page.locator('#english').click({ button: 'right' });
+        await expect.poll(() => sent(collector, 'contextMenuOpened')).toHaveLength(1);
         const [params] = await sent(collector, 'contextMenuOpened');
-        expect(params?.actions.map((/** @type {{ id: string }} */ action) => action.id)).toEqual([
-            'explain',
-            'summarize',
-            'translate',
-            'tone',
-            'rewrite',
-        ]);
-        await expect(host(page)).toHaveCount(0);
+        expect(actionIds(params)).toEqual(['explain', 'summarize', 'translate', 'tone', 'rewrite']);
+        await settle(page);
+        expect(await sent(collector, 'selectionChanged')).toEqual([]);
     });
 
     test('a top-level remote config entry still acts as a kill switch', async ({ page }, testInfo) => {
@@ -439,8 +414,9 @@ test.describe('selectionTools', () => {
         await collector.load(HTML, DISABLED_CONFIG);
         await selectParagraph(page, '#english');
         await page.locator('#english').click({ button: 'right' });
-        await expect(host(page)).toHaveCount(0);
+        await settle(page);
         expect(await sent(collector, 'initialSetup')).toEqual([]);
+        expect(await sent(collector, 'selectionChanged')).toEqual([]);
         expect(await sent(collector, 'contextMenuOpened')).toEqual([]);
     });
 
@@ -448,25 +424,32 @@ test.describe('selectionTools', () => {
         const collector = await setup(page, testInfo, { enabled: false, showToolbar: false, userLanguage: undefined, actions: [] });
         await selectParagraph(page, '#english');
         await page.locator('#english').click({ button: 'right' });
-        await expect(host(page)).toHaveCount(0);
+        await expect.poll(() => sent(collector, 'initialSetup')).toHaveLength(1);
+        await settle(page);
+        expect(await sent(collector, 'selectionChanged')).toEqual([]);
         expect(await sent(collector, 'contextMenuOpened')).toEqual([]);
     });
 
     test('follows config pushed by native', async ({ page }, testInfo) => {
         const collector = await setup(page, testInfo);
-        await selectParagraph(page, '#english');
-        await expect(selectionToolbar(page)).toBeVisible();
+        await page.locator('#field').focus();
+        await page.keyboard.press('Control+A');
+        await expect.poll(() => sent(collector, 'selectionChanged')).toHaveLength(1);
 
         // The same config again changes nothing.
         await collector.simulateSubscriptionMessage('selectionTools', 'selectionToolsConfigChanged', selectionToolsConfig());
-        await expect(selectionToolbar(page)).toBeVisible();
+        await settle(page);
+        expect(await sent(collector, 'selectionCleared')).toEqual([]);
 
         await collector.simulateSubscriptionMessage(
             'selectionTools',
             'selectionToolsConfigChanged',
             selectionToolsConfig({ showToolbar: false }),
         );
-        await expect(host(page)).toHaveCount(0);
+        await expect.poll(() => sent(collector, 'selectionCleared')).toEqual([{}]);
+        await page.keyboard.press('Control+A');
+        await settle(page);
+        expect(await sent(collector, 'selectionChanged')).toHaveLength(1);
 
         const fewerActions = ACTIONS.filter((action) => action.id !== 'explain');
         await collector.simulateSubscriptionMessage(
@@ -474,85 +457,15 @@ test.describe('selectionTools', () => {
             'selectionToolsConfigChanged',
             selectionToolsConfig({ actions: fewerActions }),
         );
-        await selectParagraph(page, '#english');
-        await expect(selectionToolbar(page).getByRole('button')).toHaveText([
-            'Ask Duck.ai…',
-            'Summarize',
-            'Translate',
-            'Change tone',
-            'Rewrite',
-            '',
+        await page.keyboard.press('Control+A');
+        await expect.poll(() => sent(collector, 'selectionChanged')).toHaveLength(2);
+        expect(actionIds(await lastSent(collector, 'selectionChanged'))).toEqual([
+            'summarize',
+            'translate',
+            'fixGrammar',
+            'tone',
+            'rewrite',
         ]);
         expect(await sent(collector, 'initialSetup')).toHaveLength(1);
-    });
-
-    test('Ask shows the Duck.ai logo for the colour scheme', async ({ page }, testInfo) => {
-        await setup(page, testInfo);
-        await selectParagraph(page, '#english');
-        const ask = selectionToolbar(page).getByRole('button', { name: 'Ask Duck.ai…' });
-        await expect(ask.locator('svg.logo-light')).toBeVisible();
-        await expect(ask.locator('svg.logo-dark')).toBeHidden();
-
-        await page.emulateMedia({ colorScheme: 'dark' });
-        await expect(ask.locator('svg.logo-dark')).toBeVisible();
-        await expect(ask.locator('svg.logo-light')).toBeHidden();
-        await expect(ask.locator('svg.logo-dark linearGradient')).toHaveCount(3);
-    });
-
-    test('leaves Ask out when native says it is unavailable', async ({ page }, testInfo) => {
-        await setup(page, testInfo, { askAvailable: false });
-        await selectParagraph(page, '#english');
-        await expect(selectionToolbar(page).getByRole('button')).toHaveText(['Explain', 'Summarize', 'Translate', 'Change tone', '']);
-        // The logo still leads, as a mark the chip can collapse to.
-        await expect(selectionToolbar(page).locator('.mark svg.logo-light')).toBeVisible();
-    });
-
-    test('shows nothing without Ask or a fitting action', async ({ page }, testInfo) => {
-        await setup(page, testInfo, { askAvailable: false, actions: ACTIONS.filter((action) => action.id === 'define') });
-        await selectParagraph(page, '#english');
-        await page.locator('#english').click({ button: 'right' });
-        await expect(host(page)).toHaveCount(0);
-    });
-
-    test('draws native glyphs filled, and the default icon for anything else', async ({ page }, testInfo) => {
-        await setup(page, testInfo);
-        await selectParagraph(page, '#english');
-        const explain = selectionToolbar(page).getByRole('button', { name: 'Explain' }).locator('path');
-        await expect(explain).toHaveCount(2);
-        await expect(explain.nth(0)).toHaveAttribute('fill', 'currentColor');
-        await expect(explain.nth(0)).not.toHaveAttribute('fill-rule', /.*/);
-        await expect(explain.nth(1)).toHaveAttribute('fill-rule', 'evenodd');
-        const summarize = selectionToolbar(page).getByRole('button', { name: 'Summarize' }).locator('path');
-        await expect(summarize).toHaveCount(1);
-        await expect(summarize).toHaveAttribute('d', /^M6\.81286 1\.53649/);
-    });
-
-    test('an action with choices swaps its icon for a chevron while they are open', async ({ page }, testInfo) => {
-        await setup(page, testInfo);
-        await selectParagraph(page, '#english');
-        const translate = selectionToolbar(page).getByRole('button', { name: 'Translate' });
-        await expect(translate.locator('svg.when-closed')).toBeVisible();
-        await expect(translate.locator('svg.when-open')).toBeHidden();
-        await expect(translate.locator('svg')).toHaveCount(2);
-
-        await translate.hover();
-        await expect(host(page).getByRole('menu')).toBeVisible();
-        await expect(translate).toHaveClass('action active');
-        await expect(translate.locator('svg.when-open')).toBeVisible();
-        await expect(translate.locator('svg.when-closed')).toBeHidden();
-    });
-
-    test('ignores clicks made by page script', async ({ page }, testInfo) => {
-        const collector = await setup(page, testInfo);
-        await selectParagraph(page, '#english');
-        await expect(selectionToolbar(page)).toBeVisible();
-
-        // The shadow root is only open in test builds; a page can't reach it in production.
-        await page.evaluate(() => {
-            for (const button of document.querySelector('ddg-selection-tools')?.shadowRoot?.querySelectorAll('button') ?? []) {
-                /** @type {HTMLElement} */ (button).click();
-            }
-        });
-        expect(await sent(collector, 'actionRequested')).toEqual([]);
     });
 });

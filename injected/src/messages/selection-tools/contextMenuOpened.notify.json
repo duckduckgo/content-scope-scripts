@@ -28,28 +28,7 @@
       "type": "array",
       "description": "The actions that fit, ranked, without \"ask\".",
       "items": {
-        "title": "ContextMenuAction",
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "id"
-        ],
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "parameter": {
-            "type": "string",
-            "description": "The option to run with directly, when there is one obvious choice."
-          },
-          "options": {
-            "type": "array",
-            "description": "Option values to offer, for actions with a parameter and no direct choice.",
-            "items": {
-              "type": "string"
-            }
-          }
-        }
+        "$ref": "selectionToolsConfig.shared.json#/definitions/contextMenuAction"
       }
     }
   }

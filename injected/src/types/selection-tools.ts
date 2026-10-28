@@ -6,66 +6,19 @@
  * @module SelectionTools Messages
  */
 
-/**
- * expanded, or the collapsed chip.
- */
-export type ToolbarState = "expanded" | "collapsed";
 export type SelectionType = "word" | "code" | "question" | "long" | "text";
-/**
- * Pushed to the main frame when a native context menu closes, by any path, on a page where the tools are enabled. The page brings back the toolbar it hid for the menu, as the chip, if the menu's selection is still there. Carries no data; native sends null params.
- */
-export type ContextMenuClosedParams = {} | null;
 
 /**
  * Requests, Notifications and Subscriptions from the SelectionTools feature
  */
 export interface SelectionToolsMessages {
   notifications:
-    | ActionRequestedNotification
     | ContextMenuOpenedNotification
-    | HideSelectionToolsNotification
-    | OpenAiSettingsNotification
-    | ToolbarShownNotification;
+    | SelectionChangedNotification
+    | SelectionClearedNotification
+    | SelectionMovedNotification;
   requests: InitialSetupRequest;
-  subscriptions: ContextMenuClosedSubscription | SelectionToolsConfigChangedSubscription;
-}
-/**
- * Generated from @see "../messages/selection-tools/actionRequested.notify.json"
- */
-export interface ActionRequestedNotification {
-  method: "actionRequested";
-  params: ActionRequestedParams;
-}
-/**
- * The user clicked an action. Only sent for trusted clicks. state is the toolbar's state when the user came to it: collapsed when they came to it as the chip, even though pointing at the chip expands it.
- */
-export interface ActionRequestedParams {
-  /**
-   * An action's id, or "ask" for the built-in Ask.
-   */
-  actionId: string;
-  /**
-   * The selected text.
-   */
-  text: string;
-  /**
-   * The chosen option's value, for actions with a parameter.
-   */
-  parameter?: string;
-  /**
-   * The page's language tag for the selection, from the nearest lang attribute. Only sent for language parameters.
-   */
-  sourceLanguage?: string;
-  state?: ToolbarState;
-  /**
-   * Where the action was picked: a toolbar button (Ask included), or the more menu. A choice inherits its action's placement.
-   */
-  placement?: "toolbar" | "overflow";
-  selectionType?: SelectionType;
-  /**
-   * Whether the selection is in an editable field.
-   */
-  editable?: boolean;
+  subscriptions: SelectionToolsConfigChangedSubscription;
 }
 /**
  * Generated from @see "../messages/selection-tools/contextMenuOpened.notify.json"
@@ -108,44 +61,79 @@ export interface ContextMenuAction {
   options?: string[];
 }
 /**
- * Generated from @see "../messages/selection-tools/hideSelectionTools.notify.json"
+ * Generated from @see "../messages/selection-tools/selectionChanged.notify.json"
  */
-export interface HideSelectionToolsNotification {
-  method: "hideSelectionTools";
-  params: HideSelectionToolsParams;
+export interface SelectionChangedNotification {
+  method: "selectionChanged";
+  params: SelectionChangedParams;
 }
 /**
- * The user chose to hide the toolbar. Native turns the setting off and pushes selectionToolsConfigChanged.
+ * A selection gesture ended on text the tools can act on, while enabled and showToolbar is on, so native can show its toolbar for it. Sent even when no action fits, and again when the same text is reselected: native decides whether to show Ask alone and dedups repeats. Not sent for selections in a modal dialog, popover or fullscreen element.
  */
-export interface HideSelectionToolsParams {}
-/**
- * Generated from @see "../messages/selection-tools/openAiSettings.notify.json"
- */
-export interface OpenAiSettingsNotification {
-  method: "openAiSettings";
-  params: OpenAiSettingsParams;
-}
-/**
- * The user chose to open AI Settings.
- */
-export interface OpenAiSettingsParams {}
-/**
- * Generated from @see "../messages/selection-tools/toolbarShown.notify.json"
- */
-export interface ToolbarShownNotification {
-  method: "toolbarShown";
-  params: ToolbarShownParams;
-}
-/**
- * The toolbar appeared for a new selection, once per selection: expanded, or collapsed when it first appears as the chip after a context menu on a selection that had no toolbar yet. Not sent when the same selection is tracked again, when the chip comes back after a context menu, or when the chip expands on hover.
- */
-export interface ToolbarShownParams {
-  state: ToolbarState;
-  selectionType: SelectionType;
+export interface SelectionChangedParams {
+  /**
+   * The selected text.
+   */
+  text: string;
   /**
    * Whether the selection is in an editable field.
    */
   editable: boolean;
+  selectionType: SelectionType;
+  /**
+   * The page's language tag for the selection, from the nearest lang attribute, as in contextMenuOpened.
+   */
+  sourceLanguage?: string;
+  /**
+   * The actions that fit, ranked, without "ask": the same list contextMenuOpened would send.
+   */
+  actions: ContextMenuAction[];
+  rect: SelectionRect;
+  /**
+   * The page's window.devicePixelRatio, which includes page zoom.
+   */
+  devicePixelRatio: number;
+  /**
+   * Toolbar buttons before "more", Ask included, from the remote config.
+   */
+  maxVisibleActions: number;
+}
+/**
+ * The selected text's bounds in CSS pixels, relative to the viewport. Multiply by devicePixelRatio for physical pixels.
+ */
+export interface SelectionRect {
+  left: number;
+  top: number;
+  right: number;
+  bottom: number;
+}
+/**
+ * Generated from @see "../messages/selection-tools/selectionCleared.notify.json"
+ */
+export interface SelectionClearedNotification {
+  method: "selectionCleared";
+  params: SelectionClearedParams;
+}
+/**
+ * The reported selection went away: a click or Escape, the selection collapsing, select-all on the page, the page being hidden, or a config that turns the tools or the toolbar off. Only sent after a selectionChanged, once.
+ */
+export interface SelectionClearedParams {}
+/**
+ * Generated from @see "../messages/selection-tools/selectionMoved.notify.json"
+ */
+export interface SelectionMovedNotification {
+  method: "selectionMoved";
+  params: SelectionMovedParams;
+}
+/**
+ * The reported selection moved on screen because the page scrolled or the viewport resized. At most once per animation frame, and only between selectionChanged and selectionCleared.
+ */
+export interface SelectionMovedParams {
+  rect: SelectionRect;
+  /**
+   * The page's window.devicePixelRatio, which includes page zoom.
+   */
+  devicePixelRatio: number;
 }
 /**
  * Generated from @see "../messages/selection-tools/initialSetup.request.json"
@@ -156,7 +144,7 @@ export interface InitialSetupRequest {
   result: SelectionToolsConfig;
 }
 /**
- * Sent on the first selection, or the first context menu on one, and again on the next if that failed. Never sent on page load alone. Until native answers, nothing shows.
+ * Sent on the first selection, or the first context menu on one, and again on the next if that failed. Never sent on page load alone. Until native answers, nothing is reported.
  */
 export interface InitialSetupParams {}
 /**
@@ -164,19 +152,19 @@ export interface InitialSetupParams {}
  */
 export interface SelectionToolsConfig {
   /**
-   * False when the remote flag or the AI toggle is off, and on native's own sites: no toolbar shows and contextMenuOpened is not sent.
+   * False when the remote flag or the AI toggle is off, and on native's own sites: no selection is reported and contextMenuOpened is not sent.
    */
   enabled: boolean;
   /**
-   * The user's setting for the toolbar. When false, no toolbar shows, but contextMenuOpened is still sent while enabled.
+   * The user's setting for the toolbar. When false, no selection is reported, but contextMenuOpened is still sent while enabled.
    */
   showToolbar: boolean;
   /**
-   * Show the toolbar as the collapsed chip, expanding on hover. Defaults to false.
+   * Show the toolbar as the collapsed chip, expanding on hover. Defaults to false. Not read by the page, which draws no toolbar.
    */
   startCollapsed?: boolean;
   /**
-   * Whether the built-in Ask is offered. When false, the toolbar has no Ask button and actionRequested is never sent with "ask". Defaults to true.
+   * Whether the built-in Ask is offered. Defaults to true. Not read by the page, which draws no toolbar.
    */
   askAvailable?: boolean;
   /**
@@ -246,13 +234,6 @@ export interface ParameterOption {
    * Localized label.
    */
   label: string;
-}
-/**
- * Generated from @see "../messages/selection-tools/contextMenuClosed.subscribe.json"
- */
-export interface ContextMenuClosedSubscription {
-  subscriptionEvent: "contextMenuClosed";
-  params: ContextMenuClosedParams;
 }
 /**
  * Generated from @see "../messages/selection-tools/selectionToolsConfigChanged.subscribe.json"
