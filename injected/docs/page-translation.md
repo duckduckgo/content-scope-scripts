@@ -12,12 +12,12 @@ Bundled for `apple` (page world) and `android`. `extract` and `apply` always rep
 
 Native sends subscriptions; the feature replies with notifications.
 
-| Native sends                                   | Feature replies | Params                                                                        |
-| ---------------------------------------------- | --------------- | ----------------------------------------------------------------------------- |
-| `extract` `{ sourceLanguage, targetLanguage }` | `extractResult` | `{ units: Unit[] }`                                                           |
-| `apply` `{ updates: [{ id, text }] }`          | `applyResult`   | `{ count }`: updates written                                                  |
-| `revert` `{}`                                  | `revertResult`  | `{ count }`: units restored                                                   |
-| —                                              | `unitsAdded`    | `{ units: Unit[] }`: content that appeared after `extract` (**not sent yet**) |
+| Native sends                                                          | Feature replies | Params                                                                        |
+| --------------------------------------------------------------------- | --------------- | ----------------------------------------------------------------------------- |
+| `extract` `{}`                                                        | `extractResult` | `{ units: Unit[] }`                                                           |
+| `apply` `{ sourceLanguage, targetLanguage, updates: [{ id, text }] }` | `applyResult`   | `{ count }`: updates written                                                  |
+| `revert` `{}`                                                         | `revertResult`  | `{ count }`: units restored                                                   |
+| —                                                                     | `unitsAdded`    | `{ units: Unit[] }`: content that appeared after `extract` (**not sent yet**) |
 
 `Unit = { id, text, html, vp }`:
 
@@ -26,7 +26,7 @@ Native sends subscriptions; the feature replies with notifications.
 - `vp: 1`: the unit is in the viewport. Translate these first.
 - Ids are never reused while the page is open.
 
-`sourceLanguage` is the detected page language and `targetLanguage` the language translated into (BCP 47). A second `extract` while the page is translated reverts it first, without sending `revertResult`.
+`extract` needs no languages, so native can detect the page's language from the units it returns. `apply` carries `sourceLanguage` (the detected page language) and `targetLanguage` (the language translated into), both BCP 47. A second `extract` while the page is translated reverts it first, without sending `revertResult`.
 
 ## What becomes a unit
 
@@ -34,7 +34,8 @@ Native sends subscriptions; the feature replies with notifications.
 - In a container that also holds blocks, each run of text and inline elements between those blocks is one unit.
 - Floated elements count as inline, so a drop cap stays inside its paragraph.
 - A unit needs at least one letter.
-- Never translated: `script`, `style`, `noscript`, `template`, `textarea`, `code`, `kbd`, `samp`, `var`, `math`, `svg`, `iframe`, `embed`, `object`, `select` (for now), `translate="no"`, `.notranslate`, editable content, and elements whose `lang` differs from `sourceLanguage`. The `<html lang>` is ignored for this check.
+- Never translated: `script`, `style`, `noscript`, `template`, `textarea`, `code`, `kbd`, `samp`, `var`, `math`, `svg`, `iframe`, `embed`, `object`, `select` (for now), `translate="no"`, `.notranslate` and editable content.
+- Content marked with a `lang` other than `sourceLanguage` is still extracted, but `apply` doesn't write it: a unit inside such an element is skipped (not counted), and such an element inside a unit comes back untouched while the rest of the sentence is translated. The `<html lang>` is ignored for this check, and an empty `sourceLanguage` turns it off.
 - Inside a unit, a never-translated element is sent as an empty tag and comes back untouched: `Use <code data-t="0"></code> to check`.
 - `script`, `style` and `template` inside a unit aren't sent at all. They, and comments, stay before or after the unit's text, as they were.
 

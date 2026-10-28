@@ -113,6 +113,14 @@ export interface ApplySubscription {
  * Native sends translations to write back.
  */
 export interface ApplyParams {
+  /**
+   * Detected page language (BCP 47). Content marked as another language is not written back.
+   */
+  sourceLanguage: string;
+  /**
+   * Language translated into (BCP 47). Set as the page lang on the first write.
+   */
+  targetLanguage: string;
   updates: {
     id: number;
     text: string;
@@ -126,18 +134,9 @@ export interface ExtractSubscription {
   params: ExtractParams;
 }
 /**
- * Native asks for every translatable unit on the page.
+ * Native asks for every translatable unit on the page. Languages come with apply.
  */
-export interface ExtractParams {
-  /**
-   * Detected page language (BCP 47).
-   */
-  sourceLanguage: string;
-  /**
-   * Language translated into (BCP 47).
-   */
-  targetLanguage: string;
-}
+export interface ExtractParams {}
 /**
  * Generated from @see "../messages/page-translation/revert.subscribe.json"
  */

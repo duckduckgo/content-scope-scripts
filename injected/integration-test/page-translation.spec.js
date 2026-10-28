@@ -11,6 +11,7 @@ const CONFIG = './integration-test/test-pages/page-translation/config/page-trans
  * @property {string} page
  * @property {string[]} units - each unit's plain text, in document order
  * @property {string[]} [untranslated] - selectors whose text must stay as it is
+ * @property {number} [skipped] - units apply leaves alone (marked as another language)
  */
 
 /** @type {Fixture[]} */
@@ -56,9 +57,11 @@ const FIXTURES = [
         units: ['Home World news', 'Footer note'],
     },
     {
+        // Everything is extracted; apply leaves the French parts alone.
         page: 'lang.html',
-        units: ['Untagged paragraph.', 'British colour.'],
+        units: ['Untagged paragraph.', 'Une citation en français.', 'British colour.', 'Encore du français.', 'He said bonjour to us.'],
         untranslated: ['[lang="fr"]', '[lang="FR-ca"]'],
+        skipped: 2,
     },
     {
         page: 'soft-hyphen.html',
@@ -133,10 +136,10 @@ async function send(collector, name, params, reply) {
 }
 
 /** @param {ResultsCollector} collector @returns {Promise<Unit[]>} */
-const extract = async (collector) =>
-    (await send(collector, 'extract', { sourceLanguage: 'en', targetLanguage: 'de' }, 'extractResult')).units;
+const extract = async (collector) => (await send(collector, 'extract', {}, 'extractResult')).units;
 /** @param {ResultsCollector} collector @param {Update[]} updates @returns {Promise<number>} */
-const apply = async (collector, updates) => (await send(collector, 'apply', { updates }, 'applyResult')).count;
+const apply = async (collector, updates) =>
+    (await send(collector, 'apply', { sourceLanguage: 'en', targetLanguage: 'de', updates }, 'applyResult')).count;
 /** @param {ResultsCollector} collector @returns {Promise<number>} */
 const revert = async (collector) => (await send(collector, 'revert', {}, 'revertResult')).count;
 
@@ -232,7 +235,7 @@ test.describe('pageTranslation', () => {
                 const collector = await openPage(page, testInfo, fixture.page);
                 const markupBefore = await markup(page);
                 const units = await extract(collector);
-                expect(await apply(collector, translateAll(units))).toBe(units.length);
+                expect(await apply(collector, translateAll(units))).toBe(units.length - (fixture.skipped ?? 0));
                 expect(await textLeftUntranslated(page, untranslated)).toEqual([]);
                 expect(await textTranslatedAnyway(page, untranslated)).toEqual([]);
                 expect(await markup(page)).toEqual(markupBefore);
@@ -296,10 +299,22 @@ test.describe('pageTranslation', () => {
         expect(units[1].text).toBe('Use <code data-t="0"></code> to check your changes.');
     });
 
-    test('compares lang with the source language, not the page attribute', async ({ page }, testInfo) => {
+    test('apply skips units in another language, compared with the source language, not the page attribute', async ({ page }, testInfo) => {
         const collector = await openPage(page, testInfo, 'lang.html');
         await page.evaluate(() => document.documentElement.removeAttribute('lang'));
-        expect(await plainTexts(page, await extract(collector))).toEqual(['Untagged paragraph.', 'British colour.']);
+        const units = await extract(collector);
+        expect(await apply(collector, translateAll(units))).toBe(units.length - 2);
+        expect(await page.textContent('blockquote')).toBe('Une citation en français.');
+        expect(await page.textContent('p[lang="en-GB"]')).toBe('‹British colour.›');
+    });
+
+    test('apply leaves an element in another language untouched inside a translated sentence', async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'lang.html');
+        const units = await extract(collector);
+        const sentence = units[units.length - 1];
+        expect(sentence.text).toBe('He said <i data-t="0">bonjour</i> to us.');
+        expect(await apply(collector, translateAll([sentence]))).toBe(1);
+        expect(await page.textContent('p:last-of-type')).toBe('‹He said› bonjour ‹to us.›');
     });
 
     test('strips soft hyphens from the text sent', async ({ page }, testInfo) => {
@@ -472,10 +487,11 @@ test.describe('pageTranslation', () => {
         expect(await page.evaluate(() => document.querySelector('#s')?.firstElementChild?.tagName)).toBe('STYLE');
     });
 
-    test('replies to extract even when the source language is missing', async ({ page }, testInfo) => {
+    test('replies to apply even when the languages are missing', async ({ page }, testInfo) => {
         const collector = await openPage(page, testInfo, 'lang.html');
-        const { units } = await send(collector, 'extract', { sourceLanguage: null, targetLanguage: 'de' }, 'extractResult');
-        expect(Array.isArray(units)).toBe(true);
+        const [first] = await extract(collector);
+        const { count } = await send(collector, 'apply', { sourceLanguage: null, updates: [{ id: first.id, text: '‹x›' }] }, 'applyResult');
+        expect(count).toBe(1);
     });
 
     test('marks only units on screen as in the viewport', async ({ page }, testInfo) => {

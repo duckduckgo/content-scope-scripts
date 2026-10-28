@@ -1,5 +1,5 @@
 import ContentFeature from '../content-feature.js';
-import { findUnits, isExcluded, isInViewport } from './page-translation/units.js';
+import { findUnits, isExcluded, isInOtherLanguage, isInViewport, isOtherLanguage } from './page-translation/units.js';
 import { serializeUnit } from './page-translation/serialize.js';
 import { parseTranslation } from './page-translation/parse.js';
 import { createJournal, mergeUnit, revertJournal, writeText } from './page-translation/merge.js';
@@ -29,31 +29,25 @@ export class PageTranslation extends ContentFeature {
     #originalLang = null;
 
     init() {
-        this.subscribe('extract', ({ sourceLanguage, targetLanguage }) =>
-            this._extract(String(sourceLanguage ?? ''), String(targetLanguage ?? '')),
+        this.subscribe('extract', () => this._extract());
+        this.subscribe('apply', ({ sourceLanguage, targetLanguage, updates }) =>
+            this._apply(String(sourceLanguage ?? ''), String(targetLanguage ?? ''), updates),
         );
-        this.subscribe('apply', ({ updates }) => this._apply(updates));
         this.subscribe('revert', () => {
             this.notify('revertResult', { count: this._revert() });
         });
     }
 
-    /**
-     * @param {string} sourceLanguage
-     * @param {string} targetLanguage
-     */
-    _extract(sourceLanguage, targetLanguage) {
+    _extract() {
         // Units are found on the original page, never on a translated one.
         this._revert();
-        this.#sourceLanguage = sourceLanguage;
-        this.#targetLanguage = targetLanguage;
         this.#units.clear();
         /** @type {Unit[]} */
         const units = [];
         const root = document.body;
         try {
-            for (const target of root ? findUnits(root, { sourceLanguage }) : []) {
-                const serialized = serializeUnit(target, sourceLanguage);
+            for (const target of root ? findUnits(root) : []) {
+                const serialized = serializeUnit(target);
                 const id = this.#nextId++;
                 this.#units.set(id, { target, serialized });
                 units.push({ id, text: serialized.text, html: serialized.html, vp: isInViewport(target) ? 1 : 0 });
@@ -66,13 +60,20 @@ export class PageTranslation extends ContentFeature {
         }
     }
 
-    /** @param {{ id: number, text: string }[]} updates */
-    _apply(updates) {
+    /**
+     * @param {string} sourceLanguage - the page's detected language: content marked as another language isn't written
+     * @param {string} targetLanguage - set as the page's `lang` on the first write
+     * @param {{ id: number, text: string }[]} updates
+     */
+    _apply(sourceLanguage, targetLanguage, updates) {
+        this.#sourceLanguage = sourceLanguage;
+        this.#targetLanguage = targetLanguage;
         let count = 0;
         for (const update of Array.isArray(updates) ? updates : []) {
             const { id, text } = update ?? {};
             const unit = typeof id === 'number' ? this.#units.get(id) : undefined;
             if (!unit || typeof text !== 'string' || !isConnected(unit.target)) continue;
+            if (isInOtherLanguage(containerOf(unit.target), sourceLanguage)) continue;
             try {
                 if (!this._write(unit, text)) continue;
             } catch (e) {
@@ -99,7 +100,7 @@ export class PageTranslation extends ContentFeature {
         }
         const parsed = parseTranslation(text, serialized.wrapped);
         if (!parsed) return false;
-        mergeUnit(target, serialized.elements, parsed, this.#journal, (el) => isExcluded(el, this.#sourceLanguage));
+        mergeUnit(target, serialized.elements, parsed, this.#journal, (el) => isExcluded(el) || isOtherLanguage(el, this.#sourceLanguage));
         return true;
     }
 
@@ -130,6 +131,15 @@ export class PageTranslation extends ContentFeature {
         this.#originalLang = { value: html.getAttribute('lang') };
         html.setAttribute('lang', this.#targetLanguage);
     }
+}
+
+/**
+ * The element a unit lives in.
+ * @param {UnitTarget} target
+ * @returns {Element}
+ */
+function containerOf(target) {
+    return target.kind === 'run' ? target.parent : target.element;
 }
 
 /**
