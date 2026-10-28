@@ -12,27 +12,12 @@ import {
 } from './message-bridge/schema.js';
 import * as capturedGlobals from '../captured-globals.js';
 import { isBeingFramed } from '../utils.js';
-import { getSharedMessagingTransport } from '../sendmessage-transport.js';
 
 /**
  * @typedef {Pick<import("../captured-globals.js"),
  *    "dispatchEvent" | "addEventListener" | "CustomEvent">
  * } Captured
  */
-
-/**
- * The features a page may install, by the domain it must be on, before the remote config arrives in the extension.
- * The remote config still decides whether their messages are delivered.
- * @type {Record<string, string>}
- */
-const PROVISIONAL_FEATURE_DOMAINS = {
-    internalFeedback: 'internalapps.duckduckgo.com',
-};
-
-/**
- * How long held messages wait for the remote config before their requests fail.
- */
-const HELD_MESSAGES_TIMEOUT_MS = 10_000;
 
 /**
  * This part has access to messaging handlers
@@ -60,69 +45,18 @@ export class MessageBridge extends ContentFeature {
      */
     installed = false;
 
-    /**
-     * Messages from the page held until the remote config arrives, or null when they are delivered at once.
-     * Each one delivers itself, or fails if its feature was not installed.
-     * @type {(() => void)[] | null}
-     */
-    heldMessages = null;
-
-    /**
-     * Installs confirmed to the page before the remote config arrived, by feature name.
-     * @type {Map<string, () => void>}
-     */
-    provisionalInstalls = new capturedGlobals.Map();
-
-    /** @type {ReturnType<typeof setTimeout> | undefined} */
-    heldMessagesTimeout;
-
-    listenForUpdateChanges = true;
-
     load(args) {
         /**
-         * In the extension, pages call `createMessageBridge()` as they start, which is usually before `init`
-         * brings the remote config, and the page needs the install confirmed at once
+         * In the extension, pages can call `createMessageBridge()` before the remote config arrives,
+         * so the bridge listens from load when the bundled config enables it on this page
          */
-        if (args.platform?.name !== 'extension') return;
-        this.heldMessages = [];
-        this.listen(args);
+        if (args.platform?.name === 'extension' && this.featureSettings?.[this.name]) {
+            this.listen(args);
+        }
     }
 
     init(args) {
         this.listen(args);
-        this.releaseHeldMessages(true);
-    }
-
-    /**
-     * @param {string} reason
-     */
-    markFeatureAsSkipped(reason) {
-        super.markFeatureAsSkipped(reason);
-        this.releaseHeldMessages(false);
-    }
-
-    /**
-     * The extension answers requests with update messages, so they are routed to the transport that sent them.
-     */
-    update(message) {
-        if (message?.messageType !== 'response') return;
-        getSharedMessagingTransport().onResponse(message);
-    }
-
-    /**
-     * Delivers the held messages once the remote config has decided the provisional installs.
-     * @param {boolean} remoteConfigArrived - false when the bridge was skipped or the remote config never came
-     */
-    releaseHeldMessages(remoteConfigArrived) {
-        const heldMessages = this.heldMessages;
-        if (!heldMessages) return;
-        this.heldMessages = null;
-        clearTimeout(this.heldMessagesTimeout);
-        if (remoteConfigArrived) {
-            this.provisionalInstalls.forEach((install) => install());
-        }
-        this.provisionalInstalls.clear();
-        heldMessages.forEach((deliver) => deliver());
     }
 
     /**
@@ -178,95 +112,16 @@ export class MessageBridge extends ContentFeature {
         };
 
         /**
-         * Holds a message for a provisionally installed feature until the remote config arrives.
-         * @param {string} featureName
-         * @param {() => void} deliver
-         * @returns {boolean} whether the message was held
-         */
-        const hold = (featureName, deliver) => {
-            if (!this.heldMessages || !this.provisionalInstalls.has(featureName)) return false;
-            this.heldMessages.push(deliver);
-            return true;
-        };
-
-        /**
          * These are all the messages we accept from the page-world.
          */
         this.log.info(`bridge is installing...`);
         accept(InstallProxy, (install) => {
-            if (!this.heldMessages) {
-                this.installProxyFor(install, args.messagingConfig, reply);
-            } else if (PROVISIONAL_FEATURE_DOMAINS[install.featureName] === args.site?.domain) {
-                this.installProvisionally(install, args.messagingConfig, reply);
-            } else {
-                this.log.info('not installing proxy before the remote config arrived for', install.featureName);
-            }
+            this.installProxyFor(install, args.messagingConfig, reply);
         });
-        accept(ProxyNotification, (notification) => {
-            if (!hold(notification.featureName, () => this.proxyNotification(notification))) {
-                this.proxyNotification(notification);
-            }
-        });
-        accept(ProxyRequest, (request) => {
-            const deliverOrFail = () => {
-                if (this.proxies.has(request.featureName)) {
-                    void this.proxyRequest(request, reply);
-                } else {
-                    this.failRequest(request, reply);
-                }
-            };
-            if (!hold(request.featureName, deliverOrFail)) {
-                void this.proxyRequest(request, reply);
-            }
-        });
-        accept(SubscriptionRequest, (subscription) => {
-            if (!hold(subscription.featureName, () => this.proxySubscription(subscription, reply))) {
-                this.proxySubscription(subscription, reply);
-            }
-        });
-        accept(SubscriptionUnsubscribe, (unsubscribe) => {
-            if (this.heldMessages) {
-                this.heldMessages.push(() => this.removeSubscription(unsubscribe.id));
-            } else {
-                this.removeSubscription(unsubscribe.id);
-            }
-        });
-    }
-
-    /**
-     * Confirms the install to the page at once, and installs the proxy only if the remote config allows it.
-     *
-     * @param {InstallProxy} install
-     * @param {import('@duckduckgo/messaging').MessagingConfig} config
-     * @param {(payload: {name: string; id: string} & Record<string, any>) => void} reply
-     */
-    installProvisionally(install, config, reply) {
-        const { id, featureName } = install;
-        if (this.provisionalInstalls.size === 0) {
-            this.heldMessagesTimeout = setTimeout(() => this.releaseHeldMessages(false), HELD_MESSAGES_TIMEOUT_MS);
-        }
-        if (!this.provisionalInstalls.has(featureName)) {
-            this.provisionalInstalls.set(featureName, () => this.installProxyFor(install, config, () => {}));
-        }
-        this.log.info('did install proxy provisionally for ', featureName);
-        reply(new DidInstall({ id }));
-    }
-
-    /**
-     * @param {ProxyRequest} request
-     * @param {(payload: {name: string; id: string} & Record<string, any>) => void} reply
-     */
-    failRequest(request, reply) {
-        const { id, featureName, method } = request;
-        this.log.info('failing request, because the proxy was not installed for', featureName);
-        reply(
-            new ProxyResponse({
-                method,
-                featureName,
-                error: { message: `${featureName} is not available` },
-                id,
-            }),
-        );
+        accept(ProxyNotification, (notification) => this.proxyNotification(notification));
+        accept(ProxyRequest, (request) => this.proxyRequest(request, reply));
+        accept(SubscriptionRequest, (subscription) => this.proxySubscription(subscription, reply));
+        accept(SubscriptionUnsubscribe, (unsubscribe) => this.removeSubscription(unsubscribe.id));
     }
 
     /**

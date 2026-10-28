@@ -30,6 +30,10 @@ window.addEventListener(secret, ({ detail: encodedMessage }) => {
 
     switch (message.type) {
         case 'update':
+            // Answers to the message bridge's requests can come before the register message.
+            if (message.messageType === 'response') {
+                getSharedMessagingTransport().onResponse(message);
+            }
             update(message);
             break;
         case 'register':
