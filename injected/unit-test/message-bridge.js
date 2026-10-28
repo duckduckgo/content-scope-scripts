@@ -97,9 +97,10 @@ describe('MessageBridge at load', () => {
         expect(replies[1]).toEqual(jasmine.objectContaining({ id: 'request-1', result: { platform: 'windows' } }));
     });
 
-    it('does not install on another domain', () => {
+    it('does not listen on a site where the config enables no feature', () => {
         const { bridge, args, send, replies } = setUp({ domain: 'duckduckgo.com' });
         bridge.load(args);
+        expect(bridge.installed).toBeFalse();
         send(install);
         expect(replies).toEqual([]);
     });
