@@ -24,6 +24,12 @@ async function openWithPrompts(ntp, additional = {}) {
 const suggestionsTab = (page) => page.getByRole('tab', { name: 'Open chat suggestions' });
 
 /**
+ * Found by element: the previewed prompt is also the input's accessible name while it shows.
+ * @param {import('@playwright/test').Page} page
+ */
+const composer = (page) => page.locator('[data-entry-point="omnibar"] textarea');
+
+/**
  * @param {NewtabPage} ntp
  * @returns {Promise<any>}
  */
@@ -68,6 +74,67 @@ test.describe('omnibar suggested prompts', () => {
 
         expect((await submittedChat(ntp)).chat).toMatch(JOB_APPLICATION_PROMPT);
         await expect(omnibar.chatInput()).toHaveValue('my draft');
+    });
+
+    test('hovering a suggestion previews it as a one-line placeholder', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await openWithPrompts(ntp);
+        await omnibar.ready();
+
+        const input = composer(page);
+        const oneLineHeight = await input.evaluate((el) => el.clientHeight);
+        await suggestionsTab(page).click();
+        await page.getByRole('button', { name: 'Improve a job application' }).hover();
+
+        await expect(input).toHaveAttribute('placeholder', /^Improve a job application\. .*…$/);
+        await expect(input).toHaveValue('');
+        expect(await input.evaluate((el) => el.clientHeight)).toBe(oneLineHeight);
+
+        await suggestionsTab(page).hover();
+        await expect(input).toHaveAttribute('placeholder', 'Ask anything privately');
+    });
+
+    test('focusing a suggestion previews it', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await openWithPrompts(ntp);
+        await omnibar.ready();
+
+        const input = composer(page);
+        await suggestionsTab(page).click();
+        const prompt = page.getByRole('button', { name: 'Improve a job application' });
+        await prompt.focus();
+        await expect(input).toHaveAttribute('placeholder', /^Improve a job application\./);
+
+        await prompt.blur();
+        await expect(input).toHaveAttribute('placeholder', 'Ask anything privately');
+    });
+
+    test('a typed draft stays in place of the preview', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await openWithPrompts(ntp);
+        await omnibar.ready();
+
+        const input = composer(page);
+        await input.fill('my draft');
+        await suggestionsTab(page).click();
+        await page.getByRole('button', { name: 'Improve a job application' }).hover();
+
+        await expect(input).toHaveValue('my draft');
+        expect(await input.evaluate((el) => el.matches(':placeholder-shown'))).toBe(false);
+    });
+
+    test('closing the panel under the pointer ends the preview', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await openWithPrompts(ntp);
+        await omnibar.ready();
+
+        const input = composer(page);
+        await suggestionsTab(page).click();
+        await page.getByRole('button', { name: 'Improve a job application' }).hover();
+        await expect(input).toHaveAttribute('placeholder', /^Improve a job application\./);
+        await page.keyboard.press('Escape');
+
+        await expect(input).toHaveAttribute('placeholder', 'Ask anything privately');
     });
 
     test('a right-click on a suggestion does not send it; a middle-click opens it in a new tab', async ({ page }, workerInfo) => {

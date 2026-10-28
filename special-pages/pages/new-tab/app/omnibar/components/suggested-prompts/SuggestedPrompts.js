@@ -11,7 +11,7 @@ import { useAttachmentsContext } from '../chat-tools/attachments/AttachmentsProv
 import { useSelectedModel } from '../useSelectedModel';
 import { useSelectedReasoningEffort } from '../useSelectedReasoningEffort';
 import { IdeaIcon, ImagesIcon } from './SuggestedPromptsIcons.js';
-import { HowDuckAiWorksPanel, ImagePromptsPanel, onMiddleClick, TextPromptsPanel } from './SuggestedPromptsPanels.js';
+import { HowDuckAiWorksPanel, ImagePromptsPanel, onMiddleClick, TextPromptsPanel, textPromptChat } from './SuggestedPromptsPanels.js';
 import { useSuggestedPromptTabs } from './useSuggestedPromptTabs.js';
 import styles from './SuggestedPrompts.module.css';
 
@@ -53,12 +53,20 @@ const TABS = [
  *
  * @param {object} props
  * @param {(params: SubmitChatAction) => void} props.onSubmit
+ * @param {(text: string|null) => void} [props.onPreview] - Previews a hovered or focused chat suggestion in the empty composer; `null` ends it.
  * @param {boolean} [props.animateIn] - Plays the chips' enter animation; set when the user switched to Duck.ai, not on page load.
  * @param {boolean} [props.enableVoiceChatAccess] - Adds a Voice Chat chip, shown on narrow windows only.
  * @param {import('preact').RefObject<HTMLDivElement>} [props.containerRef] - Lets the omnibar treat focus in the chips as its own.
  * @param {(event: FocusEvent) => void} [props.onBlurCapture]
  */
-export function SuggestedPrompts({ onSubmit, animateIn = false, enableVoiceChatAccess = false, containerRef: providedRef, onBlurCapture }) {
+export function SuggestedPrompts({
+    onSubmit,
+    onPreview,
+    animateIn = false,
+    enableVoiceChatAccess = false,
+    containerRef: providedRef,
+    onBlurCapture,
+}) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
     const baseId = useId();
@@ -96,6 +104,7 @@ export function SuggestedPrompts({ onSubmit, animateIn = false, enableVoiceChatA
      * @param {MouseEvent} event
      */
     const handleSelectPrompt = (prompt, event) => {
+        onPreview?.(null);
         if (prompt.kind === 'image' && prompt.mode === 'open-file-picker') {
             close();
             fileInputRef.current?.click();
@@ -105,7 +114,7 @@ export function SuggestedPrompts({ onSubmit, animateIn = false, enableVoiceChatA
         const target = eventToTarget(event, platformName);
         if (prompt.kind === 'text') {
             onSubmit({
-                chat: t('omnibar_suggestedPromptsTextPromptTemplate', { topic: t(prompt.label) }),
+                chat: textPromptChat(t, prompt),
                 target,
                 suggestedPromptId: prompt.id,
                 ...(selectedModel && { modelId: selectedModel.id }),
@@ -159,7 +168,7 @@ export function SuggestedPrompts({ onSubmit, animateIn = false, enableVoiceChatA
     /** @param {TabId} id */
     const renderPanelContent = (id) => {
         if (id === 'how-duckai-works') return <HowDuckAiWorksPanel />;
-        if (id === 'suggestions') return <TextPromptsPanel onSelect={handleSelectPrompt} />;
+        if (id === 'suggestions') return <TextPromptsPanel onSelect={handleSelectPrompt} onPreview={onPreview} />;
         return <ImagePromptsPanel onSelect={handleSelectPrompt} />;
     };
 

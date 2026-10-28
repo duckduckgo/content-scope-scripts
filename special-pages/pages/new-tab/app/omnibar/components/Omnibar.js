@@ -42,6 +42,7 @@ import { NoticeDrawer } from './NoticeDrawer';
 import { TERMS_DISCLAIMER_ID } from './useTermsDisclaimerNotice';
 import { useKeyboardFocusWithin } from './useKeyboardFocusWithin.js';
 import { SuggestedPrompts } from './suggested-prompts/SuggestedPrompts.js';
+import { fitToOneLine } from '../utils.js';
 
 /**
  * @typedef {typeof import('../strings.json')} Strings
@@ -100,6 +101,8 @@ export function Omnibar({
     const [noticeReservedHeight, setNoticeReservedHeight] = useState(0);
 
     const [query, setQuery] = useQueryWithLocalPersistence(tabId);
+    /** Text of the hovered or focused suggested prompt, previewed in the composer while it's empty. */
+    const [promptPlaceholder, setPromptPlaceholder] = useState(/** @type {string|null} */ (null));
     const [resetKey, setResetKey] = useState(0);
     const [autoFocus, setAutoFocus] = useState(false);
     /*
@@ -246,6 +249,7 @@ export function Omnibar({
                                     <OpenTabsProvider tabId={tabId} enabled={enableAttachTabs}>
                                         <AiChatContent
                                             query={query}
+                                            promptPlaceholder={promptPlaceholder}
                                             autoFocus={autoFocus}
                                             enableRecentAiChats={enableRecentAiChats}
                                             enableVoiceChatAccess={enableVoiceChatAccess}
@@ -272,6 +276,7 @@ export function Omnibar({
                         {mode === 'ai' && showSuggestedPrompts && (
                             <SuggestedPrompts
                                 onSubmit={handleSubmitSuggestedPrompt}
+                                onPreview={setPromptPlaceholder}
                                 animateIn={autoFocus}
                                 enableVoiceChatAccess={enableVoiceChatAccess}
                                 containerRef={suggestedPromptsRef}
@@ -288,6 +293,7 @@ export function Omnibar({
 /**
  * @param {object} props
  * @param {string} props.query
+ * @param {string|null} [props.promptPlaceholder] - Replaces the placeholder, cut to one line.
  * @param {boolean} [props.autoFocus]
  * @param {boolean} props.enableRecentAiChats
  * @param {boolean} [props.enableVoiceChatAccess]
@@ -299,6 +305,7 @@ export function Omnibar({
  */
 function AiChatContent({
     query,
+    promptPlaceholder = null,
     autoFocus,
     enableRecentAiChats,
     enableVoiceChatAccess = false,
@@ -503,6 +510,8 @@ function AiChatContent({
 
     const showRecentChats = enableRecentAiChats && !imageGenerationActive && !mention.pickerActive;
     const termsButtonLabel = imageGenerationActive ? t('omnibar_termsCreateButtonLabel') : t('omnibar_termsAskButtonLabel');
+    // A placeholder only shows while the input is empty, so a typed draft hides the preview by itself.
+    const fittedPromptPlaceholder = promptPlaceholder && textareaRef.current ? fitToOneLine(promptPlaceholder, textareaRef.current) : null;
 
     return (
         <div
@@ -529,7 +538,7 @@ function AiChatContent({
                     autoFocus={autoFocus}
                     disabled={disabled}
                     readOnly={blocksPrompt}
-                    placeholder={imageGenerationActive ? imageGenerationPlaceholder : undefined}
+                    placeholder={fittedPromptPlaceholder ?? (imageGenerationActive ? imageGenerationPlaceholder : undefined)}
                     onChange={handleChange}
                     onSubmit={handleSubmit}
                     onTextareaKeyDown={mention.handleTextareaKeyDown}

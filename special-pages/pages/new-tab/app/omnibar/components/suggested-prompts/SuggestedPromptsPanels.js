@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { useState } from 'preact/hooks';
+import { useEffect, useState } from 'preact/hooks';
 import cn from 'classnames';
 import { useEnv } from '../../../../../../shared/components/EnvironmentProvider.js';
 import { useTypedTranslationWith } from '../../../types';
@@ -21,6 +21,13 @@ import styles from './SuggestedPrompts.module.css';
 export const onMiddleClick = (handler) => (event) => {
     if (event.button === 1) handler(event);
 };
+
+/**
+ * The message a text prompt sends to Duck.ai, also previewed in the composer while the prompt is hovered or focused.
+ * @param {ReturnType<typeof useTypedTranslationWith<Strings>>['t']} t
+ * @param {import('./suggestedPrompts.data.js').TextPrompt} prompt
+ */
+export const textPromptChat = (t, prompt) => t('omnibar_suggestedPromptsTextPromptTemplate', { topic: t(prompt.label) });
 
 export function HowDuckAiWorksPanel() {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
@@ -47,10 +54,13 @@ export function HowDuckAiWorksPanel() {
 /**
  * @param {object} props
  * @param {(prompt: Prompt, event: MouseEvent) => void} props.onSelect
+ * @param {(text: string|null) => void} [props.onPreview]
  */
-export function TextPromptsPanel({ onSelect }) {
+export function TextPromptsPanel({ onSelect, onPreview }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const { isReducedMotion } = useEnv();
+    // A panel closing under the pointer or focus gets no mouseleave or blur, so clear the preview here too.
+    useEffect(() => () => onPreview?.(null), [onPreview]);
     const [pageIndex, setPageIndex] = useState(0);
     /** Previous page sliding out while the new one slides in. */
     const [swap, setSwap] = useState(/** @type {{ pageIndex: number, direction: SwapDirection } | null} */ (null));
@@ -74,6 +84,10 @@ export function TextPromptsPanel({ onSelect }) {
                     class={styles.textPrompt}
                     onClick={(event) => onSelect(prompt, event)}
                     onAuxClick={onMiddleClick((event) => onSelect(prompt, event))}
+                    onMouseEnter={() => onPreview?.(textPromptChat(t, prompt))}
+                    onMouseLeave={() => onPreview?.(null)}
+                    onFocus={() => onPreview?.(textPromptChat(t, prompt))}
+                    onBlur={() => onPreview?.(null)}
                 >
                     <prompt.Icon class={styles.textPromptIcon} aria-hidden="true" />
                     <span>{t(prompt.label)}</span>
