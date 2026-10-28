@@ -9,27 +9,59 @@ import { compileWhere, testPredicate } from '../predicates/predicates.js';
  * @import { CompiledPredicate } from '../predicates/predicates.js'
  */
 
+/** What `selectItem` gives for an item `where` does not hold for. */
+export const SKIP = Symbol('skip');
+
 /**
- * The value of each item `where` holds for: its `field`, or the item itself without `field`. A failing
- * `where` or `field` gives its `Failure`, and ends the list.
+ * The value of an item `where` holds for: its `field`, or the item itself without `field`. A failing
+ * `where` or `field` gives its `Failure`.
+ *
+ * A failed item, such as a page iterator's throw, fails the list. A `where` in expression form that
+ * reads `self` is tested on it first, with `self` the failure, so `fails` there can exclude it.
+ *
+ * @param {unknown} item - an item, or a `Failure`
+ * @param {{ where?: CompiledPredicate, field?: CompiledField }} keys
+ * @param {PredicateContext} ctx
+ * @returns {unknown} the value, a `Failure` or `SKIP`
+ */
+export function selectItem(item, { where, field }, ctx) {
+    if (where) {
+        const expression = isExpressionWhere(where);
+        if (isFailure(item) && !expression) return item;
+        // The expression form reads the item through `self`, so it takes any value
+        if (!expression && (typeof item !== 'object' || item === null))
+            throw new DetectionError('`where` on an item that is not an object');
+        const held = testPredicate(where, item, ctx);
+        if (isFailure(held)) return held;
+        if (!held) return SKIP;
+    }
+    if (isFailure(item)) return item;
+    return field ? readField(ctx, item, field) : item;
+}
+
+/**
+ * Whether `where` is one boolean expression over `self`.
+ *
+ * @param {CompiledPredicate} where
+ * @returns {boolean}
+ */
+function isExpressionWhere(where) {
+    return where.kind === 'where' && where.binder.readsSelf === true && where.predicate.kind === 'expression';
+}
+
+/**
+ * The value of each item `where` holds for, as `selectItem` gives it. A failing item, `where` or
+ * `field` gives its `Failure`, and ends the list.
  *
  * @param {Iterable<unknown>} items
  * @param {{ where?: CompiledPredicate, field?: CompiledField }} keys
  * @param {PredicateContext} ctx
  * @returns {Generator<unknown>}
  */
-export function* selectItems(items, { where, field }, ctx) {
+export function* selectItems(items, keys, ctx) {
     for (const item of items) {
-        if (where) {
-            if (typeof item !== 'object' || item === null) throw new DetectionError('`where` on an item that is not an object');
-            const held = testPredicate(where, item, ctx);
-            if (isFailure(held)) {
-                yield held;
-                return;
-            }
-            if (!held) continue;
-        }
-        const value = field ? readField(ctx, item, field) : item;
+        const value = selectItem(item, keys, ctx);
+        if (value === SKIP) continue;
         yield value;
         if (isFailure(value)) return;
     }

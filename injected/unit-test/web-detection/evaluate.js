@@ -1,8 +1,10 @@
+import { ItemBuffer } from '../../src/features/web-detection/model/lists.js';
 import {
     BROKEN,
     FAILING,
     IMG,
     NATURAL_WIDTH,
+    RENDERED,
     REPORT,
     abortError,
     assign,
@@ -20,6 +22,7 @@ import {
     payload,
     rejectsMatch,
     run,
+    throwing,
     timeline,
     withPayload,
 } from './support.js';
@@ -498,6 +501,194 @@ describe('WebDetection evaluate', () => {
             // A list stays one: it is not unwrapped to a number, nor read as a boolean
             expectParseError(withPayload({ div: [{ expr: [6] }, 2] }), "'list' does not fill number position");
             rejectsMatch({ expr: [true] }, "'list' does not fill boolean position");
+        });
+    });
+
+    describe('iter', () => {
+        const ws = { define: { ws: { api: { path: 'RegExp', args: ['\\s+', 'g'] } } } };
+        /** The non-whitespace characters of rendered text: 8 KB chunks, each with its whitespace removed */
+        const strippedChunks = {
+            sum: {
+                iter: { text: { xpath: RENDERED, pattern: '[\\s\\S]+' } },
+                field: { api: { path: 'String.prototype.replace.call', args: [{ self: {} }, { ref: 'ws' }, ''] }, using: 'length' },
+            },
+        };
+        const perCharacter = { text: { xpath: RENDERED, pattern: '\\S' }, using: 'length' };
+
+        /**
+         * Both counts of a page's rendered text.
+         *
+         * @param {string} html
+         * @returns {Record<string, unknown>}
+         */
+        function counts(html) {
+            const values = { chunks: { value: strippedChunks }, characters: { value: perCharacter } };
+            return run(html, { actions: [ws, fires(values)] }).data ?? {};
+        }
+
+        it('streams into sum, mul, any, all, none and length', () => {
+            const html = '<p>a</p><p>bb</p><p>ccc</p>';
+            const lengths = { iter: { element: { selector: 'p' } }, field: 'textContent.length' };
+            expect(payload(html, { sum: lengths })).toEqual({ x: 6 });
+            expect(payload(html, { mul: [lengths, 2] })).toEqual({ x: 12 });
+            expect(payload(html, { any: { ...lengths, field: { self: 'textContent.length', is: 3 } } })).toEqual({ x: true });
+            expect(payload(html, { all: { ...lengths, field: { self: 'textContent.length', is: 3 } } })).toEqual({ x: false });
+            expect(payload(html, { none: { ...lengths, field: { self: 'textContent.length', is: 4 } } })).toEqual({ x: true });
+            expect(payload(html, { iter: { element: { selector: 'p' } }, using: 'length' })).toEqual({ x: 3 });
+            expect(payload(html, { iter: { text: { pattern: '\\w' } }, using: 'length' })).toEqual({ x: 6 });
+        });
+
+        it('streams an api list and a page iterator', () => {
+            const head = '<title>foo boo</title>';
+            const matches = { api: { path: 'document.title.matchAll', args: [{ api: { path: 'RegExp', args: ['o', 'g'] } }] } };
+            expect(payload('', { iter: matches, using: 'length' }, undefined, { head })).toEqual({ x: 4 });
+            const install = timeline([
+                { name: 'a', entryType: 'resource', duration: 5 },
+                { name: 'b', entryType: 'resource', duration: 7 },
+            ]);
+            expect(payload('', { sum: { iter: entriesOf('resource'), field: 'duration' } }, undefined, { install })).toEqual({ x: 12 });
+        });
+
+        it('filters and maps text matches, strings, with `where` and `field` over `self`', () => {
+            const words = { iter: { text: { pattern: '\\w+' } }, where: { self: 'length', is: { gt: 2 } }, field: 'length' };
+            expect(payload('<p>a bb ccc dddd</p>', { sum: words })).toEqual({ x: 7 });
+            expect(holds('<p>a</p>', { iter: { text: { pattern: '\\w+' } }, where: { length: 1 }, using: 'length', is: 1 })).toBe('error');
+        });
+
+        it('keeps none of the items a streaming reader reads', () => {
+            const take = spyOn(ItemBuffer.prototype, 'take').and.callThrough();
+            expect(payload('<p>a</p><p>bb</p>', { sum: { iter: { element: { selector: 'p' } }, field: 'textContent.length' } })).toEqual({
+                x: 3,
+            });
+            expect(take).toHaveBeenCalledTimes(1);
+            const buffer = /** @type {ItemBuffer} */ (take.calls.mostRecent().object);
+            expect(buffer.values).toEqual([]);
+            expect(take.calls.mostRecent().returnValue).toBeDefined();
+        });
+
+        it('counts the non-whitespace characters of rendered text as the per-character count does', () => {
+            /** @type {Record<string, string>} */
+            const pages = {
+                empty: '',
+                spaces: '<p>Hello  world, <b>foo</b>bar baz</p><div>  a\n b  </div>',
+                unicode: '<p> x y　z</p>',
+                hidden: '<p>a</p><script>b c</script><style>d e</style><template>f</template><noscript>g</noscript>',
+                longNode: `<p>${'ab cd\n'.repeat(3000)}</p>`,
+                manyNodes: '<span>abc def</span> '.repeat(3000),
+            };
+            for (const [name, html] of Object.entries(pages)) {
+                const { chunks, characters } = counts(html);
+                expect(chunks).withContext(name).toBe(characters);
+            }
+            expect(counts('').chunks).toBe(0);
+            expect(counts(pages.manyNodes).chunks).toBe(18000);
+        });
+
+        it('stops `any`, `all` and `none` at the entry that decides, leaving later entries unread', () => {
+            expect(holds('', { any: { iter: [true, FAILING] } })).toBe(true);
+            expect(holds('', { any: [true, FAILING] })).toBe('aborted');
+            expect(holds('', { all: { iter: [false, FAILING] } })).toBe(false);
+            expect(holds('', { none: { iter: [true, FAILING] } })).toBe(false);
+            expect(holds('', { any: { iter: [false, FAILING] } })).toBe('aborted');
+
+            const later = { element: { selector: 'img', where: { complete: true } }, using: 'length', is: { gt: 0 } };
+            const result = run(IMG('data-complete'), { match: { any: { iter: [true, later] } }, actions: REPORT });
+            expect([result.detected, result.window.__imageReads.complete ?? 0]).toEqual([true, 0]);
+
+            const action = { expr: { define: { late: 1 } }, is: { type: 'undefined' } };
+            expect(bound('', [{ define: { r: { any: { iter: [true, action] } } } }], 'late')).toBeUndefined();
+            expect(bound('', [{ define: { r: { any: { iter: [false, action] } } } }], 'late')).toBe(1);
+        });
+
+        it('gives entries the position of an operand, contributing each item of a list entry', () => {
+            expect(payload(IMG('data-width="3"') + IMG('data-width="4"'), { sum: { iter: [1, NATURAL_WIDTH] } })).toEqual({ x: 8 });
+            expect(holds('<p></p>', { any: { iter: [false, { element: { selector: 'p' } }] } })).toBe(true);
+            expect(payload('', { iter: [1, { expr: [2, 3] }] })).toEqual({ x: [1, 2, 3] });
+        });
+
+        it('fails at the first failed item, unless `where` tests `fails` on it', () => {
+            const failed = run('', { actions: { define: { n: { sum: { iter: [1, FAILING, 2] } } } } });
+            expect(failed.failure?.result).toBe('aborted');
+            expect(failed.failure?.path).toContain('.iter.1');
+            const skipFailed = { self: {}, is: { fails: false } };
+            expect(payload('', { sum: { iter: [1, FAILING, 2], where: skipFailed } })).toEqual({ x: 3 });
+
+            const afterCapture = (/** @type {any} */ w) => {
+                w.pageList = {
+                    *[Symbol.iterator]() {
+                        yield w.document.body;
+                        throw new w.TypeError('page');
+                    },
+                };
+            };
+            expect(holds('', { iter: { api: 'pageList' }, using: 'length', is: 1 }, { afterCapture })).toBe('aborted');
+            expect(holds('', { iter: { api: 'pageList' }, where: skipFailed, using: 'length', is: 1 }, { afterCapture })).toBe(true);
+            const throwsAtOnce = (/** @type {any} */ w) => {
+                w.pageList = { [Symbol.iterator]: throwing(new w.TypeError('page')) };
+            };
+            expect(holds('', { sum: { iter: { api: 'pageList' } }, is: 0 }, { afterCapture: throwsAtOnce })).toBe('aborted');
+            expect(holds('', { sum: { iter: { api: 'document.title' } }, is: 0 })).toBe('error');
+        });
+
+        it('reads an iter in full where a list is read whole', () => {
+            const html = '<p>a</p><p>bb</p>';
+            const texts = { iter: { element: { selector: 'p' } }, field: 'textContent' };
+            expect(payload(html, texts)).toEqual({ x: ['a', 'bb'] });
+            expect(payload('', { api: { path: 'Math.max.apply', args: [null, { iter: [1, 5, 3] }] } })).toEqual({ x: 5 });
+            expect(payload(html, { only: { ...texts, where: { self: 'textContent', is: 'bb' } } })).toEqual({ x: 'bb' });
+            expect(payload(html, { ...texts, using: { path: 'at', args: [-1] } })).toEqual({ x: 'bb' });
+        });
+
+        it('binds an iter as its expression, evaluated again at each ref', () => {
+            const three = IMG('data-complete') + IMG('data-complete') + IMG();
+            const result = run(three, {
+                actions: [
+                    { define: { complete: { iter: { element: { selector: 'img', where: { complete: true } } } } } },
+                    { define: { a: { ref: 'complete', using: 'length' }, b: { ref: 'complete', using: 'length' } } },
+                    fires({ n: { value: { ref: 'a' } }, items: { value: { ref: 'complete' } } }),
+                ],
+            });
+            expect(result.names.get('a')).toBe(2);
+            expect(result.ctx.measured).not.toEqual(jasmine.objectContaining({ complete: jasmine.anything() }));
+            expect(result.window.__imageReads.complete).toBe(9);
+            expect(result.data?.n).toBe(2);
+            expect(result.data?.items).toEqual([{}, {}]);
+            expectParseError({ actions: { define: { 'this.x': { iter: [1] } } } }, "a 'this.' name holds no 'iter'");
+        });
+
+        describe('evaluate-once recipe', () => {
+            /**
+             * Two reads of a value the recipe evaluates once, and how many times it was evaluated.
+             *
+             * @param {unknown} value
+             */
+            function readTwice(value) {
+                const counted = {
+                    expr: [{ define: { calls: { sum: [{ ref: 'calls' }, 1] } } }, value],
+                    using: { path: 'at', args: [-1] },
+                };
+                const once = {
+                    iter: [{ if: { ref: 'kept', is: { type: 'undefined' } }, then: counted, else: { ref: 'kept' } }],
+                    where: { expr: { define: { kept: { self: {} } } }, is: { type: 'undefined' } },
+                };
+                // A failed read is left out of the payload rather than failing it
+                const read = { value: { only: { ref: 'once' } }, when: { fails: false } };
+                return run('', {
+                    actions: [{ define: { calls: 0, once } }, fires({ a: read, b: read, calls: { value: { ref: 'calls' } } })],
+                });
+            }
+
+            it('evaluates the value at the first ref and reads it after', () => {
+                expect(readTwice(42).data).toEqual({ a: 42, b: 42, calls: 1 });
+            });
+
+            it('evaluates a failed value again at each ref, each failing', () => {
+                expect(readTwice(FAILING).data).toEqual({ calls: 2 });
+            });
+
+            it('evaluates an undefined value again at each ref', () => {
+                expect(readTwice({ ref: 'nothing' }).data).toEqual({ calls: 2 });
+            });
         });
     });
 });

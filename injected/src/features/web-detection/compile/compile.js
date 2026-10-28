@@ -4,6 +4,7 @@ import {
     ConfigParseError,
     DEFINE_NAME_PATTERN,
     EXPRESSION_KEYS,
+    ITER_KEYS,
     NAME_PATTERN,
     asArray,
     isExpressionObject,
@@ -12,10 +13,11 @@ import {
     rejectUnknownKeys,
 } from '../model/core.js';
 import { compilePredicate } from '../predicates/predicates.js';
+import { parseItemKeys } from '../sources/common.js';
 import { finish } from './positions.js';
 
 /**
- * @import { Node, NodeBase, IfNode, ItemBinder, ItemNode, Position, CompiledPayloadField, SourceBody } from '../model/types.js'
+ * @import { Node, NodeBase, IfNode, ItemBinder, ItemNode, IterNode, Position, CompiledPayloadField, SourceBody } from '../model/types.js'
  * @import { DetectorConfig as RawDetectorConfig } from '@duckduckgo/privacy-configuration/schema/features/web-detection.js'
  * @import { PageSources } from '../sources/index.js'
  */
@@ -151,10 +153,14 @@ function compileExpr(raw, position, path, scope) {
         if (EXPRESSION_KEYS.has(key)) expressionKeys.push(key);
         else if (BRANCH_KEYS.has(key)) {
             if (raw.if === undefined) throw new ConfigParseError(`${path}.${key}`, `'${key}' sits beside 'if' only`);
+        } else if (ITER_KEYS.has(key)) {
+            if (raw.iter === undefined) throw new ConfigParseError(`${path}.${key}`, `'${key}' sits beside 'iter' only`);
         } else if (!MODIFIER_KEYS.has(key)) throw new ConfigParseError(`${path}.${key}`, `unknown expression key '${key}'`);
     }
-    if (raw.if !== undefined && expressionKeys.length > 1) {
-        throw new ConfigParseError(path, `'if' takes no other expression key beside it`);
+    for (const key of ['if', 'iter']) {
+        if (raw[key] !== undefined && expressionKeys.length > 1) {
+            throw new ConfigParseError(path, `'${key}' takes no other expression key beside it`);
+        }
     }
 
     const hasIs = raw.is !== undefined;
@@ -181,7 +187,9 @@ function compileExpr(raw, position, path, scope) {
         node = makeNode(scope, { kind: 'and', operands, path, position: keyPosition });
     } else {
         const key = /** @type {string} */ (expressionKeys[0]);
-        node = key === 'if' ? compileIf(raw, keyPosition, path, scope) : compileKey(key, raw[key], keyPosition, `${path}.${key}`, scope);
+        if (key === 'if') node = compileIf(raw, keyPosition, path, scope);
+        else if (key === 'iter') node = compileIter(raw, keyPosition, path, scope);
+        else node = compileKey(key, raw[key], keyPosition, `${path}.${key}`, scope);
     }
     if (hasUsing) node = compileUsing(raw.using, node, valuePosition, path, scope);
 
@@ -239,6 +247,8 @@ function compileDefine(raw, path, scope) {
         const namePath = `${path}.${name}`;
         if (!DEFINE_NAME_PATTERN.test(name)) throw new ConfigParseError(namePath, `invalid name '${name}'`);
         const value = compileExpr(raw[name], 'value', namePath, scope);
+        // A `this.` name outlives the run, and an `iter` is evaluated again at each `ref` in the run
+        if (value.kind === 'iter' && name.startsWith('this.')) throw new ConfigParseError(namePath, `a 'this.' name holds no 'iter'`);
         return makeNode(scope, { kind: 'define', name, value, path: namePath, position: 'value' });
     });
 }
@@ -340,6 +350,42 @@ function compileIf(raw, position, path, scope) {
     const then = compileBody(raw.then, position, `${path}.then`, scope);
     const otherwise = raw.else === undefined ? undefined : compileBody(raw.else, position, `${path}.else`, scope);
     return makeNode(scope, { kind: 'if', test, then, ...(otherwise && { else: otherwise }), path: ifPath, position });
+}
+
+/**
+ * `{"iter": S, "where"?: W, "field"?: F}`: the items of a source, or of an array of expressions
+ * evaluated one at a time as they are read, through `where` then `field`. An entry's position is
+ * the one the reader gives an operand: boolean under `any`, `all` and `none`, number under `sum` and
+ * `mul`, else value.
+ *
+ * @param {Record<string, unknown>} raw
+ * @param {Position} position
+ * @param {string} path
+ * @param {Scope} scope
+ * @returns {IterNode}
+ */
+function compileIter(raw, position, path, scope) {
+    const iterPath = `${path}.iter`;
+    const body = raw.iter;
+    /** @type {{ source: Node } | { entries: Node[] }} */
+    let operand;
+    if (isArray(body)) {
+        const single = position === 'number' || position === 'boolean' ? position : undefined;
+        const entries = body.map((entry, i) => {
+            const node = compileExpr(entry, single ?? 'value', `${iterPath}.${i}`, scope);
+            // As for an operand: one with `is` gives a boolean, and is never a list
+            if (single && !(single === 'boolean' && node.is)) scope.slots.push({ node, single });
+            return node;
+        });
+        operand = { entries };
+    } else {
+        const source = compileExpr(body, 'list', iterPath, scope);
+        if (source.kind !== 'source') {
+            throw new ConfigParseError(iterPath, `'iter' takes 'element', 'text', 'api' or an array of expressions`);
+        }
+        operand = { source };
+    }
+    return makeNode(scope, { kind: 'iter', ...operand, ...parseItemKeys(raw, path, scope.hooks), path: iterPath, position });
 }
 
 /**

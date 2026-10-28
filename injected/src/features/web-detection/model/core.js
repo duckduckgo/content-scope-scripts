@@ -137,10 +137,11 @@ export class ConfigParseError extends Error {
 
 /**
  * The positions a kind of expression fills. `list` is a selected list, which gives its one item in
- * number position, `array` a list that stays one, such as `{"expr": [...]}`, and `any` a value that may
- * be a list, such as a source read in boolean position for whether it holds an item.
+ * number position, `array` a list that stays one, such as `{"expr": [...]}`, `any` a value that may
+ * be a list, such as a source read in boolean position for whether it holds an item, and `stream` an
+ * `iter`, which an operand of `sum`, `mul`, `any`, `all` and `none` reads as it streams.
  *
- * @type {Record<'number' | 'boolean' | 'value' | 'list' | 'array' | 'any', ReadonlySet<import('./types.js').Position>>}
+ * @type {Record<'number' | 'boolean' | 'value' | 'list' | 'array' | 'any' | 'stream', ReadonlySet<import('./types.js').Position>>}
  */
 export const FILLS = {
     number: new Set(['number', 'value']),
@@ -149,6 +150,7 @@ export const FILLS = {
     list: new Set(['list', 'value', 'number']),
     array: new Set(['list', 'value']),
     any: new Set(['boolean', 'value', 'number', 'list']),
+    stream: new Set(['stream', 'list', 'value']),
 };
 
 /** `^[a-zA-Z][a-zA-Z0-9_]*$`: group, detector and payload key names */
@@ -176,7 +178,11 @@ export const EXPRESSION_KEYS = new Set([
     'all',
     'none',
     'ref',
+    'iter',
 ]);
+
+/** Keys valid only beside `iter`: its stages. */
+export const ITER_KEYS = new Set(['where', 'field']);
 
 /**
  * Whether config is an expression object: a plain object with an expression key. `using` and `field`

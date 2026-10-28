@@ -6,6 +6,7 @@
 
 /**
  * @import { Failure } from './core.js'
+ * @import { CompiledField } from '../predicates/fields.js'
  * @import { CompiledPredicate } from '../predicates/predicates.js'
  * @import { ApiBody } from '../sources/api.js'
  * @import { ElementBody } from '../sources/element.js'
@@ -20,9 +21,10 @@
 
 /**
  * What an expression's position expects. `spread` is an operand of `sum`, `mul`, `any`, `all` and
- * `none` that may be a list, contributing each item. `root` is a node or a list of nodes.
+ * `none` that may be a list, contributing each item. `stream` is an `iter` operand of those, read as
+ * it streams. `root` is a node or a list of nodes.
  *
- * @typedef {'boolean' | 'value' | 'number' | 'list' | 'spread' | 'root'} Position
+ * @typedef {'boolean' | 'value' | 'number' | 'list' | 'spread' | 'stream' | 'root'} Position
  */
 
 /**
@@ -52,13 +54,14 @@
  * @typedef {NodeBase & { kind: 'any' | 'all' | 'none' | 'and', operands: Node[] }} LogicNode
  * @typedef {NodeBase & { kind: 'if', test: Node, then: Node, else?: Node }} IfNode
  * @typedef {NodeBase & { kind: 'sequence', elements: Node[] }} SequenceNode - its elements in order, giving the last one's value
+ * @typedef {NodeBase & { kind: 'iter', source?: Node, entries?: Node[], where?: CompiledPredicate, field?: CompiledField }} IterNode - the items of `source`, or of `entries` evaluated one at a time, through `where` then `field`
  * @typedef {NodeBase & { kind: 'ref', name: string }} RefNode
  * @typedef {NodeBase & { kind: 'item', binder: ItemBinder }} ItemNode - the value `self` is bound to in a `using`, `where` or `field`
  * @typedef {NodeBase & { kind: 'define', name: string, value: Node }} DefineNode
  * @typedef {NodeBase & { kind: 'fireEvent', type: string, data?: CompiledPayloadField[] }} FireEventNode
  * @typedef {NodeBase & { kind: 'breakageReportData', data?: CompiledPayloadField[] }} BreakageReportDataNode
  * @typedef {DefineNode | FireEventNode | BreakageReportDataNode} ActionNode
- * @typedef {LiteralNode | SourceNode | LengthNode | ExprNode | UsingNode | ListNode | OnlyNode | ArithmeticNode | LogicNode | IfNode | SequenceNode | RefNode | ItemNode | ActionNode} Node
+ * @typedef {LiteralNode | SourceNode | LengthNode | ExprNode | UsingNode | ListNode | OnlyNode | ArithmeticNode | LogicNode | IfNode | SequenceNode | IterNode | RefNode | ItemNode | ActionNode} Node
  */
 
 /**
