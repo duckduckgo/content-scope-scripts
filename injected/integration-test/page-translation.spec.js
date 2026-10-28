@@ -48,6 +48,10 @@ const FIXTURES = [
         untranslated: ['pre', 'code', 'kbd', '[translate="no"]', '.notranslate', '[contenteditable]'],
     },
     {
+        page: 'table.html',
+        units: ['Name', 'Notes', 'Ada wrote the first program.', 'Mathematician'],
+    },
+    {
         page: 'mixed-container.html',
         units: ['Intro text sits directly in the container.', 'And this is a normal paragraph.'],
     },
@@ -231,6 +235,19 @@ test.describe('pageTranslation', () => {
     test('extracts every paragraph of a large page', async ({ page }, testInfo) => {
         const collector = await openPage(page, testInfo, 'large.html');
         expect((await extract(collector)).length).toBe(2000);
+    });
+
+    test('wraps a unit that starts with an element in a div', async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'drop-cap.html');
+        const [first, second] = await extract(collector);
+        expect(first.text).toBe('<div><span data-t="0">A</span>iwa is the first word, and the whole paragraph must stay one unit.</div>');
+        expect(second.text).toBe('The second paragraph has no drop cap.');
+    });
+
+    test('wraps a table cell that starts with a link in a div, never a td', async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'table.html');
+        const units = await extract(collector);
+        expect(units[2].text).toBe('<div><a data-t="0">Ada</a> wrote the first program.</div>');
     });
 
     test('marks only units on screen as in the viewport', async ({ page }, testInfo) => {

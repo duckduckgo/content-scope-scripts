@@ -73,7 +73,9 @@ class Walk {
     isInline(el) {
         let inline = this.#inline.get(el);
         if (inline === undefined) {
-            inline = INLINE_DISPLAY.has(computedStyle(el).display);
+            const style = computedStyle(el);
+            // A float (e.g. a drop cap) flows inside the text around it, even though its computed display is block.
+            inline = INLINE_DISPLAY.has(style.display) || (style.float !== '' && style.float !== 'none');
             this.#inline.set(el, inline);
         }
         return inline;

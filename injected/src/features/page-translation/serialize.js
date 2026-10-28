@@ -30,6 +30,12 @@ export function serializeUnit(target) {
             elements,
         };
     }
+    // Bergamot mistranslates a fragment that opens with a tag splitting a word (a drop cap: `<span>A</span>iwa`).
+    // A neutral wrapper fixes it; never the unit's own tag, since a bare `<td>` is dropped by HTML parsers.
+    const first = nodes.find((node) => node.nodeType === ELEMENT_NODE || (node.nodeType === TEXT_NODE && (node.nodeValue || '').trim()));
+    if (first?.nodeType === ELEMENT_NODE) {
+        return { text: `<div>${html}</div>`, html: true, wrapped: true, elements };
+    }
     return { text: html, html: true, wrapped: false, elements };
 }
 
