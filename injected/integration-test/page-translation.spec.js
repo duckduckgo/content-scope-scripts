@@ -71,6 +71,14 @@ const FIXTURES = [
         untranslated: ['select'],
     },
     {
+        page: 'nested.html',
+        units: ['Read the full story here.'],
+    },
+    {
+        page: 'style-child.html',
+        units: ['Hello there friend.'],
+    },
+    {
         page: 'mixed-container.html',
         units: ['Intro text sits directly in the container.', 'And this is a normal paragraph.'],
     },
@@ -442,6 +450,32 @@ test.describe('pageTranslation', () => {
         await apply(collector, translateAll(await extract(collector)));
         await extract(collector);
         expect(await bodyHTML(page)).toBe(original);
+    });
+
+    test('survives a translation that turns the nesting inside out', async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'nested.html');
+        await page.evaluate(() => {
+            /** @type {any} */ (window).linkBefore = document.getElementById('n-a');
+        });
+        const [unit] = await extract(collector);
+        expect(await apply(collector, [{ id: unit.id, text: '<div><em data-t="2"><a data-t="0">Lisez</a></em> ici.</div>' }])).toBe(1);
+        expect(await page.evaluate(() => document.getElementById('n')?.contains(/** @type {any} */ (window).linkBefore))).toBe(true);
+        expect(await page.locator('#n em').count()).toBe(1);
+        expect(await page.locator('#n span').count()).toBe(1);
+    });
+
+    test('never sends style or script contents and still applies the unit', async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'style-child.html');
+        const [unit] = await extract(collector);
+        expect(unit.text).toBe('Hello <b data-t="0">there</b> friend.');
+        expect(await apply(collector, translateAll([unit]))).toBe(1);
+        expect(await page.evaluate(() => document.querySelector('#s')?.firstElementChild?.tagName)).toBe('STYLE');
+    });
+
+    test('replies to extract even when the source language is missing', async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'lang.html');
+        const { units } = await send(collector, 'extract', { sourceLanguage: null, targetLanguage: 'de' }, 'extractResult');
+        expect(Array.isArray(units)).toBe(true);
     });
 
     test('marks only units on screen as in the viewport', async ({ page }, testInfo) => {
