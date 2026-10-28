@@ -114,6 +114,21 @@
                         },
                         "define": true
                     },
+                    "window.navigator": {
+                        "type": "descriptor",
+                        "value": {
+                            "type": "string",
+                            "value": "an accessor takes no value, so this change throws"
+                        }
+                    },
+                    "window.navigator.beneathThrowingChange": {
+                        "type": "descriptor",
+                        "getterValue": {
+                            "type": "number",
+                            "value": 1
+                        },
+                        "define": true
+                    },
                     "Navigator.prototype.platform": {
                         "type": "descriptor",
                         "value": {

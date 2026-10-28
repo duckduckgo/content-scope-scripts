@@ -115,6 +115,11 @@
                     name: "Change listed after a change that throws is applied",
                     result: navigator.sortedAfterThrowingChange,
                     expected: 1
+                },
+                {
+                    name: "Change beneath a change that throws is skipped",
+                    result: navigator.beneathThrowingChange,
+                    expected: undefined
                 }
             ];
         });

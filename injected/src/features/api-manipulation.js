@@ -22,14 +22,22 @@ export default class ApiManipulation extends ContentFeature {
         if (apiChanges) {
             // A scope sorts before the scopes beneath it, so it is applied first whatever the key order
             const scopes = objectKeys(apiChanges).sort();
+            /** @type {string[]} */
+            const failedScopes = [];
             for (const scope of scopes) {
+                // A change beneath a failed one would patch the object the failed change left in place
+                if (failedScopes.some((failed) => scope.startsWith(`${failed}.`))) {
+                    continue;
+                }
                 const change = apiChanges[scope];
                 if (!this.checkIsValidAPIChange(change)) {
+                    failedScopes.push(scope);
                     continue;
                 }
                 try {
                     this.applyApiChange(scope, change);
                 } catch (e) {
+                    failedScopes.push(scope);
                     this.log.error(`Failed to apply change to ${scope}:`, e);
                 }
             }
