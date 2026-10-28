@@ -14,7 +14,7 @@ import {
 } from './SuggestedPromptsIcons.js';
 
 /**
- * Ported from Duck.ai's new-chat chips (www-release/frontend/react/src/duckai/components/buttons/new-chat-chips).
+ * Ported from Duck.ai's new-chat chips
  *
  * @typedef {typeof import('../../strings.json')} Strings
  * @typedef {keyof Strings} StringKey
