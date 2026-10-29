@@ -245,6 +245,25 @@ test.describe('selectionTools', () => {
         expect(await collector.outgoingMessages()).toEqual([]);
     });
 
+    test('reports nothing without user activation, but still clears', async ({ page }, testInfo) => {
+        const collector = await setup(page, testInfo);
+        await selectParagraph(page, '#english');
+        await reportedWith(collector, ENGLISH);
+        const reports = (await sent(collector, 'selectionChanged')).length;
+
+        // As when the page has used up the gesture, or it expired before the event.
+        await page.evaluate(() =>
+            Object.defineProperty(Navigator.prototype, 'userActivation', { get: () => ({ isActive: false, hasBeenActive: true }) }),
+        );
+        await page.locator('#english').click({ button: 'right' });
+        await selectParagraph(page, '#spanish');
+        await settle(page);
+        expect(await sent(collector, 'selectionChanged')).toHaveLength(reports);
+        expect(await sent(collector, 'contextMenuOpened')).toEqual([]);
+        // Clearing never needs a gesture: the click that started the new selection cleared the old report.
+        expect(await sent(collector, 'selectionCleared')).toEqual([{}]);
+    });
+
     test('reports the same selection again, for native to drop', async ({ page }, testInfo) => {
         const collector = await setup(page, testInfo);
         await page.locator('#field').focus();

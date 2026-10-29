@@ -105,6 +105,7 @@ export default class SelectionTools extends ContentFeature {
             this._clear();
             return;
         }
+        if (!hasUserActivation()) return;
         // Sent again for a selection native was already told about: native drops repeats.
         this._reported = snapshot;
         this.notify('selectionChanged', { ...describe(snapshot), ...geometryOf(snapshot) });
@@ -116,7 +117,7 @@ export default class SelectionTools extends ContentFeature {
      * report serves native's menu and, through its rect, the toolbar native shows collapsed once the menu closes.
      */
     _contextMenu() {
-        if (!this._config.enabled) return;
+        if (!this._config.enabled || !hasUserActivation()) return;
         const snapshot = readSelection(this._minChars);
         if (!snapshot) {
             // An explicit empty report, so native knows the page has no selection rather than that it said nothing.
@@ -157,6 +158,14 @@ export default class SelectionTools extends ContentFeature {
         this._moveFrame = 0;
         this.notify('selectionCleared', {});
     }
+}
+
+/**
+ * Whether the page is acting on a user gesture right now. Reports that can show the toolbar or fill the menu need one,
+ * on top of a trusted event; clearing doesn't. Engines without the API rely on trusted events alone.
+ */
+function hasUserActivation() {
+    return navigator.userActivation?.isActive ?? true;
 }
 
 /**
