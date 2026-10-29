@@ -11,6 +11,9 @@ import {
 } from './utils.js';
 import { URLPattern as URLPatternPolyfill } from 'urlpattern-polyfill';
 
+// C-S-S release tags are `major.minor.patch`
+const RELEASE_VERSION_PATTERN = /^\d+\.\d+\.\d+$/;
+
 /**
  * Used to match conditional changes for a settings feature.
  *
@@ -369,28 +372,32 @@ export default class ConfigFeature {
 
     /**
      * Takes a condition block and returns true if the C-S-S version satisfies the `minContentScopeScriptsVersion`.
-     * Unversioned builds never match.
+     * Unversioned builds count as newer than every release, so they always match.
+     * A value not in `major.minor.patch` form never matches.
      * @param {ConditionBlock} conditionBlock
      * @returns {boolean}
      */
     _matchMinContentScopeScriptsVersion(conditionBlock) {
-        if (!conditionBlock.minContentScopeScriptsVersion) return false;
+        const minVersion = conditionBlock.minContentScopeScriptsVersion;
+        if (typeof minVersion !== 'string' || !RELEASE_VERSION_PATTERN.test(minVersion)) return false;
         const contentScopeScriptsVersion = this.contentScopeScriptsVersion;
-        if (!contentScopeScriptsVersion) return false;
-        return isSupportedVersion(conditionBlock.minContentScopeScriptsVersion, contentScopeScriptsVersion);
+        if (!contentScopeScriptsVersion) return true;
+        return isSupportedVersion(minVersion, contentScopeScriptsVersion);
     }
 
     /**
      * Takes a condition block and returns true if the C-S-S version satisfies the `maxContentScopeScriptsVersion`.
-     * Unversioned builds never match.
+     * Unversioned builds count as newer than every release, so they never match.
+     * A value not in `major.minor.patch` form never matches.
      * @param {ConditionBlock} conditionBlock
      * @returns {boolean}
      */
     _matchMaxContentScopeScriptsVersion(conditionBlock) {
-        if (!conditionBlock.maxContentScopeScriptsVersion) return false;
+        const maxVersion = conditionBlock.maxContentScopeScriptsVersion;
+        if (typeof maxVersion !== 'string' || !RELEASE_VERSION_PATTERN.test(maxVersion)) return false;
         const contentScopeScriptsVersion = this.contentScopeScriptsVersion;
         if (!contentScopeScriptsVersion) return false;
-        return isMaxSupportedVersion(conditionBlock.maxContentScopeScriptsVersion, contentScopeScriptsVersion);
+        return isMaxSupportedVersion(maxVersion, contentScopeScriptsVersion);
     }
 
     /**
