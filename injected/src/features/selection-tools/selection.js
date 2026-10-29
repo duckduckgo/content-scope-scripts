@@ -184,7 +184,8 @@ function measureInMirror(field, start, end, scratch) {
 function alphaOf(color) {
     const match = /^rgba\(.*,\s*([\d.]+)\)$/.exec(color) ?? /\/\s*([\d.]+)(%?)\s*\)$/.exec(color);
     if (!match) return 1;
-    return parseFloat(match[1]) / (match[2] ? 100 : 1);
+    const [, alpha = '1', percent] = match;
+    return parseFloat(alpha) / (percent ? 100 : 1);
 }
 
 /**
