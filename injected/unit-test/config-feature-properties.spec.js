@@ -155,9 +155,10 @@ describe('ConfigFeature version matching properties', () => {
 describe('ConfigFeature C-S-S version matching properties', () => {
     /**
      * @param {string | null} contentScopeScriptsVersion
+     * @param {string} [appVersion]
      */
-    function createVersionedFeature(contentScopeScriptsVersion) {
-        const feature = createFeature();
+    function createVersionedFeature(contentScopeScriptsVersion, appVersion) {
+        const feature = createFeature({ version: appVersion });
         Object.defineProperty(feature, 'contentScopeScriptsVersion', { value: contentScopeScriptsVersion });
         return feature;
     }
@@ -200,22 +201,41 @@ describe('ConfigFeature C-S-S version matching properties', () => {
     it('ignores the app version', () => {
         fc.assert(
             fc.property(semver(), (version) => {
-                const feature = createFeature({ version });
-                expect(feature._matchConditionalBlock({ minContentScopeScriptsVersion: version })).toBeFalse();
-                expect(feature._matchConditionalBlock({ maxContentScopeScriptsVersion: version })).toBeFalse();
+                fc.pre(version !== '0.0.0');
+                // The app version satisfies each bound; the C-S-S version does not
+                const oldRelease = createVersionedFeature('0.0.0', version);
+                const newRelease = createVersionedFeature('99.0.0', version);
+                expect(oldRelease._matchConditionalBlock({ minContentScopeScriptsVersion: version })).toBeFalse();
+                expect(newRelease._matchConditionalBlock({ maxContentScopeScriptsVersion: version })).toBeFalse();
             }),
             { numRuns: 50 },
         );
     });
 
-    it('unversioned builds never match', () => {
+    it('unversioned builds count as newer than every release', () => {
         fc.assert(
             fc.property(semver(), (conditionVersion) => {
                 const feature = createVersionedFeature(null);
-                expect(feature._matchMinContentScopeScriptsVersion({ minContentScopeScriptsVersion: conditionVersion })).toBeFalse();
+                expect(feature._matchMinContentScopeScriptsVersion({ minContentScopeScriptsVersion: conditionVersion })).toBeTrue();
                 expect(feature._matchMaxContentScopeScriptsVersion({ maxContentScopeScriptsVersion: conditionVersion })).toBeFalse();
             }),
             { numRuns: 50 },
+        );
+    });
+
+    it('condition values not in major.minor.patch form never match', () => {
+        const malformed = fc.oneof(
+            semver().map((version) => `v${version}`),
+            semver().map((version) => version.split('.').slice(0, 2).join('.')),
+            semver().map((version) => `${version}.0`),
+        );
+        fc.assert(
+            fc.property(malformed, fc.constantFrom(null, '0.0.0', '17.30.0', '99.0.0'), (conditionVersion, contentScopeScriptsVersion) => {
+                const feature = createVersionedFeature(contentScopeScriptsVersion);
+                expect(feature._matchMinContentScopeScriptsVersion({ minContentScopeScriptsVersion: conditionVersion })).toBeFalse();
+                expect(feature._matchMaxContentScopeScriptsVersion({ maxContentScopeScriptsVersion: conditionVersion })).toBeFalse();
+            }),
+            { numRuns: 100 },
         );
     });
 

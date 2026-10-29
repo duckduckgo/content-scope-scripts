@@ -445,10 +445,12 @@ describe('ContentFeature class', () => {
         });
 
         for (const contentScopeScriptsVersion of [null, undefined]) {
-            it(`never matches an unversioned build (${contentScopeScriptsVersion})`, () => {
+            it(`treats an unversioned build as newer than every release (${contentScopeScriptsVersion})`, () => {
                 const settings = settingsFor(contentScopeScriptsVersion);
                 for (const [key, value] of Object.entries(settings)) {
-                    expect(value).withContext(key).toBeUndefined();
+                    expect(value)
+                        .withContext(key)
+                        .toBe(key.startsWith('min') ? 'enabled' : undefined);
                 }
             });
         }
