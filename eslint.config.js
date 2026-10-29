@@ -34,6 +34,7 @@ export default tseslint.config(
                 $USER_PREFERENCES$: 'readonly',
                 $USER_UNPROTECTED_DOMAINS$: 'readonly',
                 $CONTENT_SCOPE$: 'readonly',
+                $CONTENT_SCOPE_JSON$: 'readonly',
                 $BUNDLED_CONFIG$: 'readonly',
             },
 

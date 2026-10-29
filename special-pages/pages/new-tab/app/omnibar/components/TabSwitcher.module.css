@@ -76,7 +76,7 @@
  */
 :global(body[data-rebrand="true"]) {
     .tabSwitcher {
-        background: var(--ds-input-control-secondary-background-color);
+        background: var(--ds-color-theme-control-fill-primary);
         backdrop-filter: none;
     }
 

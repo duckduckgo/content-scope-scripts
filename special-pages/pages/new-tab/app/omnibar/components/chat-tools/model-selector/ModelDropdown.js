@@ -1,5 +1,5 @@
 import { Fragment, h } from 'preact';
-import { useEffect, useState } from 'preact/hooks';
+import { useEffect, useLayoutEffect, useState } from 'preact/hooks';
 import cn from 'classnames';
 import { useTypedTranslationWith } from '../../../../types';
 import { DropdownSectionHeader } from '../dropdown/DropdownSectionHeader';
@@ -76,6 +76,16 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
     const [activeIndex, setActiveIndex] = useState(getInitialActiveIndex);
     const clearActiveIndex = () => setActiveIndex(-1);
 
+    useLayoutEffect(() => {
+        const dropdown = dropdownRef?.current;
+        if (!dropdown) return;
+        const rect = dropdown.getBoundingClientRect();
+        const shiftY = Math.max(20 - rect.top, Math.min(0, window.innerHeight - 20 - rect.bottom));
+
+        // Apply viewport corrections to the existing position, which may be relative to a containing block.
+        dropdown.style.top = `${parseFloat(dropdown.style.top) + shiftY}px`;
+    }, [dropdownRef, dropdownPos, sections]);
+
     /**
      * @param {'subscribe' | 'upgrade'} type
      * @param {boolean} restoreFocus
@@ -102,7 +112,7 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
 
     useEffect(() => {
         const frameId = window.requestAnimationFrame(() => {
-            dropdownRef?.current?.focus();
+            dropdownRef?.current?.focus({ preventScroll: true });
         });
 
         return () => window.cancelAnimationFrame(frameId);

@@ -1736,6 +1736,7 @@ export interface InitialSetupResponse {
   customizer?: CustomizerData;
   updateNotification: null | UpdateNotificationData;
   tabs?: null | Tabs;
+  omnibar?: OmnibarInitialSetup;
 }
 export interface WidgetListItem {
   /**
@@ -1790,6 +1791,14 @@ export interface UpdateNotification {
 export interface Tabs {
   tabId: string;
   tabIds: string[];
+}
+/**
+ * The subset of omnibar config that affects its height, sent up front so the loading placeholder reserves the right space. Same meaning as the matching `omnibar_getConfig` fields.
+ */
+export interface OmnibarInitialSetup {
+  mode: OmnibarMode;
+  enableAi: boolean;
+  showAiSetting: boolean;
 }
 /**
  * Generated from @see "../messages/nextSteps_getConfig.request.json"

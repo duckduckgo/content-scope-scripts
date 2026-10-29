@@ -11,6 +11,17 @@ import styles from './NoticeDrawer.module.css';
 export const TERMS_DISCLAIMER_ID = 'omnibar-terms-disclaimer';
 
 /**
+ * The send button label shown until the user accepts the terms. The disclaimer quotes it.
+ *
+ * @returns {string}
+ */
+export function useTermsButtonLabel() {
+    const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
+    const { imageGenerationActive } = useActiveTools();
+    return imageGenerationActive ? t('omnibar_termsCreateButtonLabel') : t('omnibar_termsAskButtonLabel');
+}
+
+/**
  * The Duck.ai terms disclaimer, shown until the user accepts the terms by submitting a chat.
  *
  * @returns {import('./NoticeDrawer.js').NoticePresentation | null}
@@ -18,7 +29,7 @@ export const TERMS_DISCLAIMER_ID = 'omnibar-terms-disclaimer';
 export function useTermsDisclaimerNotice() {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const { state, openPrivacyTerms } = useContext(OmnibarContext);
-    const { imageGenerationActive } = useActiveTools();
+    const buttonLabel = useTermsButtonLabel();
 
     if (state.config?.requiresAiTermsAcceptance !== true) return null;
 
@@ -34,7 +45,7 @@ export function useTermsDisclaimerNotice() {
         messageId: TERMS_DISCLAIMER_ID,
         secondaryText: (
             <Trans
-                str={imageGenerationActive ? t('omnibar_termsDisclaimerCreate') : t('omnibar_termsDisclaimerAsk')}
+                str={t('omnibar_termsDisclaimerAgree', { actionLabel: buttonLabel })}
                 values={{ a: { href: '#', class: styles.link, click: onLinkClick, auxclick: onLinkClick } }}
             />
         ),
