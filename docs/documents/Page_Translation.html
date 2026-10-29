@@ -1,0 +1,117 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>Page Translation | @duckduckgo/content-scope-scripts</title><meta name="description" content="Documentation for @duckduckgo/content-scope-scripts"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">@duckduckgo/content-scope-scripts</a>
+<div id="tsd-toolbar-links"></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="" aria-current="page">Page Translation</a></li></ul></div>
+<div class="tsd-panel tsd-typography"><h1 id="page-translation" class="tsd-anchor-link">Page Translation<a href="#page-translation" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h1>
+<p>Finds the text on a page that needs translating, writes translations back onto the page's own nodes, and puts the original back. Native does language detection, translation, batching and ordering. Nothing runs until native sends a message.</p>
+<p>Ships in its own bundles, not the main ones: <code>apple-page-translation</code> (<code>Sources/ContentScopeScripts/dist/pageTranslation.js</code>, page world) and <code>android-page-translation</code> (<code>build/android/pageTranslation.js</code>). Native injects the bundle when the user translates a page, the same way it injects <code>contentScope.js</code> (same placeholders, same messaging setup). It's a platform-specific feature: native decides when to use it, so it runs without a privacy-config entry and on sites where the user turned protections off. Setting <code>pageTranslation</code> to <code>disabled</code> in remote config turns it off. <code>extract</code> and <code>apply</code> always reply, even when a unit or the page's DOM throws.</p>
+<p>Apple native must fill <code>$CONTENT_SCOPE_JSON$</code> (the config as a JavaScript string literal) in every Apple bundle, isolated and <a href="http://Duck.ai">Duck.ai</a> ones included. That is the C-S-S 18.0.0 change, not specific to this feature, but this feature needs it.</p>
+<h2 id="messages" class="tsd-anchor-link">Messages<a href="#messages" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>Native sends subscriptions; the feature replies with notifications.</p>
+<table>
+<thead>
+<tr>
+<th>Native sends</th>
+<th>Feature replies</th>
+<th>Params</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>extract</code> <code>{}</code></td>
+<td><code>extractResult</code></td>
+<td><code>{ units: Unit[] }</code></td>
+</tr>
+<tr>
+<td><code>apply</code> <code>{ sourceLanguage, targetLanguage, updates: [{ id, text }] }</code></td>
+<td><code>applyResult</code></td>
+<td><code>{ count }</code>: updates written</td>
+</tr>
+<tr>
+<td><code>revert</code> <code>{}</code></td>
+<td><code>revertResult</code></td>
+<td><code>{ count, exact }</code>: units restored; when <code>exact</code> is false, reload the page</td>
+</tr>
+<tr>
+<td>—</td>
+<td><code>unitsAdded</code></td>
+<td><code>{ units: Unit[] }</code>: content that appeared after <code>extract</code> (<strong>not sent yet</strong>)</td>
+</tr>
+</tbody>
+</table>
+<p><code>Unit = { id, text, html, vp }</code>:</p>
+<ul>
+<li><code>html: false</code>: plain text. Translate it as plain text; the result is written as text.</li>
+<li><code>html: true</code>: an HTML fragment. Translate it as HTML.</li>
+<li><code>vp: 1</code>: the unit is in the viewport. Translate these first.</li>
+<li>Ids are never reused while the page is open.</li>
+</ul>
+<p><code>extract</code> needs no languages, so native can detect the page's language from the units it returns. <code>apply</code> carries <code>sourceLanguage</code> (the detected page language) and <code>targetLanguage</code> (the language translated into), both BCP 47. A second <code>extract</code> while the page is translated reverts it first, without sending <code>revertResult</code>.</p>
+<h2 id="what-becomes-a-unit" class="tsd-anchor-link">What becomes a unit<a href="#what-becomes-a-unit" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<ul>
+<li>The innermost block element that holds text, such as a <code>p</code>, <code>li</code>, <code>h1</code> or <code>td</code>. A block inside an inline element (<code>&lt;li&gt;&lt;a&gt;&lt;div&gt;…</code>) counts as a block.</li>
+<li>In a container that also holds blocks, each run of text and inline elements between those blocks is one unit.</li>
+<li>Floated elements count as inline, so a drop cap stays inside its paragraph.</li>
+<li>A unit needs at least one letter.</li>
+<li>Never translated: <code>script</code>, <code>style</code>, <code>noscript</code>, <code>template</code>, <code>textarea</code>, <code>code</code>, <code>kbd</code>, <code>samp</code>, <code>var</code>, <code>math</code>, <code>svg</code>, <code>iframe</code>, <code>embed</code>, <code>object</code>, <code>select</code> (for now), <code>translate=&quot;no&quot;</code>, <code>.notranslate</code> and editable content.</li>
+<li>Content marked with a <code>lang</code> other than <code>sourceLanguage</code> is still extracted, but <code>apply</code> doesn't write it: a unit inside such an element is skipped (not counted), and such an element inside a unit comes back untouched while the rest of the sentence is translated. The <code>&lt;html lang&gt;</code> is ignored for this check, and an empty <code>sourceLanguage</code> turns it off.</li>
+<li>Inside a unit, a never-translated element is sent as an empty tag and comes back untouched: <code>Use &lt;code data-t=&quot;0&quot;&gt;&lt;/code&gt; to check</code>.</li>
+<li><code>script</code>, <code>style</code> and <code>template</code> inside a unit aren't sent at all. They, and comments, stay before or after the unit's text, as they were.</li>
+</ul>
+<h2 id="what-is-sent" class="tsd-anchor-link">What is sent<a href="#what-is-sent" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<ul>
+<li>A unit without child elements is sent as plain text.</li>
+<li>Otherwise each element becomes <code>&lt;tag data-t=&quot;N&quot;&gt;</code>, with no other attributes. <code>N</code> is the element's index within the unit.</li>
+<li>A unit that starts with an element (a drop cap: <code>&lt;span&gt;A&lt;/span&gt;iwa…</code>) is wrapped in <code>&lt;div&gt;…&lt;/div&gt;</code>, and must come back as a single <code>div</code>. Whitespace and invisible formatting characters (such as bidi marks) outside the <code>div</code> are accepted; the formatting characters are kept.</li>
+<li>Soft hyphens are removed.</li>
+</ul>
+<h2 id="writing-back" class="tsd-anchor-link">Writing back<a href="#writing-back" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>The translation is parsed into an inert document by the browser's parser, through a Trusted Types policy (<code>ddg-translation</code>) on pages that enforce Trusted Types. Output with tags or attributes we didn't send is rejected and the unit stays as it is. On a page whose CSP refuses our policy, HTML units can't be parsed and are skipped; plain-text units still translate.</p>
+<p>The translation is then merged onto the original nodes. Elements are moved, never recreated, so listeners, form values and framework-managed nodes survive. Text goes into the existing text nodes.</p>
+<ul>
+<li>A tag the engine returns twice: the second gets a copy built only from copies. Original nodes never move into a copy.</li>
+<li>A tag returned empty: stays empty. The engine empties a tag when it moves the text elsewhere, so putting the original back would double it. Elements inside it are put back.</li>
+<li>A tag the engine dropped: put back at the end of its container.</li>
+<li>An id we didn't send, or a tag that would end up inside itself: its text is kept, no element is created or moved.</li>
+</ul>
+<p>The first write sets <code>&lt;html lang&gt;</code> to <code>targetLanguage</code>. <code>revert</code> puts back every text, attribute, node order and the original <code>lang</code>. It then checks that every original node it moved is back in the page, and reports <code>exact: false</code> if not, so native can reload as a fallback.</p>
+<h2 id="tests" class="tsd-anchor-link">Tests<a href="#tests" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>From <code>injected/</code>:</p>
+<pre><code class="sh"><span class="hl-3">npm</span><span class="hl-2"> </span><span class="hl-7">run</span><span class="hl-2"> </span><span class="hl-7">build</span><span class="hl-2"> &amp;&amp; </span><span class="hl-3">npx</span><span class="hl-2"> </span><span class="hl-7">playwright</span><span class="hl-2"> </span><span class="hl-7">test</span><span class="hl-2"> </span><span class="hl-7">integration-test/page-translation.spec.js</span><span class="hl-2"> </span><span class="hl-1">--project</span><span class="hl-2"> </span><span class="hl-7">apple-page-translation</span><span class="hl-2"> </span><span class="hl-1">--project</span><span class="hl-2"> </span><span class="hl-7">android-page-translation</span><span class="hl-2"> </span><span class="hl-1">--reporter</span><span class="hl-2"> </span><span class="hl-7">list</span><br/><span class="hl-3">npx</span><span class="hl-2"> </span><span class="hl-7">jasmine</span><span class="hl-2"> </span><span class="hl-1">--config=unit-test/config.json</span><span class="hl-2"> </span><span class="hl-1">--filter=</span><span class="hl-7">&quot;page-translation parse&quot;</span>
+</code><button type="button">Copy</button></pre>
+
+<p>Fixtures are in <code>integration-test/test-pages/page-translation/pages/</code>. Each one lists its expected units in the spec's <code>FIXTURES</code>, and runs the extract, apply and revert checks. Apply uses a fake translator that marks each text run as <code>‹…›</code>.</p>
+</div></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
+<details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>On This Page</h3></summary>
+<div class="tsd-accordion-details"><a href="#page-translation"><span>Page <wbr/>Translation</span></a>
+<ul>
+<li><a href="#messages"><span>Messages</span></a></li>
+<li><a href="#what-becomes-a-unit"><span>What becomes a unit</span></a></li>
+<li><a href="#what-is-sent"><span>What is sent</span></a></li>
+<li><a href="#writing-back"><span>Writing back</span></a></li>
+<li><a href="#tests"><span>Tests</span></a></li></ul></div></details></div>
+<div class="site-menu">
+<nav class="tsd-navigation"><a href="../index.html">@duckduckgo/content-scope-scripts</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer>
+<p class="tsd-generator">Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></footer>
+<div class="overlay"></div></body></html>
