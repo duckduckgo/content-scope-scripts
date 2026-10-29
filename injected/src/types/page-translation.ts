@@ -66,10 +66,14 @@ export interface RevertResultNotification {
   params: RevertResult;
 }
 /**
- * How many units were restored.
+ * How many units were restored, and whether the page is exactly as before. When exact is false, reload the page.
  */
 export interface RevertResult {
   count: number;
+  /**
+   * False when an original node we moved couldn't be put back; native should reload the page.
+   */
+  exact: boolean;
 }
 /**
  * Generated from @see "../messages/page-translation/unitsAdded.notify.json"

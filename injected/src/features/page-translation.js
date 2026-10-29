@@ -34,7 +34,7 @@ export class PageTranslation extends ContentFeature {
             this._apply(String(sourceLanguage ?? ''), String(targetLanguage ?? ''), updates),
         );
         this.subscribe('revert', () => {
-            this.notify('revertResult', { count: this._revert() });
+            this.notify('revertResult', this._revert());
         });
     }
 
@@ -106,10 +106,19 @@ export class PageTranslation extends ContentFeature {
 
     /**
      * Puts back everything written since extract.
-     * @returns {number} how many units were restored
+     * @returns {{ count: number, exact: boolean }} units restored, and whether every original node we moved is back in
+     *   the page (if not, native reloads)
      */
     _revert() {
         const count = this.#applied.size;
+        // Nodes the page itself removed since don't count against us; ours must all still be in the page afterwards.
+        const ours = [...this.#applied].flatMap((id) => {
+            const unit = this.#units.get(id);
+            if (!unit) return [];
+            const { target, serialized } = unit;
+            return [containerOf(target), ...serialized.elements];
+        });
+        const connected = ours.filter((node) => node.isConnected);
         revertJournal(this.#journal);
         if (this.#originalLang) {
             const { value } = this.#originalLang;
@@ -122,7 +131,7 @@ export class PageTranslation extends ContentFeature {
         this.#originalLang = null;
         this.#applied.clear();
         this.#units.clear();
-        return count;
+        return { count, exact: connected.every((node) => node.isConnected) };
     }
 
     _setPageLanguage() {
