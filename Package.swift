@@ -25,6 +25,7 @@ let package = Package(
                 .process("dist/brokerProtection.js"),
                 .process("dist/duckAiDataClearing.js"),
                 .process("dist/duckAiChatHistory.js"),
+                .process("dist/pageTranslation.js"),
                 .copy("dist/pages"),
             ]
         ),
