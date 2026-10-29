@@ -1,22 +1,20 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "SelectionChangedParams",
-  "description": "A selection gesture ended on text the tools can act on, while enabled and showToolbar is on, so native can show its toolbar for it. Sent even when no action fits, and again when the same text is reselected: native decides whether to show Ask alone and dedups repeats. Not sent for selections in a modal dialog, popover or fullscreen element.",
+  "description": "A selection gesture ended on text the tools can act on, while enabled and showToolbar is on, so native can show its toolbar for it and pick the actions that fit. Sent again when the same text is reselected: native drops repeats. Not sent for selections in a modal dialog, popover or fullscreen element.",
   "type": "object",
   "additionalProperties": false,
   "required": [
     "text",
     "editable",
     "selectionType",
-    "actions",
     "rect",
-    "devicePixelRatio",
-    "maxVisibleActions"
+    "devicePixelRatio"
   ],
   "properties": {
     "text": {
       "type": "string",
-      "description": "The selected text."
+      "description": "The selected text, without text the user can't see."
     },
     "editable": {
       "type": "boolean",
@@ -25,16 +23,8 @@
     "selectionType": {
       "$ref": "selectionToolsConfig.shared.json#/definitions/selectionType"
     },
-    "sourceLanguage": {
-      "type": "string",
-      "description": "The page's language tag for the selection, from the nearest lang attribute, as in contextMenuOpened."
-    },
-    "actions": {
-      "type": "array",
-      "description": "The actions that fit, ranked, without \"ask\": the same list contextMenuOpened would send.",
-      "items": {
-        "$ref": "selectionToolsConfig.shared.json#/definitions/contextMenuAction"
-      }
+    "language": {
+      "$ref": "selectionToolsConfig.shared.json#/definitions/language"
     },
     "rect": {
       "$ref": "selectionToolsConfig.shared.json#/definitions/selectionRect"
@@ -42,14 +32,6 @@
     "devicePixelRatio": {
       "type": "number",
       "description": "The page's window.devicePixelRatio, which includes page zoom."
-    },
-    "maxVisibleActions": {
-      "type": "integer",
-      "description": "Toolbar buttons before \"more\", Ask included, from the remote config."
-    },
-    "contextMenu": {
-      "type": "boolean",
-      "description": "True for the selection a context menu opened on: native shows the toolbar for it, collapsed, once the menu closes."
     }
   }
 }

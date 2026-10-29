@@ -1,7 +1,5 @@
 import ContentFeature from '../content-feature.js';
-import { JSONstringify } from '../captured-globals.js';
 import { isBeingFramed } from '../utils.js';
-import { ASK_ACTION_ID, contextMenuActions, rankActions } from './selection-tools/actions.js';
 import { classify } from './selection-tools/classify.js';
 import {
     isEditingFocused,
@@ -14,53 +12,40 @@ import {
 import { selectedTextKey } from './selection-tools/text-key.js';
 
 /**
- * @typedef {import('../types/selection-tools.js').SelectionAction} SelectionAction
  * @typedef {import('../types/selection-tools.js').SelectionMovedParams} SelectionGeometry
+ * @typedef {import('../types/selection-tools.js').SelectionToolsConfig} Config
  * @typedef {import('./selection-tools/selection.js').SelectionSnapshot} SelectionSnapshot
- *
- * @typedef {object} Config SelectionToolsConfig, reduced to what the page reads, with its defaults filled in
- * @property {boolean} enabled
- * @property {boolean} showToolbar
- * @property {string} userLanguage
- * @property {SelectionAction[]} actions
  */
 
-const DEFAULT_MAX_VISIBLE_ACTIONS = 5;
 const DEFAULT_MIN_CHARS = 2;
 
 /**
- * Reports the user's text selection to native, which draws the Duck.ai selection toolbar: what was selected, how it
- * classifies, which of native's actions fit and where it is on screen. Also reports the fitting actions when the
- * context menu opens. Draws nothing itself. Native owns the action catalog (initialSetup) and runs the actions. Whether
- * the tools are on and the toolbar shows comes with the feature's config, which native sets for the user, and changes
- * while the page is open come with selectionToolsConfigChanged. Top frame only.
+ * Reports the user's text selection to native, which draws the Duck.ai selection toolbar and offers the actions: what
+ * was selected, what kind of text it is and where it is on screen. Also reports the selection when the context menu
+ * opens, for native's menu. Draws nothing and knows nothing of the actions. Whether the tools are on and the toolbar
+ * shows comes with the feature's config, which native sets for the user, and changes while the page is open come with
+ * selectionToolsConfigChanged. Top frame only.
  */
 export default class SelectionTools extends ContentFeature {
-    /** @type {Config | null} */
-    _config = null;
-
-    /** @type {Promise<Config | null> | null} */
-    _pendingConfig = null;
+    /** @type {Config} */
+    _config = { enabled: true, showToolbar: true };
 
     /** @type {SelectionSnapshot | null} the selection native was last told about, until it's cleared */
     _reported = null;
 
-    _maxVisibleActions = DEFAULT_MAX_VISIBLE_ACTIONS;
     _minChars = DEFAULT_MIN_CHARS;
-    _showToolbar = true;
     _moveFrame = 0;
 
     init() {
         if (isBeingFramed()) return;
-        this._showToolbar = this.getFeatureSetting('showToolbar') !== false;
-        const maxVisible = this.getFeatureSetting('maxVisibleActions');
-        if (typeof maxVisible === 'number' && maxVisible >= 1) this._maxVisibleActions = Math.floor(maxVisible);
+        // The feature only runs while its config has it on.
+        this._config = { enabled: true, showToolbar: this.getFeatureSetting('showToolbar') !== false };
         const minChars = this.getFeatureSetting('minChars');
         if (typeof minChars === 'number' && minChars >= 1) this._minChars = Math.floor(minChars);
 
         this.subscribe('selectionToolsConfigChanged', (value) => {
             const config = toConfig(value);
-            if (!config || JSONstringify(config) === JSONstringify(this._config)) return;
+            if (!config || (config.enabled === this._config.enabled && config.showToolbar === this._config.showToolbar)) return;
             this._config = config;
             if (!config.enabled || !config.showToolbar) this._clear();
         });
@@ -85,21 +70,18 @@ export default class SelectionTools extends ContentFeature {
                 break;
             case 'mouseup':
                 // Only a primary-button release can finish a selection. The selection settles after mouseup.
-                if (/** @type {MouseEvent} */ (event).button === 0)
-                    setTimeout(() => {
-                        void this._refresh();
-                    }, 0);
+                if (/** @type {MouseEvent} */ (event).button === 0) setTimeout(() => this._refresh(), 0);
                 break;
             case 'keyup': {
                 const key = /** @type {KeyboardEvent} */ (event);
                 const selectAll = (key.ctrlKey || key.metaKey) && key.key.toLowerCase() === 'a';
                 // Select-all on the page takes everything, which no action fits, and would pin the toolbar to a corner.
                 if (selectAll && !isEditingFocused()) this._clear();
-                else if (key.shiftKey || key.key === 'Shift' || selectAll) void this._refresh();
+                else if (key.shiftKey || key.key === 'Shift' || selectAll) this._refresh();
                 break;
             }
             case 'contextmenu':
-                void this._contextMenu();
+                this._contextMenu();
                 break;
             case 'selectionchange':
                 if (this._reported && isSelectionCollapsed()) this._clear();
@@ -117,114 +99,47 @@ export default class SelectionTools extends ContentFeature {
         }
     }
 
-    /**
-     * Asked on the first selection (or context menu on one), so a page where the user selects nothing sends native
-     * nothing, then kept current by selectionToolsConfigChanged. If that request fails, the next selection asks
-     * again. Callers at the same time share one request.
-     * @returns {Promise<Config | null>}
-     */
-    async _getConfig() {
-        if (this._config) return this._config;
-        if (this._pendingConfig) return this._pendingConfig;
-        this._pendingConfig = this._fetchConfig();
-        try {
-            return await this._pendingConfig;
-        } finally {
-            this._pendingConfig = null;
-        }
-    }
-
-    /** @returns {Promise<Config | null>} */
-    async _fetchConfig() {
-        try {
-            // A push that arrived while this was pending is newer.
-            this._config ??= fromSetup(await this.request('initialSetup', {}), this._showToolbar);
-        } catch {
-            // A request made while the browser is starting can fail; the next selection asks again.
-        }
-        return this._config;
-    }
-
-    async _refresh() {
+    _refresh() {
         const snapshot = readSelection(this._minChars);
-        if (!snapshot) {
+        if (!snapshot || !this._toolbarMayShow(snapshot)) {
             this._clear();
             return;
         }
-        const config = await this._getConfig();
-        // The user may have moved on while native answered.
-        if (readSelection(this._minChars)?.text !== snapshot.text) return;
-        this._report(config, snapshot);
-    }
-
-    /**
-     * Sent even when no action fits, and again for a selection native was already told about: native decides whether
-     * Ask alone is worth a toolbar, and drops repeats.
-     * @param {Config | null} config
-     * @param {SelectionSnapshot} snapshot
-     * @param {{ forContextMenu?: boolean }} [options] The selection a context menu opened on, which native shows the toolbar
-     *   for, collapsed, once the menu closes
-     */
-    _report(config, snapshot, { forContextMenu = false } = {}) {
-        if (!config?.enabled || !config.showToolbar || isInTopLayer(snapshot.element)) {
-            this._clear();
-            return;
-        }
+        // Sent again for a selection native was already told about: native drops repeats.
         this._reported = snapshot;
-        this.notify('selectionChanged', {
-            ...this._describe(config, snapshot),
-            ...geometryOf(snapshot),
-            maxVisibleActions: this._maxVisibleActions,
-            ...(forContextMenu ? { contextMenu: true } : {}),
-        });
+        this.notify('selectionChanged', { ...describe(snapshot), ...geometryOf(snapshot) });
         this.addDebugFlag();
     }
 
     /**
-     * Covers right-click as well as the Menu key and Shift+F10. The report goes out within the event when the config
-     * is already known, so native has it as early as possible.
+     * Covers right-click as well as the Menu key and Shift+F10, while the tools are on, whatever showToolbar says. One
+     * report serves native's menu and, through its rect, the toolbar native shows collapsed once the menu closes.
      */
-    async _contextMenu() {
+    _contextMenu() {
+        if (!this._config.enabled) return;
         const snapshot = readSelection(this._minChars);
         if (!snapshot) {
-            if (this._config?.enabled) this.notify('contextMenuOpened', { text: '', actions: [] });
+            // An explicit empty report, so native knows the page has no selection rather than that it said nothing.
+            this.notify('contextMenuOpened', { text: '' });
             return;
         }
-        const config = this._config ?? (await this._getConfig());
-        if (!config?.enabled) return;
-        const { text, sourceLanguage, selectionType, editable, actions } = this._describe(config, snapshot);
+        const toolbar = this._toolbarMayShow(snapshot);
+        // Native hides its toolbar while its menu is open, so the menu leaves the report in place, or starts one.
+        if (toolbar) this._reported = snapshot;
         this.notify('contextMenuOpened', {
-            text,
+            ...describe(snapshot),
             selectedTextKey: selectedTextKey(snapshot.browserText),
-            ...(sourceLanguage ? { sourceLanguage } : {}),
-            selectionType,
-            editable,
-            actions,
+            ...(toolbar ? geometryOf(snapshot) : {}),
         });
-        // Without a toolbar showing before, the menu's selection still gets the chip once the menu closes, as when the
-        // toolbar was in the page; native needs to know where it is for that.
-        this._report(config, snapshot, { forContextMenu: true });
     }
 
     /**
-     * What both reports say about a selection.
-     * @param {Config} config
+     * Whether native may show its toolbar for a selection: not with the tools or the toolbar off, nor in a modal dialog,
+     * popover or fullscreen element, where it would sit behind.
      * @param {SelectionSnapshot} snapshot
      */
-    _describe(config, snapshot) {
-        const markedLanguage = markedLanguageOf(snapshot.element);
-        const context = classify(snapshot.text, {
-            userLanguage: config.userLanguage,
-            inCodeElement: isInCode(snapshot.element),
-            markedLanguage,
-        });
-        return {
-            text: snapshot.text,
-            editable: snapshot.editable,
-            selectionType: context.shape,
-            ...(markedLanguage ? { sourceLanguage: markedLanguage } : {}),
-            actions: contextMenuActions(rankActions(config.actions, context, snapshot.editable), context),
-        };
+    _toolbarMayShow(snapshot) {
+        return this._config.enabled && this._config.showToolbar && !isInTopLayer(snapshot.element);
     }
 
     _scheduleMove() {
@@ -245,22 +160,28 @@ export default class SelectionTools extends ContentFeature {
 }
 
 /**
+ * What every report says about a selection.
+ * @param {SelectionSnapshot} snapshot
+ */
+function describe(snapshot) {
+    const { shape, language } = classify(snapshot.text, {
+        inCodeElement: isInCode(snapshot.element),
+        markedLanguage: markedLanguageOf(snapshot.element),
+    });
+    return {
+        text: snapshot.text,
+        editable: snapshot.editable,
+        selectionType: shape,
+        ...(language ? { language } : {}),
+    };
+}
+
+/**
  * @param {SelectionSnapshot} snapshot
  * @returns {SelectionGeometry}
  */
 function geometryOf(snapshot) {
     return { rect: snapshot.bounds(), devicePixelRatio: window.devicePixelRatio };
-}
-
-/**
- * The initialSetup answer. The feature only runs while it's on, and whether the toolbar shows is the feature's setting.
- * @param {unknown} value
- * @param {boolean} showToolbar
- * @returns {Config | null}
- */
-function fromSetup(value, showToolbar) {
-    if (typeof value !== 'object' || value === null) return null;
-    return toConfig({ ...value, enabled: true, showToolbar });
 }
 
 /**
@@ -270,22 +191,7 @@ function fromSetup(value, showToolbar) {
  */
 function toConfig(value) {
     if (typeof value !== 'object' || value === null) return null;
-    const { enabled, showToolbar, userLanguage, actions } = /** @type {Record<string, unknown>} */ (value);
-    if (typeof enabled !== 'boolean' || !Array.isArray(actions) || !actions.every(isAction)) return null;
-    return {
-        enabled,
-        showToolbar: showToolbar === true,
-        userLanguage: typeof userLanguage === 'string' ? userLanguage : 'en',
-        actions,
-    };
-}
-
-/**
- * @param {unknown} value
- * @returns {value is SelectionAction}
- */
-function isAction(value) {
-    if (typeof value !== 'object' || value === null) return false;
-    const action = /** @type {Record<string, unknown>} */ (value);
-    return typeof action.id === 'string' && action.id !== ASK_ACTION_ID && typeof action.label === 'string';
+    const { enabled, showToolbar } = /** @type {Record<string, unknown>} */ (value);
+    if (typeof enabled !== 'boolean' || typeof showToolbar !== 'boolean') return null;
+    return { enabled, showToolbar };
 }

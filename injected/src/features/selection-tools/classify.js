@@ -1,13 +1,11 @@
 /**
- * Classifies selected text from the text and its element alone; nothing is sent anywhere to decide.
- * `shape` is matched against an action's `selectionTypes`, `differentLanguage` against its `condition`.
+ * Classifies selected text from the text and its element alone; nothing is sent anywhere to decide. Native matches the
+ * result against its actions.
  *
  * @typedef {import('../../types/selection-tools.js').SelectionType} SelectionType
  * @typedef {object} SelectionContext
  * @property {SelectionType} shape
- * @property {string} languageTag Primary language subtag, e.g. "es"
- * @property {boolean} differentLanguage Not code, and not in the user's language
- * @property {number} textLength Characters in the trimmed text
+ * @property {string | null} language Primary language subtag, e.g. "es", or null when neither the text nor the page says
  */
 
 const HAN = /\p{Script=Han}/gu;
@@ -110,19 +108,17 @@ function isWord(text) {
 
 /**
  * @param {string} rawText
- * @param {object} hints
- * @param {string} hints.userLanguage BCP 47 tag
+ * @param {object} [hints]
  * @param {boolean} [hints.inCodeElement] Inside pre, code, kbd or samp
  * @param {string | null} [hints.markedLanguage] The page's lang attribute for the selection
  * @returns {SelectionContext}
  */
-export function classify(rawText, { userLanguage, inCodeElement = false, markedLanguage = null }) {
+export function classify(rawText, { inCodeElement = false, markedLanguage = null } = {}) {
     const text = rawText.trim();
-    const userTag = primaryLanguage(userLanguage) ?? 'en';
     const isCode = inCodeElement || looksLikeCode(text);
     // When the text alone can't tell, the page's own marking decides: a selection inside lang="nl" is Dutch even though
-    // the word lists don't know Dutch. Without either, it's taken to be in the user's language.
-    const languageTag = detectLanguage(text) ?? primaryLanguage(markedLanguage) ?? userTag;
+    // the word lists don't know Dutch. Without either, native takes it to be in the user's language.
+    const language = detectLanguage(text) ?? primaryLanguage(markedLanguage);
     /** @type {SelectionType} */
     let shape = 'text';
     if (isCode) {
@@ -135,5 +131,5 @@ export function classify(rawText, { userLanguage, inCodeElement = false, markedL
     } else if (text.length > LONG_TEXT_CHARS) {
         shape = 'long';
     }
-    return { shape, languageTag, differentLanguage: !isCode && languageTag !== userTag, textLength: text.length };
+    return { shape, language };
 }
