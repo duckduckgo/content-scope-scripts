@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "SelectionMovedParams",
-  "description": "The reported selection moved on screen because the page scrolled or the viewport resized. At most once per animation frame, and only between selectionChanged and selectionCleared.",
+  "description": "The reported selection moved on screen because the page scrolled or the viewport resized. At most once per animation frame, and only between a report with a rect (selectionChanged, or contextMenuOpened) and selectionCleared.",
   "type": "object",
   "additionalProperties": false,
   "required": [

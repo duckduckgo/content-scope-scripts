@@ -8,67 +8,21 @@ const DISABLED_CONFIG = './integration-test/test-pages/selection-tools/config/di
 const TOOLBAR_OFF_CONFIG = './integration-test/test-pages/selection-tools/config/toolbar-off.json';
 const ENGLISH = 'The quick brown fox';
 
-const ACTIONS = [
-    {
-        id: 'explain',
-        label: 'Explain',
-        icon: [{ d: 'M2 2h12v12H2z' }, { d: 'M4 4h8v8H4z', fillRule: 'evenodd' }],
-        selectionTypes: ['code', 'text', 'long'],
-    },
-    { id: 'summarize', label: 'Summarize', selectionTypes: ['text', 'long'] },
-    {
-        id: 'translate',
-        label: 'Translate',
-        parameter: {
-            kind: 'language',
-            options: [
-                { value: 'en', label: 'English' },
-                { value: 'es', label: 'Spanish' },
-                { value: 'fr', label: 'French' },
-            ],
-        },
-    },
-    { id: 'define', label: 'Define', selectionTypes: ['word'] },
-    { id: 'fixGrammar', label: 'Fix grammar', editable: true },
-    {
-        id: 'tone',
-        label: 'Change tone',
-        parameter: {
-            kind: 'choice',
-            options: [
-                { value: 'formal', label: 'Formal' },
-                { value: 'casual', label: 'Casual' },
-            ],
-        },
-    },
-    { id: 'rewrite', label: 'Rewrite' },
-];
-
-/**
- * The initialSetup answer.
- * @param {Record<string, unknown>} [overrides]
- */
-function setupResponse(overrides = {}) {
-    return { userLanguage: 'en-US', actions: ACTIONS, ...overrides };
-}
-
 /**
  * A selectionToolsConfigChanged push.
  * @param {Record<string, unknown>} [overrides]
  */
 function selectionToolsConfig(overrides = {}) {
-    return { enabled: true, showToolbar: true, ...setupResponse(), ...overrides };
+    return { enabled: true, showToolbar: true, ...overrides };
 }
 
 /**
  * @param {import('@playwright/test').Page} page
  * @param {import('@playwright/test').TestInfo} testInfo
- * @param {Record<string, unknown>} [overrides]
  * @param {string} [config]
  */
-async function setup(page, testInfo, overrides, config = CONFIG) {
+async function setup(page, testInfo, config = CONFIG) {
     const collector = ResultsCollector.create(page, testInfo.project.use);
-    collector.withMockResponse({ initialSetup: setupResponse(overrides) });
     await collector.load(HTML, config);
     return collector;
 }
@@ -140,24 +94,17 @@ function boxOf(page, selector) {
     });
 }
 
-/**
- * @param {{ actions: { id: string }[] }} params
- */
-function actionIds(params) {
-    return params.actions.map((action) => action.id);
-}
+const anyRect = { left: expect.any(Number), top: expect.any(Number), right: expect.any(Number), bottom: expect.any(Number) };
 
 test.describe('selectionTools', () => {
-    test('sends nothing and asks native nothing until text is selected', async ({ page }, testInfo) => {
+    test('sends nothing until text is selected', async ({ page }, testInfo) => {
         const collector = await setup(page, testInfo);
         await page.locator('#english').click();
         await settle(page);
-        expect(await sent(collector, 'initialSetup')).toEqual([]);
-        expect(await sent(collector, 'selectionChanged')).toEqual([]);
-        expect(await sent(collector, 'selectionCleared')).toEqual([]);
+        expect(await collector.outgoingMessages()).toEqual([]);
     });
 
-    test('reports a selected paragraph with its actions and where it is', async ({ page }, testInfo) => {
+    test('reports a selected paragraph, what kind of text it is and where it is', async ({ page }, testInfo) => {
         const collector = await setup(page, testInfo);
         await selectParagraph(page, '#english');
         const params = await reportedWith(collector, ENGLISH);
@@ -166,18 +113,10 @@ test.describe('selectionTools', () => {
             text: expect.stringContaining(ENGLISH),
             editable: false,
             selectionType: 'text',
-            // The page is marked as English.
-            sourceLanguage: 'en',
-            actions: [
-                { id: 'explain' },
-                { id: 'summarize' },
-                { id: 'translate', options: ['es', 'fr'] },
-                { id: 'tone', options: ['formal', 'casual'] },
-                { id: 'rewrite' },
-            ],
-            rect: { left: expect.any(Number), top: expect.any(Number), right: expect.any(Number), bottom: expect.any(Number) },
+            // Detected from its words; the page is marked as English too.
+            language: 'en',
+            rect: anyRect,
             devicePixelRatio: await page.evaluate(() => window.devicePixelRatio),
-            maxVisibleActions: 5,
         });
         // The text's own boxes, which sit a little inside the paragraph's line boxes.
         const paragraph = await boxOf(page, '#english');
@@ -188,26 +127,12 @@ test.describe('selectionTools', () => {
         expect(params.rect.right).toBeLessThanOrEqual(paragraph.right);
         expect(params.rect.bottom).toBeGreaterThan(params.rect.top);
         expect(params.rect.bottom).toBeLessThanOrEqual(paragraph.bottom);
-        expect(await sent(collector, 'initialSetup')).toHaveLength(1);
     });
 
-    test('translates foreign text into the user language straight away', async ({ page }, testInfo) => {
+    test('reports the language of foreign text', async ({ page }, testInfo) => {
         const collector = await setup(page, testInfo);
         await selectParagraph(page, '#spanish');
-        const params = await reportedWith(collector, 'El perro');
-
-        expect(params).toMatchObject({
-            selectionType: 'text',
-            sourceLanguage: 'es',
-            // Translation leads for foreign text.
-            actions: [
-                { id: 'translate', parameter: 'en' },
-                { id: 'explain' },
-                { id: 'summarize' },
-                { id: 'tone', options: ['formal', 'casual'] },
-                { id: 'rewrite' },
-            ],
-        });
+        expect(await reportedWith(collector, 'El perro')).toMatchObject({ selectionType: 'text', language: 'es' });
     });
 
     test('reports a text field selected with Ctrl+A as editable, measured without leaving anything in the page', async ({
@@ -220,7 +145,6 @@ test.describe('selectionTools', () => {
 
         const [params] = await sent(collector, 'selectionChanged');
         expect(params).toMatchObject({ text: 'This sentence have a grammar mistake in it.', editable: true, selectionType: 'text' });
-        expect(params.actions).toContainEqual({ id: 'fixGrammar' });
         const field = await boxOf(page, '#field');
         expect(params.rect.left).toBeGreaterThanOrEqual(field.left);
         expect(params.rect.top).toBeGreaterThanOrEqual(field.top);
@@ -231,7 +155,7 @@ test.describe('selectionTools', () => {
         await expect(page.locator('ddg-selection-tools')).toHaveCount(0);
     });
 
-    test('reports editing actions for select-all in an editable region', async ({ page }, testInfo) => {
+    test('reports select-all in an editable region as editable', async ({ page }, testInfo) => {
         const collector = await setup(page, testInfo);
         await page.evaluate(() => {
             const editable = document.createElement('div');
@@ -243,29 +167,16 @@ test.describe('selectionTools', () => {
         await page.locator('#editable').focus();
         await page.keyboard.press('Control+A');
         await expect.poll(() => sent(collector, 'selectionChanged')).toHaveLength(1);
-        const [params] = await sent(collector, 'selectionChanged');
-        expect(params).toMatchObject({ editable: true });
-        expect(params.actions).toContainEqual({ id: 'fixGrammar' });
+        expect((await sent(collector, 'selectionChanged'))[0]).toMatchObject({ editable: true });
     });
 
-    test('fits actions to the selection', async ({ page }, testInfo) => {
+    test('classifies words and code', async ({ page }, testInfo) => {
         const collector = await setup(page, testInfo);
         await page.locator('#word').dblclick();
-        expect(await reportedWith(collector, 'serendipity')).toMatchObject({
-            selectionType: 'word',
-            actions: [
-                { id: 'translate', options: ['es', 'fr'] },
-                { id: 'define' },
-                { id: 'tone', options: ['formal', 'casual'] },
-                { id: 'rewrite' },
-            ],
-        });
+        expect((await reportedWith(collector, 'serendipity')).selectionType).toBe('word');
 
         await selectParagraph(page, '#code');
-        const code = await reportedWith(collector, 'const answer');
-        expect(code.selectionType).toBe('code');
-        expect(actionIds(code)).toContain('explain');
-        expect(actionIds(code)).not.toContain('summarize');
+        expect((await reportedWith(collector, 'const answer')).selectionType).toBe('code');
     });
 
     test('leaves text the user cannot see out of the report', async ({ page }, testInfo) => {
@@ -331,15 +242,7 @@ test.describe('selectionTools', () => {
             paragraph.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, button: 2 }));
         });
         await settle(page);
-        expect(await sent(collector, 'initialSetup')).toEqual([]);
-        expect(await sent(collector, 'selectionChanged')).toEqual([]);
-        expect(await sent(collector, 'contextMenuOpened')).toEqual([]);
-    });
-
-    test('reports even when no action fits', async ({ page }, testInfo) => {
-        const collector = await setup(page, testInfo, { actions: ACTIONS.filter((action) => action.id === 'define') });
-        await selectParagraph(page, '#english');
-        expect((await reportedWith(collector, ENGLISH)).actions).toEqual([]);
+        expect(await collector.outgoingMessages()).toEqual([]);
     });
 
     test('reports the same selection again, for native to drop', async ({ page }, testInfo) => {
@@ -358,14 +261,20 @@ test.describe('selectionTools', () => {
         await page.locator('#password').focus();
         await page.keyboard.press('Control+A');
         await settle(page);
-        expect(await sent(collector, 'initialSetup')).toEqual([]);
+        expect(await collector.outgoingMessages()).toEqual([]);
 
         await page.locator('#open-dialog').click();
         await selectParagraph(page, '#in-dialog');
         await expect(page.locator('#dialog')).toBeVisible();
-        await expect.poll(() => sent(collector, 'initialSetup')).toHaveLength(1);
         await settle(page);
         expect(await sent(collector, 'selectionChanged')).toEqual([]);
+
+        // The menu still gets its report, but without a rect: no toolbar behind the dialog.
+        await page.locator('#in-dialog').click({ button: 'right' });
+        await expect.poll(() => sent(collector, 'contextMenuOpened')).toHaveLength(1);
+        const menu = await lastSent(collector, 'contextMenuOpened');
+        expect(menu.text).toContain('Text inside a modal dialog');
+        expect(menu.rect).toBeUndefined();
     });
 
     test('clears the report for page-wide select-all and for clicking away, but only after a report', async ({ page }, testInfo) => {
@@ -434,10 +343,11 @@ test.describe('selectionTools', () => {
         expect(await sent(collector, 'selectionMoved')).toHaveLength(moves);
     });
 
-    test('reports the fitting actions when the context menu opens', async ({ page }, testInfo) => {
+    test('reports the selection once when the context menu opens', async ({ page }, testInfo) => {
         const collector = await setup(page, testInfo);
         await selectParagraph(page, '#spanish');
         await reportedWith(collector, 'El perro');
+        const reports = (await sent(collector, 'selectionChanged')).length;
         const clears = (await sent(collector, 'selectionCleared')).length;
         await page.locator('#spanish').click({ button: 'right' });
         await expect.poll(() => sent(collector, 'contextMenuOpened')).toHaveLength(1);
@@ -446,62 +356,44 @@ test.describe('selectionTools', () => {
         expect(params).toEqual({
             text: expect.stringContaining('El perro'),
             selectedTextKey: selectedTextKey(params.text),
-            sourceLanguage: 'es',
-            selectionType: 'text',
             editable: false,
-            actions: [
-                { id: 'translate', parameter: 'en' },
-                { id: 'explain' },
-                { id: 'summarize' },
-                { id: 'tone', options: ['formal', 'casual'] },
-                { id: 'rewrite' },
-            ],
+            selectionType: 'text',
+            language: 'es',
+            // For the toolbar native shows, collapsed, once the menu closes.
+            rect: anyRect,
+            devicePixelRatio: await page.evaluate(() => window.devicePixelRatio),
         });
-        // Native hides its own toolbar for the menu, so the right-click leaves the report alone, and reports the menu's
-        // selection for the chip native shows once the menu closes.
+        // Native hides its own toolbar for the menu, so the right-click leaves the report in place and sends no other.
         await settle(page);
         expect(await sent(collector, 'selectionCleared')).toHaveLength(clears);
-        const forMenu = (await sent(collector, 'selectionChanged')).filter((report) => report.contextMenu);
-        expect(forMenu).toEqual([expect.objectContaining({ text: expect.stringContaining('El perro'), contextMenu: true })]);
+        expect(await sent(collector, 'selectionChanged')).toHaveLength(reports);
     });
 
-    test('reports an empty context menu after an earlier report, and nothing before one', async ({ page }, testInfo) => {
+    test('reports a context menu with no selection as empty', async ({ page }, testInfo) => {
         const collector = await setup(page, testInfo);
         await page.locator('body').click({ button: 'right', position: { x: 5, y: 5 } });
-        expect(await sent(collector, 'contextMenuOpened')).toEqual([]);
-        expect(await sent(collector, 'initialSetup')).toEqual([]);
-
-        await selectParagraph(page, '#english');
-        await page.locator('#english').click({ button: 'right' });
-        await expect.poll(() => sent(collector, 'contextMenuOpened')).toHaveLength(1);
-        await page.mouse.click(5, 5);
-        await page.locator('body').click({ button: 'right', position: { x: 5, y: 5 } });
-        const reports = await sent(collector, 'contextMenuOpened');
-        expect(reports).toHaveLength(2);
-        expect(reports[1]).toEqual({ text: '', actions: [] });
+        await expect.poll(() => sent(collector, 'contextMenuOpened')).toEqual([{ text: '' }]);
     });
 
-    test('sends no selections with the toolbar turned off, but still reports the context menu', async ({ page }, testInfo) => {
-        const collector = await setup(page, testInfo, {}, TOOLBAR_OFF_CONFIG);
+    test('reports the context menu without a rect while the toolbar is off, and no selections', async ({ page }, testInfo) => {
+        const collector = await setup(page, testInfo, TOOLBAR_OFF_CONFIG);
         await selectParagraph(page, '#english');
         await page.locator('#english').click({ button: 'right' });
         await expect.poll(() => sent(collector, 'contextMenuOpened')).toHaveLength(1);
         const [params] = await sent(collector, 'contextMenuOpened');
-        expect(actionIds(params)).toEqual(['explain', 'summarize', 'translate', 'tone', 'rewrite']);
+        expect(params).toMatchObject({ text: expect.stringContaining(ENGLISH), selectionType: 'text' });
+        expect(params.rect).toBeUndefined();
         await settle(page);
         expect(await sent(collector, 'selectionChanged')).toEqual([]);
+        expect(await sent(collector, 'selectionCleared')).toEqual([]);
     });
 
     test('a top-level remote config entry still acts as a kill switch', async ({ page }, testInfo) => {
-        const collector = ResultsCollector.create(page, testInfo.project.use);
-        collector.withMockResponse({ initialSetup: setupResponse() });
-        await collector.load(HTML, DISABLED_CONFIG);
+        const collector = await setup(page, testInfo, DISABLED_CONFIG);
         await selectParagraph(page, '#english');
         await page.locator('#english').click({ button: 'right' });
         await settle(page);
-        expect(await sent(collector, 'initialSetup')).toEqual([]);
-        expect(await sent(collector, 'selectionChanged')).toEqual([]);
-        expect(await sent(collector, 'contextMenuOpened')).toEqual([]);
+        expect(await collector.outgoingMessages()).toEqual([]);
     });
 
     test('stops reporting, context menus included, when native turns the tools off', async ({ page }, testInfo) => {
@@ -524,7 +416,7 @@ test.describe('selectionTools', () => {
     });
 
     test('turns the toolbar on for an open page that loaded with it off', async ({ page }, testInfo) => {
-        const collector = await setup(page, testInfo, {}, TOOLBAR_OFF_CONFIG);
+        const collector = await setup(page, testInfo, TOOLBAR_OFF_CONFIG);
         await collector.simulateSubscriptionMessage('selectionTools', 'selectionToolsConfigChanged', selectionToolsConfig());
         await selectParagraph(page, '#english');
         await reportedWith(collector, ENGLISH);
@@ -551,21 +443,8 @@ test.describe('selectionTools', () => {
         await settle(page);
         expect(await sent(collector, 'selectionChanged')).toHaveLength(1);
 
-        const fewerActions = ACTIONS.filter((action) => action.id !== 'explain');
-        await collector.simulateSubscriptionMessage(
-            'selectionTools',
-            'selectionToolsConfigChanged',
-            selectionToolsConfig({ actions: fewerActions }),
-        );
+        await collector.simulateSubscriptionMessage('selectionTools', 'selectionToolsConfigChanged', selectionToolsConfig());
         await page.keyboard.press('Control+A');
         await expect.poll(() => sent(collector, 'selectionChanged')).toHaveLength(2);
-        expect(actionIds(await lastSent(collector, 'selectionChanged'))).toEqual([
-            'summarize',
-            'translate',
-            'fixGrammar',
-            'tone',
-            'rewrite',
-        ]);
-        expect(await sent(collector, 'initialSetup')).toHaveLength(1);
     });
 });
