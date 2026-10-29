@@ -129,6 +129,13 @@ export class AssistOverlay {
         await wait(durationMs);
     }
 
+    /**
+     * @param {string} label
+     */
+    setCursorLabel(label) {
+        if (this.els) this.els.cursorLabel.textContent = label;
+    }
+
     hideCursor() {
         this.els?.cursor.classList.add('hidden');
         this.cursorTarget = null;

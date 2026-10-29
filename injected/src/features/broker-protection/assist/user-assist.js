@@ -88,8 +88,10 @@ export class UserAssist {
                 for (const field of fields) await this.retype(field, fieldMs);
             }
         }
+        // The cursor stays where the action left it so the next action glides on from there; native
+        // waits a couple of seconds between actions, and hiding it would leave the page bare most of the time.
         this.overlay.highlightField(null);
-        this.overlay.hideCursor();
+        this.overlay.setCursorLabel('Moving');
     }
 
     /**
