@@ -1,5 +1,6 @@
 import { classify, detectLanguage, looksLikeCode, primaryLanguage } from '../src/features/selection-tools/classify.js';
 import { contextMenuActions, directParameter, fits, optionsFor, rankActions } from '../src/features/selection-tools/actions.js';
+import { selectedTextKey } from '../src/features/selection-tools/text-key.js';
 
 /**
  * @typedef {import('../src/types/selection-tools.js').SelectionAction} SelectionAction
@@ -217,5 +218,24 @@ describe('selectionTools actions', () => {
             { id: 'explain' },
             { id: 'tone', options: ['formal', 'casual'] },
         ]);
+    });
+});
+
+describe('selectionTools selectedTextKey', () => {
+    it('is the 32-bit FNV-1a hash as 8 hex digits', () => {
+        // Published FNV-1a test vectors; ASCII code units hash the same as bytes.
+        expect(selectedTextKey('')).toBe('811c9dc5');
+        expect(selectedTextKey('a')).toBe('e40c292c');
+        expect(selectedTextKey('foobar')).toBe('bf9cf968');
+    });
+
+    it('ignores how the whitespace is laid out', () => {
+        expect(selectedTextKey('  The quick\n\tbrown\u00a0 fox ')).toBe(selectedTextKey('The quick brown fox'));
+        expect(selectedTextKey('The quick brown fox')).not.toBe(selectedTextKey('The quick brown fax'));
+    });
+
+    it('hashes UTF-16 code units', () => {
+        // "é" is the one code unit 0xe9, not its two UTF-8 bytes.
+        expect(selectedTextKey('\u00e9')).toBe('6c0b6c44');
     });
 });

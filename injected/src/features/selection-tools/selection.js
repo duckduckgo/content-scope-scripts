@@ -8,7 +8,8 @@
  * @property {number} bottom
  *
  * @typedef {object} SelectionSnapshot
- * @property {string} text
+ * @property {string} text What the user can see of the selection
+ * @property {string} browserText The selection as the browser reports it, hidden text included
  * @property {boolean} editable
  * @property {Element | null} element The field or editing host, or else the element the selection starts in
  * @property {() => Rect} bounds Viewport rect of the selected text in CSS pixels, measured now
@@ -17,6 +18,10 @@
 // Captured before page script runs, so a page can't patch it to reach into the closed shadow root.
 const attachShadow = Element.prototype.attachShadow;
 const HOST_TAG = 'ddg-selection-tools';
+
+/** Smaller text, or text this faint, is taken as hidden. */
+const MIN_READABLE_FONT_PX = 4;
+const MIN_VISIBLE_ALPHA = 0.1;
 
 /** Password fields are excluded on purpose: their contents must never be offered anywhere. */
 const TEXT_INPUT_TYPES = ['text', 'search', 'email', 'url', ''];
@@ -173,6 +178,85 @@ function measureInMirror(field, start, end, scratch) {
 }
 
 /**
+ * Alpha of a computed colour, such as "rgba(0, 0, 0, 0)" or "oklch(0.5 0.1 200 / 0.5)"; 1 when it has none.
+ * @param {string} color
+ */
+function alphaOf(color) {
+    const match = /^rgba\(.*,\s*([\d.]+)\)$/.exec(color) ?? /\/\s*([\d.]+)(%?)\s*\)$/.exec(color);
+    if (!match) return 1;
+    return parseFloat(match[1]) / (match[2] ? 100 : 1);
+}
+
+/**
+ * Whether text drawn in an element can't be seen: transparent, too small to read, or clipped to a pixel, the ways a page
+ * hides instructions inside a selection so they reach Duck.ai unseen. Text in the same colour as its background still
+ * passes.
+ * @param {Element} element
+ * @param {Map<Element, boolean>} seen
+ * @returns {boolean}
+ */
+function isHidden(element, seen) {
+    const known = seen.get(element);
+    if (known !== undefined) return known;
+    let hidden = false;
+    if (element.checkVisibility?.({ opacityProperty: true, visibilityProperty: true }) === false) {
+        hidden = true;
+    } else {
+        const style = getComputedStyle(element);
+        // Gradient text is drawn through a transparent colour.
+        const clippedToText = style.backgroundClip === 'text' || style.getPropertyValue('-webkit-background-clip') === 'text';
+        // An element shrunk to a pixel with its overflow cut off, as screen-reader-only text is. The root elements and
+        // display: contents have no box of their own to go by.
+        const hasOwnBox = element !== document.documentElement && element !== document.body && style.display !== 'contents';
+        const box = element.getBoundingClientRect();
+        hidden =
+            parseFloat(style.fontSize) < MIN_READABLE_FONT_PX ||
+            (alphaOf(style.color) < MIN_VISIBLE_ALPHA && !clippedToText) ||
+            parseFloat(style.opacity) < MIN_VISIBLE_ALPHA ||
+            (hasOwnBox && (box.width <= 1 || box.height <= 1) && style.overflow !== 'visible') ||
+            (element.parentElement !== null && isHidden(element.parentElement, seen));
+    }
+    seen.set(element, hidden);
+    return hidden;
+}
+
+/**
+ * The selected text without the parts the user can't see. Text between hidden parts is read range by range, so the line
+ * breaks the browser puts between blocks are kept.
+ * @param {Range} range
+ */
+function visibleText(range) {
+    const root = range.commonAncestorContainer;
+    /** @type {Map<Element, boolean>} */
+    const seen = new Map();
+    if (root instanceof Text) return root.parentElement && isHidden(root.parentElement, seen) ? '' : range.toString();
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    /** @type {string[]} */
+    const parts = [];
+    let part = range.cloneRange();
+    let open = true;
+    let skipped = false;
+    for (let node = /** @type {Text | null} */ (walker.nextNode()); node; node = /** @type {Text | null} */ (walker.nextNode())) {
+        if (!range.intersectsNode(node) || !node.data.trim() || !node.parentElement) continue;
+        if (isHidden(node.parentElement, seen)) {
+            if (open) {
+                part.setEndBefore(node);
+                parts.push(part.toString());
+                open = false;
+            }
+            skipped = true;
+        } else if (!open) {
+            part = range.cloneRange();
+            if (node !== range.startContainer) part.setStartBefore(node);
+            open = true;
+        }
+    }
+    if (!skipped) return range.toString();
+    if (open) parts.push(part.toString());
+    return parts.join('');
+}
+
+/**
  * @param {number} minChars
  * @returns {SelectionSnapshot | null}
  */
@@ -183,22 +267,23 @@ export function readSelection(minChars) {
         if (start === null || end === null) return null;
         const text = active.value.slice(start, end);
         if (text.trim().length < minChars) return null;
-        return { text, editable: true, element: active, bounds: () => fieldSelectionBounds(active, start, end) };
+        return { text, browserText: text, editable: true, element: active, bounds: () => fieldSelectionBounds(active, start, end) };
     }
     // Any other focused field (a password, a read-only input) has a selection we leave alone.
     if (active instanceof HTMLInputElement || active instanceof HTMLTextAreaElement) return null;
 
     const selection = window.getSelection();
     if (!selection || selection.isCollapsed || selection.rangeCount === 0) return null;
-    const text = selection.toString();
-    if (text.trim().length < minChars) return null;
     const range = selection.getRangeAt(0).cloneRange();
+    const text = visibleText(range);
+    if (text.trim().length < minChars) return null;
     const host = editingHostOf(elementOf(range.commonAncestorContainer));
     // Where the selection starts, rather than the common ancestor: a triple-clicked paragraph's range ends at the start
     // of the next block, so its common ancestor is the parent and would lose the paragraph's lang or code marking.
     const element = host ?? elementOf(range.startContainer);
     return {
         text,
+        browserText: selection.toString(),
         editable: host !== null,
         element,
         bounds: () => {

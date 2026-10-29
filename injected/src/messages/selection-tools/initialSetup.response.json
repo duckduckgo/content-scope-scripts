@@ -1,4 +1,23 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "allOf": [{ "$ref": "selectionToolsConfig.shared.json" }]
+  "title": "SelectionToolsSetup",
+  "description": "The user's language and the actions, asked for on the first selection. Whether the tools are on and whether the toolbar shows aren't here: they come with the feature's config, and later changes with selectionToolsConfigChanged.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "actions"
+  ],
+  "properties": {
+    "userLanguage": {
+      "type": "string",
+      "description": "The user's language as a BCP 47 tag, e.g. \"fr-FR\". Text in another language counts as foreign. English when absent."
+    },
+    "actions": {
+      "type": "array",
+      "description": "Actions in the order they should appear. \"Ask\" is built in and must not be listed.",
+      "items": {
+        "$ref": "selectionToolsConfig.shared.json#/definitions/selectionAction"
+      }
+    }
+  }
 }

@@ -1,9 +1,11 @@
 import { test, expect } from '@playwright/test';
 import { ResultsCollector } from './page-objects/results-collector.js';
+import { selectedTextKey } from '../src/features/selection-tools/text-key.js';
 
 const HTML = '/selection-tools/pages/index.html';
 const CONFIG = './integration-test/test-pages/selection-tools/config/config.json';
 const DISABLED_CONFIG = './integration-test/test-pages/selection-tools/config/disabled.json';
+const TOOLBAR_OFF_CONFIG = './integration-test/test-pages/selection-tools/config/toolbar-off.json';
 const ENGLISH = 'The quick brown fox';
 
 const ACTIONS = [
@@ -43,21 +45,31 @@ const ACTIONS = [
 ];
 
 /**
+ * The initialSetup answer.
+ * @param {Record<string, unknown>} [overrides]
+ */
+function setupResponse(overrides = {}) {
+    return { userLanguage: 'en-US', actions: ACTIONS, ...overrides };
+}
+
+/**
+ * A selectionToolsConfigChanged push.
  * @param {Record<string, unknown>} [overrides]
  */
 function selectionToolsConfig(overrides = {}) {
-    return { enabled: true, showToolbar: true, userLanguage: 'en-US', actions: ACTIONS, ...overrides };
+    return { enabled: true, showToolbar: true, ...setupResponse(), ...overrides };
 }
 
 /**
  * @param {import('@playwright/test').Page} page
  * @param {import('@playwright/test').TestInfo} testInfo
  * @param {Record<string, unknown>} [overrides]
+ * @param {string} [config]
  */
-async function setup(page, testInfo, overrides) {
+async function setup(page, testInfo, overrides, config = CONFIG) {
     const collector = ResultsCollector.create(page, testInfo.project.use);
-    collector.withMockResponse({ initialSetup: selectionToolsConfig(overrides) });
-    await collector.load(HTML, CONFIG);
+    collector.withMockResponse({ initialSetup: setupResponse(overrides) });
+    await collector.load(HTML, config);
     return collector;
 }
 
@@ -256,6 +268,42 @@ test.describe('selectionTools', () => {
         expect(actionIds(code)).not.toContain('summarize');
     });
 
+    test('leaves text the user cannot see out of the report', async ({ page }, testInfo) => {
+        const collector = await setup(page, testInfo);
+        // A triple-click stops at the clipped text, which is positioned out of the line, so select the whole paragraph
+        // and let a real key press report it.
+        await page.evaluate(() =>
+            window.getSelection()?.selectAllChildren(/** @type {Element} */ (document.getElementById('hidden-text'))),
+        );
+        await page.keyboard.press('Shift');
+        const { text } = await reportedWith(collector, 'Seen first');
+        expect(text.replace(/\s+/g, ' ').trim()).toBe('Seen first then and last. Gradient words stay.');
+
+        // Native pairs the menu report with its own event by the browser's text, hidden parts included.
+        const browserText = await page.evaluate(() => window.getSelection()?.toString() ?? '');
+        expect(browserText).toContain('secret');
+        await page.locator('#hidden-text').click({ button: 'right' });
+        await expect.poll(() => sent(collector, 'contextMenuOpened')).toHaveLength(1);
+        const menu = await lastSent(collector, 'contextMenuOpened');
+        expect(menu.text).not.toContain('secret');
+        expect(menu.selectedTextKey).toBe(selectedTextKey(browserText));
+    });
+
+    test('ignores selections and context menus fired from page script', async ({ page }, testInfo) => {
+        const collector = await setup(page, testInfo);
+        await page.evaluate(() => {
+            const paragraph = /** @type {Element} */ (document.getElementById('english'));
+            window.getSelection()?.selectAllChildren(paragraph);
+            paragraph.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, button: 0 }));
+            paragraph.dispatchEvent(new KeyboardEvent('keyup', { bubbles: true, key: 'Shift', shiftKey: true }));
+            paragraph.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, button: 2 }));
+        });
+        await settle(page);
+        expect(await sent(collector, 'initialSetup')).toEqual([]);
+        expect(await sent(collector, 'selectionChanged')).toEqual([]);
+        expect(await sent(collector, 'contextMenuOpened')).toEqual([]);
+    });
+
     test('reports even when no action fits', async ({ page }, testInfo) => {
         const collector = await setup(page, testInfo, { actions: ACTIONS.filter((action) => action.id === 'define') });
         await selectParagraph(page, '#english');
@@ -365,6 +413,7 @@ test.describe('selectionTools', () => {
         const [params] = await sent(collector, 'contextMenuOpened');
         expect(params).toEqual({
             text: expect.stringContaining('El perro'),
+            selectedTextKey: selectedTextKey(params.text),
             sourceLanguage: 'es',
             selectionType: 'text',
             editable: false,
@@ -401,7 +450,7 @@ test.describe('selectionTools', () => {
     });
 
     test('sends no selections with the toolbar turned off, but still reports the context menu', async ({ page }, testInfo) => {
-        const collector = await setup(page, testInfo, { showToolbar: false });
+        const collector = await setup(page, testInfo, {}, TOOLBAR_OFF_CONFIG);
         await selectParagraph(page, '#english');
         await page.locator('#english').click({ button: 'right' });
         await expect.poll(() => sent(collector, 'contextMenuOpened')).toHaveLength(1);
@@ -413,7 +462,7 @@ test.describe('selectionTools', () => {
 
     test('a top-level remote config entry still acts as a kill switch', async ({ page }, testInfo) => {
         const collector = ResultsCollector.create(page, testInfo.project.use);
-        collector.withMockResponse({ initialSetup: selectionToolsConfig() });
+        collector.withMockResponse({ initialSetup: setupResponse() });
         await collector.load(HTML, DISABLED_CONFIG);
         await selectParagraph(page, '#english');
         await page.locator('#english').click({ button: 'right' });
@@ -423,14 +472,30 @@ test.describe('selectionTools', () => {
         expect(await sent(collector, 'contextMenuOpened')).toEqual([]);
     });
 
-    test('does nothing while disabled', async ({ page }, testInfo) => {
-        const collector = await setup(page, testInfo, { enabled: false, showToolbar: false, userLanguage: undefined, actions: [] });
+    test('stops reporting, context menus included, when native turns the tools off', async ({ page }, testInfo) => {
+        const collector = await setup(page, testInfo);
         await selectParagraph(page, '#english');
-        await page.locator('#english').click({ button: 'right' });
-        await expect.poll(() => sent(collector, 'initialSetup')).toHaveLength(1);
+        await reportedWith(collector, ENGLISH);
+        const reports = (await sent(collector, 'selectionChanged')).length;
+
+        await collector.simulateSubscriptionMessage(
+            'selectionTools',
+            'selectionToolsConfigChanged',
+            selectionToolsConfig({ enabled: false }),
+        );
+        await expect.poll(() => sent(collector, 'selectionCleared')).toEqual([{}]);
+        await selectParagraph(page, '#spanish');
+        await page.locator('#spanish').click({ button: 'right' });
         await settle(page);
-        expect(await sent(collector, 'selectionChanged')).toEqual([]);
+        expect(await sent(collector, 'selectionChanged')).toHaveLength(reports);
         expect(await sent(collector, 'contextMenuOpened')).toEqual([]);
+    });
+
+    test('turns the toolbar on for an open page that loaded with it off', async ({ page }, testInfo) => {
+        const collector = await setup(page, testInfo, {}, TOOLBAR_OFF_CONFIG);
+        await collector.simulateSubscriptionMessage('selectionTools', 'selectionToolsConfigChanged', selectionToolsConfig());
+        await selectParagraph(page, '#english');
+        await reportedWith(collector, ENGLISH);
     });
 
     test('follows config pushed by native', async ({ page }, testInfo) => {

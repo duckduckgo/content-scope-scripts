@@ -11,7 +11,11 @@
   "properties": {
     "text": {
       "type": "string",
-      "description": "The selected text."
+      "description": "The selected text, without text the user can't see."
+    },
+    "selectedTextKey": {
+      "type": "string",
+      "description": "Pairs this report with the browser's own context menu event. The 32-bit FNV-1a hash, as 8 lowercase hex digits, of the selection as the browser reports it, hidden text included, over its UTF-16 code units after collapsing each run of ECMAScript whitespace (\\s) to one space and trimming. Absent without a selection."
     },
     "sourceLanguage": {
       "type": "string",
