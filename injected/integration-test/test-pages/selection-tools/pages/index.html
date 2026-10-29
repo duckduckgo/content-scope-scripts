@@ -39,6 +39,7 @@
             <p id="in-contents">A wrapper with no box of its own keeps this paragraph on the page.</p>
         </div>
         <pre id="code">const answer = () => { return 42; };</pre>
+        <code-sample id="shadow-code"></code-sample>
         <textarea id="field">This sentence have a grammar mistake in it.</textarea>
         <input id="password" type="password" value="hunter2hunter2" />
         <button id="open-dialog" type="button">Open dialog</button>
@@ -47,6 +48,17 @@
         </dialog>
         <script>
             document.getElementById('open-dialog').addEventListener('click', () => document.getElementById('dialog').showModal());
+            // A code block drawn in an open shadow root, as documentation sites do.
+            customElements.define(
+                'code-sample',
+                class extends HTMLElement {
+                    constructor() {
+                        super();
+                        this.attachShadow({ mode: 'open' }).innerHTML =
+                            '<pre><code id="shadow-code-text">const shadow = () => { return 7; };</code></pre>';
+                    }
+                },
+            );
         </script>
     </body>
 </html>

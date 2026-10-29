@@ -216,8 +216,9 @@ function isHidden(element, seen) {
             parseFloat(style.fontSize) < MIN_READABLE_FONT_PX ||
             (alphaOf(style.color) < MIN_VISIBLE_ALPHA && !clippedToText) ||
             parseFloat(style.opacity) < MIN_VISIBLE_ALPHA ||
-            (hasOwnBox && (box.width <= 1 || box.height <= 1) && style.overflow !== 'visible') ||
-            (element.parentElement !== null && isHidden(element.parentElement, seen));
+            (hasOwnBox && (box.width <= 1 || box.height <= 1) && style.overflow !== 'visible');
+        const parent = element.parentElement ?? hostOf(element);
+        hidden ||= parent !== null && isHidden(parent, seen);
     }
     seen.set(element, hidden);
     return hidden;
@@ -260,6 +261,87 @@ function visibleText(range) {
 }
 
 /**
+ * The shadow host of a node in a shadow root, or null.
+ * @param {Node} node
+ * @returns {Element | null}
+ */
+function hostOf(node) {
+    const root = node.getRootNode();
+    return root instanceof ShadowRoot ? root.host : null;
+}
+
+/**
+ * The nearest element matching a selector, looking out through shadow roots to their hosts.
+ * @param {Element | null} element
+ * @param {string} selector
+ * @returns {Element | null}
+ */
+function closestComposed(element, selector) {
+    let current = element;
+    while (current) {
+        const match = current.closest(selector);
+        if (match) return match;
+        current = hostOf(current);
+    }
+    return null;
+}
+
+/**
+ * The range inside the given open shadow roots. Chromium keeps a selection per shadow root, scoped to it. The standard
+ * getComposedRanges is the fallback: it can end outside the root, as a triple-click's does, where its live copy loses
+ * the shadow text.
+ * @param {Selection} selection
+ * @param {ShadowRoot[]} roots
+ * @returns {Range | null}
+ */
+function rangeWithin(selection, roots) {
+    const root = /** @type {{ getSelection?: () => Selection | null }} */ (/** @type {unknown} */ (roots[roots.length - 1]));
+    const scoped = root.getSelection?.();
+    if (scoped && scoped.rangeCount > 0) return scoped.getRangeAt(0);
+    const composable = /** @type {{ getComposedRanges?: (options: { shadowRoots: ShadowRoot[] }) => StaticRange[] }} */ (
+        /** @type {unknown} */ (selection)
+    );
+    try {
+        const [composed] = composable.getComposedRanges?.({ shadowRoots: roots }) ?? [];
+        if (composed) {
+            const range = document.createRange();
+            range.setStart(composed.startContainer, composed.startOffset);
+            range.setEnd(composed.endContainer, composed.endOffset);
+            return range;
+        }
+    } catch {
+        // Engines that take the roots as arguments, or have neither, report nothing for the shadow root.
+    }
+    return null;
+}
+
+/**
+ * The selected range, including one inside open shadow roots, or null when nothing is selected. A selection inside a
+ * shadow root shows in the document as a collapsed range at its host, though the selection's type is still "Range".
+ * @param {Selection} selection
+ * @returns {Range | null}
+ */
+function selectedRange(selection) {
+    if (selection.rangeCount === 0) return null;
+    let range = selection.getRangeAt(0);
+    /** @type {ShadowRoot[]} */
+    const roots = [];
+    while (range.collapsed && selection.type === 'Range') {
+        const { startContainer, startOffset } = range;
+        const host = [startContainer.childNodes[startOffset], startContainer.childNodes[startOffset - 1]].find(
+            (node) => node instanceof Element && node.shadowRoot,
+        );
+        const root = host instanceof Element ? host.shadowRoot : null;
+        if (!root || roots.includes(root)) return null;
+        roots.push(root);
+        const inner = rangeWithin(selection, roots);
+        if (!inner) return null;
+        range = inner;
+    }
+    return range.collapsed ? null : range;
+}
+
+/**
  * @param {number} minChars
  * @returns {SelectionSnapshot | null}
  */
@@ -276,8 +358,9 @@ export function readSelection(minChars) {
     if (active instanceof HTMLInputElement || active instanceof HTMLTextAreaElement) return null;
 
     const selection = window.getSelection();
-    if (!selection || selection.isCollapsed || selection.rangeCount === 0) return null;
-    const range = selection.getRangeAt(0).cloneRange();
+    const selected = selection && selectedRange(selection);
+    if (!selection || !selected) return null;
+    const range = selected.cloneRange();
     const text = visibleText(range);
     if (text.trim().length < minChars) return null;
     const host = editingHostOf(elementOf(range.commonAncestorContainer));
@@ -302,7 +385,8 @@ export function readSelection(minChars) {
 export function isSelectionCollapsed() {
     const active = deepActiveElement();
     if (isTextField(active)) return active.selectionStart === active.selectionEnd;
-    return window.getSelection()?.isCollapsed ?? true;
+    const selection = window.getSelection();
+    return !selection || selectedRange(selection) === null;
 }
 
 /**
@@ -317,7 +401,7 @@ export function isEditingFocused() {
  * @param {Element | null} element
  */
 export function isInCode(element) {
-    return element?.closest('pre, code, kbd, samp') != null;
+    return closestComposed(element, 'pre, code, kbd, samp') !== null;
 }
 
 /**
@@ -326,7 +410,7 @@ export function isInCode(element) {
  * @returns {string | null}
  */
 export function markedLanguageOf(element) {
-    const marked = element?.closest('[lang]');
+    const marked = closestComposed(element, '[lang]');
     const tag = (marked instanceof HTMLElement ? marked.lang : '') || document.documentElement.lang;
     if (!tag) return null;
     try {
@@ -344,7 +428,7 @@ export function markedLanguageOf(element) {
 export function isInTopLayer(element) {
     if (!element) return false;
     try {
-        const layer = element.closest(':modal, :popover-open, :fullscreen');
+        const layer = closestComposed(element, ':modal, :popover-open, :fullscreen');
         return layer !== null && layer !== document.documentElement;
     } catch {
         // Engines without one of these selectors throw; treat the selection as on the page.
