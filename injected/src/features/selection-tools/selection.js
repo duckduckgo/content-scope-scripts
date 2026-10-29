@@ -200,10 +200,12 @@ function isHidden(element, seen) {
     const known = seen.get(element);
     if (known !== undefined) return known;
     let hidden = false;
-    if (element.checkVisibility?.({ opacityProperty: true, visibilityProperty: true }) === false) {
+    const style = getComputedStyle(element);
+    // checkVisibility counts display: contents as hidden for want of a box, though what's in it shows. Some sites wrap
+    // their whole article in one.
+    if (style.display !== 'contents' && element.checkVisibility?.({ opacityProperty: true, visibilityProperty: true }) === false) {
         hidden = true;
     } else {
-        const style = getComputedStyle(element);
         // Gradient text is drawn through a transparent colour.
         const clippedToText = style.backgroundClip === 'text' || style.getPropertyValue('-webkit-background-clip') === 'text';
         // An element shrunk to a pixel with its overflow cut off, as screen-reader-only text is. The root elements and
