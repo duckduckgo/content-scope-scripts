@@ -136,7 +136,6 @@
  * @property {<T>(fn: (binder: ItemBinder) => T) => T} item - compiles a `where` or `field` that binds `self`
  * @property {Set<string>} names - collects every name read, for the native reader
  * @property {Set<string>} paths - collects every path read from the global object, up to the method it calls, for the native reader
- * @property {() => void} testsNodes - records that config tests values for DOM nodes, as `root` does, for the native reader
  */
 
 /**

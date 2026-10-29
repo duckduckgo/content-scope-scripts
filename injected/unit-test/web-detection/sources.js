@@ -17,6 +17,7 @@ import {
     fonts,
     holds,
     reaching,
+    readerFor,
     rejectsMatch,
     throwing,
     timeline,
@@ -247,7 +248,7 @@ describe('WebDetection sources', () => {
                 { actions: { define: { label: { api: { path: 'labelItems.0.label' } } } } },
                 pageSources(window),
             );
-            const reader = new NativeReader(window, compiled.names, compiled.paths);
+            const reader = readerFor(window, compiled);
             const label = () => {
                 const state = createDetectorState();
                 const ctx = new EvaluationContext(reader, state.names);
@@ -369,15 +370,20 @@ describe('WebDetection sources', () => {
             expect(reader.read(window.document, 'title')).toBe('page');
         });
 
-        it('captures at its first lookup when created without names', () => {
+        it('captures nothing with no names or paths', () => {
+            const window = new JSDOM('<!DOCTYPE html><title>native</title>').window;
+            const reader = new NativeReader(window);
+            defineGetter(window.Document.prototype, 'title', () => 'page');
+            expect(reader.read(window.document, 'title')).toBe('page');
+        });
+
+        it('tests nodes against the `Node.prototype` it is given, whatever the page later sets as `Node`', () => {
             const window = new JSDOM('<!DOCTYPE html>').window;
             const div = window.document.createElement('div');
-            const eager = new NativeReader(window, []);
-            const lazy = new NativeReader(window);
-            lazy.beginRun();
+            const reader = new NativeReader(window, [], [], window.Node.prototype);
             window.Node = function Node() {};
-            expect(eager.isNode(div)).toBe(true);
-            expect(lazy.isNode(div)).toBe(false);
+            expect(reader.isNode(div)).toBe(true);
+            expect(reader.isNode({})).toBe(false);
         });
 
         it('captures from the chain of a value a path reaches, for a name read off any value on that chain', () => {
@@ -409,7 +415,7 @@ describe('WebDetection sources', () => {
             const window = new JSDOM('<!DOCTYPE html>').window;
             install(window);
             const compiled = compileDetector({ actions: { define: { v: { api: 'outer.box.inner.value' } } } }, pageSources(window));
-            const reader = new NativeReader(window, compiled.names, compiled.paths);
+            const reader = readerFor(window, compiled);
             expect(reads).toBe(0);
             expect(reader.read(window.outer.box, 'inner')).toEqual({ value: 1 });
             expect(reads).toBe(1);
@@ -543,11 +549,7 @@ describe('WebDetection sources', () => {
                 return detectors.map((detector, i) => {
                     const compiled = compileDetector(detector, pageSources(window));
                     const state = createDetectorState();
-                    const ctx = new EvaluationContext(
-                        new NativeReader(window, compiled.names, compiled.paths),
-                        state.names,
-                        taskFor?.(i) ?? shared,
-                    );
+                    const ctx = new EvaluationContext(readerFor(window, compiled), state.names, taskFor?.(i) ?? shared);
                     const result = runDetector(compiled, state, ctx);
                     between(window.document);
                     return { ...result, names: ctx.runNames };

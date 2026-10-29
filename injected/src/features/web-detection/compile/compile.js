@@ -28,7 +28,6 @@ import { finish } from './positions.js';
  * @property {Node} actions - in value position
  * @property {Set<string>} names - every name config reads or calls, for the native reader
  * @property {Set<string>} paths - every path config reads from the global object, up to the method it calls, for the native reader
- * @property {boolean} testsNodes - whether config tests values for DOM nodes, as `root` does, for the native reader
  */
 
 const MODIFIER_KEYS = new Set(['using', 'is']);
@@ -51,7 +50,6 @@ export class Scope {
     readerNames = new Set();
     /** @type {Set<string>} */
     readerPaths = new Set();
-    readerTestsNodes = false;
     /** @type {ItemBinder[]} the `using`, `where` and `field` binding `self` around the expression being compiled, innermost last */
     bindings = [];
 
@@ -64,9 +62,6 @@ export class Scope {
         this.hooks = {
             names: this.readerNames,
             paths: this.readerPaths,
-            testsNodes: () => {
-                this.readerTestsNodes = true;
-            },
             expression: (raw, path, position) => compileExpr(raw, position, path, this),
             item: (fn) => {
                 /** @type {ItemBinder} */
@@ -482,5 +477,5 @@ export function compileDetector(config, sources) {
     const match = config.match === undefined ? undefined : compileExpr(config.match, 'boolean', 'match', scope);
     const actions = compileBody(config.actions, 'value', 'actions', scope);
     finish(scope);
-    return { ...(match && { match }), actions, names: scope.readerNames, paths: scope.readerPaths, testsNodes: scope.readerTestsNodes };
+    return { ...(match && { match }), actions, names: scope.readerNames, paths: scope.readerPaths };
 }

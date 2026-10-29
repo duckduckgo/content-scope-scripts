@@ -90,9 +90,9 @@ export default class WebDetection extends ContentFeature {
 
     /**
      * Parse the detectors, compile those a trigger runs in the frame, and capture the names they read
-     * from the holders their paths reach. The reader captures only when they read a name or path, or
-     * test for nodes. Settings already parsed are skipped. Settings that differ from those parsed at
-     * `load` replace them, and the reader adds the names and paths it lacks.
+     * from the holders their paths reach. Detectors that read no name or path capture nothing. Settings
+     * already parsed are skipped. Settings that differ from those parsed at `load` replace them, and the
+     * reader adds the names and paths it lacks.
      */
     _parseDetectors() {
         const settings = this._getFeatureSettings();
@@ -104,16 +104,16 @@ export default class WebDetection extends ContentFeature {
         const names = new Set();
         /** @type {Set<string>} */
         const paths = new Set();
-        let testsNodes = false;
         for (const detector of this._eachDetector()) {
             if (!this._runsInFrame(detector.config)) continue;
             const compiled = this._compiledOf(detector);
             if ('error' in compiled) continue;
             compiled.names.forEach((name) => names.add(name));
             compiled.paths.forEach((path) => paths.add(path));
-            testsNodes ||= compiled.testsNodes;
         }
-        if (names.size > 0 || paths.size > 0 || testsNodes) this._reader.capture(names, paths);
+        if (names.size === 0 && paths.size === 0) return;
+        if (this.#reader) this.#reader.capture(names, paths);
+        else this.#reader = new NativeReader(globalThis, names, paths);
     }
 
     /**

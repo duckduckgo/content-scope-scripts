@@ -49,6 +49,18 @@ class Recorder {
  * @property {boolean} [isTopFrame] - Whether we're in the top frame
  */
 
+/**
+ * A reader over a test global, with the names and paths a detector compiled to. Nodes are tested
+ * against the global's own `Node.prototype`, as the test runtime captures none.
+ *
+ * @param {any} global
+ * @param {{ names: Set<string>, paths: Set<string> }} compiled
+ * @returns {NativeReader}
+ */
+export function readerFor(global, compiled) {
+    return new NativeReader(global, compiled.names, compiled.paths, global.Node?.prototype);
+}
+
 /** The actions of a detector whose `match` is under test. */
 export const REPORT = { breakageReportData: {} };
 
@@ -74,7 +86,7 @@ export function run(body, detector, options = {}) {
     globalThis.document = window.document;
     try {
         const compiled = compileDetector(detector, pageSources(window));
-        const reader = new NativeReader(window, compiled.names, compiled.paths);
+        const reader = readerFor(window, compiled);
         options.afterCapture?.(window);
         const state = createDetectorState();
         const recorder = new Recorder();
@@ -407,7 +419,7 @@ export function makeGlobal() {
  */
 export function detector(config, global = makeGlobal()) {
     const compiled = compileDetector(config, pageSources(global));
-    const reader = new NativeReader(global, compiled.names, compiled.paths);
+    const reader = readerFor(global, compiled);
     const state = createDetectorState();
     const recorder = new Recorder();
     const types = () => recorder.events.map((event) => event.type);
@@ -569,7 +581,7 @@ export function evaluateCondition(match, global = globalThis) {
     const compiled = compileDetector({ match, actions: { breakageReportData: {} } }, pageSources(global));
     const value = evaluateOccurrence(
         /** @type {import('../../src/features/web-detection/model/types.js').Node} */ (compiled.match),
-        new EvaluationContext(new NativeReader(global, compiled.names, compiled.paths)),
+        new EvaluationContext(readerFor(global, compiled)),
     );
     return isFailure(value) ? 'aborted' : value === true;
 }

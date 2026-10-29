@@ -355,8 +355,8 @@ describe('WebDetection feature', () => {
                 expect(report(instance)).toEqual([{ detectorId: 'g.d', detected: true }]);
             });
 
-            it('captures nothing for detectors that read no name or path and test no node, however often they run', () => {
-                const start = spyOn(NativeReader.prototype, '_start').and.callThrough();
+            it('captures nothing for detectors that read no name or path, however often they run', () => {
+                const addHolder = spyOn(NativeReader.prototype, '_addHolder').and.callThrough();
                 testGlobal.document = new JSDOM('<!DOCTYPE html><p>blocked</p>').window.document;
                 try {
                     const instance = loadInstance({
@@ -370,13 +370,7 @@ describe('WebDetection feature', () => {
                 } finally {
                     delete testGlobal.document;
                 }
-                expect(start).not.toHaveBeenCalled();
-            });
-
-            it('captures at load for a detector with `root`, which reads no name or path', () => {
-                const capture = spyOn(NativeReader.prototype, 'capture').and.callThrough();
-                loadInstance({ d: detects({ element: { selector: 'p', root: 'body' } }) });
-                expect(capture).toHaveBeenCalledTimes(1);
+                expect(addHolder).not.toHaveBeenCalled();
             });
 
             it('parses the settings init has when parsing at load throws', () => {
