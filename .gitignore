@@ -30,6 +30,10 @@ injected/unit-test/fixtures/page-context/output/
 # Coverage output
 coverage/
 
+# Scratch space for detector benchmarking: throwaway specs, configs and matching.js
+# implementations. See injected/scripts/detector-bench/README.md.
+injected/scripts/detector-bench/.bench-variants/
+
 # VS Code user config
 .vscode
 
