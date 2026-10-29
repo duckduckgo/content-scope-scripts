@@ -89,7 +89,7 @@ Use `conditionalChanges` to apply JSON Patch operations based on runtime conditi
 - Array of condition blocks uses OR logic (any block matching applies the patch)
 - `patchSettings` uses [RFC 6902 JSON Patch](https://datatracker.ietf.org/doc/html/rfc6902) with [RFC 6901 JSON Pointer](https://datatracker.ietf.org/doc/html/rfc6901) paths (`/setting/nested`)
 - Unsupported conditions cause the block to fail (for backwards compatibility)
-- `minContentScopeScriptsVersion` and `maxContentScopeScriptsVersion` are inclusive and compare against the root `package.json` `version`, which the release workflow stamps with the release tag. Values must be `major.minor.patch`; anything else never matches. Builds without a version (local, PR build branches) count as newer than every release: they match every `minContentScopeScriptsVersion` and no `maxContentScopeScriptsVersion`, however high. To build as a specific release, run `npm pkg set version=<version>` before building, and revert it before committing
+- `minContentScopeScriptsVersion` and `maxContentScopeScriptsVersion` are inclusive and take `major.minor.patch`; any other value never matches. Local and PR build branch builds have no release version and match every `min` and no `max`. To build as a release, run `npm pkg set version=<version>` first (revert before committing)
 
 For A/B testing, see [privacy-configuration experiments guide](https://github.com/duckduckgo/privacy-configuration/blob/main/.cursor/rules/content-scope-experiments.mdc).
 
