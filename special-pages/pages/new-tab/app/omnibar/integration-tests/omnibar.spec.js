@@ -44,6 +44,35 @@ test.describe('omnibar widget', () => {
         expect(Math.abs(favTopAfterLoad - favTopWhileLoading)).toBeLessThanOrEqual(1);
     });
 
+    const rebrandLoadingCases = [
+        { name: 'search mode', params: { 'omnibar.mode': 'search' } },
+        { name: 'Duck.ai mode', params: { 'omnibar.mode': 'ai' } },
+        { name: 'Duck.ai disabled', params: { 'omnibar.enableAi': false } },
+        { name: 'Duck.ai setting hidden', params: { 'omnibar.showAiSetting': false } },
+        { name: 'Duck.ai mode without initialSetup.omnibar', params: { 'omnibar.mode': 'ai', 'omnibar.initialSetup': false } },
+    ];
+    for (const { name, params } of rebrandLoadingCases) {
+        test(`reserves its height while config is loading with rebrand (${name})`, async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await page.clock.install();
+
+            await ntp.openPage({ additional: { omnibar: true, rebrand: 'enabled', 'omnibar.configDelay': 1000, ...params } });
+
+            const favorites = page.locator('[data-entry-point="favorites"]');
+            await favorites.waitFor();
+            await expect(omnibar.context().locator('input, textarea')).toHaveCount(0);
+            const favTopWhileLoading = (await favorites.boundingBox())?.y ?? 0;
+
+            await page.clock.fastForward(1000);
+            await omnibar.context().locator('input, textarea').first().waitFor({ state: 'visible' });
+            const favTopAfterLoad = (await favorites.boundingBox())?.y ?? 0;
+
+            expect(Math.abs(favTopAfterLoad - favTopWhileLoading)).toBeLessThanOrEqual(1);
+        });
+    }
+
     test('search form submission', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const omnibar = new OmnibarPage(ntp);
