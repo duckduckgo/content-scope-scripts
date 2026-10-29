@@ -24,6 +24,7 @@ let package = Package(
                 .process("dist/contentScopeIsolated.js"),
                 .process("dist/duckAiDataClearing.js"),
                 .process("dist/duckAiChatHistory.js"),
+                .process("dist/pageTranslation.js"),
                 .copy("dist/pages"),
             ]
         ),

@@ -6,7 +6,7 @@ title: Page Translation
 
 Finds the text on a page that needs translating, writes translations back onto the page's own nodes, and puts the original back. Native does language detection, translation, batching and ordering. Nothing runs until native sends a message.
 
-Bundled for `apple` (page world) and `android`. It's a platform-specific feature: native decides when to use it, so it runs without a privacy-config entry and on sites where the user turned protections off. Setting `pageTranslation` to `disabled` in remote config turns it off. `extract` and `apply` always reply, even when a unit or the page's DOM throws.
+Ships in its own bundles, not the main ones: `apple-page-translation` (`Sources/ContentScopeScripts/dist/pageTranslation.js`, page world) and `android-page-translation` (`build/android/pageTranslation.js`). Native injects the bundle when the user translates a page, the same way it injects `contentScope.js` (same placeholders, same messaging setup). It's a platform-specific feature: native decides when to use it, so it runs without a privacy-config entry and on sites where the user turned protections off. Setting `pageTranslation` to `disabled` in remote config turns it off. `extract` and `apply` always reply, even when a unit or the page's DOM throws.
 
 Apple native must fill `$CONTENT_SCOPE_JSON$` (the config as a JavaScript string literal) in every Apple bundle, isolated and Duck.ai ones included. That is the C-S-S 18.0.0 change, not specific to this feature, but this feature needs it.
 
@@ -66,7 +66,7 @@ The first write sets `<html lang>` to `targetLanguage`. `revert` puts back every
 From `injected/`:
 
 ```sh
-npm run build && npx playwright test integration-test/page-translation.spec.js --project ios-main-world --project android --reporter list
+npm run build && npx playwright test integration-test/page-translation.spec.js --project apple-page-translation --project android-page-translation --reporter list
 npx jasmine --config=unit-test/config.json --filter="page-translation parse"
 ```
 
