@@ -53,6 +53,16 @@ describe('Features definition', () => {
         }
         expect(missing).toEqual([]);
     });
+
+    it('loads only `cookie` before `webDetection`, so it captures native APIs before other features replace them', () => {
+        for (const [platform, features] of Object.entries(platformSupport)) {
+            if (!features.includes('webDetection')) continue;
+            const before = features.slice(0, features.indexOf('webDetection'));
+            expect(before.filter((name) => name !== 'cookie'))
+                .withContext(platform)
+                .toEqual([]);
+        }
+    });
 });
 
 describe('test-pages/*/config/*.json schema validation', () => {
@@ -110,8 +120,6 @@ describe('test-pages/*/config/*.json schema validation', () => {
         path.resolve(__dirname, '../integration-test/test-pages/message-bridge/config/message-bridge-disabled.json'),
         // Legacy conditionalChanges format (domain at root instead of condition.domain)
         path.resolve(__dirname, '../integration-test/test-pages/ua-ch-brands/config/domain-brand-override-legacy.json'),
-        // Uses fireDetectionEvents which is not yet in the published schema
-        path.resolve(__dirname, '../integration-test/test-pages/web-interference-detection/config/youtube-detection-events.json'),
         // Includes an xpath promoSelectors entry on purpose, to test that it is dropped; the schema allows css only
         path.resolve(__dirname, '../integration-test/test-pages/chrome-webstore-patching/config/config-promo-unusable-entries.json'),
     ];
