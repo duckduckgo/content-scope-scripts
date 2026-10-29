@@ -357,6 +357,7 @@ describe('WebDetection feature', () => {
 
             it('captures nothing for detectors that read no name or path, however often they run', () => {
                 const addHolder = spyOn(NativeReader.prototype, '_addHolder').and.callThrough();
+                const originalDocument = testGlobal.document;
                 testGlobal.document = new JSDOM('<!DOCTYPE html><p>blocked</p>').window.document;
                 try {
                     const instance = loadInstance({
@@ -368,7 +369,7 @@ describe('WebDetection feature', () => {
                     jasmine.clock().tick(1000);
                     expect(report(instance).map((entry) => entry.detectorId)).toEqual(['g.text', 'g.element', 'g.either']);
                 } finally {
-                    delete testGlobal.document;
+                    testGlobal.document = originalDocument;
                 }
                 expect(addHolder).not.toHaveBeenCalled();
             });
