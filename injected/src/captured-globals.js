@@ -28,6 +28,7 @@ export const performanceNow = globalThis.performance?.now?.bind(globalThis.perfo
 export const addEventListener = globalThis.addEventListener?.bind(globalThis);
 export const removeEventListener = globalThis.removeEventListener?.bind(globalThis);
 export const CustomEvent = globalThis.CustomEvent;
+export const NodePrototype = globalThis.Node?.prototype;
 export const Promise = globalThis.Promise;
 export const String = globalThis.String;
 export const Map = globalThis.Map;

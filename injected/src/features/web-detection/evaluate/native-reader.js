@@ -1,4 +1,4 @@
-import { getOwnPropertyDescriptor, getPrototypeOf, ReflectApply, ReflectGet } from '../../../captured-globals.js';
+import { getOwnPropertyDescriptor, getPrototypeOf, NodePrototype, ReflectApply, ReflectGet } from '../../../captured-globals.js';
 import { Failure, getOrCreate, isFailure, newMap, thrownFailure } from '../model/core.js';
 
 /**
@@ -32,6 +32,9 @@ import { Failure, getOrCreate, isFailure, newMap, thrownFailure } from '../model
  * of the object, or of a prototype below the holder, takes its place. That property is read by descriptor,
  * so no page code runs. A getter found there is not called, and the read fails.
  *
+ * The global object and its chain are holders once config names something, so a reader with no names
+ * or paths captures nothing. `isNode` tests against `Node.prototype` as captured at injection.
+ *
  * @implements {Reader}
  */
 export class NativeReader {
@@ -40,7 +43,7 @@ export class NativeReader {
     /** @type {Map<object, Map<PropertyKey, CapturedRecord>>} each holder's records */
     #holders = new Map();
     /** @type {Set<PropertyKey>} every key captured */
-    #keys = new Set();
+    #keys = new Set([Symbol.iterator]);
     /** @type {object | undefined} */
     #nodePrototype;
     /**
@@ -53,16 +56,14 @@ export class NativeReader {
 
     /**
      * @param {object} global - the global object to capture from
-     * @param {Iterable<string>} names - every name config reads or calls
+     * @param {Iterable<string>} [names] - every name config reads or calls
      * @param {Iterable<string>} [paths] - every path config reads from the global, up to the method it calls
+     * @param {object} [nodePrototype] - the global's `Node.prototype`, which `isNode` tests against
      */
-    constructor(global, names, paths = []) {
+    constructor(global, names = [], paths = [], nodePrototype = NodePrototype) {
         this.#global = global;
-        const nodeConstructor = getOwnPropertyDescriptor(global, 'Node')?.value;
-        if (typeof nodeConstructor === 'function') this.#nodePrototype = tryOwnDescriptor(nodeConstructor, 'prototype')?.value;
-        this._addHolder(global);
-        this._addChain(global);
-        this.capture([...names, Symbol.iterator], paths);
+        this.#nodePrototype = nodePrototype;
+        this.capture(names, paths);
     }
 
     /**
@@ -81,9 +82,22 @@ export class NativeReader {
             this.#keys.add(key);
             added.push(key);
         }
-        if (added.length > 0) this.#holders.forEach((records, holder) => captureOn(holder, records, added));
-        for (const path of paths) this._reach(path);
+        if (added.length > 0) {
+            this._addGlobal();
+            this.#holders.forEach((records, holder) => captureOn(holder, records, added));
+        }
+        for (const path of paths) {
+            this._addGlobal();
+            this._reach(path);
+        }
         this.#records.clear();
+    }
+
+    /** Add the global object and its prototype chain as holders. */
+    _addGlobal() {
+        if (this.#holders.has(this.#global)) return;
+        this._addHolder(this.#global);
+        this._addChain(this.#global);
     }
 
     /**
