@@ -2,6 +2,7 @@ import ContentFeature from '../content-feature.js';
 import { execute } from './broker-protection/execute.js';
 import { retry } from '../timer-utils.js';
 import { ErrorResponse } from './broker-protection/types.js';
+import { UserAssist } from './broker-protection/assist/user-assist.js';
 
 export class ActionExecutorBase extends ContentFeature {
     /**
@@ -54,7 +55,7 @@ export class ActionExecutorBase extends ContentFeature {
      */
     async exec(action, data) {
         const retryConfig = this.retryConfigFor(action);
-        const { result, exceptions } = await retry(() => execute(action, data, document), retryConfig);
+        const { result, exceptions } = await retry(() => this.runAction(action, data), retryConfig);
 
         if (result) {
             if ('success' in result && Array.isArray(result.success.next)) {
@@ -75,6 +76,15 @@ export class ActionExecutorBase extends ContentFeature {
     }
 
     /**
+     * @param {any} action
+     * @param {Record<string, any>} data
+     * @return {Promise<ActionResponse>}
+     */
+    runAction(action, data) {
+        return execute(action, data, document);
+    }
+
+    /**
      * @returns {any}
      */
     retryConfigFor(action) {
@@ -86,11 +96,35 @@ export class ActionExecutorBase extends ContentFeature {
  * @typedef {import("./broker-protection/types.js").ActionResponse} ActionResponse
  */
 export default class BrokerProtection extends ActionExecutorBase {
+    assist = new UserAssist((params) => this.messaging.notify('userTurnCompleted', params));
+
     init() {
         this.messaging.subscribe('onActionReceived', async (/** @type {any} */ params) => {
             const { action, data } = params.state;
             return await this.processActionAndNotify(action, data);
         });
+        this.messaging.subscribe('setAssistMode', (/** @type {any} */ params) => {
+            this.assist.setEnabled(params?.enabled === true);
+        });
+        this.messaging.subscribe('userTurnStarted', (/** @type {any} */ params) => {
+            this.assist.startUserTurn({ kind: params?.kind ?? 'generic', tokenSelector: params?.tokenSelector ?? null });
+        });
+        this.messaging.subscribe('userTurnEnded', () => {
+            this.assist.endUserTurn();
+        });
+    }
+
+    /**
+     * @param {any} action
+     * @param {Record<string, any>} data
+     * @return {Promise<ActionResponse>}
+     */
+    async runAction(action, data) {
+        await this.assist.waitForTurnToEnd();
+        await this.assist.beforeAction(action);
+        const response = await super.runAction(action, data);
+        await this.assist.afterAction(action, response);
+        return response;
     }
 
     /**

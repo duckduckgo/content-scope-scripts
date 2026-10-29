@@ -49,6 +49,8 @@ const CORE_FILES = new Set([
     'injected/src/features/broker-protection/actions/generators.js',
     'injected/src/features/broker-protection/actions/navigate.js',
     'injected/src/features/broker-protection/actions/scroll.js',
+    'injected/src/features/broker-protection/assist/overlay.js',
+    'injected/src/features/broker-protection/assist/user-assist.js',
     'injected/src/features/broker-protection/captcha-services/factory.js',
     'injected/src/features/broker-protection/captcha-services/get-captcha-container.js',
     'injected/src/features/broker-protection/captcha-services/get-captcha-provider.js',
