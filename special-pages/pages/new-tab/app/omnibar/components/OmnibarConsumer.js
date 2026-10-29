@@ -50,15 +50,15 @@ export function OmnibarConsumer() {
 
 /**
  * Reserves the Omnibar's height until config arrives, using the subset sent in
- * `initialSetup` so nothing below it shifts. Falls back to search mode with the
- * tab switcher when native doesn't send it.
+ * `initialSetup` so nothing below it shifts. Falls back to the
+ * tab switcher and the Duck.ai-sized spacer when native doesn't send it (e.g. Windows).
  */
 function OmnibarPlaceholder() {
     const { omnibar } = useInitialSetupData();
     const showTabs = omnibar ? omnibar.showAiSetting && omnibar.enableAi : true;
     const mode = (showTabs && omnibar?.mode) || 'search';
     return (
-        <div class={styles.root} data-mode={mode} aria-hidden="true">
+        <div class={styles.root} data-mode={omnibar ? mode : undefined} aria-hidden="true">
             <LogoStacked class={styles.logo} />
             {showTabs && <div class={styles.placeholderTabs} />}
             <div class={styles.spacer} />

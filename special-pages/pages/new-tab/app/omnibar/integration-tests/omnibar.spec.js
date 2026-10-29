@@ -49,7 +49,7 @@ test.describe('omnibar widget', () => {
         { name: 'Duck.ai mode', params: { 'omnibar.mode': 'ai' } },
         { name: 'Duck.ai disabled', params: { 'omnibar.enableAi': false } },
         { name: 'Duck.ai setting hidden', params: { 'omnibar.showAiSetting': false } },
-        { name: 'search mode without initialSetup.omnibar', params: { 'omnibar.mode': 'search', 'omnibar.initialSetup': false } },
+        { name: 'Duck.ai mode without initialSetup.omnibar', params: { 'omnibar.mode': 'ai', 'omnibar.initialSetup': false } },
     ];
     for (const { name, params } of rebrandLoadingCases) {
         test(`reserves its height while config is loading with rebrand (${name})`, async ({ page }, workerInfo) => {
