@@ -45,6 +45,64 @@ test.describe('Broker Protection user assist', () => {
         expect(inputEvents).toBe(2);
     });
 
+    test('keeps a value the page reformats while the fill is replayed', async ({ dbp }) => {
+        await dbp.navigatesTo('form.html');
+        await dbp.page.evaluate(() => {
+            const field = /** @type {HTMLInputElement} */ (document.querySelector('#user_phone'));
+            // Stands in for a site formatter that rewrites the field while the replay is part-way through.
+            const watch = () => {
+                if (field.value.length > 0 && field.value.length < 10) field.value = 'formatted by page';
+                else requestAnimationFrame(watch);
+            };
+            watch();
+        });
+        await dbp.simulateSubscriptionMessage('setAssistMode', { enabled: true });
+        await dbp.receivesAction('fill-form.json');
+
+        const response = await dbp.collector.waitForMessage('actionCompleted');
+        dbp.isSuccessMessage(response);
+        await expect(dbp.page.locator('#user_phone')).toHaveValue('formatted by page');
+    });
+
+    test('moves the cursor to click targets and still clicks', async ({ dbp }) => {
+        await dbp.navigatesTo('form.html');
+        await dbp.simulateSubscriptionMessage('setAssistMode', { enabled: true });
+        await dbp.receivesAction('click.json');
+
+        const response = await dbp.collector.waitForMessage('actionCompleted');
+        dbp.isSuccessMessage(response);
+        await expect(dbp.page.locator(OVERLAY)).toHaveCount(1);
+    });
+
+    test('removes the overlay when native turns assist mode off', async ({ dbp }) => {
+        await dbp.navigatesTo('form.html');
+        await dbp.simulateSubscriptionMessage('setAssistMode', { enabled: true });
+        await dbp.receivesAction('click.json');
+        await dbp.collector.waitForMessage('actionCompleted');
+        await expect(dbp.page.locator(OVERLAY)).toHaveCount(1);
+
+        await dbp.simulateSubscriptionMessage('setAssistMode', { enabled: false });
+        await expect(dbp.page.locator(OVERLAY)).toHaveCount(0);
+    });
+
+    test('ignores a token that was already there when the turn started', async ({ dbp }) => {
+        await dbp.navigatesTo('cloudflare-captcha.html');
+        await dbp.page.evaluate(() => {
+            /** @type {HTMLInputElement} */ (document.querySelector("input[name='cf-turnstile-response']")).value = 'expired';
+        });
+        await dbp.simulateSubscriptionMessage('userTurnStarted', { kind: 'turnstile', tokenSelector: null });
+
+        // Two token polls (500ms apart) without a report.
+        await dbp.page.waitForTimeout(1100);
+        const early = await dbp.collector.outgoingMessages();
+        expect(early.filter((call) => 'method' in call.payload && call.payload.method === 'userTurnCompleted')).toHaveLength(0);
+
+        await dbp.page.evaluate(() => {
+            /** @type {HTMLInputElement} */ (document.querySelector("input[name='cf-turnstile-response']")).value = 'fresh';
+        });
+        await dbp.collector.waitForMessage('userTurnCompleted');
+    });
+
     test('reports once when the user solves an embedded Turnstile', async ({ dbp }) => {
         await dbp.navigatesTo('cloudflare-captcha.html');
         await dbp.simulateSubscriptionMessage('userTurnStarted', { kind: 'turnstile', tokenSelector: null });

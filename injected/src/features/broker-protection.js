@@ -107,7 +107,7 @@ export default class BrokerProtection extends ActionExecutorBase {
             this.assist.setEnabled(params?.enabled === true);
         });
         this.messaging.subscribe('userTurnStarted', (/** @type {any} */ params) => {
-            this.assist.startUserTurn({ kind: params?.kind ?? 'generic', tokenSelector: params?.tokenSelector ?? null });
+            this.assist.startUserTurn(params ?? {});
         });
         this.messaging.subscribe('userTurnEnded', () => {
             this.assist.endUserTurn();

@@ -1,6 +1,7 @@
 import { logoImg } from '../../click-to-load/ctl-assets.js';
+import { wait } from '../../../timer-utils.js';
 
-export const CURSOR_MOVE_MS = 520;
+const CURSOR_MOVE_MS = 520;
 
 const STYLES = `
 :host { all: initial; }
@@ -45,6 +46,8 @@ function tagMarkup(label) {
  * Everything lives in a closed shadow root and ignores the pointer, so the page's own layout and the
  * user's clicks are unaffected. Positions are in document coordinates and refreshed every frame
  * while the overlay is attached, which keeps them aligned through scrolling, resizes and reflows.
+ * Every state change also repositions straight away, because WebKit throttles animation frames in
+ * windows that are hidden or occluded and the overlay should still be right in the next paint.
  */
 export class AssistOverlay {
     /** @type {HTMLElement | null} */
@@ -55,6 +58,7 @@ export class AssistOverlay {
     cursorTarget = null;
     /** @type {Element | null} */
     fieldTarget = null;
+    fieldRadius = '';
     /** @type {number | null} */
     caretX = null;
     /** @type {Element | null} */
@@ -64,7 +68,7 @@ export class AssistOverlay {
     frame = null;
 
     attach() {
-        if (this.host?.isConnected) return this.requireEls();
+        if (this.host?.isConnected && this.els) return this.els;
         const host = document.createElement('ddg-pir-assist');
         host.style.cssText =
             'position: absolute !important; top: 0 !important; left: 0 !important; width: 0 !important; height: 0 !important; z-index: 2147483647 !important; pointer-events: none !important;';
@@ -105,18 +109,25 @@ export class AssistOverlay {
         return this.els;
     }
 
-    requireEls() {
-        if (!this.els) throw new Error('AssistOverlay used before attach');
-        return this.els;
-    }
-
     /**
      * Moves the agent cursor to a point relative to an element's top-left corner, resolving once it gets there.
      *
      * @param {Element} element
      * @param {{ dx: number, dy: number, label?: string, durationMs?: number }} options
      */
-    async moveCursor(element, { dx, dy, label, durationMs = CURSOR_MOVE_MS }) {
+    async moveCursor(element, options) {
+        const durationMs = this.placeCursor(element, options);
+        await wait(durationMs);
+    }
+
+    /**
+     * Starts the cursor towards a point relative to an element and returns how long the move takes
+     * (0 when the cursor appears there instead).
+     *
+     * @param {Element} element
+     * @param {{ dx: number, dy: number, label?: string, durationMs?: number }} options
+     */
+    placeCursor(element, { dx, dy, label, durationMs = CURSOR_MOVE_MS }) {
         const els = this.attach();
         if (label) els.cursorLabel.textContent = label;
         els.cursor.style.setProperty('--move-ms', `${durationMs}ms`);
@@ -129,10 +140,10 @@ export class AssistOverlay {
             void els.cursor.offsetWidth;
             els.cursor.style.transition = '';
             els.cursor.classList.remove('hidden');
-            return;
+            return 0;
         }
         this.position();
-        await wait(durationMs);
+        return durationMs;
     }
 
     /**
@@ -152,6 +163,7 @@ export class AssistOverlay {
      */
     highlightField(element) {
         this.fieldTarget = element;
+        this.fieldRadius = element ? getComputedStyle(element).borderRadius : '';
         this.caretX = null;
         if (element) this.attach();
         this.position();
@@ -174,7 +186,7 @@ export class AssistOverlay {
         this.turnTarget = widget;
         this.hideCursor();
         this.highlightField(null);
-        widget?.scrollIntoView?.({ block: 'center', inline: 'nearest' });
+        widget?.scrollIntoView({ block: 'center', inline: 'nearest' });
         this.position();
     }
 
@@ -185,7 +197,7 @@ export class AssistOverlay {
         if (!this.turnActive || widget === this.turnTarget) return;
         const isFirstSighting = !this.turnTarget;
         this.turnTarget = widget;
-        if (isFirstSighting) widget?.scrollIntoView?.({ block: 'center', inline: 'nearest' });
+        if (isFirstSighting) widget?.scrollIntoView({ block: 'center', inline: 'nearest' });
         this.position();
     }
 
@@ -229,12 +241,17 @@ export class AssistOverlay {
 
         const field = this.fieldTarget && documentBox(this.fieldTarget);
         place(els.field, field);
-        if (field && this.fieldTarget) els.field.style.borderRadius = getComputedStyle(this.fieldTarget).borderRadius;
-        const caretHeight = field ? Math.min(field.height - 8, 16) : 0;
+        els.field.style.borderRadius = this.fieldRadius;
+        const caretHeight = field ? Math.max(Math.min(field.height - 8, 16), 0) : 0;
         place(
             els.caret,
-            field && this.caretX !== null
-                ? { left: field.left + this.caretX, top: field.top + (field.height - caretHeight) / 2, width: 1, height: caretHeight }
+            field && this.caretX !== null && caretHeight > 0
+                ? {
+                      left: field.left + Math.min(Math.max(this.caretX, 0), field.width - 4),
+                      top: field.top + (field.height - caretHeight) / 2,
+                      width: 1,
+                      height: caretHeight,
+                  }
                 : null,
         );
 
@@ -293,11 +310,4 @@ function place(el, box) {
     el.style.top = `${box.top}px`;
     el.style.width = `${box.width}px`;
     el.style.height = `${box.height}px`;
-}
-
-/**
- * @param {number} ms
- */
-export function wait(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
 }

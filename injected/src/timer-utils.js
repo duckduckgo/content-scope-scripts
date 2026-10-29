@@ -30,8 +30,16 @@ export async function retry(fn, config = DEFAULT_RETRY_CONFIG) {
         // don't pause on the last item
         if (i === config.maxAttempts - 1) break;
 
-        await new Promise((resolve) => setTimeout(resolve, config.interval.ms));
+        await wait(config.interval.ms);
     }
 
     return { result: lastResult, exceptions };
+}
+
+/**
+ * @param {number} ms
+ * @returns {Promise<void>}
+ */
+export function wait(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
 }
