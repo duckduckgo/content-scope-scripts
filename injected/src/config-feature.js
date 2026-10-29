@@ -126,12 +126,13 @@ export default class ConfigFeature {
      * Given a config key, interpret the value as a list of conditionals objects, and return the elements that match the current page
      * Consider in your feature using patchSettings instead as per `getFeatureSetting`.
      * @param {string} featureKeyName
+     * @param {string} [featureName] - The feature whose settings to read; defaults to this feature
      * @return {ConditionalSettingEntry[]}
      * @protected
      */
-    matchConditionalFeatureSetting(featureKeyName) {
+    matchConditionalFeatureSetting(featureKeyName, featureName) {
         /** @type {ConditionalSettingEntry[]} */
-        const conditionalChanges = this._getFeatureSettings()?.[featureKeyName] || [];
+        const conditionalChanges = this._getFeatureSettings(featureName)?.[featureKeyName] || [];
         return conditionalChanges.filter((rule) => {
             /** @type {ConditionBlockOrArray | undefined} */
             let condition = rule.condition;

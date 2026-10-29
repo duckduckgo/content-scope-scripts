@@ -1,5 +1,5 @@
 import { Messaging } from '@duckduckgo/messaging';
-import ContentFeature from '../content-feature';
+import ContentFeature from '../content-feature.js';
 import {
     InstallProxy,
     DidInstall,
@@ -45,7 +45,25 @@ export class MessageBridge extends ContentFeature {
      */
     installed = false;
 
+    load(args) {
+        /**
+         * Pages can call `createMessageBridge()` before `init`, which in the extension waits for the remote config.
+         * At load it exists only on navigatorInterface's privileged domains, so the bridge listens from load there
+         */
+        if (this.matchConditionalFeatureSetting('privilegedDomains', 'navigatorInterface').length) {
+            this.listen(args);
+        }
+    }
+
     init(args) {
+        this.listen(args);
+    }
+
+    /**
+     * @param {any} args
+     */
+    listen(args) {
+        if (this.installed) return;
         /**
          * This feature never operates in a frame or insecure context
          */
@@ -55,6 +73,7 @@ export class MessageBridge extends ContentFeature {
          */
         if (!args.messageSecret) return;
 
+        this.installed = true;
         const { captured } = this;
 
         /**
@@ -211,8 +230,6 @@ export class MessageBridge extends ContentFeature {
         this.log.info('will proxy notification', notification);
         proxy.notify(notification.method, notification.params);
     }
-
-    load(_args) {}
 }
 
 export default MessageBridge;
