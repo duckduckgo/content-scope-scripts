@@ -1,19 +1,21 @@
 import { getElement, getElements } from '../utils/utils.js';
-import { AssistOverlay, wait } from './overlay.js';
+import { wait } from '../../../timer-utils.js';
+import { AssistOverlay } from './overlay.js';
 
 /**
  * @typedef {'turnstile' | 'recaptcha' | 'managedChallenge' | 'generic'} UserTurnKind
- * @typedef {{ kind: UserTurnKind, tokenSelector?: string | null }} UserTurnParams
+ * @typedef {{ kind: UserTurnKind, tokenSelector: string | null }} UserTurnParams
+ * @typedef {{ token: string | null, widgets: string[] }} Challenge
  */
 
-const TURNSTILE_TOKEN = "input[name='cf-turnstile-response']";
-const RECAPTCHA_TOKEN = "textarea[name='g-recaptcha-response']";
+/** @type {Challenge} */
+const TURNSTILE = { token: "input[name='cf-turnstile-response']", widgets: ['.cf-turnstile', "iframe[src*='challenges.cloudflare.com']"] };
 
-/** @type {Record<UserTurnKind, { token: string | null, widgets: string[] }>} */
+/** @type {Record<UserTurnKind, Challenge>} */
 const CHALLENGES = {
-    turnstile: { token: TURNSTILE_TOKEN, widgets: ['.cf-turnstile', "iframe[src*='challenges.cloudflare.com']"] },
-    managedChallenge: { token: TURNSTILE_TOKEN, widgets: ['.cf-turnstile', "iframe[src*='challenges.cloudflare.com']"] },
-    recaptcha: { token: RECAPTCHA_TOKEN, widgets: ['.g-recaptcha', "iframe[src*='recaptcha']"] },
+    turnstile: TURNSTILE,
+    managedChallenge: TURNSTILE,
+    recaptcha: { token: "textarea[name='g-recaptcha-response']", widgets: ['.g-recaptcha', "iframe[src*='recaptcha']"] },
     generic: { token: null, widgets: [] },
 };
 
@@ -35,6 +37,8 @@ export class UserAssist {
     overlay = new AssistOverlay();
     /** @type {{ poll: ReturnType<typeof setInterval>, ended: Promise<void>, end: () => void } | null} */
     turn = null;
+    /** Click actions already presented, so retry attempts don't replay the cursor. */
+    presentedClicks = new WeakSet();
 
     /**
      * @param {(params: { kind: UserTurnKind }) => void} onTurnCompleted
@@ -63,13 +67,15 @@ export class UserAssist {
      * @param {Record<string, any>} action
      */
     async beforeAction(action) {
-        if (!this.enabled || action.actionType !== 'click') return;
+        if (!this.enabled || action.actionType !== 'click' || this.presentedClicks.has(action)) return;
+        this.presentedClicks.add(action);
         for (const element of clickTargets(action)) {
             await this.overlay.moveCursor(element, { dx: 30, dy: element.getBoundingClientRect().height / 2, label: 'Moving' });
+            if (!this.enabled) return;
             this.overlay.highlightField(element);
             await wait(CLICK_PAUSE_MS);
+            if (!this.enabled) return;
         }
-        this.overlay.highlightField(null);
     }
 
     /**
@@ -85,7 +91,10 @@ export class UserAssist {
                     .map((/** @type {{ selector: string }} */ element) => getElement(form, element.selector))
                     .filter((/** @type {HTMLElement | null} */ field) => field !== null);
                 const fieldMs = Math.min(MAX_FIELD_MS, FORM_BUDGET_MS / Math.max(fields.length, 1));
-                for (const field of fields) await this.retype(field, fieldMs);
+                for (const field of fields) {
+                    if (!this.enabled) return;
+                    await this.retype(field, fieldMs);
+                }
             }
         }
         // The cursor stays where the action left it so the next action glides on from there; native
@@ -97,7 +106,8 @@ export class UserAssist {
     /**
      * Replays a field's value one character at a time. The value has already been filled (with the
      * events sites listen for); this only changes what's on screen, so it sets the value without
-     * dispatching events and always finishes on the value the fill left behind.
+     * dispatching events and finishes on the value the fill left behind. If the page changes the
+     * field meanwhile (a formatter reacting to the fill, say), the replay stops and the page's value stays.
      *
      * @param {HTMLElement} field
      * @param {number} budgetMs - time for moving to the field and typing into it
@@ -106,8 +116,7 @@ export class UserAssist {
         this.overlay.highlightField(field);
         const dy = field.getBoundingClientRect().height / 2;
         const moveMs = Math.round(budgetMs * 0.4);
-        const setter = typeableValueSetter(field);
-        if (!setter || !(field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement)) {
+        if (!isTypeable(field)) {
             await this.overlay.moveCursor(field, { dx: 10, dy, label: 'Moving', durationMs: moveMs });
             await wait(budgetMs - moveMs);
             return;
@@ -116,34 +125,48 @@ export class UserAssist {
         await this.overlay.moveCursor(field, { dx: 10, dy, label: 'Typing', durationMs: moveMs });
         const keystrokeMs = Math.min(MAX_KEYSTROKE_MS, (budgetMs - moveMs) / Math.max(value.length, 1));
         const measure = textMeasurer(field);
+        const setValue = valueSetter(field);
+        let written = value;
         try {
             for (let i = 0; i <= value.length; i++) {
-                setter.call(field, value.slice(0, i));
-                const x = measure(value.slice(0, i));
+                if (field.value !== written || !this.enabled) return;
+                written = value.slice(0, i);
+                setValue(written);
+                const x = measure(written);
                 this.overlay.setCaret(x);
-                void this.overlay.moveCursor(field, { dx: x + 10, dy, durationMs: keystrokeMs });
+                this.overlay.placeCursor(field, { dx: x + 10, dy, durationMs: keystrokeMs });
                 await wait(keystrokeMs);
             }
         } finally {
-            setter.call(field, value);
+            if (field.value === written) setValue(value);
             this.overlay.setCaret(null);
         }
     }
 
     /**
-     * @param {UserTurnParams} params
+     * @param {{ kind?: unknown, tokenSelector?: unknown }} params - as sent by native
      */
-    startUserTurn(params) {
+    startUserTurn({ kind, tokenSelector }) {
         this.endUserTurn();
+        /** @type {UserTurnParams} */
+        const params = {
+            kind:
+                typeof kind === 'string' && Object.prototype.hasOwnProperty.call(CHALLENGES, kind)
+                    ? /** @type {UserTurnKind} */ (kind)
+                    : 'generic',
+            tokenSelector: typeof tokenSelector === 'string' ? tokenSelector : null,
+        };
         /** @type {() => void} */
         let end = () => {};
         const ended = new Promise((resolve) => {
             end = () => resolve(undefined);
         });
+        // A token already present (an expired or rejected one) doesn't mean the user has solved anything.
+        const initialTokens = tokenValues(params);
         let completed = false;
         const check = () => {
             this.overlay.updateTurnTarget(findWidget(params));
-            if (completed || !isSolved(params)) return;
+            if (completed || !tokenValues(params).some((token) => token !== '' && !initialTokens.includes(token))) return;
             completed = true;
             this.onTurnCompleted({ kind: params.kind });
         };
@@ -170,6 +193,8 @@ export class UserAssist {
 function clickTargets(action) {
     /** @type {HTMLElement[]} */
     const targets = [];
+    // Which of the choices a click uses is only known once the click evaluates them.
+    if (action.choices?.length) return targets;
     for (const element of action.elements ?? []) {
         // Elements scoped to a matched profile are only resolvable by the click itself.
         if (element.parent || typeof element.selector !== 'string') continue;
@@ -184,7 +209,7 @@ function clickTargets(action) {
  * @returns {Element | null}
  */
 function findWidget({ kind, tokenSelector }) {
-    const challenge = CHALLENGES[kind] ?? CHALLENGES.generic;
+    const challenge = CHALLENGES[kind];
     for (const selector of challenge.widgets) {
         const widget = document.querySelector(selector);
         if (widget) return widget;
@@ -196,11 +221,12 @@ function findWidget({ kind, tokenSelector }) {
 
 /**
  * @param {UserTurnParams} params
+ * @returns {string[]}
  */
-function isSolved({ kind, tokenSelector }) {
-    const selector = tokenSelector ?? (CHALLENGES[kind] ?? CHALLENGES.generic).token;
-    if (!selector) return false;
-    return queryAll(selector).some((field) => 'value' in field && field.value !== '');
+function tokenValues({ kind, tokenSelector }) {
+    const selector = tokenSelector ?? CHALLENGES[kind].token;
+    if (!selector) return [];
+    return queryAll(selector).map((field) => ('value' in field && typeof field.value === 'string' ? field.value : ''));
 }
 
 /**
@@ -219,13 +245,24 @@ function queryAll(selector) {
 
 /**
  * @param {HTMLElement} field
+ * @returns {field is HTMLInputElement | HTMLTextAreaElement}
  */
-function typeableValueSetter(field) {
-    if (field instanceof HTMLTextAreaElement) return Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')?.set ?? null;
-    if (field instanceof HTMLInputElement && TYPEABLE_INPUT_TYPES.has(field.type)) {
-        return Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set ?? null;
-    }
-    return null;
+function isTypeable(field) {
+    return field instanceof HTMLTextAreaElement || (field instanceof HTMLInputElement && TYPEABLE_INPUT_TYPES.has(field.type));
+}
+
+/**
+ * Uses the prototype's setter, like fillForm does, so frameworks that wrap `value` on the element don't see the replay.
+ *
+ * @param {HTMLInputElement | HTMLTextAreaElement} field
+ * @returns {(value: string) => void}
+ */
+function valueSetter(field) {
+    const prototype = field instanceof HTMLTextAreaElement ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype;
+    const set = Object.getOwnPropertyDescriptor(prototype, 'value')?.set;
+    return (value) => {
+        if (set) set.call(field, value);
+    };
 }
 
 /**
