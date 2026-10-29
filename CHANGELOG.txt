@@ -1,3 +1,1 @@
-- NTP: Prevent omnibar layout shift while config loads (#3151)
-- Apply apiChanges in a-z order, and skip a change that throws (#3158)
-- NTP: Avoid unnecessary scrolling in the model selector (#3149)
+- Extend webDetection to support slow/broken page load detectors (#3098)

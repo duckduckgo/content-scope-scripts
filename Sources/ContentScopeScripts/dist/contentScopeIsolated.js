@@ -54,6 +54,7 @@
   ));
   var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   var __accessCheck = (obj, member, msg) => member.has(obj) || __typeError("Cannot " + msg);
+  var __privateIn = (member, obj) => Object(obj) !== obj ? __typeError('Cannot use the "in" operator on this value') : member.has(obj);
   var __privateGet = (obj, member, getter) => (__accessCheck(obj, member, "read from private field"), getter ? getter.call(obj) : member.get(obj));
   var __privateAdd = (obj, member, value) => member.has(obj) ? __typeError("Cannot add the same private member more than once") : member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
   var __privateSet = (obj, member, value, setter) => (__accessCheck(obj, member, "write to private field"), setter ? setter.call(obj, value) : member.set(obj, value), value);
@@ -1562,11 +1563,13 @@
     JSONparse: () => JSONparse,
     JSONstringify: () => JSONstringify,
     Map: () => Map2,
+    NodePrototype: () => NodePrototype,
     Promise: () => Promise2,
     Proxy: () => Proxy2,
     Reflect: () => Reflect2,
     ReflectApply: () => ReflectApply,
     ReflectDeleteProperty: () => ReflectDeleteProperty,
+    ReflectGet: () => ReflectGet,
     Set: () => Set2,
     String: () => String2,
     Symbol: () => Symbol2,
@@ -1594,9 +1597,14 @@
     generateKey: () => generateKey,
     getOwnPropertyDescriptor: () => getOwnPropertyDescriptor,
     getOwnPropertyDescriptors: () => getOwnPropertyDescriptors,
+    getOwnPropertyNames: () => getOwnPropertyNames,
+    getPrototypeOf: () => getPrototypeOf,
     getRandomValues: () => getRandomValues,
     hasOwnProperty: () => hasOwnProperty,
     importKey: () => importKey,
+    isArray: () => isArray,
+    numberIsFinite: () => numberIsFinite,
+    numberIsNaN: () => numberIsNaN,
     objectDefineProperty: () => objectDefineProperty,
     objectEntries: () => objectEntries,
     objectFromEntries: () => objectFromEntries,
@@ -1613,6 +1621,11 @@
   var customElementsDefine = globalThis.customElements?.define.bind(globalThis.customElements);
   var getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
   var getOwnPropertyDescriptors = Object.getOwnPropertyDescriptors;
+  var getOwnPropertyNames = Object.getOwnPropertyNames;
+  var getPrototypeOf = Object.getPrototypeOf;
+  var isArray = Array.isArray;
+  var numberIsFinite = Number.isFinite;
+  var numberIsNaN = Number.isNaN;
   var toString = Object.prototype.toString;
   var objectKeys = Object.keys;
   var objectEntries = Object.entries;
@@ -1629,6 +1642,7 @@
   var addEventListener = globalThis.addEventListener?.bind(globalThis);
   var removeEventListener = globalThis.removeEventListener?.bind(globalThis);
   var CustomEvent2 = globalThis.CustomEvent;
+  var NodePrototype = globalThis.Node?.prototype;
   var Promise2 = globalThis.Promise;
   var String2 = globalThis.String;
   var Map2 = globalThis.Map;
@@ -1651,6 +1665,7 @@
   var charCodeAt = globalThis.String.prototype.charCodeAt;
   var ReflectDeleteProperty = Reflect2.deleteProperty.bind(Reflect2);
   var ReflectApply = Reflect2.apply.bind(Reflect2);
+  var ReflectGet = Reflect2.get.bind(Reflect2);
   var getRandomValues = globalThis.crypto?.getRandomValues?.bind(globalThis.crypto);
   var generateKey = globalThis.crypto?.subtle?.generateKey?.bind(globalThis.crypto?.subtle);
   var exportKey = globalThis.crypto?.subtle?.exportKey?.bind(globalThis.crypto?.subtle);
@@ -1691,7 +1706,6 @@
       "duckAiChatHistory",
       "harmfulApis",
       "webCompat",
-      "webDetection",
       "webEvents",
       "webInterferenceDetection",
       "detectorPerf",
@@ -1723,6 +1737,7 @@
   var platformSupport = {
     apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "pageContext", "print", "trackerProtection", "textSelection"],
     "apple-isolated": [
+      "webDetection",
       "contextMenu",
       "duckPlayer",
       "duckPlayerNative",
@@ -1732,7 +1747,6 @@
       "clickToLoad",
       "messageBridge",
       "favicon",
-      "webDetection",
       "webEvents",
       "webInterferenceDetection",
       "detectorPerf",
@@ -1746,9 +1760,9 @@
     "apple-ai-clear": ["duckAiDataClearing"],
     "apple-ai-history": ["duckAiChatHistory"],
     android: [
+      "webDetection",
       ...baseFeatures,
       "webCompat",
-      "webDetection",
       "webEvents",
       "webInterferenceDetection",
       "detectorPerf",
@@ -1763,6 +1777,7 @@
     "android-ai-history": ["duckAiChatHistory"],
     "android-autofill-import": ["autofillImport"],
     "android-adsjs": [
+      "webDetection",
       "apiManipulation",
       "webCompat",
       "fingerprintingHardware",
@@ -1771,14 +1786,13 @@
       "fingerprintingAudio",
       "fingerprintingBattery",
       "gpc",
-      "webDetection",
       "webEvents",
       "breakageReporting"
     ],
     windows: [
       "cookie",
-      ...baseFeatures,
       "webDetection",
+      ...baseFeatures,
       "webEvents",
       "webInterferenceDetection",
       "detectorPerf",
@@ -1797,10 +1811,10 @@
       "autofillPasskeys",
       "chromeWebstorePatching"
     ],
-    firefox: ["cookie", ...baseFeatures, "clickToLoad", "webDetection", "webEvents", "webInterferenceDetection", "breakageReporting"],
-    chrome: ["cookie", ...baseFeatures, "clickToLoad", "webDetection", "webEvents", "webInterferenceDetection", "breakageReporting"],
-    "chrome-mv3": ["cookie", ...baseFeatures, "clickToLoad", "webDetection", "webEvents", "webInterferenceDetection", "breakageReporting"],
-    integration: [...baseFeatures, ...otherFeatures]
+    firefox: ["cookie", "webDetection", ...baseFeatures, "clickToLoad", "webEvents", "webInterferenceDetection", "breakageReporting"],
+    chrome: ["cookie", "webDetection", ...baseFeatures, "clickToLoad", "webEvents", "webInterferenceDetection", "breakageReporting"],
+    "chrome-mv3": ["cookie", "webDetection", ...baseFeatures, "clickToLoad", "webEvents", "webInterferenceDetection", "breakageReporting"],
+    integration: ["webDetection", ...baseFeatures, ...otherFeatures]
   };
 
   // src/utils.js
@@ -2381,7 +2395,7 @@
   // ddg:platformFeatures:ddg:platformFeatures
   init_define_import_meta_trackerLookup();
 
-  // src/features/context-menu.js
+  // src/features/web-detection.js
   init_define_import_meta_trackerLookup();
 
   // src/content-feature.js
@@ -5729,6 +5743,2939 @@
   _importConfig = new WeakMap();
   _features = new WeakMap();
   _ready = new WeakMap();
+
+  // src/features/detector-perf.js
+  init_define_import_meta_trackerLookup();
+  var DEFAULT_SINGLE_RUN_THRESHOLDS_MS = [8, 16, 50, 150];
+  var DEFAULT_TOTAL_PER_PAGE_THRESHOLDS_MS = [50, 100, 250];
+  var DEFAULT_COMBINED_THRESHOLDS_MS = [100, 250, 500];
+  var DEFAULT_MAX_SEVERE_PER_PAGE = 10;
+  var NAME_PATTERN = /^[a-zA-Z0-9]+(?:[._-][a-zA-Z0-9]+)*$/;
+  var EVENT_PREFIX = "detectorPerf";
+  var SEVERE_EVENT_TYPE = `${EVENT_PREFIX}_severe`;
+  var DEBUG_STATS_EVENT_TYPE = `${EVENT_PREFIX}DebugStats`;
+  function parseThresholds(value, fallback) {
+    if (!Array.isArray(value)) return fallback;
+    const edges = value.filter((edge) => typeof edge === "number" && Number.isFinite(edge) && edge > 0);
+    if (edges.length === 0) return fallback;
+    return [...new Set2(edges)].sort((a2, b2) => a2 - b2);
+  }
+  function roundMs(ms) {
+    return Math.round(ms * 10) / 10;
+  }
+  var _active, _detectors, _detectorsDetailed, _combinedTotalMs, _emitted, _singleRunThresholdsMs, _totalPerPageThresholdsMs, _combinedThresholdsMs, _singleRunSevereThresholdMs, _totalPerPageSevereThresholdMs, _combinedSevereThresholdMs, _detectorOverrides, _severeCount, _maxSeverePerPage, _severeDebugLog;
+  var DetectorPerf = class extends ContentFeature {
+    constructor() {
+      super(...arguments);
+      __publicField(this, "_exposedMethods", this._declareExposedMethods(["record", "getStats"]));
+      /**
+       * `detectorPerf` is bundled as a platform-specific dependency so it remains
+       * available when protections are disabled, but loading it must not bypass
+       * remote-config gating. Enabled feature settings are copied into
+       * `featureSettings`; an absent/disabled feature has no own entry.
+       */
+      __privateAdd(this, _active, false);
+      /** @type {Map<string, DetectorStats>} */
+      __privateAdd(this, _detectors, new Map2());
+      /**
+       * Per-page stats keyed by exact attribution (the `detail` config ID when
+       * present, the group otherwise). Never feeds periodic events — only the
+       * breakage-report payload, where exact IDs are wanted.
+       * @type {Map<string, DetectorStats>}
+       */
+      __privateAdd(this, _detectorsDetailed, new Map2());
+      /** Total ms across all recorded detectors in this frame. */
+      __privateAdd(this, _combinedTotalMs, 0);
+      /** Event types already emitted in this frame (at-most-once guard). */
+      /** @type {Set<string>} */
+      __privateAdd(this, _emitted, new Set2());
+      /** @type {number[]} */
+      __privateAdd(this, _singleRunThresholdsMs, DEFAULT_SINGLE_RUN_THRESHOLDS_MS);
+      /** @type {number[]} */
+      __privateAdd(this, _totalPerPageThresholdsMs, DEFAULT_TOTAL_PER_PAGE_THRESHOLDS_MS);
+      /** @type {number[]} */
+      __privateAdd(this, _combinedThresholdsMs, DEFAULT_COMBINED_THRESHOLDS_MS);
+      /** @type {number | undefined} */
+      __privateAdd(this, _singleRunSevereThresholdMs);
+      /** @type {number | undefined} */
+      __privateAdd(this, _totalPerPageSevereThresholdMs);
+      /** @type {number | undefined} */
+      __privateAdd(this, _combinedSevereThresholdMs);
+      /** @type {Record<string, Partial<DetectorThresholds>>} */
+      __privateAdd(this, _detectorOverrides, {});
+      /** Severe emissions so far in this frame. */
+      __privateAdd(this, _severeCount, 0);
+      /** @type {number} */
+      __privateAdd(this, _maxSeverePerPage, DEFAULT_MAX_SEVERE_PER_PAGE);
+      /**
+       * Severe emissions in this frame, kept only under the debug flag for the
+       * debug stats broadcast. Empty in production.
+       * @type {Array<{ kind: SevereKind, detector: string, thresholdMs: number }>}
+       */
+      __privateAdd(this, _severeDebugLog, []);
+    }
+    init() {
+      if (!hasOwnProperty.call(this.featureSettings ?? {}, this.name)) return;
+      __privateSet(this, _active, true);
+      this._readThresholdSettings();
+      if (window.self === window.top) {
+        this._emit(`${EVENT_PREFIX}_measured`);
+      }
+      this._debugBroadcast(null);
+    }
+    _readThresholdSettings() {
+      const defaults = this.getFeatureSetting("defaults");
+      if (defaults && typeof defaults === "object") {
+        const defaultSettings = (
+          /** @type {Record<string, unknown>} */
+          defaults
+        );
+        __privateSet(this, _singleRunThresholdsMs, parseThresholds(defaultSettings.singleRunThresholdsMs, DEFAULT_SINGLE_RUN_THRESHOLDS_MS));
+        __privateSet(this, _totalPerPageThresholdsMs, parseThresholds(
+          defaultSettings.totalPerPageThresholdsMs,
+          DEFAULT_TOTAL_PER_PAGE_THRESHOLDS_MS
+        ));
+      }
+      __privateSet(this, _combinedThresholdsMs, parseThresholds(this.getFeatureSetting("combinedThresholdsMs"), DEFAULT_COMBINED_THRESHOLDS_MS));
+      const singleRunSevereThresholdMs = this.getFeatureSetting("singleRunSevereThresholdMs");
+      if (typeof singleRunSevereThresholdMs === "number" && Number.isFinite(singleRunSevereThresholdMs) && singleRunSevereThresholdMs > 0) {
+        __privateSet(this, _singleRunSevereThresholdMs, singleRunSevereThresholdMs);
+      }
+      const totalPerPageSevereThresholdMs = this.getFeatureSetting("totalPerPageSevereThresholdMs");
+      if (typeof totalPerPageSevereThresholdMs === "number" && Number.isFinite(totalPerPageSevereThresholdMs) && totalPerPageSevereThresholdMs > 0) {
+        __privateSet(this, _totalPerPageSevereThresholdMs, totalPerPageSevereThresholdMs);
+      }
+      const combinedSevereThresholdMs = this.getFeatureSetting("combinedSevereThresholdMs");
+      if (typeof combinedSevereThresholdMs === "number" && Number.isFinite(combinedSevereThresholdMs) && combinedSevereThresholdMs > 0) {
+        __privateSet(this, _combinedSevereThresholdMs, combinedSevereThresholdMs);
+      }
+      const overrides = this.getFeatureSetting("detectorOverrides");
+      if (overrides && typeof overrides === "object" && !Array.isArray(overrides)) {
+        __privateSet(
+          this,
+          _detectorOverrides,
+          /** @type {Record<string, Partial<DetectorThresholds>>} */
+          overrides
+        );
+      }
+      const maxSevere = this.getFeatureSetting("maxSeverePerPage");
+      if (typeof maxSevere === "number" && Number.isFinite(maxSevere) && maxSevere > 0) {
+        __privateSet(this, _maxSeverePerPage, Math.floor(maxSevere));
+      }
+    }
+    /**
+     * Threshold edges for a detector group, applying per-group overrides.
+     *
+     * @param {string} name
+     * @returns {DetectorThresholds}
+     */
+    _thresholdsFor(name) {
+      const override = hasOwnProperty.call(__privateGet(this, _detectorOverrides), name) ? __privateGet(this, _detectorOverrides)[name] : void 0;
+      return {
+        singleRunThresholdsMs: parseThresholds(override?.singleRunThresholdsMs, __privateGet(this, _singleRunThresholdsMs)),
+        totalPerPageThresholdsMs: parseThresholds(override?.totalPerPageThresholdsMs, __privateGet(this, _totalPerPageThresholdsMs))
+      };
+    }
+    /**
+     * Add one detector run's duration to the frame accumulators.
+     *
+     * Called (fire-and-forget) by the `timeDetector` wrapper around detector
+     * invocations. Invalid input is ignored — recording must never throw
+     * back into a detector call site.
+     *
+     * @param {string} name - detector group
+     * @param {number} durationMs
+     * @param {string} [detail] - exact detector identity for single-run severe
+     *   attribution, e.g. `adwalls.generic_en` within the `adwalls` group.
+     *   Never appears in periodic event-type names.
+     * @param {boolean} [failed] - whether the detector invocation threw
+     */
+    record(name, durationMs, detail, failed = false) {
+      if (!__privateGet(this, _active)) return;
+      if (typeof name !== "string" || !NAME_PATTERN.test(name)) return;
+      if (typeof durationMs !== "number" || !Number.isFinite(durationMs) || durationMs < 0) return;
+      const stats = __privateGet(this, _detectors).get(name) ?? { runs: 0, totalMs: 0, worstMs: 0 };
+      stats.runs += 1;
+      stats.totalMs += durationMs;
+      stats.worstMs = Math.max(stats.worstMs, durationMs);
+      __privateGet(this, _detectors).set(name, stats);
+      __privateSet(this, _combinedTotalMs, __privateGet(this, _combinedTotalMs) + durationMs);
+      const attributed = typeof detail === "string" && NAME_PATTERN.test(detail) ? detail : name;
+      const detailed = __privateGet(this, _detectorsDetailed).get(attributed) ?? { runs: 0, totalMs: 0, worstMs: 0 };
+      detailed.runs += 1;
+      detailed.totalMs += durationMs;
+      detailed.worstMs = Math.max(detailed.worstMs, durationMs);
+      __privateGet(this, _detectorsDetailed).set(attributed, detailed);
+      const thresholds = this._thresholdsFor(name);
+      this._emitCrossings(name, durationMs, stats, thresholds);
+      if (failed === true) {
+        this._emit(`${EVENT_PREFIX}_${name}_failed`);
+      }
+      this._checkSevere(name, durationMs, stats, attributed, thresholds);
+      this._debugBroadcast({ name, attributed, durationMs: roundMs(durationMs), failed: failed === true });
+    }
+    /**
+     * Emit `ran` and every newly crossed threshold edge for this run. All
+     * counters are monotonic, so checking at each run is equivalent to
+     * checking accumulated worst/total values — the at-most-once guard makes
+     * each event fire exactly at its first crossing.
+     *
+     * @param {string} name
+     * @param {number} durationMs
+     * @param {DetectorStats} stats
+     * @param {DetectorThresholds} thresholds
+     */
+    _emitCrossings(name, durationMs, stats, thresholds) {
+      this._emit(`${EVENT_PREFIX}_${name}_ran`);
+      for (const edge of thresholds.singleRunThresholdsMs) {
+        if (durationMs > edge) this._emit(`${EVENT_PREFIX}_${name}_over${edge}ms`);
+      }
+      for (const edge of thresholds.totalPerPageThresholdsMs) {
+        if (stats.totalMs > edge) this._emit(`${EVENT_PREFIX}_${name}_total_over${edge}ms`);
+      }
+      for (const edge of __privateGet(this, _combinedThresholdsMs)) {
+        if (__privateGet(this, _combinedTotalMs) > edge) this._emit(`${EVENT_PREFIX}_combined_over${edge}ms`);
+      }
+    }
+    /**
+     * Snapshot of the exact per-detector accumulators for this frame, for
+     * attachment to user-initiated breakage reports. Unlike the bucketed
+     * events, values are exact and keyed by exact attribution (config IDs
+     * such as `adwalls.generic_en` rather than the `adwalls` group).
+     * Durations are rounded to 0.1ms to keep the payload compact —
+     * finer precision is below timer granularity anyway.
+     *
+     * @returns {{ combinedTotalMs: number, detectors: Record<string, DetectorStats> } | undefined}
+     */
+    getStats() {
+      if (!__privateGet(this, _active)) return void 0;
+      const detectors = {};
+      for (const [name, stats] of __privateGet(this, _detectorsDetailed)) {
+        detectors[name] = {
+          runs: stats.runs,
+          totalMs: roundMs(stats.totalMs),
+          worstMs: roundMs(stats.worstMs)
+        };
+      }
+      return { combinedTotalMs: roundMs(__privateGet(this, _combinedTotalMs)), detectors };
+    }
+    /**
+     * Fire immediate severe events for crossed edges at or above the
+     * configured cutoff. Edges are emitted highest-first so the per-frame cap
+     * preserves the strongest signals. Totals are checked against the
+     * accumulated group and therefore attribute to that group, e.g. `adwalls`.
+     * Without an explicit cutoff, the previous highest-edge behavior applies.
+     *
+     * @param {string} name
+     * @param {number} durationMs
+     * @param {DetectorStats} stats
+     * @param {string} attributed - exact detector identity for severe attribution
+     * @param {DetectorThresholds} thresholds
+     */
+    _checkSevere(name, durationMs, stats, attributed, thresholds) {
+      const singleEdges = thresholds.singleRunThresholdsMs;
+      const singleCutoff = __privateGet(this, _singleRunSevereThresholdMs) ?? singleEdges[singleEdges.length - 1];
+      for (let i = singleEdges.length - 1; i >= 0; i--) {
+        const edge = singleEdges[i];
+        if (edge !== void 0 && singleCutoff !== void 0 && edge >= singleCutoff && durationMs > edge) {
+          this._emitSevere("single", attributed, edge);
+        }
+      }
+      const totalEdges = thresholds.totalPerPageThresholdsMs;
+      const totalCutoff = __privateGet(this, _totalPerPageSevereThresholdMs) ?? totalEdges[totalEdges.length - 1];
+      for (let i = totalEdges.length - 1; i >= 0; i--) {
+        const edge = totalEdges[i];
+        if (edge !== void 0 && totalCutoff !== void 0 && edge >= totalCutoff && stats.totalMs > edge) {
+          this._emitSevere("total", name, edge);
+        }
+      }
+      const combinedCutoff = __privateGet(this, _combinedSevereThresholdMs) ?? __privateGet(this, _combinedThresholdsMs)[__privateGet(this, _combinedThresholdsMs).length - 1];
+      for (let i = __privateGet(this, _combinedThresholdsMs).length - 1; i >= 0; i--) {
+        const edge = __privateGet(this, _combinedThresholdsMs)[i];
+        if (edge !== void 0 && combinedCutoff !== void 0 && edge >= combinedCutoff && __privateGet(this, _combinedTotalMs) > edge) {
+          this._emitSevere("combined", "combined", edge);
+        }
+      }
+    }
+    /**
+     * Fire `detectorPerf_severe` immediately, at most once per frame per
+     * detector, family and threshold, and at most `maxSeverePerPage` per frame
+     * in total (blast-radius cap for a misconfigured threshold push).
+     *
+     * @param {SevereKind} kind
+     * @param {string} detector
+     * @param {number} thresholdMs
+     */
+    _emitSevere(kind, detector, thresholdMs) {
+      if (__privateGet(this, _severeCount) >= __privateGet(this, _maxSeverePerPage)) return;
+      const guardKey = `${SEVERE_EVENT_TYPE}:${kind}:${detector}:${thresholdMs}`;
+      if (__privateGet(this, _emitted).has(guardKey)) return;
+      __privateGet(this, _emitted).add(guardKey);
+      __privateSet(this, _severeCount, __privateGet(this, _severeCount) + 1);
+      if (this.isDebug) {
+        __privateGet(this, _severeDebugLog).push({ kind, detector, thresholdMs });
+      }
+      void this._dispatch(SEVERE_EVENT_TYPE, { kind, detector, thresholdMs });
+    }
+    /**
+     * Debug-only broadcast of the current stats snapshot to the page, for
+     * test-page overlays during human testing. No-op unless the platform
+     * set the debug flag, so production behaviour is unchanged. Failures
+     * are swallowed: a page with a broken/removed EventTarget must not
+     * break recording.
+     *
+     * INVARIANT: native release builds must never set the debug flag
+     * (`args.debug`) on user pages — this event is page-observable and
+     * exposes detector timing and severe-crossing attribution to any page
+     * script with a listener. The debug flag is the sole gate.
+     *
+     * @param {{ name: string, attributed: string, durationMs: number, failed: boolean } | null} lastRun
+     *   the run that triggered this broadcast, or null for the init broadcast
+     */
+    _debugBroadcast(lastRun) {
+      if (!this.isDebug) return;
+      try {
+        const stats = this.getStats();
+        if (!stats) return;
+        const payload = {
+          ...stats,
+          severe: __privateGet(this, _severeDebugLog),
+          lastRun
+        };
+        dispatchEvent?.(new CustomEvent2(DEBUG_STATS_EVENT_TYPE, { detail: JSON.stringify(payload) }));
+      } catch {
+      }
+    }
+    /**
+     * Fire an event through webEvents, at most once per frame per event type.
+     *
+     * The at-most-once guard runs synchronously (before any await), so
+     * repeated crossings cannot double-emit. Dispatch is fire-and-forget: the
+     * call site does not await, and failures (e.g. webEvents not bundled on
+     * this platform) are silently swallowed.
+     *
+     * @param {string} type
+     */
+    _emit(type) {
+      if (__privateGet(this, _emitted).has(type)) return;
+      __privateGet(this, _emitted).add(type);
+      void this._dispatch(type);
+    }
+    /**
+     * @param {string} type
+     * @param {Record<string, unknown>} [data]
+     */
+    async _dispatch(type, data2) {
+      try {
+        if (data2 === void 0) {
+          await this.callFeatureMethod("webEvents", "fireEvent", { type });
+        } else {
+          await this.callFeatureMethod("webEvents", "fireEvent", { type, data: data2 });
+        }
+      } catch {
+      }
+    }
+  };
+  _active = new WeakMap();
+  _detectors = new WeakMap();
+  _detectorsDetailed = new WeakMap();
+  _combinedTotalMs = new WeakMap();
+  _emitted = new WeakMap();
+  _singleRunThresholdsMs = new WeakMap();
+  _totalPerPageThresholdsMs = new WeakMap();
+  _combinedThresholdsMs = new WeakMap();
+  _singleRunSevereThresholdMs = new WeakMap();
+  _totalPerPageSevereThresholdMs = new WeakMap();
+  _combinedSevereThresholdMs = new WeakMap();
+  _detectorOverrides = new WeakMap();
+  _severeCount = new WeakMap();
+  _maxSeverePerPage = new WeakMap();
+  _severeDebugLog = new WeakMap();
+  function timeDetector(feature, name, fn, detail, isFailed) {
+    const t0 = performanceNow();
+    let failed = true;
+    try {
+      const result = fn();
+      failed = isFailed?.(result) ?? false;
+      return result;
+    } finally {
+      const durationMs = performanceNow() - t0;
+      void reportDuration(feature, name, durationMs, detail, failed);
+    }
+  }
+  async function reportDuration(feature, name, durationMs, detail, failed) {
+    try {
+      await feature.callFeatureMethod("detectorPerf", "record", name, durationMs, detail, failed);
+    } catch {
+    }
+  }
+
+  // src/features/web-detection/compile/detector-config.js
+  init_define_import_meta_trackerLookup();
+
+  // src/features/web-detection/model/core.js
+  init_define_import_meta_trackerLookup();
+  var _brand;
+  var _Failure = class _Failure {
+    /**
+     * @param {string} [error] - for a throw, the name of the thrown value's constructor, for debugging
+     * @param {string} [path] - the config path of the expression it arose at
+     */
+    constructor(error, path) {
+      __privateAdd(this, _brand, true);
+      this.error = error;
+      this.path = path;
+    }
+    /**
+     * The failure at the expression it arose at: itself once it has a path, which it keeps as it propagates.
+     *
+     * @param {string} path
+     * @returns {Failure}
+     */
+    at(path) {
+      return this.path === void 0 ? new _Failure(this.error, path) : this;
+    }
+    /**
+     * @param {object} value
+     * @returns {boolean}
+     */
+    static has(value) {
+      return __privateIn(_brand, value);
+    }
+  };
+  _brand = new WeakMap();
+  var Failure = _Failure;
+  function isFailure(value) {
+    return typeof value === "object" && value !== null && Failure.has(value);
+  }
+  function thrownFailure(thrown) {
+    return new Failure(errorName(thrown));
+  }
+  function thrownMessage(thrown) {
+    if (thrown === null || typeof thrown !== "object" && typeof thrown !== "function") return String(thrown);
+    try {
+      const message = getOwnPropertyDescriptor(thrown, "message")?.value;
+      if (typeof message === "string") return message;
+    } catch {
+    }
+    return errorName(thrown) ?? "unknown";
+  }
+  function errorName(thrown) {
+    try {
+      for (let current = getPrototypeOf(thrown); current !== null; current = getPrototypeOf(current)) {
+        const constructor = getOwnPropertyDescriptor(current, "constructor")?.value;
+        const name = typeof constructor === "function" ? getOwnPropertyDescriptor(constructor, "name")?.value : void 0;
+        if (typeof name === "string") return name;
+      }
+    } catch {
+    }
+    return void 0;
+  }
+  var DetectionError = class extends Error {
+    constructor() {
+      super(...arguments);
+      /** @type {string | undefined} the config path of the expression it arose at, set as it leaves that expression */
+      __publicField(this, "path");
+    }
+  };
+  function errorPath(error, path) {
+    if (error instanceof DetectionError) {
+      error.path ??= path;
+      return error.path;
+    }
+    return path;
+  }
+  var ConfigParseError = class extends Error {
+    /**
+     * @param {string} path - JSON path to the offending config
+     * @param {string} message
+     */
+    constructor(path, message) {
+      super(`${path}: ${message}`);
+    }
+  };
+  var FILLS = {
+    number: /* @__PURE__ */ new Set(["number", "value"]),
+    boolean: /* @__PURE__ */ new Set(["boolean", "value"]),
+    value: /* @__PURE__ */ new Set(["value"]),
+    list: /* @__PURE__ */ new Set(["list", "value", "number"]),
+    array: /* @__PURE__ */ new Set(["list", "value"]),
+    any: /* @__PURE__ */ new Set(["boolean", "value", "number", "list"])
+  };
+  var NAME_PATTERN2 = /^[a-zA-Z][a-zA-Z0-9_]*$/;
+  var DEFINE_NAME_PATTERN = /^(this\.)?[a-zA-Z][a-zA-Z0-9_]*$/;
+  var ACTION_KEYS = /* @__PURE__ */ new Set(["fireEvent", "breakageReportData", "define"]);
+  var EXPRESSION_KEYS = /* @__PURE__ */ new Set([
+    "element",
+    "text",
+    "api",
+    "self",
+    "expr",
+    "only",
+    "sum",
+    "mul",
+    "div",
+    "if",
+    "any",
+    "all",
+    "none",
+    "ref"
+  ]);
+  function isExpressionObject(raw) {
+    return isPlainObject(raw) && objectKeys(raw).some((key) => EXPRESSION_KEYS.has(key));
+  }
+  function isPlainObject(value) {
+    return typeof value === "object" && value !== null && !isArray(value);
+  }
+  function rejectUnknownKeys(raw, allowed, path) {
+    for (const key of objectKeys(raw)) {
+      if (!allowed.includes(key)) throw new ConfigParseError(path, `unknown key '${key}'`);
+    }
+  }
+  function asArray(value) {
+    return isArray(value) ? value : [value];
+  }
+  function isScalar(value) {
+    return value === null || typeof value === "string" || typeof value === "number" || typeof value === "boolean";
+  }
+  function decides(kind) {
+    return [kind === "any" || kind === "none", kind === "any"];
+  }
+  function typeName(value) {
+    if (value === null) return "null";
+    if (isArray(value)) return "array";
+    switch (typeof value) {
+      case "number":
+      case "string":
+      case "boolean":
+      case "undefined":
+        return (
+          /** @type {'number' | 'string' | 'boolean' | 'undefined'} */
+          typeof value
+        );
+      default:
+        return "object";
+    }
+  }
+  function getOrCreate(map, key, create) {
+    let value = map.get(key);
+    if (value === void 0) {
+      value = create(key);
+      map.set(key, value);
+    }
+    return value;
+  }
+  var newMap = () => /* @__PURE__ */ new Map();
+
+  // src/features/web-detection/sources/index.js
+  init_define_import_meta_trackerLookup();
+
+  // src/features/web-detection/sources/api.js
+  init_define_import_meta_trackerLookup();
+
+  // src/features/web-detection/model/lists.js
+  init_define_import_meta_trackerLookup();
+  var _iterator, _failedWhole;
+  var ItemBuffer = class {
+    /**
+     * @param {Iterator<unknown> | Failure} iterator
+     * @param {ListShortcuts} [shortcuts]
+     */
+    constructor(iterator, shortcuts = {}) {
+      /** @type {unknown[]} */
+      __publicField(this, "values", []);
+      /** Whether it is the condition leaf, `element` without `field` or `text`, which holds in boolean position when it has an item */
+      __publicField(this, "leaf", false);
+      /** @type {Failure | undefined} */
+      __publicField(this, "failure");
+      __publicField(this, "done", false);
+      /** @type {Iterator<unknown> | undefined} */
+      __privateAdd(this, _iterator);
+      /** Whether the source failed as a whole, which every placement reaches, a length cut at 0 included */
+      __privateAdd(this, _failedWhole, false);
+      this.shortcuts = shortcuts;
+      if (isFailure(iterator)) {
+        this.failure = iterator;
+        this.done = true;
+        __privateSet(this, _failedWhole, true);
+      } else {
+        __privateSet(this, _iterator, iterator);
+      }
+    }
+    /**
+     * @param {object} value
+     * @returns {boolean}
+     */
+    static has(value) {
+      return __privateIn(_iterator, value);
+    }
+    /** Whether any item has been pulled, or the source failed as a whole. */
+    get started() {
+      return this.values.length > 0 || this.done;
+    }
+    /**
+     * Pull items until `count` values are held, the source ends, or an item fails.
+     *
+     * @param {number} count
+     * @returns {Failure | undefined} the failure reached before `count` values, if any
+     */
+    pull(count) {
+      while (this.values.length < count && !this.done) {
+        const next = (
+          /** @type {Iterator<unknown>} */
+          __privateGet(this, _iterator).next()
+        );
+        if (next.done) {
+          this.done = true;
+        } else if (isFailure(next.value)) {
+          this.failure = next.value;
+          this.done = true;
+        } else {
+          this.values.push(next.value);
+        }
+      }
+      return this.values.length < count || __privateGet(this, _failedWhole) ? this.failure : void 0;
+    }
+  };
+  _iterator = new WeakMap();
+  _failedWhole = new WeakMap();
+  function isItemBuffer(value) {
+    return typeof value === "object" && value !== null && ItemBuffer.has(value);
+  }
+  function listMembers(value, ctx) {
+    if (isArray(value)) return arrayMembers(value);
+    const iteratorMethod = ctx.reader.iteratorMethod(value);
+    if (iteratorMethod === void 0 || isFailure(iteratorMethod)) return iteratorMethod;
+    const node = ctx.reader.isNode(value);
+    if (isFailure(node)) return node;
+    return node ? void 0 : iteratedMembers(value, iteratorMethod);
+  }
+  function asList(value, ctx) {
+    if (isItemBuffer(value)) return value;
+    const members = listMembers(value, ctx);
+    return members === void 0 ? void 0 : new ItemBuffer(members);
+  }
+  function* arrayMembers(array) {
+    for (let i = 0; ; i++) {
+      let item;
+      try {
+        if (i >= array.length) return;
+        item = array[i];
+      } catch (e) {
+        yield thrownFailure(e);
+        return;
+      }
+      yield item;
+    }
+  }
+  function* iteratedMembers(value, iteratorMethod) {
+    let iterator;
+    for (; ; ) {
+      let item;
+      try {
+        iterator ??= /** @type {Iterator<unknown>} */
+        ReflectApply(iteratorMethod, value, []);
+        const next = iterator.next();
+        if (next.done) return;
+        item = next.value;
+      } catch (e) {
+        yield thrownFailure(e);
+        return;
+      }
+      yield item;
+    }
+  }
+
+  // src/features/web-detection/predicates/fields.js
+  init_define_import_meta_trackerLookup();
+  function readPath(reader, root, names2, args) {
+    let current = root;
+    for (let i = 0; i < names2.length; i++) {
+      if (current === null || current === void 0) return void 0;
+      const name = (
+        /** @type {string} */
+        names2[i]
+      );
+      if (args && i === names2.length - 1) {
+        current = reader.call(current, name, args);
+      } else if (name === "length" && typeof current === "string") {
+        current = current.length;
+      } else {
+        current = reader.read(current, name);
+      }
+      if (isFailure(current)) return current;
+    }
+    return current;
+  }
+  function compileArgs(raw, path, hooks) {
+    if (!isArray(raw)) throw new ConfigParseError(path, "`args` must be an array");
+    return raw.map((entry, i) => hooks.expression(entry, `${path}.${i}`, "value"));
+  }
+  function evaluateArgs(expressions, ctx) {
+    const values = [];
+    for (const expression of expressions) {
+      const value = ctx.arg(expression);
+      if (isFailure(value)) return value;
+      values.push(value);
+    }
+    return values;
+  }
+  function compilePath(raw, path, hooks) {
+    if (typeof raw !== "string" || raw === "") throw new ConfigParseError(path, "a path must be a non-empty string");
+    const names2 = raw.split(".");
+    if (names2.some((name) => name === "")) throw new ConfigParseError(path, `empty name in path '${raw}'`);
+    names2.forEach((name) => hooks.names.add(name));
+    return names2;
+  }
+  function parsePathBody(rawBody, path, hooks, key, allowed) {
+    const raw = typeof rawBody === "string" ? { path: rawBody } : rawBody;
+    if (!isPlainObject(raw)) throw new ConfigParseError(path, `\`${key}\` takes a path or an object`);
+    rejectUnknownKeys(raw, allowed, path);
+    if (raw.path !== void 0) return { raw, names: compilePath(raw.path, `${path}.path`, hooks) };
+    if (raw.args !== void 0) throw new ConfigParseError(path, "`args` needs `path`");
+    if (key !== "self") throw new ConfigParseError(path, `\`${key}\` needs \`path\``);
+    return { raw, names: [] };
+  }
+  function compileField(raw, path, hooks) {
+    if (isExpressionObject(raw)) {
+      return hooks.item((binder) => ({ path, names: [], binder, expression: hooks.expression(raw, path, "value") }));
+    }
+    const body = parsePathBody(raw, path, hooks, "field", ["path", "args"]);
+    const field = { path, names: body.names };
+    const rawArgs = body.raw.args;
+    if (rawArgs !== void 0) {
+      hooks.item((binder) => {
+        field.binder = binder;
+        field.args = compileArgs(rawArgs, `${path}.args`, hooks);
+      });
+    }
+    return field;
+  }
+  function readField(ctx, root, field) {
+    const binder = field.binder;
+    const value = binder ? ctx.bind(binder, root, () => readFieldOf(ctx, root, field)) : readFieldOf(ctx, root, field);
+    return isFailure(value) ? value.at(field.path) : value;
+  }
+  function readFieldOf(ctx, root, field) {
+    if (field.expression !== void 0) return ctx.arg(field.expression);
+    const args = field.args && evaluateArgs(field.args, ctx);
+    if (isFailure(args)) return args;
+    return readPath(ctx.reader, root, field.names, args);
+  }
+
+  // src/features/web-detection/sources/common.js
+  init_define_import_meta_trackerLookup();
+
+  // src/features/web-detection/predicates/predicates.js
+  init_define_import_meta_trackerLookup();
+  function compileWhere(raw, path, hooks) {
+    return hooks.item((binder) => {
+      const predicate = compilePredicate(raw, "item", path, hooks);
+      return { kind: "where", binder, predicate, path, scalar: predicate.scalar };
+    });
+  }
+  var OPERATORS = /* @__PURE__ */ new Set(["eq", "in", "lt", "lte", "gt", "gte", "fails", "type"]);
+  var COMBINATORS = /* @__PURE__ */ new Set(["any", "all", "none"]);
+  var FIRST_OPERATORS = ["fails", "type"];
+  var TYPE_NAMES = /* @__PURE__ */ new Set(["number", "string", "boolean", "null", "undefined", "array", "object"]);
+  var isTypeName = (name) => TYPE_NAMES.has(name);
+  function testPredicate(predicate, subject, ctx) {
+    return lowered(predicate)(subject, ctx);
+  }
+  var LOWERED = /* @__PURE__ */ new WeakMap();
+  function lowered(predicate) {
+    return getOrCreate(LOWERED, predicate, lower);
+  }
+  function lower(predicate) {
+    switch (predicate.kind) {
+      case "compare": {
+        const compare = COMPARE[predicate.op];
+        if (!("operand" in predicate)) {
+          const literal = (
+            /** @type {number} */
+            predicate.value
+          );
+          return (subject) => isFailure(subject) ? subject : compare(
+            /** @type {number} */
+            subject,
+            literal
+          );
+        }
+        const operand = predicate.operand;
+        return (subject, ctx) => {
+          if (isFailure(subject)) return subject;
+          const value = ctx.operand(operand);
+          return isFailure(value) ? value : compare(
+            /** @type {number} */
+            subject,
+            /** @type {number} */
+            value
+          );
+        };
+      }
+      case "combine": {
+        const [decider, decided] = decides(predicate.combinator);
+        const entries = predicate.entries.map(lowered);
+        return (subject, ctx) => {
+          let result = !decided;
+          for (const entry of entries) {
+            const held = entry(subject, ctx);
+            if (isFailure(held)) return held;
+            if (held === decider) result = decided;
+          }
+          return result;
+        };
+      }
+      case "read": {
+        const field = predicate.field;
+        const next = lowered(predicate.next);
+        return (subject, ctx) => isFailure(subject) ? subject : next(readField(ctx, subject, field), ctx);
+      }
+      case "where": {
+        const binder = predicate.binder;
+        const inner = lowered(predicate.predicate);
+        return (subject, ctx) => ctx.bind(binder, subject, () => inner(subject, ctx));
+      }
+      case "in": {
+        const entries = predicate.entries;
+        return (subject, ctx) => isFailure(subject) ? subject : testIn(entries, subject, ctx);
+      }
+      case "guarded": {
+        const guard = lowered(predicate.guard);
+        const rest = lowered(predicate.rest);
+        return (subject, ctx) => {
+          const held = guard(subject, ctx);
+          if (held !== true) return held;
+          return rest(subject, ctx);
+        };
+      }
+      case "fails": {
+        const expected = predicate.expected;
+        return (subject) => isFailure(subject) ? expected : !expected;
+      }
+      case "type": {
+        const names2 = predicate.names;
+        return (subject) => isFailure(subject) ? subject : names2.includes(typeName(subject));
+      }
+      case "always":
+        return (subject) => isFailure(subject) ? subject : true;
+      case "expression": {
+        const expression = predicate.expression;
+        return (subject, ctx) => isFailure(subject) ? subject : ctx.test(expression);
+      }
+      default:
+        throw new DetectionError(`unknown predicate '${/** @type {{ kind: string }} */
+        predicate.kind}'`);
+    }
+  }
+  function testIn(entries, subject, ctx) {
+    let found = false;
+    for (const entry of entries) {
+      if ("literal" in entry) {
+        if (subject === entry.literal) found = true;
+        continue;
+      }
+      const value = ctx.read(entry.operand);
+      if (isFailure(value)) return value;
+      const items = ctx.items(value);
+      if (isFailure(items)) return items;
+      if (!items) {
+        if (subject === value) found = true;
+        continue;
+      }
+      for (let j2 = 0; j2 < items.length; j2++) if (items[j2] === subject) found = true;
+    }
+    return found;
+  }
+  function isItemExpression(raw) {
+    return isPlainObject(raw) && objectKeys(raw).some((key) => EXPRESSION_KEYS.has(key) && !COMBINATORS.has(key));
+  }
+  function compilePredicate(raw, level, path, hooks) {
+    if (isScalar(raw)) return compileComparison("eq", raw, path, hooks);
+    if (isArray(raw)) {
+      throw new ConfigParseError(
+        path,
+        'an array is not a predicate: `{"in": [...]}` tests for one of several values, and `{"any": [...]}` one of several predicates'
+      );
+    }
+    if (!isPlainObject(raw)) throw new ConfigParseError(path, "a predicate must be a literal or an object");
+    if (level === "item" && isItemExpression(raw)) {
+      return { kind: "expression", expression: hooks.expression(raw, path, "boolean"), path, scalar: false };
+    }
+    return compileObject(raw, level, path, hooks);
+  }
+  function combine(combinator, entries, path) {
+    return { kind: "combine", combinator, entries, path, scalar: entries.some((entry) => entry.scalar) };
+  }
+  function compileObject(raw, level, path, hooks) {
+    const keys = objectKeys(raw);
+    const hasField2 = keys.includes("field");
+    const hasIs = keys.includes("is");
+    if (hasField2 !== hasIs) {
+      throw new ConfigParseError(path, "`field` and `is` go together in a predicate");
+    }
+    const isFirst = (key) => level === "value" && FIRST_OPERATORS.includes(key);
+    const first = [];
+    const rest = [];
+    for (const key of [...FIRST_OPERATORS.filter((key2) => isFirst(key2) && keys.includes(key2)), ...keys.filter((key2) => !isFirst(key2))]) {
+      const keyPath = `${path}.${key}`;
+      const value = raw[key];
+      if (key === "is") continue;
+      const entries = isFirst(key) ? first : rest;
+      if (key === "any" || key === "all" || key === "none") {
+        entries.push(
+          combine(
+            key,
+            asArray(value).map((entry, i) => compilePredicate(entry, level, isArray(value) ? `${keyPath}.${i}` : keyPath, hooks)),
+            keyPath
+          )
+        );
+      } else if (key === "field") {
+        const field = compileField(value, keyPath, hooks);
+        entries.push(readThen(field, compilePredicate(raw.is, "value", `${path}.is`, hooks), keyPath));
+      } else if (level === "value" && OPERATORS.has(key)) {
+        entries.push(compileOperator(key, value, keyPath, hooks));
+      } else {
+        const names2 = compilePath(key, keyPath, hooks);
+        entries.push(readThen({ path: keyPath, names: names2 }, compilePredicate(value, "value", keyPath, hooks), keyPath));
+      }
+    }
+    if (first.length === 0 && rest.length === 0) return { kind: "always", path, scalar: false };
+    if (first.length === 0) return combine("all", rest, path);
+    const guard = combine("all", first, path);
+    const others = combine("all", rest, path);
+    return { kind: "guarded", guard, rest: others, path, scalar: guard.scalar || others.scalar };
+  }
+  function readThen(field, next, path) {
+    return { kind: "read", field, next, path, scalar: false };
+  }
+  function compileOperator(operator, raw, path, hooks) {
+    switch (operator) {
+      case "fails":
+        return { kind: "fails", expected: expectBoolean(raw, path), path, scalar: false };
+      case "type": {
+        const names2 = asArray(raw);
+        if (!names2.every(isTypeName)) {
+          throw new ConfigParseError(path, `unknown type name '${String(names2.find((name) => !isTypeName(name)))}'`);
+        }
+        return { kind: "type", names: names2, path, scalar: false };
+      }
+      case "in":
+        return compileIn(raw, path, hooks);
+      default:
+        return compileComparison(
+          /** @type {Comparison} */
+          operator,
+          raw,
+          path,
+          hooks
+        );
+    }
+  }
+  function expectBoolean(raw, path) {
+    if (typeof raw !== "boolean") throw new ConfigParseError(path, "expected a boolean");
+    return raw;
+  }
+  function compileIn(raw, path, hooks) {
+    const entries = asArray(raw).map(
+      (entry, i) => isScalar(entry) ? { literal: entry } : { operand: hooks.expression(entry, isArray(raw) ? `${path}.${i}` : path, "value") }
+    );
+    return { kind: "in", entries, path, scalar: true };
+  }
+  var COMPARE = {
+    eq: (a2, b2) => a2 === b2,
+    lt: (a2, b2) => a2 < b2,
+    lte: (a2, b2) => a2 <= b2,
+    gt: (a2, b2) => a2 > b2,
+    gte: (a2, b2) => a2 >= b2
+  };
+  function compileComparison(operator, raw, path, hooks) {
+    if (operator === "eq" ? isScalar(raw) : typeof raw === "number") {
+      return { kind: "compare", op: operator, value: raw, path, scalar: true };
+    }
+    return { kind: "compare", op: operator, operand: hooks.expression(raw, path, "value"), path, scalar: true };
+  }
+
+  // src/features/web-detection/sources/common.js
+  function* selectItems(items, { where, field }, ctx) {
+    for (const item of items) {
+      if (where) {
+        if (typeof item !== "object" || item === null) throw new DetectionError("`where` on an item that is not an object");
+        const held = testPredicate(where, item, ctx);
+        if (isFailure(held)) {
+          yield held;
+          return;
+        }
+        if (!held) continue;
+      }
+      const value = field ? readField(ctx, item, field) : item;
+      yield value;
+      if (isFailure(value)) return;
+    }
+  }
+  function parseItemKeys(raw, path, hooks) {
+    const keys = {};
+    if (raw.where !== void 0) keys.where = compileWhere(raw.where, `${path}.where`, hooks);
+    if (raw.field !== void 0) keys.field = compileField(raw.field, `${path}.field`, hooks);
+    return keys;
+  }
+  function stringList(raw, path) {
+    const list = isArray(raw) ? raw : [raw];
+    if (list.some((entry) => typeof entry !== "string")) throw new ConfigParseError(path, "expected a string or an array of strings");
+    return (
+      /** @type {string[]} */
+      list
+    );
+  }
+
+  // src/features/web-detection/sources/api.js
+  function parseApiBody(rawBody, path, hooks, key = "api") {
+    const { raw, names: names2 } = parsePathBody(rawBody, path, hooks, key, ["path", "args", "where", "field"]);
+    const body = { names: names2, ...parseItemKeys(raw, path, hooks) };
+    if (raw.args !== void 0) body.args = compileArgs(raw.args, `${path}.args`, hooks);
+    const receiver = raw.args === void 0 ? names2 : names2.slice(0, -1);
+    if (key === "api" && receiver.length > 0) hooks.paths.add(receiver.join("."));
+    return body;
+  }
+  function apiSource(global) {
+    return {
+      key: "api",
+      parse: (raw, path, hooks, key) => parseApiBody(raw, path, hooks, key),
+      fills: (body) => body.where ? FILLS.list : FILLS.any,
+      read(bodies, ctx) {
+        const body = (
+          /** @type {ApiBody} */
+          bodies[0]
+        );
+        let base = body.root === void 0 ? global : ctx.read(body.root);
+        if (isFailure(base)) return base;
+        if (isItemBuffer(base)) {
+          const failure = base.pull(Infinity);
+          if (failure) return failure;
+          base = base.values;
+        }
+        const args = body.args && evaluateArgs(body.args, ctx);
+        if (isFailure(args)) return args;
+        const result = readPath(ctx.reader, base, body.names, args);
+        if (isFailure(result)) return result;
+        if (body.where || body.field) {
+          const members = listMembers(result, ctx);
+          if (isFailure(members)) return members;
+          if (members) return new ItemBuffer(selectItems(members, body, ctx));
+          if (body.where) throw new DetectionError("`where` on a value that is not a list");
+        }
+        return body.field ? readField(ctx, result, body.field) : result;
+      }
+    };
+  }
+
+  // src/features/web-detection/sources/element.js
+  init_define_import_meta_trackerLookup();
+
+  // src/features/web-detection/sources/roots.js
+  init_define_import_meta_trackerLookup();
+  function parseRoot(raw, path, hooks) {
+    if (raw === void 0) return void 0;
+    if (isArray(raw) && raw.length === 0) throw new ConfigParseError(path, "`root` needs at least one entry");
+    return { entries: asArray(raw).map((entry, i) => hooks.expression(entry, isArray(raw) ? `${path}.${i}` : path, "root")) };
+  }
+  function resolveRoots(root, ctx) {
+    if (!root) return [document];
+    const nodes = [];
+    for (const entry of root.entries) {
+      const value = ctx.read(entry);
+      if (isFailure(value)) return value;
+      const failure = collectRootNodes(value, nodes, ctx);
+      if (failure) return failure;
+    }
+    return outermost(nodes);
+  }
+  function collectRootNodes(value, nodes, ctx) {
+    if (value === null || value === void 0) return void 0;
+    let values;
+    if (typeof value === "string") {
+      values = document.querySelectorAll(value);
+    } else if (isItemBuffer(value)) {
+      const failure = value.pull(Infinity);
+      if (failure) return failure;
+      values = value.values;
+    } else {
+      const members = listMembers(value, ctx);
+      if (isFailure(members)) return members;
+      values = members ?? [value];
+    }
+    for (const node of values) {
+      if (isFailure(node)) return node;
+      const isNode = ctx.reader.isNode(node);
+      if (isFailure(isNode)) return isNode;
+      if (!isNode) throw new DetectionError("a root is a selector, a node or a list of nodes");
+      nodes.push(
+        /** @type {Node} */
+        node
+      );
+    }
+    return void 0;
+  }
+  function outermost(nodes) {
+    nodes.sort((a2, b2) => a2 === b2 ? 0 : a2.compareDocumentPosition(b2) & 4 ? -1 : 1);
+    const roots = [];
+    for (const node of nodes) {
+      if (roots.some((kept) => kept.contains(node))) continue;
+      roots.push(node);
+    }
+    return (
+      /** @type {ParentNode[]} */
+      roots
+    );
+  }
+
+  // src/features/web-detection/sources/visibility.js
+  init_define_import_meta_trackerLookup();
+  function isVisible(element) {
+    const style = getComputedStyle(element);
+    const rect = element.getBoundingClientRect();
+    return rect.width > 0.5 && rect.height > 0.5 && style.display !== "none" && style.visibility !== "hidden" && parseFloat(style.opacity) > 0.05;
+  }
+  var contentDomParser;
+  var CONTENT_METADATA_SELECTORS = "base,link,meta,script,style,template,title,desc";
+  var CONTENT_MEDIA_SELECTORS = "video,canvas,embed,object,audio,map,form,input,textarea,select,button,img,svg";
+  var CONTENT_TEXT_PARSE_LIMIT = 5e4;
+  function hasContent(element) {
+    if ((element.textContent || "").length > CONTENT_TEXT_PARSE_LIMIT) {
+      return true;
+    }
+    if (!contentDomParser) {
+      contentDomParser = new DOMParser();
+    }
+    const parsed = contentDomParser.parseFromString(element.outerHTML, "text/html").documentElement;
+    parsed.querySelectorAll(CONTENT_METADATA_SELECTORS).forEach((el) => el.remove());
+    if ((parsed.innerText || parsed.textContent || "").trim() !== "") {
+      return true;
+    }
+    if (parsed.querySelector(CONTENT_MEDIA_SELECTORS) !== null) {
+      return true;
+    }
+    return [...parsed.querySelectorAll("iframe")].some((frame) => {
+      return !frame.hidden && frame.src !== "" && frame.src !== "about:blank";
+    });
+  }
+
+  // src/features/web-detection/sources/element.js
+  var VISIBILITIES = ["visible", "hidden", "any", "content"];
+  function isPresenceOnly(body) {
+    return body.visibility === "any" && !body.where && !body.field;
+  }
+  var elementSource = {
+    key: "element",
+    parse(raw, path, hooks) {
+      if (!isPlainObject(raw)) throw new ConfigParseError(path, "`element` takes an object");
+      rejectUnknownKeys(raw, ["selector", "visibility", "where", "field", "root"], path);
+      const visibility = raw.visibility ?? "any";
+      if (typeof visibility !== "string" || !VISIBILITIES.includes(visibility)) {
+        throw new ConfigParseError(`${path}.visibility`, `unknown visibility '${String(visibility)}'`);
+      }
+      return {
+        selector: stringList(raw.selector, `${path}.selector`).join(", "),
+        visibility: (
+          /** @type {ElementBody['visibility']} */
+          visibility
+        ),
+        root: parseRoot(raw.root, `${path}.root`, hooks),
+        ...parseItemKeys(raw, path, hooks)
+      };
+    },
+    fills: (body) => body.field ? FILLS.list : FILLS.any,
+    read(bodies, ctx) {
+      return new ItemBuffer(selectElements(bodies, ctx), {
+        hasAny() {
+          if (!bodies.every(isPresenceOnly)) return void 0;
+          for (const body of bodies) {
+            const roots = resolveRoots(body.root, ctx);
+            if (isFailure(roots)) return void 0;
+            if (roots.some((root) => root.querySelector(body.selector) !== null)) return true;
+          }
+          return false;
+        },
+        count() {
+          if (!bodies.every(isPresenceOnly)) return void 0;
+          let count = 0;
+          for (const body of bodies) {
+            const roots = resolveRoots(body.root, ctx);
+            if (isFailure(roots)) return void 0;
+            for (const root of roots) count += root.querySelectorAll(body.selector).length;
+          }
+          return count;
+        }
+      });
+    }
+  };
+  function passesVisibility(element, visibility) {
+    switch (visibility) {
+      case "any":
+        return true;
+      case "visible":
+        return isVisible(element);
+      case "hidden":
+        return !isVisible(element);
+      case "content":
+        return hasContent(element);
+    }
+  }
+  function* selectElements(bodies, ctx) {
+    for (const body of bodies) {
+      const roots = resolveRoots(body.root, ctx);
+      if (isFailure(roots)) {
+        yield roots;
+        return;
+      }
+      yield* selectItems(visibleElements(body, roots), body, ctx);
+    }
+  }
+  function* visibleElements(body, roots) {
+    for (const root of roots) {
+      for (const element of root.querySelectorAll(body.selector)) {
+        if (passesVisibility(element, body.visibility)) yield element;
+      }
+    }
+  }
+
+  // src/features/web-detection/sources/text.js
+  init_define_import_meta_trackerLookup();
+  var ORDERED_NODE_SNAPSHOT_TYPE = 7;
+  var compiledXPaths = /* @__PURE__ */ new WeakMap();
+  function compileXPath(expression) {
+    const byExpression = getOrCreate(compiledXPaths, document, newMap);
+    return getOrCreate(byExpression, expression, createExpression);
+  }
+  var createExpression = (expression) => document.createExpression(expression, null);
+  var DEFAULT_CHUNK_SIZE = 8192;
+  var CHUNK_TAIL_RATIO = 16;
+  var MAX_WORD_LENGTH = 64;
+  function isWordCode(code) {
+    return code >= 97 && code <= 122 || // a-z
+    code >= 65 && code <= 90 || // A-Z
+    code >= 48 && code <= 57 || // 0-9
+    code === 95;
+  }
+  function resolveXPathConfig(config2) {
+    const chunkSize = config2?.chunkSize ?? DEFAULT_CHUNK_SIZE;
+    const chunkTail = config2?.chunkTail ?? Math.floor(chunkSize / CHUNK_TAIL_RATIO);
+    return { chunkSize, chunkTail };
+  }
+  function tailStart(buffer, chunkTail) {
+    let cut = buffer.length - chunkTail;
+    if (cut <= 0) return 0;
+    const limit = Math.max(0, cut - Math.min(chunkTail, MAX_WORD_LENGTH));
+    while (cut > limit && isWordCode(buffer.charCodeAt(cut - 1))) cut--;
+    return cut;
+  }
+  function selectedText(expression, contextNode, ctx) {
+    return ctx.task.of(contextNode, `xpath:${expression}`, () => {
+      const snapshot = compileXPath(expression).evaluate(contextNode, ORDERED_NODE_SNAPSHOT_TYPE, null);
+      const texts = [];
+      return {
+        length: snapshot.snapshotLength,
+        at(i) {
+          let text2 = texts[i];
+          if (text2 === void 0) {
+            text2 = snapshot.snapshotItem(i)?.textContent || "";
+            texts[i] = text2;
+          }
+          return text2;
+        }
+      };
+    });
+  }
+  function* xpathChunks(selected, { chunkSize, chunkTail }) {
+    let buffer = "";
+    let pending = 0;
+    for (let i = 0; i < selected.length; i++) {
+      const text2 = selected.at(i);
+      buffer += text2;
+      pending += text2.length;
+      if (chunkSize > 0 && pending >= chunkSize) {
+        const end = tailStart(buffer, chunkTail);
+        const chunk = { text: buffer, end, next: end };
+        yield chunk;
+        buffer = buffer.slice(chunk.next);
+        pending = 0;
+      }
+    }
+    yield { text: buffer, end: Infinity, next: buffer.length };
+  }
+  function nextMatch({ pattern, chunk }) {
+    const match = pattern.exec(chunk.text);
+    if (!match || match.index >= chunk.end) return void 0;
+    if (match[0] === "") pattern.lastIndex++;
+    chunk.next = Math.max(chunk.end, pattern.lastIndex);
+    return match[0];
+  }
+  var textSource = {
+    key: "text",
+    parse(raw, path, hooks) {
+      if (!isPlainObject(raw)) throw new ConfigParseError(path, "`text` takes an object");
+      rejectUnknownKeys(raw, ["pattern", "selector", "xpath", "xpathConfig", "root"], path);
+      const patterns = stringList(raw.pattern, `${path}.pattern`);
+      const xpaths = raw.xpath === void 0 ? [] : stringList(raw.xpath, `${path}.xpath`);
+      const root = parseRoot(raw.root, `${path}.root`, hooks);
+      let selectors;
+      if (raw.selector !== void 0) {
+        selectors = stringList(raw.selector, `${path}.selector`);
+      } else {
+        selectors = xpaths.length > 0 || root ? [] : ["body"];
+      }
+      return {
+        // A disjunction of no patterns matches nothing, where joining them would give '', which matches everywhere
+        pattern: new RegExp(patterns.length > 0 ? patterns.join("|") : "(?!)", "gi"),
+        selectors,
+        xpaths,
+        chunking: resolveXPathConfig(
+          /** @type {ConditionTypes['text']['xpathConfig']} */
+          raw.xpathConfig
+        ),
+        root,
+        rootIsSource: root !== void 0 && raw.selector === void 0 && xpaths.length === 0
+      };
+    },
+    fills: () => FILLS.any,
+    read(bodies, ctx) {
+      return new ItemBuffer(textMatches(bodies, ctx), {
+        count: () => countTextMatches(bodies, ctx)
+      });
+    }
+  };
+  function textElements(body, root) {
+    if (body.selectors.length > 0) return root.querySelectorAll(body.selectors.join(", "));
+    return body.rootIsSource ? [root] : [];
+  }
+  function* textSegments(bodies, ctx) {
+    for (const body of bodies) {
+      const pattern = new RegExp(body.pattern);
+      const roots = resolveRoots(body.root, ctx);
+      if (isFailure(roots)) {
+        yield roots;
+        return;
+      }
+      for (const root of roots) {
+        for (const element of textElements(body, root)) {
+          const text2 = ctx.task.of(element, "textContent", () => element.textContent || "");
+          pattern.lastIndex = 0;
+          yield { pattern, chunk: { text: text2, end: Infinity, next: text2.length } };
+        }
+        for (const expression of body.xpaths) {
+          for (const chunk of xpathChunks(selectedText(expression, root, ctx), body.chunking)) {
+            pattern.lastIndex = 0;
+            yield { pattern, chunk };
+          }
+        }
+      }
+    }
+  }
+  function* textMatches(bodies, ctx) {
+    for (const segment of textSegments(bodies, ctx)) {
+      if (isFailure(segment)) {
+        yield segment;
+        return;
+      }
+      for (let match = nextMatch(segment); match !== void 0; match = nextMatch(segment)) yield match;
+    }
+  }
+  function countTextMatches(bodies, ctx) {
+    let count = 0;
+    for (const segment of textSegments(bodies, ctx)) {
+      if (isFailure(segment)) return void 0;
+      while (nextMatch(segment) !== void 0) count++;
+    }
+    return count;
+  }
+
+  // src/features/web-detection/sources/index.js
+  function pageSources(global) {
+    return { element: elementSource, text: textSource, api: apiSource(global) };
+  }
+
+  // src/features/web-detection/compile/compile.js
+  init_define_import_meta_trackerLookup();
+
+  // src/features/web-detection/compile/positions.js
+  init_define_import_meta_trackerLookup();
+  function fillsOf(node) {
+    switch (node.kind) {
+      case "literal":
+        if (typeof node.value === "number") return FILLS.number;
+        return typeof node.value === "boolean" ? FILLS.boolean : FILLS.value;
+      case "source": {
+        const [first, ...rest] = node.bodies.map((body) => node.source.fills(body));
+        return new Set([...first ?? []].filter((position) => rest.every((fills) => fills.has(position))));
+      }
+      case "length":
+      case "only":
+      case "sum":
+      case "mul":
+      case "div":
+        return FILLS.number;
+      case "any":
+      case "all":
+      case "none":
+      case "and":
+        return FILLS.boolean;
+      case "if": {
+        const elseFills = node.else ? occurrenceFills(node.else) : FILLS.value;
+        return new Set([...occurrenceFills(node.then)].filter((p) => elseFills.has(p) && p !== "list"));
+      }
+      case "sequence":
+        return occurrenceFills(
+          /** @type {Node} */
+          node.elements[node.elements.length - 1]
+        );
+      case "ref":
+      case "item":
+        return FILLS.any;
+      case "expr":
+      case "using":
+        return occurrenceFills(node.operand);
+      case "list":
+        return FILLS.array;
+      case "define":
+      case "fireEvent":
+      case "breakageReportData":
+        return FILLS.value;
+    }
+  }
+  function occurrenceFills(node) {
+    return node.is ? FILLS.boolean : fillsOf(node);
+  }
+  function finish(scope) {
+    for (const { node, single: single2 } of scope.slots) {
+      const leaf = single2 === "boolean" && isPresenceLeaf(node);
+      node.position = fillsOf(node).has("list") && !leaf ? "spread" : single2;
+      node.single = single2;
+    }
+    for (const node of scope.nodes) {
+      if (!fits(fillsOf(node), node.position)) {
+        const what = node.kind === "source" ? `'${node.source.key}'${node.withField ? " with field" : ""}` : `'${node.kind}'`;
+        const hint = node.position === "boolean" && fillsOf(node).has("number") ? "; numbers become booleans only through `is`" : node.kind === "if" && !node.else ? "; without `else` it gives `undefined` when the condition does not hold" : "";
+        throw new ConfigParseError(node.path, `${what} does not fill ${node.position} position${hint}`);
+      }
+    }
+  }
+  function isPresenceLeaf(node) {
+    let current = node;
+    while ((current.kind === "expr" || current.kind === "using") && !current.operand.is) current = current.operand;
+    return current.kind === "source" && current.leaf;
+  }
+  function fits(fills, position) {
+    if (position === "spread") return fills.has("list");
+    if (position === "root") return fills.has("list") || fills.has("value");
+    return fills.has(position);
+  }
+
+  // src/features/web-detection/compile/compile.js
+  var MODIFIER_KEYS = /* @__PURE__ */ new Set(["using", "is"]);
+  var BRANCH_KEYS = /* @__PURE__ */ new Set(["then", "else"]);
+  var Scope = class {
+    /**
+     * @param {PageSources} sources
+     */
+    constructor(sources) {
+      /** @type {Node[]} */
+      __publicField(this, "nodes", []);
+      /** @type {Slot[]} */
+      __publicField(this, "slots", []);
+      /** @type {Set<string>} */
+      __publicField(this, "readerNames", /* @__PURE__ */ new Set());
+      /** @type {Set<string>} */
+      __publicField(this, "readerPaths", /* @__PURE__ */ new Set());
+      /** @type {ItemBinder[]} the `using`, `where` and `field` binding `self` around the expression being compiled, innermost last */
+      __publicField(this, "bindings", []);
+      this.sources = sources;
+      this.hooks = {
+        names: this.readerNames,
+        paths: this.readerPaths,
+        expression: (raw, path, position) => compileExpr(raw, position, path, this),
+        item: (fn) => {
+          const binder = {};
+          return within(this, binder, () => fn(binder));
+        }
+      };
+    }
+    /** The innermost `using`, `where` or `field` enclosing the expression being compiled. */
+    get itemBinder() {
+      return this.bindings[this.bindings.length - 1];
+    }
+  };
+  function within(scope, binder, fn) {
+    scope.bindings.push(binder);
+    try {
+      return fn();
+    } finally {
+      scope.bindings.pop();
+    }
+  }
+  function makeNode(scope, fields) {
+    const node = (
+      /** @type {Node} */
+      fields
+    );
+    scope.nodes.push(node);
+    return node;
+  }
+  function compileBody(raw, position, path, scope) {
+    if (!isArray(raw)) return compileExpr(raw, position, path, scope);
+    if (raw.length === 0) throw new ConfigParseError(path, "a sequence holds at least one element");
+    const elements = raw.map((element, i) => compileExpr(element, i === raw.length - 1 ? position : "value", `${path}.${i}`, scope));
+    return makeNode(scope, { kind: "sequence", elements, path, position });
+  }
+  function compileExpr(raw, position, path, scope) {
+    if (isScalar(raw)) {
+      return makeNode(scope, { kind: "literal", value: raw, path, position });
+    }
+    if (isArray(raw)) {
+      throw new ConfigParseError(path, 'an array is not an expression: `{"expr": [...]}` gives a list, and `{"any": [...]}` an OR');
+    }
+    if (!isPlainObject(raw)) throw new ConfigParseError(path, "expected an expression");
+    const keys = objectKeys(raw);
+    if (keys.some((key) => ACTION_KEYS.has(key))) return compileActions(raw, keys, position, path, scope);
+    const expressionKeys = [];
+    for (const key of keys) {
+      if (EXPRESSION_KEYS.has(key)) expressionKeys.push(key);
+      else if (BRANCH_KEYS.has(key)) {
+        if (raw.if === void 0) throw new ConfigParseError(`${path}.${key}`, `'${key}' sits beside 'if' only`);
+      } else if (!MODIFIER_KEYS.has(key)) throw new ConfigParseError(`${path}.${key}`, `unknown expression key '${key}'`);
+    }
+    if (raw.if !== void 0 && expressionKeys.length > 1) {
+      throw new ConfigParseError(path, `'if' takes no other expression key beside it`);
+    }
+    const hasIs = raw.is !== void 0;
+    const hasUsing = raw.using !== void 0;
+    if (hasIs && position !== "boolean" && position !== "value")
+      throw new ConfigParseError(path, "`is` gives a boolean, in boolean or value position");
+    const valuePosition = hasIs ? "value" : position;
+    const keyPosition = hasUsing ? "value" : valuePosition;
+    let node;
+    if (expressionKeys.length === 0) {
+      if (hasUsing) throw new ConfigParseError(path, "`using` reads from an expression, and this object has no expression key");
+      if (hasIs || position !== "boolean") throw new ConfigParseError(path, "no expression key");
+      node = makeNode(scope, { kind: "literal", value: true, path, position });
+    } else if (expressionKeys.length > 1) {
+      if (hasIs && !hasUsing || keyPosition !== "boolean" && keyPosition !== "value") {
+        throw new ConfigParseError(path, "several expression keys are their AND, in boolean or value position and never beside `is`");
+      }
+      const operands = expressionKeys.map((key) => compileKey(key, raw[key], "boolean", `${path}.${key}`, scope));
+      node = makeNode(scope, { kind: "and", operands, path, position: keyPosition });
+    } else {
+      const key = (
+        /** @type {string} */
+        expressionKeys[0]
+      );
+      node = key === "if" ? compileIf(raw, keyPosition, path, scope) : compileKey(key, raw[key], keyPosition, `${path}.${key}`, scope);
+    }
+    if (hasUsing) node = compileUsing(raw.using, node, valuePosition, path, scope);
+    if (hasIs) {
+      node.is = compilePredicate(raw.is, "value", `${path}.is`, scope.hooks);
+      if (position === "value") return makeNode(scope, { kind: "expr", operand: node, path, position });
+    }
+    return node;
+  }
+  function compileActions(raw, keys, position, path, scope) {
+    const other = keys.find((key) => !ACTION_KEYS.has(key));
+    if (other !== void 0) {
+      throw new ConfigParseError(
+        `${path}.${other}`,
+        `an action sits beside no expression key or modifier, and '${other}' is not an action`
+      );
+    }
+    const actions = [];
+    for (const key of keys) {
+      const actionPath = `${path}.${key}`;
+      if (key === "define") actions.push(...compileDefine(raw.define, actionPath, scope));
+      else actions.push(compileAction(
+        /** @type {'fireEvent' | 'breakageReportData'} */
+        key,
+        raw[key],
+        actionPath,
+        scope
+      ));
+    }
+    const node = actions.length === 1 ? actions[0] : makeNode(scope, { kind: "sequence", elements: actions, path, position });
+    node.position = position;
+    return node;
+  }
+  function compileDefine(raw, path, scope) {
+    if (!isPlainObject(raw) || objectKeys(raw).length === 0)
+      throw new ConfigParseError(path, "`define` takes an object of at least one name");
+    return objectKeys(raw).map((name) => {
+      const namePath = `${path}.${name}`;
+      if (!DEFINE_NAME_PATTERN.test(name)) throw new ConfigParseError(namePath, `invalid name '${name}'`);
+      const value = compileExpr(raw[name], "value", namePath, scope);
+      return makeNode(scope, { kind: "define", name, value, path: namePath, position: "value" });
+    });
+  }
+  function compileAction(key, raw, path, scope) {
+    if (!isPlainObject(raw)) throw new ConfigParseError(path, `\`${key}\` takes an object`);
+    rejectUnknownKeys(raw, key === "fireEvent" ? ["type", "data"] : ["data"], path);
+    if (key === "fireEvent" && typeof raw.type !== "string") throw new ConfigParseError(`${path}.type`, "`type` takes a string");
+    const data2 = raw.data === void 0 ? void 0 : compilePayload(raw.data, `${path}.data`, scope);
+    return makeNode(scope, { kind: key, ...key === "fireEvent" && { type: raw.type }, ...data2 && { data: data2 }, path, position: "value" });
+  }
+  function compileKey(key, body, position, path, scope) {
+    switch (key) {
+      case "element":
+      case "text":
+      case "api":
+        return compileSource(key, body, position, path, scope);
+      case "self":
+        return compileSelf(body, position, path, scope);
+      case "expr": {
+        if (isArray(body)) {
+          const entries = body.map((raw, i) => compileExpr(raw, "value", `${path}.${i}`, scope));
+          return makeNode(scope, { kind: "list", entries, path, position });
+        }
+        const operandIs = isPlainObject(body) && body.is !== void 0;
+        const operand = compileExpr(body, operandIs ? "boolean" : position, path, scope);
+        return makeNode(scope, { kind: "expr", operand, path, position });
+      }
+      case "only": {
+        const operand = compileExpr(body, "list", path, scope);
+        return makeNode(scope, { kind: "only", operand, path, position });
+      }
+      case "sum":
+      case "mul": {
+        const operands = asArray(body).map((raw, i) => {
+          const operand = compileExpr(raw, "number", isArray(body) ? `${path}.${i}` : path, scope);
+          scope.slots.push({ node: operand, single: "number" });
+          return operand;
+        });
+        return makeNode(scope, { kind: key, operands, path, position });
+      }
+      case "div": {
+        if (!isArray(body) || body.length !== 2) throw new ConfigParseError(path, `'div' takes two operands`);
+        const operands = body.map((raw, i) => compileExpr(raw, "number", `${path}.${i}`, scope));
+        return makeNode(scope, { kind: key, operands, path, position });
+      }
+      case "any":
+      case "all":
+      case "none": {
+        const operands = asArray(body).map((raw, i) => {
+          const operand = compileExpr(raw, "boolean", isArray(body) ? `${path}.${i}` : path, scope);
+          if (!operand.is) scope.slots.push({ node: operand, single: "boolean" });
+          return operand;
+        });
+        return makeNode(scope, { kind: key, operands, path, position });
+      }
+      case "ref":
+        if (typeof body !== "string") throw new ConfigParseError(path, "`ref` takes a name");
+        return makeNode(scope, { kind: "ref", name: body, path, position });
+      default:
+        throw new ConfigParseError(path, `unknown expression key '${key}'`);
+    }
+  }
+  function compileIf(raw, position, path, scope) {
+    const ifPath = `${path}.if`;
+    if (position === "list") throw new ConfigParseError(ifPath, `'if' does not fill list position`);
+    if (raw.then === void 0) throw new ConfigParseError(ifPath, `'if' needs 'then'`);
+    const test2 = compileExpr(raw.if, "boolean", ifPath, scope);
+    const then = compileBody(raw.then, position, `${path}.then`, scope);
+    const otherwise = raw.else === void 0 ? void 0 : compileBody(raw.else, position, `${path}.else`, scope);
+    return makeNode(scope, { kind: "if", test: test2, then, ...otherwise && { else: otherwise }, path: ifPath, position });
+  }
+  function compileUsing(raw, root, position, path, scope) {
+    const usingPath = `${path}.using`;
+    if (isPlainObject(raw) && objectKeys(raw).length === 0) throw new ConfigParseError(usingPath, "`using` needs `path` or an expression");
+    const binder = {};
+    const operand = within(scope, binder, () => {
+      if (!isExpressionObject(raw)) return compileSelf(raw, position, usingPath, scope, "using");
+      return compileExpr(raw, raw.is !== void 0 ? "boolean" : position, usingPath, scope);
+    });
+    return makeNode(scope, { kind: "using", root, operand, binds: binder, path: usingPath, position });
+  }
+  function compileSelf(raw, position, path, scope, key = "self") {
+    const binder = scope.itemBinder;
+    if (!binder) throw new ConfigParseError(path, "`self` reads from `using`, `where` or `field`, and none encloses it");
+    binder.readsSelf = true;
+    const root = makeNode(scope, { kind: "item", binder, path: "", position: "value" });
+    if (isPlainObject(raw) && objectKeys(raw).length === 0) {
+      return makeNode(scope, { kind: "expr", operand: root, path, position });
+    }
+    if (raw === "length" || isPlainObject(raw) && raw.path === "length" && objectKeys(raw).length === 1) {
+      scope.readerNames.add("length");
+      return makeNode(scope, { kind: "length", operand: root, path, position });
+    }
+    const source = scope.sources.api;
+    const parsed = source.parse(raw, path, scope.hooks, key === "using" ? "using" : "self");
+    parsed.root = root;
+    const withField = parsed.field !== void 0;
+    return makeNode(scope, { kind: "source", source, bodies: [parsed], withField, leaf: false, path, position });
+  }
+  function compileSource(key, body, position, path, scope) {
+    const source = scope.sources[key];
+    if (key === "api" && isArray(body)) throw new ConfigParseError(path, "`api` takes one body");
+    const bodies = asArray(body).map((raw, i) => source.parse(raw, isArray(body) ? `${path}.${i}` : path, scope.hooks));
+    if (bodies.length === 0) throw new ConfigParseError(path, "no bodies");
+    const withField = bodies.some(hasField);
+    const leaf = key === "text" || key === "element" && !withField;
+    return makeNode(scope, { kind: "source", source, bodies, withField, leaf, path, position });
+  }
+  function hasField(body) {
+    return "field" in body && body.field !== void 0;
+  }
+  function compilePayload(raw, path, scope) {
+    if (!isPlainObject(raw)) throw new ConfigParseError(path, "`data` takes an object");
+    return objectKeys(raw).map((key) => {
+      const fieldPath = `${path}.${key}`;
+      if (!NAME_PATTERN2.test(key) || key === "nativeData") throw new ConfigParseError(fieldPath, `invalid payload key '${key}'`);
+      const spec = raw[key];
+      if (!isPlainObject(spec)) throw new ConfigParseError(fieldPath, "a payload field takes an object");
+      rejectUnknownKeys(spec, ["value", "when", "buckets"], fieldPath);
+      if (spec.value === void 0) throw new ConfigParseError(fieldPath, "a payload field needs `value`");
+      const value = compileExpr(spec.value, "value", `${fieldPath}.value`, scope);
+      const field = { key, path: fieldPath, value };
+      if (spec.when !== void 0) field.when = compilePredicate(spec.when, "value", `${fieldPath}.when`, scope.hooks);
+      if (spec.buckets !== void 0) {
+        const buckets = spec.buckets;
+        if (!isPlainObject(buckets) || objectKeys(buckets).length === 0) {
+          throw new ConfigParseError(`${fieldPath}.buckets`, "`buckets` takes an object of at least one bucket");
+        }
+        field.buckets = objectKeys(buckets).map((name) => [
+          name,
+          compilePredicate(buckets[name], "value", `${fieldPath}.buckets.${name}`, scope.hooks)
+        ]);
+      }
+      return field;
+    });
+  }
+  var DETECTOR_KEYS = ["state", "triggers", "match", "actions"];
+  function compileDetector(config2, sources) {
+    if (!isPlainObject(config2)) throw new ConfigParseError("detector", "a detector takes an object");
+    rejectUnknownKeys(config2, DETECTOR_KEYS, "detector");
+    if (config2.actions === void 0) throw new ConfigParseError("actions", "a detector needs `actions`");
+    const scope = new Scope(sources);
+    const match = config2.match === void 0 ? void 0 : compileExpr(config2.match, "boolean", "match", scope);
+    const actions = compileBody(config2.actions, "value", "actions", scope);
+    finish(scope);
+    return { ...match && { match }, actions, names: scope.readerNames, paths: scope.readerPaths };
+  }
+
+  // src/features/web-detection/compile/detector-config.js
+  var DEFAULT_RUN_CONDITIONS = (
+    /** @type {import('../../../config-feature.js').ConditionBlock[]} */
+    [
+      {
+        context: { top: true }
+      }
+    ]
+  );
+  function isValidName(name) {
+    return NAME_PATTERN2.test(name);
+  }
+  function normalizeDetector(config2) {
+    return {
+      // Detectors are enabled by default
+      state: config2.state ?? "enabled",
+      raw: config2,
+      triggers: {
+        // breakageReport: enabled by default - detectors participate in breakage report flow
+        breakageReport: {
+          state: config2.triggers?.breakageReport?.state ?? "enabled",
+          runConditions: (
+            /** @type {ConditionBlockOrArray} */
+            config2.triggers?.breakageReport?.runConditions ?? DEFAULT_RUN_CONDITIONS
+          )
+        },
+        // auto: disabled by default - detectors must opt in to automatic execution
+        auto: {
+          state: config2.triggers?.auto?.state ?? "disabled",
+          runConditions: (
+            /** @type {ConditionBlockOrArray} */
+            config2.triggers?.auto?.runConditions ?? DEFAULT_RUN_CONDITIONS
+          ),
+          when: config2.triggers?.auto?.when ?? { intervalMs: [] }
+        }
+      }
+    };
+  }
+  function compileDetectorConfig(config2, global) {
+    try {
+      return compileDetector(config2.raw, pageSources(global));
+    } catch (e) {
+      return { error: thrownMessage(e) };
+    }
+  }
+  function parseDetectors(detectorsConfig) {
+    const detectors = {};
+    if (!detectorsConfig) {
+      return detectors;
+    }
+    for (const [groupName, groupConfig] of Object.entries(detectorsConfig)) {
+      if (!isValidName(groupName) || !isPlainObject(groupConfig)) {
+        continue;
+      }
+      const groupDetectors = {};
+      for (const [detectorId, detectorConfig] of Object.entries(groupConfig)) {
+        if (!isValidName(detectorId) || !isPlainObject(detectorConfig)) {
+          continue;
+        }
+        groupDetectors[detectorId] = normalizeDetector(detectorConfig);
+      }
+      detectors[groupName] = groupDetectors;
+    }
+    return detectors;
+  }
+
+  // src/features/web-detection/evaluate/breakage-entries.js
+  init_define_import_meta_trackerLookup();
+  var _records;
+  var BreakageEntries = class {
+    constructor() {
+      /** @type {Map<string, EntryRecord>} by `groupName.detectorId` */
+      __privateAdd(this, _records, /* @__PURE__ */ new Map());
+    }
+    /**
+     * @param {string} detectorId
+     * @returns {EntryRecord}
+     */
+    _recordOf(detectorId) {
+      return getOrCreate(__privateGet(this, _records), detectorId, () => ({ written: false, data: {}, errors: /* @__PURE__ */ new Map() }));
+    }
+    /**
+     * A `breakageReportData` write. A key takes its most recent value, and a key the write omits keeps
+     * its value.
+     *
+     * @param {string} detectorId
+     * @param {PayloadData} data
+     */
+    write(detectorId, data2) {
+      const record = this._recordOf(detectorId);
+      record.written = true;
+      for (const key of objectKeys(data2)) record.data[key] = data2[key];
+    }
+    /**
+     * A failure that ended a run, kept as the latest at its path.
+     *
+     * @param {string} detectorId
+     * @param {string} path - the config path of the expression the failure arose at, or `run`
+     * @param {RunFailure} failure
+     */
+    fail(detectorId, path, failure) {
+      this._recordOf(detectorId).errors.set(path, failure);
+    }
+    /**
+     * The detector's breakage entry, or `undefined` when it has not written and no failure is recorded.
+     * A detector with no `match` writes its data but is never `detected`.
+     *
+     * @param {string} detectorId
+     * @param {boolean} done - whether the detector's `match` has held
+     * @returns {BreakageEntry | undefined}
+     */
+    entry(detectorId, done) {
+      const record = __privateGet(this, _records).get(detectorId);
+      if (!record) return void 0;
+      const entry = { detectorId };
+      if (record.written && done) entry.detected = true;
+      if (objectKeys(record.data).length > 0) entry.data = { ...record.data };
+      if (record.errors.size > 0) {
+        const errors = {};
+        for (const [path, failure] of record.errors) errors[path] = failure;
+        entry.errors = errors;
+      }
+      return entry;
+    }
+  };
+  _records = new WeakMap();
+
+  // src/features/web-detection/evaluate/context.js
+  init_define_import_meta_trackerLookup();
+
+  // src/features/web-detection/evaluate/evaluate.js
+  init_define_import_meta_trackerLookup();
+  function boundValue(binder, ctx) {
+    if (!ctx.frames.has(binder)) throw new DetectionError("`self` read outside the `using`, `where` or `field` it is bound by");
+    return ctx.frames.get(binder);
+  }
+  function evaluateOccurrence(node, ctx) {
+    const value = evaluate(node, node.position, ctx);
+    const is = node.is;
+    if (!is) return value;
+    try {
+      const held = testPredicate(is, forPredicate(value, is), ctx);
+      return isFailure(held) ? held.at(`${node.path}.is`) : held;
+    } catch (e) {
+      throw atPath(e, node.path, ctx);
+    }
+  }
+  function evaluate(node, position, ctx) {
+    try {
+      let result;
+      switch (node.kind) {
+        case "ref":
+          result = positioned((node.name.startsWith("this.") ? ctx.detectorNames : ctx.runNames).get(node.name), position);
+          break;
+        case "expr":
+          result = node.operand.is ? evaluateOccurrence(node.operand, ctx) : evaluate(node.operand, position, ctx);
+          break;
+        case "using":
+          result = computeUsing(node, position, ctx);
+          break;
+        case "source":
+          result = readSource(node, position, ctx);
+          break;
+        case "item":
+          result = boundValue(node.binder, ctx);
+          break;
+        case "literal":
+          result = node.value;
+          break;
+        case "list":
+          result = evaluateArgs(node.entries, ctx);
+          break;
+        case "length":
+          result = computeLength(node, ctx);
+          break;
+        case "only":
+          result = computeOnly(node, ctx);
+          break;
+        case "sum":
+        case "mul":
+        case "div":
+          result = computeArithmetic(node, ctx);
+          break;
+        case "any":
+        case "all":
+        case "none":
+        case "and":
+          result = computeLogic(node, ctx);
+          break;
+        case "if":
+          result = computeIf(node, ctx);
+          break;
+        case "sequence":
+          result = computeSequence(node, ctx);
+          break;
+        case "define":
+        case "fireEvent":
+        case "breakageReportData":
+          result = runAction(node, ctx);
+          break;
+      }
+      if (isFailure(result)) return result.at(node.path);
+      checkType(result, position);
+      return result;
+    } catch (e) {
+      throw atPath(e, node.path, ctx);
+    }
+  }
+  function atPath(error, path, ctx) {
+    const at = errorPath(error, path);
+    ctx.errorAt ??= { path: at, message: thrownMessage(error) };
+    return error;
+  }
+  function checkType(value, position) {
+    if (isItemBuffer(value) && position === "boolean") {
+      throw new DetectionError("a list is read through any, all, none or only, or its length through using");
+    }
+    if (position === "number" && typeof value !== "number") throw new DetectionError(`expected a number, got ${typeName(value)}`);
+    if (position === "boolean" && typeof value !== "boolean") throw new DetectionError(`expected a boolean, got ${typeName(value)}`);
+  }
+  function positioned(value, position) {
+    if (!isItemBuffer(value)) return value;
+    if (position === "boolean" && value.leaf) return presence(value);
+    if (position === "number") return single(value);
+    return value;
+  }
+  function computeUsing(node, position, ctx) {
+    const value = evaluate(node.root, node.root.position, ctx);
+    if (isFailure(value)) return value;
+    const operand = node.operand;
+    return ctx.bind(node.binds, value, () => operand.is ? evaluateOccurrence(operand, ctx) : evaluate(operand, position, ctx));
+  }
+  function readSource(node, position, ctx) {
+    const value = node.source.read(node.bodies, ctx);
+    if (isItemBuffer(value)) value.leaf = node.leaf;
+    return positioned(value, position);
+  }
+  function single(buffer) {
+    const failure = buffer.pull(2);
+    if (failure) return failure;
+    if (buffer.values.length !== 1) {
+      throw new DetectionError(`a list where one value is needed holds ${buffer.values.length === 0 ? "no item" : "several items"}`);
+    }
+    return buffer.values[0];
+  }
+  function forPredicate(value, predicate) {
+    if (!isItemBuffer(value)) return value;
+    return predicate.scalar ? single(value) : allItems(value);
+  }
+  function presence(buffer) {
+    if (!buffer.started) {
+      const any = buffer.shortcuts.hasAny?.();
+      if (any !== void 0) return any;
+    }
+    return buffer.pull(1) ?? buffer.values.length > 0;
+  }
+  function listOf(value, operator, ctx) {
+    const list = asList(value, ctx);
+    if (!list) throw new DetectionError(`'${operator}' takes a list, got ${typeName(value)}`);
+    return list;
+  }
+  function readList(operand, operator, ctx) {
+    const value = evaluate(operand, operand.position, ctx);
+    if (isFailure(value)) return value;
+    return listOf(value, operator, ctx);
+  }
+  function allItems(buffer) {
+    return buffer.pull(Infinity) ?? buffer.values;
+  }
+  function expectNumber(value, operator) {
+    if (typeof value !== "number") throw new DetectionError(`'${operator}' takes numbers, got ${typeName(value)}`);
+    return value;
+  }
+  function expectBoolean2(value, operator) {
+    if (typeof value !== "boolean") throw new DetectionError(`'${operator}' takes booleans, got ${typeName(value)}`);
+    return value;
+  }
+  function computeOnly(node, ctx) {
+    const buffer = readList(node.operand, node.kind, ctx);
+    if (isFailure(buffer)) return buffer;
+    const failure = buffer.pull(2);
+    if (failure) return failure;
+    const values = buffer.values;
+    if (values.length === 0) throw new DetectionError(`'only' over no items`);
+    if (values.length > 1) throw new DetectionError(`'only' over several items`);
+    return values[0];
+  }
+  function computeIf(node, ctx) {
+    const test2 = evaluateOccurrence(node.test, ctx);
+    if (isFailure(test2)) return test2;
+    const branch = test2 ? node.then : node.else;
+    return branch ? evaluateOccurrence(branch, ctx) : void 0;
+  }
+  function computeSequence(node, ctx) {
+    let value;
+    for (const element of node.elements) {
+      value = evaluateOccurrence(element, ctx);
+      if (isFailure(value)) return value;
+    }
+    return value;
+  }
+  function runAction(node, ctx) {
+    try {
+      const failure = applyAction(node, ctx);
+      ctx.outcomes[node.path] = failure ? "aborted" : "ran";
+      return failure;
+    } catch (e) {
+      ctx.outcomes[node.path] = "error";
+      throw e;
+    }
+  }
+  function applyAction(node, ctx) {
+    if (node.kind === "define") {
+      const value = evaluate(node.value, node.value.position, ctx);
+      if (isFailure(value)) return value;
+      if (isItemBuffer(value)) {
+        const failure = value.pull(Infinity);
+        if (failure) return failure.at(node.value.path);
+      }
+      (node.name.startsWith("this.") ? ctx.detectorNames : ctx.runNames).set(node.name, value);
+      if (isScalar(value)) ctx.measured[node.name] = value;
+      return void 0;
+    }
+    const data2 = node.data && evaluatePayload(node.data, ctx);
+    if (isFailure(data2)) return data2;
+    if (node.kind === "fireEvent") ctx.sink.fireEvent(node.type, data2);
+    else ctx.sink.breakageReportData(data2 ?? {});
+    return void 0;
+  }
+  function computeLength(node, ctx) {
+    const value = evaluate(node.operand, node.operand.position, ctx);
+    if (isFailure(value)) return value;
+    if (!isItemBuffer(value)) return readPath(ctx.reader, value, ["length"], void 0);
+    if (!value.started) {
+      const count = value.shortcuts.count?.();
+      if (count !== void 0) return count;
+    }
+    return value.pull(Infinity) ?? value.values.length;
+  }
+  function readSpread(operand, ctx) {
+    const value = operand.position === "spread" ? evaluate(operand, "spread", ctx) : evaluateOccurrence(operand, ctx);
+    if (isFailure(value)) return value;
+    if (operand.position !== "spread") return { value };
+    if (isItemBuffer(value) && value.leaf && operand.single === "boolean") {
+      const held = presence(value);
+      return isFailure(held) ? held.at(operand.path) : { value: held };
+    }
+    if (isItemBuffer(value)) return { list: value };
+    const members = listMembers(value, ctx);
+    if (isFailure(members)) return members.at(operand.path);
+    return members ? { list: new ItemBuffer(members) } : { value };
+  }
+  function computeArithmetic(node, ctx) {
+    const values = [];
+    for (const operand of node.operands) {
+      const spread = readSpread(operand, ctx);
+      if (isFailure(spread)) return spread;
+      if ("list" in spread) {
+        const items = allItems(spread.list);
+        if (isFailure(items)) return items;
+        for (const value of items) values.push(expectNumber(value, node.kind));
+      } else {
+        values.push(expectNumber(spread.value, node.kind));
+      }
+    }
+    switch (node.kind) {
+      case "sum":
+        return values.reduce((a2, b2) => a2 + b2, 0);
+      case "mul":
+        return values.reduce((a2, b2) => a2 * b2, 1);
+      case "div":
+        return (
+          /** @type {number} */
+          values[0] / /** @type {number} */
+          values[1]
+        );
+    }
+  }
+  function computeLogic(node, ctx) {
+    const [decider, decided] = decides(node.kind);
+    let result = !decided;
+    for (const operand of node.operands) {
+      const spread = readSpread(operand, ctx);
+      if (isFailure(spread)) return spread;
+      if ("list" in spread) {
+        const items = allItems(spread.list);
+        if (isFailure(items)) return items.at(operand.path);
+        for (let i = 0; i < items.length; i++) if (expectBoolean2(items[i], node.kind) === decider) result = decided;
+      } else if (expectBoolean2(spread.value, node.kind) === decider) {
+        result = decided;
+      }
+    }
+    return result;
+  }
+  var OMIT = /* @__PURE__ */ Symbol("omit");
+  function evaluatePayload(fields, ctx) {
+    const data2 = {};
+    for (const field of fields) {
+      let value;
+      try {
+        value = payloadValue(field, ctx);
+      } catch (e) {
+        throw atPath(e, `${field.path}.value`, ctx);
+      }
+      if (isFailure(value)) return value;
+      if (value !== OMIT) data2[field.key] = value;
+    }
+    return data2;
+  }
+  function payloadValue(field, ctx) {
+    const value = evaluateOccurrence(field.value, ctx);
+    const test2 = (predicate, path) => {
+      const held = testPredicate(predicate, forPredicate(value, predicate), ctx);
+      return isFailure(held) ? held.at(path) : held;
+    };
+    if (field.when) {
+      const held = test2(field.when, `${field.path}.when`);
+      if (isFailure(held)) return held;
+      if (held !== true) return OMIT;
+    }
+    if (field.buckets) {
+      for (const [name, bucket] of field.buckets) {
+        const held = test2(bucket, `${field.path}.buckets.${name}`);
+        if (isFailure(held)) return held;
+        if (held) return name;
+      }
+      return isFailure(value) ? value : OMIT;
+    }
+    if (isFailure(value)) return value;
+    return payloadJson(value, `${field.path}.value`);
+  }
+  function payloadJson(value, path) {
+    const items = isItemBuffer(value) ? allItems(value) : value;
+    if (isFailure(items)) return items.at(path);
+    try {
+      const json = JSONstringify(items);
+      return json === void 0 ? OMIT : JSONparse(json);
+    } catch (e) {
+      return thrownFailure(e).at(path);
+    }
+  }
+
+  // src/features/web-detection/evaluate/task-read-cache.js
+  init_define_import_meta_trackerLookup();
+  var _byNode;
+  var TaskReadCache = class {
+    constructor() {
+      /** @type {Map<object, Map<string, unknown>>} */
+      __privateAdd(this, _byNode, /* @__PURE__ */ new Map());
+    }
+    /**
+     * @template T
+     * @param {object} node
+     * @param {string} key
+     * @param {() => T} compute - a throw keeps nothing, so each reader throws in turn
+     * @returns {T}
+     */
+    of(node, key, compute) {
+      const values = getOrCreate(__privateGet(this, _byNode), node, newMap);
+      if (values.has(key)) return (
+        /** @type {T} */
+        values.get(key)
+      );
+      const value = compute();
+      values.set(key, value);
+      return value;
+    }
+  };
+  _byNode = new WeakMap();
+
+  // src/features/web-detection/evaluate/context.js
+  var NO_SINK = { fireEvent() {
+  }, breakageReportData() {
+  } };
+  var EvaluationContext = class {
+    /**
+     * @param {Reader} reader
+     * @param {Map<string, unknown>} [detectorNames] - the detector's names, which outlive the run
+     * @param {TaskReads} [task] - the page reads shared with the other detectors of the task
+     * @param {ActionSink} [sink] - where `fireEvent` and `breakageReportData` send, as each runs
+     */
+    constructor(reader, detectorNames = /* @__PURE__ */ new Map(), task = new TaskReadCache(), sink = NO_SINK) {
+      /** @type {Map<string, unknown>} the run names `define` has bound */
+      __publicField(this, "runNames", /* @__PURE__ */ new Map());
+      /** @type {Record<string, unknown>} scalar values bound, by name, for the debug notification */
+      __publicField(this, "measured", {});
+      /** @type {Record<string, ActionOutcome>} each action evaluated, by config path */
+      __publicField(this, "outcomes", {});
+      /** @type {{ path: string, message: string } | undefined} the innermost expression an error was thrown from */
+      __publicField(this, "errorAt");
+      /** @type {Map<ItemBinder, unknown>} the value each `using`, `where` and `field` is binding */
+      __publicField(this, "frames", /* @__PURE__ */ new Map());
+      this.reader = reader;
+      reader.beginRun();
+      this.detectorNames = detectorNames;
+      this.task = task;
+      this.sink = sink;
+    }
+    /**
+     * @param {Node} operand - a compiled operand of `eq` or a comparison, in value position. A selected
+     * list gives its one item
+     * @returns {unknown}
+     */
+    operand(operand) {
+      const value = evaluate(operand, operand.position, this);
+      return isItemBuffer(value) ? single(value) : value;
+    }
+    /**
+     * @param {Node} expression - a compiled expression, read in the position it was compiled for
+     * @returns {unknown}
+     */
+    read(expression) {
+      return evaluate(expression, expression.position, this);
+    }
+    /**
+     * @param {Node} expression - a compiled expression in boolean position, such as one in `where`
+     * @returns {boolean | Failure} the boolean, with `is` the one its predicate gives
+     */
+    test(expression) {
+      return (
+        /** @type {boolean | Failure} */
+        evaluateOccurrence(expression, this)
+      );
+    }
+    /**
+     * @param {Node} expression - a compiled `args` expression in value position
+     * @returns {unknown} the value, with a selected list as a new array of its items, or a `Failure`
+     */
+    arg(expression) {
+      const value = this.read(expression);
+      if (!isItemBuffer(value)) return value;
+      const items = allItems(value);
+      if (isFailure(items)) return items;
+      const array = [];
+      for (let i = 0; i < items.length; i++) array.push(items[i]);
+      return array;
+    }
+    /**
+     * @param {unknown} value - a value read, such as an operand of `in`
+     * @returns {unknown[] | Failure | undefined} the items of a list, or `undefined` for any other value
+     */
+    items(value) {
+      const list = asList(value, this);
+      return list && allItems(list);
+    }
+    /**
+     * Run `fn` with `self` of a `using`, `where` or `field` bound to `value`. A binder no expression
+     * inside reads `self` of binds nothing.
+     *
+     * @template T
+     * @param {ItemBinder} binder
+     * @param {unknown} value
+     * @param {() => T} fn
+     * @returns {T}
+     */
+    bind(binder, value, fn) {
+      if (!binder.readsSelf) return fn();
+      const bound = this.frames.has(binder);
+      const previous = this.frames.get(binder);
+      this.frames.set(binder, value);
+      try {
+        return fn();
+      } finally {
+        if (bound) this.frames.set(binder, previous);
+        else this.frames.delete(binder);
+      }
+    }
+  };
+
+  // src/features/web-detection/evaluate/native-reader.js
+  init_define_import_meta_trackerLookup();
+  var _global, _holders, _keys, _nodePrototype, _records2;
+  var NativeReader = class {
+    /**
+     * @param {object} global - the global object to capture from
+     * @param {Iterable<string>} [names] - every name config reads or calls
+     * @param {Iterable<string>} [paths] - every path config reads from the global, up to the method it calls
+     * @param {object} [nodePrototype] - the global's `Node.prototype`, which `isNode` tests against
+     */
+    constructor(global, names2 = [], paths = [], nodePrototype = NodePrototype) {
+      /** @type {object} */
+      __privateAdd(this, _global);
+      /** @type {Map<object, Map<PropertyKey, CapturedRecord>>} each holder's records */
+      __privateAdd(this, _holders, /* @__PURE__ */ new Map());
+      /** @type {Set<PropertyKey>} every key captured */
+      __privateAdd(this, _keys, /* @__PURE__ */ new Set([Symbol.iterator]));
+      /** @type {object | undefined} */
+      __privateAdd(this, _nodePrototype);
+      /**
+       * Per key, the record found walking up from a prototype, or `null` for none. A page can change a
+       * prototype's chain between runs, so it is kept for one run.
+       *
+       * @type {Map<PropertyKey, Map<object, CapturedRecord | null>>}
+       */
+      __privateAdd(this, _records2, /* @__PURE__ */ new Map());
+      __privateSet(this, _global, global);
+      __privateSet(this, _nodePrototype, nodePrototype);
+      this.capture(names2, paths);
+    }
+    /**
+     * Capture more names, and the holders more paths reach. A name already captured keeps its record,
+     * and a getter or method a page replaced since construction is captured as it now stands. A path is
+     * read through the getters already captured.
+     *
+     * @param {Iterable<PropertyKey>} keys
+     * @param {Iterable<string>} [paths]
+     */
+    capture(keys, paths = []) {
+      const added = [];
+      for (const key of keys) {
+        if (__privateGet(this, _keys).has(key)) continue;
+        __privateGet(this, _keys).add(key);
+        added.push(key);
+      }
+      if (added.length > 0) {
+        this._addGlobal();
+        __privateGet(this, _holders).forEach((records, holder) => captureOn(holder, records, added));
+      }
+      for (const path of paths) {
+        this._addGlobal();
+        this._reach(path);
+      }
+      __privateGet(this, _records2).clear();
+    }
+    /** Add the global object and its prototype chain as holders. */
+    _addGlobal() {
+      if (__privateGet(this, _holders).has(__privateGet(this, _global))) return;
+      this._addHolder(__privateGet(this, _global));
+      this._addChain(__privateGet(this, _global));
+    }
+    /**
+     * Add the holders a path reaches, reading it from the global one name at a time through the
+     * getters captured so far. A name that reads `null`, `undefined` or a failure ends it.
+     *
+     * @param {string} path
+     */
+    _reach(path) {
+      const global = __privateGet(this, _global);
+      let current = global;
+      try {
+        for (const [i, name] of path.split(".").entries()) {
+          if (i === 0) {
+            const value = tryOwnDescriptor(global, name)?.value;
+            if (typeof value === "object" && value !== null && value !== global || typeof value === "function") {
+              this._addHolder(value);
+              const prototype = typeof value === "function" ? tryOwnDescriptor(value, "prototype")?.value : void 0;
+              if ((typeof prototype === "object" || typeof prototype === "function") && prototype !== null) {
+                this._addHolder(prototype);
+                this._addChain(prototype);
+              }
+            }
+          }
+          current = this._peek(current, name);
+          if (current === null || current === void 0 || isFailure(current)) return;
+          this._addChain(current);
+        }
+      } catch {
+      }
+    }
+    /**
+     * Read one name of a path at capture: through its captured getter or value as `read` does, else a
+     * data property on the target's chain. A getter nothing captured is not called.
+     *
+     * @param {unknown} target - any value but `null` and `undefined`
+     * @param {string} name
+     * @returns {unknown} the value, or a `Failure`
+     */
+    _peek(target, name) {
+      if (this._captured(target, name)) return this.read(target, name);
+      const found = this._find(target, name);
+      return found && !isFailure(found) && "value" in found ? found.value : void 0;
+    }
+    /**
+     * Add a holder, with the records of every key captured.
+     *
+     * @param {object} holder
+     */
+    _addHolder(holder) {
+      if (__privateGet(this, _holders).has(holder)) return;
+      const records = /* @__PURE__ */ new Map();
+      __privateGet(this, _holders).set(holder, records);
+      captureOn(holder, records, __privateGet(this, _keys));
+      __privateGet(this, _records2).clear();
+    }
+    /**
+     * Add each prototype on a value's chain as a holder. A chain whose prototype is a holder is already
+     * added above it.
+     *
+     * @param {unknown} value - any value but `null` and `undefined`
+     */
+    _addChain(value) {
+      for (let current = getPrototypeOf(value); current !== null && !__privateGet(this, _holders).has(current); current = getPrototypeOf(current)) {
+        this._addHolder(current);
+      }
+    }
+    /** Start a run: records found from a prototype are looked up again. */
+    beginRun() {
+      __privateGet(this, _records2).clear();
+    }
+    /**
+     * The captured record for a key on the target's chain: on the target itself when it is a holder,
+     * else the one found walking up from its prototype.
+     *
+     * @param {unknown} target - any value but `null` and `undefined`
+     * @param {PropertyKey} key
+     * @returns {CapturedRecord | undefined}
+     */
+    _captured(target, key) {
+      if (typeof target === "object" || typeof target === "function") {
+        const own = __privateGet(this, _holders).get(
+          /** @type {object} */
+          target
+        )?.get(key);
+        if (own) return own;
+      }
+      const from = getPrototypeOf(target);
+      if (from === null) return void 0;
+      const byPrototype = getOrCreate(__privateGet(this, _records2), key, newMap);
+      let record = byPrototype.get(from);
+      if (record === void 0) {
+        record = null;
+        for (let current = from; current !== null; current = getPrototypeOf(current)) {
+          const found = __privateGet(this, _holders).get(current)?.get(key);
+          if (found) {
+            record = found;
+            break;
+          }
+        }
+        byPrototype.set(from, record);
+      }
+      return record ?? void 0;
+    }
+    /**
+     * The descriptor a captured record gives the target: the record's own for a getter, and for a
+     * method when `method` holds. For any other value, the first own property from the target up to the
+     * holder takes its place, read by descriptor. A getter there gives a failure, uncalled.
+     *
+     * @param {unknown} target - any value but `null` and `undefined`
+     * @param {PropertyKey} key
+     * @param {CapturedRecord} record - the record `_captured` gives for the target
+     * @param {boolean} method - whether a captured function value is used whatever the target defines
+     * @returns {PropertyDescriptor | Failure}
+     */
+    _resolve(target, key, record, method) {
+      const descriptor = record.descriptor;
+      if (!("value" in descriptor) || method && typeof descriptor.value === "function") return descriptor;
+      let current = target;
+      while (current !== null && current !== record.holder) {
+        const own = getOwnPropertyDescriptor(current, key);
+        if (own) return "value" in own ? own : new Failure("PageAccessor");
+        current = getPrototypeOf(current);
+      }
+      return descriptor;
+    }
+    /**
+     * The descriptor a call uses for a key on the target's chain: from the captured record, else the
+     * property as it stands.
+     *
+     * @param {unknown} target - any value but `null` and `undefined`
+     * @param {PropertyKey} key
+     * @returns {PropertyDescriptor | Failure | undefined}
+     */
+    _find(target, key) {
+      const record = this._captured(target, key);
+      if (record) return this._resolve(target, key, record, true);
+      let current = typeof target === "object" || typeof target === "function" ? target : getPrototypeOf(target);
+      while (current !== null && current !== void 0) {
+        const descriptor = getOwnPropertyDescriptor(current, key);
+        if (descriptor) return descriptor;
+        current = getPrototypeOf(current);
+      }
+      return void 0;
+    }
+    /**
+     * The data value for a key on the target's chain, as `_find` gives it: for a method, the function.
+     *
+     * @param {unknown} target - any value but `null` and `undefined`
+     * @param {PropertyKey} key
+     * @returns {unknown}
+     */
+    _method(target, key) {
+      const found = this._find(target, key);
+      return found && !isFailure(found) && "value" in found ? found.value : void 0;
+    }
+    /**
+     * Read one property, as JS reads it: a name present nowhere, or an accessor with no getter, reads
+     * `undefined`. A getter that throws fails, and so does a page's Proxy trap that throws. A page getter
+     * in place of a captured value fails with `PageAccessor`.
+     *
+     * @param {unknown} target - any value but `null` and `undefined`
+     * @param {string} name
+     * @returns {unknown} the value, or a `Failure`
+     */
+    read(target, name) {
+      try {
+        const record = this._captured(target, name);
+        if (!record) {
+          const start = typeof target === "object" || typeof target === "function" ? target : getPrototypeOf(target);
+          return ReflectGet(
+            /** @type {object} */
+            start,
+            name,
+            target
+          );
+        }
+        const descriptor = this._resolve(target, name, record, false);
+        if (isFailure(descriptor)) return descriptor;
+        if ("value" in descriptor) return descriptor.value;
+        if (!descriptor.get) return void 0;
+        return ReflectApply(descriptor.get, target, []);
+      } catch (e) {
+        return thrownFailure(e);
+      }
+    }
+    /**
+     * Call a method. A name whose value is not a function fails with `TypeError`, as the call throws in
+     * JS. A method that throws fails, and so does a page's Proxy trap that throws.
+     *
+     * @param {unknown} target - any value but `null` and `undefined`
+     * @param {string} name
+     * @param {readonly unknown[]} args
+     * @returns {unknown} the result, or a `Failure`
+     */
+    call(target, name, args) {
+      try {
+        const method = this._method(target, name);
+        if (typeof method !== "function") return new Failure("TypeError");
+        return ReflectApply(method, target, args);
+      } catch (e) {
+        return thrownFailure(e);
+      }
+    }
+    /**
+     * Whether a value is a DOM node: the global's `Node.prototype` is on its prototype chain. A page's
+     * Proxy trap that throws fails.
+     *
+     * @param {unknown} target
+     * @returns {boolean | Failure}
+     */
+    isNode(target) {
+      try {
+        return hasPrototype(target, __privateGet(this, _nodePrototype) ? [__privateGet(this, _nodePrototype)] : []);
+      } catch (e) {
+        return thrownFailure(e);
+      }
+    }
+    /**
+     * The iterator method of a value, when it has one. A page's Proxy trap that throws fails.
+     *
+     * @param {unknown} target
+     * @returns {Function | undefined | Failure}
+     */
+    iteratorMethod(target) {
+      if (target === null || target === void 0 || typeof target === "string") return void 0;
+      try {
+        const method = this._method(target, Symbol.iterator);
+        return typeof method === "function" ? method : void 0;
+      } catch (e) {
+        return thrownFailure(e);
+      }
+    }
+  };
+  _global = new WeakMap();
+  _holders = new WeakMap();
+  _keys = new WeakMap();
+  _nodePrototype = new WeakMap();
+  _records2 = new WeakMap();
+  function tryOwnDescriptor(target, key) {
+    try {
+      return getOwnPropertyDescriptor(target, key);
+    } catch {
+      return void 0;
+    }
+  }
+  function captureOn(holder, records, keys) {
+    const found = /* @__PURE__ */ new Map();
+    try {
+      for (const key of keys) {
+        if (records.has(key)) continue;
+        const descriptor = getOwnPropertyDescriptor(holder, key);
+        if (descriptor) found.set(key, { holder, descriptor });
+      }
+    } catch {
+      return;
+    }
+    found.forEach((record, key) => records.set(key, record));
+  }
+  function hasPrototype(target, prototypes) {
+    if (prototypes.length === 0 || typeof target !== "object" || target === null) return false;
+    for (let current = getPrototypeOf(target); current !== null; current = getPrototypeOf(current)) {
+      if (prototypes.includes(current)) return true;
+    }
+    return false;
+  }
+
+  // src/features/web-detection/evaluate/run.js
+  init_define_import_meta_trackerLookup();
+  function createDetectorState() {
+    return { names: /* @__PURE__ */ new Map(), done: false };
+  }
+  function runDetector(compiled, state, ctx) {
+    const run = { actions: ctx.outcomes };
+    if (compiled.match) {
+      const matched = evaluatePart(compiled.match, ctx, run);
+      run.match = matched === true || matched === "aborted" || matched === "error" ? matched : false;
+      if (run.match !== true) return run;
+      state.done = true;
+    }
+    evaluatePart(compiled.actions, ctx, run);
+    return run;
+  }
+  function evaluatePart(node, ctx, run) {
+    let path;
+    let failure;
+    try {
+      const value = evaluateOccurrence(node, ctx);
+      if (!isFailure(value)) return value;
+      path = value.path ?? node.path;
+      failure = "aborted";
+      if (value.error) run.abortError = value.error;
+    } catch (e) {
+      path = ctx.errorAt?.path ?? node.path;
+      failure = "error";
+      run.error = thrownMessage(e);
+    }
+    run.failedAt = path;
+    run.failure = failure;
+    return failure;
+  }
+  function detectorNameScalars(state) {
+    const values = {};
+    for (const [name, value] of state.names) {
+      if (isScalar(value)) values[name] = value;
+    }
+    return values;
+  }
+
+  // src/features/web-detection.js
+  var _detectors2, _states, _compiled, _breakage, _autoDetectors, _timers, _detectorPerfEnabled, _reader, _parsedSettings;
+  var WebDetection = class extends ContentFeature {
+    constructor() {
+      super(...arguments);
+      /** @type {Record<string, Record<string, DetectorConfig>>} */
+      __privateAdd(this, _detectors2, {});
+      /** @type {Map<string, DetectorState>} each detector's state in the frame, by `groupName.detectorId` */
+      __privateAdd(this, _states, /* @__PURE__ */ new Map());
+      /** @type {Map<string, CompiledDetector | { error: string }>} each compiled detector, or its parse error, by `groupName.detectorId` */
+      __privateAdd(this, _compiled, /* @__PURE__ */ new Map());
+      /** each detector's breakage entry in the frame */
+      __privateAdd(this, _breakage, new BreakageEntries());
+      /** @type {Map<number, DetectorEntry[]>} the detectors the `auto` trigger runs at each interval */
+      __privateAdd(this, _autoDetectors, /* @__PURE__ */ new Map());
+      /** @type {Array<{ timer: ReturnType<typeof setTimeout>, detectors: DetectorEntry[] }>} */
+      __privateAdd(this, _timers, []);
+      __privateAdd(this, _detectorPerfEnabled, false);
+      /** @type {NativeReader | undefined} */
+      __privateAdd(this, _reader);
+      /** @type {unknown} the feature settings object the detectors were parsed from */
+      __privateAdd(this, _parsedSettings);
+      __publicField(this, "_exposedMethods", this._declareExposedMethods(["runDetectors", "getBreakageReportData"]));
+    }
+    /**
+     * Parse the detectors when the injected config has them. `webDetection` loads before every feature
+     * but `cookie`, so the reader captures native getters and methods before any feature or page script
+     * replaces them. A parse that throws is left to `init`: the extension loads with its embedded config
+     * and inits with the live one, which may parse, so the feature stays loaded rather than falling to
+     * the load loop's catch.
+     */
+    load() {
+      try {
+        this._parseDetectors();
+      } catch {
+        __privateSet(this, _parsedSettings, void 0);
+      }
+    }
+    /**
+     * Parse the detectors unless `load` parsed these settings, then schedule their automatic runs
+     */
+    init() {
+      __privateSet(this, _detectorPerfEnabled, hasOwnProperty.call(this.featureSettings ?? {}, "detectorPerf"));
+      this._parseDetectors();
+      this._scheduleAutoRunDetectors();
+    }
+    /**
+     * Parse the detectors, compile those a trigger runs in the frame, and capture the names they read
+     * from the holders their paths reach. Detectors that read no name or path capture nothing. Settings
+     * already parsed are skipped. Settings that differ from those parsed at `load` replace them, and the
+     * reader adds the names and paths it lacks.
+     */
+    _parseDetectors() {
+      const settings = this._getFeatureSettings();
+      if (settings === void 0 || settings === __privateGet(this, _parsedSettings)) return;
+      __privateSet(this, _parsedSettings, settings);
+      __privateSet(this, _detectors2, parseDetectors(this.getFeatureSetting("detectors")));
+      __privateGet(this, _compiled).clear();
+      const names2 = /* @__PURE__ */ new Set();
+      const paths = /* @__PURE__ */ new Set();
+      for (const detector of this._eachDetector()) {
+        if (!this._runsInFrame(detector.config)) continue;
+        const compiled = this._compiledOf(detector);
+        if ("error" in compiled) continue;
+        compiled.names.forEach((name) => names2.add(name));
+        compiled.paths.forEach((path) => paths.add(path));
+      }
+      if (names2.size === 0 && paths.size === 0) return;
+      if (__privateGet(this, _reader)) __privateGet(this, _reader).capture(names2, paths);
+      else __privateSet(this, _reader, new NativeReader(globalThis, names2, paths));
+    }
+    /**
+     * Whether a trigger runs the detector in this frame. The state, platform and site a trigger tests
+     * are fixed for the frame, so a detector no trigger runs when the detectors are parsed is never compiled.
+     *
+     * @param {DetectorConfig} config
+     * @returns {boolean}
+     */
+    _runsInFrame(config2) {
+      return this._shouldRunDetector(config2, { trigger: "breakageReport" }) || this._shouldRunDetector(config2, { trigger: "auto" });
+    }
+    /**
+     * The detector compiled, or its parse error. Each detector compiles once.
+     *
+     * @param {DetectorEntry} detector
+     * @returns {CompiledDetector | { error: string }}
+     */
+    _compiledOf({ detectorId, config: config2 }) {
+      return getOrCreate(__privateGet(this, _compiled), detectorId, () => this._compile(config2));
+    }
+    /**
+     * @param {DetectorConfig} config
+     * @returns {CompiledDetector | { error: string }}
+     */
+    _compile(config2) {
+      return compileDetectorConfig(config2, globalThis);
+    }
+    /**
+     * Every configured detector, with its group and its full ID, `groupName.detectorId`.
+     *
+     * @returns {Generator<DetectorEntry>}
+     */
+    *_eachDetector() {
+      for (const [groupName, group] of Object.entries(__privateGet(this, _detectors2))) {
+        for (const [detectorId, config2] of Object.entries(group)) yield { groupName, detectorId: `${groupName}.${detectorId}`, config: config2 };
+      }
+    }
+    /**
+     * @returns {NativeReader}
+     */
+    get _reader() {
+      __privateGet(this, _reader) ?? __privateSet(this, _reader, new NativeReader(globalThis));
+      return __privateGet(this, _reader);
+    }
+    /**
+     * @param {string} fullDetectorId
+     * @returns {DetectorState}
+     */
+    _stateOf(fullDetectorId) {
+      return getOrCreate(__privateGet(this, _states), fullDetectorId, createDetectorState);
+    }
+    /**
+     * Run one detector, unless it is done. Its actions send events and write its breakage entry as each
+     * runs, and the failure that ends the run is recorded in the entry. A detector that failed to parse
+     * records `parse` instead of running.
+     *
+     * @param {DetectorEntry} detector
+     * @param {TriggerInfo} triggerInfo
+     * @param {TaskReadCache} task - the page reads shared by the detectors run with it
+     */
+    _runDetector(detector, triggerInfo, task) {
+      const { groupName, detectorId } = detector;
+      const compiled = this._compiledOf(detector);
+      const state = this._stateOf(detectorId);
+      if (state.done) return;
+      if ("error" in compiled) {
+        __privateGet(this, _breakage).fail(detectorId, "parse", "error");
+        return;
+      }
+      const events = [];
+      const sink = {
+        fireEvent: (type, data2) => {
+          events.push({ type, ...data2 && { data: data2 } });
+          void this._executeFireEvent(type, data2);
+        },
+        breakageReportData: (data2) => __privateGet(this, _breakage).write(detectorId, data2)
+      };
+      const ctx = new EvaluationContext(this._reader, state.names, task, sink);
+      const run = () => runDetector(compiled, state, ctx);
+      const result = __privateGet(this, _detectorPerfEnabled) ? timeDetector(this, groupName, run, detectorId, (r) => r.error !== void 0) : run();
+      if (result.failedAt !== void 0 && result.failure !== void 0) __privateGet(this, _breakage).fail(detectorId, result.failedAt, result.failure);
+      if (state.done) this._cancelFinishedTimers();
+      if (this.isDebug && triggerInfo.trigger === "auto" && result.match !== false) {
+        try {
+          this.messaging?.notify("webDetectionAutoRun", {
+            detectorId,
+            timestamp: Date.now(),
+            ...result.match !== void 0 && { match: result.match },
+            actions: result.actions,
+            ...result.failedAt && { failedAt: result.failedAt },
+            names: detectorNameScalars(state),
+            measured: ctx.measured,
+            events,
+            ...result.abortError && { abortError: result.abortError },
+            ...result.error && { error: result.error },
+            ...ctx.errorAt && { errorAt: ctx.errorAt }
+          });
+        } catch {
+        }
+      }
+    }
+    /**
+     * Schedule automatic detector execution based on configured intervals.
+     */
+    _scheduleAutoRunDetectors() {
+      for (const detector of this._eachDetector()) {
+        if (!this._shouldRunDetector(detector.config, { trigger: "auto" })) continue;
+        for (const interval of detector.config.triggers.auto.when.intervalMs) {
+          getOrCreate(__privateGet(this, _autoDetectors), interval, () => []).push(detector);
+        }
+      }
+      for (const [interval, detectors] of __privateGet(this, _autoDetectors)) {
+        const timer = setTimeout(() => this.runDetectors({ trigger: "auto", intervalMs: interval }), interval);
+        __privateGet(this, _timers).push({ timer, detectors });
+      }
+    }
+    /**
+     * Cancel each pending timer whose detectors are all done.
+     */
+    _cancelFinishedTimers() {
+      __privateSet(this, _timers, __privateGet(this, _timers).filter(({ timer, detectors }) => {
+        if (!detectors.every(({ detectorId }) => __privateGet(this, _states).get(detectorId)?.done)) return true;
+        clearTimeout(timer);
+        return false;
+      }));
+    }
+    /**
+     * Fire a web event via webEvents.
+     *
+     * @param {string} type
+     * @param {PayloadData} [data] - the `fireEvent` payload, when the action names one
+     */
+    async _executeFireEvent(type, data2) {
+      try {
+        await this.callFeatureMethod("webEvents", "fireEvent", { type, ...data2 && { data: data2 } });
+      } catch {
+      }
+    }
+    /**
+     * Check if a detector should be triggered.
+     *
+     * @param {DetectorConfig} config
+     * @param {{ trigger: TriggerInfo['trigger'] }} triggerInfo
+     * @returns {boolean}
+     */
+    _shouldRunDetector(config2, { trigger }) {
+      if (!this._isStateEnabled(config2.state)) return false;
+      const triggerSettings = config2.triggers[trigger];
+      if (!triggerSettings || !this._isStateEnabled(triggerSettings.state)) return false;
+      if (!triggerSettings.runConditions) return true;
+      try {
+        return this._matchConditionalBlockOrArray(triggerSettings.runConditions);
+      } catch {
+        return false;
+      }
+    }
+    /**
+     * The detectors a trigger runs: for a breakage report, every detector its trigger enables; for an
+     * `auto` timer, those scheduled at its interval.
+     *
+     * @param {TriggerInfo} triggerInfo
+     * @returns {Iterable<DetectorEntry>}
+     */
+    _detectorsFor(triggerInfo) {
+      if (triggerInfo.trigger === "auto") return __privateGet(this, _autoDetectors).get(triggerInfo.intervalMs) ?? [];
+      return [...this._eachDetector()].filter((detector) => this._shouldRunDetector(detector.config, triggerInfo));
+    }
+    /**
+     * Run every detector the trigger runs that is not done, sharing one task's page reads. A throw that
+     * escapes a detector's run is recorded in its entry under `run`, and the other detectors still run.
+     *
+     * @param {TriggerInfo} triggerInfo
+     */
+    runDetectors(triggerInfo) {
+      const task = new TaskReadCache();
+      for (const detector of this._detectorsFor(triggerInfo)) {
+        try {
+          this._runDetector(detector, triggerInfo, task);
+        } catch (e) {
+          __privateGet(this, _breakage).fail(detector.detectorId, "run", "error");
+          if (this.isDebug) {
+            this.log.error(`Error running detector ${detector.detectorId}:`, e);
+          }
+        }
+      }
+    }
+    /**
+     * The breakage entries of the detectors that have written one or recorded a failure, parse errors
+     * included, by whichever trigger ran them.
+     *
+     * @returns {BreakageEntry[]}
+     */
+    getBreakageReportData() {
+      const results = [];
+      for (const { detectorId } of this._eachDetector()) {
+        const entry = __privateGet(this, _breakage).entry(detectorId, __privateGet(this, _states).get(detectorId)?.done ?? false);
+        if (entry) results.push(entry);
+      }
+      return results;
+    }
+  };
+  _detectors2 = new WeakMap();
+  _states = new WeakMap();
+  _compiled = new WeakMap();
+  _breakage = new WeakMap();
+  _autoDetectors = new WeakMap();
+  _timers = new WeakMap();
+  _detectorPerfEnabled = new WeakMap();
+  _reader = new WeakMap();
+  _parsedSettings = new WeakMap();
+
+  // src/features/context-menu.js
+  init_define_import_meta_trackerLookup();
 
   // src/utils/dom-metadata.js
   init_define_import_meta_trackerLookup();
@@ -9585,11 +12532,11 @@ ul.messages {
   function safeQuerySelectorXPath(element, selector) {
     try {
       const match = document.evaluate(selector, element, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
-      const single = match?.singleNodeValue;
-      if (single) {
+      const single2 = match?.singleNodeValue;
+      if (single2) {
         return (
           /** @type {HTMLElement} */
-          single
+          single2
         );
       }
       return null;
@@ -12240,8 +15187,8 @@ ul.messages {
     let message = "Unknown error";
     try {
       if (error !== null && typeof error === "object" && "message" in error) {
-        const errorName = "name" in error ? error.name : void 0;
-        if (typeof errorName === "string" && errorName) name = errorName;
+        const errorName2 = "name" in error ? error.name : void 0;
+        if (typeof errorName2 === "string" && errorName2) name = errorName2;
         message = String(error.message);
       } else {
         message = String(error);
@@ -13551,7 +16498,7 @@ ul.messages {
     }
     return selectors.some((selector) => {
       const element = document.querySelector(selector);
-      return element && isVisible(element);
+      return element && isVisible2(element);
     });
   }
   function checkWindowProperties(properties) {
@@ -13560,7 +16507,7 @@ ul.messages {
     }
     return properties.some((prop) => prop in window);
   }
-  function isVisible(element) {
+  function isVisible2(element) {
     const computedStyle = getComputedStyle(element);
     const rect = element.getBoundingClientRect();
     return rect.width > 0.5 && rect.height > 0.5 && computedStyle.display !== "none" && computedStyle.visibility !== "hidden" && +computedStyle.opacity > 0.05;
@@ -13916,7 +16863,7 @@ ul.messages {
         return true;
       }
       const adElements = root.querySelectorAll(this.cachedAdSelector);
-      const hasAd = Array.from(adElements).some((el) => isVisible(el) && this.looksLikeAdNode(el));
+      const hasAd = Array.from(adElements).some((el) => isVisible2(el) && this.looksLikeAdNode(el));
       if (hasAd) {
         this.log.info("Ad detected: child element matches ad selector");
       }
@@ -13937,7 +16884,7 @@ ul.messages {
         return false;
       }
       const background = document.querySelector(selectors.background);
-      if (!background || !isVisible(background)) {
+      if (!background || !isVisible2(background)) {
         return false;
       }
       const thumbnail = document.querySelector(selectors.thumbnail);
@@ -13949,11 +16896,11 @@ ul.messages {
       const videoNotPlaying = !video || video.paused && video.currentTime < 1;
       if (image) {
         const img = image.querySelector("img");
-        if (img && img.src && isVisible(image)) {
+        if (img && img.src && isVisible2(image)) {
           return true;
         }
       }
-      if (thumbnail && isVisible(thumbnail) && videoNotPlaying) {
+      if (thumbnail && isVisible2(thumbnail) && videoNotPlaying) {
         return true;
       }
       return false;
@@ -13977,7 +16924,7 @@ ul.messages {
           /** @type {HTMLElement | null} */
           document.querySelector(selector)
         );
-        if (el && isVisible(el)) {
+        if (el && isVisible2(el)) {
           const text2 = el.innerText || el.textContent || "";
           for (const pattern of patterns) {
             if (pattern.test(text2)) {
@@ -14003,7 +16950,7 @@ ul.messages {
           if (pattern.test(bodyText)) {
             const dialogs = document.querySelectorAll('[role="dialog"], [aria-modal="true"], .ytd-popup-container');
             for (const dialog of dialogs) {
-              if (dialog instanceof HTMLElement && isVisible(dialog)) {
+              if (dialog instanceof HTMLElement && isVisible2(dialog)) {
                 const dialogText = dialog.innerText || "";
                 if (pattern.test(dialogText)) {
                   return dialogText.trim().substring(0, maxLen);
@@ -14361,9 +17308,16 @@ ul.messages {
           result.pageReloaded = window.performance.navigation && window.performance.navigation.type === 1 || /** @type {PerformanceNavigationTiming[]} */
           window.performance.getEntriesByType("navigation").map((nav) => nav.type).includes("reload");
         }
-        const webDetectionResults = await this.callFeatureMethod("webDetection", "runDetectors", { trigger: "breakageReport" });
-        if (!(webDetectionResults instanceof CallFeatureMethodError) && webDetectionResults.length > 0) {
-          breakageDataPayload.webDetection = webDetectionResults;
+        try {
+          await this.callFeatureMethod("webDetection", "runDetectors", { trigger: "breakageReport" });
+        } catch {
+        }
+        try {
+          const webDetectionResults = await this.callFeatureMethod("webDetection", "getBreakageReportData");
+          if (!(webDetectionResults instanceof CallFeatureMethodError) && webDetectionResults.length > 0) {
+            breakageDataPayload.webDetection = webDetectionResults;
+          }
+        } catch {
         }
         const detectorSettings = this.getFeatureSetting("interferenceTypes", "webInterferenceDetection");
         if (detectorSettings) {
@@ -17690,776 +20644,6 @@ ul.messages {
     observer.observe(target, { attributeFilter: ["rel", "href", "type"], attributes: true, subtree: true, childList: true });
   }
 
-  // src/features/web-detection.js
-  init_define_import_meta_trackerLookup();
-
-  // src/features/detector-perf.js
-  init_define_import_meta_trackerLookup();
-  var DEFAULT_SINGLE_RUN_THRESHOLDS_MS = [8, 16, 50, 150];
-  var DEFAULT_TOTAL_PER_PAGE_THRESHOLDS_MS = [50, 100, 250];
-  var DEFAULT_COMBINED_THRESHOLDS_MS = [100, 250, 500];
-  var DEFAULT_MAX_SEVERE_PER_PAGE = 10;
-  var NAME_PATTERN = /^[a-zA-Z0-9]+(?:[._-][a-zA-Z0-9]+)*$/;
-  var EVENT_PREFIX = "detectorPerf";
-  var SEVERE_EVENT_TYPE = `${EVENT_PREFIX}_severe`;
-  var DEBUG_STATS_EVENT_TYPE = `${EVENT_PREFIX}DebugStats`;
-  function parseThresholds(value, fallback) {
-    if (!Array.isArray(value)) return fallback;
-    const edges = value.filter((edge) => typeof edge === "number" && Number.isFinite(edge) && edge > 0);
-    if (edges.length === 0) return fallback;
-    return [...new Set2(edges)].sort((a2, b2) => a2 - b2);
-  }
-  function roundMs(ms) {
-    return Math.round(ms * 10) / 10;
-  }
-  var _active, _detectors, _detectorsDetailed, _combinedTotalMs, _emitted, _singleRunThresholdsMs, _totalPerPageThresholdsMs, _combinedThresholdsMs, _singleRunSevereThresholdMs, _totalPerPageSevereThresholdMs, _combinedSevereThresholdMs, _detectorOverrides, _severeCount, _maxSeverePerPage, _severeDebugLog;
-  var DetectorPerf = class extends ContentFeature {
-    constructor() {
-      super(...arguments);
-      __publicField(this, "_exposedMethods", this._declareExposedMethods(["record", "getStats"]));
-      /**
-       * `detectorPerf` is bundled as a platform-specific dependency so it remains
-       * available when protections are disabled, but loading it must not bypass
-       * remote-config gating. Enabled feature settings are copied into
-       * `featureSettings`; an absent/disabled feature has no own entry.
-       */
-      __privateAdd(this, _active, false);
-      /** @type {Map<string, DetectorStats>} */
-      __privateAdd(this, _detectors, new Map2());
-      /**
-       * Per-page stats keyed by exact attribution (the `detail` config ID when
-       * present, the group otherwise). Never feeds periodic events — only the
-       * breakage-report payload, where exact IDs are wanted.
-       * @type {Map<string, DetectorStats>}
-       */
-      __privateAdd(this, _detectorsDetailed, new Map2());
-      /** Total ms across all recorded detectors in this frame. */
-      __privateAdd(this, _combinedTotalMs, 0);
-      /** Event types already emitted in this frame (at-most-once guard). */
-      /** @type {Set<string>} */
-      __privateAdd(this, _emitted, new Set2());
-      /** @type {number[]} */
-      __privateAdd(this, _singleRunThresholdsMs, DEFAULT_SINGLE_RUN_THRESHOLDS_MS);
-      /** @type {number[]} */
-      __privateAdd(this, _totalPerPageThresholdsMs, DEFAULT_TOTAL_PER_PAGE_THRESHOLDS_MS);
-      /** @type {number[]} */
-      __privateAdd(this, _combinedThresholdsMs, DEFAULT_COMBINED_THRESHOLDS_MS);
-      /** @type {number | undefined} */
-      __privateAdd(this, _singleRunSevereThresholdMs);
-      /** @type {number | undefined} */
-      __privateAdd(this, _totalPerPageSevereThresholdMs);
-      /** @type {number | undefined} */
-      __privateAdd(this, _combinedSevereThresholdMs);
-      /** @type {Record<string, Partial<DetectorThresholds>>} */
-      __privateAdd(this, _detectorOverrides, {});
-      /** Severe emissions so far in this frame. */
-      __privateAdd(this, _severeCount, 0);
-      /** @type {number} */
-      __privateAdd(this, _maxSeverePerPage, DEFAULT_MAX_SEVERE_PER_PAGE);
-      /**
-       * Severe emissions in this frame, kept only under the debug flag for the
-       * debug stats broadcast. Empty in production.
-       * @type {Array<{ kind: SevereKind, detector: string, thresholdMs: number }>}
-       */
-      __privateAdd(this, _severeDebugLog, []);
-    }
-    init() {
-      if (!hasOwnProperty.call(this.featureSettings ?? {}, this.name)) return;
-      __privateSet(this, _active, true);
-      this._readThresholdSettings();
-      if (window.self === window.top) {
-        this._emit(`${EVENT_PREFIX}_measured`);
-      }
-      this._debugBroadcast(null);
-    }
-    _readThresholdSettings() {
-      const defaults = this.getFeatureSetting("defaults");
-      if (defaults && typeof defaults === "object") {
-        const defaultSettings = (
-          /** @type {Record<string, unknown>} */
-          defaults
-        );
-        __privateSet(this, _singleRunThresholdsMs, parseThresholds(defaultSettings.singleRunThresholdsMs, DEFAULT_SINGLE_RUN_THRESHOLDS_MS));
-        __privateSet(this, _totalPerPageThresholdsMs, parseThresholds(
-          defaultSettings.totalPerPageThresholdsMs,
-          DEFAULT_TOTAL_PER_PAGE_THRESHOLDS_MS
-        ));
-      }
-      __privateSet(this, _combinedThresholdsMs, parseThresholds(this.getFeatureSetting("combinedThresholdsMs"), DEFAULT_COMBINED_THRESHOLDS_MS));
-      const singleRunSevereThresholdMs = this.getFeatureSetting("singleRunSevereThresholdMs");
-      if (typeof singleRunSevereThresholdMs === "number" && Number.isFinite(singleRunSevereThresholdMs) && singleRunSevereThresholdMs > 0) {
-        __privateSet(this, _singleRunSevereThresholdMs, singleRunSevereThresholdMs);
-      }
-      const totalPerPageSevereThresholdMs = this.getFeatureSetting("totalPerPageSevereThresholdMs");
-      if (typeof totalPerPageSevereThresholdMs === "number" && Number.isFinite(totalPerPageSevereThresholdMs) && totalPerPageSevereThresholdMs > 0) {
-        __privateSet(this, _totalPerPageSevereThresholdMs, totalPerPageSevereThresholdMs);
-      }
-      const combinedSevereThresholdMs = this.getFeatureSetting("combinedSevereThresholdMs");
-      if (typeof combinedSevereThresholdMs === "number" && Number.isFinite(combinedSevereThresholdMs) && combinedSevereThresholdMs > 0) {
-        __privateSet(this, _combinedSevereThresholdMs, combinedSevereThresholdMs);
-      }
-      const overrides = this.getFeatureSetting("detectorOverrides");
-      if (overrides && typeof overrides === "object" && !Array.isArray(overrides)) {
-        __privateSet(
-          this,
-          _detectorOverrides,
-          /** @type {Record<string, Partial<DetectorThresholds>>} */
-          overrides
-        );
-      }
-      const maxSevere = this.getFeatureSetting("maxSeverePerPage");
-      if (typeof maxSevere === "number" && Number.isFinite(maxSevere) && maxSevere > 0) {
-        __privateSet(this, _maxSeverePerPage, Math.floor(maxSevere));
-      }
-    }
-    /**
-     * Threshold edges for a detector group, applying per-group overrides.
-     *
-     * @param {string} name
-     * @returns {DetectorThresholds}
-     */
-    _thresholdsFor(name) {
-      const override = hasOwnProperty.call(__privateGet(this, _detectorOverrides), name) ? __privateGet(this, _detectorOverrides)[name] : void 0;
-      return {
-        singleRunThresholdsMs: parseThresholds(override?.singleRunThresholdsMs, __privateGet(this, _singleRunThresholdsMs)),
-        totalPerPageThresholdsMs: parseThresholds(override?.totalPerPageThresholdsMs, __privateGet(this, _totalPerPageThresholdsMs))
-      };
-    }
-    /**
-     * Add one detector run's duration to the frame accumulators.
-     *
-     * Called (fire-and-forget) by the `timeDetector` wrapper around detector
-     * invocations. Invalid input is ignored — recording must never throw
-     * back into a detector call site.
-     *
-     * @param {string} name - detector group
-     * @param {number} durationMs
-     * @param {string} [detail] - exact detector identity for single-run severe
-     *   attribution, e.g. `adwalls.generic_en` within the `adwalls` group.
-     *   Never appears in periodic event-type names.
-     * @param {boolean} [failed] - whether the detector invocation threw
-     */
-    record(name, durationMs, detail, failed = false) {
-      if (!__privateGet(this, _active)) return;
-      if (typeof name !== "string" || !NAME_PATTERN.test(name)) return;
-      if (typeof durationMs !== "number" || !Number.isFinite(durationMs) || durationMs < 0) return;
-      const stats = __privateGet(this, _detectors).get(name) ?? { runs: 0, totalMs: 0, worstMs: 0 };
-      stats.runs += 1;
-      stats.totalMs += durationMs;
-      stats.worstMs = Math.max(stats.worstMs, durationMs);
-      __privateGet(this, _detectors).set(name, stats);
-      __privateSet(this, _combinedTotalMs, __privateGet(this, _combinedTotalMs) + durationMs);
-      const attributed = typeof detail === "string" && NAME_PATTERN.test(detail) ? detail : name;
-      const detailed = __privateGet(this, _detectorsDetailed).get(attributed) ?? { runs: 0, totalMs: 0, worstMs: 0 };
-      detailed.runs += 1;
-      detailed.totalMs += durationMs;
-      detailed.worstMs = Math.max(detailed.worstMs, durationMs);
-      __privateGet(this, _detectorsDetailed).set(attributed, detailed);
-      const thresholds = this._thresholdsFor(name);
-      this._emitCrossings(name, durationMs, stats, thresholds);
-      if (failed === true) {
-        this._emit(`${EVENT_PREFIX}_${name}_failed`);
-      }
-      this._checkSevere(name, durationMs, stats, attributed, thresholds);
-      this._debugBroadcast({ name, attributed, durationMs: roundMs(durationMs), failed: failed === true });
-    }
-    /**
-     * Emit `ran` and every newly crossed threshold edge for this run. All
-     * counters are monotonic, so checking at each run is equivalent to
-     * checking accumulated worst/total values — the at-most-once guard makes
-     * each event fire exactly at its first crossing.
-     *
-     * @param {string} name
-     * @param {number} durationMs
-     * @param {DetectorStats} stats
-     * @param {DetectorThresholds} thresholds
-     */
-    _emitCrossings(name, durationMs, stats, thresholds) {
-      this._emit(`${EVENT_PREFIX}_${name}_ran`);
-      for (const edge of thresholds.singleRunThresholdsMs) {
-        if (durationMs > edge) this._emit(`${EVENT_PREFIX}_${name}_over${edge}ms`);
-      }
-      for (const edge of thresholds.totalPerPageThresholdsMs) {
-        if (stats.totalMs > edge) this._emit(`${EVENT_PREFIX}_${name}_total_over${edge}ms`);
-      }
-      for (const edge of __privateGet(this, _combinedThresholdsMs)) {
-        if (__privateGet(this, _combinedTotalMs) > edge) this._emit(`${EVENT_PREFIX}_combined_over${edge}ms`);
-      }
-    }
-    /**
-     * Snapshot of the exact per-detector accumulators for this frame, for
-     * attachment to user-initiated breakage reports. Unlike the bucketed
-     * events, values are exact and keyed by exact attribution (config IDs
-     * such as `adwalls.generic_en` rather than the `adwalls` group).
-     * Durations are rounded to 0.1ms to keep the payload compact —
-     * finer precision is below timer granularity anyway.
-     *
-     * @returns {{ combinedTotalMs: number, detectors: Record<string, DetectorStats> } | undefined}
-     */
-    getStats() {
-      if (!__privateGet(this, _active)) return void 0;
-      const detectors = {};
-      for (const [name, stats] of __privateGet(this, _detectorsDetailed)) {
-        detectors[name] = {
-          runs: stats.runs,
-          totalMs: roundMs(stats.totalMs),
-          worstMs: roundMs(stats.worstMs)
-        };
-      }
-      return { combinedTotalMs: roundMs(__privateGet(this, _combinedTotalMs)), detectors };
-    }
-    /**
-     * Fire immediate severe events for crossed edges at or above the
-     * configured cutoff. Edges are emitted highest-first so the per-frame cap
-     * preserves the strongest signals. Totals are checked against the
-     * accumulated group and therefore attribute to that group, e.g. `adwalls`.
-     * Without an explicit cutoff, the previous highest-edge behavior applies.
-     *
-     * @param {string} name
-     * @param {number} durationMs
-     * @param {DetectorStats} stats
-     * @param {string} attributed - exact detector identity for severe attribution
-     * @param {DetectorThresholds} thresholds
-     */
-    _checkSevere(name, durationMs, stats, attributed, thresholds) {
-      const singleEdges = thresholds.singleRunThresholdsMs;
-      const singleCutoff = __privateGet(this, _singleRunSevereThresholdMs) ?? singleEdges[singleEdges.length - 1];
-      for (let i = singleEdges.length - 1; i >= 0; i--) {
-        const edge = singleEdges[i];
-        if (edge !== void 0 && singleCutoff !== void 0 && edge >= singleCutoff && durationMs > edge) {
-          this._emitSevere("single", attributed, edge);
-        }
-      }
-      const totalEdges = thresholds.totalPerPageThresholdsMs;
-      const totalCutoff = __privateGet(this, _totalPerPageSevereThresholdMs) ?? totalEdges[totalEdges.length - 1];
-      for (let i = totalEdges.length - 1; i >= 0; i--) {
-        const edge = totalEdges[i];
-        if (edge !== void 0 && totalCutoff !== void 0 && edge >= totalCutoff && stats.totalMs > edge) {
-          this._emitSevere("total", name, edge);
-        }
-      }
-      const combinedCutoff = __privateGet(this, _combinedSevereThresholdMs) ?? __privateGet(this, _combinedThresholdsMs)[__privateGet(this, _combinedThresholdsMs).length - 1];
-      for (let i = __privateGet(this, _combinedThresholdsMs).length - 1; i >= 0; i--) {
-        const edge = __privateGet(this, _combinedThresholdsMs)[i];
-        if (edge !== void 0 && combinedCutoff !== void 0 && edge >= combinedCutoff && __privateGet(this, _combinedTotalMs) > edge) {
-          this._emitSevere("combined", "combined", edge);
-        }
-      }
-    }
-    /**
-     * Fire `detectorPerf_severe` immediately, at most once per frame per
-     * detector, family and threshold, and at most `maxSeverePerPage` per frame
-     * in total (blast-radius cap for a misconfigured threshold push).
-     *
-     * @param {SevereKind} kind
-     * @param {string} detector
-     * @param {number} thresholdMs
-     */
-    _emitSevere(kind, detector, thresholdMs) {
-      if (__privateGet(this, _severeCount) >= __privateGet(this, _maxSeverePerPage)) return;
-      const guardKey = `${SEVERE_EVENT_TYPE}:${kind}:${detector}:${thresholdMs}`;
-      if (__privateGet(this, _emitted).has(guardKey)) return;
-      __privateGet(this, _emitted).add(guardKey);
-      __privateSet(this, _severeCount, __privateGet(this, _severeCount) + 1);
-      if (this.isDebug) {
-        __privateGet(this, _severeDebugLog).push({ kind, detector, thresholdMs });
-      }
-      void this._dispatch(SEVERE_EVENT_TYPE, { kind, detector, thresholdMs });
-    }
-    /**
-     * Debug-only broadcast of the current stats snapshot to the page, for
-     * test-page overlays during human testing. No-op unless the platform
-     * set the debug flag, so production behaviour is unchanged. Failures
-     * are swallowed: a page with a broken/removed EventTarget must not
-     * break recording.
-     *
-     * INVARIANT: native release builds must never set the debug flag
-     * (`args.debug`) on user pages — this event is page-observable and
-     * exposes detector timing and severe-crossing attribution to any page
-     * script with a listener. The debug flag is the sole gate.
-     *
-     * @param {{ name: string, attributed: string, durationMs: number, failed: boolean } | null} lastRun
-     *   the run that triggered this broadcast, or null for the init broadcast
-     */
-    _debugBroadcast(lastRun) {
-      if (!this.isDebug) return;
-      try {
-        const stats = this.getStats();
-        if (!stats) return;
-        const payload = {
-          ...stats,
-          severe: __privateGet(this, _severeDebugLog),
-          lastRun
-        };
-        dispatchEvent?.(new CustomEvent2(DEBUG_STATS_EVENT_TYPE, { detail: JSON.stringify(payload) }));
-      } catch {
-      }
-    }
-    /**
-     * Fire an event through webEvents, at most once per frame per event type.
-     *
-     * The at-most-once guard runs synchronously (before any await), so
-     * repeated crossings cannot double-emit. Dispatch is fire-and-forget: the
-     * call site does not await, and failures (e.g. webEvents not bundled on
-     * this platform) are silently swallowed.
-     *
-     * @param {string} type
-     */
-    _emit(type) {
-      if (__privateGet(this, _emitted).has(type)) return;
-      __privateGet(this, _emitted).add(type);
-      void this._dispatch(type);
-    }
-    /**
-     * @param {string} type
-     * @param {Record<string, unknown>} [data]
-     */
-    async _dispatch(type, data2) {
-      try {
-        if (data2 === void 0) {
-          await this.callFeatureMethod("webEvents", "fireEvent", { type });
-        } else {
-          await this.callFeatureMethod("webEvents", "fireEvent", { type, data: data2 });
-        }
-      } catch {
-      }
-    }
-  };
-  _active = new WeakMap();
-  _detectors = new WeakMap();
-  _detectorsDetailed = new WeakMap();
-  _combinedTotalMs = new WeakMap();
-  _emitted = new WeakMap();
-  _singleRunThresholdsMs = new WeakMap();
-  _totalPerPageThresholdsMs = new WeakMap();
-  _combinedThresholdsMs = new WeakMap();
-  _singleRunSevereThresholdMs = new WeakMap();
-  _totalPerPageSevereThresholdMs = new WeakMap();
-  _combinedSevereThresholdMs = new WeakMap();
-  _detectorOverrides = new WeakMap();
-  _severeCount = new WeakMap();
-  _maxSeverePerPage = new WeakMap();
-  _severeDebugLog = new WeakMap();
-  function timeDetector(feature, name, fn, detail) {
-    const t0 = performanceNow();
-    let failed = true;
-    try {
-      const result = fn();
-      failed = false;
-      return result;
-    } finally {
-      const durationMs = performanceNow() - t0;
-      void reportDuration(feature, name, durationMs, detail, failed);
-    }
-  }
-  async function reportDuration(feature, name, durationMs, detail, failed) {
-    try {
-      await feature.callFeatureMethod("detectorPerf", "record", name, durationMs, detail, failed);
-    } catch {
-    }
-  }
-
-  // src/features/web-detection/parse.js
-  init_define_import_meta_trackerLookup();
-  var DEFAULT_RUN_CONDITIONS = (
-    /** @type {import('../../config-feature.js').ConditionBlock[]} */
-    [
-      {
-        context: { top: true }
-      }
-    ]
-  );
-  function isValidName(name) {
-    return /^[a-zA-Z][a-zA-Z0-9_]*$/.test(name);
-  }
-  function normalizeDetector(config2) {
-    const fireEvent = config2.actions?.fireEvent;
-    return {
-      // Detectors are enabled by default
-      state: config2.state ?? "enabled",
-      match: config2.match,
-      triggers: {
-        // breakageReport: enabled by default - detectors participate in breakage report flow
-        breakageReport: {
-          state: config2.triggers?.breakageReport?.state ?? "enabled",
-          runConditions: config2.triggers?.breakageReport?.runConditions ?? DEFAULT_RUN_CONDITIONS
-        },
-        // auto: disabled by default - detectors must opt in to automatic execution
-        auto: {
-          state: config2.triggers?.auto?.state ?? "disabled",
-          runConditions: config2.triggers?.auto?.runConditions ?? DEFAULT_RUN_CONDITIONS,
-          when: config2.triggers?.auto?.when ?? { intervalMs: [] }
-        }
-      },
-      actions: {
-        // breakageReportData: enabled by default - detection results included in breakage reports
-        breakageReportData: { state: config2.actions?.breakageReportData?.state ?? "enabled" },
-        // fireEvent: only present when configured - opt-in action that sends events to the client via webEvents
-        ...fireEvent && {
-          fireEvent: {
-            state: fireEvent.state ?? "enabled",
-            type: fireEvent.type
-          }
-        }
-      }
-    };
-  }
-  function parseDetectors(detectorsConfig) {
-    const detectors = {};
-    if (!detectorsConfig) {
-      return detectors;
-    }
-    for (const [groupName, groupConfig] of Object.entries(detectorsConfig)) {
-      if (!isValidName(groupName)) {
-        continue;
-      }
-      const groupDetectors = {};
-      for (const [detectorId, detectorConfig] of Object.entries(groupConfig)) {
-        if (!isValidName(detectorId)) {
-          continue;
-        }
-        groupDetectors[detectorId] = normalizeDetector(detectorConfig);
-      }
-      detectors[groupName] = groupDetectors;
-    }
-    return detectors;
-  }
-
-  // src/features/web-detection/matching.js
-  init_define_import_meta_trackerLookup();
-  function asArray(value, defaultValue = []) {
-    if (value === void 0) return defaultValue;
-    return Array.isArray(value) ? value : [value];
-  }
-  function isVisible2(element) {
-    const style = getComputedStyle(element);
-    const rect = element.getBoundingClientRect();
-    return rect.width > 0.5 && rect.height > 0.5 && style.display !== "none" && style.visibility !== "hidden" && parseFloat(style.opacity) > 0.05;
-  }
-  var contentDomParser;
-  var CONTENT_METADATA_SELECTORS = "base,link,meta,script,style,template,title,desc";
-  var CONTENT_MEDIA_SELECTORS = "video,canvas,embed,object,audio,map,form,input,textarea,select,button,img,svg";
-  var CONTENT_TEXT_PARSE_LIMIT = 5e4;
-  function hasContent(element) {
-    if ((element.textContent || "").length > CONTENT_TEXT_PARSE_LIMIT) {
-      return true;
-    }
-    if (!contentDomParser) {
-      contentDomParser = new DOMParser();
-    }
-    const parsed = contentDomParser.parseFromString(element.outerHTML, "text/html").documentElement;
-    parsed.querySelectorAll(CONTENT_METADATA_SELECTORS).forEach((el) => el.remove());
-    if ((parsed.innerText || parsed.textContent || "").trim() !== "") {
-      return true;
-    }
-    if (parsed.querySelector(CONTENT_MEDIA_SELECTORS) !== null) {
-      return true;
-    }
-    return [...parsed.querySelectorAll("iframe")].some((frame) => {
-      return !frame.hidden && frame.src !== "" && frame.src !== "about:blank";
-    });
-  }
-  var ORDERED_NODE_SNAPSHOT_TYPE = 7;
-  var compiledXPaths = /* @__PURE__ */ new WeakMap();
-  function compileXPath(expression) {
-    let cache = compiledXPaths.get(document);
-    if (!cache) {
-      cache = /* @__PURE__ */ new Map();
-      compiledXPaths.set(document, cache);
-    }
-    let compiled = cache.get(expression);
-    if (!compiled) {
-      compiled = document.createExpression(expression, null);
-      cache.set(expression, compiled);
-    }
-    return compiled;
-  }
-  var DEFAULT_CHUNK_SIZE = 8192;
-  var CHUNK_TAIL_RATIO = 16;
-  var MAX_WORD_LENGTH = 64;
-  function isWordCode(code) {
-    return code >= 97 && code <= 122 || // a-z
-    code >= 65 && code <= 90 || // A-Z
-    code >= 48 && code <= 57 || // 0-9
-    code === 95;
-  }
-  function resolveXPathConfig(config2) {
-    const chunkSize = config2?.chunkSize ?? DEFAULT_CHUNK_SIZE;
-    const chunkTail = config2?.chunkTail ?? Math.floor(chunkSize / CHUNK_TAIL_RATIO);
-    return { chunkSize, chunkTail };
-  }
-  function retainTail(buffer, chunkTail) {
-    let cut = buffer.length - chunkTail;
-    if (cut <= 0) return buffer;
-    const limit = Math.max(0, cut - Math.min(chunkTail, MAX_WORD_LENGTH));
-    while (cut > limit && isWordCode(buffer.charCodeAt(cut - 1))) cut--;
-    return buffer.slice(cut);
-  }
-  function xpathMatches(pattern, expression, { chunkSize, chunkTail }) {
-    const snapshot = compileXPath(expression).evaluate(document, ORDERED_NODE_SNAPSHOT_TYPE, null);
-    let buffer = "";
-    let pending = 0;
-    for (let i = 0; i < snapshot.snapshotLength; i++) {
-      const text2 = snapshot.snapshotItem(i)?.textContent || "";
-      buffer += text2;
-      pending += text2.length;
-      if (chunkSize > 0 && pending >= chunkSize) {
-        if (pattern.test(buffer)) return true;
-        buffer = retainTail(buffer, chunkTail);
-        pending = 0;
-      }
-    }
-    return pattern.test(buffer);
-  }
-  function evaluateSingleTextCondition(condition2) {
-    const patterns = asArray(condition2.pattern);
-    const xpaths = asArray(condition2.xpath);
-    const selectors = asArray(condition2.selector, xpaths.length > 0 ? [] : ["body"]);
-    const patternComb = new RegExp(patterns.join("|"), "i");
-    const selectorMatch = selectors.some((selector) => {
-      const elements = document.querySelectorAll(selector);
-      for (const element of elements) {
-        if (patternComb.test(element.textContent || "")) {
-          return true;
-        }
-      }
-      return false;
-    });
-    if (selectorMatch) {
-      return true;
-    }
-    if (xpaths.length === 0) {
-      return false;
-    }
-    const chunking = resolveXPathConfig(condition2.xpathConfig);
-    return xpaths.some((expression) => xpathMatches(patternComb, expression, chunking));
-  }
-  function evaluateSingleElementCondition(config2) {
-    const visibility = config2.visibility ?? "any";
-    return asArray(config2.selector).some((selector) => {
-      if (visibility === "any") {
-        return document.querySelector(selector) !== null;
-      }
-      for (const element of document.querySelectorAll(selector)) {
-        if (visibility === "visible" && isVisible2(element)) {
-          return true;
-        }
-        if (visibility === "hidden" && !isVisible2(element)) {
-          return true;
-        }
-        if (visibility === "content" && hasContent(element)) {
-          return true;
-        }
-      }
-      return false;
-    });
-  }
-  function evaluateNode(node, evalFinal) {
-    if (node === void 0) return true;
-    if (Array.isArray(node)) {
-      return node.some((n) => evaluateNode(n, evalFinal));
-    }
-    if (node === null || typeof node !== "object") {
-      return evalFinal(
-        /** @type {Final} */
-        node
-      );
-    }
-    const operatorKeys = ["any", "all", "none"];
-    const opKeys = operatorKeys.filter((k) => hasOwnProperty.call(node, k));
-    if (opKeys.length === 0) {
-      return evalFinal(
-        /** @type {Final} */
-        node
-      );
-    }
-    const otherKeys = objectKeys(node).filter((k) => !operatorKeys.includes(k));
-    if (otherKeys.length > 0) {
-      throw new Error(`Condition node mixes operator keys [${opKeys.join(", ")}] with leaf fields [${otherKeys.join(", ")}]`);
-    }
-    const block = (
-      /** @type {Partial<Record<'all' | 'any' | 'none', ConditionBranch<Final>>>} */
-      node
-    );
-    if (hasOwnProperty.call(block, "all") && !asArray(block.all).every((n) => evaluateNode(n, evalFinal))) return false;
-    if (hasOwnProperty.call(block, "any") && !asArray(block.any).some((n) => evaluateNode(n, evalFinal))) return false;
-    if (hasOwnProperty.call(block, "none") && asArray(block.none).some((n) => evaluateNode(n, evalFinal))) return false;
-    return true;
-  }
-  function evaluateSingleMatchCondition(condition2) {
-    if (!evaluateNode(condition2.text, evaluateSingleTextCondition)) {
-      return false;
-    }
-    if (!evaluateNode(condition2.element, evaluateSingleElementCondition)) {
-      return false;
-    }
-    return true;
-  }
-  function evaluateMatch(conditions) {
-    return evaluateNode(conditions, evaluateSingleMatchCondition);
-  }
-
-  // src/features/web-detection.js
-  var _detectors2, _matchedDetectors, _detectorPerfEnabled;
-  var WebDetection = class extends ContentFeature {
-    constructor() {
-      super(...arguments);
-      /** @type {Record<string, Record<string, DetectorConfig>>} */
-      __privateAdd(this, _detectors2, {});
-      /** @type {Map<string, boolean>} */
-      __privateAdd(this, _matchedDetectors, /* @__PURE__ */ new Map());
-      __privateAdd(this, _detectorPerfEnabled, false);
-      __publicField(this, "_exposedMethods", this._declareExposedMethods(["runDetectors"]));
-    }
-    /**
-     * Initialize the feature by loading detector configurations
-     */
-    init() {
-      __privateSet(this, _detectorPerfEnabled, hasOwnProperty.call(this.featureSettings ?? {}, "detectorPerf"));
-      const detectorsConfig = this.getFeatureSetting("detectors");
-      __privateSet(this, _detectors2, parseDetectors(detectorsConfig));
-      this._scheduleAutoRunDetectors();
-    }
-    /**
-     * Evaluate one configured detector and record its execution time.
-     *
-     * @param {DetectorConfig} detectorConfig
-     * @param {string} groupName - detector group, e.g. `adwalls`
-     * @param {string} fullDetectorId - `groupName.detectorId`, e.g. `adwalls.generic_en`
-     * @returns {DetectorMatchResult}
-     */
-    _evaluateMatch(detectorConfig, groupName, fullDetectorId) {
-      try {
-        if (!__privateGet(this, _detectorPerfEnabled)) {
-          return evaluateMatch(detectorConfig.match);
-        }
-        return timeDetector(this, groupName, () => evaluateMatch(detectorConfig.match), fullDetectorId);
-      } catch {
-        return "error";
-      }
-    }
-    /**
-     * Schedule automatic detector execution based on configured intervals.
-     */
-    _scheduleAutoRunDetectors() {
-      const detectorsByInterval = /* @__PURE__ */ new Map();
-      for (const [groupName, groupDetectors] of Object.entries(__privateGet(this, _detectors2))) {
-        for (const [detectorId, detectorConfig] of Object.entries(groupDetectors)) {
-          if (!this._shouldRunDetector(detectorConfig, { trigger: "auto" })) continue;
-          const autoTrigger = detectorConfig.triggers.auto;
-          const fullDetectorId = `${groupName}.${detectorId}`;
-          for (const interval of autoTrigger.when.intervalMs) {
-            const atInterval = detectorsByInterval.get(interval) ?? [];
-            atInterval.push({
-              groupName,
-              detectorId: fullDetectorId,
-              config: detectorConfig
-            });
-            detectorsByInterval.set(interval, atInterval);
-          }
-        }
-      }
-      for (const [interval, detectors] of detectorsByInterval.entries()) {
-        setTimeout(() => {
-          for (const { groupName, detectorId, config: config2 } of detectors) {
-            this._runAutoDetector(groupName, detectorId, config2);
-          }
-        }, interval);
-      }
-    }
-    /**
-     * Run a single detector with the auto trigger
-     * @param {string} groupName - The detector group
-     * @param {string} fullDetectorId - The full detector ID (groupName.detectorId)
-     * @param {DetectorConfig} detectorConfig - The detector configuration
-     */
-    _runAutoDetector(groupName, fullDetectorId, detectorConfig) {
-      try {
-        if (__privateGet(this, _matchedDetectors).get(fullDetectorId)) {
-          return;
-        }
-        const detected = this._evaluateMatch(detectorConfig, groupName, fullDetectorId);
-        if (detected === true) {
-          __privateGet(this, _matchedDetectors).set(fullDetectorId, true);
-        }
-        if (this.isDebug && detected !== false) {
-          try {
-            this.messaging?.notify("webDetectionAutoRun", {
-              detectorId: fullDetectorId,
-              detected,
-              timestamp: Date.now()
-            });
-          } catch {
-          }
-        }
-        void this._executeFireEvent(detectorConfig, detected);
-      } catch (e) {
-        if (this.isDebug) {
-          this.log.error(`Error running auto-detector ${fullDetectorId}:`, e);
-        }
-      }
-    }
-    /**
-     * Fire a web event via webEvents if the detector has a fireEvent action and detection succeeded.
-     *
-     * @param {DetectorConfig} detectorConfig
-     * @param {DetectorMatchResult} detected
-     */
-    async _executeFireEvent(detectorConfig, detected) {
-      try {
-        if (detected !== true || !detectorConfig.actions.fireEvent) return;
-        if (!this._isStateEnabled(detectorConfig.actions.fireEvent.state)) return;
-        await this.callFeatureMethod("webEvents", "fireEvent", {
-          type: detectorConfig.actions.fireEvent.type
-        });
-      } catch {
-      }
-    }
-    /**
-     * Check if a detector should be triggered.
-     *
-     * @param {DetectorConfig} config
-     * @param {RunDetectionOptions} options
-     * @returns {boolean}
-     */
-    _shouldRunDetector(config2, options) {
-      if (!this._isStateEnabled(config2.state)) return false;
-      const triggerSettings = config2.triggers[options.trigger];
-      if (!triggerSettings || !this._isStateEnabled(triggerSettings.state)) return false;
-      if (triggerSettings.runConditions && !this._matchConditionalBlockOrArray(triggerSettings.runConditions)) return false;
-      return true;
-    }
-    /**
-     * Run all detectors for a specific trigger.
-     *
-     * @param {RunDetectionOptions} options
-     * @returns {DetectorResult[]}
-     */
-    runDetectors(options) {
-      const results = [];
-      for (const [groupName, groupDetectors] of Object.entries(__privateGet(this, _detectors2))) {
-        for (const [detectorId, detectorConfig] of Object.entries(groupDetectors)) {
-          if (!this._shouldRunDetector(detectorConfig, options)) continue;
-          const fullDetectorId = `${groupName}.${detectorId}`;
-          const detected = this._evaluateMatch(detectorConfig, groupName, fullDetectorId);
-          if (options.trigger === "breakageReport" && this._isStateEnabled(detectorConfig.actions.breakageReportData.state)) {
-            if (detected !== false) {
-              results.push({
-                detectorId: fullDetectorId,
-                detected
-              });
-            }
-          }
-          void this._executeFireEvent(detectorConfig, detected);
-        }
-      }
-      return results;
-    }
-  };
-  _detectors2 = new WeakMap();
-  _matchedDetectors = new WeakMap();
-  _detectorPerfEnabled = new WeakMap();
-
   // src/features/web-events.js
   init_define_import_meta_trackerLookup();
   var MSG_WEB_EVENT = "webEvent";
@@ -19598,6 +21782,7 @@ ul.messages {
 
   // ddg:platformFeatures:ddg:platformFeatures
   var ddg_platformFeatures_default = {
+    ddg_feature_webDetection: WebDetection,
     ddg_feature_contextMenu: ContextMenu,
     ddg_feature_duckPlayer: DuckPlayerFeature,
     ddg_feature_duckPlayerNative: duck_player_native_default,
@@ -19607,7 +21792,6 @@ ul.messages {
     ddg_feature_clickToLoad: ClickToLoad,
     ddg_feature_messageBridge: message_bridge_default,
     ddg_feature_favicon: favicon_default,
-    ddg_feature_webDetection: WebDetection,
     ddg_feature_webEvents: web_events_default,
     ddg_feature_webInterferenceDetection: WebInterferenceDetection,
     ddg_feature_detectorPerf: DetectorPerf,

@@ -1591,6 +1591,8 @@
   var Reflect2 = globalThis.Reflect;
   var customElementsGet = globalThis.customElements?.get.bind(globalThis.customElements);
   var customElementsDefine = globalThis.customElements?.define.bind(globalThis.customElements);
+  var numberIsFinite = Number.isFinite;
+  var numberIsNaN = Number.isNaN;
   var objectDefineProperty = Object.defineProperty;
   var URL2 = globalThis.URL;
   var Proxy2 = globalThis.Proxy;
@@ -1602,6 +1604,7 @@
   var addEventListener = globalThis.addEventListener?.bind(globalThis);
   var removeEventListener = globalThis.removeEventListener?.bind(globalThis);
   var CustomEvent2 = globalThis.CustomEvent;
+  var NodePrototype = globalThis.Node?.prototype;
   var Promise2 = globalThis.Promise;
   var String2 = globalThis.String;
   var Map2 = globalThis.Map;
@@ -1622,6 +1625,7 @@
   var charCodeAt = globalThis.String.prototype.charCodeAt;
   var ReflectDeleteProperty = Reflect2.deleteProperty.bind(Reflect2);
   var ReflectApply = Reflect2.apply.bind(Reflect2);
+  var ReflectGet = Reflect2.get.bind(Reflect2);
   var getRandomValues = globalThis.crypto?.getRandomValues?.bind(globalThis.crypto);
   var generateKey = globalThis.crypto?.subtle?.generateKey?.bind(globalThis.crypto?.subtle);
   var exportKey = globalThis.crypto?.subtle?.exportKey?.bind(globalThis.crypto?.subtle);
@@ -2018,7 +2022,6 @@
       "duckAiChatHistory",
       "harmfulApis",
       "webCompat",
-      "webDetection",
       "webEvents",
       "webInterferenceDetection",
       "detectorPerf",
@@ -2045,6 +2048,7 @@
   var platformSupport = {
     apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "pageContext", "print", "trackerProtection", "textSelection"],
     "apple-isolated": [
+      "webDetection",
       "contextMenu",
       "duckPlayer",
       "duckPlayerNative",
@@ -2054,7 +2058,6 @@
       "clickToLoad",
       "messageBridge",
       "favicon",
-      "webDetection",
       "webEvents",
       "webInterferenceDetection",
       "detectorPerf",
@@ -2068,9 +2071,9 @@
     "apple-ai-clear": ["duckAiDataClearing"],
     "apple-ai-history": ["duckAiChatHistory"],
     android: [
+      "webDetection",
       ...baseFeatures,
       "webCompat",
-      "webDetection",
       "webEvents",
       "webInterferenceDetection",
       "detectorPerf",
@@ -2085,6 +2088,7 @@
     "android-ai-history": ["duckAiChatHistory"],
     "android-autofill-import": ["autofillImport"],
     "android-adsjs": [
+      "webDetection",
       "apiManipulation",
       "webCompat",
       "fingerprintingHardware",
@@ -2093,14 +2097,13 @@
       "fingerprintingAudio",
       "fingerprintingBattery",
       "gpc",
-      "webDetection",
       "webEvents",
       "breakageReporting"
     ],
     windows: [
       "cookie",
-      ...baseFeatures,
       "webDetection",
+      ...baseFeatures,
       "webEvents",
       "webInterferenceDetection",
       "detectorPerf",
@@ -2119,10 +2122,10 @@
       "autofillPasskeys",
       "chromeWebstorePatching"
     ],
-    firefox: ["cookie", ...baseFeatures, "clickToLoad", "webDetection", "webEvents", "webInterferenceDetection", "breakageReporting"],
-    chrome: ["cookie", ...baseFeatures, "clickToLoad", "webDetection", "webEvents", "webInterferenceDetection", "breakageReporting"],
-    "chrome-mv3": ["cookie", ...baseFeatures, "clickToLoad", "webDetection", "webEvents", "webInterferenceDetection", "breakageReporting"],
-    integration: [...baseFeatures, ...otherFeatures]
+    firefox: ["cookie", "webDetection", ...baseFeatures, "clickToLoad", "webEvents", "webInterferenceDetection", "breakageReporting"],
+    chrome: ["cookie", "webDetection", ...baseFeatures, "clickToLoad", "webEvents", "webInterferenceDetection", "breakageReporting"],
+    "chrome-mv3": ["cookie", "webDetection", ...baseFeatures, "clickToLoad", "webEvents", "webInterferenceDetection", "breakageReporting"],
+    integration: ["webDetection", ...baseFeatures, ...otherFeatures]
   };
 
   // ../injected/src/utils.js
