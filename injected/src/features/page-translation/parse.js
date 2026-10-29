@@ -10,24 +10,22 @@ const trustedTypesRef =
 const ELEMENT_NODE = 1;
 const TEXT_NODE = 3;
 
-const VOID = new Set(['area', 'br', 'hr', 'img', 'input', 'wbr']);
 const UNSAFE = new Set(['script', 'style', 'template']);
 const INVISIBLE = /^\p{Cf}*$/u;
-const ENTITIES = /** @type {Record<string, string>} */ ({ amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ' });
 
 /** @type {{ createHTML: (s: string) => unknown } | null | undefined} undefined until first use, null when refused */
 let policy;
 
 /**
  * Turns the engine's HTML into a tree of text and the elements we sent (by `data-t` id), or `null` when it isn't
- * the shape we sent. Uses the browser's parser through a Trusted Types policy when it can; on pages whose CSP
- * refuses our policy, our own parser, which never touches an HTML sink.
+ * the shape we sent. Parses into an inert document, through a Trusted Types policy where the page has Trusted Types.
+ * A page whose CSP refuses our policy can't be parsed: its HTML units are skipped (plain-text units need no parsing).
  * @param {string} text
  * @param {boolean} wrapped - the unit was sent inside a `<div>`, which must come back as the only top-level element
  * @returns {ParsedNode[] | null}
  */
 export function parseTranslation(text, wrapped) {
-    if (!DOMParserRef) return parseOwn(text, wrapped);
+    if (!DOMParserRef) return null;
     if (trustedTypesRef?.createPolicy) {
         if (policy === undefined) {
             try {
@@ -36,7 +34,7 @@ export function parseTranslation(text, wrapped) {
                 policy = null;
             }
         }
-        if (!policy) return parseOwn(text, wrapped);
+        if (!policy) return null;
         const html = /** @type {string} */ (policy.createHTML(text));
         return fromDocument(new DOMParserRef().parseFromString(html, 'text/html').body, wrapped);
     }
@@ -82,69 +80,6 @@ function convertChildren(parent) {
         }
     }
     return out;
-}
-
-/**
- * Our own parser: reads only the shape we sent (tags carrying nothing but `data-t`, text, entities).
- * @param {string} text
- * @param {boolean} wrapped
- * @returns {ParsedNode[] | null}
- */
-export function parseOwn(text, wrapped) {
-    /** @type {{ tag: string, children: ParsedNode[], id: number }[]} */
-    const stack = [{ tag: '', children: [], id: -1 }];
-    let wrappers = 0;
-    let i = 0;
-    while (i < text.length) {
-        const top = stack[stack.length - 1];
-        if (!top) return null;
-        const lt = text.indexOf('<', i);
-        if (lt !== i) {
-            const end = lt === -1 ? text.length : lt;
-            appendText(top.children, decodeEntities(text.slice(i, end)));
-            i = end;
-            continue;
-        }
-        const gt = text.indexOf('>', i);
-        if (gt === -1) return null;
-        const tagText = text.slice(i + 1, gt);
-        i = gt + 1;
-        const close = /^\/([a-z][a-z0-9-]*)\s*$/.exec(tagText);
-        if (close) {
-            if (stack.length < 2 || top.tag !== close[1]) return null;
-            stack.pop();
-            const parent = stack[stack.length - 1];
-            if (!parent) return null;
-            parent.children.push({ id: top.id, children: top.children });
-            continue;
-        }
-        const open = /^([a-z][a-z0-9-]*)(?:\s+data-t="(\d+)")?\s*(\/?)$/.exec(tagText);
-        if (!open) return null;
-        const [, tag = '', rawId, selfClosing] = open;
-        if (wrapped && stack.length === 1 && tag === 'div' && rawId === undefined) {
-            wrappers++;
-            stack.push({ tag, children: [], id: -1 });
-            continue;
-        }
-        const id = idOf(tag, rawId ?? null);
-        if (id === null) return null;
-        if (VOID.has(tag)) {
-            top.children.push({ id, children: [] });
-        } else if (selfClosing) {
-            return null;
-        } else {
-            stack.push({ tag, children: [], id });
-        }
-    }
-    const root = stack[0];
-    if (stack.length !== 1 || !root) return null;
-    if (!wrapped) return root.children;
-    // Exactly one wrapper.
-    const at = root.children.findIndex((n) => 'id' in n);
-    const only = root.children[at];
-    if (wrappers !== 1 || !only || !('children' in only) || root.children.filter((n) => 'id' in n).length !== 1) return null;
-    const textOf = (/** @type {ParsedNode[]} */ list) => list.map((n) => ('text' in n ? n.text : '')).join('');
-    return withSurroundings(textOf(root.children.slice(0, at)), only.children, textOf(root.children.slice(at + 1)));
 }
 
 /**
@@ -195,15 +130,4 @@ function appendText(nodes, text) {
     } else {
         nodes.push({ text });
     }
-}
-
-/** @param {string} text */
-function decodeEntities(text) {
-    return text.replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (match, name) => {
-        if (name[0] === '#') {
-            const code = name[1] === 'x' || name[1] === 'X' ? parseInt(name.slice(2), 16) : parseInt(name.slice(1), 10);
-            return code > 0 && code <= 0x10ffff ? String.fromCodePoint(code) : match;
-        }
-        return ENTITIES[name] ?? match;
-    });
 }
