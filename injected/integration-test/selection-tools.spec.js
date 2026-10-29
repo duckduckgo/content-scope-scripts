@@ -289,6 +289,13 @@ test.describe('selectionTools', () => {
         expect(menu.selectedTextKey).toBe(selectedTextKey(browserText));
     });
 
+    test('reports text inside an ancestor with display: contents', async ({ page }, testInfo) => {
+        const collector = await setup(page, testInfo);
+        await selectParagraph(page, '#in-contents');
+        const { text } = await reportedWith(collector, 'A wrapper with no box');
+        expect(text.trim()).toBe('A wrapper with no box of its own keeps this paragraph on the page.');
+    });
+
     test('ignores selections and context menus fired from page script', async ({ page }, testInfo) => {
         const collector = await setup(page, testInfo);
         await page.evaluate(() => {
