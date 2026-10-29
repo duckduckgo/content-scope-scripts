@@ -34,7 +34,8 @@ measure a selection in a text field, which has no geometry of its own: a host el
 the field's text laid out again in a closed shadow root, appended and removed again within the same task.
 
 It listens to mouse, key, selection, scroll and resize events without cancelling or stopping any of them, and only
-acts on trusted ones, so page script can't fire them to make it report a selection.
+acts on trusted ones, so page script can't fire them to make it report a selection. A report that can show the toolbar
+or fill the menu also needs the page to hold user activation (`navigator.userActivation.isActive`); clearing doesn't.
 
 ## What a selection is
 
