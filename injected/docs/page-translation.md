@@ -8,6 +8,8 @@ Finds the text on a page that needs translating, writes translations back onto t
 
 Bundled for `apple` (page world) and `android`. `extract` and `apply` always reply, even when a unit or the page's DOM throws.
 
+Apple native must fill `$CONTENT_SCOPE_JSON$` (the config as a JavaScript string literal) in every Apple bundle, isolated and Duck.ai ones included. That is the C-S-S 18.0.0 change, not specific to this feature, but this feature needs it.
+
 ## Messages
 
 Native sends subscriptions; the feature replies with notifications.
@@ -16,7 +18,7 @@ Native sends subscriptions; the feature replies with notifications.
 | --------------------------------------------------------------------- | --------------- | ----------------------------------------------------------------------------- |
 | `extract` `{}`                                                        | `extractResult` | `{ units: Unit[] }`                                                           |
 | `apply` `{ sourceLanguage, targetLanguage, updates: [{ id, text }] }` | `applyResult`   | `{ count }`: updates written                                                  |
-| `revert` `{}`                                                         | `revertResult`  | `{ count }`: units restored                                                   |
+| `revert` `{}`                                                         | `revertResult`  | `{ count, exact }`: units restored; when `exact` is false, reload the page    |
 | —                                                                     | `unitsAdded`    | `{ units: Unit[] }`: content that appeared after `extract` (**not sent yet**) |
 
 `Unit = { id, text, html, vp }`:
@@ -43,7 +45,7 @@ Native sends subscriptions; the feature replies with notifications.
 
 - A unit without child elements is sent as plain text.
 - Otherwise each element becomes `<tag data-t="N">`, with no other attributes. `N` is the element's index within the unit.
-- A unit that starts with an element (a drop cap: `<span>A</span>iwa…`) is wrapped in `<div>…</div>`, and must come back as a single `div`.
+- A unit that starts with an element (a drop cap: `<span>A</span>iwa…`) is wrapped in `<div>…</div>`, and must come back as a single `div`. Whitespace and invisible formatting characters (such as bidi marks) outside the `div` are accepted; the formatting characters are kept.
 - Soft hyphens are removed.
 
 ## Writing back
@@ -52,12 +54,12 @@ The translation is parsed with the browser's parser through a Trusted Types poli
 
 The translation is then merged onto the original nodes. Elements are moved, never recreated, so listeners, form values and framework-managed nodes survive. Text goes into the existing text nodes.
 
-- A tag the engine returns twice: the second gets a copy of the element.
-- A tag returned empty: keeps its original text.
+- A tag the engine returns twice: the second gets a copy built only from copies. Original nodes never move into a copy.
+- A tag returned empty: stays empty. The engine empties a tag when it moves the text elsewhere, so putting the original back would double it. Elements inside it are put back.
 - A tag the engine dropped: put back at the end of its container.
 - An id we didn't send, or a tag that would end up inside itself: its text is kept, no element is created or moved.
 
-The first write sets `<html lang>` to `targetLanguage`. `revert` puts back every text, attribute, node order and the original `lang`.
+The first write sets `<html lang>` to `targetLanguage`. `revert` puts back every text, attribute, node order and the original `lang`. It then checks that every original node it moved is back in the page, and reports `exact: false` if not, so native can reload as a fallback.
 
 ## Tests
 

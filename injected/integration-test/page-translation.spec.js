@@ -82,6 +82,10 @@ const FIXTURES = [
         units: ['Hello there friend.'],
     },
     {
+        page: 'citation.html',
+        units: ['Joy is a feeling[9] of happiness.', 'The study[1] was small.'],
+    },
+    {
         page: 'mixed-container.html',
         units: ['Intro text sits directly in the container.', 'And this is a normal paragraph.'],
     },
@@ -142,6 +146,8 @@ const apply = async (collector, updates) =>
     (await send(collector, 'apply', { sourceLanguage: 'en', targetLanguage: 'de', updates }, 'applyResult')).count;
 /** @param {ResultsCollector} collector @returns {Promise<number>} */
 const revert = async (collector) => (await send(collector, 'revert', {}, 'revertResult')).count;
+/** @param {ResultsCollector} collector @returns {Promise<{ count: number, exact: boolean }>} */
+const revertResult = async (collector) => await send(collector, 'revert', {}, 'revertResult');
 
 /** @param {Unit[]} units @returns {Update[]} */
 const translateAll = (units) => units.map(({ id, text, html }) => ({ id, text: html ? pseudoTranslate(text) : `‹${text}›` }));
@@ -378,10 +384,11 @@ test.describe('pageTranslation', () => {
             },
         ],
         [
-            'keeps text in a tag returned empty',
+            // The engine empties a tag when it moves the text elsewhere; putting the original back would double it.
+            'leaves a tag returned empty, empty',
             'Le <b data-t="0"></b> <a data-t="1">renard</a> saute.',
             async (page) => {
-                expect(await page.textContent('#m b')).toBe('quick');
+                expect(await page.textContent('#m b')).toBe('');
             },
         ],
         [
@@ -492,6 +499,54 @@ test.describe('pageTranslation', () => {
         const [first] = await extract(collector);
         const { count } = await send(collector, 'apply', { sourceLanguage: null, updates: [{ id: first.id, text: '‹x›' }] }, 'applyResult');
         expect(count).toBe(1);
+    });
+
+    test('keeps the original of a duplicated tag in place, and only copies go into the copy', async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'citation.html');
+        const original = await bodyHTML(page);
+        const [unit] = await extract(collector);
+        expect(unit.text).toBe(
+            'Joy is a feeling<sup data-t="0"><a data-t="1"><span data-t="2">[</span>9<span data-t="3">]</span></a></sup> of happiness.',
+        );
+        // Bergamot's shape on Wikipedia: the citation comes back twice, the first time without its link.
+        const output =
+            'La alegría<sup data-t="0"></sup> es un sentimiento<sup data-t="0"><a data-t="1"><span data-t="2">[</span>9<span data-t="3">]</span></a></sup> de felicidad.';
+        expect(await apply(collector, [{ id: unit.id, text: output }])).toBe(1);
+        expect(await page.evaluate(() => document.getElementById('w-sup')?.contains(document.getElementById('w-link')))).toBe(true);
+        expect(await revertResult(collector)).toEqual({ count: 1, exact: true });
+        expect(await bodyHTML(page)).toBe(original);
+    });
+
+    test('a citation whose text moved to the next tag is not doubled', async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'citation.html');
+        const units = await extract(collector);
+        const unit = units[1];
+        expect(unit.text).toBe(
+            'The study<sup data-t="0"><a data-t="1"><span data-t="2">[</span>1<span data-t="3">]</span></a></sup> was small.',
+        );
+        const output = 'El estudio<sup data-t="0"><a data-t="1"><span data-t="2"></span><span data-t="3">[1]</span></a></sup> fue pequeño.';
+        expect(await apply(collector, [{ id: unit.id, text: output }])).toBe(1);
+        expect(await page.textContent('#c sup')).toBe('[1]');
+    });
+
+    test('a drop cap whose letter the engine dropped is left empty, not doubled', async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'drop-cap.html');
+        const [unit] = await extract(collector);
+        expect(await apply(collector, [{ id: unit.id, text: '<div><span data-t="0"></span>Aiwa es la primera palabra.</div>' }])).toBe(1);
+        expect(await page.textContent('p')).toBe('Aiwa es la primera palabra.');
+    });
+
+    test('accepts invisible formatting characters the engine moved outside the wrapper', async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'drop-cap.html');
+        const [unit] = await extract(collector);
+        expect(await apply(collector, [{ id: unit.id, text: '\u200E<div><span data-t="0">U</span>na palabra.</div>\u200F\n' }])).toBe(1);
+        expect(await page.textContent('p')).toBe('\u200EUna palabra.\u200F');
+    });
+
+    test('revert reports that it restored the page exactly', async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'article.html');
+        await apply(collector, translateAll(await extract(collector)));
+        expect((await revertResult(collector)).exact).toBe(true);
     });
 
     test('marks only units on screen as in the viewport', async ({ page }, testInfo) => {

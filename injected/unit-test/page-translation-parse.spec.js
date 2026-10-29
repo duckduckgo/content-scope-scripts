@@ -17,6 +17,8 @@ describe('page-translation parse', () => {
         ['<br data-t="2">x', false, [{ id: 2, children: [] }, { text: 'x' }]],
         ['<div><i data-t="0">A</i>iwa</div>', true, [{ id: 0, children: [{ text: 'A' }] }, { text: 'iwa' }]],
         [' <div>x</div>\n', true, [{ text: 'x' }]],
+        ['\u200E<div>x</div>\u200F\n', true, [{ text: '\u200Ex\u200F' }]],
+        ['<div>x</div>y', true, null],
         ['<div>a</div><div>b</div>', true, null],
         ['<span data-t="0">A</span>iwa', true, null],
         ['<b>no id</b>', false, null],

@@ -1,15 +1,20 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "RevertResult",
-  "description": "How many units were restored.",
+  "description": "How many units were restored, and whether the page is exactly as before. When exact is false, reload the page.",
   "type": "object",
   "additionalProperties": false,
   "required": [
-    "count"
+    "count",
+    "exact"
   ],
   "properties": {
     "count": {
       "type": "number"
+    },
+    "exact": {
+      "type": "boolean",
+      "description": "False when an original node we moved couldn't be put back; native should reload the page."
     }
   }
 }

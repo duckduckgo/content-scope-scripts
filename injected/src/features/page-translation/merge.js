@@ -105,9 +105,10 @@ class Merge {
      * @param {ChildNode[]} current
      * @param {ParsedNode[]} parsed
      * @param {ChildNode | null} anchor
+     * @param {boolean} [copying] - building a copy: every element in it is a copy too, never a live node
      * @returns {ChildNode[]}
      */
-    into(parent, current, parsed, anchor) {
+    into(parent, current, parsed, anchor, copying = false) {
         const texts = /** @type {Text[]} */ (current.filter((node) => node.nodeType === TEXT_NODE));
         /** @type {ChildNode[]} */
         const next = [];
@@ -123,12 +124,19 @@ class Merge {
                 next.push(this.text(texts, textOf(item.children)));
                 continue;
             }
-            // The engine can split one tag into two (`<b>red car</b>` → `<b>voiture</b> … <b>rouge</b>`).
-            const el = this.used.has(item.id) ? /** @type {Element} */ (ReflectApply(cloneNode, live, [true])) : live;
+            // The engine can split one tag into two (`<b>red car</b>` → `<b>voiture</b> … <b>rouge</b>`). The second
+            // gets a copy built only from copies: moving a live node into a copy would lose it when revert drops the copy.
+            if (copying || this.used.has(item.id)) {
+                const excluded = this.isExcluded(live);
+                const copy = /** @type {Element} */ (ReflectApply(cloneNode, live, [excluded]));
+                if (!excluded) this.into(copy, [], item.children, null, true);
+                next.push(copy);
+                continue;
+            }
             this.used.add(item.id);
-            const emptied = !textOf(item.children).trim() && !!(live.textContent || '').trim();
-            if (!this.isExcluded(live) && !emptied) this.into(el, [...el.childNodes], item.children, null);
-            next.push(el);
+            // A tag returned empty stays empty: the engine moved its text elsewhere, so putting it back would double it.
+            if (!this.isExcluded(live)) this.into(live, [...live.childNodes], item.children, null);
+            next.push(live);
         }
         // An element the engine dropped is put back, so no link, input or image is lost.
         for (const node of current) {

@@ -12,6 +12,7 @@ const TEXT_NODE = 3;
 
 const VOID = new Set(['area', 'br', 'hr', 'img', 'input', 'wbr']);
 const UNSAFE = new Set(['script', 'style', 'template']);
+const INVISIBLE = /^\p{Cf}*$/u;
 const ENTITIES = /** @type {Record<string, string>} */ ({ amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ' });
 
 /** @type {{ createHTML: (s: string) => unknown } | null | undefined} undefined until first use, null when refused */
@@ -54,9 +55,11 @@ export function fromDocument(body, wrapped) {
     if (!wrapped) return convertChildren(body);
     const elements = [...body.children];
     const wrapper = elements[0];
-    const textAround = [...body.childNodes].some((n) => n.nodeType === TEXT_NODE && (n.nodeValue || '').trim());
-    if (elements.length !== 1 || !wrapper || wrapper.localName !== 'div' || wrapper.attributes.length > 0 || textAround) return null;
-    return convertChildren(wrapper);
+    if (elements.length !== 1 || !wrapper || wrapper.localName !== 'div' || wrapper.attributes.length > 0) return null;
+    const nodes = [...body.childNodes];
+    const at = nodes.indexOf(wrapper);
+    const textOf = (/** @type {ChildNode[]} */ list) => list.map((n) => (n.nodeType === TEXT_NODE ? n.nodeValue : '')).join('');
+    return withSurroundings(textOf(nodes.slice(0, at)), convertChildren(wrapper), textOf(nodes.slice(at + 1)));
 }
 
 /**
@@ -136,12 +139,37 @@ export function parseOwn(text, wrapped) {
     const root = stack[0];
     if (stack.length !== 1 || !root) return null;
     if (!wrapped) return root.children;
-    // Exactly one wrapper, with only whitespace around it.
-    const wrapper = root.children.filter((n) => 'id' in n);
-    const textAround = root.children.some((n) => 'text' in n && n.text.trim());
-    if (wrappers !== 1 || wrapper.length !== 1 || textAround) return null;
-    const only = wrapper[0];
-    return only && 'children' in only ? only.children : null;
+    // Exactly one wrapper.
+    const at = root.children.findIndex((n) => 'id' in n);
+    const only = root.children[at];
+    if (wrappers !== 1 || !only || !('children' in only) || root.children.filter((n) => 'id' in n).length !== 1) return null;
+    const textOf = (/** @type {ParsedNode[]} */ list) => list.map((n) => ('text' in n ? n.text : '')).join('');
+    return withSurroundings(textOf(root.children.slice(0, at)), only.children, textOf(root.children.slice(at + 1)));
+}
+
+/**
+ * The wrapper's children, or null when real text sits outside the wrapper. Whitespace outside it is dropped;
+ * invisible formatting characters (bidi marks, which Bergamot can move past `</div>`) are put back inside.
+ * @param {string} before
+ * @param {ParsedNode[] | null} children
+ * @param {string} after
+ * @returns {ParsedNode[] | null}
+ */
+function withSurroundings(before, children, after) {
+    const lead = before.replace(/\s/g, '');
+    const trail = after.replace(/\s/g, '');
+    if (!children || !INVISIBLE.test(lead) || !INVISIBLE.test(trail)) return null;
+    /** @type {ParsedNode[]} */
+    const out = lead ? [{ text: lead }] : [];
+    for (const node of children) {
+        if ('text' in node) {
+            appendText(out, node.text);
+        } else {
+            out.push(node);
+        }
+    }
+    appendText(out, trail);
+    return out;
 }
 
 /**
