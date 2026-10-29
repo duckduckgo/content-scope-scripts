@@ -214,8 +214,8 @@ export default class ContentFeature extends ConfigFeature {
     /**
      * @returns {string | null}
      */
-    get cssVersion() {
-        return this.#importConfig.cssVersion ?? null;
+    get contentScopeScriptsVersion() {
+        return this.#importConfig.contentScopeScriptsVersion ?? null;
     }
 
     /**

@@ -52,8 +52,8 @@ describe('ConfigFeature._matchConditionalBlock properties', () => {
             'experiment',
             'minSupportedVersion',
             'maxSupportedVersion',
-            'minSupportedCSSVersion',
-            'maxSupportedCSSVersion',
+            'minContentScopeScriptsVersion',
+            'maxContentScopeScriptsVersion',
             'injectName',
             'internal',
             'preview',
@@ -154,11 +154,11 @@ describe('ConfigFeature version matching properties', () => {
 
 describe('ConfigFeature C-S-S version matching properties', () => {
     /**
-     * @param {string | null} cssVersion
+     * @param {string | null} contentScopeScriptsVersion
      */
-    function createVersionedFeature(cssVersion) {
+    function createVersionedFeature(contentScopeScriptsVersion) {
         const feature = createFeature();
-        Object.defineProperty(feature, 'cssVersion', { value: cssVersion });
+        Object.defineProperty(feature, 'contentScopeScriptsVersion', { value: contentScopeScriptsVersion });
         return feature;
     }
 
@@ -167,27 +167,31 @@ describe('ConfigFeature C-S-S version matching properties', () => {
             .tuple(fc.integer({ min: 0, max: 50 }), fc.integer({ min: 0, max: 50 }), fc.integer({ min: 0, max: 50 }))
             .map(([major, minor, patch]) => `${major}.${minor}.${patch}`);
 
-    it('minSupportedCSSVersion matches exactly when the C-S-S version is at or above it', () => {
+    it('minContentScopeScriptsVersion matches exactly when the C-S-S version is at or above it', () => {
         fc.assert(
-            fc.property(semver(), semver(), (cssVersion, conditionVersion) => {
-                const feature = createVersionedFeature(cssVersion);
-                expect(feature._matchMinSupportedCSSVersion({ minSupportedCSSVersion: conditionVersion })).toBe(
-                    isSupportedVersion(conditionVersion, cssVersion),
+            fc.property(semver(), semver(), (contentScopeScriptsVersion, conditionVersion) => {
+                const feature = createVersionedFeature(contentScopeScriptsVersion);
+                expect(feature._matchMinContentScopeScriptsVersion({ minContentScopeScriptsVersion: conditionVersion })).toBe(
+                    isSupportedVersion(conditionVersion, contentScopeScriptsVersion),
                 );
-                expect(feature._matchMinSupportedCSSVersion({ minSupportedCSSVersion: cssVersion })).toBeTrue();
+                expect(
+                    feature._matchMinContentScopeScriptsVersion({ minContentScopeScriptsVersion: contentScopeScriptsVersion }),
+                ).toBeTrue();
             }),
             { numRuns: 100 },
         );
     });
 
-    it('maxSupportedCSSVersion matches exactly when the C-S-S version is at or below it', () => {
+    it('maxContentScopeScriptsVersion matches exactly when the C-S-S version is at or below it', () => {
         fc.assert(
-            fc.property(semver(), semver(), (cssVersion, conditionVersion) => {
-                const feature = createVersionedFeature(cssVersion);
-                expect(feature._matchMaxSupportedCSSVersion({ maxSupportedCSSVersion: conditionVersion })).toBe(
-                    isMaxSupportedVersion(conditionVersion, cssVersion),
+            fc.property(semver(), semver(), (contentScopeScriptsVersion, conditionVersion) => {
+                const feature = createVersionedFeature(contentScopeScriptsVersion);
+                expect(feature._matchMaxContentScopeScriptsVersion({ maxContentScopeScriptsVersion: conditionVersion })).toBe(
+                    isMaxSupportedVersion(conditionVersion, contentScopeScriptsVersion),
                 );
-                expect(feature._matchMaxSupportedCSSVersion({ maxSupportedCSSVersion: cssVersion })).toBeTrue();
+                expect(
+                    feature._matchMaxContentScopeScriptsVersion({ maxContentScopeScriptsVersion: contentScopeScriptsVersion }),
+                ).toBeTrue();
             }),
             { numRuns: 100 },
         );
@@ -197,8 +201,8 @@ describe('ConfigFeature C-S-S version matching properties', () => {
         fc.assert(
             fc.property(semver(), (version) => {
                 const feature = createFeature({ version });
-                expect(feature._matchConditionalBlock({ minSupportedCSSVersion: version })).toBeFalse();
-                expect(feature._matchConditionalBlock({ maxSupportedCSSVersion: version })).toBeFalse();
+                expect(feature._matchConditionalBlock({ minContentScopeScriptsVersion: version })).toBeFalse();
+                expect(feature._matchConditionalBlock({ maxContentScopeScriptsVersion: version })).toBeFalse();
             }),
             { numRuns: 50 },
         );
@@ -208,8 +212,8 @@ describe('ConfigFeature C-S-S version matching properties', () => {
         fc.assert(
             fc.property(semver(), (conditionVersion) => {
                 const feature = createVersionedFeature(null);
-                expect(feature._matchMinSupportedCSSVersion({ minSupportedCSSVersion: conditionVersion })).toBeFalse();
-                expect(feature._matchMaxSupportedCSSVersion({ maxSupportedCSSVersion: conditionVersion })).toBeFalse();
+                expect(feature._matchMinContentScopeScriptsVersion({ minContentScopeScriptsVersion: conditionVersion })).toBeFalse();
+                expect(feature._matchMaxContentScopeScriptsVersion({ maxContentScopeScriptsVersion: conditionVersion })).toBeFalse();
             }),
             { numRuns: 50 },
         );
@@ -217,8 +221,8 @@ describe('ConfigFeature C-S-S version matching properties', () => {
 
     it('missing version in condition block returns false', () => {
         const feature = createVersionedFeature('17.30.0');
-        expect(feature._matchMinSupportedCSSVersion({})).toBeFalse();
-        expect(feature._matchMaxSupportedCSSVersion({})).toBeFalse();
+        expect(feature._matchMinContentScopeScriptsVersion({})).toBeFalse();
+        expect(feature._matchMaxContentScopeScriptsVersion({})).toBeFalse();
     });
 });
 

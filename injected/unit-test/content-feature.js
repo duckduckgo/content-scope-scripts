@@ -385,15 +385,15 @@ describe('ContentFeature class', () => {
         }
 
         /**
-         * @param {string | null | undefined} cssVersion
+         * @param {string | null | undefined} contentScopeScriptsVersion
          * @returns {Record<string, unknown>}
          */
-        function settingsFor(cssVersion) {
+        function settingsFor(contentScopeScriptsVersion) {
             /** @type {Record<string, unknown>} */
             const settings = {};
-            class CSSVersionTestFeature extends BaseTestFeature {
+            class ContentScopeScriptsVersionTestFeature extends BaseTestFeature {
                 init() {
-                    for (const key of ['minSupportedCSSVersion', 'maxSupportedCSSVersion']) {
+                    for (const key of ['minContentScopeScriptsVersion', 'maxContentScopeScriptsVersion']) {
                         for (const version of ['17.29.0', '17.30.0', '17.31.0']) {
                             const name = `${key}_${version}`;
                             settings[name] = this.getFeatureSetting(name);
@@ -416,12 +416,12 @@ describe('ContentFeature class', () => {
                             exceptions: [],
                             settings: {
                                 conditionalChanges: [
-                                    conditionalChange('minSupportedCSSVersion', '17.29.0'),
-                                    conditionalChange('minSupportedCSSVersion', '17.30.0'),
-                                    conditionalChange('minSupportedCSSVersion', '17.31.0'),
-                                    conditionalChange('maxSupportedCSSVersion', '17.29.0'),
-                                    conditionalChange('maxSupportedCSSVersion', '17.30.0'),
-                                    conditionalChange('maxSupportedCSSVersion', '17.31.0'),
+                                    conditionalChange('minContentScopeScriptsVersion', '17.29.0'),
+                                    conditionalChange('minContentScopeScriptsVersion', '17.30.0'),
+                                    conditionalChange('minContentScopeScriptsVersion', '17.31.0'),
+                                    conditionalChange('maxContentScopeScriptsVersion', '17.29.0'),
+                                    conditionalChange('maxContentScopeScriptsVersion', '17.30.0'),
+                                    conditionalChange('maxContentScopeScriptsVersion', '17.31.0'),
                                 ],
                             },
                         },
@@ -429,24 +429,24 @@ describe('ContentFeature class', () => {
                     unprotectedTemporary: [],
                 },
             };
-            const me = new CSSVersionTestFeature('test', { cssVersion }, args);
+            const me = new ContentScopeScriptsVersionTestFeature('test', { contentScopeScriptsVersion }, args);
             me.callInit(args);
             return settings;
         }
 
         it('applies min and max bounds inclusively', () => {
             const settings = settingsFor('17.30.0');
-            expect(settings['minSupportedCSSVersion_17.29.0']).toBe('enabled');
-            expect(settings['minSupportedCSSVersion_17.30.0']).toBe('enabled');
-            expect(settings['minSupportedCSSVersion_17.31.0']).toBeUndefined();
-            expect(settings['maxSupportedCSSVersion_17.29.0']).toBeUndefined();
-            expect(settings['maxSupportedCSSVersion_17.30.0']).toBe('enabled');
-            expect(settings['maxSupportedCSSVersion_17.31.0']).toBe('enabled');
+            expect(settings['minContentScopeScriptsVersion_17.29.0']).toBe('enabled');
+            expect(settings['minContentScopeScriptsVersion_17.30.0']).toBe('enabled');
+            expect(settings['minContentScopeScriptsVersion_17.31.0']).toBeUndefined();
+            expect(settings['maxContentScopeScriptsVersion_17.29.0']).toBeUndefined();
+            expect(settings['maxContentScopeScriptsVersion_17.30.0']).toBe('enabled');
+            expect(settings['maxContentScopeScriptsVersion_17.31.0']).toBe('enabled');
         });
 
-        for (const cssVersion of [null, undefined]) {
-            it(`never matches an unversioned build (${cssVersion})`, () => {
-                const settings = settingsFor(cssVersion);
+        for (const contentScopeScriptsVersion of [null, undefined]) {
+            it(`never matches an unversioned build (${contentScopeScriptsVersion})`, () => {
+                const settings = settingsFor(contentScopeScriptsVersion);
                 for (const [key, value] of Object.entries(settings)) {
                     expect(value).withContext(key).toBeUndefined();
                 }
