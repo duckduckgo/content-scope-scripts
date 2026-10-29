@@ -50,7 +50,7 @@ Native sends subscriptions; the feature replies with notifications.
 
 ## Writing back
 
-The translation is parsed with the browser's parser through a Trusted Types policy (`ddg-translation`), or with a small parser of our own when the page refuses that policy. Either way, output with tags or attributes we didn't send is rejected and the unit stays as it is.
+The translation is parsed into an inert document by the browser's parser, through a Trusted Types policy (`ddg-translation`) on pages that enforce Trusted Types. Output with tags or attributes we didn't send is rejected and the unit stays as it is. On a page whose CSP refuses our policy, HTML units can't be parsed and are skipped; plain-text units still translate.
 
 The translation is then merged onto the original nodes. Elements are moved, never recreated, so listeners, form values and framework-managed nodes survive. Text goes into the existing text nodes.
 

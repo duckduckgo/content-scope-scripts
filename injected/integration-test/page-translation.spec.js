@@ -549,6 +549,16 @@ test.describe('pageTranslation', () => {
         expect((await revertResult(collector)).exact).toBe(true);
     });
 
+    test('skips HTML units on a page that refuses our Trusted Types policy, and still writes plain ones', async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'tt-refused.html');
+        const before = await page.innerHTML('#m');
+        const units = await extract(collector);
+        expect(units.map((u) => u.html)).toEqual([true, false]);
+        expect(await apply(collector, translateAll(units))).toBe(1);
+        expect(await page.innerHTML('#m')).toBe(before);
+        expect(await page.textContent('h2')).toBe('‹Plain heading›');
+    });
+
     test('marks only units on screen as in the viewport', async ({ page }, testInfo) => {
         const collector = await openPage(page, testInfo, 'article.html');
         const units = await extract(collector);
