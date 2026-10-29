@@ -1,1 +1,3 @@
-- Parse the Apple config from a $CONTENT_SCOPE_JSON$ string (#3139)
+- NTP: Prevent omnibar layout shift while config loads (#3151)
+- Apply apiChanges in a-z order, and skip a change that throws (#3158)
+- NTP: Avoid unnecessary scrolling in the model selector (#3149)

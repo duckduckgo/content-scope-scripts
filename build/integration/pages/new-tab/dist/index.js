@@ -13197,6 +13197,13 @@
     };
     const [activeIndex, setActiveIndex] = d2(getInitialActiveIndex);
     const clearActiveIndex = () => setActiveIndex(-1);
+    _2(() => {
+      const dropdown = dropdownRef?.current;
+      if (!dropdown) return;
+      const rect = dropdown.getBoundingClientRect();
+      const shiftY = Math.max(20 - rect.top, Math.min(0, window.innerHeight - 20 - rect.bottom));
+      dropdown.style.top = `${parseFloat(dropdown.style.top) + shiftY}px`;
+    }, [dropdownRef, dropdownPos, sections]);
     const activateUpsell = (type, restoreFocus) => {
       onUpsell(type);
       onClose({ restoreFocus });
@@ -13213,7 +13220,7 @@
     };
     h2(() => {
       const frameId = window.requestAnimationFrame(() => {
-        dropdownRef?.current?.focus();
+        dropdownRef?.current?.focus({ preventScroll: true });
       });
       return () => window.cancelAnimationFrame(frameId);
     }, [dropdownRef]);
@@ -16495,7 +16502,10 @@
     return /* @__PURE__ */ k(S, null, state.config.showAiSetting && /* @__PURE__ */ k(AiSetting, { enableAi: state.config?.enableAi === true, setEnableAi, omnibarVisible: visible }), visible && /* @__PURE__ */ k(OmnibarReadyState, { config: state.config, key: current.value, tabId: current.value }));
   }
   function OmnibarPlaceholder() {
-    return /* @__PURE__ */ k("div", { class: Omnibar_default.root, "aria-hidden": "true" }, /* @__PURE__ */ k(LogoStacked, { class: Omnibar_default.logo }), /* @__PURE__ */ k("div", { class: Omnibar_default.placeholderTabs }), /* @__PURE__ */ k("div", { class: Omnibar_default.spacer }));
+    const { omnibar } = useInitialSetupData();
+    const showTabs = omnibar ? omnibar.showAiSetting && omnibar.enableAi : true;
+    const mode = showTabs && omnibar?.mode || "search";
+    return /* @__PURE__ */ k("div", { class: Omnibar_default.root, "data-mode": omnibar ? mode : void 0, "aria-hidden": "true" }, /* @__PURE__ */ k(LogoStacked, { class: Omnibar_default.logo }), showTabs && /* @__PURE__ */ k("div", { class: Omnibar_default.placeholderTabs }), /* @__PURE__ */ k("div", { class: Omnibar_default.spacer }));
   }
   function OmnibarReadyState({ config, tabId }) {
     const {
@@ -44799,6 +44809,13 @@ This is placeholder content used by the NTP mock transport so the attach-tabs fe
       widgetsFromStorage.splice(favoritesWidgetIndex, 0, { id: "omnibar" });
       const favoritesWidgetConfigIndex = widgetConfigFromStorage.findIndex((widget) => widget.id === "favorites") ?? 0;
       widgetConfigFromStorage.splice(favoritesWidgetConfigIndex, 0, { id: "omnibar", visibility: "visible" });
+      if (url8.searchParams.get("omnibar.initialSetup") !== "false") {
+        initial.omnibar = {
+          mode: url8.searchParams.get("omnibar.mode") === "ai" ? "ai" : "search",
+          enableAi: url8.searchParams.get("omnibar.enableAi") !== "false",
+          showAiSetting: url8.searchParams.get("omnibar.showAiSetting") !== "false"
+        };
+      }
     }
     if (url8.searchParams.has("next-steps")) {
       const favoritesWidgetIndex = widgetsFromStorage.findIndex((widget) => widget.id === "favorites") ?? 0;
