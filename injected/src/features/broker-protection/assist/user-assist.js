@@ -70,7 +70,11 @@ export class UserAssist {
         if (!this.enabled || action.actionType !== 'click' || this.presentedClicks.has(action)) return;
         this.presentedClicks.add(action);
         for (const element of clickTargets(action)) {
-            await this.overlay.moveCursor(element, { dx: 30, dy: element.getBoundingClientRect().height / 2, label: 'Moving' });
+            await this.overlay.moveCursor(element, {
+                dx: 30,
+                dy: element.getBoundingClientRect().height / 2,
+                label: isSubmitButton(element) ? 'Submitting' : 'Moving',
+            });
             if (!this.enabled) return;
             this.overlay.highlightField(element);
             await wait(CLICK_PAUSE_MS);
@@ -134,7 +138,7 @@ export class UserAssist {
                 setValue(written);
                 const x = measure(written);
                 this.overlay.setCaret(x);
-                this.overlay.placeCursor(field, { dx: x + 10, dy, durationMs: keystrokeMs });
+                this.overlay.placeCursor(field, { dx: x, dy, durationMs: keystrokeMs });
                 await wait(keystrokeMs);
             }
         } finally {
@@ -202,6 +206,13 @@ function clickTargets(action) {
         if (found) targets.push(found);
     }
     return targets;
+}
+
+/**
+ * @param {HTMLElement} element
+ */
+function isSubmitButton(element) {
+    return (element instanceof HTMLButtonElement || element instanceof HTMLInputElement) && element.type === 'submit';
 }
 
 /**

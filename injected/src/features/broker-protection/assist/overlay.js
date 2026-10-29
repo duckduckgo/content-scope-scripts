@@ -2,14 +2,17 @@ import { logoImg } from '../../click-to-load/ctl-assets.js';
 import { wait } from '../../../timer-utils.js';
 
 const CURSOR_MOVE_MS = 520;
+const BADGE_GAP = 8;
+// The badge's height plus its gap: the space it needs above the widget.
+const BADGE_SPACE = 30;
 
 const STYLES = `
 :host { all: initial; }
 * { box-sizing: border-box; }
 .layer { position: absolute; top: 0; left: 0; width: 0; height: 0; pointer-events: none;
     font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif; --ease: cubic-bezier(.2,.8,.2,1); }
-.field { position: absolute; border-radius: 4px; box-shadow: 0 0 0 1.5px #1074cc; }
-.caret { position: absolute; width: 1px; background: #000; animation: blink 1s steps(1) infinite; }
+.field { position: absolute; border-radius: 4px; box-shadow: inset 0 0 0 1.5px #1074cc; }
+.caret { position: absolute; width: 1px; background: rgba(0,0,0,.96); animation: blink 1s steps(1) infinite; }
 .ring { position: absolute; border-radius: 4px; outline: 3px solid #f5a623; outline-offset: 3px; animation: ring 1.6s ease-in-out infinite; }
 .badge { position: absolute; padding: 3px 10px; border-radius: 999px; background: #ffc95c; color: #3d2a00;
     font-size: 12px; font-weight: 500; line-height: 16px; white-space: nowrap; }
@@ -59,6 +62,8 @@ export class AssistOverlay {
     /** @type {Element | null} */
     fieldTarget = null;
     fieldRadius = '';
+    turnRadius = '';
+    badgeBesidePill = false;
     /** @type {number | null} */
     caretX = null;
     /** @type {Element | null} */
@@ -183,11 +188,10 @@ export class AssistOverlay {
     showTurn(widget) {
         this.attach();
         this.turnActive = true;
-        this.turnTarget = widget;
         this.hideCursor();
         this.highlightField(null);
         widget?.scrollIntoView({ block: 'center', inline: 'nearest' });
-        this.position();
+        this.setTurnTarget(widget);
     }
 
     /**
@@ -195,9 +199,17 @@ export class AssistOverlay {
      */
     updateTurnTarget(widget) {
         if (!this.turnActive || widget === this.turnTarget) return;
-        const isFirstSighting = !this.turnTarget;
+        if (!this.turnTarget) widget?.scrollIntoView({ block: 'center', inline: 'nearest' });
+        this.setTurnTarget(widget);
+    }
+
+    /**
+     * @param {Element | null} widget
+     */
+    setTurnTarget(widget) {
         this.turnTarget = widget;
-        if (isFirstSighting) widget?.scrollIntoView({ block: 'center', inline: 'nearest' });
+        this.turnRadius = widget ? getComputedStyle(widget).borderRadius : '';
+        this.badgeBesidePill = widget ? hasContentAbove(widget) : false;
         this.position();
     }
 
@@ -242,12 +254,12 @@ export class AssistOverlay {
         const field = this.fieldTarget && documentBox(this.fieldTarget);
         place(els.field, field);
         els.field.style.borderRadius = this.fieldRadius;
-        const caretHeight = field ? Math.max(Math.min(field.height - 8, 16), 0) : 0;
+        const caretHeight = field ? Math.max(Math.min(field.height - 4, 15), 0) : 0;
         place(
             els.caret,
             field && this.caretX !== null && caretHeight > 0
                 ? {
-                      left: field.left + Math.min(Math.max(this.caretX, 0), field.width - 4),
+                      left: field.left + Math.min(Math.max(this.caretX + 1, 0), field.width - 4),
                       top: field.top + (field.height - caretHeight) / 2,
                       width: 1,
                       height: caretHeight,
@@ -257,11 +269,7 @@ export class AssistOverlay {
 
         const widget = this.turnActive && this.turnTarget ? documentBox(this.turnTarget) : null;
         place(els.ring, widget);
-        els.badge.hidden = !widget;
-        if (widget) {
-            els.badge.style.left = `${widget.left}px`;
-            els.badge.style.top = `${widget.top - els.badge.offsetHeight - 10}px`;
-        }
+        els.ring.style.borderRadius = this.turnRadius;
         els.pill.hidden = !this.turnActive;
         if (this.turnActive) {
             if (widget) {
@@ -272,7 +280,36 @@ export class AssistOverlay {
                 els.pill.style.top = `${window.scrollY + 16}px`;
             }
         }
+        els.badge.hidden = !widget;
+        if (widget) {
+            const badgeHeight = els.badge.offsetHeight;
+            if (this.badgeBesidePill) {
+                els.badge.style.left = els.pill.style.left;
+                els.badge.style.top = `${parseFloat(els.pill.style.top) - badgeHeight - BADGE_GAP}px`;
+            } else {
+                els.badge.style.left = `${widget.left}px`;
+                els.badge.style.top = `${widget.top - badgeHeight - BADGE_GAP}px`;
+            }
+        }
     }
+}
+
+/**
+ * Ben's design puts the badge above the widget, where the prototype reserves room for it. A real page
+ * usually has something there (a field, a label), so check before covering it.
+ *
+ * @param {Element} widget
+ */
+function hasContentAbove(widget) {
+    const rect = widget.getBoundingClientRect();
+    if (rect.top - BADGE_SPACE < 0) return false;
+    for (const dy of [2, BADGE_SPACE / 2, BADGE_SPACE - 2]) {
+        for (const dx of [4, 40, 80]) {
+            const hit = document.elementFromPoint(rect.left + Math.min(dx, rect.width), rect.top - dy);
+            if (hit && !hit.contains(widget)) return true;
+        }
+    }
+    return false;
 }
 
 /**
