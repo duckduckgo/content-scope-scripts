@@ -12,11 +12,11 @@
   "properties": {
     "enabled": {
       "type": "boolean",
-      "description": "False when the remote flag or the AI toggle is off, and on native's own sites: no selection is reported and contextMenuOpened is not sent."
+      "description": "False when the remote flag or the AI toggle is off, and on native's own sites: no selection is reported and contextMenuOpened is not sent. A page that loaded with the feature off doesn't run it, so turning it on reaches that page only once it reloads."
     },
     "showToolbar": {
       "type": "boolean",
-      "description": "The user's setting for the toolbar. When false, no selection is reported, but contextMenuOpened is still sent while enabled."
+      "description": "The user's setting for the toolbar, as in the feature's showToolbar setting. When false, no selection is reported, but contextMenuOpened is still sent while enabled."
     },
     "startCollapsed": {
       "type": "boolean",

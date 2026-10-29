@@ -11,6 +11,7 @@ import {
     markedLanguageOf,
     readSelection,
 } from './selection-tools/selection.js';
+import { selectedTextKey } from './selection-tools/text-key.js';
 
 /**
  * @typedef {import('../types/selection-tools.js').SelectionAction} SelectionAction
@@ -30,8 +31,9 @@ const DEFAULT_MIN_CHARS = 2;
 /**
  * Reports the user's text selection to native, which draws the Duck.ai selection toolbar: what was selected, how it
  * classifies, which of native's actions fit and where it is on screen. Also reports the fitting actions when the
- * context menu opens. Draws nothing itself. Native owns the action catalog, runs the actions and decides whether the
- * tools are on (initialSetup). Top frame only.
+ * context menu opens. Draws nothing itself. Native owns the action catalog (initialSetup) and runs the actions. Whether
+ * the tools are on and the toolbar shows comes with the feature's config, which native sets for the user, and changes
+ * while the page is open come with selectionToolsConfigChanged. Top frame only.
  */
 export default class SelectionTools extends ContentFeature {
     /** @type {Config | null} */
@@ -45,10 +47,12 @@ export default class SelectionTools extends ContentFeature {
 
     _maxVisibleActions = DEFAULT_MAX_VISIBLE_ACTIONS;
     _minChars = DEFAULT_MIN_CHARS;
+    _showToolbar = true;
     _moveFrame = 0;
 
     init() {
         if (isBeingFramed()) return;
+        this._showToolbar = this.getFeatureSetting('showToolbar') !== false;
         const maxVisible = this.getFeatureSetting('maxVisibleActions');
         if (typeof maxVisible === 'number' && maxVisible >= 1) this._maxVisibleActions = Math.floor(maxVisible);
         const minChars = this.getFeatureSetting('minChars');
@@ -72,6 +76,8 @@ export default class SelectionTools extends ContentFeature {
 
     /** @param {Event} event */
     handleEvent(event) {
+        // Page script can't fire these to make the page report a selection, and so place the toolbar.
+        if (!event.isTrusted) return;
         switch (event.type) {
             case 'mousedown':
                 // A right-click opens the context menu on the selection rather than replacing it.
@@ -132,7 +138,7 @@ export default class SelectionTools extends ContentFeature {
     async _fetchConfig() {
         try {
             // A push that arrived while this was pending is newer.
-            this._config ??= toConfig(await this.request('initialSetup', {}));
+            this._config ??= fromSetup(await this.request('initialSetup', {}), this._showToolbar);
         } catch {
             // A request made while the browser is starting can fail; the next selection asks again.
         }
@@ -187,7 +193,14 @@ export default class SelectionTools extends ContentFeature {
         const config = this._config ?? (await this._getConfig());
         if (!config?.enabled) return;
         const { text, sourceLanguage, selectionType, editable, actions } = this._describe(config, snapshot);
-        this.notify('contextMenuOpened', { text, ...(sourceLanguage ? { sourceLanguage } : {}), selectionType, editable, actions });
+        this.notify('contextMenuOpened', {
+            text,
+            selectedTextKey: selectedTextKey(snapshot.browserText),
+            ...(sourceLanguage ? { sourceLanguage } : {}),
+            selectionType,
+            editable,
+            actions,
+        });
         // Without a toolbar showing before, the menu's selection still gets the chip once the menu closes, as when the
         // toolbar was in the page; native needs to know where it is for that.
         this._report(config, snapshot, { forContextMenu: true });
@@ -237,6 +250,17 @@ export default class SelectionTools extends ContentFeature {
  */
 function geometryOf(snapshot) {
     return { rect: snapshot.bounds(), devicePixelRatio: window.devicePixelRatio };
+}
+
+/**
+ * The initialSetup answer. The feature only runs while it's on, and whether the toolbar shows is the feature's setting.
+ * @param {unknown} value
+ * @param {boolean} showToolbar
+ * @returns {Config | null}
+ */
+function fromSetup(value, showToolbar) {
+    if (typeof value !== 'object' || value === null) return null;
+    return toConfig({ ...value, enabled: true, showToolbar });
 }
 
 /**

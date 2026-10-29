@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "description": "Pushed to the main frame when the config changes, e.g. a setting, the AI toggle or the action catalog. The first value comes from initialSetup, not from here.",
+  "description": "Pushed to the main frame when the config changes, e.g. a setting, the AI toggle or the action catalog. Until the first push, the feature's config and initialSetup apply. Overrides the feature's config until the page reloads.",
   "allOf": [
     {
       "$ref": "selectionToolsConfig.shared.json"

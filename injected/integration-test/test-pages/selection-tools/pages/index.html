@@ -10,12 +10,31 @@
                 max-width: 640px;
                 margin: 120px auto;
             }
+            .sr-only {
+                position: absolute;
+                width: 1px;
+                height: 1px;
+                overflow: hidden;
+                clip-path: inset(50%);
+                white-space: nowrap;
+            }
+            .gradient {
+                background: linear-gradient(90deg, #c00, #00c);
+                -webkit-background-clip: text;
+                background-clip: text;
+                color: transparent;
+            }
         </style>
     </head>
     <body>
         <p id="english">The quick brown fox jumps over the lazy dog and runs into the forest.</p>
         <p id="spanish" lang="es">El perro de la casa es muy grande y le gusta correr por el parque.</p>
         <p>A single <span id="word">serendipity</span> here.</p>
+        <p id="hidden-text">
+            Seen first<span style="font-size: 1px"> tiny secret</span> then<span style="color: transparent"> clear secret</span>
+            and<span style="opacity: 0"> faded secret</span> last<span class="sr-only"> clipped secret</span>.
+            <span class="gradient">Gradient words</span> stay.
+        </p>
         <pre id="code">const answer = () => { return 42; };</pre>
         <textarea id="field">This sentence have a grammar mistake in it.</textarea>
         <input id="password" type="password" value="hunter2hunter2" />

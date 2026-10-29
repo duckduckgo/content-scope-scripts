@@ -32,9 +32,13 @@ export interface ContextMenuOpenedNotification {
  */
 export interface ContextMenuOpenedParams {
   /**
-   * The selected text.
+   * The selected text, without text the user can't see.
    */
   text: string;
+  /**
+   * Pairs this report with the browser's own context menu event. The 32-bit FNV-1a hash, as 8 lowercase hex digits, of the selection as the browser reports it, hidden text included, over its UTF-16 code units after collapsing each run of ECMAScript whitespace (\s) to one space and trimming. Absent without a selection.
+   */
+  selectedTextKey?: string;
   /**
    * The page's language tag for the selection, from the nearest lang attribute.
    */
@@ -145,34 +149,18 @@ export interface SelectionMovedParams {
 export interface InitialSetupRequest {
   method: "initialSetup";
   params: InitialSetupParams;
-  result: SelectionToolsConfig;
+  result: SelectionToolsSetup;
 }
 /**
  * Sent on the first selection, or the first context menu on one, and again on the next if that failed. Never sent on page load alone. Until native answers, nothing is reported.
  */
 export interface InitialSetupParams {}
 /**
- * What the selection tools may do on this page, and the actions they offer.
+ * The user's language and the actions, asked for on the first selection. Whether the tools are on and whether the toolbar shows aren't here: they come with the feature's config, and later changes with selectionToolsConfigChanged.
  */
-export interface SelectionToolsConfig {
+export interface SelectionToolsSetup {
   /**
-   * False when the remote flag or the AI toggle is off, and on native's own sites: no selection is reported and contextMenuOpened is not sent.
-   */
-  enabled: boolean;
-  /**
-   * The user's setting for the toolbar. When false, no selection is reported, but contextMenuOpened is still sent while enabled.
-   */
-  showToolbar: boolean;
-  /**
-   * Show the toolbar as the collapsed chip, expanding on hover. Defaults to false. Not read by the page, which draws no toolbar.
-   */
-  startCollapsed?: boolean;
-  /**
-   * Whether the built-in Ask is offered. Defaults to true. Not read by the page, which draws no toolbar.
-   */
-  askAvailable?: boolean;
-  /**
-   * The user's language as a BCP 47 tag, e.g. "fr-FR". Text in another language counts as foreign. Absent when enabled is false.
+   * The user's language as a BCP 47 tag, e.g. "fr-FR". Text in another language counts as foreign. English when absent.
    */
   userLanguage?: string;
   /**
@@ -245,9 +233,38 @@ export interface ParameterOption {
 export interface SelectionToolsConfigChangedSubscription {
   subscriptionEvent: "selectionToolsConfigChanged";
   /**
-   * Pushed to the main frame when the config changes, e.g. a setting, the AI toggle or the action catalog. The first value comes from initialSetup, not from here.
+   * Pushed to the main frame when the config changes, e.g. a setting, the AI toggle or the action catalog. Until the first push, the feature's config and initialSetup apply. Overrides the feature's config until the page reloads.
    */
   params: SelectionToolsConfig;
+}
+/**
+ * What the selection tools may do on this page, and the actions they offer.
+ */
+export interface SelectionToolsConfig {
+  /**
+   * False when the remote flag or the AI toggle is off, and on native's own sites: no selection is reported and contextMenuOpened is not sent. A page that loaded with the feature off doesn't run it, so turning it on reaches that page only once it reloads.
+   */
+  enabled: boolean;
+  /**
+   * The user's setting for the toolbar, as in the feature's showToolbar setting. When false, no selection is reported, but contextMenuOpened is still sent while enabled.
+   */
+  showToolbar: boolean;
+  /**
+   * Show the toolbar as the collapsed chip, expanding on hover. Defaults to false. Not read by the page, which draws no toolbar.
+   */
+  startCollapsed?: boolean;
+  /**
+   * Whether the built-in Ask is offered. Defaults to true. Not read by the page, which draws no toolbar.
+   */
+  askAvailable?: boolean;
+  /**
+   * The user's language as a BCP 47 tag, e.g. "fr-FR". Text in another language counts as foreign. Absent when enabled is false.
+   */
+  userLanguage?: string;
+  /**
+   * Actions in the order they should appear. "Ask" is built in and must not be listed.
+   */
+  actions: SelectionAction[];
 }
 
 declare module "../features/selection-tools.js" {

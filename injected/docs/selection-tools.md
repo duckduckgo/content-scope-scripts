@@ -13,10 +13,17 @@ Runs in the top frame only. Windows only for now.
 
 ## Turning it on
 
-Native decides. `initialSetup` answers `enabled`, `showToolbar` and the actions, and `selectionToolsConfigChanged` pushes
-changes. On Windows these come from the `aiChat` → `selectionTools` sub-feature, the global AI toggle and the user's
-setting, so they can change while a page is open. Nothing is reported until `initialSetup` says the feature is
-enabled.
+Native decides, through the feature's own config. It sets the `selectionTools` entry in the config it injects for the
+user: `state` is `disabled` when the `aiChat` → `selectionTools` sub-feature or the global AI toggle is off, its
+`exceptions` hold native's own sites such as Duck.ai, and the `showToolbar` setting is the user's toolbar setting.
+Native only ever turns the feature off this way; a remote `disabled` still wins.
+
+These can change while a page is open, but the injected config only reaches pages that load afterwards, so
+`selectionToolsConfigChanged` pushes `enabled` and `showToolbar` (and the actions) to open pages and overrides the
+injected config until the page reloads. A page that loaded with the feature off doesn't run it at all, so turning it on
+reaches that page only once it reloads.
+
+`initialSetup` only answers the user's language and the actions, on the first selection.
 
 The feature is in `platformSpecificFeatures`, like `contextMenu` and `textSelection`, so it starts without a top-level
 `selectionTools` entry in the privacy config, and also runs on sites where protections are off. If the privacy config
@@ -28,7 +35,8 @@ On Windows the feature runs in the page's main world, so pages can see any eleme
 measure a selection in a text field, which has no geometry of its own: a host element (`<ddg-selection-tools>`) with
 the field's text laid out again in a closed shadow root, appended and removed again within the same task.
 
-It listens to mouse, key, selection, scroll and resize events without cancelling or stopping any of them.
+It listens to mouse, key, selection, scroll and resize events without cancelling or stopping any of them, and only
+acts on trusted ones, so page script can't fire them to make it report a selection.
 
 ## What a selection is
 
@@ -36,6 +44,11 @@ It listens to mouse, key, selection, scroll and resize events without cancelling
   disabled fields are ignored.
 - At least `minChars` non-space characters.
 - Not inside the top layer (a modal dialog, popover or fullscreen element).
+
+Selected page text leaves out what the user can't see, which a page could use to slip instructions into what's sent
+to Duck.ai: text with zero or near-zero opacity, hidden visibility, a colour that's fully or nearly transparent (gradient
+text drawn through `background-clip: text` still counts as visible), a font under 4px, or a box shrunk to a pixel with
+its overflow cut off, as screen-reader-only text is. Text in the same colour as its background still gets through.
 
 Each selection is classified locally, from its text and the element it starts in:
 
@@ -84,14 +97,12 @@ The context menu doesn't end the report: native hides its own toolbar while its 
 - {@link "SelectionTools Messages".InitialSetupRequest}
 - Sent on the first selection, or the first context menu on one, and again on the next if that failed. A page where
   the user selects nothing sends nothing. Nothing is reported until it's answered.
-- Response: {@link "SelectionTools Messages".SelectionToolsConfig}
+- Response: {@link "SelectionTools Messages".SelectionToolsSetup}
 
 **Example**
 
 ```json
 {
-    "enabled": true,
-    "showToolbar": true,
     "userLanguage": "en-US",
     "actions": [
         {
@@ -116,20 +127,18 @@ The context menu doesn't end the report: native hides its own toolbar while its 
 }
 ```
 
-`enabled` turns the whole feature off for the page, context-menu reports included; `userLanguage` is then absent.
-Native also answers `enabled: false` on its own sites, such as Duck.ai itself. `showToolbar` is the user's setting for
-the toolbar alone. `startCollapsed`, `askAvailable` and the actions' `icon` are for native's toolbar; the page doesn't
-read them.
-
-Pushes may repeat the current config. A selection reported under the old config isn't reported again; the next
-selection uses the new one.
+The actions' `icon` is for native's toolbar; the page doesn't read it.
 
 ## Subscriptions
 
 ### `selectionToolsConfigChanged`
 
 - {@link "SelectionTools Messages".SelectionToolsConfigChangedSubscription}
-- The whole config again, pushed to the main frame whenever it changes for that page.
+- The whole config, pushed to the main frame whenever it changes for that page. `enabled: false` turns the feature off
+  for the page, context-menu reports included; `showToolbar: false` stops selection reports but not context-menu
+  reports. `startCollapsed` and `askAvailable` are for native's toolbar; the page doesn't read them.
+- Pushes may repeat the current config. A selection reported under the old config isn't reported again; the next
+  selection uses the new one.
 
 ## Notifications
 
@@ -174,10 +183,17 @@ selection uses the new one.
 - Sent on `contextmenu` while `enabled`, whatever `showToolbar` says. Without a selection, `text` and `actions` are
   empty and `selectionType` and `editable` are left out. `sourceLanguage` is the nearest `lang` marking, when there
   is one.
+- `text` leaves out hidden text (see [What a selection is](#what-a-selection-is)), so it can differ from the selected
+  text the browser gives native with its own context menu event. `selectedTextKey` pairs the two: the 32-bit FNV-1a
+  hash, as 8 lowercase hex digits, of the browser's text over its UTF-16 code units, after collapsing each run of
+  whitespace (`\s`) to one space and trimming. Native runs a paired action with the report's `text`. Where there's no
+  report to pair with (frames, or sites the feature doesn't run on), native only has the browser's text, hidden parts
+  included.
 
 ```json
 {
     "text": "El perro",
+    "selectedTextKey": "a43a2364",
     "sourceLanguage": "es",
     "selectionType": "text",
     "editable": false,
@@ -189,10 +205,11 @@ selection uses the new one.
 
 Settings are read from a top-level `selectionTools` entry when there is one (see [Turning it on](#turning-it-on)):
 
-| Setting             | Default | Meaning                                                       |
-| ------------------- | ------- | ------------------------------------------------------------- |
-| `maxVisibleActions` | `5`     | Passed to native: toolbar buttons before "more", Ask included |
-| `minChars`          | `2`     | Shortest selection, ignoring whitespace                       |
+| Setting             | Default | Meaning                                                                |
+| ------------------- | ------- | ---------------------------------------------------------------------- |
+| `maxVisibleActions` | `5`     | Passed to native: toolbar buttons before "more", Ask included          |
+| `minChars`          | `2`     | Shortest selection, ignoring whitespace                                |
+| `showToolbar`       | `true`  | Set by native from the user's setting; `false` stops selection reports |
 
 ## Testing
 
