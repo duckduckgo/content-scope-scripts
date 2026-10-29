@@ -72,7 +72,7 @@
 
 .chip {
     align-items: center;
-    background: var(--ds-color-theme-control-raised-backdrop);
+    background: var(--ntp-control-primary-background-color);
     border: 1px solid transparent;
     border-radius: var(--ds-radius-full);
     color: var(--ds-color-theme-text-primary);
