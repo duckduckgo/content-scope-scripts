@@ -284,28 +284,6 @@
     line-height: 18px;
 }
 
-.divider {
-    background: var(--ds-color-theme-surface-decoration-secondary);
-    height: 1px;
-    width: 100%;
-}
-
-.banner {
-    align-items: center;
-    display: flex;
-    font-size: 13px;
-    gap: var(--ds-space-x01);
-    justify-content: center;
-    margin: 0;
-    padding: var(--ds-space-x05) var(--ds-space-x04) var(--ds-space-x01);
-}
-
-.bannerLogo {
-    flex-shrink: 0;
-    height: 16px;
-    width: 16px;
-}
-
 /* Chat Suggestions */
 .textPanel {
     display: flex;

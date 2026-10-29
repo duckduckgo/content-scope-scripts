@@ -379,10 +379,6 @@
     "title": "We have agreements with all AI providers to ensure your chats aren't used to train AIs.",
     "description": "Body of the no-AI-training card in the How Duck.ai Works panel."
   },
-  "omnibar_suggestedPromptsBanner": {
-    "title": "by DuckDuckGo — online protection trusted by millions every day.",
-    "description": "Trust line at the bottom of the How Duck.ai Works panel, shown next to the DuckDuckGo logo."
-  },
   "omnibar_suggestedPromptsTextJobApplication": {
     "title": "Improve a job application",
     "description": "A suggested chat prompt in the Chat Suggestions panel. Selecting it starts a Duck.ai chat on this topic."

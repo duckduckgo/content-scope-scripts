@@ -5,7 +5,6 @@ import { useEnv } from '../../../../../../shared/components/EnvironmentProvider.
 import { useTypedTranslationWith } from '../../../types';
 import { ChevronLeftMediumIcon, ChevronRightMediumIcon } from './SuggestedPromptsIcons.js';
 import { HOW_DUCKAI_WORKS_CARDS, IMAGE_PROMPTS, TEXT_PROMPT_PAGES } from './suggestedPrompts.data.js';
-import daxLogo from './dax.data.svg';
 import styles from './SuggestedPrompts.module.css';
 
 /**
@@ -43,11 +42,6 @@ export function HowDuckAiWorksPanel() {
                     </li>
                 ))}
             </ul>
-            <div class={styles.divider} aria-hidden="true" />
-            <p class={styles.banner}>
-                <img src={daxLogo} alt="" aria-hidden="true" class={styles.bannerLogo} />
-                {t('omnibar_suggestedPromptsBanner')}
-            </p>
         </div>
     );
 }
