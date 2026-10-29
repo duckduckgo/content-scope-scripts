@@ -41,7 +41,8 @@ acts on trusted ones, so page script can't fire them to make it report a selecti
 ## What a selection is
 
 - Selected page text, or selected text in a textarea or a text, search, email or URL input. Password, read-only and
-  disabled fields are ignored.
+  disabled fields are ignored. Text inside open shadow roots counts, such as code blocks drawn by a custom element;
+  closed ones can't be read.
 - At least `minChars` non-space characters.
 - Not inside the top layer (a modal dialog, popover or fullscreen element).
 

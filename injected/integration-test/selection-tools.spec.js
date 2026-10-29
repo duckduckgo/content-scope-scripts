@@ -296,6 +296,31 @@ test.describe('selectionTools', () => {
         expect(text.trim()).toBe('A wrapper with no box of its own keeps this paragraph on the page.');
     });
 
+    test('reports a selection inside an open shadow root', async ({ page }, testInfo) => {
+        const collector = await setup(page, testInfo);
+        const code = page.locator('#shadow-code-text');
+        await code.click({ clickCount: 3 });
+        const params = await reportedWith(collector, 'const shadow');
+        expect(params.selectionType).toBe('code');
+        const box = await code.evaluate((element) => {
+            const { left, top, right, bottom } = element.getBoundingClientRect();
+            return { left, top, right, bottom };
+        });
+        expect(params.rect.left).toBeCloseTo(box.left, 0);
+        expect(params.rect.top).toBeGreaterThanOrEqual(box.top - 1);
+        expect(params.rect.bottom).toBeLessThanOrEqual(box.bottom + 1);
+        // The document sees the selection as collapsed at the host, which mustn't clear the report.
+        await settle(page);
+        expect(await sent(collector, 'selectionCleared')).toEqual([]);
+
+        const browserText = await page.evaluate(() => window.getSelection()?.toString() ?? '');
+        await code.click({ button: 'right' });
+        await expect.poll(() => sent(collector, 'contextMenuOpened')).toHaveLength(1);
+        const menu = await lastSent(collector, 'contextMenuOpened');
+        expect(menu).toMatchObject({ text: expect.stringContaining('const shadow'), selectionType: 'code' });
+        expect(menu.selectedTextKey).toBe(selectedTextKey(browserText));
+    });
+
     test('ignores selections and context menus fired from page script', async ({ page }, testInfo) => {
         const collector = await setup(page, testInfo);
         await page.evaluate(() => {
