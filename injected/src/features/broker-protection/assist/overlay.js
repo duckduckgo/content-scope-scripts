@@ -3,8 +3,10 @@ import { wait } from '../../../timer-utils.js';
 
 const CURSOR_MOVE_MS = 520;
 const BADGE_GAP = 8;
-// The badge's height plus its gap: the space it needs above the widget.
-const BADGE_SPACE = 30;
+// 16px line height plus 3px padding top and bottom (.badge).
+const BADGE_HEIGHT = 22;
+// 16px line height plus 4px padding top and bottom (.tag).
+const PILL_HEIGHT = 24;
 
 const STYLES = `
 :host { all: initial; }
@@ -64,6 +66,7 @@ export class AssistOverlay {
     fieldRadius = '';
     turnRadius = '';
     badgeBesidePill = false;
+    pillWidth = 0;
     /** @type {number | null} */
     caretX = null;
     /** @type {Element | null} */
@@ -246,14 +249,14 @@ export class AssistOverlay {
         if (this.cursorTarget) {
             const box = documentBox(this.cursorTarget.element);
             if (box) {
-                els.cursor.style.left = `${box.left + Math.min(Math.max(box.width - 12, 0), this.cursorTarget.dx)}px`;
-                els.cursor.style.top = `${box.top + this.cursorTarget.dy}px`;
+                setStyle(els.cursor, 'left', `${box.left + Math.min(Math.max(box.width - 12, 0), this.cursorTarget.dx)}px`);
+                setStyle(els.cursor, 'top', `${box.top + this.cursorTarget.dy}px`);
             }
         }
 
         const field = this.fieldTarget && documentBox(this.fieldTarget);
         place(els.field, field);
-        els.field.style.borderRadius = this.fieldRadius;
+        setStyle(els.field, 'borderRadius', this.fieldRadius);
         const caretHeight = field ? Math.max(Math.min(field.height - 4, 15), 0) : 0;
         place(
             els.caret,
@@ -269,41 +272,45 @@ export class AssistOverlay {
 
         const widget = this.turnActive && this.turnTarget ? documentBox(this.turnTarget) : null;
         place(els.ring, widget);
-        els.ring.style.borderRadius = this.turnRadius;
-        els.pill.hidden = !this.turnActive;
+        setStyle(els.ring, 'borderRadius', this.turnRadius);
+        setHidden(els.pill, !this.turnActive);
+        let pillLeft = 0;
+        let pillTop = 0;
         if (this.turnActive) {
             if (widget) {
-                els.pill.style.left = `${widget.left + widget.width + 16}px`;
-                els.pill.style.top = `${widget.top + widget.height / 2 - els.pill.offsetHeight / 2}px`;
+                pillLeft = widget.left + widget.width + 16;
+                pillTop = widget.top + widget.height / 2 - PILL_HEIGHT / 2;
             } else {
-                els.pill.style.left = `${window.scrollX + window.innerWidth / 2 - els.pill.offsetWidth / 2}px`;
-                els.pill.style.top = `${window.scrollY + 16}px`;
+                // Measured once: the pill's text never changes.
+                this.pillWidth ||= els.pill.offsetWidth;
+                pillLeft = window.scrollX + window.innerWidth / 2 - this.pillWidth / 2;
+                pillTop = window.scrollY + 16;
             }
+            setStyle(els.pill, 'left', `${pillLeft}px`);
+            setStyle(els.pill, 'top', `${pillTop}px`);
         }
-        els.badge.hidden = !widget;
+        setHidden(els.badge, !widget);
         if (widget) {
-            const badgeHeight = els.badge.offsetHeight;
-            if (this.badgeBesidePill) {
-                els.badge.style.left = els.pill.style.left;
-                els.badge.style.top = `${parseFloat(els.pill.style.top) - badgeHeight - BADGE_GAP}px`;
-            } else {
-                els.badge.style.left = `${widget.left}px`;
-                els.badge.style.top = `${widget.top - badgeHeight - BADGE_GAP}px`;
-            }
+            const [left, top] = this.badgeBesidePill
+                ? [pillLeft, pillTop - BADGE_HEIGHT - BADGE_GAP]
+                : [widget.left, widget.top - BADGE_HEIGHT - BADGE_GAP];
+            setStyle(els.badge, 'left', `${left}px`);
+            setStyle(els.badge, 'top', `${top}px`);
         }
     }
 }
 
 /**
- * Ben's design puts the badge above the widget, where the prototype reserves room for it. A real page
- * usually has something there (a field, a label), so check before covering it.
+ * The badge sits above the widget by default, but pages often have a label or field there, so check
+ * before covering it.
  *
  * @param {Element} widget
  */
 function hasContentAbove(widget) {
     const rect = widget.getBoundingClientRect();
-    if (rect.top - BADGE_SPACE < 0) return false;
-    for (const dy of [2, BADGE_SPACE / 2, BADGE_SPACE - 2]) {
+    const space = BADGE_HEIGHT + BADGE_GAP;
+    if (rect.top - space < 0) return false;
+    for (const dy of [2, space / 2, space - 2]) {
         for (const dx of [4, 40, 80]) {
             const hit = document.elementFromPoint(rect.left + Math.min(dx, rect.width), rect.top - dy);
             if (hit && !hit.contains(widget)) return true;
@@ -341,10 +348,30 @@ function documentBox(element) {
  * @param {{ left: number, top: number, width: number, height: number } | null} box
  */
 function place(el, box) {
-    el.hidden = !box;
+    setHidden(el, !box);
     if (!box) return;
-    el.style.left = `${box.left}px`;
-    el.style.top = `${box.top}px`;
-    el.style.width = `${box.width}px`;
-    el.style.height = `${box.height}px`;
+    setStyle(el, 'left', `${box.left}px`);
+    setStyle(el, 'top', `${box.top}px`);
+    setStyle(el, 'width', `${box.width}px`);
+    setStyle(el, 'height', `${box.height}px`);
+}
+
+/**
+ * Writes only when the value changes. The overlay repositions every frame, and unchanged writes would
+ * still dirty style and force the next frame's measurements to wait for layout.
+ *
+ * @param {HTMLElement} el
+ * @param {'left' | 'top' | 'width' | 'height' | 'borderRadius'} property
+ * @param {string} value
+ */
+function setStyle(el, property, value) {
+    if (el.style[property] !== value) el.style[property] = value;
+}
+
+/**
+ * @param {HTMLElement} el
+ * @param {boolean} hidden
+ */
+function setHidden(el, hidden) {
+    if (el.hidden !== hidden) el.hidden = hidden;
 }

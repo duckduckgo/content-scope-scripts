@@ -4,6 +4,17 @@ import { createConfiguredDbpTest } from './fixtures.js';
 const test = createConfiguredDbpTest(base);
 
 const OVERLAY = 'ddg-pir-assist';
+// How often the page checks the challenge's token field (TOKEN_POLL_MS in user-assist.js).
+const TOKEN_POLL_MS = 500;
+
+/**
+ * @param {import('../page-objects/broker-protection.js').BrokerProtectionPage} dbp
+ * @param {string} method
+ */
+async function sentCount(dbp, method) {
+    const calls = await dbp.collector.outgoingMessages();
+    return calls.filter((call) => 'method' in call.payload && call.payload.method === method).length;
+}
 
 test.describe('Broker Protection user assist', () => {
     test('draws nothing unless native turns assist mode on', async ({ dbp }) => {
@@ -22,13 +33,16 @@ test.describe('Broker Protection user assist', () => {
             /** @type {string[]} */
             const values = [];
             let inputEvents = 0;
+            /** @type {number | null} */
+            let inputEventsAfterFill = null;
             field.addEventListener('input', () => inputEvents++);
             const sample = () => {
                 if (values[values.length - 1] !== field.value) values.push(field.value);
+                if (inputEventsAfterFill === null && field.value === 'John') inputEventsAfterFill = inputEvents;
                 requestAnimationFrame(sample);
             };
             sample();
-            Object.assign(globalThis, { readFirstName: () => ({ values, inputEvents }) });
+            Object.assign(globalThis, { readFirstName: () => ({ values, inputEvents, inputEventsAfterFill }) });
         });
         await dbp.simulateSubscriptionMessage('setAssistMode', { enabled: true });
         await dbp.receivesAction('fill-form.json');
@@ -38,11 +52,10 @@ test.describe('Broker Protection user assist', () => {
         await dbp.isFormFilled();
         await expect(dbp.page.locator(OVERLAY)).toHaveCount(1);
 
-        const { values, inputEvents } = await dbp.page.evaluate(() => globalThis.readFirstName());
+        const { values, inputEvents, inputEventsAfterFill } = await dbp.page.evaluate(() => globalThis.readFirstName());
         expect(values.some((value) => value.length > 0 && value.length < 'John'.length)).toBe(true);
         expect(values[values.length - 1]).toBe('John');
-        // fillForm itself dispatches two input events per field; the visible re-type adds none.
-        expect(inputEvents).toBe(2);
+        expect(inputEvents).toBe(inputEventsAfterFill);
     });
 
     test('keeps a value the page reformats while the fill is replayed', async ({ dbp }) => {
@@ -64,21 +77,12 @@ test.describe('Broker Protection user assist', () => {
         await expect(dbp.page.locator('#user_phone')).toHaveValue('formatted by page');
     });
 
-    test('moves the cursor to click targets and still clicks', async ({ dbp }) => {
+    test('presents clicks, and removes the overlay when native turns assist mode off', async ({ dbp }) => {
         await dbp.navigatesTo('form.html');
         await dbp.simulateSubscriptionMessage('setAssistMode', { enabled: true });
         await dbp.receivesAction('click.json');
-
         const response = await dbp.collector.waitForMessage('actionCompleted');
         dbp.isSuccessMessage(response);
-        await expect(dbp.page.locator(OVERLAY)).toHaveCount(1);
-    });
-
-    test('removes the overlay when native turns assist mode off', async ({ dbp }) => {
-        await dbp.navigatesTo('form.html');
-        await dbp.simulateSubscriptionMessage('setAssistMode', { enabled: true });
-        await dbp.receivesAction('click.json');
-        await dbp.collector.waitForMessage('actionCompleted');
         await expect(dbp.page.locator(OVERLAY)).toHaveCount(1);
 
         await dbp.simulateSubscriptionMessage('setAssistMode', { enabled: false });
@@ -92,10 +96,8 @@ test.describe('Broker Protection user assist', () => {
         });
         await dbp.simulateSubscriptionMessage('userTurnStarted', { kind: 'turnstile', tokenSelector: null });
 
-        // Two token polls (500ms apart) without a report.
-        await dbp.page.waitForTimeout(1100);
-        const early = await dbp.collector.outgoingMessages();
-        expect(early.filter((call) => 'method' in call.payload && call.payload.method === 'userTurnCompleted')).toHaveLength(0);
+        await dbp.page.waitForTimeout(2 * TOKEN_POLL_MS + 100);
+        expect(await sentCount(dbp, 'userTurnCompleted')).toBe(0);
 
         await dbp.page.evaluate(() => {
             /** @type {HTMLInputElement} */ (document.querySelector("input[name='cf-turnstile-response']")).value = 'fresh';
@@ -114,8 +116,8 @@ test.describe('Broker Protection user assist', () => {
         const messages = await dbp.collector.waitForMessage('userTurnCompleted');
         expect(messages[0].payload.params).toEqual({ kind: 'turnstile' });
 
-        await dbp.page.waitForTimeout(1200);
-        expect(await dbp.collector.waitForMessage('userTurnCompleted')).toHaveLength(1);
+        await dbp.page.waitForTimeout(2 * TOKEN_POLL_MS + 100);
+        expect(await sentCount(dbp, 'userTurnCompleted')).toBe(1);
     });
 
     test('watches a token selector native provides', async ({ dbp }) => {
@@ -134,8 +136,7 @@ test.describe('Broker Protection user assist', () => {
         await dbp.receivesAction('click.json');
 
         await dbp.page.waitForTimeout(1000);
-        const held = await dbp.collector.outgoingMessages();
-        expect(held.filter((call) => 'method' in call.payload && call.payload.method === 'actionCompleted')).toHaveLength(0);
+        expect(await sentCount(dbp, 'actionCompleted')).toBe(0);
 
         await dbp.simulateSubscriptionMessage('userTurnEnded', { reason: 'userConfirmed' });
         const response = await dbp.collector.waitForMessage('actionCompleted');

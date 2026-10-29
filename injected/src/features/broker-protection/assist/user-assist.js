@@ -1,31 +1,38 @@
 import { getElement, getElements } from '../utils/utils.js';
 import { wait } from '../../../timer-utils.js';
+// eslint-disable-next-line no-redeclare
+import { getOwnPropertyDescriptor, hasOwnProperty } from '../../../captured-globals.js';
 import { AssistOverlay } from './overlay.js';
 
 /**
  * @typedef {'turnstile' | 'recaptcha' | 'managedChallenge' | 'generic'} UserTurnKind
  * @typedef {{ kind: UserTurnKind, tokenSelector: string | null }} UserTurnParams
- * @typedef {{ token: string | null, widgets: string[] }} Challenge
+ * @typedef {{ tokenSelector: string | null, widgetSelectors: string[] }} Challenge
  */
 
 /** @type {Challenge} */
-const TURNSTILE = { token: "input[name='cf-turnstile-response']", widgets: ['.cf-turnstile', "iframe[src*='challenges.cloudflare.com']"] };
+const TURNSTILE = {
+    tokenSelector: "input[name='cf-turnstile-response']",
+    widgetSelectors: ['.cf-turnstile', "iframe[src*='challenges.cloudflare.com']"],
+};
 
 /** @type {Record<UserTurnKind, Challenge>} */
 const CHALLENGES = {
     turnstile: TURNSTILE,
     managedChallenge: TURNSTILE,
-    recaptcha: { token: "textarea[name='g-recaptcha-response']", widgets: ['.g-recaptcha', "iframe[src*='recaptcha']"] },
-    generic: { token: null, widgets: [] },
+    recaptcha: { tokenSelector: "textarea[name='g-recaptcha-response']", widgetSelectors: ['.g-recaptcha', "iframe[src*='recaptcha']"] },
+    generic: { tokenSelector: null, widgetSelectors: [] },
 };
 
 const TOKEN_POLL_MS = 500;
 const CLICK_PAUSE_MS = 200;
-// Native's action timeout also covers this presentation, so a whole form shares one budget.
+// Native's action timeout also covers this presentation, so a whole form shares one budget. Timers
+// run late in hidden windows, so the replay also gives up once the budget has passed in wall-clock time.
 const FORM_BUDGET_MS = 2000;
 const MAX_FIELD_MS = 800;
 const MAX_KEYSTROKE_MS = 60;
-const TYPEABLE_INPUT_TYPES = new Set(['text', 'email', 'tel', 'search', 'url', 'number']);
+// Not number: partial values such as "1." or "-" are sanitised to "" and would lose the filled value.
+const TYPEABLE_INPUT_TYPES = new Set(['text', 'email', 'tel', 'search', 'url']);
 
 /**
  * Opt-in presentation for PIR runs the user is watching, plus the hand-off when the user has to solve
@@ -68,8 +75,9 @@ export class UserAssist {
      */
     async beforeAction(action) {
         if (!this.enabled || action.actionType !== 'click' || this.presentedClicks.has(action)) return;
-        this.presentedClicks.add(action);
-        for (const element of clickTargets(action)) {
+        const targets = clickTargets(action);
+        if (targets.length) this.presentedClicks.add(action);
+        for (const element of targets) {
             await this.overlay.moveCursor(element, {
                 dx: 30,
                 dy: element.getBoundingClientRect().height / 2,
@@ -95,9 +103,10 @@ export class UserAssist {
                     .map((/** @type {{ selector: string }} */ element) => getElement(form, element.selector))
                     .filter((/** @type {HTMLElement | null} */ field) => field !== null);
                 const fieldMs = Math.min(MAX_FIELD_MS, FORM_BUDGET_MS / Math.max(fields.length, 1));
+                const deadline = performance.now() + FORM_BUDGET_MS;
                 for (const field of fields) {
-                    if (!this.enabled) return;
-                    await this.retype(field, fieldMs);
+                    if (!this.enabled || performance.now() > deadline) break;
+                    await this.retype(field, fieldMs, deadline);
                 }
             }
         }
@@ -115,34 +124,34 @@ export class UserAssist {
      *
      * @param {HTMLElement} field
      * @param {number} budgetMs - time for moving to the field and typing into it
+     * @param {number} deadline - `performance.now()` after which the replay jumps to the end
      */
-    async retype(field, budgetMs) {
+    async retype(field, budgetMs, deadline) {
         this.overlay.highlightField(field);
         const dy = field.getBoundingClientRect().height / 2;
         const moveMs = Math.round(budgetMs * 0.4);
         if (!isTypeable(field)) {
             await this.overlay.moveCursor(field, { dx: 10, dy, label: 'Moving', durationMs: moveMs });
-            await wait(budgetMs - moveMs);
+            await wait(Math.min(budgetMs - moveMs, Math.max(deadline - performance.now(), 0)));
             return;
         }
         const value = field.value;
         await this.overlay.moveCursor(field, { dx: 10, dy, label: 'Typing', durationMs: moveMs });
         const keystrokeMs = Math.min(MAX_KEYSTROKE_MS, (budgetMs - moveMs) / Math.max(value.length, 1));
         const measure = textMeasurer(field);
-        const setValue = valueSetter(field);
         let written = value;
         try {
             for (let i = 0; i <= value.length; i++) {
-                if (field.value !== written || !this.enabled) return;
+                if (field.value !== written || !this.enabled || performance.now() > deadline) return;
                 written = value.slice(0, i);
-                setValue(written);
+                setValue(field, written);
                 const x = measure(written);
                 this.overlay.setCaret(x);
                 this.overlay.placeCursor(field, { dx: x, dy, durationMs: keystrokeMs });
                 await wait(keystrokeMs);
             }
         } finally {
-            if (field.value === written) setValue(value);
+            if (field.value === written) setValue(field, value);
             this.overlay.setCaret(null);
         }
     }
@@ -154,10 +163,7 @@ export class UserAssist {
         this.endUserTurn();
         /** @type {UserTurnParams} */
         const params = {
-            kind:
-                typeof kind === 'string' && Object.prototype.hasOwnProperty.call(CHALLENGES, kind)
-                    ? /** @type {UserTurnKind} */ (kind)
-                    : 'generic',
+            kind: typeof kind === 'string' && hasOwnProperty.call(CHALLENGES, kind) ? /** @type {UserTurnKind} */ (kind) : 'generic',
             tokenSelector: typeof tokenSelector === 'string' ? tokenSelector : null,
         };
         /** @type {() => void} */
@@ -221,13 +227,13 @@ function isSubmitButton(element) {
  */
 function findWidget({ kind, tokenSelector }) {
     const challenge = CHALLENGES[kind];
-    for (const selector of challenge.widgets) {
+    for (const selector of challenge.widgetSelectors) {
         const widget = document.querySelector(selector);
         if (widget) return widget;
     }
-    const tokenFieldSelector = tokenSelector ?? challenge.token;
+    const tokenFieldSelector = tokenSelector ?? challenge.tokenSelector;
     if (!tokenFieldSelector) return null;
-    return queryAll(tokenFieldSelector)[0]?.closest('[data-sitekey]') ?? null;
+    return getElements(document, tokenFieldSelector)?.[0]?.closest('[data-sitekey]') ?? null;
 }
 
 /**
@@ -235,23 +241,9 @@ function findWidget({ kind, tokenSelector }) {
  * @returns {string[]}
  */
 function tokenValues({ kind, tokenSelector }) {
-    const selector = tokenSelector ?? CHALLENGES[kind].token;
+    const selector = tokenSelector ?? CHALLENGES[kind].tokenSelector;
     if (!selector) return [];
-    return queryAll(selector).map((field) => ('value' in field && typeof field.value === 'string' ? field.value : ''));
-}
-
-/**
- * Native supplies `tokenSelector`, so an invalid one matches nothing rather than throwing.
- *
- * @param {string} selector
- * @returns {Element[]}
- */
-function queryAll(selector) {
-    try {
-        return Array.from(document.querySelectorAll(selector));
-    } catch {
-        return [];
-    }
+    return (getElements(document, selector) ?? []).map((field) => ('value' in field && typeof field.value === 'string' ? field.value : ''));
 }
 
 /**
@@ -266,14 +258,11 @@ function isTypeable(field) {
  * Uses the prototype's setter, like fillForm does, so frameworks that wrap `value` on the element don't see the replay.
  *
  * @param {HTMLInputElement | HTMLTextAreaElement} field
- * @returns {(value: string) => void}
+ * @param {string} value
  */
-function valueSetter(field) {
+function setValue(field, value) {
     const prototype = field instanceof HTMLTextAreaElement ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype;
-    const set = Object.getOwnPropertyDescriptor(prototype, 'value')?.set;
-    return (value) => {
-        if (set) set.call(field, value);
-    };
+    getOwnPropertyDescriptor(prototype, 'value')?.set?.call(field, value);
 }
 
 /**
@@ -284,6 +273,7 @@ function textMeasurer(field) {
     const style = getComputedStyle(field);
     const inset = parseFloat(style.borderLeftWidth) + parseFloat(style.paddingLeft);
     const context = document.createElement('canvas').getContext('2d');
-    if (context) context.font = style.font;
-    return (text) => inset + (context ? context.measureText(text).width : 0) - field.scrollLeft;
+    if (!context) return () => inset;
+    context.font = style.font;
+    return (text) => inset + context.measureText(text).width - field.scrollLeft;
 }
