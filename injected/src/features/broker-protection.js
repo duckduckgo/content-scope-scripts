@@ -121,9 +121,11 @@ export default class BrokerProtection extends ActionExecutorBase {
      */
     async runAction(action, data) {
         await this.assist.waitForTurnToEnd();
-        await this.assist.beforeAction(action);
+        // Presentation is best effort. It runs inside retry(), so letting it throw after the action has
+        // run would make retry() run the action (a click, a fill) a second time.
+        await this.assist.beforeAction(action).catch((e) => this.log.error('assist presentation failed', e));
         const response = await super.runAction(action, data);
-        await this.assist.afterAction(action, response);
+        await this.assist.afterAction(action, response).catch((e) => this.log.error('assist presentation failed', e));
         return response;
     }
 
