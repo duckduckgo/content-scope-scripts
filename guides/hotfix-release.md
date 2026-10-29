@@ -9,7 +9,7 @@ Background on why build output lives on a separate branch: [CONTRIBUTING.md → 
 ## Before you start
 
 - **The fix must already be merged to `main`.** You cherry-pick from `main` onto the hotfix branch. If the commit only exists on the hotfix branch, the next regular release silently reverts it.
-- **Bump the root `package.json` version.** The release workflow stamps the tag into the root `package.json` `version`, and the bundles embed it. A hotfix sets it to the hotfix tag before building.
+- **Bump the root `package.json` version.** The release workflow stamps the tag into the root `package.json` `version`, and the bundles embed it. A hotfix sets it to the hotfix tag before building. The [Check Release Version](https://github.com/duckduckgo/content-scope-scripts/actions/workflows/check-release-version.yml) workflow fails a `hotfix/**` push, or a published release, whose version or built bundle does not match the branch or tag.
 - **The patch digit is yours.** `build.yml` always emits `${MAJOR}.${MINOR}.0` and ignores the patch component when computing the next version, so `x.y.1`, `x.y.2` … can never collide with an automated release, and a hotfix tag does not skew the next minor. Apple consumers need this: Swift Package Manager only accepts a strict `major.minor.patch` trio, so the patch slot is the only room a hotfix has.
 
 > [!WARNING]
@@ -56,10 +56,11 @@ Work in a **clean clone or worktree** — step 4 force-adds files, and stray loc
 
 ## 2. Verify the branch before tagging
 
-1. **Rebuild and assert the tree is clean.** This proves the checked-in artifacts match the checked-in source:
+1. **Rebuild and assert the tree is clean.** This proves the checked-in artifacts match the checked-in source, and the version is the hotfix tag:
 
     ```sh
     npm run test-clean-tree
+    npm pkg get version   # "4.21.2" {hotfix tag}
     ```
 
 2. **Compare against the base tag on GitHub** and confirm only the expected changes are present, source and compiled:
@@ -117,6 +118,7 @@ If the base release predates the anchor system (anchors start at `released/15.14
 - [ ] Fix is merged to `main`
 - [ ] Built with `npm ci` + `npm run build` in a clean checkout
 - [ ] All generated files added, including `surrogates-generated.js` / `.d.ts`
+- [ ] Root `package.json` version is the hotfix tag, and Check Release Version passes on the pushed branch
 - [ ] `npm run test-clean-tree` passes and the GitHub compare shows only expected changes
 - [ ] Release published with "Set as the latest release" unticked (unless it is)
 - [ ] `released/{release-tag+1}` anchor pushed
