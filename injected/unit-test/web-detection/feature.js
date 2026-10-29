@@ -1,3 +1,4 @@
+import { JSDOM } from 'jsdom';
 import WebDetection from '../../src/features/web-detection.js';
 import { NativeReader } from '../../src/features/web-detection/evaluate/native-reader.js';
 import WebEvents from '../../src/features/web-events.js';
@@ -317,13 +318,17 @@ describe('WebDetection feature', () => {
                 instance.init();
             }
 
+            /** A detector reading `wdTestPage.loaded`, so the reader captures. */
+            const reads = detects({ api: 'wdTestPage.loaded' });
+
             it('parses once when init has the settings load parsed', () => {
                 const compile = spyOn(WebDetection.prototype, '_compile').and.callThrough();
                 const capture = spyOn(NativeReader.prototype, 'capture').and.callThrough();
-                const instance = loadInstance({ d: detects(true) });
+                const instance = loadInstance({ d: reads });
                 instance.init();
                 expect(compile).toHaveBeenCalledTimes(1);
                 expect(capture).toHaveBeenCalledTimes(1);
+                testGlobal.wdTestPage = { loaded: true };
                 expect(report(instance)).toEqual([{ detectorId: 'g.d', detected: true }]);
             });
 
@@ -343,10 +348,35 @@ describe('WebDetection feature', () => {
                 const capture = spyOn(NativeReader.prototype, 'capture').and.callThrough();
                 const instance = loadInstance(undefined);
                 expect(compile).not.toHaveBeenCalled();
-                initWith(instance, { d: detects(true) });
+                initWith(instance, { d: reads });
                 expect(compile).toHaveBeenCalledTimes(1);
                 expect(capture).toHaveBeenCalledTimes(1);
+                testGlobal.wdTestPage = { loaded: true };
                 expect(report(instance)).toEqual([{ detectorId: 'g.d', detected: true }]);
+            });
+
+            it('captures nothing for detectors that read no name or path and test no node, however often they run', () => {
+                const start = spyOn(NativeReader.prototype, '_start').and.callThrough();
+                testGlobal.document = new JSDOM('<!DOCTYPE html><p>blocked</p>').window.document;
+                try {
+                    const instance = loadInstance({
+                        text: detects({ text: { pattern: 'blocked' } }, { triggers: auto }),
+                        element: detects({ element: { selector: 'p' } }),
+                        either: detects({ any: [{ text: { pattern: 'other' } }, { element: { selector: 'p' } }] }),
+                    });
+                    instance.init();
+                    jasmine.clock().tick(1000);
+                    expect(report(instance).map((entry) => entry.detectorId)).toEqual(['g.text', 'g.element', 'g.either']);
+                } finally {
+                    delete testGlobal.document;
+                }
+                expect(start).not.toHaveBeenCalled();
+            });
+
+            it('captures at load for a detector with `root`, which reads no name or path', () => {
+                const capture = spyOn(NativeReader.prototype, 'capture').and.callThrough();
+                loadInstance({ d: detects({ element: { selector: 'p', root: 'body' } }) });
+                expect(capture).toHaveBeenCalledTimes(1);
             });
 
             it('parses the settings init has when parsing at load throws', () => {

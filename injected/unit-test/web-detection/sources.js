@@ -369,6 +369,17 @@ describe('WebDetection sources', () => {
             expect(reader.read(window.document, 'title')).toBe('page');
         });
 
+        it('captures at its first lookup when created without names', () => {
+            const window = new JSDOM('<!DOCTYPE html>').window;
+            const div = window.document.createElement('div');
+            const eager = new NativeReader(window, []);
+            const lazy = new NativeReader(window);
+            lazy.beginRun();
+            window.Node = function Node() {};
+            expect(eager.isNode(div)).toBe(true);
+            expect(lazy.isNode(div)).toBe(false);
+        });
+
         it('captures from the chain of a value a path reaches, for a name read off any value on that chain', () => {
             const install = (/** @type {any} */ w) => {
                 w.Item = class {

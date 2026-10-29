@@ -23,6 +23,7 @@ import { isItemBuffer, listMembers } from '../model/lists.js';
 export function parseRoot(raw, path, hooks) {
     if (raw === undefined) return undefined;
     if (isArray(raw) && raw.length === 0) throw new ConfigParseError(path, '`root` needs at least one entry');
+    hooks.testsNodes();
     return { entries: asArray(raw).map((entry, i) => hooks.expression(entry, isArray(raw) ? `${path}.${i}` : path, 'root')) };
 }
 
