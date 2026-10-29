@@ -69,7 +69,9 @@ export class AssistOverlay {
         host.style.cssText =
             'position: absolute !important; top: 0 !important; left: 0 !important; width: 0 !important; height: 0 !important; z-index: 2147483647 !important; pointer-events: none !important;';
         const shadow = host.attachShadow({ mode: 'closed' });
-        shadow.innerHTML = `<style>${STYLES}</style>
+        const sheet = constructedStyleSheet();
+        if (sheet) shadow.adoptedStyleSheets = [sheet];
+        shadow.innerHTML = `${sheet ? '' : `<style>${STYLES}</style>`}
             <div class="layer" aria-hidden="true">
                 <div class="field" hidden></div>
                 <div class="caret" hidden></div>
@@ -83,6 +85,10 @@ export class AssistOverlay {
             </div>`;
         /** @param {string} selector */
         const q = (selector) => /** @type {HTMLElement} */ (shadow.querySelector(selector));
+        for (const img of shadow.querySelectorAll('img')) {
+            // A page's img-src CSP can block the data: URI; drop the logo rather than show a broken image.
+            img.addEventListener('error', () => img.remove());
+        }
         this.els = {
             layer: q('.layer'),
             cursor: q('.cursor'),
@@ -249,6 +255,19 @@ export class AssistOverlay {
                 els.pill.style.top = `${window.scrollY + 16}px`;
             }
         }
+    }
+}
+
+/**
+ * A page's `style-src` CSP blocks a `<style>` element in our shadow root, but not a constructed stylesheet.
+ */
+function constructedStyleSheet() {
+    try {
+        const sheet = new CSSStyleSheet();
+        sheet.replaceSync(STYLES);
+        return sheet;
+    } catch {
+        return null;
     }
 }
 
