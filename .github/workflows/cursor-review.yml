@@ -6,7 +6,11 @@ on:
 
 jobs:
     check_membership:
-        if: ${{ !github.event.pull_request.head.repo.fork }}
+        # Cursor Bugbot is not installed on this repo, so the wait step below
+        # would time out on every PR. Disabled until the repo variable
+        # CURSOR_BUGBOT_ENABLED is set to 'true'. The jobs still run and
+        # report as skipped, which satisfies any required status check.
+        if: ${{ vars.CURSOR_BUGBOT_ENABLED == 'true' && !github.event.pull_request.head.repo.fork }}
         runs-on: ubuntu-latest
         outputs:
             is_member: ${{ steps.membership.outputs.is_member }}
