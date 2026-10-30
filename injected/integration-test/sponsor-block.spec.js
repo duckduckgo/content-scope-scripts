@@ -117,7 +117,7 @@ test.describe('SponsorBlock', () => {
             .filter((m) => m.payload.featureName === 'sponsorBlock')
             .map((m) => /** @type {any} */ (m.payload).method);
         expect(methods).toEqual(['getConfig', 'getSegments']);
-        expect((await requestsFor(collector, 'getSegments'))[0].payload.params).toEqual({ videoID: 'dQw4w9WgXcQ' });
+        expect(/** @type {any} */ ((await requestsFor(collector, 'getSegments'))[0].payload).params).toEqual({ videoID: 'dQw4w9WgXcQ' });
     });
 
     test('manual mode: shows the skip button inside a segment and seeks to its end on click', async ({ page }, testInfo) => {
