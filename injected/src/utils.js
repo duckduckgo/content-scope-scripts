@@ -977,6 +977,7 @@ export const platformSpecificFeatures = [
     'textSelection',
     'uaChBrands',
     'chromeWebstorePatching',
+    'pageTranslation', // native triggers it; runs without a config entry and on sites with protections off
 ];
 /**
  * Features that bypass exception-based disabling in computeEnabledFeatures.

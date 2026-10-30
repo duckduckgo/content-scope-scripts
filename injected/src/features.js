@@ -55,6 +55,7 @@ const otherFeatures = /** @type {FeatureName[]} */ ([
     'autofillPasskeys',
     'textSelection',
     'chromeWebstorePatching',
+    'pageTranslation',
 ]);
 
 /**
@@ -100,6 +101,8 @@ export const platformSupport = {
         'browserUiLock',
     ],
     'apple-ai-clear': ['duckAiDataClearing'],
+    // Its own bundle: native injects it only when the user translates a page.
+    'apple-page-translation': ['pageTranslation'],
     'apple-ai-history': ['duckAiChatHistory'],
     android: [
         'webDetection',
@@ -116,6 +119,7 @@ export const platformSupport = {
     ],
     'android-broker-protection': ['brokerProtection'],
     'android-ai-clear': ['duckAiDataClearing'],
+    'android-page-translation': ['pageTranslation'],
     'android-ai-history': ['duckAiChatHistory'],
     'android-autofill-import': ['autofillImport'],
     'android-adsjs': [

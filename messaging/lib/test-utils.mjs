@@ -425,7 +425,8 @@ export function simulateSubscriptionMessage(params) {
             fn(subscriptionEvent);
             break;
         }
-        case 'android': {
+        case 'android':
+        case 'android-page-translation': {
             if (!params.messageCallback || !params.messageSecret)
                 throw new Error('`messageCallback` + `messageSecret` needed to simulate subscription event on Android');
 
@@ -433,7 +434,8 @@ export function simulateSubscriptionMessage(params) {
             break;
         }
         case 'apple':
-        case 'apple-isolated': {
+        case 'apple-isolated':
+        case 'apple-page-translation': {
             const fn = navigator.duckduckgo?.messageHandlers?.[params.name] ?? /** @type {Record<string, any>} */ (window)?.[params.name];
             if (typeof fn !== 'function') {
                 throw new Error(`subscription fn not found for: ${params.name} (${params.injectName})`);

@@ -84,6 +84,16 @@ export default defineConfig({
             use: { injectName: 'android', platform: 'android', ...devices['Galaxy S5'] },
         },
         {
+            name: 'apple-page-translation',
+            testMatch: ['integration-test/page-translation.spec.js'],
+            use: { injectName: 'apple-page-translation', platform: 'ios', ...devices['iPhone 13'] },
+        },
+        {
+            name: 'android-page-translation',
+            testMatch: ['integration-test/page-translation.spec.js'],
+            use: { injectName: 'android-page-translation', platform: 'android', ...devices['Galaxy S5'] },
+        },
+        {
             name: 'android-autofill-import',
             testMatch: ['integration-test/autofill-import.spec.js'],
             use: { injectName: 'android-autofill-import', platform: 'android', ...devices['Galaxy S5'] },

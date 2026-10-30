@@ -17,6 +17,7 @@ interface ImportMeta {
         | 'apple-isolated'
         | 'apple-ai-clear'
         | 'apple-ai-history'
+        | 'apple-page-translation'
         | 'android'
         | 'windows'
         | 'integration'
@@ -25,7 +26,8 @@ interface ImportMeta {
         | 'android-autofill-import'
         | 'android-adsjs'
         | 'android-ai-history'
-        | 'android-ai-clear';
+        | 'android-ai-clear'
+        | 'android-page-translation';
     trackerLookup?: import('./trackers.js').TrackerNode;
     pageName?: string;
 }
