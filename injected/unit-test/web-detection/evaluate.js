@@ -430,16 +430,10 @@ describe('WebDetection evaluate', () => {
             expect(payload('', 1)).toEqual({ x: 1 });
         });
 
-        it('rejects invalid payload keys and buckets', () => {
+        it('rejects invalid payload keys, and a bucket without a predicate', () => {
             expectParseError({ actions: fires({ nativeData: { value: 1 } }) }, 'invalid payload key');
             expectParseError({ actions: fires({ _x: { value: 1 } }) }, 'invalid payload key');
-            expectParseError(withPayload(1, { buckets: [] }), 'at least one');
-            expectParseError(withPayload(1, { buckets: { one: 1 } }), 'takes an array');
-            expectParseError(withPayload(1, { buckets: [1] }), 'a bucket takes');
-            expectParseError(withPayload(1, { buckets: [{ is: 1 }] }), 'non-empty string');
-            expectParseError(withPayload(1, { buckets: [{ name: '', is: 1 }] }), 'non-empty string');
-            expectParseError(withPayload(1, { buckets: [{ name: 'one' }] }), 'needs `is`');
-            expectParseError(withPayload(1, { buckets: [{ name: 'one', is: 1, value: 1 }] }), 'value');
+            expectParseError(withPayload(1, { buckets: [{ name: 'one' }] }), 'a predicate must be');
         });
     });
 

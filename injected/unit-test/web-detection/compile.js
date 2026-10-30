@@ -504,5 +504,9 @@ describe('WebDetection compile', () => {
             ]);
             expect(compiledOf({ actions: REPORT }).match).toBeUndefined();
         });
+
+        it('should keep an error for buckets that are not an array', () => {
+            expect(compiledOf(withPayload(1, { buckets: { one: 1 } })).error).toBeDefined();
+        });
     });
 });

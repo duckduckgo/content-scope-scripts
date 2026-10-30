@@ -15,7 +15,7 @@ import { compilePredicate } from '../predicates/predicates.js';
 import { finish } from './positions.js';
 
 /**
- * @import { Node, NodeBase, IfNode, ItemBinder, ItemNode, Position, CompiledBucket, CompiledPayloadField, SourceBody } from '../model/types.js'
+ * @import { Node, NodeBase, IfNode, ItemBinder, ItemNode, Position, CompiledPayloadField, SourceBody } from '../model/types.js'
  * @import { DetectorConfig as RawDetectorConfig } from '@duckduckgo/privacy-configuration/schema/features/web-detection.js'
  * @import { PageSources } from '../sources/index.js'
  */
@@ -446,29 +446,15 @@ function compilePayload(raw, path, scope) {
         const field = { key, path: fieldPath, value };
         if (spec.when !== undefined) field.when = compilePredicate(spec.when, 'value', `${fieldPath}.when`, scope.hooks);
         if (spec.buckets !== undefined) {
-            const buckets = spec.buckets;
-            if (!isArray(buckets) || buckets.length === 0) {
-                throw new ConfigParseError(`${fieldPath}.buckets`, '`buckets` takes an array of at least one `{"name", "is"}` bucket');
-            }
-            field.buckets = buckets.map((bucket, i) => compileBucket(bucket, `${fieldPath}.buckets.${i}`, scope));
+            // The config validator checks the shape: an array of `{"name", "is"}`
+            const buckets = /** @type {Array<{ name: string, is: unknown }>} */ (spec.buckets);
+            field.buckets = buckets.map(({ name, is }, i) => {
+                const path = `${fieldPath}.buckets.${i}.is`;
+                return { name, is: compilePredicate(is, 'value', path, scope.hooks), path };
+            });
         }
         return field;
     });
-}
-
-/**
- * @param {unknown} raw
- * @param {string} path
- * @param {Scope} scope
- * @returns {CompiledBucket}
- */
-function compileBucket(raw, path, scope) {
-    if (!isPlainObject(raw)) throw new ConfigParseError(path, 'a bucket takes `{"name", "is"}`');
-    rejectUnknownKeys(raw, ['name', 'is'], path);
-    if (typeof raw.name !== 'string' || raw.name === '') throw new ConfigParseError(`${path}.name`, 'a bucket name is a non-empty string');
-    if (raw.is === undefined) throw new ConfigParseError(path, 'a bucket needs `is`');
-    const isPath = `${path}.is`;
-    return { name: raw.name, is: compilePredicate(raw.is, 'value', isPath, scope.hooks), path: isPath };
 }
 
 const DETECTOR_KEYS = ['state', 'triggers', 'match', 'actions'];
