@@ -1,5 +1,6 @@
 import fc from 'fast-check';
 import ConfigFeature from '../src/config-feature.js';
+import { isMaxSupportedVersion, isSupportedVersion } from '../src/utils.js';
 import { polyfillProcessGlobals } from './helpers/polyfill-process-globals.js';
 
 polyfillProcessGlobals();
@@ -51,6 +52,8 @@ describe('ConfigFeature._matchConditionalBlock properties', () => {
             'experiment',
             'minSupportedVersion',
             'maxSupportedVersion',
+            'minContentScopeScriptsVersion',
+            'maxContentScopeScriptsVersion',
             'injectName',
             'internal',
             'preview',
@@ -146,6 +149,100 @@ describe('ConfigFeature version matching properties', () => {
         const feature = createFeature({ version: '1.0.0' });
         expect(feature._matchMinSupportedVersion({})).toBeFalse();
         expect(feature._matchMaxSupportedVersion({})).toBeFalse();
+    });
+});
+
+describe('ConfigFeature C-S-S version matching properties', () => {
+    /**
+     * @param {string | null} contentScopeScriptsVersion
+     * @param {string} [appVersion]
+     */
+    function createVersionedFeature(contentScopeScriptsVersion, appVersion) {
+        const feature = createFeature({ version: appVersion });
+        Object.defineProperty(feature, 'contentScopeScriptsVersion', { value: contentScopeScriptsVersion });
+        return feature;
+    }
+
+    const semver = () =>
+        fc
+            .tuple(fc.integer({ min: 0, max: 50 }), fc.integer({ min: 0, max: 50 }), fc.integer({ min: 0, max: 50 }))
+            .map(([major, minor, patch]) => `${major}.${minor}.${patch}`);
+
+    it('minContentScopeScriptsVersion matches exactly when the C-S-S version is at or above it', () => {
+        fc.assert(
+            fc.property(semver(), semver(), (contentScopeScriptsVersion, conditionVersion) => {
+                const feature = createVersionedFeature(contentScopeScriptsVersion);
+                expect(feature._matchMinContentScopeScriptsVersion({ minContentScopeScriptsVersion: conditionVersion })).toBe(
+                    isSupportedVersion(conditionVersion, contentScopeScriptsVersion),
+                );
+                expect(
+                    feature._matchMinContentScopeScriptsVersion({ minContentScopeScriptsVersion: contentScopeScriptsVersion }),
+                ).toBeTrue();
+            }),
+            { numRuns: 100 },
+        );
+    });
+
+    it('maxContentScopeScriptsVersion matches exactly when the C-S-S version is at or below it', () => {
+        fc.assert(
+            fc.property(semver(), semver(), (contentScopeScriptsVersion, conditionVersion) => {
+                const feature = createVersionedFeature(contentScopeScriptsVersion);
+                expect(feature._matchMaxContentScopeScriptsVersion({ maxContentScopeScriptsVersion: conditionVersion })).toBe(
+                    isMaxSupportedVersion(conditionVersion, contentScopeScriptsVersion),
+                );
+                expect(
+                    feature._matchMaxContentScopeScriptsVersion({ maxContentScopeScriptsVersion: contentScopeScriptsVersion }),
+                ).toBeTrue();
+            }),
+            { numRuns: 100 },
+        );
+    });
+
+    it('ignores the app version', () => {
+        fc.assert(
+            fc.property(semver(), (version) => {
+                fc.pre(version !== '0.0.0');
+                // The app version satisfies each bound; the C-S-S version does not
+                const oldRelease = createVersionedFeature('0.0.0', version);
+                const newRelease = createVersionedFeature('99.0.0', version);
+                expect(oldRelease._matchConditionalBlock({ minContentScopeScriptsVersion: version })).toBeFalse();
+                expect(newRelease._matchConditionalBlock({ maxContentScopeScriptsVersion: version })).toBeFalse();
+            }),
+            { numRuns: 50 },
+        );
+    });
+
+    it('unversioned builds count as newer than every release', () => {
+        fc.assert(
+            fc.property(semver(), (conditionVersion) => {
+                const feature = createVersionedFeature(null);
+                expect(feature._matchMinContentScopeScriptsVersion({ minContentScopeScriptsVersion: conditionVersion })).toBeTrue();
+                expect(feature._matchMaxContentScopeScriptsVersion({ maxContentScopeScriptsVersion: conditionVersion })).toBeFalse();
+            }),
+            { numRuns: 50 },
+        );
+    });
+
+    it('condition values not in major.minor.patch form never match', () => {
+        const malformed = fc.oneof(
+            semver().map((version) => `v${version}`),
+            semver().map((version) => version.split('.').slice(0, 2).join('.')),
+            semver().map((version) => `${version}.0`),
+        );
+        fc.assert(
+            fc.property(malformed, fc.constantFrom(null, '0.0.0', '17.30.0', '99.0.0'), (conditionVersion, contentScopeScriptsVersion) => {
+                const feature = createVersionedFeature(contentScopeScriptsVersion);
+                expect(feature._matchMinContentScopeScriptsVersion({ minContentScopeScriptsVersion: conditionVersion })).toBeFalse();
+                expect(feature._matchMaxContentScopeScriptsVersion({ maxContentScopeScriptsVersion: conditionVersion })).toBeFalse();
+            }),
+            { numRuns: 100 },
+        );
+    });
+
+    it('missing version in condition block returns false', () => {
+        const feature = createVersionedFeature('17.30.0');
+        expect(feature._matchMinContentScopeScriptsVersion({})).toBeFalse();
+        expect(feature._matchMaxContentScopeScriptsVersion({})).toBeFalse();
     });
 });
 

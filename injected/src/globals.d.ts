@@ -28,6 +28,8 @@ interface ImportMeta {
         | 'android-ai-clear';
     trackerLookup?: import('./trackers.js').TrackerNode;
     pageName?: string;
+    // C-S-S release version from the root package.json, or null for unversioned builds, which count as newer than every release
+    contentScopeScriptsVersion?: string | null;
 }
 
 interface BatteryManager extends EventTarget {
