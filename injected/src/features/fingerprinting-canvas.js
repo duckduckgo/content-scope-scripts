@@ -3,6 +3,8 @@ import { computeOffScreenCanvas } from '../canvas';
 import ContentFeature from '../content-feature';
 
 export default class FingerprintingCanvas extends ContentFeature {
+    initImmediately = true;
+
     init(args) {
         const { sessionKey, site } = args;
         const domainKey = site.domain;
