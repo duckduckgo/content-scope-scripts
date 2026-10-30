@@ -3,6 +3,7 @@ import { injectGlobalStyles } from '../utils.js';
 import { isValidSelector } from './chrome-webstore-patching/helpers.js';
 
 /** @typedef {import('../types/sponsor-block.js').Segment} Segment */
+/** @typedef {import('../types/sponsor-block.js').OnConfigChangedParams} Config */
 
 // Selector defaults, used until the privacy-config `sponsorBlock` settings ship the same keys. Ordered lists: the first
 // selector with a visible match wins, so put the preferred element first.
@@ -125,6 +126,10 @@ export class SponsorBlock extends ContentFeature {
     /** @type {string | null} */
     #videoID = null;
     #active = false;
+    // Off until native confirms the user opted in; remote config is the outer gate and is applied before init runs.
+    #enabled = false;
+    /** @type {Config['skipMode']} read by the skip logic; kept public-shaped so tests can assert it */
+    _skipMode = 'manual';
     /** @type {Segment[]} */
     #segments = [];
     /** @type {HTMLElement | null} */
@@ -151,7 +156,7 @@ export class SponsorBlock extends ContentFeature {
         return setting.filter((s) => typeof s === 'string' && isValidSelector(s));
     }
 
-    init() {
+    async init() {
         const { hostname, ancestorOrigins } = window.location;
         // Content scripts also run in iframes. Act in the top frame, or in Duck Player's embed: a nocookie frame whose
         // ancestors are all nocookie pages (Duck Player is served from that origin), never in embeds on other sites.
@@ -165,6 +170,14 @@ export class SponsorBlock extends ContentFeature {
         this.#skipButtonHostSelectors = this.selectorsSetting('skipButtonHostSelectors', DEFAULT_SKIP_BUTTON_HOST_SELECTORS);
         this.#adShowingSelectors = this.selectorsSetting('adShowingSelectors', DEFAULT_AD_SHOWING_SELECTORS);
         injectGlobalStyles(STYLES);
+
+        // Subscribe before asking, so a setting changed while getConfig is in flight is not lost.
+        this.subscribe('onConfigChanged', (config) => this.applyConfig(config));
+        try {
+            this.applyConfig(await this.request('getConfig', {}));
+        } catch {
+            // No handler on this build: stay disabled, draw nothing and never ask for segments.
+        }
 
         this.checkVideoID();
         // Media events don't bubble, so listen in the capture phase.
@@ -190,6 +203,22 @@ export class SponsorBlock extends ContentFeature {
         if (this.#active) this.checkVideoID();
     }
 
+    /**
+     * @param {Config} config
+     */
+    applyConfig({ enabled, skipMode }) {
+        this._skipMode = skipMode;
+        if (enabled === this.#enabled) {
+            // Only the mode changed: it applies to the segment in progress, no need to ask native again.
+            this.updateSkipButton();
+            return;
+        }
+        this.#enabled = enabled;
+        // Re-evaluate the current video: enabling fetches its segments, disabling clears the overlay and the button.
+        this.#videoID = null;
+        this.checkVideoID();
+    }
+
     checkVideoID() {
         // Duck Player's page has the same nocookie URL as the embed it frames, so on nocookie only the document with the
         // video acts; loadstart re-checks once the video appears.
@@ -200,7 +229,7 @@ export class SponsorBlock extends ContentFeature {
         this.#segments = [];
         this.renderOverlay();
         this.updateSkipButton();
-        if (videoID) void this.fetchSegments(videoID);
+        if (videoID && this.#enabled) void this.fetchSegments(videoID);
     }
 
     /**

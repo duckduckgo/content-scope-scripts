@@ -109,3 +109,48 @@ describe('SponsorBlock selectorsSetting', () => {
         expect(createFeature({ progressBarSelectors: [] }).selectorsSetting('progressBarSelectors', DEFAULTS)).toEqual([]);
     });
 });
+
+describe('SponsorBlock applyConfig', () => {
+    let dom;
+    let originalWindow;
+    let originalDocument;
+    /** @type {SponsorBlock} */
+    let feature;
+    /** @type {jasmine.Spy} */
+    let request;
+
+    beforeEach(() => {
+        originalWindow = globalThis.window;
+        originalDocument = globalThis.document;
+        dom = new JSDOM('<!DOCTYPE html><video></video>', { url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' });
+        globalThis.window = dom.window;
+        globalThis.document = dom.window.document;
+        // getMainVideo checks `instanceof HTMLVideoElement`.
+        globalThis.HTMLVideoElement = dom.window.HTMLVideoElement;
+        feature = new SponsorBlock('sponsorBlock', {}, {}, { site: { domain: 'www.youtube.com', url: dom.window.location.href } });
+        request = spyOn(feature, 'request').and.resolveTo({ segments: [] });
+    });
+
+    afterEach(() => {
+        dom.window.close();
+        globalThis.window = originalWindow;
+        globalThis.document = originalDocument;
+        // @ts-expect-error - restoring a global the test added
+        delete globalThis.HTMLVideoElement;
+    });
+
+    it('asks for segments only once enabled', () => {
+        feature.applyConfig({ enabled: false, skipMode: 'manual' });
+        expect(request).not.toHaveBeenCalled();
+
+        feature.applyConfig({ enabled: true, skipMode: 'manual' });
+        expect(request).toHaveBeenCalledOnceWith('getSegments', { videoID: 'dQw4w9WgXcQ' });
+    });
+
+    it('switches mode without asking native again', () => {
+        feature.applyConfig({ enabled: true, skipMode: 'manual' });
+        feature.applyConfig({ enabled: true, skipMode: 'auto' });
+        expect(request).toHaveBeenCalledTimes(1);
+        expect(feature._skipMode).toBe('auto');
+    });
+});
