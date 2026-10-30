@@ -29,18 +29,9 @@ import {
  */
 export class WebkitMessagingTransport {
     /**
-     * Null-prototype cache so a hostile page that pollutes `Object.prototype`
-     * cannot supply a callable from there if `capture` ever misses a handler.
-     *
-     * Uses the `{ __proto__: null }` literal rather than `Object.create(null)`
-     * because the latter is a method dispatch through `globalThis.Object`, which
-     * page JS could replace before this class field runs if transport
-     * construction is deferred (`Messaging` is lazy on `ContentFeature.messaging`).
-     * The `__proto__: null` literal is a syntactic construct, not method
-     * dispatch, so it always yields a true null-prototype object.
      * @type {Record<string, { handler: any, postMessage: Function }>}
      */
-    capturedWebkitHandlers = /** @type {any} */ ({ __proto__: null });
+    capturedWebkitHandlers;
 
     /**
      * @param {WebkitMessagingConfig} config
@@ -49,14 +40,10 @@ export class WebkitMessagingTransport {
     constructor(config, messagingContext) {
         this.messagingContext = messagingContext;
         this.config = config;
-        // Capture handler references at construction on both legacy and modern WebKit.
-        // On modern WebKit this previously read `window.webkit.messageHandlers[handler]`
-        // on every send, which means the transport silently breaks if site-level
-        // privacy hardening (e.g. apiManipulation-driven nullification of
-        // `window.webkit.messageHandlers` to reduce fingerprinting surface) replaces
-        // the namespace after init. Capturing once at construction makes the transport
-        // resilient to those changes.
-        this.captureWebkitHandlers(this.config.webkitMessageHandlerNames);
+        if (!config.capturedHandlers) {
+            throw new MissingHandler('window.webkit.messageHandlers was absent at config construction', 'all');
+        }
+        this.capturedWebkitHandlers = config.capturedHandlers;
     }
 
     /**
@@ -117,37 +104,6 @@ export class WebkitMessagingTransport {
     }
 
     /**
-     * Capture the `postMessage` method on each webkit messageHandler so the
-     * transport can call them later without re-reading `window.webkit.messageHandlers`.
-     * Makes the transport resilient to later removal or replacement of
-     * `window.webkit.messageHandlers` (e.g. by privacy hardening that nullifies
-     * the namespace for site JS to reduce fingerprinting surface).
-     *
-     * Stores the handler object and its `postMessage` function as a pair so
-     * `wkSend` can dispatch via the captured `ReflectApply` rather than calling
-     * `.bind()` here. `.bind` is a method on the page-mutable
-     * `Function.prototype` — if transport construction is deferred (`Messaging`
-     * is lazy on `ContentFeature.messaging`) page JS could replace
-     * `Function.prototype.bind` first and have the cache store an attacker-
-     * controlled function. Storing the unbound pair sidesteps that.
-     *
-     * @param {string[]} handlerNames
-     */
-    captureWebkitHandlers(handlerNames) {
-        const handlers = window.webkit.messageHandlers;
-        if (!handlers) throw new MissingHandler('window.webkit.messageHandlers was absent', 'all');
-        for (const webkitMessageHandlerName of handlerNames) {
-            const handler = handlers[webkitMessageHandlerName];
-            if (typeof handler?.postMessage === 'function') {
-                this.capturedWebkitHandlers[webkitMessageHandlerName] = {
-                    handler,
-                    postMessage: handler.postMessage,
-                };
-            }
-        }
-    }
-
-    /**
      * @param {import('../index.js').Subscription} msg
      * @param {(value: unknown) => void} callback
      */
@@ -205,5 +161,36 @@ export class WebkitMessagingConfig {
          * ```
          */
         this.webkitMessageHandlerNames = params.webkitMessageHandlerNames;
+        /**
+         * Snapshot of `window.webkit.messageHandlers` taken at config
+         * construction, i.e. C-S-S bootstrap. Read by
+         * `WebkitMessagingTransport`'s constructor. See `_snapshotWebkitHandlers`.
+         * @type {Record<string, { handler: any, postMessage: Function }> | null}
+         */
+        this.capturedHandlers = _snapshotWebkitHandlers(this.webkitMessageHandlerNames);
     }
+}
+
+/**
+ * Snapshot `window.webkit.messageHandlers[name]` refs into a null-prototype
+ * cache. Called from `WebkitMessagingConfig`'s constructor at C-S-S bootstrap,
+ * before any `ContentFeature` init — so the snapshot precedes any in-C-S-S
+ * `apiManipulation` patch that would nullify `messageHandlers` via a
+ * prototype-side getter.
+ *
+ * @param {string[]} handlerNames
+ * @returns {Record<string, { handler: any, postMessage: Function }> | null}
+ */
+function _snapshotWebkitHandlers(handlerNames) {
+    const messageHandlers = /** @type {any} */ (window).webkit && /** @type {any} */ (window).webkit.messageHandlers;
+    if (!messageHandlers) return null;
+    /** @type {any} */
+    const captured = { __proto__: null };
+    for (const name of handlerNames) {
+        const handler = messageHandlers[name];
+        if (typeof handler?.postMessage === 'function') {
+            captured[name] = { handler, postMessage: handler.postMessage };
+        }
+    }
+    return captured;
 }
