@@ -193,6 +193,11 @@ export class SponsorBlock extends ContentFeature {
         const frame = { hostname, origin, isTop: window.top === window, ancestorOrigins: Array.from(ancestorOrigins ?? []) };
         if (!shouldActivate(frame)) return;
         this.#active = true;
+        // Runs at document start, when there is no <head> to style yet. The player is built by YouTube's scripts after
+        // the parse anyway, so nothing is lost by waiting.
+        if (document.readyState === 'loading') {
+            await new Promise((resolve) => document.addEventListener('DOMContentLoaded', resolve, { once: true }));
+        }
         this.#progressBarSelectors = this.selectorsSetting('progressBarSelectors', DEFAULT_PROGRESS_BAR_SELECTORS);
         this.#skipButtonHostSelectors = this.selectorsSetting('skipButtonHostSelectors', DEFAULT_SKIP_BUTTON_HOST_SELECTORS);
         this.#adShowingSelectors = this.selectorsSetting('adShowingSelectors', DEFAULT_AD_SHOWING_SELECTORS);

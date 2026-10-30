@@ -1,0 +1,15 @@
+{
+    "readme": "Config for sponsorBlock integration tests: selectors that match nothing on the page.",
+    "version": 1,
+    "features": {
+        "sponsorBlock": {
+            "state": "enabled",
+            "exceptions": [],
+            "settings": {
+                "progressBarSelectors": [".does-not-exist"],
+                "skipButtonHostSelectors": [".does-not-exist"]
+            }
+        }
+    },
+    "unprotectedTemporary": []
+}

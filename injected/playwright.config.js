@@ -43,6 +43,7 @@ export default defineConfig({
                 'integration-test/hover.spec.js',
                 'integration-test/tab-suspension.spec.js',
                 'integration-test/chrome-webstore-patching-macos.spec.js',
+                'integration-test/sponsor-block.spec.js',
             ],
             use: { injectName: 'apple-isolated', platform: 'macos' },
         },
