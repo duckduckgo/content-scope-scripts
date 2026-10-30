@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "GetSegmentsResponse",
+  "description": "Segments for the requested video, sorted by start time. Empty when the video has none.",
+  "required": ["segments"],
+  "additionalProperties": false,
+  "properties": {
+    "segments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "title": "Segment",
+        "required": ["start", "end", "category", "actionType", "uuid"],
+        "additionalProperties": false,
+        "properties": {
+          "start": { "type": "number", "description": "Segment start, in seconds" },
+          "end": { "type": "number", "description": "Segment end, in seconds" },
+          "category": { "type": "string" },
+          "actionType": { "type": "string" },
+          "uuid": { "type": "string", "description": "SponsorBlock segment UUID" },
+          "videoDuration": { "type": "number", "description": "Video duration the segment was submitted against, in seconds; 0 when unknown" }
+        }
+      }
+    }
+  }
+}
