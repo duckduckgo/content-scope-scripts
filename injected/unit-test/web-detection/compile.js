@@ -193,9 +193,12 @@ describe('WebDetection compile', () => {
         });
 
         it('sends a selected list bucketed, each bucket unwrapping it, and unbucketed as an array', () => {
-            const buckets = { small: { lt: 10 }, large: { gte: 10 } };
+            const buckets = [
+                { name: 'small', is: { lt: 10 } },
+                { name: 'large', is: { gte: 10 } },
+            ];
             expect(payload(widths([5]), width, { buckets })).toEqual({ x: 'small' });
-            expect(payload(widths([5]), width, { buckets: { two: { length: 2 } } })).toEqual({});
+            expect(payload(widths([5]), width, { buckets: [{ name: 'two', is: { length: 2 } }] })).toEqual({});
             expect(payload(widths([5, 6]), width)).toEqual({ x: [5, 6] });
             expect(run(widths([5, 6]), withPayload(width, { buckets })).failure).toEqual({
                 path: 'actions.fireEvent.data.x.value',
@@ -281,18 +284,33 @@ describe('WebDetection compile', () => {
 
         it('compiles payload buckets in order', () => {
             const { actions } = compile({
-                actions: { breakageReportData: { data: { n: { value: { ref: 'n' }, buckets: { low: { lt: 5 }, high: { gte: 5 } } } } } },
+                actions: {
+                    breakageReportData: {
+                        data: {
+                            n: {
+                                value: { ref: 'n' },
+                                buckets: [
+                                    { name: 'low', is: { lt: 5 } },
+                                    { name: 'high', is: { gte: 5 } },
+                                ],
+                            },
+                        },
+                    },
+                },
             });
             const buckets = actions.data[0].buckets;
-            expect(buckets.map((/** @type {[string, any]} */ [name, bucket]) => [name, bucket.entries[0].op, bucket.path])).toEqual([
-                ['low', 'lt', 'actions.breakageReportData.data.n.buckets.low'],
-                ['high', 'gte', 'actions.breakageReportData.data.n.buckets.high'],
+            expect(buckets.map((/** @type {any} */ bucket) => [bucket.name, bucket.is.entries[0].op, bucket.path])).toEqual([
+                ['low', 'lt', 'actions.breakageReportData.data.n.buckets.0.is'],
+                ['high', 'gte', 'actions.breakageReportData.data.n.buckets.1.is'],
             ]);
         });
 
         it('holds no function outside the sources, and every kind of predicate', () => {
             const where = { complete: true, field: 'naturalWidth', is: 0, all: [{ self: 'alt', is: '' }] };
-            const buckets = { low: { lt: 5 }, high: { none: [{ lt: 5 }] } };
+            const buckets = [
+                { name: 'low', is: { lt: 5 } },
+                { name: 'high', is: { none: [{ lt: 5 }] } },
+            ];
             const detectors = [
                 detects({ ref: 'n', is: { gt: 0, lt: 8000, in: [1, { ref: 'm' }], eq: { ref: 'm' } } }),
                 detects({ ref: 'n', is: { fails: false, type: ['number', 'string'], any: [1, 2] } }),
@@ -485,6 +503,10 @@ describe('WebDetection compile', () => {
                 'breakageReportData',
             ]);
             expect(compiledOf({ actions: REPORT }).match).toBeUndefined();
+        });
+
+        it('should keep an error for buckets that are not an array', () => {
+            expect(compiledOf(withPayload(1, { buckets: { one: 1 } })).error).toBeDefined();
         });
     });
 });

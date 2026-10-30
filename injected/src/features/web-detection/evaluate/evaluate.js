@@ -522,10 +522,10 @@ function payloadValue(field, ctx) {
         if (held !== true) return OMIT;
     }
     if (field.buckets) {
-        for (const [name, bucket] of field.buckets) {
-            const held = test(bucket, `${field.path}.buckets.${name}`);
+        for (const bucket of field.buckets) {
+            const held = test(bucket.is, bucket.path);
             if (isFailure(held)) return held;
-            if (held) return name;
+            if (held) return bucket.name;
         }
         return isFailure(value) ? value : OMIT;
     }

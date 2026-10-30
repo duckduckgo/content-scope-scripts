@@ -275,8 +275,8 @@ describe('WebDetection run', () => {
             expect(detector({ actions: fires({ x: { value: 1, when: failing } }) }).run().failedAt).toBe(
                 'actions.fireEvent.data.x.when.field.api',
             );
-            expect(detector({ actions: fires({ x: { value: 1, buckets: { one: failing } } }) }).run().failedAt).toBe(
-                'actions.fireEvent.data.x.buckets.one.field.api',
+            expect(detector({ actions: fires({ x: { value: 1, buckets: [{ name: 'one', is: failing }] } }) }).run().failedAt).toBe(
+                'actions.fireEvent.data.x.buckets.0.is.field.api',
             );
         });
 
