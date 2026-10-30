@@ -117,6 +117,16 @@ export function segmentAt(segments, time) {
 }
 
 /**
+ * False when the segment was submitted against a different cut of the video, so its times no longer apply. A missing
+ * or zero `videoDuration` means unknown and is accepted.
+ * @param {Segment} segment
+ * @param {number} duration
+ */
+export function matchesDuration({ videoDuration }, duration) {
+    return !videoDuration || Math.abs(videoDuration - duration) <= 2;
+}
+
+/**
  * Skips sponsored segments in YouTube videos.
  *
  * Tracks the current video ID, asks native for its SponsorBlock segments, marks them on the progress bar and,
@@ -191,11 +201,11 @@ export class SponsorBlock extends ContentFeature {
             'timeupdate',
             () => {
                 this.renderOverlay();
-                this.updateSkipButton();
+                this.updateSkip();
             },
             true,
         );
-        document.addEventListener('seeked', () => this.updateSkipButton(), true);
+        document.addEventListener('seeked', () => this.updateSkip(), true);
     }
 
     // Called by the framework on SPA navigations (registered for every site, hence the #active guard).
@@ -210,7 +220,7 @@ export class SponsorBlock extends ContentFeature {
         this._skipMode = skipMode;
         if (enabled === this.#enabled) {
             // Only the mode changed: it applies to the segment in progress, no need to ask native again.
-            this.updateSkipButton();
+            this.updateSkip();
             return;
         }
         this.#enabled = enabled;
@@ -228,7 +238,7 @@ export class SponsorBlock extends ContentFeature {
         this.#videoID = videoID;
         this.#segments = [];
         this.renderOverlay();
-        this.updateSkipButton();
+        this.updateSkip();
         if (videoID && this.#enabled) void this.fetchSegments(videoID);
     }
 
@@ -243,7 +253,7 @@ export class SponsorBlock extends ContentFeature {
             this.#segments = segments;
             this.#renderedDuration = 0;
             this.renderOverlay();
-            this.updateSkipButton();
+            this.updateSkip();
         } catch {
             // Native resolves lookup failures with an empty list; a rejection means the handler is missing. Nothing to show.
         }
@@ -251,7 +261,7 @@ export class SponsorBlock extends ContentFeature {
 
     // Draws the current segments on the progress bar. Cheap when nothing changed, since timeupdate calls it often.
     renderOverlay() {
-        if (!this.#segments.length) {
+        if (!this.#segments.length || this.inAd()) {
             this.#overlay?.remove();
             return;
         }
@@ -267,7 +277,7 @@ export class SponsorBlock extends ContentFeature {
         }
         if (this.#overlay.parentElement !== bar) bar.prepend(this.#overlay);
         this.#overlay.replaceChildren(
-            ...this.#segments.flatMap((segment) => {
+            ...this.validSegments(duration).flatMap((segment) => {
                 const position = segmentPosition(segment, duration);
                 if (!position) return [];
                 const el = document.createElement('div');
@@ -279,12 +289,38 @@ export class SponsorBlock extends ContentFeature {
         this.#renderedDuration = duration;
     }
 
-    // Shows the skip button while playback is inside a segment and hides it otherwise.
-    updateSkipButton() {
+    // While YouTube plays an ad the video element plays the ad, so its time and duration say nothing about the segments.
+    inAd() {
+        return findFirstVisible(this.#adShowingSelectors) !== null;
+    }
+
+    /**
+     * Segments that apply to the video currently loaded in the player.
+     * @param {number} duration
+     */
+    validSegments(duration) {
+        return this.#segments.filter((segment) => matchesDuration(segment, duration));
+    }
+
+    /**
+     * @param {HTMLVideoElement} video
+     * @param {Segment} segment
+     */
+    skipTo(video, segment) {
+        // The end is exclusive, so landing on it leaves the segment and no second skip follows.
+        video.currentTime = segment.end;
+        this.#skipButton?.remove();
+    }
+
+    // Reacts to the playhead: in auto mode seeks past a segment as soon as playback enters it, in manual mode shows
+    // the skip button while inside one and hides it otherwise.
+    updateSkip() {
         const video = getMainVideo();
-        // During an ad the video element plays the ad, so its time says nothing about the segments.
-        const inAd = findFirstVisible(this.#adShowingSelectors) !== null;
-        this.#skipSegment = video && !inAd ? segmentAt(this.#segments, video.currentTime) : null;
+        this.#skipSegment = video && !this.inAd() ? segmentAt(this.validSegments(video.duration), video.currentTime) : null;
+        if (video && this.#skipSegment && this._skipMode === 'auto') {
+            this.skipTo(video, this.#skipSegment);
+            return;
+        }
         const host = this.#skipSegment ? findFirstVisible(this.#skipButtonHostSelectors) : null;
         if (!host) {
             this.#skipButton?.remove();
@@ -306,8 +342,7 @@ export class SponsorBlock extends ContentFeature {
         button.addEventListener('click', (e) => {
             e.stopPropagation();
             const video = getMainVideo();
-            if (video && this.#skipSegment) video.currentTime = this.#skipSegment.end;
-            this.#skipButton?.remove();
+            if (video && this.#skipSegment) this.skipTo(video, this.#skipSegment);
         });
         return button;
     }

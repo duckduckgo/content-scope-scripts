@@ -1,5 +1,5 @@
 import { JSDOM } from 'jsdom';
-import SponsorBlock, { segmentAt, segmentPosition, videoIDFromURL } from '../src/features/sponsor-block.js';
+import SponsorBlock, { matchesDuration, segmentAt, segmentPosition, videoIDFromURL } from '../src/features/sponsor-block.js';
 
 describe('SponsorBlock videoIDFromURL', () => {
     it('reads the video ID from watch, shorts, live and embed URLs', () => {
@@ -62,6 +62,24 @@ describe('SponsorBlock segmentAt', () => {
         expect(segmentAt(segments, 0)).toBeNull();
         expect(segmentAt(segments, 30)).toBeNull();
         expect(segmentAt([], 15)).toBeNull();
+    });
+});
+
+describe('SponsorBlock matchesDuration', () => {
+    /** @param {number} [videoDuration] */
+    const segment = (videoDuration) => ({ start: 0, end: 1, category: 'sponsor', actionType: 'skip', uuid: 'u', videoDuration });
+
+    it('accepts a segment within 2s of the player duration, or with an unknown duration', () => {
+        expect(matchesDuration(segment(600), 600)).toBe(true);
+        expect(matchesDuration(segment(598), 600)).toBe(true);
+        expect(matchesDuration(segment(602), 600)).toBe(true);
+        expect(matchesDuration(segment(0), 600)).toBe(true);
+        expect(matchesDuration(segment(), 600)).toBe(true);
+    });
+
+    it('rejects a segment submitted against a different cut', () => {
+        expect(matchesDuration(segment(597), 600)).toBe(false);
+        expect(matchesDuration(segment(603), 600)).toBe(false);
     });
 });
 
