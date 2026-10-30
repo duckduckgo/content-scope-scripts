@@ -53,18 +53,12 @@
                     "combined": {
                         "text_and_element": {
                             "match": {
-                                "all": [
-                                    {
-                                        "text": {
-                                            "pattern": "subscribe to continue"
-                                        }
-                                    },
-                                    {
-                                        "element": {
-                                            "selector": ".subscribe-modal"
-                                        }
-                                    }
-                                ]
+                                "text": {
+                                    "pattern": "subscribe to continue"
+                                },
+                                "element": {
+                                    "selector": ".subscribe-modal"
+                                }
                             },
                             "actions": {
                                 "breakageReportData": {}

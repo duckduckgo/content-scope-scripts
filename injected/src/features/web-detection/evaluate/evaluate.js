@@ -94,6 +94,7 @@ export function evaluate(node, position, ctx) {
             case 'any':
             case 'all':
             case 'none':
+            case 'and':
                 result = computeLogic(node, ctx);
                 break;
             case 'if':

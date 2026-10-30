@@ -428,7 +428,7 @@ describe('WebDetection conditions', () => {
 
         describe('combined conditions (AND)', () => {
             it('should require both text and element to match', () => {
-                const match = { all: [text('adblocker'), overlay('any')] };
+                const match = { ...text('adblocker'), ...overlay('any') };
                 expect(matchInDOM('<div class="overlay">Disable adblocker</div>', match)).toBe(true);
                 // Text matches but element doesn't
                 expect(matchInDOM('<p>Disable adblocker</p>', match)).toBe(false);
@@ -515,9 +515,9 @@ describe('WebDetection conditions', () => {
             });
         });
 
-        describe('operators combined with all (AND)', () => {
+        describe('sibling operators (AND)', () => {
             it('should AND-combine all + none', () => {
-                const condition = { all: [{ all: [text('foo')] }, { none: [text('bad')] }] };
+                const condition = { all: [text('foo')], none: [text('bad')] };
                 // text contains foo (all) and does not contain bad (none)
                 expect(matchInDOM('<p>foo good</p>', condition)).toBe(true);
                 // contains foo but also contains bad -> none fails
@@ -527,7 +527,7 @@ describe('WebDetection conditions', () => {
             });
 
             it('should AND-combine any + none', () => {
-                const condition = { all: [{ any: [text('foo'), text('baz')] }, { none: [text('bad')] }] };
+                const condition = { any: [text('foo'), text('baz')], none: [text('bad')] };
                 expect(matchInDOM('<p>foo good</p>', condition)).toBe(true);
                 expect(matchInDOM('<p>foo bad</p>', condition)).toBe(false);
             });

@@ -49,7 +49,7 @@
  * @typedef {NodeBase & { kind: 'list', entries: Node[] }} ListNode - `{"expr": [...]}`, each entry in value position
  * @typedef {NodeBase & { kind: 'only', operand: Node }} OnlyNode
  * @typedef {NodeBase & { kind: 'sum' | 'mul' | 'div', operands: Node[] }} ArithmeticNode
- * @typedef {NodeBase & { kind: 'any' | 'all' | 'none', operands: Node[] }} LogicNode
+ * @typedef {NodeBase & { kind: 'any' | 'all' | 'none' | 'and', operands: Node[] }} LogicNode
  * @typedef {NodeBase & { kind: 'if', test: Node, then: Node, else?: Node }} IfNode
  * @typedef {NodeBase & { kind: 'sequence', elements: Node[] }} SequenceNode - its elements in order, giving the last one's value
  * @typedef {NodeBase & { kind: 'ref', name: string }} RefNode

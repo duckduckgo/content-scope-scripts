@@ -224,7 +224,7 @@ describe('WebDetection run', () => {
             expectParseError({ actions: { then: { fireEvent: { type: 'a' } } } }, "'then' sits beside 'if' only");
             expectParseError({ actions: { api: 'x', else: 1 } }, "'else' sits beside 'if' only");
             expectParseError({ actions: { if: true } }, "'if' needs 'then'");
-            expectParseError({ actions: { if: true, then: 1, api: 'x' } }, 'an object takes one expression key');
+            expectParseError({ actions: { if: true, then: 1, api: 'x' } }, "'if' takes no other expression key");
             rejectsMatch({ if: true, then: true }, "'if' does not fill boolean position");
             expectParseError({ actions: { define: { x: { sum: [{ if: true, then: 1 }] } } } }, "'if' does not fill number position");
         });
