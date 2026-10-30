@@ -1,4 +1,5 @@
-import { segmentAt, segmentPosition, videoIDFromURL } from '../src/features/sponsor-block.js';
+import { JSDOM } from 'jsdom';
+import SponsorBlock, { segmentAt, segmentPosition, videoIDFromURL } from '../src/features/sponsor-block.js';
 
 describe('SponsorBlock videoIDFromURL', () => {
     it('reads the video ID from watch, shorts, live and embed URLs', () => {
@@ -61,5 +62,50 @@ describe('SponsorBlock segmentAt', () => {
         expect(segmentAt(segments, 0)).toBeNull();
         expect(segmentAt(segments, 30)).toBeNull();
         expect(segmentAt([], 15)).toBeNull();
+    });
+});
+
+describe('SponsorBlock selectorsSetting', () => {
+    const DEFAULTS = ['.default'];
+    let dom;
+    let originalDocument;
+
+    /** @param {object} [settings] */
+    function createFeature(settings) {
+        return new SponsorBlock(
+            'sponsorBlock',
+            {},
+            {},
+            {
+                site: { domain: 'www.youtube.com', url: 'https://www.youtube.com/' },
+                featureSettings: settings && { sponsorBlock: settings },
+            },
+        );
+    }
+
+    beforeEach(() => {
+        // isValidSelector probes the selector through document.createDocumentFragment().
+        originalDocument = globalThis.document;
+        dom = new JSDOM('<!DOCTYPE html>');
+        globalThis.document = dom.window.document;
+    });
+
+    afterEach(() => {
+        dom.window.close();
+        globalThis.document = originalDocument;
+    });
+
+    it('falls back to the defaults when the key is absent', () => {
+        expect(createFeature().selectorsSetting('progressBarSelectors', DEFAULTS)).toBe(DEFAULTS);
+        expect(createFeature({ progressBarSelectors: 'not-a-list' }).selectorsSetting('progressBarSelectors', DEFAULTS)).toBe(DEFAULTS);
+    });
+
+    it('uses the configured list and drops malformed entries', () => {
+        const feature = createFeature({ progressBarSelectors: ['.a', ':::bad', 42, '#b'] });
+        expect(feature.selectorsSetting('progressBarSelectors', DEFAULTS)).toEqual(['.a', '#b']);
+    });
+
+    it('returns an empty list, not the defaults, when config disables every selector', () => {
+        expect(createFeature({ progressBarSelectors: [] }).selectorsSetting('progressBarSelectors', DEFAULTS)).toEqual([]);
     });
 });

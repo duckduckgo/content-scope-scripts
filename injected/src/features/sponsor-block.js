@@ -1,13 +1,14 @@
 import ContentFeature from '../content-feature.js';
 import { injectGlobalStyles } from '../utils.js';
+import { isValidSelector } from './chrome-webstore-patching/helpers.js';
 
 /** @typedef {import('../types/sponsor-block.js').Segment} Segment */
 
-// Ordered lists: the first selector with a visible match wins, so put the preferred element first.
-// ponytail: YouTube markup changes often; read these from remote config feature settings when productising.
+// Selector defaults, used until the privacy-config `sponsorBlock` settings ship the same keys. Ordered lists: the first
+// selector with a visible match wins, so put the preferred element first.
 // Where the segment overlay is drawn: desktop player bar, then the m.youtube.com bar hosts (the chaptered host wraps
 // the line host, so it comes first).
-const PROGRESS_BAR_SELECTORS = [
+const DEFAULT_PROGRESS_BAR_SELECTORS = [
     '.ytp-progress-bar',
     '.ytChapteredProgressBarHost',
     '.YtChapteredProgressBarHost',
@@ -17,7 +18,9 @@ const PROGRESS_BAR_SELECTORS = [
 ];
 // Where the skip button is mounted. m.youtube.com draws its controls layer over the player, in a sibling inside
 // #player-container-id, so mount there to stay above that layer and receive taps; desktop uses the player itself.
-const SKIP_BUTTON_HOST_SELECTORS = ['#player-container-id', '#movie_player', '.html5-video-player'];
+const DEFAULT_SKIP_BUTTON_HOST_SELECTORS = ['#player-container-id', '#movie_player', '.html5-video-player'];
+// Present while YouTube plays an ad in the player; the video element then plays the ad, not the video.
+const DEFAULT_AD_SHOWING_SELECTORS = ['.ad-showing'];
 
 const OVERLAY_CLASS = 'ddg-sponsorblock-overlay';
 const SKIP_BUTTON_CLASS = 'ddg-sponsorblock-skip';
@@ -131,6 +134,22 @@ export class SponsorBlock extends ContentFeature {
     #skipButton = null;
     /** @type {Segment | null} */
     #skipSegment = null;
+    #progressBarSelectors = DEFAULT_PROGRESS_BAR_SELECTORS;
+    #skipButtonHostSelectors = DEFAULT_SKIP_BUTTON_HOST_SELECTORS;
+    #adShowingSelectors = DEFAULT_AD_SHOWING_SELECTORS;
+
+    /**
+     * Selector list from feature settings, falling back to `defaults` when the key is absent. Remote config is a
+     * hot-fix channel, so malformed entries are dropped rather than letting them throw out of querySelectorAll.
+     * @param {string} key
+     * @param {string[]} defaults
+     * @returns {string[]}
+     */
+    selectorsSetting(key, defaults) {
+        const setting = this.getFeatureSetting(key);
+        if (!Array.isArray(setting)) return defaults;
+        return setting.filter((s) => typeof s === 'string' && isValidSelector(s));
+    }
 
     init() {
         const { hostname, ancestorOrigins } = window.location;
@@ -142,6 +161,9 @@ export class SponsorBlock extends ContentFeature {
             return;
         }
         this.#active = true;
+        this.#progressBarSelectors = this.selectorsSetting('progressBarSelectors', DEFAULT_PROGRESS_BAR_SELECTORS);
+        this.#skipButtonHostSelectors = this.selectorsSetting('skipButtonHostSelectors', DEFAULT_SKIP_BUTTON_HOST_SELECTORS);
+        this.#adShowingSelectors = this.selectorsSetting('adShowingSelectors', DEFAULT_AD_SHOWING_SELECTORS);
         injectGlobalStyles(STYLES);
 
         this.checkVideoID();
@@ -207,7 +229,7 @@ export class SponsorBlock extends ContentFeature {
         const duration = getMainVideo()?.duration ?? NaN;
         if (this.#overlay?.isConnected && duration === this.#renderedDuration) return;
 
-        const bar = findFirstVisible(PROGRESS_BAR_SELECTORS);
+        const bar = findFirstVisible(this.#progressBarSelectors);
         if (!bar || !(duration > 0)) return;
 
         if (!this.#overlay) {
@@ -232,9 +254,9 @@ export class SponsorBlock extends ContentFeature {
     updateSkipButton() {
         const video = getMainVideo();
         // During an ad the video element plays the ad, so its time says nothing about the segments.
-        const inAd = video?.closest('.html5-video-player')?.classList.contains('ad-showing');
+        const inAd = findFirstVisible(this.#adShowingSelectors) !== null;
         this.#skipSegment = video && !inAd ? segmentAt(this.#segments, video.currentTime) : null;
-        const host = this.#skipSegment ? findFirstVisible(SKIP_BUTTON_HOST_SELECTORS) : null;
+        const host = this.#skipSegment ? findFirstVisible(this.#skipButtonHostSelectors) : null;
         if (!host) {
             this.#skipButton?.remove();
             return;
