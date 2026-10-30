@@ -15,7 +15,7 @@ import { compilePredicate } from '../predicates/predicates.js';
 import { finish } from './positions.js';
 
 /**
- * @import { Node, NodeBase, IfNode, ItemBinder, ItemNode, Position, CompiledPayloadField, SourceBody } from '../model/types.js'
+ * @import { Node, NodeBase, IfNode, ItemBinder, ItemNode, Position, CompiledBucket, CompiledPayloadField, SourceBody } from '../model/types.js'
  * @import { DetectorConfig as RawDetectorConfig } from '@duckduckgo/privacy-configuration/schema/features/web-detection.js'
  * @import { PageSources } from '../sources/index.js'
  */
@@ -153,8 +153,12 @@ function compileExpr(raw, position, path, scope) {
             if (raw.if === undefined) throw new ConfigParseError(`${path}.${key}`, `'${key}' sits beside 'if' only`);
         } else if (!MODIFIER_KEYS.has(key)) throw new ConfigParseError(`${path}.${key}`, `unknown expression key '${key}'`);
     }
-    if (raw.if !== undefined && expressionKeys.length > 1) {
-        throw new ConfigParseError(path, `'if' takes no other expression key beside it`);
+    // Clients deliver an object's keys in no guaranteed order, so an object holds one expression
+    if (expressionKeys.length > 1) {
+        throw new ConfigParseError(
+            path,
+            `an object takes one expression key, and this one has ${expressionKeys.join(', ')}: \`{"all": [...]}\` ANDs several`,
+        );
     }
 
     const hasIs = raw.is !== undefined;
@@ -171,14 +175,8 @@ function compileExpr(raw, position, path, scope) {
     if (expressionKeys.length === 0) {
         if (hasUsing) throw new ConfigParseError(path, '`using` reads from an expression, and this object has no expression key');
         if (hasIs || position !== 'boolean') throw new ConfigParseError(path, 'no expression key');
-        // An object ANDs its keys, so no keys holds
+        // `{}` holds
         node = makeNode(scope, { kind: 'literal', value: true, path, position });
-    } else if (expressionKeys.length > 1) {
-        if ((hasIs && !hasUsing) || (keyPosition !== 'boolean' && keyPosition !== 'value')) {
-            throw new ConfigParseError(path, 'several expression keys are their AND, in boolean or value position and never beside `is`');
-        }
-        const operands = expressionKeys.map((key) => compileKey(key, raw[key], 'boolean', `${path}.${key}`, scope));
-        node = makeNode(scope, { kind: 'and', operands, path, position: keyPosition });
     } else {
         const key = /** @type {string} */ (expressionKeys[0]);
         node = key === 'if' ? compileIf(raw, keyPosition, path, scope) : compileKey(key, raw[key], keyPosition, `${path}.${key}`, scope);
@@ -447,16 +445,28 @@ function compilePayload(raw, path, scope) {
         if (spec.when !== undefined) field.when = compilePredicate(spec.when, 'value', `${fieldPath}.when`, scope.hooks);
         if (spec.buckets !== undefined) {
             const buckets = spec.buckets;
-            if (!isPlainObject(buckets) || objectKeys(buckets).length === 0) {
-                throw new ConfigParseError(`${fieldPath}.buckets`, '`buckets` takes an object of at least one bucket');
+            if (!isArray(buckets) || buckets.length === 0) {
+                throw new ConfigParseError(`${fieldPath}.buckets`, '`buckets` takes an array of at least one `{"name", "is"}` bucket');
             }
-            field.buckets = objectKeys(buckets).map((name) => [
-                name,
-                compilePredicate(buckets[name], 'value', `${fieldPath}.buckets.${name}`, scope.hooks),
-            ]);
+            field.buckets = buckets.map((bucket, i) => compileBucket(bucket, `${fieldPath}.buckets.${i}`, scope));
         }
         return field;
     });
+}
+
+/**
+ * @param {unknown} raw
+ * @param {string} path
+ * @param {Scope} scope
+ * @returns {CompiledBucket}
+ */
+function compileBucket(raw, path, scope) {
+    if (!isPlainObject(raw)) throw new ConfigParseError(path, 'a bucket takes `{"name", "is"}`');
+    rejectUnknownKeys(raw, ['name', 'is'], path);
+    if (typeof raw.name !== 'string' || raw.name === '') throw new ConfigParseError(`${path}.name`, 'a bucket name is a non-empty string');
+    if (raw.is === undefined) throw new ConfigParseError(path, 'a bucket needs `is`');
+    const isPath = `${path}.is`;
+    return { name: raw.name, is: compilePredicate(raw.is, 'value', isPath, scope.hooks), path: isPath };
 }
 
 const DETECTOR_KEYS = ['state', 'triggers', 'match', 'actions'];

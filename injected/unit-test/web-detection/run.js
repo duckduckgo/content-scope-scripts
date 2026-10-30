@@ -224,7 +224,7 @@ describe('WebDetection run', () => {
             expectParseError({ actions: { then: { fireEvent: { type: 'a' } } } }, "'then' sits beside 'if' only");
             expectParseError({ actions: { api: 'x', else: 1 } }, "'else' sits beside 'if' only");
             expectParseError({ actions: { if: true } }, "'if' needs 'then'");
-            expectParseError({ actions: { if: true, then: 1, api: 'x' } }, "'if' takes no other expression key");
+            expectParseError({ actions: { if: true, then: 1, api: 'x' } }, 'an object takes one expression key');
             rejectsMatch({ if: true, then: true }, "'if' does not fill boolean position");
             expectParseError({ actions: { define: { x: { sum: [{ if: true, then: 1 }] } } } }, "'if' does not fill number position");
         });
@@ -275,8 +275,8 @@ describe('WebDetection run', () => {
             expect(detector({ actions: fires({ x: { value: 1, when: failing } }) }).run().failedAt).toBe(
                 'actions.fireEvent.data.x.when.field.api',
             );
-            expect(detector({ actions: fires({ x: { value: 1, buckets: { one: failing } } }) }).run().failedAt).toBe(
-                'actions.fireEvent.data.x.buckets.one.field.api',
+            expect(detector({ actions: fires({ x: { value: 1, buckets: [{ name: 'one', is: failing }] } }) }).run().failedAt).toBe(
+                'actions.fireEvent.data.x.buckets.0.is.field.api',
             );
         });
 

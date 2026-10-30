@@ -49,7 +49,7 @@
  * @typedef {NodeBase & { kind: 'list', entries: Node[] }} ListNode - `{"expr": [...]}`, each entry in value position
  * @typedef {NodeBase & { kind: 'only', operand: Node }} OnlyNode
  * @typedef {NodeBase & { kind: 'sum' | 'mul' | 'div', operands: Node[] }} ArithmeticNode
- * @typedef {NodeBase & { kind: 'any' | 'all' | 'none' | 'and', operands: Node[] }} LogicNode
+ * @typedef {NodeBase & { kind: 'any' | 'all' | 'none', operands: Node[] }} LogicNode
  * @typedef {NodeBase & { kind: 'if', test: Node, then: Node, else?: Node }} IfNode
  * @typedef {NodeBase & { kind: 'sequence', elements: Node[] }} SequenceNode - its elements in order, giving the last one's value
  * @typedef {NodeBase & { kind: 'ref', name: string }} RefNode
@@ -74,7 +74,14 @@
  * @property {string} path - the config path of the field, `<action>.data.<key>`
  * @property {Node} value
  * @property {CompiledPredicate} [when]
- * @property {Array<[string, CompiledPredicate]>} [buckets]
+ * @property {CompiledBucket[]} [buckets] - tested in order, the first that holds naming the value
+ */
+
+/**
+ * @typedef {object} CompiledBucket
+ * @property {string} name
+ * @property {CompiledPredicate} is
+ * @property {string} path - the config path of `is`, `<field>.buckets.<index>.is`
  */
 
 /**

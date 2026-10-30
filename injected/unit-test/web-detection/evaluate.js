@@ -288,7 +288,7 @@ describe('WebDetection evaluate', () => {
 
         const three = IMG('data-complete') + IMG('data-complete') + IMG();
 
-        it('reads every item of a length or a list, and every operand of `any`, `all`, `none` and the implicit AND', () => {
+        it('reads every item of a length or a list, and every operand of `any`, `all` and `none`', () => {
             const read = { element: { selector: 'img', where: { complete: true } }, using: 'length', is: { gte: 1 } };
             /** @type {Array<[object, boolean]>} */
             const cases = [
@@ -297,7 +297,7 @@ describe('WebDetection evaluate', () => {
                 [{ any: [true, read] }, true],
                 [{ all: [false, read] }, false],
                 [{ none: [true, read] }, false],
-                [{ element: { selector: 'p' }, expr: read }, false],
+                [{ all: [{ element: { selector: 'p' } }, read] }, false],
             ];
             for (const [match, detected] of cases) {
                 const { result, reads } = completeReads(three, { match, actions: REPORT });
@@ -337,19 +337,33 @@ describe('WebDetection evaluate', () => {
     });
 
     describe('payloads', () => {
-        it('names the first bucket that holds, in key order', () => {
-            expect(payload('', 3, { buckets: { low: { lt: 5 }, any: {} } })).toEqual({ x: 'low' });
-            expect(payload('', 3, { buckets: { any: {}, low: { lt: 5 } } })).toEqual({ x: 'any' });
+        it('names the first bucket that holds, in array order', () => {
+            const low = { name: 'low', is: { lt: 5 } };
+            const any = { name: 'any', is: {} };
+            expect(payload('', 3, { buckets: [low, any] })).toEqual({ x: 'low' });
+            expect(payload('', 3, { buckets: [any, low] })).toEqual({ x: 'any' });
+        });
+
+        it('names a bucket that several entries share', () => {
+            const outside = { name: 'outside', is: { lt: 5 } };
+            const buckets = [outside, { name: 'inside', is: { lt: 10 } }, { ...outside, is: { gte: 10 } }];
+            expect(payload('', 3, { buckets })).toEqual({ x: 'outside' });
+            expect(payload('', 7, { buckets })).toEqual({ x: 'inside' });
+            expect(payload('', 12, { buckets })).toEqual({ x: 'outside' });
         });
 
         it('omits a value in no bucket, and fails on a failed value no bucket handles', () => {
             const failing = { ...FAILING, using: 'length' };
-            expect(payload('', 30, { buckets: { low: { lt: 5 } } })).toEqual({});
-            expect(run('', withPayload(failing, { buckets: { any: {} } })).failure).toEqual({
+            expect(payload('', 30, { buckets: [{ name: 'low', is: { lt: 5 } }] })).toEqual({});
+            expect(run('', withPayload(failing, { buckets: [{ name: 'any', is: {} }] })).failure).toEqual({
                 path: 'actions.fireEvent.data.x.value.api',
                 result: 'aborted',
             });
-            expect(payload('', failing, { buckets: { unreadable: { fails: true }, any: {} } })).toEqual({ x: 'unreadable' });
+            const buckets = [
+                { name: 'unreadable', is: { fails: true } },
+                { name: 'any', is: {} },
+            ];
+            expect(payload('', failing, { buckets })).toEqual({ x: 'unreadable' });
         });
 
         it('omits the key when `when` does not hold, and fails when `when` fails', () => {
@@ -363,7 +377,10 @@ describe('WebDetection evaluate', () => {
 
         it('buckets a string by length', () => {
             const install = timeline([{ name: 'n', entryType: 'navigation', type: 'navigate' }]);
-            const buckets = { short: { length: { lt: 3 } }, long: { length: { gte: 3 } } };
+            const buckets = [
+                { name: 'short', is: { length: { lt: 3 } } },
+                { name: 'long', is: { length: { gte: 3 } } },
+            ];
             expect(payload('', { only: entriesOf('navigation', { field: 'type' }) }, { buckets }, { install })).toEqual({ x: 'long' });
         });
 
@@ -413,10 +430,16 @@ describe('WebDetection evaluate', () => {
             expect(payload('', 1)).toEqual({ x: 1 });
         });
 
-        it('rejects invalid payload keys and empty buckets', () => {
+        it('rejects invalid payload keys and buckets', () => {
             expectParseError({ actions: fires({ nativeData: { value: 1 } }) }, 'invalid payload key');
             expectParseError({ actions: fires({ _x: { value: 1 } }) }, 'invalid payload key');
-            expectParseError(withPayload(1, { buckets: {} }), 'at least one bucket');
+            expectParseError(withPayload(1, { buckets: [] }), 'at least one');
+            expectParseError(withPayload(1, { buckets: { one: 1 } }), 'takes an array');
+            expectParseError(withPayload(1, { buckets: [1] }), 'a bucket takes');
+            expectParseError(withPayload(1, { buckets: [{ is: 1 }] }), 'non-empty string');
+            expectParseError(withPayload(1, { buckets: [{ name: '', is: 1 }] }), 'non-empty string');
+            expectParseError(withPayload(1, { buckets: [{ name: 'one' }] }), 'needs `is`');
+            expectParseError(withPayload(1, { buckets: [{ name: 'one', is: 1, value: 1 }] }), 'value');
         });
     });
 

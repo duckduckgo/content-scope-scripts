@@ -48,9 +48,8 @@ describe('WebDetection compile', () => {
             expect(holds('', { api: { path: 'document.fonts', field: 'status' } }, { install: fonts(['loaded']) })).toBe('error');
         });
 
-        it('rejects `is` outside boolean and value position, and several expression keys beside it', () => {
+        it('rejects `is` outside boolean and value position', () => {
             rejectsMatch({ sum: [{ element: { selector: 'img' }, using: 'length', is: { gt: 1 } }], is: 1 }, '`is` gives a boolean');
-            rejectsMatch({ text: { pattern: 'a' }, element: { selector: 'p' }, is: true }, 'several expression keys');
         });
 
         it('rejects unknown keys', () => {
@@ -99,10 +98,12 @@ describe('WebDetection compile', () => {
             expect(holds('', { all: { element: { selector: 'p' } } })).toBe(false);
         });
 
-        it('takes booleans and multi-key objects in value position', () => {
+        it('takes booleans in value position', () => {
             expect(payload('<p>a</p>', { all: [{ text: { pattern: 'a' } }] })).toEqual({ x: true });
             expect(payload('<p>a</p>', { any: [{ text: { pattern: 'b' } }] })).toEqual({ x: false });
-            expect(payload('<p class="c">a</p>', { text: { pattern: 'a' }, element: { selector: '.c' } })).toEqual({ x: true });
+            expect(payload('<p class="c">a</p>', { all: [{ text: { pattern: 'a' } }, { element: { selector: '.c' } }] })).toEqual({
+                x: true,
+            });
             expect(payload('', false)).toEqual({ x: false });
         });
 
@@ -143,15 +144,23 @@ describe('WebDetection compile', () => {
             expect(holds('<p></p>', { element: { selector: 'p' }, using: 'length', is: { gt: '0' } })).toBe(true);
         });
 
-        it('binds the AND of a multi-key object', () => {
-            expect(
-                bound('<p class="a">foo</p>', { define: { both: { text: { pattern: 'foo' }, element: { selector: '.a' } } } }, 'both'),
-            ).toBe(true);
+        it('rejects several expression keys in one object, in every position', () => {
+            const oneKey = 'an object takes one expression key';
+            rejectsMatch({ text: { pattern: 'a' }, element: { selector: 'p' } }, oneKey);
+            rejectsMatch({ any: [true], none: [false] }, oneKey);
+            rejectsMatch({ any: [{ text: { pattern: 'foo' } }], element: { selector: '.a' } }, oneKey);
+            rejectsMatch({ text: { pattern: 'a' }, element: { selector: 'p' }, is: true }, oneKey);
+            rejectsMatch({ text: { pattern: 'a' }, element: { selector: 'p' }, using: 'length', is: 1 }, oneKey);
+            rejectsMatch({ if: true, then: true, else: false, text: { pattern: 'a' } }, oneKey);
+            expectParseError({ actions: [{ define: { both: { text: { pattern: 'a' }, element: { selector: 'p' } } } }] }, oneKey);
+            expectParseError(withPayload({ text: { pattern: 'a' }, element: { selector: 'p' } }), oneKey);
         });
 
-        it('ANDs `any` with a source key in one object', () => {
-            expect(holds('<p class="a">foo</p>', { any: [{ text: { pattern: 'foo' } }], element: { selector: '.a' } })).toBe(true);
-            expect(holds('<p>foo</p>', { any: [{ text: { pattern: 'foo' } }], element: { selector: '.a' } })).toBe(false);
+        it('ANDs conditions with `all`', () => {
+            const both = { all: [{ any: [{ text: { pattern: 'foo' } }] }, { element: { selector: '.a' } }] };
+            expect(holds('<p class="a">foo</p>', both)).toBe(true);
+            expect(holds('<p>foo</p>', both)).toBe(false);
+            expect(bound('<p class="a">foo</p>', { define: { both } }, 'both')).toBe(true);
         });
 
         it('rejects operator blocks inside a source', () => {
@@ -193,9 +202,12 @@ describe('WebDetection compile', () => {
         });
 
         it('sends a selected list bucketed, each bucket unwrapping it, and unbucketed as an array', () => {
-            const buckets = { small: { lt: 10 }, large: { gte: 10 } };
+            const buckets = [
+                { name: 'small', is: { lt: 10 } },
+                { name: 'large', is: { gte: 10 } },
+            ];
             expect(payload(widths([5]), width, { buckets })).toEqual({ x: 'small' });
-            expect(payload(widths([5]), width, { buckets: { two: { length: 2 } } })).toEqual({});
+            expect(payload(widths([5]), width, { buckets: [{ name: 'two', is: { length: 2 } }] })).toEqual({});
             expect(payload(widths([5, 6]), width)).toEqual({ x: [5, 6] });
             expect(run(widths([5, 6]), withPayload(width, { buckets })).failure).toEqual({
                 path: 'actions.fireEvent.data.x.value',
@@ -281,18 +293,33 @@ describe('WebDetection compile', () => {
 
         it('compiles payload buckets in order', () => {
             const { actions } = compile({
-                actions: { breakageReportData: { data: { n: { value: { ref: 'n' }, buckets: { low: { lt: 5 }, high: { gte: 5 } } } } } },
+                actions: {
+                    breakageReportData: {
+                        data: {
+                            n: {
+                                value: { ref: 'n' },
+                                buckets: [
+                                    { name: 'low', is: { lt: 5 } },
+                                    { name: 'high', is: { gte: 5 } },
+                                ],
+                            },
+                        },
+                    },
+                },
             });
             const buckets = actions.data[0].buckets;
-            expect(buckets.map((/** @type {[string, any]} */ [name, bucket]) => [name, bucket.entries[0].op, bucket.path])).toEqual([
-                ['low', 'lt', 'actions.breakageReportData.data.n.buckets.low'],
-                ['high', 'gte', 'actions.breakageReportData.data.n.buckets.high'],
+            expect(buckets.map((/** @type {any} */ bucket) => [bucket.name, bucket.is.entries[0].op, bucket.path])).toEqual([
+                ['low', 'lt', 'actions.breakageReportData.data.n.buckets.0.is'],
+                ['high', 'gte', 'actions.breakageReportData.data.n.buckets.1.is'],
             ]);
         });
 
         it('holds no function outside the sources, and every kind of predicate', () => {
             const where = { complete: true, field: 'naturalWidth', is: 0, all: [{ self: 'alt', is: '' }] };
-            const buckets = { low: { lt: 5 }, high: { none: [{ lt: 5 }] } };
+            const buckets = [
+                { name: 'low', is: { lt: 5 } },
+                { name: 'high', is: { none: [{ lt: 5 }] } },
+            ];
             const detectors = [
                 detects({ ref: 'n', is: { gt: 0, lt: 8000, in: [1, { ref: 'm' }], eq: { ref: 'm' } } }),
                 detects({ ref: 'n', is: { fails: false, type: ['number', 'string'], any: [1, 2] } }),

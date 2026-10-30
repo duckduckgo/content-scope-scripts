@@ -94,7 +94,6 @@ export function evaluate(node, position, ctx) {
             case 'any':
             case 'all':
             case 'none':
-            case 'and':
                 result = computeLogic(node, ctx);
                 break;
             case 'if':
@@ -522,10 +521,10 @@ function payloadValue(field, ctx) {
         if (held !== true) return OMIT;
     }
     if (field.buckets) {
-        for (const [name, bucket] of field.buckets) {
-            const held = test(bucket, `${field.path}.buckets.${name}`);
+        for (const bucket of field.buckets) {
+            const held = test(bucket.is, bucket.path);
             if (isFailure(held)) return held;
-            if (held) return name;
+            if (held) return bucket.name;
         }
         return isFailure(value) ? value : OMIT;
     }
