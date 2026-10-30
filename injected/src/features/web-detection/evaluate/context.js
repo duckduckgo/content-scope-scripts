@@ -1,4 +1,4 @@
-import { isFailure } from '../model/core.js';
+import { NativeMap, isFailure } from '../model/core.js';
 import { asList, isItemBuffer } from '../model/lists.js';
 import { allItems, evaluate, evaluateOccurrence, single } from './evaluate.js';
 import { TaskReadCache } from './task-read-cache.js';
@@ -20,7 +20,7 @@ const NO_SINK = { fireEvent() {}, breakageReportData() {} };
  */
 export class EvaluationContext {
     /** @type {Map<string, unknown>} the run names `define` has bound */
-    runNames = new Map();
+    runNames = new NativeMap();
     /** @type {Record<string, unknown>} scalar values bound, by name, for the debug notification */
     measured = {};
     /** @type {Record<string, ActionOutcome>} each action evaluated, by config path */
@@ -28,7 +28,7 @@ export class EvaluationContext {
     /** @type {{ path: string, message: string } | undefined} the innermost expression an error was thrown from */
     errorAt;
     /** @type {Map<ItemBinder, unknown>} the value each `using`, `where` and `field` is binding */
-    frames = new Map();
+    frames = new NativeMap();
 
     /**
      * @param {Reader} reader
@@ -36,7 +36,7 @@ export class EvaluationContext {
      * @param {TaskReads} [task] - the page reads shared with the other detectors of the task
      * @param {ActionSink} [sink] - where `fireEvent` and `breakageReportData` send, as each runs
      */
-    constructor(reader, detectorNames = new Map(), task = new TaskReadCache(), sink = NO_SINK) {
+    constructor(reader, detectorNames = new NativeMap(), task = new TaskReadCache(), sink = NO_SINK) {
         this.reader = reader;
         reader.beginRun();
         this.detectorNames = detectorNames;
@@ -83,7 +83,7 @@ export class EvaluationContext {
         // Copied by index: a method may change its argument, and the buffer is shared
         /** @type {unknown[]} */
         const array = [];
-        for (let i = 0; i < items.length; i++) array.push(items[i]);
+        for (let i = 0; i < items.length; i++) array[i] = items[i];
         return array;
     }
 

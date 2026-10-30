@@ -9,10 +9,21 @@ import {
     expectParseError,
     expectRun,
     fires,
+    makeGlobal,
     rejectsMatch,
+    run,
     throwing,
 } from './support.js';
+import { compileDetector } from '../../src/features/web-detection/compile/compile.js';
+import { EvaluationContext } from '../../src/features/web-detection/evaluate/context.js';
+import { NativeReader } from '../../src/features/web-detection/evaluate/native-reader.js';
+import { createDetectorState, runDetector } from '../../src/features/web-detection/evaluate/run.js';
+import { pageSources } from '../../src/features/web-detection/sources/index.js';
 import { thrownMessage } from '../../src/features/web-detection/model/core.js';
+
+/**
+ * @import { ItemBuffer } from '../../src/features/web-detection/model/lists.js'
+ */
 
 describe('WebDetection run', () => {
     describe('actions', () => {
@@ -119,6 +130,19 @@ describe('WebDetection run', () => {
             d.run();
             d.run();
             expect(d.state.names.get('this.count')).toBe(3);
+        });
+
+        it('holds a defined list as its items only, without the source that read them', () => {
+            const result = run('<p></p><p></p>', {
+                actions: [
+                    { define: { 'this.items': { element: { selector: 'p' } } } },
+                    { define: { n: { ref: 'this.items', using: 'length' } } },
+                ],
+            });
+            const held = /** @type {ItemBuffer} */ (result.ctx.detectorNames.get('this.items'));
+            expect(held.values.length).toBe(2);
+            expect(held.shortcuts).toEqual({});
+            expect(result.names.get('n')).toBe(2);
         });
 
         it('binds the boolean an `is` gives, not the value it tests', () => {
@@ -312,6 +336,87 @@ describe('WebDetection run', () => {
             expect(thrownMessage(getter)).toBe('Error');
             expect(thrownMessage(traps)).toBe('unknown');
             expect(called).toHaveBeenCalledTimes(2);
+        });
+    });
+
+    describe('page-replaced built-ins', () => {
+        /** @type {Array<[object, string]>} the built-in methods a page might replace */
+        const METHODS = [
+            [Map.prototype, 'get'],
+            [Map.prototype, 'set'],
+            [Map.prototype, 'has'],
+            [Map.prototype, 'delete'],
+            [Set.prototype, 'has'],
+            [Set.prototype, 'add'],
+            [WeakMap.prototype, 'get'],
+            [WeakMap.prototype, 'set'],
+            [Array.prototype, 'includes'],
+            [Array.prototype, 'reduce'],
+            [Array.prototype, 'push'],
+            [Array.prototype, 'map'],
+            [Array.prototype, 'some'],
+            [Array.prototype, 'every'],
+            [String.prototype, 'startsWith'],
+            [String.prototype, 'split'],
+        ];
+
+        it('calls none during a run', () => {
+            const global = makeGlobal();
+            const compiled = compileDetector(
+                {
+                    actions: [
+                        { define: { 'this.count': counter } },
+                        { define: { total: { sum: [{ api: 'page.live.n' }, { mul: [2, 3] }] } } },
+                        { define: { typed: { api: 'page.live.label', is: { type: ['string', 'number'] } } } },
+                        { define: { member: { api: 'page.live.n', is: { in: [0, 1] } } } },
+                        { if: { ref: 'this.count', is: { gt: 0 } }, then: REPORT },
+                    ],
+                },
+                pageSources(global),
+            );
+            const reader = new NativeReader(global, compiled.names, compiled.paths);
+            const state = createDetectorState();
+            /** @type {unknown[]} */
+            const written = [];
+            const runOnce = () => {
+                const ctx = new EvaluationContext(reader, state.names, undefined, {
+                    fireEvent() {},
+                    breakageReportData: (data) => {
+                        written[written.length] = data;
+                    },
+                });
+                return { ctx, result: runDetector(compiled, state, ctx) };
+            };
+            runOnce();
+            global.page.live.n = 1;
+            /** @type {string[]} */
+            const called = [];
+            const originals = METHODS.map(([prototype, name]) => Object.getOwnPropertyDescriptor(prototype, name));
+            METHODS.forEach(([prototype, name], i) => {
+                const original = /** @type {Function} */ (originals[i]?.value);
+                Object.defineProperty(prototype, name, {
+                    configurable: true,
+                    writable: true,
+                    value(/** @type {unknown[]} */ ...args) {
+                        called[called.length] = name;
+                        return Reflect.apply(original, this, args);
+                    },
+                });
+            });
+            /** @type {ReturnType<typeof runOnce>} */
+            let second;
+            try {
+                second = runOnce();
+            } finally {
+                METHODS.forEach(([prototype, name], i) =>
+                    Object.defineProperty(prototype, name, /** @type {PropertyDescriptor} */ (originals[i])),
+                );
+            }
+            expect(called).toEqual([]);
+            expect(second.result.failedAt).toBeUndefined();
+            expect(Object.fromEntries(second.ctx.runNames)).toEqual({ total: 7, typed: true, member: true });
+            expect(state.names.get('this.count')).toBe(2);
+            expect(written.length).toBe(2);
         });
     });
 

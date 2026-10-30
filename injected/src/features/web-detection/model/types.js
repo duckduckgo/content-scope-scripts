@@ -52,9 +52,9 @@
  * @typedef {NodeBase & { kind: 'any' | 'all' | 'none' | 'and', operands: Node[] }} LogicNode
  * @typedef {NodeBase & { kind: 'if', test: Node, then: Node, else?: Node }} IfNode
  * @typedef {NodeBase & { kind: 'sequence', elements: Node[] }} SequenceNode - its elements in order, giving the last one's value
- * @typedef {NodeBase & { kind: 'ref', name: string }} RefNode
+ * @typedef {NodeBase & { kind: 'ref', name: string, detector: boolean }} RefNode - `detector` when the name is a detector name, `this.x`
  * @typedef {NodeBase & { kind: 'item', binder: ItemBinder }} ItemNode - the value `self` is bound to in a `using`, `where` or `field`
- * @typedef {NodeBase & { kind: 'define', name: string, value: Node }} DefineNode
+ * @typedef {NodeBase & { kind: 'define', name: string, detector: boolean, value: Node }} DefineNode - `detector` when the name is a detector name, `this.x`
  * @typedef {NodeBase & { kind: 'fireEvent', type: string, data?: CompiledPayloadField[] }} FireEventNode
  * @typedef {NodeBase & { kind: 'breakageReportData', data?: CompiledPayloadField[] }} BreakageReportDataNode
  * @typedef {DefineNode | FireEventNode | BreakageReportDataNode} ActionNode

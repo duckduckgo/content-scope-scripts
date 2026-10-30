@@ -1,5 +1,5 @@
 import { objectKeys } from '../../../captured-globals.js';
-import { getOrCreate } from '../model/core.js';
+import { NativeMap, getOrCreate } from '../model/core.js';
 
 /**
  * @import { PayloadData } from '../model/types.js'
@@ -28,14 +28,14 @@ import { getOrCreate } from '../model/core.js';
  */
 export class BreakageEntries {
     /** @type {Map<string, EntryRecord>} by `groupName.detectorId` */
-    #records = new Map();
+    #records = new NativeMap();
 
     /**
      * @param {string} detectorId
      * @returns {EntryRecord}
      */
     _recordOf(detectorId) {
-        return getOrCreate(this.#records, detectorId, () => ({ written: false, data: {}, errors: new Map() }));
+        return getOrCreate(this.#records, detectorId, () => ({ written: false, data: {}, errors: new NativeMap() }));
     }
 
     /**
@@ -77,12 +77,10 @@ export class BreakageEntries {
         const entry = { detectorId };
         if (record.written && done) entry.detected = true;
         if (objectKeys(record.data).length > 0) entry.data = { ...record.data };
-        if (record.errors.size > 0) {
-            /** @type {Record<string, RunFailure>} */
-            const errors = {};
-            for (const [path, failure] of record.errors) errors[path] = failure;
-            entry.errors = errors;
-        }
+        /** @type {Record<string, RunFailure> | undefined} */
+        let errors;
+        for (const [path, failure] of record.errors) (errors ??= {})[path] = failure;
+        if (errors) entry.errors = errors;
         return entry;
     }
 }

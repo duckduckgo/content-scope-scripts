@@ -28,6 +28,13 @@ export class ItemBuffer {
     /** @type {Failure | undefined} */
     failure;
     done = false;
+    /**
+     * Reads that skip the iterator, until it ends. The source's iterator and shortcuts can close over the
+     * run that read it, so a list held past the run, such as by a `this.` name, holds only its items.
+     *
+     * @type {ListShortcuts}
+     */
+    shortcuts = {};
     /** @type {Iterator<unknown> | undefined} */
     #iterator;
     /** Whether the source failed as a whole, which every placement reaches, a length cut at 0 included */
@@ -46,13 +53,13 @@ export class ItemBuffer {
      * @param {ListShortcuts} [shortcuts]
      */
     constructor(iterator, shortcuts = {}) {
-        this.shortcuts = shortcuts;
         if (isFailure(iterator)) {
             this.failure = iterator;
             this.done = true;
             this.#failedWhole = true;
         } else {
             this.#iterator = iterator;
+            this.shortcuts = shortcuts;
         }
     }
 
@@ -76,8 +83,12 @@ export class ItemBuffer {
                 this.failure = next.value;
                 this.done = true;
             } else {
-                this.values.push(next.value);
+                this.values[this.values.length] = next.value;
             }
+        }
+        if (this.done) {
+            this.#iterator = undefined;
+            this.shortcuts = {};
         }
         return this.values.length < count || this.#failedWhole ? this.failure : undefined;
     }

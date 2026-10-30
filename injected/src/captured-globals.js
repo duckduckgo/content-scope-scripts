@@ -52,6 +52,25 @@ export const charCodeAt = globalThis.String.prototype.charCodeAt;
 export const ReflectDeleteProperty = Reflect.deleteProperty.bind(Reflect);
 export const ReflectApply = Reflect.apply.bind(Reflect);
 export const ReflectGet = Reflect.get.bind(Reflect);
+export const WeakMap = globalThis.WeakMap;
+export const RegExp = globalThis.RegExp;
+export const mapGet = globalThis.Map.prototype.get;
+export const mapSet = globalThis.Map.prototype.set;
+export const mapHas = globalThis.Map.prototype.has;
+export const mapDelete = globalThis.Map.prototype.delete;
+export const mapForEach = globalThis.Map.prototype.forEach;
+export const setHas = globalThis.Set.prototype.has;
+export const setAdd = globalThis.Set.prototype.add;
+export const setForEach = globalThis.Set.prototype.forEach;
+export const weakMapGet = globalThis.WeakMap.prototype.get;
+export const weakMapSet = globalThis.WeakMap.prototype.set;
+export const weakMapHas = globalThis.WeakMap.prototype.has;
+export const regExpExec = globalThis.RegExp.prototype.exec;
+export const stringSlice = globalThis.String.prototype.slice;
+export const arraySort = globalThis.Array.prototype.sort;
+export const mathFloor = Math.floor;
+export const mathMax = Math.max;
+export const mathMin = Math.min;
 export const getRandomValues = globalThis.crypto?.getRandomValues?.bind(globalThis.crypto);
 
 // Secure context only - crypto.subtle is unavailable on HTTP
