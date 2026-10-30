@@ -33,14 +33,21 @@ const STYLES = `
 /* Desktop: above the played line, below the scrubber knob. The bar is thin until hovered; follow its grow animation. */
 .ytp-progress-bar > .${OVERLAY_CLASS} { z-index: 42; transform: scaleY(0.6); transition: transform .1s cubic-bezier(0, 0, 0.2, 1); }
 .ytp-progress-bar-container:hover .${OVERLAY_CLASS} { transform: none; }
-/* Skip button: bottom-right over the video, above the progress bar, like YouTube's own "Skip ad" button. */
-.${SKIP_BUTTON_CLASS} {
-    all: unset; position: absolute; right: 12px; bottom: 72px; z-index: 1000; box-sizing: border-box;
-    padding: 10px 16px; border-radius: 8px; background: rgb(222, 88, 51); color: #fff;
-    font: 500 14px/1.2 Roboto, Arial, sans-serif; cursor: pointer; pointer-events: auto;
-}
-.${SKIP_BUTTON_CLASS}:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+/* Skip button host: bottom-right over the video, above the progress bar, like YouTube's own "Skip ad" button. The
+   button itself lives in the host's closed shadow root, so only its placement is styled from here. */
+.${SKIP_BUTTON_CLASS} { position: absolute; right: 12px; bottom: 72px; z-index: 1000; pointer-events: auto; }
 #player-container-id > .${SKIP_BUTTON_CLASS} { right: 8px; bottom: 40px; }
+`;
+// Fixed literal, never page data. The icon matches YouTube's "next" glyph: a triangle and a bar.
+const SKIP_BUTTON_HTML = `
+<style>
+button {
+    all: unset; box-sizing: border-box; padding: 10px 16px; border-radius: 8px; background: rgb(222, 88, 51); color: #fff;
+    font: 500 14px/1.2 Roboto, Arial, sans-serif; cursor: pointer;
+}
+button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+</style>
+<button type="button">Skip sponsored content <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" style="vertical-align:-1px"><path d="M1 1l7 5-7 5z M9 1h2v10H9z" fill="currentColor"/></svg></button>
 `;
 
 /**
@@ -145,7 +152,7 @@ export class SponsorBlock extends ContentFeature {
     /** @type {HTMLElement | null} */
     #overlay = null;
     #renderedDuration = 0;
-    /** @type {HTMLButtonElement | null} */
+    /** @type {HTMLElement | null} shadow host of the skip button */
     #skipButton = null;
     /** @type {Segment | null} */
     #skipSegment = null;
@@ -330,13 +337,13 @@ export class SponsorBlock extends ContentFeature {
         if (this.#skipButton.parentElement !== host) host.append(this.#skipButton);
     }
 
+    // A closed shadow root keeps the button's markup and listeners out of reach of YouTube's scripts.
     createSkipButton() {
-        const button = document.createElement('button');
-        button.type = 'button';
-        button.className = SKIP_BUTTON_CLASS;
-        // Fixed literal, never page data. The icon matches YouTube's "next" glyph: a triangle and a bar.
-        button.innerHTML =
-            'Skip sponsored content <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" style="vertical-align:-1px"><path d="M1 1l7 5-7 5z M9 1h2v10H9z" fill="currentColor"/></svg>';
+        const host = document.createElement('div');
+        host.className = SKIP_BUTTON_CLASS;
+        const shadow = host.attachShadow({ mode: 'closed' });
+        shadow.innerHTML = SKIP_BUTTON_HTML;
+        const button = /** @type {HTMLButtonElement} */ (shadow.querySelector('button'));
         // Keep the tap from also reaching the player, which would toggle YouTube's controls.
         button.addEventListener('pointerdown', (e) => e.stopPropagation());
         button.addEventListener('click', (e) => {
@@ -344,7 +351,7 @@ export class SponsorBlock extends ContentFeature {
             const video = getMainVideo();
             if (video && this.#skipSegment) this.skipTo(video, this.#skipSegment);
         });
-        return button;
+        return host;
     }
 }
 
