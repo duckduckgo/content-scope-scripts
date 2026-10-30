@@ -29,7 +29,6 @@ function fillsOf(node) {
         case 'any':
         case 'all':
         case 'none':
-        case 'and':
             return FILLS.boolean;
         case 'if': {
             // With no branch taken, `undefined`, which fills value position only

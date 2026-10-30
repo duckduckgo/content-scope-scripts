@@ -288,7 +288,7 @@ describe('WebDetection evaluate', () => {
 
         const three = IMG('data-complete') + IMG('data-complete') + IMG();
 
-        it('reads every item of a length or a list, and every operand of `any`, `all`, `none` and the implicit AND', () => {
+        it('reads every item of a length or a list, and every operand of `any`, `all` and `none`', () => {
             const read = { element: { selector: 'img', where: { complete: true } }, using: 'length', is: { gte: 1 } };
             /** @type {Array<[object, boolean]>} */
             const cases = [
@@ -297,7 +297,7 @@ describe('WebDetection evaluate', () => {
                 [{ any: [true, read] }, true],
                 [{ all: [false, read] }, false],
                 [{ none: [true, read] }, false],
-                [{ element: { selector: 'p' }, expr: read }, false],
+                [{ all: [{ element: { selector: 'p' } }, read] }, false],
             ];
             for (const [match, detected] of cases) {
                 const { result, reads } = completeReads(three, { match, actions: REPORT });
