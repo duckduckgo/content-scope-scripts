@@ -1,9 +1,8 @@
 import ContentFeature from '../src/content-feature.js';
 
 /**
- * Test the additionalCheck conditional logic in content-scope-features.js
- *
- * This tests the logic at lines 60-62 and 82-84:
+ * Test the additionalCheck conditional logic that `ContentFeature.callLoad` and the init loop in
+ * content-scope-features.js gate a feature on:
  * if (!featureInstance.getFeatureSettingEnabled('additionalCheck', 'enabled')) {
  *     return;
  * }
@@ -259,7 +258,7 @@ describe('content-scope-features additionalCheck conditional', () => {
     describe('simulated load/init behavior', () => {
         it('should demonstrate how additionalCheck gates feature loading', async () => {
             // This test demonstrates the pattern used in content-scope-features.js
-            // Lines 60-62: if (!featureInstance.getFeatureSettingEnabled('additionalCheck', 'enabled')) { return; }
+            // `callLoad` and the init loop: if (!featureInstance.getFeatureSettingEnabled('additionalCheck', 'enabled')) { return; }
 
             class MockFeature extends BaseTestFeature {
                 constructor(featureName, importConfig, args) {
