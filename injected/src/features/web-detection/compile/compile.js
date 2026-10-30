@@ -446,14 +446,12 @@ function compilePayload(raw, path, scope) {
         const field = { key, path: fieldPath, value };
         if (spec.when !== undefined) field.when = compilePredicate(spec.when, 'value', `${fieldPath}.when`, scope.hooks);
         if (spec.buckets !== undefined) {
-            const buckets = spec.buckets;
-            if (!isPlainObject(buckets) || objectKeys(buckets).length === 0) {
-                throw new ConfigParseError(`${fieldPath}.buckets`, '`buckets` takes an object of at least one bucket');
-            }
-            field.buckets = objectKeys(buckets).map((name) => [
-                name,
-                compilePredicate(buckets[name], 'value', `${fieldPath}.buckets.${name}`, scope.hooks),
-            ]);
+            // The config validator checks the shape: an array of `{"name", "is"}`
+            const buckets = /** @type {Array<{ name: string, is: unknown }>} */ (spec.buckets);
+            field.buckets = buckets.map(({ name, is }, i) => {
+                const path = `${fieldPath}.buckets.${i}.is`;
+                return { name, is: compilePredicate(is, 'value', path, scope.hooks), path };
+            });
         }
         return field;
     });

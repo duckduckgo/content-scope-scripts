@@ -1,1 +1,2 @@
-- Windows: OAS/Extension sideloading during onboarding (#3117)
+- Web detection: payload buckets as an array (#3167)
+- Give the BrowserUiLock image page tests their own document (#3166)

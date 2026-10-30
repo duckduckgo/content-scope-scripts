@@ -235,7 +235,7 @@ describe('WebDetection feature', () => {
         });
 
         it('fires the event with its data on a match', async () => {
-            const instance = create({ d: { match: true, actions: fires({ x: { value: 2, buckets: { two: 2 } } }) } });
+            const instance = create({ d: { match: true, actions: fires({ x: { value: 2, buckets: [{ name: 'two', is: 2 }] } }) } });
             instance.runDetectors({ trigger: 'breakageReport' });
             await Promise.resolve();
             // @ts-expect-error - Jasmine spy type inference doesn't match callFeatureMethod's overloaded signature

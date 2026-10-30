@@ -74,7 +74,14 @@
  * @property {string} path - the config path of the field, `<action>.data.<key>`
  * @property {Node} value
  * @property {CompiledPredicate} [when]
- * @property {Array<[string, CompiledPredicate]>} [buckets]
+ * @property {CompiledBucket[]} [buckets] - tested in order, the first that holds naming the value
+ */
+
+/**
+ * @typedef {object} CompiledBucket
+ * @property {string} name
+ * @property {CompiledPredicate} is
+ * @property {string} path - the config path of `is`, `<field>.buckets.<index>.is`
  */
 
 /**

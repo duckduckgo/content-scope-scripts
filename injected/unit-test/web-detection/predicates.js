@@ -47,7 +47,7 @@ describe('WebDetection predicates', () => {
             rejectsMatch({ api: { path: 'performance.getEntries', where: [{ a: 1 }] } }, notPredicate);
             rejectsMatch({ api: { path: 'document.title' }, is: { length: [1, 2] } }, notPredicate);
             expectParseError(withPayload(1, { when: [1, 2] }), notPredicate);
-            expectParseError(withPayload(1, { buckets: { low: [0, 1] } }), notPredicate);
+            expectParseError(withPayload(1, { buckets: [{ name: 'low', is: [0, 1] }] }), notPredicate);
         });
 
         it('tests for one of several values with in', () => {
@@ -586,7 +586,7 @@ describe('WebDetection predicates', () => {
                 return run('', { actions: { define: { n: { api: { ...items, where }, using: 'length' } } } }).events.map((e) => e.data);
             };
             expect(sent({ when: { eq: { self: 'a' } } })).toEqual([{ x: 1 }, {}, {}]);
-            expect(sent({ buckets: { first: { eq: { self: 'a' } } } })).toEqual([{ x: 'first' }, {}, {}]);
+            expect(sent({ buckets: [{ name: 'first', is: { eq: { self: 'a' } } }] })).toEqual([{ x: 'first' }, {}, {}]);
         });
 
         it('computes an expression over a ref inside a where, field or using that reads no self', () => {
