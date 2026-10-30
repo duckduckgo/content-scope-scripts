@@ -360,7 +360,7 @@
     "description": "Heading of the chat card in the How Duck.ai Works panel."
   },
   "omnibar_suggestedPromptsChatBody": {
-    "title": "Pick a popular AI to chat with, like GPT-5 mini, Claude Haiku 4.5, Mistral, etc.",
+    "title": "Pick a popular AI to chat with, from OpenAI, Anthropic, Mistral, and more.",
     "description": "Body of the chat card in the How Duck.ai Works panel. Describes choosing from popular AI models."
   },
   "omnibar_suggestedPromptsAnonymizedTitle": {
