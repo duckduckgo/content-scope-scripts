@@ -16565,6 +16565,13 @@
     requestChromeExtensionInstall() {
       this.messaging.notify("requestChromeExtensionInstall");
     }
+    /**
+     * Sends the selected Windows onboarding options to native.
+     * @param {import('../types/onboarding.ts').OnboardingInstallOptions} params
+     */
+    setOnboardingInstallOptions(params) {
+      this.messaging.notify("setOnboardingInstallOptions", params);
+    }
   };
 
   // ../node_modules/preact/dist/preact.module.js
@@ -17236,6 +17243,9 @@
         }
         if (msg.kind === "request-chrome-extension") {
           messaging2.requestChromeExtensionInstall();
+        }
+        if (msg.kind === "set-onboarding-install-options") {
+          messaging2.setOnboardingInstallOptions(msg.payload);
         }
       },
       [state, messaging2]
@@ -18562,6 +18572,18 @@
     getStarted_chromeExtension_tooltip: {
       title: "Set DuckDuckGo as your default search engine in Chrome to search online without being tracked.",
       note: "Tooltip text shown when hovering over the info icon next to the Chrome extension checkbox."
+    },
+    getStarted_extensions_label: {
+      title: "Install our extension to search privately in other browsers",
+      note: "Windows onboarding checkbox for installing DuckDuckGo extensions in eligible Chrome, Edge, and Firefox browsers."
+    },
+    getStarted_extensions_tooltip: {
+      title: "Set DuckDuckGo as your default search engine to search online without being tracked",
+      note: "Tooltip explaining the Windows onboarding extension installation option."
+    },
+    getStarted_launchOnStartup_label: {
+      title: "Open DuckDuckGo when your computer starts up",
+      note: "Windows onboarding checkbox for opening the browser at Windows sign-in."
     }
   };
 
@@ -20186,6 +20208,7 @@
     body: "GetStartedContent_body",
     hidden: "GetStartedContent_hidden",
     revealable: "GetStartedContent_revealable",
+    installOptions: "GetStartedContent_installOptions",
     checkboxRow: "GetStartedContent_checkboxRow",
     checkboxLabel: "GetStartedContent_checkboxLabel",
     checkbox: "GetStartedContent_checkbox",
@@ -20205,15 +20228,38 @@
     const { activeStepVisible, step } = useGlobalState();
     const dispatch = useGlobalDispatch();
     const [chromeExtensionChecked, setChromeExtensionChecked] = d2(false);
+    const [sideloadExtensions, setSideloadExtensions] = d2(false);
+    const [openAtStartup, setOpenAtStartup] = d2(true);
+    const submitted = A2(false);
+    const { options: options2 } = (
+      /** @type {import('../../types').GetStartedStep} */
+      step
+    );
+    const isWindows = usePlatformName() === "windows";
     const showChromeExtension = (
       /** @type {import('../../types').GetStartedStep} */
       step.options?.includes("chrome-extension-install")
     );
+    const showExtensions = options2?.includes("sideload-extensions");
+    const showLaunchOnStartup = options2?.includes("open-at-startup");
     const [title, ...paragraphs] = t3("getStarted_title_v4", { newline: "\n" }).split("{paragraph}");
     const body = paragraphs.join("\n\n");
     function handleAdvance() {
+      if (isWindows) {
+        if (submitted.current) return;
+        submitted.current = true;
+      }
       if (showChromeExtension && chromeExtensionChecked) {
         dispatch({ kind: "request-chrome-extension" });
+      }
+      if (isWindows) {
+        dispatch({
+          kind: "set-onboarding-install-options",
+          payload: {
+            ...showExtensions ? { sideloadExtensions } : {},
+            ...showLaunchOnStartup ? { openAtStartup } : {}
+          }
+        });
       }
       advance();
     }
@@ -20240,7 +20286,7 @@
         size: "stretch",
         onClick: handleAdvance
       },
-      t3(showChromeExtension ? "getStartedButton_v4" : "getStartedButtonDefault_v4")
+      t3(showChromeExtension || showExtensions || showLaunchOnStartup ? "getStartedButton_v4" : "getStartedButtonDefault_v4")
     ), showChromeExtension && /* @__PURE__ */ k(
       ChromeExtensionCheckbox,
       {
@@ -20250,6 +20296,31 @@
         label: t3("getStarted_chromeExtension_label"),
         tooltip: t3("getStarted_chromeExtension_tooltip")
       }
+    ), (showExtensions || showLaunchOnStartup) && /* @__PURE__ */ k(
+      "div",
+      {
+        class: (0, import_classnames14.default)(GetStartedContent_default.installOptions, {
+          [GetStartedContent_default.revealable]: hasTypingEffect,
+          [GetStartedContent_default.hidden]: hasTypingEffect && !activeStepVisible
+        })
+      },
+      showLaunchOnStartup && /* @__PURE__ */ k(
+        WindowsInstallCheckbox,
+        {
+          checked: openAtStartup,
+          onChange: setOpenAtStartup,
+          label: t3("getStarted_launchOnStartup_label")
+        }
+      ),
+      showExtensions && /* @__PURE__ */ k(
+        WindowsInstallCheckbox,
+        {
+          checked: sideloadExtensions,
+          onChange: setSideloadExtensions,
+          label: t3("getStarted_extensions_label"),
+          tooltip: t3("getStarted_extensions_tooltip")
+        }
+      )
     ));
   }
   function ChromeExtensionCheckbox({ checked, onChange, label, tooltip, class: className }) {
@@ -20275,6 +20346,36 @@
         "stroke-linejoin": "round"
       }
     ))), /* @__PURE__ */ k("span", { class: GetStartedContent_default.checkboxText }, label)), /* @__PURE__ */ k("span", { class: GetStartedContent_default.infoIconWrapper, onMouseEnter: () => setShowTooltip(true), onMouseLeave: () => setShowTooltip(false) }, /* @__PURE__ */ k("span", { class: GetStartedContent_default.infoIcon, "aria-label": "More information" }, /* @__PURE__ */ k("svg", { viewBox: "0 0 16 16", fill: "none", xmlns: "http://www.w3.org/2000/svg", width: "16", height: "16" }, /* @__PURE__ */ k("circle", { cx: "8", cy: "8", r: "7", fill: "currentColor" }), /* @__PURE__ */ k(
+      "path",
+      {
+        d: "M7.25 7h1.5v4h-1.5V7ZM8 4.5a.875.875 0 1 1 0 1.75.875.875 0 0 1 0-1.75Z",
+        fill: "var(--ds-surface-tertiary, white)"
+      }
+    ))), showTooltip && /* @__PURE__ */ k("span", { class: GetStartedContent_default.tooltip, role: "tooltip" }, tooltip)));
+  }
+  function WindowsInstallCheckbox({ checked, onChange, label, tooltip, class: className }) {
+    const [showTooltip, setShowTooltip] = d2(false);
+    return /* @__PURE__ */ k("div", { class: (0, import_classnames14.default)(GetStartedContent_default.checkboxRow, className) }, /* @__PURE__ */ k("label", { class: GetStartedContent_default.checkboxLabel }, /* @__PURE__ */ k("span", { class: (0, import_classnames14.default)(GetStartedContent_default.checkbox, { [GetStartedContent_default.checked]: checked }) }, /* @__PURE__ */ k(
+      "input",
+      {
+        type: "checkbox",
+        class: GetStartedContent_default.checkboxInput,
+        checked,
+        onChange: (e3) => onChange(
+          /** @type {HTMLInputElement} */
+          e3.target.checked
+        )
+      }
+    ), checked && /* @__PURE__ */ k("svg", { class: GetStartedContent_default.checkmark, viewBox: "0 0 12 12", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ k(
+      "path",
+      {
+        d: "M2.5 6L5 8.5L9.5 3.5",
+        stroke: "currentColor",
+        "stroke-width": "1.5",
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round"
+      }
+    ))), /* @__PURE__ */ k("span", { class: GetStartedContent_default.checkboxText }, label)), tooltip && /* @__PURE__ */ k("span", { class: GetStartedContent_default.infoIconWrapper, onMouseEnter: () => setShowTooltip(true), onMouseLeave: () => setShowTooltip(false) }, /* @__PURE__ */ k("span", { class: GetStartedContent_default.infoIcon, "aria-label": "More information" }, /* @__PURE__ */ k("svg", { viewBox: "0 0 16 16", fill: "none", xmlns: "http://www.w3.org/2000/svg", width: "16", height: "16" }, /* @__PURE__ */ k("circle", { cx: "8", cy: "8", r: "7", fill: "currentColor" }), /* @__PURE__ */ k(
       "path",
       {
         d: "M7.25 7h1.5v4h-1.5V7ZM8 4.5a.875.875 0 1 1 0 1.75.875.875 0 0 1 0-1.75Z",
@@ -20424,10 +20525,10 @@
       };
     },
     getStarted: ({ enqueueNext, onTitleComplete, isShortViewport, globalState }) => {
-      const showChromeExtension = (
+      const showInstallOptions = (
         /** @type {import('../../types').GetStartedStep} */
-        globalState.step.options?.includes(
-          "chrome-extension-install"
+        globalState.step.options?.some(
+          (option) => option === "chrome-extension-install" || option === "sideload-extensions" || option === "open-at-startup"
         )
       );
       return {
@@ -20438,7 +20539,7 @@
         illustration: isShortViewport ? void 0 : {
           foreground: /* @__PURE__ */ k(GetStartedAnimation, null)
         },
-        bubbleWidth: showChromeExtension ? "chromeExtension" : "narrow"
+        bubbleWidth: showInstallOptions ? "chromeExtension" : "narrow"
       };
     },
     makeDefaultSingle: ({ enqueueNext, onTitleComplete, updateSystemValue }) => {
@@ -22408,6 +22509,9 @@
           _msg
         );
         switch (msg.method) {
+          case "setOnboardingInstallOptions": {
+            break;
+          }
           default: {
             console.warn("unhandled notification", msg);
           }
@@ -22450,6 +22554,19 @@
                 id: "getStarted",
                 kind: "info",
                 options: ["chrome-extension-install"]
+              };
+            }
+            const installOptions = (
+              /** @type {import('../app/types.js').GetStartedOption[]} */
+              []
+            );
+            if (url.searchParams.get("sideloadExtensions") === "true") installOptions.push("sideload-extensions");
+            if (url.searchParams.get("openAtStartup") === "true") installOptions.push("open-at-startup");
+            if (installOptions.length > 0) {
+              stepDefinitions2.getStarted = {
+                id: "getStarted",
+                kind: "info",
+                options: [...stepDefinitions2.getStarted?.options ?? [], ...installOptions]
               };
             }
             const duckPlayerVariant = url.searchParams.get("duckPlayer");

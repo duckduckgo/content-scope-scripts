@@ -3073,6 +3073,13 @@ h2 {
 .GetStartedContent_revealable {
   transition: opacity 0.3s ease-in-out;
 }
+.GetStartedContent_installOptions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  align-self: stretch;
+  margin-top: calc(-8 * var(--px-in-rem));
+}
 .GetStartedContent_checkboxRow {
   display: flex;
   align-items: flex-start;
@@ -3102,6 +3109,10 @@ h2 {
 .GetStartedContent_checkbox.GetStartedContent_checked {
   background: var(--ds-accent-primary);
   border-color: var(--ds-accent-primary);
+}
+.GetStartedContent_installOptions .GetStartedContent_checkbox:has(:focus-visible) {
+  outline: 2px solid var(--ds-accent-primary);
+  outline-offset: 2px;
 }
 .GetStartedContent_checkboxInput {
   position: absolute;

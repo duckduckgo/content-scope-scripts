@@ -1,1 +1,1 @@
-- Extend webDetection to support slow/broken page load detectors (#3098)
+- Windows: OAS/Extension sideloading during onboarding (#3117)

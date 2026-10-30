@@ -495,5 +495,17 @@
   "getStarted_chromeExtension_tooltip" : {
     "title" : "Ustaw DuckDuckGo jako domyślną wyszukiwarkę w Chrome, aby wyszukiwać treści w Internecie i unikać przy tym śledzenia.",
     "note" : "Tooltip text shown when hovering over the info icon next to the Chrome extension checkbox."
+  },
+  "getStarted_extensions_label" : {
+    "title" : "Zainstaluj nasze rozszerzenie, aby wyszukiwać prywatnie w innych przeglądarkach",
+    "note" : "Windows onboarding checkbox for installing DuckDuckGo extensions in eligible Chrome, Edge, and Firefox browsers."
+  },
+  "getStarted_extensions_tooltip" : {
+    "title" : "Ustaw DuckDuckGo jako domyślną wyszukiwarkę, aby wyszukiwać w Internecie bez śledzenia",
+    "note" : "Tooltip explaining the Windows onboarding extension installation option."
+  },
+  "getStarted_launchOnStartup_label" : {
+    "title" : "Otwórz DuckDuckGo po uruchomieniu komputera",
+    "note" : "Windows onboarding checkbox for opening the browser at Windows sign-in."
   }
 }
