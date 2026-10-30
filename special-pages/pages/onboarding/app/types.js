@@ -34,7 +34,8 @@ import { useContext } from 'preact/hooks';
  * } Step
  * @typedef {Record<Step['id'], Step>} StepDefinitions
  * @typedef {{ kind: 'info'; id: 'welcome' }} WelcomeStep
- * @typedef {{ kind: 'info'; id: 'getStarted'; options?: SystemValueId[] }} GetStartedStep
+ * @typedef {SystemValueId | 'sideload-extensions' | 'open-at-startup'} GetStartedOption
+ * @typedef {{ kind: 'info'; id: 'getStarted'; options?: GetStartedOption[] }} GetStartedStep
  * @typedef {{ kind: 'settings'; id: 'systemSettings'; rows: SystemValueId[]; }} SystemSettingsStep
  * @typedef {{ kind: 'settings'; id: 'customize'; rows: SystemValueId[]; }} CustomizeStep
  * @typedef {{ kind: 'settings'; id: 'makeDefaultSingle'; rows: SystemValueId[]; }} MakeDefaultSingleStep
@@ -99,7 +100,8 @@ export const ORDER_V4 = ['welcome', 'getStarted', 'makeDefaultSingle', 'systemSe
  *   | DismissOverlayEvent
  *   | ConfigUpdateEvent
  *   | TelemetryEvent
- *   | RequestChromeExtensionEvent} GlobalEvents
+ *   | RequestChromeExtensionEvent
+ *   | SetOnboardingInstallOptionsEvent} GlobalEvents
  *  All the events that the UI can dispatch
  * @typedef {{ kind: "enqueue-next"; }} NextEvent
  * @typedef {{ kind: "advance" }} AdvanceEvent
@@ -115,6 +117,7 @@ export const ORDER_V4 = ['welcome', 'getStarted', 'makeDefaultSingle', 'systemSe
  * @typedef {{ kind: "config-update"; stepDefinitions?: Record<string, any>; exclude?: Step['id'][] }} ConfigUpdateEvent
  * @typedef {{ kind: "telemetry"; attributes: import('../types/onboarding.ts').TelemetryEvent['attributes'] }} TelemetryEvent
  * @typedef {{ kind: "request-chrome-extension" }} RequestChromeExtensionEvent
+ * @typedef {{ kind: "set-onboarding-install-options"; payload: import('../types/onboarding.ts').OnboardingInstallOptions }} SetOnboardingInstallOptionsEvent
  */
 
 /** @type {ImportMeta['injectName'][]} */

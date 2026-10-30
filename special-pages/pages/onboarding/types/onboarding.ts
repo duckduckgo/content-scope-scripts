@@ -10,7 +10,18 @@
  * Requests, Notifications and Subscriptions from the Onboarding feature
  */
 export interface OnboardingMessages {
-  notifications: TelemetryEventNotification;
+  notifications: SetOnboardingInstallOptionsNotification | TelemetryEventNotification;
+}
+/**
+ * Generated from @see "../messages/setOnboardingInstallOptions.notify.json"
+ */
+export interface SetOnboardingInstallOptionsNotification {
+  method: "setOnboardingInstallOptions";
+  params: OnboardingInstallOptions;
+}
+export interface OnboardingInstallOptions {
+  sideloadExtensions?: boolean;
+  openAtStartup?: boolean;
 }
 /**
  * Generated from @see "../messages/telemetryEvent.notify.json"

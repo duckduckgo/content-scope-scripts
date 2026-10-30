@@ -974,6 +974,163 @@ test.describe('onboarding v4', () => {
         });
     });
 
+    test.describe('Windows installation checkboxes on getStarted step', () => {
+        const extensionLabel = 'Install our extension to search privately in other browsers';
+        const startupLabel = 'Open DuckDuckGo when your computer starts up';
+
+        for (const showExtensions of [false, true]) {
+            for (const showStartup of [false, true]) {
+                test(`visibility and optional payload: extensions=${showExtensions}, startup=${showStartup}`, async ({
+                    page,
+                }, workerInfo) => {
+                    const onboarding = OnboardingV4Page.create(page, workerInfo);
+                    const options = [];
+                    if (showExtensions) options.push('sideload-extensions');
+                    if (showStartup) options.push('open-at-startup');
+                    onboarding.withInitData({ stepDefinitions: { getStarted: { options } } });
+                    await onboarding.reducedMotion();
+                    await onboarding.openPage({ env: 'app', page: 'getStarted' });
+
+                    const isWindows = workerInfo.project.name === 'windows';
+                    const extensions = page.getByRole('checkbox', { name: extensionLabel });
+                    const startup = page.getByRole('checkbox', { name: startupLabel });
+                    if (showExtensions) {
+                        await expect(extensions).toBeVisible();
+                        await expect(extensions).not.toBeChecked();
+                    } else {
+                        await expect(extensions).not.toBeVisible();
+                    }
+                    if (showStartup) {
+                        await expect(startup).toBeVisible();
+                        await expect(startup).toBeChecked();
+                    } else {
+                        await expect(startup).not.toBeVisible();
+                    }
+
+                    await page.getByRole('button', { name: options.length ? 'Start Browser Setup' : 'Let’s get started!' }).click();
+                    await expect(page.getByRole('heading', { name: 'Protections activated' })).toBeVisible();
+                    const calls = await onboarding.mocks.outgoing({ names: ['setOnboardingInstallOptions'] });
+                    expect(calls).toHaveLength(isWindows ? 1 : 0);
+                    if (isWindows) {
+                        expect(calls[0].payload.params).toEqual({
+                            ...(showExtensions ? { sideloadExtensions: false } : {}),
+                            ...(showStartup ? { openAtStartup: true } : {}),
+                        });
+                    }
+                });
+            }
+        }
+
+        test('missing native options keep both Windows controls hidden', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({ stepDefinitions: {} });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'getStarted' });
+            await expect(page.getByRole('checkbox', { name: extensionLabel })).not.toBeVisible();
+            await expect(page.getByRole('checkbox', { name: startupLabel })).not.toBeVisible();
+        });
+
+        for (const sideloadExtensions of [false, true]) {
+            for (const openAtStartup of [false, true]) {
+                test(`submits choices: extensions=${sideloadExtensions}, startup=${openAtStartup}`, async ({ page }, workerInfo) => {
+                    test.skip(workerInfo.project.name !== 'windows', 'Installation choices are offered on Windows only');
+                    const onboarding = OnboardingV4Page.create(page, workerInfo);
+                    onboarding.withInitData({ stepDefinitions: { getStarted: { options: ['sideload-extensions', 'open-at-startup'] } } });
+                    await onboarding.reducedMotion();
+                    await onboarding.openPage({ env: 'app', page: 'getStarted' });
+
+                    await page.getByRole('checkbox', { name: extensionLabel }).setChecked(sideloadExtensions);
+                    await page.getByRole('checkbox', { name: startupLabel }).setChecked(openAtStartup);
+                    expect(await onboarding.mocks.outgoing({ names: ['setOnboardingInstallOptions'] })).toHaveLength(0);
+                    await page.getByRole('button', { name: 'Start Browser Setup' }).click();
+                    await expect(page.getByRole('heading', { name: 'Protections activated' })).toBeVisible();
+
+                    const calls = await onboarding.mocks.outgoing({ names: ['setOnboardingInstallOptions'] });
+                    expect(calls).toHaveLength(1);
+                    expect(calls[0].payload).toMatchObject({
+                        context: 'specialPages',
+                        featureName: 'onboarding',
+                        method: 'setOnboardingInstallOptions',
+                        params: { sideloadExtensions, openAtStartup },
+                    });
+                    const messages = await onboarding.mocks.outgoing({ names: ['setOnboardingInstallOptions', 'stepCompleted'] });
+                    const choicesIndex = messages.findIndex((message) => message.payload.method === 'setOnboardingInstallOptions');
+                    const completedIndex = messages.findIndex(
+                        (message) => message.payload.method === 'stepCompleted' && message.payload.params.id === 'getStarted',
+                    );
+                    expect(choicesIndex).toBeGreaterThanOrEqual(0);
+                    expect(completedIndex).toBeGreaterThan(choicesIndex);
+                    expect(
+                        await onboarding.mocks.outgoing({
+                            names: ['requestChromeExtensionInstall', 'reportPageException', 'reportInitException'],
+                        }),
+                    ).toHaveLength(0);
+                });
+            }
+        }
+
+        test('choices can be toggled and submitted with the keyboard', async ({ page }, workerInfo) => {
+            test.skip(workerInfo.project.name !== 'windows', 'Installation choices are offered on Windows only');
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({ stepDefinitions: { getStarted: { options: ['sideload-extensions', 'open-at-startup'] } } });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'getStarted' });
+
+            const button = page.getByRole('button', { name: 'Start Browser Setup' });
+            await button.focus();
+            await page.keyboard.press('Tab');
+            const startup = page.getByRole('checkbox', { name: startupLabel });
+            await expect(startup).toBeFocused();
+            await page.keyboard.press('Space');
+            await expect(startup).not.toBeChecked();
+            await page.keyboard.press('Tab');
+            const extensions = page.getByRole('checkbox', { name: extensionLabel });
+            await expect(extensions).toBeFocused();
+            await page.keyboard.press('Space');
+            await expect(extensions).toBeChecked();
+            await button.focus();
+            await page.keyboard.press('Enter');
+            await expect(page.getByRole('heading', { name: 'Protections activated' })).toBeVisible();
+
+            const calls = await onboarding.mocks.outgoing({ names: ['setOnboardingInstallOptions'] });
+            expect(calls).toHaveLength(1);
+            expect(calls[0].payload.params).toEqual({ sideloadExtensions: true, openAtStartup: false });
+        });
+
+        for (const colorScheme of /** @type {const} */ (['light', 'dark'])) {
+            for (const height of [768, 500]) {
+                test(`layout in ${colorScheme} mode at height ${height}`, async ({ page }, workerInfo) => {
+                    test.skip(workerInfo.project.name !== 'windows', 'Installation choices are offered on Windows only');
+                    const onboarding = OnboardingV4Page.create(page, workerInfo);
+                    onboarding.withInitData({ stepDefinitions: { getStarted: { options: ['sideload-extensions', 'open-at-startup'] } } });
+                    await page.emulateMedia({ colorScheme });
+                    await page.setViewportSize({ width: 1024, height });
+                    await onboarding.reducedMotion();
+                    await onboarding.openPage({ env: 'app', page: 'getStarted' });
+
+                    const button = page.getByRole('button', { name: 'Start Browser Setup' });
+                    const extensions = page.getByRole('checkbox', { name: extensionLabel });
+                    const startup = page.getByRole('checkbox', { name: startupLabel });
+                    await expect(button).toBeInViewport();
+                    await expect(extensions).toBeInViewport();
+                    await expect(startup).toBeInViewport();
+                    const buttonBox = await button.boundingBox();
+                    const extensionBox = await extensions.boundingBox();
+                    const startupBox = await startup.boundingBox();
+                    expect(startupBox?.y).toBeGreaterThanOrEqual((buttonBox?.y ?? 0) + (buttonBox?.height ?? 0));
+                    expect(extensionBox?.y).toBeGreaterThan((startupBox?.y ?? 0) + (startupBox?.height ?? 0));
+                    await page.screenshot({ path: workerInfo.outputPath('install-options.png') });
+
+                    await page.getByLabel('More information').hover();
+                    await expect(page.getByRole('tooltip')).toHaveText(
+                        'Set DuckDuckGo as your default search engine to search online without being tracked',
+                    );
+                    await expect(page.getByRole('tooltip')).toBeInViewport();
+                });
+            }
+        }
+    });
+
     test.describe('Given a settings update is in flight', () => {
         test('Then a control on another row cannot start a second update', async ({ page }, workerInfo) => {
             test.skip(workerInfo.project.name !== 'windows', 'holdRequests patches the Windows transport only');
