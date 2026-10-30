@@ -41,6 +41,8 @@ import { useTabAttachments } from './chat-tools/tab-attachment/useTabAttachments
 import { NoticeDrawer } from './NoticeDrawer';
 import { TERMS_DISCLAIMER_ID, useTermsButtonLabel } from './useTermsDisclaimerNotice';
 import { useKeyboardFocusWithin } from './useKeyboardFocusWithin.js';
+import { SuggestedPrompts } from './suggested-prompts/SuggestedPrompts.js';
+import { fitToOneLine } from '../utils.js';
 
 /**
  * @typedef {typeof import('../strings.json')} Strings
@@ -49,6 +51,9 @@ import { useKeyboardFocusWithin } from './useKeyboardFocusWithin.js';
  * @typedef {import('../../../types/new-tab.js').OpenTarget} OpenTarget
  * @typedef {import('../../../types/new-tab.js').SubmitChatAction} SubmitChatAction
  */
+
+/** Long enough to swallow a double-click on a suggested prompt. */
+const SUGGESTED_PROMPT_REPEAT_GUARD_MS = 1000;
 
 /**
  * Whether a focus change landed on another element inside `ref`, rather than leaving its subtree.
@@ -71,6 +76,7 @@ function focusStaysWithin(ref, event) {
  * @param {boolean} [props.enableVoiceChatAccess]
  * @param {boolean} [props.enableAskAiSuggestion]
  * @param {boolean} [props.enableAttachTabs]
+ * @param {boolean} [props.showSuggestedPrompts]
  * @param {string|null|undefined} props.tabId
  */
 export function Omnibar({
@@ -83,15 +89,20 @@ export function Omnibar({
     enableVoiceChatAccess = false,
     enableAskAiSuggestion = true,
     enableAttachTabs = false,
+    showSuggestedPrompts = false,
     tabId,
 }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const spacerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
+    const suggestedPromptsRef = useRef(/** @type {HTMLDivElement|null} */ (null));
+    const lastSameTabSuggestedPromptAt = useRef(0);
     const launcherPromoVisibleRef = useRef(false);
     const [usageLimitsRevealed, setUsageLimitsRevealed] = useState(false);
     const [noticeReservedHeight, setNoticeReservedHeight] = useState(0);
 
     const [query, setQuery] = useQueryWithLocalPersistence(tabId);
+    /** Text of the hovered or focused suggested prompt, previewed in the composer while it's empty. */
+    const [promptPlaceholder, setPromptPlaceholder] = useState(/** @type {string|null} */ (null));
     const [resetKey, setResetKey] = useState(0);
     const [autoFocus, setAutoFocus] = useState(false);
     /*
@@ -139,10 +150,35 @@ export function Omnibar({
         resetForm();
     };
 
+    /**
+     * Moving focus from the composer into the chips keeps focus-revealed notices open. Hiding them would drop the room
+     * they reserve and shift the chips mid-click.
+     * @param {FocusEvent} event
+     */
+    const hideNoticesOnFocusLeave = (event) => {
+        if (focusStaysWithin(spacerRef, event) || focusStaysWithin(suggestedPromptsRef, event)) return;
+        setUsageLimitsRevealed(false);
+    };
+
     /** @type {(params: SubmitChatAction) => void} */
     const handleSubmitChat = (params) => {
         submitChat(launcherPromoVisibleRef.current ? { ...params, launcherPromoVisible: true } : params);
         resetForm();
+    };
+
+    /**
+     * A suggested prompt sends its own text, not the composer's, so the draft, attachments and tool stay as they were.
+     * With no form reset to disable it, a double-click would send twice, so a repeat same-tab send is dropped briefly.
+     * New-tab opens stay repeatable.
+     * @type {(params: SubmitChatAction) => void}
+     */
+    const handleSubmitSuggestedPrompt = (params) => {
+        if (params.target === 'same-tab') {
+            const now = Date.now();
+            if (now - lastSameTabSuggestedPromptAt.current < SUGGESTED_PROMPT_REPEAT_GUARD_MS) return;
+            lastSameTabSuggestedPromptAt.current = now;
+        }
+        submitChat(launcherPromoVisibleRef.current ? { ...params, launcherPromoVisible: true } : params);
     };
 
     /** @type {(mode: OmnibarConfig['mode']) => void} */
@@ -186,17 +222,15 @@ export function Omnibar({
                     >
                         <div
                             ref={spacerRef}
-                            class={styles.spacer}
+                            // Ease the room open with the drawer revealed on focus; notices open at load take it instantly.
+                            class={cn(styles.spacer, usageLimitsRevealed && styles.spacerReserveTransition)}
                             style={{ marginBottom: noticeReservedHeight }}
                             onFocusCapture={(event) => {
                                 // Toolbar/drawer focus must not reveal the drawer — only the composer itself.
                                 if (!(event.target instanceof HTMLTextAreaElement)) return;
                                 setUsageLimitsRevealed(true);
                             }}
-                            onBlurCapture={(event) => {
-                                if (focusStaysWithin(spacerRef, event)) return;
-                                setUsageLimitsRevealed(false);
-                            }}
+                            onBlurCapture={hideNoticesOnFocusLeave}
                         >
                             <div class={styles.popup} {...keyboardFocusWithinProps}>
                                 {mode === 'search' ? (
@@ -215,6 +249,7 @@ export function Omnibar({
                                     <OpenTabsProvider tabId={tabId} enabled={enableAttachTabs}>
                                         <AiChatContent
                                             query={query}
+                                            promptPlaceholder={promptPlaceholder}
                                             autoFocus={autoFocus}
                                             enableRecentAiChats={enableRecentAiChats}
                                             enableVoiceChatAccess={enableVoiceChatAccess}
@@ -231,10 +266,23 @@ export function Omnibar({
                                 <NoticeDrawer
                                     revealed={usageLimitsRevealed}
                                     onReservedHeightChange={setNoticeReservedHeight}
+                                    // The chips sit right below the drawer, so push them down instead of covering them.
+                                    reserveSpace={showSuggestedPrompts}
                                     launcherPromoVisibleRef={launcherPromoVisibleRef}
                                 />
                             )}
                         </div>
+                        {/* `autoFocus` is only set by a mode switch, so the chips don't animate on page load. */}
+                        {mode === 'ai' && showSuggestedPrompts && (
+                            <SuggestedPrompts
+                                onSubmit={handleSubmitSuggestedPrompt}
+                                onPreview={setPromptPlaceholder}
+                                animateIn={autoFocus}
+                                enableVoiceChatAccess={enableVoiceChatAccess}
+                                containerRef={suggestedPromptsRef}
+                                onBlurCapture={hideNoticesOnFocusLeave}
+                            />
+                        )}
                     </AiChatsProvider>
                 </AttachmentsProvider>
             </SearchFormProvider>
@@ -245,6 +293,7 @@ export function Omnibar({
 /**
  * @param {object} props
  * @param {string} props.query
+ * @param {string|null} [props.promptPlaceholder] - Replaces the placeholder, cut to one line.
  * @param {boolean} [props.autoFocus]
  * @param {boolean} props.enableRecentAiChats
  * @param {boolean} [props.enableVoiceChatAccess]
@@ -256,6 +305,7 @@ export function Omnibar({
  */
 function AiChatContent({
     query,
+    promptPlaceholder = null,
     autoFocus,
     enableRecentAiChats,
     enableVoiceChatAccess = false,
@@ -460,6 +510,8 @@ function AiChatContent({
 
     const showRecentChats = enableRecentAiChats && !imageGenerationActive && !mention.pickerActive;
     const termsButtonLabel = useTermsButtonLabel();
+    // A placeholder only shows while the input is empty, so a typed draft hides the preview by itself.
+    const fittedPromptPlaceholder = promptPlaceholder && textareaRef.current ? fitToOneLine(promptPlaceholder, textareaRef.current) : null;
 
     return (
         <div
@@ -486,7 +538,7 @@ function AiChatContent({
                     autoFocus={autoFocus}
                     disabled={disabled}
                     readOnly={blocksPrompt}
-                    placeholder={imageGenerationActive ? imageGenerationPlaceholder : undefined}
+                    placeholder={fittedPromptPlaceholder ?? (imageGenerationActive ? imageGenerationPlaceholder : undefined)}
                     onChange={handleChange}
                     onSubmit={handleSubmit}
                     onTextareaKeyDown={mention.handleTextareaKeyDown}

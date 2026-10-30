@@ -476,6 +476,142 @@
     "title" : "Внутренний",
     "description" : "Badge shown next to an AI model in the model selector that is only available to internal users."
   },
+  "omnibar_suggestedPromptsHowDuckAiWorksLabel" : {
+    "title" : "Как работает Duck.ai",
+    "description" : "Pill label that opens a panel explaining how Duck.ai protects privacy. Duck.ai suggested prompts below the Duck.ai chat input on the New Tab Page."
+  },
+  "omnibar_suggestedPromptsHowDuckAiWorksAria" : {
+    "title" : "Открыть панель «Как работает Duck.ai»",
+    "description" : "Accessible name for the How Duck.ai Works pill."
+  },
+  "omnibar_suggestedPromptsSuggestionsLabel" : {
+    "title" : "Рекомендации в чате",
+    "description" : "Pill label that opens a list of suggested chat prompts. Duck.ai suggested prompts below the Duck.ai chat input on the New Tab Page."
+  },
+  "omnibar_suggestedPromptsSuggestionsAria" : {
+    "title" : "Открыть рекомендации в чате",
+    "description" : "Accessible name for the Chat Suggestions pill."
+  },
+  "omnibar_suggestedPromptsCreateImageLabel" : {
+    "title" : "Создание и редактирование изображений",
+    "description" : "Pill label that opens a row of suggested image-generation prompts. Duck.ai suggested prompts below the Duck.ai chat input on the New Tab Page."
+  },
+  "omnibar_suggestedPromptsCreateImageAria" : {
+    "title" : "Открыть предложения по созданию и редактированию изображений",
+    "description" : "Accessible name for the Create & Edit Images pill."
+  },
+  "omnibar_suggestedPromptsPrevPageAria" : {
+    "title" : "Предыдущие предложения",
+    "description" : "Accessible label for the previous-page chevron in the Chat Suggestions panel."
+  },
+  "omnibar_suggestedPromptsNextPageAria" : {
+    "title" : "Следующие предложения",
+    "description" : "Accessible label for the next-page chevron in the Chat Suggestions panel."
+  },
+  "omnibar_suggestedPromptsCloseAria" : {
+    "title" : "Закрыть панель",
+    "description" : "Accessible label for the X button that closes a suggested-prompts panel."
+  },
+  "omnibar_suggestedPromptsVoiceChatLabel" : {
+    "title" : "Голосовой чат",
+    "description" : "Label for the Voice Chat chip shown among the Duck.ai suggested-prompt chips on narrow windows. Selecting it starts a Duck.ai voice chat."
+  },
+  "omnibar_suggestedPromptsChatTitle" : {
+    "title" : "Вы общаетесь в чате",
+    "description" : "Heading of the chat card in the How Duck.ai Works panel."
+  },
+  "omnibar_suggestedPromptsChatBody" : {
+    "title" : "Выберите популярный ИИ — например, GPT-5 mini, Claude Haiku 4.5, Mistral и т. д.",
+    "description" : "Body of the chat card in the How Duck.ai Works panel. Describes choosing from popular AI models."
+  },
+  "omnibar_suggestedPromptsAnonymizedTitle" : {
+    "title" : "Мы обеспечиваем анонимность",
+    "description" : "Heading of the anonymization card in the How Duck.ai Works panel."
+  },
+  "omnibar_suggestedPromptsAnonymizedBody" : {
+    "title" : "Все личные метаданные (например, ваш IP-адрес) удаляются перед отправкой чата поставщику ИИ.",
+    "description" : "Body of the anonymization card in the How Duck.ai Works panel."
+  },
+  "omnibar_suggestedPromptsNoAiTrainingTitle" : {
+    "title" : "Без обучения ИИ",
+    "description" : "Heading of the no-AI-training card in the How Duck.ai Works panel."
+  },
+  "omnibar_suggestedPromptsNoAiTrainingBody" : {
+    "title" : "Мы подписали соглашения со всеми поставщиками моделей ИИ, чтобы гарантировать, что ваши чаты не будут использоваться для обучения ИИ.",
+    "description" : "Body of the no-AI-training card in the How Duck.ai Works panel."
+  },
+  "omnibar_suggestedPromptsTextJobApplication" : {
+    "title" : "Улучши отклик на вакансию",
+    "description" : "A suggested chat prompt in the Chat Suggestions panel. Selecting it starts a Duck.ai chat on this topic."
+  },
+  "omnibar_suggestedPromptsTextHomeFix" : {
+    "title" : "Почини что-нибудь у меня дома",
+    "description" : "A suggested chat prompt in the Chat Suggestions panel. Selecting it starts a Duck.ai chat on this topic."
+  },
+  "omnibar_suggestedPromptsTextFinancialTerms" : {
+    "title" : "Разберись в распространённых финансовых терминах",
+    "description" : "A suggested chat prompt in the Chat Suggestions panel. Selecting it starts a Duck.ai chat on this topic."
+  },
+  "omnibar_suggestedPromptsTextFitnessPlan" : {
+    "title" : "Составь план тренировок",
+    "description" : "A suggested chat prompt in the Chat Suggestions panel. Selecting it starts a Duck.ai chat on this topic."
+  },
+  "omnibar_suggestedPromptsTextWriteEmail" : {
+    "title" : "Составить важное электронное письмо",
+    "description" : "A suggested chat prompt in the Chat Suggestions panel. Selecting it starts a Duck.ai chat on this topic."
+  },
+  "omnibar_suggestedPromptsTextPlanTrip" : {
+    "title" : "Спланировать предстоящую поездку",
+    "description" : "A suggested chat prompt in the Chat Suggestions panel. Selecting it starts a Duck.ai chat on this topic."
+  },
+  "omnibar_suggestedPromptsTextBuyingHouse" : {
+    "title" : "Узнай о покупке дома",
+    "description" : "A suggested chat prompt in the Chat Suggestions panel. Selecting it starts a Duck.ai chat on this topic."
+  },
+  "omnibar_suggestedPromptsTextGettingFit" : {
+    "title" : "Советы, как начать приводить себя в форму",
+    "description" : "A suggested chat prompt in the Chat Suggestions panel. Selecting it starts a Duck.ai chat on this topic."
+  },
+  "omnibar_suggestedPromptsTextDifficultConversation" : {
+    "title" : "Подготовься к трудному разговору",
+    "description" : "A suggested chat prompt in the Chat Suggestions panel. Selecting it starts a Duck.ai chat on this topic."
+  },
+  "omnibar_suggestedPromptsTextNewSkill" : {
+    "title" : "Выучить новый навык",
+    "description" : "A suggested chat prompt in the Chat Suggestions panel. Selecting it starts a Duck.ai chat on this topic."
+  },
+  "omnibar_suggestedPromptsTextMoneyHabits" : {
+    "title" : "Выработай более разумные привычки в обращении с деньгами",
+    "description" : "A suggested chat prompt in the Chat Suggestions panel. Selecting it starts a Duck.ai chat on this topic."
+  },
+  "omnibar_suggestedPromptsTextImproveSleep" : {
+    "title" : "Улучши мой сон",
+    "description" : "A suggested chat prompt in the Chat Suggestions panel. Selecting it starts a Duck.ai chat on this topic."
+  },
+  "omnibar_suggestedPromptsImageCreateComic" : {
+    "title" : "Создать комикс",
+    "description" : "Label on an image card in the Create & Edit Images panel. Keep it short; it sits on a small chip over a thumbnail."
+  },
+  "omnibar_suggestedPromptsImageDesignSpace" : {
+    "title" : "Обустрой своё пространство",
+    "description" : "Label on an image card in the Create & Edit Images panel. Keep it short; it sits on a small chip over a thumbnail."
+  },
+  "omnibar_suggestedPromptsImageEditPhoto" : {
+    "title" : "Редактировать фото",
+    "description" : "Label on an image card in the Create & Edit Images panel. Keep it short; it sits on a small chip over a thumbnail."
+  },
+  "omnibar_suggestedPromptsTextPromptTemplate" : {
+    "title" : "{topic}. Если нужно, задай мне 1–2 вопроса, на которые я смогу ответить всего несколькими словами, чтобы помочь мне найти наиболее полезную информацию. Говори непринуждённо и отвечай так, чтобы мне было легко понять.",
+    "description" : "The message sent to Duck.ai when a suggested chat prompt is selected. {topic} is replaced with the translated suggestion, for example \"Improve a job application\". Keep {topic} as is."
+  },
+  "omnibar_suggestedPromptsImageCreateComicPrompt" : {
+    "title" : "Нарисуй иллюстрацию в стиле комикса: утка уничтожает документы с конфиденциальной информацией.",
+    "description" : "The message sent to Duck.ai's image generator when the Create Comic card is selected."
+  },
+  "omnibar_suggestedPromptsImageDesignSpacePrompt" : {
+    "title" : "Представь современную гостиную.",
+    "description" : "The message sent to Duck.ai's image generator when the Design Your Space card is selected."
+  },
   "nextStepsList_sectionTitle" : {
     "title" : "Дальнейшие шаги",
     "note" : "Text that goes in the Next Steps bubble label above the card"

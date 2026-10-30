@@ -476,6 +476,142 @@
     "title" : "Intern",
     "description" : "Badge shown next to an AI model in the model selector that is only available to internal users."
   },
+  "omnibar_suggestedPromptsHowDuckAiWorksLabel" : {
+    "title" : "So funktioniert Duck.ai",
+    "description" : "Pill label that opens a panel explaining how Duck.ai protects privacy. Duck.ai suggested prompts below the Duck.ai chat input on the New Tab Page."
+  },
+  "omnibar_suggestedPromptsHowDuckAiWorksAria" : {
+    "title" : "Öffne das Bedienfeld „So funktioniert Duck.ai“",
+    "description" : "Accessible name for the How Duck.ai Works pill."
+  },
+  "omnibar_suggestedPromptsSuggestionsLabel" : {
+    "title" : "Chat-Vorschläge",
+    "description" : "Pill label that opens a list of suggested chat prompts. Duck.ai suggested prompts below the Duck.ai chat input on the New Tab Page."
+  },
+  "omnibar_suggestedPromptsSuggestionsAria" : {
+    "title" : "Chat-Vorschläge öffnen",
+    "description" : "Accessible name for the Chat Suggestions pill."
+  },
+  "omnibar_suggestedPromptsCreateImageLabel" : {
+    "title" : "Bilder erstellen und bearbeiten",
+    "description" : "Pill label that opens a row of suggested image-generation prompts. Duck.ai suggested prompts below the Duck.ai chat input on the New Tab Page."
+  },
+  "omnibar_suggestedPromptsCreateImageAria" : {
+    "title" : "Vorschläge zum Erstellen und Bearbeiten von Bildern öffnen",
+    "description" : "Accessible name for the Create & Edit Images pill."
+  },
+  "omnibar_suggestedPromptsPrevPageAria" : {
+    "title" : "Vorherige Vorschläge anzeigen",
+    "description" : "Accessible label for the previous-page chevron in the Chat Suggestions panel."
+  },
+  "omnibar_suggestedPromptsNextPageAria" : {
+    "title" : "Nächste Vorschläge anzeigen",
+    "description" : "Accessible label for the next-page chevron in the Chat Suggestions panel."
+  },
+  "omnibar_suggestedPromptsCloseAria" : {
+    "title" : "Panel schließen",
+    "description" : "Accessible label for the X button that closes a suggested-prompts panel."
+  },
+  "omnibar_suggestedPromptsVoiceChatLabel" : {
+    "title" : "Sprachchat",
+    "description" : "Label for the Voice Chat chip shown among the Duck.ai suggested-prompt chips on narrow windows. Selecting it starts a Duck.ai voice chat."
+  },
+  "omnibar_suggestedPromptsChatTitle" : {
+    "title" : "Du chattest",
+    "description" : "Heading of the chat card in the How Duck.ai Works panel."
+  },
+  "omnibar_suggestedPromptsChatBody" : {
+    "title" : "Wähle eine beliebte KI zum Chatten aus, wie GPT-5 mini, Claude Haiku 4.5, Mistral usw.",
+    "description" : "Body of the chat card in the How Duck.ai Works panel. Describes choosing from popular AI models."
+  },
+  "omnibar_suggestedPromptsAnonymizedTitle" : {
+    "title" : "Wir anonymisieren",
+    "description" : "Heading of the anonymization card in the How Duck.ai Works panel."
+  },
+  "omnibar_suggestedPromptsAnonymizedBody" : {
+    "title" : "Alle persönlichen Metadaten (zum Beispiel deine IP-Adresse) werden entfernt, bevor ein Chat an den KI-Anbieter gesendet wird.",
+    "description" : "Body of the anonymization card in the How Duck.ai Works panel."
+  },
+  "omnibar_suggestedPromptsNoAiTrainingTitle" : {
+    "title" : "Kein KI-Training",
+    "description" : "Heading of the no-AI-training card in the How Duck.ai Works panel."
+  },
+  "omnibar_suggestedPromptsNoAiTrainingBody" : {
+    "title" : "Wir haben Vereinbarungen mit allen KI-Anbietern getroffen, um sicherzustellen, dass deine Chats nicht zum Trainieren von KI-Systemen verwendet werden.",
+    "description" : "Body of the no-AI-training card in the How Duck.ai Works panel."
+  },
+  "omnibar_suggestedPromptsTextJobApplication" : {
+    "title" : "Eine Bewerbung verbessern",
+    "description" : "A suggested chat prompt in the Chat Suggestions panel. Selecting it starts a Duck.ai chat on this topic."
+  },
+  "omnibar_suggestedPromptsTextHomeFix" : {
+    "title" : "Etwas bei mir zu Hause reparieren",
+    "description" : "A suggested chat prompt in the Chat Suggestions panel. Selecting it starts a Duck.ai chat on this topic."
+  },
+  "omnibar_suggestedPromptsTextFinancialTerms" : {
+    "title" : "Gängige Finanzbegriffe verstehen",
+    "description" : "A suggested chat prompt in the Chat Suggestions panel. Selecting it starts a Duck.ai chat on this topic."
+  },
+  "omnibar_suggestedPromptsTextFitnessPlan" : {
+    "title" : "Erstelle einen Fitnessplan",
+    "description" : "A suggested chat prompt in the Chat Suggestions panel. Selecting it starts a Duck.ai chat on this topic."
+  },
+  "omnibar_suggestedPromptsTextWriteEmail" : {
+    "title" : "Schreibe eine wichtige E-Mail",
+    "description" : "A suggested chat prompt in the Chat Suggestions panel. Selecting it starts a Duck.ai chat on this topic."
+  },
+  "omnibar_suggestedPromptsTextPlanTrip" : {
+    "title" : "Plane eine bevorstehende Reise",
+    "description" : "A suggested chat prompt in the Chat Suggestions panel. Selecting it starts a Duck.ai chat on this topic."
+  },
+  "omnibar_suggestedPromptsTextBuyingHouse" : {
+    "title" : "Erfahre mehr über den Hauskauf",
+    "description" : "A suggested chat prompt in the Chat Suggestions panel. Selecting it starts a Duck.ai chat on this topic."
+  },
+  "omnibar_suggestedPromptsTextGettingFit" : {
+    "title" : "Tipps, um fit zu werden",
+    "description" : "A suggested chat prompt in the Chat Suggestions panel. Selecting it starts a Duck.ai chat on this topic."
+  },
+  "omnibar_suggestedPromptsTextDifficultConversation" : {
+    "title" : "Bereite dich auf ein schwieriges Gespräch vor",
+    "description" : "A suggested chat prompt in the Chat Suggestions panel. Selecting it starts a Duck.ai chat on this topic."
+  },
+  "omnibar_suggestedPromptsTextNewSkill" : {
+    "title" : "Erlerne eine neue Fähigkeit",
+    "description" : "A suggested chat prompt in the Chat Suggestions panel. Selecting it starts a Duck.ai chat on this topic."
+  },
+  "omnibar_suggestedPromptsTextMoneyHabits" : {
+    "title" : "Bessere Geldgewohnheiten entwickeln",
+    "description" : "A suggested chat prompt in the Chat Suggestions panel. Selecting it starts a Duck.ai chat on this topic."
+  },
+  "omnibar_suggestedPromptsTextImproveSleep" : {
+    "title" : "Meinen Schlaf verbessern",
+    "description" : "A suggested chat prompt in the Chat Suggestions panel. Selecting it starts a Duck.ai chat on this topic."
+  },
+  "omnibar_suggestedPromptsImageCreateComic" : {
+    "title" : "Comic erstellen",
+    "description" : "Label on an image card in the Create & Edit Images panel. Keep it short; it sits on a small chip over a thumbnail."
+  },
+  "omnibar_suggestedPromptsImageDesignSpace" : {
+    "title" : "Gestalte deinen Raum",
+    "description" : "Label on an image card in the Create & Edit Images panel. Keep it short; it sits on a small chip over a thumbnail."
+  },
+  "omnibar_suggestedPromptsImageEditPhoto" : {
+    "title" : "Foto bearbeiten",
+    "description" : "Label on an image card in the Create & Edit Images panel. Keep it short; it sits on a small chip over a thumbnail."
+  },
+  "omnibar_suggestedPromptsTextPromptTemplate" : {
+    "title" : "{topic}. Falls nötig, stelle mir 1–2 Fragen, die ich mit wenigen Worten beantworten kann – damit du mich zu den nützlichsten Informationen führen kannst. Sprich ganz natürlich und sorge dafür, dass die Antwort für mich leicht verständlich ist.",
+    "description" : "The message sent to Duck.ai when a suggested chat prompt is selected. {topic} is replaced with the translated suggestion, for example \"Improve a job application\". Keep {topic} as is."
+  },
+  "omnibar_suggestedPromptsImageCreateComicPrompt" : {
+    "title" : "Zeichne eine Illustration im Comicstil, auf der eine Ente vertrauliche Informationen schreddert.",
+    "description" : "The message sent to Duck.ai's image generator when the Create Comic card is selected."
+  },
+  "omnibar_suggestedPromptsImageDesignSpacePrompt" : {
+    "title" : "Stell dir ein modernes Wohnzimmer vor.",
+    "description" : "The message sent to Duck.ai's image generator when the Design Your Space card is selected."
+  },
   "nextStepsList_sectionTitle" : {
     "title" : "Nächste Schritte",
     "note" : "Text that goes in the Next Steps bubble label above the card"

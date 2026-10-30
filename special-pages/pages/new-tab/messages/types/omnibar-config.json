@@ -295,6 +295,12 @@
       "type": "boolean",
       "default": false
     },
+    "showSuggestedPrompts": {
+      "title": "Show Suggested Prompts",
+      "description": "Show the Duck.ai suggested-prompt chips (How Duck.ai Works, Chat Suggestions, Create & Edit Images) below the input in Duck.ai mode. Native decides who sees them, e.g. new Duck.ai users, and turns it off once enough Duck.ai prompts have been sent from the NTP.",
+      "type": "boolean",
+      "default": false
+    },
     "screenshotModes": {
       "title": "Screenshot Modes",
       "description": "Screenshot capture modes offered under 'Add Screenshot' in the attach menu, in display order. Absent or empty hides the screenshot UI. Choosing a mode calls `omnibar_captureScreenshot`.",
