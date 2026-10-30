@@ -37,6 +37,7 @@
     "injected/src/globals.d.ts",
     "typedoc.js",
     ".github/scripts",
+    ".claude/skills",
     "scripts"
   ],
   "exclude": [
