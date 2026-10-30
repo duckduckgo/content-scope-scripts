@@ -79,6 +79,20 @@ function isNoCookieOrigin(origin) {
 }
 
 /**
+ * Frame rule. Content scripts also run in iframes, so act only where the player is ours to handle:
+ * - the top frame of youtube.com and m.youtube.com;
+ * - the top frame of youtube-nocookie.com, which is how iOS Duck Player loads the video (no page around it);
+ * - a youtube-nocookie.com frame whose ancestors are all nocookie pages: macOS Duck Player's embed, since the Duck Player
+ *   page is served from that origin. Embeds on any other site never activate it.
+ * @param {{ hostname: string, origin: string, isTop: boolean, ancestorOrigins: string[] }} frame
+ */
+export function shouldActivate({ hostname, origin, isTop, ancestorOrigins }) {
+    if (!isYouTubeHost(hostname)) return false;
+    if (isTop) return true;
+    return isNoCookieOrigin(origin) && ancestorOrigins.length > 0 && ancestorOrigins.every(isNoCookieOrigin);
+}
+
+/**
  * @returns {HTMLVideoElement | null}
  */
 function getMainVideo() {
@@ -174,14 +188,10 @@ export class SponsorBlock extends ContentFeature {
     }
 
     async init() {
-        const { hostname, ancestorOrigins } = window.location;
-        // Content scripts also run in iframes. Act in the top frame, or in Duck Player's embed: a nocookie frame whose
-        // ancestors are all nocookie pages (Duck Player is served from that origin), never in embeds on other sites.
-        const inDuckPlayerEmbed =
-            isNoCookieOrigin(window.location.origin) && !!ancestorOrigins?.length && Array.from(ancestorOrigins).every(isNoCookieOrigin);
-        if (!isYouTubeHost(hostname) || (window.top !== window && !inDuckPlayerEmbed)) {
-            return;
-        }
+        const { hostname, origin, ancestorOrigins } = window.location;
+        // ancestorOrigins is missing in Firefox; there the embed case simply stays inactive.
+        const frame = { hostname, origin, isTop: window.top === window, ancestorOrigins: Array.from(ancestorOrigins ?? []) };
+        if (!shouldActivate(frame)) return;
         this.#active = true;
         this.#progressBarSelectors = this.selectorsSetting('progressBarSelectors', DEFAULT_PROGRESS_BAR_SELECTORS);
         this.#skipButtonHostSelectors = this.selectorsSetting('skipButtonHostSelectors', DEFAULT_SKIP_BUTTON_HOST_SELECTORS);

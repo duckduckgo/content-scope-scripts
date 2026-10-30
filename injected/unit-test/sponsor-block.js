@@ -1,5 +1,11 @@
 import { JSDOM } from 'jsdom';
-import SponsorBlock, { matchesDuration, segmentAt, segmentPosition, videoIDFromURL } from '../src/features/sponsor-block.js';
+import SponsorBlock, {
+    matchesDuration,
+    segmentAt,
+    segmentPosition,
+    shouldActivate,
+    videoIDFromURL,
+} from '../src/features/sponsor-block.js';
 
 describe('SponsorBlock videoIDFromURL', () => {
     it('reads the video ID from watch, shorts, live and embed URLs', () => {
@@ -23,6 +29,35 @@ describe('SponsorBlock videoIDFromURL', () => {
         expect(videoIDFromURL('https://www.youtube.com/watch?v=dQw4w9WgXcQ%22%3E')).toBeNull();
         expect(videoIDFromURL('https://evil-youtube.com/watch?v=dQw4w9WgXcQ')).toBeNull();
         expect(videoIDFromURL('https://evil-youtube-nocookie.com/embed/dQw4w9WgXcQ')).toBeNull();
+    });
+});
+
+describe('SponsorBlock shouldActivate', () => {
+    /** @param {string} origin @param {Partial<{ isTop: boolean, ancestorOrigins: string[] }>} [frame] */
+    const frame = (origin, { isTop = true, ancestorOrigins = [] } = {}) => ({
+        hostname: new URL(origin).hostname,
+        origin,
+        isTop,
+        ancestorOrigins,
+    });
+
+    it('activates in the top frame of youtube.com, m.youtube.com and nocookie (iOS Duck Player)', () => {
+        expect(shouldActivate(frame('https://www.youtube.com'))).toBe(true);
+        expect(shouldActivate(frame('https://m.youtube.com'))).toBe(true);
+        expect(shouldActivate(frame('https://www.youtube-nocookie.com'))).toBe(true);
+    });
+
+    it('activates in the nocookie embed framed by Duck Player (macOS)', () => {
+        const duckPlayer = ['https://www.youtube-nocookie.com'];
+        expect(shouldActivate(frame('https://www.youtube-nocookie.com', { isTop: false, ancestorOrigins: duckPlayer }))).toBe(true);
+    });
+
+    it('stays inactive in embeds on other sites and off YouTube', () => {
+        const thirdParty = ['https://example.com'];
+        expect(shouldActivate(frame('https://www.youtube-nocookie.com', { isTop: false, ancestorOrigins: thirdParty }))).toBe(false);
+        expect(shouldActivate(frame('https://www.youtube.com', { isTop: false, ancestorOrigins: thirdParty }))).toBe(false);
+        expect(shouldActivate(frame('https://www.youtube-nocookie.com', { isTop: false, ancestorOrigins: [] }))).toBe(false);
+        expect(shouldActivate(frame('https://example.com'))).toBe(false);
     });
 });
 
