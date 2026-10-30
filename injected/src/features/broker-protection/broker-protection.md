@@ -20,6 +20,19 @@ sequenceDiagram
     N->>W: 📩 onActionReceived(action, data)
 ```
 
+## User assist
+
+For runs the user is watching, native can turn on in-page affordances and hand individual steps to the user. All of it is off unless native opts in, and page state resets on every load, so native re-sends these after each navigation.
+
+| Message | Direction | Params | Effect |
+|---------|-----------|--------|--------|
+| `setAssistMode` | native → page | `{ enabled: boolean }` | While enabled, `click` actions show the agent cursor moving to their target, and `fillForm` actions fill as usual then visibly re-type each value (without dispatching extra events). |
+| `userTurnStarted` | native → page | `{ kind: 'turnstile' \| 'recaptcha' \| 'managedChallenge' \| 'generic', tokenSelector: string \| null }` | Outlines the challenge widget with a "Your turn" badge and a "Waiting for you" pill (whether or not assist mode is on). Until the turn ends, every action attempt waits: retries of the in-flight action and any new action native sends. |
+| `userTurnCompleted` | page → native | `{ kind }` | Sent once per turn when the challenge's token field (`tokenSelector`, or the provider's default) gets a value it didn't have when the turn started. |
+| `userTurnEnded` | native → page | `{ reason }` (for native's own bookkeeping; the page ignores it) | Clears the turn's affordances and releases held retries. |
+
+Cloudflare managed challenges replace the whole page, so native detects when they're cleared rather than relying on `userTurnCompleted`.
+
 ## Error Handling
 
 Use `PirError` for typed errors throughout the broker-protection feature:
