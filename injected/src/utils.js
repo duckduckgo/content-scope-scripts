@@ -653,6 +653,7 @@ export function isUnprotectedDomain(topLevelHostname, featureList) {
  * @property {string} [versionString] - Non Android version string
  * @property {string} sessionKey
  * @property {string} [messagingContextName] - The context name for messaging (e.g. 'contentScopeScripts')
+ * @property {Array<{feature: string, cohort: string, subfeature: string}>} [currentCohorts] - Experiment cohorts the user is enrolled in
  */
 
 /**
