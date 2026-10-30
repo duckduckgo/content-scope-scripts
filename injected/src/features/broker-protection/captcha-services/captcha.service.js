@@ -4,6 +4,7 @@ import { ErrorResponse, PirError, SuccessResponse } from '../types';
 import { getCaptchaProvider, getCaptchaSolveProvider } from './get-captcha-provider';
 import { captchaFactory } from './providers/registry.js';
 import { selectRootElement } from '../utils/select-root-element.js';
+import { buildCaptchaPrompt, PROMPT_CAPTCHA_TYPE } from './prompt.js';
 import { getCaptchaInfo as getCaptchaInfoDeprecated, solveCaptcha as solveCaptchaDeprecated } from '../actions/captcha-deprecated';
 
 /**
@@ -83,6 +84,24 @@ export async function getCaptchaInfo(action, userData, root = document) {
     }
 
     const createError = ErrorResponse.generateErrorResponseFunction({ actionID, context: `[getCaptchaInfo] captchaType: ${captchaType}` });
+
+    if (captchaType === PROMPT_CAPTCHA_TYPE) {
+        const prompt = buildCaptchaPrompt(action, userData);
+        if (PirError.isError(prompt)) {
+            return createError(prompt.error.message);
+        }
+
+        if (action.parent) {
+            pendingCaptchaContext = { profile: userData, token: null };
+        }
+
+        return SuccessResponse.create({
+            actionID,
+            actionType,
+            response: { url: removeUrlQueryParams(window.location.href), siteKey: prompt, type: captchaType },
+        });
+    }
+
     const captchaRoot = getCaptchaRoot(action, userData, root);
     if (PirError.isError(captchaRoot)) {
         return createError(captchaRoot.error.message);
