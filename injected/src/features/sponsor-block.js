@@ -3,10 +3,6 @@ import { injectGlobalStyles } from '../utils.js';
 
 /** @typedef {import('../types/sponsor-block.js').Segment} Segment */
 
-// ponytail: fixed MVP scope; move to remote config feature settings when more categories are wanted.
-const CATEGORIES = ['sponsor'];
-const ACTION_TYPES = ['skip'];
-
 // Ordered lists: the first selector with a visible match wins, so put the preferred element first.
 // ponytail: YouTube markup changes often; read these from remote config feature settings when productising.
 // Where the segment overlay is drawn: desktop player bar, then the m.youtube.com bar hosts (the chaptered host wraps
@@ -146,7 +142,6 @@ export class SponsorBlock extends ContentFeature {
             return;
         }
         this.#active = true;
-        this.notify('log', { message: 'SponsorBlock: C-S-S init' });
         injectGlobalStyles(STYLES);
 
         this.checkVideoID();
@@ -190,18 +185,16 @@ export class SponsorBlock extends ContentFeature {
      * @param {string} videoID
      */
     async fetchSegments(videoID) {
-        this.notify('log', { message: `SponsorBlock: video ${videoID}` });
         try {
-            const { segments } = await this.request('getSegments', { videoID, categories: CATEGORIES, actionTypes: ACTION_TYPES });
+            const { segments } = await this.request('getSegments', { videoID });
             // The user may have moved to another video while the request was in flight.
             if (videoID !== this.#videoID) return;
-            this.notify('log', { message: `SponsorBlock: ${segments.length} segment(s) for ${videoID}: ${JSON.stringify(segments)}` });
             this.#segments = segments;
             this.#renderedDuration = 0;
             this.renderOverlay();
             this.updateSkipButton();
-        } catch (e) {
-            this.notify('log', { message: `SponsorBlock: getSegments failed for ${videoID}: ${e}` });
+        } catch {
+            // Native resolves lookup failures with an empty list; a rejection means the handler is missing. Nothing to show.
         }
     }
 

@@ -1,0 +1,8 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "GetConfigParams",
+  "description": "Asks native whether the feature is enabled for this user and how segments are skipped. Sent once on init, before any getSegments.",
+  "additionalProperties": false,
+  "properties": {}
+}

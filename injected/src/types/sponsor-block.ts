@@ -10,21 +10,34 @@
  * Requests, Notifications and Subscriptions from the SponsorBlock feature
  */
 export interface SponsorBlockMessages {
-  notifications: LogNotification;
-  requests: GetSegmentsRequest;
+  requests: GetConfigRequest | GetSegmentsRequest;
+  subscriptions: OnConfigChangedSubscription;
 }
 /**
- * Generated from @see "../messages/sponsor-block/log.notify.json"
+ * Generated from @see "../messages/sponsor-block/getConfig.request.json"
  */
-export interface LogNotification {
-  method: "log";
-  params: Log;
+export interface GetConfigRequest {
+  method: "getConfig";
+  params: GetConfigParams;
+  result: GetConfigResponse;
 }
 /**
- * Message for the native app to write to its local log.
+ * Asks native whether the feature is enabled for this user and how segments are skipped. Sent once on init, before any getSegments.
  */
-export interface Log {
-  message: string;
+export interface GetConfigParams {}
+export interface GetConfigResponse {
+  /**
+   * True only when the user has opted in and the setting is on
+   */
+  enabled: boolean;
+  /**
+   * manual shows a skip button inside a segment; auto seeks past it as soon as playback enters it
+   */
+  skipMode: "manual" | "auto";
+  /**
+   * Version of the messaging contract implemented by native. Currently 1.
+   */
+  version: number;
 }
 /**
  * Generated from @see "../messages/sponsor-block/getSegments.request.json"
@@ -35,21 +48,13 @@ export interface GetSegmentsRequest {
   result: GetSegmentsResponse;
 }
 /**
- * Asks native to fetch SponsorBlock segments for a YouTube video.
+ * Asks native for the SponsorBlock segments of a YouTube video. Native chooses the categories and action types from remote config and user settings.
  */
 export interface GetSegmentsParams {
   /**
    * 11-character YouTube video ID
    */
   videoID: string;
-  /**
-   * SponsorBlock categories to request, e.g. sponsor, selfpromo
-   */
-  categories: string[];
-  /**
-   * SponsorBlock action types to request, e.g. skip, mute
-   */
-  actionTypes: string[];
 }
 /**
  * Segments for the requested video, sorted by start time. Empty when the video has none.
@@ -77,10 +82,24 @@ export interface Segment {
    */
   videoDuration?: number;
 }
+/**
+ * Generated from @see "../messages/sponsor-block/onConfigChanged.subscribe.json"
+ */
+export interface OnConfigChangedSubscription {
+  subscriptionEvent: "onConfigChanged";
+  params: OnConfigChangedParams;
+}
+/**
+ * Pushed to every YouTube tab when the user changes a SponsorBlock setting.
+ */
+export interface OnConfigChangedParams {
+  enabled: boolean;
+  skipMode: "manual" | "auto";
+}
 
 declare module "../features/sponsor-block.js" {
   export interface SponsorBlock {
-    notify: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<SponsorBlockMessages>['notify'],
-    request: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<SponsorBlockMessages>['request']
+    request: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<SponsorBlockMessages>['request'],
+    subscribe: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<SponsorBlockMessages>['subscribe']
   }
 }

@@ -2,23 +2,13 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "title": "GetSegmentsParams",
-  "description": "Asks native to fetch SponsorBlock segments for a YouTube video.",
-  "required": ["videoID", "categories", "actionTypes"],
+  "description": "Asks native for the SponsorBlock segments of a YouTube video. Native chooses the categories and action types from remote config and user settings.",
+  "required": ["videoID"],
   "additionalProperties": false,
   "properties": {
     "videoID": {
       "type": "string",
       "description": "11-character YouTube video ID"
-    },
-    "categories": {
-      "type": "array",
-      "description": "SponsorBlock categories to request, e.g. sponsor, selfpromo",
-      "items": { "type": "string" }
-    },
-    "actionTypes": {
-      "type": "array",
-      "description": "SponsorBlock action types to request, e.g. skip, mute",
-      "items": { "type": "string" }
     }
   }
 }
