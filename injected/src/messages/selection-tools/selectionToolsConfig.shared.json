@@ -1,0 +1,65 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SelectionToolsConfig",
+  "description": "Whether the selection tools are on for this page, and whether the toolbar shows.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "enabled",
+    "showToolbar"
+  ],
+  "properties": {
+    "enabled": {
+      "type": "boolean",
+      "description": "False when the remote flag or the AI toggle is off, and on native's own sites: no selection is reported and contextMenuOpened is not sent. A page that loaded with the feature off doesn't run it, so turning it on reaches that page only once it reloads."
+    },
+    "showToolbar": {
+      "type": "boolean",
+      "description": "The user's setting for the toolbar, as in the feature's showToolbar setting. When false, no selection is reported, but contextMenuOpened is still sent while enabled, without a rect."
+    }
+  },
+  "definitions": {
+    "selectionType": {
+      "title": "SelectionType",
+      "description": "What kind of text is selected: code inside pre, code, kbd or samp or dense with code syntax; a question ending in a question mark; a single word; over 500 characters; or anything else.",
+      "type": "string",
+      "enum": [
+        "word",
+        "code",
+        "question",
+        "long",
+        "text"
+      ]
+    },
+    "language": {
+      "type": "string",
+      "description": "The selection's language as a primary subtag, e.g. \"es\": from its writing system or common words, else the nearest lang attribute. Absent when neither says, which native takes as the user's language."
+    },
+    "selectionRect": {
+      "title": "SelectionRect",
+      "description": "The selected text's bounds in CSS pixels, relative to the viewport. Multiply by devicePixelRatio for physical pixels.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "left",
+        "top",
+        "right",
+        "bottom"
+      ],
+      "properties": {
+        "left": {
+          "type": "number"
+        },
+        "top": {
+          "type": "number"
+        },
+        "right": {
+          "type": "number"
+        },
+        "bottom": {
+          "type": "number"
+        }
+      }
+    }
+  }
+}

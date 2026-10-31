@@ -1,0 +1,14 @@
+{
+    "readme": "Test fixture for the selectionTools feature: native has set the feature's config for a user who turned the toolbar off.",
+    "version": 1,
+    "features": {
+        "selectionTools": {
+            "state": "enabled",
+            "exceptions": [],
+            "settings": {
+                "showToolbar": false
+            }
+        }
+    },
+    "unprotectedTemporary": []
+}

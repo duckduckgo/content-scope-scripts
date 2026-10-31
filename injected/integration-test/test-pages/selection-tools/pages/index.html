@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Selection tools</title>
+        <style>
+            body {
+                font: 16px/1.5 system-ui, sans-serif;
+                max-width: 640px;
+                margin: 120px auto;
+            }
+            .sr-only {
+                position: absolute;
+                width: 1px;
+                height: 1px;
+                overflow: hidden;
+                clip-path: inset(50%);
+                white-space: nowrap;
+            }
+            .gradient {
+                background: linear-gradient(90deg, #c00, #00c);
+                -webkit-background-clip: text;
+                background-clip: text;
+                color: transparent;
+            }
+        </style>
+    </head>
+    <body>
+        <p id="english">The quick brown fox jumps over the lazy dog and runs into the forest.</p>
+        <p id="spanish" lang="es">El perro de la casa es muy grande y le gusta correr por el parque.</p>
+        <p>A single <span id="word">serendipity</span> here.</p>
+        <p id="hidden-text">
+            Seen first<span style="font-size: 1px"> tiny secret</span> then<span style="color: transparent"> clear secret</span>
+            and<span style="opacity: 0"> faded secret</span> last<span class="sr-only"> clipped secret</span>.
+            <span class="gradient">Gradient words</span> stay.
+        </p>
+        <div style="display: contents">
+            <p id="in-contents">A wrapper with no box of its own keeps this paragraph on the page.</p>
+        </div>
+        <pre id="code">const answer = () => { return 42; };</pre>
+        <code-sample id="shadow-code"></code-sample>
+        <textarea id="field">This sentence have a grammar mistake in it.</textarea>
+        <input id="password" type="password" value="hunter2hunter2" />
+        <button id="open-dialog" type="button">Open dialog</button>
+        <dialog id="dialog">
+            <p id="in-dialog">Text inside a modal dialog that the toolbar would sit behind.</p>
+        </dialog>
+        <script>
+            document.getElementById('open-dialog').addEventListener('click', () => document.getElementById('dialog').showModal());
+            // A code block drawn in an open shadow root, as documentation sites do.
+            customElements.define(
+                'code-sample',
+                class extends HTMLElement {
+                    constructor() {
+                        super();
+                        this.attachShadow({ mode: 'open' }).innerHTML =
+                            '<pre><code id="shadow-code-text">const shadow = () => { return 7; };</code></pre>';
+                    }
+                },
+            );
+        </script>
+    </body>
+</html>
