@@ -1,0 +1,210 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>Selection Tools | @duckduckgo/content-scope-scripts</title><meta name="description" content="Documentation for @duckduckgo/content-scope-scripts"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">@duckduckgo/content-scope-scripts</a>
+<div id="tsd-toolbar-links"></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="" aria-current="page">Selection Tools</a></li></ul></div>
+<div class="tsd-panel tsd-typography"><h1 id="selection-tools" class="tsd-anchor-link">Selection Tools<a href="#selection-tools" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h1>
+<p>Reports the user's text selection to native, which offers <a href="http://Duck.ai">Duck.ai</a> actions for it: a toolbar over the selection, and
+the same actions in the context menu. This feature reads the selection, works out what kind of text it is and where it
+is on screen, and tells native. It draws nothing and knows nothing of the actions: native owns them, picks the ones
+that fit and runs them.</p>
+<p>Runs in the top frame only. Windows only for now.</p>
+<h2 id="turning-it-on" class="tsd-anchor-link">Turning it on<a href="#turning-it-on" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>Native decides, through the feature's own config. It sets the <code>selectionTools</code> entry in the config it injects for the
+user: <code>state</code> is <code>disabled</code> when the <code>aiChat</code> → <code>selectionTools</code> sub-feature or the global AI toggle is off, its
+<code>exceptions</code> hold native's own sites such as <a href="http://Duck.ai">Duck.ai</a>, and the <code>showToolbar</code> setting is the user's toolbar setting.
+Native only ever turns the feature off this way; a remote <code>disabled</code> still wins.</p>
+<p>These can change while a page is open, but the injected config only reaches pages that load afterwards, so
+<code>selectionToolsConfigChanged</code> pushes <code>enabled</code> and <code>showToolbar</code> to open pages and overrides the injected config until
+the page reloads. A page that loaded with the feature off doesn't run it at all, so turning it on reaches that page
+only once it reloads.</p>
+<p>The feature is in <code>platformSpecificFeatures</code>, like <code>contextMenu</code> and <code>textSelection</code>, so it starts without a top-level
+<code>selectionTools</code> entry in the privacy config, and also runs on sites where protections are off. If the privacy config
+does have that entry, its <code>state</code> is still a kill switch and its <code>exceptions</code> turn the feature off on those sites.</p>
+<h2 id="page-footprint" class="tsd-anchor-link">Page footprint<a href="#page-footprint" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>On Windows the feature runs in the page's main world, so pages can see any element it adds. It adds one only to
+measure a selection in a text field, which has no geometry of its own: a host element (<code>&lt;ddg-selection-tools&gt;</code>) with
+the field's text laid out again in a closed shadow root, appended and removed again within the same task.</p>
+<p>It listens to mouse, key, selection, scroll and resize events without cancelling or stopping any of them, and only
+acts on trusted ones, so page script can't fire them to make it report a selection. A report that can show the toolbar
+or fill the menu also needs the page to hold user activation (<code>navigator.userActivation.isActive</code>); clearing doesn't.</p>
+<h2 id="what-a-selection-is" class="tsd-anchor-link">What a selection is<a href="#what-a-selection-is" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<ul>
+<li>Selected page text, or selected text in a textarea or a text, search, email or URL input. Password, read-only and
+disabled fields are ignored. Text inside open shadow roots counts, such as code blocks drawn by a custom element;
+closed ones can't be read.</li>
+<li>At least <code>minChars</code> non-space characters.</li>
+</ul>
+<p>Selected page text leaves out what the user can't see, which a page could use to slip instructions into what's sent
+to <a href="http://Duck.ai">Duck.ai</a>: text with zero or near-zero opacity, hidden visibility, a colour that's fully or nearly transparent (gradient
+text drawn through <code>background-clip: text</code> still counts as visible), a font under 4px, or a box shrunk to a pixel with
+its overflow cut off, as screen-reader-only text is. Text in the same colour as its background still gets through.</p>
+<p>Each selection is classified locally, from its text and the element it starts in:</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>When</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>code</code></td>
+<td>Inside <code>pre</code>, <code>code</code>, <code>kbd</code> or <code>samp</code>, or dense with code punctuation and keywords</td>
+</tr>
+<tr>
+<td><code>word</code></td>
+<td>One word of 2–30 characters, in any language, not counting the punctuation around it</td>
+</tr>
+<tr>
+<td><code>question</code></td>
+<td>Ends with a question mark</td>
+</tr>
+<tr>
+<td><code>long</code></td>
+<td>Over 500 characters</td>
+</tr>
+<tr>
+<td><code>text</code></td>
+<td>Anything else</td>
+</tr>
+</tbody>
+</table>
+<p>A word needs a letter, so a bare number is text; it may have digits (&quot;19th&quot;), apostrophes, hyphens and abbreviation
+dots (&quot;U.S.&quot;). In writing systems without spaces between words, such as Chinese and Japanese, a word is at most 4
+characters, so a sentence isn't taken for one.</p>
+<p>The <code>language</code> comes from the text's writing system or common words, then the nearest <code>lang</code> attribute, as a primary
+subtag. When neither says, it's left out, and native takes the text to be in the user's language.</p>
+<h2 id="reporting-a-selection" class="tsd-anchor-link">Reporting a selection<a href="#reporting-a-selection" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>A selection is reported with <code>selectionChanged</code> when a selection gesture ends: a primary-button release, a Shift key
+release, or select-all while editing. Only while <code>enabled</code> and <code>showToolbar</code> are both on, and not for selections in the
+top layer (a modal dialog, popover or fullscreen element), where the toolbar would sit behind. It's reported again when
+the same text is reselected; native drops repeats.</p>
+<p>While it's reported, scrolling and resizing send <code>selectionMoved</code>, at most once per animation frame. The report ends
+with <code>selectionCleared</code> on a click (other than a right-click), Escape, the selection collapsing, select-all on the page,
+<code>pagehide</code>, or a pushed config that turns the tools or <code>showToolbar</code> off.</p>
+<p>The context menu sends <code>contextMenuOpened</code> instead, while <code>enabled</code>. Its <code>rect</code> lets native show the toolbar, collapsed,
+once the menu closes, and starts a report, or leaves one in place, that later moves and clears as above. It has no
+<code>rect</code> when no toolbar would show: with <code>showToolbar</code> off, or in the top layer.</p>
+<h2 id="subscriptions" class="tsd-anchor-link">Subscriptions<a href="#subscriptions" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<h3 id="_" class="tsd-anchor-link"><code>selectionToolsConfigChanged</code><a href="#_" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul>
+<li><a href="../interfaces/SelectionTools_Messages.SelectionToolsConfigChangedSubscription.html" class="tsd-kind-interface"> &quot;SelectionTools Messages&quot;.SelectionToolsConfigChangedSubscription</a></li>
+<li><code>{ enabled, showToolbar }</code>, pushed to the main frame whenever either changes for that page. <code>enabled: false</code> turns
+the feature off for the page, context-menu reports included; <code>showToolbar: false</code> stops selection reports, and the
+context menu's <code>rect</code>, but not context-menu reports.</li>
+<li>Pushes may repeat the current config, which changes nothing.</li>
+</ul>
+<h2 id="notifications" class="tsd-anchor-link">Notifications<a href="#notifications" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<h3 id="_-1" class="tsd-anchor-link"><code>selectionChanged</code><a href="#_-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul>
+<li><a href="../interfaces/SelectionTools_Messages.SelectionChangedNotification.html" class="tsd-kind-interface"> &quot;SelectionTools Messages&quot;.SelectionChangedNotification</a></li>
+<li>A selection to show the toolbar for. <code>rect</code> is the selected text's bounds in CSS pixels relative to the viewport;
+multiply by <code>devicePixelRatio</code> (which includes page zoom) for physical pixels.</li>
+</ul>
+<pre><code class="json"><span class="hl-2">{</span><br/><span class="hl-2">    </span><span class="hl-11">&quot;text&quot;</span><span class="hl-2">: </span><span class="hl-7">&quot;El perro de la casa es muy grande y le gusta correr por el parque.&quot;</span><span class="hl-2">,</span><br/><span class="hl-2">    </span><span class="hl-11">&quot;editable&quot;</span><span class="hl-2">: </span><span class="hl-1">false</span><span class="hl-2">,</span><br/><span class="hl-2">    </span><span class="hl-11">&quot;selectionType&quot;</span><span class="hl-2">: </span><span class="hl-7">&quot;text&quot;</span><span class="hl-2">,</span><br/><span class="hl-2">    </span><span class="hl-11">&quot;language&quot;</span><span class="hl-2">: </span><span class="hl-7">&quot;es&quot;</span><span class="hl-2">,</span><br/><span class="hl-2">    </span><span class="hl-11">&quot;rect&quot;</span><span class="hl-2">: { </span><span class="hl-11">&quot;left&quot;</span><span class="hl-2">: </span><span class="hl-10">320</span><span class="hl-2">, </span><span class="hl-11">&quot;top&quot;</span><span class="hl-2">: </span><span class="hl-10">181</span><span class="hl-2">, </span><span class="hl-11">&quot;right&quot;</span><span class="hl-2">: </span><span class="hl-10">960</span><span class="hl-2">, </span><span class="hl-11">&quot;bottom&quot;</span><span class="hl-2">: </span><span class="hl-10">229</span><span class="hl-2"> },</span><br/><span class="hl-2">    </span><span class="hl-11">&quot;devicePixelRatio&quot;</span><span class="hl-2">: </span><span class="hl-10">1.25</span><br/><span class="hl-2">}</span>
+</code><button type="button">Copy</button></pre>
+
+<h3 id="_-2" class="tsd-anchor-link"><code>selectionMoved</code><a href="#_-2" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul>
+<li><a href="../interfaces/SelectionTools_Messages.SelectionMovedNotification.html" class="tsd-kind-interface"> &quot;SelectionTools Messages&quot;.SelectionMovedNotification</a></li>
+<li>The reported selection's new <code>rect</code> and <code>devicePixelRatio</code> after a scroll or resize.</li>
+</ul>
+<pre><code class="json"><span class="hl-2">{ </span><span class="hl-11">&quot;rect&quot;</span><span class="hl-2">: { </span><span class="hl-11">&quot;left&quot;</span><span class="hl-2">: </span><span class="hl-10">320</span><span class="hl-2">, </span><span class="hl-11">&quot;top&quot;</span><span class="hl-2">: </span><span class="hl-10">81</span><span class="hl-2">, </span><span class="hl-11">&quot;right&quot;</span><span class="hl-2">: </span><span class="hl-10">960</span><span class="hl-2">, </span><span class="hl-11">&quot;bottom&quot;</span><span class="hl-2">: </span><span class="hl-10">129</span><span class="hl-2"> }, </span><span class="hl-11">&quot;devicePixelRatio&quot;</span><span class="hl-2">: </span><span class="hl-10">1.25</span><span class="hl-2"> }</span>
+</code><button type="button">Copy</button></pre>
+
+<h3 id="_-3" class="tsd-anchor-link"><code>selectionCleared</code><a href="#_-3" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul>
+<li><a href="../interfaces/SelectionTools_Messages.SelectionClearedNotification.html" class="tsd-kind-interface"> &quot;SelectionTools Messages&quot;.SelectionClearedNotification</a></li>
+<li>The reported selection went away. Sent once, and only after a report with a <code>rect</code>. Params are <code>{}</code>.</li>
+</ul>
+<h3 id="_-4" class="tsd-anchor-link"><code>contextMenuOpened</code><a href="#_-4" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul>
+<li><a href="../interfaces/SelectionTools_Messages.ContextMenuOpenedNotification.html" class="tsd-kind-interface"> &quot;SelectionTools Messages&quot;.ContextMenuOpenedNotification</a></li>
+<li>Sent on <code>contextmenu</code> while <code>enabled</code>, whatever <code>showToolbar</code> says, with the same fields as <code>selectionChanged</code> plus
+<code>selectedTextKey</code>. Without a selection it's <code>{ &quot;text&quot;: &quot;&quot; }</code>, so native knows the page has none.</li>
+<li><code>text</code> leaves out hidden text (see <a href="#what-a-selection-is">What a selection is</a>), so it can differ from the selected
+text the browser gives native with its own context menu event. <code>selectedTextKey</code> pairs the two: the 32-bit FNV-1a
+hash, as 8 lowercase hex digits, of the browser's text over its UTF-16 code units, after collapsing each run of
+whitespace (<code>\s</code>) to one space and trimming. Native runs a paired action with the report's <code>text</code>. Where there's no
+report to pair with (frames, or sites the feature doesn't run on), native only has the browser's text, hidden parts
+included.</li>
+</ul>
+<pre><code class="json"><span class="hl-2">{</span><br/><span class="hl-2">    </span><span class="hl-11">&quot;text&quot;</span><span class="hl-2">: </span><span class="hl-7">&quot;El perro&quot;</span><span class="hl-2">,</span><br/><span class="hl-2">    </span><span class="hl-11">&quot;selectedTextKey&quot;</span><span class="hl-2">: </span><span class="hl-7">&quot;a43a2364&quot;</span><span class="hl-2">,</span><br/><span class="hl-2">    </span><span class="hl-11">&quot;editable&quot;</span><span class="hl-2">: </span><span class="hl-1">false</span><span class="hl-2">,</span><br/><span class="hl-2">    </span><span class="hl-11">&quot;selectionType&quot;</span><span class="hl-2">: </span><span class="hl-7">&quot;text&quot;</span><span class="hl-2">,</span><br/><span class="hl-2">    </span><span class="hl-11">&quot;language&quot;</span><span class="hl-2">: </span><span class="hl-7">&quot;es&quot;</span><span class="hl-2">,</span><br/><span class="hl-2">    </span><span class="hl-11">&quot;rect&quot;</span><span class="hl-2">: { </span><span class="hl-11">&quot;left&quot;</span><span class="hl-2">: </span><span class="hl-10">320</span><span class="hl-2">, </span><span class="hl-11">&quot;top&quot;</span><span class="hl-2">: </span><span class="hl-10">181</span><span class="hl-2">, </span><span class="hl-11">&quot;right&quot;</span><span class="hl-2">: </span><span class="hl-10">392</span><span class="hl-2">, </span><span class="hl-11">&quot;bottom&quot;</span><span class="hl-2">: </span><span class="hl-10">205</span><span class="hl-2"> },</span><br/><span class="hl-2">    </span><span class="hl-11">&quot;devicePixelRatio&quot;</span><span class="hl-2">: </span><span class="hl-10">1.25</span><br/><span class="hl-2">}</span>
+</code><button type="button">Copy</button></pre>
+
+<h2 id="remote-config" class="tsd-anchor-link">Remote Config<a href="#remote-config" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>Settings are read from a top-level <code>selectionTools</code> entry when there is one (see <a href="#turning-it-on">Turning it on</a>):</p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>minChars</code></td>
+<td><code>2</code></td>
+<td>Shortest selection, ignoring whitespace</td>
+</tr>
+<tr>
+<td><code>showToolbar</code></td>
+<td><code>true</code></td>
+<td>Set by native from the user's setting; <code>false</code> stops selection reports</td>
+</tr>
+</tbody>
+</table>
+<h2 id="testing" class="tsd-anchor-link">Testing<a href="#testing" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<ul>
+<li>Unit: <code>unit-test/selection-tools.js</code> (classification and <code>selectedTextKey</code>). Run <code>npm run test-unit</code> from
+<code>injected/</code>.</li>
+<li>Integration: <code>integration-test/selection-tools.spec.js</code>. Run
+<code>npx playwright test --project=windows selection-tools --reporter list</code> from <code>injected/</code> after a build.</li>
+</ul>
+</div></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
+<details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>On This Page</h3></summary>
+<div class="tsd-accordion-details"><a href="#selection-tools"><span>Selection <wbr/>Tools</span></a>
+<ul>
+<li><a href="#turning-it-on"><span>Turning it on</span></a></li>
+<li><a href="#page-footprint"><span>Page footprint</span></a></li>
+<li><a href="#what-a-selection-is"><span>What a selection is</span></a></li>
+<li><a href="#reporting-a-selection"><span>Reporting a selection</span></a></li>
+<li><a href="#subscriptions"><span>Subscriptions</span></a></li>
+<li>
+<ul>
+<li><a href="#_"><span></span></a></li></ul></li>
+<li><a href="#notifications"><span>Notifications</span></a></li>
+<li>
+<ul>
+<li><a href="#_-1"><span></span></a></li>
+<li><a href="#_-2"><span></span></a></li>
+<li><a href="#_-3"><span></span></a></li>
+<li><a href="#_-4"><span></span></a></li></ul></li>
+<li><a href="#remote-config"><span>Remote <wbr/>Config</span></a></li>
+<li><a href="#testing"><span>Testing</span></a></li></ul></div></details></div>
+<div class="site-menu">
+<nav class="tsd-navigation"><a href="../index.html">@duckduckgo/content-scope-scripts</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer>
+<p class="tsd-generator">Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></footer>
+<div class="overlay"></div></body></html>

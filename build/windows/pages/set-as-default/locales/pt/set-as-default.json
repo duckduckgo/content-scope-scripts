@@ -1,0 +1,20 @@
+{
+  "smartling": {
+    "string_format": "icu",
+    "translate_paths": [
+      {
+        "path": "*/title",
+        "key": "{*}/title",
+        "instruction": "*/note"
+      }
+    ]
+  },
+  "tabTitle": {
+    "title": "Predefinir",
+    "note": "Browser tab title for the page that helps the user make DuckDuckGo their default browser in Windows settings."
+  },
+  "setDefaultInstruction": {
+    "title": "Seleciona o <strong>botão Predefinir</strong> nas definições do Windows para fazeres do DuckDuckGo o teu navegador predefinido.",
+    "note": "Instruction telling the user to click the Set default button in Windows Settings to make DuckDuckGo their default browser. The <strong> tag wraps the bold text 'Set default button'."
+  }
+}
