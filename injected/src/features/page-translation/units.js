@@ -39,7 +39,54 @@ export function findUnits(root) {
     /** @type {UnitTarget[]} */
     const units = [];
     walk.visit(root, units);
+    // Attributes come after the content: the page's <meta> description first (nothing else in <head>, so the
+    // <title> is left alone), then every element under root in document order.
+    const metas = root === document.body && document.head ? [...document.head.querySelectorAll(META)] : [];
+    for (const el of [...metas, root, ...root.querySelectorAll('*')]) {
+        for (const attribute of translatableAttributes(el)) units.push({ kind: 'attribute', element: el, attribute });
+    }
     return units;
+}
+
+const META = 'meta[name="description" i], meta[name="keywords" i]';
+// Never on form controls: Autofill reads their attributes, and changing them is deferred until it reads originals.
+const FORM_CONTROLS = 'input, select, textarea, button';
+/** @type {[string, string[]][]} */
+const ATTRIBUTES = [
+    ['*', ['title', 'aria-label', 'aria-description', 'aria-roledescription', 'aria-valuetext']],
+    ['img, area', ['alt']],
+    ['track, optgroup, option', ['label']],
+    ['th', ['abbr']],
+    [META, ['content']],
+];
+
+/**
+ * The attributes of `el` that hold text to translate.
+ * @param {Element} el
+ * @returns {string[]}
+ */
+function translatableAttributes(el) {
+    if (el.matches(FORM_CONTROLS) || isInExcluded(el)) return [];
+    /** @type {string[]} */
+    const found = [];
+    for (const [selector, names] of ATTRIBUTES) {
+        if (!el.matches(selector)) continue;
+        for (const name of names) {
+            if (LETTER.test(el.getAttribute(name) || '')) found.push(name);
+        }
+    }
+    return found;
+}
+
+/**
+ * Whether `el` or an ancestor is excluded.
+ * @param {Element} el
+ */
+function isInExcluded(el) {
+    for (let node = /** @type {Element | null} */ (el); node; node = node.parentElement) {
+        if (isExcluded(node)) return true;
+    }
+    return false;
 }
 
 /**
