@@ -656,9 +656,6 @@ test.describe('pageTranslation', () => {
             const errors = await page.evaluate(() => /** @type {any} */ (window).errors);
             const shows151 = (await page.textContent('#msg'))?.includes('151');
             testInfo.annotations.push({ type: 'react', description: `${shape}: errors=${JSON.stringify(errors)} shows151=${shows151}` });
-            console.log(
-                `[react] ${testInfo.project.name} ${shape}: errors=${JSON.stringify(errors)} shows151=${shows151} text=${JSON.stringify(await page.textContent('#msg'))}`,
-            );
             expect(errors).toEqual([]);
         });
     }
