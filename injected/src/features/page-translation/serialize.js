@@ -3,7 +3,7 @@
  * @typedef {import('./types.js').Serialized} Serialized
  */
 
-import { isExcluded } from './units.js';
+import { isSentEmpty } from './units.js';
 
 const ELEMENT_NODE = 1;
 const TEXT_NODE = 3;
@@ -66,7 +66,7 @@ function serializeNodes(nodes, elements) {
             if (VOID.has(tag)) {
                 out += `<${tag} data-t="${id}">`;
             } else {
-                const inner = isExcluded(el) ? '' : serializeNodes(el.childNodes, elements);
+                const inner = isSentEmpty(el) ? '' : serializeNodes(el.childNodes, elements);
                 out += `<${tag} data-t="${id}">${inner}</${tag}>`;
             }
         }

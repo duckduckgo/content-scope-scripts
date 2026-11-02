@@ -45,6 +45,18 @@ export function writeText(target, text, journal) {
 }
 
 /**
+ * Before an option's text changes: give it an explicit `value` if it has none, so the form still submits the same
+ * value (an option without one submits its text).
+ * @param {HTMLOptionElement} option
+ * @param {Journal} journal
+ */
+export function pinOption(option, journal) {
+    if (option.hasAttribute('value')) return;
+    recordAttribute(journal, option, 'value');
+    option.setAttribute('value', option.value);
+}
+
+/**
  * Writes an HTML translation onto the unit's original nodes: elements are moved, never recreated, and text goes into
  * the existing text nodes.
  * @param {UnitTarget} target

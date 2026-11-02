@@ -1,8 +1,8 @@
 import ContentFeature from '../content-feature.js';
-import { findUnits, isExcluded, isInOtherLanguage, isInViewport, isOtherLanguage } from './page-translation/units.js';
+import { findUnits, isInOtherLanguage, isInViewport, isOtherLanguage, isSentEmpty } from './page-translation/units.js';
 import { serializeUnit } from './page-translation/serialize.js';
 import { parseTranslation } from './page-translation/parse.js';
-import { createJournal, mergeUnit, revertJournal, writeText } from './page-translation/merge.js';
+import { createJournal, mergeUnit, pinOption, revertJournal, writeText } from './page-translation/merge.js';
 
 /**
  * @typedef {import('./page-translation/types.js').UnitTarget} UnitTarget
@@ -94,12 +94,15 @@ export class PageTranslation extends ContentFeature {
      */
     _write({ target, serialized }, text) {
         if (!serialized.html) {
+            if (target.kind === 'element' && target.element.localName === 'option') {
+                pinOption(/** @type {HTMLOptionElement} */ (target.element), this.#journal);
+            }
             writeText(target, text, this.#journal);
             return true;
         }
         const parsed = parseTranslation(text, serialized.wrapped);
         if (!parsed) return false;
-        mergeUnit(target, serialized.elements, parsed, this.#journal, (el) => isExcluded(el) || isOtherLanguage(el, this.#sourceLanguage));
+        mergeUnit(target, serialized.elements, parsed, this.#journal, (el) => isSentEmpty(el) || isOtherLanguage(el, this.#sourceLanguage));
         return true;
     }
 
