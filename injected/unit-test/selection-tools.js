@@ -19,6 +19,23 @@ describe('selectionTools classify', () => {
         expect(detectLanguage('Hello world')).toBeNull();
     });
 
+    it('tells Cyrillic languages apart, and names none it cannot', () => {
+        expect(detectLanguage('Це речення українською мовою, і воно не російське')).toBe('uk');
+        expect(detectLanguage('Гэта сказ па-беларуску і ён не рускі')).toBe('be');
+        expect(detectLanguage('Я ўчора чытаў кнігу')).toBe('be');
+        expect(detectLanguage('Ово је реченица на српском језику')).toBe('sr');
+        expect(detectLanguage('Он сказал, что придет завтра')).toBe('ru');
+        // Bulgarian has no letters of its own.
+        expect(detectLanguage('Това е изречение на български език')).toBeNull();
+    });
+
+    it('names no listed language for Latin text with letters outside its alphabet', () => {
+        expect(detectLanguage('To jest zdanie po polsku i to nie jest angielski, w ogóle')).toBeNull();
+        expect(detectLanguage('Tohle je věta v češtině a to není angličtina')).toBeNull();
+        expect(detectLanguage('Le café est sur la table et il est chaud')).toBe('fr');
+        expect(detectLanguage('Die Straße ist lang und das Wetter ist schön')).toBe('de');
+    });
+
     it('lets most of the letters decide the writing system', () => {
         expect(detectLanguage('This long English sentence quotes 日本 once and is still English for the reader')).toBe('en');
     });

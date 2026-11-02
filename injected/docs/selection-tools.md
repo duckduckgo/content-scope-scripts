@@ -64,7 +64,10 @@ dots ("U.S."). In writing systems without spaces between words, such as Chinese 
 characters, so a sentence isn't taken for one.
 
 The `language` comes from the text's writing system or common words, then the nearest `lang` attribute, as a primary
-subtag. When neither says, it's left out, and native takes the text to be in the user's language.
+subtag. When neither says, it's left out, and native takes the text to be in the user's language. Writing systems many
+languages share are only taken as one language when the text has letters or words only that language has: Cyrillic
+text is Ukrainian for ґ, є, ї or і, for example, and Latin text with letters such as Polish ł isn't matched against
+the English, Spanish, French, German, Italian or Portuguese word lists.
 
 ## Reporting a selection
 

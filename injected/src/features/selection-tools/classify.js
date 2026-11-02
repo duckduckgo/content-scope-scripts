@@ -13,7 +13,6 @@ const HAN = /\p{Script=Han}/gu;
 const SCRIPT_LANGUAGES = [
     [HAN, 'zh'],
     [/\p{Script=Hangul}/gu, 'ko'],
-    [/\p{Script=Cyrillic}/gu, 'ru'],
     [/\p{Script=Arabic}/gu, 'ar'],
     [/\p{Script=Hebrew}/gu, 'he'],
     [/\p{Script=Greek}/gu, 'el'],
@@ -21,6 +20,20 @@ const SCRIPT_LANGUAGES = [
     [/\p{Script=Thai}/gu, 'th'],
 ];
 const KANA = /[\p{Script=Hiragana}\p{Script=Katakana}]/gu;
+const CYRILLIC = /\p{Script=Cyrillic}/gu;
+// Many languages are written in Cyrillic, so one is only named for letters its alphabet has and the others don't, or for
+// Russian, its own common words. Kazakh and Belarusian also write і, so they're looked for before Ukrainian; Belarusian
+// writes it alongside ы or э, which Ukrainian doesn't have.
+/** @type {[RegExp, string][]} */
+const CYRILLIC_LETTERS = [
+    [/[әғқңұ]/iu, 'kk'],
+    [/ў|^(?=.*і)(?=.*[ыэ])/isu, 'be'],
+    [/[ѓќѕ]/iu, 'mk'],
+    [/[ђћџјљњ]/iu, 'sr'],
+    [/[ґєії]/iu, 'uk'],
+    [/[ыэё]/iu, 'ru'],
+];
+const RUSSIAN_WORDS = ['что', 'это', 'он', 'она', 'его', 'только', 'был', 'была', 'было', 'когда', 'если', 'уже', 'очень', 'нет'];
 // English is listed first so it wins ties.
 /** @type {Record<string, string[]>} */
 const STOPWORDS = {
@@ -33,6 +46,17 @@ const STOPWORDS = {
 };
 /** @type {Record<string, RegExp>} */
 const ACCENT_HINTS = { es: /[ñ¿¡]/i, fr: /[çœèêàù]/i, de: /[ßäöü]/i, pt: /[ãõ]/i };
+// The accented letters each language's alphabet has. Text with others, such as Polish ł or Czech ř, is in a language the
+// word lists don't know, however many of their short words it shares.
+/** @type {Record<string, string>} */
+const ACCENTED_LETTERS = {
+    en: '',
+    es: 'áéíóúüñ',
+    fr: 'àâæçéèêëîïôœùûüÿ',
+    de: 'äöüß',
+    it: 'àèéìíîòóùú',
+    pt: 'àáâãçéêíóôõú',
+};
 const CODE_SIGNALS = /[{};]|=>|\(\)|===?|!==?|\b(function|const|let|var|def|return|import|public|private|async|await)\b/g;
 // Letters and digits, with apostrophes or hyphens between them: "don't", "19th", "COVID-19".
 const WORD = /^[\p{L}\p{M}\p{N}]+(?:['’\-‐][\p{L}\p{M}\p{N}]+)*$/u;
@@ -73,10 +97,18 @@ export function detectLanguage(text) {
         if (count(pattern) > majority) return language;
     }
     const words = text.toLowerCase().match(/\p{L}+/gu) ?? [];
+    if (count(CYRILLIC) > majority) {
+        const marked = CYRILLIC_LETTERS.find(([pattern]) => pattern.test(text));
+        if (marked) return marked[1];
+        return words.some((word) => RUSSIAN_WORDS.includes(word)) ? 'ru' : null;
+    }
     if (words.length < 3) return null;
+    const accented = new Set(text.toLowerCase().match(/(?![a-z])\p{Script=Latin}/gu));
     let best = null;
     let bestScore = 0;
     for (const [language, list] of Object.entries(STOPWORDS)) {
+        const alphabet = ACCENTED_LETTERS[language] ?? '';
+        if ([...accented].some((letter) => !alphabet.includes(letter))) continue;
         const score = words.filter((word) => list.includes(word)).length + (ACCENT_HINTS[language]?.test(text) ? 2 : 0);
         if (score > bestScore) {
             best = language;
