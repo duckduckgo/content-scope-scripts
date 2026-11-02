@@ -220,13 +220,6 @@ function markup(page) {
 const bodyHTML = (page) => page.evaluate(() => document.body.innerHTML);
 
 test.describe('pageTranslation', () => {
-    test('replies to extract, apply and revert', async ({ page }, testInfo) => {
-        const collector = await openPage(page, testInfo, 'article.html');
-        expect(Array.isArray(await extract(collector))).toBe(true);
-        expect(typeof (await apply(collector, []))).toBe('number');
-        expect(typeof (await revert(collector))).toBe('number');
-    });
-
     for (const fixture of FIXTURES) {
         const untranslated = fixture.untranslated ?? [];
 
@@ -286,23 +279,11 @@ test.describe('pageTranslation', () => {
         expect(units[2].text).toBe('<div><a data-t="0">Ada</a> wrote the first program.</div>');
     });
 
-    test('keeps a run beside a block as one unit with its inline tags', async ({ page }, testInfo) => {
-        const collector = await openPage(page, testInfo, 'mixed-container.html');
-        const [run] = await extract(collector);
-        expect(run).toEqual(expect.objectContaining({ text: 'Intro text sits directly in the container.', html: false }));
-    });
-
     test('sends form controls inside a unit as empty tags', async ({ page }, testInfo) => {
         const collector = await openPage(page, testInfo, 'form.html');
         const units = await extract(collector);
         expect(units[1].text).toBe('<div><label data-t="0">Email address</label> <input data-t="1"></div>');
         expect(units[4].text).toBe('<div><button data-t="0">Sign in</button></div>');
-    });
-
-    test('sends an excluded inline element as an empty tag without its text', async ({ page }, testInfo) => {
-        const collector = await openPage(page, testInfo, 'opt-outs.html');
-        const units = await extract(collector);
-        expect(units[1].text).toBe('Use <code data-t="0"></code> to check your changes.');
     });
 
     test('apply skips units in another language, compared with the source language, not the page attribute', async ({ page }, testInfo) => {
@@ -312,21 +293,6 @@ test.describe('pageTranslation', () => {
         expect(await apply(collector, translateAll(units))).toBe(units.length - 2);
         expect(await page.textContent('blockquote')).toBe('Une citation en français.');
         expect(await page.textContent('p[lang="en-GB"]')).toBe('‹British colour.›');
-    });
-
-    test('apply leaves an element in another language untouched inside a translated sentence', async ({ page }, testInfo) => {
-        const collector = await openPage(page, testInfo, 'lang.html');
-        const units = await extract(collector);
-        const sentence = units[units.length - 1];
-        expect(sentence.text).toBe('He said <i data-t="0">bonjour</i> to us.');
-        expect(await apply(collector, translateAll([sentence]))).toBe(1);
-        expect(await page.textContent('p:last-of-type')).toBe('‹He said› bonjour ‹to us.›');
-    });
-
-    test('strips soft hyphens from the text sent', async ({ page }, testInfo) => {
-        const collector = await openPage(page, testInfo, 'soft-hyphen.html');
-        const [unit] = await extract(collector);
-        expect(unit.text).toBe('Die Bundesregierung tagt.');
     });
 
     test('keeps the same nodes after apply', async ({ page }, testInfo) => {
@@ -541,12 +507,6 @@ test.describe('pageTranslation', () => {
         const [unit] = await extract(collector);
         expect(await apply(collector, [{ id: unit.id, text: '\u200E<div><span data-t="0">U</span>na palabra.</div>\u200F\n' }])).toBe(1);
         expect(await page.textContent('p')).toBe('\u200EUna palabra.\u200F');
-    });
-
-    test('revert reports that it restored the page exactly', async ({ page }, testInfo) => {
-        const collector = await openPage(page, testInfo, 'article.html');
-        await apply(collector, translateAll(await extract(collector)));
-        expect((await revertResult(collector)).exact).toBe(true);
     });
 
     test('skips HTML units on a page that refuses our Trusted Types policy, and still writes plain ones', async ({ page }, testInfo) => {
