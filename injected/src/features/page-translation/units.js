@@ -69,16 +69,15 @@ const ATTRIBUTES = [
  * @returns {string[]}
  */
 function translatableAttributes(el) {
-    if (el.matches(FORM_CONTROLS) || isInExcluded(el)) return [];
     /** @type {string[]} */
     const found = [];
     for (const [selector, names] of ATTRIBUTES) {
-        if (!el.matches(selector)) continue;
-        for (const name of names) {
-            if (LETTER.test(el.getAttribute(name) || '')) found.push(name);
-        }
+        // Cheapest test first: almost no element carries any of these attributes.
+        const present = names.filter((name) => LETTER.test(el.getAttribute(name) || ''));
+        if (present.length > 0 && el.matches(selector)) found.push(...present);
     }
-    return found;
+    // Only then the costlier checks, which walk the element's ancestors.
+    return found.length > 0 && !el.matches(FORM_CONTROLS) && !isInExcluded(el) ? found : [];
 }
 
 /**
