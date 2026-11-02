@@ -13,6 +13,7 @@
  * @property {boolean} editable
  * @property {Element | null} element The field or editing host, or else the element the selection starts in
  * @property {() => Rect} bounds Viewport rect of the selected text in CSS pixels, measured now
+ * @property {() => boolean} occluded Whether other elements cover all of the selected text in the viewport, measured now
  */
 
 // Captured before page script runs, so a page can't patch it to reach into the closed shadow root.
@@ -92,15 +93,35 @@ function editingHostOf(element) {
 }
 
 /**
- * Text fields expose no geometry for their selection, so lay the field's text out again in a hidden mirror with the
- * same box and font, wrap the selected part in a span, and map the span's boxes back onto the field. The mirror holds
- * the field's text, so it goes in a closed shadow root that's in the document only while it's measured.
  * @param {HTMLInputElement | HTMLTextAreaElement} field
  * @param {number} start
  * @param {number} end
  * @returns {Rect}
  */
 function fieldSelectionBounds(field, start, end) {
+    const lines = fieldSelectionLines(field, start, end);
+    if (!lines.length) {
+        const box = field.getBoundingClientRect();
+        return { left: box.left, right: box.left, top: box.top, bottom: box.top };
+    }
+    return {
+        left: Math.min(...lines.map((r) => r.left)),
+        right: Math.max(...lines.map((r) => r.right)),
+        top: Math.min(...lines.map((r) => r.top)),
+        bottom: Math.max(...lines.map((r) => r.bottom)),
+    };
+}
+
+/**
+ * Text fields expose no geometry for their selection, so lay the field's text out again in a hidden mirror with the
+ * same box and font, wrap the selected part in a span, and map the span's boxes back onto the field. The mirror holds
+ * the field's text, so it goes in a closed shadow root that's in the document only while it's measured.
+ * @param {HTMLInputElement | HTMLTextAreaElement} field
+ * @param {number} start
+ * @param {number} end
+ * @returns {Rect[]} the selected lines, clipped to the field
+ */
+function fieldSelectionLines(field, start, end) {
     const host = document.createElement(HOST_TAG);
     for (const [name, value] of Object.entries({
         display: 'block',
@@ -118,7 +139,7 @@ function fieldSelectionBounds(field, start, end) {
     } catch {
         // A page that defines this element itself can make attaching the shadow root throw.
         const box = field.getBoundingClientRect();
-        return { left: box.left, right: box.right, top: box.top, bottom: box.bottom };
+        return [{ left: box.left, right: box.right, top: box.top, bottom: box.bottom }];
     } finally {
         host.remove();
     }
@@ -129,7 +150,7 @@ function fieldSelectionBounds(field, start, end) {
  * @param {number} start
  * @param {number} end
  * @param {Node} scratch
- * @returns {Rect}
+ * @returns {Rect[]}
  */
 function measureInMirror(field, start, end, scratch) {
     const style = getComputedStyle(field);
@@ -158,7 +179,7 @@ function measureInMirror(field, start, end, scratch) {
     const dx = box.left - origin.left - field.scrollLeft;
     const dy = box.top - origin.top - field.scrollTop;
     // Clipped to the field, since part of the selection can be scrolled out of view inside it.
-    const lines = [...marked.getClientRects()]
+    return [...marked.getClientRects()]
         .map((r) => ({
             left: Math.max(r.left + dx, box.left),
             right: Math.min(r.right + dx, box.right),
@@ -166,15 +187,36 @@ function measureInMirror(field, start, end, scratch) {
             bottom: Math.min(r.bottom + dy, box.bottom),
         }))
         .filter((r) => r.right > r.left && r.bottom > r.top);
-    if (!lines.length) {
-        return { left: box.left, right: box.left, top: box.top, bottom: box.top };
-    }
-    return {
-        left: Math.min(...lines.map((r) => r.left)),
-        right: Math.max(...lines.map((r) => r.right)),
-        top: Math.min(...lines.map((r) => r.top)),
-        bottom: Math.max(...lines.map((r) => r.bottom)),
-    };
+}
+
+/**
+ * Whether other elements cover all of the selection that's in the viewport, as a sticky header covers text scrolled
+ * under it. Hit-tests the middle of the first, middle and last lines in view. A selection scrolled out of the viewport
+ * isn't covered; its rect already says where it is.
+ * @param {Iterable<Rect>} lines
+ * @param {Node} node A node of the selection, for the tree to hit-test in
+ * @param {(hit: Element) => boolean} shows Whether the element hit is the selection's own, or one of its ancestors
+ */
+function isCovered(lines, node, shows) {
+    const { clientWidth: width, clientHeight: height } = document.documentElement;
+    const inView = [...lines]
+        .map((r) => ({
+            left: Math.max(r.left, 0),
+            right: Math.min(r.right, width),
+            top: Math.max(r.top, 0),
+            bottom: Math.min(r.bottom, height),
+        }))
+        .filter((r) => r.right > r.left && r.bottom > r.top);
+    if (!inView.length) return false;
+    const root = node.getRootNode();
+    // A shadow root hit-tests its own tree, where the document would only find the host.
+    const scope = root instanceof ShadowRoot ? root : document;
+    const sampled = new Set([0, Math.floor(inView.length / 2), inView.length - 1].map((i) => inView[i]));
+    return [...sampled].every((r) => {
+        if (!r) return false;
+        const hit = scope.elementFromPoint((r.left + r.right) / 2, (r.top + r.bottom) / 2);
+        return hit !== null && !shows(hit);
+    });
 }
 
 /**
@@ -352,7 +394,14 @@ export function readSelection(minChars) {
         if (start === null || end === null) return null;
         const text = active.value.slice(start, end);
         if (text.trim().length < minChars) return null;
-        return { text, browserText: text, editable: true, element: active, bounds: () => fieldSelectionBounds(active, start, end) };
+        return {
+            text,
+            browserText: text,
+            editable: true,
+            element: active,
+            bounds: () => fieldSelectionBounds(active, start, end),
+            occluded: () => isCovered(fieldSelectionLines(active, start, end), active, (hit) => hit === active || hit.contains(active)),
+        };
     }
     // Any other focused field (a password, a read-only input) has a selection we leave alone.
     if (active instanceof HTMLInputElement || active instanceof HTMLTextAreaElement) return null;
@@ -376,6 +425,8 @@ export function readSelection(minChars) {
             const { left, top, right, bottom } = range.getBoundingClientRect();
             return { left, top, right, bottom };
         },
+        // A hit on an ancestor, as text with pointer-events: none gives, still shows the selection.
+        occluded: () => isCovered(range.getClientRects(), range.startContainer, (hit) => range.intersectsNode(hit)),
     };
 }
 

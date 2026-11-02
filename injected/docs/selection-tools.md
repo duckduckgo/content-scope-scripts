@@ -114,9 +114,12 @@ once the menu closes, and starts a report, or leaves one in place, that later mo
 
 - {@link "SelectionTools Messages".SelectionMovedNotification}
 - The reported selection's new `rect` and `devicePixelRatio` after a scroll or resize.
+- `occluded` is true when other elements cover all of the selected text that's in the viewport, as a sticky header does
+  text scrolled under it, so native can hide the toolbar. The page hit-tests the first, middle and last lines in view. A
+  selection scrolled out of the viewport isn't occluded; the `rect` shows that.
 
 ```json
-{ "rect": { "left": 320, "top": 81, "right": 960, "bottom": 129 }, "devicePixelRatio": 1.25 }
+{ "rect": { "left": 320, "top": 81, "right": 960, "bottom": 129 }, "devicePixelRatio": 1.25, "occluded": false }
 ```
 
 ### `selectionCleared`

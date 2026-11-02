@@ -122,6 +122,10 @@ export interface SelectionMovedParams {
    * The page's window.devicePixelRatio, which includes page zoom.
    */
   devicePixelRatio: number;
+  /**
+   * Whether other elements, such as a sticky header, cover all of the selected text that's in the viewport. False when the selection is out of the viewport, which the rect shows.
+   */
+  occluded?: boolean;
 }
 /**
  * Generated from @see "../messages/selection-tools/selectionToolsConfigChanged.subscribe.json"

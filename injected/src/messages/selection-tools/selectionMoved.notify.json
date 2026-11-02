@@ -15,6 +15,10 @@
     "devicePixelRatio": {
       "type": "number",
       "description": "The page's window.devicePixelRatio, which includes page zoom."
+    },
+    "occluded": {
+      "type": "boolean",
+      "description": "Whether other elements, such as a sticky header, cover all of the selected text that's in the viewport. False when the selection is out of the viewport, which the rect shows."
     }
   }
 }

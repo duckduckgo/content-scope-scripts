@@ -351,6 +351,7 @@ test.describe('selectionTools', () => {
         expect(moved).toEqual({
             rect: { left: rect.left, top: expect.any(Number), right: rect.right, bottom: expect.any(Number) },
             devicePixelRatio: await page.evaluate(() => window.devicePixelRatio),
+            occluded: false,
         });
         expect(moved.rect.top).toBeCloseTo(rect.top - 100, 0);
 
@@ -360,6 +361,39 @@ test.describe('selectionTools', () => {
         await page.evaluate(() => window.scrollBy(0, 100));
         await settle(page);
         expect(await sent(collector, 'selectionMoved')).toHaveLength(moves);
+    });
+
+    test('reports a selection scrolled under a sticky header as occluded, but not one scrolled out of view', async ({ page }, testInfo) => {
+        const collector = await setup(page, testInfo);
+        await page.evaluate(() => {
+            const spacer = document.createElement('div');
+            spacer.style.height = '3000px';
+            document.body.append(spacer);
+            const header = document.createElement('header');
+            header.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; height: 100px; background: white;';
+            document.body.append(header);
+        });
+        /** Scrolls the page so the top of the element sits `top` pixels down the viewport, and returns the next move. */
+        const scrollTo = async (/** @type {string} */ selector, /** @type {number} */ top) => {
+            const moves = (await sent(collector, 'selectionMoved')).length;
+            await page.locator(selector).evaluate((element, y) => window.scrollBy(0, element.getBoundingClientRect().top - y), top);
+            await expect.poll(async () => (await sent(collector, 'selectionMoved')).length).toBeGreaterThan(moves);
+            return lastSent(collector, 'selectionMoved');
+        };
+
+        await selectParagraph(page, '#english');
+        await reportedWith(collector, ENGLISH);
+        expect(await scrollTo('#english', 30)).toMatchObject({ occluded: true });
+        expect(await scrollTo('#english', 300)).toMatchObject({ occluded: false });
+        // Above the viewport, where native goes by the rect.
+        expect(await scrollTo('#english', -200)).toMatchObject({ occluded: false });
+
+        await page.keyboard.press('Escape');
+        await page.locator('#field').focus();
+        await page.keyboard.press('Control+A');
+        await reportedWith(collector, 'grammar mistake');
+        expect(await scrollTo('#field', 30)).toMatchObject({ occluded: true });
+        expect(await scrollTo('#field', 300)).toMatchObject({ occluded: false });
     });
 
     test('reports the selection once when the context menu opens', async ({ page }, testInfo) => {

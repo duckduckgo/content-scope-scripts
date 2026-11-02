@@ -12,7 +12,8 @@ import {
 import { selectedTextKey } from './selection-tools/text-key.js';
 
 /**
- * @typedef {import('../types/selection-tools.js').SelectionMovedParams} SelectionGeometry
+ * @typedef {import('../types/selection-tools.js').SelectionRect} Rect
+ * @typedef {{ rect: Rect, devicePixelRatio: number }} SelectionGeometry
  * @typedef {import('../types/selection-tools.js').SelectionToolsConfig} Config
  * @typedef {import('./selection-tools/selection.js').SelectionSnapshot} SelectionSnapshot
  */
@@ -147,7 +148,7 @@ export default class SelectionTools extends ContentFeature {
         if (!this._reported || this._moveFrame) return;
         this._moveFrame = requestAnimationFrame(() => {
             this._moveFrame = 0;
-            if (this._reported) this.notify('selectionMoved', geometryOf(this._reported));
+            if (this._reported) this.notify('selectionMoved', { ...geometryOf(this._reported), occluded: this._reported.occluded() });
         });
     }
 
