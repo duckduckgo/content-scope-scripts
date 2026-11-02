@@ -181,7 +181,7 @@
     "description" : "First line of the Duck.ai terms disclaimer shown under the Duck.ai chat input until the user accepts Duck.ai's terms. Followed on the next line by omnibar_termsDisclaimerAgree."
   },
   "omnibar_termsDisclaimerAgree" : {
-    "title" : "Al hacer clic en « {actionLabel} », aceptas nuestra <a>Política de privacidad y condiciones del servicio</a>.",
+    "title" : "Al hacer clic en « '{'actionLabel'}' », aceptas nuestra <a>Política de privacidad y condiciones del servicio</a>.",
     "note" : "Second line of the Duck.ai terms disclaimer, shown below omnibar_termsDisclaimerAnonymized. {actionLabel} is replaced with the label of the send button: omnibar_termsAskButtonLabel ('Ask') for chat, or omnibar_termsCreateButtonLabel ('Create') for image creation. Keep {actionLabel} unchanged, inside your language's quotation marks. The <a> tag is a link to the Privacy Policy and Terms of Service page, please preserve it."
   },
   "omnibar_termsAskButtonLabel" : {
@@ -521,7 +521,7 @@
     "description" : "Heading of the chat card in the How Duck.ai Works panel."
   },
   "omnibar_suggestedPromptsChatBody" : {
-    "title" : "Elige una IA popular para chatear, como GPT-5 mini, Claude Haiku 4.5, Mistral, etc.",
+    "title" : "Elige una IA popular con la que chatear, de OpenAI, Anthropic, Mistral y más.",
     "description" : "Body of the chat card in the How Duck.ai Works panel. Describes choosing from popular AI models."
   },
   "omnibar_suggestedPromptsAnonymizedTitle" : {
