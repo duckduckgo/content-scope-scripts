@@ -1,85 +1,84 @@
+import { JSONparse } from '../../captured-globals.js';
+
 /** @typedef {import('./types.js').ParsedNode} ParsedNode */
-
-// Captured at load: the page can replace these later. Both are missing outside a browser.
-const DOMParserRef = globalThis.DOMParser;
-const trustedTypesRef =
-    /** @type {{ createPolicy?: (name: string, rules: { createHTML: (s: string) => string }) => { createHTML: (s: string) => unknown } } | undefined} */ (
-        /** @type {any} */ (globalThis).trustedTypes
-    );
-
-const ELEMENT_NODE = 1;
-const TEXT_NODE = 3;
 
 const UNSAFE = new Set(['script', 'style', 'template']);
 const INVISIBLE = /^\p{Cf}*$/u;
 
-/** @type {{ createHTML: (s: string) => unknown } | null | undefined} undefined until first use, null when refused */
-let policy;
-
 /**
- * Turns the engine's HTML into a tree of text and the elements we sent (by `data-t` id), or `null` when it isn't
- * the shape we sent. Parses into an inert document, through a Trusted Types policy where the page has Trusted Types.
- * A page whose CSP refuses our policy can't be parsed: its HTML units are skipped (plain-text units need no parsing).
- * @param {string} text
+ * Reads the translated HTML of a unit from TranslateKit's JSON tree (native parses the engine's HTML, so the page
+ * never does), and returns text plus the elements we sent (by `data-t` id). Returns `null` when the tree isn't the
+ * shape we sent: anything but `data-t` on an element, a tag that runs code, or TranslateKit's `null` for malformed HTML.
+ * @param {string} json - an array of `{"text"}` and `{"tag", "attrs", "children"}` nodes, or `null`
  * @param {boolean} wrapped - the unit was sent inside a `<div>`, which must come back as the only top-level element
  * @returns {ParsedNode[] | null}
  */
-export function parseTranslation(text, wrapped) {
-    if (!DOMParserRef) return null;
-    if (trustedTypesRef?.createPolicy) {
-        if (policy === undefined) {
-            try {
-                policy = trustedTypesRef.createPolicy('ddg-translation', { createHTML: (s) => s });
-            } catch {
-                policy = null;
-            }
-        }
-        if (!policy) return null;
-        const html = /** @type {string} */ (policy.createHTML(text));
-        return fromDocument(new DOMParserRef().parseFromString(html, 'text/html').body, wrapped);
+export function parseTree(json, wrapped) {
+    let nodes;
+    try {
+        nodes = JSONparse(json);
+    } catch {
+        return null;
     }
-    return fromDocument(new DOMParserRef().parseFromString(text, 'text/html').body, wrapped);
+    if (!Array.isArray(nodes)) return null;
+    if (!wrapped) return convert(nodes);
+    const at = nodes.findIndex((n) => !isText(n));
+    const wrapper = nodes[at];
+    if (at === -1 || nodes.slice(at + 1).some((n) => !isText(n))) return null;
+    if (!isElement(wrapper) || wrapper.tag !== 'div' || Object.keys(wrapper.attrs).length > 0) return null;
+    return withSurroundings(textOf(nodes.slice(0, at)), convert(wrapper.children), textOf(nodes.slice(at + 1)));
 }
 
 /**
- * Converts the body of an inert parsed document.
- * @param {Element} body
- * @param {boolean} wrapped
+ * @param {unknown[]} nodes
  * @returns {ParsedNode[] | null}
  */
-export function fromDocument(body, wrapped) {
-    // The parser moves a leading <script>, <style>, <title> or <meta> into <head>, leaving the body looking clean.
-    if (body.ownerDocument.head?.hasChildNodes()) return null;
-    if (!wrapped) return convertChildren(body);
-    const elements = [...body.children];
-    const wrapper = elements[0];
-    if (elements.length !== 1 || !wrapper || wrapper.localName !== 'div' || wrapper.attributes.length > 0) return null;
-    const nodes = [...body.childNodes];
-    const at = nodes.indexOf(wrapper);
-    const textOf = (/** @type {ChildNode[]} */ list) => list.map((n) => (n.nodeType === TEXT_NODE ? n.nodeValue : '')).join('');
-    return withSurroundings(textOf(nodes.slice(0, at)), convertChildren(wrapper), textOf(nodes.slice(at + 1)));
-}
-
-/**
- * @param {Element} parent
- * @returns {ParsedNode[] | null}
- */
-function convertChildren(parent) {
+function convert(nodes) {
     /** @type {ParsedNode[]} */
     const out = [];
-    for (const node of parent.childNodes) {
-        if (node.nodeType === TEXT_NODE) {
-            appendText(out, node.nodeValue || '');
-        } else if (node.nodeType === ELEMENT_NODE) {
-            const el = /** @type {Element} */ (node);
-            const id = idOf(el.localName, el.attributes.length === 1 ? el.getAttribute('data-t') : null);
-            if (id === null) return null;
-            const children = convertChildren(el);
-            if (!children) return null;
-            out.push({ id, children });
+    for (const node of nodes) {
+        if (isText(node)) {
+            appendText(out, node.text);
+            continue;
         }
+        if (!isElement(node)) return null;
+        const names = Object.keys(node.attrs);
+        const id = idOf(node.tag, names.length === 1 && names[0] === 'data-t' ? node.attrs['data-t'] : null);
+        if (id === null) return null;
+        const children = convert(node.children);
+        if (!children) return null;
+        out.push({ id, children });
     }
     return out;
+}
+
+/**
+ * @param {unknown} node
+ * @returns {node is { text: string }}
+ */
+function isText(node) {
+    return typeof node === 'object' && node !== null && typeof (/** @type {any} */ (node).text) === 'string';
+}
+
+/**
+ * @param {unknown} node
+ * @returns {node is { tag: string, attrs: Record<string, unknown>, children: unknown[] }}
+ */
+function isElement(node) {
+    const el = /** @type {any} */ (node);
+    return (
+        typeof el === 'object' &&
+        el !== null &&
+        typeof el.tag === 'string' &&
+        typeof el.attrs === 'object' &&
+        el.attrs !== null &&
+        Array.isArray(el.children)
+    );
+}
+
+/** @param {unknown[]} nodes */
+function textOf(nodes) {
+    return nodes.map((n) => (isText(n) ? n.text : '')).join('');
 }
 
 /**
@@ -110,11 +109,11 @@ function withSurroundings(before, children, after) {
 /**
  * The id of an element we sent, or null when the tag or id isn't one we'd send.
  * @param {string} tag
- * @param {string | null} rawId
+ * @param {unknown} rawId
  * @returns {number | null}
  */
 function idOf(tag, rawId) {
-    if (UNSAFE.has(tag) || rawId === null || !/^\d+$/.test(rawId)) return null;
+    if (UNSAFE.has(tag) || typeof rawId !== 'string' || !/^\d+$/.test(rawId)) return null;
     return Number(rawId);
 }
 

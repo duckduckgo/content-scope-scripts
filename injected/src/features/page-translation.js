@@ -1,7 +1,7 @@
 import ContentFeature from '../content-feature.js';
 import { findUnits, isExcluded, isInOtherLanguage, isInViewport, isOtherLanguage } from './page-translation/units.js';
 import { serializeUnit } from './page-translation/serialize.js';
-import { parseTranslation } from './page-translation/parse.js';
+import { parseTree } from './page-translation/parse.js';
 import { createJournal, mergeUnit, revertJournal, writeText } from './page-translation/merge.js';
 
 /**
@@ -62,19 +62,20 @@ export class PageTranslation extends ContentFeature {
     /**
      * @param {string} sourceLanguage - the page's detected language: content marked as another language isn't written
      * @param {string} targetLanguage - set as the page's `lang` on the first write
-     * @param {{ id: number, text: string }[]} updates
+     * @param {{ id: number, text?: string, tree?: string }[]} updates - `text` for plain units, `tree` (TranslateKit's JSON) for HTML units
      */
     _apply(sourceLanguage, targetLanguage, updates) {
         this.#sourceLanguage = sourceLanguage;
         this.#targetLanguage = targetLanguage;
         let count = 0;
         for (const update of Array.isArray(updates) ? updates : []) {
-            const { id, text } = update ?? {};
+            const { id, text, tree } = update ?? {};
             const unit = typeof id === 'number' ? this.#units.get(id) : undefined;
-            if (!unit || typeof text !== 'string' || !isConnected(unit.target)) continue;
+            const value = unit?.serialized.html ? tree : text;
+            if (!unit || typeof value !== 'string' || !isConnected(unit.target)) continue;
             if (isInOtherLanguage(containerOf(unit.target), sourceLanguage)) continue;
             try {
-                if (!this._write(unit, text)) continue;
+                if (!this._write(unit, value)) continue;
             } catch (e) {
                 // Never let one unit stop the reply; whatever it changed is in the journal for revert.
                 this.log.error('apply failed for a unit', e);
@@ -89,15 +90,15 @@ export class PageTranslation extends ContentFeature {
 
     /**
      * @param {UnitState} unit
-     * @param {string} text
+     * @param {string} value - the plain text, or for an HTML unit TranslateKit's JSON tree
      * @returns {boolean} whether anything was written
      */
-    _write({ target, serialized }, text) {
+    _write({ target, serialized }, value) {
         if (!serialized.html) {
-            writeText(target, text, this.#journal);
+            writeText(target, value, this.#journal);
             return true;
         }
-        const parsed = parseTranslation(text, serialized.wrapped);
+        const parsed = parseTree(value, serialized.wrapped);
         if (!parsed) return false;
         mergeUnit(target, serialized.elements, parsed, this.#journal, (el) => isExcluded(el) || isOtherLanguage(el, this.#sourceLanguage));
         return true;
