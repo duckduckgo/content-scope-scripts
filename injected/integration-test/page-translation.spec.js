@@ -103,6 +103,10 @@ const FIXTURES = [
         units: ['Birds', 'Population', 'Page about birds.', 'A small bird', 'Read about birds', 'Pop.', 'First choice'],
     },
     {
+        page: 'react.html',
+        units: ['hey you this has accrued 150 spaceships pay now', 'Add one'],
+    },
+    {
         page: 'mixed-container.html',
         units: ['Intro text sits directly in the container.', 'And this is a normal paragraph.'],
     },
@@ -622,6 +626,42 @@ test.describe('pageTranslation', () => {
         expect(await page.textContent('details p')).toBe('‹Collapsed answer.›');
         expect(await page.textContent('nav li')).toBe('‹Hidden menu item›');
     });
+
+    // Known gap: adjacent text nodes are merged into one, so the page's data-driven node ("150") is removed and its
+    // later updates don't show. Fixing it means sending each adjacent text node as its own placeholder tag.
+    test.fail('keeps a React-style page working when it re-renders after translation', async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'react.html');
+        await apply(collector, translateAll(await extract(collector)));
+        await page.click('#bump');
+        expect(await page.evaluate(() => /** @type {any} */ (window).errors)).toEqual([]);
+        expect(await page.textContent('#s1')).toContain('151');
+    });
+
+    /** @type {[string, string][]} */
+    const reactShapes = [
+        ['reordered', '<div><span data-t="1">paga ahora</span> <span data-t="0">has acumulado 150 naves</span></div>'],
+        ['duplicated', '<div><span data-t="0">has acumulado</span> <span data-t="1">paga</span> <span data-t="0">150 naves</span></div>'],
+        ['emptied', '<div><span data-t="0"></span> <span data-t="1">has acumulado 150 naves, paga ahora</span></div>'],
+        ['dropped', '<div>has acumulado 150 naves <span data-t="1">paga ahora</span></div>'],
+    ];
+    for (const [shape, output] of reactShapes) {
+        test(`React-style page re-renders after ${shape} engine output`, async ({ page }, testInfo) => {
+            const collector = await openPage(page, testInfo, 'react.html');
+            const [unit] = await extract(collector);
+            expect(unit.text).toBe(
+                '<div><span data-t="0">hey you this has accrued 150 spaceships</span> <span data-t="1">pay now</span></div>',
+            );
+            expect(await apply(collector, [{ id: unit.id, text: output }])).toBe(1);
+            await page.click('#bump');
+            const errors = await page.evaluate(() => /** @type {any} */ (window).errors);
+            const shows151 = (await page.textContent('#msg'))?.includes('151');
+            testInfo.annotations.push({ type: 'react', description: `${shape}: errors=${JSON.stringify(errors)} shows151=${shows151}` });
+            console.log(
+                `[react] ${testInfo.project.name} ${shape}: errors=${JSON.stringify(errors)} shows151=${shows151} text=${JSON.stringify(await page.textContent('#msg'))}`,
+            );
+            expect(errors).toEqual([]);
+        });
+    }
 
     test('marks only units on screen as in the viewport', async ({ page }, testInfo) => {
         const collector = await openPage(page, testInfo, 'article.html');
