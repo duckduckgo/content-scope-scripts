@@ -6,6 +6,13 @@ const computedStyle = window.getComputedStyle.bind(window);
 const ELEMENT_NODE = 1;
 const TEXT_NODE = 3;
 
+// Block-level by default. A `display: none` element's computed display says nothing about how it flows when shown,
+// so it falls back to its tag's usual display.
+const BLOCK_TAGS = new Set(
+    'address article aside blockquote dd details dialog div dl dt fieldset figcaption figure footer form h1 h2 h3 h4 h5 h6 header hgroup hr li main nav ol p pre section summary table tbody td tfoot th thead tr ul'.split(
+        ' ',
+    ),
+);
 const INLINE_DISPLAY = new Set([
     'inline',
     'inline-block',
@@ -52,7 +59,24 @@ export function isInViewport(target) {
     } else {
         rect = target.element.getBoundingClientRect();
     }
-    return rect.bottom > 0 && rect.top < window.innerHeight && rect.right > 0 && rect.left < window.innerWidth;
+    const onScreen = rect.bottom > 0 && rect.top < window.innerHeight && rect.right > 0 && rect.left < window.innerWidth;
+    return onScreen && rect.width > 0 && rect.height > 0 && isVisible(target.kind === 'run' ? target.parent : target.element);
+}
+
+/**
+ * Whether `el` is rendered and not made invisible (hidden, `visibility: hidden`, `opacity: 0`, closed `<details>`).
+ * @param {Element} el
+ * @returns {boolean}
+ */
+function isVisible(el) {
+    if (typeof el.checkVisibility === 'function') {
+        return el.checkVisibility({ opacityProperty: true, visibilityProperty: true });
+    }
+    for (let node = /** @type {Element | null} */ (el); node; node = node.parentElement) {
+        const style = computedStyle(node);
+        if (style.display === 'none' || style.opacity === '0') return false;
+    }
+    return computedStyle(el).visibility !== 'hidden';
 }
 
 /**
@@ -168,8 +192,12 @@ class Walk {
         let inline = this.#inline.get(el);
         if (inline === undefined) {
             const style = computedStyle(el);
-            // A float (e.g. a drop cap) flows inside the text around it, even though its computed display is block.
-            inline = INLINE_DISPLAY.has(style.display) || (style.float !== '' && style.float !== 'none');
+            if (style.display === 'none') {
+                inline = !BLOCK_TAGS.has(el.localName);
+            } else {
+                // A float (e.g. a drop cap) flows inside the text around it, even though its computed display is block.
+                inline = INLINE_DISPLAY.has(style.display) || (style.float !== '' && style.float !== 'none');
+            }
             this.#inline.set(el, inline);
         }
         return inline;
