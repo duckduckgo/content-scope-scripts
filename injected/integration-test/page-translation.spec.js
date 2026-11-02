@@ -554,6 +554,18 @@ test.describe('pageTranslation', () => {
         expect(texts.filter((_, i) => units[i].vp === 1)).toEqual(['Visible paragraph.', 'Show more', 'Read the hidden part later.']);
     });
 
+    test('extracts attribute units after content units, never on form controls', async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'attributes.html');
+        const units = await extract(collector);
+        const attributes = ['Page about birds.', 'A small bird', 'Read about birds', 'Pop.'];
+        expect(units.filter((u) => attributes.includes(u.text)).map((u) => ({ text: u.text, html: u.html }))).toEqual(
+            attributes.map((text) => ({ text, html: false })),
+        );
+        expect(units.findIndex((u) => u.text === 'Page about birds.')).toBeGreaterThan(units.findIndex((u) => u.text === 'Population'));
+        const all = units.map((u) => u.text);
+        for (const text of ['Your email', 'Close dialog', 'Press me', 'Attributes']) expect(all).not.toContain(text);
+    });
+
     test('marks only units on screen as in the viewport', async ({ page }, testInfo) => {
         const collector = await openPage(page, testInfo, 'article.html');
         const units = await extract(collector);
