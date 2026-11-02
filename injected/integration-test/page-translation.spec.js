@@ -96,6 +96,8 @@ const FIXTURES = [
             'Collapsed answer.',
             'Hidden inline text',
             'Read the hidden part later.',
+            'Shipping address',
+            'Street',
         ],
     },
     {
@@ -576,7 +578,12 @@ test.describe('pageTranslation', () => {
         const collector = await openPage(page, testInfo, 'hidden.html');
         const units = await extract(collector);
         const texts = await plainTexts(page, units);
-        expect(texts.filter((_, i) => units[i].vp === 1)).toEqual(['Visible paragraph.', 'Show more', 'Read the hidden part later.']);
+        expect(texts.filter((_, i) => units[i].vp === 1)).toEqual([
+            'Visible paragraph.',
+            'Show more',
+            'Read the hidden part later.',
+            'Street',
+        ]);
     });
 
     test('extracts attribute units after content units, never on form controls', async ({ page }, testInfo) => {
