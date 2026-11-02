@@ -98,6 +98,10 @@ const FIXTURES = [
         ],
     },
     {
+        page: 'attributes.html',
+        units: ['Birds', 'Population', 'Page about birds.', 'A small bird', 'Read about birds', 'Pop.', 'First choice'],
+    },
+    {
         page: 'mixed-container.html',
         units: ['Intro text sits directly in the container.', 'And this is a normal paragraph.'],
     },
@@ -221,14 +225,29 @@ function textTranslatedAnyway(page, untranslated) {
  * @param {import('@playwright/test').Page} page
  */
 function markup(page) {
-    return page.evaluate(() =>
-        [...document.body.querySelectorAll('*')].map((el) =>
-            [
-                el.tagName,
-                // The one allowed addition: an option's value is pinned before its text is translated.
-                ...[...el.attributes].filter((a) => !(el.tagName === 'OPTION' && a.name === 'value')).map((a) => `${a.name}=${a.value}`),
-            ].join(' '),
-        ),
+    const TRANSLATED_ATTRIBUTES = [
+        'title',
+        'alt',
+        'aria-label',
+        'aria-description',
+        'aria-roledescription',
+        'aria-valuetext',
+        'label',
+        'abbr',
+    ];
+    return page.evaluate(
+        (TRANSLATED_ATTRIBUTES) =>
+            [...document.body.querySelectorAll('*')].map((el) =>
+                [
+                    el.tagName,
+                    // The one allowed addition: an option's value is pinned before its text is translated.
+                    ...[...el.attributes]
+                        .filter((a) => !(el.tagName === 'OPTION' && a.name === 'value'))
+                        // Translated attributes keep their name; only their value changes.
+                        .map((a) => (TRANSLATED_ATTRIBUTES.includes(a.name) ? a.name : `${a.name}=${a.value}`)),
+                ].join(' '),
+            ),
+        TRANSLATED_ATTRIBUTES,
     );
 }
 
@@ -572,6 +591,22 @@ test.describe('pageTranslation', () => {
         const collector = await openPage(page, testInfo, 'select.html');
         const [label] = await extract(collector);
         expect(label.text).toBe('<div><label data-t="0">Size <select data-t="1"></select></label></div>');
+    });
+
+    test('translates attributes but not on form controls', async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'attributes.html');
+        await apply(collector, translateAll(await extract(collector)));
+        expect(await page.getAttribute('img', 'alt')).toBe('‹A small bird›');
+        expect(await page.getAttribute('meta[name=description]', 'content')).toBe('‹Page about birds.›');
+        expect(await page.getAttribute('input:not([type])', 'placeholder')).toBe('Your email');
+        expect(await page.getAttribute('button', 'aria-label')).toBe('Close dialog');
+    });
+
+    test('translates hidden content', async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'hidden.html');
+        await apply(collector, translateAll(await extract(collector)));
+        expect(await page.textContent('details p')).toBe('‹Collapsed answer.›');
+        expect(await page.textContent('nav li')).toBe('‹Hidden menu item›');
     });
 
     test('marks only units on screen as in the viewport', async ({ page }, testInfo) => {
