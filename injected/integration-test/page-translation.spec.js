@@ -108,6 +108,10 @@ const FIXTURES = [
         units: ['hey you this has accrued 150 spaceships pay now', 'Add one'],
     },
     {
+        page: 'datalist.html',
+        units: ['Color', 'Red', 'Blue'],
+    },
+    {
         page: 'mixed-container.html',
         units: ['Intro text sits directly in the container.', 'And this is a normal paragraph.'],
     },
@@ -668,6 +672,18 @@ test.describe('pageTranslation', () => {
         const calls = await page.evaluate(() => /** @type {any} */ (window).matchesCalls);
         // About 2 per element (the walk itself); checking ancestors for every element was 26.
         expect(calls).toBeLessThan(elements * 3);
+    });
+
+    test('treats a datalist like a select: empty in its sentence, options pinned', async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'datalist.html');
+        const units = await extract(collector);
+        expect(units[0].text).toBe('Color <input data-t="0"><datalist data-t="1"></datalist>');
+        await apply(collector, translateAll(units));
+        expect(
+            await page.evaluate(() =>
+                [...document.querySelectorAll('#colors option')].map((o) => /** @type {HTMLOptionElement} */ (o).value),
+            ),
+        ).toEqual(['Red', 'b']);
     });
 
     test('marks only units on screen as in the viewport', async ({ page }, testInfo) => {
