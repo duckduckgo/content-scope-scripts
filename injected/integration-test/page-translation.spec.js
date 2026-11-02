@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { JSDOM } from 'jsdom';
 import { ResultsCollector } from './page-objects/results-collector.js';
 
 const PAGES = '/page-translation/pages';
@@ -6,7 +7,7 @@ const CONFIG = './integration-test/test-pages/page-translation/config/page-trans
 
 /**
  * @typedef {{ id: number, text: string, html: boolean, vp: 0 | 1 }} Unit
- * @typedef {{ id: number, text: string }} Update
+ * @typedef {{ id: number, text?: string, tree?: string }} Update - `text` for plain units, `tree` (TranslateKit's JSON) for HTML units
  * @typedef {object} Fixture
  * @property {string} page
  * @property {string[]} units - each unit's plain text, in document order
@@ -150,7 +151,38 @@ const revert = async (collector) => (await send(collector, 'revert', {}, 'revert
 const revertResult = async (collector) => await send(collector, 'revert', {}, 'revertResult');
 
 /** @param {Unit[]} units @returns {Update[]} */
-const translateAll = (units) => units.map(({ id, text, html }) => ({ id, text: html ? pseudoTranslate(text) : `‹${text}›` }));
+const translateAll = (units) =>
+    units.map(({ id, text, html }) => (html ? { id, tree: htmlTree(pseudoTranslate(text)) } : { id, text: `‹${text}›` }));
+
+/**
+ * What native passes to apply for an HTML unit: TranslateKit's JSON tree of the translated HTML, built here with
+ * jsdom in the same shape (`{text}` or `{tag, attrs, children}`).
+ * @param {string} html
+ * @returns {string}
+ */
+function htmlTree(html) {
+    const template = new JSDOM('').window.document.createElement('template');
+    template.innerHTML = html;
+    /**
+     * @param {NodeListOf<ChildNode>} nodes
+     * @returns {any[]}
+     */
+    const convert = (nodes) => {
+        /** @type {any[]} */
+        const out = [];
+        for (const node of nodes) {
+            if (node.nodeType === 3) {
+                out.push({ text: node.nodeValue });
+            } else if (node.nodeType === 1) {
+                const el = /** @type {Element} */ (node);
+                const attrs = Object.fromEntries([...el.attributes].map((a) => [a.name, a.value]));
+                out.push({ tag: el.localName, attrs, children: convert(el.childNodes) });
+            }
+        }
+        return out;
+    };
+    return JSON.stringify(convert(template.content.childNodes));
+}
 
 /**
  * Each unit's text as a reader sees it: HTML units parsed, whitespace collapsed.
@@ -421,7 +453,7 @@ test.describe('pageTranslation', () => {
                 /** @type {any} */ (window).linkBefore = document.getElementById('m-link');
             });
             const [unit] = await extract(collector);
-            expect(await apply(collector, [{ id: unit.id, text: output }])).toBe(1);
+            expect(await apply(collector, [{ id: unit.id, tree: htmlTree(output) }])).toBe(1);
             await check(page);
         });
     }
@@ -430,22 +462,26 @@ test.describe('pageTranslation', () => {
         const collector = await openPage(page, testInfo, 'merge.html');
         const before = await page.innerHTML('#m');
         const [unit] = await extract(collector);
-        // A tag without our id isn't something we sent, on either parser path.
-        expect(await apply(collector, [{ id: unit.id, text: 'Le <b>x</b> <a data-t="1">y</a>' }])).toBe(0);
+        // A tag without our id isn't something we sent; TranslateKit's "null" means its HTML was malformed.
+        expect(await apply(collector, [{ id: unit.id, tree: htmlTree('Le <b>x</b> <a data-t="1">y</a>') }])).toBe(0);
+        expect(await apply(collector, [{ id: unit.id, tree: 'null' }])).toBe(0);
+        expect(await apply(collector, [{ id: unit.id, text: 'Le renard' }])).toBe(0);
         expect(await page.innerHTML('#m')).toBe(before);
     });
 
     test('leaves a wrapped unit untouched when the div does not come back', async ({ page }, testInfo) => {
         const collector = await openPage(page, testInfo, 'drop-cap.html');
         const [unit] = await extract(collector);
-        expect(await apply(collector, [{ id: unit.id, text: '<span data-t="0">U</span>n mot' }])).toBe(0);
+        expect(await apply(collector, [{ id: unit.id, tree: htmlTree('<span data-t="0">U</span>n mot') }])).toBe(0);
     });
 
     test('revert removes clones and restores lang', async ({ page }, testInfo) => {
         const collector = await openPage(page, testInfo, 'merge.html');
         const original = await bodyHTML(page);
         const [unit] = await extract(collector);
-        await apply(collector, [{ id: unit.id, text: 'Le <b data-t="0">vite</b> et <b data-t="0">rapide</b> <a data-t="1">renard</a>.' }]);
+        await apply(collector, [
+            { id: unit.id, tree: htmlTree('Le <b data-t="0">vite</b> et <b data-t="0">rapide</b> <a data-t="1">renard</a>.') },
+        ]);
         expect(await revert(collector)).toBeGreaterThan(0);
         expect(await bodyHTML(page)).toBe(original);
         expect(await page.getAttribute('html', 'lang')).toBe('en');
@@ -480,7 +516,9 @@ test.describe('pageTranslation', () => {
             /** @type {any} */ (window).linkBefore = document.getElementById('n-a');
         });
         const [unit] = await extract(collector);
-        expect(await apply(collector, [{ id: unit.id, text: '<div><em data-t="2"><a data-t="0">Lisez</a></em> ici.</div>' }])).toBe(1);
+        expect(
+            await apply(collector, [{ id: unit.id, tree: htmlTree('<div><em data-t="2"><a data-t="0">Lisez</a></em> ici.</div>') }]),
+        ).toBe(1);
         expect(await page.evaluate(() => document.getElementById('n')?.contains(/** @type {any} */ (window).linkBefore))).toBe(true);
         expect(await page.locator('#n em').count()).toBe(1);
         expect(await page.locator('#n span').count()).toBe(1);
@@ -511,7 +549,7 @@ test.describe('pageTranslation', () => {
         // Bergamot's shape on Wikipedia: the citation comes back twice, the first time without its link.
         const output =
             'La alegría<sup data-t="0"></sup> es un sentimiento<sup data-t="0"><a data-t="1"><span data-t="2">[</span>9<span data-t="3">]</span></a></sup> de felicidad.';
-        expect(await apply(collector, [{ id: unit.id, text: output }])).toBe(1);
+        expect(await apply(collector, [{ id: unit.id, tree: htmlTree(output) }])).toBe(1);
         expect(await page.evaluate(() => document.getElementById('w-sup')?.contains(document.getElementById('w-link')))).toBe(true);
         expect(await revertResult(collector)).toEqual({ count: 1, exact: true });
         expect(await bodyHTML(page)).toBe(original);
@@ -525,21 +563,25 @@ test.describe('pageTranslation', () => {
             'The study<sup data-t="0"><a data-t="1"><span data-t="2">[</span>1<span data-t="3">]</span></a></sup> was small.',
         );
         const output = 'El estudio<sup data-t="0"><a data-t="1"><span data-t="2"></span><span data-t="3">[1]</span></a></sup> fue pequeño.';
-        expect(await apply(collector, [{ id: unit.id, text: output }])).toBe(1);
+        expect(await apply(collector, [{ id: unit.id, tree: htmlTree(output) }])).toBe(1);
         expect(await page.textContent('#c sup')).toBe('[1]');
     });
 
     test('a drop cap whose letter the engine dropped is left empty, not doubled', async ({ page }, testInfo) => {
         const collector = await openPage(page, testInfo, 'drop-cap.html');
         const [unit] = await extract(collector);
-        expect(await apply(collector, [{ id: unit.id, text: '<div><span data-t="0"></span>Aiwa es la primera palabra.</div>' }])).toBe(1);
+        expect(
+            await apply(collector, [{ id: unit.id, tree: htmlTree('<div><span data-t="0"></span>Aiwa es la primera palabra.</div>') }]),
+        ).toBe(1);
         expect(await page.textContent('p')).toBe('Aiwa es la primera palabra.');
     });
 
     test('accepts invisible formatting characters the engine moved outside the wrapper', async ({ page }, testInfo) => {
         const collector = await openPage(page, testInfo, 'drop-cap.html');
         const [unit] = await extract(collector);
-        expect(await apply(collector, [{ id: unit.id, text: '\u200E<div><span data-t="0">U</span>na palabra.</div>\u200F\n' }])).toBe(1);
+        expect(
+            await apply(collector, [{ id: unit.id, tree: htmlTree('\u200E<div><span data-t="0">U</span>na palabra.</div>\u200F\n') }]),
+        ).toBe(1);
         expect(await page.textContent('p')).toBe('\u200EUna palabra.\u200F');
     });
 
@@ -549,13 +591,12 @@ test.describe('pageTranslation', () => {
         expect((await revertResult(collector)).exact).toBe(true);
     });
 
-    test('skips HTML units on a page that refuses our Trusted Types policy, and still writes plain ones', async ({ page }, testInfo) => {
+    test('translates HTML units on a page that enforces Trusted Types and allows no policy of ours', async ({ page }, testInfo) => {
         const collector = await openPage(page, testInfo, 'tt-refused.html');
-        const before = await page.innerHTML('#m');
         const units = await extract(collector);
         expect(units.map((u) => u.html)).toEqual([true, false]);
-        expect(await apply(collector, translateAll(units))).toBe(1);
-        expect(await page.innerHTML('#m')).toBe(before);
+        expect(await apply(collector, translateAll(units))).toBe(2);
+        expect(await page.textContent('#m')).toBe('‹The› ‹quick› ‹brown› ‹fox› ‹jumps.›');
         expect(await page.textContent('h2')).toBe('‹Plain heading›');
     });
 
@@ -609,7 +650,7 @@ test.describe('pageTranslation', () => {
         const [unit, heading] = await extract(collector);
         const injected = 'Le <img src=x onerror="window.injected = true"> <b data-t="0">x</b> <a data-t="1">y</a>';
         const count = await apply(collector, [
-            { id: unit.id, text: injected },
+            { id: unit.id, tree: htmlTree(injected) },
             { id: heading.id, text: '‹Plain heading›' },
         ]);
         await page.waitForTimeout(200);

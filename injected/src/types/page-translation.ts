@@ -127,7 +127,14 @@ export interface ApplyParams {
   targetLanguage: string;
   updates: {
     id: number;
-    text: string;
+    /**
+     * The translation of a plain-text unit (html: false).
+     */
+    text?: string;
+    /**
+     * For an HTML unit (html: true): TranslateKit's JSON tree of the translated HTML (translate with htmlAsJSONTree), passed through unchanged. "null" means TranslateKit found the HTML malformed.
+     */
+    tree?: string;
   }[];
 }
 /**
