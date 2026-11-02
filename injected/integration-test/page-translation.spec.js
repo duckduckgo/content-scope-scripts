@@ -86,6 +86,20 @@ const FIXTURES = [
         units: ['Joy is a feeling[9] of happiness.', 'The study[1] was small.'],
     },
     {
+        page: 'hidden.html',
+        units: [
+            'Visible paragraph.',
+            'Hidden menu item',
+            'Hidden by attribute.',
+            'Invisible paragraph.',
+            'Faded paragraph.',
+            'Show more',
+            'Collapsed answer.',
+            'Hidden inline text',
+            'Read the hidden part later.',
+        ],
+    },
+    {
         page: 'mixed-container.html',
         units: ['Intro text sits directly in the container.', 'And this is a normal paragraph.'],
     },
@@ -517,6 +531,13 @@ test.describe('pageTranslation', () => {
         expect(await apply(collector, translateAll(units))).toBe(1);
         expect(await page.innerHTML('#m')).toBe(before);
         expect(await page.textContent('h2')).toBe('‹Plain heading›');
+    });
+
+    test('flags hidden units as off screen', async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'hidden.html');
+        const units = await extract(collector);
+        const texts = await plainTexts(page, units);
+        expect(texts.filter((_, i) => units[i].vp === 1)).toEqual(['Visible paragraph.', 'Show more', 'Read the hidden part later.']);
     });
 
     test('marks only units on screen as in the viewport', async ({ page }, testInfo) => {
