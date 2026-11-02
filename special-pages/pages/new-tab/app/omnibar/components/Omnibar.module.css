@@ -45,6 +45,15 @@
     }
 }
 
+/* Matches the drawer's slideOpen, so the room opens as the drawer slides in. */
+.spacerReserveTransition {
+    transition: margin-bottom 400ms cubic-bezier(0.33, 1, 0.68, 1) 100ms;
+
+    @media (prefers-reduced-motion: reduce) {
+        transition: none;
+    }
+}
+
 /* Rest */
 .popup {
     background: var(--ds-color-theme-surface-tertiary);
