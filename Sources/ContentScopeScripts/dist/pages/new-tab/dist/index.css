@@ -2753,6 +2753,7 @@ body[data-rebrand=true]:not([data-background-kind=default]) .themeContext[data-t
   --ntp-btn-dismiss-border: var(--ds-ntp-light-button-dismiss-rest-border-color);
   --ntp-btn-dismiss-color: var(--ds-ntp-light-button-dismiss-rest-color);
   --ntp-btn-dismiss-hover: var(--ds-ntp-light-button-dismiss-hover-background-color);
+  --ntp-control-primary-background-color: rgba(0, 0, 0, 0.06);
 }
 [data-theme=dark] {
   --focus-ring: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--color-white);
@@ -2765,6 +2766,7 @@ body[data-rebrand=true]:not([data-background-kind=default]) .themeContext[data-t
   --ntp-btn-dismiss-border: var(--ds-ntp-dark-button-dismiss-rest-border-color);
   --ntp-btn-dismiss-color: var(--ds-ntp-dark-button-dismiss-rest-color);
   --ntp-btn-dismiss-hover: var(--ds-ntp-dark-button-dismiss-hover-background-color);
+  --ntp-control-primary-background-color: rgba(255, 255, 255, 0.12);
 }
 :root:has(body[data-platform-name=windows]) {
   --body-font-size: 14px;
@@ -4575,6 +4577,14 @@ body[data-rebrand=true] .AiChatForm_buttons {
 }
 @media (prefers-reduced-motion: reduce) {
   .Omnibar_spacer {
+    transition: none;
+  }
+}
+.Omnibar_spacerReserveTransition {
+  transition: margin-bottom 400ms cubic-bezier(0.33, 1, 0.68, 1) 100ms;
+}
+@media (prefers-reduced-motion: reduce) {
+  .Omnibar_spacerReserveTransition {
     transition: none;
   }
 }
@@ -6989,6 +6999,405 @@ body[data-rebrand=true] .NoticeDrawer_dismiss {
   border-radius: 50%;
   height: 24px;
   width: 24px;
+}
+
+/* pages/new-tab/app/omnibar/components/suggested-prompts/SuggestedPrompts.module.css */
+@keyframes SuggestedPrompts_panelEnter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -8px, 0);
+  }
+}
+@keyframes SuggestedPrompts_panelExit {
+  to {
+    opacity: 0;
+    transform: translate3d(0, 24px, 0);
+  }
+}
+@keyframes SuggestedPrompts_contentEnter {
+  from {
+    opacity: 0;
+    transform: translate3d(var(--motion-enter-x, 0), 0, 0);
+  }
+}
+@keyframes SuggestedPrompts_contentExit {
+  to {
+    opacity: 0;
+    transform: translate3d(var(--motion-exit-x, 0), 0, 0);
+  }
+}
+@keyframes SuggestedPrompts_chipEnter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -4px, 0);
+  }
+}
+.SuggestedPrompts_root {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-x02);
+  margin: var(--ds-space-x06) auto 0;
+  max-width: 560px;
+  width: 100%;
+}
+.SuggestedPrompts_chipRow {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ds-space-x02);
+  justify-content: center;
+}
+.SuggestedPrompts_chipRowEnter .SuggestedPrompts_chip {
+  animation: SuggestedPrompts_chipEnter 220ms cubic-bezier(0.2, 0, 0, 1) both;
+  animation-delay: calc(var(--chip-index, 0) * 30ms);
+}
+@media (prefers-reduced-motion: reduce) {
+  .SuggestedPrompts_chipRowEnter .SuggestedPrompts_chip {
+    animation: none;
+  }
+}
+.SuggestedPrompts_chips {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ds-space-x02);
+  justify-content: center;
+}
+.SuggestedPrompts_chip {
+  align-items: center;
+  background: var(--ntp-control-primary-background-color);
+  border: 1px solid transparent;
+  border-radius: var(--ds-radius-full);
+  color: var(--ds-color-theme-text-primary);
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 13px;
+  font-weight: 600;
+  gap: var(--ds-space-x01);
+  height: 28px;
+  padding: 0 var(--ds-space-x03);
+  white-space: nowrap;
+}
+body:not([data-background-kind=default]) .SuggestedPrompts_chip {
+  -webkit-backdrop-filter: blur(48px);
+  backdrop-filter: blur(48px);
+}
+.SuggestedPrompts_chip:hover {
+  background: var(--ds-color-theme-control-fill-secondary);
+}
+.SuggestedPrompts_chip:focus-visible {
+  box-shadow: var(--focus-ring);
+  outline: none;
+}
+.SuggestedPrompts_voiceChip {
+  display: none;
+}
+@media screen and (max-width: 900px) {
+  .SuggestedPrompts_chips {
+    display: contents;
+  }
+  .SuggestedPrompts_voiceChip {
+    display: inline-flex;
+  }
+  .SuggestedPrompts_chipRow [data-chip-id=suggestions] {
+    order: 1;
+  }
+  .SuggestedPrompts_chipRow [data-chip-id=create-image] {
+    order: 2;
+  }
+  .SuggestedPrompts_chipRow [data-chip-id=voice] {
+    order: 3;
+  }
+  .SuggestedPrompts_chipRow [data-chip-id=how-duckai-works] {
+    order: 4;
+  }
+}
+.SuggestedPrompts_chipSelected,
+.SuggestedPrompts_chipSelected:hover {
+  background: var(--ds-color-theme-accent-glow-secondary);
+  border-color: var(--ds-color-theme-accent-primary);
+}
+.SuggestedPrompts_chipIcon {
+  color: var(--ds-color-theme-icons-primary);
+  flex-shrink: 0;
+}
+.SuggestedPrompts_panel {
+  animation: SuggestedPrompts_panelEnter 280ms cubic-bezier(0.2, 0, 0, 1) both;
+  background: var(--ds-color-theme-surface-tertiary);
+  border-radius: var(--ds-radius-x08);
+  box-shadow: 0 0.25px 1px 0 var(--ds-color-theme-shadow-primary), 0 1px 4px 0 var(--ds-color-theme-shadow-secondary);
+  box-sizing: border-box;
+  color: var(--ds-color-theme-text-primary);
+  outline: none;
+  position: relative;
+}
+[data-background-kind=color] [data-theme=light] .SuggestedPrompts_panel,
+[data-background-kind=gradient] [data-theme=light] .SuggestedPrompts_panel,
+[data-background-kind=userImage] [data-theme=light] .SuggestedPrompts_panel {
+  -webkit-backdrop-filter: blur(48px);
+  backdrop-filter: blur(48px);
+  background: rgba(255, 255, 255, 0.54);
+}
+[data-background-kind=color] [data-theme=dark] .SuggestedPrompts_panel,
+[data-background-kind=gradient] [data-theme=dark] .SuggestedPrompts_panel {
+  -webkit-backdrop-filter: blur(48px);
+  backdrop-filter: blur(48px);
+  background: rgba(255, 255, 255, 0.12);
+}
+[data-background-kind=userImage] [data-theme=dark] .SuggestedPrompts_panel {
+  -webkit-backdrop-filter: blur(48px);
+  backdrop-filter: blur(48px);
+  background: rgba(0, 0, 0, 0.3);
+}
+@media (prefers-reduced-motion: reduce) {
+  .SuggestedPrompts_panel {
+    animation: none;
+  }
+}
+.SuggestedPrompts_panelExiting {
+  animation: SuggestedPrompts_panelExit 280ms cubic-bezier(0.2, 0, 0, 1) both;
+  pointer-events: none;
+}
+.SuggestedPrompts_contentEntering {
+  --motion-enter-x: 8px;
+  animation: SuggestedPrompts_contentEnter 180ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.SuggestedPrompts_contentEnteringLeft {
+  --motion-enter-x: -8px;
+}
+.SuggestedPrompts_contentExiting {
+  --motion-exit-x: -8px;
+  animation: SuggestedPrompts_contentExit 180ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+}
+.SuggestedPrompts_contentExitingRight {
+  --motion-exit-x: 8px;
+}
+.SuggestedPrompts_closeButton {
+  align-items: center;
+  background: none;
+  border: 1px solid var(--ds-color-theme-control-border-primary);
+  border-radius: var(--ds-radius-full);
+  color: var(--ds-color-theme-icons-primary);
+  cursor: pointer;
+  display: flex;
+  height: 28px;
+  justify-content: center;
+  padding: 0;
+  position: absolute;
+  right: var(--ds-space-x03);
+  top: var(--ds-space-x03);
+  width: 28px;
+  z-index: 1;
+}
+.SuggestedPrompts_closeButton:hover {
+  background: var(--ds-color-theme-control-fill-primary);
+}
+.SuggestedPrompts_closeButton:focus-visible {
+  box-shadow: var(--focus-ring);
+  outline: none;
+}
+.SuggestedPrompts_howItWorks {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-x01);
+  padding: var(--ds-space-x10) var(--ds-space-x05) var(--ds-space-x04);
+}
+.SuggestedPrompts_howItWorksGrid {
+  display: flex;
+  gap: var(--ds-space-x01);
+  justify-content: center;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+.SuggestedPrompts_howItWorksCard {
+  align-items: center;
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  gap: var(--ds-space-x02);
+  min-width: 0;
+  padding: var(--ds-space-x09) var(--ds-space-x02) var(--ds-space-x06);
+  position: relative;
+}
+.SuggestedPrompts_pictogram {
+  height: 40px;
+  left: 50%;
+  position: absolute;
+  top: -14px;
+  transform: translateX(-50%);
+  width: 40px;
+}
+.SuggestedPrompts_howItWorksTitle,
+.SuggestedPrompts_howItWorksBody {
+  margin: 0;
+  text-align: center;
+}
+.SuggestedPrompts_howItWorksTitle {
+  font-size: 13px;
+  font-weight: 600;
+}
+.SuggestedPrompts_howItWorksBody {
+  color: var(--ds-color-theme-text-secondary);
+  font-size: 13px;
+  line-height: 18px;
+}
+.SuggestedPrompts_textPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-x03);
+  padding: var(--ds-space-x04) var(--ds-space-x02) var(--ds-space-x06);
+}
+.SuggestedPrompts_listSlot {
+  position: relative;
+}
+.SuggestedPrompts_textList {
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+  margin: 0;
+  padding: 0 var(--ds-space-x12) 0 var(--ds-space-x02);
+}
+.SuggestedPrompts_textListEntering {
+  --motion-enter-x: 8px;
+}
+.SuggestedPrompts_textListEnteringLeft {
+  --motion-enter-x: -8px;
+}
+.SuggestedPrompts_textItemEntering {
+  animation: SuggestedPrompts_contentEnter 180ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--i, 0) * 12ms);
+}
+.SuggestedPrompts_textListExiting {
+  --motion-exit-x: -8px;
+  animation: SuggestedPrompts_contentExit 180ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+}
+.SuggestedPrompts_textListExitingRight {
+  --motion-exit-x: 8px;
+}
+.SuggestedPrompts_textPrompt {
+  align-items: center;
+  background: transparent;
+  border: none;
+  border-radius: var(--ds-radius-x04);
+  color: var(--ds-color-theme-text-primary);
+  cursor: pointer;
+  display: flex;
+  font-size: 13px;
+  gap: var(--ds-space-x03);
+  padding: var(--ds-space-x02) var(--ds-space-x04) var(--ds-space-x02) var(--ds-space-x03);
+  text-align: left;
+  width: 100%;
+}
+.SuggestedPrompts_textPrompt:hover {
+  background: var(--ds-color-theme-control-fill-primary);
+}
+.SuggestedPrompts_textPrompt:focus-visible {
+  background: var(--ds-color-theme-control-fill-primary);
+  box-shadow: var(--focus-ring);
+  outline: none;
+}
+.SuggestedPrompts_textPromptIcon {
+  color: var(--ds-color-theme-icons-primary);
+  flex-shrink: 0;
+}
+.SuggestedPrompts_pagination {
+  display: flex;
+  gap: var(--ds-space-x02);
+  padding: 0 var(--ds-space-x04);
+}
+.SuggestedPrompts_pageButton {
+  align-items: center;
+  background: var(--ds-color-theme-control-fill-primary);
+  border: none;
+  border-radius: var(--ds-radius-full);
+  color: var(--ds-color-theme-icons-primary);
+  cursor: pointer;
+  display: flex;
+  height: 24px;
+  justify-content: center;
+  padding: 0;
+  width: 24px;
+}
+.SuggestedPrompts_pageButton:hover:not(:disabled) {
+  background: var(--ds-color-theme-control-fill-secondary);
+}
+.SuggestedPrompts_pageButton:disabled {
+  cursor: default;
+  opacity: 0.4;
+}
+.SuggestedPrompts_pageButton:focus-visible {
+  box-shadow: var(--focus-ring);
+  outline: none;
+}
+.SuggestedPrompts_imageRow {
+  display: flex;
+  gap: var(--ds-space-x02);
+  list-style: none;
+  margin: 0;
+  padding: var(--ds-space-x10);
+}
+.SuggestedPrompts_imageItem {
+  flex: 1 0 0;
+  min-width: 0;
+}
+.SuggestedPrompts_imageButton {
+  background: var(--ds-color-theme-control-fill-primary);
+  border: none;
+  border-radius: var(--ds-radius-x04);
+  cursor: pointer;
+  height: 200px;
+  overflow: hidden;
+  padding: 0;
+  position: relative;
+  width: 100%;
+}
+.SuggestedPrompts_imageButton:hover {
+  opacity: 0.92;
+}
+.SuggestedPrompts_imageButton:focus-visible {
+  box-shadow: var(--focus-ring);
+  outline: none;
+}
+.SuggestedPrompts_image {
+  display: block;
+  height: 100%;
+  inset: 0;
+  object-fit: cover;
+  position: absolute;
+  width: 100%;
+}
+.SuggestedPrompts_imageDefault {
+  transition: opacity 220ms ease-out;
+}
+.SuggestedPrompts_imageButton:hover .SuggestedPrompts_imageDefault {
+  opacity: 0;
+}
+.SuggestedPrompts_imageChip {
+  align-items: center;
+  background: var(--ds-color-theme-surface-tertiary);
+  border-radius: var(--ds-radius-x04);
+  bottom: var(--ds-space-x02);
+  color: var(--ds-color-theme-text-primary);
+  display: flex;
+  font-size: 13px;
+  font-weight: 700;
+  justify-content: center;
+  left: var(--ds-space-x02);
+  min-height: 28px;
+  padding: var(--ds-space-x02);
+  pointer-events: none;
+  position: absolute;
+  right: var(--ds-space-x02);
 }
 
 /* pages/new-tab/app/protections/components/Protections.module.css */

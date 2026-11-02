@@ -1,2 +1,1 @@
-- Web detection: payload buckets as an array (#3167)
-- Give the BrowserUiLock image page tests their own document (#3166)
+- NTP omnibar: Duck.ai suggested prompts (#3124)
