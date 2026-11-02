@@ -38,8 +38,8 @@ export function findUnits(root) {
     /** @type {UnitTarget[]} */
     const units = [];
     walk.visit(root, units);
-    // A <select> goes empty inside its sentence, and each option is a plain-text unit of its own.
-    for (const option of root.querySelectorAll('select option')) {
+    // A <select> or <datalist> goes empty inside its sentence, and each option is a plain-text unit of its own.
+    for (const option of root.querySelectorAll('select option, datalist option')) {
         if (LETTER.test(option.textContent || '') && !isInExcluded(option)) units.push({ kind: 'element', element: option });
     }
     // Attributes come after the content: the page's <meta> description first (nothing else in <head>, so the
@@ -130,12 +130,12 @@ function isVisible(el) {
 
 /**
  * Whether `el` goes to the engine as an empty tag inside its unit and is put back untouched: an excluded element, or a
- * `<select>` (its options are translated as units of their own).
+ * `<select>` or `<datalist>` (their options are translated as units of their own).
  * @param {Element} el
  * @returns {boolean}
  */
 export function isSentEmpty(el) {
-    return el.localName === 'select' || isExcluded(el);
+    return el.localName === 'select' || el.localName === 'datalist' || isExcluded(el);
 }
 
 /**
