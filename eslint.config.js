@@ -15,6 +15,7 @@ export default tseslint.config(
             'injected/playwright-report/',
             'injected/integration-test/extension/contentScope.js',
             'injected/integration-test/test-pages/duckplayer/scripts/dist',
+            'injected/integration-test/test-pages/page-translation/vendor',
             'Sources/ContentScopeScripts/dist',
             'special-pages/pages/**/public',
             'special-pages/pages/**/types',
