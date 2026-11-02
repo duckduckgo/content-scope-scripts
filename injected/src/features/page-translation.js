@@ -41,7 +41,6 @@ export class PageTranslation extends ContentFeature {
     _extract() {
         // Units are found on the original page, never on a translated one.
         this._revert();
-        this.#units.clear();
         /** @type {Unit[]} */
         const units = [];
         const root = document.body;
