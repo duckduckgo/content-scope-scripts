@@ -214,10 +214,18 @@ test.describe('SponsorBlock', () => {
     });
 
     test.describe('frame rules', () => {
-        test('activates in a top-frame nocookie embed (iOS Duck Player)', async ({ page }, testInfo) => {
+        test('activates in a top-frame nocookie embed (iOS Duck Player) and mounts the button above the controls layer', async ({
+            page,
+        }, testInfo) => {
             const collector = await loadPlayer(page, testInfo, { url: EMBED_URL });
             await expect(page.locator(MARKER)).toHaveCount(1);
             expect(await requestsFor(collector, 'getConfig')).toHaveLength(1);
+
+            await seekTo(page, 3);
+            await expect(page.locator(`#player-controls > ${SKIP_BUTTON}`)).toBeVisible();
+            // Fails with "intercepts pointer events" if the layer sits over the button.
+            await page.locator(SKIP_BUTTON).click();
+            expect(await currentTime(page)).toBeCloseTo(5, 1);
         });
 
         test('activates in a nocookie embed framed by a nocookie page (macOS Duck Player)', async ({ page }, testInfo) => {

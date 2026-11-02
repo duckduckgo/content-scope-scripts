@@ -18,8 +18,10 @@ const DEFAULT_PROGRESS_BAR_SELECTORS = [
     '.YtmProgressBarProgressBarLine',
 ];
 // Where the skip button is mounted. m.youtube.com draws its controls layer over the player, in a sibling inside
-// #player-container-id, so mount there to stay above that layer and receive taps; desktop uses the player itself.
-const DEFAULT_SKIP_BUTTON_HOST_SELECTORS = ['#player-container-id', '#movie_player', '.html5-video-player'];
+// #player-container-id, so mount there to stay above that layer and receive taps. The embed player (Duck Player)
+// draws the same layer in a fixed #player-controls outside the player, so mount in the layer itself. Desktop
+// youtube.com uses the player itself.
+const DEFAULT_SKIP_BUTTON_HOST_SELECTORS = ['#player-container-id', '#player-controls', '#movie_player', '.html5-video-player'];
 // Present while YouTube plays an ad in the player; the video element then plays the ad, not the video.
 const DEFAULT_AD_SHOWING_SELECTORS = ['.ad-showing'];
 
@@ -37,6 +39,8 @@ const STYLES = `
    button itself lives in the host's closed shadow root, so only its placement is styled from here. */
 .${SKIP_BUTTON_CLASS} { position: absolute; right: 12px; bottom: 72px; z-index: 1000; pointer-events: auto; }
 #player-container-id > .${SKIP_BUTTON_CLASS} { right: 8px; bottom: 40px; }
+/* Embed: the fullscreen button sits in the top-right of the controls layer's bottom row; clear it. */
+#player-controls > .${SKIP_BUTTON_CLASS} { right: 24px; bottom: 140px; }
 `;
 // Fixed literal, never page data. The icon matches YouTube's "next" glyph: a triangle and a bar.
 const SKIP_BUTTON_HTML = `

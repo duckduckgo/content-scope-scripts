@@ -51,7 +51,7 @@ Schemas live in `injected/src/messages/sponsor-block/`; `npm run build-types -w 
   "exceptions": [],
   "settings": {
     "progressBarSelectors": [".ytp-progress-bar", "..."],
-    "skipButtonHostSelectors": ["#player-container-id", "#movie_player", ".html5-video-player"],
+    "skipButtonHostSelectors": ["#player-container-id", "#player-controls", "#movie_player", ".html5-video-player"],
     "adShowingSelectors": [".ad-showing"]
   }
 }

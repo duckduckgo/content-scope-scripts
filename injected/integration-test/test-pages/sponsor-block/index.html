@@ -30,5 +30,15 @@
             <video class="html5-main-video" src="/sponsor-block/video.webm" muted preload="auto"></video>
             <div class="ytp-progress-bar-container"><div class="ytp-progress-bar"></div></div>
         </div>
+        <script>
+            // The embed player (Duck Player) covers the player with a fixed controls layer, which must not swallow
+            // clicks on the skip button.
+            if (location.pathname.startsWith('/embed/')) {
+                document.body.insertAdjacentHTML(
+                    'beforeend',
+                    '<div id="player-controls" style="position: fixed; top: 0; left: 0; width: 320px; height: 180px"></div>',
+                );
+            }
+        </script>
     </body>
 </html>
