@@ -663,6 +663,23 @@ test.describe('pageTranslation', () => {
         });
     }
 
+    test("checks attributes without walking every element's ancestors", async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'deep.html');
+        const elements = await page.evaluate(() => {
+            const original = Element.prototype.matches;
+            /** @type {any} */ (window).matchesCalls = 0;
+            /** @type {any} */ (Element.prototype).matches = function (/** @type {string} */ selector) {
+                /** @type {any} */ (window).matchesCalls++;
+                return original.call(this, selector);
+            };
+            return document.body.querySelectorAll('*').length;
+        });
+        expect((await extract(collector)).length).toBe(100);
+        const calls = await page.evaluate(() => /** @type {any} */ (window).matchesCalls);
+        // About 2 per element (the walk itself); checking ancestors for every element was 26.
+        expect(calls).toBeLessThan(elements * 3);
+    });
+
     test('marks only units on screen as in the viewport', async ({ page }, testInfo) => {
         const collector = await openPage(page, testInfo, 'article.html');
         const units = await extract(collector);
