@@ -24,15 +24,19 @@
         "type": "object",
         "additionalProperties": false,
         "required": [
-          "id",
-          "text"
+          "id"
         ],
         "properties": {
           "id": {
             "type": "number"
           },
           "text": {
-            "type": "string"
+            "type": "string",
+            "description": "The translation of a plain-text unit (html: false)."
+          },
+          "tree": {
+            "type": "string",
+            "description": "For an HTML unit (html: true): TranslateKit's JSON tree of the translated HTML (translate with htmlAsJSONTree), passed through unchanged. \"null\" means TranslateKit found the HTML malformed."
           }
         }
       }

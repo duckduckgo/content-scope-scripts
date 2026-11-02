@@ -14,17 +14,17 @@ Apple native must fill `$CONTENT_SCOPE_JSON$` (the config as a JavaScript string
 
 Native sends subscriptions; the feature replies with notifications.
 
-| Native sends                                                          | Feature replies | Params                                                                        |
-| --------------------------------------------------------------------- | --------------- | ----------------------------------------------------------------------------- |
-| `extract` `{}`                                                        | `extractResult` | `{ units: Unit[] }`                                                           |
-| `apply` `{ sourceLanguage, targetLanguage, updates: [{ id, text }] }` | `applyResult`   | `{ count }`: updates written                                                  |
-| `revert` `{}`                                                         | `revertResult`  | `{ count, exact }`: units restored; when `exact` is false, reload the page    |
-| —                                                                     | `unitsAdded`    | `{ units: Unit[] }`: content that appeared after `extract` (**not sent yet**) |
+| Native sends                                                                          | Feature replies | Params                                                                        |
+| ------------------------------------------------------------------------------------- | --------------- | ----------------------------------------------------------------------------- |
+| `extract` `{}`                                                                        | `extractResult` | `{ units: Unit[] }`                                                           |
+| `apply` `{ sourceLanguage, targetLanguage, updates: [{ id, text } or { id, tree }] }` | `applyResult`   | `{ count }`: updates written                                                  |
+| `revert` `{}`                                                                         | `revertResult`  | `{ count, exact }`: units restored; when `exact` is false, reload the page    |
+| —                                                                                     | `unitsAdded`    | `{ units: Unit[] }`: content that appeared after `extract` (**not sent yet**) |
 
 `Unit = { id, text, html, vp }`:
 
-- `html: false`: plain text. Translate it as plain text; the result is written as text.
-- `html: true`: an HTML fragment. Translate it as HTML.
+- `html: false`: plain text. Translate it as plain text and send the result as `text`; it's written as text.
+- `html: true`: an HTML fragment. Translate it with TranslateKit as HTML with `htmlAsJSONTree`, and send TranslateKit's JSON tree, unchanged, as `tree`.
 - `vp: 1`: the unit is in the viewport. Translate these first.
 - Ids are never reused while the page is open.
 
@@ -50,7 +50,7 @@ Native sends subscriptions; the feature replies with notifications.
 
 ## Writing back
 
-The translation is parsed into an inert document by the browser's parser, through a Trusted Types policy (`ddg-translation`) on pages that enforce Trusted Types. Output with tags or attributes we didn't send is rejected and the unit stays as it is. On a page whose CSP refuses our policy, HTML units can't be parsed and are skipped; plain-text units still translate.
+The script never parses HTML. TranslateKit parses the engine's output into a JSON tree of `{"text"}` and `{"tag", "attrs", "children"}` nodes, and the script reads that with `JSON.parse`. So pages that enforce Trusted Types need no policy. A tree with tags or attributes we didn't send, or TranslateKit's `null` for malformed HTML, is rejected and the unit stays as it is.
 
 The translation is then merged onto the original nodes. Elements are moved, never recreated, so listeners, form values and framework-managed nodes survive. Text goes into the existing text nodes.
 
