@@ -9,7 +9,7 @@ const TEXT_NODE = 3;
 // Block-level by default. A `display: none` element's computed display says nothing about how it flows when shown,
 // so it falls back to its tag's usual display.
 const BLOCK_TAGS = new Set(
-    'address article aside blockquote dd details dialog div dl dt fieldset figcaption figure footer form h1 h2 h3 h4 h5 h6 header hgroup hr li main nav ol p pre section summary table tbody td tfoot th thead tr ul'.split(
+    'address article aside blockquote caption center dd details dialog div dl dt fieldset figcaption figure footer form h1 h2 h3 h4 h5 h6 header hgroup hr legend li main menu nav ol p pre search section summary table tbody td tfoot th thead tr ul'.split(
         ' ',
     ),
 );
