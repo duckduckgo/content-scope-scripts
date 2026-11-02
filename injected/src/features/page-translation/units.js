@@ -197,7 +197,7 @@ class Walk {
      * @param {UnitTarget[]} units
      */
     visit(el, units) {
-        if (this.isExcluded(el)) return;
+        if (this.isSentEmpty(el)) return;
         if (!this.isInline(el) && !this.hasBlockInside(el)) {
             if (this.hasLetter(el)) units.push({ kind: 'element', element: el });
             return;
@@ -211,7 +211,7 @@ class Walk {
                 continue;
             }
             const childEl = /** @type {Element} */ (child);
-            if (this.isInline(childEl) && (this.isExcluded(childEl) || !this.hasBlockInside(childEl))) {
+            if (this.isInline(childEl) && (this.isSentEmpty(childEl) || !this.hasBlockInside(childEl))) {
                 run.push(child);
                 continue;
             }
@@ -242,7 +242,7 @@ class Walk {
     }
 
     /** @param {Element} el */
-    isExcluded(el) {
+    isSentEmpty(el) {
         return isSentEmpty(el);
     }
 
@@ -272,7 +272,7 @@ class Walk {
         if (found === undefined) {
             found = false;
             for (const child of el.children) {
-                if (this.isExcluded(child)) continue;
+                if (this.isSentEmpty(child)) continue;
                 if (!this.isInline(child) || this.hasBlockInside(child)) {
                     found = true;
                     break;
@@ -300,6 +300,6 @@ class Walk {
         if (node.nodeType === TEXT_NODE) return LETTER.test(node.nodeValue || '');
         if (node.nodeType !== ELEMENT_NODE) return false;
         const el = /** @type {Element} */ (node);
-        return !this.isExcluded(el) && this.hasLetter(el);
+        return !this.isSentEmpty(el) && this.hasLetter(el);
     }
 }
