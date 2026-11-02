@@ -10,9 +10,14 @@ import {
     expectRun,
     fires,
     rejectsMatch,
+    run,
     throwing,
 } from './support.js';
 import { thrownMessage } from '../../src/features/web-detection/model/core.js';
+
+/**
+ * @import { ItemBuffer } from '../../src/features/web-detection/model/lists.js'
+ */
 
 describe('WebDetection run', () => {
     describe('actions', () => {
@@ -119,6 +124,19 @@ describe('WebDetection run', () => {
             d.run();
             d.run();
             expect(d.state.names.get('this.count')).toBe(3);
+        });
+
+        it('holds a defined list as its items only, without the source that read them', () => {
+            const result = run('<p></p><p></p>', {
+                actions: [
+                    { define: { 'this.items': { element: { selector: 'p' } } } },
+                    { define: { n: { ref: 'this.items', using: 'length' } } },
+                ],
+            });
+            const held = /** @type {ItemBuffer} */ (result.ctx.detectorNames.get('this.items'));
+            expect(held.values.length).toBe(2);
+            expect(held.shortcuts).toEqual({});
+            expect(result.names.get('n')).toBe(2);
         });
 
         it('binds the boolean an `is` gives, not the value it tests', () => {
