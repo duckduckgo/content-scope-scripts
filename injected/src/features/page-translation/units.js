@@ -24,9 +24,8 @@ const INLINE_DISPLAY = new Set([
     'ruby-base',
     'ruby-text',
 ]);
-// Never translated. `select` is temporary: its options would change form values until value pinning exists.
-const EXCLUDED_TAGS =
-    'script, style, noscript, template, textarea, code, kbd, samp, var, math, svg, iframe, embed, object, ddg-autofill, select';
+// Never translated.
+const EXCLUDED_TAGS = 'script, style, noscript, template, textarea, code, kbd, samp, var, math, svg, iframe, embed, object, ddg-autofill';
 const LETTER = /\p{L}/u;
 
 /**
@@ -39,6 +38,10 @@ export function findUnits(root) {
     /** @type {UnitTarget[]} */
     const units = [];
     walk.visit(root, units);
+    // A <select> goes empty inside its sentence, and each option is a plain-text unit of its own.
+    for (const option of root.querySelectorAll('select option')) {
+        if (LETTER.test(option.textContent || '') && !isInExcluded(option)) units.push({ kind: 'element', element: option });
+    }
     // Attributes come after the content: the page's <meta> description first (nothing else in <head>, so the
     // <title> is left alone), then every element under root in document order.
     const metas = root === document.body && document.head ? [...document.head.querySelectorAll(META)] : [];
@@ -124,6 +127,16 @@ function isVisible(el) {
         if (style.display === 'none' || style.opacity === '0') return false;
     }
     return computedStyle(el).visibility !== 'hidden';
+}
+
+/**
+ * Whether `el` goes to the engine as an empty tag inside its unit and is put back untouched: an excluded element, or a
+ * `<select>` (its options are translated as units of their own).
+ * @param {Element} el
+ * @returns {boolean}
+ */
+export function isSentEmpty(el) {
+    return el.localName === 'select' || isExcluded(el);
 }
 
 /**
@@ -231,7 +244,7 @@ class Walk {
 
     /** @param {Element} el */
     isExcluded(el) {
-        return isExcluded(el);
+        return isSentEmpty(el);
     }
 
     /** @param {Element} el */

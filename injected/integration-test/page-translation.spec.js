@@ -69,10 +69,8 @@ const FIXTURES = [
         units: ['Die Bundesregierung tagt.'],
     },
     {
-        // Options stay untranslated until their values are pinned.
         page: 'select.html',
-        units: ['Size'],
-        untranslated: ['select'],
+        units: ['Size', 'Small', 'Medium', 'Large'],
     },
     {
         page: 'nested.html',
@@ -253,7 +251,11 @@ function textTranslatedAnyway(page, untranslated) {
 function markup(page) {
     return page.evaluate(() =>
         [...document.body.querySelectorAll('*')].map((el) =>
-            [el.tagName, ...[...el.attributes].map((a) => `${a.name}=${a.value}`)].join(' '),
+            [
+                el.tagName,
+                // The one allowed addition: an option's value is pinned before its text is translated.
+                ...[...el.attributes].filter((a) => !(el.tagName === 'OPTION' && a.name === 'value')).map((a) => `${a.name}=${a.value}`),
+            ].join(' '),
         ),
     );
 }
@@ -557,13 +559,33 @@ test.describe('pageTranslation', () => {
     test('extracts attribute units after content units, never on form controls', async ({ page }, testInfo) => {
         const collector = await openPage(page, testInfo, 'attributes.html');
         const units = await extract(collector);
-        const attributes = ['Page about birds.', 'A small bird', 'Read about birds', 'Pop.'];
+        const attributes = ['Page about birds.', 'A small bird', 'Read about birds', 'Pop.', 'First choice'];
         expect(units.filter((u) => attributes.includes(u.text)).map((u) => ({ text: u.text, html: u.html }))).toEqual(
             attributes.map((text) => ({ text, html: false })),
         );
         expect(units.findIndex((u) => u.text === 'Page about birds.')).toBeGreaterThan(units.findIndex((u) => u.text === 'Population'));
         const all = units.map((u) => u.text);
         for (const text of ['Your email', 'Close dialog', 'Press me', 'Attributes']) expect(all).not.toContain(text);
+    });
+
+    test('pins option values and keeps the selection', async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'select.html');
+        await page.selectOption('#size', 'l');
+        const units = await extract(collector);
+        await apply(collector, translateAll(units));
+        expect(
+            await page.evaluate(() =>
+                [...document.querySelectorAll('#size option')].map((o) => /** @type {HTMLOptionElement} */ (o).value),
+            ),
+        ).toEqual(['Small', 'Medium', 'l']);
+        expect(await page.inputValue('#size')).toBe('l');
+        expect(await page.textContent('#size option:nth-child(1)')).toBe('‹Small›');
+    });
+
+    test('sends a select inside a sentence as an empty tag', async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'select.html');
+        const [label] = await extract(collector);
+        expect(label.text).toBe('<div><label data-t="0">Size <select data-t="1"></select></label></div>');
     });
 
     test('marks only units on screen as in the viewport', async ({ page }, testInfo) => {
