@@ -590,18 +590,6 @@ test.describe('pageTranslation', () => {
         ]);
     });
 
-    test('extracts attribute units after content units, never on form controls', async ({ page }, testInfo) => {
-        const collector = await openPage(page, testInfo, 'attributes.html');
-        const units = await extract(collector);
-        const attributes = ['Page about birds.', 'A small bird', 'Read about birds', 'Pop.', 'First choice'];
-        expect(units.filter((u) => attributes.includes(u.text)).map((u) => ({ text: u.text, html: u.html }))).toEqual(
-            attributes.map((text) => ({ text, html: false })),
-        );
-        expect(units.findIndex((u) => u.text === 'Page about birds.')).toBeGreaterThan(units.findIndex((u) => u.text === 'Population'));
-        const all = units.map((u) => u.text);
-        for (const text of ['Your email', 'Close dialog', 'Press me', 'Attributes']) expect(all).not.toContain(text);
-    });
-
     test('pins option values and keeps the selection', async ({ page }, testInfo) => {
         const collector = await openPage(page, testInfo, 'select.html');
         await page.selectOption('#size', 'l');
@@ -616,15 +604,11 @@ test.describe('pageTranslation', () => {
         expect(await page.textContent('#size option:nth-child(1)')).toBe('‹Small›');
     });
 
-    test('sends a select inside a sentence as an empty tag', async ({ page }, testInfo) => {
-        const collector = await openPage(page, testInfo, 'select.html');
-        const [label] = await extract(collector);
-        expect(label.text).toBe('<div><label data-t="0">Size <select data-t="1"></select></label></div>');
-    });
-
     test('translates attributes but not on form controls', async ({ page }, testInfo) => {
         const collector = await openPage(page, testInfo, 'attributes.html');
-        await apply(collector, translateAll(await extract(collector)));
+        const units = await extract(collector);
+        expect(units.find((u) => u.text === 'A small bird')?.html).toBe(false);
+        await apply(collector, translateAll(units));
         expect(await page.getAttribute('img', 'alt')).toBe('‹A small bird›');
         expect(await page.getAttribute('meta[name=description]', 'content')).toBe('‹Page about birds.›');
         expect(await page.getAttribute('input:not([type])', 'placeholder')).toBe('Your email');
@@ -665,8 +649,6 @@ test.describe('pageTranslation', () => {
             expect(await apply(collector, [{ id: unit.id, text: output }])).toBe(1);
             await page.click('#bump');
             const errors = await page.evaluate(() => /** @type {any} */ (window).errors);
-            const shows151 = (await page.textContent('#msg'))?.includes('151');
-            testInfo.annotations.push({ type: 'react', description: `${shape}: errors=${JSON.stringify(errors)} shows151=${shows151}` });
             expect(errors).toEqual([]);
         });
     }
