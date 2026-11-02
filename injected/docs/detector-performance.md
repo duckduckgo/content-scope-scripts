@@ -10,7 +10,7 @@ Periodic telemetry uses Web Detection group labels such as `adwalls`, `captcha`,
 
 Detectors within a group are pooled for periodic event names, reducing telemetry size while distinguishing broad detector families. The exact ID, such as `adwalls.generic_en`, is retained for single-run severe-event attribution and breakage-report data.
 
-The on-demand bot and fraud detectors are not instrumented because their request-driven sampling is not comparable with automatically running Web Detection. Their detection results remain in breakage reports independently of detector performance monitoring. The YouTube interference detector is also excluded because its recurring sweep does not have the same run and accumulated-total semantics.
+The YouTube interference detector is not instrumented because its recurring sweep does not have the same run and accumulated-total semantics. Its detection results remain in breakage reports independently of detector performance monitoring.
 
 ## Settings
 

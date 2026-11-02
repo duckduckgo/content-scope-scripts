@@ -11,24 +11,61 @@
       "state": "enabled",
       "exceptions": [],
       "settings": {
-        "interferenceTypes": {
+        "interferenceTypes": {}
+      }
+    },
+    "webDetection": {
+      "state": "enabled",
+      "exceptions": [],
+      "settings": {
+        "detectors": {
           "botDetection": {
             "cloudflare": {
-              "state": "enabled",
-              "vendor": "Cloudflare",
-              "selectors": ["#challenge-running", ".cf-browser-verification"]
+              "match": { "element": { "selector": ["#challenge-running", ".cf-browser-verification"] } },
+              "actions": {
+                "breakageReportData": {
+                  "data": {
+                    "vendor": { "value": "Cloudflare" },
+                    "challengeStatus": {
+                      "value": {
+                        "if": { "element": { "selector": "[data-state='success']" } },
+                        "then": "solved",
+                        "else": null
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "cloudflareGlobal": {
+              "match": { "api": { "path": "Reflect.has", "args": [{ "api": "window" }, "__CF$cv$params"] } },
+              "actions": { "breakageReportData": { "data": { "vendor": { "value": "Cloudflare" } } } }
             },
             "recaptcha": {
-              "state": "enabled",
-              "vendor": "reCAPTCHA",
-              "selectors": [".g-recaptcha", "iframe[src*='google.com/recaptcha']"]
+              "match": { "element": { "selector": [".g-recaptcha", "iframe[src*='google.com/recaptcha']"] } },
+              "actions": { "breakageReportData": { "data": { "vendor": { "value": "reCAPTCHA" } } } }
             }
           },
           "fraudDetection": {
             "px": {
-              "state": "enabled",
-              "type": "PerimeterX",
-              "selectors": ["#px-captcha", "[id^='px-']"]
+              "match": { "element": { "selector": ["#px-captcha", "[id^='px-']"], "visibility": "visible" } },
+              "actions": { "breakageReportData": { "data": { "category": { "value": "PerimeterX" } } } }
+            },
+            "unusualLogin": {
+              "match": {
+                "api": { "path": "RegExp", "args": ["unusual.*login", "i"] },
+                "using": { "path": "test", "args": [{ "api": "document.body.innerText" }] },
+                "is": true
+              },
+              "actions": { "breakageReportData": { "data": { "category": { "value": "phishing" } } } }
+            },
+            "verifyAccount": {
+              "match": {
+                "api": { "path": "RegExp", "args": ["verify.*account", "i"] },
+                "using": { "path": "test", "args": [{ "api": "document.body.innerText" }] },
+                "is": true
+              },
+              "actions": { "breakageReportData": { "data": { "category": { "value": "phishing" } } } }
             }
           }
         }

@@ -6,10 +6,7 @@
             "state": "enabled",
             "exceptions": [],
             "settings": {
-                "interferenceTypes": {
-                    "botDetection": {},
-                    "fraudDetection": {}
-                }
+                "interferenceTypes": {}
             }
         }
     },
