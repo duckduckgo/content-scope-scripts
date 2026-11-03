@@ -78,9 +78,10 @@ const nodeBaseURI = getOwnPropertyDescriptor(globalThis.Node?.prototype ?? {}, '
  * @param {string} feature
  * @param {string} frameOrigin - origin of the embedded document
  * @param {string} parentOrigin - origin of the document that contains `frame`
- * @param {boolean} legacyColonSeparator - also accept `feature:` before the allowlist
+ * @param {boolean} mediaCapture - keep the rules media capture's precheck used before it moved here:
+ *   also accept `feature:` before the allowlist, and allow a frame without a directive
  */
-function allowAttributeAllows(frame, feature, frameOrigin, parentOrigin, legacyColonSeparator) {
+function allowAttributeAllows(frame, feature, frameOrigin, parentOrigin, mediaCapture) {
     /** @param {string} name */
     const attribute = (name) => /** @type {string | null} */ (ReflectApply(elementGetAttribute, frame, [name]));
     const sourceOrigin = () => {
@@ -101,7 +102,7 @@ function allowAttributeAllows(frame, feature, frameOrigin, parentOrigin, legacyC
             continue;
         }
         let allowlist = value.slice(feature.length);
-        if (legacyColonSeparator) {
+        if (mediaCapture) {
             allowlist = allowlist.replace(/^:/, '');
         }
         allowlist = allowlist.trim();
@@ -129,24 +130,29 @@ function allowAttributeAllows(frame, feature, frameOrigin, parentOrigin, legacyC
         }
         return allowed;
     }
-    return parentOrigin === frameOrigin;
+    return mediaCapture || parentOrigin === frameOrigin;
 }
 
 /**
  * Whether the iframe that embeds `frameWindow` delegates `feature` to it through its `allow`
  * attribute, as the attribute is now. Throws when `frameWindow`'s parent is cross-origin.
  *
+ * Geolocation compares against the parent's own origin, which an `about:blank` or `srcdoc` parent
+ * inherits and an opaque sandbox makes `null`. Media capture keeps its earlier rules: the parent's
+ * URL origin, and any embedding element.
+ *
  * @param {Window} frameWindow - a framed window
  * @param {string} feature
- * @param {{ legacyColonSeparator?: boolean }} [options]
+ * @param {{ mediaCapture?: boolean }} [options]
  */
-export function embeddingFrameAllows(frameWindow, feature, { legacyColonSeparator = false } = {}) {
+export function embeddingFrameAllows(frameWindow, feature, { mediaCapture = false } = {}) {
     // A cross-origin parent hides the frame element.
     const frame = frameWindow.frameElement;
+    const parentOrigin = mediaCapture ? frameWindow.parent.location.origin : frameWindow.parent.origin;
     return (
         !!frame &&
-        ReflectApply(elementMatches, frame, ['iframe,frame']) === true &&
-        allowAttributeAllows(frame, feature, frameWindow.origin, frameWindow.parent.location.origin, legacyColonSeparator)
+        (mediaCapture || ReflectApply(elementMatches, frame, ['iframe,frame']) === true) &&
+        allowAttributeAllows(frame, feature, frameWindow.origin, parentOrigin, mediaCapture)
     );
 }
 
