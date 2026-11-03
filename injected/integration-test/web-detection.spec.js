@@ -87,6 +87,43 @@ const XPATH_DETECTORS = {
 };
 
 /**
+ * The setup timing detector from privacy-configuration/features/web-detection.json (the `protectionsBreakage`
+ * group), with its measure names cut to the features the test config enables.
+ */
+const SETUP_TIMING_DETECTORS = {
+    setup_timings: {
+        actions: [
+            {
+                define: {
+                    names: {
+                        expr: ['breakageReportingCallLoad', 'breakageReportingCallInit', 'webDetectionCallLoad', 'webDetectionCallInit'],
+                    },
+                },
+            },
+            {
+                define: {
+                    measures: {
+                        api: { path: 'performance.getEntriesByType', args: ['measure'], where: { name: { in: { ref: 'names' } } } },
+                    },
+                },
+            },
+            {
+                if: { ref: 'measures', using: 'length', is: { gt: 0 } },
+                then: {
+                    breakageReportData: {
+                        data: {
+                            setupMeasureCount: { value: { ref: 'measures', using: 'length' } },
+                            setupTotalMs: { value: { sum: { ref: 'measures', using: { self: { field: 'duration' } } } } },
+                            slowSetups: { value: { ref: 'measures', using: { self: { where: { duration: { gte: 1 } } } } } },
+                        },
+                    },
+                },
+            },
+        ],
+    },
+};
+
+/**
  * Helper class for web-detection tests.
  */
 class WebDetectionTestHelper {
@@ -214,6 +251,24 @@ class WebDetectionTestHelper {
     }
 
     /**
+     * Set up collector with the setup timing detector installed.
+     *
+     * @param {import('@playwright/test').Page} page
+     * @param {Record<string, any>} projectUse
+     * @returns {Promise<{collector: ResultsCollector, helper: WebDetectionTestHelper}>}
+     */
+    static async setupSetupTimingTest(page, projectUse) {
+        const config = JSON.parse(readFileSync(CONFIG, 'utf8'));
+        config.features.webDetection.settings.detectors.protectionsBreakage = SETUP_TIMING_DETECTORS;
+
+        const collector = ResultsCollector.create(page, projectUse);
+        await collector.load('/web-detection/index.html', config);
+        const helper = new WebDetectionTestHelper(page, collector);
+
+        return { collector, helper };
+    }
+
+    /**
      * Set up collector for captcha detection tests: enables webEvents and installs the captcha
      * detector group (auto-run + per-provider fireEvent), with fake timers.
      *
@@ -310,6 +365,26 @@ test.describe('WebDetection Feature', () => {
             const results = await helper.runDetectors();
 
             expect(results.length).toBe(0);
+        });
+    });
+
+    test.describe('feature setup timings', () => {
+        test('reports a measure for the load and init of each enabled feature', async ({ page }, testInfo) => {
+            const { helper } = await WebDetectionTestHelper.setupSetupTimingTest(page, testInfo.project.use);
+            await page.evaluate(() => performance.measure('pageOwnMeasure', { start: 0, end: 5 }));
+
+            const results = await helper.runDetectors();
+
+            const entry = results.find((r) => r.detectorId === 'protectionsBreakage.setup_timings');
+            expect(entry?.data?.setupMeasureCount).toBe(4);
+            expect(entry?.data?.setupTotalMs).toBeGreaterThanOrEqual(0);
+            const slowSetups = /** @type {Array<{name: string, entryType: string, duration: number}>} */ (entry?.data?.slowSetups);
+            expect(Array.isArray(slowSetups)).toBe(true);
+            for (const measure of slowSetups) {
+                expect(measure.entryType).toBe('measure');
+                expect(measure.name).not.toBe('pageOwnMeasure');
+                expect(measure.duration).toBeGreaterThanOrEqual(1);
+            }
         });
     });
 
