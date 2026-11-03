@@ -12,6 +12,8 @@ import {
     ReflectApply,
     ReflectDeleteProperty,
     objectDefineProperty,
+    promiseReject,
+    promiseThen,
 } from '../../injected/src/captured-globals.js';
 
 /**
@@ -84,9 +86,15 @@ export class WebkitMessagingTransport {
      * @returns {Promise<*>}
      * @internal
      */
-    async wkSendAndWait(handler, data) {
-        const response = await this.wkSend(handler, data);
-        return JSONparse(response || '{}');
+    wkSendAndWait(handler, data) {
+        // The captured `then` instead of `await`: `await` and async returns read the page-mutable
+        // `Promise.prototype.constructor` and `then`, which would let a page rewrite native replies.
+        // Rejects rather than throws, as the async version did.
+        try {
+            return ReflectApply(promiseThen, this.wkSend(handler, data), [(response) => JSONparse(response || '{}')]);
+        } catch (error) {
+            return promiseReject(error);
+        }
     }
 
     /**
@@ -100,20 +108,22 @@ export class WebkitMessagingTransport {
     /**
      * @param {import('../index.js').RequestMessage} msg
      */
-    async request(msg) {
-        const data = await this.wkSendAndWait(msg.context, msg);
+    request(msg) {
+        return ReflectApply(promiseThen, this.wkSendAndWait(msg.context, msg), [
+            (data) => {
+                if (isResponseFor(msg, data)) {
+                    if (data.result) {
+                        return data.result || {};
+                    }
+                    // forward the error if one was given explicity
+                    if (data.error) {
+                        throw new _Error(data.error.message);
+                    }
+                }
 
-        if (isResponseFor(msg, data)) {
-            if (data.result) {
-                return data.result || {};
-            }
-            // forward the error if one was given explicity
-            if (data.error) {
-                throw new _Error(data.error.message);
-            }
-        }
-
-        throw new _Error('an unknown error occurred');
+                throw new _Error('an unknown error occurred');
+            },
+        ]);
     }
 
     /**
