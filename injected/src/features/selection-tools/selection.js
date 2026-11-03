@@ -267,39 +267,61 @@ function isHidden(element, seen) {
 }
 
 /**
- * The selected text without the parts the user can't see. Text between hidden parts is read range by range, so the line
- * breaks the browser puts between blocks are kept.
+ * The nearest ancestor that lays its contents out as a block, where the browser starts a new line in selected text.
+ * @param {Element} element
+ */
+function blockOf(element) {
+    let current = element;
+    while (current.parentElement && /^(inline|contents)/.test(getComputedStyle(current).display)) {
+        current = current.parentElement;
+    }
+    return current;
+}
+
+/**
+ * The selected text without the parts the user can't see, or null when nothing in it is hidden, for the browser's own
+ * text. Read node by node, as the browser does: whitespace collapsed outside preformatted text, and a line break where
+ * a line break element is or the text moves to another block.
  * @param {Range} range
+ * @returns {string | null}
  */
 function visibleText(range) {
     const root = range.commonAncestorContainer;
     /** @type {Map<Element, boolean>} */
     const seen = new Map();
-    if (root instanceof Text) return root.parentElement && isHidden(root.parentElement, seen) ? '' : range.toString();
-    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-    /** @type {string[]} */
-    const parts = [];
-    let part = range.cloneRange();
-    let open = true;
+    if (root instanceof Text) return root.parentElement && isHidden(root.parentElement, seen) ? '' : null;
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT);
+    let text = '';
+    /** @type {Element | null} */
+    let block = null;
     let skipped = false;
-    for (let node = /** @type {Text | null} */ (walker.nextNode()); node; node = /** @type {Text | null} */ (walker.nextNode())) {
-        if (!range.intersectsNode(node) || !node.data.trim() || !node.parentElement) continue;
-        if (isHidden(node.parentElement, seen)) {
-            if (open) {
-                part.setEndBefore(node);
-                parts.push(part.toString());
-                open = false;
-            }
-            skipped = true;
-        } else if (!open) {
-            part = range.cloneRange();
-            if (node !== range.startContainer) part.setStartBefore(node);
-            open = true;
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+        if (!range.intersectsNode(node)) continue;
+        if (node instanceof HTMLBRElement) {
+            text += '\n';
+            continue;
         }
+        const parent = node.parentElement;
+        if (!(node instanceof Text) || !parent) continue;
+        if (isHidden(parent, seen)) {
+            skipped ||= node.data.trim() !== '';
+            continue;
+        }
+        let part = node.data.slice(
+            node === range.startContainer ? range.startOffset : 0,
+            node === range.endContainer ? range.endOffset : undefined,
+        );
+        if (!getComputedStyle(parent).whiteSpace.startsWith('pre')) {
+            part = part.replace(/\s+/g, ' ');
+            if (/\s$/.test(text)) part = part.trimStart();
+        }
+        if (!part) continue;
+        const partBlock = blockOf(parent);
+        if (block && partBlock !== block && !text.endsWith('\n')) text = text.trimEnd() + '\n';
+        block = partBlock;
+        text += text.endsWith('\n') ? part.trimStart() : part;
     }
-    if (!skipped) return range.toString();
-    if (open) parts.push(part.toString());
-    return parts.join('');
+    return skipped ? text.trim() : null;
 }
 
 /**
@@ -410,7 +432,9 @@ export function readSelection(minChars) {
     const selected = selection && selectedRange(selection);
     if (!selection || !selected) return null;
     const range = selected.cloneRange();
-    const text = visibleText(range);
+    const browserText = selection.toString();
+    // The browser's text keeps the line breaks between blocks, inside shadow roots too.
+    const text = visibleText(range) ?? browserText;
     if (text.trim().length < minChars) return null;
     const host = editingHostOf(elementOf(range.commonAncestorContainer));
     // Where the selection starts, rather than the common ancestor: a triple-clicked paragraph's range ends at the start
@@ -418,7 +442,7 @@ export function readSelection(minChars) {
     const element = host ?? elementOf(range.startContainer);
     return {
         text,
-        browserText: selection.toString(),
+        browserText,
         editable: host !== null,
         element,
         bounds: () => {

@@ -200,6 +200,20 @@ test.describe('selectionTools', () => {
         expect(menu.selectedTextKey).toBe(selectedTextKey(browserText));
     });
 
+    test('keeps the line breaks between blocks, with hidden text left out or not', async ({ page }, testInfo) => {
+        const collector = await setup(page, testInfo);
+        for (const [id, first, expected] of [
+            ['blocks', 'Quick start', 'Quick start\nWelcome to the guide.'],
+            ['hidden-blocks', 'Setup', 'Setup\nInstall the app.\nThen open it.'],
+        ]) {
+            const after = (await sent(collector, 'selectionChanged')).length;
+            await page.evaluate((id) => window.getSelection()?.selectAllChildren(/** @type {Element} */ (document.getElementById(id))), id);
+            await page.keyboard.press('Shift');
+            const { text } = await reportedWith(collector, first, after);
+            expect(text.trim()).toBe(expected);
+        }
+    });
+
     test('reports text inside an ancestor with display: contents', async ({ page }, testInfo) => {
         const collector = await setup(page, testInfo);
         await selectParagraph(page, '#in-contents');
