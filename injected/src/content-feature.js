@@ -329,17 +329,22 @@ export default class ContentFeature extends ConfigFeature {
         const mark = this.monitor.mark(this.name + 'CallInit');
         try {
             this.setArgs(args);
-            // Passing this.args is legacy here and features should use this.args or other properties directly
+            let initResult;
+            try {
+                // Passing this.args is legacy here and features should use this.args or other properties directly
+                initResult = this.init(this.args);
+            } finally {
+                // The measure ends where init first awaits: other features' init runs before an awaiting init resumes
+                mark.end();
+                mark.measure();
+            }
             // disable lint error as `init` is not forced to be async
             // eslint-disable-next-line @typescript-eslint/await-thenable
-            await this.init(this.args);
+            await initResult;
             this.#ready.resolve({ status: 'ready' });
         } catch (error) {
             this.#ready.resolve({ status: 'error', error: String(error) });
             throw error;
-        } finally {
-            mark.end();
-            this.measure();
         }
     }
 
@@ -421,12 +426,7 @@ export default class ContentFeature extends ConfigFeature {
             return false;
         } finally {
             mark.end();
-        }
-    }
-
-    measure() {
-        if (this.isDebug) {
-            this.monitor.measureAll();
+            mark.measure();
         }
     }
 
