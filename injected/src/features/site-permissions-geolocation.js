@@ -418,7 +418,7 @@ export default class SitePermissionsGeolocation extends ContentFeature {
             if (descriptor?.name !== 'geolocation' || !isContextEligible()) {
                 const record = permissionStatus();
                 record.initialize('denied');
-                return Promise.resolve(record.status);
+                return promiseResolve(record.status);
             }
             const statusID = `${frameNonce}:${nextPermissionStatusID++}`;
             const record = permissionStatus();
