@@ -69,6 +69,7 @@ export default class SitePermissionsMediaCapture extends ContentFeature {
         const hasNonOpaqueOrigin = origin !== 'null' && origin.length > 0;
         const isSyntheticDocument = locationProtocol === 'about:';
         const sameOriginAsTopLevel = isSameOriginAsTopLevel(origin);
+        const isTopLevel = !isBeingFramed();
         // WebKit owns each document's effective sandbox restrictions, including after navigation.
         // An allow-same-origin sandbox may request media; opaque origins are marked ineligible.
         const policy = permissionsPolicy();
@@ -76,40 +77,62 @@ export default class SitePermissionsMediaCapture extends ContentFeature {
         const hasPolicyIntrospection = typeof allowsFeature === 'function';
         // Some WebKit versions don't expose whether an embedded page (iframe) may use media.
         // Fall back to the iframe's allow attribute, and keep the parent's restrictions for nested
-        // frames. A document's policy is fixed when it loads, so the parent answers from its own
-        // load-time result; a parent without this feature never answers, which fails closed.
+        // frames. Like WebKit, use the embedding attributes from when this document loaded; a later
+        // change applies on the next navigation. Read the local rules and the parent reference now,
+        // before page scripts can replace them; only the parent's answer waits for the first request.
+        // A parent without this feature never answers, which fails closed.
         // This is a best-effort precheck; WebKit makes the final capture decision.
+        const parentWindow = globalThis.parent;
         /**
          * @param {'camera' | 'microphone'} feature
          */
-        const parentPolicyAllows = (feature) => {
-            const question = new NativeCustomEvent(mediaCapturePolicyEvent(feature, messageSecret), { cancelable: true });
-            return !apply(dispatchEventOn, globalThis.parent, [question]);
-        };
-        /**
-         * @param {'camera' | 'microphone'} feature
-         */
-        const fallbackPolicyAllows = (feature) => {
-            if (!sameOriginAsTopLevel) {
+        const localPolicyAllows = (feature) => {
+            if (hasPolicyIntrospection || !sameOriginAsTopLevel) {
                 return false;
             }
-            if (!isBeingFramed()) {
+            if (isTopLevel) {
                 return true;
             }
             try {
-                return parentPolicyAllows(feature) && embeddingFrameAllows(globalThis.window, feature, { legacyColonSeparator: true });
+                return embeddingFrameAllows(globalThis.window, feature, { legacyColonSeparator: true });
             } catch (_) {
                 return false;
             }
         };
-        const fallbackCameraAllowed = fallbackPolicyAllows('camera');
-        const fallbackMicrophoneAllowed = fallbackPolicyAllows('microphone');
+        const localCameraAllowed = localPolicyAllows('camera');
+        const localMicrophoneAllowed = localPolicyAllows('microphone');
+        /**
+         * @param {'camera' | 'microphone'} feature
+         */
+        const fallbackPolicyAllows = (feature) => {
+            if (!(feature === 'camera' ? localCameraAllowed : localMicrophoneAllowed)) {
+                return false;
+            }
+            if (isTopLevel) {
+                return true;
+            }
+            try {
+                const question = new NativeCustomEvent(mediaCapturePolicyEvent(feature, messageSecret), { cancelable: true });
+                return !apply(dispatchEventOn, parentWindow, [question]);
+            } catch (_) {
+                return false;
+            }
+        };
+        /** @type {boolean | undefined} */
+        let fallbackCameraAllowed;
+        /** @type {boolean | undefined} */
+        let fallbackMicrophoneAllowed;
         /**
          * @param {'camera' | 'microphone'} feature
          */
         const policyAllows = (feature) => {
             if (!hasPolicyIntrospection) {
-                return feature === 'camera' ? fallbackCameraAllowed : fallbackMicrophoneAllowed;
+                if (feature === 'camera') {
+                    fallbackCameraAllowed ??= fallbackPolicyAllows('camera');
+                    return fallbackCameraAllowed;
+                }
+                fallbackMicrophoneAllowed ??= fallbackPolicyAllows('microphone');
+                return fallbackMicrophoneAllowed;
             }
             try {
                 return toBoolean(apply(allowsFeature, policy, [feature]));
