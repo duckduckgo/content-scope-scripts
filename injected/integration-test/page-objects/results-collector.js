@@ -220,6 +220,12 @@ export class ResultsCollector {
             'android-autofill-import': async () => {
                 // noop
             },
+            'apple-page-translation': async () => {
+                // noop
+            },
+            'android-page-translation': async () => {
+                // noop
+            },
         });
 
         const messagingMock = this.build.switch({
@@ -228,6 +234,8 @@ export class ResultsCollector {
             windows: () => mockWindowsMessaging,
             android: () => mockAndroidMessaging,
             'android-autofill-import': () => mockAndroidMessaging,
+            'apple-page-translation': () => mockWebkitMessaging,
+            'android-page-translation': () => mockAndroidMessaging,
         });
 
         await this.page.addInitScript(messagingMock, {
@@ -242,6 +250,8 @@ export class ResultsCollector {
             apple: () => wrapWebkitScripts,
             android: () => wrapWebkitScripts,
             'android-autofill-import': () => wrapWebkitScripts,
+            'apple-page-translation': () => wrapWebkitScripts,
+            'android-page-translation': () => wrapWebkitScripts,
             windows: () => wrapWindowsScripts,
         });
 

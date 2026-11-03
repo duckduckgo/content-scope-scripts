@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Article</title>
+</head>
+<body>
+    <main>
+        <h1>Scientists map the deep ocean floor</h1>
+        <p>The new survey covers <b>two million</b> square kilometres, and the <a id="data-link" href="#data">full data set</a> is public.</p>
+        <ul>
+            <li>First finding</li>
+            <li>Second finding</li>
+        </ul>
+        <blockquote><p>We were surprised by how much we did not know.</p></blockquote>
+        <p>42 · 17 · 2026</p>
+        <div style="height: 3000px"></div>
+        <p>This paragraph is below the fold.</p>
+    </main>
+    <script>
+        window.linkClicks = 0;
+        document.getElementById('data-link').addEventListener('click', (e) => {
+            e.preventDefault();
+            window.linkClicks++;
+        });
+    </script>
+</body>
+</html>

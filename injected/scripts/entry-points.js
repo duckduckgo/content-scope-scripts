@@ -27,6 +27,10 @@ const builds = {
         input: 'entry-points/apple.js',
         output: ['../Sources/ContentScopeScripts/dist/duckAiChatHistory.js'],
     },
+    'apple-page-translation': {
+        input: 'entry-points/apple.js',
+        output: ['../Sources/ContentScopeScripts/dist/pageTranslation.js'],
+    },
     'apple-isolated': {
         input: 'entry-points/apple.js',
         output: ['../Sources/ContentScopeScripts/dist/contentScopeIsolated.js'],
@@ -54,6 +58,10 @@ const builds = {
     'android-ai-clear': {
         input: 'entry-points/android.js',
         output: ['../build/android/duckAiDataClearing.js'],
+    },
+    'android-page-translation': {
+        input: 'entry-points/android.js',
+        output: ['../build/android/pageTranslation.js'],
     },
     windows: {
         input: 'entry-points/windows.js',
