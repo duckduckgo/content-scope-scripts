@@ -87,76 +87,53 @@ const XPATH_DETECTORS = {
 };
 
 /**
- * Milliseconds from a `CallLoadEnd` or `CallInitEnd` mark back to the latest `Start` mark of the same name.
- */
-const SETUP_DURATION = {
-    sum: [
-        { self: 'startTime' },
-        {
-            mul: [
-                -1,
-                {
-                    api: {
-                        path: 'Math.max.apply',
-                        args: [
-                            null,
-                            {
-                                api: {
-                                    path: 'performance.getEntriesByName',
-                                    args: [{ self: { path: 'name.replace', args: ['End', 'Start'] } }, 'mark'],
-                                    field: 'startTime',
-                                },
-                            },
-                        ],
-                    },
-                },
-            ],
-        },
-    ],
-};
-
-/**
- * The setup timing detector from privacy-configuration/features/web-detection.json (the `protectionsBreakage`
- * group), with its mark names cut to the features the test config enables.
+ * The setup timing detector from privacy-configuration/features/web-detection.json (the `protectionsBreakage` group).
  */
 const SETUP_TIMING_DETECTORS = {
     setup_timings: {
         actions: [
             {
                 define: {
-                    endNames: {
-                        expr: [
-                            'breakageReportingCallLoadEnd',
-                            'breakageReportingCallInitEnd',
-                            'webDetectionCallLoadEnd',
-                            'webDetectionCallInitEnd',
-                        ],
+                    setups: {
+                        api: {
+                            path: 'performance.getEntriesByType',
+                            args: ['mark'],
+                            where: { self: { path: 'name.search', args: ['Call(Load|Init)End$'] }, is: { gte: 0 } },
+                            field: {
+                                expr: [
+                                    { self: 'name' },
+                                    {
+                                        sum: [
+                                            { self: 'startTime' },
+                                            {
+                                                mul: [
+                                                    -1,
+                                                    {
+                                                        api: {
+                                                            path: 'performance.getEntriesByName',
+                                                            args: [{ self: { path: 'name.replace', args: ['End', 'Start'] } }, 'mark'],
+                                                            field: 'startTime',
+                                                        },
+                                                        using: { path: 'at', args: [-1] },
+                                                    },
+                                                ],
+                                            },
+                                        ],
+                                    },
+                                ],
+                            },
+                        },
                     },
                 },
             },
             {
-                define: {
-                    ends: { api: { path: 'performance.getEntriesByType', args: ['mark'], where: { name: { in: { ref: 'endNames' } } } } },
-                },
-            },
-            {
-                if: { ref: 'ends', using: 'length', is: { gt: 0 } },
+                if: { ref: 'setups', using: 'length', is: { gt: 0 } },
                 then: {
                     breakageReportData: {
                         data: {
-                            setupCount: { value: { ref: 'ends', using: 'length' } },
-                            setupTotalMs: { value: { sum: { ref: 'ends', using: { self: { field: SETUP_DURATION } } } } },
-                            slowSetups: {
-                                value: {
-                                    ref: 'ends',
-                                    using: {
-                                        self: {
-                                            where: { expr: SETUP_DURATION, is: { gte: 1 } },
-                                            field: { expr: [{ self: 'name' }, SETUP_DURATION] },
-                                        },
-                                    },
-                                },
-                            },
+                            setupCount: { value: { ref: 'setups', using: 'length' } },
+                            setupTotalMs: { value: { sum: { ref: 'setups', using: { self: { field: '1' } } } } },
+                            slowSetups: { value: { ref: 'setups', using: { self: { where: { 1: { gte: 1 } } } } } },
                         },
                     },
                 },
@@ -443,17 +420,22 @@ test.describe('WebDetection Feature', () => {
             await page.evaluate(() => {
                 performance.mark('pageOwnStart');
                 performance.mark('pageOwnEnd');
+                performance.mark('pageOwnCallLoadEndless');
             });
 
             const results = await helper.runDetectors();
+            const featureEnds = await page.evaluate(
+                () => performance.getEntriesByType('mark').filter((m) => /Call(Load|Init)End$/.test(m.name)).length,
+            );
 
             const entry = results.find((r) => r.detectorId === 'protectionsBreakage.setup_timings');
-            expect(entry?.data?.setupCount).toBe(4);
+            expect(featureEnds).toBeGreaterThanOrEqual(4);
+            expect(entry?.data?.setupCount).toBe(featureEnds);
             expect(entry?.data?.setupTotalMs).toBeGreaterThanOrEqual(0);
             const slowSetups = /** @type {Array<[string, number]>} */ (entry?.data?.slowSetups);
             expect(Array.isArray(slowSetups)).toBe(true);
             for (const [name, ms] of slowSetups) {
-                expect(name).toMatch(/^(breakageReporting|webDetection)Call(Load|Init)End$/);
+                expect(name).toMatch(/Call(Load|Init)End$/);
                 expect(ms).toBeGreaterThanOrEqual(1);
             }
         });
