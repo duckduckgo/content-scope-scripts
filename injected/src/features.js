@@ -54,6 +54,9 @@ const otherFeatures = /** @type {FeatureName[]} */ ([
     'tabSuspension',
     'autofillPasskeys',
     'textSelection',
+    'sitePermissionsGeolocation',
+    'sitePermissionsGeolocationPolicy',
+    'sitePermissionsMediaCapture',
     'chromeWebstorePatching',
     'selectionTools',
     'segmentSkip',
@@ -80,7 +83,17 @@ export const featureConfigDependencies = {
  * @type {Record<string, FeatureName[]>}
  */
 export const platformSupport = {
-    apple: ['webCompat', 'duckPlayerNative', ...baseFeatures, 'pageContext', 'print', 'trackerProtection', 'textSelection'],
+    apple: [
+        'webCompat',
+        'duckPlayerNative',
+        ...baseFeatures,
+        'pageContext',
+        'print',
+        'trackerProtection',
+        'textSelection',
+        'sitePermissionsGeolocation',
+        'sitePermissionsMediaCapture',
+    ],
     'apple-isolated': [
         'webDetection',
         'contextMenu',
@@ -101,6 +114,7 @@ export const platformSupport = {
         'chromeWebstorePatching',
         'browserUiLock',
         'segmentSkip',
+        'sitePermissionsGeolocationPolicy',
     ],
     'apple-broker-protection': ['brokerProtection'],
     'apple-ai-clear': ['duckAiDataClearing'],
