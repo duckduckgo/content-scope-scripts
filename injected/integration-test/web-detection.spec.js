@@ -87,34 +87,76 @@ const XPATH_DETECTORS = {
 };
 
 /**
+ * Milliseconds from a `CallLoadEnd` or `CallInitEnd` mark back to the latest `Start` mark of the same name.
+ */
+const SETUP_DURATION = {
+    sum: [
+        { self: 'startTime' },
+        {
+            mul: [
+                -1,
+                {
+                    api: {
+                        path: 'Math.max.apply',
+                        args: [
+                            null,
+                            {
+                                api: {
+                                    path: 'performance.getEntriesByName',
+                                    args: [{ self: { path: 'name.replace', args: ['End', 'Start'] } }, 'mark'],
+                                    field: 'startTime',
+                                },
+                            },
+                        ],
+                    },
+                },
+            ],
+        },
+    ],
+};
+
+/**
  * The setup timing detector from privacy-configuration/features/web-detection.json (the `protectionsBreakage`
- * group), with its measure names cut to the features the test config enables.
+ * group), with its mark names cut to the features the test config enables.
  */
 const SETUP_TIMING_DETECTORS = {
     setup_timings: {
         actions: [
             {
                 define: {
-                    names: {
-                        expr: ['breakageReportingCallLoad', 'breakageReportingCallInit', 'webDetectionCallLoad', 'webDetectionCallInit'],
+                    endNames: {
+                        expr: [
+                            'breakageReportingCallLoadEnd',
+                            'breakageReportingCallInitEnd',
+                            'webDetectionCallLoadEnd',
+                            'webDetectionCallInitEnd',
+                        ],
                     },
                 },
             },
             {
                 define: {
-                    measures: {
-                        api: { path: 'performance.getEntriesByType', args: ['measure'], where: { name: { in: { ref: 'names' } } } },
-                    },
+                    ends: { api: { path: 'performance.getEntriesByType', args: ['mark'], where: { name: { in: { ref: 'endNames' } } } } },
                 },
             },
             {
-                if: { ref: 'measures', using: 'length', is: { gt: 0 } },
+                if: { ref: 'ends', using: 'length', is: { gt: 0 } },
                 then: {
                     breakageReportData: {
                         data: {
-                            setupMeasureCount: { value: { ref: 'measures', using: 'length' } },
-                            setupTotalMs: { value: { sum: { ref: 'measures', using: { self: { field: 'duration' } } } } },
-                            slowSetups: { value: { ref: 'measures', using: { self: { where: { duration: { gte: 1 } } } } } },
+                            setupCount: { value: { ref: 'ends', using: 'length' } },
+                            setupTotalMs: { value: { sum: { ref: 'ends', using: { self: { field: SETUP_DURATION } } } } },
+                            slowSetups: {
+                                value: {
+                                    ref: 'ends',
+                                    using: {
+                                        self: {
+                                            where: { expr: SETUP_DURATION, is: { gte: 1 } },
+                                            field: { expr: [{ self: 'name' }, SETUP_DURATION] },
+                                        },
+                                    },
+                                },
+                            },
                         },
                     },
                 },
@@ -369,21 +411,23 @@ test.describe('WebDetection Feature', () => {
     });
 
     test.describe('feature setup timings', () => {
-        test('reports a measure for the load and init of each enabled feature', async ({ page }, testInfo) => {
+        test('reports the load and init of each enabled feature from its marks', async ({ page }, testInfo) => {
             const { helper } = await WebDetectionTestHelper.setupSetupTimingTest(page, testInfo.project.use);
-            await page.evaluate(() => performance.measure('pageOwnMeasure', { start: 0, end: 5 }));
+            await page.evaluate(() => {
+                performance.mark('pageOwnStart');
+                performance.mark('pageOwnEnd');
+            });
 
             const results = await helper.runDetectors();
 
             const entry = results.find((r) => r.detectorId === 'protectionsBreakage.setup_timings');
-            expect(entry?.data?.setupMeasureCount).toBe(4);
+            expect(entry?.data?.setupCount).toBe(4);
             expect(entry?.data?.setupTotalMs).toBeGreaterThanOrEqual(0);
-            const slowSetups = /** @type {Array<{name: string, entryType: string, duration: number}>} */ (entry?.data?.slowSetups);
+            const slowSetups = /** @type {Array<[string, number]>} */ (entry?.data?.slowSetups);
             expect(Array.isArray(slowSetups)).toBe(true);
-            for (const measure of slowSetups) {
-                expect(measure.entryType).toBe('measure');
-                expect(measure.name).not.toBe('pageOwnMeasure');
-                expect(measure.duration).toBeGreaterThanOrEqual(1);
+            for (const [name, ms] of slowSetups) {
+                expect(name).toMatch(/^(breakageReporting|webDetection)Call(Load|Init)End$/);
+                expect(ms).toBeGreaterThanOrEqual(1);
             }
         });
     });

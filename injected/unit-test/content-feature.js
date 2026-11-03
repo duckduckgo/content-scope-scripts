@@ -453,27 +453,37 @@ describe('ContentFeature class', () => {
             expect(feature.callLoad()).toBe(true);
         });
 
-        it('should record a measure when load throws', () => {
+        it('should record the end mark when load throws', () => {
             class FailingFeature extends BaseTestFeature {
                 load() {
                     throw new Error('load failed');
                 }
             }
-            new FailingFeature('failingLoadMeasure', {}, {}).callLoad();
-            expect(performance.getEntriesByName('failingLoadMeasureCallLoad', 'measure').length).toBe(1);
+            new FailingFeature('failingLoadMark', {}, {}).callLoad();
+            expect(performance.getEntriesByName('failingLoadMarkCallLoadEnd', 'mark').length).toBe(1);
         });
     });
 
-    describe('setup measures', () => {
-        it('should record load and init measures without debug', async () => {
-            const feature = new BaseTestFeature('measuredFeature', {}, {});
+    describe('setup timing', () => {
+        it('should record load and init marks, and no measures, without debug', async () => {
+            const feature = new BaseTestFeature('unmeasuredFeature', {}, {});
             feature.callLoad();
             await feature.callInit({});
+            expect(performance.getEntriesByName('unmeasuredFeatureCallLoadEnd', 'mark').length).toBe(1);
+            expect(performance.getEntriesByName('unmeasuredFeatureCallInitEnd', 'mark').length).toBe(1);
+            expect(performance.getEntriesByName('unmeasuredFeatureCallLoad', 'measure').length).toBe(0);
+            expect(performance.getEntriesByName('unmeasuredFeatureCallInit', 'measure').length).toBe(0);
+        });
+
+        it('should record load and init measures with debug', async () => {
+            const feature = new BaseTestFeature('measuredFeature', {}, {});
+            feature.callLoad();
+            await feature.callInit({ debug: true });
             expect(performance.getEntriesByName('measuredFeatureCallLoad', 'measure').length).toBe(1);
             expect(performance.getEntriesByName('measuredFeatureCallInit', 'measure').length).toBe(1);
         });
 
-        it('should end the init measure where init first awaits', async () => {
+        it('should end the init mark where init first awaits', async () => {
             /** @type {(value?: unknown) => void} */
             let release = () => {};
             class AwaitingFeature extends BaseTestFeature {
@@ -485,21 +495,21 @@ describe('ContentFeature class', () => {
             }
             const feature = new AwaitingFeature('awaitingFeature', {}, {});
             const initDone = feature.callInit({});
-            expect(performance.getEntriesByName('awaitingFeatureCallInit', 'measure').length).toBe(1);
+            expect(performance.getEntriesByName('awaitingFeatureCallInitEnd', 'mark').length).toBe(1);
             release();
             await initDone;
-            expect(performance.getEntriesByName('awaitingFeatureCallInit', 'measure').length).toBe(1);
+            expect(performance.getEntriesByName('awaitingFeatureCallInitEnd', 'mark').length).toBe(1);
         });
 
-        it('should record the init measure when init throws', async () => {
+        it('should record the init end mark when init throws', async () => {
             class FailingFeature extends BaseTestFeature {
                 init() {
                     throw new Error('init failed');
                 }
             }
-            const feature = new FailingFeature('failingInitMeasure', {}, {});
+            const feature = new FailingFeature('failingInitMark', {}, {});
             await expectAsync(feature.callInit({})).toBeRejectedWithError('init failed');
-            expect(performance.getEntriesByName('failingInitMeasureCallInit', 'measure').length).toBe(1);
+            expect(performance.getEntriesByName('failingInitMarkCallInitEnd', 'mark').length).toBe(1);
         });
     });
 
