@@ -94,7 +94,7 @@ export default class SitePermissionsMediaCapture extends ContentFeature {
                 return true;
             }
             try {
-                return embeddingFrameAllows(globalThis.window, feature, { legacyColonSeparator: true });
+                return embeddingFrameAllows(globalThis.window, feature, { mediaCapture: true });
             } catch (_) {
                 return false;
             }
