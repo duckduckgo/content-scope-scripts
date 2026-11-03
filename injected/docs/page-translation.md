@@ -36,8 +36,11 @@ Native sends subscriptions; the feature replies with notifications.
 - In a container that also holds blocks, each run of text and inline elements between those blocks is one unit.
 - Floated elements count as inline, so a drop cap stays inside its paragraph.
 - A unit needs at least one letter.
-- Never translated: `script`, `style`, `noscript`, `template`, `textarea`, `code`, `kbd`, `samp`, `var`, `math`, `svg`, `iframe`, `embed`, `object`, `select` (for now), `translate="no"`, `.notranslate` and editable content.
+- Never translated: `script`, `style`, `noscript`, `template`, `textarea`, `code`, `kbd`, `samp`, `var`, `math`, `svg`, `iframe`, `embed`, `object`, `translate="no"`, `.notranslate` and editable content.
 - Content marked with a `lang` other than `sourceLanguage` is still extracted, but `apply` doesn't write it: a unit inside such an element is skipped (not counted), and such an element inside a unit comes back untouched while the rest of the sentence is translated. The `<html lang>` is ignored for this check, and an empty `sourceLanguage` turns it off.
+- Hidden content (`display: none`, the `hidden` attribute, `visibility: hidden`, `opacity: 0`, closed `<details>`) is extracted too, with `vp: 0`, so it's translated by the time someone opens it. A `display: none` element is treated as block or inline by its tag's usual display.
+- A `<select>` goes as an empty tag inside its sentence and comes back untouched. Each `<option>` with text is a plain-text unit of its own. Before an option's text changes, it gets an explicit `value` (its current one) if it had none, so the form still submits the same value. Revert removes it.
+- Attributes are plain-text units, after the content units: `title`, `aria-label`, `aria-description`, `aria-roledescription` and `aria-valuetext` on any element, `alt` on `img` and `area`, `label` on `track`, `optgroup` and `option`, `abbr` on `th`, and `content` on `<meta name="description">` and `<meta name="keywords">`. Never on form controls (`input`, `select`, `textarea`, `button`): Autofill reads their attributes. The `<title>` isn't translated.
 - Inside a unit, a never-translated element is sent as an empty tag and comes back untouched: `Use <code data-t="0"></code> to check`.
 - `script`, `style` and `template` inside a unit aren't sent at all. They, and comments, stay before or after the unit's text, as they were.
 
@@ -60,6 +63,11 @@ The translation is then merged onto the original nodes. Elements are moved, neve
 - An id we didn't send, or a tag that would end up inside itself: its text is kept, no element is created or moved.
 
 The first write sets `<html lang>` to `targetLanguage`. `revert` puts back every text, attribute, node order and the original `lang`. It then checks that every original node it moved is back in the page, and reports `exact: false` if not, so native can reload as a fallback.
+
+## Known gaps
+
+- Adjacent text nodes in one element are merged when written back. On React-style pages that render data into its own text node (`accrued {count} spaceships`), that node is removed, so later updates to it don't show. `react.html` covers this with a test marked as an expected failure.
+- When the engine drops a tag, the element is put back with its original-language text, which then shows next to the translation.
 
 ## Tests
 

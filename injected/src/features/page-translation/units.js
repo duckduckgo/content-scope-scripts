@@ -6,6 +6,13 @@ const computedStyle = window.getComputedStyle.bind(window);
 const ELEMENT_NODE = 1;
 const TEXT_NODE = 3;
 
+// Block-level by default. A `display: none` element's computed display says nothing about how it flows when shown,
+// so it falls back to its tag's usual display.
+const BLOCK_TAGS = new Set(
+    'address article aside blockquote caption center dd details dialog div dl dt fieldset figcaption figure footer form h1 h2 h3 h4 h5 h6 header hgroup hr legend li main menu nav ol p pre search section summary table tbody td tfoot th thead tr ul'.split(
+        ' ',
+    ),
+);
 const INLINE_DISPLAY = new Set([
     'inline',
     'inline-block',
@@ -17,9 +24,8 @@ const INLINE_DISPLAY = new Set([
     'ruby-base',
     'ruby-text',
 ]);
-// Never translated. `select` is temporary: its options would change form values until value pinning exists.
-const EXCLUDED_TAGS =
-    'script, style, noscript, template, textarea, code, kbd, samp, var, math, svg, iframe, embed, object, ddg-autofill, select';
+// Never translated.
+const EXCLUDED_TAGS = 'script, style, noscript, template, textarea, code, kbd, samp, var, math, svg, iframe, embed, object, ddg-autofill';
 const LETTER = /\p{L}/u;
 
 /**
@@ -32,7 +38,57 @@ export function findUnits(root) {
     /** @type {UnitTarget[]} */
     const units = [];
     walk.visit(root, units);
+    // A <select> or <datalist> goes empty inside its sentence, and each option is a plain-text unit of its own.
+    for (const option of root.querySelectorAll('select option, datalist option')) {
+        if (LETTER.test(option.textContent || '') && !isInExcluded(option)) units.push({ kind: 'element', element: option });
+    }
+    // Attributes come after the content: the page's <meta> description first (nothing else in <head>, so the
+    // <title> is left alone), then every element under root in document order.
+    const metas = root === document.body && document.head ? [...document.head.querySelectorAll(META)] : [];
+    for (const el of [...metas, root, ...root.querySelectorAll('*')]) {
+        for (const attribute of translatableAttributes(el)) units.push({ kind: 'attribute', element: el, attribute });
+    }
     return units;
+}
+
+const META = 'meta[name="description" i], meta[name="keywords" i]';
+// Never on form controls: Autofill reads their attributes, and changing them is deferred until it reads originals.
+const FORM_CONTROLS = 'input, select, textarea, button';
+/** @type {[string, string[]][]} */
+const ATTRIBUTES = [
+    ['*', ['title', 'aria-label', 'aria-description', 'aria-roledescription', 'aria-valuetext']],
+    ['img, area', ['alt']],
+    ['track, optgroup, option', ['label']],
+    ['th', ['abbr']],
+    [META, ['content']],
+];
+
+/**
+ * The attributes of `el` that hold text to translate.
+ * @param {Element} el
+ * @returns {string[]}
+ */
+function translatableAttributes(el) {
+    /** @type {string[]} */
+    const found = [];
+    for (const [selector, names] of ATTRIBUTES) {
+        // Cheapest test first: almost no element carries any of these attributes.
+        const present = names.filter((name) => LETTER.test(el.getAttribute(name) || ''));
+        if (present.length > 0 && el.matches(selector)) found.push(...present);
+    }
+    // Only then the costlier checks, which walk the element's ancestors.
+    return found.length > 0 && !el.matches(FORM_CONTROLS) && !isInExcluded(el) ? found : [];
+}
+
+/**
+ * Whether `el` or an ancestor is excluded.
+ * @param {Element} el
+ */
+function isInExcluded(el) {
+    for (let node = /** @type {Element | null} */ (el); node; node = node.parentElement) {
+        if (isExcluded(node)) return true;
+    }
+    return false;
 }
 
 /**
@@ -52,7 +108,34 @@ export function isInViewport(target) {
     } else {
         rect = target.element.getBoundingClientRect();
     }
-    return rect.bottom > 0 && rect.top < window.innerHeight && rect.right > 0 && rect.left < window.innerWidth;
+    const onScreen = rect.bottom > 0 && rect.top < window.innerHeight && rect.right > 0 && rect.left < window.innerWidth;
+    return onScreen && rect.width > 0 && rect.height > 0 && isVisible(target.kind === 'run' ? target.parent : target.element);
+}
+
+/**
+ * Whether `el` is rendered and not made invisible (hidden, `visibility: hidden`, `opacity: 0`, closed `<details>`).
+ * @param {Element} el
+ * @returns {boolean}
+ */
+function isVisible(el) {
+    if (typeof el.checkVisibility === 'function') {
+        return el.checkVisibility({ opacityProperty: true, visibilityProperty: true });
+    }
+    for (let node = /** @type {Element | null} */ (el); node; node = node.parentElement) {
+        const style = computedStyle(node);
+        if (style.display === 'none' || style.opacity === '0') return false;
+    }
+    return computedStyle(el).visibility !== 'hidden';
+}
+
+/**
+ * Whether `el` goes to the engine as an empty tag inside its unit and is put back untouched: an excluded element, or a
+ * `<select>` or `<datalist>` (their options are translated as units of their own).
+ * @param {Element} el
+ * @returns {boolean}
+ */
+export function isSentEmpty(el) {
+    return el.localName === 'select' || el.localName === 'datalist' || isExcluded(el);
 }
 
 /**
@@ -114,7 +197,7 @@ class Walk {
      * @param {UnitTarget[]} units
      */
     visit(el, units) {
-        if (this.isExcluded(el)) return;
+        if (this.isSentEmpty(el)) return;
         if (!this.isInline(el) && !this.hasBlockInside(el)) {
             if (this.hasLetter(el)) units.push({ kind: 'element', element: el });
             return;
@@ -128,7 +211,7 @@ class Walk {
                 continue;
             }
             const childEl = /** @type {Element} */ (child);
-            if (this.isInline(childEl) && (this.isExcluded(childEl) || !this.hasBlockInside(childEl))) {
+            if (this.isInline(childEl) && (this.isSentEmpty(childEl) || !this.hasBlockInside(childEl))) {
                 run.push(child);
                 continue;
             }
@@ -159,8 +242,8 @@ class Walk {
     }
 
     /** @param {Element} el */
-    isExcluded(el) {
-        return isExcluded(el);
+    isSentEmpty(el) {
+        return isSentEmpty(el);
     }
 
     /** @param {Element} el */
@@ -168,8 +251,12 @@ class Walk {
         let inline = this.#inline.get(el);
         if (inline === undefined) {
             const style = computedStyle(el);
-            // A float (e.g. a drop cap) flows inside the text around it, even though its computed display is block.
-            inline = INLINE_DISPLAY.has(style.display) || (style.float !== '' && style.float !== 'none');
+            if (style.display === 'none') {
+                inline = !BLOCK_TAGS.has(el.localName);
+            } else {
+                // A float (e.g. a drop cap) flows inside the text around it, even though its computed display is block.
+                inline = INLINE_DISPLAY.has(style.display) || (style.float !== '' && style.float !== 'none');
+            }
             this.#inline.set(el, inline);
         }
         return inline;
@@ -185,7 +272,7 @@ class Walk {
         if (found === undefined) {
             found = false;
             for (const child of el.children) {
-                if (this.isExcluded(child)) continue;
+                if (this.isSentEmpty(child)) continue;
                 if (!this.isInline(child) || this.hasBlockInside(child)) {
                     found = true;
                     break;
@@ -213,6 +300,6 @@ class Walk {
         if (node.nodeType === TEXT_NODE) return LETTER.test(node.nodeValue || '');
         if (node.nodeType !== ELEMENT_NODE) return false;
         const el = /** @type {Element} */ (node);
-        return !this.isExcluded(el) && this.hasLetter(el);
+        return !this.isSentEmpty(el) && this.hasLetter(el);
     }
 }

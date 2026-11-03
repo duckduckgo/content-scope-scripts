@@ -68,10 +68,8 @@ const FIXTURES = [
         units: ['Die Bundesregierung tagt.'],
     },
     {
-        // Options stay untranslated until their values are pinned.
         page: 'select.html',
-        units: ['Size'],
-        untranslated: ['select'],
+        units: ['Size', 'Small', 'Medium', 'Large'],
     },
     {
         page: 'nested.html',
@@ -84,6 +82,34 @@ const FIXTURES = [
     {
         page: 'citation.html',
         units: ['Joy is a feeling[9] of happiness.', 'The study[1] was small.'],
+    },
+    {
+        page: 'hidden.html',
+        units: [
+            'Visible paragraph.',
+            'Hidden menu item',
+            'Hidden by attribute.',
+            'Invisible paragraph.',
+            'Faded paragraph.',
+            'Show more',
+            'Collapsed answer.',
+            'Hidden inline text',
+            'Read the hidden part later.',
+            'Shipping address',
+            'Street',
+        ],
+    },
+    {
+        page: 'attributes.html',
+        units: ['Birds', 'Population', 'Page about birds.', 'A small bird', 'Read about birds', 'Pop.', 'First choice'],
+    },
+    {
+        page: 'react.html',
+        units: ['hey you this has accrued 150 spaceships pay now', 'Add one'],
+    },
+    {
+        page: 'datalist.html',
+        units: ['Color', 'Red', 'Blue'],
     },
     {
         page: 'mixed-container.html',
@@ -209,10 +235,29 @@ function textTranslatedAnyway(page, untranslated) {
  * @param {import('@playwright/test').Page} page
  */
 function markup(page) {
-    return page.evaluate(() =>
-        [...document.body.querySelectorAll('*')].map((el) =>
-            [el.tagName, ...[...el.attributes].map((a) => `${a.name}=${a.value}`)].join(' '),
-        ),
+    const TRANSLATED_ATTRIBUTES = [
+        'title',
+        'alt',
+        'aria-label',
+        'aria-description',
+        'aria-roledescription',
+        'aria-valuetext',
+        'label',
+        'abbr',
+    ];
+    return page.evaluate(
+        (TRANSLATED_ATTRIBUTES) =>
+            [...document.body.querySelectorAll('*')].map((el) =>
+                [
+                    el.tagName,
+                    // The one allowed addition: an option's value is pinned before its text is translated.
+                    ...[...el.attributes]
+                        .filter((a) => !(el.tagName === 'OPTION' && a.name === 'value'))
+                        // Translated attributes keep their name; only their value changes.
+                        .map((a) => (TRANSLATED_ATTRIBUTES.includes(a.name) ? a.name : `${a.name}=${a.value}`)),
+                ].join(' '),
+            ),
+        TRANSLATED_ATTRIBUTES,
     );
 }
 
@@ -517,6 +562,110 @@ test.describe('pageTranslation', () => {
         expect(await apply(collector, translateAll(units))).toBe(1);
         expect(await page.innerHTML('#m')).toBe(before);
         expect(await page.textContent('h2')).toBe('‹Plain heading›');
+    });
+
+    test('flags hidden units as off screen', async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'hidden.html');
+        const units = await extract(collector);
+        const texts = await plainTexts(page, units);
+        expect(texts.filter((_, i) => units[i].vp === 1)).toEqual([
+            'Visible paragraph.',
+            'Show more',
+            'Read the hidden part later.',
+            'Street',
+        ]);
+    });
+
+    test('pins option values and keeps the selection', async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'select.html');
+        await page.selectOption('#size', 'l');
+        const units = await extract(collector);
+        await apply(collector, translateAll(units));
+        expect(
+            await page.evaluate(() =>
+                [...document.querySelectorAll('#size option')].map((o) => /** @type {HTMLOptionElement} */ (o).value),
+            ),
+        ).toEqual(['Small', 'Medium', 'l']);
+        expect(await page.inputValue('#size')).toBe('l');
+        expect(await page.textContent('#size option:nth-child(1)')).toBe('‹Small›');
+    });
+
+    test('translates attributes but not on form controls', async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'attributes.html');
+        const units = await extract(collector);
+        expect(units.find((u) => u.text === 'A small bird')?.html).toBe(false);
+        await apply(collector, translateAll(units));
+        expect(await page.getAttribute('img', 'alt')).toBe('‹A small bird›');
+        expect(await page.getAttribute('meta[name=description]', 'content')).toBe('‹Page about birds.›');
+        expect(await page.getAttribute('input:not([type])', 'placeholder')).toBe('Your email');
+        expect(await page.getAttribute('button', 'aria-label')).toBe('Close dialog');
+    });
+
+    test('translates hidden content', async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'hidden.html');
+        await apply(collector, translateAll(await extract(collector)));
+        expect(await page.textContent('details p')).toBe('‹Collapsed answer.›');
+        expect(await page.textContent('nav li')).toBe('‹Hidden menu item›');
+    });
+
+    // Known gap: adjacent text nodes are merged into one, so the page's data-driven node ("150") is removed and its
+    // later updates don't show. Fixing it means sending each adjacent text node as its own placeholder tag.
+    test.fail('keeps a React-style page working when it re-renders after translation', async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'react.html');
+        await apply(collector, translateAll(await extract(collector)));
+        await page.click('#bump');
+        expect(await page.evaluate(() => /** @type {any} */ (window).errors)).toEqual([]);
+        expect(await page.textContent('#s1')).toContain('151');
+    });
+
+    /** @type {[string, string][]} */
+    const reactShapes = [
+        ['reordered', '<div><span data-t="1">paga ahora</span> <span data-t="0">has acumulado 150 naves</span></div>'],
+        ['duplicated', '<div><span data-t="0">has acumulado</span> <span data-t="1">paga</span> <span data-t="0">150 naves</span></div>'],
+        ['emptied', '<div><span data-t="0"></span> <span data-t="1">has acumulado 150 naves, paga ahora</span></div>'],
+        ['dropped', '<div>has acumulado 150 naves <span data-t="1">paga ahora</span></div>'],
+    ];
+    for (const [shape, output] of reactShapes) {
+        test(`React-style page re-renders after ${shape} engine output`, async ({ page }, testInfo) => {
+            const collector = await openPage(page, testInfo, 'react.html');
+            const [unit] = await extract(collector);
+            expect(unit.text).toBe(
+                '<div><span data-t="0">hey you this has accrued 150 spaceships</span> <span data-t="1">pay now</span></div>',
+            );
+            expect(await apply(collector, [{ id: unit.id, text: output }])).toBe(1);
+            await page.click('#bump');
+            const errors = await page.evaluate(() => /** @type {any} */ (window).errors);
+            expect(errors).toEqual([]);
+        });
+    }
+
+    test("checks attributes without walking every element's ancestors", async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'deep.html');
+        const elements = await page.evaluate(() => {
+            const original = Element.prototype.matches;
+            /** @type {any} */ (window).matchesCalls = 0;
+            /** @type {any} */ (Element.prototype).matches = function (/** @type {string} */ selector) {
+                /** @type {any} */ (window).matchesCalls++;
+                return original.call(this, selector);
+            };
+            return document.body.querySelectorAll('*').length;
+        });
+        expect((await extract(collector)).length).toBe(100);
+        const calls = await page.evaluate(() => /** @type {any} */ (window).matchesCalls);
+        // About 2 per element (the walk itself); checking ancestors for every element was 26.
+        expect(calls).toBeLessThan(elements * 3);
+    });
+
+    test('treats a datalist like a select: empty in its sentence, options pinned', async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'datalist.html');
+        const units = await extract(collector);
+        expect(units[0].text).toBe('Color <input data-t="0"><datalist data-t="1"></datalist>');
+        await apply(collector, translateAll(units));
+        expect(
+            await page.evaluate(() =>
+                [...document.querySelectorAll('#colors option')].map((o) => /** @type {HTMLOptionElement} */ (o).value),
+            ),
+        ).toEqual(['Red', 'b']);
     });
 
     test('marks only units on screen as in the viewport', async ({ page }, testInfo) => {
