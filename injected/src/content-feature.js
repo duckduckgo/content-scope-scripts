@@ -341,9 +341,9 @@ export default class ContentFeature extends ConfigFeature {
                 // Passing this.args is legacy here and features should use this.args or other properties directly
                 initResult = this.init(this.args);
             } finally {
-                // The measure ends where init first awaits: other features' init runs before an awaiting init resumes
+                // The mark ends where init first awaits: other features' init runs before an awaiting init resumes
                 mark.end();
-                mark.measure();
+                this.measure();
             }
             // disable lint error as `init` is not forced to be async
             // eslint-disable-next-line @typescript-eslint/await-thenable
@@ -433,7 +433,12 @@ export default class ContentFeature extends ConfigFeature {
             return false;
         } finally {
             mark.end();
-            mark.measure();
+        }
+    }
+
+    measure() {
+        if (this.isDebug) {
+            this.monitor.measureAll();
         }
     }
 
