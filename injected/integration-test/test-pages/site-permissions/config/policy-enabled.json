@@ -1,0 +1,14 @@
+{
+  "readme": "Native code injects this isolated-world feature on iOS; remote config does not carry it.",
+  "version": 1,
+  "features": {
+    "sitePermissionsGeolocationPolicy": {
+      "state": "enabled",
+      "exceptions": [],
+      "settings": {
+        "enabled": true
+      }
+    }
+  },
+  "unprotectedTemporary": []
+}
