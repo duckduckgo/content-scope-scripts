@@ -129,7 +129,7 @@ test.describe('selectionTools', () => {
         expect(params.rect.bottom).toBeLessThanOrEqual(paragraph.bottom);
     });
 
-    test('reports the language of foreign text', async ({ page }, testInfo) => {
+    test('reports the language the page marks the text with', async ({ page }, testInfo) => {
         const collector = await setup(page, testInfo);
         await selectParagraph(page, '#spanish');
         expect(await reportedWith(collector, 'El perro')).toMatchObject({ selectionType: 'text', language: 'es' });

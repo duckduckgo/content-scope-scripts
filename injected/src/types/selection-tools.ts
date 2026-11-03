@@ -47,7 +47,7 @@ export interface ContextMenuOpenedParams {
   editable?: boolean;
   selectionType?: SelectionType;
   /**
-   * The selection's language as a primary subtag, e.g. "es": from its writing system or common words, else the nearest lang attribute. Absent when neither says, which native takes as the user's language.
+   * The selection's language as a primary subtag, e.g. "es", from the nearest lang attribute. Absent when the page doesn't say, which native takes as the user's language.
    */
   language?: string;
   rect?: SelectionRect;
@@ -86,7 +86,7 @@ export interface SelectionChangedParams {
   editable: boolean;
   selectionType: SelectionType;
   /**
-   * The selection's language as a primary subtag, e.g. "es": from its writing system or common words, else the nearest lang attribute. Absent when neither says, which native takes as the user's language.
+   * The selection's language as a primary subtag, e.g. "es", from the nearest lang attribute. Absent when the page doesn't say, which native takes as the user's language.
    */
   language?: string;
   rect: SelectionRect;

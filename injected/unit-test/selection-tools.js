@@ -1,4 +1,4 @@
-import { classify, detectLanguage, looksLikeCode, primaryLanguage } from '../src/features/selection-tools/classify.js';
+import { classify, looksLikeCode, primaryLanguage } from '../src/features/selection-tools/classify.js';
 import { selectedTextKey } from '../src/features/selection-tools/text-key.js';
 
 describe('selectionTools classify', () => {
@@ -8,36 +8,6 @@ describe('selectionTools classify', () => {
         expect(primaryLanguage('')).toBeNull();
         expect(primaryLanguage(undefined)).toBeNull();
         expect(primaryLanguage('not a tag')).toBeNull();
-    });
-
-    it('detects languages from writing systems and common words', () => {
-        expect(detectLanguage('これは日本語の文章です')).toBe('ja');
-        expect(detectLanguage('这是一个中文句子')).toBe('zh');
-        expect(detectLanguage('Это предложение на русском языке')).toBe('ru');
-        expect(detectLanguage('El perro de la casa es muy grande')).toBe('es');
-        expect(detectLanguage('The cat is on the mat')).toBe('en');
-        expect(detectLanguage('Hello world')).toBeNull();
-    });
-
-    it('tells Cyrillic languages apart, and names none it cannot', () => {
-        expect(detectLanguage('Це речення українською мовою, і воно не російське')).toBe('uk');
-        expect(detectLanguage('Гэта сказ па-беларуску і ён не рускі')).toBe('be');
-        expect(detectLanguage('Я ўчора чытаў кнігу')).toBe('be');
-        expect(detectLanguage('Ово је реченица на српском језику')).toBe('sr');
-        expect(detectLanguage('Он сказал, что придет завтра')).toBe('ru');
-        // Bulgarian has no letters of its own.
-        expect(detectLanguage('Това е изречение на български език')).toBeNull();
-    });
-
-    it('names no listed language for Latin text with letters outside its alphabet', () => {
-        expect(detectLanguage('To jest zdanie po polsku i to nie jest angielski, w ogóle')).toBeNull();
-        expect(detectLanguage('Tohle je věta v češtině a to není angličtina')).toBeNull();
-        expect(detectLanguage('Le café est sur la table et il est chaud')).toBe('fr');
-        expect(detectLanguage('Die Straße ist lang und das Wetter ist schön')).toBe('de');
-    });
-
-    it('lets most of the letters decide the writing system', () => {
-        expect(detectLanguage('This long English sentence quotes 日本 once and is still English for the reader')).toBe('en');
     });
 
     it('needs dense signals to call text code', () => {
@@ -86,13 +56,10 @@ describe('selectionTools classify', () => {
         expect(classify('これは日本語の文章です').shape).toBe('text');
     });
 
-    it('names the language the text is in', () => {
-        expect(classify('El perro de la casa es muy grande')).toEqual({ shape: 'text', language: 'es' });
-    });
-
-    it('falls back to the page marking, and otherwise leaves the language unknown', () => {
+    it('takes the language from the page marking alone, and otherwise leaves it unknown', () => {
         expect(classify('Goedemorgen allemaal', { markedLanguage: 'nl-NL' }).language).toBe('nl');
-        expect(classify('Goedemorgen allemaal').language).toBeNull();
+        expect(classify('El perro de la casa es muy grande', { markedLanguage: 'en' }).language).toBe('en');
+        expect(classify('El perro de la casa es muy grande').language).toBeNull();
     });
 });
 

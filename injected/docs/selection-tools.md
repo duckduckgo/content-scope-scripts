@@ -63,11 +63,8 @@ A word needs a letter, so a bare number is text; it may have digits ("19th"), ap
 dots ("U.S."). In writing systems without spaces between words, such as Chinese and Japanese, a word is at most 4
 characters, so a sentence isn't taken for one.
 
-The `language` comes from the text's writing system or common words, then the nearest `lang` attribute, as a primary
-subtag. When neither says, it's left out, and native takes the text to be in the user's language. Writing systems many
-languages share are only taken as one language when the text has letters or words only that language has: Cyrillic
-text is Ukrainian for ґ, є, ї or і, for example, and Latin text with letters such as Polish ł isn't matched against
-the English, Spanish, French, German, Italian or Portuguese word lists.
+The `language` is the nearest `lang` attribute's primary subtag; the text itself isn't examined. When the page doesn't
+say, it's left out, and native takes the text to be in the user's language.
 
 ## Reporting a selection
 
