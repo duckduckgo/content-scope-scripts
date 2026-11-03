@@ -411,6 +411,33 @@ test.describe('WebDetection Feature', () => {
     });
 
     test.describe('feature setup timings', () => {
+        test("ends each feature's init marks before the next feature's init starts", async ({ page }, testInfo) => {
+            await WebDetectionTestHelper.setupSetupTimingTest(page, testInfo.project.use);
+            await page.waitForFunction(() => performance.getEntriesByName('webDetectionCallInitEnd', 'mark').length > 0);
+
+            const inits = await page.evaluate(() => {
+                const marks = performance.getEntriesByType('mark');
+                return marks
+                    .filter((m) => m.name.endsWith('CallInitStart'))
+                    .map((start) => {
+                        const feature = start.name.slice(0, -'CallInitStart'.length);
+                        const end = marks.find((m) => m.name === `${feature}CallInitEnd`);
+                        return { feature, start: start.startTime, end: end?.startTime };
+                    })
+                    .sort((a, b) => a.start - b.start);
+            });
+
+            expect(inits.length).toBeGreaterThan(1);
+            for (const [i, init] of inits.entries()) {
+                expect(init.end, `${init.feature} has a CallInitEnd mark`).toBeDefined();
+                const next = inits[i + 1];
+                if (next) {
+                    expect(init.end, `${init.feature}'s init ends before ${next.feature}'s starts`).toBeLessThanOrEqual(next.start);
+                }
+            }
+        });
+
+        // A smoke test of the detector's shape in a browser. The test above checks the marks it reads
         test('reports the load and init of each enabled feature from its marks', async ({ page }, testInfo) => {
             const { helper } = await WebDetectionTestHelper.setupSetupTimingTest(page, testInfo.project.use);
             await page.evaluate(() => {
