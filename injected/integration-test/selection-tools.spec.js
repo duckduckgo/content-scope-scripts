@@ -398,7 +398,15 @@ test.describe('selectionTools', () => {
         await selectParagraph(page, '#english');
         await reportedWith(collector, ENGLISH);
         expect(await scrollTo('#english', 30)).toMatchObject({ occluded: true });
-        expect(await scrollTo('#english', 300)).toMatchObject({ occluded: false });
+        expect(await scrollTo('#english', 110)).toMatchObject({ occluded: false });
+        // An overlay drawn at opacity 0 takes hits but hides nothing.
+        await page.evaluate(() => {
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position: fixed; inset: 0; opacity: 0; background: white;';
+            document.body.append(overlay);
+        });
+        expect(await scrollTo('#english', 115)).toMatchObject({ occluded: false });
+        await page.evaluate(() => document.body.lastElementChild?.remove());
         // Above the viewport, where native goes by the rect.
         expect(await scrollTo('#english', -200)).toMatchObject({ occluded: false });
 

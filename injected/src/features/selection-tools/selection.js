@@ -12,8 +12,12 @@
  * @property {string} browserText The selection as the browser reports it, hidden text included
  * @property {boolean} editable
  * @property {Element | null} element The field or editing host, or else the element the selection starts in
- * @property {() => Rect} bounds Viewport rect of the selected text in CSS pixels, measured now
- * @property {() => boolean} occluded Whether other elements cover all of the selected text in the viewport, measured now
+ * @property {() => Measure} measure Where the selected text is on screen now
+ * @property {(lines: Rect[]) => boolean} occluded Whether other elements cover all of the measured lines in the viewport
+ *
+ * @typedef {object} Measure
+ * @property {Rect} rect Viewport rect of the selected text in CSS pixels
+ * @property {Rect[]} lines Viewport rects of the selected text's lines in CSS pixels
  */
 
 // Captured before page script runs, so a page can't patch it to reach into the closed shadow root.
@@ -93,23 +97,27 @@ function editingHostOf(element) {
 }
 
 /**
- * @param {HTMLInputElement | HTMLTextAreaElement} field
- * @param {number} start
- * @param {number} end
+ * The rect around the lines that have both a width and a height, as getBoundingClientRect works it out: else the first
+ * line, else `empty`.
+ * @param {Rect[]} lines
+ * @param {Rect} empty
  * @returns {Rect}
  */
-function fieldSelectionBounds(field, start, end) {
-    const lines = fieldSelectionLines(field, start, end);
-    if (!lines.length) {
-        const box = field.getBoundingClientRect();
-        return { left: box.left, right: box.left, top: box.top, bottom: box.top };
+function unionOf(lines, empty) {
+    // A loop rather than Math.min(...), which runs out of stack on a selection of many thousand lines.
+    let union = null;
+    for (const r of lines) {
+        if (r.right <= r.left || r.bottom <= r.top) continue;
+        union = union
+            ? {
+                  left: Math.min(union.left, r.left),
+                  right: Math.max(union.right, r.right),
+                  top: Math.min(union.top, r.top),
+                  bottom: Math.max(union.bottom, r.bottom),
+              }
+            : r;
     }
-    return {
-        left: Math.min(...lines.map((r) => r.left)),
-        right: Math.max(...lines.map((r) => r.right)),
-        top: Math.min(...lines.map((r) => r.top)),
-        bottom: Math.max(...lines.map((r) => r.bottom)),
-    };
+    return union ?? lines[0] ?? empty;
 }
 
 /**
@@ -193,13 +201,13 @@ function measureInMirror(field, start, end, scratch) {
  * Whether other elements cover all of the selection that's in the viewport, as a sticky header covers text scrolled
  * under it. Hit-tests the middle of the first, middle and last lines in view. A selection scrolled out of the viewport
  * isn't covered; its rect already says where it is.
- * @param {Iterable<Rect>} lines
+ * @param {Rect[]} lines
  * @param {Node} node A node of the selection, for the tree to hit-test in
  * @param {(hit: Element) => boolean} shows Whether the element hit is the selection's own, or one of its ancestors
  */
 function isCovered(lines, node, shows) {
-    const { clientWidth: width, clientHeight: height } = document.documentElement;
-    const inView = [...lines]
+    const { innerWidth: width, innerHeight: height } = window;
+    const inView = lines
         .map((r) => ({
             left: Math.max(r.left, 0),
             right: Math.min(r.right, width),
@@ -214,8 +222,11 @@ function isCovered(lines, node, shows) {
     const sampled = new Set([0, Math.floor(inView.length / 2), inView.length - 1].map((i) => inView[i]));
     return [...sampled].every((r) => {
         if (!r) return false;
-        const hit = scope.elementFromPoint((r.left + r.right) / 2, (r.top + r.bottom) / 2);
-        return hit !== null && !shows(hit);
+        // Something drawn at opacity 0 still takes the hit, but covers nothing.
+        const hit = scope
+            .elementsFromPoint((r.left + r.right) / 2, (r.top + r.bottom) / 2)
+            .find((element) => element.checkVisibility?.({ opacityProperty: true }) !== false);
+        return hit !== undefined && !shows(hit);
     });
 }
 
@@ -421,8 +432,12 @@ export function readSelection(minChars) {
             browserText: text,
             editable: true,
             element: active,
-            bounds: () => fieldSelectionBounds(active, start, end),
-            occluded: () => isCovered(fieldSelectionLines(active, start, end), active, (hit) => hit === active || hit.contains(active)),
+            measure: () => {
+                const lines = fieldSelectionLines(active, start, end);
+                const box = active.getBoundingClientRect();
+                return { rect: unionOf(lines, { left: box.left, right: box.left, top: box.top, bottom: box.top }), lines };
+            },
+            occluded: (lines) => isCovered(lines, active, (hit) => hit === active || hit.contains(active)),
         };
     }
     // Any other focused field (a password, a read-only input) has a selection we leave alone.
@@ -445,12 +460,12 @@ export function readSelection(minChars) {
         browserText,
         editable: host !== null,
         element,
-        bounds: () => {
-            const { left, top, right, bottom } = range.getBoundingClientRect();
-            return { left, top, right, bottom };
+        measure: () => {
+            const lines = [...range.getClientRects()].map(({ left, top, right, bottom }) => ({ left, top, right, bottom }));
+            return { rect: unionOf(lines, { left: 0, top: 0, right: 0, bottom: 0 }), lines };
         },
         // A hit on an ancestor, as text with pointer-events: none gives, still shows the selection.
-        occluded: () => isCovered(range.getClientRects(), range.startContainer, (hit) => range.intersectsNode(hit)),
+        occluded: (lines) => isCovered(lines, range.startContainer, (hit) => range.intersectsNode(hit)),
     };
 }
 

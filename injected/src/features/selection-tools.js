@@ -148,7 +148,9 @@ export default class SelectionTools extends ContentFeature {
         if (!this._reported || this._moveFrame) return;
         this._moveFrame = requestAnimationFrame(() => {
             this._moveFrame = 0;
-            if (this._reported) this.notify('selectionMoved', { ...geometryOf(this._reported), occluded: this._reported.occluded() });
+            if (!this._reported) return;
+            const { rect, lines } = this._reported.measure();
+            this.notify('selectionMoved', { rect, devicePixelRatio: window.devicePixelRatio, occluded: this._reported.occluded(lines) });
         });
     }
 
@@ -191,7 +193,7 @@ function describe(snapshot) {
  * @returns {SelectionGeometry}
  */
 function geometryOf(snapshot) {
-    return { rect: snapshot.bounds(), devicePixelRatio: window.devicePixelRatio };
+    return { rect: snapshot.measure().rect, devicePixelRatio: window.devicePixelRatio };
 }
 
 /**
