@@ -12,7 +12,6 @@ import {
 // Vendored from the duckduckgo/Icons repo (no package exports them), original names kept
 import daxSvg from './chrome-webstore-patching/assets/DuckDuckGo-Color-24.svg';
 import trashSvg from './chrome-webstore-patching/assets/Trash-24.svg';
-// SMIL animates inside a CSS background, so the spinner needs no injected @keyframes
 import spinnerSvg from './chrome-webstore-patching/assets/Spinner-24.svg';
 // Bundled by scripts/buildLocales.js from src/locales/chrome-webstore-patching/
 import localesJSON from '../../../build/locales/chrome-webstore-patching-locales.js';
@@ -28,6 +27,8 @@ const STRINGS_FILE = 'chrome-store-strings.json';
 const DAX_DATA_URI = `data:image/svg+xml;utf8,${encodeURIComponent(daxSvg)}`;
 const TRASH_DATA_URI = `data:image/svg+xml;utf8,${encodeURIComponent(trashSvg.replaceAll('fill="black"', 'fill="#FFFFFF" fill-opacity="0.78"'))}`;
 const SPINNER_DATA_URI = `data:image/svg+xml;utf8,${encodeURIComponent(spinnerSvg)}`;
+const SPINNER_KEYFRAMES = [{ transform: 'rotate(0deg)' }, { transform: 'rotate(360deg)' }];
+const SPINNER_TIMING = { duration: 800, iterations: Infinity };
 
 // Applied INLINE with !important: the store's own !important class rules beat
 // any injected stylesheet, but nothing beats an inline important declaration.
@@ -502,6 +503,9 @@ export class ChromeWebstorePatching extends ContentFeature {
         if (icon.dataset.ddgVerdict !== verdict) {
             icon.dataset.ddgVerdict = verdict;
             icon.style.setProperty('background', ICON_BACKGROUNDS[verdict], 'important');
+            // A transform animation runs in Core Animation, so it keeps turning while native sheets load
+            if (verdict === 'pending') icon.animate(SPINNER_KEYFRAMES, SPINNER_TIMING);
+            else if (this._macOS) icon.getAnimations().forEach((animation) => animation.cancel());
         }
         const iconFilter = isUnsupported ? 'grayscale(1) opacity(0.55)' : 'none';
         if (icon.style.getPropertyValue('filter') !== iconFilter) {
