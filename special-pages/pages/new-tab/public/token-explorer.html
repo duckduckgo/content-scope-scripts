@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Token Explorer — DDG Theme Colors</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #111111;
+  --bg-header: #1c1c1e;
+  --bg-block: #1a1a1c;
+  --border: rgba(255,255,255,0.07);
+  --border-header: rgba(255,255,255,0.08);
+  --border-cell: rgba(255,255,255,0.05);
+  --text: rgba(255,255,255,0.88);
+  --text-muted: rgba(255,255,255,0.35);
+  --text-dim: rgba(255,255,255,0.25);
+  --text-search: #fff;
+  --search-bg: rgba(255,255,255,0.07);
+  --search-border: rgba(255,255,255,0.12);
+  --search-focus-bg: rgba(255,255,255,0.10);
+  --search-focus-border: rgba(255,255,255,0.3);
+  --search-placeholder: rgba(255,255,255,0.3);
+  --token-color: #A8A7FF;
+  --token-dot: #7C7AFF;
+  --token-bg: rgba(124,122,255,0.08);
+  --token-bg-hover: rgba(124,122,255,0.14);
+  --token-border: rgba(255,255,255,0.06);
+  --swatch-border: rgba(255,255,255,0.15);
+  --btn-bg: rgba(255,255,255,0.07);
+  --btn-border: rgba(255,255,255,0.12);
+  --btn-active-bg: rgba(255,255,255,0.16);
+  --btn-active-border: rgba(255,255,255,0.3);
+  --btn-text: rgba(255,255,255,0.55);
+  --btn-active-text: rgba(255,255,255,0.9);
+}
+
+html[data-theme="light"] {
+  --bg: #f2f2f7;
+  --bg-header: #ffffff;
+  --bg-block: #ffffff;
+  --border: rgba(0,0,0,0.07);
+  --border-header: rgba(0,0,0,0.08);
+  --border-cell: rgba(0,0,0,0.05);
+  --text: rgba(0,0,0,0.88);
+  --text-muted: rgba(0,0,0,0.38);
+  --text-dim: rgba(0,0,0,0.25);
+  --text-search: #000;
+  --search-bg: rgba(0,0,0,0.05);
+  --search-border: rgba(0,0,0,0.12);
+  --search-focus-bg: rgba(0,0,0,0.07);
+  --search-focus-border: rgba(0,0,0,0.3);
+  --search-placeholder: rgba(0,0,0,0.3);
+  --token-color: #5B58E0;
+  --token-dot: #5B58E0;
+  --token-bg: rgba(91,88,224,0.07);
+  --token-bg-hover: rgba(91,88,224,0.13);
+  --token-border: rgba(0,0,0,0.06);
+  --swatch-border: rgba(0,0,0,0.15);
+  --btn-bg: rgba(0,0,0,0.05);
+  --btn-border: rgba(0,0,0,0.12);
+  --btn-active-bg: rgba(0,0,0,0.12);
+  --btn-active-border: rgba(0,0,0,0.28);
+  --btn-text: rgba(0,0,0,0.45);
+  --btn-active-text: rgba(0,0,0,0.88);
+}
+
+@media (prefers-color-scheme: light) {
+  html[data-theme="system"] {
+    --bg: #f2f2f7;
+    --bg-header: #ffffff;
+    --bg-block: #ffffff;
+    --border: rgba(0,0,0,0.07);
+    --border-header: rgba(0,0,0,0.08);
+    --border-cell: rgba(0,0,0,0.05);
+    --text: rgba(0,0,0,0.88);
+    --text-muted: rgba(0,0,0,0.38);
+    --text-dim: rgba(0,0,0,0.25);
+    --text-search: #000;
+    --search-bg: rgba(0,0,0,0.05);
+    --search-border: rgba(0,0,0,0.12);
+    --search-focus-bg: rgba(0,0,0,0.07);
+    --search-focus-border: rgba(0,0,0,0.3);
+    --search-placeholder: rgba(0,0,0,0.3);
+    --token-color: #5B58E0;
+    --token-dot: #5B58E0;
+    --token-bg: rgba(91,88,224,0.07);
+    --token-bg-hover: rgba(91,88,224,0.13);
+    --token-border: rgba(0,0,0,0.06);
+    --swatch-border: rgba(0,0,0,0.15);
+    --btn-bg: rgba(0,0,0,0.05);
+    --btn-border: rgba(0,0,0,0.12);
+    --btn-active-bg: rgba(0,0,0,0.12);
+    --btn-active-border: rgba(0,0,0,0.28);
+    --btn-text: rgba(0,0,0,0.45);
+    --btn-active-text: rgba(0,0,0,0.88);
+  }
+}
+
+html, body { min-height: 100%; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, sans-serif; font-size: 13px; transition: background 0.15s, color 0.15s; }
+
+header {
+  padding: 12px 20px;
+  background: var(--bg-header);
+  border-bottom: 1px solid var(--border-header);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  transition: background 0.15s, border-color 0.15s;
+}
+h1 { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; flex-shrink: 0; }
+#search {
+  flex: 1;
+  min-width: 200px;
+  max-width: 440px;
+  background: var(--search-bg);
+  border: 1px solid var(--search-border);
+  border-radius: 8px;
+  color: var(--text-search);
+  font-size: 13px;
+  padding: 7px 12px;
+  outline: none;
+  transition: background 0.15s, border-color 0.15s;
+}
+#search:focus { border-color: var(--search-focus-border); background: var(--search-focus-bg); }
+#search::placeholder { color: var(--search-placeholder); }
+#count { font-size: 11px; color: var(--text-dim); flex-shrink: 0; }
+
+.theme-switcher {
+  display: flex;
+  gap: 2px;
+  margin-left: auto;
+  background: var(--btn-bg);
+  border: 1px solid var(--btn-border);
+  border-radius: 8px;
+  padding: 3px;
+}
+.theme-btn {
+  background: none;
+  border: none;
+  border-radius: 5px;
+  color: var(--btn-text);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  transition: background 0.1s, color 0.1s;
+}
+.theme-btn:hover { color: var(--btn-active-text); }
+.theme-btn.active {
+  background: var(--btn-active-bg);
+  border: 1px solid var(--btn-active-border);
+  color: var(--btn-active-text);
+}
+
+#results { padding: 16px 20px; display: flex; flex-direction: column; gap: 16px; }
+
+.token-block {
+  background: var(--bg-block);
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  transition: background 0.15s, border-color 0.15s;
+}
+.token-name {
+  font-family: 'SF Mono', 'Menlo', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--token-color);
+  padding: 9px 14px;
+  background: var(--token-bg);
+  border-bottom: 1px solid var(--token-border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: all;
+  transition: background 0.1s;
+}
+.token-name:hover { background: var(--token-bg-hover); }
+.token-name::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--token-dot); flex-shrink: 0; }
+
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+}
+.theme-cell {
+  padding: 8px 14px;
+  border-right: 1px solid var(--border-cell);
+  border-bottom: 1px solid var(--border-cell);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: border-color 0.15s;
+}
+.theme-label { font-size: 10px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 2px; }
+.mode-row { display: flex; align-items: center; gap: 7px; }
+.mode-badge { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); width: 28px; flex-shrink: 0; }
+.swatch { width: 18px; height: 18px; border-radius: 4px; flex-shrink: 0; border: 1px solid var(--swatch-border); }
+.color-val { font-family: 'SF Mono','Menlo',monospace; font-size: 11px; color: var(--text-muted); }
+
+#empty { padding: 40px 20px; text-align: center; color: var(--text-dim); font-size: 13px; display: none; }
+#footer { padding: 16px 20px; font-size: 11px; color: var(--text-dim); }
+
+#category-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px 20px 4px;
+  border-top: 1px solid var(--border-header);
+}
+#filter-hint { padding: 4px 20px 10px; font-size: 10px; color: var(--text-dim); }
+.cat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px 3px 7px;
+  border-radius: 100px;
+  border: 1px solid var(--btn-border);
+  background: var(--btn-bg);
+  color: var(--btn-text);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.12s, border-color 0.12s, color 0.12s, opacity 0.12s;
+  letter-spacing: 0.01em;
+}
+.cat-chip:hover { color: var(--btn-active-text); border-color: var(--btn-active-border); }
+.cat-chip.active {
+  background: var(--btn-active-bg);
+  border-color: var(--btn-active-border);
+  color: var(--btn-active-text);
+}
+.cat-chip.inactive { opacity: 0.45; }
+.cat-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Token Explorer</h1>
+  <input id="search" type="search" placeholder="Search token, e.g. input-control, surface-tertiary..." autofocus>
+  <span id="count"></span>
+  <div class="theme-switcher">
+    <button class="theme-btn" data-t="light">Light</button>
+    <button class="theme-btn" data-t="dark">Dark</button>
+    <button class="theme-btn" data-t="system">System</button>
+  </div>
+</header>
+
+<div id="category-filter"></div>
+<div id="filter-hint">Click to toggle · ⌘+click to solo</div>
+<div id="results"></div>
+<div id="empty">No tokens match your search.</div>
+<div id="footer">Last updated: 2026-08-25 01:40 UTC</div>
+
+<script>
+const RAW = [{"t": "Blossom", "m": "light", "w": "--ds-surface-backdrop", "c": "#D3B9EB"}, {"t": "Blossom", "m": "light", "w": "--ds-surface-canvas", "c": "#FBF7FF"}, {"t": "Blossom", "m": "light", "w": "--ds-surface-primary", "c": "#EADAFD"}, {"t": "Blossom", "m": "light", "w": "--ds-surface-secondary", "c": "#F5EDFF"}, {"t": "Blossom", "m": "light", "w": "--ds-surface-tertiary", "c": "#FBF7FF"}, {"t": "Blossom", "m": "light", "w": "--ds-surface-decoration-primary", "c": "rgba(35,8,41,0.96)"}, {"t": "Blossom", "m": "light", "w": "--ds-surface-decoration-secondary", "c": "rgba(35,8,41,0.09)"}, {"t": "Blossom", "m": "light", "w": "--ds-surface-decoration-tertiary", "c": "rgba(35,8,41,0.16)"}, {"t": "Blossom", "m": "light", "w": "--ds-text-primary", "c": "#FFFFFF"}, {"t": "Blossom", "m": "light", "w": "--ds-container-primary-background-color", "c": "rgba(35,8,41,0.01)"}, {"t": "Blossom", "m": "light", "w": "--ds-container-secondary-background-color", "c": "rgba(35,8,41,0.03)"}, {"t": "Blossom", "m": "light", "w": "--ds-container-tertiary-background-color", "c": "rgba(35,8,41,0.06)"}, {"t": "Blossom", "m": "light", "w": "--ds-container-primary-border-color", "c": "rgba(35,8,41,0.06)"}, {"t": "Blossom", "m": "light", "w": "--ds-container-secondary-border-color", "c": "rgba(35,8,41,0.09)"}, {"t": "Blossom", "m": "light", "w": "--ds-container-tertiary-border-color", "c": "rgba(35,8,41,0.12)"}, {"t": "Blossom", "m": "light", "w": "--ds-text-secondary", "c": "rgba(35,8,41,0.66)"}, {"t": "Blossom", "m": "light", "w": "--ds-text-tertiary", "c": "rgba(35,8,41,0.36)"}, {"t": "Blossom", "m": "light", "w": "--ds-icons-primary", "c": "rgba(35,8,41,0.96)"}, {"t": "Blossom", "m": "light", "w": "--ds-icons-secondary", "c": "rgba(35,8,41,0.6)"}, {"t": "Blossom", "m": "light", "w": "--ds-icons-tertiary", "c": "rgba(35,8,41,0.36)"}, {"t": "Blossom", "m": "light", "w": "--ds-accent-primary", "c": "#521A61"}, {"t": "Blossom", "m": "light", "w": "--ds-accent-secondary", "c": "#3E0E47"}, {"t": "Blossom", "m": "light", "w": "--ds-accent-tertiary", "c": "#230829"}, {"t": "Blossom", "m": "light", "w": "--ds-accent-quaternary", "c": "#230829"}, {"t": "Blossom", "m": "light", "w": "--ds-accent-glow-primary", "c": "rgba(82,26,97,0.2)"}, {"t": "Blossom", "m": "light", "w": "--ds-accent-glow-secondary", "c": "rgba(82,26,97,0.12)"}, {"t": "Blossom", "m": "dark", "w": "--ds-text-primary", "c": "rgba(35,8,41,0.96)"}, {"t": "Cool Gray", "m": "light", "w": "--ds-surface-backdrop", "c": "#A7ABBE"}, {"t": "Cool Gray", "m": "light", "w": "--ds-surface-canvas", "c": "#E3E5ED"}, {"t": "Cool Gray", "m": "light", "w": "--ds-surface-primary", "c": "#D3D6E4"}, {"t": "Cool Gray", "m": "light", "w": "--ds-surface-secondary", "c": "#E1E3EA"}, {"t": "Cool Gray", "m": "light", "w": "--ds-surface-tertiary", "c": "#EDEEF2"}, {"t": "Cool Gray", "m": "light", "w": "--ds-surface-decoration-primary", "c": "rgba(42,65,111,0.96)"}, {"t": "Cool Gray", "m": "light", "w": "--ds-surface-decoration-secondary", "c": "rgba(42,65,111,0.2)"}, {"t": "Cool Gray", "m": "light", "w": "--ds-surface-decoration-tertiary", "c": "rgba(42,65,111,0.32)"}, {"t": "Cool Gray", "m": "light", "w": "--ds-text-primary", "c": "#FFFFFF"}, {"t": "Cool Gray", "m": "light", "w": "--ds-container-primary-background-color", "c": "rgba(5,6,20,0.01)"}, {"t": "Cool Gray", "m": "light", "w": "--ds-container-secondary-background-color", "c": "rgba(5,6,20,0.03)"}, {"t": "Cool Gray", "m": "light", "w": "--ds-container-tertiary-background-color", "c": "rgba(5,6,20,0.06)"}, {"t": "Cool Gray", "m": "light", "w": "--ds-container-primary-border-color", "c": "rgba(5,6,20,0.06)"}, {"t": "Cool Gray", "m": "light", "w": "--ds-container-secondary-border-color", "c": "rgba(5,6,20,0.09)"}, {"t": "Cool Gray", "m": "light", "w": "--ds-container-tertiary-border-color", "c": "rgba(5,6,20,0.12)"}, {"t": "Cool Gray", "m": "light", "w": "--ds-text-secondary", "c": "rgba(5,6,20,0.6)"}, {"t": "Cool Gray", "m": "light", "w": "--ds-text-tertiary", "c": "rgba(5,6,20,0.36)"}, {"t": "Cool Gray", "m": "light", "w": "--ds-icons-primary", "c": "rgba(33,45,69,0.84)"}, {"t": "Cool Gray", "m": "light", "w": "--ds-icons-secondary", "c": "rgba(33,45,69,0.6)"}, {"t": "Cool Gray", "m": "light", "w": "--ds-icons-tertiary", "c": "rgba(33,45,69,0.36)"}, {"t": "Cool Gray", "m": "light", "w": "--ds-accent-primary", "c": "#283246"}, {"t": "Cool Gray", "m": "light", "w": "--ds-accent-secondary", "c": "#1E2534"}, {"t": "Cool Gray", "m": "light", "w": "--ds-accent-tertiary", "c": "#121721"}, {"t": "Cool Gray", "m": "light", "w": "--ds-accent-quaternary", "c": "#0B0E14"}, {"t": "Cool Gray", "m": "light", "w": "--ds-accent-glow-primary", "c": "rgba(40,50,70,0.2)"}, {"t": "Cool Gray", "m": "light", "w": "--ds-accent-glow-secondary", "c": "rgba(40,50,70,0.12)"}, {"t": "Cool Gray", "m": "dark", "w": "--ds-text-primary", "c": "rgba(5,6,20,0.96)"}, {"t": "Default (Pre 2026)", "m": "light", "w": "--ds-surface-backdrop", "c": "#E0E0E0"}, {"t": "Default (Pre 2026)", "m": "light", "w": "--ds-surface-canvas", "c": "#FAFAFA"}, {"t": "Default (Pre 2026)", "m": "light", "w": "--ds-surface-primary", "c": "#F2F2F2"}, {"t": "Default (Pre 2026)", "m": "light", "w": "--ds-surface-secondary", "c": "#FAFAFA"}, {"t": "Default (Pre 2026)", "m": "light", "w": "--ds-surface-tertiary", "c": "#FFFFFF"}, {"t": "Default (Pre 2026)", "m": "light", "w": "--ds-surface-decoration-primary", "c": "rgba(0,0,0,0.96)"}, {"t": "Default (Pre 2026)", "m": "light", "w": "--ds-surface-decoration-secondary", "c": "rgba(0,0,0,0.16)"}, {"t": "Default (Pre 2026)", "m": "light", "w": "--ds-surface-decoration-tertiary", "c": "rgba(0,0,0,0.24)"}, {"t": "Default (Pre 2026)", "m": "light", "w": "--ds-text-primary", "c": "#FFFFFF"}, {"t": "Default (Pre 2026)", "m": "light", "w": "--ds-container-primary-background-color", "c": "rgba(0,0,0,0.01)"}, {"t": "Default (Pre 2026)", "m": "light", "w": "--ds-container-secondary-background-color", "c": "rgba(0,0,0,0.03)"}, {"t": "Default (Pre 2026)", "m": "light", "w": "--ds-container-tertiary-background-color", "c": "rgba(0,0,0,0.06)"}, {"t": "Default (Pre 2026)", "m": "light", "w": "--ds-container-primary-border-color", "c": "rgba(0,0,0,0.06)"}, {"t": "Default (Pre 2026)", "m": "light", "w": "--ds-container-secondary-border-color", "c": "rgba(0,0,0,0.09)"}, {"t": "Default (Pre 2026)", "m": "light", "w": "--ds-container-tertiary-border-color", "c": "rgba(0,0,0,0.12)"}, {"t": "Default (Pre 2026)", "m": "light", "w": "--ds-text-secondary", "c": "rgba(0,0,0,0.6)"}, {"t": "Default (Pre 2026)", "m": "light", "w": "--ds-text-tertiary", "c": "rgba(0,0,0,0.36)"}, {"t": "Default (Pre 2026)", "m": "light", "w": "--ds-icons-primary", "c": "rgba(0,0,0,0.84)"}, {"t": "Default (Pre 2026)", "m": "light", "w": "--ds-icons-secondary", "c": "rgba(0,0,0,0.6)"}, {"t": "Default (Pre 2026)", "m": "light", "w": "--ds-icons-tertiary", "c": "rgba(0,0,0,0.36)"}, {"t": "Default (Pre 2026)", "m": "light", "w": "--ds-accent-primary", "c": "#3969EF"}, {"t": "Default (Pre 2026)", "m": "light", "w": "--ds-accent-secondary", "c": "#2B55CA"}, {"t": "Default (Pre 2026)", "m": "light", "w": "--ds-accent-tertiary", "c": "#1E42A4"}, {"t": "Default (Pre 2026)", "m": "light", "w": "--ds-accent-quaternary", "c": "#14307E"}, {"t": "Default (Pre 2026)", "m": "light", "w": "--ds-accent-glow-primary", "c": "rgba(57,105,239,0.2)"}, {"t": "Default (Pre 2026)", "m": "light", "w": "--ds-accent-glow-secondary", "c": "rgba(57,105,239,0.12)"}, {"t": "Default (Pre 2026)", "m": "dark", "w": "--ds-text-primary", "c": "rgba(0,0,0,0.96)"}, {"t": "Default (Web Product)", "m": "light", "w": "--ds-surface-backdrop", "c": "#EEEEEE"}, {"t": "Default (Web Product)", "m": "light", "w": "--ds-surface-canvas", "c": "#FFFFFF"}, {"t": "Default (Web Product)", "m": "light", "w": "--ds-surface-primary", "c": "#FFFFFF"}, {"t": "Default (Web Product)", "m": "light", "w": "--ds-surface-secondary", "c": "#FFFFFF"}, {"t": "Default (Web Product)", "m": "light", "w": "--ds-surface-tertiary", "c": "#FFFFFF"}, {"t": "Default (Web Product)", "m": "light", "w": "--ds-surface-decoration-primary", "c": "#000000"}, {"t": "Default (Web Product)", "m": "light", "w": "--ds-surface-decoration-secondary", "c": "rgba(0,0,0,0.12)"}, {"t": "Default (Web Product)", "m": "light", "w": "--ds-surface-decoration-tertiary", "c": "rgba(0,0,0,0.24)"}, {"t": "Default (Web Product)", "m": "light", "w": "--ds-text-primary", "c": "#FFFFFF"}, {"t": "Default (Web Product)", "m": "light", "w": "--ds-container-primary-background-color", "c": "rgba(0,0,0,0.01)"}, {"t": "Default (Web Product)", "m": "light", "w": "--ds-container-secondary-background-color", "c": "rgba(0,0,0,0.03)"}, {"t": "Default (Web Product)", "m": "light", "w": "--ds-container-tertiary-background-color", "c": "rgba(0,0,0,0.06)"}, {"t": "Default (Web Product)", "m": "light", "w": "--ds-container-primary-border-color", "c": "rgba(0,0,0,0.06)"}, {"t": "Default (Web Product)", "m": "light", "w": "--ds-container-secondary-border-color", "c": "rgba(0,0,0,0.09)"}, {"t": "Default (Web Product)", "m": "light", "w": "--ds-container-tertiary-border-color", "c": "rgba(0,0,0,0.12)"}, {"t": "Default (Web Product)", "m": "light", "w": "--ds-text-secondary", "c": "rgba(0,0,0,0.66)"}, {"t": "Default (Web Product)", "m": "light", "w": "--ds-text-tertiary", "c": "rgba(0,0,0,0.36)"}, {"t": "Default (Web Product)", "m": "light", "w": "--ds-icons-primary", "c": "rgba(0,0,0,0.96)"}, {"t": "Default (Web Product)", "m": "light", "w": "--ds-icons-secondary", "c": "rgba(0,0,0,0.6)"}, {"t": "Default (Web Product)", "m": "light", "w": "--ds-icons-tertiary", "c": "rgba(0,0,0,0.36)"}, {"t": "Default (Web Product)", "m": "light", "w": "--ds-accent-primary", "c": "#1074CC"}, {"t": "Default (Web Product)", "m": "light", "w": "--ds-accent-secondary", "c": "#045EB2"}, {"t": "Default (Web Product)", "m": "light", "w": "--ds-accent-tertiary", "c": "#034180"}, {"t": "Default (Web Product)", "m": "light", "w": "--ds-accent-quaternary", "c": "#02254D"}, {"t": "Default (Web Product)", "m": "light", "w": "--ds-accent-glow-primary", "c": "rgba(16,116,204,0.2)"}, {"t": "Default (Web Product)", "m": "light", "w": "--ds-accent-glow-secondary", "c": "rgba(16,116,204,0.12)"}, {"t": "Default (Web Product)", "m": "dark", "w": "--ds-text-primary", "c": "rgba(0,0,0,0.96)"}, {"t": "Default (Web)", "m": "light", "w": "--ds-surface-backdrop", "c": "#FFFFFF"}, {"t": "Default (Web)", "m": "light", "w": "--ds-surface-canvas", "c": "#FBFAF9"}, {"t": "Default (Web)", "m": "light", "w": "--ds-surface-primary", "c": "#ECEBE7"}, {"t": "Default (Web)", "m": "light", "w": "--ds-surface-secondary", "c": "#F7F5F2"}, {"t": "Default (Web)", "m": "light", "w": "--ds-surface-tertiary", "c": "#FFFFFF"}, {"t": "Default (Web)", "m": "light", "w": "--ds-surface-decoration-primary", "c": "#000000"}, {"t": "Default (Web)", "m": "light", "w": "--ds-surface-decoration-secondary", "c": "rgba(0,0,0,0.12)"}, {"t": "Default (Web)", "m": "light", "w": "--ds-surface-decoration-tertiary", "c": "rgba(0,0,0,0.24)"}, {"t": "Default (Web)", "m": "light", "w": "--ds-text-primary", "c": "#FFFFFF"}, {"t": "Default (Web)", "m": "light", "w": "--ds-container-primary-background-color", "c": "rgba(0,0,0,0.01)"}, {"t": "Default (Web)", "m": "light", "w": "--ds-container-secondary-background-color", "c": "rgba(0,0,0,0.03)"}, {"t": "Default (Web)", "m": "light", "w": "--ds-container-tertiary-background-color", "c": "rgba(0,0,0,0.06)"}, {"t": "Default (Web)", "m": "light", "w": "--ds-container-primary-border-color", "c": "rgba(0,0,0,0.06)"}, {"t": "Default (Web)", "m": "light", "w": "--ds-container-secondary-border-color", "c": "rgba(0,0,0,0.09)"}, {"t": "Default (Web)", "m": "light", "w": "--ds-container-tertiary-border-color", "c": "rgba(0,0,0,0.12)"}, {"t": "Default (Web)", "m": "light", "w": "--ds-text-secondary", "c": "rgba(0,0,0,0.66)"}, {"t": "Default (Web)", "m": "light", "w": "--ds-text-tertiary", "c": "rgba(0,0,0,0.36)"}, {"t": "Default (Web)", "m": "light", "w": "--ds-icons-primary", "c": "rgba(0,0,0,0.96)"}, {"t": "Default (Web)", "m": "light", "w": "--ds-icons-secondary", "c": "rgba(0,0,0,0.6)"}, {"t": "Default (Web)", "m": "light", "w": "--ds-icons-tertiary", "c": "rgba(0,0,0,0.36)"}, {"t": "Default (Web)", "m": "light", "w": "--ds-accent-primary", "c": "#1074CC"}, {"t": "Default (Web)", "m": "light", "w": "--ds-accent-secondary", "c": "#045EB2"}, {"t": "Default (Web)", "m": "light", "w": "--ds-accent-tertiary", "c": "#034180"}, {"t": "Default (Web)", "m": "light", "w": "--ds-accent-quaternary", "c": "#02254D"}, {"t": "Default (Web)", "m": "light", "w": "--ds-accent-glow-primary", "c": "rgba(16,116,204,0.2)"}, {"t": "Default (Web)", "m": "light", "w": "--ds-accent-glow-secondary", "c": "rgba(16,116,204,0.12)"}, {"t": "Default (Web)", "m": "dark", "w": "--ds-text-primary", "c": "rgba(0,0,0,0.96)"}, {"t": "Default", "m": "light", "w": "--ds-surface-backdrop", "c": "#E4E4E4"}, {"t": "Default", "m": "light", "w": "--ds-surface-canvas", "c": "#FDFDFD"}, {"t": "Default", "m": "light", "w": "--ds-surface-primary", "c": "#F8F8F8"}, {"t": "Default", "m": "light", "w": "--ds-surface-secondary", "c": "#FCFCFC"}, {"t": "Default", "m": "light", "w": "--ds-surface-tertiary", "c": "#FFFFFF"}, {"t": "Default", "m": "light", "w": "--ds-surface-decoration-primary", "c": "rgba(0,0,0,0.96)"}, {"t": "Default", "m": "light", "w": "--ds-surface-decoration-secondary", "c": "rgba(0,0,0,0.16)"}, {"t": "Default", "m": "light", "w": "--ds-surface-decoration-tertiary", "c": "rgba(0,0,0,0.24)"}, {"t": "Default", "m": "light", "w": "--ds-text-primary", "c": "#FFFFFF"}, {"t": "Default", "m": "light", "w": "--ds-container-primary-background-color", "c": "rgba(0,0,0,0.02)"}, {"t": "Default", "m": "light", "w": "--ds-container-secondary-background-color", "c": "rgba(0,0,0,0.03)"}, {"t": "Default", "m": "light", "w": "--ds-container-tertiary-background-color", "c": "rgba(0,0,0,0.04)"}, {"t": "Default", "m": "light", "w": "--ds-container-primary-border-color", "c": "rgba(0,0,0,0.06)"}, {"t": "Default", "m": "light", "w": "--ds-container-secondary-border-color", "c": "rgba(0,0,0,0.09)"}, {"t": "Default", "m": "light", "w": "--ds-container-tertiary-border-color", "c": "rgba(0,0,0,0.12)"}, {"t": "Default", "m": "light", "w": "--ds-text-secondary", "c": "rgba(0,0,0,0.6)"}, {"t": "Default", "m": "light", "w": "--ds-text-tertiary", "c": "rgba(0,0,0,0.36)"}, {"t": "Default", "m": "light", "w": "--ds-icons-primary", "c": "rgba(0,0,0,0.84)"}, {"t": "Default", "m": "light", "w": "--ds-icons-secondary", "c": "rgba(0,0,0,0.6)"}, {"t": "Default", "m": "light", "w": "--ds-icons-tertiary", "c": "rgba(0,0,0,0.36)"}, {"t": "Default", "m": "light", "w": "--ds-accent-primary", "c": "#1074CC"}, {"t": "Default", "m": "light", "w": "--ds-accent-secondary", "c": "#045EB2"}, {"t": "Default", "m": "light", "w": "--ds-accent-tertiary", "c": "#034180"}, {"t": "Default", "m": "light", "w": "--ds-accent-quaternary", "c": "#02254D"}, {"t": "Default", "m": "light", "w": "--ds-accent-glow-primary", "c": "rgba(16,116,204,0.2)"}, {"t": "Default", "m": "light", "w": "--ds-accent-glow-secondary", "c": "rgba(16,116,204,0.12)"}, {"t": "Default", "m": "dark", "w": "--ds-text-primary", "c": "rgba(0,0,0,0.96)"}, {"t": "Desert", "m": "light", "w": "--ds-surface-backdrop", "c": "#C6B99F"}, {"t": "Desert", "m": "light", "w": "--ds-surface-canvas", "c": "#F5F4EF"}, {"t": "Desert", "m": "light", "w": "--ds-surface-primary", "c": "#EFEAE1"}, {"t": "Desert", "m": "light", "w": "--ds-surface-secondary", "c": "#F5F4EF"}, {"t": "Desert", "m": "light", "w": "--ds-surface-tertiary", "c": "#FBFAF9"}, {"t": "Desert", "m": "light", "w": "--ds-surface-decoration-primary", "c": "rgba(115,98,73,0.12)"}, {"t": "Desert", "m": "light", "w": "--ds-surface-decoration-secondary", "c": "rgba(115,98,73,0.2)"}, {"t": "Desert", "m": "light", "w": "--ds-surface-decoration-tertiary", "c": "rgba(115,98,73,0.32)"}, {"t": "Desert", "m": "light", "w": "--ds-text-primary", "c": "#FFFFFF"}, {"t": "Desert", "m": "light", "w": "--ds-container-primary-background-color", "c": "rgba(23,21,15,0.01)"}, {"t": "Desert", "m": "light", "w": "--ds-container-secondary-background-color", "c": "rgba(23,21,15,0.03)"}, {"t": "Desert", "m": "light", "w": "--ds-container-tertiary-background-color", "c": "rgba(23,21,15,0.06)"}, {"t": "Desert", "m": "light", "w": "--ds-container-primary-border-color", "c": "rgba(23,21,15,0.06)"}, {"t": "Desert", "m": "light", "w": "--ds-container-secondary-border-color", "c": "rgba(23,21,15,0.09)"}, {"t": "Desert", "m": "light", "w": "--ds-container-tertiary-border-color", "c": "rgba(23,21,15,0.12)"}, {"t": "Desert", "m": "light", "w": "--ds-text-secondary", "c": "rgba(23,21,15,0.6)"}, {"t": "Desert", "m": "light", "w": "--ds-text-tertiary", "c": "rgba(23,21,15,0.36)"}, {"t": "Desert", "m": "light", "w": "--ds-icons-primary", "c": "rgba(23,21,15,0.84)"}, {"t": "Desert", "m": "light", "w": "--ds-icons-secondary", "c": "rgba(23,21,15,0.66)"}, {"t": "Desert", "m": "light", "w": "--ds-icons-tertiary", "c": "rgba(23,21,15,0.36)"}, {"t": "Desert", "m": "light", "w": "--ds-accent-primary", "c": "#D14200"}, {"t": "Desert", "m": "light", "w": "--ds-accent-secondary", "c": "#C23700"}, {"t": "Desert", "m": "light", "w": "--ds-accent-tertiary", "c": "#B83100"}, {"t": "Desert", "m": "light", "w": "--ds-accent-quaternary", "c": "#A32C00"}, {"t": "Desert", "m": "light", "w": "--ds-accent-glow-primary", "c": "rgba(209,66,0,0.2)"}, {"t": "Desert", "m": "light", "w": "--ds-accent-glow-secondary", "c": "rgba(209,66,0,0.12)"}, {"t": "Desert", "m": "dark", "w": "--ds-text-primary", "c": "rgba(23,21,15,0.96)"}, {"t": "Green", "m": "light", "w": "--ds-surface-backdrop", "c": "#B5D0AE"}, {"t": "Green", "m": "light", "w": "--ds-surface-canvas", "c": "#EDF5EA"}, {"t": "Green", "m": "light", "w": "--ds-surface-primary", "c": "#E4EEE2"}, {"t": "Green", "m": "light", "w": "--ds-surface-secondary", "c": "#EDF4EB"}, {"t": "Green", "m": "light", "w": "--ds-surface-tertiary", "c": "#F8FCF7"}, {"t": "Green", "m": "light", "w": "--ds-surface-decoration-primary", "c": "rgba(31,147,80,0.96)"}, {"t": "Green", "m": "light", "w": "--ds-surface-decoration-secondary", "c": "rgba(31,147,80,0.2)"}, {"t": "Green", "m": "light", "w": "--ds-surface-decoration-tertiary", "c": "rgba(31,147,80,0.32)"}, {"t": "Green", "m": "light", "w": "--ds-text-primary", "c": "#FFFFFF"}, {"t": "Green", "m": "light", "w": "--ds-container-primary-background-color", "c": "rgba(6,37,4,0.02)"}, {"t": "Green", "m": "light", "w": "--ds-container-secondary-background-color", "c": "rgba(6,37,4,0.04)"}, {"t": "Green", "m": "light", "w": "--ds-container-tertiary-background-color", "c": "rgba(6,37,4,0.06)"}, {"t": "Green", "m": "light", "w": "--ds-container-primary-border-color", "c": "rgba(6,37,4,0.09)"}, {"t": "Green", "m": "light", "w": "--ds-container-secondary-border-color", "c": "rgba(6,37,4,0.12)"}, {"t": "Green", "m": "light", "w": "--ds-container-tertiary-border-color", "c": "rgba(6,37,4,0.16)"}, {"t": "Green", "m": "light", "w": "--ds-text-secondary", "c": "rgba(4,28,3,0.6)"}, {"t": "Green", "m": "light", "w": "--ds-text-tertiary", "c": "rgba(4,28,3,0.36)"}, {"t": "Green", "m": "light", "w": "--ds-icons-primary", "c": "rgba(6,37,4,0.84)"}, {"t": "Green", "m": "light", "w": "--ds-icons-secondary", "c": "rgba(6,37,4,0.6)"}, {"t": "Green", "m": "light", "w": "--ds-icons-tertiary", "c": "rgba(6,37,4,0.36)"}, {"t": "Green", "m": "light", "w": "--ds-accent-primary", "c": "#388056"}, {"t": "Green", "m": "light", "w": "--ds-accent-secondary", "c": "#2D6745"}, {"t": "Green", "m": "light", "w": "--ds-accent-tertiary", "c": "#245237"}, {"t": "Green", "m": "light", "w": "--ds-accent-quaternary", "c": "#193926"}, {"t": "Green", "m": "light", "w": "--ds-accent-glow-primary", "c": "rgba(56,128,86,0.2)"}, {"t": "Green", "m": "light", "w": "--ds-accent-glow-secondary", "c": "rgba(56,128,86,0.12)"}, {"t": "Green", "m": "dark", "w": "--ds-text-primary", "c": "rgba(4,28,3,0.96)"}, {"t": "Lilypad", "m": "light", "w": "--ds-surface-backdrop", "c": "#AED5C2"}, {"t": "Lilypad", "m": "light", "w": "--ds-surface-canvas", "c": "#F8FCF9"}, {"t": "Lilypad", "m": "light", "w": "--ds-surface-primary", "c": "#CFEBDA"}, {"t": "Lilypad", "m": "light", "w": "--ds-surface-secondary", "c": "#E2F3E9"}, {"t": "Lilypad", "m": "light", "w": "--ds-surface-tertiary", "c": "#F8FCF9"}, {"t": "Lilypad", "m": "light", "w": "--ds-surface-decoration-primary", "c": "rgba(8,33,25,0.96)"}, {"t": "Lilypad", "m": "light", "w": "--ds-surface-decoration-secondary", "c": "rgba(8,33,25,0.09)"}, {"t": "Lilypad", "m": "light", "w": "--ds-surface-decoration-tertiary", "c": "rgba(8,33,25,0.16)"}, {"t": "Lilypad", "m": "light", "w": "--ds-text-primary", "c": "#FFFFFF"}, {"t": "Lilypad", "m": "light", "w": "--ds-container-primary-background-color", "c": "rgba(8,33,25,0.01)"}, {"t": "Lilypad", "m": "light", "w": "--ds-container-secondary-background-color", "c": "rgba(8,33,25,0.03)"}, {"t": "Lilypad", "m": "light", "w": "--ds-container-tertiary-background-color", "c": "rgba(8,33,25,0.06)"}, {"t": "Lilypad", "m": "light", "w": "--ds-container-primary-border-color", "c": "rgba(8,33,25,0.06)"}, {"t": "Lilypad", "m": "light", "w": "--ds-container-secondary-border-color", "c": "rgba(8,33,25,0.09)"}, {"t": "Lilypad", "m": "light", "w": "--ds-container-tertiary-border-color", "c": "rgba(8,33,25,0.12)"}, {"t": "Lilypad", "m": "light", "w": "--ds-text-secondary", "c": "rgba(8,33,25,0.66)"}, {"t": "Lilypad", "m": "light", "w": "--ds-text-tertiary", "c": "rgba(8,33,25,0.36)"}, {"t": "Lilypad", "m": "light", "w": "--ds-icons-primary", "c": "rgba(8,33,25,0.96)"}, {"t": "Lilypad", "m": "light", "w": "--ds-icons-secondary", "c": "rgba(8,33,25,0.6)"}, {"t": "Lilypad", "m": "light", "w": "--ds-icons-tertiary", "c": "rgba(8,33,25,0.36)"}, {"t": "Lilypad", "m": "light", "w": "--ds-accent-primary", "c": "#247A64"}, {"t": "Lilypad", "m": "light", "w": "--ds-accent-secondary", "c": "#11604D"}, {"t": "Lilypad", "m": "light", "w": "--ds-accent-tertiary", "c": "#0A4739"}, {"t": "Lilypad", "m": "light", "w": "--ds-accent-quaternary", "c": "#052F25"}, {"t": "Lilypad", "m": "light", "w": "--ds-accent-glow-primary", "c": "rgba(36,122,100,0.2)"}, {"t": "Lilypad", "m": "light", "w": "--ds-accent-glow-secondary", "c": "rgba(36,122,100,0.12)"}, {"t": "Lilypad", "m": "dark", "w": "--ds-text-primary", "c": "rgba(8,33,25,0.96)"}, {"t": "Mandarin", "m": "light", "w": "--ds-surface-backdrop", "c": "#FFB694"}, {"t": "Mandarin", "m": "light", "w": "--ds-surface-canvas", "c": "#FFF7F0"}, {"t": "Mandarin", "m": "light", "w": "--ds-surface-primary", "c": "#FFE4CC"}, {"t": "Mandarin", "m": "light", "w": "--ds-surface-secondary", "c": "#FFECDB"}, {"t": "Mandarin", "m": "light", "w": "--ds-surface-tertiary", "c": "#FFF7F0"}, {"t": "Mandarin", "m": "light", "w": "--ds-surface-decoration-primary", "c": "rgba(41,14,10,0.96)"}, {"t": "Mandarin", "m": "light", "w": "--ds-surface-decoration-secondary", "c": "rgba(41,14,10,0.09)"}, {"t": "Mandarin", "m": "light", "w": "--ds-surface-decoration-tertiary", "c": "rgba(41,14,10,0.16)"}, {"t": "Mandarin", "m": "light", "w": "--ds-text-primary", "c": "#FFFFFF"}, {"t": "Mandarin", "m": "light", "w": "--ds-container-primary-background-color", "c": "rgba(41,14,10,0.01)"}, {"t": "Mandarin", "m": "light", "w": "--ds-container-secondary-background-color", "c": "rgba(41,14,10,0.03)"}, {"t": "Mandarin", "m": "light", "w": "--ds-container-tertiary-background-color", "c": "rgba(41,14,10,0.06)"}, {"t": "Mandarin", "m": "light", "w": "--ds-container-primary-border-color", "c": "rgba(41,14,10,0.06)"}, {"t": "Mandarin", "m": "light", "w": "--ds-container-secondary-border-color", "c": "rgba(41,14,10,0.09)"}, {"t": "Mandarin", "m": "light", "w": "--ds-container-tertiary-border-color", "c": "rgba(41,14,10,0.12)"}, {"t": "Mandarin", "m": "light", "w": "--ds-text-secondary", "c": "rgba(41,14,10,0.66)"}, {"t": "Mandarin", "m": "light", "w": "--ds-text-tertiary", "c": "rgba(41,14,10,0.36)"}, {"t": "Mandarin", "m": "light", "w": "--ds-icons-primary", "c": "rgba(41,14,10,0.96)"}, {"t": "Mandarin", "m": "light", "w": "--ds-icons-secondary", "c": "rgba(41,14,10,0.6)"}, {"t": "Mandarin", "m": "light", "w": "--ds-icons-tertiary", "c": "rgba(41,14,10,0.36)"}, {"t": "Mandarin", "m": "light", "w": "--ds-accent-primary", "c": "#F05F2B"}, {"t": "Mandarin", "m": "light", "w": "--ds-accent-secondary", "c": "#CC3B0A"}, {"t": "Mandarin", "m": "light", "w": "--ds-accent-tertiary", "c": "#9E2B08"}, {"t": "Mandarin", "m": "light", "w": "--ds-accent-quaternary", "c": "#671907"}, {"t": "Mandarin", "m": "light", "w": "--ds-accent-glow-primary", "c": "rgba(240,95,43,0.2)"}, {"t": "Mandarin", "m": "light", "w": "--ds-accent-glow-secondary", "c": "rgba(240,95,43,0.12)"}, {"t": "Mandarin", "m": "dark", "w": "--ds-text-primary", "c": "rgba(41,14,10,0.96)"}, {"t": "NTP (Custom BG)", "m": "light", "w": "--ds-surface-backdrop", "c": "#E4E4E4"}, {"t": "NTP (Custom BG)", "m": "light", "w": "--ds-surface-canvas", "c": "#FDFDFD"}, {"t": "NTP (Custom BG)", "m": "light", "w": "--ds-surface-primary", "c": "#F8F8F8"}, {"t": "NTP (Custom BG)", "m": "light", "w": "--ds-surface-secondary", "c": "#FCFCFC"}, {"t": "NTP (Custom BG)", "m": "light", "w": "--ds-surface-tertiary", "c": "#FFFFFF"}, {"t": "NTP (Custom BG)", "m": "light", "w": "--ds-surface-decoration-primary", "c": "rgba(0,0,0,0.96)"}, {"t": "NTP (Custom BG)", "m": "light", "w": "--ds-surface-decoration-secondary", "c": "rgba(0,0,0,0.16)"}, {"t": "NTP (Custom BG)", "m": "light", "w": "--ds-surface-decoration-tertiary", "c": "rgba(0,0,0,0.24)"}, {"t": "NTP (Custom BG)", "m": "light", "w": "--ds-text-primary", "c": "#FFFFFF"}, {"t": "NTP (Custom BG)", "m": "light", "w": "--ds-container-primary-background-color", "c": "rgba(255,255,255,0.3)"}, {"t": "NTP (Custom BG)", "m": "light", "w": "--ds-container-secondary-background-color", "c": "rgba(255,255,255,0.42)"}, {"t": "NTP (Custom BG)", "m": "light", "w": "--ds-container-tertiary-background-color", "c": "rgba(255,255,255,0.6)"}, {"t": "NTP (Custom BG)", "m": "light", "w": "--ds-container-primary-border-color", "c": "rgba(255,255,255,0.38)"}, {"t": "NTP (Custom BG)", "m": "light", "w": "--ds-container-secondary-border-color", "c": "rgba(255,255,255,0.52)"}, {"t": "NTP (Custom BG)", "m": "light", "w": "--ds-container-tertiary-border-color", "c": "rgba(255,255,255,0.68)"}, {"t": "NTP (Custom BG)", "m": "light", "w": "--ds-text-secondary", "c": "rgba(0,0,0,0.6)"}, {"t": "NTP (Custom BG)", "m": "light", "w": "--ds-text-tertiary", "c": "rgba(0,0,0,0.36)"}, {"t": "NTP (Custom BG)", "m": "light", "w": "--ds-icons-primary", "c": "rgba(0,0,0,0.84)"}, {"t": "NTP (Custom BG)", "m": "light", "w": "--ds-icons-secondary", "c": "rgba(0,0,0,0.6)"}, {"t": "NTP (Custom BG)", "m": "light", "w": "--ds-icons-tertiary", "c": "rgba(0,0,0,0.36)"}, {"t": "NTP (Custom BG)", "m": "light", "w": "--ds-accent-primary", "c": "#1074CC"}, {"t": "NTP (Custom BG)", "m": "light", "w": "--ds-accent-secondary", "c": "#045EB2"}, {"t": "NTP (Custom BG)", "m": "light", "w": "--ds-accent-tertiary", "c": "#034180"}, {"t": "NTP (Custom BG)", "m": "light", "w": "--ds-accent-quaternary", "c": "#02254D"}, {"t": "NTP (Custom BG)", "m": "light", "w": "--ds-accent-glow-primary", "c": "rgba(16,116,204,0.2)"}, {"t": "NTP (Custom BG)", "m": "light", "w": "--ds-accent-glow-secondary", "c": "rgba(16,116,204,0.12)"}, {"t": "NTP (Custom BG)", "m": "dark", "w": "--ds-text-primary", "c": "rgba(0,0,0,0.96)"}, {"t": "Onboarding", "m": "light", "w": "--ds-surface-backdrop", "c": "#FFFFFF"}, {"t": "Onboarding", "m": "light", "w": "--ds-surface-canvas", "c": "#FFFFFF"}, {"t": "Onboarding", "m": "light", "w": "--ds-surface-primary", "c": "#ECEBE7"}, {"t": "Onboarding", "m": "light", "w": "--ds-surface-secondary", "c": "#F7F5F2"}, {"t": "Onboarding", "m": "light", "w": "--ds-surface-tertiary", "c": "#FFFFFF"}, {"t": "Onboarding", "m": "light", "w": "--ds-surface-decoration-primary", "c": "rgba(36,35,35,0.96)"}, {"t": "Onboarding", "m": "light", "w": "--ds-surface-decoration-secondary", "c": "rgba(36,35,35,0.16)"}, {"t": "Onboarding", "m": "light", "w": "--ds-surface-decoration-tertiary", "c": "rgba(36,35,35,0.24)"}, {"t": "Onboarding", "m": "light", "w": "--ds-text-primary", "c": "#FFFFFF"}, {"t": "Onboarding", "m": "light", "w": "--ds-container-primary-background-color", "c": "rgba(36,35,35,0.01)"}, {"t": "Onboarding", "m": "light", "w": "--ds-container-secondary-background-color", "c": "rgba(36,35,35,0.03)"}, {"t": "Onboarding", "m": "light", "w": "--ds-container-tertiary-background-color", "c": "rgba(36,35,35,0.06)"}, {"t": "Onboarding", "m": "light", "w": "--ds-container-primary-border-color", "c": "rgba(36,35,35,0.06)"}, {"t": "Onboarding", "m": "light", "w": "--ds-container-secondary-border-color", "c": "rgba(36,35,35,0.09)"}, {"t": "Onboarding", "m": "light", "w": "--ds-container-tertiary-border-color", "c": "rgba(36,35,35,0.12)"}, {"t": "Onboarding", "m": "light", "w": "--ds-text-secondary", "c": "rgba(36,35,35,0.6)"}, {"t": "Onboarding", "m": "light", "w": "--ds-text-tertiary", "c": "rgba(36,35,35,0.36)"}, {"t": "Onboarding", "m": "light", "w": "--ds-icons-primary", "c": "rgba(36,35,35,0.84)"}, {"t": "Onboarding", "m": "light", "w": "--ds-icons-secondary", "c": "rgba(56,56,56,0.6)"}, {"t": "Onboarding", "m": "light", "w": "--ds-icons-tertiary", "c": "rgba(36,35,35,0.4)"}, {"t": "Onboarding", "m": "light", "w": "--ds-accent-primary", "c": "#4397E0"}, {"t": "Onboarding", "m": "light", "w": "--ds-accent-secondary", "c": "#1074CC"}, {"t": "Onboarding", "m": "light", "w": "--ds-accent-tertiary", "c": "#1074CC"}, {"t": "Onboarding", "m": "light", "w": "--ds-accent-quaternary", "c": "#045EB2"}, {"t": "Onboarding", "m": "light", "w": "--ds-accent-glow-primary", "c": "rgba(47,149,238,0.2)"}, {"t": "Onboarding", "m": "light", "w": "--ds-accent-glow-secondary", "c": "rgba(47,149,238,0.12)"}, {"t": "Onboarding", "m": "dark", "w": "--ds-text-primary", "c": "rgba(36,35,35,0.96)"}, {"t": "Orange", "m": "light", "w": "--ds-surface-backdrop", "c": "#F5BC89"}, {"t": "Orange", "m": "light", "w": "--ds-surface-canvas", "c": "#FEF4E7"}, {"t": "Orange", "m": "light", "w": "--ds-surface-primary", "c": "#FDEBD3"}, {"t": "Orange", "m": "light", "w": "--ds-surface-secondary", "c": "#FDF4E2"}, {"t": "Orange", "m": "light", "w": "--ds-surface-tertiary", "c": "#FFF9F0"}, {"t": "Orange", "m": "light", "w": "--ds-surface-decoration-primary", "c": "#CC5500"}, {"t": "Orange", "m": "light", "w": "--ds-surface-decoration-secondary", "c": "rgba(204,85,0,0.2)"}, {"t": "Orange", "m": "light", "w": "--ds-surface-decoration-tertiary", "c": "rgba(204,85,0,0.32)"}, {"t": "Orange", "m": "light", "w": "--ds-text-primary", "c": "#FFFFFF"}, {"t": "Orange", "m": "light", "w": "--ds-container-primary-background-color", "c": "rgba(41,14,0,0.02)"}, {"t": "Orange", "m": "light", "w": "--ds-container-secondary-background-color", "c": "rgba(41,14,0,0.04)"}, {"t": "Orange", "m": "light", "w": "--ds-container-tertiary-background-color", "c": "rgba(41,14,0,0.06)"}, {"t": "Orange", "m": "light", "w": "--ds-container-primary-border-color", "c": "rgba(41,14,0,0.06)"}, {"t": "Orange", "m": "light", "w": "--ds-container-secondary-border-color", "c": "rgba(41,14,0,0.09)"}, {"t": "Orange", "m": "light", "w": "--ds-container-tertiary-border-color", "c": "rgba(41,14,0,0.12)"}, {"t": "Orange", "m": "light", "w": "--ds-text-secondary", "c": "rgba(26,9,0,0.6)"}, {"t": "Orange", "m": "light", "w": "--ds-text-tertiary", "c": "rgba(26,9,0,0.36)"}, {"t": "Orange", "m": "light", "w": "--ds-icons-primary", "c": "rgba(26,9,0,0.84)"}, {"t": "Orange", "m": "light", "w": "--ds-icons-secondary", "c": "rgba(26,9,0,0.66)"}, {"t": "Orange", "m": "light", "w": "--ds-icons-tertiary", "c": "rgba(26,9,0,0.36)"}, {"t": "Orange", "m": "light", "w": "--ds-accent-primary", "c": "#FF9F1A"}, {"t": "Orange", "m": "light", "w": "--ds-accent-secondary", "c": "#F58300"}, {"t": "Orange", "m": "light", "w": "--ds-accent-tertiary", "c": "#F06C00"}, {"t": "Orange", "m": "light", "w": "--ds-accent-quaternary", "c": "#F05400"}, {"t": "Orange", "m": "light", "w": "--ds-accent-glow-primary", "c": "rgba(255,159,26,0.2)"}, {"t": "Orange", "m": "light", "w": "--ds-accent-glow-secondary", "c": "rgba(255,159,26,0.12)"}, {"t": "Orange", "m": "dark", "w": "--ds-text-primary", "c": "rgba(26,9,0,0.96)"}, {"t": "Pollen", "m": "light", "w": "--ds-surface-backdrop", "c": "#FFD885"}, {"t": "Pollen", "m": "light", "w": "--ds-surface-canvas", "c": "#FFFBF0"}, {"t": "Pollen", "m": "light", "w": "--ds-surface-primary", "c": "#FFEAB8"}, {"t": "Pollen", "m": "light", "w": "--ds-surface-secondary", "c": "#FEF4DA"}, {"t": "Pollen", "m": "light", "w": "--ds-surface-tertiary", "c": "#FFFBF0"}, {"t": "Pollen", "m": "light", "w": "--ds-surface-decoration-primary", "c": "rgba(26,11,3,0.96)"}, {"t": "Pollen", "m": "light", "w": "--ds-surface-decoration-secondary", "c": "rgba(26,11,3,0.09)"}, {"t": "Pollen", "m": "light", "w": "--ds-surface-decoration-tertiary", "c": "rgba(26,11,3,0.16)"}, {"t": "Pollen", "m": "light", "w": "--ds-text-primary", "c": "#FFFFFF"}, {"t": "Pollen", "m": "light", "w": "--ds-container-primary-background-color", "c": "rgba(26,11,3,0.01)"}, {"t": "Pollen", "m": "light", "w": "--ds-container-secondary-background-color", "c": "rgba(26,11,3,0.03)"}, {"t": "Pollen", "m": "light", "w": "--ds-container-tertiary-background-color", "c": "rgba(26,11,3,0.06)"}, {"t": "Pollen", "m": "light", "w": "--ds-container-primary-border-color", "c": "rgba(26,11,3,0.06)"}, {"t": "Pollen", "m": "light", "w": "--ds-container-secondary-border-color", "c": "rgba(26,11,3,0.09)"}, {"t": "Pollen", "m": "light", "w": "--ds-container-tertiary-border-color", "c": "rgba(26,11,3,0.12)"}, {"t": "Pollen", "m": "light", "w": "--ds-text-secondary", "c": "rgba(26,11,3,0.66)"}, {"t": "Pollen", "m": "light", "w": "--ds-text-tertiary", "c": "rgba(26,11,3,0.36)"}, {"t": "Pollen", "m": "light", "w": "--ds-icons-primary", "c": "rgba(26,11,3,0.96)"}, {"t": "Pollen", "m": "light", "w": "--ds-icons-secondary", "c": "rgba(26,11,3,0.6)"}, {"t": "Pollen", "m": "light", "w": "--ds-icons-tertiary", "c": "rgba(26,11,3,0.36)"}, {"t": "Pollen", "m": "light", "w": "--ds-accent-primary", "c": "#FFEAB8"}, {"t": "Pollen", "m": "light", "w": "--ds-accent-secondary", "c": "#FFD885"}, {"t": "Pollen", "m": "light", "w": "--ds-accent-tertiary", "c": "#FFC95C"}, {"t": "Pollen", "m": "light", "w": "--ds-accent-quaternary", "c": "#240F04"}, {"t": "Pollen", "m": "light", "w": "--ds-accent-glow-primary", "c": "rgba(255,234,184,0.2)"}, {"t": "Pollen", "m": "light", "w": "--ds-accent-glow-secondary", "c": "rgba(255,234,184,0.12)"}, {"t": "Pollen", "m": "dark", "w": "--ds-text-primary", "c": "rgba(26,11,3,0.96)"}, {"t": "Pondwater", "m": "light", "w": "--ds-surface-backdrop", "c": "#A1D0F7"}, {"t": "Pondwater", "m": "light", "w": "--ds-surface-canvas", "c": "#F5FBFE"}, {"t": "Pondwater", "m": "light", "w": "--ds-surface-primary", "c": "#CBEAFF"}, {"t": "Pondwater", "m": "light", "w": "--ds-surface-secondary", "c": "#E6F6FF"}, {"t": "Pondwater", "m": "light", "w": "--ds-surface-tertiary", "c": "#F5FBFE"}, {"t": "Pondwater", "m": "light", "w": "--ds-surface-decoration-primary", "c": "rgba(9,25,45,0.96)"}, {"t": "Pondwater", "m": "light", "w": "--ds-surface-decoration-secondary", "c": "rgba(9,25,45,0.09)"}, {"t": "Pondwater", "m": "light", "w": "--ds-surface-decoration-tertiary", "c": "rgba(9,25,45,0.16)"}, {"t": "Pondwater", "m": "light", "w": "--ds-text-primary", "c": "#FFFFFF"}, {"t": "Pondwater", "m": "light", "w": "--ds-container-primary-background-color", "c": "rgba(9,25,45,0.01)"}, {"t": "Pondwater", "m": "light", "w": "--ds-container-secondary-background-color", "c": "rgba(9,25,45,0.03)"}, {"t": "Pondwater", "m": "light", "w": "--ds-container-tertiary-background-color", "c": "rgba(9,25,45,0.06)"}, {"t": "Pondwater", "m": "light", "w": "--ds-container-primary-border-color", "c": "rgba(9,25,45,0.06)"}, {"t": "Pondwater", "m": "light", "w": "--ds-container-secondary-border-color", "c": "rgba(9,25,45,0.09)"}, {"t": "Pondwater", "m": "light", "w": "--ds-container-tertiary-border-color", "c": "rgba(9,25,45,0.12)"}, {"t": "Pondwater", "m": "light", "w": "--ds-text-secondary", "c": "rgba(9,25,45,0.66)"}, {"t": "Pondwater", "m": "light", "w": "--ds-text-tertiary", "c": "rgba(9,25,45,0.36)"}, {"t": "Pondwater", "m": "light", "w": "--ds-icons-primary", "c": "rgba(9,25,45,0.96)"}, {"t": "Pondwater", "m": "light", "w": "--ds-icons-secondary", "c": "rgba(9,25,45,0.6)"}, {"t": "Pondwater", "m": "light", "w": "--ds-icons-tertiary", "c": "rgba(9,25,45,0.36)"}, {"t": "Pondwater", "m": "light", "w": "--ds-accent-primary", "c": "#1074CC"}, {"t": "Pondwater", "m": "light", "w": "--ds-accent-secondary", "c": "#045EB2"}, {"t": "Pondwater", "m": "light", "w": "--ds-accent-tertiary", "c": "#034180"}, {"t": "Pondwater", "m": "light", "w": "--ds-accent-quaternary", "c": "#02254D"}, {"t": "Pondwater", "m": "light", "w": "--ds-accent-glow-primary", "c": "rgba(16,116,204,0.2)"}, {"t": "Pondwater", "m": "light", "w": "--ds-accent-glow-secondary", "c": "rgba(16,116,204,0.12)"}, {"t": "Pondwater", "m": "dark", "w": "--ds-text-primary", "c": "rgba(9,25,45,0.96)"}, {"t": "Rose", "m": "light", "w": "--ds-surface-backdrop", "c": "#EEA0D9"}, {"t": "Rose", "m": "light", "w": "--ds-surface-canvas", "c": "#FCF3FA"}, {"t": "Rose", "m": "light", "w": "--ds-surface-primary", "c": "#F6E4F2"}, {"t": "Rose", "m": "light", "w": "--ds-surface-secondary", "c": "#FBEFF8"}, {"t": "Rose", "m": "light", "w": "--ds-surface-tertiary", "c": "#FFFAFE"}, {"t": "Rose", "m": "light", "w": "--ds-surface-decoration-primary", "c": "rgba(163,0,117,0.96)"}, {"t": "Rose", "m": "light", "w": "--ds-surface-decoration-secondary", "c": "rgba(163,0,117,0.2)"}, {"t": "Rose", "m": "light", "w": "--ds-surface-decoration-tertiary", "c": "rgba(163,0,117,0.32)"}, {"t": "Rose", "m": "light", "w": "--ds-text-primary", "c": "#FFFFFF"}, {"t": "Rose", "m": "light", "w": "--ds-container-primary-background-color", "c": "rgba(43,8,28,0.02)"}, {"t": "Rose", "m": "light", "w": "--ds-container-secondary-background-color", "c": "rgba(43,8,28,0.04)"}, {"t": "Rose", "m": "light", "w": "--ds-container-tertiary-background-color", "c": "rgba(43,8,28,0.06)"}, {"t": "Rose", "m": "light", "w": "--ds-container-primary-border-color", "c": "rgba(43,8,28,0.06)"}, {"t": "Rose", "m": "light", "w": "--ds-container-secondary-border-color", "c": "rgba(43,8,28,0.09)"}, {"t": "Rose", "m": "light", "w": "--ds-container-tertiary-border-color", "c": "rgba(43,8,28,0.12)"}, {"t": "Rose", "m": "light", "w": "--ds-text-secondary", "c": "rgba(48,3,30,0.6)"}, {"t": "Rose", "m": "light", "w": "--ds-text-tertiary", "c": "rgba(48,3,30,0.36)"}, {"t": "Rose", "m": "light", "w": "--ds-icons-primary", "c": "rgba(48,3,30,0.84)"}, {"t": "Rose", "m": "light", "w": "--ds-icons-secondary", "c": "rgba(48,3,30,0.66)"}, {"t": "Rose", "m": "light", "w": "--ds-icons-tertiary", "c": "rgba(48,3,30,0.36)"}, {"t": "Rose", "m": "light", "w": "--ds-accent-primary", "c": "#C2008E"}, {"t": "Rose", "m": "light", "w": "--ds-accent-secondary", "c": "#A30075"}, {"t": "Rose", "m": "light", "w": "--ds-accent-tertiary", "c": "#85005D"}, {"t": "Rose", "m": "light", "w": "--ds-accent-quaternary", "c": "#660047"}, {"t": "Rose", "m": "light", "w": "--ds-accent-glow-primary", "c": "rgba(217,0,144,0.2)"}, {"t": "Rose", "m": "light", "w": "--ds-accent-glow-secondary", "c": "rgba(217,0,144,0.12)"}, {"t": "Rose", "m": "dark", "w": "--ds-text-primary", "c": "rgba(48,3,30,0.96)"}, {"t": "Slate Blue", "m": "light", "w": "--ds-surface-backdrop", "c": "#8BA6C1"}, {"t": "Slate Blue", "m": "light", "w": "--ds-surface-canvas", "c": "#DCEAF4"}, {"t": "Slate Blue", "m": "light", "w": "--ds-surface-primary", "c": "#D2E5F4"}, {"t": "Slate Blue", "m": "light", "w": "--ds-surface-secondary", "c": "#DEEDF7"}, {"t": "Slate Blue", "m": "light", "w": "--ds-surface-tertiary", "c": "#EEF7FC"}, {"t": "Slate Blue", "m": "light", "w": "--ds-surface-decoration-primary", "c": "rgba(33,88,131,0.96)"}, {"t": "Slate Blue", "m": "light", "w": "--ds-surface-decoration-secondary", "c": "rgba(33,88,131,0.2)"}, {"t": "Slate Blue", "m": "light", "w": "--ds-surface-decoration-tertiary", "c": "rgba(33,88,131,0.32)"}, {"t": "Slate Blue", "m": "light", "w": "--ds-text-primary", "c": "#FFFFFF"}, {"t": "Slate Blue", "m": "light", "w": "--ds-container-primary-background-color", "c": "rgba(6,15,24,0.01)"}, {"t": "Slate Blue", "m": "light", "w": "--ds-container-secondary-background-color", "c": "rgba(6,15,24,0.03)"}, {"t": "Slate Blue", "m": "light", "w": "--ds-container-tertiary-background-color", "c": "rgba(6,15,24,0.06)"}, {"t": "Slate Blue", "m": "light", "w": "--ds-container-primary-border-color", "c": "rgba(6,15,24,0.06)"}, {"t": "Slate Blue", "m": "light", "w": "--ds-container-secondary-border-color", "c": "rgba(6,15,24,0.09)"}, {"t": "Slate Blue", "m": "light", "w": "--ds-container-tertiary-border-color", "c": "rgba(6,15,24,0.12)"}, {"t": "Slate Blue", "m": "light", "w": "--ds-text-secondary", "c": "rgba(6,10,14,0.6)"}, {"t": "Slate Blue", "m": "light", "w": "--ds-text-tertiary", "c": "rgba(6,10,14,0.36)"}, {"t": "Slate Blue", "m": "light", "w": "--ds-icons-primary", "c": "rgba(6,10,14,0.84)"}, {"t": "Slate Blue", "m": "light", "w": "--ds-icons-secondary", "c": "rgba(6,10,14,0.6)"}, {"t": "Slate Blue", "m": "light", "w": "--ds-icons-tertiary", "c": "rgba(6,10,14,0.36)"}, {"t": "Slate Blue", "m": "light", "w": "--ds-accent-primary", "c": "#3A729C"}, {"t": "Slate Blue", "m": "light", "w": "--ds-accent-secondary", "c": "#2B5C82"}, {"t": "Slate Blue", "m": "light", "w": "--ds-accent-tertiary", "c": "#1E4767"}, {"t": "Slate Blue", "m": "light", "w": "--ds-accent-quaternary", "c": "#143852"}, {"t": "Slate Blue", "m": "light", "w": "--ds-accent-glow-primary", "c": "rgba(58,114,156,0.2)"}, {"t": "Slate Blue", "m": "light", "w": "--ds-accent-glow-secondary", "c": "rgba(58,114,156,0.12)"}, {"t": "Slate Blue", "m": "dark", "w": "--ds-text-primary", "c": "rgba(6,10,14,0.96)"}, {"t": "Violet", "m": "light", "w": "--ds-surface-backdrop", "c": "#C1B9E4"}, {"t": "Violet", "m": "light", "w": "--ds-surface-canvas", "c": "#EDECF9"}, {"t": "Violet", "m": "light", "w": "--ds-surface-primary", "c": "#E8E5F5"}, {"t": "Violet", "m": "light", "w": "--ds-surface-secondary", "c": "#EDECF9"}, {"t": "Violet", "m": "light", "w": "--ds-surface-tertiary", "c": "#F7F7FD"}, {"t": "Violet", "m": "light", "w": "--ds-surface-decoration-primary", "c": "rgba(87,11,218,0.96)"}, {"t": "Violet", "m": "light", "w": "--ds-surface-decoration-secondary", "c": "rgba(87,11,218,0.2)"}, {"t": "Violet", "m": "light", "w": "--ds-surface-decoration-tertiary", "c": "rgba(87,11,218,0.32)"}, {"t": "Violet", "m": "light", "w": "--ds-text-primary", "c": "#FFFFFF"}, {"t": "Violet", "m": "light", "w": "--ds-container-primary-background-color", "c": "rgba(7,5,13,0.01)"}, {"t": "Violet", "m": "light", "w": "--ds-container-secondary-background-color", "c": "rgba(7,5,13,0.03)"}, {"t": "Violet", "m": "light", "w": "--ds-container-tertiary-background-color", "c": "rgba(7,5,13,0.06)"}, {"t": "Violet", "m": "light", "w": "--ds-container-primary-border-color", "c": "rgba(7,5,13,0.06)"}, {"t": "Violet", "m": "light", "w": "--ds-container-secondary-border-color", "c": "rgba(7,5,13,0.09)"}, {"t": "Violet", "m": "light", "w": "--ds-container-tertiary-border-color", "c": "rgba(7,5,13,0.12)"}, {"t": "Violet", "m": "light", "w": "--ds-text-secondary", "c": "rgba(7,5,13,0.6)"}, {"t": "Violet", "m": "light", "w": "--ds-text-tertiary", "c": "rgba(7,5,13,0.36)"}, {"t": "Violet", "m": "light", "w": "--ds-icons-primary", "c": "rgba(7,5,13,0.84)"}, {"t": "Violet", "m": "light", "w": "--ds-icons-secondary", "c": "rgba(7,5,13,0.6)"}, {"t": "Violet", "m": "light", "w": "--ds-icons-tertiary", "c": "rgba(7,5,13,0.36)"}, {"t": "Violet", "m": "light", "w": "--ds-accent-primary", "c": "#5C17E5"}, {"t": "Violet", "m": "light", "w": "--ds-accent-secondary", "c": "#470FBF"}, {"t": "Violet", "m": "light", "w": "--ds-accent-tertiary", "c": "#3B0DA6"}, {"t": "Violet", "m": "light", "w": "--ds-accent-quaternary", "c": "#2C0A7B"}, {"t": "Violet", "m": "light", "w": "--ds-accent-glow-primary", "c": "rgba(92,23,229,0.2)"}, {"t": "Violet", "m": "light", "w": "--ds-accent-glow-secondary", "c": "rgba(92,23,229,0.12)"}, {"t": "Violet", "m": "dark", "w": "--ds-text-primary", "c": "rgba(7,5,13,0.96)"}];
+
+// Group: token -> theme -> mode -> color
+const byToken = {};
+for (const r of RAW) {
+  if (!byToken[r.w]) byToken[r.w] = {};
+  if (!byToken[r.w][r.t]) byToken[r.w][r.t] = {};
+  byToken[r.w][r.t][r.m] = r.c;
+}
+
+const tokenNames = Object.keys(byToken).sort();
+const results = document.getElementById('results');
+const empty = document.getElementById('empty');
+const countEl = document.getElementById('count');
+const search = document.getElementById('search');
+
+// Theme switcher
+const THEME_KEY = 'token-explorer-theme';
+const html = document.documentElement;
+const btns = document.querySelectorAll('.theme-btn');
+
+function setTheme(t) {
+  html.dataset.theme = t;
+  localStorage.setItem(THEME_KEY, t);
+  btns.forEach(b => b.classList.toggle('active', b.dataset.t === t));
+}
+
+btns.forEach(b => b.addEventListener('click', () => setTheme(b.dataset.t)));
+setTheme(localStorage.getItem(THEME_KEY) || 'dark');
+
+// Category filter
+const allThemes = [...new Set(RAW.map(r => r.t))].sort();
+const activeThemes = new Set(allThemes);
+
+// Derive accent color for each theme from its accent-primary token
+const themeAccent = {};
+for (const r of RAW) {
+  if (!themeAccent[r.t] && r.m === 'light' && r.w === '--ds-accent-primary') {
+    themeAccent[r.t] = r.c;
+  }
+}
+// Fallback: derive from surface-backdrop rgba
+for (const r of RAW) {
+  if (!themeAccent[r.t] && r.m === 'light' && r.w === '--ds-surface-backdrop') {
+    const m = r.c.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+    if (m) themeAccent[r.t] = `rgb(${m[1]},${m[2]},${m[3]})`;
+  }
+}
+
+const filterEl = document.getElementById('category-filter');
+for (const theme of allThemes) {
+  const chip = document.createElement('button');
+  chip.className = 'cat-chip active';
+  chip.dataset.theme = theme;
+
+  const dot = document.createElement('span');
+  dot.className = 'cat-dot';
+  dot.style.background = themeAccent[theme] || 'var(--text-muted)';
+
+  chip.appendChild(dot);
+  chip.appendChild(document.createTextNode(theme));
+  chip.addEventListener('click', (e) => {
+    if (e.metaKey || e.ctrlKey) {
+      // Solo: select only this chip, deselect all others
+      activeThemes.clear();
+      activeThemes.add(theme);
+      document.querySelectorAll('.cat-chip').forEach(c => {
+        const isThis = c.dataset.theme === theme;
+        c.classList.toggle('active', isThis);
+        c.classList.toggle('inactive', !isThis);
+      });
+    } else {
+      if (activeThemes.has(theme)) {
+        activeThemes.delete(theme);
+        chip.classList.remove('active');
+        chip.classList.add('inactive');
+      } else {
+        activeThemes.add(theme);
+        chip.classList.add('active');
+        chip.classList.remove('inactive');
+      }
+    }
+    render(search.value);
+  });
+  filterEl.appendChild(chip);
+}
+
+// Render
+function render(query) {
+  const q = query.trim().toLowerCase();
+  const filtered = q ? tokenNames.filter(t => t.toLowerCase().includes(q)) : tokenNames;
+
+  results.innerHTML = '';
+  countEl.textContent = filtered.length + ' token' + (filtered.length !== 1 ? 's' : '');
+  empty.style.display = filtered.length === 0 ? 'block' : 'none';
+
+  for (const token of filtered) {
+    const themes = byToken[token];
+    const visibleThemes = Object.keys(themes).filter(t => activeThemes.has(t)).sort();
+    if (visibleThemes.length === 0) continue;
+
+    const block = document.createElement('div');
+    block.className = 'token-block';
+
+    const nameEl = document.createElement('div');
+    nameEl.className = 'token-name';
+    nameEl.textContent = token;
+    nameEl.title = 'Click to copy';
+    nameEl.addEventListener('click', () => navigator.clipboard.writeText(token));
+    block.appendChild(nameEl);
+
+    const grid = document.createElement('div');
+    grid.className = 'theme-grid';
+
+    for (const theme of visibleThemes) {
+      const modes = themes[theme];
+      const cell = document.createElement('div');
+      cell.className = 'theme-cell';
+
+      const label = document.createElement('div');
+      label.className = 'theme-label';
+      label.textContent = theme;
+      cell.appendChild(label);
+
+      for (const mode of ['light', 'dark']) {
+        if (!modes[mode]) continue;
+        const color = modes[mode];
+        const row = document.createElement('div');
+        row.className = 'mode-row';
+
+        const badge = document.createElement('span');
+        badge.className = 'mode-badge';
+        badge.textContent = mode;
+
+        const swatch = document.createElement('div');
+        swatch.className = 'swatch';
+        swatch.style.background = color;
+
+        const val = document.createElement('span');
+        val.className = 'color-val';
+        val.textContent = color;
+
+        row.appendChild(badge);
+        row.appendChild(swatch);
+        row.appendChild(val);
+        cell.appendChild(row);
+      }
+
+      grid.appendChild(cell);
+    }
+
+    block.appendChild(grid);
+    results.appendChild(block);
+  }
+}
+
+search.addEventListener('input', e => render(e.target.value));
+render('');
+</script>
+</body>
+</html>
