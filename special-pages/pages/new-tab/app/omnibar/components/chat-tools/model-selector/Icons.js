@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { resolveModelIconKey } from './modelIconMap.js';
 
 /**
  * From DesignResourcesKit Ai-Model-OpenAi-16.svg
@@ -95,24 +96,21 @@ export function OSSIcon(props) {
     );
 }
 
+/** @type {Record<import('./modelIconMap.js').ModelIconKey, import('preact').ComponentType<import('preact').JSX.SVGAttributes<SVGSVGElement>>>} */
+const ICON_BY_KEY = {
+    llama: LlamaIcon,
+    mistral: MistralIcon,
+    oss: OSSIcon,
+    claude: ClaudeIcon,
+    openai: OpenAIIcon,
+};
+
 /**
- * Returns the appropriate model icon component for a given model ID,
- * using the same provider-matching logic as apple-browsers'
- * AIChatModel.ModelProvider.from(id:providerString:).
- *
- * Native maps the `tinfoil` provider (which hosts open models such as
- * gpt-oss and Gemma) to the OSS icon via the provider string. We only
- * receive the model ID here, so we detect the `tinfoil` id prefix instead.
+ * Returns the appropriate model icon component for a given model ID.
  * @param {string} modelId
  * @returns {import('preact').ComponentType<import('preact').JSX.SVGAttributes<SVGSVGElement>> | null}
  */
 export function getModelIcon(modelId) {
-    const normalizedModelId = modelId.toLowerCase();
-
-    if (normalizedModelId.startsWith('meta-llama')) return LlamaIcon;
-    if (normalizedModelId.startsWith('mistral')) return MistralIcon;
-    if (normalizedModelId.includes('gpt-oss') || normalizedModelId.startsWith('tinfoil')) return OSSIcon;
-    if (normalizedModelId.startsWith('claude')) return ClaudeIcon;
-    if (normalizedModelId.startsWith('gpt') || normalizedModelId.startsWith('openai')) return OpenAIIcon;
-    return null;
+    const key = resolveModelIconKey(modelId);
+    return key ? ICON_BY_KEY[key] : null;
 }
