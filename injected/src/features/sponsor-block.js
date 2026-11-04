@@ -285,8 +285,8 @@ export class SponsorBlock extends ContentFeature {
     async fetchSegments(videoID) {
         try {
             const { segments } = await this.request('getSegments', { videoID });
-            // The user may have moved to another video while the request was in flight.
-            if (videoID !== this.#videoID) return;
+            // The user may have moved to another video, or turned the feature off, while the request was in flight.
+            if (videoID !== this.#videoID || !this.#enabled) return;
             this.#segments = segments;
             this.#renderedDuration = 0;
             this.renderOverlay();

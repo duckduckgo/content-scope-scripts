@@ -216,4 +216,15 @@ describe('SponsorBlock applyConfig', () => {
         await tick();
         expect(video().currentTime).toBe(8);
     });
+
+    it('drops segments that arrive after the feature was disabled', async () => {
+        /** @type {(value: unknown) => void} */
+        let respond = () => {};
+        request.and.returnValue(new Promise((resolve) => (respond = resolve)));
+        feature.applyConfig({ enabled: true, skipMode: 'auto' });
+        feature.applyConfig({ enabled: false, skipMode: 'auto' });
+        respond({ segments: [segment('a', 0, 5)] });
+        await tick();
+        expect(video().currentTime).toBe(0);
+    });
 });
