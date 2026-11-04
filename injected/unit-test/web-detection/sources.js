@@ -75,7 +75,7 @@ describe('WebDetection sources', () => {
             expect(holds('', { api: 'document.title', is: 'Hello there' }, { head })).toBe(true);
             expect(holds('', { api: { path: 'Math.max', args: [1, { api: 'document.title.length' }] }, is: 11 }, { head })).toBe(true);
             expect(holds('', { api: 'document.title', using: 'length', is: 11 }, { head })).toBe(true);
-            expect(holds('', { only: { api: { path: 'document.title' } }, is: 'Hello there' }, { head })).toBe('error');
+            expect(holds('', { only: { api: { path: 'document.title' } }, is: 'Hello there' }, { head })).toBe('aborted');
             rejectsMatch({ api: 5 }, '`api` takes a path or an object');
             rejectsMatch({ api: '' }, 'non-empty');
         });
@@ -446,8 +446,8 @@ describe('WebDetection sources', () => {
             expect(resources({ responseStatus: { gte: 400 } })).toBe(0);
         });
 
-        it('errors on `where` over a value that is not a list', () => {
-            expect(holds('', { api: { path: 'document.title', where: { length: 0 } }, using: 'length', is: 1 })).toBe('error');
+        it('fails on `where` over a value that is not a list', () => {
+            expect(holds('', { api: { path: 'document.title', where: { length: 0 } }, using: 'length', is: 1 })).toBe('aborted');
         });
 
         it('tests items of any type with `where`', () => {
@@ -512,11 +512,11 @@ describe('WebDetection sources', () => {
             expect(count('<x-widget></x-widget><img>', images)).toBe(0);
         });
 
-        it('errors on a root that is not a selector or a node', () => {
+        it('fails on a root that is not a selector or a node', () => {
             expect(
                 holds('<p></p>', { element: { selector: 'p', root: { api: { path: 'document.title.length' } } }, using: 'length', is: 0 }),
-            ).toBe('error');
-            expect(holds('<p></p>', { element: { selector: 'p', root: [1] }, using: 'length', is: 0 })).toBe('error');
+            ).toBe('aborted');
+            expect(holds('<p></p>', { element: { selector: 'p', root: [1] }, using: 'length', is: 0 })).toBe('aborted');
         });
 
         it('scopes to the union of an array of selectors and expressions', () => {

@@ -1,5 +1,15 @@
 import { JSONparse, JSONstringify } from '../../../captured-globals.js';
-import { DetectionError, decides, errorPath, isFailure, isScalar, thrownFailure, thrownMessage, typeName } from '../model/core.js';
+import {
+    DetectionError,
+    decides,
+    errorPath,
+    isFailure,
+    isScalar,
+    mismatch,
+    thrownFailure,
+    thrownMessage,
+    typeName,
+} from '../model/core.js';
 import { ItemBuffer, asList, isItemBuffer, listMembers } from '../model/lists.js';
 import { evaluateArgs, readPath } from '../predicates/fields.js';
 import { testPredicate } from '../predicates/predicates.js';
@@ -109,8 +119,7 @@ export function evaluate(node, position, ctx) {
                 break;
         }
         if (isFailure(result)) return result.at(node.path);
-        checkType(result, position);
-        return result;
+        return checkType(result, position)?.at(node.path) ?? result;
     } catch (e) {
         throw atPath(e, node.path, ctx);
     }
@@ -133,10 +142,12 @@ function atPath(error, path, ctx) {
 /**
  * @param {unknown} value
  * @param {Position} position
+ * @returns {Failure | undefined} a failure when the value does not fit its position
  */
 function checkType(value, position) {
-    if (position === 'number' && typeof value !== 'number') throw new DetectionError(`expected a number, got ${typeName(value)}`);
-    if (position === 'boolean' && typeof value !== 'boolean') throw new DetectionError(`expected a boolean, got ${typeName(value)}`);
+    if (position === 'number' && typeof value !== 'number') return mismatch(`expected a number, got ${typeName(value)}`);
+    if (position === 'boolean' && typeof value !== 'boolean') return mismatch(`expected a boolean, got ${typeName(value)}`);
+    return undefined;
 }
 
 /**
@@ -194,7 +205,7 @@ export function single(buffer) {
     const failure = buffer.pull(2);
     if (failure) return failure;
     if (buffer.values.length !== 1) {
-        throw new DetectionError(`a list where one value is needed holds ${buffer.values.length === 0 ? 'no item' : 'several items'}`);
+        return mismatch(`a list where one value is needed holds ${buffer.values.length === 0 ? 'no item' : 'several items'}`);
     }
     return buffer.values[0];
 }
@@ -231,12 +242,10 @@ function presence(buffer) {
  * @param {unknown} value
  * @param {string} operator
  * @param {EvaluationContext} ctx
- * @returns {ItemBuffer}
+ * @returns {ItemBuffer | Failure}
  */
 export function listOf(value, operator, ctx) {
-    const list = asList(value, ctx);
-    if (!list) throw new DetectionError(`'${operator}' takes a list, got ${typeName(value)}`);
-    return list;
+    return asList(value, ctx) ?? mismatch(`'${operator}' takes a list, got ${typeName(value)}`);
 }
 
 /**
@@ -264,21 +273,19 @@ export function allItems(buffer) {
 /**
  * @param {unknown} value
  * @param {string} operator
- * @returns {number}
+ * @returns {number | Failure}
  */
 function expectNumber(value, operator) {
-    if (typeof value !== 'number') throw new DetectionError(`'${operator}' takes numbers, got ${typeName(value)}`);
-    return value;
+    return typeof value === 'number' ? value : mismatch(`'${operator}' takes numbers, got ${typeName(value)}`);
 }
 
 /**
  * @param {unknown} value
  * @param {string} operator
- * @returns {boolean}
+ * @returns {boolean | Failure}
  */
 function expectBoolean(value, operator) {
-    if (typeof value !== 'boolean') throw new DetectionError(`'${operator}' takes booleans, got ${typeName(value)}`);
-    return value;
+    return typeof value === 'boolean' ? value : mismatch(`'${operator}' takes booleans, got ${typeName(value)}`);
 }
 
 /**
@@ -292,8 +299,8 @@ function computeOnly(node, ctx) {
     const failure = buffer.pull(2);
     if (failure) return failure;
     const values = buffer.values;
-    if (values.length === 0) throw new DetectionError(`'only' over no items`);
-    if (values.length > 1) throw new DetectionError(`'only' over several items`);
+    if (values.length === 0) return mismatch(`'only' over no items`);
+    if (values.length > 1) return mismatch(`'only' over several items`);
     return values[0];
 }
 
@@ -438,12 +445,12 @@ function computeArithmetic(node, ctx) {
     for (const operand of node.operands) {
         const spread = readSpread(operand, ctx);
         if (isFailure(spread)) return spread;
-        if ('list' in spread) {
-            const items = allItems(spread.list);
-            if (isFailure(items)) return items;
-            for (const value of items) values.push(expectNumber(value, node.kind));
-        } else {
-            values.push(expectNumber(spread.value, node.kind));
+        const items = 'list' in spread ? allItems(spread.list) : [spread.value];
+        if (isFailure(items)) return items;
+        for (const value of items) {
+            const number = expectNumber(value, node.kind);
+            if (isFailure(number)) return number.at(operand.path);
+            values.push(number);
         }
     }
     switch (node.kind) {
@@ -470,12 +477,12 @@ function computeLogic(node, ctx) {
     for (const operand of node.operands) {
         const spread = readSpread(operand, ctx);
         if (isFailure(spread)) return spread;
-        if ('list' in spread) {
-            const items = allItems(spread.list);
-            if (isFailure(items)) return items.at(operand.path);
-            for (let i = 0; i < items.length; i++) if (expectBoolean(items[i], node.kind) === decider) result = decided;
-        } else if (expectBoolean(spread.value, node.kind) === decider) {
-            result = decided;
+        const items = 'list' in spread ? allItems(spread.list) : [spread.value];
+        if (isFailure(items)) return items.at(operand.path);
+        for (const item of items) {
+            const value = expectBoolean(item, node.kind);
+            if (isFailure(value)) return value.at(operand.path);
+            if (value === decider) result = decided;
         }
     }
     return result;

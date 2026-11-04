@@ -29,12 +29,12 @@ import {
 describe('WebDetection compile', () => {
     describe('types', () => {
         it('fails a value of a type its position does not take, as it is read', () => {
-            expect(holds('<img>', { element: { selector: 'img' }, using: 'length' })).toBe('error');
-            expect(holds('', { only: 5, is: 1 })).toBe('error');
-            expect(holds('<img>', { only: { element: { selector: 'img' }, using: 'length' }, is: 1 })).toBe('error');
-            expect(holds('', 5)).toBe('error');
-            expect(holds('', { sum: [true], is: 1 })).toBe('error');
-            expect(holds('', { only: { if: true, then: 1, else: 2 }, is: 1 })).toBe('error');
+            expect(holds('<img>', { element: { selector: 'img' }, using: 'length' })).toBe('aborted');
+            expect(holds('', { only: 5, is: 1 })).toBe('aborted');
+            expect(holds('<img>', { only: { element: { selector: 'img' }, using: 'length' }, is: 1 })).toBe('aborted');
+            expect(holds('', 5)).toBe('aborted');
+            expect(holds('', { sum: [true], is: 1 })).toBe('aborted');
+            expect(holds('', { only: { if: true, then: 1, else: 2 }, is: 1 })).toBe('aborted');
         });
 
         it('gives the branch an `if` takes where a list is expected, and under `sum` and `any` its items', () => {
@@ -74,15 +74,15 @@ describe('WebDetection compile', () => {
                 defineGetter(w.Document.prototype, 'hidden', () => value);
             expect(holds('', { api: { path: 'document.hidden' } }, { install: hidden(true) })).toBe(true);
             expect(holds('', { api: { path: 'document.hidden' } }, { install: hidden(false) })).toBe(false);
-            expect(holds('', { api: { path: 'document.title' } })).toBe('error');
+            expect(holds('', { api: { path: 'document.title' } })).toBe('aborted');
             expect(holds('', { any: { api: { path: 'document.hidden' } } }, { install: hidden(true) })).toBe(true);
             expect(holds('', { api: { path: 'document.fonts', field: 'status' } }, { install: fonts(['loaded']) })).toBe(true);
         });
 
         it('gives the boolean `is` gives in every position, failing where a boolean does not fit', () => {
-            expect(holds('<img>', { sum: [{ element: { selector: 'img' }, using: 'length', is: { gt: 1 } }], is: 1 })).toBe('error');
-            expect(holds('', { only: { expr: [5], is: 5 }, is: true })).toBe('error');
-            expect(holds('', { div: [{ expr: 4, is: 4 }, 2], is: 0.5 })).toBe('error');
+            expect(holds('<img>', { sum: [{ element: { selector: 'img' }, using: 'length', is: { gt: 1 } }], is: 1 })).toBe('aborted');
+            expect(holds('', { only: { expr: [5], is: 5 }, is: true })).toBe('aborted');
+            expect(holds('', { div: [{ expr: 4, is: 4 }, 2], is: 0.5 })).toBe('aborted');
         });
 
         it('rejects unknown keys', () => {
@@ -111,7 +111,7 @@ describe('WebDetection compile', () => {
                 actions: [{ define: { v: value } }, { define: { asNumber: { sum: [{ ref: 'v' }] }, asValue: { ref: 'v' } } }],
             });
             expect(bindings(run('', detector(2)))).toEqual({ v: 2, asNumber: 2, asValue: 2 });
-            expect(run('', detector('x')).failure).toEqual({ path: 'actions.1.define.asNumber.sum', result: 'error' });
+            expect(run('', detector('x')).failure).toEqual({ path: 'actions.1.define.asNumber.sum.0.ref', result: 'aborted' });
         });
 
         it('reads text matches and elements through list operators', () => {
@@ -120,7 +120,7 @@ describe('WebDetection compile', () => {
             expect(holds(html, { ...matches, using: { path: 'at', args: [0] }, is: 'not found' })).toBe(true);
             expect(holds(html, { ...matches, using: { path: 'at', args: [-1] }, is: 'Error' })).toBe(true);
             expect(holds('<p>one match</p>', { only: { text: { pattern: 'match' } }, is: 'match' })).toBe(true);
-            expect(holds('<p>match match</p>', { only: { text: { pattern: 'match' } }, is: 'match' })).toBe('error');
+            expect(holds('<p>match match</p>', { only: { text: { pattern: 'match' } }, is: 'match' })).toBe('aborted');
             expect(holds('<p id="a"></p>', { only: { element: { selector: 'p' } }, is: { tagName: 'P', id: 'a' } })).toBe(true);
             expect(payload('<p>x</p>', { only: { text: { pattern: 'x' } } })).toEqual({ x: 'x' });
             expect(payload('<p>x</p>', { only: { element: { selector: 'p' } } })).toEqual({ x: {} });
@@ -131,7 +131,7 @@ describe('WebDetection compile', () => {
             expect(holds('', { only: { expr: [false] } })).toBe(false);
             expect(holds('', { any: [false, { only: { expr: [true] } }] })).toBe(true);
             expect(holds('', { if: { only: { expr: [true] } }, then: true, else: false })).toBe(true);
-            expect(holds('<p></p>', { only: { element: { selector: 'p' } } })).toBe('error');
+            expect(holds('<p></p>', { only: { element: { selector: 'p' } } })).toBe('aborted');
             expect(holds('', { sum: { only: { expr: [{ expr: [1, 2] }] } }, is: 3 })).toBe(true);
             expect(holds('', { only: { only: { expr: [{ expr: [5] }] } }, is: 5 })).toBe(true);
         });
@@ -172,7 +172,7 @@ describe('WebDetection compile', () => {
             rejectsMatch({ all: [true, [true, false]] }, notExpression);
             rejectsMatch({ if: [true], then: true, else: false }, notExpression);
             expect(holds('', { if: true, then: [true], else: false })).toBe(true);
-            expect(holds('', { if: true, then: [true, 1], else: false })).toBe('error');
+            expect(holds('', { if: true, then: [true, 1], else: false })).toBe('aborted');
             expectParseError({ actions: [{ define: { x: [1, 2] } }] }, notExpression);
             expectParseError({ actions: [[{ define: { x: 1 } }]] }, notExpression);
             expectParseError({ actions: { define: { x: { sum: [1, { api: { path: 'Math.max', args: [[1]] } }] } } } }, notExpression);
@@ -188,10 +188,10 @@ describe('WebDetection compile', () => {
             expect(payload('', { if: false, then: 'yes', else: null })).toEqual({ x: null });
             expect(holds('', { api: { path: 'document.readyState' }, is: { eq: { api: { path: 'document.readyState' } } } })).toBe(true);
             expect(holds('<p>a</p>', { only: { text: { pattern: 'a' } }, is: { eq: { text: { pattern: 'a' } } } })).toBe(true);
-            expect(holds('', 'x')).toBe('error');
-            expect(holds('', { any: [null] })).toBe('error');
-            expect(holds('', { sum: ['x', 1], is: { gt: 0 } })).toBe('error');
-            expect(holds('', { only: 'x', is: 1 })).toBe('error');
+            expect(holds('', 'x')).toBe('aborted');
+            expect(holds('', { any: [null] })).toBe('aborted');
+            expect(holds('', { sum: ['x', 1], is: { gt: 0 } })).toBe('aborted');
+            expect(holds('', { only: 'x', is: 1 })).toBe('aborted');
             expect(holds('<p></p>', { element: { selector: 'p' }, using: 'length', is: { gt: '0' } })).toBe(true);
         });
 
@@ -224,17 +224,17 @@ describe('WebDetection compile', () => {
         const widths = (/** @type {number[]} */ list) => list.map((w) => IMG(`data-width="${w}"`)).join('');
         const width = NATURAL_WIDTH;
 
-        it('gives a selected list’s one item in number position, and errors over none or several', () => {
+        it('gives a selected list’s one item in number position, and fails over none or several', () => {
             const read = { div: [width, 5], is: 1 };
             expect(holds(widths([5]), read)).toBe(true);
-            expect(holds('', read)).toBe('error');
-            expect(holds(widths([5, 5]), read)).toBe('error');
+            expect(holds('', read)).toBe('aborted');
+            expect(holds(widths([5, 5]), read)).toBe('aborted');
         });
 
         it('gives the one item to a predicate that compares, and the list as an array to one that does not', () => {
             expect(holds(widths([5]), { ...width, is: { gt: 4 } })).toBe(true);
             expect(holds(widths([5]), { ...width, is: 5 })).toBe(true);
-            expect(holds(widths([5, 6]), { ...width, is: { gt: 4 } })).toBe('error');
+            expect(holds(widths([5, 6]), { ...width, is: { gt: 4 } })).toBe('aborted');
             expect(holds(widths([5, 6]), { ...width, is: { length: 2 } })).toBe(true);
             expect(holds(widths([5, 6]), { ...width, is: { type: 'array' } })).toBe(true);
             expect(holds('', { ...width, is: {} })).toBe(true);
@@ -261,8 +261,8 @@ describe('WebDetection compile', () => {
             expect(payload(widths([5]), width, { buckets: [{ name: 'two', is: { length: 2 } }] })).toEqual({});
             expect(payload(widths([5, 6]), width)).toEqual({ x: [5, 6] });
             expect(run(widths([5, 6]), withPayload(width, { buckets })).failure).toEqual({
-                path: 'actions.fireEvent.data.x.value',
-                result: 'error',
+                path: 'actions.fireEvent.data.x.buckets.0.is',
+                result: 'aborted',
             });
         });
     });
@@ -436,7 +436,7 @@ describe('WebDetection compile', () => {
         it('runs empty arrays and objects as nothing: a sequence, `define`, `root` and source bodies', () => {
             expect(run('', { actions: [] }).detected).toBe(true);
             expect(bound('', [{ define: {} }, { define: { x: 1 } }], 'x')).toBe(1);
-            expect(holds('', { sum: { if: true, then: [] }, is: 0 })).toBe('error');
+            expect(holds('', { sum: { if: true, then: [] }, is: 0 })).toBe('aborted');
             expect(count('<img>', { element: { selector: 'img', root: [] } })).toBe(0);
             expect(count('<img>', { element: [] })).toBe(0);
             expect(holds('<p>a</p>', { text: [] })).toBe(false);
