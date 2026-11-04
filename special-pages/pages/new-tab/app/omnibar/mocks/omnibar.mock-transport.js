@@ -499,7 +499,7 @@ export function omnibarMockTransport() {
                                     .filter((item) => modelSectionCta !== 'upgrade' || item.accessTier === 'pro')
                                     .map((item) => ({
                                         ...item,
-                                        upsell: parseBooleanQueryParam('omnibar.keepModelRowUpsell') === true ? item.upsell : undefined,
+                                        upsell: item.upsell ? modelSectionCta : undefined,
                                     })),
                             };
                         });

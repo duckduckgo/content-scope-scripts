@@ -52,13 +52,8 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const allModels = sections.flatMap((section) => section.items);
     const optionIndexById = new Map(allModels.map((model, index) => [model.id, index]));
-    // A section action supersedes row upsells during payload transitions.
     const upsellByModelId = new Map(
-        sections
-            .filter((section) => !section.cta)
-            .flatMap((section) => section.items)
-            .filter((model) => !model.isAvailable && model.upsell)
-            .map((model) => [model.id, model.upsell]),
+        allModels.filter((model) => !model.isAvailable && model.upsell).map((model) => [model.id, model.upsell]),
     );
     const hasGatedModelsAt = sections.map((section) => section.items.some((model) => !model.isAvailable));
     const enabledModelIndices = allModels.reduce(

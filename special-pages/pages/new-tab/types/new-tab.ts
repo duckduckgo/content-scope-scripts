@@ -996,7 +996,7 @@ export interface AIModelSection {
    */
   header?: string;
   /**
-   * Optional section action. When present, unavailable models in this section are disabled regardless of their individual upsell values.
+   * Optional additional section action. Individual model availability and upsell actions are unchanged.
    */
   cta?: {
     /**

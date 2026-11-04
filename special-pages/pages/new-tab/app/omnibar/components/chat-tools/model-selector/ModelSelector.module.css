@@ -181,7 +181,6 @@
     pointer-events: none;
 }
 
-/* Payloads without a section action retain interactive row upsells. */
 .modelOptionUpsell {
     cursor: pointer;
 }

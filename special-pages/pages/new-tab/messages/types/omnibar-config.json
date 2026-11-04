@@ -80,7 +80,7 @@
           "type": "string"
         },
         "cta": {
-          "description": "Optional section action. When present, unavailable models in this section are disabled regardless of their individual upsell values.",
+          "description": "Optional additional section action. Individual model availability and upsell actions are unchanged.",
           "type": "object",
           "required": ["label", "upsell"],
           "properties": {
