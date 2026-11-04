@@ -2,6 +2,8 @@ import { TestTransportConfig } from '@duckduckgo/messaging';
 import { protectionsMocks } from './protections.mocks.js';
 import { AnimationConstants } from '../utils/animateCount.js';
 
+/** @typedef {import('../../../types/new-tab.ts').ProtectionsConfig} ProtectionsConfig */
+
 const url = typeof window !== 'undefined' ? new URL(window.location.href) : new URL('https://example.com');
 
 /**
@@ -42,6 +44,17 @@ export function protectionsMockTransport() {
                 case 'protections_setConfig': {
                     Object.assign(config, msg.params);
                     subs.get('protections_onConfigUpdate')?.(config);
+                    break;
+                }
+                case 'protections_dismissDefaultBrowserPrompt': {
+                    // as native would: stop flagging it
+                    delete dataset.isDefaultBrowser;
+                    break;
+                }
+                case 'protections_makeDefaultBrowser': {
+                    // as if the user went along with it
+                    dataset.isDefaultBrowser = true;
+                    subs.get('protections_onDataUpdate')?.(dataset);
                     break;
                 }
                 default: {
@@ -97,7 +110,10 @@ export function protectionsMockTransport() {
                     // platforms adopt the new schema
                     // @todo legacyProtections: Remove next line once all
                     // platforms support the new UI
-                    dataset.totalCookiePopUpsBlocked = undefined;
+                    // An explicit `?protections=<mock>` keeps that mock's value.
+                    if (!url.searchParams.has('protections')) {
+                        dataset.totalCookiePopUpsBlocked = undefined;
+                    }
 
                     if (url.searchParams.get('cpm') === 'true') {
                         dataset.totalCookiePopUpsBlocked = AnimationConstants.MAX_DISPLAY_COUNT;
@@ -118,11 +134,18 @@ export function protectionsMockTransport() {
                         dataset.totalCookiePopUpsBlocked = null;
                     }
 
+                    // `protections.default=false`: DuckDuckGo isn't the default browser
+                    if (url.searchParams.has('protections.default')) {
+                        dataset.isDefaultBrowser = url.searchParams.get('protections.default') === 'true';
+                    }
+
                     return Promise.resolve(dataset);
                 case 'protections_getConfig': {
-                    if (url.searchParams.get('protections_feed') === 'activity') {
-                        config.feed = 'activity';
-                    }
+                    const feed = url.searchParams.get('protections_feed');
+                    /** @type {ProtectionsConfig['feed'][]} */
+                    const feeds = ['privacy-stats', 'activity', 'purposes', 'recognition', 'companies', 'top-sites', 'compare'];
+                    const known = feeds.find((f) => f === feed);
+                    if (known) config.feed = known;
 
                     if (url.searchParams.get('protections.burn') === 'false') {
                         config.showBurnAnimation = false;

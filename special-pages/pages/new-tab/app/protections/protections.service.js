@@ -10,6 +10,7 @@ export class ProtectionsService {
      * @internal
      */
     constructor(ntp) {
+        this.ntp = ntp;
         /** @type {Service<ProtectionsData>} */
         this.dataService = new Service({
             initial: () => ntp.messaging.request('protections_getData'),
@@ -26,6 +27,22 @@ export class ProtectionsService {
 
     name() {
         return 'ProtectionsService';
+    }
+
+    /**
+     * Asks native to make DuckDuckGo the default browser.
+     * @internal
+     */
+    makeDefaultBrowser() {
+        this.ntp.messaging.notify('protections_makeDefaultBrowser', {});
+    }
+
+    /**
+     * Tells native the user dismissed the prompt to make DuckDuckGo the default.
+     * @internal
+     */
+    dismissDefaultBrowserPrompt() {
+        this.ntp.messaging.notify('protections_dismissDefaultBrowserPrompt', {});
     }
 
     /**

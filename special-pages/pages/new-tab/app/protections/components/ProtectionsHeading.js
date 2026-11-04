@@ -1,4 +1,4 @@
-import { useTypedTranslationWith, useMessaging } from '../../types.js';
+import { useTypedTranslationWith } from '../../types.js';
 import styles from '../../privacy-stats/components/PrivacyStats.module.css';
 import { useNewTabPageRebranding } from '../../settings.provider.js';
 import { ShowHideButtonCircle } from '../../components/ShowHideButton.jsx';
@@ -8,9 +8,10 @@ import { InfoIcon } from '../../components/Icons.js';
 import { NewBadge } from '../../components/NewBadge.js';
 import { Tooltip } from '../../components/Tooltip/Tooltip.js';
 import { useAnimatedCount } from '../utils/useAnimatedCount.js';
-import { useRef, useEffect, useMemo } from 'preact/hooks';
+import { useRef, useMemo } from 'preact/hooks';
 import { getLocalizedNumberFormatter } from '../../../../../shared/utils.js';
 import { useLocale } from '../../../../../shared/components/EnvironmentProvider.js';
+import { useScrollIntoViewOnRequest } from './ProtectionsProvider.js';
 
 /**
  * @import enStrings from "../strings.json"
@@ -36,7 +37,6 @@ export function ProtectionsHeading({
     showProtectionsReportNewLabel,
 }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
-    const ntp = useMessaging();
     const isRebrand = useNewTabPageRebranding();
     const locale = useLocale();
     const formatter = useMemo(() => getLocalizedNumberFormatter(locale), [locale]);
@@ -55,12 +55,7 @@ export function ProtectionsHeading({
     const animatedTrackersBlocked = useAnimatedCount(totalTrackersBlocked, counterContainerRef);
     const animatedCookiePopUpsBlocked = useAnimatedCount(totalCookiePopUpsBlocked, counterContainerRef);
 
-    // Subscribe to scroll message
-    useEffect(() => {
-        return ntp.messaging.subscribe('protections_scroll', () => {
-            headingRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        });
-    }, [ntp]);
+    useScrollIntoViewOnRequest(headingRef);
 
     // Native does not tell the FE if cookie pop up protection is enabled but
     // we can derive this from the value of `totalCookiePopUpsBlocked` in the
