@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SelectionMovedParams",
+  "description": "The reported selection moved on screen because the page scrolled or the viewport resized. At most once per animation frame, and only between a report with a rect (selectionChanged, or contextMenuOpened) and selectionCleared.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "rect",
+    "devicePixelRatio"
+  ],
+  "properties": {
+    "rect": {
+      "$ref": "selectionToolsConfig.shared.json#/definitions/selectionRect"
+    },
+    "devicePixelRatio": {
+      "type": "number",
+      "description": "The page's window.devicePixelRatio, which includes page zoom."
+    },
+    "occluded": {
+      "type": "boolean",
+      "description": "Whether other elements, such as a sticky header, cover all of the selected text that's in the viewport. False when the selection is out of the viewport, which the rect shows."
+    }
+  }
+}
