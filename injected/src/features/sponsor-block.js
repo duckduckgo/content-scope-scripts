@@ -239,7 +239,7 @@ export class SponsorBlock extends ContentFeature {
     }
 
     // A drag or tap into a segment is a choice, so that segment gets the button instead of an auto skip. Our own skip
-    // lands on the segment end, which is outside it, so it never marks anything.
+    // lands past every segment it touches, so it never marks anything.
     markSeekedInto() {
         const video = getMainVideo();
         this.#seekedInto = video ? (segmentAt(this.validSegments(video.duration), video.currentTime)?.uuid ?? null) : null;
@@ -344,8 +344,12 @@ export class SponsorBlock extends ContentFeature {
      * @param {Segment} segment
      */
     skipTo(video, segment) {
-        // The end is exclusive, so landing on it leaves the segment and no second skip follows.
-        video.currentTime = segment.end;
+        // The end is exclusive, so landing on it leaves the segment. Segments that touch or overlap it are skipped in the
+        // same jump; landing inside one would mark it as seeked into and turn its auto skip into a button.
+        const segments = this.validSegments(video.duration);
+        let end = segment.end;
+        for (let next = segmentAt(segments, end); next; next = segmentAt(segments, end)) end = next.end;
+        video.currentTime = end;
         this.#skipButton?.remove();
     }
 

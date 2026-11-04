@@ -171,6 +171,10 @@ describe('SponsorBlock applyConfig', () => {
     let feature;
     /** @type {jasmine.Spy} */
     let request;
+    /** @param {string} uuid @param {number} start @param {number} end */
+    const segment = (uuid, start, end) => ({ start, end, category: 'sponsor', actionType: 'skip', uuid });
+    const video = () => /** @type {HTMLVideoElement} */ (dom.window.document.querySelector('video'));
+    const tick = () => new Promise((resolve) => setTimeout(resolve));
 
     beforeEach(() => {
         originalWindow = globalThis.window;
@@ -204,5 +208,12 @@ describe('SponsorBlock applyConfig', () => {
         feature.applyConfig({ enabled: true, skipMode: 'manual' });
         feature.applyConfig({ enabled: true, skipMode: 'auto' });
         expect(request).toHaveBeenCalledTimes(1);
+    });
+
+    it('auto mode skips touching segments in one jump', async () => {
+        request.and.resolveTo({ segments: [segment('a', 0, 5), segment('b', 5, 8)] });
+        feature.applyConfig({ enabled: true, skipMode: 'auto' });
+        await tick();
+        expect(video().currentTime).toBe(8);
     });
 });
