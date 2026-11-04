@@ -200,6 +200,30 @@ test.describe('SponsorBlock', () => {
         await expect(page.locator(SKIP_BUTTON)).toHaveCount(0);
     });
 
+    test('discards a segments response that arrives after the user left the video', async ({ page }, testInfo) => {
+        const collector = await loadPlayer(page, testInfo);
+        await expect(page.locator(MARKER)).toHaveCount(1);
+
+        // The mock answers one timer tick after the request, so leaving the video synchronously after requesting it
+        // makes that answer stale. A synthetic loadstart makes the feature re-read the URL right away.
+        const markers = await page.evaluate(async () => {
+            const video = /** @type {HTMLVideoElement} */ (document.querySelector('video'));
+            const navigate = (/** @type {string} */ path) => {
+                history.pushState({}, '', path);
+                video.dispatchEvent(new Event('loadstart'));
+            };
+            navigate('/watch?v=AAAAAAAAAAA');
+            navigate('/results?search_query=ducks');
+            await new Promise((resolve) => setTimeout(resolve, 0));
+            return document.querySelectorAll('.ddg-sponsorblock-overlay > div').length;
+        });
+        expect(markers).toBe(0);
+        expect((await requestsFor(collector, 'getSegments')).map((m) => /** @type {any} */ (m.payload).params.videoID)).toEqual([
+            'dQw4w9WgXcQ',
+            'AAAAAAAAAAA',
+        ]);
+    });
+
     test('selector miss: no UI and no errors', async ({ page }, testInfo) => {
         /** @type {Error[]} */
         const errors = [];
