@@ -13,7 +13,7 @@ import styles from './DuckPlayerContent.module.css';
  * Bottom bubble content for the duckPlayerSingle step.
  *
  * - variant 'ad-free': static promo image + single Next button
- * - default (no variant): Rive animation with before/after toggle + Next button
+ * - default (no variant): mp4 video transition with before/after toggle + Next button
  *
  * @param {object} props
  * @param {boolean} props.isAdFree
