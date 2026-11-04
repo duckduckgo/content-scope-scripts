@@ -407,13 +407,17 @@ export default class ContentFeature extends ConfigFeature {
     }
 
     /**
-     * Load the feature. A throw from `load` is caught, so the features after this one still load.
+     * Load the feature unless its `additionalCheck` setting is disabled. A throw from reading that setting,
+     * such as from an invalid `urlPattern` in `conditionalChanges`, or from `load` is caught, so the
+     * features after this one still load.
      *
-     * @returns {boolean} whether `load` returned without throwing
+     * @returns {boolean} whether the setting is enabled and `load` returned without throwing
      */
     callLoad() {
         const mark = this.monitor.mark(this.name + 'CallLoad');
         try {
+            // Short term fix to disable the feature whilst we roll out Android adsjs
+            if (!this.getFeatureSettingEnabled('additionalCheck', 'enabled')) return false;
             this.load(this.args);
             return true;
         } catch (error) {

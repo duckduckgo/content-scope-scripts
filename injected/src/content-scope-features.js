@@ -74,12 +74,16 @@ export function load(args) {
                 }
                 continue;
             }
-            const featureInstance = new ContentFeature(featureName, importConfig, _features, args);
-            // Short term fix to disable the feature whilst we roll out Android adsjs
-            if (!featureInstance.getFeatureSettingEnabled('additionalCheck', 'enabled')) {
+            let featureInstance;
+            try {
+                featureInstance = new ContentFeature(featureName, importConfig, _features, args);
+            } catch (error) {
+                if (args.debug) {
+                    console.error('Failed to construct feature', featureName, error);
+                }
                 continue;
             }
-            // A feature whose load threw is not registered, so its init never runs
+            // A feature that threw, or that its `additionalCheck` setting disables, is not registered, so its init never runs
             if (!featureInstance.callLoad()) {
                 continue;
             }
@@ -124,7 +128,7 @@ export async function init(args) {
         Object.entries(features).map(async ([featureName, featureInstance]) => {
             if (!isFeatureBroken(args, featureName) || alwaysInitExtensionFeatures(args, featureName)) {
                 // Short term fix to disable the feature whilst we roll out Android adsjs
-                if (!featureInstance.getFeatureSettingEnabled('additionalCheck', 'enabled')) {
+                if (!isAdditionalCheckEnabled(featureInstance)) {
                     featureInstance.markFeatureAsSkipped('additionalCheck disabled');
                     return;
                 }
@@ -199,6 +203,21 @@ export async function updateFeatureArgs(updatedArgs) {
             }
         }
     });
+}
+
+/**
+ * A feature's `additionalCheck` setting. A read that throws counts as disabled, so the feature is marked
+ * skipped and `_ready` settles for the features awaiting it.
+ *
+ * @param {import('./content-feature.js').default} featureInstance
+ * @returns {boolean}
+ */
+function isAdditionalCheckEnabled(featureInstance) {
+    try {
+        return featureInstance.getFeatureSettingEnabled('additionalCheck', 'enabled');
+    } catch {
+        return false;
+    }
 }
 
 /**
