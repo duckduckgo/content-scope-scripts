@@ -1,5 +1,5 @@
 import { isArray } from '../../../captured-globals.js';
-import { ConfigParseError, DetectionError, isFailure } from '../model/core.js';
+import { ConfigParseError, isFailure, mismatch } from '../model/core.js';
 import { compileField, readField } from '../predicates/fields.js';
 import { compileWhere, testPredicate } from '../predicates/predicates.js';
 
@@ -21,7 +21,10 @@ import { compileWhere, testPredicate } from '../predicates/predicates.js';
 export function* selectItems(items, { where, field }, ctx) {
     for (const item of items) {
         if (where) {
-            if (typeof item !== 'object' || item === null) throw new DetectionError('`where` on an item that is not an object');
+            if (typeof item !== 'object' || item === null) {
+                yield mismatch('`where` on an item that is not an object');
+                return;
+            }
             const held = testPredicate(where, item, ctx);
             if (isFailure(held)) {
                 yield held;
