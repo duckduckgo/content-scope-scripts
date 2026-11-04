@@ -59,7 +59,7 @@ Schemas live in `injected/src/messages/sponsor-block/`; `npm run build-types -w 
 
 Each selector list is ordered: the first selector with a visible match wins. The feature falls back to in-code defaults when a key is absent, drops malformed entries, and treats an empty list as "no UI for this piece". `categories` and `actionTypes` are read by native only.
 
-Until the privacy-configuration entry ships, `sponsorBlock` sits in `platformSpecificFeatures` in `injected/src/utils.js`, which enables it whenever the remote config does not mention it. Remove it from that list when the entry lands.
+The feature loads only when the remote config names `sponsorBlock` with a state that resolves to enabled for the platform; without an entry, or with `disabled`, its `init` never runs and no message is sent. To test before the entry ships, point the app at a custom privacy config that includes it.
 
 ## Testing
 

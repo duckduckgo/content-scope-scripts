@@ -978,7 +978,6 @@ export const platformSpecificFeatures = [
     'uaChBrands',
     'chromeWebstorePatching',
     'selectionTools',
-    'sponsorBlock', // ponytail: not in remote config yet; remove once privacy-configuration ships it
 ];
 /**
  * Features that bypass exception-based disabling in computeEnabledFeatures.
