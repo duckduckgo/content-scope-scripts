@@ -354,10 +354,11 @@ export class SponsorBlock extends ContentFeature {
     }
 
     // Reacts to the playhead: in auto mode seeks past a segment as soon as playback enters it, in manual mode (or for
-    // a segment the user seeked into) shows the skip button while inside one and hides it otherwise.
+    // a segment the user seeked into) shows the skip button while inside one and hides it otherwise. An ended video is
+    // never inside one: a segment end past the player's duration clamps the skip to the end, still before that end.
     updateSkip() {
         const video = getMainVideo();
-        this.#skipSegment = video && !this.inAd() ? segmentAt(this.validSegments(video.duration), video.currentTime) : null;
+        this.#skipSegment = video && !video.ended && !this.inAd() ? segmentAt(this.validSegments(video.duration), video.currentTime) : null;
         if (this.#skipSegment?.uuid !== this.#seekedInto) this.#seekedInto = null;
         if (video && this.#skipSegment && this.#skipMode === 'auto' && !this.#seekedInto) {
             this.skipTo(video, this.#skipSegment);

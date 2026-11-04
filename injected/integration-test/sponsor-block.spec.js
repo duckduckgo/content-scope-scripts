@@ -157,6 +157,24 @@ test.describe('SponsorBlock', () => {
         expect(await currentTime(page)).toBeCloseTo(5, 1);
     });
 
+    test('a segment ending past the video end leaves no button once the skip reaches the end', async ({ page }, testInfo) => {
+        // The seek to 13s is clamped to the 12s clip end, which is still before the segment end.
+        const segments = [{ start: 10, end: 13, category: 'sponsor', actionType: 'skip', uuid: 'outro', videoDuration: 12 }];
+        await loadPlayer(page, testInfo, { responses: { getSegments: { segments } } });
+        await expect(page.locator(MARKER)).toHaveCount(1);
+
+        await seekTo(page, 11);
+        await expect(page.locator(SKIP_BUTTON)).toBeVisible();
+
+        const seekedToEnd = page.evaluate(() => {
+            const video = /** @type {HTMLVideoElement} */ (document.querySelector('video'));
+            return new Promise((resolve) => video.addEventListener('seeked', () => video.currentTime > 11.5 && resolve(true)));
+        });
+        await page.locator(SKIP_BUTTON).click();
+        await seekedToEnd;
+        await expect(page.locator(SKIP_BUTTON)).toHaveCount(0);
+    });
+
     test('onConfigChanged switches mode without refetching and disables the feature', async ({ page }, testInfo) => {
         const collector = await loadPlayer(page, testInfo);
         await expect(page.locator(MARKER)).toHaveCount(1);
