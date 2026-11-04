@@ -36,7 +36,9 @@
             if (location.pathname.startsWith('/embed/')) {
                 document.body.insertAdjacentHTML(
                     'beforeend',
-                    '<div id="player-controls" style="position: fixed; top: 0; left: 0; width: 320px; height: 180px"></div>',
+                    '<div id="player-controls" style="position: fixed; top: 0; left: 0; width: 320px; height: 180px">' +
+                        '<div class="player-controls-bottom" style="position: absolute; left: 0; right: 0; top: 100px; height: 40px"></div>' +
+                        '</div>',
                 );
             }
         </script>

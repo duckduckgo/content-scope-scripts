@@ -38,7 +38,8 @@ const STYLES = `
    button itself lives in the host's closed shadow root, so only its placement is styled from here. */
 .${SKIP_BUTTON_CLASS} { position: absolute; right: 12px; bottom: 72px; z-index: 1000; pointer-events: auto; }
 #player-container-id > .${SKIP_BUTTON_CLASS} { right: 8px; bottom: 40px; }
-/* Embed: the fullscreen button sits in the top-right of the controls layer's bottom row; clear it. */
+/* Embed: the fullscreen button sits in the top-right of the controls layer's bottom row; clear it. The row's
+   height changes with orientation, so updateSkip measures it and overrides the bottom offset when the row is found. */
 #player-controls > .${SKIP_BUTTON_CLASS} { right: 24px; bottom: 140px; }
 `;
 // Fixed literal, never page data. The icon matches YouTube's "next" glyph: a triangle and a bar.
@@ -365,6 +366,11 @@ export class SponsorBlock extends ContentFeature {
         }
         this.#skipButton ??= this.createSkipButton();
         if (this.#skipButton.parentElement !== host) host.append(this.#skipButton);
+        const row = host.id === 'player-controls' ? host.querySelector('.player-controls-bottom') : null;
+        if (row) {
+            const gap = host.getBoundingClientRect().bottom - row.getBoundingClientRect().top;
+            this.#skipButton.style.bottom = `${Math.round(gap) + 12}px`;
+        }
     }
 
     // A closed shadow root keeps the button's markup and listeners out of reach of YouTube's scripts.

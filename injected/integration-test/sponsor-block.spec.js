@@ -263,6 +263,8 @@ test.describe('SponsorBlock', () => {
 
             await seekTo(page, 3);
             await expect(page.locator(`#player-controls > ${SKIP_BUTTON}`)).toBeVisible();
+            // Anchored above the layer's bottom row: 180px layer, row top at 100px, plus a 12px gap.
+            await expect(page.locator(SKIP_BUTTON)).toHaveCSS('bottom', '92px');
             // Fails with "intercepts pointer events" if the layer sits over the button.
             await page.locator(SKIP_BUTTON).click();
             expect(await currentTime(page)).toBeCloseTo(5, 1);
