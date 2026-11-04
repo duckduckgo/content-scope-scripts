@@ -996,6 +996,19 @@ export interface AIModelSection {
    */
   header?: string;
   /**
+   * Optional section action. When present, unavailable models in this section are disabled regardless of their individual upsell values.
+   */
+  cta?: {
+    /**
+     * Localized label for the section action.
+     */
+    label: string;
+    /**
+     * Which subscription flow the action opens: 'subscribe' for non-subscribers or 'upgrade' for existing subscribers who need a higher tier.
+     */
+    upsell: "subscribe" | "upgrade";
+  };
+  /**
    * List of AI models in this section
    */
   items: AIModelItem[];
@@ -1045,7 +1058,7 @@ export interface AIModelItem {
    */
   reasoningEfforts?: ReasoningEffortOption[];
   /**
-   * For a gated (disabled) model, which upsell flow it leads to. Absent for enabled models. Absent on a gated model means the row shows but is inert, with no upsell action; send an explicit value whenever the row should be actionable.
+   * Which subscription flow the action opens: 'subscribe' for non-subscribers or 'upgrade' for existing subscribers who need a higher tier.
    */
   upsell?: "subscribe" | "upgrade";
 }
@@ -1067,7 +1080,7 @@ export interface ReasoningEffortOption {
    */
   isAvailable: boolean;
   /**
-   * For a gated (isAvailable: false) option, which upsell flow it leads to. Absent for available options. Absent on a gated option means the row shows but is inert, with no upsell action; send an explicit value whenever the row should be actionable.
+   * Which subscription flow the action opens: 'subscribe' for non-subscribers or 'upgrade' for existing subscribers who need a higher tier.
    */
   upsell?: "subscribe" | "upgrade";
   /**

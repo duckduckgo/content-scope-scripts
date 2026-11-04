@@ -480,6 +480,30 @@ export function omnibarMockTransport() {
                             };
                         });
                     }
+                    const modelSectionCta = url.searchParams.get('omnibar.modelSectionCta');
+                    if (modelSectionCta === 'subscribe' || modelSectionCta === 'upgrade') {
+                        config.aiModelSections = config.aiModelSections?.map((section) => {
+                            if (!section.items.some((model) => !model.isAvailable)) return section;
+                            return {
+                                header: modelSectionCta === 'upgrade' ? 'Pro Plan Exclusive.' : 'Unlock with subscription.',
+                                cta: {
+                                    label:
+                                        modelSectionCta === 'upgrade'
+                                            ? 'Upgrade'
+                                            : config.isEligibleForFreeTrial === false
+                                              ? 'Subscribe'
+                                              : 'Try for free',
+                                    upsell: modelSectionCta,
+                                },
+                                items: section.items
+                                    .filter((item) => modelSectionCta !== 'upgrade' || item.accessTier === 'pro')
+                                    .map((item) => ({
+                                        ...item,
+                                        upsell: parseBooleanQueryParam('omnibar.keepModelRowUpsell') === true ? item.upsell : undefined,
+                                    })),
+                            };
+                        });
+                    }
                     const reasoningSections = url.searchParams.get('omnibar.reasoningSections');
                     if (reasoningSections === 'first-gated' || reasoningSections === 'multiple' || reasoningSections === 'grouped') {
                         config.aiModelSections = config.aiModelSections?.map((section) => ({
