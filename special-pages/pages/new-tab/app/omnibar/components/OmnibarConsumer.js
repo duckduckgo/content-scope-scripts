@@ -1,7 +1,7 @@
 import { Fragment, h } from 'preact';
 import { useContext } from 'preact/hooks';
 import { useCustomizer } from '../../customizer/components/CustomizerMenu.js';
-import { useTypedTranslationWith } from '../../types.js';
+import { useInitialSetupData, useTypedTranslationWith } from '../../types.js';
 import { useVisibility } from '../../widget-list/widget-config.provider.js';
 import { Omnibar } from './Omnibar.js';
 import styles from './Omnibar.module.css';
@@ -48,11 +48,19 @@ export function OmnibarConsumer() {
     );
 }
 
+/**
+ * Reserves the Omnibar's height until config arrives, using the subset sent in
+ * `initialSetup` so nothing below it shifts. Falls back to the
+ * tab switcher and the Duck.ai-sized spacer when native doesn't send it (e.g. Windows).
+ */
 function OmnibarPlaceholder() {
+    const { omnibar } = useInitialSetupData();
+    const showTabs = omnibar ? omnibar.showAiSetting && omnibar.enableAi : true;
+    const mode = (showTabs && omnibar?.mode) || 'search';
     return (
-        <div class={styles.root} aria-hidden="true">
+        <div class={styles.root} data-mode={omnibar ? mode : undefined} aria-hidden="true">
             <LogoStacked class={styles.logo} />
-            <div class={styles.placeholderTabs} />
+            {showTabs && <div class={styles.placeholderTabs} />}
             <div class={styles.spacer} />
         </div>
     );
@@ -73,6 +81,7 @@ function OmnibarReadyState({ config, tabId }) {
         enableVoiceChatAccess = false,
         enableAskAiSuggestion = true,
         enableAttachTabs = false,
+        showSuggestedPrompts = false,
         mode: defaultMode,
     } = config;
     const { setMode } = useContext(OmnibarContext);
@@ -89,6 +98,7 @@ function OmnibarReadyState({ config, tabId }) {
             enableVoiceChatAccess={enableVoiceChatAccess}
             enableAskAiSuggestion={enableAskAiSuggestion}
             enableAttachTabs={enableAttachTabs}
+            showSuggestedPrompts={showSuggestedPrompts}
             tabId={tabId}
         />
     );

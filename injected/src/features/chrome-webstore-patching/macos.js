@@ -90,7 +90,7 @@ export class MacOSWebstore {
         const evaluation = ++this._evaluation;
         this._evaluatedExtensionId = null;
         this.feature._verdict = null;
-        for (const button of this.feature._matchingButtons()) button.style.removeProperty('display');
+        this.feature._resetButtons();
 
         if (!extensionId || this._pending.has(extensionId)) return;
 

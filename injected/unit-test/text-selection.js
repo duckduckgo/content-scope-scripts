@@ -130,6 +130,20 @@ describe('TextSelection', () => {
         expect(selectionFrame()?.readSelection().selectedText).toBe('Selected text');
     });
 
+    it('ignores page overrides of the selection readers made after load', () => {
+        feature.init();
+        const target = document.getElementById('target');
+        const selection = window.getSelection();
+        if (!target || !selection) throw new Error('Missing selection test fixture');
+        window.getSelection = () => null;
+        window.Selection.prototype.toString = () => 'Spoofed text';
+
+        selection.selectAllChildren(target);
+        document.dispatchEvent(new window.Event('selectionchange'));
+
+        expect(selectionFrame()?.readSelection().selectedText).toBe('Selected text');
+    });
+
     it('releases a claimed frame when the page is hidden', () => {
         feature.init();
         selectTargetText();

@@ -26,8 +26,8 @@ export const stepsConfig = {
         };
     },
     getStarted: ({ enqueueNext, onTitleComplete, isShortViewport, globalState }) => {
-        const showChromeExtension = /** @type {import('../../types').GetStartedStep} */ (globalState.step).options?.includes(
-            'chrome-extension-install',
+        const showInstallOptions = /** @type {import('../../types').GetStartedStep} */ (globalState.step).options?.some(
+            (option) => option === 'chrome-extension-install' || option === 'sideload-extensions' || option === 'open-at-startup',
         );
         return {
             bottomBubble: {
@@ -39,7 +39,7 @@ export const stepsConfig = {
                 : {
                       foreground: <GetStartedAnimation />,
                   },
-            bubbleWidth: showChromeExtension ? 'chromeExtension' : 'narrow',
+            bubbleWidth: showInstallOptions ? 'chromeExtension' : 'narrow',
         };
     },
     makeDefaultSingle: ({ enqueueNext, onTitleComplete, updateSystemValue }) => {

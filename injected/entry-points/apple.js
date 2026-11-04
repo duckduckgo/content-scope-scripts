@@ -6,8 +6,10 @@ import { processConfig, platformSpecificFeatures, getLoadArgs } from './../src/u
 import { WebkitMessagingConfig } from '../../messaging/index.js';
 
 function initCode() {
+    // Native passes the config as a JSON string literal. Every frame compiles its own copy of this script, and one string
+    // constant costs far less to compile and keep than the equivalent object literal.
     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-    const config = $CONTENT_SCOPE$;
+    const config = JSON.parse($CONTENT_SCOPE_JSON$);
     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
     const userUnprotectedDomains = $USER_UNPROTECTED_DOMAINS$;
     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f

@@ -62,6 +62,7 @@ In the built output you will see these dramatic differences in the bundled code 
 The following placeholders are replaced during the build process:
 
 - **`$CONTENT_SCOPE$`** - Raw remote config object
+- **`$CONTENT_SCOPE_JSON$`** - Apple only, in place of `$CONTENT_SCOPE$`: the remote config JSON as a JavaScript string literal, which the bundle passes to `JSON.parse`
 - **`$USER_UNPROTECTED_DOMAINS$`** - An array of user allowlisted domains
 - **`$USER_PREFERENCES$`** - An object containing:
     - `platform`:

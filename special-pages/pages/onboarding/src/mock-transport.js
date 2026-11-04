@@ -19,6 +19,9 @@ export function mockTransport() {
             window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
             const msg = /** @type {any} */ (_msg);
             switch (msg.method) {
+                case 'setOnboardingInstallOptions': {
+                    break;
+                }
                 default: {
                     console.warn('unhandled notification', msg);
                 }
@@ -62,6 +65,17 @@ export function mockTransport() {
                             id: 'getStarted',
                             kind: 'info',
                             options: ['chrome-extension-install'],
+                        };
+                    }
+
+                    const installOptions = /** @type {import('../app/types.js').GetStartedOption[]} */ ([]);
+                    if (url.searchParams.get('sideloadExtensions') === 'true') installOptions.push('sideload-extensions');
+                    if (url.searchParams.get('openAtStartup') === 'true') installOptions.push('open-at-startup');
+                    if (installOptions.length > 0) {
+                        stepDefinitions.getStarted = {
+                            id: 'getStarted',
+                            kind: 'info',
+                            options: [...(stepDefinitions.getStarted?.options ?? []), ...installOptions],
                         };
                     }
 

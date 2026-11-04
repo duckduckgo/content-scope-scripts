@@ -1,7 +1,6 @@
 import { Service } from '../service.js';
 import { OmnibarSuggestionsService } from './omnibar.suggestions.service.js';
 import { OmnibarAiChatsService } from './omnibar.ai-chats.service.js';
-
 /**
  * @typedef {import("../../types/new-tab.js").OmnibarConfig} OmnibarConfig
  * @typedef {import("../../types/new-tab.js").SuggestionsData} SuggestionsData

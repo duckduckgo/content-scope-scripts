@@ -406,10 +406,22 @@ export default class ContentFeature extends ConfigFeature {
         return this.messaging.subscribe(name, cb);
     }
 
+    /**
+     * Load the feature. A throw from `load` is caught, so the features after this one still load.
+     *
+     * @returns {boolean} whether `load` returned without throwing
+     */
     callLoad() {
         const mark = this.monitor.mark(this.name + 'CallLoad');
-        this.load(this.args);
-        mark.end();
+        try {
+            this.load(this.args);
+            return true;
+        } catch (error) {
+            this.log.error('load failed:', error);
+            return false;
+        } finally {
+            mark.end();
+        }
     }
 
     measure() {

@@ -19,6 +19,7 @@ export default defineConfig({
                 'integration-test/duck-ai-data-clearing.spec.js',
                 'integration-test/duck-ai-chat-history.spec.js',
                 'integration-test/web-detection.spec.js',
+                'integration-test/web-detection-browser-reads.spec.js',
                 'integration-test/detector-perf.spec.js',
                 'integration-test/turnstile-detection.spec.js',
                 'integration-test/web-events.spec.js',
@@ -26,6 +27,7 @@ export default defineConfig({
                 'integration-test/page-type-signals.spec.js',
                 'integration-test/page-context-root-selection.spec.js',
                 'integration-test/chrome-webstore-patching.spec.js',
+                'integration-test/selection-tools.spec.js',
             ],
             use: { injectName: 'windows', platform: 'windows' },
         },
@@ -58,6 +60,7 @@ export default defineConfig({
         {
             name: 'ios',
             testMatch: [
+                'integration-test/browser-ui-lock.spec.js',
                 'integration-test/duckplayer-mobile.spec.js',
                 'integration-test/duckplayer-mobile-drawer.spec.js',
                 'integration-test/duckplayer-native.spec.js',
@@ -67,7 +70,7 @@ export default defineConfig({
         },
         {
             name: 'ios-main-world',
-            testMatch: ['integration-test/page-context-root-selection.spec.js'],
+            testMatch: ['integration-test/page-context-root-selection.spec.js', 'integration-test/text-selection.spec.js'],
             use: { injectName: 'apple', platform: 'ios', ...devices['iPhone 13'] },
         },
         {

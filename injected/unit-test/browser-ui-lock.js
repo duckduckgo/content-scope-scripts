@@ -224,16 +224,21 @@ describe('BrowserUiLock', () => {
     });
 
     describe('_isImageDisplayPage', () => {
-        /** @type {string | undefined} */
-        let originalContentType;
+        /** @type {Document | undefined} */
+        let originalDocument;
 
         beforeEach(() => {
-            originalContentType = document.contentType;
+            // Node has no document; give each test its own rather than relying on one another spec left behind.
+            originalDocument = globalThis.document;
+            globalThis.document = /** @type {Document} */ ({});
         });
 
         afterEach(() => {
-            if (originalContentType !== undefined) {
-                Object.defineProperty(document, 'contentType', { value: originalContentType, configurable: true });
+            if (originalDocument !== undefined) {
+                globalThis.document = originalDocument;
+            } else {
+                // @ts-expect-error - restoring undefined
+                delete globalThis.document;
             }
         });
 

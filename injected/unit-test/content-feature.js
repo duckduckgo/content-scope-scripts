@@ -437,6 +437,23 @@ describe('ContentFeature class', () => {
         expect(didRun).withContext('Should run').toBeTrue();
     });
 
+    describe('callLoad', () => {
+        it('should return false, without throwing, when load throws', () => {
+            class FailingFeature extends BaseTestFeature {
+                load() {
+                    throw new Error('load failed');
+                }
+            }
+            const feature = new FailingFeature('failingFeature', {}, {});
+            expect(feature.callLoad()).toBe(false);
+        });
+
+        it('should return true when load returns', () => {
+            const feature = new BaseTestFeature('loadingFeature', {}, {});
+            expect(feature.callLoad()).toBe(true);
+        });
+    });
+
     describe('addDebugFlag', () => {
         class MyTestFeature extends BaseTestFeature {
             // eslint-disable-next-line

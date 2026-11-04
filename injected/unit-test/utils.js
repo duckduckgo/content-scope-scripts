@@ -5,6 +5,7 @@ import {
     processConfig,
     computeEnabledFeatures,
     parseFeatureSettings,
+    pruneConfigFeatures,
     satisfiesMinVersion,
     isMaxSupportedVersion,
     getTabHostname,
@@ -1446,6 +1447,45 @@ describe('Helpers checks', () => {
             };
             const result = parseFeatureSettings(data, ['featureA', 'navigatorInterface', 'messageBridge']);
             expect(result).toEqual({ featureA: { key: 'value' } });
+        });
+    });
+
+    describe('pruneConfigFeatures', () => {
+        it('keeps only bundled features and their dependencies, without mutating the input', () => {
+            const data = {
+                unprotectedTemporary: [],
+                features: {
+                    trackerProtection: { state: 'enabled', settings: {}, exceptions: [] },
+                    contentBlocking: { state: 'enabled', settings: {}, exceptions: [] },
+                    autofill: { state: 'enabled', settings: {}, exceptions: [] },
+                    gpc: { state: 'enabled', settings: {}, exceptions: [] },
+                },
+            };
+            const pruned = pruneConfigFeatures(data, ['trackerProtection', 'gpc'], { trackerProtection: ['contentBlocking'] });
+            expect(Object.keys(pruned.features).sort()).toEqual(['contentBlocking', 'gpc', 'trackerProtection']);
+            expect(pruned.unprotectedTemporary).toBe(data.unprotectedTemporary);
+            expect(Object.keys(data.features).length).toBe(4);
+        });
+
+        it('returns a config without features as is', () => {
+            const data = /** @type {any} */ ({});
+            expect(pruneConfigFeatures(data, ['gpc'])).toBe(data);
+        });
+
+        it('is applied by processConfig for the given inject name', () => {
+            const data = {
+                unprotectedTemporary: [],
+                features: {
+                    gpc: { state: 'enabled', settings: {}, exceptions: [] },
+                    autofill: { state: 'enabled', settings: {}, exceptions: [] },
+                },
+            };
+            /** @type {import('../src/utils.js').UserPreferences} */
+            const preferences = { platform: { name: 'ios' }, sessionKey: 'testSessionKey' };
+            const pruned = processConfig(data, [], preferences, [], 'apple');
+            expect(Object.keys(pruned.bundledConfig.features)).toEqual(['gpc']);
+            const unpruned = processConfig(data, [], preferences, []);
+            expect(Object.keys(unpruned.bundledConfig.features).sort()).toEqual(['autofill', 'gpc']);
         });
     });
 });

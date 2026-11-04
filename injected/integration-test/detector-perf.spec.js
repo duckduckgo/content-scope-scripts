@@ -164,6 +164,7 @@ test.describe('DetectorPerf Feature', () => {
                         selector: '[',
                     },
                 },
+                actions: { breakageReportData: {} },
             },
         };
         await collector.load('/web-detection/index.html', config);
@@ -177,7 +178,7 @@ test.describe('DetectorPerf Feature', () => {
         const breakageData = JSON.parse(decodeURIComponent(String(params.breakageData)));
         expect(breakageData.webDetection).toContainEqual({
             detectorId: 'failureTest.invalidSelector',
-            detected: 'error',
+            errors: { 'match.element': 'error' },
         });
     });
 

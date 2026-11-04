@@ -250,3 +250,35 @@ export function getUpsellTelemetryType(upsell, isEligibleForFreeTrial) {
     if (upsell === 'upgrade' || !isEligibleForFreeTrial) return 'upgrade';
     return 'tryForFree';
 }
+
+/** @type {CanvasRenderingContext2D|null} */
+let measureContext = null;
+
+/**
+ * A textarea placeholder wraps instead of ending in an ellipsis, so cut the text to fit one line of the textarea.
+ * @param {string} text
+ * @param {HTMLTextAreaElement} textarea
+ * @returns {string}
+ */
+export function fitToOneLine(text, textarea) {
+    measureContext ??= document.createElement('canvas').getContext('2d');
+    if (!measureContext) return text;
+    const ctx = measureContext;
+    const style = window.getComputedStyle(textarea);
+    ctx.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+    // Leaves room for the caret, which the textarea keeps at the end of the line.
+    const width = textarea.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight) - 2;
+    if (ctx.measureText(text).width <= width) return text;
+
+    // Code points, so an emoji is never split.
+    const chars = Array.from(text);
+    const cut = (/** @type {number} */ length) => chars.slice(0, length).join('').trimEnd() + '…';
+    let low = 0;
+    let high = chars.length;
+    while (low < high) {
+        const mid = Math.ceil((low + high) / 2);
+        if (ctx.measureText(cut(mid)).width <= width) low = mid;
+        else high = mid - 1;
+    }
+    return cut(low);
+}

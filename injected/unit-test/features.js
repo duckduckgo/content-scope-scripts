@@ -1,4 +1,4 @@
-import { platformSupport } from '../src/features.js';
+import { platformSupport, featureConfigDependencies } from '../src/features.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { readFile } from 'fs/promises';
@@ -28,6 +28,40 @@ describe('Features definition', () => {
         expect(webCompatIdx).not.toBe(-1);
         expect(fpScreenSizeIdx).not.toBe(-1);
         expect(webCompatIdx).toBeLessThan(fpScreenSizeIdx);
+    });
+
+    it('lists every cross-feature config read in featureConfigDependencies', async () => {
+        const featuresDir = path.join(__dirname, '../src/features');
+        const missing = [];
+        for (const file of glob.sync('**/*.js', { cwd: featuresDir })) {
+            // `tracker-protection.js` and `tracker-protection/*.js` both belong to `trackerProtection`
+            const featureName = file
+                .split('/')[0]
+                .replace(/\.js$/, '')
+                .replace(/-([a-z])/g, (_, c) => c.toUpperCase());
+            const source = await readFile(path.join(featuresDir, file), 'utf-8');
+            const reads = [
+                ...source.matchAll(/bundledConfig\??\.features\??\.([a-zA-Z]+)/g),
+                ...source.matchAll(/getFeatureSetting\([^,()]+,\s*'([a-zA-Z]+)'\)/g),
+                ...source.matchAll(/getFeatureSettingEnabled\([^,()]+,[^,()]+,\s*'([a-zA-Z]+)'\)/g),
+            ].map(([, name]) => name);
+            for (const name of reads) {
+                if (name !== featureName && !featureConfigDependencies[featureName]?.includes(name)) {
+                    missing.push(`${featureName} reads ${name}`);
+                }
+            }
+        }
+        expect(missing).toEqual([]);
+    });
+
+    it('loads only `cookie` before `webDetection`, so it captures native APIs before other features replace them', () => {
+        for (const [platform, features] of Object.entries(platformSupport)) {
+            if (!features.includes('webDetection')) continue;
+            const before = features.slice(0, features.indexOf('webDetection'));
+            expect(before.filter((name) => name !== 'cookie'))
+                .withContext(platform)
+                .toEqual([]);
+        }
     });
 });
 
@@ -86,8 +120,6 @@ describe('test-pages/*/config/*.json schema validation', () => {
         path.resolve(__dirname, '../integration-test/test-pages/message-bridge/config/message-bridge-disabled.json'),
         // Legacy conditionalChanges format (domain at root instead of condition.domain)
         path.resolve(__dirname, '../integration-test/test-pages/ua-ch-brands/config/domain-brand-override-legacy.json'),
-        // Uses fireDetectionEvents which is not yet in the published schema
-        path.resolve(__dirname, '../integration-test/test-pages/web-interference-detection/config/youtube-detection-events.json'),
         // Includes an xpath promoSelectors entry on purpose, to test that it is dropped; the schema allows css only
         path.resolve(__dirname, '../integration-test/test-pages/chrome-webstore-patching/config/config-promo-unusable-entries.json'),
     ];

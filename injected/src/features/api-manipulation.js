@@ -7,7 +7,7 @@
  */
 import ContentFeature from '../content-feature.js';
 // eslint-disable-next-line no-redeclare
-import { ReflectApply, getOwnPropertyDescriptor, hasOwnProperty, objectDefineProperty } from '../captured-globals.js';
+import { ReflectApply, getOwnPropertyDescriptor, hasOwnProperty, objectDefineProperty, objectKeys } from '../captured-globals.js';
 import { processAttr } from '../utils.js';
 import { mergePropertyDescriptors, wrapToString } from '../wrapper-utils.js';
 
@@ -20,12 +20,26 @@ export default class ApiManipulation extends ContentFeature {
     init() {
         const apiChanges = this.getFeatureSetting('apiChanges');
         if (apiChanges) {
-            for (const scope in apiChanges) {
-                const change = apiChanges[scope];
-                if (!this.checkIsValidAPIChange(change)) {
+            // A scope sorts before the scopes beneath it, so it is applied first whatever the key order
+            const scopes = objectKeys(apiChanges).sort();
+            /** @type {string[]} */
+            const failedScopes = [];
+            for (const scope of scopes) {
+                // A change beneath a failed one would patch the object the failed change left in place
+                if (failedScopes.some((failed) => scope.startsWith(`${failed}.`))) {
                     continue;
                 }
-                this.applyApiChange(scope, change);
+                const change = apiChanges[scope];
+                if (!this.checkIsValidAPIChange(change)) {
+                    failedScopes.push(scope);
+                    continue;
+                }
+                try {
+                    this.applyApiChange(scope, change);
+                } catch (e) {
+                    failedScopes.push(scope);
+                    this.log.error(`Failed to apply change to ${scope}:`, e);
+                }
             }
         }
     }

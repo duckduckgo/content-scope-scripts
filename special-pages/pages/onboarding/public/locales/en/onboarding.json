@@ -496,5 +496,17 @@
   "getStarted_chromeExtension_tooltip": {
     "title": "Set DuckDuckGo as your default search engine in Chrome to search online without being tracked.",
     "note": "Tooltip text shown when hovering over the info icon next to the Chrome extension checkbox."
+  },
+  "getStarted_extensions_label": {
+    "title": "Install our extension to search privately in other browsers",
+    "note": "Windows onboarding checkbox for installing DuckDuckGo extensions in eligible Chrome, Edge, and Firefox browsers."
+  },
+  "getStarted_extensions_tooltip": {
+    "title": "Set DuckDuckGo as your default search engine to search online without being tracked",
+    "note": "Tooltip explaining the Windows onboarding extension installation option."
+  },
+  "getStarted_launchOnStartup_label": {
+    "title": "Open DuckDuckGo when your computer starts up",
+    "note": "Windows onboarding checkbox for opening the browser at Windows sign-in."
   }
 }
