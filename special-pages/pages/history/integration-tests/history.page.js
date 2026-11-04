@@ -547,6 +547,14 @@ export class HistoryTestPage {
         return this.page.locator('aside');
     }
 
+    /**
+     * @param {string} label
+     * @param {string} expectedSuffix
+     */
+    async expectSidebarIconSrc(label, expectedSuffix) {
+        await expect(this.sidebar().getByLabel(label).locator('img')).toHaveAttribute('src', new RegExp(`${expectedSuffix}$`));
+    }
+
     main() {
         return this.page.locator('main');
     }
