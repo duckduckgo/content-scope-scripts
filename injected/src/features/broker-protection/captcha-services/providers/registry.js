@@ -2,6 +2,7 @@ import { CaptchaFactory } from '../factory';
 import { ReCaptchaProvider } from './recaptcha';
 import { ImageProvider } from './image';
 import { CloudFlareTurnstileProvider } from './cloudflare-turnstile';
+import { PromptProvider } from './prompt';
 
 const captchaFactory = new CaptchaFactory();
 
@@ -22,8 +23,7 @@ captchaFactory.registerProvider(
 );
 
 captchaFactory.registerProvider(new CloudFlareTurnstileProvider());
-// 'llm-prompt' has no image to extract (see ../prompt.js), but its answer is typed into an input
-// just like an image captcha's, so it shares the image provider's solve path.
-captchaFactory.registerProvider(new ImageProvider(), { aliases: ['red-circle', 'basic-math', 'llm-prompt'] });
+captchaFactory.registerProvider(new ImageProvider(), { aliases: ['red-circle', 'basic-math'] });
+captchaFactory.registerProvider(new PromptProvider());
 
 export { captchaFactory };

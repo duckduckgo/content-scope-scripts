@@ -4,7 +4,7 @@ import { ErrorResponse, PirError, SuccessResponse } from '../types';
 import { getCaptchaProvider, getCaptchaSolveProvider } from './get-captcha-provider';
 import { captchaFactory } from './providers/registry.js';
 import { selectRootElement } from '../utils/select-root-element.js';
-import { buildCaptchaPrompt, PROMPT_CAPTCHA_TYPE } from './prompt.js';
+import { PromptProvider } from './providers/prompt.js';
 import { getCaptchaInfo as getCaptchaInfoDeprecated, solveCaptcha as solveCaptchaDeprecated } from '../actions/captcha-deprecated';
 
 /**
@@ -85,8 +85,11 @@ export async function getCaptchaInfo(action, userData, root = document) {
 
     const createError = ErrorResponse.generateErrorResponseFunction({ actionID, context: `[getCaptchaInfo] captchaType: ${captchaType}` });
 
-    if (captchaType === PROMPT_CAPTCHA_TYPE) {
-        const prompt = buildCaptchaPrompt(action, userData);
+    // A prompt captcha has nothing to extract from the page: its "site key" is built from the action's
+    // template and the profile, so it skips the container/provider pipeline below entirely.
+    const registeredProvider = captchaFactory.getProviderByType(captchaType);
+    if (registeredProvider instanceof PromptProvider) {
+        const prompt = registeredProvider.getCaptchaPrompt(action, userData);
         if (PirError.isError(prompt)) {
             return createError(prompt.error.message);
         }
@@ -98,7 +101,7 @@ export async function getCaptchaInfo(action, userData, root = document) {
         return SuccessResponse.create({
             actionID,
             actionType,
-            response: { url: removeUrlQueryParams(window.location.href), siteKey: prompt, type: captchaType },
+            response: { url: removeUrlQueryParams(window.location.href), siteKey: prompt, type: registeredProvider.getType() },
         });
     }
 

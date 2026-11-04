@@ -54,6 +54,7 @@ const CORE_FILES = new Set([
     'injected/src/features/broker-protection/captcha-services/get-captcha-provider.js',
     'injected/src/features/broker-protection/captcha-services/providers/hcaptcha.js',
     'injected/src/features/broker-protection/captcha-services/providers/image.js',
+    'injected/src/features/broker-protection/captcha-services/providers/prompt.js',
     'injected/src/features/broker-protection/captcha-services/providers/provider.interface.js',
     'injected/src/features/broker-protection/captcha-services/providers/recaptcha.js',
     'injected/src/features/broker-protection/captcha-services/providers/registry.js',
