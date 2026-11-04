@@ -9,4 +9,4 @@
  *
  * @see https://dub.duckduckgo.com/duckduckgo/design-tokens
  */
-@import url("@duckduckgo/design-tokens/build/desktop-browsers/tokens.css");
+@import url("@duckduckgo/design-tokens/build/embedded-fe/tokens.css");
