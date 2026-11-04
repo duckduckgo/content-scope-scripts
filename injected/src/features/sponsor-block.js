@@ -227,7 +227,6 @@ export class SponsorBlock extends ContentFeature {
     #adShowingSelectors = DEFAULT_AD_SHOWING_SELECTORS;
     // The document holding the player. On Android Duck Player it is the embed's, since the script runs only in the top frame.
     #doc = document;
-    #drivesEmbedFromPage = false;
 
     /**
      * Selector list from feature settings, falling back to `defaults` when the key is absent. Remote config is a
@@ -247,6 +246,8 @@ export class SponsorBlock extends ContentFeature {
         // ancestorOrigins is missing in Firefox; there the embed case simply stays inactive.
         const frame = { hostname, origin, isTop: window.top === window, ancestorOrigins: Array.from(ancestorOrigins ?? []) };
         if (!shouldActivate(frame)) return;
+        // Android injects only into the top frame; the Duck Player embed is driven from the page instead (see below).
+        if (this.platform.name === 'android' && !frame.isTop) return;
         this.#active = true;
         // Runs at document start, when there is no <head> to style yet. The player is built by YouTube's scripts after
         // the parse anyway, so nothing is lost by waiting.
@@ -256,10 +257,10 @@ export class SponsorBlock extends ContentFeature {
         this.#progressBarSelectors = this.selectorsSetting('progressBarSelectors', DEFAULT_PROGRESS_BAR_SELECTORS);
         this.#skipButtonHostSelectors = this.selectorsSetting('skipButtonHostSelectors', DEFAULT_SKIP_BUTTON_HOST_SELECTORS);
         this.#adShowingSelectors = this.selectorsSetting('adShowingSelectors', DEFAULT_AD_SHOWING_SELECTORS);
-        // Android injects only into the top frame, so on Duck Player's page the embed gets no script of its own.
-        if (this.platform.name === 'android' && frame.isTop && isNoCookieOrigin(origin)) {
+        // Android injects only into the top frame, so on Duck Player's page the embed gets no script of its own. An embed
+        // opened directly is the player itself and has no embed inside it to wait for.
+        if (this.platform.name === 'android' && frame.isTop && isNoCookieOrigin(origin) && !window.location.pathname.startsWith('/embed/')) {
             this.#doc = await duckPlayerEmbedDocument();
-            this.#drivesEmbedFromPage = true;
             const style = this.#doc.createElement('style');
             style.textContent = STYLES;
             this.#doc.head.append(style);
@@ -440,8 +441,9 @@ export class SponsorBlock extends ContentFeature {
             const rowRect = row.getBoundingClientRect();
             // Android's Duck Player embed is too short to clear the controls row without covering the play button, so
             // there the button sits on the row, just above the progress bar.
-            const gap = host.getBoundingClientRect().bottom - (this.#drivesEmbedFromPage ? rowRect.bottom : rowRect.top);
-            this.#skipButton.style.bottom = `${Math.round(gap) + (this.#drivesEmbedFromPage ? 4 : 12)}px`;
+            const drivesEmbedFromPage = this.#doc !== document;
+            const gap = host.getBoundingClientRect().bottom - (drivesEmbedFromPage ? rowRect.bottom : rowRect.top);
+            this.#skipButton.style.bottom = `${Math.round(gap) + (drivesEmbedFromPage ? 4 : 12)}px`;
         }
     }
 
