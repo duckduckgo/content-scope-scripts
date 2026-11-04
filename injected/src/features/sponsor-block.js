@@ -166,6 +166,8 @@ export class SponsorBlock extends ContentFeature {
     #skipMode = 'manual';
     /** @type {Segment[]} */
     #segments = [];
+    /** @type {string | null} uuid of the segment the user seeked into; skipped manually even in auto mode */
+    #seekedInto = null;
     /** @type {HTMLElement | null} */
     #overlay = null;
     #renderedDuration = 0;
@@ -231,6 +233,15 @@ export class SponsorBlock extends ContentFeature {
             true,
         );
         document.addEventListener('seeked', () => this.updateSkip(), true);
+        // seeking: fires only for jumps, never for natural playback, with the new position already set.
+        document.addEventListener('seeking', () => this.markSeekedInto(), true);
+    }
+
+    // A drag or tap into a segment is a choice, so that segment gets the button instead of an auto skip. Our own skip
+    // lands on the segment end, which is outside it, so it never marks anything.
+    markSeekedInto() {
+        const video = getMainVideo();
+        this.#seekedInto = video ? (segmentAt(this.validSegments(video.duration), video.currentTime)?.uuid ?? null) : null;
     }
 
     // Called by the framework on SPA navigations (registered for every site, hence the #active guard).
@@ -337,12 +348,13 @@ export class SponsorBlock extends ContentFeature {
         this.#skipButton?.remove();
     }
 
-    // Reacts to the playhead: in auto mode seeks past a segment as soon as playback enters it, in manual mode shows
-    // the skip button while inside one and hides it otherwise.
+    // Reacts to the playhead: in auto mode seeks past a segment as soon as playback enters it, in manual mode (or for
+    // a segment the user seeked into) shows the skip button while inside one and hides it otherwise.
     updateSkip() {
         const video = getMainVideo();
         this.#skipSegment = video && !this.inAd() ? segmentAt(this.validSegments(video.duration), video.currentTime) : null;
-        if (video && this.#skipSegment && this.#skipMode === 'auto') {
+        if (this.#skipSegment?.uuid !== this.#seekedInto) this.#seekedInto = null;
+        if (video && this.#skipSegment && this.#skipMode === 'auto' && !this.#seekedInto) {
             this.skipTo(video, this.#skipSegment);
             return;
         }

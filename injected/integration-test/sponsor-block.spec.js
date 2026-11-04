@@ -133,24 +133,40 @@ test.describe('SponsorBlock', () => {
         expect(await currentTime(page)).toBeCloseTo(5, 1);
     });
 
-    test('auto mode: seeks past the segment without showing a button', async ({ page }, testInfo) => {
+    test('auto mode: skips a segment that playback enters naturally, without showing a button', async ({ page }, testInfo) => {
+        await loadPlayer(page, testInfo, { responses: { getConfig: CONFIG_AUTO } });
+        await expect(page.locator(MARKER)).toHaveCount(1);
+
+        await seekTo(page, 1.5);
+        await page.evaluate(() => /** @type {HTMLVideoElement} */ (document.querySelector('video')).play());
+        // Playing through the segment would take 3.5s; reaching its end sooner proves the skip.
+        await expect.poll(() => currentTime(page), { timeout: 2500 }).toBeGreaterThanOrEqual(5);
+        await expect(page.locator(SKIP_BUTTON)).toHaveCount(0);
+    });
+
+    test('auto mode: a seek into a segment shows the button instead of skipping', async ({ page }, testInfo) => {
         await loadPlayer(page, testInfo, { responses: { getConfig: CONFIG_AUTO } });
         await expect(page.locator(MARKER)).toHaveCount(1);
 
         await seekTo(page, 3);
-        await expect.poll(() => currentTime(page)).toBeCloseTo(5, 1);
+        await expect(page.locator(SKIP_BUTTON)).toBeVisible();
+        expect(await currentTime(page)).toBeCloseTo(3, 1);
+
+        await page.locator(SKIP_BUTTON).click();
         await expect(page.locator(SKIP_BUTTON)).toHaveCount(0);
+        expect(await currentTime(page)).toBeCloseTo(5, 1);
     });
 
-    test('onConfigChanged switches mode for the segment in progress and disables the feature', async ({ page }, testInfo) => {
+    test('onConfigChanged switches mode without refetching and disables the feature', async ({ page }, testInfo) => {
         const collector = await loadPlayer(page, testInfo);
         await expect(page.locator(MARKER)).toHaveCount(1);
         await seekTo(page, 3);
         await expect(page.locator(SKIP_BUTTON)).toBeVisible();
 
+        // The user seeked into this segment, so switching to auto keeps the button rather than jumping.
         await collector.simulateSubscriptionMessage('sponsorBlock', 'onConfigChanged', { enabled: true, skipMode: 'auto' });
-        await expect.poll(() => currentTime(page)).toBeCloseTo(5, 1);
-        await expect(page.locator(SKIP_BUTTON)).toHaveCount(0);
+        await expect(page.locator(SKIP_BUTTON)).toBeVisible();
+        expect(await currentTime(page)).toBeCloseTo(3, 1);
         expect(await requestsFor(collector, 'getSegments')).toHaveLength(1);
 
         await collector.simulateSubscriptionMessage('sponsorBlock', 'onConfigChanged', { enabled: false, skipMode: 'auto' });
@@ -185,8 +201,8 @@ test.describe('SponsorBlock', () => {
 
         await page.evaluate(() => document.querySelector('#movie_player')?.classList.remove('ad-showing'));
         await seekTo(page, 3.5);
-        await expect.poll(() => currentTime(page)).toBeCloseTo(5, 1);
         await expect(page.locator(MARKER)).toHaveCount(1);
+        await expect(page.locator(SKIP_BUTTON)).toBeVisible();
     });
 
     test('clears the UI when the page navigates away from the video', async ({ page }, testInfo) => {
