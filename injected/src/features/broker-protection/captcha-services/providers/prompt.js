@@ -11,8 +11,8 @@ import { stringifyFunction } from '../utils/stringify-function.js';
 
 /**
  * Captcha type whose `getCaptchaInfo` action carries a prompt template in `selector` rather than a
- * DOM selector. Android re-serializes actions from a fixed model, so `selector` is the only free-form
- * string field that reaches us unchanged on every platform.
+ * DOM selector. Android sends a set payload to dbp-api, so reusing `selector` lets us deliver this
+ * provider without a native change.
  */
 export const PROMPT_CAPTCHA_TYPE = 'llm-prompt';
 
@@ -21,7 +21,7 @@ export const PROMPT_CAPTCHA_TYPE = 'llm-prompt';
  * a third-party LLM, so this is kept to coarse location data; names, phone numbers and street
  * addresses must never be added here.
  */
-const ALLOWED_PROMPT_FIELDS = new Set(['city', 'state', 'zip']);
+const ALLOWED_PROMPT_FIELDS = new Set(['city', 'state']);
 
 // Matches both variable forms processTemplateStringWithUserData substitutes, so none can slip past
 // the allowlist check.

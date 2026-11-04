@@ -18,7 +18,6 @@
  * @property {Address[]} addresses
  * @property {string} [city]
  * @property {string} [state]
- * @property {string} [zip]
  */
 
 /**

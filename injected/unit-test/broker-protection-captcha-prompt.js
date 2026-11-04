@@ -20,7 +20,6 @@ const userProfile = {
     phone: '5555555555',
     city: 'austin',
     state: 'TX',
-    zip: '78701',
 };
 
 describe('PromptProvider', () => {
@@ -53,8 +52,8 @@ describe('PromptProvider', () => {
         });
 
         it('applies the same transforms as URL building', () => {
-            const prompt = provider.getCaptchaPrompt(createPromptAction('${city} in ${state|stateFull} near ${zip}'), userProfile);
-            expect(prompt).toBe('Austin in Texas near 78701');
+            const prompt = provider.getCaptchaPrompt(createPromptAction('${city} in ${state|stateFull}'), userProfile);
+            expect(prompt).toBe('Austin in Texas');
         });
 
         it('returns a template with no variables unchanged', () => {
@@ -78,9 +77,9 @@ describe('PromptProvider', () => {
         });
 
         it('rejects a template when the profile has no value for a referenced field', () => {
-            const prompt = provider.getCaptchaPrompt(createPromptAction('ZIP near ${zip}'), { ...userProfile, zip: '' });
+            const prompt = provider.getCaptchaPrompt(createPromptAction('ZIP for ${city}'), { ...userProfile, city: '' });
             expect(PirError.isError(prompt)).toBeTrue();
-            expect(/** @type {PirError} */ (prompt).error.message).toContain('zip');
+            expect(/** @type {PirError} */ (prompt).error.message).toContain('city');
         });
 
         it('rejects a template when there is no profile', () => {

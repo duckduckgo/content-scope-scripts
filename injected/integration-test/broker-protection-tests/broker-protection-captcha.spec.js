@@ -308,7 +308,7 @@ test.describe('Broker Protection Captcha', () => {
         // Any page with a text input works: the prompt comes from the profile, not the DOM.
         const promptCaptchaTargetPage = 'image-captcha.html';
         const promptCaptchaResponseSelector = '#svgCaptchaInputId';
-        const userProfile = createUserProfile({ city: 'austin', state: 'TX', zip: '78701' });
+        const userProfile = createUserProfile({ city: 'austin', state: 'TX' });
 
         test.describe('getCaptchaInfo', () => {
             test('returns the prompt filled with the user profile as the siteKey', async ({ dbp }) => {
@@ -345,8 +345,8 @@ test.describe('Broker Protection Captcha', () => {
                 await dbp.receivesInlineAction(
                     createGetCaptchaInfoAction({
                         // eslint-disable-next-line no-template-curly-in-string
-                        action: { captchaType: 'llm-prompt', selector: 'ZIP near ${zip}' },
-                        data: { userProfile: createUserProfile() },
+                        action: { captchaType: 'llm-prompt', selector: 'ZIP near ${city}' },
+                        data: { userProfile: createUserProfile({ city: '', state: 'TX' }) },
                     }),
                 );
 
