@@ -168,6 +168,10 @@
     gap: var(--sp-1);
 }
 
+.sectionHeader:has(.sectionAction) {
+    color: var(--ds-color-theme-text-primary);
+}
+
 .sectionAction {
     background: none;
     border: 0;
@@ -175,7 +179,11 @@
     cursor: pointer;
     font: inherit;
     padding: 0;
-    text-decoration: underline;
+    text-decoration: none;
+
+    &:hover {
+        text-decoration: underline;
+    }
 
     &:focus-visible {
         outline: 2px solid var(--ds-color-theme-accent-primary);
