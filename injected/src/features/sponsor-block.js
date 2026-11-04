@@ -358,7 +358,11 @@ export class SponsorBlock extends ContentFeature {
     // never inside one: a segment end past the player's duration clamps the skip to the end, still before that end.
     updateSkip() {
         const video = getMainVideo();
-        this.#skipSegment = video && !video.ended && !this.inAd() ? segmentAt(this.validSegments(video.duration), video.currentTime) : null;
+        // Segments first: timeupdate calls this often, and inAd queries the DOM.
+        this.#skipSegment =
+            video && !video.ended && this.#segments.length && !this.inAd()
+                ? segmentAt(this.validSegments(video.duration), video.currentTime)
+                : null;
         if (this.#skipSegment?.uuid !== this.#seekedInto) this.#seekedInto = null;
         if (video && this.#skipSegment && this.#skipMode === 'auto' && !this.#seekedInto) {
             this.skipTo(video, this.#skipSegment);
