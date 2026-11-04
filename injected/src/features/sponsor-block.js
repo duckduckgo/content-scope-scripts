@@ -1,6 +1,5 @@
 import ContentFeature from '../content-feature.js';
-import { injectGlobalStyles } from '../utils.js';
-import { isValidSelector } from './chrome-webstore-patching/helpers.js';
+import { injectGlobalStyles, isValidSelector } from '../utils.js';
 
 /** @typedef {import('../types/sponsor-block.js').Segment} Segment */
 /** @typedef {import('../types/sponsor-block.js').OnConfigChangedParams} Config */
@@ -163,8 +162,8 @@ export class SponsorBlock extends ContentFeature {
     #active = false;
     // Off until native confirms the user opted in; remote config is the outer gate and is applied before init runs.
     #enabled = false;
-    /** @type {Config['skipMode']} read by the skip logic; kept public-shaped so tests can assert it */
-    _skipMode = 'manual';
+    /** @type {Config['skipMode']} */
+    #skipMode = 'manual';
     /** @type {Segment[]} */
     #segments = [];
     /** @type {HTMLElement | null} */
@@ -243,7 +242,7 @@ export class SponsorBlock extends ContentFeature {
      * @param {Config} config
      */
     applyConfig({ enabled, skipMode }) {
-        this._skipMode = skipMode;
+        this.#skipMode = skipMode;
         if (enabled === this.#enabled) {
             // Only the mode changed: it applies to the segment in progress, no need to ask native again.
             this.updateSkip();
@@ -343,7 +342,7 @@ export class SponsorBlock extends ContentFeature {
     updateSkip() {
         const video = getMainVideo();
         this.#skipSegment = video && !this.inAd() ? segmentAt(this.validSegments(video.duration), video.currentTime) : null;
-        if (video && this.#skipSegment && this._skipMode === 'auto') {
+        if (video && this.#skipSegment && this.#skipMode === 'auto') {
             this.skipTo(video, this.#skipSegment);
             return;
         }

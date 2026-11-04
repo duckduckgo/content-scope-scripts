@@ -1,10 +1,9 @@
 import ContentFeature from '../content-feature.js';
 import { MacOSWebstore } from './chrome-webstore-patching/macos.js';
-import { injectGlobalStyles } from '../utils.js';
+import { injectGlobalStyles, isValidSelector } from '../utils.js';
 import {
     getWebstorePrivate,
     hasRuntimeLastError,
-    isValidSelector,
     parseCatalogExtensionIds,
     parseExtensionId,
     readStatusSets,

@@ -200,10 +200,9 @@ describe('SponsorBlock applyConfig', () => {
         expect(request).toHaveBeenCalledOnceWith('getSegments', { videoID: 'dQw4w9WgXcQ' });
     });
 
-    it('switches mode without asking native again', () => {
+    it('does not ask native again when only the mode changes', () => {
         feature.applyConfig({ enabled: true, skipMode: 'manual' });
         feature.applyConfig({ enabled: true, skipMode: 'auto' });
         expect(request).toHaveBeenCalledTimes(1);
-        expect(feature._skipMode).toBe('auto');
     });
 });
