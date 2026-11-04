@@ -1,7 +1,5 @@
 import ContentFeature, { CallFeatureMethodError } from '../content-feature.js';
 import { getExpandedPerformanceMetrics, getJsPerformanceMetrics } from './breakage-reporting/utils.js';
-import { runBotDetection } from '../detectors/detections/bot-detection.js';
-import { runFraudDetection } from '../detectors/detections/fraud-detection.js';
 import { runYoutubeAdDetection } from '../detectors/detections/youtube-ad-detection.js';
 
 /**
@@ -60,15 +58,11 @@ export default class BreakageReporting extends ContentFeature {
                 // A throw from webDetection leaves its results out, and the rest of the report is still sent
             }
 
-            // Runs detector functions directly using webInterferenceDetection's config.
-            // This means detectors execute in breakageReporting's world (apple-isolated),
-            // not in webInterferenceDetection's world — so DOM checks work but window
-            // property checks won't see page-script globals on Apple platforms.
+            // Runs the YouTube ad detector directly using webInterferenceDetection's config,
+            // in breakageReporting's world (apple-isolated).
             const detectorSettings = this.getFeatureSetting('interferenceTypes', 'webInterferenceDetection');
             if (detectorSettings) {
                 result.detectorData = {
-                    botDetection: runBotDetection(detectorSettings.botDetection),
-                    fraudDetection: runFraudDetection(detectorSettings.fraudDetection),
                     // youtubeAds is intentionally not timed: the YouTube detector is
                     // excluded from detectorPerf and keeps its own internal metrics.
                     youtubeAds: runYoutubeAdDetection(detectorSettings.youtubeAds),

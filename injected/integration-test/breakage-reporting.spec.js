@@ -48,39 +48,33 @@ test.describe('Breakage Reporting Feature', () => {
         const breakageFeature = new BreakageReportingSpec(page);
         await breakageFeature.navigateToPage('/breakage-reporting/pages/no-challenge.html');
 
-        await collector.simulateSubscriptionMessage('breakageReporting', 'getBreakageReportValues', {});
-        const [resultCall] = await collector.waitForMessage('breakageReportResult');
-
-        const result = /** @type {import("@duckduckgo/messaging").NotificationMessage} */ (resultCall.payload);
+        const result = await breakageFeature.report(collector);
         expect(result.params?.detectorData).toBeDefined();
-        expect(result.params?.detectorData?.botDetection.detected).toBe(false);
-        expect(result.params?.detectorData?.fraudDetection.detected).toBe(false);
+        expect(result.params?.detectorData?.botDetection).toBeUndefined();
+        expect(result.params?.detectorData?.fraudDetection).toBeUndefined();
 
         // Verify breakageData contains URL-encoded JSON with detectorData
         expect(result.params?.breakageData).toBeDefined();
         const decodedBreakageData = JSON.parse(decodeURIComponent(result.params?.breakageData));
         expect(decodedBreakageData.detectorData).toEqual(result.params?.detectorData);
+        expect(decodedBreakageData.webDetection).toBeUndefined();
     });
 
-    test('detects Cloudflare challenge', async ({ page }, testInfo) => {
+    test('detects a Cloudflare challenge by element and by page global', async ({ page }, testInfo) => {
         const collector = ResultsCollector.create(page, testInfo.project.use);
         await collector.load(HTML, CONFIG);
 
         const breakageFeature = new BreakageReportingSpec(page);
         await breakageFeature.navigateToPage('/breakage-reporting/pages/captcha-cloudflare.html');
 
-        await collector.simulateSubscriptionMessage('breakageReporting', 'getBreakageReportValues', {});
-        const [resultCall] = await collector.waitForMessage('breakageReportResult');
-
-        const result = /** @type {import("@duckduckgo/messaging").NotificationMessage} */ (resultCall.payload);
-        expect(result.params?.detectorData).toBeDefined();
-        expect(result.params?.detectorData?.botDetection.detected).toBe(true);
-        expect(result.params?.detectorData?.botDetection.results.length).toBeGreaterThan(0);
-
-        const cloudflareResult = result.params?.detectorData?.botDetection.results[0];
-        expect(cloudflareResult.vendor).toBe('Cloudflare');
-        expect(cloudflareResult.challengeType).toBe('cloudflare');
-        expect(cloudflareResult.detected).toBe(true);
+        const entries = webDetectionEntries(await breakageFeature.report(collector));
+        expect(entries).toContainEqual({
+            detectorId: 'botDetection.cloudflare',
+            detected: true,
+            data: { vendor: 'Cloudflare', challengeStatus: null },
+        });
+        expect(entries).toContainEqual({ detectorId: 'botDetection.cloudflareGlobal', detected: true, data: { vendor: 'Cloudflare' } });
+        expect(entries.find((e) => e.detectorId === 'botDetection.recaptcha')).toBeUndefined();
     });
 
     test('detects reCAPTCHA challenge', async ({ page }, testInfo) => {
@@ -90,17 +84,8 @@ test.describe('Breakage Reporting Feature', () => {
         const breakageFeature = new BreakageReportingSpec(page);
         await breakageFeature.navigateToPage('/breakage-reporting/pages/captcha-recaptcha.html');
 
-        await collector.simulateSubscriptionMessage('breakageReporting', 'getBreakageReportValues', {});
-        const [resultCall] = await collector.waitForMessage('breakageReportResult');
-
-        const result = /** @type {import("@duckduckgo/messaging").NotificationMessage} */ (resultCall.payload);
-        expect(result.params?.detectorData).toBeDefined();
-        expect(result.params?.detectorData?.botDetection.detected).toBe(true);
-
-        const recaptchaResult = result.params?.detectorData?.botDetection.results.find((r) => r.challengeType === 'recaptcha');
-        expect(recaptchaResult).toBeDefined();
-        expect(recaptchaResult.vendor).toBe('reCAPTCHA');
-        expect(recaptchaResult.detected).toBe(true);
+        const entries = webDetectionEntries(await breakageFeature.report(collector));
+        expect(entries).toContainEqual({ detectorId: 'botDetection.recaptcha', detected: true, data: { vendor: 'reCAPTCHA' } });
     });
 
     test('detects Fraud challenge (PerimeterX)', async ({ page }, testInfo) => {
@@ -110,17 +95,31 @@ test.describe('Breakage Reporting Feature', () => {
         const breakageFeature = new BreakageReportingSpec(page);
         await breakageFeature.navigateToPage('/breakage-reporting/pages/fraud-px.html');
 
-        await collector.simulateSubscriptionMessage('breakageReporting', 'getBreakageReportValues', {});
-        const [resultCall] = await collector.waitForMessage('breakageReportResult');
+        const entries = webDetectionEntries(await breakageFeature.report(collector));
+        expect(entries).toContainEqual({ detectorId: 'fraudDetection.px', detected: true, data: { category: 'PerimeterX' } });
+    });
 
-        const result = /** @type {import("@duckduckgo/messaging").NotificationMessage} */ (resultCall.payload);
-        expect(result.params?.detectorData).toBeDefined();
-        expect(result.params?.detectorData?.fraudDetection.detected).toBe(true);
+    test('detects fraud warning text in rendered text only', async ({ page }, testInfo) => {
+        const collector = ResultsCollector.create(page, testInfo.project.use);
+        await collector.load(HTML, CONFIG);
 
-        const fraudResult = result.params?.detectorData?.fraudDetection.results[0];
-        expect(fraudResult.alertId).toBe('px');
+        const breakageFeature = new BreakageReportingSpec(page);
+        await breakageFeature.navigateToPage('/breakage-reporting/pages/fraud-text.html');
+
+        const entries = webDetectionEntries(await breakageFeature.report(collector));
+        expect(entries).toContainEqual({ detectorId: 'fraudDetection.unusualLogin', detected: true, data: { category: 'phishing' } });
+        expect(entries.find((e) => e.detectorId === 'fraudDetection.verifyAccount')).toBeUndefined();
     });
 });
+
+/**
+ * @param {import("@duckduckgo/messaging").NotificationMessage} result
+ * @returns {{ detectorId: string, detected?: true, data?: Record<string, unknown> }[]}
+ */
+function webDetectionEntries(result) {
+    expect(result.params?.breakageData).toBeDefined();
+    return JSON.parse(decodeURIComponent(result.params?.breakageData)).webDetection ?? [];
+}
 
 export class BreakageReportingSpec {
     /**
@@ -132,6 +131,16 @@ export class BreakageReportingSpec {
 
     async navigate() {
         await this.navigateToPage('/breakage-reporting/pages/ref.html');
+    }
+
+    /**
+     * @param {ResultsCollector} collector
+     * @returns {Promise<import("@duckduckgo/messaging").NotificationMessage>}
+     */
+    async report(collector) {
+        await collector.simulateSubscriptionMessage('breakageReporting', 'getBreakageReportValues', {});
+        const [resultCall] = await collector.waitForMessage('breakageReportResult');
+        return /** @type {import("@duckduckgo/messaging").NotificationMessage} */ (resultCall.payload);
     }
 
     async navigateToPage(url) {

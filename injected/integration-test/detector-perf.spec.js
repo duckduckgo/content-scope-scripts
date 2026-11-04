@@ -26,7 +26,7 @@ function buildConfig() {
         },
     };
     // Empty interferenceTypes settings object: breakageReporting reads this via
-    // getFeatureSetting and runs the bot/fraud utils with their defaults.
+    // getFeatureSetting and runs the YouTube ad detector with its defaults.
     config.features.webInterferenceDetection = {
         state: 'enabled',
         hash: 'test',
@@ -147,10 +147,9 @@ test.describe('DetectorPerf Feature', () => {
         expect(events).toContain('detectorPerf_measured');
         expect(events).toContain('detectorPerf_adwall_ran');
         expect(events).toContain('detectorPerf_video_ran');
-        expect(events.filter((type) => type.includes('bot') || type.includes('fraud') || type.includes('youtube'))).toEqual([]);
+        expect(events.filter((type) => type.includes('youtube'))).toEqual([]);
 
-        expect(params.detectorData?.botDetection).toBeDefined();
-        expect(params.detectorData?.fraudDetection).toBeDefined();
+        expect(params.detectorData?.youtubeAds).toBeDefined();
     });
 
     test('failed webDetection runs emit failure telemetry and remain in breakage data', async ({ page }, testInfo) => {

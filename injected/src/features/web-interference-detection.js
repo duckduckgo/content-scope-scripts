@@ -1,17 +1,10 @@
 import ContentFeature, { CallFeatureMethodError } from '../content-feature.js';
-import { runBotDetection } from '../detectors/detections/bot-detection.js';
-import { runFraudDetection } from '../detectors/detections/fraud-detection.js';
 import { runYoutubeAdDetection } from '../detectors/detections/youtube-ad-detection.js';
 
 /**
- * @typedef {object} DetectInterferenceParams
- * @property {string[]} [types]
- */
-
-/**
- * Note: breakageReporting also runs these detectors directly by reading this
- * feature's `interferenceTypes` settings via getFeatureSetting. Those calls
- * execute in breakageReporting's world (apple-isolated), independent of which
+ * Note: breakageReporting also runs the YouTube ad detector directly by reading
+ * this feature's `interferenceTypes` settings via getFeatureSetting. That call
+ * executes in breakageReporting's world (apple-isolated), independent of which
  * world this feature is bundled into.
  */
 export default class WebInterferenceDetection extends ContentFeature {
@@ -32,19 +25,5 @@ export default class WebInterferenceDetection extends ContentFeature {
         };
 
         runYoutubeAdDetection(settings?.youtubeAds, this.log, fireEvent);
-
-        // Register messaging handler for PIR/native requests
-        this.messaging.subscribe('detectInterference', (params) => {
-            const { types = [] } = /** @type {DetectInterferenceParams} */ (params ?? {});
-            const results = {};
-
-            if (types.includes('botDetection')) {
-                results.botDetection = runBotDetection(settings?.botDetection);
-            }
-            if (types.includes('fraudDetection')) {
-                results.fraudDetection = runFraudDetection(settings?.fraudDetection);
-            }
-            return results;
-        });
     }
 }
