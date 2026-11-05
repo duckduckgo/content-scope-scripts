@@ -194,7 +194,7 @@ With `enablePastedAttachments`, a paste into the Duck.ai prompt is handled as fo
 With `enablePastedText`, as in Duck.ai and the native apps:
 
 - A text paste of at least `promptLimits.pasteConversionThreshold` characters that isn't only whitespace is attached as a "Pasted text" chip instead of inserted. It wins over any images or files on the clipboard. Shorter pastes go inline.
-- Chips show the start of the text and can only be removed; there is no view or edit.
+- Chips show the start of the text. Clicking one (or Enter/Space) opens a "Pasted Text" dialog to view and edit it; "Save Changes" replaces the paste, and Cancel, ×, Escape or a backdrop click discard the edit. Saving is blocked while the edit is blank or would put the prompt over `promptLimits.maxCharacters`.
 - On submit, chips are sent in attach order as `textPasted: [{ content }]` in `omnibar_submitChat`. A chip alone, with an empty prompt, can be sent.
 - The typed text plus every chip may have at most `promptLimits.maxCharacters` characters; over that, a warning shows and sending is blocked.
 - Not applied in image-generation mode: long pastes go inline and existing chips are hidden and not sent.

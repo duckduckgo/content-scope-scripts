@@ -67,6 +67,14 @@ function focusStaysWithin(ref, event) {
 }
 
 /**
+ * Whether focus landed on the prompt textarea, not the one in the pasted-text dialog (which renders inside the form).
+ * @param {EventTarget | null} target
+ */
+function isComposerTextarea(target) {
+    return target instanceof HTMLTextAreaElement && !target.closest('[data-text-pasted-modal]');
+}
+
+/**
  * @param {object} props
  * @param {OmnibarConfig['mode']} props.mode
  * @param {(mode: OmnibarConfig['mode']) => void} props.setMode
@@ -228,7 +236,7 @@ export function Omnibar({
                             style={{ marginBottom: noticeReservedHeight }}
                             onFocusCapture={(event) => {
                                 // Toolbar/drawer focus must not reveal the drawer — only the composer itself.
-                                if (!(event.target instanceof HTMLTextAreaElement)) return;
+                                if (!isComposerTextarea(event.target)) return;
                                 setUsageLimitsRevealed(true);
                             }}
                             onBlurCapture={hideNoticesOnFocusLeave}
@@ -487,7 +495,8 @@ function AiChatContent({
     // Only one attachment message shows at a time; the tab warning falls last in precedence.
     const showTabWarning = tabWarning && !imageMessageShowing && !showCaptureError && !showFileError && !showFileWarning;
     // The typed text plus pastes over the limit; the cap only applies with the pasted-text feature on.
-    const promptTooLong = pastedTextEnabled && promptLength(query, attachedTextPasted) > promptLimits.maxCharacters;
+    const currentPromptLength = promptLength(query, attachedTextPasted);
+    const promptTooLong = pastedTextEnabled && currentPromptLength > promptLimits.maxCharacters;
     const showPromptTooLong =
         promptTooLong && !imageMessageShowing && !showCaptureError && !showFileError && !showFileWarning && !showTabWarning;
     const hasSendableAttachments =
@@ -533,7 +542,7 @@ function AiChatContent({
             class={styles.aiChatContent}
             data-attachment-warning={imageWarning || fileWarning || tabWarning || promptTooLong || undefined}
             onFocusCapture={(event) => {
-                if (!(event.target instanceof HTMLTextAreaElement)) return;
+                if (!isComposerTextarea(event.target)) return;
                 if (!hasVisibleImagesRef.current && !imageGenerationActive && !mention.pickerActive) showChats();
             }}
             onBlurCapture={(event) => {
@@ -664,6 +673,8 @@ function AiChatContent({
                         onRemoveFile={fileState.handleRemoveFile}
                         onRemoveImage={imageState.handleRemoveImage}
                         onRemoveTextPasted={textPastedState.removeTextPasted}
+                        onEditTextPasted={textPastedState.updateTextPasted}
+                        textPastedLimit={{ promptLength: currentPromptLength, maxCharacters: promptLimits.maxCharacters }}
                     />
                     {showCaptureError && (
                         <p class={styles.attachmentWarning} role="alert">

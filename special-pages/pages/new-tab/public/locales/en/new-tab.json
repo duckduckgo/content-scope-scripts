@@ -429,6 +429,34 @@
     "title": "Your message is too long. Shorten it to {limit} characters or fewer, including pasted text.",
     "description": "Shown under the AI chat input when the typed text plus pasted text is over the limit; sending is blocked until it fits. {limit} is the character limit."
   },
+  "omnibar_pastedTextModalTitle": {
+    "title": "Pasted Text",
+    "description": "Title of the dialog opened from a pasted-text chip, where the user can view and edit the pasted text. Also the accessible name of its text field."
+  },
+  "omnibar_pastedTextModalFormattingNote": {
+    "title": "Formatting may be inconsistent from source.",
+    "description": "Note under the Pasted Text dialog title: the pasted text is plain text, so rich formatting from where it was copied is lost."
+  },
+  "omnibar_pastedTextModalCharacterCount": {
+    "title": "{count} characters",
+    "description": "Footer of the Pasted Text dialog showing the length of the pasted text. {count} is the number of characters."
+  },
+  "omnibar_pastedTextModalTooLong": {
+    "title": "Please try a shorter message.",
+    "description": "Error in the Pasted Text dialog footer when the edited text makes the message too long. It is followed by the message length and the limit, e.g. \"16113 / 16000\"."
+  },
+  "omnibar_pastedTextModalCancel": {
+    "title": "Cancel",
+    "description": "Button in the Pasted Text dialog that closes it and discards edits."
+  },
+  "omnibar_pastedTextModalSave": {
+    "title": "Save Changes",
+    "description": "Primary button in the Pasted Text dialog that saves the edited pasted text."
+  },
+  "omnibar_pastedTextModalClose": {
+    "title": "Close",
+    "description": "Accessible label for the × button in the Pasted Text dialog, which closes it and discards edits."
+  },
   "omnibar_pastedImageFileName": {
     "title": "Pasted image",
     "description": "File name given to an image pasted from the clipboard into the AI chat input. Repeats are numbered, e.g. 'Pasted image 2'."

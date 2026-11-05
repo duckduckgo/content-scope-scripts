@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import cn from 'classnames';
 import { Tooltip } from '../../Tooltip.js';
 import { ChipRemoveButton } from './ChipRemoveButton';
 import styles from './AttachmentChip.module.css';
@@ -23,6 +24,7 @@ import styles from './AttachmentChip.module.css';
  * @param {() => void} props.onRemove
  * @param {string} props.removeLabel
  * @param {number} [props.enteringAnimationDelay] - ms; staggers the pop-in across a row.
+ * @param {() => void} [props.onOpen] - click, Enter or Space on the chip (not its remove button) opens it.
  */
 export function AttachmentChip({
     attachmentKind,
@@ -35,11 +37,21 @@ export function AttachmentChip({
     onRemove,
     removeLabel,
     enteringAnimationDelay = 0,
+    onOpen,
 }) {
     const tooltip = tooltipLabel || title || '';
     return (
         <div class={styles.listItem} data-attachment-kind={attachmentKind}>
-            <span class={styles.enter} style={{ animationDelay: enteringAnimationDelay ? `${enteringAnimationDelay}ms` : undefined }}>
+            <span
+                class={cn(styles.enter, onOpen && styles.openable)}
+                style={{ animationDelay: enteringAnimationDelay ? `${enteringAnimationDelay}ms` : undefined }}
+                // The Tooltip wrapper is the chip's focusable button; the remove button stops its own clicks.
+                onClick={onOpen}
+                onKeyDown={(e) => {
+                    if (!onOpen || e.target instanceof HTMLButtonElement) return;
+                    if (e.key === 'Enter' || e.key === ' ') onOpen();
+                }}
+            >
                 <Tooltip content={tooltip} position="above" className={styles.tooltipContainer} ariaLabel={tooltip}>
                     <span class={styles.root}>
                         {imagePreview ? (

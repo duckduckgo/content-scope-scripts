@@ -299,4 +299,54 @@ test.describe('omnibar pasted text', () => {
         await expect(omnibar.promptTooLongWarning()).toHaveCount(0);
         await expect(omnibar.chatSubmitButton()).toBeEnabled();
     });
+
+    test('edits a pasted-text chip and sends the edited text', async ({ page }, workerInfo) => {
+        const { omnibar } = await setup(page, workerInfo, TEXT_ON);
+
+        await omnibar.pasteIntoChatInput({ text: LONG });
+        await omnibar.textPastedChips().click();
+        await expect(omnibar.textPastedModal()).toBeVisible();
+        await expect(omnibar.textPastedModalInput()).toHaveValue(LONG);
+        await expect(omnibar.textPastedModal()).toContainText(`${LONG.length} characters`);
+
+        await omnibar.textPastedModalInput().fill('edited text');
+        await omnibar.textPastedModalSaveButton().click();
+        await expect(omnibar.textPastedModal()).toHaveCount(0);
+
+        await omnibar.chatInput().press('Enter');
+        const params = await omnibar.lastSubmitChatParams();
+        expect(params.textPasted).toEqual([{ content: 'edited text' }]);
+    });
+
+    test('discards edits on cancel', async ({ page }, workerInfo) => {
+        const { omnibar } = await setup(page, workerInfo, TEXT_ON);
+
+        await omnibar.pasteIntoChatInput({ text: LONG });
+        await omnibar.textPastedChips().click();
+        await omnibar.textPastedModalInput().fill('edited text');
+        await omnibar.textPastedModalCancelButton().click();
+        await expect(omnibar.textPastedModal()).toHaveCount(0);
+
+        await omnibar.textPastedChips().click();
+        await expect(omnibar.textPastedModalInput()).toHaveValue(LONG);
+    });
+
+    test('blocks saving an edit that is blank or puts the prompt over the limit', async ({ page }, workerInfo) => {
+        const { omnibar } = await setup(page, workerInfo, TEXT_ON);
+
+        await omnibar.chatInput().fill('x'.repeat(10));
+        await omnibar.pasteIntoChatInput({ text: LONG });
+        await omnibar.textPastedChips().click();
+
+        // 10 typed + 21 pasted = 31, over the 30 cap.
+        await omnibar.textPastedModalInput().fill('y'.repeat(21));
+        await expect(omnibar.textPastedModal()).toContainText('Please try a shorter message. 31 / 30');
+        await expect(omnibar.textPastedModalSaveButton()).toBeDisabled();
+
+        await omnibar.textPastedModalInput().fill('   ');
+        await expect(omnibar.textPastedModalSaveButton()).toBeDisabled();
+
+        await omnibar.textPastedModalInput().fill('y'.repeat(20));
+        await expect(omnibar.textPastedModalSaveButton()).toBeEnabled();
+    });
 });

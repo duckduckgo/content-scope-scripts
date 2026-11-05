@@ -31,8 +31,21 @@ import styles from './AttachmentChips.module.css';
  * @param {(originalIndex: number) => void} props.onRemoveFile
  * @param {(originalIndex: number) => void} props.onRemoveImage
  * @param {(id: string) => void} [props.onRemoveTextPasted]
+ * @param {(id: string, content: string) => void} [props.onEditTextPasted]
+ * @param {{ promptLength: number, maxCharacters: number }} [props.textPastedLimit] - the prompt's current length and cap, checked while editing a paste.
  */
-export function AttachmentChips({ tabs, files, images, textPasted = [], onRemoveTab, onRemoveFile, onRemoveImage, onRemoveTextPasted }) {
+export function AttachmentChips({
+    tabs,
+    files,
+    images,
+    textPasted = [],
+    onRemoveTab,
+    onRemoveFile,
+    onRemoveImage,
+    onRemoveTextPasted,
+    onEditTextPasted,
+    textPastedLimit = { promptLength: 0, maxCharacters: Number.POSITIVE_INFINITY },
+}) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
 
     // Ordered by attach time so chips appear in the order the user attached them, not grouped by type.
@@ -109,6 +122,9 @@ export function AttachmentChips({ tabs, files, images, textPasted = [], onRemove
                                 key={item.key}
                                 textPasted={item.textPasted}
                                 onRemove={() => onRemoveTextPasted?.(item.textPasted.id)}
+                                onEdit={(content) => onEditTextPasted?.(item.textPasted.id, content)}
+                                promptLength={textPastedLimit.promptLength}
+                                maxCharacters={textPastedLimit.maxCharacters}
                                 enteringAnimationDelay={enteringAnimationDelay}
                             />
                         );

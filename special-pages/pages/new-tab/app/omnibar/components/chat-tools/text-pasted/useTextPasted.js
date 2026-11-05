@@ -33,6 +33,15 @@ export function useTextPasted() {
         setAttachedTextPasted((prev) => prev.filter((entry) => entry.id !== id));
     }, []);
 
+    /**
+     * Replaces a paste's text after an edit; it keeps its place in the attach order.
+     * @param {string} id
+     * @param {string} content
+     */
+    const updateTextPasted = useCallback((id, content) => {
+        setAttachedTextPasted((prev) => prev.map((entry) => (entry.id === id ? { ...entry, content } : entry)));
+    }, []);
+
     const clearTextPasted = useCallback(() => setAttachedTextPasted([]), []);
 
     /** @returns {{ content: string }[] | undefined} undefined when there is nothing to send */
@@ -50,5 +59,13 @@ export function useTextPasted() {
         if (addTextPasted(text, threshold)) event.preventDefault();
     };
 
-    return { attachedTextPasted, addTextPasted, removeTextPasted, clearTextPasted, getTextPastedForSubmission, handlePaste };
+    return {
+        attachedTextPasted,
+        addTextPasted,
+        removeTextPasted,
+        updateTextPasted,
+        clearTextPasted,
+        getTextPastedForSubmission,
+        handlePaste,
+    };
 }

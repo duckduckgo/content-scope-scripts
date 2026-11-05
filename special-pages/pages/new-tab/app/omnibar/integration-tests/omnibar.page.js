@@ -621,6 +621,22 @@ export class OmnibarPage {
         return this.attachmentChips().getByRole('button', { name: `Remove pasted text “${summary}”` });
     }
 
+    textPastedModal() {
+        return this.context().getByRole('dialog', { name: 'Pasted Text' });
+    }
+
+    textPastedModalInput() {
+        return this.textPastedModal().getByRole('textbox', { name: 'Pasted Text' });
+    }
+
+    textPastedModalSaveButton() {
+        return this.textPastedModal().getByRole('button', { name: 'Save Changes' });
+    }
+
+    textPastedModalCancelButton() {
+        return this.textPastedModal().getByRole('button', { name: 'Cancel' });
+    }
+
     promptTooLongWarning() {
         return this.context().getByRole('alert').filter({ hasText: 'Your message is too long' });
     }
