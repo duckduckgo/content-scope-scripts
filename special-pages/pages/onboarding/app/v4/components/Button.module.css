@@ -10,7 +10,9 @@
     gap: var(--sp-2); /* 8px */
     height: var(--sp-9); /* 36px */
     justify-content: center;
-    line-height: calc(15 * var(--px-in-rem));
+    /* A line box shorter than the font's content area gets an odd negative leading that rounds unevenly,
+       pushing the label ~1px below centre; 'normal' lets flex centring align cap height to the pill. */
+    line-height: normal;
     min-width: var(--sp-32); /* 128px */
     padding: var(--sp-4) var(--sp-6); /* 16px 24px */
     text-align: center;
