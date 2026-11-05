@@ -1,1 +1,2 @@
-- NTP omnibar: Duck.ai suggested prompts (#3124)
+- Add selection tools for desktop (#3119)
+- Disable Cursor Bugbot waits in CI (#3132)

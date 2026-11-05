@@ -725,7 +725,8 @@
       "tabSuspension",
       "autofillPasskeys",
       "textSelection",
-      "chromeWebstorePatching"
+      "chromeWebstorePatching",
+      "selectionTools"
     ]
   );
   var platformSupport = {
@@ -803,7 +804,8 @@
       "performanceMetrics",
       "duckAiChatHistory",
       "autofillPasskeys",
-      "chromeWebstorePatching"
+      "chromeWebstorePatching",
+      "selectionTools"
     ],
     firefox: ["cookie", "webDetection", ...baseFeatures, "clickToLoad", "webEvents", "webInterferenceDetection", "breakageReporting"],
     chrome: ["cookie", "webDetection", ...baseFeatures, "clickToLoad", "webEvents", "webInterferenceDetection", "breakageReporting"],

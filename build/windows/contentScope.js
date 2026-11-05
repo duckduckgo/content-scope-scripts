@@ -2474,7 +2474,8 @@
       "tabSuspension",
       "autofillPasskeys",
       "textSelection",
-      "chromeWebstorePatching"
+      "chromeWebstorePatching",
+      "selectionTools"
     ]
   );
   var featureConfigDependencies = {
@@ -2557,7 +2558,8 @@
       "performanceMetrics",
       "duckAiChatHistory",
       "autofillPasskeys",
-      "chromeWebstorePatching"
+      "chromeWebstorePatching",
+      "selectionTools"
     ],
     firefox: ["cookie", "webDetection", ...baseFeatures, "clickToLoad", "webEvents", "webInterferenceDetection", "breakageReporting"],
     chrome: ["cookie", "webDetection", ...baseFeatures, "clickToLoad", "webEvents", "webInterferenceDetection", "breakageReporting"],
@@ -3102,7 +3104,8 @@
     // only enabled on apple platforms
     "textSelection",
     "uaChBrands",
-    "chromeWebstorePatching"
+    "chromeWebstorePatching",
+    "selectionTools"
   ];
   var selfGatingFeatures = ["trackerProtection", "uaChBrands"];
   function isPlatformSpecificFeature(featureName) {
@@ -11482,7 +11485,7 @@
     parsedNode.querySelectorAll("base,link,meta,script,style,template,title,desc").forEach((el) => {
       el.remove();
     });
-    const visibleText = parsedNode.innerText.trim().toLocaleLowerCase().replace(/:$/, "");
+    const visibleText2 = parsedNode.innerText.trim().toLocaleLowerCase().replace(/:$/, "");
     const mediaAndFormContent = parsedNode.querySelector(mediaAndFormSelectors);
     const frameElements = [...parsedNode.querySelectorAll("iframe")];
     const imageElements = [...node.querySelectorAll("img,svg")];
@@ -11492,7 +11495,7 @@
     const visibleImages = imageElements.some((image) => {
       return image.getBoundingClientRect().width > 20 || image.getBoundingClientRect().height > 20;
     });
-    if ((visibleText === "" || adLabelStrings.includes(visibleText)) && mediaAndFormContent === null && noFramesWithContent && !visibleImages) {
+    if ((visibleText2 === "" || adLabelStrings.includes(visibleText2)) && mediaAndFormContent === null && noFramesWithContent && !visibleImages) {
       return true;
     }
     return false;
@@ -23533,6 +23536,565 @@ ${iframeContent}
   };
   var chrome_webstore_patching_default = ChromeWebstorePatching;
 
+  // src/features/selection-tools.js
+  init_define_import_meta_trackerLookup();
+
+  // src/features/selection-tools/classify.js
+  init_define_import_meta_trackerLookup();
+  var CODE_SIGNALS = /[{};]|=>|\(\)|===?|!==?|\b(function|const|let|var|def|return|import|public|private|async|await)\b/g;
+  var WORD = /^[\p{L}\p{M}\p{N}]+(?:['’\-‐][\p{L}\p{M}\p{N}]+)*$/u;
+  var ABBREVIATION = /^\p{L}{1,2}(?:\.\p{L}{1,2})+$/u;
+  var EDGE_PUNCTUATION = /^\p{P}+|\p{P}+$/gu;
+  var UNSPACED = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Thai}\p{Script=Lao}\p{Script=Khmer}\p{Script=Myanmar}]/u;
+  var LONG_TEXT_CHARS = 500;
+  function primaryLanguage(tag) {
+    const primary = tag?.split(/[-_]/)[0]?.toLowerCase();
+    return primary && /^[a-z]{2,3}$/.test(primary) ? primary : null;
+  }
+  function looksLikeCode(text2) {
+    const signals = (text2.match(CODE_SIGNALS)?.length ?? 0) + (text2.match(/^[ \t]{2,}\S/gm)?.length ?? 0);
+    return signals >= 3 && signals * 25 >= text2.length;
+  }
+  function isWord(text2) {
+    const core = text2.replace(EDGE_PUNCTUATION, "");
+    if (!/\p{L}/u.test(core) || !(WORD.test(core) || ABBREVIATION.test(core))) return false;
+    return core.length >= 2 && core.length <= (UNSPACED.test(core) ? 4 : 30);
+  }
+  function classify(rawText, { inCodeElement = false, markedLanguage = null } = {}) {
+    const text2 = rawText.trim();
+    const isCode = inCodeElement || looksLikeCode(text2);
+    const language = primaryLanguage(markedLanguage);
+    let shape = "text";
+    if (isCode) {
+      shape = "code";
+    } else if (/\?\s*$/.test(text2)) {
+      shape = "question";
+    } else if (isWord(text2)) {
+      shape = "word";
+    } else if (text2.length > LONG_TEXT_CHARS) {
+      shape = "long";
+    }
+    return { shape, language };
+  }
+
+  // src/features/selection-tools/selection.js
+  init_define_import_meta_trackerLookup();
+  var attachShadow = Element.prototype.attachShadow;
+  var HOST_TAG = "ddg-selection-tools";
+  var MIN_READABLE_FONT_PX = 4;
+  var MIN_VISIBLE_ALPHA = 0.1;
+  var TEXT_INPUT_TYPES = ["text", "search", "email", "url", ""];
+  var MIRROR_STYLES = (
+    /** @type {const} */
+    [
+      "boxSizing",
+      "width",
+      "borderTopWidth",
+      "borderRightWidth",
+      "borderBottomWidth",
+      "borderLeftWidth",
+      "borderStyle",
+      "paddingTop",
+      "paddingRight",
+      "paddingBottom",
+      "paddingLeft",
+      "fontStyle",
+      "fontVariant",
+      "fontWeight",
+      "fontStretch",
+      "fontSize",
+      "fontFamily",
+      "lineHeight",
+      "letterSpacing",
+      "wordSpacing",
+      "textTransform",
+      "textIndent",
+      "tabSize"
+    ]
+  );
+  function deepActiveElement() {
+    let active = document.activeElement;
+    while (active?.shadowRoot?.activeElement) {
+      active = active.shadowRoot.activeElement;
+    }
+    return active;
+  }
+  function isTextField(node) {
+    if (node instanceof HTMLTextAreaElement) return !node.readOnly && !node.disabled;
+    return node instanceof HTMLInputElement && TEXT_INPUT_TYPES.includes(node.type) && !node.readOnly && !node.disabled;
+  }
+  function elementOf(node) {
+    return node instanceof Element ? node : node?.parentElement ?? null;
+  }
+  function editingHostOf(element) {
+    if (!(element instanceof HTMLElement) || !element.isContentEditable) return null;
+    let host = element;
+    while (host.parentElement?.isContentEditable) {
+      host = host.parentElement;
+    }
+    return host;
+  }
+  function unionOf(lines, empty) {
+    let union = null;
+    for (const r of lines) {
+      if (r.right <= r.left || r.bottom <= r.top) continue;
+      union = union ? {
+        left: Math.min(union.left, r.left),
+        right: Math.max(union.right, r.right),
+        top: Math.min(union.top, r.top),
+        bottom: Math.max(union.bottom, r.bottom)
+      } : r;
+    }
+    return union ?? lines[0] ?? empty;
+  }
+  function fieldSelectionLines(field, start, end) {
+    const host = document.createElement(HOST_TAG);
+    for (const [name, value] of Object.entries({
+      display: "block",
+      position: "fixed",
+      inset: "0",
+      visibility: "hidden",
+      "pointer-events": "none"
+    })) {
+      host.style.setProperty(name, value, "important");
+    }
+    try {
+      const shadow = (
+        /** @type {ShadowRoot} */
+        attachShadow.call(host, { mode: "closed" })
+      );
+      document.documentElement.appendChild(host);
+      return measureInMirror(field, start, end, shadow);
+    } catch {
+      const box = field.getBoundingClientRect();
+      return [{ left: box.left, right: box.right, top: box.top, bottom: box.bottom }];
+    } finally {
+      host.remove();
+    }
+  }
+  function measureInMirror(field, start, end, scratch) {
+    const style = getComputedStyle(field);
+    const mirror = document.createElement("div");
+    for (const name of MIRROR_STYLES) {
+      mirror.style[name] = style[name];
+    }
+    Object.assign(mirror.style, {
+      position: "fixed",
+      left: "0",
+      top: "0",
+      height: "auto",
+      overflow: "hidden",
+      visibility: "hidden",
+      borderColor: "transparent",
+      whiteSpace: field instanceof HTMLInputElement ? "pre" : "pre-wrap",
+      overflowWrap: "break-word"
+    });
+    mirror.textContent = field.value.slice(0, start);
+    const marked = document.createElement("span");
+    marked.textContent = field.value.slice(start, end);
+    mirror.append(marked);
+    scratch.appendChild(mirror);
+    const origin = mirror.getBoundingClientRect();
+    const box = field.getBoundingClientRect();
+    const dx = box.left - origin.left - field.scrollLeft;
+    const dy = box.top - origin.top - field.scrollTop;
+    return [...marked.getClientRects()].map((r) => ({
+      left: Math.max(r.left + dx, box.left),
+      right: Math.min(r.right + dx, box.right),
+      top: Math.max(r.top + dy, box.top),
+      bottom: Math.min(r.bottom + dy, box.bottom)
+    })).filter((r) => r.right > r.left && r.bottom > r.top);
+  }
+  function isCovered(lines, node, shows) {
+    const { innerWidth: width, innerHeight: height } = window;
+    const inView = lines.map((r) => ({
+      left: Math.max(r.left, 0),
+      right: Math.min(r.right, width),
+      top: Math.max(r.top, 0),
+      bottom: Math.min(r.bottom, height)
+    })).filter((r) => r.right > r.left && r.bottom > r.top);
+    if (!inView.length) return false;
+    const root = node.getRootNode();
+    const scope = root instanceof ShadowRoot ? root : document;
+    const sampled = new Set([0, Math.floor(inView.length / 2), inView.length - 1].map((i) => inView[i]));
+    return [...sampled].every((r) => {
+      if (!r) return false;
+      const hit = scope.elementsFromPoint((r.left + r.right) / 2, (r.top + r.bottom) / 2).find((element) => element.checkVisibility?.({ opacityProperty: true }) !== false);
+      return hit !== void 0 && !shows(hit);
+    });
+  }
+  function alphaOf(color) {
+    const match = /^rgba\(.*,\s*([\d.]+)\)$/.exec(color) ?? /\/\s*([\d.]+)(%?)\s*\)$/.exec(color);
+    if (!match) return 1;
+    const [, alpha = "1", percent] = match;
+    return parseFloat(alpha) / (percent ? 100 : 1);
+  }
+  function isHidden(element, seen) {
+    const known = seen.get(element);
+    if (known !== void 0) return known;
+    let hidden = false;
+    const style = getComputedStyle(element);
+    if (style.display !== "contents" && element.checkVisibility?.({ opacityProperty: true, visibilityProperty: true }) === false) {
+      hidden = true;
+    } else {
+      const clippedToText = style.backgroundClip === "text" || style.getPropertyValue("-webkit-background-clip") === "text";
+      const hasOwnBox = element !== document.documentElement && element !== document.body && style.display !== "contents";
+      const box = element.getBoundingClientRect();
+      hidden = parseFloat(style.fontSize) < MIN_READABLE_FONT_PX || alphaOf(style.color) < MIN_VISIBLE_ALPHA && !clippedToText || parseFloat(style.opacity) < MIN_VISIBLE_ALPHA || hasOwnBox && (box.width <= 1 || box.height <= 1) && style.overflow !== "visible";
+      const parent = element.parentElement ?? hostOf(element);
+      hidden ||= parent !== null && isHidden(parent, seen);
+    }
+    seen.set(element, hidden);
+    return hidden;
+  }
+  function blockOf(element) {
+    let current = element;
+    while (current.parentElement && /^(inline|contents)/.test(getComputedStyle(current).display)) {
+      current = current.parentElement;
+    }
+    return current;
+  }
+  function visibleText(range) {
+    const root = range.commonAncestorContainer;
+    const seen = /* @__PURE__ */ new Map();
+    if (root instanceof Text) return root.parentElement && isHidden(root.parentElement, seen) ? "" : null;
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT);
+    let text2 = "";
+    let block = null;
+    let skipped = false;
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+      if (!range.intersectsNode(node)) continue;
+      if (node instanceof HTMLBRElement) {
+        text2 += "\n";
+        continue;
+      }
+      const parent = node.parentElement;
+      if (!(node instanceof Text) || !parent) continue;
+      if (isHidden(parent, seen)) {
+        skipped ||= node.data.trim() !== "";
+        continue;
+      }
+      let part = node.data.slice(
+        node === range.startContainer ? range.startOffset : 0,
+        node === range.endContainer ? range.endOffset : void 0
+      );
+      if (!getComputedStyle(parent).whiteSpace.startsWith("pre")) {
+        part = part.replace(/\s+/g, " ");
+        if (/\s$/.test(text2)) part = part.trimStart();
+      }
+      if (!part) continue;
+      const partBlock = blockOf(parent);
+      if (block && partBlock !== block && !text2.endsWith("\n")) text2 = text2.trimEnd() + "\n";
+      block = partBlock;
+      text2 += text2.endsWith("\n") ? part.trimStart() : part;
+    }
+    return skipped ? text2.trim() : null;
+  }
+  function hostOf(node) {
+    const root = node.getRootNode();
+    return root instanceof ShadowRoot ? root.host : null;
+  }
+  function closestComposed(element, selector) {
+    let current = element;
+    while (current) {
+      const match = current.closest(selector);
+      if (match) return match;
+      current = hostOf(current);
+    }
+    return null;
+  }
+  function rangeWithin(selection, roots) {
+    const root = (
+      /** @type {{ getSelection?: () => Selection | null }} */
+      /** @type {unknown} */
+      roots[roots.length - 1]
+    );
+    const scoped = root.getSelection?.();
+    if (scoped && scoped.rangeCount > 0) return scoped.getRangeAt(0);
+    const composable = (
+      /** @type {{ getComposedRanges?: (options: { shadowRoots: ShadowRoot[] }) => StaticRange[] }} */
+      /** @type {unknown} */
+      selection
+    );
+    try {
+      const [composed] = composable.getComposedRanges?.({ shadowRoots: roots }) ?? [];
+      if (composed) {
+        const range = document.createRange();
+        range.setStart(composed.startContainer, composed.startOffset);
+        range.setEnd(composed.endContainer, composed.endOffset);
+        return range;
+      }
+    } catch {
+    }
+    return null;
+  }
+  function selectedRange(selection) {
+    if (selection.rangeCount === 0) return null;
+    let range = selection.getRangeAt(0);
+    const roots = [];
+    while (range.collapsed && selection.type === "Range") {
+      const { startContainer, startOffset } = range;
+      const host = [startContainer.childNodes[startOffset], startContainer.childNodes[startOffset - 1]].find(
+        (node) => node instanceof Element && node.shadowRoot
+      );
+      const root = host instanceof Element ? host.shadowRoot : null;
+      if (!root || roots.includes(root)) return null;
+      roots.push(root);
+      const inner = rangeWithin(selection, roots);
+      if (!inner) return null;
+      range = inner;
+    }
+    return range.collapsed ? null : range;
+  }
+  function readSelection(minChars) {
+    const active = deepActiveElement();
+    if (isTextField(active)) {
+      const { selectionStart: start, selectionEnd: end } = active;
+      if (start === null || end === null) return null;
+      const text3 = active.value.slice(start, end);
+      if (text3.trim().length < minChars) return null;
+      return {
+        text: text3,
+        browserText: text3,
+        editable: true,
+        element: active,
+        measure: () => {
+          const lines = fieldSelectionLines(active, start, end);
+          const box = active.getBoundingClientRect();
+          return { rect: unionOf(lines, { left: box.left, right: box.left, top: box.top, bottom: box.top }), lines };
+        },
+        occluded: (lines) => isCovered(lines, active, (hit) => hit === active || hit.contains(active))
+      };
+    }
+    if (active instanceof HTMLInputElement || active instanceof HTMLTextAreaElement) return null;
+    const selection = window.getSelection();
+    const selected = selection && selectedRange(selection);
+    if (!selection || !selected) return null;
+    const range = selected.cloneRange();
+    const browserText = selection.toString();
+    const text2 = visibleText(range) ?? browserText;
+    if (text2.trim().length < minChars) return null;
+    const host = editingHostOf(elementOf(range.commonAncestorContainer));
+    const element = host ?? elementOf(range.startContainer);
+    return {
+      text: text2,
+      browserText,
+      editable: host !== null,
+      element,
+      measure: () => {
+        const lines = [...range.getClientRects()].map(({ left, top, right, bottom }) => ({ left, top, right, bottom }));
+        return { rect: unionOf(lines, { left: 0, top: 0, right: 0, bottom: 0 }), lines };
+      },
+      // A hit on an ancestor, as text with pointer-events: none gives, still shows the selection.
+      occluded: (lines) => isCovered(lines, range.startContainer, (hit) => range.intersectsNode(hit))
+    };
+  }
+  function isSelectionCollapsed() {
+    const active = deepActiveElement();
+    if (isTextField(active)) return active.selectionStart === active.selectionEnd;
+    const selection = window.getSelection();
+    return !selection || selectedRange(selection) === null;
+  }
+  function isEditingFocused() {
+    const active = deepActiveElement();
+    return isTextField(active) || active instanceof HTMLElement && active.isContentEditable;
+  }
+  function isInCode(element) {
+    return closestComposed(element, "pre, code, kbd, samp") !== null;
+  }
+  function markedLanguageOf(element) {
+    const marked = closestComposed(element, "[lang]");
+    const tag = (marked instanceof HTMLElement ? marked.lang : "") || document.documentElement.lang;
+    if (!tag) return null;
+    try {
+      return Intl.getCanonicalLocales(tag)[0] ?? null;
+    } catch {
+      return null;
+    }
+  }
+  function isInTopLayer(element) {
+    if (!element) return false;
+    try {
+      const layer = closestComposed(element, ":modal, :popover-open, :fullscreen");
+      return layer !== null && layer !== document.documentElement;
+    } catch {
+      return false;
+    }
+  }
+
+  // src/features/selection-tools/text-key.js
+  init_define_import_meta_trackerLookup();
+  function selectedTextKey(text2) {
+    const collapsed = text2.replace(/\s+/g, " ").trim();
+    let hash = 2166136261;
+    for (let i = 0; i < collapsed.length; i++) {
+      hash = Math.imul(hash ^ collapsed.charCodeAt(i), 16777619);
+    }
+    return (hash >>> 0).toString(16).padStart(8, "0");
+  }
+
+  // src/features/selection-tools.js
+  var DEFAULT_MIN_CHARS = 2;
+  var SelectionTools = class extends ContentFeature {
+    constructor() {
+      super(...arguments);
+      /** @type {Config} */
+      __publicField(this, "_config", { enabled: true, showToolbar: true });
+      /** @type {SelectionSnapshot | null} the selection native was last told about, until it's cleared */
+      __publicField(this, "_reported", null);
+      __publicField(this, "_minChars", DEFAULT_MIN_CHARS);
+      __publicField(this, "_moveFrame", 0);
+    }
+    init() {
+      if (isBeingFramed()) return;
+      this._config = { enabled: true, showToolbar: this.getFeatureSetting("showToolbar") !== false };
+      const minChars = this.getFeatureSetting("minChars");
+      if (typeof minChars === "number" && minChars >= 1) this._minChars = Math.floor(minChars);
+      this.subscribe("selectionToolsConfigChanged", (value) => {
+        const config = toConfig(value);
+        if (!config || config.enabled === this._config.enabled && config.showToolbar === this._config.showToolbar) return;
+        this._config = config;
+        if (!config.enabled || !config.showToolbar) this._clear();
+      });
+      for (const type of ["mousedown", "mouseup", "keyup", "contextmenu"]) {
+        document.addEventListener(type, this, true);
+      }
+      document.addEventListener("selectionchange", this);
+      window.addEventListener("keydown", this, true);
+      window.addEventListener("scroll", this, { capture: true, passive: true });
+      window.addEventListener("resize", this);
+      window.addEventListener("pagehide", this);
+    }
+    /** @param {Event} event */
+    handleEvent(event) {
+      if (!event.isTrusted) return;
+      switch (event.type) {
+        case "mousedown":
+          if (
+            /** @type {MouseEvent} */
+            event.button !== 2
+          ) this._clear();
+          break;
+        case "mouseup":
+          if (
+            /** @type {MouseEvent} */
+            event.button === 0
+          ) setTimeout(() => this._refresh(), 0);
+          break;
+        case "keyup": {
+          const key = (
+            /** @type {KeyboardEvent} */
+            event
+          );
+          const selectAll = (key.ctrlKey || key.metaKey) && key.key.toLowerCase() === "a";
+          if (selectAll && !isEditingFocused()) this._clear();
+          else if (key.shiftKey || key.key === "Shift" || selectAll) this._refresh();
+          break;
+        }
+        case "contextmenu":
+          this._contextMenu();
+          break;
+        case "selectionchange":
+          if (this._reported && isSelectionCollapsed()) this._clear();
+          break;
+        case "keydown":
+          if (
+            /** @type {KeyboardEvent} */
+            event.key === "Escape"
+          ) this._clear();
+          break;
+        case "scroll":
+        case "resize":
+          this._scheduleMove();
+          break;
+        case "pagehide":
+          this._clear();
+          break;
+      }
+    }
+    _refresh() {
+      const snapshot = readSelection(this._minChars);
+      if (!snapshot || !this._toolbarMayShow(snapshot)) {
+        this._clear();
+        return;
+      }
+      if (!hasUserActivation()) return;
+      this._reported = snapshot;
+      this.notify("selectionChanged", { ...describe(snapshot), ...geometryOf(snapshot) });
+      this.addDebugFlag();
+    }
+    /**
+     * Covers right-click as well as the Menu key and Shift+F10, while the tools are on, whatever showToolbar says. One
+     * report serves native's menu and, through its rect, the toolbar native shows collapsed once the menu closes.
+     */
+    _contextMenu() {
+      if (!this._config.enabled || !hasUserActivation()) return;
+      const snapshot = readSelection(this._minChars);
+      if (!snapshot) {
+        this.notify("contextMenuOpened", { text: "" });
+        return;
+      }
+      const toolbar = this._toolbarMayShow(snapshot);
+      if (toolbar) this._reported = snapshot;
+      this.notify("contextMenuOpened", {
+        ...describe(snapshot),
+        selectedTextKey: selectedTextKey(snapshot.browserText),
+        ...toolbar ? geometryOf(snapshot) : {}
+      });
+    }
+    /**
+     * Whether native may show its toolbar for a selection: not with the tools or the toolbar off, nor in a modal dialog,
+     * popover or fullscreen element, where it would sit behind.
+     * @param {SelectionSnapshot} snapshot
+     */
+    _toolbarMayShow(snapshot) {
+      return this._config.enabled && this._config.showToolbar && !isInTopLayer(snapshot.element);
+    }
+    _scheduleMove() {
+      if (!this._reported || this._moveFrame) return;
+      this._moveFrame = requestAnimationFrame(() => {
+        this._moveFrame = 0;
+        if (!this._reported) return;
+        const { rect, lines } = this._reported.measure();
+        this.notify("selectionMoved", { rect, devicePixelRatio: window.devicePixelRatio, occluded: this._reported.occluded(lines) });
+      });
+    }
+    _clear() {
+      if (!this._reported) return;
+      this._reported = null;
+      cancelAnimationFrame(this._moveFrame);
+      this._moveFrame = 0;
+      this.notify("selectionCleared", {});
+    }
+  };
+  function hasUserActivation() {
+    return navigator.userActivation?.isActive ?? true;
+  }
+  function describe(snapshot) {
+    const { shape, language } = classify(snapshot.text, {
+      inCodeElement: isInCode(snapshot.element),
+      markedLanguage: markedLanguageOf(snapshot.element)
+    });
+    return {
+      text: snapshot.text,
+      editable: snapshot.editable,
+      selectionType: shape,
+      ...language ? { language } : {}
+    };
+  }
+  function geometryOf(snapshot) {
+    return { rect: snapshot.measure().rect, devicePixelRatio: window.devicePixelRatio };
+  }
+  function toConfig(value) {
+    if (typeof value !== "object" || value === null) return null;
+    const { enabled, showToolbar } = (
+      /** @type {Record<string, unknown>} */
+      value
+    );
+    if (typeof enabled !== "boolean" || typeof showToolbar !== "boolean") return null;
+    return { enabled, showToolbar };
+  }
+
   // ddg:platformFeatures:ddg:platformFeatures
   var ddg_platformFeatures_default = {
     ddg_feature_cookie: CookieFeature,
@@ -23566,7 +24128,8 @@ ${iframeContent}
     ddg_feature_performanceMetrics: PerformanceMetrics,
     ddg_feature_duckAiChatHistory: duck_ai_chat_history_default,
     ddg_feature_autofillPasskeys: AutofillPasskeys,
-    ddg_feature_chromeWebstorePatching: chrome_webstore_patching_default
+    ddg_feature_chromeWebstorePatching: chrome_webstore_patching_default,
+    ddg_feature_selectionTools: SelectionTools
   };
 
   // src/url-change.js
