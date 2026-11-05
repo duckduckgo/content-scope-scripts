@@ -32,14 +32,16 @@
         </div>
         <script>
             // The embed player (Duck Player) covers the player with a fixed controls layer, which must not swallow
-            // clicks on the skip button.
+            // clicks on the skip button. Built with DOM calls: the test serves the page with Trusted Types enforced.
             if (location.pathname.startsWith('/embed/')) {
-                document.body.insertAdjacentHTML(
-                    'beforeend',
-                    '<div id="player-controls" style="position: fixed; top: 0; left: 0; width: 320px; height: 180px">' +
-                        '<div class="player-controls-bottom" style="position: absolute; left: 0; right: 0; top: 100px; height: 40px"></div>' +
-                        '</div>',
-                );
+                const controls = document.createElement('div');
+                controls.id = 'player-controls';
+                controls.style.cssText = 'position: fixed; top: 0; left: 0; width: 320px; height: 180px';
+                const bottomRow = document.createElement('div');
+                bottomRow.className = 'player-controls-bottom';
+                bottomRow.style.cssText = 'position: absolute; left: 0; right: 0; top: 100px; height: 40px';
+                controls.append(bottomRow);
+                document.body.append(controls);
             }
         </script>
     </body>

@@ -42,17 +42,32 @@ const STYLES = `
    height changes with orientation, so updateSkip measures it and overrides the bottom offset when the row is found. */
 #player-controls > .${SKIP_BUTTON_CLASS} { right: 24px; bottom: 140px; }
 `;
-// Fixed literal, never page data. The icon matches YouTube's "next" glyph: a triangle and a bar.
-const SKIP_BUTTON_HTML = `
-<style>
+const SKIP_BUTTON_STYLES = `
 button {
     all: unset; box-sizing: border-box; padding: 10px 16px; border-radius: 8px; background: rgb(222, 88, 51); color: #fff;
     font: 500 14px/1.2 Roboto, Arial, sans-serif; cursor: pointer;
 }
 button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
-</style>
-<button type="button">Skip sponsored content <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" style="vertical-align:-1px"><path d="M1 1l7 5-7 5z M9 1h2v10H9z" fill="currentColor"/></svg></button>
+svg { vertical-align: -1px; }
 `;
+const SVG_NS = 'http://www.w3.org/2000/svg';
+
+/**
+ * The "next" glyph YouTube uses: a triangle and a bar.
+ * @returns {SVGSVGElement}
+ */
+function createSkipIcon() {
+    const svg = document.createElementNS(SVG_NS, 'svg');
+    svg.setAttribute('width', '12');
+    svg.setAttribute('height', '12');
+    svg.setAttribute('viewBox', '0 0 12 12');
+    svg.setAttribute('aria-hidden', 'true');
+    const path = document.createElementNS(SVG_NS, 'path');
+    path.setAttribute('d', 'M1 1l7 5-7 5z M9 1h2v10H9z');
+    path.setAttribute('fill', 'currentColor');
+    svg.append(path);
+    return svg;
+}
 
 /**
  * The first visible element matching the earliest selector in `selectors` that has one.
@@ -383,13 +398,18 @@ export class SponsorBlock extends ContentFeature {
         }
     }
 
-    // A closed shadow root keeps the button's markup and listeners out of reach of YouTube's scripts.
+    // A closed shadow root keeps the button's markup and listeners out of reach of YouTube's scripts. Built with DOM
+    // calls, not innerHTML: YouTube enforces Trusted Types, which blocks assigning a plain string to innerHTML.
     createSkipButton() {
         const host = document.createElement('div');
         host.className = SKIP_BUTTON_CLASS;
         const shadow = host.attachShadow({ mode: 'closed' });
-        shadow.innerHTML = SKIP_BUTTON_HTML;
-        const button = /** @type {HTMLButtonElement} */ (shadow.querySelector('button'));
+        const style = document.createElement('style');
+        style.textContent = SKIP_BUTTON_STYLES;
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.append('Skip sponsored content ', createSkipIcon());
+        shadow.append(style, button);
         // Keep the tap from also reaching the player, which would toggle YouTube's controls.
         button.addEventListener('pointerdown', (e) => e.stopPropagation());
         button.addEventListener('click', (e) => {

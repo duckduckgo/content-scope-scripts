@@ -55,7 +55,12 @@ async function routeYouTube(page) {
     await page.route(/^https:\/\/www\.youtube(-nocookie)?\.com\//, (route) => {
         const { pathname } = new URL(route.request().url());
         if (pathname.endsWith('/video.webm')) return fulfillVideo(route);
-        return route.fulfill({ body: readFileSync(`${PAGES}/index.html`, 'utf8'), contentType: 'text/html' });
+        // YouTube enforces Trusted Types, so assigning a plain string to innerHTML throws there.
+        return route.fulfill({
+            body: readFileSync(`${PAGES}/index.html`, 'utf8'),
+            contentType: 'text/html',
+            headers: { 'Content-Security-Policy': "require-trusted-types-for 'script'" },
+        });
     });
 }
 
