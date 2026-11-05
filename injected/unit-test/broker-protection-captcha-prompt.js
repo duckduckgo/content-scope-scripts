@@ -91,6 +91,20 @@ describe('PromptProvider', () => {
         });
     });
 
+    describe('getSiteKey', () => {
+        const root = testDocument;
+
+        it('returns the filled prompt as the site key under its own type', async () => {
+            const result = await provider.getSiteKey({ action: createPromptAction('ZIP for ${city}'), userData: userProfile, root });
+            expect(result).toEqual({ siteKey: 'ZIP for Austin', type: 'llm-prompt' });
+        });
+
+        it('passes a prompt error through unchanged', async () => {
+            const result = await provider.getSiteKey({ action: createPromptAction('${firstName}'), userData: userProfile, root });
+            expect(PirError.isError(result)).toBeTrue();
+        });
+    });
+
     describe('solve side', () => {
         it('can solve into a text input or textarea only', () => {
             expect(provider.canSolve(testDocument.createElement('input'))).toBeTrue();

@@ -5,7 +5,7 @@ import { isElementType } from '../utils/element.js';
 import { stringifyFunction } from '../utils/stringify-function.js';
 
 /**
- * @import { CaptchaProvider } from './provider.interface.js';
+ * @import { CaptchaProvider, SiteKeyContext, SiteKeyInfo, SiteKeyProvider } from './provider.interface.js';
  * @import { PirAction, ProfileData } from '../../types.js';
  */
 
@@ -38,10 +38,20 @@ const TEMPLATE_VARIABLE = /\$%7B(.+?)%7D|\$\{(.+?)}/g;
  * callback needs to run.
  *
  * @implements {CaptchaProvider}
+ * @implements {SiteKeyProvider}
  */
 export class PromptProvider {
     getType() {
         return PROMPT_CAPTCHA_TYPE;
+    }
+
+    /**
+     * @param {SiteKeyContext} context
+     * @return {Promise<SiteKeyInfo|PirError>}
+     */
+    getSiteKey({ action, userData }) {
+        const prompt = this.getCaptchaPrompt(action, userData);
+        return Promise.resolve(typeof prompt === 'string' ? { siteKey: prompt, type: this.getType() } : prompt);
     }
 
     /**

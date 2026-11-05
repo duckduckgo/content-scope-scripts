@@ -4,11 +4,11 @@ import { ErrorResponse, PirError, SuccessResponse } from '../types';
 import { getCaptchaProvider, getCaptchaSolveProvider } from './get-captcha-provider';
 import { captchaFactory } from './providers/registry.js';
 import { selectRootElement } from '../utils/select-root-element.js';
-import { PromptProvider } from './providers/prompt.js';
 import { getCaptchaInfo as getCaptchaInfoDeprecated, solveCaptcha as solveCaptchaDeprecated } from '../actions/captcha-deprecated';
 
 /**
  * @import { ActionResponse, PirAction, ProfileData } from '../types.js'
+ * @import { CaptchaProvider, SiteKeyProvider } from './providers/provider.interface.js'
  * @typedef {{profile: ProfileData|null, token: string|null}} PendingCaptchaContext
  */
 
@@ -67,66 +67,38 @@ export function getSupportingCodeToInject(action) {
 }
 
 /**
- * Gets the captcha information to send to the backend
+ * Extracts the captcha identifier from the page for providers that read it from the DOM.
  *
  * @param {PirAction} action
  * @param {ProfileData|null} userData
  * @param {Document} root
- * @return {Promise<ActionResponse>}
+ * @return {Promise<{siteKey: string, type: string}|PirError>}
  */
-export async function getCaptchaInfo(action, userData, root = document) {
-    const { id: actionID, actionType, captchaType, selector } = action;
-    pendingCaptchaContext = null;
-
-    if (!captchaType) {
-        // ensures backward compatibility with old actions
-        return getCaptchaInfoDeprecated(action, root);
-    }
-
-    const createError = ErrorResponse.generateErrorResponseFunction({ actionID, context: `[getCaptchaInfo] captchaType: ${captchaType}` });
-
-    // A prompt captcha has nothing to extract from the page: its "site key" is built from the action's
-    // template and the profile, so it skips the container/provider pipeline below entirely.
-    const registeredProvider = captchaFactory.getProviderByType(captchaType);
-    if (registeredProvider instanceof PromptProvider) {
-        const prompt = registeredProvider.getCaptchaPrompt(action, userData);
-        if (PirError.isError(prompt)) {
-            return createError(prompt.error.message);
-        }
-
-        if (action.parent) {
-            pendingCaptchaContext = { profile: userData, token: null };
-        }
-
-        return SuccessResponse.create({
-            actionID,
-            actionType,
-            response: { url: removeUrlQueryParams(window.location.href), siteKey: prompt, type: registeredProvider.getType() },
-        });
-    }
+async function getCaptchaIdentifierFromPage(action, userData, root) {
+    const { captchaType = '', selector } = action;
 
     const captchaRoot = getCaptchaRoot(action, userData, root);
     if (PirError.isError(captchaRoot)) {
-        return createError(captchaRoot.error.message);
+        return captchaRoot;
     }
 
     const captchaContainer = getCaptchaContainer(captchaRoot, selector);
     if (PirError.isError(captchaContainer)) {
-        return createError(captchaContainer.error.message);
+        return captchaContainer;
     }
 
     const captchaProvider = getCaptchaProvider(root, captchaContainer, captchaType);
     if (PirError.isError(captchaProvider)) {
-        return createError(captchaProvider.error.message);
+        return captchaProvider;
     }
 
     const captchaIdentifier = await captchaProvider.getCaptchaIdentifier(captchaContainer);
     if (!captchaIdentifier) {
-        return createError(`could not extract captcha identifier from the container with selector ${selector}`);
+        return PirError.create(`could not extract captcha identifier from the container with selector ${selector}`);
     }
 
     if (PirError.isError(captchaIdentifier)) {
-        return createError(captchaIdentifier.error.message);
+        return captchaIdentifier;
     }
 
     // Determine the type to report to dbp-api. When the requested captchaType resolved to its
@@ -136,17 +108,62 @@ export async function getCaptchaInfo(action, userData, root = document) {
     // the detected provider's canonical type.
     const reportedType = captchaFactory.getProviderByType(captchaType) === captchaProvider ? captchaType : captchaProvider.getType();
 
-    const response = {
-        url: removeUrlQueryParams(window.location.href), // query params (which may include PII)
-        siteKey: captchaIdentifier,
-        type: reportedType,
-    };
+    return { siteKey: captchaIdentifier, type: reportedType };
+}
+
+/**
+ * Gets the captcha information to send to the backend
+ *
+ * @param {PirAction} action
+ * @param {ProfileData|null} userData
+ * @param {Document} root
+ * @return {Promise<ActionResponse>}
+ */
+export async function getCaptchaInfo(action, userData, root = document) {
+    const { id: actionID, actionType, captchaType } = action;
+    pendingCaptchaContext = null;
+
+    if (!captchaType) {
+        // ensures backward compatibility with old actions
+        return getCaptchaInfoDeprecated(action, root);
+    }
+
+    const createError = ErrorResponse.generateErrorResponseFunction({ actionID, context: `[getCaptchaInfo] captchaType: ${captchaType}` });
+
+    const captchaProvider = captchaFactory.getProviderByType(captchaType);
+    if (!captchaProvider) {
+        return createError(`could not find captcha provider with type ${captchaType}`);
+    }
+
+    // A provider that can build its own site key (e.g. a prompt filled from the profile) skips the
+    // container pipeline; everything else is read from the page.
+    const captcha = hasOwnSiteKey(captchaProvider)
+        ? await captchaProvider.getSiteKey({ action, userData, root })
+        : await getCaptchaIdentifierFromPage(action, userData, root);
+    if (PirError.isError(captcha)) {
+        return createError(captcha.error.message);
+    }
 
     if (action.parent) {
         pendingCaptchaContext = { profile: userData, token: null };
     }
 
-    return SuccessResponse.create({ actionID, actionType, response });
+    return SuccessResponse.create({
+        actionID,
+        actionType,
+        response: {
+            url: removeUrlQueryParams(window.location.href), // query params (which may include PII)
+            ...captcha,
+        },
+    });
+}
+
+/**
+ * @param {CaptchaProvider} provider
+ * @return {provider is CaptchaProvider & SiteKeyProvider}
+ */
+function hasOwnSiteKey(provider) {
+    return 'getSiteKey' in provider && typeof provider.getSiteKey === 'function';
 }
 
 /**
