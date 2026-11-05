@@ -4,7 +4,7 @@ import { ChipRemoveButton } from './ChipRemoveButton';
 import styles from './AttachmentChip.module.css';
 
 /**
- * @typedef {'tab' | 'file' | 'image'} AttachmentKind
+ * @typedef {'tab' | 'file' | 'image' | 'text'} AttachmentKind
  */
 
 /**

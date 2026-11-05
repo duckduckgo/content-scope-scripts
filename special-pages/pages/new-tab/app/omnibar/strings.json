@@ -251,6 +251,22 @@
     "title": "Screenshot",
     "description": "File name given to a screenshot attached to the AI chat input. Repeats are numbered, e.g. 'Screenshot 2'."
   },
+  "omnibar_pastedTextLabel": {
+    "title": "Pasted text",
+    "description": "Type label on the chip for a long text paste that was attached to the AI chat input instead of inserted."
+  },
+  "omnibar_removePastedTextLabel": {
+    "title": "Remove pasted text \u201c{summary}\u201d",
+    "description": "Accessible label for the button that removes a pasted-text chip from the AI chat input. {summary} is the start of the pasted text."
+  },
+  "omnibar_removePastedTextFallbackLabel": {
+    "title": "Remove pasted text",
+    "description": "Accessible label for the button that removes a pasted-text chip whose text is only whitespace."
+  },
+  "omnibar_promptTooLongWarning": {
+    "title": "Your message is too long. Shorten it to {limit} characters or fewer, including pasted text.",
+    "description": "Shown under the AI chat input when the typed text plus pasted text is over the limit; sending is blocked until it fits. {limit} is the character limit."
+  },
   "omnibar_pastedImageFileName": {
     "title": "Pasted image",
     "description": "File name given to an image pasted from the clipboard into the AI chat input. Repeats are numbered, e.g. 'Pasted image 2'."

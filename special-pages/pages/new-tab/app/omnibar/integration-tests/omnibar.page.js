@@ -480,10 +480,11 @@ export class OmnibarPage {
      * @param {object} clipboard
      * @param {string} [clipboard.text]
      * @param {{ name: string, type: string, base64: string }[]} [clipboard.files]
+     * @param {import('@playwright/test').Locator} [input] - defaults to the chat input
      * @returns {Promise<{ defaultPrevented: boolean }>}
      */
-    async pasteIntoChatInput({ text, files = [] }) {
-        return await this.chatInput().evaluate(
+    async pasteIntoChatInput({ text, files = [] }, input = this.chatInput()) {
+        return await input.evaluate(
             (textarea, { text, files }) => {
                 const data = new DataTransfer();
                 if (text) data.setData('text/plain', text);
@@ -609,6 +610,19 @@ export class OmnibarPage {
 
     removeImageButton() {
         return this.attachmentChips().locator('button[aria-label="Remove image"]');
+    }
+
+    textPastedChips() {
+        return this.attachmentChips().locator('[data-attachment-kind="text"]');
+    }
+
+    /** @param {string} summary - start of the pasted text */
+    removeTextPastedButton(summary) {
+        return this.attachmentChips().getByRole('button', { name: `Remove pasted text “${summary}”` });
+    }
+
+    promptTooLongWarning() {
+        return this.context().getByRole('alert').filter({ hasText: 'Your message is too long' });
     }
 
     tabLimitWarning() {

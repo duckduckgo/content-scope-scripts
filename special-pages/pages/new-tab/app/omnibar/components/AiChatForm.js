@@ -37,7 +37,7 @@ import styles from './AiChatForm.module.css';
  * @param {(event: KeyboardEvent) => ({ handled: boolean } | void)} [props.onTextareaKeyDown]
  * @param {ComboboxOverride|null} [props.combobox]
  * @param {import('preact').RefObject<HTMLTextAreaElement>} props.textareaRef - Ref the parent owns and uses to drive focus/selection or measure layout.
- * @param {(event: ClipboardEvent) => void} [props.onPaste] - Clipboard image/file intake; call `preventDefault()` to stop the text paste.
+ * @param {(event: ClipboardEvent) => void} [props.onPaste] - Clipboard intake (images, files, long text); call `preventDefault()` to stop the text paste.
  * @param {(event: DragEvent) => void} [props.onDragOver] - Also called on `dragenter`; call `preventDefault()` to accept the drag.
  * @param {(event: DragEvent) => void} [props.onDrop]
  */
