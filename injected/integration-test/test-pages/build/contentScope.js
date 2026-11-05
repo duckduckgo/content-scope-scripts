@@ -31404,7 +31404,8 @@ ${iframeContent}
       this._evaluatedExtensionId = null;
       this.feature._verdict = null;
       this.feature._resetButtons();
-      if (!extensionId || this._pending.has(extensionId)) return;
+      if (!extensionId) return;
+      if (this._pending.has(extensionId)) return this.feature._reveal("pending");
       const isCurrent = () => evaluation === this._evaluation && extensionId === parseExtensionId(window.location.pathname);
       if (!await this.feature._isInCatalog(extensionId, isCurrent)) return;
       const status = await this.getExtensionStatus(extensionId);
@@ -31430,6 +31431,7 @@ ${iframeContent}
       const verdict = this.feature._verdict;
       if (!extensionId || extensionId !== this._evaluatedExtensionId || this._pending.has(extensionId) || verdict !== "install" && verdict !== "remove")
         return;
+      this.feature._pendingWidth = `${target.getBoundingClientRect().width}px`;
       void this._performAction(extensionId, verdict).catch((error) => {
         this.feature.log.info("Could not refresh Chrome Web Store after native operation", error);
       });
@@ -31463,6 +31465,9 @@ ${iframeContent}
   // src/features/chrome-webstore-patching/assets/Trash-24.svg
   var Trash_24_default = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">\n<path d="M9.25 8.99984C9.66421 8.99984 10 9.33562 10 9.74984V17.2498C10 17.6641 9.66421 17.9998 9.25 17.9998C8.83579 17.9998 8.5 17.6641 8.5 17.2498V9.74984C8.5 9.33562 8.83579 8.99984 9.25 8.99984Z" fill="black"/>\n<path d="M15.4996 9.74984C15.4996 9.33562 15.1638 8.99984 14.7496 8.99984C14.3354 8.99984 13.9996 9.33562 13.9996 9.74984V17.2498C13.9996 17.6641 14.3354 17.9998 14.7496 17.9998C15.1638 17.9998 15.4996 17.6641 15.4996 17.2498V9.74984Z" fill="black"/>\n<path fill-rule="evenodd" clip-rule="evenodd" d="M7.03105 4.99984C7.3097 3.29834 8.78678 2 10.5671 2H13.4874C15.2677 2 16.7448 3.29834 17.0235 4.99984H20.25C20.6642 4.99984 21 5.33562 21 5.74984C21 6.16405 20.6642 6.49984 20.25 6.49984H20V16.9998C20 19.7613 17.7614 21.9998 15 21.9998H9C6.23858 21.9998 4 19.7613 4 16.9998V6.49984H3.75C3.33579 6.49984 3 6.16405 3 5.74984C3 5.33562 3.33579 4.99984 3.75 4.99984H7.03105ZM5.5 6.49984V16.9998C5.5 18.9328 7.067 20.4998 9 20.4998H15C16.933 20.4998 18.5 18.9328 18.5 16.9998V6.49984H5.5ZM15.4879 4.99984C15.2356 4.13325 14.4355 3.5 13.4874 3.5H10.5671C9.61907 3.5 8.81893 4.13325 8.5666 4.99984H15.4879Z" fill="black"/>\n</svg>';
 
+  // src/features/chrome-webstore-patching/assets/Spinner-24.svg
+  var Spinner_24_default = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">\n<circle cx="12" cy="12" r="9" stroke="#F05F2B" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="42 15"/>\n</svg>\n';
+
   // ../build/locales/chrome-webstore-patching-locales.js
   init_define_import_meta_trackerLookup();
   var chrome_webstore_patching_locales_default = `{"de":{"chrome-store-strings.json":{"install":"Zu DuckDuckGo hinzuf\xFCgen","remove":"Von DuckDuckGo entfernen","unavailable":"Nicht unterst\xFCtzte Erweiterung","unavailableDescription":"Diese Erweiterung wird nicht unterst\xFCtzt."}},"en":{"chrome-store-strings.json":{"install":"Add to DuckDuckGo","remove":"Remove from DuckDuckGo","unavailable":"Unsupported extension","unavailableDescription":"This extension isn't supported."}},"es":{"chrome-store-strings.json":{"install":"A\xF1adir a DuckDuckGo","remove":"Eliminar de DuckDuckGo","unavailable":"Extensi\xF3n no compatible","unavailableDescription":"Esta extensi\xF3n no es compatible."}},"fr":{"chrome-store-strings.json":{"install":"Ajouter \xE0 DuckDuckGo","remove":"Supprimer de DuckDuckGo","unavailable":"Extension non prise en charge","unavailableDescription":"Cette extension n\u2019est pas prise en charge."}},"it":{"chrome-store-strings.json":{"install":"Aggiungi a DuckDuckGo","remove":"Rimuovi da DuckDuckGo","unavailable":"Estensione non supportata","unavailableDescription":"Questa estensione non \xE8 supportata."}},"nl":{"chrome-store-strings.json":{"install":"Toevoegen aan DuckDuckGo","remove":"Verwijderen uit DuckDuckGo","unavailable":"Niet-ondersteunde extensie","unavailableDescription":"Deze extensie wordt niet ondersteund."}},"pl":{"chrome-store-strings.json":{"install":"Dodaj do DuckDuckGo","remove":"Usu\u0144 z DuckDuckGo","unavailable":"Nieobs\u0142ugiwane rozszerzenie","unavailableDescription":"To rozszerzenie nie jest obs\u0142ugiwane."}},"pt":{"chrome-store-strings.json":{"install":"Adicionar ao DuckDuckGo","remove":"Remover do DuckDuckGo","unavailable":"Extens\xE3o n\xE3o suportada","unavailableDescription":"Esta extens\xE3o n\xE3o \xE9 suportada."}},"ru":{"chrome-store-strings.json":{"install":"\u0414\u043E\u0431\u0430\u0432\u0438\u0442\u044C \u0432 DuckDuckGo","remove":"\u0423\u0434\u0430\u043B\u0438\u0442\u044C \u0438\u0437 DuckDuckGo","unavailable":"\u041D\u0435\u043F\u043E\u0434\u0434\u0435\u0440\u0436\u0438\u0432\u0430\u0435\u043C\u043E\u0435 \u0440\u0430\u0441\u0448\u0438\u0440\u0435\u043D\u0438\u0435 \u0431\u0440\u0430\u0443\u0437\u0435\u0440\u0430","unavailableDescription":"\u042D\u0442\u043E \u0440\u0430\u0441\u0448\u0438\u0440\u0435\u043D\u0438\u0435 \u0431\u0440\u0430\u0443\u0437\u0435\u0440\u0430 \u043D\u0435 \u043F\u043E\u0434\u0434\u0435\u0440\u0436\u0438\u0432\u0430\u0435\u0442\u0441\u044F."}}}`;
@@ -31472,6 +31477,9 @@ ${iframeContent}
   var STRINGS_FILE = "chrome-store-strings.json";
   var DAX_DATA_URI = `data:image/svg+xml;utf8,${encodeURIComponent(DuckDuckGo_Color_24_default)}`;
   var TRASH_DATA_URI = `data:image/svg+xml;utf8,${encodeURIComponent(Trash_24_default.replaceAll('fill="black"', 'fill="#FFFFFF" fill-opacity="0.78"'))}`;
+  var SPINNER_DATA_URI = `data:image/svg+xml;utf8,${encodeURIComponent(Spinner_24_default)}`;
+  var SPINNER_KEYFRAMES = [{ transform: "rotate(0deg)" }, { transform: "rotate(360deg)" }];
+  var SPINNER_TIMING = { duration: 800, iterations: Infinity };
   var PILL_LAYOUT = {
     display: "inline-flex",
     "align-items": "center",
@@ -31491,7 +31499,17 @@ ${iframeContent}
     remove: { ...PILL_LAYOUT, background: "#E44D55", color: "#FFFFFF", cursor: "pointer", "pointer-events": "auto" },
     // pointer-events must stay auto: `none` redirects clicks to the store's delegated
     // jsaction ancestor, which still installs — the interceptor + disabled block them instead
-    unsupported: { ...PILL_LAYOUT, background: "#E4E4E4", color: "#8A8A8A", cursor: "default", "pointer-events": "auto" }
+    unsupported: { ...PILL_LAYOUT, background: "#E4E4E4", color: "#8A8A8A", cursor: "default", "pointer-events": "auto" },
+    // macOS only, while native owns an install or removal. Symmetric padding and no gap: the empty label still takes the gap.
+    pending: {
+      ...PILL_LAYOUT,
+      padding: "8px",
+      gap: "0",
+      background: "transparent",
+      color: "inherit",
+      cursor: "default",
+      "pointer-events": "auto"
+    }
   };
   var ICON_STYLES = {
     display: "inline-block",
@@ -31502,7 +31520,8 @@ ${iframeContent}
   var ICON_BACKGROUNDS = {
     install: `url("${DAX_DATA_URI}") center / contain no-repeat`,
     remove: `url("${TRASH_DATA_URI}") center / contain no-repeat`,
-    unsupported: `url("${DAX_DATA_URI}") center / contain no-repeat`
+    unsupported: `url("${DAX_DATA_URI}") center / contain no-repeat`,
+    pending: `url("${SPINNER_DATA_URI}") center / contain no-repeat`
   };
   var INTERNAL_OVERRIDE_TEXT = "Internal override";
   var INTERNAL_OVERRIDE_STYLES = {
@@ -31512,6 +31531,13 @@ ${iframeContent}
     color: "#8A8A8A",
     "text-decoration": "underline",
     cursor: "pointer"
+  };
+  var MACOS_LABEL_STYLES = {
+    "font-family": '"Google Sans Flex", "Google Sans", sans-serif',
+    "font-weight": "450",
+    "font-size": "14px",
+    "line-height": "100%",
+    "text-box": "trim-both cap alphabetic"
   };
   var VERDICT_COPY_KEY = (
     /** @type {const} */
@@ -31523,8 +31549,10 @@ ${iframeContent}
       super(...arguments);
       /** Re-run the page evaluation on SPA navigations (base class calls urlChanged) */
       __publicField(this, "listenForUrlChanges", true);
-      /** @type {'install' | 'remove' | 'unsupported' | null} verdict for the current page; null = keep hidden */
+      /** @type {'install' | 'remove' | 'unsupported' | 'pending' | null} verdict for the current page; null = keep hidden */
       __publicField(this, "_verdict", null);
+      /** @type {string | undefined} width of the clicked pill, kept while pending so the spinner takes its place */
+      __publicField(this, "_pendingWidth");
       /** @type {MutationObserver | undefined} */
       __publicField(this, "_observer");
       /** @type {number | undefined} pending coalesced _applyVerdict, if any */
@@ -31716,12 +31744,20 @@ ${iframeContent}
       return typeof localized === "string" ? localized : STRINGS.en?.[STRINGS_FILE]?.[key];
     }
     /**
+     * The pending spinner has no label; every other verdict needs its copy.
+     * @param {'install' | 'remove' | 'unsupported' | 'pending'} verdict
+     * @returns {string | undefined}
+     */
+    _verdictText(verdict) {
+      return verdict === "pending" ? "" : this._copy(VERDICT_COPY_KEY[verdict]);
+    }
+    /**
      * Reveals the button for a verdict. Refuses without the verdict's copy —
      * a revealed button must never show Google's original wording.
-     * @param {'install' | 'remove' | 'unsupported'} verdict
+     * @param {'install' | 'remove' | 'unsupported' | 'pending'} verdict
      */
     _reveal(verdict) {
-      const text2 = this._copy(VERDICT_COPY_KEY[verdict]);
+      const text2 = this._verdictText(verdict);
       if (typeof text2 !== "string") return;
       this._verdict = verdict;
       this._applyVerdict();
@@ -31747,7 +31783,7 @@ ${iframeContent}
     _applyVerdict() {
       const verdict = this._verdict;
       if (!verdict) return;
-      const text2 = this._copy(VERDICT_COPY_KEY[verdict]);
+      const text2 = this._verdictText(verdict);
       if (typeof text2 !== "string") return;
       for (const button of this._matchingButtons()) {
         this._applyVerdictToButton(button, verdict, text2);
@@ -31781,7 +31817,7 @@ ${iframeContent}
     }
     /**
      * @param {HTMLElement} button
-     * @param {'install' | 'remove' | 'unsupported'} verdict
+     * @param {'install' | 'remove' | 'unsupported' | 'pending'} verdict
      * @param {string} text
      */
     _applyVerdictToButton(button, verdict, text2) {
@@ -31802,16 +31838,30 @@ ${iframeContent}
       if (icon.dataset.ddgVerdict !== verdict) {
         icon.dataset.ddgVerdict = verdict;
         icon.style.setProperty("background", ICON_BACKGROUNDS[verdict], "important");
+        if (verdict === "pending") icon.animate(SPINNER_KEYFRAMES, SPINNER_TIMING);
+        else if (this._macOS) icon.getAnimations().forEach((animation) => animation.cancel());
       }
       const iconFilter = isUnsupported ? "grayscale(1) opacity(0.55)" : "none";
       if (icon.style.getPropertyValue("filter") !== iconFilter) {
         icon.style.setProperty("filter", iconFilter, "important");
       }
-      let label = button.querySelector("span[data-ddg-webstore-label]");
+      let label = (
+        /** @type {HTMLElement | null} */
+        button.querySelector("span[data-ddg-webstore-label]")
+      );
       if (!label) {
         label = document.createElement("span");
         label.setAttribute("data-ddg-webstore-label", "");
         button.appendChild(label);
+      }
+      const macLabel = Boolean(this._macOS) && (verdict === "install" || verdict === "remove");
+      if (macLabel !== (label.dataset.ddgMacosLabel === "true")) {
+        for (const [prop, value] of Object.entries(MACOS_LABEL_STYLES)) {
+          if (macLabel) label.style.setProperty(prop, value, "important");
+          else label.style.removeProperty(prop);
+        }
+        if (macLabel) label.dataset.ddgMacosLabel = "true";
+        else delete label.dataset.ddgMacosLabel;
       }
       if (label.textContent !== text2) {
         label.textContent = text2;
@@ -31823,10 +31873,15 @@ ${iframeContent}
         }
       }
       this._syncOverrideLink(button, isUnsupported);
-      if (button.getAttribute("aria-label") !== text2) {
+      if (verdict !== "pending" && button.getAttribute("aria-label") !== text2) {
         button.setAttribute("aria-label", text2);
       }
-      const styles2 = PILL_STYLES[verdict];
+      if (verdict === "pending") {
+        if (button.getAttribute("aria-busy") !== "true") button.setAttribute("aria-busy", "true");
+      } else if (this._macOS && button.hasAttribute("aria-busy")) {
+        button.removeAttribute("aria-busy");
+      }
+      const styles2 = verdict === "pending" && this._pendingWidth ? { ...PILL_STYLES.pending, width: this._pendingWidth } : PILL_STYLES[verdict];
       for (const [prop, value] of Object.entries(styles2)) {
         if (button.style.getPropertyValue(prop) !== value) {
           button.style.setProperty(prop, value, "important");

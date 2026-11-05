@@ -1,2 +1,1 @@
-- Add selection tools for desktop (#3119)
-- Disable Cursor Bugbot waits in CI (#3132)
+- Add Chrome Web Store Spinner support for macOS (#3179)
