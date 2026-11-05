@@ -22,16 +22,34 @@ sequenceDiagram
 
 ## User assist
 
-For runs the user is watching, native can turn on in-page affordances and hand individual steps to the user. All of it is off unless native opts in, and page state resets on every load, so native re-sends these after each navigation.
+### `userAssist` action
 
-| Message | Direction | Params | Effect |
-|---------|-----------|--------|--------|
-| `setAssistMode` | native → page | `{ enabled: boolean }` | While enabled, `click` actions show the agent cursor moving to their target, and `fillForm` actions fill as usual then visibly re-type each value (without dispatching extra events). |
-| `userTurnStarted` | native → page | `{ kind: 'turnstile' \| 'recaptcha' \| 'managedChallenge' \| 'generic', tokenSelector: string \| null }` | Outlines the challenge widget with a "Your turn" badge and a "Waiting for you" pill (whether or not assist mode is on). Until the turn ends, every action attempt waits: retries of the in-flight action and any new action native sends. |
-| `userTurnCompleted` | page → native | `{ kind }` | Sent once per turn when the challenge's token field (`tokenSelector`, or the provider's default) gets a value it didn't have when the turn started. |
-| `userTurnEnded` | native → page | `{ reason }` (for native's own bookkeeping; the page ignores it) | Clears the turn's affordances and releases held retries. |
+Hands a step to the user, such as solving a CAPTCHA, and resolves once the page shows it's done.
 
-Cloudflare managed challenges replace the whole page, so native detects when they're cleared rather than relying on `userTurnCompleted`.
+```json
+{
+  "actionType": "userAssist",
+  "id": "solve-captcha",
+  "step": "Searching for your record",
+  "highlight": "#captcha-widget",
+  "handOffAfterMs": 10000,
+  "completeWhen": [{ "type": "element", "selector": "#optout-form input[name='cf-turnstile-response'][value]:not([value=''])" }]
+}
+```
+
+- `completeWhen` takes the same items as an `expectation` action, and passes when such an action would succeed.
+- If `completeWhen` already passes, the action completes straight away. So when the page navigates during a `userAssist`, native can re-send the same action after load.
+- Otherwise the page polls `completeWhen`. After `handOffAfterMs` (default 0) it outlines `highlight` (CSS or XPath) and sends `userTurnNeeded { actionID }`. Once `completeWhen` passes it clears the outline and responds `actionCompleted` with success.
+- It isn't retried and has no timeout here; native owns timeouts and cancellation. A new `onActionReceived` cancels a pending `userAssist`, which then responds with an error.
+- An element expectation only checks that an element exists, so to wait for a token, match on its value. Hidden inputs reflect their value in the `value` attribute, so `[value]:not([value=''])` works for Turnstile's `cf-turnstile-response`.
+
+### `step`
+
+Any action may carry a `step` label. Native uses it to show progress; the page ignores it.
+
+### `visualizeActions` setting
+
+When native sets `"settings": { "visualizeActions": "enabled" }` on `brokerProtection` (for runs the user is watching), `click` actions show the agent cursor moving to their target, and `fillForm` actions fill as usual then visibly re-type each value without dispatching extra events. Without it, the only thing drawn is a `userAssist` hand-off outline.
 
 ## Error Handling
 
