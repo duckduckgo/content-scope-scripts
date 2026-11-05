@@ -19,7 +19,11 @@ const performanceMonitor = new PerformanceMonitor();
 // Capture document types before page code can alter their prototypes.
 const isHTMLDocument =
     document instanceof HTMLDocument || (document instanceof XMLDocument && document.createElement('div') instanceof HTMLDivElement);
-const isSVGDocument = document instanceof XMLDocument && document.contentType === 'image/svg+xml';
+const isSVGDocument =
+    document instanceof XMLDocument &&
+    document.contentType === 'image/svg+xml' &&
+    document.documentElement?.localName === 'svg' &&
+    document.documentElement.namespaceURI === 'http://www.w3.org/2000/svg';
 // Other features assume an HTML document.
 const svgFeatures = new Set(['sitePermissionsGeolocation', 'sitePermissionsMediaCapture', 'sitePermissionsGeolocationPolicy']);
 

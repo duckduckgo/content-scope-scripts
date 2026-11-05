@@ -155,6 +155,10 @@ describe('content-scope loader document types', () => {
         ['application/xml', '<document/>'],
         ['application/xml', svg],
         ['text/xml', svg],
+        ['image/svg+xml', '<document/>'],
+        ['image/svg+xml', `<document>${svg}</document>`],
+        ['image/svg+xml', '<svg/>'],
+        ['image/svg+xml', '<document xmlns="http://www.w3.org/2000/svg"/>'],
     ]) {
         it(`excludes every feature for ${contentType} with ${markup}`, async () => {
             const { dom, window, loader, args } = createDocument(contentType, markup);
