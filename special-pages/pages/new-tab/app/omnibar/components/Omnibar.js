@@ -38,6 +38,9 @@ import { MentionPicker } from './chat-tools/tab-attachment/MentionPicker';
 import { OpenTabsProvider } from './chat-tools/tab-attachment/OpenTabsProvider';
 import { useMentionPicker } from './chat-tools/tab-attachment/useMentionPicker';
 import { useTabAttachments } from './chat-tools/tab-attachment/useTabAttachments';
+import { tabChipItems } from './chat-tools/tab-attachment/TabChips';
+import { fileChipItems } from './chat-tools/file-attachment/FileChip';
+import { imageChipItems } from './chat-tools/image-attachment/ImageChip';
 import { NoticeDrawer } from './NoticeDrawer';
 import { TERMS_DISCLAIMER_ID, useTermsButtonLabel } from './useTermsDisclaimerNotice';
 import { useKeyboardFocusWithin } from './useKeyboardFocusWithin.js';
@@ -638,12 +641,11 @@ function AiChatContent({
                     }
                 >
                     <AttachmentChips
-                        tabs={canAttachTabs ? tabAttachments.attachedTabs : []}
-                        files={canAttachFiles ? fileState.attachedFiles : []}
-                        images={canAttachImages ? imageState.attachedImages : []}
-                        onRemoveTab={tabAttachments.removeTab}
-                        onRemoveFile={fileState.handleRemoveFile}
-                        onRemoveImage={imageState.handleRemoveImage}
+                        items={[
+                            ...(canAttachTabs ? tabChipItems(tabAttachments.attachedTabs, tabAttachments.removeTab, t) : []),
+                            ...(canAttachFiles ? fileChipItems(fileState.attachedFiles, fileState.handleRemoveFile, t) : []),
+                            ...(canAttachImages ? imageChipItems(imageState.attachedImages, imageState.handleRemoveImage, t) : []),
+                        ]}
                     />
                     {showCaptureError && (
                         <p class={styles.attachmentWarning} role="alert">
