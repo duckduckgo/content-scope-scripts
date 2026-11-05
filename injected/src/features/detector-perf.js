@@ -515,7 +515,7 @@ export default class DetectorPerf extends ContentFeature {
  * call site keeps the detector's synchronous return value). When the
  * detectorPerf feature is disabled or absent, the wrapped call behaves
  * exactly as an unwrapped one. Thrown errors are recorded as failed runs and
- * rethrown unchanged.
+ * rethrown unchanged, as are results `isFailed` holds for.
  *
  * Timing uses `performance.now` captured at module load (document-start,
  * before page scripts): in main-world builds a page override of the global
@@ -529,14 +529,15 @@ export default class DetectorPerf extends ContentFeature {
  * @param {() => T} fn - the synchronous detector invocation
  * @param {string} [detail] - exact detector identity for single-run severe
  *   attribution (e.g. `adwalls.generic_en` within `adwalls`)
+ * @param {(result: T) => boolean} [isFailed] - whether a returned result is a failed run
  * @returns {T}
  */
-export function timeDetector(feature, name, fn, detail) {
+export function timeDetector(feature, name, fn, detail, isFailed) {
     const t0 = performanceNow();
     let failed = true;
     try {
         const result = fn();
-        failed = false;
+        failed = isFailed?.(result) ?? false;
         return result;
     } finally {
         const durationMs = performanceNow() - t0;

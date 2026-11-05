@@ -1,19 +1,19 @@
+import { NAME_PATTERN, isPlainObject, thrownMessage } from '../model/core.js';
+import { pageSources } from '../sources/index.js';
+import { compileDetector } from './compile.js';
+
 /**
- * @typedef {import('../../utils.js').FeatureState} FeatureState
+ * @import { FeatureState } from '../../../utils.js'
+ * @import { ConditionBlockOrArray } from '../../../config-feature.js'
+ * @import { CompiledDetector } from './compile.js'
+ * @import { DetectorConfig as RawDetectorConfig, WebDetectionSettings } from '@duckduckgo/privacy-configuration/schema/features/web-detection.js'
  */
 
 /**
- * Condition used to determine if a detector has matched.
+ * A raw detector's triggers. Raw config takes the privacy-configuration schema's types, and is still
+ * validated here and by the compiler, since config reaches the page unchecked.
  *
- * @typedef {import('@duckduckgo/privacy-configuration/schema/features/web-detection.ts').DetectorConfig['match']} MatchCondition
- */
-
-/**
- * Final-condition shape at the top-level match node — what
- * `evaluateSingleMatchCondition` receives once `evaluateNode` has unwrapped
- * any operator blocks and array-OR forms.
- *
- * @typedef {import('@duckduckgo/privacy-configuration/schema/features/web-detection.ts').MatchConditionSingle} MatchConditionSingle
+ * @typedef {NonNullable<RawDetectorConfig['triggers']>} RawTriggers
  */
 
 /**
@@ -21,7 +21,7 @@
  *
  * @typedef {object} TriggerBase
  * @property {FeatureState} state - Whether this trigger is enabled
- * @property {import('../../config-feature.js').ConditionBlockOrArray} [runConditions] - Conditions that must be met to run
+ * @property {import('../../../config-feature.js').ConditionBlockOrArray} [runConditions] - Conditions that must be met to run
  */
 
 /**
@@ -39,27 +39,6 @@
  */
 
 /**
- * @typedef {object} FireEventAction
- * @property {FeatureState} state - whether this action is enabled
- * @property {string} type
- */
-
-/**
- * Actions to take when a detector matches.
- * breakageReportData is always present (defaults to enabled).
- * fireEvent is opt-in by presence; when present, sub-fields are fully resolved.
- *
- * @typedef {object} ActionState
- * @property {FeatureState} state - whether the action is enabled
- */
-
-/**
- * @typedef {object} DetectorActions
- * @property {ActionState} breakageReportData - Whether to include in breakage report data
- * @property {FireEventAction} [fireEvent] - fire a detection event to the client via webEvents
- */
-
-/**
  * Normalized detector configuration.
  *
  * Every optional field from the raw config is resolved to a concrete value.
@@ -67,16 +46,15 @@
  *
  * @typedef {object} DetectorConfig
  * @property {FeatureState} state - Whether the detector is enabled
- * @property {MatchCondition} match - Conditions for the detector to match
+ * @property {RawDetectorConfig} raw - the config as given, which `compileDetectorConfig` compiles
  * @property {Triggers} triggers - Trigger configurations
- * @property {DetectorActions} actions - Actions to take on match
  */
 
 /**
  * Default runConditions — by default, detectors only trigger in the top frame.
  * Specifying custom runConditions in config replaces (not merges) these defaults.
  */
-const DEFAULT_RUN_CONDITIONS = /** @type {import('../../config-feature.js').ConditionBlock[]} */ ([
+const DEFAULT_RUN_CONDITIONS = /** @type {import('../../../config-feature.js').ConditionBlock[]} */ ([
     {
         context: { top: true },
     },
@@ -90,7 +68,7 @@ const DEFAULT_RUN_CONDITIONS = /** @type {import('../../config-feature.js').Cond
  * @returns {boolean}
  */
 function isValidName(name) {
-    return /^[a-zA-Z][a-zA-Z0-9_]*$/.test(name);
+    return NAME_PATTERN.test(name);
 }
 
 /**
@@ -101,50 +79,54 @@ function isValidName(name) {
  * - Detector is enabled
  * - breakageReport trigger is enabled, restricted to top frame
  * - auto trigger is disabled (opt-in only), restricted to top frame, no intervals
- * - breakageReportData action is enabled (results included in breakage reports)
- * - other actions are enabled by default if present, but can be explicitly disabled. If omitted they are not enabled
  *
- * @param {import('@duckduckgo/privacy-configuration/schema/features/web-detection').DetectorConfig} config
+ * @param {RawDetectorConfig} config
  * @returns {DetectorConfig}
  */
 function normalizeDetector(config) {
-    const fireEvent = config.actions?.fireEvent;
-
     return {
         // Detectors are enabled by default
         state: config.state ?? 'enabled',
-        match: config.match,
+        raw: config,
         triggers: {
             // breakageReport: enabled by default - detectors participate in breakage report flow
             breakageReport: {
                 state: config.triggers?.breakageReport?.state ?? 'enabled',
-                runConditions: config.triggers?.breakageReport?.runConditions ?? DEFAULT_RUN_CONDITIONS,
+                runConditions: /** @type {ConditionBlockOrArray} */ (
+                    config.triggers?.breakageReport?.runConditions ?? DEFAULT_RUN_CONDITIONS
+                ),
             },
             // auto: disabled by default - detectors must opt in to automatic execution
             auto: {
                 state: config.triggers?.auto?.state ?? 'disabled',
-                runConditions: config.triggers?.auto?.runConditions ?? DEFAULT_RUN_CONDITIONS,
+                runConditions: /** @type {ConditionBlockOrArray} */ (config.triggers?.auto?.runConditions ?? DEFAULT_RUN_CONDITIONS),
                 when: config.triggers?.auto?.when ?? { intervalMs: [] },
             },
-        },
-        actions: {
-            // breakageReportData: enabled by default - detection results included in breakage reports
-            breakageReportData: { state: config.actions?.breakageReportData?.state ?? 'enabled' },
-            // fireEvent: only present when configured - opt-in action that sends events to the client via webEvents
-            ...(fireEvent && {
-                fireEvent: {
-                    state: fireEvent.state ?? 'enabled',
-                    type: fireEvent.type,
-                },
-            }),
         },
     };
 }
 
 /**
- * Parse detector configurations from raw config.
+ * Compile a detector's `match` and `actions`. A detector that fails to parse keeps the parse error, and
+ * does not run.
  *
- * @param {import('@duckduckgo/privacy-configuration/schema/features/web-detection').WebDetectionSettings['detectors']} detectorsConfig
+ * @param {DetectorConfig} config
+ * @param {object} global - the global object `api` reads from
+ * @returns {CompiledDetector | { error: string }}
+ */
+export function compileDetectorConfig(config, global) {
+    try {
+        return compileDetector(config.raw, pageSources(global));
+    } catch (e) {
+        return { error: thrownMessage(e) };
+    }
+}
+
+/**
+ * Parse detector configurations from raw config. `match` and `actions` are compiled separately, by
+ * `compileDetectorConfig`.
+ *
+ * @param {WebDetectionSettings['detectors']} detectorsConfig
  * @returns {Record<string, Record<string, DetectorConfig>>}
  */
 export function parseDetectors(detectorsConfig) {
@@ -156,7 +138,7 @@ export function parseDetectors(detectorsConfig) {
     }
 
     for (const [groupName, groupConfig] of Object.entries(detectorsConfig)) {
-        if (!isValidName(groupName)) {
+        if (!isValidName(groupName) || !isPlainObject(groupConfig)) {
             continue;
         }
 
@@ -164,7 +146,7 @@ export function parseDetectors(detectorsConfig) {
         const groupDetectors = {};
 
         for (const [detectorId, detectorConfig] of Object.entries(groupConfig)) {
-            if (!isValidName(detectorId)) {
+            if (!isValidName(detectorId) || !isPlainObject(detectorConfig)) {
                 continue;
             }
 

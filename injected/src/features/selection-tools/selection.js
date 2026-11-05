@@ -1,0 +1,527 @@
+/**
+ * Reads the user's selection from the page: text, whether it's editable, and where it is on screen.
+ *
+ * @typedef {object} Rect
+ * @property {number} left
+ * @property {number} top
+ * @property {number} right
+ * @property {number} bottom
+ *
+ * @typedef {object} SelectionSnapshot
+ * @property {string} text What the user can see of the selection
+ * @property {string} browserText The selection as the browser reports it, hidden text included
+ * @property {boolean} editable
+ * @property {Element | null} element The field or editing host, or else the element the selection starts in
+ * @property {() => Measure} measure Where the selected text is on screen now
+ * @property {(lines: Rect[]) => boolean} occluded Whether other elements cover all of the measured lines in the viewport
+ *
+ * @typedef {object} Measure
+ * @property {Rect} rect Viewport rect of the selected text in CSS pixels
+ * @property {Rect[]} lines Viewport rects of the selected text's lines in CSS pixels
+ */
+
+// Captured before page script runs, so a page can't patch it to reach into the closed shadow root.
+const attachShadow = Element.prototype.attachShadow;
+const HOST_TAG = 'ddg-selection-tools';
+
+/** Smaller text, or text this faint, is taken as hidden. */
+const MIN_READABLE_FONT_PX = 4;
+const MIN_VISIBLE_ALPHA = 0.1;
+
+/** Password fields are excluded on purpose: their contents must never be offered anywhere. */
+const TEXT_INPUT_TYPES = ['text', 'search', 'email', 'url', ''];
+
+const MIRROR_STYLES = /** @type {const} */ ([
+    'boxSizing',
+    'width',
+    'borderTopWidth',
+    'borderRightWidth',
+    'borderBottomWidth',
+    'borderLeftWidth',
+    'borderStyle',
+    'paddingTop',
+    'paddingRight',
+    'paddingBottom',
+    'paddingLeft',
+    'fontStyle',
+    'fontVariant',
+    'fontWeight',
+    'fontStretch',
+    'fontSize',
+    'fontFamily',
+    'lineHeight',
+    'letterSpacing',
+    'wordSpacing',
+    'textTransform',
+    'textIndent',
+    'tabSize',
+]);
+
+function deepActiveElement() {
+    let active = document.activeElement;
+    while (active?.shadowRoot?.activeElement) {
+        active = active.shadowRoot.activeElement;
+    }
+    return active;
+}
+
+/**
+ * @param {Element | null} node
+ * @returns {node is HTMLInputElement | HTMLTextAreaElement}
+ */
+function isTextField(node) {
+    if (node instanceof HTMLTextAreaElement) return !node.readOnly && !node.disabled;
+    return node instanceof HTMLInputElement && TEXT_INPUT_TYPES.includes(node.type) && !node.readOnly && !node.disabled;
+}
+
+/**
+ * @param {Node | null} node
+ * @returns {Element | null}
+ */
+function elementOf(node) {
+    return node instanceof Element ? node : (node?.parentElement ?? null);
+}
+
+/**
+ * The outermost contenteditable ancestor, or null.
+ * @param {Element | null} element
+ * @returns {HTMLElement | null}
+ */
+function editingHostOf(element) {
+    if (!(element instanceof HTMLElement) || !element.isContentEditable) return null;
+    let host = element;
+    while (host.parentElement?.isContentEditable) {
+        host = host.parentElement;
+    }
+    return host;
+}
+
+/**
+ * The rect around the lines that have both a width and a height, as getBoundingClientRect works it out: else the first
+ * line, else `empty`.
+ * @param {Rect[]} lines
+ * @param {Rect} empty
+ * @returns {Rect}
+ */
+function unionOf(lines, empty) {
+    // A loop rather than Math.min(...), which runs out of stack on a selection of many thousand lines.
+    let union = null;
+    for (const r of lines) {
+        if (r.right <= r.left || r.bottom <= r.top) continue;
+        union = union
+            ? {
+                  left: Math.min(union.left, r.left),
+                  right: Math.max(union.right, r.right),
+                  top: Math.min(union.top, r.top),
+                  bottom: Math.max(union.bottom, r.bottom),
+              }
+            : r;
+    }
+    return union ?? lines[0] ?? empty;
+}
+
+/**
+ * Text fields expose no geometry for their selection, so lay the field's text out again in a hidden mirror with the
+ * same box and font, wrap the selected part in a span, and map the span's boxes back onto the field. The mirror holds
+ * the field's text, so it goes in a closed shadow root that's in the document only while it's measured.
+ * @param {HTMLInputElement | HTMLTextAreaElement} field
+ * @param {number} start
+ * @param {number} end
+ * @returns {Rect[]} the selected lines, clipped to the field
+ */
+function fieldSelectionLines(field, start, end) {
+    const host = document.createElement(HOST_TAG);
+    for (const [name, value] of Object.entries({
+        display: 'block',
+        position: 'fixed',
+        inset: '0',
+        visibility: 'hidden',
+        'pointer-events': 'none',
+    })) {
+        host.style.setProperty(name, value, 'important');
+    }
+    try {
+        const shadow = /** @type {ShadowRoot} */ (attachShadow.call(host, { mode: 'closed' }));
+        document.documentElement.appendChild(host);
+        return measureInMirror(field, start, end, shadow);
+    } catch {
+        // A page that defines this element itself can make attaching the shadow root throw.
+        const box = field.getBoundingClientRect();
+        return [{ left: box.left, right: box.right, top: box.top, bottom: box.bottom }];
+    } finally {
+        host.remove();
+    }
+}
+
+/**
+ * @param {HTMLInputElement | HTMLTextAreaElement} field
+ * @param {number} start
+ * @param {number} end
+ * @param {Node} scratch
+ * @returns {Rect[]}
+ */
+function measureInMirror(field, start, end, scratch) {
+    const style = getComputedStyle(field);
+    const mirror = document.createElement('div');
+    for (const name of MIRROR_STYLES) {
+        mirror.style[name] = style[name];
+    }
+    Object.assign(mirror.style, {
+        position: 'fixed',
+        left: '0',
+        top: '0',
+        height: 'auto',
+        overflow: 'hidden',
+        visibility: 'hidden',
+        borderColor: 'transparent',
+        whiteSpace: field instanceof HTMLInputElement ? 'pre' : 'pre-wrap',
+        overflowWrap: 'break-word',
+    });
+    mirror.textContent = field.value.slice(0, start);
+    const marked = document.createElement('span');
+    marked.textContent = field.value.slice(start, end);
+    mirror.append(marked);
+    scratch.appendChild(mirror);
+    const origin = mirror.getBoundingClientRect();
+    const box = field.getBoundingClientRect();
+    const dx = box.left - origin.left - field.scrollLeft;
+    const dy = box.top - origin.top - field.scrollTop;
+    // Clipped to the field, since part of the selection can be scrolled out of view inside it.
+    return [...marked.getClientRects()]
+        .map((r) => ({
+            left: Math.max(r.left + dx, box.left),
+            right: Math.min(r.right + dx, box.right),
+            top: Math.max(r.top + dy, box.top),
+            bottom: Math.min(r.bottom + dy, box.bottom),
+        }))
+        .filter((r) => r.right > r.left && r.bottom > r.top);
+}
+
+/**
+ * Whether other elements cover all of the selection that's in the viewport, as a sticky header covers text scrolled
+ * under it. Hit-tests the middle of the first, middle and last lines in view. A selection scrolled out of the viewport
+ * isn't covered; its rect already says where it is.
+ * @param {Rect[]} lines
+ * @param {Node} node A node of the selection, for the tree to hit-test in
+ * @param {(hit: Element) => boolean} shows Whether the element hit is the selection's own, or one of its ancestors
+ */
+function isCovered(lines, node, shows) {
+    const { innerWidth: width, innerHeight: height } = window;
+    const inView = lines
+        .map((r) => ({
+            left: Math.max(r.left, 0),
+            right: Math.min(r.right, width),
+            top: Math.max(r.top, 0),
+            bottom: Math.min(r.bottom, height),
+        }))
+        .filter((r) => r.right > r.left && r.bottom > r.top);
+    if (!inView.length) return false;
+    const root = node.getRootNode();
+    // A shadow root hit-tests its own tree, where the document would only find the host.
+    const scope = root instanceof ShadowRoot ? root : document;
+    const sampled = new Set([0, Math.floor(inView.length / 2), inView.length - 1].map((i) => inView[i]));
+    return [...sampled].every((r) => {
+        if (!r) return false;
+        // Something drawn at opacity 0 still takes the hit, but covers nothing.
+        const hit = scope
+            .elementsFromPoint((r.left + r.right) / 2, (r.top + r.bottom) / 2)
+            .find((element) => element.checkVisibility?.({ opacityProperty: true }) !== false);
+        return hit !== undefined && !shows(hit);
+    });
+}
+
+/**
+ * Alpha of a computed colour, such as "rgba(0, 0, 0, 0)" or "oklch(0.5 0.1 200 / 0.5)"; 1 when it has none.
+ * @param {string} color
+ */
+function alphaOf(color) {
+    const match = /^rgba\(.*,\s*([\d.]+)\)$/.exec(color) ?? /\/\s*([\d.]+)(%?)\s*\)$/.exec(color);
+    if (!match) return 1;
+    const [, alpha = '1', percent] = match;
+    return parseFloat(alpha) / (percent ? 100 : 1);
+}
+
+/**
+ * Whether text drawn in an element can't be seen: transparent, too small to read, or clipped to a pixel, the ways a page
+ * hides instructions inside a selection so they reach Duck.ai unseen. Text in the same colour as its background still
+ * passes.
+ * @param {Element} element
+ * @param {Map<Element, boolean>} seen
+ * @returns {boolean}
+ */
+function isHidden(element, seen) {
+    const known = seen.get(element);
+    if (known !== undefined) return known;
+    let hidden = false;
+    const style = getComputedStyle(element);
+    // checkVisibility counts display: contents as hidden for want of a box, though what's in it shows. Some sites wrap
+    // their whole article in one.
+    if (style.display !== 'contents' && element.checkVisibility?.({ opacityProperty: true, visibilityProperty: true }) === false) {
+        hidden = true;
+    } else {
+        // Gradient text is drawn through a transparent colour.
+        const clippedToText = style.backgroundClip === 'text' || style.getPropertyValue('-webkit-background-clip') === 'text';
+        // An element shrunk to a pixel with its overflow cut off, as screen-reader-only text is. The root elements and
+        // display: contents have no box of their own to go by.
+        const hasOwnBox = element !== document.documentElement && element !== document.body && style.display !== 'contents';
+        const box = element.getBoundingClientRect();
+        hidden =
+            parseFloat(style.fontSize) < MIN_READABLE_FONT_PX ||
+            (alphaOf(style.color) < MIN_VISIBLE_ALPHA && !clippedToText) ||
+            parseFloat(style.opacity) < MIN_VISIBLE_ALPHA ||
+            (hasOwnBox && (box.width <= 1 || box.height <= 1) && style.overflow !== 'visible');
+        const parent = element.parentElement ?? hostOf(element);
+        hidden ||= parent !== null && isHidden(parent, seen);
+    }
+    seen.set(element, hidden);
+    return hidden;
+}
+
+/**
+ * The nearest ancestor that lays its contents out as a block, where the browser starts a new line in selected text.
+ * @param {Element} element
+ */
+function blockOf(element) {
+    let current = element;
+    while (current.parentElement && /^(inline|contents)/.test(getComputedStyle(current).display)) {
+        current = current.parentElement;
+    }
+    return current;
+}
+
+/**
+ * The selected text without the parts the user can't see, or null when nothing in it is hidden, for the browser's own
+ * text. Read node by node, as the browser does: whitespace collapsed outside preformatted text, and a line break where
+ * a line break element is or the text moves to another block.
+ * @param {Range} range
+ * @returns {string | null}
+ */
+function visibleText(range) {
+    const root = range.commonAncestorContainer;
+    /** @type {Map<Element, boolean>} */
+    const seen = new Map();
+    if (root instanceof Text) return root.parentElement && isHidden(root.parentElement, seen) ? '' : null;
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT);
+    let text = '';
+    /** @type {Element | null} */
+    let block = null;
+    let skipped = false;
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+        if (!range.intersectsNode(node)) continue;
+        if (node instanceof HTMLBRElement) {
+            text += '\n';
+            continue;
+        }
+        const parent = node.parentElement;
+        if (!(node instanceof Text) || !parent) continue;
+        if (isHidden(parent, seen)) {
+            skipped ||= node.data.trim() !== '';
+            continue;
+        }
+        let part = node.data.slice(
+            node === range.startContainer ? range.startOffset : 0,
+            node === range.endContainer ? range.endOffset : undefined,
+        );
+        if (!getComputedStyle(parent).whiteSpace.startsWith('pre')) {
+            part = part.replace(/\s+/g, ' ');
+            if (/\s$/.test(text)) part = part.trimStart();
+        }
+        if (!part) continue;
+        const partBlock = blockOf(parent);
+        if (block && partBlock !== block && !text.endsWith('\n')) text = text.trimEnd() + '\n';
+        block = partBlock;
+        text += text.endsWith('\n') ? part.trimStart() : part;
+    }
+    return skipped ? text.trim() : null;
+}
+
+/**
+ * The shadow host of a node in a shadow root, or null.
+ * @param {Node} node
+ * @returns {Element | null}
+ */
+function hostOf(node) {
+    const root = node.getRootNode();
+    return root instanceof ShadowRoot ? root.host : null;
+}
+
+/**
+ * The nearest element matching a selector, looking out through shadow roots to their hosts.
+ * @param {Element | null} element
+ * @param {string} selector
+ * @returns {Element | null}
+ */
+function closestComposed(element, selector) {
+    let current = element;
+    while (current) {
+        const match = current.closest(selector);
+        if (match) return match;
+        current = hostOf(current);
+    }
+    return null;
+}
+
+/**
+ * The range inside the given open shadow roots. Chromium keeps a selection per shadow root, scoped to it. The standard
+ * getComposedRanges is the fallback: it can end outside the root, as a triple-click's does, where its live copy loses
+ * the shadow text.
+ * @param {Selection} selection
+ * @param {ShadowRoot[]} roots
+ * @returns {Range | null}
+ */
+function rangeWithin(selection, roots) {
+    const root = /** @type {{ getSelection?: () => Selection | null }} */ (/** @type {unknown} */ (roots[roots.length - 1]));
+    const scoped = root.getSelection?.();
+    if (scoped && scoped.rangeCount > 0) return scoped.getRangeAt(0);
+    const composable = /** @type {{ getComposedRanges?: (options: { shadowRoots: ShadowRoot[] }) => StaticRange[] }} */ (
+        /** @type {unknown} */ (selection)
+    );
+    try {
+        const [composed] = composable.getComposedRanges?.({ shadowRoots: roots }) ?? [];
+        if (composed) {
+            const range = document.createRange();
+            range.setStart(composed.startContainer, composed.startOffset);
+            range.setEnd(composed.endContainer, composed.endOffset);
+            return range;
+        }
+    } catch {
+        // Engines that take the roots as arguments, or have neither, report nothing for the shadow root.
+    }
+    return null;
+}
+
+/**
+ * The selected range, including one inside open shadow roots, or null when nothing is selected. A selection inside a
+ * shadow root shows in the document as a collapsed range at its host, though the selection's type is still "Range".
+ * @param {Selection} selection
+ * @returns {Range | null}
+ */
+function selectedRange(selection) {
+    if (selection.rangeCount === 0) return null;
+    let range = selection.getRangeAt(0);
+    /** @type {ShadowRoot[]} */
+    const roots = [];
+    while (range.collapsed && selection.type === 'Range') {
+        const { startContainer, startOffset } = range;
+        const host = [startContainer.childNodes[startOffset], startContainer.childNodes[startOffset - 1]].find(
+            (node) => node instanceof Element && node.shadowRoot,
+        );
+        const root = host instanceof Element ? host.shadowRoot : null;
+        if (!root || roots.includes(root)) return null;
+        roots.push(root);
+        const inner = rangeWithin(selection, roots);
+        if (!inner) return null;
+        range = inner;
+    }
+    return range.collapsed ? null : range;
+}
+
+/**
+ * @param {number} minChars
+ * @returns {SelectionSnapshot | null}
+ */
+export function readSelection(minChars) {
+    const active = deepActiveElement();
+    if (isTextField(active)) {
+        const { selectionStart: start, selectionEnd: end } = active;
+        if (start === null || end === null) return null;
+        const text = active.value.slice(start, end);
+        if (text.trim().length < minChars) return null;
+        return {
+            text,
+            browserText: text,
+            editable: true,
+            element: active,
+            measure: () => {
+                const lines = fieldSelectionLines(active, start, end);
+                const box = active.getBoundingClientRect();
+                return { rect: unionOf(lines, { left: box.left, right: box.left, top: box.top, bottom: box.top }), lines };
+            },
+            occluded: (lines) => isCovered(lines, active, (hit) => hit === active || hit.contains(active)),
+        };
+    }
+    // Any other focused field (a password, a read-only input) has a selection we leave alone.
+    if (active instanceof HTMLInputElement || active instanceof HTMLTextAreaElement) return null;
+
+    const selection = window.getSelection();
+    const selected = selection && selectedRange(selection);
+    if (!selection || !selected) return null;
+    const range = selected.cloneRange();
+    const browserText = selection.toString();
+    // The browser's text keeps the line breaks between blocks, inside shadow roots too.
+    const text = visibleText(range) ?? browserText;
+    if (text.trim().length < minChars) return null;
+    const host = editingHostOf(elementOf(range.commonAncestorContainer));
+    // Where the selection starts, rather than the common ancestor: a triple-clicked paragraph's range ends at the start
+    // of the next block, so its common ancestor is the parent and would lose the paragraph's lang or code marking.
+    const element = host ?? elementOf(range.startContainer);
+    return {
+        text,
+        browserText,
+        editable: host !== null,
+        element,
+        measure: () => {
+            const lines = [...range.getClientRects()].map(({ left, top, right, bottom }) => ({ left, top, right, bottom }));
+            return { rect: unionOf(lines, { left: 0, top: 0, right: 0, bottom: 0 }), lines };
+        },
+        // A hit on an ancestor, as text with pointer-events: none gives, still shows the selection.
+        occluded: (lines) => isCovered(lines, range.startContainer, (hit) => range.intersectsNode(hit)),
+    };
+}
+
+/**
+ * Whether the visible selection is collapsed, for clearing the report as soon as the user clicks away.
+ */
+export function isSelectionCollapsed() {
+    const active = deepActiveElement();
+    if (isTextField(active)) return active.selectionStart === active.selectionEnd;
+    const selection = window.getSelection();
+    return !selection || selectedRange(selection) === null;
+}
+
+/**
+ * Whether focus is somewhere the user edits text, where select-all takes only that text rather than the whole page.
+ */
+export function isEditingFocused() {
+    const active = deepActiveElement();
+    return isTextField(active) || (active instanceof HTMLElement && active.isContentEditable);
+}
+
+/**
+ * @param {Element | null} element
+ */
+export function isInCode(element) {
+    return closestComposed(element, 'pre, code, kbd, samp') !== null;
+}
+
+/**
+ * The page's language marking for an element, canonicalised, or null.
+ * @param {Element | null} element
+ * @returns {string | null}
+ */
+export function markedLanguageOf(element) {
+    const marked = closestComposed(element, '[lang]');
+    const tag = (marked instanceof HTMLElement ? marked.lang : '') || document.documentElement.lang;
+    if (!tag) return null;
+    try {
+        return Intl.getCanonicalLocales(tag)[0] ?? null;
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Whether a selection is inside an open modal dialog, popover or fullscreen element, in the browser's top layer.
+ * Selections there aren't reported. A fullscreen page is the page itself, so it doesn't count.
+ * @param {Element | null} element
+ */
+export function isInTopLayer(element) {
+    if (!element) return false;
+    try {
+        const layer = closestComposed(element, ':modal, :popover-open, :fullscreen');
+        return layer !== null && layer !== document.documentElement;
+    } catch {
+        // Engines without one of these selectors throw; treat the selection as on the page.
+        return false;
+    }
+}

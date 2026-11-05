@@ -116,10 +116,15 @@ describe('detailsHost', () => {
 
 describe('matchExpectedCheck', () => {
     it('matches when name, app slug, and details host all line up', () => {
-        const run = cursorBugbotRun();
+        const run = cursorAutomationRun('Cursor Automation: Review dependabot', 'bc-1');
         const matched = matchExpectedCheck(run);
         assert.ok(matched);
-        assert.equal(matched.name, 'Cursor Bugbot');
+        assert.equal(matched.name, 'Cursor Automation: Review dependabot');
+    });
+
+    it('does not expect Cursor Bugbot unless CURSOR_BUGBOT_ENABLED is true', () => {
+        assert.ok(!EXPECTED_CHECKS.some((expected) => expected.name === 'Cursor Bugbot'));
+        assert.equal(matchExpectedCheck(cursorBugbotRun()), null);
     });
 
     it('rejects spoofed check runs from a different app slug', () => {
@@ -138,7 +143,7 @@ describe('matchExpectedCheck', () => {
     });
 
     it('only ever returns entries that are present in EXPECTED_CHECKS', () => {
-        const run = cursorBugbotRun();
+        const run = cursorAutomationRun('Cursor Automation: Web compat and sec', 'bc-1');
         const matched = matchExpectedCheck(run);
         assert.ok(matched);
         assert.ok(EXPECTED_CHECKS.includes(matched));
@@ -147,13 +152,14 @@ describe('matchExpectedCheck', () => {
 
 describe('latestCheckRunsByName', () => {
     it('returns only trusted Cursor check runs and picks the most recent per name', () => {
-        const older = cursorBugbotRun({ id: 1, created_at: '2026-05-01T00:00:00Z' });
-        const newer = cursorBugbotRun({ id: 2, created_at: '2026-05-02T00:00:00Z' });
-        const spoofed = cursorBugbotRun({ id: 3, app: { slug: 'spoof' } });
+        const webCompat = (extras) => cursorAutomationRun('Cursor Automation: Web compat and sec', 'bc-abc', extras);
+        const older = webCompat({ id: 1, created_at: '2026-05-01T00:00:00Z' });
+        const newer = webCompat({ id: 2, created_at: '2026-05-02T00:00:00Z' });
+        const spoofed = webCompat({ id: 3, app: { slug: 'spoof' } });
         const automation = cursorAutomationRun('Cursor Automation: Review dependabot', 'bc-xyz');
         const result = latestCheckRunsByName([older, newer, spoofed, automation]);
-        const bugbot = result.find((r) => r.name === 'Cursor Bugbot');
-        assert.equal(bugbot.id, 2);
+        const latestWebCompat = result.find((r) => r.name === 'Cursor Automation: Web compat and sec');
+        assert.equal(latestWebCompat.id, 2);
         assert.ok(result.find((r) => r.name === 'Cursor Automation: Review dependabot'));
         assert.ok(!result.some((r) => r.id === 3));
     });
@@ -306,12 +312,12 @@ describe('isRequiredPrereqCheck / missingRequiredCheckNames', () => {
 
 describe('missingExpectedCheckNames / pendingExpectedCheckRuns', () => {
     it('reports expected checks that have not yet appeared and those still in flight', () => {
-        const present = cursorBugbotRun();
+        const present = cursorAutomationRun('Cursor Automation: Web compat and sec', 'bc-2');
         const inFlight = cursorAutomationRun('Cursor Automation: Review dependabot', 'bc-1', {
             status: 'in_progress',
             conclusion: null,
         });
-        const missing = missingExpectedCheckNames([present, inFlight]);
+        const missing = missingExpectedCheckNames([inFlight]);
         assert.deepEqual(missing, ['Cursor Automation: Web compat and sec']);
         const pending = pendingExpectedCheckRuns([present, inFlight]);
         assert.deepEqual(
@@ -321,14 +327,14 @@ describe('missingExpectedCheckNames / pendingExpectedCheckRuns', () => {
     });
 
     it('does not report a stale in-progress run as pending once a newer completed run for the same name exists', () => {
-        const stale = cursorBugbotRun({
+        const stale = cursorAutomationRun('Cursor Automation: Review dependabot', 'bc-1', {
             id: 1,
             status: 'in_progress',
             conclusion: null,
             created_at: '2026-05-01T00:00:00Z',
             started_at: '2026-05-01T00:00:00Z',
         });
-        const fresh = cursorBugbotRun({
+        const fresh = cursorAutomationRun('Cursor Automation: Review dependabot', 'bc-1', {
             id: 2,
             status: 'completed',
             conclusion: 'success',

@@ -12,6 +12,7 @@ import {
 // Vendored from the duckduckgo/Icons repo (no package exports them), original names kept
 import daxSvg from './chrome-webstore-patching/assets/DuckDuckGo-Color-24.svg';
 import trashSvg from './chrome-webstore-patching/assets/Trash-24.svg';
+import spinnerSvg from './chrome-webstore-patching/assets/Spinner-24.svg';
 // Bundled by scripts/buildLocales.js from src/locales/chrome-webstore-patching/
 import localesJSON from '../../../build/locales/chrome-webstore-patching-locales.js';
 
@@ -25,6 +26,9 @@ const STRINGS_FILE = 'chrome-store-strings.json';
 
 const DAX_DATA_URI = `data:image/svg+xml;utf8,${encodeURIComponent(daxSvg)}`;
 const TRASH_DATA_URI = `data:image/svg+xml;utf8,${encodeURIComponent(trashSvg.replaceAll('fill="black"', 'fill="#FFFFFF" fill-opacity="0.78"'))}`;
+const SPINNER_DATA_URI = `data:image/svg+xml;utf8,${encodeURIComponent(spinnerSvg)}`;
+const SPINNER_KEYFRAMES = [{ transform: 'rotate(0deg)' }, { transform: 'rotate(360deg)' }];
+const SPINNER_TIMING = { duration: 800, iterations: Infinity };
 
 // Applied INLINE with !important: the store's own !important class rules beat
 // any injected stylesheet, but nothing beats an inline important declaration.
@@ -52,6 +56,16 @@ const PILL_STYLES = {
     // pointer-events must stay auto: `none` redirects clicks to the store's delegated
     // jsaction ancestor, which still installs — the interceptor + disabled block them instead
     unsupported: { ...PILL_LAYOUT, background: '#E4E4E4', color: '#8A8A8A', cursor: 'default', 'pointer-events': 'auto' },
+    // macOS only, while native owns an install or removal. Symmetric padding and no gap: the empty label still takes the gap.
+    pending: {
+        ...PILL_LAYOUT,
+        padding: '8px',
+        gap: '0',
+        background: 'transparent',
+        color: 'inherit',
+        cursor: 'default',
+        'pointer-events': 'auto',
+    },
 };
 
 // The icon is a feature-owned span: ::before can't carry inline styles
@@ -65,6 +79,7 @@ const ICON_BACKGROUNDS = {
     install: `url("${DAX_DATA_URI}") center / contain no-repeat`,
     remove: `url("${TRASH_DATA_URI}") center / contain no-repeat`,
     unsupported: `url("${DAX_DATA_URI}") center / contain no-repeat`,
+    pending: `url("${SPINNER_DATA_URI}") center / contain no-repeat`,
 };
 
 // Internal builds only, so deliberately not localized or sent to Smartling
@@ -76,6 +91,15 @@ const INTERNAL_OVERRIDE_STYLES = {
     color: '#8A8A8A',
     'text-decoration': 'underline',
     cursor: 'pointer',
+};
+
+// macOS only: matches Google's native button text, trimmed to cap height
+const MACOS_LABEL_STYLES = {
+    'font-family': '"Google Sans Flex", "Google Sans", sans-serif',
+    'font-weight': '450',
+    'font-size': '14px',
+    'line-height': '100%',
+    'text-box': 'trim-both cap alphabetic',
 };
 
 const VERDICT_COPY_KEY = /** @type {const} */ ({ install: 'install', remove: 'remove', unsupported: 'unavailable' });
@@ -96,8 +120,11 @@ export class ChromeWebstorePatching extends ContentFeature {
     /** Re-run the page evaluation on SPA navigations (base class calls urlChanged) */
     listenForUrlChanges = true;
 
-    /** @type {'install' | 'remove' | 'unsupported' | null} verdict for the current page; null = keep hidden */
+    /** @type {'install' | 'remove' | 'unsupported' | 'pending' | null} verdict for the current page; null = keep hidden */
     _verdict = null;
+
+    /** @type {string | undefined} width of the clicked pill, kept while pending so the spinner takes its place */
+    _pendingWidth;
 
     /** @type {MutationObserver | undefined} */
     _observer;
@@ -367,12 +394,21 @@ export class ChromeWebstorePatching extends ContentFeature {
     }
 
     /**
+     * The pending spinner has no label; every other verdict needs its copy.
+     * @param {'install' | 'remove' | 'unsupported' | 'pending'} verdict
+     * @returns {string | undefined}
+     */
+    _verdictText(verdict) {
+        return verdict === 'pending' ? '' : this._copy(VERDICT_COPY_KEY[verdict]);
+    }
+
+    /**
      * Reveals the button for a verdict. Refuses without the verdict's copy —
      * a revealed button must never show Google's original wording.
-     * @param {'install' | 'remove' | 'unsupported'} verdict
+     * @param {'install' | 'remove' | 'unsupported' | 'pending'} verdict
      */
     _reveal(verdict) {
-        const text = this._copy(VERDICT_COPY_KEY[verdict]);
+        const text = this._verdictText(verdict);
         if (typeof text !== 'string') return;
         this._verdict = verdict;
         this._applyVerdict();
@@ -402,7 +438,7 @@ export class ChromeWebstorePatching extends ContentFeature {
     _applyVerdict() {
         const verdict = this._verdict;
         if (!verdict) return;
-        const text = this._copy(VERDICT_COPY_KEY[verdict]);
+        const text = this._verdictText(verdict);
         if (typeof text !== 'string') return;
 
         // ALL matches: on SPA navigations the store mounts a fresh button while
@@ -443,7 +479,7 @@ export class ChromeWebstorePatching extends ContentFeature {
 
     /**
      * @param {HTMLElement} button
-     * @param {'install' | 'remove' | 'unsupported'} verdict
+     * @param {'install' | 'remove' | 'unsupported' | 'pending'} verdict
      * @param {string} text
      */
     _applyVerdictToButton(button, verdict, text) {
@@ -467,16 +503,30 @@ export class ChromeWebstorePatching extends ContentFeature {
         if (icon.dataset.ddgVerdict !== verdict) {
             icon.dataset.ddgVerdict = verdict;
             icon.style.setProperty('background', ICON_BACKGROUNDS[verdict], 'important');
+            // A transform animation runs in Core Animation, so it keeps turning while native sheets load
+            if (verdict === 'pending') icon.animate(SPINNER_KEYFRAMES, SPINNER_TIMING);
+            else if (this._macOS) icon.getAnimations().forEach((animation) => animation.cancel());
         }
         const iconFilter = isUnsupported ? 'grayscale(1) opacity(0.55)' : 'none';
         if (icon.style.getPropertyValue('filter') !== iconFilter) {
             icon.style.setProperty('filter', iconFilter, 'important');
         }
-        let label = button.querySelector('span[data-ddg-webstore-label]');
+        /** @type {HTMLElement | null} */
+        let label = /** @type {HTMLElement | null} */ (button.querySelector('span[data-ddg-webstore-label]'));
         if (!label) {
             label = document.createElement('span');
             label.setAttribute('data-ddg-webstore-label', '');
             button.appendChild(label);
+        }
+        // Marker guard, like the icon: font-family doesn't serialize back verbatim
+        const macLabel = Boolean(this._macOS) && (verdict === 'install' || verdict === 'remove');
+        if (macLabel !== (label.dataset.ddgMacosLabel === 'true')) {
+            for (const [prop, value] of Object.entries(MACOS_LABEL_STYLES)) {
+                if (macLabel) label.style.setProperty(prop, value, 'important');
+                else label.style.removeProperty(prop);
+            }
+            if (macLabel) label.dataset.ddgMacosLabel = 'true';
+            else delete label.dataset.ddgMacosLabel;
         }
         // Equality guard stops our own write from re-triggering the observer forever
         if (label.textContent !== text) {
@@ -489,11 +539,18 @@ export class ChromeWebstorePatching extends ContentFeature {
             }
         }
         this._syncOverrideLink(button, isUnsupported);
-        if (button.getAttribute('aria-label') !== text) {
+        // Pending keeps the previous name, so VoiceOver reads e.g. "Add to DuckDuckGo, busy"
+        if (verdict !== 'pending' && button.getAttribute('aria-label') !== text) {
             button.setAttribute('aria-label', text);
         }
+        if (verdict === 'pending') {
+            if (button.getAttribute('aria-busy') !== 'true') button.setAttribute('aria-busy', 'true');
+        } else if (this._macOS && button.hasAttribute('aria-busy')) {
+            button.removeAttribute('aria-busy');
+        }
 
-        const styles = PILL_STYLES[verdict];
+        const styles =
+            verdict === 'pending' && this._pendingWidth ? { ...PILL_STYLES.pending, width: this._pendingWidth } : PILL_STYLES[verdict];
         for (const [prop, value] of Object.entries(styles)) {
             if (button.style.getPropertyValue(prop) !== value) {
                 button.style.setProperty(prop, value, 'important');

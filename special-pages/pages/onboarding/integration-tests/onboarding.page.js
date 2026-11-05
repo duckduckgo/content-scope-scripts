@@ -31,9 +31,11 @@ export class OnboardingPage {
             requestDockOptIn: {},
             requestImport: { enabled: true },
             stepCompleted: {},
+            telemetryEvent: {},
             setAdBlocking: {},
             reportPageException: {},
             reportInitException: {},
+            setOnboardingInstallOptions: {},
             init: {
                 stepDefinitions: {
                     systemSettings: {

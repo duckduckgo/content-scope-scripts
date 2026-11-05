@@ -201,4 +201,12 @@ export class OnboardingMessages {
     requestChromeExtensionInstall() {
         this.messaging.notify('requestChromeExtensionInstall');
     }
+
+    /**
+     * Sends the selected Windows onboarding options to native.
+     * @param {import('../types/onboarding.ts').OnboardingInstallOptions} params
+     */
+    setOnboardingInstallOptions(params) {
+        this.messaging.notify('setOnboardingInstallOptions', params);
+    }
 }

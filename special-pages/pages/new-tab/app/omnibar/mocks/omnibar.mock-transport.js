@@ -243,6 +243,7 @@ export function omnibarMockTransport() {
         customizationActive: false,
         enableAskAiSuggestion: true,
         enableAttachTabs: false,
+        showSuggestedPrompts: false,
         attachmentLimits: {
             tabs: {
                 maxAttached: 3,
@@ -503,6 +504,7 @@ export function omnibarMockTransport() {
                     config.enableVoiceChatAccess = parseBooleanQueryParam('omnibar.enableVoiceChatAccess') ?? config.enableVoiceChatAccess;
                     config.enableAskAiSuggestion = parseBooleanQueryParam('omnibar.enableAskAiSuggestion') ?? config.enableAskAiSuggestion;
                     config.enableAttachTabs = parseBooleanQueryParam('omnibar.enableAttachTabs') ?? config.enableAttachTabs;
+                    config.showSuggestedPrompts = parseBooleanQueryParam('omnibar.showSuggestedPrompts') ?? config.showSuggestedPrompts;
                     // Comma-separated, e.g. `omnibar.screenshotModes=dragToSelect,selectWindowOrDisplay`
                     const screenshotModes = url.searchParams.get('omnibar.screenshotModes');
                     if (screenshotModes !== null) {

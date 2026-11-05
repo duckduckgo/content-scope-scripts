@@ -92,7 +92,8 @@ export class MacOSWebstore {
         this.feature._verdict = null;
         this.feature._resetButtons();
 
-        if (!extensionId || this._pending.has(extensionId)) return;
+        if (!extensionId) return;
+        if (this._pending.has(extensionId)) return this.feature._reveal('pending');
 
         // A → B → A navigation must also discard the first A's late response.
         const isCurrent = () => evaluation === this._evaluation && extensionId === parseExtensionId(window.location.pathname);
@@ -134,6 +135,8 @@ export class MacOSWebstore {
         )
             return;
 
+        // Measured now: the pending evaluation resets the button to hidden before revealing the spinner.
+        this.feature._pendingWidth = `${target.getBoundingClientRect().width}px`;
         // The capture-phase handler must finish synchronously after consuming the event.
         // eslint-disable-next-line promise/prefer-await-to-then
         void this._performAction(extensionId, verdict).catch((error) => {
