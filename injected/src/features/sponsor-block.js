@@ -259,7 +259,12 @@ export class SponsorBlock extends ContentFeature {
         this.#adShowingSelectors = this.selectorsSetting('adShowingSelectors', DEFAULT_AD_SHOWING_SELECTORS);
         // Android injects only into the top frame, so on Duck Player's page the embed gets no script of its own. An embed
         // opened directly is the player itself and has no embed inside it to wait for.
-        if (this.platform.name === 'android' && frame.isTop && isNoCookieOrigin(origin) && !window.location.pathname.startsWith('/embed/')) {
+        if (
+            this.platform.name === 'android' &&
+            frame.isTop &&
+            isNoCookieOrigin(origin) &&
+            !window.location.pathname.startsWith('/embed/')
+        ) {
             this.#doc = await duckPlayerEmbedDocument();
             const style = this.#doc.createElement('style');
             style.textContent = STYLES;
