@@ -118,7 +118,8 @@ test.describe('sitePermissionsGeolocationPolicy in SVG documents', () => {
             route.fulfill({ contentType: 'image/svg+xml', body: '<svg xmlns="http://www.w3.org/2000/svg"/>' }),
         );
         const collector = ResultsCollector.create(page, testInfo.project.use);
-        await collector.load(path, CONFIG_ENABLED);
+        await collector.setup({ config: CONFIG_ENABLED, waitForDocumentElement: true });
+        await page.goto(path);
         await announcePageDocument(page);
 
         const constraints = /** @type {{ documentID: string }} */ (await requestConstraints(page));
@@ -142,7 +143,8 @@ test.describe('sitePermissionsGeolocationPolicy in SVG documents', () => {
             route.fulfill({ contentType: 'image/svg+xml', body: '<svg xmlns="http://www.w3.org/2000/svg"/>' }),
         );
         const collector = ResultsCollector.create(page, testInfo.project.use);
-        await collector.load(path, CONFIG_NOT_CONFIGURED);
+        await collector.setup({ config: CONFIG_NOT_CONFIGURED, waitForDocumentElement: true });
+        await page.goto(path);
         expect(await requestConstraints(page)).toBeNull();
     });
 });

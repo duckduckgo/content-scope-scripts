@@ -298,17 +298,48 @@ test.describe('sitePermissionsMediaCapture', () => {
 });
 
 test.describe('site permissions in SVG documents', () => {
+    test('leaves arbitrary XML untouched when WebKit classifies it as SVG', async ({ page }, testInfo) => {
+        const path = '/site-permissions/arbitrary.svg';
+        await page.route(`**${path}`, (route) =>
+            route.fulfill({
+                contentType: 'image/svg+xml',
+                body: '<document><svg xmlns="http://www.w3.org/2000/svg"/></document>',
+            }),
+        );
+        const collector = ResultsCollector.create(page, testInfo.project.use);
+        await collector.setup({ config: CONFIG_ENABLED, waitForDocumentElement: true });
+        await page.goto(path);
+
+        const state = await page.evaluate(() => ({
+            contentType: document.contentType,
+            location: navigator.geolocation.getCurrentPosition.toString().includes('[native code]'),
+            media: navigator.mediaDevices.getUserMedia.toString().includes('[native code]'),
+        }));
+        expect(state).toEqual({ contentType: 'image/svg+xml', location: true, media: true });
+        expect(await requestPageDocument(page)).toBeNull();
+        expect(await collector.outgoingMessages()).toEqual([]);
+    });
+
     for (const path of ['/site-permissions/permissions.svg', '/site-permissions/permissions']) {
         test(`routes geolocation and media requests through native messaging at ${path}`, async ({ page }, testInfo) => {
             await page.route(`**${path}`, (route) =>
-                route.fulfill({ contentType: 'image/svg+xml', body: '<svg xmlns="http://www.w3.org/2000/svg"/>' }),
+                route.fulfill({
+                    contentType: 'image/svg+xml',
+                    body: `<svg xmlns="http://www.w3.org/2000/svg"><script><![CDATA[
+                        globalThis.geolocationWrappedBeforeAuthorScript =
+                            !navigator.geolocation.getCurrentPosition.toString().includes('[native code]');
+                    ]]></script></svg>`,
+                }),
             );
             await stubNativeGetUserMedia(page);
             const collector = ResultsCollector.create(page, testInfo.project.use);
             collector.withMockResponse({ getCurrentPosition: POSITION, requestPermission: { decision: 'deny' } });
-            await collector.load(path, CONFIG_ENABLED);
+            await collector.setup({ config: CONFIG_ENABLED, waitForDocumentElement: true });
+            await page.goto(path);
 
             expect(await page.evaluate(() => document.contentType)).toBe('image/svg+xml');
+            // @ts-expect-error test-only marker
+            expect(await page.evaluate(() => window.geolocationWrappedBeforeAuthorScript)).toBe(true);
             const position = await page.evaluate(
                 () =>
                     new Promise((resolve) => navigator.geolocation.getCurrentPosition((value) => resolve(value.coords.latitude), resolve)),
@@ -341,7 +372,8 @@ test.describe('site permissions in SVG documents', () => {
             route.fulfill({ contentType: 'image/svg+xml', body: '<svg xmlns="http://www.w3.org/2000/svg"/>' }),
         );
         const collector = ResultsCollector.create(page, testInfo.project.use);
-        await collector.load(path, CONFIG_NOT_CONFIGURED);
+        await collector.setup({ config: CONFIG_NOT_CONFIGURED, waitForDocumentElement: true });
+        await page.goto(path);
 
         const state = await page.evaluate(() => ({
             contentType: document.contentType,
@@ -361,7 +393,8 @@ test.describe('site permissions in SVG documents', () => {
         await stubNativeGetUserMedia(page);
         const collector = ResultsCollector.create(page, testInfo.project.use);
         collector.withMockResponse({ requestPermission: { decision: 'allow' } });
-        await collector.load(path, CONFIG_ENABLED);
+        await collector.setup({ config: CONFIG_ENABLED, waitForDocumentElement: true });
+        await page.goto(path);
 
         expect(await page.evaluate(() => navigator.mediaDevices.getUserMedia({ audio: true }))).toBe('native-stream');
         const [request] = await collector.waitForMessage('requestPermission');
