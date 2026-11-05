@@ -1467,7 +1467,11 @@ export interface NTPTelemetryEvent {
     | OmnibarScreenshotRemoved
     | OmnibarScreenshotFailed
     | OmnibarImageAttached
-    | OmnibarImageRemoved;
+    | OmnibarImageRemoved
+    | OmnibarPastedTextAttached
+    | OmnibarPastedTextRemoved
+    | OmnibarPastedTextEdited
+    | OmnibarPastedTextDialogOpened;
 }
 export interface StatsShowMore {
   name: "stats_toggle";
@@ -1563,6 +1567,30 @@ export interface OmnibarImageRemoved {
   value: {
     source: ImageAttachmentSource;
   };
+}
+/**
+ * Fired when a long text paste is attached to the prompt as a pasted-text chip.
+ */
+export interface OmnibarPastedTextAttached {
+  name: "omnibar_pasted_text_attached";
+}
+/**
+ * Fired when the user removes a pasted-text chip. Chips cleared by submitting the prompt don't fire it.
+ */
+export interface OmnibarPastedTextRemoved {
+  name: "omnibar_pasted_text_removed";
+}
+/**
+ * Fired when the user saves changed text in the Pasted Text dialog. Saving unchanged text doesn't fire it.
+ */
+export interface OmnibarPastedTextEdited {
+  name: "omnibar_pasted_text_edited";
+}
+/**
+ * Fired when the user opens the Pasted Text dialog from a pasted-text chip.
+ */
+export interface OmnibarPastedTextDialogOpened {
+  name: "omnibar_pasted_text_dialog_opened";
 }
 /**
  * Generated from @see "../messages/updateNotification_dismiss.notify.json"

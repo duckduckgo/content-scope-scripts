@@ -349,4 +349,37 @@ test.describe('omnibar pasted text', () => {
         await omnibar.textPastedModalInput().fill('y'.repeat(20));
         await expect(omnibar.textPastedModalSaveButton()).toBeEnabled();
     });
+
+    test('reports attach, dialog open, edit and remove as telemetry', async ({ page }, workerInfo) => {
+        const { omnibar } = await setup(page, workerInfo, TEXT_ON);
+
+        await omnibar.pasteIntoChatInput({ text: LONG });
+        // Saving unchanged text is not an edit.
+        await omnibar.textPastedChips().click();
+        await omnibar.textPastedModalSaveButton().click();
+        await omnibar.textPastedChips().click();
+        await omnibar.textPastedModalInput().fill('edited text');
+        await omnibar.textPastedModalSaveButton().click();
+        await omnibar.removeTextPastedButton('edited text').click();
+
+        await expect
+            .poll(() => omnibar.telemetryEvents())
+            .toEqual([
+                { name: 'omnibar_pasted_text_attached' },
+                { name: 'omnibar_pasted_text_dialog_opened' },
+                { name: 'omnibar_pasted_text_dialog_opened' },
+                { name: 'omnibar_pasted_text_edited' },
+                { name: 'omnibar_pasted_text_removed' },
+            ]);
+    });
+
+    test('does not report chips cleared by submitting as removed', async ({ page }, workerInfo) => {
+        const { omnibar } = await setup(page, workerInfo, TEXT_ON);
+
+        await omnibar.pasteIntoChatInput({ text: LONG });
+        await omnibar.chatInput().press('Enter');
+        await omnibar.lastSubmitChatParams();
+
+        expect(await omnibar.telemetryEvents()).toEqual([{ name: 'omnibar_pasted_text_attached' }]);
+    });
 });

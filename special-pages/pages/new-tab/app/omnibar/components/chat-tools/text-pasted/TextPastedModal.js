@@ -1,7 +1,7 @@
 import { Fragment, h } from 'preact';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import cn from 'classnames';
-import { useTypedTranslationWith } from '../../../../types';
+import { useMessaging, useTypedTranslationWith } from '../../../../types';
 import { usePlatformName } from '../../../../settings.provider';
 import { Check16Icon, Close16Icon } from '../../../../components/Icons';
 import { isConvertibleTextPaste } from './textPasted.js';
@@ -14,7 +14,8 @@ import styles from './TextPastedModal.module.css';
 /**
  * "Pasted Text" dialog opened from a pasted-text chip: the paste in an editable textarea.
  * Edits are staged locally and only committed on "Save Changes"; Cancel, the close button,
- * Escape and backdrop clicks discard them. Mounted only while open, so the draft re-seeds per open.
+ * Escape and backdrop clicks discard them. Mounted only while open, so the draft re-seeds per open
+ * and `omnibar_pasted_text_dialog_opened` is sent once per open.
  *
  * @param {object} props
  * @param {string} props.content
@@ -26,6 +27,7 @@ import styles from './TextPastedModal.module.css';
 export function TextPastedModal({ content, otherPromptLength, maxCharacters, onSave, onClose }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
+    const ntp = useMessaging();
     const [draft, setDraft] = useState(content);
 
     const dialogRef = useRef(/** @type {HTMLDialogElement|null} */ (null));
@@ -34,7 +36,8 @@ export function TextPastedModal({ content, otherPromptLength, maxCharacters, onS
     useEffect(() => {
         dialogRef.current?.showModal();
         textareaRef.current?.focus();
-    }, []);
+        ntp.telemetryEvent({ attributes: { name: 'omnibar_pasted_text_dialog_opened' } });
+    }, [ntp]);
 
     const totalLength = otherPromptLength + draft.length;
     const tooLong = totalLength > maxCharacters;
@@ -43,7 +46,8 @@ export function TextPastedModal({ content, otherPromptLength, maxCharacters, onS
 
     const handleSave = () => {
         if (!canSave) return;
-        onSave(draft);
+        // Saving unchanged text isn't an edit.
+        if (draft !== content) onSave(draft);
         onClose();
     };
 

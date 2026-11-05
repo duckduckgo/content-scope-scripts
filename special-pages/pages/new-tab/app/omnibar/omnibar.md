@@ -181,6 +181,10 @@ Sent as `telemetryEvent` with `{ attributes: { name, value } }`:
 - `omnibar_screenshot_taken` — once a screenshot has been added as a chip, with `value.kind` from the capture.
 - `omnibar_screenshot_removed` — the user removed a screenshot chip (sent alongside `omnibar_image_removed`).
 - `omnibar_screenshot_failed` — `value.reason: "failed"`, when the page could not process a returned image. `error` replies are not reported by the page.
+- `omnibar_pasted_text_attached` — a long paste became a pasted-text chip.
+- `omnibar_pasted_text_removed` — the user removed a pasted-text chip (its × button). Clearing on submit does not count.
+- `omnibar_pasted_text_edited` — the user saved changed text in the Pasted Text dialog. Saving unchanged text does not count.
+- `omnibar_pasted_text_dialog_opened` — the user opened the Pasted Text dialog from a chip.
 
 ## Paste
 
