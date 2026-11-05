@@ -96,22 +96,33 @@ export class ActionExecutorBase extends ContentFeature {
  * @typedef {import("./broker-protection/types.js").ActionResponse} ActionResponse
  */
 export default class BrokerProtection extends ActionExecutorBase {
-    assist = new UserAssist((params) => this.messaging.notify('userTurnCompleted', params));
+    /** @type {UserAssist | null} */
+    assist = null;
 
     init() {
+        const visualizeActions = this.getFeatureSettingEnabled('visualizeActions', 'disabled');
+        const assist = new UserAssist(visualizeActions);
+        this.assist = assist;
         this.messaging.subscribe('onActionReceived', async (/** @type {any} */ params) => {
             const { action, data } = params.state;
+            assist.cancel();
             return await this.processActionAndNotify(action, data);
         });
-        this.messaging.subscribe('setAssistMode', (/** @type {any} */ params) => {
-            this.assist.setEnabled(params?.enabled === true);
-        });
-        this.messaging.subscribe('userTurnStarted', (/** @type {any} */ params) => {
-            this.assist.startUserTurn(params ?? {});
-        });
-        this.messaging.subscribe('userTurnEnded', () => {
-            this.assist.endUserTurn();
-        });
+    }
+
+    /**
+     * `userAssist` waits on the user for as long as native lets it, so it skips the retry budget.
+     *
+     * @param {any} action
+     * @param {Record<string, any>} data
+     * @return {Promise<{results: ActionResponse[], exceptions: string[]}>}
+     */
+    async exec(action, data) {
+        if (action.actionType === 'userAssist' && this.assist) {
+            const result = await this.assist.run(action, () => this.messaging.notify('userTurnNeeded', { actionID: action.id }));
+            return { results: [result], exceptions: [] };
+        }
+        return super.exec(action, data);
     }
 
     /**
@@ -120,12 +131,13 @@ export default class BrokerProtection extends ActionExecutorBase {
      * @return {Promise<ActionResponse>}
      */
     async runAction(action, data) {
-        await this.assist.waitForTurnToEnd();
+        const assist = this.assist;
+        if (!assist?.visualizeActions) return super.runAction(action, data);
         // Presentation is best effort. It runs inside retry(), so letting it throw after the action has
         // run would make retry() run the action (a click, a fill) a second time.
-        await this.assist.beforeAction(action).catch((e) => this.log.error('assist presentation failed', e));
+        await assist.beforeAction(action).catch((e) => this.log.error('assist presentation failed', e));
         const response = await super.runAction(action, data);
-        await this.assist.afterAction(action, response).catch((e) => this.log.error('assist presentation failed', e));
+        await assist.afterAction(action, response).catch((e) => this.log.error('assist presentation failed', e));
         return response;
     }
 

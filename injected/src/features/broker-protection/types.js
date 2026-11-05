@@ -12,7 +12,8 @@
 /**
  * @typedef {object} PirAction
  * @property {string} id
- * @property {"extract" | "fillForm" | "click" | "expectation" | "getCaptchaInfo" | "solveCaptcha" | "navigate" | "condition" | "scroll" | "executeScript"} actionType
+ * @property {"extract" | "fillForm" | "click" | "expectation" | "getCaptchaInfo" | "solveCaptcha" | "navigate" | "condition" | "scroll" | "executeScript" | "userAssist"} actionType
+ * @property {string} [step] - label native uses to group actions into user-facing steps; ignored here
  * @property {string} [selector]
  * @property {string} [script]
  * @property {ActionParent} [parent]
@@ -20,6 +21,9 @@
  * @property {string} [injectCaptchaHandler]
  * @property {string} [dataSource]
  * @property {string} [url]
+ * @property {string} [highlight] - userAssist: CSS or XPath selector to outline when handing off
+ * @property {number} [handOffAfterMs] - userAssist: defaults to 0
+ * @property {Expectation[]} [completeWhen] - userAssist
  */
 
 /**

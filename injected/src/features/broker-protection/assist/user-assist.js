@@ -1,30 +1,11 @@
 import { getElement, getElements } from '../utils/utils.js';
 import { wait } from '../../../timer-utils.js';
-// eslint-disable-next-line no-redeclare
-import { getOwnPropertyDescriptor, hasOwnProperty } from '../../../captured-globals.js';
+
+import { getOwnPropertyDescriptor } from '../../../captured-globals.js';
+import { ErrorResponse, SuccessResponse } from '../types.js';
+import { isUserAssistComplete, waitForUserAssist } from '../actions/user-assist.js';
 import { AssistOverlay } from './overlay.js';
 
-/**
- * @typedef {'turnstile' | 'recaptcha' | 'managedChallenge' | 'generic'} UserTurnKind
- * @typedef {{ kind: UserTurnKind, tokenSelector: string | null }} UserTurnParams
- * @typedef {{ tokenSelector: string | null, widgetSelectors: string[] }} Challenge
- */
-
-/** @type {Challenge} */
-const TURNSTILE = {
-    tokenSelector: "input[name='cf-turnstile-response']",
-    widgetSelectors: ['.cf-turnstile', "iframe[src*='challenges.cloudflare.com']"],
-};
-
-/** @type {Record<UserTurnKind, Challenge>} */
-const CHALLENGES = {
-    turnstile: TURNSTILE,
-    managedChallenge: TURNSTILE,
-    recaptcha: { tokenSelector: "textarea[name='g-recaptcha-response']", widgetSelectors: ['.g-recaptcha', "iframe[src*='recaptcha']"] },
-    generic: { tokenSelector: null, widgetSelectors: [] },
-};
-
-const TOKEN_POLL_MS = 500;
 const CLICK_PAUSE_MS = 200;
 // Native's action timeout also covers this presentation, so a whole form shares one budget. Timers
 // run late in hidden windows, so the replay also gives up once the budget has passed in wall-clock time.
@@ -35,46 +16,76 @@ const MAX_KEYSTROKE_MS = 60;
 const TYPEABLE_INPUT_TYPES = new Set(['text', 'email', 'tel', 'search', 'url']);
 
 /**
- * Opt-in presentation for PIR runs the user is watching, plus the hand-off when the user has to solve
- * a challenge themselves. Native turns it on with `setAssistMode` after each page load; while it's off
- * nothing is drawn and actions run exactly as they would otherwise.
+ * Runs `userAssist` actions, and presents `click` and `fillForm` actions for runs the user is watching
+ * (when native enables the `visualizeActions` setting). Without that setting nothing is drawn except
+ * the hand-off outline of a `userAssist` action.
  */
 export class UserAssist {
-    enabled = false;
     overlay = new AssistOverlay();
-    /** @type {{ poll: ReturnType<typeof setInterval>, ended: Promise<void>, end: () => void } | null} */
-    turn = null;
     /** Click actions already presented, so retry attempts don't replay the cursor. */
     presentedClicks = new WeakSet();
+    /** @type {AbortController | null} */
+    pending = null;
 
     /**
-     * @param {(params: { kind: UserTurnKind }) => void} onTurnCompleted
+     * @param {boolean} visualizeActions
      */
-    constructor(onTurnCompleted) {
-        this.onTurnCompleted = onTurnCompleted;
+    constructor(visualizeActions) {
+        this.visualizeActions = visualizeActions;
     }
 
     /**
-     * @param {boolean} enabled
+     * Resolves once the action's `completeWhen` expectations pass, handing off to the user (outline plus
+     * `onUserTurnNeeded`) if they haven't passed after `handOffAfterMs`.
+     *
+     * @param {Record<string, any>} action
+     * @param {() => void} onUserTurnNeeded
+     * @return {Promise<import('../types.js').ActionResponse>}
      */
-    setEnabled(enabled) {
-        this.enabled = enabled;
-        if (!enabled && !this.turn) this.overlay.destroy();
+    async run(action, onUserTurnNeeded) {
+        if (!Array.isArray(action.completeWhen) || action.completeWhen.length === 0) {
+            return new ErrorResponse({ actionID: action.id, message: 'userAssist requires completeWhen' });
+        }
+        this.cancel();
+        const controller = new AbortController();
+        this.pending = controller;
+        const highlight = () => (typeof action.highlight === 'string' ? getElement(document, action.highlight) : null);
+        let handedOff = false;
+        try {
+            const completed = await waitForUserAssist({
+                isComplete: () => {
+                    if (handedOff) this.overlay.updateTurnTarget(highlight());
+                    return isUserAssistComplete({ id: action.id, completeWhen: action.completeWhen });
+                },
+                handOffAfterMs: typeof action.handOffAfterMs === 'number' ? action.handOffAfterMs : 0,
+                onHandOff: () => {
+                    handedOff = true;
+                    this.overlay.showTurn(highlight());
+                    onUserTurnNeeded();
+                },
+                signal: controller.signal,
+            });
+            if (!completed) return new ErrorResponse({ actionID: action.id, message: 'userAssist cancelled by a newer action' });
+            return new SuccessResponse({ actionID: action.id, actionType: 'userAssist', response: null });
+        } finally {
+            if (this.pending === controller) this.pending = null;
+            if (handedOff) {
+                this.overlay.clearTurn();
+                if (!this.visualizeActions) this.overlay.destroy();
+            }
+        }
     }
 
-    /**
-     * Resolves once the user's turn (if any) is over, so retries don't use up their attempts while the
-     * user is solving a challenge the action is waiting on.
-     */
-    async waitForTurnToEnd() {
-        while (this.turn) await this.turn.ended;
+    cancel() {
+        this.pending?.abort();
+        this.pending = null;
     }
 
     /**
      * @param {Record<string, any>} action
      */
     async beforeAction(action) {
-        if (!this.enabled || action.actionType !== 'click' || this.presentedClicks.has(action)) return;
+        if (action.actionType !== 'click' || this.presentedClicks.has(action)) return;
         const targets = clickTargets(action);
         if (targets.length) this.presentedClicks.add(action);
         for (const element of targets) {
@@ -83,10 +94,8 @@ export class UserAssist {
                 dy: element.getBoundingClientRect().height / 2,
                 label: isSubmitButton(element) ? 'Submitting' : 'Moving',
             });
-            if (!this.enabled) return;
             this.overlay.highlightField(element);
             await wait(CLICK_PAUSE_MS);
-            if (!this.enabled) return;
         }
     }
 
@@ -95,7 +104,6 @@ export class UserAssist {
      * @param {import('../types.js').ActionResponse} response
      */
     async afterAction(action, response) {
-        if (!this.enabled) return;
         if (action.actionType === 'fillForm' && 'success' in response) {
             const form = getElement(document, action.selector);
             if (form) {
@@ -105,7 +113,7 @@ export class UserAssist {
                 const fieldMs = Math.min(MAX_FIELD_MS, FORM_BUDGET_MS / Math.max(fields.length, 1));
                 const deadline = performance.now() + FORM_BUDGET_MS;
                 for (const field of fields) {
-                    if (!this.enabled || performance.now() > deadline) break;
+                    if (performance.now() > deadline) break;
                     await this.retype(field, fieldMs, deadline);
                 }
             }
@@ -142,7 +150,7 @@ export class UserAssist {
         let written = value;
         try {
             for (let i = 0; i <= value.length; i++) {
-                if (field.value !== written || !this.enabled || performance.now() > deadline) return;
+                if (field.value !== written || performance.now() > deadline) return;
                 written = value.slice(0, i);
                 setValue(field, written);
                 const x = measure(written);
@@ -154,45 +162,6 @@ export class UserAssist {
             if (field.value === written) setValue(field, value);
             this.overlay.setCaret(null);
         }
-    }
-
-    /**
-     * @param {{ kind?: unknown, tokenSelector?: unknown }} params - as sent by native
-     */
-    startUserTurn({ kind, tokenSelector }) {
-        this.endUserTurn();
-        /** @type {UserTurnParams} */
-        const params = {
-            kind: typeof kind === 'string' && hasOwnProperty.call(CHALLENGES, kind) ? /** @type {UserTurnKind} */ (kind) : 'generic',
-            tokenSelector: typeof tokenSelector === 'string' ? tokenSelector : null,
-        };
-        /** @type {() => void} */
-        let end = () => {};
-        const ended = new Promise((resolve) => {
-            end = () => resolve(undefined);
-        });
-        // A token already present (an expired or rejected one) doesn't mean the user has solved anything.
-        const initialTokens = tokenValues(params);
-        let completed = false;
-        const check = () => {
-            this.overlay.updateTurnTarget(findWidget(params));
-            if (completed || !tokenValues(params).some((token) => token !== '' && !initialTokens.includes(token))) return;
-            completed = true;
-            this.onTurnCompleted({ kind: params.kind });
-        };
-        this.turn = { poll: setInterval(check, TOKEN_POLL_MS), ended, end };
-        this.overlay.showTurn(findWidget(params));
-        check();
-    }
-
-    endUserTurn() {
-        const turn = this.turn;
-        if (!turn) return;
-        this.turn = null;
-        clearInterval(turn.poll);
-        this.overlay.clearTurn();
-        if (!this.enabled) this.overlay.destroy();
-        turn.end();
     }
 }
 
@@ -219,31 +188,6 @@ function clickTargets(action) {
  */
 function isSubmitButton(element) {
     return (element instanceof HTMLButtonElement || element instanceof HTMLInputElement) && element.type === 'submit';
-}
-
-/**
- * @param {UserTurnParams} params
- * @returns {Element | null}
- */
-function findWidget({ kind, tokenSelector }) {
-    const challenge = CHALLENGES[kind];
-    for (const selector of challenge.widgetSelectors) {
-        const widget = document.querySelector(selector);
-        if (widget) return widget;
-    }
-    const tokenFieldSelector = tokenSelector ?? challenge.tokenSelector;
-    if (!tokenFieldSelector) return null;
-    return getElements(document, tokenFieldSelector)?.[0]?.closest('[data-sitekey]') ?? null;
-}
-
-/**
- * @param {UserTurnParams} params
- * @returns {string[]}
- */
-function tokenValues({ kind, tokenSelector }) {
-    const selector = tokenSelector ?? CHALLENGES[kind].tokenSelector;
-    if (!selector) return [];
-    return (getElements(document, selector) ?? []).map((field) => ('value' in field && typeof field.value === 'string' ? field.value : ''));
 }
 
 /**
