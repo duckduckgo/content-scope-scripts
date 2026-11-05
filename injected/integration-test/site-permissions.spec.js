@@ -338,8 +338,7 @@ test.describe('site permissions in SVG documents', () => {
             await page.goto(path);
 
             expect(await page.evaluate(() => document.contentType)).toBe('image/svg+xml');
-            // @ts-expect-error test-only marker
-            expect(await page.evaluate(() => window.geolocationWrappedBeforeAuthorScript)).toBe(true);
+            expect(await page.evaluate(() => Reflect.get(window, 'geolocationWrappedBeforeAuthorScript'))).toBe(true);
             const position = await page.evaluate(
                 () =>
                     new Promise((resolve) => navigator.geolocation.getCurrentPosition((value) => resolve(value.coords.latitude), resolve)),
@@ -361,8 +360,7 @@ test.describe('site permissions in SVG documents', () => {
             const [mediaRequest] = await collector.waitForMessage('requestPermission');
             expect(mediaRequest.payload.featureName).toBe('sitePermissionsMediaCapture');
             expect(mediaRequest.payload.params.isEligible).toBe(true);
-            // @ts-expect-error test-only marker
-            expect(await page.evaluate(() => window.nativeGetUserMediaCalls)).toBe(0);
+            expect(await page.evaluate(() => Reflect.get(window, 'nativeGetUserMediaCalls'))).toBe(0);
         });
     }
 
@@ -405,7 +403,6 @@ test.describe('site permissions in SVG documents', () => {
             video: false,
             audio: true,
         });
-        // @ts-expect-error test-only marker
-        expect(await page.evaluate(() => window.nativeGetUserMediaCalls)).toBe(1);
+        expect(await page.evaluate(() => Reflect.get(window, 'nativeGetUserMediaCalls'))).toBe(1);
     });
 });

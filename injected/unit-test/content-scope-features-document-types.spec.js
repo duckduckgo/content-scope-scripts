@@ -1,5 +1,6 @@
 import { build } from 'esbuild';
 import { JSDOM } from 'jsdom';
+import { fileURLToPath } from 'node:url';
 
 const permissions = ['sitePermissionsGeolocation', 'sitePermissionsMediaCapture', 'sitePermissionsGeolocationPolicy'];
 const observedFeatures = [...permissions, 'gpc', 'favicon', 'cookie'];
@@ -11,7 +12,7 @@ const bundles = {};
 
 async function buildLoader(injectName) {
     const result = await build({
-        entryPoints: [new URL('../src/content-scope-features.js', import.meta.url).pathname],
+        entryPoints: [fileURLToPath(new URL('../src/content-scope-features.js', import.meta.url))],
         bundle: true,
         write: false,
         format: 'iife',
