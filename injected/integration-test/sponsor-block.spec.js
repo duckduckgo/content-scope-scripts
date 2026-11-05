@@ -321,7 +321,9 @@ test.describe('SponsorBlock', () => {
             // On the controls row, just above the progress bar: 180px layer, row bottom at 140px, plus a 4px gap.
             await expect(frame.locator(SKIP_BUTTON)).toHaveCSS('bottom', '44px');
             await frame.locator(SKIP_BUTTON).click();
-            const time = await page.frames()[1].evaluate(() => /** @type {HTMLVideoElement} */ (document.querySelector('video')).currentTime);
+            const time = await page
+                .frames()[1]
+                .evaluate(() => /** @type {HTMLVideoElement} */ (document.querySelector('video')).currentTime);
             expect(time).toBeCloseTo(5, 1);
         });
 
