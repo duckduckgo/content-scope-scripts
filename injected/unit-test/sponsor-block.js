@@ -227,4 +227,12 @@ describe('SponsorBlock applyConfig', () => {
         await tick();
         expect(video().currentTime).toBe(0);
     });
+
+    it('treats a malformed segments response as no segments', async () => {
+        request.and.resolveTo({});
+        feature.applyConfig({ enabled: true, skipMode: 'auto' });
+        await tick();
+        expect(() => feature.renderOverlay()).not.toThrow();
+        expect(() => feature.updateSkip()).not.toThrow();
+    });
 });

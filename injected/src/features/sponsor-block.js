@@ -287,7 +287,8 @@ export class SponsorBlock extends ContentFeature {
             const { segments } = await this.request('getSegments', { videoID });
             // The user may have moved to another video, or turned the feature off, while the request was in flight.
             if (videoID !== this.#videoID || !this.#enabled) return;
-            this.#segments = segments;
+            // A malformed response would otherwise throw from every timeupdate, outside this try.
+            this.#segments = Array.isArray(segments) ? segments : [];
             this.#renderedDuration = 0;
             this.renderOverlay();
             this.updateSkip();
