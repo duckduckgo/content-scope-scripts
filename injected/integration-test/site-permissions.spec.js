@@ -296,3 +296,83 @@ test.describe('sitePermissionsMediaCapture', () => {
         expect(methods).not.toContain('requestPermission');
     });
 });
+
+test.describe('site permissions in SVG documents', () => {
+    for (const path of ['/site-permissions/permissions.svg', '/site-permissions/permissions']) {
+        test(`routes geolocation and media requests through native messaging at ${path}`, async ({ page }, testInfo) => {
+            await page.route(`**${path}`, (route) =>
+                route.fulfill({ contentType: 'image/svg+xml', body: '<svg xmlns="http://www.w3.org/2000/svg"/>' }),
+            );
+            await stubNativeGetUserMedia(page);
+            const collector = ResultsCollector.create(page, testInfo.project.use);
+            collector.withMockResponse({ getCurrentPosition: POSITION, requestPermission: { decision: 'deny' } });
+            await collector.load(path, CONFIG_ENABLED);
+
+            expect(await page.evaluate(() => document.contentType)).toBe('image/svg+xml');
+            const position = await page.evaluate(
+                () =>
+                    new Promise((resolve) => navigator.geolocation.getCurrentPosition((value) => resolve(value.coords.latitude), resolve)),
+            );
+            expect(position).toBe(POSITION.coords.latitude);
+            const [locationRequest] = await collector.waitForMessage('getCurrentPosition');
+            expect(locationRequest.payload.featureName).toBe('sitePermissionsGeolocation');
+            expect(await requestPageDocument(page)).toBe(locationRequest.payload.params.documentID);
+
+            const mediaError = await page.evaluate(async () => {
+                try {
+                    await navigator.mediaDevices.getUserMedia({ video: true });
+                    return null;
+                } catch (error) {
+                    return /** @type {DOMException} */ (error).name;
+                }
+            });
+            expect(mediaError).toBe('NotAllowedError');
+            const [mediaRequest] = await collector.waitForMessage('requestPermission');
+            expect(mediaRequest.payload.featureName).toBe('sitePermissionsMediaCapture');
+            expect(mediaRequest.payload.params.isEligible).toBe(true);
+            // @ts-expect-error test-only marker
+            expect(await page.evaluate(() => window.nativeGetUserMediaCalls)).toBe(0);
+        });
+    }
+
+    test('leaves SVG APIs untouched without native feature settings', async ({ page }, testInfo) => {
+        const path = '/site-permissions/unconfigured.svg';
+        await page.route(`**${path}`, (route) =>
+            route.fulfill({ contentType: 'image/svg+xml', body: '<svg xmlns="http://www.w3.org/2000/svg"/>' }),
+        );
+        const collector = ResultsCollector.create(page, testInfo.project.use);
+        await collector.load(path, CONFIG_NOT_CONFIGURED);
+
+        const state = await page.evaluate(() => ({
+            contentType: document.contentType,
+            location: navigator.geolocation.getCurrentPosition.toString().includes('[native code]'),
+            media: navigator.mediaDevices.getUserMedia.toString().includes('[native code]'),
+        }));
+        expect(state).toEqual({ contentType: 'image/svg+xml', location: true, media: true });
+        expect(await requestPageDocument(page)).toBeNull();
+        expect(await collector.outgoingMessages()).toEqual([]);
+    });
+
+    test('an allowed SVG media request reaches the saved native method once', async ({ page }, testInfo) => {
+        const path = '/site-permissions/allowed.svg';
+        await page.route(`**${path}`, (route) =>
+            route.fulfill({ contentType: 'image/svg+xml', body: '<svg xmlns="http://www.w3.org/2000/svg"/>' }),
+        );
+        await stubNativeGetUserMedia(page);
+        const collector = ResultsCollector.create(page, testInfo.project.use);
+        collector.withMockResponse({ requestPermission: { decision: 'allow' } });
+        await collector.load(path, CONFIG_ENABLED);
+
+        expect(await page.evaluate(() => navigator.mediaDevices.getUserMedia({ audio: true }))).toBe('native-stream');
+        const [request] = await collector.waitForMessage('requestPermission');
+        expect(request.payload.params).toEqual({
+            capability: 'test-capability',
+            requestID: expect.stringMatching(/^[0-9a-f]{32}:1$/),
+            isEligible: true,
+            video: false,
+            audio: true,
+        });
+        // @ts-expect-error test-only marker
+        expect(await page.evaluate(() => window.nativeGetUserMediaCalls)).toBe(1);
+    });
+});
