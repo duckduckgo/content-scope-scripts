@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 import cn from 'classnames';
 import { useTypedTranslationWith } from '../../../../types';
 import { usePlatformName } from '../../../../settings.provider';
-import { Check12Icon, CloseSmallIcon } from '../../../../components/Icons';
+import { Check16Icon, Close16Icon } from '../../../../components/Icons';
 import { isConvertibleTextPaste } from './textPasted.js';
 import styles from './TextPastedModal.module.css';
 
@@ -54,7 +54,7 @@ export function TextPastedModal({ content, otherPromptLength, maxCharacters, onS
     );
     const saveButton = (
         <button type="button" class={cn(styles.footerButton, styles.footerButtonPrimary)} disabled={!canSave} onClick={handleSave}>
-            <Check12Icon aria-hidden="true" />
+            <Check16Icon aria-hidden="true" />
             {t('omnibar_pastedTextModalSave')}
         </button>
     );
@@ -85,7 +85,7 @@ export function TextPastedModal({ content, otherPromptLength, maxCharacters, onS
             <header class={styles.header}>
                 <h4 id="text-pasted-modal-title">{t('omnibar_pastedTextModalTitle')}</h4>
                 <button type="button" class={styles.closeButton} aria-label={t('omnibar_pastedTextModalClose')} onClick={onClose}>
-                    <CloseSmallIcon aria-hidden="true" />
+                    <Close16Icon aria-hidden="true" />
                 </button>
             </header>
             <p class={styles.note}>{t('omnibar_pastedTextModalFormattingNote')}</p>

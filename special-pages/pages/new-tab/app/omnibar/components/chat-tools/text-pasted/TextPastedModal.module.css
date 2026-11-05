@@ -1,24 +1,28 @@
 /* Native <dialog>; shown via showModal(), so the browser centers it in the viewport
    (top layer) regardless of the omnibar's backdrop-filter containing block. */
 .modal {
-    /* White in light mode, matching Duck.ai's modal. */
     background: var(--ds-color-theme-surface-tertiary);
     border: none;
-    border-radius: 24px;
+    border-radius: var(--ds-radius-x08);
+    /* Duck.ai's modal elevation; no shadow token matches it, so literal values */
     box-shadow:
-        0 0 0 0.5px rgba(0, 0, 0, 0.2),
-        0 10px 24px 0 rgba(0, 0, 0, 0.32),
-        inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+        0 20px 40px 0 rgba(0, 0, 0, 0.04),
+        0 4px 12px 0 rgba(0, 0, 0, 0.04);
     box-sizing: border-box;
     color: var(--ds-color-theme-text-primary);
     display: flex;
     flex-direction: column;
-    gap: var(--sp-4);
-    height: min(720px, calc(100vh - var(--sp-20)));
+    font-size: var(--ds-font-body-md-size);
+    gap: var(--ds-space-x03);
     margin: auto; /* Restore UA centering; the app's global reset zeroes dialog margins. */
+    max-height: 80vh;
+    max-width: 90vw;
     overflow: clip;
-    padding: var(--sp-6);
-    width: min(720px, calc(100vw - var(--sp-10)));
+    padding: var(--ds-space-x06);
+    width: 800px;
+    /* The theme mappings don't cover destructive colours yet, hence the default-theme fallbacks. */
+    --text-pasted-destructive: var(--ds-color-theme-destructive-primary, var(--ds-color-theme-default-light-destructive-primary));
+    --text-pasted-destructive-text: var(--ds-color-theme-destructive-text-primary, var(--ds-color-theme-default-light-destructive-text-primary));
 
     /* `display: flex` would otherwise override the UA's `display: none` and flash
        the dialog before the mount effect calls showModal(). */
@@ -31,6 +35,13 @@
         background: rgba(0, 0, 0, 0.3);
     }
 
+    /* A darker surface than the textarea's, so the text stands out from the modal. */
+    [data-theme='dark'] & {
+        background: var(--ds-color-theme-surface-secondary);
+        --text-pasted-destructive: var(--ds-color-theme-destructive-primary, var(--ds-color-theme-default-dark-destructive-primary));
+        --text-pasted-destructive-text: var(--ds-color-theme-destructive-text-primary, var(--ds-color-theme-default-dark-destructive-text-primary));
+    }
+
     [data-theme='dark'] &::backdrop {
         background: rgba(0, 0, 0, 0.6);
     }
@@ -40,13 +51,16 @@
     align-items: center;
     display: flex;
     flex-shrink: 0;
+    gap: var(--ds-space-x03);
     justify-content: space-between;
+    /* 4px above the note, against the modal's 12px gap. */
+    margin-bottom: calc(var(--ds-space-x02) * -1);
 
     & h4 {
-        font-size: 20px;
-        font-weight: 600;
-        letter-spacing: -0.4px;
-        line-height: 24px;
+        font-size: var(--ds-font-title-05-size);
+        font-weight: var(--ds-font-weight-normal);
+        letter-spacing: var(--ds-font-letter-spacing-normal);
+        line-height: var(--ds-font-title-05-line-height);
         margin: 0;
     }
 }
@@ -56,104 +70,122 @@
     background: transparent;
     border: none;
     border-radius: 50%;
-    color: var(--ds-color-theme-icons-primary);
+    color: var(--ds-color-theme-text-secondary);
     cursor: pointer;
     display: flex;
-    height: var(--sp-8);
+    flex-shrink: 0;
+    height: var(--ds-space-x09);
     justify-content: center;
-    margin-right: calc(var(--sp-2) * -1);
+    margin-right: calc(var(--ds-space-x1-5) * -1);
+    outline: none;
     padding: 0;
-    width: var(--sp-8);
+    width: var(--ds-space-x09);
 
     &:hover {
         background-color: var(--ds-color-theme-control-fill-primary);
     }
 
+    &:active {
+        background-color: var(--ds-color-theme-control-fill-secondary);
+    }
+
     &:focus-visible {
-        outline: 2px solid var(--ds-color-theme-accent-primary);
+        background-color: var(--ds-color-theme-control-fill-primary);
+        box-shadow: 0 0 0 2px var(--ds-color-theme-control-border-tertiary);
     }
 }
 
 .note {
     color: var(--ds-color-theme-text-primary);
     flex-shrink: 0;
-    font-size: 13px;
-    line-height: 16px;
-    margin: calc(var(--sp-2) * -1) 0 0;
+    font-size: var(--ds-font-body-md-size);
+    font-weight: var(--ds-font-weight-normal);
+    line-height: var(--ds-font-body-md-line-height);
+    margin: 0;
 }
 
 .textarea {
     background-color: var(--ds-color-theme-surface-tertiary);
-    border: 1px solid var(--ds-color-theme-container-border-secondary);
-    border-radius: 20px;
+    border: 1px solid var(--ds-color-theme-container-border-tertiary);
+    border-radius: var(--ds-radius-x06);
+    /* Duck.ai's chat-input elevation; no shadow token matches it, so literal values */
+    box-shadow:
+        0 2px 4px rgba(0, 0, 0, 0.06),
+        0 4px 20px rgba(0, 0, 0, 0.04);
     box-sizing: border-box;
     color: var(--ds-color-theme-text-primary);
-    flex: 1;
+    flex: 1 1 auto;
     font-family: inherit;
-    font-size: 14px;
-    line-height: 20px;
+    font-size: var(--ds-font-body-lg-size);
+    height: 60vh;
+    line-height: var(--ds-font-body-lg-line-height);
     margin: 0;
     min-height: 0;
     outline: none;
     overflow-wrap: anywhere;
-    padding: var(--sp-4) var(--sp-5);
+    padding: var(--ds-space-x04) var(--ds-space-x05);
     resize: none;
     width: 100%;
+
+    &:focus-visible {
+        outline: 2px solid var(--ds-color-theme-accent-primary);
+        outline-offset: -1px;
+    }
 }
 
-.textareaInvalid {
-    border: 2px solid var(--color-red-50);
+.textareaInvalid,
+.textareaInvalid:focus-visible {
+    outline: 2px solid var(--text-pasted-destructive);
+    outline-offset: -1px;
 }
 
 .footer {
     align-items: center;
     display: flex;
     flex-shrink: 0;
-    gap: var(--sp-4);
+    gap: var(--ds-space-x03);
     justify-content: space-between;
 }
 
 .count {
     color: var(--ds-color-theme-text-secondary);
-    font-size: 13px;
-    line-height: 16px;
+    font-size: var(--ds-font-body-md-size);
+    font-weight: var(--ds-font-weight-bold);
+    line-height: var(--ds-font-body-md-line-height);
     margin: 0;
-    padding-left: var(--sp-5);
+    /* Aligns the count with the text inside the textarea. */
+    padding-left: var(--ds-space-x05);
 }
 
 .countError {
-    color: var(--color-red-50);
+    color: var(--text-pasted-destructive-text);
 }
 
 .footerButtons {
     display: flex;
-    gap: var(--sp-2);
+    gap: var(--ds-space-x1-5);
 }
 
 .footerButton {
     align-items: center;
     border: none;
-    border-radius: 12px;
+    border-radius: var(--ds-radius-full);
+    box-sizing: border-box;
     cursor: pointer;
-    display: flex;
+    display: inline-flex;
     font-family: inherit;
-    font-size: 13px;
-    font-weight: 600;
-    gap: var(--sp-1);
-    height: var(--sp-8);
+    font-size: var(--ds-font-button-label-03-size);
+    font-weight: var(--ds-font-weight-bold);
+    gap: var(--ds-space-x1-5);
     justify-content: center;
-    letter-spacing: -0.08px;
-    line-height: 13px;
-    padding: 0 var(--sp-4);
-
-    &:focus-visible {
-        outline: 2px solid var(--ds-color-theme-accent-primary);
-        outline-offset: 1px;
-    }
+    line-height: var(--ds-font-button-label-03-line-height);
+    min-height: var(--ds-space-x09);
+    outline: none;
+    padding: var(--ds-space-x1-5) var(--ds-space-x03);
 
     &:disabled {
-        cursor: default;
-        opacity: 0.5;
+        cursor: not-allowed;
+        opacity: 0.4;
     }
 }
 
@@ -161,8 +193,17 @@
     background-color: var(--ds-color-theme-control-fill-primary);
     color: var(--ds-color-theme-text-primary);
 
-    &:hover {
+    &:hover,
+    &:focus-visible {
         background-color: var(--ds-color-theme-control-fill-secondary);
+    }
+
+    &:active {
+        background-color: var(--ds-color-theme-control-fill-tertiary);
+    }
+
+    &:focus-visible {
+        box-shadow: 0 0 0 2px var(--ds-color-theme-text-primary);
     }
 }
 
@@ -170,7 +211,16 @@
     background-color: var(--ds-color-theme-accent-primary);
     color: var(--ds-color-theme-accent-content-primary);
 
-    &:hover:not(:disabled) {
+    &:hover,
+    &:focus-visible {
         background-color: var(--ds-color-theme-accent-secondary);
+    }
+
+    &:active {
+        background-color: var(--ds-color-theme-accent-tertiary);
+    }
+
+    &:focus-visible {
+        box-shadow: 0 0 0 2px var(--ds-color-theme-accent-primary);
     }
 }

@@ -1187,6 +1187,36 @@ export function Check10Icon(props) {
 }
 
 /**
+ * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Close-16.svg
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
+ */
+export function Close16Icon(props) {
+    return (
+        <svg width="16" height="16" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
+            <path
+                fill="currentColor"
+                d="M13.817 3.067c.244-.244.244-.64 0-.884s-.64-.244-.884 0L8 7.116 3.067 2.183c-.244-.244-.64-.244-.884 0s-.244.64 0 .884L7.116 8l-4.933 4.933c-.244.244-.244.64 0 .884s.64.244.884 0L8 8.884l4.933 4.933c.244.244.64.244.884 0s.244-.64 0-.884L8.884 8z"
+            />
+        </svg>
+    );
+}
+
+/**
+ * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Check-16.svg
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
+ */
+export function Check16Icon(props) {
+    return (
+        <svg width="16" height="16" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
+            <path
+                fill="currentColor"
+                d="M13.923 3.693c.239-.25.635-.258.884-.02.25.239.258.635.02.884l-7.592 7.937c-.607.635-1.628.614-2.209-.044l-3.87-4.385c-.228-.259-.203-.654.055-.882.26-.229.654-.204.883.055l3.87 4.384c.096.11.266.114.368.008z"
+            />
+        </svg>
+    );
+}
+
+/**
  * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/12px/Check-12.svg
  * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
  */
