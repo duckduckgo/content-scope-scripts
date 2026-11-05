@@ -8,7 +8,11 @@
 
 export type OpenTarget = "same-tab" | "new-tab" | "new-window";
 export type BackgroundVariant =
-  DefaultBackground | SolidColorBackground | HexValueBackground | GradientBackground | UserImageBackground;
+  | DefaultBackground
+  | SolidColorBackground
+  | HexValueBackground
+  | GradientBackground
+  | UserImageBackground;
 export type PredefinedColor =
   | "color01"
   | "color02"
