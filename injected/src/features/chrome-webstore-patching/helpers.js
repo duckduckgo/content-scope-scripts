@@ -23,23 +23,6 @@ export function parseExtensionId(pathname) {
 }
 
 /**
- * Remote config is a hot-fix channel, so a malformed selector is a question of
- * when, not if. One bad entry would invalidate the entire injected CSS rule —
- * dropping the fail-closed hide and revealing Google's own install button — and
- * throw out of querySelectorAll. Bad entries are discarded; good ones still apply.
- * @param {string} selector
- * @returns {boolean}
- */
-export function isValidSelector(selector) {
-    try {
-        document.createDocumentFragment().querySelector(selector);
-        return true;
-    } catch {
-        return false;
-    }
-}
-
-/**
  * Validates native's reply to `getCatalogExtensionIds`. Only a well-formed
  * reply counts as a catalog: anything else returns null, which the caller
  * treats as "catalog unknown" and keeps the button hidden. An empty list is a
