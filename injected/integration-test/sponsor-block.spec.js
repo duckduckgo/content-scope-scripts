@@ -73,6 +73,12 @@ async function routeYouTube(page) {
 async function loadPlayer(page, testInfo, { config = CONFIG, responses = {}, url = WATCH_URL, framedBy } = {}) {
     const collector = ResultsCollector.create(page, testInfo.project.use);
     collector.withMockResponse({ getConfig: CONFIG_MANUAL, getSegments: SEGMENTS, ...responses });
+    // Android messaging needs its interface names; the other platforms ignore them.
+    collector.withUserPreferences({
+        messageSecret: 'duckduckgo-android-messaging-secret',
+        javascriptInterface: 'contentScopeScripts',
+        messageCallback: 'messageCallback',
+    });
     await routeYouTube(page);
     if (framedBy) {
         // Registered after routeYouTube: Playwright tries the most recently registered route first.
@@ -296,6 +302,29 @@ test.describe('SponsorBlock', () => {
         test('activates in a nocookie embed framed by a nocookie page (macOS Duck Player)', async ({ page }, testInfo) => {
             await loadPlayer(page, testInfo, { url: EMBED_URL, framedBy: 'https://www.youtube-nocookie.com/player' });
             await expect(page.frameLocator('iframe').locator(MARKER)).toHaveCount(1);
+        });
+
+        test('Android: drives the Duck Player embed from the page', async ({ page }, testInfo) => {
+            test.skip(testInfo.project.name !== 'android', 'Android-only: the other platforms run in the embed itself');
+            const collector = await loadPlayer(page, testInfo, { url: EMBED_URL, framedBy: 'https://www.youtube-nocookie.com/player' });
+            const frame = page.frameLocator('iframe');
+            await expect(frame.locator(MARKER)).toHaveCount(1);
+            // Android injects only into the top frame, so the embed must not run an instance of its own.
+            expect(await requestsFor(collector, 'getConfig')).toHaveLength(1);
+            const embedOutgoing = await page.frames()[1].evaluate(() => /** @type {any} */ (window).__playwright_01?.mocks.outgoing ?? []);
+            expect(embedOutgoing.filter((/** @type {any} */ m) => m.payload.featureName === 'sponsorBlock')).toEqual([]);
+
+            await page.frames()[1].evaluate(() => {
+                /** @type {HTMLVideoElement} */ (document.querySelector('video')).currentTime = 3;
+            });
+            await expect(frame.locator(`#player-controls > ${SKIP_BUTTON}`)).toBeVisible();
+            // On the controls row, just above the progress bar: 180px layer, row bottom at 140px, plus a 4px gap.
+            await expect(frame.locator(SKIP_BUTTON)).toHaveCSS('bottom', '44px');
+            await frame.locator(SKIP_BUTTON).click();
+            const time = await page
+                .frames()[1]
+                .evaluate(() => /** @type {HTMLVideoElement} */ (document.querySelector('video')).currentTime);
+            expect(time).toBeCloseTo(5, 1);
         });
 
         test('stays inactive in an embed on a third-party site', async ({ page }, testInfo) => {

@@ -82,6 +82,7 @@ export default defineConfig({
                 'integration-test/duckplayer-mobile-drawer.spec.js',
                 'integration-test/web-compat-android.spec.js',
                 'integration-test/message-bridge-android.spec.js',
+                'integration-test/sponsor-block.spec.js',
             ],
             use: { injectName: 'android', platform: 'android', ...devices['Galaxy S5'] },
         },
