@@ -56,6 +56,7 @@ const otherFeatures = /** @type {FeatureName[]} */ ([
     'textSelection',
     'chromeWebstorePatching',
     'selectionTools',
+    'sponsorBlock',
 ]);
 
 /**
@@ -99,6 +100,7 @@ export const platformSupport = {
         'tabSuspension',
         'chromeWebstorePatching',
         'browserUiLock',
+        'sponsorBlock',
     ],
     'apple-ai-clear': ['duckAiDataClearing'],
     'apple-ai-history': ['duckAiChatHistory'],
