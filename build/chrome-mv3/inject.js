@@ -4094,6 +4094,7 @@
   }
 
   // src/config-feature.js
+  var RELEASE_VERSION_PATTERN = /^\d+\.\d+\.\d+$/;
   var _bundledConfig, _args;
   var ConfigFeature = class {
     /**
@@ -4156,6 +4157,13 @@
       return void 0;
     }
     /**
+     * Getter for the C-S-S release version, will be overridden by subclasses (namely ContentFeature)
+     * @returns {string | null}
+     */
+    get contentScopeScriptsVersion() {
+      return null;
+    }
+    /**
      * Given a config key, interpret the value as a list of conditionals objects, and return the elements that match the current page
      * Consider in your feature using patchSettings instead as per `getFeatureSetting`.
      * @param {string} featureKeyName
@@ -4210,6 +4218,8 @@
         experiment: this._matchExperimentConditional,
         minSupportedVersion: this._matchMinSupportedVersion,
         maxSupportedVersion: this._matchMaxSupportedVersion,
+        minContentScopeScriptsVersion: this._matchMinContentScopeScriptsVersion,
+        maxContentScopeScriptsVersion: this._matchMaxContentScopeScriptsVersion,
         injectName: this._matchInjectNameConditional,
         internal: this._matchInternalConditional,
         preview: this._matchPreviewConditional
@@ -4342,6 +4352,34 @@
     _matchMaxSupportedVersion(conditionBlock) {
       if (!conditionBlock.maxSupportedVersion) return false;
       return isMaxSupportedVersion(conditionBlock.maxSupportedVersion, __privateGet(this, _args)?.platform?.version);
+    }
+    /**
+     * Takes a condition block and returns true if the C-S-S version satisfies the `minContentScopeScriptsVersion`.
+     * Unversioned builds count as newer than every release, so they always match.
+     * A value not in `major.minor.patch` form never matches.
+     * @param {ConditionBlock} conditionBlock
+     * @returns {boolean}
+     */
+    _matchMinContentScopeScriptsVersion(conditionBlock) {
+      const minVersion = conditionBlock.minContentScopeScriptsVersion;
+      if (typeof minVersion !== "string" || !RELEASE_VERSION_PATTERN.test(minVersion)) return false;
+      const contentScopeScriptsVersion = this.contentScopeScriptsVersion;
+      if (!contentScopeScriptsVersion) return true;
+      return isSupportedVersion(minVersion, contentScopeScriptsVersion);
+    }
+    /**
+     * Takes a condition block and returns true if the C-S-S version satisfies the `maxContentScopeScriptsVersion`.
+     * Unversioned builds count as newer than every release, so they never match.
+     * A value not in `major.minor.patch` form never matches.
+     * @param {ConditionBlock} conditionBlock
+     * @returns {boolean}
+     */
+    _matchMaxContentScopeScriptsVersion(conditionBlock) {
+      const maxVersion = conditionBlock.maxContentScopeScriptsVersion;
+      if (typeof maxVersion !== "string" || !RELEASE_VERSION_PATTERN.test(maxVersion)) return false;
+      const contentScopeScriptsVersion = this.contentScopeScriptsVersion;
+      if (!contentScopeScriptsVersion) return false;
+      return isMaxSupportedVersion(maxVersion, contentScopeScriptsVersion);
     }
     /**
      * Check if a state value is enabled for the current platform.
@@ -4644,6 +4682,12 @@
      */
     get injectName() {
       return __privateGet(this, _importConfig).injectName;
+    }
+    /**
+     * @returns {string | null}
+     */
+    get contentScopeScriptsVersion() {
+      return __privateGet(this, _importConfig).contentScopeScriptsVersion ?? null;
     }
     /**
      * @returns {boolean}
@@ -13778,7 +13822,8 @@
     }
     const importConfig = {
       trackerLookup: $TRACKER_LOOKUP$,
-      injectName: "chrome-mv3"
+      injectName: "chrome-mv3",
+      contentScopeScriptsVersion: "20.4.0"
     };
     const bundledFeatureNames = typeof importConfig.injectName === "string" ? platformSupport[importConfig.injectName] ?? [] : [];
     const featuresToLoad = isGloballyDisabled(args) ? platformSpecificFeatures : args.site.enabledFeatures || bundledFeatureNames;

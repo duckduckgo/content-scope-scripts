@@ -1,1 +1,1 @@
-- Add Chrome Web Store Spinner support for macOS (#3179)
+- Add C-S-S version conditions to conditional patching (#3120)
