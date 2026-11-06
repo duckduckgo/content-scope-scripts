@@ -19,14 +19,14 @@ const STYLES = `
 .ring { position: absolute; border-radius: 4px; outline: 3px solid #f5a623; outline-offset: 3px; animation: ring 1.6s ease-in-out infinite; }
 .badge { position: absolute; padding: 3px 10px; border-radius: 999px; background: #ffc95c; color: #3d2a00;
     font-size: 12px; font-weight: 500; line-height: 16px; white-space: nowrap; }
-.tag { position: absolute; left: 32px; top: 20px; display: flex; align-items: center; gap: 4px; width: max-content; padding: 4px 12px 4px 4px;
+.tag { position: absolute; left: 24px; top: 26px; display: flex; align-items: center; gap: 4px; width: max-content; padding: 4px 12px 4px 4px;
     border-radius: 2px 12px 12px 16px; background: #045eb2; color: #fff; font-size: 14px; font-weight: 700; line-height: 16px; white-space: nowrap; }
 .tag img { width: 16px; height: 16px; }
 .cursor { position: absolute; width: 32px; height: 32px; transform: translate(-10.5px, -8.5px); transform-origin: 10.5px 8.5px;
     transition: left var(--move-ms) var(--ease), top var(--move-ms) var(--ease), opacity 240ms var(--ease), transform 320ms var(--ease); }
 .cursor.hidden { opacity: 0; transform: translate(-10.5px, -8.5px) scale(.7); transition: opacity 160ms ease-out, transform 160ms ease-out; }
 .cursor svg { position: absolute; left: 0; top: 0; filter: drop-shadow(0 1px 1.5px rgba(0,0,0,.25)); }
-.cursor path { fill: #333; stroke: #fff; stroke-width: 1.4; stroke-linejoin: round; }
+.cursor path { fill: #000; stroke: #fff; stroke-width: 1.5; stroke-linejoin: round; }
 [hidden] { display: none !important; }
 @keyframes blink { 50% { opacity: 0; } }
 @keyframes ring { 50% { outline-offset: 6px; outline-color: rgba(245,166,35,.55); } }
@@ -80,7 +80,7 @@ export class AssistOverlay {
                 <div class="ring" hidden></div>
                 <div class="badge" hidden>Your turn</div>
                 <div class="cursor hidden">
-                    <svg width="32" height="32" viewBox="0 0 32 32"><path d="M10.5 8.5 L13.4 20.6 L15.7 17 L19.5 20.9 L21.1 19.3 L17.3 15.5 L21.4 14.6 Z"/></svg>
+                    <svg width="32" height="32" viewBox="0 0 32 32"><path d="M10.5 8.5 L10.5 25.5 L14.4 21.8 L17 27.6 L19.9 26.4 L17.3 20.6 L22.6 20.6 Z"/></svg>
                     <div class="tag"><img src="${logoImg}" alt=""><span>Moving</span></div>
                 </div>
             </div>`;
