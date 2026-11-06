@@ -372,6 +372,90 @@ describe('ContentFeature class', () => {
         expect(didRun).withContext('Should run').toBeTrue();
     });
 
+    describe('C-S-S version conditions', () => {
+        /**
+         * @param {string} conditionKey
+         * @param {string} conditionVersion
+         */
+        function conditionalChange(conditionKey, conditionVersion) {
+            return {
+                condition: { [conditionKey]: conditionVersion },
+                patchSettings: [{ op: 'add', path: `/${conditionKey}_${conditionVersion}`, value: 'enabled' }],
+            };
+        }
+
+        /**
+         * @param {string | null | undefined} contentScopeScriptsVersion
+         * @returns {Record<string, unknown>}
+         */
+        function settingsFor(contentScopeScriptsVersion) {
+            /** @type {Record<string, unknown>} */
+            const settings = {};
+            class ContentScopeScriptsVersionTestFeature extends BaseTestFeature {
+                init() {
+                    for (const key of ['minContentScopeScriptsVersion', 'maxContentScopeScriptsVersion']) {
+                        for (const version of ['17.29.0', '17.30.0', '17.31.0']) {
+                            const name = `${key}_${version}`;
+                            settings[name] = this.getFeatureSetting(name);
+                        }
+                    }
+                }
+            }
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+                platform: {
+                    version: '1.1.0',
+                },
+                bundledConfig: {
+                    features: {
+                        test: {
+                            state: 'enabled',
+                            exceptions: [],
+                            settings: {
+                                conditionalChanges: [
+                                    conditionalChange('minContentScopeScriptsVersion', '17.29.0'),
+                                    conditionalChange('minContentScopeScriptsVersion', '17.30.0'),
+                                    conditionalChange('minContentScopeScriptsVersion', '17.31.0'),
+                                    conditionalChange('maxContentScopeScriptsVersion', '17.29.0'),
+                                    conditionalChange('maxContentScopeScriptsVersion', '17.30.0'),
+                                    conditionalChange('maxContentScopeScriptsVersion', '17.31.0'),
+                                ],
+                            },
+                        },
+                    },
+                    unprotectedTemporary: [],
+                },
+            };
+            const me = new ContentScopeScriptsVersionTestFeature('test', { contentScopeScriptsVersion }, args);
+            me.callInit(args);
+            return settings;
+        }
+
+        it('applies min and max bounds inclusively', () => {
+            const settings = settingsFor('17.30.0');
+            expect(settings['minContentScopeScriptsVersion_17.29.0']).toBe('enabled');
+            expect(settings['minContentScopeScriptsVersion_17.30.0']).toBe('enabled');
+            expect(settings['minContentScopeScriptsVersion_17.31.0']).toBeUndefined();
+            expect(settings['maxContentScopeScriptsVersion_17.29.0']).toBeUndefined();
+            expect(settings['maxContentScopeScriptsVersion_17.30.0']).toBe('enabled');
+            expect(settings['maxContentScopeScriptsVersion_17.31.0']).toBe('enabled');
+        });
+
+        for (const contentScopeScriptsVersion of [null, undefined]) {
+            it(`treats an unversioned build as newer than every release (${contentScopeScriptsVersion})`, () => {
+                const settings = settingsFor(contentScopeScriptsVersion);
+                for (const [key, value] of Object.entries(settings)) {
+                    expect(value)
+                        .withContext(key)
+                        .toBe(key.startsWith('min') ? 'enabled' : undefined);
+                }
+            });
+        }
+    });
+
     it('Should respect maxSupportedVersion as a condition', () => {
         let didRun = false;
         class MyTestFeature4 extends BaseTestFeature {

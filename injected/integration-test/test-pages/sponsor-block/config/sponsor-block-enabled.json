@@ -1,0 +1,12 @@
+{
+    "readme": "Config for sponsorBlock integration tests: feature enabled, selectors left to the in-code defaults.",
+    "version": 1,
+    "features": {
+        "sponsorBlock": {
+            "state": "enabled",
+            "exceptions": [],
+            "settings": {}
+        }
+    },
+    "unprotectedTemporary": []
+}

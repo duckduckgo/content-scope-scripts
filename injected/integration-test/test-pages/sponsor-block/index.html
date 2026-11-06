@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>SponsorBlock Test</title>
+        <style>
+            /* Just enough of YouTube's player layout for the default selectors to match and be visible. */
+            #movie_player {
+                position: relative;
+                width: 320px;
+                height: 180px;
+                background: #000;
+            }
+            video {
+                width: 100%;
+                height: 100%;
+            }
+            .ytp-progress-bar {
+                position: relative;
+                height: 5px;
+                width: 100%;
+                background: #444;
+            }
+        </style>
+    </head>
+    <body>
+        <p>Fake YouTube player. Served under a youtube.com URL by the test, since the feature only acts on YouTube hosts.</p>
+        <div id="movie_player" class="html5-video-player">
+            <video class="html5-main-video" src="/sponsor-block/video.webm" muted preload="auto"></video>
+            <div class="ytp-progress-bar-container"><div class="ytp-progress-bar"></div></div>
+        </div>
+        <script>
+            // The embed player (Duck Player) covers the player with a fixed controls layer, which must not swallow
+            // clicks on the skip button. Built with DOM calls: the test serves the page with Trusted Types enforced.
+            if (location.pathname.startsWith('/embed/')) {
+                const controls = document.createElement('div');
+                controls.id = 'player-controls';
+                controls.style.cssText = 'position: fixed; top: 0; left: 0; width: 320px; height: 180px';
+                const bottomRow = document.createElement('div');
+                bottomRow.className = 'player-controls-bottom';
+                bottomRow.style.cssText = 'position: absolute; left: 0; right: 0; top: 100px; height: 40px';
+                controls.append(bottomRow);
+                document.body.append(controls);
+            }
+        </script>
+    </body>
+</html>

@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "GetConfigResponse",
+  "required": ["enabled", "skipMode", "version"],
+  "additionalProperties": false,
+  "properties": {
+    "enabled": {
+      "type": "boolean",
+      "description": "True only when the user has opted in and the setting is on"
+    },
+    "skipMode": {
+      "type": "string",
+      "enum": ["manual", "auto"],
+      "description": "manual shows a skip button inside a segment; auto seeks past it as soon as playback enters it"
+    },
+    "version": {
+      "type": "integer",
+      "description": "Version of the messaging contract implemented by native. Currently 1."
+    }
+  }
+}
