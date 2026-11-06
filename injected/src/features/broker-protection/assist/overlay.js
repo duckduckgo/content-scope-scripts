@@ -5,8 +5,9 @@ const CURSOR_MOVE_MS = 520;
 const BADGE_GAP = 8;
 // 16px line height plus 3px padding top and bottom (.badge).
 const BADGE_HEIGHT = 22;
-// 16px line height plus 4px padding top and bottom (.tag).
-const PILL_HEIGHT = 24;
+// Below reCAPTCHA's challenge popup (2000000000) and hCaptcha's (clamped to 2147483647), so a puzzle
+// opened during the user's turn is never covered, while staying above nearly all page content.
+const Z_INDEX = 1999999999;
 
 const STYLES = `
 :host { all: initial; }
@@ -18,16 +19,14 @@ const STYLES = `
 .ring { position: absolute; border-radius: 4px; outline: 3px solid #f5a623; outline-offset: 3px; animation: ring 1.6s ease-in-out infinite; }
 .badge { position: absolute; padding: 3px 10px; border-radius: 999px; background: #ffc95c; color: #3d2a00;
     font-size: 12px; font-weight: 500; line-height: 16px; white-space: nowrap; }
-.tag { display: flex; align-items: center; gap: 4px; width: max-content; padding: 4px 12px 4px 4px; border-radius: 2px 12px 12px 16px;
-    background: #045eb2; color: #fff; font-size: 14px; font-weight: 700; line-height: 16px; white-space: nowrap; }
+.tag { position: absolute; left: 32px; top: 20px; display: flex; align-items: center; gap: 4px; width: max-content; padding: 4px 12px 4px 4px;
+    border-radius: 2px 12px 12px 16px; background: #045eb2; color: #fff; font-size: 14px; font-weight: 700; line-height: 16px; white-space: nowrap; }
 .tag img { width: 16px; height: 16px; }
-.pill { position: absolute; border-radius: 12px; }
 .cursor { position: absolute; width: 32px; height: 32px; transform: translate(-10.5px, -8.5px); transform-origin: 10.5px 8.5px;
     transition: left var(--move-ms) var(--ease), top var(--move-ms) var(--ease), opacity 240ms var(--ease), transform 320ms var(--ease); }
 .cursor.hidden { opacity: 0; transform: translate(-10.5px, -8.5px) scale(.7); transition: opacity 160ms ease-out, transform 160ms ease-out; }
 .cursor svg { position: absolute; left: 0; top: 0; filter: drop-shadow(0 1px 1.5px rgba(0,0,0,.25)); }
 .cursor path { fill: #333; stroke: #fff; stroke-width: 1.4; stroke-linejoin: round; }
-.cursor .tag { position: absolute; left: 32px; top: 20px; }
 [hidden] { display: none !important; }
 @keyframes blink { 50% { opacity: 0; } }
 @keyframes ring { 50% { outline-offset: 6px; outline-color: rgba(245,166,35,.55); } }
@@ -36,13 +35,6 @@ const STYLES = `
     .cursor, .cursor.hidden { transition: opacity 150ms; transform: translate(-10.5px, -8.5px); }
 }
 `;
-
-/**
- * @param {string} label
- */
-function tagMarkup(label) {
-    return `<img src="${logoImg}" alt=""><span>${label}</span>`;
-}
 
 /**
  * Decorations drawn over the broker's page while PIR works on it: an agent cursor, field highlights,
@@ -57,7 +49,7 @@ function tagMarkup(label) {
 export class AssistOverlay {
     /** @type {HTMLElement | null} */
     host = null;
-    /** @type {Record<'layer'|'cursor'|'cursorLabel'|'field'|'caret'|'ring'|'badge'|'pill', HTMLElement> | null} */
+    /** @type {Record<'layer'|'cursor'|'cursorLabel'|'field'|'caret'|'ring'|'badge', HTMLElement> | null} */
     els = null;
     /** @type {{ element: Element, dx: number, dy: number } | null} */
     cursorTarget = null;
@@ -65,8 +57,7 @@ export class AssistOverlay {
     fieldTarget = null;
     fieldRadius = '';
     turnRadius = '';
-    badgeBesidePill = false;
-    pillWidth = 0;
+    badgeBesideWidget = false;
     /** @type {number | null} */
     caretX = null;
     /** @type {Element | null} */
@@ -78,8 +69,7 @@ export class AssistOverlay {
     attach() {
         if (this.host?.isConnected && this.els) return this.els;
         const host = document.createElement('ddg-pir-assist');
-        host.style.cssText =
-            'position: absolute !important; top: 0 !important; left: 0 !important; width: 0 !important; height: 0 !important; z-index: 2147483647 !important; pointer-events: none !important;';
+        host.style.cssText = `position: absolute !important; top: 0 !important; left: 0 !important; width: 0 !important; height: 0 !important; z-index: ${Z_INDEX} !important; pointer-events: none !important;`;
         const shadow = host.attachShadow({ mode: 'closed' });
         const sheet = constructedStyleSheet();
         if (sheet) shadow.adoptedStyleSheets = [sheet];
@@ -89,10 +79,9 @@ export class AssistOverlay {
                 <div class="caret" hidden></div>
                 <div class="ring" hidden></div>
                 <div class="badge" hidden>Your turn</div>
-                <div class="pill tag" hidden>${tagMarkup('Waiting for you')}</div>
                 <div class="cursor hidden">
                     <svg width="32" height="32" viewBox="0 0 32 32"><path d="M10.5 8.5 L13.4 20.6 L15.7 17 L19.5 20.9 L21.1 19.3 L17.3 15.5 L21.4 14.6 Z"/></svg>
-                    <div class="tag">${tagMarkup('Moving')}</div>
+                    <div class="tag"><img src="${logoImg}" alt=""><span>Moving</span></div>
                 </div>
             </div>`;
         /** @param {string} selector */
@@ -109,7 +98,6 @@ export class AssistOverlay {
             caret: q('.caret'),
             ring: q('.ring'),
             badge: q('.badge'),
-            pill: q('.pill'),
         };
         document.documentElement.appendChild(host);
         this.host = host;
@@ -212,7 +200,7 @@ export class AssistOverlay {
     setTurnTarget(widget) {
         this.turnTarget = widget;
         this.turnRadius = widget ? getComputedStyle(widget).borderRadius : '';
-        this.badgeBesidePill = widget ? hasContentAbove(widget) : false;
+        this.badgeBesideWidget = widget ? hasContentAbove(widget) : false;
         this.position();
     }
 
@@ -273,26 +261,10 @@ export class AssistOverlay {
         const widget = this.turnActive && this.turnTarget ? documentBox(this.turnTarget) : null;
         place(els.ring, widget);
         setStyle(els.ring, 'borderRadius', this.turnRadius);
-        setHidden(els.pill, !this.turnActive);
-        let pillLeft = 0;
-        let pillTop = 0;
-        if (this.turnActive) {
-            if (widget) {
-                pillLeft = widget.left + widget.width + 16;
-                pillTop = widget.top + widget.height / 2 - PILL_HEIGHT / 2;
-            } else {
-                // Measured once: the pill's text never changes.
-                this.pillWidth ||= els.pill.offsetWidth;
-                pillLeft = window.scrollX + window.innerWidth / 2 - this.pillWidth / 2;
-                pillTop = window.scrollY + 16;
-            }
-            setStyle(els.pill, 'left', `${pillLeft}px`);
-            setStyle(els.pill, 'top', `${pillTop}px`);
-        }
         setHidden(els.badge, !widget);
         if (widget) {
-            const [left, top] = this.badgeBesidePill
-                ? [pillLeft, pillTop - BADGE_HEIGHT - BADGE_GAP]
+            const [left, top] = this.badgeBesideWidget
+                ? [widget.left + widget.width + 16, widget.top + widget.height / 2 - BADGE_HEIGHT / 2]
                 : [widget.left, widget.top - BADGE_HEIGHT - BADGE_GAP];
             setStyle(els.badge, 'left', `${left}px`);
             setStyle(els.badge, 'top', `${top}px`);
