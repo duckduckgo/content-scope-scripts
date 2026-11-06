@@ -125,7 +125,8 @@
       "autofillPasskeys",
       "textSelection",
       "chromeWebstorePatching",
-      "selectionTools"
+      "selectionTools",
+      "sponsorBlock"
     ]
   );
   var featureConfigDependencies = {
@@ -154,7 +155,8 @@
       "hover",
       "tabSuspension",
       "chromeWebstorePatching",
-      "browserUiLock"
+      "browserUiLock",
+      "sponsorBlock"
     ],
     "apple-ai-clear": ["duckAiDataClearing"],
     "apple-ai-history": ["duckAiChatHistory"],
@@ -10134,7 +10136,7 @@
     const importConfig = {
       trackerLookup: define_import_meta_trackerLookup_default,
       injectName: "android-adsjs",
-      contentScopeScriptsVersion: "20.4.0"
+      contentScopeScriptsVersion: "20.5.0"
     };
     const bundledFeatureNames = typeof importConfig.injectName === "string" ? platformSupport[importConfig.injectName] ?? [] : [];
     const featuresToLoad = isGloballyDisabled(args) ? platformSpecificFeatures : args.site.enabledFeatures || bundledFeatureNames;

@@ -957,7 +957,8 @@
       "autofillPasskeys",
       "textSelection",
       "chromeWebstorePatching",
-      "selectionTools"
+      "selectionTools",
+      "sponsorBlock"
     ]
   );
   var platformSupport = {
@@ -981,7 +982,8 @@
       "hover",
       "tabSuspension",
       "chromeWebstorePatching",
-      "browserUiLock"
+      "browserUiLock",
+      "sponsorBlock"
     ],
     "apple-ai-clear": ["duckAiDataClearing"],
     "apple-ai-history": ["duckAiChatHistory"],
@@ -13823,7 +13825,7 @@
     const importConfig = {
       trackerLookup: $TRACKER_LOOKUP$,
       injectName: "firefox",
-      contentScopeScriptsVersion: "20.4.0"
+      contentScopeScriptsVersion: "20.5.0"
     };
     const bundledFeatureNames = typeof importConfig.injectName === "string" ? platformSupport[importConfig.injectName] ?? [] : [];
     const featuresToLoad = isGloballyDisabled(args) ? platformSpecificFeatures : args.site.enabledFeatures || bundledFeatureNames;

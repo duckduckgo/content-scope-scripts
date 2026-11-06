@@ -726,7 +726,8 @@
       "autofillPasskeys",
       "textSelection",
       "chromeWebstorePatching",
-      "selectionTools"
+      "selectionTools",
+      "sponsorBlock"
     ]
   );
   var platformSupport = {
@@ -750,7 +751,8 @@
       "hover",
       "tabSuspension",
       "chromeWebstorePatching",
-      "browserUiLock"
+      "browserUiLock",
+      "sponsorBlock"
     ],
     "apple-ai-clear": ["duckAiDataClearing"],
     "apple-ai-history": ["duckAiChatHistory"],

@@ -2475,7 +2475,8 @@
       "autofillPasskeys",
       "textSelection",
       "chromeWebstorePatching",
-      "selectionTools"
+      "selectionTools",
+      "sponsorBlock"
     ]
   );
   var featureConfigDependencies = {
@@ -2504,7 +2505,8 @@
       "hover",
       "tabSuspension",
       "chromeWebstorePatching",
-      "browserUiLock"
+      "browserUiLock",
+      "sponsorBlock"
     ],
     "apple-ai-clear": ["duckAiDataClearing"],
     "apple-ai-history": ["duckAiChatHistory"],
@@ -2722,6 +2724,14 @@
       return !isFeatureEnabled;
     }
     return args.site.isBroken || args.site.allowlisted || !isFeatureEnabled;
+  }
+  function isValidSelector(selector) {
+    try {
+      document.createDocumentFragment().querySelector(selector);
+      return true;
+    } catch {
+      return false;
+    }
   }
   function camelcase(dashCaseText) {
     return dashCaseText.replace(/-(.)/g, (_2, letter) => {
@@ -22950,14 +22960,6 @@ ${iframeContent}
     const match = pathname.match(/\/detail\/(?:[^/]+\/)?([a-p]{32})(?:[/?#]|$)/);
     return match?.[1] ?? null;
   }
-  function isValidSelector(selector) {
-    try {
-      document.createDocumentFragment().querySelector(selector);
-      return true;
-    } catch {
-      return false;
-    }
-  }
   function parseCatalogExtensionIds(response) {
     if (!isRecord(response)) return null;
     const { extensionIds } = response;
@@ -24308,7 +24310,7 @@ ${iframeContent}
     const importConfig = {
       trackerLookup: define_import_meta_trackerLookup_default,
       injectName: "windows",
-      contentScopeScriptsVersion: "20.4.0"
+      contentScopeScriptsVersion: "20.5.0"
     };
     const bundledFeatureNames = typeof importConfig.injectName === "string" ? platformSupport[importConfig.injectName] ?? [] : [];
     const featuresToLoad = isGloballyDisabled(args) ? platformSpecificFeatures : args.site.enabledFeatures || bundledFeatureNames;

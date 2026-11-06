@@ -2475,7 +2475,8 @@
       "autofillPasskeys",
       "textSelection",
       "chromeWebstorePatching",
-      "selectionTools"
+      "selectionTools",
+      "sponsorBlock"
     ]
   );
   var platformSupport = {
@@ -2499,7 +2500,8 @@
       "hover",
       "tabSuspension",
       "chromeWebstorePatching",
-      "browserUiLock"
+      "browserUiLock",
+      "sponsorBlock"
     ],
     "apple-ai-clear": ["duckAiDataClearing"],
     "apple-ai-history": ["duckAiChatHistory"],
@@ -2717,6 +2719,14 @@
       return !isFeatureEnabled;
     }
     return args.site.isBroken || args.site.allowlisted || !isFeatureEnabled;
+  }
+  function isValidSelector(selector) {
+    try {
+      document.createDocumentFragment().querySelector(selector);
+      return true;
+    } catch {
+      return false;
+    }
   }
   function camelcase(dashCaseText) {
     return dashCaseText.replace(/-(.)/g, (_2, letter) => {
@@ -31328,14 +31338,6 @@ ${iframeContent}
     const match = pathname.match(/\/detail\/(?:[^/]+\/)?([a-p]{32})(?:[/?#]|$)/);
     return match?.[1] ?? null;
   }
-  function isValidSelector(selector) {
-    try {
-      document.createDocumentFragment().querySelector(selector);
-      return true;
-    } catch {
-      return false;
-    }
-  }
   function parseCatalogExtensionIds(response) {
     if (!isRecord(response)) return null;
     const { extensionIds } = response;
@@ -32572,6 +32574,323 @@ ${iframeContent}
     return { enabled, showToolbar };
   }
 
+  // src/features/sponsor-block.js
+  init_define_import_meta_trackerLookup();
+  var DEFAULT_PROGRESS_BAR_SELECTORS = [
+    ".ytp-progress-bar",
+    ".ytChapteredProgressBarHost",
+    ".YtChapteredProgressBarHost",
+    ".ytProgressBarLineHost",
+    ".YtProgressBarLineHost",
+    ".YtmProgressBarProgressBarLine"
+  ];
+  var DEFAULT_SKIP_BUTTON_HOST_SELECTORS = ["#player-container-id", "#player-controls", "#movie_player", ".html5-video-player"];
+  var DEFAULT_AD_SHOWING_SELECTORS = [".ad-showing"];
+  var OVERLAY_CLASS = "ddg-sponsorblock-overlay";
+  var SKIP_BUTTON_CLASS = "ddg-sponsorblock-skip";
+  var STYLES = `
+.${OVERLAY_CLASS} { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
+.${OVERLAY_CLASS} > div { position: absolute; top: 0; bottom: 0; min-width: 2px; background: rgb(76, 186, 60); }
+/* Mobile: the playhead dot is a sibling of the bar host with no z-index of its own; keep it above the overlay. */
+.ytProgressBarPlayheadHost, .YtProgressBarPlayheadHost { z-index: 2; }
+/* Desktop: above the played line, below the scrubber knob. The bar is thin until hovered; follow its grow animation. */
+.ytp-progress-bar > .${OVERLAY_CLASS} { z-index: 42; transform: scaleY(0.6); transition: transform .1s cubic-bezier(0, 0, 0.2, 1); }
+.ytp-progress-bar-container:hover .${OVERLAY_CLASS} { transform: none; }
+/* Skip button host: bottom-right over the video, above the progress bar, like YouTube's own "Skip ad" button. The
+   button itself lives in the host's closed shadow root, so only its placement is styled from here. */
+.${SKIP_BUTTON_CLASS} { position: absolute; right: 12px; bottom: 72px; z-index: 1000; pointer-events: auto; }
+#player-container-id > .${SKIP_BUTTON_CLASS} { right: 8px; bottom: 40px; }
+/* Embed: the fullscreen button sits in the top-right of the controls layer's bottom row; clear it. The row's
+   height changes with orientation, so updateSkip measures it and overrides the bottom offset when the row is found. */
+#player-controls > .${SKIP_BUTTON_CLASS} { right: 24px; bottom: 140px; }
+`;
+  var SKIP_BUTTON_STYLES = `
+button {
+    all: unset; box-sizing: border-box; padding: 10px 16px; border-radius: 8px; background: rgb(222, 88, 51); color: #fff;
+    font: 500 14px/1.2 Roboto, Arial, sans-serif; cursor: pointer;
+}
+button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+svg { vertical-align: -1px; }
+`;
+  var SVG_NS = "http://www.w3.org/2000/svg";
+  function createSkipIcon() {
+    const svg = document.createElementNS(SVG_NS, "svg");
+    svg.setAttribute("width", "12");
+    svg.setAttribute("height", "12");
+    svg.setAttribute("viewBox", "0 0 12 12");
+    svg.setAttribute("aria-hidden", "true");
+    const path = document.createElementNS(SVG_NS, "path");
+    path.setAttribute("d", "M1 1l7 5-7 5z M9 1h2v10H9z");
+    path.setAttribute("fill", "currentColor");
+    svg.append(path);
+    return svg;
+  }
+  function findFirstVisible(selectors) {
+    for (const selector of selectors) {
+      const match = [...document.querySelectorAll(selector)].find((el) => el.getClientRects().length > 0);
+      if (match) return match;
+    }
+    return null;
+  }
+  function isYouTubeHost(hostname) {
+    return ["youtube.com", "youtube-nocookie.com"].some((host) => hostname === host || hostname.endsWith(`.${host}`));
+  }
+  function isNoCookieOrigin(origin) {
+    return /^https:\/\/([\w-]+\.)*youtube-nocookie\.com$/.test(origin);
+  }
+  function shouldActivate({ hostname, origin, isTop, ancestorOrigins }) {
+    if (!isYouTubeHost(hostname)) return false;
+    if (isTop) return true;
+    return isNoCookieOrigin(origin) && ancestorOrigins.length > 0 && ancestorOrigins.every(isNoCookieOrigin);
+  }
+  function getMainVideo() {
+    const video = document.querySelector("video.html5-main-video") ?? document.querySelector("video");
+    return video instanceof HTMLVideoElement ? video : null;
+  }
+  function videoIDFromURL(href) {
+    const { hostname, pathname, searchParams } = new URL(href);
+    if (!isYouTubeHost(hostname)) return null;
+    const id = pathname === "/watch" ? searchParams.get("v") : pathname.match(/^\/(?:shorts|live|embed)\/([^/]+)/)?.[1];
+    return id && /^[A-Za-z0-9_-]{11}$/.test(id) ? id : null;
+  }
+  function segmentPosition({ start, end }, duration) {
+    if (!(duration > 0) || start >= duration || end <= start) return null;
+    return {
+      left: `${Math.max(0, start) / duration * 100}%`,
+      right: `${(1 - Math.min(end, duration) / duration) * 100}%`
+    };
+  }
+  function segmentAt(segments, time) {
+    return segments.find(({ start, end }) => time >= start && time < end) ?? null;
+  }
+  function matchesDuration({ videoDuration }, duration) {
+    return !videoDuration || Math.abs(videoDuration - duration) <= 2;
+  }
+  var _videoID, _active2, _enabled, _skipMode, _segments, _seekedInto, _overlay, _renderedDuration, _skipButton, _skipSegment, _progressBarSelectors, _skipButtonHostSelectors, _adShowingSelectors;
+  var SponsorBlock = class extends ContentFeature {
+    constructor() {
+      super(...arguments);
+      /** @type {string | null} */
+      __privateAdd(this, _videoID, null);
+      __privateAdd(this, _active2, false);
+      // Off until native confirms the user opted in; remote config is the outer gate and is applied before init runs.
+      __privateAdd(this, _enabled, false);
+      /** @type {Config['skipMode']} */
+      __privateAdd(this, _skipMode, "manual");
+      /** @type {Segment[]} */
+      __privateAdd(this, _segments, []);
+      /** @type {string | null} uuid of the segment the user seeked into; skipped manually even in auto mode */
+      __privateAdd(this, _seekedInto, null);
+      /** @type {HTMLElement | null} */
+      __privateAdd(this, _overlay, null);
+      __privateAdd(this, _renderedDuration, 0);
+      /** @type {HTMLElement | null} shadow host of the skip button */
+      __privateAdd(this, _skipButton, null);
+      /** @type {Segment | null} */
+      __privateAdd(this, _skipSegment, null);
+      __privateAdd(this, _progressBarSelectors, DEFAULT_PROGRESS_BAR_SELECTORS);
+      __privateAdd(this, _skipButtonHostSelectors, DEFAULT_SKIP_BUTTON_HOST_SELECTORS);
+      __privateAdd(this, _adShowingSelectors, DEFAULT_AD_SHOWING_SELECTORS);
+    }
+    /**
+     * Selector list from feature settings, falling back to `defaults` when the key is absent. Remote config is a
+     * hot-fix channel, so malformed entries are dropped rather than letting them throw out of querySelectorAll.
+     * @param {string} key
+     * @param {string[]} defaults
+     * @returns {string[]}
+     */
+    selectorsSetting(key, defaults) {
+      const setting = this.getFeatureSetting(key);
+      if (!Array.isArray(setting)) return defaults;
+      return setting.filter((s) => typeof s === "string" && isValidSelector(s));
+    }
+    async init() {
+      const { hostname, origin, ancestorOrigins } = window.location;
+      const frame = { hostname, origin, isTop: window.top === window, ancestorOrigins: Array.from(ancestorOrigins ?? []) };
+      if (!shouldActivate(frame)) return;
+      __privateSet(this, _active2, true);
+      if (document.readyState === "loading") {
+        await new Promise((resolve) => document.addEventListener("DOMContentLoaded", resolve, { once: true }));
+      }
+      __privateSet(this, _progressBarSelectors, this.selectorsSetting("progressBarSelectors", DEFAULT_PROGRESS_BAR_SELECTORS));
+      __privateSet(this, _skipButtonHostSelectors, this.selectorsSetting("skipButtonHostSelectors", DEFAULT_SKIP_BUTTON_HOST_SELECTORS));
+      __privateSet(this, _adShowingSelectors, this.selectorsSetting("adShowingSelectors", DEFAULT_AD_SHOWING_SELECTORS));
+      injectGlobalStyles(STYLES);
+      this.subscribe("onConfigChanged", (config2) => this.applyConfig(config2));
+      try {
+        this.applyConfig(await this.request("getConfig", {}));
+      } catch {
+      }
+      this.checkVideoID();
+      document.addEventListener("loadstart", () => this.checkVideoID(), true);
+      document.addEventListener("durationchange", () => this.renderOverlay(), true);
+      document.addEventListener(
+        "timeupdate",
+        () => {
+          this.renderOverlay();
+          this.updateSkip();
+        },
+        true
+      );
+      document.addEventListener("seeked", () => this.updateSkip(), true);
+      document.addEventListener("seeking", () => this.markSeekedInto(), true);
+    }
+    // A drag or tap into a segment is a choice, so that segment gets the button instead of an auto skip. Our own skip
+    // lands past every segment it touches, so it never marks anything.
+    markSeekedInto() {
+      const video = getMainVideo();
+      __privateSet(this, _seekedInto, video ? segmentAt(this.validSegments(video.duration), video.currentTime)?.uuid ?? null : null);
+    }
+    // Called by the framework on SPA navigations (registered for every site, hence the #active guard).
+    urlChanged() {
+      if (__privateGet(this, _active2)) this.checkVideoID();
+    }
+    /**
+     * @param {Config} config
+     */
+    applyConfig({ enabled, skipMode }) {
+      __privateSet(this, _skipMode, skipMode);
+      if (enabled === __privateGet(this, _enabled)) {
+        this.updateSkip();
+        return;
+      }
+      __privateSet(this, _enabled, enabled);
+      __privateSet(this, _videoID, null);
+      this.checkVideoID();
+    }
+    checkVideoID() {
+      const ownsPlayer = !isNoCookieOrigin(window.location.origin) || getMainVideo();
+      const videoID = ownsPlayer ? videoIDFromURL(window.location.href) : null;
+      if (videoID === __privateGet(this, _videoID)) return;
+      __privateSet(this, _videoID, videoID);
+      __privateSet(this, _segments, []);
+      this.renderOverlay();
+      this.updateSkip();
+      if (videoID && __privateGet(this, _enabled)) void this.fetchSegments(videoID);
+    }
+    /**
+     * @param {string} videoID
+     */
+    async fetchSegments(videoID) {
+      try {
+        const { segments } = await this.request("getSegments", { videoID });
+        if (videoID !== __privateGet(this, _videoID) || !__privateGet(this, _enabled)) return;
+        __privateSet(this, _segments, Array.isArray(segments) ? segments : []);
+        __privateSet(this, _renderedDuration, 0);
+        this.renderOverlay();
+        this.updateSkip();
+      } catch {
+      }
+    }
+    // Draws the current segments on the progress bar. Cheap when nothing changed, since timeupdate calls it often.
+    renderOverlay() {
+      if (!__privateGet(this, _segments).length || this.inAd()) {
+        __privateGet(this, _overlay)?.remove();
+        return;
+      }
+      const duration = getMainVideo()?.duration ?? NaN;
+      if (__privateGet(this, _overlay)?.isConnected && duration === __privateGet(this, _renderedDuration)) return;
+      const bar = findFirstVisible(__privateGet(this, _progressBarSelectors));
+      if (!bar || !(duration > 0)) return;
+      if (!__privateGet(this, _overlay)) {
+        __privateSet(this, _overlay, document.createElement("div"));
+        __privateGet(this, _overlay).className = OVERLAY_CLASS;
+      }
+      if (__privateGet(this, _overlay).parentElement !== bar) bar.prepend(__privateGet(this, _overlay));
+      __privateGet(this, _overlay).replaceChildren(
+        ...this.validSegments(duration).flatMap((segment) => {
+          const position = segmentPosition(segment, duration);
+          if (!position) return [];
+          const el = document.createElement("div");
+          el.style.left = position.left;
+          el.style.right = position.right;
+          return [el];
+        })
+      );
+      __privateSet(this, _renderedDuration, duration);
+    }
+    // While YouTube plays an ad the video element plays the ad, so its time and duration say nothing about the segments.
+    inAd() {
+      return findFirstVisible(__privateGet(this, _adShowingSelectors)) !== null;
+    }
+    /**
+     * Segments that apply to the video currently loaded in the player.
+     * @param {number} duration
+     */
+    validSegments(duration) {
+      return __privateGet(this, _segments).filter((segment) => matchesDuration(segment, duration));
+    }
+    /**
+     * @param {HTMLVideoElement} video
+     * @param {Segment} segment
+     */
+    skipTo(video, segment) {
+      const segments = this.validSegments(video.duration);
+      let end = segment.end;
+      for (let next = segmentAt(segments, end); next; next = segmentAt(segments, end)) end = next.end;
+      video.currentTime = end;
+      __privateGet(this, _skipButton)?.remove();
+    }
+    // Reacts to the playhead: in auto mode seeks past a segment as soon as playback enters it, in manual mode (or for
+    // a segment the user seeked into) shows the skip button while inside one and hides it otherwise. An ended video is
+    // never inside one: a segment end past the player's duration clamps the skip to the end, still before that end.
+    updateSkip() {
+      const video = getMainVideo();
+      __privateSet(this, _skipSegment, video && !video.ended && __privateGet(this, _segments).length && !this.inAd() ? segmentAt(this.validSegments(video.duration), video.currentTime) : null);
+      if (__privateGet(this, _skipSegment)?.uuid !== __privateGet(this, _seekedInto)) __privateSet(this, _seekedInto, null);
+      if (video && __privateGet(this, _skipSegment) && __privateGet(this, _skipMode) === "auto" && !__privateGet(this, _seekedInto)) {
+        this.skipTo(video, __privateGet(this, _skipSegment));
+        return;
+      }
+      const host = __privateGet(this, _skipSegment) ? findFirstVisible(__privateGet(this, _skipButtonHostSelectors)) : null;
+      if (!host) {
+        __privateGet(this, _skipButton)?.remove();
+        return;
+      }
+      __privateGet(this, _skipButton) ?? __privateSet(this, _skipButton, this.createSkipButton());
+      if (__privateGet(this, _skipButton).parentElement !== host) host.append(__privateGet(this, _skipButton));
+      const row = host.id === "player-controls" ? host.querySelector(".player-controls-bottom") : null;
+      if (row) {
+        const gap = host.getBoundingClientRect().bottom - row.getBoundingClientRect().top;
+        __privateGet(this, _skipButton).style.bottom = `${Math.round(gap) + 12}px`;
+      }
+    }
+    // A closed shadow root keeps the button's markup and listeners out of reach of YouTube's scripts. Built with DOM
+    // calls, not innerHTML: YouTube enforces Trusted Types, which blocks assigning a plain string to innerHTML.
+    createSkipButton() {
+      const host = document.createElement("div");
+      host.className = SKIP_BUTTON_CLASS;
+      const shadow = host.attachShadow({ mode: "closed" });
+      const style = document.createElement("style");
+      style.textContent = SKIP_BUTTON_STYLES;
+      const button = document.createElement("button");
+      button.type = "button";
+      button.append("Skip sponsored content ", createSkipIcon());
+      shadow.append(style, button);
+      button.addEventListener("pointerdown", (e) => e.stopPropagation());
+      button.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const video = getMainVideo();
+        if (video && __privateGet(this, _skipSegment)) this.skipTo(video, __privateGet(this, _skipSegment));
+      });
+      return host;
+    }
+  };
+  _videoID = new WeakMap();
+  _active2 = new WeakMap();
+  _enabled = new WeakMap();
+  _skipMode = new WeakMap();
+  _segments = new WeakMap();
+  _seekedInto = new WeakMap();
+  _overlay = new WeakMap();
+  _renderedDuration = new WeakMap();
+  _skipButton = new WeakMap();
+  _skipSegment = new WeakMap();
+  _progressBarSelectors = new WeakMap();
+  _skipButtonHostSelectors = new WeakMap();
+  _adShowingSelectors = new WeakMap();
+  var sponsor_block_default = SponsorBlock;
+
   // ddg:platformFeatures:ddg:platformFeatures
   var ddg_platformFeatures_default = {
     ddg_feature_webDetection: WebDetection,
@@ -32619,7 +32938,8 @@ ${iframeContent}
     ddg_feature_autofillPasskeys: AutofillPasskeys,
     ddg_feature_textSelection: TextSelection,
     ddg_feature_chromeWebstorePatching: chrome_webstore_patching_default,
-    ddg_feature_selectionTools: SelectionTools
+    ddg_feature_selectionTools: SelectionTools,
+    ddg_feature_sponsorBlock: sponsor_block_default
   };
 
   // src/url-change.js
@@ -32699,7 +33019,7 @@ ${iframeContent}
     const importConfig = {
       trackerLookup: define_import_meta_trackerLookup_default,
       injectName: "integration",
-      contentScopeScriptsVersion: "20.4.0"
+      contentScopeScriptsVersion: "20.5.0"
     };
     const bundledFeatureNames = typeof importConfig.injectName === "string" ? platformSupport[importConfig.injectName] ?? [] : [];
     const featuresToLoad = isGloballyDisabled(args) ? platformSpecificFeatures : args.site.enabledFeatures || bundledFeatureNames;
