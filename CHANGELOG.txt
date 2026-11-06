@@ -1,1 +1,1 @@
-- Add SponsorBlock: skip sponsored segments in YouTube videos (Apple) (#3182)
+- Add llm passthrough in the captcha service (#3127)

@@ -15934,6 +15934,101 @@ ul.messages {
   };
   _config2 = new WeakMap();
 
+  // src/features/broker-protection/captcha-services/providers/prompt.js
+  init_define_import_meta_trackerLookup();
+  var PROMPT_CAPTCHA_TYPE = "llm-prompt";
+  var ALLOWED_PROMPT_FIELDS = /* @__PURE__ */ new Set(["city", "state"]);
+  var TEMPLATE_VARIABLE = /\$%7B(.+?)%7D|\$\{(.+?)}/g;
+  var PromptProvider = class {
+    getType() {
+      return PROMPT_CAPTCHA_TYPE;
+    }
+    /**
+     * @param {SiteKeyContext} context
+     * @return {Promise<SiteKeyInfo|PirError>}
+     */
+    getSiteKey({ action, userData }) {
+      const prompt = this.getCaptchaPrompt(action, userData);
+      return Promise.resolve(typeof prompt === "string" ? { siteKey: prompt, type: this.getType() } : prompt);
+    }
+    /**
+     * Prompt captchas are never detected from the DOM, so this provider must not be picked by the
+     * factory's detection fallback for some other captcha type.
+     *
+     * @param {Document | HTMLElement} _root
+     * @param {HTMLElement} _captchaContainerElement
+     */
+    isSupportedForElement(_root, _captchaContainerElement) {
+      return false;
+    }
+    /**
+     * @param {HTMLElement} _captchaContainerElement
+     * @return {Promise<PirError>}
+     */
+    getCaptchaIdentifier(_captchaContainerElement) {
+      return Promise.resolve(
+        PirError.create(
+          "[PromptProvider.getCaptchaIdentifier] a prompt is built from the action and profile, not a DOM element; use getCaptchaPrompt"
+        )
+      );
+    }
+    /**
+     * Fills a prompt template such as `What is a ZIP code for ${city}, ${state|upcase}?` with the
+     * user's profile data, using the same `${field|transform}` syntax as URL building.
+     *
+     * @param {PirAction} action
+     * @param {ProfileData|null} userData
+     * @return {string|PirError}
+     */
+    getCaptchaPrompt(action, userData) {
+      const template = action.selector;
+      if (!template) {
+        return PirError.create("missing prompt template");
+      }
+      const allowedData = {};
+      for (const [, encodedVariable, plainVariable] of template.matchAll(TEMPLATE_VARIABLE)) {
+        const [field = ""] = (encodedVariable ?? plainVariable ?? "").split(/\||%7C/);
+        if (!ALLOWED_PROMPT_FIELDS.has(field)) {
+          return PirError.create(`prompt template references a field that is not allowed: ${field}`);
+        }
+        const value = userData?.[field];
+        if (typeof value !== "string" && typeof value !== "number" || String(value).trim() === "") {
+          return PirError.create(`profile is missing a value for prompt field: ${field}`);
+        }
+        allowedData[field] = value;
+      }
+      return processTemplateStringWithUserData(template, action, allowedData);
+    }
+    getSupportingCodeToInject() {
+      return null;
+    }
+    /**
+     * @param {HTMLElement} captchaInputElement - The input the answer is typed into
+     */
+    canSolve(captchaInputElement) {
+      return isElementType(captchaInputElement, ["input", "textarea"]);
+    }
+    /**
+     * @param {HTMLElement} captchaInputElement - The input the answer is typed into
+     * @param {string} token - The LLM's answer
+     */
+    injectToken(captchaInputElement, token) {
+      return injectTokenIntoElement({ captchaInputElement, token });
+    }
+    /**
+     * @param {HTMLElement} _captchaInputElement
+     * @param {string} _token
+     */
+    getSolveCallback(_captchaInputElement, _token) {
+      return stringifyFunction({
+        functionBody: function callbackNoop() {
+        },
+        functionName: "callbackNoop",
+        args: {}
+      });
+    }
+  };
+
   // src/features/broker-protection/captcha-services/providers/registry.js
   var captchaFactory = new CaptchaFactory();
   captchaFactory.registerProvider(
@@ -15952,6 +16047,7 @@ ul.messages {
   );
   captchaFactory.registerProvider(new CloudFlareTurnstileProvider());
   captchaFactory.registerProvider(new ImageProvider(), { aliases: ["red-circle", "basic-math"] });
+  captchaFactory.registerProvider(new PromptProvider());
 
   // src/features/broker-protection/captcha-services/get-captcha-provider.js
   function getCaptchaProvider(root, captchaContainer, captchaType) {
@@ -16104,43 +16200,60 @@ ul.messages {
     }
     return SuccessResponse.create({ actionID, actionType, response: { code: captchaProvider.getSupportingCodeToInject() } });
   }
+  async function getCaptchaIdentifierFromPage(action, userData, root) {
+    const { captchaType = "", selector } = action;
+    const captchaRoot = getCaptchaRoot(action, userData, root);
+    if (PirError.isError(captchaRoot)) {
+      return captchaRoot;
+    }
+    const captchaContainer = getCaptchaContainer(captchaRoot, selector);
+    if (PirError.isError(captchaContainer)) {
+      return captchaContainer;
+    }
+    const captchaProvider = getCaptchaProvider(root, captchaContainer, captchaType);
+    if (PirError.isError(captchaProvider)) {
+      return captchaProvider;
+    }
+    const captchaIdentifier = await captchaProvider.getCaptchaIdentifier(captchaContainer);
+    if (!captchaIdentifier) {
+      return PirError.create(`could not extract captcha identifier from the container with selector ${selector}`);
+    }
+    if (PirError.isError(captchaIdentifier)) {
+      return captchaIdentifier;
+    }
+    const reportedType = captchaFactory.getProviderByType(captchaType) === captchaProvider ? captchaType : captchaProvider.getType();
+    return { siteKey: captchaIdentifier, type: reportedType };
+  }
   async function getCaptchaInfo2(action, userData, root = document) {
-    const { id: actionID, actionType, captchaType, selector } = action;
+    const { id: actionID, actionType, captchaType } = action;
     pendingCaptchaContext = null;
     if (!captchaType) {
       return getCaptchaInfo(action, root);
     }
     const createError = ErrorResponse.generateErrorResponseFunction({ actionID, context: `[getCaptchaInfo] captchaType: ${captchaType}` });
-    const captchaRoot = getCaptchaRoot(action, userData, root);
-    if (PirError.isError(captchaRoot)) {
-      return createError(captchaRoot.error.message);
+    const captchaProvider = captchaFactory.getProviderByType(captchaType);
+    if (!captchaProvider) {
+      return createError(`could not find captcha provider with type ${captchaType}`);
     }
-    const captchaContainer = getCaptchaContainer(captchaRoot, selector);
-    if (PirError.isError(captchaContainer)) {
-      return createError(captchaContainer.error.message);
+    const captcha = hasOwnSiteKey(captchaProvider) ? await captchaProvider.getSiteKey({ action, userData, root }) : await getCaptchaIdentifierFromPage(action, userData, root);
+    if (PirError.isError(captcha)) {
+      return createError(captcha.error.message);
     }
-    const captchaProvider = getCaptchaProvider(root, captchaContainer, captchaType);
-    if (PirError.isError(captchaProvider)) {
-      return createError(captchaProvider.error.message);
-    }
-    const captchaIdentifier = await captchaProvider.getCaptchaIdentifier(captchaContainer);
-    if (!captchaIdentifier) {
-      return createError(`could not extract captcha identifier from the container with selector ${selector}`);
-    }
-    if (PirError.isError(captchaIdentifier)) {
-      return createError(captchaIdentifier.error.message);
-    }
-    const reportedType = captchaFactory.getProviderByType(captchaType) === captchaProvider ? captchaType : captchaProvider.getType();
-    const response = {
-      url: removeUrlQueryParams(window.location.href),
-      // query params (which may include PII)
-      siteKey: captchaIdentifier,
-      type: reportedType
-    };
     if (action.parent) {
       pendingCaptchaContext = { profile: userData, token: null };
     }
-    return SuccessResponse.create({ actionID, actionType, response });
+    return SuccessResponse.create({
+      actionID,
+      actionType,
+      response: {
+        url: removeUrlQueryParams(window.location.href),
+        // query params (which may include PII)
+        ...captcha
+      }
+    });
+  }
+  function hasOwnSiteKey(provider) {
+    return "getSiteKey" in provider && typeof provider.getSiteKey === "function";
   }
   function solveCaptcha2(action, token, userData, root = document) {
     const { id: actionID, actionType, captchaType, selector } = action;
@@ -22302,7 +22415,7 @@ svg { vertical-align: -1px; }
     const importConfig = {
       trackerLookup: define_import_meta_trackerLookup_default,
       injectName: "apple-isolated",
-      contentScopeScriptsVersion: "20.5.0"
+      contentScopeScriptsVersion: "20.6.0"
     };
     const bundledFeatureNames = typeof importConfig.injectName === "string" ? platformSupport[importConfig.injectName] ?? [] : [];
     const featuresToLoad = isGloballyDisabled(args) ? platformSpecificFeatures : args.site.enabledFeatures || bundledFeatureNames;
