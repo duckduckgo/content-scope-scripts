@@ -1,0 +1,41 @@
+name: Check Release Version
+
+# The bundles embed the root package.json version, which config compares against
+# minContentScopeScriptsVersion and maxContentScopeScriptsVersion. build.yml stamps it;
+# hotfixes stamp it by hand (guides/hotfix-release.md), so check it on the hotfix push
+# and again when the release is published.
+
+on:
+    push:
+        branches:
+            - 'hotfix/**'
+    release:
+        types: [published]
+
+permissions:
+    contents: read
+
+jobs:
+    check_version:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v7
+              with:
+                  ref: ${{ github.event_name == 'release' && github.event.release.tag_name || github.ref }}
+
+            - name: Check the package.json version and the built bundle
+              env:
+                  EXPECTED: ${{ github.event_name == 'release' && github.event.release.tag_name || github.ref_name }}
+              run: |
+                  EXPECTED="${EXPECTED#hotfix/}"
+                  ACTUAL="$(jq -r '.version // empty' package.json)"
+                  if [ "$ACTUAL" != "$EXPECTED" ]; then
+                    echo "::error file=package.json::Root package.json version is '${ACTUAL:-unset}', expected '$EXPECTED'. Run 'npm pkg set version=$EXPECTED', rebuild and commit (guides/hotfix-release.md)."
+                    exit 1
+                  fi
+                  BUNDLE=Sources/ContentScopeScripts/dist/contentScope.js
+                  if ! grep -qF "contentScopeScriptsVersion: \"$EXPECTED\"" "$BUNDLE"; then
+                    echo "::error file=$BUNDLE::$BUNDLE does not embed version '$EXPECTED'. Rebuild after setting the version and commit the output (guides/hotfix-release.md)."
+                    exit 1
+                  fi
+                  echo "Version $EXPECTED is set and built in."
