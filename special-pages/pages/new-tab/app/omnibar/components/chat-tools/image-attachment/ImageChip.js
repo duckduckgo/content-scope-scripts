@@ -4,7 +4,29 @@ import styles from './ImageAttachment.module.css';
 
 /**
  * @typedef {import('./useImageAttachments').AttachedImage} AttachedImage
+ * @typedef {import('../attachments/AttachmentChips').ChipItem} ChipItem
  */
+
+/**
+ * @param {AttachedImage[]} images
+ * @param {(index: number) => void} onRemove
+ * @param {(key: string, params?: Record<string, string>) => string} t
+ * @returns {ChipItem[]}
+ */
+export function imageChipItems(images, onRemove, t) {
+    return images.map((image, index) => ({
+        key: `image-${image.fileName}-${index}`,
+        addedAtRelative: image.addedAtRelative,
+        render: (enteringAnimationDelay) => (
+            <ImageChip
+                image={image}
+                onRemove={() => onRemove(index)}
+                removeLabel={t('omnibar_removeImageLabel')}
+                enteringAnimationDelay={enteringAnimationDelay}
+            />
+        ),
+    }));
+}
 
 /**
  * @param {object} props

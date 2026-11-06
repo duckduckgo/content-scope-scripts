@@ -3,7 +3,29 @@ import { PdfFileChip } from './PdfFileChip';
 
 /**
  * @typedef {import('./useFileAttachments').AttachedFile} AttachedFile
+ * @typedef {import('../attachments/AttachmentChips').ChipItem} ChipItem
  */
+
+/**
+ * @param {AttachedFile[]} files
+ * @param {(index: number) => void} onRemove
+ * @param {(key: string, params?: Record<string, string>) => string} t
+ * @returns {ChipItem[]}
+ */
+export function fileChipItems(files, onRemove, t) {
+    return files.map((file, index) => ({
+        key: `file-${file.fileName}-${index}`,
+        addedAtRelative: file.addedAtRelative,
+        render: (enteringAnimationDelay) => (
+            <FileChip
+                file={file}
+                onRemove={() => onRemove(index)}
+                removeLabel={t('omnibar_removeAttachedFileLabel', { fileName: file.fileName })}
+                enteringAnimationDelay={enteringAnimationDelay}
+            />
+        ),
+    }));
+}
 
 /**
  * @param {object} props
