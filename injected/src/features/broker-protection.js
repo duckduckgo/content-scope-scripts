@@ -2,6 +2,7 @@ import ContentFeature from '../content-feature.js';
 import { execute } from './broker-protection/execute.js';
 import { retry } from '../timer-utils.js';
 import { ErrorResponse } from './broker-protection/types.js';
+import { UserAssist } from './broker-protection/assist/user-assist.js';
 
 export class ActionExecutorBase extends ContentFeature {
     /**
@@ -54,7 +55,7 @@ export class ActionExecutorBase extends ContentFeature {
      */
     async exec(action, data) {
         const retryConfig = this.retryConfigFor(action);
-        const { result, exceptions } = await retry(() => execute(action, data, document), retryConfig);
+        const { result, exceptions } = await retry(() => this.runAction(action, data), retryConfig);
 
         if (result) {
             if ('success' in result && Array.isArray(result.success.next)) {
@@ -75,6 +76,15 @@ export class ActionExecutorBase extends ContentFeature {
     }
 
     /**
+     * @param {any} action
+     * @param {Record<string, any>} data
+     * @return {Promise<ActionResponse>}
+     */
+    runAction(action, data) {
+        return execute(action, data, document);
+    }
+
+    /**
      * @returns {any}
      */
     retryConfigFor(action) {
@@ -86,11 +96,49 @@ export class ActionExecutorBase extends ContentFeature {
  * @typedef {import("./broker-protection/types.js").ActionResponse} ActionResponse
  */
 export default class BrokerProtection extends ActionExecutorBase {
+    /** @type {UserAssist | null} */
+    assist = null;
+
     init() {
+        const visualizeActions = this.getFeatureSettingEnabled('visualizeActions', 'disabled');
+        const assist = new UserAssist(visualizeActions);
+        this.assist = assist;
         this.messaging.subscribe('onActionReceived', async (/** @type {any} */ params) => {
             const { action, data } = params.state;
+            assist.cancel();
             return await this.processActionAndNotify(action, data);
         });
+    }
+
+    /**
+     * `userAssist` waits on the user for as long as native lets it, so it skips the retry budget.
+     *
+     * @param {any} action
+     * @param {Record<string, any>} data
+     * @return {Promise<{results: ActionResponse[], exceptions: string[]}>}
+     */
+    async exec(action, data) {
+        if (action.actionType === 'userAssist' && this.assist) {
+            const result = await this.assist.run(action, () => this.messaging.notify('userTurnNeeded', { actionID: action.id }));
+            return { results: [result], exceptions: [] };
+        }
+        return super.exec(action, data);
+    }
+
+    /**
+     * @param {any} action
+     * @param {Record<string, any>} data
+     * @return {Promise<ActionResponse>}
+     */
+    async runAction(action, data) {
+        const assist = this.assist;
+        if (!assist?.visualizeActions) return super.runAction(action, data);
+        // Presentation is best effort. It runs inside retry(), so letting it throw after the action has
+        // run would make retry() run the action (a click, a fill) a second time.
+        await assist.beforeAction(action).catch((e) => this.log.error('assist presentation failed', e));
+        const response = await super.runAction(action, data);
+        await assist.afterAction(action, response).catch((e) => this.log.error('assist presentation failed', e));
+        return response;
     }
 
     /**
