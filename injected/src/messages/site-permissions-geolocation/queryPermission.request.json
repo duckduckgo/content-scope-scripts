@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "QueryPermissionParams",
+  "description": "Queries the geolocation permission state for a new PermissionStatus.",
+  "allOf": [
+    {
+      "$ref": "identity.shared.json"
+    },
+    {
+      "type": "object",
+      "required": [
+        "statusID"
+      ],
+      "properties": {
+        "statusID": {
+          "type": "string",
+          "description": "`<documentID>:<n>`. Native code pushes later changes for this status with `geolocationPermissionState`."
+        }
+      }
+    }
+  ]
+}

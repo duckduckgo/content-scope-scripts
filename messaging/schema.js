@@ -11,6 +11,26 @@
  * @module Messaging Schema
  *
  */
+import { objectDefineProperty } from '../injected/src/captured-globals.js';
+
+/**
+ * Defines `name` as an own data property of `target`, so later assignments to it can't reach a setter
+ * that a page defined on `Object.prototype`.
+ *
+ * @param {object} target
+ * @param {string} name
+ */
+function defineOwnField(target, name) {
+    // A null prototype, so a page's `get` or `set` on Object.prototype can't change the descriptor.
+    const descriptor = /** @type {PropertyDescriptor} */ ({
+        __proto__: null,
+        value: undefined,
+        writable: true,
+        enumerable: true,
+        configurable: true,
+    });
+    objectDefineProperty(target, name, descriptor);
+}
 
 /**
  * This is the format of an outgoing message.
@@ -31,6 +51,12 @@ export class RequestMessage {
      * @internal
      */
     constructor(params) {
+        // `params` can carry secrets, so no field may run a page's setter when it's assigned.
+        defineOwnField(this, 'context');
+        defineOwnField(this, 'featureName');
+        defineOwnField(this, 'method');
+        defineOwnField(this, 'id');
+        defineOwnField(this, 'params');
         /**
          * The global context for this message. For example, something like `contentScopeScripts` or `specialPages`
          * @type {string}

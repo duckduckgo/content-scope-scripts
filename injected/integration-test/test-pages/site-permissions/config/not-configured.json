@@ -1,0 +1,6 @@
+{
+  "readme": "No native settings: the site permission features must leave the page APIs untouched.",
+  "version": 1,
+  "features": {},
+  "unprotectedTemporary": []
+}
