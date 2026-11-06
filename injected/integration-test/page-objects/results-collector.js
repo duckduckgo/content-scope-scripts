@@ -191,6 +191,7 @@ export class ResultsCollector {
      * @param {Record<string, any> | string} params.config
      * @param {string} [params.locale]
      * @param {Partial<Platform>} [params.platform]
+     * @param {boolean} [params.waitForDocumentElement]
      * @return {Promise<void>}
      */
     async setup(params) {
@@ -263,8 +264,25 @@ export class ResultsCollector {
             },
         });
 
-        // attach the JS
-        await this.page.addInitScript(injectedJS);
+        if (params.waitForDocumentElement) {
+            // Playwright runs before the XML root exists; WKUserScript document-start injection sees it already.
+            await this.page.addInitScript(`(() => {
+                const run = () => { ${injectedJS} };
+                if (document.documentElement) {
+                    run();
+                    return;
+                }
+                const observer = new MutationObserver(() => {
+                    if (document.documentElement) {
+                        observer.disconnect();
+                        run();
+                    }
+                });
+                observer.observe(document, { childList: true });
+            })();`);
+        } else {
+            await this.page.addInitScript(injectedJS);
+        }
     }
 
     /**
