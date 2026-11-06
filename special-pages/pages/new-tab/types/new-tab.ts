@@ -8,7 +8,11 @@
 
 export type OpenTarget = "same-tab" | "new-tab" | "new-window";
 export type BackgroundVariant =
-  DefaultBackground | SolidColorBackground | HexValueBackground | GradientBackground | UserImageBackground;
+  | DefaultBackground
+  | SolidColorBackground
+  | HexValueBackground
+  | GradientBackground
+  | UserImageBackground;
 export type PredefinedColor =
   | "color01"
   | "color02"
@@ -158,6 +162,10 @@ export type ScreenshotModes = ScreenshotMode[];
  * When true, pasting into the Duck.ai prompt attaches copied images and files (unless the clipboard also carries text). When false or absent, paste is left to the browser (text only).
  */
 export type EnablePastedAttachments = boolean;
+/**
+ * When true, a text paste into the Duck.ai prompt of at least `promptLimits.pasteConversionThreshold` characters becomes a pasted-text attachment, sent as `textPasted` in `omnibar_submitChat`, and the prompt is capped at `promptLimits.maxCharacters`. Not applied in image-generation mode. When false or absent, text pastes inline with no cap.
+ */
+export type EnablePastedText = boolean;
 /**
  * Show a delete button on recent AI chat suggestions. When true, clicking the button prompts a native confirmation dialog before deleting the chat.
  */
@@ -979,6 +987,8 @@ export interface OmnibarConfig {
   showSuggestedPrompts?: ShowSuggestedPrompts;
   screenshotModes?: ScreenshotModes;
   enablePastedAttachments?: EnablePastedAttachments;
+  enablePastedText?: EnablePastedText;
+  promptLimits?: PromptLimits;
   enableAiChatDeletion?: EnableAIChatDeletion;
   enableSearchSuggestionDeletion?: EnableSearchSuggestionDeletion;
   requiresAiTermsAcceptance?: RequiresAITermsAcceptance;
@@ -1128,6 +1138,19 @@ export interface AttachmentLimits {
   };
 }
 /**
+ * Prompt length limits, in UTF-16 code units, applied when `enablePastedText` is on. Native reads them from remote config. When absent, the omnibar uses 4000 and 16000.
+ */
+export interface PromptLimits {
+  /**
+   * Shortest text paste that becomes a pasted-text attachment.
+   */
+  pasteConversionThreshold: number;
+  /**
+   * Most characters a prompt may have: the typed text plus every pasted-text attachment.
+   */
+  maxCharacters: number;
+}
+/**
  * Generated from @see "../messages/omnibar_setCustomizeResponsesActive.notify.json"
  */
 export interface OmnibarSetCustomizeResponsesActiveNotification {
@@ -1242,6 +1265,15 @@ export interface SubmitChatAction {
    * Files (PDFs in v1) attached via the paperclip menu. Each entry mirrors Duck.ai's `NativePromptFile` shape so native forwards them through unchanged. Omitted when no files are attached.
    */
   files?: NativePromptFile[];
+  /**
+   * Long text pastes attached as pasted-text parts (see `enablePastedText`), in attach order. Each entry mirrors Duck.ai's `NativePromptTextPasted` shape so native forwards them through unchanged. Omitted when there are none.
+   */
+  textPasted?: {
+    /**
+     * The pasted text, verbatim.
+     */
+    content: string;
+  }[];
   /**
    * True when the launcherPromo drawer was on screen as the prompt was sent, so native can treat the prompt as passing over it. Omitted otherwise.
    */
@@ -1435,7 +1467,11 @@ export interface NTPTelemetryEvent {
     | OmnibarScreenshotRemoved
     | OmnibarScreenshotFailed
     | OmnibarImageAttached
-    | OmnibarImageRemoved;
+    | OmnibarImageRemoved
+    | OmnibarPastedTextAttached
+    | OmnibarPastedTextRemoved
+    | OmnibarPastedTextEdited
+    | OmnibarPastedTextDialogOpened;
 }
 export interface StatsShowMore {
   name: "stats_toggle";
@@ -1531,6 +1567,30 @@ export interface OmnibarImageRemoved {
   value: {
     source: ImageAttachmentSource;
   };
+}
+/**
+ * Fired when a long text paste is attached to the prompt as a pasted-text chip.
+ */
+export interface OmnibarPastedTextAttached {
+  name: "omnibar_pasted_text_attached";
+}
+/**
+ * Fired when the user removes a pasted-text chip. Chips cleared by submitting the prompt don't fire it.
+ */
+export interface OmnibarPastedTextRemoved {
+  name: "omnibar_pasted_text_removed";
+}
+/**
+ * Fired when the user saves changed text in the Pasted Text dialog. Saving unchanged text doesn't fire it.
+ */
+export interface OmnibarPastedTextEdited {
+  name: "omnibar_pasted_text_edited";
+}
+/**
+ * Fired when the user opens the Pasted Text dialog from a pasted-text chip.
+ */
+export interface OmnibarPastedTextDialogOpened {
+  name: "omnibar_pasted_text_dialog_opened";
 }
 /**
  * Generated from @see "../messages/updateNotification_dismiss.notify.json"

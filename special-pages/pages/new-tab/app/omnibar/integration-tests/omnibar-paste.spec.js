@@ -220,3 +220,166 @@ test.describe('omnibar drag and drop', () => {
         expect(result.accepted).toBe(false);
     });
 });
+
+test.describe('omnibar pasted text', () => {
+    /** Small limits so pastes stay readable: 10 chars converts, 30 is the cap. */
+    const TEXT_ON = { 'omnibar.enablePastedText': 'true', 'omnibar.pasteConversionThreshold': '10', 'omnibar.maxCharacters': '30' };
+    const LONG = 'first line\nsecond';
+
+    test('attaches a long paste as a chip and sends it as textPasted', async ({ page }, workerInfo) => {
+        const { omnibar } = await setup(page, workerInfo, TEXT_ON);
+
+        const result = await omnibar.pasteIntoChatInput({ text: LONG });
+        expect(result.defaultPrevented).toBe(true);
+        await expect(omnibar.textPastedChips()).toHaveCount(1);
+
+        await omnibar.chatInput().fill('summarize');
+        await omnibar.chatInput().press('Enter');
+        const params = await omnibar.lastSubmitChatParams();
+        expect(params.chat).toBe('summarize');
+        expect(params.textPasted).toEqual([{ content: LONG }]);
+        await expect(omnibar.textPastedChips()).toHaveCount(0);
+    });
+
+    test('sends pasted text with an empty prompt', async ({ page }, workerInfo) => {
+        const { omnibar } = await setup(page, workerInfo, TEXT_ON);
+
+        await omnibar.pasteIntoChatInput({ text: LONG });
+        await omnibar.chatInput().press('Enter');
+        const params = await omnibar.lastSubmitChatParams();
+        expect(params.chat).toBe('');
+        expect(params.textPasted).toEqual([{ content: LONG }]);
+    });
+
+    test('leaves a short or blank paste inline', async ({ page }, workerInfo) => {
+        const { omnibar } = await setup(page, workerInfo, TEXT_ON);
+
+        expect((await omnibar.pasteIntoChatInput({ text: 'short' })).defaultPrevented).toBe(false);
+        expect((await omnibar.pasteIntoChatInput({ text: ' \n'.repeat(10) })).defaultPrevented).toBe(false);
+        await expect(omnibar.textPastedChips()).toHaveCount(0);
+    });
+
+    test('leaves a long paste inline when enablePastedText is off', async ({ page }, workerInfo) => {
+        const { omnibar } = await setup(page, workerInfo, { 'omnibar.pasteConversionThreshold': '10' });
+
+        expect((await omnibar.pasteIntoChatInput({ text: LONG })).defaultPrevented).toBe(false);
+        await omnibar.chatInput().fill('x'.repeat(40));
+        await omnibar.chatInput().press('Enter');
+        const params = await omnibar.lastSubmitChatParams();
+        expect(params.textPasted).toBeUndefined();
+    });
+
+    test('leaves a long paste inline in image-generation mode', async ({ page }, workerInfo) => {
+        const { omnibar } = await setup(page, workerInfo, { ...TEXT_ON, 'omnibar.enableImageGeneration': 'true' });
+        await omnibar.toolsMenuButton().click();
+        await omnibar.createImageMenuItem().click();
+
+        await expect(omnibar.imageGenerationInput()).toBeVisible();
+        expect((await omnibar.pasteIntoChatInput({ text: LONG }, omnibar.imageGenerationInput())).defaultPrevented).toBe(false);
+        await expect(omnibar.textPastedChips()).toHaveCount(0);
+    });
+
+    test('removes a pasted-text chip', async ({ page }, workerInfo) => {
+        const { omnibar } = await setup(page, workerInfo, TEXT_ON);
+
+        await omnibar.pasteIntoChatInput({ text: LONG });
+        await omnibar.removeTextPastedButton('first line…').click();
+        await expect(omnibar.textPastedChips()).toHaveCount(0);
+    });
+
+    test('blocks sending while typed text plus pastes is over the limit', async ({ page }, workerInfo) => {
+        const { omnibar } = await setup(page, workerInfo, TEXT_ON);
+
+        await omnibar.pasteIntoChatInput({ text: LONG });
+        await omnibar.chatInput().fill('x'.repeat(14));
+        await expect(omnibar.promptTooLongWarning()).toBeVisible();
+        await expect(omnibar.chatSubmitButton()).toBeDisabled();
+
+        await omnibar.chatInput().fill('x'.repeat(13));
+        await expect(omnibar.promptTooLongWarning()).toHaveCount(0);
+        await expect(omnibar.chatSubmitButton()).toBeEnabled();
+    });
+
+    test('edits a pasted-text chip and sends the edited text', async ({ page }, workerInfo) => {
+        const { omnibar } = await setup(page, workerInfo, TEXT_ON);
+
+        await omnibar.pasteIntoChatInput({ text: LONG });
+        await omnibar.textPastedChips().click();
+        await expect(omnibar.textPastedModal()).toBeVisible();
+        await expect(omnibar.textPastedModalInput()).toHaveValue(LONG);
+        await expect(omnibar.textPastedModal()).toContainText(`${LONG.length} characters`);
+
+        await omnibar.textPastedModalInput().fill('edited text');
+        await omnibar.textPastedModalSaveButton().click();
+        await expect(omnibar.textPastedModal()).toHaveCount(0);
+
+        await omnibar.chatInput().press('Enter');
+        const params = await omnibar.lastSubmitChatParams();
+        expect(params.textPasted).toEqual([{ content: 'edited text' }]);
+    });
+
+    test('discards edits on cancel', async ({ page }, workerInfo) => {
+        const { omnibar } = await setup(page, workerInfo, TEXT_ON);
+
+        await omnibar.pasteIntoChatInput({ text: LONG });
+        await omnibar.textPastedChips().click();
+        await omnibar.textPastedModalInput().fill('edited text');
+        await omnibar.textPastedModalCancelButton().click();
+        await expect(omnibar.textPastedModal()).toHaveCount(0);
+
+        await omnibar.textPastedChips().click();
+        await expect(omnibar.textPastedModalInput()).toHaveValue(LONG);
+    });
+
+    test('blocks saving an edit that is blank or puts the prompt over the limit', async ({ page }, workerInfo) => {
+        const { omnibar } = await setup(page, workerInfo, TEXT_ON);
+
+        await omnibar.chatInput().fill('x'.repeat(10));
+        await omnibar.pasteIntoChatInput({ text: LONG });
+        await omnibar.textPastedChips().click();
+
+        // 10 typed + 21 pasted = 31, over the 30 cap.
+        await omnibar.textPastedModalInput().fill('y'.repeat(21));
+        await expect(omnibar.textPastedModal()).toContainText('Please try a shorter message. 31 / 30');
+        await expect(omnibar.textPastedModalSaveButton()).toBeDisabled();
+
+        await omnibar.textPastedModalInput().fill('   ');
+        await expect(omnibar.textPastedModalSaveButton()).toBeDisabled();
+
+        await omnibar.textPastedModalInput().fill('y'.repeat(20));
+        await expect(omnibar.textPastedModalSaveButton()).toBeEnabled();
+    });
+
+    test('reports attach, dialog open, edit and remove as telemetry', async ({ page }, workerInfo) => {
+        const { omnibar } = await setup(page, workerInfo, TEXT_ON);
+
+        await omnibar.pasteIntoChatInput({ text: LONG });
+        // Saving unchanged text is not an edit.
+        await omnibar.textPastedChips().click();
+        await omnibar.textPastedModalSaveButton().click();
+        await omnibar.textPastedChips().click();
+        await omnibar.textPastedModalInput().fill('edited text');
+        await omnibar.textPastedModalSaveButton().click();
+        await omnibar.removeTextPastedButton('edited text').click();
+
+        await expect
+            .poll(() => omnibar.telemetryEvents())
+            .toEqual([
+                { name: 'omnibar_pasted_text_attached' },
+                { name: 'omnibar_pasted_text_dialog_opened' },
+                { name: 'omnibar_pasted_text_dialog_opened' },
+                { name: 'omnibar_pasted_text_edited' },
+                { name: 'omnibar_pasted_text_removed' },
+            ]);
+    });
+
+    test('does not report chips cleared by submitting as removed', async ({ page }, workerInfo) => {
+        const { omnibar } = await setup(page, workerInfo, TEXT_ON);
+
+        await omnibar.pasteIntoChatInput({ text: LONG });
+        await omnibar.chatInput().press('Enter');
+        await omnibar.lastSubmitChatParams();
+
+        expect(await omnibar.telemetryEvents()).toEqual([{ name: 'omnibar_pasted_text_attached' }]);
+    });
+});

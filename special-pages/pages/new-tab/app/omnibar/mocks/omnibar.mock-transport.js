@@ -514,6 +514,16 @@ export function omnibarMockTransport() {
                     }
                     config.enablePastedAttachments =
                         parseBooleanQueryParam('omnibar.enablePastedAttachments') ?? config.enablePastedAttachments;
+                    config.enablePastedText = parseBooleanQueryParam('omnibar.enablePastedText') ?? config.enablePastedText;
+                    // e.g. `omnibar.pasteConversionThreshold=10&omnibar.maxCharacters=30`; either one alone keeps the other's default.
+                    const pasteConversionThreshold = parseInt(url.searchParams.get('omnibar.pasteConversionThreshold') ?? '', 10);
+                    const maxCharacters = parseInt(url.searchParams.get('omnibar.maxCharacters') ?? '', 10);
+                    if (pasteConversionThreshold > 0 || maxCharacters > 0) {
+                        config.promptLimits = {
+                            pasteConversionThreshold: pasteConversionThreshold > 0 ? pasteConversionThreshold : 4000,
+                            maxCharacters: maxCharacters > 0 ? maxCharacters : 16000,
+                        };
+                    }
                     config.showAttachmentPrivacyDisclaimer =
                         parseBooleanQueryParam('omnibar.showAttachmentPrivacyDisclaimer') ?? config.showAttachmentPrivacyDisclaimer;
                     config.enableCustomizeResponses =

@@ -211,6 +211,50 @@
               }
             }
           }
+        },
+        {
+          "type": "object",
+          "title": "Omnibar Pasted Text Attached",
+          "description": "Fired when a long text paste is attached to the prompt as a pasted-text chip.",
+          "required": ["name"],
+          "properties": {
+            "name": {
+              "const": "omnibar_pasted_text_attached"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "title": "Omnibar Pasted Text Removed",
+          "description": "Fired when the user removes a pasted-text chip. Chips cleared by submitting the prompt don't fire it.",
+          "required": ["name"],
+          "properties": {
+            "name": {
+              "const": "omnibar_pasted_text_removed"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "title": "Omnibar Pasted Text Edited",
+          "description": "Fired when the user saves changed text in the Pasted Text dialog. Saving unchanged text doesn't fire it.",
+          "required": ["name"],
+          "properties": {
+            "name": {
+              "const": "omnibar_pasted_text_edited"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "title": "Omnibar Pasted Text Dialog Opened",
+          "description": "Fired when the user opens the Pasted Text dialog from a pasted-text chip.",
+          "required": ["name"],
+          "properties": {
+            "name": {
+              "const": "omnibar_pasted_text_dialog_opened"
+            }
+          }
         }
       ]
     }

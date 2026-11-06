@@ -3,6 +3,7 @@ import { useTypedTranslationWith } from '../../../../types';
 import { TabChip } from '../tab-attachment/TabChips';
 import { FileChip } from '../file-attachment/FileChip';
 import { ImageChip } from '../image-attachment/ImageChip';
+import { TextPastedChip } from '../text-pasted/TextPastedChip';
 import { useScrollToNewestChip } from './useScrollToNewestChip';
 import styles from './AttachmentChips.module.css';
 
@@ -11,11 +12,13 @@ import styles from './AttachmentChips.module.css';
  * @typedef {import('../tab-attachment/useTabAttachments').AttachedTab} AttachedTab
  * @typedef {import('../file-attachment/useFileAttachments').AttachedFile} AttachedFile
  * @typedef {import('../image-attachment/useImageAttachments').AttachedImage} AttachedImage
+ * @typedef {import('../text-pasted/useTextPasted').AttachedTextPasted} AttachedTextPasted
  *
  * @typedef {{ kind: 'tab', key: string, tab: AttachedTab, addedAtRelative: number }} TabItem
  * @typedef {{ kind: 'file', key: string, file: AttachedFile, originalIndex: number, addedAtRelative: number }} FileItem
  * @typedef {{ kind: 'image', key: string, image: AttachedImage, originalIndex: number, addedAtRelative: number }} ImageItem
- * @typedef {TabItem | FileItem | ImageItem} AttachmentItem
+ * @typedef {{ kind: 'text', key: string, textPasted: AttachedTextPasted, addedAtRelative: number }} TextItem
+ * @typedef {TabItem | FileItem | ImageItem | TextItem} AttachmentItem
  */
 
 /**
@@ -23,11 +26,26 @@ import styles from './AttachmentChips.module.css';
  * @param {AttachedTab[]} props.tabs
  * @param {AttachedFile[]} props.files
  * @param {AttachedImage[]} props.images
+ * @param {AttachedTextPasted[]} [props.textPasted]
  * @param {(tabId: string) => void} props.onRemoveTab
  * @param {(originalIndex: number) => void} props.onRemoveFile
  * @param {(originalIndex: number) => void} props.onRemoveImage
+ * @param {(id: string) => void} [props.onRemoveTextPasted]
+ * @param {(id: string, content: string) => void} [props.onEditTextPasted]
+ * @param {{ promptLength: number, maxCharacters: number }} [props.textPastedLimit] - the prompt's current length and cap, checked while editing a paste.
  */
-export function AttachmentChips({ tabs, files, images, onRemoveTab, onRemoveFile, onRemoveImage }) {
+export function AttachmentChips({
+    tabs,
+    files,
+    images,
+    textPasted = [],
+    onRemoveTab,
+    onRemoveFile,
+    onRemoveImage,
+    onRemoveTextPasted,
+    onEditTextPasted,
+    textPastedLimit = { promptLength: 0, maxCharacters: Number.POSITIVE_INFINITY },
+}) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
 
     // Ordered by attach time so chips appear in the order the user attached them, not grouped by type.
@@ -53,6 +71,9 @@ export function AttachmentChips({ tabs, files, images, onRemoveTab, onRemoveFile
                     originalIndex,
                     addedAtRelative: image.addedAtRelative,
                 }),
+        ),
+        ...textPasted.map(
+            (entry) => /** @type {TextItem} */ ({ kind: 'text', key: entry.id, textPasted: entry, addedAtRelative: entry.addedAtRelative }),
         ),
     ].sort((a, b) => a.addedAtRelative - b.addedAtRelative);
 
@@ -92,6 +113,18 @@ export function AttachmentChips({ tabs, files, images, onRemoveTab, onRemoveFile
                                 image={item.image}
                                 onRemove={() => onRemoveImage(item.originalIndex)}
                                 removeLabel={t('omnibar_removeImageLabel')}
+                                enteringAnimationDelay={enteringAnimationDelay}
+                            />
+                        );
+                    case 'text':
+                        return (
+                            <TextPastedChip
+                                key={item.key}
+                                textPasted={item.textPasted}
+                                onRemove={() => onRemoveTextPasted?.(item.textPasted.id)}
+                                onEdit={(content) => onEditTextPasted?.(item.textPasted.id, content)}
+                                promptLength={textPastedLimit.promptLength}
+                                maxCharacters={textPastedLimit.maxCharacters}
                                 enteringAnimationDelay={enteringAnimationDelay}
                             />
                         );
