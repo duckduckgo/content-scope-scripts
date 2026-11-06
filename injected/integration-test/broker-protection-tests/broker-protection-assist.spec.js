@@ -59,6 +59,9 @@ test.describe('Broker Protection userAssist action', () => {
         const handOff = await dbp.collector.waitForMessage('userTurnNeeded');
         expect(handOff[0].payload.params).toEqual({ actionID: 'solve-captcha' });
         await expect(dbp.page.locator(OVERLAY)).toHaveCount(1);
+        // reCAPTCHA's challenge popup uses 2000000000; hCaptcha's is clamped to the maximum.
+        const zIndex = await dbp.page.locator(OVERLAY).evaluate((host) => Number(getComputedStyle(host).zIndex));
+        expect(zIndex).toBeLessThan(2000000000);
         expect(await sentCount(dbp, 'actionCompleted')).toBe(0);
 
         await dbp.page.click('#solve');
