@@ -113,6 +113,8 @@ function isNonTrackingCookie() {
 }
 
 export default class CookieFeature extends ContentFeature {
+    initImmediately = true;
+
     load() {
         if (this.documentOriginIsTracker) {
             cookiePolicy.isTracker = true;
