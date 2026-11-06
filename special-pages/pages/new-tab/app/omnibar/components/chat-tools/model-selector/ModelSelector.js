@@ -8,6 +8,8 @@ import { getUpsellTelemetryType } from '../../../utils.js';
 import styles from './ModelSelector.module.css';
 
 /**
+ * Renders the selected model and opens the model picker.
+ *
  * @param {object} props
  * @param {import('./useModelSelector').ModelSelectorState} props.selector
  * @param {import('../../../../../types/new-tab.js').AIModelItem|null} props.selectedModel
@@ -17,6 +19,7 @@ import styles from './ModelSelector.module.css';
  * @param {boolean} [props.readOnly] - When true, show the selected model without picker affordances.
  * @param {string} props.ariaLabel
  * @param {boolean} props.isEligibleForFreeTrial - When false, a 'subscribe' upsell reports 'upgrade' telemetry instead of 'tryForFree'. Does not affect rendered copy, which comes entirely from the payload.
+ * @returns {import('preact').VNode}
  */
 export function ModelSelector({
     selector,
@@ -49,8 +52,7 @@ export function ModelSelector({
         onUpsell(type);
     };
 
-    // Impression telemetry: fire once each time the dropdown opens. Upsell
-    // telemetry is emitted only when the user activates a gated row.
+    // Historical upsell "_shown" events measure activation separately from picker impressions.
     useEffect(() => {
         if (!modelDropdownOpen) {
             shownRef.current = false;
