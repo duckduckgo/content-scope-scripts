@@ -1,4 +1,4 @@
-import { PirError } from '../types';
+import { PirError } from '../types.js';
 
 /**
  * @template T
