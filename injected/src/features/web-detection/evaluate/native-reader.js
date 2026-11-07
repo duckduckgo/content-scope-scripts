@@ -1,5 +1,6 @@
-import { getOwnPropertyDescriptor, getPrototypeOf, NodePrototype, ReflectApply, ReflectGet } from '../../../captured-globals.js';
-import { Failure, getOrCreate, isFailure, newMap, thrownFailure } from '../model/core.js';
+// eslint-disable-next-line no-redeclare
+import { getOwnPropertyDescriptor, getPrototypeOf, NodePrototype, ReflectApply, ReflectGet, Symbol } from '../../../captured-globals.js';
+import { Failure, NativeMap, NativeSet, getOrCreate, includes, isFailure, newMap, thrownFailure } from '../model/core.js';
 
 /**
  * @import { Reader } from '../model/types.js'
@@ -35,15 +36,24 @@ import { Failure, getOrCreate, isFailure, newMap, thrownFailure } from '../model
  * The global object and its chain are holders once config names something, so a reader with no names
  * or paths captures nothing. `isNode` tests against `Node.prototype` as captured at injection.
  *
+ * The reader and the evaluator call built-in methods captured at load, through `NativeMap`, `NativeSet`
+ * and `captured-globals.js`, or index loops, so a page that replaces a method of `Map.prototype` or
+ * `Array.prototype` is not called. Some page code can still run:
+ * - `for…of` and generators take the iterator as it stands.
+ * - The `element`, `text` and visibility reads call DOM methods such as `querySelectorAll` and
+ *   `textContent` as they stand.
+ * - On the extension the injected config has no detectors at `load`, so the reader captures at `init`,
+ *   after page scripts have run.
+ *
  * @implements {Reader}
  */
 export class NativeReader {
     /** @type {object} */
     #global;
     /** @type {Map<object, Map<PropertyKey, CapturedRecord>>} each holder's records */
-    #holders = new Map();
+    #holders = new NativeMap();
     /** @type {Set<PropertyKey>} every key captured */
-    #keys = new Set([Symbol.iterator]);
+    #keys = new NativeSet([Symbol.iterator]);
     /** @type {object | undefined} */
     #nodePrototype;
     /**
@@ -52,7 +62,7 @@ export class NativeReader {
      *
      * @type {Map<PropertyKey, Map<object, CapturedRecord | null>>}
      */
-    #records = new Map();
+    #records = new NativeMap();
 
     /**
      * @param {object} global - the global object to capture from
@@ -80,7 +90,7 @@ export class NativeReader {
         for (const key of keys) {
             if (this.#keys.has(key)) continue;
             this.#keys.add(key);
-            added.push(key);
+            added[added.length] = key;
         }
         if (added.length > 0) {
             this._addGlobal();
@@ -111,7 +121,9 @@ export class NativeReader {
         /** @type {unknown} */
         let current = global;
         try {
-            for (const [i, name] of path.split('.').entries()) {
+            const names = pathNames(path);
+            for (let i = 0; i < names.length; i++) {
+                const name = /** @type {string} */ (names[i]);
                 if (i === 0) {
                     const value = tryOwnDescriptor(global, name)?.value;
                     if ((typeof value === 'object' && value !== null && value !== global) || typeof value === 'function') {
@@ -155,7 +167,7 @@ export class NativeReader {
     _addHolder(holder) {
         if (this.#holders.has(holder)) return;
         /** @type {Map<PropertyKey, CapturedRecord>} */
-        const records = new Map();
+        const records = new NativeMap();
         this.#holders.set(holder, records);
         captureOn(holder, records, this.#keys);
         this.#records.clear();
@@ -367,7 +379,7 @@ function tryOwnDescriptor(target, key) {
  */
 function captureOn(holder, records, keys) {
     /** @type {Map<PropertyKey, CapturedRecord>} */
-    const found = new Map();
+    const found = new NativeMap();
     try {
         for (const key of keys) {
             if (records.has(key)) continue;
@@ -391,7 +403,30 @@ function captureOn(holder, records, keys) {
 function hasPrototype(target, prototypes) {
     if (prototypes.length === 0 || typeof target !== 'object' || target === null) return false;
     for (let current = getPrototypeOf(target); current !== null; current = getPrototypeOf(current)) {
-        if (prototypes.includes(current)) return true;
+        if (includes(prototypes, current)) return true;
     }
     return false;
+}
+
+/**
+ * The names of a dotted path, split by index so a page's `String.prototype` is not called.
+ *
+ * @param {string} path
+ * @returns {string[]}
+ */
+function pathNames(path) {
+    /** @type {string[]} */
+    const names = [];
+    let name = '';
+    for (let i = 0; i < path.length; i++) {
+        const char = path[i];
+        if (char === '.') {
+            names[names.length] = name;
+            name = '';
+        } else {
+            name += char;
+        }
+    }
+    names[names.length] = name;
+    return names;
 }

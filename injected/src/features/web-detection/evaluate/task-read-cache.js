@@ -1,4 +1,4 @@
-import { getOrCreate, newMap } from '../model/core.js';
+import { NativeMap, getOrCreate, newMap } from '../model/core.js';
 
 /**
  * @import { TaskReads } from '../model/types.js'
@@ -13,7 +13,7 @@ import { getOrCreate, newMap } from '../model/core.js';
  */
 export class TaskReadCache {
     /** @type {Map<object, Map<string, unknown>>} */
-    #byNode = new Map();
+    #byNode = new NativeMap();
 
     /**
      * @template T
