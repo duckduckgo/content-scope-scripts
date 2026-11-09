@@ -1187,7 +1187,7 @@ export function Check10Icon(props) {
 }
 
 /**
- * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Close-16.svg
+ * 16px close glyph.
  * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
  */
 export function Close16Icon(props) {
@@ -1202,7 +1202,7 @@ export function Close16Icon(props) {
 }
 
 /**
- * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Check-16.svg
+ * 16px check glyph.
  * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
  */
 export function Check16Icon(props) {
