@@ -340,6 +340,25 @@ test.describe('selectionTools', () => {
         expect(await sent(collector, 'selectionChanged')).toHaveLength(reports);
     });
 
+    test('clears the report for a click that keeps the selection, such as on an editor menu button', async ({ page }, testInfo) => {
+        const collector = await setup(page, testInfo);
+        await selectParagraph(page, '#english');
+        await reportedWith(collector, ENGLISH);
+        const reports = (await sent(collector, 'selectionChanged')).length;
+        const clears = (await sent(collector, 'selectionCleared')).length;
+        await page.locator('#format-menu').click();
+        await expect(page.locator('#format-options')).toBeVisible();
+        await expect.poll(() => sent(collector, 'selectionCleared')).toHaveLength(clears + 1);
+        // The selection is still there, but the click didn't select it, so the toolbar doesn't come back over the menu.
+        expect(await page.evaluate(() => String(document.getSelection()))).toContain(ENGLISH);
+        await settle(page);
+        expect(await sent(collector, 'selectionChanged')).toHaveLength(reports);
+
+        // Selecting the same text again with the mouse does select it.
+        await selectParagraph(page, '#english');
+        await reportedWith(collector, ENGLISH, reports);
+    });
+
     test('clears the report on Escape', async ({ page }, testInfo) => {
         const collector = await setup(page, testInfo);
         await page.locator('#field').focus();

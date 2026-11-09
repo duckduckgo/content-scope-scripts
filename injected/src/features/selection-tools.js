@@ -8,6 +8,7 @@ import {
     isSelectionCollapsed,
     markedLanguageOf,
     readSelection,
+    selectionEnds,
 } from './selection-tools/selection.js';
 import { selectedTextKey } from './selection-tools/text-key.js';
 
@@ -33,6 +34,10 @@ export default class SelectionTools extends ContentFeature {
 
     /** @type {SelectionSnapshot | null} the selection native was last told about, until it's cleared */
     _reported = null;
+
+    /** @type {unknown[] | null} where the selection was when the primary button went down, until it's released */
+    _pressedOn = null;
+    _selectedWhilePressed = false;
 
     _minChars = DEFAULT_MIN_CHARS;
     _moveFrame = 0;
@@ -68,11 +73,24 @@ export default class SelectionTools extends ContentFeature {
             case 'mousedown':
                 // A right-click opens the context menu on the selection rather than replacing it.
                 if (/** @type {MouseEvent} */ (event).button !== 2) this._clear();
+                if (/** @type {MouseEvent} */ (event).button === 0) {
+                    this._pressedOn = selectionEnds();
+                    this._selectedWhilePressed = false;
+                }
                 break;
-            case 'mouseup':
+            case 'mouseup': {
                 // Only a primary-button release can finish a selection. The selection settles after mouseup.
-                if (/** @type {MouseEvent} */ (event).button === 0) setTimeout(() => this._refresh(), 0);
+                if (/** @type {MouseEvent} */ (event).button !== 0) break;
+                const pressedOn = this._pressedOn;
+                const selected = this._selectedWhilePressed;
+                this._pressedOn = null;
+                // A click that leaves the selection as it was, such as on an editor's menu button, didn't select it: the
+                // toolbar stays away rather than coming back over the menu the click opened.
+                setTimeout(() => {
+                    if (!pressedOn || selected || !sameEnds(selectionEnds(), pressedOn)) this._refresh();
+                }, 0);
                 break;
+            }
             case 'keyup': {
                 const key = /** @type {KeyboardEvent} */ (event);
                 const selectAll = (key.ctrlKey || key.metaKey) && key.key.toLowerCase() === 'a';
@@ -85,6 +103,8 @@ export default class SelectionTools extends ContentFeature {
                 this._contextMenu();
                 break;
             case 'selectionchange':
+                // A drag that ends on the selection it started from, such as reselecting the same text, still selected it.
+                if (this._pressedOn && !sameEnds(selectionEnds(), this._pressedOn)) this._selectedWhilePressed = true;
                 if (this._reported && isSelectionCollapsed()) this._clear();
                 break;
             case 'keydown':
@@ -169,6 +189,14 @@ export default class SelectionTools extends ContentFeature {
  */
 function hasUserActivation() {
     return navigator.userActivation?.isActive ?? true;
+}
+
+/**
+ * @param {unknown[]} a
+ * @param {unknown[]} b
+ */
+function sameEnds(a, b) {
+    return a.length === b.length && a.every((value, i) => value === b[i]);
 }
 
 /**
