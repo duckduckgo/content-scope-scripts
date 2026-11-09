@@ -65,9 +65,9 @@
         }
       }
     },
-    "PromptLimits": {
+    "PastedTextLimits": {
       "type": "object",
-      "description": "Prompt length limits, in UTF-16 code units, applied when `enablePastedText` is on. Native reads them from remote config. When absent, the omnibar uses 4000 and 16000.",
+      "description": "Pasted-text settings, in UTF-16 code units, applied only when `enablePastedText` is on: the paste length that becomes a pasted-text chip, and the cap on typed text plus pastes. Native reads them from remote config. When absent, the omnibar uses 4000 and 16000.",
       "required": ["pasteConversionThreshold", "maxCharacters"],
       "properties": {
         "pasteConversionThreshold": {
@@ -332,13 +332,13 @@
     },
     "enablePastedText": {
       "title": "Enable Pasted Text",
-      "description": "When true, a text paste into the Duck.ai prompt of at least `promptLimits.pasteConversionThreshold` characters becomes a pasted-text attachment, sent as `textPasted` in `omnibar_submitChat`, and the prompt is capped at `promptLimits.maxCharacters`. Not applied in image-generation mode. When false or absent, text pastes inline with no cap.",
+      "description": "When true, a text paste into the Duck.ai prompt of at least `pastedTextLimits.pasteConversionThreshold` characters becomes a pasted-text attachment, sent as `textPasted` in `omnibar_submitChat`, and the prompt is capped at `pastedTextLimits.maxCharacters`. Not applied in image-generation mode. When false or absent, text pastes inline with no cap.",
       "type": "boolean",
       "default": false
     },
-    "promptLimits": {
-      "title": "Prompt Limits",
-      "$ref": "#/$defs/PromptLimits"
+    "pastedTextLimits": {
+      "title": "Pasted Text Limits",
+      "$ref": "#/$defs/PastedTextLimits"
     },
     "enableAiChatDeletion": {
       "title": "Enable AI Chat Deletion",

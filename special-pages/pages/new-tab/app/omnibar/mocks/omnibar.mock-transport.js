@@ -519,7 +519,7 @@ export function omnibarMockTransport() {
                     const pasteConversionThreshold = parseInt(url.searchParams.get('omnibar.pasteConversionThreshold') ?? '', 10);
                     const maxCharacters = parseInt(url.searchParams.get('omnibar.maxCharacters') ?? '', 10);
                     if (pasteConversionThreshold > 0 || maxCharacters > 0) {
-                        config.promptLimits = {
+                        config.pastedTextLimits = {
                             pasteConversionThreshold: pasteConversionThreshold > 0 ? pasteConversionThreshold : 4000,
                             maxCharacters: maxCharacters > 0 ? maxCharacters : 16000,
                         };

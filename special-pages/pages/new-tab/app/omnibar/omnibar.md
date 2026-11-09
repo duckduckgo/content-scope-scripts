@@ -46,7 +46,7 @@ Web Search and Create Image share one selection across NTP tabs in the window. S
   - `screenshotModes` — capture modes (`"dragToSelect"`, `"selectWindowOrDisplay"`) listed, in order, under "Add Screenshot" in the paperclip menu. Absent or empty hides the screenshot UI. Requires native to handle `omnibar_captureScreenshot`. The row is disabled while a capture is pending, at the image cap, when the model cannot take images, or when the prompt is blocked.
   - `enablePastedAttachments` — when `true`, pasting into the Duck.ai prompt attaches copied images and files (see [Paste](#paste)). When `false` or absent, paste is left to the browser (text only) (default `false`). The page needs no native support to paste; the flag lets native roll the behaviour out and switch it off remotely.
   - `enablePastedText` — when `true`, a long text paste becomes a pasted-text chip and the prompt is capped (see [Pasted text](#pasted-text)). Requires native to forward `textPasted` from `omnibar_submitChat` (default `false`).
-  - `promptLimits` — `{ pasteConversionThreshold, maxCharacters }`, in UTF-16 code units, used with `enablePastedText`. Native reads them from remote config. Absent, or a missing or invalid field, falls back to 4000 and 16000.
+  - `pastedTextLimits` — `{ pasteConversionThreshold, maxCharacters }`, in UTF-16 code units, used with `enablePastedText`. Native reads them from remote config. Absent, or a missing or invalid field, falls back to 4000 and 16000.
   - `aiModelSections` — array of model sections for the model selector. Each model may include `supportedReasoningEffort` (e.g. `["none", "low", "medium"]`) to surface the reasoning picker
   - `selectedModelId` — the user's persisted model choice
   - `selectedReasoningEffort` — the user's persisted reasoning-effort choice for the active model. Native validates against the model's `supportedReasoningEffort` on write
@@ -197,10 +197,10 @@ With `enablePastedAttachments`, a paste into the Duck.ai prompt is handled as fo
 
 With `enablePastedText`, as in Duck.ai and the native apps:
 
-- A text paste of at least `promptLimits.pasteConversionThreshold` characters that isn't only whitespace is attached as a "Pasted text" chip instead of inserted. It wins over any images or files on the clipboard. Shorter pastes go inline.
-- Chips show the start of the text. Clicking one (or Enter/Space) opens a "Pasted Text" dialog to view and edit it; "Save Changes" replaces the paste, and Cancel, ×, Escape or a backdrop click discard the edit. Saving is blocked while the edit is blank or would put the prompt over `promptLimits.maxCharacters`.
+- A text paste of at least `pastedTextLimits.pasteConversionThreshold` characters that isn't only whitespace is attached as a "Pasted text" chip instead of inserted. It wins over any images or files on the clipboard. Shorter pastes go inline.
+- Chips show the start of the text. Clicking one (or Enter/Space) opens a "Pasted Text" dialog to view and edit it; "Save Changes" replaces the paste, and Cancel, ×, Escape or a backdrop click discard the edit. Saving is blocked while the edit is blank or would put the prompt over `pastedTextLimits.maxCharacters`.
 - On submit, chips are sent in attach order as `textPasted: [{ content }]` in `omnibar_submitChat`. A chip alone, with an empty prompt, can be sent.
-- The typed text plus every chip may have at most `promptLimits.maxCharacters` characters; over that, a warning shows and sending is blocked.
+- The typed text plus every chip may have at most `pastedTextLimits.maxCharacters` characters; over that, a warning shows and sending is blocked.
 - Not applied in image-generation mode: long pastes go inline and existing chips are hidden and not sent.
 
 ## Drag and drop

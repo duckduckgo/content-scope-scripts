@@ -1,9 +1,9 @@
 /**
- * @typedef {import('../../../../../types/new-tab.js').PromptLimits} PromptLimits
+ * @typedef {import('../../../../../types/new-tab.js').PastedTextLimits} PastedTextLimits
  */
 
-/** Matches Duck.ai and the native apps when native sends no `promptLimits`. */
-export const DEFAULT_PROMPT_LIMITS = /** @type {PromptLimits} */ ({ pasteConversionThreshold: 4000, maxCharacters: 16000 });
+/** Matches Duck.ai and the native apps when native sends no `pastedTextLimits`. */
+export const DEFAULT_PASTED_TEXT_LIMITS = /** @type {PastedTextLimits} */ ({ pasteConversionThreshold: 4000, maxCharacters: 16000 });
 
 /** Longest excerpt shown as a pasted-text chip title. */
 export const TEXT_PASTED_EXCERPT_MAX_CHARS = 200;
@@ -13,17 +13,17 @@ export const TEXT_PASTED_SUMMARY_MAX_CHARS = 60;
 
 /**
  * Native limits, falling back per field to the defaults when missing or invalid.
- * @param {Partial<PromptLimits> | null | undefined} limits
- * @returns {PromptLimits}
+ * @param {Partial<PastedTextLimits> | null | undefined} limits
+ * @returns {PastedTextLimits}
  */
-export function resolvePromptLimits(limits) {
+export function resolvePastedTextLimits(limits) {
     const valid = (/** @type {unknown} */ n) => typeof n === 'number' && Number.isInteger(n) && n > 0;
     const maxCharacters = valid(limits?.maxCharacters)
         ? /** @type {number} */ (limits?.maxCharacters)
-        : DEFAULT_PROMPT_LIMITS.maxCharacters;
+        : DEFAULT_PASTED_TEXT_LIMITS.maxCharacters;
     const threshold = valid(limits?.pasteConversionThreshold)
         ? /** @type {number} */ (limits?.pasteConversionThreshold)
-        : DEFAULT_PROMPT_LIMITS.pasteConversionThreshold;
+        : DEFAULT_PASTED_TEXT_LIMITS.pasteConversionThreshold;
     return { pasteConversionThreshold: Math.min(threshold, maxCharacters), maxCharacters };
 }
 

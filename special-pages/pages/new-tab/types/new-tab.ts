@@ -8,11 +8,7 @@
 
 export type OpenTarget = "same-tab" | "new-tab" | "new-window";
 export type BackgroundVariant =
-  | DefaultBackground
-  | SolidColorBackground
-  | HexValueBackground
-  | GradientBackground
-  | UserImageBackground;
+  DefaultBackground | SolidColorBackground | HexValueBackground | GradientBackground | UserImageBackground;
 export type PredefinedColor =
   | "color01"
   | "color02"
@@ -163,7 +159,7 @@ export type ScreenshotModes = ScreenshotMode[];
  */
 export type EnablePastedAttachments = boolean;
 /**
- * When true, a text paste into the Duck.ai prompt of at least `promptLimits.pasteConversionThreshold` characters becomes a pasted-text attachment, sent as `textPasted` in `omnibar_submitChat`, and the prompt is capped at `promptLimits.maxCharacters`. Not applied in image-generation mode. When false or absent, text pastes inline with no cap.
+ * When true, a text paste into the Duck.ai prompt of at least `pastedTextLimits.pasteConversionThreshold` characters becomes a pasted-text attachment, sent as `textPasted` in `omnibar_submitChat`, and the prompt is capped at `pastedTextLimits.maxCharacters`. Not applied in image-generation mode. When false or absent, text pastes inline with no cap.
  */
 export type EnablePastedText = boolean;
 /**
@@ -988,7 +984,7 @@ export interface OmnibarConfig {
   screenshotModes?: ScreenshotModes;
   enablePastedAttachments?: EnablePastedAttachments;
   enablePastedText?: EnablePastedText;
-  promptLimits?: PromptLimits;
+  pastedTextLimits?: PastedTextLimits;
   enableAiChatDeletion?: EnableAIChatDeletion;
   enableSearchSuggestionDeletion?: EnableSearchSuggestionDeletion;
   requiresAiTermsAcceptance?: RequiresAITermsAcceptance;
@@ -1138,9 +1134,9 @@ export interface AttachmentLimits {
   };
 }
 /**
- * Prompt length limits, in UTF-16 code units, applied when `enablePastedText` is on. Native reads them from remote config. When absent, the omnibar uses 4000 and 16000.
+ * Pasted-text settings, in UTF-16 code units, applied only when `enablePastedText` is on: the paste length that becomes a pasted-text chip, and the cap on typed text plus pastes. Native reads them from remote config. When absent, the omnibar uses 4000 and 16000.
  */
-export interface PromptLimits {
+export interface PastedTextLimits {
   /**
    * Shortest text paste that becomes a pasted-text attachment.
    */

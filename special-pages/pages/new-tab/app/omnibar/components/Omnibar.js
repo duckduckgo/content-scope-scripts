@@ -25,7 +25,7 @@ import { usePastedAttachments } from './chat-tools/image-attachment/usePastedAtt
 import { useScreenshotCapture } from './chat-tools/image-attachment/useScreenshotCapture';
 import { AttachmentChips } from './chat-tools/attachments/AttachmentChips';
 import { AttachmentsProvider, useAttachmentsContext } from './chat-tools/attachments/AttachmentsProvider';
-import { promptLength, resolvePromptLimits } from './chat-tools/text-pasted/textPasted.js';
+import { promptLength, resolvePastedTextLimits } from './chat-tools/text-pasted/textPasted.js';
 import { useDroppedAttachments } from './chat-tools/attachments/useDroppedAttachments';
 import { ModelSelectorTool } from './chat-tools/model-selector/ModelSelectorTool';
 import { ReasoningPickerTool } from './chat-tools/reasoning-picker/ReasoningPickerTool';
@@ -354,7 +354,7 @@ function AiChatContent({
     const canAttachTabs = enableAttachTabs && !imageGenerationActive;
     const pastedTextEnabled = state.config?.enablePastedText === true;
     const canAttachText = pastedTextEnabled && !imageGenerationActive;
-    const promptLimits = resolvePromptLimits(state.config?.promptLimits);
+    const pastedTextLimits = resolvePastedTextLimits(state.config?.pastedTextLimits);
     const attachedTextPasted = canAttachText ? textPastedState.attachedTextPasted : [];
     const pastedAttachments = usePastedAttachments({
         imageState,
@@ -496,7 +496,7 @@ function AiChatContent({
     const showTabWarning = tabWarning && !imageMessageShowing && !showCaptureError && !showFileError && !showFileWarning;
     // The typed text plus pastes over the limit; the cap only applies with the pasted-text feature on.
     const currentPromptLength = promptLength(query, attachedTextPasted);
-    const promptTooLong = pastedTextEnabled && currentPromptLength > promptLimits.maxCharacters;
+    const promptTooLong = pastedTextEnabled && currentPromptLength > pastedTextLimits.maxCharacters;
     const showPromptTooLong =
         promptTooLong && !imageMessageShowing && !showCaptureError && !showFileError && !showFileWarning && !showTabWarning;
     const hasSendableAttachments =
@@ -569,7 +569,7 @@ function AiChatContent({
                     textareaRef={textareaRef}
                     onPaste={(event) => {
                         // A long text paste wins over any images or files on the clipboard, like inline text does.
-                        if (canAttachText && !blocksPrompt) textPastedState.handlePaste(event, promptLimits.pasteConversionThreshold);
+                        if (canAttachText && !blocksPrompt) textPastedState.handlePaste(event, pastedTextLimits.pasteConversionThreshold);
                         if (!event.defaultPrevented) pastedAttachments.handlePaste(event);
                     }}
                     onDragOver={droppedAttachments.handleDragOver}
@@ -674,7 +674,7 @@ function AiChatContent({
                         onRemoveImage={imageState.handleRemoveImage}
                         onRemoveTextPasted={textPastedState.removeTextPasted}
                         onEditTextPasted={textPastedState.updateTextPasted}
-                        textPastedLimit={{ promptLength: currentPromptLength, maxCharacters: promptLimits.maxCharacters }}
+                        textPastedLimit={{ promptLength: currentPromptLength, maxCharacters: pastedTextLimits.maxCharacters }}
                     />
                     {showCaptureError && (
                         <p class={styles.attachmentWarning} role="alert">
@@ -698,7 +698,7 @@ function AiChatContent({
                     )}
                     {showPromptTooLong && (
                         <p class={styles.attachmentWarning} role="alert">
-                            {t('omnibar_promptTooLongWarning', { limit: String(promptLimits.maxCharacters) })}
+                            {t('omnibar_promptTooLongWarning', { limit: String(pastedTextLimits.maxCharacters) })}
                         </p>
                     )}
                     <ImageAttachmentContent

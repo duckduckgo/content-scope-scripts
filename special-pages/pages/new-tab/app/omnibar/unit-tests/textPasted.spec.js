@@ -1,43 +1,43 @@
 import { deepEqual, equal } from 'node:assert/strict';
 import { test } from 'node:test';
 import {
-    DEFAULT_PROMPT_LIMITS,
+    DEFAULT_PASTED_TEXT_LIMITS,
     isConvertibleTextPaste,
     promptLength,
-    resolvePromptLimits,
+    resolvePastedTextLimits,
     textPastedSummary,
 } from '../components/chat-tools/text-pasted/textPasted.js';
 
-test.describe('resolvePromptLimits', () => {
+test.describe('resolvePastedTextLimits', () => {
     test('defaults when absent', () => {
-        deepEqual(resolvePromptLimits(undefined), DEFAULT_PROMPT_LIMITS);
-        deepEqual(resolvePromptLimits(null), { pasteConversionThreshold: 4000, maxCharacters: 16000 });
+        deepEqual(resolvePastedTextLimits(undefined), DEFAULT_PASTED_TEXT_LIMITS);
+        deepEqual(resolvePastedTextLimits(null), { pasteConversionThreshold: 4000, maxCharacters: 16000 });
     });
 
     test('uses native values', () => {
-        deepEqual(resolvePromptLimits({ pasteConversionThreshold: 100, maxCharacters: 500 }), {
+        deepEqual(resolvePastedTextLimits({ pasteConversionThreshold: 100, maxCharacters: 500 }), {
             pasteConversionThreshold: 100,
             maxCharacters: 500,
         });
     });
 
     test('falls back per field for invalid values', () => {
-        deepEqual(resolvePromptLimits({ pasteConversionThreshold: 0, maxCharacters: 500 }), {
+        deepEqual(resolvePastedTextLimits({ pasteConversionThreshold: 0, maxCharacters: 500 }), {
             pasteConversionThreshold: 500,
             maxCharacters: 500,
         });
-        deepEqual(resolvePromptLimits({ pasteConversionThreshold: 100, maxCharacters: -1 }), {
+        deepEqual(resolvePastedTextLimits({ pasteConversionThreshold: 100, maxCharacters: -1 }), {
             pasteConversionThreshold: 100,
             maxCharacters: 16000,
         });
-        deepEqual(resolvePromptLimits({ pasteConversionThreshold: 1.5, maxCharacters: 500 }), {
+        deepEqual(resolvePastedTextLimits({ pasteConversionThreshold: 1.5, maxCharacters: 500 }), {
             pasteConversionThreshold: 500,
             maxCharacters: 500,
         });
     });
 
     test('keeps the threshold within the max', () => {
-        deepEqual(resolvePromptLimits({ pasteConversionThreshold: 900, maxCharacters: 500 }), {
+        deepEqual(resolvePastedTextLimits({ pasteConversionThreshold: 900, maxCharacters: 500 }), {
             pasteConversionThreshold: 500,
             maxCharacters: 500,
         });
