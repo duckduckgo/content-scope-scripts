@@ -68,8 +68,9 @@ say, it's left out, and native takes the text to be in the user's language.
 
 ## Reporting a selection
 
-A selection is reported with `selectionChanged` when a selection gesture ends: a primary-button release, a Shift key
-release, or select-all while editing. Only while `enabled` and `showToolbar` are both on, and not for selections in the
+A selection is reported with `selectionChanged` when a selection gesture ends: a primary-button release that changed
+the selection, a Shift key release, or select-all while editing. A click that leaves the selection as it was, such as on
+a rich-text editor's menu button, clears the report without starting a new one, so the toolbar doesn't cover the menu. Only while `enabled` and `showToolbar` are both on, and not for selections in the
 top layer (a modal dialog, popover or fullscreen element), where the toolbar would sit behind. It's reported again when
 the same text is reselected; native drops repeats.
 

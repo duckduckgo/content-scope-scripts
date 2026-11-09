@@ -155,6 +155,19 @@ test.describe('selectionTools', () => {
         await expect(page.locator('ddg-selection-tools')).toHaveCount(0);
     });
 
+    test('reports text dragged over with the mouse in a text field', async ({ page }, testInfo) => {
+        const collector = await setup(page, testInfo);
+        const field = await page.locator('#field').boundingBox();
+        if (!field) throw new Error('no field');
+        const y = field.y + 12;
+        await page.mouse.move(field.x + 6, y);
+        await page.mouse.down();
+        await page.mouse.move(field.x + 120, y, { steps: 5 });
+        await page.mouse.up();
+        await expect.poll(async () => (await lastSent(collector, 'selectionChanged'))?.editable).toBe(true);
+        expect((await lastSent(collector, 'selectionChanged')).text.length).toBeGreaterThan(2);
+    });
+
     test('reports select-all in an editable region as editable', async ({ page }, testInfo) => {
         const collector = await setup(page, testInfo);
         await page.evaluate(() => {
@@ -338,6 +351,25 @@ test.describe('selectionTools', () => {
         await settle(page);
         expect(await sent(collector, 'selectionCleared')).toHaveLength(clears + 1);
         expect(await sent(collector, 'selectionChanged')).toHaveLength(reports);
+    });
+
+    test('clears the report for a click that keeps the selection, such as on an editor menu button', async ({ page }, testInfo) => {
+        const collector = await setup(page, testInfo);
+        await selectParagraph(page, '#english');
+        await reportedWith(collector, ENGLISH);
+        const reports = (await sent(collector, 'selectionChanged')).length;
+        const clears = (await sent(collector, 'selectionCleared')).length;
+        await page.locator('#format-menu').click();
+        await expect(page.locator('#format-options')).toBeVisible();
+        await expect.poll(() => sent(collector, 'selectionCleared')).toHaveLength(clears + 1);
+        // The selection is still there, but the click didn't select it, so the toolbar doesn't come back over the menu.
+        expect(await page.evaluate(() => String(document.getSelection()))).toContain(ENGLISH);
+        await settle(page);
+        expect(await sent(collector, 'selectionChanged')).toHaveLength(reports);
+
+        // Selecting the same text again with the mouse does select it.
+        await selectParagraph(page, '#english');
+        await reportedWith(collector, ENGLISH, reports);
     });
 
     test('clears the report on Escape', async ({ page }, testInfo) => {

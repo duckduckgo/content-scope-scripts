@@ -480,6 +480,19 @@ export function isSelectionCollapsed() {
 }
 
 /**
+ * Where the selection is now, to tell later whether it changed: the field and its offsets, or the range's ends. Empty
+ * without a selection.
+ * @returns {unknown[]}
+ */
+export function selectionEnds() {
+    const active = deepActiveElement();
+    if (isTextField(active)) return [active, active.selectionStart, active.selectionEnd];
+    const selection = window.getSelection();
+    const range = selection ? selectedRange(selection) : null;
+    return range ? [range.startContainer, range.startOffset, range.endContainer, range.endOffset] : [];
+}
+
+/**
  * Whether focus is somewhere the user edits text, where select-all takes only that text rather than the whole page.
  */
 export function isEditingFocused() {
