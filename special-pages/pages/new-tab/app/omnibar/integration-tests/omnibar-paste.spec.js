@@ -287,17 +287,22 @@ test.describe('omnibar pasted text', () => {
         await expect(omnibar.textPastedChips()).toHaveCount(0);
     });
 
-    test('blocks sending while typed text plus pastes is over the limit', async ({ page }, workerInfo) => {
+    test('blocks sending and marks the chips while typed text plus pastes is over the limit', async ({ page }, workerInfo) => {
         const { omnibar } = await setup(page, workerInfo, TEXT_ON);
 
         await omnibar.pasteIntoChatInput({ text: LONG });
+        await expect(omnibar.textPastedChipMetadata()).toHaveText(`${LONG.length} characters`);
+        await expect(omnibar.textPastedChipMetadata()).not.toHaveAttribute('data-invalid');
+
         await omnibar.chatInput().fill('x'.repeat(14));
         await expect(omnibar.promptTooLongWarning()).toBeVisible();
         await expect(omnibar.chatSubmitButton()).toBeDisabled();
+        await expect(omnibar.textPastedChipMetadata()).toHaveAttribute('data-invalid', 'true');
 
         await omnibar.chatInput().fill('x'.repeat(13));
         await expect(omnibar.promptTooLongWarning()).toHaveCount(0);
         await expect(omnibar.chatSubmitButton()).toBeEnabled();
+        await expect(omnibar.textPastedChipMetadata()).not.toHaveAttribute('data-invalid');
     });
 
     test('edits a pasted-text chip and sends the edited text', async ({ page }, workerInfo) => {
@@ -350,7 +355,7 @@ test.describe('omnibar pasted text', () => {
 
         // 10 typed + 21 pasted = 31, over the 30 cap: the dialog warns but still saves, so chips can be trimmed one at a time.
         await omnibar.textPastedModalInput().fill('y'.repeat(21));
-        await expect(omnibar.textPastedModal()).toContainText('Please try a shorter message. 31 / 30');
+        await expect(omnibar.textPastedModal()).toContainText('31 characters – 1 over the limit');
         await expect(omnibar.textPastedModalSaveButton()).toBeEnabled();
         await omnibar.textPastedModalSaveButton().click();
         await expect(omnibar.textPastedModal()).toHaveCount(0);

@@ -20,6 +20,7 @@ import styles from './AttachmentChip.module.css';
  * @param {string} [props.title]
  * @param {string} [props.typeLabel] - attachment kind, e.g. "Webpage" or "PDF".
  * @param {string} [props.metadata] - extra line, e.g. domain or file size.
+ * @param {boolean} [props.metadataInvalid] - shows the metadata line in the error colour.
  * @param {string} [props.tooltipLabel] - hover preview; defaults to `title`.
  * @param {() => void} props.onRemove
  * @param {string} props.removeLabel
@@ -33,6 +34,7 @@ export function AttachmentChip({
     title,
     typeLabel,
     metadata,
+    metadataInvalid = false,
     tooltipLabel,
     onRemove,
     removeLabel,
@@ -61,7 +63,14 @@ export function AttachmentChip({
                                 <span class={styles.title}>{title}</span>
                             </span>
                         )}
-                        {!imagePreview && metadata && <span class={styles.metadata}>{metadata}</span>}
+                        {!imagePreview && metadata && (
+                            <span
+                                class={cn(styles.metadata, metadataInvalid && styles.metadataInvalid)}
+                                data-invalid={metadataInvalid || undefined}
+                            >
+                                {metadata}
+                            </span>
+                        )}
                         {!imagePreview && (
                             <span class={styles.info}>
                                 <span class={styles.iconSlot}>

@@ -20,8 +20,7 @@
     overflow: clip;
     padding: var(--ds-space-x06);
     width: 800px;
-    /* The theme mappings don't cover destructive colours yet, hence the default-theme fallbacks. */
-    --text-pasted-destructive: var(--ds-color-theme-destructive-primary, var(--ds-color-theme-default-light-destructive-primary));
+    /* The theme mappings don't cover destructive colours yet, hence the default-theme fallback. */
     --text-pasted-destructive-text: var(--ds-color-theme-destructive-text-primary, var(--ds-color-theme-default-light-destructive-text-primary));
 
     /* `display: flex` would otherwise override the UA's `display: none` and flash
@@ -38,7 +37,6 @@
     /* A darker surface than the textarea's, so the text stands out from the modal. */
     [data-theme='dark'] & {
         background: var(--ds-color-theme-surface-secondary);
-        --text-pasted-destructive: var(--ds-color-theme-destructive-primary, var(--ds-color-theme-default-dark-destructive-primary));
         --text-pasted-destructive-text: var(--ds-color-theme-destructive-text-primary, var(--ds-color-theme-default-dark-destructive-text-primary));
     }
 
@@ -133,12 +131,6 @@
     }
 }
 
-.textareaInvalid,
-.textareaInvalid:focus-visible {
-    outline: 2px solid var(--text-pasted-destructive);
-    outline-offset: -1px;
-}
-
 .footer {
     align-items: center;
     display: flex;
@@ -157,8 +149,18 @@
     padding-left: var(--ds-space-x05);
 }
 
-.countError {
+.countOverLimit {
+    align-items: center;
     color: var(--text-pasted-destructive-text);
+    display: flex;
+    font-size: var(--ds-font-body-sm-size);
+    font-weight: var(--ds-font-body-sm-weight);
+    gap: var(--ds-space-x02-5);
+    line-height: var(--ds-font-body-sm-line-height);
+}
+
+.countIcon {
+    flex-shrink: 0;
 }
 
 .footerButtons {

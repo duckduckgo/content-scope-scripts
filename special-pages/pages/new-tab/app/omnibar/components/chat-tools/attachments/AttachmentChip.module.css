@@ -143,6 +143,15 @@
     width: 100%;
 }
 
+/* The theme mappings don't cover destructive colours yet, hence the default-theme fallbacks. */
+.metadataInvalid {
+    color: var(--ds-color-theme-destructive-primary, var(--ds-color-theme-default-light-destructive-primary));
+
+    [data-theme='dark'] & {
+        color: var(--ds-color-theme-destructive-primary, var(--ds-color-theme-default-dark-destructive-primary));
+    }
+}
+
 .info {
     align-items: center;
     box-sizing: border-box;

@@ -437,13 +437,17 @@
     "title": "Formatting may be inconsistent from source.",
     "description": "Note under the Pasted Text dialog title: the pasted text is plain text, so rich formatting from where it was copied is lost."
   },
+  "omnibar_pastedTextChipCharacterCount": {
+    "title": "{count} characters",
+    "description": "Line on a pasted-text chip showing the length of the pasted text. Shown in red while the whole message is too long to send. {count} is the number of characters."
+  },
   "omnibar_pastedTextModalCharacterCount": {
     "title": "{count} characters",
     "description": "Footer of the Pasted Text dialog showing the length of the pasted text. {count} is the number of characters."
   },
-  "omnibar_pastedTextModalTooLong": {
-    "title": "Please try a shorter message.",
-    "description": "Error in the Pasted Text dialog footer when the edited text makes the message too long. It is followed by the message length and the limit, e.g. \"16113 / 16000\"."
+  "omnibar_pastedTextModalOverLimit": {
+    "title": "{count} characters – {over} over the limit",
+    "description": "Error in the Pasted Text dialog footer when the message is too long to send. {count} is the length of the whole message (typed text plus all pasted text) and {over} is how many characters it is over the limit, e.g. \"16,800 characters – 800 over the limit\"."
   },
   "omnibar_pastedTextModalCancel": {
     "title": "Cancel",

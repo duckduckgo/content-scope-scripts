@@ -1,9 +1,11 @@
 import { Fragment, h } from 'preact';
-import { useEffect, useRef, useState } from 'preact/hooks';
+import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import cn from 'classnames';
 import { useMessaging, useTypedTranslationWith } from '../../../../types';
 import { usePlatformName } from '../../../../settings.provider';
-import { Check16Icon, Close16Icon } from '../../../../components/Icons';
+import { AlertRecolorableIcon, Check16Icon, Close16Icon } from '../../../../components/Icons';
+import { useLocale } from '../../../../../../../shared/components/EnvironmentProvider.js';
+import { getLocalizedNumberFormatter } from '../../../../../../../shared/utils.js';
 import { isConvertibleTextPaste } from './textPasted.js';
 import styles from './TextPastedModal.module.css';
 
@@ -27,6 +29,8 @@ import styles from './TextPastedModal.module.css';
 export function TextPastedModal({ content, otherPromptLength, maxCharacters, onSave, onClose }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
+    const locale = useLocale();
+    const numberFormatter = useMemo(() => getLocalizedNumberFormatter(locale), [locale]);
     const ntp = useMessaging();
     const [draft, setDraft] = useState(content);
 
@@ -96,7 +100,7 @@ export function TextPastedModal({ content, otherPromptLength, maxCharacters, onS
             <p class={styles.note}>{t('omnibar_pastedTextModalFormattingNote')}</p>
             <textarea
                 ref={textareaRef}
-                class={cn(styles.textarea, tooLong && styles.textareaInvalid)}
+                class={styles.textarea}
                 value={draft}
                 aria-label={t('omnibar_pastedTextModalTitle')}
                 aria-invalid={tooLong || undefined}
@@ -104,13 +108,14 @@ export function TextPastedModal({ content, otherPromptLength, maxCharacters, onS
                 onInput={(e) => setDraft(/** @type {HTMLTextAreaElement} */ (e.currentTarget).value)}
             />
             <footer class={styles.footer}>
-                <p id="text-pasted-modal-count" class={styles.count} aria-live="polite">
+                <p id="text-pasted-modal-count" class={cn(styles.count, tooLong && styles.countOverLimit)} aria-live="polite">
                     {tooLong ? (
                         <Fragment>
-                            <span class={styles.countError}>
-                                {t('omnibar_pastedTextModalTooLong')} {totalLength}
-                            </span>{' '}
-                            / {maxCharacters}
+                            <AlertRecolorableIcon class={styles.countIcon} aria-hidden="true" />
+                            {t('omnibar_pastedTextModalOverLimit', {
+                                count: numberFormatter.format(totalLength),
+                                over: numberFormatter.format(totalLength - maxCharacters),
+                            })}
                         </Fragment>
                     ) : (
                         t('omnibar_pastedTextModalCharacterCount', { count: String(draft.length) })

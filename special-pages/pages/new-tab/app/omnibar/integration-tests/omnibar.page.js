@@ -616,6 +616,11 @@ export class OmnibarPage {
         return this.attachmentChips().locator('[data-attachment-kind="text"]');
     }
 
+    /** The "N characters" line on the pasted-text chips; `data-invalid` while the prompt is over the limit. */
+    textPastedChipMetadata() {
+        return this.textPastedChips().getByText(/characters$/);
+    }
+
     /** @param {string} summary - start of the pasted text */
     removeTextPastedButton(summary) {
         return this.attachmentChips().getByRole('button', { name: `Remove pasted text “${summary}”` });
