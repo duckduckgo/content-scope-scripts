@@ -87,8 +87,9 @@ export class WebkitMessagingTransport {
      * @internal
      */
     wkSendAndWait(handler, data) {
-        // The captured `then` instead of `await`: `await` and async returns read the page-mutable
-        // `Promise.prototype.constructor` and `then`, which would let a page rewrite native replies.
+        // The captured `then` instead of `await`, so a page that replaces `Promise.prototype.then`
+        // doesn't see native replies. `then` still reads the page-mutable `constructor`, so this
+        // doesn't fully isolate replies; native code must enforce anything a reply grants.
         // Rejects rather than throws, as the async version did.
         try {
             return ReflectApply(promiseThen, this.wkSend(handler, data), [(response) => JSONparse(response || '{}')]);
