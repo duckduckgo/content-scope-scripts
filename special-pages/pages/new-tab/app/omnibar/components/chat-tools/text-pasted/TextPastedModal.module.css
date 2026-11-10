@@ -4,7 +4,6 @@
     background: var(--ds-color-theme-surface-tertiary);
     border: none;
     border-radius: var(--ds-radius-x08);
-    /* Duck.ai's modal elevation; no shadow token matches it, so literal values */
     box-shadow:
         0 20px 40px 0 rgba(0, 0, 0, 0.04),
         0 4px 12px 0 rgba(0, 0, 0, 0.04);
@@ -14,27 +13,22 @@
     flex-direction: column;
     font-size: var(--ds-font-body-md-size);
     gap: var(--ds-space-x03);
-    margin: auto; /* Restore UA centering; the app's global reset zeroes dialog margins. */
+    margin: auto;
     max-height: 80vh;
     max-width: 90vw;
     overflow: clip;
     padding: var(--ds-space-x06);
     width: 800px;
-    /* The theme mappings don't cover destructive colours yet, hence the default-theme fallback. */
     --text-pasted-destructive-text: var(--ds-color-theme-destructive-text-primary, var(--ds-color-theme-default-light-destructive-text-primary));
 
-    /* `display: flex` would otherwise override the UA's `display: none` and flash
-       the dialog before the mount effect calls showModal(). */
     &:not([open]) {
         display: none;
     }
 
     &::backdrop {
-        /* Duck.ai's modal scrim; no translucent theme token exists, so literal values */
         background: rgba(0, 0, 0, 0.3);
     }
 
-    /* A darker surface than the textarea's, so the text stands out from the modal. */
     [data-theme='dark'] & {
         background: var(--ds-color-theme-surface-secondary);
         --text-pasted-destructive-text: var(--ds-color-theme-destructive-text-primary, var(--ds-color-theme-default-dark-destructive-text-primary));
@@ -51,7 +45,6 @@
     flex-shrink: 0;
     gap: var(--ds-space-x03);
     justify-content: space-between;
-    /* 4px above the note, against the modal's 12px gap. */
     margin-bottom: calc(var(--ds-space-x02) * -1);
 
     & h4 {
@@ -106,7 +99,6 @@
     background-color: var(--ds-color-theme-surface-tertiary);
     border: 1px solid var(--ds-color-theme-container-border-tertiary);
     border-radius: var(--ds-radius-x06);
-    /* Duck.ai's chat-input elevation; no shadow token matches it, so literal values */
     box-shadow:
         0 2px 4px rgba(0, 0, 0, 0.06),
         0 4px 20px rgba(0, 0, 0, 0.04);
@@ -145,7 +137,6 @@
     font-weight: var(--ds-font-weight-bold);
     line-height: var(--ds-font-body-md-line-height);
     margin: 0;
-    /* Aligns the count with the text inside the textarea. */
     padding-left: var(--ds-space-x05);
 }
 

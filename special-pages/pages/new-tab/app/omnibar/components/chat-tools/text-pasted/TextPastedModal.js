@@ -45,13 +45,10 @@ export function TextPastedModal({ content, otherPromptLength, maxCharacters, onS
 
     const totalLength = otherPromptLength + draft.length;
     const tooLong = totalLength > maxCharacters;
-    // A blank paste would never have been attached, so it can't be saved either. Saving over the limit is
-    // allowed, as on iOS, so several pastes can be trimmed in turn; the omnibar keeps Send off until the prompt fits.
     const canSave = isConvertibleTextPaste(draft, 1);
 
     const handleSave = () => {
         if (!canSave) return;
-        // Saving unchanged text isn't an edit.
         if (draft !== content) onSave(draft);
         onClose();
     };
@@ -78,15 +75,12 @@ export function TextPastedModal({ content, otherPromptLength, maxCharacters, onS
             class={styles.modal}
             data-text-pasted-modal
             onClick={(e) => {
-                // Clicks on the ::backdrop are dispatched on the <dialog> itself.
                 if (e.target === e.currentTarget) onClose();
             }}
             onCancel={(e) => {
-                // Route native Escape-close through onClose so open/close state stays in sync.
                 e.preventDefault();
                 onClose();
             }}
-            // The dialog renders inside the omnibar form; keep drops in the textarea from becoming attachments.
             onDragEnter={(e) => e.stopPropagation()}
             onDragOver={(e) => e.stopPropagation()}
             onDrop={(e) => e.stopPropagation()}

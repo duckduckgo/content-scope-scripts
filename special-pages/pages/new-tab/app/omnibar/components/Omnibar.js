@@ -568,7 +568,6 @@ function AiChatContent({
                     combobox={mention.combobox}
                     textareaRef={textareaRef}
                     onPaste={(event) => {
-                        // A long text paste wins over any images or files on the clipboard, like inline text does.
                         if (canAttachText && !blocksPrompt) textPastedState.handlePaste(event, pastedTextLimits.pasteConversionThreshold);
                         if (!event.defaultPrevented) pastedAttachments.handlePaste(event);
                     }}
