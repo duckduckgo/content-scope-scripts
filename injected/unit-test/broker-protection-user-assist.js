@@ -1,4 +1,5 @@
-import { waitForUserAssist } from '../src/features/broker-protection/actions/user-assist.js';
+import { JSDOM } from 'jsdom';
+import { isUserAssistComplete, waitForUserAssist } from '../src/features/broker-protection/actions/user-assist.js';
 
 describe('waitForUserAssist', () => {
     /**
@@ -41,5 +42,27 @@ describe('waitForUserAssist', () => {
         setTimeout(() => controller.abort(), 20);
         const { completed } = await run({ completeAfterChecks: Infinity, handOffAfterMs: 0, signal: controller.signal });
         expect(completed).toBe(false);
+    });
+});
+
+describe('isUserAssistComplete', () => {
+    /** @type {Document} */
+    let doc;
+    /** @type {jasmine.Spy} */
+    let scrollIntoView;
+
+    beforeEach(() => {
+        const dom = new JSDOM('<div id="form"><input id="token" value="x"></div>');
+        doc = dom.window.document;
+        scrollIntoView = jasmine.createSpy('scrollIntoView');
+        dom.window.HTMLElement.prototype.scrollIntoView = scrollIntoView;
+    });
+
+    it("checks that an element item's parent exists without scrolling it into view", () => {
+        const passes = (/** @type {string} */ parent) =>
+            isUserAssistComplete({ id: 'ua', completeWhen: [{ type: 'element', selector: '#token', parent }] }, doc);
+        expect(passes('#form')).toBe(true);
+        expect(passes('#missing')).toBe(false);
+        expect(scrollIntoView).not.toHaveBeenCalled();
     });
 });

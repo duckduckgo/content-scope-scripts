@@ -15,6 +15,7 @@ const STYLES = `
 .layer { position: absolute; top: 0; left: 0; width: 0; height: 0; pointer-events: none;
     font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif; --ease: cubic-bezier(.2,.8,.2,1); }
 .field { position: absolute; border-radius: 4px; box-shadow: inset 0 0 0 1.5px #1074cc; }
+.typed { position: absolute; display: flex; overflow: hidden; white-space: pre; }
 .caret { position: absolute; width: 1px; background: rgba(0,0,0,.96); animation: blink 1s steps(1) infinite; }
 .ring { position: absolute; border-radius: 4px; outline: 3px solid #f5a623; outline-offset: 3px; animation: ring 1.6s ease-in-out infinite; }
 .badge { position: absolute; padding: 3px 10px; border-radius: 999px; background: #ffc95c; color: #3d2a00;
@@ -49,7 +50,7 @@ const STYLES = `
 export class AssistOverlay {
     /** @type {HTMLElement | null} */
     host = null;
-    /** @type {Record<'layer'|'cursor'|'cursorLabel'|'field'|'caret'|'ring'|'badge', HTMLElement> | null} */
+    /** @type {Record<'layer'|'cursor'|'cursorLabel'|'field'|'typed'|'caret'|'ring'|'badge', HTMLElement> | null} */
     els = null;
     /** @type {{ element: Element, dx: number, dy: number } | null} */
     cursorTarget = null;
@@ -60,6 +61,8 @@ export class AssistOverlay {
     badgeBesideWidget = false;
     /** @type {number | null} */
     caretX = null;
+    /** @type {{ field: Element, left: number, top: number, right: number, bottom: number } | null} */
+    typing = null;
     /** @type {Element | null} */
     turnTarget = null;
     turnActive = false;
@@ -76,6 +79,7 @@ export class AssistOverlay {
         shadow.innerHTML = `${sheet ? '' : `<style>${STYLES}</style>`}
             <div class="layer" aria-hidden="true">
                 <div class="field" hidden></div>
+                <div class="typed" hidden></div>
                 <div class="caret" hidden></div>
                 <div class="ring" hidden></div>
                 <div class="badge" hidden>Your turn</div>
@@ -95,6 +99,7 @@ export class AssistOverlay {
             cursor: q('.cursor'),
             cursorLabel: q('.cursor .tag span'),
             field: q('.field'),
+            typed: q('.typed'),
             caret: q('.caret'),
             ring: q('.ring'),
             badge: q('.badge'),
@@ -174,6 +179,49 @@ export class AssistOverlay {
     }
 
     /**
+     * Covers the field's text so `setTypedText` can draw what's being typed in its place.
+     *
+     * @param {HTMLElement} field
+     */
+    startTyping(field) {
+        const els = this.attach();
+        const style = getComputedStyle(field);
+        const px = (/** @type {string} */ value) => parseFloat(value) || 0;
+        this.typing = {
+            field,
+            left: px(style.borderLeftWidth) + px(style.paddingLeft),
+            top: px(style.borderTopWidth) + px(style.paddingTop),
+            right: px(style.borderRightWidth) + px(style.paddingRight),
+            bottom: px(style.borderBottomWidth) + px(style.paddingBottom),
+        };
+        Object.assign(els.typed.style, {
+            fontFamily: style.fontFamily,
+            fontSize: style.fontSize,
+            fontStyle: style.fontStyle,
+            fontWeight: style.fontWeight,
+            letterSpacing: style.letterSpacing,
+            lineHeight: style.lineHeight,
+            color: style.color,
+            background: opaqueBackground(field),
+            alignItems: field instanceof HTMLTextAreaElement ? 'flex-start' : 'center',
+        });
+        els.typed.textContent = '';
+        this.position();
+    }
+
+    /**
+     * @param {string} text
+     */
+    setTypedText(text) {
+        if (this.els) this.els.typed.textContent = text;
+    }
+
+    stopTyping() {
+        this.typing = null;
+        this.position();
+    }
+
+    /**
      * @param {Element | null} widget - the element the user has to solve, if it can be found
      */
     showTurn(widget) {
@@ -218,12 +266,18 @@ export class AssistOverlay {
         this.els = null;
         this.cursorTarget = null;
         this.fieldTarget = null;
+        this.typing = null;
         this.turnTarget = null;
         this.turnActive = false;
     }
 
     startLoop() {
+        if (this.frame !== null) cancelAnimationFrame(this.frame);
         const tick = () => {
+            if (!this.els) {
+                this.frame = null;
+                return;
+            }
             this.position();
             this.frame = requestAnimationFrame(tick);
         };
@@ -245,6 +299,18 @@ export class AssistOverlay {
         const field = this.fieldTarget && documentBox(this.fieldTarget);
         place(els.field, field);
         setStyle(els.field, 'borderRadius', this.fieldRadius);
+        const typing = this.typing && documentBox(this.typing.field);
+        place(
+            els.typed,
+            typing && this.typing
+                ? {
+                      left: typing.left + this.typing.left,
+                      top: typing.top + this.typing.top,
+                      width: Math.max(typing.width - this.typing.left - this.typing.right, 0),
+                      height: Math.max(typing.height - this.typing.top - this.typing.bottom, 0),
+                  }
+                : null,
+        );
         const caretHeight = field ? Math.max(Math.min(field.height - 4, 15), 0) : 0;
         place(
             els.caret,
@@ -289,6 +355,19 @@ function hasContentAbove(widget) {
         }
     }
     return false;
+}
+
+/**
+ * The colour behind a field's text: its own background, or the nearest ancestor's if it's transparent.
+ *
+ * @param {Element} field
+ */
+function opaqueBackground(field) {
+    for (let el = /** @type {Element | null} */ (field); el; el = el.parentElement) {
+        const color = getComputedStyle(el).backgroundColor;
+        if (color !== 'transparent' && !/^rgba\(.*,\s*0\)$/.test(color)) return color;
+    }
+    return '#fff';
 }
 
 /**

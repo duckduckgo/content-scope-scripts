@@ -7,7 +7,6 @@ const test = createConfiguredDbpTest(base);
 
 const OVERLAY = 'ddg-pir-assist';
 const TURNSTILE_USER_ASSIST_ID = 'ua-7e2b4c91-0d3a-4f6e-8b15-6a9c2d4e8f30';
-const HCAPTCHA_USER_ASSIST_ID = 'ua-3f9d6a28-81c4-4e0b-a7d2-5b6e9c1f4a07';
 
 /**
  * @param {BrokerProtectionPage} dbp
@@ -49,22 +48,35 @@ test.describe('Broker Protection userAssist', () => {
         await expect(dbp.page.locator(OVERLAY)).toHaveCount(0);
     });
 
-    test('a newer action cancels a pending hand-off', async ({ dbp }) => {
+    test('a newer action cancels a pending hand-off without a response', async ({ dbp }) => {
+        await dbp.page.clock.install();
         await dbp.navigatesToSite('people-search/additional-fields.html');
         await dbp.receivesAction('user-assist/hcaptcha.json');
         await dbp.collector.waitForMessage('userTurnNeeded');
 
         await dbp.receivesAction('user-assist/certify-click.json');
-
-        const responses = await dbp.collector.waitForMessage('actionCompleted', 2);
-        dbp.isErrorMessage(responses, HCAPTCHA_USER_ASSIST_ID);
-        dbp.isSuccessMessage(responses, '013eb5ef-b479-41a6-af92-da9056c00781');
+        dbp.isSuccessMessage(await dbp.collector.waitForMessage('actionCompleted'), '013eb5ef-b479-41a6-af92-da9056c00781');
+        await dbp.page.clock.runFor(1_000);
+        expect(await sentCount(dbp, 'actionCompleted')).toBe(1);
         await expect(dbp.page.locator(OVERLAY)).toHaveCount(0);
+    });
+
+    test('a newer userAssist keeps its hand-off when it replaces a pending one', async ({ dbp }) => {
+        await dbp.page.clock.install();
+        await dbp.navigatesToSite('people-search/additional-fields.html');
+        await dbp.receivesAction('user-assist/hcaptcha.json');
+        await dbp.collector.waitForMessage('userTurnNeeded');
+
+        await dbp.receivesAction('user-assist/hcaptcha.json');
+        await dbp.page.clock.runFor(1_000);
+        expect(await sentCount(dbp, 'userTurnNeeded')).toBe(2);
+        expect(await sentCount(dbp, 'actionCompleted')).toBe(0);
+        await expect(dbp.page.locator(OVERLAY)).toHaveCount(1);
     });
 });
 
 test.describe('Broker Protection visualizeActions', () => {
-    test('visibly retypes filled values without changing what the page receives', async ({ dbp, context }, workerInfo) => {
+    test('visibly retypes filled values without changing what the page sees', async ({ dbp, context }, workerInfo) => {
         const visualized = BrokerProtectionPage.create(await context.newPage(), workerInfo.project.use);
         await visualized.withFeatureConfig(BROKER_PROTECTION_CONFIGS.visualizeActions);
 
@@ -81,9 +93,8 @@ test.describe('Broker Protection visualizeActions', () => {
         expect(presented.values).toEqual({ fname: 'John', ln: 'Smith', state: 'IL' });
         expect(presented.values).toEqual(plain.values);
         expect(presented.events).toEqual(plain.events);
-        expect(plain.shownFirstNames.some(isPartialFirstName)).toBe(false);
-        expect(presented.shownFirstNames.some(isPartialFirstName)).toBe(true);
-        expect(presented.shownFirstNames.at(-1)).toBe('John');
+        expect(presented.firstNameValues).toEqual(plain.firstNameValues);
+        expect(presented.firstNameValues.some(isPartialFirstName)).toBe(false);
     });
 });
 
@@ -95,7 +106,7 @@ function isPartialFirstName(value) {
 }
 
 /**
- * Runs in the page: records the events the form's fields receive and each first name shown on screen.
+ * Runs in the page: records the events the form's fields receive and each value the first name field holds.
  */
 function recordFormActivity() {
     const form = /** @type {HTMLFormElement} */ (document.querySelector('#optout-form'));
@@ -105,16 +116,16 @@ function recordFormActivity() {
     for (const type of ['focus', 'blur', 'keydown', 'keyup', 'input', 'change']) {
         form.addEventListener(type, (event) => events.push(`${/** @type {HTMLInputElement} */ (event.target).name}:${type}`), true);
     }
-    const shownFirstNames = [firstName.value];
+    const firstNameValues = [firstName.value];
     const sample = () => {
-        if (shownFirstNames[shownFirstNames.length - 1] !== firstName.value) shownFirstNames.push(firstName.value);
+        if (firstNameValues[firstNameValues.length - 1] !== firstName.value) firstNameValues.push(firstName.value);
         requestAnimationFrame(sample);
     };
     sample();
     Object.assign(globalThis, {
         readFormActivity: () => ({
             events,
-            shownFirstNames,
+            firstNameValues,
             values: Object.fromEntries(
                 ['fname', 'ln', 'state'].map((name) => [name, /** @type {HTMLInputElement} */ (form.elements.namedItem(name)).value]),
             ),

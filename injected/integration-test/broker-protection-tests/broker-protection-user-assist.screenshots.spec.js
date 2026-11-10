@@ -38,7 +38,7 @@ test.describe('Broker Protection user assist screenshots @screenshots', () => {
         await dbp.page.clock.pauseAt(Date.now() + 60_000);
         await dbp.receivesAction('user-assist/fill-form.json');
         await dbp.page.clock.runFor(150);
-        await expect(dbp.page.locator("input[name='fname']")).toHaveValue('Jo');
+        await expect(dbp.page.locator("input[name='fname']")).toHaveValue('John');
         await expect(dbp.page).toHaveScreenshot('typing.png', { maxDiffPixels: 20 });
     });
 });

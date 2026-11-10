@@ -5,12 +5,17 @@ export const USER_ASSIST_POLL_MS = 250;
 
 /**
  * `completeWhen` passes exactly when an `expectation` action with the same items would succeed.
+ * An element item's `parent` must still exist, but isn't scrolled into view: this runs every poll
+ * while the user works on the page.
  *
  * @param {{ id: string, completeWhen: import('../types.js').Expectation[] }} action
  * @param {Document} [root]
  */
 export function isUserAssistComplete(action, root = document) {
-    return 'success' in expectation({ id: action.id, actionType: 'expectation', expectations: action.completeWhen }, root);
+    const expectations = action.completeWhen.flatMap(({ parent, ...item }) =>
+        item.type === 'element' && parent ? [{ ...item, selector: parent }, item] : [item],
+    );
+    return 'success' in expectation({ id: action.id, actionType: 'expectation', expectations }, root);
 }
 
 /**

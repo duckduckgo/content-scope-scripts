@@ -15,7 +15,9 @@ export class ActionExecutorBase extends ContentFeature {
                 return this.messaging.notify('actionError', { error: 'No action found.' });
             }
 
-            const { results, exceptions } = await this.exec(action, data);
+            const outcome = await this.exec(action, data);
+            if (!outcome) return;
+            const { results, exceptions } = outcome;
 
             if (results) {
                 // there might only be a single result.
@@ -48,10 +50,10 @@ export class ActionExecutorBase extends ContentFeature {
 
     /**
      * Recursively execute actions with the same dataset, collecting all results/exceptions for
-     * later analysis
+     * later analysis. Resolves to null when a newer action superseded this one, which then reports nothing.
      * @param {any} action
      * @param {Record<string, any>} data
-     * @return {Promise<{results: ActionResponse[], exceptions: string[]}>}
+     * @return {Promise<{results: ActionResponse[], exceptions: string[]} | null>}
      */
     async exec(action, data) {
         const retryConfig = this.retryConfigFor(action);
@@ -63,7 +65,9 @@ export class ActionExecutorBase extends ContentFeature {
                 const nextExceptions = [];
 
                 for (const nextAction of result.success.next) {
-                    const { results: subResults, exceptions: subExceptions } = await this.exec(nextAction, data);
+                    const subOutcome = await this.exec(nextAction, data);
+                    if (!subOutcome) return null;
+                    const { results: subResults, exceptions: subExceptions } = subOutcome;
 
                     nextResults.push(...subResults);
                     nextExceptions.push(...subExceptions);
@@ -115,12 +119,12 @@ export default class BrokerProtection extends ActionExecutorBase {
      *
      * @param {any} action
      * @param {Record<string, any>} data
-     * @return {Promise<{results: ActionResponse[], exceptions: string[]}>}
+     * @return {Promise<{results: ActionResponse[], exceptions: string[]} | null>}
      */
     async exec(action, data) {
         if (action.actionType === 'userAssist' && this.assist) {
             const result = await this.assist.run(action, () => this.messaging.notify('userTurnNeeded', { actionID: action.id }));
-            return { results: [result], exceptions: [] };
+            return result && { results: [result], exceptions: [] };
         }
         return super.exec(action, data);
     }

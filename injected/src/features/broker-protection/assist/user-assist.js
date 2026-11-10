@@ -1,7 +1,5 @@
 import { getElement, getElements } from '../utils/utils.js';
 import { wait } from '../../../timer-utils.js';
-
-import { getOwnPropertyDescriptor } from '../../../captured-globals.js';
 import { ErrorResponse, SuccessResponse } from '../types.js';
 import { isUserAssistComplete, waitForUserAssist } from '../actions/user-assist.js';
 import { AssistOverlay } from './overlay.js';
@@ -36,11 +34,12 @@ export class UserAssist {
 
     /**
      * Resolves once the action's `completeWhen` expectations pass, handing off to the user (outline plus
-     * `onUserTurnNeeded`) if they haven't passed after `handOffAfterMs`.
+     * `onUserTurnNeeded`) if they haven't passed after `handOffAfterMs`. Resolves to null if a newer
+     * action cancels it, since native has moved on and expects no response.
      *
      * @param {Record<string, any>} action
      * @param {() => void} onUserTurnNeeded
-     * @return {Promise<import('../types.js').ActionResponse>}
+     * @return {Promise<import('../types.js').ActionResponse | null>}
      */
     async run(action, onUserTurnNeeded) {
         if (!Array.isArray(action.completeWhen) || action.completeWhen.length === 0) {
@@ -65,13 +64,17 @@ export class UserAssist {
                 },
                 signal: controller.signal,
             });
-            if (!completed) return new ErrorResponse({ actionID: action.id, message: 'userAssist cancelled by a newer action' });
+            if (!completed) return null;
             return new SuccessResponse({ actionID: action.id, actionType: 'userAssist', response: null });
         } finally {
-            if (this.pending === controller) this.pending = null;
-            if (handedOff) {
-                this.overlay.clearTurn();
-                if (!this.visualizeActions) this.overlay.destroy();
+            // A cancelled run only notices on its next poll, by which time a newer userAssist may own the overlay.
+            const superseded = this.pending !== null && this.pending !== controller;
+            if (!superseded) {
+                this.pending = null;
+                if (handedOff) {
+                    this.overlay.clearTurn();
+                    if (!this.visualizeActions) this.overlay.destroy();
+                }
             }
         }
     }
@@ -126,9 +129,9 @@ export class UserAssist {
 
     /**
      * Replays a field's value one character at a time. The value has already been filled (with the
-     * events sites listen for); this only changes what's on screen, so it sets the value without
-     * dispatching events and finishes on the value the fill left behind. If the page changes the
-     * field meanwhile (a formatter reacting to the fill, say), the replay stops and the page's value stays.
+     * events sites listen for), and the page may still be reading it, so the replay is drawn over the
+     * field and never touches its value. If the page changes the value meanwhile (a formatter reacting
+     * to the fill, say), the replay stops and the field shows the page's value.
      *
      * @param {HTMLElement} field
      * @param {number} budgetMs - time for moving to the field and typing into it
@@ -147,19 +150,19 @@ export class UserAssist {
         await this.overlay.moveCursor(field, { dx: 10, dy, label: 'Typing', durationMs: moveMs });
         const keystrokeMs = Math.min(MAX_KEYSTROKE_MS, (budgetMs - moveMs) / Math.max(value.length, 1));
         const measure = textMeasurer(field);
-        let written = value;
+        this.overlay.startTyping(field);
         try {
             for (let i = 0; i <= value.length; i++) {
-                if (field.value !== written || performance.now() > deadline) return;
-                written = value.slice(0, i);
-                setValue(field, written);
-                const x = measure(written);
+                if (field.value !== value || performance.now() > deadline) return;
+                const typed = value.slice(0, i);
+                this.overlay.setTypedText(typed);
+                const x = measure(typed);
                 this.overlay.setCaret(x);
                 this.overlay.placeCursor(field, { dx: x, dy, durationMs: keystrokeMs });
                 await wait(keystrokeMs);
             }
         } finally {
-            if (field.value === written) setValue(field, value);
+            this.overlay.stopTyping();
             this.overlay.setCaret(null);
         }
     }
@@ -199,17 +202,6 @@ function isTypeable(field) {
 }
 
 /**
- * Uses the prototype's setter, like fillForm does, so frameworks that wrap `value` on the element don't see the replay.
- *
- * @param {HTMLInputElement | HTMLTextAreaElement} field
- * @param {string} value
- */
-function setValue(field, value) {
-    const prototype = field instanceof HTMLTextAreaElement ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype;
-    getOwnPropertyDescriptor(prototype, 'value')?.set?.call(field, value);
-}
-
-/**
  * @param {HTMLElement} field
  * @returns {(text: string) => number} offset of the end of `text` from the field's left edge
  */
@@ -219,5 +211,5 @@ function textMeasurer(field) {
     const context = document.createElement('canvas').getContext('2d');
     if (!context) return () => inset;
     context.font = style.font;
-    return (text) => inset + context.measureText(text).width - field.scrollLeft;
+    return (text) => inset + context.measureText(text).width;
 }
