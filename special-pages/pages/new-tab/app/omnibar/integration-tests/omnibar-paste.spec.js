@@ -331,23 +331,32 @@ test.describe('omnibar pasted text', () => {
         await expect(omnibar.textPastedModalInput()).toHaveValue(LONG);
     });
 
-    test('blocks saving an edit that is blank or puts the prompt over the limit', async ({ page }, workerInfo) => {
+    test('blocks saving a blank edit', async ({ page }, workerInfo) => {
+        const { omnibar } = await setup(page, workerInfo, TEXT_ON);
+
+        await omnibar.pasteIntoChatInput({ text: LONG });
+        await omnibar.textPastedChips().click();
+
+        await omnibar.textPastedModalInput().fill('   ');
+        await expect(omnibar.textPastedModalSaveButton()).toBeDisabled();
+    });
+
+    test('saves an edit that leaves the prompt over the limit, and keeps sending blocked', async ({ page }, workerInfo) => {
         const { omnibar } = await setup(page, workerInfo, TEXT_ON);
 
         await omnibar.chatInput().fill('x'.repeat(10));
         await omnibar.pasteIntoChatInput({ text: LONG });
         await omnibar.textPastedChips().click();
 
-        // 10 typed + 21 pasted = 31, over the 30 cap.
+        // 10 typed + 21 pasted = 31, over the 30 cap: the dialog warns but still saves, so chips can be trimmed one at a time.
         await omnibar.textPastedModalInput().fill('y'.repeat(21));
         await expect(omnibar.textPastedModal()).toContainText('Please try a shorter message. 31 / 30');
-        await expect(omnibar.textPastedModalSaveButton()).toBeDisabled();
-
-        await omnibar.textPastedModalInput().fill('   ');
-        await expect(omnibar.textPastedModalSaveButton()).toBeDisabled();
-
-        await omnibar.textPastedModalInput().fill('y'.repeat(20));
         await expect(omnibar.textPastedModalSaveButton()).toBeEnabled();
+        await omnibar.textPastedModalSaveButton().click();
+        await expect(omnibar.textPastedModal()).toHaveCount(0);
+
+        await expect(omnibar.promptTooLongWarning()).toBeVisible();
+        await expect(omnibar.chatSubmitButton()).toBeDisabled();
     });
 
     test('reports attach, dialog open, edit and remove as telemetry', async ({ page }, workerInfo) => {

@@ -41,8 +41,9 @@ export function TextPastedModal({ content, otherPromptLength, maxCharacters, onS
 
     const totalLength = otherPromptLength + draft.length;
     const tooLong = totalLength > maxCharacters;
-    // A blank paste would never have been attached, so it can't be saved either.
-    const canSave = !tooLong && isConvertibleTextPaste(draft, 1);
+    // A blank paste would never have been attached, so it can't be saved either. Saving over the limit is
+    // allowed, as on iOS, so several pastes can be trimmed in turn; the omnibar keeps Send off until the prompt fits.
+    const canSave = isConvertibleTextPaste(draft, 1);
 
     const handleSave = () => {
         if (!canSave) return;
