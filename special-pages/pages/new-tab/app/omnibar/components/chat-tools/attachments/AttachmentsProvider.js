@@ -34,7 +34,7 @@ export function AttachmentsProvider({ tabId, children }) {
         maxFiles: attachmentLimits?.files?.maxPerConversation,
         maxFileSizeMB: attachmentLimits?.files?.maxFileSizeMB,
     });
-    const textPastedState = useTextPasted();
+    const textPastedState = useTextPasted({ tabId });
 
     return <AttachmentsContext.Provider value={{ imageState, fileState, textPastedState, tabId }}>{children}</AttachmentsContext.Provider>;
 }

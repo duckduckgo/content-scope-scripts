@@ -364,6 +364,20 @@ test.describe('omnibar pasted text', () => {
         await expect(omnibar.chatSubmitButton()).toBeDisabled();
     });
 
+    test('pasted-text chips survive a browser-tab switch', async ({ page }, workerInfo) => {
+        // Multi-tab, so `didSwitchToTab` drives a real tabId change.
+        const { omnibar } = await setup(page, workerInfo, { ...TEXT_ON, tabs: 'true' });
+
+        await omnibar.pasteIntoChatInput({ text: LONG });
+        await expect(omnibar.textPastedChips()).toHaveCount(1);
+
+        await omnibar.didSwitchToTab('02', ['01', '02']);
+        await expect(omnibar.textPastedChips()).toHaveCount(0);
+
+        await omnibar.didSwitchToTab('01', ['01', '02']);
+        await expect(omnibar.textPastedChips()).toHaveCount(1);
+    });
+
     test('reports attach, dialog open, edit and remove as telemetry', async ({ page }, workerInfo) => {
         const { omnibar } = await setup(page, workerInfo, TEXT_ON);
 

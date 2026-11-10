@@ -1,5 +1,6 @@
-import { useCallback, useState } from 'preact/hooks';
+import { useCallback } from 'preact/hooks';
 import { useMessaging } from '../../../../types.js';
+import { TextPastedAttachments } from '../../PersistentOmnibarValuesProvider';
 import { isConvertibleTextPaste } from './textPasted.js';
 
 /**
@@ -9,13 +10,18 @@ import { isConvertibleTextPaste } from './textPasted.js';
 
 let nextId = 0;
 
+const { useStateWithLocalPersistence } = TextPastedAttachments;
+
 /**
- * Long text pastes held as attachments until submit. Sends `omnibar_pasted_text_attached`,
- * `_removed` and `_edited` for the user's own actions; clearing on submit sends nothing.
+ * Long text pastes held as attachments until submit, per NTP tab so they survive switching tabs
+ * like the other attachments. Sends `omnibar_pasted_text_attached`, `_removed` and `_edited` for
+ * the user's own actions; clearing on submit sends nothing.
+ * @param {object} [params]
+ * @param {string|null|undefined} [params.tabId] - NTP tab the pastes are persisted under.
  */
-export function useTextPasted() {
+export function useTextPasted({ tabId } = {}) {
     const ntp = useMessaging();
-    const [attachedTextPasted, setAttachedTextPasted] = useState(/** @type {AttachedTextPasted[]} */ ([]));
+    const [attachedTextPasted, setAttachedTextPasted] = useStateWithLocalPersistence(tabId);
 
     /**
      * Attaches the text when it qualifies; otherwise the caller lets it paste inline.
@@ -32,7 +38,7 @@ export function useTextPasted() {
             ntp.telemetryEvent({ attributes: { name: 'omnibar_pasted_text_attached' } });
             return true;
         },
-        [ntp],
+        [ntp, setAttachedTextPasted],
     );
 
     /** @param {string} id */
@@ -41,7 +47,7 @@ export function useTextPasted() {
             setAttachedTextPasted((prev) => prev.filter((entry) => entry.id !== id));
             ntp.telemetryEvent({ attributes: { name: 'omnibar_pasted_text_removed' } });
         },
-        [ntp],
+        [ntp, setAttachedTextPasted],
     );
 
     /**
@@ -55,10 +61,10 @@ export function useTextPasted() {
             setAttachedTextPasted((prev) => prev.map((entry) => (entry.id === id ? { ...entry, content } : entry)));
             ntp.telemetryEvent({ attributes: { name: 'omnibar_pasted_text_edited' } });
         },
-        [ntp],
+        [ntp, setAttachedTextPasted],
     );
 
-    const clearTextPasted = useCallback(() => setAttachedTextPasted([]), []);
+    const clearTextPasted = useCallback(() => setAttachedTextPasted([]), [setAttachedTextPasted]);
 
     /** @returns {{ content: string }[] | undefined} undefined when there is nothing to send */
     const getTextPastedForSubmission = () =>
