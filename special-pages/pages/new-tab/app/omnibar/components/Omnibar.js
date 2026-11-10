@@ -25,7 +25,7 @@ import { usePastedAttachments } from './chat-tools/image-attachment/usePastedAtt
 import { useScreenshotCapture } from './chat-tools/image-attachment/useScreenshotCapture';
 import { AttachmentChips } from './chat-tools/attachments/AttachmentChips';
 import { AttachmentsProvider, useAttachmentsContext } from './chat-tools/attachments/AttachmentsProvider';
-import { promptLength, resolvePastedTextLimits } from './chat-tools/text-pasted/textPasted.js';
+import { promptCharacterLimit, promptLength, resolvePastedTextLimits } from './chat-tools/text-pasted/textPasted.js';
 import { useDroppedAttachments } from './chat-tools/attachments/useDroppedAttachments';
 import { ModelSelectorTool } from './chat-tools/model-selector/ModelSelectorTool';
 import { ReasoningPickerTool } from './chat-tools/reasoning-picker/ReasoningPickerTool';
@@ -496,7 +496,12 @@ function AiChatContent({
     const showTabWarning = tabWarning && !imageMessageShowing && !showCaptureError && !showFileError && !showFileWarning;
     // The typed text plus pastes over the limit; the cap only applies with the pasted-text feature on.
     const currentPromptLength = promptLength(query, attachedTextPasted);
-    const promptTooLong = pastedTextEnabled && currentPromptLength > pastedTextLimits.maxCharacters;
+    const maxPromptCharacters = promptCharacterLimit(
+        pastedTextLimits.maxCharacters,
+        canAttachImages && hasAttachedImages,
+        attachmentLimits?.images?.maxInputCharsWithAttachments,
+    );
+    const promptTooLong = pastedTextEnabled && currentPromptLength > maxPromptCharacters;
     const showPromptTooLong =
         promptTooLong && !imageMessageShowing && !showCaptureError && !showFileError && !showFileWarning && !showTabWarning;
     const hasSendableAttachments =
@@ -673,7 +678,7 @@ function AiChatContent({
                         onRemoveImage={imageState.handleRemoveImage}
                         onRemoveTextPasted={textPastedState.removeTextPasted}
                         onEditTextPasted={textPastedState.updateTextPasted}
-                        textPastedLimit={{ promptLength: currentPromptLength, maxCharacters: pastedTextLimits.maxCharacters }}
+                        textPastedLimit={{ promptLength: currentPromptLength, maxCharacters: maxPromptCharacters }}
                     />
                     {showCaptureError && (
                         <p class={styles.attachmentWarning} role="alert">
@@ -697,7 +702,7 @@ function AiChatContent({
                     )}
                     {showPromptTooLong && (
                         <p class={styles.attachmentWarning} role="alert">
-                            {t('omnibar_promptTooLongWarning', { limit: String(pastedTextLimits.maxCharacters) })}
+                            {t('omnibar_promptTooLongWarning', { limit: String(maxPromptCharacters) })}
                         </p>
                     )}
                     <ImageAttachmentContent

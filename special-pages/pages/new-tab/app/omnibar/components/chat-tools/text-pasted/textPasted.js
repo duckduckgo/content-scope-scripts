@@ -47,6 +47,18 @@ export function promptLength(query, pastes) {
 }
 
 /**
+ * The prompt's character cap. An attached image lowers it to the model's limit with attachments, never raises it,
+ * as on iOS and Windows.
+ * @param {number} maxCharacters - `pastedTextLimits.maxCharacters`, already resolved.
+ * @param {boolean} hasImage
+ * @param {number | null | undefined} maxCharactersWithImage - `attachmentLimits.images.maxInputCharsWithAttachments`.
+ */
+export function promptCharacterLimit(maxCharacters, hasImage, maxCharactersWithImage) {
+    if (!hasImage || typeof maxCharactersWithImage !== 'number' || maxCharactersWithImage <= 0) return maxCharacters;
+    return Math.min(maxCharactersWithImage, maxCharacters);
+}
+
+/**
  * Start of the paste, for the chip title.
  * @param {string} content
  */

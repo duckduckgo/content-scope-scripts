@@ -305,6 +305,24 @@ test.describe('omnibar pasted text', () => {
         await expect(omnibar.textPastedChipMetadata()).not.toHaveAttribute('data-invalid');
     });
 
+    test('lowers the limit to the image limit while an image is attached', async ({ page }, workerInfo) => {
+        const { omnibar } = await setup(page, workerInfo, { ...TEXT_ON, 'omnibar.imageMaxInputChars': '20' });
+
+        await omnibar.pasteIntoChatInput({ text: LONG });
+        await omnibar.chatInput().fill('x'.repeat(4));
+        await expect(omnibar.promptTooLongWarning()).toHaveCount(0);
+
+        await omnibar.fileInput().setInputFiles({ name: 'a.png', mimeType: 'image/png', buffer: TINY_PNG });
+        await expect(omnibar.imagePreviews()).toHaveCount(1);
+        await expect(omnibar.promptTooLongWarning()).toBeVisible();
+        await expect(omnibar.chatSubmitButton()).toBeDisabled();
+        await expect(omnibar.textPastedChipMetadata()).toHaveAttribute('data-invalid', 'true');
+
+        await omnibar.removeImageButton().click();
+        await expect(omnibar.promptTooLongWarning()).toHaveCount(0);
+        await expect(omnibar.chatSubmitButton()).toBeEnabled();
+    });
+
     test('edits a pasted-text chip and sends the edited text', async ({ page }, workerInfo) => {
         const { omnibar } = await setup(page, workerInfo, TEXT_ON);
 

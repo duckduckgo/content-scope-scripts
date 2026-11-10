@@ -3,6 +3,7 @@ import { test } from 'node:test';
 import {
     DEFAULT_PASTED_TEXT_LIMITS,
     isConvertibleTextPaste,
+    promptCharacterLimit,
     promptLength,
     resolvePastedTextLimits,
     textPastedSummary,
@@ -63,6 +64,26 @@ test.describe('promptLength', () => {
     test('adds typed text and every paste', () => {
         equal(promptLength('abc', []), 3);
         equal(promptLength('abc', [{ content: '12345' }, { content: '67' }]), 10);
+    });
+});
+
+test.describe('promptCharacterLimit', () => {
+    test('keeps the max without an image', () => {
+        equal(promptCharacterLimit(16000, false, 8000), 16000);
+    });
+
+    test('lowers the max to the image limit', () => {
+        equal(promptCharacterLimit(16000, true, 8000), 8000);
+    });
+
+    test('never raises the max', () => {
+        equal(promptCharacterLimit(16000, true, 30000), 16000);
+    });
+
+    test('ignores a missing or invalid image limit', () => {
+        equal(promptCharacterLimit(16000, true, undefined), 16000);
+        equal(promptCharacterLimit(16000, true, null), 16000);
+        equal(promptCharacterLimit(16000, true, 0), 16000);
     });
 });
 

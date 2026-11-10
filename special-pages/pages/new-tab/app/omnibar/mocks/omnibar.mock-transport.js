@@ -535,6 +535,9 @@ export function omnibarMockTransport() {
                         const imageMaxPerTurn = parseInt(url.searchParams.get('omnibar.imageMaxPerTurn') ?? '', 10);
                         if (imageMaxPerTurn > 0 && config.attachmentLimits.images)
                             config.attachmentLimits.images.maxPerTurn = imageMaxPerTurn;
+                        const imageMaxInputChars = parseInt(url.searchParams.get('omnibar.imageMaxInputChars') ?? '', 10);
+                        if (imageMaxInputChars > 0 && config.attachmentLimits.images)
+                            config.attachmentLimits.images.maxInputCharsWithAttachments = imageMaxInputChars;
                         const fileMaxPerConversation = parseInt(url.searchParams.get('omnibar.fileMaxPerConversation') ?? '', 10);
                         if (fileMaxPerConversation > 0 && config.attachmentLimits.files)
                             config.attachmentLimits.files.maxPerConversation = fileMaxPerConversation;
