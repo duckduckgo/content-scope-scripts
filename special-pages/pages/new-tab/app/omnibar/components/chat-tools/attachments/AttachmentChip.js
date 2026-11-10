@@ -9,7 +9,7 @@ import styles from './AttachmentChip.module.css';
  */
 
 /**
- * The 116px square attachment card shown above the AI chat prompt. Text chips render a
+ * The 174 x 108px attachment card shown above the AI chat prompt. Text chips render a
  * title, an optional metadata line and an icon + type row; image chips render a
  * full-bleed preview instead.
  *
