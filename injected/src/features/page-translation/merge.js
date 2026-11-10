@@ -1,3 +1,5 @@
+import { ReflectApply } from '../../captured-globals.js';
+
 /**
  * @typedef {import('./types.js').UnitTarget} UnitTarget
  * @typedef {import('./types.js').ParsedNode} ParsedNode
@@ -17,7 +19,6 @@ const insertBefore = Node.prototype.insertBefore;
 const removeChild = Node.prototype.removeChild;
 const createTextNode = Document.prototype.createTextNode;
 const cloneNode = Node.prototype.cloneNode;
-const ReflectApply = Reflect.apply;
 
 const ELEMENT_NODE = 1;
 const TEXT_NODE = 3;
