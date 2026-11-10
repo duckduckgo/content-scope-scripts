@@ -590,6 +590,21 @@ test.describe('pageTranslation', () => {
         ]);
     });
 
+    test('flags hidden units as off screen where checkVisibility is missing', async ({ page }, testInfo) => {
+        await page.addInitScript(() => {
+            delete (/** @type {any} */ (Element.prototype).checkVisibility);
+        });
+        const collector = await openPage(page, testInfo, 'hidden.html');
+        const units = await extract(collector);
+        const texts = await plainTexts(page, units);
+        expect(texts.filter((text, i) => units[i].vp === 1 && text !== 'Collapsed answer.')).toEqual([
+            'Visible paragraph.',
+            'Show more',
+            'Read the hidden part later.',
+            'Street',
+        ]);
+    });
+
     test('pins option values and keeps the selection', async ({ page }, testInfo) => {
         const collector = await openPage(page, testInfo, 'select.html');
         await page.selectOption('#size', 'l');

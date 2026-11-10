@@ -1,3 +1,5 @@
+import { isVisible as isStyledVisible } from '../../detectors/utils/detection-utils.js';
+
 /** @typedef {import('./types.js').UnitTarget} UnitTarget */
 
 // Captured at load: the page can replace these later.
@@ -113,7 +115,8 @@ export function isInViewport(target) {
 }
 
 /**
- * Whether `el` is rendered and not made invisible (hidden, `visibility: hidden`, `opacity: 0`, closed `<details>`).
+ * Whether `el` is rendered and not made invisible (hidden, `visibility: hidden`, `opacity: 0`). A closed `<details>`
+ * is only detected where `checkVisibility` exists: its shadow tree doesn't show in styles or boxes.
  * @param {Element} el
  * @returns {boolean}
  */
@@ -121,11 +124,7 @@ function isVisible(el) {
     if (typeof el.checkVisibility === 'function') {
         return el.checkVisibility({ opacityProperty: true, visibilityProperty: true });
     }
-    for (let node = /** @type {Element | null} */ (el); node; node = node.parentElement) {
-        const style = computedStyle(node);
-        if (style.display === 'none' || style.opacity === '0') return false;
-    }
-    return computedStyle(el).visibility !== 'hidden';
+    return isStyledVisible(el);
 }
 
 /**
