@@ -60,6 +60,10 @@ const checks = {
             { kind: 'containsString', text: '#bundledConfig', includes: false },
         ],
     },
+    'apple-broker-protection': {
+        file: join(APPLE_BUILD, 'brokerProtection.js'),
+        tests: [{ kind: 'maxFileSize', value: CSS_OUTPUT_SIZE }],
+    },
     'apple-isolated': {
         file: join(APPLE_BUILD, 'contentScopeIsolated.js'),
         tests: [{ kind: 'maxFileSize', value: CSS_OUTPUT_SIZE }],
@@ -69,6 +73,7 @@ const checks = {
         tests: [
             { kind: 'maxFileSize', value: CSS_OUTPUT_SIZE },
             { kind: 'containsString', text: 'Copyright (c) 2014-2015, hassansin', includes: true },
+            { kind: 'containsString', text: 'ddg-pir-assist', includes: false },
         ],
     },
 };

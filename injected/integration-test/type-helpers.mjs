@@ -9,6 +9,7 @@ import { readFileSync } from 'node:fs';
  * - windows
  * - apple
  * - apple-isolated
+ * - apple-broker-protection
  *
  * @template {NonNullable<ImportMeta['platform']>} T
  * @template {() => any} VariantFn

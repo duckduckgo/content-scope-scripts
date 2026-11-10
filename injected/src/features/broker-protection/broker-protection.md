@@ -43,6 +43,8 @@ Hands a step to the user, such as solving a CAPTCHA, and resolves once the page 
 - It isn't retried and has no timeout here; native owns timeouts and cancellation. A new `onActionReceived` cancels a pending `userAssist`, which then sends no response.
 - An element expectation only checks that an element exists, so to wait for a token, match on its value. Hidden inputs reflect their value in the `value` attribute, so `[value]:not([value=''])` works for Turnstile's `cf-turnstile-response`.
 
+On Apple, `userAssist` and the `visualizeActions` setting are only in the `brokerProtection.js` bundle. `contentScopeIsolated.js` still has broker protection for app versions that load it from there, but without them.
+
 ### `step`
 
 Any action may carry a `step` label. Native uses it to show progress; the page ignores it.

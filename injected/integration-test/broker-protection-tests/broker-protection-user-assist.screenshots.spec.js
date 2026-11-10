@@ -7,7 +7,7 @@ const visualizedTest = createConfiguredDbpTest(base, BROKER_PROTECTION_CONFIGS.v
 
 test.describe('Broker Protection user assist screenshots @screenshots', () => {
     test.beforeEach(async ({ page }, workerInfo) => {
-        test.skip(workerInfo.project.name !== 'apple-isolated', 'The overlay is the same on every platform');
+        test.skip(workerInfo.project.name !== 'apple-broker-protection', 'The overlay is the same on every platform');
         await page.emulateMedia({ reducedMotion: 'reduce' });
     });
 
