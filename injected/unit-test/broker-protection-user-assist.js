@@ -1,5 +1,5 @@
 import { JSDOM } from 'jsdom';
-import { isUserAssistComplete, waitForUserAssist } from '../src/features/broker-protection/actions/user-assist.js';
+import { isUserAssistComplete, waitForUserAssist } from '../src/features/broker-protection/assist/wait-for-user.js';
 
 describe('waitForUserAssist', () => {
     /**

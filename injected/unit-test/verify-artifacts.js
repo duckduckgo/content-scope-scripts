@@ -62,7 +62,7 @@ const checks = {
     },
     'apple-broker-protection': {
         file: join(APPLE_BUILD, 'brokerProtection.js'),
-        tests: [{ kind: 'maxFileSize', value: CSS_OUTPUT_SIZE }],
+        tests: [{ kind: 'maxFileSize', value: 300_000 }],
     },
     'apple-isolated': {
         file: join(APPLE_BUILD, 'contentScopeIsolated.js'),

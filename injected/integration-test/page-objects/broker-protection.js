@@ -45,7 +45,7 @@ export class BrokerProtectionPage {
     }
 
     /**
-     * @param {string} path - a page of a fake broker site, e.g. `beenverified/optouts.html?turnstile=manual`
+     * @param {string} path - a page of a fake broker site, e.g. `people-search/optouts.html?turnstile=manual`
      */
     async navigatesToSite(path) {
         await this.page.goto('/broker-protection/sites/' + path);

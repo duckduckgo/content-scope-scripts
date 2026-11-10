@@ -106,11 +106,10 @@ export default class BrokerProtection extends ActionExecutorBase {
     init() {
         const visualizeActions = this.getFeatureSettingEnabled('visualizeActions', 'disabled');
         // Apple PIR gets userAssist from the apple-broker-protection bundle, so the isolated bundle every tab loads leaves it out.
-        const assist = import.meta.injectName === 'apple-isolated' ? null : new UserAssist(visualizeActions);
-        this.assist = assist;
+        this.assist = import.meta.injectName === 'apple-isolated' ? null : new UserAssist(visualizeActions);
         this.messaging.subscribe('onActionReceived', async (/** @type {any} */ params) => {
             const { action, data } = params.state;
-            assist?.cancel();
+            this.assist?.cancel();
             return await this.processActionAndNotify(action, data);
         });
     }

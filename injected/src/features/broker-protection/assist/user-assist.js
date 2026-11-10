@@ -1,7 +1,7 @@
 import { getElement, getElements } from '../utils/utils.js';
 import { wait } from '../../../timer-utils.js';
 import { ErrorResponse, SuccessResponse } from '../types.js';
-import { isUserAssistComplete, waitForUserAssist } from '../actions/user-assist.js';
+import { isUserAssistComplete, waitForUserAssist } from './wait-for-user.js';
 import { AssistOverlay } from './overlay.js';
 
 const CLICK_PAUSE_MS = 200;
@@ -10,8 +10,7 @@ const CLICK_PAUSE_MS = 200;
 const FORM_BUDGET_MS = 2000;
 const MAX_FIELD_MS = 800;
 const MAX_KEYSTROKE_MS = 60;
-// Not number: partial values such as "1." or "-" are sanitised to "" and would lose the filled value.
-const TYPEABLE_INPUT_TYPES = new Set(['text', 'email', 'tel', 'search', 'url']);
+const TYPEABLE_INPUT_TYPES = new Set(['text', 'email', 'tel', 'search', 'url', 'number']);
 
 /**
  * Runs `userAssist` actions, and presents `click` and `fillForm` actions for runs the user is watching

@@ -1,7 +1,7 @@
-import { expectation } from './expectation.js';
+import { expectation } from '../actions/expectation.js';
 import { wait } from '../../../timer-utils.js';
 
-export const USER_ASSIST_POLL_MS = 250;
+const USER_ASSIST_POLL_MS = 250;
 
 /**
  * `completeWhen` passes exactly when an `expectation` action with the same items would succeed.

@@ -76,7 +76,23 @@ test.describe('Broker Protection userAssist', () => {
 });
 
 test.describe('Broker Protection visualizeActions', () => {
-    test('visibly retypes filled values without changing what the page sees', async ({ dbp, context }, workerInfo) => {
+    test('presenting a click does not click twice', async ({ context }, workerInfo) => {
+        const dbp = BrokerProtectionPage.create(await context.newPage(), workerInfo.project.use);
+        await dbp.withFeatureConfig(BROKER_PROTECTION_CONFIGS.visualizeActions);
+        await dbp.navigatesToSite('people-search/additional-fields.html');
+        const certify = dbp.page.locator("input[name='certify']");
+        await certify.evaluate((input) => {
+            input.dataset.clicks = '0';
+            input.addEventListener('click', () => (input.dataset.clicks = String(Number(input.dataset.clicks) + 1)));
+        });
+        await dbp.receivesAction('user-assist/certify-click.json');
+
+        dbp.isSuccessMessage(await dbp.collector.waitForMessage('actionCompleted'), '013eb5ef-b479-41a6-af92-da9056c00781');
+        await expect(certify).toHaveAttribute('data-clicks', '1');
+        await expect(certify).toBeChecked();
+    });
+
+    test('retyping does not change the values or events the page sees', async ({ dbp, context }, workerInfo) => {
         const visualized = BrokerProtectionPage.create(await context.newPage(), workerInfo.project.use);
         await visualized.withFeatureConfig(BROKER_PROTECTION_CONFIGS.visualizeActions);
 
