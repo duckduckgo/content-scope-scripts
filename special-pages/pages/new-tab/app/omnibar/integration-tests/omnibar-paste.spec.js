@@ -354,6 +354,32 @@ test.describe('omnibar pasted text', () => {
         await expect(omnibar.textPastedModalInput()).toHaveValue(LONG);
     });
 
+    test('closes only on a backdrop click, not the dialog padding or a selection drag out of the textarea', async ({
+        page,
+    }, workerInfo) => {
+        const { omnibar } = await setup(page, workerInfo, TEXT_ON);
+
+        await omnibar.pasteIntoChatInput({ text: LONG });
+        await omnibar.textPastedChips().click();
+        await omnibar.textPastedModalInput().fill('edited text');
+        const box = await omnibar.textPastedModal().boundingBox();
+        const input = await omnibar.textPastedModalInput().boundingBox();
+        if (!box || !input) throw new Error('dialog not laid out');
+
+        await page.mouse.click(box.x + 4, box.y + 4);
+        await expect(omnibar.textPastedModal()).toBeVisible();
+
+        await page.mouse.move(input.x + 10, input.y + 10);
+        await page.mouse.down();
+        await page.mouse.move(box.x + 4, box.y + box.height - 4);
+        await page.mouse.up();
+        await expect(omnibar.textPastedModal()).toBeVisible();
+        await expect(omnibar.textPastedModalInput()).toHaveValue('edited text');
+
+        await page.mouse.click(box.x - 10, box.y - 10);
+        await expect(omnibar.textPastedModal()).toHaveCount(0);
+    });
+
     test('blocks saving a blank edit', async ({ page }, workerInfo) => {
         const { omnibar } = await setup(page, workerInfo, TEXT_ON);
 

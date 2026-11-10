@@ -14,6 +14,16 @@ import styles from './TextPastedModal.module.css';
  */
 
 /**
+ * Whether the pointer is on the ::backdrop rather than the dialog's padding.
+ * @param {MouseEvent} e
+ */
+function isOnBackdrop(e) {
+    if (e.target !== e.currentTarget) return false;
+    const rect = /** @type {HTMLDialogElement} */ (e.currentTarget).getBoundingClientRect();
+    return e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom;
+}
+
+/**
  * "Pasted Text" dialog opened from a pasted-text chip: the paste in an editable textarea.
  * Edits are staged locally and only committed on "Save Changes"; Cancel, the close button,
  * Escape and backdrop clicks discard them. Mounted only while open, so the draft re-seeds per open
@@ -36,6 +46,7 @@ export function TextPastedModal({ content, otherPromptLength, maxCharacters, onS
 
     const dialogRef = useRef(/** @type {HTMLDialogElement|null} */ (null));
     const textareaRef = useRef(/** @type {HTMLTextAreaElement|null} */ (null));
+    const pressedBackdropRef = useRef(false);
 
     useEffect(() => {
         dialogRef.current?.showModal();
@@ -74,8 +85,12 @@ export function TextPastedModal({ content, otherPromptLength, maxCharacters, onS
             aria-labelledby="text-pasted-modal-title"
             class={styles.modal}
             data-text-pasted-modal
+            onPointerDown={(e) => {
+                pressedBackdropRef.current = isOnBackdrop(e);
+            }}
             onClick={(e) => {
-                if (e.target === e.currentTarget) onClose();
+                if (pressedBackdropRef.current && isOnBackdrop(e)) onClose();
+                pressedBackdropRef.current = false;
             }}
             onCancel={(e) => {
                 e.preventDefault();
