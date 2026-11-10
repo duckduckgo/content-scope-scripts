@@ -51,6 +51,10 @@ Any action may carry a `step` label. Native uses it to show progress; the page i
 
 When native sets `"settings": { "visualizeActions": "enabled" }` on `brokerProtection` (for runs the user is watching), `click` actions show the agent cursor moving to their target, and `fillForm` actions fill as usual then visibly re-type each value without dispatching extra events. Without it, the only thing drawn is a `userAssist` hand-off outline.
 
+### Trying it without the native app
+
+`npm run build` then `npm run serve`, and open http://localhost:3220/broker-protection/harness.html. The harness plays native's part in an opt-out against a fake people search site (`integration-test/test-pages/broker-protection/sites/people-search/`), so you can watch the presentation and do the hand-offs yourself. The integration tests use the same fake pages.
+
 ## Error Handling
 
 Use `PirError` for typed errors throughout the broker-protection feature:

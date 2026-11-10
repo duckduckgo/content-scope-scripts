@@ -1,0 +1,22 @@
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body { display: flex; font: 13px -apple-system, system-ui, sans-serif; color: #222; background: #fff; }
+aside { width: 340px; flex: none; overflow: auto; padding: 16px; border-right: 1px solid #ddd; background: #f7f7f8; }
+iframe { flex: 1; height: 100%; border: 0; }
+h1 { font-size: 16px; margin: 0 0 6px; }
+.hint { color: #666; margin: 0 0 14px; }
+#settings { display: grid; gap: 6px; margin-bottom: 14px; }
+#settings input[type='number'] { width: 70px; }
+.controls { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+#status { font-weight: 600; }
+#status.turn { color: #9a5b00; }
+#status.failed { color: #b3261e; }
+#actions { list-style: none; padding: 0; margin: 0; }
+#actions li { padding: 5px 8px; border-radius: 4px; margin-bottom: 2px; }
+#actions li .step { display: block; color: #777; font-size: 11px; }
+#actions li[data-state='running'] { background: #e5f0fb; }
+#actions li[data-state='turn'] { background: #ffe9b8; }
+#actions li[data-state='done'] { color: #1a7f37; }
+#actions li[data-state='failed'] { background: #fde2e1; color: #b3261e; }
+#actions li[data-state='skipped'] { color: #999; }
+#actions li .detail { display: block; font-size: 11px; white-space: pre-wrap; }

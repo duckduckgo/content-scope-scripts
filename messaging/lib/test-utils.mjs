@@ -70,8 +70,8 @@ export function mockWindowsMessaging(params) {
                 ),
             );
 
-            // if there's no 'id' field, we don't need to respond
-            if (!('id' in msg)) return;
+            // if there's no 'id', it's a notification and we don't need to respond
+            if (!('id' in msg) || msg.id === undefined) return;
 
             // If we get here, it needed a response **and** we have a value for it
             setTimeout(() => {

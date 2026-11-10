@@ -1,0 +1,17 @@
+{
+  "state": {
+    "action": {
+      "actionType": "userAssist",
+      "step": "Searching for your record",
+      "handOffAfterMs": 10000,
+      "highlight": "#captcha-widget",
+      "completeWhen": [
+        {
+          "type": "element",
+          "selector": "//form[@id='optout-form']//input[@name='cf-turnstile-response' and @value != '']"
+        }
+      ],
+      "id": "ua-7e2b4c91-0d3a-4f6e-8b15-6a9c2d4e8f30"
+    }
+  }
+}
