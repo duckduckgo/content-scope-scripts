@@ -646,7 +646,7 @@ test.describe('pageTranslation', () => {
             expect(unit.text).toBe(
                 '<div><span data-t="0">hey you this has accrued 150 spaceships</span> <span data-t="1">pay now</span></div>',
             );
-            expect(await apply(collector, [{ id: unit.id, text: output }])).toBe(1);
+            expect(await apply(collector, [{ id: unit.id, tree: htmlTree(output) }])).toBe(1);
             await page.click('#bump');
             const errors = await page.evaluate(() => /** @type {any} */ (window).errors);
             expect(errors).toEqual([]);
