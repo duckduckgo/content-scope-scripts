@@ -22,8 +22,6 @@ import { platformSupport } from '../src/features.js';
  */
 function generateConfig() {
     const topLevelUrl = getTabUrl();
-    // Pages that provide their own messaging, such as the broker protection harness, can choose which features load.
-    const loadFeatures = topLevelUrl?.searchParams.get('load-features')?.split(',');
     return {
         debug: false,
         sessionKey: 'randomVal',
@@ -54,11 +52,9 @@ function generateConfig() {
             // would fail or slow down initialization in the integration test context.
             // autofillPasskeys is Windows-only and globally wraps navigator.credentials.get,
             // so keep it out of the generic integration context as well.
-            enabledFeatures:
-                loadFeatures ??
-                (platformSupport.integration ?? []).filter(
-                    (f) => !['clickToLoad', 'brokerProtection', 'autofillImport', 'autofillPasskeys'].includes(f),
-                ),
+            enabledFeatures: (platformSupport.integration ?? []).filter(
+                (f) => !['clickToLoad', 'brokerProtection', 'autofillImport', 'autofillPasskeys'].includes(f),
+            ),
         },
     };
 }

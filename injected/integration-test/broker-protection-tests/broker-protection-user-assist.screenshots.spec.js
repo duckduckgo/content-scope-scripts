@@ -1,9 +1,7 @@
 import { test as base, expect } from '@playwright/test';
 import { createConfiguredDbpTest } from './fixtures.js';
-import { BROKER_PROTECTION_CONFIGS } from './tests-config.js';
 
 const test = createConfiguredDbpTest(base);
-const visualizedTest = createConfiguredDbpTest(base, BROKER_PROTECTION_CONFIGS.visualizeActions);
 
 test.describe('Broker Protection user assist screenshots @screenshots', () => {
     test.beforeEach(async ({ page }, workerInfo) => {
@@ -30,16 +28,6 @@ test.describe('Broker Protection user assist screenshots @screenshots', () => {
         await dbp.receivesAction('user-assist/hcaptcha.json');
         await dbp.collector.waitForMessage('userTurnNeeded');
         await expect(dbp.page).toHaveScreenshot('hcaptcha-hand-off.png');
-    });
-
-    visualizedTest('typing into the search form', async ({ dbp }) => {
-        await dbp.page.clock.install();
-        await dbp.navigatesToSite('people-search/optouts.html?turnstile=manual');
-        await dbp.page.clock.pauseAt(Date.now() + 60_000);
-        await dbp.receivesAction('user-assist/fill-form.json');
-        await dbp.page.clock.runFor(150);
-        await expect(dbp.page.locator("input[name='fname']")).toHaveValue('John');
-        await expect(dbp.page).toHaveScreenshot('typing.png', { maxDiffPixels: 20 });
     });
 });
 
