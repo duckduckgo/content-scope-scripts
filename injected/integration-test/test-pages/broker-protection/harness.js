@@ -57,10 +57,6 @@ async function runOptOut() {
             setActionState(index, 'done');
             continue;
         }
-        if (action.actionType === 'emailConfirmation') {
-            setActionState(index, 'skipped', 'Native only; the fake sends no email.');
-            break;
-        }
         await sleep(settings.pauseMs);
         const result = await send(action);
         if (thisRun !== run) return;
@@ -172,7 +168,7 @@ function renderActions() {
 
 /**
  * @param {number} index
- * @param {'running' | 'turn' | 'done' | 'failed' | 'skipped'} state
+ * @param {'running' | 'turn' | 'done' | 'failed'} state
  * @param {string} [detail]
  */
 function setActionState(index, state, detail) {

@@ -64,7 +64,6 @@
       "id": "018eb6ef-b469-41a6-af92-da9056c00781"
     },
     {
-      "_comment": "Wait for either form to appear before branching. The condition below runs once without retries.",
       "actionType": "expectation",
       "step": "Searching for your record",
       "expectations": [
@@ -76,7 +75,6 @@
       "id": "d275c4c7-cd31-44c3-93e4-f94ffbea600e"
     },
     {
-      "_comment": "Highly populated states show a different form.",
       "actionType": "condition",
       "step": "Searching for your record",
       "expectations": [
@@ -88,7 +86,6 @@
       ],
       "actions": [
         {
-          "_comment": "fillForm can't pick a fixed option. The form requires an answer to 'Do you have an account with us?'.",
           "actionType": "executeScript",
           "script": "var el = root.querySelector('#account_type_select'); if (!el) throw new Error('account_type_select not found'); Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value').set.call(el, 'guest'); el.dispatchEvent(new Event('input', { bubbles: true })); el.dispatchEvent(new Event('change', { bubbles: true }));",
           "id": "7b3f1d9e-2c84-4a5b-9e60-4d1f8a2c3b71",
@@ -171,7 +168,6 @@
       "id": "68b1567f-abbe-4fb4-9c4d-3105db8dd709"
     },
     {
-      "_comment": "Results page. Low-pop lands here directly, high-pop after the comprehensive form.",
       "actionType": "expectation",
       "step": "Searching for your record",
       "expectations": [
@@ -280,22 +276,6 @@
         }
       ],
       "id": "8e4d9bb1-7941-4dc1-b7f3-c3d694d93413"
-    },
-    {
-      "actionType": "emailConfirmation",
-      "pollingTime": 30,
-      "id": "2de547ea-ea4c-4809-b24c-9e4eca7ae8a3"
-    },
-    {
-      "actionType": "expectation",
-      "expectations": [
-        {
-          "type": "text",
-          "selector": "body",
-          "expect": "You have successfully been opted out"
-        }
-      ],
-      "id": "68797019-b986-48ec-888f-91cb8e190ff8"
     }
   ]
 }

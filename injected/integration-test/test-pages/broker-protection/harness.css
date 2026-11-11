@@ -83,9 +83,6 @@ h1 {
     background: #fde2e1;
     color: #b3261e;
 }
-#actions li[data-state='skipped'] {
-    color: #999;
-}
 #actions li .detail {
     display: block;
     font-size: 11px;
