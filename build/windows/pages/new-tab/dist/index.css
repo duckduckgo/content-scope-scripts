@@ -5779,6 +5779,26 @@ body[data-rebrand=true]:not([data-background-kind=default]) .TabSwitcher_blob {
   font-size: 13px;
   padding: var(--sp-1) 9px var(--sp-1) 19px;
   white-space: nowrap;
+  gap: var(--sp-1);
+}
+.Dropdown_sectionHeader:has(.Dropdown_sectionAction) {
+  color: var(--ds-color-theme-text-primary);
+}
+.Dropdown_sectionAction {
+  background: none;
+  border: 0;
+  color: var(--ds-color-theme-accent-text-primary);
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+  text-decoration: none;
+}
+.Dropdown_sectionAction:hover {
+  text-decoration: underline;
+}
+.Dropdown_sectionAction:focus-visible {
+  outline: 2px solid var(--ds-color-theme-accent-primary);
+  outline-offset: 2px;
 }
 
 /* pages/new-tab/app/omnibar/components/chat-tools/model-selector/ModelSelector.module.css */

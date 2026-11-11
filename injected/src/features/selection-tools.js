@@ -8,6 +8,7 @@ import {
     isSelectionCollapsed,
     markedLanguageOf,
     readSelection,
+    selectionEnds,
 } from './selection-tools/selection.js';
 import { selectedTextKey } from './selection-tools/text-key.js';
 
@@ -34,6 +35,9 @@ export default class SelectionTools extends ContentFeature {
     /** @type {SelectionSnapshot | null} the selection native was last told about, until it's cleared */
     _reported = null;
 
+    /** @type {{ ends: unknown[], selected: boolean } | null} the selection when the primary button went down, and whether it changed */
+    _press = null;
+
     _minChars = DEFAULT_MIN_CHARS;
     _moveFrame = 0;
 
@@ -50,7 +54,7 @@ export default class SelectionTools extends ContentFeature {
             this._config = config;
             if (!config.enabled || !config.showToolbar) this._clear();
         });
-        for (const type of ['mousedown', 'mouseup', 'keyup', 'contextmenu']) {
+        for (const type of ['mousedown', 'mouseup', 'dragend', 'keyup', 'contextmenu']) {
             document.addEventListener(type, this, true);
         }
         document.addEventListener('selectionchange', this);
@@ -65,13 +69,29 @@ export default class SelectionTools extends ContentFeature {
         // Page script can't fire these to make the page report a selection, and so place the toolbar.
         if (!event.isTrusted) return;
         switch (event.type) {
-            case 'mousedown':
+            case 'mousedown': {
+                const { button } = /** @type {MouseEvent} */ (event);
                 // A right-click opens the context menu on the selection rather than replacing it.
-                if (/** @type {MouseEvent} */ (event).button !== 2) this._clear();
+                if (button !== 2) this._clear();
+                if (button === 0) this._press = { ends: selectionEnds(), selected: false };
                 break;
-            case 'mouseup':
+            }
+            case 'mouseup': {
                 // Only a primary-button release can finish a selection. The selection settles after mouseup.
-                if (/** @type {MouseEvent} */ (event).button === 0) setTimeout(() => this._refresh(), 0);
+                if (/** @type {MouseEvent} */ (event).button !== 0) break;
+                const press = this._press;
+                // A click that leaves the selection as it was, such as on an editor's menu button, didn't select it: the
+                // toolbar stays away rather than coming back over the menu the click opened. Read once the selection has
+                // settled, so selectionchange events still queued from the press count.
+                setTimeout(() => {
+                    if (this._press === press) this._press = null;
+                    if (!press || press.selected || !sameEnds(selectionEnds(), press.ends)) this._refresh();
+                }, 0);
+                break;
+            }
+            case 'dragend':
+                // Dragging the selected text ends without a mouseup.
+                this._press = null;
                 break;
             case 'keyup': {
                 const key = /** @type {KeyboardEvent} */ (event);
@@ -85,6 +105,8 @@ export default class SelectionTools extends ContentFeature {
                 this._contextMenu();
                 break;
             case 'selectionchange':
+                // A drag that ends on the selection it started from, such as reselecting the same text, still selected it.
+                if (this._press && !this._press.selected && !sameEnds(selectionEnds(), this._press.ends)) this._press.selected = true;
                 if (this._reported && isSelectionCollapsed()) this._clear();
                 break;
             case 'keydown':
@@ -169,6 +191,14 @@ export default class SelectionTools extends ContentFeature {
  */
 function hasUserActivation() {
     return navigator.userActivation?.isActive ?? true;
+}
+
+/**
+ * @param {unknown[]} a
+ * @param {unknown[]} b
+ */
+function sameEnds(a, b) {
+    return a.length === b.length && a.every((value, i) => value === b[i]);
 }
 
 /**

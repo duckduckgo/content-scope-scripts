@@ -1059,5 +1059,13 @@
   "activity_show_less_history" : {
     "title" : "Ocultar adicional",
     "note" : "Button label that hides the expanded browsing history items."
+  },
+  "omnibar_modelBadgePlus" : {
+    "title" : "Plus",
+    "description" : "Badge shown next to an AI model in the model selector that requires a Plus subscription tier."
+  },
+  "omnibar_modelBadgePro" : {
+    "title" : "Pro",
+    "description" : "Badge shown next to an AI model in the model selector that requires a Pro subscription tier."
   }
 }

@@ -10136,7 +10136,7 @@
     const importConfig = {
       trackerLookup: define_import_meta_trackerLookup_default,
       injectName: "android-adsjs",
-      contentScopeScriptsVersion: "20.6.0"
+      contentScopeScriptsVersion: "20.7.0"
     };
     const bundledFeatureNames = typeof importConfig.injectName === "string" ? platformSupport[importConfig.injectName] ?? [] : [];
     const featuresToLoad = isGloballyDisabled(args) ? platformSpecificFeatures : args.site.enabledFeatures || bundledFeatureNames;

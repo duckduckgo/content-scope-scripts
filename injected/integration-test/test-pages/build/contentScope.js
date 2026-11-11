@@ -32487,6 +32487,13 @@ ${iframeContent}
     const selection = window.getSelection();
     return !selection || selectedRange(selection) === null;
   }
+  function selectionEnds() {
+    const active = deepActiveElement();
+    if (isTextField(active)) return [active, active.selectionStart, active.selectionEnd];
+    const selection = window.getSelection();
+    const range = selection ? selectedRange(selection) : null;
+    return range ? [range.startContainer, range.startOffset, range.endContainer, range.endOffset] : [];
+  }
   function isEditingFocused() {
     const active = deepActiveElement();
     return isTextField(active) || active instanceof HTMLElement && active.isContentEditable;
@@ -32534,6 +32541,8 @@ ${iframeContent}
       __publicField(this, "_config", { enabled: true, showToolbar: true });
       /** @type {SelectionSnapshot | null} the selection native was last told about, until it's cleared */
       __publicField(this, "_reported", null);
+      /** @type {{ ends: unknown[], selected: boolean } | null} the selection when the primary button went down, and whether it changed */
+      __publicField(this, "_press", null);
       __publicField(this, "_minChars", DEFAULT_MIN_CHARS);
       __publicField(this, "_moveFrame", 0);
     }
@@ -32548,7 +32557,7 @@ ${iframeContent}
         this._config = config2;
         if (!config2.enabled || !config2.showToolbar) this._clear();
       });
-      for (const type of ["mousedown", "mouseup", "keyup", "contextmenu"]) {
+      for (const type of ["mousedown", "mouseup", "dragend", "keyup", "contextmenu"]) {
         document.addEventListener(type, this, true);
       }
       document.addEventListener("selectionchange", this);
@@ -32561,17 +32570,29 @@ ${iframeContent}
     handleEvent(event) {
       if (!event.isTrusted) return;
       switch (event.type) {
-        case "mousedown":
-          if (
+        case "mousedown": {
+          const { button } = (
             /** @type {MouseEvent} */
-            event.button !== 2
-          ) this._clear();
+            event
+          );
+          if (button !== 2) this._clear();
+          if (button === 0) this._press = { ends: selectionEnds(), selected: false };
           break;
-        case "mouseup":
+        }
+        case "mouseup": {
           if (
             /** @type {MouseEvent} */
-            event.button === 0
-          ) setTimeout(() => this._refresh(), 0);
+            event.button !== 0
+          ) break;
+          const press = this._press;
+          setTimeout(() => {
+            if (this._press === press) this._press = null;
+            if (!press || press.selected || !sameEnds(selectionEnds(), press.ends)) this._refresh();
+          }, 0);
+          break;
+        }
+        case "dragend":
+          this._press = null;
           break;
         case "keyup": {
           const key = (
@@ -32587,6 +32608,7 @@ ${iframeContent}
           this._contextMenu();
           break;
         case "selectionchange":
+          if (this._press && !this._press.selected && !sameEnds(selectionEnds(), this._press.ends)) this._press.selected = true;
           if (this._reported && isSelectionCollapsed()) this._clear();
           break;
         case "keydown":
@@ -32661,6 +32683,9 @@ ${iframeContent}
   };
   function hasUserActivation() {
     return navigator.userActivation?.isActive ?? true;
+  }
+  function sameEnds(a2, b2) {
+    return a2.length === b2.length && a2.every((value, i) => value === b2[i]);
   }
   function describe(snapshot) {
     const { shape, language } = classify(snapshot.text, {
@@ -33132,7 +33157,7 @@ svg { vertical-align: -1px; }
     const importConfig = {
       trackerLookup: define_import_meta_trackerLookup_default,
       injectName: "integration",
-      contentScopeScriptsVersion: "20.6.0"
+      contentScopeScriptsVersion: "20.7.0"
     };
     const bundledFeatureNames = typeof importConfig.injectName === "string" ? platformSupport[importConfig.injectName] ?? [] : [];
     const featuresToLoad = isGloballyDisabled(args) ? platformSpecificFeatures : args.site.enabledFeatures || bundledFeatureNames;

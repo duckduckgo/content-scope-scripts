@@ -165,4 +165,28 @@
     font-size: 13px;
     padding: var(--sp-1) 9px var(--sp-1) 19px;
     white-space: nowrap;
+    gap: var(--sp-1);
+}
+
+.sectionHeader:has(.sectionAction) {
+    color: var(--ds-color-theme-text-primary);
+}
+
+.sectionAction {
+    background: none;
+    border: 0;
+    color: var(--ds-color-theme-accent-text-primary);
+    cursor: pointer;
+    font: inherit;
+    padding: 0;
+    text-decoration: none;
+
+    &:hover {
+        text-decoration: underline;
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--ds-color-theme-accent-primary);
+        outline-offset: 2px;
+    }
 }

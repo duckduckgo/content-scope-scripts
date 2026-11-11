@@ -13067,14 +13067,26 @@
         separator: "Dropdown_separator",
         itemLabel: "Dropdown_itemLabel",
         itemName: "Dropdown_itemName",
-        sectionHeader: "Dropdown_sectionHeader"
+        sectionHeader: "Dropdown_sectionHeader",
+        sectionAction: "Dropdown_sectionAction"
       };
     }
   });
 
   // pages/new-tab/app/omnibar/components/chat-tools/dropdown/DropdownSectionHeader.js
-  function DropdownSectionHeader({ children, descriptionId }) {
-    return /* @__PURE__ */ k("li", { id: descriptionId, role: "presentation", class: Dropdown_default.sectionHeader }, children);
+  function DropdownSectionHeader({ children, descriptionId, actionLabel, onAction }) {
+    return /* @__PURE__ */ k("li", { id: descriptionId, role: "presentation", class: Dropdown_default.sectionHeader }, /* @__PURE__ */ k("span", null, children), actionLabel && onAction && /* @__PURE__ */ k(
+      "button",
+      {
+        type: "button",
+        class: Dropdown_default.sectionAction,
+        onClick: (event) => {
+          event.stopPropagation();
+          onAction();
+        }
+      },
+      actionLabel
+    ));
   }
   var init_DropdownSectionHeader = __esm({
     "pages/new-tab/app/omnibar/components/chat-tools/dropdown/DropdownSectionHeader.js"() {
@@ -13180,7 +13192,17 @@
 
   // pages/new-tab/app/omnibar/components/chat-tools/model-selector/ModelDropdown.js
   function getRowBadgeLabel(model, t4) {
-    return model.accessTier === "internal" ? t4("omnibar_modelBadgeInternal") : null;
+    if (model.isAvailable && model.accessTier !== "internal") return null;
+    switch (model.accessTier) {
+      case "plus":
+        return t4("omnibar_modelBadgePlus");
+      case "pro":
+        return t4("omnibar_modelBadgePro");
+      case "internal":
+        return t4("omnibar_modelBadgeInternal");
+      default:
+        return null;
+    }
   }
   function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose, onSelect, onUpsell, className, ariaLabel, dropdownRef }) {
     const { t: t4 } = useTypedTranslationWith(
@@ -13237,12 +13259,14 @@
     };
     h2(() => {
       const frameId = window.requestAnimationFrame(() => {
-        dropdownRef?.current?.focus({ preventScroll: true });
+        const dropdown = dropdownRef?.current;
+        if (dropdown && !dropdown.contains(document.activeElement)) dropdown.focus({ preventScroll: true });
       });
       return () => window.cancelAnimationFrame(frameId);
     }, [dropdownRef]);
     const getOptionId = (index2) => `model-option-${allModels[index2]?.id ?? index2}`;
     const handleKeyDown = (e4) => {
+      if (e4.target !== e4.currentTarget && e4.key !== "Escape") return;
       switch (e4.key) {
         case "ArrowDown":
           e4.preventDefault();
@@ -13279,9 +13303,6 @@
           e4.preventDefault();
           onClose({ restoreFocus: true });
           break;
-        case "Tab":
-          window.setTimeout(() => onClose({ restoreFocus: false }), 0);
-          break;
       }
     };
     return /* @__PURE__ */ k(
@@ -13295,12 +13316,29 @@
         "aria-activedescendant": activeIndex >= 0 ? getOptionId(activeIndex) : void 0,
         style: { right: dropdownPos.right, left: dropdownPos.left, top: dropdownPos.top },
         onKeyDown: handleKeyDown,
+        onFocus: (event) => {
+          if (event.target !== event.currentTarget) clearActiveIndex();
+        },
+        onBlur: (event) => {
+          if (!(event.relatedTarget instanceof Node) || !event.currentTarget.contains(event.relatedTarget)) {
+            onClose({ restoreFocus: false });
+          }
+        },
         onMouseLeave: clearActiveIndex
       },
       sections.map((section, sectionIndex) => {
-        const needsDivider = sectionIndex > 0 && (Boolean(section.header) || hasGatedModelsAt[sectionIndex]);
+        const sectionCta = section.cta;
+        const needsDivider = sectionIndex > 0 && (Boolean(section.header) || Boolean(section.cta) || hasGatedModelsAt[sectionIndex]);
         const gatedSectionDescriptionId = section.header ? `model-gated-section-${sectionIndex}` : void 0;
-        return /* @__PURE__ */ k(S, { key: sectionIndex }, needsDivider && /* @__PURE__ */ k(DropdownSeparator, null), section.header && /* @__PURE__ */ k(DropdownSectionHeader, { descriptionId: gatedSectionDescriptionId }, section.header), section.items.map((model) => {
+        return /* @__PURE__ */ k(S, { key: sectionIndex }, needsDivider && /* @__PURE__ */ k(DropdownSeparator, null), (section.header || section.cta) && /* @__PURE__ */ k(
+          DropdownSectionHeader,
+          {
+            descriptionId: gatedSectionDescriptionId,
+            actionLabel: section.cta?.label,
+            onAction: sectionCta ? () => activateUpsell(sectionCta.upsell, true) : void 0
+          },
+          section.header
+        ), section.items.map((model) => {
           const Icon = getModelIcon(model.id);
           const optionIndex = optionIndexById.get(model.id) ?? -1;
           const badgeLabel = getRowBadgeLabel(model, t4);
@@ -39252,6 +39290,14 @@
     omnibar_suggestedPromptsImageDesignSpacePrompt: {
       title: "Visualize a modern living room space.",
       description: "The message sent to Duck.ai's image generator when the Design Your Space card is selected."
+    },
+    omnibar_modelBadgePlus: {
+      title: "Plus",
+      description: "Badge shown next to an AI model in the model selector that requires a Plus subscription tier."
+    },
+    omnibar_modelBadgePro: {
+      title: "Pro",
+      description: "Badge shown next to an AI model in the model selector that requires a Pro subscription tier."
     },
     nextStepsList_sectionTitle: {
       title: "Next Steps",
