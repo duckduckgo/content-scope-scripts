@@ -102,6 +102,26 @@ async function seekTo(page, seconds) {
     }, seconds);
 }
 
+/**
+ * Plays the video and resolves once it is actually playing.
+ * @param {import('@playwright/test').Page} page
+ * @param {number} [playbackRate]
+ */
+async function play(page, playbackRate = 1) {
+    await page.evaluate(async (rate) => {
+        const video = /** @type {HTMLVideoElement} */ (document.querySelector('video'));
+        video.playbackRate = rate;
+        const playing = new Promise((resolve) => video.addEventListener('playing', resolve, { once: true }));
+        await video.play();
+        await playing;
+    }, playbackRate);
+}
+
+/** @param {import('@playwright/test').Page} page */
+async function pause(page) {
+    await page.evaluate(() => /** @type {HTMLVideoElement} */ (document.querySelector('video')).pause());
+}
+
 /** @param {import('@playwright/test').Page} page */
 function currentTime(page) {
     return page.evaluate(() => /** @type {HTMLVideoElement} */ (document.querySelector('video')).currentTime);
@@ -144,17 +164,31 @@ test.describe('SponsorBlock', () => {
         expect(await currentTime(page)).toBeCloseTo(5, 1);
     });
 
-    test('manual mode: hides the skip button after 8 seconds until playback leaves the segment', async ({ page }, testInfo) => {
+    test('manual mode: hides the skip button after 8 seconds of playback until playback leaves the segment', async ({ page }, testInfo) => {
         await page.clock.install();
         await loadPlayer(page, testInfo);
         await expect(page.locator(MARKER)).toHaveCount(1);
 
-        await seekTo(page, 3);
+        // While paused, the button stays up however long it waits.
+        await seekTo(page, 2);
         await expect(page.locator(SKIP_BUTTON)).toBeVisible();
-        await page.clock.runFor(7000);
+        await page.clock.runFor(10000);
+        await expect(page.locator(SKIP_BUTTON)).toBeVisible();
+
+        // Playback counts. The countdown runs on the page's fake clock, the video on the real one, slowed down so it stays
+        // inside the segment for the whole test.
+        await play(page, 0.1);
+        await page.clock.runFor(4000);
+        // A pause stops the countdown, and playing again resumes it where it was.
+        await pause(page);
+        await page.clock.runFor(10000);
+        await expect(page.locator(SKIP_BUTTON)).toBeVisible();
+        await play(page, 0.1);
+        await page.clock.runFor(3000);
         await expect(page.locator(SKIP_BUTTON)).toBeVisible();
         await page.clock.runFor(1000);
         await expect(page.locator(SKIP_BUTTON)).toHaveCount(0);
+        await pause(page);
 
         // A seek within the same segment keeps it hidden.
         await page.evaluate(() => {
@@ -178,12 +212,14 @@ test.describe('SponsorBlock', () => {
         await expect(page.locator(SKIP_BUTTON)).toBeVisible();
 
         // And playing past its end.
+        await play(page, 0.1);
         await page.clock.runFor(8000);
         await expect(page.locator(SKIP_BUTTON)).toHaveCount(0);
-        await seekTo(page, 4.5);
-        await page.evaluate(() => /** @type {HTMLVideoElement} */ (document.querySelector('video')).play());
+        await page.evaluate(() => {
+            /** @type {HTMLVideoElement} */ (document.querySelector('video')).playbackRate = 1;
+        });
         await expect.poll(() => currentTime(page)).toBeGreaterThan(5.3);
-        await page.evaluate(() => /** @type {HTMLVideoElement} */ (document.querySelector('video')).pause());
+        await pause(page);
         await seekTo(page, 3);
         await expect(page.locator(SKIP_BUTTON)).toBeVisible();
     });

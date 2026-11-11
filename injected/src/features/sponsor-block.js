@@ -25,7 +25,8 @@ const DEFAULT_SKIP_BUTTON_HOST_SELECTORS = ['#player-container-id', '#player-con
 // Present while YouTube plays an ad in the player; the video element then plays the ad, not the video.
 const DEFAULT_AD_SHOWING_SELECTORS = ['.ad-showing'];
 
-// How long the skip button stays up after it appears for a segment, unless playback leaves the segment first.
+// How long the skip button stays up after it appears for a segment, unless playback leaves the segment first. Counted
+// only while the video plays, so a paused or buffering video keeps the button.
 const SKIP_BUTTON_TIMEOUT_MS = 8000;
 const OVERLAY_CLASS = 'ddg-sponsorblock-overlay';
 const SKIP_BUTTON_CLASS = 'ddg-sponsorblock-skip';
@@ -229,6 +230,10 @@ export class SponsorBlock extends ContentFeature {
     #skipButtonTimedOut = null;
     /** @type {ReturnType<typeof setTimeout> | undefined} */
     #skipButtonTimer;
+    // Playback time left before the skip button hides, and when the running countdown started (null while stopped).
+    #skipButtonMsLeft = 0;
+    /** @type {number | null} */
+    #skipButtonCountdownStart = null;
     #progressBarSelectors = DEFAULT_PROGRESS_BAR_SELECTORS;
     #skipButtonHostSelectors = DEFAULT_SKIP_BUTTON_HOST_SELECTORS;
     #adShowingSelectors = DEFAULT_AD_SHOWING_SELECTORS;
@@ -305,6 +310,8 @@ export class SponsorBlock extends ContentFeature {
             true,
         );
         this.#doc.addEventListener('seeked', () => this.updateSkip(), true);
+        // The skip button's countdown runs only while the video plays.
+        for (const type of ['playing', 'pause', 'waiting']) this.#doc.addEventListener(type, () => this.updateSkip(), true);
         // seeking: fires only for jumps, never for natural playback, with the new position already set.
         this.#doc.addEventListener('seeking', () => this.markSeekedInto(), true);
     }
@@ -428,8 +435,25 @@ export class SponsorBlock extends ContentFeature {
 
     hideSkipButton() {
         this.#skipButton?.remove();
-        clearTimeout(this.#skipButtonTimer);
+        this.stopSkipButtonCountdown();
         this.#skipButtonFor = null;
+    }
+
+    startSkipButtonCountdown() {
+        const uuid = this.#skipButtonFor;
+        if (!uuid || this.#skipButtonCountdownStart !== null) return;
+        this.#skipButtonCountdownStart = Date.now();
+        this.#skipButtonTimer = setTimeout(() => {
+            this.#skipButtonTimedOut = uuid;
+            this.hideSkipButton();
+        }, this.#skipButtonMsLeft);
+    }
+
+    stopSkipButtonCountdown() {
+        clearTimeout(this.#skipButtonTimer);
+        if (this.#skipButtonCountdownStart === null) return;
+        this.#skipButtonMsLeft -= Date.now() - this.#skipButtonCountdownStart;
+        this.#skipButtonCountdownStart = null;
     }
 
     // Reacts to the playhead: in auto mode seeks past a segment as soon as playback enters it, in manual mode (or for
@@ -458,12 +482,15 @@ export class SponsorBlock extends ContentFeature {
         this.#skipButton ??= this.createSkipButton();
         if (this.#skipButton.parentElement !== host) host.append(this.#skipButton);
         if (this.#skipButtonFor !== uuid) {
-            clearTimeout(this.#skipButtonTimer);
+            this.stopSkipButtonCountdown();
             this.#skipButtonFor = uuid;
-            this.#skipButtonTimer = setTimeout(() => {
-                this.#skipButtonTimedOut = uuid;
-                this.hideSkipButton();
-            }, SKIP_BUTTON_TIMEOUT_MS);
+            this.#skipButtonMsLeft = SKIP_BUTTON_TIMEOUT_MS;
+        }
+        // Playing means not paused and not stalled waiting for data.
+        if (video && !video.paused && video.readyState >= video.HAVE_FUTURE_DATA) {
+            this.startSkipButtonCountdown();
+        } else {
+            this.stopSkipButtonCountdown();
         }
         const row = host.id === 'player-controls' ? host.querySelector('.player-controls-bottom') : null;
         if (row) {
