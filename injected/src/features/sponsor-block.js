@@ -1,5 +1,7 @@
 import ContentFeature from '../content-feature.js';
 import { injectGlobalStyles, isValidSelector } from '../utils.js';
+import daxSvg from './sponsor-block/assets/DuckDuckGo-Color-16.svg';
+import skipSvg from './sponsor-block/assets/Skip-Recolorable-16.svg';
 
 /** @typedef {import('../types/sponsor-block.js').Segment} Segment */
 /** @typedef {import('../types/sponsor-block.js').OnConfigChangedParams} Config */
@@ -44,30 +46,27 @@ const STYLES = `
 `;
 const SKIP_BUTTON_STYLES = `
 button {
-    all: unset; box-sizing: border-box; padding: 10px 16px; border-radius: 8px; background: rgb(222, 88, 51); color: #fff;
-    font: 500 14px/1.2 Roboto, Arial, sans-serif; cursor: pointer;
+    all: unset; box-sizing: border-box; display: flex; align-items: center; gap: 8px; padding: 8px 20px;
+    border-radius: 999px; background: #242323; color: #fff; font: 700 16px/16px Roboto, Arial, sans-serif;
+    white-space: nowrap; cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
-svg { vertical-align: -1px; }
+img { display: block; width: 16px; height: 16px; }
 `;
-const SVG_NS = 'http://www.w3.org/2000/svg';
+// Loaded as images from data URIs: YouTube enforces Trusted Types, so the SVG markup can't be parsed into the DOM.
+const DAX_ICON_URI = `data:image/svg+xml;utf8,${encodeURIComponent(daxSvg)}`;
+const SKIP_ICON_URI = `data:image/svg+xml;utf8,${encodeURIComponent(skipSvg)}`;
 
 /**
- * The "next" glyph YouTube uses: a triangle and a bar.
  * @param {Document} doc
- * @returns {SVGSVGElement}
+ * @param {string} src
+ * @returns {HTMLImageElement}
  */
-function createSkipIcon(doc) {
-    const svg = doc.createElementNS(SVG_NS, 'svg');
-    svg.setAttribute('width', '12');
-    svg.setAttribute('height', '12');
-    svg.setAttribute('viewBox', '0 0 12 12');
-    svg.setAttribute('aria-hidden', 'true');
-    const path = doc.createElementNS(SVG_NS, 'path');
-    path.setAttribute('d', 'M1 1l7 5-7 5z M9 1h2v10H9z');
-    path.setAttribute('fill', 'currentColor');
-    svg.append(path);
-    return svg;
+function createIcon(doc, src) {
+    const img = doc.createElement('img');
+    img.src = src;
+    img.alt = '';
+    return img;
 }
 
 /**
@@ -463,7 +462,7 @@ export class SponsorBlock extends ContentFeature {
         style.textContent = SKIP_BUTTON_STYLES;
         const button = this.#doc.createElement('button');
         button.type = 'button';
-        button.append('Skip sponsored content ', createSkipIcon(this.#doc));
+        button.append(createIcon(this.#doc, DAX_ICON_URI), 'Skip Content', createIcon(this.#doc, SKIP_ICON_URI));
         shadow.append(style, button);
         // Keep the tap from also reaching the player, which would toggle YouTube's controls.
         button.addEventListener('pointerdown', (e) => e.stopPropagation());
