@@ -2,7 +2,7 @@
  * @typedef {import('../../../../../types/new-tab.js').PastedTextLimits} PastedTextLimits
  */
 
-/** Matches Duck.ai and the native apps when native sends no `pastedTextLimits`. */
+/** Used when `pastedTextLimits` is absent. */
 export const DEFAULT_PASTED_TEXT_LIMITS = /** @type {PastedTextLimits} */ ({ pasteConversionThreshold: 4000, maxCharacters: 16000 });
 
 /** Longest excerpt shown as a pasted-text chip title. */
@@ -12,7 +12,7 @@ export const TEXT_PASTED_EXCERPT_MAX_CHARS = 200;
 export const TEXT_PASTED_SUMMARY_MAX_CHARS = 60;
 
 /**
- * Native limits, falling back per field to the defaults when missing or invalid.
+ * `pastedTextLimits`, falling back per field to the defaults when missing or invalid.
  * @param {Partial<PastedTextLimits> | null | undefined} limits
  * @returns {PastedTextLimits}
  */
@@ -29,7 +29,7 @@ export function resolvePastedTextLimits(limits) {
 
 /**
  * Whether a text paste becomes a pasted-text attachment: long enough and not only whitespace.
- * Length is in UTF-16 code units, as Duck.ai and native measure it.
+ * Length is in UTF-16 code units.
  * @param {string} text
  * @param {number} threshold
  */
