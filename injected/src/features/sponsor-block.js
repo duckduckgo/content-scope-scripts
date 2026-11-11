@@ -136,7 +136,8 @@ function duckPlayerEmbedDocument() {
             const resolveIfLoaded = () => {
                 const doc = iframe.contentDocument;
                 // Before it loads, the iframe holds an about:blank document that inherits the page's origin.
-                if (doc && doc.location.pathname.startsWith('/embed/')) resolve(doc);
+                // While the embed is still parsing, wait for its load event so its head exists.
+                if (doc && doc.location.pathname.startsWith('/embed/') && doc.readyState !== 'loading') resolve(doc);
             };
             iframe.addEventListener('load', resolveIfLoaded);
             resolveIfLoaded();
