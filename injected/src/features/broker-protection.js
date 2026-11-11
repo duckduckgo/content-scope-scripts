@@ -106,6 +106,7 @@ export default class BrokerProtection extends ActionExecutorBase {
     /** @type {HandOff} */
     handOff = {
         start: (actionID, widget) => {
+            this.visualizer?.makeWayForUser();
             if (widget) this.turn.show(widget);
             this.messaging.notify('userTurnNeeded', { actionID });
         },

@@ -17,15 +17,15 @@ export class ActionVisualizer {
     /** Retries run a click again, but it should only be presented once. */
     presentedClicks = new WeakSet();
 
+    makeWayForUser() {
+        this.overlay.hideCursor();
+        this.overlay.highlightField(null);
+    }
+
     /**
      * @param {Record<string, any>} action
      */
     async beforeAction(action) {
-        if (action.actionType === 'userAssist') {
-            this.overlay.hideCursor();
-            this.overlay.highlightField(null);
-            return;
-        }
         if (action.actionType !== 'click' || this.presentedClicks.has(action)) return;
         const targets = clickTargets(action);
         if (targets.length) this.presentedClicks.add(action);
