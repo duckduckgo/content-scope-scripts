@@ -6,7 +6,6 @@ import { YOUTUBE_ERROR_EVENT, checkForError, getErrorType } from '../../../../..
  * @typedef {import('../../types/duckplayer').CustomErrorSettings} CustomErrorSettings
  */
 
-// `yt-player-interstitial-renderer` is YouTube's redesigned error screen (experiment `maw_error_screen_redesign`)
 const DEFAULT_YOUTUBE_ERROR_SELECTOR = '.ytp-error, yt-player-interstitial-renderer';
 
 /**
