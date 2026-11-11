@@ -144,6 +144,34 @@ test.describe('SponsorBlock', () => {
         expect(await currentTime(page)).toBeCloseTo(5, 1);
     });
 
+    test('manual mode: hides the skip button after 8 seconds until playback leaves the segment', async ({ page }, testInfo) => {
+        await page.clock.install();
+        await loadPlayer(page, testInfo);
+        await expect(page.locator(MARKER)).toHaveCount(1);
+
+        await seekTo(page, 3);
+        await expect(page.locator(SKIP_BUTTON)).toBeVisible();
+        await page.clock.runFor(7000);
+        await expect(page.locator(SKIP_BUTTON)).toBeVisible();
+        await page.clock.runFor(1000);
+        await expect(page.locator(SKIP_BUTTON)).toHaveCount(0);
+
+        // A seek within the same segment keeps it hidden.
+        await page.evaluate(() => {
+            const video = /** @type {HTMLVideoElement} */ (document.querySelector('video'));
+            const seeked = new Promise((resolve) => video.addEventListener('seeked', resolve, { once: true }));
+            video.currentTime = 4;
+            return seeked;
+        });
+        await expect(page.locator(SKIP_BUTTON)).toHaveCount(0);
+
+        // Leaving the segment and coming back shows it again.
+        await seekTo(page, 6);
+        await expect.poll(() => currentTime(page)).toBeCloseTo(6, 1);
+        await seekTo(page, 3);
+        await expect(page.locator(SKIP_BUTTON)).toBeVisible();
+    });
+
     test('auto mode: skips a segment that playback enters naturally, without showing a button', async ({ page }, testInfo) => {
         await loadPlayer(page, testInfo, { responses: { getConfig: CONFIG_AUTO } });
         await expect(page.locator(MARKER)).toHaveCount(1);

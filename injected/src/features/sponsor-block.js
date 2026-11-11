@@ -25,6 +25,8 @@ const DEFAULT_SKIP_BUTTON_HOST_SELECTORS = ['#player-container-id', '#player-con
 // Present while YouTube plays an ad in the player; the video element then plays the ad, not the video.
 const DEFAULT_AD_SHOWING_SELECTORS = ['.ad-showing'];
 
+// How long the skip button stays up after it appears for a segment, unless playback leaves the segment first.
+const SKIP_BUTTON_TIMEOUT_MS = 8000;
 const OVERLAY_CLASS = 'ddg-sponsorblock-overlay';
 const SKIP_BUTTON_CLASS = 'ddg-sponsorblock-skip';
 const STYLES = `
@@ -45,7 +47,7 @@ const STYLES = `
 `;
 const SKIP_BUTTON_STYLES = `
 button {
-    all: unset; box-sizing: border-box; display: flex; align-items: center; gap: 8px; padding: 8px 20px;
+    all: unset; box-sizing: border-box; display: flex; align-items: center; gap: 8px; padding: 12px 20px;
     border-radius: 999px; background: #242323; color: #fff; font: 700 16px/16px Roboto, Arial, sans-serif;
     white-space: nowrap; cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 4px 16px rgba(0, 0, 0, 0.08);
 }
@@ -221,6 +223,12 @@ export class SponsorBlock extends ContentFeature {
     #skipButton = null;
     /** @type {Segment | null} */
     #skipSegment = null;
+    /** @type {string | null} uuid of the segment the skip button is showing for */
+    #skipButtonFor = null;
+    /** @type {string | null} uuid of the segment whose skip button timed out; stays hidden until playback leaves it */
+    #skipButtonTimedOut = null;
+    /** @type {ReturnType<typeof setTimeout> | undefined} */
+    #skipButtonTimer;
     #progressBarSelectors = DEFAULT_PROGRESS_BAR_SELECTORS;
     #skipButtonHostSelectors = DEFAULT_SKIP_BUTTON_HOST_SELECTORS;
     #adShowingSelectors = DEFAULT_AD_SHOWING_SELECTORS;
@@ -415,7 +423,13 @@ export class SponsorBlock extends ContentFeature {
         let end = segment.end;
         for (let next = segmentAt(segments, end); next; next = segmentAt(segments, end)) end = next.end;
         video.currentTime = end;
+        this.hideSkipButton();
+    }
+
+    hideSkipButton() {
         this.#skipButton?.remove();
+        clearTimeout(this.#skipButtonTimer);
+        this.#skipButtonFor = null;
     }
 
     // Reacts to the playhead: in auto mode seeks past a segment as soon as playback enters it, in manual mode (or for
@@ -433,13 +447,24 @@ export class SponsorBlock extends ContentFeature {
             this.skipTo(video, this.#skipSegment);
             return;
         }
-        const host = this.#skipSegment ? findFirstVisible(this.#doc, this.#skipButtonHostSelectors) : null;
+        const uuid = this.#skipSegment?.uuid ?? null;
+        // Leaving the segment forgets its timeout, so coming back to it shows the button again.
+        if (uuid !== this.#skipButtonTimedOut) this.#skipButtonTimedOut = null;
+        const host = uuid && !this.#skipButtonTimedOut ? findFirstVisible(this.#doc, this.#skipButtonHostSelectors) : null;
         if (!host) {
-            this.#skipButton?.remove();
+            this.hideSkipButton();
             return;
         }
         this.#skipButton ??= this.createSkipButton();
         if (this.#skipButton.parentElement !== host) host.append(this.#skipButton);
+        if (this.#skipButtonFor !== uuid) {
+            clearTimeout(this.#skipButtonTimer);
+            this.#skipButtonFor = uuid;
+            this.#skipButtonTimer = setTimeout(() => {
+                this.#skipButtonTimedOut = uuid;
+                this.hideSkipButton();
+            }, SKIP_BUTTON_TIMEOUT_MS);
+        }
         const row = host.id === 'player-controls' ? host.querySelector('.player-controls-bottom') : null;
         if (row) {
             const rowRect = row.getBoundingClientRect();
