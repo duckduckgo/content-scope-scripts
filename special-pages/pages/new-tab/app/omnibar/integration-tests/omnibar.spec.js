@@ -1987,6 +1987,195 @@ test.describe('omnibar widget', () => {
     });
 
     test.describe('AI chat model selector', () => {
+        for (const { upsell, label, eligible, method, telemetry } of [
+            {
+                upsell: 'subscribe',
+                label: 'Try for free',
+                eligible: 'true',
+                method: 'omnibar_showSubscriptionUpsell',
+                telemetry: 'omnibar_model_picker_tryforfree_shown',
+            },
+            {
+                upsell: 'subscribe',
+                label: 'Subscribe',
+                eligible: 'false',
+                method: 'omnibar_showSubscriptionUpsell',
+                telemetry: 'omnibar_model_picker_upgrade_shown',
+            },
+            {
+                upsell: 'upgrade',
+                label: 'Upgrade',
+                eligible: 'false',
+                method: 'omnibar_showSubscriptionUpgrade',
+                telemetry: 'omnibar_model_picker_upgrade_shown',
+            },
+        ]) {
+            test(`opens ${label} from the header and model rows without selecting a model`, async ({ page }, workerInfo) => {
+                const ntp = NewtabPage.create(page, workerInfo);
+                const omnibar = new OmnibarPage(ntp);
+                await ntp.reducedMotion();
+                await ntp.openPage({
+                    platformName: 'windows',
+                    additional: {
+                        omnibar: true,
+                        'omnibar.mode': 'ai',
+                        'omnibar.enableAiChatTools': 'true',
+                        'omnibar.modelSectionCta': upsell,
+                        'omnibar.isEligibleForFreeTrial': eligible,
+                    },
+                });
+                await omnibar.ready();
+                const selectedModel = await omnibar.modelSelectorButton().innerText();
+                const configWrites = await ntp.mocks.outgoing({ names: ['omnibar_setConfig'] });
+                for (const [index, entry] of ['header', 'row-pointer', 'row-keyboard'].entries()) {
+                    await omnibar.modelSelectorButton().click();
+                    const dropdown = omnibar.modelDropdown();
+                    await expect(dropdown).toBeFocused();
+                    const lockedModel = omnibar.modelOption('Claude 4 Sonnet');
+                    await expect(lockedModel).not.toHaveAttribute('aria-disabled');
+                    await expect(lockedModel).toContainText('Pro');
+                    if (upsell === 'subscribe') await expect(omnibar.modelOption('GPT-5.2')).toContainText('Plus');
+                    const badge = lockedModel.locator('span').last();
+                    const badgeColor = await badge.evaluate((element) => getComputedStyle(element).color);
+                    await lockedModel.hover();
+                    expect(await badge.evaluate((element) => getComputedStyle(element).color)).toBe(badgeColor);
+                    if (entry === 'header') {
+                        await dropdown.getByRole('button', { name: label, exact: true }).click();
+                    } else if (entry === 'row-pointer') {
+                        await lockedModel.click();
+                    } else {
+                        await page.keyboard.press('End');
+                        await expect(dropdown).toHaveAttribute('aria-activedescendant', 'model-option-claude-sonnet-4');
+                        await page.keyboard.press('Enter');
+                    }
+                    const calls = await ntp.mocks.waitForCallCount({ method, count: index + 1 });
+                    expect(calls).toHaveLength(index + 1);
+                    expect(calls.at(-1)?.payload.params).toEqual({ source: 'model' });
+                    expect(await ntp.mocks.outgoing({ names: ['omnibar_setConfig'] })).toEqual(configWrites);
+                    await expect(dropdown).toHaveCount(0);
+                    await expect(omnibar.modelSelectorButton()).toHaveText(selectedModel);
+                }
+                const events = await ntp.mocks.waitForCallCount({ method: 'telemetryEvent', count: 6 });
+                expect(events.map((call) => call.payload.params.attributes.name)).toEqual([
+                    'omnibar_model_picker_shown',
+                    telemetry,
+                    'omnibar_model_picker_shown',
+                    telemetry,
+                    'omnibar_model_picker_shown',
+                    telemetry,
+                ]);
+            });
+        }
+
+        test('keeps rows without upsell inert while the section action remains available', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({
+                platformName: 'windows',
+                additional: {
+                    omnibar: true,
+                    'omnibar.mode': 'ai',
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.modelSectionCta': 'subscribe',
+                    'omnibar.upsellDisabled': 'true',
+                },
+            });
+            await omnibar.ready();
+            const selectedModel = await omnibar.modelSelectorButton().innerText();
+            const configWrites = await ntp.mocks.outgoing({ names: ['omnibar_setConfig'] });
+            await omnibar.modelSelectorButton().click();
+            const dropdown = omnibar.modelDropdown();
+            await expect(dropdown).toBeFocused();
+            const lockedModel = omnibar.modelOption('Claude 4 Sonnet');
+            await expect(lockedModel).toHaveAttribute('aria-disabled', 'true');
+            await lockedModel.click({ force: true });
+            await page.keyboard.press('End');
+            await expect(dropdown).toHaveAttribute('aria-activedescendant', 'model-option-tinfoil/gemma4-31b');
+            expect(await ntp.mocks.outgoing({ names: ['omnibar_showSubscriptionUpsell', 'omnibar_showSubscriptionUpgrade'] })).toEqual([]);
+            await dropdown.getByRole('button', { name: 'Try for free', exact: true }).click();
+            const calls = await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpsell', count: 1 });
+            expect(calls).toHaveLength(1);
+            expect(calls[0].payload.params).toEqual({ source: 'model' });
+            expect(await ntp.mocks.outgoing({ names: ['omnibar_setConfig'] })).toEqual(configWrites);
+            await expect(omnibar.modelSelectorButton()).toHaveText(selectedModel);
+            await expect(dropdown).toHaveCount(0);
+        });
+
+        test('preserves CTA focus when the opening animation frame runs after Tab', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await page.clock.install();
+            await ntp.reducedMotion();
+            await ntp.openPage({
+                platformName: 'windows',
+                additional: {
+                    omnibar: true,
+                    'omnibar.mode': 'ai',
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.modelSectionCta': 'subscribe',
+                },
+            });
+            await omnibar.ready();
+            const selectedModel = await omnibar.modelSelectorButton().innerText();
+            const configWrites = await ntp.mocks.outgoing({ names: ['omnibar_setConfig'] });
+            await page.clock.pauseAt(await page.evaluate(() => Date.now() + 1000));
+            await omnibar.modelSelectorButton().click();
+            await page.keyboard.press('Tab');
+            const cta = omnibar.modelDropdown().getByRole('button', { name: 'Try for free' });
+            await expect(cta).toBeFocused();
+            await page.clock.runFor(500);
+            await expect(cta).toBeFocused();
+            await page.clock.resume();
+            await page.keyboard.press('Enter');
+            const calls = await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpsell', count: 1 });
+            expect(calls).toHaveLength(1);
+            expect(calls[0].payload.params).toEqual({ source: 'model' });
+            expect(await ntp.mocks.outgoing({ names: ['omnibar_setConfig'] })).toEqual(configWrites);
+            await expect(omnibar.modelSelectorButton()).toHaveText(selectedModel);
+            await expect(omnibar.modelDropdown()).toHaveCount(0);
+        });
+
+        for (const activationKey of ['Enter', ' ']) {
+            test(`reaches the model section CTA with Tab and activates with ${activationKey === ' ' ? 'Space' : 'Enter'}`, async ({
+                page,
+            }, workerInfo) => {
+                const ntp = NewtabPage.create(page, workerInfo);
+                const omnibar = new OmnibarPage(ntp);
+                await ntp.reducedMotion();
+                await ntp.openPage({
+                    platformName: 'windows',
+                    additional: {
+                        omnibar: true,
+                        'omnibar.mode': 'ai',
+                        'omnibar.enableAiChatTools': 'true',
+                        'omnibar.modelSectionCta': 'subscribe',
+                    },
+                });
+                await omnibar.ready();
+                await omnibar.modelSelectorButton().click();
+                const cta = omnibar.modelDropdown().getByRole('button', { name: 'Try for free' });
+                await page.keyboard.press('Tab');
+                await expect(cta).toBeFocused();
+                await expect(omnibar.modelDropdown()).not.toHaveAttribute('aria-activedescendant');
+                await page.keyboard.press('Escape');
+                await expect(omnibar.modelDropdown()).toHaveCount(0);
+                await expect(omnibar.modelSelectorButton()).toBeFocused();
+                await page.keyboard.press('Enter');
+                await page.keyboard.press('Tab');
+                await page.keyboard.press('Shift+Tab');
+                await expect(omnibar.modelDropdown()).toHaveCount(0);
+                await expect(omnibar.modelSelectorButton()).toBeFocused();
+                await page.keyboard.press('Enter');
+                await page.keyboard.press('Tab');
+                await expect(cta).toBeFocused();
+                await page.keyboard.press(activationKey);
+                const calls = await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpsell', count: 1 });
+                expect(calls.at(-1)?.payload.params).toEqual({ source: 'model' });
+                await expect(omnibar.modelDropdown()).toHaveCount(0);
+            });
+        }
+
         test('shows the full model list without scrolling when the window has room', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);
@@ -2275,6 +2464,7 @@ test.describe('omnibar widget', () => {
             await omnibar.expectMode('ai');
 
             await omnibar.modelSelectorButton().click();
+            await expect(omnibar.modelOption('Claude Sonnet 4.5')).not.toContainText('Plus');
             // No row is gated, so clicking one selects it directly instead of opening an upsell.
             await omnibar.modelOption('Claude Sonnet 4.5').click();
             const upsellCalls = await ntp.mocks.outgoing({ names: ['omnibar_showSubscriptionUpsell', 'omnibar_showSubscriptionUpgrade'] });

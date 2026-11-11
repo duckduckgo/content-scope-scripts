@@ -67,7 +67,7 @@
     },
     "UpsellType": {
       "type": "string",
-      "description": "Which upsell flow a gated item leads to: 'subscribe' (non-subscribers, shown as 'Try for free') or 'upgrade' (existing subscribers who need a higher tier, shown as 'Upgrade').",
+      "description": "Which subscription flow the action opens: 'subscribe' for non-subscribers or 'upgrade' for existing subscribers who need a higher tier.",
       "enum": ["subscribe", "upgrade"]
     },
     "AIModelSection": {
@@ -78,6 +78,18 @@
         "header": {
           "description": "Optional section header text (e.g. 'Subscriber Exclusive')",
           "type": "string"
+        },
+        "cta": {
+          "description": "Optional additional section action. Individual model availability and upsell actions are unchanged.",
+          "type": "object",
+          "required": ["label", "upsell"],
+          "properties": {
+            "label": {
+              "description": "Localized label for the section action.",
+              "type": "string"
+            },
+            "upsell": { "$ref": "#/$defs/UpsellType" }
+          }
         },
         "items": {
           "description": "List of AI models in this section",

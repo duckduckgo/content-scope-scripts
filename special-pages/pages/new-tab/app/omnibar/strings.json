@@ -450,5 +450,13 @@
   "omnibar_suggestedPromptsImageDesignSpacePrompt": {
     "title": "Visualize a modern living room space.",
     "description": "The message sent to Duck.ai's image generator when the Design Your Space card is selected."
+  },
+  "omnibar_modelBadgePlus": {
+    "title": "Plus",
+    "description": "Badge shown next to an AI model in the model selector that requires a Plus subscription tier."
+  },
+  "omnibar_modelBadgePro": {
+    "title": "Pro",
+    "description": "Badge shown next to an AI model in the model selector that requires a Pro subscription tier."
   }
 }
