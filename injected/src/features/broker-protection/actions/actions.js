@@ -7,3 +7,4 @@ export { navigate } from './navigate.js';
 export { getCaptchaInfo, solveCaptcha } from '../captcha-services/captcha.service.js';
 export { condition } from './condition.js';
 export { scroll } from './scroll.js';
+export { userAssist } from './user-assist.js';

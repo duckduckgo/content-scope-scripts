@@ -122,7 +122,7 @@ jobs:
                   BUILD_BRANCH="pr-releases/${SOURCE_BRANCH}"
 
                   git checkout -b "${BUILD_BRANCH}"
-                  git add -f build Sources/ContentScopeScripts/dist docs
+                  git add -f build Sources/ContentScopeScripts/dist docs injected/integration-test/test-pages/build
                   git commit -m "Build artifacts for ${SOURCE_BRANCH}"
 
                   push_build_branch() {

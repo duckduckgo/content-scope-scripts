@@ -18,6 +18,11 @@ async function sentCount(dbp, method) {
 }
 
 test.describe('Broker Protection userAssist', () => {
+    test.beforeEach(async ({ dbp }) => {
+        // The Windows mock also tries to answer notifications, and under page.clock its "response not found" error fails the test.
+        await dbp.collector.updateMockResponse({ actionCompleted: null, userTurnNeeded: null });
+    });
+
     test('completes straight away when the page already shows the step is done', async ({ dbp }) => {
         await dbp.navigatesToSite('people-search/optouts.html');
         await dbp.receivesAction('user-assist/opening.json');
@@ -46,32 +51,6 @@ test.describe('Broker Protection userAssist', () => {
         await dbp.page.clock.runFor(1_000);
         dbp.isSuccessMessage(await dbp.collector.waitForMessage('actionCompleted'), TURNSTILE_USER_ASSIST_ID);
         await expect(dbp.page.locator(OVERLAY)).toHaveCount(0);
-    });
-
-    test('a newer action cancels a pending hand-off without a response', async ({ dbp }) => {
-        await dbp.page.clock.install();
-        await dbp.navigatesToSite('people-search/additional-fields.html');
-        await dbp.receivesAction('user-assist/hcaptcha.json');
-        await dbp.collector.waitForMessage('userTurnNeeded');
-
-        await dbp.receivesAction('user-assist/certify-click.json');
-        dbp.isSuccessMessage(await dbp.collector.waitForMessage('actionCompleted'), '013eb5ef-b479-41a6-af92-da9056c00781');
-        await dbp.page.clock.runFor(1_000);
-        expect(await sentCount(dbp, 'actionCompleted')).toBe(1);
-        await expect(dbp.page.locator(OVERLAY)).toHaveCount(0);
-    });
-
-    test('a newer userAssist keeps its hand-off when it replaces a pending one', async ({ dbp }) => {
-        await dbp.page.clock.install();
-        await dbp.navigatesToSite('people-search/additional-fields.html');
-        await dbp.receivesAction('user-assist/hcaptcha.json');
-        await dbp.collector.waitForMessage('userTurnNeeded');
-
-        await dbp.receivesAction('user-assist/hcaptcha.json');
-        await dbp.page.clock.runFor(1_000);
-        expect(await sentCount(dbp, 'userTurnNeeded')).toBe(2);
-        expect(await sentCount(dbp, 'actionCompleted')).toBe(0);
-        await expect(dbp.page.locator(OVERLAY)).toHaveCount(1);
     });
 });
 

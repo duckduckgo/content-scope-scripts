@@ -93,7 +93,7 @@ async function attach() {
     deliver = null;
     await new Promise((resolve, reject) => {
         const script = doc.createElement('script');
-        script.src = '/build/contentScope.js';
+        script.src = new URL('../build/contentScope.js', import.meta.url).href;
         script.onload = resolve;
         script.onerror = reject;
         doc.head.append(script);

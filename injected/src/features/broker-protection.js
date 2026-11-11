@@ -2,7 +2,8 @@ import ContentFeature from '../content-feature.js';
 import { execute } from './broker-protection/execute.js';
 import { retry } from '../timer-utils.js';
 import { ErrorResponse } from './broker-protection/types.js';
-import { UserAssist } from './broker-protection/assist/user-assist.js';
+import { ActionVisualizer } from './broker-protection/assist/visualizer.js';
+import { TurnOverlay } from './broker-protection/assist/turn-overlay.js';
 
 export class ActionExecutorBase extends ContentFeature {
     /**
@@ -15,9 +16,7 @@ export class ActionExecutorBase extends ContentFeature {
                 return this.messaging.notify('actionError', { error: 'No action found.' });
             }
 
-            const outcome = await this.exec(action, data);
-            if (!outcome) return;
-            const { results, exceptions } = outcome;
+            const { results, exceptions } = await this.exec(action, data);
 
             if (results) {
                 // there might only be a single result.
@@ -50,10 +49,10 @@ export class ActionExecutorBase extends ContentFeature {
 
     /**
      * Recursively execute actions with the same dataset, collecting all results/exceptions for
-     * later analysis. Resolves to null when a newer action superseded this one, which then reports nothing.
+     * later analysis
      * @param {any} action
      * @param {Record<string, any>} data
-     * @return {Promise<{results: ActionResponse[], exceptions: string[]} | null>}
+     * @return {Promise<{results: ActionResponse[], exceptions: string[]}>}
      */
     async exec(action, data) {
         const retryConfig = this.retryConfigFor(action);
@@ -65,9 +64,7 @@ export class ActionExecutorBase extends ContentFeature {
                 const nextExceptions = [];
 
                 for (const nextAction of result.success.next) {
-                    const subOutcome = await this.exec(nextAction, data);
-                    if (!subOutcome) return null;
-                    const { results: subResults, exceptions: subExceptions } = subOutcome;
+                    const { results: subResults, exceptions: subExceptions } = await this.exec(nextAction, data);
 
                     nextResults.push(...subResults);
                     nextExceptions.push(...subExceptions);
@@ -80,7 +77,7 @@ export class ActionExecutorBase extends ContentFeature {
     }
 
     /**
-     * @param {any} action
+     * @param {PirAction | UserAssistAction} action
      * @param {Record<string, any>} data
      * @return {Promise<ActionResponse>}
      */
@@ -98,50 +95,43 @@ export class ActionExecutorBase extends ContentFeature {
 
 /**
  * @typedef {import("./broker-protection/types.js").ActionResponse} ActionResponse
+ * @typedef {import("./broker-protection/types.js").PirAction} PirAction
+ * @typedef {import("./broker-protection/types.js").UserAssistAction} UserAssistAction
+ * @typedef {import("./broker-protection/actions/user-assist.js").HandOff} HandOff
  */
 export default class BrokerProtection extends ActionExecutorBase {
-    /** @type {UserAssist | null} */
-    assist = null;
+    /** @type {ActionVisualizer | null} */
+    visualizer = null;
+    turn = new TurnOverlay();
+    /** @type {HandOff} */
+    handOff = {
+        start: (actionID, widget) => {
+            if (widget) this.turn.show(widget);
+            this.messaging.notify('userTurnNeeded', { actionID });
+        },
+        end: () => this.turn.clear(),
+    };
 
     init() {
-        const visualizeActions = this.getFeatureSettingEnabled('visualizeActions', 'disabled');
-        // Apple PIR gets userAssist from the apple-broker-protection bundle, so the isolated bundle every tab loads leaves it out.
-        this.assist = import.meta.injectName === 'apple-isolated' ? null : new UserAssist(visualizeActions);
+        if (this.getFeatureSettingEnabled('visualizeActions', 'disabled')) {
+            this.visualizer = new ActionVisualizer();
+        }
         this.messaging.subscribe('onActionReceived', async (/** @type {any} */ params) => {
             const { action, data } = params.state;
-            this.assist?.cancel();
             return await this.processActionAndNotify(action, data);
         });
     }
 
     /**
-     * `userAssist` waits on the user for as long as native lets it, so it skips the retry budget.
-     *
-     * @param {any} action
-     * @param {Record<string, any>} data
-     * @return {Promise<{results: ActionResponse[], exceptions: string[]} | null>}
-     */
-    async exec(action, data) {
-        if (action.actionType === 'userAssist' && this.assist) {
-            const result = await this.assist.run(action, () => this.messaging.notify('userTurnNeeded', { actionID: action.id }));
-            return result && { results: [result], exceptions: [] };
-        }
-        return super.exec(action, data);
-    }
-
-    /**
-     * @param {any} action
+     * @param {PirAction | UserAssistAction} action
      * @param {Record<string, any>} data
      * @return {Promise<ActionResponse>}
      */
     async runAction(action, data) {
-        const assist = this.assist;
-        if (!assist?.visualizeActions) return super.runAction(action, data);
-        // Presentation is best effort. It runs inside retry(), so letting it throw after the action has
-        // run would make retry() run the action (a click, a fill) a second time.
-        await assist.beforeAction(action).catch((e) => this.log.error('assist presentation failed', e));
-        const response = await super.runAction(action, data);
-        await assist.afterAction(action, response).catch((e) => this.log.error('assist presentation failed', e));
+        // Visualising runs inside retry(), so if it threw after a click or fill, retry() would run the action again.
+        await this.visualizer?.beforeAction(action).catch((e) => this.log.error('visualizing action failed', e));
+        const response = await execute(action, data, document, this.handOff);
+        await this.visualizer?.afterAction(action, response).catch((e) => this.log.error('visualizing action failed', e));
         return response;
     }
 

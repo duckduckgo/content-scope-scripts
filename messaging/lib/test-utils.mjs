@@ -70,8 +70,8 @@ export function mockWindowsMessaging(params) {
                 ),
             );
 
-            // notifications have `id: undefined`, so there's nothing to respond to
-            if (!('id' in msg) || msg.id === undefined) return;
+            // if there's no 'id' field, we don't need to respond
+            if (!('id' in msg)) return;
 
             // If we get here, it needed a response **and** we have a value for it
             setTimeout(() => {
@@ -433,8 +433,7 @@ export function simulateSubscriptionMessage(params) {
             break;
         }
         case 'apple':
-        case 'apple-isolated':
-        case 'apple-broker-protection': {
+        case 'apple-isolated': {
             const fn = navigator.duckduckgo?.messageHandlers?.[params.name] ?? /** @type {Record<string, any>} */ (window)?.[params.name];
             if (typeof fn !== 'function') {
                 throw new Error(`subscription fn not found for: ${params.name} (${params.injectName})`);

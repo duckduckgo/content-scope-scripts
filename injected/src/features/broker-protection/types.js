@@ -12,8 +12,7 @@
 /**
  * @typedef {object} PirAction
  * @property {string} id
- * @property {"extract" | "fillForm" | "click" | "expectation" | "getCaptchaInfo" | "solveCaptcha" | "navigate" | "condition" | "scroll" | "executeScript" | "userAssist"} actionType
- * @property {string} [step] - label native uses to group actions into user-facing steps; ignored here
+ * @property {"extract" | "fillForm" | "click" | "expectation" | "getCaptchaInfo" | "solveCaptcha" | "navigate" | "condition" | "scroll" | "executeScript"} actionType
  * @property {string} [selector]
  * @property {string} [script]
  * @property {ActionParent} [parent]
@@ -21,9 +20,15 @@
  * @property {string} [injectCaptchaHandler]
  * @property {string} [dataSource]
  * @property {string} [url]
- * @property {string} [highlight] - userAssist: CSS or XPath selector to outline when handing off
- * @property {number} [handOffAfterMs] - userAssist: defaults to 0
- * @property {Expectation[]} [completeWhen] - userAssist
+ */
+
+/**
+ * @typedef {object} UserAssistAction
+ * @property {string} id
+ * @property {"userAssist"} actionType
+ * @property {string} [highlight]
+ * @property {number} [handOffAfterMs]
+ * @property {Expectation[]} completeWhen
  */
 
 /**
@@ -144,7 +149,7 @@ export class ErrorResponse {
 /**
  * @typedef {object} SuccessResponseInterface
  * @property {PirAction['id']} actionID
- * @property {PirAction['actionType']} actionType
+ * @property {PirAction['actionType'] | UserAssistAction['actionType']} actionType
  * @property {any} response
  * @property {ExtractAction[]} [next]
  * @property {Record<string, any>} [meta] - optional meta data
