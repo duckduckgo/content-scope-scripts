@@ -496,11 +496,11 @@ function AiChatContent({
     const showTabWarning = tabWarning && !imageMessageShowing && !showCaptureError && !showFileError && !showFileWarning;
     // The typed text plus pastes over the limit; the cap only applies with the pasted-text feature on.
     const currentPromptLength = promptLength(query, attachedTextPasted);
-    const maxPromptCharacters = promptCharacterLimit(
-        pastedTextLimits.maxCharacters,
-        (canAttachImages && hasAttachedImages) || (canAttachFiles && fileState.attachedFiles.length > 0),
-        attachmentLimits?.images?.maxInputCharsWithAttachments,
-    );
+    const hasAttachment = (canAttachImages && hasAttachedImages) || (canAttachFiles && fileState.attachedFiles.length > 0);
+    const maxPromptCharacters = promptCharacterLimit({
+        maxCharacters: pastedTextLimits.maxCharacters,
+        maxCharactersWithAttachments: hasAttachment ? attachmentLimits?.images?.maxInputCharsWithAttachments : null,
+    });
     const promptTooLong = pastedTextEnabled && currentPromptLength > maxPromptCharacters;
     const showPromptTooLong =
         promptTooLong && !imageMessageShowing && !showCaptureError && !showFileError && !showFileWarning && !showTabWarning;

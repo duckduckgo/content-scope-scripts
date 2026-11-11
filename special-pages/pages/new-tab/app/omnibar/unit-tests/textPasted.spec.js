@@ -69,21 +69,20 @@ test.describe('promptLength', () => {
 
 test.describe('promptCharacterLimit', () => {
     test('keeps the max without an attachment', () => {
-        equal(promptCharacterLimit(16000, false, 8000), 16000);
+        equal(promptCharacterLimit({ maxCharacters: 16000, maxCharactersWithAttachments: null }), 16000);
     });
 
     test('lowers the max to the attachment limit', () => {
-        equal(promptCharacterLimit(16000, true, 8000), 8000);
+        equal(promptCharacterLimit({ maxCharacters: 16000, maxCharactersWithAttachments: 8000 }), 8000);
     });
 
     test('never raises the max', () => {
-        equal(promptCharacterLimit(16000, true, 30000), 16000);
+        equal(promptCharacterLimit({ maxCharacters: 16000, maxCharactersWithAttachments: 30000 }), 16000);
     });
 
     test('ignores a missing or invalid attachment limit', () => {
-        equal(promptCharacterLimit(16000, true, undefined), 16000);
-        equal(promptCharacterLimit(16000, true, null), 16000);
-        equal(promptCharacterLimit(16000, true, 0), 16000);
+        equal(promptCharacterLimit({ maxCharacters: 16000, maxCharactersWithAttachments: undefined }), 16000);
+        equal(promptCharacterLimit({ maxCharacters: 16000, maxCharactersWithAttachments: 0 }), 16000);
     });
 });
 

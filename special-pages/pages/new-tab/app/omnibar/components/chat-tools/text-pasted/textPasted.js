@@ -47,13 +47,13 @@ export function promptLength(query, pastes) {
 }
 
 /**
- * The prompt's character cap. An attached image or file lowers it to the limit with attachments, never raises it.
- * @param {number} maxCharacters - `pastedTextLimits.maxCharacters`, already resolved.
- * @param {boolean} hasAttachment
- * @param {number | null | undefined} maxCharactersWithAttachments - `attachmentLimits.images.maxInputCharsWithAttachments`.
+ * The prompt's character cap. The limit with attachments lowers it, never raises it.
+ * @param {object} params
+ * @param {number} params.maxCharacters - `pastedTextLimits.maxCharacters`, already resolved.
+ * @param {number | null | undefined} params.maxCharactersWithAttachments - null when nothing is attached.
  */
-export function promptCharacterLimit(maxCharacters, hasAttachment, maxCharactersWithAttachments) {
-    if (!hasAttachment || typeof maxCharactersWithAttachments !== 'number' || maxCharactersWithAttachments <= 0) return maxCharacters;
+export function promptCharacterLimit({ maxCharacters, maxCharactersWithAttachments }) {
+    if (typeof maxCharactersWithAttachments !== 'number' || maxCharactersWithAttachments <= 0) return maxCharacters;
     return Math.min(maxCharactersWithAttachments, maxCharacters);
 }
 
