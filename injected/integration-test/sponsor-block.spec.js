@@ -170,6 +170,22 @@ test.describe('SponsorBlock', () => {
         await expect.poll(() => currentTime(page)).toBeCloseTo(6, 1);
         await seekTo(page, 3);
         await expect(page.locator(SKIP_BUTTON)).toBeVisible();
+
+        // So does leaving it through the button.
+        await page.locator(SKIP_BUTTON).click();
+        await expect(page.locator(SKIP_BUTTON)).toHaveCount(0);
+        await seekTo(page, 3);
+        await expect(page.locator(SKIP_BUTTON)).toBeVisible();
+
+        // And playing past its end.
+        await page.clock.runFor(8000);
+        await expect(page.locator(SKIP_BUTTON)).toHaveCount(0);
+        await seekTo(page, 4.5);
+        await page.evaluate(() => /** @type {HTMLVideoElement} */ (document.querySelector('video')).play());
+        await expect.poll(() => currentTime(page)).toBeGreaterThan(5.3);
+        await page.evaluate(() => /** @type {HTMLVideoElement} */ (document.querySelector('video')).pause());
+        await seekTo(page, 3);
+        await expect(page.locator(SKIP_BUTTON)).toBeVisible();
     });
 
     test('auto mode: skips a segment that playback enters naturally, without showing a button', async ({ page }, testInfo) => {
