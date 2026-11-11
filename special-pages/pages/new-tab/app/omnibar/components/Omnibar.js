@@ -498,7 +498,7 @@ function AiChatContent({
     const currentPromptLength = promptLength(query, attachedTextPasted);
     const maxPromptCharacters = promptCharacterLimit(
         pastedTextLimits.maxCharacters,
-        canAttachImages && hasAttachedImages,
+        (canAttachImages && hasAttachedImages) || (canAttachFiles && fileState.attachedFiles.length > 0),
         attachmentLimits?.images?.maxInputCharsWithAttachments,
     );
     const promptTooLong = pastedTextEnabled && currentPromptLength > maxPromptCharacters;

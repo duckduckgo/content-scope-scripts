@@ -323,6 +323,28 @@ test.describe('omnibar pasted text', () => {
         await expect(omnibar.chatSubmitButton()).toBeEnabled();
     });
 
+    test('lowers the limit to the attachment limit while a PDF is attached', async ({ page }, workerInfo) => {
+        const { omnibar } = await setup(page, workerInfo, {
+            ...TEXT_ON,
+            'omnibar.imageMaxInputChars': '20',
+            'omnibar.selectedModelId': IMAGE_AND_PDF_MODEL,
+        });
+
+        await omnibar.pasteIntoChatInput({ text: LONG });
+        await omnibar.chatInput().fill('x'.repeat(4));
+        await expect(omnibar.promptTooLongWarning()).toHaveCount(0);
+
+        await omnibar.dropOnChatInput({ files: [{ name: 'report.pdf', type: 'application/pdf', base64: PDF_BASE64 }] });
+        await expect(omnibar.fileChip()).toHaveCount(1);
+        await expect(omnibar.imagePreviews()).toHaveCount(0);
+        await expect(omnibar.promptTooLongWarning()).toBeVisible();
+        await expect(omnibar.chatSubmitButton()).toBeDisabled();
+
+        await omnibar.removeFileButton('report.pdf').click();
+        await expect(omnibar.promptTooLongWarning()).toHaveCount(0);
+        await expect(omnibar.chatSubmitButton()).toBeEnabled();
+    });
+
     test('edits a pasted-text chip and sends the edited text', async ({ page }, workerInfo) => {
         const { omnibar } = await setup(page, workerInfo, TEXT_ON);
 
