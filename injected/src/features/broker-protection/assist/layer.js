@@ -1,4 +1,26 @@
-import baseStyles from './layer.css';
+const BASE_STYLES = `
+:host {
+    all: initial;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+.layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+    font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+}
+
+[hidden] {
+    display: none !important;
+}
+`;
 
 // Below reCAPTCHA's challenge popup (2000000000) and hCaptcha's (clamped to 2147483647), so a puzzle
 // opened during the user's turn is never covered, while staying above nearly all page content.
@@ -31,7 +53,7 @@ export class OverlayLayer {
      * @param {(els: T) => void} options.position
      */
     constructor({ styles, markup, select, position }) {
-        this.styles = baseStyles + styles;
+        this.styles = BASE_STYLES + styles;
         this.markup = markup;
         this.select = select;
         this.positionEls = position;

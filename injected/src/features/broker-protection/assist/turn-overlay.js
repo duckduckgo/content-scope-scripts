@@ -1,5 +1,39 @@
 import { OverlayLayer, documentBox, place, query, setHidden, setStyle } from './layer.js';
-import styles from './turn-overlay.css';
+
+const STYLES = `
+.ring {
+    position: absolute;
+    border-radius: 4px;
+    outline: 3px solid #f5a623;
+    outline-offset: 3px;
+    animation: ring 1.6s ease-in-out infinite;
+}
+
+.badge {
+    position: absolute;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: #ffc95c;
+    color: #3d2a00;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 16px;
+    white-space: nowrap;
+}
+
+@keyframes ring {
+    50% {
+        outline-offset: 6px;
+        outline-color: rgba(245, 166, 35, 0.55);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ring {
+        animation: none;
+    }
+}
+`;
 
 const BADGE_GAP = 8;
 // 16px line height plus 3px padding top and bottom (.badge).
@@ -14,7 +48,7 @@ export class TurnOverlay {
     radius = '';
     badgeBesideWidget = false;
     layer = new OverlayLayer({
-        styles,
+        styles: STYLES,
         markup: '<div class="ring" hidden></div><div class="badge" hidden>Your turn</div>',
         select: (root) => ({ ring: query(root, '.ring'), badge: query(root, '.badge') }),
         position: (els) => this.position(els),
