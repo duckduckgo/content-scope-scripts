@@ -21,6 +21,11 @@ const list = /** @type {HTMLOListElement} */ (document.getElementById('actions')
 const statusText = /** @type {HTMLElement} */ (document.getElementById('status'));
 const runButton = /** @type {HTMLButtonElement} */ (document.getElementById('run'));
 const { actions } = await fetch('sites/people-search/opt-out.json').then((response) => response.json());
+// `npm run serve` has the build beside the test pages; PR preview branches only have the repo's build/ folder.
+const localBuild = new URL('../build/contentScope.js', import.meta.url).href;
+const buildURL = (await fetch(localBuild, { method: 'HEAD' })).ok
+    ? localBuild
+    : new URL('../../../../build/integration/contentScope.js', import.meta.url).href;
 
 /** @type {{ action: Record<string, any>, resolve: (result: Record<string, any>) => void } | null} */
 let pending = null;
@@ -93,7 +98,7 @@ async function attach() {
     deliver = null;
     await new Promise((resolve, reject) => {
         const script = doc.createElement('script');
-        script.src = new URL('../build/contentScope.js', import.meta.url).href;
+        script.src = buildURL;
         script.onload = resolve;
         script.onerror = reject;
         doc.head.append(script);
