@@ -48,6 +48,11 @@ export default defineConfig({
             use: { injectName: 'apple-isolated', platform: 'macos' },
         },
         {
+            name: 'apple-broker-protection',
+            testMatch: ['integration-test/broker-protection-tests/**/*.spec.js'],
+            use: { injectName: 'apple-broker-protection', platform: 'macos' },
+        },
+        {
             name: 'apple',
             // prettier-ignore
             testMatch: [

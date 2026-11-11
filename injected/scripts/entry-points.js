@@ -31,6 +31,10 @@ const builds = {
         input: 'entry-points/apple.js',
         output: ['../Sources/ContentScopeScripts/dist/contentScopeIsolated.js'],
     },
+    'apple-broker-protection': {
+        input: 'entry-points/apple.js',
+        output: ['../Sources/ContentScopeScripts/dist/brokerProtection.js'],
+    },
     android: {
         input: 'entry-points/android.js',
         output: ['../build/android/contentScope.js'],

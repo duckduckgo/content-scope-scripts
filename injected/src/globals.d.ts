@@ -15,6 +15,7 @@ interface ImportMeta {
         | 'firefox'
         | 'apple'
         | 'apple-isolated'
+        | 'apple-broker-protection'
         | 'apple-ai-clear'
         | 'apple-ai-history'
         | 'android'

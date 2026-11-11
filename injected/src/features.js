@@ -85,6 +85,7 @@ export const platformSupport = {
         'contextMenu',
         'duckPlayer',
         'duckPlayerNative',
+        // Remove once the native app loads the dedicated apple-broker-protection bundle (major release).
         'brokerProtection',
         'breakageReporting',
         'performanceMetrics',
@@ -102,6 +103,7 @@ export const platformSupport = {
         'browserUiLock',
         'sponsorBlock',
     ],
+    'apple-broker-protection': ['brokerProtection'],
     'apple-ai-clear': ['duckAiDataClearing'],
     'apple-ai-history': ['duckAiChatHistory'],
     android: [
