@@ -120,6 +120,50 @@ body[data-rebrand="true"]:not([data-background-kind="default"]) {
     --ntp-control-primary-background-color: rgba(255, 255, 255, 0.12);
 }
 
+/*
+ * NTP rebrand: the page sits on Surface/Primary, not the shared Surface/Canvas default.
+ * Native paints the same colour behind the web view while it loads.
+ */
+body[data-rebrand="true"] {
+    --default-light-background-color: var(--ds-color-theme-default-light-surface-primary);
+    --default-dark-background-color: var(--ds-color-theme-default-dark-surface-primary);
+}
+
+body[data-rebrand="true"][data-theme-variant="coolGray"] {
+    --default-light-background-color: var(--ds-color-theme-cool-gray-light-surface-primary);
+    --default-dark-background-color: var(--ds-color-theme-cool-gray-dark-surface-primary);
+}
+
+body[data-rebrand="true"][data-theme-variant="slateBlue"] {
+    --default-light-background-color: var(--ds-color-theme-slate-blue-light-surface-primary);
+    --default-dark-background-color: var(--ds-color-theme-slate-blue-dark-surface-primary);
+}
+
+body[data-rebrand="true"][data-theme-variant="green"] {
+    --default-light-background-color: var(--ds-color-theme-green-light-surface-primary);
+    --default-dark-background-color: var(--ds-color-theme-green-dark-surface-primary);
+}
+
+body[data-rebrand="true"][data-theme-variant="violet"] {
+    --default-light-background-color: var(--ds-color-theme-violet-light-surface-primary);
+    --default-dark-background-color: var(--ds-color-theme-violet-dark-surface-primary);
+}
+
+body[data-rebrand="true"][data-theme-variant="rose"] {
+    --default-light-background-color: var(--ds-color-theme-rose-light-surface-primary);
+    --default-dark-background-color: var(--ds-color-theme-rose-dark-surface-primary);
+}
+
+body[data-rebrand="true"][data-theme-variant="orange"] {
+    --default-light-background-color: var(--ds-color-theme-orange-light-surface-primary);
+    --default-dark-background-color: var(--ds-color-theme-orange-dark-surface-primary);
+}
+
+body[data-rebrand="true"][data-theme-variant="desert"] {
+    --default-light-background-color: var(--ds-color-theme-desert-light-surface-primary);
+    --default-dark-background-color: var(--ds-color-theme-desert-dark-surface-primary);
+}
+
 :root:has(body[data-platform-name="windows"]) {
     /* Windows/System/Body */
     --body-font-size: 14px;

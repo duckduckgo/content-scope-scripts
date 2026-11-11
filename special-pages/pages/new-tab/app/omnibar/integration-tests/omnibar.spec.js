@@ -73,6 +73,28 @@ test.describe('omnibar widget', () => {
         });
     }
 
+    test('uses Unified-Input/Control/Fill-Tertiary for the tab switcher track with rebrand', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+        await ntp.darkMode();
+
+        await ntp.openPage({ additional: { omnibar: true, rebrand: 'enabled' } });
+
+        await expect(omnibar.tabList()).toHaveCSS('background-color', 'rgba(0, 0, 0, 0.36)');
+    });
+
+    test('keeps the custom background track on a dark custom background with rebrand', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+        await ntp.darkMode();
+
+        await ntp.openPage({ additional: { omnibar: true, rebrand: 'enabled', background: 'hex:000000' } });
+
+        await expect(omnibar.tabList()).toHaveCSS('background-color', 'rgba(255, 255, 255, 0.18)');
+    });
+
     test('search form submission', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const omnibar = new OmnibarPage(ntp);

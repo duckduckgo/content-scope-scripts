@@ -75,9 +75,14 @@
  * @todo rebrand: fold into the base .tab rules once the rebrand ships to all
  */
 :global(body[data-rebrand="true"]) {
+    /* Unified-Input/Control/Fill-Tertiary, which design-tokens only ships in the ntpOnCustomBackground theme */
     .tabSwitcher {
-        background: var(--ds-color-theme-control-fill-primary);
+        background: var(--ds-color-theme-ntp-on-custom-background-light-input-control-tertiary-background-color);
         backdrop-filter: none;
+
+        [data-theme="dark"] & {
+            background: var(--ds-color-theme-ntp-on-custom-background-dark-input-control-tertiary-background-color);
+        }
     }
 
     .tab:not([aria-selected="true"]) {
