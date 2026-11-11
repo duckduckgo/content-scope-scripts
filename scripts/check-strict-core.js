@@ -34,6 +34,7 @@ const CORE_FILES = new Set([
     'injected/src/types/chrome-webstore-patching.ts',
     'injected/src/features/hover.js',
     'injected/src/features/sponsor-block.js',
+    'injected/src/features/sponsor-block/icons.js',
     'injected/src/performance.js',
     'injected/src/sendmessage-transport.js',
     'injected/src/timer-utils.js',

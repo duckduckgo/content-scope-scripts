@@ -1,7 +1,6 @@
 import ContentFeature from '../content-feature.js';
 import { injectGlobalStyles, isValidSelector } from '../utils.js';
-import daxSvg from './sponsor-block/assets/DuckDuckGo-Color-16.svg';
-import skipSvg from './sponsor-block/assets/Skip-Recolorable-16.svg';
+import { daxSvg, skipSvg } from './sponsor-block/icons.js';
 
 /** @typedef {import('../types/sponsor-block.js').Segment} Segment */
 /** @typedef {import('../types/sponsor-block.js').OnConfigChangedParams} Config */

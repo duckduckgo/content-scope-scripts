@@ -1,4 +1,7 @@
-<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+// Icons from the SponsorBlock skip button design, as SVG text. Kept in JS rather than .svg files so the feature
+// module still loads in plain Node for the unit tests.
+
+export const daxSvg = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g id="Icon Left" clip-path="url(#clip0_0_54)">
 <path id="Shape" d="M8 16C12.4183 16 16 12.4183 16 8C16 3.58172 12.4183 0 8 0C3.58172 0 0 3.58172 0 8C0 12.4183 3.58172 16 8 16Z" fill-rule="evenodd" clip-rule="evenodd" fill="#DE5833"/>
 <path id="Shape_2" d="M9.1254 13.9688C9.1254 13.9063 9.14073 13.892 8.94206 13.496C8.41406 12.4387 7.88339 10.948 8.12473 9.98667C8.16873 9.812 7.6274 3.51867 7.24473 3.316C6.8194 3.08934 6.29607 2.72977 5.8174 2.64977C5.57454 2.61091 5.25611 2.62932 5.00718 2.66284C4.96294 2.6688 4.96111 2.74832 5.00339 2.76265C5.16682 2.81802 5.36526 2.91415 5.48221 3.0595C5.50435 3.08702 5.47464 3.13029 5.43935 3.13159C5.32911 3.13568 5.12912 3.18189 4.86526 3.40601C4.83474 3.43193 4.86009 3.48006 4.89937 3.47229C5.46643 3.3601 6.04556 3.41538 6.38686 3.72559C6.409 3.74572 6.39742 3.78184 6.36855 3.78968C3.40677 4.59456 3.99308 7.17096 4.78154 10.3327C5.48385 13.1489 5.74813 14.0566 5.83146 14.3331C5.83953 14.3599 5.85835 14.3811 5.88435 14.3915C6.90388 14.7975 9.1254 14.8155 9.1254 14.125V13.9688Z" fill-rule="evenodd" clip-rule="evenodd" fill="#DDDDDD"/>
@@ -22,3 +25,20 @@
 </clipPath>
 </defs>
 </svg>
+`;
+
+export const skipSvg = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Skip-Recolorable-16" clip-path="url(#clip0_0_43)">
+<path id="Background" d="M8 16C12.4183 16 16 12.4183 16 8C16 3.58172 12.4183 0 8 0C3.58172 0 0 3.58172 0 8C0 12.4183 3.58172 16 8 16Z" fill-rule="evenodd" clip-rule="evenodd" fill="#454443" stroke="#454443"/>
+<g id="Foreground">
+<path d="M12 5C12 4.65482 11.7202 4.375 11.375 4.375C11.0298 4.375 10.75 4.65482 10.75 5V11C10.75 11.3452 11.0298 11.625 11.375 11.625C11.7202 11.625 12 11.3452 12 11V5Z" fill="white"/>
+<path d="M4 5.44492C4 4.53967 5.05965 4.04907 5.74991 4.63475L8.76119 7.18977C9.26131 7.61411 9.26131 8.38577 8.76119 8.81011L5.74991 11.3651C5.05965 11.9508 4 11.4602 4 10.555V5.44492Z" fill="white"/>
+</g>
+</g>
+<defs>
+<clipPath id="clip0_0_43">
+<rect width="16" height="16" fill="white"/>
+</clipPath>
+</defs>
+</svg>
+`;
