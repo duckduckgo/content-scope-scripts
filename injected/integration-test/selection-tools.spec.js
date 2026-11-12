@@ -227,6 +227,30 @@ test.describe('selectionTools', () => {
         }
     });
 
+    test('measures and reports only the side of a split diff that can be selected', async ({ page }, testInfo) => {
+        const collector = await setup(page, testInfo);
+        // From the first new-side line to the last, which takes in the old-side cells between them in document order.
+        await page.evaluate(() => {
+            const first = /** @type {Text} */ (document.getElementById('new-first')?.firstChild);
+            const last = /** @type {Text} */ (document.getElementById('new-last')?.firstChild);
+            const range = document.createRange();
+            range.setStart(first, 0);
+            range.setEnd(last, last.length);
+            window.getSelection()?.removeAllRanges();
+            window.getSelection()?.addRange(range);
+        });
+        await page.keyboard.press('Shift');
+        const { text, rect } = await reportedWith(collector, 'let a = 2;');
+        expect(text.trim()).toBe('let a = 2;\nlet b = a + 1;\nreturn a + b;');
+
+        const first = await boxOf(page, '#new-first');
+        const last = await boxOf(page, '#new-last');
+        expect(rect.left).toBeGreaterThanOrEqual(first.left);
+        expect(rect.top).toBeGreaterThanOrEqual(first.top);
+        expect(rect.right).toBeLessThanOrEqual(first.right);
+        expect(rect.bottom).toBeLessThanOrEqual(last.bottom);
+    });
+
     test('reports text inside an ancestor with display: contents', async ({ page }, testInfo) => {
         const collector = await setup(page, testInfo);
         await selectParagraph(page, '#in-contents');
