@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GeolocationMessageIdentity",
+  "description": "Fields every geolocation request carries.",
+  "type": "object",
+  "required": [
+    "capability",
+    "documentID"
+  ],
+  "properties": {
+    "capability": {
+      "type": "string",
+      "description": "Native-provided token that authenticates the message; see the feature's `capability` setting."
+    },
+    "documentID": {
+      "type": "string",
+      "description": "The page document's identity. Native code checks it against the identity the isolated policy feature reports for the frame. `unavailable` without crypto."
+    }
+  }
+}

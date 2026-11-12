@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GeolocationDelivery",
+  "description": "A native update for the page feature. This feature forwards it only when documentID is its own, and returns true when the page feature accepted it.",
+  "type": "object",
+  "required": [
+    "documentID",
+    "subscriptionName",
+    "params"
+  ],
+  "properties": {
+    "documentID": {
+      "type": "string",
+      "description": "The isolated-world identity that geolocationPolicyConstraints reported for the target document."
+    },
+    "subscriptionName": {
+      "type": "string",
+      "enum": [
+        "geolocationWatchResult",
+        "geolocationTerminalWatchResult",
+        "geolocationPermissionState"
+      ]
+    },
+    "params": {
+      "type": "object",
+      "description": "The payload of the named page-feature update."
+    }
+  }
+}
