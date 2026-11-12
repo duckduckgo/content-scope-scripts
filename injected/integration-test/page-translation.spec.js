@@ -605,6 +605,15 @@ test.describe('pageTranslation', () => {
         expect(await page.textContent('p')).toBe(markup);
     });
 
+    test('escapes the text of an HTML unit, leaving / as it is', async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'escaping.html');
+        const [unit] = await extract(collector);
+        expect(unit.text).toBe(`R&amp;D and/or &lt;b&gt; &quot;quoted&quot; &apos;too&apos; <b data-t="0">bold</b>`);
+        const before = await page.textContent('p');
+        expect(await apply(collector, [{ id: unit.id, tree: htmlTree(unit.text) }])).toBe(1);
+        expect(await page.textContent('p')).toBe(before);
+    });
+
     test('rejects an HTML unit whose output carries markup we did not send', async ({ page }, testInfo) => {
         const collector = await openPage(page, testInfo, 'merge.html');
         const [unit, heading] = await extract(collector);

@@ -1,6 +1,26 @@
 /**
  * The following code is originally from https://github.com/mozilla-extensions/secure-proxy/blob/db4d1b0e2bfe0abae416bf04241916f9e4768fd2/src/commons/template.js
  */
+
+/**
+ * Escapes any occurrences of &, ", ', < or > with XML entities, so a string can't end text or a quoted attribute.
+ *
+ * @param {string} str
+ *        The string to escape.
+ * @return {string} The escaped string.
+ */
+export function escapeXML(str) {
+    /** @type {Record<string, string>} */
+    const replacements = {
+        '&': '&amp;',
+        '"': '&quot;',
+        "'": '&apos;',
+        '<': '&lt;',
+        '>': '&gt;',
+    };
+    return String(str).replace(/[&"'<>]/g, (m) => /** @type {string} */ (replacements[m]));
+}
+
 class Template {
     /**
      * @param {readonly string[]} strings
@@ -9,26 +29,6 @@ class Template {
     constructor(strings, values) {
         this.values = values;
         this.strings = strings;
-    }
-
-    /**
-     * Escapes any occurrences of &, ", <, > or / with XML entities.
-     *
-     * @param {string} str
-     *        The string to escape.
-     * @return {string} The escaped string.
-     */
-    escapeXML(str) {
-        /** @type {Record<string, string>} */
-        const replacements = {
-            '&': '&amp;',
-            '"': '&quot;',
-            "'": '&apos;',
-            '<': '&lt;',
-            '>': '&gt;',
-            '/': '&#x2F;',
-        };
-        return String(str).replace(/[&"'<>/]/g, (m) => /** @type {string} */ (replacements[m]));
     }
 
     /**
@@ -48,7 +48,7 @@ class Template {
 
             throw new Error('Unknown object to escape');
         }
-        return this.escapeXML(/** @type {string} */ (value));
+        return escapeXML(/** @type {string} */ (value));
     }
 
     toString() {

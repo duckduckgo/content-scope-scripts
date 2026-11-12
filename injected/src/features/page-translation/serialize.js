@@ -3,6 +3,7 @@
  * @typedef {import('./types.js').Serialized} Serialized
  */
 
+import { escapeXML } from '../../dom-utils.js';
 import { isExcluded } from './units.js';
 
 const ELEMENT_NODE = 1;
@@ -57,7 +58,7 @@ function serializeNodes(nodes, elements) {
     let out = '';
     for (const node of nodes) {
         if (node.nodeType === TEXT_NODE) {
-            out += escapeHtml(stripSoftHyphens(node.nodeValue || ''));
+            out += escapeXML(stripSoftHyphens(node.nodeValue || ''));
         } else if (node.nodeType === ELEMENT_NODE) {
             const el = /** @type {Element} */ (node);
             const tag = el.localName;
@@ -72,11 +73,6 @@ function serializeNodes(nodes, elements) {
         }
     }
     return out;
-}
-
-/** @param {string} text */
-function escapeHtml(text) {
-    return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
 /**
