@@ -39,7 +39,6 @@ export function baseEsbuildOptions(page, injectName, nodeEnv, config) {
             '.jpg': 'file',
             '.png': 'file',
             '.otf': 'file',
-            '.riv': 'file',
             '.txt': 'file',
         },
         define: {
