@@ -75,6 +75,10 @@ The following placeholders are replaced during the build process:
     - `sessionKey`: `<CSRNG UUID 4 string>` (used for fingerprinting) - this should regenerate on browser close or every 24 hours
     - `messagingContextName`: An optional string for the context name for message passing. (e.g. 'contentScopeScripts')
     - `features`: `[<string feature names>]`
+    - `currentCohorts`: An optional array of the `contentScopeExperiments` cohorts the user is enrolled in, matched by `experiment` conditions in `conditionalChanges`:
+        - `feature`: `'contentScopeExperiments'`
+        - `subfeature`: `<string experiment name>`
+        - `cohort`: `<string cohort name>`
 
 ## Adding a New Platform
 
