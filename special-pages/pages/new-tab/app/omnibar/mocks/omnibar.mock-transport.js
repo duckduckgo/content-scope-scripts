@@ -538,6 +538,16 @@ export function omnibarMockTransport() {
                     }
                     config.enablePastedAttachments =
                         parseBooleanQueryParam('omnibar.enablePastedAttachments') ?? config.enablePastedAttachments;
+                    config.enablePastedText = parseBooleanQueryParam('omnibar.enablePastedText') ?? config.enablePastedText;
+                    // e.g. `omnibar.pasteConversionThreshold=10&omnibar.maxCharacters=30`; either one alone keeps the other's default.
+                    const pasteConversionThreshold = parseInt(url.searchParams.get('omnibar.pasteConversionThreshold') ?? '', 10);
+                    const maxCharacters = parseInt(url.searchParams.get('omnibar.maxCharacters') ?? '', 10);
+                    if (pasteConversionThreshold > 0 || maxCharacters > 0) {
+                        config.pastedTextLimits = {
+                            pasteConversionThreshold: pasteConversionThreshold > 0 ? pasteConversionThreshold : 4000,
+                            maxCharacters: maxCharacters > 0 ? maxCharacters : 16000,
+                        };
+                    }
                     config.showAttachmentPrivacyDisclaimer =
                         parseBooleanQueryParam('omnibar.showAttachmentPrivacyDisclaimer') ?? config.showAttachmentPrivacyDisclaimer;
                     config.enableCustomizeResponses =
@@ -549,6 +559,9 @@ export function omnibarMockTransport() {
                         const imageMaxPerTurn = parseInt(url.searchParams.get('omnibar.imageMaxPerTurn') ?? '', 10);
                         if (imageMaxPerTurn > 0 && config.attachmentLimits.images)
                             config.attachmentLimits.images.maxPerTurn = imageMaxPerTurn;
+                        const imageMaxInputChars = parseInt(url.searchParams.get('omnibar.imageMaxInputChars') ?? '', 10);
+                        if (imageMaxInputChars > 0 && config.attachmentLimits.images)
+                            config.attachmentLimits.images.maxInputCharsWithAttachments = imageMaxInputChars;
                         const fileMaxPerConversation = parseInt(url.searchParams.get('omnibar.fileMaxPerConversation') ?? '', 10);
                         if (fileMaxPerConversation > 0 && config.attachmentLimits.files)
                             config.attachmentLimits.files.maxPerConversation = fileMaxPerConversation;

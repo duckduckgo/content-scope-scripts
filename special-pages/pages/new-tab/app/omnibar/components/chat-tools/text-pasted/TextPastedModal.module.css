@@ -1,0 +1,219 @@
+/* Native <dialog>; shown via showModal(), so the browser centers it in the viewport
+   (top layer) regardless of the omnibar's backdrop-filter containing block. */
+.modal {
+    background: var(--ds-color-theme-surface-tertiary);
+    border: none;
+    border-radius: var(--ds-radius-x08);
+    box-shadow:
+        0 20px 40px 0 rgba(0, 0, 0, 0.04),
+        0 4px 12px 0 rgba(0, 0, 0, 0.04);
+    box-sizing: border-box;
+    color: var(--ds-color-theme-text-primary);
+    display: flex;
+    flex-direction: column;
+    font-size: var(--ds-font-body-md-size);
+    gap: var(--ds-space-x03);
+    margin: auto;
+    max-height: 80vh;
+    max-width: 90vw;
+    overflow: clip;
+    padding: var(--ds-space-x06);
+    width: 800px;
+    --text-pasted-destructive-text: var(--ds-color-theme-destructive-text-primary, var(--ds-color-theme-default-light-destructive-text-primary));
+
+    &:not([open]) {
+        display: none;
+    }
+
+    &::backdrop {
+        background: rgba(0, 0, 0, 0.3);
+    }
+
+    [data-theme='dark'] & {
+        background: var(--ds-color-theme-surface-secondary);
+        --text-pasted-destructive-text: var(--ds-color-theme-destructive-text-primary, var(--ds-color-theme-default-dark-destructive-text-primary));
+    }
+
+    [data-theme='dark'] &::backdrop {
+        background: rgba(0, 0, 0, 0.6);
+    }
+}
+
+.header {
+    align-items: center;
+    display: flex;
+    flex-shrink: 0;
+    gap: var(--ds-space-x03);
+    justify-content: space-between;
+    margin-bottom: calc(var(--ds-space-x02) * -1);
+
+    & h4 {
+        font-size: var(--ds-font-title-05-size);
+        font-weight: var(--ds-font-weight-normal);
+        letter-spacing: var(--ds-font-letter-spacing-normal);
+        line-height: var(--ds-font-title-05-line-height);
+        margin: 0;
+    }
+}
+
+.closeButton {
+    align-items: center;
+    background: transparent;
+    border: none;
+    border-radius: 50%;
+    color: var(--ds-color-theme-text-secondary);
+    cursor: pointer;
+    display: flex;
+    flex-shrink: 0;
+    height: var(--ds-space-x09);
+    justify-content: center;
+    margin-right: calc(var(--ds-space-x1-5) * -1);
+    outline: none;
+    padding: 0;
+    width: var(--ds-space-x09);
+
+    &:hover {
+        background-color: var(--ds-color-theme-control-fill-primary);
+    }
+
+    &:active {
+        background-color: var(--ds-color-theme-control-fill-secondary);
+    }
+
+    &:focus-visible {
+        background-color: var(--ds-color-theme-control-fill-primary);
+        box-shadow: 0 0 0 2px var(--ds-color-theme-control-border-tertiary);
+    }
+}
+
+.note {
+    color: var(--ds-color-theme-text-primary);
+    flex-shrink: 0;
+    font-size: var(--ds-font-body-md-size);
+    font-weight: var(--ds-font-weight-normal);
+    line-height: var(--ds-font-body-md-line-height);
+    margin: 0;
+}
+
+.textarea {
+    background-color: var(--ds-color-theme-surface-tertiary);
+    border: 1px solid var(--ds-color-theme-container-border-tertiary);
+    border-radius: var(--ds-radius-x06);
+    box-shadow:
+        0 2px 4px rgba(0, 0, 0, 0.06),
+        0 4px 20px rgba(0, 0, 0, 0.04);
+    box-sizing: border-box;
+    color: var(--ds-color-theme-text-primary);
+    flex: 1 1 auto;
+    font-family: inherit;
+    font-size: var(--ds-font-body-lg-size);
+    height: 60vh;
+    line-height: var(--ds-font-body-lg-line-height);
+    margin: 0;
+    min-height: 0;
+    outline: none;
+    overflow-wrap: anywhere;
+    padding: var(--ds-space-x04) var(--ds-space-x05);
+    resize: none;
+    width: 100%;
+
+    &:focus-visible {
+        outline: 2px solid var(--ds-color-theme-accent-primary);
+        outline-offset: -1px;
+    }
+}
+
+.footer {
+    align-items: center;
+    display: flex;
+    flex-shrink: 0;
+    gap: var(--ds-space-x03);
+    justify-content: space-between;
+}
+
+.count {
+    color: var(--ds-color-theme-text-secondary);
+    font-size: var(--ds-font-body-md-size);
+    font-weight: var(--ds-font-weight-bold);
+    line-height: var(--ds-font-body-md-line-height);
+    margin: 0;
+    padding-left: var(--ds-space-x05);
+}
+
+.countOverLimit {
+    align-items: center;
+    color: var(--text-pasted-destructive-text);
+    display: flex;
+    font-size: var(--ds-font-body-sm-size);
+    font-weight: var(--ds-font-body-sm-weight);
+    gap: var(--ds-space-x02-5);
+    line-height: var(--ds-font-body-sm-line-height);
+}
+
+.countIcon {
+    flex-shrink: 0;
+}
+
+.footerButtons {
+    display: flex;
+    gap: var(--ds-space-x1-5);
+}
+
+.footerButton {
+    align-items: center;
+    border: none;
+    border-radius: var(--ds-radius-full);
+    box-sizing: border-box;
+    cursor: pointer;
+    display: inline-flex;
+    font-family: inherit;
+    font-size: var(--ds-font-button-label-03-size);
+    font-weight: var(--ds-font-weight-bold);
+    gap: var(--ds-space-x1-5);
+    justify-content: center;
+    line-height: var(--ds-font-button-label-03-line-height);
+    min-height: var(--ds-space-x09);
+    outline: none;
+    padding: var(--ds-space-x1-5) var(--ds-space-x03);
+
+    &:disabled {
+        cursor: not-allowed;
+        opacity: 0.4;
+    }
+}
+
+.footerButtonSecondary {
+    background-color: var(--ds-color-theme-control-fill-primary);
+    color: var(--ds-color-theme-text-primary);
+
+    &:hover,
+    &:focus-visible {
+        background-color: var(--ds-color-theme-control-fill-secondary);
+    }
+
+    &:active {
+        background-color: var(--ds-color-theme-control-fill-tertiary);
+    }
+
+    &:focus-visible {
+        box-shadow: 0 0 0 2px var(--ds-color-theme-text-primary);
+    }
+}
+
+.footerButtonPrimary {
+    background-color: var(--ds-color-theme-accent-primary);
+    color: var(--ds-color-theme-accent-content-primary);
+
+    &:hover,
+    &:focus-visible {
+        background-color: var(--ds-color-theme-accent-secondary);
+    }
+
+    &:active {
+        background-color: var(--ds-color-theme-accent-tertiary);
+    }
+
+    &:focus-visible {
+        box-shadow: 0 0 0 2px var(--ds-color-theme-accent-primary);
+    }
+}

@@ -25,6 +25,7 @@ import { usePastedAttachments } from './chat-tools/image-attachment/usePastedAtt
 import { useScreenshotCapture } from './chat-tools/image-attachment/useScreenshotCapture';
 import { AttachmentChips } from './chat-tools/attachments/AttachmentChips';
 import { AttachmentsProvider, useAttachmentsContext } from './chat-tools/attachments/AttachmentsProvider';
+import { promptCharacterLimit, promptLength, resolvePastedTextLimits } from './chat-tools/text-pasted/textPasted.js';
 import { useDroppedAttachments } from './chat-tools/attachments/useDroppedAttachments';
 import { ModelSelectorTool } from './chat-tools/model-selector/ModelSelectorTool';
 import { ReasoningPickerTool } from './chat-tools/reasoning-picker/ReasoningPickerTool';
@@ -63,6 +64,14 @@ const SUGGESTED_PROMPT_REPEAT_GUARD_MS = 1000;
 function focusStaysWithin(ref, event) {
     const next = event.relatedTarget;
     return next instanceof Node && (ref.current?.contains(next) ?? false);
+}
+
+/**
+ * Whether focus landed on the prompt textarea, not the one in the pasted-text dialog (which renders inside the form).
+ * @param {EventTarget | null} target
+ */
+function isComposerTextarea(target) {
+    return target instanceof HTMLTextAreaElement && !target.closest('[data-text-pasted-modal]');
 }
 
 /**
@@ -227,7 +236,7 @@ export function Omnibar({
                             style={{ marginBottom: noticeReservedHeight }}
                             onFocusCapture={(event) => {
                                 // Toolbar/drawer focus must not reveal the drawer — only the composer itself.
-                                if (!(event.target instanceof HTMLTextAreaElement)) return;
+                                if (!isComposerTextarea(event.target)) return;
                                 setUsageLimitsRevealed(true);
                             }}
                             onBlurCapture={hideNoticesOnFocusLeave}
@@ -331,7 +340,7 @@ function AiChatContent({
     const hasVisibleImagesRef = useRef(false);
     const submittingRef = useRef(false);
     const [imageWarning, setImageWarning] = useState(false);
-    const { imageState, fileState } = useAttachmentsContext();
+    const { imageState, fileState, textPastedState } = useAttachmentsContext();
 
     const hasAttachedImages = imageState.attachedImages.length > 0;
     const imageGenerationPlaceholder = hasAttachedImages
@@ -343,6 +352,10 @@ function AiChatContent({
     const canAttachFiles = !imageGenerationActive && (selectedModel?.supportedFileTypes?.length ?? 0) > 0;
 
     const canAttachTabs = enableAttachTabs && !imageGenerationActive;
+    const pastedTextEnabled = state.config?.enablePastedText === true;
+    const canAttachText = pastedTextEnabled && !imageGenerationActive;
+    const pastedTextLimits = resolvePastedTextLimits(state.config?.pastedTextLimits);
+    const attachedTextPasted = canAttachText ? textPastedState.attachedTextPasted : [];
     const pastedAttachments = usePastedAttachments({
         imageState,
         canAttachImages,
@@ -419,6 +432,7 @@ function AiChatContent({
             const images = canAttachImages ? imageState.getImagesForSubmission() : null;
             const files = canAttachFiles ? fileState.getFilesForSubmission() : null;
             const pageContext = canAttachTabs ? await tabAttachments.getTabsForSubmission() : null;
+            const textPasted = canAttachText ? textPastedState.getTextPastedForSubmission() : undefined;
             // The updated flow submits the native-resolved image model through the GenerateImage tool,
             // because native treats mode "image-generation" as the legacy path and drops the model.
             const updatedImageGeneration = imageGenerationActive && updatedCreateImageEnabled;
@@ -439,6 +453,7 @@ function AiChatContent({
                 ...(images && { images }),
                 ...(files && { files }),
                 ...(pageContext && { pageContext }),
+                ...(textPasted && { textPasted }),
                 ...(aiTermsAccepted && { aiTermsAccepted: true }),
             };
 
@@ -447,6 +462,7 @@ function AiChatContent({
             screenshotCapture.clearCaptureError();
             fileState.clearAttachedFiles();
             tabAttachments.clearAttachedTabs();
+            textPastedState.clearTextPasted();
             clearTool();
         } finally {
             submittingRef.current = false;
@@ -478,11 +494,22 @@ function AiChatContent({
     const showFileWarning = fileWarning && !imageMessageShowing && !showCaptureError && !showFileError;
     // Only one attachment message shows at a time; the tab warning falls last in precedence.
     const showTabWarning = tabWarning && !imageMessageShowing && !showCaptureError && !showFileError && !showFileWarning;
+    // The typed text plus pastes over the limit; the cap only applies with the pasted-text feature on.
+    const currentPromptLength = promptLength(query, attachedTextPasted);
+    const hasAttachment = (canAttachImages && hasAttachedImages) || (canAttachFiles && fileState.attachedFiles.length > 0);
+    const maxPromptCharacters = promptCharacterLimit({
+        maxCharacters: pastedTextLimits.maxCharacters,
+        maxCharactersWithAttachments: hasAttachment ? attachmentLimits?.images?.maxInputCharsWithAttachments : null,
+    });
+    const promptTooLong = pastedTextEnabled && currentPromptLength > maxPromptCharacters;
+    const showPromptTooLong =
+        promptTooLong && !imageMessageShowing && !showCaptureError && !showFileError && !showFileWarning && !showTabWarning;
     const hasSendableAttachments =
         (canAttachImages && hasAttachedImages) ||
         (canAttachFiles && fileState.attachedFiles.length > 0) ||
-        (canAttachTabs && tabAttachments.attachedTabs.length > 0);
-    const disabled = blocksPrompt || (!query && !hasSendableAttachments) || imageWarning || fileWarning || tabWarning;
+        (canAttachTabs && tabAttachments.attachedTabs.length > 0) ||
+        attachedTextPasted.length > 0;
+    const disabled = blocksPrompt || (!query && !hasSendableAttachments) || imageWarning || fileWarning || tabWarning || promptTooLong;
 
     const isVoiceChatMode =
         enableVoiceChatAccess &&
@@ -491,6 +518,7 @@ function AiChatContent({
         !hasAttachedImages &&
         fileState.attachedFiles.length === 0 &&
         tabAttachments.attachedTabs.length === 0 &&
+        attachedTextPasted.length === 0 &&
         !query;
 
     /** @type {(event: MouseEvent) => void} */
@@ -517,9 +545,9 @@ function AiChatContent({
         <div
             ref={containerRef}
             class={styles.aiChatContent}
-            data-attachment-warning={imageWarning || fileWarning || tabWarning || undefined}
+            data-attachment-warning={imageWarning || fileWarning || tabWarning || promptTooLong || undefined}
             onFocusCapture={(event) => {
-                if (!(event.target instanceof HTMLTextAreaElement)) return;
+                if (!isComposerTextarea(event.target)) return;
                 if (!hasVisibleImagesRef.current && !imageGenerationActive && !mention.pickerActive) showChats();
             }}
             onBlurCapture={(event) => {
@@ -544,7 +572,10 @@ function AiChatContent({
                     onTextareaKeyDown={mention.handleTextareaKeyDown}
                     combobox={mention.combobox}
                     textareaRef={textareaRef}
-                    onPaste={pastedAttachments.handlePaste}
+                    onPaste={(event) => {
+                        if (canAttachText && !blocksPrompt) textPastedState.handlePaste(event, pastedTextLimits.pasteConversionThreshold);
+                        if (!event.defaultPrevented) pastedAttachments.handlePaste(event);
+                    }}
                     onDragOver={droppedAttachments.handleDragOver}
                     onDrop={droppedAttachments.handleDrop}
                     toolbarLeft={
@@ -641,9 +672,13 @@ function AiChatContent({
                         tabs={canAttachTabs ? tabAttachments.attachedTabs : []}
                         files={canAttachFiles ? fileState.attachedFiles : []}
                         images={canAttachImages ? imageState.attachedImages : []}
+                        textPasted={attachedTextPasted}
                         onRemoveTab={tabAttachments.removeTab}
                         onRemoveFile={fileState.handleRemoveFile}
                         onRemoveImage={imageState.handleRemoveImage}
+                        onRemoveTextPasted={textPastedState.removeTextPasted}
+                        onEditTextPasted={textPastedState.updateTextPasted}
+                        textPastedLimit={{ promptLength: currentPromptLength, maxCharacters: maxPromptCharacters }}
                     />
                     {showCaptureError && (
                         <p class={styles.attachmentWarning} role="alert">
@@ -663,6 +698,11 @@ function AiChatContent({
                     {showTabWarning && (
                         <p class={styles.attachmentWarning} role="alert">
                             {t('omnibar_tabAttachmentLimitWarning', { limit: String(tabAttachments.maxTabs) })}
+                        </p>
+                    )}
+                    {showPromptTooLong && (
+                        <p class={styles.attachmentWarning} role="alert">
+                            {t('omnibar_promptTooLongWarning', { limit: String(maxPromptCharacters) })}
                         </p>
                     )}
                     <ImageAttachmentContent

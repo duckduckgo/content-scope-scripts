@@ -65,6 +65,21 @@
         }
       }
     },
+    "PastedTextLimits": {
+      "type": "object",
+      "description": "Pasted-text settings, in UTF-16 code units, applied only when `enablePastedText` is on: the paste length that becomes a pasted-text chip, and the cap on typed text plus pastes. Native reads them from remote config. When absent, the omnibar uses 4000 and 16000.",
+      "required": ["pasteConversionThreshold", "maxCharacters"],
+      "properties": {
+        "pasteConversionThreshold": {
+          "description": "Shortest text paste that becomes a pasted-text attachment.",
+          "type": "integer"
+        },
+        "maxCharacters": {
+          "description": "Most characters a prompt may have: the typed text plus every pasted-text attachment.",
+          "type": "integer"
+        }
+      }
+    },
     "UpsellType": {
       "type": "string",
       "description": "Which subscription flow the action opens: 'subscribe' for non-subscribers or 'upgrade' for existing subscribers who need a higher tier.",
@@ -326,6 +341,16 @@
       "description": "When true, pasting into the Duck.ai prompt attaches copied images and files (unless the clipboard also carries text). When false or absent, paste is left to the browser (text only).",
       "type": "boolean",
       "default": false
+    },
+    "enablePastedText": {
+      "title": "Enable Pasted Text",
+      "description": "When true, a text paste into the Duck.ai prompt of at least `pastedTextLimits.pasteConversionThreshold` characters becomes a pasted-text attachment, sent as `textPasted` in `omnibar_submitChat`, and the prompt is capped at `pastedTextLimits.maxCharacters`. Not applied in image-generation mode. When false or absent, text pastes inline with no cap.",
+      "type": "boolean",
+      "default": false
+    },
+    "pastedTextLimits": {
+      "title": "Pasted Text Limits",
+      "$ref": "#/$defs/PastedTextLimits"
     },
     "enableAiChatDeletion": {
       "title": "Enable AI Chat Deletion",

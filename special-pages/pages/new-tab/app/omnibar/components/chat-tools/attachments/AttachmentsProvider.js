@@ -4,11 +4,13 @@ import { OmnibarContext } from '../../OmnibarProvider';
 import { useSelectedModel } from '../../useSelectedModel';
 import { useFileAttachments } from '../file-attachment/useFileAttachments';
 import { useImageAttachments } from '../image-attachment/useImageAttachments';
+import { useTextPasted } from '../text-pasted/useTextPasted';
 
 /**
  * @typedef {{
  *   imageState: ReturnType<typeof useImageAttachments>,
  *   fileState: ReturnType<typeof useFileAttachments>,
+ *   textPastedState: ReturnType<typeof useTextPasted>,
  *   tabId: string|null|undefined,
  * }} AttachmentsContextValue
  */
@@ -32,8 +34,9 @@ export function AttachmentsProvider({ tabId, children }) {
         maxFiles: attachmentLimits?.files?.maxPerConversation,
         maxFileSizeMB: attachmentLimits?.files?.maxFileSizeMB,
     });
+    const textPastedState = useTextPasted({ tabId });
 
-    return <AttachmentsContext.Provider value={{ imageState, fileState, tabId }}>{children}</AttachmentsContext.Provider>;
+    return <AttachmentsContext.Provider value={{ imageState, fileState, textPastedState, tabId }}>{children}</AttachmentsContext.Provider>;
 }
 
 export function useAttachmentsContext() {

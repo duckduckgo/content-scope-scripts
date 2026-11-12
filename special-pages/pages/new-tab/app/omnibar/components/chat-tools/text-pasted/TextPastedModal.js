@@ -1,0 +1,149 @@
+import { Fragment, h } from 'preact';
+import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
+import cn from 'classnames';
+import { useMessaging, useTypedTranslationWith } from '../../../../types';
+import { usePlatformName } from '../../../../settings.provider';
+import { AlertRecolorableIcon, Check16Icon, Close16Icon } from '../../../../components/Icons';
+import { useLocale } from '../../../../../../../shared/components/EnvironmentProvider.js';
+import { getLocalizedNumberFormatter } from '../../../../../../../shared/utils.js';
+import { isConvertibleTextPaste } from './textPasted.js';
+import styles from './TextPastedModal.module.css';
+
+/**
+ * @typedef {typeof import('../../../strings.json')} Strings
+ */
+
+/**
+ * Whether the pointer is on the ::backdrop rather than the dialog's padding.
+ * @param {MouseEvent} e
+ */
+function isOnBackdrop(e) {
+    if (e.target !== e.currentTarget) return false;
+    const rect = /** @type {HTMLDialogElement} */ (e.currentTarget).getBoundingClientRect();
+    return e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom;
+}
+
+/**
+ * "Pasted Text" dialog opened from a pasted-text chip: the paste in an editable textarea.
+ * Edits are staged locally and only committed on "Save Changes"; Cancel, the close button,
+ * Escape and backdrop clicks discard them. Mounted only while open, so the draft re-seeds per open
+ * and `omnibar_pasted_text_dialog_opened` is sent once per open.
+ *
+ * @param {object} props
+ * @param {string} props.content
+ * @param {number} props.otherPromptLength - the typed text plus every other paste, which share the limit with this one.
+ * @param {number} props.maxCharacters
+ * @param {(content: string) => void} props.onSave
+ * @param {() => void} props.onClose
+ */
+export function TextPastedModal({ content, otherPromptLength, maxCharacters, onSave, onClose }) {
+    const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
+    const platformName = usePlatformName();
+    const locale = useLocale();
+    const numberFormatter = useMemo(() => getLocalizedNumberFormatter(locale), [locale]);
+    const ntp = useMessaging();
+    const [draft, setDraft] = useState(content);
+
+    const dialogRef = useRef(/** @type {HTMLDialogElement|null} */ (null));
+    const textareaRef = useRef(/** @type {HTMLTextAreaElement|null} */ (null));
+    const pressedBackdropRef = useRef(false);
+
+    useEffect(() => {
+        dialogRef.current?.showModal();
+        textareaRef.current?.focus();
+        ntp.telemetryEvent({ attributes: { name: 'omnibar_pasted_text_dialog_opened' } });
+    }, [ntp]);
+
+    const totalLength = otherPromptLength + draft.length;
+    const tooLong = totalLength > maxCharacters;
+    const canSave = isConvertibleTextPaste(draft, 1);
+
+    const handleSave = () => {
+        if (!canSave) return;
+        if (draft !== content) onSave(draft);
+        onClose();
+    };
+
+    const cancelButton = (
+        <button type="button" class={cn(styles.footerButton, styles.footerButtonSecondary)} onClick={onClose}>
+            {t('omnibar_pastedTextModalCancel')}
+        </button>
+    );
+    const saveButton = (
+        <button type="button" class={cn(styles.footerButton, styles.footerButtonPrimary)} disabled={!canSave} onClick={handleSave}>
+            <Check16Icon aria-hidden="true" />
+            {t('omnibar_pastedTextModalSave')}
+        </button>
+    );
+
+    // Native <dialog> + showModal(), as AttachTabsModal: the top layer escapes the omnibar's
+    // backdrop-filter containing block. data-text-pasted-modal lets the omnibar ignore its textarea
+    // for focus styling and the recent-chats list.
+    return (
+        <dialog
+            ref={dialogRef}
+            aria-labelledby="text-pasted-modal-title"
+            class={styles.modal}
+            data-text-pasted-modal
+            onPointerDown={(e) => {
+                pressedBackdropRef.current = isOnBackdrop(e);
+            }}
+            onClick={(e) => {
+                if (pressedBackdropRef.current && isOnBackdrop(e)) onClose();
+                pressedBackdropRef.current = false;
+            }}
+            onCancel={(e) => {
+                e.preventDefault();
+                onClose();
+            }}
+            onDragEnter={(e) => e.stopPropagation()}
+            onDragOver={(e) => e.stopPropagation()}
+            onDrop={(e) => e.stopPropagation()}
+        >
+            <header class={styles.header}>
+                <h4 id="text-pasted-modal-title">{t('omnibar_pastedTextModalTitle')}</h4>
+                <button type="button" class={styles.closeButton} aria-label={t('omnibar_pastedTextModalClose')} onClick={onClose}>
+                    <Close16Icon aria-hidden="true" />
+                </button>
+            </header>
+            <p class={styles.note}>{t('omnibar_pastedTextModalFormattingNote')}</p>
+            <textarea
+                ref={textareaRef}
+                class={styles.textarea}
+                value={draft}
+                aria-label={t('omnibar_pastedTextModalTitle')}
+                aria-invalid={tooLong || undefined}
+                aria-describedby="text-pasted-modal-count"
+                onInput={(e) => setDraft(/** @type {HTMLTextAreaElement} */ (e.currentTarget).value)}
+            />
+            <footer class={styles.footer}>
+                <p id="text-pasted-modal-count" class={cn(styles.count, tooLong && styles.countOverLimit)} aria-live="polite">
+                    {tooLong ? (
+                        <Fragment>
+                            <AlertRecolorableIcon class={styles.countIcon} aria-hidden="true" />
+                            {t('omnibar_pastedTextModalOverLimit', {
+                                count: numberFormatter.format(totalLength),
+                                over: numberFormatter.format(totalLength - maxCharacters),
+                            })}
+                        </Fragment>
+                    ) : (
+                        t('omnibar_pastedTextModalCharacterCount', { count: String(draft.length) })
+                    )}
+                </p>
+                <div class={styles.footerButtons}>
+                    {platformName === 'windows' ? (
+                        <Fragment>
+                            {saveButton}
+                            {cancelButton}
+                        </Fragment>
+                    ) : (
+                        <Fragment>
+                            {cancelButton}
+                            {saveButton}
+                        </Fragment>
+                    )}
+                </div>
+            </footer>
+        </dialog>
+    );
+}

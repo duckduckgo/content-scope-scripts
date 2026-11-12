@@ -10,6 +10,7 @@ import {
     AttachmentPrivacyGrant,
     FileAttachments,
     ImageAttachments,
+    TextPastedAttachments,
     OpenTabsList,
     PersistentModeProvider,
     PersistentTextInputProvider,
@@ -19,6 +20,7 @@ import {
 const { Provider: TabAttachmentsProvider } = TabAttachments;
 const { Provider: FileAttachmentsProvider } = FileAttachments;
 const { Provider: ImageAttachmentsProvider } = ImageAttachments;
+const { Provider: TextPastedAttachmentsProvider } = TextPastedAttachments;
 const { Provider: OpenTabsListProvider } = OpenTabsList;
 const { Provider: AttachmentPrivacyGrantProvider } = AttachmentPrivacyGrant;
 
@@ -52,11 +54,13 @@ export function OmnibarCustomized() {
                     <OpenTabsListProvider>
                         <FileAttachmentsProvider>
                             <ImageAttachmentsProvider>
-                                <AttachmentPrivacyGrantProvider>
-                                    <OmnibarProvider>
-                                        <OmnibarConsumer />
-                                    </OmnibarProvider>
-                                </AttachmentPrivacyGrantProvider>
+                                <TextPastedAttachmentsProvider>
+                                    <AttachmentPrivacyGrantProvider>
+                                        <OmnibarProvider>
+                                            <OmnibarConsumer />
+                                        </OmnibarProvider>
+                                    </AttachmentPrivacyGrantProvider>
+                                </TextPastedAttachmentsProvider>
                             </ImageAttachmentsProvider>
                         </FileAttachmentsProvider>
                     </OpenTabsListProvider>

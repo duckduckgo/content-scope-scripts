@@ -251,6 +251,54 @@
     "title": "Screenshot",
     "description": "File name given to a screenshot attached to the AI chat input. Repeats are numbered, e.g. 'Screenshot 2'."
   },
+  "omnibar_pastedTextLabel": {
+    "title": "Pasted text",
+    "description": "Type label on the chip for a long text paste that was attached to the AI chat input instead of inserted."
+  },
+  "omnibar_removePastedTextLabel": {
+    "title": "Remove pasted text \u201c{summary}\u201d",
+    "description": "Accessible label for the button that removes a pasted-text chip from the AI chat input. {summary} is the start of the pasted text."
+  },
+  "omnibar_removePastedTextFallbackLabel": {
+    "title": "Remove pasted text",
+    "description": "Accessible label for the button that removes a pasted-text chip whose text is only whitespace."
+  },
+  "omnibar_promptTooLongWarning": {
+    "title": "Your message is too long. Shorten it to {limit} characters or fewer, including pasted text.",
+    "description": "Shown under the AI chat input when the typed text plus pasted text is over the limit; sending is blocked until it fits. {limit} is the character limit."
+  },
+  "omnibar_pastedTextModalTitle": {
+    "title": "Pasted Text",
+    "description": "Title of the dialog opened from a pasted-text chip, where the user can view and edit the pasted text. Also the accessible name of its text field."
+  },
+  "omnibar_pastedTextModalFormattingNote": {
+    "title": "Formatting may be inconsistent from source.",
+    "description": "Note under the Pasted Text dialog title: the pasted text is plain text, so rich formatting from where it was copied is lost."
+  },
+  "omnibar_pastedTextChipCharacterCount": {
+    "title": "{count} characters",
+    "description": "Line on a pasted-text chip showing the length of the pasted text. Shown in red while the whole message is too long to send. {count} is the number of characters."
+  },
+  "omnibar_pastedTextModalCharacterCount": {
+    "title": "{count} characters",
+    "description": "Footer of the Pasted Text dialog showing the length of the pasted text. {count} is the number of characters."
+  },
+  "omnibar_pastedTextModalOverLimit": {
+    "title": "{count} characters – {over} over the limit",
+    "description": "Error in the Pasted Text dialog footer when the message is too long to send. {count} is the length of the whole message (typed text plus all pasted text) and {over} is how many characters it is over the limit, e.g. \"16,800 characters – 800 over the limit\"."
+  },
+  "omnibar_pastedTextModalCancel": {
+    "title": "Cancel",
+    "description": "Button in the Pasted Text dialog that closes it and discards edits."
+  },
+  "omnibar_pastedTextModalSave": {
+    "title": "Save Changes",
+    "description": "Primary button in the Pasted Text dialog that saves the edited pasted text."
+  },
+  "omnibar_pastedTextModalClose": {
+    "title": "Close",
+    "description": "Accessible label for the × button in the Pasted Text dialog, which closes it and discards edits."
+  },
   "omnibar_pastedImageFileName": {
     "title": "Pasted image",
     "description": "File name given to an image pasted from the clipboard into the AI chat input. Repeats are numbered, e.g. 'Pasted image 2'."

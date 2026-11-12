@@ -10,6 +10,7 @@ import { PersistentValue } from '../../tabs/PersistentValue.js';
  * @typedef {import("./chat-tools/file-attachment/useFileAttachments.js").AttachedFile} AttachedFile
  * @typedef {import("./chat-tools/image-attachment/useImageAttachments.js").AttachedImage} AttachedImage
  * @typedef {import("./chat-tools/tab-attachment/useTabAttachments.js").AttachedTabEntry} AttachedTabEntry
+ * @typedef {import("./chat-tools/text-pasted/useTextPasted.js").AttachedTextPasted} AttachedTextPasted
  */
 
 const TextInputContext = createContext(/** @type {PersistentValue<string>|null} */ (null));
@@ -128,6 +129,7 @@ function createPersistentFlag() {
 export const TabAttachments = /** @type {() => PersistentList<AttachedTabEntry>} */ (createPersistentList)();
 export const FileAttachments = /** @type {() => PersistentList<AttachedFile>} */ (createPersistentList)();
 export const ImageAttachments = /** @type {() => PersistentList<AttachedImage>} */ (createPersistentList)();
+export const TextPastedAttachments = /** @type {() => PersistentList<AttachedTextPasted>} */ (createPersistentList)();
 // Single source of truth for open-tab metadata; tab chips and the pickers derive from this.
 export const OpenTabsList = /** @type {() => PersistentList<TabMetadata>} */ (createPersistentList)();
 export const AttachmentPrivacyGrant = createPersistentFlag();
