@@ -54,15 +54,16 @@ const SVG_NS = 'http://www.w3.org/2000/svg';
 
 /**
  * The "next" glyph YouTube uses: a triangle and a bar.
+ * @param {Document} doc
  * @returns {SVGSVGElement}
  */
-function createSkipIcon() {
-    const svg = document.createElementNS(SVG_NS, 'svg');
+function createSkipIcon(doc) {
+    const svg = doc.createElementNS(SVG_NS, 'svg');
     svg.setAttribute('width', '12');
     svg.setAttribute('height', '12');
     svg.setAttribute('viewBox', '0 0 12 12');
     svg.setAttribute('aria-hidden', 'true');
-    const path = document.createElementNS(SVG_NS, 'path');
+    const path = doc.createElementNS(SVG_NS, 'path');
     path.setAttribute('d', 'M1 1l7 5-7 5z M9 1h2v10H9z');
     path.setAttribute('fill', 'currentColor');
     svg.append(path);
@@ -71,12 +72,13 @@ function createSkipIcon() {
 
 /**
  * The first visible element matching the earliest selector in `selectors` that has one.
+ * @param {Document} doc
  * @param {string[]} selectors
  * @returns {Element | null}
  */
-function findFirstVisible(selectors) {
+function findFirstVisible(doc, selectors) {
     for (const selector of selectors) {
-        const match = [...document.querySelectorAll(selector)].find((el) => el.getClientRects().length > 0);
+        const match = [...doc.querySelectorAll(selector)].find((el) => el.getClientRects().length > 0);
         if (match) return match;
     }
     return null;
@@ -112,11 +114,41 @@ export function shouldActivate({ hostname, origin, isTop, ancestorOrigins }) {
 }
 
 /**
+ * @param {Document} doc
  * @returns {HTMLVideoElement | null}
  */
-function getMainVideo() {
-    const video = document.querySelector('video.html5-main-video') ?? document.querySelector('video');
-    return video instanceof HTMLVideoElement ? video : null;
+function getMainVideo(doc) {
+    const video = doc.querySelector('video.html5-main-video') ?? doc.querySelector('video');
+    // instanceof would fail for the embed's video, which belongs to the iframe's realm.
+    return video?.tagName === 'VIDEO' ? /** @type {HTMLVideoElement} */ (video) : null;
+}
+
+/**
+ * Resolves with the Duck Player embed's document once it has loaded. The page and the embed share the nocookie origin,
+ * so the page can reach into it.
+ * @returns {Promise<Document>}
+ */
+function duckPlayerEmbedDocument() {
+    return new Promise((resolve) => {
+        const attach = () => {
+            const iframe = document.querySelector('iframe[src*="/embed/"]');
+            if (!(iframe instanceof HTMLIFrameElement)) return false;
+            const resolveIfLoaded = () => {
+                const doc = iframe.contentDocument;
+                // Before it loads, the iframe holds an about:blank document that inherits the page's origin.
+                // While the embed is still parsing, wait for its load event so its head exists.
+                if (doc && doc.location.pathname.startsWith('/embed/') && doc.readyState !== 'loading') resolve(doc);
+            };
+            iframe.addEventListener('load', resolveIfLoaded);
+            resolveIfLoaded();
+            return true;
+        };
+        if (attach()) return;
+        const observer = new MutationObserver(() => {
+            if (attach()) observer.disconnect();
+        });
+        observer.observe(document.documentElement, { childList: true, subtree: true });
+    });
 }
 
 /**
@@ -194,6 +226,8 @@ export class SponsorBlock extends ContentFeature {
     #progressBarSelectors = DEFAULT_PROGRESS_BAR_SELECTORS;
     #skipButtonHostSelectors = DEFAULT_SKIP_BUTTON_HOST_SELECTORS;
     #adShowingSelectors = DEFAULT_AD_SHOWING_SELECTORS;
+    // The document holding the player. On Android Duck Player it is the embed's, since the script runs only in the top frame.
+    #doc = document;
 
     /**
      * Selector list from feature settings, falling back to `defaults` when the key is absent. Remote config is a
@@ -213,6 +247,8 @@ export class SponsorBlock extends ContentFeature {
         // ancestorOrigins is missing in Firefox; there the embed case simply stays inactive.
         const frame = { hostname, origin, isTop: window.top === window, ancestorOrigins: Array.from(ancestorOrigins ?? []) };
         if (!shouldActivate(frame)) return;
+        // Android injects only into the top frame; the Duck Player embed is driven from the page instead (see below).
+        if (this.platform.name === 'android' && !frame.isTop) return;
         this.#active = true;
         // Runs at document start, when there is no <head> to style yet. The player is built by YouTube's scripts after
         // the parse anyway, so nothing is lost by waiting.
@@ -222,7 +258,21 @@ export class SponsorBlock extends ContentFeature {
         this.#progressBarSelectors = this.selectorsSetting('progressBarSelectors', DEFAULT_PROGRESS_BAR_SELECTORS);
         this.#skipButtonHostSelectors = this.selectorsSetting('skipButtonHostSelectors', DEFAULT_SKIP_BUTTON_HOST_SELECTORS);
         this.#adShowingSelectors = this.selectorsSetting('adShowingSelectors', DEFAULT_AD_SHOWING_SELECTORS);
-        injectGlobalStyles(STYLES);
+        // Android injects only into the top frame, so on Duck Player's page the embed gets no script of its own. An embed
+        // opened directly is the player itself and has no embed inside it to wait for.
+        if (
+            this.platform.name === 'android' &&
+            frame.isTop &&
+            isNoCookieOrigin(origin) &&
+            !window.location.pathname.startsWith('/embed/')
+        ) {
+            this.#doc = await duckPlayerEmbedDocument();
+            const style = this.#doc.createElement('style');
+            style.textContent = STYLES;
+            this.#doc.head.append(style);
+        } else {
+            injectGlobalStyles(STYLES);
+        }
 
         // Subscribe before asking, so a setting changed while getConfig is in flight is not lost.
         this.subscribe('onConfigChanged', (config) => this.applyConfig(config));
@@ -235,12 +285,12 @@ export class SponsorBlock extends ContentFeature {
         this.checkVideoID();
         // Media events don't bubble, so listen in the capture phase.
         // loadstart: backstop for YouTube's in-page navigation, a new video always starts loading.
-        document.addEventListener('loadstart', () => this.checkVideoID(), true);
+        this.#doc.addEventListener('loadstart', () => this.checkVideoID(), true);
         // durationchange: duration is unknown at first and changes between ads and the video.
         // timeupdate: YouTube re-renders its controls (often on mobile), so re-attach the overlay when that happens;
         // it also drives the skip button, together with seeked for jumps while paused.
-        document.addEventListener('durationchange', () => this.renderOverlay(), true);
-        document.addEventListener(
+        this.#doc.addEventListener('durationchange', () => this.renderOverlay(), true);
+        this.#doc.addEventListener(
             'timeupdate',
             () => {
                 this.renderOverlay();
@@ -248,15 +298,15 @@ export class SponsorBlock extends ContentFeature {
             },
             true,
         );
-        document.addEventListener('seeked', () => this.updateSkip(), true);
+        this.#doc.addEventListener('seeked', () => this.updateSkip(), true);
         // seeking: fires only for jumps, never for natural playback, with the new position already set.
-        document.addEventListener('seeking', () => this.markSeekedInto(), true);
+        this.#doc.addEventListener('seeking', () => this.markSeekedInto(), true);
     }
 
     // A drag or tap into a segment is a choice, so that segment gets the button instead of an auto skip. Our own skip
     // lands past every segment it touches, so it never marks anything.
     markSeekedInto() {
-        const video = getMainVideo();
+        const video = getMainVideo(this.#doc);
         this.#seekedInto = video ? (segmentAt(this.validSegments(video.duration), video.currentTime)?.uuid ?? null) : null;
     }
 
@@ -284,8 +334,9 @@ export class SponsorBlock extends ContentFeature {
     checkVideoID() {
         // Duck Player's page has the same nocookie URL as the embed it frames, so on nocookie only the document with the
         // video acts; loadstart re-checks once the video appears.
-        const ownsPlayer = !isNoCookieOrigin(window.location.origin) || getMainVideo();
-        const videoID = ownsPlayer ? videoIDFromURL(window.location.href) : null;
+        const location = this.#doc.location;
+        const ownsPlayer = !isNoCookieOrigin(location.origin) || getMainVideo(this.#doc);
+        const videoID = ownsPlayer ? videoIDFromURL(location.href) : null;
         if (videoID === this.#videoID) return;
         this.#videoID = videoID;
         this.#segments = [];
@@ -318,14 +369,14 @@ export class SponsorBlock extends ContentFeature {
             this.#overlay?.remove();
             return;
         }
-        const duration = getMainVideo()?.duration ?? NaN;
+        const duration = getMainVideo(this.#doc)?.duration ?? NaN;
         if (this.#overlay?.isConnected && duration === this.#renderedDuration) return;
 
-        const bar = findFirstVisible(this.#progressBarSelectors);
+        const bar = findFirstVisible(this.#doc, this.#progressBarSelectors);
         if (!bar || !(duration > 0)) return;
 
         if (!this.#overlay) {
-            this.#overlay = document.createElement('div');
+            this.#overlay = this.#doc.createElement('div');
             this.#overlay.className = OVERLAY_CLASS;
         }
         if (this.#overlay.parentElement !== bar) bar.prepend(this.#overlay);
@@ -333,7 +384,7 @@ export class SponsorBlock extends ContentFeature {
             ...this.validSegments(duration).flatMap((segment) => {
                 const position = segmentPosition(segment, duration);
                 if (!position) return [];
-                const el = document.createElement('div');
+                const el = this.#doc.createElement('div');
                 el.style.left = position.left;
                 el.style.right = position.right;
                 return [el];
@@ -344,7 +395,7 @@ export class SponsorBlock extends ContentFeature {
 
     // While YouTube plays an ad the video element plays the ad, so its time and duration say nothing about the segments.
     inAd() {
-        return findFirstVisible(this.#adShowingSelectors) !== null;
+        return findFirstVisible(this.#doc, this.#adShowingSelectors) !== null;
     }
 
     /**
@@ -373,7 +424,7 @@ export class SponsorBlock extends ContentFeature {
     // a segment the user seeked into) shows the skip button while inside one and hides it otherwise. An ended video is
     // never inside one: a segment end past the player's duration clamps the skip to the end, still before that end.
     updateSkip() {
-        const video = getMainVideo();
+        const video = getMainVideo(this.#doc);
         // Segments first: timeupdate calls this often, and inAd queries the DOM.
         this.#skipSegment =
             video && !video.ended && this.#segments.length && !this.inAd()
@@ -384,7 +435,7 @@ export class SponsorBlock extends ContentFeature {
             this.skipTo(video, this.#skipSegment);
             return;
         }
-        const host = this.#skipSegment ? findFirstVisible(this.#skipButtonHostSelectors) : null;
+        const host = this.#skipSegment ? findFirstVisible(this.#doc, this.#skipButtonHostSelectors) : null;
         if (!host) {
             this.#skipButton?.remove();
             return;
@@ -393,28 +444,32 @@ export class SponsorBlock extends ContentFeature {
         if (this.#skipButton.parentElement !== host) host.append(this.#skipButton);
         const row = host.id === 'player-controls' ? host.querySelector('.player-controls-bottom') : null;
         if (row) {
-            const gap = host.getBoundingClientRect().bottom - row.getBoundingClientRect().top;
-            this.#skipButton.style.bottom = `${Math.round(gap) + 12}px`;
+            const rowRect = row.getBoundingClientRect();
+            // Android's Duck Player embed is too short to clear the controls row without covering the play button, so
+            // there the button sits on the row, just above the progress bar.
+            const drivesEmbedFromPage = this.#doc !== document;
+            const gap = host.getBoundingClientRect().bottom - (drivesEmbedFromPage ? rowRect.bottom : rowRect.top);
+            this.#skipButton.style.bottom = `${Math.round(gap) + (drivesEmbedFromPage ? 4 : 12)}px`;
         }
     }
 
     // A closed shadow root keeps the button's markup and listeners out of reach of YouTube's scripts. Built with DOM
     // calls, not innerHTML: YouTube enforces Trusted Types, which blocks assigning a plain string to innerHTML.
     createSkipButton() {
-        const host = document.createElement('div');
+        const host = this.#doc.createElement('div');
         host.className = SKIP_BUTTON_CLASS;
         const shadow = host.attachShadow({ mode: 'closed' });
-        const style = document.createElement('style');
+        const style = this.#doc.createElement('style');
         style.textContent = SKIP_BUTTON_STYLES;
-        const button = document.createElement('button');
+        const button = this.#doc.createElement('button');
         button.type = 'button';
-        button.append('Skip sponsored content ', createSkipIcon());
+        button.append('Skip sponsored content ', createSkipIcon(this.#doc));
         shadow.append(style, button);
         // Keep the tap from also reaching the player, which would toggle YouTube's controls.
         button.addEventListener('pointerdown', (e) => e.stopPropagation());
         button.addEventListener('click', (e) => {
             e.stopPropagation();
-            const video = getMainVideo();
+            const video = getMainVideo(this.#doc);
             if (video && this.#skipSegment) this.skipTo(video, this.#skipSegment);
         });
         return host;
