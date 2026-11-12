@@ -44,6 +44,47 @@ const html = {
 </div>
 </body>
 </html>`,
+    noEmbedRedesign: `<html><head><title>${MOCK_VIDEO_TITLE}</title>
+<script>
+window.ytcfg = {
+    get: (key) => key === 'PLAYER_VARS'
+        ? { embedded_player_response: JSON.stringify({ previewPlayabilityStatus: { status: 'UNPLAYABLE', reason: 'Video unavailable' } }) }
+        : undefined,
+};
+</script>
+</head>
+<body>
+<div id="player-controls" class="ytPlayerControlsContainerHost">
+  <yt-player-interstitial-renderer class="playerInterstitialRendererHost" role="dialog" aria-label="Video unavailable">
+    <div class="playerInterstitialRendererScrim">
+      <yt-interstitial-view-model class="interstitialViewModelHost interstitialViewModelErrorScreenRedesignEnabled">
+        <div class="interstitialViewModelTextTitle"><span>Video unavailable</span></div>
+        <div class="interstitialViewModelTextDescription"><span>This video contains content from Example.com, who has blocked it from display on this website or application</span></div>
+        <div class="interstitialViewModelButtonContainer"><a href="http://www.youtube.com/watch?v=NO_EMBED_REDESIGN" target="_blank">Watch on YouTube</a></div>
+      </yt-interstitial-view-model>
+    </div>
+  </yt-player-interstitial-renderer>
+</div>
+</body>
+</html>`,
+    signInRequiredRedesign: `<html><head><title>${MOCK_VIDEO_TITLE}</title></head>
+<body>
+<div id="player-controls" class="ytPlayerControlsContainerHost">
+  <yt-player-interstitial-renderer class="playerInterstitialRendererHost" role="dialog" aria-label="Sign in to confirm you’re not a bot">
+    <div class="playerInterstitialRendererScrim">
+      <yt-interstitial-view-model class="interstitialViewModelHost interstitialViewModelErrorScreenRedesignEnabled">
+        <div class="interstitialViewModelTextTitle"><span>Sign in to confirm you’re not a bot</span></div>
+        <div class="interstitialViewModelTextDescription"><span>This helps protect our community</span></div>
+        <div class="interstitialViewModelButtonContainer">
+          <a href="https://accounts.google.com/ServiceLogin?service=youtube" target="_blank">Sign in</a>
+          <a href="https://support.google.com/youtube/answer/3037019#zippy=%2Ccheck-that-youre-signed-into-youtube" target="_blank">Learn more</a>
+        </div>
+      </yt-interstitial-view-model>
+    </div>
+  </yt-player-interstitial-renderer>
+</div>
+</body>
+</html>`,
 };
 
 /**
@@ -146,6 +187,15 @@ export class DuckPlayerPage {
     }
 
     /**
+     * @param {import('../types/duckplayer.ts').CustomErrorSettings} setting
+     */
+    customErrorSettingIs(setting) {
+        const clone = structuredClone(this.defaults);
+        clone.initialSetup.settings.customError = setting;
+        this.mocks.defaultResponses(clone);
+    }
+
+    /**
      * We don't need to actually load the content for these tests.
      * By mocking the response, we make the tests about 10x faster and also ensure they work offline.
      * @param {URLSearchParams} urlParams
@@ -181,6 +231,22 @@ export class DuckPlayerPage {
                 return request.fulfill({
                     status: 200,
                     body: html.signInRequired,
+                    contentType: 'text/html',
+                });
+            }
+
+            if (urlParams.get('videoID') === 'NO_EMBED_REDESIGN') {
+                return request.fulfill({
+                    status: 200,
+                    body: html.noEmbedRedesign,
+                    contentType: 'text/html',
+                });
+            }
+
+            if (urlParams.get('videoID') === 'SIGN_IN_REDESIGN') {
+                return request.fulfill({
+                    status: 200,
+                    body: html.signInRequiredRedesign,
                     contentType: 'text/html',
                 });
             }

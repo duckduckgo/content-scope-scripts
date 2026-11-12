@@ -3603,6 +3603,7 @@
   };
 
   // pages/duckplayer/app/features/error-detection.js
+  var DEFAULT_YOUTUBE_ERROR_SELECTOR = ".ytp-error, yt-player-interstitial-renderer";
   var ErrorDetection = class {
     /** @type {HTMLIFrameElement} */
     iframe;
@@ -3613,7 +3614,7 @@
      */
     constructor(options) {
       this.options = options;
-      this.errorSelector = options?.settings?.youtubeErrorSelector || ".ytp-error";
+      this.errorSelector = options?.settings?.youtubeErrorSelector || DEFAULT_YOUTUBE_ERROR_SELECTOR;
       console.log("options", options);
     }
     /**

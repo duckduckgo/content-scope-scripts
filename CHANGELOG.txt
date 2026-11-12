@@ -1,1 +1,1 @@
-- Add dedicated Apple brokerProtection.js bundle (#3194)
+- Detect YouTube's redesigned embed error screen in Duck Player (#3201)
