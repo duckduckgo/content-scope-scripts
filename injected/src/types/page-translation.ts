@@ -10,9 +10,8 @@
  * Requests, Notifications and Subscriptions from the PageTranslation feature
  */
 export interface PageTranslationMessages {
-  notifications:
-    ApplyResultNotification | ExtractResultNotification | RevertResultNotification | UnitsAddedNotification;
-  subscriptions: ApplySubscription | ExtractSubscription | RevertSubscription;
+  notifications: ApplyResultNotification | ExtractResultNotification | UnitsAddedNotification;
+  subscriptions: ApplySubscription | ExtractSubscription;
 }
 /**
  * Generated from @see "../messages/page-translation/applyResult.notify.json"
@@ -57,23 +56,6 @@ export interface Unit {
    * 1 when the unit intersects the viewport.
    */
   vp: 0 | 1;
-}
-/**
- * Generated from @see "../messages/page-translation/revertResult.notify.json"
- */
-export interface RevertResultNotification {
-  method: "revertResult";
-  params: RevertResult;
-}
-/**
- * How many units were restored, and whether the page is exactly as before. When exact is false, reload the page.
- */
-export interface RevertResult {
-  count: number;
-  /**
-   * False when an original node we moved couldn't be put back; native should reload the page.
-   */
-  exact: boolean;
 }
 /**
  * Generated from @see "../messages/page-translation/unitsAdded.notify.json"
@@ -148,17 +130,6 @@ export interface ExtractSubscription {
  * Native asks for every translatable unit on the page. Languages come with apply.
  */
 export interface ExtractParams {}
-/**
- * Generated from @see "../messages/page-translation/revert.subscribe.json"
- */
-export interface RevertSubscription {
-  subscriptionEvent: "revert";
-  params: RevertParams;
-}
-/**
- * Native asks to restore the original page.
- */
-export interface RevertParams {}
 
 declare module "../features/page-translation.js" {
   export interface PageTranslation {

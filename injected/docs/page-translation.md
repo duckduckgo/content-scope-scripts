@@ -18,7 +18,6 @@ Native sends subscriptions; the feature replies with notifications.
 | ------------------------------------------------------------------------------------- | --------------- | ----------------------------------------------------------------------------- |
 | `extract` `{}`                                                                        | `extractResult` | `{ units: Unit[] }`                                                           |
 | `apply` `{ sourceLanguage, targetLanguage, updates: [{ id, text } or { id, tree }] }` | `applyResult`   | `{ count }`: updates written                                                  |
-| `revert` `{}`                                                                         | `revertResult`  | `{ count, exact }`: units restored; when `exact` is false, reload the page    |
 | —                                                                                     | `unitsAdded`    | `{ units: Unit[] }`: content that appeared after `extract` (**not sent yet**) |
 
 `Unit = { id, text, html, vp }`:
@@ -28,7 +27,9 @@ Native sends subscriptions; the feature replies with notifications.
 - `vp: 1`: the unit is in the viewport. Translate these first.
 - Ids are never reused while the page is open.
 
-`extract` needs no languages, so native can detect the page's language from the units it returns. `apply` carries `sourceLanguage` (the detected page language) and `targetLanguage` (the language translated into), both BCP 47. A second `extract` while the page is translated reverts it first, without sending `revertResult`.
+`extract` needs no languages, so native can detect the page's language from the units it returns. `apply` carries `sourceLanguage` (the detected page language) and `targetLanguage` (the language translated into), both BCP 47. `extract` reads the page as it is, so a second one on a translated page returns translated text.
+
+To show the original, native reloads the page. It also reloads before translating again, for example into another language.
 
 ## What becomes a unit
 
@@ -59,7 +60,7 @@ The translation is then merged onto the original nodes. Elements are moved, neve
 - A tag the engine dropped: put back at the end of its container.
 - An id we didn't send, or a tag that would end up inside itself: its text is kept, no element is created or moved.
 
-The first write sets `<html lang>` to `targetLanguage`. `revert` puts back every text, attribute, node order and the original `lang`. It then checks that every original node it moved is back in the page, and reports `exact: false` if not, so native can reload as a fallback.
+Once anything is written, `<html lang>` is set to `targetLanguage`.
 
 ## Tests
 
@@ -70,4 +71,4 @@ npm run build && npx playwright test integration-test/page-translation.spec.js -
 npx jasmine --config=unit-test/config.json --filter="page-translation parse"
 ```
 
-Fixtures are in `integration-test/test-pages/page-translation/pages/`. Each one lists its expected units in the spec's `FIXTURES`, and runs the extract, apply and revert checks. Apply uses a fake translator that marks each text run as `‹…›`.
+Fixtures are in `integration-test/test-pages/page-translation/pages/`. Each one lists its expected units in the spec's `FIXTURES`, and runs the extract and apply checks. Apply uses a fake translator that marks each text run as `‹…›`.
