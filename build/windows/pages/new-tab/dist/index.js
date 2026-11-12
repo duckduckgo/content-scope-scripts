@@ -41731,7 +41731,6 @@
       "contextMenu",
       "duckPlayer",
       "duckPlayerNative",
-      "brokerProtection",
       "breakageReporting",
       "performanceMetrics",
       "clickToLoad",
@@ -41748,6 +41747,7 @@
       "browserUiLock",
       "sponsorBlock"
     ],
+    "apple-broker-protection": ["brokerProtection"],
     "apple-ai-clear": ["duckAiDataClearing"],
     "apple-ai-history": ["duckAiChatHistory"],
     android: [

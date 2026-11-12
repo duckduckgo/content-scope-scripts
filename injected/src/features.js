@@ -85,7 +85,6 @@ export const platformSupport = {
         'contextMenu',
         'duckPlayer',
         'duckPlayerNative',
-        'brokerProtection',
         'breakageReporting',
         'performanceMetrics',
         'clickToLoad',
@@ -102,6 +101,7 @@ export const platformSupport = {
         'browserUiLock',
         'sponsorBlock',
     ],
+    'apple-broker-protection': ['brokerProtection'],
     'apple-ai-clear': ['duckAiDataClearing'],
     'apple-ai-history': ['duckAiChatHistory'],
     android: [

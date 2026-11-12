@@ -1,2 +1,1 @@
-- feat(ntp): add model picker subscription headers and plan labels (#3183)
-- Selection tools: don't bring the toolbar back over an editor's menu (#3193)
+- Add dedicated Apple brokerProtection.js bundle (#3194)

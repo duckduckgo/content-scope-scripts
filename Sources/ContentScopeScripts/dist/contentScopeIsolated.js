@@ -1,57 +1,15 @@
 /*! © DuckDuckGo ContentScopeScripts apple-isolated https://github.com/duckduckgo/content-scope-scripts/ */
 "use strict";
 (() => {
-  var __create = Object.create;
   var __defProp = Object.defineProperty;
-  var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-  var __getOwnPropNames = Object.getOwnPropertyNames;
-  var __getProtoOf = Object.getPrototypeOf;
-  var __hasOwnProp = Object.prototype.hasOwnProperty;
   var __typeError = (msg) => {
     throw TypeError(msg);
   };
   var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __require = /* @__PURE__ */ ((x2) => typeof require !== "undefined" ? require : typeof Proxy !== "undefined" ? new Proxy(x2, {
-    get: (a2, b2) => (typeof require !== "undefined" ? require : a2)[b2]
-  }) : x2)(function(x2) {
-    if (typeof require !== "undefined") return require.apply(this, arguments);
-    throw Error('Dynamic require of "' + x2 + '" is not supported');
-  });
-  var __esm = (fn, res, err) => function __init() {
-    if (err) throw err[0];
-    try {
-      return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
-    } catch (e) {
-      throw err = [e], e;
-    }
-  };
-  var __commonJS = (cb, mod) => function __require2() {
-    try {
-      return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
-    } catch (e) {
-      throw mod = 0, e;
-    }
-  };
   var __export = (target, all) => {
     for (var name in all)
       __defProp(target, name, { get: all[name], enumerable: true });
   };
-  var __copyProps = (to, from, except, desc) => {
-    if (from && typeof from === "object" || typeof from === "function") {
-      for (let key of __getOwnPropNames(from))
-        if (!__hasOwnProp.call(to, key) && key !== except)
-          __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
-    }
-    return to;
-  };
-  var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
-    // If the importer is in node compatibility mode or this is not an ESM
-    // file that has been converted to a CommonJS file using a Babel-
-    // compatible transform (i.e. "__esModule" has not been set), then set
-    // "default" to the CommonJS "module.exports" for node compatibility.
-    isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
-    mod
-  ));
   var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   var __accessCheck = (obj, member, msg) => member.has(obj) || __typeError("Cannot " + msg);
   var __privateIn = (member, obj) => Object(obj) !== obj ? __typeError('Cannot use the "in" operator on this value') : member.has(obj);
@@ -61,1497 +19,7 @@
   var __privateMethod = (obj, member, method) => (__accessCheck(obj, member, "access private method"), method);
 
   // <define:import.meta.trackerLookup>
-  var define_import_meta_trackerLookup_default;
-  var init_define_import_meta_trackerLookup = __esm({
-    "<define:import.meta.trackerLookup>"() {
-      define_import_meta_trackerLookup_default = { com: { "2020mustang": 1, "33across": 1, "360yield": 1, "3lift": 1, "4dsply": 1, "9gtb": 1, "a-mx": 1, aaxads: 1, abtasty: 1, acsbapp: 1, acscdn: 1, acuityplatform: 1, "ad-score": 1, adalyser: 1, adapf: 1, adara: 1, addtoany: 1, adelixir: 1, adentifi: 1, adgrx: 1, adhese: 1, adition: 1, adkernel: 1, adlightning: 1, admanmedia: 1, admedo: 1, adnxs: 1, adobedtm: 1, adpone: 1, adpushup: 1, adroll: 1, "ads-twitter": 1, adsafeprotected: 1, adswizz: 1, adthrive: 1, adtng: 1, adultfriendfinder: 1, adventive: 1, adyen: 1, aegpresents: 1, affinity: 1, affirm: 1, agilone: 1, agkn: 1, agoda: 1, ahrefs: 1, aimbase: 1, albacross: 1, alcmpn: 1, "alia-prod": 1, alicdn: 1, aliyuncs: 1, alocdn: 1, "amazon-adsystem": 1, amazon: 1, amplitude: 1, amspbs: 1, amxrtb: 1, "analytics-egain": 1, aniview: 1, anymind360: 1, "app-us1": 1, appboycdn: 1, "apple-mapkit": 1, applovin: 1, aswpsdkus: 1, atlassian: 1, atmtd: 1, attntags: 1, audioeye: 1, "automizely-analytics": 1, automizely: 1, avantlink: 1, aweber: 1, awswaf: 1, azure: 1, b2c: 1, batch: 1, bc0a: 1, beehiiv: 1, betweendigital: 1, bfmio: 1, bing: 1, bizrate: 1, blis: 1, blismedia: 1, blogherads: 1, bloomreach: 1, bluecava: 1, booking: 1, boomtrain: 1, bounceexchange: 1, bqstreamer: 1, brainlyads: 1, "brand-display": 1, brandmetrics: 1, brealtime: 1, browsiprod: 1, btloader: 1, bttrack: 1, btttag: 1, bugsnag: 1, buzzoola: 1, byspotify: 1, c1904584f2: 1, callrail: 1, campaigner: 1, canva: 1, "captcha-delivery": 1, cartstack: 1, casalemedia: 1, "cdn-net": 1, cdninstagram: 1, cdnwidget: 1, channeladvisor: 1, chartbeat: 1, chaseherbalpasty: 1, chatango: 1, chaturbate: 1, cheqzone: 1, "ck-ie": 1, clearbit: 1, clickagy: 1, clicktripz: 1, clientgear: 1, cloudflare: 1, cloudflareinsights: 1, cnn: 1, cnzz: 1, codedrink: 1, cognitivlabs: 1, collegenet: 1, comm100: 1, "company-target": 1, "config-security": 1, connatix: 1, consentmo: 1, contentabc: 1, contextweb: 1, convertexperiments: 1, convertkit: 1, "cookie-script": 1, coosync: 1, cootlogix: 1, copper6: 1, coveo: 1, cquotient: 1, crazyegg: 1, crcldu: 1, "creative-serving": 1, creativecdn: 1, criteo: 1, ctctcdn: 1, ctnsnet: 1, cudasvc: 1, cxense: 1, dailymotion: 1, "datadoghq-browser-agent": 1, deadlinefunnel: 1, dealerinspire: 1, deepintent: 1, delivra: 1, demandbase: 1, dianomi: 1, digitaloceanspaces: 1, dimelochat: 1, discover: 1, disqus: 1, docaccess: 1, dotomi: 1, doubleverify: 1, driftt: 1, dtscout: 1, dwin1: 1, dynamicyield: 1, dynatrace: 1, ebxcdn: 1, eccmp: 1, elfsight: 1, eloqua: 1, emxdgt: 1, en25: 1, endowmentoverhangutmost: 1, ensighten: 1, epichosted: 1, eskimi: 1, evergage: 1, evgnet: 1, evidon: 1, exdynsrv: 1, exelator: 1, exoclick: 1, exosrv: 1, exponea: 1, exponential: 1, extole: 1, ezodn: 1, ezoicanalytics: 1, ezojs: 1, feefo: 1, five9: 1, flashtalking: 1, flippback: 1, flixcdn: 1, flodesk: 1, foresee: 1, fouanalytics: 1, freshworks: 1, fullstory: 1, g2: 1, "gannett-cdn": 1, gbqofs: 1, getcandid: 1, getdrip: 1, getelevar: 1, getrockerbox: 1, getsitecontrol: 1, godaddy: 1, "google-analytics": 1, google: 1, googleadservices: 1, googlehosted: 1, googleoptimize: 1, googlesyndication: 1, googletagmanager: 1, googletagservices: 1, greylabeldelivery: 1, groovehq: 1, gsitrix: 1, gstatic: 1, "guarantee-cdn": 1, gumgum: 1, hawksearch: 1, hearstnp: 1, heatmap: 1, hextom: 1, histats: 1, hotjar: 1, "hrzn-nxt": 1, "hs-banner": 1, "hs-scripts": 1, htlbid: 1, "html-load": 1, hubspot: 1, hubspotfeedback: 1, iadvize: 1, "id5-sync": 1, igodigital: 1, iljmp: 1, impact: 1, impactcdn: 1, "impactradius-event": 1, improvedcontactform: 1, improvedigital: 1, imrworldwide: 1, indexww: 1, infolinks: 1, infusionsoft: 1, inmobi: 1, inq: 1, "inside-graph": 1, instagram: 1, intentiq: 1, intergient: 1, intuit: 1, investingchannel: 1, invocacdn: 1, iperceptions: 1, iplsc: 1, ipredictive: 1, iqm: 1, issuu: 1, iteratehq: 1, janusaent: 1, jimstatic: 1, journeymv: 1, journity: 1, amazonaws: { "us-west-2": { s3: 1 }, "ap-southeast-2": 1, "eu-west-3": { s3: { "yelda-chat": 1 } } }, juicyads: 1, jwplayer: 1, kargo: 1, ketchcdn: 1, kettledroopingcontinuation: 1, kit: 1, klarna: 1, klaviyo: 1, krushmedia: 1, kueezrtb: 1, ladesk: 1, ladsp: 1, leadsrx: 1, lendingtree: 1, lexisnexis: 1, liadm: 1, licdn: 1, liftdsp: 1, lightboxcdn: 1, lijit: 1, linkconnector: 1, linkedin: 1, linksynergy: 1, "list-manage": 1, listrakbi: 1, livechatinc: 1, lngtdv: 1, localytics: 1, loggly: 1, loop11: 1, luckyorange: 1, magsrv: 1, mailchimp: 1, mailchimpapp: 1, mailerlite: 1, "maillist-manage": 1, "mantis-intelligence": 1, marketiq: 1, marketo: 1, marphezis: 1, marzaent: 1, matheranalytics: 1, mathtag: 1, mavrtracktor: 1, maxmind: 1, mczbf: 1, measureadv: 1, medallia: 1, media6degrees: 1, mediarithmics: 1, mediavine: 1, memberful: 1, mercari: 1, mfadsrvr: 1, mgid: 1, micpn: 1, "minutemedia-prebid": 1, mixpo: 1, mktoresp: 1, mktoweb: 1, ml314: 1, mmvideocdn: 1, moloco: 1, monsido: 1, mookie1: 1, mountain: 1, mouseflow: 1, mpeasylink: 1, mql5: 1, mxpnl: 1, mygaru: 1, myregistry: 1, newrelic: 1, newscgp: 1, nextdoor: 1, nextmillmedia: 1, nitropay: 1, noibu: 1, nosto: 1, npttech: 1, nuance: 1, nytrng: 1, omappapi: 1, omguk: 1, omnisnippet1: 1, omnisrc: 1, omnitagjs: 1, onaudience: 1, onesignal: 1, "onetag-sys": 1, opecloud: 1, opentable: 1, opentext: 1, openwebmp: 1, opera: 1, opmnstr: 1, "opti-digital": 1, optidigital: 1, optimizely: 1, optimonk: 1, optmnstr: 1, optmstr: 1, optnmnstr: 1, optnmstr: 1, optum: 1, oraclecloud: 1, orbsrv: 1, osano: 1, outbrain: 1, outbrainimg: 1, ownlocal: 1, parastorage: 1, pardot: 1, parsely: 1, patreon: 1, paypal: 1, pbstck: 1, "peer-39": 1, pemsrv: 1, perfalytics: 1, perfdrive: 1, permutive: 1, picreel: 1, pinterest: 1, pippio: 1, pixlee: 1, playwire: 1, postaffiliatepro: 1, posthog: 1, postrelease: 1, preferencenail: 1, pricespider: 1, protrafficinspector: 1, providesupport: 1, ptengine: 1, publir: 1, publitas: 1, pubmatic: 1, pubnation: 1, pulseinsights: 1, pulselive: 1, pushnami: 1, qq: 1, qualaroo: 1, qualified: 1, qualtrics: 1, quantcount: 1, quantserve: 1, quantummetric: 1, quora: 1, rakuten: 1, raptivecdn: 1, realizationnewestfangs: 1, realsrv: 1, rebuyengine: 1, recombee: 1, recruitics: 1, reddit: 1, redditstatic: 1, refinery89: 1, reson8: 1, responsiveads: 1, retargetly: 1, revcontent: 1, rezync: 1, rfihub: 1, rfksrv: 1, richaudience: 1, ringcentral: 1, rkdms: 1, rlcdn: 1, rmhfrtnd: 1, rmtag: 1, roeyecdn: 1, rogersmedia: 1, route: 1, rtbhouse: 1, rubiconproject: 1, rudderlabs: 1, rudderstack: 1, rvlife: 1, "sail-horizon": 1, sailthru: 1, salecycle: 1, "salesforce-sites": 1, salesforceliveagent: 1, sascdn: 1, scene7: 1, scholarlyiq: 1, schwab: 1, scorecardresearch: 1, screenpopper: 1, scriptwrapper: 1, searchserverapi1: 1, securedvisit: 1, seedtag: 1, segment: 1, servenobid: 1, serverbid: 1, herokuapp: { "session-recording-now": 1 }, sharethis: 1, sharethrough: 1, "shb-sync": 1, shgcdn3: 1, sibautomation: 1, signifyd: 1, site: 1, siteimprove: 1, siteimproveanalytics: 1, sitescout: 1, skimresources: 1, slickstream: 1, smartadserver: 1, "smartnews-ads": 1, smilewanted: 1, snapchat: 1, snigelweb: 1, socdm: 1, sojern: 1, sonobi: 1, sparteo: 1, spendsdetachment: 1, sportradar: 1, sportradarserving: 1, sportslocalmedia: 1, springserve: 1, stackadapt: 1, startappnetwork: 1, statcounter: 1, stay22: 1, googleapis: { storage: 1, imasdk: 1, ajax: 1, fonts: 1, translate: 1 }, streamrail: 1, stripchat: 1, sumome: 1, swaven: 1, swymrelay: 1, syf: 1, symantec: 1, syncingbridge: 1, taboola: 1, talkable: 1, taobao: 1, tapad: 1, tapioni: 1, tappx: 1, "teads-xo": 1, tealiumiq: 1, temu: 1, "the-ozone-project": 1, theadex: 1, thejobnetwork: 1, thestar: 1, thrtle: 1, tiktok: 1, tinypass: 1, tiqcdn: 1, trackjs: 1, trafficjunky: 1, travelaudience: 1, travelpayouts: 1, treasuredata: 1, tremorhub: 1, trendemon: 1, tribalfusion: 1, trueleadid: 1, trustedstack: 1, trustpielote: 1, trustpilot: 1, trvdp: 1, tsyndicate: 1, turn: 1, tvpixel: 1, tvspix: 1, tvsquared: 1, tweakwise: 1, twitter: 1, tynt: 1, uidapi: 1, unbxdapi: 1, undertone: 1, unpkg: 1, unrulymedia: 1, "uplift-platform": 1, uplift: 1, upsellit: 1, urbanairship: 1, usabilla: 1, usablenet: 1, usbrowserspeed: 1, useamp: 1, usemessages: 1, userapi: 1, uservoice: 1, valuecommerce: 1, "verint-cdn": 1, vidazoo: 1, videoplayerhub: 1, vidoomy: 1, vimeocdn: 1, vistarsagency: 1, "visually-io": 1, visualwebsiteoptimizer: 1, vk: 1, vrtcal: 1, wbd: 1, "we-stats": 1, webcontentassessor: 1, webengage: 1, webeyez: 1, webtraxs: 1, "webtrends-optimize": 1, webtrends: 1, weglot: 1, woosmap: 1, workdeadlinededicate: 1, "wt-safetag": 1, wysistat: 1, x: 1, yahoo: 1, yandex: 1, yango: 1, yieldlove: 1, yieldmo: 1, ymmobi: 1, yotpo: 1, "youtube-nocookie": 1, youtube: 1, zemanta: 1, zendesk: 1, zeotap: 1, "zi-scripts": 1, zohocdn: 1, zoologyfibre: 1, zoominfo: 1, zopim: 1, createsend1: 1, jivox: 1, klarnaservices: 1, solarwinds: 1, ivitrack: 1, kiyoh: 1, adnuntius: 1, schibsted: 1, facebook: 1, attentivemobile: 1, bootstrapcdn: 1, cloudinary: 1, cookieyes: 1, dtscdn: 1, fontawesome: 1, getclicky: 1, microsoft: 1, playdigo: 1, roeye: 1, rtbwise: 1, shopifycdn: 1, shopifysvc: 1, stripe: 1, vimeo: 1, wp: 1, yimg: 1, yandexmetrica: 1, ymetrica1: 1 }, net: { "2mdn": 1, "a-mo": 1, acint: 1, adform: 1, adhigh: 1, adobedc: 1, adspeed: 1, aggle: 1, appier: 1, edgekey: { au: 1, "com-v1": 1, de: 1, fr: 1, io: 1, net: 1, nl: 1, org: 1, com: { scene7: 1 }, "com-v2": 1 }, azurefd: 1, bannerflow: 1, basis: 1, "bf-ad": 1, bidswitch: 1, blueconic: 1, buysellads: 1, cachefly: 1, ccgateway: 1, "confiant-integrations": 1, contentpass: 1, contentsquare: 1, criteo: 1, crwdcntrl: 1, cloudfront: { d14jnfavjicsbe: 1, d1af033869koo7: 1, d1j0xlutvd326g: 1, d1vg5xiq7qffdj: 1, d1x4rwm1kh8pnu: 1, d21gpk1vhmjuf5: 1, d2trly8m2h0e8p: 1, d38xvr37kwwhcm: 1, d3djbgmgf0l8ev: 1, d3fukwxve5r8zf: 1, d3fv2pqyjay52z: 1, d3nn82uaxijpm6: 1, d6tizftlrpuof: 1, dm2q9qfzyjfox: 1, dokumfe7mps0i: 1, dsh7ky7308k4b: 1, duube1y6ojsji: 1, dvagh3p3rk8xj: 1, d2638j3z8ek976: 1 }, datatrac: 1, demdex: 1, dotmetrics: 1, doubleclick: 1, "e-planning": 1, episerver: 1, esm1: 1, eulerian: 1, everestjs: 1, everesttech: 1, eyeota: 1, ezoic: 1, facebook: 1, fastclick: 1, fbcdn: 1, fonts: 1, fuseplatform: 1, fwmrm: 1, gcprivacy: 1, "go-mpulse": 1, "go-vip": 1, gtranslate: 1, hadronid: 1, "hs-analytics": 1, hsadspixel: 1, hsappstatic: 1, hscta: 1, "im-apps": 1, impervadns: 1, fastly: { global: { sni: { j: 1, m: 1, s: 1 } } }, jsdelivr: 1, kakaocdn: 1, listhub: 1, livedoor: 1, liveperson: 1, lpsnmedia: 1, magnetmail: 1, marketo: 1, mateti: 1, media: 1, mjedge: 1, mobon: 1, monetate: 1, mrktmtrcs: 1, mxptint: 1, naver: 1, "nr-data": 1, ojrq: 1, omtrdc: 1, onecount: 1, openx: 1, openxcdn: 1, opta: 1, optimove: 1, p7cloud: 1, pages02: 1, pages03: 1, pages04: 1, pages05: 1, pages06: 1, pages08: 1, pingdom: 1, pmdstatic: 1, popcash: 1, "pro-market": 1, protechts: 1, akamaihd: { "pxlclnmdecom-a": 1 }, r9cdn: 1, rfihub: 1, akamaized: { s13emagst: 1, tmssl: 1 }, sancdn: 1, "sc-static": 1, semasio: 1, sexad: 1, smaato: 1, spreadshirts: 1, tfaforms: 1, uuidksinc: 1, viafoura: 1, visx: 1, w55c: 1, witglobal: 1, "wt-eu02": 1, yandex: 1, yastatic: 1, zencdn: 1, zetaglobal: 1, zucks: 1, emarsys: 1, apicit: 1, tradetracker: 1, "ad-delivery": 1, bkcdn: 1, chartbeat: 1, ortb: 1, eviltracker: 1 }, io: { "506": 1, "4dex": 1, adapex: 1, aditude: 1, adnami: 1, advolve: 1, aidata: 1, anonm: 1, anonymised: 1, bidr: 1, branch: 1, center: 1, chatra: 1, connectad: 1, cordial: 1, edgetag: 1, extole: 1, fsrv: 1, grsm: 1, hbrd: 1, instana: 1, intelligems: 1, juicer: 1, kameleoon: 1, karte: 1, litix: 1, lytics: 1, mediago: 1, missena: 1, mrf: 1, nexx360: 1, northbeam: 1, ntv: 1, optad360: 1, oracleinfinity: 1, "p-n": 1, personalizer: 1, pghub: 1, piano: 1, postscript: 1, powr: 1, presage: 1, rapidedge: 1, receptivity: 1, searchspring: 1, segment: 1, smct: 1, smile: 1, sspinc: 1, stape: 1, t13: 1, termly: 1, wovn: 1, yellowblue: 1, zprk: 1, pzz: 1, "1rx": 1, akstat: 1, digitalaudience: 1, hotjar: 1, "inmobi-choice": 1, pinklion: 1 }, co: { "6sc": 1, ayads: 1, clinch: 1, empowerlocal: 1, getlasso: 1, idio: 1, increasingly: 1, jads: 1, nc0: 1, optable: 1, "pm-serv": 1, prmutv: 1, t: 1, tctm: 1, tidio: 1, ujet: 1, vibe: 1, zip: 1 }, gt: { ad: 1 }, cloud: { aditude: 1, stpd: 1, squiz: 1 }, cc: { admaster: 1, "html-load": 1 }, jp: { admatrix: 1, fout: 1, ne: { hatena: 1 }, "impact-ad": 1, nakanohito: 1, ptengine: 1, r10s: 1, co: { rakuten: 1, yahoo: 1 }, rtoaster: 1, shinobi: 1, "team-rec": 1, uncn: 1, yimg: 1 }, pl: { adocean: 1, gemius: 1, nsaudience: 1, onet: 1, salesmanago: 1, wp: 1 }, re: { adsco: 1 }, org: { adsrvr: 1, ampproject: 1, "browser-update": 1, cleantalk: 1, featureassets: 1, flowplayer: 1, openstreetmap: 1, "privacy-center": 1, webvisor: 1, framasoft: 1, prodregistryv2: 1, "do-not-tracker": 1, trackersimulator: 1 }, biz: { adtarget: 1 }, google: { adtrafficquality: 1 }, tv: { attn: 1, iris: 1, ispot: 1, teads: 1, twitch: 1 }, de: { "auswaertiges-amt": 1, ioam: 1, itzbund: 1, stroeerdigitalgroup: 1 }, ai: { axon: 1, blackcrow: 1, dxtech: 1, evolv: 1, hybrid: 1, m2: 1, nrich: 1, programmaticx: 1, sardine: 1, wknd: 1 }, delivery: { ay: 1, monu: 1 }, ws: { bids: 1, rmbl: 1 }, ms: { clarity: 1 }, my: { cnt: 1 }, chat: { crisp: 1, gorgias: 1 }, gov: { dhs: 1, digitalgov: 1, weather: 1 }, ru: { digitaltarget: 1, mail: 1, megafon: 1, mts: 1, rambler: 1, top100: 1, yadro: 1, yandex: 1 }, nl: { dpgmedia: 1, rijksoverheid: 1 }, tech: { dv: 1, ingage: 1, primis: 1, yads: 1 }, es: { gaug: 1, pandect: 1 }, ca: { bc: { gov: 1 } }, me: { grow: 1, loopme: 1, tldw: 1 }, media: { grv: 1, nextday: 1, townsquare: 1, underdog: 1 }, health: { hcn: 1 }, page: { hlx: 1 }, cz: { imedia: 1, performax: 1, seznam: 1 }, app: { infusionsoft: 1, permutive: 1, shop: 1, run: { "us-central1": 1 }, web: { "wec-virtualassistant-cx-prod": 1 } }, live: { iqzonertb: 1 }, br: { com: { jsuol: 1 } }, eu: { kameleoon: 1, medallia: 1, rqtrk: 1, slgnt: 1, media01: 1, trengo: 1 }, services: { marketingautomation: 1 }, sg: { mediacorp: 1 }, info: { navistechnologies: 1, usergram: 1, webantenna: 1 }, au: { com: { news: 1, nine: 1, zipmoney: 1 } }, bi: { newsroom: 1 }, fr: { "open-system": 1 }, fm: { pdst: 1 }, pro: { piwik: 1, usocial: 1 }, it: { plug: 1, stbm: 1 }, network: { pub: 1 }, ch: { "ringier-advertising": 1, admin: 1, "da-services": 1 }, fi: { satis: 1, simpli: 1 }, ac: { script: 1 }, pe: { shop: 1 }, us: { shopmy: 1, tiktokw: 1, trkn: 1, zoom: 1 }, xyz: { tracookiepixel: 1 }, digital: { postmedia: 1 }, no: { acdn: 1, api: 1 }, events: { growplow: 1 }, goog: { "merchant-center-analytics": 1 }, example: { "ad-company": 1 }, site: { "ad-company": 1, "third-party": { bad: 1, broken: 1 } } };
-    }
-  });
-
-  // ../node_modules/xregexp/src/xregexp.js
-  var require_xregexp = __commonJS({
-    "../node_modules/xregexp/src/xregexp.js"(exports, module) {
-      "use strict";
-      init_define_import_meta_trackerLookup();
-      /*!
-       * XRegExp 3.2.0
-       * <xregexp.com>
-       * Steven Levithan (c) 2007-2017 MIT License
-       */
-      var REGEX_DATA = "xregexp";
-      var features = {
-        astral: false,
-        natives: false
-      };
-      var nativ = {
-        exec: RegExp.prototype.exec,
-        test: RegExp.prototype.test,
-        match: String.prototype.match,
-        replace: String.prototype.replace,
-        split: String.prototype.split
-      };
-      var fixed = {};
-      var regexCache = {};
-      var patternCache = {};
-      var tokens = [];
-      var defaultScope = "default";
-      var classScope = "class";
-      var nativeTokens = {
-        // Any native multicharacter token in default scope, or any single character
-        "default": /\\(?:0(?:[0-3][0-7]{0,2}|[4-7][0-7]?)?|[1-9]\d*|x[\dA-Fa-f]{2}|u(?:[\dA-Fa-f]{4}|{[\dA-Fa-f]+})|c[A-Za-z]|[\s\S])|\(\?(?:[:=!]|<[=!])|[?*+]\?|{\d+(?:,\d*)?}\??|[\s\S]/,
-        // Any native multicharacter token in character class scope, or any single character
-        "class": /\\(?:[0-3][0-7]{0,2}|[4-7][0-7]?|x[\dA-Fa-f]{2}|u(?:[\dA-Fa-f]{4}|{[\dA-Fa-f]+})|c[A-Za-z]|[\s\S])|[\s\S]/
-      };
-      var replacementToken = /\$(?:{([\w$]+)}|(\d\d?|[\s\S]))/g;
-      var correctExecNpcg = nativ.exec.call(/()??/, "")[1] === void 0;
-      var hasFlagsProp = /x/.flags !== void 0;
-      var toString2 = {}.toString;
-      function hasNativeFlag(flag) {
-        var isSupported = true;
-        try {
-          new RegExp("", flag);
-        } catch (exception) {
-          isSupported = false;
-        }
-        return isSupported;
-      }
-      var hasNativeU = hasNativeFlag("u");
-      var hasNativeY = hasNativeFlag("y");
-      var registeredFlags = {
-        g: true,
-        i: true,
-        m: true,
-        u: hasNativeU,
-        y: hasNativeY
-      };
-      function augment(regex, captureNames, xSource, xFlags, isInternalOnly) {
-        var p;
-        regex[REGEX_DATA] = {
-          captureNames
-        };
-        if (isInternalOnly) {
-          return regex;
-        }
-        if (regex.__proto__) {
-          regex.__proto__ = XRegExp.prototype;
-        } else {
-          for (p in XRegExp.prototype) {
-            regex[p] = XRegExp.prototype[p];
-          }
-        }
-        regex[REGEX_DATA].source = xSource;
-        regex[REGEX_DATA].flags = xFlags ? xFlags.split("").sort().join("") : xFlags;
-        return regex;
-      }
-      function clipDuplicates(str) {
-        return nativ.replace.call(str, /([\s\S])(?=[\s\S]*\1)/g, "");
-      }
-      function copyRegex(regex, options) {
-        if (!XRegExp.isRegExp(regex)) {
-          throw new TypeError("Type RegExp expected");
-        }
-        var xData = regex[REGEX_DATA] || {};
-        var flags = getNativeFlags(regex);
-        var flagsToAdd = "";
-        var flagsToRemove = "";
-        var xregexpSource = null;
-        var xregexpFlags = null;
-        options = options || {};
-        if (options.removeG) {
-          flagsToRemove += "g";
-        }
-        if (options.removeY) {
-          flagsToRemove += "y";
-        }
-        if (flagsToRemove) {
-          flags = nativ.replace.call(flags, new RegExp("[" + flagsToRemove + "]+", "g"), "");
-        }
-        if (options.addG) {
-          flagsToAdd += "g";
-        }
-        if (options.addY) {
-          flagsToAdd += "y";
-        }
-        if (flagsToAdd) {
-          flags = clipDuplicates(flags + flagsToAdd);
-        }
-        if (!options.isInternalOnly) {
-          if (xData.source !== void 0) {
-            xregexpSource = xData.source;
-          }
-          if (xData.flags != null) {
-            xregexpFlags = flagsToAdd ? clipDuplicates(xData.flags + flagsToAdd) : xData.flags;
-          }
-        }
-        regex = augment(
-          new RegExp(options.source || regex.source, flags),
-          hasNamedCapture(regex) ? xData.captureNames.slice(0) : null,
-          xregexpSource,
-          xregexpFlags,
-          options.isInternalOnly
-        );
-        return regex;
-      }
-      function dec(hex2) {
-        return parseInt(hex2, 16);
-      }
-      function getContextualTokenSeparator(match, scope, flags) {
-        if (
-          // No need to separate tokens if at the beginning or end of a group
-          match.input.charAt(match.index - 1) === "(" || match.input.charAt(match.index + match[0].length) === ")" || // Avoid separating tokens when the following token is a quantifier
-          isPatternNext(match.input, match.index + match[0].length, flags, "[?*+]|{\\d+(?:,\\d*)?}")
-        ) {
-          return "";
-        }
-        return "(?:)";
-      }
-      function getNativeFlags(regex) {
-        return hasFlagsProp ? regex.flags : (
-          // Explicitly using `RegExp.prototype.toString` (rather than e.g. `String` or concatenation
-          // with an empty string) allows this to continue working predictably when
-          // `XRegExp.proptotype.toString` is overridden
-          nativ.exec.call(/\/([a-z]*)$/i, RegExp.prototype.toString.call(regex))[1]
-        );
-      }
-      function hasNamedCapture(regex) {
-        return !!(regex[REGEX_DATA] && regex[REGEX_DATA].captureNames);
-      }
-      function hex(dec2) {
-        return parseInt(dec2, 10).toString(16);
-      }
-      function indexOf(array, value) {
-        var len = array.length;
-        var i;
-        for (i = 0; i < len; ++i) {
-          if (array[i] === value) {
-            return i;
-          }
-        }
-        return -1;
-      }
-      function isPatternNext(pattern, pos, flags, needlePattern) {
-        var inlineCommentPattern = "\\(\\?#[^)]*\\)";
-        var lineCommentPattern = "#[^#\\n]*";
-        var patternsToIgnore = flags.indexOf("x") > -1 ? (
-          // Ignore any leading whitespace, line comments, and inline comments
-          ["\\s", lineCommentPattern, inlineCommentPattern]
-        ) : (
-          // Ignore any leading inline comments
-          [inlineCommentPattern]
-        );
-        return nativ.test.call(
-          new RegExp("^(?:" + patternsToIgnore.join("|") + ")*(?:" + needlePattern + ")"),
-          pattern.slice(pos)
-        );
-      }
-      function isType(value, type) {
-        return toString2.call(value) === "[object " + type + "]";
-      }
-      function pad4(str) {
-        while (str.length < 4) {
-          str = "0" + str;
-        }
-        return str;
-      }
-      function prepareFlags(pattern, flags) {
-        var i;
-        if (clipDuplicates(flags) !== flags) {
-          throw new SyntaxError("Invalid duplicate regex flag " + flags);
-        }
-        pattern = nativ.replace.call(pattern, /^\(\?([\w$]+)\)/, function($0, $1) {
-          if (nativ.test.call(/[gy]/, $1)) {
-            throw new SyntaxError("Cannot use flag g or y in mode modifier " + $0);
-          }
-          flags = clipDuplicates(flags + $1);
-          return "";
-        });
-        for (i = 0; i < flags.length; ++i) {
-          if (!registeredFlags[flags.charAt(i)]) {
-            throw new SyntaxError("Unknown regex flag " + flags.charAt(i));
-          }
-        }
-        return {
-          pattern,
-          flags
-        };
-      }
-      function prepareOptions(value) {
-        var options = {};
-        if (isType(value, "String")) {
-          XRegExp.forEach(value, /[^\s,]+/, function(match) {
-            options[match] = true;
-          });
-          return options;
-        }
-        return value;
-      }
-      function registerFlag(flag) {
-        if (!/^[\w$]$/.test(flag)) {
-          throw new Error("Flag must be a single character A-Za-z0-9_$");
-        }
-        registeredFlags[flag] = true;
-      }
-      function runTokens(pattern, flags, pos, scope, context) {
-        var i = tokens.length;
-        var leadChar = pattern.charAt(pos);
-        var result = null;
-        var match;
-        var t;
-        while (i--) {
-          t = tokens[i];
-          if (t.leadChar && t.leadChar !== leadChar || t.scope !== scope && t.scope !== "all" || t.flag && flags.indexOf(t.flag) === -1) {
-            continue;
-          }
-          match = XRegExp.exec(pattern, t.regex, pos, "sticky");
-          if (match) {
-            result = {
-              matchLength: match[0].length,
-              output: t.handler.call(context, match, scope, flags),
-              reparse: t.reparse
-            };
-            break;
-          }
-        }
-        return result;
-      }
-      function setAstral(on) {
-        features.astral = on;
-      }
-      function setNatives(on) {
-        RegExp.prototype.exec = (on ? fixed : nativ).exec;
-        RegExp.prototype.test = (on ? fixed : nativ).test;
-        String.prototype.match = (on ? fixed : nativ).match;
-        String.prototype.replace = (on ? fixed : nativ).replace;
-        String.prototype.split = (on ? fixed : nativ).split;
-        features.natives = on;
-      }
-      function toObject(value) {
-        if (value == null) {
-          throw new TypeError("Cannot convert null or undefined to object");
-        }
-        return value;
-      }
-      function XRegExp(pattern, flags) {
-        if (XRegExp.isRegExp(pattern)) {
-          if (flags !== void 0) {
-            throw new TypeError("Cannot supply flags when copying a RegExp");
-          }
-          return copyRegex(pattern);
-        }
-        pattern = pattern === void 0 ? "" : String(pattern);
-        flags = flags === void 0 ? "" : String(flags);
-        if (XRegExp.isInstalled("astral") && flags.indexOf("A") === -1) {
-          flags += "A";
-        }
-        if (!patternCache[pattern]) {
-          patternCache[pattern] = {};
-        }
-        if (!patternCache[pattern][flags]) {
-          var context = {
-            hasNamedCapture: false,
-            captureNames: []
-          };
-          var scope = defaultScope;
-          var output = "";
-          var pos = 0;
-          var result;
-          var applied = prepareFlags(pattern, flags);
-          var appliedPattern = applied.pattern;
-          var appliedFlags = applied.flags;
-          while (pos < appliedPattern.length) {
-            do {
-              result = runTokens(appliedPattern, appliedFlags, pos, scope, context);
-              if (result && result.reparse) {
-                appliedPattern = appliedPattern.slice(0, pos) + result.output + appliedPattern.slice(pos + result.matchLength);
-              }
-            } while (result && result.reparse);
-            if (result) {
-              output += result.output;
-              pos += result.matchLength || 1;
-            } else {
-              var token = XRegExp.exec(appliedPattern, nativeTokens[scope], pos, "sticky")[0];
-              output += token;
-              pos += token.length;
-              if (token === "[" && scope === defaultScope) {
-                scope = classScope;
-              } else if (token === "]" && scope === classScope) {
-                scope = defaultScope;
-              }
-            }
-          }
-          patternCache[pattern][flags] = {
-            // Use basic cleanup to collapse repeated empty groups like `(?:)(?:)` to `(?:)`. Empty
-            // groups are sometimes inserted during regex transpilation in order to keep tokens
-            // separated. However, more than one empty group in a row is never needed.
-            pattern: nativ.replace.call(output, /(?:\(\?:\))+/g, "(?:)"),
-            // Strip all but native flags
-            flags: nativ.replace.call(appliedFlags, /[^gimuy]+/g, ""),
-            // `context.captureNames` has an item for each capturing group, even if unnamed
-            captures: context.hasNamedCapture ? context.captureNames : null
-          };
-        }
-        var generated = patternCache[pattern][flags];
-        return augment(
-          new RegExp(generated.pattern, generated.flags),
-          generated.captures,
-          pattern,
-          flags
-        );
-      }
-      XRegExp.prototype = new RegExp();
-      XRegExp.version = "3.2.0";
-      XRegExp._clipDuplicates = clipDuplicates;
-      XRegExp._hasNativeFlag = hasNativeFlag;
-      XRegExp._dec = dec;
-      XRegExp._hex = hex;
-      XRegExp._pad4 = pad4;
-      XRegExp.addToken = function(regex, handler, options) {
-        options = options || {};
-        var optionalFlags = options.optionalFlags;
-        var i;
-        if (options.flag) {
-          registerFlag(options.flag);
-        }
-        if (optionalFlags) {
-          optionalFlags = nativ.split.call(optionalFlags, "");
-          for (i = 0; i < optionalFlags.length; ++i) {
-            registerFlag(optionalFlags[i]);
-          }
-        }
-        tokens.push({
-          regex: copyRegex(regex, {
-            addG: true,
-            addY: hasNativeY,
-            isInternalOnly: true
-          }),
-          handler,
-          scope: options.scope || defaultScope,
-          flag: options.flag,
-          reparse: options.reparse,
-          leadChar: options.leadChar
-        });
-        XRegExp.cache.flush("patterns");
-      };
-      XRegExp.cache = function(pattern, flags) {
-        if (!regexCache[pattern]) {
-          regexCache[pattern] = {};
-        }
-        return regexCache[pattern][flags] || (regexCache[pattern][flags] = XRegExp(pattern, flags));
-      };
-      XRegExp.cache.flush = function(cacheName) {
-        if (cacheName === "patterns") {
-          patternCache = {};
-        } else {
-          regexCache = {};
-        }
-      };
-      XRegExp.escape = function(str) {
-        return nativ.replace.call(toObject(str), /[-\[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-      };
-      XRegExp.exec = function(str, regex, pos, sticky) {
-        var cacheKey = "g";
-        var addY = false;
-        var fakeY = false;
-        var match;
-        var r2;
-        addY = hasNativeY && !!(sticky || regex.sticky && sticky !== false);
-        if (addY) {
-          cacheKey += "y";
-        } else if (sticky) {
-          fakeY = true;
-          cacheKey += "FakeY";
-        }
-        regex[REGEX_DATA] = regex[REGEX_DATA] || {};
-        r2 = regex[REGEX_DATA][cacheKey] || (regex[REGEX_DATA][cacheKey] = copyRegex(regex, {
-          addG: true,
-          addY,
-          source: fakeY ? regex.source + "|()" : void 0,
-          removeY: sticky === false,
-          isInternalOnly: true
-        }));
-        pos = pos || 0;
-        r2.lastIndex = pos;
-        match = fixed.exec.call(r2, str);
-        if (fakeY && match && match.pop() === "") {
-          match = null;
-        }
-        if (regex.global) {
-          regex.lastIndex = match ? r2.lastIndex : 0;
-        }
-        return match;
-      };
-      XRegExp.forEach = function(str, regex, callback) {
-        var pos = 0;
-        var i = -1;
-        var match;
-        while (match = XRegExp.exec(str, regex, pos)) {
-          callback(match, ++i, str, regex);
-          pos = match.index + (match[0].length || 1);
-        }
-      };
-      XRegExp.globalize = function(regex) {
-        return copyRegex(regex, { addG: true });
-      };
-      XRegExp.install = function(options) {
-        options = prepareOptions(options);
-        if (!features.astral && options.astral) {
-          setAstral(true);
-        }
-        if (!features.natives && options.natives) {
-          setNatives(true);
-        }
-      };
-      XRegExp.isInstalled = function(feature) {
-        return !!features[feature];
-      };
-      XRegExp.isRegExp = function(value) {
-        return toString2.call(value) === "[object RegExp]";
-      };
-      XRegExp.match = function(str, regex, scope) {
-        var global = regex.global && scope !== "one" || scope === "all";
-        var cacheKey = (global ? "g" : "") + (regex.sticky ? "y" : "") || "noGY";
-        var result;
-        var r2;
-        regex[REGEX_DATA] = regex[REGEX_DATA] || {};
-        r2 = regex[REGEX_DATA][cacheKey] || (regex[REGEX_DATA][cacheKey] = copyRegex(regex, {
-          addG: !!global,
-          removeG: scope === "one",
-          isInternalOnly: true
-        }));
-        result = nativ.match.call(toObject(str), r2);
-        if (regex.global) {
-          regex.lastIndex = scope === "one" && result ? (
-            // Can't use `r2.lastIndex` since `r2` is nonglobal in this case
-            result.index + result[0].length
-          ) : 0;
-        }
-        return global ? result || [] : result && result[0];
-      };
-      XRegExp.matchChain = function(str, chain) {
-        return (function recurseChain(values, level) {
-          var item = chain[level].regex ? chain[level] : { regex: chain[level] };
-          var matches = [];
-          function addMatch(match) {
-            if (item.backref) {
-              if (!(match.hasOwnProperty(item.backref) || +item.backref < match.length)) {
-                throw new ReferenceError("Backreference to undefined group: " + item.backref);
-              }
-              matches.push(match[item.backref] || "");
-            } else {
-              matches.push(match[0]);
-            }
-          }
-          for (var i = 0; i < values.length; ++i) {
-            XRegExp.forEach(values[i], item.regex, addMatch);
-          }
-          return level === chain.length - 1 || !matches.length ? matches : recurseChain(matches, level + 1);
-        })([str], 0);
-      };
-      XRegExp.replace = function(str, search, replacement, scope) {
-        var isRegex = XRegExp.isRegExp(search);
-        var global = search.global && scope !== "one" || scope === "all";
-        var cacheKey = (global ? "g" : "") + (search.sticky ? "y" : "") || "noGY";
-        var s2 = search;
-        var result;
-        if (isRegex) {
-          search[REGEX_DATA] = search[REGEX_DATA] || {};
-          s2 = search[REGEX_DATA][cacheKey] || (search[REGEX_DATA][cacheKey] = copyRegex(search, {
-            addG: !!global,
-            removeG: scope === "one",
-            isInternalOnly: true
-          }));
-        } else if (global) {
-          s2 = new RegExp(XRegExp.escape(String(search)), "g");
-        }
-        result = fixed.replace.call(toObject(str), s2, replacement);
-        if (isRegex && search.global) {
-          search.lastIndex = 0;
-        }
-        return result;
-      };
-      XRegExp.replaceEach = function(str, replacements) {
-        var i;
-        var r;
-        for (i = 0; i < replacements.length; ++i) {
-          r = replacements[i];
-          str = XRegExp.replace(str, r[0], r[1], r[2]);
-        }
-        return str;
-      };
-      XRegExp.split = function(str, separator, limit) {
-        return fixed.split.call(toObject(str), separator, limit);
-      };
-      XRegExp.test = function(str, regex, pos, sticky) {
-        return !!XRegExp.exec(str, regex, pos, sticky);
-      };
-      XRegExp.uninstall = function(options) {
-        options = prepareOptions(options);
-        if (features.astral && options.astral) {
-          setAstral(false);
-        }
-        if (features.natives && options.natives) {
-          setNatives(false);
-        }
-      };
-      XRegExp.union = function(patterns, flags, options) {
-        options = options || {};
-        var conjunction = options.conjunction || "or";
-        var numCaptures = 0;
-        var numPriorCaptures;
-        var captureNames;
-        function rewrite(match, paren, backref) {
-          var name = captureNames[numCaptures - numPriorCaptures];
-          if (paren) {
-            ++numCaptures;
-            if (name) {
-              return "(?<" + name + ">";
-            }
-          } else if (backref) {
-            return "\\" + (+backref + numPriorCaptures);
-          }
-          return match;
-        }
-        if (!(isType(patterns, "Array") && patterns.length)) {
-          throw new TypeError("Must provide a nonempty array of patterns to merge");
-        }
-        var parts = /(\()(?!\?)|\\([1-9]\d*)|\\[\s\S]|\[(?:[^\\\]]|\\[\s\S])*\]/g;
-        var output = [];
-        var pattern;
-        for (var i = 0; i < patterns.length; ++i) {
-          pattern = patterns[i];
-          if (XRegExp.isRegExp(pattern)) {
-            numPriorCaptures = numCaptures;
-            captureNames = pattern[REGEX_DATA] && pattern[REGEX_DATA].captureNames || [];
-            output.push(nativ.replace.call(XRegExp(pattern.source).source, parts, rewrite));
-          } else {
-            output.push(XRegExp.escape(pattern));
-          }
-        }
-        var separator = conjunction === "none" ? "" : "|";
-        return XRegExp(output.join(separator), flags);
-      };
-      fixed.exec = function(str) {
-        var origLastIndex = this.lastIndex;
-        var match = nativ.exec.apply(this, arguments);
-        var name;
-        var r2;
-        var i;
-        if (match) {
-          if (!correctExecNpcg && match.length > 1 && indexOf(match, "") > -1) {
-            r2 = copyRegex(this, {
-              removeG: true,
-              isInternalOnly: true
-            });
-            nativ.replace.call(String(str).slice(match.index), r2, function() {
-              var len = arguments.length;
-              var i2;
-              for (i2 = 1; i2 < len - 2; ++i2) {
-                if (arguments[i2] === void 0) {
-                  match[i2] = void 0;
-                }
-              }
-            });
-          }
-          if (this[REGEX_DATA] && this[REGEX_DATA].captureNames) {
-            for (i = 1; i < match.length; ++i) {
-              name = this[REGEX_DATA].captureNames[i - 1];
-              if (name) {
-                match[name] = match[i];
-              }
-            }
-          }
-          if (this.global && !match[0].length && this.lastIndex > match.index) {
-            this.lastIndex = match.index;
-          }
-        }
-        if (!this.global) {
-          this.lastIndex = origLastIndex;
-        }
-        return match;
-      };
-      fixed.test = function(str) {
-        return !!fixed.exec.call(this, str);
-      };
-      fixed.match = function(regex) {
-        var result;
-        if (!XRegExp.isRegExp(regex)) {
-          regex = new RegExp(regex);
-        } else if (regex.global) {
-          result = nativ.match.apply(this, arguments);
-          regex.lastIndex = 0;
-          return result;
-        }
-        return fixed.exec.call(regex, toObject(this));
-      };
-      fixed.replace = function(search, replacement) {
-        var isRegex = XRegExp.isRegExp(search);
-        var origLastIndex;
-        var captureNames;
-        var result;
-        if (isRegex) {
-          if (search[REGEX_DATA]) {
-            captureNames = search[REGEX_DATA].captureNames;
-          }
-          origLastIndex = search.lastIndex;
-        } else {
-          search += "";
-        }
-        if (isType(replacement, "Function")) {
-          result = nativ.replace.call(String(this), search, function() {
-            var args = arguments;
-            var i;
-            if (captureNames) {
-              args[0] = new String(args[0]);
-              for (i = 0; i < captureNames.length; ++i) {
-                if (captureNames[i]) {
-                  args[0][captureNames[i]] = args[i + 1];
-                }
-              }
-            }
-            if (isRegex && search.global) {
-              search.lastIndex = args[args.length - 2] + args[0].length;
-            }
-            return replacement.apply(void 0, args);
-          });
-        } else {
-          result = nativ.replace.call(this == null ? this : String(this), search, function() {
-            var args = arguments;
-            return nativ.replace.call(String(replacement), replacementToken, function($0, $1, $2) {
-              var n;
-              if ($1) {
-                n = +$1;
-                if (n <= args.length - 3) {
-                  return args[n] || "";
-                }
-                n = captureNames ? indexOf(captureNames, $1) : -1;
-                if (n < 0) {
-                  throw new SyntaxError("Backreference to undefined group " + $0);
-                }
-                return args[n + 1] || "";
-              }
-              if ($2 === "$") {
-                return "$";
-              }
-              if ($2 === "&" || +$2 === 0) {
-                return args[0];
-              }
-              if ($2 === "`") {
-                return args[args.length - 1].slice(0, args[args.length - 2]);
-              }
-              if ($2 === "'") {
-                return args[args.length - 1].slice(args[args.length - 2] + args[0].length);
-              }
-              $2 = +$2;
-              if (!isNaN($2)) {
-                if ($2 > args.length - 3) {
-                  throw new SyntaxError("Backreference to undefined group " + $0);
-                }
-                return args[$2] || "";
-              }
-              throw new SyntaxError("Invalid token " + $0);
-            });
-          });
-        }
-        if (isRegex) {
-          if (search.global) {
-            search.lastIndex = 0;
-          } else {
-            search.lastIndex = origLastIndex;
-          }
-        }
-        return result;
-      };
-      fixed.split = function(separator, limit) {
-        if (!XRegExp.isRegExp(separator)) {
-          return nativ.split.apply(this, arguments);
-        }
-        var str = String(this);
-        var output = [];
-        var origLastIndex = separator.lastIndex;
-        var lastLastIndex = 0;
-        var lastLength;
-        limit = (limit === void 0 ? -1 : limit) >>> 0;
-        XRegExp.forEach(str, separator, function(match) {
-          if (match.index + match[0].length > lastLastIndex) {
-            output.push(str.slice(lastLastIndex, match.index));
-            if (match.length > 1 && match.index < str.length) {
-              Array.prototype.push.apply(output, match.slice(1));
-            }
-            lastLength = match[0].length;
-            lastLastIndex = match.index + lastLength;
-          }
-        });
-        if (lastLastIndex === str.length) {
-          if (!nativ.test.call(separator, "") || lastLength) {
-            output.push("");
-          }
-        } else {
-          output.push(str.slice(lastLastIndex));
-        }
-        separator.lastIndex = origLastIndex;
-        return output.length > limit ? output.slice(0, limit) : output;
-      };
-      XRegExp.addToken(
-        /\\([ABCE-RTUVXYZaeg-mopqyz]|c(?![A-Za-z])|u(?![\dA-Fa-f]{4}|{[\dA-Fa-f]+})|x(?![\dA-Fa-f]{2}))/,
-        function(match, scope) {
-          if (match[1] === "B" && scope === defaultScope) {
-            return match[0];
-          }
-          throw new SyntaxError("Invalid escape " + match[0]);
-        },
-        {
-          scope: "all",
-          leadChar: "\\"
-        }
-      );
-      XRegExp.addToken(
-        /\\u{([\dA-Fa-f]+)}/,
-        function(match, scope, flags) {
-          var code = dec(match[1]);
-          if (code > 1114111) {
-            throw new SyntaxError("Invalid Unicode code point " + match[0]);
-          }
-          if (code <= 65535) {
-            return "\\u" + pad4(hex(code));
-          }
-          if (hasNativeU && flags.indexOf("u") > -1) {
-            return match[0];
-          }
-          throw new SyntaxError("Cannot use Unicode code point above \\u{FFFF} without flag u");
-        },
-        {
-          scope: "all",
-          leadChar: "\\"
-        }
-      );
-      XRegExp.addToken(
-        /\[(\^?)\]/,
-        function(match) {
-          return match[1] ? "[\\s\\S]" : "\\b\\B";
-        },
-        { leadChar: "[" }
-      );
-      XRegExp.addToken(
-        /\(\?#[^)]*\)/,
-        getContextualTokenSeparator,
-        { leadChar: "(" }
-      );
-      XRegExp.addToken(
-        /\s+|#[^\n]*\n?/,
-        getContextualTokenSeparator,
-        { flag: "x" }
-      );
-      XRegExp.addToken(
-        /\./,
-        function() {
-          return "[\\s\\S]";
-        },
-        {
-          flag: "s",
-          leadChar: "."
-        }
-      );
-      XRegExp.addToken(
-        /\\k<([\w$]+)>/,
-        function(match) {
-          var index = isNaN(match[1]) ? indexOf(this.captureNames, match[1]) + 1 : +match[1];
-          var endIndex = match.index + match[0].length;
-          if (!index || index > this.captureNames.length) {
-            throw new SyntaxError("Backreference to undefined group " + match[0]);
-          }
-          return "\\" + index + (endIndex === match.input.length || isNaN(match.input.charAt(endIndex)) ? "" : "(?:)");
-        },
-        { leadChar: "\\" }
-      );
-      XRegExp.addToken(
-        /\\(\d+)/,
-        function(match, scope) {
-          if (!(scope === defaultScope && /^[1-9]/.test(match[1]) && +match[1] <= this.captureNames.length) && match[1] !== "0") {
-            throw new SyntaxError("Cannot use octal escape or backreference to undefined group " + match[0]);
-          }
-          return match[0];
-        },
-        {
-          scope: "all",
-          leadChar: "\\"
-        }
-      );
-      XRegExp.addToken(
-        /\(\?P?<([\w$]+)>/,
-        function(match) {
-          if (!isNaN(match[1])) {
-            throw new SyntaxError("Cannot use integer as capture name " + match[0]);
-          }
-          if (match[1] === "length" || match[1] === "__proto__") {
-            throw new SyntaxError("Cannot use reserved word as capture name " + match[0]);
-          }
-          if (indexOf(this.captureNames, match[1]) > -1) {
-            throw new SyntaxError("Cannot use same name for multiple groups " + match[0]);
-          }
-          this.captureNames.push(match[1]);
-          this.hasNamedCapture = true;
-          return "(";
-        },
-        { leadChar: "(" }
-      );
-      XRegExp.addToken(
-        /\((?!\?)/,
-        function(match, scope, flags) {
-          if (flags.indexOf("n") > -1) {
-            return "(?:";
-          }
-          this.captureNames.push(null);
-          return "(";
-        },
-        {
-          optionalFlags: "n",
-          leadChar: "("
-        }
-      );
-      module.exports = XRegExp;
-    }
-  });
-
-  // ../node_modules/parse-address/address.js
-  var require_address = __commonJS({
-    "../node_modules/parse-address/address.js"(exports) {
-      "use strict";
-      init_define_import_meta_trackerLookup();
-      //! Copyright (c) 2014-2015, hassansin
-      //!
-      //!Perl Ref: http://cpansearch.perl.org/src/TIMB/Geo-StreetAddress-US-1.04/US.pm
-      (function() {
-        var root;
-        root = this;
-        var XRegExp;
-        if (typeof __require !== "undefined") {
-          XRegExp = require_xregexp();
-        } else
-          XRegExp = root.XRegExp;
-        var parser = {};
-        var Addr_Match = {};
-        var Directional = {
-          north: "N",
-          northeast: "NE",
-          east: "E",
-          southeast: "SE",
-          south: "S",
-          southwest: "SW",
-          west: "W",
-          northwest: "NW"
-        };
-        var Street_Type = {
-          allee: "aly",
-          alley: "aly",
-          ally: "aly",
-          anex: "anx",
-          annex: "anx",
-          annx: "anx",
-          arcade: "arc",
-          av: "ave",
-          aven: "ave",
-          avenu: "ave",
-          avenue: "ave",
-          avn: "ave",
-          avnue: "ave",
-          bayoo: "byu",
-          bayou: "byu",
-          beach: "bch",
-          bend: "bnd",
-          bluf: "blf",
-          bluff: "blf",
-          bluffs: "blfs",
-          bot: "btm",
-          bottm: "btm",
-          bottom: "btm",
-          boul: "blvd",
-          boulevard: "blvd",
-          boulv: "blvd",
-          branch: "br",
-          brdge: "brg",
-          bridge: "brg",
-          brnch: "br",
-          brook: "brk",
-          brooks: "brks",
-          burg: "bg",
-          burgs: "bgs",
-          bypa: "byp",
-          bypas: "byp",
-          bypass: "byp",
-          byps: "byp",
-          camp: "cp",
-          canyn: "cyn",
-          canyon: "cyn",
-          cape: "cpe",
-          causeway: "cswy",
-          causway: "cswy",
-          causwa: "cswy",
-          cen: "ctr",
-          cent: "ctr",
-          center: "ctr",
-          centers: "ctrs",
-          centr: "ctr",
-          centre: "ctr",
-          circ: "cir",
-          circl: "cir",
-          circle: "cir",
-          circles: "cirs",
-          ck: "crk",
-          cliff: "clf",
-          cliffs: "clfs",
-          club: "clb",
-          cmp: "cp",
-          cnter: "ctr",
-          cntr: "ctr",
-          cnyn: "cyn",
-          common: "cmn",
-          commons: "cmns",
-          corner: "cor",
-          corners: "cors",
-          course: "crse",
-          court: "ct",
-          courts: "cts",
-          cove: "cv",
-          coves: "cvs",
-          cr: "crk",
-          crcl: "cir",
-          crcle: "cir",
-          crecent: "cres",
-          creek: "crk",
-          crescent: "cres",
-          cresent: "cres",
-          crest: "crst",
-          crossing: "xing",
-          crossroad: "xrd",
-          crossroads: "xrds",
-          crscnt: "cres",
-          crsent: "cres",
-          crsnt: "cres",
-          crssing: "xing",
-          crssng: "xing",
-          crt: "ct",
-          curve: "curv",
-          dale: "dl",
-          dam: "dm",
-          div: "dv",
-          divide: "dv",
-          driv: "dr",
-          drive: "dr",
-          drives: "drs",
-          drv: "dr",
-          dvd: "dv",
-          estate: "est",
-          estates: "ests",
-          exp: "expy",
-          expr: "expy",
-          express: "expy",
-          expressway: "expy",
-          expw: "expy",
-          extension: "ext",
-          extensions: "exts",
-          extn: "ext",
-          extnsn: "ext",
-          fall: "fall",
-          falls: "fls",
-          ferry: "fry",
-          field: "fld",
-          fields: "flds",
-          flat: "flt",
-          flats: "flts",
-          ford: "frd",
-          fords: "frds",
-          forest: "frst",
-          forests: "frst",
-          forg: "frg",
-          forge: "frg",
-          forges: "frgs",
-          fork: "frk",
-          forks: "frks",
-          fort: "ft",
-          freeway: "fwy",
-          freewy: "fwy",
-          frry: "fry",
-          frt: "ft",
-          frway: "fwy",
-          frwy: "fwy",
-          garden: "gdn",
-          gardens: "gdns",
-          gardn: "gdn",
-          gateway: "gtwy",
-          gatewy: "gtwy",
-          gatway: "gtwy",
-          glen: "gln",
-          glens: "glns",
-          grden: "gdn",
-          grdn: "gdn",
-          grdns: "gdns",
-          green: "grn",
-          greens: "grns",
-          grov: "grv",
-          grove: "grv",
-          groves: "grvs",
-          gtway: "gtwy",
-          harb: "hbr",
-          harbor: "hbr",
-          harbors: "hbrs",
-          harbr: "hbr",
-          haven: "hvn",
-          havn: "hvn",
-          height: "hts",
-          heights: "hts",
-          hgts: "hts",
-          highway: "hwy",
-          highwy: "hwy",
-          hill: "hl",
-          hills: "hls",
-          hiway: "hwy",
-          hiwy: "hwy",
-          hllw: "holw",
-          hollow: "holw",
-          hollows: "holw",
-          holws: "holw",
-          hrbor: "hbr",
-          ht: "hts",
-          hway: "hwy",
-          inlet: "inlt",
-          island: "is",
-          islands: "iss",
-          isles: "isle",
-          islnd: "is",
-          islnds: "iss",
-          jction: "jct",
-          jctn: "jct",
-          jctns: "jcts",
-          junction: "jct",
-          junctions: "jcts",
-          junctn: "jct",
-          juncton: "jct",
-          key: "ky",
-          keys: "kys",
-          knol: "knl",
-          knoll: "knl",
-          knolls: "knls",
-          la: "ln",
-          lake: "lk",
-          lakes: "lks",
-          land: "land",
-          landing: "lndg",
-          lane: "ln",
-          lanes: "ln",
-          ldge: "ldg",
-          light: "lgt",
-          lights: "lgts",
-          lndng: "lndg",
-          loaf: "lf",
-          lock: "lck",
-          locks: "lcks",
-          lodg: "ldg",
-          lodge: "ldg",
-          loops: "loop",
-          mall: "mall",
-          manor: "mnr",
-          manors: "mnrs",
-          meadow: "mdw",
-          meadows: "mdws",
-          medows: "mdws",
-          mews: "mews",
-          mill: "ml",
-          mills: "mls",
-          mission: "msn",
-          missn: "msn",
-          mnt: "mt",
-          mntain: "mtn",
-          mntn: "mtn",
-          mntns: "mtns",
-          motorway: "mtwy",
-          mount: "mt",
-          mountain: "mtn",
-          mountains: "mtns",
-          mountin: "mtn",
-          mssn: "msn",
-          mtin: "mtn",
-          neck: "nck",
-          orchard: "orch",
-          orchrd: "orch",
-          overpass: "opas",
-          ovl: "oval",
-          parks: "park",
-          parkway: "pkwy",
-          parkways: "pkwy",
-          parkwy: "pkwy",
-          pass: "pass",
-          passage: "psge",
-          paths: "path",
-          pikes: "pike",
-          pine: "pne",
-          pines: "pnes",
-          pk: "park",
-          pkway: "pkwy",
-          pkwys: "pkwy",
-          pky: "pkwy",
-          place: "pl",
-          plain: "pln",
-          plaines: "plns",
-          plains: "plns",
-          plaza: "plz",
-          plza: "plz",
-          point: "pt",
-          points: "pts",
-          port: "prt",
-          ports: "prts",
-          prairie: "pr",
-          prarie: "pr",
-          prk: "park",
-          prr: "pr",
-          rad: "radl",
-          radial: "radl",
-          radiel: "radl",
-          ranch: "rnch",
-          ranches: "rnch",
-          rapid: "rpd",
-          rapids: "rpds",
-          rdge: "rdg",
-          rest: "rst",
-          ridge: "rdg",
-          ridges: "rdgs",
-          river: "riv",
-          rivr: "riv",
-          rnchs: "rnch",
-          road: "rd",
-          roads: "rds",
-          route: "rte",
-          rvr: "riv",
-          row: "row",
-          rue: "rue",
-          run: "run",
-          shoal: "shl",
-          shoals: "shls",
-          shoar: "shr",
-          shoars: "shrs",
-          shore: "shr",
-          shores: "shrs",
-          skyway: "skwy",
-          spng: "spg",
-          spngs: "spgs",
-          spring: "spg",
-          springs: "spgs",
-          sprng: "spg",
-          sprngs: "spgs",
-          spurs: "spur",
-          sqr: "sq",
-          sqre: "sq",
-          sqrs: "sqs",
-          squ: "sq",
-          square: "sq",
-          squares: "sqs",
-          station: "sta",
-          statn: "sta",
-          stn: "sta",
-          str: "st",
-          strav: "stra",
-          strave: "stra",
-          straven: "stra",
-          stravenue: "stra",
-          stravn: "stra",
-          stream: "strm",
-          street: "st",
-          streets: "sts",
-          streme: "strm",
-          strt: "st",
-          strvn: "stra",
-          strvnue: "stra",
-          sumit: "smt",
-          sumitt: "smt",
-          summit: "smt",
-          terr: "ter",
-          terrace: "ter",
-          throughway: "trwy",
-          tpk: "tpke",
-          tr: "trl",
-          trace: "trce",
-          traces: "trce",
-          track: "trak",
-          tracks: "trak",
-          trafficway: "trfy",
-          trail: "trl",
-          trails: "trl",
-          trk: "trak",
-          trks: "trak",
-          trls: "trl",
-          trnpk: "tpke",
-          trpk: "tpke",
-          tunel: "tunl",
-          tunls: "tunl",
-          tunnel: "tunl",
-          tunnels: "tunl",
-          tunnl: "tunl",
-          turnpike: "tpke",
-          turnpk: "tpke",
-          underpass: "upas",
-          union: "un",
-          unions: "uns",
-          valley: "vly",
-          valleys: "vlys",
-          vally: "vly",
-          vdct: "via",
-          viadct: "via",
-          viaduct: "via",
-          view: "vw",
-          views: "vws",
-          vill: "vlg",
-          villag: "vlg",
-          village: "vlg",
-          villages: "vlgs",
-          ville: "vl",
-          villg: "vlg",
-          villiage: "vlg",
-          vist: "vis",
-          vista: "vis",
-          vlly: "vly",
-          vst: "vis",
-          vsta: "vis",
-          wall: "wall",
-          walks: "walk",
-          well: "wl",
-          wells: "wls",
-          wy: "way"
-        };
-        var State_Code = {
-          "alabama": "AL",
-          "alaska": "AK",
-          "american samoa": "AS",
-          "arizona": "AZ",
-          "arkansas": "AR",
-          "california": "CA",
-          "colorado": "CO",
-          "connecticut": "CT",
-          "delaware": "DE",
-          "district of columbia": "DC",
-          "federated states of micronesia": "FM",
-          "florida": "FL",
-          "georgia": "GA",
-          "guam": "GU",
-          "hawaii": "HI",
-          "idaho": "ID",
-          "illinois": "IL",
-          "indiana": "IN",
-          "iowa": "IA",
-          "kansas": "KS",
-          "kentucky": "KY",
-          "louisiana": "LA",
-          "maine": "ME",
-          "marshall islands": "MH",
-          "maryland": "MD",
-          "massachusetts": "MA",
-          "michigan": "MI",
-          "minnesota": "MN",
-          "mississippi": "MS",
-          "missouri": "MO",
-          "montana": "MT",
-          "nebraska": "NE",
-          "nevada": "NV",
-          "new hampshire": "NH",
-          "new jersey": "NJ",
-          "new mexico": "NM",
-          "new york": "NY",
-          "north carolina": "NC",
-          "north dakota": "ND",
-          "northern mariana islands": "MP",
-          "ohio": "OH",
-          "oklahoma": "OK",
-          "oregon": "OR",
-          "palau": "PW",
-          "pennsylvania": "PA",
-          "puerto rico": "PR",
-          "rhode island": "RI",
-          "south carolina": "SC",
-          "south dakota": "SD",
-          "tennessee": "TN",
-          "texas": "TX",
-          "utah": "UT",
-          "vermont": "VT",
-          "virgin islands": "VI",
-          "virginia": "VA",
-          "washington": "WA",
-          "west virginia": "WV",
-          "wisconsin": "WI",
-          "wyoming": "WY"
-        };
-        var Direction_Code;
-        var initialized = false;
-        var Normalize_Map = {
-          prefix: Directional,
-          prefix1: Directional,
-          prefix2: Directional,
-          suffix: Directional,
-          suffix1: Directional,
-          suffix2: Directional,
-          type: Street_Type,
-          type1: Street_Type,
-          type2: Street_Type,
-          state: State_Code
-        };
-        function capitalize2(s) {
-          return s && s[0].toUpperCase() + s.slice(1);
-        }
-        function keys(o) {
-          return Object.keys(o);
-        }
-        function values(o) {
-          var v2 = [];
-          keys(o).forEach(function(k) {
-            v2.push(o[k]);
-          });
-          return v2;
-        }
-        function each(o, fn) {
-          keys(o).forEach(function(k) {
-            fn(o[k], k);
-          });
-        }
-        function invert(o) {
-          var o1 = {};
-          keys(o).forEach(function(k) {
-            o1[o[k]] = k;
-          });
-          return o1;
-        }
-        function flatten(o) {
-          return keys(o).concat(values(o));
-        }
-        function lazyInit() {
-          if (initialized) {
-            return;
-          }
-          initialized = true;
-          Direction_Code = invert(Directional);
-          Addr_Match = {
-            type: flatten(Street_Type).sort().filter(function(v2, i, arr) {
-              return arr.indexOf(v2) === i;
-            }).join("|"),
-            fraction: "\\d+\\/\\d+",
-            state: "\\b(?:" + keys(State_Code).concat(values(State_Code)).map(XRegExp.escape).join("|") + ")\\b",
-            direct: values(Directional).sort(function(a2, b2) {
-              return a2.length < b2.length;
-            }).reduce(function(prev, curr) {
-              return prev.concat([XRegExp.escape(curr.replace(/\w/g, "$&.")), curr]);
-            }, keys(Directional)).join("|"),
-            dircode: keys(Direction_Code).join("|"),
-            zip: "(?<zip>\\d{5})[- ]?(?<plus4>\\d{4})?",
-            corner: "(?:\\band\\b|\\bat\\b|&|\\@)"
-          };
-          Addr_Match.number = "(?<number>(\\d+-?\\d*)|([N|S|E|W]\\d{1,3}[N|S|E|W]\\d{1,6}))(?=\\D)";
-          Addr_Match.street = "                                       \n      (?:                                                       \n        (?:(?<street_0>" + Addr_Match.direct + ")\\W+               \n           (?<type_0>" + Addr_Match.type + ")\\b                    \n        )                                                       \n        |                                                       \n        (?:(?<prefix_0>" + Addr_Match.direct + ")\\W+)?             \n        (?:                                                     \n          (?<street_1>[^,]*\\d)                                 \n          (?:[^\\w,]*(?<suffix_1>" + Addr_Match.direct + ")\\b)     \n          |                                                     \n          (?<street_2>[^,]+)                                    \n          (?:[^\\w,]+(?<type_2>" + Addr_Match.type + ")\\b)         \n          (?:[^\\w,]+(?<suffix_2>" + Addr_Match.direct + ")\\b)?    \n          |                                                     \n          (?<street_3>[^,]+?)                                   \n          (?:[^\\w,]+(?<type_3>" + Addr_Match.type + ")\\b)?        \n          (?:[^\\w,]+(?<suffix_3>" + Addr_Match.direct + ")\\b)?    \n        )                                                       \n      )";
-          Addr_Match.po_box = "p\\W*(?:[om]|ost\\ ?office)\\W*b(?:ox)?";
-          Addr_Match.sec_unit_type_numbered = "             \n      (?<sec_unit_type_1>su?i?te                      \n        |" + Addr_Match.po_box + "                        \n        |(?:ap|dep)(?:ar)?t(?:me?nt)?                 \n        |ro*m                                         \n        |flo*r?                                       \n        |uni?t                                        \n        |bu?i?ldi?n?g                                 \n        |ha?nga?r                                     \n        |lo?t                                         \n        |pier                                         \n        |slip                                         \n        |spa?ce?                                      \n        |stop                                         \n        |tra?i?le?r                                   \n        |box)(?![a-z]                                 \n      )                                               \n      ";
-          Addr_Match.sec_unit_type_unnumbered = "           \n      (?<sec_unit_type_2>ba?se?me?n?t                 \n        |fro?nt                                       \n        |lo?bby                                       \n        |lowe?r                                       \n        |off?i?ce?                                    \n        |pe?n?t?ho?u?s?e?                             \n        |rear                                         \n        |side                                         \n        |uppe?r                                       \n      )\\b";
-          Addr_Match.sec_unit = "                               \n      (?:                               #fix3             \n        (?:                             #fix1             \n          (?:                                             \n            (?:" + Addr_Match.sec_unit_type_numbered + "\\W*) \n            |(?<sec_unit_type_3>\\#)\\W*                  \n          )                                               \n          (?<sec_unit_num_1>[\\w-]+)                      \n        )                                                 \n        |                                                 \n        " + Addr_Match.sec_unit_type_unnumbered + "           \n      )";
-          Addr_Match.city_and_state = "                       \n      (?:                                               \n        (?<city>[^\\d,]+?)\\W+                          \n        (?<state>" + Addr_Match.state + ")                  \n      )                                                 \n      ";
-          Addr_Match.place = "                                \n      (?:" + Addr_Match.city_and_state + "\\W*)?            \n      (?:" + Addr_Match.zip + ")?                           \n      ";
-          Addr_Match.address = XRegExp("                      \n      ^                                                 \n      [^\\w\\#]*                                        \n      (" + Addr_Match.number + ")\\W*                       \n      (?:" + Addr_Match.fraction + "\\W*)?                  \n         " + Addr_Match.street + "\\W+                      \n      (?:" + Addr_Match.sec_unit + ")?\\W*          #fix2   \n         " + Addr_Match.place + "                           \n      \\W*$", "ix");
-          var sep = "(?:\\W+|$)";
-          Addr_Match.informal_address = XRegExp("                   \n      ^                                                       \n      \\s*                                                    \n      (?:" + Addr_Match.sec_unit + sep + ")?                        \n      (?:" + Addr_Match.number + ")?\\W*                          \n      (?:" + Addr_Match.fraction + "\\W*)?                        \n         " + Addr_Match.street + sep + "                            \n      (?:" + Addr_Match.sec_unit.replace(/_\d/g, "$&1") + sep + ")?  \n      (?:" + Addr_Match.place + ")?                               \n      ", "ix");
-          Addr_Match.po_address = XRegExp("                         \n      ^                                                       \n      \\s*                                                    \n      (?:" + Addr_Match.sec_unit.replace(/_\d/g, "$&1") + sep + ")?  \n      (?:" + Addr_Match.place + ")?                               \n      ", "ix");
-          Addr_Match.intersection = XRegExp("                     \n      ^\\W*                                                 \n      " + Addr_Match.street.replace(/_\d/g, "1$&") + "\\W*?      \n      \\s+" + Addr_Match.corner + "\\s+                         \n      " + Addr_Match.street.replace(/_\d/g, "2$&") + "\\W+     \n      " + Addr_Match.place + "\\W*$", "ix");
-        }
-        parser.normalize_address = function(parts) {
-          lazyInit();
-          if (!parts)
-            return null;
-          var parsed = {};
-          Object.keys(parts).forEach(function(k) {
-            if (["input", "index"].indexOf(k) !== -1 || isFinite(k))
-              return;
-            var key = isFinite(k.split("_").pop()) ? k.split("_").slice(0, -1).join("_") : k;
-            if (parts[k])
-              parsed[key] = parts[k].trim().replace(/^\s+|\s+$|[^\w\s\-#&]/g, "");
-          });
-          each(Normalize_Map, function(map, key) {
-            if (parsed[key] && map[parsed[key].toLowerCase()]) {
-              parsed[key] = map[parsed[key].toLowerCase()];
-            }
-          });
-          ["type", "type1", "type2"].forEach(function(key) {
-            if (key in parsed)
-              parsed[key] = parsed[key].charAt(0).toUpperCase() + parsed[key].slice(1).toLowerCase();
-          });
-          if (parsed.city) {
-            parsed.city = XRegExp.replace(
-              parsed.city,
-              XRegExp("^(?<dircode>" + Addr_Match.dircode + ")\\s+(?=\\S)", "ix"),
-              function(match) {
-                return capitalize2(Direction_Code[match.dircode.toUpperCase()]) + " ";
-              }
-            );
-          }
-          return parsed;
-        };
-        parser.parseAddress = function(address) {
-          lazyInit();
-          var parts = XRegExp.exec(address, Addr_Match.address);
-          return parser.normalize_address(parts);
-        };
-        parser.parseInformalAddress = function(address) {
-          lazyInit();
-          var parts = XRegExp.exec(address, Addr_Match.informal_address);
-          return parser.normalize_address(parts);
-        };
-        parser.parsePoAddress = function(address) {
-          lazyInit();
-          var parts = XRegExp.exec(address, Addr_Match.po_address);
-          return parser.normalize_address(parts);
-        };
-        parser.parseLocation = function(address) {
-          lazyInit();
-          if (XRegExp(Addr_Match.corner, "xi").test(address)) {
-            return parser.parseIntersection(address);
-          }
-          if (XRegExp("^" + Addr_Match.po_box, "xi").test(address)) {
-            return parser.parsePoAddress(address);
-          }
-          return parser.parseAddress(address) || parser.parseInformalAddress(address);
-        };
-        parser.parseIntersection = function(address) {
-          lazyInit();
-          var parts = XRegExp.exec(address, Addr_Match.intersection);
-          parts = parser.normalize_address(parts);
-          if (parts) {
-            parts.type2 = parts.type2 || "";
-            parts.type1 = parts.type1 || "";
-            if (parts.type2 && !parts.type1 || parts.type1 === parts.type2) {
-              var type = parts.type2;
-              type = XRegExp.replace(type, /s\W*$/, "");
-              if (XRegExp("^" + Addr_Match.type + "$", "ix").test(type)) {
-                parts.type1 = parts.type2 = type;
-              }
-            }
-          }
-          return parts;
-        };
-        if (typeof define !== "undefined" && define.amd) {
-          define([], function() {
-            return parser;
-          });
-        } else if (typeof exports !== "undefined") {
-          exports.parseIntersection = parser.parseIntersection;
-          exports.parseLocation = parser.parseLocation;
-          exports.parseInformalAddress = parser.parseInformalAddress;
-          exports.parseAddress = parser.parseAddress;
-        } else {
-          root.addressParser = root.addressParser || parser;
-        }
-      })();
-    }
-  });
-
-  // entry-points/apple.js
-  init_define_import_meta_trackerLookup();
-
-  // src/content-scope-features.js
-  init_define_import_meta_trackerLookup();
-
-  // src/utils.js
-  init_define_import_meta_trackerLookup();
+  var define_import_meta_trackerLookup_default = { com: { "2020mustang": 1, "33across": 1, "360yield": 1, "3lift": 1, "4dsply": 1, "9gtb": 1, "a-mx": 1, aaxads: 1, abtasty: 1, acsbapp: 1, acscdn: 1, acuityplatform: 1, "ad-score": 1, adalyser: 1, adapf: 1, adara: 1, addtoany: 1, adelixir: 1, adentifi: 1, adgrx: 1, adhese: 1, adition: 1, adkernel: 1, adlightning: 1, admanmedia: 1, admedo: 1, adnxs: 1, adobedtm: 1, adpone: 1, adpushup: 1, adroll: 1, "ads-twitter": 1, adsafeprotected: 1, adswizz: 1, adthrive: 1, adtng: 1, adultfriendfinder: 1, adventive: 1, adyen: 1, aegpresents: 1, affinity: 1, affirm: 1, agilone: 1, agkn: 1, agoda: 1, ahrefs: 1, aimbase: 1, albacross: 1, alcmpn: 1, "alia-prod": 1, alicdn: 1, aliyuncs: 1, alocdn: 1, "amazon-adsystem": 1, amazon: 1, amplitude: 1, amspbs: 1, amxrtb: 1, "analytics-egain": 1, aniview: 1, anymind360: 1, "app-us1": 1, appboycdn: 1, "apple-mapkit": 1, applovin: 1, aswpsdkus: 1, atlassian: 1, atmtd: 1, attntags: 1, audioeye: 1, "automizely-analytics": 1, automizely: 1, avantlink: 1, aweber: 1, awswaf: 1, azure: 1, b2c: 1, batch: 1, bc0a: 1, beehiiv: 1, betweendigital: 1, bfmio: 1, bing: 1, bizrate: 1, blis: 1, blismedia: 1, blogherads: 1, bloomreach: 1, bluecava: 1, booking: 1, boomtrain: 1, bounceexchange: 1, bqstreamer: 1, brainlyads: 1, "brand-display": 1, brandmetrics: 1, brealtime: 1, browsiprod: 1, btloader: 1, bttrack: 1, btttag: 1, bugsnag: 1, buzzoola: 1, byspotify: 1, c1904584f2: 1, callrail: 1, campaigner: 1, canva: 1, "captcha-delivery": 1, cartstack: 1, casalemedia: 1, "cdn-net": 1, cdninstagram: 1, cdnwidget: 1, channeladvisor: 1, chartbeat: 1, chaseherbalpasty: 1, chatango: 1, chaturbate: 1, cheqzone: 1, "ck-ie": 1, clearbit: 1, clickagy: 1, clicktripz: 1, clientgear: 1, cloudflare: 1, cloudflareinsights: 1, cnn: 1, cnzz: 1, codedrink: 1, cognitivlabs: 1, collegenet: 1, comm100: 1, "company-target": 1, "config-security": 1, connatix: 1, consentmo: 1, contentabc: 1, contextweb: 1, convertexperiments: 1, convertkit: 1, "cookie-script": 1, coosync: 1, cootlogix: 1, copper6: 1, coveo: 1, cquotient: 1, crazyegg: 1, crcldu: 1, "creative-serving": 1, creativecdn: 1, criteo: 1, ctctcdn: 1, ctnsnet: 1, cudasvc: 1, cxense: 1, dailymotion: 1, "datadoghq-browser-agent": 1, deadlinefunnel: 1, dealerinspire: 1, deepintent: 1, delivra: 1, demandbase: 1, dianomi: 1, digitaloceanspaces: 1, dimelochat: 1, discover: 1, disqus: 1, docaccess: 1, dotomi: 1, doubleverify: 1, driftt: 1, dtscout: 1, dwin1: 1, dynamicyield: 1, dynatrace: 1, ebxcdn: 1, eccmp: 1, elfsight: 1, eloqua: 1, emxdgt: 1, en25: 1, endowmentoverhangutmost: 1, ensighten: 1, epichosted: 1, eskimi: 1, evergage: 1, evgnet: 1, evidon: 1, exdynsrv: 1, exelator: 1, exoclick: 1, exosrv: 1, exponea: 1, exponential: 1, extole: 1, ezodn: 1, ezoicanalytics: 1, ezojs: 1, feefo: 1, five9: 1, flashtalking: 1, flippback: 1, flixcdn: 1, flodesk: 1, foresee: 1, fouanalytics: 1, freshworks: 1, fullstory: 1, g2: 1, "gannett-cdn": 1, gbqofs: 1, getcandid: 1, getdrip: 1, getelevar: 1, getrockerbox: 1, getsitecontrol: 1, godaddy: 1, "google-analytics": 1, google: 1, googleadservices: 1, googlehosted: 1, googleoptimize: 1, googlesyndication: 1, googletagmanager: 1, googletagservices: 1, greylabeldelivery: 1, groovehq: 1, gsitrix: 1, gstatic: 1, "guarantee-cdn": 1, gumgum: 1, hawksearch: 1, hearstnp: 1, heatmap: 1, hextom: 1, histats: 1, hotjar: 1, "hrzn-nxt": 1, "hs-banner": 1, "hs-scripts": 1, htlbid: 1, "html-load": 1, hubspot: 1, hubspotfeedback: 1, iadvize: 1, "id5-sync": 1, igodigital: 1, iljmp: 1, impact: 1, impactcdn: 1, "impactradius-event": 1, improvedcontactform: 1, improvedigital: 1, imrworldwide: 1, indexww: 1, infolinks: 1, infusionsoft: 1, inmobi: 1, inq: 1, "inside-graph": 1, instagram: 1, intentiq: 1, intergient: 1, intuit: 1, investingchannel: 1, invocacdn: 1, iperceptions: 1, iplsc: 1, ipredictive: 1, iqm: 1, issuu: 1, iteratehq: 1, janusaent: 1, jimstatic: 1, journeymv: 1, journity: 1, amazonaws: { "us-west-2": { s3: 1 }, "ap-southeast-2": 1, "eu-west-3": { s3: { "yelda-chat": 1 } } }, juicyads: 1, jwplayer: 1, kargo: 1, ketchcdn: 1, kettledroopingcontinuation: 1, kit: 1, klarna: 1, klaviyo: 1, krushmedia: 1, kueezrtb: 1, ladesk: 1, ladsp: 1, leadsrx: 1, lendingtree: 1, lexisnexis: 1, liadm: 1, licdn: 1, liftdsp: 1, lightboxcdn: 1, lijit: 1, linkconnector: 1, linkedin: 1, linksynergy: 1, "list-manage": 1, listrakbi: 1, livechatinc: 1, lngtdv: 1, localytics: 1, loggly: 1, loop11: 1, luckyorange: 1, magsrv: 1, mailchimp: 1, mailchimpapp: 1, mailerlite: 1, "maillist-manage": 1, "mantis-intelligence": 1, marketiq: 1, marketo: 1, marphezis: 1, marzaent: 1, matheranalytics: 1, mathtag: 1, mavrtracktor: 1, maxmind: 1, mczbf: 1, measureadv: 1, medallia: 1, media6degrees: 1, mediarithmics: 1, mediavine: 1, memberful: 1, mercari: 1, mfadsrvr: 1, mgid: 1, micpn: 1, "minutemedia-prebid": 1, mixpo: 1, mktoresp: 1, mktoweb: 1, ml314: 1, mmvideocdn: 1, moloco: 1, monsido: 1, mookie1: 1, mountain: 1, mouseflow: 1, mpeasylink: 1, mql5: 1, mxpnl: 1, mygaru: 1, myregistry: 1, newrelic: 1, newscgp: 1, nextdoor: 1, nextmillmedia: 1, nitropay: 1, noibu: 1, nosto: 1, npttech: 1, nuance: 1, nytrng: 1, omappapi: 1, omguk: 1, omnisnippet1: 1, omnisrc: 1, omnitagjs: 1, onaudience: 1, onesignal: 1, "onetag-sys": 1, opecloud: 1, opentable: 1, opentext: 1, openwebmp: 1, opera: 1, opmnstr: 1, "opti-digital": 1, optidigital: 1, optimizely: 1, optimonk: 1, optmnstr: 1, optmstr: 1, optnmnstr: 1, optnmstr: 1, optum: 1, oraclecloud: 1, orbsrv: 1, osano: 1, outbrain: 1, outbrainimg: 1, ownlocal: 1, parastorage: 1, pardot: 1, parsely: 1, patreon: 1, paypal: 1, pbstck: 1, "peer-39": 1, pemsrv: 1, perfalytics: 1, perfdrive: 1, permutive: 1, picreel: 1, pinterest: 1, pippio: 1, pixlee: 1, playwire: 1, postaffiliatepro: 1, posthog: 1, postrelease: 1, preferencenail: 1, pricespider: 1, protrafficinspector: 1, providesupport: 1, ptengine: 1, publir: 1, publitas: 1, pubmatic: 1, pubnation: 1, pulseinsights: 1, pulselive: 1, pushnami: 1, qq: 1, qualaroo: 1, qualified: 1, qualtrics: 1, quantcount: 1, quantserve: 1, quantummetric: 1, quora: 1, rakuten: 1, raptivecdn: 1, realizationnewestfangs: 1, realsrv: 1, rebuyengine: 1, recombee: 1, recruitics: 1, reddit: 1, redditstatic: 1, refinery89: 1, reson8: 1, responsiveads: 1, retargetly: 1, revcontent: 1, rezync: 1, rfihub: 1, rfksrv: 1, richaudience: 1, ringcentral: 1, rkdms: 1, rlcdn: 1, rmhfrtnd: 1, rmtag: 1, roeyecdn: 1, rogersmedia: 1, route: 1, rtbhouse: 1, rubiconproject: 1, rudderlabs: 1, rudderstack: 1, rvlife: 1, "sail-horizon": 1, sailthru: 1, salecycle: 1, "salesforce-sites": 1, salesforceliveagent: 1, sascdn: 1, scene7: 1, scholarlyiq: 1, schwab: 1, scorecardresearch: 1, screenpopper: 1, scriptwrapper: 1, searchserverapi1: 1, securedvisit: 1, seedtag: 1, segment: 1, servenobid: 1, serverbid: 1, herokuapp: { "session-recording-now": 1 }, sharethis: 1, sharethrough: 1, "shb-sync": 1, shgcdn3: 1, sibautomation: 1, signifyd: 1, site: 1, siteimprove: 1, siteimproveanalytics: 1, sitescout: 1, skimresources: 1, slickstream: 1, smartadserver: 1, "smartnews-ads": 1, smilewanted: 1, snapchat: 1, snigelweb: 1, socdm: 1, sojern: 1, sonobi: 1, sparteo: 1, spendsdetachment: 1, sportradar: 1, sportradarserving: 1, sportslocalmedia: 1, springserve: 1, stackadapt: 1, startappnetwork: 1, statcounter: 1, stay22: 1, googleapis: { storage: 1, imasdk: 1, ajax: 1, fonts: 1, translate: 1 }, streamrail: 1, stripchat: 1, sumome: 1, swaven: 1, swymrelay: 1, syf: 1, symantec: 1, syncingbridge: 1, taboola: 1, talkable: 1, taobao: 1, tapad: 1, tapioni: 1, tappx: 1, "teads-xo": 1, tealiumiq: 1, temu: 1, "the-ozone-project": 1, theadex: 1, thejobnetwork: 1, thestar: 1, thrtle: 1, tiktok: 1, tinypass: 1, tiqcdn: 1, trackjs: 1, trafficjunky: 1, travelaudience: 1, travelpayouts: 1, treasuredata: 1, tremorhub: 1, trendemon: 1, tribalfusion: 1, trueleadid: 1, trustedstack: 1, trustpielote: 1, trustpilot: 1, trvdp: 1, tsyndicate: 1, turn: 1, tvpixel: 1, tvspix: 1, tvsquared: 1, tweakwise: 1, twitter: 1, tynt: 1, uidapi: 1, unbxdapi: 1, undertone: 1, unpkg: 1, unrulymedia: 1, "uplift-platform": 1, uplift: 1, upsellit: 1, urbanairship: 1, usabilla: 1, usablenet: 1, usbrowserspeed: 1, useamp: 1, usemessages: 1, userapi: 1, uservoice: 1, valuecommerce: 1, "verint-cdn": 1, vidazoo: 1, videoplayerhub: 1, vidoomy: 1, vimeocdn: 1, vistarsagency: 1, "visually-io": 1, visualwebsiteoptimizer: 1, vk: 1, vrtcal: 1, wbd: 1, "we-stats": 1, webcontentassessor: 1, webengage: 1, webeyez: 1, webtraxs: 1, "webtrends-optimize": 1, webtrends: 1, weglot: 1, woosmap: 1, workdeadlinededicate: 1, "wt-safetag": 1, wysistat: 1, x: 1, yahoo: 1, yandex: 1, yango: 1, yieldlove: 1, yieldmo: 1, ymmobi: 1, yotpo: 1, "youtube-nocookie": 1, youtube: 1, zemanta: 1, zendesk: 1, zeotap: 1, "zi-scripts": 1, zohocdn: 1, zoologyfibre: 1, zoominfo: 1, zopim: 1, createsend1: 1, jivox: 1, klarnaservices: 1, solarwinds: 1, ivitrack: 1, kiyoh: 1, adnuntius: 1, schibsted: 1, facebook: 1, attentivemobile: 1, bootstrapcdn: 1, cloudinary: 1, cookieyes: 1, dtscdn: 1, fontawesome: 1, getclicky: 1, microsoft: 1, playdigo: 1, roeye: 1, rtbwise: 1, shopifycdn: 1, shopifysvc: 1, stripe: 1, vimeo: 1, wp: 1, yimg: 1, yandexmetrica: 1, ymetrica1: 1 }, net: { "2mdn": 1, "a-mo": 1, acint: 1, adform: 1, adhigh: 1, adobedc: 1, adspeed: 1, aggle: 1, appier: 1, edgekey: { au: 1, "com-v1": 1, de: 1, fr: 1, io: 1, net: 1, nl: 1, org: 1, com: { scene7: 1 }, "com-v2": 1 }, azurefd: 1, bannerflow: 1, basis: 1, "bf-ad": 1, bidswitch: 1, blueconic: 1, buysellads: 1, cachefly: 1, ccgateway: 1, "confiant-integrations": 1, contentpass: 1, contentsquare: 1, criteo: 1, crwdcntrl: 1, cloudfront: { d14jnfavjicsbe: 1, d1af033869koo7: 1, d1j0xlutvd326g: 1, d1vg5xiq7qffdj: 1, d1x4rwm1kh8pnu: 1, d21gpk1vhmjuf5: 1, d2trly8m2h0e8p: 1, d38xvr37kwwhcm: 1, d3djbgmgf0l8ev: 1, d3fukwxve5r8zf: 1, d3fv2pqyjay52z: 1, d3nn82uaxijpm6: 1, d6tizftlrpuof: 1, dm2q9qfzyjfox: 1, dokumfe7mps0i: 1, dsh7ky7308k4b: 1, duube1y6ojsji: 1, dvagh3p3rk8xj: 1, d2638j3z8ek976: 1 }, datatrac: 1, demdex: 1, dotmetrics: 1, doubleclick: 1, "e-planning": 1, episerver: 1, esm1: 1, eulerian: 1, everestjs: 1, everesttech: 1, eyeota: 1, ezoic: 1, facebook: 1, fastclick: 1, fbcdn: 1, fonts: 1, fuseplatform: 1, fwmrm: 1, gcprivacy: 1, "go-mpulse": 1, "go-vip": 1, gtranslate: 1, hadronid: 1, "hs-analytics": 1, hsadspixel: 1, hsappstatic: 1, hscta: 1, "im-apps": 1, impervadns: 1, fastly: { global: { sni: { j: 1, m: 1, s: 1 } } }, jsdelivr: 1, kakaocdn: 1, listhub: 1, livedoor: 1, liveperson: 1, lpsnmedia: 1, magnetmail: 1, marketo: 1, mateti: 1, media: 1, mjedge: 1, mobon: 1, monetate: 1, mrktmtrcs: 1, mxptint: 1, naver: 1, "nr-data": 1, ojrq: 1, omtrdc: 1, onecount: 1, openx: 1, openxcdn: 1, opta: 1, optimove: 1, p7cloud: 1, pages02: 1, pages03: 1, pages04: 1, pages05: 1, pages06: 1, pages08: 1, pingdom: 1, pmdstatic: 1, popcash: 1, "pro-market": 1, protechts: 1, akamaihd: { "pxlclnmdecom-a": 1 }, r9cdn: 1, rfihub: 1, akamaized: { s13emagst: 1, tmssl: 1 }, sancdn: 1, "sc-static": 1, semasio: 1, sexad: 1, smaato: 1, spreadshirts: 1, tfaforms: 1, uuidksinc: 1, viafoura: 1, visx: 1, w55c: 1, witglobal: 1, "wt-eu02": 1, yandex: 1, yastatic: 1, zencdn: 1, zetaglobal: 1, zucks: 1, emarsys: 1, apicit: 1, tradetracker: 1, "ad-delivery": 1, bkcdn: 1, chartbeat: 1, ortb: 1, eviltracker: 1 }, io: { "506": 1, "4dex": 1, adapex: 1, aditude: 1, adnami: 1, advolve: 1, aidata: 1, anonm: 1, anonymised: 1, bidr: 1, branch: 1, center: 1, chatra: 1, connectad: 1, cordial: 1, edgetag: 1, extole: 1, fsrv: 1, grsm: 1, hbrd: 1, instana: 1, intelligems: 1, juicer: 1, kameleoon: 1, karte: 1, litix: 1, lytics: 1, mediago: 1, missena: 1, mrf: 1, nexx360: 1, northbeam: 1, ntv: 1, optad360: 1, oracleinfinity: 1, "p-n": 1, personalizer: 1, pghub: 1, piano: 1, postscript: 1, powr: 1, presage: 1, rapidedge: 1, receptivity: 1, searchspring: 1, segment: 1, smct: 1, smile: 1, sspinc: 1, stape: 1, t13: 1, termly: 1, wovn: 1, yellowblue: 1, zprk: 1, pzz: 1, "1rx": 1, akstat: 1, digitalaudience: 1, hotjar: 1, "inmobi-choice": 1, pinklion: 1 }, co: { "6sc": 1, ayads: 1, clinch: 1, empowerlocal: 1, getlasso: 1, idio: 1, increasingly: 1, jads: 1, nc0: 1, optable: 1, "pm-serv": 1, prmutv: 1, t: 1, tctm: 1, tidio: 1, ujet: 1, vibe: 1, zip: 1 }, gt: { ad: 1 }, cloud: { aditude: 1, stpd: 1, squiz: 1 }, cc: { admaster: 1, "html-load": 1 }, jp: { admatrix: 1, fout: 1, ne: { hatena: 1 }, "impact-ad": 1, nakanohito: 1, ptengine: 1, r10s: 1, co: { rakuten: 1, yahoo: 1 }, rtoaster: 1, shinobi: 1, "team-rec": 1, uncn: 1, yimg: 1 }, pl: { adocean: 1, gemius: 1, nsaudience: 1, onet: 1, salesmanago: 1, wp: 1 }, re: { adsco: 1 }, org: { adsrvr: 1, ampproject: 1, "browser-update": 1, cleantalk: 1, featureassets: 1, flowplayer: 1, openstreetmap: 1, "privacy-center": 1, webvisor: 1, framasoft: 1, prodregistryv2: 1, "do-not-tracker": 1, trackersimulator: 1 }, biz: { adtarget: 1 }, google: { adtrafficquality: 1 }, tv: { attn: 1, iris: 1, ispot: 1, teads: 1, twitch: 1 }, de: { "auswaertiges-amt": 1, ioam: 1, itzbund: 1, stroeerdigitalgroup: 1 }, ai: { axon: 1, blackcrow: 1, dxtech: 1, evolv: 1, hybrid: 1, m2: 1, nrich: 1, programmaticx: 1, sardine: 1, wknd: 1 }, delivery: { ay: 1, monu: 1 }, ws: { bids: 1, rmbl: 1 }, ms: { clarity: 1 }, my: { cnt: 1 }, chat: { crisp: 1, gorgias: 1 }, gov: { dhs: 1, digitalgov: 1, weather: 1 }, ru: { digitaltarget: 1, mail: 1, megafon: 1, mts: 1, rambler: 1, top100: 1, yadro: 1, yandex: 1 }, nl: { dpgmedia: 1, rijksoverheid: 1 }, tech: { dv: 1, ingage: 1, primis: 1, yads: 1 }, es: { gaug: 1, pandect: 1 }, ca: { bc: { gov: 1 } }, me: { grow: 1, loopme: 1, tldw: 1 }, media: { grv: 1, nextday: 1, townsquare: 1, underdog: 1 }, health: { hcn: 1 }, page: { hlx: 1 }, cz: { imedia: 1, performax: 1, seznam: 1 }, app: { infusionsoft: 1, permutive: 1, shop: 1, run: { "us-central1": 1 }, web: { "wec-virtualassistant-cx-prod": 1 } }, live: { iqzonertb: 1 }, br: { com: { jsuol: 1 } }, eu: { kameleoon: 1, medallia: 1, rqtrk: 1, slgnt: 1, media01: 1, trengo: 1 }, services: { marketingautomation: 1 }, sg: { mediacorp: 1 }, info: { navistechnologies: 1, usergram: 1, webantenna: 1 }, au: { com: { news: 1, nine: 1, zipmoney: 1 } }, bi: { newsroom: 1 }, fr: { "open-system": 1 }, fm: { pdst: 1 }, pro: { piwik: 1, usocial: 1 }, it: { plug: 1, stbm: 1 }, network: { pub: 1 }, ch: { "ringier-advertising": 1, admin: 1, "da-services": 1 }, fi: { satis: 1, simpli: 1 }, ac: { script: 1 }, pe: { shop: 1 }, us: { shopmy: 1, tiktokw: 1, trkn: 1, zoom: 1 }, xyz: { tracookiepixel: 1 }, digital: { postmedia: 1 }, no: { acdn: 1, api: 1 }, events: { growplow: 1 }, goog: { "merchant-center-analytics": 1 }, example: { "ad-company": 1 }, site: { "ad-company": 1, "third-party": { bad: 1, broken: 1 } } };
 
   // src/captured-globals.js
   var captured_globals_exports = {};
@@ -1574,7 +42,7 @@
     String: () => String2,
     Symbol: () => Symbol2,
     TextDecoder: () => TextDecoder,
-    TextEncoder: () => TextEncoder2,
+    TextEncoder: () => TextEncoder,
     TypeError: () => TypeError2,
     URL: () => URL2,
     Uint16Array: () => Uint16Array,
@@ -1614,7 +82,6 @@
     removeEventListener: () => removeEventListener,
     toString: () => toString
   });
-  init_define_import_meta_trackerLookup();
   var Set2 = globalThis.Set;
   var Reflect2 = globalThis.Reflect;
   var customElementsGet = globalThis.customElements?.get.bind(globalThis.customElements);
@@ -1652,7 +119,7 @@
   var consoleLog = console2.log.bind(console2);
   var consoleWarn = console2.warn.bind(console2);
   var consoleError = console2.error.bind(console2);
-  var TextEncoder2 = globalThis.TextEncoder;
+  var TextEncoder = globalThis.TextEncoder;
   var TextDecoder = globalThis.TextDecoder;
   var Uint8Array2 = globalThis.Uint8Array;
   var Uint16Array = globalThis.Uint16Array;
@@ -1674,7 +141,6 @@
   var decrypt = globalThis.crypto?.subtle?.decrypt?.bind(globalThis.crypto?.subtle);
 
   // src/features.js
-  init_define_import_meta_trackerLookup();
   var baseFeatures = (
     /** @type {FeatureName[]} */
     [
@@ -1743,7 +209,6 @@
       "contextMenu",
       "duckPlayer",
       "duckPlayerNative",
-      "brokerProtection",
       "breakageReporting",
       "performanceMetrics",
       "clickToLoad",
@@ -1760,6 +225,7 @@
       "browserUiLock",
       "sponsorBlock"
     ],
+    "apple-broker-protection": ["brokerProtection"],
     "apple-ai-clear": ["duckAiDataClearing"],
     "apple-ai-history": ["duckAiChatHistory"],
     android: [
@@ -2219,10 +685,10 @@
     }
     return false;
   }
-  function processConfig(data2, userList, preferences, platformSpecificFeatures2 = [], injectName = "apple-isolated") {
+  function processConfig(data, userList, preferences, platformSpecificFeatures2 = [], injectName = "apple-isolated") {
     const bundledFeatureNames = injectName ? platformSupport[injectName] : void 0;
     if (bundledFeatureNames) {
-      data2 = pruneConfigFeatures(data2, bundledFeatureNames, featureConfigDependencies);
+      data = pruneConfigFeatures(data, bundledFeatureNames, featureConfigDependencies);
     }
     const topLevelHostname = getTabHostname();
     const site = computeLimitedSiteObject();
@@ -2234,15 +700,15 @@
         output.platform.version = version;
       }
     }
-    const enabledFeatures = computeEnabledFeatures(data2, topLevelHostname, preferences.platform, platformSpecificFeatures2);
-    const isBroken = isUnprotectedDomain(topLevelHostname, data2.unprotectedTemporary);
+    const enabledFeatures = computeEnabledFeatures(data, topLevelHostname, preferences.platform, platformSpecificFeatures2);
+    const isBroken = isUnprotectedDomain(topLevelHostname, data.unprotectedTemporary);
     output.site = Object.assign(site, {
       isBroken,
       allowlisted,
       enabledFeatures
     });
-    output.featureSettings = parseFeatureSettings(data2, enabledFeatures);
-    output.bundledConfig = data2;
+    output.featureSettings = parseFeatureSettings(data, enabledFeatures);
+    output.bundledConfig = data;
     output.messagingContextName = output.messagingContextName || "contentScopeScripts";
     return output;
   }
@@ -2264,8 +730,8 @@
         return false;
     }
   }
-  function pruneConfigFeatures(data2, featureNames, dependencies = {}) {
-    if (!data2?.features) return data2;
+  function pruneConfigFeatures(data, featureNames, dependencies = {}) {
+    if (!data?.features) return data;
     const keep = new Set2(featureNames);
     for (const featureName of featureNames) {
       for (const dependency of dependencies[featureName] ?? []) {
@@ -2273,20 +739,20 @@
       }
     }
     const features = {};
-    for (const [featureName, feature] of Object.entries(data2.features)) {
+    for (const [featureName, feature] of Object.entries(data.features)) {
       if (keep.has(featureName)) {
         features[featureName] = feature;
       }
     }
-    return { ...data2, features };
+    return { ...data, features };
   }
-  function computeEnabledFeatures(data2, topLevelHostname, platform, platformSpecificFeatures2 = []) {
-    const remoteFeatureNames = Object.keys(data2.features);
+  function computeEnabledFeatures(data, topLevelHostname, platform, platformSpecificFeatures2 = []) {
+    const remoteFeatureNames = Object.keys(data.features);
     const platformSpecificFeaturesNotInRemoteConfig = platformSpecificFeatures2.filter(
       (featureName) => !remoteFeatureNames.includes(featureName)
     );
     const enabledFeatures = remoteFeatureNames.filter((featureName) => {
-      const feature = data2.features[featureName];
+      const feature = data.features[featureName];
       if (!feature) return false;
       if (feature.minSupportedVersion && platform?.version) {
         if (!isSupportedVersion(feature.minSupportedVersion, platform.version)) {
@@ -2305,14 +771,14 @@
     }).concat(platformSpecificFeaturesNotInRemoteConfig);
     return enabledFeatures;
   }
-  function parseFeatureSettings(data2, enabledFeatures) {
+  function parseFeatureSettings(data, enabledFeatures) {
     const featureSettings = {};
-    const remoteFeatureNames = Object.keys(data2.features);
+    const remoteFeatureNames = Object.keys(data.features);
     remoteFeatureNames.forEach((featureName) => {
       if (!enabledFeatures.includes(featureName)) {
         return;
       }
-      const feature = data2.features[featureName];
+      const feature = data.features[featureName];
       if (!feature) return;
       featureSettings[featureName] = feature.settings;
     });
@@ -2365,7 +831,6 @@
   }
 
   // src/performance.js
-  init_define_import_meta_trackerLookup();
   var PerformanceMonitor = class {
     constructor() {
       this.marks = [];
@@ -2405,17 +870,7 @@
     }
   };
 
-  // ddg:platformFeatures:ddg:platformFeatures
-  init_define_import_meta_trackerLookup();
-
-  // src/features/web-detection.js
-  init_define_import_meta_trackerLookup();
-
-  // src/content-feature.js
-  init_define_import_meta_trackerLookup();
-
   // src/wrapper-utils.js
-  init_define_import_meta_trackerLookup();
   var ddgShimMark = /* @__PURE__ */ Symbol("ddgShimMark");
   function defineProperty(object, propertyName, descriptor) {
     objectDefineProperty(object, propertyName, descriptor);
@@ -2655,11 +1110,7 @@
     definePropertyFn(baseObject, propertyName, descriptor);
   }
 
-  // ../messaging/index.js
-  init_define_import_meta_trackerLookup();
-
   // ../messaging/lib/windows.js
-  init_define_import_meta_trackerLookup();
   var WindowsMessagingTransport = class {
     /**
      * @param {WindowsMessagingConfig} config
@@ -2687,8 +1138,8 @@
      * @param {import('../index.js').NotificationMessage} msg
      */
     notify(msg) {
-      const data2 = this.globals.JSONparse(this.globals.JSONstringify(msg.params || {}));
-      const notification = WindowsNotification.fromNotification(msg, data2);
+      const data = this.globals.JSONparse(this.globals.JSONstringify(msg.params || {}));
+      const notification = WindowsNotification.fromNotification(msg, data);
       this.config.methods.postMessage(notification);
     }
     /**
@@ -2697,15 +1148,15 @@
      * @return {Promise<any>}
      */
     request(msg, opts = {}) {
-      const data2 = this.globals.JSONparse(this.globals.JSONstringify(msg.params || {}));
-      const outgoing = WindowsRequestMessage.fromRequest(msg, data2);
+      const data = this.globals.JSONparse(this.globals.JSONstringify(msg.params || {}));
+      const outgoing = WindowsRequestMessage.fromRequest(msg, data);
       this.config.methods.postMessage(outgoing);
       const comparator = (eventData) => {
         return eventData.featureName === msg.featureName && eventData.context === msg.context && eventData.id === msg.id;
       };
-      function isMessageResponse(data3) {
-        if ("result" in data3) return true;
-        if ("error" in data3) return true;
+      function isMessageResponse(data2) {
+        if ("result" in data2) return true;
+        if ("error" in data2) return true;
         return false;
       }
       return new this.globals.Promise((resolve, reject) => {
@@ -2816,9 +1267,9 @@
      * @param {NotificationMessage} notification
      * @returns {WindowsNotification}
      */
-    static fromNotification(notification, data2) {
+    static fromNotification(notification, data) {
       const output = {
-        Data: data2,
+        Data: data,
         Feature: notification.context,
         SubFeatureName: notification.featureName,
         Name: notification.method
@@ -2849,9 +1300,9 @@
      * @param {Record<string, any>} data
      * @returns {WindowsRequestMessage}
      */
-    static fromRequest(msg, data2) {
+    static fromRequest(msg, data) {
       const output = {
-        Data: data2,
+        Data: data,
         Feature: msg.context,
         SubFeatureName: msg.featureName,
         Name: msg.method,
@@ -2861,11 +1312,7 @@
     }
   };
 
-  // ../messaging/lib/webkit.js
-  init_define_import_meta_trackerLookup();
-
   // ../messaging/schema.js
-  init_define_import_meta_trackerLookup();
   var RequestMessage = class {
     /**
      * @param {object} params
@@ -2914,26 +1361,25 @@
       this.subscriptionName = params.subscriptionName;
     }
   };
-  function isResponseFor(request, data2) {
-    if ("result" in data2) {
-      return data2.featureName === request.featureName && data2.context === request.context && data2.id === request.id;
+  function isResponseFor(request, data) {
+    if ("result" in data) {
+      return data.featureName === request.featureName && data.context === request.context && data.id === request.id;
     }
-    if ("error" in data2) {
-      if ("message" in data2.error) {
+    if ("error" in data) {
+      if ("message" in data.error) {
         return true;
       }
     }
     return false;
   }
-  function isSubscriptionEventFor(sub, data2) {
-    if ("subscriptionName" in data2) {
-      return data2.featureName === sub.featureName && data2.context === sub.context && data2.subscriptionName === sub.subscriptionName;
+  function isSubscriptionEventFor(sub, data) {
+    if ("subscriptionName" in data) {
+      return data.featureName === sub.featureName && data.context === sub.context && data.subscriptionName === sub.subscriptionName;
     }
     return false;
   }
 
   // src/navigator-global.js
-  init_define_import_meta_trackerLookup();
   function ensureNavigatorDuckDuckGo({ defineProperty: defineProperty2 = objectDefineProperty } = {}) {
     if (navigator.duckduckgo) {
       return navigator.duckduckgo;
@@ -2985,12 +1431,12 @@
      * @throws {MissingHandler}
      * @internal
      */
-    wkSend(handler, data2 = {}) {
+    wkSend(handler, data = {}) {
       const captured = this.capturedWebkitHandlers[handler];
       if (!captured || typeof captured.postMessage !== "function") {
         throw new MissingHandler(`Missing webkit handler: '${handler}'`, handler);
       }
-      return ReflectApply(captured.postMessage, captured.handler, [data2]);
+      return ReflectApply(captured.postMessage, captured.handler, [data]);
     }
     /**
      * Sends message to the webkit layer and waits for the specified response
@@ -2999,8 +1445,8 @@
      * @returns {Promise<*>}
      * @internal
      */
-    async wkSendAndWait(handler, data2) {
-      const response = await this.wkSend(handler, data2);
+    async wkSendAndWait(handler, data) {
+      const response = await this.wkSend(handler, data);
       return JSONparse(response || "{}");
     }
     /**
@@ -3014,13 +1460,13 @@
      * @param {import('../index.js').RequestMessage} msg
      */
     async request(msg) {
-      const data2 = await this.wkSendAndWait(msg.context, msg);
-      if (isResponseFor(msg, data2)) {
-        if (data2.result) {
-          return data2.result || {};
+      const data = await this.wkSendAndWait(msg.context, msg);
+      if (isResponseFor(msg, data)) {
+        if (data.result) {
+          return data.result || {};
         }
-        if (data2.error) {
-          throw new Error2(data2.error.message);
+        if (data.error) {
+          throw new Error2(data.error.message);
         }
       }
       throw new Error2("an unknown error occurred");
@@ -3068,11 +1514,11 @@
         enumerable: false,
         configurable: true,
         writable: false,
-        value: (data2) => {
-          if (data2 && isSubscriptionEventFor(msg, data2)) {
-            callback(data2.params);
+        value: (data) => {
+          if (data && isSubscriptionEventFor(msg, data)) {
+            callback(data.params);
           } else {
-            console.warn("Received a message that did not match the subscription", data2);
+            console.warn("Received a message that did not match the subscription", data);
           }
         }
       });
@@ -3093,7 +1539,6 @@
   };
 
   // ../messaging/lib/android.js
-  init_define_import_meta_trackerLookup();
   var AndroidMessagingTransport = class {
     /**
      * @param {AndroidMessagingConfig} config
@@ -3127,14 +1572,14 @@
           unsub();
           reject(new Error("request failed to send: " + e.message || "unknown error"));
         }
-        function handler(data2) {
-          if (isResponseFor(msg, data2)) {
-            if (data2.result) {
-              resolve(data2.result || {});
+        function handler(data) {
+          if (isResponseFor(msg, data)) {
+            if (data.result) {
+              resolve(data.result || {});
               return unsub();
             }
-            if (data2.error) {
-              reject(new Error(data2.error.message));
+            if (data.error) {
+              reject(new Error(data.error.message));
               return unsub();
             }
             unsub();
@@ -3148,9 +1593,9 @@
      * @param {(value: unknown | undefined) => void} callback
      */
     subscribe(msg, callback) {
-      const unsub = this.config.subscribe(msg.subscriptionName, (data2) => {
-        if (isSubscriptionEventFor(msg, data2)) {
-          callback(data2.params || {});
+      const unsub = this.config.subscribe(msg.subscriptionName, (data) => {
+        if (isSubscriptionEventFor(msg, data)) {
+          callback(data.params || {});
         }
       });
       return () => {
@@ -3294,7 +1739,6 @@
   };
 
   // ../messaging/lib/android-adsjs.js
-  init_define_import_meta_trackerLookup();
   var AndroidAdsjsMessagingTransport = class {
     /**
      * @param {AndroidAdsjsMessagingConfig} config
@@ -3328,14 +1772,14 @@
           unsub();
           reject(new Error("request failed to send: " + e.message || "unknown error"));
         }
-        function handler(data2) {
-          if (isResponseFor(msg, data2)) {
-            if (data2.result) {
-              resolve(data2.result || {});
+        function handler(data) {
+          if (isResponseFor(msg, data)) {
+            if (data.result) {
+              resolve(data.result || {});
               return unsub();
             }
-            if (data2.error) {
-              reject(new Error(data2.error.message));
+            if (data.error) {
+              reject(new Error(data.error.message));
               return unsub();
             }
             unsub();
@@ -3349,9 +1793,9 @@
      * @param {(value: unknown | undefined) => void} callback
      */
     subscribe(msg, callback) {
-      const unsub = this.config.subscribe(msg.subscriptionName, (data2) => {
-        if (isSubscriptionEventFor(msg, data2)) {
-          callback(data2.params || {});
+      const unsub = this.config.subscribe(msg.subscriptionName, (data) => {
+        if (isSubscriptionEventFor(msg, data)) {
+          callback(data.params || {});
         }
       });
       return () => {
@@ -3490,12 +1934,12 @@
       }
       this._capturedHandler.addEventListener("message", (event) => {
         try {
-          const data2 = (
+          const data = (
             /** @type {MessageEvent} */
             event.data
           );
-          if (typeof data2 === "string") {
-            const parsedData = JSON.parse(data2);
+          if (typeof data === "string") {
+            const parsedData = JSON.parse(data);
             this._dispatch(parsedData);
           }
         } catch (e) {
@@ -3533,9 +1977,6 @@
     }
   };
 
-  // ../messaging/lib/typed-messages.js
-  init_define_import_meta_trackerLookup();
-
   // ../messaging/index.js
   var MessagingContext = class {
     /**
@@ -3572,20 +2013,20 @@
      * @param {string} name
      * @param {Record<string, any>} [data]
      */
-    notify(name, data2 = {}) {
+    notify(name, data = {}) {
       try {
         const message = new NotificationMessage({
           context: this.messagingContext.context,
           featureName: this.messagingContext.featureName,
           method: name,
-          params: data2
+          params: data
         });
         const maybeAsyncResult = this.transport.notify(message);
         if (isPromiseLike(maybeAsyncResult)) {
-          void handleAsyncNotificationResult(maybeAsyncResult, this.messagingContext.env, name, data2);
+          void handleAsyncNotificationResult(maybeAsyncResult, this.messagingContext.env, name, data);
         }
       } catch (e) {
-        logNotificationError(this.messagingContext.env, name, data2, e);
+        logNotificationError(this.messagingContext.env, name, data, e);
       }
     }
     /**
@@ -3602,13 +2043,13 @@
      * @param {Record<string, any>} [data]
      * @return {Promise<any>}
      */
-    request(name, data2 = {}) {
+    request(name, data = {}) {
       const id = globalThis?.crypto?.randomUUID?.() || name + ".response";
       const message = new RequestMessage({
         context: this.messagingContext.context,
         featureName: this.messagingContext.featureName,
         method: name,
-        params: data2,
+        params: data,
         id
       });
       return this.transport.request(message);
@@ -3676,18 +2117,18 @@
     return value !== null && value !== void 0 && typeof /** @type {{then?: unknown}} */
     value.then === "function";
   }
-  async function handleAsyncNotificationResult(result, env, name, data2) {
+  async function handleAsyncNotificationResult(result, env, name, data) {
     try {
       await result;
     } catch (error) {
-      logNotificationError(env, name, data2, error);
+      logNotificationError(env, name, data, error);
     }
   }
-  function logNotificationError(env, name, data2, error) {
+  function logNotificationError(env, name, data, error) {
     if (env === "development") {
       try {
         console.error("[Messaging] Failed to send notification:", error);
-        console.error("[Messaging] Message details:", { name, data: data2 });
+        console.error("[Messaging] Message details:", { name, data });
       } catch {
       }
     }
@@ -3704,7 +2145,6 @@
   };
 
   // src/sendmessage-transport.js
-  init_define_import_meta_trackerLookup();
   var sharedTransport = null;
   function extensionConstructMessagingConfig() {
     return new TestTransportConfig(getSharedMessagingTransport());
@@ -3817,7 +2257,6 @@
   };
 
   // src/trackers.js
-  init_define_import_meta_trackerLookup();
   function isTrackerOrigin(trackerLookup, originHostname = getGlobal().document.location.hostname) {
     const parts = originHostname.split(".").reverse();
     let node = trackerLookup;
@@ -3834,17 +2273,7 @@
     return false;
   }
 
-  // src/config-feature.js
-  init_define_import_meta_trackerLookup();
-
-  // ../node_modules/immutable-json-patch/lib/esm/index.js
-  init_define_import_meta_trackerLookup();
-
-  // ../node_modules/immutable-json-patch/lib/esm/immutabilityHelpers.js
-  init_define_import_meta_trackerLookup();
-
   // ../node_modules/immutable-json-patch/lib/esm/typeguards.js
-  init_define_import_meta_trackerLookup();
   function isJSONArray(value) {
     return Array.isArray(value);
   }
@@ -3854,7 +2283,6 @@
   }
 
   // ../node_modules/immutable-json-patch/lib/esm/utils.js
-  init_define_import_meta_trackerLookup();
   function isEqual(a2, b2) {
     return JSON.stringify(a2) === JSON.stringify(b2);
   }
@@ -3989,11 +2417,7 @@
     return existsIn(document2[path[0]], path.slice(1));
   }
 
-  // ../node_modules/immutable-json-patch/lib/esm/immutableJSONPatch.js
-  init_define_import_meta_trackerLookup();
-
   // ../node_modules/immutable-json-patch/lib/esm/jsonPointer.js
-  init_define_import_meta_trackerLookup();
   function parseJSONPointer(pointer) {
     const path = pointer.split("/");
     path.shift();
@@ -4124,11 +2548,7 @@
     return parseJSONPointer(fromPointer);
   }
 
-  // ../node_modules/urlpattern-polyfill/index.js
-  init_define_import_meta_trackerLookup();
-
   // ../node_modules/urlpattern-polyfill/dist/urlpattern.js
-  init_define_import_meta_trackerLookup();
   var Pe = Object.defineProperty;
   var a = (e, t) => Pe(e, "name", { value: t, configurable: true });
   var P = class {
@@ -4973,12 +3393,12 @@
     matchConditionalFeatureSetting(featureKeyName) {
       const conditionalChanges = this._getFeatureSettings()?.[featureKeyName] || [];
       return conditionalChanges.filter((rule) => {
-        let condition2 = rule.condition;
-        if (condition2 === void 0 && rule.domain !== void 0) {
-          condition2 = this._domainToConditonBlocks(rule.domain);
+        let condition = rule.condition;
+        if (condition === void 0 && rule.domain !== void 0) {
+          condition = this._domainToConditonBlocks(rule.domain);
         }
-        if (condition2 === void 0) return true;
-        return this._matchConditionalBlockOrArray(condition2);
+        if (condition === void 0) return true;
+        return this._matchConditionalBlockOrArray(condition);
       });
     }
     /**
@@ -5802,7 +4222,6 @@
   _ready = new WeakMap();
 
   // src/features/detector-perf.js
-  init_define_import_meta_trackerLookup();
   var DEFAULT_SINGLE_RUN_THRESHOLDS_MS = [8, 16, 50, 150];
   var DEFAULT_TOTAL_PER_PAGE_THRESHOLDS_MS = [50, 100, 250];
   var DEFAULT_COMBINED_THRESHOLDS_MS = [100, 250, 500];
@@ -6122,12 +4541,12 @@
      * @param {string} type
      * @param {Record<string, unknown>} [data]
      */
-    async _dispatch(type, data2) {
+    async _dispatch(type, data) {
       try {
-        if (data2 === void 0) {
+        if (data === void 0) {
           await this.callFeatureMethod("webEvents", "fireEvent", { type });
         } else {
-          await this.callFeatureMethod("webEvents", "fireEvent", { type, data: data2 });
+          await this.callFeatureMethod("webEvents", "fireEvent", { type, data });
         }
       } catch {
       }
@@ -6167,11 +4586,7 @@
     }
   }
 
-  // src/features/web-detection/compile/detector-config.js
-  init_define_import_meta_trackerLookup();
-
   // src/features/web-detection/model/core.js
-  init_define_import_meta_trackerLookup();
   var _brand;
   var _Failure = class _Failure {
     /**
@@ -6324,14 +4739,7 @@
   }
   var newMap = () => /* @__PURE__ */ new Map();
 
-  // src/features/web-detection/sources/index.js
-  init_define_import_meta_trackerLookup();
-
-  // src/features/web-detection/sources/api.js
-  init_define_import_meta_trackerLookup();
-
   // src/features/web-detection/model/lists.js
-  init_define_import_meta_trackerLookup();
   var _iterator, _failedWhole;
   var ItemBuffer = class {
     /**
@@ -6444,16 +4852,15 @@
   }
 
   // src/features/web-detection/predicates/fields.js
-  init_define_import_meta_trackerLookup();
-  function readPath(reader, root, names2, args) {
+  function readPath(reader, root, names, args) {
     let current = root;
-    for (let i = 0; i < names2.length; i++) {
+    for (let i = 0; i < names.length; i++) {
       if (current === null || current === void 0) return void 0;
       const name = (
         /** @type {string} */
-        names2[i]
+        names[i]
       );
-      if (args && i === names2.length - 1) {
+      if (args && i === names.length - 1) {
         current = reader.call(current, name, args);
       } else if (name === "length" && typeof current === "string") {
         current = current.length;
@@ -6479,10 +4886,10 @@
   }
   function compilePath(raw, path, hooks) {
     if (typeof raw !== "string" || raw === "") throw new ConfigParseError(path, "a path must be a non-empty string");
-    const names2 = raw.split(".");
-    if (names2.some((name) => name === "")) throw new ConfigParseError(path, `empty name in path '${raw}'`);
-    names2.forEach((name) => hooks.names.add(name));
-    return names2;
+    const names = raw.split(".");
+    if (names.some((name) => name === "")) throw new ConfigParseError(path, `empty name in path '${raw}'`);
+    names.forEach((name) => hooks.names.add(name));
+    return names;
   }
   function parsePathBody(rawBody, path, hooks, key, allowed) {
     const raw = typeof rawBody === "string" ? { path: rawBody } : rawBody;
@@ -6520,11 +4927,7 @@
     return readPath(ctx.reader, root, field.names, args);
   }
 
-  // src/features/web-detection/sources/common.js
-  init_define_import_meta_trackerLookup();
-
   // src/features/web-detection/predicates/predicates.js
-  init_define_import_meta_trackerLookup();
   function compileWhere(raw, path, hooks) {
     return hooks.item((binder) => {
       const predicate = compilePredicate(raw, "item", path, hooks);
@@ -6611,8 +5014,8 @@
         return (subject) => isFailure(subject) ? expected : !expected;
       }
       case "type": {
-        const names2 = predicate.names;
-        return (subject) => isFailure(subject) ? subject : names2.includes(typeName(subject));
+        const names = predicate.names;
+        return (subject) => isFailure(subject) ? subject : names.includes(typeName(subject));
       }
       case "always":
         return (subject) => isFailure(subject) ? subject : true;
@@ -6693,8 +5096,8 @@
       } else if (level === "value" && OPERATORS.has(key)) {
         entries.push(compileOperator(key, value, keyPath, hooks));
       } else {
-        const names2 = compilePath(key, keyPath, hooks);
-        entries.push(readThen({ path: keyPath, names: names2 }, compilePredicate(value, "value", keyPath, hooks), keyPath));
+        const names = compilePath(key, keyPath, hooks);
+        entries.push(readThen({ path: keyPath, names }, compilePredicate(value, "value", keyPath, hooks), keyPath));
       }
     }
     if (first.length === 0 && rest.length === 0) return { kind: "always", path, scalar: false };
@@ -6711,11 +5114,11 @@
       case "fails":
         return { kind: "fails", expected: expectBoolean(raw, path), path, scalar: false };
       case "type": {
-        const names2 = asArray(raw);
-        if (!names2.every(isTypeName)) {
-          throw new ConfigParseError(path, `unknown type name '${String(names2.find((name) => !isTypeName(name)))}'`);
+        const names = asArray(raw);
+        if (!names.every(isTypeName)) {
+          throw new ConfigParseError(path, `unknown type name '${String(names.find((name) => !isTypeName(name)))}'`);
         }
-        return { kind: "type", names: names2, path, scalar: false };
+        return { kind: "type", names, path, scalar: false };
       }
       case "in":
         return compileIn(raw, path, hooks);
@@ -6787,10 +5190,10 @@
 
   // src/features/web-detection/sources/api.js
   function parseApiBody(rawBody, path, hooks, key = "api") {
-    const { raw, names: names2 } = parsePathBody(rawBody, path, hooks, key, ["path", "args", "where", "field"]);
-    const body = { names: names2, ...parseItemKeys(raw, path, hooks) };
+    const { raw, names } = parsePathBody(rawBody, path, hooks, key, ["path", "args", "where", "field"]);
+    const body = { names, ...parseItemKeys(raw, path, hooks) };
     if (raw.args !== void 0) body.args = compileArgs(raw.args, `${path}.args`, hooks);
-    const receiver = raw.args === void 0 ? names2 : names2.slice(0, -1);
+    const receiver = raw.args === void 0 ? names : names.slice(0, -1);
     if (key === "api" && receiver.length > 0) hooks.paths.add(receiver.join("."));
     return body;
   }
@@ -6826,11 +5229,7 @@
     };
   }
 
-  // src/features/web-detection/sources/element.js
-  init_define_import_meta_trackerLookup();
-
   // src/features/web-detection/sources/roots.js
-  init_define_import_meta_trackerLookup();
   function parseRoot(raw, path, hooks) {
     if (raw === void 0) return void 0;
     if (isArray(raw) && raw.length === 0) throw new ConfigParseError(path, "`root` needs at least one entry");
@@ -6887,7 +5286,6 @@
   }
 
   // src/features/web-detection/sources/visibility.js
-  init_define_import_meta_trackerLookup();
   function isVisible(element) {
     const style = getComputedStyle(element);
     const rect = element.getBoundingClientRect();
@@ -6997,7 +5395,6 @@
   }
 
   // src/features/web-detection/sources/text.js
-  init_define_import_meta_trackerLookup();
   var ORDERED_NODE_SNAPSHOT_TYPE = 7;
   var compiledXPaths = /* @__PURE__ */ new WeakMap();
   function compileXPath(expression) {
@@ -7151,11 +5548,7 @@
     return { element: elementSource, text: textSource, api: apiSource(global) };
   }
 
-  // src/features/web-detection/compile/compile.js
-  init_define_import_meta_trackerLookup();
-
   // src/features/web-detection/compile/positions.js
-  init_define_import_meta_trackerLookup();
   function fillsOf(node) {
     switch (node.kind) {
       case "literal":
@@ -7372,8 +5765,8 @@
     if (!isPlainObject(raw)) throw new ConfigParseError(path, `\`${key}\` takes an object`);
     rejectUnknownKeys(raw, key === "fireEvent" ? ["type", "data"] : ["data"], path);
     if (key === "fireEvent" && typeof raw.type !== "string") throw new ConfigParseError(`${path}.type`, "`type` takes a string");
-    const data2 = raw.data === void 0 ? void 0 : compilePayload(raw.data, `${path}.data`, scope);
-    return makeNode(scope, { kind: key, ...key === "fireEvent" && { type: raw.type }, ...data2 && { data: data2 }, path, position: "value" });
+    const data = raw.data === void 0 ? void 0 : compilePayload(raw.data, `${path}.data`, scope);
+    return makeNode(scope, { kind: key, ...key === "fireEvent" && { type: raw.type }, ...data && { data }, path, position: "value" });
   }
   function compileKey(key, body, position, path, scope) {
     switch (key) {
@@ -7580,7 +5973,6 @@
   }
 
   // src/features/web-detection/evaluate/breakage-entries.js
-  init_define_import_meta_trackerLookup();
   var _records;
   var BreakageEntries = class {
     constructor() {
@@ -7601,10 +5993,10 @@
      * @param {string} detectorId
      * @param {PayloadData} data
      */
-    write(detectorId, data2) {
+    write(detectorId, data) {
       const record = this._recordOf(detectorId);
       record.written = true;
-      for (const key of objectKeys(data2)) record.data[key] = data2[key];
+      for (const key of objectKeys(data)) record.data[key] = data[key];
     }
     /**
      * A failure that ended a run, kept as the latest at its path.
@@ -7640,11 +6032,7 @@
   };
   _records = new WeakMap();
 
-  // src/features/web-detection/evaluate/context.js
-  init_define_import_meta_trackerLookup();
-
   // src/features/web-detection/evaluate/evaluate.js
-  init_define_import_meta_trackerLookup();
   function boundValue(binder, ctx) {
     if (!ctx.frames.has(binder)) throw new DetectionError("`self` read outside the `using`, `where` or `field` it is bound by");
     return ctx.frames.get(binder);
@@ -7836,10 +6224,10 @@
       if (isScalar(value)) ctx.measured[node.name] = value;
       return void 0;
     }
-    const data2 = node.data && evaluatePayload(node.data, ctx);
-    if (isFailure(data2)) return data2;
-    if (node.kind === "fireEvent") ctx.sink.fireEvent(node.type, data2);
-    else ctx.sink.breakageReportData(data2 ?? {});
+    const data = node.data && evaluatePayload(node.data, ctx);
+    if (isFailure(data)) return data;
+    if (node.kind === "fireEvent") ctx.sink.fireEvent(node.type, data);
+    else ctx.sink.breakageReportData(data ?? {});
     return void 0;
   }
   function computeLength(node, ctx) {
@@ -7909,7 +6297,7 @@
   }
   var OMIT = /* @__PURE__ */ Symbol("omit");
   function evaluatePayload(fields, ctx) {
-    const data2 = {};
+    const data = {};
     for (const field of fields) {
       let value;
       try {
@@ -7918,9 +6306,9 @@
         throw atPath(e, `${field.path}.value`, ctx);
       }
       if (isFailure(value)) return value;
-      if (value !== OMIT) data2[field.key] = value;
+      if (value !== OMIT) data[field.key] = value;
     }
-    return data2;
+    return data;
   }
   function payloadValue(field, ctx) {
     const value = evaluateOccurrence(field.value, ctx);
@@ -7956,7 +6344,6 @@
   }
 
   // src/features/web-detection/evaluate/task-read-cache.js
-  init_define_import_meta_trackerLookup();
   var _byNode;
   var TaskReadCache = class {
     constructor() {
@@ -8083,7 +6470,6 @@
   };
 
   // src/features/web-detection/evaluate/native-reader.js
-  init_define_import_meta_trackerLookup();
   var _global, _holders, _keys, _nodePrototype, _records2;
   var NativeReader = class {
     /**
@@ -8092,7 +6478,7 @@
      * @param {Iterable<string>} [paths] - every path config reads from the global, up to the method it calls
      * @param {object} [nodePrototype] - the global's `Node.prototype`, which `isNode` tests against
      */
-    constructor(global, names2 = [], paths = [], nodePrototype = NodePrototype) {
+    constructor(global, names = [], paths = [], nodePrototype = NodePrototype) {
       /** @type {object} */
       __privateAdd(this, _global);
       /** @type {Map<object, Map<PropertyKey, CapturedRecord>>} each holder's records */
@@ -8110,7 +6496,7 @@
       __privateAdd(this, _records2, /* @__PURE__ */ new Map());
       __privateSet(this, _global, global);
       __privateSet(this, _nodePrototype, nodePrototype);
-      this.capture(names2, paths);
+      this.capture(names, paths);
     }
     /**
      * Capture more names, and the holders more paths reach. A name already captured keeps its record,
@@ -8409,7 +6795,6 @@
   }
 
   // src/features/web-detection/evaluate/run.js
-  init_define_import_meta_trackerLookup();
   function createDetectorState() {
     return { names: /* @__PURE__ */ new Map(), done: false };
   }
@@ -8508,18 +6893,18 @@
       __privateSet(this, _parsedSettings, settings);
       __privateSet(this, _detectors2, parseDetectors(this.getFeatureSetting("detectors")));
       __privateGet(this, _compiled).clear();
-      const names2 = /* @__PURE__ */ new Set();
+      const names = /* @__PURE__ */ new Set();
       const paths = /* @__PURE__ */ new Set();
       for (const detector of this._eachDetector()) {
         if (!this._runsInFrame(detector.config)) continue;
         const compiled = this._compiledOf(detector);
         if ("error" in compiled) continue;
-        compiled.names.forEach((name) => names2.add(name));
+        compiled.names.forEach((name) => names.add(name));
         compiled.paths.forEach((path) => paths.add(path));
       }
-      if (names2.size === 0 && paths.size === 0) return;
-      if (__privateGet(this, _reader)) __privateGet(this, _reader).capture(names2, paths);
-      else __privateSet(this, _reader, new NativeReader(globalThis, names2, paths));
+      if (names.size === 0 && paths.size === 0) return;
+      if (__privateGet(this, _reader)) __privateGet(this, _reader).capture(names, paths);
+      else __privateSet(this, _reader, new NativeReader(globalThis, names, paths));
     }
     /**
      * Whether a trigger runs the detector in this frame. The state, platform and site a trigger tests
@@ -8591,11 +6976,11 @@
       }
       const events = [];
       const sink = {
-        fireEvent: (type, data2) => {
-          events.push({ type, ...data2 && { data: data2 } });
-          void this._executeFireEvent(type, data2);
+        fireEvent: (type, data) => {
+          events.push({ type, ...data && { data } });
+          void this._executeFireEvent(type, data);
         },
-        breakageReportData: (data2) => __privateGet(this, _breakage).write(detectorId, data2)
+        breakageReportData: (data) => __privateGet(this, _breakage).write(detectorId, data)
       };
       const ctx = new EvaluationContext(this._reader, state.names, task, sink);
       const run = () => runDetector(compiled, state, ctx);
@@ -8652,9 +7037,9 @@
      * @param {string} type
      * @param {PayloadData} [data] - the `fireEvent` payload, when the action names one
      */
-    async _executeFireEvent(type, data2) {
+    async _executeFireEvent(type, data) {
       try {
-        await this.callFeatureMethod("webEvents", "fireEvent", { type, ...data2 && { data: data2 } });
+        await this.callFeatureMethod("webEvents", "fireEvent", { type, ...data && { data } });
       } catch {
       }
     }
@@ -8731,11 +7116,7 @@
   _reader = new WeakMap();
   _parsedSettings = new WeakMap();
 
-  // src/features/context-menu.js
-  init_define_import_meta_trackerLookup();
-
   // src/utils/dom-metadata.js
-  init_define_import_meta_trackerLookup();
   function findClosestAnchor(target) {
     if (!(target instanceof Element)) return null;
     const anchor = target.closest("a");
@@ -8822,14 +7203,7 @@
     }
   };
 
-  // src/features/duck-player.js
-  init_define_import_meta_trackerLookup();
-
-  // src/features/duckplayer/overlay-messages.js
-  init_define_import_meta_trackerLookup();
-
   // src/features/duckplayer/constants.js
-  init_define_import_meta_trackerLookup();
   var MSG_NAME_INITIAL_SETUP = "initialSetup";
   var MSG_NAME_SET_VALUES = "setUserValues";
   var MSG_NAME_READ_VALUES = "getUserValues";
@@ -8932,10 +7306,10 @@
      * This allows our SERP to interact with Duck Player settings.
      */
     serpProxy() {
-      function respond(kind, data2) {
+      function respond(kind, data) {
         window.dispatchEvent(
           new CustomEvent(MSG_NAME_PROXY_RESPONSE, {
-            detail: { kind, data: data2 },
+            detail: { kind, data },
             composed: true,
             bubbles: true
           })
@@ -9031,11 +7405,7 @@
     }
   };
 
-  // src/features/duckplayer/overlays.js
-  init_define_import_meta_trackerLookup();
-
   // src/features/duckplayer/util.js
-  init_define_import_meta_trackerLookup();
   var SideEffects = class {
     /**
      * @param {object} params
@@ -9247,23 +7617,13 @@
     }
   };
 
-  // src/features/duckplayer/thumbnails.js
-  init_define_import_meta_trackerLookup();
-
-  // src/features/duckplayer/icon-overlay.js
-  init_define_import_meta_trackerLookup();
-
   // src/features/duckplayer/assets/styles.css
   var styles_default = '/* -- THUMBNAIL OVERLAY -- */\n.ddg-overlay {\n    font-family: system, -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";\n    position: absolute;\n    margin-top: 5px;\n    margin-left: 5px;\n    z-index: 1000;\n    height: 32px;\n\n    background: rgba(0, 0, 0, 0.6);\n    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.25), 0px 4px 8px rgba(0, 0, 0, 0.1), inset 0px 0px 0px 1px rgba(0, 0, 0, 0.18);\n    backdrop-filter: blur(2px);\n    -webkit-backdrop-filter: blur(2px);\n    border-radius: 6px;\n\n    transition: 0.15s linear background;\n}\n\n.ddg-overlay a.ddg-play-privately {\n    color: white;\n    text-decoration: none;\n    font-style: normal;\n    font-weight: 600;\n    font-size: 12px;\n}\n\n.ddg-overlay .ddg-dax,\n.ddg-overlay .ddg-play-icon {\n    display: inline-block;\n\n}\n\n.ddg-overlay .ddg-dax {\n    float: left;\n    padding: 4px 4px;\n    width: 24px;\n    height: 24px;\n}\n\n.ddg-overlay .ddg-play-text-container {\n    width: 0px;\n    overflow: hidden;\n    float: left;\n    opacity: 0;\n    transition: all 0.15s linear;\n}\n\n.ddg-overlay .ddg-play-text {\n    line-height: 14px;\n    margin-top: 10px;\n    width: 200px;\n}\n\n.ddg-overlay .ddg-play-icon {\n    float: right;\n    width: 24px;\n    height: 20px;\n    padding: 6px 4px;\n}\n\n.ddg-overlay:not([data-size="fixed small"]):hover .ddg-play-text-container {\n    width: 80px;\n    opacity: 1;\n}\n\n.ddg-overlay[data-size^="video-player"].hidden {\n    display: none;\n}\n\n.ddg-overlay[data-size="video-player"] {\n    bottom: 145px;\n    right: 20px;\n    opacity: 1;\n    transition: opacity .2s;\n}\n\n.html5-video-player.playing-mode.ytp-autohide .ddg-overlay[data-size="video-player"] {\n    opacity: 0;\n}\n\n.html5-video-player.ad-showing .ddg-overlay[data-size="video-player"] {\n    display: none;\n}\n\n.html5-video-player.ytp-hide-controls .ddg-overlay[data-size="video-player"] {\n    display: none;\n}\n\n.ddg-overlay[data-size="video-player-with-title"] {\n    top: 40px;\n    left: 10px;\n}\n\n.ddg-overlay[data-size="video-player-with-paid-content"] {\n    top: 65px;\n    left: 11px;\n}\n\n.ddg-overlay[data-size="title"] {\n    position: relative;\n    margin: 0;\n    float: right;\n}\n\n.ddg-overlay[data-size="title"] .ddg-play-text-container {\n    width: 90px;\n}\n\n.ddg-overlay[data-size^="fixed"] {\n    position: absolute;\n    top: 0;\n    left: 0;\n    display: none;\n    z-index: 10;\n}\n\n#preview .ddg-overlay {\n    transition: transform 160ms ease-out 200ms;\n    /*TODO: scale needs to equal 1/--ytd-video-preview-initial-scale*/\n    transform: scale(1.15) translate(5px, 4px);\n}\n\n#preview ytd-video-preview[active] .ddg-overlay {\n    transform:scale(1) translate(0px, 0px);\n}\n';
 
   // src/features/duckplayer/assets/dax.svg
   var dax_default = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"><path fill="#DE5833" fill-rule="evenodd" d="M16 32c8.837 0 16-7.163 16-16S24.837 0 16 0 0 7.163 0 16s7.163 16 16 16Z" clip-rule="evenodd"/><path fill="#DDD" fill-rule="evenodd" d="M18.25 27.938c0-.125.03-.154-.367-.946-1.056-2.115-2.117-5.096-1.634-7.019.088-.349-.995-12.936-1.76-13.341-.85-.453-1.898-1.172-2.855-1.332-.486-.078-1.123-.041-1.62.026-.089.012-.093.17-.008.2.327.11.724.302.958.593.044.055-.016.142-.086.144-.22.008-.62.1-1.148.549-.061.052-.01.148.068.133 1.134-.225 2.292-.114 2.975.506.044.04.021.113-.037.128-5.923 1.61-4.75 6.763-3.174 13.086 1.405 5.633 1.934 7.448 2.1 8.001a.18.18 0 0 0 .106.117c2.039.812 6.482.848 6.482-.533v-.313Z" clip-rule="evenodd"/><path fill="#fff" fill-rule="evenodd" d="M30.688 16c0 8.112-6.576 14.688-14.688 14.688-8.112 0-14.688-6.576-14.688-14.688C1.313 7.888 7.888 1.312 16 1.312c8.112 0 14.688 6.576 14.688 14.688ZM12.572 28.996a140.697 140.697 0 0 1-2.66-9.48L9.8 19.06v-.003C8.442 13.516 7.334 8.993 13.405 7.57c.055-.013.083-.08.046-.123-.697-.826-2.001-1.097-3.651-.528-.068.024-.127-.045-.085-.102.324-.446.956-.79 1.268-.94.065-.03.06-.125-.008-.146a6.968 6.968 0 0 0-.942-.225c-.093-.015-.101-.174-.008-.186 2.339-.315 4.781.387 6.007 1.931a.081.081 0 0 0 .046.029c4.488.964 4.81 8.058 4.293 8.382-.102.063-.429.027-.86-.021-1.746-.196-5.204-.583-2.35 4.736.028.053-.01.122-.068.132-1.604.25.438 5.258 1.953 8.58C25 27.71 29.437 22.374 29.437 16c0-7.421-6.016-13.438-13.437-13.438C8.579 2.563 2.562 8.58 2.562 16c0 6.237 4.25 11.481 10.01 12.996Z" clip-rule="evenodd"/><path fill="#3CA82B" d="M21.07 22.675c-.341-.159-1.655.783-2.527 1.507-.183-.258-.526-.446-1.301-.31-.678.117-1.053.28-1.22.563-1.07-.406-2.872-1.033-3.307-.428-.476.662.119 3.79.75 4.197.33.212 1.908-.802 2.732-1.502.133.188.347.295.787.284.665-.015 1.744-.17 1.912-.48a.341.341 0 0 0 .026-.066c.847.316 2.338.651 2.67.601.869-.13-.12-4.18-.522-4.366Z"/><path fill="#4CBA3C" d="M18.622 24.274a1.3 1.3 0 0 1 .09.2c.12.338.317 1.412.169 1.678-.15.265-1.115.393-1.711.403-.596.01-.73-.207-.851-.545-.097-.27-.144-.905-.143-1.269-.024-.539.173-.729 1.083-.876.674-.11 1.03.018 1.237.235.957-.714 2.553-1.722 2.709-1.538.777.918.875 3.105.707 3.985-.055.287-2.627-.285-2.627-.595 0-1.288-.334-1.642-.663-1.678ZM12.99 23.872c.21-.333 1.918.081 2.856.498 0 0-.193.873.114 1.901.09.301-2.157 1.64-2.45 1.41-.339-.267-.963-3.108-.52-3.809Z"/><path fill="#FC3" fill-rule="evenodd" d="M13.817 17.101c.138-.6.782-1.733 3.08-1.705 1.163-.005 2.606 0 3.563-.11a12.813 12.813 0 0 0 3.181-.773c.995-.38 1.348-.295 1.472-.068.136.25-.024.68-.372 1.077-.664.758-1.857 1.345-3.966 1.52-2.108.174-3.505-.392-4.106.529-.26.397-.06 1.333 1.98 1.628 2.755.397 5.018-.48 5.297.05.28.53-1.33 1.607-4.09 1.63-2.76.022-4.484-.967-5.095-1.458-.775-.624-1.123-1.533-.944-2.32Z" clip-rule="evenodd"/><g fill="#14307E" opacity=".8"><path d="M17.332 10.532c.154-.252.495-.447 1.054-.447.558 0 .821.222 1.003.47.037.05-.02.11-.076.085a29.677 29.677 0 0 1-.043-.018c-.204-.09-.455-.199-.884-.205-.46-.006-.75.109-.932.208-.062.033-.159-.034-.122-.093ZM11.043 10.854c.542-.226.968-.197 1.27-.126.063.015.107-.053.057-.094-.234-.189-.758-.423-1.44-.168-.61.227-.897.699-.899 1.009 0 .073.15.08.19.017.104-.167.28-.411.822-.638Z"/><path fill-rule="evenodd" d="M18.86 13.98a.867.867 0 0 1-.868-.865.867.867 0 0 1 1.737 0 .867.867 0 0 1-.869.865Zm.612-1.152a.225.225 0 0 0-.45 0 .225.225 0 0 0 .45 0ZM13.106 13.713a1.01 1.01 0 0 1-1.012 1.01 1.011 1.011 0 0 1-1.013-1.01c0-.557.454-1.009 1.013-1.009.558 0 1.012.452 1.012 1.01Zm-.299-.334a.262.262 0 0 0-.524 0 .262.262 0 0 0 .524 0Z" clip-rule="evenodd"/></g></svg>';
 
-  // src/features/duckplayer/text.js
-  init_define_import_meta_trackerLookup();
-
   // src/dom-utils.js
-  init_define_import_meta_trackerLookup();
   var Template = class _Template {
     /**
      * @param {readonly string[]} strings
@@ -9638,11 +7998,7 @@
     }
   };
 
-  // src/features/duckplayer/environment.js
-  init_define_import_meta_trackerLookup();
-
   // ../build/locales/duckplayer-locales.js
-  init_define_import_meta_trackerLookup();
   var duckplayer_locales_default = `{"bg":{"overlays.json":{"videoOverlayTitle2":"\u0412\u043A\u043B\u044E\u0447\u0435\u0442\u0435 Duck Player, \u0437\u0430 \u0434\u0430 \u0433\u043B\u0435\u0434\u0430\u0442\u0435 \u0431\u0435\u0437 \u043D\u0430\u0441\u043E\u0447\u0435\u043D\u0438 \u0440\u0435\u043A\u043B\u0430\u043C\u0438","videoButtonOpen2":"\u0412\u043A\u043B\u044E\u0447\u0432\u0430\u043D\u0435 \u043D\u0430 Duck Player","videoButtonOptOut2":"\u041D\u0435, \u0431\u043B\u0430\u0433\u043E\u0434\u0430\u0440\u044F","rememberLabel":"\u0417\u0430\u043F\u043E\u043C\u043D\u0438 \u043C\u043E\u044F \u0438\u0437\u0431\u043E\u0440"}},"cs":{"overlays.json":{"videoOverlayTitle2":"Zapn\u011Bte si Duck Player a\xA0sledujte videa bez c\xEDlen\xFDch reklam","videoButtonOpen2":"Zapni si Duck Player","videoButtonOptOut2":"Ne, d\u011Bkuji","rememberLabel":"Zapamatovat mou volbu"}},"da":{"overlays.json":{"videoOverlayTitle2":"Sl\xE5 Duck Player til for at se indhold uden m\xE5lrettede reklamer","videoButtonOpen2":"Sl\xE5 Duck Player til","videoButtonOptOut2":"Nej tak.","rememberLabel":"Husk mit valg"}},"de":{"overlays.json":{"videoOverlayTitle2":"Aktiviere den Duck Player, um ohne gezielte Werbung zu schauen","videoButtonOpen2":"Duck Player aktivieren","videoButtonOptOut2":"Nein, danke","rememberLabel":"Meine Auswahl merken"}},"el":{"overlays.json":{"videoOverlayTitle2":"\u0395\u03BD\u03B5\u03C1\u03B3\u03BF\u03C0\u03BF\u03B9\u03AE\u03C3\u03C4\u03B5 \u03C4\u03BF Duck Player \u03B3\u03B9\u03B1 \u03C0\u03B1\u03C1\u03B1\u03BA\u03BF\u03BB\u03BF\u03CD\u03B8\u03B7\u03C3\u03B7 \u03C7\u03C9\u03C1\u03AF\u03C2 \u03C3\u03C4\u03BF\u03C7\u03B5\u03C5\u03BC\u03AD\u03BD\u03B5\u03C2 \u03B4\u03B9\u03B1\u03C6\u03B7\u03BC\u03AF\u03C3\u03B5\u03B9\u03C2","videoButtonOpen2":"\u0395\u03BD\u03B5\u03C1\u03B3\u03BF\u03C0\u03BF\u03AF\u03B7\u03C3\u03B7 \u03C4\u03BF\u03C5 Duck Player","videoButtonOptOut2":"\u038C\u03C7\u03B9, \u03B5\u03C5\u03C7\u03B1\u03C1\u03B9\u03C3\u03C4\u03CE","rememberLabel":"\u0398\u03C5\u03BC\u03B7\u03B8\u03B5\u03AF\u03C4\u03B5 \u03C4\u03B7\u03BD \u03B5\u03C0\u03B9\u03BB\u03BF\u03B3\u03AE \u03BC\u03BF\u03C5"}},"en":{"native.json":{"unknownErrorHeading2":"Duck Player can\u2019t load this video","unknownErrorMessage2a":"This video can\u2019t be viewed outside of YouTube.","unknownErrorMessage2b":"You can still watch this video on YouTube, but without the added privacy of Duck Player.","ageRestrictedErrorHeading2":"Sorry, this video is age-restricted","ageRestrictedErrorMessage2a":"To watch age-restricted videos, you need to sign in to YouTube to verify your age.","ageRestrictedErrorMessage2b":"You can still watch this video, but you\u2019ll have to sign in and watch it on YouTube without the added privacy of Duck Player.","noEmbedErrorHeading2":"Sorry, this video can only be played on YouTube","noEmbedErrorMessage2a":"The creator of this video has chosen not to allow it to be viewed on other sites.","noEmbedErrorMessage2b":"You can still watch it on YouTube, but without the added privacy of Duck Player.","blockedVideoErrorHeading":"YouTube won\u2019t let Duck Player load this video","blockedVideoErrorMessage1":"YouTube doesn\u2019t allow this video to be viewed outside of YouTube.","blockedVideoErrorMessage2":"You can still watch this video on YouTube, but without the added privacy of Duck Player.","signInRequiredErrorHeading2":"Sorry, YouTube thinks you\u2019re a bot","signInRequiredErrorMessage1":"YouTube is blocking this video from loading. If you\u2019re using a VPN, try turning it off and reloading this page.","signInRequiredErrorMessage2":"If this doesn\u2019t work, you can still watch this video on YouTube, but without the added privacy of Duck Player.","signInRequiredErrorMessage2a":"This can happen if you\u2019re using a VPN. Try turning the VPN off or switching server locations and reloading this page.","signInRequiredErrorMessage2b":"If that doesn\u2019t work, you\u2019ll have to sign in and watch this video on YouTube without the added privacy of Duck Player."},"overlays.json":{"videoOverlayTitle2":"Turn on Duck Player to watch without targeted ads","videoButtonOpen2":"Turn On Duck Player","videoButtonOptOut2":"No Thanks","rememberLabel":"Remember my choice"}},"es":{"overlays.json":{"videoOverlayTitle2":"Activa Duck Player para ver sin anuncios personalizados","videoButtonOpen2":"Activar Duck Player","videoButtonOptOut2":"No, gracias","rememberLabel":"Recordar mi elecci\xF3n"}},"et":{"overlays.json":{"videoOverlayTitle2":"Sihitud reklaamideta vaatamiseks l\xFClita sisse Duck Player","videoButtonOpen2":"L\xFClita Duck Player sisse","videoButtonOptOut2":"Ei ait\xE4h","rememberLabel":"J\xE4ta mu valik meelde"}},"fi":{"overlays.json":{"videoOverlayTitle2":"Jos haluat katsoa ilman kohdennettuja mainoksia, ota Duck Player k\xE4ytt\xF6\xF6n","videoButtonOpen2":"Ota Duck Player k\xE4ytt\xF6\xF6n","videoButtonOptOut2":"Ei kiitos","rememberLabel":"Muista valintani"}},"fr":{"overlays.json":{"videoOverlayTitle2":"Activez Duck Player pour une vid\xE9o sans publicit\xE9s cibl\xE9es","videoButtonOpen2":"Activez Duck Player","videoButtonOptOut2":"Non merci","rememberLabel":"M\xE9moriser mon choix"}},"hr":{"overlays.json":{"videoOverlayTitle2":"Uklju\u010Di Duck Player za gledanje bez ciljanih oglasa","videoButtonOpen2":"Uklju\u010Di Duck Player","videoButtonOptOut2":"Ne, hvala","rememberLabel":"Zapamti moj izbor"}},"hu":{"overlays.json":{"videoOverlayTitle2":"Kapcsold be a Duck Playert, hogy c\xE9lzott hirdet\xE9sek n\xE9lk\xFCl vide\xF3zhass","videoButtonOpen2":"Duck Player bekapcsol\xE1sa","videoButtonOptOut2":"Nem, k\xF6sz\xF6n\xF6m","rememberLabel":"V\xE1lasztott be\xE1ll\xEDt\xE1s megjegyz\xE9se"}},"it":{"overlays.json":{"videoOverlayTitle2":"Attiva Duck Player per guardare senza annunci personalizzati","videoButtonOpen2":"Attiva Duck Player","videoButtonOptOut2":"No, grazie","rememberLabel":"Ricorda la mia scelta"}},"lt":{"overlays.json":{"videoOverlayTitle2":"\u012Ejunkite \u201EDuck Player\u201C, kad gal\u0117tum\u0117te \u017Ei\u016Br\u0117ti be tikslini\u0173 reklam\u0173","videoButtonOpen2":"\u012Ejunkite \u201EDuck Player\u201C","videoButtonOptOut2":"Ne, d\u0117koju","rememberLabel":"\u012Esiminti mano pasirinkim\u0105"}},"lv":{"overlays.json":{"videoOverlayTitle2":"Iesl\u0113dz Duck Player, lai skat\u012Btos bez m\u0113r\u0137\u0113t\u0101m rekl\u0101m\u0101m","videoButtonOpen2":"Iesl\u0113gt Duck Player","videoButtonOptOut2":"N\u0113, paldies","rememberLabel":"Atcer\u0113ties manu izv\u0113li"}},"nb":{"overlays.json":{"videoOverlayTitle2":"Sl\xE5 p\xE5 Duck Player for \xE5 se p\xE5 uten m\xE5lrettede annonser","videoButtonOpen2":"Sl\xE5 p\xE5 Duck Player","videoButtonOptOut2":"Nei takk","rememberLabel":"Husk valget mitt"}},"nl":{"overlays.json":{"videoOverlayTitle2":"Zet Duck Player aan om te kijken zonder gerichte advertenties","videoButtonOpen2":"Duck Player aanzetten","videoButtonOptOut2":"Nee, bedankt","rememberLabel":"Mijn keuze onthouden"}},"pl":{"overlays.json":{"videoOverlayTitle2":"W\u0142\u0105cz Duck Player, aby ogl\u0105da\u0107 bez reklam ukierunkowanych","videoButtonOpen2":"W\u0142\u0105cz Duck Player","videoButtonOptOut2":"Nie, dzi\u0119kuj\u0119","rememberLabel":"Zapami\u0119taj m\xF3j wyb\xF3r"}},"pt":{"overlays.json":{"videoOverlayTitle2":"Ativa o Duck Player para ver sem an\xFAncios personalizados","videoButtonOpen2":"Ligar o Duck Player","videoButtonOptOut2":"N\xE3o, obrigado","rememberLabel":"Memorizar a minha op\xE7\xE3o"}},"ro":{"overlays.json":{"videoOverlayTitle2":"Activeaz\u0103 Duck Player pentru a viziona f\u0103r\u0103 reclame direc\u021Bionate","videoButtonOpen2":"Activeaz\u0103 Duck Player","videoButtonOptOut2":"Nu, mul\u021Bumesc","rememberLabel":"Re\u021Bine alegerea mea"}},"ru":{"overlays.json":{"videoOverlayTitle2":"Duck Player\xA0\u2014 \u043F\u0440\u043E\u0441\u043C\u043E\u0442\u0440 \u0431\u0435\u0437 \u0446\u0435\u043B\u0435\u0432\u043E\u0439 \u0440\u0435\u043A\u043B\u0430\u043C\u044B","videoButtonOpen2":"\u0412\u043A\u043B\u044E\u0447\u0438\u0442\u044C Duck Player","videoButtonOptOut2":"\u041D\u0435\u0442, \u0441\u043F\u0430\u0441\u0438\u0431\u043E","rememberLabel":"\u0417\u0430\u043F\u043E\u043C\u043D\u0438\u0442\u044C \u0432\u044B\u0431\u043E\u0440"}},"sk":{"overlays.json":{"videoOverlayTitle2":"Zapnite Duck Player a pozerajte bez cielen\xFDch rekl\xE1m","videoButtonOpen2":"Zapn\xFA\u0165 prehr\xE1va\u010D Duck Player","videoButtonOptOut2":"Nie, \u010Fakujem","rememberLabel":"Zapam\xE4ta\u0165 si moju vo\u013Ebu"}},"sl":{"overlays.json":{"videoOverlayTitle2":"Vklopite predvajalnik Duck Player za gledanje brez ciljanih oglasov","videoButtonOpen2":"Vklopi predvajalnik Duck Player","videoButtonOptOut2":"Ne, hvala","rememberLabel":"Zapomni si mojo izbiro"}},"sv":{"overlays.json":{"videoOverlayTitle2":"Aktivera Duck Player f\xF6r att titta utan riktade annonser","videoButtonOpen2":"Aktivera Duck Player","videoButtonOptOut2":"Nej tack","rememberLabel":"Kom ih\xE5g mitt val"}},"tr":{"overlays.json":{"videoOverlayTitle2":"Hedeflenmi\u015F reklamlar olmadan izlemek i\xE7in Duck Player'\u0131 a\xE7\u0131n","videoButtonOpen2":"Duck Player'\u0131 A\xE7","videoButtonOptOut2":"Hay\u0131r Te\u015Fekk\xFCrler","rememberLabel":"Se\xE7imimi hat\u0131rla"}}}`;
 
   // src/features/duckplayer/environment.js
@@ -9917,11 +8273,7 @@
     return VideoParams.fromHref(href)?.toPrivatePlayerUrl();
   }
 
-  // src/features/duckplayer/video-overlay.js
-  init_define_import_meta_trackerLookup();
-
   // src/features/duckplayer/poster.js
-  init_define_import_meta_trackerLookup();
   async function paintFirstUsablePoster(target, candidates, { signal, onResult } = {}) {
     const probes = candidates.map((candidate) => {
       const url = safePosterUrl(candidate.url);
@@ -9979,9 +8331,6 @@
       }
     });
   }
-
-  // src/features/duckplayer/components/ddg-video-overlay.js
-  init_define_import_meta_trackerLookup();
 
   // src/features/duckplayer/assets/video-overlay.css
   var video_overlay_default = '/* -- VIDEO PLAYER OVERLAY */\n:host {\n    position: absolute;\n    top: 0;\n    left: 0;\n    right: 0;\n    bottom: 0;\n    color: white;\n    z-index: 10000;\n}\n:host * {\n    font-family: system, -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";\n}\n.ddg-video-player-overlay {\n    font-size: 13px;\n    font-weight: 400;\n    line-height: 16px;\n    text-align: center;\n\n    position: absolute;\n    top: 0;\n    left: 0;\n    right: 0;\n    bottom: 0;\n    color: white;\n    z-index: 10000;\n}\n\n.ddg-eyeball svg {\n    width: 60px;\n    height: 60px;\n}\n\n.ddg-vpo-bg {\n    position: absolute;\n    top: 0;\n    left: 0;\n    right: 0;\n    bottom: 0;\n    color: white;\n    text-align: center;\n    background: black;\n}\n\n.ddg-vpo-bg:after {\n    content: " ";\n    position: absolute;\n    display: block;\n    width: 100%;\n    height: 100%;\n    top: 0;\n    left: 0;\n    right: 0;\n    bottom: 0;\n    background: rgba(0,0,0,1); /* this gets overriden if the background image can be found */\n    color: white;\n    text-align: center;\n}\n\n.ddg-video-player-overlay[data-thumb-loaded="true"] .ddg-vpo-bg:after {\n    background: rgba(0,0,0,0.75);\n}\n\n.ddg-vpo-content {\n    position: relative;\n    top: 50%;\n    transform: translate(-50%, -50%);\n    left: 50%;\n    max-width: 90%;\n}\n\n.ddg-vpo-eyeball {\n    margin-bottom: 18px;\n}\n\n.ddg-vpo-title {\n    font-size: 22px;\n    font-weight: 400;\n    line-height: 26px;\n    margin-top: 25px;\n}\n\n.ddg-vpo-text {\n    margin-top: 16px;\n    width: 496px;\n    margin-left: auto;\n    margin-right: auto;\n}\n\n.ddg-vpo-text b {\n    font-weight: 600;\n}\n\n.ddg-vpo-buttons {\n    margin-top: 25px;\n}\n.ddg-vpo-buttons > * {\n    display: inline-block;\n    margin: 0;\n    padding: 0;\n}\n\n.ddg-vpo-button {\n    color: white;\n    padding: 9px 16px;\n    font-size: 13px;\n    border-radius: 8px;\n    font-weight: 600;\n    display: inline-block;\n    text-decoration: none;\n}\n\n.ddg-vpo-button + .ddg-vpo-button {\n    margin-left: 10px;\n}\n\n.ddg-vpo-cancel {\n    background: #585b58;\n    border: 0.5px solid rgba(40, 145, 255, 0.05);\n    box-shadow: 0px 0px 0px 0.5px rgba(0, 0, 0, 0.1), 0px 0px 1px rgba(0, 0, 0, 0.05), 0px 1px 1px rgba(0, 0, 0, 0.2), inset 0px 0.5px 0px rgba(255, 255, 255, 0.2), inset 0px 1px 0px rgba(255, 255, 255, 0.05);\n}\n\n.ddg-vpo-open {\n    background: #3969EF;\n    border: 0.5px solid rgba(40, 145, 255, 0.05);\n    box-shadow: 0px 0px 0px 0.5px rgba(0, 0, 0, 0.1), 0px 0px 1px rgba(0, 0, 0, 0.05), 0px 1px 1px rgba(0, 0, 0, 0.2), inset 0px 0.5px 0px rgba(255, 255, 255, 0.2), inset 0px 1px 0px rgba(255, 255, 255, 0.05);\n}\n\n.ddg-vpo-open:hover {\n    background: #1d51e2;\n}\n.ddg-vpo-cancel:hover {\n    cursor: pointer;\n    background: #2f2f2f;\n}\n\n.ddg-vpo-remember {\n}\n.ddg-vpo-remember label {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    margin-top: 25px;\n    cursor: pointer;\n}\n.ddg-vpo-remember input {\n    margin-right: 6px;\n}\n';
@@ -10077,9 +8426,6 @@
     }
   };
   __publicField(DDGVideoOverlay, "CUSTOM_TAG_NAME", "ddg-video-overlay");
-
-  // src/features/duckplayer/components/ddg-video-overlay-mobile.js
-  init_define_import_meta_trackerLookup();
 
   // src/features/duckplayer/assets/mobile-video-overlay.css
   var mobile_video_overlay_default = '/* -- VIDEO PLAYER OVERLAY */\n:host {\n    position: absolute;\n    top: 0;\n    left: 0;\n    right: 0;\n    bottom: 0;\n    color: white;\n    z-index: 10000;\n    --title-size: 16px;\n    --title-line-height: 20px;\n    --title-gap: 16px;\n    --button-gap: 6px;\n    --logo-size: 32px;\n    --logo-gap: 8px;\n    --gutter: 16px;\n\n}\n/* iphone 15 */\n@media screen and (min-width: 390px) {\n    :host {\n        --title-size: 20px;\n        --title-line-height: 25px;\n        --button-gap: 16px;\n        --logo-size: 40px;\n        --logo-gap: 12px;\n        --title-gap: 16px;\n    }\n}\n/* iphone 15 Pro Max */\n@media screen and (min-width: 430px) {\n    :host {\n        --title-size: 22px;\n        --title-gap: 24px;\n        --button-gap: 20px;\n        --logo-gap: 16px;\n    }\n}\n/* small landscape */\n@media screen and (min-width: 568px) {\n}\n/* large landscape */\n@media screen and (min-width: 844px) {\n    :host {\n        --title-gap: 30px;\n        --button-gap: 24px;\n        --logo-size: 48px;\n    }\n}\n\n\n:host * {\n    font-family: system, -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";\n}\n\n:root *, :root *:after, :root *:before {\n    box-sizing: border-box;\n}\n\n.ddg-video-player-overlay {\n    position: absolute;\n    top: 0;\n    left: 0;\n    right: 0;\n    bottom: 0;\n    color: white;\n    z-index: 10000;\n    padding-left: var(--gutter);\n    padding-right: var(--gutter);\n\n    @media screen and (min-width: 568px) {\n        padding: 0;\n    }\n}\n\n.bg {\n    position: absolute;\n    top: 0;\n    left: 0;\n    right: 0;\n    bottom: 0;\n    color: white;\n    background: rgba(0, 0, 0, 0.6);\n    text-align: center;\n}\n\n.bg:before {\n    content: " ";\n    position: absolute;\n    display: block;\n    width: 100%;\n    height: 100%;\n    top: 0;\n    left: 0;\n    right: 0;\n    bottom: 0;\n    background:\n            linear-gradient(180deg, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.5) 40%, rgba(0, 0, 0, 0) 60%),\n            radial-gradient(circle at bottom, rgba(131, 58, 180, 0.8), rgba(253, 29, 29, 0.6), rgba(252, 176, 69, 0.4));\n}\n\n.bg:after {\n    content: " ";\n    position: absolute;\n    display: block;\n    width: 100%;\n    height: 100%;\n    top: 0;\n    left: 0;\n    right: 0;\n    bottom: 0;\n    background: rgba(0,0,0,0.7);\n    text-align: center;\n}\n\n.content {\n    height: 100%;\n    width: 100%;\n    margin: 0 auto;\n    overflow: hidden;\n    display: grid;\n    color: rgba(255, 255, 255, 0.96);\n    position: relative;\n    grid-column-gap: var(--logo-gap);\n    grid-template-columns: var(--logo-size) auto calc(12px + 16px);\n    grid-template-rows:\n            auto\n            var(--title-gap)\n            auto\n            var(--button-gap)\n            auto;\n    align-content: center;\n    justify-content: center;\n\n    @media screen and (min-width: 568px) {\n        grid-template-columns: var(--logo-size) auto auto;\n    }\n}\n\n.logo {\n    align-self: start;\n    grid-column: 1/2;\n    grid-row: 1/2;\n}\n\n.logo svg {\n    width: 100%;\n    height: 100%;\n}\n\n.arrow {\n    position: absolute;\n    top: 48px;\n    left: -18px;\n    color: white;\n    z-index: 0;\n}\n\n.title {\n    font-size: var(--title-size);\n    line-height: var(--title-line-height);\n    font-weight: 600;\n    grid-column: 2/3;\n    grid-row: 1/2;\n\n    @media screen and (min-width: 568px) {\n        grid-column: 2/4;\n        max-width: 428px;\n    }\n}\n\n.text {\n    display: none;\n}\n\n.info {\n    grid-column: 3/4;\n    grid-row: 1/2;\n    align-self: start;\n    padding-top: 3px;\n    justify-self: end;\n\n    @media screen and (min-width: 568px) {\n        grid-column: unset;\n        grid-row: unset;\n        position: absolute;\n        top: 12px;\n        right: 12px;\n    }\n    @media screen and (min-width: 844px) {\n        top: 24px;\n        right: 24px;\n    }\n}\n\n.buttons {\n    gap: 8px;\n    display: flex;\n    grid-column: 1/4;\n    grid-row: 3/4;\n\n    @media screen and (min-width: 568px) {\n        grid-column: 2/3;\n    }\n}\n\n.remember {\n    height: 40px;\n    border-radius: 8px;\n    display: flex;\n    gap: 16px;\n    align-items: center;\n    justify-content: space-between;\n    padding-left: 8px;\n    padding-right: 8px;\n    grid-column: 1/4;\n    grid-row: 5/6;\n\n    @media screen and (min-width: 568px) {\n        grid-column: 2/3;\n    }\n}\n\n.button {\n    margin: 0;\n    -webkit-appearance: none;\n    background: none;\n    box-shadow: none;\n    border: none;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    color: rgba(255, 255, 255, 1);\n    text-decoration: none;\n    line-height: 16px;\n    padding: 0 12px;\n    font-size: 15px;\n    font-weight: 600;\n    border-radius: 8px;\n}\n\n.button--info {\n    display: block;\n    padding: 0;\n    margin: 0;\n    width: 16px;\n    height: 16px;\n    @media screen and (min-width: 568px) {\n        width: 24px;\n        height: 24px;\n    }\n    @media screen and (min-width: 844px) {\n        width: 24px;\n        height: 24px;\n    }\n}\n.button--info svg {\n    display: block;\n    width: 100%;\n    height: 100%;\n}\n\n.button--info svg path {\n    fill: rgba(255, 255, 255, 0.84);\n}\n\n.cancel {\n    background: rgba(255, 255, 255, 0.3);\n    min-height: 40px;\n}\n\n.open {\n    background: #3969EF;\n    flex: 1;\n    text-align: center;\n    min-height: 40px;\n\n    @media screen and (min-width: 568px) {\n        flex: inherit;\n        padding-left: 24px;\n        padding-right: 24px;\n    }\n}\n\n.open:hover {\n}\n.cancel:hover {\n}\n\n.remember-label {\n    display: flex;\n    align-items: center;\n    flex: 1;\n}\n\n.remember-text {\n    display: block;\n    font-size: 13px;\n    font-weight: 400;\n}\n.remember-checkbox {\n    margin-left: auto;\n    display: flex;\n}\n\n.switch {\n    margin: 0;\n    padding: 0;\n    width: 52px;\n    height: 32px;\n    border: 0;\n    box-shadow: none;\n    background: rgba(136, 136, 136, 0.5);\n    border-radius: 32px;\n    position: relative;\n    transition: all .3s;\n}\n\n.switch:active .thumb {\n    scale: 1.15;\n}\n\n.thumb {\n    width: 20px;\n    height: 20px;\n    border-radius: 100%;\n    background: white;\n    position: absolute;\n    top: 4px;\n    left: 4px;\n    pointer-events: none;\n    transition: .2s left ease-in-out;\n}\n\n.switch[aria-checked="true"] {\n    background: rgba(57, 105, 239, 1)\n}\n\n.ios-switch {\n    width: 42px;\n    height: 24px;\n}\n\n.ios-switch .thumb {\n    top: 2px;\n    left: 2px;\n    width: 20px;\n    height: 20px;\n    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.25)\n}\n\n.ios-switch:active .thumb {\n    scale: 1;\n}\n\n.ios-switch[aria-checked="true"] .thumb {\n    left: calc(100% - 22px)\n}\n\n.android {}\n';
@@ -10193,9 +8539,6 @@
   __publicField(_DDGVideoOverlayMobile, "OPT_IN", "opt-in");
   __publicField(_DDGVideoOverlayMobile, "OPT_OUT", "opt-out");
   var DDGVideoOverlayMobile = _DDGVideoOverlayMobile;
-
-  // src/features/duckplayer/components/ddg-video-thumbnail-overlay-mobile.js
-  init_define_import_meta_trackerLookup();
 
   // src/features/duckplayer/assets/mobile-video-thumbnail-overlay.css
   var mobile_video_thumbnail_overlay_default = `/* -- VIDEO PLAYER OVERLAY */
@@ -10529,9 +8872,6 @@
   };
   __publicField(DDGVideoThumbnailOverlay, "CUSTOM_TAG_NAME", "ddg-video-thumbnail-overlay-mobile");
 
-  // src/features/duckplayer/components/ddg-video-drawer-mobile.js
-  init_define_import_meta_trackerLookup();
-
   // src/features/duckplayer/assets/mobile-video-drawer.css
   var mobile_video_drawer_default = '/* -- VIDEO PLAYER OVERLAY */\n:host {\n    position: absolute;\n    bottom: 0;\n    right: 0;\n    left: 0;\n    top: 0;\n    z-index: 10010;\n    --title-size: 16px;\n    --title-line-height: 20px;\n    --title-gap: 16px;\n    --button-gap: 6px;\n    --logo-size: 32px;\n    --logo-gap: 8px;\n    --gutter: 16px;\n}\n/* iphone 15 */\n@media screen and (min-width: 390px) {\n    :host {\n        --title-size: 20px;\n        --title-line-height: 25px;\n        --button-gap: 16px;\n        --logo-size: 40px;\n        --logo-gap: 12px;\n        --title-gap: 16px;\n    }\n}\n/* iphone 15 Pro Max */\n@media screen and (min-width: 430px) {\n    :host {\n        --title-size: 22px;\n        --title-gap: 24px;\n        --button-gap: 20px;\n        --logo-gap: 16px;\n    }\n}\n/* small landscape */\n@media screen and (min-width: 568px) {\n}\n/* large landscape */\n@media screen and (min-width: 844px) {\n    :host {\n        --title-gap: 30px;\n        --button-gap: 24px;\n        --logo-size: 48px;\n    }\n}\n\n\n:host * {\n    font-family: system, -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";\n}\n\n:root *, :root *:after, :root *:before {\n    box-sizing: border-box;\n}\n\n.ddg-mobile-drawer-overlay {\n    --overlay-background: rgba(0, 0, 0, 0.6);\n    --drawer-background: #fafafa;\n    --drawer-color: rgba(0, 0, 0, 0.84);\n    --button-background: rgba(0, 0, 0, 0.06);\n    --button-color: rgba(0, 0, 0, 0.84);\n    --button-accent-background: #3969ef;\n    --button-accent-color: #fff;\n    --switch-off-background: #888;\n    --switch-on-background: #3969ef;\n    --switch-thumb-background: #fff;\n    --info-color: #000;\n\n    --drawer-padding-block: 24px;\n    --drawer-padding-inline: 16px;\n    --drawer-buffer: 48px;\n\n    height: 100%;\n    position: absolute;\n    width: 100%;\n}\n\n@media (prefers-color-scheme: dark) {\n    .ddg-mobile-drawer-overlay {\n        --drawer-background: #333;\n        --drawer-color: rgba(255, 255, 255, 0.84);\n        --button-background: rgba(255, 255, 255, 0.18);\n        --button-color: #fff;\n        --button-accent-background: #7295f6;\n        --button-accent-color: rgba(0, 0, 0, 0.84);\n        --switch-off-background: #888;\n        --switch-on-background: #7295f6;\n        --switch-thumb-background: #fff;\n        --info-color: rgba(255, 255, 255, 0.84);\n    }\n}\n\n.ddg-mobile-drawer-background {\n    background: var(--overlay-background);\n    bottom: 0;\n    left: 0;\n    opacity: 0;\n    position: fixed;\n    right: 0;\n    top: 0;\n}\n\n.ddg-mobile-drawer {\n    background: var(--drawer-background);\n    border-top-left-radius: 10px;\n    border-top-right-radius: 10px;\n    bottom: -100vh;\n    box-shadow: 0px -4px 12px 0px rgba(0, 0, 0, 0.10), 0px -20px 40px 0px rgba(0, 0, 0, 0.08);\n    box-sizing: border-box;\n    color: var(--drawer-color);\n    display: flex;\n    flex-direction: column;\n    gap: 12px;\n    left: 0;\n    position: fixed;\n    width: 100%;\n\n    /* Apply safe-area padding as fallback in case media query below gets removed in the future */\n    padding-top: var(--drawer-padding-block);\n    padding-right: calc(var(--drawer-padding-inline) + env(safe-area-inset-right));\n    padding-bottom: calc(var(--drawer-padding-block) + var(--drawer-buffer));\n    padding-left: calc(var(--drawer-padding-inline) + env(safe-area-inset-left));\n}\n\n/* Apply a blanket 18% inline padding on viewports wider than 700px */\n@media screen and (min-width: 700px) {\n    .ddg-mobile-drawer {\n        padding-left: 18%;\n        padding-right: 18%;\n    }\n}\n\n/* ANIMATIONS */\n\n.animateIn .ddg-mobile-drawer-background {\n    animation: fade-in 300ms ease-out 100ms 1 both;\n}\n\n.animateOut .ddg-mobile-drawer-background {\n    animation: fade-out 300ms ease-out 10ms 1 both;\n}\n\n.animateIn .ddg-mobile-drawer {\n    animation: slide-in 300ms cubic-bezier(0.34, 1.3, 0.64, 1) 100ms 1 both;\n}\n\n.animateOut .ddg-mobile-drawer {\n    animation: slide-out 300ms cubic-bezier(0.36, 0, 0.66, -0.3) 100ms 1 both;\n}\n\n@media (prefers-reduced-motion) {\n    .animateIn *,\n    .animateOut * {\n        animation-duration: 0s !important;\n    }\n}\n\n@keyframes fade-in {\n    0% {\n        opacity: 0;\n    }\n\n    100% {\n        opacity: 1;\n    }\n}\n\n@keyframes fade-out {\n    0% {\n        opacity: 1;\n    }\n\n    100% {\n        opacity: 0;\n    }\n}\n\n@keyframes slide-in {\n    0% {\n        bottom: -100vh;\n    }\n\n    100% {\n        bottom: calc(-1 * var(--drawer-buffer));\n    }\n}\n\n@keyframes slide-out {\n    0% {\n        bottom: calc(-1 * var(--drawer-buffer));\n    }\n\n    100% {\n        bottom: -100vh;\n    }\n}\n\n.heading {\n    align-items: center;\n    display: flex;\n    gap: 12px;\n    margin-bottom: 4px;\n}\n\n.logo {\n    flex: 0 0 32px;\n    height: 32px;\n    width: 32px;\n}\n\n.title {\n    flex: 1 1 auto;\n    font-size: 19px;\n    font-weight: 700;\n    line-height: calc(24 / 19);\n}\n\n.info {\n    align-self: start;\n    flex: 0 0 16px;\n    height: 32px;\n    position: relative;\n    width: 16px;\n}\n\n/* BUTTONS */\n\n.buttons {\n    gap: 8px;\n    display: flex;\n}\n\n.button {\n    flex: 1 1 50%;\n    margin: 0;\n    appearance: none;\n    background: none;\n    box-shadow: none;\n    border: none;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    background: var(--button-background);\n    color: var(--button-color);\n    text-decoration: none;\n    line-height: 20px;\n    padding: 12px 16px;\n    font-size: 15px;\n    font-weight: 600;\n    border-radius: 8px;\n}\n\n.info-button {\n    appearance: none;\n    background: none;\n    border: 0;\n    height: 40px;\n    margin: 0;\n    padding: 12px;\n    position: absolute;\n    right: calc(-1 * var(--drawer-padding-inline));\n    top: calc(-1 * var(--drawer-padding-block));\n    width: 40px;\n}\n\n.info-button svg {\n    display: block;\n    width: 16px;\n    height: 16px;\n}\n\n.info-button svg path {\n    fill: var(--info-color);\n}\n\n.open {\n    background: var(--button-accent-background);\n    color: var(--button-accent-color);\n    text-align: center;\n    width: 100%;\n\n    @media screen and (min-width: 568px) {\n        flex: inherit;\n        padding-left: 24px;\n        padding-right: 24px;\n    }\n}\n\n/* REMEMBER ME */\n\n.remember {\n    height: 40px;\n    display: flex;\n    gap: 16px;\n    align-items: center;\n    justify-content: space-between;\n    padding: 0 8px;\n}\n\n.remember-label {\n    display: flex;\n    align-items: center;\n    flex: 1;\n}\n\n.remember-text {\n    display: block;\n    font-size: 14px;\n    font-weight: 700;\n    line-height: calc(18 / 14);\n}\n.remember-checkbox {\n    margin-left: auto;\n    display: flex;\n}\n\n/* SWITCH */\n\n.switch {\n    margin: 0;\n    padding: 0;\n    width: 52px;\n    height: 32px;\n    border: 0;\n    box-shadow: none;\n    background: var(--switch-off-background);\n    border-radius: 32px;\n    position: relative;\n    transition: all .3s;\n}\n\n.switch:active .thumb {\n    scale: 1.15;\n}\n\n.thumb {\n    width: 24px;\n    height: 24px;\n    border-radius: 100%;\n    background: var(--switch-thumb-background);\n    position: absolute;\n    top: 4px;\n    left: 4px;\n    pointer-events: none;\n    transition: .2s left ease-in-out;\n}\n\n.switch[aria-checked="true"] .thumb {\n    left: calc(100% - 32px + 4px);\n}\n.switch[aria-checked="true"] {\n    background: var(--switch-on-background);\n}\n\n.ios-switch {\n    width: 51px;\n    height: 31px;\n}\n\n.ios-switch .thumb {\n    top: 2px;\n    left: 2px;\n    width: 27px;\n    height: 27px;\n    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.25);\n}\n\n.ios-switch:active .thumb {\n    scale: 1;\n}\n\n.ios-switch[aria-checked="true"] .thumb {\n    left: calc(100% - 32px + 3px);\n}\n';
 
@@ -10725,7 +9065,6 @@
   var DDGVideoDrawerMobile = _DDGVideoDrawerMobile;
 
   // src/features/duckplayer/buffering-hold.js
-  init_define_import_meta_trackerLookup();
   var MEDIA_EVENTS = ["playing", "timeupdate", "error"];
   var DEFAULT_SPINNER_DELAY_MS = 500;
   var DEFAULT_SPINNER_TIMEOUT_MS = 6e4;
@@ -11245,7 +9584,6 @@
   };
 
   // src/features/duckplayer/components/index.js
-  init_define_import_meta_trackerLookup();
   function registerCustomElements() {
     if (!customElementsGet(DDGVideoOverlay.CUSTOM_TAG_NAME)) {
       customElementsDefine(DDGVideoOverlay.CUSTOM_TAG_NAME, DDGVideoOverlay);
@@ -11382,14 +9720,7 @@
     }
   };
 
-  // src/features/duck-player-native.js
-  init_define_import_meta_trackerLookup();
-
-  // src/features/duckplayer-native/messages.js
-  init_define_import_meta_trackerLookup();
-
   // src/features/duckplayer-native/constants.js
-  init_define_import_meta_trackerLookup();
   var MSG_NAME_INITIAL_SETUP2 = "initialSetup";
   var MSG_NAME_CURRENT_TIMESTAMP = "onCurrentTimestamp";
   var MSG_NAME_MEDIA_CONTROL = "onMediaControl";
@@ -11472,14 +9803,7 @@
     }
   };
 
-  // src/features/duckplayer-native/sub-feature.js
-  init_define_import_meta_trackerLookup();
-
-  // src/features/duckplayer-native/sub-features/duck-player-native-youtube.js
-  init_define_import_meta_trackerLookup();
-
   // src/features/duckplayer-native/mute-audio.js
-  init_define_import_meta_trackerLookup();
   function muteAudio(mute) {
     document.querySelectorAll("audio, video").forEach((media) => {
       media.muted = mute;
@@ -11487,7 +9811,6 @@
   }
 
   // src/features/duckplayer-native/get-current-timestamp.js
-  init_define_import_meta_trackerLookup();
   function getCurrentTimestamp(selector) {
     const video = (
       /** @type {HTMLVideoElement|null} */
@@ -11515,7 +9838,6 @@
   }
 
   // src/features/duckplayer-native/pause-video.js
-  init_define_import_meta_trackerLookup();
   function stopVideoFromPlaying(videoSelector) {
     const int = setInterval(() => {
       const video = (
@@ -11557,9 +9879,6 @@
       });
     };
   }
-
-  // src/features/duckplayer-native/overlays/thumbnail-overlay.js
-  init_define_import_meta_trackerLookup();
 
   // src/features/duckplayer-native/overlays/thumbnail-overlay.css
   var thumbnail_overlay_default = `/* -- VIDEO PLAYER OVERLAY */
@@ -11837,12 +10156,6 @@
       this.sideEffects.destroy();
     }
   };
-
-  // src/features/duckplayer-native/sub-features/duck-player-native-no-cookie.js
-  init_define_import_meta_trackerLookup();
-
-  // src/features/duckplayer-native/custom-error/custom-error.js
-  init_define_import_meta_trackerLookup();
 
   // src/features/duckplayer-native/custom-error/custom-error.css
   var custom_error_default = `/* -- VIDEO PLAYER OVERLAY */
@@ -12150,11 +10463,7 @@ ul.messages {
     };
   }
 
-  // src/features/duckplayer-native/error-detection.js
-  init_define_import_meta_trackerLookup();
-
   // src/features/duckplayer-native/youtube-errors.js
-  init_define_import_meta_trackerLookup();
   var YOUTUBE_ERRORS = {
     ageRestricted: "age-restricted",
     signInRequired: "sign-in-required",
@@ -12376,7 +10685,6 @@ ul.messages {
   };
 
   // src/features/duckplayer-native/sub-features/duck-player-native-serp.js
-  init_define_import_meta_trackerLookup();
   var DuckPlayerNativeSerp = class {
     onLoad() {
       window.dispatchEvent(
@@ -12513,4052 +10821,7 @@ ul.messages {
   };
   var duck_player_native_default = DuckPlayerNativeFeature;
 
-  // src/features/broker-protection.js
-  init_define_import_meta_trackerLookup();
-
-  // src/features/broker-protection/execute.js
-  init_define_import_meta_trackerLookup();
-
-  // src/features/broker-protection/actions/actions.js
-  init_define_import_meta_trackerLookup();
-
-  // src/features/broker-protection/actions/extract.js
-  init_define_import_meta_trackerLookup();
-
-  // src/features/broker-protection/utils/utils.js
-  init_define_import_meta_trackerLookup();
-  function getElement(doc = document, selector) {
-    if (isXpath(selector)) {
-      return safeQuerySelectorXPath(doc, selector);
-    }
-    return safeQuerySelector(doc, selector);
-  }
-  function getElementByTagName(doc = document, name) {
-    return safeQuerySelector(doc, `[name="${name}"]`);
-  }
-  function getElementWithSrcStart(node = document, src) {
-    return safeQuerySelector(node, `[src^="${src}"]`);
-  }
-  function getElements(doc = document, selector) {
-    if (isXpath(selector)) {
-      return safeQuerySelectorAllXpath(doc, selector);
-    }
-    return safeQuerySelectorAll(doc, selector);
-  }
-  function getElementMatches(element, selector) {
-    try {
-      if (isXpath(selector)) {
-        return matchesXPath(element, selector) ? element : null;
-      } else {
-        return element.matches(selector) ? element : null;
-      }
-    } catch (e) {
-      console.error("getElementMatches threw: ", e);
-      return null;
-    }
-  }
-  function matchesXPath(element, selector) {
-    const xpathResult = document.evaluate(selector, element, null, XPathResult.BOOLEAN_TYPE, null);
-    return xpathResult.booleanValue;
-  }
-  function isXpath(selector) {
-    if (!(typeof selector === "string")) return false;
-    if (selector === ".") return true;
-    return selector.startsWith("//") || selector.startsWith("./") || selector.startsWith("(");
-  }
-  function safeQuerySelectorAll(element, selector) {
-    try {
-      if (element && "querySelectorAll" in element) {
-        return Array.from(element?.querySelectorAll?.(selector));
-      }
-      return null;
-    } catch (e) {
-      return null;
-    }
-  }
-  function safeQuerySelector(element, selector) {
-    try {
-      if (element && "querySelector" in element) {
-        return element?.querySelector?.(selector);
-      }
-      return null;
-    } catch (e) {
-      return null;
-    }
-  }
-  function safeQuerySelectorXPath(element, selector) {
-    try {
-      const match = document.evaluate(selector, element, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
-      const single2 = match?.singleNodeValue;
-      if (single2) {
-        return (
-          /** @type {HTMLElement} */
-          single2
-        );
-      }
-      return null;
-    } catch (e) {
-      console.log("safeQuerySelectorXPath threw", e);
-      return null;
-    }
-  }
-  function safeQuerySelectorAllXpath(element, selector) {
-    try {
-      const xpathResult = document.evaluate(selector, element, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-      if (xpathResult) {
-        const matchedNodes = [];
-        for (let i = 0; i < xpathResult.snapshotLength; i++) {
-          const item = xpathResult.snapshotItem(i);
-          if (item) matchedNodes.push(
-            /** @type {HTMLElement} */
-            item
-          );
-        }
-        return (
-          /** @type {HTMLElement[]} */
-          matchedNodes
-        );
-      }
-      return null;
-    } catch (e) {
-      console.log("safeQuerySelectorAllXpath threw", e);
-      return null;
-    }
-  }
-  function generateRandomInt(min, max) {
-    return Math.floor(Math.random() * (max - min + 1) + min);
-  }
-  function cleanArray(input, prev = []) {
-    if (!Array.isArray(input)) {
-      if (input === null) return prev;
-      if (input === void 0) return prev;
-      if (typeof input === "string") {
-        const trimmed = input.trim();
-        if (trimmed.length > 0) {
-          prev.push(
-            /** @type {NonNullable<T>} */
-            trimmed
-          );
-        }
-      } else {
-        prev.push(input);
-      }
-      return prev;
-    }
-    for (const item of input) {
-      prev.push(...cleanArray(item));
-    }
-    return prev;
-  }
-  function nonEmptyString(input) {
-    if (typeof input !== "string") return false;
-    return input.trim().length > 0;
-  }
-  function capitalize(s) {
-    const words = s.split(" ");
-    const capitalizedWords = words.map((word) => word.charAt(0).toUpperCase() + word.slice(1));
-    return capitalizedWords.join(" ");
-  }
-  function matchingPair(a2, b2) {
-    if (!nonEmptyString(a2)) return false;
-    if (!nonEmptyString(b2)) return false;
-    return a2.toLowerCase().trim() === b2.toLowerCase().trim();
-  }
-  function sortAddressesByStateAndCity(addresses) {
-    return addresses.sort((a2, b2) => {
-      if (a2.state < b2.state) {
-        return -1;
-      }
-      if (a2.state > b2.state) {
-        return 1;
-      }
-      return a2.city.localeCompare(b2.city);
-    });
-  }
-  function dedupeAddresses(addresses) {
-    const cityStatesWithExtras = new Set(addresses.filter(hasExtras).map(cityStateKey));
-    const unique = /* @__PURE__ */ new Map();
-    for (const address of addresses) {
-      if (!hasExtras(address) && cityStatesWithExtras.has(cityStateKey(address))) continue;
-      unique.set(addressDedupKey(address), address);
-    }
-    return [...unique.values()];
-  }
-  function hasExtras(obj) {
-    return Object.keys(obj.extras ?? {}).length > 0;
-  }
-  function cityStateKey(addr) {
-    return `${addr.city},${addr.state}`.toLowerCase();
-  }
-  function addressDedupKey(addr) {
-    const extras = addr.extras ?? {};
-    const extrasKey = Object.keys(extras).sort().map((key) => `${key}=${extras[key]}`).join("&");
-    return `${cityStateKey(addr)}|${extrasKey}`;
-  }
-  async function hashObject(profile) {
-    const msgUint8 = new TextEncoder().encode(JSON.stringify(profile));
-    const hashBuffer = await crypto.subtle.digest("SHA-1", msgUint8);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hashHex = hashArray.map((b2) => b2.toString(16).padStart(2, "0")).join("");
-    return hashHex;
-  }
-
-  // src/features/broker-protection/types.js
-  init_define_import_meta_trackerLookup();
-  var PirError = class _PirError {
-    /**
-     * @param {object} params
-     * @param {boolean} params.success
-     * @param {object} params.error
-     * @param {string} params.error.message
-     */
-    constructor(params) {
-      this.success = params.success;
-      this.error = params.error;
-    }
-    /**
-     * @param {string} message
-     * @return {PirError}
-     * @static
-     * @memberof PirError
-     */
-    static create(message) {
-      return new _PirError({ success: false, error: { message } });
-    }
-    /**
-     * @param {object} error
-     * @return {error is PirError}
-     * @static
-     * @memberof PirError
-     */
-    static isError(error) {
-      return error instanceof _PirError && error.success === false;
-    }
-  };
-  var PirSuccess = class _PirSuccess {
-    /**
-     * @param {object} params
-     * @param {boolean} params.success
-     * @param {T} params.response
-     */
-    constructor(params) {
-      this.success = params.success;
-      this.response = params.response;
-    }
-    /**
-     * @template T
-     * @param {T} response
-     * @return {PirSuccess<T>}
-     * @static
-     * @memberof PirSuccess
-     */
-    static create(response) {
-      return new _PirSuccess({ success: true, response });
-    }
-    static createEmpty() {
-      return new _PirSuccess({ success: true, response: null });
-    }
-    /**
-     * @param {object} params
-     * @return {params is PirSuccess}
-     * @static
-     * @memberof PirSuccess
-     */
-    static isSuccess(params) {
-      return params instanceof _PirSuccess && params.success === true;
-    }
-  };
-  var ErrorResponse = class _ErrorResponse {
-    /**
-     * @param {object} params
-     * @param {string} params.actionID
-     * @param {string} params.message
-     */
-    constructor(params) {
-      this.error = params;
-    }
-    /**
-     * @param {ActionResponse} response
-     * @return {response is ErrorResponse}
-     * @static
-     * @memberof ErrorResponse
-     */
-    static isErrorResponse(response) {
-      return response instanceof _ErrorResponse;
-    }
-    /**
-     * @param {object} params
-     * @param {PirAction['id']} params.actionID
-     * @param {string} [params.context]
-     * @return {(message: string) => ErrorResponse}
-     * @static
-     * @memberof ErrorResponse
-     */
-    static generateErrorResponseFunction({ actionID, context = "" }) {
-      return (message) => new _ErrorResponse({ actionID, message: [context, message].filter(Boolean).join(": ") });
-    }
-  };
-  var SuccessResponse = class _SuccessResponse {
-    /**
-     * @param {SuccessResponseInterface} params
-     */
-    constructor(params) {
-      this.success = params;
-    }
-    /**
-     * @param {SuccessResponseInterface} params
-     * @return {SuccessResponse}
-     * @static
-     * @memberof SuccessResponse
-     */
-    static create(params) {
-      return new _SuccessResponse(params);
-    }
-  };
-  var ProfileResult = class {
-    /**
-     * @param {object} params
-     * @param {boolean} params.result - whether we consider this a 'match'
-     * @param {string[]} params.matchedFields - a list of the fields in the data that were matched.
-     * @param {number} params.score - value to determine
-     * @param {HTMLElement} [params.element] - the parent element that was matched. Not present in JSON
-     * @param {Record<string, any>} params.scrapedData
-     */
-    constructor(params) {
-      this.scrapedData = params.scrapedData;
-      this.result = params.result;
-      this.score = params.score;
-      this.element = params.element;
-      this.matchedFields = params.matchedFields;
-    }
-    /**
-     * Convert this structure into a format that can be sent between JS contexts/native
-     * @return {{result: boolean, score: number, matchedFields: string[], scrapedData: Record<string, any>}}
-     */
-    asData() {
-      return {
-        scrapedData: this.scrapedData,
-        result: this.result,
-        score: this.score,
-        matchedFields: this.matchedFields
-      };
-    }
-  };
-
-  // src/features/broker-protection/comparisons/is-same-age.js
-  init_define_import_meta_trackerLookup();
-  function isSameAge(userAge, ageFound) {
-    const ageVariance = 2;
-    userAge = parseInt(userAge);
-    ageFound = parseInt(ageFound);
-    if (isNaN(ageFound)) {
-      return false;
-    }
-    if (Math.abs(userAge - ageFound) < ageVariance) {
-      return true;
-    }
-    return false;
-  }
-
-  // src/features/broker-protection/comparisons/is-same-name.js
-  init_define_import_meta_trackerLookup();
-
-  // src/features/broker-protection/comparisons/constants.js
-  init_define_import_meta_trackerLookup();
-  var names = {
-    /** @type {null | Record<string, string[]>} */
-    _memo: null,
-    /**
-     * This is wrapped in a way to prevent initialization in the top-level context
-     * when hoisted by bundlers
-     * @return {Record<string, string[]>}
-     */
-    get nicknames() {
-      if (this._memo !== null) return this._memo;
-      this._memo = {
-        aaron: ["erin", "ronnie", "ron"],
-        abbigail: ["nabby", "abby", "gail", "abbe", "abbi", "abbey", "abbie"],
-        abbigale: ["nabby", "abby", "gail", "abbe", "abbi", "abbey", "abbie"],
-        abednego: ["bedney"],
-        abel: ["ebbie", "ab", "abe", "eb"],
-        abiel: ["ab"],
-        abigail: ["nabby", "abby", "gail", "abbe", "abbi", "abbey", "abbie"],
-        abigale: ["nabby", "abby", "gail", "abbe", "abbi", "abbey", "abbie"],
-        abijah: ["ab", "bige"],
-        abner: ["ab"],
-        abraham: ["ab", "abe"],
-        abram: ["ab", "abe"],
-        absalom: ["app", "ab", "abbie"],
-        ada: ["addy", "adie"],
-        adaline: ["delia", "lena", "dell", "addy", "ada", "adie"],
-        addison: ["addie", "addy"],
-        adela: ["della", "adie"],
-        adelaide: ["heidi", "adele", "dell", "addy", "della", "adie"],
-        adelbert: ["del", "albert", "delbert", "bert"],
-        adele: ["addy", "dell"],
-        adeline: ["delia", "lena", "dell", "addy", "ada"],
-        adelphia: ["philly", "delphia", "adele", "dell", "addy"],
-        adena: ["dena", "dina", "deena", "adina"],
-        adolphus: ["dolph", "ado", "adolph"],
-        adrian: ["rian"],
-        adriane: ["riane"],
-        adrienne: ["addie", "rienne", "enne"],
-        agatha: ["aggy", "aga"],
-        agnes: ["inez", "aggy", "nessa"],
-        aileen: ["lena", "allie"],
-        alan: ["al"],
-        alanson: ["al", "lanson"],
-        alastair: ["al"],
-        alazama: ["ali"],
-        albert: ["bert", "al"],
-        alberta: ["bert", "allie", "bertie"],
-        aldo: ["al"],
-        aldrich: ["riche", "rich", "richie"],
-        aleksandr: ["alex", "alek"],
-        aleva: ["levy", "leve"],
-        alex: ["al"],
-        alexander: ["alex", "al", "sandy", "alec"],
-        alexandra: ["alex", "sandy", "alla", "sandra"],
-        alexandria: ["drina", "alexander", "alla", "sandra", "alex"],
-        alexis: ["lexi", "alex"],
-        alfonse: ["al"],
-        alfred: ["freddy", "al", "fred"],
-        alfreda: ["freddy", "alfy", "freda", "frieda"],
-        algernon: ["algy"],
-        alice: ["lisa", "elsie", "allie"],
-        alicia: ["lisa", "elsie", "allie"],
-        aline: ["adeline"],
-        alison: ["ali", "allie"],
-        alixandra: ["alix"],
-        allan: ["al", "alan", "allen"],
-        allen: ["al", "allan", "alan"],
-        allisandra: ["ali", "ally", "allie"],
-        allison: ["ali", "ally", "allie"],
-        allyson: ["ali", "ally", "allie"],
-        allyssa: ["ali", "ally", "allie"],
-        almena: ["mena", "ali", "ally", "allie"],
-        almina: ["minnie"],
-        almira: ["myra"],
-        alonzo: ["lon", "al", "lonzo"],
-        alphinias: ["alphus"],
-        althea: ["ally"],
-        alverta: ["virdie", "vert"],
-        alyssa: ["lissia", "al", "ally"],
-        alzada: ["zada"],
-        amanda: ["mandy", "manda"],
-        ambrose: ["brose"],
-        amelia: ["amy", "mel", "millie", "emily"],
-        amos: ["moses"],
-        anastasia: ["ana", "stacy"],
-        anderson: ["andy"],
-        andre: ["drea"],
-        andrea: ["drea", "rea", "andrew", "andi", "andy"],
-        andrew: ["andy", "drew"],
-        andriane: ["ada", "adri", "rienne"],
-        angela: ["angel", "angie"],
-        angelica: ["angie", "angel", "angelika", "angelique"],
-        angelina: ["angel", "angie", "lina"],
-        ann: ["annie", "nan"],
-        anna: ["anne", "ann", "annie", "nan"],
-        anne: ["annie", "ann", "nan"],
-        annette: ["anna", "nettie"],
-        annie: ["ann", "anna"],
-        anselm: ["ansel", "selma", "anse", "ance"],
-        anthony: ["ant", "tony"],
-        antoinette: ["tony", "netta", "ann"],
-        antonia: ["tony", "netta", "ann"],
-        antonio: ["ant", "tony"],
-        appoline: ["appy", "appie"],
-        aquilla: ["quil", "quillie"],
-        ara: ["belle", "arry"],
-        arabella: ["ara", "bella", "arry", "belle"],
-        arabelle: ["ara", "bella", "arry", "belle"],
-        araminta: ["armida", "middie", "ruminta", "minty"],
-        archibald: ["archie"],
-        archilles: ["kill", "killis"],
-        ariadne: ["arie", "ari"],
-        arielle: ["arie"],
-        aristotle: ["telly"],
-        arizona: ["onie", "ona"],
-        arlene: ["arly", "lena"],
-        armanda: ["mandy"],
-        armena: ["mena", "arry"],
-        armilda: ["milly"],
-        arminda: ["mindie"],
-        arminta: ["minite", "minnie"],
-        arnold: ["arnie"],
-        aron: ["erin", "ronnie", "ron"],
-        artelepsa: ["epsey"],
-        artemus: ["art"],
-        arthur: ["art"],
-        arthusa: ["thursa"],
-        arzada: ["zaddi"],
-        asahel: ["asa"],
-        asaph: ["asa"],
-        asenath: ["sene", "assene", "natty"],
-        ashley: ["ash", "leah", "lee", "ashly"],
-        aubrey: ["bree"],
-        audrey: ["dee", "audree"],
-        august: ["gus"],
-        augusta: ["tina", "aggy", "gatsy", "gussie"],
-        augustina: ["tina", "aggy", "gatsy", "gussie"],
-        augustine: ["gus", "austin", "august"],
-        augustus: ["gus", "austin", "august"],
-        aurelia: ["ree", "rilly", "orilla", "aurilla", "ora"],
-        avarilla: ["rilla"],
-        azariah: ["riah", "aze"],
-        bab: ["barby"],
-        babs: ["barby", "barbara", "bab"],
-        barbara: ["barby", "babs", "bab", "bobbie", "barbie"],
-        barbery: ["barbara"],
-        barbie: ["barbara"],
-        barnabas: ["barney"],
-        barney: ["barnabas"],
-        bart: ["bartholomew"],
-        bartholomew: ["bartel", "bat", "meus", "bart", "mees"],
-        barticus: ["bart"],
-        bazaleel: ["basil"],
-        bea: ["beatrice"],
-        beatrice: ["bea", "trisha", "trixie", "trix"],
-        becca: ["beck"],
-        beck: ["becky"],
-        bedelia: ["delia", "bridgit"],
-        belinda: ["belle", "linda"],
-        bella: ["belle", "arabella", "isabella"],
-        benedict: ["bennie", "ben"],
-        benjamin: ["benjy", "jamie", "bennie", "ben", "benny"],
-        benjy: ["benjamin"],
-        bernard: ["barney", "bernie", "berney", "berny"],
-        berney: ["bernie"],
-        bert: ["bertie", "bob", "bobby"],
-        bertha: ["bert", "birdie", "bertie"],
-        bertram: ["bert"],
-        bess: ["bessie"],
-        beth: ["betsy", "betty", "elizabeth"],
-        bethena: ["beth", "thaney"],
-        beverly: ["bev"],
-        bezaleel: ["zeely"],
-        biddie: ["biddy"],
-        bill: ["william", "billy", "robert", "willie", "fred"],
-        billy: ["william", "robert", "fred"],
-        blanche: ["bea"],
-        bob: ["rob", "robert"],
-        bobby: ["rob", "bob"],
-        boetius: ["bo"],
-        brad: ["bradford", "ford"],
-        bradford: ["ford", "brad"],
-        bradley: ["brad"],
-        brady: ["brody"],
-        breanna: ["bree", "bri"],
-        breeanna: ["bree"],
-        brenda: ["brandy"],
-        brian: ["bryan", "bryant"],
-        brianna: ["bri"],
-        bridget: ["bridie", "biddy", "bridgie", "biddie"],
-        brittany: ["britt", "brittnie"],
-        brittney: ["britt", "brittnie"],
-        broderick: ["ricky", "brody", "brady", "rick", "rod"],
-        bryanna: ["brianna", "bri", "briana", "ana", "anna"],
-        caitlin: ["cait", "caity"],
-        caitlyn: ["cait", "caity"],
-        caldonia: ["calliedona"],
-        caleb: ["cal"],
-        california: ["callie"],
-        calista: ["kissy"],
-        calpurnia: ["cally"],
-        calvin: ["vin", "vinny", "cal"],
-        cameron: ["ron", "cam", "ronny"],
-        camile: ["cammie"],
-        camille: ["millie", "cammie"],
-        campbell: ["cam"],
-        candace: ["candy", "dacey"],
-        carla: ["karla", "carly"],
-        carlotta: ["lottie"],
-        carlton: ["carl"],
-        carmellia: ["mellia"],
-        carmelo: ["melo"],
-        carmon: ["charm", "cammie", "carm"],
-        carol: ["lynn", "carrie", "carolann", "cassie", "caroline", "carole", "carri", "kari", "kara"],
-        carolann: ["carol", "carole"],
-        caroline: ["lynn", "carol", "carrie", "cassie", "carole"],
-        carolyn: ["lynn", "carrie", "cassie"],
-        carrie: ["cassie"],
-        carthaette: ["etta", "etty"],
-        casey: ["k.c."],
-        casper: ["jasper"],
-        cassandra: ["sandy", "cassie", "sandra"],
-        cassidy: ["cassie", "cass"],
-        caswell: ["cass"],
-        catherine: ["kathy", "katy", "lena", "kittie", "kit", "trina", "cathy", "kay", "cassie", "casey"],
-        cathleen: ["kathy", "katy", "lena", "kittie", "kit", "trina", "cathy", "kay", "cassie", "casey"],
-        cathy: ["kathy", "cathleen", "catherine"],
-        cecilia: ["cissy", "celia"],
-        cedric: ["ced", "rick", "ricky"],
-        celeste: ["lessie", "celia"],
-        celinda: ["linda", "lynn", "lindy"],
-        charity: ["chat"],
-        charles: ["charlie", "chuck", "carl", "chick"],
-        charlie: ["charles", "chuck"],
-        charlotte: ["char", "sherry", "lottie", "lotta"],
-        chauncey: ["chan"],
-        chelsey: ["chelsie"],
-        cheryl: ["cher"],
-        chesley: ["chet"],
-        chester: ["chet"],
-        chet: ["chester"],
-        chick: ["charlotte", "caroline", "chuck"],
-        chloe: ["clo"],
-        chris: ["kris"],
-        christa: ["chris"],
-        christian: ["chris", "kit"],
-        christiana: ["kris", "kristy", "ann", "tina", "christy", "chris", "crissy"],
-        christiano: ["chris"],
-        christina: ["kris", "kristy", "tina", "christy", "chris", "crissy", "chrissy"],
-        christine: ["kris", "kristy", "chrissy", "tina", "chris", "crissy", "christy"],
-        christoph: ["chris"],
-        christopher: ["chris", "kit"],
-        christy: ["crissy"],
-        cicely: ["cilla"],
-        cinderella: ["arilla", "rella", "cindy", "rilla"],
-        cindy: ["cinderella"],
-        claire: ["clair", "clare", "clara"],
-        clara: ["clarissa"],
-        clare: ["clara"],
-        clarence: ["clare", "clair"],
-        clarinda: ["clara"],
-        clarissa: ["cissy", "clara"],
-        claudia: ["claud"],
-        cleatus: ["cleat"],
-        clement: ["clem"],
-        clementine: ["clement", "clem"],
-        cliff: ["clifford"],
-        clifford: ["ford", "cliff"],
-        clifton: ["tony", "cliff"],
-        cole: ["colie"],
-        columbus: ["clum"],
-        con: ["conny"],
-        conrad: ["conny", "con"],
-        constance: ["connie"],
-        cordelia: ["cordy", "delia"],
-        corey: ["coco", "cordy", "ree"],
-        corinne: ["cora", "ora"],
-        cornelia: ["nelly", "cornie", "nelia", "corny", "nelle"],
-        cornelius: ["conny", "niel", "corny", "con", "neil"],
-        cory: ["coco", "cordy", "ree"],
-        courtney: ["curt", "court"],
-        crystal: ["chris", "tal", "stal", "crys"],
-        curtis: ["curt"],
-        cynthia: ["cintha", "cindy"],
-        cyrenius: ["swene", "cy", "serene", "renius", "cene"],
-        cyrus: ["cy"],
-        dahl: ["dal"],
-        dalton: ["dahl", "dal"],
-        daniel: ["dan", "danny", "dann"],
-        danielle: ["ellie", "dani"],
-        danny: ["daniel"],
-        daphne: ["daph", "daphie"],
-        darlene: ["lena", "darry"],
-        david: ["dave", "day", "davey"],
-        daycia: ["daisha", "dacia"],
-        deanne: ["ann", "dee"],
-        debbie: ["deb", "debra", "deborah", "debby"],
-        debby: ["deb"],
-        debora: ["deb", "debbie", "debby"],
-        deborah: ["deb", "debbie", "debby"],
-        debra: ["deb", "debbie"],
-        deidre: ["deedee"],
-        delbert: ["bert", "del"],
-        delia: ["fidelia", "cordelia", "delius"],
-        delilah: ["lil", "lila", "dell", "della"],
-        deliverance: ["delly", "dilly", "della"],
-        della: ["adela", "delilah", "adelaide", "dell"],
-        delores: ["lolly", "lola", "della", "dee", "dell"],
-        delpha: ["philadelphia"],
-        delphine: ["delphi", "del", "delf"],
-        demaris: ["dea", "maris", "mary"],
-        demerias: ["dea", "maris", "mary"],
-        democrates: ["mock"],
-        dennis: ["denny", "dennie"],
-        dennison: ["denny", "dennis"],
-        derek: ["derrek", "rick", "ricky"],
-        derick: ["rick", "ricky"],
-        derrick: ["ricky", "eric", "rick"],
-        deuteronomy: ["duty"],
-        diana: ["dicey", "didi", "di"],
-        diane: ["dicey", "didi", "di", "dianne", "dian"],
-        dicey: ["dicie"],
-        dick: ["rick", "richard"],
-        dickson: ["dick"],
-        domenic: ["dom", "nic"],
-        dominic: ["dom", "nic"],
-        dominick: ["dom", "nick", "nicky"],
-        dominico: ["dom"],
-        donald: ["dony", "donnie", "don", "donny"],
-        donato: ["don"],
-        donna: ["dona"],
-        donovan: ["dony", "donnie", "don", "donny"],
-        dorcus: ["darkey"],
-        dorinda: ["dorothea", "dora"],
-        doris: ["dora"],
-        dorothea: ["doda", "dora"],
-        dorothy: ["dortha", "dolly", "dot", "dotty", "dora", "dottie"],
-        dotha: ["dotty"],
-        dotty: ["dot"],
-        douglas: ["doug"],
-        drusilla: ["silla"],
-        duncan: ["dunk"],
-        earnest: ["ernestine", "ernie"],
-        ebbie: ["eb"],
-        ebenezer: ["ebbie", "eben", "eb"],
-        eddie: ["ed"],
-        eddy: ["ed"],
-        edgar: ["ed", "eddie", "eddy"],
-        edith: ["edie", "edye"],
-        edmond: ["ed", "eddie", "eddy"],
-        edmund: ["ed", "eddie", "ted", "eddy", "ned"],
-        edna: ["edny"],
-        eduardo: ["ed", "eddie", "eddy"],
-        edward: ["teddy", "ed", "ned", "ted", "eddy", "eddie"],
-        edwin: ["ed", "eddie", "win", "eddy", "ned"],
-        edwina: ["edwin"],
-        edyth: ["edie", "edye"],
-        edythe: ["edie", "edye"],
-        egbert: ["bert", "burt"],
-        eighta: ["athy"],
-        eileen: ["helen"],
-        elaine: ["lainie", "helen"],
-        elbert: ["albert", "bert"],
-        elbertson: ["elbert", "bert"],
-        eldora: ["dora"],
-        eleanor: ["lanna", "nora", "nelly", "ellie", "elaine", "ellen", "lenora"],
-        eleazer: ["lazar"],
-        elena: ["helen"],
-        elias: ["eli", "lee", "lias"],
-        elijah: ["lige", "eli"],
-        eliphalel: ["life"],
-        eliphalet: ["left"],
-        elisa: ["lisa"],
-        elisha: ["lish", "eli"],
-        eliza: ["elizabeth"],
-        elizabeth: ["libby", "lisa", "lib", "lizzy", "lizzie", "eliza", "betsy", "liza", "betty", "bessie", "bess", "beth", "liz"],
-        ella: ["ellen", "el"],
-        ellen: ["nellie", "nell", "helen"],
-        ellender: ["nellie", "ellen", "helen"],
-        ellie: ["elly"],
-        ellswood: ["elsey"],
-        elminie: ["minnie"],
-        elmira: ["ellie", "elly", "mira"],
-        elnora: ["nora"],
-        eloise: ["heloise", "louise"],
-        elouise: ["louise"],
-        elsie: ["elsey"],
-        elswood: ["elsey"],
-        elvira: ["elvie"],
-        elwood: ["woody"],
-        elysia: ["lisa", "lissa"],
-        elze: ["elsey"],
-        emanuel: ["manuel", "manny"],
-        emeline: ["em", "emmy", "emma", "milly", "emily"],
-        emil: ["emily", "em"],
-        emily: ["emmy", "millie", "emma", "mel", "em"],
-        emma: ["emmy", "em"],
-        epaphroditius: ["dite", "ditus", "eppa", "dyche", "dyce"],
-        ephraim: ["eph"],
-        erasmus: ["raze", "rasmus"],
-        eric: ["rick", "ricky"],
-        ernest: ["ernie"],
-        ernestine: ["teeny", "ernest", "tina", "erna"],
-        erwin: ["irwin"],
-        eseneth: ["senie"],
-        essy: ["es"],
-        estella: ["essy", "stella"],
-        estelle: ["essy", "stella"],
-        esther: ["hester", "essie"],
-        eudicy: ["dicey"],
-        eudora: ["dora"],
-        eudoris: ["dossie", "dosie"],
-        eugene: ["gene"],
-        eunice: ["nicie"],
-        euphemia: ["effie", "effy"],
-        eurydice: ["dicey"],
-        eustacia: ["stacia", "stacy"],
-        eva: ["eve"],
-        evaline: ["eva", "lena", "eve"],
-        evangeline: ["ev", "evan", "vangie"],
-        evelyn: ["evelina", "ev", "eve"],
-        experience: ["exie"],
-        ezekiel: ["zeke", "ez"],
-        ezideen: ["ez"],
-        ezra: ["ez"],
-        faith: ["fay"],
-        fallon: ["falon", "fal", "fall", "fallie", "fally", "falcon", "lon", "lonnie"],
-        felicia: ["fel", "felix", "feli"],
-        felicity: ["flick", "tick"],
-        feltie: ["felty"],
-        ferdinand: ["freddie", "freddy", "ferdie", "fred"],
-        ferdinando: ["nando", "ferdie", "fred"],
-        fidelia: ["delia"],
-        fionna: ["fiona"],
-        flora: ["florence"],
-        florence: ["flossy", "flora", "flo"],
-        floyd: ["lloyd"],
-        fran: ["frannie"],
-        frances: ["sis", "cissy", "frankie", "franniey", "fran", "francie", "frannie", "fanny", "franny"],
-        francie: ["francine"],
-        francine: ["franniey", "fran", "frannie", "francie", "franny"],
-        francis: ["fran", "frankie", "frank"],
-        frankie: ["frank", "francis"],
-        franklin: ["fran", "frank"],
-        franklind: ["fran", "frank"],
-        freda: ["frieda"],
-        frederica: ["frederick", "freddy", "erika", "erica", "rickey"],
-        frederick: ["freddie", "freddy", "fritz", "fred", "erick", "ricky", "derick", "rick"],
-        fredericka: ["freddy", "ricka", "freda", "frieda", "ericka", "rickey"],
-        frieda: ["freddie", "freddy", "fred"],
-        gabriel: ["gabe", "gabby"],
-        gabriella: ["ella", "gabby"],
-        gabrielle: ["ella", "gabby"],
-        gareth: ["gary", "gare"],
-        garrett: ["gare", "gary", "garry", "rhett", "garratt", "garret", "barrett", "jerry"],
-        garrick: ["garri"],
-        genevieve: ["jean", "eve", "jenny"],
-        geoffrey: ["geoff", "jeff"],
-        george: ["georgie"],
-        georgiana: ["georgia"],
-        georgine: ["george"],
-        gerald: ["gerry", "jerry"],
-        geraldine: ["gerry", "gerrie", "jerry", "dina", "gerri"],
-        gerhardt: ["gay"],
-        gertie: ["gertrude", "gert"],
-        gertrude: ["gertie", "gert", "trudy"],
-        gilbert: ["bert", "gil", "wilber"],
-        giovanni: ["gio"],
-        glenn: ["glen"],
-        gloria: ["glory"],
-        governor: ["govie"],
-        greenberry: ["green", "berry"],
-        greggory: ["gregg"],
-        gregory: ["greg"],
-        gretchen: ["margaret"],
-        griselda: ["grissel"],
-        gum: ["monty"],
-        gus: ["gussie"],
-        gustavus: ["gus", "gussie"],
-        gwen: ["wendy"],
-        gwendolyn: ["gwen", "wendy"],
-        hailey: ["hayley", "haylee"],
-        hamilton: ["ham"],
-        hannah: ["nan", "nanny", "anna"],
-        harold: ["hal", "harry", "hap", "haps"],
-        harriet: ["hattie"],
-        harrison: ["harry", "hap", "haps"],
-        harry: ["harold", "henry", "hap", "haps"],
-        haseltine: ["hassie"],
-        haylee: ["hayley", "hailey"],
-        hayley: ["hailey", "haylee"],
-        heather: ["hetty"],
-        helen: ["lena", "ella", "ellen", "ellie"],
-        helena: ["eileen", "lena", "nell", "nellie", "eleanor", "elaine", "ellen", "aileen"],
-        helene: ["lena", "ella", "ellen", "ellie"],
-        heloise: ["lois", "eloise", "elouise"],
-        henrietta: ["hank", "etta", "etty", "retta", "nettie", "henny"],
-        henry: ["hank", "hal", "harry", "hap", "haps"],
-        hephsibah: ["hipsie"],
-        hepsibah: ["hipsie"],
-        herbert: ["bert", "herb"],
-        herman: ["harman", "dutch"],
-        hermione: ["hermie"],
-        hester: ["hessy", "esther", "hetty"],
-        hezekiah: ["hy", "hez", "kiah"],
-        hillary: ["hilary"],
-        hipsbibah: ["hipsie"],
-        hiram: ["hy"],
-        honora: ["honey", "nora", "norry", "norah"],
-        hopkins: ["hopp", "hop"],
-        horace: ["horry"],
-        hortense: ["harty", "tensey"],
-        hosea: ["hosey", "hosie"],
-        howard: ["hal", "howie"],
-        hubert: ["bert", "hugh", "hub"],
-        ian: ["john"],
-        ignatius: ["natius", "iggy", "nate", "nace"],
-        ignatzio: ["naz", "iggy", "nace"],
-        immanuel: ["manuel", "emmanuel"],
-        india: ["indie", "indy"],
-        inez: ["agnes"],
-        iona: ["onnie"],
-        irene: ["rena"],
-        irvin: ["irving"],
-        irving: ["irv"],
-        irwin: ["erwin"],
-        isaac: ["ike", "zeke"],
-        isabel: ["tibbie", "bell", "nib", "belle", "bella", "nibby", "ib", "issy"],
-        isabella: ["tibbie", "nib", "belle", "bella", "nibby", "ib", "issy"],
-        isabelle: ["tibbie", "nib", "belle", "bella", "nibby", "ib", "issy"],
-        isadora: ["issy", "dora"],
-        isadore: ["izzy"],
-        isaiah: ["zadie", "zay"],
-        isidore: ["izzy"],
-        iva: ["ivy"],
-        ivan: ["john"],
-        jackson: ["jack"],
-        jacob: ["jaap", "jake", "jay"],
-        jacobus: ["jacob"],
-        jacqueline: ["jackie", "jack", "jacqui"],
-        jahoda: ["hody", "hodie", "hoda"],
-        jakob: ["jake"],
-        jalen: ["jay", "jaye", "len", "lenny", "lennie", "jaylin", "alen", "al", "haylen", "jaelin", "jaelyn", "jailyn", "jaylyn"],
-        james: ["jimmy", "jim", "jamie", "jimmie", "jem"],
-        jamey: ["james", "jamie"],
-        jamie: ["james"],
-        jane: ["janie", "jessie", "jean", "jennie"],
-        janet: ["jan", "jessie"],
-        janice: ["jan"],
-        jannett: ["nettie"],
-        jasper: ["jap", "casper"],
-        jayme: ["jay"],
-        jean: ["jane", "jeannie"],
-        jeanette: ["jessie", "jean", "janet", "nettie"],
-        jeanne: ["jane", "jeannie"],
-        jebadiah: ["jeb"],
-        jedediah: ["dyer", "jed", "diah"],
-        jedidiah: ["dyer", "jed", "diah"],
-        jefferey: ["jeff"],
-        jefferson: ["sonny", "jeff"],
-        jeffery: ["jeff"],
-        jeffrey: ["geoff", "jeff"],
-        jehiel: ["hiel"],
-        jehu: ["hugh", "gee"],
-        jemima: ["mima"],
-        jennet: ["jessie", "jenny", "jenn"],
-        jennifer: ["jennie", "jenn", "jen", "jenny", "jenni"],
-        jeremiah: ["jereme", "jerry"],
-        jeremy: ["jezza", "jez"],
-        jerita: ["rita"],
-        jerry: ["jereme", "geraldine", "gerry", "geri"],
-        jessica: ["jessie", "jess"],
-        jessie: ["jane", "jess", "janet"],
-        jillian: ["jill"],
-        jim: ["jimmie"],
-        jincy: ["jane"],
-        jinsy: ["jane"],
-        joan: ["jo", "nonie"],
-        joann: ["jo"],
-        joanna: ["hannah", "jody", "jo", "joan", "jodi"],
-        joanne: ["jo"],
-        jody: ["jo"],
-        joe: ["joey"],
-        johann: ["john"],
-        johanna: ["jo"],
-        johannah: ["hannah", "jody", "joan", "nonie", "jo"],
-        johannes: ["jonathan", "john", "johnny"],
-        john: ["jon", "johnny", "jonny", "jonnie", "jack", "jock", "ian"],
-        johnathan: ["johnathon", "jonathan", "jonathon", "jon", "jonny", "john", "johny", "jonnie", "nathan"],
-        johnathon: ["johnathan", "jonathon", "jonathan", "jon", "jonny", "john", "johny", "jonnie"],
-        jon: ["john", "johnny", "jonny", "jonnie"],
-        jonathan: ["johnathan", "johnathon", "jonathon", "jon", "jonny", "john", "johny", "jonnie", "nathan"],
-        jonathon: ["johnathan", "johnathon", "jonathan", "jon", "jonny", "john", "johny", "jonnie"],
-        joseph: ["jody", "jos", "joe", "joey"],
-        josephine: ["fina", "jody", "jo", "josey", "joey", "josie"],
-        josetta: ["jettie"],
-        josey: ["josophine"],
-        joshua: ["jos", "josh", "joe"],
-        josiah: ["jos"],
-        josophine: ["jo", "joey", "josey"],
-        joyce: ["joy"],
-        juanita: ["nita", "nettie"],
-        judah: ["juder", "jude"],
-        judith: ["judie", "juda", "judy", "judi", "jude"],
-        judson: ["sonny", "jud"],
-        judy: ["judith"],
-        julia: ["julie", "jill"],
-        julian: ["jule"],
-        julias: ["jule"],
-        julie: ["julia", "jule"],
-        june: ["junius"],
-        junior: ["junie", "june", "jr"],
-        justin: ["justus", "justina", "juston"],
-        kaitlin: ["kait", "kaitie"],
-        kaitlyn: ["kait", "kaitie"],
-        kaitlynn: ["kait", "kaitie"],
-        kalli: ["kali", "cali"],
-        kameron: ["kam"],
-        karla: ["carla", "carly"],
-        kasey: ["k.c."],
-        katarina: ["catherine", "tina"],
-        kate: ["kay"],
-        katelin: ["kay", "kate", "kaye"],
-        katelyn: ["kay", "kate", "kaye"],
-        katherine: ["kathy", "katy", "lena", "kittie", "kaye", "kit", "trina", "cathy", "kay", "kate", "cassie"],
-        kathleen: ["kathy", "katy", "lena", "kittie", "kit", "trina", "cathy", "kay", "cassie"],
-        kathryn: ["kathy", "katie", "kate"],
-        katia: ["kate", "katie"],
-        katy: ["kathy", "katie", "kate"],
-        kayla: ["kay"],
-        kelley: ["kellie", "kelli", "kelly"],
-        kendall: ["ken", "kenny"],
-        kendra: ["kenj", "kenji", "kay", "kenny"],
-        kendrick: ["ken", "kenny"],
-        kendrik: ["ken", "kenny"],
-        kenneth: ["ken", "kenny", "kendrick"],
-        kenny: ["ken", "kenneth"],
-        kent: ["ken", "kenny", "kendrick"],
-        kerry: ["kerri"],
-        kevin: ["kev"],
-        keziah: ["kizza", "kizzie"],
-        kimberley: ["kim", "kimberly", "kimberli"],
-        kimberly: ["kim", "kimberli", "kimberley"],
-        kingsley: ["king"],
-        kingston: ["king"],
-        kit: ["kittie"],
-        kris: ["chris"],
-        kristel: ["kris"],
-        kristen: ["chris"],
-        kristin: ["chris"],
-        kristine: ["kris", "kristy", "tina", "christy", "chris", "crissy"],
-        kristopher: ["chris", "kris"],
-        kristy: ["chris"],
-        kymberly: ["kym"],
-        lafayette: ["laffie", "fate"],
-        lamont: ["monty"],
-        laodicia: ["dicy", "cenia"],
-        larry: ["laurence", "lawrence"],
-        latisha: ["tish", "tisha"],
-        laurel: ["laurie"],
-        lauren: ["ren", "laurie"],
-        laurence: ["lorry", "larry", "lon", "lonny", "lorne"],
-        laurinda: ["laura", "lawrence"],
-        lauryn: ["laurie"],
-        laveda: ["veda"],
-        laverne: ["vernon", "verna"],
-        lavina: ["vina", "viney", "ina"],
-        lavinia: ["vina", "viney", "ina"],
-        lavonia: ["vina", "vonnie", "wyncha", "viney"],
-        lavonne: ["von"],
-        lawrence: ["lorry", "larry", "lon", "lonny", "lorne", "lawrie"],
-        leanne: ["lea", "annie"],
-        lecurgus: ["curg"],
-        leilani: ["lani"],
-        lemuel: ["lem"],
-        lena: ["ellen"],
-        lenora: ["nora", "lee"],
-        leo: ["leon"],
-        leonard: ["lineau", "leo", "leon", "len", "lenny"],
-        leonidas: ["lee", "leon"],
-        leonora: ["nora", "nell", "nellie"],
-        leonore: ["nora", "honor", "elenor"],
-        leroy: ["roy", "lee", "l.r."],
-        lesley: ["les"],
-        leslie: ["les"],
-        lester: ["les"],
-        letitia: ["tish", "titia", "lettice", "lettie"],
-        levi: ["lee"],
-        levicy: ["vicy"],
-        levone: ["von"],
-        lib: ["libby"],
-        lidia: ["lyddy"],
-        lil: ["lilly", "lily"],
-        lillah: ["lil", "lilly", "lily", "lolly"],
-        lillian: ["lil", "lilly", "lolly"],
-        lilly: ["lily", "lil"],
-        lincoln: ["link"],
-        linda: ["lindy", "lynn"],
-        lindsay: ["lindsey", "lindsie", "lindsy"],
-        lindy: ["lynn"],
-        lionel: ["leon"],
-        lisa: ["liz"],
-        littleberry: ["little", "berry", "l.b."],
-        lizzie: ["liz"],
-        lois: ["lou", "louise"],
-        lonzo: ["lon"],
-        lorelei: ["lori", "lorrie", "laurie"],
-        lorenzo: ["loren"],
-        loretta: ["etta", "lorrie", "retta", "lorie"],
-        lorraine: ["lorrie", "lorie"],
-        lotta: ["lottie"],
-        lou: ["louis", "lu"],
-        louis: ["lewis", "louise", "louie", "lou"],
-        louisa: ["eliza", "lou", "lois"],
-        louise: ["eliza", "lou", "lois"],
-        louvinia: ["vina", "vonnie", "wyncha", "viney"],
-        lucas: ["luke"],
-        lucia: ["lucy", "lucius"],
-        lucias: ["luke"],
-        lucille: ["cille", "lu", "lucy", "lou"],
-        lucina: ["sinah"],
-        lucinda: ["lu", "lucy", "cindy", "lou"],
-        lucretia: ["creasey"],
-        lucy: ["lucinda"],
-        luella: ["lula", "ella", "lu"],
-        luke: ["lucas"],
-        lunetta: ["nettie"],
-        lurana: ["lura"],
-        luther: ["luke"],
-        lydia: ["lyddy"],
-        lyndon: ["lindy", "lynn"],
-        mabel: ["mehitabel", "amabel"],
-        mac: ["mc"],
-        mack: ["mac", "mc"],
-        mackenzie: ["kenzy", "mac", "mack"],
-        maddison: ["maddie", "maddi"],
-        maddy: ["madelyn", "madeline", "madge"],
-        madeline: ["maggie", "lena", "magda", "maddy", "madge", "maddie", "maddi", "madie", "maud"],
-        madelyn: ["maddy", "madie"],
-        madie: ["madeline", "madelyn"],
-        madison: ["mattie", "maddy"],
-        maegen: ["meg"],
-        magdalena: ["maggie", "lena"],
-        magdelina: ["lena", "magda", "madge", "maggie"],
-        mahala: ["hallie"],
-        makayla: ["kayla"],
-        malachi: ["mally"],
-        malcolm: ["mac", "mal", "malc"],
-        malinda: ["lindy"],
-        manda: ["mandy"],
-        mandie: ["amanda"],
-        mandy: ["amanda"],
-        manerva: ["minerva", "nervie", "eve", "nerva"],
-        manny: ["manuel"],
-        manoah: ["noah"],
-        manola: ["nonnie"],
-        manuel: ["emanuel", "manny"],
-        marcus: ["mark", "marc"],
-        margaret: [
-          "maggie",
-          "meg",
-          "peg",
-          "midge",
-          "margy",
-          "margie",
-          "madge",
-          "peggy",
-          "maggy",
-          "marge",
-          "daisy",
-          "margery",
-          "gretta",
-          "rita"
-        ],
-        margaretta: ["maggie", "meg", "peg", "midge", "margie", "madge", "peggy", "marge", "daisy", "margery", "gretta", "rita"],
-        margarita: [
-          "maggie",
-          "meg",
-          "metta",
-          "midge",
-          "greta",
-          "megan",
-          "maisie",
-          "madge",
-          "marge",
-          "daisy",
-          "peggie",
-          "rita",
-          "margo"
-        ],
-        marge: ["margery", "margaret", "margaretta"],
-        margie: ["marjorie"],
-        marguerite: ["peggy"],
-        mariah: ["mary", "maria"],
-        marian: ["marianna", "marion"],
-        marie: ["mae", "mary"],
-        marietta: [
-          "mariah",
-          "mercy",
-          "polly",
-          "may",
-          "molly",
-          "mitzi",
-          "minnie",
-          "mollie",
-          "mae",
-          "maureen",
-          "marion",
-          "marie",
-          "mamie",
-          "mary",
-          "maria"
-        ],
-        marilyn: ["mary"],
-        marion: ["mary"],
-        marissa: ["rissa"],
-        marjorie: ["margy", "margie"],
-        marni: ["marnie"],
-        marsha: ["marcie", "mary", "marcia"],
-        martha: ["marty", "mattie", "mat", "patsy", "patty"],
-        martin: ["marty"],
-        martina: ["tina"],
-        martine: ["tine"],
-        marv: ["marvin"],
-        marvin: ["marv"],
-        mary: ["mamie", "molly", "mae", "polly", "mitzi", "marie"],
-        masayuki: ["masa"],
-        mat: ["mattie"],
-        mathew: ["mat", "maty", "matt"],
-        mathilda: ["tillie", "patty"],
-        matilda: ["tilly", "maud", "matty", "tilla"],
-        matthew: ["thys", "matt", "thias", "mattie", "matty"],
-        matthews: ["matt", "mattie", "matty"],
-        matthias: ["thys", "matt", "thias"],
-        maud: ["middy"],
-        maureen: ["mary"],
-        maurice: ["morey"],
-        mavery: ["mave"],
-        mavine: ["mave"],
-        maximillian: ["max"],
-        maxine: ["max"],
-        maxwell: ["max"],
-        may: ["mae"],
-        mckenna: ["ken", "kenna", "meaka"],
-        medora: ["dora"],
-        megan: ["meg"],
-        meghan: ["meg"],
-        mehitabel: ["hetty", "mitty", "mabel", "hitty"],
-        melanie: ["mellie"],
-        melchizedek: ["zadock", "dick"],
-        melinda: ["linda", "mel", "lynn", "mindy", "lindy"],
-        melissa: ["lisa", "mel", "missy", "milly", "lissa"],
-        mellony: ["mellia"],
-        melody: ["lodi"],
-        melvin: ["mel"],
-        melvina: ["vina"],
-        mercedes: ["merci", "sadie", "mercy"],
-        merv: ["mervin"],
-        mervin: ["merv"],
-        mervyn: ["merv"],
-        micajah: ["cage"],
-        michael: ["micky", "mike", "micah", "mick", "mikey", "mickey"],
-        micheal: ["mike", "miky", "mikey"],
-        michelle: ["mickey", "shelley", "shely", "chelle", "shellie", "shelly"],
-        mick: ["micky"],
-        miguel: ["miguell", "miguael", "miguaell", "miguail", "miguaill", "miguayl", "miguayll", "michael", "mike", "miggy"],
-        mike: ["micky", "mick", "michael"],
-        mildred: ["milly"],
-        millicent: ["missy", "milly"],
-        minerva: ["minnie"],
-        minnie: ["wilhelmina"],
-        miranda: ["randy", "mandy", "mira"],
-        miriam: ["mimi", "mitzi", "mitzie"],
-        missy: ["melissa"],
-        mitch: ["mitchell"],
-        mitchell: ["mitch"],
-        mitzi: ["mary", "mittie", "mitty"],
-        mitzie: ["mittie", "mitty"],
-        monet: ["nettie"],
-        monica: ["monna", "monnie"],
-        monteleon: ["monte"],
-        montesque: ["monty"],
-        montgomery: ["monty", "gum"],
-        monty: ["lamont"],
-        morris: ["morey"],
-        mortimer: ["mort"],
-        moses: ["amos", "mose", "moss"],
-        muriel: ["mur"],
-        myrtle: ["myrt", "myrti", "mert"],
-        nadine: ["nada", "deedee"],
-        nancy: ["ann", "nan", "nanny"],
-        naomi: ["omi"],
-        napoleon: ["nap", "nappy", "leon"],
-        natalie: ["natty", "nettie"],
-        natasha: ["tasha", "nat"],
-        nathan: ["nate", "nat"],
-        nathaniel: ["than", "nathan", "nate", "nat", "natty"],
-        nelle: ["nelly"],
-        nelson: ["nels"],
-        newt: ["newton"],
-        newton: ["newt"],
-        nicholas: ["nick", "claes", "claas", "nic", "nicky", "nico", "nickie"],
-        nicholette: ["nickey", "nikki", "cole", "nicki", "nicky", "nichole", "nicole"],
-        nicodemus: ["nick", "nic", "nicky", "nico", "nickie"],
-        nicole: ["nole", "nikki", "cole", "nicki", "nicky"],
-        nikolas: ["nick", "claes", "nic", "nicky", "nico", "nickie"],
-        nikole: ["nikki"],
-        nora: ["nonie"],
-        norbert: ["bert", "norby"],
-        norbusamte: ["norbu"],
-        norman: ["norm"],
-        nowell: ["noel"],
-        obadiah: ["dyer", "obed", "obie", "diah"],
-        obediah: ["obie"],
-        obedience: ["obed", "beda", "beedy", "biddie"],
-        obie: ["obediah"],
-        octavia: ["tave", "tavia"],
-        odell: ["odo"],
-        olive: ["nollie", "livia", "ollie"],
-        oliver: ["ollie"],
-        olivia: ["nollie", "livia", "ollie"],
-        ollie: ["oliver"],
-        onicyphorous: ["cyphorus", "osaforus", "syphorous", "one", "cy", "osaforum"],
-        orilla: ["rilly", "ora"],
-        orlando: ["roland"],
-        orphelia: ["phelia"],
-        ossy: ["ozzy"],
-        oswald: ["ozzy", "waldo", "ossy"],
-        otis: ["ode", "ote"],
-        pamela: ["pam"],
-        pandora: ["dora"],
-        parmelia: ["amelia", "milly", "melia"],
-        parthenia: ["teeny", "parsuny", "pasoonie", "phenie"],
-        patience: ["pat", "patty"],
-        patricia: ["tricia", "pat", "patsy", "patty", "patti", "trish", "trisha"],
-        patrick: ["pate", "peter", "pat", "patsy", "paddy"],
-        patsy: ["patty"],
-        patty: ["patricia"],
-        paul: ["polly"],
-        paula: ["polly", "lina"],
-        paulina: ["polly", "lina"],
-        pauline: ["polly"],
-        peggy: ["peg"],
-        pelegrine: ["perry"],
-        penelope: ["penny"],
-        percival: ["percy"],
-        peregrine: ["perry"],
-        permelia: ["melly", "milly", "mellie"],
-        pernetta: ["nettie"],
-        persephone: ["seph", "sephy"],
-        peter: ["pete", "pate"],
-        petronella: ["nellie"],
-        pheney: ["josephine"],
-        pheriba: ["pherbia", "ferbie"],
-        philadelphia: ["delphia"],
-        philander: ["fie"],
-        philetus: ["leet", "phil"],
-        philinda: ["linda", "lynn", "lindy"],
-        philip: ["phil", "pip"],
-        philipina: ["phoebe", "penie", "pip"],
-        phillip: ["phil", "pip"],
-        philly: ["delphia"],
-        philomena: ["menaalmena"],
-        phoebe: ["fifi"],
-        pinckney: ["pink"],
-        pleasant: ["ples"],
-        pocahontas: ["pokey"],
-        posthuma: ["humey"],
-        prescott: ["scotty", "scott", "pres"],
-        priscilla: ["prissy", "cissy", "cilla"],
-        providence: ["provy"],
-        prudence: ["prue", "prudy"],
-        prudy: ["prudence"],
-        rachel: ["shelly", "rachael"],
-        rafaela: ["rafa"],
-        ramona: ["mona"],
-        randolph: ["dolph", "randy"],
-        raphael: ["ralph"],
-        ray: ["raymond"],
-        raymond: ["ray"],
-        reba: ["beck", "becca"],
-        rebecca: ["beck", "becca", "reba", "becky"],
-        reggie: ["reginald", "reg"],
-        regina: ["reggie", "gina"],
-        reginald: ["reggie", "naldo", "reg", "renny"],
-        relief: ["leafa"],
-        reuben: ["rube"],
-        reynold: ["reginald"],
-        rhoda: ["rodie"],
-        rhodella: ["della"],
-        rhyna: ["rhynie"],
-        ricardo: ["rick", "ricky"],
-        rich: ["dick", "rick"],
-        richard: ["dick", "dickon", "dickie", "dicky", "rick", "rich", "ricky", "richie"],
-        rick: ["ricky"],
-        ricky: ["dick", "rich"],
-        robert: ["hob", "hobkin", "dob", "rob", "bobby", "dobbin", "bob", "bill", "billy", "robby"],
-        roberta: ["robbie", "bert", "bobbie", "birdie", "bertie", "roby", "birtie"],
-        roberto: ["rob"],
-        roderick: ["rod", "erick", "rickie", "roddy"],
-        rodger: ["roge", "bobby", "hodge", "rod", "robby", "rupert", "robin"],
-        rodney: ["rod"],
-        roger: ["roge", "bobby", "hodge", "rod", "robby", "rupert", "robin"],
-        roland: ["rollo", "lanny", "orlando", "rolly"],
-        ron: ["ronnie", "ronny"],
-        ronald: ["naldo", "ron", "ronny", "ronnie"],
-        ronny: ["ronald"],
-        rosa: ["rose"],
-        rosabel: ["belle", "roz", "rosa", "rose"],
-        rosabella: ["belle", "roz", "rosa", "rose", "bella"],
-        rosaenn: ["ann"],
-        rosaenna: ["ann"],
-        rosalinda: ["linda", "roz", "rosa", "rose"],
-        rosalyn: ["linda", "roz", "rosa", "rose"],
-        roscoe: ["ross"],
-        rose: ["rosie"],
-        roseann: ["rose", "ann", "rosie", "roz"],
-        roseanna: ["rose", "ann", "rosie", "roz"],
-        roseanne: ["ann"],
-        rosemary: ["rosemarie", "marie", "mary", "rose", "rosey"],
-        rosina: ["sina"],
-        roxane: ["rox", "roxie"],
-        roxanna: ["roxie", "rose", "ann"],
-        roxanne: ["roxie", "rose", "ann"],
-        rudolph: ["dolph", "rudy", "olph", "rolf"],
-        rudolphus: ["dolph", "rudy", "olph", "rolf"],
-        russell: ["russ", "rusty"],
-        ryan: ["ry"],
-        sabrina: ["brina"],
-        safieel: ["safie"],
-        salome: ["loomie"],
-        salvador: ["sal", "sally"],
-        sam: ["sammy"],
-        samantha: ["sam", "sammy", "mantha"],
-        sampson: ["sam", "sammy"],
-        samson: ["sam", "sammy"],
-        samuel: ["sam", "sammy"],
-        samyra: ["sam", "sammy", "myra"],
-        sandra: ["sandy", "cassandra"],
-        sandy: ["sandra"],
-        sanford: ["sandy"],
-        sarah: ["sally", "sadie", "sara"],
-        sarilla: ["silla"],
-        savannah: ["vannie", "anna", "savanna"],
-        scott: ["scotty", "sceeter", "squat", "scottie"],
-        sebastian: ["sebby", "seb"],
-        selma: ["anselm"],
-        serena: ["rena"],
-        serilla: ["rilla"],
-        seymour: ["see", "morey"],
-        shaina: ["sha", "shay"],
-        sharon: ["sha", "shay"],
-        shaun: ["shawn"],
-        shawn: ["shaun"],
-        sheila: ["cecilia"],
-        sheldon: ["shelly"],
-        shelton: ["tony", "shel", "shelly"],
-        sheridan: ["dan", "danny", "sher"],
-        sheryl: ["sher", "sheri", "sherry", "sherryl", "sherri", "cheri", "cherie"],
-        shirley: ["sherry", "lee", "shirl"],
-        sibbilla: ["sybill", "sibbie", "sibbell"],
-        sidney: ["syd", "sid"],
-        sigfired: ["sid"],
-        sigfrid: ["sid"],
-        sigismund: ["sig"],
-        silas: ["si"],
-        silence: ["liley"],
-        silvester: ["vester", "si", "sly", "vest", "syl"],
-        simeon: ["si", "sion"],
-        simon: ["si", "sion"],
-        smith: ["smitty"],
-        socrates: ["crate"],
-        solomon: ["sal", "salmon", "sol", "solly", "saul", "zolly"],
-        sondra: ["dre", "sonnie"],
-        sophia: ["sophie"],
-        sophronia: ["frona", "sophia", "fronia"],
-        stacey: ["stacy", "staci", "stacie"],
-        stacie: ["stacy", "stacey", "staci"],
-        stacy: ["staci"],
-        stephan: ["steve"],
-        stephanie: ["stephie", "annie", "steph", "stevie", "stephine", "stephany", "stephani", "steffi", "steffie"],
-        stephen: ["steve", "steph"],
-        steven: ["steve", "steph", "stevie"],
-        stuart: ["stu"],
-        sue: ["susie", "susan"],
-        sullivan: ["sully", "van"],
-        susan: ["hannah", "susie", "sue", "sukey", "suzie"],
-        susannah: ["hannah", "susie", "sue", "sukey"],
-        susie: ["suzie"],
-        suzanne: ["suki", "sue", "susie"],
-        sybill: ["sibbie"],
-        sydney: ["sid"],
-        sylvanus: ["sly", "syl"],
-        sylvester: ["sy", "sly", "vet", "syl", "vester", "si", "vessie"],
-        tabby: ["tabitha"],
-        tabitha: ["tabby"],
-        tamarra: ["tammy"],
-        tammie: ["tammy", "tami"],
-        tammy: ["tammie", "tami"],
-        tanafra: ["tanny"],
-        tasha: ["tash", "tashie"],
-        ted: ["teddy"],
-        temperance: ["tempy"],
-        terence: ["terry"],
-        teresa: ["terry", "tess", "tessa", "tessie"],
-        terri: ["terrie", "terry", "teri"],
-        terry: ["terence"],
-        tess: ["teresa", "theresa"],
-        tessa: ["teresa", "theresa"],
-        thad: ["thaddeus"],
-        thaddeus: ["thad"],
-        theo: ["theodore"],
-        theodora: ["dora"],
-        theodore: ["theo", "ted", "teddy"],
-        theodosia: ["theo", "dosia", "theodosius"],
-        theophilus: ["ophi"],
-        theotha: ["otha"],
-        theresa: ["tessie", "thirza", "tessa", "terry", "tracy", "tess", "thursa", "traci", "tracie"],
-        thom: ["thomas", "tommy", "tom"],
-        thomas: ["thom", "tommy", "tom"],
-        thomasa: ["tamzine"],
-        tiffany: ["tiff", "tiffy"],
-        tilford: ["tillie"],
-        tim: ["timmy"],
-        timothy: ["tim", "timmy"],
-        tina: ["christina"],
-        tisha: ["tish"],
-        tobias: ["bias", "toby"],
-        tom: ["thomas", "tommy"],
-        tony: ["anthony"],
-        tranquilla: ["trannie", "quilla"],
-        trish: ["trisha", "patricia"],
-        trix: ["trixie"],
-        trudy: ["gertrude"],
-        tryphena: ["phena"],
-        unice: ["eunice", "nicie"],
-        uriah: ["riah"],
-        ursula: ["sulie", "sula"],
-        valentina: ["felty", "vallie", "val"],
-        valentine: ["felty"],
-        valeri: ["valerie", "val"],
-        valerie: ["val"],
-        vanburen: ["buren"],
-        vandalia: ["vannie"],
-        vanessa: ["essa", "vanna", "nessa"],
-        vernisee: ["nicey"],
-        veronica: ["vonnie", "ron", "ronna", "ronie", "frony", "franky", "ronnie", "ronny"],
-        vic: ["vicki", "vickie", "vicky", "victor"],
-        vicki: ["vickie", "vicky", "victoria"],
-        victor: ["vic"],
-        victoria: ["torie", "vic", "vicki", "tory", "vicky", "tori", "torri", "torrie", "vickie"],
-        vijay: ["vij"],
-        vincent: ["vic", "vince", "vinnie", "vin", "vinny"],
-        vincenzo: ["vic", "vinnie", "vin", "vinny", "vince"],
-        vinson: ["vinny", "vinnie", "vin", "vince"],
-        viola: ["ola", "vi"],
-        violetta: ["lettie"],
-        virginia: ["jane", "jennie", "ginny", "virgy", "ginger"],
-        vivian: ["vi", "viv"],
-        waldo: ["ozzy", "ossy"],
-        wallace: ["wally"],
-        wally: ["walt"],
-        walter: ["wally", "walt"],
-        washington: ["wash"],
-        webster: ["webb"],
-        wendy: ["wen"],
-        wesley: ["wes"],
-        westley: ["west", "wes", "farmboy"],
-        wilber: ["will", "bert"],
-        wilbur: ["willy", "willie", "will"],
-        wilda: ["willie"],
-        wilfred: ["will", "willie", "fred", "wil"],
-        wilhelm: ["wil", "willie"],
-        wilhelmina: ["mina", "wilma", "willie", "minnie"],
-        will: ["bill", "willie", "wilbur", "fred"],
-        william: ["willy", "bell", "bela", "bill", "will", "billy", "willie", "wil"],
-        willie: ["william", "fred"],
-        willis: ["willy", "bill"],
-        wilma: ["william", "billiewilhelm"],
-        wilson: ["will", "willy", "willie"],
-        winfield: ["field", "winny", "win"],
-        winifred: ["freddie", "winnie", "winnet"],
-        winnie: ["winnifred"],
-        winnifred: ["freddie", "freddy", "winny", "winnie", "fred"],
-        winny: ["winnifred"],
-        winton: ["wint"],
-        woodrow: ["woody", "wood", "drew"],
-        yeona: ["onie", "ona"],
-        yoshihiko: ["yoshi"],
-        yulan: ["lan", "yul"],
-        yvonne: ["vonna"],
-        zach: ["zack", "zak"],
-        zachariah: ["zachy", "zach", "zeke", "zac", "zack", "zak", "zakk"],
-        zachary: ["zachy", "zach", "zeke", "zac", "zack", "zak", "zakk"],
-        zachery: ["zachy", "zach", "zeke", "zac", "zack", "zak", "zakk"],
-        zack: ["zach", "zak"],
-        zebedee: ["zeb"],
-        zedediah: ["dyer", "zed", "diah"],
-        zephaniah: ["zeph"]
-      };
-      return this._memo;
-    }
-  };
-  var states = {
-    AL: "Alabama",
-    AK: "Alaska",
-    AZ: "Arizona",
-    AR: "Arkansas",
-    CA: "California",
-    CO: "Colorado",
-    CT: "Connecticut",
-    DC: "District of Columbia",
-    DE: "Delaware",
-    FL: "Florida",
-    GA: "Georgia",
-    HI: "Hawaii",
-    ID: "Idaho",
-    IL: "Illinois",
-    IN: "Indiana",
-    IA: "Iowa",
-    KS: "Kansas",
-    KY: "Kentucky",
-    LA: "Louisiana",
-    ME: "Maine",
-    MD: "Maryland",
-    MA: "Massachusetts",
-    MI: "Michigan",
-    MN: "Minnesota",
-    MS: "Mississippi",
-    MO: "Missouri",
-    MT: "Montana",
-    NE: "Nebraska",
-    NV: "Nevada",
-    NH: "New Hampshire",
-    NJ: "New Jersey",
-    NM: "New Mexico",
-    NY: "New York",
-    NC: "North Carolina",
-    ND: "North Dakota",
-    OH: "Ohio",
-    OK: "Oklahoma",
-    OR: "Oregon",
-    PA: "Pennsylvania",
-    RI: "Rhode Island",
-    SC: "South Carolina",
-    SD: "South Dakota",
-    TN: "Tennessee",
-    TX: "Texas",
-    UT: "Utah",
-    VT: "Vermont",
-    VA: "Virginia",
-    WA: "Washington",
-    WV: "West Virginia",
-    WI: "Wisconsin",
-    WY: "Wyoming"
-  };
-
-  // src/features/broker-protection/comparisons/is-same-name.js
-  function isSameName(fullNameExtracted, userFirstName, userMiddleName, userLastName, userSuffix) {
-    if (!fullNameExtracted) {
-      return false;
-    }
-    if (!userFirstName || !userLastName) return false;
-    fullNameExtracted = fullNameExtracted.toLowerCase().trim().replace(".", "");
-    userFirstName = userFirstName.toLowerCase();
-    userMiddleName = userMiddleName ? userMiddleName.toLowerCase() : null;
-    userLastName = userLastName.toLowerCase();
-    userSuffix = userSuffix ? userSuffix.toLowerCase() : null;
-    const names2 = getNames(userFirstName);
-    for (const firstName of names2) {
-      const nameCombo1 = `${firstName} ${userLastName}`;
-      if (fullNameExtracted === nameCombo1) {
-        return true;
-      }
-      if (!userMiddleName) {
-        const combinedLength = firstName.length + userLastName.length;
-        const matchesFirstAndLast = fullNameExtracted.startsWith(firstName) && fullNameExtracted.endsWith(userLastName) && fullNameExtracted.length > combinedLength;
-        if (matchesFirstAndLast) {
-          return true;
-        }
-      }
-      if (userSuffix) {
-        const nameCombo1WithSuffix = `${firstName} ${userLastName} ${userSuffix}`;
-        if (fullNameExtracted === nameCombo1WithSuffix) {
-          return true;
-        }
-      }
-      if (userLastName && userLastName.includes("-")) {
-        const userLastNameOption2 = userLastName.split("-").join(" ");
-        const userLastNameOption3 = userLastName.split("-").join("");
-        const userLastNameOption4 = userLastName.split("-")[0];
-        const comparisons = [
-          `${firstName} ${userLastNameOption2}`,
-          `${firstName} ${userLastNameOption3}`,
-          `${firstName} ${userLastNameOption4}`
-        ];
-        if (comparisons.includes(fullNameExtracted)) {
-          return true;
-        }
-      }
-      if (userFirstName && userFirstName.includes("-")) {
-        const userFirstNameOption2 = userFirstName.split("-").join(" ");
-        const userFirstNameOption3 = userFirstName.split("-").join("");
-        const userFirstNameOption4 = userFirstName.split("-")[0];
-        const comparisons = [
-          `${userFirstNameOption2} ${userLastName}`,
-          `${userFirstNameOption3} ${userLastName}`,
-          `${userFirstNameOption4} ${userLastName}`
-        ];
-        if (comparisons.includes(fullNameExtracted)) {
-          return true;
-        }
-      }
-      if (userMiddleName) {
-        const comparisons = [
-          `${firstName} ${userMiddleName} ${userLastName}`,
-          `${firstName} ${userMiddleName} ${userLastName} ${userSuffix}`,
-          `${firstName} ${userMiddleName[0]} ${userLastName}`,
-          `${firstName} ${userMiddleName[0]} ${userLastName} ${userSuffix}`,
-          `${firstName} ${userMiddleName}${userLastName}`,
-          `${firstName} ${userMiddleName}${userLastName} ${userSuffix}`
-        ];
-        if (comparisons.includes(fullNameExtracted)) {
-          return true;
-        }
-        if (userLastName && userLastName.includes("-")) {
-          const userLastNameOption2 = userLastName.split("-").join(" ");
-          const userLastNameOption3 = userLastName.split("-").join("");
-          const userLastNameOption4 = userLastName.split("-")[0];
-          const comparisons2 = [
-            `${firstName} ${userMiddleName} ${userLastNameOption2}`,
-            `${firstName} ${userMiddleName} ${userLastNameOption4}`,
-            `${firstName} ${userMiddleName[0]} ${userLastNameOption2}`,
-            `${firstName} ${userMiddleName[0]} ${userLastNameOption3}`,
-            `${firstName} ${userMiddleName[0]} ${userLastNameOption4}`
-          ];
-          if (comparisons2.includes(fullNameExtracted)) {
-            return true;
-          }
-        }
-        if (userFirstName && userFirstName.includes("-")) {
-          const userFirstNameOption2 = userFirstName.split("-").join(" ");
-          const userFirstNameOption3 = userFirstName.split("-").join("");
-          const userFirstNameOption4 = userFirstName.split("-")[0];
-          const comparisons2 = [
-            `${userFirstNameOption2} ${userMiddleName} ${userLastName}`,
-            `${userFirstNameOption3} ${userMiddleName} ${userLastName}`,
-            `${userFirstNameOption4} ${userMiddleName} ${userLastName}`,
-            `${userFirstNameOption2} ${userMiddleName[0]} ${userLastName}`,
-            `${userFirstNameOption3} ${userMiddleName[0]} ${userLastName}`,
-            `${userFirstNameOption4} ${userMiddleName[0]} ${userLastName}`
-          ];
-          if (comparisons2.includes(fullNameExtracted)) {
-            return true;
-          }
-        }
-      }
-    }
-    return false;
-  }
-  function getNames(name) {
-    if (!noneEmptyString(name)) {
-      return /* @__PURE__ */ new Set();
-    }
-    name = name.toLowerCase();
-    const nicknames = names.nicknames;
-    return /* @__PURE__ */ new Set([name, ...getNicknames(name, nicknames), ...getFullNames(name, nicknames)]);
-  }
-  function getNicknames(name, nicknames) {
-    const emptySet = /* @__PURE__ */ new Set();
-    if (!noneEmptyString(name)) {
-      return emptySet;
-    }
-    name = name.toLowerCase();
-    if (Object.prototype.hasOwnProperty.call(nicknames, name)) {
-      return new Set(nicknames[name]);
-    }
-    return emptySet;
-  }
-  function getFullNames(name, nicknames) {
-    const fullNames = /* @__PURE__ */ new Set();
-    if (!noneEmptyString(name)) {
-      return fullNames;
-    }
-    name = name.toLowerCase();
-    for (const fullName of Object.keys(nicknames)) {
-      if (nicknames[fullName]?.includes(name)) {
-        fullNames.add(fullName);
-      }
-    }
-    return fullNames;
-  }
-  function noneEmptyString(input) {
-    if (typeof input !== "string") return false;
-    return input.trim().length > 0;
-  }
-
-  // src/features/broker-protection/comparisons/address.js
-  init_define_import_meta_trackerLookup();
-  function addressMatch(userAddresses, foundAddresses) {
-    return userAddresses.some((user) => foundAddresses.some((found) => sameCityState(user, found)));
-  }
-  function sameCityState(a2, b2) {
-    return matchingPair(a2.city, b2.city) && matchingPair(a2.state, b2.state);
-  }
-  function getStateFromAbbreviation(stateAbbreviation) {
-    if (stateAbbreviation == null || stateAbbreviation.trim() === "") {
-      return null;
-    }
-    const state = stateAbbreviation.toUpperCase();
-    return states[state] || null;
-  }
-
-  // src/features/broker-protection/extractors/age.js
-  init_define_import_meta_trackerLookup();
-  function extractAge(select2, root, spec) {
-    const [first] = selectStrings(select2, root, spec);
-    return first?.match(/\d+/)?.[0] ?? null;
-  }
-
-  // src/features/broker-protection/extractors/name.js
-  init_define_import_meta_trackerLookup();
-  function extractName(select2, root, spec) {
-    const [first] = selectStrings(select2, root, spec);
-    return first ? first.replace(/\n/g, " ").trim() : null;
-  }
-  function extractAlternativeNames(select2, root, spec) {
-    return selectStrings(select2, root, spec).flatMap((value) => stringToList(value, spec.separator));
-  }
-
-  // src/features/broker-protection/extractors/address.js
-  init_define_import_meta_trackerLookup();
-  var import_parse_address = __toESM(require_address(), 1);
-  function extractCityState(select2, root, spec) {
-    if (isNestedCityStateSpec(spec)) {
-      const { city, state } = spec;
-      return select2(root, spec.selector, spec.findElements).flatMap(
-        (row) => cityStatePartToCombo({
-          city: firstString(selectStrings(select2, row, city)),
-          state: state ? firstString(selectStrings(select2, row, state)) : ""
-        })
-      );
-    }
-    return cityStateCombosFromStrings(selectStrings(select2, root, spec), spec.separator);
-  }
-  function isNestedCityStateSpec(spec) {
-    return Object.prototype.hasOwnProperty.call(spec, "city") && Boolean(
-      /** @type {import('../actions/extract.js').NestedCityStateSpec} */
-      spec.city?.selector
-    );
-  }
-  function cityStateCombosFromStrings(strings, separator) {
-    return strings.flatMap((value) => getCityStateCombos(stringToList(value, separator)));
-  }
-  function cityStatePartToCombo({ city, state }) {
-    const trimmedCity = city.trim();
-    if (!trimmedCity) return [];
-    const trimmedState = state.trim();
-    if (!trimmedState) return [{ city: trimmedCity, state: null }];
-    const normalized = normalizeState(trimmedState);
-    return normalized ? [{ city: trimmedCity, state: normalized }] : [];
-  }
-  var STREET_PARTS = ["number", "prefix", "street", "type", "suffix", "sec_unit_type", "sec_unit_num"];
-  function deslugParsedAddress(parsed) {
-    return Object.fromEntries(
-      Object.entries(parsed).map(([key, value]) => [
-        key,
-        key === "number" || key === "sec_unit_num" || key === "zip" ? value : value.replace(/-/g, " ")
-      ])
-    );
-  }
-  function extractAddressFull(select2, root, spec) {
-    return selectStrings(select2, root, spec).map((str) => str.replace("\n", " ")).flatMap((str) => stringToList(str, spec.separator)).map((str) => {
-      const parsed = import_parse_address.default.parseLocation(str) || {};
-      const isHref = spec.attribute === "href";
-      const isSlug = !/\s/.test(str);
-      return isHref && isSlug ? deslugParsedAddress(parsed) : parsed;
-    }).filter((parsed) => Boolean(parsed?.city)).map((addr) => {
-      const address = { city: capitalize(addr.city), state: addr.state ? normalizeState(addr.state) : null };
-      const extras = addressExtras(addr);
-      if (Object.keys(extras).length > 0) address.extras = extras;
-      return address;
-    });
-  }
-  function addressExtras(addr) {
-    const extras = {};
-    const street = capitalize(
-      STREET_PARTS.map((part) => (addr[part] || "").replace(/[^a-z0-9]+$/i, "")).filter(Boolean).join(" ")
-    );
-    if (street) extras.street = street;
-    if (addr.zip) extras.zip = addr.zip;
-    return extras;
-  }
-  function getCityStateCombos(inputList) {
-    const output = [];
-    for (let item of inputList) {
-      let words;
-      item = item.replace(/,?\s*\d{5}(-\d{4})?/, "");
-      item = item.replace(/,$/, "");
-      if (item.includes(",")) {
-        words = item.split(",").map((item2) => item2.trim());
-      } else {
-        words = item.split(" ").map((item2) => item2.trim());
-      }
-      if (words.length === 1) {
-        continue;
-      }
-      const stateCandidate = words.pop();
-      const city = words.join(" ");
-      const state = stateCandidate ? normalizeState(stateCandidate) : null;
-      if (stateCandidate && !state) {
-        continue;
-      }
-      output.push({ city, state });
-    }
-    return output;
-  }
-  var stateNameToAbbreviation = null;
-  function normalizeState(token) {
-    const trimmed = token.trim();
-    if (!trimmed) {
-      return null;
-    }
-    const upper = trimmed.toUpperCase();
-    if (Object.prototype.hasOwnProperty.call(states, upper)) {
-      return upper;
-    }
-    if (stateNameToAbbreviation === null) {
-      stateNameToAbbreviation = /** @type {Record<string, string>} */
-      /* @__PURE__ */ Object.create(null);
-      for (const [abbreviation, name] of Object.entries(states)) {
-        stateNameToAbbreviation[name.toLowerCase()] = abbreviation;
-      }
-    }
-    return stateNameToAbbreviation[trimmed.toLowerCase()] ?? null;
-  }
-
-  // src/features/broker-protection/extractors/phone.js
-  init_define_import_meta_trackerLookup();
-  function extractPhone(select2, root, spec) {
-    return selectStrings(select2, root, spec).flatMap((str) => stringToList(str, spec.separator)).map((str) => str.replace(/\D/g, ""));
-  }
-
-  // src/features/broker-protection/extractors/relatives.js
-  init_define_import_meta_trackerLookup();
-  function extractRelatives(select2, root, spec) {
-    return selectStrings(select2, root, spec).flatMap((value) => stringToList(value, spec.separator)).map((value) => (
-      /** @type {string} */
-      value.split(",")[0]
-    ));
-  }
-
-  // src/features/broker-protection/extractors/profile-url.js
-  init_define_import_meta_trackerLookup();
-  function extractProfileUrl(select2, root, spec) {
-    const rawUrl = spec.source === "pageUrl" ? firstString(cleanArray(globalThis.location.href)) : firstString(profileUrlStrings(select2, root, spec));
-    if (!rawUrl) return null;
-    const url = parseProfileUrl(rawUrl);
-    const profileUrl = url?.href ?? rawUrl;
-    const profile = { profileUrl, identifier: profileUrl };
-    if (spec.identifierType && spec.identifier) {
-      profile.identifier = getIdFromProfileUrl(url, spec.identifierType, spec.identifier) ?? profileUrl;
-    }
-    return profile;
-  }
-  function profileUrlStrings(select2, root, spec) {
-    return cleanArray(
-      select2(root, spec.selector, spec.findElements).map((element) => readProfileUrlValue(element, spec)).map((value) => value ? shapeString(value, spec) : value)
-    );
-  }
-  function readProfileUrlValue(element, spec) {
-    if (spec.attribute && "getAttribute" in element) {
-      return element.getAttribute?.(spec.attribute) ?? null;
-    }
-    if ("href" in element && element.href) {
-      return element.href;
-    }
-    if ("innerText" in element) {
-      return element.innerText ?? null;
-    }
-    if ("textContent" in element) {
-      return element.textContent ?? null;
-    }
-    return void 0;
-  }
-  function parseProfileUrl(profileUrl) {
-    try {
-      return new URL(profileUrl, globalThis.location.href);
-    } catch {
-      return null;
-    }
-  }
-  function getIdFromProfileUrl(url, identifierType, identifier) {
-    if (!url) return null;
-    if (identifierType === "param" && url.searchParams.has(identifier)) {
-      return url.searchParams.get(identifier) || null;
-    }
-    return null;
-  }
-  var ProfileHashTransformer = class {
-    /**
-     * @param {Record<string, any>} profile
-     * @param {Record<string, any> } params
-     * @return {Promise<Record<string, any>>}
-     */
-    async transform(profile, params) {
-      if (params?.profileUrl?.identifierType !== "hash") {
-        return profile;
-      }
-      return {
-        ...profile,
-        identifier: await hashObject(omitExtrasForHash(profile))
-      };
-    }
-  };
-  function omitExtrasForHash({ extras, ...profile }) {
-    if (!Array.isArray(profile.addresses)) return profile;
-    const seen = /* @__PURE__ */ new Set();
-    const addresses = profile.addresses.map(({ extras: extras2, ...address }) => address).filter((address) => {
-      const cityState = `${address.city},${address.state}`;
-      if (seen.has(cityState)) return false;
-      seen.add(cityState);
-      return true;
-    });
-    return { ...profile, addresses };
-  }
-
-  // src/features/broker-protection/extractors/extra.js
-  init_define_import_meta_trackerLookup();
-  function extractExtra(select2, root, spec) {
-    return firstString(selectStrings(select2, root, spec)) || null;
-  }
-
-  // src/features/broker-protection/actions/extract.js
-  async function extract(action, userData, root = document) {
-    const extractResult = extractProfiles(action, userData, root);
-    if ("error" in extractResult) {
-      return new ErrorResponse({ actionID: action.id, message: extractResult.error });
-    }
-    const filteredPromises = extractResult.results.filter((x2) => x2.result === true).map((x2) => aggregateFields(x2.scrapedData)).map((profile) => applyPostTransforms(profile, action.profile));
-    const filtered = await Promise.all(filteredPromises);
-    const debugResults = extractResult.results.map((result) => result.asData());
-    return new SuccessResponse({
-      actionID: action.id,
-      actionType: action.actionType,
-      response: filtered,
-      meta: {
-        userData,
-        extractResults: debugResults
-      }
-    });
-  }
-  function select(root, selector, all = false) {
-    if (!selector) return [];
-    const node = (
-      /** @type {HTMLElement} */
-      root
-    );
-    return all ? cleanArray(getElements(node, selector)) : cleanArray(getElement(node, selector) || getElementMatches(node, selector));
-  }
-  function extractProfiles(action, userData, root = document) {
-    const profilesElementList = getElements(root, action.selector) ?? [];
-    if (profilesElementList.length === 0) {
-      if (!action.noResultsSelector) {
-        return { error: "no root elements found for " + action.selector };
-      }
-      const foundNoResultsElement = getElement(root, action.noResultsSelector);
-      if (!foundNoResultsElement) {
-        return { error: "no results found for " + action.selector + " or the no results selector " + action.noResultsSelector };
-      }
-    }
-    return {
-      results: profilesElementList.map((element) => {
-        const scrapedData = createProfile(select, element, action.profile);
-        const { result, score, matchedFields } = scrapedDataMatchesUserData(userData, scrapedData);
-        return new ProfileResult({
-          scrapedData,
-          result,
-          score,
-          element,
-          matchedFields
-        });
-      })
-    };
-  }
-  var extractors = {
-    name: extractName,
-    age: extractAge,
-    alternativeNamesList: extractAlternativeNames,
-    relativesList: extractRelatives,
-    phone: extractPhone,
-    phoneList: extractPhone,
-    addressFull: extractAddressFull,
-    addressFullList: extractAddressFull,
-    addressCityState: extractCityState,
-    addressCityStateList: extractCityState,
-    profileUrl: extractProfileUrl
-  };
-  function createProfile(select2, root, profileSpec) {
-    const output = {};
-    const extras = {};
-    for (const [field, fieldSpec] of Object.entries(profileSpec)) {
-      const extractField = Object.prototype.hasOwnProperty.call(extractors, field) ? extractors[field] : void 0;
-      if (extractField) {
-        output[field] = extractField(select2, root, fieldSpec ?? {}) || null;
-        continue;
-      }
-      if (field === "extras" || fieldSpec === null || typeof fieldSpec !== "object") continue;
-      const value = extractExtra(select2, root, fieldSpec);
-      if (value) extras[field] = value;
-    }
-    if (Object.keys(extras).length > 0) output.extras = extras;
-    return output;
-  }
-  function selectStrings(select2, root, spec) {
-    return cleanArray(stringsFromElements(select2(root, spec.selector, spec.findElements), spec));
-  }
-  function stringsFromElements(elements, spec) {
-    return elements.map((element) => {
-      const value = readElementText(element, spec);
-      return value ? shapeString(value, spec) : value;
-    });
-  }
-  function readElementText(element, spec) {
-    if (spec.attribute && "getAttribute" in element) {
-      return element.getAttribute?.(spec.attribute) ?? null;
-    }
-    if ("innerText" in element) {
-      return element.innerText ?? null;
-    }
-    if ("textContent" in element) {
-      return element.textContent ?? null;
-    }
-    return void 0;
-  }
-  function shapeString(value, spec) {
-    if (spec.afterText) {
-      value = splitOnce(value, parseRegexFromString(spec.afterText), "after")?.trim() || value;
-    }
-    if (spec.beforeText) {
-      value = splitOnce(value, parseRegexFromString(spec.beforeText), "before")?.trim() || value;
-    }
-    return removeCommonSuffixesAndPrefixes(value);
-  }
-  function firstString(strings) {
-    const [value] = strings;
-    return typeof value === "string" ? value : "";
-  }
-  function scrapedDataMatchesUserData(userData, scrapedData) {
-    const matchedFields = [];
-    if (isSameName(scrapedData.name, userData.firstName, userData.middleName, userData.lastName)) {
-      matchedFields.push("name");
-    } else {
-      return { matchedFields, score: matchedFields.length, result: false };
-    }
-    if (scrapedData.age) {
-      if (isSameAge(scrapedData.age, userData.age)) {
-        matchedFields.push("age");
-      } else {
-        return { matchedFields, score: matchedFields.length, result: false };
-      }
-    }
-    const addressFields = ["addressCityState", "addressCityStateList", "addressFull", "addressFullList"];
-    for (const addressField of addressFields) {
-      if (addressField in scrapedData) {
-        if (addressMatch(userData.addresses, scrapedData[addressField])) {
-          matchedFields.push(addressField);
-          return { matchedFields, score: matchedFields.length, result: true };
-        }
-      }
-    }
-    if (scrapedData.phone) {
-      if (userData.phone === scrapedData.phone) {
-        matchedFields.push("phone");
-        return { matchedFields, score: matchedFields.length, result: true };
-      }
-    }
-    return { matchedFields, score: matchedFields.length, result: false };
-  }
-  function aggregateFields(profile) {
-    const combinedAddresses = [
-      ...profile.addressCityState || [],
-      ...profile.addressCityStateList || [],
-      ...profile.addressFullList || [],
-      ...profile.addressFull || []
-    ];
-    const addresses = sortAddressesByStateAndCity(dedupeAddresses(combinedAddresses));
-    const phoneArray = profile.phone || [];
-    const phoneListArray = profile.phoneList || [];
-    const phoneNumbers = [.../* @__PURE__ */ new Set([...phoneArray, ...phoneListArray])].sort((a2, b2) => parseInt(a2) - parseInt(b2));
-    const relatives = [...new Set(profile.relativesList)].sort();
-    const alternativeNames = [...new Set(profile.alternativeNamesList)].sort();
-    const output = {
-      name: profile.name,
-      alternativeNames,
-      age: profile.age,
-      addresses,
-      phoneNumbers,
-      relatives,
-      ...profile.profileUrl
-    };
-    if (hasExtras(profile)) output.extras = profile.extras;
-    return output;
-  }
-  async function applyPostTransforms(profile, profileSpec) {
-    const transforms = [
-      // creates a hash if needed
-      new ProfileHashTransformer()
-    ];
-    let output = profile;
-    for (const knownTransform of transforms) {
-      output = await knownTransform.transform(output, profileSpec);
-    }
-    return output;
-  }
-  function parseRegexFromString(value) {
-    const match = typeof value === "string" && value.match(/^\/(.+)\/(i?)$/);
-    return match ? new RegExp(match[1], match[2]) : value;
-  }
-  function splitOnce(value, matcher, keep) {
-    if (matcher instanceof RegExp) {
-      const match = value.match(matcher);
-      if (!match || match.index === void 0) return void 0;
-      return keep === "after" ? value.slice(match.index + match[0].length) : value.slice(0, match.index);
-    }
-    return keep === "after" ? value.split(matcher)[1] : value.split(matcher)[0];
-  }
-  function stringToList(inputList, separator) {
-    const defaultSeparator = /[|\n•·]/;
-    const splitOn = parseRegexFromString(separator) || defaultSeparator;
-    return cleanArray(inputList.split(splitOn));
-  }
-  function removeCommonSuffixesAndPrefixes(elementValue) {
-    const regexes = [
-      // match text such as +3 more when it appears at the end of a string
-      /\+\s*\d+.*$/
-    ];
-    const startsWith = [
-      "Associated persons:",
-      "AKA:",
-      "Known as:",
-      "Also known as:",
-      "Has lived in:",
-      "Used to live:",
-      "Used to live in:",
-      "Lives in:",
-      "Related to:",
-      "No other aliases.",
-      "RESIDES IN"
-    ];
-    const endsWith = [" -", "years old"];
-    for (const regex of regexes) {
-      elementValue = elementValue.replace(regex, "").trim();
-    }
-    for (const prefix of startsWith) {
-      if (elementValue.toLowerCase().startsWith(prefix.toLowerCase())) {
-        elementValue = elementValue.slice(prefix.length).trim();
-      }
-    }
-    for (const suffix of endsWith) {
-      if (elementValue.toLowerCase().endsWith(suffix.toLowerCase())) {
-        elementValue = elementValue.slice(0, 0 - suffix.length).trim();
-      }
-    }
-    return elementValue;
-  }
-
-  // src/features/broker-protection/actions/fill-form.js
-  init_define_import_meta_trackerLookup();
-
-  // src/features/broker-protection/actions/generators.js
-  init_define_import_meta_trackerLookup();
-  function generatePhoneNumber() {
-    const areaCode = generateRandomInt(200, 899).toString();
-    const exchangeCode = "555";
-    const lineNumber = generateRandomInt(100, 199).toString().padStart(4, "0");
-    return `${areaCode}${exchangeCode}${lineNumber}`;
-  }
-  function generateZipCode() {
-    const zipCode = generateRandomInt(1e4, 99999).toString();
-    return zipCode;
-  }
-  function generateDateOfBirth(age, today = /* @__PURE__ */ new Date()) {
-    const dob = new Date(today.getFullYear() - age, today.getMonth(), today.getDate());
-    if (dob.getMonth() !== today.getMonth()) dob.setDate(0);
-    dob.setDate(dob.getDate() - generateRandomInt(0, 364));
-    const month = (dob.getMonth() + 1).toString().padStart(2, "0");
-    const day = dob.getDate().toString().padStart(2, "0");
-    return `${dob.getFullYear()}-${month}-${day}`;
-  }
-  var DEFAULT_DATE_OF_BIRTH_FORMAT = "YYYY-MM-DD";
-  var DATE_OF_BIRTH_TOKENS = {
-    YYYY: { year: "numeric" },
-    YY: { year: "2-digit" },
-    MMMM: { month: "long" },
-    MMM: { month: "short" },
-    MM: { month: "2-digit" },
-    M: { month: "numeric" },
-    DD: { day: "2-digit" },
-    D: { day: "numeric" }
-  };
-  var DATE_OF_BIRTH_TOKEN = new RegExp(
-    Object.keys(DATE_OF_BIRTH_TOKENS).sort((a2, b2) => b2.length - a2.length).join("|"),
-    "g"
-  );
-  function formatDateOfBirth(dateOfBirth, format = DEFAULT_DATE_OF_BIRTH_FORMAT) {
-    const [year, month, day] = dateOfBirth.split("-");
-    const date = new Date(Number(year), Number(month) - 1, Number(day));
-    return format.replace(DATE_OF_BIRTH_TOKEN, (token) => new Intl.DateTimeFormat("en-US", DATE_OF_BIRTH_TOKENS[token]).format(date));
-  }
-  function generateStreetAddress() {
-    const streetDigits = generateRandomInt(1, 5);
-    const streetNumber = generateRandomInt(2, streetDigits * 1e3);
-    const streetNames = [
-      "Main",
-      "Elm",
-      "Maple",
-      "Oak",
-      "Pine",
-      "Cedar",
-      "Hill",
-      "Lake",
-      "Sunset",
-      "Washington",
-      "Lincoln",
-      "Marshall",
-      "Spring",
-      "Ridge",
-      "Valley",
-      "Meadow",
-      "Forest"
-    ];
-    const streetName = streetNames[generateRandomInt(0, streetNames.length - 1)];
-    const suffixes = ["", "St", "Ave", "Blvd", "Rd", "Ct", "Dr", "Ln", "Pkwy", "Pl", "Ter", "Way"];
-    const suffix = suffixes[generateRandomInt(0, suffixes.length - 1)];
-    return `${streetNumber} ${streetName}${suffix ? " " + suffix : ""}`;
-  }
-
-  // src/features/broker-protection/actions/fill-form.js
-  function fillForm(action, userData, root = document, userProfile = null) {
-    const form = getElement(root, action.selector);
-    if (!form) return new ErrorResponse({ actionID: action.id, message: "missing form" });
-    if (!userData) return new ErrorResponse({ actionID: action.id, message: "user data was absent" });
-    form.scrollIntoView?.();
-    const results = fillMany(form, action.elements, userData, userProfile);
-    const errors = results.filter((x2) => x2.result === false).map((x2) => {
-      if ("error" in x2) return x2.error;
-      return "unknown error";
-    });
-    if (errors.length > 0) {
-      return new ErrorResponse({ actionID: action.id, message: errors.join(", ") });
-    }
-    return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: null });
-  }
-  function fillMany(root, elements, data2, userProfile = null) {
-    const results = [];
-    const address = selectAddress(data2.addresses, userProfile?.addresses);
-    const extras = { ...data2.extras, ...address?.extras };
-    let dateOfBirth = null;
-    for (const element of elements) {
-      const inputElem = getElement(root, element.selector);
-      if (!inputElem) {
-        results.push({ result: false, error: `element not found for selector: "${element.selector}"` });
-        continue;
-      }
-      if (element.type === "$file_id$") {
-        results.push(setImageUpload(inputElem));
-      } else if (element.type === "$generated_phone_number$") {
-        results.push(setValueForInput(inputElem, generatePhoneNumber()));
-      } else if (element.type === "$generated_zip_code$") {
-        results.push(setValueForInput(inputElem, generateZipCode()));
-      } else if (element.type === "$generated_dob$") {
-        if (dateOfBirth === null) {
-          if (!Object.prototype.hasOwnProperty.call(data2, "age")) {
-            results.push({
-              result: false,
-              error: `element found with selector '${element.selector}', but data didn't contain an 'age' to generate a date of birth from`
-            });
-            continue;
-          }
-          const age = parseInt(data2.age, 10);
-          if (!Number.isFinite(age) || age < 0) {
-            results.push({
-              result: false,
-              error: `element found with selector '${element.selector}', but data contained an 'age' that wasn't a non-negative number`
-            });
-            continue;
-          }
-          dateOfBirth = generateDateOfBirth(age);
-        }
-        results.push(setValueForInput(inputElem, formatDateOfBirth(dateOfBirth, element.format)));
-      } else if (element.type === "$generated_random_number$") {
-        if (!element.min || !element.max) {
-          results.push({
-            result: false,
-            error: `element found with selector '${element.selector}', but missing min and/or max values`
-          });
-          continue;
-        }
-        const minInt = parseInt(element?.min);
-        const maxInt = parseInt(element?.max);
-        if (isNaN(minInt) || isNaN(maxInt)) {
-          results.push({
-            result: false,
-            error: `element found with selector '${element.selector}', but min or max was not a number`
-          });
-          continue;
-        }
-        results.push(setValueForInput(inputElem, generateRandomInt(parseInt(element.min), parseInt(element.max)).toString()));
-      } else if (element.type === "$generated_street_address$") {
-        results.push(setValueForInput(inputElem, generateStreetAddress()));
-      } else if (element.type === "cityState") {
-        const city = Object.prototype.hasOwnProperty.call(data2, "city") ? data2.city : address?.city;
-        const state = Object.prototype.hasOwnProperty.call(data2, "state") ? data2.state : address?.state;
-        if (!city || !state) {
-          results.push({
-            result: false,
-            error: `element found with selector '${element.selector}', but data didn't contain the keys 'city' and 'state'`
-          });
-          continue;
-        }
-        results.push(setValueForInput(inputElem, city + ", " + state));
-      } else if (element.type === "fullState") {
-        const state = Object.prototype.hasOwnProperty.call(data2, "state") ? data2.state : address?.state;
-        if (!state) {
-          results.push({
-            result: false,
-            error: `element found with selector '${element.selector}', but data didn't contain the key 'state'`
-          });
-          continue;
-        }
-        if (!Object.prototype.hasOwnProperty.call(states, state)) {
-          results.push({
-            result: false,
-            error: `element found with selector '${element.selector}', but data contained an invalid 'state' abbreviation`
-          });
-          continue;
-        }
-        const stateFull = states[state];
-        results.push(setValueForInput(inputElem, stateFull));
-      } else {
-        const value = lookupValue(element.type, data2, address, extras);
-        if (!value) {
-          if (isElementTypeOptional(element.type)) {
-            continue;
-          }
-          results.push({
-            result: false,
-            error: value === void 0 ? `element found with selector '${element.selector}', but data didn't contain the key '${element.type}'` : `data contained the key '${element.type}', but it wasn't something we can fill: ${value}`
-          });
-          continue;
-        }
-        results.push(setValueForInput(inputElem, value));
-      }
-    }
-    return results;
-  }
-  function lookupValue(type, data2, address, extras) {
-    if (Object.prototype.hasOwnProperty.call(data2, type)) return data2[type];
-    if ((type === "city" || type === "state") && address?.[type]) return address[type];
-    if (Object.prototype.hasOwnProperty.call(extras, type)) return extras[type];
-    return void 0;
-  }
-  function selectAddress(profileAddresses, userAddresses) {
-    if (!profileAddresses || profileAddresses.length === 0) return null;
-    const matched = profileAddresses.find((address) => userAddresses?.some((user) => sameCityState(user, address)));
-    return matched ?? profileAddresses[0];
-  }
-  function isElementTypeOptional(type) {
-    if (type === "middleName") {
-      return true;
-    }
-    return false;
-  }
-  function setValueForInput(el, val) {
-    let target;
-    if (el.tagName === "INPUT") target = window.HTMLInputElement;
-    if (el.tagName === "SELECT") target = window.HTMLSelectElement;
-    if (el.tagName === "TEXTAREA") target = window.HTMLTextAreaElement;
-    if (!target) {
-      return { result: false, error: `input type was not supported: ${el.tagName}` };
-    }
-    const originalSet = Object.getOwnPropertyDescriptor(target.prototype, "value")?.set;
-    if (!originalSet || typeof originalSet.call !== "function") {
-      return { result: false, error: "cannot access original value setter" };
-    }
-    try {
-      if (el.tagName === "INPUT" || el.tagName === "TEXTAREA") {
-        el.dispatchEvent(new Event("keydown", { bubbles: true }));
-        originalSet.call(el, val);
-        const events = [
-          new Event("input", { bubbles: true }),
-          new Event("keyup", { bubbles: true }),
-          new Event("change", { bubbles: true })
-        ];
-        events.forEach((ev) => el.dispatchEvent(ev));
-        originalSet.call(el, val);
-        events.forEach((ev) => el.dispatchEvent(ev));
-        el.blur();
-      } else if (el.tagName === "SELECT") {
-        const selectElement = (
-          /** @type {HTMLSelectElement} */
-          el
-        );
-        const selectValues = [...selectElement.options].map((o) => o.value);
-        const valStr = String(val);
-        const matchingValue = selectValues.find((option) => option.toLowerCase() === valStr.toLowerCase());
-        if (matchingValue === void 0) {
-          return { result: false, error: `could not find matching value for select element: ${val}` };
-        }
-        originalSet.call(el, matchingValue);
-        const events = [
-          new Event("mousedown", { bubbles: true }),
-          new Event("mouseup", { bubbles: true }),
-          new Event("click", { bubbles: true }),
-          new Event("change", { bubbles: true })
-        ];
-        events.forEach((ev) => el.dispatchEvent(ev));
-        events.forEach((ev) => el.dispatchEvent(ev));
-        el.blur();
-      }
-      return { result: true };
-    } catch (e) {
-      return { result: false, error: `setValueForInput exception: ${e}` };
-    }
-  }
-  function setImageUpload(element) {
-    const base64PNG = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/B8AAusB9VF9PmUAAAAASUVORK5CYII=";
-    try {
-      const binaryString = window.atob(base64PNG);
-      const length = binaryString.length;
-      const bytes = new Uint8Array(length);
-      for (let i = 0; i < length; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-      }
-      const blob = new Blob([bytes], { type: "image/png" });
-      const dataTransfer = new DataTransfer();
-      dataTransfer.items.add(new File([blob], "id.png", { type: "image/png" }));
-      element.files = dataTransfer.files;
-      return { result: true };
-    } catch (e) {
-      return { result: false, error: e.toString() };
-    }
-  }
-
-  // src/features/broker-protection/actions/click.js
-  init_define_import_meta_trackerLookup();
-
-  // src/features/broker-protection/utils/select-root-element.js
-  init_define_import_meta_trackerLookup();
-  function selectRootElement(elementConfig, userData, root = document) {
-    if (!elementConfig.parent) return root;
-    if (elementConfig.parent.profileMatch) {
-      const extraction = extractProfiles(elementConfig.parent.profileMatch, userData, root);
-      if ("results" in extraction) {
-        const sorted = extraction.results.filter((x2) => x2.result === true).sort((a2, b2) => b2.score - a2.score);
-        const first = sorted[0];
-        if (first && first.element) {
-          return first.element;
-        }
-      }
-    }
-    return PirError.create("`parent` was present on the element, but the configuration is not supported");
-  }
-
-  // src/features/broker-protection/actions/build-url-transforms.js
-  init_define_import_meta_trackerLookup();
-  function transformUrl(action, userData) {
-    const url = new URL(action.url);
-    url.search = processSearchParams(url.searchParams, action, userData).toString();
-    url.pathname = processPathname(url.pathname, action, userData);
-    return { url: url.toString() };
-  }
-  var baseTransforms = /* @__PURE__ */ new Map([
-    ["firstName", (value) => capitalize(value)],
-    ["lastName", (value) => capitalize(value)],
-    ["state", (value) => value.toLowerCase()],
-    ["city", (value) => capitalize(value)],
-    ["age", (value) => value.toString()]
-  ]);
-  var optionalTransforms = /* @__PURE__ */ new Map([
-    ["hyphenated", (value) => value.split(" ").join("-")],
-    ["capitalize", (value) => capitalize(value)],
-    ["downcase", (value) => value.toLowerCase()],
-    ["upcase", (value) => value.toUpperCase()],
-    ["snakecase", (value) => value.split(" ").join("_")],
-    ["stateFull", (value) => getStateFromAbbreviation(value)],
-    ["defaultIfEmpty", (value, argument) => value || argument || ""],
-    [
-      "ageRange",
-      (value, _2, action) => {
-        if (!action.ageRange) return value;
-        const ageNumber = Number(value);
-        const ageRange = action.ageRange.find((range) => {
-          const [min, max] = range.split("-");
-          return ageNumber >= Number(min) && ageNumber <= Number(max);
-        });
-        return ageRange || value;
-      }
-    ],
-    ["replaceWhitespace", (value, argument) => value.split(" ").join(argument ?? " ")]
-  ]);
-  function processSearchParams(searchParams, action, userData) {
-    const updatedPairs = [...searchParams].map(([key, value]) => {
-      const processedValue = processTemplateStringWithUserData(value, action, userData);
-      return [key, processedValue];
-    });
-    return new URLSearchParams(updatedPairs);
-  }
-  function processPathname(pathname, action, userData) {
-    return pathname.split("/").filter(Boolean).map((segment) => processTemplateStringWithUserData(segment, action, userData)).join("/");
-  }
-  function processTemplateStringWithUserData(input, action, userData) {
-    return String(input).replace(/\$%7B(.+?)%7D|\$\{(.+?)}/g, (_2, encodedValue, plainValue) => {
-      const comparison = encodedValue ?? plainValue;
-      const [dataKey, ...transforms] = comparison.split(/\||%7C/);
-      const data2 = userData[dataKey];
-      return applyTransforms(dataKey, data2, transforms, action);
-    });
-  }
-  function applyTransforms(dataKey, value, transformNames, action) {
-    const subject = String(value || "");
-    const baseTransform = baseTransforms.get(dataKey);
-    let outputString = baseTransform ? baseTransform(subject) : subject;
-    for (const transformName of transformNames) {
-      const [name, argument] = transformName.split(":");
-      const transform = optionalTransforms.get(name);
-      if (transform) {
-        outputString = transform(outputString, argument, action);
-      }
-    }
-    return outputString;
-  }
-
-  // src/features/broker-protection/actions/click.js
-  function click(action, userData, root = document) {
-    let elements = [];
-    if (action.choices?.length) {
-      const choices = evaluateChoices(action, userData);
-      if (choices === null) {
-        return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: null });
-      } else if ("error" in choices) {
-        return new ErrorResponse({ actionID: action.id, message: `Unable to evaluate choices: ${choices.error}` });
-      } else if (!("elements" in choices)) {
-        return new ErrorResponse({ actionID: action.id, message: "No elements provided to click action" });
-      }
-      elements = choices.elements;
-    } else {
-      if (!("elements" in action)) {
-        return new ErrorResponse({ actionID: action.id, message: "No elements provided to click action" });
-      }
-      elements = action.elements;
-    }
-    if (!elements || !elements.length) {
-      return new ErrorResponse({ actionID: action.id, message: "No elements provided to click action" });
-    }
-    for (const element of elements) {
-      const rootElement = selectRootElement(element, userData, root);
-      if (PirError.isError(rootElement)) {
-        return new ErrorResponse({ actionID: action.id, message: `Could not find root element: ${rootElement.error.message}` });
-      }
-      const elements2 = getElements(rootElement, element.selector);
-      if (!elements2?.length) {
-        if (element.failSilently) {
-          return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: null });
-        }
-        return new ErrorResponse({
-          actionID: action.id,
-          message: `could not find element to click with selector '${element.selector}'!`
-        });
-      }
-      const loopLength = element.multiple == true ? elements2.length : 1;
-      for (let i = 0; i < loopLength; i++) {
-        const elem = elements2[i];
-        if ("disabled" in elem) {
-          if (elem.disabled && !element.failSilently) {
-            return new ErrorResponse({ actionID: action.id, message: `could not click disabled element ${element.selector}'!` });
-          }
-        }
-        if ("click" in elem && typeof elem.click === "function") {
-          elem.click();
-        }
-      }
-    }
-    return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: null });
-  }
-  function getComparisonFunction(operator) {
-    switch (operator) {
-      case "=":
-      case "==":
-      case "===":
-        return (a2, b2) => a2 === b2;
-      case "!=":
-      case "!==":
-        return (a2, b2) => a2 !== b2;
-      case "<":
-        return (a2, b2) => a2 < b2;
-      case "<=":
-        return (a2, b2) => a2 <= b2;
-      case ">":
-        return (a2, b2) => a2 > b2;
-      case ">=":
-        return (a2, b2) => a2 >= b2;
-      default:
-        throw new Error(`Invalid operator: ${operator}`);
-    }
-  }
-  function evaluateChoices(action, userData) {
-    if ("elements" in action) {
-      return { error: "Elements should be nested inside of choices" };
-    }
-    for (const choice of action.choices) {
-      if (!("condition" in choice) || !("elements" in choice)) {
-        return { error: "All choices must have a condition and elements" };
-      }
-      const comparison = runComparison(choice, action, userData);
-      if ("error" in comparison) {
-        return { error: comparison.error };
-      } else if ("result" in comparison && comparison.result === true) {
-        return { elements: choice.elements };
-      }
-    }
-    if (!("default" in action)) {
-      return { error: "All conditions failed and no default action was provided" };
-    }
-    if (action.default === null) {
-      return null;
-    }
-    if (!("elements" in action.default)) {
-      return { error: "Default action must have elements" };
-    }
-    return { elements: action.default.elements };
-  }
-  function runComparison(choice, action, userData) {
-    let compare;
-    let left;
-    let right;
-    try {
-      compare = getComparisonFunction(choice.condition.operation);
-    } catch (error) {
-      return { error: `Unable to get comparison function: ${error.message}` };
-    }
-    try {
-      left = processTemplateStringWithUserData(choice.condition.left, action, userData);
-      right = processTemplateStringWithUserData(choice.condition.right, action, userData);
-    } catch (error) {
-      return { error: `Unable to resolve left/right comparison arguments: ${error.message}` };
-    }
-    let result;
-    try {
-      result = compare(left, right);
-    } catch (error) {
-      return { error: `Comparison failed with the following error: ${error.message}` };
-    }
-    return { result };
-  }
-
-  // src/features/broker-protection/actions/execute-script.js
-  init_define_import_meta_trackerLookup();
-  async function executeScript(action, userProfile, root) {
-    if (typeof action.script !== "string" || !action.script.trim()) {
-      return new ErrorResponse({
-        actionID: action.id,
-        message: "executeScript failed: Error: No script provided to executeScript action"
-      });
-    }
-    try {
-      const fn = new Function("userProfile", "root", action.script);
-      await fn(userProfile, root);
-      return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: null });
-    } catch (e) {
-      return new ErrorResponse({ actionID: action.id, message: formatScriptError(e) });
-    }
-  }
-  function formatScriptError(error) {
-    let name = "Error";
-    let message = "Unknown error";
-    try {
-      if (error !== null && typeof error === "object" && "message" in error) {
-        const errorName2 = "name" in error ? error.name : void 0;
-        if (typeof errorName2 === "string" && errorName2) name = errorName2;
-        message = String(error.message);
-      } else {
-        message = String(error);
-      }
-    } catch {
-    }
-    return `executeScript failed: ${name}: ${message}`.replace(/[\u0000-\u001f\u007f-\u009f\u2028\u2029]/g, "").slice(0, 500);
-  }
-
-  // src/features/broker-protection/actions/expectation.js
-  init_define_import_meta_trackerLookup();
-
-  // src/features/broker-protection/utils/expectations.js
-  init_define_import_meta_trackerLookup();
-  function expectMany(expectations, root) {
-    return expectations.map((expectation2) => {
-      switch (expectation2.type) {
-        case "element":
-          return elementExpectation(expectation2, root);
-        case "text":
-          return textExpectation(expectation2, root);
-        case "url":
-          return urlExpectation(expectation2);
-        default: {
-          return {
-            result: false,
-            error: `unknown expectation type: ${expectation2.type}`
-          };
-        }
-      }
-    });
-  }
-  function elementExpectation(expectation2, root) {
-    if (expectation2.parent) {
-      const parent = getElement(root, expectation2.parent);
-      if (!parent) {
-        return {
-          result: false,
-          error: `parent element not found with selector: ${expectation2.parent}`
-        };
-      }
-      parent.scrollIntoView();
-    }
-    const elementExists = getElement(root, expectation2.selector) !== null;
-    if (!elementExists) {
-      return {
-        result: false,
-        error: `element with selector ${expectation2.selector} not found.`
-      };
-    }
-    return { result: true };
-  }
-  function textExpectation(expectation2, root) {
-    const elem = getElement(root, expectation2.selector);
-    if (!elem) {
-      return {
-        result: false,
-        error: `element with selector ${expectation2.selector} not found.`
-      };
-    }
-    if (!expectation2.expect) {
-      return {
-        result: false,
-        error: "missing key: 'expect'"
-      };
-    }
-    const textExists = Boolean(elem?.textContent?.includes(expectation2.expect));
-    if (!textExists) {
-      return {
-        result: false,
-        error: `expected element with selector ${expectation2.selector} to have text: ${expectation2.expect}, but it didn't`
-      };
-    }
-    return { result: true };
-  }
-  function urlExpectation(expectation2) {
-    const url = window.location.href;
-    if (!expectation2.expect) {
-      return {
-        result: false,
-        error: "missing key: 'expect'"
-      };
-    }
-    if (!url.includes(expectation2.expect)) {
-      return {
-        result: false,
-        error: `expected URL to include ${expectation2.expect}, but it didn't`
-      };
-    }
-    return { result: true };
-  }
-
-  // src/features/broker-protection/actions/expectation.js
-  function expectation(action, root = document) {
-    const results = expectMany(action.expectations, root);
-    const errors = results.filter((x2, index) => {
-      if (x2.result === true) return false;
-      if (action.expectations[index].failSilently) return false;
-      return true;
-    }).map((x2) => {
-      return "error" in x2 ? x2.error : "unknown error";
-    });
-    if (errors.length > 0) {
-      return new ErrorResponse({ actionID: action.id, message: errors.join(", ") });
-    }
-    const runActions = results.every((x2) => x2.result === true);
-    if (action.actions?.length && runActions) {
-      return new SuccessResponse({
-        actionID: action.id,
-        actionType: action.actionType,
-        response: null,
-        next: action.actions
-      });
-    }
-    return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: null });
-  }
-
-  // src/features/broker-protection/actions/navigate.js
-  init_define_import_meta_trackerLookup();
-
-  // src/features/broker-protection/captcha-services/captcha.service.js
-  init_define_import_meta_trackerLookup();
-
-  // src/features/broker-protection/utils/url.js
-  init_define_import_meta_trackerLookup();
-
-  // src/features/broker-protection/utils/safe-call.js
-  init_define_import_meta_trackerLookup();
-  function safeCall(fn, { errorMessage } = {}) {
-    try {
-      return fn();
-    } catch (e) {
-      console.error(errorMessage ?? "[safeCall] Error:", e);
-      return null;
-    }
-  }
-  function safeCallWithError(fn, { errorMessage } = {}) {
-    const message = errorMessage ?? "[safeCallWithError] Error";
-    return safeCall(fn, { errorMessage: message }) ?? PirError.create(message);
-  }
-
-  // src/features/broker-protection/utils/url.js
-  function getUrlParameter(url, param) {
-    if (!url || !param) {
-      return null;
-    }
-    return safeCall(() => new URL(url).searchParams.get(param), { errorMessage: `[getUrlParameter] Error parsing URL: ${url}` });
-  }
-  function removeUrlQueryParams(url) {
-    if (!url) {
-      return "";
-    }
-    return (
-      /** @type {string} */
-      url.split("?")[0]
-    );
-  }
-
-  // src/features/broker-protection/captcha-services/get-captcha-provider.js
-  init_define_import_meta_trackerLookup();
-
-  // src/features/broker-protection/captcha-services/providers/registry.js
-  init_define_import_meta_trackerLookup();
-
-  // src/features/broker-protection/captcha-services/factory.js
-  init_define_import_meta_trackerLookup();
-  var CaptchaFactory = class {
-    constructor() {
-      this.providers = /* @__PURE__ */ new Map();
-    }
-    /**
-     * Register a captcha provider
-     * @param {import('./providers/provider.interface').CaptchaProvider} provider - The provider to register
-     * @param {Object} [options] - The optional provider options
-     * @param {Array<string>} [options.aliases] - An optional list of aliases for that provider
-     */
-    registerProvider(provider, options) {
-      this.providers.set(provider.getType(), provider);
-      if (options?.aliases) {
-        options?.aliases.forEach((alias) => {
-          this.providers.set(alias, provider);
-        });
-      }
-    }
-    /**
-     * Get a provider by type
-     * @param {string} type - The provider type
-     * @returns {import('./providers/provider.interface').CaptchaProvider|null}
-     */
-    getProviderByType(type) {
-      return this.providers.get(type) || null;
-    }
-    /**
-     * Detect the captcha provider based on the element
-     * @param {Document | HTMLElement} root
-     * @param {HTMLElement} element - The element to check
-     * @returns {import('./providers/provider.interface').CaptchaProvider|null}
-     */
-    detectProvider(root, element) {
-      return this._getAllProviders().find((provider) => provider.isSupportedForElement(root, element)) || null;
-    }
-    /**
-     * Detect the captcha provider based on the root document
-     * @param {HTMLElement} element - The element to check
-     * @returns {import('./providers/provider.interface').CaptchaProvider|null}
-     */
-    detectSolveProvider(element) {
-      return this._getAllProviders().find((provider) => provider.canSolve(element)) || null;
-    }
-    /**
-     * Get all registered providers
-     * @private
-     * @returns {Array<import('./providers/provider.interface').CaptchaProvider>}
-     */
-    _getAllProviders() {
-      return Array.from(new Set(this.providers.values()));
-    }
-  };
-
-  // src/features/broker-protection/captcha-services/providers/recaptcha.js
-  init_define_import_meta_trackerLookup();
-
-  // src/features/broker-protection/captcha-services/utils/sitekey.js
-  init_define_import_meta_trackerLookup();
-  function getSiteKeyFromSearchParam({ captchaElement, siteKeyAttrName }) {
-    if (!captchaElement) {
-      throw Error("[getSiteKeyFromSearchParam] could not find captcha");
-    }
-    if (!("src" in captchaElement)) {
-      throw Error("[getSiteKeyFromSearchParam] missing src attribute");
-    }
-    return getUrlParameter(String(captchaElement.src), siteKeyAttrName);
-  }
-
-  // src/features/broker-protection/captcha-services/utils/stringify-function.js
-  init_define_import_meta_trackerLookup();
-  function stringifyFunction({ functionName, functionBody, args }) {
-    return safeCall(
-      () => `;(function(args) {
-        ${functionBody.toString()};
-        ${functionName}(args);
-    })(${JSON.stringify(args)});`,
-      { errorMessage: `[stringifyFunction] error stringifying function ${functionName}` }
-    );
-  }
-
-  // src/features/broker-protection/captcha-services/utils/token.js
-  init_define_import_meta_trackerLookup();
-
-  // src/features/broker-protection/captcha-services/utils/element.js
-  init_define_import_meta_trackerLookup();
-  function isElementType(element, tag) {
-    if (Array.isArray(tag)) {
-      return tag.some((t) => isElementType(element, t));
-    }
-    return element.tagName.toLowerCase() === tag.toLowerCase();
-  }
-
-  // src/features/broker-protection/captcha-services/utils/token.js
-  function injectTokenIntoElement({ captchaContainerElement, captchaInputElement, elementName, token }) {
-    let element;
-    if (captchaInputElement) {
-      element = captchaInputElement;
-    } else if (elementName) {
-      element = getElementByTagName(captchaContainerElement, elementName);
-    } else {
-      return PirError.create(`[injectTokenIntoElement] must pass in either captcha input element or element name`);
-    }
-    if (!element) {
-      return PirError.create(`[injectTokenIntoElement] could not find element to inject token into`);
-    }
-    return safeCallWithError(
-      () => {
-        if (isInputElement(element) && ["text", "hidden"].includes(element.type) || isTextAreaElement(element)) {
-          element.value = token;
-          return PirSuccess.create({ injected: true });
-        } else {
-          return PirError.create(`[injectTokenIntoElement] element is neither a text input or textarea`);
-        }
-      },
-      { errorMessage: `[injectTokenIntoElement] error injecting token into element` }
-    );
-  }
-  function isInputElement(element) {
-    return isElementType(element, "input");
-  }
-  function isTextAreaElement(element) {
-    return isElementType(element, "textarea");
-  }
-
-  // src/features/broker-protection/actions/captcha-callback.js
-  init_define_import_meta_trackerLookup();
-  function captchaCallback(args) {
-    const clients = findRecaptchaClients(globalThis);
-    if (clients.length === 0) {
-      return console.log("cannot find clients");
-    }
-    const client = args.widgetId === void 0 ? clients[0] : clients.find(({ id }) => Number(id) === args.widgetId);
-    if (!client || typeof client.function !== "function") {
-      return console.log("cannot find a callable reCAPTCHA client for widget", args.widgetId);
-    }
-    try {
-      client.function(args.token);
-      console.log("called function with path", client.callback);
-    } catch (e) {
-      console.error("could not call function");
-    }
-    function findRecaptchaClients(target) {
-      if (typeof target.___grecaptcha_cfg === "undefined") {
-        console.log("target.___grecaptcha_cfg not found in ", location.href);
-        return [];
-      }
-      return Object.entries(target.___grecaptcha_cfg.clients || {}).map(([cid, client2]) => {
-        const cidNumber = parseInt(cid, 10);
-        const data2 = {
-          id: cid,
-          version: cidNumber >= 1e4 ? "V3" : "V2"
-        };
-        const objects = Object.entries(client2).filter(([, value]) => value && typeof value === "object");
-        objects.forEach(([toplevelKey, toplevel]) => {
-          const found = Object.entries(toplevel).find(
-            ([, value]) => value && typeof value === "object" && "sitekey" in value && "size" in value
-          );
-          if (typeof toplevel === "object" && typeof HTMLElement !== "undefined" && toplevel instanceof HTMLElement && toplevel.tagName === "DIV") {
-            data2.pageurl = toplevel.baseURI;
-          }
-          if (found) {
-            const [sublevelKey, sublevel] = found;
-            data2.sitekey = sublevel.sitekey;
-            const callbackKey = data2.version === "V2" ? "callback" : "promise-callback";
-            const callback = sublevel[callbackKey];
-            if (!callback) {
-              data2.callback = null;
-              data2.function = null;
-            } else {
-              data2.function = callback;
-              data2.callback = ["___grecaptcha_cfg", "clients", cid, toplevelKey, sublevelKey, callbackKey];
-            }
-          }
-        });
-        return data2;
-      });
-    }
-  }
-
-  // src/features/broker-protection/captcha-services/providers/recaptcha.js
-  var _config;
-  var ReCaptchaProvider = class {
-    /**
-     * @param {ReCaptchaProviderConfig} config
-     */
-    constructor(config2) {
-      /**
-       * @type {ReCaptchaProviderConfig}
-       */
-      __privateAdd(this, _config);
-      __privateSet(this, _config, config2);
-    }
-    getType() {
-      return __privateGet(this, _config).type;
-    }
-    /**
-     * @param {Document | HTMLElement} _root
-     * @param {HTMLElement} captchaContainerElement
-     */
-    isSupportedForElement(_root, captchaContainerElement) {
-      return !!this._getCaptchaElement(captchaContainerElement);
-    }
-    /**
-     * @param {HTMLElement} captchaContainerElement
-     */
-    getCaptchaIdentifier(captchaContainerElement) {
-      return Promise.resolve(
-        safeCallWithError(
-          () => getSiteKeyFromSearchParam({ captchaElement: this._getCaptchaElement(captchaContainerElement), siteKeyAttrName: "k" }),
-          { errorMessage: "[ReCaptchaProvider.getCaptchaIdentifier] could not extract site key" }
-        )
-      );
-    }
-    getSupportingCodeToInject() {
-      return null;
-    }
-    /**
-     * @param {HTMLElement} captchaContainerElement - The element containing the captcha
-     * @param {string} token
-     */
-    getSolveCallback(captchaContainerElement, token) {
-      const responseElement = getElementByTagName(captchaContainerElement, __privateGet(this, _config).responseElementName);
-      const callbackArgs = createCaptchaCallbackArgs(responseElement, __privateGet(this, _config).responseElementName, token);
-      if (PirError.isError(callbackArgs)) {
-        return callbackArgs;
-      }
-      return stringifyFunction({
-        functionBody: captchaCallback,
-        functionName: "captchaCallback",
-        args: callbackArgs
-      });
-    }
-    /**
-     * @param {HTMLElement} captchaContainerElement - The element containing the captcha
-     */
-    canSolve(captchaContainerElement) {
-      return !!getElementByTagName(captchaContainerElement, __privateGet(this, _config).responseElementName);
-    }
-    /**
-     * @param {HTMLElement} captchaContainerElement - The element containing the captcha
-     * @param {string} token
-     */
-    injectToken(captchaContainerElement, token) {
-      return injectTokenIntoElement({ captchaContainerElement, elementName: __privateGet(this, _config).responseElementName, token });
-    }
-    /**
-     * @private
-     * @param {HTMLElement} captchaContainerElement
-     */
-    _getCaptchaElement(captchaContainerElement) {
-      return getElementWithSrcStart(captchaContainerElement, __privateGet(this, _config).providerUrl);
-    }
-  };
-  _config = new WeakMap();
-  function createCaptchaCallbackArgs(responseElement, responseElementName, token) {
-    if (!responseElement) {
-      return PirError.create("could not find the reCAPTCHA response element for the matched record");
-    }
-    if (responseElement.id === responseElementName) {
-      return { token, widgetId: 0 };
-    }
-    const prefix = `${responseElementName}-`;
-    if (!responseElement.id.startsWith(prefix)) {
-      return PirError.create("could not resolve a unique reCAPTCHA widget for the matched record");
-    }
-    const widgetId = responseElement.id.slice(prefix.length);
-    if (!/^\d+$/.test(widgetId)) {
-      return PirError.create("could not resolve a unique reCAPTCHA widget for the matched record");
-    }
-    return { token, widgetId: Number(widgetId) };
-  }
-
-  // src/features/broker-protection/captcha-services/providers/image.js
-  init_define_import_meta_trackerLookup();
-
-  // src/features/broker-protection/captcha-services/utils/image.js
-  init_define_import_meta_trackerLookup();
-  function svgToBase64Jpg(svgElement, backgroundColor = "white") {
-    const svgString = new XMLSerializer().serializeToString(svgElement);
-    const svgDataUrl = "data:image/svg+xml;base64," + btoa(svgString);
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
-        if (!ctx) {
-          reject(new Error("Could not get 2D context from canvas"));
-          return;
-        }
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.fillStyle = backgroundColor;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(img, 0, 0);
-        const jpgBase64 = canvas.toDataURL("image/jpeg");
-        resolve(jpgBase64);
-      };
-      img.onerror = (error) => {
-        reject(error);
-      };
-      img.src = svgDataUrl;
-    });
-  }
-  var MAX_CAPTCHA_IMAGE_BYTES = 5 * 1024 * 1024;
-  async function imageToBase64(imageElement) {
-    const src = imageElement.currentSrc || imageElement.src;
-    if (src.startsWith("data:") && src.includes(";base64,")) {
-      const base64Data = src.slice(src.indexOf(",") + 1);
-      const padding = base64Data.endsWith("==") ? 2 : base64Data.endsWith("=") ? 1 : 0;
-      const decodedBytes = Math.floor(base64Data.length * 3 / 4) - padding;
-      if (decodedBytes > MAX_CAPTCHA_IMAGE_BYTES) {
-        throw new Error(`[imageToBase64] captcha image exceeds ${MAX_CAPTCHA_IMAGE_BYTES} bytes: ${decodedBytes}`);
-      }
-      return src;
-    }
-    const response = await fetch(src, { credentials: "omit" });
-    if (!response.ok) {
-      throw new Error(`[imageToBase64] failed to fetch image from ${src}: ${response.status} ${response.statusText}`);
-    }
-    const contentLength = Number(response.headers.get("content-length"));
-    if (contentLength > MAX_CAPTCHA_IMAGE_BYTES) {
-      throw new Error(`[imageToBase64] captcha image exceeds ${MAX_CAPTCHA_IMAGE_BYTES} bytes: ${contentLength}`);
-    }
-    const blob = await response.blob();
-    if (blob.size > MAX_CAPTCHA_IMAGE_BYTES) {
-      throw new Error(`[imageToBase64] captcha image exceeds ${MAX_CAPTCHA_IMAGE_BYTES} bytes: ${blob.size}`);
-    }
-    return await new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(
-        /** @type {string} */
-        reader.result
-      );
-      reader.onerror = () => reject(reader.error);
-      reader.readAsDataURL(blob);
-    });
-  }
-
-  // src/features/broker-protection/captcha-services/providers/image.js
-  var ImageProvider = class {
-    getType() {
-      return "image";
-    }
-    /**
-     * @param {Document | HTMLElement} _root
-     * @param {HTMLElement} captchaImageElement - The captcha image element
-     */
-    isSupportedForElement(_root, captchaImageElement) {
-      if (!captchaImageElement) {
-        return false;
-      }
-      return isElementType(captchaImageElement, ["img", "svg"]);
-    }
-    /**
-     * @param {HTMLElement} captchaImageElement - The captcha image element
-     */
-    async getCaptchaIdentifier(captchaImageElement) {
-      if (isSVGElement(captchaImageElement)) {
-        return await svgToBase64Jpg(captchaImageElement);
-      }
-      if (isImgElement(captchaImageElement)) {
-        return await imageToBase64(captchaImageElement);
-      }
-      return PirError.create(
-        `[ImageProvider.getCaptchaIdentifier] could not extract Base64 from image with tag name: ${captchaImageElement.tagName}`
-      );
-    }
-    getSupportingCodeToInject() {
-      return null;
-    }
-    /**
-     * @param {HTMLElement} captchaInputElement - The captcha input element
-     */
-    canSolve(captchaInputElement) {
-      return isElementType(captchaInputElement, ["input", "textarea"]);
-    }
-    /**
-     * @param {HTMLInputElement} captchaInputElement - The captcha input element
-     * @param {string} token - The solved captcha token
-     */
-    injectToken(captchaInputElement, token) {
-      return injectTokenIntoElement({ captchaInputElement, token });
-    }
-    /**
-     * @param {HTMLElement} _captchaInputElement - The element containing the captcha
-     * @param {string} _token - The solved captcha token
-     */
-    getSolveCallback(_captchaInputElement, _token) {
-      return stringifyFunction({
-        functionBody: function callbackNoop() {
-        },
-        functionName: "callbackNoop",
-        args: {}
-      });
-    }
-  };
-  function isSVGElement(element) {
-    return isElementType(element, "svg");
-  }
-  function isImgElement(element) {
-    return isElementType(element, "img");
-  }
-
-  // src/features/broker-protection/captcha-services/providers/cloudflare-turnstile.js
-  init_define_import_meta_trackerLookup();
-
-  // src/features/broker-protection/captcha-services/utils/attribute.js
-  init_define_import_meta_trackerLookup();
-  function getAttributeValue({ element, attrName }) {
-    if (!element) {
-      throw Error("[getAttributeValue] element parameter is required");
-    }
-    const attributeValue = element.getAttribute(attrName);
-    if (!attributeValue) {
-      throw Error(`[getAttributeValue] ${attrName} is not defined or has no value`);
-    }
-    return attributeValue;
-  }
-
-  // src/features/broker-protection/captcha-services/providers/cloudflare-turnstile.js
-  var _config2;
-  var CloudFlareTurnstileProvider = class {
-    constructor() {
-      /**
-       * @type {CloudFlareTurnstileProviderConfig}
-       */
-      __privateAdd(this, _config2);
-      __privateSet(this, _config2, {
-        providerUrl: "https://challenges.cloudflare.com/turnstile/v0",
-        responseElementName: "cf-turnstile-response"
-      });
-    }
-    getType() {
-      return "cloudFlareTurnstile";
-    }
-    /**
-     * @param {Document | HTMLElement} root
-     * @param {HTMLElement} _captchaContainerElement
-     * @returns {boolean} Whether the captcha is supported for the element
-     */
-    isSupportedForElement(root, _captchaContainerElement) {
-      return !!this._getCaptchaScript(root);
-    }
-    /**
-     * @param {HTMLElement} captchaContainerElement - The element containing the captcha
-     */
-    getCaptchaIdentifier(captchaContainerElement) {
-      const sitekeyAttribute = "data-sitekey";
-      return Promise.resolve(
-        safeCallWithError(() => getAttributeValue({ element: captchaContainerElement, attrName: sitekeyAttribute }), {
-          errorMessage: `[CloudFlareTurnstileProvider.getCaptchaIdentifier] could not extract site key from attribute: ${sitekeyAttribute}`
-        })
-      );
-    }
-    getSupportingCodeToInject() {
-      return null;
-    }
-    /**
-     * @param {HTMLElement} captchaContainerElement - The element containing the captcha
-     * @returns {boolean} Whether the captcha can be solved
-     */
-    canSolve(captchaContainerElement) {
-      const callbackAttribute = "data-callback";
-      const hasCallback = safeCallWithError(() => getAttributeValue({ element: captchaContainerElement, attrName: callbackAttribute }), {
-        errorMessage: `[CloudFlareTurnstileProvider.canSolve] could not extract callback function name from attribute: ${callbackAttribute}`
-      });
-      if (PirError.isError(hasCallback)) {
-        return false;
-      }
-      const hasResponseElement = safeCallWithError(() => getElementByTagName(captchaContainerElement, __privateGet(this, _config2).responseElementName), {
-        errorMessage: `[CloudFlareTurnstileProvider.canSolve] could not find response element: ${__privateGet(this, _config2).responseElementName}`
-      });
-      if (PirError.isError(hasResponseElement)) {
-        return false;
-      }
-      return true;
-    }
-    /**
-     * @param {HTMLElement} captchaContainerElement - The element containing the captcha
-     * @param {string} token - The solved captcha token
-     */
-    injectToken(captchaContainerElement, token) {
-      return injectTokenIntoElement({ captchaContainerElement, elementName: __privateGet(this, _config2).responseElementName, token });
-    }
-    /**
-     * @param {HTMLElement} captchaContainerElement - The element containing the captcha
-     * @param {string} token - The solved captcha token
-     */
-    getSolveCallback(captchaContainerElement, token) {
-      const callbackAttribute = "data-callback";
-      const callbackFunctionName = safeCallWithError(
-        () => getAttributeValue({ element: captchaContainerElement, attrName: callbackAttribute }),
-        {
-          errorMessage: `[CloudFlareTurnstileProvider.getSolveCallback] could not extract callback function name from attribute: ${callbackAttribute}`
-        }
-      );
-      if (PirError.isError(callbackFunctionName)) {
-        return callbackFunctionName;
-      }
-      return stringifyFunction({
-        /**
-         * @param {Object} args - The arguments passed to the function
-         * @param {string} args.callbackFunctionName - The callback function name
-         * @param {string} args.token - The solved captcha token
-         */
-        functionBody: function cloudflareCaptchaCallback(args) {
-          window[args.callbackFunctionName](args.token);
-        },
-        functionName: "cloudflareCaptchaCallback",
-        args: { callbackFunctionName, token }
-      });
-    }
-    /**
-     * @private
-     * @param {Document | HTMLElement} root - The root element to search in
-     */
-    _getCaptchaScript(root) {
-      return getElementWithSrcStart(root, __privateGet(this, _config2).providerUrl);
-    }
-  };
-  _config2 = new WeakMap();
-
-  // src/features/broker-protection/captcha-services/providers/prompt.js
-  init_define_import_meta_trackerLookup();
-  var PROMPT_CAPTCHA_TYPE = "llm-prompt";
-  var ALLOWED_PROMPT_FIELDS = /* @__PURE__ */ new Set(["city", "state"]);
-  var TEMPLATE_VARIABLE = /\$%7B(.+?)%7D|\$\{(.+?)}/g;
-  var PromptProvider = class {
-    getType() {
-      return PROMPT_CAPTCHA_TYPE;
-    }
-    /**
-     * @param {SiteKeyContext} context
-     * @return {Promise<SiteKeyInfo|PirError>}
-     */
-    getSiteKey({ action, userData }) {
-      const prompt = this.getCaptchaPrompt(action, userData);
-      return Promise.resolve(typeof prompt === "string" ? { siteKey: prompt, type: this.getType() } : prompt);
-    }
-    /**
-     * Prompt captchas are never detected from the DOM, so this provider must not be picked by the
-     * factory's detection fallback for some other captcha type.
-     *
-     * @param {Document | HTMLElement} _root
-     * @param {HTMLElement} _captchaContainerElement
-     */
-    isSupportedForElement(_root, _captchaContainerElement) {
-      return false;
-    }
-    /**
-     * @param {HTMLElement} _captchaContainerElement
-     * @return {Promise<PirError>}
-     */
-    getCaptchaIdentifier(_captchaContainerElement) {
-      return Promise.resolve(
-        PirError.create(
-          "[PromptProvider.getCaptchaIdentifier] a prompt is built from the action and profile, not a DOM element; use getCaptchaPrompt"
-        )
-      );
-    }
-    /**
-     * Fills a prompt template such as `What is a ZIP code for ${city}, ${state|upcase}?` with the
-     * user's profile data, using the same `${field|transform}` syntax as URL building.
-     *
-     * @param {PirAction} action
-     * @param {ProfileData|null} userData
-     * @return {string|PirError}
-     */
-    getCaptchaPrompt(action, userData) {
-      const template = action.selector;
-      if (!template) {
-        return PirError.create("missing prompt template");
-      }
-      const allowedData = {};
-      for (const [, encodedVariable, plainVariable] of template.matchAll(TEMPLATE_VARIABLE)) {
-        const [field = ""] = (encodedVariable ?? plainVariable ?? "").split(/\||%7C/);
-        if (!ALLOWED_PROMPT_FIELDS.has(field)) {
-          return PirError.create(`prompt template references a field that is not allowed: ${field}`);
-        }
-        const value = userData?.[field];
-        if (typeof value !== "string" && typeof value !== "number" || String(value).trim() === "") {
-          return PirError.create(`profile is missing a value for prompt field: ${field}`);
-        }
-        allowedData[field] = value;
-      }
-      return processTemplateStringWithUserData(template, action, allowedData);
-    }
-    getSupportingCodeToInject() {
-      return null;
-    }
-    /**
-     * @param {HTMLElement} captchaInputElement - The input the answer is typed into
-     */
-    canSolve(captchaInputElement) {
-      return isElementType(captchaInputElement, ["input", "textarea"]);
-    }
-    /**
-     * @param {HTMLElement} captchaInputElement - The input the answer is typed into
-     * @param {string} token - The LLM's answer
-     */
-    injectToken(captchaInputElement, token) {
-      return injectTokenIntoElement({ captchaInputElement, token });
-    }
-    /**
-     * @param {HTMLElement} _captchaInputElement
-     * @param {string} _token
-     */
-    getSolveCallback(_captchaInputElement, _token) {
-      return stringifyFunction({
-        functionBody: function callbackNoop() {
-        },
-        functionName: "callbackNoop",
-        args: {}
-      });
-    }
-  };
-
-  // src/features/broker-protection/captcha-services/providers/registry.js
-  var captchaFactory = new CaptchaFactory();
-  captchaFactory.registerProvider(
-    new ReCaptchaProvider({
-      type: "recaptcha2",
-      providerUrl: "https://www.google.com/recaptcha/api2",
-      responseElementName: "g-recaptcha-response"
-    })
-  );
-  captchaFactory.registerProvider(
-    new ReCaptchaProvider({
-      type: "recaptchaEnterprise",
-      providerUrl: "https://www.google.com/recaptcha/enterprise",
-      responseElementName: "g-recaptcha-response"
-    })
-  );
-  captchaFactory.registerProvider(new CloudFlareTurnstileProvider());
-  captchaFactory.registerProvider(new ImageProvider(), { aliases: ["red-circle", "basic-math"] });
-  captchaFactory.registerProvider(new PromptProvider());
-
-  // src/features/broker-protection/captcha-services/get-captcha-provider.js
-  function getCaptchaProvider(root, captchaContainer, captchaType) {
-    const captchaProvider = captchaFactory.getProviderByType(captchaType);
-    if (!captchaProvider) {
-      return PirError.create(`[getCaptchaProvider] could not find captcha provider with type ${captchaType}`);
-    }
-    if (captchaProvider.isSupportedForElement(root, captchaContainer)) {
-      return captchaProvider;
-    }
-    const detectedProvider = captchaFactory.detectProvider(root, captchaContainer);
-    if (!detectedProvider) {
-      return PirError.create(
-        `[getCaptchaProvider] could not detect captcha provider for ${captchaType} captcha and element ${captchaContainer}`
-      );
-    }
-    console.warn(
-      `[getCaptchaProvider] mismatch between expected capctha type ${captchaType} and detected type ${detectedProvider.getType()}`
-    );
-    return detectedProvider;
-  }
-  function getCaptchaSolveProvider(captchaContainer, captchaType) {
-    const captchaProvider = captchaFactory.getProviderByType(captchaType);
-    if (!captchaProvider) {
-      return PirError.create(`[getCaptchaSolveProvider] could not find captcha provider with type ${captchaType}`);
-    }
-    if (captchaProvider.canSolve(captchaContainer)) {
-      return captchaProvider;
-    }
-    const detectedProvider = captchaFactory.detectSolveProvider(captchaContainer);
-    if (!detectedProvider) {
-      return PirError.create(
-        `[getCaptchaSolveProvider] could not detect captcha provider for ${captchaType} captcha and element ${captchaContainer}`
-      );
-    }
-    console.warn(
-      `[getCaptchaSolveProvider] mismatch between expected captha type ${captchaType} and detected type ${detectedProvider.getType()}`
-    );
-    return detectedProvider;
-  }
-
-  // src/features/broker-protection/actions/captcha-deprecated.js
-  init_define_import_meta_trackerLookup();
-  function getCaptchaInfo(action, root = document) {
-    const pageUrl = window.location.href;
-    if (!action.selector) {
-      return new ErrorResponse({ actionID: action.id, message: "missing selector" });
-    }
-    const captchaDiv = getElement(root, action.selector);
-    if (!captchaDiv) {
-      return new ErrorResponse({ actionID: action.id, message: `could not find captchaDiv with selector ${action.selector}` });
-    }
-    const captcha = getElement(captchaDiv, '[src^="https://www.google.com/recaptcha"]') || getElement(captchaDiv, '[src^="https://newassets.hcaptcha.com/captcha"');
-    if (!captcha) return new ErrorResponse({ actionID: action.id, message: "could not find captcha" });
-    if (!("src" in captcha)) return new ErrorResponse({ actionID: action.id, message: "missing src attribute" });
-    const captchaUrl = String(captcha.src);
-    let captchaType;
-    let siteKey;
-    if (captchaUrl.includes("recaptcha/api2")) {
-      captchaType = "recaptcha2";
-      siteKey = new URL(captchaUrl).searchParams.get("k");
-    } else if (captchaUrl.includes("recaptcha/enterprise")) {
-      captchaType = "recaptchaEnterprise";
-      siteKey = new URL(captchaUrl).searchParams.get("k");
-    } else if (captchaUrl.includes("hcaptcha.com/captcha/v1")) {
-      captchaType = "hcaptcha";
-      if (captcha instanceof Element) {
-        siteKey = captcha.getAttribute("data-sitekey");
-      }
-      if (!siteKey) {
-        try {
-          siteKey = new URL(captchaUrl).searchParams.get("sitekey");
-        } catch (e) {
-          console.warn("error parsing captchaUrl", captchaUrl);
-        }
-      }
-      if (!siteKey) {
-        try {
-          const hash = new URL(captchaUrl).hash.slice(1);
-          siteKey = new URLSearchParams(hash).get("sitekey");
-        } catch (e) {
-          console.warn("error parsing captchaUrl hash", captchaUrl);
-        }
-      }
-    }
-    if (!captchaType) {
-      return new ErrorResponse({ actionID: action.id, message: "Could not extract captchaType." });
-    }
-    if (!siteKey) {
-      return new ErrorResponse({ actionID: action.id, message: "Could not extract siteKey." });
-    }
-    const pageUrlWithoutParams = pageUrl?.split("?")[0];
-    const responseData = {
-      siteKey,
-      url: pageUrlWithoutParams,
-      type: captchaType
-    };
-    return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: responseData });
-  }
-  function solveCaptcha(action, token, root = document) {
-    const selectors = ["h-captcha-response", "g-recaptcha-response"];
-    let solved = false;
-    for (const selector of selectors) {
-      const match = root.getElementsByName(selector)[0];
-      if (match) {
-        match.innerHTML = token;
-        solved = true;
-        break;
-      }
-    }
-    if (solved) {
-      const json = JSON.stringify({ token });
-      const javascript = `;(function(args) {
-            ${captchaCallback.toString()};
-            captchaCallback(args);
-        })(${json});`;
-      return new SuccessResponse({
-        actionID: action.id,
-        actionType: action.actionType,
-        response: { callback: { eval: javascript } }
-      });
-    }
-    return new ErrorResponse({ actionID: action.id, message: "could not solve captcha" });
-  }
-
-  // src/features/broker-protection/captcha-services/captcha.service.js
-  var pendingCaptchaContext = null;
-  var getCaptchaContainer = (root, selector) => {
-    if (!selector) {
-      return PirError.create("missing selector");
-    }
-    const captchaContainer = getElement(root, selector);
-    if (!captchaContainer) {
-      return PirError.create(`could not find captcha container with selector ${selector}`);
-    }
-    return captchaContainer;
-  };
-  var getCaptchaRoot = (action, userData, root) => {
-    return selectRootElement(action, userData ?? {}, root);
-  };
-  function getSupportingCodeToInject(action) {
-    const { id: actionID, actionType, injectCaptchaHandler: captchaType } = action;
-    const createError = ErrorResponse.generateErrorResponseFunction({ actionID, context: "getSupportingCodeToInject" });
-    if (!captchaType) {
-      return SuccessResponse.create({ actionID, actionType, response: {} });
-    }
-    const captchaProvider = captchaFactory.getProviderByType(captchaType);
-    if (!captchaProvider) {
-      return createError(`could not find captchaProvider with type ${captchaType}`);
-    }
-    return SuccessResponse.create({ actionID, actionType, response: { code: captchaProvider.getSupportingCodeToInject() } });
-  }
-  async function getCaptchaIdentifierFromPage(action, userData, root) {
-    const { captchaType = "", selector } = action;
-    const captchaRoot = getCaptchaRoot(action, userData, root);
-    if (PirError.isError(captchaRoot)) {
-      return captchaRoot;
-    }
-    const captchaContainer = getCaptchaContainer(captchaRoot, selector);
-    if (PirError.isError(captchaContainer)) {
-      return captchaContainer;
-    }
-    const captchaProvider = getCaptchaProvider(root, captchaContainer, captchaType);
-    if (PirError.isError(captchaProvider)) {
-      return captchaProvider;
-    }
-    const captchaIdentifier = await captchaProvider.getCaptchaIdentifier(captchaContainer);
-    if (!captchaIdentifier) {
-      return PirError.create(`could not extract captcha identifier from the container with selector ${selector}`);
-    }
-    if (PirError.isError(captchaIdentifier)) {
-      return captchaIdentifier;
-    }
-    const reportedType = captchaFactory.getProviderByType(captchaType) === captchaProvider ? captchaType : captchaProvider.getType();
-    return { siteKey: captchaIdentifier, type: reportedType };
-  }
-  async function getCaptchaInfo2(action, userData, root = document) {
-    const { id: actionID, actionType, captchaType } = action;
-    pendingCaptchaContext = null;
-    if (!captchaType) {
-      return getCaptchaInfo(action, root);
-    }
-    const createError = ErrorResponse.generateErrorResponseFunction({ actionID, context: `[getCaptchaInfo] captchaType: ${captchaType}` });
-    const captchaProvider = captchaFactory.getProviderByType(captchaType);
-    if (!captchaProvider) {
-      return createError(`could not find captcha provider with type ${captchaType}`);
-    }
-    const captcha = hasOwnSiteKey(captchaProvider) ? await captchaProvider.getSiteKey({ action, userData, root }) : await getCaptchaIdentifierFromPage(action, userData, root);
-    if (PirError.isError(captcha)) {
-      return createError(captcha.error.message);
-    }
-    if (action.parent) {
-      pendingCaptchaContext = { profile: userData, token: null };
-    }
-    return SuccessResponse.create({
-      actionID,
-      actionType,
-      response: {
-        url: removeUrlQueryParams(window.location.href),
-        // query params (which may include PII)
-        ...captcha
-      }
-    });
-  }
-  function hasOwnSiteKey(provider) {
-    return "getSiteKey" in provider && typeof provider.getSiteKey === "function";
-  }
-  function solveCaptcha2(action, token, userData, root = document) {
-    const { id: actionID, actionType, captchaType, selector } = action;
-    if (!captchaType) {
-      return solveCaptcha(action, token, root);
-    }
-    const createError = ErrorResponse.generateErrorResponseFunction({ actionID, context: `[solveCaptcha] captchaType: ${captchaType}` });
-    const matchingProfile = userData ?? pendingCaptchaContext?.profile ?? null;
-    if (action.parent && !matchingProfile) {
-      return createError("no profile available to scope the captcha solve");
-    }
-    const captchaToken = token ?? pendingCaptchaContext?.token ?? null;
-    if (!captchaToken) {
-      return createError("no token available to solve the captcha");
-    }
-    pendingCaptchaContext = action.parent ? { profile: matchingProfile, token: captchaToken } : null;
-    const captchaRoot = getCaptchaRoot(action, matchingProfile, root);
-    if (PirError.isError(captchaRoot)) {
-      return createError(captchaRoot.error.message);
-    }
-    const captchaContainer = getCaptchaContainer(captchaRoot, selector);
-    if (PirError.isError(captchaContainer)) {
-      return createError(captchaContainer.error.message);
-    }
-    const captchaSolveProvider = getCaptchaSolveProvider(captchaContainer, captchaType);
-    if (PirError.isError(captchaSolveProvider)) {
-      return createError(captchaSolveProvider.error.message);
-    }
-    if (!captchaSolveProvider.canSolve(captchaContainer)) {
-      return createError("cannot solve captcha");
-    }
-    const callback = captchaSolveProvider.getSolveCallback(captchaContainer, captchaToken);
-    if (PirError.isError(callback)) {
-      return createError(callback.error.message);
-    }
-    const tokenResponse = captchaSolveProvider.injectToken(captchaContainer, captchaToken);
-    if (PirError.isError(tokenResponse)) {
-      return createError(tokenResponse.error.message);
-    }
-    if (!tokenResponse.response.injected) {
-      return createError("could not inject token");
-    }
-    pendingCaptchaContext = null;
-    return SuccessResponse.create({
-      actionID,
-      actionType,
-      response: { callback: { eval: callback } }
-    });
-  }
-
-  // src/features/broker-protection/actions/build-url.js
-  init_define_import_meta_trackerLookup();
-  function buildUrl(action, userData) {
-    const result = replaceTemplatedUrl(action, userData);
-    if ("error" in result) {
-      return new ErrorResponse({ actionID: action.id, message: result.error });
-    }
-    return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: { url: result.url } });
-  }
-  function replaceTemplatedUrl(action, userData) {
-    const url = action?.url;
-    if (!url) {
-      return { error: "Error: No url provided." };
-    }
-    try {
-      const _2 = new URL(action.url);
-    } catch (e) {
-      return { error: "Error: Invalid URL provided." };
-    }
-    if (!userData) {
-      return { url };
-    }
-    return transformUrl(action, userData);
-  }
-
-  // src/features/broker-protection/actions/navigate.js
-  function navigate(action, userData) {
-    const { id: actionID, actionType } = action;
-    const urlResult = buildUrl(action, userData);
-    if (urlResult instanceof ErrorResponse) {
-      return urlResult;
-    }
-    const codeToInjectResponse = getSupportingCodeToInject(action);
-    if (codeToInjectResponse instanceof ErrorResponse) {
-      return codeToInjectResponse;
-    }
-    const response = {
-      ...urlResult.success.response,
-      ...codeToInjectResponse.success.response
-    };
-    return new SuccessResponse({ actionID, actionType, response });
-  }
-
-  // src/features/broker-protection/actions/condition.js
-  init_define_import_meta_trackerLookup();
-  function condition(action, root = document) {
-    const results = expectMany(action.expectations, root);
-    const errors = results.filter((x2, index) => {
-      if (x2.result === true) return false;
-      if (action.expectations[index].failSilently) return false;
-      return true;
-    }).map((x2) => {
-      return "error" in x2 ? x2.error : "unknown error";
-    });
-    if (errors.length > 0) {
-      return new ErrorResponse({ actionID: action.id, message: errors.join(", ") });
-    }
-    const returnActions = results.every((x2) => x2.result === true);
-    if (action.actions?.length && returnActions) {
-      return new SuccessResponse({
-        actionID: action.id,
-        actionType: action.actionType,
-        response: { actions: action.actions }
-      });
-    }
-    return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: { actions: [] } });
-  }
-
-  // src/features/broker-protection/actions/scroll.js
-  init_define_import_meta_trackerLookup();
-  function scroll(action, root = document) {
-    const element = getElement(root, action.selector);
-    if (!element) return new ErrorResponse({ actionID: action.id, message: "missing element" });
-    element.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
-    return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: null });
-  }
-
-  // src/features/broker-protection/execute.js
-  async function execute(action, inputData, root = document) {
-    try {
-      switch (action.actionType) {
-        case "navigate":
-          return navigate(action, data(action, inputData, "userProfile"));
-        case "extract":
-          return await extract(action, data(action, inputData, "userProfile"), root);
-        case "click":
-          return click(action, data(action, inputData, "userProfile"), root);
-        case "expectation":
-          return expectation(action, root);
-        case "fillForm": {
-          const userProfile = inputData?.userProfile ?? null;
-          return fillForm(action, data(action, inputData, "extractedProfile"), root, userProfile);
-        }
-        case "getCaptchaInfo":
-          return await getCaptchaInfo2(action, profileForMatching(inputData), root);
-        case "solveCaptcha":
-          return solveCaptcha2(action, data(action, inputData, "token"), profileForMatching(inputData), root);
-        case "condition":
-          return condition(action, root);
-        case "scroll":
-          return scroll(action, root);
-        case "executeScript":
-          return await executeScript(action, data(action, inputData, "userProfile"), root);
-        default: {
-          return new ErrorResponse({
-            actionID: action.id,
-            message: `unimplemented actionType: ${action.actionType}`
-          });
-        }
-      }
-    } catch (e) {
-      console.log("unhandled exception: ", e);
-      return new ErrorResponse({
-        actionID: action.id,
-        message: `unhandled exception: ${e.message}`
-      });
-    }
-  }
-  function profileForMatching(inputData) {
-    return inputData?.userProfile ?? inputData?.extractedProfile ?? null;
-  }
-  function data(action, data2, defaultSource) {
-    if (!data2) return null;
-    const source = action.dataSource || defaultSource;
-    if (Object.prototype.hasOwnProperty.call(data2, source)) {
-      return data2[source];
-    }
-    return null;
-  }
-
-  // src/timer-utils.js
-  init_define_import_meta_trackerLookup();
-  var DEFAULT_RETRY_CONFIG = {
-    interval: { ms: 0 },
-    maxAttempts: 1
-  };
-  async function retry(fn, config2 = DEFAULT_RETRY_CONFIG) {
-    let lastResult;
-    const exceptions = [];
-    for (let i = 0; i < config2.maxAttempts; i++) {
-      try {
-        lastResult = await Promise.resolve(fn());
-      } catch (e) {
-        exceptions.push(String(e));
-      }
-      if (lastResult && "success" in lastResult) break;
-      if (i === config2.maxAttempts - 1) break;
-      await new Promise((resolve) => setTimeout(resolve, config2.interval.ms));
-    }
-    return { result: lastResult, exceptions };
-  }
-
-  // src/features/broker-protection.js
-  var ActionExecutorBase = class extends ContentFeature {
-    /**
-     * @param {any} action
-     * @param {Record<string, any>} data
-     */
-    async processActionAndNotify(action, data2) {
-      try {
-        if (!action) {
-          return this.messaging.notify("actionError", { error: "No action found." });
-        }
-        const { results, exceptions } = await this.exec(action, data2);
-        if (results) {
-          const parent = results[0];
-          const errors = results.filter((x2) => "error" in x2);
-          if (results.length === 1 || errors.length === 0) {
-            return this.messaging.notify("actionCompleted", { result: parent });
-          }
-          const joinedErrors = errors.map((x2) => x2.error.message).join(", ");
-          const response = new ErrorResponse({
-            actionID: action.id,
-            message: "Secondary actions failed: " + joinedErrors
-          });
-          return this.messaging.notify("actionCompleted", { result: response });
-        } else {
-          return this.messaging.notify("actionError", { error: "No response found, exceptions: " + exceptions.join(", ") });
-        }
-      } catch (e) {
-        this.log.error("unhandled exception: ", e);
-        return this.messaging.notify("actionError", { error: e.toString() });
-      }
-    }
-    /**
-     * Recursively execute actions with the same dataset, collecting all results/exceptions for
-     * later analysis
-     * @param {any} action
-     * @param {Record<string, any>} data
-     * @return {Promise<{results: ActionResponse[], exceptions: string[]}>}
-     */
-    async exec(action, data2) {
-      const retryConfig = this.retryConfigFor(action);
-      const { result, exceptions } = await retry(() => execute(action, data2, document), retryConfig);
-      if (result) {
-        if ("success" in result && Array.isArray(result.success.next)) {
-          const nextResults = [];
-          const nextExceptions = [];
-          for (const nextAction of result.success.next) {
-            const { results: subResults, exceptions: subExceptions } = await this.exec(nextAction, data2);
-            nextResults.push(...subResults);
-            nextExceptions.push(...subExceptions);
-          }
-          return { results: [result, ...nextResults], exceptions: exceptions.concat(nextExceptions) };
-        }
-        return { results: [result], exceptions: [] };
-      }
-      return { results: [], exceptions };
-    }
-    /**
-     * @returns {any}
-     */
-    retryConfigFor(action) {
-      this.log.error("unimplemented method: retryConfigFor:", action);
-    }
-  };
-  var BrokerProtection = class extends ActionExecutorBase {
-    init() {
-      this.messaging.subscribe("onActionReceived", async (params) => {
-        const { action, data: data2 } = params.state;
-        return await this.processActionAndNotify(action, data2);
-      });
-    }
-    /**
-     * Define default retry configurations for certain actions
-     *
-     * @param {any} action
-     * @returns
-     */
-    retryConfigFor(action) {
-      if (action.actionType === "executeScript") return void 0;
-      const retryConfig = action.retry?.environment === "web" ? action.retry : void 0;
-      if (!retryConfig && action.actionType === "extract") {
-        return {
-          interval: { ms: 1e3 },
-          maxAttempts: 30
-        };
-      }
-      if (!retryConfig && (action.actionType === "expectation" || action.actionType === "condition")) {
-        if (action.expectations.some((x2) => x2.type === "element")) {
-          return {
-            interval: { ms: 1e3 },
-            maxAttempts: 30
-          };
-        }
-      }
-      return retryConfig;
-    }
-  };
-
-  // src/features/breakage-reporting.js
-  init_define_import_meta_trackerLookup();
-
   // src/features/breakage-reporting/utils.js
-  init_define_import_meta_trackerLookup();
   function getJsPerformanceMetrics() {
     const paintResources = performance.getEntriesByType("paint");
     const firstPaint = paintResources.find((entry) => entry.name === "first-contentful-paint");
@@ -16651,11 +10914,7 @@ ul.messages {
     }
   }
 
-  // src/detectors/detections/bot-detection.js
-  init_define_import_meta_trackerLookup();
-
   // src/detectors/utils/detection-utils.js
-  init_define_import_meta_trackerLookup();
   function checkSelectors(selectors) {
     if (!selectors || !Array.isArray(selectors)) {
       return false;
@@ -16774,7 +11033,6 @@ ul.messages {
   }
 
   // src/detectors/detections/fraud-detection.js
-  init_define_import_meta_trackerLookup();
   function runFraudDetection(config2 = {}) {
     const results = Object.entries(config2).filter(([_2, alertConfig]) => alertConfig?.state === "enabled").map(([alertId, alertConfig]) => {
       const detected = checkSelectorsWithVisibility(alertConfig.selectors) || checkTextPatterns(alertConfig.textPatterns, alertConfig.textSources);
@@ -16795,7 +11053,6 @@ ul.messages {
   }
 
   // src/detectors/detections/youtube-ad-detection.js
-  init_define_import_meta_trackerLookup();
   var noopLogger = { info: () => {
   }, warn: () => {
   }, error: () => {
@@ -17525,7 +11782,6 @@ ul.messages {
   };
 
   // src/features/performance-metrics.js
-  init_define_import_meta_trackerLookup();
   var PerformanceMetrics = class extends ContentFeature {
     init() {
       this.messaging.subscribe("getVitals", () => {
@@ -17591,11 +11847,7 @@ ul.messages {
     }
   };
 
-  // src/features/click-to-load.js
-  init_define_import_meta_trackerLookup();
-
   // src/features/click-to-load/ctl-assets.js
-  init_define_import_meta_trackerLookup();
   var logoImg = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFQAAABUCAYAAAAcaxDBAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAABNTSURBVHgBzV0LcFPXmf6PJFt+gkEY8wrYMSEbgst7m02ywZnOZiEJCQlJC+QB25lNs7OzlEJ2ptmZLGayfUy3EEhmW5rM7gCZBtjJgzxmSTvTRSST9IF5pCE0TUosmmBjHIKNZFmWLN2e78hHPvfqXuleSdfONyNLV7q6uve7//uc85vRlwAda25oTFK8lZGn0UPaLI2okUhrTH/KGnU7M+olTevlL0KaeM3e01LaKa/PE2p64dgpGmMwGgN0rGqtS1Ve2cB/fhk/gVbSqI5KAU4wvxlBTdNe9VJ5sOnAb0I0yhg1QiWJTGN3E0gcHQRTpO0dTXJdJ7RjzZJWflHrGaNVdiTRN2kalTfOIU9VLfnqp5ruM9TTxR+dlIqGKX7uI7IDLrl7PFS2zW1iXSMURGqkbaUc0uiprqWqxa1UOXcxVcxdxAmcRoUApMZDH9HAmeMU+8NxQbYV3Ca25ITCwaRY4immcYk0AUgcv3wtJ3CxeLgBEBw++jpF249akusWsSUltGPNoq0aY5vMVLviusU04b5HbJMoVLo/ItRaBUyBp7rGtjTHuNSGj75BkbdeN/2ckdbWdODENioRSkIopFLThl4hpi0wflZzy0pO5D9aEiDsIFfXQagtf4CAXCqronzWHHFc3CQ/f53rZuGYl198zorYEKOyW0shrUUT2rFu8bc1jdqMUplLIkFi9NhRCvOLA4mp/jCVAjAn+N2qJa1UvXSZkGYjQOylfTu4OQjqPxAhl7atef+JnVQEiiK0Y+2ipzSNq7gCXFT9o1vFRRkB6evnFxJ5642SkWgF4fD4OUxYba4dEW4GLr/0bJY2FGsCCiIUMaVWEX6FDB4cF1D/T1uzJANE4uTxPBaoWbbSlNgcZiDIYsl7mg6d6iWHcEyolb0MPLyFxq1Yq9sXqg31ihx9nb4MsCK298VnxQ3XQaNTjJXd49SuOiJUkEmJIyRy7TSgWg2bf5xlK/sO76defpJuq7ZTgMy61Y9Q7bI7de/Dlndvf8xoAhw7K9uECjX3R46okomTm/rEbt0dh1TixIzqDeI9lSPZD/ZDWDT0uT2PXmqYSSvI7HryUT2pkNTB5K121d82oZ+sWQzJbJXbZmRa3GWBces2UuXX7qOKigryeDy6z0A+wqbosaDIdEYLZtdgSiq3qVcfOH6rnWPaIlQE7MTacp1ImHvuL/Ztz63iE+qpZtN2qp8z13IX6Siix4OjYi7gQCdy+6+aADNSecKys3l/+3fyHc+bb4d0nMl+KLfNyIS9vPTfPyAtEbc8jvjevz5F45r/inIBpqF6aSvV/M1twiTYLX4UCpwzYlIRw17TMnIOS5aJ8E5eE5e8Gza2TO17+nTXb3IdLyehaSeUOsBfVsj3pv77z6hsWmNmH5AJycwFQeb3nqfBqvHU399P4XBYPMfjcWK8DOXz+bK+I4mFCo2GGRh479dZpFbMbhGkSvBzvWHTvFkHd53+zNKe5lR5bjc7SPHoE7h3rOPZjwTU/POftlE+4ORS5ZVEly+OvDm1UTw0bldRsmtoaCC/32/6/SvQgDw3rVSY9GibTv2zfps7qasPHl9o9X1LCYXd5HxnKkbIyQPrt2Q+h325uOOxnGqeOQfsE+vXvxnhN7krROzd/6PUlJkU9nOJrK4mrzf7lPxcaiCt0IxE57msgkkpAQdZNf9G8tYFMr8Ns5PoDKV3YDRl47zp7OnTnUGz75tK6HC82SG3jXbTwhM6Q0U1sZvvFERVz77e1PtbwSptLBVwndN/+PNMxocb+OnGu0acJM/7mVa20Cw+Nb2CFCW2qtsIhFUndPml5wq/mAmTiT2yjep2HKKZ/7CF6r+ylKqqqmyTCdRwlcQNRmXfDeDaEP5JgFjUJzLghSDUfM2+m3UVkE4uthvkNvJz1aZAOgpNJbWv3U/jnnyeZi5bQRMmTHBEohFprfmZa6RC9eFwJcCDmg2igI5RCeP3sq7IKJ2BhzdnXosY0Zjz2gHUm0vltAe/TYFAoCgiVUByQGqhQyf5gBxftddwyiqGh3j056RuGKUTjqhoVR8mc8bf/r2wk6VGmtTdIpIoNWRxRwISCk4UtBqlVEeoUTpRaZcAkYWoOtQ8MG+xaaxZKuCmj1u+ltwArlmtS6icABjRVbczhNqRTqfQFvGM57avU21t6aXnvTOd9PKb79O+l9rpnfYOGn/7WlekFFDNnBxykcDweMeqBZnRigyhmAqjHsSY2xbkiLh0Tpw4MbMZiQ5yAo7T1h2/oG89/iL9aHeQLvQ4jynfaQ8JEqsry6lhUi2dPXeJdr/4vmtSCgnVSalqS+HxK30b5GZGD73E1mvyTcNdKEg6m3hsOeWqjKqDuMf+43VOQA09vHoJNTcGqKbKL0h2ipuWNIqHEaloC115c78rRRUM3UhO8Cyyv+HfYZqG2TBiLEpIaDqQHynNVfHCwMhJhrMHtOzguqUi85GAet52y7W0/Ym7aP7caYJMQD6XAnBQmDjhBhAuqh7foA2tUu0FoVnqrngyjE4WdMeb5upy83uXt3DJdGdigwpjJb5UAJn9nAuJSsMIhVR7QejwBC4BqLsaLPcXIp0Az7vLy8szm1Pq3XEYRoh5US45J3UwT6q9BFf7VjynCfWMqDvGtVUUVDrjhWRx8BIF8FaQTk46OGxD7TEBwg1gQoaq9jrzwkjYSU/H/UsXqJMUVGcEz1aIumt1k/OSibDnP3cfoZ/se7cgTw/8ZN+vRdjUzb+/ekUL/fJouhjtFqFylouETu05h/BFnqQv1ah+ya+czKBL1XKQsIV7/F+89VFGygrx9t09V8RzJBrnEnpEhFOAf9a15BZUTjBjUEWSkq0ebj914+uq/SxmYkIqlbL87J3joczrmqp0Ovpue4icAtGCBGJRue1WwQRQJdRYQ2CkNfpI0+bLqqhRVYod4gWpZqof6R8pSr/85u/F880mcWU+IJ6Fs4NkNs8KZKIIT1UNuQWjTwGpsr6B9QE+D6M6GdAbp9Cod8MJWO9FzL+0JHT1innC/kmAlBsLIBRAbIuHCjte3sMVo2o2FyLuP+N8ZCbyAdmCsTgEIZTv8ZHhRp8mVlukRdQ4Pl0wBqLiCYNwZkWRe5d/RQT0cEwNnMx7V7RQKWE26068P0xi7fXc/l2l/8wuoQC4kVzpfwsqz1gdDYuoOqc9FY1QwcD4USxKiUTCchczySoVZGjjG8clqIGTN4M7qsnZJErEPiVHwPA2pSPDrHUAPquFBEXnw5zUoaEhKhpJfh69PEMZ5BoT78q/L394+H6z/oVLj42sNsWDi543yRFyDBI2ulek5KOEA5OnU8EY4Pb7Uz58Gy4s0rBLZtdBrsJ9VDK4R+jlnsIl9NIbRKE2chNQc0hmKckE3CP0Qkh4eTgmNafPi3ina2RCIsOnecHnT87tpl1wQrVQ1npKoqILDKzjA+HrBgYGnBHamb/2CmLiF7Pf940f/jyW3gfSl+DJ1BB/xP6cfi4FrKIIjNfrJBQr1Ea+VGRwzFUenn5w0OFxon/M+XHPYWchjhvAsh4JlTMuQb08rmchua16r5IMzXZ1UCwWc/adpHW4BiLHmkxAF6/rskkW8nC1PCc3jVMHiya185xwTI6cU611ETrp8N64AWN6rg+htD5O6IiEGrMjY23UMTrOiCfYUdsIWFfcx/PTKZ9MYwqjkKnpOefyFCc0FVJ3UEkttmoDxyR+NJ5/hl4GkNDASsuPpz/Mk5QVY0esWi82ajQv3Z3yeSkV1JRZjQNnTvBxmfRd8BdbqEUKygP8ft9sMQXHNq7azE+EO6eoeXGm5vr0A148zn3f4MW0V0+ZlFSRfiLILxufjgJkwA+v7zRDAlROsopHzBPyNR04Ffpk7eJemYKiBioHuuT4TFFpKFf7IT6+ZFV5MoWXhyXXvcBvxrPcsVnPpfINk4SCh2MUsOQN4ZIqoQNqKY+HTGjRIa5QS1FQvq8OGZdkfIYH+ACmgDvGtEeIWl7LaQIKQR/n4dIRcgzjWixdAV4jMSSaFhkPy4yPwmupO9beUtzFsDPHxLMjO6qinJufxq1pYhvbKOUp7AbDHIBI5O5fHEkH/06hrl+F/VT9Da/WH8KzCOw9/qE9WsybmUCKzgjyblRhVe/zRag97GhvD7ejPmd21AhO7BAfVTn/X9sxeCMKw3BM/vqRDEkFCEOWBBuLrMoss3ICaCtWOEuEs6YmpYL4Kwht2nOqt2PN4qCcPYKJ+hOGFyfgQDW33CneKxgfHKOhm253ZkdNgAmw8sYiF3crHzcDpFNNOdEtYgQsCF+EV5mrSzH2aua1Qe2rTZZqO0IxdlSBKOyOEdRpjMYmCYxSe+XrDKFQe9FkahjqFL5i+4MUbUfHGMapnWFl7VIaaXUHMoRC7bmnykip8S4Yp0M7grSjRUqom8PDuZBr4jGPvvZIdQd0Bo0XSvao2+o0RpPp0M4AO+o0rzfAqo+TEVE/o8MLy+hHd1fQQHlxXUDyTzxO6ro/6AhtOtAe5D8flNvG6dCB9ZsLr5MO5/XFSGmlDbMTvN5H2+73c0J99FmAie1CASKdSCdg4nKZjnHVlsLLFar6Mq93XM5TYMxUVFyqZfTMCj+9/NUynVT+9pq864MtYVyfpS5gSCOZ1Zsk69d2ne4MbWqZhuk5YtkwCqh+brvkglks1Ut378ozAmnEUEJMwk1yUurq9AOtF/o76YVP/ofe7v5/ev/ySUqk+LCJ10/Vvuzi9Nnuk/Re8iy9P8tLA34PNfSlhBTubS2n7rps+QC5X/04RZVxjZwg3R5pRHgw4bbvtT2Z7bR0ntxr/J7F0sQFjRrznpT5PSTjqmde0y3VO//dBxxPhtBu30DE49GpU6dSZWVl5v21h2+niC87cbi69hq6a+b91DJxIb392a/of//8PEWTepMBovq9Gnm81vHtA28nOKn2bbedpZiMkk1GdQdMzwI7ahrbJbdBYM9PR6QbxDZs+bFzezpsR41qf2HA/MZ8Ev6Ydn7wfXrglytp95mdWWQCkMBYbIA0zVoCv6ix75hwTcZ+AMb1Wbzuuc2MTPF9skDzgfY2fhsyDU5RNFGX6qFoEnhoMzmBtKNqwRnqXiwY81Aibj1LxQmhgYe2GMh81rgCJiS4sUDOPJBpyXvUYB+NBlSvj0YoaC9kG4hHOamQUDndcUr1NF7tym/ftBzTI7EkPJkjHBuwOeiKa6lR5uijAILliRlgFTIlc/YeyUmoUP2UpvNkxiYt6NXkiNTO9BCWGj5VeXOPjKLrg1bE53ZiUWPfKeOKZCCXqkvkrVQ0HzyxU2Oks6dGA40TwfJnOzaV/SGdhqpqP6V6ak4bCAlM8LTVah9I+1AiwR/mUjoxYn3sdGu5tiwys5q4cDKb97fn7Ytnq/TTvP/4JjXgN/tBqP/0H/w8/0hpV0iM10ej0cxbC+qXWpIhfo+rM8iMRvqFrcQjPhinAX6MSDhMc88O0sLzTLy+0ttHUS79g7FBcUyQXTFobi7kEvGaPB1xUE3KZTdV2I56Ny1peJWSnuX85RRspxeEHRXdY6Rkym4yObvZIB6dM5+0unqxOrmsrIy+iH1O73QeobLyMt2uIDHGJXmiN0Dfv/lp6rzyKSUScQqU1dOc2rnU0j+RVh3ppjs/9tEN5710z4c+uraH0cRwWmL7tDhFEjF6sJ1R3aBe7TGii4Y0+RthsVNscGjFrg8v2MpIHLZq4/EpeXWt2nBCaNVmLFzkamOh3XgH0R3rafz48aLoHEmE6Y5DN9G4upFKMSQQZK6evY6+Oe+fqaYs25zgpp3/7jpyAtx0ZHvGPn1wtt07HjMW0kNwQvnspgpHedmu0xd6N83jkso8raRIavhXL4lbo+baINhKWhk88l//HSWTSUEqsqKTF39H3dEu7q2TQpUDvkn0vZt20arZ3xCfm558XcBR1obsZ8rjT5v26et55t/0DWkgmSy5wgmZ4tqoAHRsWFBHMe8rmqHdpZO2ktoTe7jeVdGMGTPEZLKPL39IG498U5zQfXMepK9f+5CpVBoByep68ls597FqDisTluy1rCzIYkOj0+5Sxdk1S9qYoU2EVfdDQG3Dlly2WqSh6D2CBwDVt0OiEecfX5c1Rg7VxtBNtaFXiARI7Nm9LWusjJvtXc0Hj2+iAlF0y+Cz31i0iXnYVuPUcozBoF+JmdcXDu2zEEXG1YsYEk2wioHsbgYSy2fO4TdzZXpw0WTaoWVzWNEy2F5olAslamqd7awkrMxAKSGXDMp/KGCGdAOa58wbKQh7yVXcob00Q0kIlTAzARIgtparoFu9662Qs10xpJIXgezGmHZQUkKBYWlt4y/Xm30OSUWDA0ygcLPnEqbJXDls3d2BW5pDpCW/Uwqp1B2XXEI+YgHZigNeGJOwCiUY6hw7c0KQCGeTe1IGwzDPNgz3kAtwjVAJO8SqQFkQzgVk+yZZ/HOVz7sEacbpMJYQveq4RBLb6xaRIz81SgCxSfK0esmzXqN09wP3waWRpV6lgdSeQmLKgn6RxgAZcpnnbkFuCf9BFR8KD3K/f3Q0SdSfwpcAHevQVSLVmNLYAg+j+SBYLOrlNQ0TskP4k15swUIp0s5hFvZY/YcvI/4CeAZjCToTSnsAAAAASUVORK5CYII=";
   var loadingImages = {
     darkMode: "data:image/svg+xml;utf8,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%20%20%20%20%20%20%20%20%3Cstyle%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%40keyframes%20rotate%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20from%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20transform%3A%20rotate%280deg%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20to%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20transform%3A%20rotate%28359deg%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%3C%2Fstyle%3E%0A%20%20%20%20%20%20%20%20%3Cg%20style%3D%22transform-origin%3A%2050%25%2050%25%3B%20animation%3A%20rotate%201s%20infinite%20reverse%20linear%3B%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%2218.0968%22%20y%3D%2216.0861%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%28136.161%2018.0968%2016.0861%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.1%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%228.49878%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.4%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%2219.9976%22%20y%3D%228.37451%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%2890%2019.9976%208.37451%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.2%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%2216.1727%22%20y%3D%221.9917%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%2846.1607%2016.1727%201.9917%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.3%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%228.91309%22%20y%3D%226.88501%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%28136.161%208.91309%206.88501%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.6%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%226.79602%22%20y%3D%2210.996%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%2846.1607%206.79602%2010.996%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.7%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%227%22%20y%3D%228.62549%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%2890%207%208.62549%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.8%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%228.49878%22%20y%3D%2213%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.9%22%2F%3E%0A%20%20%20%20%20%20%20%20%3C%2Fg%3E%0A%20%20%20%20%3C%2Fsvg%3E",
@@ -17609,11 +11861,7 @@ ul.messages {
   var videoPlayDark = "data:image/svg+xml;utf8,%3Csvg%20width%3D%2222%22%20height%3D%2226%22%20viewBox%3D%220%200%2022%2026%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%20%20%3Cpath%20d%3D%22M21%2011.2679C22.3333%2012.0377%2022.3333%2013.9622%2021%2014.732L3%2025.1244C1.66667%2025.8942%202.59376e-06%2024.9319%202.66105e-06%2023.3923L3.56958e-06%202.60769C3.63688e-06%201.06809%201.66667%200.105844%203%200.875644L21%2011.2679Z%22%20fill%3D%22%23222222%22%2F%3E%0A%3C%2Fsvg%3E%0A";
   var videoPlayLight = "data:image/svg+xml;utf8,%3Csvg%20width%3D%2222%22%20height%3D%2226%22%20viewBox%3D%220%200%2022%2026%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%20%20%3Cpath%20d%3D%22M21%2011.2679C22.3333%2012.0377%2022.3333%2013.9622%2021%2014.732L3%2025.1244C1.66667%2025.8942%202.59376e-06%2024.9319%202.66105e-06%2023.3923L3.56958e-06%202.60769C3.63688e-06%201.06809%201.66667%200.105844%203%200.875644L21%2011.2679Z%22%20fill%3D%22%23FFFFFF%22%2F%3E%0A%3C%2Fsvg%3E";
 
-  // src/features/click-to-load/ctl-config.js
-  init_define_import_meta_trackerLookup();
-
   // ../build/locales/ctl-locales.js
-  init_define_import_meta_trackerLookup();
   var ctl_locales_default = `{"bg":{"facebook.json":{"informationalModalMessageTitle":"\u041F\u0440\u0438 \u0432\u043B\u0438\u0437\u0430\u043D\u0435 \u0440\u0430\u0437\u0440\u0435\u0448\u0430\u0432\u0430\u0442\u0435 \u043D\u0430 Facebook \u0434\u0430 \u0412\u0438 \u043F\u0440\u043E\u0441\u043B\u0435\u0434\u044F\u0432\u0430","informationalModalMessageBody":"\u0421\u043B\u0435\u0434 \u043A\u0430\u0442\u043E \u0432\u043B\u0435\u0437\u0435\u0442\u0435, DuckDuckGo \u043D\u0435 \u043C\u043E\u0436\u0435 \u0434\u0430 \u0431\u043B\u043E\u043A\u0438\u0440\u0430 \u043F\u0440\u043E\u0441\u043B\u0435\u0434\u044F\u0432\u0430\u043D\u0435\u0442\u043E \u043E\u0442 Facebook \u0432 \u0441\u044A\u0434\u044A\u0440\u0436\u0430\u043D\u0438\u0435\u0442\u043E \u043D\u0430 \u0442\u043E\u0437\u0438 \u0441\u0430\u0439\u0442.","informationalModalConfirmButtonText":"\u0412\u0445\u043E\u0434","informationalModalRejectButtonText":"\u041D\u0430\u0437\u0430\u0434","loginButtonText":"\u0412\u0445\u043E\u0434 \u0432\u044A\u0432 Facebook","loginBodyText":"Facebook \u043F\u0440\u043E\u0441\u043B\u0435\u0434\u044F\u0432\u0430 \u0412\u0430\u0448\u0430\u0442\u0430 \u0430\u043A\u0442\u0438\u0432\u043D\u043E\u0441\u0442 \u0432 \u0441\u044A\u043E\u0442\u0432\u0435\u0442\u043D\u0438\u044F \u0441\u0430\u0439\u0442, \u043A\u043E\u0433\u0430\u0442\u043E \u0433\u043E \u0438\u0437\u043F\u043E\u043B\u0437\u0432\u0430\u0442\u0435 \u0437\u0430 \u0432\u0445\u043E\u0434.","buttonTextUnblockContent":"\u0420\u0430\u0437\u0431\u043B\u043E\u043A\u0438\u0440\u0430\u043D\u0435 \u043D\u0430 \u0441\u044A\u0434\u044A\u0440\u0436\u0430\u043D\u0438\u0435 \u043E\u0442 Facebook","buttonTextUnblockComment":"\u0420\u0430\u0437\u0431\u043B\u043E\u043A\u0438\u0440\u0430\u043D\u0435 \u043D\u0430 \u043A\u043E\u043C\u0435\u043D\u0442\u0430\u0440 \u0432\u044A\u0432 Facebook","buttonTextUnblockComments":"\u0420\u0430\u0437\u0431\u043B\u043E\u043A\u0438\u0440\u0430\u043D\u0435 \u043D\u0430 \u043A\u043E\u043C\u0435\u043D\u0442\u0430\u0440\u0438 \u0432\u044A\u0432 Facebook","buttonTextUnblockPost":"\u0420\u0430\u0437\u0431\u043B\u043E\u043A\u0438\u0440\u0430\u043D\u0435 \u043D\u0430 \u043F\u0443\u0431\u043B\u0438\u043A\u0430\u0446\u0438\u044F \u043E\u0442 Facebook","buttonTextUnblockVideo":"\u0420\u0430\u0437\u0431\u043B\u043E\u043A\u0438\u0440\u0430\u043D\u0435 \u043D\u0430 \u0432\u0438\u0434\u0435\u043E \u043E\u0442 Facebook","buttonTextUnblockLogin":"\u0420\u0430\u0437\u0431\u043B\u043E\u043A\u0438\u0440\u0430\u043D\u0435 \u043D\u0430 \u0432\u0445\u043E\u0434 \u0441 Facebook","infoTitleUnblockContent":"DuckDuckGo \u0431\u043B\u043E\u043A\u0438\u0440\u0430 \u0442\u043E\u0432\u0430 \u0441\u044A\u0434\u044A\u0440\u0436\u0430\u043D\u0438\u0435, \u0437\u0430 \u0434\u0430 \u043F\u0440\u0435\u0434\u043E\u0442\u0432\u0440\u0430\u0442\u0438 \u043F\u0440\u043E\u0441\u043B\u0435\u0434\u044F\u0432\u0430\u043D\u0435 \u043E\u0442 Facebook","infoTitleUnblockComment":"DuckDuckGo \u0431\u043B\u043E\u043A\u0438\u0440\u0430 \u0442\u043E\u0437\u0438 \u043A\u043E\u043C\u0435\u043D\u0442\u0430\u0440, \u0437\u0430 \u0434\u0430 \u043F\u0440\u0435\u0434\u043E\u0442\u0432\u0440\u0430\u0442\u0438 \u043F\u0440\u043E\u0441\u043B\u0435\u0434\u044F\u0432\u0430\u043D\u0435 \u043E\u0442 Facebook","infoTitleUnblockComments":"DuckDuckGo \u0431\u043B\u043E\u043A\u0438\u0440\u0430 \u0442\u0435\u0437\u0438 \u043A\u043E\u043C\u0435\u043D\u0442\u0430\u0440\u0438, \u0437\u0430 \u0434\u0430 \u043F\u0440\u0435\u0434\u043E\u0442\u0432\u0440\u0430\u0442\u0438 \u043F\u0440\u043E\u0441\u043B\u0435\u0434\u044F\u0432\u0430\u043D\u0435 \u043E\u0442 Facebook","infoTitleUnblockPost":"DuckDuckGo \u0431\u043B\u043E\u043A\u0438\u0440\u0430 \u0442\u0430\u0437\u0438 \u043F\u0443\u0431\u043B\u0438\u043A\u0430\u0446\u0438\u044F, \u0437\u0430 \u0434\u0430 \u043F\u0440\u0435\u0434\u043E\u0442\u0432\u0440\u0430\u0442\u0438 \u043F\u0440\u043E\u0441\u043B\u0435\u0434\u044F\u0432\u0430\u043D\u0435 \u043E\u0442 Facebook","infoTitleUnblockVideo":"DuckDuckGo \u0431\u043B\u043E\u043A\u0438\u0440\u0430 \u0442\u043E\u0432\u0430 \u0432\u0438\u0434\u0435\u043E, \u0437\u0430 \u0434\u0430 \u043F\u0440\u0435\u0434\u043E\u0442\u0432\u0440\u0430\u0442\u0438 \u043F\u0440\u043E\u0441\u043B\u0435\u0434\u044F\u0432\u0430\u043D\u0435 \u043E\u0442 Facebook","infoTextUnblockContent":"\u0411\u043B\u043E\u043A\u0438\u0440\u0430\u0445\u043C\u0435 \u043F\u0440\u043E\u0441\u043B\u0435\u0434\u044F\u0432\u0430\u043D\u0435\u0442\u043E \u043E\u0442 Facebook \u043F\u0440\u0438 \u0437\u0430\u0440\u0435\u0436\u0434\u0430\u043D\u0435 \u043D\u0430 \u0441\u0442\u0440\u0430\u043D\u0438\u0446\u0430\u0442\u0430. \u0410\u043A\u043E \u0440\u0430\u0437\u0431\u043B\u043E\u043A\u0438\u0440\u0430\u0442\u0435 \u0442\u043E\u0432\u0430 \u0441\u044A\u0434\u044A\u0440\u0436\u0430\u043D\u0438\u0435, Facebook \u0449\u0435 \u0441\u043B\u0435\u0434\u0438 \u0412\u0430\u0448\u0430\u0442\u0430 \u0430\u043A\u0442\u0438\u0432\u043D\u043E\u0441\u0442."},"shared.json":{"learnMore":"\u041D\u0430\u0443\u0447\u0435\u0442\u0435 \u043F\u043E\u0432\u0435\u0447\u0435","readAbout":"\u041F\u0440\u043E\u0447\u0435\u0442\u0435\u0442\u0435 \u0437\u0430 \u0442\u0430\u0437\u0438 \u0437\u0430\u0449\u0438\u0442\u0430 \u043D\u0430 \u043F\u043E\u0432\u0435\u0440\u0438\u0442\u0435\u043B\u043D\u043E\u0441\u0442\u0442\u0430","shareFeedback":"\u0421\u043F\u043E\u0434\u0435\u043B\u044F\u043D\u0435 \u043D\u0430 \u043E\u0442\u0437\u0438\u0432"},"youtube.json":{"informationalModalMessageTitle":"\u0410\u043A\u0442\u0438\u0432\u0438\u0440\u0430\u043D\u0435 \u043D\u0430 \u0432\u0441\u0438\u0447\u043A\u0438 \u043F\u0440\u0435\u0433\u043B\u0435\u0434\u0438 \u0432 YouTube?","informationalModalMessageBody":"\u041F\u043E\u043A\u0430\u0437\u0432\u0430\u043D\u0435\u0442\u043E \u043D\u0430 \u043F\u0440\u0435\u0433\u043B\u0435\u0434 \u043F\u043E\u0437\u0432\u043E\u043B\u044F\u0432\u0430 \u043D\u0430 Google (\u0441\u043E\u0431\u0441\u0442\u0432\u0435\u043D\u0438\u043A \u043D\u0430 YouTube) \u0434\u0430 \u0432\u0438\u0434\u0438 \u0447\u0430\u0441\u0442 \u043E\u0442 \u0438\u043D\u0444\u043E\u0440\u043C\u0430\u0446\u0438\u044F\u0442\u0430 \u0437\u0430 \u0412\u0430\u0448\u0435\u0442\u043E \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u043E, \u043D\u043E \u0432\u0441\u0435 \u043F\u0430\u043A \u043E\u0441\u0438\u0433\u0443\u0440\u044F\u0432\u0430 \u043F\u043E\u0432\u0435\u0447\u0435 \u043F\u043E\u0432\u0435\u0440\u0438\u0442\u0435\u043B\u043D\u043E\u0441\u0442 \u043E\u0442\u043A\u043E\u043B\u043A\u043E\u0442\u043E \u043F\u0440\u0438 \u0432\u044A\u0437\u043F\u0440\u043E\u0438\u0437\u0432\u0435\u0436\u0434\u0430\u043D\u0435 \u043D\u0430 \u0432\u0438\u0434\u0435\u043E\u043A\u043B\u0438\u043F\u0430.","informationalModalConfirmButtonText":"\u0410\u043A\u0442\u0438\u0432\u0438\u0440\u0430\u043D\u0435 \u043D\u0430 \u0432\u0441\u0438\u0447\u043A\u0438 \u043F\u0440\u0435\u0433\u043B\u0435\u0434\u0438","informationalModalRejectButtonText":"\u041D\u0435, \u0431\u043B\u0430\u0433\u043E\u0434\u0430\u0440\u044F","buttonTextUnblockVideo":"\u0420\u0430\u0437\u0431\u043B\u043E\u043A\u0438\u0440\u0430\u043D\u0435 \u043D\u0430 \u0432\u0438\u0434\u0435\u043E \u043E\u0442 YouTube","infoTitleUnblockVideo":"DuckDuckGo \u0431\u043B\u043E\u043A\u0438\u0440\u0430 \u0442\u043E\u0437\u0438 \u0432\u0438\u0434\u0435\u043E\u043A\u043B\u0438\u043F \u0432 YouTube, \u0437\u0430 \u0434\u0430 \u043F\u0440\u0435\u0434\u043E\u0442\u0432\u0440\u0430\u0442\u0438 \u043F\u0440\u043E\u0441\u043B\u0435\u0434\u044F\u0432\u0430\u043D\u0435 \u043E\u0442 Google","infoTextUnblockVideo":"\u0411\u043B\u043E\u043A\u0438\u0440\u0430\u0445\u043C\u0435 \u043F\u0440\u043E\u0441\u043B\u0435\u0434\u044F\u0432\u0430\u043D\u0435\u0442\u043E \u043E\u0442 Google (\u0441\u043E\u0431\u0441\u0442\u0432\u0435\u043D\u0438\u043A \u043D\u0430 YouTube) \u043F\u0440\u0438 \u0437\u0430\u0440\u0435\u0436\u0434\u0430\u043D\u0435 \u043D\u0430 \u0441\u0442\u0440\u0430\u043D\u0438\u0446\u0430\u0442\u0430. \u0410\u043A\u043E \u0440\u0430\u0437\u0431\u043B\u043E\u043A\u0438\u0440\u0430\u0442\u0435 \u0442\u043E\u0437\u0438 \u0432\u0438\u0434\u0435\u043E\u043A\u043B\u0438\u043F, Google \u0449\u0435 \u0441\u043B\u0435\u0434\u0438 \u0412\u0430\u0448\u0430\u0442\u0430 \u0430\u043A\u0442\u0438\u0432\u043D\u043E\u0441\u0442.","infoPreviewToggleText":"\u041F\u0440\u0435\u0433\u043B\u0435\u0434\u0438\u0442\u0435 \u0441\u0430 \u0434\u0435\u0430\u043A\u0442\u0438\u0432\u0438\u0440\u0430\u043D\u0438 \u0437\u0430 \u043E\u0441\u0438\u0433\u0443\u0440\u044F\u0432\u0430\u043D\u0435 \u043D\u0430 \u0434\u043E\u043F\u044A\u043B\u043D\u0438\u0442\u0435\u043B\u043D\u0430 \u043F\u043E\u0432\u0435\u0440\u0438\u0442\u0435\u043B\u043D\u043E\u0441\u0442","infoPreviewToggleEnabledText":"\u041F\u0440\u0435\u0433\u043B\u0435\u0434\u0438\u0442\u0435 \u0441\u0430 \u0430\u043A\u0442\u0438\u0432\u0438\u0440\u0430\u043D\u0438","infoPreviewToggleEnabledDuckDuckGoText":"\u0412\u0438\u0437\u0443\u0430\u043B\u0438\u0437\u0430\u0446\u0438\u0438\u0442\u0435 \u043E\u0442 YouTube \u0441\u0430 \u0430\u043A\u0442\u0438\u0432\u0438\u0440\u0430\u043D\u0438 \u0432 DuckDuckGo.","infoPreviewInfoText":"<a href=\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\">\u041D\u0430\u0443\u0447\u0435\u0442\u0435 \u043F\u043E\u0432\u0435\u0447\u0435</a> \u0437\u0430 \u0432\u0433\u0440\u0430\u0434\u0435\u043D\u0430\u0442\u0430 \u0437\u0430\u0449\u0438\u0442\u0430 \u043E\u0442 \u0441\u043E\u0446\u0438\u0430\u043B\u043D\u0438 \u043C\u0435\u0434\u0438\u0438 \u043D\u0430 DuckDuckGo"}},"cs":{"facebook.json":{"informationalModalMessageTitle":"Kdy\u017E se p\u0159ihl\xE1s\xED\u0161 p\u0159es Facebook, bude t\u011B moct sledovat","informationalModalMessageBody":"Po p\u0159ihl\xE1\u0161en\xED u\u017E DuckDuckGo nem\u016F\u017Ee br\xE1nit Facebooku, aby t\u011B na t\xE9hle str\xE1nce sledoval.","informationalModalConfirmButtonText":"P\u0159ihl\xE1sit se","informationalModalRejectButtonText":"Zp\u011Bt","loginButtonText":"P\u0159ihl\xE1sit se pomoc\xED Facebooku","loginBodyText":"Facebook sleduje tvou aktivitu na webu, kdy\u017E se p\u0159ihl\xE1s\xED\u0161 jeho prost\u0159ednictv\xEDm.","buttonTextUnblockContent":"Odblokovat obsah na Facebooku","buttonTextUnblockComment":"Odblokovat koment\xE1\u0159 na Facebooku","buttonTextUnblockComments":"Odblokovat koment\xE1\u0159e na Facebooku","buttonTextUnblockPost":"Odblokovat p\u0159\xEDsp\u011Bvek na Facebooku","buttonTextUnblockVideo":"Odblokovat video na Facebooku","buttonTextUnblockLogin":"Odblokovat p\u0159ihl\xE1\u0161en\xED k\xA0Facebooku","infoTitleUnblockContent":"DuckDuckGo zablokoval tenhle obsah, aby Facebooku zabr\xE1nil t\u011B sledovat","infoTitleUnblockComment":"Slu\u017Eba DuckDuckGo zablokovala tento koment\xE1\u0159, aby Facebooku zabr\xE1nila ve tv\xE9m sledov\xE1n\xED","infoTitleUnblockComments":"Slu\u017Eba DuckDuckGo zablokovala tyto koment\xE1\u0159e, aby Facebooku zabr\xE1nila ve tv\xE9m sledov\xE1n\xED","infoTitleUnblockPost":"DuckDuckGo zablokoval tenhle p\u0159\xEDsp\u011Bvek, aby Facebooku zabr\xE1nil t\u011B sledovat","infoTitleUnblockVideo":"DuckDuckGo zablokoval tohle video, aby Facebooku zabr\xE1nil t\u011B sledovat","infoTextUnblockContent":"P\u0159i na\u010D\xEDt\xE1n\xED str\xE1nky jsme Facebooku zabr\xE1nili, aby t\u011B sledoval. Kdy\u017E tenhle obsah odblokuje\u0161, Facebook bude m\xEDt p\u0159\xEDstup ke tv\xE9 aktivit\u011B."},"shared.json":{"learnMore":"V\xEDce informac\xED","readAbout":"P\u0159e\u010Dti si o\xA0t\xE9hle ochran\u011B soukrom\xED","shareFeedback":"Pod\u011Blte se o zp\u011Btnou vazbu"},"youtube.json":{"informationalModalMessageTitle":"Zapnout v\u0161echny n\xE1hledy YouTube?","informationalModalMessageBody":"Zobrazov\xE1n\xED n\xE1hled\u016F umo\u017En\xED spole\u010Dnosti Google (kter\xE1 vlastn\xED YouTube) zobrazit n\u011Bkter\xE9 informace o\xA0tv\xE9m za\u0159\xEDzen\xED, ale po\u0159\xE1d jde o\xA0diskr\xE9tn\u011Bj\u0161\xED volbu, ne\u017E je p\u0159ehr\xE1v\xE1n\xED videa.","informationalModalConfirmButtonText":"Zapnout v\u0161echny n\xE1hledy","informationalModalRejectButtonText":"Ne, d\u011Bkuji","buttonTextUnblockVideo":"Odblokovat video na YouTube","infoTitleUnblockVideo":"DuckDuckGo zablokoval tohle video z\xA0YouTube, aby Googlu zabr\xE1nil t\u011B sledovat","infoTextUnblockVideo":"Zabr\xE1nili jsme spole\u010Dnosti Google (kter\xE1 vlastn\xED YouTube), aby t\u011B p\u0159i na\u010D\xEDt\xE1n\xED str\xE1nky sledovala. Pokud toto video odblokuje\u0161, Google z\xEDsk\xE1 p\u0159\xEDstup ke tv\xE9 aktivit\u011B.","infoPreviewToggleText":"N\xE1hledy jsou pro v\u011Bt\u0161\xED soukrom\xED vypnut\xE9","infoPreviewToggleEnabledText":"N\xE1hledy jsou zapnut\xE9","infoPreviewToggleEnabledDuckDuckGoText":"N\xE1hledy YouTube jsou v\xA0DuckDuckGo povolen\xE9.","infoPreviewInfoText":"<a href=\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\">Dal\u0161\xED informace</a> o\xA0ochran\u011B DuckDuckGo p\u0159ed sledov\xE1n\xEDm prost\u0159ednictv\xEDm vlo\u017Een\xE9ho obsahu ze soci\xE1ln\xEDch m\xE9di\xED"}},"da":{"facebook.json":{"informationalModalMessageTitle":"N\xE5r du logger ind med Facebook, kan de spore dig","informationalModalMessageBody":"N\xE5r du er logget ind, kan DuckDuckGo ikke blokere for, at indhold fra Facebook sporer dig p\xE5 dette websted.","informationalModalConfirmButtonText":"Log p\xE5","informationalModalRejectButtonText":"G\xE5 tilbage","loginButtonText":"Log ind med Facebook","loginBodyText":"Facebook sporer din aktivitet p\xE5 et websted, n\xE5r du bruger dem til at logge ind.","buttonTextUnblockContent":"Bloker ikke Facebook-indhold","buttonTextUnblockComment":"Bloker ikke Facebook-kommentar","buttonTextUnblockComments":"Bloker ikke Facebook-kommentarer","buttonTextUnblockPost":"Bloker ikke Facebook-opslag","buttonTextUnblockVideo":"Bloker ikke Facebook-video","buttonTextUnblockLogin":"Bloker ikke Facebook-login","infoTitleUnblockContent":"DuckDuckGo har blokeret dette indhold for at forhindre Facebook i at spore dig","infoTitleUnblockComment":"DuckDuckGo har blokeret denne kommentar for at forhindre Facebook i at spore dig","infoTitleUnblockComments":"DuckDuckGo har blokeret disse kommentarer for at forhindre Facebook i at spore dig","infoTitleUnblockPost":"DuckDuckGo blokerede dette indl\xE6g for at forhindre Facebook i at spore dig","infoTitleUnblockVideo":"DuckDuckGo har blokeret denne video for at forhindre Facebook i at spore dig","infoTextUnblockContent":"Vi blokerede for, at Facebook sporede dig, da siden blev indl\xE6st. Hvis du oph\xE6ver blokeringen af dette indhold, vil Facebook kende din aktivitet."},"shared.json":{"learnMore":"Mere info","readAbout":"L\xE6s om denne beskyttelse af privatlivet","shareFeedback":"Del feedback"},"youtube.json":{"informationalModalMessageTitle":"Vil du aktivere alle YouTube-forh\xE5ndsvisninger?","informationalModalMessageBody":"Med forh\xE5ndsvisninger kan Google (som ejer YouTube) se nogle af enhedens oplysninger, men det er stadig mere privat end at afspille videoen.","informationalModalConfirmButtonText":"Aktiv\xE9r alle forh\xE5ndsvisninger","informationalModalRejectButtonText":"Nej tak.","buttonTextUnblockVideo":"Bloker ikke YouTube-video","infoTitleUnblockVideo":"DuckDuckGo har blokeret denne YouTube-video for at forhindre Google i at spore dig","infoTextUnblockVideo":"Vi blokerede Google (som ejer YouTube) fra at spore dig, da siden blev indl\xE6st. Hvis du fjerner blokeringen af denne video, vil Google f\xE5 kendskab til din aktivitet.","infoPreviewToggleText":"Forh\xE5ndsvisninger er deaktiveret for at give yderligere privatliv","infoPreviewToggleEnabledText":"Forh\xE5ndsvisninger er deaktiveret","infoPreviewToggleEnabledDuckDuckGoText":"YouTube-forh\xE5ndsvisninger er aktiveret i DuckDuckGo.","infoPreviewInfoText":"<a href=\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\">F\xE5 mere at vide p\xE5</a> om DuckDuckGos indbyggede beskyttelse p\xE5 sociale medier"}},"de":{"facebook.json":{"informationalModalMessageTitle":"Wenn du dich bei Facebook anmeldest, kann Facebook dich tracken","informationalModalMessageBody":"Sobald du angemeldet bist, kann DuckDuckGo nicht mehr verhindern, dass Facebook-Inhalte dich auf dieser Website tracken.","informationalModalConfirmButtonText":"Anmelden","informationalModalRejectButtonText":"Zur\xFCck","loginButtonText":"Mit Facebook anmelden","loginBodyText":"Facebook trackt deine Aktivit\xE4t auf einer Website, wenn du dich \xFCber Facebook dort anmeldest.","buttonTextUnblockContent":"Facebook-Inhalt entsperren","buttonTextUnblockComment":"Facebook-Kommentar entsperren","buttonTextUnblockComments":"Facebook-Kommentare entsperren","buttonTextUnblockPost":"Facebook-Beitrag entsperren","buttonTextUnblockVideo":"Facebook-Video entsperren","buttonTextUnblockLogin":"Facebook-Anmeldung entsperren","infoTitleUnblockContent":"DuckDuckGo hat diesen Inhalt blockiert, um zu verhindern, dass Facebook dich trackt","infoTitleUnblockComment":"DuckDuckGo hat diesen Kommentar blockiert, um zu verhindern, dass Facebook dich trackt","infoTitleUnblockComments":"DuckDuckGo hat diese Kommentare blockiert, um zu verhindern, dass Facebook dich trackt","infoTitleUnblockPost":"DuckDuckGo hat diesen Beitrag blockiert, um zu verhindern, dass Facebook dich trackt","infoTitleUnblockVideo":"DuckDuckGo hat dieses Video blockiert, um zu verhindern, dass Facebook dich trackt","infoTextUnblockContent":"Wir haben Facebook daran gehindert, dich zu tracken, als die Seite geladen wurde. Wenn du die Blockierung f\xFCr diesen Inhalt aufhebst, kennt Facebook deine Aktivit\xE4ten."},"shared.json":{"learnMore":"Mehr erfahren","readAbout":"Weitere Informationen \xFCber diesen Datenschutz","shareFeedback":"Feedback teilen"},"youtube.json":{"informationalModalMessageTitle":"Alle YouTube-Vorschauen aktivieren?","informationalModalMessageBody":"Durch das Anzeigen von Vorschauen kann Google (dem YouTube geh\xF6rt) einige Informationen zu deinem Ger\xE4t sehen. Dies ist aber immer noch privater als das Abspielen des Videos.","informationalModalConfirmButtonText":"Alle Vorschauen aktivieren","informationalModalRejectButtonText":"Nein, danke","buttonTextUnblockVideo":"YouTube-Video entsperren","infoTitleUnblockVideo":"DuckDuckGo hat dieses YouTube-Video blockiert, um zu verhindern, dass Google dich trackt.","infoTextUnblockVideo":"Wir haben Google (dem YouTube geh\xF6rt) daran gehindert, dich beim Laden der Seite zu tracken. Wenn du die Blockierung f\xFCr dieses Video aufhebst, kennt Google deine Aktivit\xE4ten.","infoPreviewToggleText":"Vorschau f\xFCr mehr Privatsph\xE4re deaktiviert","infoPreviewToggleEnabledText":"Vorschau aktiviert","infoPreviewToggleEnabledDuckDuckGoText":"YouTube-Vorschauen sind in DuckDuckGo aktiviert.","infoPreviewInfoText":"<a href=\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\">Erfahre mehr</a> \xFCber den DuckDuckGo-Schutz vor eingebetteten Social Media-Inhalten"}},"el":{"facebook.json":{"informationalModalMessageTitle":"\u0397 \u03C3\u03CD\u03BD\u03B4\u03B5\u03C3\u03B7 \u03BC\u03AD\u03C3\u03C9 Facebook \u03C4\u03BF\u03C5\u03C2 \u03B5\u03C0\u03B9\u03C4\u03C1\u03AD\u03C0\u03B5\u03B9 \u03BD\u03B1 \u03C3\u03B1\u03C2 \u03C0\u03B1\u03C1\u03B1\u03BA\u03BF\u03BB\u03BF\u03C5\u03B8\u03BF\u03CD\u03BD","informationalModalMessageBody":"\u039C\u03CC\u03BB\u03B9\u03C2 \u03C3\u03C5\u03BD\u03B4\u03B5\u03B8\u03B5\u03AF\u03C4\u03B5, \u03C4\u03BF DuckDuckGo \u03B4\u03B5\u03BD \u03BC\u03C0\u03BF\u03C1\u03B5\u03AF \u03BD\u03B1 \u03B5\u03BC\u03C0\u03BF\u03B4\u03AF\u03C3\u03B5\u03B9 \u03C4\u03BF \u03C0\u03B5\u03C1\u03B9\u03B5\u03C7\u03CC\u03BC\u03B5\u03BD\u03BF \u03C4\u03BF\u03C5 Facebook \u03B1\u03C0\u03CC \u03C4\u03BF \u03BD\u03B1 \u03C3\u03B1\u03C2 \u03C0\u03B1\u03C1\u03B1\u03BA\u03BF\u03BB\u03BF\u03C5\u03B8\u03B5\u03AF \u03C3\u03B5 \u03B1\u03C5\u03C4\u03CC\u03BD \u03C4\u03BF\u03BD \u03B9\u03C3\u03C4\u03CC\u03C4\u03BF\u03C0\u03BF.","informationalModalConfirmButtonText":"\u03A3\u03CD\u03BD\u03B4\u03B5\u03C3\u03B7","informationalModalRejectButtonText":"\u0395\u03C0\u03B9\u03C3\u03C4\u03C1\u03BF\u03C6\u03AE","loginButtonText":"\u03A3\u03CD\u03BD\u03B4\u03B5\u03C3\u03B7 \u03BC\u03AD\u03C3\u03C9 Facebook","loginBodyText":"\u03A4\u03BF Facebook \u03C0\u03B1\u03C1\u03B1\u03BA\u03BF\u03BB\u03BF\u03C5\u03B8\u03B5\u03AF \u03C4\u03B7 \u03B4\u03C1\u03B1\u03C3\u03C4\u03B7\u03C1\u03B9\u03CC\u03C4\u03B7\u03C4\u03AC \u03C3\u03B1\u03C2 \u03C3\u03B5 \u03AD\u03BD\u03B1\u03BD \u03B9\u03C3\u03C4\u03CC\u03C4\u03BF\u03C0\u03BF \u03CC\u03C4\u03B1\u03BD \u03C4\u03BF\u03BD \u03C7\u03C1\u03B7\u03C3\u03B9\u03BC\u03BF\u03C0\u03BF\u03B9\u03B5\u03AF\u03C4\u03B5 \u03B3\u03B9\u03B1 \u03BD\u03B1 \u03C3\u03C5\u03BD\u03B4\u03B5\u03B8\u03B5\u03AF\u03C4\u03B5.","buttonTextUnblockContent":"\u0386\u03C1\u03C3\u03B7 \u03B1\u03C0\u03BF\u03BA\u03BB\u03B5\u03B9\u03C3\u03BC\u03BF\u03CD \u03C0\u03B5\u03C1\u03B9\u03B5\u03C7\u03BF\u03BC\u03AD\u03BD\u03BF\u03C5 \u03C3\u03C4\u03BF Facebook","buttonTextUnblockComment":"\u0386\u03C1\u03C3\u03B7 \u03B1\u03C0\u03BF\u03BA\u03BB\u03B5\u03B9\u03C3\u03BC\u03BF\u03CD \u03C3\u03C7\u03CC\u03BB\u03B9\u03BF\u03C5 \u03C3\u03C4\u03BF Facebook","buttonTextUnblockComments":"\u0386\u03C1\u03C3\u03B7 \u03B1\u03C0\u03BF\u03BA\u03BB\u03B5\u03B9\u03C3\u03BC\u03BF\u03CD \u03C3\u03C7\u03BF\u03BB\u03AF\u03C9\u03BD \u03C3\u03C4\u03BF Facebook","buttonTextUnblockPost":"\u0386\u03C1\u03C3\u03B7 \u03B1\u03C0\u03BF\u03BA\u03BB\u03B5\u03B9\u03C3\u03BC\u03BF\u03CD \u03B1\u03BD\u03AC\u03C1\u03C4\u03B7\u03C3\u03B7\u03C2 \u03C3\u03C4\u03BF Facebook","buttonTextUnblockVideo":"\u0386\u03C1\u03C3\u03B7 \u03B1\u03C0\u03BF\u03BA\u03BB\u03B5\u03B9\u03C3\u03BC\u03BF\u03CD \u03B2\u03AF\u03BD\u03C4\u03B5\u03BF \u03C3\u03C4\u03BF Facebook","buttonTextUnblockLogin":"\u0386\u03C1\u03C3\u03B7 \u03B1\u03C0\u03BF\u03BA\u03BB\u03B5\u03B9\u03C3\u03BC\u03BF\u03CD \u03C3\u03CD\u03BD\u03B4\u03B5\u03C3\u03B7\u03C2 \u03C3\u03C4\u03BF Facebook","infoTitleUnblockContent":"\u03A4\u03BF DuckDuckGo \u03B1\u03C0\u03AD\u03BA\u03BB\u03B5\u03B9\u03C3\u03B5 \u03C4\u03BF \u03C0\u03B5\u03C1\u03B9\u03B5\u03C7\u03CC\u03BC\u03B5\u03BD\u03BF \u03B1\u03C5\u03C4\u03CC \u03B3\u03B9\u03B1 \u03BD\u03B1 \u03B5\u03BC\u03C0\u03BF\u03B4\u03AF\u03C3\u03B5\u03B9 \u03C4\u03BF Facebook \u03B1\u03C0\u03CC \u03C4\u03BF \u03BD\u03B1 \u03C3\u03B1\u03C2 \u03C0\u03B1\u03C1\u03B1\u03BA\u03BF\u03BB\u03BF\u03C5\u03B8\u03B5\u03AF","infoTitleUnblockComment":"\u03A4\u03BF DuckDuckGo \u03B1\u03C0\u03AD\u03BA\u03BB\u03B5\u03B9\u03C3\u03B5 \u03C4\u03BF \u03C3\u03C7\u03CC\u03BB\u03B9\u03BF \u03B1\u03C5\u03C4\u03CC \u03B3\u03B9\u03B1 \u03BD\u03B1 \u03B5\u03BC\u03C0\u03BF\u03B4\u03AF\u03C3\u03B5\u03B9 \u03C4\u03BF Facebook \u03B1\u03C0\u03CC \u03C4\u03BF \u03BD\u03B1 \u03C3\u03B1\u03C2 \u03C0\u03B1\u03C1\u03B1\u03BA\u03BF\u03BB\u03BF\u03C5\u03B8\u03B5\u03AF","infoTitleUnblockComments":"\u03A4\u03BF DuckDuckGo \u03B1\u03C0\u03AD\u03BA\u03BB\u03B5\u03B9\u03C3\u03B5 \u03C4\u03B1 \u03C3\u03C7\u03CC\u03BB\u03B9\u03B1 \u03B1\u03C5\u03C4\u03AC \u03B3\u03B9\u03B1 \u03BD\u03B1 \u03B5\u03BC\u03C0\u03BF\u03B4\u03AF\u03C3\u03B5\u03B9 \u03C4\u03BF Facebook \u03B1\u03C0\u03CC \u03C4\u03BF \u03BD\u03B1 \u03C3\u03B1\u03C2 \u03C0\u03B1\u03C1\u03B1\u03BA\u03BF\u03BB\u03BF\u03C5\u03B8\u03B5\u03AF","infoTitleUnblockPost":"\u03A4\u03BF DuckDuckGo \u03B1\u03C0\u03AD\u03BA\u03BB\u03B5\u03B9\u03C3\u03B5 \u03C4\u03B7\u03BD \u03B1\u03BD\u03AC\u03C1\u03C4\u03B7\u03C3\u03B7 \u03B1\u03C5\u03C4\u03AE \u03B3\u03B9\u03B1 \u03BD\u03B1 \u03B5\u03BC\u03C0\u03BF\u03B4\u03AF\u03C3\u03B5\u03B9 \u03C4\u03BF Facebook \u03B1\u03C0\u03CC \u03C4\u03BF \u03BD\u03B1 \u03C3\u03B1\u03C2 \u03C0\u03B1\u03C1\u03B1\u03BA\u03BF\u03BB\u03BF\u03C5\u03B8\u03B5\u03AF","infoTitleUnblockVideo":"\u03A4\u03BF DuckDuckGo \u03B1\u03C0\u03AD\u03BA\u03BB\u03B5\u03B9\u03C3\u03B5 \u03C4\u03BF \u03B2\u03AF\u03BD\u03C4\u03B5\u03BF \u03B1\u03C5\u03C4\u03CC \u03B3\u03B9\u03B1 \u03BD\u03B1 \u03B5\u03BC\u03C0\u03BF\u03B4\u03AF\u03C3\u03B5\u03B9 \u03C4\u03BF Facebook \u03B1\u03C0\u03CC \u03C4\u03BF \u03BD\u03B1 \u03C3\u03B1\u03C2 \u03C0\u03B1\u03C1\u03B1\u03BA\u03BF\u03BB\u03BF\u03C5\u03B8\u03B5\u03AF","infoTextUnblockContent":"\u0391\u03C0\u03BF\u03BA\u03BB\u03B5\u03AF\u03C3\u03B1\u03BC\u03B5 \u03C4\u03BF Facebook \u03B1\u03C0\u03CC \u03C4\u03BF \u03BD\u03B1 \u03C3\u03B1\u03C2 \u03C0\u03B1\u03C1\u03B1\u03BA\u03BF\u03BB\u03BF\u03C5\u03B8\u03B5\u03AF \u03CC\u03C4\u03B1\u03BD \u03C6\u03BF\u03C1\u03C4\u03CE\u03B8\u03B7\u03BA\u03B5 \u03B7 \u03C3\u03B5\u03BB\u03AF\u03B4\u03B1. \u0395\u03AC\u03BD \u03BA\u03AC\u03BD\u03B5\u03C4\u03B5 \u03AC\u03C1\u03C3\u03B7 \u03B1\u03C0\u03BF\u03BA\u03BB\u03B5\u03B9\u03C3\u03BC\u03BF\u03CD \u03B3\u03B9' \u03B1\u03C5\u03C4\u03CC \u03C4\u03BF \u03C0\u03B5\u03C1\u03B9\u03B5\u03C7\u03CC\u03BC\u03B5\u03BD\u03BF, \u03C4\u03BF Facebook \u03B8\u03B1 \u03B3\u03BD\u03C9\u03C1\u03AF\u03B6\u03B5\u03B9 \u03C4\u03B7 \u03B4\u03C1\u03B1\u03C3\u03C4\u03B7\u03C1\u03B9\u03CC\u03C4\u03B7\u03C4\u03AC \u03C3\u03B1\u03C2."},"shared.json":{"learnMore":"\u039C\u03AC\u03B8\u03B5\u03C4\u03B5 \u03C0\u03B5\u03C1\u03B9\u03C3\u03C3\u03CC\u03C4\u03B5\u03C1\u03B1","readAbout":"\u0394\u03B9\u03B1\u03B2\u03AC\u03C3\u03C4\u03B5 \u03C3\u03C7\u03B5\u03C4\u03B9\u03BA\u03AC \u03BC\u03B5 \u03C4\u03B7\u03BD \u03C0\u03B1\u03C1\u03BF\u03CD\u03C3\u03B1 \u03C0\u03C1\u03BF\u03C3\u03C4\u03B1\u03C3\u03AF\u03B1\u03C2 \u03C0\u03C1\u03BF\u03C3\u03C9\u03C0\u03B9\u03BA\u03CE\u03BD \u03B4\u03B5\u03B4\u03BF\u03BC\u03AD\u03BD\u03C9\u03BD","shareFeedback":"\u039A\u03BF\u03B9\u03BD\u03BF\u03C0\u03BF\u03AF\u03B7\u03C3\u03B7 \u03C3\u03C7\u03BF\u03BB\u03AF\u03BF\u03C5"},"youtube.json":{"informationalModalMessageTitle":"\u0395\u03BD\u03B5\u03C1\u03B3\u03BF\u03C0\u03BF\u03AF\u03B7\u03C3\u03B7 \u03CC\u03BB\u03C9\u03BD \u03C4\u03C9\u03BD \u03C0\u03C1\u03BF\u03B5\u03C0\u03B9\u03C3\u03BA\u03BF\u03C0\u03AE\u03C3\u03B5\u03C9\u03BD \u03C4\u03BF\u03C5 YouTube;","informationalModalMessageBody":"\u0397 \u03C0\u03C1\u03BF\u03B2\u03BF\u03BB\u03AE \u03C4\u03C9\u03BD \u03C0\u03C1\u03BF\u03B5\u03C0\u03B9\u03C3\u03BA\u03BF\u03C0\u03AE\u03C3\u03B5\u03C9\u03BD \u03B8\u03B1 \u03B5\u03C0\u03B9\u03C4\u03C1\u03AD\u03C8\u03B5\u03B9 \u03C3\u03C4\u03B7\u03BD Google (\u03C3\u03C4\u03B7\u03BD \u03BF\u03C0\u03BF\u03AF\u03B1 \u03B1\u03BD\u03AE\u03BA\u03B5\u03B9 \u03C4\u03BF YouTube) \u03BD\u03B1 \u03B2\u03BB\u03AD\u03C0\u03B5\u03B9 \u03BF\u03C1\u03B9\u03C3\u03BC\u03AD\u03BD\u03B5\u03C2 \u03B1\u03C0\u03CC \u03C4\u03B9\u03C2 \u03C0\u03BB\u03B7\u03C1\u03BF\u03C6\u03BF\u03C1\u03AF\u03B5\u03C2 \u03C4\u03B7\u03C2 \u03C3\u03C5\u03C3\u03BA\u03B5\u03C5\u03AE\u03C2 \u03C3\u03B1\u03C2, \u03C9\u03C3\u03C4\u03CC\u03C3\u03BF \u03B5\u03BE\u03B1\u03BA\u03BF\u03BB\u03BF\u03C5\u03B8\u03B5\u03AF \u03BD\u03B1 \u03B5\u03AF\u03BD\u03B1\u03B9 \u03C0\u03B9\u03BF \u03B9\u03B4\u03B9\u03C9\u03C4\u03B9\u03BA\u03AE \u03B1\u03C0\u03CC \u03C4\u03B7\u03BD \u03B1\u03BD\u03B1\u03C0\u03B1\u03C1\u03B1\u03B3\u03C9\u03B3\u03AE \u03C4\u03BF\u03C5 \u03B2\u03AF\u03BD\u03C4\u03B5\u03BF.","informationalModalConfirmButtonText":"\u0395\u03BD\u03B5\u03C1\u03B3\u03BF\u03C0\u03BF\u03AF\u03B7\u03C3\u03B7 \u03CC\u03BB\u03C9\u03BD \u03C4\u03C9\u03BD \u03C0\u03C1\u03BF\u03B5\u03C0\u03B9\u03C3\u03BA\u03BF\u03C0\u03AE\u03C3\u03B5\u03C9\u03BD","informationalModalRejectButtonText":"\u038C\u03C7\u03B9, \u03B5\u03C5\u03C7\u03B1\u03C1\u03B9\u03C3\u03C4\u03CE","buttonTextUnblockVideo":"\u0386\u03C1\u03C3\u03B7 \u03B1\u03C0\u03BF\u03BA\u03BB\u03B5\u03B9\u03C3\u03BC\u03BF\u03CD \u03B2\u03AF\u03BD\u03C4\u03B5\u03BF YouTube","infoTitleUnblockVideo":"\u03A4\u03BF DuckDuckGo \u03B1\u03C0\u03AD\u03BA\u03BB\u03B5\u03B9\u03C3\u03B5 \u03C4\u03BF \u03B2\u03AF\u03BD\u03C4\u03B5\u03BF \u03B1\u03C5\u03C4\u03CC \u03C3\u03C4\u03BF YouTube \u03B3\u03B9\u03B1 \u03BD\u03B1 \u03B5\u03BC\u03C0\u03BF\u03B4\u03AF\u03C3\u03B5\u03B9 \u03C4\u03B7\u03BD Google \u03B1\u03C0\u03CC \u03C4\u03BF \u03BD\u03B1 \u03C3\u03B1\u03C2 \u03C0\u03B1\u03C1\u03B1\u03BA\u03BF\u03BB\u03BF\u03C5\u03B8\u03B5\u03AF","infoTextUnblockVideo":"\u0391\u03C0\u03BF\u03BA\u03BB\u03B5\u03AF\u03C3\u03B1\u03BC\u03B5 \u03C4\u03B7\u03BD Google (\u03C3\u03C4\u03B7\u03BD \u03BF\u03C0\u03BF\u03AF\u03B1 \u03B1\u03BD\u03AE\u03BA\u03B5\u03B9 \u03C4\u03BF YouTube) \u03B1\u03C0\u03CC \u03C4\u03BF \u03BD\u03B1 \u03C3\u03B1\u03C2 \u03C0\u03B1\u03C1\u03B1\u03BA\u03BF\u03BB\u03BF\u03C5\u03B8\u03B5\u03AF \u03CC\u03C4\u03B1\u03BD \u03C6\u03BF\u03C1\u03C4\u03CE\u03B8\u03B7\u03BA\u03B5 \u03B7 \u03C3\u03B5\u03BB\u03AF\u03B4\u03B1. \u0395\u03AC\u03BD \u03BA\u03AC\u03BD\u03B5\u03C4\u03B5 \u03AC\u03C1\u03C3\u03B7 \u03B1\u03C0\u03BF\u03BA\u03BB\u03B5\u03B9\u03C3\u03BC\u03BF\u03CD \u03B3\u03B9' \u03B1\u03C5\u03C4\u03CC \u03C4\u03BF \u03B2\u03AF\u03BD\u03C4\u03B5\u03BF, \u03B7 Google \u03B8\u03B1 \u03B3\u03BD\u03C9\u03C1\u03AF\u03B6\u03B5\u03B9 \u03C4\u03B7 \u03B4\u03C1\u03B1\u03C3\u03C4\u03B7\u03C1\u03B9\u03CC\u03C4\u03B7\u03C4\u03AC \u03C3\u03B1\u03C2.","infoPreviewToggleText":"\u039F\u03B9 \u03C0\u03C1\u03BF\u03B5\u03C0\u03B9\u03C3\u03BA\u03BF\u03C0\u03AE\u03C3\u03B5\u03B9\u03C2 \u03B1\u03C0\u03B5\u03BD\u03B5\u03C1\u03B3\u03BF\u03C0\u03BF\u03B9\u03AE\u03B8\u03B7\u03BA\u03B1\u03BD \u03B3\u03B9\u03B1 \u03C0\u03C1\u03CC\u03C3\u03B8\u03B5\u03C4\u03B7 \u03C0\u03C1\u03BF\u03C3\u03C4\u03B1\u03C3\u03AF\u03B1 \u03C4\u03C9\u03BD \u03C0\u03C1\u03BF\u03C3\u03C9\u03C0\u03B9\u03BA\u03CE\u03BD \u03B4\u03B5\u03B4\u03BF\u03BC\u03AD\u03BD\u03C9\u03BD","infoPreviewToggleEnabledText":"\u039F\u03B9 \u03C0\u03C1\u03BF\u03B5\u03C0\u03B9\u03C3\u03BA\u03BF\u03C0\u03AE\u03C3\u03B5\u03B9\u03C2 \u03B5\u03BD\u03B5\u03C1\u03B3\u03BF\u03C0\u03BF\u03B9\u03AE\u03B8\u03B7\u03BA\u03B1\u03BD","infoPreviewToggleEnabledDuckDuckGoText":"\u039F\u03B9 \u03C0\u03C1\u03BF\u03B5\u03C0\u03B9\u03C3\u03BA\u03BF\u03C0\u03AE\u03C3\u03B5\u03B9\u03C2 YouTube \u03B5\u03BD\u03B5\u03C1\u03B3\u03BF\u03C0\u03BF\u03B9\u03AE\u03B8\u03B7\u03BA\u03B1\u03BD \u03C3\u03C4\u03BF DuckDuckGo.","infoPreviewInfoText":"<a href=\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\">\u039C\u03AC\u03B8\u03B5\u03C4\u03B5 \u03C0\u03B5\u03C1\u03B9\u03C3\u03C3\u03CC\u03C4\u03B5\u03C1\u03B1</a> \u03B3\u03B9\u03B1 \u03C4\u03B7\u03BD \u03B5\u03BD\u03C3\u03C9\u03BC\u03B1\u03C4\u03C9\u03BC\u03AD\u03BD\u03B7 \u03C0\u03C1\u03BF\u03C3\u03C4\u03B1\u03C3\u03AF\u03B1 \u03BA\u03BF\u03B9\u03BD\u03C9\u03BD\u03B9\u03BA\u03CE\u03BD \u03BC\u03AD\u03C3\u03C9\u03BD DuckDuckGo"}},"en":{"facebook.json":{"informationalModalMessageTitle":"Logging in with Facebook lets them track you","informationalModalMessageBody":"Once you're logged in, DuckDuckGo can't block Facebook content from tracking you on this site.","informationalModalConfirmButtonText":"Log In","informationalModalRejectButtonText":"Go back","loginButtonText":"Log in with Facebook","loginBodyText":"Facebook tracks your activity on a site when you use them to login.","buttonTextUnblockContent":"Unblock Facebook Content","buttonTextUnblockComment":"Unblock Facebook Comment","buttonTextUnblockComments":"Unblock Facebook Comments","buttonTextUnblockPost":"Unblock Facebook Post","buttonTextUnblockVideo":"Unblock Facebook Video","buttonTextUnblockLogin":"Unblock Facebook Login","infoTitleUnblockContent":"DuckDuckGo blocked this content to prevent Facebook from tracking you","infoTitleUnblockComment":"DuckDuckGo blocked this comment to prevent Facebook from tracking you","infoTitleUnblockComments":"DuckDuckGo blocked these comments to prevent Facebook from tracking you","infoTitleUnblockPost":"DuckDuckGo blocked this post to prevent Facebook from tracking you","infoTitleUnblockVideo":"DuckDuckGo blocked this video to prevent Facebook from tracking you","infoTextUnblockContent":"We blocked Facebook from tracking you when the page loaded. If you unblock this content, Facebook will know your activity."},"shared.json":{"learnMore":"Learn More","readAbout":"Read about this privacy protection","shareFeedback":"Share Feedback"},"youtube.json":{"informationalModalMessageTitle":"Enable all YouTube previews?","informationalModalMessageBody":"Showing previews will allow Google (which owns YouTube) to see some of your device\u2019s information, but is still more private than playing the video.","informationalModalConfirmButtonText":"Enable All Previews","informationalModalRejectButtonText":"No Thanks","buttonTextUnblockVideo":"Unblock YouTube Video","infoTitleUnblockVideo":"DuckDuckGo blocked this YouTube video to prevent Google from tracking you","infoTextUnblockVideo":"We blocked Google (which owns YouTube) from tracking you when the page loaded. If you unblock this video, Google will know your activity.","infoPreviewToggleText":"Previews disabled for additional privacy","infoPreviewToggleEnabledText":"Previews enabled","infoPreviewToggleEnabledDuckDuckGoText":"YouTube previews enabled in DuckDuckGo.","infoPreviewInfoText":"<a href=\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\">Learn more</a> about DuckDuckGo Embedded Social Media Protection"}},"es":{"facebook.json":{"informationalModalMessageTitle":"Al iniciar sesi\xF3n en Facebook, les permites que te rastreen","informationalModalMessageBody":"Una vez que hayas iniciado sesi\xF3n, DuckDuckGo no puede bloquear el contenido de Facebook para que no te rastree en este sitio.","informationalModalConfirmButtonText":"Iniciar sesi\xF3n","informationalModalRejectButtonText":"Volver atr\xE1s","loginButtonText":"Iniciar sesi\xF3n con Facebook","loginBodyText":"Facebook rastrea tu actividad en un sitio web cuando lo usas para iniciar sesi\xF3n.","buttonTextUnblockContent":"Desbloquear contenido de Facebook","buttonTextUnblockComment":"Desbloquear comentario de Facebook","buttonTextUnblockComments":"Desbloquear comentarios de Facebook","buttonTextUnblockPost":"Desbloquear publicaci\xF3n de Facebook","buttonTextUnblockVideo":"Desbloquear v\xEDdeo de Facebook","buttonTextUnblockLogin":"Desbloquear inicio de sesi\xF3n de Facebook","infoTitleUnblockContent":"DuckDuckGo ha bloqueado este contenido para evitar que Facebook te rastree","infoTitleUnblockComment":"DuckDuckGo ha bloqueado este comentario para evitar que Facebook te rastree","infoTitleUnblockComments":"DuckDuckGo ha bloqueado estos comentarios para evitar que Facebook te rastree","infoTitleUnblockPost":"DuckDuckGo ha bloqueado esta publicaci\xF3n para evitar que Facebook te rastree","infoTitleUnblockVideo":"DuckDuckGo ha bloqueado este v\xEDdeo para evitar que Facebook te rastree","infoTextUnblockContent":"Hemos bloqueado el rastreo de Facebook cuando se ha cargado la p\xE1gina. Si desbloqueas este contenido, Facebook tendr\xE1 conocimiento de tu actividad."},"shared.json":{"learnMore":"M\xE1s informaci\xF3n","readAbout":"Lee acerca de esta protecci\xF3n de privacidad","shareFeedback":"Compartir opiniones"},"youtube.json":{"informationalModalMessageTitle":"\xBFHabilitar todas las vistas previas de YouTube?","informationalModalMessageBody":"Mostrar vistas previas permitir\xE1 a Google (que es el propietario de YouTube) ver parte de la informaci\xF3n de tu dispositivo, pero sigue siendo m\xE1s privado que reproducir el v\xEDdeo.","informationalModalConfirmButtonText":"Habilitar todas las vistas previas","informationalModalRejectButtonText":"No, gracias","buttonTextUnblockVideo":"Desbloquear v\xEDdeo de YouTube","infoTitleUnblockVideo":"DuckDuckGo ha bloqueado este v\xEDdeo de YouTube para evitar que Google te rastree","infoTextUnblockVideo":"Hemos bloqueado el rastreo de Google (que es el propietario de YouTube) al cargarse la p\xE1gina. Si desbloqueas este v\xEDdeo, Goggle tendr\xE1 conocimiento de tu actividad.","infoPreviewToggleText":"Vistas previas desactivadas para mayor privacidad","infoPreviewToggleEnabledText":"Vistas previas activadas","infoPreviewToggleEnabledDuckDuckGoText":"Vistas previas de YouTube habilitadas en DuckDuckGo.","infoPreviewInfoText":"<a href=\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\">M\xE1s informaci\xF3n</a> sobre la protecci\xF3n integrada de redes sociales DuckDuckGo"}},"et":{"facebook.json":{"informationalModalMessageTitle":"Kui logid Facebookiga sisse, saab Facebook sind j\xE4lgida","informationalModalMessageBody":"Kui oled sisse logitud, ei saa DuckDuckGo blokeerida Facebooki sisu sind j\xE4lgimast.","informationalModalConfirmButtonText":"Logi sisse","informationalModalRejectButtonText":"Mine tagasi","loginButtonText":"Logi sisse Facebookiga","loginBodyText":"Kui logid sisse Facebookiga, saab Facebook sinu tegevust saidil j\xE4lgida.","buttonTextUnblockContent":"Deblokeeri Facebooki sisu","buttonTextUnblockComment":"Deblokeeri Facebooki kommentaar","buttonTextUnblockComments":"Deblokeeri Facebooki kommentaarid","buttonTextUnblockPost":"Deblokeeri Facebooki postitus","buttonTextUnblockVideo":"Deblokeeri Facebooki video","buttonTextUnblockLogin":"Deblokeeri Facebooki sisselogimine","infoTitleUnblockContent":"DuckDuckGo blokeeris selle sisu, et Facebook ei saaks sind j\xE4lgida","infoTitleUnblockComment":"DuckDuckGo blokeeris selle kommentaari, et Facebook ei saaks sind j\xE4lgida","infoTitleUnblockComments":"DuckDuckGo blokeeris need kommentaarid, et Facebook ei saaks sind j\xE4lgida","infoTitleUnblockPost":"DuckDuckGo blokeeris selle postituse, et Facebook ei saaks sind j\xE4lgida","infoTitleUnblockVideo":"DuckDuckGo blokeeris selle video, et Facebook ei saaks sind j\xE4lgida","infoTextUnblockContent":"Blokeerisime lehe laadimise ajal Facebooki jaoks sinu j\xE4lgimise. Kui sa selle sisu deblokeerid, saab Facebook sinu tegevust j\xE4lgida."},"shared.json":{"learnMore":"Loe edasi","readAbout":"Loe selle privaatsuskaitse kohta","shareFeedback":"Jaga tagasisidet"},"youtube.json":{"informationalModalMessageTitle":"Kas lubada k\xF5ik YouTube\u2019i eelvaated?","informationalModalMessageBody":"Eelvaate n\xE4itamine v\xF5imaldab Google\u2019il (kellele YouTube kuulub) n\xE4ha osa sinu seadme teabest, kuid see on siiski privaatsem kui video esitamine.","informationalModalConfirmButtonText":"Luba k\xF5ik eelvaated","informationalModalRejectButtonText":"Ei ait\xE4h","buttonTextUnblockVideo":"Deblokeeri YouTube\u2019i video","infoTitleUnblockVideo":"DuckDuckGo blokeeris selle YouTube\u2019i video, et takistada Google\u2019it sind j\xE4lgimast","infoTextUnblockVideo":"Me blokeerisime lehe laadimise ajal Google\u2019i (kellele YouTube kuulub) j\xE4lgimise. Kui sa selle video deblokeerid, saab Google sinu tegevusest teada.","infoPreviewToggleText":"Eelvaated on t\xE4iendava privaatsuse tagamiseks keelatud","infoPreviewToggleEnabledText":"Eelvaated on lubatud","infoPreviewToggleEnabledDuckDuckGoText":"YouTube\u2019i eelvaated on DuckDuckGos lubatud.","infoPreviewInfoText":"<a href=\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\">Lisateave</a> DuckDuckGo sisseehitatud sotsiaalmeediakaitse kohta"}},"fi":{"facebook.json":{"informationalModalMessageTitle":"Kun kirjaudut sis\xE4\xE4n Facebook-tunnuksilla, Facebook voi seurata sinua","informationalModalMessageBody":"Kun olet kirjautunut sis\xE4\xE4n, DuckDuckGo ei voi est\xE4\xE4 Facebook-sis\xE4lt\xF6\xE4 seuraamasta sinua t\xE4ll\xE4 sivustolla.","informationalModalConfirmButtonText":"Kirjaudu sis\xE4\xE4n","informationalModalRejectButtonText":"Edellinen","loginButtonText":"Kirjaudu sis\xE4\xE4n Facebook-tunnuksilla","loginBodyText":"Facebook seuraa toimintaasi sivustolla, kun kirjaudut sis\xE4\xE4n sen kautta.","buttonTextUnblockContent":"Poista Facebook-sis\xE4ll\xF6n esto","buttonTextUnblockComment":"Poista Facebook-kommentin esto","buttonTextUnblockComments":"Poista Facebook-kommenttien esto","buttonTextUnblockPost":"Poista Facebook-julkaisun esto","buttonTextUnblockVideo":"Poista Facebook-videon esto","buttonTextUnblockLogin":"Poista Facebook-kirjautumisen esto","infoTitleUnblockContent":"DuckDuckGo esti t\xE4m\xE4n sis\xE4ll\xF6n est\xE4\xE4kseen Facebookia seuraamasta sinua","infoTitleUnblockComment":"DuckDuckGo esti t\xE4m\xE4n kommentin est\xE4\xE4kseen Facebookia seuraamasta sinua","infoTitleUnblockComments":"DuckDuckGo esti n\xE4m\xE4 kommentit est\xE4\xE4kseen Facebookia seuraamasta sinua","infoTitleUnblockPost":"DuckDuckGo esti t\xE4m\xE4n julkaisun est\xE4\xE4kseen Facebookia seuraamasta sinua","infoTitleUnblockVideo":"DuckDuckGo esti t\xE4m\xE4n videon est\xE4\xE4kseen Facebookia seuraamasta sinua","infoTextUnblockContent":"Estimme Facebookia seuraamasta sinua, kun sivua ladattiin. Jos poistat t\xE4m\xE4n sis\xE4ll\xF6n eston, Facebook saa tiet\xE4\xE4 toimintasi."},"shared.json":{"learnMore":"Lue lis\xE4\xE4","readAbout":"Lue t\xE4st\xE4 yksityisyydensuojasta","shareFeedback":"Jaa palaute"},"youtube.json":{"informationalModalMessageTitle":"Otetaanko k\xE4ytt\xF6\xF6n kaikki YouTube-esikatselut?","informationalModalMessageBody":"Kun sallit esikatselun, Google (joka omistaa YouTuben) voi n\xE4hd\xE4 joitakin laitteesi tietoja, mutta se on silti yksityisemp\xE4\xE4 kuin videon toistaminen.","informationalModalConfirmButtonText":"Ota k\xE4ytt\xF6\xF6n kaikki esikatselut","informationalModalRejectButtonText":"Ei kiitos","buttonTextUnblockVideo":"Poista YouTube-videon esto","infoTitleUnblockVideo":"DuckDuckGo esti t\xE4m\xE4n YouTube-videon, jotta Google ei voi seurata sinua","infoTextUnblockVideo":"Estimme Googlea (joka omistaa YouTuben) seuraamasta sinua, kun sivua ladattiin. Jos poistat t\xE4m\xE4n videon eston, Google tiet\xE4\xE4 toimintasi.","infoPreviewToggleText":"Esikatselut on poistettu k\xE4yt\xF6st\xE4 yksityisyyden lis\xE4\xE4miseksi","infoPreviewToggleEnabledText":"Esikatselut k\xE4yt\xF6ss\xE4","infoPreviewToggleEnabledDuckDuckGoText":"YouTube-esikatselut k\xE4yt\xF6ss\xE4 DuckDuckGossa.","infoPreviewInfoText":"<a href=\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\">Lue lis\xE4\xE4</a> DuckDuckGon upotetusta sosiaalisen median suojauksesta"}},"fr":{"facebook.json":{"informationalModalMessageTitle":"L'identification via Facebook leur permet de vous pister","informationalModalMessageBody":"Une fois que vous \xEAtes connect\xE9(e), DuckDuckGo ne peut pas emp\xEAcher le contenu Facebook de vous pister sur ce site.","informationalModalConfirmButtonText":"Connexion","informationalModalRejectButtonText":"Revenir en arri\xE8re","loginButtonText":"S'identifier avec Facebook","loginBodyText":"Facebook piste votre activit\xE9 sur un site lorsque vous l'utilisez pour vous identifier.","buttonTextUnblockContent":"D\xE9bloquer le contenu Facebook","buttonTextUnblockComment":"D\xE9bloquer le commentaire Facebook","buttonTextUnblockComments":"D\xE9bloquer les commentaires Facebook","buttonTextUnblockPost":"D\xE9bloquer la publication Facebook","buttonTextUnblockVideo":"D\xE9bloquer la vid\xE9o Facebook","buttonTextUnblockLogin":"D\xE9bloquer la connexion Facebook","infoTitleUnblockContent":"DuckDuckGo a bloqu\xE9 ce contenu pour emp\xEAcher Facebook de vous suivre","infoTitleUnblockComment":"DuckDuckGo a bloqu\xE9 ce commentaire pour emp\xEAcher Facebook de vous suivre","infoTitleUnblockComments":"DuckDuckGo a bloqu\xE9 ces commentaires pour emp\xEAcher Facebook de vous suivre","infoTitleUnblockPost":"DuckDuckGo a bloqu\xE9 cette publication pour emp\xEAcher Facebook de vous pister","infoTitleUnblockVideo":"DuckDuckGo a bloqu\xE9 cette vid\xE9o pour emp\xEAcher Facebook de vous pister","infoTextUnblockContent":"Nous avons emp\xEAch\xE9 Facebook de vous pister lors du chargement de la page. Si vous d\xE9bloquez ce contenu, Facebook conna\xEEtra votre activit\xE9."},"shared.json":{"learnMore":"En savoir plus","readAbout":"En savoir plus sur cette protection de la confidentialit\xE9","shareFeedback":"Partagez vos commentaires"},"youtube.json":{"informationalModalMessageTitle":"Activer tous les aper\xE7us YouTube\xA0?","informationalModalMessageBody":"L'affichage des aper\xE7us permettra \xE0 Google (propri\xE9taire de YouTube) de voir certaines informations de votre appareil, mais cela reste davantage confidentiel qu'en lisant la vid\xE9o.","informationalModalConfirmButtonText":"Activer tous les aper\xE7us","informationalModalRejectButtonText":"Non merci","buttonTextUnblockVideo":"D\xE9bloquer la vid\xE9o YouTube","infoTitleUnblockVideo":"DuckDuckGo a bloqu\xE9 cette vid\xE9o YouTube pour emp\xEAcher Google de vous pister","infoTextUnblockVideo":"Nous avons emp\xEAch\xE9 Google (propri\xE9taire de YouTube) de vous pister lors du chargement de la page. Si vous d\xE9bloquez cette vid\xE9o, Google conna\xEEtra votre activit\xE9.","infoPreviewToggleText":"Aper\xE7us d\xE9sactiv\xE9s pour plus de confidentialit\xE9","infoPreviewToggleEnabledText":"Aper\xE7us activ\xE9s","infoPreviewToggleEnabledDuckDuckGoText":"Les aper\xE7us YouTube sont activ\xE9s dans DuckDuckGo.","infoPreviewInfoText":"<a href=\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\">En savoir plus</a> sur la protection int\xE9gr\xE9e DuckDuckGo des r\xE9seaux sociaux"}},"hr":{"facebook.json":{"informationalModalMessageTitle":"Prijava putem Facebooka omogu\u0107uje im da te prate","informationalModalMessageBody":"Nakon \u0161to se prijavi\u0161, DuckDuckGo ne mo\u017Ee blokirati Facebookov sadr\u017Eaj da te prati na Facebooku.","informationalModalConfirmButtonText":"Prijavljivanje","informationalModalRejectButtonText":"Vrati se","loginButtonText":"Prijavi se putem Facebooka","loginBodyText":"Facebook prati tvoju aktivnost na toj web lokaciji kad je koristi\u0161 za prijavu.","buttonTextUnblockContent":"Deblokiraj sadr\u017Eaj na Facebooku","buttonTextUnblockComment":"Deblokiraj komentar na Facebooku","buttonTextUnblockComments":"Deblokiraj komentare na Facebooku","buttonTextUnblockPost":"Deblokiraj objavu na Facebooku","buttonTextUnblockVideo":"Deblokiraj videozapis na Facebooku","buttonTextUnblockLogin":"Deblokiraj prijavu na Facebook","infoTitleUnblockContent":"DuckDuckGo je blokirao ovaj sadr\u017Eaj kako bi sprije\u010Dio Facebook da te prati","infoTitleUnblockComment":"DuckDuckGo je blokirao ovaj komentar kako bi sprije\u010Dio Facebook da te prati","infoTitleUnblockComments":"DuckDuckGo je blokirao ove komentare kako bi sprije\u010Dio Facebook da te prati","infoTitleUnblockPost":"DuckDuckGo je blokirao ovu objavu kako bi sprije\u010Dio Facebook da te prati","infoTitleUnblockVideo":"DuckDuckGo je blokirao ovaj video kako bi sprije\u010Dio Facebook da te prati","infoTextUnblockContent":"Blokirali smo Facebook da te prati kad se stranica u\u010Dita. Ako deblokira\u0161 ovaj sadr\u017Eaj, Facebook \u0107e znati tvoju aktivnost."},"shared.json":{"learnMore":"Saznajte vi\u0161e","readAbout":"Pro\u010Ditaj vi\u0161e o ovoj za\u0161titi privatnosti","shareFeedback":"Podijeli povratne informacije"},"youtube.json":{"informationalModalMessageTitle":"Omogu\u0107iti sve YouTube pretpreglede?","informationalModalMessageBody":"Prikazivanje pretpregleda omogu\u0107it \u0107e Googleu (u \u010Dijem je vlasni\u0161tvu YouTube) da vidi neke podatke o tvom ure\u0111aju, ali je i dalje privatnija opcija od reprodukcije videozapisa.","informationalModalConfirmButtonText":"Omogu\u0107i sve pretpreglede","informationalModalRejectButtonText":"Ne, hvala","buttonTextUnblockVideo":"Deblokiraj YouTube videozapis","infoTitleUnblockVideo":"DuckDuckGo je blokirao ovaj YouTube videozapis kako bi sprije\u010Dio Google da te prati","infoTextUnblockVideo":"Blokirali smo Google (u \u010Dijem je vlasni\u0161tvu YouTube) da te prati kad se stranica u\u010Dita. Ako deblokira\u0161 ovaj videozapis, Google \u0107e znati tvoju aktivnost.","infoPreviewToggleText":"Pretpregledi su onemogu\u0107eni radi dodatne privatnosti","infoPreviewToggleEnabledText":"Pretpregledi su omogu\u0107eni","infoPreviewToggleEnabledDuckDuckGoText":"YouTube pretpregledi omogu\u0107eni su u DuckDuckGou.","infoPreviewInfoText":"<a href=\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\">Saznaj vi\u0161e</a> o uklju\u010Denoj DuckDuckGo za\u0161titi od dru\u0161tvenih medija"}},"hu":{"facebook.json":{"informationalModalMessageTitle":"A Facebookkal val\xF3 bejelentkez\xE9skor a Facebook nyomon k\xF6vethet","informationalModalMessageBody":"Miut\xE1n bejelentkezel, a DuckDuckGo nem fogja tudni blokkolni a Facebook-tartalmat, amely nyomon k\xF6vet ezen az oldalon.","informationalModalConfirmButtonText":"Bejelentkez\xE9s","informationalModalRejectButtonText":"Visszal\xE9p\xE9s","loginButtonText":"Bejelentkez\xE9s Facebookkal","loginBodyText":"Ha a Facebookkal jelentkezel be, nyomon k\xF6vetik a webhelyen v\xE9gzett tev\xE9kenys\xE9gedet.","buttonTextUnblockContent":"Facebook-tartalom felold\xE1sa","buttonTextUnblockComment":"Facebook-hozz\xE1sz\xF3l\xE1s felold\xE1sa","buttonTextUnblockComments":"Facebook-hozz\xE1sz\xF3l\xE1sok felold\xE1sa","buttonTextUnblockPost":"Facebook-bejegyz\xE9s felold\xE1sa","buttonTextUnblockVideo":"Facebook-vide\xF3 felold\xE1sa","buttonTextUnblockLogin":"Facebook-bejelentkez\xE9s felold\xE1sa","infoTitleUnblockContent":"A DuckDuckGo blokkolta ezt a tartalmat, hogy megakad\xE1lyozza a Facebookot a nyomon k\xF6vet\xE9sedben","infoTitleUnblockComment":"A DuckDuckGo blokkolta ezt a hozz\xE1sz\xF3l\xE1st, hogy megakad\xE1lyozza a Facebookot a nyomon k\xF6vet\xE9sedben","infoTitleUnblockComments":"A DuckDuckGo blokkolta ezeket a hozz\xE1sz\xF3l\xE1sokat, hogy megakad\xE1lyozza a Facebookot a nyomon k\xF6vet\xE9sedben","infoTitleUnblockPost":"A DuckDuckGo blokkolta ezt a bejegyz\xE9st, hogy megakad\xE1lyozza a Facebookot a nyomon k\xF6vet\xE9sedben","infoTitleUnblockVideo":"A DuckDuckGo blokkolta ezt a vide\xF3t, hogy megakad\xE1lyozza a Facebookot a nyomon k\xF6vet\xE9sedben","infoTextUnblockContent":"Az oldal bet\xF6lt\xE9sekor blokkoltuk a Facebookot a nyomon k\xF6vet\xE9sedben. Ha feloldod ezt a tartalmat, a Facebook tudni fogja, hogy milyen tev\xE9kenys\xE9get v\xE9gzel."},"shared.json":{"learnMore":"Tov\xE1bbi r\xE9szletek","readAbout":"Tudj meg t\xF6bbet err\u0151l az adatv\xE9delemr\u0151l","shareFeedback":"Visszajelz\xE9s megoszt\xE1sa"},"youtube.json":{"informationalModalMessageTitle":"Enged\xE9lyezed minden YouTube-vide\xF3 el\u0151n\xE9zet\xE9t?","informationalModalMessageBody":"Az el\u0151n\xE9zetek megjelen\xEDt\xE9s\xE9vel a Google (a YouTube tulajdonosa) l\xE1thatja a k\xE9sz\xFCl\xE9k n\xE9h\xE1ny adat\xE1t, de ez adatv\xE9delmi szempontb\xF3l m\xE9g mindig el\u0151ny\xF6sebb, mint a vide\xF3 lej\xE1tsz\xE1sa.","informationalModalConfirmButtonText":"Minden el\u0151n\xE9zet enged\xE9lyez\xE9se","informationalModalRejectButtonText":"Nem, k\xF6sz\xF6n\xF6m","buttonTextUnblockVideo":"YouTube-vide\xF3 felold\xE1sa","infoTitleUnblockVideo":"A DuckDuckGo blokkolta a YouTube-vide\xF3t, hogy a Google ne k\xF6vethessen nyomon","infoTextUnblockVideo":"Blokkoltuk, hogy a Google (a YouTube tulajdonosa) nyomon k\xF6vethessen az oldal bet\xF6lt\xE9sekor. Ha feloldod a vide\xF3 blokkol\xE1s\xE1t, a Google tudni fogja, hogy milyen tev\xE9kenys\xE9get v\xE9gzel.","infoPreviewToggleText":"Az el\u0151n\xE9zetek a fokozott adatv\xE9delem \xE9rdek\xE9ben letiltva","infoPreviewToggleEnabledText":"Az el\u0151n\xE9zetek enged\xE9lyezve","infoPreviewToggleEnabledDuckDuckGoText":"YouTube-el\u0151n\xE9zetek enged\xE9lyezve a DuckDuckGo-ban.","infoPreviewInfoText":"<a href=\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\">Tov\xE1bbi tudnival\xF3k</a> a DuckDuckGo be\xE1gyazott k\xF6z\xF6ss\xE9gi m\xE9dia elleni v\xE9delm\xE9r\u0151l"}},"it":{"facebook.json":{"informationalModalMessageTitle":"L'accesso con Facebook consente di tracciarti","informationalModalMessageBody":"Dopo aver effettuato l'accesso, DuckDuckGo non pu\xF2 bloccare il tracciamento dei contenuti di Facebook su questo sito.","informationalModalConfirmButtonText":"Accedi","informationalModalRejectButtonText":"Torna indietro","loginButtonText":"Accedi con Facebook","loginBodyText":"Facebook tiene traccia della tua attivit\xE0 su un sito quando lo usi per accedere.","buttonTextUnblockContent":"Sblocca i contenuti di Facebook","buttonTextUnblockComment":"Sblocca il commento di Facebook","buttonTextUnblockComments":"Sblocca i commenti di Facebook","buttonTextUnblockPost":"Sblocca post di Facebook","buttonTextUnblockVideo":"Sblocca video di Facebook","buttonTextUnblockLogin":"Sblocca l'accesso a Facebook","infoTitleUnblockContent":"DuckDuckGo ha bloccato questo contenuto per impedire a Facebook di tracciarti","infoTitleUnblockComment":"DuckDuckGo ha bloccato questo commento per impedire a Facebook di tracciarti","infoTitleUnblockComments":"DuckDuckGo ha bloccato questi commenti per impedire a Facebook di tracciarti","infoTitleUnblockPost":"DuckDuckGo ha bloccato questo post per impedire a Facebook di tracciarti","infoTitleUnblockVideo":"DuckDuckGo ha bloccato questo video per impedire a Facebook di tracciarti","infoTextUnblockContent":"Abbiamo impedito a Facebook di tracciarti al caricamento della pagina. Se sblocchi questo contenuto, Facebook conoscer\xE0 la tua attivit\xE0."},"shared.json":{"learnMore":"Ulteriori informazioni","readAbout":"Leggi di pi\xF9 su questa protezione della privacy","shareFeedback":"Condividi feedback"},"youtube.json":{"informationalModalMessageTitle":"Abilitare tutte le anteprime di YouTube?","informationalModalMessageBody":"La visualizzazione delle anteprime consentir\xE0 a Google (che possiede YouTube) di vedere alcune delle informazioni del tuo dispositivo, ma \xE8 comunque pi\xF9 privato rispetto alla riproduzione del video.","informationalModalConfirmButtonText":"Abilita tutte le anteprime","informationalModalRejectButtonText":"No, grazie","buttonTextUnblockVideo":"Sblocca video YouTube","infoTitleUnblockVideo":"DuckDuckGo ha bloccato questo video di YouTube per impedire a Google di tracciarti","infoTextUnblockVideo":"Abbiamo impedito a Google (che possiede YouTube) di tracciarti quando la pagina \xE8 stata caricata. Se sblocchi questo video, Google conoscer\xE0 la tua attivit\xE0.","infoPreviewToggleText":"Anteprime disabilitate per una maggiore privacy","infoPreviewToggleEnabledText":"Anteprime abilitate","infoPreviewToggleEnabledDuckDuckGoText":"Anteprime YouTube abilitate in DuckDuckGo.","infoPreviewInfoText":"<a href=\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\">Scopri di pi\xF9</a> sulla protezione dai social media integrata di DuckDuckGo"}},"lt":{"facebook.json":{"informationalModalMessageTitle":"Prisijung\u0119 prie \u201EFacebook\u201C galite b\u016Bti sekami","informationalModalMessageBody":"Kai esate prisijung\u0119, \u201EDuckDuckGo\u201C negali u\u017Eblokuoti \u201EFacebook\u201C turinio, tod\u0117l esate sekami \u0161ioje svetain\u0117je.","informationalModalConfirmButtonText":"Prisijungti","informationalModalRejectButtonText":"Gr\u012F\u017Eti atgal","loginButtonText":"Prisijunkite su \u201EFacebook\u201C","loginBodyText":"\u201EFacebook\u201C seka j\u016Bs\u0173 veikl\u0105 svetain\u0117je, kai prisijungiate su \u0161ia svetaine.","buttonTextUnblockContent":"Atblokuoti \u201EFacebook\u201C turin\u012F","buttonTextUnblockComment":"Atblokuoti \u201EFacebook\u201C komentar\u0105","buttonTextUnblockComments":"Atblokuoti \u201EFacebook\u201C komentarus","buttonTextUnblockPost":"Atblokuoti \u201EFacebook\u201C \u012Fra\u0161\u0105","buttonTextUnblockVideo":"Atblokuoti \u201EFacebook\u201C vaizdo \u012Fra\u0161\u0105","buttonTextUnblockLogin":"Atblokuoti \u201EFacebook\u201C prisijungim\u0105","infoTitleUnblockContent":"\u201EDuckDuckGo\u201C u\u017Eblokavo \u0161\u012F turin\u012F, kad \u201EFacebook\u201C negal\u0117t\u0173 j\u016Bs\u0173 sekti","infoTitleUnblockComment":"\u201EDuckDuckGo\u201C u\u017Eblokavo \u0161\u012F komentar\u0105, kad \u201EFacebook\u201C negal\u0117t\u0173 j\u016Bs\u0173 sekti","infoTitleUnblockComments":"\u201EDuckDuckGo\u201C u\u017Eblokavo \u0161iuos komentarus, kad \u201EFacebook\u201C negal\u0117t\u0173 j\u016Bs\u0173 sekti","infoTitleUnblockPost":"\u201EDuckDuckGo\u201C u\u017Eblokavo \u0161\u012F \u012Fra\u0161\u0105, kad \u201EFacebook\u201C negal\u0117t\u0173 j\u016Bs\u0173 sekti","infoTitleUnblockVideo":"\u201EDuckDuckGo\u201C u\u017Eblokavo \u0161\u012F vaizdo \u012Fra\u0161\u0105, kad \u201EFacebook\u201C negal\u0117t\u0173 j\u016Bs\u0173 sekti","infoTextUnblockContent":"U\u017Eblokavome \u201EFacebook\u201C, kad negal\u0117t\u0173 j\u016Bs\u0173 sekti, kai puslapis buvo \u012Fkeltas. Jei atblokuosite \u0161\u012F turin\u012F, \u201EFacebook\u201C \u017Einos apie j\u016Bs\u0173 veikl\u0105."},"shared.json":{"learnMore":"Su\u017Einoti daugiau","readAbout":"Skaitykite apie \u0161i\u0105 privatumo apsaug\u0105","shareFeedback":"Bendrinti atsiliepim\u0105"},"youtube.json":{"informationalModalMessageTitle":"\u012Ejungti visas \u201EYouTube\u201C per\u017Ei\u016Bras?","informationalModalMessageBody":"Per\u017Ei\u016Br\u0173 rodymas leis \u201EGoogle\u201C (kuriai priklauso \u201EYouTube\u201C) matyti tam tikr\u0105 j\u016Bs\u0173 \u012Frenginio informacij\u0105, ta\u010Diau ji vis tiek bus privatesn\u0117 nei leid\u017Eiant vaizdo \u012Fra\u0161\u0105.","informationalModalConfirmButtonText":"\u012Ejungti visas per\u017Ei\u016Bras","informationalModalRejectButtonText":"Ne, d\u0117koju","buttonTextUnblockVideo":"Atblokuoti \u201EYouTube\u201C vaizdo \u012Fra\u0161\u0105","infoTitleUnblockVideo":"\u201EDuckDuckGo\u201C u\u017Eblokavo \u0161\u012F \u201EYouTube\u201C vaizdo \u012Fra\u0161\u0105, kad \u201EGoogle\u201C negal\u0117t\u0173 j\u016Bs\u0173 sekti","infoTextUnblockVideo":"U\u017Eblokavome \u201EGoogle\u201C (kuriai priklauso \u201EYouTube\u201C) galimyb\u0119 sekti jus, kai puslapis buvo \u012Fkeltas. Jei atblokuosite \u0161\u012F vaizdo \u012Fra\u0161\u0105, \u201EGoogle\u201C su\u017Einos apie j\u016Bs\u0173 veikl\u0105.","infoPreviewToggleText":"Per\u017Ei\u016Bros i\u0161jungtos d\u0117l papildomo privatumo","infoPreviewToggleEnabledText":"Per\u017Ei\u016Bros \u012Fjungtos","infoPreviewToggleEnabledDuckDuckGoText":"\u201EYouTube\u201C per\u017Ei\u016Bros \u012Fjungtos \u201EDuckDuckGo\u201C.","infoPreviewInfoText":"<a href=\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\">Su\u017Einokite daugiau</a> apie \u201EDuckDuckGo\u201C \u012Fd\u0117t\u0105j\u0105 socialin\u0117s \u017Einiasklaidos apsaug\u0105"}},"lv":{"facebook.json":{"informationalModalMessageTitle":"Ja pieteiksies ar Facebook, vi\u0146i var\u0113s tevi izsekot","informationalModalMessageBody":"Kad tu piesakies, DuckDuckGo nevar nov\u0113rst, ka Facebook saturs tevi izseko \u0161aj\u0101 vietn\u0113.","informationalModalConfirmButtonText":"Pieteikties","informationalModalRejectButtonText":"Atgriezties","loginButtonText":"Pieteikties ar Facebook","loginBodyText":"Facebook izseko tavas aktivit\u0101tes vietn\u0113, kad esi pieteicies ar Facebook.","buttonTextUnblockContent":"Atblo\u0137\u0113t Facebook saturu","buttonTextUnblockComment":"Atblo\u0137\u0113t Facebook koment\u0101ru","buttonTextUnblockComments":"Atblo\u0137\u0113t Facebook koment\u0101rus","buttonTextUnblockPost":"Atblo\u0137\u0113t Facebook zi\u0146u","buttonTextUnblockVideo":"Atblo\u0137\u0113t Facebook video","buttonTextUnblockLogin":"Atblo\u0137\u0113t Facebook pieteik\u0161anos","infoTitleUnblockContent":"DuckDuckGo blo\u0137\u0113ja \u0161o saturu, lai ne\u013Cautu Facebook tevi izsekot","infoTitleUnblockComment":"DuckDuckGo blo\u0137\u0113ja \u0161o koment\u0101ru, lai ne\u013Cautu Facebook tevi izsekot","infoTitleUnblockComments":"DuckDuckGo blo\u0137\u0113ja \u0161os koment\u0101rus, lai ne\u013Cautu Facebook tevi izsekot","infoTitleUnblockPost":"DuckDuckGo blo\u0137\u0113ja \u0161o zi\u0146u, lai ne\u013Cautu Facebook tevi izsekot","infoTitleUnblockVideo":"DuckDuckGo blo\u0137\u0113ja \u0161o videoklipu, lai ne\u013Cautu Facebook tevi izsekot","infoTextUnblockContent":"M\u0113s blo\u0137\u0113j\u0101m Facebook iesp\u0113ju tevi izsekot, iel\u0101d\u0113jot lapu. Ja atblo\u0137\u0113si \u0161o saturu, Facebook redz\u0113s, ko tu dari."},"shared.json":{"learnMore":"Uzzin\u0101t vair\u0101k","readAbout":"Lasi par \u0161o priv\u0101tuma aizsardz\u012Bbu","shareFeedback":"Kop\u012Bgot atsauksmi"},"youtube.json":{"informationalModalMessageTitle":"Vai iesp\u0113jot visus YouTube priek\u0161skat\u012Bjumus?","informationalModalMessageBody":"Priek\u0161skat\u012Bjumu r\u0101d\u012B\u0161ana \u013Caus Google (kam pieder YouTube) redz\u0113t da\u013Cu tavas ier\u012Bces inform\u0101cijas, ta\u010Du tas t\u0101pat ir priv\u0101t\u0101k par videoklipa atska\u0146o\u0161anu.","informationalModalConfirmButtonText":"Iesp\u0113jot visus priek\u0161skat\u012Bjumus","informationalModalRejectButtonText":"N\u0113, paldies","buttonTextUnblockVideo":"Atblo\u0137\u0113t YouTube videoklipu","infoTitleUnblockVideo":"DuckDuckGo blo\u0137\u0113ja \u0161o YouTube videoklipu, lai ne\u013Cautu Google tevi izsekot","infoTextUnblockVideo":"M\u0113s ne\u013C\u0101v\u0101m Google (kam pieder YouTube) tevi izsekot, kad lapa tika iel\u0101d\u0113ta. Ja atblo\u0137\u0113si \u0161o videoklipu, Google zin\u0101s, ko tu dari.","infoPreviewToggleText":"Priek\u0161skat\u012Bjumi ir atsp\u0113joti, lai nodro\u0161in\u0101tu papildu konfidencialit\u0101ti","infoPreviewToggleEnabledText":"Priek\u0161skat\u012Bjumi ir iesp\u0113joti","infoPreviewToggleEnabledDuckDuckGoText":"DuckDuckGo iesp\u0113joti YouTube priek\u0161skat\u012Bjumi.","infoPreviewInfoText":"<a href=\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\">Uzzini vair\u0101k</a> par DuckDuckGo iegulto soci\u0101lo mediju aizsardz\u012Bbu"}},"nb":{"facebook.json":{"informationalModalMessageTitle":"N\xE5r du logger p\xE5 med Facebook, kan de spore deg","informationalModalMessageBody":"N\xE5r du er logget p\xE5, kan ikke DuckDuckGo hindre Facebook-innhold i \xE5 spore deg p\xE5 dette nettstedet.","informationalModalConfirmButtonText":"Logg inn","informationalModalRejectButtonText":"G\xE5 tilbake","loginButtonText":"Logg p\xE5 med Facebook","loginBodyText":"N\xE5r du logger p\xE5 med Facebook, sporer de aktiviteten din p\xE5 nettstedet.","buttonTextUnblockContent":"Fjern blokkering av Facebook-innhold","buttonTextUnblockComment":"Fjern blokkering av Facebook-kommentar","buttonTextUnblockComments":"Fjern blokkering av Facebook-kommentarer","buttonTextUnblockPost":"Fjern blokkering av Facebook-innlegg","buttonTextUnblockVideo":"Fjern blokkering av Facebook-video","buttonTextUnblockLogin":"Fjern blokkering av Facebook-p\xE5logging","infoTitleUnblockContent":"DuckDuckGo blokkerte dette innholdet for \xE5 hindre Facebook i \xE5 spore deg","infoTitleUnblockComment":"DuckDuckGo blokkerte denne kommentaren for \xE5 hindre Facebook i \xE5 spore deg","infoTitleUnblockComments":"DuckDuckGo blokkerte disse kommentarene for \xE5 hindre Facebook i \xE5 spore deg","infoTitleUnblockPost":"DuckDuckGo blokkerte dette innlegget for \xE5 hindre Facebook i \xE5 spore deg","infoTitleUnblockVideo":"DuckDuckGo blokkerte denne videoen for \xE5 hindre Facebook i \xE5 spore deg","infoTextUnblockContent":"Vi hindret Facebook i \xE5 spore deg da siden ble lastet. Hvis du opphever blokkeringen av dette innholdet, f\xE5r Facebook vite om aktiviteten din."},"shared.json":{"learnMore":"Finn ut mer","readAbout":"Les om denne personvernfunksjonen","shareFeedback":"Del tilbakemelding"},"youtube.json":{"informationalModalMessageTitle":"Vil du aktivere alle YouTube-forh\xE5ndsvisninger?","informationalModalMessageBody":"Forh\xE5ndsvisninger gj\xF8r det mulig for Google (som eier YouTube) \xE5 se enkelte opplysninger om enheten din, men det er likevel mer privat enn \xE5 spille av videoen.","informationalModalConfirmButtonText":"Aktiver alle forh\xE5ndsvisninger","informationalModalRejectButtonText":"Nei takk","buttonTextUnblockVideo":"Fjern blokkering av YouTube-video","infoTitleUnblockVideo":"DuckDuckGo blokkerte denne YouTube-videoen for \xE5 hindre Google i \xE5 spore deg","infoTextUnblockVideo":"Vi blokkerte Google (som eier YouTube) mot \xE5 spore deg da siden ble lastet. Hvis du opphever blokkeringen av denne videoen, f\xE5r Google vite om aktiviteten din.","infoPreviewToggleText":"Forh\xE5ndsvisninger er deaktivert for \xE5 gi deg ekstra personvern","infoPreviewToggleEnabledText":"Forh\xE5ndsvisninger er aktivert","infoPreviewToggleEnabledDuckDuckGoText":"YouTube-forh\xE5ndsvisninger er aktivert i DuckDuckGo.","infoPreviewInfoText":"<a href=\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\">Finn ut mer</a> om DuckDuckGos innebygde beskyttelse for sosiale medier"}},"nl":{"facebook.json":{"informationalModalMessageTitle":"Als je inlogt met Facebook, kunnen zij je volgen","informationalModalMessageBody":"Als je eenmaal bent ingelogd, kan DuckDuckGo niet voorkomen dat Facebook je op deze site volgt.","informationalModalConfirmButtonText":"Inloggen","informationalModalRejectButtonText":"Terug","loginButtonText":"Inloggen met Facebook","loginBodyText":"Facebook volgt je activiteit op een site als je Facebook gebruikt om in te loggen.","buttonTextUnblockContent":"Facebook-inhoud deblokkeren","buttonTextUnblockComment":"Facebook-opmerkingen deblokkeren","buttonTextUnblockComments":"Facebook-opmerkingen deblokkeren","buttonTextUnblockPost":"Facebook-bericht deblokkeren","buttonTextUnblockVideo":"Facebook-video deblokkeren","buttonTextUnblockLogin":"Facebook-aanmelding deblokkeren","infoTitleUnblockContent":"DuckDuckGo heeft deze inhoud geblokkeerd om te voorkomen dat Facebook je kan volgen","infoTitleUnblockComment":"DuckDuckGo heeft deze opmerking geblokkeerd om te voorkomen dat Facebook je kan volgen","infoTitleUnblockComments":"DuckDuckGo heeft deze opmerkingen geblokkeerd om te voorkomen dat Facebook je kan volgen","infoTitleUnblockPost":"DuckDuckGo heeft dit bericht geblokkeerd om te voorkomen dat Facebook je kan volgen","infoTitleUnblockVideo":"DuckDuckGo heeft deze video geblokkeerd om te voorkomen dat Facebook je kan volgen","infoTextUnblockContent":"We hebben voorkomen dat Facebook je volgde toen de pagina werd geladen. Als je deze inhoud deblokkeert, kan Facebook je activiteit zien."},"shared.json":{"learnMore":"Meer informatie","readAbout":"Lees meer over deze privacybescherming","shareFeedback":"Feedback delen"},"youtube.json":{"informationalModalMessageTitle":"Alle YouTube-voorbeelden inschakelen?","informationalModalMessageBody":"Bij het tonen van voorbeelden kan Google (eigenaar van YouTube) een deel van de informatie over je apparaat zien, maar blijft je privacy beter beschermd dan als je de video zou afspelen.","informationalModalConfirmButtonText":"Alle voorbeelden inschakelen","informationalModalRejectButtonText":"Nee, bedankt","buttonTextUnblockVideo":"YouTube-video deblokkeren","infoTitleUnblockVideo":"DuckDuckGo heeft deze YouTube-video geblokkeerd om te voorkomen dat Google je kan volgen","infoTextUnblockVideo":"We hebben voorkomen dat Google (eigenaar van YouTube) je volgde toen de pagina werd geladen. Als je deze video deblokkeert, kan Google je activiteit zien.","infoPreviewToggleText":"Voorbeelden uitgeschakeld voor extra privacy","infoPreviewToggleEnabledText":"Voorbeelden ingeschakeld","infoPreviewToggleEnabledDuckDuckGoText":"YouTube-voorbeelden ingeschakeld in DuckDuckGo.","infoPreviewInfoText":"<a href=\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\">Meer informatie</a> over DuckDuckGo's bescherming tegen ingesloten social media"}},"pl":{"facebook.json":{"informationalModalMessageTitle":"Je\u015Bli zalogujesz si\u0119 za po\u015Brednictwem Facebooka, b\u0119dzie on m\xF3g\u0142 \u015Bledzi\u0107 Twoj\u0105 aktywno\u015B\u0107","informationalModalMessageBody":"Po zalogowaniu si\u0119 DuckDuckGo nie mo\u017Ce zablokowa\u0107 mo\u017Cliwo\u015Bci \u015Bledzenia Ci\u0119 przez Facebooka na tej stronie.","informationalModalConfirmButtonText":"Zaloguj si\u0119","informationalModalRejectButtonText":"Wr\xF3\u0107","loginButtonText":"Zaloguj si\u0119 za po\u015Brednictwem Facebooka","loginBodyText":"Facebook \u015Bledzi Twoj\u0105 aktywno\u015B\u0107 na stronie, gdy logujesz si\u0119 za jego po\u015Brednictwem.","buttonTextUnblockContent":"Odblokuj tre\u015B\u0107 na Facebooku","buttonTextUnblockComment":"Odblokuj komentarz na Facebooku","buttonTextUnblockComments":"Odblokuj komentarze na Facebooku","buttonTextUnblockPost":"Odblokuj post na Facebooku","buttonTextUnblockVideo":"Odblokuj wideo na Facebooku","buttonTextUnblockLogin":"Odblokuj logowanie na Facebooku","infoTitleUnblockContent":"DuckDuckGo zablokowa\u0142 t\u0119 tre\u015B\u0107, aby Facebook nie m\xF3g\u0142 Ci\u0119 \u015Bledzi\u0107","infoTitleUnblockComment":"DuckDuckGo zablokowa\u0142 ten komentarz, aby Facebook nie m\xF3g\u0142 Ci\u0119 \u015Bledzi\u0107","infoTitleUnblockComments":"DuckDuckGo zablokowa\u0142 te komentarze, aby Facebook nie m\xF3g\u0142 Ci\u0119 \u015Bledzi\u0107","infoTitleUnblockPost":"DuckDuckGo zablokowa\u0142 ten post, aby Facebook nie m\xF3g\u0142 Ci\u0119 \u015Bledzi\u0107","infoTitleUnblockVideo":"DuckDuckGo zablokowa\u0142 t\u0119 tre\u015B\u0107 wideo, aby Facebook nie m\xF3g\u0142 Ci\u0119 \u015Bledzi\u0107.","infoTextUnblockContent":"Zablokowali\u015Bmy Facebookowi mo\u017Cliwo\u015B\u0107 \u015Bledzenia Ci\u0119 podczas \u0142adowania strony. Je\u015Bli odblokujesz t\u0119 tre\u015B\u0107, Facebook uzyska informacje o Twojej aktywno\u015Bci."},"shared.json":{"learnMore":"Dowiedz si\u0119 wi\u0119cej","readAbout":"Dowiedz si\u0119 wi\u0119cej o tej ochronie prywatno\u015Bci","shareFeedback":"Podziel si\u0119 opini\u0105"},"youtube.json":{"informationalModalMessageTitle":"W\u0142\u0105czy\u0107 wszystkie podgl\u0105dy w YouTube?","informationalModalMessageBody":"Wy\u015Bwietlanie podgl\u0105du pozwala Google (kt\xF3ry jest w\u0142a\u015Bcicielem YouTube) zobaczy\u0107 niekt\xF3re informacje o Twoim urz\u0105dzeniu, ale nadal jest to bardziej prywatne ni\u017C odtwarzanie filmu.","informationalModalConfirmButtonText":"W\u0142\u0105cz wszystkie podgl\u0105dy","informationalModalRejectButtonText":"Nie, dzi\u0119kuj\u0119","buttonTextUnblockVideo":"Odblokuj wideo w YouTube","infoTitleUnblockVideo":"DuckDuckGo zablokowa\u0142 ten film w YouTube, aby uniemo\u017Cliwi\u0107 Google \u015Bledzenie Twojej aktywno\u015Bci","infoTextUnblockVideo":"Zablokowali\u015Bmy mo\u017Cliwo\u015B\u0107 \u015Bledzenia Ci\u0119 przez Google (w\u0142a\u015Bciciela YouTube) podczas \u0142adowania strony. Je\u015Bli odblokujesz ten film, Google zobaczy Twoj\u0105 aktywno\u015B\u0107.","infoPreviewToggleText":"Podgl\u0105dy zosta\u0142y wy\u0142\u0105czone, aby zapewni\u0107 wi\u0119ksz\u0105 ptywatno\u015B\u0107","infoPreviewToggleEnabledText":"Podgl\u0105dy w\u0142\u0105czone","infoPreviewToggleEnabledDuckDuckGoText":"Podgl\u0105dy YouTube w\u0142\u0105czone w DuckDuckGo.","infoPreviewInfoText":"<a href=\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\">Dowiedz si\u0119 wi\u0119cej</a> o zabezpieczeniu osadzonych tre\u015Bci spo\u0142eczno\u015Bciowych DuckDuckGo"}},"pt":{"facebook.json":{"informationalModalMessageTitle":"Iniciar sess\xE3o no Facebook permite que este te rastreie","informationalModalMessageBody":"Depois de iniciares sess\xE3o, o DuckDuckGo n\xE3o poder\xE1 bloquear o rastreio por parte do conte\xFAdo do Facebook neste site.","informationalModalConfirmButtonText":"Iniciar sess\xE3o","informationalModalRejectButtonText":"Retroceder","loginButtonText":"Iniciar sess\xE3o com o Facebook","loginBodyText":"O Facebook rastreia a tua atividade num site quando o usas para iniciares sess\xE3o.","buttonTextUnblockContent":"Desbloquear Conte\xFAdo do Facebook","buttonTextUnblockComment":"Desbloquear Coment\xE1rio do Facebook","buttonTextUnblockComments":"Desbloquear Coment\xE1rios do Facebook","buttonTextUnblockPost":"Desbloquear Publica\xE7\xE3o no Facebook","buttonTextUnblockVideo":"Desbloquear V\xEDdeo do Facebook","buttonTextUnblockLogin":"Desbloquear In\xEDcio de Sess\xE3o no Facebook","infoTitleUnblockContent":"O DuckDuckGo bloqueou este conte\xFAdo para evitar que o Facebook te rastreie","infoTitleUnblockComment":"O DuckDuckGo bloqueou este coment\xE1rio para evitar que o Facebook te rastreie","infoTitleUnblockComments":"O DuckDuckGo bloqueou estes coment\xE1rios para evitar que o Facebook te rastreie","infoTitleUnblockPost":"O DuckDuckGo bloqueou esta publica\xE7\xE3o para evitar que o Facebook te rastreie","infoTitleUnblockVideo":"O DuckDuckGo bloqueou este v\xEDdeo para evitar que o Facebook te rastreie","infoTextUnblockContent":"Bloque\xE1mos o rastreio por parte do Facebook quando a p\xE1gina foi carregada. Se desbloqueares este conte\xFAdo, o Facebook fica a saber a tua atividade."},"shared.json":{"learnMore":"Saiba mais","readAbout":"Ler mais sobre esta prote\xE7\xE3o de privacidade","shareFeedback":"Partilhar coment\xE1rios"},"youtube.json":{"informationalModalMessageTitle":"Ativar todas as pr\xE9-visualiza\xE7\xF5es do YouTube?","informationalModalMessageBody":"Mostrar visualiza\xE7\xF5es permite \xE0 Google (que det\xE9m o YouTube) ver algumas das informa\xE7\xF5es do teu dispositivo, mas ainda \xE9 mais privado do que reproduzir o v\xEDdeo.","informationalModalConfirmButtonText":"Ativar todas as pr\xE9-visualiza\xE7\xF5es","informationalModalRejectButtonText":"N\xE3o, obrigado","buttonTextUnblockVideo":"Desbloquear V\xEDdeo do YouTube","infoTitleUnblockVideo":"O DuckDuckGo bloqueou este v\xEDdeo do YouTube para impedir que a Google te rastreie","infoTextUnblockVideo":"Bloque\xE1mos o rastreio por parte da Google (que det\xE9m o YouTube) quando a p\xE1gina foi carregada. Se desbloqueares este v\xEDdeo, a Google fica a saber a tua atividade.","infoPreviewToggleText":"Pr\xE9-visualiza\xE7\xF5es desativadas para privacidade adicional","infoPreviewToggleEnabledText":"Pr\xE9-visualiza\xE7\xF5es ativadas","infoPreviewToggleEnabledDuckDuckGoText":"Pr\xE9-visualiza\xE7\xF5es do YouTube ativadas no DuckDuckGo.","infoPreviewInfoText":"<a href=\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\">Saiba mais</a> sobre a Prote\xE7\xE3o contra conte\xFAdos de redes sociais incorporados do DuckDuckGo"}},"ro":{"facebook.json":{"informationalModalMessageTitle":"Conectarea cu Facebook \xEEi permite s\u0103 te urm\u0103reasc\u0103","informationalModalMessageBody":"Odat\u0103 ce te-ai conectat, DuckDuckGo nu poate \xEEmpiedica con\u021Binutul Facebook s\u0103 te urm\u0103reasc\u0103 pe acest site.","informationalModalConfirmButtonText":"Autentificare","informationalModalRejectButtonText":"\xCEnapoi","loginButtonText":"Conecteaz\u0103-te cu Facebook","loginBodyText":"Facebook urm\u0103re\u0219te activitatea ta pe un site atunci c\xE2nd \xEEl utilizezi pentru a te conecta.","buttonTextUnblockContent":"Deblocheaz\u0103 con\u021Binutul Facebook","buttonTextUnblockComment":"Deblocheaz\u0103 comentariul de pe Facebook","buttonTextUnblockComments":"Deblocheaz\u0103 comentariile de pe Facebook","buttonTextUnblockPost":"Deblocheaz\u0103 postarea de pe Facebook","buttonTextUnblockVideo":"Deblocheaz\u0103 videoclipul de pe Facebook","buttonTextUnblockLogin":"Deblocheaz\u0103 conectarea cu Facebook","infoTitleUnblockContent":"DuckDuckGo a blocat acest con\u021Binut pentru a \xEEmpiedica Facebook s\u0103 te urm\u0103reasc\u0103","infoTitleUnblockComment":"DuckDuckGo a blocat acest comentariu pentru a \xEEmpiedica Facebook s\u0103 te urm\u0103reasc\u0103","infoTitleUnblockComments":"DuckDuckGo a blocat aceste comentarii pentru a \xEEmpiedica Facebook s\u0103 te urm\u0103reasc\u0103","infoTitleUnblockPost":"DuckDuckGo a blocat aceast\u0103 postare pentru a \xEEmpiedica Facebook s\u0103 te urm\u0103reasc\u0103","infoTitleUnblockVideo":"DuckDuckGo a blocat acest videoclip pentru a \xEEmpiedica Facebook s\u0103 te urm\u0103reasc\u0103","infoTextUnblockContent":"Am \xEEmpiedicat Facebook s\u0103 te urm\u0103reasc\u0103 atunci c\xE2nd pagina a fost \xEEnc\u0103rcat\u0103. Dac\u0103 deblochezi acest con\u021Binut, Facebook \xEE\u021Bi va cunoa\u0219te activitatea."},"shared.json":{"learnMore":"Afl\u0103 mai multe","readAbout":"Cite\u0219te despre aceast\u0103 protec\u021Bie a confiden\u021Bialit\u0103\u021Bii","shareFeedback":"Partajeaz\u0103 feedback"},"youtube.json":{"informationalModalMessageTitle":"Activezi toate previzualiz\u0103rile YouTube?","informationalModalMessageBody":"Afi\u0219area previzualiz\u0103rilor va permite ca Google (care de\u021Bine YouTube) s\u0103 vad\u0103 unele dintre informa\u021Biile despre dispozitivul t\u0103u, dar este totu\u0219i mai privat\u0103 dec\xE2t redarea videoclipului.","informationalModalConfirmButtonText":"Activeaz\u0103 toate previzualiz\u0103rile","informationalModalRejectButtonText":"Nu, mul\u021Bumesc","buttonTextUnblockVideo":"Deblocheaz\u0103 videoclipul de pe YouTube","infoTitleUnblockVideo":"DuckDuckGo a blocat acest videoclip de pe YouTube pentru a \xEEmpiedica Google s\u0103 te urm\u0103reasc\u0103","infoTextUnblockVideo":"Am \xEEmpiedicat Google (care de\u021Bine YouTube) s\u0103 te urm\u0103reasc\u0103 atunci c\xE2nd s-a \xEEnc\u0103rcat pagina. Dac\u0103 deblochezi acest videoclip, Google va cunoa\u0219te activitatea ta.","infoPreviewToggleText":"Previzualiz\u0103rile au fost dezactivate pentru o confiden\u021Bialitate suplimentar\u0103","infoPreviewToggleEnabledText":"Previzualiz\u0103ri activate","infoPreviewToggleEnabledDuckDuckGoText":"Previzualiz\u0103rile YouTube sunt activate \xEEn DuckDuckGo.","infoPreviewInfoText":"<a href=\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\">Afl\u0103 mai multe</a> despre Protec\u021Bia integrat\u0103 DuckDuckGo pentru re\u021Belele sociale"}},"ru":{"facebook.json":{"informationalModalMessageTitle":"\u0412\u0445\u043E\u0434 \u0447\u0435\u0440\u0435\u0437 Facebook \u043F\u043E\u0437\u0432\u043E\u043B\u044F\u0435\u0442 \u044D\u0442\u043E\u0439 \u0441\u043E\u0446\u0438\u0430\u043B\u044C\u043D\u043E\u0439 \u0441\u0435\u0442\u0438 \u043E\u0442\u0441\u043B\u0435\u0436\u0438\u0432\u0430\u0442\u044C \u0432\u0430\u0441","informationalModalMessageBody":"\u041F\u043E\u0441\u043B\u0435 \u0432\u0445\u043E\u0434\u0430 DuckDuckGo \u043D\u0435 \u0441\u043C\u043E\u0436\u0435\u0442 \u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u043E\u0442\u0441\u043B\u0435\u0436\u0438\u0432\u0430\u043D\u0438\u0435 \u0432\u0430\u0448\u0438\u0445 \u0434\u0435\u0439\u0441\u0442\u0432\u0438\u0439 \u0441 \u043A\u043E\u043D\u0442\u0435\u043D\u0442\u043E\u043C \u043D\u0430 Facebook.","informationalModalConfirmButtonText":"\u0412\u043E\u0439\u0442\u0438","informationalModalRejectButtonText":"\u0412\u0435\u0440\u043D\u0443\u0442\u044C\u0441\u044F","loginButtonText":"\u0412\u043E\u0439\u0442\u0438 \u0447\u0435\u0440\u0435\u0437 Facebook","loginBodyText":"\u041F\u0440\u0438 \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u043D\u0438\u0438 \u0443\u0447\u0451\u0442\u043D\u043E\u0439 \u0437\u0430\u043F\u0438\u0441\u0438 Facebook \u0434\u043B\u044F \u0432\u0445\u043E\u0434\u0430 \u043D\u0430 \u0441\u0430\u0439\u0442\u044B \u044D\u0442\u0430 \u0441\u043E\u0446\u0438\u0430\u043B\u044C\u043D\u0430\u044F \u0441\u0435\u0442\u044C \u0441\u043C\u043E\u0436\u0435\u0442 \u043E\u0442\u0441\u043B\u0435\u0436\u0438\u0432\u0430\u0442\u044C \u043D\u0430 \u043D\u0438\u0445 \u0432\u0430\u0448\u0438 \u0434\u0435\u0439\u0441\u0442\u0432\u0438\u044F.","buttonTextUnblockContent":"\u0420\u0430\u0437\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u043A\u043E\u043D\u0442\u0435\u043D\u0442 \u0438\u0437 Facebook","buttonTextUnblockComment":"\u0420\u0430\u0437\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u043A\u043E\u043C\u043C\u0435\u043D\u0442\u0430\u0440\u0438\u0439 \u0438\u0437 Facebook","buttonTextUnblockComments":"\u0420\u0430\u0437\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u043A\u043E\u043C\u043C\u0435\u043D\u0442\u0430\u0440\u0438\u0438 \u0438\u0437 Facebook","buttonTextUnblockPost":"\u0420\u0430\u0437\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u043F\u0443\u0431\u043B\u0438\u043A\u0430\u0446\u0438\u044E \u0438\u0437 Facebook","buttonTextUnblockVideo":"\u0420\u0430\u0437\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u0432\u0438\u0434\u0435\u043E \u0438\u0437 Facebook","buttonTextUnblockLogin":"\u0420\u0430\u0437\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u043E\u043A\u043D\u043E \u0432\u0445\u043E\u0434\u0430 \u0432 Facebook","infoTitleUnblockContent":"DuckDuckGo \u0437\u0430\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u043B \u044D\u0442\u043E\u0442 \u043A\u043E\u043D\u0442\u0435\u043D\u0442, \u0447\u0442\u043E\u0431\u044B \u0432\u0430\u0441 \u043D\u0435 \u043E\u0442\u0441\u043B\u0435\u0436\u0438\u0432\u0430\u043B Facebook","infoTitleUnblockComment":"DuckDuckGo \u0437\u0430\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u043B \u044D\u0442\u043E\u0442 \u043A\u043E\u043C\u043C\u0435\u043D\u0442\u0430\u0440\u0438\u0439, \u0447\u0442\u043E\u0431\u044B \u0432\u0430\u0441 \u043D\u0435 \u043E\u0442\u0441\u043B\u0435\u0436\u0438\u0432\u0430\u043B Facebook","infoTitleUnblockComments":"DuckDuckGo \u0437\u0430\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u043B \u044D\u0442\u0438 \u043A\u043E\u043C\u043C\u0435\u043D\u0442\u0430\u0440\u0438\u0438, \u0447\u0442\u043E\u0431\u044B \u0432\u0430\u0441 \u043D\u0435 \u043E\u0442\u0441\u043B\u0435\u0436\u0438\u0432\u0430\u043B Facebook","infoTitleUnblockPost":"DuckDuckGo \u0437\u0430\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u043B \u044D\u0442\u0443 \u043F\u0443\u0431\u043B\u0438\u043A\u0430\u0446\u0438\u044E, \u0447\u0442\u043E\u0431\u044B \u0432\u0430\u0441 \u043D\u0435 \u043E\u0442\u0441\u043B\u0435\u0436\u0438\u0432\u0430\u043B Facebook","infoTitleUnblockVideo":"DuckDuckGo \u0437\u0430\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u043B \u044D\u0442\u043E \u0432\u0438\u0434\u0435\u043E, \u0447\u0442\u043E\u0431\u044B \u0432\u0430\u0441 \u043D\u0435 \u043E\u0442\u0441\u043B\u0435\u0436\u0438\u0432\u0430\u043B Facebook","infoTextUnblockContent":"\u0412\u043E \u0432\u0440\u0435\u043C\u044F \u0437\u0430\u0433\u0440\u0443\u0437\u043A\u0438 \u0441\u0442\u0440\u0430\u043D\u0438\u0446\u044B \u043C\u044B \u043F\u043E\u043C\u0435\u0448\u0430\u043B\u0438 Facebook \u043E\u0442\u0441\u043B\u0435\u0434\u0438\u0442\u044C \u0432\u0430\u0448\u0438 \u0434\u0435\u0439\u0441\u0442\u0432\u0438\u044F. \u0415\u0441\u043B\u0438 \u0440\u0430\u0437\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u044D\u0442\u043E\u0442 \u043A\u043E\u043D\u0442\u0435\u043D\u0442, Facebook \u0441\u043C\u043E\u0436\u0435\u0442 \u0444\u0438\u043A\u0441\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u0432\u0430\u0448\u0443 \u0430\u043A\u0442\u0438\u0432\u043D\u043E\u0441\u0442\u044C."},"shared.json":{"learnMore":"\u0423\u0437\u043D\u0430\u0442\u044C \u0431\u043E\u043B\u044C\u0448\u0435","readAbout":"\u041F\u043E\u0434\u0440\u043E\u0431\u043D\u0435\u0435 \u043E\u0431 \u044D\u0442\u043E\u043C \u0432\u0438\u0434\u0435 \u0437\u0430\u0449\u0438\u0442\u044B \u043A\u043E\u043D\u0444\u0438\u0434\u0435\u043D\u0446\u0438\u0430\u043B\u044C\u043D\u043E\u0441\u0442\u0438","shareFeedback":"\u041E\u0441\u0442\u0430\u0432\u044C\u0442\u0435 \u043D\u0430\u043C \u043E\u0442\u0437\u044B\u0432"},"youtube.json":{"informationalModalMessageTitle":"\u0412\u043A\u043B\u044E\u0447\u0438\u0442\u044C \u043F\u0440\u0435\u0434\u043F\u0440\u043E\u0441\u043C\u043E\u0442\u0440 \u0432\u0438\u0434\u0435\u043E \u0438\u0437 YouTube?","informationalModalMessageBody":"\u0412\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u0435 \u043F\u0440\u0435\u0434\u0432\u0430\u0440\u0438\u0442\u0435\u043B\u044C\u043D\u043E\u0433\u043E \u043F\u0440\u043E\u0441\u043C\u043E\u0442\u0440\u0430 \u043F\u043E\u0437\u0432\u043E\u043B\u0438\u0442 Google (\u0432\u043B\u0430\u0434\u0435\u043B\u044C\u0446\u0443 YouTube) \u043F\u043E\u043B\u0443\u0447\u0438\u0442\u044C \u043D\u0435\u043A\u043E\u0442\u043E\u0440\u044B\u0435 \u0441\u0432\u0435\u0434\u0435\u043D\u0438\u044F \u043E \u0432\u0430\u0448\u0435\u043C \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0435, \u043E\u0434\u043D\u0430\u043A\u043E \u044D\u0442\u043E \u0431\u043E\u043B\u0435\u0435 \u0431\u0435\u0437\u043E\u043F\u0430\u0441\u043D\u044B\u0439 \u0432\u0430\u0440\u0438\u0430\u043D\u0442, \u0447\u0435\u043C \u0432\u043E\u0441\u043F\u0440\u043E\u0438\u0437\u0432\u0435\u0434\u0435\u043D\u0438\u0435 \u0432\u0438\u0434\u0435\u043E \u0446\u0435\u043B\u0438\u043A\u043E\u043C.","informationalModalConfirmButtonText":"\u0412\u043A\u043B\u044E\u0447\u0438\u0442\u044C \u043F\u0440\u0435\u0434\u043F\u0440\u043E\u0441\u043C\u043E\u0442\u0440","informationalModalRejectButtonText":"\u041D\u0435\u0442, \u0441\u043F\u0430\u0441\u0438\u0431\u043E","buttonTextUnblockVideo":"\u0420\u0430\u0437\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u0432\u0438\u0434\u0435\u043E \u0438\u0437 YouTube","infoTitleUnblockVideo":"DuckDuckGo \u0437\u0430\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u043B \u044D\u0442\u043E \u0432\u0438\u0434\u0435\u043E \u0438\u0437 YouTube, \u0447\u0442\u043E\u0431\u044B \u0432\u0430\u0441 \u043D\u0435 \u043E\u0442\u0441\u043B\u0435\u0436\u0438\u0432\u0430\u043B Google","infoTextUnblockVideo":"\u0412\u043E \u0432\u0440\u0435\u043C\u044F \u0437\u0430\u0433\u0440\u0443\u0437\u043A\u0438 \u0441\u0442\u0440\u0430\u043D\u0438\u0446\u044B \u043C\u044B \u043F\u043E\u043C\u0435\u0448\u0430\u043B\u0438 Google (\u0432\u043B\u0430\u0434\u0435\u043B\u044C\u0446\u0443 YouTube) \u043E\u0442\u0441\u043B\u0435\u0434\u0438\u0442\u044C \u0432\u0430\u0448\u0438 \u0434\u0435\u0439\u0441\u0442\u0432\u0438\u044F. \u0415\u0441\u043B\u0438 \u0440\u0430\u0437\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u0432\u0438\u0434\u0435\u043E, Google \u0441\u043C\u043E\u0436\u0435\u0442 \u0444\u0438\u043A\u0441\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u0432\u0430\u0448\u0443 \u0430\u043A\u0442\u0438\u0432\u043D\u043E\u0441\u0442\u044C.","infoPreviewToggleText":"\u041F\u0440\u0435\u0434\u0432\u0430\u0440\u0438\u0442\u0435\u043B\u044C\u043D\u044B\u0439 \u043F\u0440\u043E\u0441\u043C\u043E\u0442\u0440 \u043E\u0442\u043A\u043B\u044E\u0447\u0451\u043D \u0434\u043B\u044F \u0434\u043E\u043F\u043E\u043B\u043D\u0438\u0442\u0435\u043B\u044C\u043D\u043E\u0439 \u0437\u0430\u0449\u0438\u0442\u044B \u043A\u043E\u043D\u0444\u0438\u0434\u0435\u043D\u0446\u0438\u0430\u043B\u044C\u043D\u043E\u0441\u0442\u0438","infoPreviewToggleEnabledText":"\u041F\u0440\u0435\u0434\u0432\u0430\u0440\u0438\u0442\u0435\u043B\u044C\u043D\u044B\u0439 \u043F\u0440\u043E\u0441\u043C\u043E\u0442\u0440 \u0432\u043A\u043B\u044E\u0447\u0451\u043D","infoPreviewToggleEnabledDuckDuckGoText":"\u0412 DuckDuckGo \u0432\u043A\u043B\u044E\u0447\u0451\u043D \u043F\u0440\u0435\u0434\u043F\u0440\u043E\u0441\u043C\u043E\u0442\u0440 \u0432\u0438\u0434\u0435\u043E \u0438\u0437 YouTube.","infoPreviewInfoText":"<a href=\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\">\u041F\u043E\u0434\u0440\u043E\u0431\u043D\u0435\u0435</a> \u043E \u0437\u0430\u0449\u0438\u0442\u0435 DuckDuckGo \u043E\u0442 \u0432\u043D\u0435\u0434\u0440\u0451\u043D\u043D\u043E\u0433\u043E \u043A\u043E\u043D\u0442\u0435\u043D\u0442\u0430 \u0441\u043E\u0446\u0441\u0435\u0442\u0435\u0439"}},"sk":{"facebook.json":{"informationalModalMessageTitle":"Prihl\xE1senie cez Facebook mu umo\u017En\xED sledova\u0165 v\xE1s","informationalModalMessageBody":"DuckDuckGo po prihl\xE1sen\xED nem\xF4\u017Ee na tejto lokalite zablokova\u0165 sledovanie va\u0161ej osoby obsahom Facebooku.","informationalModalConfirmButtonText":"Prihl\xE1si\u0165 sa","informationalModalRejectButtonText":"Prejs\u0165 sp\xE4\u0165","loginButtonText":"Prihl\xE1ste sa pomocou slu\u017Eby Facebook","loginBodyText":"Ke\u010F pou\u017Eijete prihlasovanie cez Facebook, Facebook bude na lokalite sledova\u0165 va\u0161u aktivitu.","buttonTextUnblockContent":"Odblokova\u0165 obsah Facebooku","buttonTextUnblockComment":"Odblokova\u0165 koment\xE1r na Facebooku","buttonTextUnblockComments":"Odblokova\u0165 koment\xE1re na Facebooku","buttonTextUnblockPost":"Odblokova\u0165 pr\xEDspevok na Facebooku","buttonTextUnblockVideo":"Odblokovanie videa na Facebooku","buttonTextUnblockLogin":"Odblokova\u0165 prihl\xE1senie na Facebook","infoTitleUnblockContent":"DuckDuckGo zablokoval tento obsah, aby v\xE1s Facebook nesledoval","infoTitleUnblockComment":"DuckDuckGo zablokoval tento koment\xE1r, aby zabr\xE1nil sledovaniu zo strany Facebooku","infoTitleUnblockComments":"DuckDuckGo zablokoval tieto koment\xE1re, aby v\xE1s Facebook nesledoval","infoTitleUnblockPost":"DuckDuckGo zablokoval tento pr\xEDspevok, aby v\xE1s Facebook nesledoval","infoTitleUnblockVideo":"DuckDuckGo zablokoval toto video, aby v\xE1s Facebook nesledoval","infoTextUnblockContent":"Pri na\u010D\xEDtan\xED str\xE1nky sme zablokovali Facebook, aby v\xE1s nesledoval. Ak tento obsah odblokujete, Facebook bude vedie\u0165 o va\u0161ej aktivite."},"shared.json":{"learnMore":"Zistite viac","readAbout":"Pre\u010D\xEDtajte si o tejto ochrane s\xFAkromia","shareFeedback":"Zdie\u013Ea\u0165 sp\xE4tn\xFA v\xE4zbu"},"youtube.json":{"informationalModalMessageTitle":"Chcete povoli\u0165 v\u0161etky uk\xE1\u017Eky zo slu\u017Eby YouTube?","informationalModalMessageBody":"Zobrazenie uk\xE1\u017Eok umo\u017En\xED spolo\u010Dnosti Google (ktor\xE1 vlastn\xED YouTube) vidie\u0165 niektor\xE9 inform\xE1cie o va\u0161om zariaden\xED, ale st\xE1le je to s\xFAkromnej\u0161ie ako prehr\xE1vanie videa.","informationalModalConfirmButtonText":"Povoli\u0165 v\u0161etky uk\xE1\u017Eky","informationalModalRejectButtonText":"Nie, \u010Fakujem","buttonTextUnblockVideo":"Odblokova\u0165 YouTube video","infoTitleUnblockVideo":"DuckDuckGo toto video v slu\u017Ebe YouTube zablokoval s cie\u013Eom pred\xEDs\u0165 tomu, aby v\xE1s spolo\u010Dnos\u0165 Google mohla sledova\u0165","infoTextUnblockVideo":"Zablokovali sme pre spolo\u010Dnos\u0165 Google (ktor\xE1 vlastn\xED YouTube), aby v\xE1s nemohla sledova\u0165, ke\u010F sa str\xE1nka na\u010D\xEDta. Ak toto video odblokujete, Google bude pozna\u0165 va\u0161u aktivitu.","infoPreviewToggleText":"Uk\xE1\u017Eky s\xFA zak\xE1zan\xE9 s cie\u013Eom zv\xFD\u0161i\u0165 ochranu s\xFAkromia","infoPreviewToggleEnabledText":"Uk\xE1\u017Eky s\xFA povolen\xE9","infoPreviewToggleEnabledDuckDuckGoText":"Uk\xE1\u017Eky YouTube s\xFA v DuckDuckGo povolen\xE9.","infoPreviewInfoText":"<a href=\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\">Z\xEDskajte viac inform\xE1ci\xED</a> o DuckDuckGo, vlo\u017Eenej ochrane soci\xE1lnych m\xE9di\xED"}},"sl":{"facebook.json":{"informationalModalMessageTitle":"\u010Ce se prijavite s Facebookom, vam Facebook lahko sledi","informationalModalMessageBody":"Ko ste enkrat prijavljeni, DuckDuckGo ne more blokirati Facebookove vsebine, da bi vam sledila na tem spletnem mestu.","informationalModalConfirmButtonText":"Prijava","informationalModalRejectButtonText":"Pojdi nazaj","loginButtonText":"Prijavite se s Facebookom","loginBodyText":"\u010Ce se prijavite s Facebookom, bo nato spremljal va\u0161a dejanja na spletnem mestu.","buttonTextUnblockContent":"Odblokiraj vsebino na Facebooku","buttonTextUnblockComment":"Odblokiraj komentar na Facebooku","buttonTextUnblockComments":"Odblokiraj komentarje na Facebooku","buttonTextUnblockPost":"Odblokiraj objavo na Facebooku","buttonTextUnblockVideo":"Odblokiraj videoposnetek na Facebooku","buttonTextUnblockLogin":"Odblokiraj prijavo na Facebooku","infoTitleUnblockContent":"DuckDuckGo je blokiral to vsebino, da bi Facebooku prepre\u010Dil sledenje","infoTitleUnblockComment":"DuckDuckGo je blokiral ta komentar, da bi Facebooku prepre\u010Dil sledenje","infoTitleUnblockComments":"DuckDuckGo je blokiral te komentarje, da bi Facebooku prepre\u010Dil sledenje","infoTitleUnblockPost":"DuckDuckGo je blokiral to objavo, da bi Facebooku prepre\u010Dil sledenje","infoTitleUnblockVideo":"DuckDuckGo je blokiral ta videoposnetek, da bi Facebooku prepre\u010Dil sledenje","infoTextUnblockContent":"Ko se je stran nalo\u017Eila, smo Facebooku prepre\u010Dili, da bi vam sledil. \u010Ce to vsebino odblokirate, bo Facebook izvedel za va\u0161a dejanja."},"shared.json":{"learnMore":"Ve\u010D","readAbout":"Preberite ve\u010D o tej za\u0161\u010Diti zasebnosti","shareFeedback":"Deli povratne informacije"},"youtube.json":{"informationalModalMessageTitle":"\u017Delite omogo\u010Diti vse YouTubove predoglede?","informationalModalMessageBody":"Prikaz predogledov omogo\u010Da Googlu (ki je lastnik YouTuba) vpogled v nekatere podatke o napravi, vendar je \u0161e vedno bolj zasebno kot predvajanje videoposnetka.","informationalModalConfirmButtonText":"Omogo\u010Di vse predoglede","informationalModalRejectButtonText":"Ne, hvala","buttonTextUnblockVideo":"Odblokiraj videoposnetek na YouTubu","infoTitleUnblockVideo":"DuckDuckGo je blokiral ta videoposnetek v YouTubu, da bi Googlu prepre\u010Dil sledenje","infoTextUnblockVideo":"Googlu (ki je lastnik YouTuba) smo prepre\u010Dili, da bi vam sledil, ko se je stran nalo\u017Eila. \u010Ce odblokirate ta videoposnetek, bo Google izvedel za va\u0161o dejavnost.","infoPreviewToggleText":"Predogledi so zaradi dodatne zasebnosti onemogo\u010Deni","infoPreviewToggleEnabledText":"Predogledi so omogo\u010Deni","infoPreviewToggleEnabledDuckDuckGoText":"YouTubovi predogledi so omogo\u010Deni v DuckDuckGo.","infoPreviewInfoText":"<a href=\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\">Ve\u010D</a> o vgrajeni za\u0161\u010Diti dru\u017Ebenih medijev DuckDuckGo"}},"sv":{"facebook.json":{"informationalModalMessageTitle":"Om du loggar in med Facebook kan de sp\xE5ra dig","informationalModalMessageBody":"N\xE4r du v\xE4l \xE4r inloggad kan DuckDuckGo inte hindra Facebooks inneh\xE5ll fr\xE5n att sp\xE5ra dig p\xE5 den h\xE4r webbplatsen.","informationalModalConfirmButtonText":"Logga in","informationalModalRejectButtonText":"G\xE5 tillbaka","loginButtonText":"Logga in med Facebook","loginBodyText":"Facebook sp\xE5rar din aktivitet p\xE5 en webbplats om du anv\xE4nder det f\xF6r att logga in.","buttonTextUnblockContent":"Avblockera Facebook-inneh\xE5ll","buttonTextUnblockComment":"Avblockera Facebook-kommentar","buttonTextUnblockComments":"Avblockera Facebook-kommentarer","buttonTextUnblockPost":"Avblockera Facebook-inl\xE4gg","buttonTextUnblockVideo":"Avblockera Facebook-video","buttonTextUnblockLogin":"Avblockera Facebook-inloggning","infoTitleUnblockContent":"DuckDuckGo blockerade det h\xE4r inneh\xE5llet f\xF6r att f\xF6rhindra att Facebook sp\xE5rar dig","infoTitleUnblockComment":"DuckDuckGo blockerade den h\xE4r kommentaren f\xF6r att f\xF6rhindra att Facebook sp\xE5rar dig","infoTitleUnblockComments":"DuckDuckGo blockerade de h\xE4r kommentarerna f\xF6r att f\xF6rhindra att Facebook sp\xE5rar dig","infoTitleUnblockPost":"DuckDuckGo blockerade det h\xE4r inl\xE4gget f\xF6r att f\xF6rhindra att Facebook sp\xE5rar dig","infoTitleUnblockVideo":"DuckDuckGo blockerade den h\xE4r videon f\xF6r att f\xF6rhindra att Facebook sp\xE5rar dig","infoTextUnblockContent":"Vi hindrade Facebook fr\xE5n att sp\xE5ra dig n\xE4r sidan l\xE4stes in. Om du avblockerar det h\xE4r inneh\xE5llet kommer Facebook att k\xE4nna till din aktivitet."},"shared.json":{"learnMore":"L\xE4s mer","readAbout":"L\xE4s mer om detta integritetsskydd","shareFeedback":"Ber\xE4tta vad du tycker"},"youtube.json":{"informationalModalMessageTitle":"Aktivera alla f\xF6rhandsvisningar f\xF6r YouTube?","informationalModalMessageBody":"Genom att visa f\xF6rhandsvisningar kan Google (som \xE4ger YouTube) se en del av enhetens information, men det \xE4r \xE4nd\xE5 mer privat \xE4n att spela upp videon.","informationalModalConfirmButtonText":"Aktivera alla f\xF6rhandsvisningar","informationalModalRejectButtonText":"Nej tack","buttonTextUnblockVideo":"Avblockera YouTube-video","infoTitleUnblockVideo":"DuckDuckGo blockerade den h\xE4r YouTube-videon f\xF6r att f\xF6rhindra att Google sp\xE5rar dig","infoTextUnblockVideo":"Vi hindrade Google (som \xE4ger YouTube) fr\xE5n att sp\xE5ra dig n\xE4r sidan laddades. Om du tar bort blockeringen av videon kommer Google att k\xE4nna till din aktivitet.","infoPreviewToggleText":"F\xF6rhandsvisningar har inaktiverats f\xF6r ytterligare integritet","infoPreviewToggleEnabledText":"F\xF6rhandsvisningar aktiverade","infoPreviewToggleEnabledDuckDuckGoText":"YouTube-f\xF6rhandsvisningar aktiverade i DuckDuckGo.","infoPreviewInfoText":"<a href=\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\">L\xE4s mer</a> om DuckDuckGos skydd mot inb\xE4ddade sociala medier"}},"tr":{"facebook.json":{"informationalModalMessageTitle":"Facebook ile giri\u015F yapmak, sizi takip etmelerini sa\u011Flar","informationalModalMessageBody":"Giri\u015F yapt\u0131ktan sonra, DuckDuckGo Facebook i\xE7eri\u011Finin sizi bu sitede izlemesini engelleyemez.","informationalModalConfirmButtonText":"Oturum A\xE7","informationalModalRejectButtonText":"Geri d\xF6n","loginButtonText":"Facebook ile giri\u015F yap\u0131n","loginBodyText":"Facebook, giri\u015F yapmak i\xE7in kulland\u0131\u011F\u0131n\u0131zda bir sitedeki etkinli\u011Finizi izler.","buttonTextUnblockContent":"Facebook \u0130\xE7eri\u011Finin Engelini Kald\u0131r","buttonTextUnblockComment":"Facebook Yorumunun Engelini Kald\u0131r","buttonTextUnblockComments":"Facebook Yorumlar\u0131n\u0131n Engelini Kald\u0131r","buttonTextUnblockPost":"Facebook G\xF6nderisinin Engelini Kald\u0131r","buttonTextUnblockVideo":"Facebook Videosunun Engelini Kald\u0131r","buttonTextUnblockLogin":"Facebook Giri\u015Finin Engelini Kald\u0131r","infoTitleUnblockContent":"DuckDuckGo, Facebook'un sizi izlemesini \xF6nlemek i\xE7in bu i\xE7eri\u011Fi engelledi","infoTitleUnblockComment":"DuckDuckGo, Facebook'un sizi izlemesini \xF6nlemek i\xE7in bu yorumu engelledi","infoTitleUnblockComments":"DuckDuckGo, Facebook'un sizi izlemesini \xF6nlemek i\xE7in bu yorumlar\u0131 engelledi","infoTitleUnblockPost":"DuckDuckGo, Facebook'un sizi izlemesini \xF6nlemek i\xE7in bu g\xF6nderiyi engelledi","infoTitleUnblockVideo":"DuckDuckGo, Facebook'un sizi izlemesini \xF6nlemek i\xE7in bu videoyu engelledi","infoTextUnblockContent":"Sayfa y\xFCklendi\u011Finde Facebook'un sizi izlemesini engelledik. Bu i\xE7eri\u011Fin engelini kald\u0131r\u0131rsan\u0131z Facebook etkinli\u011Finizi \xF6\u011Frenecektir."},"shared.json":{"learnMore":"Daha Fazla Bilgi","readAbout":"Bu gizlilik korumas\u0131 hakk\u0131nda bilgi edinin","shareFeedback":"Geri Bildirim Payla\u015F"},"youtube.json":{"informationalModalMessageTitle":"T\xFCm YouTube \xF6nizlemeleri etkinle\u015Ftirilsin mi?","informationalModalMessageBody":"\xD6nizlemelerin g\xF6sterilmesi Google'\u0131n (YouTube'un sahibi) cihaz\u0131n\u0131z\u0131n baz\u0131 bilgilerini g\xF6rmesine izin verir, ancak yine de videoyu oynatmaktan daha \xF6zeldir.","informationalModalConfirmButtonText":"T\xFCm \xD6nizlemeleri Etkinle\u015Ftir","informationalModalRejectButtonText":"Hay\u0131r Te\u015Fekk\xFCrler","buttonTextUnblockVideo":"YouTube Videosunun Engelini Kald\u0131r","infoTitleUnblockVideo":"DuckDuckGo, Google'\u0131n sizi izlemesini \xF6nlemek i\xE7in bu YouTube videosunu engelledi","infoTextUnblockVideo":"Sayfa y\xFCklendi\u011Finde Google'\u0131n (YouTube'un sahibi) sizi izlemesini engelledik. Bu videonun engelini kald\u0131r\u0131rsan\u0131z, Google etkinli\u011Finizi \xF6\u011Frenecektir.","infoPreviewToggleText":"Ek gizlilik i\xE7in \xF6nizlemeler devre d\u0131\u015F\u0131 b\u0131rak\u0131ld\u0131","infoPreviewToggleEnabledText":"\xD6nizlemeler etkinle\u015Ftirildi","infoPreviewToggleEnabledDuckDuckGoText":"DuckDuckGo'da YouTube \xF6nizlemeleri etkinle\u015Ftirildi.","infoPreviewInfoText":"DuckDuckGo Yerle\u015Fik Sosyal Medya Korumas\u0131 hakk\u0131nda <a href=\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\">daha fazla bilgi edinin</a>"}}}`;
 
   // src/features/click-to-load/ctl-config.js
@@ -18619,9 +12867,6 @@ ul.messages {
     return { config: config2, sharedStrings: sharedStrings2 };
   }
 
-  // src/features/click-to-load/components/ctl-placeholder-blocked.js
-  init_define_import_meta_trackerLookup();
-
   // src/features/click-to-load/assets/shared.css
   var shared_default = ":host {\n    /* Color palette */\n    --ddg-shade-06: rgba(0, 0, 0, 0.06);\n    --ddg-shade-12: rgba(0, 0, 0, 0.12);\n    --ddg-shade-18: rgba(0, 0, 0, 0.18);\n    --ddg-shade-36: rgba(0, 0, 0, 0.36);\n    --ddg-shade-84: rgba(0, 0, 0, 0.84);\n    --ddg-tint-12: rgba(255, 255, 255, 0.12);\n    --ddg-tint-18: rgba(255, 255, 255, 0.18);\n    --ddg-tint-24: rgba(255, 255, 255, 0.24);\n    --ddg-tint-84: rgba(255, 255, 255, 0.84);\n    /* Tokens */\n    --ddg-color-primary: #3969ef;\n    --ddg-color-bg-01: #ffffff;\n    --ddg-color-bg-02: #ababab;\n    --ddg-color-border: var(--ddg-shade-12);\n    --ddg-color-txt: var(--ddg-shade-84);\n    --ddg-color-txt-link-02: #ababab;\n}\n@media (prefers-color-scheme: dark) {\n    :host {\n        --ddg-color-primary: #7295f6;\n        --ddg-color-bg-01: #222222;\n        --ddg-color-bg-02: #444444;\n        --ddg-color-border: var(--ddg-tint-12);\n        --ddg-color-txt: var(--ddg-tint-84);\n    }\n}\n\n/* SHARED STYLES */\n/* Text Link */\n.ddg-text-link {\n    line-height: 1.4;\n    font-size: 14px;\n    font-weight: 700;\n    cursor: pointer;\n    text-decoration: none;\n    color: var(--ddg-color-primary);\n}\n\n/* Button */\n.DuckDuckGoButton {\n    border-radius: 8px;\n    padding: 8px 16px;\n    border-color: var(--ddg-color-primary);\n    border: none;\n    min-height: 36px;\n\n    position: relative;\n    cursor: pointer;\n    box-shadow: none;\n    z-index: 2147483646;\n}\n.DuckDuckGoButton > div {\n    display: flex;\n    flex-direction: row;\n    align-items: center;\n    border: none;\n    padding: 0;\n    margin: 0;\n}\n.DuckDuckGoButton,\n.DuckDuckGoButton > div {\n    font-size: 14px;\n    font-family: DuckDuckGoPrivacyEssentialsBold;\n    font-weight: 600;\n}\n.DuckDuckGoButton.tertiary {\n    color: var(--ddg-color-txt);\n    background-color: transparent;\n    display: flex;\n    justify-content: center;\n    align-items: center;\n    border: 1px solid var(--ddg-color-border);\n    border-radius: 8px;\n}\n.DuckDuckGoButton.tertiary:hover {\n    background: var(--ddg-shade-06);\n    border-color: var(--ddg-shade-18);\n}\n@media (prefers-color-scheme: dark) {\n    .DuckDuckGoButton.tertiary:hover {\n        background: var(--ddg-tint-18);\n        border-color: var(--ddg-tint-24);\n    }\n}\n.DuckDuckGoButton.tertiary:active {\n    background: var(--ddg-shade-12);\n    border-color: var(--ddg-shade-36);\n}\n@media (prefers-color-scheme: dark) {\n    .DuckDuckGoButton.tertiary:active {\n        background: var(--ddg-tint-24);\n        border-color: var(--ddg-tint-24);\n    }\n}\n";
 
@@ -18836,9 +13081,6 @@ ul.messages {
   __publicField(_DDGCtlPlaceholderBlockedElement, "MAX_CONTENT_WIDTH_MEDIUM", 650);
   var DDGCtlPlaceholderBlockedElement = _DDGCtlPlaceholderBlockedElement;
 
-  // src/features/click-to-load/components/ctl-login-button.js
-  init_define_import_meta_trackerLookup();
-
   // src/features/click-to-load/assets/ctl-login-button.css
   var ctl_login_button_default = ":host,\n* {\n    font-family: DuckDuckGoPrivacyEssentials, system, -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto,\n        Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';\n    box-sizing: border-box;\n    font-weight: normal;\n    font-style: normal;\n    margin: 0;\n    padding: 0;\n    text-align: left;\n}\n\n/* SHARED STYLES */\n/* Popover */\n.ddg-popover {\n    background: #ffffff;\n    border: 1px solid rgba(0, 0, 0, 0.1);\n    border-radius: 16px;\n    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.12), 0px 8px 16px rgba(0, 0, 0, 0.08);\n    width: 360px;\n    margin-top: 10px;\n    z-index: 2147483647;\n    position: absolute;\n    line-height: normal;\n}\n.ddg-popover-arrow {\n    display: inline-block;\n    background: #ffffff;\n    border: solid rgba(0, 0, 0, 0.1);\n    border-width: 0 1px 1px 0;\n    padding: 5px;\n    transform: rotate(-135deg);\n    -webkit-transform: rotate(-135deg);\n    position: relative;\n    top: -9px;\n}\n.ddg-popover .ddg-title-header {\n    padding: 0px 12px 12px;\n    margin-top: -5px;\n}\n.ddg-popover-body {\n    font-size: 14px;\n    line-height: 21px;\n    margin: auto;\n    padding: 17px;\n    text-align: left;\n}\n\n/* DDG common header */\n.ddg-title-header {\n    display: flex;\n    padding: 12px;\n    max-height: 44px;\n    border-bottom: 1px solid;\n    border-color: rgba(196, 196, 196, 0.3);\n    margin: 0;\n    margin-bottom: 4px;\n}\n.ddg-title-header .ddg-title-text {\n    line-height: 1.4;\n    font-size: 14px;\n    margin: auto 10px;\n    flex-basis: 100%;\n    height: 1.4em;\n    flex-wrap: wrap;\n    overflow: hidden;\n    text-align: left;\n    border: none;\n    padding: 0;\n}\n.ddg-title-header .ddg-logo {\n    flex-basis: 0%;\n    min-width: 20px;\n    height: 21px;\n    border: none;\n    padding: 0;\n    margin: 0;\n}\n.ddg-title-header .ddg-logo .ddg-logo-img {\n    height: 21px;\n    width: 21px;\n}\n\n/* CTL Login Button styles */\n#DuckDuckGoPrivacyEssentialsHoverable {\n    padding-bottom: 10px;\n}\n\n#DuckDuckGoPrivacyEssentialsHoverableText {\n    display: none;\n}\n#DuckDuckGoPrivacyEssentialsHoverable:hover #DuckDuckGoPrivacyEssentialsHoverableText {\n    display: block;\n}\n\n.DuckDuckGoButton.tertiary.ddg-ctl-fb-login-btn {\n    background-color: var(--ddg-color-bg-01);\n}\n@media (prefers-color-scheme: dark) {\n    .DuckDuckGoButton.tertiary.ddg-ctl-fb-login-btn {\n        background: #111111;\n    }\n}\n.DuckDuckGoButton.tertiary:hover {\n    background: rgb(238, 238, 238);\n    border-color: var(--ddg-shade-18);\n}\n@media (prefers-color-scheme: dark) {\n    .DuckDuckGoButton.tertiary:hover {\n        background: rgb(39, 39, 39);\n        border-color: var(--ddg-tint-24);\n    }\n}\n.DuckDuckGoButton.tertiary:active {\n    background: rgb(220, 220, 220);\n    border-color: var(--ddg-shade-36);\n}\n@media (prefers-color-scheme: dark) {\n    .DuckDuckGoButton.tertiary:active {\n        background: rgb(65, 65, 65);\n        border-color: var(--ddg-tint-24);\n    }\n}\n\n.ddg-ctl-button-login-icon {\n    margin-right: 8px;\n    height: 20px;\n    width: 20px;\n}\n\n.ddg-fb-login-container {\n    position: relative;\n    margin: auto;\n    width: auto;\n}\n";
 
@@ -18982,7 +13224,6 @@ ul.messages {
   _element = new WeakMap();
 
   // src/features/click-to-load/components/index.js
-  init_define_import_meta_trackerLookup();
   function registerCustomElements2() {
     if (!customElements.get(DDGCtlPlaceholderBlockedElement.CUSTOM_TAG_NAME)) {
       customElements.define(DDGCtlPlaceholderBlockedElement.CUSTOM_TAG_NAME, DDGCtlPlaceholderBlockedElement);
@@ -20290,14 +14531,7 @@ ul.messages {
   };
   _messagingContext = new WeakMap();
 
-  // src/features/message-bridge.js
-  init_define_import_meta_trackerLookup();
-
-  // src/features/message-bridge/schema.js
-  init_define_import_meta_trackerLookup();
-
   // src/type-utils.js
-  init_define_import_meta_trackerLookup();
   function isObject(input) {
     return toString.call(input) === "[object Object]";
   }
@@ -20673,11 +14907,11 @@ ul.messages {
       if (prev) {
         this.removeSubscription(id);
       }
-      const unsubscribe = proxy.subscribe(subscriptionName, (data2) => {
+      const unsubscribe = proxy.subscribe(subscriptionName, (data) => {
         const responseEvent = new SubscriptionResponse({
           subscriptionName,
           featureName,
-          params: data2,
+          params: data,
           id
         });
         reply(responseEvent);
@@ -20708,7 +14942,6 @@ ul.messages {
   var message_bridge_default = MessageBridge;
 
   // src/features/favicon.js
-  init_define_import_meta_trackerLookup();
   var Favicon = class extends ContentFeature {
     init() {
       if (isBeingFramed()) return;
@@ -20815,7 +15048,6 @@ ul.messages {
   }
 
   // src/features/web-events.js
-  init_define_import_meta_trackerLookup();
   var MSG_WEB_EVENT = "webEvent";
   var WebEvents = class extends ContentFeature {
     constructor() {
@@ -20834,20 +15066,19 @@ ul.messages {
      *
      * @param {{ type: string, data?: Record<string, unknown> }} event
      */
-    fireEvent({ type, data: data2 = {} }) {
-      this.messaging.notify(MSG_WEB_EVENT, { type, data: data2 });
+    fireEvent({ type, data = {} }) {
+      this.messaging.notify(MSG_WEB_EVENT, { type, data });
     }
   };
   var web_events_default = WebEvents;
 
   // src/features/web-interference-detection.js
-  init_define_import_meta_trackerLookup();
   var WebInterferenceDetection = class extends ContentFeature {
     init() {
       const settings = this.getFeatureSetting("interferenceTypes");
-      const fireEvent = async (type, data2) => {
+      const fireEvent = async (type, data) => {
         try {
-          const result = await this.callFeatureMethod("webEvents", "fireEvent", { type, data: data2 });
+          const result = await this.callFeatureMethod("webEvents", "fireEvent", { type, data });
           if (result instanceof CallFeatureMethodError && this.isDebug) {
             this.log.warn("webEvents.fireEvent failed:", result.message);
           }
@@ -20873,7 +15104,6 @@ ul.messages {
   };
 
   // src/features/web-telemetry.js
-  init_define_import_meta_trackerLookup();
   var MSG_VIDEO_PLAYBACK = "video-playback";
   var MSG_VIDEO_AUTOPLAY = "video-autoplay";
   var MSG_URL_CHANGED = "url-changed";
@@ -21029,7 +15259,6 @@ ul.messages {
   var web_telemetry_default = WebTelemetry;
 
   // src/features/page-observer.js
-  init_define_import_meta_trackerLookup();
   var PageObserver = class extends ContentFeature {
     init() {
       if (isBeingFramed()) return;
@@ -21046,7 +15275,6 @@ ul.messages {
   var page_observer_default = PageObserver;
 
   // src/features/hover.js
-  init_define_import_meta_trackerLookup();
   var Hover = class extends ContentFeature {
     init() {
       if (this.platform.name === "ios") {
@@ -21071,7 +15299,6 @@ ul.messages {
   var hover_default = Hover;
 
   // src/features/tab-suspension.js
-  init_define_import_meta_trackerLookup();
   var _canBeSuspended;
   var TabSuspension = class extends ContentFeature {
     constructor() {
@@ -21116,14 +15343,7 @@ ul.messages {
   }
   var tab_suspension_default = TabSuspension;
 
-  // src/features/chrome-webstore-patching.js
-  init_define_import_meta_trackerLookup();
-
-  // src/features/chrome-webstore-patching/macos.js
-  init_define_import_meta_trackerLookup();
-
   // src/features/chrome-webstore-patching/helpers.js
-  init_define_import_meta_trackerLookup();
   function isRecord(value) {
     return typeof value === "object" && value !== null;
   }
@@ -21308,7 +15528,6 @@ ul.messages {
   var Spinner_24_default = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">\n<circle cx="12" cy="12" r="9" stroke="#F05F2B" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="42 15"/>\n</svg>\n';
 
   // ../build/locales/chrome-webstore-patching-locales.js
-  init_define_import_meta_trackerLookup();
   var chrome_webstore_patching_locales_default = `{"de":{"chrome-store-strings.json":{"install":"Zu DuckDuckGo hinzuf\xFCgen","remove":"Von DuckDuckGo entfernen","unavailable":"Nicht unterst\xFCtzte Erweiterung","unavailableDescription":"Diese Erweiterung wird nicht unterst\xFCtzt."}},"en":{"chrome-store-strings.json":{"install":"Add to DuckDuckGo","remove":"Remove from DuckDuckGo","unavailable":"Unsupported extension","unavailableDescription":"This extension isn't supported."}},"es":{"chrome-store-strings.json":{"install":"A\xF1adir a DuckDuckGo","remove":"Eliminar de DuckDuckGo","unavailable":"Extensi\xF3n no compatible","unavailableDescription":"Esta extensi\xF3n no es compatible."}},"fr":{"chrome-store-strings.json":{"install":"Ajouter \xE0 DuckDuckGo","remove":"Supprimer de DuckDuckGo","unavailable":"Extension non prise en charge","unavailableDescription":"Cette extension n\u2019est pas prise en charge."}},"it":{"chrome-store-strings.json":{"install":"Aggiungi a DuckDuckGo","remove":"Rimuovi da DuckDuckGo","unavailable":"Estensione non supportata","unavailableDescription":"Questa estensione non \xE8 supportata."}},"nl":{"chrome-store-strings.json":{"install":"Toevoegen aan DuckDuckGo","remove":"Verwijderen uit DuckDuckGo","unavailable":"Niet-ondersteunde extensie","unavailableDescription":"Deze extensie wordt niet ondersteund."}},"pl":{"chrome-store-strings.json":{"install":"Dodaj do DuckDuckGo","remove":"Usu\u0144 z DuckDuckGo","unavailable":"Nieobs\u0142ugiwane rozszerzenie","unavailableDescription":"To rozszerzenie nie jest obs\u0142ugiwane."}},"pt":{"chrome-store-strings.json":{"install":"Adicionar ao DuckDuckGo","remove":"Remover do DuckDuckGo","unavailable":"Extens\xE3o n\xE3o suportada","unavailableDescription":"Esta extens\xE3o n\xE3o \xE9 suportada."}},"ru":{"chrome-store-strings.json":{"install":"\u0414\u043E\u0431\u0430\u0432\u0438\u0442\u044C \u0432 DuckDuckGo","remove":"\u0423\u0434\u0430\u043B\u0438\u0442\u044C \u0438\u0437 DuckDuckGo","unavailable":"\u041D\u0435\u043F\u043E\u0434\u0434\u0435\u0440\u0436\u0438\u0432\u0430\u0435\u043C\u043E\u0435 \u0440\u0430\u0441\u0448\u0438\u0440\u0435\u043D\u0438\u0435 \u0431\u0440\u0430\u0443\u0437\u0435\u0440\u0430","unavailableDescription":"\u042D\u0442\u043E \u0440\u0430\u0441\u0448\u0438\u0440\u0435\u043D\u0438\u0435 \u0431\u0440\u0430\u0443\u0437\u0435\u0440\u0430 \u043D\u0435 \u043F\u043E\u0434\u0434\u0435\u0440\u0436\u0438\u0432\u0430\u0435\u0442\u0441\u044F."}}}`;
 
   // src/features/chrome-webstore-patching.js
@@ -21809,7 +16028,6 @@ ul.messages {
   var chrome_webstore_patching_default = ChromeWebstorePatching;
 
   // src/features/browser-ui-lock.js
-  init_define_import_meta_trackerLookup();
   var BrowserUiLock = class extends ContentFeature {
     constructor() {
       super(...arguments);
@@ -21998,7 +16216,6 @@ ul.messages {
   };
 
   // src/features/sponsor-block.js
-  init_define_import_meta_trackerLookup();
   var DEFAULT_PROGRESS_BAR_SELECTORS = [
     ".ytp-progress-bar",
     ".ytChapteredProgressBarHost",
@@ -22320,7 +16537,6 @@ svg { vertical-align: -1px; }
     ddg_feature_contextMenu: ContextMenu,
     ddg_feature_duckPlayer: DuckPlayerFeature,
     ddg_feature_duckPlayerNative: duck_player_native_default,
-    ddg_feature_brokerProtection: BrokerProtection,
     ddg_feature_breakageReporting: BreakageReporting,
     ddg_feature_performanceMetrics: PerformanceMetrics,
     ddg_feature_clickToLoad: ClickToLoad,
@@ -22339,7 +16555,6 @@ svg { vertical-align: -1px; }
   };
 
   // src/url-change.js
-  init_define_import_meta_trackerLookup();
   var urlChangeListeners = /* @__PURE__ */ new Set();
   function registerForURLChanges(listener) {
     if (urlChangeListeners.size === 0) {
@@ -22415,7 +16630,7 @@ svg { vertical-align: -1px; }
     const importConfig = {
       trackerLookup: define_import_meta_trackerLookup_default,
       injectName: "apple-isolated",
-      contentScopeScriptsVersion: "20.7.0"
+      contentScopeScriptsVersion: "21.0.0"
     };
     const bundledFeatureNames = typeof importConfig.injectName === "string" ? platformSupport[importConfig.injectName] ?? [] : [];
     const featuresToLoad = isGloballyDisabled(args) ? platformSpecificFeatures : args.site.enabledFeatures || bundledFeatureNames;

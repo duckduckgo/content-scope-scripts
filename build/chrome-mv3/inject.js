@@ -968,7 +968,6 @@
       "contextMenu",
       "duckPlayer",
       "duckPlayerNative",
-      "brokerProtection",
       "breakageReporting",
       "performanceMetrics",
       "clickToLoad",
@@ -985,6 +984,7 @@
       "browserUiLock",
       "sponsorBlock"
     ],
+    "apple-broker-protection": ["brokerProtection"],
     "apple-ai-clear": ["duckAiDataClearing"],
     "apple-ai-history": ["duckAiChatHistory"],
     android: [
@@ -13825,7 +13825,7 @@
     const importConfig = {
       trackerLookup: $TRACKER_LOOKUP$,
       injectName: "chrome-mv3",
-      contentScopeScriptsVersion: "20.7.0"
+      contentScopeScriptsVersion: "21.0.0"
     };
     const bundledFeatureNames = typeof importConfig.injectName === "string" ? platformSupport[importConfig.injectName] ?? [] : [];
     const featuresToLoad = isGloballyDisabled(args) ? platformSpecificFeatures : args.site.enabledFeatures || bundledFeatureNames;

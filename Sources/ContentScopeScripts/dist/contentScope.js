@@ -1008,7 +1008,6 @@
       "contextMenu",
       "duckPlayer",
       "duckPlayerNative",
-      "brokerProtection",
       "breakageReporting",
       "performanceMetrics",
       "clickToLoad",
@@ -1025,6 +1024,7 @@
       "browserUiLock",
       "sponsorBlock"
     ],
+    "apple-broker-protection": ["brokerProtection"],
     "apple-ai-clear": ["duckAiDataClearing"],
     "apple-ai-history": ["duckAiChatHistory"],
     android: [
@@ -14024,7 +14024,7 @@ ${iframeContent}
     const importConfig = {
       trackerLookup: define_import_meta_trackerLookup_default,
       injectName: "apple",
-      contentScopeScriptsVersion: "20.7.0"
+      contentScopeScriptsVersion: "21.0.0"
     };
     const bundledFeatureNames = typeof importConfig.injectName === "string" ? platformSupport[importConfig.injectName] ?? [] : [];
     const featuresToLoad = isGloballyDisabled(args) ? platformSpecificFeatures : args.site.enabledFeatures || bundledFeatureNames;
