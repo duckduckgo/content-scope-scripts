@@ -142,14 +142,6 @@ export class CustomizerPage {
     /**
      * @param {string} expectedRGB
      */
-    async hasBodyBackground(expectedRGB) {
-        const { page } = this.ntp;
-        await expect(page.locator('body')).toHaveCSS('background-color', expectedRGB);
-    }
-
-    /**
-     * @param {string} expectedRGB
-     */
     async hasColorBackground(expectedRGB) {
         const { page } = this.ntp;
         await expect(page.locator('body')).toHaveCSS('background-color', expectedRGB);

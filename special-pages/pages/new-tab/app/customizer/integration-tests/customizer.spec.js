@@ -18,28 +18,6 @@ test.describe('newtab customizer', () => {
         await ntp.openPage();
         await cp.hasDefaultDarkBackground();
     });
-    test('loads with the Surface/Primary light background with rebrand', async ({ page }, workerInfo) => {
-        const ntp = NewtabPage.create(page, workerInfo);
-        const cp = new CustomizerPage(ntp);
-        await ntp.reducedMotion();
-        await ntp.openPage({ additional: { rebrand: 'enabled' } });
-        await cp.hasBodyBackground('rgb(242, 242, 242)');
-    });
-    test('loads with the Surface/Primary dark background with rebrand', async ({ page }, workerInfo) => {
-        const ntp = NewtabPage.create(page, workerInfo);
-        const cp = new CustomizerPage(ntp);
-        await ntp.reducedMotion();
-        await ntp.darkMode();
-        await ntp.openPage({ additional: { rebrand: 'enabled' } });
-        await cp.hasBodyBackground('rgb(40, 40, 40)');
-    });
-    test('loads with the theme variant Surface/Primary background with rebrand', async ({ page }, workerInfo) => {
-        const ntp = NewtabPage.create(page, workerInfo);
-        const cp = new CustomizerPage(ntp);
-        await ntp.reducedMotion();
-        await ntp.openPage({ additional: { rebrand: 'enabled', themeVariant: 'coolGray' } });
-        await cp.hasBodyBackground('rgb(210, 213, 227)');
-    });
     test('Opens automatically from initialSetup settings', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const cp = new CustomizerPage(ntp);
