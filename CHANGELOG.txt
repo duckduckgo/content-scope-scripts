@@ -1,1 +1,2 @@
-- Detect YouTube's redesigned embed error screen in Duck Player (#3201)
+- SponsorBlock: restyle the skip button to the new design (#3199)
+- SponsorBlock: support Android (#3181)

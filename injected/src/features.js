@@ -116,6 +116,7 @@ export const platformSupport = {
         'messageBridge',
         'pageContext',
         'browserUiLock',
+        'sponsorBlock',
     ],
     'android-broker-protection': ['brokerProtection'],
     'android-ai-clear': ['duckAiDataClearing'],

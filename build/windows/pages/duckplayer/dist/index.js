@@ -857,7 +857,8 @@
       "duckPlayer",
       "messageBridge",
       "pageContext",
-      "browserUiLock"
+      "browserUiLock",
+      "sponsorBlock"
     ],
     "android-broker-protection": ["brokerProtection"],
     "android-ai-clear": ["duckAiDataClearing"],
