@@ -110,3 +110,41 @@ test.describe('sitePermissionsGeolocationPolicy', () => {
         expect(await page.evaluate(() => '__ddgSitePermissionsGeolocationPolicy' in window)).toBe(false);
     });
 });
+
+test.describe('sitePermissionsGeolocationPolicy in SVG documents', () => {
+    test('initializes policy messaging and preserves document-identity checks', async ({ page }, testInfo) => {
+        const path = '/site-permissions/policy.svg';
+        await page.route(`**${path}`, (route) =>
+            route.fulfill({ contentType: 'image/svg+xml', body: '<svg xmlns="http://www.w3.org/2000/svg"/>' }),
+        );
+        const collector = ResultsCollector.create(page, testInfo.project.use);
+        await collector.setup({ config: CONFIG_ENABLED, waitForDocumentElement: true });
+        await page.goto(path);
+        await announcePageDocument(page);
+
+        const constraints = /** @type {{ documentID: string }} */ (await requestConstraints(page));
+        expect(constraints).toEqual({
+            documentID: expect.stringMatching(/^[0-9a-f]{32}$/),
+            pageDocumentID: PAGE_DOCUMENT_ID,
+            isSecureContext: true,
+            isPolicyAllowed: true,
+            isSandboxed: false,
+        });
+        expect(await deliver(page, 'c'.repeat(32))).toEqual({ acknowledged: false, received: [] });
+        expect(await deliver(page, constraints.documentID)).toEqual({
+            acknowledged: true,
+            received: [{ subscriptionName: 'geolocationWatchResult', params: { requestID: 'x:1' } }],
+        });
+    });
+
+    test('does not install SVG policy subscriptions without native settings', async ({ page }, testInfo) => {
+        const path = '/site-permissions/unconfigured-policy.svg';
+        await page.route(`**${path}`, (route) =>
+            route.fulfill({ contentType: 'image/svg+xml', body: '<svg xmlns="http://www.w3.org/2000/svg"/>' }),
+        );
+        const collector = ResultsCollector.create(page, testInfo.project.use);
+        await collector.setup({ config: CONFIG_NOT_CONFIGURED, waitForDocumentElement: true });
+        await page.goto(path);
+        expect(await requestConstraints(page)).toBeNull();
+    });
+});
