@@ -13,7 +13,7 @@ Shipped in the Apple **isolated-world** bundle (`contentScopeIsolated.js`). The 
 - **Video detection:** reads the video ID from watch, shorts, live and embed URLs on load, on SPA navigation and whenever a video element starts loading. Responses that arrive after the user moved to another video are discarded.
 - **Config:** on init it subscribes to `onConfigChanged`, then calls `getConfig`. Nothing is requested or drawn until native says `enabled`. A rejected `getConfig` (no handler on this build) leaves the feature disabled.
 - **Rendering:** draws the segments on the player's progress bar. The skip button is mounted in a closed shadow root over the player, so YouTube's scripts cannot query or restyle it.
-- **Skip:** in `manual` mode a button appears while playback is inside a segment and seeks to its end on click. In `auto` mode playback seeks past a segment as soon as it enters it naturally; a segment the user seeks into gets the button instead, so seeking back never re-skips.
+- **Skip:** in `manual` mode a button appears while playback is inside a segment and seeks to its end on click. It hides after 8 seconds and stays hidden until playback leaves that segment. In `auto` mode playback seeks past a segment as soon as it enters it naturally; a segment the user seeks into gets the button instead, so seeking back never re-skips.
 - **Duration check:** a segment whose `videoDuration` differs from the player's duration by more than 2 s is ignored, since the video was re-cut after submission.
 - **Ads:** while an ad plays (matched by `adShowingSelectors`) no markers are drawn, no button is shown and nothing is seeked.
 - **Selector miss:** no UI and no errors.

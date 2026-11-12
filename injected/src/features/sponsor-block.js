@@ -1,5 +1,16 @@
 import ContentFeature from '../content-feature.js';
-import { injectGlobalStyles, isValidSelector } from '../utils.js';
+import { injectGlobalStyles } from '../utils.js';
+import {
+    isNoCookieOrigin,
+    matchesDuration,
+    segmentAt,
+    segmentPosition,
+    shouldActivate,
+    validSelectors,
+    videoIDFromURL,
+} from './sponsor-block/helpers.js';
+import daxSvg from './sponsor-block/assets/DuckDuckGo-Color-16.svg';
+import skipSvg from './sponsor-block/assets/Skip-Recolorable-16.svg';
 
 /** @typedef {import('../types/sponsor-block.js').Segment} Segment */
 /** @typedef {import('../types/sponsor-block.js').OnConfigChangedParams} Config */
@@ -24,6 +35,9 @@ const DEFAULT_SKIP_BUTTON_HOST_SELECTORS = ['#player-container-id', '#player-con
 // Present while YouTube plays an ad in the player; the video element then plays the ad, not the video.
 const DEFAULT_AD_SHOWING_SELECTORS = ['.ad-showing'];
 
+// How long the skip button stays up after it appears for a segment, unless playback leaves the segment first. Counted
+// only while the video plays, so a paused or buffering video keeps the button.
+const SKIP_BUTTON_TIMEOUT_MS = 8000;
 const OVERLAY_CLASS = 'ddg-sponsorblock-overlay';
 const SKIP_BUTTON_CLASS = 'ddg-sponsorblock-skip';
 const STYLES = `
@@ -44,30 +58,27 @@ const STYLES = `
 `;
 const SKIP_BUTTON_STYLES = `
 button {
-    all: unset; box-sizing: border-box; padding: 10px 16px; border-radius: 8px; background: rgb(222, 88, 51); color: #fff;
-    font: 500 14px/1.2 Roboto, Arial, sans-serif; cursor: pointer;
+    all: unset; box-sizing: border-box; display: flex; align-items: center; gap: 8px; padding: 12px 20px;
+    border-radius: 999px; background: #242323; color: #fff; font: 700 16px/16px Roboto, Arial, sans-serif;
+    white-space: nowrap; cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
-svg { vertical-align: -1px; }
+img { display: block; width: 16px; height: 16px; }
 `;
-const SVG_NS = 'http://www.w3.org/2000/svg';
+// Loaded as images from data URIs: YouTube enforces Trusted Types, so the SVG markup can't be parsed into the DOM.
+const DAX_ICON_URI = `data:image/svg+xml;utf8,${encodeURIComponent(daxSvg)}`;
+const SKIP_ICON_URI = `data:image/svg+xml;utf8,${encodeURIComponent(skipSvg)}`;
 
 /**
- * The "next" glyph YouTube uses: a triangle and a bar.
  * @param {Document} doc
- * @returns {SVGSVGElement}
+ * @param {string} src
+ * @returns {HTMLImageElement}
  */
-function createSkipIcon(doc) {
-    const svg = doc.createElementNS(SVG_NS, 'svg');
-    svg.setAttribute('width', '12');
-    svg.setAttribute('height', '12');
-    svg.setAttribute('viewBox', '0 0 12 12');
-    svg.setAttribute('aria-hidden', 'true');
-    const path = doc.createElementNS(SVG_NS, 'path');
-    path.setAttribute('d', 'M1 1l7 5-7 5z M9 1h2v10H9z');
-    path.setAttribute('fill', 'currentColor');
-    svg.append(path);
-    return svg;
+function createIcon(doc, src) {
+    const img = doc.createElement('img');
+    img.src = src;
+    img.alt = '';
+    return img;
 }
 
 /**
@@ -82,35 +93,6 @@ function findFirstVisible(doc, selectors) {
         if (match) return match;
     }
     return null;
-}
-
-/**
- * youtube.com, youtube-nocookie.com (Duck Player's embed) and their subdomains.
- * @param {string} hostname
- */
-function isYouTubeHost(hostname) {
-    return ['youtube.com', 'youtube-nocookie.com'].some((host) => hostname === host || hostname.endsWith(`.${host}`));
-}
-
-/**
- * @param {string} origin
- */
-function isNoCookieOrigin(origin) {
-    return /^https:\/\/([\w-]+\.)*youtube-nocookie\.com$/.test(origin);
-}
-
-/**
- * Frame rule. Content scripts also run in iframes, so act only where the player is ours to handle:
- * - the top frame of youtube.com and m.youtube.com;
- * - the top frame of youtube-nocookie.com, which is how iOS Duck Player loads the video (no page around it);
- * - a youtube-nocookie.com frame whose ancestors are all nocookie pages: macOS Duck Player's embed, since the Duck Player
- *   page is served from that origin. Embeds on any other site never activate it.
- * @param {{ hostname: string, origin: string, isTop: boolean, ancestorOrigins: string[] }} frame
- */
-export function shouldActivate({ hostname, origin, isTop, ancestorOrigins }) {
-    if (!isYouTubeHost(hostname)) return false;
-    if (isTop) return true;
-    return isNoCookieOrigin(origin) && ancestorOrigins.length > 0 && ancestorOrigins.every(isNoCookieOrigin);
 }
 
 /**
@@ -152,53 +134,6 @@ function duckPlayerEmbedDocument() {
 }
 
 /**
- * Returns the YouTube video ID for watch, shorts, live and embed URLs, or null for any other page.
- * @param {string} href
- * @returns {string | null}
- */
-export function videoIDFromURL(href) {
-    const { hostname, pathname, searchParams } = new URL(href);
-    if (!isYouTubeHost(hostname)) return null;
-    const id = pathname === '/watch' ? searchParams.get('v') : pathname.match(/^\/(?:shorts|live|embed)\/([^/]+)/)?.[1];
-    return id && /^[A-Za-z0-9_-]{11}$/.test(id) ? id : null;
-}
-
-/**
- * Position of a segment on the progress bar as CSS percentages, or null when it falls outside the video
- * (e.g. while a short ad is playing).
- * @param {Segment} segment
- * @param {number} duration
- * @returns {{ left: string, right: string } | null}
- */
-export function segmentPosition({ start, end }, duration) {
-    if (!(duration > 0) || start >= duration || end <= start) return null;
-    return {
-        left: `${(Math.max(0, start) / duration) * 100}%`,
-        right: `${(1 - Math.min(end, duration) / duration) * 100}%`,
-    };
-}
-
-/**
- * The segment playing at `time`, or null. A segment's end is exclusive, so seeking to it leaves the segment.
- * @param {Segment[]} segments
- * @param {number} time
- * @returns {Segment | null}
- */
-export function segmentAt(segments, time) {
-    return segments.find(({ start, end }) => time >= start && time < end) ?? null;
-}
-
-/**
- * False when the segment was submitted against a different cut of the video, so its times no longer apply. A missing
- * or zero `videoDuration` means unknown and is accepted.
- * @param {Segment} segment
- * @param {number} duration
- */
-export function matchesDuration({ videoDuration }, duration) {
-    return !videoDuration || Math.abs(videoDuration - duration) <= 2;
-}
-
-/**
  * Skips sponsored segments in YouTube videos.
  *
  * Tracks the current video ID, asks native for its SponsorBlock segments, marks them on the progress bar and,
@@ -223,6 +158,16 @@ export class SponsorBlock extends ContentFeature {
     #skipButton = null;
     /** @type {Segment | null} */
     #skipSegment = null;
+    /** @type {string | null} uuid of the segment the skip button is showing for */
+    #skipButtonFor = null;
+    /** @type {string | null} uuid of the segment whose skip button timed out; stays hidden until playback leaves it */
+    #skipButtonTimedOut = null;
+    /** @type {ReturnType<typeof setTimeout> | undefined} */
+    #skipButtonTimer;
+    // Playback time left before the skip button hides, and when the running countdown started (null while stopped).
+    #skipButtonMsLeft = 0;
+    /** @type {number | null} */
+    #skipButtonCountdownStart = null;
     #progressBarSelectors = DEFAULT_PROGRESS_BAR_SELECTORS;
     #skipButtonHostSelectors = DEFAULT_SKIP_BUTTON_HOST_SELECTORS;
     #adShowingSelectors = DEFAULT_AD_SHOWING_SELECTORS;
@@ -237,9 +182,7 @@ export class SponsorBlock extends ContentFeature {
      * @returns {string[]}
      */
     selectorsSetting(key, defaults) {
-        const setting = this.getFeatureSetting(key);
-        if (!Array.isArray(setting)) return defaults;
-        return setting.filter((s) => typeof s === 'string' && isValidSelector(s));
+        return validSelectors(this.getFeatureSetting(key), defaults);
     }
 
     async init() {
@@ -299,6 +242,8 @@ export class SponsorBlock extends ContentFeature {
             true,
         );
         this.#doc.addEventListener('seeked', () => this.updateSkip(), true);
+        // The skip button's countdown runs only while the video plays.
+        for (const type of ['playing', 'pause', 'waiting']) this.#doc.addEventListener(type, () => this.updateSkip(), true);
         // seeking: fires only for jumps, never for natural playback, with the new position already set.
         this.#doc.addEventListener('seeking', () => this.markSeekedInto(), true);
     }
@@ -417,7 +362,30 @@ export class SponsorBlock extends ContentFeature {
         let end = segment.end;
         for (let next = segmentAt(segments, end); next; next = segmentAt(segments, end)) end = next.end;
         video.currentTime = end;
+        this.hideSkipButton();
+    }
+
+    hideSkipButton() {
         this.#skipButton?.remove();
+        this.stopSkipButtonCountdown();
+        this.#skipButtonFor = null;
+    }
+
+    startSkipButtonCountdown() {
+        const uuid = this.#skipButtonFor;
+        if (!uuid || this.#skipButtonCountdownStart !== null) return;
+        this.#skipButtonCountdownStart = Date.now();
+        this.#skipButtonTimer = setTimeout(() => {
+            this.#skipButtonTimedOut = uuid;
+            this.hideSkipButton();
+        }, this.#skipButtonMsLeft);
+    }
+
+    stopSkipButtonCountdown() {
+        clearTimeout(this.#skipButtonTimer);
+        if (this.#skipButtonCountdownStart === null) return;
+        this.#skipButtonMsLeft -= Date.now() - this.#skipButtonCountdownStart;
+        this.#skipButtonCountdownStart = null;
     }
 
     // Reacts to the playhead: in auto mode seeks past a segment as soon as playback enters it, in manual mode (or for
@@ -435,13 +403,27 @@ export class SponsorBlock extends ContentFeature {
             this.skipTo(video, this.#skipSegment);
             return;
         }
-        const host = this.#skipSegment ? findFirstVisible(this.#doc, this.#skipButtonHostSelectors) : null;
+        const uuid = this.#skipSegment?.uuid ?? null;
+        // Leaving the segment forgets its timeout, so coming back to it shows the button again.
+        if (uuid !== this.#skipButtonTimedOut) this.#skipButtonTimedOut = null;
+        const host = uuid && !this.#skipButtonTimedOut ? findFirstVisible(this.#doc, this.#skipButtonHostSelectors) : null;
         if (!host) {
-            this.#skipButton?.remove();
+            this.hideSkipButton();
             return;
         }
         this.#skipButton ??= this.createSkipButton();
         if (this.#skipButton.parentElement !== host) host.append(this.#skipButton);
+        if (this.#skipButtonFor !== uuid) {
+            this.stopSkipButtonCountdown();
+            this.#skipButtonFor = uuid;
+            this.#skipButtonMsLeft = SKIP_BUTTON_TIMEOUT_MS;
+        }
+        // Playing means not paused and not stalled waiting for data.
+        if (video && !video.paused && video.readyState >= video.HAVE_FUTURE_DATA) {
+            this.startSkipButtonCountdown();
+        } else {
+            this.stopSkipButtonCountdown();
+        }
         const row = host.id === 'player-controls' ? host.querySelector('.player-controls-bottom') : null;
         if (row) {
             const rowRect = row.getBoundingClientRect();
@@ -463,7 +445,7 @@ export class SponsorBlock extends ContentFeature {
         style.textContent = SKIP_BUTTON_STYLES;
         const button = this.#doc.createElement('button');
         button.type = 'button';
-        button.append('Skip sponsored content ', createSkipIcon(this.#doc));
+        button.append(createIcon(this.#doc, DAX_ICON_URI), 'Skip Content', createIcon(this.#doc, SKIP_ICON_URI));
         shadow.append(style, button);
         // Keep the tap from also reaching the player, which would toggle YouTube's controls.
         button.addEventListener('pointerdown', (e) => e.stopPropagation());

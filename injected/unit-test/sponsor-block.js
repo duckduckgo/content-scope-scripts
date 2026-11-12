@@ -1,11 +1,15 @@
 import { JSDOM } from 'jsdom';
-import SponsorBlock, {
+import {
     matchesDuration,
     segmentAt,
     segmentPosition,
     shouldActivate,
+    validSelectors,
     videoIDFromURL,
-} from '../src/features/sponsor-block.js';
+} from '../src/features/sponsor-block/helpers.js';
+
+// Only the pure helpers are unit tested: the feature module imports SVG assets, which plain Node can't load. The
+// feature itself is covered by the integration specs.
 
 describe('SponsorBlock videoIDFromURL', () => {
     it('reads the video ID from watch, shorts, live and embed URLs', () => {
@@ -118,23 +122,10 @@ describe('SponsorBlock matchesDuration', () => {
     });
 });
 
-describe('SponsorBlock selectorsSetting', () => {
+describe('SponsorBlock validSelectors', () => {
     const DEFAULTS = ['.default'];
     let dom;
     let originalDocument;
-
-    /** @param {object} [settings] */
-    function createFeature(settings) {
-        return new SponsorBlock(
-            'sponsorBlock',
-            {},
-            {},
-            {
-                site: { domain: 'www.youtube.com', url: 'https://www.youtube.com/' },
-                featureSettings: settings && { sponsorBlock: settings },
-            },
-        );
-    }
 
     beforeEach(() => {
         // isValidSelector probes the selector through document.createDocumentFragment().
@@ -148,91 +139,16 @@ describe('SponsorBlock selectorsSetting', () => {
         globalThis.document = originalDocument;
     });
 
-    it('falls back to the defaults when the key is absent', () => {
-        expect(createFeature().selectorsSetting('progressBarSelectors', DEFAULTS)).toBe(DEFAULTS);
-        expect(createFeature({ progressBarSelectors: 'not-a-list' }).selectorsSetting('progressBarSelectors', DEFAULTS)).toBe(DEFAULTS);
+    it('falls back to the defaults when the setting is not a list', () => {
+        expect(validSelectors(undefined, DEFAULTS)).toBe(DEFAULTS);
+        expect(validSelectors('not-a-list', DEFAULTS)).toBe(DEFAULTS);
     });
 
     it('uses the configured list and drops malformed entries', () => {
-        const feature = createFeature({ progressBarSelectors: ['.a', ':::bad', 42, '#b'] });
-        expect(feature.selectorsSetting('progressBarSelectors', DEFAULTS)).toEqual(['.a', '#b']);
+        expect(validSelectors(['.a', ':::bad', 42, '#b'], DEFAULTS)).toEqual(['.a', '#b']);
     });
 
     it('returns an empty list, not the defaults, when config disables every selector', () => {
-        expect(createFeature({ progressBarSelectors: [] }).selectorsSetting('progressBarSelectors', DEFAULTS)).toEqual([]);
-    });
-});
-
-describe('SponsorBlock applyConfig', () => {
-    let dom;
-    let originalWindow;
-    let originalDocument;
-    /** @type {SponsorBlock} */
-    let feature;
-    /** @type {jasmine.Spy} */
-    let request;
-    /** @param {string} uuid @param {number} start @param {number} end */
-    const segment = (uuid, start, end) => ({ start, end, category: 'sponsor', actionType: 'skip', uuid });
-    const video = () => /** @type {HTMLVideoElement} */ (dom.window.document.querySelector('video'));
-    const tick = () => new Promise((resolve) => setTimeout(resolve));
-
-    beforeEach(() => {
-        originalWindow = globalThis.window;
-        originalDocument = globalThis.document;
-        dom = new JSDOM('<!DOCTYPE html><video></video>', { url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' });
-        globalThis.window = dom.window;
-        globalThis.document = dom.window.document;
-        // getMainVideo checks `instanceof HTMLVideoElement`.
-        globalThis.HTMLVideoElement = dom.window.HTMLVideoElement;
-        feature = new SponsorBlock('sponsorBlock', {}, {}, { site: { domain: 'www.youtube.com', url: dom.window.location.href } });
-        request = spyOn(feature, 'request').and.resolveTo({ segments: [] });
-    });
-
-    afterEach(() => {
-        dom.window.close();
-        globalThis.window = originalWindow;
-        globalThis.document = originalDocument;
-        // @ts-expect-error - restoring a global the test added
-        delete globalThis.HTMLVideoElement;
-    });
-
-    it('asks for segments only once enabled', () => {
-        feature.applyConfig({ enabled: false, skipMode: 'manual' });
-        expect(request).not.toHaveBeenCalled();
-
-        feature.applyConfig({ enabled: true, skipMode: 'manual' });
-        expect(request).toHaveBeenCalledOnceWith('getSegments', { videoID: 'dQw4w9WgXcQ' });
-    });
-
-    it('does not ask native again when only the mode changes', () => {
-        feature.applyConfig({ enabled: true, skipMode: 'manual' });
-        feature.applyConfig({ enabled: true, skipMode: 'auto' });
-        expect(request).toHaveBeenCalledTimes(1);
-    });
-
-    it('auto mode skips touching segments in one jump', async () => {
-        request.and.resolveTo({ segments: [segment('a', 0, 5), segment('b', 5, 8)] });
-        feature.applyConfig({ enabled: true, skipMode: 'auto' });
-        await tick();
-        expect(video().currentTime).toBe(8);
-    });
-
-    it('drops segments that arrive after the feature was disabled', async () => {
-        /** @type {(value: unknown) => void} */
-        let respond = () => {};
-        request.and.returnValue(new Promise((resolve) => (respond = resolve)));
-        feature.applyConfig({ enabled: true, skipMode: 'auto' });
-        feature.applyConfig({ enabled: false, skipMode: 'auto' });
-        respond({ segments: [segment('a', 0, 5)] });
-        await tick();
-        expect(video().currentTime).toBe(0);
-    });
-
-    it('treats a malformed segments response as no segments', async () => {
-        request.and.resolveTo({});
-        feature.applyConfig({ enabled: true, skipMode: 'auto' });
-        await tick();
-        expect(() => feature.renderOverlay()).not.toThrow();
-        expect(() => feature.updateSkip()).not.toThrow();
+        expect(validSelectors([], DEFAULTS)).toEqual([]);
     });
 });

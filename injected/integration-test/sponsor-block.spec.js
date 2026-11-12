@@ -102,6 +102,26 @@ async function seekTo(page, seconds) {
     }, seconds);
 }
 
+/**
+ * Plays the video and resolves once it is actually playing.
+ * @param {import('@playwright/test').Page} page
+ * @param {number} [playbackRate]
+ */
+async function play(page, playbackRate = 1) {
+    await page.evaluate(async (rate) => {
+        const video = /** @type {HTMLVideoElement} */ (document.querySelector('video'));
+        video.playbackRate = rate;
+        const playing = new Promise((resolve) => video.addEventListener('playing', resolve, { once: true }));
+        await video.play();
+        await playing;
+    }, playbackRate);
+}
+
+/** @param {import('@playwright/test').Page} page */
+async function pause(page) {
+    await page.evaluate(() => /** @type {HTMLVideoElement} */ (document.querySelector('video')).pause());
+}
+
 /** @param {import('@playwright/test').Page} page */
 function currentTime(page) {
     return page.evaluate(() => /** @type {HTMLVideoElement} */ (document.querySelector('video')).currentTime);
@@ -144,6 +164,66 @@ test.describe('SponsorBlock', () => {
         expect(await currentTime(page)).toBeCloseTo(5, 1);
     });
 
+    test('manual mode: hides the skip button after 8 seconds of playback until playback leaves the segment', async ({ page }, testInfo) => {
+        await page.clock.install();
+        await loadPlayer(page, testInfo);
+        await expect(page.locator(MARKER)).toHaveCount(1);
+
+        // While paused, the button stays up however long it waits.
+        await seekTo(page, 2);
+        await expect(page.locator(SKIP_BUTTON)).toBeVisible();
+        await page.clock.runFor(10000);
+        await expect(page.locator(SKIP_BUTTON)).toBeVisible();
+
+        // Playback counts. The countdown runs on the page's fake clock, the video on the real one, slowed down so it stays
+        // inside the segment for the whole test.
+        await play(page, 0.1);
+        await page.clock.runFor(4000);
+        // A pause stops the countdown, and playing again resumes it where it was.
+        await pause(page);
+        await page.clock.runFor(10000);
+        await expect(page.locator(SKIP_BUTTON)).toBeVisible();
+        await play(page, 0.1);
+        await page.clock.runFor(3000);
+        await expect(page.locator(SKIP_BUTTON)).toBeVisible();
+        await page.clock.runFor(1000);
+        await expect(page.locator(SKIP_BUTTON)).toHaveCount(0);
+        await pause(page);
+
+        // A seek within the same segment keeps it hidden.
+        await page.evaluate(() => {
+            const video = /** @type {HTMLVideoElement} */ (document.querySelector('video'));
+            const seeked = new Promise((resolve) => video.addEventListener('seeked', resolve, { once: true }));
+            video.currentTime = 4;
+            return seeked;
+        });
+        await expect(page.locator(SKIP_BUTTON)).toHaveCount(0);
+
+        // Leaving the segment and coming back shows it again.
+        await seekTo(page, 6);
+        await expect.poll(() => currentTime(page)).toBeCloseTo(6, 1);
+        await seekTo(page, 3);
+        await expect(page.locator(SKIP_BUTTON)).toBeVisible();
+
+        // So does leaving it through the button.
+        await page.locator(SKIP_BUTTON).click();
+        await expect(page.locator(SKIP_BUTTON)).toHaveCount(0);
+        await seekTo(page, 3);
+        await expect(page.locator(SKIP_BUTTON)).toBeVisible();
+
+        // And playing past its end.
+        await play(page, 0.1);
+        await page.clock.runFor(8000);
+        await expect(page.locator(SKIP_BUTTON)).toHaveCount(0);
+        await page.evaluate(() => {
+            /** @type {HTMLVideoElement} */ (document.querySelector('video')).playbackRate = 1;
+        });
+        await expect.poll(() => currentTime(page)).toBeGreaterThan(5.3);
+        await pause(page);
+        await seekTo(page, 3);
+        await expect(page.locator(SKIP_BUTTON)).toBeVisible();
+    });
+
     test('auto mode: skips a segment that playback enters naturally, without showing a button', async ({ page }, testInfo) => {
         await loadPlayer(page, testInfo, { responses: { getConfig: CONFIG_AUTO } });
         await expect(page.locator(MARKER)).toHaveCount(1);
@@ -166,6 +246,59 @@ test.describe('SponsorBlock', () => {
         await page.locator(SKIP_BUTTON).click();
         await expect(page.locator(SKIP_BUTTON)).toHaveCount(0);
         expect(await currentTime(page)).toBeCloseTo(5, 1);
+    });
+
+    test('auto mode: skips touching segments in one jump', async ({ page }, testInfo) => {
+        // Landing at 5 would enter the second segment by a seek, which shows its button instead of skipping it.
+        const segments = [
+            { start: 2, end: 5, category: 'sponsor', actionType: 'skip', uuid: 'a', videoDuration: 12 },
+            { start: 5, end: 8, category: 'sponsor', actionType: 'skip', uuid: 'b', videoDuration: 12 },
+        ];
+        await loadPlayer(page, testInfo, { responses: { getConfig: CONFIG_AUTO, getSegments: { segments } } });
+        await expect(page.locator(MARKER)).toHaveCount(2);
+
+        await seekTo(page, 1.5);
+        await play(page);
+        // Playing through both segments would take 6.5s; reaching their end sooner proves the single skip.
+        await expect.poll(() => currentTime(page), { timeout: 2500 }).toBeGreaterThanOrEqual(8);
+        await expect(page.locator(SKIP_BUTTON)).toHaveCount(0);
+    });
+
+    test('treats a malformed segments response as no segments', async ({ page }, testInfo) => {
+        /** @type {Error[]} */
+        const errors = [];
+        page.on('pageerror', (e) => errors.push(e));
+        const collector = await loadPlayer(page, testInfo, { responses: { getSegments: {} } });
+        await expect.poll(() => requestsFor(collector, 'getSegments')).toHaveLength(1);
+        await expect(page.locator('video')).toHaveJSProperty('readyState', 4);
+        await seekTo(page, 3);
+        await expect(page.locator(OVERLAY)).toHaveCount(0);
+        await expect(page.locator(SKIP_BUTTON)).toHaveCount(0);
+        expect(errors).toEqual([]);
+    });
+
+    test('discards a segments response that arrives after the feature was turned off', async ({ page }, testInfo) => {
+        test.skip(testInfo.project.name === 'android', 'The Android mock answers within the request call, so no answer can be held back');
+        await page.clock.install();
+        const collector = await loadPlayer(page, testInfo);
+        await expect(page.locator(MARKER)).toHaveCount(1);
+        await collector.simulateSubscriptionMessage('sponsorBlock', 'onConfigChanged', { enabled: false, skipMode: 'manual' });
+        await expect(page.locator(OVERLAY)).toHaveCount(0);
+
+        // The mock answers one timer tick after the request, so a paused clock holds the answer back until after the
+        // feature is turned off again.
+        await page.clock.pauseAt(await page.evaluate(() => Date.now() + 1000));
+        await collector.simulateSubscriptionMessage('sponsorBlock', 'onConfigChanged', { enabled: true, skipMode: 'manual' });
+        await expect.poll(() => requestsFor(collector, 'getSegments')).toHaveLength(2);
+        await collector.simulateSubscriptionMessage('sponsorBlock', 'onConfigChanged', { enabled: false, skipMode: 'manual' });
+        // Fires the held answer before checking, so the absence of segments isn't just the answer not having arrived yet.
+        await page.clock.runFor(100);
+        await page.clock.resume();
+
+        await seekTo(page, 3);
+        await expect(page.locator('video')).toHaveJSProperty('currentTime', 3);
+        await expect(page.locator(OVERLAY)).toHaveCount(0);
+        await expect(page.locator(SKIP_BUTTON)).toHaveCount(0);
     });
 
     test('a segment ending past the video end leaves no button once the skip reaches the end', async ({ page }, testInfo) => {
