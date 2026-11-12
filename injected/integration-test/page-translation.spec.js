@@ -145,10 +145,6 @@ const extract = async (collector) => (await send(collector, 'extract', {}, 'extr
 /** @param {ResultsCollector} collector @param {Update[]} updates @returns {Promise<number>} */
 const apply = async (collector, updates) =>
     (await send(collector, 'apply', { sourceLanguage: 'en', targetLanguage: 'de', updates }, 'applyResult')).count;
-/** @param {ResultsCollector} collector @returns {Promise<number>} */
-const revert = async (collector) => (await send(collector, 'revert', {}, 'revertResult')).count;
-/** @param {ResultsCollector} collector @returns {Promise<{ count: number, exact: boolean }>} */
-const revertResult = async (collector) => await send(collector, 'revert', {}, 'revertResult');
 
 /** @param {Unit[]} units @returns {Update[]} */
 const translateAll = (units) =>
@@ -272,13 +268,18 @@ test.describe('pageTranslation', () => {
                 expect(await markup(page)).toEqual(markupBefore);
             });
 
-            test('revert restores the original page', async ({ page }, testInfo) => {
+            test('apply keeps every original element in the page', async ({ page }, testInfo) => {
                 const collector = await openPage(page, testInfo, fixture.page);
-                const original = await bodyHTML(page);
+                await page.evaluate(() => {
+                    /** @type {any} */ (window).elementsBefore = [...document.body.querySelectorAll('*')];
+                });
                 await apply(collector, translateAll(await extract(collector)));
-                expect(await bodyHTML(page)).not.toBe(original);
-                await revert(collector);
-                expect(await bodyHTML(page)).toBe(original);
+                const lost = await page.evaluate(() =>
+                    /** @type {Element[]} */ (/** @type {any} */ (window).elementsBefore)
+                        .filter((el) => !el.isConnected)
+                        .map((el) => el.outerHTML),
+                );
+                expect(lost).toEqual([]);
             });
         });
     }
@@ -441,39 +442,14 @@ test.describe('pageTranslation', () => {
         expect(await apply(collector, [{ id: unit.id, tree: htmlTree('<span data-t="0">U</span>n mot') }])).toBe(0);
     });
 
-    test('revert removes clones and restores lang', async ({ page }, testInfo) => {
-        const collector = await openPage(page, testInfo, 'merge.html');
-        const original = await bodyHTML(page);
-        const [unit] = await extract(collector);
-        await apply(collector, [
-            { id: unit.id, tree: htmlTree('Le <b data-t="0">vite</b> et <b data-t="0">rapide</b> <a data-t="1">renard</a>.') },
-        ]);
-        expect(await revert(collector)).toBeGreaterThan(0);
-        expect(await bodyHTML(page)).toBe(original);
-        expect(await page.getAttribute('html', 'lang')).toBe('en');
-    });
-
-    test('revert restores a missing lang attribute as missing', async ({ page }, testInfo) => {
+    test('a second extract reads the page as it is', async ({ page }, testInfo) => {
         const collector = await openPage(page, testInfo, 'article.html');
-        await page.evaluate(() => document.documentElement.removeAttribute('lang'));
         await apply(collector, translateAll(await extract(collector)));
-        await revert(collector);
-        expect(await page.evaluate(() => document.documentElement.hasAttribute('lang'))).toBe(false);
-    });
-
-    test('revert only counts units that were applied', async ({ page }, testInfo) => {
-        const collector = await openPage(page, testInfo, 'article.html');
+        const translated = await bodyHTML(page);
         const units = await extract(collector);
-        await apply(collector, translateAll(units.slice(0, 2)));
-        expect(await revert(collector)).toBe(2);
-    });
-
-    test('a second extract reverts the page first', async ({ page }, testInfo) => {
-        const collector = await openPage(page, testInfo, 'article.html');
-        const original = await bodyHTML(page);
-        await apply(collector, translateAll(await extract(collector)));
-        await extract(collector);
-        expect(await bodyHTML(page)).toBe(original);
+        expect(await bodyHTML(page)).toBe(translated);
+        expect(units.length).toBeGreaterThan(0);
+        expect(units.every((u) => u.text.includes('‹'))).toBe(true);
     });
 
     test('survives a translation that turns the nesting inside out', async ({ page }, testInfo) => {
@@ -507,7 +483,6 @@ test.describe('pageTranslation', () => {
 
     test('keeps the original of a duplicated tag in place, and only copies go into the copy', async ({ page }, testInfo) => {
         const collector = await openPage(page, testInfo, 'citation.html');
-        const original = await bodyHTML(page);
         const [unit] = await extract(collector);
         expect(unit.text).toBe(
             'Joy is a feeling<sup data-t="0"><a data-t="1"><span data-t="2">[</span>9<span data-t="3">]</span></a></sup> of happiness.',
@@ -517,8 +492,6 @@ test.describe('pageTranslation', () => {
             'La alegría<sup data-t="0"></sup> es un sentimiento<sup data-t="0"><a data-t="1"><span data-t="2">[</span>9<span data-t="3">]</span></a></sup> de felicidad.';
         expect(await apply(collector, [{ id: unit.id, tree: htmlTree(output) }])).toBe(1);
         expect(await page.evaluate(() => document.getElementById('w-sup')?.contains(document.getElementById('w-link')))).toBe(true);
-        expect(await revertResult(collector)).toEqual({ count: 1, exact: true });
-        expect(await bodyHTML(page)).toBe(original);
     });
 
     test('a citation whose text moved to the next tag is not doubled', async ({ page }, testInfo) => {

@@ -5,15 +5,6 @@ import { ReflectApply } from '../../captured-globals.js';
  * @typedef {import('./types.js').ParsedNode} ParsedNode
  */
 
-/**
- * Everything a write changed, so revert can put it back. The first snapshot of each node wins: that's the original.
- * @typedef {{
- *   children: Map<Node, ChildNode[]>,
- *   texts: Map<CharacterData, string>,
- *   attributes: Map<Element, Map<string, string | null>>,
- * }} Journal
- */
-
 // Captured at load: the page can replace these later.
 const insertBefore = Node.prototype.insertBefore;
 const removeChild = Node.prototype.removeChild;
@@ -23,26 +14,19 @@ const cloneNode = Node.prototype.cloneNode;
 const ELEMENT_NODE = 1;
 const TEXT_NODE = 3;
 
-/** @returns {Journal} */
-export function createJournal() {
-    return { children: new Map(), texts: new Map(), attributes: new Map() };
-}
-
 /**
  * Writes a plain-text translation.
  * @param {UnitTarget} target
  * @param {string} text
- * @param {Journal} journal
  */
-export function writeText(target, text, journal) {
+export function writeText(target, text) {
     if (target.kind === 'attribute') {
-        recordAttribute(journal, target.element, target.attribute);
         target.element.setAttribute(target.attribute, text);
         return;
     }
     const nodes = target.kind === 'run' ? target.nodes : [...target.element.childNodes];
     const texts = /** @type {Text[]} */ (nodes.filter((node) => node.nodeType === TEXT_NODE));
-    texts.forEach((node, i) => setText(journal, node, i === 0 ? text : ''));
+    texts.forEach((node, i) => setText(node, i === 0 ? text : ''));
 }
 
 /**
@@ -51,11 +35,10 @@ export function writeText(target, text, journal) {
  * @param {UnitTarget} target
  * @param {Element[]} elements - live element for each `data-t` id
  * @param {ParsedNode[]} parsed
- * @param {Journal} journal
  * @param {(el: Element) => boolean} isExcluded
  */
-export function mergeUnit(target, elements, parsed, journal, isExcluded) {
-    const merge = new Merge(elements, journal, isExcluded);
+export function mergeUnit(target, elements, parsed, isExcluded) {
+    const merge = new Merge(elements, isExcluded);
     if (target.kind === 'element') {
         merge.into(target.element, [...target.element.childNodes], parsed, null);
     } else if (target.kind === 'run') {
@@ -65,36 +48,13 @@ export function mergeUnit(target, elements, parsed, journal, isExcluded) {
     }
 }
 
-/**
- * Puts back everything recorded in the journal.
- * @param {Journal} journal
- */
-export function revertJournal(journal) {
-    for (const [el, attributes] of journal.attributes) {
-        for (const [name, value] of attributes) {
-            if (value === null) {
-                el.removeAttribute(name);
-            } else {
-                el.setAttribute(name, value);
-            }
-        }
-    }
-    for (const [node, data] of journal.texts) node.data = data;
-    for (const [parent, children] of journal.children) replaceChildren(parent, [...parent.childNodes], children, null);
-    journal.children.clear();
-    journal.texts.clear();
-    journal.attributes.clear();
-}
-
 class Merge {
     /**
      * @param {Element[]} elements
-     * @param {Journal} journal
      * @param {(el: Element) => boolean} isExcluded
      */
-    constructor(elements, journal, isExcluded) {
+    constructor(elements, isExcluded) {
         this.elements = elements;
-        this.journal = journal;
         this.isExcluded = isExcluded;
         /** @type {Set<number>} */
         this.used = new Set();
@@ -126,7 +86,7 @@ class Merge {
                 continue;
             }
             // The engine can split one tag into two (`<b>red car</b>` → `<b>voiture</b> … <b>rouge</b>`). The second
-            // gets a copy built only from copies: moving a live node into a copy would lose it when revert drops the copy.
+            // gets a copy built only from copies, so every live node stays in the first.
             if (copying || this.used.has(item.id)) {
                 const excluded = this.isExcluded(live);
                 const copy = /** @type {Element} */ (ReflectApply(cloneNode, live, [excluded]));
@@ -154,7 +114,6 @@ class Merge {
         next.unshift(...leading);
         next.push(...trailing);
         if (!sameList(current, next)) {
-            if (!this.journal.children.has(parent)) this.journal.children.set(parent, [...parent.childNodes]);
             replaceChildren(parent, current, next, anchor);
         }
         return next;
@@ -169,7 +128,7 @@ class Merge {
     text(texts, text) {
         const node = texts.shift();
         if (node) {
-            setText(this.journal, node, text);
+            setText(node, text);
             return node;
         }
         return /** @type {Text} */ (ReflectApply(createTextNode, document, [text]));
@@ -192,28 +151,11 @@ function replaceChildren(parent, current, next, anchor) {
 }
 
 /**
- * @param {Journal} journal
  * @param {CharacterData} node
  * @param {string} data
  */
-function setText(journal, node, data) {
-    if (node.data === data) return;
-    if (!journal.texts.has(node)) journal.texts.set(node, node.data);
-    node.data = data;
-}
-
-/**
- * @param {Journal} journal
- * @param {Element} el
- * @param {string} name
- */
-function recordAttribute(journal, el, name) {
-    let attributes = journal.attributes.get(el);
-    if (!attributes) {
-        attributes = new Map();
-        journal.attributes.set(el, attributes);
-    }
-    if (!attributes.has(name)) attributes.set(name, el.getAttribute(name));
+function setText(node, data) {
+    if (node.data !== data) node.data = data;
 }
 
 /**

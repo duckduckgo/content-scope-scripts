@@ -2,7 +2,7 @@ import ContentFeature from '../content-feature.js';
 import { findUnits, isExcluded, isInOtherLanguage, isInViewport, isOtherLanguage } from './page-translation/units.js';
 import { serializeUnit } from './page-translation/serialize.js';
 import { parseTree } from './page-translation/parse.js';
-import { createJournal, mergeUnit, revertJournal, writeText } from './page-translation/merge.js';
+import { mergeUnit, writeText } from './page-translation/merge.js';
 
 /**
  * @typedef {import('./page-translation/types.js').UnitTarget} UnitTarget
@@ -12,8 +12,8 @@ import { createJournal, mergeUnit, revertJournal, writeText } from './page-trans
  */
 
 /**
- * Extracts the page's text as translation units, writes translations back onto the original nodes, and reverts them.
- * Native drives it: nothing runs until native sends `extract`, `apply` or `revert`.
+ * Extracts the page's text as translation units and writes translations back onto the original nodes. Native drives it:
+ * nothing runs until native sends `extract` or `apply`. To show the original, native reloads the page.
  */
 export class PageTranslation extends ContentFeature {
     /** @type {Map<number, UnitState>} */
@@ -21,26 +21,17 @@ export class PageTranslation extends ContentFeature {
     /** Ids are never reused for the page's lifetime. */
     #nextId = 0;
     #sourceLanguage = '';
-    #targetLanguage = '';
-    #journal = createJournal();
-    /** @type {Set<number>} ids of units written since extract */
-    #applied = new Set();
-    /** @type {{ value: string | null } | null} the page's `lang` before our first write */
-    #originalLang = null;
 
     init() {
         this.subscribe('extract', () => this._extract());
         this.subscribe('apply', ({ sourceLanguage, targetLanguage, updates }) =>
             this._apply(String(sourceLanguage ?? ''), String(targetLanguage ?? ''), updates),
         );
-        this.subscribe('revert', () => {
-            this.notify('revertResult', this._revert());
-        });
     }
 
     _extract() {
-        // Units are found on the original page, never on a translated one.
-        this._revert();
+        // The page as it is now: native reloads first when it needs the original.
+        this.#units.clear();
         /** @type {Unit[]} */
         const units = [];
         const root = document.body;
@@ -61,12 +52,11 @@ export class PageTranslation extends ContentFeature {
 
     /**
      * @param {string} sourceLanguage - the page's detected language: content marked as another language isn't written
-     * @param {string} targetLanguage - set as the page's `lang` on the first write
+     * @param {string} targetLanguage - set as the page's `lang` once anything is written
      * @param {{ id: number, text?: string, tree?: string }[]} updates - `text` for plain units, `tree` (TranslateKit's JSON) for HTML units
      */
     _apply(sourceLanguage, targetLanguage, updates) {
         this.#sourceLanguage = sourceLanguage;
-        this.#targetLanguage = targetLanguage;
         let count = 0;
         for (const update of Array.isArray(updates) ? updates : []) {
             const { id, text, tree } = update ?? {};
@@ -77,14 +67,13 @@ export class PageTranslation extends ContentFeature {
             try {
                 if (!this._write(unit, value)) continue;
             } catch (e) {
-                // Never let one unit stop the reply; whatever it changed is in the journal for revert.
+                // Never let one unit stop the reply.
                 this.log.error('apply failed for a unit', e);
                 continue;
             }
-            this.#applied.add(id);
-            this._setPageLanguage();
             count++;
         }
+        if (count > 0) document.documentElement.setAttribute('lang', targetLanguage);
         this.notify('applyResult', { count });
     }
 
@@ -95,50 +84,13 @@ export class PageTranslation extends ContentFeature {
      */
     _write({ target, serialized }, value) {
         if (!serialized.html) {
-            writeText(target, value, this.#journal);
+            writeText(target, value);
             return true;
         }
         const parsed = parseTree(value, serialized.wrapped);
         if (!parsed) return false;
-        mergeUnit(target, serialized.elements, parsed, this.#journal, (el) => isExcluded(el) || isOtherLanguage(el, this.#sourceLanguage));
+        mergeUnit(target, serialized.elements, parsed, (el) => isExcluded(el) || isOtherLanguage(el, this.#sourceLanguage));
         return true;
-    }
-
-    /**
-     * Puts back everything written since extract.
-     * @returns {{ count: number, exact: boolean }} units restored, and whether every original node we moved is back in
-     *   the page (if not, native reloads)
-     */
-    _revert() {
-        const count = this.#applied.size;
-        // Nodes the page itself removed since don't count against us; ours must all still be in the page afterwards.
-        const ours = [...this.#applied].flatMap((id) => {
-            const unit = this.#units.get(id);
-            if (!unit) return [];
-            const { target, serialized } = unit;
-            return [containerOf(target), ...serialized.elements];
-        });
-        const connected = ours.filter((node) => node.isConnected);
-        revertJournal(this.#journal);
-        if (this.#originalLang) {
-            const { value } = this.#originalLang;
-            if (value === null) {
-                document.documentElement.removeAttribute('lang');
-            } else {
-                document.documentElement.setAttribute('lang', value);
-            }
-        }
-        this.#originalLang = null;
-        this.#applied.clear();
-        this.#units.clear();
-        return { count, exact: connected.every((node) => node.isConnected) };
-    }
-
-    _setPageLanguage() {
-        if (this.#originalLang) return;
-        const html = document.documentElement;
-        this.#originalLang = { value: html.getAttribute('lang') };
-        html.setAttribute('lang', this.#targetLanguage);
     }
 }
 
