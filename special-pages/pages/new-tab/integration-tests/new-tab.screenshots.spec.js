@@ -58,6 +58,24 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             await expect(page).toHaveScreenshot('omnibar-search-rest.png', { maxDiffPixels });
         });
 
+        test('search rest with rebrand', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: { rebrand: 'enabled' } });
+            await omnibar.ready();
+            await expect(page).toHaveScreenshot('omnibar-search-rest-rebrand.png', { maxDiffPixels });
+        });
+
+        test('search rest with rebrand and theme variant', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: { rebrand: 'enabled', themeVariant: 'coolGray' } });
+            await omnibar.ready();
+            await expect(page).toHaveScreenshot('omnibar-search-rest-rebrand-cool-gray.png', { maxDiffPixels });
+        });
+
         test('search suggestions', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);
