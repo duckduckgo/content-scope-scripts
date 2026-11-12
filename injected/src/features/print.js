@@ -9,6 +9,8 @@ import ContentFeature from '../content-feature.js';
  * we skip the override.
  */
 export class Print extends ContentFeature {
+    initImmediately = true;
+
     init() {
         // macOS native window.print() works fine, no override needed
         if (this.platform?.name === 'macos') {

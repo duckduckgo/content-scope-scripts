@@ -1,6 +1,8 @@
 import ContentFeature from '../content-feature';
 
 export default class FingerprintingHardware extends ContentFeature {
+    initImmediately = true;
+
     init() {
         this.wrapProperty(globalThis.Navigator.prototype, 'keyboard', {
             get: () => {
