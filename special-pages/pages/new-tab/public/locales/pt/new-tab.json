@@ -1059,5 +1059,41 @@
   "activity_show_less_history" : {
     "title" : "Ocultar itens adicionais",
     "note" : "Button label that hides the expanded browsing history items."
+  },
+  "omnibar_pastedTextLabel" : {
+    "title" : "Texto colado",
+    "description" : "Type label on the chip for a long text paste that was attached to the AI chat input instead of inserted."
+  },
+  "omnibar_removePastedTextFallbackLabel" : {
+    "title" : "Remover texto colado",
+    "description" : "Accessible label for the button that removes a pasted-text chip whose text is only whitespace."
+  },
+  "omnibar_pastedTextModalTitle" : {
+    "title" : "Texto colado",
+    "description" : "Title of the dialog opened from a pasted-text chip, where the user can view and edit the pasted text. Also the accessible name of its text field."
+  },
+  "omnibar_pastedTextModalFormattingNote" : {
+    "title" : "A formatação pode ser inconsistente em relação à fonte.",
+    "description" : "Note under the Pasted Text dialog title: the pasted text is plain text, so rich formatting from where it was copied is lost."
+  },
+  "omnibar_pastedTextChipCharacterCount" : {
+    "title" : "{count} carateres",
+    "description" : "Line on a pasted-text chip showing the length of the pasted text. Shown in red while the whole message is too long to send. {count} is the number of characters."
+  },
+  "omnibar_pastedTextModalCharacterCount" : {
+    "title" : "{count} carateres",
+    "description" : "Footer of the Pasted Text dialog showing the length of the pasted text. {count} is the number of characters."
+  },
+  "omnibar_pastedTextModalCancel" : {
+    "title" : "Cancelar",
+    "description" : "Button in the Pasted Text dialog that closes it and discards edits."
+  },
+  "omnibar_pastedTextModalSave" : {
+    "title" : "Guardar alterações",
+    "description" : "Primary button in the Pasted Text dialog that saves the edited pasted text."
+  },
+  "omnibar_pastedTextModalClose" : {
+    "title" : "Fechar",
+    "description" : "Accessible label for the × button in the Pasted Text dialog, which closes it and discards edits."
   }
 }
