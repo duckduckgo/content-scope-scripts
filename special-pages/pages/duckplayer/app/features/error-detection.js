@@ -6,6 +6,8 @@ import { YOUTUBE_ERROR_EVENT, checkForError, getErrorType } from '../../../../..
  * @typedef {import('../../types/duckplayer').CustomErrorSettings} CustomErrorSettings
  */
 
+const DEFAULT_YOUTUBE_ERROR_SELECTOR = '.ytp-error, yt-player-interstitial-renderer';
+
 /**
  * Detects YouTube errors based on DOM queries
  *
@@ -23,7 +25,7 @@ export class ErrorDetection {
      */
     constructor(options) {
         this.options = options;
-        this.errorSelector = options?.settings?.youtubeErrorSelector || '.ytp-error';
+        this.errorSelector = options?.settings?.youtubeErrorSelector || DEFAULT_YOUTUBE_ERROR_SELECTOR;
         console.log('options', options);
     }
 
