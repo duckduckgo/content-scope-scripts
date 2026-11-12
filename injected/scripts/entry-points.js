@@ -27,10 +27,6 @@ const builds = {
         input: 'entry-points/apple.js',
         output: ['../Sources/ContentScopeScripts/dist/duckAiChatHistory.js'],
     },
-    'apple-broker-protection': {
-        input: 'entry-points/apple.js',
-        output: ['../Sources/ContentScopeScripts/dist/brokerProtection.js'],
-    },
     'apple-isolated': {
         input: 'entry-points/apple.js',
         output: ['../Sources/ContentScopeScripts/dist/contentScopeIsolated.js'],
