@@ -43,4 +43,28 @@ describe('PerformanceMark', () => {
         const entries = performance.getEntriesByName('test3', 'measure');
         expect(entries.length).toBeGreaterThan(0);
     });
+
+    it('measure() spans the recorded start and end times', () => {
+        const mark = new PerformanceMark('test4');
+        mark.end();
+        // A later mark with the same name does not move the measure
+        performance.mark('test4Start');
+        mark.measure();
+        const [entry] = performance.getEntriesByName('test4', 'measure');
+        expect(entry.startTime).toBe(mark.startTime);
+        expect(entry.duration).toBeCloseTo(/** @type {number} */ (mark.endTime) - mark.startTime, 5);
+    });
+
+    it('measure() records nothing before end()', () => {
+        const mark = new PerformanceMark('test5');
+        mark.measure();
+        expect(performance.getEntriesByName('test5', 'measure').length).toBe(0);
+    });
+
+    it('measure() does not throw when performance.measure throws', () => {
+        const mark = new PerformanceMark('test6');
+        mark.end();
+        spyOn(performance, 'measure').and.throwError('broken');
+        expect(() => mark.measure()).not.toThrow();
+    });
 });
