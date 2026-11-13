@@ -7,8 +7,7 @@ const CURSOR_MOVE_MS = 520;
 
 const MARKUP = `
     <div class="field" hidden></div>
-    <div class="typed" hidden></div>
-    <div class="caret" hidden></div>
+    <div class="typed" hidden><span></span></div>
     <div class="cursor hidden">
         <svg width="32" height="32" viewBox="0 0 32 32"><path d="M10.5 8.5 L10.5 25.5 L14.4 21.8 L17 27.6 L19.9 26.4 L17.3 20.6 L22.6 20.6 Z"/></svg>
         <div class="tag"><img src="${logoImg}" alt=""><span>Moving</span></div>
@@ -26,8 +25,6 @@ export class AgentOverlay extends Overlay {
     /** @type {Element | null} */
     fieldTarget = null;
     fieldRadius = '';
-    /** @type {number | null} */
-    caretX = null;
     /** @type {{ field: Element, left: number, top: number, right: number, bottom: number } | null} */
     typing = null;
 
@@ -41,7 +38,7 @@ export class AgentOverlay extends Overlay {
         this.cursorLabel = /** @type {HTMLElement} */ (this.root.querySelector('.cursor .tag span'));
         this.field = /** @type {HTMLElement} */ (this.root.querySelector('.field'));
         this.typed = /** @type {HTMLElement} */ (this.root.querySelector('.typed'));
-        this.caret = /** @type {HTMLElement} */ (this.root.querySelector('.caret'));
+        this.typedText = /** @type {HTMLElement} */ (this.root.querySelector('.typed span'));
     }
 
     /**
@@ -98,20 +95,11 @@ export class AgentOverlay extends Overlay {
     highlightField(element) {
         this.fieldTarget = element;
         this.fieldRadius = element ? getComputedStyle(element).borderRadius : '';
-        this.caretX = null;
         this.update();
     }
 
     /**
-     * @param {number | null} x - offset of the caret from the field's left edge, or null to hide it
-     */
-    setCaret(x) {
-        this.caretX = x;
-        this.update();
-    }
-
-    /**
-     * Covers the field's text so `setTypedText` can draw what's being typed in its place.
+     * Covers the field's text so `setTypedText` can draw what's being typed in its place, followed by a caret.
      *
      * @param {HTMLElement} field
      */
@@ -136,15 +124,18 @@ export class AgentOverlay extends Overlay {
             background: opaqueBackground(field),
             alignItems: field instanceof HTMLTextAreaElement ? 'flex-start' : 'center',
         });
-        this.typed.textContent = '';
+        this.typedText.textContent = '';
         this.update();
     }
 
     /**
      * @param {string} text
+     * @returns {number} offset of the end of the text from the field's left edge
      */
     setTypedText(text) {
-        this.typed.textContent = text;
+        this.typedText.textContent = text;
+        const field = this.typing?.field;
+        return field ? this.typedText.getBoundingClientRect().right - field.getBoundingClientRect().left : 0;
     }
 
     stopTyping() {
@@ -167,7 +158,7 @@ export class AgentOverlay extends Overlay {
     }
 
     /**
-     * The field highlight, the typed text covering the field's own text, and the caret.
+     * The field highlight, and the typed text covering the field's own text.
      */
     positionField() {
         const field = this.fieldTarget && documentBox(this.fieldTarget);
@@ -189,18 +180,6 @@ export class AgentOverlay extends Overlay {
             });
         } else {
             this.typed.hidden = true;
-        }
-
-        const caretHeight = field ? clamp(field.height - 4, 0, 15) : 0;
-        if (field && this.caretX !== null && caretHeight > 0) {
-            place(this.caret, {
-                left: field.left + clamp(this.caretX + 1, 0, field.width - 4),
-                top: field.top + (field.height - caretHeight) / 2,
-                width: 1,
-                height: caretHeight,
-            });
-        } else {
-            this.caret.hidden = true;
         }
     }
 }

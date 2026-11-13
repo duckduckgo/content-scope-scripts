@@ -92,18 +92,13 @@ async function retype(agent, field, budgetMs) {
     const value = field.value;
     await agent.moveCursor(field, { dx: 10, dy, label: 'Typing', durationMs: moveMs });
     const keystrokeMs = Math.min(MAX_KEYSTROKE_MS, (budgetMs - moveMs) / Math.max(value.length, 1));
-    const measure = textMeasurer(field);
     agent.startTyping(field);
     for (let i = 0; i <= value.length && field.value === value; i++) {
-        const typed = value.slice(0, i);
-        const x = measure(typed);
-        agent.setTypedText(typed);
-        agent.setCaret(x);
+        const x = agent.setTypedText(value.slice(0, i));
         agent.placeCursor(field, { dx: x, dy, durationMs: keystrokeMs });
         await wait(keystrokeMs);
     }
     agent.stopTyping();
-    agent.setCaret(null);
 }
 
 /**
@@ -138,17 +133,4 @@ function isSubmitButton(element) {
  */
 function isTypeable(field) {
     return field instanceof HTMLTextAreaElement || (field instanceof HTMLInputElement && TYPEABLE_INPUT_TYPES.has(field.type));
-}
-
-/**
- * @param {HTMLElement} field
- * @returns {(text: string) => number} offset of the end of `text` from the field's left edge
- */
-function textMeasurer(field) {
-    const style = getComputedStyle(field);
-    const inset = parseFloat(style.borderLeftWidth) + parseFloat(style.paddingLeft);
-    const context = document.createElement('canvas').getContext('2d');
-    if (!context) return () => inset;
-    context.font = style.font;
-    return (text) => inset + context.measureText(text).width;
 }

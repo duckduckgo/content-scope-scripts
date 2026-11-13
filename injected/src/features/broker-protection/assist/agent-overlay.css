@@ -15,9 +15,12 @@
     white-space: pre;
 }
 
-.caret {
-    position: absolute;
+.typed::after {
+    content: '';
+    flex: none;
     width: 1px;
+    height: min(15px, 100%);
+    margin-left: 1px;
     background: rgba(0, 0, 0, 0.96);
     animation: blink 1s steps(1) infinite;
 }
@@ -87,7 +90,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .caret {
+    .typed::after {
         animation: none;
     }
 
