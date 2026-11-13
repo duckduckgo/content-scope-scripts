@@ -2,14 +2,9 @@ import { SuccessResponse } from '../types.js';
 import { getElement } from '../utils/utils.js';
 import { expectMany } from '../utils/expectations.js';
 import { wait } from '../../../timer-utils.js';
+import * as turnOverlay from '../assist/turn-overlay.js';
 
 const POLL_MS = 250;
-
-/**
- * @typedef {object} HandOff
- * @property {(actionID: string, widget: Element | null) => void} start
- * @property {() => void} end
- */
 
 /**
  * Waits until `completeWhen` passes, handing the step to the user if it hasn't after `handOffAfterMs`.
@@ -17,19 +12,21 @@ const POLL_MS = 250;
  *
  * @param {import('../types.js').UserAssistAction} action
  * @param {Document} root
- * @param {HandOff} handOff
+ * @param {(actionID: string) => void} onHandOff
  * @return {Promise<import('../types.js').ActionResponse>}
  */
-export async function userAssist(action, root, handOff) {
+export async function userAssist(action, root, onHandOff) {
     const handOffAt = Date.now() + (action.handOffAfterMs ?? 0);
     let handedOff = false;
     while (!expectMany(action.completeWhen, root).every((x) => x.result)) {
         if (!handedOff && Date.now() >= handOffAt) {
             handedOff = true;
-            handOff.start(action.id, action.highlight ? getElement(root, action.highlight) : null);
+            const widget = action.highlight ? getElement(root, action.highlight) : null;
+            if (widget) turnOverlay.show(widget);
+            onHandOff(action.id);
         }
         await wait(POLL_MS);
     }
-    if (handedOff) handOff.end();
+    if (handedOff) turnOverlay.clear();
     return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: null });
 }

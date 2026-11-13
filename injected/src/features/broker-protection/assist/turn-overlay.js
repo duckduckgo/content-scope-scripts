@@ -1,39 +1,5 @@
-import { OverlayLayer, documentBox, place, query, setHidden, setStyle } from './layer.js';
-
-const STYLES = `
-.ring {
-    position: absolute;
-    border-radius: 4px;
-    outline: 3px solid #f5a623;
-    outline-offset: 3px;
-    animation: ring 1.6s ease-in-out infinite;
-}
-
-.badge {
-    position: absolute;
-    padding: 3px 10px;
-    border-radius: 999px;
-    background: #ffc95c;
-    color: #3d2a00;
-    font-size: 12px;
-    font-weight: 500;
-    line-height: 16px;
-    white-space: nowrap;
-}
-
-@keyframes ring {
-    50% {
-        outline-offset: 6px;
-        outline-color: rgba(245, 166, 35, 0.55);
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .ring {
-        animation: none;
-    }
-}
-`;
+import styles from './turn-overlay.css';
+import { Overlay, documentBox, place } from './overlay.js';
 
 const BADGE_GAP = 8;
 // 16px line height plus 3px padding top and bottom (.badge).
@@ -42,52 +8,58 @@ const BADGE_HEIGHT = 22;
 /**
  * The "Your turn" ring and badge around a widget the user has to solve.
  */
-export class TurnOverlay {
-    /** @type {Element | null} */
-    widget = null;
-    radius = '';
-    badgeBesideWidget = false;
-    layer = new OverlayLayer({
-        styles: STYLES,
-        markup: '<div class="ring" hidden></div><div class="badge" hidden>Your turn</div>',
-        select: (root) => ({ ring: query(root, '.ring'), badge: query(root, '.badge') }),
-        position: (els) => this.position(els),
-    });
+class TurnOverlay extends Overlay {
+    static styles = styles;
+    static markup = '<div class="ring" hidden></div><div class="badge" hidden>Your turn</div>';
 
     /**
      * @param {Element} widget
      */
-    show(widget) {
+    constructor(widget) {
         widget.scrollIntoView({ block: 'center', inline: 'nearest' });
+        const badgeBesideWidget = hasContentAbove(widget);
+        super();
         this.widget = widget;
-        this.radius = getComputedStyle(widget).borderRadius;
-        this.badgeBesideWidget = hasContentAbove(widget);
-        this.layer.attach();
-        this.layer.position();
+        this.badgeBesideWidget = badgeBesideWidget;
+        this.ring = /** @type {HTMLElement} */ (this.root.querySelector('.ring'));
+        this.ring.style.borderRadius = getComputedStyle(widget).borderRadius;
+        this.badge = /** @type {HTMLElement} */ (this.root.querySelector('.badge'));
+        this.update();
     }
 
-    clear() {
-        this.widget = null;
-        this.layer.destroy();
-    }
-
-    /**
-     * @param {{ ring: HTMLElement, badge: HTMLElement }} els
-     */
-    position({ ring, badge }) {
-        const widget = this.widget && documentBox(this.widget);
-        place(ring, widget);
-        setStyle(ring, 'borderRadius', this.radius);
-        setHidden(badge, !widget);
-        if (!widget) return;
+    position() {
+        const widget = documentBox(this.widget);
+        if (!widget) {
+            this.ring.hidden = true;
+            this.badge.hidden = true;
+            return;
+        }
+        place(this.ring, widget);
+        this.badge.hidden = false;
         if (this.badgeBesideWidget) {
-            setStyle(badge, 'left', `${widget.left + widget.width + 16}px`);
-            setStyle(badge, 'top', `${widget.top + (widget.height - BADGE_HEIGHT) / 2}px`);
+            this.badge.style.left = `${widget.left + widget.width + 16}px`;
+            this.badge.style.top = `${widget.top + (widget.height - BADGE_HEIGHT) / 2}px`;
         } else {
-            setStyle(badge, 'left', `${widget.left}px`);
-            setStyle(badge, 'top', `${widget.top - BADGE_HEIGHT - BADGE_GAP}px`);
+            this.badge.style.left = `${widget.left}px`;
+            this.badge.style.top = `${widget.top - BADGE_HEIGHT - BADGE_GAP}px`;
         }
     }
+}
+
+/** @type {TurnOverlay | null} */
+let current = null;
+
+/**
+ * @param {Element} widget
+ */
+export function show(widget) {
+    current?.remove();
+    current = new TurnOverlay(widget);
+}
+
+export function clear() {
+    current?.remove();
+    current = null;
 }
 
 /**

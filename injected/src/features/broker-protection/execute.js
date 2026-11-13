@@ -16,17 +16,16 @@ import { ErrorResponse } from './types';
 
 /**
  * @import { ActionResponse, PirAction, PirInputData, ProfileData, UserAssistAction } from './types.js'
- * @import { HandOff } from './actions/user-assist.js'
  */
 
 /**
  * @param {PirAction | UserAssistAction} action
  * @param {Record<string, any>} inputData
  * @param {Document} [root] - optional root element
- * @param {HandOff} [handOff] - needed for `userAssist`
+ * @param {(actionID: string) => void} [onHandOff] - needed for `userAssist`
  * @return {Promise<ActionResponse>}
  */
-export async function execute(action, inputData, root = document, handOff) {
+export async function execute(action, inputData, root = document, onHandOff) {
     try {
         switch (action.actionType) {
             case 'navigate':
@@ -53,7 +52,7 @@ export async function execute(action, inputData, root = document, handOff) {
                 return await executeScript(action, data(action, inputData, 'userProfile'), root);
             case 'userAssist':
                 // Only BrokerProtection is sent userAssist actions, and it always passes a hand-off.
-                return await userAssist(action, root, /** @type {HandOff} */ (handOff));
+                return await userAssist(action, root, /** @type {(actionID: string) => void} */ (onHandOff));
             default: {
                 // Every known type is handled above, but native may send one this build doesn't know.
                 const unknown = /** @type {{ id: string, actionType: string }} */ (action);

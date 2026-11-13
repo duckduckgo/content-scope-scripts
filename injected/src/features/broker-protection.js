@@ -2,7 +2,6 @@ import ContentFeature from '../content-feature.js';
 import { execute } from './broker-protection/execute.js';
 import { retry } from '../timer-utils.js';
 import { ErrorResponse } from './broker-protection/types.js';
-import { TurnOverlay } from './broker-protection/assist/turn-overlay.js';
 
 export class ActionExecutorBase extends ContentFeature {
     /**
@@ -96,19 +95,8 @@ export class ActionExecutorBase extends ContentFeature {
  * @typedef {import("./broker-protection/types.js").ActionResponse} ActionResponse
  * @typedef {import("./broker-protection/types.js").PirAction} PirAction
  * @typedef {import("./broker-protection/types.js").UserAssistAction} UserAssistAction
- * @typedef {import("./broker-protection/actions/user-assist.js").HandOff} HandOff
  */
 export default class BrokerProtection extends ActionExecutorBase {
-    turn = new TurnOverlay();
-    /** @type {HandOff} */
-    handOff = {
-        start: (actionID, widget) => {
-            if (widget) this.turn.show(widget);
-            this.messaging.notify('userTurnNeeded', { actionID });
-        },
-        end: () => this.turn.clear(),
-    };
-
     init() {
         this.messaging.subscribe('onActionReceived', async (/** @type {any} */ params) => {
             const { action, data } = params.state;
@@ -122,7 +110,7 @@ export default class BrokerProtection extends ActionExecutorBase {
      * @return {Promise<ActionResponse>}
      */
     runAction(action, data) {
-        return execute(action, data, document, this.handOff);
+        return execute(action, data, document, (actionID) => this.messaging.notify('userTurnNeeded', { actionID }));
     }
 
     /**

@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { OVERLAY_ID } from '../src/features/autofill-import';
+import { OVERLAY_ID } from '../src/features/autofill-import/constants.js';
 import { ResultsCollector } from './page-objects/results-collector.js';
 
 const HTML = '/autofill-import/index.html';
