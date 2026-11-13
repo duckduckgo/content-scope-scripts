@@ -2,6 +2,7 @@ import ContentFeature from '../content-feature.js';
 import { execute } from './broker-protection/execute.js';
 import { retry } from '../timer-utils.js';
 import { ErrorResponse } from './broker-protection/types.js';
+import * as visualizer from './broker-protection/assist/visualizer.js';
 
 export class ActionExecutorBase extends ContentFeature {
     /**
@@ -97,7 +98,10 @@ export class ActionExecutorBase extends ContentFeature {
  * @typedef {import("./broker-protection/types.js").UserAssistAction} UserAssistAction
  */
 export default class BrokerProtection extends ActionExecutorBase {
+    visualize = false;
+
     init() {
+        this.visualize = this.getFeatureSettingEnabled('visualizeActions', 'disabled');
         this.messaging.subscribe('onActionReceived', async (/** @type {any} */ params) => {
             const { action, data } = params.state;
             return await this.processActionAndNotify(action, data);
@@ -109,8 +113,12 @@ export default class BrokerProtection extends ActionExecutorBase {
      * @param {Record<string, any>} data
      * @return {Promise<ActionResponse>}
      */
-    runAction(action, data) {
-        return execute(action, data, document, (actionID) => this.messaging.notify('userTurnNeeded', { actionID }));
+    async runAction(action, data) {
+        // Visualising runs inside retry(), so if it threw after a click or fill, retry() would run the action again.
+        if (this.visualize) await visualizer.beforeAction(action).catch((e) => this.log.error('visualizing action failed', e));
+        const response = await execute(action, data, document, (actionID) => this.messaging.notify('userTurnNeeded', { actionID }));
+        if (this.visualize) await visualizer.afterAction(action, response).catch((e) => this.log.error('visualizing action failed', e));
+        return response;
     }
 
     /**
