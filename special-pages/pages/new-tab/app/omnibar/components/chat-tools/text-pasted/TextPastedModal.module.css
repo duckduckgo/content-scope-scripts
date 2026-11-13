@@ -121,6 +121,26 @@
         outline: 2px solid var(--ds-color-theme-accent-primary);
         outline-offset: -1px;
     }
+
+    /* Thin and hidden until hovered; macOS keeps its native overlay scrollbar. */
+    [data-platform='windows'] & {
+        &::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        &::-webkit-scrollbar-track {
+            margin-block: var(--ds-radius-x06);
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background: transparent;
+            border-radius: 6px;
+        }
+
+        &:hover::-webkit-scrollbar-thumb {
+            background: rgb(108, 108, 108);
+        }
+    }
 }
 
 .footer {
