@@ -42,8 +42,6 @@
 .root {
     backdrop-filter: blur(24px);
     background-color: var(--ds-color-theme-control-fill-primary);
-    /* Reserved so the hover/pressed border doesn't shift the contents. */
-    border: 1px solid transparent;
     border-radius: 18px;
     box-sizing: border-box;
     color: var(--ds-color-theme-text-primary);
@@ -56,12 +54,12 @@
     width: 100%;
 }
 
-/* Hover is gated on a real pointer: on touch it sticks after a tap. */
+/* Hover is gated on a real pointer: on touch it sticks after a tap. Borders are inset shadows so they take no layout space. */
 @media (hover: hover) {
     .root:hover {
         background-color: var(--ds-color-theme-control-fill-secondary);
-        border-color: var(--ds-color-theme-container-border-primary);
         box-shadow:
+            inset 0 0 0 1px var(--ds-color-theme-container-border-primary),
             0 0.25px 1px 0 var(--ds-color-theme-shadow-secondary),
             0 1px 4px 0 var(--ds-color-theme-shadow-primary);
     }
@@ -69,8 +67,8 @@
 
 .root:active {
     background-color: var(--ds-color-theme-control-fill-tertiary);
-    border-color: var(--ds-color-theme-container-border-secondary);
     box-shadow:
+        inset 0 0 0 1px var(--ds-color-theme-container-border-secondary),
         0 0.25px 1px 0 var(--ds-color-theme-shadow-secondary),
         0 1px 4px 0 var(--ds-color-theme-shadow-primary);
 }
