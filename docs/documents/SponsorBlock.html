@@ -1,0 +1,107 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>SponsorBlock | @duckduckgo/content-scope-scripts</title><meta name="description" content="Documentation for @duckduckgo/content-scope-scripts"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">@duckduckgo/content-scope-scripts</a>
+<div id="tsd-toolbar-links"></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="" aria-current="page">SponsorBlock</a></li></ul></div>
+<div class="tsd-panel tsd-typography"><h1 id="sponsorblock" class="tsd-anchor-link">SponsorBlock<a href="#sponsorblock" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h1>
+<p>Skips sponsored segments in YouTube videos using <a href="https://sponsor.ajay.app/">SponsorBlock</a> data that native fetches. The feature owns everything that needs the DOM or player state; native owns trust, network, hashing, caching, user settings and remote config. The page sends an 11-character video ID and gets back that video's segments; how native produces them is invisible to the page by design.</p>
+<p>Shipped in the Apple <strong>isolated-world</strong> bundle (<code>contentScopeIsolated.js</code>). The MVP is internal-only.</p>
+<h2 id="what-the-feature-does" class="tsd-anchor-link">What the feature does<a href="#what-the-feature-does" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<ul>
+<li><strong>Video detection:</strong> reads the video ID from watch, shorts, live and embed URLs on load, on SPA navigation and whenever a video element starts loading. Responses that arrive after the user moved to another video are discarded.</li>
+<li><strong>Config:</strong> on init it subscribes to <code>onConfigChanged</code>, then calls <code>getConfig</code>. Nothing is requested or drawn until native says <code>enabled</code>. A rejected <code>getConfig</code> (no handler on this build) leaves the feature disabled.</li>
+<li><strong>Rendering:</strong> draws the segments on the player's progress bar. The skip button is mounted in a closed shadow root over the player, so YouTube's scripts cannot query or restyle it.</li>
+<li><strong>Skip:</strong> in <code>manual</code> mode a button appears while playback is inside a segment and seeks to its end on click. It hides after 8 seconds and stays hidden until playback leaves that segment. In <code>auto</code> mode playback seeks past a segment as soon as it enters it naturally; a segment the user seeks into gets the button instead, so seeking back never re-skips.</li>
+<li><strong>Duration check:</strong> a segment whose <code>videoDuration</code> differs from the player's duration by more than 2 s is ignored, since the video was re-cut after submission.</li>
+<li><strong>Ads:</strong> while an ad plays (matched by <code>adShowingSelectors</code>) no markers are drawn, no button is shown and nothing is seeked.</li>
+<li><strong>Selector miss:</strong> no UI and no errors.</li>
+</ul>
+<h2 id="frame-rules" class="tsd-anchor-link">Frame rules<a href="#frame-rules" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>The feature activates in:</p>
+<ul>
+<li>the top frame of <code>youtube.com</code> and <code>m.youtube.com</code>;</li>
+<li>the top frame of <code>youtube-nocookie.com</code>, which is how iOS Duck Player loads the video;</li>
+<li>a <code>youtube-nocookie.com</code> frame whose ancestors are all nocookie pages, which is macOS Duck Player's embed.</li>
+</ul>
+<p>Embeds on any other site never activate it.</p>
+<h2 id="messaging" class="tsd-anchor-link">Messaging<a href="#messaging" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>Schemas live in <code>injected/src/messages/sponsor-block/</code>; <code>npm run build-types -w injected</code> generates the typed contract. The contract is versioned through <code>getConfig</code>'s <code>version</code>, currently <code>1</code>.</p>
+<ul>
+<li><strong>Context:</strong> <code>contentScopeScriptsIsolated</code></li>
+<li><strong>Feature name:</strong> <code>sponsorBlock</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Kind</th>
+<th>Parameters</th>
+<th>Result / payload</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>getConfig</code></td>
+<td>request</td>
+<td><code>{}</code></td>
+<td><code>{ enabled: boolean, skipMode: &quot;manual&quot; | &quot;auto&quot;, version: number }</code>. <code>enabled</code> is true only when the user opted in and the setting is on</td>
+</tr>
+<tr>
+<td><code>getSegments</code></td>
+<td>request</td>
+<td><code>{ videoID: string }</code></td>
+<td><code>{ segments: Segment[] }</code> sorted by start; empty when the video has none or the feature is disabled. Native never rejects for lookup failures</td>
+</tr>
+<tr>
+<td><code>onConfigChanged</code></td>
+<td>subscription</td>
+<td><code>{ enabled, skipMode }</code></td>
+<td>pushed to every YouTube tab when the user changes a setting</td>
+</tr>
+</tbody>
+</table>
+<p><code>Segment</code> is <code>{ start, end, category, actionType, uuid, videoDuration? }</code>, times in seconds. Native chooses the categories and action types from remote config and user settings; the page does not ask for them.</p>
+<h2 id="remote-config" class="tsd-anchor-link">Remote config<a href="#remote-config" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<pre><code class="json"><span class="hl-7">&quot;sponsorBlock&quot;</span><span class="hl-2">: {</span><br/><span class="hl-2">  </span><span class="hl-11">&quot;state&quot;</span><span class="hl-2">: </span><span class="hl-7">&quot;internal&quot;</span><span class="hl-2">,</span><br/><span class="hl-2">  </span><span class="hl-11">&quot;exceptions&quot;</span><span class="hl-2">: [],</span><br/><span class="hl-2">  </span><span class="hl-11">&quot;settings&quot;</span><span class="hl-2">: {</span><br/><span class="hl-2">    </span><span class="hl-11">&quot;progressBarSelectors&quot;</span><span class="hl-2">: [</span><span class="hl-7">&quot;.ytp-progress-bar&quot;</span><span class="hl-2">, </span><span class="hl-7">&quot;...&quot;</span><span class="hl-2">],</span><br/><span class="hl-2">    </span><span class="hl-11">&quot;skipButtonHostSelectors&quot;</span><span class="hl-2">: [</span><span class="hl-7">&quot;#player-container-id&quot;</span><span class="hl-2">, </span><span class="hl-7">&quot;#player-controls&quot;</span><span class="hl-2">, </span><span class="hl-7">&quot;#movie_player&quot;</span><span class="hl-2">, </span><span class="hl-7">&quot;.html5-video-player&quot;</span><span class="hl-2">],</span><br/><span class="hl-2">    </span><span class="hl-11">&quot;adShowingSelectors&quot;</span><span class="hl-2">: [</span><span class="hl-7">&quot;.ad-showing&quot;</span><span class="hl-2">]</span><br/><span class="hl-2">  }</span><br/><span class="hl-2">}</span>
+</code><button type="button">Copy</button></pre>
+
+<p>Each selector list is ordered: the first selector with a visible match wins. The feature falls back to in-code defaults when a key is absent, drops malformed entries, and treats an empty list as &quot;no UI for this piece&quot;. <code>categories</code> and <code>actionTypes</code> are read by native only.</p>
+<p>The feature loads only when the remote config names <code>sponsorBlock</code> with a state that resolves to enabled for the platform; without an entry, or with <code>disabled</code>, its <code>init</code> never runs and no message is sent. To test before the entry ships, point the app at a custom privacy config that includes it.</p>
+<h2 id="testing" class="tsd-anchor-link">Testing<a href="#testing" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<ul>
+<li>Unit: <code>injected/unit-test/sponsor-block.js</code> covers URL parsing, the frame rule, segment geometry, the duration check, selector settings and the config flow.</li>
+<li>Integration: <code>injected/integration-test/sponsor-block.spec.js</code> (project <code>apple-isolated</code>) runs a fake player served under <a href="http://youtube.com">youtube.com</a> URLs with mocked native responses, covering rendering, manual and auto skip, <code>onConfigChanged</code>, ads, navigation, selector miss and the frame rules.</li>
+</ul>
+</div></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
+<details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>On This Page</h3></summary>
+<div class="tsd-accordion-details"><a href="#sponsorblock"><span>Sponsor<wbr/>Block</span></a>
+<ul>
+<li><a href="#what-the-feature-does"><span>What the feature does</span></a></li>
+<li><a href="#frame-rules"><span>Frame rules</span></a></li>
+<li><a href="#messaging"><span>Messaging</span></a></li>
+<li><a href="#remote-config"><span>Remote config</span></a></li>
+<li><a href="#testing"><span>Testing</span></a></li></ul></div></details></div>
+<div class="site-menu">
+<nav class="tsd-navigation"><a href="../index.html">@duckduckgo/content-scope-scripts</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer>
+<p class="tsd-generator">Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></footer>
+<div class="overlay"></div></body></html>
