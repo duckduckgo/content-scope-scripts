@@ -2,10 +2,11 @@
  * Values shared by the web detection evaluator modules.
  *
  * Three outcomes leave an expression other than a value:
- * - a `Failure` is a state of the page: a getter or method threw, or a name called is not a function. It
- *   is returned, not thrown, so `fails` can test it and `none` cannot invert it.
- * - a `DetectionError` is config that does not fit the page, such as a value of the wrong type. It is
- *   thrown, and ends the run with `'error'`.
+ * - a `Failure` is a state of the page: a getter or method threw, a name called is not a function, or a
+ *   value does not fit the config, such as a value of the wrong type or `only` over no items. It is
+ *   returned, not thrown, so `fails` can test it and `none` cannot invert it.
+ * - a `DetectionError` is config that parsing should have rejected reaching evaluation. It is thrown, and
+ *   ends the run with `'error'`, as an invalid selector or XPath expression does.
  * - a `ConfigParseError` is config that does not fit the grammar. It is thrown at parse time.
  */
 
@@ -15,7 +16,8 @@ export class Failure {
     #brand = true;
 
     /**
-     * @param {string} [error] - for a throw, the name of the thrown value's constructor, for debugging
+     * @param {string} [error] - for a throw, the name of the thrown value's constructor, and for a value
+     * that does not fit the config, what did not fit, for debugging
      * @param {string} [path] - the config path of the expression it arose at
      */
     constructor(error, path) {
@@ -52,6 +54,16 @@ export class Failure {
  */
 export function isFailure(value) {
     return typeof value === 'object' && value !== null && Failure.has(value);
+}
+
+/**
+ * The failure a value that does not fit the config gives, such as a value of the wrong type.
+ *
+ * @param {string} message - what did not fit, for debugging
+ * @returns {Failure}
+ */
+export function mismatch(message) {
+    return new Failure(message);
 }
 
 /**
@@ -102,7 +114,7 @@ function errorName(thrown) {
     return undefined;
 }
 
-/** Config that does not fit the page. */
+/** Config that parsing should have rejected, reaching evaluation. */
 export class DetectionError extends Error {
     /** @type {string | undefined} the config path of the expression it arose at, set as it leaves that expression */
     path;
