@@ -1262,4 +1262,69 @@ test.describe('Broker Protection communications', () => {
             expect(await completedResult(dbp)).toEqual({ error: { actionID, message: 'executeScript failed: Error: failed' } });
         });
     });
+
+    test.describe('userAssist', () => {
+        const actionID = 'user-assist-test';
+
+        /** @param {Record<string, unknown>} [overrides] */
+        function userAssistAction(overrides = {}) {
+            return {
+                state: {
+                    action: {
+                        actionType: 'userAssist',
+                        id: actionID,
+                        highlight: '#captcha',
+                        completeWhen: [{ type: 'element', selector: "input[name='captcha-token'][value]" }],
+                        ...overrides,
+                    },
+                    data: {},
+                },
+            };
+        }
+
+        /**
+         * @param {import('../page-objects/broker-protection.js').BrokerProtectionPage} dbp
+         * @param {string} method
+         */
+        async function sentCount(dbp, method) {
+            const calls = await dbp.collector.outgoingMessages();
+            return calls.filter((call) => 'method' in call.payload && call.payload.method === method).length;
+        }
+
+        /** @param {import('@playwright/test').Page} page */
+        async function solveCaptcha(page) {
+            await page.locator("input[name='captcha-token']").evaluate((input) => input.setAttribute('value', 'token'));
+        }
+
+        test.beforeEach(async ({ dbp, page }) => {
+            // The Windows mock also tries to answer notifications, and under page.clock its "response not found" error fails the test.
+            await dbp.collector.updateMockResponse({ actionCompleted: null, userTurnNeeded: null });
+            await page.clock.install();
+            await dbp.navigatesTo('user-assist.html');
+        });
+
+        test('completes straight away when completeWhen already passes', async ({ dbp, page }) => {
+            await solveCaptcha(page);
+            await dbp.receivesInlineAction(userAssistAction());
+            dbp.isSuccessMessage(await dbp.collector.waitForMessage('actionCompleted'), actionID);
+            expect(await sentCount(dbp, 'userTurnNeeded')).toBe(0);
+        });
+
+        test('hands off after handOffAfterMs, then completes once completeWhen passes', async ({ dbp, page }) => {
+            await dbp.receivesInlineAction(userAssistAction({ handOffAfterMs: 10_000 }));
+            await page.clock.runFor(9_000);
+            expect(await sentCount(dbp, 'userTurnNeeded')).toBe(0);
+
+            await page.clock.runFor(1_000);
+            const [handOff] = await dbp.collector.waitForMessage('userTurnNeeded');
+            expect(handOff.payload.params).toEqual({ actionID });
+            await expect(page.locator('ddg-pir-assist')).toHaveCount(1);
+            expect(await sentCount(dbp, 'actionCompleted')).toBe(0);
+
+            await solveCaptcha(page);
+            await page.clock.runFor(250);
+            dbp.isSuccessMessage(await dbp.collector.waitForMessage('actionCompleted'), actionID);
+            await expect(page.locator('ddg-pir-assist')).toHaveCount(0);
+        });
+    });
 });
