@@ -1,0 +1,1084 @@
+.report {
+    --report-ease: cubic-bezier(0.4, 0, 0.2, 1);
+    --report-gutter: 16px;
+    --report-divider: var(--ds-color-theme-container-border-primary);
+    /* opaque, so overlapping placeholder circles don't darken each other */
+    --report-skeleton: var(--color-gray-25);
+    --report-popover-bg: var(--color-white);
+    --report-more-bg: var(--color-gray-20);
+    --report-card-bg: var(--color-black-at-6);
+    --report-highlight-bg: var(--color-yellow-50);
+    --report-highlight-fg: var(--color-gray-95);
+    --report-blocked-icon: var(--color-green-50);
+
+    padding: 20px 24px 16px;
+    /* the eye peeks over the card's right padding */
+    overflow: visible;
+    color: var(--ds-color-theme-text-primary);
+}
+
+/* Title row */
+
+.titleRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 28px;
+}
+
+.titleIcon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+.title {
+    font-size: 15px;
+    line-height: 20px;
+    font-weight: 600;
+    letter-spacing: -0.18px;
+}
+
+.toggle {
+    margin-left: auto;
+    display: flex;
+}
+
+/* Info pop-over */
+
+.info {
+    position: relative;
+    /* optically centres the icon on the title */
+    top: 1px;
+    display: flex;
+}
+
+.infoButton {
+    cursor: pointer;
+    /* the "1 issue" pill's height, colours and hover */
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: var(--report-more-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ds-color-theme-text-primary);
+    transition: background-color 100ms ease;
+
+    svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    /* full strength: the icon's global style fades it */
+    :global(.info-icon-fill),
+    [data-theme='dark'] & :global(.info-icon-fill) {
+        fill: currentColor;
+        fill-opacity: 1;
+    }
+
+    /* just the "i": the circle is the button's own background */
+    svg path:last-child {
+        display: none;
+    }
+
+    &:hover,
+    &[aria-expanded='true'] {
+        background: color-mix(in srgb, var(--report-more-bg), currentColor 10%);
+    }
+
+    &:focus-visible {
+        outline: none;
+        box-shadow: var(--focus-ring);
+    }
+}
+
+.infoPopover {
+    position: absolute;
+    /* top-left corner hangs from the icon */
+    left: 0;
+    /* bridge the gap so moving the pointer onto the pop-over doesn't close it */
+    top: 22px;
+    padding-top: 6px;
+    z-index: 30;
+    width: 320px;
+    box-sizing: content-box;
+    /* eases in from the icon, like the favorites' tracker pop-over */
+    --info-from: -4px;
+    animation: info-in 0.14s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 6px 0 0;
+        z-index: -1;
+        border-radius: 12px;
+        background: var(--report-popover-bg);
+        box-shadow:
+            0 0 0 1px var(--report-divider),
+            0 8px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    > * {
+        position: relative;
+        margin: 0;
+        padding: 0 16px;
+        font-size: 14px;
+        line-height: 20px;
+        color: var(--ds-color-theme-text-secondary);
+        /* no text-wrap: pretty here: in a column this narrow it breaks every
+           line early, so paragraphs look squeezed */
+    }
+
+    > * + * {
+        margin-top: 8px;
+    }
+
+    > :first-child {
+        padding-top: 14px;
+    }
+
+    > :last-child {
+        padding-bottom: 16px;
+    }
+}
+
+/* The card's backdrop blur makes it its own stacking context, so the
+   pop-over's z-index only counts inside it; while it's open, the card itself
+   goes above the rest of the page (eg: the search box, when it opens upward) */
+.report:has(.infoPopover) {
+    position: relative;
+    z-index: 1000;
+}
+
+@keyframes info-in {
+    from {
+        opacity: 0;
+        transform: translateY(var(--info-from));
+    }
+}
+
+/* bottom-left corner sits on the icon instead */
+.infoPopoverAbove {
+    --info-from: 4px;
+    top: auto;
+    bottom: 22px;
+    padding-top: 0;
+    padding-bottom: 6px;
+
+    &::before {
+        inset: 0 0 6px;
+    }
+}
+
+/* DuckDuckGo isn't the default browser: flagged as an issue */
+.issuePill {
+    cursor: pointer;
+    height: 20px;
+    padding: 0 8px;
+    border: 0;
+    border-radius: 10px;
+    /* the grey of the "+N" logo pills */
+    background: var(--report-more-bg);
+    color: var(--ds-color-theme-text-primary);
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 600;
+    white-space: nowrap;
+
+    &:hover,
+    &[aria-expanded="true"] {
+        background: color-mix(in srgb, var(--report-more-bg), currentColor 10%);
+    }
+}
+
+/* the fix, at the bottom of the pop-over */
+.infoAction {
+    padding-top: 6px !important;
+    display: flex;
+    gap: 8px;
+}
+
+/* the NTP's Title 2 text style */
+.infoTitle {
+    font-size: var(--title-2-font-size) !important;
+    line-height: var(--title-2-line-height) !important;
+    font-weight: var(--title-2-font-weight);
+    color: var(--ds-color-theme-text-primary) !important;
+}
+
+/* "The more of your everyday browsing…" */
+.infoEmphasis {
+    font-weight: 600;
+}
+
+/* Headline */
+
+/* Two stacked headlines (full + compact) that crossfade on collapse */
+
+.headSwitch {
+    --head-fade: 340ms var(--report-ease);
+
+    margin-top: 14px;
+    display: grid;
+    overflow: hidden;
+    /* a self-contained group, so the layers blend only with each other */
+    isolation: isolate;
+    transition: height var(--head-fade);
+}
+
+/* A true crossfade: both layers fade at once on the same curve, and
+   plus-lighter adds their opacities together, so wherever the two headlines
+   overlap the result stays at full strength instead of dimming or doubling.
+   (An opaque layer background would do the same job, but the card is
+   translucent over custom backgrounds.) */
+.headLayer {
+    grid-area: 1 / 1;
+    align-self: start;
+    min-width: 0;
+    mix-blend-mode: plus-lighter;
+    transition: opacity var(--head-fade);
+
+    &[data-active='false'] {
+        opacity: 0;
+        pointer-events: none;
+    }
+}
+
+/* extra breathing room above the card's bottom edge when collapsed */
+.headlineCompact {
+    padding-bottom: 12px;
+}
+
+.headlineRow {
+    display: flex;
+    align-items: center;
+}
+
+.headlineText {
+    flex: 1;
+    min-width: 0;
+}
+
+.report > .headlineText {
+    margin-top: 14px;
+}
+
+/* Same breathing room as .headlineCompact gives the populated widget. It goes
+   on the card's padding, below the body, so nothing above it moves while the
+   body animates. */
+.report[data-empty='true'] {
+    transition: padding-bottom 340ms var(--report-ease);
+
+    &[data-expanded='false'] {
+        padding-bottom: 28px;
+    }
+}
+
+.headline {
+    font-family: var(--ds-font-family-display, var(--theme-font-family, system-ui));
+    font-size: 28px;
+    line-height: 38px;
+    font-weight: 500;
+    letter-spacing: -0.4px;
+    text-wrap: pretty;
+
+    b {
+        background: var(--report-highlight-bg);
+        color: var(--report-highlight-fg);
+        padding: 0 6px;
+        border-radius: 6px;
+        font-weight: 700;
+        box-decoration-break: clone;
+        -webkit-box-decoration-break: clone;
+    }
+}
+
+.subheadline {
+    margin-top: 8px;
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--ds-color-theme-text-secondary);
+    /* always one line; where it's longer than the headline (eg: the shared
+       picture's "DuckDuckGo blocked…") it runs on into the eye's space */
+    white-space: nowrap;
+
+    b {
+        font-weight: 600;
+        color: var(--ds-color-theme-text-primary);
+    }
+}
+
+.eyeSlot {
+    flex-shrink: 0;
+    width: 112px;
+    height: 112px;
+    /* the artwork has room around it, so the headline can run into the
+       slot's left edge: enough for "watch you browse this week." on one line */
+    margin: -14px -14px -14px -18px;
+    /* nudged up and out, without moving the text */
+    position: relative;
+    top: -15px;
+    right: -4px;
+}
+
+/* the copy of the report drawn into the shared picture: laid out at the
+   report's width, out of sight (see useShareCopy) */
+.shareCopy {
+    position: fixed;
+    top: 0;
+    left: -10000px;
+    pointer-events: none;
+}
+
+.eye {
+    display: block;
+    width: 112px;
+    height: 112px;
+    /* the artwork peeks in from the right */
+    transform: scaleX(-1);
+}
+
+/* Collapsible body */
+
+.collapsible {
+    overflow: hidden;
+    transition: height 340ms var(--report-ease);
+    /* gutter so the view menu's hover fill isn't clipped mid-animation */
+    padding: 0 var(--report-gutter);
+    margin: 0 calc(var(--report-gutter) * -1);
+
+    /* once the expand has finished, nothing needs clipping */
+    &[data-settled='true'] {
+        overflow: visible;
+    }
+}
+
+.collapsibleInner {
+    /* contain child margins, so the measured height matches the settled one */
+    display: flow-root;
+    transition: opacity 260ms ease 90ms;
+
+    [data-expanded='false'] > & {
+        opacity: 0;
+        transition: opacity 180ms ease;
+    }
+}
+
+.divider {
+    height: 1px;
+    border: 0;
+    margin: 20px 0 10px;
+    background: var(--report-divider);
+}
+
+/* View menu */
+
+.viewMenu {
+    display: flex;
+    /* keep the open menu above the list below it */
+    position: relative;
+    z-index: 2;
+}
+
+.viewTrigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 34px;
+    padding: 0 10px;
+    margin-left: -10px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--ds-color-theme-text-secondary);
+    user-select: none;
+    transition:
+        background 100ms ease,
+        box-shadow 100ms ease;
+
+    /* hint that it's a control while the pointer is anywhere on the widget;
+       hovering the trigger itself adds the fill */
+    .report:hover & {
+        box-shadow: inset 0 0 0 1px var(--report-divider);
+    }
+
+    &:hover,
+    &[aria-expanded='true'],
+    .report:hover &:hover,
+    .report:hover &[aria-expanded='true'] {
+        background: var(--ds-color-theme-control-fill-primary);
+        box-shadow: inset 0 0 0 1px var(--report-divider);
+    }
+
+    &:focus-visible,
+    .report:hover &:focus-visible {
+        outline: none;
+        box-shadow: var(--focus-ring);
+    }
+}
+
+.viewTriggerDisabled {
+    color: var(--ds-color-theme-text-tertiary);
+
+    &:hover,
+    .report:hover & {
+        background: transparent;
+        box-shadow: none;
+    }
+
+    .viewLabel {
+        color: var(--ds-color-theme-text-tertiary);
+    }
+}
+
+.viewLabel {
+    /* the whole label is already semibold here; the bold question word is for the menu */
+    b {
+        font-weight: inherit;
+    }
+
+    font-size: 17px;
+    line-height: 22px;
+    font-weight: 600;
+    letter-spacing: -0.24px;
+    color: var(--ds-color-theme-text-primary);
+    white-space: nowrap;
+}
+
+.viewChevron {
+    display: flex;
+}
+
+.viewDropdown {
+    min-width: 272px;
+
+    b {
+        font-weight: 600;
+    }
+
+    /* WebKit draws backdrop-filter elements (the activity favicons) on their
+       own compositing layers, and can paint those above content that isn't
+       on a layer of its own, regardless of z-index. Promoting the menu to a
+       layer makes WebKit composite it in z-order, above them. */
+    will-change: transform;
+}
+
+.panel {
+    margin-top: 6px;
+    position: relative;
+    z-index: 1;
+
+    /* the activity list brings its own top margin for the old tabbed layout */
+    &[data-view='activity'] [data-testid='Activity'] > ul {
+        margin-top: 0;
+    }
+
+    /* the activity list's favicon tiles, styled like the other site tiles in
+       the report (.siteIcon): solid, with a hairline ring and a soft shadow */
+    &[data-view='activity'] [data-testid='Activity'] span[data-url] {
+        background: var(--report-popover-bg);
+        border: 0;
+        border-radius: 8px;
+        box-shadow:
+            0 0 0 1px var(--report-divider),
+            0 1px 2px rgba(0, 0, 0, 0.06);
+        backdrop-filter: none;
+        /* flush left, lined up with the cookie icon; the 3px moves to the
+           right so the title and history text don't shift */
+        margin-left: 0;
+        margin-right: 6px;
+    }
+}
+
+/* Rows (purposes + companies) */
+
+.list {
+    list-style: none;
+    margin: 6px 0 0;
+    padding: 0;
+
+    .panel & {
+        margin-top: 0;
+    }
+}
+
+.row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 0;
+}
+
+.rowText {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.rowTitle {
+    font-size: 14px;
+    line-height: 18px;
+    font-weight: 600;
+    text-wrap: pretty;
+}
+
+.rowLineEmphasis {
+    font-size: 14px;
+    line-height: 18px;
+
+    strong {
+        font-weight: 600;
+    }
+}
+
+.rowLine {
+    font-size: 12px;
+    line-height: 16px;
+    color: var(--ds-color-theme-text-secondary);
+}
+
+.avatars {
+    display: flex;
+    align-items: center;
+    padding-left: 6px;
+    width: 96px;
+    flex-shrink: 0;
+}
+
+.avatarsAuto {
+    width: auto;
+}
+
+.avatar,
+.avatarMore {
+    --avatar-size: 26px;
+    --avatar-overlap: 6px;
+    --avatar-gap: 2px;
+
+    height: var(--avatar-size);
+    margin-left: calc(var(--avatar-overlap) * -1);
+    border-radius: calc(var(--avatar-size) / 2);
+}
+
+/* Each circle is cut away where the next one overlaps it, leaving a real gap.
+   (A ring in the card colour doesn't work: the card is translucent.) The next
+   item's centre sits half a size past this one's right edge, minus the
+   overlap; that's also true of the "+N" pill's rounded left end. */
+.avatar:not(:last-child) {
+    --cut-x: calc(100% + var(--avatar-size) / 2 - var(--avatar-overlap));
+    --cut-r: calc(var(--avatar-size) / 2 + var(--avatar-gap));
+
+    -webkit-mask: radial-gradient(circle at var(--cut-x) 50%, transparent var(--cut-r), #000 calc(var(--cut-r) + 0.5px));
+    mask: radial-gradient(circle at var(--cut-x) 50%, transparent var(--cut-r), #000 calc(var(--cut-r) + 0.5px));
+}
+
+.avatar {
+    width: 26px;
+    flex-shrink: 0;
+    display: flex;
+    overflow: hidden;
+}
+
+.avatarMore {
+    display: flex;
+    align-items: center;
+    padding: 0 7px;
+    /* opaque, so overlapping logos don't show through */
+    background: var(--report-more-bg);
+    color: var(--ds-color-theme-text-secondary);
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.companyIcon {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    display: flex;
+}
+
+/* the company logo fills its circle */
+:is(.avatar, .companyIcon) {
+    > *,
+    img {
+        width: 100%;
+        height: 100%;
+    }
+}
+
+.blocked {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 500;
+    color: var(--ds-color-theme-text-secondary);
+}
+
+.blockedIcon {
+    width: 14px;
+    height: 14px;
+    color: var(--report-blocked-icon);
+}
+
+/* Empty state */
+
+.skeleton {
+    background: var(--report-skeleton);
+}
+
+.skeletonLine,
+.skeletonLineShort {
+    display: block;
+}
+
+.skeletonLine {
+    height: 10px;
+    width: 72%;
+    border-radius: 5px;
+}
+
+.skeletonLineShort {
+    margin-top: 5px;
+    height: 8px;
+    width: 44%;
+    border-radius: 4px;
+}
+
+.emptyFooter {
+    margin: 6px 0 0;
+    text-align: center;
+    font-size: 12px;
+    line-height: 16px;
+    color: var(--ds-color-theme-text-tertiary);
+}
+
+/* Footer */
+
+.cookieFooter {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--ds-color-theme-text-secondary);
+}
+
+.divider:has(+ .footer) {
+    margin: 6px 0 12px;
+}
+
+/* cookie line on the left, share button on the right */
+.footer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 28px;
+}
+
+.footer .cookieFooter {
+    flex: 1;
+    min-width: 0;
+}
+
+.shareButton {
+    margin-left: auto;
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    margin-top: -6px;
+    margin-bottom: -6px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--ds-color-theme-text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 100ms ease;
+
+    &:hover {
+        background: var(--ds-color-theme-control-fill-primary);
+    }
+
+    &:active {
+        background: var(--ds-color-theme-control-fill-secondary);
+    }
+
+    &:focus-visible {
+        outline: none;
+        box-shadow: var(--focus-ring);
+    }
+
+    &[aria-busy='true'] {
+        cursor: progress;
+        opacity: 0.5;
+    }
+}
+
+.cookieIcon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .orbitLid {
+        display: none;
+    }
+
+    .deviceValue {
+        transition: none;
+    }
+
+    .collapsible,
+    .collapsibleInner,
+    .headSwitch,
+    .headLayer,
+    .report[data-empty='true'] {
+        transition: none !important;
+    }
+}
+
+[data-theme='dark'] .report {
+    --report-skeleton: var(--color-gray-80);
+    --report-popover-bg: var(--color-gray-85);
+    --report-more-bg: var(--color-gray-80);
+    --report-card-bg: var(--color-white-at-9);
+}
+
+/* Shared by the newer views */
+
+.viewIntro {
+    margin: 0;
+    padding: 8px 0 14px;
+    font-size: 14px;
+    line-height: 20px;
+    text-wrap: pretty;
+
+    b {
+        font-weight: 600;
+    }
+}
+
+.viewFootnote {
+    margin: 0;
+    padding: 16px 0 4px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--ds-color-theme-text-secondary);
+    text-wrap: pretty;
+}
+
+/* same width as the cookie icon, so the text lines up with the cookie line */
+.footnoteIcon {
+    flex-shrink: 0;
+    width: 20px;
+    display: flex;
+    justify-content: center;
+    margin-top: 1px;
+}
+
+/* What they use to identify you */
+
+.deviceCard {
+    margin: 0;
+    padding: 6px 16px;
+    border-radius: 12px;
+    background: var(--report-card-bg);
+}
+
+.deviceRow {
+    display: grid;
+    grid-template-columns: 110px minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: 12px;
+    padding: 11px 0;
+    font-size: 12px;
+    line-height: 16px;
+
+    & + & {
+        border-top: 1px solid var(--report-divider);
+    }
+
+    dd {
+        margin: 0;
+    }
+}
+
+.deviceKey {
+    font-weight: 500;
+}
+
+.deviceValue {
+    min-width: 0;
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    /* this device's own details stay blurred until you point at one */
+    filter: blur(5px);
+    transition: filter 240ms ease;
+
+    &:hover {
+        filter: blur(0);
+    }
+}
+
+.deviceCount {
+    white-space: nowrap;
+}
+
+/* Which sites had the most trackers */
+
+.topSite {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 12px 0 8px;
+}
+
+.orbit {
+    position: relative;
+    width: 184px;
+    height: 184px;
+    flex-shrink: 0;
+}
+
+.orbitRing {
+    position: absolute;
+    left: 22px;
+    top: 22px;
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1px var(--report-divider);
+}
+
+.orbitCenter,
+.siteIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--report-popover-bg);
+    box-shadow:
+        0 0 0 1px var(--report-divider),
+        0 1px 2px rgba(0, 0, 0, 0.06);
+
+    img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+}
+
+.orbitCenter {
+    position: absolute;
+    left: 62px;
+    top: 62px;
+    width: 60px;
+    height: 60px;
+    border-radius: 15px;
+
+    > * {
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+}
+
+/* The logos slowly circle the site. Each one turns back as the ring turns, so
+   it stays upright, and the eyes' irises swing round with the ring, so they
+   keep looking at the site. All three share a duration, so they stay in step.
+   The ring turns only while it's on screen (useRingBlinks sets data-playing);
+   at rest (reduced motion, or the shared picture) it's where it started. */
+@keyframes orbit-turn {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes orbit-unturn {
+    to {
+        transform: rotate(-360deg);
+    }
+}
+
+.orbitSpin {
+    --orbit-turn: 90s;
+
+    position: absolute;
+    inset: 0;
+    animation: orbit-turn var(--orbit-turn) linear infinite;
+}
+
+.orbitSpin .orbitLogo {
+    animation: orbit-unturn var(--orbit-turn) linear infinite;
+}
+
+.irisTurn {
+    transform-box: view-box;
+    transform-origin: 12px 12px;
+    animation: orbit-turn var(--orbit-turn) linear infinite;
+}
+
+.irisUnturn {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: orbit-unturn var(--orbit-turn) linear infinite;
+}
+
+.orbit:not([data-playing]) :is(.orbitSpin, .orbitLogo, .irisTurn, .irisUnturn) {
+    animation-play-state: paused;
+}
+
+.shareCopy :is(.orbitSpin, .orbitLogo, .irisTurn, .irisUnturn) {
+    animation: none;
+}
+
+.orbitLogo {
+    position: absolute;
+    display: flex;
+    border-radius: 50%;
+    overflow: hidden;
+    /* the rounded overflow clip isn't kept while the logo turns (see
+       .orbitSpin), which let the blinking lid show as a square */
+    clip-path: circle(50%);
+
+    > *,
+    img {
+        width: 100%;
+        height: 100%;
+    }
+}
+
+.ringEye {
+    display: block;
+}
+
+/* An eyelid that now and then blinks shut over a round logo, in the eye's
+   colours; its curved lower edge is the lash line. It rests open, above the
+   logo; useRingBlinks plays the blinks. */
+.orbitLid {
+    position: absolute;
+    inset: 0;
+    background: #d3b9eb;
+    border-bottom: 1px solid #521a61;
+    border-radius: 0 0 50% 50% / 0 0 35% 35%;
+    transform: translateY(-110%);
+    pointer-events: none;
+}
+
+/* no blinking when motion is reduced, nor in the shared picture (it could
+   catch a logo with its eye shut) */
+.shareCopy .orbitLid {
+    display: none;
+}
+
+.topSiteText {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.topSiteLabel {
+    font-size: 14px;
+    line-height: 18px;
+    color: var(--ds-color-theme-text-secondary);
+}
+
+.topSiteDomain {
+    font-size: 15px;
+    line-height: 20px;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.topSiteCount {
+    font-family: var(--ds-font-family-display, var(--theme-font-family, system-ui));
+    font-size: 28px;
+    line-height: 34px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+}
+
+.topSiteWatching {
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--ds-color-theme-text-secondary);
+    text-wrap: pretty;
+}
+
+.siteList {
+    list-style: none;
+    margin: 4px 0 0;
+    padding: 0;
+    border-top: 1px solid var(--report-divider);
+    padding-top: 4px;
+}
+
+.siteRow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 7px 0;
+}
+
+.siteIcon {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    flex-shrink: 0;
+
+    > * {
+        width: 14px;
+        height: 14px;
+        border-radius: 3px;
+        overflow: hidden;
+    }
+}
+
+.siteDomain {
+    flex: 1;
+    min-width: 0;
+    font-size: 14px;
+    line-height: 18px;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.avatarsSmall .avatar {
+    --avatar-size: 20px;
+}
+
+.siteCount {
+    /* as wide as its text, so the logos sit right beside it */
+    flex-shrink: 0;
+    margin-left: -4px;
+    text-align: right;
+    font-size: 12px;
+    line-height: 16px;
+    color: var(--ds-color-theme-text-secondary);
+}

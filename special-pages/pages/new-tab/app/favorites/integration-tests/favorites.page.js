@@ -200,11 +200,10 @@ export class FavoritesPage {
         const body = page.locator('body');
         await body.press('Tab');
         await body.press('Tab');
-        // Additional Tab for the new InfoIcon tooltip button in
-        // ProtectionsHeading
+        // Additional Tab for the info button in the Protections Report's title row
         await body.press('Tab');
-        const statsToggle = page.getByLabel('Hide recent activity');
-        await expect(statsToggle).toBeFocused();
+        const reportToggle = page.getByRole('button', { name: 'Collapse Protections Report' });
+        await expect(reportToggle).toBeFocused();
     }
 
     /**

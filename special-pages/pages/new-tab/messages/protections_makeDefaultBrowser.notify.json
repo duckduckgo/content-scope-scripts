@@ -1,0 +1,6 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Make Default Browser",
+    "description": "The user asked, from the Protections Report, to make DuckDuckGo their default browser. Native shows the system prompt (or settings) and, if it changes, sends 'protections_onDataUpdate' with isDefaultBrowser: true.",
+    "type": "object"
+}
