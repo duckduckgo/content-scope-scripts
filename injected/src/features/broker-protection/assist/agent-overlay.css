@@ -10,6 +10,8 @@
 
 .typed {
     position: absolute;
+    border: 0 solid transparent;
+    background-clip: content-box;
     display: flex;
     overflow: hidden;
     white-space: pre;

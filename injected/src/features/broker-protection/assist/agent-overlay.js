@@ -1,7 +1,7 @@
 import styles from './agent-overlay.css';
 import { logoImg } from '../../click-to-load/ctl-assets.js';
 import { wait } from '../../../timer-utils.js';
-import { Overlay, clamp, documentBox, place } from './overlay.js';
+import { Overlay, documentBox, place } from './overlay.js';
 
 const CURSOR_MOVE_MS = 520;
 
@@ -24,8 +24,7 @@ export class AgentOverlay extends Overlay {
     cursorTarget = null;
     /** @type {Element | null} */
     fieldTarget = null;
-    fieldRadius = '';
-    /** @type {{ field: Element, left: number, top: number, right: number, bottom: number } | null} */
+    /** @type {Element | null} */
     typing = null;
 
     constructor() {
@@ -63,13 +62,11 @@ export class AgentOverlay extends Overlay {
         if (label) this.cursorLabel.textContent = label;
         this.cursor.style.setProperty('--move-ms', `${durationMs}ms`);
         this.cursorTarget = { element, dx, dy };
-        const wasHidden = this.cursor.classList.contains('hidden');
-        if (wasHidden) {
-            // Appear at the destination rather than sliding in from wherever the cursor was last.
-            this.cursor.style.transition = 'none';
+        if (this.cursor.classList.contains('hidden')) {
+            // A hidden cursor doesn't transition left and top, so moving it before showing it makes it
+            // appear at the destination rather than slide in from wherever it was last.
             this.update();
             void this.cursor.offsetWidth;
-            this.cursor.style.transition = '';
             this.cursor.classList.remove('hidden');
             return 0;
         }
@@ -94,7 +91,7 @@ export class AgentOverlay extends Overlay {
      */
     highlightField(element) {
         this.fieldTarget = element;
-        this.fieldRadius = element ? getComputedStyle(element).borderRadius : '';
+        this.field.style.borderRadius = element ? getComputedStyle(element).borderRadius : '';
         this.update();
     }
 
@@ -105,15 +102,10 @@ export class AgentOverlay extends Overlay {
      */
     startTyping(field) {
         const style = getComputedStyle(field);
-        const px = (/** @type {string} */ value) => parseFloat(value) || 0;
-        this.typing = {
-            field,
-            left: px(style.borderLeftWidth) + px(style.paddingLeft),
-            top: px(style.borderTopWidth) + px(style.paddingTop),
-            right: px(style.borderRightWidth) + px(style.paddingRight),
-            bottom: px(style.borderBottomWidth) + px(style.paddingBottom),
-        };
+        this.typing = field;
         Object.assign(this.typed.style, {
+            borderWidth: `${style.borderTopWidth} ${style.borderRightWidth} ${style.borderBottomWidth} ${style.borderLeftWidth}`,
+            padding: `${style.paddingTop} ${style.paddingRight} ${style.paddingBottom} ${style.paddingLeft}`,
             fontFamily: style.fontFamily,
             fontSize: style.fontSize,
             fontStyle: style.fontStyle,
@@ -121,7 +113,7 @@ export class AgentOverlay extends Overlay {
             letterSpacing: style.letterSpacing,
             lineHeight: style.lineHeight,
             color: style.color,
-            background: opaqueBackground(field),
+            backgroundColor: opaqueBackground(field),
             alignItems: field instanceof HTMLTextAreaElement ? 'flex-start' : 'center',
         });
         this.typedText.textContent = '';
@@ -134,8 +126,7 @@ export class AgentOverlay extends Overlay {
      */
     setTypedText(text) {
         this.typedText.textContent = text;
-        const field = this.typing?.field;
-        return field ? this.typedText.getBoundingClientRect().right - field.getBoundingClientRect().left : 0;
+        return this.typing ? this.typedText.getBoundingClientRect().right - this.typing.getBoundingClientRect().left : 0;
     }
 
     stopTyping() {
@@ -152,7 +143,7 @@ export class AgentOverlay extends Overlay {
         const box = this.cursorTarget && documentBox(this.cursorTarget.element);
         if (!box || !this.cursorTarget) return;
         // Keep the cursor inside the element, even when it's narrower than the requested offset.
-        const dx = clamp(this.cursorTarget.dx, 0, box.width - 12);
+        const dx = Math.min(Math.max(this.cursorTarget.dx, 0), Math.max(box.width - 12, 0));
         this.cursor.style.left = `${box.left + dx}px`;
         this.cursor.style.top = `${box.top + this.cursorTarget.dy}px`;
     }
@@ -164,20 +155,13 @@ export class AgentOverlay extends Overlay {
         const field = this.fieldTarget && documentBox(this.fieldTarget);
         if (field) {
             place(this.field, field);
-            this.field.style.borderRadius = this.fieldRadius;
         } else {
             this.field.hidden = true;
         }
 
-        const typingBox = this.typing && documentBox(this.typing.field);
-        if (typingBox && this.typing) {
-            const inset = this.typing;
-            place(this.typed, {
-                left: typingBox.left + inset.left,
-                top: typingBox.top + inset.top,
-                width: Math.max(typingBox.width - inset.left - inset.right, 0),
-                height: Math.max(typingBox.height - inset.top - inset.bottom, 0),
-            });
+        const typing = this.typing && documentBox(this.typing);
+        if (typing) {
+            place(this.typed, typing);
         } else {
             this.typed.hidden = true;
         }
