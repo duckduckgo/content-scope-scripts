@@ -58,7 +58,7 @@ export function evaluate(node, position, ctx) {
         let result;
         switch (node.kind) {
             case 'ref':
-                result = positioned((node.name.startsWith('this.') ? ctx.detectorNames : ctx.runNames).get(node.name), position);
+                result = positioned((node.detector ? ctx.detectorNames : ctx.runNames).get(node.name), position);
                 break;
             case 'expr':
                 // `expr` gives its operand's value in its own position, or the boolean the operand's `is` gives
@@ -363,7 +363,7 @@ function applyAction(node, ctx) {
             const failure = value.pull(Infinity);
             if (failure) return failure.at(node.value.path);
         }
-        (node.name.startsWith('this.') ? ctx.detectorNames : ctx.runNames).set(node.name, value);
+        (node.detector ? ctx.detectorNames : ctx.runNames).set(node.name, value);
         if (isScalar(value)) ctx.measured[node.name] = value;
         return undefined;
     }
@@ -429,19 +429,33 @@ function computeArithmetic(node, ctx) {
         if ('list' in spread) {
             const items = allItems(spread.list);
             if (isFailure(items)) return items;
-            for (const value of items) values.push(expectNumber(value, node.kind));
+            for (let i = 0; i < items.length; i++) values[values.length] = expectNumber(items[i], node.kind);
         } else {
-            values.push(expectNumber(spread.value, node.kind));
+            values[values.length] = expectNumber(spread.value, node.kind);
         }
     }
     switch (node.kind) {
         case 'sum':
-            return values.reduce((a, b) => a + b, 0);
+            return combine(values, 0, (a, b) => a + b);
         case 'mul':
-            return values.reduce((a, b) => a * b, 1);
+            return combine(values, 1, (a, b) => a * b);
         case 'div':
             return /** @type {number} */ (values[0]) / /** @type {number} */ (values[1]);
     }
+}
+
+/**
+ * The numbers folded from `initial`, by index so a page's `Array.prototype` is not called.
+ *
+ * @param {number[]} values
+ * @param {number} initial
+ * @param {(a: number, b: number) => number} fold
+ * @returns {number}
+ */
+function combine(values, initial, fold) {
+    let result = initial;
+    for (let i = 0; i < values.length; i++) result = fold(result, /** @type {number} */ (values[i]));
+    return result;
 }
 
 /**

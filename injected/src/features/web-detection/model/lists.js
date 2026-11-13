@@ -76,7 +76,7 @@ export class ItemBuffer {
                 this.failure = next.value;
                 this.done = true;
             } else {
-                this.values.push(next.value);
+                this.values[this.values.length] = next.value;
             }
         }
         return this.values.length < count || this.#failedWhole ? this.failure : undefined;

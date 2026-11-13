@@ -1,4 +1,4 @@
-import { ConfigParseError, FILLS } from '../model/core.js';
+import { ConfigParseError, FILLS, NativeSet } from '../model/core.js';
 
 /**
  * @import { Node, Position } from '../model/types.js'
@@ -18,7 +18,7 @@ function fillsOf(node) {
             return typeof node.value === 'boolean' ? FILLS.boolean : FILLS.value;
         case 'source': {
             const [first, ...rest] = node.bodies.map((body) => node.source.fills(body));
-            return new Set([...(first ?? [])].filter((position) => rest.every((fills) => fills.has(position))));
+            return new NativeSet([...(first ?? [])].filter((position) => rest.every((fills) => fills.has(position))));
         }
         case 'length':
         case 'only':
@@ -34,7 +34,7 @@ function fillsOf(node) {
         case 'if': {
             // With no branch taken, `undefined`, which fills value position only
             const elseFills = node.else ? occurrenceFills(node.else) : FILLS.value;
-            return new Set([...occurrenceFills(node.then)].filter((p) => elseFills.has(p) && p !== 'list'));
+            return new NativeSet([...occurrenceFills(node.then)].filter((p) => elseFills.has(p) && p !== 'list'));
         }
         case 'sequence':
             return occurrenceFills(/** @type {Node} */ (node.elements[node.elements.length - 1]));

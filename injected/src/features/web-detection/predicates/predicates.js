@@ -3,9 +3,12 @@ import {
     ConfigParseError,
     DetectionError,
     EXPRESSION_KEYS,
+    NativeSet,
+    NativeWeakMap,
     asArray,
     decides,
     getOrCreate,
+    includes,
     isFailure,
     isPlainObject,
     isScalar,
@@ -60,14 +63,14 @@ export function compileWhere(raw, path, hooks) {
 
 /** @typedef {'item' | 'value'} Level */
 
-const OPERATORS = new Set(['eq', 'in', 'lt', 'lte', 'gt', 'gte', 'fails', 'type']);
+const OPERATORS = new NativeSet(['eq', 'in', 'lt', 'lte', 'gt', 'gte', 'fails', 'type']);
 /** Keys a predicate and an expression share, with the same meaning. */
-const COMBINATORS = new Set(['any', 'all', 'none']);
+const COMBINATORS = new NativeSet(['any', 'all', 'none']);
 /** Tested before the other keys of their object, whatever the key order. */
 /** @type {string[]} */
 const FIRST_OPERATORS = ['fails', 'type'];
 /** @type {ReadonlySet<unknown>} */
-const TYPE_NAMES = new Set(['number', 'string', 'boolean', 'null', 'undefined', 'array', 'object']);
+const TYPE_NAMES = new NativeSet(['number', 'string', 'boolean', 'null', 'undefined', 'array', 'object']);
 
 /**
  * @param {unknown} name
@@ -96,7 +99,7 @@ export function testPredicate(predicate, subject, ctx) {
  *
  * @type {WeakMap<CompiledPredicate, PredicateTest>}
  */
-const LOWERED = new WeakMap();
+const LOWERED = new NativeWeakMap();
 
 /**
  * @param {CompiledPredicate} predicate
@@ -129,7 +132,10 @@ function lower(predicate) {
         }
         case 'combine': {
             const [decider, decided] = decides(predicate.combinator);
-            const entries = predicate.entries.map(lowered);
+            /** @type {PredicateTest[]} */
+            const entries = [];
+            for (let i = 0; i < predicate.entries.length; i++)
+                entries[i] = lowered(/** @type {CompiledPredicate} */ (predicate.entries[i]));
             // Every entry is tested, in order. A failure ends the test where it arises
             return (subject, ctx) => {
                 let result = !decided;
@@ -171,7 +177,7 @@ function lower(predicate) {
         }
         case 'type': {
             const names = predicate.names;
-            return (subject) => (isFailure(subject) ? subject : names.includes(typeName(subject)));
+            return (subject) => (isFailure(subject) ? subject : includes(names, typeName(subject)));
         }
         case 'always':
             return (subject) => (isFailure(subject) ? subject : true);

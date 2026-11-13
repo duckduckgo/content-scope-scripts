@@ -1,3 +1,4 @@
+import { objectEntries } from '../../../captured-globals.js';
 import { NAME_PATTERN, isPlainObject, thrownMessage } from '../model/core.js';
 import { pageSources } from '../sources/index.js';
 import { compileDetector } from './compile.js';
@@ -137,7 +138,7 @@ export function parseDetectors(detectorsConfig) {
         return detectors;
     }
 
-    for (const [groupName, groupConfig] of Object.entries(detectorsConfig)) {
+    for (const [groupName, groupConfig] of objectEntries(detectorsConfig)) {
         if (!isValidName(groupName) || !isPlainObject(groupConfig)) {
             continue;
         }
@@ -145,7 +146,7 @@ export function parseDetectors(detectorsConfig) {
         /** @type {Record<string, DetectorConfig>} */
         const groupDetectors = {};
 
-        for (const [detectorId, detectorConfig] of Object.entries(groupConfig)) {
+        for (const [detectorId, detectorConfig] of objectEntries(groupConfig)) {
             if (!isValidName(detectorId) || !isPlainObject(detectorConfig)) {
                 continue;
             }

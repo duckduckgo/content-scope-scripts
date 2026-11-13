@@ -31,6 +31,15 @@ function isPresenceOnly(body) {
 }
 
 /**
+ * @param {readonly ElementBody[]} bodies
+ * @returns {boolean} whether every body is presence only, by index so a page's `Array.prototype` is not called
+ */
+function allPresenceOnly(bodies) {
+    for (let i = 0; i < bodies.length; i++) if (!isPresenceOnly(/** @type {ElementBody} */ (bodies[i]))) return false;
+    return true;
+}
+
+/**
  * Elements matching a selector, in document order, each once across a body's selectors and roots.
  * Several bodies give their elements one body after another, so an element two bodies select is
  * there twice.
@@ -72,16 +81,16 @@ export const elementSource = {
             hasAny() {
                 // With no state to read, a quick existence check suffices. A root that fails leaves
                 // the iterator to report it
-                if (!bodies.every(isPresenceOnly)) return undefined;
+                if (!allPresenceOnly(bodies)) return undefined;
                 for (const body of bodies) {
                     const roots = resolveRoots(body.root, ctx);
                     if (isFailure(roots)) return undefined;
-                    if (roots.some((root) => root.querySelector(body.selector) !== null)) return true;
+                    for (const root of roots) if (root.querySelector(body.selector) !== null) return true;
                 }
                 return false;
             },
             count() {
-                if (!bodies.every(isPresenceOnly)) return undefined;
+                if (!allPresenceOnly(bodies)) return undefined;
                 let count = 0;
                 for (const body of bodies) {
                     const roots = resolveRoots(body.root, ctx);

@@ -1,6 +1,6 @@
 import ContentFeature from '../content-feature.js';
 // eslint-disable-next-line no-redeclare
-import { hasOwnProperty } from '../captured-globals.js';
+import { hasOwnProperty, objectEntries } from '../captured-globals.js';
 import { timeDetector } from './detector-perf.js';
 import { compileDetectorConfig, parseDetectors } from './web-detection/compile/detector-config.js';
 import { BreakageEntries } from './web-detection/evaluate/breakage-entries.js';
@@ -8,7 +8,7 @@ import { EvaluationContext } from './web-detection/evaluate/context.js';
 import { NativeReader } from './web-detection/evaluate/native-reader.js';
 import { createDetectorState, detectorNameScalars, runDetector } from './web-detection/evaluate/run.js';
 import { TaskReadCache } from './web-detection/evaluate/task-read-cache.js';
-import { getOrCreate } from './web-detection/model/core.js';
+import { NativeMap, NativeSet, getOrCreate } from './web-detection/model/core.js';
 
 /**
  * @import { DetectorConfig } from './web-detection/compile/detector-config.js'
@@ -40,16 +40,16 @@ export default class WebDetection extends ContentFeature {
     #detectors = {};
 
     /** @type {Map<string, DetectorState>} each detector's state in the frame, by `groupName.detectorId` */
-    #states = new Map();
+    #states = new NativeMap();
 
     /** @type {Map<string, CompiledDetector | { error: string }>} each compiled detector, or its parse error, by `groupName.detectorId` */
-    #compiled = new Map();
+    #compiled = new NativeMap();
 
     /** each detector's breakage entry in the frame */
     #breakage = new BreakageEntries();
 
     /** @type {Map<number, DetectorEntry[]>} the detectors the `auto` trigger runs at each interval */
-    #autoDetectors = new Map();
+    #autoDetectors = new NativeMap();
 
     /** @type {Array<{ timer: ReturnType<typeof setTimeout>, detectors: DetectorEntry[] }>} */
     #timers = [];
@@ -101,9 +101,9 @@ export default class WebDetection extends ContentFeature {
         this.#detectors = parseDetectors(this.getFeatureSetting('detectors'));
         this.#compiled.clear();
         /** @type {Set<string>} */
-        const names = new Set();
+        const names = new NativeSet();
         /** @type {Set<string>} */
-        const paths = new Set();
+        const paths = new NativeSet();
         for (const detector of this._eachDetector()) {
             if (!this._runsInFrame(detector.config)) continue;
             const compiled = this._compiledOf(detector);
@@ -151,8 +151,8 @@ export default class WebDetection extends ContentFeature {
      * @returns {Generator<DetectorEntry>}
      */
     *_eachDetector() {
-        for (const [groupName, group] of Object.entries(this.#detectors)) {
-            for (const [detectorId, config] of Object.entries(group)) yield { groupName, detectorId: `${groupName}.${detectorId}`, config };
+        for (const [groupName, group] of objectEntries(this.#detectors)) {
+            for (const [detectorId, config] of objectEntries(group)) yield { groupName, detectorId: `${groupName}.${detectorId}`, config };
         }
     }
 
