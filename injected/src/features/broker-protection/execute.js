@@ -22,10 +22,10 @@ import { ErrorResponse } from './types';
  * @param {PirAction | UserAssistAction} action
  * @param {Record<string, any>} inputData
  * @param {Document} [root] - optional root element
- * @param {(actionID: string) => void} [onHandOff] - needed for `userAssist`
+ * @param {(actionID: string) => void} [onHandOff] - called when `userAssist` hands a step to the user
  * @return {Promise<ActionResponse>}
  */
-export async function execute(action, inputData, root = document, onHandOff) {
+export async function execute(action, inputData, root = document, onHandOff = () => {}) {
     try {
         switch (action.actionType) {
             case 'navigate':
@@ -52,7 +52,7 @@ export async function execute(action, inputData, root = document, onHandOff) {
                 return await executeScript(action, data(action, inputData, 'userProfile'), root);
             case 'userAssist':
                 // Only BrokerProtection is sent userAssist actions, and it always passes a hand-off.
-                return await userAssist(action, root, /** @type {(actionID: string) => void} */ (onHandOff));
+                return await userAssist(action, root, onHandOff);
             default: {
                 // Every known type is handled above, but native may send one this build doesn't know.
                 const unknown = /** @type {{ id: string, actionType: string }} */ (action);

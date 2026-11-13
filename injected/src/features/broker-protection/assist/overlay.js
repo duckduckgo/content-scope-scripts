@@ -90,12 +90,3 @@ export function place(el, box) {
     el.hidden = false;
     Object.assign(el.style, { left: `${box.left}px`, top: `${box.top}px`, width: `${box.width}px`, height: `${box.height}px` });
 }
-
-/**
- * @param {number} value
- * @param {number} min
- * @param {number} max
- */
-export function clamp(value, min, max) {
-    return Math.min(Math.max(value, min), Math.max(min, max));
-}
