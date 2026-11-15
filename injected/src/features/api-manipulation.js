@@ -6,8 +6,7 @@
  * @module API manipulation
  */
 import ContentFeature from '../content-feature.js';
-// eslint-disable-next-line no-redeclare
-import { ReflectApply, getOwnPropertyDescriptor, hasOwnProperty, objectDefineProperty, objectKeys } from '../captured-globals.js';
+import { ddgGlobals } from '../captured-globals.js';
 import { processAttr } from '../utils.js';
 import { mergePropertyDescriptors, wrapToString } from '../wrapper-utils.js';
 
@@ -21,7 +20,7 @@ export default class ApiManipulation extends ContentFeature {
         const apiChanges = this.getFeatureSetting('apiChanges');
         if (apiChanges) {
             // A scope sorts before the scopes beneath it, so it is applied first whatever the key order
-            const scopes = objectKeys(apiChanges).sort();
+            const scopes = ddgGlobals.objectKeys(apiChanges).sort();
             /** @type {string[]} */
             const failedScopes = [];
             for (const scope of scopes) {
@@ -122,7 +121,7 @@ export default class ApiManipulation extends ContentFeature {
      */
     removeApiMethod(api, key) {
         try {
-            if (hasOwnProperty.call(api, key)) {
+            if (ddgGlobals.hasOwnProperty.call(api, key)) {
                 delete api[key];
             }
         } catch (e) {}
@@ -178,7 +177,7 @@ export default class ApiManipulation extends ContentFeature {
                 );
             }
         }
-        if (hasOwnProperty.call(api, key)) {
+        if (ddgGlobals.hasOwnProperty.call(api, key)) {
             this.wrapProperty(api, key, descriptor);
         } else {
             // API exists via the prototype chain (e.g. MediaDevices.prototype.addEventListener
@@ -199,7 +198,7 @@ export default class ApiManipulation extends ContentFeature {
     findPropertyDescriptor(obj, key) {
         let current = obj;
         while (current) {
-            const descriptor = getOwnPropertyDescriptor(current, key);
+            const descriptor = ddgGlobals.getOwnPropertyDescriptor(current, key);
             if (descriptor) {
                 return descriptor;
             }
@@ -227,10 +226,10 @@ export default class ApiManipulation extends ContentFeature {
         // the `name`/`length` masking, by reassigning `globalThis.Reflect.apply` or
         // `globalThis.Object.defineProperty` after content scope has initialised.
         const wrapper = function () {
-            return ReflectApply(replacementFn, this, arguments);
+            return ddgGlobals.ReflectApply(replacementFn, this, arguments);
         };
-        objectDefineProperty(wrapper, 'name', { value: origFn.name, configurable: true });
-        objectDefineProperty(wrapper, 'length', { value: origFn.length, configurable: true });
+        ddgGlobals.objectDefineProperty(wrapper, 'name', { value: origFn.name, configurable: true });
+        ddgGlobals.objectDefineProperty(wrapper, 'length', { value: origFn.length, configurable: true });
         return wrapToString(wrapper, origFn);
     }
 
@@ -266,7 +265,7 @@ export default class ApiManipulation extends ContentFeature {
                 descriptor.set = function setter(v) {
                     const fn = processAttr(setterSetting, undefined);
                     if (typeof fn === 'function') {
-                        ReflectApply(fn, this, [v]);
+                        ddgGlobals.ReflectApply(fn, this, [v]);
                     }
                 };
             }

@@ -1,14 +1,5 @@
 import ContentFeature from '../content-feature.js';
-/* eslint-disable no-redeclare */
-import {
-    Uint8Array,
-    atob,
-    Promise as CapturedPromise,
-    DOMException as CapturedDOMException,
-    charCodeAt,
-    randomUUID,
-} from '../captured-globals.js';
-/* eslint-enable no-redeclare */
+import { ddgGlobals } from '../captured-globals.js';
 
 const MSG_INBOUND_PASSKEY_SELECTED = 'passkeySelected';
 const MSG_OUTBOUND_NAME = 'registerPasskeyRequest';
@@ -56,7 +47,7 @@ export default class AutofillPasskeys extends ContentFeature {
                     }
                     return feature.registerPasskeyRequest(publicKey, options, originalGet, this);
                 } catch (e) {
-                    return CapturedPromise.reject(e);
+                    return ddgGlobals.Promise.reject(e);
                 }
             },
         );
@@ -74,12 +65,12 @@ export default class AutofillPasskeys extends ContentFeature {
             this.#cancelPending();
         }
 
-        const requestId = randomUUID?.();
+        const requestId = ddgGlobals.randomUUID?.();
         if (!requestId) {
             return originalGet.call(receiver, options);
         }
 
-        return new CapturedPromise((resolve, reject) => {
+        return new ddgGlobals.Promise((resolve, reject) => {
             // Snapshot the page-supplied getters inside the executor so a throwing
             // getter rejects this promise (matching native get()) rather than
             // throwing synchronously to the caller.
@@ -113,9 +104,9 @@ export default class AutofillPasskeys extends ContentFeature {
                 cleanup();
 
                 try {
-                    const raw = atob(data.credentialId);
-                    const arr = new Uint8Array(raw.length);
-                    for (let i = 0; i < raw.length; i++) arr[i] = charCodeAt.call(raw, i);
+                    const raw = ddgGlobals.atob(data.credentialId);
+                    const arr = new ddgGlobals.Uint8Array(raw.length);
+                    for (let i = 0; i < raw.length; i++) arr[i] = ddgGlobals.charCodeAt.call(raw, i);
 
                     const /** @type {CredentialRequestOptions} */ narrowed = {
                             signal: options.signal,
@@ -134,12 +125,12 @@ export default class AutofillPasskeys extends ContentFeature {
 
             const onAbort = () => {
                 cleanup();
-                reject(options.signal?.reason ?? new CapturedDOMException('The operation was aborted.', 'AbortError'));
+                reject(options.signal?.reason ?? new ddgGlobals.DOMException('The operation was aborted.', 'AbortError'));
             };
 
             this.#cancelPending = () => {
                 cleanup();
-                reject(new CapturedDOMException('A new passkey request superseded this one.', 'AbortError'));
+                reject(new ddgGlobals.DOMException('A new passkey request superseded this one.', 'AbortError'));
             };
 
             if (options.signal?.aborted) {

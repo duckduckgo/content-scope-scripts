@@ -1,5 +1,5 @@
 import ContentFeature from '../content-feature.js';
-import { objectDefineProperty, ReflectApply } from '../captured-globals.js';
+import { ddgGlobals } from '../captured-globals.js';
 import { isBeingFramed } from '../utils.js';
 
 export default class TextSelection extends ContentFeature {
@@ -18,7 +18,7 @@ export default class TextSelection extends ContentFeature {
     _snapshotTimestamp = 0;
 
     init() {
-        objectDefineProperty(window, '__ddgSelectionFrame', {
+        ddgGlobals.objectDefineProperty(window, '__ddgSelectionFrame', {
             value: Object.freeze({
                 readSelection: () => ({
                     eventTimestamp: this._snapshotTimestamp,
@@ -38,7 +38,7 @@ export default class TextSelection extends ContentFeature {
 
     _selectionText() {
         const selection = this._getSelection();
-        return selection ? ReflectApply(this._selectionToString, selection, []) : '';
+        return selection ? ddgGlobals.ReflectApply(this._selectionToString, selection, []) : '';
     }
 
     /** @param {Event} event */

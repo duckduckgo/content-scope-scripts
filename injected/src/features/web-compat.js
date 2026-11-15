@@ -3,8 +3,7 @@
  * @see injected/docs/coding-guidelines.md for general patterns
  */
 import ContentFeature from '../content-feature.js';
-// eslint-disable-next-line no-redeclare
-import { URL } from '../captured-globals.js';
+import { ddgGlobals } from '../captured-globals.js';
 import { DDGProxy, DDGReflect } from '../utils.js';
 import { wrapToString, wrapFunction } from '../wrapper-utils.js';
 /**
@@ -50,7 +49,7 @@ function canShare(data) {
     if ('url' in data) {
         if (typeof data.url !== 'string') return false;
         try {
-            const url = new URL(data.url, location.href);
+            const url = new ddgGlobals.URL(data.url, location.href);
             if (url.protocol !== 'http:' && url.protocol !== 'https:') return false;
         } catch (err) {
             return false;
@@ -96,7 +95,7 @@ function cleanShareData(data) {
 
     // clean url and handle relative links (e.g. if url is an empty string)
     if ('url' in data) {
-        dataToSend.url = new URL(data.url, location.href).href;
+        dataToSend.url = new ddgGlobals.URL(data.url, location.href).href;
     }
 
     // combine url and text into text if both are present

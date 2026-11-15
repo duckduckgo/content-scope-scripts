@@ -1,11 +1,4 @@
-import {
-    functionToString,
-    getOwnPropertyDescriptor,
-    getOwnPropertyDescriptors,
-    objectDefineProperty,
-    objectEntries,
-    objectKeys,
-} from './captured-globals.js';
+import { ddgGlobals } from './captured-globals.js';
 
 // special property that is set on classes used to shim standard interfaces
 export const ddgShimMark = Symbol('ddgShimMark');
@@ -18,7 +11,7 @@ export const ddgShimMark = Symbol('ddgShimMark');
  * @param {import('./wrapper-utils').StrictPropertyDescriptor} descriptor - requires all descriptor options to be defined because we can't validate correctness based on TS types
  */
 export function defineProperty(object, propertyName, descriptor) {
-    objectDefineProperty(object, propertyName, descriptor);
+    ddgGlobals.objectDefineProperty(object, propertyName, descriptor);
 }
 
 /**
@@ -97,7 +90,7 @@ export function wrapFunction(functionValue, realTarget) {
             if (prop === 'toString') {
                 const method = Reflect.get(target, prop, receiver).bind(target);
                 Object.defineProperty(method, 'toString', {
-                    value: functionToString.bind(functionToString),
+                    value: ddgGlobals.functionToString.bind(ddgGlobals.functionToString),
                     enumerable: false,
                 });
                 return method;
@@ -165,7 +158,7 @@ export function wrapProperty(object, propertyName, descriptor, definePropertyFn)
 
     /** @type {StrictPropertyDescriptor} */
     // @ts-expect-error - we check for undefined below
-    const origDescriptor = getOwnPropertyDescriptor(object, propertyName);
+    const origDescriptor = ddgGlobals.getOwnPropertyDescriptor(object, propertyName);
     if (!origDescriptor) {
         // this happens if the property is not implemented in the browser
         return;
@@ -174,7 +167,9 @@ export function wrapProperty(object, propertyName, descriptor, definePropertyFn)
     const merged = mergePropertyDescriptors(origDescriptor, descriptor);
     if (!merged) {
         // if the property is defined with get/set it must be wrapped with a get/set. If it's defined with a `value`, it must be wrapped with a `value`
-        throw new Error(`Property descriptor for ${propertyName} may only include the following keys: ${objectKeys(origDescriptor)}`);
+        throw new Error(
+            `Property descriptor for ${propertyName} may only include the following keys: ${ddgGlobals.objectKeys(origDescriptor)}`,
+        );
     }
     definePropertyFn(object, propertyName, merged);
     return origDescriptor;
@@ -196,7 +191,7 @@ export function wrapMethod(object, propertyName, wrapperFn, definePropertyFn) {
 
     /** @type {StrictPropertyDescriptor} */
     // @ts-expect-error - we check for undefined below
-    const origDescriptor = getOwnPropertyDescriptor(object, propertyName);
+    const origDescriptor = ddgGlobals.getOwnPropertyDescriptor(object, propertyName);
     if (!origDescriptor) {
         // this happens if the property is not implemented in the browser
         return;
@@ -240,12 +235,12 @@ export function wrapMethod(object, propertyName, wrapperFn, definePropertyFn) {
 function maskMethodIdentity(object, propertyName, origDescriptor) {
     try {
         const origFn = /** @type {{ value?: unknown } | undefined} */ (origDescriptor)?.value;
-        const wrappedFn = /** @type {{ value?: unknown } | undefined} */ (getOwnPropertyDescriptor(object, propertyName))?.value;
+        const wrappedFn = /** @type {{ value?: unknown } | undefined} */ (ddgGlobals.getOwnPropertyDescriptor(object, propertyName))?.value;
         if (typeof origFn !== 'function' || typeof wrappedFn !== 'function') {
             return;
         }
-        objectDefineProperty(wrappedFn, 'name', { value: origFn.name, configurable: true });
-        objectDefineProperty(wrappedFn, 'length', { value: origFn.length, configurable: true });
+        ddgGlobals.objectDefineProperty(wrappedFn, 'name', { value: origFn.name, configurable: true });
+        ddgGlobals.objectDefineProperty(wrappedFn, 'length', { value: origFn.length, configurable: true });
     } catch {
         // Masking is best-effort; never let it break the wrap itself.
     }
@@ -308,7 +303,7 @@ export function shimInterface(interfaceName, ImplClass, options, definePropertyF
 
     if (fullOptions.wrapToString) {
         // mask toString() on class methods. `ImplClass.prototype` is non-configurable: we can't override or proxy it, so we have to wrap each method individually
-        for (const [prop, descriptor] of objectEntries(getOwnPropertyDescriptors(ImplClass.prototype))) {
+        for (const [prop, descriptor] of ddgGlobals.objectEntries(ddgGlobals.getOwnPropertyDescriptors(ImplClass.prototype))) {
             if (prop !== 'constructor' && descriptor.writable && typeof descriptor.value === 'function') {
                 ImplClass.prototype[prop] = new Proxy(descriptor.value, {
                     get: toStringGetTrap(descriptor.value, `function ${prop}() { [native code] }`),
@@ -331,7 +326,7 @@ export function shimInterface(interfaceName, ImplClass, options, definePropertyF
     if (ImplClass.prototype?.constructor === ImplClass) {
         /** @type {StrictDataDescriptor} */
         // @ts-expect-error - As long as ImplClass is a normal class, it should have the prototype property
-        const descriptor = getOwnPropertyDescriptor(ImplClass.prototype, 'constructor');
+        const descriptor = ddgGlobals.getOwnPropertyDescriptor(ImplClass.prototype, 'constructor');
         if (descriptor.writable) {
             ImplClass.prototype.constructor = Interface;
         }

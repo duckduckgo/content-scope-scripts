@@ -10,17 +10,11 @@ import {
     SubscriptionResponse,
     SubscriptionUnsubscribe,
 } from './message-bridge/schema.js';
-// Named imports: `import * as` makes esbuild emit a namespace object with a getter per captured global.
-import {
-    dispatchEvent as capturedDispatchEvent,
-    addEventListener as capturedAddEventListener,
-    CustomEvent as CapturedCustomEvent,
-    Map as CapturedMap,
-} from '../captured-globals.js';
+import { ddgGlobals } from '../captured-globals.js';
 import { isBeingFramed } from '../utils.js';
 
 /**
- * @typedef {Pick<import("../captured-globals.js"),
+ * @typedef {Pick<typeof import("../captured-globals.js").ddgGlobals,
  *    "dispatchEvent" | "addEventListener" | "CustomEvent">
  * } Captured
  */
@@ -30,20 +24,20 @@ import { isBeingFramed } from '../utils.js';
  */
 export class MessageBridge extends ContentFeature {
     /** @type {Captured} */
-    captured = { dispatchEvent: capturedDispatchEvent, addEventListener: capturedAddEventListener, CustomEvent: CapturedCustomEvent };
+    captured = ddgGlobals;
     /**
      * A mapping of feature names to instances of `Messaging`.
      * This allows the bridge to handle more than 1 feature at a time.
      * @type {Map<string, Messaging>}
      */
-    proxies = new CapturedMap();
+    proxies = new ddgGlobals.Map();
 
     /**
      * If any subscriptions are created, we store the cleanup functions
      * for later use.
      * @type {Map<string, () => void>}
      */
-    subscriptions = new CapturedMap();
+    subscriptions = new ddgGlobals.Map();
 
     /**
      * This side of the bridge can only be instantiated once,

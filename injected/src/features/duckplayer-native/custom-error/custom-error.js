@@ -1,7 +1,7 @@
 import css from './custom-error.css';
 import { Logger } from '../../duckplayer/util.js';
 import { createPolicy, html } from '../../../dom-utils.js';
-import { customElementsDefine, customElementsGet } from '../../../captured-globals.js';
+import { ddgGlobals } from '../../../captured-globals.js';
 
 /**
  * @import {YouTubeError} from '../error-detection'
@@ -34,8 +34,8 @@ export class CustomError extends HTMLElement {
     messages = [];
 
     static register() {
-        if (!customElementsGet(CustomError.CUSTOM_TAG_NAME)) {
-            customElementsDefine(CustomError.CUSTOM_TAG_NAME, CustomError);
+        if (!ddgGlobals.customElementsGet(CustomError.CUSTOM_TAG_NAME)) {
+            ddgGlobals.customElementsDefine(CustomError.CUSTOM_TAG_NAME, CustomError);
         }
     }
 

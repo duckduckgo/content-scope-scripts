@@ -15,7 +15,7 @@
 
 import ContentFeature from '../content-feature.js';
 import { isUnprotectedDomain } from '../utils.js';
-import { objectEntries, objectFromEntries, objectDefineProperty } from '../captured-globals.js';
+import { ddgGlobals } from '../captured-globals.js';
 import { wrapToString } from '../wrapper-utils.js';
 import { TrackerResolver } from './tracker-protection/tracker-resolver.js';
 import { surrogates as bundledSurrogates } from './tracker-protection/surrogates-generated.js';
@@ -85,8 +85,9 @@ export class TrackerProtection extends ContentFeature {
 
         // Read allowlist from trackerAllowlist feature, stripping the rules wrapper
         const rawAllowlist = this.bundledConfig?.features?.trackerAllowlist?.settings?.allowlistedTrackers || {};
-        const allowlist = objectFromEntries(
-            objectEntries(rawAllowlist)
+        const allowlist = ddgGlobals.objectFromEntries(
+            ddgGlobals
+                .objectEntries(rawAllowlist)
                 .filter(([, v]) => v?.rules)
                 .map(([k, v]) => [k, v.rules]),
         );
@@ -256,8 +257,8 @@ export class TrackerProtection extends ContentFeature {
         };
         // Unlike wrapMethod, wrapProperty doesn't mask accessors against the originals: without this, `.toString()`
         // on the getter/setter returns our source and `.name` is "srcGet"/"srcSet" instead of "get src"/"set src".
-        objectDefineProperty(srcGet, 'name', { value: origGet.name, configurable: true });
-        objectDefineProperty(srcSet, 'name', { value: origSet.name, configurable: true });
+        ddgGlobals.objectDefineProperty(srcGet, 'name', { value: origGet.name, configurable: true });
+        ddgGlobals.objectDefineProperty(srcSet, 'name', { value: origSet.name, configurable: true });
 
         // wrapProperty keeps the native descriptor (enumerable/configurable).
         this.wrapProperty(imgProto, 'src', {

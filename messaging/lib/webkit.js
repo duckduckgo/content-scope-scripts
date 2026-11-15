@@ -6,13 +6,7 @@
 import { MessagingTransport, MissingHandler } from '../index.js';
 import { isResponseFor, isSubscriptionEventFor } from '../schema.js';
 import { ensureNavigatorDuckDuckGo } from '../../injected/src/navigator-global.js';
-import {
-    JSONparse,
-    Error as _Error,
-    ReflectApply,
-    ReflectDeleteProperty,
-    objectDefineProperty,
-} from '../../injected/src/captured-globals.js';
+import { ddgGlobals } from '../../injected/src/captured-globals.js';
 
 /**
  * @example
@@ -74,7 +68,7 @@ export class WebkitMessagingTransport {
         }
         // Use the captured ReflectApply so the send path doesn't go through
         // any page-mutable function (`.call`, `.bind`, etc.).
-        return ReflectApply(captured.postMessage, captured.handler, [data]);
+        return ddgGlobals.ReflectApply(captured.postMessage, captured.handler, [data]);
     }
 
     /**
@@ -86,7 +80,7 @@ export class WebkitMessagingTransport {
      */
     async wkSendAndWait(handler, data) {
         const response = await this.wkSend(handler, data);
-        return JSONparse(response || '{}');
+        return ddgGlobals.JSONparse(response || '{}');
     }
 
     /**
@@ -109,11 +103,11 @@ export class WebkitMessagingTransport {
             }
             // forward the error if one was given explicity
             if (data.error) {
-                throw new _Error(data.error.message);
+                throw new ddgGlobals.Error(data.error.message);
             }
         }
 
-        throw new _Error('an unknown error occurred');
+        throw new ddgGlobals.Error('an unknown error occurred');
     }
 
     /**
@@ -154,9 +148,9 @@ export class WebkitMessagingTransport {
     subscribe(msg, callback) {
         const target = ensureNavigatorDuckDuckGo().messageHandlers;
         if (msg.subscriptionName in target) {
-            throw new _Error(`A subscription with the name ${msg.subscriptionName} already exists`);
+            throw new ddgGlobals.Error(`A subscription with the name ${msg.subscriptionName} already exists`);
         }
-        objectDefineProperty(target, msg.subscriptionName, {
+        ddgGlobals.objectDefineProperty(target, msg.subscriptionName, {
             enumerable: false,
             configurable: true,
             writable: false,
@@ -169,7 +163,7 @@ export class WebkitMessagingTransport {
             },
         });
         return () => {
-            ReflectDeleteProperty(target, msg.subscriptionName);
+            ddgGlobals.ReflectDeleteProperty(target, msg.subscriptionName);
         };
     }
 }

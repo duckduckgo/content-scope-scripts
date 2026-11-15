@@ -1,4 +1,4 @@
-import { getOwnPropertyDescriptor, getPrototypeOf, NodePrototype, ReflectApply, ReflectGet } from '../../../captured-globals.js';
+import { ddgGlobals } from '../../../captured-globals.js';
 import { Failure, getOrCreate, isFailure, newMap, thrownFailure } from '../model/core.js';
 
 /**
@@ -60,7 +60,7 @@ export class NativeReader {
      * @param {Iterable<string>} [paths] - every path config reads from the global, up to the method it calls
      * @param {object} [nodePrototype] - the global's `Node.prototype`, which `isNode` tests against
      */
-    constructor(global, names = [], paths = [], nodePrototype = NodePrototype) {
+    constructor(global, names = [], paths = [], nodePrototype = ddgGlobals.NodePrototype) {
         this.#global = global;
         this.#nodePrototype = nodePrototype;
         this.capture(names, paths);
@@ -168,7 +168,11 @@ export class NativeReader {
      * @param {unknown} value - any value but `null` and `undefined`
      */
     _addChain(value) {
-        for (let current = getPrototypeOf(value); current !== null && !this.#holders.has(current); current = getPrototypeOf(current)) {
+        for (
+            let current = ddgGlobals.getPrototypeOf(value);
+            current !== null && !this.#holders.has(current);
+            current = ddgGlobals.getPrototypeOf(current)
+        ) {
             this._addHolder(current);
         }
     }
@@ -191,13 +195,13 @@ export class NativeReader {
             const own = this.#holders.get(/** @type {object} */ (target))?.get(key);
             if (own) return own;
         }
-        const from = getPrototypeOf(target);
+        const from = ddgGlobals.getPrototypeOf(target);
         if (from === null) return undefined;
         const byPrototype = getOrCreate(this.#records, key, newMap);
         let record = byPrototype.get(from);
         if (record === undefined) {
             record = null;
-            for (let current = from; current !== null; current = getPrototypeOf(current)) {
+            for (let current = from; current !== null; current = ddgGlobals.getPrototypeOf(current)) {
                 const found = this.#holders.get(current)?.get(key);
                 if (found) {
                     record = found;
@@ -226,9 +230,9 @@ export class NativeReader {
         /** @type {unknown} */
         let current = target;
         while (current !== null && current !== record.holder) {
-            const own = getOwnPropertyDescriptor(current, key);
+            const own = ddgGlobals.getOwnPropertyDescriptor(current, key);
             if (own) return 'value' in own ? own : new Failure('PageAccessor');
-            current = getPrototypeOf(current);
+            current = ddgGlobals.getPrototypeOf(current);
         }
         return descriptor;
     }
@@ -245,11 +249,11 @@ export class NativeReader {
         const record = this._captured(target, key);
         if (record) return this._resolve(target, key, record, true);
         /** @type {unknown} */
-        let current = typeof target === 'object' || typeof target === 'function' ? target : getPrototypeOf(target);
+        let current = typeof target === 'object' || typeof target === 'function' ? target : ddgGlobals.getPrototypeOf(target);
         while (current !== null && current !== undefined) {
-            const descriptor = getOwnPropertyDescriptor(current, key);
+            const descriptor = ddgGlobals.getOwnPropertyDescriptor(current, key);
             if (descriptor) return descriptor;
-            current = getPrototypeOf(current);
+            current = ddgGlobals.getPrototypeOf(current);
         }
         return undefined;
     }
@@ -280,14 +284,14 @@ export class NativeReader {
             const record = this._captured(target, name);
             if (!record) {
                 // A primitive is read from its prototype, with itself as the getter's receiver
-                const start = typeof target === 'object' || typeof target === 'function' ? target : getPrototypeOf(target);
-                return ReflectGet(/** @type {object} */ (start), name, target);
+                const start = typeof target === 'object' || typeof target === 'function' ? target : ddgGlobals.getPrototypeOf(target);
+                return ddgGlobals.ReflectGet(/** @type {object} */ (start), name, target);
             }
             const descriptor = this._resolve(target, name, record, false);
             if (isFailure(descriptor)) return descriptor;
             if ('value' in descriptor) return descriptor.value;
             if (!descriptor.get) return undefined;
-            return ReflectApply(descriptor.get, target, []);
+            return ddgGlobals.ReflectApply(descriptor.get, target, []);
         } catch (e) {
             return thrownFailure(e);
         }
@@ -306,7 +310,7 @@ export class NativeReader {
         try {
             const method = this._method(target, name);
             if (typeof method !== 'function') return new Failure('TypeError');
-            return ReflectApply(method, target, args);
+            return ddgGlobals.ReflectApply(method, target, args);
         } catch (e) {
             return thrownFailure(e);
         }
@@ -351,7 +355,7 @@ export class NativeReader {
  */
 function tryOwnDescriptor(target, key) {
     try {
-        return getOwnPropertyDescriptor(target, key);
+        return ddgGlobals.getOwnPropertyDescriptor(target, key);
     } catch {
         return undefined;
     }
@@ -371,7 +375,7 @@ function captureOn(holder, records, keys) {
     try {
         for (const key of keys) {
             if (records.has(key)) continue;
-            const descriptor = getOwnPropertyDescriptor(holder, key);
+            const descriptor = ddgGlobals.getOwnPropertyDescriptor(holder, key);
             if (descriptor) found.set(key, { holder, descriptor });
         }
     } catch {
@@ -390,7 +394,7 @@ function captureOn(holder, records, keys) {
  */
 function hasPrototype(target, prototypes) {
     if (prototypes.length === 0 || typeof target !== 'object' || target === null) return false;
-    for (let current = getPrototypeOf(target); current !== null; current = getPrototypeOf(current)) {
+    for (let current = ddgGlobals.getPrototypeOf(target); current !== null; current = ddgGlobals.getPrototypeOf(current)) {
         if (prototypes.includes(current)) return true;
     }
     return false;
