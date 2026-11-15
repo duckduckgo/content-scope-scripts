@@ -14,6 +14,8 @@ interface ImportMeta {
     injectName?:
         | 'firefox'
         | 'apple'
+        | 'apple-blank'
+        | 'apple-isolated-blank'
         | 'apple-isolated'
         | 'apple-broker-protection'
         | 'apple-ai-clear'

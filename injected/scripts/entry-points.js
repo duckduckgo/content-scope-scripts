@@ -5,6 +5,7 @@ import { parseArgs, write } from '../../scripts/script-utils.js';
  * @typedef Build
  * @property {string} input
  * @property {string[]} output
+ * @property {ImportMeta['injectName'][]} [additional]
  *
  * @typedef {Record<NonNullable<ImportMeta['injectName']>, Build>} BuildManifest
  */
@@ -18,6 +19,11 @@ const builds = {
     apple: {
         input: 'entry-points/apple.js',
         output: ['../Sources/ContentScopeScripts/dist/contentScope.js'],
+        additional: ['apple-blank'],
+    },
+    'apple-blank': {
+        input: 'entry-points/apple.js',
+        output: ['../Sources/ContentScopeScripts/dist/blank.js'],
     },
     'apple-ai-clear': {
         input: 'entry-points/apple.js',
@@ -106,7 +112,54 @@ async function init() {
     // otherwise, just build them all
     for (const [injectName, build] of Object.entries(builds)) {
         const output = await bundle({ scriptPath: build.input, platform: injectName, sourcemap });
-        write(build.output, output);
+        const closures = {
+            ddg_main: output,
+        };
+
+        if ('additional' in build) {
+            for (const additionalBuild of build.additional) {
+                closures.ddg_blank = await bundle({ scriptPath: build.input, platform: additionalBuild, sourcemap });
+            }
+        }
+
+        let lines = [];
+        lines.push(`
+const __config = JSON.parse($CONTENT_SCOPE_JSON$);
+const __userUnprotectedDomains = $USER_UNPROTECTED_DOMAINS$;
+const __userPreferences = $USER_PREFERENCES$;
+        `);
+        for (const [name, bundle] of Object.entries(closures)) {
+            lines.push(`
+const ${name} = () => {
+    ${bundle
+        .split('\n')
+        .map((x) => `     ${x}`)
+        .join('\n')}
+};
+            `);
+        }
+        if (injectName === 'apple') {
+            lines.push(`
+if (window.location.href === "about:blank") {
+    ddg_blank();
+} else {
+    ddg_main();
+}
+            `);
+        } else if (injectName === 'apple-isolated') {
+            lines.push(`
+if (window.location.href === "about:blank") {
+    console.log('skipping isolated')
+} else {
+    ddg_main();
+}
+            `);
+        } else {
+            lines.push(`
+ddg_main();
+            `);
+        }
+        write(build.output, lines.join('\n'));
         console.log('✅', injectName, build.output[0]);
     }
 }

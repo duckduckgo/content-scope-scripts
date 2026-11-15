@@ -44,7 +44,7 @@ export async function bundle(params) {
         write: false,
         outdir: 'build',
         target: 'es2021',
-        format: 'iife',
+        format: 'esm',
         bundle: true,
         metafile: true,
         legalComments: 'inline',

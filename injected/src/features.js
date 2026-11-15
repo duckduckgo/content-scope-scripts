@@ -138,6 +138,18 @@ export const platformSupport = {
     'apple-broker-protection': ['brokerProtection'],
     'apple-ai-clear': ['duckAiDataClearing'],
     'apple-ai-history': ['duckAiChatHistory'],
+    'apple-blank': [
+        'fingerprintingHardware',
+        'fingerprintingScreenSize',
+        'fingerprintingBattery',
+        'fingerprintingTemporaryStorage',
+        'gpc',
+        'navigatorInterface',
+        'webCompat', // trimmed: messageHandlers to start, more only if config needs it
+        'print',
+        'textSelection',
+    ],
+    'apple-isolated-blank': [],
     android: [
         'webDetection',
         ...baseFeatures,
@@ -152,6 +164,7 @@ export const platformSupport = {
         'browserUiLock',
         'sponsorBlock',
     ],
+
     'android-broker-protection': ['brokerProtection'],
     'android-ai-clear': ['duckAiDataClearing'],
     'android-ai-history': ['duckAiChatHistory'],
