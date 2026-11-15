@@ -27,7 +27,7 @@ interface ImportMeta {
         | 'android-adsjs'
         | 'android-ai-history'
         | 'android-ai-clear';
-    trackerLookup?: import('./trackers.js').TrackerNode;
+    trackerLookup?: import('./trackers.js').TrackerNode | string;
     pageName?: string;
     // C-S-S release version from the root package.json, or null for unversioned builds, which count as newer than every release
     contentScopeScriptsVersion?: string | null;

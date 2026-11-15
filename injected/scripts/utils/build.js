@@ -28,7 +28,10 @@ export async function bundle(params) {
     let trackerLookup = '$TRACKER_LOOKUP$';
     if (!isExtension) {
         const trackerLookupData = readFileSync('../build/tracker-lookup.json', 'utf8');
-        trackerLookup = trackerLookupData;
+        // Embed the lookup as a JSON string constant (parsed once at load) rather than an object literal:
+        // engines that link code per global object (JavaScriptCore, one per frame) otherwise build a large
+        // code block with inline-cache metadata for every nested literal in every frame.
+        trackerLookup = JSON.stringify(trackerLookupData);
     }
     const loadFeaturesPlugin = loadFeatures(platform, featureNames);
     // The code is using a global, that we define here which means once tree shaken we get a browser specific output.
