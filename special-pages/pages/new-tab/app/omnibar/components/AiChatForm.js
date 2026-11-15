@@ -26,6 +26,7 @@ import styles from './AiChatForm.module.css';
  * @param {object} props
  * @param {string} props.query
  * @param {boolean} [props.autoFocus]
+ * @param {boolean} [props.collapsed] - shrinks the textarea to its first line, e.g. while focus is outside the omnibar.
  * @param {boolean} [props.disabled] - Blocks Enter/submit (e.g. empty query or attachment warnings).
  * @param {boolean} [props.readOnly] - Freezes the textarea (hard usage limit); typing and submit are blocked.
  * @param {(query: string, caret: number) => void} props.onChange
@@ -44,6 +45,7 @@ import styles from './AiChatForm.module.css';
 export function AiChatForm({
     query,
     autoFocus,
+    collapsed = false,
     disabled,
     readOnly = false,
     onChange,
@@ -79,7 +81,15 @@ export function AiChatForm({
 
         if (!textArea || !form) return;
 
-        const { paddingTop, paddingBottom } = window.getComputedStyle(textArea);
+        const { paddingTop, paddingBottom, lineHeight } = window.getComputedStyle(textArea);
+        form.classList.toggle(styles.collapsed, collapsed);
+        if (collapsed) {
+            textArea.style.height = lineHeight;
+            textArea.scrollTop = 0;
+            form.classList.remove(styles.hasScroll);
+            return;
+        }
+
         textArea.style.height = 'auto';
         textArea.style.height = `calc(${textArea.scrollHeight}px - ${paddingTop} - ${paddingBottom})`;
 
@@ -88,7 +98,7 @@ export function AiChatForm({
         } else {
             form.classList.remove(styles.hasScroll);
         }
-    }, [query, textareaRef]);
+    }, [query, textareaRef, collapsed]);
 
     /** @type {(event: SubmitEvent) => void} */
     const handleSubmit = (event) => {

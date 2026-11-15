@@ -340,6 +340,7 @@ function AiChatContent({
     const hasVisibleImagesRef = useRef(false);
     const submittingRef = useRef(false);
     const [imageWarning, setImageWarning] = useState(false);
+    const [promptCollapsed, setPromptCollapsed] = useState(!autoFocus);
     const { imageState, fileState, textPastedState } = useAttachmentsContext();
 
     const hasAttachedImages = imageState.attachedImages.length > 0;
@@ -547,11 +548,13 @@ function AiChatContent({
             class={styles.aiChatContent}
             data-attachment-warning={imageWarning || fileWarning || tabWarning || promptTooLong || undefined}
             onFocusCapture={(event) => {
+                setPromptCollapsed(false);
                 if (!isComposerTextarea(event.target)) return;
                 if (!hasVisibleImagesRef.current && !imageGenerationActive && !mention.pickerActive) showChats();
             }}
             onBlurCapture={(event) => {
                 if (focusStaysWithin(omnibarRef, event)) return;
+                setPromptCollapsed(true);
                 // Don't hide the list while the native deletion dialog is open
                 if (deletionInProgress.current) {
                     return;
@@ -564,6 +567,7 @@ function AiChatContent({
                 <AiChatForm
                     query={query}
                     autoFocus={autoFocus}
+                    collapsed={promptCollapsed}
                     disabled={disabled}
                     readOnly={blocksPrompt}
                     placeholder={fittedPromptPlaceholder ?? (imageGenerationActive ? imageGenerationPlaceholder : undefined)}

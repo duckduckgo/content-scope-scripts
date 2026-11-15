@@ -22,6 +22,10 @@ title: Omnibar Widget
 }
 ```
 
+## Prompt box
+
+The Duck.ai prompt grows with its text up to 10 lines. While focus is outside the omnibar it shrinks to its first line, and it grows back when focus returns.
+
 ## Tool selection
 
 Web Search and Create Image share one selection across NTP tabs in the window. Switching tabs preserves the tool; deselecting it or submitting a prompt clears it for all tabs. Feature configuration and model support still determine which tools are available. The selection lasts for the lifetime of the NTP page and is not persisted across page reloads.

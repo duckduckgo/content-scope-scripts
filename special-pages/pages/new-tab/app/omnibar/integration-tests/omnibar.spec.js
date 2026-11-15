@@ -16,6 +16,29 @@ test.describe('omnibar widget', () => {
         await ntp.mocks.waitForCallCount({ method: 'omnibar_getConfig', count: 1 });
     });
 
+    test('shrinks the prompt to one line while focus is outside the omnibar', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { 'omnibar.mode': 'ai' } });
+        await omnibar.ready();
+
+        const input = omnibar.chatInput();
+        const height = async () => (await input.boundingBox())?.height ?? 0;
+        await input.fill('one');
+        const oneLine = await height();
+        await input.fill('one\ntwo\nthree\nfour');
+        const expanded = await height();
+        expect(expanded).toBeGreaterThan(oneLine);
+
+        await page.locator('body').click({ position: { x: 5, y: 5 } });
+        await expect.poll(height).toBe(oneLine);
+
+        await input.focus();
+        await expect.poll(height).toBe(expanded);
+        await expect(input).toHaveValue('one\ntwo\nthree\nfour');
+    });
+
     test('reserves its height while config is loading (no layout shift)', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const omnibar = new OmnibarPage(ntp);
