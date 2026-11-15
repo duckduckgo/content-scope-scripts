@@ -1,4 +1,4 @@
-import { platformSupport, featureConfigDependencies } from '../src/features.js';
+import { platformSupport, featureConfigDependencies, featuresForFrame, topFrameOnlyFeatures } from '../src/features.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { readFile } from 'fs/promises';
@@ -28,6 +28,17 @@ describe('Features definition', () => {
         expect(webCompatIdx).not.toBe(-1);
         expect(fpScreenSizeIdx).not.toBe(-1);
         expect(webCompatIdx).toBeLessThan(fpScreenSizeIdx);
+    });
+
+    it('keeps config for top-frame-only features only in the top frame', () => {
+        const names = platformSupport.apple;
+        expect(featuresForFrame(names, false)).toEqual(names);
+        const framed = featuresForFrame(names, true);
+        for (const name of topFrameOnlyFeatures) {
+            expect(names).toContain(name);
+            expect(framed).not.toContain(name);
+        }
+        expect(framed.length).toBe(names.length - topFrameOnlyFeatures.length);
     });
 
     it('lists every cross-feature config read in featureConfigDependencies', async () => {

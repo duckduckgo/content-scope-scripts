@@ -47,7 +47,8 @@ const checks = {
     },
     integration: {
         file: join(BUILD, 'integration/contentScope.js'),
-        tests: [{ kind: 'containsString', text: 'init_define_import_meta_trackerLookup = ', includes: true }],
+        // Native builds embed the tracker lookup as a JSON string, not an object literal initialiser
+        tests: [{ kind: 'containsString', text: 'init_define_import_meta_trackerLookup = ', includes: false }],
     },
     windows: {
         file: join(BUILD, 'windows/contentScope.js'),

@@ -1,4 +1,4 @@
-import { objectDefineProperty } from './captured-globals.js';
+import { ddgGlobals } from './captured-globals.js';
 
 /**
  * @typedef {(object: object, propertyName: string | symbol, descriptor: import('./wrapper-utils').StrictPropertyDescriptor) => void} DefinePropertyFn
@@ -11,7 +11,7 @@ import { objectDefineProperty } from './captured-globals.js';
  * @param {DefinePropertyFn} [options.defineProperty] - Custom defineProperty (e.g. with logging), defaults to captured global
  * @returns {object} The navigator.duckduckgo object
  */
-export function ensureNavigatorDuckDuckGo({ defineProperty = objectDefineProperty } = {}) {
+export function ensureNavigatorDuckDuckGo({ defineProperty = ddgGlobals.objectDefineProperty } = {}) {
     if (navigator.duckduckgo) {
         return navigator.duckduckgo;
     }

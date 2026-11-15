@@ -1,4 +1,4 @@
-import { isArray } from '../../../captured-globals.js';
+import { ddgGlobals } from '../../../captured-globals.js';
 import { ConfigParseError, isFailure } from '../model/core.js';
 import { compileField, readField } from '../predicates/fields.js';
 import { compileWhere, testPredicate } from '../predicates/predicates.js';
@@ -56,7 +56,7 @@ export function parseItemKeys(raw, path, hooks) {
  * @returns {string[]}
  */
 export function stringList(raw, path) {
-    const list = isArray(raw) ? raw : [raw];
+    const list = ddgGlobals.isArray(raw) ? raw : [raw];
     if (list.some((entry) => typeof entry !== 'string')) throw new ConfigParseError(path, 'expected a string or an array of strings');
     return /** @type {string[]} */ (list);
 }

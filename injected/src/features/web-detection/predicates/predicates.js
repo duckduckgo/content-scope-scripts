@@ -1,4 +1,4 @@
-import { isArray, objectKeys } from '../../../captured-globals.js';
+import { ddgGlobals } from '../../../captured-globals.js';
 import {
     ConfigParseError,
     DetectionError,
@@ -222,7 +222,7 @@ function testIn(entries, subject, ctx) {
  * @returns {raw is Record<string, unknown>}
  */
 function isItemExpression(raw) {
-    return isPlainObject(raw) && objectKeys(raw).some((key) => EXPRESSION_KEYS.has(key) && !COMBINATORS.has(key));
+    return isPlainObject(raw) && ddgGlobals.objectKeys(raw).some((key) => EXPRESSION_KEYS.has(key) && !COMBINATORS.has(key));
 }
 
 /**
@@ -241,7 +241,7 @@ function isItemExpression(raw) {
  */
 export function compilePredicate(raw, level, path, hooks) {
     if (isScalar(raw)) return compileComparison('eq', raw, path, hooks);
-    if (isArray(raw)) {
+    if (ddgGlobals.isArray(raw)) {
         throw new ConfigParseError(
             path,
             'an array is not a predicate: `{"in": [...]}` tests for one of several values, and `{"any": [...]}` one of several predicates',
@@ -272,7 +272,7 @@ function combine(combinator, entries, path) {
  * @returns {CompiledPredicate}
  */
 function compileObject(raw, level, path, hooks) {
-    const keys = objectKeys(raw);
+    const keys = ddgGlobals.objectKeys(raw);
     const hasField = keys.includes('field');
     const hasIs = keys.includes('is');
     if (hasField !== hasIs) {
@@ -295,7 +295,9 @@ function compileObject(raw, level, path, hooks) {
             entries.push(
                 combine(
                     key,
-                    asArray(value).map((entry, i) => compilePredicate(entry, level, isArray(value) ? `${keyPath}.${i}` : keyPath, hooks)),
+                    asArray(value).map((entry, i) =>
+                        compilePredicate(entry, level, ddgGlobals.isArray(value) ? `${keyPath}.${i}` : keyPath, hooks),
+                    ),
                     keyPath,
                 ),
             );
@@ -372,7 +374,9 @@ function expectBoolean(raw, path) {
 function compileIn(raw, path, hooks) {
     /** @type {InPredicate['entries']} */
     const entries = asArray(raw).map((entry, i) =>
-        isScalar(entry) ? { literal: entry } : { operand: hooks.expression(entry, isArray(raw) ? `${path}.${i}` : path, 'value') },
+        isScalar(entry)
+            ? { literal: entry }
+            : { operand: hooks.expression(entry, ddgGlobals.isArray(raw) ? `${path}.${i}` : path, 'value') },
     );
     return { kind: 'in', entries, path, scalar: true };
 }

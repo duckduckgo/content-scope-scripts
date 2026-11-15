@@ -1,4 +1,4 @@
-import { isArray, ReflectApply } from '../../../captured-globals.js';
+import { ddgGlobals } from '../../../captured-globals.js';
 import { isFailure, thrownFailure } from './core.js';
 
 /**
@@ -105,7 +105,7 @@ export function isItemBuffer(value) {
  * @returns {Generator<unknown> | Failure | undefined}
  */
 export function listMembers(value, ctx) {
-    if (isArray(value)) return arrayMembers(value);
+    if (ddgGlobals.isArray(value)) return arrayMembers(value);
     const iteratorMethod = ctx.reader.iteratorMethod(value);
     if (iteratorMethod === undefined || isFailure(iteratorMethod)) return iteratorMethod;
     const node = ctx.reader.isNode(value);
@@ -158,7 +158,7 @@ function* iteratedMembers(value, iteratorMethod) {
         /** @type {unknown} */
         let item;
         try {
-            iterator ??= /** @type {Iterator<unknown>} */ (ReflectApply(iteratorMethod, value, []));
+            iterator ??= /** @type {Iterator<unknown>} */ (ddgGlobals.ReflectApply(iteratorMethod, value, []));
             const next = iterator.next();
             if (next.done) return;
             item = next.value;

@@ -1,6 +1,6 @@
 /* eslint-disable no-redeclare, no-global-assign */
-import { Set } from './captured-globals.js';
-import { platformSupport, featureConfigDependencies } from './features.js';
+import { ddgGlobals } from './captured-globals.js';
+import { platformSupport, featuresForFrame, configDependenciesFor } from './features.js';
 
 // Only use globalThis for testing this breaks window.wrappedJSObject code in Firefox
 
@@ -220,7 +220,7 @@ const lineTest = /(\()?(https?:[^)]+):[0-9]+:[0-9]+(\))?/;
  * @returns {Set<URL>}
  */
 export function getStackTraceUrls(stack) {
-    const urls = new Set();
+    const urls = new ddgGlobals.Set();
     if (!stack) return urls;
     try {
         const errorLines = stack.split('\n');
@@ -243,7 +243,7 @@ export function getStackTraceUrls(stack) {
  */
 export function getStackTraceOrigins(stack) {
     const urls = getStackTraceUrls(stack);
-    const origins = new Set();
+    const origins = new ddgGlobals.Set();
     for (const url of urls) {
         origins.add(url.hostname);
     }
@@ -668,6 +668,7 @@ export function isUnprotectedDomain(topLevelHostname, featureList) {
  * @property {string} [versionString] - Non Android version string
  * @property {string} sessionKey
  * @property {string} [messagingContextName] - The context name for messaging (e.g. 'contentScopeScripts')
+ * @property {import('./features/tracker-protection/tracker-resolver.js').TrackerData} [trackerData] - tracker dataset for trackerProtection, if native supplies it
  */
 
 /**
@@ -806,7 +807,8 @@ export function isMaxSupportedVersion(maxSupportedVersion, currentVersion) {
 export function processConfig(data, userList, preferences, platformSpecificFeatures = [], injectName = import.meta.injectName) {
     const bundledFeatureNames = injectName ? platformSupport[injectName] : undefined;
     if (bundledFeatureNames) {
-        data = pruneConfigFeatures(data, bundledFeatureNames, featureConfigDependencies);
+        // In a subframe, also drop features that never operate there, so their config isn't kept alive per frame.
+        data = pruneConfigFeatures(data, featuresForFrame(bundledFeatureNames, isBeingFramed()), configDependenciesFor(preferences));
     }
     const topLevelHostname = getTabHostname();
     const site = computeLimitedSiteObject();
@@ -887,7 +889,7 @@ export function isStateEnabled(state, platform) {
  */
 export function pruneConfigFeatures(data, featureNames, dependencies = {}) {
     if (!data?.features) return data;
-    const keep = new Set(featureNames);
+    const keep = new ddgGlobals.Set(featureNames);
     for (const featureName of featureNames) {
         for (const dependency of dependencies[featureName] ?? []) {
             keep.add(dependency);

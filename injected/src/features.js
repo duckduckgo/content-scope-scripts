@@ -73,6 +73,40 @@ export const featureConfigDependencies = {
 };
 
 /**
+ * Features whose `init()` returns straight away in a subframe and that do nothing in `load()`.
+ * In a subframe their config is pruned, so they are not loaded and their settings (element hiding
+ * rules are among the largest config sections) are not kept alive in every frame.
+ * Only add a feature if it has no subframe behaviour at all.
+ * @type {FeatureName[]}
+ */
+export const topFrameOnlyFeatures = ['elementHiding', 'duckPlayerNative'];
+
+/**
+ * Bundled features whose config should be kept for this frame.
+ * @param {FeatureName[]} bundledFeatureNames
+ * @param {boolean} isFramed
+ * @returns {FeatureName[]}
+ */
+export function featuresForFrame(bundledFeatureNames, isFramed) {
+    return isFramed ? bundledFeatureNames.filter((name) => !topFrameOnlyFeatures.includes(name)) : bundledFeatureNames;
+}
+
+/**
+ * Config dependencies to keep for this injection. `trackerProtection` reads `trackerAllowlist` only
+ * when native supplies `trackerData`, so without it the allowlist (one of the largest config
+ * sections) is not kept alive.
+ * @param {{ trackerData?: unknown }} preferences
+ * @returns {Partial<Record<FeatureName, string[]>>}
+ */
+export function configDependenciesFor(preferences) {
+    if (preferences.trackerData) return featureConfigDependencies;
+    return {
+        ...featureConfigDependencies,
+        trackerProtection: (featureConfigDependencies.trackerProtection ?? []).filter((name) => name !== 'trackerAllowlist'),
+    };
+}
+
+/**
  * Features load and init in the order listed. `webDetection` comes first, after `cookie` where a platform
  * has it, so its reader captures native getters and methods before any other feature replaces them.
  * `cookie` replaces only `Document.prototype.cookie`.
@@ -107,6 +141,18 @@ export const platformSupport = {
     // Its own bundle: native injects it only when the user translates a page.
     'apple-page-translation': ['pageTranslation'],
     'apple-ai-history': ['duckAiChatHistory'],
+    'apple-blank': [
+        'fingerprintingHardware',
+        'fingerprintingScreenSize',
+        'fingerprintingBattery',
+        'fingerprintingTemporaryStorage',
+        'gpc',
+        'navigatorInterface',
+        'webCompat', // trimmed: messageHandlers to start, more only if config needs it
+        'print',
+        'textSelection',
+    ],
+    'apple-isolated-blank': [],
     android: [
         'webDetection',
         ...baseFeatures,
@@ -121,6 +167,7 @@ export const platformSupport = {
         'browserUiLock',
         'sponsorBlock',
     ],
+
     'android-broker-protection': ['brokerProtection'],
     'android-ai-clear': ['duckAiDataClearing'],
     'android-page-translation': ['pageTranslation'],

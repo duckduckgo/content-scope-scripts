@@ -1,8 +1,7 @@
 import { processAttr } from './utils.js';
 import { PerformanceMonitor } from './performance.js';
 import { defineProperty, shimInterface, shimProperty, wrapMethod, wrapProperty, wrapToString } from './wrapper-utils.js';
-// eslint-disable-next-line no-redeclare
-import { Proxy, Reflect, consoleLog, consoleWarn, consoleError } from './captured-globals.js';
+import { ddgGlobals } from './captured-globals.js';
 import { Messaging, MessagingContext } from '../../messaging/index.js';
 import { extensionConstructMessagingConfig } from './sendmessage-transport.js';
 import { isTrackerOrigin } from './trackers.js';
@@ -153,19 +152,19 @@ export default class ContentFeature extends ConfigFeature {
                 if (!shouldLog) {
                     return () => {};
                 }
-                return consoleLog.bind(console, prefix);
+                return ddgGlobals.consoleLog.bind(console, prefix);
             },
             get warn() {
                 if (!shouldLog) {
                     return () => {};
                 }
-                return consoleWarn.bind(console, prefix);
+                return ddgGlobals.consoleWarn.bind(console, prefix);
             },
             get error() {
                 if (!shouldLog) {
                     return () => {};
                 }
-                return consoleError.bind(console, prefix);
+                return ddgGlobals.consoleError.bind(console, prefix);
             },
         };
     }
@@ -486,10 +485,10 @@ export default class ContentFeature extends ConfigFeature {
          * @returns {F}
          */
         const wrapWithDebugFlag = (fn) => {
-            const wrapper = new Proxy(fn, {
+            const wrapper = new ddgGlobals.Proxy(fn, {
                 apply(_, thisArg, argumentsList) {
                     addDebugFlag();
-                    return Reflect.apply(fn, thisArg, argumentsList);
+                    return ddgGlobals.Reflect.apply(fn, thisArg, argumentsList);
                 },
             });
             return /** @type {F} */ (wrapToString(wrapper, fn));

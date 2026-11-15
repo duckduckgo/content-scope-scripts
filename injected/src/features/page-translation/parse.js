@@ -1,4 +1,4 @@
-import { JSONparse } from '../../captured-globals.js';
+import { ddgGlobals } from '../../captured-globals.js';
 
 /** @typedef {import('./types.js').ParsedNode} ParsedNode */
 
@@ -16,7 +16,7 @@ const INVISIBLE = /^\p{Cf}*$/u;
 export function parseTree(json, wrapped) {
     let nodes;
     try {
-        nodes = JSONparse(json);
+        nodes = ddgGlobals.JSONparse(json);
     } catch {
         return null;
     }

@@ -1487,5 +1487,27 @@ describe('Helpers checks', () => {
             const unpruned = processConfig(data, [], preferences, []);
             expect(Object.keys(unpruned.bundledConfig.features).sort()).toEqual(['autofill', 'gpc']);
         });
+
+        it('keeps trackerAllowlist only when native supplies trackerData', () => {
+            const data = {
+                unprotectedTemporary: [],
+                features: {
+                    trackerProtection: { state: 'enabled', settings: {}, exceptions: [] },
+                    contentBlocking: { state: 'enabled', settings: {}, exceptions: [] },
+                    trackerAllowlist: { state: 'enabled', settings: { allowlistedTrackers: {} }, exceptions: [] },
+                },
+            };
+            /** @type {import('../src/utils.js').UserPreferences} */
+            const preferences = { platform: { name: 'ios' }, sessionKey: 'testSessionKey' };
+            const without = processConfig(data, [], preferences, [], 'apple');
+            expect(Object.keys(without.bundledConfig.features).sort()).toEqual(['contentBlocking', 'trackerProtection']);
+            const trackerData = /** @type {any} */ ({ trackers: {}, entities: {}, domains: {}, cnames: {} });
+            const withData = processConfig(data, [], { ...preferences, trackerData }, [], 'apple');
+            expect(Object.keys(withData.bundledConfig.features).sort()).toEqual([
+                'contentBlocking',
+                'trackerAllowlist',
+                'trackerProtection',
+            ]);
+        });
     });
 });

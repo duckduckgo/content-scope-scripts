@@ -14,6 +14,7 @@ interface ImportMeta {
     injectName?:
         | 'firefox'
         | 'apple'
+        | 'apple-blank'
         | 'apple-isolated'
         | 'apple-broker-protection'
         | 'apple-ai-clear'
@@ -29,7 +30,7 @@ interface ImportMeta {
         | 'android-ai-history'
         | 'android-ai-clear'
         | 'android-page-translation';
-    trackerLookup?: import('./trackers.js').TrackerNode;
+    trackerLookup?: import('./trackers.js').TrackerNode | string;
     pageName?: string;
     // C-S-S release version from the root package.json, or null for unversioned builds, which count as newer than every release
     contentScopeScriptsVersion?: string | null;
@@ -78,3 +79,6 @@ declare module 'ddg:platformFeatures' {
     >;
     export default output;
 }
+declare const __userUnprotectedDomains: string[];
+declare const __config: RemoteConfig;
+declare const __userPreferences: UserPreferences;

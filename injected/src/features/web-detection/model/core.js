@@ -9,7 +9,7 @@
  * - a `ConfigParseError` is config that does not fit the grammar. It is thrown at parse time.
  */
 
-import { getOwnPropertyDescriptor, getPrototypeOf, isArray, objectKeys } from '../../../captured-globals.js';
+import { ddgGlobals } from '../../../captured-globals.js';
 
 export class Failure {
     #brand = true;
@@ -74,7 +74,7 @@ export function thrownFailure(thrown) {
 export function thrownMessage(thrown) {
     if (thrown === null || (typeof thrown !== 'object' && typeof thrown !== 'function')) return String(thrown);
     try {
-        const message = getOwnPropertyDescriptor(thrown, 'message')?.value;
+        const message = ddgGlobals.getOwnPropertyDescriptor(thrown, 'message')?.value;
         if (typeof message === 'string') return message;
     } catch {
         // A proxy's traps may throw
@@ -91,9 +91,9 @@ export function thrownMessage(thrown) {
  */
 function errorName(thrown) {
     try {
-        for (let current = getPrototypeOf(thrown); current !== null; current = getPrototypeOf(current)) {
-            const constructor = getOwnPropertyDescriptor(current, 'constructor')?.value;
-            const name = typeof constructor === 'function' ? getOwnPropertyDescriptor(constructor, 'name')?.value : undefined;
+        for (let current = ddgGlobals.getPrototypeOf(thrown); current !== null; current = ddgGlobals.getPrototypeOf(current)) {
+            const constructor = ddgGlobals.getOwnPropertyDescriptor(current, 'constructor')?.value;
+            const name = typeof constructor === 'function' ? ddgGlobals.getOwnPropertyDescriptor(constructor, 'name')?.value : undefined;
             if (typeof name === 'string') return name;
         }
     } catch {
@@ -170,7 +170,7 @@ export const EXPRESSION_KEYS = new Set([
  * @returns {raw is Record<string, unknown>}
  */
 export function isExpressionObject(raw) {
-    return isPlainObject(raw) && objectKeys(raw).some((key) => EXPRESSION_KEYS.has(key));
+    return isPlainObject(raw) && ddgGlobals.objectKeys(raw).some((key) => EXPRESSION_KEYS.has(key));
 }
 
 /**
@@ -178,7 +178,7 @@ export function isExpressionObject(raw) {
  * @returns {value is Record<string, unknown>}
  */
 export function isPlainObject(value) {
-    return typeof value === 'object' && value !== null && !isArray(value);
+    return typeof value === 'object' && value !== null && !ddgGlobals.isArray(value);
 }
 
 /**
@@ -187,7 +187,7 @@ export function isPlainObject(value) {
  * @param {string} path
  */
 export function rejectUnknownKeys(raw, allowed, path) {
-    for (const key of objectKeys(raw)) {
+    for (const key of ddgGlobals.objectKeys(raw)) {
         if (!allowed.includes(key)) throw new ConfigParseError(path, `unknown key '${key}'`);
     }
 }
@@ -198,7 +198,7 @@ export function rejectUnknownKeys(raw, allowed, path) {
  * @returns {T[]}
  */
 export function asArray(value) {
-    return isArray(value) ? value : [value];
+    return ddgGlobals.isArray(value) ? value : [value];
 }
 
 /**
@@ -232,7 +232,7 @@ export function decides(kind) {
  */
 export function typeName(value) {
     if (value === null) return 'null';
-    if (isArray(value)) return 'array';
+    if (ddgGlobals.isArray(value)) return 'array';
     return typeof value;
 }
 

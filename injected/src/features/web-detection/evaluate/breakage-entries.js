@@ -1,4 +1,4 @@
-import { objectKeys } from '../../../captured-globals.js';
+import { ddgGlobals } from '../../../captured-globals.js';
 import { getOrCreate } from '../model/core.js';
 
 /**
@@ -48,7 +48,7 @@ export class BreakageEntries {
     write(detectorId, data) {
         const record = this._recordOf(detectorId);
         record.written = true;
-        for (const key of objectKeys(data)) record.data[key] = data[key];
+        for (const key of ddgGlobals.objectKeys(data)) record.data[key] = data[key];
     }
 
     /**
@@ -76,7 +76,7 @@ export class BreakageEntries {
         /** @type {BreakageEntry} */
         const entry = { detectorId };
         if (record.written && done) entry.detected = true;
-        if (objectKeys(record.data).length > 0) entry.data = { ...record.data };
+        if (ddgGlobals.objectKeys(record.data).length > 0) entry.data = { ...record.data };
         if (record.errors.size > 0) {
             /** @type {Record<string, RunFailure>} */
             const errors = {};

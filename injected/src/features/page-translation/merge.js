@@ -1,4 +1,4 @@
-import { ReflectApply } from '../../captured-globals.js';
+import { ddgGlobals } from '../../captured-globals.js';
 
 /**
  * @typedef {import('./types.js').UnitTarget} UnitTarget
@@ -126,7 +126,7 @@ class Merge {
             // Copies drop their ids, so the page never has two elements with the same id.
             if (copying || this.live.get(item.id) !== item) {
                 const excluded = this.isExcluded(live);
-                const copy = /** @type {Element} */ (ReflectApply(cloneNode, live, [excluded]));
+                const copy = /** @type {Element} */ (ddgGlobals.ReflectApply(cloneNode, live, [excluded]));
                 copy.removeAttribute('id');
                 for (const el of copy.querySelectorAll('[id]')) el.removeAttribute('id');
                 if (!excluded) this.into(copy, [], item.children, null, true);
@@ -170,7 +170,7 @@ class Merge {
             setText(node, text);
             return node;
         }
-        return /** @type {Text} */ (ReflectApply(createTextNode, document, [text]));
+        return /** @type {Text} */ (ddgGlobals.ReflectApply(createTextNode, document, [text]));
     }
 }
 
@@ -184,9 +184,9 @@ class Merge {
 function replaceChildren(parent, current, next, anchor) {
     const keep = new Set(next);
     for (const node of current) {
-        if (!keep.has(node) && node.parentNode === parent) ReflectApply(removeChild, parent, [node]);
+        if (!keep.has(node) && node.parentNode === parent) ddgGlobals.ReflectApply(removeChild, parent, [node]);
     }
-    for (const node of next) ReflectApply(insertBefore, parent, [node, anchor]);
+    for (const node of next) ddgGlobals.ReflectApply(insertBefore, parent, [node, anchor]);
 }
 
 /**

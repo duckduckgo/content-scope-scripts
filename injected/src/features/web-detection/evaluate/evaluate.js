@@ -1,4 +1,4 @@
-import { JSONparse, JSONstringify } from '../../../captured-globals.js';
+import { ddgGlobals } from '../../../captured-globals.js';
 import { DetectionError, decides, errorPath, isFailure, isScalar, thrownFailure, thrownMessage, typeName } from '../model/core.js';
 import { ItemBuffer, asList, isItemBuffer, listMembers } from '../model/lists.js';
 import { evaluateArgs, readPath } from '../predicates/fields.js';
@@ -559,8 +559,8 @@ function payloadJson(value, path) {
     if (isFailure(items)) return items.at(path);
     try {
         /** @type {string | undefined} */
-        const json = JSONstringify(items);
-        return json === undefined ? OMIT : JSONparse(json);
+        const json = ddgGlobals.JSONstringify(items);
+        return json === undefined ? OMIT : ddgGlobals.JSONparse(json);
     } catch (e) {
         return thrownFailure(e).at(path);
     }
