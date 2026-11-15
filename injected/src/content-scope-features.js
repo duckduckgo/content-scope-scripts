@@ -16,14 +16,16 @@ const _features = {};
 const alwaysInitFeatures = new Set(['cookie']);
 const performanceMonitor = new PerformanceMonitor();
 
-// It's important to avoid enabling the features for non-HTML documents (such as
-// XML documents that aren't XHTML). Note that it's necessary to check the
-// document type in advance, to minimise the risk of a website breaking the
-// checks by altering document.__proto__. In the future, it might be worth
-// running the checks even earlier (and in the "isolated world" for the Chrome
-// extension), to further reduce that risk.
+// Capture document types before page code can alter their prototypes.
 const isHTMLDocument =
     document instanceof HTMLDocument || (document instanceof XMLDocument && document.createElement('div') instanceof HTMLDivElement);
+const isSVGDocument =
+    document instanceof XMLDocument &&
+    document.contentType === 'image/svg+xml' &&
+    document.documentElement?.localName === 'svg' &&
+    document.documentElement.namespaceURI === 'http://www.w3.org/2000/svg';
+// Other features assume an HTML document.
+const svgFeatures = new Set(['sitePermissionsGeolocation', 'sitePermissionsMediaCapture', 'sitePermissionsGeolocationPolicy']);
 
 /**
  * @typedef {object} LoadArgs
@@ -46,7 +48,7 @@ const isHTMLDocument =
  */
 export function load(args) {
     const mark = performanceMonitor.mark('load');
-    if (!isHTMLDocument) {
+    if (!isHTMLDocument && !isSVGDocument) {
         return;
     }
 
@@ -67,6 +69,9 @@ export function load(args) {
         : args.site.enabledFeatures || bundledFeatureNames;
 
     for (const featureName of bundledFeatureNames) {
+        if (!isHTMLDocument && !svgFeatures.has(featureName)) {
+            continue;
+        }
         if (featuresToLoad.includes(featureName)) {
             const ContentFeature = platformFeatures['ddg_feature_' + featureName];
             if (!ContentFeature) {
@@ -112,7 +117,7 @@ export async function init(args) {
     const mark = performanceMonitor.mark('init');
     /** @type {LoadArgs} */
     initArgs = args;
-    if (!isHTMLDocument) {
+    if (!isHTMLDocument && !isSVGDocument) {
         return;
     }
     if (args.messageSecret) {
@@ -164,7 +169,7 @@ export async function init(args) {
  * @param {LoadArgs} args
  */
 export function update(args) {
-    if (!isHTMLDocument) {
+    if (!isHTMLDocument && !isSVGDocument) {
         return;
     }
     if (initArgs === null) {
@@ -181,7 +186,7 @@ export function update(args) {
  * @param {object} updatedArgs - The new arguments to apply to opted-in features
  */
 export async function updateFeatureArgs(updatedArgs) {
-    if (!isHTMLDocument) {
+    if (!isHTMLDocument && !isSVGDocument) {
         return;
     }
 
