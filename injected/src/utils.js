@@ -314,6 +314,21 @@ export function isFeatureBroken(args, feature) {
 }
 
 /**
+ * Remote config is a hot-fix channel, so a malformed selector is a question of when, not if. One bad entry would
+ * invalidate a whole injected CSS rule and throw out of querySelectorAll, so callers drop it and keep the rest.
+ * @param {string} selector
+ * @returns {boolean}
+ */
+export function isValidSelector(selector) {
+    try {
+        document.createDocumentFragment().querySelector(selector);
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+/**
  * @param {string} dashCaseText
  * @returns {string}
  */

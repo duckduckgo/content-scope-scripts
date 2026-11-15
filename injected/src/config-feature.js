@@ -11,6 +11,9 @@ import {
 } from './utils.js';
 import { URLPattern as URLPatternPolyfill } from 'urlpattern-polyfill';
 
+// C-S-S release tags are `major.minor.patch`
+const RELEASE_VERSION_PATTERN = /^\d+\.\d+\.\d+$/;
+
 /**
  * Used to match conditional changes for a settings feature.
  *
@@ -19,6 +22,8 @@ import { URLPattern as URLPatternPolyfill } from 'urlpattern-polyfill';
  * @property {object} [urlPattern]
  * @property {string | number} [minSupportedVersion]
  * @property {string | number} [maxSupportedVersion]
+ * @property {string} [minContentScopeScriptsVersion] - minimum C-S-S release version
+ * @property {string} [maxContentScopeScriptsVersion] - maximum C-S-S release version
  * @property {object} [experiment]
  * @property {string} [experiment.experimentName]
  * @property {string} [experiment.cohort]
@@ -123,6 +128,14 @@ export default class ConfigFeature {
     }
 
     /**
+     * Getter for the C-S-S release version, will be overridden by subclasses (namely ContentFeature)
+     * @returns {string | null}
+     */
+    get contentScopeScriptsVersion() {
+        return null;
+    }
+
+    /**
      * Given a config key, interpret the value as a list of conditionals objects, and return the elements that match the current page
      * Consider in your feature using patchSettings instead as per `getFeatureSetting`.
      * @param {string} featureKeyName
@@ -185,6 +198,8 @@ export default class ConfigFeature {
             experiment: this._matchExperimentConditional,
             minSupportedVersion: this._matchMinSupportedVersion,
             maxSupportedVersion: this._matchMaxSupportedVersion,
+            minContentScopeScriptsVersion: this._matchMinContentScopeScriptsVersion,
+            maxContentScopeScriptsVersion: this._matchMaxContentScopeScriptsVersion,
             injectName: this._matchInjectNameConditional,
             internal: this._matchInternalConditional,
             preview: this._matchPreviewConditional,
@@ -353,6 +368,36 @@ export default class ConfigFeature {
     _matchMaxSupportedVersion(conditionBlock) {
         if (!conditionBlock.maxSupportedVersion) return false;
         return isMaxSupportedVersion(conditionBlock.maxSupportedVersion, this.#args?.platform?.version);
+    }
+
+    /**
+     * Takes a condition block and returns true if the C-S-S version satisfies the `minContentScopeScriptsVersion`.
+     * Unversioned builds count as newer than every release, so they always match.
+     * A value not in `major.minor.patch` form never matches.
+     * @param {ConditionBlock} conditionBlock
+     * @returns {boolean}
+     */
+    _matchMinContentScopeScriptsVersion(conditionBlock) {
+        const minVersion = conditionBlock.minContentScopeScriptsVersion;
+        if (typeof minVersion !== 'string' || !RELEASE_VERSION_PATTERN.test(minVersion)) return false;
+        const contentScopeScriptsVersion = this.contentScopeScriptsVersion;
+        if (!contentScopeScriptsVersion) return true;
+        return isSupportedVersion(minVersion, contentScopeScriptsVersion);
+    }
+
+    /**
+     * Takes a condition block and returns true if the C-S-S version satisfies the `maxContentScopeScriptsVersion`.
+     * Unversioned builds count as newer than every release, so they never match.
+     * A value not in `major.minor.patch` form never matches.
+     * @param {ConditionBlock} conditionBlock
+     * @returns {boolean}
+     */
+    _matchMaxContentScopeScriptsVersion(conditionBlock) {
+        const maxVersion = conditionBlock.maxContentScopeScriptsVersion;
+        if (typeof maxVersion !== 'string' || !RELEASE_VERSION_PATTERN.test(maxVersion)) return false;
+        const contentScopeScriptsVersion = this.contentScopeScriptsVersion;
+        if (!contentScopeScriptsVersion) return false;
+        return isMaxSupportedVersion(maxVersion, contentScopeScriptsVersion);
     }
 
     /**

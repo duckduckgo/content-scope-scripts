@@ -48,6 +48,8 @@ Selected page text leaves out what the user can't see, which a page could use to
 to Duck.ai: text with zero or near-zero opacity, hidden visibility, a colour that's fully or nearly transparent (gradient
 text drawn through `background-clip: text` still counts as visible), a font under 4px, or a box shrunk to a pixel with
 its overflow cut off, as screen-reader-only text is. Text in the same colour as its background still gets through.
+Text the page keeps from being selected (`user-select: none`), such as the other side of a split diff, is left out too,
+as the browser leaves it out of its own selected text.
 
 Each selection is classified locally, from its text and the element it starts in:
 
@@ -68,8 +70,9 @@ say, it's left out, and native takes the text to be in the user's language.
 
 ## Reporting a selection
 
-A selection is reported with `selectionChanged` when a selection gesture ends: a primary-button release, a Shift key
-release, or select-all while editing. Only while `enabled` and `showToolbar` are both on, and not for selections in the
+A selection is reported with `selectionChanged` when a selection gesture ends: a primary-button release that changed
+the selection, a Shift key release, or select-all while editing. A click that leaves the selection as it was, such as on
+a rich-text editor's menu button, clears the report without starting a new one, so the toolbar doesn't cover the menu. Only while `enabled` and `showToolbar` are both on, and not for selections in the
 top layer (a modal dialog, popover or fullscreen element), where the toolbar would sit behind. It's reported again when
 the same text is reselected; native drops repeats.
 
@@ -97,7 +100,9 @@ once the menu closes, and starts a report, or leaves one in place, that later mo
 
 - {@link "SelectionTools Messages".SelectionChangedNotification}
 - A selection to show the toolbar for. `rect` is the selected text's bounds in CSS pixels relative to the viewport;
-  multiply by `devicePixelRatio` (which includes page zoom) for physical pixels.
+  multiply by `devicePixelRatio` (which includes page zoom) for physical pixels. It's measured from the text left in
+  the report, not from the elements the selection spans, so a selection down one column of a table doesn't stretch it
+  across the others.
 
 ```json
 {

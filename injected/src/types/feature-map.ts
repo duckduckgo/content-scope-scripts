@@ -43,6 +43,7 @@ import type PerformanceMetrics from '../features/performance-metrics.js';
 import type Print from '../features/print.js';
 import type Referrer from '../features/referrer.js';
 import type SelectionTools from '../features/selection-tools.js';
+import type SponsorBlock from '../features/sponsor-block.js';
 import type TabSuspension from '../features/tab-suspension.js';
 import type TextSelection from '../features/text-selection.js';
 import type TrackerProtection from '../features/tracker-protection.js';
@@ -95,6 +96,7 @@ export interface FeatureMap {
     print: Print;
     referrer: Referrer;
     selectionTools: SelectionTools;
+    sponsorBlock: SponsorBlock;
     tabSuspension: TabSuspension;
     textSelection: TextSelection;
     trackerProtection: TrackerProtection;

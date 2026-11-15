@@ -56,6 +56,7 @@ const otherFeatures = /** @type {FeatureName[]} */ ([
     'textSelection',
     'chromeWebstorePatching',
     'selectionTools',
+    'sponsorBlock',
 ]);
 
 /**
@@ -84,7 +85,6 @@ export const platformSupport = {
         'contextMenu',
         'duckPlayer',
         'duckPlayerNative',
-        'brokerProtection',
         'breakageReporting',
         'performanceMetrics',
         'clickToLoad',
@@ -99,7 +99,9 @@ export const platformSupport = {
         'tabSuspension',
         'chromeWebstorePatching',
         'browserUiLock',
+        'sponsorBlock',
     ],
+    'apple-broker-protection': ['brokerProtection'],
     'apple-ai-clear': ['duckAiDataClearing'],
     'apple-ai-history': ['duckAiChatHistory'],
     android: [
@@ -114,6 +116,7 @@ export const platformSupport = {
         'messageBridge',
         'pageContext',
         'browserUiLock',
+        'sponsorBlock',
     ],
     'android-broker-protection': ['brokerProtection'],
     'android-ai-clear': ['duckAiDataClearing'],
