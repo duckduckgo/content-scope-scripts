@@ -65,6 +65,21 @@
       "type": "array",
       "items": { "$ref": "./types/native-prompt-file.json" }
     },
+    "textPasted": {
+      "description": "Long text pastes attached as pasted-text parts (see `enablePastedText`), in attach order. Each entry mirrors Duck.ai's `NativePromptTextPasted` shape so native forwards them through unchanged. Omitted when there are none.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["content"],
+        "additionalProperties": false,
+        "properties": {
+          "content": {
+            "description": "The pasted text, verbatim.",
+            "type": "string"
+          }
+        }
+      }
+    },
     "launcherPromoVisible": {
       "description": "True when the launcherPromo drawer was on screen as the prompt was sent, so native can treat the prompt as passing over it. Omitted otherwise.",
       "type": "boolean"
