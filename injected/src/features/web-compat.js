@@ -631,7 +631,7 @@ export class WebCompat extends ContentFeature {
         if (typeof originalQuery !== 'function') {
             return;
         }
-        window.navigator.permissions.query = new Proxy(originalQuery, {
+        const wrappedQuery = new Proxy(originalQuery, {
             apply: async (target, thisArg, args) => {
                 this.addDebugFlag();
 
@@ -655,6 +655,9 @@ export class WebCompat extends ContentFeature {
                 return Reflect.apply(target, thisArg, args);
             },
         });
+        // Reflect.set returns false instead of throwing when `query` is read-only, as the iOS site
+        // permission features leave it. The other webCompat fixes in init() still run.
+        Reflect.set(window.navigator.permissions, 'query', wrappedQuery);
     }
 
     /**

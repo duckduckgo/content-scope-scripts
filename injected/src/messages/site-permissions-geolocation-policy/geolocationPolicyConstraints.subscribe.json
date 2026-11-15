@@ -1,0 +1,8 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GeolocationPolicyConstraintsRequest",
+  "description": "Native code calls this in a frame's isolated world and reads the value it returns: { documentID, pageDocumentID, isSecureContext, isPolicyAllowed, isSandboxed } for the current document. pageDocumentID is the page feature's identity, or null when it hasn't announced one.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {}
+}

@@ -993,6 +993,10 @@ export const platformSpecificFeatures = [
     'uaChBrands',
     'chromeWebstorePatching',
     'selectionTools',
+    // iOS site permissions stay inert until native code injects their settings
+    'sitePermissionsGeolocation',
+    'sitePermissionsGeolocationPolicy',
+    'sitePermissionsMediaCapture',
 ];
 /**
  * Features that bypass exception-based disabling in computeEnabledFeatures.
