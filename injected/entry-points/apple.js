@@ -6,14 +6,44 @@ import { processConfig, platformSpecificFeatures, getLoadArgs } from './../src/u
 import { WebkitMessagingConfig } from '../../messaging/index.js';
 
 function initCode() {
-    // Native passes the config as a JSON string literal. Every frame compiles its own copy of this script, and one string
-    // constant costs far less to compile and keep than the equivalent object literal.
-    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-    const config = JSON.parse($CONTENT_SCOPE_JSON$);
-    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-    const userUnprotectedDomains = $USER_UNPROTECTED_DOMAINS$;
-    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-    const userPreferences = $USER_PREFERENCES$;
+    const config = {
+        unprotectedTemporary: [],
+        features: {},
+        version: 1794593240031,
+    };
+    const userUnprotectedDomains = [];
+    const userPreferences = {
+        language: 'en',
+        debug: false,
+        messageSecret: '54426F33-387F-405D-A30D-E923BCDC5415',
+        features: {
+            autofill: {
+                settings: {
+                    featureToggles: {
+                        inlineIcon_credentials: true,
+                        partial_form_saves: true,
+                        inputType_identities: false,
+                        emailProtection_incontext_signup: false,
+                        credentials_saving: true,
+                        inputType_credentials: true,
+                        unknown_username_categorization: true,
+                        emailProtection: true,
+                        input_focus_api: true,
+                        inputType_creditCards: true,
+                        password_variant_categorization: true,
+                        autocomplete_attribute_support: true,
+                        third_party_credentials_provider: false,
+                        password_generation: true,
+                    },
+                },
+            },
+        },
+        platform: { name: 'ios', internal: true, version: '7.246.0' },
+        messagingContextName: 'contentScopeScriptsIsolated',
+        currentCohorts: [],
+        globalPrivacyControlValue: true,
+        sessionKey: '99FEE5E0-19DD-4CF2-8938-5C0723116921',
+    };
 
     const processedConfig = processConfig(config, userUnprotectedDomains, userPreferences, platformSpecificFeatures);
 

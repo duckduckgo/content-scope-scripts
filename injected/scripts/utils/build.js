@@ -41,7 +41,7 @@ export async function bundle(params) {
         write: false,
         outdir: 'build',
         target: 'es2021',
-        format: 'iife',
+        format: 'esm',
         bundle: true,
         metafile: true,
         legalComments: 'inline',
@@ -120,6 +120,34 @@ function loadFeatures(platform, featureNames = platformSupport[platform]) {
                     loader: 'js',
                     resolveDir: ROOT,
                     contents: [importString, exportString].join('\n'),
+                };
+            });
+        },
+    };
+}
+/**
+ * Include the features required on each platform
+ *
+ * @param {string} platform
+ * @param {string[]} featureNames
+ * @returns {import("esbuild").Plugin}
+ */
+function captured(platform, featureNames = platformSupport[platform]) {
+    const pluginId = 'ddg:extras';
+    return {
+        name: 'ddg:extras',
+        setup(build) {
+            build.onResolve({ filter: new RegExp(pluginId) }, (args) => {
+                return {
+                    path: args.path,
+                    namespace: pluginId,
+                };
+            });
+            build.onLoad({ filter: /.*/, namespace: pluginId }, () => {
+                return {
+                    loader: 'js',
+                    resolveDir: ROOT,
+                    contents: 'var n = {abc:"def"};',
                 };
             });
         },

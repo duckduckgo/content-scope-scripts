@@ -31,6 +31,10 @@ const builds = {
         input: 'entry-points/apple.js',
         output: ['../Sources/ContentScopeScripts/dist/contentScopeIsolated.js'],
     },
+    'apple-blank': {
+        input: 'entry-points/apple.js',
+        output: ['../Sources/ContentScopeScripts/dist/blank.js'],
+    },
     'apple-broker-protection': {
         input: 'entry-points/apple.js',
         output: ['../Sources/ContentScopeScripts/dist/brokerProtection.js'],
@@ -106,7 +110,48 @@ async function init() {
     // otherwise, just build them all
     for (const [injectName, build] of Object.entries(builds)) {
         const output = await bundle({ scriptPath: build.input, platform: injectName, sourcemap });
-        write(build.output, output);
+        const closures = {
+            ddg_main: output,
+        };
+
+        if (injectName === 'apple') {
+            const outputBlank = await bundle({ scriptPath: 'entry-points/apple.js', platform: 'apple-blank', sourcemap });
+            closures.ddg_blank = outputBlank;
+        }
+        let lines = [];
+
+        for (const [name, bundle] of Object.entries(closures)) {
+            lines.push(`
+const ${name} = () => {
+    ${bundle
+        .split('\n')
+        .map((x) => `     ${x}`)
+        .join('\n')}
+};
+            `);
+        }
+        if (injectName === 'apple') {
+            lines.push(`
+if (window.location.href === "about:blank") {
+    ddg_blank();
+} else {
+    ddg_main();
+}
+            `);
+        } else if (injectName === 'apple-isolated') {
+            lines.push(`
+if (window.location.href === "about:blank") {
+    console.log("nothing... here...")
+} else {
+    ddg_main();
+}
+            `);
+        } else {
+            lines.push(`
+ddg_main();
+            `);
+        }
+        write(build.output, lines.join('\n'));
         console.log('✅', injectName, build.output[0]);
     }
 }
