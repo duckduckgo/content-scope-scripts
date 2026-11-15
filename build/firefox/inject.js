@@ -13826,7 +13826,7 @@
     const importConfig = {
       trackerLookup: $TRACKER_LOOKUP$,
       injectName: "firefox",
-      contentScopeScriptsVersion: "21.2.0"
+      contentScopeScriptsVersion: "21.3.0"
     };
     const bundledFeatureNames = typeof importConfig.injectName === "string" ? platformSupport[importConfig.injectName] ?? [] : [];
     const featuresToLoad = isGloballyDisabled(args) ? platformSpecificFeatures : args.site.enabledFeatures || bundledFeatureNames;

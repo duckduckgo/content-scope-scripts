@@ -2023,6 +2023,80 @@
       }
     ));
   }
+  function TextPastedColorIcon(props) {
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k(
+      "path",
+      {
+        fill: "#FFC95C",
+        d: "M0 3.5C0 1.567 1.567 0 3.5 0H10.5C12.433 0 14 1.567 14 3.5V12.5C14 14.433 12.433 16 10.5 16H3.5C1.567 16 0 14.433 0 12.5V3.5Z"
+      }
+    ), /* @__PURE__ */ k(
+      "path",
+      {
+        fill: "#783B13",
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M10.5 1H3.5C2.11929 1 1 2.11929 1 3.5V12.5C1 13.8807 2.11929 15 3.5 15H10.5C11.8807 15 13 13.8807 13 12.5V3.5C13 2.11929 11.8807 1 10.5 1ZM3.5 0C1.567 0 0 1.567 0 3.5V12.5C0 14.433 1.567 16 3.5 16H10.5C12.433 16 14 14.433 14 12.5V3.5C14 1.567 12.433 0 10.5 0H3.5Z"
+      }
+    ), /* @__PURE__ */ k(
+      "path",
+      {
+        fill: "#FFEAB8",
+        d: "M2 3.5C2 3.22386 2.22386 3 2.5 3H11.5C11.7761 3 12 3.22386 12 3.5V12.5C12 13.3284 11.3284 14 10.5 14H3.5C2.67157 14 2 13.3284 2 12.5V3.5Z"
+      }
+    ), /* @__PURE__ */ k(
+      "path",
+      {
+        fill: "#EEEEEE",
+        d: "M3 1.5C3 0.671573 3.67157 0 4.5 0H9.5C10.3284 0 11 0.671573 11 1.5V1.5C11 2.32843 10.3284 3 9.5 3H4.5C3.67157 3 3 2.32843 3 1.5V1.5Z"
+      }
+    ), /* @__PURE__ */ k(
+      "path",
+      {
+        fill: "#686868",
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M9.5 1H4.5C4.22386 1 4 1.22386 4 1.5C4 1.77614 4.22386 2 4.5 2H9.5C9.77614 2 10 1.77614 10 1.5C10 1.22386 9.77614 1 9.5 1ZM4.5 0C3.67157 0 3 0.671573 3 1.5C3 2.32843 3.67157 3 4.5 3H9.5C10.3284 3 11 2.32843 11 1.5C11 0.671573 10.3284 0 9.5 0H4.5Z"
+      }
+    ), /* @__PURE__ */ k(
+      "path",
+      {
+        fill: "#EEEEEE",
+        d: "M7.85212 12.1681L14.926 5.49846C15.6508 4.81502 15.6677 3.66779 14.9633 2.96334C14.2875 2.28759 13.1969 2.27156 12.5016 2.92715L5.39749 9.62531C5.13732 9.87062 4.94815 10.1816 4.84992 10.5254L4 13.5001L7.03467 12.633C7.34042 12.5457 7.62075 12.3862 7.85212 12.1681Z"
+      }
+    ), /* @__PURE__ */ k(
+      "path",
+      {
+        fill: "#CCCCCC",
+        d: "M7.85212 12.168L15.4461 5.00797C15.8574 4.62021 15.801 3.95067 15.3307 3.63713C14.9906 3.41043 14.5392 3.44802 14.2413 3.72784L6.5 11L4 13.5L7.03467 12.633C7.34042 12.5456 7.62075 12.3862 7.85212 12.168Z"
+      }
+    ), /* @__PURE__ */ k(
+      "path",
+      {
+        fill: "#686868",
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M12.1586 2.56336C13.0507 1.72225 14.4498 1.74282 15.3168 2.60979C16.2206 3.51358 16.199 4.98543 15.269 5.86225L8.19513 12.5319C7.90557 12.8049 7.55472 13.0045 7.17205 13.1138L4.13737 13.9809C3.96278 14.0307 3.77486 13.982 3.64646 13.8536C3.51806 13.7252 3.46937 13.5373 3.51925 13.3627L4.36917 10.388C4.49211 9.95771 4.72888 9.56853 5.0545 9.26152L12.1586 2.56336ZM14.6097 3.3169C14.1252 2.83236 13.3432 2.82086 12.8446 3.29095L5.74051 9.98911C5.54579 10.1727 5.40421 10.4054 5.33069 10.6628L4.72802 12.7721L6.89732 12.1523C7.12616 12.0869 7.33596 11.9676 7.50912 11.8043L14.583 5.13466C15.1027 4.64462 15.1148 3.82201 14.6097 3.3169Z"
+      }
+    ));
+  }
+  function AlertRecolorableIcon(props) {
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k(
+      "path",
+      {
+        fill: "#EE1025",
+        d: "M11.058 1.826c-1.335-2.394-4.78-2.394-6.115 0L.501 9.796C-.799 12.129.888 15 3.56 15h8.883c2.671 0 4.358-2.871 3.058-5.204z"
+      }
+    ), /* @__PURE__ */ k(
+      "path",
+      {
+        fill: "#fff",
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M7.526 4c-.286 0-.514.24-.5.525l.2 4c.014.266.233.475.5.475h.548c.267 0 .486-.209.5-.475l.2-4C8.988 4.239 8.76 4 8.474 4zM8 12c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1"
+      }
+    ));
+  }
   function InfoIcon(props) {
     return /* @__PURE__ */ k("svg", { xmlns: "http://www.w3.org/2000/svg", width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", class: "info-icon", ...props }, /* @__PURE__ */ k(
       "path",
@@ -2294,6 +2368,24 @@
         "fill-rule": "evenodd",
         "clip-rule": "evenodd",
         d: "M9.06151.172623c.457.310109.57608.931977.26597 1.388977l-4.75 7c-.17169.25302-.4497.41358-.75466.43585-.30496.02226-.60335-.09623-.80997-.32163l-2.75-3c-.373193-.40712-.34569-1.03968.061429-1.41288.407119-.37319 1.039689-.34568 1.412879.06143l1.89546 2.06778L7.67253.438597c.31011-.457001.93198-.576083 1.38898-.265974Z"
+      }
+    ));
+  }
+  function Close16Icon(props) {
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k(
+      "path",
+      {
+        fill: "currentColor",
+        d: "M13.817 3.067c.244-.244.244-.64 0-.884s-.64-.244-.884 0L8 7.116 3.067 2.183c-.244-.244-.64-.244-.884 0s-.244.64 0 .884L7.116 8l-4.933 4.933c-.244.244-.244.64 0 .884s.64.244.884 0L8 8.884l4.933 4.933c.244.244.64.244.884 0s.244-.64 0-.884L8.884 8z"
+      }
+    ));
+  }
+  function Check16Icon(props) {
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k(
+      "path",
+      {
+        fill: "currentColor",
+        d: "M13.923 3.693c.239-.25.635-.258.884-.02.25.239.258.635.02.884l-7.592 7.937c-.607.635-1.628.614-2.209-.044l-3.87-4.385c-.228-.259-.203-.654.055-.882.26-.229.654-.204.883.055l3.87 4.384c.096.11.266.114.368.008z"
       }
     ));
   }
@@ -10125,6 +10217,7 @@
       AiChatForm_default = {
         form: "AiChatForm_form",
         textarea: "AiChatForm_textarea",
+        collapsed: "AiChatForm_collapsed",
         hasScroll: "AiChatForm_hasScroll",
         buttons: "AiChatForm_buttons",
         rightButtons: "AiChatForm_rightButtons",
@@ -10140,6 +10233,7 @@
   function AiChatForm({
     query,
     autoFocus,
+    collapsed = false,
     disabled,
     readOnly = false,
     onChange,
@@ -10175,7 +10269,14 @@
       const textArea = textareaRef.current;
       const form = formRef.current;
       if (!textArea || !form) return;
-      const { paddingTop, paddingBottom } = window.getComputedStyle(textArea);
+      const { paddingTop, paddingBottom, lineHeight } = window.getComputedStyle(textArea);
+      form.classList.toggle(AiChatForm_default.collapsed, collapsed);
+      if (collapsed) {
+        textArea.style.height = lineHeight;
+        textArea.scrollTop = 0;
+        form.classList.remove(AiChatForm_default.hasScroll);
+        return;
+      }
       textArea.style.height = "auto";
       textArea.style.height = `calc(${textArea.scrollHeight}px - ${paddingTop} - ${paddingBottom})`;
       if (textArea.scrollHeight > textArea.clientHeight) {
@@ -10183,7 +10284,7 @@
       } else {
         form.classList.remove(AiChatForm_default.hasScroll);
       }
-    }, [query, textareaRef]);
+    }, [query, textareaRef, collapsed]);
     const handleSubmit = (event) => {
       event.preventDefault();
       if (disabled || readOnly) return;
@@ -11635,7 +11736,7 @@
       }, [all2, store]);
       return /* @__PURE__ */ k(Context.Provider, { value: store }, children);
     }
-    function useStateWithLocalPersistence5(tabId) {
+    function useStateWithLocalPersistence6(tabId) {
       const store = x2(Context);
       const [items, setItems] = d2(() => store?.byId(tabId) ?? []);
       const setter = q2(
@@ -11657,7 +11758,7 @@
         [items, setter]
       );
     }
-    return { Provider: Provider2, useStateWithLocalPersistence: useStateWithLocalPersistence5 };
+    return { Provider: Provider2, useStateWithLocalPersistence: useStateWithLocalPersistence6 };
   }
   function createPersistentFlag() {
     const Context = X(
@@ -11675,7 +11776,7 @@
       }, [all2, store]);
       return /* @__PURE__ */ k(Context.Provider, { value: store }, children);
     }
-    function useStateWithLocalPersistence5(tabId) {
+    function useStateWithLocalPersistence6(tabId) {
       const store = x2(Context);
       const [value2, setValue] = d2(() => store?.byId(tabId) ?? false);
       const setter = q2(
@@ -11691,7 +11792,7 @@
         [value2, setter]
       );
     }
-    return { Provider: Provider2, useStateWithLocalPersistence: useStateWithLocalPersistence5 };
+    return { Provider: Provider2, useStateWithLocalPersistence: useStateWithLocalPersistence6 };
   }
   function useQueryWithLocalPersistence(tabId) {
     const terms = x2(TextInputContext);
@@ -11750,7 +11851,7 @@
     if (message) throw new Error("Invariant failed: " + message);
     throw new Error("Invariant failed");
   }
-  var TextInputContext, ModeContext, TabAttachments, FileAttachments, ImageAttachments, OpenTabsList, AttachmentPrivacyGrant;
+  var TextInputContext, ModeContext, TabAttachments, FileAttachments, ImageAttachments, TextPastedAttachments, OpenTabsList, AttachmentPrivacyGrant;
   var init_PersistentOmnibarValuesProvider = __esm({
     "pages/new-tab/app/omnibar/components/PersistentOmnibarValuesProvider.js"() {
       "use strict";
@@ -11772,6 +11873,8 @@
       FileAttachments = /** @type {() => PersistentList<AttachedFile>} */
       createPersistentList();
       ImageAttachments = /** @type {() => PersistentList<AttachedImage>} */
+      createPersistentList();
+      TextPastedAttachments = /** @type {() => PersistentList<AttachedTextPasted>} */
       createPersistentList();
       OpenTabsList = /** @type {() => PersistentList<TabMetadata>} */
       createPersistentList();
@@ -12361,12 +12464,14 @@
         listItem: "AttachmentChip_listItem",
         enter: "AttachmentChip_enter",
         chipEnter: "AttachmentChip_chipEnter",
+        openable: "AttachmentChip_openable",
         tooltipContainer: "AttachmentChip_tooltipContainer",
         root: "AttachmentChip_root",
         imageFill: "AttachmentChip_imageFill",
         headerBand: "AttachmentChip_headerBand",
         title: "AttachmentChip_title",
         metadata: "AttachmentChip_metadata",
+        metadataInvalid: "AttachmentChip_metadataInvalid",
         info: "AttachmentChip_info",
         iconSlot: "AttachmentChip_iconSlot",
         icon: "AttachmentChip_icon",
@@ -12384,18 +12489,41 @@
     title,
     typeLabel,
     metadata,
+    metadataInvalid = false,
     tooltipLabel,
     onRemove,
     removeLabel,
-    enteringAnimationDelay = 0
+    enteringAnimationDelay = 0,
+    onOpen
   }) {
     const tooltip = tooltipLabel || title || "";
-    return /* @__PURE__ */ k("div", { class: AttachmentChip_default.listItem, "data-attachment-kind": attachmentKind }, /* @__PURE__ */ k("span", { class: AttachmentChip_default.enter, style: { animationDelay: enteringAnimationDelay ? `${enteringAnimationDelay}ms` : void 0 } }, /* @__PURE__ */ k(Tooltip, { content: tooltip, position: "above", className: AttachmentChip_default.tooltipContainer, ariaLabel: tooltip }, /* @__PURE__ */ k("span", { class: AttachmentChip_default.root }, imagePreview ? /* @__PURE__ */ k("span", { class: AttachmentChip_default.imageFill }, imagePreview) : /* @__PURE__ */ k("span", { class: AttachmentChip_default.headerBand }, /* @__PURE__ */ k("span", { class: AttachmentChip_default.title }, title)), !imagePreview && metadata && /* @__PURE__ */ k("span", { class: AttachmentChip_default.metadata }, metadata), !imagePreview && /* @__PURE__ */ k("span", { class: AttachmentChip_default.info }, /* @__PURE__ */ k("span", { class: AttachmentChip_default.iconSlot }, /* @__PURE__ */ k("span", { class: AttachmentChip_default.icon }, icon)), /* @__PURE__ */ k("span", { class: AttachmentChip_default.typeLabel }, typeLabel)), /* @__PURE__ */ k("span", { class: AttachmentChip_default.removeSlot }, /* @__PURE__ */ k(ChipRemoveButton, { onRemove, label: removeLabel }))))));
+    return /* @__PURE__ */ k("div", { class: AttachmentChip_default.listItem, "data-attachment-kind": attachmentKind }, /* @__PURE__ */ k(
+      "span",
+      {
+        class: (0, import_classnames12.default)(AttachmentChip_default.enter, onOpen && AttachmentChip_default.openable),
+        style: { animationDelay: enteringAnimationDelay ? `${enteringAnimationDelay}ms` : void 0 },
+        onClick: onOpen,
+        onKeyDown: (e4) => {
+          if (!onOpen || e4.target instanceof HTMLButtonElement) return;
+          if (e4.key === "Enter" || e4.key === " ") onOpen();
+        }
+      },
+      /* @__PURE__ */ k(Tooltip, { content: tooltip, position: "above", className: AttachmentChip_default.tooltipContainer, ariaLabel: tooltip }, /* @__PURE__ */ k("span", { class: AttachmentChip_default.root }, imagePreview ? /* @__PURE__ */ k("span", { class: AttachmentChip_default.imageFill }, imagePreview) : /* @__PURE__ */ k("span", { class: AttachmentChip_default.headerBand }, /* @__PURE__ */ k("span", { class: AttachmentChip_default.title }, title)), !imagePreview && metadata && /* @__PURE__ */ k(
+        "span",
+        {
+          class: (0, import_classnames12.default)(AttachmentChip_default.metadata, metadataInvalid && AttachmentChip_default.metadataInvalid),
+          "data-invalid": metadataInvalid || void 0
+        },
+        metadata
+      ), !imagePreview && /* @__PURE__ */ k("span", { class: AttachmentChip_default.info }, /* @__PURE__ */ k("span", { class: AttachmentChip_default.iconSlot }, /* @__PURE__ */ k("span", { class: AttachmentChip_default.icon }, icon)), /* @__PURE__ */ k("span", { class: AttachmentChip_default.typeLabel }, typeLabel)), /* @__PURE__ */ k("span", { class: AttachmentChip_default.removeSlot }, /* @__PURE__ */ k(ChipRemoveButton, { onRemove, label: removeLabel }))))
+    ));
   }
+  var import_classnames12;
   var init_AttachmentChip2 = __esm({
     "pages/new-tab/app/omnibar/components/chat-tools/attachments/AttachmentChip.js"() {
       "use strict";
       init_preact_module();
+      import_classnames12 = __toESM(require_classnames(), 1);
       init_Tooltip2();
       init_ChipRemoveButton2();
       init_AttachmentChip();
@@ -12567,6 +12695,232 @@
     }
   });
 
+  // pages/new-tab/app/omnibar/components/chat-tools/text-pasted/textPasted.js
+  function resolvePastedTextLimits(limits) {
+    const valid = (n3) => typeof n3 === "number" && Number.isInteger(n3) && n3 > 0;
+    const maxCharacters = valid(limits?.maxCharacters) ? (
+      /** @type {number} */
+      limits?.maxCharacters
+    ) : DEFAULT_PASTED_TEXT_LIMITS.maxCharacters;
+    const threshold = valid(limits?.pasteConversionThreshold) ? (
+      /** @type {number} */
+      limits?.pasteConversionThreshold
+    ) : DEFAULT_PASTED_TEXT_LIMITS.pasteConversionThreshold;
+    return { pasteConversionThreshold: Math.min(threshold, maxCharacters), maxCharacters };
+  }
+  function isConvertibleTextPaste(text2, threshold) {
+    return text2.length >= threshold && text2.trim().length > 0;
+  }
+  function promptLength(query, pastes) {
+    return pastes.reduce((count, paste) => count + paste.content.length, query.length);
+  }
+  function promptCharacterLimit({ maxCharacters, maxCharactersWithAttachments }) {
+    if (typeof maxCharactersWithAttachments !== "number" || maxCharactersWithAttachments <= 0) return maxCharacters;
+    return Math.min(maxCharactersWithAttachments, maxCharacters);
+  }
+  function textPastedExcerpt(content2) {
+    return content2.slice(0, TEXT_PASTED_EXCERPT_MAX_CHARS);
+  }
+  function textPastedSummary(content2) {
+    const text2 = content2.trimStart();
+    const lineBreak = text2.search(/\r?\n/);
+    const end = Math.min(lineBreak === -1 ? text2.length : lineBreak, TEXT_PASTED_SUMMARY_MAX_CHARS);
+    return end < text2.length ? `${text2.slice(0, end).trimEnd()}\u2026` : text2;
+  }
+  var DEFAULT_PASTED_TEXT_LIMITS, TEXT_PASTED_EXCERPT_MAX_CHARS, TEXT_PASTED_SUMMARY_MAX_CHARS;
+  var init_textPasted = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/text-pasted/textPasted.js"() {
+      "use strict";
+      DEFAULT_PASTED_TEXT_LIMITS = /** @type {PastedTextLimits} */
+      { pasteConversionThreshold: 4e3, maxCharacters: 16e3 };
+      TEXT_PASTED_EXCERPT_MAX_CHARS = 200;
+      TEXT_PASTED_SUMMARY_MAX_CHARS = 60;
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/text-pasted/TextPastedModal.module.css
+  var TextPastedModal_default;
+  var init_TextPastedModal = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/text-pasted/TextPastedModal.module.css"() {
+      TextPastedModal_default = {
+        modal: "TextPastedModal_modal",
+        header: "TextPastedModal_header",
+        closeButton: "TextPastedModal_closeButton",
+        note: "TextPastedModal_note",
+        textarea: "TextPastedModal_textarea",
+        footer: "TextPastedModal_footer",
+        count: "TextPastedModal_count",
+        countOverLimit: "TextPastedModal_countOverLimit",
+        countIcon: "TextPastedModal_countIcon",
+        footerButtons: "TextPastedModal_footerButtons",
+        footerButton: "TextPastedModal_footerButton",
+        footerButtonSecondary: "TextPastedModal_footerButtonSecondary",
+        footerButtonPrimary: "TextPastedModal_footerButtonPrimary",
+        footerButtonDestructive: "TextPastedModal_footerButtonDestructive"
+      };
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/text-pasted/TextPastedModal.js
+  function isOnBackdrop(e4) {
+    if (e4.target !== e4.currentTarget) return false;
+    const rect = (
+      /** @type {HTMLDialogElement} */
+      e4.currentTarget.getBoundingClientRect()
+    );
+    return e4.clientX < rect.left || e4.clientX > rect.right || e4.clientY < rect.top || e4.clientY > rect.bottom;
+  }
+  function TextPastedModal({ content: content2, otherPromptLength, maxCharacters, onSave, onDelete, onClose }) {
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {Strings} */
+      {}
+    );
+    const platformName = usePlatformName();
+    const locale = useLocale();
+    const numberFormatter = T2(() => getLocalizedNumberFormatter(locale), [locale]);
+    const ntp = useMessaging();
+    const [draft, setDraft] = d2(content2);
+    const dialogRef = A2(
+      /** @type {HTMLDialogElement|null} */
+      null
+    );
+    const textareaRef = A2(
+      /** @type {HTMLTextAreaElement|null} */
+      null
+    );
+    const pressedBackdropRef = A2(false);
+    h2(() => {
+      dialogRef.current?.showModal();
+      textareaRef.current?.focus();
+      ntp.telemetryEvent({ attributes: { name: "omnibar_pasted_text_dialog_opened" } });
+    }, [ntp]);
+    const totalLength = otherPromptLength + draft.length;
+    const tooLong = totalLength > maxCharacters;
+    const isBlank = !isConvertibleTextPaste(draft, 1);
+    const handleSave = () => {
+      if (draft !== content2) onSave(draft);
+      onClose();
+    };
+    const handleDelete = () => {
+      onDelete();
+      onClose();
+    };
+    const cancelButton = /* @__PURE__ */ k("button", { type: "button", class: (0, import_classnames13.default)(TextPastedModal_default.footerButton, TextPastedModal_default.footerButtonSecondary), onClick: onClose }, t4("omnibar_pastedTextModalCancel"));
+    const primaryButton = isBlank ? /* @__PURE__ */ k("button", { type: "button", class: (0, import_classnames13.default)(TextPastedModal_default.footerButton, TextPastedModal_default.footerButtonDestructive), onClick: handleDelete }, /* @__PURE__ */ k(TrashOutlineIcon, { "aria-hidden": "true" }), t4("omnibar_pastedTextModalDelete")) : /* @__PURE__ */ k("button", { type: "button", class: (0, import_classnames13.default)(TextPastedModal_default.footerButton, TextPastedModal_default.footerButtonPrimary), onClick: handleSave }, /* @__PURE__ */ k(Check16Icon, { "aria-hidden": "true" }), t4("omnibar_pastedTextModalSave"));
+    return /* @__PURE__ */ k(
+      "dialog",
+      {
+        ref: dialogRef,
+        "aria-labelledby": "text-pasted-modal-title",
+        class: TextPastedModal_default.modal,
+        "data-text-pasted-modal": true,
+        onPointerDown: (e4) => {
+          pressedBackdropRef.current = isOnBackdrop(e4);
+        },
+        onClick: (e4) => {
+          if (pressedBackdropRef.current && isOnBackdrop(e4)) onClose();
+          pressedBackdropRef.current = false;
+        },
+        onCancel: (e4) => {
+          e4.preventDefault();
+          onClose();
+        },
+        onDragEnter: (e4) => e4.stopPropagation(),
+        onDragOver: (e4) => e4.stopPropagation(),
+        onDrop: (e4) => e4.stopPropagation()
+      },
+      /* @__PURE__ */ k("header", { class: TextPastedModal_default.header }, /* @__PURE__ */ k("h4", { id: "text-pasted-modal-title" }, t4("omnibar_pastedTextModalTitle")), /* @__PURE__ */ k("button", { type: "button", class: TextPastedModal_default.closeButton, "aria-label": t4("omnibar_pastedTextModalClose"), onClick: onClose }, /* @__PURE__ */ k(Close16Icon, { "aria-hidden": "true" }))),
+      /* @__PURE__ */ k("p", { class: TextPastedModal_default.note }, t4("omnibar_pastedTextModalFormattingNote")),
+      /* @__PURE__ */ k(
+        "textarea",
+        {
+          ref: textareaRef,
+          class: TextPastedModal_default.textarea,
+          value: draft,
+          "aria-label": t4("omnibar_pastedTextModalTitle"),
+          "aria-invalid": tooLong || void 0,
+          "aria-describedby": "text-pasted-modal-count",
+          onInput: (e4) => setDraft(
+            /** @type {HTMLTextAreaElement} */
+            e4.currentTarget.value
+          )
+        }
+      ),
+      /* @__PURE__ */ k("footer", { class: TextPastedModal_default.footer }, /* @__PURE__ */ k("p", { id: "text-pasted-modal-count", class: (0, import_classnames13.default)(TextPastedModal_default.count, tooLong && TextPastedModal_default.countOverLimit), "aria-live": "polite" }, tooLong ? /* @__PURE__ */ k(S, null, /* @__PURE__ */ k(AlertRecolorableIcon, { class: TextPastedModal_default.countIcon, "aria-hidden": "true" }), t4("omnibar_pastedTextModalOverLimit", {
+        count: numberFormatter.format(totalLength),
+        over: numberFormatter.format(totalLength - maxCharacters)
+      })) : t4("omnibar_pastedTextModalCharacterCount", { count: String(draft.length) })), /* @__PURE__ */ k("div", { class: TextPastedModal_default.footerButtons }, platformName === "windows" ? /* @__PURE__ */ k(S, null, primaryButton, cancelButton) : /* @__PURE__ */ k(S, null, cancelButton, primaryButton)))
+    );
+  }
+  var import_classnames13;
+  var init_TextPastedModal2 = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/text-pasted/TextPastedModal.js"() {
+      "use strict";
+      init_preact_module();
+      init_hooks_module();
+      import_classnames13 = __toESM(require_classnames(), 1);
+      init_types();
+      init_settings_provider();
+      init_Icons2();
+      init_EnvironmentProvider();
+      init_utils3();
+      init_textPasted();
+      init_TextPastedModal();
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/text-pasted/TextPastedChip.js
+  function TextPastedChip({ textPasted, onRemove, onEdit, promptLength: promptLength2, maxCharacters, enteringAnimationDelay }) {
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {Strings} */
+      {}
+    );
+    const [isModalOpen, setIsModalOpen] = d2(false);
+    const locale = useLocale();
+    const numberFormatter = T2(() => getLocalizedNumberFormatter(locale), [locale]);
+    const summary = textPastedSummary(textPasted.content);
+    return /* @__PURE__ */ k(S, null, /* @__PURE__ */ k(
+      AttachmentChip,
+      {
+        attachmentKind: "text",
+        icon: /* @__PURE__ */ k(TextPastedColorIcon, { width: 16, height: 16, "aria-hidden": "true" }),
+        title: textPastedExcerpt(textPasted.content),
+        typeLabel: t4("omnibar_pastedTextLabel"),
+        metadata: t4("omnibar_pastedTextChipCharacterCount", { count: numberFormatter.format(textPasted.content.length) }),
+        metadataInvalid: promptLength2 > maxCharacters,
+        tooltipLabel: summary || t4("omnibar_pastedTextLabel"),
+        onRemove,
+        removeLabel: summary ? t4("omnibar_removePastedTextLabel", { summary }) : t4("omnibar_removePastedTextFallbackLabel"),
+        enteringAnimationDelay,
+        onOpen: () => setIsModalOpen(true)
+      }
+    ), isModalOpen && /* @__PURE__ */ k(
+      TextPastedModal,
+      {
+        content: textPasted.content,
+        otherPromptLength: promptLength2 - textPasted.content.length,
+        maxCharacters,
+        onSave: onEdit,
+        onDelete: onRemove,
+        onClose: () => setIsModalOpen(false)
+      }
+    ));
+  }
+  var init_TextPastedChip = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/text-pasted/TextPastedChip.js"() {
+      "use strict";
+      init_preact_module();
+      init_hooks_module();
+      init_types();
+      init_Icons2();
+      init_AttachmentChip2();
+      init_EnvironmentProvider();
+      init_utils3();
+      init_TextPastedModal2();
+      init_textPasted();
+    }
+  });
+
   // pages/new-tab/app/omnibar/components/chat-tools/attachments/useScrollToNewestChip.js
   function useScrollToNewestChip(count) {
     const listRef = A2(
@@ -12602,7 +12956,18 @@
   });
 
   // pages/new-tab/app/omnibar/components/chat-tools/attachments/AttachmentChips.js
-  function AttachmentChips({ tabs, files, images, onRemoveTab, onRemoveFile, onRemoveImage }) {
+  function AttachmentChips({
+    tabs,
+    files,
+    images,
+    textPasted = [],
+    onRemoveTab,
+    onRemoveFile,
+    onRemoveImage,
+    onRemoveTextPasted,
+    onEditTextPasted,
+    textPastedLimit = { promptLength: 0, maxCharacters: Number.POSITIVE_INFINITY }
+  }) {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {Strings} */
       {}
@@ -12634,6 +12999,12 @@
             originalIndex,
             addedAtRelative: image.addedAtRelative
           }
+        )
+      ),
+      ...textPasted.map(
+        (entry) => (
+          /** @type {TextItem} */
+          { kind: "text", key: entry.id, textPasted: entry, addedAtRelative: entry.addedAtRelative }
         )
       )
     ].sort((a4, b4) => a4.addedAtRelative - b4.addedAtRelative);
@@ -12675,6 +13046,19 @@
               enteringAnimationDelay
             }
           );
+        case "text":
+          return /* @__PURE__ */ k(
+            TextPastedChip,
+            {
+              key: item.key,
+              textPasted: item.textPasted,
+              onRemove: () => onRemoveTextPasted?.(item.textPasted.id),
+              onEdit: (content2) => onEditTextPasted?.(item.textPasted.id, content2),
+              promptLength: textPastedLimit.promptLength,
+              maxCharacters: textPastedLimit.maxCharacters,
+              enteringAnimationDelay
+            }
+          );
         default: {
           const _exhaustiveCheck = item;
           console.error(`Unknown attachment item kind: ${_exhaustiveCheck}`);
@@ -12691,6 +13075,7 @@
       init_TabChips2();
       init_FileChip();
       init_ImageChip();
+      init_TextPastedChip();
       init_useScrollToNewestChip();
       init_AttachmentChips();
     }
@@ -12861,6 +13246,65 @@
     }
   });
 
+  // pages/new-tab/app/omnibar/components/chat-tools/text-pasted/useTextPasted.js
+  function useTextPasted({ tabId } = {}) {
+    const ntp = useMessaging();
+    const [attachedTextPasted, setAttachedTextPasted] = useStateWithLocalPersistence3(tabId);
+    const addTextPasted = q2(
+      (content2, threshold) => {
+        if (!isConvertibleTextPaste(content2, threshold)) return false;
+        nextId += 1;
+        const entry = { id: `text-pasted-${nextId}`, content: content2, addedAtRelative: performance.now() };
+        setAttachedTextPasted((prev) => [...prev, entry]);
+        ntp.telemetryEvent({ attributes: { name: "omnibar_pasted_text_attached" } });
+        return true;
+      },
+      [ntp, setAttachedTextPasted]
+    );
+    const removeTextPasted = q2(
+      (id) => {
+        setAttachedTextPasted((prev) => prev.filter((entry) => entry.id !== id));
+        ntp.telemetryEvent({ attributes: { name: "omnibar_pasted_text_removed" } });
+      },
+      [ntp, setAttachedTextPasted]
+    );
+    const updateTextPasted = q2(
+      (id, content2) => {
+        setAttachedTextPasted((prev) => prev.map((entry) => entry.id === id ? { ...entry, content: content2 } : entry));
+        ntp.telemetryEvent({ attributes: { name: "omnibar_pasted_text_edited" } });
+      },
+      [ntp, setAttachedTextPasted]
+    );
+    const clearTextPasted = q2(() => setAttachedTextPasted([]), [setAttachedTextPasted]);
+    const getTextPastedForSubmission = () => attachedTextPasted.length > 0 ? attachedTextPasted.map(({ content: content2 }) => ({ content: content2 })) : void 0;
+    const handlePaste = (event, threshold) => {
+      const text2 = event.clipboardData?.getData("text/plain");
+      if (!text2) return;
+      if (addTextPasted(text2, threshold)) event.preventDefault();
+    };
+    return {
+      attachedTextPasted,
+      addTextPasted,
+      removeTextPasted,
+      updateTextPasted,
+      clearTextPasted,
+      getTextPastedForSubmission,
+      handlePaste
+    };
+  }
+  var nextId, useStateWithLocalPersistence3;
+  var init_useTextPasted = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/text-pasted/useTextPasted.js"() {
+      "use strict";
+      init_hooks_module();
+      init_types();
+      init_PersistentOmnibarValuesProvider();
+      init_textPasted();
+      nextId = 0;
+      ({ useStateWithLocalPersistence: useStateWithLocalPersistence3 } = TextPastedAttachments);
+    }
+  });
+
   // pages/new-tab/app/omnibar/components/chat-tools/attachments/AttachmentsProvider.js
   function AttachmentsProvider({ tabId, children }) {
     const { state } = x2(OmnibarContext);
@@ -12873,7 +13317,8 @@
       maxFiles: attachmentLimits?.files?.maxPerConversation,
       maxFileSizeMB: attachmentLimits?.files?.maxFileSizeMB
     });
-    return /* @__PURE__ */ k(AttachmentsContext.Provider, { value: { imageState, fileState, tabId } }, children);
+    const textPastedState = useTextPasted({ tabId });
+    return /* @__PURE__ */ k(AttachmentsContext.Provider, { value: { imageState, fileState, textPastedState, tabId } }, children);
   }
   function useAttachmentsContext() {
     const context = x2(AttachmentsContext);
@@ -12892,6 +13337,7 @@
       init_useSelectedModel();
       init_useFileAttachments();
       init_useImageAttachments();
+      init_useTextPasted();
       AttachmentsContext = X(null);
     }
   });
@@ -13309,7 +13755,7 @@
       "ul",
       {
         ref: dropdownRef,
-        class: (0, import_classnames12.default)(ModelSelector_default.modelDropdown, className),
+        class: (0, import_classnames14.default)(ModelSelector_default.modelDropdown, className),
         tabIndex: -1,
         role: "listbox",
         "aria-label": ariaLabel,
@@ -13355,7 +13801,7 @@
               "aria-selected": model.isAvailable ? model.id === selectedModelId : isUpsellRow ? false : void 0,
               "aria-describedby": isUpsellRow ? gatedSectionDescriptionId : void 0,
               "aria-disabled": !model.isAvailable && !isUpsellRow || void 0,
-              class: (0, import_classnames12.default)(
+              class: (0, import_classnames14.default)(
                 ModelSelector_default.modelOption,
                 isInteractive && activeIndex === optionIndex && ModelSelector_default.modelOptionActive,
                 isUpsellRow && ModelSelector_default.modelOptionUpsell,
@@ -13379,13 +13825,13 @@
       })
     );
   }
-  var import_classnames12;
+  var import_classnames14;
   var init_ModelDropdown = __esm({
     "pages/new-tab/app/omnibar/components/chat-tools/model-selector/ModelDropdown.js"() {
       "use strict";
       init_preact_module();
       init_hooks_module();
-      import_classnames12 = __toESM(require_classnames(), 1);
+      import_classnames14 = __toESM(require_classnames(), 1);
       init_types();
       init_DropdownSectionHeader();
       init_DropdownSeparator();
@@ -13436,7 +13882,7 @@
         ref: modelButtonRef,
         type: "button",
         tabIndex: disabled || readOnly ? -1 : 0,
-        class: (0, import_classnames13.default)(ModelSelector_default.modelButton, readOnly && ModelSelector_default.modelButtonReadOnly, modelDropdownOpen && ModelSelector_default.modelButtonOpen),
+        class: (0, import_classnames15.default)(ModelSelector_default.modelButton, readOnly && ModelSelector_default.modelButtonReadOnly, modelDropdownOpen && ModelSelector_default.modelButtonOpen),
         "aria-label": ariaLabel,
         "aria-disabled": !disabled && readOnly || void 0,
         "aria-haspopup": readOnly ? void 0 : "listbox",
@@ -13464,13 +13910,13 @@
       }
     ));
   }
-  var import_classnames13;
+  var import_classnames15;
   var init_ModelSelector2 = __esm({
     "pages/new-tab/app/omnibar/components/chat-tools/model-selector/ModelSelector.js"() {
       "use strict";
       init_preact_module();
       init_hooks_module();
-      import_classnames13 = __toESM(require_classnames(), 1);
+      import_classnames15 = __toESM(require_classnames(), 1);
       init_Icons2();
       init_types();
       init_ModelDropdown();
@@ -13619,7 +14065,7 @@
         "aria-expanded": ariaExpanded,
         "aria-describedby": ariaDescribedBy,
         "aria-disabled": disabled || void 0,
-        class: (0, import_classnames14.default)(
+        class: (0, import_classnames16.default)(
           Dropdown_default.item,
           className,
           isActive && Dropdown_default.itemActive,
@@ -13638,13 +14084,13 @@
       trailingControl && /* @__PURE__ */ k("span", { class: Dropdown_default.trailingControl, onClick: (e4) => e4.stopPropagation() }, trailingControl)
     );
   }
-  var import_classnames14;
+  var import_classnames16;
   var init_DropdownItem = __esm({
     "pages/new-tab/app/omnibar/components/chat-tools/dropdown/DropdownItem.js"() {
       "use strict";
       init_preact_module();
       init_hooks_module();
-      import_classnames14 = __toESM(require_classnames(), 1);
+      import_classnames16 = __toESM(require_classnames(), 1);
       init_Dropdown();
     }
   });
@@ -13910,7 +14356,7 @@
       "ul",
       {
         ref: dropdownRef,
-        class: (0, import_classnames15.default)(Dropdown_default.dropdown, className),
+        class: (0, import_classnames17.default)(Dropdown_default.dropdown, className),
         tabIndex: -1,
         role,
         "aria-label": ariaLabel,
@@ -13919,17 +14365,17 @@
         onKeyDown: handleKeyDown,
         onMouseLeave: clearActiveIndex
       },
-      header && /* @__PURE__ */ k("li", { role: "presentation", class: (0, import_classnames15.default)(Dropdown_default.header, headerClassName) }, header),
+      header && /* @__PURE__ */ k("li", { role: "presentation", class: (0, import_classnames17.default)(Dropdown_default.header, headerClassName) }, header),
       items.length === 0 && emptyMessage ? /* @__PURE__ */ k("li", { role: "presentation", class: Dropdown_default.empty }, emptyMessage) : clonedItems
     );
   }
-  var import_classnames15;
+  var import_classnames17;
   var init_Dropdown2 = __esm({
     "pages/new-tab/app/omnibar/components/chat-tools/dropdown/Dropdown.js"() {
       "use strict";
       init_preact_module();
       init_hooks_module();
-      import_classnames15 = __toESM(require_classnames(), 1);
+      import_classnames17 = __toESM(require_classnames(), 1);
       init_DropdownSubmenu();
       init_Dropdown();
     }
@@ -14028,7 +14474,7 @@
         ref: buttonRef,
         type: "button",
         tabIndex: disabled ? -1 : 0,
-        class: (0, import_classnames16.default)(ReasoningPicker_default.reasoningButton, isOpen && ReasoningPicker_default.reasoningButtonOpen),
+        class: (0, import_classnames18.default)(ReasoningPicker_default.reasoningButton, isOpen && ReasoningPicker_default.reasoningButtonOpen),
         "aria-label": ariaLabel,
         "aria-haspopup": "listbox",
         "aria-expanded": isOpen,
@@ -14055,13 +14501,13 @@
       dropdownItems
     ));
   }
-  var import_classnames16;
+  var import_classnames18;
   var init_ReasoningPicker2 = __esm({
     "pages/new-tab/app/omnibar/components/chat-tools/reasoning-picker/ReasoningPicker.js"() {
       "use strict";
       init_preact_module();
       init_hooks_module();
-      import_classnames16 = __toESM(require_classnames(), 1);
+      import_classnames18 = __toESM(require_classnames(), 1);
       init_useDropdown();
       init_types();
       init_Dropdown2();
@@ -14171,7 +14617,7 @@
         ref: buttonRef,
         type: "button",
         tabIndex: disabled ? -1 : 0,
-        class: (0, import_classnames17.default)(ToolsMenu_default.toolsButton, isCollapsed && ToolsMenu_default.toolsButtonCollapsed),
+        class: (0, import_classnames19.default)(ToolsMenu_default.toolsButton, isCollapsed && ToolsMenu_default.toolsButtonCollapsed),
         "aria-label": t4("omnibar_toolsMenuLabel"),
         "aria-haspopup": "menu",
         "aria-expanded": menuOpen,
@@ -14231,12 +14677,12 @@
       })
     ));
   }
-  var import_classnames17;
+  var import_classnames19;
   var init_ToolsMenu2 = __esm({
     "pages/new-tab/app/omnibar/components/chat-tools/tools-menu/ToolsMenu.js"() {
       "use strict";
       init_preact_module();
-      import_classnames17 = __toESM(require_classnames(), 1);
+      import_classnames19 = __toESM(require_classnames(), 1);
       init_Icons2();
       init_types();
       init_useDropdown();
@@ -14468,7 +14914,7 @@
   // pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/OpenTabsProvider.js
   function OpenTabsProvider({ tabId, enabled, children }) {
     const { getOpenTabs } = x2(OmnibarContext);
-    const [rawTabs, setRawTabs] = useStateWithLocalPersistence3(tabId);
+    const [rawTabs, setRawTabs] = useStateWithLocalPersistence4(tabId);
     const [isFetching, setIsFetching] = d2(false);
     const [hasFetched, setHasFetched] = d2(false);
     const openTabs = T2(() => [...rawTabs].reverse(), [rawTabs]);
@@ -14499,7 +14945,7 @@
     const value2 = T2(() => ({ openTabs, isLoadingTabs, refetchTabs }), [openTabs, isLoadingTabs, refetchTabs]);
     return /* @__PURE__ */ k(OpenTabsContext.Provider, { value: value2 }, children);
   }
-  var useStateWithLocalPersistence3, OpenTabsContext;
+  var useStateWithLocalPersistence4, OpenTabsContext;
   var init_OpenTabsProvider = __esm({
     "pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/OpenTabsProvider.js"() {
       "use strict";
@@ -14507,7 +14953,7 @@
       init_hooks_module();
       init_OmnibarProvider();
       init_PersistentOmnibarValuesProvider();
-      ({ useStateWithLocalPersistence: useStateWithLocalPersistence3 } = OpenTabsList);
+      ({ useStateWithLocalPersistence: useStateWithLocalPersistence4 } = OpenTabsList);
       OpenTabsContext = X(
         /** @type {OpenTabsValue} */
         { openTabs: [], isLoadingTabs: false, refetchTabs: async () => {
@@ -14639,7 +15085,7 @@
             "aria-checked": isStaged,
             "aria-disabled": disabled || void 0,
             tabIndex: disabled ? -1 : 0,
-            class: (0, import_classnames18.default)(AttachTabsModal_default.checkboxItem, disabled && AttachTabsModal_default.checkboxItemDisabled),
+            class: (0, import_classnames20.default)(AttachTabsModal_default.checkboxItem, disabled && AttachTabsModal_default.checkboxItemDisabled),
             onClick: () => {
               if (!disabled) toggleStaged(tab);
             },
@@ -14651,14 +15097,14 @@
               }
             }
           },
-          /* @__PURE__ */ k("span", { class: (0, import_classnames18.default)(AttachTabsModal_default.checkboxIndicator, isStaged && AttachTabsModal_default.checkboxIndicatorChecked), "aria-hidden": "true" }, /* @__PURE__ */ k(Check12Icon, { class: AttachTabsModal_default.checkboxCheck })),
+          /* @__PURE__ */ k("span", { class: (0, import_classnames20.default)(AttachTabsModal_default.checkboxIndicator, isStaged && AttachTabsModal_default.checkboxIndicatorChecked), "aria-hidden": "true" }, /* @__PURE__ */ k(Check12Icon, { class: AttachTabsModal_default.checkboxCheck })),
           /* @__PURE__ */ k(TabFavicon, { favicon: tab.favicon, iconSize: 16, className: AttachTabsModal_default.favicon, fallbackClassName: AttachTabsModal_default.faviconFallback }),
           /* @__PURE__ */ k("span", { class: AttachTabsModal_default.tabTitle }, tab.title || tab.url)
         );
       });
     };
-    const cancelButton = /* @__PURE__ */ k("button", { type: "button", class: (0, import_classnames18.default)(AttachTabsModal_default.tabsFooterButton, AttachTabsModal_default.tabsFooterButtonSecondary), onClick: onClose }, t4("omnibar_attachTabsCancel"));
-    const confirmButton = /* @__PURE__ */ k("button", { type: "button", class: (0, import_classnames18.default)(AttachTabsModal_default.tabsFooterButton, AttachTabsModal_default.tabsFooterButtonPrimary), onClick: handleAttach }, t4("omnibar_attachTabsConfirm"));
+    const cancelButton = /* @__PURE__ */ k("button", { type: "button", class: (0, import_classnames20.default)(AttachTabsModal_default.tabsFooterButton, AttachTabsModal_default.tabsFooterButtonSecondary), onClick: onClose }, t4("omnibar_attachTabsCancel"));
+    const confirmButton = /* @__PURE__ */ k("button", { type: "button", class: (0, import_classnames20.default)(AttachTabsModal_default.tabsFooterButton, AttachTabsModal_default.tabsFooterButtonPrimary), onClick: handleAttach }, t4("omnibar_attachTabsConfirm"));
     return /* @__PURE__ */ k(
       "dialog",
       {
@@ -14697,13 +15143,13 @@
   function StatusRow({ text: text2 }) {
     return /* @__PURE__ */ k("li", { role: "presentation", class: AttachTabsModal_default.statusItem }, /* @__PURE__ */ k("span", { class: AttachTabsModal_default.statusText }, text2));
   }
-  var import_classnames18;
+  var import_classnames20;
   var init_AttachTabsModal2 = __esm({
     "pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/AttachTabsModal.js"() {
       "use strict";
       init_preact_module();
       init_hooks_module();
-      import_classnames18 = __toESM(require_classnames(), 1);
+      import_classnames20 = __toESM(require_classnames(), 1);
       init_types();
       init_settings_provider();
       init_Icons2();
@@ -14749,7 +15195,7 @@
         id,
         role: "menuitemcheckbox",
         "aria-checked": isAttached,
-        class: (0, import_classnames19.default)(TabRows_default.tabItem, isActive && TabRows_default.tabItemActive),
+        class: (0, import_classnames21.default)(TabRows_default.tabItem, isActive && TabRows_default.tabItemActive),
         onMouseOver,
         onClick
       },
@@ -14762,15 +15208,15 @@
     return /* @__PURE__ */ k("li", { role: "presentation", class: TabRows_default.statusItem }, /* @__PURE__ */ k("span", { class: TabRows_default.statusText }, text2));
   }
   function TabsSectionHeader({ label, showGutter }) {
-    return /* @__PURE__ */ k("li", { role: "presentation", class: (0, import_classnames19.default)(TabRows_default.sectionHeader, showGutter && TabRows_default.sectionHeaderGutter) }, label);
+    return /* @__PURE__ */ k("li", { role: "presentation", class: (0, import_classnames21.default)(TabRows_default.sectionHeader, showGutter && TabRows_default.sectionHeaderGutter) }, label);
   }
-  var import_classnames19;
+  var import_classnames21;
   var init_TabRows2 = __esm({
     "pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/TabRows.js"() {
       "use strict";
       init_preact_module();
       init_hooks_module();
-      import_classnames19 = __toESM(require_classnames(), 1);
+      import_classnames21 = __toESM(require_classnames(), 1);
       init_Icons2();
       init_TabFavicon();
       init_TabRows();
@@ -14837,7 +15283,7 @@
     return /* @__PURE__ */ k(
       "label",
       {
-        class: (0, import_classnames20.default)(ImageAttachment_default.toolButton, { [ImageAttachment_default.toolButtonDisabled]: disabled }),
+        class: (0, import_classnames22.default)(ImageAttachment_default.toolButton, { [ImageAttachment_default.toolButtonDisabled]: disabled }),
         "aria-label": ariaLabel,
         "aria-disabled": disabled,
         role: "button",
@@ -14897,7 +15343,7 @@
         ref: buttonRef,
         type: "button",
         tabIndex: disabled ? -1 : 0,
-        class: (0, import_classnames20.default)(ImageAttachment_default.toolButton, disabled && ImageAttachment_default.toolButtonDisabled),
+        class: (0, import_classnames22.default)(ImageAttachment_default.toolButton, disabled && ImageAttachment_default.toolButtonDisabled),
         "aria-label": t4("omnibar_attachMenuLabel"),
         "aria-haspopup": "menu",
         "aria-expanded": isOpen,
@@ -15052,13 +15498,13 @@
       tabsEnabled && renderRecentTabRows()
     );
   }
-  var import_classnames20, MAX_INLINE_RECENT_TABS, SCREENSHOT_SUBMENU_OFFSET;
+  var import_classnames22, MAX_INLINE_RECENT_TABS, SCREENSHOT_SUBMENU_OFFSET;
   var init_AttachMenu2 = __esm({
     "pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/AttachMenu.js"() {
       "use strict";
       init_preact_module();
       init_hooks_module();
-      import_classnames20 = __toESM(require_classnames(), 1);
+      import_classnames22 = __toESM(require_classnames(), 1);
       init_types();
       init_Icons2();
       init_useDropdown();
@@ -15124,7 +15570,7 @@
           key: tab.tabId,
           role: "option",
           "aria-selected": attached,
-          class: (0, import_classnames21.default)(MentionPicker_default.row, isActive && MentionPicker_default.rowActive),
+          class: (0, import_classnames23.default)(MentionPicker_default.row, isActive && MentionPicker_default.rowActive),
           onMouseDown: (e4) => {
             e4.preventDefault();
           },
@@ -15148,13 +15594,13 @@
       );
     }))));
   }
-  var import_classnames21;
+  var import_classnames23;
   var init_MentionPicker2 = __esm({
     "pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/MentionPicker.js"() {
       "use strict";
       init_preact_module();
       init_hooks_module();
-      import_classnames21 = __toESM(require_classnames(), 1);
+      import_classnames23 = __toESM(require_classnames(), 1);
       init_types();
       init_Icons2();
       init_TabFavicon();
@@ -15329,7 +15775,7 @@
   function useTabAttachments(tabId, maxTabs = Number.POSITIVE_INFINITY) {
     const { getTabContent } = x2(OmnibarContext);
     const { openTabs } = x2(OpenTabsContext);
-    const [attachedEntries, setAttachedEntries] = useStateWithLocalPersistence4(tabId);
+    const [attachedEntries, setAttachedEntries] = useStateWithLocalPersistence5(tabId);
     const attachedTabs = T2(() => {
       return attachedEntries.flatMap((entry) => {
         const tab = openTabs.find((t4) => t4.tabId === entry.tabId);
@@ -15401,7 +15847,7 @@
     );
     return state;
   }
-  var useStateWithLocalPersistence4;
+  var useStateWithLocalPersistence5;
   var init_useTabAttachments = __esm({
     "pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/useTabAttachments.js"() {
       "use strict";
@@ -15409,7 +15855,7 @@
       init_OmnibarProvider();
       init_PersistentOmnibarValuesProvider();
       init_OpenTabsProvider();
-      ({ useStateWithLocalPersistence: useStateWithLocalPersistence4 } = TabAttachments);
+      ({ useStateWithLocalPersistence: useStateWithLocalPersistence5 } = TabAttachments);
     }
   });
 
@@ -15716,7 +16162,7 @@
     return /* @__PURE__ */ k(
       "svg",
       {
-        class: (0, import_classnames22.default)(NoticeDrawer_default.glyph, NoticeDrawer_default.ring, NoticeDrawer_default[`severity_${severity}`]),
+        class: (0, import_classnames24.default)(NoticeDrawer_default.glyph, NoticeDrawer_default.ring, NoticeDrawer_default[`severity_${severity}`]),
         viewBox: "0 0 16 16",
         overflow: "visible",
         "aria-hidden": "true"
@@ -15752,7 +16198,7 @@
     );
   }
   function UsageLimitsAlertIcon() {
-    return /* @__PURE__ */ k("svg", { class: (0, import_classnames22.default)(NoticeDrawer_default.glyph, NoticeDrawer_default.alert), viewBox: "0 0 16 16", fill: "none", "aria-hidden": "true" }, /* @__PURE__ */ k(
+    return /* @__PURE__ */ k("svg", { class: (0, import_classnames24.default)(NoticeDrawer_default.glyph, NoticeDrawer_default.alert), viewBox: "0 0 16 16", fill: "none", "aria-hidden": "true" }, /* @__PURE__ */ k(
       "path",
       {
         class: NoticeDrawer_default.alertTriangle,
@@ -15769,7 +16215,7 @@
     ));
   }
   function NoticeGlyph({ icon, percent, severity }) {
-    const infoIcon = /* @__PURE__ */ k(InfoIcon, { class: (0, import_classnames22.default)(NoticeDrawer_default.glyph, NoticeDrawer_default.info), "aria-hidden": "true" });
+    const infoIcon = /* @__PURE__ */ k(InfoIcon, { class: (0, import_classnames24.default)(NoticeDrawer_default.glyph, NoticeDrawer_default.info), "aria-hidden": "true" });
     switch (icon) {
       case "ring":
         return /* @__PURE__ */ k(UsageLimitsRing, { percent, severity });
@@ -15778,7 +16224,7 @@
       case "convert":
         return /* @__PURE__ */ k(ConvertIcon, null);
       case "shield":
-        return /* @__PURE__ */ k(ShieldCheckIcon, { class: (0, import_classnames22.default)(NoticeDrawer_default.glyph, NoticeDrawer_default.shield), "aria-hidden": "true" });
+        return /* @__PURE__ */ k(ShieldCheckIcon, { class: (0, import_classnames24.default)(NoticeDrawer_default.glyph, NoticeDrawer_default.shield), "aria-hidden": "true" });
       case "announce":
         return /* @__PURE__ */ k(AnnounceIcon, null);
       case "info":
@@ -15791,7 +16237,7 @@
     }
   }
   function AnnounceIcon() {
-    return /* @__PURE__ */ k("svg", { class: (0, import_classnames22.default)(NoticeDrawer_default.glyph, NoticeDrawer_default.announce), viewBox: "0 0 16 16", fill: "none", "aria-hidden": "true" }, /* @__PURE__ */ k(
+    return /* @__PURE__ */ k("svg", { class: (0, import_classnames24.default)(NoticeDrawer_default.glyph, NoticeDrawer_default.announce), viewBox: "0 0 16 16", fill: "none", "aria-hidden": "true" }, /* @__PURE__ */ k(
       "path",
       {
         fill: "currentColor",
@@ -15844,7 +16290,7 @@
       "button",
       {
         type: "button",
-        class: (0, import_classnames22.default)(NoticeDrawer_default.ctaPrimary, showMenu ? NoticeDrawer_default.ctaPrimarySplit : NoticeDrawer_default.ctaPrimarySolo),
+        class: (0, import_classnames24.default)(NoticeDrawer_default.ctaPrimary, showMenu ? NoticeDrawer_default.ctaPrimarySplit : NoticeDrawer_default.ctaPrimarySolo),
         onClick: handlePrimary
       },
       showConvert ? /* @__PURE__ */ k(ConvertIcon, null) : null,
@@ -15925,7 +16371,7 @@
       "p",
       {
         id: messageId,
-        class: (0, import_classnames22.default)(
+        class: (0, import_classnames24.default)(
           NoticeDrawer_default.message,
           emphasize && NoticeDrawer_default.messageEmphasized,
           secondaryOnNewLine && NoticeDrawer_default.messageStacked,
@@ -15965,7 +16411,7 @@
       "div",
       {
         ref: drawerRef,
-        class: (0, import_classnames22.default)(NoticeDrawer_default.drawer, shownAtMount && NoticeDrawer_default.noSlideIn, !isRevealed && NoticeDrawer_default.hidden),
+        class: (0, import_classnames24.default)(NoticeDrawer_default.drawer, shownAtMount && NoticeDrawer_default.noSlideIn, !isRevealed && NoticeDrawer_default.hidden),
         "data-testid": "notice-drawer",
         role: "status",
         onMouseDown: keepComposerFocus
@@ -15973,13 +16419,13 @@
       /* @__PURE__ */ k("div", { class: NoticeDrawer_default.card }, notices.map((presentation, index2) => /* @__PURE__ */ k(NoticeRow, { key: index2, presentation })))
     );
   }
-  var import_classnames22, NOTICE_TYPES;
+  var import_classnames24, NOTICE_TYPES;
   var init_NoticeDrawer2 = __esm({
     "pages/new-tab/app/omnibar/components/NoticeDrawer.js"() {
       "use strict";
       init_preact_module();
       init_hooks_module();
-      import_classnames22 = __toESM(require_classnames(), 1);
+      import_classnames24 = __toESM(require_classnames(), 1);
       init_DismissButton2();
       init_Icons2();
       init_types();
@@ -16427,7 +16873,7 @@
       if (!isReducedMotion) setSwap({ pageIndex, direction: delta > 0 ? "right" : "left" });
       setPageIndex(pageIndex + delta);
     };
-    const renderItems = (pagePrompts, entering) => pagePrompts.map((prompt, index2) => /* @__PURE__ */ k("li", { key: prompt.id, class: (0, import_classnames23.default)(entering && SuggestedPrompts_default.textItemEntering), style: entering ? { "--i": index2 } : void 0 }, /* @__PURE__ */ k(
+    const renderItems = (pagePrompts, entering) => pagePrompts.map((prompt, index2) => /* @__PURE__ */ k("li", { key: prompt.id, class: (0, import_classnames25.default)(entering && SuggestedPrompts_default.textItemEntering), style: entering ? { "--i": index2 } : void 0 }, /* @__PURE__ */ k(
       "button",
       {
         type: "button",
@@ -16446,7 +16892,7 @@
       "ul",
       {
         key: pageIndex,
-        class: (0, import_classnames23.default)(SuggestedPrompts_default.textList, swap && SuggestedPrompts_default.textListEntering, swap?.direction === "left" && SuggestedPrompts_default.textListEnteringLeft)
+        class: (0, import_classnames25.default)(SuggestedPrompts_default.textList, swap && SuggestedPrompts_default.textListEntering, swap?.direction === "left" && SuggestedPrompts_default.textListEnteringLeft)
       },
       renderItems(prompts, swap !== null)
     ), swap && /* @__PURE__ */ k(
@@ -16455,7 +16901,7 @@
         key: `exiting-${swap.pageIndex}`,
         "aria-hidden": "true",
         inert: true,
-        class: (0, import_classnames23.default)(SuggestedPrompts_default.textList, SuggestedPrompts_default.textListExiting, swap.direction === "left" && SuggestedPrompts_default.textListExitingRight),
+        class: (0, import_classnames25.default)(SuggestedPrompts_default.textList, SuggestedPrompts_default.textListExiting, swap.direction === "left" && SuggestedPrompts_default.textListExitingRight),
         onAnimationEnd: (event) => event.target === event.currentTarget && setSwap(null)
       },
       renderItems(TEXT_PROMPT_PAGES[swap.pageIndex], false)
@@ -16496,17 +16942,17 @@
         onAuxClick: prompt.mode === "send" ? onMiddleClick((event) => onSelect(prompt, event)) : void 0
       },
       /* @__PURE__ */ k("img", { src: prompt.hoverImage, alt: "", "aria-hidden": "true", class: SuggestedPrompts_default.image }),
-      /* @__PURE__ */ k("img", { src: prompt.image, alt: "", "aria-hidden": "true", class: (0, import_classnames23.default)(SuggestedPrompts_default.image, SuggestedPrompts_default.imageDefault) }),
+      /* @__PURE__ */ k("img", { src: prompt.image, alt: "", "aria-hidden": "true", class: (0, import_classnames25.default)(SuggestedPrompts_default.image, SuggestedPrompts_default.imageDefault) }),
       /* @__PURE__ */ k("span", { class: SuggestedPrompts_default.imageChip }, t4(prompt.label))
     ))));
   }
-  var import_classnames23, onMiddleClick, textPromptChat;
+  var import_classnames25, onMiddleClick, textPromptChat;
   var init_SuggestedPromptsPanels = __esm({
     "pages/new-tab/app/omnibar/components/suggested-prompts/SuggestedPromptsPanels.js"() {
       "use strict";
       init_preact_module();
       init_hooks_module();
-      import_classnames23 = __toESM(require_classnames(), 1);
+      import_classnames25 = __toESM(require_classnames(), 1);
       init_EnvironmentProvider();
       init_types();
       init_SuggestedPromptsIcons();
@@ -16593,9 +17039,9 @@
           return;
       }
       event.preventDefault();
-      const nextId = tabIds[next];
-      openTab(nextId);
-      tabRefs.current[nextId]?.focus();
+      const nextId2 = tabIds[next];
+      openTab(nextId2);
+      tabRefs.current[nextId2]?.focus();
     };
     const tabRef = (id) => (el) => {
       tabRefs.current[id] = el;
@@ -16711,7 +17157,7 @@
       if (id === "suggestions") return /* @__PURE__ */ k(TextPromptsPanel, { onSelect: handleSelectPrompt, onPreview });
       return /* @__PURE__ */ k(ImagePromptsPanel, { onSelect: handleSelectPrompt });
     };
-    return /* @__PURE__ */ k("div", { ref: containerRef, class: SuggestedPrompts_default.root, onBlurCapture }, /* @__PURE__ */ k("div", { class: (0, import_classnames24.default)(SuggestedPrompts_default.chipRow, animateIn && SuggestedPrompts_default.chipRowEnter) }, /* @__PURE__ */ k("div", { role: "tablist", "aria-orientation": "horizontal", class: SuggestedPrompts_default.chips }, tabs.map((tab, index2) => {
+    return /* @__PURE__ */ k("div", { ref: containerRef, class: SuggestedPrompts_default.root, onBlurCapture }, /* @__PURE__ */ k("div", { class: (0, import_classnames26.default)(SuggestedPrompts_default.chipRow, animateIn && SuggestedPrompts_default.chipRowEnter) }, /* @__PURE__ */ k("div", { role: "tablist", "aria-orientation": "horizontal", class: SuggestedPrompts_default.chips }, tabs.map((tab, index2) => {
       const selected = tab.id === activeTabId;
       return /* @__PURE__ */ k(
         "button",
@@ -16726,7 +17172,7 @@
           "aria-controls": panelId(tab.id),
           "aria-label": t4(tab.ariaLabel),
           tabIndex: selected || !activeTabId && index2 === 0 ? 0 : -1,
-          class: (0, import_classnames24.default)(SuggestedPrompts_default.chip, selected && SuggestedPrompts_default.chipSelected),
+          class: (0, import_classnames26.default)(SuggestedPrompts_default.chip, selected && SuggestedPrompts_default.chipSelected),
           style: { "--chip-index": index2 },
           onClick: () => selected ? close({ restoreFocus: true }) : openTab(tab.id),
           onKeyDown: (event) => handleTabKeyDown(event, index2)
@@ -16739,7 +17185,7 @@
       {
         type: "button",
         "data-chip-id": "voice",
-        class: (0, import_classnames24.default)(SuggestedPrompts_default.chip, SuggestedPrompts_default.voiceChip),
+        class: (0, import_classnames26.default)(SuggestedPrompts_default.chip, SuggestedPrompts_default.voiceChip),
         style: { "--chip-index": tabs.length },
         onClick: handleVoiceChat,
         onAuxClick: onMiddleClick(handleVoiceChat)
@@ -16753,7 +17199,7 @@
         role: "tabpanel",
         "aria-labelledby": tabId(renderedTabId),
         tabIndex: 0,
-        class: (0, import_classnames24.default)(SuggestedPrompts_default.panel, panelExiting && SuggestedPrompts_default.panelExiting),
+        class: (0, import_classnames26.default)(SuggestedPrompts_default.panel, panelExiting && SuggestedPrompts_default.panelExiting),
         onAnimationEnd: endPanelExit
       },
       !panelExiting && /* @__PURE__ */ k(
@@ -16770,7 +17216,7 @@
         "div",
         {
           key: renderedTabId,
-          class: (0, import_classnames24.default)(swap && SuggestedPrompts_default.contentEntering, swap?.direction === "left" && SuggestedPrompts_default.contentEnteringLeft)
+          class: (0, import_classnames26.default)(swap && SuggestedPrompts_default.contentEntering, swap?.direction === "left" && SuggestedPrompts_default.contentEnteringLeft)
         },
         renderPanelContent(renderedTabId)
       ),
@@ -16780,20 +17226,20 @@
           key: `exiting-${swap.tabId}`,
           "aria-hidden": "true",
           inert: true,
-          class: (0, import_classnames24.default)(SuggestedPrompts_default.contentExiting, swap.direction === "left" && SuggestedPrompts_default.contentExitingRight),
+          class: (0, import_classnames26.default)(SuggestedPrompts_default.contentExiting, swap.direction === "left" && SuggestedPrompts_default.contentExitingRight),
           onAnimationEnd: endSwap
         },
         renderPanelContent(swap.tabId)
       )
     ), /* @__PURE__ */ k("input", { ref: fileInputRef, type: "file", accept: IMAGE_ACCEPT2, multiple: true, hidden: true, onChange: handleFileChange }));
   }
-  var import_classnames24, IMAGE_ACCEPT2, TABS;
+  var import_classnames26, IMAGE_ACCEPT2, TABS;
   var init_SuggestedPrompts2 = __esm({
     "pages/new-tab/app/omnibar/components/suggested-prompts/SuggestedPrompts.js"() {
       "use strict";
       init_preact_module();
       init_hooks_module();
-      import_classnames24 = __toESM(require_classnames(), 1);
+      import_classnames26 = __toESM(require_classnames(), 1);
       init_handlers();
       init_settings_provider();
       init_types();
@@ -16835,6 +17281,9 @@
   function focusStaysWithin(ref, event) {
     const next = event.relatedTarget;
     return next instanceof Node && (ref.current?.contains(next) ?? false);
+  }
+  function isComposerTextarea(target) {
+    return target instanceof HTMLTextAreaElement && !target.closest("[data-text-pasted-modal]");
   }
   function Omnibar({
     mode,
@@ -16949,10 +17398,10 @@
         "div",
         {
           ref: spacerRef,
-          class: (0, import_classnames25.default)(Omnibar_default.spacer, usageLimitsRevealed && Omnibar_default.spacerReserveTransition),
+          class: (0, import_classnames27.default)(Omnibar_default.spacer, usageLimitsRevealed && Omnibar_default.spacerReserveTransition),
           style: { marginBottom: noticeReservedHeight },
           onFocusCapture: (event) => {
-            if (!(event.target instanceof HTMLTextAreaElement)) return;
+            if (!isComposerTextarea(event.target)) return;
             setUsageLimitsRevealed(true);
           },
           onBlurCapture: hideNoticesOnFocusLeave
@@ -17036,13 +17485,18 @@
     const hasVisibleImagesRef = A2(false);
     const submittingRef = A2(false);
     const [imageWarning, setImageWarning] = d2(false);
-    const { imageState, fileState } = useAttachmentsContext();
+    const [promptCollapsed, setPromptCollapsed] = d2(!autoFocus);
+    const { imageState, fileState, textPastedState } = useAttachmentsContext();
     const hasAttachedImages = imageState.attachedImages.length > 0;
     const imageGenerationPlaceholder = hasAttachedImages ? t4("omnibar_imageGenerationWithAttachmentPlaceholder") : t4("omnibar_imageGenerationPlaceholder");
     const selectedModelSupportsImages = selectedModel?.supportsImageUpload ?? false;
     const canAttachImages = selectedModelSupportsImages || imageGenerationActive;
     const canAttachFiles = !imageGenerationActive && (selectedModel?.supportedFileTypes?.length ?? 0) > 0;
     const canAttachTabs = enableAttachTabs && !imageGenerationActive;
+    const pastedTextEnabled = state.config?.enablePastedText === true;
+    const canAttachText = pastedTextEnabled && !imageGenerationActive;
+    const pastedTextLimits = resolvePastedTextLimits(state.config?.pastedTextLimits);
+    const attachedTextPasted = canAttachText ? textPastedState.attachedTextPasted : [];
     const pastedAttachments = usePastedAttachments({
       imageState,
       canAttachImages,
@@ -17103,6 +17557,7 @@
         const images = canAttachImages ? imageState.getImagesForSubmission() : null;
         const files = canAttachFiles ? fileState.getFilesForSubmission() : null;
         const pageContext = canAttachTabs ? await tabAttachments.getTabsForSubmission() : null;
+        const textPasted = canAttachText ? textPastedState.getTextPastedForSubmission() : void 0;
         const updatedImageGeneration = imageGenerationActive && updatedCreateImageEnabled;
         const legacyImageGeneration = imageGenerationActive && !updatedCreateImageEnabled;
         const modelId = legacyImageGeneration ? null : selectedModel?.id ?? null;
@@ -17121,6 +17576,7 @@
           ...images && { images },
           ...files && { files },
           ...pageContext && { pageContext },
+          ...textPasted && { textPasted },
           ...aiTermsAccepted && { aiTermsAccepted: true }
         };
         onSubmit(action);
@@ -17128,6 +17584,7 @@
         screenshotCapture.clearCaptureError();
         fileState.clearAttachedFiles();
         tabAttachments.clearAttachedTabs();
+        textPastedState.clearTextPasted();
         clearTool();
       } finally {
         submittingRef.current = false;
@@ -17152,9 +17609,17 @@
     const showFileError = !!fileError && !imageMessageShowing && !showCaptureError;
     const showFileWarning = fileWarning && !imageMessageShowing && !showCaptureError && !showFileError;
     const showTabWarning = tabWarning && !imageMessageShowing && !showCaptureError && !showFileError && !showFileWarning;
-    const hasSendableAttachments = canAttachImages && hasAttachedImages || canAttachFiles && fileState.attachedFiles.length > 0 || canAttachTabs && tabAttachments.attachedTabs.length > 0;
-    const disabled = blocksPrompt || !query && !hasSendableAttachments || imageWarning || fileWarning || tabWarning;
-    const isVoiceChatMode = enableVoiceChatAccess && !requiresAiTermsAcceptance && !imageGenerationActive && !hasAttachedImages && fileState.attachedFiles.length === 0 && tabAttachments.attachedTabs.length === 0 && !query;
+    const currentPromptLength = promptLength(query, attachedTextPasted);
+    const hasAttachment = canAttachImages && hasAttachedImages || canAttachFiles && fileState.attachedFiles.length > 0;
+    const maxPromptCharacters = promptCharacterLimit({
+      maxCharacters: pastedTextLimits.maxCharacters,
+      maxCharactersWithAttachments: hasAttachment ? attachmentLimits?.images?.maxInputCharsWithAttachments : null
+    });
+    const promptTooLong = pastedTextEnabled && currentPromptLength > maxPromptCharacters;
+    const showPromptTooLong = promptTooLong && !imageMessageShowing && !showCaptureError && !showFileError && !showFileWarning && !showTabWarning;
+    const hasSendableAttachments = canAttachImages && hasAttachedImages || canAttachFiles && fileState.attachedFiles.length > 0 || canAttachTabs && tabAttachments.attachedTabs.length > 0 || attachedTextPasted.length > 0;
+    const disabled = blocksPrompt || !query && !hasSendableAttachments || imageWarning || fileWarning || tabWarning || promptTooLong;
+    const isVoiceChatMode = enableVoiceChatAccess && !requiresAiTermsAcceptance && !imageGenerationActive && !hasAttachedImages && fileState.attachedFiles.length === 0 && tabAttachments.attachedTabs.length === 0 && attachedTextPasted.length === 0 && !query;
     const handleClickSubmit = (event) => {
       event.preventDefault();
       if (disabled) return;
@@ -17174,13 +17639,15 @@
       {
         ref: containerRef,
         class: Omnibar_default.aiChatContent,
-        "data-attachment-warning": imageWarning || fileWarning || tabWarning || void 0,
+        "data-attachment-warning": imageWarning || fileWarning || tabWarning || promptTooLong || void 0,
         onFocusCapture: (event) => {
-          if (!(event.target instanceof HTMLTextAreaElement)) return;
+          setPromptCollapsed(false);
+          if (!isComposerTextarea(event.target)) return;
           if (!hasVisibleImagesRef.current && !imageGenerationActive && !mention.pickerActive) showChats();
         },
         onBlurCapture: (event) => {
           if (focusStaysWithin(omnibarRef, event)) return;
+          setPromptCollapsed(true);
           if (deletionInProgress.current) {
             return;
           }
@@ -17192,6 +17659,7 @@
         {
           query,
           autoFocus,
+          collapsed: promptCollapsed,
           disabled,
           readOnly: blocksPrompt,
           placeholder: fittedPromptPlaceholder ?? (imageGenerationActive ? imageGenerationPlaceholder : void 0),
@@ -17200,7 +17668,10 @@
           onTextareaKeyDown: mention.handleTextareaKeyDown,
           combobox: mention.combobox,
           textareaRef,
-          onPaste: pastedAttachments.handlePaste,
+          onPaste: (event) => {
+            if (canAttachText && !blocksPrompt) textPastedState.handlePaste(event, pastedTextLimits.pasteConversionThreshold);
+            if (!event.defaultPrevented) pastedAttachments.handlePaste(event);
+          },
           onDragOver: droppedAttachments.handleDragOver,
           onDrop: droppedAttachments.handleDrop,
           toolbarLeft: /* @__PURE__ */ k(S, null, (canAttachImages || canAttachFiles || canAttachTabs || canCaptureScreenshot) && /* @__PURE__ */ k(
@@ -17253,7 +17724,7 @@
             {
               tabIndex: 0,
               type: "submit",
-              class: (0, import_classnames25.default)(
+              class: (0, import_classnames27.default)(
                 AiChatForm_default.submitButton,
                 requiresAiTermsAcceptance && AiChatForm_default.termsSubmitButton
               ),
@@ -17272,15 +17743,20 @@
             tabs: canAttachTabs ? tabAttachments.attachedTabs : [],
             files: canAttachFiles ? fileState.attachedFiles : [],
             images: canAttachImages ? imageState.attachedImages : [],
+            textPasted: attachedTextPasted,
             onRemoveTab: tabAttachments.removeTab,
             onRemoveFile: fileState.handleRemoveFile,
-            onRemoveImage: imageState.handleRemoveImage
+            onRemoveImage: imageState.handleRemoveImage,
+            onRemoveTextPasted: textPastedState.removeTextPasted,
+            onEditTextPasted: textPastedState.updateTextPasted,
+            textPastedLimit: { promptLength: currentPromptLength, maxCharacters: maxPromptCharacters }
           }
         ),
         showCaptureError && /* @__PURE__ */ k("p", { class: Omnibar_default.attachmentWarning, role: "alert" }, t4("omnibar_screenshotCaptureError")),
         showFileError && /* @__PURE__ */ k("p", { class: Omnibar_default.attachmentWarning, role: "alert" }, t4("omnibar_fileTooLargeError", { limit: String(fileState.maxFileSizeMB ?? "") })),
         showFileWarning && /* @__PURE__ */ k("p", { class: Omnibar_default.attachmentWarning, role: "alert" }, t4("omnibar_fileAttachmentLimitWarning", { limit: String(fileState.maxFiles) })),
         showTabWarning && /* @__PURE__ */ k("p", { class: Omnibar_default.attachmentWarning, role: "alert" }, t4("omnibar_tabAttachmentLimitWarning", { limit: String(tabAttachments.maxTabs) })),
+        showPromptTooLong && /* @__PURE__ */ k("p", { class: Omnibar_default.attachmentWarning, role: "alert" }, t4("omnibar_promptTooLongWarning", { limit: String(maxPromptCharacters) })),
         /* @__PURE__ */ k(
           ImageAttachmentContent,
           {
@@ -17302,13 +17778,13 @@
       showRecentChats && /* @__PURE__ */ k(AiChatsList, { className: Omnibar_default.aiChatsList })
     );
   }
-  var import_classnames25, SUGGESTED_PROMPT_REPEAT_GUARD_MS;
+  var import_classnames27, SUGGESTED_PROMPT_REPEAT_GUARD_MS;
   var init_Omnibar2 = __esm({
     "pages/new-tab/app/omnibar/components/Omnibar.js"() {
       "use strict";
       init_preact_module();
       init_hooks_module();
-      import_classnames25 = __toESM(require_classnames(), 1);
+      import_classnames27 = __toESM(require_classnames(), 1);
       init_Icons2();
       init_handlers();
       init_settings_provider();
@@ -17333,6 +17809,7 @@
       init_useScreenshotCapture();
       init_AttachmentChips2();
       init_AttachmentsProvider();
+      init_textPasted();
       init_useDroppedAttachments();
       init_ModelSelectorTool();
       init_ReasoningPickerTool();
@@ -17450,9 +17927,9 @@
     const sectionTitle = t4("omnibar_menuTitle");
     const { visibility, id, toggle, index: index2 } = useVisibility();
     useCustomizer({ title: sectionTitle, id, icon: /* @__PURE__ */ k(SearchIcon, null), toggle, visibility: visibility.value, index: index2, enabled: true });
-    return /* @__PURE__ */ k(PersistentTextInputProvider, null, /* @__PURE__ */ k(PersistentModeProvider, null, /* @__PURE__ */ k(TabAttachmentsProvider, null, /* @__PURE__ */ k(OpenTabsListProvider, null, /* @__PURE__ */ k(FileAttachmentsProvider, null, /* @__PURE__ */ k(ImageAttachmentsProvider, null, /* @__PURE__ */ k(AttachmentPrivacyGrantProvider, null, /* @__PURE__ */ k(OmnibarProvider, null, /* @__PURE__ */ k(OmnibarConsumer, null)))))))));
+    return /* @__PURE__ */ k(PersistentTextInputProvider, null, /* @__PURE__ */ k(PersistentModeProvider, null, /* @__PURE__ */ k(TabAttachmentsProvider, null, /* @__PURE__ */ k(OpenTabsListProvider, null, /* @__PURE__ */ k(FileAttachmentsProvider, null, /* @__PURE__ */ k(ImageAttachmentsProvider, null, /* @__PURE__ */ k(TextPastedAttachmentsProvider, null, /* @__PURE__ */ k(AttachmentPrivacyGrantProvider, null, /* @__PURE__ */ k(OmnibarProvider, null, /* @__PURE__ */ k(OmnibarConsumer, null))))))))));
   }
-  var TabAttachmentsProvider, FileAttachmentsProvider, ImageAttachmentsProvider, OpenTabsListProvider, AttachmentPrivacyGrantProvider;
+  var TabAttachmentsProvider, FileAttachmentsProvider, ImageAttachmentsProvider, TextPastedAttachmentsProvider, OpenTabsListProvider, AttachmentPrivacyGrantProvider;
   var init_OmnibarCustomized = __esm({
     "pages/new-tab/app/omnibar/components/OmnibarCustomized.js"() {
       "use strict";
@@ -17467,6 +17944,7 @@
       ({ Provider: TabAttachmentsProvider } = TabAttachments);
       ({ Provider: FileAttachmentsProvider } = FileAttachments);
       ({ Provider: ImageAttachmentsProvider } = ImageAttachments);
+      ({ Provider: TextPastedAttachmentsProvider } = TextPastedAttachments);
       ({ Provider: OpenTabsListProvider } = OpenTabsList);
       ({ Provider: AttachmentPrivacyGrantProvider } = AttachmentPrivacyGrant);
     }
@@ -17767,7 +18245,7 @@
     return /* @__PURE__ */ k(
       "div",
       {
-        class: (0, import_classnames26.default)(Tooltip_default2.tooltipContainer, className),
+        class: (0, import_classnames28.default)(Tooltip_default2.tooltipContainer, className),
         role: "button",
         tabIndex: 0,
         "aria-describedby": isVisible ? tooltipId : void 0,
@@ -17781,14 +18259,14 @@
       isVisible && /* @__PURE__ */ k("div", { id: tooltipId, class: Tooltip_default2.tooltip, role: "tooltip", dangerouslySetInnerHTML: { __html: content2 } })
     );
   }
-  var import_classnames26;
+  var import_classnames28;
   var init_Tooltip4 = __esm({
     "pages/new-tab/app/components/Tooltip/Tooltip.js"() {
       "use strict";
       init_preact_module();
       init_hooks_module();
       init_Tooltip3();
-      import_classnames26 = __toESM(require_classnames(), 1);
+      import_classnames28 = __toESM(require_classnames(), 1);
     }
   });
 
@@ -18066,7 +18544,7 @@
     const isCpmEnabled = totalCookiePopUpsBlockedValue !== void 0 && totalCookiePopUpsBlockedValue !== null;
     const trackersBlockedHeading = animatedTrackersBlocked === 1 ? t4("stats_countBlockedSingular") : t4("stats_countBlockedPlural");
     const cookiePopUpsBlockedHeading = animatedCookiePopUpsBlocked === 1 ? t4("stats_totalCookiePopUpsBlockedSingular") : t4("stats_totalCookiePopUpsBlockedPlural");
-    return /* @__PURE__ */ k("div", { class: PrivacyStats_default.heading, "data-testid": "ProtectionsHeading", ref: headingRef }, /* @__PURE__ */ k("div", { class: (0, import_classnames27.default)(PrivacyStats_default.control, animatedTrackersBlocked === 0 && PrivacyStats_default.noTrackers) }, /* @__PURE__ */ k("span", { class: PrivacyStats_default.headingIcon }, /* @__PURE__ */ k("img", { src: isRebrand ? "./icons/Shield-Color-16.svg" : "./icons/Shield-Check-Color-16.svg", alt: "Privacy Shield" })), /* @__PURE__ */ k("h2", { class: PrivacyStats_default.caption }, t4("protections_menuTitle")), /* @__PURE__ */ k(Tooltip2, { content: t4("stats_protectionsReportInfo") }, /* @__PURE__ */ k(InfoIcon, { class: PrivacyStats_default.infoIcon })), canExpand && /* @__PURE__ */ k("span", { class: PrivacyStats_default.widgetExpander }, /* @__PURE__ */ k(
+    return /* @__PURE__ */ k("div", { class: PrivacyStats_default.heading, "data-testid": "ProtectionsHeading", ref: headingRef }, /* @__PURE__ */ k("div", { class: (0, import_classnames29.default)(PrivacyStats_default.control, animatedTrackersBlocked === 0 && PrivacyStats_default.noTrackers) }, /* @__PURE__ */ k("span", { class: PrivacyStats_default.headingIcon }, /* @__PURE__ */ k("img", { src: isRebrand ? "./icons/Shield-Color-16.svg" : "./icons/Shield-Check-Color-16.svg", alt: "Privacy Shield" })), /* @__PURE__ */ k("h2", { class: PrivacyStats_default.caption }, t4("protections_menuTitle")), /* @__PURE__ */ k(Tooltip2, { content: t4("stats_protectionsReportInfo") }, /* @__PURE__ */ k(InfoIcon, { class: PrivacyStats_default.infoIcon })), canExpand && /* @__PURE__ */ k("span", { class: PrivacyStats_default.widgetExpander }, /* @__PURE__ */ k(
       ShowHideButtonCircle,
       {
         buttonAttrs: {
@@ -18077,9 +18555,9 @@
         onClick: onToggle,
         label: expansion === "expanded" ? t4("stats_hideLabel") : t4("stats_toggleLabel")
       }
-    ))), /* @__PURE__ */ k("div", { class: PrivacyStats_default.counterContainer, ref: counterContainerRef }, /* @__PURE__ */ k("div", { class: PrivacyStats_default.counter }, animatedTrackersBlocked === 0 && /* @__PURE__ */ k("h3", { class: PrivacyStats_default.noRecentTitle }, t4("protections_noRecent")), animatedTrackersBlocked > 0 && /* @__PURE__ */ k("h3", { class: PrivacyStats_default.title }, formatter.format(animatedTrackersBlocked), " ", /* @__PURE__ */ k("span", null, trackersBlockedHeading))), isCpmEnabled && animatedTrackersBlocked > 0 && totalCookiePopUpsBlocked > 0 && /* @__PURE__ */ k("div", { class: (0, import_classnames27.default)(PrivacyStats_default.counter, PrivacyStats_default.cookiePopUpsCounter) }, /* @__PURE__ */ k("h3", { class: PrivacyStats_default.title }, formatter.format(animatedCookiePopUpsBlocked), " ", /* @__PURE__ */ k("span", null, cookiePopUpsBlockedHeading)), showProtectionsReportNewLabel && /* @__PURE__ */ k(NewBadge, null))));
+    ))), /* @__PURE__ */ k("div", { class: PrivacyStats_default.counterContainer, ref: counterContainerRef }, /* @__PURE__ */ k("div", { class: PrivacyStats_default.counter }, animatedTrackersBlocked === 0 && /* @__PURE__ */ k("h3", { class: PrivacyStats_default.noRecentTitle }, t4("protections_noRecent")), animatedTrackersBlocked > 0 && /* @__PURE__ */ k("h3", { class: PrivacyStats_default.title }, formatter.format(animatedTrackersBlocked), " ", /* @__PURE__ */ k("span", null, trackersBlockedHeading))), isCpmEnabled && animatedTrackersBlocked > 0 && totalCookiePopUpsBlocked > 0 && /* @__PURE__ */ k("div", { class: (0, import_classnames29.default)(PrivacyStats_default.counter, PrivacyStats_default.cookiePopUpsCounter) }, /* @__PURE__ */ k("h3", { class: PrivacyStats_default.title }, formatter.format(animatedCookiePopUpsBlocked), " ", /* @__PURE__ */ k("span", null, cookiePopUpsBlockedHeading)), showProtectionsReportNewLabel && /* @__PURE__ */ k(NewBadge, null))));
   }
-  var import_classnames27;
+  var import_classnames29;
   var init_ProtectionsHeading = __esm({
     "pages/new-tab/app/protections/components/ProtectionsHeading.js"() {
       "use strict";
@@ -18087,7 +18565,7 @@
       init_PrivacyStats();
       init_settings_provider();
       init_ShowHideButton();
-      import_classnames27 = __toESM(require_classnames(), 1);
+      import_classnames29 = __toESM(require_classnames(), 1);
       init_preact_module();
       init_Icons2();
       init_NewBadge2();
@@ -18157,9 +18635,9 @@
         onClick: onToggle,
         label: expansion === "expanded" ? t4("stats_hideLabel") : t4("stats_toggleLabel")
       }
-    ))), /* @__PURE__ */ k("div", { class: PrivacyStatsLegacy_default.counter }, none && /* @__PURE__ */ k("h3", { class: PrivacyStatsLegacy_default.title }, t4("protections_noRecent")), some && /* @__PURE__ */ k("h3", { class: PrivacyStatsLegacy_default.title }, " ", /* @__PURE__ */ k(Trans, { str: alltimeTitle, values: { count: alltime } })), /* @__PURE__ */ k("p", { class: (0, import_classnames28.default)(PrivacyStatsLegacy_default.subtitle, PrivacyStatsLegacy_default.indented) }, t4("stats_feedCountBlockedPeriod"))));
+    ))), /* @__PURE__ */ k("div", { class: PrivacyStatsLegacy_default.counter }, none && /* @__PURE__ */ k("h3", { class: PrivacyStatsLegacy_default.title }, t4("protections_noRecent")), some && /* @__PURE__ */ k("h3", { class: PrivacyStatsLegacy_default.title }, " ", /* @__PURE__ */ k(Trans, { str: alltimeTitle, values: { count: alltime } })), /* @__PURE__ */ k("p", { class: (0, import_classnames30.default)(PrivacyStatsLegacy_default.subtitle, PrivacyStatsLegacy_default.indented) }, t4("stats_feedCountBlockedPeriod"))));
   }
-  var import_classnames28;
+  var import_classnames30;
   var init_ProtectionsHeadingLegacy = __esm({
     "pages/new-tab/app/protections/components/ProtectionsHeadingLegacy.js"() {
       "use strict";
@@ -18167,7 +18645,7 @@
       init_hooks_module();
       init_PrivacyStatsLegacy();
       init_ShowHideButton();
-      import_classnames28 = __toESM(require_classnames(), 1);
+      import_classnames30 = __toESM(require_classnames(), 1);
       init_preact_module();
       init_settings_provider();
       init_TranslationsProvider();
@@ -18227,13 +18705,13 @@
       /** @type {enStrings} */
       {}
     );
-    return /* @__PURE__ */ k("div", { class: Protections_default.body, id, "aria-hidden": hidden, "aria-expanded": showing }, expansion === "expanded" && /* @__PURE__ */ k(S, null, /* @__PURE__ */ k("div", { class: (0, import_classnames29.default)(Protections_default.switcher, Protections_default.block), role: "tablist" }, isRebrandEnabled && /* @__PURE__ */ k("div", { class: Protections_default.blob, style: { "--tab-count": 2, "--tab-index": feed === "privacy-stats" ? 0 : 1 } }), /* @__PURE__ */ k(
+    return /* @__PURE__ */ k("div", { class: Protections_default.body, id, "aria-hidden": hidden, "aria-expanded": showing }, expansion === "expanded" && /* @__PURE__ */ k(S, null, /* @__PURE__ */ k("div", { class: (0, import_classnames31.default)(Protections_default.switcher, Protections_default.block), role: "tablist" }, isRebrandEnabled && /* @__PURE__ */ k("div", { class: Protections_default.blob, style: { "--tab-count": 2, "--tab-index": feed === "privacy-stats" ? 0 : 1 } }), /* @__PURE__ */ k(
       "button",
       {
         type: "button",
         role: "tab",
         "aria-selected": feed === "privacy-stats",
-        class: (0, import_classnames29.default)(Protections_default.button, feed === "privacy-stats" && Protections_default.active),
+        class: (0, import_classnames31.default)(Protections_default.button, feed === "privacy-stats" && Protections_default.active),
         onClick: () => setFeed("privacy-stats")
       },
       t4("protections_statsSwitchTitle")
@@ -18243,7 +18721,7 @@
         type: "button",
         role: "tab",
         "aria-selected": feed === "activity",
-        class: (0, import_classnames29.default)(Protections_default.button, feed === "activity" && Protections_default.active),
+        class: (0, import_classnames31.default)(Protections_default.button, feed === "activity" && Protections_default.active),
         onClick: () => setFeed("activity")
       },
       t4("protections_activitySwitchTitle")
@@ -18257,13 +18735,13 @@
       /** @type {enStrings} */
       {}
     );
-    return /* @__PURE__ */ k("div", { class: Protections_default.body, id, "aria-hidden": hidden, "aria-expanded": showing }, expansion === "expanded" && /* @__PURE__ */ k(S, null, /* @__PURE__ */ k("div", { class: (0, import_classnames29.default)(Protections_default.switcher, Protections_default.blockLegacy), role: "tablist" }, isRebrandEnabled && /* @__PURE__ */ k("div", { class: Protections_default.blob, style: { "--tab-count": 2, "--tab-index": feed === "privacy-stats" ? 0 : 1 } }), /* @__PURE__ */ k(
+    return /* @__PURE__ */ k("div", { class: Protections_default.body, id, "aria-hidden": hidden, "aria-expanded": showing }, expansion === "expanded" && /* @__PURE__ */ k(S, null, /* @__PURE__ */ k("div", { class: (0, import_classnames31.default)(Protections_default.switcher, Protections_default.blockLegacy), role: "tablist" }, isRebrandEnabled && /* @__PURE__ */ k("div", { class: Protections_default.blob, style: { "--tab-count": 2, "--tab-index": feed === "privacy-stats" ? 0 : 1 } }), /* @__PURE__ */ k(
       "button",
       {
         type: "button",
         role: "tab",
         "aria-selected": feed === "privacy-stats",
-        class: (0, import_classnames29.default)(Protections_default.button, feed === "privacy-stats" && Protections_default.active),
+        class: (0, import_classnames31.default)(Protections_default.button, feed === "privacy-stats" && Protections_default.active),
         onClick: () => setFeed("privacy-stats")
       },
       t4("protections_statsSwitchTitle")
@@ -18273,25 +18751,25 @@
         type: "button",
         role: "tab",
         "aria-selected": feed === "activity",
-        class: (0, import_classnames29.default)(Protections_default.button, feed === "activity" && Protections_default.active),
+        class: (0, import_classnames31.default)(Protections_default.button, feed === "activity" && Protections_default.active),
         onClick: () => setFeed("activity")
       },
       t4("protections_activitySwitchTitle")
     )), /* @__PURE__ */ k("div", { class: Protections_default.feed }, children)));
   }
   function ProtectionsEmpty({ children }) {
-    return /* @__PURE__ */ k("div", { class: (0, import_classnames29.default)(Protections_default.block, Protections_default.empty) }, children);
+    return /* @__PURE__ */ k("div", { class: (0, import_classnames31.default)(Protections_default.block, Protections_default.empty) }, children);
   }
   function ProtectionsEmptyLegacy({ children }) {
-    return /* @__PURE__ */ k("div", { class: (0, import_classnames29.default)(Protections_default.blockLegacy, Protections_default.empty) }, children);
+    return /* @__PURE__ */ k("div", { class: (0, import_classnames31.default)(Protections_default.blockLegacy, Protections_default.empty) }, children);
   }
-  var import_classnames29;
+  var import_classnames31;
   var init_Protections2 = __esm({
     "pages/new-tab/app/protections/components/Protections.js"() {
       "use strict";
       init_hooks_module();
       init_preact_module();
-      import_classnames29 = __toESM(require_classnames(), 1);
+      import_classnames31 = __toESM(require_classnames(), 1);
       init_Protections();
       init_ProtectionsHeading();
       init_types();
@@ -19343,7 +19821,7 @@
     return /* @__PURE__ */ k("div", { className: Activity_default.controls }, /* @__PURE__ */ k(
       "button",
       {
-        class: (0, import_classnames30.default)(Activity_default.icon, Activity_default.controlIcon, Activity_default.disableWhenBusy),
+        class: (0, import_classnames32.default)(Activity_default.icon, Activity_default.controlIcon, Activity_default.disableWhenBusy),
         title: favoriteTitle,
         "data-action": favorite.value ? ACTION_REMOVE_FAVORITE : ACTION_ADD_FAVORITE,
         "data-title": title,
@@ -19354,7 +19832,7 @@
     ), /* @__PURE__ */ k(
       "button",
       {
-        class: (0, import_classnames30.default)(Activity_default.icon, Activity_default.controlIcon, Activity_default.disableWhenBusy),
+        class: (0, import_classnames32.default)(Activity_default.icon, Activity_default.controlIcon, Activity_default.disableWhenBusy),
         title: secondaryTitle,
         "data-action": canBurn ? ACTION_BURN : ACTION_REMOVE,
         value: url8,
@@ -19369,13 +19847,13 @@
     if (isRebrand) return /* @__PURE__ */ k(FireOutlineIcon, null);
     return /* @__PURE__ */ k(FireIcon, null);
   }
-  var import_classnames30, ActivityItem, ActivityItemLegacy;
+  var import_classnames32, ActivityItem, ActivityItemLegacy;
   var init_ActivityItem = __esm({
     "pages/new-tab/app/activity/components/ActivityItem.js"() {
       "use strict";
       init_preact_module();
       init_types();
-      import_classnames30 = __toESM(require_classnames(), 1);
+      import_classnames32 = __toESM(require_classnames(), 1);
       init_Activity();
       init_ActivityLegacy();
       init_FaviconWithState2();
@@ -19404,7 +19882,7 @@
          */
         function ActivityItem2({ canBurn, documentVisibility, title, url: url8, favoriteSrc, faviconMax, etldPlusOne, children }) {
           const isRebrand = useNewTabPageRebranding();
-          return /* @__PURE__ */ k("li", { key: url8, class: (0, import_classnames30.default)(Activity_default.item), "data-testid": "ActivityItem" }, /* @__PURE__ */ k("div", { class: Activity_default.heading }, /* @__PURE__ */ k("a", { class: Activity_default.title, href: url8, "data-url": url8 }, /* @__PURE__ */ k("span", { className: Activity_default.favicon, "data-url": url8 }, documentVisibility === "visible" && /* @__PURE__ */ k(
+          return /* @__PURE__ */ k("li", { key: url8, class: (0, import_classnames32.default)(Activity_default.item), "data-testid": "ActivityItem" }, /* @__PURE__ */ k("div", { class: Activity_default.heading }, /* @__PURE__ */ k("a", { class: Activity_default.title, href: url8, "data-url": url8 }, /* @__PURE__ */ k("span", { className: Activity_default.favicon, "data-url": url8 }, documentVisibility === "visible" && /* @__PURE__ */ k(
             FaviconWithState,
             {
               faviconSrc: favoriteSrc,
@@ -19433,7 +19911,7 @@
          */
         function ActivityItem3({ canBurn, documentVisibility, title, url: url8, favoriteSrc, faviconMax, etldPlusOne, children }) {
           const isRebrand = useNewTabPageRebranding();
-          return /* @__PURE__ */ k("li", { key: url8, class: (0, import_classnames30.default)(ActivityLegacy_default.item), "data-testid": "ActivityItem" }, /* @__PURE__ */ k("div", { class: ActivityLegacy_default.heading }, /* @__PURE__ */ k("a", { class: ActivityLegacy_default.title, href: url8, "data-url": url8 }, /* @__PURE__ */ k("span", { className: ActivityLegacy_default.favicon, "data-url": url8 }, documentVisibility === "visible" && /* @__PURE__ */ k(
+          return /* @__PURE__ */ k("li", { key: url8, class: (0, import_classnames32.default)(ActivityLegacy_default.item), "data-testid": "ActivityItem" }, /* @__PURE__ */ k("div", { class: ActivityLegacy_default.heading }, /* @__PURE__ */ k("a", { class: ActivityLegacy_default.title, href: url8, "data-url": url8 }, /* @__PURE__ */ k("span", { className: ActivityLegacy_default.favicon, "data-url": url8 }, documentVisibility === "visible" && /* @__PURE__ */ k(
             FaviconWithState,
             {
               faviconSrc: favoriteSrc,
@@ -35863,20 +36341,20 @@
         canceled = true;
       };
     }, [isBurning.value, isExiting.value, url8]);
-    return /* @__PURE__ */ k("div", { class: (0, import_classnames31.default)(Activity_default.anim, isBurning.value && Activity_default.burning), ref }, !isExiting.value && children, !isExiting.value && isBurning.value && showBurnAnimation && /* @__PURE__ */ k(P3, { fallback: null }, /* @__PURE__ */ k(BurnAnimationLazy, { url: url8, doneBurning })), !isExiting.value && isBurning.value && !showBurnAnimation && /* @__PURE__ */ k(NullBurner, { url: url8, doneBurning }));
+    return /* @__PURE__ */ k("div", { class: (0, import_classnames33.default)(Activity_default.anim, isBurning.value && Activity_default.burning), ref }, !isExiting.value && children, !isExiting.value && isBurning.value && showBurnAnimation && /* @__PURE__ */ k(P3, { fallback: null }, /* @__PURE__ */ k(BurnAnimationLazy, { url: url8, doneBurning })), !isExiting.value && isBurning.value && !showBurnAnimation && /* @__PURE__ */ k(NullBurner, { url: url8, doneBurning }));
   }
   function NullBurner({ url: url8, doneBurning }) {
     h2(() => doneBurning(url8), [url8]);
     return null;
   }
-  var import_classnames31, BurnAnimationLazy;
+  var import_classnames33, BurnAnimationLazy;
   var init_ActivityItemAnimationWrapper = __esm({
     "pages/new-tab/app/activity/components/ActivityItemAnimationWrapper.js"() {
       "use strict";
       init_hooks_module();
       init_BurnProvider();
       init_signals_module();
-      import_classnames31 = __toESM(require_classnames(), 1);
+      import_classnames33 = __toESM(require_classnames(), 1);
       init_Activity();
       init_compat_module();
       init_preact_module();
@@ -35986,15 +36464,15 @@
 
   // pages/new-tab/app/components/TickPill/TickPill.js
   function TickPill({ text: text2, className, displayTick = true }) {
-    return /* @__PURE__ */ k("div", { class: (0, import_classnames32.default)(TickPill_default.tickPill, className || "") }, displayTick && /* @__PURE__ */ k("span", { class: TickPill_default.iconWrapper }, /* @__PURE__ */ k(Check, null)), /* @__PURE__ */ k("span", { class: TickPill_default.text }, text2));
+    return /* @__PURE__ */ k("div", { class: (0, import_classnames34.default)(TickPill_default.tickPill, className || "") }, displayTick && /* @__PURE__ */ k("span", { class: TickPill_default.iconWrapper }, /* @__PURE__ */ k(Check, null)), /* @__PURE__ */ k("span", { class: TickPill_default.text }, text2));
   }
-  var import_classnames32;
+  var import_classnames34;
   var init_TickPill2 = __esm({
     "pages/new-tab/app/components/TickPill/TickPill.js"() {
       "use strict";
       init_preact_module();
       init_Icons2();
-      import_classnames32 = __toESM(require_classnames(), 1);
+      import_classnames34 = __toESM(require_classnames(), 1);
       init_TickPill();
     }
   });
@@ -36810,8 +37288,8 @@
 
   // pages/new-tab/app/remote-messaging-framework/components/RemoteMessagingFramework.js
   function TwoActionButtons({ platform, id, message, primaryAction, secondaryAction }) {
-    const primaryBtn = primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ k(Button, { className: (0, import_classnames33.default)(RemoteMessagingFramework_default.actionButton, RemoteMessagingFramework_default.primaryButton), variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText);
-    const secondaryBtn = secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ k(Button, { className: (0, import_classnames33.default)(RemoteMessagingFramework_default.actionButton, RemoteMessagingFramework_default.secondaryButton), variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText);
+    const primaryBtn = primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ k(Button, { className: (0, import_classnames35.default)(RemoteMessagingFramework_default.actionButton, RemoteMessagingFramework_default.primaryButton), variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText);
+    const secondaryBtn = secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ k(Button, { className: (0, import_classnames35.default)(RemoteMessagingFramework_default.actionButton, RemoteMessagingFramework_default.secondaryButton), variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText);
     return /* @__PURE__ */ k("div", { class: RemoteMessagingFramework_default.btnRow }, platform === "windows" ? /* @__PURE__ */ k(S, null, primaryBtn, secondaryBtn) : /* @__PURE__ */ k(S, null, secondaryBtn, primaryBtn));
   }
   function RemoteMessagingFramework({ message, primaryAction, secondaryAction, dismiss }) {
@@ -36820,7 +37298,7 @@
     const isRebrandEnabled = useNewTabPageRebranding();
     const showIcon = messageType !== "small" && Boolean(message.icon);
     const iconSrc = showIcon ? isRebrandEnabled ? `./icons/rebrand/${message.icon}-96.svg` : `./icons/${message.icon}-96.svg` : void 0;
-    return /* @__PURE__ */ k("div", { id, class: (0, import_classnames33.default)(RemoteMessagingFramework_default.root, showIcon && RemoteMessagingFramework_default.icon) }, showIcon && iconSrc && /* @__PURE__ */ k("span", { class: RemoteMessagingFramework_default.iconBlock }, /* @__PURE__ */ k("img", { src: iconSrc, alt: "" })), /* @__PURE__ */ k("div", { class: RemoteMessagingFramework_default.content }, /* @__PURE__ */ k("h2", { class: RemoteMessagingFramework_default.title }, titleText), /* @__PURE__ */ k("p", { class: RemoteMessagingFramework_default.description }, descriptionText), messageType === "big_two_action" && /* @__PURE__ */ k(
+    return /* @__PURE__ */ k("div", { id, class: (0, import_classnames35.default)(RemoteMessagingFramework_default.root, showIcon && RemoteMessagingFramework_default.icon) }, showIcon && iconSrc && /* @__PURE__ */ k("span", { class: RemoteMessagingFramework_default.iconBlock }, /* @__PURE__ */ k("img", { src: iconSrc, alt: "" })), /* @__PURE__ */ k("div", { class: RemoteMessagingFramework_default.content }, /* @__PURE__ */ k("h2", { class: RemoteMessagingFramework_default.title }, titleText), /* @__PURE__ */ k("p", { class: RemoteMessagingFramework_default.description }, descriptionText), messageType === "big_two_action" && /* @__PURE__ */ k(
       TwoActionButtons,
       {
         platform,
@@ -36832,7 +37310,7 @@
     )), messageType === "big_single_action" && message.primaryActionText && primaryAction && /* @__PURE__ */ k("div", { class: RemoteMessagingFramework_default.btnBlock }, /* @__PURE__ */ k(
       Button,
       {
-        className: (0, import_classnames33.default)(RemoteMessagingFramework_default.actionButton, RemoteMessagingFramework_default.secondaryButton),
+        className: (0, import_classnames35.default)(RemoteMessagingFramework_default.actionButton, RemoteMessagingFramework_default.secondaryButton),
         variant: "standard",
         onClick: () => primaryAction(id)
       },
@@ -36854,12 +37332,12 @@
     }
     return null;
   }
-  var import_classnames33;
+  var import_classnames35;
   var init_RemoteMessagingFramework2 = __esm({
     "pages/new-tab/app/remote-messaging-framework/components/RemoteMessagingFramework.js"() {
       "use strict";
       init_preact_module();
-      import_classnames33 = __toESM(require_classnames(), 1);
+      import_classnames35 = __toESM(require_classnames(), 1);
       init_RemoteMessagingFramework();
       init_hooks_module();
       init_RMFProvider();
@@ -37040,7 +37518,7 @@
     const isRebrandEnabled = useNewTabPageRebranding();
     const processedMessageDescription = convertMarkdownToHTMLForStrongTags(message.descriptionText);
     const iconSrc = isRebrandEnabled ? "./icons/rebrand/Subscription-Clock-96.svg" : "./icons/Subscription-Clock-96.svg";
-    return /* @__PURE__ */ k("div", { id: message.id, class: (0, import_classnames34.default)(SubscriptionWinBackBanner_default.root, SubscriptionWinBackBanner_default.icon) }, /* @__PURE__ */ k("span", { class: SubscriptionWinBackBanner_default.iconBlock }, /* @__PURE__ */ k("img", { "aria-hidden": "true", src: iconSrc, alt: "" })), /* @__PURE__ */ k("div", { class: SubscriptionWinBackBanner_default.content }, message.titleText && /* @__PURE__ */ k("h2", { class: SubscriptionWinBackBanner_default.title }, message.titleText), /* @__PURE__ */ k("p", { class: SubscriptionWinBackBanner_default.description, dangerouslySetInnerHTML: { __html: processedMessageDescription } })), message.messageType === "big_single_action" && message?.actionText && action && /* @__PURE__ */ k("div", { class: SubscriptionWinBackBanner_default.btnBlock }, /* @__PURE__ */ k(Button, { size: "md", variant: "accent", onClick: () => action(message.id) }, message.actionText)), message.id && dismiss && /* @__PURE__ */ k(DismissButton, { className: SubscriptionWinBackBanner_default.dismissBtn, onClick: () => dismiss(message.id) }));
+    return /* @__PURE__ */ k("div", { id: message.id, class: (0, import_classnames36.default)(SubscriptionWinBackBanner_default.root, SubscriptionWinBackBanner_default.icon) }, /* @__PURE__ */ k("span", { class: SubscriptionWinBackBanner_default.iconBlock }, /* @__PURE__ */ k("img", { "aria-hidden": "true", src: iconSrc, alt: "" })), /* @__PURE__ */ k("div", { class: SubscriptionWinBackBanner_default.content }, message.titleText && /* @__PURE__ */ k("h2", { class: SubscriptionWinBackBanner_default.title }, message.titleText), /* @__PURE__ */ k("p", { class: SubscriptionWinBackBanner_default.description, dangerouslySetInnerHTML: { __html: processedMessageDescription } })), message.messageType === "big_single_action" && message?.actionText && action && /* @__PURE__ */ k("div", { class: SubscriptionWinBackBanner_default.btnBlock }, /* @__PURE__ */ k(Button, { size: "md", variant: "accent", onClick: () => action(message.id) }, message.actionText)), message.id && dismiss && /* @__PURE__ */ k(DismissButton, { className: SubscriptionWinBackBanner_default.dismissBtn, onClick: () => dismiss(message.id) }));
   }
   function SubscriptionWinBackBannerConsumer() {
     const { state, action, dismiss } = x2(SubscriptionWinBackBannerContext);
@@ -37049,11 +37527,11 @@
     }
     return null;
   }
-  var import_classnames34;
+  var import_classnames36;
   var init_SubscriptionWinBackBanner2 = __esm({
     "pages/new-tab/app/subscription-winback-banner/components/SubscriptionWinBackBanner.js"() {
       "use strict";
-      import_classnames34 = __toESM(require_classnames(), 1);
+      import_classnames36 = __toESM(require_classnames(), 1);
       init_preact_module();
       init_Button2();
       init_DismissButton2();
@@ -37215,7 +37693,7 @@
 
   // pages/new-tab/app/update-notification/components/UpdateNotification.js
   function UpdateNotification({ notes, dismiss, version }) {
-    return /* @__PURE__ */ k("div", { class: UpdateNotification_default.root, "data-reset-layout": "true" }, /* @__PURE__ */ k("div", { class: (0, import_classnames35.default)("layout-centered", UpdateNotification_default.body) }, notes.length > 0 ? /* @__PURE__ */ k(WithNotes, { notes, version }) : /* @__PURE__ */ k(WithoutNotes, { version })), /* @__PURE__ */ k(DismissButton, { onClick: dismiss, className: UpdateNotification_default.dismiss }));
+    return /* @__PURE__ */ k("div", { class: UpdateNotification_default.root, "data-reset-layout": "true" }, /* @__PURE__ */ k("div", { class: (0, import_classnames37.default)("layout-centered", UpdateNotification_default.body) }, notes.length > 0 ? /* @__PURE__ */ k(WithNotes, { notes, version }) : /* @__PURE__ */ k(WithoutNotes, { version })), /* @__PURE__ */ k(DismissButton, { onClick: dismiss, className: UpdateNotification_default.dismiss }));
   }
   function WithNotes({ notes, version }) {
     const id = g2();
@@ -37277,12 +37755,12 @@
     }
     return null;
   }
-  var import_classnames35;
+  var import_classnames37;
   var init_UpdateNotification2 = __esm({
     "pages/new-tab/app/update-notification/components/UpdateNotification.js"() {
       "use strict";
       init_preact_module();
-      import_classnames35 = __toESM(require_classnames(), 1);
+      import_classnames37 = __toESM(require_classnames(), 1);
       init_UpdateNotification();
       init_hooks_module();
       init_UpdateNotificationProvider();
@@ -37322,7 +37800,7 @@
 
   // pages/new-tab/app/components/App.js
   init_preact_module();
-  var import_classnames46 = __toESM(require_classnames(), 1);
+  var import_classnames48 = __toESM(require_classnames(), 1);
 
   // pages/new-tab/app/components/App.module.css
   var App_default = {
@@ -37685,7 +38163,7 @@
   // pages/new-tab/app/customizer/components/CustomizerDrawerInner.js
   init_preact_module();
   init_hooks_module();
-  var import_classnames45 = __toESM(require_classnames(), 1);
+  var import_classnames47 = __toESM(require_classnames(), 1);
 
   // pages/new-tab/app/customizer/components/CustomizerDrawerInner.module.css
   var CustomizerDrawerInner_default = {
@@ -37721,7 +38199,7 @@
 
   // pages/new-tab/app/customizer/components/BackgroundSection.js
   init_preact_module();
-  var import_classnames36 = __toESM(require_classnames(), 1);
+  var import_classnames38 = __toESM(require_classnames(), 1);
   init_values();
   init_Icons2();
   init_signals_module();
@@ -37746,7 +38224,7 @@
     } else {
       gradient = values.gradients.gradient02;
     }
-    return /* @__PURE__ */ k("ul", { class: (0, import_classnames36.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup" }, /* @__PURE__ */ k("li", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ k(
+    return /* @__PURE__ */ k("ul", { class: (0, import_classnames38.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup" }, /* @__PURE__ */ k("li", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ k(
       DefaultPanel,
       {
         checked: data2.value.background.kind === "default",
@@ -37780,7 +38258,7 @@
     return /* @__PURE__ */ k(S, null, /* @__PURE__ */ k(
       "button",
       {
-        class: (0, import_classnames36.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames38.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": main,
         "aria-checked": checked,
         "aria-labelledby": id,
@@ -37800,7 +38278,7 @@
     return /* @__PURE__ */ k(S, null, /* @__PURE__ */ k(
       "button",
       {
-        class: (0, import_classnames36.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames38.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": props.color.colorScheme,
         onClick: props.onClick,
         "aria-checked": props.checked,
@@ -37822,7 +38300,7 @@
       "button",
       {
         onClick: props.onClick,
-        class: (0, import_classnames36.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames38.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": props.gradient.colorScheme,
         "aria-checked": props.checked,
         tabindex: props.checked ? -1 : 0,
@@ -37862,7 +38340,7 @@
       return /* @__PURE__ */ k(S, null, /* @__PURE__ */ k(
         "button",
         {
-          class: (0, import_classnames36.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
+          class: (0, import_classnames38.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
           "data-color-mode": props.browserTheme,
           "aria-checked": props.checked,
           "aria-labelledby": id,
@@ -37877,7 +38355,7 @@
     return /* @__PURE__ */ k(S, null, /* @__PURE__ */ k(
       "button",
       {
-        class: (0, import_classnames36.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames38.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": scheme,
         onClick: props.onClick,
         "aria-checked": props.checked,
@@ -37903,7 +38381,7 @@
   };
 
   // pages/new-tab/app/customizer/components/BrowserThemeSection.js
-  var import_classnames37 = __toESM(require_classnames(), 1);
+  var import_classnames39 = __toESM(require_classnames(), 1);
   init_preact_module();
   init_signals_module();
   init_types();
@@ -37916,7 +38394,7 @@
     return /* @__PURE__ */ k("ul", { class: BrowserThemeSection_default.themeList }, /* @__PURE__ */ k("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ k(
       "button",
       {
-        class: (0, import_classnames37.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonLight),
+        class: (0, import_classnames39.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonLight),
         role: "radio",
         type: "button",
         "aria-checked": current.value === "light",
@@ -37927,7 +38405,7 @@
     ), /* @__PURE__ */ k("span", null, t4("customizer_browser_theme_light"))), /* @__PURE__ */ k("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ k(
       "button",
       {
-        class: (0, import_classnames37.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonDark),
+        class: (0, import_classnames39.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonDark),
         role: "radio",
         type: "button",
         "aria-checked": current.value === "dark",
@@ -37938,7 +38416,7 @@
     ), /* @__PURE__ */ k("span", null, t4("customizer_browser_theme_dark"))), /* @__PURE__ */ k("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ k(
       "button",
       {
-        class: (0, import_classnames37.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonSystem),
+        class: (0, import_classnames39.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonSystem),
         role: "radio",
         type: "button",
         "aria-checked": current.value === "system",
@@ -37952,7 +38430,7 @@
   // pages/new-tab/app/customizer/components/ThemeSection.js
   init_preact_module();
   init_signals_module();
-  var import_classnames38 = __toESM(require_classnames(), 1);
+  var import_classnames40 = __toESM(require_classnames(), 1);
   init_types();
 
   // pages/new-tab/app/customizer/components/ThemeSection.module.css
@@ -37995,7 +38473,7 @@
     return /* @__PURE__ */ k("div", { class: ThemeSection_default.root }, /* @__PURE__ */ k(
       "div",
       {
-        class: (0, import_classnames38.default)(ThemeSection_default.segmentedControl, {
+        class: (0, import_classnames40.default)(ThemeSection_default.segmentedControl, {
           [ThemeSection_default.vertical]: ["pl", "ru"].includes(locale)
         }),
         role: "radiogroup",
@@ -38066,7 +38544,7 @@
   init_CustomizerMenu();
 
   // pages/new-tab/app/customizer/components/VisibilityMenu.js
-  var import_classnames39 = __toESM(require_classnames(), 1);
+  var import_classnames41 = __toESM(require_classnames(), 1);
   init_preact_module();
   init_hooks_module();
   init_Switch2();
@@ -38087,8 +38565,8 @@
   function EmbeddedVisibilityMenu({ rows }) {
     const platformName = usePlatformName();
     const { browser } = x2(CustomizerThemesContext);
-    return /* @__PURE__ */ k("ul", { className: (0, import_classnames39.default)(VisibilityMenu_default.list, VisibilityMenu_default.embedded) }, rows.map((row) => {
-      return /* @__PURE__ */ k("li", { key: row.id }, /* @__PURE__ */ k("div", { class: (0, import_classnames39.default)(VisibilityMenu_default.menuItemLabel, VisibilityMenu_default.menuItemLabelEmbedded) }, /* @__PURE__ */ k("span", { class: VisibilityMenu_default.svg }, row.icon), /* @__PURE__ */ k("span", { class: VisibilityMenu_default.title }, row.title ?? row.id), /* @__PURE__ */ k(
+    return /* @__PURE__ */ k("ul", { className: (0, import_classnames41.default)(VisibilityMenu_default.list, VisibilityMenu_default.embedded) }, rows.map((row) => {
+      return /* @__PURE__ */ k("li", { key: row.id }, /* @__PURE__ */ k("div", { class: (0, import_classnames41.default)(VisibilityMenu_default.menuItemLabel, VisibilityMenu_default.menuItemLabelEmbedded) }, /* @__PURE__ */ k("span", { class: VisibilityMenu_default.svg }, row.icon), /* @__PURE__ */ k("span", { class: VisibilityMenu_default.title }, row.title ?? row.id), /* @__PURE__ */ k(
         Switch,
         {
           theme: browser.value,
@@ -38131,7 +38609,7 @@
 
   // pages/new-tab/app/customizer/components/ColorSelection.js
   init_preact_module();
-  var import_classnames40 = __toESM(require_classnames(), 1);
+  var import_classnames42 = __toESM(require_classnames(), 1);
   init_values();
   init_Icons2();
   init_signals_module();
@@ -38160,7 +38638,7 @@
       if (!(value2 in values.colors)) return console.warn("could not select color", value2);
       select({ background: { kind: "color", value: value2 } });
     }
-    return /* @__PURE__ */ k("div", null, /* @__PURE__ */ k("button", { type: "button", onClick: back, class: (0, import_classnames40.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ k(BackChevron, null), t4("customizer_background_selection_color")), /* @__PURE__ */ k("div", { class: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ k(InlineErrorBoundary, { format: (message) => `Customizer section 'ColorGrid' threw an exception: ` + message }, /* @__PURE__ */ k("div", { class: (0, import_classnames40.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup", onClick }, /* @__PURE__ */ k(PickerPanel, { data: data2, select }), /* @__PURE__ */ k(ColorGrid, { data: data2 })))));
+    return /* @__PURE__ */ k("div", null, /* @__PURE__ */ k("button", { type: "button", onClick: back, class: (0, import_classnames42.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ k(BackChevron, null), t4("customizer_background_selection_color")), /* @__PURE__ */ k("div", { class: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ k(InlineErrorBoundary, { format: (message) => `Customizer section 'ColorGrid' threw an exception: ` + message }, /* @__PURE__ */ k("div", { class: (0, import_classnames42.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup", onClick }, /* @__PURE__ */ k(PickerPanel, { data: data2, select }), /* @__PURE__ */ k(ColorGrid, { data: data2 })))));
   }
   var entries = Object.keys(values.colors);
   function ColorGrid({ data: data2 }) {
@@ -38197,7 +38675,7 @@
     return /* @__PURE__ */ k("div", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ k(
       "button",
       {
-        className: (0, import_classnames40.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty),
+        className: (0, import_classnames42.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty),
         type: "button",
         tabIndex: 0,
         style: { background: hex.value },
@@ -38222,12 +38700,12 @@
           }
         }
       }
-    ), /* @__PURE__ */ k("span", { class: (0, import_classnames40.default)(CustomizerDrawerInner_default.colorInputIcon, CustomizerDrawerInner_default.dynamicPickerIconColor), "data-color-mode": modeSelected }, /* @__PURE__ */ k(Picker, null)));
+    ), /* @__PURE__ */ k("span", { class: (0, import_classnames42.default)(CustomizerDrawerInner_default.colorInputIcon, CustomizerDrawerInner_default.dynamicPickerIconColor), "data-color-mode": modeSelected }, /* @__PURE__ */ k(Picker, null)));
   }
 
   // pages/new-tab/app/customizer/components/GradientSelection.js
   init_preact_module();
-  var import_classnames41 = __toESM(require_classnames(), 1);
+  var import_classnames43 = __toESM(require_classnames(), 1);
   init_values();
   init_signals_module();
   init_Icons2();
@@ -38255,12 +38733,12 @@
       if (!(value2 in values.gradients)) return console.warn("could not select gradient", value2);
       select({ background: { kind: "gradient", value: value2 } });
     }
-    return /* @__PURE__ */ k("div", null, /* @__PURE__ */ k("button", { type: "button", onClick: back, class: (0, import_classnames41.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ k(BackChevron, null), t4("customizer_background_selection_gradient")), /* @__PURE__ */ k("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ k(InlineErrorBoundary, { format: (message) => `Customizer section 'GradientSelection' threw an exception: ` + message }, /* @__PURE__ */ k(GradientGrid, { data: data2 }))));
+    return /* @__PURE__ */ k("div", null, /* @__PURE__ */ k("button", { type: "button", onClick: back, class: (0, import_classnames43.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ k(BackChevron, null), t4("customizer_background_selection_gradient")), /* @__PURE__ */ k("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ k(InlineErrorBoundary, { format: (message) => `Customizer section 'GradientSelection' threw an exception: ` + message }, /* @__PURE__ */ k(GradientGrid, { data: data2 }))));
   }
   var entries2 = Object.keys(values.gradients);
   function GradientGrid({ data: data2 }) {
     const selected = useComputed(() => data2.value.background.kind === "gradient" && data2.value.background.value);
-    return /* @__PURE__ */ k("ul", { className: (0, import_classnames41.default)(CustomizerDrawerInner_default.bgList) }, entries2.map((key2) => {
+    return /* @__PURE__ */ k("ul", { className: (0, import_classnames43.default)(CustomizerDrawerInner_default.bgList) }, entries2.map((key2) => {
       const entry = values.gradients[key2];
       return /* @__PURE__ */ k("li", { className: CustomizerDrawerInner_default.bgListItem, key: key2 }, /* @__PURE__ */ k(
         "button",
@@ -38288,7 +38766,7 @@
 
   // pages/new-tab/app/customizer/components/ImageSelection.js
   init_preact_module();
-  var import_classnames42 = __toESM(require_classnames(), 1);
+  var import_classnames44 = __toESM(require_classnames(), 1);
   init_signals_module();
   init_DismissButton2();
   init_Icons2();
@@ -38332,7 +38810,7 @@
         customizerContextMenu({ id, target: "userImage" });
       }
     }
-    return /* @__PURE__ */ k("div", { onContextMenu }, /* @__PURE__ */ k("button", { type: "button", onClick: back, class: (0, import_classnames42.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ k(BackChevron, null), t4("customizer_background_selection_image_existing")), /* @__PURE__ */ k("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ k(InlineErrorBoundary, { format: (message) => `Customizer section 'ImageSelection' threw an exception: ` + message }, /* @__PURE__ */ k(ImageGrid, { data: data2, deleteImage, onUpload }))), /* @__PURE__ */ k("div", { className: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ k("p", null, t4("customizer_image_privacy"))));
+    return /* @__PURE__ */ k("div", { onContextMenu }, /* @__PURE__ */ k("button", { type: "button", onClick: back, class: (0, import_classnames44.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ k(BackChevron, null), t4("customizer_background_selection_image_existing")), /* @__PURE__ */ k("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ k(InlineErrorBoundary, { format: (message) => `Customizer section 'ImageSelection' threw an exception: ` + message }, /* @__PURE__ */ k(ImageGrid, { data: data2, deleteImage, onUpload }))), /* @__PURE__ */ k("div", { className: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ k("p", null, t4("customizer_image_privacy"))));
   }
   function ImageGrid({ data: data2, deleteImage, onUpload }) {
     const { t: t4 } = useTypedTranslationWith(
@@ -38347,7 +38825,7 @@
     const max = 8;
     const diff = max - entries4.value.length;
     const placeholders = new Array(diff).fill(null);
-    return /* @__PURE__ */ k("ul", { className: (0, import_classnames42.default)(CustomizerDrawerInner_default.bgList) }, entries4.value.map((entry, index2) => {
+    return /* @__PURE__ */ k("ul", { className: (0, import_classnames44.default)(CustomizerDrawerInner_default.bgList) }, entries4.value.map((entry, index2) => {
       return /* @__PURE__ */ k("li", { className: CustomizerDrawerInner_default.bgListItem, key: entry.id }, /* @__PURE__ */ k(
         "button",
         {
@@ -38381,7 +38859,7 @@
         {
           type: "button",
           onClick: onUpload,
-          class: (0, import_classnames42.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
+          class: (0, import_classnames44.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
           "data-color-mode": browser
         },
         /* @__PURE__ */ k(PlusIcon, null),
@@ -38392,24 +38870,24 @@
 
   // pages/new-tab/app/customizer/components/CustomizerSection.js
   init_preact_module();
-  var import_classnames43 = __toESM(require_classnames(), 1);
+  var import_classnames45 = __toESM(require_classnames(), 1);
   init_NewBadge2();
   function CustomizerSection({ title, showNewBadge, children }) {
     return /* @__PURE__ */ k("div", { className: CustomizerDrawerInner_default.section }, title === null && children, title !== null && /* @__PURE__ */ k(S, null, /* @__PURE__ */ k("h3", { className: CustomizerDrawerInner_default.sectionTitle }, /* @__PURE__ */ k("span", null, title), showNewBadge && /* @__PURE__ */ k(NewBadge, null)), /* @__PURE__ */ k("div", { className: CustomizerDrawerInner_default.sectionBody }, children)));
   }
   function BorderedSection({ children }) {
-    return /* @__PURE__ */ k("div", { class: (0, import_classnames43.default)(CustomizerDrawerInner_default.section, CustomizerDrawerInner_default.borderedSection) }, children);
+    return /* @__PURE__ */ k("div", { class: (0, import_classnames45.default)(CustomizerDrawerInner_default.section, CustomizerDrawerInner_default.borderedSection) }, children);
   }
 
   // pages/new-tab/app/customizer/components/SettingsLink.js
-  var import_classnames44 = __toESM(require_classnames(), 1);
+  var import_classnames46 = __toESM(require_classnames(), 1);
   init_preact_module();
   function SettingsLink({ title, icon, onClick }) {
     return /* @__PURE__ */ k(
       "a",
       {
         href: "duck://settings",
-        class: (0, import_classnames44.default)(CustomizerDrawerInner_default.settingsLink),
+        class: (0, import_classnames46.default)(CustomizerDrawerInner_default.settingsLink),
         onClick: (event) => {
           event.preventDefault();
           onClick();
@@ -38454,7 +38932,7 @@
     const { customizer } = useInitialSetupData();
     const { showThemeNewBadge } = x2(CustomizerContext);
     const hasThemeVariants = customizer?.themeVariant !== void 0;
-    return /* @__PURE__ */ k("div", { class: CustomizerDrawerInner_default.root }, /* @__PURE__ */ k("header", { class: (0, import_classnames45.default)(CustomizerDrawerInner_default.header, CustomizerDrawerInner_default.internal) }, /* @__PURE__ */ k("h2", null, t4("customizer_drawer_title")), /* @__PURE__ */ k(
+    return /* @__PURE__ */ k("div", { class: CustomizerDrawerInner_default.root }, /* @__PURE__ */ k("header", { class: (0, import_classnames47.default)(CustomizerDrawerInner_default.header, CustomizerDrawerInner_default.internal) }, /* @__PURE__ */ k("h2", null, t4("customizer_drawer_title")), /* @__PURE__ */ k(
       DismissButton,
       {
         onClick: close,
@@ -38524,7 +39002,7 @@
       }
       renderedScreen.value = visibleScreen.value;
     }
-    return /* @__PURE__ */ k("div", { class: CustomizerDrawerInner_default.colwrap }, /* @__PURE__ */ k("div", { class: CustomizerDrawerInner_default.cols, "data-sub": visibleScreen, onTransitionEnd: transitionEnded }, /* @__PURE__ */ k("div", { class: (0, import_classnames45.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col1) }, col1.value && left2({ push })), /* @__PURE__ */ k("div", { class: (0, import_classnames45.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col2) }, renderedScreen.value !== "home" && right2({ id: renderedScreen.value, pop }))));
+    return /* @__PURE__ */ k("div", { class: CustomizerDrawerInner_default.colwrap }, /* @__PURE__ */ k("div", { class: CustomizerDrawerInner_default.cols, "data-sub": visibleScreen, onTransitionEnd: transitionEnded }, /* @__PURE__ */ k("div", { class: (0, import_classnames47.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col1) }, col1.value && left2({ push })), /* @__PURE__ */ k("div", { class: (0, import_classnames47.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col2) }, renderedScreen.value !== "home" && right2({ id: renderedScreen.value, pop }))));
   }
 
   // pages/new-tab/app/customizer/components/CustomizerDrawer.js
@@ -38581,7 +39059,7 @@
         "data-drawer-visibility": visibility,
         "data-has-theme-variants": hasThemeVariants
       },
-      /* @__PURE__ */ k("main", { class: (0, import_classnames46.default)(App_default.main, App_default.mainLayout, App_default.mainScroller), "data-main-scroller": true, "data-theme": main }, /* @__PURE__ */ k("div", { class: App_default.content }, /* @__PURE__ */ k("div", { className: App_default.tube, "data-content-tube": true, "data-platform": platformName }, /* @__PURE__ */ k(WidgetList, null)))),
+      /* @__PURE__ */ k("main", { class: (0, import_classnames48.default)(App_default.main, App_default.mainLayout, App_default.mainScroller), "data-main-scroller": true, "data-theme": main }, /* @__PURE__ */ k("div", { class: App_default.content }, /* @__PURE__ */ k("div", { className: App_default.tube, "data-content-tube": true, "data-platform": platformName }, /* @__PURE__ */ k(WidgetList, null)))),
       /* @__PURE__ */ k("div", { class: App_default.themeContext, "data-theme": main }, /* @__PURE__ */ k(CustomizerMenuPositionedFixed, null, /* @__PURE__ */ k(
         CustomizerButton,
         {
@@ -38596,7 +39074,7 @@
       /* @__PURE__ */ k(
         "aside",
         {
-          class: (0, import_classnames46.default)(App_default.aside, App_default.asideLayout, App_default.asideScroller),
+          class: (0, import_classnames48.default)(App_default.aside, App_default.asideLayout, App_default.asideScroller),
           tabindex: tabIndex,
           "aria-hidden": hidden,
           "data-theme": browser,
@@ -39090,6 +39568,58 @@
     omnibar_screenshotFileName: {
       title: "Screenshot",
       description: "File name given to a screenshot attached to the AI chat input. Repeats are numbered, e.g. 'Screenshot 2'."
+    },
+    omnibar_pastedTextLabel: {
+      title: "Pasted text",
+      description: "Type label on the chip for a long text paste that was attached to the AI chat input instead of inserted."
+    },
+    omnibar_removePastedTextLabel: {
+      title: "Remove pasted text \u201C{summary}\u201D",
+      description: "Accessible label for the button that removes a pasted-text chip from the AI chat input. {summary} is the start of the pasted text."
+    },
+    omnibar_removePastedTextFallbackLabel: {
+      title: "Remove pasted text",
+      description: "Accessible label for the button that removes a pasted-text chip whose text is only whitespace."
+    },
+    omnibar_promptTooLongWarning: {
+      title: "Your message is too long. Shorten it to {limit} characters or fewer, including pasted text.",
+      description: "Shown under the AI chat input when the typed text plus pasted text is over the limit; sending is blocked until it fits. {limit} is the character limit."
+    },
+    omnibar_pastedTextModalTitle: {
+      title: "Pasted Text",
+      description: "Title of the dialog opened from a pasted-text chip, where the user can view and edit the pasted text. Also the accessible name of its text field."
+    },
+    omnibar_pastedTextModalFormattingNote: {
+      title: "Formatting may be inconsistent from source.",
+      description: "Note under the Pasted Text dialog title: the pasted text is plain text, so rich formatting from where it was copied is lost."
+    },
+    omnibar_pastedTextChipCharacterCount: {
+      title: "{count} characters",
+      description: "Line on a pasted-text chip showing the length of the pasted text. Shown in red while the whole message is too long to send. {count} is the number of characters."
+    },
+    omnibar_pastedTextModalCharacterCount: {
+      title: "{count} characters",
+      description: "Footer of the Pasted Text dialog showing the length of the pasted text. {count} is the number of characters."
+    },
+    omnibar_pastedTextModalOverLimit: {
+      title: "{count} characters \u2013 {over} over the limit",
+      description: 'Error in the Pasted Text dialog footer when the message is too long to send. {count} is the length of the whole message (typed text plus all pasted text) and {over} is how many characters it is over the limit, e.g. "16,800 characters \u2013 800 over the limit".'
+    },
+    omnibar_pastedTextModalCancel: {
+      title: "Cancel",
+      description: "Button in the Pasted Text dialog that closes it and discards edits."
+    },
+    omnibar_pastedTextModalSave: {
+      title: "Save Changes",
+      description: "Primary button in the Pasted Text dialog that saves the edited pasted text."
+    },
+    omnibar_pastedTextModalDelete: {
+      title: "Delete text",
+      description: "Red button in the Pasted Text dialog, shown in place of Save Changes once all the text is deleted. Removes the pasted-text attachment."
+    },
+    omnibar_pastedTextModalClose: {
+      title: "Close",
+      description: "Accessible label for the \xD7 button in the Pasted Text dialog, which closes it and discards edits."
     },
     omnibar_pastedImageFileName: {
       title: "Pasted image",

@@ -278,6 +278,80 @@ function isHidden(element, seen) {
 }
 
 /**
+ * Whether the page keeps the user from selecting text in an element, as a split-diff view does with the side that isn't
+ * being selected. The browser doesn't draw such text as selected and leaves it out of the selected text.
+ * @param {Element} element
+ * @param {Map<Element, boolean>} seen
+ * @returns {boolean}
+ */
+function isUnselectable(element, seen) {
+    const known = seen.get(element);
+    if (known !== undefined) return known;
+    const style = getComputedStyle(element);
+    const value = style.userSelect || style.webkitUserSelect;
+    // Chromium hands none down to the children itself. Elsewhere auto takes the parent's, except in editable content.
+    const parent = element.parentElement ?? hostOf(element);
+    const editable = element instanceof HTMLElement && element.isContentEditable;
+    const unselectable = value === 'none' || (value === 'auto' && !editable && parent !== null && isUnselectable(parent, seen));
+    seen.set(element, unselectable);
+    return unselectable;
+}
+
+/**
+ * The text and line break nodes a range takes in, in document order.
+ * @param {Range} range
+ * @returns {Generator<Text | HTMLBRElement>}
+ */
+function* nodesIn(range) {
+    const root = range.commonAncestorContainer;
+    if (root instanceof Text) {
+        yield root;
+        return;
+    }
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT);
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+        if ((node instanceof Text || node instanceof HTMLBRElement) && range.intersectsNode(node)) yield node;
+    }
+}
+
+/**
+ * The offsets of the part of a text node that a range takes in.
+ * @param {Text} node
+ * @param {Range} range
+ * @returns {[number, number]}
+ */
+function offsetsIn(node, range) {
+    return [node === range.startContainer ? range.startOffset : 0, node === range.endContainer ? range.endOffset : node.length];
+}
+
+/**
+ * The selected text the user can see and that shows as selected, as one range per text node, to measure. The range's
+ * own boxes also take in whole elements it spans, such as table rows, and text the page keeps from being selected,
+ * such as the other side of a split diff, either of which stretches the selection's rect across the page.
+ * @param {Range} range
+ * @returns {Range[]}
+ */
+function textRangesIn(range) {
+    /** @type {Map<Element, boolean>} */
+    const hidden = new Map();
+    /** @type {Map<Element, boolean>} */
+    const unselectable = new Map();
+    /** @type {Range[]} */
+    const parts = [];
+    for (const node of nodesIn(range)) {
+        const parent = node.parentElement;
+        if (!(node instanceof Text) || !parent || isHidden(parent, hidden) || isUnselectable(parent, unselectable)) continue;
+        const [start, end] = offsetsIn(node, range);
+        if (!node.data.slice(start, end).trim()) continue;
+        const part = document.createRange();
+        part.setStart(node, start);
+        part.setEnd(node, end);
+        parts.push(part);
+    }
+    return parts;
+}
+
+/**
  * The nearest ancestor that lays its contents out as a block, where the browser starts a new line in selected text.
  * @param {Element} element
  */
@@ -300,28 +374,26 @@ function visibleText(range) {
     const root = range.commonAncestorContainer;
     /** @type {Map<Element, boolean>} */
     const seen = new Map();
+    /** @type {Map<Element, boolean>} */
+    const unselectable = new Map();
     if (root instanceof Text) return root.parentElement && isHidden(root.parentElement, seen) ? '' : null;
-    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT);
     let text = '';
     /** @type {Element | null} */
     let block = null;
     let skipped = false;
-    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
-        if (!range.intersectsNode(node)) continue;
+    for (const node of nodesIn(range)) {
+        // Text the page keeps from being selected is already missing from the browser's text.
         if (node instanceof HTMLBRElement) {
-            text += '\n';
+            if (!isUnselectable(node, unselectable)) text += '\n';
             continue;
         }
         const parent = node.parentElement;
-        if (!(node instanceof Text) || !parent) continue;
+        if (!parent || isUnselectable(parent, unselectable)) continue;
         if (isHidden(parent, seen)) {
             skipped ||= node.data.trim() !== '';
             continue;
         }
-        let part = node.data.slice(
-            node === range.startContainer ? range.startOffset : 0,
-            node === range.endContainer ? range.endOffset : undefined,
-        );
+        let part = node.data.slice(...offsetsIn(node, range));
         if (!getComputedStyle(parent).whiteSpace.startsWith('pre')) {
             part = part.replace(/\s+/g, ' ');
             if (/\s$/.test(text)) part = part.trimStart();
@@ -455,13 +527,18 @@ export function readSelection(minChars) {
     // Where the selection starts, rather than the common ancestor: a triple-clicked paragraph's range ends at the start
     // of the next block, so its common ancestor is the parent and would lose the paragraph's lang or code marking.
     const element = host ?? elementOf(range.startContainer);
+    /** @type {Range[] | null} found on the first measure, and live after that as the page moves */
+    let parts = null;
     return {
         text,
         browserText,
         editable: host !== null,
         element,
         measure: () => {
-            const lines = [...range.getClientRects()].map(({ left, top, right, bottom }) => ({ left, top, right, bottom }));
+            parts ??= textRangesIn(range);
+            // The range itself when its text can't be reached node by node, as in a shadow root it only spans.
+            const boxes = parts.length ? parts.flatMap((part) => [...part.getClientRects()]) : [...range.getClientRects()];
+            const lines = boxes.map(({ left, top, right, bottom }) => ({ left, top, right, bottom }));
             return { rect: unionOf(lines, { left: 0, top: 0, right: 0, bottom: 0 }), lines };
         },
         // A hit on an ancestor, as text with pointer-events: none gives, still shows the selection.

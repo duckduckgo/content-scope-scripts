@@ -18,6 +18,15 @@
                 clip-path: inset(50%);
                 white-space: nowrap;
             }
+            .split-diff {
+                width: 100%;
+                table-layout: fixed;
+                font: 13px/1.5 monospace;
+            }
+            /* While the new side is selected, as split-diff views do, the old side can't be. */
+            .split-diff .old {
+                user-select: none;
+            }
             .gradient {
                 background: linear-gradient(90deg, #c00, #00c);
                 -webkit-background-clip: text;
@@ -40,6 +49,20 @@
         </div>
         <div id="blocks"><h2>Quick start</h2><p>Welcome to the guide.</p></div>
         <div id="hidden-blocks"><h3>Setup</h3><p>Install the app.<span style="opacity: 0"> secret</span><br />Then open it.</p></div>
+        <table class="split-diff">
+            <tr>
+                <td class="old">let a = 1;</td>
+                <td id="new-first">let a = 2;</td>
+            </tr>
+            <tr>
+                <td class="old">let b = a;</td>
+                <td>let b = a + 1;<span class="sr-only"> changed</span></td>
+            </tr>
+            <tr>
+                <td class="old">return b;</td>
+                <td id="new-last">return a + b;</td>
+            </tr>
+        </table>
         <pre id="code">const answer = () => { return 42; };</pre>
         <code-sample id="shadow-code"></code-sample>
         <textarea id="field">This sentence have a grammar mistake in it.</textarea>

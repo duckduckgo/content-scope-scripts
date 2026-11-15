@@ -1,2 +1,2 @@
-- SponsorBlock: restyle the skip button to the new design (#3199)
-- SponsorBlock: support Android (#3181)
+- NTP omnibar: attach long text pastes as pasted-text chips (#3191)
+- Selection tools: measure only the text that shows as selected (#3198)

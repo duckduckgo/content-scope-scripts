@@ -23962,6 +23962,47 @@ ${iframeContent}
     seen.set(element, hidden);
     return hidden;
   }
+  function isUnselectable(element, seen) {
+    const known = seen.get(element);
+    if (known !== void 0) return known;
+    const style = getComputedStyle(element);
+    const value = style.userSelect || style.webkitUserSelect;
+    const parent = element.parentElement ?? hostOf(element);
+    const editable = element instanceof HTMLElement && element.isContentEditable;
+    const unselectable = value === "none" || value === "auto" && !editable && parent !== null && isUnselectable(parent, seen);
+    seen.set(element, unselectable);
+    return unselectable;
+  }
+  function* nodesIn(range) {
+    const root = range.commonAncestorContainer;
+    if (root instanceof Text) {
+      yield root;
+      return;
+    }
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT);
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+      if ((node instanceof Text || node instanceof HTMLBRElement) && range.intersectsNode(node)) yield node;
+    }
+  }
+  function offsetsIn(node, range) {
+    return [node === range.startContainer ? range.startOffset : 0, node === range.endContainer ? range.endOffset : node.length];
+  }
+  function textRangesIn(range) {
+    const hidden = /* @__PURE__ */ new Map();
+    const unselectable = /* @__PURE__ */ new Map();
+    const parts = [];
+    for (const node of nodesIn(range)) {
+      const parent = node.parentElement;
+      if (!(node instanceof Text) || !parent || isHidden(parent, hidden) || isUnselectable(parent, unselectable)) continue;
+      const [start, end] = offsetsIn(node, range);
+      if (!node.data.slice(start, end).trim()) continue;
+      const part = document.createRange();
+      part.setStart(node, start);
+      part.setEnd(node, end);
+      parts.push(part);
+    }
+    return parts;
+  }
   function blockOf(element) {
     let current = element;
     while (current.parentElement && /^(inline|contents)/.test(getComputedStyle(current).display)) {
@@ -23972,27 +24013,23 @@ ${iframeContent}
   function visibleText(range) {
     const root = range.commonAncestorContainer;
     const seen = /* @__PURE__ */ new Map();
+    const unselectable = /* @__PURE__ */ new Map();
     if (root instanceof Text) return root.parentElement && isHidden(root.parentElement, seen) ? "" : null;
-    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT);
     let text2 = "";
     let block = null;
     let skipped = false;
-    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
-      if (!range.intersectsNode(node)) continue;
+    for (const node of nodesIn(range)) {
       if (node instanceof HTMLBRElement) {
-        text2 += "\n";
+        if (!isUnselectable(node, unselectable)) text2 += "\n";
         continue;
       }
       const parent = node.parentElement;
-      if (!(node instanceof Text) || !parent) continue;
+      if (!parent || isUnselectable(parent, unselectable)) continue;
       if (isHidden(parent, seen)) {
         skipped ||= node.data.trim() !== "";
         continue;
       }
-      let part = node.data.slice(
-        node === range.startContainer ? range.startOffset : 0,
-        node === range.endContainer ? range.endOffset : void 0
-      );
+      let part = node.data.slice(...offsetsIn(node, range));
       if (!getComputedStyle(parent).whiteSpace.startsWith("pre")) {
         part = part.replace(/\s+/g, " ");
         if (/\s$/.test(text2)) part = part.trimStart();
@@ -24091,13 +24128,16 @@ ${iframeContent}
     if (text2.trim().length < minChars) return null;
     const host = editingHostOf(elementOf(range.commonAncestorContainer));
     const element = host ?? elementOf(range.startContainer);
+    let parts = null;
     return {
       text: text2,
       browserText,
       editable: host !== null,
       element,
       measure: () => {
-        const lines = [...range.getClientRects()].map(({ left, top, right, bottom }) => ({ left, top, right, bottom }));
+        parts ??= textRangesIn(range);
+        const boxes = parts.length ? parts.flatMap((part) => [...part.getClientRects()]) : [...range.getClientRects()];
+        const lines = boxes.map(({ left, top, right, bottom }) => ({ left, top, right, bottom }));
         return { rect: unionOf(lines, { left: 0, top: 0, right: 0, bottom: 0 }), lines };
       },
       // A hit on an ancestor, as text with pointer-events: none gives, still shows the selection.
@@ -24449,7 +24489,7 @@ ${iframeContent}
     const importConfig = {
       trackerLookup: define_import_meta_trackerLookup_default,
       injectName: "windows",
-      contentScopeScriptsVersion: "21.2.0"
+      contentScopeScriptsVersion: "21.3.0"
     };
     const bundledFeatureNames = typeof importConfig.injectName === "string" ? platformSupport[importConfig.injectName] ?? [] : [];
     const featuresToLoad = isGloballyDisabled(args) ? platformSpecificFeatures : args.site.enabledFeatures || bundledFeatureNames;
