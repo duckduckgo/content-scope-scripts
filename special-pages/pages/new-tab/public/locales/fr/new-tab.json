@@ -456,6 +456,10 @@
     "title" : "Enregistrer les modifications",
     "description" : "Primary button in the Pasted Text dialog that saves the edited pasted text."
   },
+  "omnibar_pastedTextModalDelete" : {
+    "title" : "Supprimer le texte",
+    "description" : "Red button in the Pasted Text dialog, shown in place of Save Changes once all the text is deleted. Removes the pasted-text attachment."
+  },
   "omnibar_pastedTextModalClose" : {
     "title" : "Fermer",
     "description" : "Accessible label for the × button in the Pasted Text dialog, which closes it and discards edits."
