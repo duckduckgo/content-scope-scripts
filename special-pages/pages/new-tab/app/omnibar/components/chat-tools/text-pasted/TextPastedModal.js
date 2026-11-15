@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import cn from 'classnames';
 import { useMessaging, useTypedTranslationWith } from '../../../../types';
 import { usePlatformName } from '../../../../settings.provider';
-import { AlertRecolorableIcon, Check16Icon, Close16Icon } from '../../../../components/Icons';
+import { AlertRecolorableIcon, Check16Icon, Close16Icon, TrashOutlineIcon } from '../../../../components/Icons';
 import { useLocale } from '../../../../../../../shared/components/EnvironmentProvider.js';
 import { getLocalizedNumberFormatter } from '../../../../../../../shared/utils.js';
 import { isConvertibleTextPaste } from './textPasted.js';
@@ -26,7 +26,8 @@ function isOnBackdrop(e) {
 /**
  * "Pasted Text" dialog opened from a pasted-text chip: the paste in an editable textarea.
  * Edits are staged locally and only committed on "Save Changes"; Cancel, the close button,
- * Escape and backdrop clicks discard them. Mounted only while open, so the draft re-seeds per open
+ * Escape and backdrop clicks discard them. A blank edit turns Save into "Delete text", which removes the paste.
+ * Mounted only while open, so the draft re-seeds per open
  * and `omnibar_pasted_text_dialog_opened` is sent once per open.
  *
  * @param {object} props
@@ -34,9 +35,10 @@ function isOnBackdrop(e) {
  * @param {number} props.otherPromptLength - the typed text plus every other paste, which share the limit with this one.
  * @param {number} props.maxCharacters
  * @param {(content: string) => void} props.onSave
+ * @param {() => void} props.onDelete
  * @param {() => void} props.onClose
  */
-export function TextPastedModal({ content, otherPromptLength, maxCharacters, onSave, onClose }) {
+export function TextPastedModal({ content, otherPromptLength, maxCharacters, onSave, onDelete, onClose }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
     const locale = useLocale();
@@ -56,11 +58,15 @@ export function TextPastedModal({ content, otherPromptLength, maxCharacters, onS
 
     const totalLength = otherPromptLength + draft.length;
     const tooLong = totalLength > maxCharacters;
-    const canSave = isConvertibleTextPaste(draft, 1);
+    const isBlank = !isConvertibleTextPaste(draft, 1);
 
     const handleSave = () => {
-        if (!canSave) return;
         if (draft !== content) onSave(draft);
+        onClose();
+    };
+
+    const handleDelete = () => {
+        onDelete();
         onClose();
     };
 
@@ -69,8 +75,13 @@ export function TextPastedModal({ content, otherPromptLength, maxCharacters, onS
             {t('omnibar_pastedTextModalCancel')}
         </button>
     );
-    const saveButton = (
-        <button type="button" class={cn(styles.footerButton, styles.footerButtonPrimary)} disabled={!canSave} onClick={handleSave}>
+    const primaryButton = isBlank ? (
+        <button type="button" class={cn(styles.footerButton, styles.footerButtonDestructive)} onClick={handleDelete}>
+            <TrashOutlineIcon aria-hidden="true" />
+            {t('omnibar_pastedTextModalDelete')}
+        </button>
+    ) : (
+        <button type="button" class={cn(styles.footerButton, styles.footerButtonPrimary)} onClick={handleSave}>
             <Check16Icon aria-hidden="true" />
             {t('omnibar_pastedTextModalSave')}
         </button>
@@ -133,13 +144,13 @@ export function TextPastedModal({ content, otherPromptLength, maxCharacters, onS
                 <div class={styles.footerButtons}>
                     {platformName === 'windows' ? (
                         <Fragment>
-                            {saveButton}
+                            {primaryButton}
                             {cancelButton}
                         </Fragment>
                     ) : (
                         <Fragment>
                             {cancelButton}
-                            {saveButton}
+                            {primaryButton}
                         </Fragment>
                     )}
                 </div>

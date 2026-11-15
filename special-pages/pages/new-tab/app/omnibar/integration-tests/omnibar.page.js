@@ -638,6 +638,10 @@ export class OmnibarPage {
         return this.textPastedModal().getByRole('button', { name: 'Save Changes' });
     }
 
+    textPastedModalDeleteButton() {
+        return this.textPastedModal().getByRole('button', { name: 'Delete text' });
+    }
+
     textPastedModalCancelButton() {
         return this.textPastedModal().getByRole('button', { name: 'Cancel' });
     }

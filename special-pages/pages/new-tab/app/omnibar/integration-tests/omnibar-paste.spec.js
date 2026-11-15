@@ -402,14 +402,28 @@ test.describe('omnibar pasted text', () => {
         await expect(omnibar.textPastedModal()).toHaveCount(0);
     });
 
-    test('blocks saving a blank edit', async ({ page }, workerInfo) => {
+    test('turns Save into Delete text for a blank edit, which removes the paste', async ({ page }, workerInfo) => {
         const { omnibar } = await setup(page, workerInfo, TEXT_ON);
 
         await omnibar.pasteIntoChatInput({ text: LONG });
         await omnibar.textPastedChips().click();
 
         await omnibar.textPastedModalInput().fill('   ');
-        await expect(omnibar.textPastedModalSaveButton()).toBeDisabled();
+        await expect(omnibar.textPastedModalSaveButton()).toHaveCount(0);
+        await omnibar.textPastedModalInput().fill('back again');
+        await expect(omnibar.textPastedModalDeleteButton()).toHaveCount(0);
+        await omnibar.textPastedModalInput().fill('');
+
+        await omnibar.textPastedModalDeleteButton().click();
+        await expect(omnibar.textPastedModal()).toHaveCount(0);
+        await expect(omnibar.textPastedChips()).toHaveCount(0);
+        await expect
+            .poll(() => omnibar.telemetryEvents())
+            .toEqual([
+                { name: 'omnibar_pasted_text_attached' },
+                { name: 'omnibar_pasted_text_dialog_opened' },
+                { name: 'omnibar_pasted_text_removed' },
+            ]);
     });
 
     test('saves an edit that leaves the prompt over the limit, and keeps sending blocked', async ({ page }, workerInfo) => {

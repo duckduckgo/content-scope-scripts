@@ -52,6 +52,7 @@ export function TextPastedChip({ textPasted, onRemove, onEdit, promptLength, max
                     otherPromptLength={promptLength - textPasted.content.length}
                     maxCharacters={maxCharacters}
                     onSave={onEdit}
+                    onDelete={onRemove}
                     onClose={() => setIsModalOpen(false)}
                 />
             )}
