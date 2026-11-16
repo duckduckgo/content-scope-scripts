@@ -21,7 +21,6 @@ function fillsOf(node) {
             return new Set([...(first ?? [])].filter((position) => rest.every((fills) => fills.has(position))));
         }
         case 'length':
-        case 'only':
         case 'sum':
         case 'mul':
         case 'div':
@@ -40,7 +39,8 @@ function fillsOf(node) {
             return occurrenceFills(/** @type {Node} */ (node.elements[node.elements.length - 1]));
         case 'ref':
         case 'item':
-            // A bound value may be any value, and is checked where it is read
+        case 'only':
+            // A bound value, or a list's one item, may be any value, and is checked where it is read
             return FILLS.any;
         case 'expr':
         case 'using':

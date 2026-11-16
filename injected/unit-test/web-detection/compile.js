@@ -94,6 +94,16 @@ describe('WebDetection compile', () => {
             expect(payload('<p>x</p>', { only: { element: { selector: 'p' } } })).toEqual({ x: {} });
         });
 
+        it('takes the item `only` gives in any position, checked as it is read', () => {
+            expect(holds('', { only: { expr: [true] } })).toBe(true);
+            expect(holds('', { only: { expr: [false] } })).toBe(false);
+            expect(holds('', { any: [false, { only: { expr: [true] } }] })).toBe(true);
+            expect(holds('', { if: { only: { expr: [true] } }, then: true, else: false })).toBe(true);
+            expect(holds('<p></p>', { only: { element: { selector: 'p' } } })).toBe('error');
+            expect(holds('', { sum: { only: { expr: [{ expr: [1, 2] }] } }, is: 3 })).toBe(true);
+            expect(holds('', { only: { only: { expr: [{ expr: [5] }] } }, is: 5 })).toBe(true);
+        });
+
         it('reads an element source under any as a boolean', () => {
             expect(holds('<p></p>', { any: [{ element: { selector: 'p' } }, false] })).toBe(true);
             expect(holds('', { all: { element: { selector: 'p' } } })).toBe(false);
