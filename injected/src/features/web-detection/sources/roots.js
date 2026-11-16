@@ -1,5 +1,5 @@
 import { isArray } from '../../../captured-globals.js';
-import { ConfigParseError, DetectionError, asArray, isFailure } from '../model/core.js';
+import { ConfigParseError, asArray, isFailure, mismatch } from '../model/core.js';
 import { isItemBuffer, listMembers } from '../model/lists.js';
 
 /**
@@ -75,7 +75,7 @@ function collectRootNodes(value, nodes, ctx) {
         if (isFailure(node)) return node;
         const isNode = ctx.reader.isNode(node);
         if (isFailure(isNode)) return isNode;
-        if (!isNode) throw new DetectionError('a root is a selector, a node or a list of nodes');
+        if (!isNode) return mismatch('a root is a selector, a node or a list of nodes');
         nodes.push(/** @type {Node} */ (node));
     }
     return undefined;

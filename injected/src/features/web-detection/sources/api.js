@@ -1,4 +1,4 @@
-import { DetectionError, FILLS, isFailure } from '../model/core.js';
+import { FILLS, isFailure, mismatch } from '../model/core.js';
 import { ItemBuffer, isItemBuffer, listMembers } from '../model/lists.js';
 import { compileArgs, evaluateArgs, parsePathBody, readField, readPath } from '../predicates/fields.js';
 import { parseItemKeys, selectItems } from './common.js';
@@ -71,7 +71,7 @@ export function apiSource(global) {
                 const members = listMembers(result, ctx);
                 if (isFailure(members)) return members;
                 if (members) return new ItemBuffer(selectItems(members, body, ctx));
-                if (body.where) throw new DetectionError('`where` on a value that is not a list');
+                if (body.where) return mismatch('`where` on a value that is not a list');
             }
             return body.field ? readField(ctx, result, body.field) : result;
         },

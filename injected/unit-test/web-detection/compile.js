@@ -43,9 +43,9 @@ describe('WebDetection compile', () => {
                 defineGetter(w.Document.prototype, 'hidden', () => value);
             expect(holds('', { api: { path: 'document.hidden' } }, { install: hidden(true) })).toBe(true);
             expect(holds('', { api: { path: 'document.hidden' } }, { install: hidden(false) })).toBe(false);
-            expect(holds('', { api: { path: 'document.title' } })).toBe('error');
+            expect(holds('', { api: { path: 'document.title' } })).toBe('aborted');
             expect(holds('', { any: { api: { path: 'document.hidden' } } }, { install: hidden(true) })).toBe(true);
-            expect(holds('', { api: { path: 'document.fonts', field: 'status' } }, { install: fonts(['loaded']) })).toBe('error');
+            expect(holds('', { api: { path: 'document.fonts', field: 'status' } }, { install: fonts(['loaded']) })).toBe('aborted');
         });
 
         it('rejects `is` outside boolean and value position, and several expression keys beside it', () => {
@@ -79,7 +79,7 @@ describe('WebDetection compile', () => {
                 actions: [{ define: { v: value } }, { define: { asNumber: { sum: [{ ref: 'v' }] }, asValue: { ref: 'v' } } }],
             });
             expect(bindings(run('', detector(2)))).toEqual({ v: 2, asNumber: 2, asValue: 2 });
-            expect(run('', detector('x')).failure).toEqual({ path: 'actions.1.define.asNumber.sum', result: 'error' });
+            expect(run('', detector('x')).failure).toEqual({ path: 'actions.1.define.asNumber.sum.0.ref', result: 'aborted' });
         });
 
         it('reads text matches and elements through list operators', () => {
@@ -88,7 +88,7 @@ describe('WebDetection compile', () => {
             expect(holds(html, { ...matches, using: { path: 'at', args: [0] }, is: 'not found' })).toBe(true);
             expect(holds(html, { ...matches, using: { path: 'at', args: [-1] }, is: 'Error' })).toBe(true);
             expect(holds('<p>one match</p>', { only: { text: { pattern: 'match' } }, is: 'match' })).toBe(true);
-            expect(holds('<p>match match</p>', { only: { text: { pattern: 'match' } }, is: 'match' })).toBe('error');
+            expect(holds('<p>match match</p>', { only: { text: { pattern: 'match' } }, is: 'match' })).toBe('aborted');
             expect(holds('<p id="a"></p>', { only: { element: { selector: 'p' } }, is: { tagName: 'P', id: 'a' } })).toBe(true);
             expect(payload('<p>x</p>', { only: { text: { pattern: 'x' } } })).toEqual({ x: 'x' });
             expect(payload('<p>x</p>', { only: { element: { selector: 'p' } } })).toEqual({ x: {} });
@@ -164,17 +164,17 @@ describe('WebDetection compile', () => {
         const widths = (/** @type {number[]} */ list) => list.map((w) => IMG(`data-width="${w}"`)).join('');
         const width = NATURAL_WIDTH;
 
-        it('gives a selected list’s one item in number position, and errors over none or several', () => {
+        it('gives a selected list’s one item in number position, and fails over none or several', () => {
             const read = { div: [width, 5], is: 1 };
             expect(holds(widths([5]), read)).toBe(true);
-            expect(holds('', read)).toBe('error');
-            expect(holds(widths([5, 5]), read)).toBe('error');
+            expect(holds('', read)).toBe('aborted');
+            expect(holds(widths([5, 5]), read)).toBe('aborted');
         });
 
         it('gives the one item to a predicate that compares, and the list as an array to one that does not', () => {
             expect(holds(widths([5]), { ...width, is: { gt: 4 } })).toBe(true);
             expect(holds(widths([5]), { ...width, is: 5 })).toBe(true);
-            expect(holds(widths([5, 6]), { ...width, is: { gt: 4 } })).toBe('error');
+            expect(holds(widths([5, 6]), { ...width, is: { gt: 4 } })).toBe('aborted');
             expect(holds(widths([5, 6]), { ...width, is: { length: 2 } })).toBe(true);
             expect(holds(widths([5, 6]), { ...width, is: { type: 'array' } })).toBe(true);
             expect(holds('', { ...width, is: {} })).toBe(true);
@@ -201,8 +201,8 @@ describe('WebDetection compile', () => {
             expect(payload(widths([5]), width, { buckets: [{ name: 'two', is: { length: 2 } }] })).toEqual({});
             expect(payload(widths([5, 6]), width)).toEqual({ x: [5, 6] });
             expect(run(widths([5, 6]), withPayload(width, { buckets })).failure).toEqual({
-                path: 'actions.fireEvent.data.x.value',
-                result: 'error',
+                path: 'actions.fireEvent.data.x.buckets.0.is',
+                result: 'aborted',
             });
         });
     });

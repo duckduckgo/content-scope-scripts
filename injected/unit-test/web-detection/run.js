@@ -1,16 +1,19 @@
 import {
+    INVALID_SELECTOR,
     REPORT,
     aborting,
     bindings,
     counter,
     defineGetter,
     detector,
-    erroring,
     expectParseError,
     expectRun,
     fires,
+    mistyped,
     rejectsMatch,
+    run as runOnPage,
     throwing,
+    withPayload,
 } from './support.js';
 import { thrownMessage } from '../../src/features/web-detection/model/core.js';
 
@@ -74,10 +77,18 @@ describe('WebDetection run', () => {
             expectRun(d.run({ throws: false }), { match: true, entry: { detectorId: 'g.d', detected: true, errors } });
         });
 
+        it('records a value of the wrong type in `match` as a failure, which `fails` handles', () => {
+            const run = detector({ match: { if: mistyped, then: true, else: false }, actions: REPORT }).run();
+            expectRun(run, { match: 'aborted', failedAt: 'match.if.api', abortError: 'expected a boolean, got string', done: false });
+            const handled = { expr: { if: mistyped, then: true, else: false }, is: { fails: true } };
+            expectRun(detector({ match: handled, actions: REPORT }).run(), { match: true, done: true });
+        });
+
         it('records an erroring `match` under the path of the expression that erred', () => {
-            const run = detector({ match: { if: erroring, then: true, else: false }, actions: REPORT }).run();
-            expectRun(run, { match: 'error', failedAt: 'match.if.api', done: false });
-            expect(run.error).toContain('expected a boolean');
+            const result = runOnPage('<p></p>', { match: { if: INVALID_SELECTOR, then: true, else: false }, actions: REPORT });
+            expect(result.detected).toBe('error');
+            expect(result.failedAt).toBe('match.if.element');
+            expect(result.error).toBeDefined();
         });
 
         it('is done after a failing action once `match` has held, and not `detected` without `breakageReportData` running', () => {
@@ -263,11 +274,26 @@ describe('WebDetection run', () => {
             expect(d.events).toEqual([{ type: 't', data: {} }]);
         });
 
-        it('records an error in a payload as `error` under the path of the expression that erred', () => {
-            const run = detector({ actions: fires({ x: { value: { div: [1, { api: 'page.live.label' }] } } }) }).run();
+        it('records a value of the wrong type in a payload as `aborted` under the path of the expression that failed', () => {
+            const run = detector({ actions: fires({ x: { value: { div: [1, mistyped] } } }) }).run();
             const path = 'actions.fireEvent.data.x.value.div.1.api';
-            expectRun(run, { actions: { 'actions.fireEvent': 'error' }, failedAt: path });
-            expect(run.entry?.errors).toEqual({ [path]: 'error' });
+            expectRun(run, { actions: { 'actions.fireEvent': 'aborted' }, failedAt: path });
+            expect(run.entry?.errors).toEqual({ [path]: 'aborted' });
+        });
+
+        it('records an error in a payload as `error` under the path of the expression that erred', () => {
+            const result = runOnPage('<p></p>', withPayload({ ...INVALID_SELECTOR, using: 'length' }));
+            expect(result.failure).toEqual({ path: 'actions.fireEvent.data.x.value.using', result: 'error' });
+        });
+
+        it('carries on past an action whose failure a `fails` beside it handles', () => {
+            const failing = fires({ x: { value: { api: 'page.live.bad' } } }, 'failing');
+            const d = detector({ actions: [{ if: true, then: failing, is: { fails: true } }, { fireEvent: { type: 'after' } }] });
+            expectRun(d.run(), {
+                actions: { 'actions.0.then.fireEvent': 'aborted', 'actions.1.fireEvent': 'ran' },
+                types: ['after'],
+                entry: undefined,
+            });
         });
 
         it('keys a failed `when` and bucket by their paths', () => {
@@ -341,11 +367,11 @@ describe('WebDetection run', () => {
         it('records only the failure that ended the run', () => {
             const d = detector({
                 actions: [
-                    { if: erroring, then: 1 },
+                    { if: mistyped, then: 1 },
                     { if: aborting, then: 1 },
                 ],
             });
-            expect(d.run().entry).toEqual({ detectorId: 'g.d', errors: { 'actions.0.if.api': 'error' } });
+            expect(d.run().entry).toEqual({ detectorId: 'g.d', errors: { 'actions.0.if.api': 'aborted' } });
         });
     });
 });
