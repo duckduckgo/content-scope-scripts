@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Cookie frame parent</title>
+</head>
+<body>
+    <p>Frames a sibling host (drive.example.test in docs.example.test). The two hosts are same-site, so the
+    browser lets the frame use cookies, but the hostname guess calls the frame third party.</p>
+    <script>
+        const frame = document.createElement('iframe');
+        // docs.<site> frames drive.<site>
+        const site = location.host.split('.').slice(1).join('.');
+        frame.src = `${location.protocol}//drive.${site}/cookie/pages/frame.html`;
+        document.body.appendChild(frame);
+    </script>
+</body>
+</html>

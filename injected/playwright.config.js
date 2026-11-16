@@ -28,6 +28,7 @@ export default defineConfig({
                 'integration-test/page-context-root-selection.spec.js',
                 'integration-test/chrome-webstore-patching.spec.js',
                 'integration-test/selection-tools.spec.js',
+                'integration-test/cookie-windows.spec.js',
             ],
             use: { injectName: 'windows', platform: 'windows' },
         },
