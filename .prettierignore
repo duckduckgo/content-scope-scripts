@@ -13,3 +13,4 @@ injected/integration-test/extension/contentScope.js
 **/*.har
 **/*.css
 Sources/**/*
+injected/integration-test/test-pages/page-translation/vendor
