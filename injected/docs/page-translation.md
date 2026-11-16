@@ -55,7 +55,7 @@ The script never parses HTML. TranslateKit parses the engine's output into a JSO
 
 The translation is then merged onto the original nodes. Elements are moved, never recreated, so listeners, form values and framework-managed nodes survive. Text goes into the existing text nodes.
 
-- A tag the engine returns twice: the second gets a copy built only from copies. Original nodes never move into a copy.
+- A tag the engine returns more than once: the original goes to the occurrence with the most text (the first on a tie), and the others get copies built only from copies, without ids. Original nodes never move into a copy.
 - A tag returned empty: stays empty. The engine empties a tag when it moves the text elsewhere, so putting the original back would double it. Elements inside it are put back.
 - A tag the engine dropped: put back at the end of its container.
 - An id we didn't send, or a tag that would end up inside itself: its text is kept, no element is created or moved.

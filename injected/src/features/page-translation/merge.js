@@ -38,7 +38,7 @@ export function writeText(target, text) {
  * @param {(el: Element) => boolean} isExcluded
  */
 export function mergeUnit(target, elements, parsed, isExcluded) {
-    const merge = new Merge(elements, isExcluded);
+    const merge = new Merge(elements, isExcluded, parsed);
     if (target.kind === 'element') {
         merge.into(target.element, [...target.element.childNodes], parsed, null);
     } else if (target.kind === 'run') {
@@ -52,12 +52,32 @@ class Merge {
     /**
      * @param {Element[]} elements
      * @param {(el: Element) => boolean} isExcluded
+     * @param {ParsedNode[]} parsed
      */
-    constructor(elements, isExcluded) {
+    constructor(elements, isExcluded, parsed) {
         this.elements = elements;
         this.isExcluded = isExcluded;
         /** @type {Set<number>} */
         this.used = new Set();
+        /** @type {Map<number, ParsedNode>} for each id, the occurrence that gets the live element */
+        this.live = new Map();
+        this.pickLive(parsed);
+    }
+
+    /**
+     * The engine can return a tag more than once, sometimes first empty (a Wikipedia citation: `<sup></sup> … <sup>[9]</sup>`).
+     * The live element goes to the occurrence with the most text, the first on a tie.
+     * @param {ParsedNode[]} nodes
+     */
+    pickLive(nodes) {
+        for (const node of nodes) {
+            if ('text' in node) continue;
+            const current = this.live.get(node.id);
+            if (!current || textOf(node.children).length > textOf(/** @type {{ children: ParsedNode[] }} */ (current).children).length) {
+                this.live.set(node.id, node);
+            }
+            this.pickLive(node.children);
+        }
     }
 
     /**
@@ -85,11 +105,14 @@ class Merge {
                 next.push(this.text(texts, textOf(item.children)));
                 continue;
             }
-            // The engine can split one tag into two (`<b>red car</b>` → `<b>voiture</b> … <b>rouge</b>`). The second
-            // gets a copy built only from copies, so every live node stays in the first.
-            if (copying || this.used.has(item.id)) {
+            // The engine can split one tag into two (`<b>red car</b>` → `<b>voiture</b> … <b>rouge</b>`). The other
+            // occurrences get copies built only from copies, so every live node stays in the one picked for it.
+            // Copies drop their ids, so the page never has two elements with the same id.
+            if (copying || this.live.get(item.id) !== item) {
                 const excluded = this.isExcluded(live);
                 const copy = /** @type {Element} */ (ReflectApply(cloneNode, live, [excluded]));
+                copy.removeAttribute('id');
+                for (const el of copy.querySelectorAll('[id]')) el.removeAttribute('id');
                 if (!excluded) this.into(copy, [], item.children, null, true);
                 next.push(copy);
                 continue;

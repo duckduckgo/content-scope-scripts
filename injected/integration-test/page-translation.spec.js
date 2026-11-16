@@ -492,7 +492,7 @@ test.describe('pageTranslation', () => {
         expect(count).toBe(1);
     });
 
-    test('keeps the original of a duplicated tag in place, and only copies go into the copy', async ({ page }, testInfo) => {
+    test('gives the original of a duplicated tag to the occurrence holding its content', async ({ page }, testInfo) => {
         const collector = await openPage(page, testInfo, 'citation.html');
         const [unit] = await extract(collector);
         expect(unit.text).toBe(
@@ -503,6 +503,8 @@ test.describe('pageTranslation', () => {
             'La alegría<sup data-t="0"></sup> es un sentimiento<sup data-t="0"><a data-t="1"><span data-t="2">[</span>9<span data-t="3">]</span></a></sup> de felicidad.';
         expect(await apply(collector, [{ id: unit.id, tree: htmlTree(output) }])).toBe(1);
         expect(await page.evaluate(() => document.getElementById('w-sup')?.contains(document.getElementById('w-link')))).toBe(true);
+        expect(await page.textContent('#w')).toBe('La alegría es un sentimiento[9] de felicidad.');
+        expect(await page.locator('[id="w-sup"], [id="w-link"]').count()).toBe(2);
     });
 
     test('a citation whose text moved to the next tag is not doubled', async ({ page }, testInfo) => {
