@@ -59,6 +59,7 @@ The translation is then merged onto the original nodes. Elements are moved, neve
 - A tag returned empty: stays empty. The engine empties a tag when it moves the text elsewhere, so putting the original back would double it. Elements inside it are put back.
 - A tag the engine dropped: put back at the end of its container.
 - An id we didn't send, or a tag that would end up inside itself: its text is kept, no element is created or moved.
+- A tag inside an element left untouched (another language, or sent empty) that the engine places elsewhere: dropped there. It stays inside that element, which already shows its words.
 
 Once anything is written, `<html lang>` is set to `targetLanguage`.
 

@@ -61,6 +61,10 @@ class Merge {
         this.used = new Set();
         /** @type {Map<number, ParsedNode>} for each id, the occurrence that gets the live element */
         this.live = new Map();
+        /** @type {Set<Element>} elements inside one the merge leaves untouched (another language, or sent empty) */
+        this.offLimits = new Set(
+            elements.filter((el) => elements.some((other) => other !== el && other.contains(el) && isExcluded(other))),
+        );
         this.pickLive(parsed);
     }
 
@@ -99,6 +103,8 @@ class Merge {
                 continue;
             }
             const live = this.elements[item.id];
+            // Inside an element left untouched, where its words already show: writing them again would double them.
+            if (live && this.offLimits.has(live)) continue;
             // Not an element we sent, or one that would end up inside itself (the engine turned the nesting inside
             // out): keep its words, never create or move an element.
             if (!live || live.contains(parent)) {

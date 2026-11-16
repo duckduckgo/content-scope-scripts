@@ -507,6 +507,17 @@ test.describe('pageTranslation', () => {
         expect(await page.locator('[id="w-sup"], [id="w-link"]').count()).toBe(2);
     });
 
+    test('never moves an element out of another-language element, even when the output does', async ({ page }, testInfo) => {
+        const collector = await openPage(page, testInfo, 'lang-nested.html');
+        const spanBefore = await page.innerHTML('#n-span');
+        const [unit] = await extract(collector);
+        expect(unit.text).toBe('He said <span data-t="0">bonjour <a data-t="1">ami</a></span> today.');
+        const output = 'Il a dit <span data-t="0">bonjour</span> aujourd&#39;hui <a data-t="1">ami</a>.';
+        expect(await apply(collector, [{ id: unit.id, tree: htmlTree(output) }])).toBe(1);
+        expect(await page.innerHTML('#n-span')).toBe(spanBefore);
+        expect((await page.textContent('#n'))?.match(/ami/g)?.length).toBe(1);
+    });
+
     test('a citation whose text moved to the next tag is not doubled', async ({ page }, testInfo) => {
         const collector = await openPage(page, testInfo, 'citation.html');
         const units = await extract(collector);
