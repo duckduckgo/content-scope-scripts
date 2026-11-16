@@ -9,7 +9,30 @@
  * - a `ConfigParseError` is config that does not fit the grammar. It is thrown at parse time.
  */
 
-import { getOwnPropertyDescriptor, getPrototypeOf, isArray, objectKeys } from '../../../captured-globals.js';
+import {
+    getOwnPropertyDescriptor,
+    getPrototypeOf,
+    isArray,
+    // eslint-disable-next-line no-redeclare
+    Map,
+    mapDelete,
+    mapForEach,
+    mapGet,
+    mapHas,
+    mapSet,
+    objectKeys,
+    ReflectApply,
+    // eslint-disable-next-line no-redeclare
+    Set,
+    setAdd,
+    setForEach,
+    setHas,
+    // eslint-disable-next-line no-redeclare
+    WeakMap,
+    weakMapGet,
+    weakMapHas,
+    weakMapSet,
+} from '../../../captured-globals.js';
 
 export class Failure {
     #brand = true;
@@ -136,6 +159,122 @@ export class ConfigParseError extends Error {
 }
 
 /**
+ * A `Map` whose methods are those captured at load, so a page that replaces a method of `Map.prototype`
+ * is not called. `for…of` over it still takes the iterator as it stands.
+ *
+ * @template K, V
+ * @extends {Map<K, V>}
+ */
+export class NativeMap extends Map {
+    /**
+     * @param {K} key
+     * @returns {V | undefined}
+     */
+    get(key) {
+        return ReflectApply(mapGet, this, [key]);
+    }
+
+    /**
+     * @param {K} key
+     * @param {V} value
+     * @returns {this}
+     */
+    set(key, value) {
+        ReflectApply(mapSet, this, [key, value]);
+        return this;
+    }
+
+    /**
+     * @param {K} key
+     * @returns {boolean}
+     */
+    has(key) {
+        return ReflectApply(mapHas, this, [key]);
+    }
+
+    /**
+     * @param {K} key
+     * @returns {boolean}
+     */
+    delete(key) {
+        return ReflectApply(mapDelete, this, [key]);
+    }
+
+    /**
+     * @param {(value: V, key: K, map: Map<K, V>) => void} callback
+     */
+    forEach(callback) {
+        ReflectApply(mapForEach, this, [callback]);
+    }
+}
+
+/**
+ * A `Set` whose methods are those captured at load, as `NativeMap`'s are.
+ *
+ * @template T
+ * @extends {Set<T>}
+ */
+export class NativeSet extends Set {
+    /**
+     * @param {T} value
+     * @returns {boolean}
+     */
+    has(value) {
+        return ReflectApply(setHas, this, [value]);
+    }
+
+    /**
+     * @param {T} value
+     * @returns {this}
+     */
+    add(value) {
+        ReflectApply(setAdd, this, [value]);
+        return this;
+    }
+
+    /**
+     * @param {(value: T, value2: T, set: Set<T>) => void} callback
+     */
+    forEach(callback) {
+        ReflectApply(setForEach, this, [callback]);
+    }
+}
+
+/**
+ * A `WeakMap` whose methods are those captured at load, as `NativeMap`'s are.
+ *
+ * @template {WeakKey} K, V
+ * @extends {WeakMap<K, V>}
+ */
+export class NativeWeakMap extends WeakMap {
+    /**
+     * @param {K} key
+     * @returns {V | undefined}
+     */
+    get(key) {
+        return ReflectApply(weakMapGet, this, [key]);
+    }
+
+    /**
+     * @param {K} key
+     * @param {V} value
+     * @returns {this}
+     */
+    set(key, value) {
+        ReflectApply(weakMapSet, this, [key, value]);
+        return this;
+    }
+
+    /**
+     * @param {K} key
+     * @returns {boolean}
+     */
+    has(key) {
+        return ReflectApply(weakMapHas, this, [key]);
+    }
+}
+
+/**
  * The positions a kind of expression fills. `list` is a selected list, which gives its one item in
  * number position, `array` a list that stays one, such as `{"expr": [...]}`, and `any` a value that may
  * be a list, such as a source read in boolean position for whether it holds an item.
@@ -143,12 +282,12 @@ export class ConfigParseError extends Error {
  * @type {Record<'number' | 'boolean' | 'value' | 'list' | 'array' | 'any', ReadonlySet<import('./types.js').Position>>}
  */
 export const FILLS = {
-    number: new Set(['number', 'value']),
-    boolean: new Set(['boolean', 'value']),
-    value: new Set(['value']),
-    list: new Set(['list', 'value', 'number']),
-    array: new Set(['list', 'value']),
-    any: new Set(['boolean', 'value', 'number', 'list']),
+    number: new NativeSet(['number', 'value']),
+    boolean: new NativeSet(['boolean', 'value']),
+    value: new NativeSet(['value']),
+    list: new NativeSet(['list', 'value', 'number']),
+    array: new NativeSet(['list', 'value']),
+    any: new NativeSet(['boolean', 'value', 'number', 'list']),
 };
 
 /** `^[a-zA-Z][a-zA-Z0-9_]*$`: group, detector and payload key names */
@@ -158,10 +297,10 @@ export const NAME_PATTERN = /^[a-zA-Z][a-zA-Z0-9_]*$/;
 export const DEFINE_NAME_PATTERN = /^(this\.)?[a-zA-Z][a-zA-Z0-9_]*$/;
 
 /** The keys that make an object an action. */
-export const ACTION_KEYS = new Set(['fireEvent', 'breakageReportData', 'define']);
+export const ACTION_KEYS = new NativeSet(['fireEvent', 'breakageReportData', 'define']);
 
 /** The keys that make an object an expression. */
-export const EXPRESSION_KEYS = new Set([
+export const EXPRESSION_KEYS = new NativeSet([
     'element',
     'text',
     'api',
@@ -277,5 +416,18 @@ export function getOrCreate(map, key, create) {
     return value;
 }
 
-/** Create a new `Map`, suitable for use with `getOrCreate`.  */
-export const newMap = () => new Map();
+/**
+ * Whether a list holds a value, by index and `===` so a page's `Array.prototype` is not called.
+ *
+ * @template T
+ * @param {readonly T[]} list
+ * @param {T} value
+ * @returns {boolean}
+ */
+export function includes(list, value) {
+    for (let i = 0; i < list.length; i++) if (list[i] === value) return true;
+    return false;
+}
+
+/** Create a new `NativeMap`, suitable for use with `getOrCreate`.  */
+export const newMap = () => new NativeMap();

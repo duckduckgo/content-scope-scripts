@@ -1,4 +1,6 @@
-import { ConfigParseError, FILLS, getOrCreate, isFailure, isPlainObject, newMap, rejectUnknownKeys } from '../model/core.js';
+// eslint-disable-next-line no-redeclare
+import { charCodeAt, mathFloor, mathMax, mathMin, ReflectApply, RegExp, regExpExec, stringSlice } from '../../../captured-globals.js';
+import { ConfigParseError, FILLS, NativeWeakMap, getOrCreate, isFailure, isPlainObject, newMap, rejectUnknownKeys } from '../model/core.js';
 import { ItemBuffer } from '../model/lists.js';
 import { stringList } from './common.js';
 import { parseRoot, resolveRoots } from './roots.js';
@@ -35,7 +37,7 @@ const ORDERED_NODE_SNAPSHOT_TYPE = 7;
  *
  * @type {WeakMap<Document, Map<string, XPathExpression>>}
  */
-const compiledXPaths = new WeakMap();
+const compiledXPaths = new NativeWeakMap();
 
 /**
  * Compile an XPath expression, reusing a previously compiled one where possible.
@@ -110,7 +112,7 @@ function resolveXPathConfig(config) {
     // being silently rewritten on a user's page. Safe only because no value can break the
     // scan loop in `xpathChunks`.
     const chunkSize = config?.chunkSize ?? DEFAULT_CHUNK_SIZE;
-    const chunkTail = config?.chunkTail ?? Math.floor(chunkSize / CHUNK_TAIL_RATIO);
+    const chunkTail = config?.chunkTail ?? mathFloor(chunkSize / CHUNK_TAIL_RATIO);
     return { chunkSize, chunkTail };
 }
 
@@ -130,12 +132,12 @@ function tailStart(buffer, chunkTail) {
     // for this flush - a hard bound is worth more than exact `\b` semantics inside a blob
     // that a phrase pattern will not match anyway. Never more than `chunkTail`, so a tail
     // of 0 still retains nothing.
-    const limit = Math.max(0, cut - Math.min(chunkTail, MAX_WORD_LENGTH));
+    const limit = mathMax(0, cut - mathMin(chunkTail, MAX_WORD_LENGTH));
     // Land the cut just after a non-word character, so position 0 is a real word boundary
     // rather than an artefact of where the chunk ended - otherwise a `\b`-prefixed pattern
     // asserts at position 0 of every chunk and matches mid-word. This only lengthens the
     // tail, so it introduces no false negative.
-    while (cut > limit && isWordCode(buffer.charCodeAt(cut - 1))) cut--;
+    while (cut > limit && isWordCode(ReflectApply(charCodeAt, buffer, [cut - 1]))) cut--;
     return cut;
 }
 
@@ -223,7 +225,7 @@ function* xpathChunks(selected, { chunkSize, chunkTail }) {
             yield chunk;
             // Retained text is contiguous with what follows, so a phrase split across nodes
             // still matches across a flush
-            buffer = buffer.slice(chunk.next);
+            buffer = ReflectApply(stringSlice, buffer, [chunk.next]);
             pending = 0;
         }
     }
@@ -244,18 +246,18 @@ function* xpathChunks(selected, { chunkSize, chunkTail }) {
  * @returns {string | undefined} the match, or `undefined` once there are no more
  */
 function nextMatch({ pattern, chunk }) {
-    const match = pattern.exec(chunk.text);
+    const match = /** @type {RegExpExecArray | null} */ (ReflectApply(regExpExec, pattern, [chunk.text]));
     if (!match || match.index >= chunk.end) return undefined;
     // An empty match leaves `lastIndex` in place, and the next `exec` would find it again
     if (match[0] === '') pattern.lastIndex++;
-    chunk.next = Math.max(chunk.end, pattern.lastIndex);
+    chunk.next = mathMax(chunk.end, pattern.lastIndex);
     return match[0];
 }
 
 /**
  * @typedef {object} TextBody
- * @property {RegExp} pattern - case-insensitive, global
- * @property {string[]} selectors
+ * @property {string} pattern - the source of a case-insensitive, global pattern, compiled per read
+ * @property {string} selector - the selectors joined into one selector list, or `''` for none
  * @property {string[]} xpaths
  * @property {{ chunkSize: number, chunkTail: number }} chunking
  * @property {Root} [root]
@@ -300,18 +302,22 @@ export const textSource = {
         const patterns = stringList(raw.pattern, `${path}.pattern`);
         const xpaths = raw.xpath === undefined ? [] : stringList(raw.xpath, `${path}.xpath`);
         const root = parseRoot(raw.root, `${path}.root`, hooks);
-        /** @type {string[]} */
-        let selectors;
+        /** @type {string} */
+        let selector;
         if (raw.selector !== undefined) {
-            selectors = stringList(raw.selector, `${path}.selector`);
+            selector = stringList(raw.selector, `${path}.selector`).join(', ');
         } else {
             // `body` is only the implicit source when the condition names no source of its own
-            selectors = xpaths.length > 0 || root ? [] : ['body'];
+            selector = xpaths.length > 0 || root ? '' : 'body';
         }
+        // A disjunction of no patterns matches nothing, where joining them would give '', which matches everywhere
+        const pattern = patterns.length > 0 ? patterns.join('|') : '(?!)';
+        // Compiled here only so an invalid pattern throws `SyntaxError` at parse
+        // eslint-disable-next-line no-new
+        new RegExp(pattern, 'gi');
         return {
-            // A disjunction of no patterns matches nothing, where joining them would give '', which matches everywhere
-            pattern: new RegExp(patterns.length > 0 ? patterns.join('|') : '(?!)', 'gi'),
-            selectors,
+            pattern,
+            selector,
             xpaths,
             chunking: resolveXPathConfig(/** @type {ConditionTypes['text']['xpathConfig']} */ (raw.xpathConfig)),
             root,
@@ -334,7 +340,7 @@ export const textSource = {
  * @returns {Iterable<Element | ParentNode>}
  */
 function textElements(body, root) {
-    if (body.selectors.length > 0) return root.querySelectorAll(body.selectors.join(', '));
+    if (body.selector !== '') return root.querySelectorAll(body.selector);
     return body.rootIsSource ? [root] : [];
 }
 
@@ -348,8 +354,8 @@ function textElements(body, root) {
  */
 function* textSegments(bodies, ctx) {
     for (const body of bodies) {
-        // A copy per read, since `exec` keeps state on a global pattern
-        const pattern = new RegExp(body.pattern);
+        // One per read, since `exec` keeps state on a global pattern
+        const pattern = new RegExp(body.pattern, 'gi');
         const roots = resolveRoots(body.root, ctx);
         if (isFailure(roots)) {
             yield roots;

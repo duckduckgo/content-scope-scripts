@@ -71,7 +71,7 @@ export function evaluateArgs(expressions, ctx) {
     for (const expression of expressions) {
         const value = ctx.arg(expression);
         if (isFailure(value)) return value;
-        values.push(value);
+        values[values.length] = value;
     }
     return values;
 }

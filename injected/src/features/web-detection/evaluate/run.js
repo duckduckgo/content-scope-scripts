@@ -1,4 +1,4 @@
-import { isFailure, isScalar, thrownMessage } from '../model/core.js';
+import { NativeMap, isFailure, isScalar, thrownMessage } from '../model/core.js';
 import { evaluateOccurrence } from './evaluate.js';
 
 /**
@@ -33,7 +33,7 @@ import { evaluateOccurrence } from './evaluate.js';
  * @returns {DetectorState}
  */
 export function createDetectorState() {
-    return { names: new Map(), done: false };
+    return { names: new NativeMap(), done: false };
 }
 
 /**

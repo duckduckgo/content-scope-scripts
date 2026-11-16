@@ -1,4 +1,4 @@
-import { isArray } from '../../../captured-globals.js';
+import { arraySort, isArray, ReflectApply } from '../../../captured-globals.js';
 import { ConfigParseError, DetectionError, asArray, isFailure } from '../model/core.js';
 import { isItemBuffer, listMembers } from '../model/lists.js';
 
@@ -76,7 +76,7 @@ function collectRootNodes(value, nodes, ctx) {
         const isNode = ctx.reader.isNode(node);
         if (isFailure(isNode)) return isNode;
         if (!isNode) throw new DetectionError('a root is a selector, a node or a list of nodes');
-        nodes.push(/** @type {Node} */ (node));
+        nodes[nodes.length] = /** @type {Node} */ (node);
     }
     return undefined;
 }
@@ -88,12 +88,23 @@ function collectRootNodes(value, nodes, ctx) {
 function outermost(nodes) {
     // In document order a node comes after any node containing it. 4 is `DOCUMENT_POSITION_FOLLOWING`,
     // inlined because the `Node` global is not present everywhere this runs
-    nodes.sort((a, b) => (a === b ? 0 : a.compareDocumentPosition(b) & 4 ? -1 : 1));
+    ReflectApply(arraySort, nodes, [
+        (/** @type {Node} */ a, /** @type {Node} */ b) => (a === b ? 0 : a.compareDocumentPosition(b) & 4 ? -1 : 1),
+    ]);
     /** @type {Node[]} */
     const roots = [];
     for (const node of nodes) {
-        if (roots.some((kept) => kept.contains(node))) continue;
-        roots.push(node);
+        if (!containedIn(roots, node)) roots[roots.length] = node;
     }
     return /** @type {ParentNode[]} */ (roots);
+}
+
+/**
+ * @param {readonly Node[]} roots
+ * @param {Node} node
+ * @returns {boolean} whether one of the roots contains the node, by index so a page's `Array.prototype` is not called
+ */
+function containedIn(roots, node) {
+    for (let i = 0; i < roots.length; i++) if (/** @type {Node} */ (roots[i]).contains(node)) return true;
+    return false;
 }

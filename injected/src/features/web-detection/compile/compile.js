@@ -5,6 +5,7 @@ import {
     DEFINE_NAME_PATTERN,
     EXPRESSION_KEYS,
     NAME_PATTERN,
+    NativeSet,
     asArray,
     isExpressionObject,
     isPlainObject,
@@ -30,9 +31,9 @@ import { finish } from './positions.js';
  * @property {Set<string>} paths - every path config reads from the global object, up to the method it calls, for the native reader
  */
 
-const MODIFIER_KEYS = new Set(['using', 'is']);
+const MODIFIER_KEYS = new NativeSet(['using', 'is']);
 /** Keys valid only beside `if`. */
-const BRANCH_KEYS = new Set(['then', 'else']);
+const BRANCH_KEYS = new NativeSet(['then', 'else']);
 
 /**
  * The position of an operand of `sum` and `mul`, or of `any`, `all` and `none`, is
@@ -47,9 +48,9 @@ export class Scope {
     /** @type {Slot[]} */
     slots = [];
     /** @type {Set<string>} */
-    readerNames = new Set();
+    readerNames = new NativeSet();
     /** @type {Set<string>} */
-    readerPaths = new Set();
+    readerPaths = new NativeSet();
     /** @type {ItemBinder[]} the `using`, `where` and `field` binding `self` around the expression being compiled, innermost last */
     bindings = [];
 
@@ -239,7 +240,7 @@ function compileDefine(raw, path, scope) {
         const namePath = `${path}.${name}`;
         if (!DEFINE_NAME_PATTERN.test(name)) throw new ConfigParseError(namePath, `invalid name '${name}'`);
         const value = compileExpr(raw[name], 'value', namePath, scope);
-        return makeNode(scope, { kind: 'define', name, value, path: namePath, position: 'value' });
+        return makeNode(scope, { kind: 'define', name, detector: name.startsWith('this.'), value, path: namePath, position: 'value' });
     });
 }
 
@@ -316,7 +317,7 @@ function compileKey(key, body, position, path, scope) {
         case 'ref':
             // The name is read when evaluation reaches it: config decides what is bound then
             if (typeof body !== 'string') throw new ConfigParseError(path, '`ref` takes a name');
-            return makeNode(scope, { kind: 'ref', name: body, path, position });
+            return makeNode(scope, { kind: 'ref', name: body, detector: body.startsWith('this.'), path, position });
         default:
             throw new ConfigParseError(path, `unknown expression key '${key}'`);
     }
