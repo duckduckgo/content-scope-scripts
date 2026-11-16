@@ -6,8 +6,7 @@
     <title>Cookie frame parent</title>
 </head>
 <body>
-    <p>Frames a sibling host (drive.example.test in docs.example.test). The two hosts are same-site, so the
-    browser lets the frame use cookies, but the hostname guess calls the frame third party.</p>
+    <p>Same-site frame on a sibling host, which the hostname guess calls third party.</p>
     <script>
         const frame = document.createElement('iframe');
         // docs.<site> frames drive.<site>

@@ -312,7 +312,7 @@ export default class CookieFeature extends ContentFeature {
      */
     shouldRequestNativeCookiePolicy() {
         return (
-            import.meta.injectName === 'windows' &&
+            this.injectName === 'windows' &&
             cookiePolicy.isFrame &&
             /^https?:$/.test(globalThis.location.protocol) &&
             this.getFeatureSettingEnabled('nativeFrameCookiePolicy', 'enabled')
