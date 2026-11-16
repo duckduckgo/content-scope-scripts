@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Form</title>
+</head>
+<body>
+    <form>
+        <h2>Sign in to your account</h2>
+        <div><label for="email">Email address</label> <input id="email" type="email"></div>
+        <div>Password <input id="password" type="password"></div>
+        <p>We never share your email.</p>
+        <button id="submit" type="button">Sign in</button>
+    </form>
+    <script>
+        window.submitClicks = 0;
+        document.getElementById('submit').addEventListener('click', () => {
+            window.submitClicks++;
+        });
+    </script>
+</body>
+</html>
