@@ -96,6 +96,9 @@ const FIXTURES = [
             'Collapsed answer.',
             'Hidden inline text',
             'Read the hidden part later.',
+            'Before after.',
+            'Ruby 漢(kan) word.',
+            'Name here.',
             'Shipping address',
             'Street',
         ],
@@ -610,6 +613,9 @@ test.describe('pageTranslation', () => {
             'Visible paragraph.',
             'Show more',
             'Read the hidden part later.',
+            'Before after.',
+            'Ruby 漢(kan) word.',
+            'Name here.',
             'Street',
         ]);
     });
@@ -625,6 +631,9 @@ test.describe('pageTranslation', () => {
             'Visible paragraph.',
             'Show more',
             'Read the hidden part later.',
+            'Before after.',
+            'Ruby 漢(kan) word.',
+            'Name here.',
             'Street',
         ]);
     });
