@@ -154,11 +154,10 @@ function compileExpr(raw, position, path, scope) {
         } else if (!MODIFIER_KEYS.has(key)) throw new ConfigParseError(`${path}.${key}`, `unknown expression key '${key}'`);
     }
     // Clients deliver an object's keys in no guaranteed order, so an object holds one expression
-    if (expressionKeys.length > 1) {
-        throw new ConfigParseError(
-            path,
-            `an object takes one expression key, and this one has ${expressionKeys.join(', ')}: \`{"all": [...]}\` ANDs several`,
-        );
+    const [key, ...others] = expressionKeys;
+    if (key === undefined || others.length > 0) {
+        const found = key === undefined ? 'none' : `${expressionKeys.join(', ')}: \`{"all": [...]}\` ANDs several`;
+        throw new ConfigParseError(path, `an object takes one expression key, and this one has ${found}`);
     }
 
     const hasIs = raw.is !== undefined;
@@ -171,16 +170,7 @@ function compileExpr(raw, position, path, scope) {
     const keyPosition = hasUsing ? 'value' : valuePosition;
 
     /** @type {Node} */
-    let node;
-    if (expressionKeys.length === 0) {
-        if (hasUsing) throw new ConfigParseError(path, '`using` reads from an expression, and this object has no expression key');
-        if (hasIs || position !== 'boolean') throw new ConfigParseError(path, 'no expression key');
-        // `{}` holds
-        node = makeNode(scope, { kind: 'literal', value: true, path, position });
-    } else {
-        const key = /** @type {string} */ (expressionKeys[0]);
-        node = key === 'if' ? compileIf(raw, keyPosition, path, scope) : compileKey(key, raw[key], keyPosition, `${path}.${key}`, scope);
-    }
+    let node = key === 'if' ? compileIf(raw, keyPosition, path, scope) : compileKey(key, raw[key], keyPosition, `${path}.${key}`, scope);
     if (hasUsing) node = compileUsing(raw.using, node, valuePosition, path, scope);
 
     if (hasIs) {

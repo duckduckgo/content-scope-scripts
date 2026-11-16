@@ -457,7 +457,7 @@ describe('WebDetection evaluate', () => {
         });
 
         it('rejects `using` without an expression, without a path or with an unknown key, and `root` on `api`', () => {
-            rejectsMatch({ using: 'length', is: 1 }, '`using` reads from an expression');
+            rejectsMatch({ using: 'length', is: 1 }, 'this one has none');
             rejectsMatch({ element: { selector: 'img' }, using: {}, is: 1 }, '`using` needs `path`');
             rejectsMatch({ element: { selector: 'img' }, using: 1, is: 1 }, '`using` takes a path or an object');
             rejectsMatch({ element: { selector: 'img' }, using: { path: 'at', root: 'x' }, is: 1 }, "unknown key 'root'");

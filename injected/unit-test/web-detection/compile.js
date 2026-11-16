@@ -117,11 +117,19 @@ describe('WebDetection compile', () => {
             expect(payload('', false)).toEqual({ x: false });
         });
 
-        it('takes boolean literals and an empty object in boolean position', () => {
+        it('takes boolean literals in boolean position', () => {
             expect(holds('', true)).toBe(true);
             expect(holds('', false)).toBe(false);
-            expect(holds('', {})).toBe(true);
             expect(holds('', { any: [] })).toBe(false);
+        });
+
+        it('rejects an object with no expression key, in every position', () => {
+            const none = 'an object takes one expression key, and this one has none';
+            rejectsMatch({}, none);
+            rejectsMatch({ is: true }, none);
+            rejectsMatch({ using: 'length', is: 1 }, none);
+            expectParseError({ actions: { define: { x: {} } } }, none);
+            expectParseError(withPayload({}), none);
         });
 
         it('rejects an array in every expression position', () => {

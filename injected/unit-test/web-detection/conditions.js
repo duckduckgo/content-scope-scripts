@@ -86,12 +86,6 @@ describe('WebDetection conditions', () => {
         /** Elements of class `a` and `b`, holding the text given. */
         const ab = (/** @type {string} */ a, /** @type {string} */ b) => `<div class="a">${a}</div><div class="b">${b}</div>`;
 
-        describe('empty conditions', () => {
-            it('should match with empty object (no conditions)', () => {
-                expect(matchInDOM('<p>content</p>', {})).toBe(true);
-            });
-        });
-
         describe('text matching', () => {
             it('should match text pattern in body', () => {
                 expect(matchInDOM('<p>Please disable your adblocker</p>', text('adblocker'))).toBe(true);
