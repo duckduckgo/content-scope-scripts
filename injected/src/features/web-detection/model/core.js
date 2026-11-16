@@ -221,10 +221,11 @@ export function decides(kind) {
     return [kind === 'any' || kind === 'none', kind === 'any'];
 }
 
-/** @typedef {'number' | 'string' | 'boolean' | 'null' | 'undefined' | 'array' | 'object'} TypeName */
+/** @typedef {'number' | 'string' | 'boolean' | 'null' | 'undefined' | 'array' | 'object' | 'function' | 'symbol' | 'bigint'} TypeName */
 
 /**
- * Name of a value's type, as `type` in predicates tests it.
+ * Name of a value's type, as `type` in predicates tests it: what `typeof` gives, with `null` and
+ * arrays named apart from other objects.
  *
  * @param {unknown} value
  * @returns {TypeName}
@@ -232,15 +233,7 @@ export function decides(kind) {
 export function typeName(value) {
     if (value === null) return 'null';
     if (isArray(value)) return 'array';
-    switch (typeof value) {
-        case 'number':
-        case 'string':
-        case 'boolean':
-        case 'undefined':
-            return /** @type {'number' | 'string' | 'boolean' | 'undefined'} */ (typeof value);
-        default:
-            return 'object';
-    }
+    return typeof value;
 }
 
 /**
