@@ -20,8 +20,10 @@ function givesList(node) {
             return true;
         case 'if':
             return occurrenceGivesList(node.then) || (node.else !== undefined && occurrenceGivesList(node.else));
-        case 'sequence':
-            return occurrenceGivesList(/** @type {Node} */ (node.elements[node.elements.length - 1]));
+        case 'sequence': {
+            const last = node.elements[node.elements.length - 1];
+            return last !== undefined && occurrenceGivesList(last);
+        }
         case 'expr':
         case 'using':
             return occurrenceGivesList(node.operand);

@@ -526,7 +526,7 @@ describe('WebDetection sources', () => {
             expect(images([{ api: { path: 'document.body' } }, '#a'])).toBe(4);
             expect(images({ api: { path: 'document.body.firstElementChild.tagName' } })).toBe(3);
             expect(images(['#a', null])).toBe(1);
-            rejectsMatch({ element: { selector: 'img', root: [] } }, 'at least one entry');
+            expect(images([])).toBe(0);
         });
 
         it('drops a root inside another', () => {

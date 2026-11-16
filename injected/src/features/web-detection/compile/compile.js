@@ -118,7 +118,6 @@ function makeNode(scope, fields) {
  */
 function compileBody(raw, position, path, scope) {
     if (!isArray(raw)) return compileExpr(raw, position, path, scope);
-    if (raw.length === 0) throw new ConfigParseError(path, 'a sequence holds at least one element');
     const elements = raw.map((element, i) => compileExpr(element, i === raw.length - 1 ? position : 'value', `${path}.${i}`, scope));
     return makeNode(scope, { kind: 'sequence', elements, path, position });
 }
@@ -219,8 +218,7 @@ function compileActions(raw, keys, position, path, scope) {
  * @returns {Node[]}
  */
 function compileDefine(raw, path, scope) {
-    if (!isPlainObject(raw) || objectKeys(raw).length === 0)
-        throw new ConfigParseError(path, '`define` takes an object of at least one name');
+    if (!isPlainObject(raw)) throw new ConfigParseError(path, '`define` takes an object of names');
     return objectKeys(raw).map((name) => {
         const namePath = `${path}.${name}`;
         if (!DEFINE_NAME_PATTERN.test(name)) throw new ConfigParseError(namePath, `invalid name '${name}'`);
@@ -396,7 +394,6 @@ function compileSource(key, body, position, path, scope) {
     const source = scope.sources[key];
     if (key === 'api' && isArray(body)) throw new ConfigParseError(path, '`api` takes one body');
     const bodies = asArray(body).map((raw, i) => source.parse(raw, isArray(body) ? `${path}.${i}` : path, scope.hooks));
-    if (bodies.length === 0) throw new ConfigParseError(path, 'no bodies');
     const withField = bodies.some(hasField);
     // `text`, and `element` without `field`, are the condition leaf: a boolean under any / all / none
     const leaf = key === 'text' || (key === 'element' && !withField);

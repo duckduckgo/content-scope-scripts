@@ -7,6 +7,7 @@ import {
     REPORT,
     bindings,
     bound,
+    count,
     defineGetter,
     detects,
     entriesOf,
@@ -414,8 +415,16 @@ describe('WebDetection compile', () => {
         it('rejects detector shapes this release does not run', () => {
             expectParseError({ match: true }, 'a detector needs `actions`');
             expectParseError({ actions: {}, items: [] }, "unknown key 'items'");
-            expectParseError({ actions: [] }, 'a sequence holds at least one element');
             expectParseError({ actions: [[{ fireEvent: { type: 'a' } }]] }, 'an array is not an expression');
+        });
+
+        it('runs empty arrays and objects as nothing: a sequence, `define`, `root` and source bodies', () => {
+            expect(run('', { actions: [] }).detected).toBe(true);
+            expect(bound('', [{ define: {} }, { define: { x: 1 } }], 'x')).toBe(1);
+            expect(holds('', { sum: { if: true, then: [] }, is: 0 })).toBe('error');
+            expect(count('<img>', { element: { selector: 'img', root: [] } })).toBe(0);
+            expect(count('<img>', { element: [] })).toBe(0);
+            expect(holds('<p>a</p>', { text: [] })).toBe(false);
         });
 
         it('rejects an action beside an expression key or a modifier, and a key that is not an action', () => {
@@ -432,8 +441,7 @@ describe('WebDetection compile', () => {
         });
 
         it('rejects a `define` that is not an object of valid names', () => {
-            expectParseError({ actions: { define: {} } }, '`define` takes an object of at least one name');
-            expectParseError({ actions: { define: true } }, '`define` takes an object of at least one name');
+            expectParseError({ actions: { define: true } }, '`define` takes an object of names');
             expectParseError({ actions: { define: { '1x': 1 } } }, 'invalid name');
             expectParseError({ actions: { define: { 'that.x': 1 } } }, 'invalid name');
             expectParseError({ actions: { define: { x: { foo: 1 } } } }, "unknown expression key 'foo'");
