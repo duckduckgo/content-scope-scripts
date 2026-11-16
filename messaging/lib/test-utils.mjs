@@ -435,7 +435,7 @@ export function simulateSubscriptionMessage(params) {
         }
         case 'apple':
         case 'apple-isolated':
-        case 'apple-broker-protection': {
+        case 'apple-broker-protection':
         case 'apple-page-translation': {
             const fn = navigator.duckduckgo?.messageHandlers?.[params.name] ?? /** @type {Record<string, any>} */ (window)?.[params.name];
             if (typeof fn !== 'function') {

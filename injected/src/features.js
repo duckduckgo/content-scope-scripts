@@ -120,7 +120,6 @@ export const platformSupport = {
         'pageContext',
         'browserUiLock',
         'sponsorBlock',
-        'pageTranslation',
     ],
     'android-broker-protection': ['brokerProtection'],
     'android-ai-clear': ['duckAiDataClearing'],

@@ -87,7 +87,6 @@ export default defineConfig({
                 'integration-test/web-compat-android.spec.js',
                 'integration-test/message-bridge-android.spec.js',
                 'integration-test/sponsor-block.spec.js',
-                'integration-test/page-translation.spec.js',
             ],
             use: { injectName: 'android', platform: 'android', ...devices['Galaxy S5'] },
         },
