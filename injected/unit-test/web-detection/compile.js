@@ -27,14 +27,12 @@ import {
 
 describe('WebDetection compile', () => {
     describe('types', () => {
-        it('rejects each expression in a position whose type config shows is wrong', () => {
-            rejectsMatch({ element: { selector: 'img', field: 'naturalWidth' } }, 'does not fill boolean');
-            rejectsMatch({ api: { path: 'document.fonts', where: { status: 'error' } } }, 'does not fill boolean');
-            rejectsMatch({ element: { selector: 'img' }, using: 'length' }, 'numbers become booleans only through `is`');
-            rejectsMatch({ only: 5, is: 1 }, 'does not fill list');
-            rejectsMatch({ only: { element: { selector: 'img' }, using: 'length' }, is: 1 }, "'length' does not fill list");
-            rejectsMatch(5, 'does not fill boolean');
-            rejectsMatch({ sum: [true], is: 1 }, 'does not fill number');
+        it('fails a value of a type its position does not take, as it is read', () => {
+            expect(holds('<img>', { element: { selector: 'img' }, using: 'length' })).toBe('error');
+            expect(holds('', { only: 5, is: 1 })).toBe('error');
+            expect(holds('<img>', { only: { element: { selector: 'img' }, using: 'length' }, is: 1 })).toBe('error');
+            expect(holds('', 5)).toBe('error');
+            expect(holds('', { sum: [true], is: 1 })).toBe('error');
             rejectsMatch({ only: { if: true, then: 1, else: 2 }, is: 1 }, "'if' does not fill list");
         });
 
@@ -139,7 +137,7 @@ describe('WebDetection compile', () => {
             rejectsMatch({ all: [true, [true, false]] }, notExpression);
             rejectsMatch({ if: [true], then: true, else: false }, notExpression);
             expect(holds('', { if: true, then: [true], else: false })).toBe(true);
-            rejectsMatch({ if: true, then: [true, 1], else: false }, "'literal' does not fill boolean");
+            expect(holds('', { if: true, then: [true, 1], else: false })).toBe('error');
             expectParseError({ actions: [{ define: { x: [1, 2] } }] }, notExpression);
             expectParseError({ actions: [[{ define: { x: 1 } }]] }, notExpression);
             expectParseError({ actions: { define: { x: { sum: [1, { api: { path: 'Math.max', args: [[1]] } }] } } } }, notExpression);
@@ -148,17 +146,17 @@ describe('WebDetection compile', () => {
             rejectsMatch({ api: { path: 'document.title' }, is: { eq: ['a'] } }, notExpression);
         });
 
-        it('takes string and null literals in value position only', () => {
+        it('takes string and null literals in value position, and fails them elsewhere', () => {
             expect(payload('', 'x')).toEqual({ x: 'x' });
             expect(payload('', null)).toEqual({ x: null });
             expect(payload('', { if: true, then: 'yes', else: 'no' })).toEqual({ x: 'yes' });
             expect(payload('', { if: false, then: 'yes', else: null })).toEqual({ x: null });
             expect(holds('', { api: { path: 'document.readyState' }, is: { eq: { api: { path: 'document.readyState' } } } })).toBe(true);
             expect(holds('<p>a</p>', { only: { text: { pattern: 'a' } }, is: { eq: { text: { pattern: 'a' } } } })).toBe(true);
-            rejectsMatch('x', "'literal' does not fill boolean position");
-            rejectsMatch({ any: [null] }, "'literal' does not fill boolean position");
-            rejectsMatch({ sum: ['x', 1], is: { gt: 0 } }, "'literal' does not fill number position");
-            rejectsMatch({ only: 'x', is: 1 }, "'literal' does not fill list position");
+            expect(holds('', 'x')).toBe('error');
+            expect(holds('', { any: [null] })).toBe('error');
+            expect(holds('', { sum: ['x', 1], is: { gt: 0 } })).toBe('error');
+            expect(holds('', { only: 'x', is: 1 })).toBe('error');
             expect(holds('<p></p>', { element: { selector: 'p' }, using: 'length', is: { gt: '0' } })).toBe(true);
         });
 
@@ -513,9 +511,9 @@ describe('WebDetection compile', () => {
         }
 
         it('should keep the config as given, and not compile it', () => {
-            const config = { match: { element: { selector: 'img' }, using: 'length' }, actions: REPORT };
+            const config = { match: { element: { selector: 'img' }, text: { pattern: 'a' } }, actions: REPORT };
             expect(parsedOne(config).raw).toBe(config);
-            expect(compiledOf(config).error).toContain('length');
+            expect(compiledOf(config).error).toContain('one expression key');
         });
 
         it('should compile `match` and `actions`, several action keys as a sequence in config order', () => {

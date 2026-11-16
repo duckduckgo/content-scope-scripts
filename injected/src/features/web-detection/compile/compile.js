@@ -209,7 +209,7 @@ function compileActions(raw, keys, position, path, scope) {
     }
     /** @type {Node} */
     const node = actions.length === 1 ? actions[0] : makeNode(scope, { kind: 'sequence', elements: actions, path, position });
-    // Checked once every expression is compiled: an action fills value position only
+    // An action gives `undefined`, which fails outside value position as it is read
     node.position = position;
     return node;
 }
@@ -312,7 +312,7 @@ function compileKey(key, body, position, path, scope) {
 
 /**
  * `{"if": C, "then": X, "else"?: Y}`: the branch the condition takes, or `undefined` with no branch
- * taken, so an `if` without `else` fills value position only.
+ * taken.
  *
  * @param {Record<string, unknown>} raw
  * @param {Position} position

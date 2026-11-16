@@ -257,7 +257,7 @@ describe('WebDetection feature', () => {
         });
 
         describe('compiling', () => {
-            const unparseable = { match: { element: { selector: 'img' }, using: 'length' }, actions: REPORT };
+            const unparseable = { match: { element: { selector: 'img' }, text: { pattern: 'a' } }, actions: REPORT };
 
             it('compiles at init only the detectors a trigger runs in the frame', () => {
                 const compile = spyOn(WebDetection.prototype, '_compile').and.callThrough();

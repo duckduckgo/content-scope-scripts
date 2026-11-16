@@ -112,7 +112,6 @@
  * @typedef {object} Source
  * @property {string} key - the expression key in config
  * @property {(raw: unknown, path: string, hooks: PredicateHooks, key?: string) => Body} parse - throws a `ConfigParseError`. `key` names the expression key in messages, where the source parses a `self` or `using` body
- * @property {(body: Body) => ReadonlySet<Position>} fills - the positions config shows the source fills
  * @property {(bodies: Body[], ctx: PredicateContext) => unknown} read - the value: an `ItemBuffer` for a list, or a `Failure` for the source as a whole
  */
 

@@ -475,10 +475,7 @@ describe('WebDetection evaluate', () => {
             expect(bound(widths, { define: { enough } }, 'enough')).toBe(true);
             expect(bound(IMG(), { define: { enough } }, 'enough')).toBe(false);
             expect(payload(widths, enough)).toEqual({ x: true });
-            rejectsMatch(
-                { sum: [{ expr: { element: { selector: 'img' }, using: 'length', is: 1 } }], is: 1 },
-                "'expr' does not fill number",
-            );
+            expect(holds(widths, { sum: [{ expr: { element: { selector: 'img' }, using: 'length', is: 1 } }], is: 1 })).toBe('error');
         });
 
         it('gives the boolean an `is` gives in value position', () => {
@@ -493,7 +490,7 @@ describe('WebDetection evaluate', () => {
             expect(holds(widths, { sum: { expr: NATURAL_WIDTH }, is: 3 })).toBe(true);
             expect(holds(widths, { expr: { element: { selector: 'img' } } })).toBe(true);
             expect(holds('', { any: [{ expr: { element: { selector: 'img' } } }] })).toBe(false);
-            rejectsMatch({ expr: NATURAL_WIDTH }, 'does not fill boolean');
+            expect(holds(widths, { expr: NATURAL_WIDTH })).toBe('error');
         });
 
         it('gives a list of its entries values over an array', () => {
@@ -513,8 +510,8 @@ describe('WebDetection evaluate', () => {
             expect(holds('', { expr: [1, FAILING], using: 'length', is: 2 })).toBe('aborted');
             expect(payload('', { expr: [1, 'a', { expr: [true] }] })).toEqual({ x: [1, 'a', [true]] });
             // A list stays one: it is not unwrapped to a number, nor read as a boolean
-            expectParseError(withPayload({ div: [{ expr: [6] }, 2] }), "'list' does not fill number position");
-            rejectsMatch({ expr: [true] }, "'list' does not fill boolean position");
+            expect(holds('', { div: [{ expr: [6] }, 2], is: 3 })).toBe('error');
+            expect(holds('', { expr: [true] })).toBe('error');
         });
     });
 });
