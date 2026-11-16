@@ -193,6 +193,13 @@ describe('WebDetection feature', () => {
             expect(instance.callFeatureMethod).toHaveBeenCalledTimes(1);
         });
 
+        it('schedules no run for a detector whose `intervalMs` is not an array, and keeps the others', () => {
+            const malformed = { auto: { state: 'enabled', when: { intervalMs: 100 } } };
+            const instance = create({ bad: { ...firing('bad'), triggers: malformed }, good: firing('good') });
+            jasmine.clock().tick(1000);
+            expect(instance.callFeatureMethod).toHaveBeenCalledTimes(3);
+        });
+
         it('keeps the timers shared with a detector that is not done', () => {
             const instance = create({ done: detects(true, { triggers: auto }), running: firing('a') });
             jasmine.clock().tick(1000);

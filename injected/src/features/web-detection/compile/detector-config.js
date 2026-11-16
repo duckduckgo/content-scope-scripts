@@ -1,3 +1,4 @@
+import { isArray } from '../../../captured-globals.js';
 import { NAME_PATTERN, isPlainObject, thrownMessage } from '../model/core.js';
 import { pageSources } from '../sources/index.js';
 import { compileDetector } from './compile.js';
@@ -100,10 +101,22 @@ function normalizeDetector(config) {
             auto: {
                 state: config.triggers?.auto?.state ?? 'disabled',
                 runConditions: /** @type {ConditionBlockOrArray} */ (config.triggers?.auto?.runConditions ?? DEFAULT_RUN_CONDITIONS),
-                when: config.triggers?.auto?.when ?? { intervalMs: [] },
+                when: { intervalMs: intervalsOf(config.triggers?.auto?.when) },
             },
         },
     };
+}
+
+/**
+ * The `auto` intervals `when` gives: the numbers in `intervalMs`. A malformed `when` schedules no
+ * run for its detector, and leaves the others' timers in place.
+ *
+ * @param {unknown} when
+ * @returns {number[]}
+ */
+function intervalsOf(when) {
+    const intervals = isPlainObject(when) ? when.intervalMs : undefined;
+    return isArray(intervals) ? intervals.filter((interval) => typeof interval === 'number') : [];
 }
 
 /**
