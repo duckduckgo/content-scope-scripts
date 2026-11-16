@@ -476,12 +476,14 @@ describe('WebDetection compile', () => {
         /** @returns {any} */
         const compiledOf = (/** @type {unknown} */ config) => compileDetectorConfig(parsedOne(config), globalThis);
 
-        it('should return empty object for invalid input, and skip invalid group names', () => {
+        it('should return empty object for invalid input', () => {
             expect(parseDetectors(undefined)).toEqual({});
-            expect(parseDetectors({ '123invalid': { d: on }, 'invalid-name': { d: on }, '': { d: on } })).toEqual({});
         });
 
-        it('should accept valid group and detector names', () => {
+        it('should take group and detector names as config gives them, which the config validator checks', () => {
+            expect(Object.keys(parseDetectors({ 'invalid-name': { 'd.1': on } }))).toEqual(['invalid-name']);
+            expect(Object.keys(parseDetectors({ g: { 'd.1': on } }).g)).toEqual(['d.1']);
+
             const result = parseDetectors({
                 ValidGroup: { Detector1: on },
                 validGroup: { detector1: on },

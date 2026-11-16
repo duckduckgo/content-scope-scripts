@@ -1,5 +1,5 @@
 import { isArray } from '../../../captured-globals.js';
-import { NAME_PATTERN, isPlainObject, thrownMessage } from '../model/core.js';
+import { isPlainObject, thrownMessage } from '../model/core.js';
 import { pageSources } from '../sources/index.js';
 import { compileDetector } from './compile.js';
 
@@ -60,17 +60,6 @@ const DEFAULT_RUN_CONDITIONS = /** @type {import('../../../config-feature.js').C
         context: { top: true },
     },
 ]);
-
-/**
- * Validate that a name matches the required format.
- * Names must start with a letter and contain only alphanumeric characters and underscores.
- *
- * @param {string} name
- * @returns {boolean}
- */
-function isValidName(name) {
-    return NAME_PATTERN.test(name);
-}
 
 /**
  * Normalize a raw detector configuration by resolving all optional fields to concrete values.
@@ -151,7 +140,7 @@ export function parseDetectors(detectorsConfig) {
     }
 
     for (const [groupName, groupConfig] of Object.entries(detectorsConfig)) {
-        if (!isValidName(groupName) || !isPlainObject(groupConfig)) {
+        if (!isPlainObject(groupConfig)) {
             continue;
         }
 
@@ -159,7 +148,7 @@ export function parseDetectors(detectorsConfig) {
         const groupDetectors = {};
 
         for (const [detectorId, detectorConfig] of Object.entries(groupConfig)) {
-            if (!isValidName(detectorId) || !isPlainObject(detectorConfig)) {
+            if (!isPlainObject(detectorConfig)) {
                 continue;
             }
 
