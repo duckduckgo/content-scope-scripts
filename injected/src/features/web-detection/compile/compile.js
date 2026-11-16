@@ -162,8 +162,6 @@ function compileExpr(raw, position, path, scope) {
 
     const hasIs = raw.is !== undefined;
     const hasUsing = raw.using !== undefined;
-    if (hasIs && position !== 'boolean' && position !== 'value')
-        throw new ConfigParseError(path, '`is` gives a boolean, in boolean or value position');
     // With `is`, the expression computes a value for the predicate
     const valuePosition = hasIs ? 'value' : position;
     // With `using`, the expression keys give the value `using` reads from
@@ -175,8 +173,8 @@ function compileExpr(raw, position, path, scope) {
 
     if (hasIs) {
         node.is = compilePredicate(raw.is, 'value', `${path}.is`, scope.hooks);
-        // Value-position reads skip `is`, and an `expr` over it gives its boolean
-        if (position === 'value') return makeNode(scope, { kind: 'expr', operand: node, path, position });
+        // Reads outside boolean position skip `is`, and an `expr` over it gives its boolean
+        if (position !== 'boolean') return makeNode(scope, { kind: 'expr', operand: node, path, position });
     }
     return node;
 }

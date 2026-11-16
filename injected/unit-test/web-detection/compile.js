@@ -63,8 +63,10 @@ describe('WebDetection compile', () => {
             expect(holds('', { api: { path: 'document.fonts', field: 'status' } }, { install: fonts(['loaded']) })).toBe('error');
         });
 
-        it('rejects `is` outside boolean and value position', () => {
-            rejectsMatch({ sum: [{ element: { selector: 'img' }, using: 'length', is: { gt: 1 } }], is: 1 }, '`is` gives a boolean');
+        it('gives the boolean `is` gives in every position, failing where a boolean does not fit', () => {
+            expect(holds('<img>', { sum: [{ element: { selector: 'img' }, using: 'length', is: { gt: 1 } }], is: 1 })).toBe('error');
+            expect(holds('', { only: { expr: [5], is: 5 }, is: true })).toBe('error');
+            expect(holds('', { div: [{ expr: 4, is: 4 }, 2], is: 0.5 })).toBe('error');
         });
 
         it('rejects unknown keys', () => {
