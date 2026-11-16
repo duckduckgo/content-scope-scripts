@@ -446,10 +446,29 @@ describe('WebDetection sources', () => {
             expect(resources({ responseStatus: { gte: 400 } })).toBe(0);
         });
 
-        it('errors on `where` over a value that is not a list, or an item that is not an object', () => {
+        it('errors on `where` over a value that is not a list', () => {
             expect(holds('', { api: { path: 'document.title', where: { length: 0 } }, using: 'length', is: 1 })).toBe('error');
-            const afterCapture = assign({ myList: ['a', 'b'] });
-            expect(holds('', { api: { path: 'myList', where: { length: 1 } }, using: 'length', is: 2 }, { afterCapture })).toBe('error');
+        });
+
+        it('tests items of any type with `where`', () => {
+            const afterCapture = assign({ myList: ['a', 'bb', 3], withNull: ['a', null] });
+            expect(holds('', { api: { path: 'myList', where: { length: 1 } }, using: 'length', is: 1 }, { afterCapture })).toBe(true);
+            expect(
+                holds(
+                    '',
+                    { api: { path: 'myList', where: { self: {}, is: { in: ['bb', 3] } } }, using: 'length', is: 2 },
+                    { afterCapture },
+                ),
+            ).toBe(true);
+            expect(
+                holds(
+                    '',
+                    { api: { path: 'myList', where: { self: {}, is: { type: 'number' } } }, using: 'length', is: 1 },
+                    { afterCapture },
+                ),
+            ).toBe(true);
+            // A read from `null` gives `undefined`, as it does anywhere
+            expect(holds('', { api: { path: 'withNull', where: { length: 1 } }, using: 'length', is: 1 }, { afterCapture })).toBe(true);
         });
     });
 
