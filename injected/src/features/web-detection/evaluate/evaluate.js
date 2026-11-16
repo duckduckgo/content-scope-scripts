@@ -97,10 +97,10 @@ export function evaluate(node, position, ctx) {
                 result = computeLogic(node, ctx);
                 break;
             case 'if':
-                result = computeIf(node, ctx);
+                result = computeIf(node, position, ctx);
                 break;
             case 'sequence':
-                result = computeSequence(node, ctx);
+                result = computeSequence(node, position, ctx);
                 break;
             case 'define':
             case 'fireEvent':
@@ -304,29 +304,45 @@ function computeOnly(node, ctx) {
  * The one expression that skips part of its config: only the branch taken is evaluated.
  *
  * @param {IfNode} node
+ * @param {Position} position
  * @param {EvaluationContext} ctx
  * @returns {unknown} the value, or a `Failure`
  */
-function computeIf(node, ctx) {
+function computeIf(node, position, ctx) {
     const test = evaluateOccurrence(node.test, ctx);
     if (isFailure(test)) return test;
     const branch = test ? node.then : node.else;
-    return branch ? evaluateOccurrence(branch, ctx) : undefined;
+    return branch ? evaluateResult(branch, position, ctx) : undefined;
 }
 
 /**
  * @param {SequenceNode} node
+ * @param {Position} position
  * @param {EvaluationContext} ctx
  * @returns {unknown} the last element's value, or a `Failure`
  */
-function computeSequence(node, ctx) {
+function computeSequence(node, position, ctx) {
     /** @type {unknown} */
     let value;
+    const last = node.elements[node.elements.length - 1];
     for (const element of node.elements) {
-        value = evaluateOccurrence(element, ctx);
+        value = element === last ? evaluateResult(element, position, ctx) : evaluateOccurrence(element, ctx);
         if (isFailure(value)) return value;
     }
     return value;
+}
+
+/**
+ * The value an `if` branch or a sequence's last element gives for the expression holding it. Under
+ * `sum`, `mul`, `any`, `all` and `none` a list it gives contributes each item, as the holder's would.
+ *
+ * @param {Node} node
+ * @param {Position} position - the holder's
+ * @param {EvaluationContext} ctx
+ * @returns {unknown} the value, or a `Failure`
+ */
+function evaluateResult(node, position, ctx) {
+    return position === 'spread' && !node.is ? evaluate(node, 'spread', ctx) : evaluateOccurrence(node, ctx);
 }
 
 /**

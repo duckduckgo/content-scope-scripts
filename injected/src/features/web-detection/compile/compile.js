@@ -322,7 +322,6 @@ function compileKey(key, body, position, path, scope) {
  */
 function compileIf(raw, position, path, scope) {
     const ifPath = `${path}.if`;
-    if (position === 'list') throw new ConfigParseError(ifPath, `'if' does not fill list position`);
     if (raw.then === undefined) throw new ConfigParseError(ifPath, `'if' needs 'then'`);
     const test = compileExpr(raw.if, 'boolean', ifPath, scope);
     const then = compileBody(raw.then, position, `${path}.then`, scope);

@@ -33,7 +33,24 @@ describe('WebDetection compile', () => {
             expect(holds('<img>', { only: { element: { selector: 'img' }, using: 'length' }, is: 1 })).toBe('error');
             expect(holds('', 5)).toBe('error');
             expect(holds('', { sum: [true], is: 1 })).toBe('error');
-            rejectsMatch({ only: { if: true, then: 1, else: 2 }, is: 1 }, "'if' does not fill list");
+            expect(holds('', { only: { if: true, then: 1, else: 2 }, is: 1 })).toBe('error');
+        });
+
+        it('gives the branch an `if` takes where a list is expected, and under `sum` and `any` its items', () => {
+            const tag = {
+                only: { if: true, then: { element: { selector: 'p' } }, else: { element: { selector: 'div' } } },
+                is: { tagName: 'P' },
+            };
+            expect(holds('<p></p><div></div>', tag)).toBe(true);
+            expect(holds('', { sum: { if: true, then: { expr: [1, 2] }, else: 0 }, is: 3 })).toBe(true);
+            expect(holds('', { sum: [{ if: false, then: { expr: [1, 2] }, else: 5 }, 1], is: 6 })).toBe(true);
+            expect(holds('', { any: { if: true, then: { expr: [false, true] }, else: false } })).toBe(true);
+            expect(holds('', { all: { if: true, then: { expr: [true, false] }, else: true } })).toBe(false);
+            // The condition leaf in a branch is still one boolean
+            expect(holds('<p></p>', { any: { if: true, then: { element: { selector: 'p' } }, else: false } })).toBe(true);
+            expect(holds('', { any: { if: true, then: { element: { selector: 'p' } }, else: false } })).toBe(false);
+            // A sequence's last element is the branch's value
+            expect(bound('', { define: { t: { sum: { if: true, then: [{ define: { a: 1 } }, { expr: [1, 2] }] } } } }, 't')).toBe(3);
         });
 
         it('takes an api value of the type its position expects, checked as it is read', () => {

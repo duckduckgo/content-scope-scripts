@@ -19,7 +19,7 @@ function givesList(node) {
         case 'list':
             return true;
         case 'if':
-            return false;
+            return occurrenceGivesList(node.then) || (node.else !== undefined && occurrenceGivesList(node.else));
         case 'sequence':
             return occurrenceGivesList(/** @type {Node} */ (node.elements[node.elements.length - 1]));
         case 'expr':
