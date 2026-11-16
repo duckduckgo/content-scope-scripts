@@ -113,15 +113,16 @@ function pseudoTranslate(html) {
  * @param {import('@playwright/test').Page} page
  * @param {import('@playwright/test').TestInfo} testInfo
  * @param {string} file
+ * @param {string} [config]
  */
-async function openPage(page, testInfo, file) {
+async function openPage(page, testInfo, file, config = CONFIG) {
     const collector = ResultsCollector.create(page, testInfo.project.use);
     collector.withUserPreferences({
         messageSecret: 'duckduckgo-android-messaging-secret',
         javascriptInterface: 'contentScopeScripts',
         messageCallback: 'messageCallback',
     });
-    await collector.load(`${PAGES}/${file}`, CONFIG);
+    await collector.load(`${PAGES}/${file}`, config);
     return collector;
 }
 
@@ -283,6 +284,16 @@ test.describe('pageTranslation', () => {
             });
         });
     }
+
+    test('runs without a pageTranslation entry in the config', async ({ page }, testInfo) => {
+        const collector = await openPage(
+            page,
+            testInfo,
+            'article.html',
+            './integration-test/test-pages/page-translation/config/no-entry.json',
+        );
+        expect((await extract(collector)).length).toBeGreaterThan(0);
+    });
 
     test('serializes inline elements with per-unit ids and no attributes', async ({ page }, testInfo) => {
         const collector = await openPage(page, testInfo, 'merge.html');
