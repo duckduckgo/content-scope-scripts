@@ -59,6 +59,14 @@
   var __privateAdd = (obj, member, value) => member.has(obj) ? __typeError("Cannot add the same private member more than once") : member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
   var __privateSet = (obj, member, value, setter) => (__accessCheck(obj, member, "write to private field"), setter ? setter.call(obj, value) : member.set(obj, value), value);
   var __privateMethod = (obj, member, method) => (__accessCheck(obj, member, "access private method"), method);
+  var __privateWrapper = (obj, member, setter, getter) => ({
+    set _(value) {
+      __privateSet(obj, member, value, setter);
+    },
+    get _() {
+      return __privateGet(obj, member, getter);
+    }
+  });
 
   // <define:import.meta.trackerLookup>
   var define_import_meta_trackerLookup_default;
@@ -2476,7 +2484,8 @@
       "textSelection",
       "chromeWebstorePatching",
       "selectionTools",
-      "sponsorBlock"
+      "sponsorBlock",
+      "pageTranslation"
     ]
   );
   var platformSupport = {
@@ -2504,6 +2513,8 @@
     ],
     "apple-broker-protection": ["brokerProtection"],
     "apple-ai-clear": ["duckAiDataClearing"],
+    // Its own bundle: native injects it only when the user translates a page.
+    "apple-page-translation": ["pageTranslation"],
     "apple-ai-history": ["duckAiChatHistory"],
     android: [
       "webDetection",
@@ -2521,6 +2532,7 @@
     ],
     "android-broker-protection": ["brokerProtection"],
     "android-ai-clear": ["duckAiDataClearing"],
+    "android-page-translation": ["pageTranslation"],
     "android-ai-history": ["duckAiChatHistory"],
     "android-autofill-import": ["autofillImport"],
     "android-adsjs": [
@@ -3072,7 +3084,9 @@
     "textSelection",
     "uaChBrands",
     "chromeWebstorePatching",
-    "selectionTools"
+    "selectionTools",
+    "pageTranslation"
+    // native triggers it; runs without a config entry and on sites with protections off
   ];
   var selfGatingFeatures = ["trackerProtection", "uaChBrands"];
   function isPlatformSpecificFeature(featureName) {
@@ -12768,6 +12782,19 @@
 
   // src/dom-utils.js
   init_define_import_meta_trackerLookup();
+  function escapeXML(str) {
+    const replacements = {
+      "&": "&amp;",
+      '"': "&quot;",
+      "'": "&apos;",
+      "<": "&lt;",
+      ">": "&gt;"
+    };
+    return String(str).replace(/[&"'<>]/g, (m) => (
+      /** @type {string} */
+      replacements[m]
+    ));
+  }
   var Template = class _Template {
     /**
      * @param {readonly string[]} strings
@@ -12776,27 +12803,6 @@
     constructor(strings, values) {
       this.values = values;
       this.strings = strings;
-    }
-    /**
-     * Escapes any occurrences of &, ", <, > or / with XML entities.
-     *
-     * @param {string} str
-     *        The string to escape.
-     * @return {string} The escaped string.
-     */
-    escapeXML(str) {
-      const replacements = {
-        "&": "&amp;",
-        '"': "&quot;",
-        "'": "&apos;",
-        "<": "&lt;",
-        ">": "&gt;",
-        "/": "&#x2F;"
-      };
-      return String(str).replace(/[&"'<>/]/g, (m) => (
-        /** @type {string} */
-        replacements[m]
-      ));
     }
     /**
      * @param {unknown} value
@@ -12812,7 +12818,7 @@
         }
         throw new Error("Unknown object to escape");
       }
-      return this.escapeXML(
+      return escapeXML(
         /** @type {string} */
         value
       );
@@ -13878,7 +13884,7 @@
     return linkElement;
   }
   function resizeElementToMatch(sourceElement, targetElement) {
-    const computedStyle = window.getComputedStyle(sourceElement);
+    const computedStyle2 = window.getComputedStyle(sourceElement);
     const stylesToCopy = ["position", "top", "bottom", "left", "right", "transform", "margin"];
     const { height, width } = sourceElement.getBoundingClientRect();
     if (height > 0 && width > 0) {
@@ -13888,13 +13894,13 @@
       stylesToCopy.push("height", "width");
     }
     for (const key of stylesToCopy) {
-      targetElement.style[key] = computedStyle[key];
+      targetElement.style[key] = computedStyle2[key];
     }
-    if (computedStyle.display !== "inline") {
-      if (targetElement.style.maxHeight < computedStyle.height) {
+    if (computedStyle2.display !== "inline") {
+      if (targetElement.style.maxHeight < computedStyle2.height) {
         targetElement.style.maxHeight = "initial";
       }
-      if (targetElement.style.maxWidth < computedStyle.width) {
+      if (targetElement.style.maxWidth < computedStyle2.width) {
         targetElement.style.maxWidth = "initial";
       }
     }
@@ -20803,9 +20809,9 @@ ul.messages {
     return properties.some((prop) => prop in window);
   }
   function isVisible2(element) {
-    const computedStyle = getComputedStyle(element);
+    const computedStyle2 = getComputedStyle(element);
     const rect = element.getBoundingClientRect();
-    return rect.width > 0.5 && rect.height > 0.5 && computedStyle.display !== "none" && computedStyle.visibility !== "hidden" && +computedStyle.opacity > 0.05;
+    return rect.width > 0.5 && rect.height > 0.5 && computedStyle2.display !== "none" && computedStyle2.visibility !== "hidden" && +computedStyle2.opacity > 0.05;
   }
   function getTextContent(element, sources) {
     if (!sources || sources.length === 0) {
@@ -33165,6 +33171,637 @@ img { display: block; width: 16px; height: 16px; }
   _doc = new WeakMap();
   var sponsor_block_default = SponsorBlock;
 
+  // src/features/page-translation.js
+  init_define_import_meta_trackerLookup();
+
+  // src/features/page-translation/units.js
+  init_define_import_meta_trackerLookup();
+  var computedStyle = window.getComputedStyle.bind(window);
+  var ELEMENT_NODE = 1;
+  var TEXT_NODE = 3;
+  var BLOCK_TAGS = new Set(
+    "address article aside blockquote caption center dd details dialog div dl dt fieldset figcaption figure footer form h1 h2 h3 h4 h5 h6 header hgroup hr legend li main menu nav ol p pre search section summary table tbody td tfoot th thead tr ul".split(
+      " "
+    )
+  );
+  var INLINE_DISPLAY = /* @__PURE__ */ new Set([
+    "inline",
+    "inline-block",
+    "inline-flex",
+    "inline-grid",
+    "inline-table",
+    "contents",
+    "ruby",
+    "ruby-base",
+    "ruby-text"
+  ]);
+  var EXCLUDED_TAGS = "script, style, noscript, template, textarea, code, kbd, samp, var, math, svg, iframe, embed, object, ddg-autofill";
+  var LETTER = /\p{L}/u;
+  function findUnits(root) {
+    const walk = new Walk();
+    const units = [];
+    walk.visit(root, units);
+    for (const option of root.querySelectorAll("select option, datalist option")) {
+      if (LETTER.test(option.textContent || "") && !isInExcluded(option)) units.push({ kind: "element", element: option });
+    }
+    const metas = root === document.body && document.head ? [...document.head.querySelectorAll(META)] : [];
+    for (const el of [...metas, root, ...root.querySelectorAll("*")]) {
+      for (const attribute of translatableAttributes(el)) units.push({ kind: "attribute", element: el, attribute });
+    }
+    return units;
+  }
+  var META = 'meta[name="description" i], meta[name="keywords" i]';
+  var FORM_CONTROLS = "input, select, textarea, button";
+  var ATTRIBUTES = [
+    ["*", ["title", "aria-label", "aria-description", "aria-roledescription", "aria-valuetext"]],
+    ["img, area", ["alt"]],
+    ["track, optgroup, option", ["label"]],
+    ["th", ["abbr"]],
+    [META, ["content"]]
+  ];
+  function translatableAttributes(el) {
+    const found = [];
+    for (const [selector, names2] of ATTRIBUTES) {
+      const present = names2.filter((name) => LETTER.test(el.getAttribute(name) || ""));
+      if (present.length > 0 && el.matches(selector)) found.push(...present);
+    }
+    return found.length > 0 && !el.matches(FORM_CONTROLS) && !isInExcluded(el) ? found : [];
+  }
+  function isInExcluded(el) {
+    for (let node = (
+      /** @type {Element | null} */
+      el
+    ); node; node = node.parentElement) {
+      if (isExcluded(node)) return true;
+    }
+    return false;
+  }
+  function isInViewport(target) {
+    let rect;
+    if (target.kind === "run") {
+      const first = target.nodes[0];
+      const last2 = target.nodes[target.nodes.length - 1];
+      if (!first || !last2) return false;
+      const range = document.createRange();
+      range.setStartBefore(first);
+      range.setEndAfter(last2);
+      rect = range.getBoundingClientRect();
+    } else {
+      rect = target.element.getBoundingClientRect();
+    }
+    const onScreen = rect.bottom > 0 && rect.top < window.innerHeight && rect.right > 0 && rect.left < window.innerWidth;
+    return onScreen && rect.width > 0 && rect.height > 0 && isVisible3(target.kind === "run" ? target.parent : target.element);
+  }
+  function isVisible3(el) {
+    if (typeof el.checkVisibility === "function") {
+      return el.checkVisibility({ opacityProperty: true, visibilityProperty: true });
+    }
+    return isVisible2(el);
+  }
+  function isSentEmpty(el) {
+    return el.localName === "select" || el.localName === "datalist" || isExcluded(el);
+  }
+  function isExcluded(el) {
+    if (el.matches(EXCLUDED_TAGS)) return true;
+    if (el.getAttribute("translate")?.trim().toLowerCase() === "no" || el.classList.contains("notranslate")) return true;
+    return !!/** @type {HTMLElement} */
+    el.isContentEditable;
+  }
+  function isOtherLanguage(el, sourceLanguage) {
+    if (!sourceLanguage.trim()) return false;
+    const lang = el === document.documentElement ? null : el.getAttribute("lang");
+    return !!lang?.trim() && primaryLanguage2(lang) !== primaryLanguage2(sourceLanguage);
+  }
+  function isInOtherLanguage(el, sourceLanguage) {
+    const marked = el.closest("[lang]");
+    return !!marked && isOtherLanguage(marked, sourceLanguage);
+  }
+  function primaryLanguage2(tag) {
+    let canonical = tag.trim();
+    try {
+      canonical = Intl.getCanonicalLocales(canonical)[0] ?? canonical;
+    } catch {
+    }
+    return canonical.toLowerCase().split(/[-_]/)[0];
+  }
+  var _inline, _blockInside;
+  var Walk = class {
+    constructor() {
+      /** @type {Map<Element, boolean>} */
+      __privateAdd(this, _inline, /* @__PURE__ */ new Map());
+      /** @type {Map<Element, boolean>} */
+      __privateAdd(this, _blockInside, /* @__PURE__ */ new Map());
+    }
+    /**
+     * @param {Element} el
+     * @param {UnitTarget[]} units
+     */
+    visit(el, units) {
+      if (this.isSentEmpty(el)) return;
+      if (!this.isInline(el) && !this.hasBlockInside(el)) {
+        if (this.hasLetter(el)) units.push({ kind: "element", element: el });
+        return;
+      }
+      let run = [];
+      for (const child of el.childNodes) {
+        if (child.nodeType !== ELEMENT_NODE) {
+          run.push(child);
+          continue;
+        }
+        const childEl = (
+          /** @type {Element} */
+          child
+        );
+        if (this.isInline(childEl) && (this.isSentEmpty(childEl) || !this.hasBlockInside(childEl))) {
+          run.push(child);
+          continue;
+        }
+        this.addRun(el, run, units);
+        run = [];
+        this.visit(childEl, units);
+      }
+      this.addRun(el, run, units);
+    }
+    /**
+     * Adds `nodes` as a run unit, trimmed of blank edges, if it holds a letter.
+     * @param {Element} parent
+     * @param {ChildNode[]} nodes
+     * @param {UnitTarget[]} units
+     */
+    addRun(parent, nodes, units) {
+      const isBlank = (i) => {
+        const node = nodes[i];
+        return !!node && node.nodeType !== ELEMENT_NODE && !(node.nodeType === TEXT_NODE && (node.nodeValue || "").trim());
+      };
+      let start = 0;
+      let end = nodes.length;
+      while (start < end && isBlank(start)) start++;
+      while (end > start && isBlank(end - 1)) end--;
+      const trimmed = nodes.slice(start, end);
+      if (trimmed.some((node) => this.nodeHasLetter(node))) units.push({ kind: "run", parent, nodes: trimmed });
+    }
+    /** @param {Element} el */
+    isSentEmpty(el) {
+      return isSentEmpty(el);
+    }
+    /** @param {Element} el */
+    isInline(el) {
+      let inline = __privateGet(this, _inline).get(el);
+      if (inline === void 0) {
+        const style = computedStyle(el);
+        if (style.display === "none") {
+          inline = !BLOCK_TAGS.has(el.localName);
+        } else {
+          inline = INLINE_DISPLAY.has(style.display) || style.float !== "" && style.float !== "none";
+        }
+        __privateGet(this, _inline).set(el, inline);
+      }
+      return inline;
+    }
+    /**
+     * Whether a block element sits below `el`, reached through inline elements only.
+     * @param {Element} el
+     * @returns {boolean}
+     */
+    hasBlockInside(el) {
+      let found = __privateGet(this, _blockInside).get(el);
+      if (found === void 0) {
+        found = false;
+        for (const child of el.children) {
+          if (this.isSentEmpty(child)) continue;
+          if (!this.isInline(child) || this.hasBlockInside(child)) {
+            found = true;
+            break;
+          }
+        }
+        __privateGet(this, _blockInside).set(el, found);
+      }
+      return found;
+    }
+    /**
+     * Whether `el` holds a letter outside excluded elements.
+     * @param {Element} el
+     * @returns {boolean}
+     */
+    hasLetter(el) {
+      for (const child of el.childNodes) {
+        if (this.nodeHasLetter(child)) return true;
+      }
+      return false;
+    }
+    /** @param {ChildNode} node */
+    nodeHasLetter(node) {
+      if (node.nodeType === TEXT_NODE) return LETTER.test(node.nodeValue || "");
+      if (node.nodeType !== ELEMENT_NODE) return false;
+      const el = (
+        /** @type {Element} */
+        node
+      );
+      return !this.isSentEmpty(el) && this.hasLetter(el);
+    }
+  };
+  _inline = new WeakMap();
+  _blockInside = new WeakMap();
+
+  // src/features/page-translation/serialize.js
+  init_define_import_meta_trackerLookup();
+  var ELEMENT_NODE2 = 1;
+  var TEXT_NODE2 = 3;
+  var VOID = /* @__PURE__ */ new Set(["area", "br", "hr", "img", "input", "wbr"]);
+  var NEVER_SENT = /* @__PURE__ */ new Set(["script", "style", "template"]);
+  function serializeUnit(target) {
+    const elements = [];
+    if (target.kind === "attribute") {
+      return { text: stripSoftHyphens(target.element.getAttribute(target.attribute) || ""), html: false, wrapped: false, elements };
+    }
+    const nodes = target.kind === "run" ? target.nodes : [...target.element.childNodes];
+    const html2 = serializeNodes(nodes, elements);
+    if (elements.length === 0) {
+      return {
+        text: stripSoftHyphens(nodes.map((node) => node.nodeType === TEXT_NODE2 ? node.nodeValue : "").join("")),
+        html: false,
+        wrapped: false,
+        elements
+      };
+    }
+    const first = nodes.find(
+      (node) => node.nodeType === ELEMENT_NODE2 && !NEVER_SENT.has(
+        /** @type {Element} */
+        node.localName
+      ) || node.nodeType === TEXT_NODE2 && (node.nodeValue || "").trim()
+    );
+    if (first?.nodeType === ELEMENT_NODE2) {
+      return { text: `<div>${html2}</div>`, html: true, wrapped: true, elements };
+    }
+    return { text: html2, html: true, wrapped: false, elements };
+  }
+  function serializeNodes(nodes, elements) {
+    let out = "";
+    for (const node of nodes) {
+      if (node.nodeType === TEXT_NODE2) {
+        out += escapeXML(stripSoftHyphens(node.nodeValue || ""));
+      } else if (node.nodeType === ELEMENT_NODE2) {
+        const el = (
+          /** @type {Element} */
+          node
+        );
+        const tag = el.localName;
+        if (NEVER_SENT.has(tag)) continue;
+        const id = elements.push(el) - 1;
+        if (VOID.has(tag)) {
+          out += `<${tag} data-t="${id}">`;
+        } else {
+          const inner = isSentEmpty(el) ? "" : serializeNodes(el.childNodes, elements);
+          out += `<${tag} data-t="${id}">${inner}</${tag}>`;
+        }
+      }
+    }
+    return out;
+  }
+  function stripSoftHyphens(text2) {
+    return text2.replace(/\u00AD/g, "");
+  }
+
+  // src/features/page-translation/parse.js
+  init_define_import_meta_trackerLookup();
+  var UNSAFE = /* @__PURE__ */ new Set(["script", "style", "template"]);
+  var INVISIBLE = /^\p{Cf}*$/u;
+  function parseTree(json, wrapped) {
+    let nodes;
+    try {
+      nodes = JSONparse(json);
+    } catch {
+      return null;
+    }
+    if (!Array.isArray(nodes)) return null;
+    if (!wrapped) return convert(nodes);
+    const at = nodes.findIndex((n) => !isText(n));
+    const wrapper = nodes[at];
+    if (at === -1 || nodes.slice(at + 1).some((n) => !isText(n))) return null;
+    if (!isElement(wrapper) || wrapper.tag !== "div" || Object.keys(wrapper.attrs).length > 0) return null;
+    return withSurroundings(textOf(nodes.slice(0, at)), convert(wrapper.children), textOf(nodes.slice(at + 1)));
+  }
+  function convert(nodes) {
+    const out = [];
+    for (const node of nodes) {
+      if (isText(node)) {
+        appendText(out, node.text);
+        continue;
+      }
+      if (!isElement(node)) return null;
+      const names2 = Object.keys(node.attrs);
+      const id = idOf(node.tag, names2.length === 1 && names2[0] === "data-t" ? node.attrs["data-t"] : null);
+      if (id === null) return null;
+      const children = convert(node.children);
+      if (!children) return null;
+      out.push({ id, children });
+    }
+    return out;
+  }
+  function isText(node) {
+    return typeof node === "object" && node !== null && typeof /** @type {any} */
+    node.text === "string";
+  }
+  function isElement(node) {
+    const el = (
+      /** @type {any} */
+      node
+    );
+    return typeof el === "object" && el !== null && typeof el.tag === "string" && typeof el.attrs === "object" && el.attrs !== null && Array.isArray(el.children);
+  }
+  function textOf(nodes) {
+    return nodes.map((n) => isText(n) ? n.text : "").join("");
+  }
+  function withSurroundings(before, children, after) {
+    const lead = before.replace(/\s/g, "");
+    const trail = after.replace(/\s/g, "");
+    if (!children || !INVISIBLE.test(lead) || !INVISIBLE.test(trail)) return null;
+    const out = lead ? [{ text: lead }] : [];
+    for (const node of children) {
+      if ("text" in node) {
+        appendText(out, node.text);
+      } else {
+        out.push(node);
+      }
+    }
+    appendText(out, trail);
+    return out;
+  }
+  function idOf(tag, rawId) {
+    if (UNSAFE.has(tag) || typeof rawId !== "string" || !/^\d+$/.test(rawId)) return null;
+    return Number(rawId);
+  }
+  function appendText(nodes, text2) {
+    if (!text2) return;
+    const last2 = nodes[nodes.length - 1];
+    if (last2 && "text" in last2) {
+      last2.text += text2;
+    } else {
+      nodes.push({ text: text2 });
+    }
+  }
+
+  // src/features/page-translation/merge.js
+  init_define_import_meta_trackerLookup();
+  var insertBefore = Node.prototype.insertBefore;
+  var removeChild = Node.prototype.removeChild;
+  var createTextNode = Document.prototype.createTextNode;
+  var cloneNode = Node.prototype.cloneNode;
+  var ELEMENT_NODE3 = 1;
+  var TEXT_NODE3 = 3;
+  function writeText(target, text2) {
+    if (target.kind === "attribute") {
+      target.element.setAttribute(target.attribute, text2);
+      return;
+    }
+    const nodes = target.kind === "run" ? target.nodes : [...target.element.childNodes];
+    const texts = (
+      /** @type {Text[]} */
+      nodes.filter((node) => node.nodeType === TEXT_NODE3)
+    );
+    texts.forEach((node, i) => setText(node, i === 0 ? text2 : ""));
+  }
+  function pinOption(option) {
+    if (option.hasAttribute("value")) return;
+    option.setAttribute("value", option.value);
+  }
+  function mergeUnit(target, elements, parsed, isExcluded2) {
+    const merge = new Merge(elements, isExcluded2, parsed);
+    if (target.kind === "element") {
+      merge.into(target.element, [...target.element.childNodes], parsed, null);
+    } else if (target.kind === "run") {
+      const last2 = target.nodes[target.nodes.length - 1];
+      const anchor = last2 ? last2.nextSibling : null;
+      target.nodes = merge.into(target.parent, target.nodes, parsed, anchor);
+    }
+  }
+  var Merge = class {
+    /**
+     * @param {Element[]} elements
+     * @param {(el: Element) => boolean} isExcluded
+     * @param {ParsedNode[]} parsed
+     */
+    constructor(elements, isExcluded2, parsed) {
+      this.elements = elements;
+      this.isExcluded = isExcluded2;
+      this.used = /* @__PURE__ */ new Set();
+      this.live = /* @__PURE__ */ new Map();
+      this.offLimits = new Set(
+        elements.filter((el) => elements.some((other) => other !== el && other.contains(el) && isExcluded2(other)))
+      );
+      this.pickLive(parsed);
+    }
+    /**
+     * The engine can return a tag more than once, sometimes first empty (a Wikipedia citation: `<sup></sup> … <sup>[9]</sup>`).
+     * The live element goes to the occurrence with the most text, the first on a tie.
+     * @param {ParsedNode[]} nodes
+     */
+    pickLive(nodes) {
+      for (const node of nodes) {
+        if ("text" in node) continue;
+        const current = this.live.get(node.id);
+        if (!current || textOf2(node.children).length > textOf2(
+          /** @type {{ children: ParsedNode[] }} */
+          current.children
+        ).length) {
+          this.live.set(node.id, node);
+        }
+        this.pickLive(node.children);
+      }
+    }
+    /**
+     * Rebuilds `current` (children of `parent`, before `anchor`) from the translation. Returns the new node list.
+     * @param {Node} parent
+     * @param {ChildNode[]} current
+     * @param {ParsedNode[]} parsed
+     * @param {ChildNode | null} anchor
+     * @param {boolean} [copying] - building a copy: every element in it is a copy too, never a live node
+     * @returns {ChildNode[]}
+     */
+    into(parent, current, parsed, anchor, copying = false) {
+      const texts = (
+        /** @type {Text[]} */
+        current.filter((node) => node.nodeType === TEXT_NODE3)
+      );
+      const next = [];
+      for (const item of parsed) {
+        if ("text" in item) {
+          next.push(this.text(texts, item.text));
+          continue;
+        }
+        const live = this.elements[item.id];
+        if (live && this.offLimits.has(live)) continue;
+        if (!live || live.contains(parent)) {
+          next.push(this.text(texts, textOf2(item.children)));
+          continue;
+        }
+        if (copying || this.live.get(item.id) !== item) {
+          const excluded = this.isExcluded(live);
+          const copy2 = (
+            /** @type {Element} */
+            ReflectApply(cloneNode, live, [excluded])
+          );
+          copy2.removeAttribute("id");
+          for (const el of copy2.querySelectorAll("[id]")) el.removeAttribute("id");
+          if (!excluded) this.into(copy2, [], item.children, null, true);
+          next.push(copy2);
+          continue;
+        }
+        this.used.add(item.id);
+        if (!this.isExcluded(live)) this.into(live, [...live.childNodes], item.children, null);
+        next.push(live);
+      }
+      for (const node of current) {
+        if (node.nodeType !== ELEMENT_NODE3 || next.includes(node)) continue;
+        const id = this.elements.indexOf(
+          /** @type {Element} */
+          node
+        );
+        if (id !== -1 && !this.used.has(id)) next.push(node);
+      }
+      const isContent = (node) => node.nodeType === TEXT_NODE3 || node.nodeType === ELEMENT_NODE3 && this.elements.includes(
+        /** @type {Element} */
+        node
+      );
+      const firstContent = current.findIndex(isContent);
+      const leading = current.filter((node, i) => !isContent(node) && (firstContent === -1 || i < firstContent));
+      const trailing = current.filter((node, i) => !isContent(node) && firstContent !== -1 && i > firstContent);
+      next.unshift(...leading);
+      next.push(...trailing);
+      if (!sameList(current, next)) {
+        replaceChildren(parent, current, next, anchor);
+      }
+      return next;
+    }
+    /**
+     * The next unused original text node, with `text` written into it, or a new one.
+     * @param {Text[]} texts
+     * @param {string} text
+     * @returns {Text}
+     */
+    text(texts, text2) {
+      const node = texts.shift();
+      if (node) {
+        setText(node, text2);
+        return node;
+      }
+      return (
+        /** @type {Text} */
+        ReflectApply(createTextNode, document, [text2])
+      );
+    }
+  };
+  function replaceChildren(parent, current, next, anchor) {
+    const keep = new Set(next);
+    for (const node of current) {
+      if (!keep.has(node) && node.parentNode === parent) ReflectApply(removeChild, parent, [node]);
+    }
+    for (const node of next) ReflectApply(insertBefore, parent, [node, anchor]);
+  }
+  function setText(node, data2) {
+    if (node.data !== data2) node.data = data2;
+  }
+  function textOf2(nodes) {
+    return nodes.map((node) => "text" in node ? node.text : textOf2(node.children)).join("");
+  }
+  function sameList(a2, b2) {
+    return a2.length === b2.length && a2.every((node, i) => node === b2[i]);
+  }
+
+  // src/features/page-translation.js
+  var _units, _nextId, _sourceLanguage;
+  var PageTranslation = class extends ContentFeature {
+    constructor() {
+      super(...arguments);
+      /** @type {Map<number, UnitState>} */
+      __privateAdd(this, _units, /* @__PURE__ */ new Map());
+      /** Ids are never reused for the page's lifetime. */
+      __privateAdd(this, _nextId, 0);
+      __privateAdd(this, _sourceLanguage, "");
+    }
+    init() {
+      this.subscribe("extract", () => this._extract());
+      this.subscribe(
+        "apply",
+        ({ sourceLanguage, targetLanguage, updates: updates2 }) => this._apply(String(sourceLanguage ?? ""), String(targetLanguage ?? ""), updates2)
+      );
+    }
+    _extract() {
+      __privateGet(this, _units).clear();
+      const units = [];
+      const root = document.body;
+      try {
+        for (const target of root ? findUnits(root) : []) {
+          const serialized = serializeUnit(target);
+          const id = __privateWrapper(this, _nextId)._++;
+          __privateGet(this, _units).set(id, { target, serialized });
+          units.push({ id, text: serialized.text, html: serialized.html, vp: isInViewport(target) ? 1 : 0 });
+        }
+      } catch (e) {
+        this.log.error("extract failed", e);
+      } finally {
+        this.notify("extractResult", { units });
+      }
+    }
+    /**
+     * @param {string} sourceLanguage - the page's detected language: content marked as another language isn't written
+     * @param {string} targetLanguage - set as the page's `lang` once anything is written
+     * @param {{ id: number, text?: string, tree?: string }[]} updates - `text` for plain units, `tree` (TranslateKit's JSON) for HTML units
+     */
+    _apply(sourceLanguage, targetLanguage, updates2) {
+      __privateSet(this, _sourceLanguage, sourceLanguage);
+      let count = 0;
+      for (const update of Array.isArray(updates2) ? updates2 : []) {
+        const { id, text: text2, tree } = update ?? {};
+        const unit = typeof id === "number" ? __privateGet(this, _units).get(id) : void 0;
+        const value = unit?.serialized.html ? tree : text2;
+        if (!unit || typeof value !== "string" || !isConnected(unit.target)) continue;
+        if (isInOtherLanguage(containerOf(unit.target), sourceLanguage)) continue;
+        try {
+          if (!this._write(unit, value)) continue;
+        } catch (e) {
+          this.log.error("apply failed for a unit", e);
+          continue;
+        }
+        count++;
+      }
+      if (count > 0) document.documentElement.setAttribute("lang", targetLanguage);
+      this.notify("applyResult", { count });
+    }
+    /**
+     * @param {UnitState} unit
+     * @param {string} value - the plain text, or for an HTML unit TranslateKit's JSON tree
+     * @returns {boolean} whether anything was written
+     */
+    _write({ target, serialized }, value) {
+      if (!serialized.html) {
+        if (target.kind === "element" && target.element.localName === "option") {
+          pinOption(
+            /** @type {HTMLOptionElement} */
+            target.element
+          );
+        }
+        writeText(target, value);
+        return true;
+      }
+      const parsed = parseTree(value, serialized.wrapped);
+      if (!parsed) return false;
+      mergeUnit(target, serialized.elements, parsed, (el) => isSentEmpty(el) || isOtherLanguage(el, __privateGet(this, _sourceLanguage)));
+      return true;
+    }
+  };
+  _units = new WeakMap();
+  _nextId = new WeakMap();
+  _sourceLanguage = new WeakMap();
+  function containerOf(target) {
+    return target.kind === "run" ? target.parent : target.element;
+  }
+  function isConnected(target) {
+    if (target.kind !== "run") return target.element.isConnected;
+    return target.parent.isConnected && target.nodes.every((node) => node.parentNode === target.parent);
+  }
+  var page_translation_default = PageTranslation;
+
   // ddg:platformFeatures:ddg:platformFeatures
   var ddg_platformFeatures_default = {
     ddg_feature_webDetection: WebDetection,
@@ -33213,7 +33850,8 @@ img { display: block; width: 16px; height: 16px; }
     ddg_feature_textSelection: TextSelection,
     ddg_feature_chromeWebstorePatching: chrome_webstore_patching_default,
     ddg_feature_selectionTools: SelectionTools,
-    ddg_feature_sponsorBlock: sponsor_block_default
+    ddg_feature_sponsorBlock: sponsor_block_default,
+    ddg_feature_pageTranslation: page_translation_default
   };
 
   // src/url-change.js
@@ -33293,7 +33931,7 @@ img { display: block; width: 16px; height: 16px; }
     const importConfig = {
       trackerLookup: define_import_meta_trackerLookup_default,
       injectName: "integration",
-      contentScopeScriptsVersion: "21.3.0"
+      contentScopeScriptsVersion: "21.4.0"
     };
     const bundledFeatureNames = typeof importConfig.injectName === "string" ? platformSupport[importConfig.injectName] ?? [] : [];
     const featuresToLoad = isGloballyDisabled(args) ? platformSpecificFeatures : args.site.enabledFeatures || bundledFeatureNames;

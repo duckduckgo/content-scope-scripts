@@ -18,6 +18,7 @@ interface ImportMeta {
         | 'apple-broker-protection'
         | 'apple-ai-clear'
         | 'apple-ai-history'
+        | 'apple-page-translation'
         | 'android'
         | 'windows'
         | 'integration'
@@ -26,7 +27,8 @@ interface ImportMeta {
         | 'android-autofill-import'
         | 'android-adsjs'
         | 'android-ai-history'
-        | 'android-ai-clear';
+        | 'android-ai-clear'
+        | 'android-page-translation';
     trackerLookup?: import('./trackers.js').TrackerNode;
     pageName?: string;
     // C-S-S release version from the root package.json, or null for unversioned builds, which count as newer than every release

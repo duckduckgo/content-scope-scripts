@@ -64,6 +64,8 @@ export class Build {
             'apple-broker-protection': () => '../Sources/ContentScopeScripts/dist/brokerProtection.js',
             'android-autofill-import': () => '../build/android/autofillImport.js',
             'android-broker-protection': () => '../build/android/brokerProtection.js',
+            'apple-page-translation': () => '../Sources/ContentScopeScripts/dist/pageTranslation.js',
+            'android-page-translation': () => '../build/android/pageTranslation.js',
         });
         return readFileSync(path, 'utf8');
     }
@@ -78,10 +80,12 @@ export class Build {
             'apple',
             'apple-isolated',
             'apple-broker-protection',
+            'apple-page-translation',
             'windows',
             'integration',
             'android',
             'android-autofill-import',
+            'android-page-translation',
             'chrome-mv3',
             'firefox',
         ];

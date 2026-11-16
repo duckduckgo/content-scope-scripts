@@ -25,6 +25,7 @@ This directory contains detailed documentation for the Content Scope Scripts pro
 - **[Message Bridge](./message-bridge.md)** - Message bridge implementation details
 - **[Selection Tools](./selection-tools.md)** - Duck.ai actions for selected text
 - **[SponsorBlock](./sponsor-block.md)** - Skipping sponsored segments in YouTube videos with native-fetched SponsorBlock data
+- **[Page Translation](./page-translation.md)** - Extracting translatable text and writing translations back
 
 ## Getting Started
 

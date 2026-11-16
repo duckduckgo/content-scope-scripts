@@ -126,7 +126,8 @@
       "textSelection",
       "chromeWebstorePatching",
       "selectionTools",
-      "sponsorBlock"
+      "sponsorBlock",
+      "pageTranslation"
     ]
   );
   var featureConfigDependencies = {
@@ -159,6 +160,8 @@
     ],
     "apple-broker-protection": ["brokerProtection"],
     "apple-ai-clear": ["duckAiDataClearing"],
+    // Its own bundle: native injects it only when the user translates a page.
+    "apple-page-translation": ["pageTranslation"],
     "apple-ai-history": ["duckAiChatHistory"],
     android: [
       "webDetection",
@@ -176,6 +179,7 @@
     ],
     "android-broker-protection": ["brokerProtection"],
     "android-ai-clear": ["duckAiDataClearing"],
+    "android-page-translation": ["pageTranslation"],
     "android-ai-history": ["duckAiChatHistory"],
     "android-autofill-import": ["autofillImport"],
     "android-adsjs": [
@@ -736,7 +740,9 @@
     "textSelection",
     "uaChBrands",
     "chromeWebstorePatching",
-    "selectionTools"
+    "selectionTools",
+    "pageTranslation"
+    // native triggers it; runs without a config entry and on sites with protections off
   ];
   var selfGatingFeatures = ["trackerProtection", "uaChBrands"];
   function isPlatformSpecificFeature(featureName) {
@@ -10137,7 +10143,7 @@
     const importConfig = {
       trackerLookup: define_import_meta_trackerLookup_default,
       injectName: "android-adsjs",
-      contentScopeScriptsVersion: "21.3.0"
+      contentScopeScriptsVersion: "21.4.0"
     };
     const bundledFeatureNames = typeof importConfig.injectName === "string" ? platformSupport[importConfig.injectName] ?? [] : [];
     const featuresToLoad = isGloballyDisabled(args) ? platformSpecificFeatures : args.site.enabledFeatures || bundledFeatureNames;

@@ -958,7 +958,8 @@
       "textSelection",
       "chromeWebstorePatching",
       "selectionTools",
-      "sponsorBlock"
+      "sponsorBlock",
+      "pageTranslation"
     ]
   );
   var platformSupport = {
@@ -986,6 +987,8 @@
     ],
     "apple-broker-protection": ["brokerProtection"],
     "apple-ai-clear": ["duckAiDataClearing"],
+    // Its own bundle: native injects it only when the user translates a page.
+    "apple-page-translation": ["pageTranslation"],
     "apple-ai-history": ["duckAiChatHistory"],
     android: [
       "webDetection",
@@ -1003,6 +1006,7 @@
     ],
     "android-broker-protection": ["brokerProtection"],
     "android-ai-clear": ["duckAiDataClearing"],
+    "android-page-translation": ["pageTranslation"],
     "android-ai-history": ["duckAiChatHistory"],
     "android-autofill-import": ["autofillImport"],
     "android-adsjs": [
@@ -1526,7 +1530,9 @@
     "textSelection",
     "uaChBrands",
     "chromeWebstorePatching",
-    "selectionTools"
+    "selectionTools",
+    "pageTranslation"
+    // native triggers it; runs without a config entry and on sites with protections off
   ];
   var selfGatingFeatures = ["trackerProtection", "uaChBrands"];
   function isPlatformSpecificFeature(featureName) {
@@ -10983,6 +10989,19 @@
   }
 
   // src/dom-utils.js
+  function escapeXML(str) {
+    const replacements = {
+      "&": "&amp;",
+      '"': "&quot;",
+      "'": "&apos;",
+      "<": "&lt;",
+      ">": "&gt;"
+    };
+    return String(str).replace(/[&"'<>]/g, (m) => (
+      /** @type {string} */
+      replacements[m]
+    ));
+  }
   var Template = class _Template {
     /**
      * @param {readonly string[]} strings
@@ -10991,27 +11010,6 @@
     constructor(strings, values) {
       this.values = values;
       this.strings = strings;
-    }
-    /**
-     * Escapes any occurrences of &, ", <, > or / with XML entities.
-     *
-     * @param {string} str
-     *        The string to escape.
-     * @return {string} The escaped string.
-     */
-    escapeXML(str) {
-      const replacements = {
-        "&": "&amp;",
-        '"': "&quot;",
-        "'": "&apos;",
-        "<": "&lt;",
-        ">": "&gt;",
-        "/": "&#x2F;"
-      };
-      return String(str).replace(/[&"'<>/]/g, (m) => (
-        /** @type {string} */
-        replacements[m]
-      ));
     }
     /**
      * @param {unknown} value
@@ -11027,7 +11025,7 @@
         }
         throw new Error("Unknown object to escape");
       }
-      return this.escapeXML(
+      return escapeXML(
         /** @type {string} */
         value
       );
@@ -13826,7 +13824,7 @@
     const importConfig = {
       trackerLookup: $TRACKER_LOOKUP$,
       injectName: "chrome-mv3",
-      contentScopeScriptsVersion: "21.3.0"
+      contentScopeScriptsVersion: "21.4.0"
     };
     const bundledFeatureNames = typeof importConfig.injectName === "string" ? platformSupport[importConfig.injectName] ?? [] : [];
     const featuresToLoad = isGloballyDisabled(args) ? platformSpecificFeatures : args.site.enabledFeatures || bundledFeatureNames;

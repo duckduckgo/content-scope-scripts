@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Deep page</title>
+</head>
+<body>
+    <script>
+        // 100 chains of 30 nested divs, each ending in a paragraph: 3,100 elements, 31 deep.
+        for (let c = 0; c < 100; c++) {
+            let parent = document.body;
+            for (let d = 0; d < 30; d++) {
+                const div = document.createElement('div');
+                parent.append(div);
+                parent = div;
+            }
+            const p = document.createElement('p');
+            p.textContent = `Paragraph ${c} has words.`;
+            parent.append(p);
+        }
+    </script>
+</body>
+</html>
