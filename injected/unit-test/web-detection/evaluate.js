@@ -490,7 +490,8 @@ describe('WebDetection evaluate', () => {
             expect(holds(widths, { sum: { expr: NATURAL_WIDTH }, is: 3 })).toBe(true);
             expect(holds(widths, { expr: { element: { selector: 'img' } } })).toBe(true);
             expect(holds('', { any: [{ expr: { element: { selector: 'img' } } }] })).toBe(false);
-            expect(holds(widths, { expr: NATURAL_WIDTH })).toBe('error');
+            expect(holds(widths, { expr: NATURAL_WIDTH })).toBe(true);
+            expect(holds('', { expr: NATURAL_WIDTH })).toBe(false);
         });
 
         it('gives a list of its entries values over an array', () => {

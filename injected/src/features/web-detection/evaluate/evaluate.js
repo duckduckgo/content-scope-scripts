@@ -135,16 +135,13 @@ function atPath(error, path, ctx) {
  * @param {Position} position
  */
 function checkType(value, position) {
-    if (isItemBuffer(value) && position === 'boolean') {
-        throw new DetectionError('a list is read through any, all, none or only, or its length through using');
-    }
     if (position === 'number' && typeof value !== 'number') throw new DetectionError(`expected a number, got ${typeName(value)}`);
     if (position === 'boolean' && typeof value !== 'boolean') throw new DetectionError(`expected a boolean, got ${typeName(value)}`);
 }
 
 /**
- * A value in a position: a selected list gives its one item in number position, and the condition
- * leaf in boolean position whether it holds an item.
+ * A value in a position: a selected list gives its one item in number position, and in boolean
+ * position whether it holds an item.
  *
  * @param {unknown} value
  * @param {Position} position
@@ -152,7 +149,7 @@ function checkType(value, position) {
  */
 function positioned(value, position) {
     if (!isItemBuffer(value)) return value;
-    if (position === 'boolean' && value.leaf) return presence(value);
+    if (position === 'boolean') return presence(value);
     if (position === 'number') return single(value);
     return value;
 }
@@ -174,7 +171,7 @@ function computeUsing(node, position, ctx) {
 
 /**
  * A source's value, read each time evaluation reaches it: a list's buffer, or the value an `api` reads.
- * In boolean position, the condition leaf gives whether it holds an item.
+ * In boolean position, a list gives whether it holds an item.
  *
  * @param {SourceNode} node
  * @param {Position} position

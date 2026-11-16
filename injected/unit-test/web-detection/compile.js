@@ -54,6 +54,20 @@ describe('WebDetection compile', () => {
             expect(bound('', { define: { t: { sum: { if: true, then: [{ define: { a: 1 } }, { expr: [1, 2] }] } } } }, 't')).toBe(3);
         });
 
+        it('reads a selected list in boolean position as whether it has an item', () => {
+            const widths = { element: { selector: 'img', field: 'naturalWidth' } };
+            expect(holds('<img>', widths)).toBe(true);
+            expect(holds('', widths)).toBe(false);
+            expect(holds('', { api: { path: 'document.fonts', where: { status: 'error' } } }, { install: fonts(['loaded']) })).toBe(false);
+            expect(holds('', { api: { path: 'document.fonts', where: { status: 'error' } } }, { install: fonts(['error']) })).toBe(true);
+            expect(holds('<img>', { if: widths, then: true, else: false })).toBe(true);
+            expect(
+                bound('<img>', [{ define: { w: widths } }, { define: { has: { if: { ref: 'w' }, then: true, else: false } } }], 'has'),
+            ).toBe(true);
+            // Under any / all / none, a list other than the condition leaf contributes each item
+            expect(holds('<img>', { all: { element: { selector: 'img', field: 'complete' } } })).toBe(false);
+        });
+
         it('takes an api value of the type its position expects, checked as it is read', () => {
             const hidden = (/** @type {boolean} */ value) => (/** @type {any} */ w) =>
                 defineGetter(w.Document.prototype, 'hidden', () => value);
@@ -61,7 +75,7 @@ describe('WebDetection compile', () => {
             expect(holds('', { api: { path: 'document.hidden' } }, { install: hidden(false) })).toBe(false);
             expect(holds('', { api: { path: 'document.title' } })).toBe('error');
             expect(holds('', { any: { api: { path: 'document.hidden' } } }, { install: hidden(true) })).toBe(true);
-            expect(holds('', { api: { path: 'document.fonts', field: 'status' } }, { install: fonts(['loaded']) })).toBe('error');
+            expect(holds('', { api: { path: 'document.fonts', field: 'status' } }, { install: fonts(['loaded']) })).toBe(true);
         });
 
         it('gives the boolean `is` gives in every position, failing where a boolean does not fit', () => {

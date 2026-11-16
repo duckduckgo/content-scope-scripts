@@ -23,7 +23,7 @@ import { isFailure, thrownFailure } from './core.js';
 export class ItemBuffer {
     /** @type {unknown[]} */
     values = [];
-    /** Whether it is the condition leaf, `element` without `field` or `text`, which holds in boolean position when it has an item */
+    /** Whether it is the condition leaf, `element` without `field` or `text`, which under any / all / none is one boolean, whether it has an item */
     leaf = false;
     /** @type {Failure | undefined} */
     failure;
