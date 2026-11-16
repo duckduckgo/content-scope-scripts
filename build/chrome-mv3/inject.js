@@ -13824,7 +13824,7 @@
     const importConfig = {
       trackerLookup: $TRACKER_LOOKUP$,
       injectName: "chrome-mv3",
-      contentScopeScriptsVersion: "21.4.0"
+      contentScopeScriptsVersion: "21.5.0"
     };
     const bundledFeatureNames = typeof importConfig.injectName === "string" ? platformSupport[importConfig.injectName] ?? [] : [];
     const featuresToLoad = isGloballyDisabled(args) ? platformSpecificFeatures : args.site.enabledFeatures || bundledFeatureNames;

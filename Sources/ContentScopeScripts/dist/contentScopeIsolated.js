@@ -16721,7 +16721,7 @@ img { display: block; width: 16px; height: 16px; }
     const importConfig = {
       trackerLookup: define_import_meta_trackerLookup_default,
       injectName: "apple-isolated",
-      contentScopeScriptsVersion: "21.4.0"
+      contentScopeScriptsVersion: "21.5.0"
     };
     const bundledFeatureNames = typeof importConfig.injectName === "string" ? platformSupport[importConfig.injectName] ?? [] : [];
     const featuresToLoad = isGloballyDisabled(args) ? platformSpecificFeatures : args.site.enabledFeatures || bundledFeatureNames;
