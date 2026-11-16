@@ -122,7 +122,7 @@ async function init() {
             }
         }
 
-        let lines = [];
+        const lines = [];
         lines.push(`
 const __config = JSON.parse($CONTENT_SCOPE_JSON$);
 const __userUnprotectedDomains = $USER_UNPROTECTED_DOMAINS$;

@@ -15,7 +15,6 @@ interface ImportMeta {
         | 'firefox'
         | 'apple'
         | 'apple-blank'
-        | 'apple-isolated-blank'
         | 'apple-isolated'
         | 'apple-broker-protection'
         | 'apple-ai-clear'
@@ -78,3 +77,6 @@ declare module 'ddg:platformFeatures' {
     >;
     export default output;
 }
+declare const __userUnprotectedDomains: string[];
+declare const __config: RemoteConfig;
+declare const __userPreferences: UserPreferences;
