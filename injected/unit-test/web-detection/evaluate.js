@@ -288,7 +288,7 @@ describe('WebDetection evaluate', () => {
 
         const three = IMG('data-complete') + IMG('data-complete') + IMG();
 
-        it('reads every item of a length or a list, and every operand of `any`, `all`, `none` and the implicit AND', () => {
+        it('reads every item of a length or a list, and every operand of `any`, `all` and `none`', () => {
             const read = { element: { selector: 'img', where: { complete: true } }, using: 'length', is: { gte: 1 } };
             /** @type {Array<[object, boolean]>} */
             const cases = [
@@ -297,7 +297,7 @@ describe('WebDetection evaluate', () => {
                 [{ any: [true, read] }, true],
                 [{ all: [false, read] }, false],
                 [{ none: [true, read] }, false],
-                [{ element: { selector: 'p' }, expr: read }, false],
+                [{ all: [{ element: { selector: 'p' } }, read] }, false],
             ];
             for (const [match, detected] of cases) {
                 const { result, reads } = completeReads(three, { match, actions: REPORT });
@@ -457,7 +457,7 @@ describe('WebDetection evaluate', () => {
         });
 
         it('rejects `using` without an expression, without a path or with an unknown key, and `root` on `api`', () => {
-            rejectsMatch({ using: 'length', is: 1 }, '`using` reads from an expression');
+            rejectsMatch({ using: 'length', is: 1 }, 'this one has none');
             rejectsMatch({ element: { selector: 'img' }, using: {}, is: 1 }, '`using` needs `path`');
             rejectsMatch({ element: { selector: 'img' }, using: 1, is: 1 }, '`using` takes a path or an object');
             rejectsMatch({ element: { selector: 'img' }, using: { path: 'at', root: 'x' }, is: 1 }, "unknown key 'root'");
@@ -475,10 +475,7 @@ describe('WebDetection evaluate', () => {
             expect(bound(widths, { define: { enough } }, 'enough')).toBe(true);
             expect(bound(IMG(), { define: { enough } }, 'enough')).toBe(false);
             expect(payload(widths, enough)).toEqual({ x: true });
-            rejectsMatch(
-                { sum: [{ expr: { element: { selector: 'img' }, using: 'length', is: 1 } }], is: 1 },
-                "'expr' does not fill number",
-            );
+            expect(holds(widths, { sum: [{ expr: { element: { selector: 'img' }, using: 'length', is: 1 } }], is: 1 })).toBe('error');
         });
 
         it('gives the boolean an `is` gives in value position', () => {
@@ -493,7 +490,8 @@ describe('WebDetection evaluate', () => {
             expect(holds(widths, { sum: { expr: NATURAL_WIDTH }, is: 3 })).toBe(true);
             expect(holds(widths, { expr: { element: { selector: 'img' } } })).toBe(true);
             expect(holds('', { any: [{ expr: { element: { selector: 'img' } } }] })).toBe(false);
-            rejectsMatch({ expr: NATURAL_WIDTH }, 'does not fill boolean');
+            expect(holds(widths, { expr: NATURAL_WIDTH })).toBe(true);
+            expect(holds('', { expr: NATURAL_WIDTH })).toBe(false);
         });
 
         it('gives a list of its entries values over an array', () => {
@@ -513,8 +511,8 @@ describe('WebDetection evaluate', () => {
             expect(holds('', { expr: [1, FAILING], using: 'length', is: 2 })).toBe('aborted');
             expect(payload('', { expr: [1, 'a', { expr: [true] }] })).toEqual({ x: [1, 'a', [true]] });
             // A list stays one: it is not unwrapped to a number, nor read as a boolean
-            expectParseError(withPayload({ div: [{ expr: [6] }, 2] }), "'list' does not fill number position");
-            rejectsMatch({ expr: [true] }, "'list' does not fill boolean position");
+            expect(holds('', { div: [{ expr: [6] }, 2], is: 3 })).toBe('error');
+            expect(holds('', { expr: [true] })).toBe('error');
         });
     });
 });
