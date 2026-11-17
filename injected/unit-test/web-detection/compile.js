@@ -45,6 +45,7 @@ describe('WebDetection compile', () => {
             expect(holds('<p></p><div></div>', tag)).toBe(true);
             expect(holds('', { sum: { if: true, then: { expr: [1, 2] }, else: 0 }, is: 3 })).toBe(true);
             expect(holds('', { sum: [{ if: false, then: { expr: [1, 2] }, else: 5 }, 1], is: 6 })).toBe(true);
+            expect(holds('', { sum: { if: false, then: 0, else: { expr: [1, 2] } }, is: 3 })).toBe(true);
             expect(holds('', { any: { if: true, then: { expr: [false, true] }, else: false } })).toBe(true);
             expect(holds('', { all: { if: true, then: { expr: [true, false] }, else: true } })).toBe(false);
             // The condition leaf in a branch is still one boolean
