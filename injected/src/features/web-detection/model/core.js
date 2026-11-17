@@ -135,7 +135,7 @@ export class ConfigParseError extends Error {
     }
 }
 
-/** `^[a-zA-Z][a-zA-Z0-9_]*$`: group, detector and payload key names */
+/** `^[a-zA-Z][a-zA-Z0-9_]*$`: payload key names */
 export const NAME_PATTERN = /^[a-zA-Z][a-zA-Z0-9_]*$/;
 
 /** `^(this\.)?[a-zA-Z][a-zA-Z0-9_]*$`: a run name, or with `this.` a detector name */
