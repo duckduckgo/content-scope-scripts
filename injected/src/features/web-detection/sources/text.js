@@ -1,4 +1,4 @@
-import { ConfigParseError, FILLS, getOrCreate, isFailure, isPlainObject, newMap, rejectUnknownKeys } from '../model/core.js';
+import { ConfigParseError, getOrCreate, isFailure, isPlainObject, newMap, rejectUnknownKeys } from '../model/core.js';
 import { ItemBuffer } from '../model/lists.js';
 import { stringList } from './common.js';
 import { parseRoot, resolveRoots } from './roots.js';
@@ -318,7 +318,6 @@ export const textSource = {
             rootIsSource: root !== undefined && raw.selector === undefined && xpaths.length === 0,
         };
     },
-    fills: () => FILLS.any,
     read(bodies, ctx) {
         return new ItemBuffer(textMatches(bodies, ctx), {
             count: () => countTextMatches(bodies, ctx),

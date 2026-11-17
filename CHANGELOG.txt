@@ -1,1 +1,1 @@
-- Add iOS fullscreen video shim to web-compat (#3207)
+- Leave web detection type checks to the config validator (#3205)

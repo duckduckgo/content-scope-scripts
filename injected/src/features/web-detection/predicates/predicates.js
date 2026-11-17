@@ -67,7 +67,7 @@ const COMBINATORS = new Set(['any', 'all', 'none']);
 /** @type {string[]} */
 const FIRST_OPERATORS = ['fails', 'type'];
 /** @type {ReadonlySet<unknown>} */
-const TYPE_NAMES = new Set(['number', 'string', 'boolean', 'null', 'undefined', 'array', 'object']);
+const TYPE_NAMES = new Set(['number', 'string', 'boolean', 'null', 'undefined', 'array', 'object', 'function', 'symbol', 'bigint']);
 
 /**
  * @param {unknown} name

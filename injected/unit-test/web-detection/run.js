@@ -9,7 +9,7 @@ import {
     expectParseError,
     expectRun,
     fires,
-    rejectsMatch,
+    holds,
     throwing,
 } from './support.js';
 import { thrownMessage } from '../../src/features/web-detection/model/core.js';
@@ -38,11 +38,13 @@ describe('WebDetection run', () => {
             expect(d.events).toEqual([{ type: 't', data: { n: 4 } }]);
         });
 
-        it('gives `undefined` for an action in value position, and rejects one in boolean and number position', () => {
+        it('gives `undefined` for an action in value position, and fails one in boolean and number position', () => {
             const d = detector({ actions: [{ define: { x: { expr: { define: { y: 1 } } } } }] });
             expect(bindings(d.run())).toEqual({ x: undefined, y: 1 });
-            rejectsMatch({ fireEvent: { type: 'a' } }, "'fireEvent' does not fill boolean position");
-            expectParseError({ actions: { define: { x: { sum: [{ define: { y: 1 } }] } } } }, "'define' does not fill number position");
+            expect(holds('', { fireEvent: { type: 'a' } })).toBe('error');
+            expect(detector({ actions: { define: { x: { sum: [{ define: { y: 1 } }] } } } }).run().failedAt).toBe(
+                'actions.define.x.sum.0.define.y',
+            );
         });
     });
 
@@ -220,13 +222,15 @@ describe('WebDetection run', () => {
             expectRun(d.run(), { failedAt: 'actions.if.api', types: [] });
         });
 
-        it('rejects `then` or `else` without `if`, `if` without `then`, and `if` without `else` outside value position', () => {
+        it('rejects `then` or `else` without `if` and `if` without `then`, and fails an `if` without `else` that gives `undefined` outside value position', () => {
             expectParseError({ actions: { then: { fireEvent: { type: 'a' } } } }, "'then' sits beside 'if' only");
             expectParseError({ actions: { api: 'x', else: 1 } }, "'else' sits beside 'if' only");
             expectParseError({ actions: { if: true } }, "'if' needs 'then'");
-            expectParseError({ actions: { if: true, then: 1, api: 'x' } }, "'if' takes no other expression key");
-            rejectsMatch({ if: true, then: true }, "'if' does not fill boolean position");
-            expectParseError({ actions: { define: { x: { sum: [{ if: true, then: 1 }] } } } }, "'if' does not fill number position");
+            expectParseError({ actions: { if: true, then: 1, api: 'x' } }, 'an object takes one expression key');
+            expect(holds('', { if: false, then: true })).toBe('error');
+            expect(detector({ actions: { define: { x: { sum: [{ if: false, then: 1 }] } } } }).run().failedAt).toBe(
+                'actions.define.x.sum.0.if',
+            );
         });
     });
 
