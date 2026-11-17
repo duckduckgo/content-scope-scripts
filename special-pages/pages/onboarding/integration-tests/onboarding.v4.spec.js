@@ -359,6 +359,51 @@ test.describe('onboarding v4', () => {
         await onboarding.startBrowsing();
     });
 
+    test.describe('init.steps', () => {
+        test('Without steps, addressBarMode is the last step and searchOrChat never shows', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({ stepDefinitions: null, exclude: [] });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'addressBarMode' });
+            await page.getByRole('heading', { name: 'Want easy access to private AI Chat?' }).waitFor({ timeout: 1000 });
+            await expect(page.getByRole('button', { name: 'Next' })).toHaveCount(0);
+            await onboarding.startBrowsing();
+            await expect(page.getByRole('heading', { name: 'Try a search or AI chat' })).toHaveCount(0);
+        });
+
+        test('With searchOrChat in steps, addressBarMode advances to it and it ends onboarding', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: null,
+                steps: ['welcome', 'getStarted', 'makeDefaultSingle', 'systemSettings', 'customize', 'addressBarMode', 'searchOrChat'],
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'addressBarMode' });
+            await page.getByRole('heading', { name: 'Want easy access to private AI Chat?' }).waitFor({ timeout: 1000 });
+            await expect(page.getByRole('button', { name: 'Start Browsing' })).toHaveCount(0);
+            await page.getByRole('button', { name: 'Next' }).click();
+
+            await page.getByRole('heading', { name: 'Try a search or AI chat' }).waitFor({ timeout: 1000 });
+            await onboarding.didFireStepCompleted({ id: 'addressBarMode', next: 'searchOrChat' });
+            await onboarding.startBrowsing();
+        });
+
+        test('Shows only the listed steps in the page order, ignoring unknown entries and exclude', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: null,
+                steps: ['searchOrChat', 'notAStep', 'addressBarMode', 'getStarted'],
+                exclude: ['addressBarMode'],
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'getStarted' });
+            await page.getByRole('button', { name: 'Let’s get started!' }).click();
+
+            await page.getByRole('heading', { name: 'Want easy access to private AI Chat?' }).waitFor({ timeout: 1000 });
+            await onboarding.didFireStepCompleted({ id: 'getStarted', next: 'addressBarMode' });
+        });
+    });
+
     test.describe('Given I am on the settings step with dock-instructions variant', () => {
         test('When I advance to the settings step, it sends row_shown for the first row', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);

@@ -6,7 +6,8 @@
  *
  * @typedef {Object} InitResponse
  * @property {Record<string, any>} stepDefinitions
- * @property {string[]} [exclude] - ability to exclude screens
+ * @property {string[]} [steps] - the steps this platform wants to show; the page shows only these, in its own order. Takes precedence over `exclude`.
+ * @property {string[]} [exclude] - ability to exclude screens. Ignored when `steps` is sent.
  * @property {ImportMeta['env']} [env] - optional override for the running override
  * @property {string} locale
  * @property {{ name: 'macos'|'windows'|'android'|'ios'}} [platform]
@@ -40,7 +41,7 @@ export class OnboardingMessages {
      *       "rows": ["dock", "import", "default-browser"]
      *     }
      *   },
-     *   "exclude": ["dockSingle"],
+     *   "steps": ["welcome", "getStarted", "makeDefaultSingle", "systemSettings", "customize", "addressBarMode", "searchOrChat"],
      *   "locale": "en"
      * }
      * ```

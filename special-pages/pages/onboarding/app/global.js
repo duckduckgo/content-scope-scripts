@@ -193,7 +193,7 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
         stepDefinitions,
         step: stepDefinitions[firstPage],
         activeStep: firstPage,
-        nextStep: order[1],
+        nextStep: order[order.indexOf(firstPage) + 1],
         activeRow: 0,
         activeStepVisible: false,
         exiting: false,

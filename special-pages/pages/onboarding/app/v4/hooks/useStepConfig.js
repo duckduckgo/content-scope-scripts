@@ -12,7 +12,8 @@ import { useMediaQuery } from '../../../../../shared/hooks/useMediaQuery.js';
  */
 function calculateProgress(order, activeStep) {
     // Skip 'welcome' and 'getStarted' — they don't show the progress indicator
-    const progressSteps = order.slice(2);
+    /** @type {import('../../types').Step['id'][]} */
+    const progressSteps = order.filter((id) => id !== 'welcome' && id !== 'getStarted');
 
     return {
         current: progressSteps.indexOf(activeStep) + 1,
