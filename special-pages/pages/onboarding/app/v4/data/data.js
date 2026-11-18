@@ -155,7 +155,6 @@ export const stepsConfig = {
                     </Container>
                 ),
             },
-            showProgress: true,
         };
     },
 };

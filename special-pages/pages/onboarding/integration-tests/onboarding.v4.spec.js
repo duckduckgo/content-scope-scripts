@@ -380,10 +380,13 @@ test.describe('onboarding v4', () => {
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'addressBarMode' });
             await page.getByRole('heading', { name: 'Want easy access to private AI Chat?' }).waitFor({ timeout: 1000 });
+            // the counter skips searchOrChat, which has none
+            await expect(page.getByText('4 of 4')).toBeVisible();
             await expect(page.getByRole('button', { name: 'Start Browsing' })).toHaveCount(0);
             await page.getByRole('button', { name: 'Next' }).click();
 
             await page.getByRole('heading', { name: 'Try a search or AI chat' }).waitFor({ timeout: 1000 });
+            await expect(page.getByText(/\d of \d/)).toHaveCount(0);
             await onboarding.didFireStepCompleted({ id: 'addressBarMode', next: 'searchOrChat' });
             await onboarding.startBrowsing();
         });
@@ -400,6 +403,8 @@ test.describe('onboarding v4', () => {
             await page.getByRole('button', { name: 'Let’s get started!' }).click();
 
             await page.getByRole('heading', { name: 'Want easy access to private AI Chat?' }).waitFor({ timeout: 1000 });
+            // counts only the listed steps
+            await expect(page.getByText('1 of 1')).toBeVisible();
             await onboarding.didFireStepCompleted({ id: 'getStarted', next: 'addressBarMode' });
         });
     });
