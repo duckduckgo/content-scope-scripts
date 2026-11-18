@@ -113,7 +113,8 @@ export const STEPS_ORDER = [...ORDER_V4, 'searchOrChat'];
  *   | ConfigUpdateEvent
  *   | TelemetryEvent
  *   | RequestChromeExtensionEvent
- *   | SetOnboardingInstallOptionsEvent} GlobalEvents
+ *   | SetOnboardingInstallOptionsEvent
+ *   | SubmitQueryEvent} GlobalEvents
  *  All the events that the UI can dispatch
  * @typedef {{ kind: "enqueue-next"; }} NextEvent
  * @typedef {{ kind: "advance" }} AdvanceEvent
@@ -130,6 +131,18 @@ export const STEPS_ORDER = [...ORDER_V4, 'searchOrChat'];
  * @typedef {{ kind: "telemetry"; attributes: import('../types/onboarding.ts').TelemetryEvent['attributes'] }} TelemetryEvent
  * @typedef {{ kind: "request-chrome-extension" }} RequestChromeExtensionEvent
  * @typedef {{ kind: "set-onboarding-install-options"; payload: import('../types/onboarding.ts').OnboardingInstallOptions }} SetOnboardingInstallOptionsEvent
+ * @typedef {{ kind: "submit-query"; params: SubmitQueryParams }} SubmitQueryEvent
+ */
+
+/**
+ * What the searchOrChat step offers, from the user's choice on addressBarMode.
+ * @typedef {'searchAndDuckAi' | 'searchOnly'} SearchOrChatVariant
+ *
+ * Sent when the user submits a search or a Duck.ai prompt on the searchOrChat step.
+ * @typedef {object} SubmitQueryParams
+ * @property {'search' | 'duckAi'} mode
+ * @property {string} query - the text to search for or send to Duck.ai
+ * @property {'typed' | 'suggestion'} source - 'suggestion' includes "Surprise me!"
  */
 
 /** @type {ImportMeta['injectName'][]} */
