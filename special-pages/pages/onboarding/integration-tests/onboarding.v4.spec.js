@@ -391,6 +391,21 @@ test.describe('onboarding v4', () => {
             await onboarding.startBrowsing();
         });
 
+        test('When a config update removes searchOrChat, addressBarMode goes back to Start Browsing', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: null,
+                steps: ['welcome', 'getStarted', 'addressBarMode', 'searchOrChat'],
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'addressBarMode' });
+            await page.getByRole('button', { name: 'Next' }).waitFor({ timeout: 1000 });
+
+            await onboarding.pushConfigUpdate({ exclude: ['searchOrChat'] });
+            await expect(page.getByRole('button', { name: 'Next' })).toHaveCount(0);
+            await onboarding.startBrowsing();
+        });
+
         test('Shows only the listed steps in the page order, ignoring unknown entries and exclude', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             onboarding.withInitData({

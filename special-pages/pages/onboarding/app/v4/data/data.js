@@ -124,17 +124,16 @@ export const stepsConfig = {
         };
     },
     addressBarMode: ({ t, globalState, enqueueNext, dismiss, onTitleComplete, updateSystemValue }) => {
+        const { order, activeStep } = globalState;
+        // Read from `order`, which config updates keep current, like `SettingsContent` does.
+        const isLastStep = order[order.length - 1] === activeStep;
         return {
             topBubble: {
                 content: <StepHeader title={t('addressBarMode_title')} onTitleComplete={onTitleComplete} />,
             },
             bottomBubble: {
                 content: (
-                    <AddressBarContent
-                        dismiss={dismiss}
-                        advance={globalState.nextStep ? enqueueNext : null}
-                        updateSystemValue={updateSystemValue}
-                    />
+                    <AddressBarContent dismiss={dismiss} advance={isLastStep ? null : enqueueNext} updateSystemValue={updateSystemValue} />
                 ),
             },
             showProgress: true,
