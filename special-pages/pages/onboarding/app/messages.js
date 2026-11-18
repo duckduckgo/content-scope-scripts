@@ -49,6 +49,9 @@ export class OnboardingMessages {
      * In that example, the native layer is providing the list of rows that should be shown in the
      * systemSettings step, overriding the default list provided in `data.js`.
      *
+     * Clients that don't send `steps` can still send `exclude` to remove steps from the default order.
+     * It's ignored when `steps` is present, and will be removed once every platform sends `steps`.
+     *
      * @returns {Promise<InitResponse>}
      */
     async init() {
