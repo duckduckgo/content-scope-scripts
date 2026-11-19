@@ -155,6 +155,15 @@ export class OnboardingMessages {
     }
 
     /**
+     * Sent instead of `dismissToAddressBar` when the user submits a search or a Duck.ai prompt
+     * on the searchOrChat step. Native ends onboarding and opens the query in the Welcome tab.
+     * @param {import('./types').SubmitQueryParams} params
+     */
+    submitQuery(params) {
+        this.messaging.notify('submitQuery', params);
+    }
+
+    /**
      * This will be sent if the application has loaded, but a client-side error
      * has occurred that cannot be recovered from
      * @param {import('./types').ErrorBoundaryEvent["error"]} params
