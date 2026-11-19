@@ -317,6 +317,10 @@
     "title": "AI features are private and optional. You can make changes in <b>Settings > AI Features</b>.",
     "note": "Footer text explaining AI features are optional and can be changed in settings. The <b> tag is used to bold the settings path."
   },
+  "searchOrChat_title": {
+    "title": "Try a search or AI chat",
+    "note": "Title for the last onboarding step, where the user can type a search or ask Duck.ai (DuckDuckGo's private AI chat) a question"
+  },
   "customize_title_v3": {
     "title": "Let’s customize a few things…",
     "note": "Title for a page that allows the user to customize specific settings in the DuckDuckGo browser."

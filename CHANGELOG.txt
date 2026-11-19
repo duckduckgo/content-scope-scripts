@@ -1,1 +1,1 @@
-- Leave web detection type checks to the config validator (#3205)
+- Onboarding: show only the steps native lists in init.steps (#3208)

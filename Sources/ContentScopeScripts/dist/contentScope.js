@@ -14185,7 +14185,7 @@ ${iframeContent}
     const importConfig = {
       trackerLookup: define_import_meta_trackerLookup_default,
       injectName: "apple",
-      contentScopeScriptsVersion: "22.0.0"
+      contentScopeScriptsVersion: "22.1.0"
     };
     const bundledFeatureNames = typeof importConfig.injectName === "string" ? platformSupport[importConfig.injectName] ?? [] : [];
     const featuresToLoad = isGloballyDisabled(args) ? platformSpecificFeatures : args.site.enabledFeatures || bundledFeatureNames;

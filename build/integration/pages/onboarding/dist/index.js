@@ -16420,13 +16420,16 @@
      *       "rows": ["dock", "import", "default-browser"]
      *     }
      *   },
-     *   "exclude": ["dockSingle"],
+     *   "steps": ["welcome", "getStarted", "makeDefaultSingle", "systemSettings", "customize", "addressBarMode", "searchOrChat"],
      *   "locale": "en"
      * }
      * ```
      *
      * In that example, the native layer is providing the list of rows that should be shown in the
      * systemSettings step, overriding the default list provided in `data.js`.
+     *
+     * Clients that don't send `steps` can still send `exclude` to remove steps from the default order.
+     * It's ignored when `steps` is present, and will be removed once every platform sends `steps`.
      *
      * @returns {Promise<InitResponse>}
      */
@@ -18393,6 +18396,10 @@
       title: "AI features are private and optional. You can make changes in <b>Settings > AI Features</b>.",
       note: "Footer text explaining AI features are optional and can be changed in settings. The <b> tag is used to bold the settings path."
     },
+    searchOrChat_title: {
+      title: "Try a search or AI chat",
+      note: "Title for the last onboarding step, where the user can type a search or ask Duck.ai (DuckDuckGo's private AI chat) a question"
+    },
     customize_title_v3: {
       title: "Let\u2019s customize a few things\u2026",
       note: "Title for a page that allows the user to customize specific settings in the DuckDuckGo browser."
@@ -18654,9 +18661,11 @@
     "makeDefaultSingle",
     "duckPlayerSingle",
     "customize",
-    "addressBarMode"
+    "addressBarMode",
+    "searchOrChat"
   ];
   var ORDER_V4 = ["welcome", "getStarted", "makeDefaultSingle", "systemSettings", "duckPlayerSingle", "customize", "addressBarMode"];
+  var STEPS_ORDER = [...ORDER_V4, "searchOrChat"];
   function useTypedTranslation() {
     return {
       t: x2(TranslationContext).t
@@ -18788,7 +18797,8 @@
     systemSettings: "background-02",
     duckPlayerSingle: "background-02",
     customize: "background-03",
-    addressBarMode: "background-04"
+    addressBarMode: "background-04",
+    searchOrChat: "background-04"
   };
   function Illustration({ filename, class: className, rightAligned, onAnimationEnd }) {
     return /* @__PURE__ */ k("picture", { class: (0, import_classnames2.default)(className, rightAligned && Background_default.rightAligned), onAnimationEnd }, /* @__PURE__ */ k("source", { srcset: `assets/img/v4/${filename}-dark.svg`, media: "(prefers-color-scheme: dark)" }), /* @__PURE__ */ k("img", { src: `assets/img/v4/${filename}-light.svg`, alt: "" }));
@@ -20133,7 +20143,7 @@
   };
 
   // pages/onboarding/app/v4/components/AddressBarContent.js
-  function AddressBarContent({ dismiss, updateSystemValue }) {
+  function AddressBarContent({ dismiss, advance, updateSystemValue }) {
     const { t: t3 } = useTypedTranslation();
     const { isDarkMode } = useEnv();
     const { status } = useGlobalState();
@@ -20161,7 +20171,7 @@
         selected: selectedOption === "search-only",
         onClick: () => select("search-only")
       }
-    )), /* @__PURE__ */ k("div", { class: AddressBarContent_default.footer }, /* @__PURE__ */ k("img", { src: "assets/img/steps/v4/ai-chat.svg", alt: "", class: AddressBarContent_default.starIcon }), /* @__PURE__ */ k("span", { class: AddressBarContent_default.footerText }, /* @__PURE__ */ k(Trans, { str: t3("addressBarMode_footer"), values: {} }))), /* @__PURE__ */ k(Button, { variant: "primary", size: "wide", class: AddressBarContent_default.startButton, onClick: dismiss }, t3("startBrowsing"), " ", /* @__PURE__ */ k(Launch, null)));
+    )), /* @__PURE__ */ k("div", { class: AddressBarContent_default.footer }, /* @__PURE__ */ k("img", { src: "assets/img/steps/v4/ai-chat.svg", alt: "", class: AddressBarContent_default.starIcon }), /* @__PURE__ */ k("span", { class: AddressBarContent_default.footerText }, /* @__PURE__ */ k(Trans, { str: t3("addressBarMode_footer"), values: {} }))), advance ? /* @__PURE__ */ k(Button, { variant: "primary", size: "wide", class: AddressBarContent_default.startButton, onClick: advance }, t3("nextButton")) : /* @__PURE__ */ k(Button, { variant: "primary", size: "wide", class: AddressBarContent_default.startButton, onClick: dismiss }, t3("startBrowsing"), " ", /* @__PURE__ */ k(Launch, null)));
   }
 
   // pages/onboarding/app/v4/components/WelcomeContent.module.css
@@ -20607,13 +20617,28 @@
         bounceKey: `${activeStep}-${activeRow}`
       };
     },
-    addressBarMode: ({ t: t3, dismiss, onTitleComplete, updateSystemValue }) => {
+    addressBarMode: ({ t: t3, globalState, enqueueNext, dismiss, onTitleComplete, updateSystemValue }) => {
+      const { order, activeStep } = globalState;
+      const isLastStep = order[order.length - 1] === activeStep;
       return {
         topBubble: {
           content: /* @__PURE__ */ k(StepHeader, { title: t3("addressBarMode_title"), onTitleComplete })
         },
-        bottomBubble: { content: /* @__PURE__ */ k(AddressBarContent, { dismiss, updateSystemValue }) },
+        bottomBubble: {
+          content: /* @__PURE__ */ k(AddressBarContent, { dismiss, advance: isLastStep ? null : enqueueNext, updateSystemValue })
+        },
         showProgress: true
+      };
+    },
+    // Only shown to clients that list it in `init.steps`. Placeholder content until the step's UI lands.
+    searchOrChat: ({ t: t3, dismiss, onTitleComplete }) => {
+      return {
+        topBubble: {
+          content: /* @__PURE__ */ k(StepHeader, { title: t3("searchOrChat_title"), onTitleComplete })
+        },
+        bottomBubble: {
+          content: /* @__PURE__ */ k(Container, null, /* @__PURE__ */ k(Button, { variant: "primary", size: "wide", onClick: dismiss }, t3("startBrowsing")))
+        }
       };
     }
   };
@@ -20746,12 +20771,17 @@
     addressBarMode: {
       id: "addressBarMode",
       kind: "info"
+    },
+    searchOrChat: {
+      id: "searchOrChat",
+      kind: "info"
     }
   };
 
   // pages/onboarding/app/v4/hooks/useStepConfig.js
+  var STEPS_WITHOUT_PROGRESS = ["welcome", "getStarted", "searchOrChat"];
   function calculateProgress(order, activeStep) {
-    const progressSteps = order.slice(2);
+    const progressSteps = order.filter((id) => !STEPS_WITHOUT_PROGRESS.includes(id));
     return {
       current: progressSteps.indexOf(activeStep) + 1,
       total: progressSteps.length
@@ -22357,6 +22387,7 @@
      * @param {{name: 'macos' | 'windows'}} [params.platform]
      * @param {import('./types.js').Step['id'][]} [params.order] - determine the order of screens
      * @param {import('./types.js').Step['id'][]} [params.exclude] - a list of screens to exclude
+     * @param {boolean} [params.hasSteps] - true once native chose the steps; `exclude` is then ignored
      * @param {import('./types.js').Step['id']} [params.first] - choose which screen to start on
      * @param {import('./types.js').StepDefinitions} [params.stepDefinitions] - individual data for each step, eg: which rows to show
      * @param {'title'|null} [params.typingEffect] - typing effect variant for titles
@@ -22367,6 +22398,7 @@
       stepDefinitions: stepDefinitions2 = stepDefinitions,
       first = "welcome",
       exclude = [],
+      hasSteps = false,
       typingEffect = "title"
     } = {}) {
       this.platform = platform;
@@ -22374,6 +22406,7 @@
       this.stepDefinitions = stepDefinitions2;
       this.first = first;
       this.exclude = exclude;
+      this.hasSteps = hasSteps;
       this.typingEffect = typingEffect;
     }
     withPlatformName(name2) {
@@ -22418,9 +22451,28 @@
       return this;
     }
     /**
+     * Show only the steps native asks for, in the page's own order (`STEPS_ORDER`).
+     * Unknown entries are ignored one by one. Missing or empty `steps` keeps today's onboarding.
+     *
+     * @param {string[]|null|undefined} steps
+     * @return {Settings}
+     */
+    withSteps(steps) {
+      if (!Array.isArray(steps) || steps.length === 0) return this;
+      const unknown = steps.filter((id) => !STEPS_ORDER.includes(
+        /** @type {any} */
+        id
+      ));
+      if (unknown.length > 0) console.warn("ignoring unknown steps:", unknown);
+      const order = STEPS_ORDER.filter((id) => steps.includes(id));
+      if (order.length === 0) return this;
+      return new _Settings({ ...this, order, exclude: [], hasSteps: true });
+    }
+    /**
      * @param {string[]|null|undefined} exclude
      */
     withExcludedScreens(exclude) {
+      if (this.hasSteps) return this;
       if (!exclude) return this;
       if (!Array.isArray(exclude) || exclude.length === 0) return this;
       if (!exclude.every((screen) => (
@@ -22669,7 +22721,7 @@
       console.error("Could not load locale", environment.locale, e3);
       return onboarding_default;
     });
-    const settings = new Settings().withPlatformName(baseEnvironment.injectName).withPlatformName(init2.platform?.name).withPlatformName(baseEnvironment.urlParams.get("platform")).withStepDefinitions(init2.stepDefinitions).withExcludedScreens(init2.exclude).withExcludedScreens(environment.urlParams.getAll("exclude")).withFirst(environment.urlParams.get("page")).withTypingEffect(environment.urlParams.get("typingEffect"));
+    const settings = new Settings().withPlatformName(baseEnvironment.injectName).withPlatformName(init2.platform?.name).withPlatformName(baseEnvironment.urlParams.get("platform")).withSteps(init2.steps).withSteps(environment.urlParams.getAll("steps")).withStepDefinitions(init2.stepDefinitions).withExcludedScreens(init2.exclude).withExcludedScreens(environment.urlParams.getAll("exclude")).withFirst(environment.urlParams.get("page")).withTypingEffect(environment.urlParams.get("typingEffect"));
     const root2 = document.querySelector("#app");
     if (!root2) throw new Error("could not render, root element missing");
     if (environment.display === "app") {
