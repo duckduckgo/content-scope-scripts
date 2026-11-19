@@ -572,3 +572,49 @@ describe('TrackerProtection feature args.trackerData', () => {
         expect(feature.args?.trackerData?.trackers).toEqual({});
     });
 });
+
+describe('TrackerProtection surrogate injection gate', () => {
+    let TrackerProtection;
+
+    beforeAll(async () => {
+        const module = await import('../src/features/tracker-protection.js');
+        TrackerProtection = module.TrackerProtection;
+    });
+
+    /**
+     * @param {object} options
+     * @param {string} [options.setting] - trackerProtection.settings.surrogateInjection
+     * @param {boolean} [options.surrogateInjectionEnabled] - the native-provided arg
+     */
+    function isSurrogateInjectionEnabled({ setting, surrogateInjectionEnabled } = {}) {
+        const args = {
+            site: { domain: 'example.com', url: 'https://example.com' },
+            platform: { name: 'macos' },
+            featureSettings: {
+                trackerProtection: setting ? { surrogateInjection: setting } : {},
+            },
+            ...(surrogateInjectionEnabled !== undefined && { surrogateInjectionEnabled }),
+        };
+        return new TrackerProtection('trackerProtection', {}, {}, args).isSurrogateInjectionEnabled();
+    }
+
+    it('is enabled by default', () => {
+        expect(isSurrogateInjectionEnabled()).toBeTrue();
+    });
+
+    it('is disabled when the config setting is disabled', () => {
+        expect(isSurrogateInjectionEnabled({ setting: 'disabled' })).toBeFalse();
+    });
+
+    it('is disabled when native passes surrogateInjectionEnabled: false', () => {
+        expect(isSurrogateInjectionEnabled({ surrogateInjectionEnabled: false })).toBeFalse();
+    });
+
+    it('stays disabled by config even when native passes surrogateInjectionEnabled: true', () => {
+        expect(isSurrogateInjectionEnabled({ setting: 'disabled', surrogateInjectionEnabled: true })).toBeFalse();
+    });
+
+    it('is enabled when both allow it', () => {
+        expect(isSurrogateInjectionEnabled({ setting: 'enabled', surrogateInjectionEnabled: true })).toBeTrue();
+    });
+});
