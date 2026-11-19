@@ -10,6 +10,8 @@ import { GetStartedAnimation } from '../components/GetStartedAnimation';
 import { SystemSettingsBackground, SystemSettingsForeground } from '../components/SystemSettingsAnimation';
 import { FadeTransition } from '../components/FadeTransition';
 import { DockInstructionsContent } from '../components/DockInstructionsContent';
+import { Button } from '../components/Button';
+import { Container } from '../components/Container';
 
 /**
  * This sets up individual steps in the v4 (bubbles) version of onboarding
@@ -121,13 +123,37 @@ export const stepsConfig = {
             bounceKey: `${activeStep}-${activeRow}`,
         };
     },
-    addressBarMode: ({ t, dismiss, onTitleComplete, updateSystemValue }) => {
+    addressBarMode: ({ t, globalState, enqueueNext, dismiss, onTitleComplete, updateSystemValue }) => {
+        const { order, activeStep } = globalState;
+        // Read from `order`, which config updates keep current, like `SettingsContent` does.
+        const isLastStep = order[order.length - 1] === activeStep;
         return {
             topBubble: {
                 content: <StepHeader title={t('addressBarMode_title')} onTitleComplete={onTitleComplete} />,
             },
-            bottomBubble: { content: <AddressBarContent dismiss={dismiss} updateSystemValue={updateSystemValue} /> },
+            bottomBubble: {
+                content: (
+                    <AddressBarContent dismiss={dismiss} advance={isLastStep ? null : enqueueNext} updateSystemValue={updateSystemValue} />
+                ),
+            },
             showProgress: true,
+        };
+    },
+    // Only shown to clients that list it in `init.steps`. Placeholder content until the step's UI lands.
+    searchOrChat: ({ t, dismiss, onTitleComplete }) => {
+        return {
+            topBubble: {
+                content: <StepHeader title={t('searchOrChat_title')} onTitleComplete={onTitleComplete} />,
+            },
+            bottomBubble: {
+                content: (
+                    <Container>
+                        <Button variant="primary" size="wide" onClick={dismiss}>
+                            {t('startBrowsing')}
+                        </Button>
+                    </Container>
+                ),
+            },
         };
     },
 };
@@ -275,6 +301,10 @@ export const stepDefinitions = {
     },
     addressBarMode: {
         id: 'addressBarMode',
+        kind: 'info',
+    },
+    searchOrChat: {
+        id: 'searchOrChat',
         kind: 'info',
     },
 };
