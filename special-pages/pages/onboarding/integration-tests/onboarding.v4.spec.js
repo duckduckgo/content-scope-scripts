@@ -406,6 +406,23 @@ test.describe('onboarding v4', () => {
             await onboarding.startBrowsing();
         });
 
+        test('When Duck.ai is off and native leaves out addressBarMode and searchOrChat, customize ends onboarding', async ({
+            page,
+        }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: null,
+                steps: ['welcome', 'getStarted', 'makeDefaultSingle', 'systemSettings', 'customize'],
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'customize' });
+            await onboarding.skippedBookmarksBar();
+            await onboarding.skippedSessionRestore();
+            await onboarding.skippedShowHomeButton();
+            await expect(page.getByRole('button', { name: 'Next' })).toHaveCount(0);
+            await onboarding.startBrowsing();
+        });
+
         test('Shows only the listed steps in the page order, ignoring unknown entries and exclude', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             onboarding.withInitData({
