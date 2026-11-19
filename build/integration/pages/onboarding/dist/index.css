@@ -3274,6 +3274,133 @@ h2 {
   color: var(--ds-text-primary);
 }
 
+/* pages/onboarding/app/v4/components/SearchOrChatContent.module.css */
+.SearchOrChatContent_root {
+  gap: var(--sp-4);
+  padding-top: var(--sp-8);
+  padding-bottom: var(--sp-8);
+}
+.SearchOrChatContent_toggle {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 99px;
+  background: var(--ds-control-primary-background-color);
+}
+.SearchOrChatContent_tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: calc(108 * var(--px-in-rem));
+  height: var(--sp-9);
+  padding: 0 var(--sp-4);
+  border: none;
+  border-radius: 99px;
+  background: transparent;
+  color: var(--ds-text-primary);
+  font-family: var(--font-product);
+  font-size: calc(13 * var(--px-in-rem));
+  font-weight: 600;
+  line-height: var(--sp-4);
+  cursor: pointer;
+}
+.SearchOrChatContent_tab.SearchOrChatContent_selected {
+  background: var(--ds-surface-tertiary);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.08);
+  cursor: default;
+}
+.SearchOrChatContent_inputField {
+  position: relative;
+  display: flex;
+  align-self: stretch;
+  margin: var(--sp-2) 0 var(--sp-4);
+  border-radius: 22px;
+  background: var(--ds-surface-tertiary);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+.theme-dark .SearchOrChatContent_inputField {
+  box-shadow: 0 0 0 1px var(--ds-control-primary-border-color);
+}
+.SearchOrChatContent_input {
+  flex: 1;
+  min-width: 0;
+  height: calc(88 * var(--px-in-rem));
+  padding: 12px 56px 12px var(--sp-4);
+  border: none;
+  border-radius: inherit;
+  background: transparent;
+  color: var(--ds-text-primary);
+  font-family: var(--font-product);
+  font-size: calc(15 * var(--px-in-rem));
+  line-height: calc(20 * var(--px-in-rem));
+  resize: none;
+}
+.SearchOrChatContent_input::placeholder {
+  color: var(--ds-text-secondary);
+}
+.SearchOrChatContent_input:focus {
+  outline: none;
+}
+.SearchOrChatContent_submit {
+  position: absolute;
+  right: var(--sp-3);
+  bottom: var(--sp-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--sp-8);
+  height: var(--sp-8);
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--ds-control-primary-background-color);
+  color: var(--ds-text-primary);
+  cursor: pointer;
+}
+.SearchOrChatContent_submit:disabled {
+  color: var(--ds-text-secondary);
+  cursor: default;
+}
+.SearchOrChatContent_suggestions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  align-self: stretch;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.SearchOrChatContent_suggestion {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  width: 100%;
+  min-height: var(--sp-10);
+  padding: 10px var(--sp-4);
+  border: 1px solid var(--ds-accent-primary-text-color);
+  border-radius: var(--sp-8);
+  background: transparent;
+  color: var(--ds-accent-primary-text-color);
+  font-family: var(--font-product);
+  font-size: calc(15 * var(--px-in-rem));
+  line-height: calc(18 * var(--px-in-rem));
+  text-align: left;
+  cursor: pointer;
+}
+.SearchOrChatContent_suggestion svg {
+  flex-shrink: 0;
+}
+.SearchOrChatContent_suggestion:hover:not(:disabled) {
+  background: var(--ds-accent-alt-glow-secondary);
+}
+.SearchOrChatContent_suggestion:disabled {
+  cursor: default;
+}
+.SearchOrChatContent_suggestionLabel {
+  overflow-wrap: anywhere;
+}
+
 /* pages/onboarding/app/v4/components/SingleStep.module.css */
 .SingleStep_layout {
   --bubble-width: 530px;

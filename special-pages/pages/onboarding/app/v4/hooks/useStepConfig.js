@@ -47,6 +47,8 @@ export function useStepConfig() {
 
     const enqueueNext = () => dispatch({ kind: 'enqueue-next' });
     const dismiss = () => dispatch({ kind: 'dismiss' });
+    /** @param {import('../../types').SubmitQueryParams} params */
+    const submitQuery = (params) => dispatch({ kind: 'submit-query', params });
     const onTitleComplete = () => dispatch({ kind: 'title-complete' });
 
     /** @type {(id: import('../../types').SystemValueId, payload: import('../../types').SystemValue, current: boolean) => void} */
@@ -67,6 +69,7 @@ export function useStepConfig() {
         advance,
         enqueueNext,
         dismiss,
+        submitQuery,
         onTitleComplete,
         updateSystemValue,
         isShortViewport,

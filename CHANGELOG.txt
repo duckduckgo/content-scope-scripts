@@ -1,1 +1,1 @@
-- Onboarding: show only the steps native lists in init.steps (#3208)
+- feat(onboarding): build the searchOrChat step UI (#3210)

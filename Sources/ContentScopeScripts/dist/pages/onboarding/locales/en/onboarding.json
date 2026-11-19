@@ -133,7 +133,7 @@
     "title": "Keep DuckDuckGo in your Taskbar",
     "note": "Suggests users to keep DuckDuckGo in their taskbar for quick access."
   },
-  "row_dock_summary":  {
+  "row_dock_summary": {
     "title": "Pin to Taskbar",
     "note": "The text shown on the button to perform the action to pin DuckDuckGo to the taskbar."
   },
@@ -149,7 +149,7 @@
     "title": "Keep DuckDuckGo in your Dock",
     "note": "Suggests users to keep DuckDuckGo in their Dock for quick access."
   },
-  "row_dock_macos_accept":  {
+  "row_dock_macos_accept": {
     "title": "Keep in Dock",
     "note": "The text shown on the button to perform the action to keep DuckDuckGo in the users Dock."
   },
@@ -318,8 +318,68 @@
     "note": "Footer text explaining AI features are optional and can be changed in settings. The <b> tag is used to bold the settings path."
   },
   "searchOrChat_title": {
-    "title": "Try a search or AI chat",
-    "note": "Title for the last onboarding step, where the user can type a search or ask Duck.ai (DuckDuckGo's private AI chat) a question"
+    "title": "Ready to get started?\nTry a search or AI chat!",
+    "note": "Title for the last onboarding step, where the user can try a private search or ask Duck.ai (DuckDuckGo's private AI chat) a question. The line break should be kept."
+  },
+  "searchOrChat_searchOnly_title": {
+    "title": "Now, try a private search!",
+    "note": "Title for the last onboarding step, where the user can try a private search or ask Duck.ai (DuckDuckGo's private AI chat) a question, shown when the user chose search only (no AI chat) on the previous step."
+  },
+  "searchOrChat_toggleLabel": {
+    "title": "Search or ask AI",
+    "note": "Accessibility label for the control that switches between searching and asking Duck.ai (DuckDuckGo's private AI chat)."
+  },
+  "searchOrChat_searchTab": {
+    "title": "Search",
+    "note": "Label of the option that switches the input to a web search."
+  },
+  "searchOrChat_aiTab": {
+    "title": "Ask AI",
+    "note": "Label of the option that switches the input to asking Duck.ai (DuckDuckGo's private AI chat)."
+  },
+  "searchOrChat_searchPlaceholder": {
+    "title": "Search Privately",
+    "note": "Placeholder in the input when it will run a web search."
+  },
+  "searchOrChat_aiPlaceholder": {
+    "title": "Ask anything privately",
+    "note": "Placeholder in the input when it will ask Duck.ai (DuckDuckGo's private AI chat)."
+  },
+  "searchOrChat_submitLabel": {
+    "title": "Submit",
+    "note": "Accessibility label for the button that submits the search or the question."
+  },
+  "searchOrChat_searchSuggestion1": {
+    "title": "How to say \"duck\" in spanish",
+    "note": "Suggested search. Clicking it searches for this exact text, so it should read as a natural search query in the target language."
+  },
+  "searchOrChat_searchSuggestion2": {
+    "title": "Mighty ducks cast",
+    "note": "Suggested search for the cast of the film The Mighty Ducks. Clicking it searches for this exact text."
+  },
+  "searchOrChat_searchOnlySuggestion2": {
+    "title": "What’s \"duck\" in 10 languages",
+    "note": "Suggested search, shown when the user chose search only. Clicking it searches for this exact text."
+  },
+  "searchOrChat_aiSuggestion1": {
+    "title": "Explain the stock market like I’m 10",
+    "note": "Suggested question for Duck.ai (DuckDuckGo's private AI chat). Clicking it sends this exact text."
+  },
+  "searchOrChat_aiSuggestion2": {
+    "title": "Plan a perfect day in London",
+    "note": "Suggested question for Duck.ai (DuckDuckGo's private AI chat). Clicking it sends this exact text."
+  },
+  "searchOrChat_surpriseMe": {
+    "title": "Surprise me!",
+    "note": "Suggestion that runs a fun example search or question chosen by DuckDuckGo."
+  },
+  "searchOrChat_searchSurpriseQuery": {
+    "title": "baby ducklings",
+    "note": "Image search sent when the user clicks 'Surprise me!' in search mode. Not shown on screen."
+  },
+  "searchOrChat_aiSurprisePrompt": {
+    "title": "What are 10 fascinating facts across science, nature, and history?",
+    "note": "Question sent to Duck.ai (DuckDuckGo's private AI chat) when the user clicks 'Surprise me!'. Not shown on screen."
   },
   "customize_title_v3": {
     "title": "Let’s customize a few things…",

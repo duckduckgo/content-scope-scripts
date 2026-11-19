@@ -4870,7 +4870,7 @@
     const importConfig = {
       trackerLookup: define_import_meta_trackerLookup_default,
       injectName: "android-page-translation",
-      contentScopeScriptsVersion: "22.1.0"
+      contentScopeScriptsVersion: "22.2.0"
     };
     const bundledFeatureNames = typeof importConfig.injectName === "string" ? platformSupport[importConfig.injectName] ?? [] : [];
     const featuresToLoad = isGloballyDisabled(args) ? platformSpecificFeatures : args.site.enabledFeatures || bundledFeatureNames;

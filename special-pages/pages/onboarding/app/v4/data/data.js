@@ -10,8 +10,7 @@ import { GetStartedAnimation } from '../components/GetStartedAnimation';
 import { SystemSettingsBackground, SystemSettingsForeground } from '../components/SystemSettingsAnimation';
 import { FadeTransition } from '../components/FadeTransition';
 import { DockInstructionsContent } from '../components/DockInstructionsContent';
-import { Button } from '../components/Button';
-import { Container } from '../components/Container';
+import { SearchOrChatContent } from '../components/SearchOrChatContent';
 
 /**
  * This sets up individual steps in the v4 (bubbles) version of onboarding
@@ -139,20 +138,18 @@ export const stepsConfig = {
             showProgress: true,
         };
     },
-    // Only shown to clients that list it in `init.steps`. Placeholder content until the step's UI lands.
-    searchOrChat: ({ t, dismiss, onTitleComplete }) => {
+    // Only shown to clients that list it in `init.steps`.
+    searchOrChat: ({ t, globalState, submitQuery, onTitleComplete }) => {
+        // "Search Only" on addressBarMode leaves Duck.ai out. If that step wasn't shown, offer both.
+        /** @type {import('../../types').SearchOrChatVariant} */
+        const variant = globalState.values['address-bar-mode']?.enabled === false ? 'searchOnly' : 'searchAndDuckAi';
+        const title = variant === 'searchOnly' ? t('searchOrChat_searchOnly_title') : t('searchOrChat_title');
         return {
             topBubble: {
-                content: <StepHeader title={t('searchOrChat_title')} onTitleComplete={onTitleComplete} />,
+                content: <StepHeader title={title} onTitleComplete={onTitleComplete} />,
             },
             bottomBubble: {
-                content: (
-                    <Container>
-                        <Button variant="primary" size="wide" onClick={dismiss}>
-                            {t('startBrowsing')}
-                        </Button>
-                    </Container>
-                ),
+                content: <SearchOrChatContent variant={variant} submitQuery={submitQuery} />,
             },
         };
     },

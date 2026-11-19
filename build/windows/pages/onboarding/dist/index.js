@@ -16523,6 +16523,14 @@
       this.messaging.notify("dismissToAddressBar");
     }
     /**
+     * Sent instead of `dismissToAddressBar` when the user submits a search or a Duck.ai prompt
+     * on the searchOrChat step. Native ends onboarding and opens the query in the Welcome tab.
+     * @param {import('./types').SubmitQueryParams} params
+     */
+    submitQuery(params) {
+      this.messaging.notify("submitQuery", params);
+    }
+    /**
      * This will be sent if the application has loaded, but a client-side error
      * has occurred that cannot be recovered from
      * @param {import('./types').ErrorBoundaryEvent["error"]} params
@@ -17243,6 +17251,9 @@
         }
         if (msg.kind === "dismiss") {
           messaging2.dismissToAddressBar();
+        }
+        if (msg.kind === "submit-query") {
+          messaging2.submitQuery(msg.params);
         }
         if (msg.kind === "request-chrome-extension") {
           messaging2.requestChromeExtensionInstall();
@@ -18397,8 +18408,68 @@
       note: "Footer text explaining AI features are optional and can be changed in settings. The <b> tag is used to bold the settings path."
     },
     searchOrChat_title: {
-      title: "Try a search or AI chat",
-      note: "Title for the last onboarding step, where the user can type a search or ask Duck.ai (DuckDuckGo's private AI chat) a question"
+      title: "Ready to get started?\nTry a search or AI chat!",
+      note: "Title for the last onboarding step, where the user can try a private search or ask Duck.ai (DuckDuckGo's private AI chat) a question. The line break should be kept."
+    },
+    searchOrChat_searchOnly_title: {
+      title: "Now, try a private search!",
+      note: "Title for the last onboarding step, where the user can try a private search or ask Duck.ai (DuckDuckGo's private AI chat) a question, shown when the user chose search only (no AI chat) on the previous step."
+    },
+    searchOrChat_toggleLabel: {
+      title: "Search or ask AI",
+      note: "Accessibility label for the control that switches between searching and asking Duck.ai (DuckDuckGo's private AI chat)."
+    },
+    searchOrChat_searchTab: {
+      title: "Search",
+      note: "Label of the option that switches the input to a web search."
+    },
+    searchOrChat_aiTab: {
+      title: "Ask AI",
+      note: "Label of the option that switches the input to asking Duck.ai (DuckDuckGo's private AI chat)."
+    },
+    searchOrChat_searchPlaceholder: {
+      title: "Search Privately",
+      note: "Placeholder in the input when it will run a web search."
+    },
+    searchOrChat_aiPlaceholder: {
+      title: "Ask anything privately",
+      note: "Placeholder in the input when it will ask Duck.ai (DuckDuckGo's private AI chat)."
+    },
+    searchOrChat_submitLabel: {
+      title: "Submit",
+      note: "Accessibility label for the button that submits the search or the question."
+    },
+    searchOrChat_searchSuggestion1: {
+      title: 'How to say "duck" in spanish',
+      note: "Suggested search. Clicking it searches for this exact text, so it should read as a natural search query in the target language."
+    },
+    searchOrChat_searchSuggestion2: {
+      title: "Mighty ducks cast",
+      note: "Suggested search for the cast of the film The Mighty Ducks. Clicking it searches for this exact text."
+    },
+    searchOrChat_searchOnlySuggestion2: {
+      title: 'What\u2019s "duck" in 10 languages',
+      note: "Suggested search, shown when the user chose search only. Clicking it searches for this exact text."
+    },
+    searchOrChat_aiSuggestion1: {
+      title: "Explain the stock market like I\u2019m 10",
+      note: "Suggested question for Duck.ai (DuckDuckGo's private AI chat). Clicking it sends this exact text."
+    },
+    searchOrChat_aiSuggestion2: {
+      title: "Plan a perfect day in London",
+      note: "Suggested question for Duck.ai (DuckDuckGo's private AI chat). Clicking it sends this exact text."
+    },
+    searchOrChat_surpriseMe: {
+      title: "Surprise me!",
+      note: "Suggestion that runs a fun example search or question chosen by DuckDuckGo."
+    },
+    searchOrChat_searchSurpriseQuery: {
+      title: "baby ducklings",
+      note: "Image search sent when the user clicks 'Surprise me!' in search mode. Not shown on screen."
+    },
+    searchOrChat_aiSurprisePrompt: {
+      title: "What are 10 fascinating facts across science, nature, and history?",
+      note: "Question sent to Duck.ai (DuckDuckGo's private AI chat) when the user clicks 'Surprise me!'. Not shown on screen."
     },
     customize_title_v3: {
       title: "Let\u2019s customize a few things\u2026",
@@ -18798,7 +18869,7 @@
     duckPlayerSingle: "background-02",
     customize: "background-03",
     addressBarMode: "background-04",
-    searchOrChat: "background-04"
+    searchOrChat: "background-02"
   };
   function Illustration({ filename, class: className, rightAligned, onAnimationEnd }) {
     return /* @__PURE__ */ k("picture", { class: (0, import_classnames2.default)(className, rightAligned && Background_default.rightAligned), onAnimationEnd }, /* @__PURE__ */ k("source", { srcset: `assets/img/v4/${filename}-dark.svg`, media: "(prefers-color-scheme: dark)" }), /* @__PURE__ */ k("img", { src: `assets/img/v4/${filename}-light.svg`, alt: "" }));
@@ -18837,7 +18908,7 @@
   }
 
   // pages/onboarding/app/v4/components/SingleStep.js
-  var import_classnames18 = __toESM(require_classnames(), 1);
+  var import_classnames19 = __toESM(require_classnames(), 1);
 
   // pages/onboarding/app/v4/components/Bubble.js
   var import_classnames4 = __toESM(require_classnames(), 1);
@@ -20527,6 +20598,226 @@
     ), /* @__PURE__ */ k("div", { class: DockInstructionsContent_default.instruction }, /* @__PURE__ */ k("img", { src: "assets/img/steps/v4/dock.svg", alt: "", class: DockInstructionsContent_default.icon }), /* @__PURE__ */ k("p", { class: DockInstructionsContent_default.instructionText }, /* @__PURE__ */ k(Trans, { str: t3("dockInstructions_body"), values: {} }))), /* @__PURE__ */ k(Button, { variant: "primary", size: "stretch", onClick: next }, t3("nextButton")));
   }
 
+  // pages/onboarding/app/v4/components/SearchOrChatContent.js
+  var import_classnames18 = __toESM(require_classnames(), 1);
+
+  // pages/onboarding/app/v4/components/SearchOrChatIcons.js
+  function SearchIcon() {
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", "aria-hidden": "true" }, /* @__PURE__ */ k(
+      "path",
+      {
+        fill: "currentColor",
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M7 0C3.13401 0 0 3.13401 0 7C0 10.866 3.13401 14 7 14C8.70796 14 10.2731 13.3883 11.4882 12.372L14.9331 15.8169C15.1771 16.061 15.5729 16.061 15.8169 15.8169C16.061 15.5729 16.061 15.1771 15.8169 14.9331L12.372 11.4882C13.3883 10.2731 14 8.70796 14 7C14 3.13401 10.866 0 7 0ZM1.25 7C1.25 3.82436 3.82436 1.25 7 1.25C10.1756 1.25 12.75 3.82436 12.75 7C12.75 10.1756 10.1756 12.75 7 12.75C3.82436 12.75 1.25 10.1756 1.25 7Z"
+      }
+    ));
+  }
+  function SearchColorIcon() {
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", "aria-hidden": "true" }, /* @__PURE__ */ k(
+      "path",
+      {
+        d: "M13 7C13 10.3137 10.3137 13 7 13C3.68629 13 1 10.3137 1 7C1 3.68629 3.68629 1 7 1C10.3137 1 13 3.68629 13 7Z",
+        fill: "#A1D0F7"
+      }
+    ), /* @__PURE__ */ k(
+      "path",
+      {
+        d: "M7 2C8.31475 2 9.5103 2.50817 10.4028 3.33789C9.80989 3.11925 9.16886 3 8.5 3C5.46243 3 3 5.46243 3 8.5C3 9.16886 3.11925 9.80989 3.33789 10.4028C2.50817 9.5103 2 8.31475 2 7C2 4.23858 4.23858 2 7 2Z",
+        fill: "#E6F6FF"
+      }
+    ), /* @__PURE__ */ k(
+      "path",
+      {
+        d: "M7 0C10.866 0 14 3.13401 14 7C14 8.70797 13.3879 10.2727 12.3716 11.4878L15.8169 14.9331L15.8599 14.9805C16.0601 15.2259 16.0457 15.5881 15.8169 15.8169C15.5881 16.0457 15.2259 16.0601 14.9805 15.8599L14.9331 15.8169L11.4878 12.3716C10.2727 13.3879 8.70797 14 7 14C3.13401 14 0 10.866 0 7C0 3.13401 3.13401 0 7 0ZM7 1C3.68629 1 1 3.68629 1 7C1 10.3137 3.68629 13 7 13C10.3137 13 13 10.3137 13 7C13 3.68629 10.3137 1 7 1Z",
+        fill: "#045EB2"
+      }
+    ));
+  }
+  function AiChatIcon() {
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", "aria-hidden": "true" }, /* @__PURE__ */ k(
+      "path",
+      {
+        fill: "currentColor",
+        d: "M8.38065 3.27117C8.28167 2.87527 7.71903 2.87527 7.62006 3.27117L7.40072 4.14851C7.10812 5.31891 6.19427 6.23276 5.02387 6.52536L4.14654 6.74469C3.75063 6.84367 3.75063 7.40631 4.14654 7.50529L5.02387 7.72462C6.19427 8.01722 7.10812 8.93107 7.40072 10.1015L7.62006 10.9788C7.71903 11.3747 8.28167 11.3747 8.38065 10.9788L8.59998 10.1015C8.89258 8.93107 9.80643 8.01722 10.9768 7.72462L11.8542 7.50529C12.2501 7.40631 12.2501 6.84367 11.8542 6.74469L10.9768 6.52536C9.80643 6.23276 8.89258 5.31891 8.59998 4.14851L8.38065 3.27117Z"
+      }
+    ), /* @__PURE__ */ k(
+      "path",
+      {
+        fill: "currentColor",
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M1.81448 15.9327C4.47004 15.4766 9.12363 14.5947 11.0148 13.7267C13.9388 12.6665 16 10.1101 16 7.125C16 3.18997 12.4183 0 8 0C3.58172 0 0 3.18997 0 7.125C0 9.09919 0.901524 10.8859 2.35792 12.1762C2.67709 12.459 2.73732 12.9495 2.45793 13.2717L1.16424 14.7634C0.722625 15.2726 1.15017 16.0468 1.81448 15.9327ZM10.4934 12.5907L10.5403 12.5692L10.5887 12.5516C13.1057 11.6389 14.75 9.49669 14.75 7.125C14.75 4.01252 11.868 1.25 8 1.25C4.13201 1.25 1.25 4.01252 1.25 7.125C1.25 8.70234 1.96751 10.1603 3.18687 11.2407C3.95634 11.9224 4.18342 13.19 3.40227 14.0907L3.10482 14.4337C4.14545 14.2421 5.30934 14.0137 6.42936 13.7641C8.16978 13.3762 9.6837 12.9623 10.4934 12.5907Z"
+      }
+    ));
+  }
+  function AiChatColorIcon() {
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", "aria-hidden": "true" }, /* @__PURE__ */ k(
+      "path",
+      {
+        d: "M1.16435 14.7638C0.722726 15.273 1.15034 16.0472 1.81466 15.933C4.4693 15.4769 9.12032 14.5952 11.0127 13.7276C13.9377 12.6678 15.9999 10.1113 16 7.12551C16 3.19048 12.4183 0.000505447 8 0.000505447C3.58172 0.000505447 0 3.19048 0 7.12551C3.71645e-05 9.09968 0.901716 10.8861 2.35814 12.1764C2.67733 12.4592 2.73756 12.9497 2.45817 13.2719L1.16435 14.7638Z",
+        fill: "#4397E0"
+      }
+    ), /* @__PURE__ */ k(
+      "path",
+      {
+        d: "M15 7.12547C15 9.6203 13.2712 11.8458 10.6719 12.7876L10.6333 12.8012L10.5957 12.8183C9.75799 13.2024 8.21986 13.6213 6.48193 14.0087C5.10017 14.3167 3.65283 14.5915 2.45166 14.8056L3.21387 13.9272C3.89465 13.1422 3.70093 12.0297 3.02148 11.4277C1.7942 10.3404 1.04788 8.87683 1.00244 7.28026L1 7.12547C1.00001 3.84851 4.02196 1.0005 8 1.0005V0.000505447L7.79346 0.00294685C3.53933 0.0989656 0.110334 3.15259 0.00244141 6.94139L0 7.12547C3.60034e-05 9.03796 0.846128 10.7744 2.22314 12.0542L2.35791 12.1762C2.67709 12.459 2.7374 12.9498 2.45801 13.2719L1.16455 14.7636C0.722973 15.2728 1.15026 16.047 1.81445 15.933C4.46909 15.4769 9.12032 14.5952 11.0127 13.7275C13.9377 12.6677 15.9999 10.1112 16 7.12547L15.9976 6.94139C15.8879 3.09146 12.3492 0.000505447 8 0.000505447V1.0005C11.9159 1.0005 14.9051 3.76019 14.9976 6.97215L15 7.12547Z",
+        fill: "#045EB2"
+      }
+    ), /* @__PURE__ */ k(
+      "path",
+      {
+        d: "M6.66213 2.54443C6.9994 1.19535 8.86735 1.15324 9.30032 2.41796L9.33791 2.54443L9.7759 4.29736C9.88996 4.75357 10.2464 5.11006 10.7027 5.22412L12.4556 5.6621C13.8482 6.01026 13.8482 7.98974 12.4556 8.33789L10.7027 8.77587C10.2464 8.88993 9.88996 9.24642 9.7759 9.70263L9.33791 11.4556C8.98976 12.8482 7.01028 12.8482 6.66213 11.4556L6.22415 9.70263C6.11009 9.24642 5.7536 8.88993 5.29739 8.77587L3.54446 8.33789C2.15184 7.98973 2.15185 6.01025 3.54446 5.6621L5.29739 5.22412C5.7536 5.11006 6.11009 4.75357 6.22415 4.29736L6.66213 2.54443ZM8.00002 5.2705C7.66896 6.04854 7.04857 6.66893 6.27053 6.99999C7.04843 7.331 7.66892 7.95116 8.00002 8.729C8.33107 7.95129 8.95132 7.33104 9.72903 6.99999C8.95118 6.66889 8.33103 6.0484 8.00002 5.2705Z",
+        fill: "#045EB2"
+      }
+    ), /* @__PURE__ */ k(
+      "path",
+      {
+        d: "M7.63243 2.78699C7.72809 2.40434 8.27191 2.40434 8.36757 2.78699L8.80584 4.54007C9.00947 5.35457 9.64543 5.99053 10.4599 6.19416L12.213 6.63243C12.5957 6.72809 12.5957 7.27191 12.213 7.36757L10.4599 7.80584C9.64543 8.00947 9.00947 8.64543 8.80584 9.45993L8.36757 11.213C8.27191 11.5957 7.72809 11.5957 7.63243 11.213L7.19416 9.45993C6.99053 8.64543 6.35457 8.00947 5.54007 7.80584L3.78699 7.36757C3.40434 7.27191 3.40434 6.72809 3.78699 6.63243L5.54007 6.19416C6.35457 5.99053 6.99053 5.35457 7.19416 4.54007L7.63243 2.78699Z",
+        fill: "white"
+      }
+    ));
+  }
+  function SurpriseIcon() {
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "currentColor", "aria-hidden": "true" }, /* @__PURE__ */ k("path", { d: "M4.15145 12.7314L2.06746 14.8164C1.82337 15.0601 1.42665 15.0603 1.1827 14.8164C0.939078 14.5724 0.939125 14.1756 1.1827 13.9316L3.26668 11.8467L4.15145 12.7314Z" }), /* @__PURE__ */ k("path", { d: "M9.9327 5.18262C10.1767 4.93887 10.5735 4.9388 10.8175 5.18262C11.0614 5.42661 11.0612 5.82331 10.8175 6.06738L7.06746 9.81738C7.06411 9.82073 7.05921 9.82298 7.05574 9.82617L5.5782 11.3047L4.69344 10.4199L9.92098 5.19238L9.9327 5.18262Z" }), /* @__PURE__ */ k("path", { d: "M10.1261 8.14844C10.4711 8.14864 10.7511 8.42839 10.7511 8.77344V10.3984C10.7511 10.7435 10.4711 11.0232 10.1261 11.0234C9.78088 11.0234 9.50105 10.7436 9.50105 10.3984V8.77344C9.50105 8.42826 9.78088 8.14844 10.1261 8.14844Z" }), /* @__PURE__ */ k("path", { d: "M11.6807 7.50488C11.9248 7.26083 12.3204 7.26087 12.5645 7.50488L13.7139 8.65332C13.958 8.8974 13.958 9.29401 13.7139 9.53809C13.47 9.78188 13.0742 9.7818 12.8302 9.53809L11.6807 8.38867C11.4368 8.14465 11.4369 7.74895 11.6807 7.50488Z" }), /* @__PURE__ */ k("path", { d: "M7.30086 5.32422C7.64604 5.32422 7.92586 5.60404 7.92586 5.94922C7.92586 6.2944 7.64604 6.57422 7.30086 6.57422H5.67586C5.33084 6.57403 5.05086 6.29428 5.05086 5.94922C5.05086 5.60416 5.33084 5.32441 5.67586 5.32422H7.30086Z" }), /* @__PURE__ */ k("path", { d: "M14.5753 5.32422C14.9204 5.32429 15.2003 5.60409 15.2003 5.94922C15.2003 6.29435 14.9204 6.57414 14.5753 6.57422H12.9503C12.6051 6.57422 12.3253 6.2944 12.3253 5.94922C12.3253 5.60404 12.6051 5.32422 12.9503 5.32422H14.5753Z" }), /* @__PURE__ */ k("path", { d: "M6.53719 2.36035C6.78127 2.1163 7.17788 2.11628 7.42195 2.36035L8.57039 3.50977C8.81446 3.75384 8.81445 4.14948 8.57039 4.39355C8.32631 4.63763 7.93068 4.63763 7.6866 4.39355L6.53719 3.24512C6.29311 3.00104 6.29311 2.60443 6.53719 2.36035Z" }), /* @__PURE__ */ k("path", { d: "M12.8321 2.30859C13.0762 2.06452 13.4718 2.06452 13.7159 2.30859C13.96 2.55267 13.96 2.94831 13.7159 3.19238L12.5675 4.34082C12.3234 4.5849 11.9277 4.5849 11.6837 4.34082C11.4396 4.09674 11.4396 3.70111 11.6837 3.45703L12.8321 2.30859Z" }), /* @__PURE__ */ k("path", { d: "M10.1251 0.875C10.4703 0.875 10.7501 1.15482 10.7501 1.5V3.125C10.7501 3.47018 10.4703 3.75 10.1251 3.75C9.77995 3.74994 9.50008 3.47014 9.50008 3.125V1.5C9.50008 1.15486 9.77995 0.875057 10.1251 0.875Z" }));
+  }
+  function SubmitArrowIcon() {
+    return /* @__PURE__ */ k("svg", { width: "24", height: "24", viewBox: "6 9.5 24 24", fill: "none", "aria-hidden": "true" }, /* @__PURE__ */ k(
+      "path",
+      {
+        fill: "currentColor",
+        d: "M21.1957 13.5313C20.9028 13.2384 20.9028 12.7635 21.1957 12.4706C21.4886 12.1778 21.9635 12.1778 22.2564 12.4706L29.2682 19.4825C30.2445 20.4588 30.2445 22.0417 29.2682 23.018L22.2558 30.0303C21.9629 30.3232 21.4881 30.3232 21.1952 30.0303C20.9023 29.7374 20.9023 29.2626 21.1952 28.9697L28.1646 22.0002H10.75C10.3358 22.0002 10 21.6644 10 21.2502C10 20.836 10.3358 20.5002 10.75 20.5002H28.1646L21.1957 13.5313Z"
+      }
+    ));
+  }
+
+  // pages/onboarding/app/v4/components/SearchOrChatContent.module.css
+  var SearchOrChatContent_default = {
+    root: "SearchOrChatContent_root",
+    toggle: "SearchOrChatContent_toggle",
+    tab: "SearchOrChatContent_tab",
+    selected: "SearchOrChatContent_selected",
+    inputField: "SearchOrChatContent_inputField",
+    input: "SearchOrChatContent_input",
+    submit: "SearchOrChatContent_submit",
+    suggestions: "SearchOrChatContent_suggestions",
+    suggestion: "SearchOrChatContent_suggestion",
+    suggestionLabel: "SearchOrChatContent_suggestionLabel"
+  };
+
+  // pages/onboarding/app/v4/components/SearchOrChatContent.js
+  function suggestionsFor(mode, variant, t3) {
+    if (mode === "duckAi") {
+      return [
+        { label: t3("searchOrChat_aiSuggestion1"), query: t3("searchOrChat_aiSuggestion1"), icon: "aiChat" },
+        { label: t3("searchOrChat_aiSuggestion2"), query: t3("searchOrChat_aiSuggestion2"), icon: "aiChat" },
+        { label: t3("searchOrChat_surpriseMe"), query: t3("searchOrChat_aiSurprisePrompt"), icon: "surprise" }
+      ];
+    }
+    const second = variant === "searchOnly" ? t3("searchOrChat_searchOnlySuggestion2") : t3("searchOrChat_searchSuggestion2");
+    return [
+      { label: t3("searchOrChat_searchSuggestion1"), query: t3("searchOrChat_searchSuggestion1"), icon: "search" },
+      { label: second, query: second, icon: "search" },
+      { label: t3("searchOrChat_surpriseMe"), query: `!image ${t3("searchOrChat_searchSurpriseQuery")}`, icon: "surprise" }
+    ];
+  }
+  function SearchOrChatContent({ variant, submitQuery }) {
+    const { t: t3 } = useTypedTranslation();
+    const { activeStepVisible } = useGlobalState();
+    const [mode, setMode] = d2(
+      /** @type {QueryMode} */
+      "search"
+    );
+    const [text2, setText] = d2("");
+    const [submitted, setSubmitted] = d2(false);
+    const inputRef = A2(
+      /** @type {HTMLTextAreaElement|null} */
+      null
+    );
+    h2(() => {
+      if (activeStepVisible) inputRef.current?.focus();
+    }, [activeStepVisible, mode]);
+    const submit = (params) => {
+      if (submitted) return;
+      setSubmitted(true);
+      submitQuery(params);
+    };
+    const submitTyped = () => {
+      const query = text2.trim();
+      if (!query) return;
+      submit({ mode, query, source: "typed" });
+    };
+    const onKeyDown = (e3) => {
+      if (e3.key === "Enter" && !e3.shiftKey && !e3.isComposing) {
+        e3.preventDefault();
+        submitTyped();
+      }
+    };
+    const placeholder = mode === "duckAi" ? t3("searchOrChat_aiPlaceholder") : t3("searchOrChat_searchPlaceholder");
+    return /* @__PURE__ */ k(Container, { class: SearchOrChatContent_default.root }, variant === "searchAndDuckAi" && /* @__PURE__ */ k(ModeToggle, { mode, onChange: setMode }), /* @__PURE__ */ k(
+      "form",
+      {
+        class: SearchOrChatContent_default.inputField,
+        onSubmit: (e3) => {
+          e3.preventDefault();
+          submitTyped();
+        }
+      },
+      /* @__PURE__ */ k(
+        "textarea",
+        {
+          ref: inputRef,
+          class: SearchOrChatContent_default.input,
+          rows: 2,
+          value: text2,
+          placeholder,
+          "aria-label": placeholder,
+          onInput: (e3) => setText(e3.currentTarget.value),
+          onKeyDown
+        }
+      ),
+      /* @__PURE__ */ k("button", { type: "submit", class: SearchOrChatContent_default.submit, "aria-label": t3("searchOrChat_submitLabel"), disabled: !text2.trim() || submitted }, /* @__PURE__ */ k(SubmitArrowIcon, null))
+    ), /* @__PURE__ */ k("ul", { class: SearchOrChatContent_default.suggestions }, suggestionsFor(mode, variant, t3).map((suggestion) => /* @__PURE__ */ k("li", { key: suggestion.label }, /* @__PURE__ */ k(
+      "button",
+      {
+        type: "button",
+        class: SearchOrChatContent_default.suggestion,
+        disabled: submitted,
+        onClick: () => submit({ mode, query: suggestion.query, source: "suggestion" })
+      },
+      /* @__PURE__ */ k(SuggestionIcon, { icon: suggestion.icon }),
+      /* @__PURE__ */ k("span", { class: SearchOrChatContent_default.suggestionLabel }, suggestion.label)
+    )))));
+  }
+  function ModeToggle({ mode, onChange }) {
+    const { t: t3 } = useTypedTranslation();
+    const tabs = [
+      { id: "search", label: t3("searchOrChat_searchTab"), icon: /* @__PURE__ */ k(SearchIcon, null), selectedIcon: /* @__PURE__ */ k(SearchColorIcon, null) },
+      { id: "duckAi", label: t3("searchOrChat_aiTab"), icon: /* @__PURE__ */ k(AiChatIcon, null), selectedIcon: /* @__PURE__ */ k(AiChatColorIcon, null) }
+    ];
+    return /* @__PURE__ */ k("div", { class: SearchOrChatContent_default.toggle, role: "tablist", "aria-label": t3("searchOrChat_toggleLabel") }, tabs.map((tab) => {
+      const selected = tab.id === mode;
+      return /* @__PURE__ */ k(
+        "button",
+        {
+          key: tab.id,
+          type: "button",
+          role: "tab",
+          "aria-selected": selected,
+          class: (0, import_classnames18.default)(SearchOrChatContent_default.tab, { [SearchOrChatContent_default.selected]: selected }),
+          onClick: () => onChange(tab.id)
+        },
+        selected ? tab.selectedIcon : tab.icon,
+        /* @__PURE__ */ k("span", null, tab.label)
+      );
+    }));
+  }
+  function SuggestionIcon({ icon }) {
+    if (icon === "aiChat") return /* @__PURE__ */ k(AiChatIcon, null);
+    if (icon === "surprise") return /* @__PURE__ */ k(SurpriseIcon, null);
+    return /* @__PURE__ */ k(SearchIcon, null);
+  }
+
   // pages/onboarding/app/v4/data/data.js
   var stepsConfig = {
     welcome: ({ advance }) => {
@@ -20630,14 +20921,16 @@
         showProgress: true
       };
     },
-    // Only shown to clients that list it in `init.steps`. Placeholder content until the step's UI lands.
-    searchOrChat: ({ t: t3, dismiss, onTitleComplete }) => {
+    // Only shown to clients that list it in `init.steps`.
+    searchOrChat: ({ t: t3, globalState, submitQuery, onTitleComplete }) => {
+      const variant = globalState.values["address-bar-mode"]?.enabled === false ? "searchOnly" : "searchAndDuckAi";
+      const title = variant === "searchOnly" ? t3("searchOrChat_searchOnly_title") : t3("searchOrChat_title");
       return {
         topBubble: {
-          content: /* @__PURE__ */ k(StepHeader, { title: t3("searchOrChat_title"), onTitleComplete })
+          content: /* @__PURE__ */ k(StepHeader, { title, onTitleComplete })
         },
         bottomBubble: {
-          content: /* @__PURE__ */ k(Container, null, /* @__PURE__ */ k(Button, { variant: "primary", size: "wide", onClick: dismiss }, t3("startBrowsing")))
+          content: /* @__PURE__ */ k(SearchOrChatContent, { variant, submitQuery })
         }
       };
     }
@@ -20800,6 +21093,7 @@
     };
     const enqueueNext = () => dispatch({ kind: "enqueue-next" });
     const dismiss = () => dispatch({ kind: "dismiss" });
+    const submitQuery = (params) => dispatch({ kind: "submit-query", params });
     const onTitleComplete = () => dispatch({ kind: "title-complete" });
     const updateSystemValue = (id, payload, current) => dispatch({
       kind: "update-system-value",
@@ -20815,6 +21109,7 @@
       advance,
       enqueueNext,
       dismiss,
+      submitQuery,
       onTitleComplete,
       updateSystemValue,
       isShortViewport
@@ -20891,7 +21186,7 @@
     return /* @__PURE__ */ k(
       "div",
       {
-        class: (0, import_classnames18.default)(SingleStep_default.layout, {
+        class: (0, import_classnames19.default)(SingleStep_default.layout, {
           [SingleStep_default.hasTop]: !!topBubble,
           [SingleStep_default.hasBottom]: !!bottomBubble,
           [SingleStep_default.narrow]: bubbleWidth === "narrow",
@@ -22570,7 +22865,8 @@
           _msg
         );
         switch (msg.method) {
-          case "setOnboardingInstallOptions": {
+          case "setOnboardingInstallOptions":
+          case "submitQuery": {
             break;
           }
           default: {

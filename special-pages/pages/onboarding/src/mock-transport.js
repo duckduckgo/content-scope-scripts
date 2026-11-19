@@ -19,7 +19,8 @@ export function mockTransport() {
             window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
             const msg = /** @type {any} */ (_msg);
             switch (msg.method) {
-                case 'setOnboardingInstallOptions': {
+                case 'setOnboardingInstallOptions':
+                case 'submitQuery': {
                     break;
                 }
                 default: {

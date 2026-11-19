@@ -185,6 +185,39 @@ export class OnboardingV4Page extends OnboardingPage {
         ]);
     }
 
+    /**
+     * @param {import('../app/types').SubmitQueryParams} params
+     */
+    async didSubmitQuery(params) {
+        const calls = await this.mocks.outgoing({ names: ['submitQuery'] });
+        expect(calls).toMatchObject([
+            {
+                payload: {
+                    context: 'specialPages',
+                    featureName: 'onboarding',
+                    method: 'submitQuery',
+                    params,
+                },
+            },
+        ]);
+    }
+
+    /**
+     * Opens the addressBarMode step with searchOrChat listed after it, optionally picks Search Only, and moves on.
+     * @param {{ searchOnly?: boolean }} [options]
+     */
+    async goToSearchOrChat({ searchOnly = false } = {}) {
+        const { page } = this;
+        this.withInitData({ stepDefinitions: null, steps: ['welcome', 'getStarted', 'addressBarMode', 'searchOrChat'] });
+        await this.reducedMotion();
+        await this.openPage({ env: 'app', page: 'addressBarMode' });
+        if (searchOnly) {
+            await page.getByRole('button', { name: 'Search Only' }).click();
+        }
+        await page.getByRole('button', { name: 'Next' }).click();
+        await page.getByRole('textbox').waitFor({ timeout: 1000 });
+    }
+
     async hasAdditionalInformationV4() {
         const { page } = this;
         await expect(page.getByText('Set things up just the way you want.')).toBeVisible();
