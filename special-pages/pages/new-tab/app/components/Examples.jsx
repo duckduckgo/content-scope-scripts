@@ -8,6 +8,7 @@ import { otherRMFExamples, RMFExamples } from '../remote-messaging-framework/com
 import { updateNotificationExamples } from '../update-notification/components/UpdateNotification.examples.js';
 import { activityExamples } from '../activity/components/Activity.examples.js';
 import { protectionsHeadingExamples } from '../protections/components/ProtectionsHeading.examples.js';
+import { protectionsReportExamples } from '../protections/components/ProtectionsReport.examples.js';
 import { subscriptionWinBackBannerExamples } from '../subscription-winback-banner/components/SubscriptionWinBackBanner.examples.js';
 import { omnibarExamples } from '../omnibar/components/Omnibar.examples.js';
 
@@ -21,6 +22,7 @@ export const mainExamples = {
     ...RMFExamples,
     ...subscriptionWinBackBannerExamples,
     ...omnibarExamples,
+    ...protectionsReportExamples,
 };
 
 export const otherExamples = {

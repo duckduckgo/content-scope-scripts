@@ -122,3 +122,37 @@ export function useCookiePopUpsBlockedCount(initial) {
 
     return signal;
 }
+
+/**
+ * Whether DuckDuckGo is the default browser, kept up to date. `undefined`
+ * when native doesn't say.
+ *
+ * @param {boolean | undefined} initial
+ * @return {import("@preact/signals").Signal<boolean | undefined>}
+ */
+export function useIsDefaultBrowser(initial) {
+    const service = useContext(ProtectionsServiceContext);
+    const signal = useSignal(initial);
+
+    useSignalEffect(() => {
+        return service?.onData((evt) => {
+            signal.value = evt.data.isDefaultBrowser;
+        });
+    });
+
+    return signal;
+}
+
+/**
+ * Scrolls the widget into view when native asks (`protections_scroll`).
+ *
+ * @param {import('preact').RefObject<HTMLElement>} ref
+ */
+export function useScrollIntoViewOnRequest(ref) {
+    const ntp = useMessaging();
+    useEffect(() => {
+        return ntp.messaging.subscribe('protections_scroll', () => {
+            ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    }, [ntp, ref]);
+}

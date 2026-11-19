@@ -1,0 +1,145 @@
+/*
+ * The "Share as image" picture. Type sizes, padding and corner radius match
+ * the report card itself (see ProtectionsReport.module.css), so the promo card
+ * reads as part of the same family. Colours are fixed (light) since the scene
+ * is a picture, not part of the themed page.
+ */
+
+.scene {
+    /* the reference point for positions measured in share-image.js */
+    position: relative;
+    --sky: #51a1ff;
+    --ink: #111111;
+    --ink-secondary: #666666;
+
+    background: #ffffff;
+    color: var(--ink);
+    font-family: var(--theme-font-family, system-ui);
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Promo card, on the sky */
+
+.sky {
+    /* above the stage, so the promo card's shadow can spill over its edge
+       instead of being painted over by the stage's background */
+    position: relative;
+    z-index: 1;
+    background: var(--sky);
+    border-radius: 20px 20px 0 0;
+    padding: 76px var(--gutter) 10px;
+}
+
+.promo {
+    position: relative;
+    padding: 20px 24px;
+    transform: rotate(-1.5deg);
+}
+
+/* card surfaces drawn as images (see Surface in ShareScene.js) */
+.surface {
+    position: absolute;
+    display: block;
+    max-width: none;
+}
+
+.promoText {
+    /*
+     * The promo card uses the report card's type sizes, scaled up so it reads
+     * as the headline of the picture. The text block widens by the same
+     * factor, so lines break in the same places.
+     */
+    --promo-scale: 1.4;
+
+    /* above the card's surface layer */
+    position: relative;
+    max-width: calc(300px * var(--promo-scale));
+}
+
+.promoTitle {
+    margin: 0;
+    /* the report's headline, scaled */
+    font-family: var(--ds-font-family-display, var(--theme-font-family, system-ui));
+    font-size: calc(30px * var(--promo-scale));
+    /* tighter than the report's headline, so the two lines read as one block */
+    line-height: 1.1;
+    font-weight: 700;
+    letter-spacing: calc(-0.4px * var(--promo-scale));
+    text-wrap: balance;
+    /* the headline sits beside Dax, so it never gets wider than
+       the space left of it, whatever the font or translation */
+    max-width: 280px;
+}
+
+.promoBody {
+    /* the report's "We blocked…" line, scaled */
+    margin: calc(8px * var(--promo-scale)) 0 0;
+    font-size: calc(14px * var(--promo-scale));
+    line-height: calc(20px * var(--promo-scale));
+    color: var(--ink-secondary);
+    /* balanced, so every engine breaks it in the same place */
+    text-wrap: balance;
+}
+
+.promoCta {
+    /* the report's cookie line, scaled */
+    margin: calc(16px * var(--promo-scale)) 0 0;
+    display: flex;
+    align-items: center;
+    gap: calc(8px * var(--promo-scale));
+    font-size: calc(13px * var(--promo-scale));
+    line-height: calc(16px * var(--promo-scale));
+
+    b {
+        font-weight: 600;
+        text-decoration: underline;
+        text-underline-offset: calc(3px * var(--promo-scale));
+    }
+}
+
+.promoDax {
+    /* larger than the cookie icon it mirrors: it's the app icon, the thing
+       people should recognise; about 40px at the current scale */
+    width: calc(28px * var(--promo-scale));
+    height: calc(28px * var(--promo-scale));
+    flex-shrink: 0;
+}
+
+/* Dax with the shield, peeking over the card's top-right corner */
+.daxShield {
+    position: absolute;
+    right: -52px;
+    top: -14px;
+    width: 218px;
+    /* facing into the card */
+    transform: scaleX(-1);
+}
+
+/* Report card, tilted on a stack, above the landscape */
+
+.stage {
+    position: relative;
+    overflow: hidden;
+}
+
+.landscape {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    display: block;
+}
+
+/* the card underneath, square to the page, so the report looks stacked */
+.stack {
+    position: absolute;
+    left: var(--gutter);
+    top: var(--stage-top);
+}
+
+/* tilted by REPORT_TILT, set inline */
+.tilted {
+    position: absolute;
+    left: var(--gutter);
+    top: var(--stage-top);
+}

@@ -8,6 +8,8 @@ import { useItemState } from './PragmaticDND.js';
 import { useTypedTranslationWith } from '../../types.js';
 import { PlusIcon } from '../../components/Icons.js';
 import { FaviconWithState } from '../../../../../shared/components/FaviconWithState.js';
+import { siteName, TrackerPill, TrackerTip, useTrackerTip } from './TrackerBadge.js';
+import { ROW_CAPACITY } from './Favorites.js';
 
 /**
  * @import {Favorite} from '../../../types/new-tab'
@@ -27,8 +29,9 @@ export const Tile = memo(
      * @param {"dark"|"light"} props.theme
      * @param {number} props.index
      * @param {boolean} props.animateItems
+     * @param {Favorite['trackers']} [props.trackers]
      */
-    function Tile({ url, etldPlusOne, faviconSrc, faviconMax, theme, index, title, id, visibility, animateItems }) {
+    function Tile({ url, etldPlusOne, faviconSrc, faviconMax, theme, index, title, id, visibility, animateItems, trackers }) {
         const { state, ref } = useItemState(url, id, {
             kind: 'draggable',
             class: styles.preview,
@@ -36,6 +39,9 @@ export const Tile = memo(
         });
 
         const tileId = useId();
+        const trackersId = useId();
+        const tip = useTrackerTip();
+        const showTrackers = trackers && trackers.companies.length > 0;
 
         return (
             <a
@@ -46,8 +52,10 @@ export const Tile = memo(
                 data-index={index}
                 data-edge={'closestEdge' in state && state.closestEdge}
                 aria-labelledby={tileId}
+                aria-describedby={showTrackers ? trackersId : undefined}
                 style={animateItems ? { viewTransitionName: `Tile-${id}` } : undefined}
                 ref={ref}
+                {...(showTrackers ? tip.tileEvents : {})}
             >
                 <div class={cn(styles.icon, styles.draggable)}>
                     {visibility === 'visible' && (
@@ -61,10 +69,14 @@ export const Tile = memo(
                             fallbackDark={DDG_FALLBACK_ICON_DARK}
                         />
                     )}
+                    {showTrackers && <TrackerPill trackers={trackers} events={tip.pillEvents} id={trackersId} />}
                 </div>
                 <div class={styles.text} id={tileId}>
                     {title}
                 </div>
+                {showTrackers && tip.open && (
+                    <TrackerTip trackers={trackers} site={siteName(etldPlusOne, url)} align={index < ROW_CAPACITY / 2 ? 'start' : 'end'} />
+                )}
                 {state.type === 'is-dragging-over' && state.closestEdge ? (
                     <div class={styles.dropper} data-edge={state.closestEdge} />
                 ) : null}

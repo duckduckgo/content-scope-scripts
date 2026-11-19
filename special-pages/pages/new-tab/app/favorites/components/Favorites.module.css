@@ -42,3 +42,8 @@
     align-items: start;
     position: absolute;
 }
+
+/* a tile's tracker pop-over hangs over the rows below */
+.gridRow:has([role='tooltip']) {
+    z-index: 1;
+}

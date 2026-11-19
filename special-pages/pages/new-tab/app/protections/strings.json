@@ -14,5 +14,573 @@
   "protections_noRecent": {
     "title": "No recent tracking activity",
     "note": "Placeholder text shown in the Details view when no tracking activity was blocked in the last 7 days. Keep concise if possible."
+  },
+  "protections_report_infoLabel": {
+    "title": "Why this matters",
+    "note": "Accessible label for the info button next to the Protections Report title."
+  },
+  "protections_report_infoTitle": {
+    "title": "Why this matters",
+    "note": "Title of the pop-over explaining why tracker blocking matters."
+  },
+  "protections_report_infoBody1": {
+    "title": "Trackers aren’t just on sensitive sites. They’re on the news you read, the recipes you save, the stores you browse, and more. And they’re quietly piecing it all together into a detailed (and frankly, creepy!) profile of you.",
+    "note": "First paragraph of the 'Why this matters' pop-over."
+  },
+  "protections_report_infoBody2": {
+    "title": "The more of your everyday browsing happens on DuckDuckGo, the less of it they get to see.",
+    "note": "Second paragraph of the 'Why this matters' pop-over."
+  },
+  "protections_report_headlineSingular": {
+    "title": "<b>1 company</b> tried to<br>watch you browse this week.",
+    "note": "Main headline when trackers from exactly one company were blocked in the last 7 days. Keep the <b></b> tags around the company count; it is visually highlighted. The <br> starts the second line; place it where the sentence reads best split over two lines."
+  },
+  "protections_report_headlineSingularFirstPerson": {
+    "title": "<b>1 company</b> tried to<br>watch me browse this week.",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “<b>1 company</b> tried to<br>watch you browse this week.” — Main headline when trackers from exactly one company were blocked in the last 7 days. Keep the <b></b> tags around the company count; it is visually highlighted. The <br> starts the second line; place it where the sentence reads best split over two lines."
+  },
+  "protections_report_headlinePlural": {
+    "title": "<b>{count} companies</b> tried to<br>watch you browse this week.",
+    "note": "Main headline. {count} is the number of distinct tracking companies blocked in the last 7 days, eg: '47 companies tried to<br>watch you browse this week.' Keep the <b></b> tags around the company count; it is visually highlighted. The <br> starts the second line; place it where the sentence reads best split over two lines."
+  },
+  "protections_report_headlinePluralFirstPerson": {
+    "title": "<b>{count} companies</b> tried to<br>watch me browse this week.",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “<b>{count} companies</b> tried to<br>watch you browse this week.” — Main headline. {count} is the number of distinct tracking companies blocked in the last 7 days, eg: '47 companies tried to<br>watch you browse this week.' Keep the <b></b> tags around the company count; it is visually highlighted. The <br> starts the second line; place it where the sentence reads best split over two lines."
+  },
+  "protections_report_blockedSingular": {
+    "title": "We blocked <b>1</b> of their attempts to track you.",
+    "note": "Sub-headline under the main headline when exactly one tracking attempt was blocked. Keep the <b></b> tags around the number."
+  },
+  "protections_report_blockedSingularFirstPerson": {
+    "title": "DuckDuckGo blocked <b>1</b> of their attempts to track me.",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “We blocked <b>1</b> of their attempts to track you.” — Sub-headline under the main headline when exactly one tracking attempt was blocked. Keep the <b></b> tags around the number."
+  },
+  "protections_report_blockedPlural": {
+    "title": "We blocked <b>{count}</b> of their attempts to track you.",
+    "note": "Sub-headline under the main headline. {count} is the number of tracking attempts blocked in the last 7 days. Keep the <b></b> tags around the number."
+  },
+  "protections_report_blockedPluralFirstPerson": {
+    "title": "DuckDuckGo blocked <b>{count}</b> of their attempts to track me.",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “We blocked <b>{count}</b> of their attempts to track you.” — Sub-headline under the main headline. {count} is the number of tracking attempts blocked in the last 7 days. Keep the <b></b> tags around the number."
+  },
+  "protections_report_emptyTitle": {
+    "title": "No trackers yet this week.",
+    "note": "Main headline of the Protections Report when nothing has been blocked in the last 7 days."
+  },
+  "protections_report_emptyBody": {
+    "title": "As you browse, we’ll block them and show you who tried to watch you.",
+    "note": "Sub-headline of the Protections Report when nothing has been blocked in the last 7 days."
+  },
+  "protections_report_emptyFooter": {
+    "title": "Your report fills in as you browse.",
+    "note": "Shown under placeholder rows in the empty Protections Report."
+  },
+  "protections_report_cookiePopUpsSingular": {
+    "title": "We also handled 1 annoying cookie pop-up for you.",
+    "note": "Footer of the Protections Report when one cookie consent pop-up was handled automatically."
+  },
+  "protections_report_cookiePopUpsSingularFirstPerson": {
+    "title": "DuckDuckGo also handled 1 annoying cookie pop-up for me.",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “We also handled 1 annoying cookie pop-up for you.” — Footer of the Protections Report when one cookie consent pop-up was handled automatically."
+  },
+  "protections_report_cookiePopUpsPlural": {
+    "title": "We also handled {count} annoying cookie pop-ups for you.",
+    "note": "Footer of the Protections Report. {count} is the number of cookie consent pop-ups handled automatically."
+  },
+  "protections_report_cookiePopUpsPluralFirstPerson": {
+    "title": "DuckDuckGo also handled {count} annoying cookie pop-ups for me.",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “We also handled {count} annoying cookie pop-ups for you.” — Footer of the Protections Report. {count} is the number of cookie consent pop-ups handled automatically."
+  },
+  "protections_report_viewMenuLabel": {
+    "title": "Choose a view",
+    "note": "Accessible label for the menu that switches between the Protections Report views."
+  },
+  "protections_report_viewPurposes": {
+    "title": "<b>Why</b> we blocked them",
+    "note": "Option in the Protections Report view menu. Groups blocked trackers by what they were trying to do (eg: follow you with ads). The <b></b> tags bold the question word (why, who, where, when, what, how) in the menu; keep them around the equivalent word."
+  },
+  "protections_report_viewPurposesFirstPerson": {
+    "title": "<b>Why</b> DuckDuckGo blocked them",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “<b>Why</b> we blocked them” — Option in the Protections Report view menu. Groups blocked trackers by what they were trying to do (eg: follow you with ads). The <b></b> tags bold the question word (why, who, where, when, what, how) in the menu; keep them around the equivalent word."
+  },
+  "protections_report_viewCompanies": {
+    "title": "<b>Who</b> tried to watch you",
+    "note": "Option in the Protections Report view menu. Lists the tracking companies blocked on the most sites. The <b></b> tags bold the question word (why, who, where, when, what, how) in the menu; keep them around the equivalent word."
+  },
+  "protections_report_viewCompaniesFirstPerson": {
+    "title": "<b>Who</b> tried to watch me",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “<b>Who</b> tried to watch you” — Option in the Protections Report view menu. Lists the tracking companies blocked on the most sites. The <b></b> tags bold the question word (why, who, where, when, what, how) in the menu; keep them around the equivalent word."
+  },
+  "protections_report_viewSites": {
+    "title": "<b>When</b> they tried to watch you",
+    "note": "Option in the Protections Report view menu. Lists the sites you visited, most recent first, and how many trackers were blocked on each. The <b></b> tags bold the question word (why, who, where, when, what, how) in the menu; keep them around the equivalent word."
+  },
+  "protections_report_blocked": {
+    "title": "Blocked",
+    "note": "Status label at the end of a row, meaning these trackers were blocked."
+  },
+  "protections_report_purposeAdvertising": {
+    "title": "They target you with ads based on the sites you visit",
+    "note": "Describes what a tracker does (advertising trackers). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who tried to watch you'. Starts with 'They', meaning the tracking companies (or one company's trackers), eg: 'Google: They target you with ads based on the sites you visit.'"
+  },
+  "protections_report_purposeAdvertisingFirstPerson": {
+    "title": "They target me with ads based on the sites I visit",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “They target you with ads based on the sites you visit” — Describes what a tracker does (advertising trackers). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who tried to watch you'. Starts with 'They', meaning the tracking companies (or one company's trackers), eg: 'Google: They target you with ads based on the sites you visit.'"
+  },
+  "protections_report_purposeSocial": {
+    "title": "They tell social networks what you do on other sites",
+    "note": "Describes what a tracker does (social network trackers such as share buttons and pixels). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who tried to watch you'. Starts with 'They', meaning the tracking companies (or one company's trackers), eg: 'Google: They target you with ads based on the sites you visit.'"
+  },
+  "protections_report_purposeSocialFirstPerson": {
+    "title": "They tell social networks what I do on other sites",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “They tell social networks what you do on other sites” — Describes what a tracker does (social network trackers such as share buttons and pixels). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who tried to watch you'. Starts with 'They', meaning the tracking companies (or one company's trackers), eg: 'Google: They target you with ads based on the sites you visit.'"
+  },
+  "protections_report_purposeFingerprinting": {
+    "title": "They fingerprint your device to recognize you, even without cookies",
+    "note": "Describes what a tracker does (browser fingerprinting). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who tried to watch you'. Starts with 'They', meaning the tracking companies (or one company's trackers), eg: 'Google: They target you with ads based on the sites you visit.'"
+  },
+  "protections_report_purposeFingerprintingFirstPerson": {
+    "title": "They fingerprint my device to recognize me, even without cookies",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “They fingerprint your device to recognize you, even without cookies” — Describes what a tracker does (browser fingerprinting). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who tried to watch you'. Starts with 'They', meaning the tracking companies (or one company's trackers), eg: 'Google: They target you with ads based on the sites you visit.'"
+  },
+  "protections_report_purposeSessionReplay": {
+    "title": "They record what you click, type, and scroll",
+    "note": "Describes what a tracker does (session replay scripts that record mouse movement, clicks, typing and scrolls). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who tried to watch you'. Starts with 'They', meaning the tracking companies (or one company's trackers), eg: 'Google: They target you with ads based on the sites you visit.'"
+  },
+  "protections_report_purposeSessionReplayFirstPerson": {
+    "title": "They record what I click, type, and scroll",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “They record what you click, type, and scroll” — Describes what a tracker does (session replay scripts that record mouse movement, clicks, typing and scrolls). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who tried to watch you'. Starts with 'They', meaning the tracking companies (or one company's trackers), eg: 'Google: They target you with ads based on the sites you visit.'"
+  },
+  "protections_report_purposeAnalytics": {
+    "title": "They watch what you read and where you browse",
+    "note": "Describes what a tracker does (analytics and audience measurement trackers). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who tried to watch you'. Starts with 'They', meaning the tracking companies (or one company's trackers), eg: 'Google: They target you with ads based on the sites you visit.'"
+  },
+  "protections_report_purposeAnalyticsFirstPerson": {
+    "title": "They watch what I read and where I browse",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “They watch what you read and where you browse” — Describes what a tracker does (analytics and audience measurement trackers). Used as a row title in 'Why we blocked them', and as the first item of the sentence under a company in 'Who tried to watch you'. Starts with 'They', meaning the tracking companies (or one company's trackers), eg: 'Google: They target you with ads based on the sites you visit.'"
+  },
+  "protections_report_othersSingular": {
+    "title": "1 other",
+    "note": "Used at the end of a list of company names, eg: 'Google, Amazon and 1 other'."
+  },
+  "protections_report_othersPlural": {
+    "title": "{count} others",
+    "note": "Used at the end of a list of company names, eg: 'Google, Amazon and 23 others'. {count} is a number."
+  },
+  "protections_report_moreCompanies": {
+    "title": "+{count}",
+    "note": "Shown after a few company logos to say how many more companies there are, eg: '+22'."
+  },
+  "protections_report_companyWasOn": {
+    "title": "{company} was on {frequency}",
+    "note": "Row title in the 'Who tried to watch you' view. {company} is a tracking company name (eg: Google). {frequency} is one of the 'sites you visited' phrases, eg: 'Google was on 4 out of 5 sites you visited'."
+  },
+  "protections_report_freqNearlyAll": {
+    "title": "nearly every site you visited",
+    "note": "Completes 'Google was on …'. Used when the company was on 90% or more of sites visited this week."
+  },
+  "protections_report_freqNearlyAllFirstPerson": {
+    "title": "nearly every site I visited",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “nearly every site you visited” — Completes 'Google was on …'. Used when the company was on 90% or more of sites visited this week."
+  },
+  "protections_report_freqFourInFive": {
+    "title": "4 out of 5 sites you visited",
+    "note": "Completes 'Google was on …'."
+  },
+  "protections_report_freqFourInFiveFirstPerson": {
+    "title": "4 out of 5 sites I visited",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “4 out of 5 sites you visited” — Completes 'Google was on …'."
+  },
+  "protections_report_freqTwoInThree": {
+    "title": "2 out of 3 sites you visited",
+    "note": "Completes 'Google was on …'."
+  },
+  "protections_report_freqTwoInThreeFirstPerson": {
+    "title": "2 out of 3 sites I visited",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “2 out of 3 sites you visited” — Completes 'Google was on …'."
+  },
+  "protections_report_freqMoreThanHalf": {
+    "title": "more than half the sites you visited",
+    "note": "Completes 'Google was on …'."
+  },
+  "protections_report_freqMoreThanHalfFirstPerson": {
+    "title": "more than half the sites I visited",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “more than half the sites you visited” — Completes 'Google was on …'."
+  },
+  "protections_report_freqHalf": {
+    "title": "half the sites you visited",
+    "note": "Completes 'Google was on …'."
+  },
+  "protections_report_freqHalfFirstPerson": {
+    "title": "half the sites I visited",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “half the sites you visited” — Completes 'Google was on …'."
+  },
+  "protections_report_freqAlmostHalf": {
+    "title": "almost half the sites you visited",
+    "note": "Completes 'Google was on …'."
+  },
+  "protections_report_freqAlmostHalfFirstPerson": {
+    "title": "almost half the sites I visited",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “almost half the sites you visited” — Completes 'Google was on …'."
+  },
+  "protections_report_freqOneInThree": {
+    "title": "1 in 3 sites you visited",
+    "note": "Completes 'Google was on …'."
+  },
+  "protections_report_freqOneInThreeFirstPerson": {
+    "title": "1 in 3 sites I visited",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “1 in 3 sites you visited” — Completes 'Google was on …'."
+  },
+  "protections_report_freqMoreThanOneInFour": {
+    "title": "more than 1 in 4 sites you visited",
+    "note": "Completes 'Google was on …'."
+  },
+  "protections_report_freqMoreThanOneInFourFirstPerson": {
+    "title": "more than 1 in 4 sites I visited",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “more than 1 in 4 sites you visited” — Completes 'Google was on …'."
+  },
+  "protections_report_freqOneInFive": {
+    "title": "1 in 5 sites you visited",
+    "note": "Completes 'Google was on …'."
+  },
+  "protections_report_freqOneInFiveFirstPerson": {
+    "title": "1 in 5 sites I visited",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “1 in 5 sites you visited” — Completes 'Google was on …'."
+  },
+  "protections_report_freqSitesSingular": {
+    "title": "1 site you visited",
+    "note": "Completes 'Google was on …'."
+  },
+  "protections_report_freqSitesSingularFirstPerson": {
+    "title": "1 site I visited",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “1 site you visited” — Completes 'Google was on …'."
+  },
+  "protections_report_freqSitesPlural": {
+    "title": "{count} sites you visited",
+    "note": "Completes 'Google was on …'. {count} is a number."
+  },
+  "protections_report_freqSitesPluralFirstPerson": {
+    "title": "{count} sites I visited",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “{count} sites you visited” — Completes 'Google was on …'. {count} is a number."
+  },
+  "protections_report_attemptsSingular": {
+    "title": "1 tracking attempt blocked",
+    "note": "Fallback description in the 'Who tried to watch you' view when we don't know what the company's trackers do."
+  },
+  "protections_report_attemptsPlural": {
+    "title": "{count} tracking attempts blocked",
+    "note": "Fallback description in the 'Who tried to watch you' view when we don't know what the company's trackers do. {count} is a number."
+  },
+  "protections_report_expandLabel": {
+    "title": "Expand Protections Report",
+    "note": "Accessible label for the button that expands the Protections Report."
+  },
+  "protections_report_collapseLabel": {
+    "title": "Collapse Protections Report",
+    "note": "Accessible label for the button that collapses the Protections Report."
+  },
+  "protections_report_moreCompaniesSingular": {
+    "title": "1 more company tried too",
+    "note": "Last row in the 'Who tried to watch you' view, summarizing the one tracking company not listed above."
+  },
+  "protections_report_moreCompaniesPlural": {
+    "title": "{count} more companies tried too",
+    "note": "Last row in the 'Who tried to watch you' view, summarizing the tracking companies not listed above. {count} is a number, eg: '43 more companies tried too'."
+  },
+  "protections_report_including": {
+    "title": "Including {companies}",
+    "note": "Under '43 more companies tried too'. {companies} is a short list of company names, eg: 'Including Criteo, Oracle, and The Trade Desk'."
+  },
+  "protections_report_purposeAdvertisingInline": {
+    "title": "target you with ads based on the sites you visit",
+    "note": "Same as protections_report_purposeAdvertising, but used after the first item in a list, without 'They', since the list shares the first item's subject, eg: 'They target you with ads based on the sites you visit and record what you click, type, and scroll.' Use the casing that fits mid-sentence."
+  },
+  "protections_report_purposeAdvertisingInlineFirstPerson": {
+    "title": "target me with ads based on the sites I visit",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “target you with ads based on the sites you visit” — Same as protections_report_purposeAdvertising, but used after the first item in a list, without 'They', since the list shares the first item's subject, eg: 'They target you with ads based on the sites you visit and record what you click, type, and scroll.' Use the casing that fits mid-sentence."
+  },
+  "protections_report_purposeSocialInline": {
+    "title": "tell social networks what you do on other sites",
+    "note": "Same as protections_report_purposeSocial, but used after the first item in a list, without 'They', since the list shares the first item's subject, eg: 'They target you with ads based on the sites you visit and tell social networks what you do on other sites.' Use the casing that fits mid-sentence."
+  },
+  "protections_report_purposeSocialInlineFirstPerson": {
+    "title": "tell social networks what I do on other sites",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “tell social networks what you do on other sites” — Same as protections_report_purposeSocial, but used after the first item in a list, without 'They', since the list shares the first item's subject, eg: 'They target you with ads based on the sites you visit and tell social networks what you do on other sites.' Use the casing that fits mid-sentence."
+  },
+  "protections_report_purposeFingerprintingInline": {
+    "title": "fingerprint your device to recognize you",
+    "note": "Same as protections_report_purposeFingerprinting, but used after the first item in a list, without 'They', since the list shares the first item's subject, eg: 'They target you with ads based on the sites you visit and fingerprint your device to recognize you.' Use the casing that fits mid-sentence."
+  },
+  "protections_report_purposeFingerprintingInlineFirstPerson": {
+    "title": "fingerprint my device to recognize me",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “fingerprint your device to recognize you” — Same as protections_report_purposeFingerprinting, but used after the first item in a list, without 'They', since the list shares the first item's subject, eg: 'They target you with ads based on the sites you visit and fingerprint your device to recognize you.' Use the casing that fits mid-sentence."
+  },
+  "protections_report_purposeSessionReplayInline": {
+    "title": "record what you click, type, and scroll",
+    "note": "Same as protections_report_purposeSessionReplay, but used after the first item in a list, without 'They', since the list shares the first item's subject, eg: 'They target you with ads based on the sites you visit and record what you click, type, and scroll.' Use the casing that fits mid-sentence."
+  },
+  "protections_report_purposeSessionReplayInlineFirstPerson": {
+    "title": "record what I click, type, and scroll",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “record what you click, type, and scroll” — Same as protections_report_purposeSessionReplay, but used after the first item in a list, without 'They', since the list shares the first item's subject, eg: 'They target you with ads based on the sites you visit and record what you click, type, and scroll.' Use the casing that fits mid-sentence."
+  },
+  "protections_report_purposeAnalyticsInline": {
+    "title": "watch what you read and where you browse",
+    "note": "Same as protections_report_purposeAnalytics, but used after the first item in a list, without 'They', since the list shares the first item's subject, eg: 'They target you with ads based on the sites you visit and watch what you read and where you browse.' Use the casing that fits mid-sentence."
+  },
+  "protections_report_purposeAnalyticsInlineFirstPerson": {
+    "title": "watch what I read and where I browse",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “watch what you read and where you browse” — Same as protections_report_purposeAnalytics, but used after the first item in a list, without 'They', since the list shares the first item's subject, eg: 'They target you with ads based on the sites you visit and watch what you read and where you browse.' Use the casing that fits mid-sentence."
+  },
+  "protections_report_companyPurposes": {
+    "title": "{purposes}.",
+    "note": "Sentence under a company in 'Who tried to watch you'. {purposes} is a list of what its trackers do, eg: 'They target you with ads based on the sites you visit and record what you click, type, and scroll.'"
+  },
+  "protections_report_viewRecognition": {
+    "title": "<b>What</b> they use to identify you",
+    "note": "Option in the Protections Report view menu. Shows the details about your device that tracking companies are known to read to recognize it (fingerprinting). The <b></b> tags bold the question word (why, who, where, when, what, how) in the menu; keep them around the equivalent word."
+  },
+  "protections_report_viewRecognitionFirstPerson": {
+    "title": "<b>What</b> they use to identify me",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “<b>What</b> they use to identify you” — Option in the Protections Report view menu. Shows the details about your device that tracking companies are known to read to recognize it (fingerprinting). The <b></b> tags bold the question word (why, who, where, when, what, how) in the menu; keep them around the equivalent word."
+  },
+  "protections_report_viewTopSites": {
+    "title": "<b>Where</b> they tried to watch you",
+    "note": "Option in the Protections Report view menu. Shows the sites you visited this week with the most tracking companies. The <b></b> tags bold the question word (why, who, where, when, what, how) in the menu; keep them around the equivalent word."
+  },
+  "protections_report_viewTopSitesFirstPerson": {
+    "title": "<b>Where</b> they tried to watch me",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “<b>Where</b> they tried to watch you” — Option in the Protections Report view menu. Shows the sites you visited this week with the most tracking companies. The <b></b> tags bold the question word (why, who, where, when, what, how) in the menu; keep them around the equivalent word."
+  },
+  "protections_report_recognitionIntroSingular": {
+    "title": "Of the companies we blocked this week, <b>1</b> is known to read details like these from your device. Hover over them to reveal what we keep private:",
+    "note": "Introduces a list of details about your device (graphics card, screen…). Of the tracking companies blocked this week, one is known to read them. Keep the <b></b> tags."
+  },
+  "protections_report_recognitionIntroSingularFirstPerson": {
+    "title": "Of the companies DuckDuckGo blocked this week, <b>1</b> is known to read details like these from my device:",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “Of the companies we blocked this week, <b>1</b> is known to read details like these from your device:” — Introduces a list of details about your device (graphics card, screen…). Of the tracking companies blocked this week, one is known to read them. Keep the <b></b> tags."
+  },
+  "protections_report_recognitionIntroPlural": {
+    "title": "Of the companies we blocked this week, <b>{count}</b> are known to read details like these from your device to create a <b>digital fingerprint</b> of you. Hover over them to reveal what we keep private:",
+    "note": "Introduces a list of details about your device (graphics card, screen…). {count} is how many of the tracking companies blocked this week are known to read them. Keep the <b></b> tags."
+  },
+  "protections_report_recognitionIntroPluralFirstPerson": {
+    "title": "Of the companies DuckDuckGo blocked this week, <b>{count}</b> are known to read details like these from my device to create a <b>digital fingerprint</b> of me:",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “Of the companies we blocked this week, <b>{count}</b> are known to read details like these from your device to create a <b>digital fingerprint</b> of you:” — Introduces a list of details about your device (graphics card, screen…). {count} is how many of the tracking companies blocked this week are known to read them. Keep the <b></b> tags."
+  },
+  "protections_report_surfaceGraphics": {
+    "title": "Graphics card",
+    "note": "Label for a detail about your device in 'What they use to identify you'. The value next to it is the graphics card's name."
+  },
+  "protections_report_surfaceScreen": {
+    "title": "Screen",
+    "note": "Label for a detail about your device in 'What they use to identify you'. The value next to it is the screen size and color depth."
+  },
+  "protections_report_surfaceLocale": {
+    "title": "Time zone",
+    "note": "Label for a detail about your device in 'What they use to identify you'. The value next to it is the time zone and language, eg: 'America/New_York · en-US'."
+  },
+  "protections_report_surfaceFonts": {
+    "title": "Fonts",
+    "note": "Label for a detail about your device in 'What they use to identify you'. The value next to it says how many common fonts are installed."
+  },
+  "protections_report_surfaceAudio": {
+    "title": "Audio",
+    "note": "Label for a detail about your device in 'What they use to identify you'. The value next to it is the audio sample rate and number of channels."
+  },
+  "protections_report_screenValue": {
+    "title": "{width} × {height} · {depth}-bit color",
+    "note": "Screen size and color depth, eg: '2560 × 1440 · 30-bit color'."
+  },
+  "protections_report_localeValue": {
+    "title": "{timeZone} · {language}",
+    "note": "Time zone and language, eg: 'America/New_York · en-US'. Usually no translation needed."
+  },
+  "protections_report_fontsValue": {
+    "title": "{found} of {checked} common fonts",
+    "note": "How many of a list of common fonts are installed, eg: '21 of 40 common fonts'."
+  },
+  "protections_report_audioValue": {
+    "title": "{rate} kHz · {channels} channels",
+    "note": "Audio sample rate and channel count, eg: '48 kHz · 2 channels'."
+  },
+  "protections_report_valueUnavailable": {
+    "title": "Not available",
+    "note": "Shown when the browser can't read a detail about the device."
+  },
+  "protections_report_knownBySingular": {
+    "title": "1 company",
+    "note": "How many tracking companies are known to read this detail about your device."
+  },
+  "protections_report_knownByPlural": {
+    "title": "{count} companies",
+    "note": "How many tracking companies are known to read this detail about your device. {count} is a number."
+  },
+  "protections_report_recognitionFooter": {
+    "title": "Alone, these details may look innocent. Together, they can be unique to you and can single out your device, like a fingerprint. Blocking these trackers stops them reading yours.",
+    "note": "Explains fingerprinting under the list in 'What they use to identify you'."
+  },
+  "protections_report_recognitionFooterFirstPerson": {
+    "title": "Alone, these details may look innocent. Together, they can be unique to me and can single out my device, like a fingerprint. Blocking these trackers stops them reading mine.",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “Alone, these details may look innocent. Together, they can be unique to you and can single out your device, like a fingerprint. Blocking these trackers stops them reading yours.” — Explains fingerprinting under the list in 'What they use to identify you'."
+  },
+  "protections_report_topSiteLabel": {
+    "title": "Nosiest site this week",
+    "note": "Label above the site with the most tracking companies this week."
+  },
+  "protections_report_topSiteCountSingular": {
+    "title": "1 company",
+    "note": "Large number under the nosiest site: how many tracking companies were on it."
+  },
+  "protections_report_topSiteCountPlural": {
+    "title": "{count} companies",
+    "note": "Large number under the nosiest site: how many tracking companies were on it. {count} is a number."
+  },
+  "protections_report_topSiteWatchingSingular": {
+    "title": "was trying to watch: {companies}.",
+    "note": "Follows '1 company' under the nosiest site. {companies} is the company name."
+  },
+  "protections_report_topSiteWatchingPlural": {
+    "title": "were trying to watch, including {companies}.",
+    "note": "Follows '31 companies' under the nosiest site. {companies} lists the three most widespread ones (the larger logos in the ring), eg: 'were trying to watch, including Google, Facebook, and Microsoft.'"
+  },
+  "protections_report_siteCompaniesSingular": {
+    "title": "1 company",
+    "note": "Next to a site in 'Where they tried to watch you': how many tracking companies were on it."
+  },
+  "protections_report_siteCompaniesPlural": {
+    "title": "{count} companies",
+    "note": "Next to a site in 'Where they tried to watch you': how many tracking companies were on it. {count} is a number."
+  },
+  "protections_report_surfaceHardware": {
+    "title": "Hardware",
+    "note": "Label for a detail about your device in 'What they use to identify you'. The value next to it is the number of processor cores and, where available, the amount of memory."
+  },
+  "protections_report_surfaceVoices": {
+    "title": "Speech voices",
+    "note": "Label for a detail about your device in 'What they use to identify you'. The value next to it is how many text-to-speech voices are installed."
+  },
+  "protections_report_hardwareValue": {
+    "title": "{cores} cores · {memory} GB memory",
+    "note": "Processor cores and memory, eg: '8 cores · 8 GB memory'."
+  },
+  "protections_report_hardwareCoresValue": {
+    "title": "{cores} cores",
+    "note": "Processor cores, eg: '8 cores'. Shown when memory isn't available."
+  },
+  "protections_report_voicesValueSingular": {
+    "title": "1 installed",
+    "note": "How many text-to-speech voices are installed, when there's one."
+  },
+  "protections_report_voicesValuePlural": {
+    "title": "{count} installed",
+    "note": "How many text-to-speech voices are installed, eg: '84 installed'."
+  },
+  "protections_report_shareLabel": {
+    "title": "Share as image",
+    "note": "Accessible label and tooltip for the button that saves a picture of the Protections Report to share."
+  },
+  "protections_report_shareTitle": {
+    "title": "My browser has my back.",
+    "note": "Headline of the picture people can share of their Protections Report. Written in the first person, as the sharer."
+  },
+  "protections_report_shareBody": {
+    "title": "DuckDuckGo blocks trackers as you go. Here’s how it protected me this week.",
+    "note": "Text under 'My browser has my back.' in the shared picture, introducing the report below it."
+  },
+  "protections_report_shareCta": {
+    "title": "Try it free at <b>duckduckgo.com/app</b>",
+    "note": "Call to action at the bottom of the shared picture. Keep the <b></b> tags around the address, which is shown bold and underlined."
+  },
+  "protections_report_viewCompare": {
+    "title": "<b>How</b> Chrome compares",
+    "note": "Menu item for the view comparing the nosiest site in DuckDuckGo and in Chrome. Keep the <b></b> tags around the question word; it is shown in bold."
+  },
+  "protections_report_compareIntro": {
+    "title": "Same page, two browsers. Here’s who’d watch you on sites like {sites}:",
+    "note": "Introduces two small illustrated browser windows showing the same page: DuckDuckGo (clean) and Chrome (ads, a cookie banner, and trackers following the cursor). {sites} names one or two of the sites where the user was tracked most this week, each in bold, eg: 'cnn.com and allrecipes.com'."
+  },
+  "protections_report_compareIntroFirstPerson": {
+    "title": "Same page, two browsers. Here’s who’d watch me on sites like {sites}:",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “Same page, two browsers. Here’s who’d watch you on sites like {sites}:” — Introduces two small illustrated browser windows showing the same page: DuckDuckGo (clean) and Chrome (ads, a cookie banner, and trackers following the cursor). {sites} names one or two of the sites where the user was tracked most this week, each in bold, eg: 'cnn.com and allrecipes.com'."
+  },
+  "protections_report_compareBlockedSingular": {
+    "title": "1 company blocked",
+    "note": "Under the DuckDuckGo window, when one company track on a site like the ones where the user was tracked most this week."
+  },
+  "protections_report_compareBlockedPlural": {
+    "title": "{count} companies blocked",
+    "note": "Under the DuckDuckGo window. {count} is the number of companies that track on a site like the ones where the user was tracked most this week, eg: '31 companies blocked'."
+  },
+  "protections_report_compareLoadSingular": {
+    "title": "Trackers from 1 company load",
+    "note": "Under the Chrome window, when one company track on a site like the ones where the user was tracked most this week."
+  },
+  "protections_report_compareLoadPlural": {
+    "title": "Trackers from all {count} companies load",
+    "note": "Under the Chrome window. {count} is the number of companies that track on a site like the ones where the user was tracked most this week, eg: 'Trackers from all 31 companies load'."
+  },
+  "protections_report_compareFootnote": {
+    "title": "Based on the sites that tracked you most this week. Compared with Chrome’s default settings. Illustration only.",
+    "note": "Small print under the DuckDuckGo vs Chrome comparison. Says where the numbers come from (the sites where the user was tracked most this week) and that the picture is an illustration."
+  },
+  "protections_report_compareFootnoteFirstPerson": {
+    "title": "Based on the sites that tracked me most this week. Compared with Chrome’s default settings. Illustration only.",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “Based on the sites that tracked you most this week. Compared with Chrome’s default settings. Illustration only.” — Small print under the DuckDuckGo vs Chrome comparison. Says where the numbers come from (the sites where the user was tracked most this week) and that the picture is an illustration."
+  },
+  "protections_report_compareAdBanner": {
+    "title": "LIMITED TIME OFFER",
+    "note": "Text on a fake banner ad in the illustrated Chrome window. Very small, all caps."
+  },
+  "protections_report_compareAd": {
+    "title": "AD",
+    "note": "Text on a fake ad tile in the illustrated Chrome window. Very small, all caps."
+  },
+  "protections_report_compareCookieDecline": {
+    "title": "Decline",
+    "note": "Button label on a fake cookie consent banner in the illustrated Chrome window. Very small; keep it short."
+  },
+  "protections_report_compareCookieAccept": {
+    "title": "Accept",
+    "note": "Button label on a fake cookie consent banner in the illustrated Chrome window. Very small; keep it short."
+  },
+  "protections_report_compareCookies": {
+    "title": "We use cookies<br>to spy on you",
+    "note": "Text of a fake, tongue-in-cheek cookie consent banner at the bottom of the illustrated Chrome window, next to its Decline and Accept buttons. The <br> starts the second line; keep both lines short."
+  },
+  "protections_report_compareGooglePlural": {
+    "title": "Chrome is made by Google. Google tried to track you on {count} of the {total} sites you visited this week. We blocked them on all {count}.",
+    "note": "Under the DuckDuckGo vs Chrome comparison. {count} is how many of the sites the user visited this week had Google trackers; {total} is how many sites they visited, eg: 'Google tried to track you on 51 of the 64 sites you visited this week. We blocked them on all 51.'"
+  },
+  "protections_report_compareGooglePluralFirstPerson": {
+    "title": "Chrome is made by Google. Google tried to track me on {count} of the {total} sites I visited this week. DuckDuckGo blocked them on all {count}.",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “Chrome is made by Google. Google tried to track you on {count} of the {total} sites you visited this week. We blocked them on all {count}.” — Under the DuckDuckGo vs Chrome comparison. {count} is how many of the sites the user visited this week had Google trackers; {total} is how many sites they visited, eg: 'Google tried to track you on 51 of the 64 sites you visited this week. We blocked them on all 51.'"
+  },
+  "protections_report_compareGoogleSingular": {
+    "title": "Chrome is made by Google. Google tried to track you on 1 of the {total} sites you visited this week. We blocked them there.",
+    "note": "Under the DuckDuckGo vs Chrome comparison, when Google trackers were on just one site. {total} is how many sites the user visited this week."
+  },
+  "protections_report_compareGoogleSingularFirstPerson": {
+    "title": "Chrome is made by Google. Google tried to track me on 1 of the {total} sites I visited this week. DuckDuckGo blocked them there.",
+    "note": "First-person version, used in the picture the user shares of their own report (they are speaking about themselves). Original: “Chrome is made by Google. Google tried to track you on 1 of the {total} sites you visited this week. We blocked them there.” — Under the DuckDuckGo vs Chrome comparison, when Google trackers were on just one site. {total} is how many sites the user visited this week."
+  },
+  "protections_report_makeDefault": {
+    "title": "Set DuckDuckGo as Default",
+    "note": "Button in the Protections Report, shown when DuckDuckGo isn't the default browser. Makes it the default browser."
+  },
+  "protections_report_issueCount": {
+    "title": "1 issue",
+    "note": "Shown in a small orange pill beside the Protections Report title when DuckDuckGo isn't the default browser. Opens a pop-over explaining it."
+  },
+  "protections_report_issueLabel": {
+    "title": "1 issue: privacy isn’t your default",
+    "note": "Accessible label for the '1 issue' pill (read by screen readers)."
+  },
+  "protections_report_notDefaultTitle": {
+    "title": "Privacy isn’t your default",
+    "note": "Title of the pop-over from the '1 issue' pill, when DuckDuckGo isn't the default browser. Followed by a button to make it the default."
+  },
+  "protections_report_dismiss": {
+    "title": "Dismiss",
+    "note": "Button next to 'Set DuckDuckGo as Default' in the '1 issue' pop-over. Hides the issue."
   }
 }

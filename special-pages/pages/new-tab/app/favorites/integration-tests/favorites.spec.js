@@ -76,7 +76,7 @@ test.describe('newtab favorites', () => {
         const ntp = NewtabPage.create(page, workerInfo);
         const favorites = new FavoritesPage(ntp);
         await ntp.reducedMotion();
-        // Use cpm: 'null' to enable new UI with InfoIcon for tab navigation test
+        // Use cpm: 'null' to show the Protections Report (the new UI), whose info button is in the tab order
         // Use omnibar: 'false' to hide omnibar so tab order is predictable
         await ntp.openPage({ favorites: 0, additional: { cpm: 'null', omnibar: 'false' } });
         await favorites.tabsPastEmptyFavorites();

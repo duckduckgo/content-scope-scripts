@@ -39,6 +39,7 @@ export const TileRow = memo(
                             visibility={visibility}
                             theme={theme}
                             animateItems={animateItems.value}
+                            trackers={item.trackers}
                         />
                     );
                 })}

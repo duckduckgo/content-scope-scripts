@@ -277,3 +277,34 @@ export function gen(count = 1000) {
         }),
     };
 }
+
+/** Tracking companies for the mock tracker badges, roughly most common first */
+// prettier-ignore
+const TRACKER_COMPANIES = [
+    'Google', 'Facebook', 'Amazon.com', 'Microsoft', 'Criteo', 'Oracle', 'The Trade Desk', 'Taboola',
+    'Outbrain', 'Comscore', 'Index Exchange', 'PubMatic', 'Magnite', 'OpenX', 'LiveRamp', 'Yandex',
+    'ByteDance', 'Twitter', 'Pinterest', 'LinkedIn', 'Snap', 'Hotjar', 'Adobe', 'Tapad',
+];
+
+/**
+ * Adds made-up, but stable, tracker counts to favorites, for the tracker
+ * badges (`?favorites.trackers`). Some sites get none, some get one, so
+ * every case shows up.
+ *
+ * @param {{favorites: Favorite[]}} data
+ * @return {{favorites: Favorite[]}}
+ */
+export function withTrackers(data) {
+    return {
+        favorites: data.favorites.map((favorite, index) => {
+            // a cheap, stable hash of the id
+            const seed = [...favorite.id].reduce((sum, char) => (sum * 31 + char.charCodeAt(0)) % 997, 7);
+            const kind = index % 7;
+            if (kind === 3) return favorite;
+            const count = kind === 5 ? 1 : kind === 1 ? 2 : 3 + (seed % 20);
+            const start = seed % 4;
+            const companies = TRACKER_COMPANIES.slice(start, start + count);
+            return { ...favorite, trackers: { companies, blocked: count * (3 + (seed % 9)) } };
+        }),
+    };
+}

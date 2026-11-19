@@ -54,7 +54,7 @@ export function PrivacyStatsMockProvider({ data = privacyStatsMocks.few, ticker 
     }, [ticker]);
 
     return (
-        <PrivacyStatsContext.Provider value={{ state }}>
+        <PrivacyStatsContext.Provider value={{ state, failed: false }}>
             <PrivacyStatsDispatchContext.Provider value={send}>
                 <BodyExpansionMockProvider>{children}</BodyExpansionMockProvider>
             </PrivacyStatsDispatchContext.Provider>
