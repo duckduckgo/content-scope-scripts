@@ -75,7 +75,7 @@ export default class ConfigFeature {
      *   messagingContextName: string,
      *   currentCohorts?: Array<{feature: string, cohort: string, subfeature: string}>,
      *   trackerData?: import('./features/tracker-protection/tracker-resolver.js').TrackerData,
-     *   surrogateInjectionEnabled?: boolean,
+     *   disableScriptSurrogateInjection?: boolean,
      * } | null}
      */
     #args;

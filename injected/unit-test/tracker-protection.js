@@ -584,16 +584,16 @@ describe('TrackerProtection surrogate injection gate', () => {
     /**
      * @param {object} options
      * @param {string} [options.setting] - trackerProtection.settings.surrogateInjection
-     * @param {boolean} [options.surrogateInjectionEnabled] - the native-provided arg
+     * @param {boolean} [options.disableScriptSurrogateInjection] - the native-provided arg
      */
-    function isSurrogateInjectionEnabled({ setting, surrogateInjectionEnabled } = {}) {
+    function isSurrogateInjectionEnabled({ setting, disableScriptSurrogateInjection } = {}) {
         const args = {
             site: { domain: 'example.com', url: 'https://example.com' },
             platform: { name: 'macos' },
             featureSettings: {
                 trackerProtection: setting ? { surrogateInjection: setting } : {},
             },
-            ...(surrogateInjectionEnabled !== undefined && { surrogateInjectionEnabled }),
+            ...(disableScriptSurrogateInjection !== undefined && { disableScriptSurrogateInjection }),
         };
         return new TrackerProtection('trackerProtection', {}, {}, args).isSurrogateInjectionEnabled();
     }
@@ -606,15 +606,15 @@ describe('TrackerProtection surrogate injection gate', () => {
         expect(isSurrogateInjectionEnabled({ setting: 'disabled' })).toBeFalse();
     });
 
-    it('is disabled when native passes surrogateInjectionEnabled: false', () => {
-        expect(isSurrogateInjectionEnabled({ surrogateInjectionEnabled: false })).toBeFalse();
+    it('is disabled when native passes disableScriptSurrogateInjection: true', () => {
+        expect(isSurrogateInjectionEnabled({ disableScriptSurrogateInjection: true })).toBeFalse();
     });
 
-    it('stays disabled by config even when native passes surrogateInjectionEnabled: true', () => {
-        expect(isSurrogateInjectionEnabled({ setting: 'disabled', surrogateInjectionEnabled: true })).toBeFalse();
+    it('stays disabled by config when native passes disableScriptSurrogateInjection: false', () => {
+        expect(isSurrogateInjectionEnabled({ setting: 'disabled', disableScriptSurrogateInjection: false })).toBeFalse();
     });
 
-    it('is enabled when both allow it', () => {
-        expect(isSurrogateInjectionEnabled({ setting: 'enabled', surrogateInjectionEnabled: true })).toBeTrue();
+    it('is enabled when the setting is enabled and native passes disableScriptSurrogateInjection: false', () => {
+        expect(isSurrogateInjectionEnabled({ setting: 'enabled', disableScriptSurrogateInjection: false })).toBeTrue();
     });
 });

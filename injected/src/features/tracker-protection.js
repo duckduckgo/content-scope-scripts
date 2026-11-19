@@ -11,7 +11,8 @@
  * - Emit surrogateInjected signal (when surrogateInjectionEnabled)
  *
  * Surrogate injection is enabled unless the `surrogateInjection` setting is disabled, or native passes
- * `surrogateInjectionEnabled: false` in args (e.g. when a web extension serves surrogates instead).
+ * `disableScriptSurrogateInjection: true` in args (e.g. when a web extension serves surrogates instead).
+ * The arg is separate from the config setting: it only stops this script from injecting surrogates.
  *
  * @module features/tracker-protection
  */
@@ -117,7 +118,7 @@ export class TrackerProtection extends ContentFeature {
      * @returns {boolean}
      */
     isSurrogateInjectionEnabled() {
-        return this.getFeatureSettingEnabled('surrogateInjection', 'enabled') && this.args?.surrogateInjectionEnabled !== false;
+        return this.getFeatureSettingEnabled('surrogateInjection', 'enabled') && this.args?.disableScriptSurrogateInjection !== true;
     }
 
     /**
