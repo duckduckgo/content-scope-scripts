@@ -138,11 +138,7 @@ export const STEPS_ORDER = [...ORDER_V4, 'searchOrChat'];
  * What the searchOrChat step offers, from the user's choice on addressBarMode.
  * @typedef {'searchAndDuckAi' | 'searchOnly'} SearchOrChatVariant
  *
- * Sent when the user submits a search or a Duck.ai prompt on the searchOrChat step.
- * @typedef {object} SubmitQueryParams
- * @property {'search' | 'duckAi'} mode
- * @property {string} query - the text to search for or send to Duck.ai
- * @property {'typed' | 'suggestion'} source - 'suggestion' includes "Surprise me!"
+ * @typedef {import('../types/onboarding.ts').SubmitQuery} SubmitQueryParams
  */
 
 /** @type {ImportMeta['injectName'][]} */

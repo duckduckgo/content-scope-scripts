@@ -1,1 +1,1 @@
-- feat(onboarding): build the searchOrChat step UI (#3210)
+- feat(onboarding): add the submitQuery schema and generated types (#3212)
