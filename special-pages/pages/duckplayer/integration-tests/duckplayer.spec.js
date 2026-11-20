@@ -97,6 +97,21 @@ test.describe('duckplayer iframe', () => {
 });
 
 test.describe('duckplayer custom error', () => {
+    test('detects redesigned YouTube no-embed error screen', async ({ page }, workerInfo) => {
+        const duckplayer = DuckPlayerPage.create(page, workerInfo);
+        duckplayer.customErrorSettingIs({ state: 'enabled' });
+        await duckplayer.openWithVideoID('NO_EMBED_REDESIGN');
+        await duckplayer.didShowNoEmbedError();
+    });
+    test('detects redesigned YouTube sign-in error screen', async ({ page }, workerInfo) => {
+        const duckplayer = DuckPlayerPage.create(page, workerInfo);
+        duckplayer.customErrorSettingIs({
+            state: 'enabled',
+            settings: { signInRequiredSelector: '[href*="//support.google.com/youtube/answer/3037019"]' },
+        });
+        await duckplayer.openWithVideoID('SIGN_IN_REDESIGN');
+        await duckplayer.didShowSignInRequiredError();
+    });
     test('shows custom error screen for videos that require sign-in', async ({ page }, workerInfo) => {
         const duckplayer = DuckPlayerPage.create(page, workerInfo);
         await duckplayer.openWithYouTubeError('sign-in-required', 'e90eWYPNtJ8');

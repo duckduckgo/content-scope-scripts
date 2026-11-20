@@ -184,6 +184,10 @@ export class WebCompat extends ContentFeature {
         if (this.getFeatureSettingEnabled('enumerateDevices')) {
             this.deviceEnumerationFix();
         }
+        // iOS only, on by default: it replaces the native user script iOS used to ship.
+        if (this.platform.name === 'ios' && this.getFeatureSettingEnabled('fullscreenVideo', 'enabled')) {
+            this.fullscreenVideoFix();
+        }
         // Used by Android in the non adsjs version
         // This has to be enabled in the config for the injectName='android' now.
         if (this.getFeatureSettingEnabled('viewportWidthLegacy', 'disabled')) {
@@ -1474,8 +1478,181 @@ export class WebCompat extends ContentFeature {
 
         enumerateDevicesProxy.overload();
     }
+
+    /**
+     * Fullscreen video for WebKit views that don't expose the Fullscreen API but can still play a
+     * <video> fullscreen through `webkitEnterFullscreen()` (e.g. iOS WKWebView without
+     * `isElementFullscreenEnabled`). Formerly the iOS `fullscreenvideo.js` user script.
+     *
+     * iOS only, and on by default there; `fullscreenVideo: 'disabled'` turns it off.
+     *
+     * `document.fullscreenEnabled` becomes true and `element.requestFullscreen()` plays the first
+     * <video> in the element (piercing shadow roots) fullscreen. By default the rest of the API sites
+     * use after detecting it is shimmed too: `requestFullscreen()` returns a promise,
+     * `document.exitFullscreen()` and `document.fullscreenElement` exist, and `fullscreenchange`
+     * fires when the native player opens and closes. Without these, sites that detect the API and
+     * then call `exitFullscreen()` or `.then()` on the request throw.
+     *
+     * `fullscreenVideo: { state: 'enabled', fullApi: 'disabled' }` falls back to exactly what the
+     * old iOS script did: no exit/element/events, and `requestFullscreen()` returns a boolean.
+     *
+     * Does nothing if the Fullscreen API is already exposed, or on the iPhone mobile user agent:
+     * mobile YouTube doesn't exit fullscreen correctly when `requestFullscreen` is overridden
+     * (https://github.com/brave/brave-ios/pull/2002), and iPhone Safari doesn't expose the API there.
+     */
+    fullscreenVideoFix() {
+        try {
+            const videoProto = /** @type {WebKitVideoElement | undefined} */ (globalThis.HTMLVideoElement?.prototype);
+            if (!videoProto || typeof videoProto.webkitEnterFullscreen !== 'function') {
+                return;
+            }
+            const doc = /** @type {any} */ (document);
+            if (doc.fullscreenEnabled || doc.webkitFullscreenEnabled) {
+                return;
+            }
+            const userAgent = navigator.userAgent;
+            if (/mobile/i.test(userAgent) && !/ipad/i.test(userAgent)) {
+                return;
+            }
+            const fullApi = (this.getFeatureSetting('fullscreenVideo')?.fullApi ?? 'enabled') === 'enabled';
+
+            /**
+             * Sites such as Reddit put the <video> inside a shadow root, which querySelector doesn't pierce.
+             * @param {Element | ShadowRoot} root
+             * @returns {WebKitVideoElement | null}
+             */
+            const findVideo = (root) => {
+                if (root instanceof HTMLVideoElement) return /** @type {WebKitVideoElement} */ (root);
+                const direct = root.querySelector('video');
+                if (direct) return /** @type {WebKitVideoElement} */ (direct);
+                for (const element of root.querySelectorAll('*')) {
+                    if (element.shadowRoot) {
+                        const found = findVideo(element.shadowRoot);
+                        if (found) return found;
+                    }
+                }
+                return null;
+            };
+
+            this.defineProperty(document, 'fullscreenEnabled', {
+                get: () => true,
+                configurable: true,
+                enumerable: true,
+            });
+
+            if (!fullApi) {
+                this.defineProperty(HTMLElement.prototype, 'requestFullscreen', {
+                    /** @this {HTMLElement} */
+                    value: function requestFullscreen() {
+                        const video = findVideo(this);
+                        if (!video) return false;
+                        video.webkitEnterFullscreen();
+                        return true;
+                    },
+                    writable: true,
+                    configurable: true,
+                    enumerable: true,
+                });
+                return;
+            }
+
+            /** @type {Element | null} the element the page asked to make fullscreen */
+            let fullscreenElement = null;
+            /** @type {WebKitVideoElement | null} the video actually shown in the native player */
+            let fullscreenVideo = null;
+            const watchedVideos = new WeakSet();
+
+            /** @param {Element} element */
+            const dispatchChange = (element) => {
+                const event = new Event('fullscreenchange', { bubbles: true, composed: true });
+                // Spec fires at the element and then the document; bubbling covers both while it's connected.
+                (element.isConnected ? element : document).dispatchEvent(event);
+            };
+
+            /** @param {WebKitVideoElement} video */
+            const watchVideo = (video) => {
+                if (watchedVideos.has(video)) return;
+                watchedVideos.add(video);
+                video.addEventListener('webkitbeginfullscreen', () => {
+                    if (fullscreenVideo === video && fullscreenElement) {
+                        dispatchChange(fullscreenElement);
+                    }
+                });
+                video.addEventListener('webkitendfullscreen', () => {
+                    if (fullscreenVideo !== video || !fullscreenElement) return;
+                    const element = fullscreenElement;
+                    fullscreenElement = null;
+                    fullscreenVideo = null;
+                    dispatchChange(element);
+                });
+            };
+
+            /** @param {HTMLElement} element */
+            const enterFullscreen = (element) => {
+                const video = findVideo(element);
+                if (!video) {
+                    return Promise.reject(new TypeError('Fullscreen request denied'));
+                }
+                watchVideo(video);
+                const previous = { element: fullscreenElement, video: fullscreenVideo };
+                // Set before entering so a synchronous webkitbeginfullscreen sees the new state.
+                fullscreenElement = element;
+                fullscreenVideo = video;
+                try {
+                    video.webkitEnterFullscreen();
+                } catch (e) {
+                    // e.g. InvalidStateError when not triggered by a user gesture
+                    fullscreenElement = previous.element;
+                    fullscreenVideo = previous.video;
+                    return Promise.reject(e);
+                }
+                return Promise.resolve();
+            };
+
+            this.defineProperty(HTMLElement.prototype, 'requestFullscreen', {
+                /** @this {HTMLElement} */
+                value: function requestFullscreen() {
+                    return enterFullscreen(this);
+                },
+                writable: true,
+                configurable: true,
+                enumerable: true,
+            });
+
+            if (!('exitFullscreen' in Document.prototype)) {
+                this.defineProperty(Document.prototype, 'exitFullscreen', {
+                    value: function exitFullscreen() {
+                        const video = fullscreenVideo;
+                        if (!video) {
+                            return Promise.reject(new TypeError('Not in fullscreen'));
+                        }
+                        try {
+                            video.webkitExitFullscreen();
+                        } catch (e) {
+                            return Promise.reject(e);
+                        }
+                        return Promise.resolve();
+                    },
+                    writable: true,
+                    configurable: true,
+                    enumerable: true,
+                });
+            }
+
+            if (!('fullscreenElement' in Document.prototype)) {
+                this.defineProperty(Document.prototype, 'fullscreenElement', {
+                    get: () => fullscreenElement,
+                    configurable: true,
+                    enumerable: true,
+                });
+            }
+        } catch {
+            // Ignore exceptions that could be caused by conflicting with other extensions
+        }
+    }
 }
 
 /** @typedef {{title?: string, url?: string, text?: string}} ShareRequestData */
+/** @typedef {HTMLVideoElement & { webkitEnterFullscreen(): void, webkitExitFullscreen(): void }} WebKitVideoElement */
 
 export default WebCompat;

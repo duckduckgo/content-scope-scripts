@@ -176,6 +176,22 @@
     "title" : "Démarrer un chat vocal",
     "description" : "Accessible label for the voice-chat button shown in place of the AI chat submit button when the input is empty and the feature is enabled."
   },
+  "omnibar_termsDisclaimerAnonymized" : {
+    "title" : "DuckDuckGo anonymise vos discussions.",
+    "description" : "First line of the Duck.ai terms disclaimer shown under the Duck.ai chat input until the user accepts Duck.ai's terms. Followed on the next line by omnibar_termsDisclaimerAgree."
+  },
+  "omnibar_termsDisclaimerAgree" : {
+    "title" : "En cliquant sur « '{'actionLabel'}' », vous acceptez <a>notre politique de confidentialité et nos conditions d'utilisation</a>.",
+    "note" : "Second line of the Duck.ai terms disclaimer, shown below omnibar_termsDisclaimerAnonymized. {actionLabel} is replaced with the label of the send button: omnibar_termsAskButtonLabel ('Ask') for chat, or omnibar_termsCreateButtonLabel ('Create') for image creation. Keep {actionLabel} unchanged, inside your language's quotation marks. The <a> tag is a link to the Privacy Policy and Terms of Service page, please preserve it."
+  },
+  "omnibar_termsAskButtonLabel" : {
+    "title" : "Demander",
+    "description" : "Label of the Duck.ai chat submit button until the user accepts Duck.ai's terms. Clicking it accepts the terms and sends the prompt."
+  },
+  "omnibar_termsCreateButtonLabel" : {
+    "title" : "Créer",
+    "description" : "Label of the Duck.ai chat submit button in image creation mode until the user accepts Duck.ai's terms. Clicking it accepts the terms and sends the prompt."
+  },
   "omnibar_logoAlt" : {
     "title" : "DuckDuckGo",
     "description" : "Alt text for the DuckDuckGo logo."
@@ -316,6 +332,18 @@
     "title" : "Appliquer la personnalisation des réponses",
     "description" : "Accessible label for the on/off toggle that applies or unapplies the saved response customization, shown on the Customize Responses tools menu row."
   },
+  "omnibar_attachmentPrivacyDisclaimer" : {
+    "title" : "Les fichiers sont automatiquement analysés pour détecter tout contenu illégal. Les discussions signalées font l'objet d'une conservation limitée des données. <button>En savoir plus</button>",
+    "description" : "Privacy disclaimer shown under the Duck.ai omnibar while a file or image is attached. The button opens the Duck.ai privacy help page."
+  },
+  "omnibar_usageLimitsCtaMenuLabel" : {
+    "title" : "Afficher plus de modèles",
+    "description" : "Accessible label for the usage-limits CTA chevron that opens the alternatives menu."
+  },
+  "omnibar_usageLimitsCtaMenuFallback" : {
+    "title" : "Changer de modèle",
+    "description" : "Accessible name for the usage-limits alternatives menu when native did not send menuHeader."
+  },
   "omnibar_imageGenerationWithAttachmentPlaceholder" : {
     "title" : "Décrivez les modifications en fonction de l'image",
     "description" : "Placeholder text for the AI chat input when image generation mode is active and an image is attached."
@@ -368,6 +396,82 @@
     "title" : "Ajouter des onglets",
     "description" : "Menu item in the attach dropdown that opens the Add Tabs dialog so the user can attach extracted page content from open tabs."
   },
+  "omnibar_addScreenshotLabel" : {
+    "title" : "Ajouter une capture d'écran",
+    "description" : "Menu item in the attach dropdown that opens a submenu of screenshot capture modes."
+  },
+  "omnibar_screenshotDragToSelectLabel" : {
+    "title" : "Faire glisser pour sélectionner",
+    "description" : "Screenshot submenu item: the user drags to select a region of the screen to capture."
+  },
+  "omnibar_screenshotSelectWindowOrDisplayLabel" : {
+    "title" : "Sélectionner une fenêtre ou un écran",
+    "description" : "Screenshot submenu item: the user picks a window or a whole display to capture."
+  },
+  "omnibar_screenshotFileName" : {
+    "title" : "Capture d'écran",
+    "description" : "File name given to a screenshot attached to the AI chat input. Repeats are numbered, e.g. 'Screenshot 2'."
+  },
+  "omnibar_pastedTextLabel" : {
+    "title" : "Texte collé",
+    "description" : "Type label on the chip for a long text paste that was attached to the AI chat input instead of inserted."
+  },
+  "omnibar_removePastedTextLabel" : {
+    "title" : "Supprimer le texte collé « {summary} »",
+    "description" : "Accessible label for the button that removes a pasted-text chip from the AI chat input. {summary} is the start of the pasted text."
+  },
+  "omnibar_removePastedTextFallbackLabel" : {
+    "title" : "Supprimer le texte collé",
+    "description" : "Accessible label for the button that removes a pasted-text chip whose text is only whitespace."
+  },
+  "omnibar_promptTooLongWarning" : {
+    "title" : "Ton message est trop long. Raccourcis-le à {limit} caractères ou moins, texte collé inclus.",
+    "description" : "Shown under the AI chat input when the typed text plus pasted text is over the limit; sending is blocked until it fits. {limit} is the character limit."
+  },
+  "omnibar_pastedTextModalTitle" : {
+    "title" : "Texte collé",
+    "description" : "Title of the dialog opened from a pasted-text chip, where the user can view and edit the pasted text. Also the accessible name of its text field."
+  },
+  "omnibar_pastedTextModalFormattingNote" : {
+    "title" : "La mise en forme peut différer de celle de la source.",
+    "description" : "Note under the Pasted Text dialog title: the pasted text is plain text, so rich formatting from where it was copied is lost."
+  },
+  "omnibar_pastedTextChipCharacterCount" : {
+    "title" : "{count} caractères",
+    "description" : "Line on a pasted-text chip showing the length of the pasted text. Shown in red while the whole message is too long to send. {count} is the number of characters."
+  },
+  "omnibar_pastedTextModalCharacterCount" : {
+    "title" : "{count} caractères",
+    "description" : "Footer of the Pasted Text dialog showing the length of the pasted text. {count} is the number of characters."
+  },
+  "omnibar_pastedTextModalOverLimit" : {
+    "title" : "{count} caractères – {over} de trop",
+    "description" : "Error in the Pasted Text dialog footer when the message is too long to send. {count} is the length of the whole message (typed text plus all pasted text) and {over} is how many characters it is over the limit, e.g. \"16,800 characters – 800 over the limit\"."
+  },
+  "omnibar_pastedTextModalCancel" : {
+    "title" : "Annuler",
+    "description" : "Button in the Pasted Text dialog that closes it and discards edits."
+  },
+  "omnibar_pastedTextModalSave" : {
+    "title" : "Enregistrer les modifications",
+    "description" : "Primary button in the Pasted Text dialog that saves the edited pasted text."
+  },
+  "omnibar_pastedTextModalDelete" : {
+    "title" : "Supprimer le texte",
+    "description" : "Red button in the Pasted Text dialog, shown in place of Save Changes once all the text is deleted. Removes the pasted-text attachment."
+  },
+  "omnibar_pastedTextModalClose" : {
+    "title" : "Fermer",
+    "description" : "Accessible label for the × button in the Pasted Text dialog, which closes it and discards edits."
+  },
+  "omnibar_pastedImageFileName" : {
+    "title" : "Image collée",
+    "description" : "File name given to an image pasted from the clipboard into the AI chat input. Repeats are numbered, e.g. 'Pasted image 2'."
+  },
+  "omnibar_screenshotCaptureError" : {
+    "title" : "Impossible de prendre une capture d'écran",
+    "description" : "Inline error shown under the AI chat input when the browser failed to capture a screenshot."
+  },
   "omnibar_attachTabsModalTitle" : {
     "title" : "Ajouter des onglets",
     "description" : "Title and accessible name of the Add Tabs dialog opened from the attach dropdown menu."
@@ -404,6 +508,10 @@
     "title" : "Aucun contenu de page disponible",
     "description" : "Empty-state message shown in the attach dropdown and the Add Tabs dialog when there are no open tabs with attachable page content."
   },
+  "omnibar_attachmentTypeWebpage" : {
+    "title" : "Page Web",
+    "description" : "Attachment kind label shown next to the favicon in an attached-tab chip in the AI chat input."
+  },
   "omnibar_removeAttachedTabLabel" : {
     "title" : "Supprimer {title}",
     "description" : "Accessible label for the close button on an attached-tab chip. {title} is the tab title."
@@ -419,6 +527,142 @@
   "omnibar_modelBadgeInternal" : {
     "title" : "Interne",
     "description" : "Badge shown next to an AI model in the model selector that is only available to internal users."
+  },
+  "omnibar_suggestedPromptsHowDuckAiWorksLabel" : {
+    "title" : "Comment fonctionne Duck.ai",
+    "description" : "Pill label that opens a panel explaining how Duck.ai protects privacy. Duck.ai suggested prompts below the Duck.ai chat input on the New Tab Page."
+  },
+  "omnibar_suggestedPromptsHowDuckAiWorksAria" : {
+    "title" : "Ouvrir le volet « Comment fonctionne Duck.ai »",
+    "description" : "Accessible name for the How Duck.ai Works pill."
+  },
+  "omnibar_suggestedPromptsSuggestionsLabel" : {
+    "title" : "Suggestions de chat",
+    "description" : "Pill label that opens a list of suggested chat prompts. Duck.ai suggested prompts below the Duck.ai chat input on the New Tab Page."
+  },
+  "omnibar_suggestedPromptsSuggestionsAria" : {
+    "title" : "Ouvrir les suggestions de chat",
+    "description" : "Accessible name for the Chat Suggestions pill."
+  },
+  "omnibar_suggestedPromptsCreateImageLabel" : {
+    "title" : "Créer et modifier des images",
+    "description" : "Pill label that opens a row of suggested image-generation prompts. Duck.ai suggested prompts below the Duck.ai chat input on the New Tab Page."
+  },
+  "omnibar_suggestedPromptsCreateImageAria" : {
+    "title" : "Ouvrir les suggestions de création et de modification des images",
+    "description" : "Accessible name for the Create & Edit Images pill."
+  },
+  "omnibar_suggestedPromptsPrevPageAria" : {
+    "title" : "Afficher les suggestions précédentes",
+    "description" : "Accessible label for the previous-page chevron in the Chat Suggestions panel."
+  },
+  "omnibar_suggestedPromptsNextPageAria" : {
+    "title" : "Afficher les suggestions suivantes",
+    "description" : "Accessible label for the next-page chevron in the Chat Suggestions panel."
+  },
+  "omnibar_suggestedPromptsCloseAria" : {
+    "title" : "Fermer le panneau",
+    "description" : "Accessible label for the X button that closes a suggested-prompts panel."
+  },
+  "omnibar_suggestedPromptsVoiceChatLabel" : {
+    "title" : "Chat vocal",
+    "description" : "Label for the Voice Chat chip shown among the Duck.ai suggested-prompt chips on narrow windows. Selecting it starts a Duck.ai voice chat."
+  },
+  "omnibar_suggestedPromptsChatTitle" : {
+    "title" : "Vous discutez",
+    "description" : "Heading of the chat card in the How Duck.ai Works panel."
+  },
+  "omnibar_suggestedPromptsChatBody" : {
+    "title" : "Choisis une IA populaire avec laquelle discuter, parmi OpenAI, Anthropic, Mistral, et bien d'autres.",
+    "description" : "Body of the chat card in the How Duck.ai Works panel. Describes choosing from popular AI models."
+  },
+  "omnibar_suggestedPromptsAnonymizedTitle" : {
+    "title" : "Nous anonymisons",
+    "description" : "Heading of the anonymization card in the How Duck.ai Works panel."
+  },
+  "omnibar_suggestedPromptsAnonymizedBody" : {
+    "title" : "Toutes les métadonnées personnelles (par exemple, votre adresse IP) sont supprimées avant l'envoi d'une discussion au fournisseur d'IA.",
+    "description" : "Body of the anonymization card in the How Duck.ai Works panel."
+  },
+  "omnibar_suggestedPromptsNoAiTrainingTitle" : {
+    "title" : "Pas d'entraînement de l'IA",
+    "description" : "Heading of the no-AI-training card in the How Duck.ai Works panel."
+  },
+  "omnibar_suggestedPromptsNoAiTrainingBody" : {
+    "title" : "Nous avons conclu des accords avec tous les fournisseurs d'IA pour veiller à ce que vos discussions ne servent pas à entraîner des IA.",
+    "description" : "Body of the no-AI-training card in the How Duck.ai Works panel."
+  },
+  "omnibar_suggestedPromptsTextJobApplication" : {
+    "title" : "Améliore ta candidature",
+    "description" : "A suggested chat prompt in the Chat Suggestions panel. Selecting it starts a Duck.ai chat on this topic."
+  },
+  "omnibar_suggestedPromptsTextHomeFix" : {
+    "title" : "Réparer quelque chose chez moi",
+    "description" : "A suggested chat prompt in the Chat Suggestions panel. Selecting it starts a Duck.ai chat on this topic."
+  },
+  "omnibar_suggestedPromptsTextFinancialTerms" : {
+    "title" : "Comprendre les termes financiers courants",
+    "description" : "A suggested chat prompt in the Chat Suggestions panel. Selecting it starts a Duck.ai chat on this topic."
+  },
+  "omnibar_suggestedPromptsTextFitnessPlan" : {
+    "title" : "Crée un programme de remise en forme",
+    "description" : "A suggested chat prompt in the Chat Suggestions panel. Selecting it starts a Duck.ai chat on this topic."
+  },
+  "omnibar_suggestedPromptsTextWriteEmail" : {
+    "title" : "Rédiger un e-mail important",
+    "description" : "A suggested chat prompt in the Chat Suggestions panel. Selecting it starts a Duck.ai chat on this topic."
+  },
+  "omnibar_suggestedPromptsTextPlanTrip" : {
+    "title" : "Planifier un prochain voyage",
+    "description" : "A suggested chat prompt in the Chat Suggestions panel. Selecting it starts a Duck.ai chat on this topic."
+  },
+  "omnibar_suggestedPromptsTextBuyingHouse" : {
+    "title" : "En savoir plus sur l'achat d'une maison",
+    "description" : "A suggested chat prompt in the Chat Suggestions panel. Selecting it starts a Duck.ai chat on this topic."
+  },
+  "omnibar_suggestedPromptsTextGettingFit" : {
+    "title" : "Conseils pour commencer à te remettre en forme",
+    "description" : "A suggested chat prompt in the Chat Suggestions panel. Selecting it starts a Duck.ai chat on this topic."
+  },
+  "omnibar_suggestedPromptsTextDifficultConversation" : {
+    "title" : "Préparer une conversation difficile",
+    "description" : "A suggested chat prompt in the Chat Suggestions panel. Selecting it starts a Duck.ai chat on this topic."
+  },
+  "omnibar_suggestedPromptsTextNewSkill" : {
+    "title" : "Acquérir une nouvelle compétence",
+    "description" : "A suggested chat prompt in the Chat Suggestions panel. Selecting it starts a Duck.ai chat on this topic."
+  },
+  "omnibar_suggestedPromptsTextMoneyHabits" : {
+    "title" : "Développer de meilleures habitudes financières",
+    "description" : "A suggested chat prompt in the Chat Suggestions panel. Selecting it starts a Duck.ai chat on this topic."
+  },
+  "omnibar_suggestedPromptsTextImproveSleep" : {
+    "title" : "Améliore mon sommeil",
+    "description" : "A suggested chat prompt in the Chat Suggestions panel. Selecting it starts a Duck.ai chat on this topic."
+  },
+  "omnibar_suggestedPromptsImageCreateComic" : {
+    "title" : "Créer une bande dessinée",
+    "description" : "Label on an image card in the Create & Edit Images panel. Keep it short; it sits on a small chip over a thumbnail."
+  },
+  "omnibar_suggestedPromptsImageDesignSpace" : {
+    "title" : "Aménage ton espace",
+    "description" : "Label on an image card in the Create & Edit Images panel. Keep it short; it sits on a small chip over a thumbnail."
+  },
+  "omnibar_suggestedPromptsImageEditPhoto" : {
+    "title" : "Modifier la photo",
+    "description" : "Label on an image card in the Create & Edit Images panel. Keep it short; it sits on a small chip over a thumbnail."
+  },
+  "omnibar_suggestedPromptsTextPromptTemplate" : {
+    "title" : "{topic}. Si besoin, pose-moi 1-2 questions auxquelles je peux répondre en quelques mots, pour m’aider à trouver les informations les plus utiles. Parle-moi de façon naturelle et veille à ce que la réponse soit facile à comprendre pour moi.",
+    "description" : "The message sent to Duck.ai when a suggested chat prompt is selected. {topic} is replaced with the translated suggestion, for example \"Improve a job application\". Keep {topic} as is."
+  },
+  "omnibar_suggestedPromptsImageCreateComicPrompt" : {
+    "title" : "Dessine une illustration de style bande dessinée représentant un canard en train de déchiqueter des informations confidentielles.",
+    "description" : "The message sent to Duck.ai's image generator when the Create Comic card is selected."
+  },
+  "omnibar_suggestedPromptsImageDesignSpacePrompt" : {
+    "title" : "Visualise un salon moderne.",
+    "description" : "The message sent to Duck.ai's image generator when the Design Your Space card is selected."
   },
   "nextStepsList_sectionTitle" : {
     "title" : "Étapes suivantes",
@@ -867,5 +1111,13 @@
   "activity_show_less_history" : {
     "title" : "Masquer les éléments supplémentaires",
     "note" : "Button label that hides the expanded browsing history items."
+  },
+  "omnibar_modelBadgePlus" : {
+    "title" : "Plus",
+    "description" : "Badge shown next to an AI model in the model selector that requires a Plus subscription tier."
+  },
+  "omnibar_modelBadgePro" : {
+    "title" : "Pro",
+    "description" : "Badge shown next to an AI model in the model selector that requires a Pro subscription tier."
   }
 }

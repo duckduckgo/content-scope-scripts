@@ -411,3 +411,157 @@ test('tracker-protection: detects tracker from DOM-appended img element', async 
     expect(observation.url).toBe('https://tracker.example/pixel.gif');
     expect(observation.potentiallyBlocked).toBe(false);
 });
+
+/**
+ * Collects everything a page can observe about the APIs trackerProtection wraps: own-property placement,
+ * descriptor flags, Function.prototype.toString output, name/length, and behaviour at the edges
+ * (detached calls, invalid receivers, XHR async defaulting, img.src round-trip).
+ * Run against a page with the feature disabled and one with it enabled, the results must be identical.
+ * @param {import('@playwright/test').Page} page
+ */
+function snapshotWrappedApiSurface(page) {
+    return page.evaluate(async () => {
+        const fnToString = Function.prototype.toString;
+
+        /** @param {PropertyDescriptor | undefined} d */
+        const flags = (d) => (d ? { writable: d.writable, enumerable: d.enumerable, configurable: d.configurable } : null);
+
+        // `ownToString` is what `fn.toString()` returns; `protoToString` is `Function.prototype.toString.call(fn)`.
+        // The latter bypasses wrapToString's Proxy trap, so for wrapped functions V8 reports a generic, nameless
+        // native string. It is captured separately so the test can assert it ends in [native code] without
+        // requiring an exact match.
+        /** @param {Function | undefined} fn */
+        const fnInfo = (fn) =>
+            typeof fn === 'function'
+                ? { ownToString: fn.toString(), protoToString: fnToString.call(fn), name: fn.name, length: fn.length }
+                : { type: typeof fn };
+
+        /** @param {object} obj @param {string} prop */
+        const method = (obj, prop) => {
+            const d = Object.getOwnPropertyDescriptor(obj, prop);
+            return { own: Object.prototype.hasOwnProperty.call(obj, prop), flags: flags(d), fn: fnInfo(d?.value) };
+        };
+
+        const srcDesc = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'src');
+
+        /** @param {() => any} fn */
+        const outcome = async (fn) => {
+            try {
+                const r = await fn();
+                return { ok: true, value: r };
+            } catch (e) {
+                return { ok: false, name: e?.name, message: e?.message };
+            }
+        };
+
+        const detachedFetch = window.fetch;
+        const img = new Image();
+        img.src = 'https://example.com/round-trip.gif';
+
+        return {
+            fetch: method(window, 'fetch'),
+            fetchOnWindowPrototype: Object.prototype.hasOwnProperty.call(Window.prototype, 'fetch'),
+            xhrOpen: method(XMLHttpRequest.prototype, 'open'),
+            xhrSend: method(XMLHttpRequest.prototype, 'send'),
+            imageSrc: {
+                own: Object.prototype.hasOwnProperty.call(HTMLImageElement.prototype, 'src'),
+                imagePrototypeIsHTMLImageElement: Image.prototype === HTMLImageElement.prototype,
+                enumerable: srcDesc?.enumerable,
+                configurable: srcDesc?.configurable,
+                hasValue: srcDesc ? 'value' in srcDesc : null,
+                get: fnInfo(srcDesc?.get),
+                set: fnInfo(srcDesc?.set),
+            },
+            behaviour: {
+                detachedFetch: await outcome(async () => (await detachedFetch(location.href)).ok),
+                fetchInvalidReceiver: await outcome(() => fetch.call({}, location.href)),
+                xhrOpenTwoArgsIsAsync: await outcome(() => {
+                    const xhr = new XMLHttpRequest();
+                    xhr.open('GET', location.href);
+                    // Setting responseType on a synchronous XHR throws InvalidAccessError in a window context.
+                    xhr.responseType = 'json';
+                    return xhr.responseType;
+                }),
+                xhrOpenSyncStaysSync: await outcome(() => {
+                    const xhr = new XMLHttpRequest();
+                    xhr.open('GET', location.href, false);
+                    xhr.responseType = 'json';
+                    return xhr.responseType;
+                }),
+                imgSrcRoundTrip: { property: img.src, attribute: img.getAttribute('src') },
+            },
+        };
+    });
+}
+
+test('tracker-protection: wrapped fetch/XHR/img.src are indistinguishable from native', async ({ page }, testInfo) => {
+    // Baseline: same page with trackerProtection disabled, so nothing is wrapped.
+    const baselinePage = await page.context().newPage();
+    const baselineCollector = ResultsCollector.create(baselinePage, testInfo.project.use);
+    await baselineCollector.load(HTML, DISABLED_CONFIG);
+    const native = await snapshotWrappedApiSurface(baselinePage);
+    await baselinePage.close();
+
+    const collector = ResultsCollector.create(page, testInfo.project.use);
+    collector.withUserPreferences({ trackerData: makeTrackerDataBasic() });
+    await collector.load(HTML, CONFIG);
+    const wrapped = await snapshotWrappedApiSurface(page);
+
+    // Sanity-check the baseline itself, so the comparison below can't pass vacuously.
+    const nativeCode = /\{\s*\[native code\]\s*\}$/;
+    expect(native.fetch.own).toBe(true);
+    expect(native.fetchOnWindowPrototype).toBe(false);
+    for (const info of [native.fetch.fn, native.xhrOpen.fn, native.xhrSend.fn, native.imageSrc.get, native.imageSrc.set]) {
+        expect(info.ownToString).toMatch(nativeCode);
+        expect(info.protoToString).toMatch(nativeCode);
+    }
+    expect(native.imageSrc.enumerable).toBe(true);
+    expect(native.imageSrc.configurable).toBe(true);
+    expect(native.behaviour.detachedFetch).toEqual({ ok: true, value: true });
+    expect(native.behaviour.fetchInvalidReceiver.ok).toBe(false);
+    expect(native.behaviour.xhrOpenTwoArgsIsAsync).toEqual({ ok: true, value: 'json' });
+    expect(native.behaviour.xhrOpenSyncStaysSync.ok).toBe(false);
+
+    // Function.prototype.toString.call() on any wrapped function must still read as native code.
+    for (const info of [wrapped.fetch.fn, wrapped.xhrOpen.fn, wrapped.xhrSend.fn, wrapped.imageSrc.get, wrapped.imageSrc.set]) {
+        expect(info.protoToString).toMatch(nativeCode);
+    }
+
+    // Function.prototype.toString.call(proxy) omits the function name in V8 (a limitation of the Proxy-based
+    // wrapToString shared by all features), so protoToString is excluded from the exact match below.
+    /** @param {Awaited<ReturnType<typeof snapshotWrappedApiSurface>>} snap */
+    const comparable = (snap) => {
+        const copy = structuredClone(snap);
+        for (const info of [copy.fetch.fn, copy.xhrOpen.fn, copy.xhrSend.fn, copy.imageSrc.get, copy.imageSrc.set]) {
+            delete info.protoToString;
+        }
+        return copy;
+    };
+
+    // With trackerProtection on, every other observable detail must match native exactly.
+    expect(comparable(wrapped)).toEqual(comparable(native));
+
+    // And the wrappers must actually be installed: fetch reporting still flows through them.
+    await page.evaluate(async () => {
+        await fetch('https://tracker.example/native-check.js').catch(() => {});
+    });
+    const messages = await collector.waitForMessage('resourceObserved', 1);
+    expect(messages.map((m) => m.payload.params.url)).toContain('https://tracker.example/native-check.js');
+});
+
+test('tracker-protection: XHR send error still reports after wrapping', async ({ page }, testInfo) => {
+    const collector = ResultsCollector.create(page, testInfo.project.use);
+    collector.withUserPreferences({ trackerData: makeTrackerDataBasic() });
+    await collector.load(HTML, CONFIG);
+
+    await page.evaluate(() => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', 'https://tracker.example/xhr-native-check.gif');
+        xhr.send();
+    });
+
+    const messages = await collector.waitForMessage('resourceObserved', 1);
+    const observation = messages.find((m) => m.payload.params.url === 'https://tracker.example/xhr-native-check.gif');
+    expect(observation?.payload.params.resourceType).toBe('xmlhttprequest');
+    expect(observation?.payload.params.potentiallyBlocked).toBe(true);
+});
