@@ -14,6 +14,7 @@ export function useAttachmentPrivacyNotice() {
     const { state, attachmentPrivacyDisclaimerShown, openAttachmentPrivacyLearnMore } = useContext(OmnibarContext);
     const { imageState, fileState, tabId } = useAttachmentsContext();
     const allowed = state.config?.showAttachmentPrivacyDisclaimer === true;
+    const blocked = state.config?.usageLimits?.blocksPrompt === true;
     const [granted, setGranted] = AttachmentPrivacyGrant.useStateWithLocalPersistence(tabId);
     /** @type {'image' | 'file' | null} */
     let attachmentKind = null;
@@ -28,10 +29,10 @@ export function useAttachmentPrivacyNotice() {
             if (granted) setGranted(false);
             return;
         }
-        if (granted || !allowed) return;
+        if (granted || !allowed || blocked) return;
         setGranted(true);
         attachmentPrivacyDisclaimerShown(attachmentKind);
-    }, [attachmentKind, granted, allowed, setGranted, attachmentPrivacyDisclaimerShown]);
+    }, [attachmentKind, granted, allowed, blocked, setGranted, attachmentPrivacyDisclaimerShown]);
 
     const messageValues = {
         button: {
@@ -43,11 +44,13 @@ export function useAttachmentPrivacyNotice() {
 
     // Keep the final allowed display visible after native disables future ones.
     const presentation =
-        attachmentKind && granted
+        attachmentKind && granted && !blocked
             ? {
                   type: /** @type {const} */ ('required'),
                   message: <Trans str={t('omnibar_attachmentPrivacyDisclaimer')} values={messageValues} />,
                   secondaryText: '',
+                  messageId: 'omnibar-attachment-privacy-disclaimer',
+                  muted: true,
                   icon: /** @type {const} */ ('info'),
               }
             : null;

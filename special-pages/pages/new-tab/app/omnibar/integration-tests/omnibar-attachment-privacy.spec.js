@@ -267,4 +267,64 @@ test.describe('omnibar attachment privacy disclaimer', () => {
         await expect(omnibar.noticeDrawer()).toHaveText(/anonymizes your chats.*Files are automatically scanned/);
         await omnibar.expectMethodCalledWith('omnibar_attachmentPrivacyDisclaimerShown', { kind: 'file' });
     });
+
+    test('does not spend a hidden disclosure behind terms and a usage block', async ({ page }, workerInfo) => {
+        const harness = setup(page, workerInfo);
+        await openAiOmnibar(harness, false);
+        const { omnibar } = harness;
+        await attachFile(omnibar);
+
+        await omnibar.didReceiveConfig({
+            ...AI_CONFIG,
+            requiresAiTermsAcceptance: true,
+            showAttachmentPrivacyDisclaimer: true,
+            usageLimits: { message: 'Daily limit reached', blocksPrompt: true },
+        });
+
+        await expect(omnibar.noticeDrawer()).toContainText('Daily limit reached');
+        await expect(page.locator('#omnibar-attachment-privacy-disclaimer')).toHaveCount(0);
+        await omnibar.expectMethodNotCalled('omnibar_attachmentPrivacyDisclaimerShown');
+
+        await omnibar.didReceiveConfig({
+            ...AI_CONFIG,
+            requiresAiTermsAcceptance: true,
+            showAttachmentPrivacyDisclaimer: true,
+        });
+
+        await expect(page.locator('#omnibar-attachment-privacy-disclaimer')).toBeVisible();
+        await omnibar.expectExactMethodCallCount('omnibar_attachmentPrivacyDisclaimerShown', 1);
+    });
+
+    test('hides an owned disclosure during a block without spending another display', async ({ page }, workerInfo) => {
+        const harness = setup(page, workerInfo);
+        await openAiOmnibar(harness, true);
+        const { omnibar } = harness;
+        await attachFile(omnibar);
+        await expect(page.locator('#omnibar-attachment-privacy-disclaimer')).toBeVisible();
+
+        await omnibar.didReceiveConfig({
+            ...AI_CONFIG,
+            showAttachmentPrivacyDisclaimer: false,
+            usageLimits: { message: 'Daily limit reached', blocksPrompt: true },
+        });
+        await expect(page.locator('#omnibar-attachment-privacy-disclaimer')).toHaveCount(0);
+
+        await omnibar.didReceiveConfig({ ...AI_CONFIG, showAttachmentPrivacyDisclaimer: false });
+        await expect(page.locator('#omnibar-attachment-privacy-disclaimer')).toBeVisible();
+        await omnibar.expectExactMethodCallCount('omnibar_attachmentPrivacyDisclaimerShown', 1);
+    });
+
+    for (const colorScheme of ['light', 'dark']) {
+        test(`uses the terms disclosure text color in ${colorScheme} mode`, async ({ page }, workerInfo) => {
+            await page.emulateMedia({ colorScheme: /** @type {'light' | 'dark'} */ (colorScheme) });
+            const harness = setup(page, workerInfo);
+            await openAiOmnibar(harness, true, { 'omnibar.requiresAiTermsAcceptance': 'true' });
+            await attachFile(harness.omnibar);
+
+            const notice = page.locator('#omnibar-attachment-privacy-disclaimer');
+            await expect(notice).toBeVisible();
+            const termsColor = await page.locator('#omnibar-terms-disclaimer').evaluate((element) => getComputedStyle(element).color);
+            await expect(notice).toHaveCSS('color', termsColor);
+        });
+    }
 });
