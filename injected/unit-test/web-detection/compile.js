@@ -218,6 +218,14 @@ describe('WebDetection compile', () => {
             rejectsMatch({ text: { any: [{ pattern: 'a' }] } }, "unknown key 'any'");
             rejectsMatch({ element: [{ selector: 'p' }, { none: [{ selector: 'a' }] }] }, "unknown key 'none'");
         });
+
+        it('rejects an iter over anything but a source or an array, and keys it does not take', () => {
+            rejectsMatch({ any: { iter: { ref: 'x' } } }, "'iter' takes 'element', 'text', 'api' or an array");
+            rejectsMatch({ any: { iter: { element: { selector: 'p' }, using: 'length' } } }, "'iter' takes 'element'");
+            rejectsMatch({ iter: [true], element: { selector: 'p' } }, 'an object takes one expression key');
+            rejectsMatch({ element: { selector: 'p' }, where: {} }, "'where' sits beside 'iter' only");
+            rejectsMatch({ sum: { expr: [1], field: 'x' }, is: 1 }, "'field' sits beside 'iter' only");
+        });
     });
 
     describe('unwrapping', () => {

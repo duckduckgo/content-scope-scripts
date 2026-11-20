@@ -176,8 +176,9 @@ function lower(predicate) {
         case 'always':
             return (subject) => (isFailure(subject) ? subject : true);
         case 'expression': {
+            // `self` reads the subject, so a failed item reaches the expression, where `fails` tests it
             const expression = predicate.expression;
-            return (subject, ctx) => (isFailure(subject) ? subject : ctx.test(expression));
+            return (_subject, ctx) => ctx.test(expression);
         }
         default:
             throw new DetectionError(`unknown predicate '${/** @type {{ kind: string }} */ (predicate).kind}'`);
