@@ -55,6 +55,9 @@ const otherFeatures = /** @type {FeatureName[]} */ ([
     'autofillPasskeys',
     'textSelection',
     'chromeWebstorePatching',
+    'selectionTools',
+    'sponsorBlock',
+    'pageTranslation',
 ]);
 
 /**
@@ -83,7 +86,6 @@ export const platformSupport = {
         'contextMenu',
         'duckPlayer',
         'duckPlayerNative',
-        'brokerProtection',
         'breakageReporting',
         'performanceMetrics',
         'clickToLoad',
@@ -98,8 +100,12 @@ export const platformSupport = {
         'tabSuspension',
         'chromeWebstorePatching',
         'browserUiLock',
+        'sponsorBlock',
     ],
+    'apple-broker-protection': ['brokerProtection'],
     'apple-ai-clear': ['duckAiDataClearing'],
+    // Its own bundle: native injects it only when the user translates a page.
+    'apple-page-translation': ['pageTranslation'],
     'apple-ai-history': ['duckAiChatHistory'],
     android: [
         'webDetection',
@@ -113,9 +119,11 @@ export const platformSupport = {
         'messageBridge',
         'pageContext',
         'browserUiLock',
+        'sponsorBlock',
     ],
     'android-broker-protection': ['brokerProtection'],
     'android-ai-clear': ['duckAiDataClearing'],
+    'android-page-translation': ['pageTranslation'],
     'android-ai-history': ['duckAiChatHistory'],
     'android-autofill-import': ['autofillImport'],
     'android-adsjs': [
@@ -152,6 +160,7 @@ export const platformSupport = {
         'duckAiChatHistory',
         'autofillPasskeys',
         'chromeWebstorePatching',
+        'selectionTools',
     ],
     firefox: ['cookie', 'webDetection', ...baseFeatures, 'clickToLoad', 'webEvents', 'webInterferenceDetection', 'breakageReporting'],
     chrome: ['cookie', 'webDetection', ...baseFeatures, 'clickToLoad', 'webEvents', 'webInterferenceDetection', 'breakageReporting'],

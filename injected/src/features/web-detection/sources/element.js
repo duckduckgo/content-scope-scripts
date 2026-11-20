@@ -1,4 +1,4 @@
-import { ConfigParseError, FILLS, isFailure, isPlainObject, rejectUnknownKeys } from '../model/core.js';
+import { ConfigParseError, isFailure, isPlainObject, rejectUnknownKeys } from '../model/core.js';
 import { ItemBuffer } from '../model/lists.js';
 import { parseItemKeys, selectItems, stringList } from './common.js';
 import { parseRoot, resolveRoots } from './roots.js';
@@ -66,7 +66,6 @@ export const elementSource = {
             ...parseItemKeys(raw, path, hooks),
         };
     },
-    fills: (body) => (body.field ? FILLS.list : FILLS.any),
     read(bodies, ctx) {
         return new ItemBuffer(selectElements(bodies, ctx), {
             hasAny() {

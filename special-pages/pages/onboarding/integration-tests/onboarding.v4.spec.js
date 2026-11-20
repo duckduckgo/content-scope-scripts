@@ -359,6 +359,155 @@ test.describe('onboarding v4', () => {
         await onboarding.startBrowsing();
     });
 
+    test.describe('init.steps', () => {
+        test('Without steps, addressBarMode is the last step and searchOrChat never shows', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({ stepDefinitions: null, exclude: [] });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'addressBarMode' });
+            await page.getByRole('heading', { name: 'Want easy access to private AI Chat?' }).waitFor({ timeout: 1000 });
+            await expect(page.getByRole('button', { name: 'Next' })).toHaveCount(0);
+            await onboarding.startBrowsing();
+            await expect(page.getByRole('heading', { name: 'Try a search or AI chat' })).toHaveCount(0);
+        });
+
+        test('With searchOrChat in steps, addressBarMode advances to it and it ends onboarding', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: null,
+                steps: ['welcome', 'getStarted', 'makeDefaultSingle', 'systemSettings', 'customize', 'addressBarMode', 'searchOrChat'],
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'addressBarMode' });
+            await page.getByRole('heading', { name: 'Want easy access to private AI Chat?' }).waitFor({ timeout: 1000 });
+            // the counter skips searchOrChat, which has none
+            await expect(page.getByText('4 of 4')).toBeVisible();
+            await expect(page.getByRole('button', { name: 'Start Browsing' })).toHaveCount(0);
+            await page.getByRole('button', { name: 'Next' }).click();
+
+            await page.getByRole('heading', { name: 'Try a search or AI chat' }).waitFor({ timeout: 1000 });
+            await expect(page.getByText(/\d of \d/)).toHaveCount(0);
+            await onboarding.didFireStepCompleted({ id: 'addressBarMode', next: 'searchOrChat' });
+            await expect(page.getByRole('button', { name: 'Start Browsing' })).toHaveCount(0);
+        });
+
+        test('When a config update removes searchOrChat, addressBarMode goes back to Start Browsing', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: null,
+                steps: ['welcome', 'getStarted', 'addressBarMode', 'searchOrChat'],
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'addressBarMode' });
+            await page.getByRole('button', { name: 'Next' }).waitFor({ timeout: 1000 });
+
+            await onboarding.pushConfigUpdate({ exclude: ['searchOrChat'] });
+            await expect(page.getByRole('button', { name: 'Next' })).toHaveCount(0);
+            await onboarding.startBrowsing();
+        });
+
+        test('When Duck.ai is off and native leaves out addressBarMode and searchOrChat, customize ends onboarding', async ({
+            page,
+        }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: null,
+                steps: ['welcome', 'getStarted', 'makeDefaultSingle', 'systemSettings', 'customize'],
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'customize' });
+            await onboarding.skippedBookmarksBar();
+            await onboarding.skippedSessionRestore();
+            await onboarding.skippedShowHomeButton();
+            await expect(page.getByRole('button', { name: 'Next' })).toHaveCount(0);
+            await onboarding.startBrowsing();
+        });
+
+        test('Shows only the listed steps in the page order, ignoring unknown entries and exclude', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: null,
+                steps: ['searchOrChat', 'notAStep', 'addressBarMode', 'getStarted'],
+                exclude: ['addressBarMode'],
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'getStarted' });
+            await page.getByRole('button', { name: 'Let’s get started!' }).click();
+
+            await page.getByRole('heading', { name: 'Want easy access to private AI Chat?' }).waitFor({ timeout: 1000 });
+            // counts only the listed steps
+            await expect(page.getByText('1 of 1')).toBeVisible();
+            await onboarding.didFireStepCompleted({ id: 'getStarted', next: 'addressBarMode' });
+        });
+    });
+
+    test.describe('Given I am on the searchOrChat step', () => {
+        test('Search is selected by default and a suggestion sends it as a search', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            await onboarding.goToSearchOrChat();
+            await expect(page.getByRole('heading', { name: 'Ready to get started? Try a search or AI chat!' })).toBeVisible();
+            await expect(page.getByRole('tab', { name: 'Search' })).toHaveAttribute('aria-selected', 'true');
+            await expect(page.getByPlaceholder('Search Privately')).toBeFocused();
+            await expect(page.getByRole('button', { name: 'Mighty ducks cast' })).toBeVisible();
+
+            await page.getByRole('button', { name: 'How to say "duck" in spanish' }).click();
+            await onboarding.didSubmitQuery({ mode: 'search', query: 'How to say "duck" in spanish', source: 'suggestion' });
+        });
+
+        test('Surprise me! sends an image search', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            await onboarding.goToSearchOrChat();
+            await page.getByRole('button', { name: 'Surprise me!' }).click();
+            await onboarding.didSubmitQuery({ mode: 'search', query: '!image baby ducklings', source: 'suggestion' });
+        });
+
+        test('Ask AI swaps the placeholder and suggestions, and Surprise me! sends a prompt', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            await onboarding.goToSearchOrChat();
+            await page.getByRole('tab', { name: 'Ask AI' }).click();
+            await expect(page.getByRole('tab', { name: 'Ask AI' })).toHaveAttribute('aria-selected', 'true');
+            await expect(page.getByPlaceholder('Ask anything privately')).toBeVisible();
+            await expect(page.getByRole('button', { name: 'Explain the stock market like I’m 10' })).toBeVisible();
+            await expect(page.getByRole('button', { name: 'Plan a perfect day in London' })).toBeVisible();
+            await expect(page.getByRole('button', { name: 'Mighty ducks cast' })).toHaveCount(0);
+
+            await page.getByRole('button', { name: 'Surprise me!' }).click();
+            await onboarding.didSubmitQuery({
+                mode: 'duckAi',
+                query: 'What are 10 fascinating facts across science, nature, and history?',
+                source: 'suggestion',
+            });
+        });
+
+        test('Enter submits the typed text in the selected mode, and blank text sends nothing', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            await onboarding.goToSearchOrChat();
+            const input = page.getByRole('textbox');
+            await expect(page.getByRole('button', { name: 'Submit' })).toBeDisabled();
+            await input.fill('   ');
+            await input.press('Enter');
+            expect(await onboarding.mocks.outgoing({ names: ['submitQuery'] })).toHaveLength(0);
+
+            await page.getByRole('tab', { name: 'Ask AI' }).click();
+            await input.fill('  what is a duck?  ');
+            await input.press('Enter');
+            await onboarding.didSubmitQuery({ mode: 'duckAi', query: 'what is a duck?', source: 'typed' });
+            await expect(page.getByRole('button', { name: 'Submit' })).toBeDisabled();
+        });
+
+        test('After Search Only on addressBarMode, it offers search alone', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            await onboarding.goToSearchOrChat({ searchOnly: true });
+            await expect(page.getByRole('heading', { name: 'Now, try a private search!' })).toBeVisible();
+            await expect(page.getByRole('tablist')).toHaveCount(0);
+            await expect(page.getByRole('button', { name: 'What’s "duck" in 10 languages' })).toBeVisible();
+
+            await page.getByRole('textbox').fill('ducks');
+            await page.getByRole('button', { name: 'Submit' }).click();
+            await onboarding.didSubmitQuery({ mode: 'search', query: 'ducks', source: 'typed' });
+        });
+    });
+
     test.describe('Given I am on the settings step with dock-instructions variant', () => {
         test('When I advance to the settings step, it sends row_shown for the first row', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);

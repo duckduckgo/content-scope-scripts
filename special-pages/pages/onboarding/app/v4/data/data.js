@@ -10,6 +10,7 @@ import { GetStartedAnimation } from '../components/GetStartedAnimation';
 import { SystemSettingsBackground, SystemSettingsForeground } from '../components/SystemSettingsAnimation';
 import { FadeTransition } from '../components/FadeTransition';
 import { DockInstructionsContent } from '../components/DockInstructionsContent';
+import { SearchOrChatContent } from '../components/SearchOrChatContent';
 
 /**
  * This sets up individual steps in the v4 (bubbles) version of onboarding
@@ -121,13 +122,35 @@ export const stepsConfig = {
             bounceKey: `${activeStep}-${activeRow}`,
         };
     },
-    addressBarMode: ({ t, dismiss, onTitleComplete, updateSystemValue }) => {
+    addressBarMode: ({ t, globalState, enqueueNext, dismiss, onTitleComplete, updateSystemValue }) => {
+        const { order, activeStep } = globalState;
+        // Read from `order`, which config updates keep current, like `SettingsContent` does.
+        const isLastStep = order[order.length - 1] === activeStep;
         return {
             topBubble: {
                 content: <StepHeader title={t('addressBarMode_title')} onTitleComplete={onTitleComplete} />,
             },
-            bottomBubble: { content: <AddressBarContent dismiss={dismiss} updateSystemValue={updateSystemValue} /> },
+            bottomBubble: {
+                content: (
+                    <AddressBarContent dismiss={dismiss} advance={isLastStep ? null : enqueueNext} updateSystemValue={updateSystemValue} />
+                ),
+            },
             showProgress: true,
+        };
+    },
+    // Only shown to clients that list it in `init.steps`.
+    searchOrChat: ({ t, globalState, submitQuery, onTitleComplete }) => {
+        // "Search Only" on addressBarMode leaves Duck.ai out. If that step wasn't shown, offer both.
+        /** @type {import('../../types').SearchOrChatVariant} */
+        const variant = globalState.values['address-bar-mode']?.enabled === false ? 'searchOnly' : 'searchAndDuckAi';
+        const title = variant === 'searchOnly' ? t('searchOrChat_searchOnly_title') : t('searchOrChat_title');
+        return {
+            topBubble: {
+                content: <StepHeader title={title} onTitleComplete={onTitleComplete} />,
+            },
+            bottomBubble: {
+                content: <SearchOrChatContent variant={variant} submitQuery={submitQuery} />,
+            },
         };
     },
 };
@@ -275,6 +298,10 @@ export const stepDefinitions = {
     },
     addressBarMode: {
         id: 'addressBarMode',
+        kind: 'info',
+    },
+    searchOrChat: {
+        id: 'searchOrChat',
         kind: 'info',
     },
 };

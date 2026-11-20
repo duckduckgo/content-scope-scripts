@@ -31,6 +31,7 @@ import { useContext } from 'preact/hooks';
  *   | MakeDefaultSingleStep
  *   | DuckPlayerSingleStep
  *   | AddressBarModeStep
+ *   | SearchOrChatStep
  * } Step
  * @typedef {Record<Step['id'], Step>} StepDefinitions
  * @typedef {{ kind: 'info'; id: 'welcome' }} WelcomeStep
@@ -41,6 +42,7 @@ import { useContext } from 'preact/hooks';
  * @typedef {{ kind: 'settings'; id: 'makeDefaultSingle'; rows: SystemValueId[]; }} MakeDefaultSingleStep
  * @typedef {{ kind: 'info'; id: 'duckPlayerSingle'; variant?: 'ad-free' }} DuckPlayerSingleStep
  * @typedef {{ kind: 'info'; id: 'addressBarMode' }} AddressBarModeStep
+ * @typedef {{ kind: 'info'; id: 'searchOrChat' }} SearchOrChatStep
  */
 
 /** @type {Step['id'][]} */
@@ -52,10 +54,20 @@ export const EVERY_PAGE_ID = [
     'duckPlayerSingle',
     'customize',
     'addressBarMode',
+    'searchOrChat',
 ];
 
-/** @type {Step['id'][]} */
+/**
+ * Today's onboarding. Used when native doesn't send `steps`, so it never includes steps a client must opt into.
+ * @type {Step['id'][]}
+ */
 export const ORDER_V4 = ['welcome', 'getStarted', 'makeDefaultSingle', 'systemSettings', 'duckPlayerSingle', 'customize', 'addressBarMode'];
+
+/**
+ * The page's own order for every step it can show. When native sends `steps`, the page shows only those, in this order.
+ * @type {Step['id'][]}
+ */
+export const STEPS_ORDER = [...ORDER_V4, 'searchOrChat'];
 
 /**
  * @typedef {BooleanSystemValue} SystemValue - values sent in messages to the host
@@ -101,7 +113,8 @@ export const ORDER_V4 = ['welcome', 'getStarted', 'makeDefaultSingle', 'systemSe
  *   | ConfigUpdateEvent
  *   | TelemetryEvent
  *   | RequestChromeExtensionEvent
- *   | SetOnboardingInstallOptionsEvent} GlobalEvents
+ *   | SetOnboardingInstallOptionsEvent
+ *   | SubmitQueryEvent} GlobalEvents
  *  All the events that the UI can dispatch
  * @typedef {{ kind: "enqueue-next"; }} NextEvent
  * @typedef {{ kind: "advance" }} AdvanceEvent
@@ -118,6 +131,14 @@ export const ORDER_V4 = ['welcome', 'getStarted', 'makeDefaultSingle', 'systemSe
  * @typedef {{ kind: "telemetry"; attributes: import('../types/onboarding.ts').TelemetryEvent['attributes'] }} TelemetryEvent
  * @typedef {{ kind: "request-chrome-extension" }} RequestChromeExtensionEvent
  * @typedef {{ kind: "set-onboarding-install-options"; payload: import('../types/onboarding.ts').OnboardingInstallOptions }} SetOnboardingInstallOptionsEvent
+ * @typedef {{ kind: "submit-query"; params: SubmitQueryParams }} SubmitQueryEvent
+ */
+
+/**
+ * What the searchOrChat step offers, from the user's choice on addressBarMode.
+ * @typedef {'searchAndDuckAi' | 'searchOnly'} SearchOrChatVariant
+ *
+ * @typedef {import('../types/onboarding.ts').SubmitQuery} SubmitQueryParams
  */
 
 /** @type {ImportMeta['injectName'][]} */

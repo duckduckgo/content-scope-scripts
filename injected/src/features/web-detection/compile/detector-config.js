@@ -1,4 +1,5 @@
-import { NAME_PATTERN, isPlainObject, thrownMessage } from '../model/core.js';
+import { isArray } from '../../../captured-globals.js';
+import { isPlainObject, thrownMessage } from '../model/core.js';
 import { pageSources } from '../sources/index.js';
 import { compileDetector } from './compile.js';
 
@@ -61,17 +62,6 @@ const DEFAULT_RUN_CONDITIONS = /** @type {import('../../../config-feature.js').C
 ]);
 
 /**
- * Validate that a name matches the required format.
- * Names must start with a letter and contain only alphanumeric characters and underscores.
- *
- * @param {string} name
- * @returns {boolean}
- */
-function isValidName(name) {
-    return NAME_PATTERN.test(name);
-}
-
-/**
  * Normalize a raw detector configuration by resolving all optional fields to concrete values.
  * After normalization, consumers never need fallback defaults.
  *
@@ -100,10 +90,22 @@ function normalizeDetector(config) {
             auto: {
                 state: config.triggers?.auto?.state ?? 'disabled',
                 runConditions: /** @type {ConditionBlockOrArray} */ (config.triggers?.auto?.runConditions ?? DEFAULT_RUN_CONDITIONS),
-                when: config.triggers?.auto?.when ?? { intervalMs: [] },
+                when: { intervalMs: intervalsOf(config.triggers?.auto?.when) },
             },
         },
     };
+}
+
+/**
+ * The `auto` intervals `when` gives: the numbers in `intervalMs`. A malformed `when` schedules no
+ * run for its detector, and leaves the others' timers in place.
+ *
+ * @param {unknown} when
+ * @returns {number[]}
+ */
+function intervalsOf(when) {
+    const intervals = isPlainObject(when) ? when.intervalMs : undefined;
+    return isArray(intervals) ? intervals.filter((interval) => typeof interval === 'number') : [];
 }
 
 /**
@@ -138,7 +140,7 @@ export function parseDetectors(detectorsConfig) {
     }
 
     for (const [groupName, groupConfig] of Object.entries(detectorsConfig)) {
-        if (!isValidName(groupName) || !isPlainObject(groupConfig)) {
+        if (!isPlainObject(groupConfig)) {
             continue;
         }
 
@@ -146,7 +148,7 @@ export function parseDetectors(detectorsConfig) {
         const groupDetectors = {};
 
         for (const [detectorId, detectorConfig] of Object.entries(groupConfig)) {
-            if (!isValidName(detectorId) || !isPlainObject(detectorConfig)) {
+            if (!isPlainObject(detectorConfig)) {
                 continue;
             }
 

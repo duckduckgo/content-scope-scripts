@@ -118,7 +118,6 @@ function makeNode(scope, fields) {
  */
 function compileBody(raw, position, path, scope) {
     if (!isArray(raw)) return compileExpr(raw, position, path, scope);
-    if (raw.length === 0) throw new ConfigParseError(path, 'a sequence holds at least one element');
     const elements = raw.map((element, i) => compileExpr(element, i === raw.length - 1 ? position : 'value', `${path}.${i}`, scope));
     return makeNode(scope, { kind: 'sequence', elements, path, position });
 }
@@ -153,42 +152,28 @@ function compileExpr(raw, position, path, scope) {
             if (raw.if === undefined) throw new ConfigParseError(`${path}.${key}`, `'${key}' sits beside 'if' only`);
         } else if (!MODIFIER_KEYS.has(key)) throw new ConfigParseError(`${path}.${key}`, `unknown expression key '${key}'`);
     }
-    if (raw.if !== undefined && expressionKeys.length > 1) {
-        throw new ConfigParseError(path, `'if' takes no other expression key beside it`);
+    // Clients deliver an object's keys in no guaranteed order, so an object holds one expression
+    const [key, ...others] = expressionKeys;
+    if (key === undefined || others.length > 0) {
+        const found = key === undefined ? 'none' : `${expressionKeys.join(', ')}: \`{"all": [...]}\` ANDs several`;
+        throw new ConfigParseError(path, `an object takes one expression key, and this one has ${found}`);
     }
 
     const hasIs = raw.is !== undefined;
     const hasUsing = raw.using !== undefined;
-    if (hasIs && position !== 'boolean' && position !== 'value')
-        throw new ConfigParseError(path, '`is` gives a boolean, in boolean or value position');
     // With `is`, the expression computes a value for the predicate
     const valuePosition = hasIs ? 'value' : position;
     // With `using`, the expression keys give the value `using` reads from
     const keyPosition = hasUsing ? 'value' : valuePosition;
 
     /** @type {Node} */
-    let node;
-    if (expressionKeys.length === 0) {
-        if (hasUsing) throw new ConfigParseError(path, '`using` reads from an expression, and this object has no expression key');
-        if (hasIs || position !== 'boolean') throw new ConfigParseError(path, 'no expression key');
-        // An object ANDs its keys, so no keys holds
-        node = makeNode(scope, { kind: 'literal', value: true, path, position });
-    } else if (expressionKeys.length > 1) {
-        if ((hasIs && !hasUsing) || (keyPosition !== 'boolean' && keyPosition !== 'value')) {
-            throw new ConfigParseError(path, 'several expression keys are their AND, in boolean or value position and never beside `is`');
-        }
-        const operands = expressionKeys.map((key) => compileKey(key, raw[key], 'boolean', `${path}.${key}`, scope));
-        node = makeNode(scope, { kind: 'and', operands, path, position: keyPosition });
-    } else {
-        const key = /** @type {string} */ (expressionKeys[0]);
-        node = key === 'if' ? compileIf(raw, keyPosition, path, scope) : compileKey(key, raw[key], keyPosition, `${path}.${key}`, scope);
-    }
+    let node = key === 'if' ? compileIf(raw, keyPosition, path, scope) : compileKey(key, raw[key], keyPosition, `${path}.${key}`, scope);
     if (hasUsing) node = compileUsing(raw.using, node, valuePosition, path, scope);
 
     if (hasIs) {
         node.is = compilePredicate(raw.is, 'value', `${path}.is`, scope.hooks);
-        // Value-position reads skip `is`, and an `expr` over it gives its boolean
-        if (position === 'value') return makeNode(scope, { kind: 'expr', operand: node, path, position });
+        // Reads outside boolean position skip `is`, and an `expr` over it gives its boolean
+        if (position !== 'boolean') return makeNode(scope, { kind: 'expr', operand: node, path, position });
     }
     return node;
 }
@@ -221,7 +206,7 @@ function compileActions(raw, keys, position, path, scope) {
     }
     /** @type {Node} */
     const node = actions.length === 1 ? actions[0] : makeNode(scope, { kind: 'sequence', elements: actions, path, position });
-    // Checked once every expression is compiled: an action fills value position only
+    // An action gives `undefined`, which fails outside value position as it is read
     node.position = position;
     return node;
 }
@@ -233,8 +218,7 @@ function compileActions(raw, keys, position, path, scope) {
  * @returns {Node[]}
  */
 function compileDefine(raw, path, scope) {
-    if (!isPlainObject(raw) || objectKeys(raw).length === 0)
-        throw new ConfigParseError(path, '`define` takes an object of at least one name');
+    if (!isPlainObject(raw)) throw new ConfigParseError(path, '`define` takes an object of names');
     return objectKeys(raw).map((name) => {
         const namePath = `${path}.${name}`;
         if (!DEFINE_NAME_PATTERN.test(name)) throw new ConfigParseError(namePath, `invalid name '${name}'`);
@@ -324,7 +308,7 @@ function compileKey(key, body, position, path, scope) {
 
 /**
  * `{"if": C, "then": X, "else"?: Y}`: the branch the condition takes, or `undefined` with no branch
- * taken, so an `if` without `else` fills value position only.
+ * taken.
  *
  * @param {Record<string, unknown>} raw
  * @param {Position} position
@@ -334,7 +318,6 @@ function compileKey(key, body, position, path, scope) {
  */
 function compileIf(raw, position, path, scope) {
     const ifPath = `${path}.if`;
-    if (position === 'list') throw new ConfigParseError(ifPath, `'if' does not fill list position`);
     if (raw.then === undefined) throw new ConfigParseError(ifPath, `'if' needs 'then'`);
     const test = compileExpr(raw.if, 'boolean', ifPath, scope);
     const then = compileBody(raw.then, position, `${path}.then`, scope);
@@ -411,7 +394,6 @@ function compileSource(key, body, position, path, scope) {
     const source = scope.sources[key];
     if (key === 'api' && isArray(body)) throw new ConfigParseError(path, '`api` takes one body');
     const bodies = asArray(body).map((raw, i) => source.parse(raw, isArray(body) ? `${path}.${i}` : path, scope.hooks));
-    if (bodies.length === 0) throw new ConfigParseError(path, 'no bodies');
     const withField = bodies.some(hasField);
     // `text`, and `element` without `field`, are the condition leaf: a boolean under any / all / none
     const leaf = key === 'text' || (key === 'element' && !withField);

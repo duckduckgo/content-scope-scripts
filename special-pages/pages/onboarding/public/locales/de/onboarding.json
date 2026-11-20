@@ -316,6 +316,58 @@
     "title" : "Die KI-Funktionen sind privat und optional. Unter <b>Einstellungen &gt; KI-Funktionen</b> kannst du Änderungen vornehmen.",
     "note" : "Footer text explaining AI features are optional and can be changed in settings. The <b> tag is used to bold the settings path."
   },
+  "searchOrChat_title" : {
+    "title" : "Bereit anzufangen?\nProbier die Suchfunktion oder den KI-Chat!",
+    "note" : "Title for the last onboarding step, where the user can try a private search or ask Duck.ai (DuckDuckGo's private AI chat) a question. The line break should be kept."
+  },
+  "searchOrChat_searchOnly_title" : {
+    "title" : "Probiere jetzt eine private Suche aus!",
+    "note" : "Title for the last onboarding step, where the user can try a private search or ask Duck.ai (DuckDuckGo's private AI chat) a question, shown when the user chose search only (no AI chat) on the previous step."
+  },
+  "searchOrChat_searchTab" : {
+    "title" : "Suche",
+    "note" : "Label of the option that switches the input to a web search."
+  },
+  "searchOrChat_aiTab" : {
+    "title" : "Frag die KI",
+    "note" : "Label of the option that switches the input to asking Duck.ai (DuckDuckGo's private AI chat)."
+  },
+  "searchOrChat_searchPlaceholder" : {
+    "title" : "Privat suchen",
+    "note" : "Placeholder in the input when it will run a web search."
+  },
+  "searchOrChat_aiPlaceholder" : {
+    "title" : "Alles privat fragen",
+    "note" : "Placeholder in the input when it will ask Duck.ai (DuckDuckGo's private AI chat)."
+  },
+  "searchOrChat_searchSuggestion1" : {
+    "title" : "Wie sagt man „Ente“ auf Englisch",
+    "note" : "Suggested search. Clicking it searches for this exact text, so it should read as a natural search query in the target language."
+  },
+  "searchOrChat_searchSuggestion2" : {
+    "title" : "Besetzung von Mighty Ducks",
+    "note" : "Suggested search for the cast of the film The Mighty Ducks. Clicking it searches for this exact text."
+  },
+  "searchOrChat_aiSuggestion1" : {
+    "title" : "Erkläre den Aktienmarkt, als wäre ich 10",
+    "note" : "Suggested question for Duck.ai (DuckDuckGo's private AI chat). Clicking it sends this exact text."
+  },
+  "searchOrChat_aiSuggestion2" : {
+    "title" : "Plane einen perfekten Tag in London",
+    "note" : "Suggested question for Duck.ai (DuckDuckGo's private AI chat). Clicking it sends this exact text."
+  },
+  "searchOrChat_surpriseMe" : {
+    "title" : "Überrasche mich!",
+    "note" : "Suggestion that runs a fun example search or question chosen by DuckDuckGo."
+  },
+  "searchOrChat_searchSurpriseQuery" : {
+    "title" : "Entenküken",
+    "note" : "Image search sent when the user clicks 'Surprise me!' in search mode. Not shown on screen."
+  },
+  "searchOrChat_aiSurprisePrompt" : {
+    "title" : "Was sind 10 faszinierende Fakten aus Wissenschaft, Natur und Geschichte?",
+    "note" : "Question sent to Duck.ai (DuckDuckGo's private AI chat) when the user clicks 'Surprise me!'. Not shown on screen."
+  },
   "customize_title_v3" : {
     "title" : "Passen wir ein paar Dinge an …",
     "note" : "Title for a page that allows the user to customize specific settings in the DuckDuckGo browser."

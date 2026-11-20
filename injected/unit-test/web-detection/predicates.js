@@ -124,6 +124,16 @@ describe('WebDetection predicates', () => {
             expect(holds(html, { api: { path: 'document.title' }, is: { type: 'string', length: 0 } })).toBe(true);
         });
 
+        it('names types as `typeof` does, with `null` and `array` apart from `object`', () => {
+            const typeOf = (/** @type {string} */ path, /** @type {string} */ type) => holds('', { api: { path }, is: { type } });
+            expect(typeOf('document.querySelector', 'function')).toBe(true);
+            expect(typeOf('document.querySelector', 'object')).toBe(false);
+            expect(typeOf('Symbol.iterator', 'symbol')).toBe(true);
+            expect(holds('', { api: { path: 'BigInt', args: [1] }, is: { type: 'bigint' } })).toBe(true);
+            expect(typeOf('document.body', 'object')).toBe(true);
+            expect(holds('', { expr: [], is: { type: 'object' } })).toBe(false);
+        });
+
         it('rejects field or is without the other, and an unknown type name', () => {
             rejectsMatch({ element: { selector: 'p', where: { field: 'id' } }, using: 'length', is: 1 }, '`field` and `is` go together');
             rejectsMatch({ element: { selector: 'p', where: { is: 1 } }, using: 'length', is: 1 }, '`field` and `is` go together');

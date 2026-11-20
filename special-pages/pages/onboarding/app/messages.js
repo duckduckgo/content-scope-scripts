@@ -6,7 +6,8 @@
  *
  * @typedef {Object} InitResponse
  * @property {Record<string, any>} stepDefinitions
- * @property {string[]} [exclude] - ability to exclude screens
+ * @property {string[]} [steps] - the steps this platform wants to show; the page shows only these, in its own order. Takes precedence over `exclude`.
+ * @property {string[]} [exclude] - ability to exclude screens. Ignored when `steps` is sent.
  * @property {ImportMeta['env']} [env] - optional override for the running override
  * @property {string} locale
  * @property {{ name: 'macos'|'windows'|'android'|'ios'}} [platform]
@@ -40,13 +41,16 @@ export class OnboardingMessages {
      *       "rows": ["dock", "import", "default-browser"]
      *     }
      *   },
-     *   "exclude": ["dockSingle"],
+     *   "steps": ["welcome", "getStarted", "makeDefaultSingle", "systemSettings", "customize", "addressBarMode", "searchOrChat"],
      *   "locale": "en"
      * }
      * ```
      *
      * In that example, the native layer is providing the list of rows that should be shown in the
      * systemSettings step, overriding the default list provided in `data.js`.
+     *
+     * Clients that don't send `steps` can still send `exclude` to remove steps from the default order.
+     * It's ignored when `steps` is present, and will be removed once every platform sends `steps`.
      *
      * @returns {Promise<InitResponse>}
      */
@@ -148,6 +152,15 @@ export class OnboardingMessages {
      */
     dismissToAddressBar() {
         this.messaging.notify('dismissToAddressBar');
+    }
+
+    /**
+     * Sent instead of `dismissToAddressBar` when the user submits a search or a Duck.ai prompt
+     * on the searchOrChat step. Native ends onboarding and opens the query in the Welcome tab.
+     * @param {import('./types').SubmitQueryParams} params
+     */
+    submitQuery(params) {
+        this.messaging.notify('submitQuery', params);
     }
 
     /**
