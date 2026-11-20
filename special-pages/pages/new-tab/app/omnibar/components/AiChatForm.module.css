@@ -38,6 +38,10 @@
         cursor: default;
     }
 
+    .collapsed & {
+        overflow: hidden;
+    }
+
     .hasScroll & {
         border-bottom: 1px solid var(--ds-color-theme-surface-decoration-tertiary);
         padding-bottom: var(--sp-3);

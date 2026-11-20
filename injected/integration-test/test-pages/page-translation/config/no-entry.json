@@ -1,0 +1,6 @@
+{
+  "readme": "Config with no pageTranslation entry: the feature runs without one.",
+  "version": 1,
+  "features": {},
+  "unprotectedTemporary": []
+}

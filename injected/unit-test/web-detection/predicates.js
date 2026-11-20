@@ -47,7 +47,7 @@ describe('WebDetection predicates', () => {
             rejectsMatch({ api: { path: 'performance.getEntries', where: [{ a: 1 }] } }, notPredicate);
             rejectsMatch({ api: { path: 'document.title' }, is: { length: [1, 2] } }, notPredicate);
             expectParseError(withPayload(1, { when: [1, 2] }), notPredicate);
-            expectParseError(withPayload(1, { buckets: { low: [0, 1] } }), notPredicate);
+            expectParseError(withPayload(1, { buckets: [{ name: 'low', is: [0, 1] }] }), notPredicate);
         });
 
         it('tests for one of several values with in', () => {
@@ -122,6 +122,16 @@ describe('WebDetection predicates', () => {
             expect(count(html, { element: { selector: 'input', where: { type: 'checkbox', checked: true } } })).toBe(1);
             expect(count(html, { element: { selector: 'input', where: { 'value.length': { gt: 2 }, any: [{ type: 'text' }] } } })).toBe(1);
             expect(holds(html, { api: { path: 'document.title' }, is: { type: 'string', length: 0 } })).toBe(true);
+        });
+
+        it('names types as `typeof` does, with `null` and `array` apart from `object`', () => {
+            const typeOf = (/** @type {string} */ path, /** @type {string} */ type) => holds('', { api: { path }, is: { type } });
+            expect(typeOf('document.querySelector', 'function')).toBe(true);
+            expect(typeOf('document.querySelector', 'object')).toBe(false);
+            expect(typeOf('Symbol.iterator', 'symbol')).toBe(true);
+            expect(holds('', { api: { path: 'BigInt', args: [1] }, is: { type: 'bigint' } })).toBe(true);
+            expect(typeOf('document.body', 'object')).toBe(true);
+            expect(holds('', { expr: [], is: { type: 'object' } })).toBe(false);
         });
 
         it('rejects field or is without the other, and an unknown type name', () => {
@@ -586,7 +596,7 @@ describe('WebDetection predicates', () => {
                 return run('', { actions: { define: { n: { api: { ...items, where }, using: 'length' } } } }).events.map((e) => e.data);
             };
             expect(sent({ when: { eq: { self: 'a' } } })).toEqual([{ x: 1 }, {}, {}]);
-            expect(sent({ buckets: { first: { eq: { self: 'a' } } } })).toEqual([{ x: 'first' }, {}, {}]);
+            expect(sent({ buckets: [{ name: 'first', is: { eq: { self: 'a' } } }] })).toEqual([{ x: 'first' }, {}, {}]);
         });
 
         it('computes an expression over a ref inside a where, field or using that reads no self', () => {

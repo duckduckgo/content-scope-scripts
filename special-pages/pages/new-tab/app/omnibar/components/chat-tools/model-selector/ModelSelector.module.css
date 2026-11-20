@@ -181,10 +181,6 @@
     pointer-events: none;
 }
 
-/* Subscription-gated rows in an all-disabled (upsell) section read at full
-   strength — only the section header above them is muted. They stay
-   interactive: hovering highlights and clicking triggers the section's upsell
-   flow directly (rows are the upsell trigger; there's no separate CTA). */
 .modelOptionUpsell {
     cursor: pointer;
 }

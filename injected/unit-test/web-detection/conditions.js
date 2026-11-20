@@ -86,12 +86,6 @@ describe('WebDetection conditions', () => {
         /** Elements of class `a` and `b`, holding the text given. */
         const ab = (/** @type {string} */ a, /** @type {string} */ b) => `<div class="a">${a}</div><div class="b">${b}</div>`;
 
-        describe('empty conditions', () => {
-            it('should match with empty object (no conditions)', () => {
-                expect(matchInDOM('<p>content</p>', {})).toBe(true);
-            });
-        });
-
         describe('text matching', () => {
             it('should match text pattern in body', () => {
                 expect(matchInDOM('<p>Please disable your adblocker</p>', text('adblocker'))).toBe(true);
@@ -428,7 +422,7 @@ describe('WebDetection conditions', () => {
 
         describe('combined conditions (AND)', () => {
             it('should require both text and element to match', () => {
-                const match = { ...text('adblocker'), ...overlay('any') };
+                const match = { all: [text('adblocker'), overlay('any')] };
                 expect(matchInDOM('<div class="overlay">Disable adblocker</div>', match)).toBe(true);
                 // Text matches but element doesn't
                 expect(matchInDOM('<p>Disable adblocker</p>', match)).toBe(false);
@@ -515,9 +509,9 @@ describe('WebDetection conditions', () => {
             });
         });
 
-        describe('sibling operators (AND)', () => {
+        describe('operators combined with all (AND)', () => {
             it('should AND-combine all + none', () => {
-                const condition = { all: [text('foo')], none: [text('bad')] };
+                const condition = { all: [{ all: [text('foo')] }, { none: [text('bad')] }] };
                 // text contains foo (all) and does not contain bad (none)
                 expect(matchInDOM('<p>foo good</p>', condition)).toBe(true);
                 // contains foo but also contains bad -> none fails
@@ -527,7 +521,7 @@ describe('WebDetection conditions', () => {
             });
 
             it('should AND-combine any + none', () => {
-                const condition = { any: [text('foo'), text('baz')], none: [text('bad')] };
+                const condition = { all: [{ any: [text('foo'), text('baz')] }, { none: [text('bad')] }] };
                 expect(matchInDOM('<p>foo good</p>', condition)).toBe(true);
                 expect(matchInDOM('<p>foo bad</p>', condition)).toBe(false);
             });

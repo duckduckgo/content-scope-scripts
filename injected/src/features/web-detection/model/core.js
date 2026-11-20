@@ -135,23 +135,7 @@ export class ConfigParseError extends Error {
     }
 }
 
-/**
- * The positions a kind of expression fills. `list` is a selected list, which gives its one item in
- * number position, `array` a list that stays one, such as `{"expr": [...]}`, and `any` a value that may
- * be a list, such as a source read in boolean position for whether it holds an item.
- *
- * @type {Record<'number' | 'boolean' | 'value' | 'list' | 'array' | 'any', ReadonlySet<import('./types.js').Position>>}
- */
-export const FILLS = {
-    number: new Set(['number', 'value']),
-    boolean: new Set(['boolean', 'value']),
-    value: new Set(['value']),
-    list: new Set(['list', 'value', 'number']),
-    array: new Set(['list', 'value']),
-    any: new Set(['boolean', 'value', 'number', 'list']),
-};
-
-/** `^[a-zA-Z][a-zA-Z0-9_]*$`: group, detector and payload key names */
+/** `^[a-zA-Z][a-zA-Z0-9_]*$`: payload key names */
 export const NAME_PATTERN = /^[a-zA-Z][a-zA-Z0-9_]*$/;
 
 /** `^(this\.)?[a-zA-Z][a-zA-Z0-9_]*$`: a run name, or with `this.` a detector name */
@@ -237,10 +221,11 @@ export function decides(kind) {
     return [kind === 'any' || kind === 'none', kind === 'any'];
 }
 
-/** @typedef {'number' | 'string' | 'boolean' | 'null' | 'undefined' | 'array' | 'object'} TypeName */
+/** @typedef {'number' | 'string' | 'boolean' | 'null' | 'undefined' | 'array' | 'object' | 'function' | 'symbol' | 'bigint'} TypeName */
 
 /**
- * Name of a value's type, as `type` in predicates tests it.
+ * Name of a value's type, as `type` in predicates tests it: what `typeof` gives, with `null` and
+ * arrays named apart from other objects.
  *
  * @param {unknown} value
  * @returns {TypeName}
@@ -248,15 +233,7 @@ export function decides(kind) {
 export function typeName(value) {
     if (value === null) return 'null';
     if (isArray(value)) return 'array';
-    switch (typeof value) {
-        case 'number':
-        case 'string':
-        case 'boolean':
-        case 'undefined':
-            return /** @type {'number' | 'string' | 'boolean' | 'undefined'} */ (typeof value);
-        default:
-            return 'object';
-    }
+    return typeof value;
 }
 
 /**

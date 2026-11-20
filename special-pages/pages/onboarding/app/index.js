@@ -80,6 +80,8 @@ async function init() {
         .withPlatformName(baseEnvironment.injectName)
         .withPlatformName(init.platform?.name)
         .withPlatformName(baseEnvironment.urlParams.get('platform'))
+        .withSteps(init.steps)
+        .withSteps(environment.urlParams.getAll('steps'))
         .withStepDefinitions(init.stepDefinitions)
         .withExcludedScreens(init.exclude)
         .withExcludedScreens(environment.urlParams.getAll('exclude'))

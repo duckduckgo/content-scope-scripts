@@ -1,4 +1,4 @@
-import { DetectionError, FILLS, isFailure } from '../model/core.js';
+import { DetectionError, isFailure } from '../model/core.js';
 import { ItemBuffer, isItemBuffer, listMembers } from '../model/lists.js';
 import { compileArgs, evaluateArgs, parsePathBody, readField, readPath } from '../predicates/fields.js';
 import { parseItemKeys, selectItems } from './common.js';
@@ -51,7 +51,6 @@ export function apiSource(global) {
     return {
         key: 'api',
         parse: (raw, path, hooks, key) => parseApiBody(raw, path, hooks, key),
-        fills: (body) => (body.where ? FILLS.list : FILLS.any),
         read(bodies, ctx) {
             // `api` takes one body
             const body = /** @type {ApiBody} */ (bodies[0]);

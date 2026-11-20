@@ -94,14 +94,13 @@ export function evaluate(node, position, ctx) {
             case 'any':
             case 'all':
             case 'none':
-            case 'and':
                 result = computeLogic(node, ctx);
                 break;
             case 'if':
-                result = computeIf(node, ctx);
+                result = computeIf(node, position, ctx);
                 break;
             case 'sequence':
-                result = computeSequence(node, ctx);
+                result = computeSequence(node, position, ctx);
                 break;
             case 'define':
             case 'fireEvent':
@@ -136,16 +135,13 @@ function atPath(error, path, ctx) {
  * @param {Position} position
  */
 function checkType(value, position) {
-    if (isItemBuffer(value) && position === 'boolean') {
-        throw new DetectionError('a list is read through any, all, none or only, or its length through using');
-    }
     if (position === 'number' && typeof value !== 'number') throw new DetectionError(`expected a number, got ${typeName(value)}`);
     if (position === 'boolean' && typeof value !== 'boolean') throw new DetectionError(`expected a boolean, got ${typeName(value)}`);
 }
 
 /**
- * A value in a position: a selected list gives its one item in number position, and the condition
- * leaf in boolean position whether it holds an item.
+ * A value in a position: a selected list gives its one item in number position, and in boolean
+ * position whether it holds an item.
  *
  * @param {unknown} value
  * @param {Position} position
@@ -153,7 +149,7 @@ function checkType(value, position) {
  */
 function positioned(value, position) {
     if (!isItemBuffer(value)) return value;
-    if (position === 'boolean' && value.leaf) return presence(value);
+    if (position === 'boolean') return presence(value);
     if (position === 'number') return single(value);
     return value;
 }
@@ -175,7 +171,7 @@ function computeUsing(node, position, ctx) {
 
 /**
  * A source's value, read each time evaluation reaches it: a list's buffer, or the value an `api` reads.
- * In boolean position, the condition leaf gives whether it holds an item.
+ * In boolean position, a list gives whether it holds an item.
  *
  * @param {SourceNode} node
  * @param {Position} position
@@ -305,29 +301,45 @@ function computeOnly(node, ctx) {
  * The one expression that skips part of its config: only the branch taken is evaluated.
  *
  * @param {IfNode} node
+ * @param {Position} position
  * @param {EvaluationContext} ctx
  * @returns {unknown} the value, or a `Failure`
  */
-function computeIf(node, ctx) {
+function computeIf(node, position, ctx) {
     const test = evaluateOccurrence(node.test, ctx);
     if (isFailure(test)) return test;
     const branch = test ? node.then : node.else;
-    return branch ? evaluateOccurrence(branch, ctx) : undefined;
+    return branch ? evaluateResult(branch, position, ctx) : undefined;
 }
 
 /**
  * @param {SequenceNode} node
+ * @param {Position} position
  * @param {EvaluationContext} ctx
  * @returns {unknown} the last element's value, or a `Failure`
  */
-function computeSequence(node, ctx) {
+function computeSequence(node, position, ctx) {
     /** @type {unknown} */
     let value;
+    const last = node.elements[node.elements.length - 1];
     for (const element of node.elements) {
-        value = evaluateOccurrence(element, ctx);
+        value = element === last ? evaluateResult(element, position, ctx) : evaluateOccurrence(element, ctx);
         if (isFailure(value)) return value;
     }
     return value;
+}
+
+/**
+ * The value an `if` branch or a sequence's last element gives for the expression holding it. Under
+ * `sum`, `mul`, `any`, `all` and `none` a list it gives contributes each item, as the holder's would.
+ *
+ * @param {Node} node
+ * @param {Position} position - the holder's
+ * @param {EvaluationContext} ctx
+ * @returns {unknown} the value, or a `Failure`
+ */
+function evaluateResult(node, position, ctx) {
+    return position === 'spread' && !node.is ? evaluate(node, 'spread', ctx) : evaluateOccurrence(node, ctx);
 }
 
 /**
@@ -522,10 +534,10 @@ function payloadValue(field, ctx) {
         if (held !== true) return OMIT;
     }
     if (field.buckets) {
-        for (const [name, bucket] of field.buckets) {
-            const held = test(bucket, `${field.path}.buckets.${name}`);
+        for (const bucket of field.buckets) {
+            const held = test(bucket.is, bucket.path);
             if (isFailure(held)) return held;
-            if (held) return name;
+            if (held) return bucket.name;
         }
         return isFailure(value) ? value : OMIT;
     }

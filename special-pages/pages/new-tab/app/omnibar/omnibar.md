@@ -22,6 +22,10 @@ title: Omnibar Widget
 }
 ```
 
+## Prompt box
+
+The Duck.ai prompt grows with its text up to 10 lines. While focus is outside the omnibar it shrinks to its first line, and it grows back when focus returns.
+
 ## Tool selection
 
 Web Search and Create Image share one selection across NTP tabs in the window. Switching tabs preserves the tool; deselecting it or submitting a prompt clears it for all tabs. Feature configuration and model support still determine which tools are available. The selection lasts for the lifetime of the NTP page and is not persisted across page reloads.
@@ -42,8 +46,11 @@ Web Search and Create Image share one selection across NTP tabs in the window. S
   - `enableVoiceChatAccess` — when true and the input is empty, replaces the AI chat submit button with a 1-click voice-chat button. Click/Enter sends `omnibar_submitChat` with an empty `chat` and `mode: "voice-mode"` — native handles the voice handoff. Hidden while `requiresAiTermsAcceptance` is `true` (default `false`)
   - `enableAskAiSuggestion` — when `false`, hides the inline "Ask Duck.ai: <query>" entry in the suggestions dropdown. Missing/undefined is treated as `true` (default `true`). Does not affect the Duck.ai mode pill or any other AI affordance — those remain governed by `enableAi`
   - `enableAttachTabs` — when `true`, the omnibar shows the page context entry point and accepts `@` mentions for attaching open tabs as context. Requires native to handle `omnibar_getOpenTabs` and `omnibar_getTabContent` (default `false`).
+  - `showSuggestedPrompts` — when `true`, shows the Duck.ai suggested-prompt chips below the input in Duck.ai mode: "How Duck.ai Works", "Chat Suggestions" and, when `enableImageGeneration` is on, "Create & Edit Images". Selecting a prompt sends `omnibar_submitChat` straight away, with `suggestedPromptId` set to the prompt's catalog ID and without `aiTermsAccepted`. "Edit Photo" turns on Create Image and opens the image picker instead. Native counts Duck.ai prompts sent from the NTP and pushes `false` once enough have been sent (default `false`).
   - `screenshotModes` — capture modes (`"dragToSelect"`, `"selectWindowOrDisplay"`) listed, in order, under "Add Screenshot" in the paperclip menu. Absent or empty hides the screenshot UI. Requires native to handle `omnibar_captureScreenshot`. The row is disabled while a capture is pending, at the image cap, when the model cannot take images, or when the prompt is blocked.
   - `enablePastedAttachments` — when `true`, pasting into the Duck.ai prompt attaches copied images and files (see [Paste](#paste)). When `false` or absent, paste is left to the browser (text only) (default `false`). The page needs no native support to paste; the flag lets native roll the behaviour out and switch it off remotely.
+  - `enablePastedText` — when `true`, a long text paste becomes a pasted-text chip and the prompt is capped (see [Pasted text](#pasted-text)). Requires native to forward `textPasted` from `omnibar_submitChat` (default `false`).
+  - `pastedTextLimits` — `{ pasteConversionThreshold, maxCharacters }`, in UTF-16 code units, used with `enablePastedText`. Native reads them from remote config. Absent, or a missing or invalid field, falls back to 4000 and 16000.
   - `aiModelSections` — array of model sections for the model selector. Each model may include `supportedReasoningEffort` (e.g. `["none", "low", "medium"]`) to surface the reasoning picker
   - `selectedModelId` — the user's persisted model choice
   - `selectedReasoningEffort` — the user's persisted reasoning-effort choice for the active model. Native validates against the model's `supportedReasoningEffort` on write
@@ -59,6 +66,7 @@ Web Search and Create Image share one selection across NTP tabs in the window. S
    "enableVoiceChatAccess": false,
    "enableAskAiSuggestion": true,
    "enableAttachTabs": false,
+   "showSuggestedPrompts": false,
    "screenshotModes": ["dragToSelect", "selectWindowOrDisplay"],
    "enablePastedAttachments": true
 }
@@ -177,6 +185,10 @@ Sent as `telemetryEvent` with `{ attributes: { name, value } }`:
 - `omnibar_screenshot_taken` — once a screenshot has been added as a chip, with `value.kind` from the capture.
 - `omnibar_screenshot_removed` — the user removed a screenshot chip (sent alongside `omnibar_image_removed`).
 - `omnibar_screenshot_failed` — `value.reason: "failed"`, when the page could not process a returned image. `error` replies are not reported by the page.
+- `omnibar_pasted_text_attached` — a long paste became a pasted-text chip.
+- `omnibar_pasted_text_removed` — the user removed a pasted-text chip (its × button). Clearing on submit does not count.
+- `omnibar_pasted_text_edited` — the user saved changed text in the Pasted Text dialog. Saving unchanged text does not count.
+- `omnibar_pasted_text_dialog_opened` — the user opened the Pasted Text dialog from a chip.
 
 ## Paste
 
@@ -184,6 +196,16 @@ With `enablePastedAttachments`, a paste into the Duck.ai prompt is handled as fo
 
 - If the clipboard has any text, the browser pastes the text and nothing is attached. Office apps put a picture of the copied cells next to the text; the text wins.
 - Otherwise a clipboard bitmap is attached at up to 1024px, so text in it stays legible, named "Pasted image" (numbered on repeats); copied image files are resized like picked ones (512px); copied PDFs go to the file chips. Images need an image-capable model and files a model that supports them, as with the picker. An image in an unsupported format shows the "Failed to process image" error.
+
+## Pasted text
+
+With `enablePastedText`, as in Duck.ai and the native apps:
+
+- A text paste of at least `pastedTextLimits.pasteConversionThreshold` characters that isn't only whitespace is attached as a "Pasted text" chip instead of inserted. It wins over any images or files on the clipboard. Shorter pastes go inline.
+- Chips show the start of the text. Clicking one (or Enter/Space) opens a "Pasted Text" dialog to view and edit it; "Save Changes" replaces the paste, and Cancel, ×, Escape or a backdrop click discard the edit. Once the edit is blank, "Save Changes" turns into a red "Delete text" button that removes the paste. An edit that leaves the prompt over the cap can still be saved, so several chips can be trimmed in turn; sending stays blocked until the prompt fits.
+- On submit, chips are sent in attach order as `textPasted: [{ content }]` in `omnibar_submitChat`. A chip alone, with an empty prompt, can be sent.
+- The typed text plus every chip may have at most `pastedTextLimits.maxCharacters` characters; over that, a warning shows and sending is blocked. While an image or file is attached, the cap drops to `attachmentLimits.images.maxInputCharsWithAttachments` when that is lower.
+- Not applied in image-generation mode: long pastes go inline and existing chips are hidden and not sent.
 
 ## Drag and drop
 

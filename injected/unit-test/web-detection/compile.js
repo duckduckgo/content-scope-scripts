@@ -7,6 +7,7 @@ import {
     REPORT,
     bindings,
     bound,
+    count,
     defineGetter,
     detects,
     entriesOf,
@@ -27,15 +28,45 @@ import {
 
 describe('WebDetection compile', () => {
     describe('types', () => {
-        it('rejects each expression in a position whose type config shows is wrong', () => {
-            rejectsMatch({ element: { selector: 'img', field: 'naturalWidth' } }, 'does not fill boolean');
-            rejectsMatch({ api: { path: 'document.fonts', where: { status: 'error' } } }, 'does not fill boolean');
-            rejectsMatch({ element: { selector: 'img' }, using: 'length' }, 'numbers become booleans only through `is`');
-            rejectsMatch({ only: 5, is: 1 }, 'does not fill list');
-            rejectsMatch({ only: { element: { selector: 'img' }, using: 'length' }, is: 1 }, "'length' does not fill list");
-            rejectsMatch(5, 'does not fill boolean');
-            rejectsMatch({ sum: [true], is: 1 }, 'does not fill number');
-            rejectsMatch({ only: { if: true, then: 1, else: 2 }, is: 1 }, "'if' does not fill list");
+        it('fails a value of a type its position does not take, as it is read', () => {
+            expect(holds('<img>', { element: { selector: 'img' }, using: 'length' })).toBe('error');
+            expect(holds('', { only: 5, is: 1 })).toBe('error');
+            expect(holds('<img>', { only: { element: { selector: 'img' }, using: 'length' }, is: 1 })).toBe('error');
+            expect(holds('', 5)).toBe('error');
+            expect(holds('', { sum: [true], is: 1 })).toBe('error');
+            expect(holds('', { only: { if: true, then: 1, else: 2 }, is: 1 })).toBe('error');
+        });
+
+        it('gives the branch an `if` takes where a list is expected, and under `sum` and `any` its items', () => {
+            const tag = {
+                only: { if: true, then: { element: { selector: 'p' } }, else: { element: { selector: 'div' } } },
+                is: { tagName: 'P' },
+            };
+            expect(holds('<p></p><div></div>', tag)).toBe(true);
+            expect(holds('', { sum: { if: true, then: { expr: [1, 2] }, else: 0 }, is: 3 })).toBe(true);
+            expect(holds('', { sum: [{ if: false, then: { expr: [1, 2] }, else: 5 }, 1], is: 6 })).toBe(true);
+            expect(holds('', { sum: { if: false, then: 0, else: { expr: [1, 2] } }, is: 3 })).toBe(true);
+            expect(holds('', { any: { if: true, then: { expr: [false, true] }, else: false } })).toBe(true);
+            expect(holds('', { all: { if: true, then: { expr: [true, false] }, else: true } })).toBe(false);
+            // The condition leaf in a branch is still one boolean
+            expect(holds('<p></p>', { any: { if: true, then: { element: { selector: 'p' } }, else: false } })).toBe(true);
+            expect(holds('', { any: { if: true, then: { element: { selector: 'p' } }, else: false } })).toBe(false);
+            // A sequence's last element is the branch's value
+            expect(bound('', { define: { t: { sum: { if: true, then: [{ define: { a: 1 } }, { expr: [1, 2] }] } } } }, 't')).toBe(3);
+        });
+
+        it('reads a selected list in boolean position as whether it has an item', () => {
+            const widths = { element: { selector: 'img', field: 'naturalWidth' } };
+            expect(holds('<img>', widths)).toBe(true);
+            expect(holds('', widths)).toBe(false);
+            expect(holds('', { api: { path: 'document.fonts', where: { status: 'error' } } }, { install: fonts(['loaded']) })).toBe(false);
+            expect(holds('', { api: { path: 'document.fonts', where: { status: 'error' } } }, { install: fonts(['error']) })).toBe(true);
+            expect(holds('<img>', { if: widths, then: true, else: false })).toBe(true);
+            expect(
+                bound('<img>', [{ define: { w: widths } }, { define: { has: { if: { ref: 'w' }, then: true, else: false } } }], 'has'),
+            ).toBe(true);
+            // Under any / all / none, a list other than the condition leaf contributes each item
+            expect(holds('<img>', { all: { element: { selector: 'img', field: 'complete' } } })).toBe(false);
         });
 
         it('takes an api value of the type its position expects, checked as it is read', () => {
@@ -45,12 +76,13 @@ describe('WebDetection compile', () => {
             expect(holds('', { api: { path: 'document.hidden' } }, { install: hidden(false) })).toBe(false);
             expect(holds('', { api: { path: 'document.title' } })).toBe('error');
             expect(holds('', { any: { api: { path: 'document.hidden' } } }, { install: hidden(true) })).toBe(true);
-            expect(holds('', { api: { path: 'document.fonts', field: 'status' } }, { install: fonts(['loaded']) })).toBe('error');
+            expect(holds('', { api: { path: 'document.fonts', field: 'status' } }, { install: fonts(['loaded']) })).toBe(true);
         });
 
-        it('rejects `is` outside boolean and value position, and several expression keys beside it', () => {
-            rejectsMatch({ sum: [{ element: { selector: 'img' }, using: 'length', is: { gt: 1 } }], is: 1 }, '`is` gives a boolean');
-            rejectsMatch({ text: { pattern: 'a' }, element: { selector: 'p' }, is: true }, 'several expression keys');
+        it('gives the boolean `is` gives in every position, failing where a boolean does not fit', () => {
+            expect(holds('<img>', { sum: [{ element: { selector: 'img' }, using: 'length', is: { gt: 1 } }], is: 1 })).toBe('error');
+            expect(holds('', { only: { expr: [5], is: 5 }, is: true })).toBe('error');
+            expect(holds('', { div: [{ expr: 4, is: 4 }, 2], is: 0.5 })).toBe('error');
         });
 
         it('rejects unknown keys', () => {
@@ -94,23 +126,43 @@ describe('WebDetection compile', () => {
             expect(payload('<p>x</p>', { only: { element: { selector: 'p' } } })).toEqual({ x: {} });
         });
 
+        it('takes the item `only` gives in any position, checked as it is read', () => {
+            expect(holds('', { only: { expr: [true] } })).toBe(true);
+            expect(holds('', { only: { expr: [false] } })).toBe(false);
+            expect(holds('', { any: [false, { only: { expr: [true] } }] })).toBe(true);
+            expect(holds('', { if: { only: { expr: [true] } }, then: true, else: false })).toBe(true);
+            expect(holds('<p></p>', { only: { element: { selector: 'p' } } })).toBe('error');
+            expect(holds('', { sum: { only: { expr: [{ expr: [1, 2] }] } }, is: 3 })).toBe(true);
+            expect(holds('', { only: { only: { expr: [{ expr: [5] }] } }, is: 5 })).toBe(true);
+        });
+
         it('reads an element source under any as a boolean', () => {
             expect(holds('<p></p>', { any: [{ element: { selector: 'p' } }, false] })).toBe(true);
             expect(holds('', { all: { element: { selector: 'p' } } })).toBe(false);
         });
 
-        it('takes booleans and multi-key objects in value position', () => {
+        it('takes booleans in value position', () => {
             expect(payload('<p>a</p>', { all: [{ text: { pattern: 'a' } }] })).toEqual({ x: true });
             expect(payload('<p>a</p>', { any: [{ text: { pattern: 'b' } }] })).toEqual({ x: false });
-            expect(payload('<p class="c">a</p>', { text: { pattern: 'a' }, element: { selector: '.c' } })).toEqual({ x: true });
+            expect(payload('<p class="c">a</p>', { all: [{ text: { pattern: 'a' } }, { element: { selector: '.c' } }] })).toEqual({
+                x: true,
+            });
             expect(payload('', false)).toEqual({ x: false });
         });
 
-        it('takes boolean literals and an empty object in boolean position', () => {
+        it('takes boolean literals in boolean position', () => {
             expect(holds('', true)).toBe(true);
             expect(holds('', false)).toBe(false);
-            expect(holds('', {})).toBe(true);
             expect(holds('', { any: [] })).toBe(false);
+        });
+
+        it('rejects an object with no expression key, in every position', () => {
+            const none = 'an object takes one expression key, and this one has none';
+            rejectsMatch({}, none);
+            rejectsMatch({ is: true }, none);
+            rejectsMatch({ using: 'length', is: 1 }, none);
+            expectParseError({ actions: { define: { x: {} } } }, none);
+            expectParseError(withPayload({}), none);
         });
 
         it('rejects an array in every expression position', () => {
@@ -120,7 +172,7 @@ describe('WebDetection compile', () => {
             rejectsMatch({ all: [true, [true, false]] }, notExpression);
             rejectsMatch({ if: [true], then: true, else: false }, notExpression);
             expect(holds('', { if: true, then: [true], else: false })).toBe(true);
-            rejectsMatch({ if: true, then: [true, 1], else: false }, "'literal' does not fill boolean");
+            expect(holds('', { if: true, then: [true, 1], else: false })).toBe('error');
             expectParseError({ actions: [{ define: { x: [1, 2] } }] }, notExpression);
             expectParseError({ actions: [[{ define: { x: 1 } }]] }, notExpression);
             expectParseError({ actions: { define: { x: { sum: [1, { api: { path: 'Math.max', args: [[1]] } }] } } } }, notExpression);
@@ -129,29 +181,37 @@ describe('WebDetection compile', () => {
             rejectsMatch({ api: { path: 'document.title' }, is: { eq: ['a'] } }, notExpression);
         });
 
-        it('takes string and null literals in value position only', () => {
+        it('takes string and null literals in value position, and fails them elsewhere', () => {
             expect(payload('', 'x')).toEqual({ x: 'x' });
             expect(payload('', null)).toEqual({ x: null });
             expect(payload('', { if: true, then: 'yes', else: 'no' })).toEqual({ x: 'yes' });
             expect(payload('', { if: false, then: 'yes', else: null })).toEqual({ x: null });
             expect(holds('', { api: { path: 'document.readyState' }, is: { eq: { api: { path: 'document.readyState' } } } })).toBe(true);
             expect(holds('<p>a</p>', { only: { text: { pattern: 'a' } }, is: { eq: { text: { pattern: 'a' } } } })).toBe(true);
-            rejectsMatch('x', "'literal' does not fill boolean position");
-            rejectsMatch({ any: [null] }, "'literal' does not fill boolean position");
-            rejectsMatch({ sum: ['x', 1], is: { gt: 0 } }, "'literal' does not fill number position");
-            rejectsMatch({ only: 'x', is: 1 }, "'literal' does not fill list position");
+            expect(holds('', 'x')).toBe('error');
+            expect(holds('', { any: [null] })).toBe('error');
+            expect(holds('', { sum: ['x', 1], is: { gt: 0 } })).toBe('error');
+            expect(holds('', { only: 'x', is: 1 })).toBe('error');
             expect(holds('<p></p>', { element: { selector: 'p' }, using: 'length', is: { gt: '0' } })).toBe(true);
         });
 
-        it('binds the AND of a multi-key object', () => {
-            expect(
-                bound('<p class="a">foo</p>', { define: { both: { text: { pattern: 'foo' }, element: { selector: '.a' } } } }, 'both'),
-            ).toBe(true);
+        it('rejects several expression keys in one object, in every position', () => {
+            const oneKey = 'an object takes one expression key';
+            rejectsMatch({ text: { pattern: 'a' }, element: { selector: 'p' } }, oneKey);
+            rejectsMatch({ any: [true], none: [false] }, oneKey);
+            rejectsMatch({ any: [{ text: { pattern: 'foo' } }], element: { selector: '.a' } }, oneKey);
+            rejectsMatch({ text: { pattern: 'a' }, element: { selector: 'p' }, is: true }, oneKey);
+            rejectsMatch({ text: { pattern: 'a' }, element: { selector: 'p' }, using: 'length', is: 1 }, oneKey);
+            rejectsMatch({ if: true, then: true, else: false, text: { pattern: 'a' } }, oneKey);
+            expectParseError({ actions: [{ define: { both: { text: { pattern: 'a' }, element: { selector: 'p' } } } }] }, oneKey);
+            expectParseError(withPayload({ text: { pattern: 'a' }, element: { selector: 'p' } }), oneKey);
         });
 
-        it('ANDs `any` with a source key in one object', () => {
-            expect(holds('<p class="a">foo</p>', { any: [{ text: { pattern: 'foo' } }], element: { selector: '.a' } })).toBe(true);
-            expect(holds('<p>foo</p>', { any: [{ text: { pattern: 'foo' } }], element: { selector: '.a' } })).toBe(false);
+        it('ANDs conditions with `all`', () => {
+            const both = { all: [{ any: [{ text: { pattern: 'foo' } }] }, { element: { selector: '.a' } }] };
+            expect(holds('<p class="a">foo</p>', both)).toBe(true);
+            expect(holds('<p>foo</p>', both)).toBe(false);
+            expect(bound('<p class="a">foo</p>', { define: { both } }, 'both')).toBe(true);
         });
 
         it('rejects operator blocks inside a source', () => {
@@ -193,9 +253,12 @@ describe('WebDetection compile', () => {
         });
 
         it('sends a selected list bucketed, each bucket unwrapping it, and unbucketed as an array', () => {
-            const buckets = { small: { lt: 10 }, large: { gte: 10 } };
+            const buckets = [
+                { name: 'small', is: { lt: 10 } },
+                { name: 'large', is: { gte: 10 } },
+            ];
             expect(payload(widths([5]), width, { buckets })).toEqual({ x: 'small' });
-            expect(payload(widths([5]), width, { buckets: { two: { length: 2 } } })).toEqual({});
+            expect(payload(widths([5]), width, { buckets: [{ name: 'two', is: { length: 2 } }] })).toEqual({});
             expect(payload(widths([5, 6]), width)).toEqual({ x: [5, 6] });
             expect(run(widths([5, 6]), withPayload(width, { buckets })).failure).toEqual({
                 path: 'actions.fireEvent.data.x.value',
@@ -281,18 +344,33 @@ describe('WebDetection compile', () => {
 
         it('compiles payload buckets in order', () => {
             const { actions } = compile({
-                actions: { breakageReportData: { data: { n: { value: { ref: 'n' }, buckets: { low: { lt: 5 }, high: { gte: 5 } } } } } },
+                actions: {
+                    breakageReportData: {
+                        data: {
+                            n: {
+                                value: { ref: 'n' },
+                                buckets: [
+                                    { name: 'low', is: { lt: 5 } },
+                                    { name: 'high', is: { gte: 5 } },
+                                ],
+                            },
+                        },
+                    },
+                },
             });
             const buckets = actions.data[0].buckets;
-            expect(buckets.map((/** @type {[string, any]} */ [name, bucket]) => [name, bucket.entries[0].op, bucket.path])).toEqual([
-                ['low', 'lt', 'actions.breakageReportData.data.n.buckets.low'],
-                ['high', 'gte', 'actions.breakageReportData.data.n.buckets.high'],
+            expect(buckets.map((/** @type {any} */ bucket) => [bucket.name, bucket.is.entries[0].op, bucket.path])).toEqual([
+                ['low', 'lt', 'actions.breakageReportData.data.n.buckets.0.is'],
+                ['high', 'gte', 'actions.breakageReportData.data.n.buckets.1.is'],
             ]);
         });
 
         it('holds no function outside the sources, and every kind of predicate', () => {
             const where = { complete: true, field: 'naturalWidth', is: 0, all: [{ self: 'alt', is: '' }] };
-            const buckets = { low: { lt: 5 }, high: { none: [{ lt: 5 }] } };
+            const buckets = [
+                { name: 'low', is: { lt: 5 } },
+                { name: 'high', is: { none: [{ lt: 5 }] } },
+            ];
             const detectors = [
                 detects({ ref: 'n', is: { gt: 0, lt: 8000, in: [1, { ref: 'm' }], eq: { ref: 'm' } } }),
                 detects({ ref: 'n', is: { fails: false, type: ['number', 'string'], any: [1, 2] } }),
@@ -352,8 +430,16 @@ describe('WebDetection compile', () => {
         it('rejects detector shapes this release does not run', () => {
             expectParseError({ match: true }, 'a detector needs `actions`');
             expectParseError({ actions: {}, items: [] }, "unknown key 'items'");
-            expectParseError({ actions: [] }, 'a sequence holds at least one element');
             expectParseError({ actions: [[{ fireEvent: { type: 'a' } }]] }, 'an array is not an expression');
+        });
+
+        it('runs empty arrays and objects as nothing: a sequence, `define`, `root` and source bodies', () => {
+            expect(run('', { actions: [] }).detected).toBe(true);
+            expect(bound('', [{ define: {} }, { define: { x: 1 } }], 'x')).toBe(1);
+            expect(holds('', { sum: { if: true, then: [] }, is: 0 })).toBe('error');
+            expect(count('<img>', { element: { selector: 'img', root: [] } })).toBe(0);
+            expect(count('<img>', { element: [] })).toBe(0);
+            expect(holds('<p>a</p>', { text: [] })).toBe(false);
         });
 
         it('rejects an action beside an expression key or a modifier, and a key that is not an action', () => {
@@ -370,8 +456,7 @@ describe('WebDetection compile', () => {
         });
 
         it('rejects a `define` that is not an object of valid names', () => {
-            expectParseError({ actions: { define: {} } }, '`define` takes an object of at least one name');
-            expectParseError({ actions: { define: true } }, '`define` takes an object of at least one name');
+            expectParseError({ actions: { define: true } }, '`define` takes an object of names');
             expectParseError({ actions: { define: { '1x': 1 } } }, 'invalid name');
             expectParseError({ actions: { define: { 'that.x': 1 } } }, 'invalid name');
             expectParseError({ actions: { define: { x: { foo: 1 } } } }, "unknown expression key 'foo'");
@@ -392,12 +477,14 @@ describe('WebDetection compile', () => {
         /** @returns {any} */
         const compiledOf = (/** @type {unknown} */ config) => compileDetectorConfig(parsedOne(config), globalThis);
 
-        it('should return empty object for invalid input, and skip invalid group names', () => {
+        it('should return empty object for invalid input', () => {
             expect(parseDetectors(undefined)).toEqual({});
-            expect(parseDetectors({ '123invalid': { d: on }, 'invalid-name': { d: on }, '': { d: on } })).toEqual({});
         });
 
-        it('should accept valid group and detector names', () => {
+        it('should take group and detector names as config gives them, which the config validator checks', () => {
+            expect(Object.keys(parseDetectors({ 'invalid-name': { 'd.1': on } }))).toEqual(['invalid-name']);
+            expect(Object.keys(parseDetectors({ g: { 'd.1': on } }).g)).toEqual(['d.1']);
+
             const result = parseDetectors({
                 ValidGroup: { Detector1: on },
                 validGroup: { detector1: on },
@@ -468,9 +555,9 @@ describe('WebDetection compile', () => {
         }
 
         it('should keep the config as given, and not compile it', () => {
-            const config = { match: { element: { selector: 'img' }, using: 'length' }, actions: REPORT };
+            const config = { match: { element: { selector: 'img' }, text: { pattern: 'a' } }, actions: REPORT };
             expect(parsedOne(config).raw).toBe(config);
-            expect(compiledOf(config).error).toContain('length');
+            expect(compiledOf(config).error).toContain('one expression key');
         });
 
         it('should compile `match` and `actions`, several action keys as a sequence in config order', () => {
@@ -485,6 +572,10 @@ describe('WebDetection compile', () => {
                 'breakageReportData',
             ]);
             expect(compiledOf({ actions: REPORT }).match).toBeUndefined();
+        });
+
+        it('should keep an error for buckets that are not an array', () => {
+            expect(compiledOf(withPayload(1, { buckets: { one: 1 } })).error).toBeDefined();
         });
     });
 });
