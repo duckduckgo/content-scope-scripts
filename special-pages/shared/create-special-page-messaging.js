@@ -6,6 +6,7 @@ import {
     WebkitMessagingConfig,
     WindowsMessagingConfig,
 } from '@duckduckgo/messaging';
+import { ExtensionMessagingConfig } from '@duckduckgo/messaging/lib/extension.js';
 
 /**
  * @param {object} opts
@@ -22,7 +23,12 @@ export function createSpecialPageMessaging(opts) {
         env: opts.env,
     });
     try {
-        if (opts.injectName === 'windows') {
+        if (opts.injectName === 'chrome-mv3') {
+            const extensionMessagingConfig = new ExtensionMessagingConfig({
+                portName: 'specialPages',
+            });
+            return new Messaging(messageContext, extensionMessagingConfig);
+        } else if (opts.injectName === 'windows') {
             const opts = new WindowsMessagingConfig({
                 methods: {
                     // @ts-expect-error - not in @types/chrome

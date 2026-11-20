@@ -23,6 +23,7 @@ interface ImportMeta {
         | 'windows'
         | 'integration'
         | 'chrome-mv3'
+        | 'chrome-mv3-isolated'
         | 'android-broker-protection'
         | 'android-autofill-import'
         | 'android-adsjs'
