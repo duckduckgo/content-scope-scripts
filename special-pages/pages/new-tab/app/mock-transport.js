@@ -584,6 +584,15 @@ export function initialSetup(url) {
         widgetsFromStorage.splice(favoritesWidgetIndex, 0, { id: 'omnibar' });
         const favoritesWidgetConfigIndex = widgetConfigFromStorage.findIndex((widget) => widget.id === 'favorites') ?? 0;
         widgetConfigFromStorage.splice(favoritesWidgetConfigIndex, 0, { id: 'omnibar', visibility: 'visible' });
+
+        // mirrors the omnibar_getConfig mock, so the placeholder matches the loaded Omnibar
+        if (url.searchParams.get('omnibar.initialSetup') !== 'false') {
+            initial.omnibar = {
+                mode: url.searchParams.get('omnibar.mode') === 'ai' ? 'ai' : 'search',
+                enableAi: url.searchParams.get('omnibar.enableAi') !== 'false',
+                showAiSetting: url.searchParams.get('omnibar.showAiSetting') !== 'false',
+            };
+        }
     }
 
     // Insert nextSteps after omnibar (or at the beginning if omnibar is not present) and before favorites

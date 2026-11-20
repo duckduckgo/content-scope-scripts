@@ -14,8 +14,14 @@ import { resolveAnthropicModel } from './anthropic-config.mjs';
 // and having the Anthropic gate treat it as trusted Cursor evidence.
 const CURSOR_APP_SLUG = 'cursor';
 const CURSOR_DETAILS_HOST = 'cursor.com';
+//
+// Cursor Bugbot is not installed on this repo, so waiting for it would hold
+// every Dependabot PR until CHECK_WAIT_TIMEOUT_MS. It is only expected when
+// the CURSOR_BUGBOT_ENABLED repo variable is 'true' (the same switch that
+// gates `.github/workflows/cursor-review.yml`).
+const CURSOR_BUGBOT_CHECK = { name: 'Cursor Bugbot', appSlug: CURSOR_APP_SLUG, detailsHost: CURSOR_DETAILS_HOST };
 export const EXPECTED_CHECKS = [
-    { name: 'Cursor Bugbot', appSlug: CURSOR_APP_SLUG, detailsHost: CURSOR_DETAILS_HOST },
+    ...(process.env.CURSOR_BUGBOT_ENABLED === 'true' ? [CURSOR_BUGBOT_CHECK] : []),
     { name: 'Cursor Automation: Review dependabot', appSlug: CURSOR_APP_SLUG, detailsHost: CURSOR_DETAILS_HOST },
     { name: 'Cursor Automation: Web compat and sec', appSlug: CURSOR_APP_SLUG, detailsHost: CURSOR_DETAILS_HOST },
 ];

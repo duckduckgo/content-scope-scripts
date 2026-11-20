@@ -211,6 +211,9 @@ export class ResultsCollector {
             'apple-isolated': async () => {
                 // noop
             },
+            'apple-broker-protection': async () => {
+                // noop
+            },
             apple: async () => {
                 // noop
             },
@@ -220,14 +223,23 @@ export class ResultsCollector {
             'android-autofill-import': async () => {
                 // noop
             },
+            'apple-page-translation': async () => {
+                // noop
+            },
+            'android-page-translation': async () => {
+                // noop
+            },
         });
 
         const messagingMock = this.build.switch({
             apple: () => mockWebkitMessaging,
             'apple-isolated': () => mockWebkitMessaging,
+            'apple-broker-protection': () => mockWebkitMessaging,
             windows: () => mockWindowsMessaging,
             android: () => mockAndroidMessaging,
             'android-autofill-import': () => mockAndroidMessaging,
+            'apple-page-translation': () => mockWebkitMessaging,
+            'android-page-translation': () => mockAndroidMessaging,
         });
 
         await this.page.addInitScript(messagingMock, {
@@ -239,15 +251,20 @@ export class ResultsCollector {
 
         const wrapFn = this.build.switch({
             'apple-isolated': () => wrapWebkitScripts,
+            'apple-broker-protection': () => wrapWebkitScripts,
             apple: () => wrapWebkitScripts,
             android: () => wrapWebkitScripts,
             'android-autofill-import': () => wrapWebkitScripts,
+            'apple-page-translation': () => wrapWebkitScripts,
+            'android-page-translation': () => wrapWebkitScripts,
             windows: () => wrapWindowsScripts,
         });
 
         // read the built file from disk and do replacements
         const injectedJS = wrapFn(this.build.artifact, {
             $CONTENT_SCOPE$: config,
+            // Apple bundles read the config as a JSON string
+            $CONTENT_SCOPE_JSON$: JSON.stringify(config),
             $USER_UNPROTECTED_DOMAINS$: this.#userUnprotectedDomains,
             $USER_PREFERENCES$: {
                 platform: { name: this.platform.name, ...platform },
@@ -310,7 +327,9 @@ export class ResultsCollector {
     }
 
     get messagingContextName() {
-        return this.build.name === 'apple-isolated' ? 'contentScopeScriptsIsolated' : 'contentScopeScripts';
+        return this.build.name === 'apple-isolated' || this.build.name === 'apple-broker-protection'
+            ? 'contentScopeScriptsIsolated'
+            : 'contentScopeScripts';
     }
 
     get mockResponses() {

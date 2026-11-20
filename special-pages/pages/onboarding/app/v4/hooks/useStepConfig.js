@@ -6,13 +6,19 @@ import { stepsConfig } from '../data/data';
 import { useMediaQuery } from '../../../../../shared/hooks/useMediaQuery.js';
 
 /**
+ * Steps that don't show the progress indicator, so they're left out of its count.
+ * @type {import('../../types').Step['id'][]}
+ */
+const STEPS_WITHOUT_PROGRESS = ['welcome', 'getStarted', 'searchOrChat'];
+
+/**
  * @param {import('../../types').Step['id'][]} order
  * @param {import('../../types').Step['id']} activeStep
  * @returns {import('../data/data-types').Progress}
  */
 function calculateProgress(order, activeStep) {
-    // Skip 'welcome' and 'getStarted' — they don't show the progress indicator
-    const progressSteps = order.slice(2);
+    /** @type {import('../../types').Step['id'][]} */
+    const progressSteps = order.filter((id) => !STEPS_WITHOUT_PROGRESS.includes(id));
 
     return {
         current: progressSteps.indexOf(activeStep) + 1,
@@ -41,6 +47,8 @@ export function useStepConfig() {
 
     const enqueueNext = () => dispatch({ kind: 'enqueue-next' });
     const dismiss = () => dispatch({ kind: 'dismiss' });
+    /** @param {import('../../types').SubmitQueryParams} params */
+    const submitQuery = (params) => dispatch({ kind: 'submit-query', params });
     const onTitleComplete = () => dispatch({ kind: 'title-complete' });
 
     /** @type {(id: import('../../types').SystemValueId, payload: import('../../types').SystemValue, current: boolean) => void} */
@@ -61,6 +69,7 @@ export function useStepConfig() {
         advance,
         enqueueNext,
         dismiss,
+        submitQuery,
         onTitleComplete,
         updateSystemValue,
         isShortViewport,
