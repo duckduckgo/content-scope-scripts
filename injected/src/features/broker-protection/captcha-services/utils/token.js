@@ -1,11 +1,11 @@
-import { PirError, PirSuccess } from '../../types';
-import { safeCallWithError } from '../../utils/safe-call';
-import { getElementByTagName } from '../../utils/utils';
-import { isElementType } from './element';
+import { PirError, PirSuccess } from '../../types.js';
+import { safeCallWithError } from '../../utils/safe-call.js';
+import { getElementByTagName } from '../../utils/utils.js';
+import { isElementType } from './element.js';
 
 /**
  * Inject a token into a named element
- * @import { PirResponse } from '../../types';
+ * @import { PirResponse } from '../../types.js';
  * @param {object} params
  * @param {HTMLElement} [params.captchaContainerElement]  - The element containing the captcha
  * @param {HTMLElement} [params.captchaInputElement]  - The element containing the captcha (optional)

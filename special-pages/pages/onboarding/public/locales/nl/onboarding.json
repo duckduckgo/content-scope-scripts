@@ -316,6 +316,58 @@
     "title" : "AI-functies zijn privé en optioneel. Je kunt wijzigingen aanbrengen in <b>Instellingen &gt; AI-functies</b>.",
     "note" : "Footer text explaining AI features are optional and can be changed in settings. The <b> tag is used to bold the settings path."
   },
+  "searchOrChat_title" : {
+    "title" : "Klaar om te beginnen?\nProbeer een zoekopdracht of AI-chat!",
+    "note" : "Title for the last onboarding step, where the user can try a private search or ask Duck.ai (DuckDuckGo's private AI chat) a question. The line break should be kept."
+  },
+  "searchOrChat_searchOnly_title" : {
+    "title" : "Probeer nu een privézoekopdracht!",
+    "note" : "Title for the last onboarding step, where the user can try a private search or ask Duck.ai (DuckDuckGo's private AI chat) a question, shown when the user chose search only (no AI chat) on the previous step."
+  },
+  "searchOrChat_searchTab" : {
+    "title" : "Zoeken",
+    "note" : "Label of the option that switches the input to a web search."
+  },
+  "searchOrChat_aiTab" : {
+    "title" : "Vraag het AI",
+    "note" : "Label of the option that switches the input to asking Duck.ai (DuckDuckGo's private AI chat)."
+  },
+  "searchOrChat_searchPlaceholder" : {
+    "title" : "Privé zoeken",
+    "note" : "Placeholder in the input when it will run a web search."
+  },
+  "searchOrChat_aiPlaceholder" : {
+    "title" : "Vraag iets privé",
+    "note" : "Placeholder in the input when it will ask Duck.ai (DuckDuckGo's private AI chat)."
+  },
+  "searchOrChat_searchSuggestion1" : {
+    "title" : "Hoe zeg je 'eend' in het Engels?",
+    "note" : "Suggested search. Clicking it searches for this exact text, so it should read as a natural search query in the target language."
+  },
+  "searchOrChat_searchSuggestion2" : {
+    "title" : "Cast van Mighty Ducks",
+    "note" : "Suggested search for the cast of the film The Mighty Ducks. Clicking it searches for this exact text."
+  },
+  "searchOrChat_aiSuggestion1" : {
+    "title" : "Leg de aandelenmarkt uit alsof ik 10 jaar ben",
+    "note" : "Suggested question for Duck.ai (DuckDuckGo's private AI chat). Clicking it sends this exact text."
+  },
+  "searchOrChat_aiSuggestion2" : {
+    "title" : "Plan een perfecte dag in Londen",
+    "note" : "Suggested question for Duck.ai (DuckDuckGo's private AI chat). Clicking it sends this exact text."
+  },
+  "searchOrChat_surpriseMe" : {
+    "title" : "Verras me!",
+    "note" : "Suggestion that runs a fun example search or question chosen by DuckDuckGo."
+  },
+  "searchOrChat_searchSurpriseQuery" : {
+    "title" : "baby-eendjes",
+    "note" : "Image search sent when the user clicks 'Surprise me!' in search mode. Not shown on screen."
+  },
+  "searchOrChat_aiSurprisePrompt" : {
+    "title" : "Wat zijn 10 fascinerende feiten over wetenschap, natuur en geschiedenis?",
+    "note" : "Question sent to Duck.ai (DuckDuckGo's private AI chat) when the user clicks 'Surprise me!'. Not shown on screen."
+  },
   "customize_title_v3" : {
     "title" : "Laten we een paar dingen aanpassen ...",
     "note" : "Title for a page that allows the user to customize specific settings in the DuckDuckGo browser."
@@ -495,5 +547,17 @@
   "getStarted_chromeExtension_tooltip" : {
     "title" : "Stel DuckDuckGo in als je standaard zoekmachine in Chrome om online te zoeken zonder gevolgd te worden.",
     "note" : "Tooltip text shown when hovering over the info icon next to the Chrome extension checkbox."
+  },
+  "getStarted_extensions_label" : {
+    "title" : "Installeer onze extensie om privé te zoeken in andere browsers",
+    "note" : "Windows onboarding checkbox for installing DuckDuckGo extensions in eligible Chrome, Edge, and Firefox browsers."
+  },
+  "getStarted_extensions_tooltip" : {
+    "title" : "Stel DuckDuckGo in als je standaard zoekmachine om online te zoeken zonder gevolgd te worden",
+    "note" : "Tooltip explaining the Windows onboarding extension installation option."
+  },
+  "getStarted_launchOnStartup_label" : {
+    "title" : "DuckDuckGo openen wanneer je computer opstart",
+    "note" : "Windows onboarding checkbox for opening the browser at Windows sign-in."
   }
 }

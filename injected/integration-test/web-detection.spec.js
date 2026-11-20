@@ -82,6 +82,7 @@ const XPATH_DETECTORS = {
                 xpath: '//body//text()[not(ancestor::script) and not(ancestor::style) and not(ancestor::template) and not(ancestor::noscript)]',
             },
         },
+        actions: { breakageReportData: {} },
     },
 };
 
@@ -112,7 +113,7 @@ class WebDetectionTestHelper {
     /**
      * Run detectors via breakageReporting messaging and extract webDetection results.
      * WebDetection is invoked by breakageReporting via callFeatureMethod().
-     * @returns {Promise<import('../src/features/web-detection.js').DetectorResult[]>}
+     * @returns {Promise<import('../src/features/web-detection/evaluate/breakage-entries.js').BreakageEntry[]>}
      */
     async runDetectors() {
         await this.collector.simulateSubscriptionMessage('breakageReporting', 'getBreakageReportValues', {});
@@ -130,7 +131,7 @@ class WebDetectionTestHelper {
 
     /**
      * Get auto-run notifications from outgoing messages
-     * @returns {Promise<Array<{detectorId: string, detected: boolean | 'error', timestamp: number}>>}
+     * @returns {Promise<Array<{detectorId: string, detected: boolean | 'error' | 'aborted', timestamp: number}>>}
      */
     async getAutoRunNotifications() {
         const calls = await this.collector.outgoingMessages();
@@ -143,7 +144,7 @@ class WebDetectionTestHelper {
             const payload = /** @type {import("@duckduckgo/messaging").NotificationMessage} */ (m.payload);
             return {
                 detectorId: payload.params?.detectorId || '',
-                detected: payload.params?.detected || false,
+                detected: payload.params?.match ?? false,
                 timestamp: payload.params?.timestamp || 0,
             };
         });
@@ -182,9 +183,7 @@ class WebDetectionTestHelper {
     static async setupFireEventTest(page, projectUse, configModifier) {
         const config = JSON.parse(readFileSync(CONFIG, 'utf8'));
         config.features.webEvents = { state: 'enabled', hash: 'test', exceptions: [] };
-        config.features.webDetection.settings.detectors.autorun.basic_auto.actions = {
-            fireEvent: { type: 'adwall' },
-        };
+        config.features.webDetection.settings.detectors.autorun.basic_auto.actions.fireEvent = { type: 'adwall' };
         if (configModifier) configModifier(config);
 
         const collector = ResultsCollector.create(page, projectUse);
@@ -407,7 +406,7 @@ test.describe('WebDetection Feature', () => {
             expect(result).toBeUndefined();
         });
 
-        test('detector with disabled action runs but does not report', async ({ page }, testInfo) => {
+        test('detector without a breakageReportData item runs but does not report', async ({ page }, testInfo) => {
             const collector = ResultsCollector.create(page, testInfo.project.use);
             await collector.load('/web-detection/index.html', CONFIG);
             const helper = new WebDetectionTestHelper(page, collector);
@@ -415,7 +414,7 @@ test.describe('WebDetection Feature', () => {
 
             const results = await helper.runDetectors();
 
-            // action_disabled has actions.breakageReportData.state = "disabled"
+            // action_disabled has no breakageReportData item,
             // so even though it matches, it won't be included in the results
             const result = results.find((r) => r.detectorId === 'custom.action_disabled');
             expect(result).toBeUndefined();
@@ -489,14 +488,14 @@ test.describe('WebDetection Feature', () => {
             }
         });
 
-        test('stops running after first successful match', async ({ page }, testInfo) => {
+        test('stops running once the detector is done', async ({ page }, testInfo) => {
             const { helper } = await WebDetectionTestHelper.setupAutoRunTest(page, testInfo.project.use);
             await helper.navigateTo('/web-detection/pages/auto-run-delayed.html');
 
             // Fast-forward timers (content is added at 150ms)
             await page.clock.fastForward(100); // First run - no match yet
             await page.clock.fastForward(100); // Now at 200ms - content added, second run matches
-            await page.clock.fastForward(100); // Now at 300ms - should be skipped due to first-success
+            await page.clock.fastForward(100); // Now at 300ms - skipped, since `match` held and the detector is done
 
             const notifications = await helper.getAutoRunNotifications();
 
@@ -608,9 +607,9 @@ test.describe('WebDetection Feature', () => {
             expect(webEvents.length).toBe(0);
         });
 
-        test('does not send webEvent when fireEvent action is disabled', async ({ page }, testInfo) => {
+        test('does not send webEvent when the actions hold no fireEvent', async ({ page }, testInfo) => {
             const { helper } = await WebDetectionTestHelper.setupFireEventTest(page, testInfo.project.use, (config) => {
-                config.features.webDetection.settings.detectors.autorun.basic_auto.actions.fireEvent.state = 'disabled';
+                delete config.features.webDetection.settings.detectors.autorun.basic_auto.actions.fireEvent;
             });
             await helper.navigateTo('/web-detection/pages/auto-run-basic.html');
 
@@ -631,14 +630,12 @@ test.describe('WebDetection Feature', () => {
             expect(webEvents.length).toBe(0);
         });
 
-        test('does not send webEvent when fireEvent is disabled on this site via conditionalChanges', async ({ page }, testInfo) => {
+        test('does not send webEvent when fireEvent is removed on this site via conditionalChanges', async ({ page }, testInfo) => {
             const { helper } = await WebDetectionTestHelper.setupFireEventTest(page, testInfo.project.use, (config) => {
-                // fireEvent is enabled by default (no state = defaults to enabled after normalization).
-                // Use conditionalChanges to disable it on localhost.
                 config.features.webDetection.settings.conditionalChanges = [
                     {
                         domain: 'localhost',
-                        patchSettings: [{ op: 'add', path: '/detectors/autorun/basic_auto/actions/fireEvent/state', value: 'disabled' }],
+                        patchSettings: [{ op: 'remove', path: '/detectors/autorun/basic_auto/actions/fireEvent' }],
                     },
                 ];
             });
@@ -646,20 +643,19 @@ test.describe('WebDetection Feature', () => {
 
             await page.clock.fastForward(100);
 
-            // Auto-run fires, but conditionalChanges disabled fireEvent on localhost
+            // Auto-run fires, but conditionalChanges removed fireEvent on localhost
             const webEvents = await helper.getWebEventNotifications();
             expect(webEvents.length).toBe(0);
         });
 
-        test('sends webEvent when fireEvent is enabled on this site via conditionalChanges', async ({ page }, testInfo) => {
+        test('sends webEvent when fireEvent is added on this site via conditionalChanges', async ({ page }, testInfo) => {
             const { helper } = await WebDetectionTestHelper.setupFireEventTest(page, testInfo.project.use, (config) => {
-                // Start with fireEvent explicitly disabled
-                config.features.webDetection.settings.detectors.autorun.basic_auto.actions.fireEvent.state = 'disabled';
-                // Use conditionalChanges to enable it on localhost
+                // Start without fireEvent, and add it on localhost
+                delete config.features.webDetection.settings.detectors.autorun.basic_auto.actions.fireEvent;
                 config.features.webDetection.settings.conditionalChanges = [
                     {
                         domain: 'localhost',
-                        patchSettings: [{ op: 'replace', path: '/detectors/autorun/basic_auto/actions/fireEvent/state', value: 'enabled' }],
+                        patchSettings: [{ op: 'add', path: '/detectors/autorun/basic_auto/actions/fireEvent', value: { type: 'adwall' } }],
                     },
                 ];
             });
@@ -667,7 +663,7 @@ test.describe('WebDetection Feature', () => {
 
             await page.clock.fastForward(100);
 
-            // conditionalChanges re-enabled fireEvent on localhost
+            // conditionalChanges added fireEvent on localhost
             const webEvents = await helper.getWebEventNotifications();
             expect(webEvents.length).toBe(1);
             expect(webEvents[0].type).toBe('adwall');
@@ -714,7 +710,7 @@ test.describe('WebDetection Feature', () => {
             expect(webEvents[0].type).toBe('adwall');
         });
 
-        test('sends webEvent only once per detector (first-success behavior)', async ({ page }, testInfo) => {
+        test('sends webEvent only once per detector once it is done', async ({ page }, testInfo) => {
             const { helper } = await WebDetectionTestHelper.setupFireEventTest(page, testInfo.project.use, (config) => {
                 config.features.webDetection.settings.detectors.autorun.basic_auto.triggers.auto.when.intervalMs = [100, 200, 300];
             });
@@ -724,7 +720,7 @@ test.describe('WebDetection Feature', () => {
             await page.clock.fastForward(300);
 
             const webEvents = await helper.getWebEventNotifications();
-            // First-success: only 1 webEvent despite 3 intervals
+            // `match` held, so the detector is done: only 1 webEvent despite 3 intervals
             expect(webEvents.length).toBe(1);
             expect(webEvents[0].type).toBe('adwall');
         });

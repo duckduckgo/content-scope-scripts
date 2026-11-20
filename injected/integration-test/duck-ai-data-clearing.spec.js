@@ -149,17 +149,84 @@ test('duck-ai-data-clearing feature handles localStorage errors gracefully', asy
  * @param {import('@playwright/test').Page} page
  * @param {import('@playwright/test').TestInfo} testInfo
  * @param {string} [config]
+ * @param {'ios' | 'macos' | 'windows'} [platform]
  */
-async function loadFeature(page, testInfo, config = CONFIG) {
+async function loadFeature(page, testInfo, config = CONFIG, platform) {
     const collector = ResultsCollector.create(page, testInfo.project.use);
     collector.withUserPreferences({
         messageSecret: 'ABC',
         javascriptInterface: 'javascriptInterface',
         messageCallback: 'messageCallback',
     });
-    await collector.load(HTML, config);
+    await collector.load(HTML, config, platform ? { name: platform } : undefined);
     return collector;
 }
+
+/**
+ * Lockdown Mode removes `window.indexedDB` from WebKit pages.
+ * @param {import('@playwright/test').Page} page
+ */
+async function removeIndexedDB(page) {
+    await page.evaluate(() => {
+        // @ts-expect-error - simulating a page without the IndexedDB API
+        delete window.indexedDB;
+    });
+    expect(await page.evaluate(() => 'indexedDB' in window)).toBe(false);
+}
+
+for (const platform of /** @type {const} */ (['ios', 'macos'])) {
+    test(`duck-ai-data-clearing feature reports IndexedDB as disabled on ${platform} and still clears localStorage`, async ({
+        page,
+    }, testInfo) => {
+        const collector = await loadFeature(page, testInfo, CONFIG, platform);
+        const duckAiDataClearing = new DuckAiDataClearingSpec(page);
+        await duckAiDataClearing.setupLocalStorageOnly();
+        await removeIndexedDB(page);
+
+        await collector.simulateSubscriptionMessage('duckAiDataClearing', 'duckAiClearData', {});
+
+        const messages = await collector.waitForMessage('duckAiClearDataFailed', 1);
+        expect(messages[0].payload.params).toMatchObject({ errorName: 'IndexedDBDisabled', stage: 'indexedDB' });
+        expect(await page.evaluate(() => localStorage.getItem('savedAIChats'))).toBeNull();
+    });
+}
+
+test('duck-ai-data-clearing feature reports IndexedDB as disabled when deleting a single chat', async ({ page }, testInfo) => {
+    const collector = await loadFeature(page, testInfo, CONFIG, 'ios');
+    await removeIndexedDB(page);
+
+    await collector.simulateSubscriptionMessage('duckAiDataClearing', 'duckAiClearData', { chatId: 'chat-1' });
+
+    const messages = await collector.waitForMessage('duckAiClearDataFailed', 1);
+    expect(messages[0].payload.params).toMatchObject({ errorName: 'IndexedDBDisabled', stage: 'indexedDB' });
+});
+
+test('duck-ai-data-clearing feature reports a localStorage failure over disabled IndexedDB', async ({ page }, testInfo) => {
+    const collector = await loadFeature(page, testInfo, CONFIG, 'ios');
+    await removeIndexedDB(page);
+    await page.evaluate(() => {
+        Storage.prototype.removeItem = () => {
+            throw new DOMException('Access denied', 'SecurityError');
+        };
+    });
+
+    await collector.simulateSubscriptionMessage('duckAiDataClearing', 'duckAiClearData', {});
+
+    const messages = await collector.waitForMessage('duckAiClearDataFailed', 1);
+    expect(messages[0].payload.params).toMatchObject({ errorName: 'SecurityError', stage: 'localStorage' });
+});
+
+test('duck-ai-data-clearing feature keeps reporting a missing IndexedDB as an error outside Apple platforms', async ({
+    page,
+}, testInfo) => {
+    const collector = await loadFeature(page, testInfo, CONFIG, 'windows');
+    await removeIndexedDB(page);
+
+    await collector.simulateSubscriptionMessage('duckAiDataClearing', 'duckAiClearData', {});
+
+    const messages = await collector.waitForMessage('duckAiClearDataFailed', 1);
+    expect(messages[0].payload.params).toMatchObject({ errorName: 'TypeError', stage: 'indexedDB' });
+});
 
 test('duck-ai-data-clearing feature reports the IndexedDB error name when opening fails', async ({ page }, testInfo) => {
     const collector = await loadFeature(page, testInfo);
