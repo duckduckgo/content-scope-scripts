@@ -42,9 +42,9 @@ jobs:
             - name: Install dependencies
               if: steps.cache-node-modules.outputs.cache-hit != 'true'
               run: npm ci
-            - name: Run prettier --write
+            - name: Run oxfmt
               continue-on-error: true
-              run: npx prettier . --write
+              run: npx oxfmt
             - name: Run stylelint --fix
               continue-on-error: true
               run: npx stylelint "**/*.css" --fix
@@ -55,5 +55,5 @@ jobs:
                   git config user.name "github-actions[bot]"
                   git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
                   git add -u
-                  git diff --cached --quiet || git commit -m "Auto-format: prettier + stylelint fix"
+                  git diff --cached --quiet || git commit -m "Auto-format: oxfmt + stylelint fix"
                   git push origin "HEAD:$TARGET_REF"

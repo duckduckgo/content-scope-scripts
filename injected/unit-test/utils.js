@@ -1001,7 +1001,7 @@ describe('Helpers checks', () => {
         it('retries and eventually resolves', async () => {
             let count = 0;
             /** @type {any} */
-            const result = await withRetry(() => /** @type {any} */ (count++ >= 2 ? 'found' : null), 5, 10, 'linear');
+            const result = await withRetry(() => (/** @type {any} */ (count++ >= 2 ? 'found' : null)), 5, 10, 'linear');
             expect(result).toBe('found');
             expect(count).toBe(3);
         });
@@ -1026,7 +1026,7 @@ describe('Helpers checks', () => {
         it('uses exponential backoff by default', async () => {
             let count = 0;
             /** @type {any} */
-            const result = await withRetry(() => /** @type {any} */ (count++ >= 1 ? 'done' : null), 4, 10);
+            const result = await withRetry(() => (/** @type {any} */ (count++ >= 1 ? 'done' : null)), 4, 10);
             expect(result).toBe('done');
         });
     });
