@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>React-style page</title>
+</head>
+<body>
+    <div id="app"></div>
+    <!-- Preact stands in for React: both keep the text nodes they create and update their data on re-render. -->
+    <script src="../vendor/preact.min.umd.js"></script>
+    <script src="../vendor/preact-hooks.umd.js"></script>
+    <script>
+        window.errors = [];
+        window.addEventListener('error', (e) => window.errors.push(String(e.message)));
+        const { h, render } = preact;
+        const { useState } = preactHooks;
+        function App() {
+            const [count, setCount] = useState(150);
+            return h(
+                'div',
+                { id: 'card' },
+                // "hey you this has accrued ", the count, and " spaceships" are three adjacent text nodes.
+                h('p', { id: 'msg' }, h('span', { id: 's1' }, 'hey you this has accrued ', count, ' spaceships'), ' ', h('span', { id: 's2' }, 'pay now')),
+                h('button', { id: 'bump', onClick: () => setCount((c) => c + 1) }, 'Add one'),
+            );
+        }
+        render(h(App), document.getElementById('app'));
+    </script>
+</body>
+</html>

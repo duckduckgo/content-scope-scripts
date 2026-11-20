@@ -1,4 +1,4 @@
-import { EVERY_PAGE_ID, ORDER_V4 } from './types';
+import { EVERY_PAGE_ID, ORDER_V4, STEPS_ORDER } from './types';
 import { stepDefinitions as defaultStepDefinitions } from './v4/data/data';
 
 /**
@@ -10,6 +10,7 @@ export class Settings {
      * @param {{name: 'macos' | 'windows'}} [params.platform]
      * @param {import('./types.js').Step['id'][]} [params.order] - determine the order of screens
      * @param {import('./types.js').Step['id'][]} [params.exclude] - a list of screens to exclude
+     * @param {boolean} [params.hasSteps] - true once native chose the steps; `exclude` is then ignored
      * @param {import('./types.js').Step['id']} [params.first] - choose which screen to start on
      * @param {import('./types.js').StepDefinitions} [params.stepDefinitions] - individual data for each step, eg: which rows to show
      * @param {'title'|null} [params.typingEffect] - typing effect variant for titles
@@ -20,6 +21,7 @@ export class Settings {
         stepDefinitions = defaultStepDefinitions,
         first = 'welcome',
         exclude = [],
+        hasSteps = false,
         typingEffect = 'title',
     } = {}) {
         this.platform = platform;
@@ -27,6 +29,7 @@ export class Settings {
         this.stepDefinitions = stepDefinitions;
         this.first = first;
         this.exclude = exclude;
+        this.hasSteps = hasSteps;
         this.typingEffect = typingEffect;
     }
 
@@ -64,9 +67,26 @@ export class Settings {
     }
 
     /**
+     * Show only the steps native asks for, in the page's own order (`STEPS_ORDER`).
+     * Unknown entries are ignored one by one. Missing or empty `steps` keeps today's onboarding.
+     *
+     * @param {string[]|null|undefined} steps
+     * @return {Settings}
+     */
+    withSteps(steps) {
+        if (!Array.isArray(steps) || steps.length === 0) return this;
+        const unknown = steps.filter((id) => !STEPS_ORDER.includes(/** @type {any} */ (id)));
+        if (unknown.length > 0) console.warn('ignoring unknown steps:', unknown);
+        const order = STEPS_ORDER.filter((id) => steps.includes(id));
+        if (order.length === 0) return this;
+        return new Settings({ ...this, order, exclude: [], hasSteps: true });
+    }
+
+    /**
      * @param {string[]|null|undefined} exclude
      */
     withExcludedScreens(exclude) {
+        if (this.hasSteps) return this;
         if (!exclude) return this;
         if (!Array.isArray(exclude) || exclude.length === 0) return this;
         if (!exclude.every((screen) => /** @type {string[]} */ (this.order).includes(screen))) return this;

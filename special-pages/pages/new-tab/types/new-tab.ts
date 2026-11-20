@@ -143,6 +143,10 @@ export type EnableAskDuckAiSuggestion = boolean;
  */
 export type EnableAttachTabs = boolean;
 /**
+ * Show the Duck.ai suggested-prompt chips (How Duck.ai Works, Chat Suggestions, Create & Edit Images) below the input in Duck.ai mode. Native decides who sees them, e.g. new Duck.ai users, and turns it off once enough Duck.ai prompts have been sent from the NTP.
+ */
+export type ShowSuggestedPrompts = boolean;
+/**
  * The screenshot capture mode the user chose: `dragToSelect` (drag to select a region) or `selectWindowOrDisplay` (pick a window or a display).
  */
 export type ScreenshotMode = "dragToSelect" | "selectWindowOrDisplay";
@@ -154,6 +158,10 @@ export type ScreenshotModes = ScreenshotMode[];
  * When true, pasting into the Duck.ai prompt attaches copied images and files (unless the clipboard also carries text). When false or absent, paste is left to the browser (text only).
  */
 export type EnablePastedAttachments = boolean;
+/**
+ * When true, a text paste into the Duck.ai prompt of at least `pastedTextLimits.pasteConversionThreshold` characters becomes a pasted-text attachment, sent as `textPasted` in `omnibar_submitChat`, and the prompt is capped at `pastedTextLimits.maxCharacters`. Not applied in image-generation mode. When false or absent, text pastes inline with no cap.
+ */
+export type EnablePastedText = boolean;
 /**
  * Show a delete button on recent AI chat suggestions. When true, clicking the button prompts a native confirmation dialog before deleting the chat.
  */
@@ -972,8 +980,11 @@ export interface OmnibarConfig {
   customizationActive?: CustomizationActive;
   enableAskAiSuggestion?: EnableAskDuckAiSuggestion;
   enableAttachTabs?: EnableAttachTabs;
+  showSuggestedPrompts?: ShowSuggestedPrompts;
   screenshotModes?: ScreenshotModes;
   enablePastedAttachments?: EnablePastedAttachments;
+  enablePastedText?: EnablePastedText;
+  pastedTextLimits?: PastedTextLimits;
   enableAiChatDeletion?: EnableAIChatDeletion;
   enableSearchSuggestionDeletion?: EnableSearchSuggestionDeletion;
   requiresAiTermsAcceptance?: RequiresAITermsAcceptance;
@@ -990,6 +1001,19 @@ export interface AIModelSection {
    * Optional section header text (e.g. 'Subscriber Exclusive')
    */
   header?: string;
+  /**
+   * Optional additional section action. Individual model availability and upsell actions are unchanged.
+   */
+  cta?: {
+    /**
+     * Localized label for the section action.
+     */
+    label: string;
+    /**
+     * Which subscription flow the action opens: 'subscribe' for non-subscribers or 'upgrade' for existing subscribers who need a higher tier.
+     */
+    upsell: "subscribe" | "upgrade";
+  };
   /**
    * List of AI models in this section
    */
@@ -1040,7 +1064,7 @@ export interface AIModelItem {
    */
   reasoningEfforts?: ReasoningEffortOption[];
   /**
-   * For a gated (disabled) model, which upsell flow it leads to. Absent for enabled models. Absent on a gated model means the row shows but is inert, with no upsell action; send an explicit value whenever the row should be actionable.
+   * Which subscription flow the action opens: 'subscribe' for non-subscribers or 'upgrade' for existing subscribers who need a higher tier.
    */
   upsell?: "subscribe" | "upgrade";
 }
@@ -1062,7 +1086,7 @@ export interface ReasoningEffortOption {
    */
   isAvailable: boolean;
   /**
-   * For a gated (isAvailable: false) option, which upsell flow it leads to. Absent for available options. Absent on a gated option means the row shows but is inert, with no upsell action; send an explicit value whenever the row should be actionable.
+   * Which subscription flow the action opens: 'subscribe' for non-subscribers or 'upgrade' for existing subscribers who need a higher tier.
    */
   upsell?: "subscribe" | "upgrade";
   /**
@@ -1121,6 +1145,19 @@ export interface AttachmentLimits {
      */
     maxInputCharsWithAttachments: number;
   };
+}
+/**
+ * Pasted-text settings, in UTF-16 code units, applied only when `enablePastedText` is on: the paste length that becomes a pasted-text chip, and the cap on typed text plus pastes. Native reads them from remote config. When absent, the omnibar uses 4000 and 16000.
+ */
+export interface PastedTextLimits {
+  /**
+   * Shortest text paste that becomes a pasted-text attachment.
+   */
+  pasteConversionThreshold: number;
+  /**
+   * Most characters a prompt may have: the typed text plus every pasted-text attachment.
+   */
+  maxCharacters: number;
 }
 /**
  * Generated from @see "../messages/omnibar_setCustomizeResponsesActive.notify.json"
@@ -1238,9 +1275,22 @@ export interface SubmitChatAction {
    */
   files?: NativePromptFile[];
   /**
+   * Long text pastes attached as pasted-text parts (see `enablePastedText`), in attach order. Each entry mirrors Duck.ai's `NativePromptTextPasted` shape so native forwards them through unchanged. Omitted when there are none.
+   */
+  textPasted?: {
+    /**
+     * The pasted text, verbatim.
+     */
+    content: string;
+  }[];
+  /**
    * True when the launcherPromo drawer was on screen as the prompt was sent, so native can treat the prompt as passing over it. Omitted otherwise.
    */
   launcherPromoVisible?: boolean;
+  /**
+   * Fixed catalog ID of the suggested-prompt chip the prompt came from (e.g. 'jobapplication', 'createcomic'), so native can attribute the submission. Omitted for typed prompts.
+   */
+  suggestedPromptId?: string;
 }
 /**
  * Extracted page content for a specific tab, used as a Duck.ai chat attachment. Mirrors the shape produced by the Duck.ai sidebar's page-context extraction.
@@ -1426,7 +1476,11 @@ export interface NTPTelemetryEvent {
     | OmnibarScreenshotRemoved
     | OmnibarScreenshotFailed
     | OmnibarImageAttached
-    | OmnibarImageRemoved;
+    | OmnibarImageRemoved
+    | OmnibarPastedTextAttached
+    | OmnibarPastedTextRemoved
+    | OmnibarPastedTextEdited
+    | OmnibarPastedTextDialogOpened;
 }
 export interface StatsShowMore {
   name: "stats_toggle";
@@ -1522,6 +1576,30 @@ export interface OmnibarImageRemoved {
   value: {
     source: ImageAttachmentSource;
   };
+}
+/**
+ * Fired when a long text paste is attached to the prompt as a pasted-text chip.
+ */
+export interface OmnibarPastedTextAttached {
+  name: "omnibar_pasted_text_attached";
+}
+/**
+ * Fired when the user removes a pasted-text chip. Chips cleared by submitting the prompt don't fire it.
+ */
+export interface OmnibarPastedTextRemoved {
+  name: "omnibar_pasted_text_removed";
+}
+/**
+ * Fired when the user saves changed text in the Pasted Text dialog. Saving unchanged text doesn't fire it.
+ */
+export interface OmnibarPastedTextEdited {
+  name: "omnibar_pasted_text_edited";
+}
+/**
+ * Fired when the user opens the Pasted Text dialog from a pasted-text chip.
+ */
+export interface OmnibarPastedTextDialogOpened {
+  name: "omnibar_pasted_text_dialog_opened";
 }
 /**
  * Generated from @see "../messages/updateNotification_dismiss.notify.json"
@@ -1727,6 +1805,7 @@ export interface InitialSetupResponse {
   customizer?: CustomizerData;
   updateNotification: null | UpdateNotificationData;
   tabs?: null | Tabs;
+  omnibar?: OmnibarInitialSetup;
 }
 export interface WidgetListItem {
   /**
@@ -1781,6 +1860,14 @@ export interface UpdateNotification {
 export interface Tabs {
   tabId: string;
   tabIds: string[];
+}
+/**
+ * The subset of omnibar config that affects its height, sent up front so the loading placeholder reserves the right space. Same meaning as the matching `omnibar_getConfig` fields.
+ */
+export interface OmnibarInitialSetup {
+  mode: OmnibarMode;
+  enableAi: boolean;
+  showAiSetting: boolean;
 }
 /**
  * Generated from @see "../messages/nextSteps_getConfig.request.json"
