@@ -98,6 +98,35 @@ When working in this section of the repo, one tends to be focused on a certain s
 
 Instead of dark mode media queries in the CSS, we rely on `data-theme` attribute set at the App level and update properties inside rules for `[data-theme=dark]` or `[data-theme=dark] &`. This does change the specificity of properties set in this selector vs a media query.
 
+### Translations
+
+Pages that support localization (currently `new-tab` and `history`) keep their English strings in `strings.json` files next to the components that use them. Each entry has a `title` (the string itself) and a `note` (context for translators):
+
+```json
+{
+  "ntp_show_more": {
+    "title": "Show More",
+    "note": "Button that increases the number of items or content displayed."
+  }
+}
+```
+
+The `prebuild` step (`node translations.mjs`) merges every `strings.json` in a page into `pages/<page>/public/locales/en/<page>.json`. That generated file is what gets sent to Smartling. Translations are requested manually:
+
+1. **Prepare the file.** Add or update strings in the relevant `strings.json`, then run `npm run build` (or `node translations.mjs`) in `special-pages/` to regenerate `public/locales/en/<page>.json`.
+2. **Sign in to Smartling.**
+3. Go to **Projects → Privacy - Content Scope Scripts**.
+4. Open the **Jobs** tab.
+5. Click **Request Translation**.
+6. Name the job, upload `public/locales/en/<page>.json`, and select every target language the page already ships (one folder per language in `public/locales/`, currently `de`, `es`, `fr`, `it`, `nl`, `pl`, `pt` and `ru`).
+7. Click **Save Job and Continue**.
+8. Click **Authorize Job** to send it for translation now, or **Save for later** to authorize it later.
+9. Wait for the job to complete.
+10. Download the translated files.
+11. Copy each file into `pages/<page>/public/locales/<locale>/<page>.json`, replacing the existing file, and commit the changes.
+
+> **Note**: Do not edit the files in `public/locales/` by hand. Change `strings.json` instead, and let Smartling produce the translated files.
+
 ### Integration Tests
 
 Ensure these commands are run from the `special-pages` folder.
