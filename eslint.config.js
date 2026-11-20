@@ -63,6 +63,11 @@ export default tseslint.config(
                     vars: 'all',
                 },
             ],
+            // Newly enabled by @duckduckgo/eslint-config v0.3.0. Turned off until the existing violations are fixed.
+            'no-useless-assignment': 'off',
+            'no-unassigned-vars': 'off',
+            'preserve-caught-error': 'off',
+            'n/no-callback-literal': 'off',
         },
     },
     {
