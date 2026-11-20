@@ -16,13 +16,14 @@ import styles from './AddressBarContent.module.css';
 /**
  * Bottom bubble content for the addressBarMode step.
  * Shows the address bar preview animation, radio toggle buttons for search mode,
- * a footer note about AI features, and the Start Browsing button.
+ * a footer note about AI features, and a Next button, or Start Browsing when this is the last step.
  *
  * @param {object} props
  * @param {() => void} props.dismiss
+ * @param {(() => void) | null} props.advance - set when another step follows this one
  * @param {(id: import('../../types').SystemValueId, payload: import('../../types').SystemValue, current: boolean) => void} props.updateSystemValue
  */
-export function AddressBarContent({ dismiss, updateSystemValue }) {
+export function AddressBarContent({ dismiss, advance, updateSystemValue }) {
     const { t } = useTypedTranslation();
     const { isDarkMode } = useEnv();
     const { status } = useGlobalState();
@@ -60,9 +61,15 @@ export function AddressBarContent({ dismiss, updateSystemValue }) {
                     <Trans str={t('addressBarMode_footer')} values={{}} />
                 </span>
             </div>
-            <Button variant="primary" size="wide" class={styles.startButton} onClick={dismiss}>
-                {t('startBrowsing')} <Launch />
-            </Button>
+            {advance ? (
+                <Button variant="primary" size="wide" class={styles.startButton} onClick={advance}>
+                    {t('nextButton')}
+                </Button>
+            ) : (
+                <Button variant="primary" size="wide" class={styles.startButton} onClick={dismiss}>
+                    {t('startBrowsing')} <Launch />
+                </Button>
+            )}
         </Container>
     );
 }

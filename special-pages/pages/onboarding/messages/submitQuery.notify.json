@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SubmitQuery",
+  "description": "Sent instead of dismissToAddressBar when the user submits a search or a Duck.ai prompt on the searchOrChat step. Native ends onboarding and opens the query in the Welcome tab.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["mode", "query", "source"],
+  "properties": {
+    "mode": {
+      "type": "string",
+      "enum": ["search", "duckAi"],
+      "description": "Whether to open the query as a search or send it to Duck.ai"
+    },
+    "query": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The text to search for or send to Duck.ai, trimmed. A search's \"Surprise me!\" sends an image search, e.g. \"!image baby ducklings\""
+    },
+    "source": {
+      "type": "string",
+      "enum": ["typed", "suggestion"],
+      "description": "\"suggestion\" when the user picked a suggestion, including \"Surprise me!\""
+    }
+  }
+}

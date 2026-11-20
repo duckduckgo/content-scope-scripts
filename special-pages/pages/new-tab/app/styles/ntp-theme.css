@@ -102,6 +102,8 @@ body[data-rebrand="true"]:not([data-background-kind="default"]) {
     --ntp-btn-dismiss-border: var(--ds-ntp-light-button-dismiss-rest-border-color);
     --ntp-btn-dismiss-color: var(--ds-ntp-light-button-dismiss-rest-color);
     --ntp-btn-dismiss-hover: var(--ds-ntp-light-button-dismiss-hover-background-color);
+    /* --ds-control-primary-background-color, which design-tokens only ships in onboarding.css */
+    --ntp-control-primary-background-color: rgba(0, 0, 0, 0.06);
 }
 
 [data-theme=dark] {
@@ -115,6 +117,7 @@ body[data-rebrand="true"]:not([data-background-kind="default"]) {
     --ntp-btn-dismiss-border: var(--ds-ntp-dark-button-dismiss-rest-border-color);
     --ntp-btn-dismiss-color: var(--ds-ntp-dark-button-dismiss-rest-color);
     --ntp-btn-dismiss-hover: var(--ds-ntp-dark-button-dismiss-hover-background-color);
+    --ntp-control-primary-background-color: rgba(255, 255, 255, 0.12);
 }
 
 :root:has(body[data-platform-name="windows"]) {

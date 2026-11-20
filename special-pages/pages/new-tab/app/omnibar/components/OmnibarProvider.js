@@ -1,5 +1,5 @@
 import { createContext, h } from 'preact';
-import { useCallback, useContext, useEffect, useReducer, useRef } from 'preact/hooks';
+import { useCallback, useContext, useEffect, useReducer, useRef, useState } from 'preact/hooks';
 import { useMessaging } from '../../types.js';
 import { reducer, useInitialDataAndConfig, useConfigSubscription } from '../../service.hooks.js';
 import { OmnibarService } from '../omnibar.service.js';
@@ -84,6 +84,10 @@ export const OmnibarContext = createContext({
         throw new Error('must implement');
     },
     /** @type {() => void} */
+    openPrivacyTerms: () => {
+        throw new Error('must implement');
+    },
+    /** @type {() => void} */
     dismissUsageLimits: () => {
         throw new Error('must implement');
     },
@@ -93,6 +97,15 @@ export const OmnibarContext = createContext({
     },
     /** @type {(active: boolean) => void} */
     setImageGenerationActive: () => {
+        throw new Error('must implement');
+    },
+    /**
+     * The omnibar remounts per tab, so the selected tool lives here to persist across tab switches.
+     * @type {import('./chat-tools/tools-menu/ToolsMenu').ToolId | null}
+     */
+    activeTool: null,
+    /** @type {(tool: import('./chat-tools/tools-menu/ToolsMenu').ToolId | null) => void} */
+    setActiveTool: () => {
         throw new Error('must implement');
     },
     /** @type {(kind: 'image' | 'file') => void} */
@@ -297,6 +310,11 @@ export function OmnibarProvider(props) {
     }, [service]);
 
     /** @type {() => void} */
+    const openPrivacyTerms = useCallback(() => {
+        service.current?.openPrivacyTerms();
+    }, [service]);
+
+    /** @type {() => void} */
     const dismissUsageLimits = useCallback(() => {
         service.current?.dismissUsageLimits();
     }, [service]);
@@ -305,6 +323,8 @@ export function OmnibarProvider(props) {
     const dismissCreateImageModelSwitch = useCallback(() => {
         service.current?.dismissCreateImageModelSwitch();
     }, [service]);
+
+    const [activeTool, setActiveTool] = useState(/** @type {import('./chat-tools/tools-menu/ToolsMenu').ToolId | null} */ (null));
 
     /** @type {(active: boolean) => void} */
     const setImageGenerationActive = useCallback(
@@ -439,9 +459,12 @@ export function OmnibarProvider(props) {
                 openAiChat,
                 viewAllAiChats,
                 openCustomizeResponses,
+                openPrivacyTerms,
                 dismissUsageLimits,
                 dismissCreateImageModelSwitch,
                 setImageGenerationActive,
+                activeTool,
+                setActiveTool,
                 attachmentPrivacyDisclaimerShown,
                 openAttachmentPrivacyLearnMore,
                 selectUsageLimitsCta,

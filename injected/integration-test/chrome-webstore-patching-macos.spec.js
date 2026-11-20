@@ -11,6 +11,7 @@ const DETAIL = `/detail/bitwarden-password-manage/${ID}`;
 const OTHER = '/detail/other/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 const BUTTON = 'button[jsname="wQO0od"]';
 const LABEL = `${BUTTON} [data-ddg-webstore-label]`;
+const ICON = `${BUTTON} [data-ddg-webstore-icon]`;
 
 /**
  * @param {import('@playwright/test').Page} page
@@ -215,7 +216,8 @@ test('pending install blocks duplicates and its completion cannot patch an unrel
     const collector = await setup(page, testInfo, { hold: true });
     await expect(page.locator(LABEL)).toHaveText('Add to DuckDuckGo');
     await page.locator(BUTTON).click();
-    await expect(page.locator(BUTTON)).not.toBeVisible();
+    await expect(page.locator(ICON)).toHaveAttribute('data-ddg-verdict', 'pending');
+    await expect(page.locator(BUTTON)).toBeVisible();
     await page.locator(BUTTON).dispatchEvent('click');
     await navigate(page, OTHER);
     await expect(page.locator(LABEL)).toHaveText('Unsupported extension');
@@ -473,7 +475,7 @@ test('change notification cannot reveal a button while its operation is pending'
     await page.locator(BUTTON).click();
     await expect.poll(() => page.evaluate(() => typeof (/** @type {any} */ (window).completeOperation))).toBe('function');
     await collector.simulateSubscriptionMessage('chromeWebstorePatching', 'extensionChanged', { extensionId: ID });
-    await expect(page.locator(BUTTON)).toBeHidden();
+    await expect(page.locator(ICON)).toHaveAttribute('data-ddg-verdict', 'pending');
     expect(await messages(collector, 'getExtensionStatus')).toHaveLength(1);
     await page.evaluate(() => /** @type {any} */ (window).completeOperation());
     await expect(page.locator(LABEL)).toHaveText('Add to DuckDuckGo');

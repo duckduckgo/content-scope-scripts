@@ -1,4 +1,5 @@
 import ContentFeature from '../content-feature.js';
+import { isIndexedDBDisabled } from './duck-ai/storage.js';
 
 /**
  * This feature is responsible for retrieving Duck.ai chat history when the `getDuckAiChats`
@@ -83,6 +84,10 @@ export class DuckAiChatHistory extends ContentFeature {
      * @returns {Promise<Array<object>>} Array of chat objects from IndexedDB
      */
     retrieveChatsFromIndexedDB() {
+        if (isIndexedDBDisabled(this.platform.name)) {
+            this.log.info('IndexedDB is disabled, falling back to localStorage');
+            return Promise.resolve([]);
+        }
         const dbName = this.getFeatureSetting('savedChatsIndexDbName') || DuckAiChatHistory.DEFAULT_INDEXED_DB_NAME;
         const storeName = this.getFeatureSetting('savedChatsStoreName') || DuckAiChatHistory.DEFAULT_SAVED_CHATS_STORE;
 
