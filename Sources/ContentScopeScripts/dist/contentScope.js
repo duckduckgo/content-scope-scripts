@@ -4227,6 +4227,7 @@
        *   messagingContextName: string,
        *   currentCohorts?: Array<{feature: string, cohort: string, subfeature: string}>,
        *   trackerData?: import('./features/tracker-protection/tracker-resolver.js').TrackerData,
+       *   disableScriptSurrogateInjection?: boolean,
        * } | null}
        */
       __privateAdd(this, _args);
@@ -13580,7 +13581,7 @@ ${iframeContent}
       this._blockingEnabled = true;
       this._isUnprotectedDomain = false;
       this._observer = null;
-      this._surrogateInjectionEnabled = this.getFeatureSettingEnabled("surrogateInjection", "enabled");
+      this._surrogateInjectionEnabled = this.isSurrogateInjectionEnabled();
       this._topLevelUrl = getTabURL();
       if (!this._topLevelUrl) {
         return;
@@ -13614,6 +13615,13 @@ ${iframeContent}
         this.bundledConfig?.features?.clickToLoad?.state
       );
       this._setupInterception();
+    }
+    /**
+     * Whether to inject surrogates: the config setting allows it and native hasn't turned it off.
+     * @returns {boolean}
+     */
+    isSurrogateInjectionEnabled() {
+      return this.getFeatureSettingEnabled("surrogateInjection", "enabled") && this.args?.disableScriptSurrogateInjection !== true;
     }
     /**
      * Set up resource interception for tracker detection.
@@ -14185,7 +14193,7 @@ ${iframeContent}
     const importConfig = {
       trackerLookup: define_import_meta_trackerLookup_default,
       injectName: "apple",
-      contentScopeScriptsVersion: "22.3.0"
+      contentScopeScriptsVersion: "22.4.0"
     };
     const bundledFeatureNames = typeof importConfig.injectName === "string" ? platformSupport[importConfig.injectName] ?? [] : [];
     const featuresToLoad = isGloballyDisabled(args) ? platformSpecificFeatures : args.site.enabledFeatures || bundledFeatureNames;

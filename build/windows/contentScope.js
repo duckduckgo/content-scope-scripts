@@ -5792,6 +5792,7 @@
        *   messagingContextName: string,
        *   currentCohorts?: Array<{feature: string, cohort: string, subfeature: string}>,
        *   trackerData?: import('./features/tracker-protection/tracker-resolver.js').TrackerData,
+       *   disableScriptSurrogateInjection?: boolean,
        * } | null}
        */
       __privateAdd(this, _args);
@@ -24571,7 +24572,7 @@ ${iframeContent}
     const importConfig = {
       trackerLookup: define_import_meta_trackerLookup_default,
       injectName: "windows",
-      contentScopeScriptsVersion: "22.3.0"
+      contentScopeScriptsVersion: "22.4.0"
     };
     const bundledFeatureNames = typeof importConfig.injectName === "string" ? platformSupport[importConfig.injectName] ?? [] : [];
     const featuresToLoad = isGloballyDisabled(args) ? platformSpecificFeatures : args.site.enabledFeatures || bundledFeatureNames;
