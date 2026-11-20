@@ -1327,4 +1327,93 @@ test.describe('Broker Protection communications', () => {
             await expect(page.locator('ddg-pir-assist')).toHaveCount(0);
         });
     });
+
+    test.describe('visualizeActions', () => {
+        /**
+         * @param {import('@playwright/test').BrowserContext} context
+         * @param {import('@playwright/test').TestInfo} workerInfo
+         */
+        async function visualizedPage(context, workerInfo) {
+            const dbp = BrokerProtectionPage.create(await context.newPage(), workerInfo.project.use);
+            await dbp.withFeatureConfig(BROKER_PROTECTION_CONFIGS.visualizeActions);
+            return dbp;
+        }
+
+        const fillFormAction = {
+            state: {
+                action: {
+                    actionType: 'fillForm',
+                    id: 'fill-form-test',
+                    selector: '.ahm',
+                    elements: [
+                        { type: 'firstName', selector: '#user_first_name' },
+                        { type: 'lastName', selector: '#user_last_name' },
+                        { type: 'state', selector: '#state' },
+                    ],
+                },
+                data: { extractedProfile: { firstName: 'John', lastName: 'Smith', state: 'IL' } },
+            },
+        };
+
+        test('presenting a click does not click twice', async ({ context }, workerInfo) => {
+            const dbp = await visualizedPage(context, workerInfo);
+            await dbp.navigatesTo('form.html');
+            const field = dbp.page.locator('#user_first_name');
+            await field.evaluate((input) => {
+                input.dataset.clicks = '0';
+                input.addEventListener('click', () => (input.dataset.clicks = String(Number(input.dataset.clicks) + 1)));
+            });
+            await dbp.receivesInlineAction({
+                state: { action: { actionType: 'click', id: 'click-test', elements: [{ type: 'button', selector: '#user_first_name' }] } },
+            });
+            dbp.isSuccessMessage(await dbp.collector.waitForMessage('actionCompleted'), 'click-test');
+            await expect(field).toHaveAttribute('data-clicks', '1');
+        });
+
+        test('retyping does not change the values or events the page sees', async ({ dbp, context }, workerInfo) => {
+            const visualized = await visualizedPage(context, workerInfo);
+            const runs = [];
+            for (const run of [dbp, visualized]) {
+                await run.navigatesTo('form.html');
+                await run.page.evaluate(recordFormActivity);
+                await run.receivesInlineAction(fillFormAction);
+                run.isSuccessMessage(await run.collector.waitForMessage('actionCompleted'), 'fill-form-test');
+                runs.push(await run.page.evaluate(() => globalThis.readFormActivity()));
+            }
+            const [plain, presented] = runs;
+
+            expect(presented.values).toEqual({ first: 'John', last: 'Smith', state: 'IL' });
+            expect(presented.values).toEqual(plain.values);
+            expect(presented.events).toEqual(plain.events);
+            expect(presented.firstNameValues).toEqual(plain.firstNameValues);
+        });
+    });
 });
+
+/**
+ * Runs in the page: records the events the form's fields receive and each value the first name field holds.
+ */
+function recordFormActivity() {
+    const form = /** @type {HTMLFormElement} */ (document.querySelector('.ahm'));
+    /** @param {string} selector */
+    const field = (selector) => /** @type {HTMLInputElement} */ (form.querySelector(selector));
+    const firstName = field('#user_first_name');
+    /** @type {string[]} */
+    const events = [];
+    for (const type of ['focus', 'blur', 'keydown', 'keyup', 'input', 'change']) {
+        form.addEventListener(type, (event) => events.push(`${/** @type {HTMLInputElement} */ (event.target).id}:${type}`), true);
+    }
+    const firstNameValues = [firstName.value];
+    const sample = () => {
+        if (firstNameValues[firstNameValues.length - 1] !== firstName.value) firstNameValues.push(firstName.value);
+        requestAnimationFrame(sample);
+    };
+    sample();
+    Object.assign(globalThis, {
+        readFormActivity: () => ({
+            events,
+            firstNameValues,
+            values: { first: firstName.value, last: field('#user_last_name').value, state: field('#state').value },
+        }),
+    });
+}
