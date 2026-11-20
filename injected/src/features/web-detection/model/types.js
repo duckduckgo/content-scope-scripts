@@ -130,10 +130,12 @@
  */
 
 /**
- * Page reads shared by every detector run in one task. `evaluate/task-read-cache.js` implements it.
+ * Page reads shared by every detector run in one task, and across tasks while the page is unchanged.
+ * A value kept depends on the DOM tree alone, and on no style or layout. `evaluate/task-read-cache.js`
+ * implements it.
  *
  * @typedef {object} TaskReads
- * @property {<T>(node: object, key: string, compute: () => T) => T} of - the value `compute` gives for a node and key, computed once in the task
+ * @property {<T>(node: object, key: string, compute: () => T, readsAttributes?: boolean) => T} of - the value `compute` gives for a node and key, computed once while it holds. `readsAttributes` when the value depends on attributes
  */
 
 /**

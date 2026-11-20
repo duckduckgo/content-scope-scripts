@@ -220,6 +220,27 @@ describe('WebDetection feature', () => {
             expect(fifth).not.toBe(third);
         });
 
+        it('shares reads across the tasks of the frame when `readCacheMaxAgeMs` is above 0', () => {
+            const window = new JSDOM('<!DOCTYPE html><p>hello</p>').window;
+            testGlobal.MutationObserver = window.MutationObserver;
+            testGlobal.Node = window.Node;
+            try {
+                const detectors = { g: { a: firing('a'), b: firing('b') } };
+                const featureSettings = { webDetection: { detectors, readCacheMaxAgeMs: 500 } };
+                const instance = new WebDetection('webDetection', undefined, {}, { ...instanceArgs(undefined), featureSettings });
+                instance.init();
+                const run = spyOn(instance, '_runDetector').and.callThrough();
+                jasmine.clock().tick(100);
+                instance.runDetectors({ trigger: 'breakageReport' });
+                const [first, ...rest] = run.calls.allArgs().map((args) => args[2]);
+                expect(rest.length).toBe(3);
+                for (const task of rest) expect(task).toBe(first);
+            } finally {
+                delete testGlobal.MutationObserver;
+                delete testGlobal.Node;
+            }
+        });
+
         it('returns entries written by `auto` runs, and does not run a done detector for the report', () => {
             testGlobal.wdTestPage = { n: 3 };
             const instance = create({
