@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Large page</title>
+</head>
+<body>
+    <script>
+        for (let i = 1; i <= 2000; i++) {
+            const p = document.createElement('p');
+            p.textContent = `Paragraph number ${i} has words.`;
+            document.body.append(p);
+        }
+    </script>
+</body>
+</html>

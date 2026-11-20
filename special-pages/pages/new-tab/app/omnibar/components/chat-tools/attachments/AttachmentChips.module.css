@@ -1,11 +1,17 @@
 .chipsArea {
     align-items: center;
     align-self: stretch;
+    /* Matches the field's top corners so a scrolled chip doesn't poke past them. */
+    border-radius: var(--omnibar-radius, 15px) var(--omnibar-radius, 15px) 0 0;
     display: flex;
     flex-wrap: nowrap;
-    gap: var(--sp-2);
+    gap: var(--sp-1);
     overflow-x: auto;
-    padding: var(--sp-3) var(--sp-3) var(--sp-2);
+    padding: var(--sp-3) var(--sp-3) 0;
+    /* Without this, scrollIntoView leaves a revealed chip flush against the corner. */
+    scroll-padding-inline: var(--sp-3);
+    /* A scrollbar would cross the lower half of the chips and capture clicks meant
+     * for their remove buttons. */
     scrollbar-width: none;
 }
 

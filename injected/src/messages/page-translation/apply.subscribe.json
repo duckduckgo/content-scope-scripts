@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ApplyParams",
+  "description": "Native sends translations to write back.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "sourceLanguage",
+    "targetLanguage",
+    "updates"
+  ],
+  "properties": {
+    "sourceLanguage": {
+      "type": "string",
+      "description": "Detected page language (BCP 47). Content marked as another language is not written back."
+    },
+    "targetLanguage": {
+      "type": "string",
+      "description": "Language translated into (BCP 47). Set as the page lang on the first write."
+    },
+    "updates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "text": {
+            "type": "string",
+            "description": "The translation of a plain-text unit (html: false)."
+          },
+          "tree": {
+            "type": "string",
+            "description": "For an HTML unit (html: true): TranslateKit's JSON tree of the translated HTML (translate with htmlAsJSONTree), passed through unchanged. \"null\" means TranslateKit found the HTML malformed."
+          }
+        }
+      }
+    }
+  }
+}

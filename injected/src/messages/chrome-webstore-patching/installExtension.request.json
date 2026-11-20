@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "InstallExtensionParams",
+  "description": "macOS: ask native to download, validate and install a curated extension.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "extensionId",
+    "crxUrl"
+  ],
+  "properties": {
+    "extensionId": {
+      "type": "string",
+      "pattern": "^[a-p]{32}$",
+      "description": "Chrome Web Store extension ID."
+    },
+    "crxUrl": {
+      "type": "string",
+      "format": "uri",
+      "description": "Google CRX download endpoint URL. Native follows redirects and validates the package and source."
+    }
+  }
+}

@@ -21,15 +21,16 @@ import styles from './AiChatForm.module.css';
  * A simple form shell for the AI chat input. Renders a textarea plus two toolbar slots
  * (`toolbarLeft`, `toolbarRight`). The parent owns all submission UI (submit button,
  * voice button, etc.) and renders it via the right slot — this component only forwards
- * Enter-key submissions through `onSubmit(query, target)`.
+ * Enter-key submissions through `onSubmit({ chat, target })`.
  *
  * @param {object} props
  * @param {string} props.query
  * @param {boolean} [props.autoFocus]
+ * @param {boolean} [props.collapsed] - shrinks the textarea to its first line, e.g. while focus is outside the omnibar.
  * @param {boolean} [props.disabled] - Blocks Enter/submit (e.g. empty query or attachment warnings).
  * @param {boolean} [props.readOnly] - Freezes the textarea (hard usage limit); typing and submit are blocked.
  * @param {(query: string, caret: number) => void} props.onChange
- * @param {(chat: string, target: OpenTarget) => void} props.onSubmit
+ * @param {(params: { chat: string, target: OpenTarget }) => void} props.onSubmit
  * @param {string} [props.placeholder]
  * @param {import('preact').ComponentChildren} [props.children]
  * @param {import('preact').ComponentChildren} [props.toolbarLeft]
@@ -37,10 +38,14 @@ import styles from './AiChatForm.module.css';
  * @param {(event: KeyboardEvent) => ({ handled: boolean } | void)} [props.onTextareaKeyDown]
  * @param {ComboboxOverride|null} [props.combobox]
  * @param {import('preact').RefObject<HTMLTextAreaElement>} props.textareaRef - Ref the parent owns and uses to drive focus/selection or measure layout.
+ * @param {(event: ClipboardEvent) => void} [props.onPaste] - Clipboard intake (images, files, long text); call `preventDefault()` to stop the text paste.
+ * @param {(event: DragEvent) => void} [props.onDragOver] - Also called on `dragenter`; call `preventDefault()` to accept the drag.
+ * @param {(event: DragEvent) => void} [props.onDrop]
  */
 export function AiChatForm({
     query,
     autoFocus,
+    collapsed = false,
     disabled,
     readOnly = false,
     onChange,
@@ -52,6 +57,9 @@ export function AiChatForm({
     onTextareaKeyDown,
     combobox = null,
     textareaRef,
+    onPaste,
+    onDragOver,
+    onDrop,
 }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
@@ -73,7 +81,15 @@ export function AiChatForm({
 
         if (!textArea || !form) return;
 
-        const { paddingTop, paddingBottom } = window.getComputedStyle(textArea);
+        const { paddingTop, paddingBottom, lineHeight } = window.getComputedStyle(textArea);
+        form.classList.toggle(styles.collapsed, collapsed);
+        if (collapsed) {
+            textArea.style.height = lineHeight;
+            textArea.scrollTop = 0;
+            form.classList.remove(styles.hasScroll);
+            return;
+        }
+
         textArea.style.height = 'auto';
         textArea.style.height = `calc(${textArea.scrollHeight}px - ${paddingTop} - ${paddingBottom})`;
 
@@ -82,13 +98,13 @@ export function AiChatForm({
         } else {
             form.classList.remove(styles.hasScroll);
         }
-    }, [query, textareaRef]);
+    }, [query, textareaRef, collapsed]);
 
     /** @type {(event: SubmitEvent) => void} */
     const handleSubmit = (event) => {
         event.preventDefault();
         if (disabled || readOnly) return;
-        onSubmit(query, 'same-tab');
+        onSubmit({ chat: query, target: 'same-tab' });
     };
 
     /** @type {(event: KeyboardEvent) => void} */
@@ -140,7 +156,7 @@ export function AiChatForm({
                     break;
                 }
 
-                onSubmit(query, eventToTarget(event, platformName));
+                onSubmit({ chat: query, target: eventToTarget(event, platformName) });
                 break;
         }
     };
@@ -173,12 +189,16 @@ export function AiChatForm({
             ref={formRef}
             class={styles.form}
             onSubmit={handleSubmit}
+            onDragEnter={onDragOver}
+            onDragOver={onDragOver}
+            onDrop={onDrop}
             onClick={(e) => {
                 if (e.target === e.currentTarget || e.target === textareaRef.current) {
                     textareaRef.current?.focus();
                 }
             }}
         >
+            {children}
             <textarea
                 ref={textareaRef}
                 class={styles.textarea}
@@ -194,6 +214,10 @@ export function AiChatForm({
                 readOnly={readOnly}
                 aria-disabled={readOnly || undefined}
                 onKeyDown={handleKeyDown}
+                onPaste={(event) => {
+                    if (readOnly) return;
+                    onPaste?.(event);
+                }}
                 // Emit caret with value so the mention flow can detect active `@` mentions.
                 onInput={(event) => {
                     if (readOnly) return;
@@ -209,7 +233,6 @@ export function AiChatForm({
                 }}
                 onClick={emitChange}
             />
-            {children}
             <div tabIndex={-1} class={styles.buttons}>
                 {toolbarLeft}
                 <div class={styles.rightButtons}>{toolbarRight}</div>

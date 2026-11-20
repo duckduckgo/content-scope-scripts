@@ -1,16 +1,17 @@
 import ContentFeature from '../content-feature.js';
-import { injectGlobalStyles } from '../utils.js';
+import { MacOSWebstore } from './chrome-webstore-patching/macos.js';
+import { injectGlobalStyles, isValidSelector } from '../utils.js';
 import {
     getWebstorePrivate,
     hasRuntimeLastError,
-    isValidSelector,
+    parseCatalogExtensionIds,
     parseExtensionId,
-    readCuratedCatalog,
     readStatusSets,
 } from './chrome-webstore-patching/helpers.js';
 // Vendored from the duckduckgo/Icons repo (no package exports them), original names kept
 import daxSvg from './chrome-webstore-patching/assets/DuckDuckGo-Color-24.svg';
 import trashSvg from './chrome-webstore-patching/assets/Trash-24.svg';
+import spinnerSvg from './chrome-webstore-patching/assets/Spinner-24.svg';
 // Bundled by scripts/buildLocales.js from src/locales/chrome-webstore-patching/
 import localesJSON from '../../../build/locales/chrome-webstore-patching-locales.js';
 
@@ -24,6 +25,9 @@ const STRINGS_FILE = 'chrome-store-strings.json';
 
 const DAX_DATA_URI = `data:image/svg+xml;utf8,${encodeURIComponent(daxSvg)}`;
 const TRASH_DATA_URI = `data:image/svg+xml;utf8,${encodeURIComponent(trashSvg.replaceAll('fill="black"', 'fill="#FFFFFF" fill-opacity="0.78"'))}`;
+const SPINNER_DATA_URI = `data:image/svg+xml;utf8,${encodeURIComponent(spinnerSvg)}`;
+const SPINNER_KEYFRAMES = [{ transform: 'rotate(0deg)' }, { transform: 'rotate(360deg)' }];
+const SPINNER_TIMING = { duration: 800, iterations: Infinity };
 
 // Applied INLINE with !important: the store's own !important class rules beat
 // any injected stylesheet, but nothing beats an inline important declaration.
@@ -51,6 +55,16 @@ const PILL_STYLES = {
     // pointer-events must stay auto: `none` redirects clicks to the store's delegated
     // jsaction ancestor, which still installs — the interceptor + disabled block them instead
     unsupported: { ...PILL_LAYOUT, background: '#E4E4E4', color: '#8A8A8A', cursor: 'default', 'pointer-events': 'auto' },
+    // macOS only, while native owns an install or removal. Symmetric padding and no gap: the empty label still takes the gap.
+    pending: {
+        ...PILL_LAYOUT,
+        padding: '8px',
+        gap: '0',
+        background: 'transparent',
+        color: 'inherit',
+        cursor: 'default',
+        'pointer-events': 'auto',
+    },
 };
 
 // The icon is a feature-owned span: ::before can't carry inline styles
@@ -64,15 +78,40 @@ const ICON_BACKGROUNDS = {
     install: `url("${DAX_DATA_URI}") center / contain no-repeat`,
     remove: `url("${TRASH_DATA_URI}") center / contain no-repeat`,
     unsupported: `url("${DAX_DATA_URI}") center / contain no-repeat`,
+    pending: `url("${SPINNER_DATA_URI}") center / contain no-repeat`,
+};
+
+// Internal builds only, so deliberately not localized or sent to Smartling
+const INTERNAL_OVERRIDE_TEXT = 'Internal override';
+const INTERNAL_OVERRIDE_STYLES = {
+    display: 'block',
+    'margin-top': '8px',
+    'font-size': '12px',
+    color: '#8A8A8A',
+    'text-decoration': 'underline',
+    cursor: 'pointer',
+};
+
+// macOS only: matches Google's native button text, trimmed to cap height
+const MACOS_LABEL_STYLES = {
+    'font-family': '"Google Sans Flex", "Google Sans", sans-serif',
+    'font-weight': '450',
+    'font-size': '14px',
+    'line-height': '100%',
+    'text-box': 'trim-both cap alphabetic',
 };
 
 const VERDICT_COPY_KEY = /** @type {const} */ ({ install: 'install', remove: 'remove', unsupported: 'unavailable' });
 
+// Native replies within ~1 s by contract, even before its config is ready, so
+// this only bounds a reply that never arrives
+const CATALOG_REQUEST_TIMEOUT_MS = 3000;
+
 /**
  * Patches the Chrome Web Store UI in the DDG browser.
  * - Hides every install button via CSS up front (fail closed)
- * - On extension detail pages for curated extensions, swaps the button copy to
- *   DuckDuckGo wording and reveals the button
+ * - On extension detail pages for catalog extensions, swaps the button copy to
+ *   DuckDuckGo wording and reveals the button. Native owns the catalog.
  * Decisions happen on navigation; the MutationObserver only re-applies the
  * current decision when the store's framework re-renders the button.
  */
@@ -80,8 +119,11 @@ export class ChromeWebstorePatching extends ContentFeature {
     /** Re-run the page evaluation on SPA navigations (base class calls urlChanged) */
     listenForUrlChanges = true;
 
-    /** @type {'install' | 'remove' | 'unsupported' | null} verdict for the current page; null = keep hidden */
+    /** @type {'install' | 'remove' | 'unsupported' | 'pending' | null} verdict for the current page; null = keep hidden */
     _verdict = null;
+
+    /** @type {string | undefined} width of the clicked pill, kept while pending so the spinner takes its place */
+    _pendingWidth;
 
     /** @type {MutationObserver | undefined} */
     _observer;
@@ -95,8 +137,19 @@ export class ChromeWebstorePatching extends ContentFeature {
     /** @type {string} BCP 47-ish language tag from the platform, e.g. 'de' */
     _locale = 'en';
 
+    /** @type {MacOSWebstore | undefined} */
+    _macOS;
+
+    /** @type {Promise<unknown> | undefined} catalog request native hasn't answered yet */
+    _pendingCatalogRequest;
+
+    /** @type {Set<string>} IDs an internal user chose to treat as in the catalog for this document */
+    _internalOverrides = new Set();
+
     /** @param {any} [args] */
     async init(args) {
+        // The Apple isolated bundle is shared with iOS, which has no integration.
+        if (this.platform?.name === 'ios') return;
         // Locale dirs are bare language codes — strip any region subtag ('de-DE'/'de_DE' → 'de')
         this._locale =
             String(args?.locale || args?.language || 'en')
@@ -118,11 +171,22 @@ export class ChromeWebstorePatching extends ContentFeature {
             .filter(isValidSelector);
         if (!this._buttonSelectors.length) return;
 
+        if (this.platform?.name === 'macos') {
+            // Leave the page untouched until native confirms this build supports the store.
+            const macOS = new MacOSWebstore(this);
+            if (!(await macOS.initialSetup())) return;
+            this._macOS = macOS;
+        }
+
         // Registered at document-start so capture-phase beats the store's root
         // jsaction handler. Blocks activation of the unsupported pill; after a
-        // curated click, re-evaluates — install/uninstall is async and emits no event.
+        // catalog click, re-evaluates — install/uninstall is async and emits no event.
         /** @param {Event} event */
         const intercept = (event) => {
+            if (this._macOS) {
+                this._macOS.intercept(event);
+                return;
+            }
             if (!this._verdict) return;
             const target = event.target instanceof Element ? this._closestButton(event.target) : null;
             if (!target) return;
@@ -137,7 +201,8 @@ export class ChromeWebstorePatching extends ContentFeature {
             }
         };
         for (const type of ['click', 'auxclick', 'pointerdown', 'mousedown', 'touchstart', 'keydown']) {
-            document.addEventListener(type, intercept, true);
+            // macOS owns activation, before the store's document-level handlers.
+            (this._macOS ? window : document).addEventListener(type, intercept, true);
         }
 
         // At document-start documentElement may not exist yet. Wait only until it
@@ -193,10 +258,12 @@ export class ChromeWebstorePatching extends ContentFeature {
                 document.addEventListener('DOMContentLoaded', () => resolve(undefined), { once: true });
             });
         }
+        this._macOS?.startObservingURL();
         await this._evaluatePage();
     }
 
     urlChanged() {
+        if (this.platform?.name === 'ios' || (this.platform?.name === 'macos' && !this._macOS)) return;
         // Called synchronously by the URL-change dispatcher; _evaluatePage never rejects
         void this._evaluatePage();
     }
@@ -206,25 +273,22 @@ export class ChromeWebstorePatching extends ContentFeature {
      * navigation — never per DOM mutation.
      */
     async _evaluatePage() {
+        if (this._macOS) return this._macOS.evaluatePage();
         // Reset to fail-closed so nothing stale survives navigation. Dropping the
         // inline display hands each button back to the stylesheet's hide rule.
         this._verdict = null;
-        for (const button of this._matchingButtons()) {
-            button.style.removeProperty('display');
-        }
+        this._resetButtons();
 
         const extensionId = parseExtensionId(window.location.pathname);
         if (!extensionId) return;
 
-        if (!this.getCuratedExtensionIds().includes(extensionId)) {
-            this._reveal('unsupported');
-            return;
-        }
+        // A navigation may have happened during each await — don't apply a stale verdict
+        const isCurrent = () => extensionId === parseExtensionId(window.location.pathname);
+        if (!(await this._isInCatalog(extensionId, isCurrent))) return;
 
         const status = await this.getExtensionStatus(extensionId);
 
-        // A navigation may have happened during the await — don't apply a stale verdict
-        if (extensionId !== parseExtensionId(window.location.pathname)) return;
+        if (!isCurrent()) return;
 
         const { installable, installed } = readStatusSets(globalThis.chrome);
         if (status !== null && installable.includes(status)) {
@@ -233,6 +297,86 @@ export class ChromeWebstorePatching extends ContentFeature {
             this._reveal('remove');
         }
         // unknown status → stay hidden
+    }
+
+    /**
+     * The catalog step of a page decision, shared by Windows and macOS. Reveals the
+     * unsupported pill for an extension outside the catalog. An unknown catalog
+     * leaves the button hidden rather than unsupported: that would claim a catalog
+     * extension isn't supported whenever native errors or stalls.
+     * @param {string} extensionId
+     * @param {() => boolean} isCurrent whether this evaluation is still the latest once the catalog arrives
+     * @returns {Promise<boolean>} true only when the extension is in the catalog and the caller should check its install status
+     */
+    async _isInCatalog(extensionId, isCurrent) {
+        const catalog = await this.getCatalogExtensionIds();
+        if (!isCurrent() || catalog === null) return false;
+        if (catalog.includes(extensionId)) return true;
+        if (this._isInternalBuild() && this._internalOverrides.has(extensionId)) return true;
+        this._reveal('unsupported');
+        return false;
+    }
+
+    /**
+     * Only `platform.internal`, which native sets for internal builds. Never
+     * remote config: the feature's own state may go public, the override must not.
+     * @returns {boolean}
+     */
+    _isInternalBuild() {
+        return this.platform?.internal === true;
+    }
+
+    /**
+     * Back to fail-closed: dropping the inline display hands each button back to
+     * the stylesheet's hide rule, and the internal override link goes with it.
+     */
+    _resetButtons() {
+        for (const button of this._matchingButtons()) {
+            button.style.removeProperty('display');
+            this._overrideLinkFor(button)?.remove();
+        }
+    }
+
+    /**
+     * @param {HTMLElement} button
+     * @returns {Element | null}
+     */
+    _overrideLinkFor(button) {
+        const next = button.nextElementSibling;
+        return next?.hasAttribute('data-ddg-webstore-internal-override') ? next : null;
+    }
+
+    /**
+     * Internal builds get a link under the unsupported pill that treats this
+     * extension as in the catalog for the rest of the document, so the real
+     * install (or remove) pill appears. Other verdicts and public builds get none.
+     * @param {HTMLElement} button
+     * @param {boolean} show
+     */
+    _syncOverrideLink(button, show) {
+        const existing = this._overrideLinkFor(button);
+        if (!show || !this._isInternalBuild()) {
+            existing?.remove();
+            return;
+        }
+        if (existing) return;
+        const link = document.createElement('a');
+        link.setAttribute('data-ddg-webstore-internal-override', '');
+        link.href = '#';
+        link.textContent = INTERNAL_OVERRIDE_TEXT;
+        for (const [prop, value] of Object.entries(INTERNAL_OVERRIDE_STYLES)) {
+            link.style.setProperty(prop, value, 'important');
+        }
+        link.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            if (!event.isTrusted || !this._isInternalBuild()) return;
+            const extensionId = parseExtensionId(window.location.pathname);
+            if (!extensionId) return;
+            this._internalOverrides.add(extensionId);
+            void this._evaluatePage();
+        });
+        button.after(link);
     }
 
     /**
@@ -249,12 +393,21 @@ export class ChromeWebstorePatching extends ContentFeature {
     }
 
     /**
+     * The pending spinner has no label; every other verdict needs its copy.
+     * @param {'install' | 'remove' | 'unsupported' | 'pending'} verdict
+     * @returns {string | undefined}
+     */
+    _verdictText(verdict) {
+        return verdict === 'pending' ? '' : this._copy(VERDICT_COPY_KEY[verdict]);
+    }
+
+    /**
      * Reveals the button for a verdict. Refuses without the verdict's copy —
      * a revealed button must never show Google's original wording.
-     * @param {'install' | 'remove' | 'unsupported'} verdict
+     * @param {'install' | 'remove' | 'unsupported' | 'pending'} verdict
      */
     _reveal(verdict) {
-        const text = this._copy(VERDICT_COPY_KEY[verdict]);
+        const text = this._verdictText(verdict);
         if (typeof text !== 'string') return;
         this._verdict = verdict;
         this._applyVerdict();
@@ -267,6 +420,9 @@ export class ChromeWebstorePatching extends ContentFeature {
      * to be patched for the first time.
      */
     _scheduleApply() {
+        // Page-world History calls cannot be intercepted from an isolated world.
+        // Catch navigation before reapplying a verdict to newly rendered buttons.
+        if (this._macOS?.checkForURLChange()) return;
         if (this._applyScheduled !== undefined) return;
         this._applyScheduled = requestAnimationFrame(() => {
             this._applyScheduled = undefined;
@@ -281,7 +437,7 @@ export class ChromeWebstorePatching extends ContentFeature {
     _applyVerdict() {
         const verdict = this._verdict;
         if (!verdict) return;
-        const text = this._copy(VERDICT_COPY_KEY[verdict]);
+        const text = this._verdictText(verdict);
         if (typeof text !== 'string') return;
 
         // ALL matches: on SPA navigations the store mounts a fresh button while
@@ -322,7 +478,7 @@ export class ChromeWebstorePatching extends ContentFeature {
 
     /**
      * @param {HTMLElement} button
-     * @param {'install' | 'remove' | 'unsupported'} verdict
+     * @param {'install' | 'remove' | 'unsupported' | 'pending'} verdict
      * @param {string} text
      */
     _applyVerdictToButton(button, verdict, text) {
@@ -346,16 +502,30 @@ export class ChromeWebstorePatching extends ContentFeature {
         if (icon.dataset.ddgVerdict !== verdict) {
             icon.dataset.ddgVerdict = verdict;
             icon.style.setProperty('background', ICON_BACKGROUNDS[verdict], 'important');
+            // A transform animation runs in Core Animation, so it keeps turning while native sheets load
+            if (verdict === 'pending') icon.animate(SPINNER_KEYFRAMES, SPINNER_TIMING);
+            else if (this._macOS) icon.getAnimations().forEach((animation) => animation.cancel());
         }
         const iconFilter = isUnsupported ? 'grayscale(1) opacity(0.55)' : 'none';
         if (icon.style.getPropertyValue('filter') !== iconFilter) {
             icon.style.setProperty('filter', iconFilter, 'important');
         }
-        let label = button.querySelector('span[data-ddg-webstore-label]');
+        /** @type {HTMLElement | null} */
+        let label = /** @type {HTMLElement | null} */ (button.querySelector('span[data-ddg-webstore-label]'));
         if (!label) {
             label = document.createElement('span');
             label.setAttribute('data-ddg-webstore-label', '');
             button.appendChild(label);
+        }
+        // Marker guard, like the icon: font-family doesn't serialize back verbatim
+        const macLabel = Boolean(this._macOS) && (verdict === 'install' || verdict === 'remove');
+        if (macLabel !== (label.dataset.ddgMacosLabel === 'true')) {
+            for (const [prop, value] of Object.entries(MACOS_LABEL_STYLES)) {
+                if (macLabel) label.style.setProperty(prop, value, 'important');
+                else label.style.removeProperty(prop);
+            }
+            if (macLabel) label.dataset.ddgMacosLabel = 'true';
+            else delete label.dataset.ddgMacosLabel;
         }
         // Equality guard stops our own write from re-triggering the observer forever
         if (label.textContent !== text) {
@@ -367,18 +537,26 @@ export class ChromeWebstorePatching extends ContentFeature {
                 child.style.setProperty('display', 'none', 'important');
             }
         }
-        if (button.getAttribute('aria-label') !== text) {
+        this._syncOverrideLink(button, isUnsupported);
+        // Pending keeps the previous name, so VoiceOver reads e.g. "Add to DuckDuckGo, busy"
+        if (verdict !== 'pending' && button.getAttribute('aria-label') !== text) {
             button.setAttribute('aria-label', text);
         }
+        if (verdict === 'pending') {
+            if (button.getAttribute('aria-busy') !== 'true') button.setAttribute('aria-busy', 'true');
+        } else if (this._macOS && button.hasAttribute('aria-busy')) {
+            button.removeAttribute('aria-busy');
+        }
 
-        const styles = PILL_STYLES[verdict];
+        const styles =
+            verdict === 'pending' && this._pendingWidth ? { ...PILL_STYLES.pending, width: this._pendingWidth } : PILL_STYLES[verdict];
         for (const [prop, value] of Object.entries(styles)) {
             if (button.style.getPropertyValue(prop) !== value) {
                 button.style.setProperty(prop, value, 'important');
             }
         }
 
-        // Curated verdicts actively CLEAR disabled — the store disables these
+        // Catalog verdicts actively CLEAR disabled — the store disables these
         // buttons on non-Chrome browsers and re-applies it on re-renders
         if (button instanceof HTMLButtonElement && button.disabled !== isUnsupported) {
             button.disabled = isUnsupported;
@@ -398,14 +576,54 @@ export class ChromeWebstorePatching extends ContentFeature {
     }
 
     /**
-     * Curated extension IDs for this build's config. The state check comes from
-     * ConfigFeature so 'internal' and 'preview' resolve against this build's
-     * platform flags rather than being matched as bare strings, and internal
-     * builds read the wider `catalogInternal` list.
-     * @returns {string[]}
+     * Extension IDs the store may offer, asked of native on every
+     * evaluation. Native owns the catalog so the store offers exactly what browser
+     * Settings does: rollout, minimum versions and native-only gates never reach
+     * C-S-S. Not cached, because remote config can change it at any time. Never
+     * rejects: an error, a malformed reply or a timeout all return null ("catalog
+     * unknown").
+     * @returns {Promise<string[] | null>}
      */
-    getCuratedExtensionIds() {
-        return readCuratedCatalog(this.bundledConfig, (state) => this._isStateEnabled(state), this.platform?.internal === true);
+    async getCatalogExtensionIds() {
+        /** @type {ReturnType<typeof setTimeout> | undefined} */
+        let timer;
+        /** @type {Promise<null>} */
+        const timeout = new Promise((resolve) => {
+            timer = setTimeout(() => resolve(null), CATALOG_REQUEST_TIMEOUT_MS);
+        });
+        try {
+            const response = await Promise.race([this._catalogRequest(), timeout]);
+            const extensionIds = parseCatalogExtensionIds(response);
+            if (extensionIds === null) this.log.warn('getCatalogExtensionIds: timed out or malformed reply', response);
+            return extensionIds;
+        } catch (error) {
+            // Native's JSON-RPC-style error reply arrives as a rejection
+            this.log.warn('getCatalogExtensionIds failed', error);
+            return null;
+        } finally {
+            clearTimeout(timer);
+        }
+    }
+
+    /**
+     * The catalog request native hasn't answered yet, or a new one. Messaging
+     * can't cancel a request, and on Windows each unanswered one keeps a reply
+     * listener for the life of the page. Sharing it caps that at one listener,
+     * however many evaluations time out.
+     * @returns {Promise<unknown>}
+     */
+    _catalogRequest() {
+        if (!this._pendingCatalogRequest) {
+            const request = this.request('getCatalogExtensionIds', {});
+            const settled = () => {
+                this._pendingCatalogRequest = undefined;
+            };
+            // Handles the rejection too, so a late error reply is never unhandled
+            // eslint-disable-next-line promise/prefer-await-to-then
+            request.then(settled, settled);
+            this._pendingCatalogRequest = request;
+        }
+        return this._pendingCatalogRequest;
     }
 
     /**
@@ -415,6 +633,7 @@ export class ChromeWebstorePatching extends ContentFeature {
      * @returns {Promise<string | null>}
      */
     getExtensionStatus(extensionId) {
+        if (this._macOS) return this._macOS.getExtensionStatus(extensionId);
         return new Promise((resolve) => {
             const chromeGlobal = globalThis.chrome;
             const webstorePrivate = getWebstorePrivate(chromeGlobal);

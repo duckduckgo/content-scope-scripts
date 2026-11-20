@@ -1,0 +1,8 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Launcher Promo Shown",
+  "description": "Sent the first time per page load that the launcher promo drawer is revealed on composer focus.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {}
+}

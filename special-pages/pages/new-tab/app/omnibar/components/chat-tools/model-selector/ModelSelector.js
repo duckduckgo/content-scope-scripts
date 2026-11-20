@@ -8,16 +8,29 @@ import { getUpsellTelemetryType } from '../../../utils.js';
 import styles from './ModelSelector.module.css';
 
 /**
+ * Renders the selected model and opens the model picker.
+ *
  * @param {object} props
  * @param {import('./useModelSelector').ModelSelectorState} props.selector
  * @param {import('../../../../../types/new-tab.js').AIModelItem|null} props.selectedModel
  * @param {import('../../../../../types/new-tab.js').AIModelSections} props.aiModelSections
  * @param {(type?: 'subscribe' | 'upgrade') => void} props.onUpsell
  * @param {boolean} [props.disabled] - When true, the trigger is inert (hard usage limit).
+ * @param {boolean} [props.readOnly] - When true, show the selected model without picker affordances.
  * @param {string} props.ariaLabel
  * @param {boolean} props.isEligibleForFreeTrial - When false, a 'subscribe' upsell reports 'upgrade' telemetry instead of 'tryForFree'. Does not affect rendered copy, which comes entirely from the payload.
+ * @returns {import('preact').VNode}
  */
-export function ModelSelector({ selector, selectedModel, aiModelSections, onUpsell, disabled = false, ariaLabel, isEligibleForFreeTrial }) {
+export function ModelSelector({
+    selector,
+    selectedModel,
+    aiModelSections,
+    onUpsell,
+    disabled = false,
+    readOnly = false,
+    ariaLabel,
+    isEligibleForFreeTrial,
+}) {
     const { modelButtonRef, modelDropdownOpen, dropdownPos, dropdownRef, toggleDropdown, closeDropdown, selectModel } = selector;
     const ntp = useMessaging();
     const shownRef = useRef(false);
@@ -39,8 +52,7 @@ export function ModelSelector({ selector, selectedModel, aiModelSections, onUpse
         onUpsell(type);
     };
 
-    // Impression telemetry: fire once each time the dropdown opens. Upsell
-    // telemetry is emitted only when the user activates a gated row.
+    // Historical upsell "_shown" events measure activation separately from picker impressions.
     useEffect(() => {
         if (!modelDropdownOpen) {
             shownRef.current = false;
@@ -57,22 +69,23 @@ export function ModelSelector({ selector, selectedModel, aiModelSections, onUpse
             <button
                 ref={modelButtonRef}
                 type="button"
-                tabIndex={disabled ? -1 : 0}
-                class={cn(styles.modelButton, modelDropdownOpen && styles.modelButtonOpen)}
+                tabIndex={disabled || readOnly ? -1 : 0}
+                class={cn(styles.modelButton, readOnly && styles.modelButtonReadOnly, modelDropdownOpen && styles.modelButtonOpen)}
                 aria-label={ariaLabel}
-                aria-haspopup="listbox"
-                aria-expanded={modelDropdownOpen}
+                aria-disabled={(!disabled && readOnly) || undefined}
+                aria-haspopup={readOnly ? undefined : 'listbox'}
+                aria-expanded={readOnly ? undefined : modelDropdownOpen}
                 disabled={disabled}
                 onClick={(e) => {
                     e.stopPropagation();
-                    if (disabled) return;
+                    if (disabled || readOnly) return;
                     toggleDropdown();
                 }}
             >
                 <span class={styles.modelButtonLabel}>{selectedModel?.shortName ?? ariaLabel}</span>
-                <ChevronSmall />
+                {!readOnly && <ChevronSmall />}
             </button>
-            {modelDropdownOpen && dropdownPos && (
+            {!readOnly && modelDropdownOpen && dropdownPos && (
                 <ModelDropdown
                     dropdownRef={dropdownRef}
                     sections={aiModelSections}

@@ -212,6 +212,13 @@ export default class ContentFeature extends ConfigFeature {
     }
 
     /**
+     * @returns {string | null}
+     */
+    get contentScopeScriptsVersion() {
+        return this.#importConfig.contentScopeScriptsVersion ?? null;
+    }
+
+    /**
      * @returns {boolean}
      */
     get documentOriginIsTracker() {
@@ -406,10 +413,22 @@ export default class ContentFeature extends ConfigFeature {
         return this.messaging.subscribe(name, cb);
     }
 
+    /**
+     * Load the feature. A throw from `load` is caught, so the features after this one still load.
+     *
+     * @returns {boolean} whether `load` returned without throwing
+     */
     callLoad() {
         const mark = this.monitor.mark(this.name + 'CallLoad');
-        this.load(this.args);
-        mark.end();
+        try {
+            this.load(this.args);
+            return true;
+        } catch (error) {
+            this.log.error('load failed:', error);
+            return false;
+        } finally {
+            mark.end();
+        }
     }
 
     measure() {
@@ -502,6 +521,7 @@ export default class ContentFeature extends ConfigFeature {
 
     /**
      * Wrap a method descriptor. Only for function properties. For data properties, use wrapProperty(). For constructors, use wrapConstructor().
+     * The replacement keeps the original `toString`, `name`, and `length`.
      * @param {object} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.Bluetooth.prototype)
      * @param {string} propertyName
      * @param {(originalFn: any, ...args: any[]) => any } wrapperFn - wrapper function receives the original function as the first argument

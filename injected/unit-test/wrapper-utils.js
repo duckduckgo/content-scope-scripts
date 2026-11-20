@@ -359,6 +359,38 @@ describe('wrapMethod', () => {
         expect(obj.greet('World')).toBe('Hello, World!');
     });
 
+    it('preserves method identity across stacked wrapMethod layers', () => {
+        const obj = {
+            greet(name, punctuation) {
+                return `Hello, ${name}${punctuation}`;
+            },
+        };
+        const nativeName = obj.greet.name;
+        const nativeLength = obj.greet.length;
+        const nativeToString = obj.greet.toString();
+
+        wrapMethod(obj, 'greet', (origFn, ...args) => origFn.call(obj, ...args), Object.defineProperty);
+        wrapMethod(obj, 'greet', (origFn, ...args) => origFn.call(obj, ...args), Object.defineProperty);
+
+        expect(obj.greet('World', '!')).toBe('Hello, World!');
+        expect(obj.greet.name).toBe(nativeName);
+        expect(obj.greet.length).toBe(nativeLength);
+        expect(obj.greet.toString()).toBe(nativeToString);
+    });
+
+    it('preserves name and length for every wrapMethod caller', () => {
+        const obj = {
+            greet(name) {
+                return `Hello, ${name}`;
+            },
+        };
+
+        wrapMethod(obj, 'greet', (origFn, ...args) => origFn.call(obj, ...args), Object.defineProperty);
+
+        expect(obj.greet.name).toBe('greet');
+        expect(obj.greet.length).toBe(1);
+    });
+
     it('throws when property is not a function', () => {
         const obj = { notAMethod: 42 };
         expect(() => wrapMethod(obj, 'notAMethod', () => {}, Object.defineProperty)).toThrowError(/does not look like a method/);

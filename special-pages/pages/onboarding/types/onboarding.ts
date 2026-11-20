@@ -10,7 +10,42 @@
  * Requests, Notifications and Subscriptions from the Onboarding feature
  */
 export interface OnboardingMessages {
-  notifications: TelemetryEventNotification;
+  notifications: SetOnboardingInstallOptionsNotification | SubmitQueryNotification | TelemetryEventNotification;
+}
+/**
+ * Generated from @see "../messages/setOnboardingInstallOptions.notify.json"
+ */
+export interface SetOnboardingInstallOptionsNotification {
+  method: "setOnboardingInstallOptions";
+  params: OnboardingInstallOptions;
+}
+export interface OnboardingInstallOptions {
+  sideloadExtensions?: boolean;
+  openAtStartup?: boolean;
+}
+/**
+ * Generated from @see "../messages/submitQuery.notify.json"
+ */
+export interface SubmitQueryNotification {
+  method: "submitQuery";
+  params: SubmitQuery;
+}
+/**
+ * Sent instead of dismissToAddressBar when the user submits a search or a Duck.ai prompt on the searchOrChat step. Native ends onboarding and opens the query in the Welcome tab.
+ */
+export interface SubmitQuery {
+  /**
+   * Whether to open the query as a search or send it to Duck.ai
+   */
+  mode: "search" | "duckAi";
+  /**
+   * The text to search for or send to Duck.ai, trimmed. A search's "Surprise me!" sends an image search, e.g. "!image baby ducklings"
+   */
+  query: string;
+  /**
+   * "suggestion" when the user picked a suggestion, including "Surprise me!"
+   */
+  source: "typed" | "suggestion";
 }
 /**
  * Generated from @see "../messages/telemetryEvent.notify.json"

@@ -1,4 +1,4 @@
-import { safeCall } from '../../utils/safe-call';
+import { safeCall } from '../../utils/safe-call.js';
 
 /**
  * @param {Object} params

@@ -1,7 +1,6 @@
 import { Service } from '../service.js';
 import { OmnibarSuggestionsService } from './omnibar.suggestions.service.js';
 import { OmnibarAiChatsService } from './omnibar.ai-chats.service.js';
-
 /**
  * @typedef {import("../../types/new-tab.js").OmnibarConfig} OmnibarConfig
  * @typedef {import("../../types/new-tab.js").SuggestionsData} SuggestionsData
@@ -35,6 +34,7 @@ export class OmnibarService {
 
         this.suggestionsService = new OmnibarSuggestionsService(ntp);
         this.aiChatsService = new OmnibarAiChatsService(ntp);
+        this.launcherPromoShownSent = false;
     }
 
     name() {
@@ -225,11 +225,60 @@ export class OmnibarService {
     }
 
     /**
+     * Notify native to open the Duck.ai Privacy Policy and Terms of Service page in a new tab.
+     */
+    openPrivacyTerms() {
+        this.ntp.messaging.notify('omnibar_openPrivacyTerms', {});
+    }
+
+    /**
      * Notify native that the user dismissed the AI-mode usage limits drawer.
      * Native owns dismiss persistence and should push updated config.
      */
     dismissUsageLimits() {
         this.ntp.messaging.notify('omnibar_dismissUsageLimits', {});
+    }
+
+    /**
+     * Notify native that the user dismissed the Create Image model-switch notice.
+     * Native owns notice lifecycle and should push updated config.
+     */
+    dismissCreateImageModelSwitch() {
+        this.ntp.messaging.notify('omnibar_dismissCreateImageModelSwitch', {});
+    }
+
+    /** Notify native the first time per page load that the launcher promo is visible. */
+    launcherPromoShown() {
+        if (this.launcherPromoShownSent) return;
+        this.launcherPromoShownSent = true;
+        this.ntp.messaging.notify('omnibar_launcherPromoShown', {});
+    }
+
+    selectLauncherPromoCta() {
+        this.ntp.messaging.notify('omnibar_selectLauncherPromoCta', {});
+    }
+
+    dismissLauncherPromo() {
+        this.ntp.messaging.notify('omnibar_dismissLauncherPromo', {});
+    }
+
+    /** @param {'image' | 'file'} kind */
+    attachmentPrivacyDisclaimerShown(kind) {
+        this.ntp.messaging.notify('omnibar_attachmentPrivacyDisclaimerShown', { kind });
+    }
+
+    /** @param {'image' | 'file'} kind */
+    openAttachmentPrivacyLearnMore(kind) {
+        this.ntp.messaging.notify('omnibar_openAttachmentPrivacyLearnMore', { kind });
+    }
+
+    /**
+     * Notify native when the updated Create Image mode changes.
+     * Native owns model selection, persistence, and localized notice copy.
+     * @param {boolean} active
+     */
+    setImageGenerationActive(active) {
+        this.ntp.messaging.notify('omnibar_setImageGenerationActive', { active });
     }
 
     /**
@@ -318,5 +367,15 @@ export class OmnibarService {
      */
     confirmDeleteAiChat(chatId, title) {
         return this.ntp.messaging.request('omnibar_confirmDeleteAiChat', { chatId, title });
+    }
+
+    /**
+     * Asks native to capture a screenshot. Resolves once the capture is taken, fails or is
+     * cancelled, which can take arbitrarily long.
+     * @param {import('../../types/new-tab.js').ScreenshotMode} mode
+     * @returns {Promise<import('../../types/new-tab.js').CaptureScreenshotResponse>} `image`, `error`, or neither when cancelled
+     */
+    captureScreenshot(mode) {
+        return this.ntp.messaging.request('omnibar_captureScreenshot', { mode });
     }
 }

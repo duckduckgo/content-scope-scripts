@@ -572,3 +572,49 @@ describe('TrackerProtection feature args.trackerData', () => {
         expect(feature.args?.trackerData?.trackers).toEqual({});
     });
 });
+
+describe('TrackerProtection surrogate injection gate', () => {
+    let TrackerProtection;
+
+    beforeAll(async () => {
+        const module = await import('../src/features/tracker-protection.js');
+        TrackerProtection = module.TrackerProtection;
+    });
+
+    /**
+     * @param {object} options
+     * @param {string} [options.setting] - trackerProtection.settings.surrogateInjection
+     * @param {boolean} [options.disableScriptSurrogateInjection] - the native-provided arg
+     */
+    function isSurrogateInjectionEnabled({ setting, disableScriptSurrogateInjection } = {}) {
+        const args = {
+            site: { domain: 'example.com', url: 'https://example.com' },
+            platform: { name: 'macos' },
+            featureSettings: {
+                trackerProtection: setting ? { surrogateInjection: setting } : {},
+            },
+            ...(disableScriptSurrogateInjection !== undefined && { disableScriptSurrogateInjection }),
+        };
+        return new TrackerProtection('trackerProtection', {}, {}, args).isSurrogateInjectionEnabled();
+    }
+
+    it('is enabled by default', () => {
+        expect(isSurrogateInjectionEnabled()).toBeTrue();
+    });
+
+    it('is disabled when the config setting is disabled', () => {
+        expect(isSurrogateInjectionEnabled({ setting: 'disabled' })).toBeFalse();
+    });
+
+    it('is disabled when native passes disableScriptSurrogateInjection: true', () => {
+        expect(isSurrogateInjectionEnabled({ disableScriptSurrogateInjection: true })).toBeFalse();
+    });
+
+    it('stays disabled by config when native passes disableScriptSurrogateInjection: false', () => {
+        expect(isSurrogateInjectionEnabled({ setting: 'disabled', disableScriptSurrogateInjection: false })).toBeFalse();
+    });
+
+    it('is enabled when the setting is enabled and native passes disableScriptSurrogateInjection: false', () => {
+        expect(isSurrogateInjectionEnabled({ setting: 'enabled', disableScriptSurrogateInjection: false })).toBeTrue();
+    });
+});

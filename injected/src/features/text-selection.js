@@ -1,8 +1,11 @@
 import ContentFeature from '../content-feature.js';
-import { objectDefineProperty } from '../captured-globals.js';
+import { objectDefineProperty, ReflectApply } from '../captured-globals.js';
 import { isBeingFramed } from '../utils.js';
 
 export default class TextSelection extends ContentFeature {
+    // Runs in the page world, so the selection readers are captured at load, before page scripts can replace them.
+    _getSelection = window.getSelection.bind(window);
+    _selectionToString = window.Selection.prototype.toString;
     /** @type {boolean | null} */
     _lastHasSelection = null;
     /** @type {number | null} */
@@ -34,8 +37,8 @@ export default class TextSelection extends ContentFeature {
     }
 
     _selectionText() {
-        const selection = window.getSelection();
-        return selection ? String(selection) : '';
+        const selection = this._getSelection();
+        return selection ? ReflectApply(this._selectionToString, selection, []) : '';
     }
 
     /** @param {Event} event */

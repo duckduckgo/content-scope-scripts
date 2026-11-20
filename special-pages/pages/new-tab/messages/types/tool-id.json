@@ -3,5 +3,5 @@
   "title": "ToolId",
   "description": "Identifier for an AI chat tool.",
   "type": "string",
-  "enum": ["WebSearch"]
+  "enum": ["WebSearch", "GenerateImage"]
 }

@@ -6,19 +6,12 @@
     padding: var(--sp-3) var(--sp-3) 0;
 }
 
-.thumbnail {
-    border-radius: 8px;
-    box-shadow:
-        0 2px 6px rgba(0, 0, 0, 0.1),
-        0 8px 16px rgba(0, 0, 0, 0.08);
+/* The full-bleed preview inside a chip; the crop to the card's box happens here. */
+.chipPreview {
     display: block;
-    height: var(--sp-14);
+    height: 100%;
     object-fit: cover;
-    width: var(--sp-14);
-}
-
-.thumbnailWrapper {
-    position: relative;
+    width: 100%;
 }
 
 .imageWarning {

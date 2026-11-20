@@ -2,6 +2,7 @@ import { CaptchaFactory } from '../factory';
 import { ReCaptchaProvider } from './recaptcha';
 import { ImageProvider } from './image';
 import { CloudFlareTurnstileProvider } from './cloudflare-turnstile';
+import { PromptProvider } from './prompt';
 
 const captchaFactory = new CaptchaFactory();
 
@@ -23,5 +24,6 @@ captchaFactory.registerProvider(
 
 captchaFactory.registerProvider(new CloudFlareTurnstileProvider());
 captchaFactory.registerProvider(new ImageProvider(), { aliases: ['red-circle', 'basic-math'] });
+captchaFactory.registerProvider(new PromptProvider());
 
 export { captchaFactory };

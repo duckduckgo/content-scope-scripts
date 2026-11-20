@@ -1,0 +1,8 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "GetCatalogExtensionIdsParams",
+  "description": "Asks native for the extension catalog the Chrome Web Store may offer. Takes no parameters.",
+  "additionalProperties": false,
+  "properties": {}
+}

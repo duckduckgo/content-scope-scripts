@@ -72,6 +72,7 @@ jobs:
                   ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
                   PR_NUMBER: ${{ github.event.pull_request.number }}
                   PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+                  CURSOR_BUGBOT_ENABLED: ${{ vars.CURSOR_BUGBOT_ENABLED }}
               run: node .github/scripts/dependabot-anthropic-gate.mjs classify-threads
 
             - name: Ask Anthropic to assess Cursor results
@@ -82,6 +83,7 @@ jobs:
                   ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
                   PR_NUMBER: ${{ github.event.pull_request.number }}
                   PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+                  CURSOR_BUGBOT_ENABLED: ${{ vars.CURSOR_BUGBOT_ENABLED }}
               run: node .github/scripts/dependabot-anthropic-gate.mjs merge-gate
 
             # Any human-deferral step (e.g. #2756) must also require

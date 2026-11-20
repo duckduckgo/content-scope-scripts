@@ -296,6 +296,14 @@
    - `true`
    - `false`
 
+### Enable Updated Create Image
+ - **Purpose**: Enables the native-driven model switch and notice when Create Image is selected from an unsupported model
+ - **Parameter**: `omnibar.enableUpdatedCreateImage`
+ - **Example**: `?omnibar.mode=ai&omnibar.enableAiChatTools=true&omnibar.enableImageGeneration=true&omnibar.enableUpdatedCreateImage=true&omnibar.selectedModelId=openai_gpt-oss-120b`
+ - **Options**:
+   - `true`
+   - `false`
+
 ### Enable Web Search
  - **Purpose**: Shows the "Web Search" tool in the AI chat toolbar's tools menu
  - **Parameter**: `omnibar.enableWebSearch`
@@ -325,6 +333,14 @@
    - `approaching` - Warning ring + switch-to-cheaper CTA with alternatives menu
    - `reached` - Alert + subscribe CTA; `blocksPrompt` freezes the composer
    - `reached-switch` - Alert + switch-to-free CTA (no menu header)
+
+### Requires AI Terms Acceptance
+ - **Purpose**: Simulates a user who hasn't accepted Duck.ai's terms. The Duck.ai tab shows the terms disclaimer and an "Ask" (or "Create") button, and the next chat submission sends `aiTermsAccepted: true`. Default is `false`.
+ - **Parameter**: `omnibar.requiresAiTermsAcceptance`
+ - **Example**: `?omnibar.mode=ai&omnibar.requiresAiTermsAcceptance=true`
+ - **Options**:
+   - `true`
+   - `false`
 
 ### Subscription (simulate subscribed user)
  - **Purpose**: Flips `isAvailable: true` on every AI model in the mock, unlocking the "Subscriber Exclusive" section. Lets tests pick subscription-tier models (e.g. Opus 4.6, GPT-5.2) as `selectedModelId`.
@@ -407,6 +423,7 @@
  - Image generation only: `?omnibar.mode=ai&omnibar.enableAiChatTools=true&omnibar.enableImageGeneration=true`
  - Web search only: `?omnibar.mode=ai&omnibar.enableAiChatTools=true&omnibar.enableWebSearch=true`
  - Usage limits (approaching): `?omnibar.mode=ai&omnibar.usageLimits=approaching`
+ - Terms disclaimer (not accepted): `?omnibar.mode=ai&omnibar.requiresAiTermsAcceptance=true`
 
  ### For Design Reviews
  - Component review: `?display=components`
