@@ -1,4 +1,4 @@
-import { html, trustedUnsafe, createPolicy } from '../src/dom-utils.js';
+import { html, trustedUnsafe, createPolicy, escapeXML } from '../src/dom-utils.js';
 
 describe('dom-utils.js - escapedTemplate', () => {
     const tests = [
@@ -36,7 +36,11 @@ describe('dom-utils.js - escapedTemplate', () => {
 
     it('should escape special characters', () => {
         const result = html`<p>${'<script>alert("xss")</script>'}</p>`.toString();
-        expect(result).toBe('<p>&lt;script&gt;alert(&quot;xss&quot;)&lt;&#x2F;script&gt;</p>');
+        expect(result).toBe('<p>&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;</p>');
+    });
+
+    it('escapes everything that can end text or a quoted attribute, and leaves / alone', () => {
+        expect(escapeXML(`a/b & <c> "d" 'e'`)).toBe('a/b &amp; &lt;c&gt; &quot;d&quot; &apos;e&apos;');
     });
 
     it('should throw for unknown object types', () => {

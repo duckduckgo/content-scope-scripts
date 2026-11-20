@@ -175,6 +175,7 @@ jobs:
                     # apple runs in Chromium (Playwright default) - no device preset is set in playwright.config.js
                     - project: apple
                     - project: ios
+                    - project: ios-main-world
                     - project: android
                     - project: android-autofill-import
                     - project: chrome-mv3

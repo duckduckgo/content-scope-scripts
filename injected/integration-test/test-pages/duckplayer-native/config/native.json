@@ -12,7 +12,7 @@
               "signInRequiredError": "[href*=\"//support.google.com/youtube/answer/3037019\"]",
               "videoElement": "#player video, video",
               "videoElementContainer": "#player .html5-video-player",
-              "youtubeError": ".ytp-error",
+              "youtubeError": ".ytp-error, yt-player-interstitial-renderer",
               "adShowing": ".html5-video-player.ad-showing"
             },
             "domains": []
