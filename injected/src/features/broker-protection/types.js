@@ -23,6 +23,15 @@
  */
 
 /**
+ * @typedef {object} UserAssistAction
+ * @property {string} id
+ * @property {"userAssist"} actionType
+ * @property {string} [highlight]
+ * @property {number} [handOffAfterMs]
+ * @property {Expectation[]} completeWhen
+ */
+
+/**
  * @template T
  * @typedef {PirError | PirSuccess<T>} PirResponse
  */
@@ -140,7 +149,7 @@ export class ErrorResponse {
 /**
  * @typedef {object} SuccessResponseInterface
  * @property {PirAction['id']} actionID
- * @property {PirAction['actionType']} actionType
+ * @property {PirAction['actionType'] | UserAssistAction['actionType']} actionType
  * @property {any} response
  * @property {ExtractAction[]} [next]
  * @property {Record<string, any>} [meta] - optional meta data
