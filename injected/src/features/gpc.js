@@ -2,6 +2,8 @@ import ContentFeature from '../content-feature';
 
 // Set Global Privacy Control property on DOM
 export default class GlobalPrivacyControl extends ContentFeature {
+    initImmediately = true;
+
     /**
      * @param {{globalPrivacyControlValue?: boolean}} args
      */

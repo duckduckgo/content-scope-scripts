@@ -113,6 +113,8 @@ function cleanShareData(data) {
 }
 
 export class WebCompat extends ContentFeature {
+    initImmediately = true;
+
     /** @type {Promise<{failure?: {name: string, message: string}}> | null} */
     #activeShareRequest = null;
 

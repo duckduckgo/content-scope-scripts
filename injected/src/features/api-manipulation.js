@@ -15,6 +15,8 @@ import { mergePropertyDescriptors, wrapToString } from '../wrapper-utils.js';
  * @internal
  */
 export default class ApiManipulation extends ContentFeature {
+    initImmediately = true;
+
     listenForUrlChanges = true;
 
     init() {

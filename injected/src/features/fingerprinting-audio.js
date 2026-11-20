@@ -3,6 +3,8 @@ import { getDataKeySync } from '../crypto';
 import ContentFeature from '../content-feature';
 
 export default class FingerprintingAudio extends ContentFeature {
+    initImmediately = true;
+
     init(args) {
         const { sessionKey, site } = args;
         const domainKey = site.domain;

@@ -17,6 +17,8 @@ import { DDGReflect, stripVersion } from '../utils';
  * @internal
  */
 export default class HarmfulApis extends ContentFeature {
+    initImmediately = true;
+
     init() {
         // @ts-expect-error linting is not yet seet up for worker context
         /** @type Navigator | WorkerNavigator */
