@@ -19,6 +19,7 @@ const backgroundForStep = {
     duckPlayerSingle: 'background-02',
     customize: 'background-03',
     addressBarMode: 'background-04',
+    searchOrChat: 'background-02',
 };
 
 /**

@@ -10,6 +10,10 @@
  * - Inject surrogates for blocked scripts (when surrogateInjectionEnabled)
  * - Emit surrogateInjected signal (when surrogateInjectionEnabled)
  *
+ * Surrogate injection is enabled unless the `surrogateInjection` setting is disabled, or native passes
+ * `disableScriptSurrogateInjection: true` in args (e.g. when a web extension serves surrogates instead).
+ * The arg is separate from the config setting: it only stops this script from injecting surrogates.
+ *
  * @module features/tracker-protection
  */
 
@@ -59,7 +63,7 @@ export class TrackerProtection extends ContentFeature {
         /** @type {MutationObserver | null} */
         this._observer = null;
         /** @type {boolean} */
-        this._surrogateInjectionEnabled = this.getFeatureSettingEnabled('surrogateInjection', 'enabled');
+        this._surrogateInjectionEnabled = this.isSurrogateInjectionEnabled();
 
         // Get top-level URL for tracker matching
         this._topLevelUrl = getTabURL();
@@ -107,6 +111,14 @@ export class TrackerProtection extends ContentFeature {
         );
 
         this._setupInterception();
+    }
+
+    /**
+     * Whether to inject surrogates: the config setting allows it and native hasn't turned it off.
+     * @returns {boolean}
+     */
+    isSurrogateInjectionEnabled() {
+        return this.getFeatureSettingEnabled('surrogateInjection', 'enabled') && this.args?.disableScriptSurrogateInjection !== true;
     }
 
     /**

@@ -20,12 +20,22 @@ import { getModelIcon } from './Icons';
  * @returns {string | null}
  */
 function getRowBadgeLabel(model, t) {
-    // Tier is named by the gated section's header, so only the internal-build marker
-    // still earns a per-row badge.
-    return model.accessTier === 'internal' ? t('omnibar_modelBadgeInternal') : null;
+    if (model.isAvailable && model.accessTier !== 'internal') return null;
+    switch (model.accessTier) {
+        case 'plus':
+            return t('omnibar_modelBadgePlus');
+        case 'pro':
+            return t('omnibar_modelBadgePro');
+        case 'internal':
+            return t('omnibar_modelBadgeInternal');
+        default:
+            return null;
+    }
 }
 
 /**
+ * Renders model selection and section actions with keyboard navigation.
+ *
  * @param {object} props
  * @param {import('../../../../../types/new-tab.js').AIModelSections} props.sections
  * @param {string} [props.selectedModelId]
@@ -36,14 +46,12 @@ function getRowBadgeLabel(model, t) {
  * @param {string} [props.className] - Extra class(es) for the dropdown root.
  * @param {string} props.ariaLabel
  * @param {import('preact').RefObject<HTMLUListElement>} [props.dropdownRef]
+ * @returns {import('preact').VNode}
  */
 export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose, onSelect, onUpsell, className, ariaLabel, dropdownRef }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const allModels = sections.flatMap((section) => section.items);
     const optionIndexById = new Map(allModels.map((model, index) => [model.id, index]));
-    // Upsell behavior belongs to each gated model, independent of how models
-    // are grouped into sections. A gated model with no `upsell` has nowhere to
-    // send the user, so that row shows but stays inert.
     const upsellByModelId = new Map(
         allModels.filter((model) => !model.isAvailable && model.upsell).map((model) => [model.id, model.upsell]),
     );
@@ -112,7 +120,8 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
 
     useEffect(() => {
         const frameId = window.requestAnimationFrame(() => {
-            dropdownRef?.current?.focus({ preventScroll: true });
+            const dropdown = dropdownRef?.current;
+            if (dropdown && !dropdown.contains(document.activeElement)) dropdown.focus({ preventScroll: true });
         });
 
         return () => window.cancelAnimationFrame(frameId);
@@ -125,6 +134,7 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
 
     /** @type {(e: KeyboardEvent) => void} */
     const handleKeyDown = (e) => {
+        if (e.target !== e.currentTarget && e.key !== 'Escape') return;
         switch (e.key) {
             case 'ArrowDown':
                 e.preventDefault();
@@ -161,9 +171,6 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
                 e.preventDefault();
                 onClose({ restoreFocus: true });
                 break;
-            case 'Tab':
-                window.setTimeout(() => onClose({ restoreFocus: false }), 0);
-                break;
         }
     };
 
@@ -177,19 +184,35 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
             aria-activedescendant={activeIndex >= 0 ? getOptionId(activeIndex) : undefined}
             style={{ right: dropdownPos.right, left: dropdownPos.left, top: dropdownPos.top }}
             onKeyDown={handleKeyDown}
+            onFocus={(event) => {
+                if (event.target !== event.currentTarget) clearActiveIndex();
+            }}
+            onBlur={(event) => {
+                if (!(event.relatedTarget instanceof Node) || !event.currentTarget.contains(event.relatedTarget)) {
+                    onClose({ restoreFocus: false });
+                }
+            }}
             onMouseLeave={clearActiveIndex}
         >
             {sections.map((section, sectionIndex) => {
+                const sectionCta = section.cta;
                 // A section containing gated models always needs the divider separating
                 // it from the section above, even when the client sends no header text.
                 // Never show it above the very first section.
-                const needsDivider = sectionIndex > 0 && (Boolean(section.header) || hasGatedModelsAt[sectionIndex]);
+                const needsDivider =
+                    sectionIndex > 0 && (Boolean(section.header) || Boolean(section.cta) || hasGatedModelsAt[sectionIndex]);
                 const gatedSectionDescriptionId = section.header ? `model-gated-section-${sectionIndex}` : undefined;
                 return (
                     <Fragment key={sectionIndex}>
                         {needsDivider && <DropdownSeparator />}
-                        {section.header && (
-                            <DropdownSectionHeader descriptionId={gatedSectionDescriptionId}>{section.header}</DropdownSectionHeader>
+                        {(section.header || section.cta) && (
+                            <DropdownSectionHeader
+                                descriptionId={gatedSectionDescriptionId}
+                                actionLabel={section.cta?.label}
+                                onAction={sectionCta ? () => activateUpsell(sectionCta.upsell, true) : undefined}
+                            >
+                                {section.header}
+                            </DropdownSectionHeader>
                         )}
                         {section.items.map((model) => {
                             const Icon = getModelIcon(model.id);

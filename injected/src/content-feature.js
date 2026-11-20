@@ -212,6 +212,13 @@ export default class ContentFeature extends ConfigFeature {
     }
 
     /**
+     * @returns {string | null}
+     */
+    get contentScopeScriptsVersion() {
+        return this.#importConfig.contentScopeScriptsVersion ?? null;
+    }
+
+    /**
      * @returns {boolean}
      */
     get documentOriginIsTracker() {

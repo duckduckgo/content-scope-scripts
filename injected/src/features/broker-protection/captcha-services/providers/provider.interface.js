@@ -1,6 +1,24 @@
 /**
+ * @import { PirAction, PirError, PirResponse, ProfileData } from '../../types';
+ */
+
+/**
+ * Everything a provider may need to build its site key without the page.
+ * @typedef {{ action: PirAction, userData: ProfileData|null, root: Document }} SiteKeyContext
+ * @typedef {{ siteKey: string, type: string }} SiteKeyInfo
+ */
+
+/**
+ * Opt-in capability for providers whose site key isn't read from a DOM element. When a provider
+ * implements this, `getCaptchaInfo` calls it instead of resolving a container and calling
+ * `getCaptchaIdentifier`; the returned `type` is reported to dbp-api as-is.
+ *
+ * @typedef {object} SiteKeyProvider
+ * @property {(context: SiteKeyContext) => Promise<SiteKeyInfo|PirError>} getSiteKey
+ */
+
+/**
  * Base interface for captcha providers
- * @import {PirError, PirResponse} from '../../types';
  * @interface
  * @abstract
  */
