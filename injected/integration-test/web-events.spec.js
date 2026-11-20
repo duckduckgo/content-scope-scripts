@@ -20,6 +20,30 @@ async function setupWithAutoRun(page, projectUse, configPath) {
 }
 
 /**
+ * Collect the details of every `webEventDebug` broadcast the page receives from now on.
+ * @param {import('@playwright/test').Page} page
+ */
+async function listenForDebugEvents(page) {
+    await page.evaluate(() => {
+        // @ts-expect-error - test-only page global
+        window.__webEventDebug = [];
+        window.addEventListener('webEventDebug', (event) => {
+            // @ts-expect-error - test-only page global
+            window.__webEventDebug.push(/** @type {CustomEvent} */ (event).detail);
+        });
+    });
+}
+
+/**
+ * @param {import('@playwright/test').Page} page
+ * @returns {Promise<unknown[]>}
+ */
+async function debugEventDetails(page) {
+    // @ts-expect-error - test-only page global
+    return await page.evaluate(() => window.__webEventDebug);
+}
+
+/**
  * @param {ResultsCollector} collector
  * @param {string} method
  */
@@ -101,5 +125,37 @@ test.describe('WebEvents message flow', () => {
                 'nativeData',
             );
         }
+    });
+
+    test('debug builds copy each webEvent to the page as a JSON-string CustomEvent', async ({ page }, testInfo) => {
+        const collector = await setupWithAutoRun(page, testInfo.project.use, CONFIG_ENABLED);
+        await listenForDebugEvents(page);
+
+        await page.clock.fastForward(100);
+
+        const webEventMessages = await getMessagesOfType(collector, 'webEvent');
+        expect(webEventMessages.length).toBeGreaterThanOrEqual(1);
+        const details = await debugEventDetails(page);
+        expect(details.length).toBe(webEventMessages.length);
+        for (const detail of details) {
+            // Primitives cross isolated-world boundaries; objects from an isolated world do not (Chromium)
+            expect(typeof detail).toBe('string');
+            expect(JSON.parse(/** @type {string} */ (detail))).toEqual({ type: 'adwall', data: {} });
+        }
+    });
+
+    test('without the debug flag no webEvent copy reaches the page', async ({ page }, testInfo) => {
+        const collector = ResultsCollector.create(page, testInfo.project.use);
+        collector.withMockResponse({ webDetectionAutoRun: null });
+        collector.withUserPreferences({ debug: false });
+        await page.clock.install();
+        await collector.load(FIRE_EVENT_PAGE, CONFIG_ENABLED);
+        await listenForDebugEvents(page);
+
+        await page.clock.fastForward(100);
+
+        const webEventMessages = await getMessagesOfType(collector, 'webEvent');
+        expect(webEventMessages.length).toBeGreaterThanOrEqual(1);
+        expect(await debugEventDetails(page)).toEqual([]);
     });
 });
