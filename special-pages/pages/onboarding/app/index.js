@@ -1,56 +1,20 @@
-import { OnboardingMessages } from './messages';
 import { render, h } from 'preact';
 import './shared/styles/global.css'; // global styles
 import { App } from './v4/App.js';
 import { SkipLink } from './shared/components/SkipLink.js';
 import { GlobalProvider } from './global';
 import { EnvironmentProvider, UpdateEnvironment } from '../../../shared/components/EnvironmentProvider';
-import { Environment } from '../../../shared/environment';
-import { createSpecialPageMessaging } from '../../../shared/create-special-page-messaging';
 import { Settings } from './settings';
 import { callWithRetry } from '../../../shared/call-with-retry';
 import { TranslationProvider } from '../../../shared/components/TranslationsProvider';
 import { SettingsProvider } from './shared/components/SettingsProvider';
 import enStrings from '../public/locales/en/onboarding.json';
-import { mockTransport } from '../src/mock-transport.js';
 
-const baseEnvironment = new Environment().withInjectName(document.documentElement.dataset.platform).withEnv(import.meta.env);
-
-// share this in the app, it's an instance of `OnboardingMessages` where all your native comms should be
-const messaging = createSpecialPageMessaging({
-    injectName: baseEnvironment.injectName,
-    env: baseEnvironment.env,
-    pageName: 'onboarding',
-    mockTransport: () => {
-        // only in integration environments
-        if (baseEnvironment.injectName !== 'integration') return null;
-        let mock = null;
-
-        mock = mockTransport();
-        return mock;
-    },
-});
-
-const onboarding = new OnboardingMessages(messaging, baseEnvironment.injectName);
-
-window.addEventListener('error', (event) => {
-    let message = 'unknown error';
-    if (event.error?.message) {
-        message = event.error.message;
-    } else if (event.error) {
-        message = String(event.error);
-    } else if (event.message) {
-        message = event.message;
-    }
-    onboarding.reportInitException({ message: `[uncaught] ${message}` });
-});
-
-window.addEventListener('unhandledrejection', (event) => {
-    const message = event.reason?.message || String(event.reason);
-    onboarding.reportInitException({ message: `[unhandledrejection] ${message}` });
-});
-
-async function init() {
+/**
+ * @param {import('../src/index.js').OnboardingPage} onboarding
+ * @param {import('../../../shared/environment').Environment} baseEnvironment
+ */
+export async function init(onboarding, baseEnvironment) {
     const result = await callWithRetry(() => onboarding.init());
     if ('error' in result) {
         throw new Error(result.error);
@@ -112,9 +76,3 @@ async function init() {
         );
     }
 }
-
-init().catch((e) => {
-    console.error(e);
-    const msg = typeof e?.message === 'string' ? e.message : 'unknown init error';
-    onboarding.reportInitException({ message: msg });
-});
