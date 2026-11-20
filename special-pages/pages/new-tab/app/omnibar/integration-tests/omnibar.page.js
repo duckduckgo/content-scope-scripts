@@ -51,6 +51,18 @@ export class OmnibarPage {
         return this.context().getByRole('button', { name: 'Start voice chat' });
     }
 
+    askButton() {
+        return this.context().getByRole('button', { name: 'Ask', exact: true });
+    }
+
+    createButton() {
+        return this.context().getByRole('button', { name: 'Create', exact: true });
+    }
+
+    termsLink() {
+        return this.noticeDrawer().getByRole('link', { name: 'Privacy Policy and Terms of Service' });
+    }
+
     tabList() {
         return this.context().getByRole('tablist');
     }
@@ -468,10 +480,11 @@ export class OmnibarPage {
      * @param {object} clipboard
      * @param {string} [clipboard.text]
      * @param {{ name: string, type: string, base64: string }[]} [clipboard.files]
+     * @param {import('@playwright/test').Locator} [input] - defaults to the chat input
      * @returns {Promise<{ defaultPrevented: boolean }>}
      */
-    async pasteIntoChatInput({ text, files = [] }) {
-        return await this.chatInput().evaluate(
+    async pasteIntoChatInput({ text, files = [] }, input = this.chatInput()) {
+        return await input.evaluate(
             (textarea, { text, files }) => {
                 const data = new DataTransfer();
                 if (text) data.setData('text/plain', text);
@@ -482,6 +495,40 @@ export class OmnibarPage {
                 const event = new ClipboardEvent('paste', { clipboardData: data, bubbles: true, cancelable: true });
                 textarea.dispatchEvent(event);
                 return { defaultPrevented: event.defaultPrevented };
+            },
+            { text, files },
+        );
+    }
+
+    /**
+     * Drags data over the Duck.ai prompt with synthetic `dragenter`/`dragover` events, and drops it
+     * only if the page accepted the drag, as a browser would. Chromium ignores `dropEffect` on a
+     * script-made `DataTransfer`, so only acceptance can be checked.
+     *
+     * @param {object} drag
+     * @param {string} [drag.text]
+     * @param {{ name: string, type: string, base64: string }[]} [drag.files]
+     * @returns {Promise<{ accepted: boolean }>}
+     */
+    async dropOnChatInput({ text, files = [] }) {
+        return await this.chatInput().evaluate(
+            (textarea, { text, files }) => {
+                const data = new DataTransfer();
+                if (text) data.setData('text/plain', text);
+                for (const file of files) {
+                    const bytes = Uint8Array.from(atob(file.base64), (c) => c.charCodeAt(0));
+                    data.items.add(new File([bytes], file.name, { type: file.type }));
+                }
+                /** @param {string} type */
+                const fire = (type) => {
+                    const event = new DragEvent(type, { dataTransfer: data, bubbles: true, cancelable: true });
+                    textarea.dispatchEvent(event);
+                    return event.defaultPrevented;
+                };
+                fire('dragenter');
+                const accepted = fire('dragover');
+                if (accepted) fire('drop');
+                return { accepted };
             },
             { text, files },
         );
@@ -563,6 +610,44 @@ export class OmnibarPage {
 
     removeImageButton() {
         return this.attachmentChips().locator('button[aria-label="Remove image"]');
+    }
+
+    textPastedChips() {
+        return this.attachmentChips().locator('[data-attachment-kind="text"]');
+    }
+
+    /** The "N characters" line on the pasted-text chips; `data-invalid` while the prompt is over the limit. */
+    textPastedChipMetadata() {
+        return this.textPastedChips().getByText(/characters$/);
+    }
+
+    /** @param {string} summary - start of the pasted text */
+    removeTextPastedButton(summary) {
+        return this.attachmentChips().getByRole('button', { name: `Remove pasted text “${summary}”` });
+    }
+
+    textPastedModal() {
+        return this.context().getByRole('dialog', { name: 'Pasted Text' });
+    }
+
+    textPastedModalInput() {
+        return this.textPastedModal().getByRole('textbox', { name: 'Pasted Text' });
+    }
+
+    textPastedModalSaveButton() {
+        return this.textPastedModal().getByRole('button', { name: 'Save Changes' });
+    }
+
+    textPastedModalDeleteButton() {
+        return this.textPastedModal().getByRole('button', { name: 'Delete text' });
+    }
+
+    textPastedModalCancelButton() {
+        return this.textPastedModal().getByRole('button', { name: 'Cancel' });
+    }
+
+    promptTooLongWarning() {
+        return this.context().getByRole('alert').filter({ hasText: 'Your message is too long' });
     }
 
     tabLimitWarning() {

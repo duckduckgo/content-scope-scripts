@@ -1,0 +1,151 @@
+.root {
+    gap: var(--sp-4); /* 16px */
+    padding-top: var(--sp-8); /* 32px */
+    padding-bottom: var(--sp-8); /* 32px */
+}
+
+/* Search / Ask AI toggle */
+
+.toggle {
+    display: flex;
+    gap: 2px;
+    padding: 2px;
+    border-radius: 99px;
+    background: var(--ds-control-primary-background-color);
+}
+
+.tab {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-width: calc(108 * var(--px-in-rem));
+    height: var(--sp-9); /* 36px */
+    padding: 0 var(--sp-4); /* 16px */
+    border: none;
+    border-radius: 99px;
+    background: transparent;
+    color: var(--ds-text-primary);
+    font-family: var(--font-product);
+    font-size: calc(13 * var(--px-in-rem));
+    font-weight: 600;
+    line-height: var(--sp-4); /* 16px */
+    cursor: pointer;
+
+    &.selected {
+        background: var(--ds-surface-tertiary);
+        box-shadow:
+            0 4px 8px rgba(0, 0, 0, 0.08),
+            0 1px 4px rgba(0, 0, 0, 0.08);
+        cursor: default;
+    }
+}
+
+/* Input */
+
+.inputField {
+    position: relative;
+    display: flex;
+    align-self: stretch;
+    margin: var(--sp-2) 0 var(--sp-4); /* 8px 0 16px: 32px from the toggle and the suggestions */
+    border-radius: 22px;
+    background: var(--ds-surface-tertiary);
+    box-shadow:
+        0 8px 16px rgba(0, 0, 0, 0.08),
+        0 2px 6px rgba(0, 0, 0, 0.1);
+
+    :global(.theme-dark) & {
+        box-shadow: 0 0 0 1px var(--ds-control-primary-border-color);
+    }
+}
+
+.input {
+    flex: 1;
+    min-width: 0;
+    height: calc(88 * var(--px-in-rem));
+    padding: 12px 56px 12px var(--sp-4); /* room on the right for the submit button */
+    border: none;
+    border-radius: inherit;
+    background: transparent;
+    color: var(--ds-text-primary);
+    font-family: var(--font-product);
+    font-size: calc(15 * var(--px-in-rem));
+    line-height: calc(20 * var(--px-in-rem));
+    resize: none;
+
+    &::placeholder {
+        color: var(--ds-text-secondary);
+    }
+
+    &:focus {
+        outline: none;
+    }
+}
+
+.submit {
+    position: absolute;
+    right: var(--sp-3); /* 12px */
+    bottom: var(--sp-2); /* 8px */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--sp-8); /* 32px */
+    height: var(--sp-8); /* 32px */
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: var(--ds-control-primary-background-color);
+    color: var(--ds-text-primary);
+    cursor: pointer;
+
+    &:disabled {
+        color: var(--ds-text-secondary);
+        cursor: default;
+    }
+}
+
+/* Suggestions */
+
+.suggestions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-2); /* 8px */
+    align-self: stretch;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.suggestion {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2); /* 8px */
+    width: 100%;
+    min-height: var(--sp-10); /* 40px */
+    padding: 10px var(--sp-4); /* 16px */
+    border: 1px solid var(--ds-accent-primary-text-color);
+    border-radius: var(--sp-8); /* 32px */
+    background: transparent;
+    color: var(--ds-accent-primary-text-color);
+    font-family: var(--font-product);
+    font-size: calc(15 * var(--px-in-rem));
+    line-height: calc(18 * var(--px-in-rem));
+    text-align: left;
+    cursor: pointer;
+
+    & svg {
+        flex-shrink: 0;
+    }
+
+    &:hover:not(:disabled) {
+        background: var(--ds-accent-alt-glow-secondary);
+    }
+
+    &:disabled {
+        cursor: default;
+    }
+}
+
+.suggestionLabel {
+    overflow-wrap: anywhere;
+}

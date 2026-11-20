@@ -112,6 +112,7 @@ function domToMarkdownChildren(childNodes, settings, depth = 0) {
  * @property {string | null} excludeSelectors - CSS selectors to exclude from processing
  * @property {boolean} includeIframes - Whether to include iframe content
  * @property {boolean} trimBlankLinks - Whether to trim blank links
+ * @property {boolean} stripLinkUrls - Whether to keep only the link text and drop its URL
  */
 
 /**
@@ -206,7 +207,7 @@ function collapseAndTrim(str) {
 /**
  * Note: The whitespace difference between href/non-href cases is intentional.
  * With href: collapse AND trim (for clean markdown links)
- * Without href: collapse only (retain surrounding space context)
+ * Without href, or with URLs stripped: collapse only (retain surrounding space context)
  */
 function getLinkText(node, children, settings) {
     const href = node.getAttribute('href');
@@ -214,7 +215,82 @@ function getLinkText(node, children, settings) {
     if (settings.trimBlankLinks && trimmedContent.length === 0) {
         return '';
     }
-    return href ? `[${trimmedContent}](${href})` : collapseWhitespace(children);
+    return href && !settings.stripLinkUrls ? `[${trimmedContent}](${href})` : collapseWhitespace(children);
+}
+
+/**
+ * @param {Element} el
+ * @returns {boolean}
+ */
+function isRendered(el) {
+    const hasBox = typeof el.checkVisibility === 'function' ? el.checkVisibility() : el.getClientRects().length > 0;
+    if (hasBox) {
+        return true;
+    }
+    // `display: contents` elements have no box of their own, but their children render
+    const parent = el.parentElement;
+    return parent !== null && window.getComputedStyle(el).display === 'contents' && isRendered(parent);
+}
+
+/**
+ * Whether extracting the body would keep this element: the element and its ancestors up to the body all pass
+ * the visibility and exclusion checks that `domToMarkdown` applies.
+ * @param {Element} el
+ * @param {string} excludeSelectors
+ * @returns {boolean}
+ */
+function isExtractable(el, excludeSelectors) {
+    /** @type {Element | null} */
+    let node = el;
+    while (node) {
+        if (!checkNodeIsVisible(node) || (excludeSelectors && node.matches(excludeSelectors))) {
+            return false;
+        }
+        node = node === document.body ? null : node.parentElement;
+    }
+    return true;
+}
+
+/**
+ * Pick the eligible candidate with the most text. Returns null when there is none, or when the
+ * best one holds less than `minCoverage` of the body's text, so the caller can use the body.
+ * @param {ArrayLike<Element>} candidates - in document order
+ * @param {object} options
+ * @param {number} options.bodyTextLength
+ * @param {number} options.minCoverage - share of `bodyTextLength`, 0 to 1
+ * @param {number} options.maxCandidates - caps how many candidates are measured
+ * @param {(el: Element) => boolean} options.isEligible
+ * @param {(el: Element) => number} [options.textLength]
+ * @returns {Element | null}
+ */
+export function selectLargestVisibleRoot(
+    candidates,
+    { bodyTextLength, minCoverage, maxCandidates, isEligible, textLength = (el) => (el instanceof HTMLElement ? el.innerText.length : 0) },
+) {
+    /** @type {Element | null} */
+    let best = null;
+    let bestLength = 0;
+    let examined = 0;
+    for (let i = 0; i < candidates.length && examined < maxCandidates; i++) {
+        const el = candidates[i];
+        // A descendant never has more text than its ancestor, and ancestors come first in document order.
+        if (!el || best?.contains(el)) {
+            continue;
+        }
+        examined++;
+        if (!isEligible(el)) {
+            continue;
+        }
+        const length = textLength(el);
+        if (length > bestLength) {
+            best = el;
+            bestLength = length;
+        }
+    }
+    if (!best || bestLength < bodyTextLength * minCoverage) {
+        return null;
+    }
+    return best;
 }
 
 /**
@@ -657,15 +733,7 @@ export default class PageContext extends ContentFeature {
         const excludeSelectorsString = excludeSelectors.join(',');
 
         let content = '';
-        // Get content from main content areas
-        const mainContentSelector = this.getFeatureSetting('mainContentSelector') || 'main, article, .content, .main, #content, #main';
-        let mainContent = document.querySelector(mainContentSelector);
-        const mainContentLength = this.getFeatureSetting('mainContentLength') || 100;
-        // Fast path to avoid processing main content if it's too short
-        if (mainContent && mainContent.innerHTML.trim().length <= mainContentLength) {
-            mainContent = null;
-        }
-        let contentRoot = mainContent || document.body;
+        let contentRoot = this.findContentRoot(excludeSelectorsString) || document.body;
 
         // Use a closure to reuse the domToMarkdown parameters
         const extractContent = (root) => {
@@ -676,6 +744,7 @@ export default class PageContext extends ContentFeature {
                 includeIframes: this.getFeatureSettingEnabled('includeIframes', 'enabled'),
                 excludeSelectors: excludeSelectorsString,
                 trimBlankLinks: this.getFeatureSettingEnabled('trimBlankLinks', 'enabled'),
+                stripLinkUrls: this.getFeatureSettingEnabled('stripLinkUrls', 'disabled'),
             }).trim();
             this.log.info('Content markdown', result, root);
             return result;
@@ -704,6 +773,35 @@ export default class PageContext extends ContentFeature {
         }
 
         return content;
+    }
+
+    /**
+     * @param {string} excludeSelectors
+     * @returns {Element | null}
+     */
+    findContentRoot(excludeSelectors) {
+        const selector = this.getFeatureSetting('mainContentSelector') || 'main, article, .content, .main, #content, #main';
+        const candidates = document.querySelectorAll(selector);
+        const first = candidates[0] ?? null;
+        const minMainContentLength = this.getFeatureSetting('mainContentLength') || 100;
+        if (!first || !this.getFeatureSettingEnabled('mainContentFallback', 'enabled')) {
+            return first && first.innerHTML.trim().length > minMainContentLength ? first : null;
+        }
+
+        const bodyTextLength = document.body?.innerText.length ?? 0;
+        const firstLength = first instanceof HTMLElement ? first.innerText.length : 0;
+        const firstIsUsable = isRendered(first) && firstLength > minMainContentLength;
+        if (!firstIsUsable) {
+            return selectLargestVisibleRoot(candidates, {
+                bodyTextLength,
+                minCoverage: this.getFeatureSetting('minRootCoverage') || 0.35,
+                maxCandidates: this.getFeatureSetting('maxRootCandidates') || 100,
+                isEligible: (el) => isExtractable(el, excludeSelectors),
+            });
+        }
+
+        const minCoverage = this.getFeatureSetting('minMainContentCoverage') || 0.25;
+        return firstLength < bodyTextLength * minCoverage ? null : first;
     }
 
     getHeadings() {
@@ -740,23 +838,9 @@ export default class PageContext extends ContentFeature {
 
     getPageTypeSignals() {
         return extractPageTypeSignals(document, {
-            maxTypes: this.clampedNumericSetting('maxPageTypeSignals', 10, 50),
-            maxBlockLength: this.clampedNumericSetting('maxJsonLdBlockLength', 100000, 1000000),
+            maxTypes: this.getFeatureSetting('maxPageTypeSignals') || 10,
+            maxBlockLength: this.getFeatureSetting('maxJsonLdBlockLength') || 100000,
         });
-    }
-
-    /**
-     * Read a numeric feature setting, clamped to a safe ceiling. Malformed (non-finite) config
-     * falls back to the default rather than producing NaN — which would disable the cap — while an
-     * explicit 0 is still honored.
-     * @param {string} key
-     * @param {number} fallback
-     * @param {number} max
-     * @returns {number}
-     */
-    clampedNumericSetting(key, fallback, max) {
-        const value = this.getFeatureSetting(key);
-        return Math.min(typeof value === 'number' && Number.isFinite(value) ? value : fallback, max);
     }
 
     getImages() {

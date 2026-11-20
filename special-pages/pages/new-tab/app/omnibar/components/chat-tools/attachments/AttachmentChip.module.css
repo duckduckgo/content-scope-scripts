@@ -1,9 +1,9 @@
-/* A fixed 116px card that never compresses; the row scrolls instead. */
+/* A fixed 174px-wide card, as in the Duck.ai attachment design, that never compresses; the row scrolls instead. */
 .listItem {
     display: flex;
     flex: none;
     position: relative;
-    width: 116px;
+    width: 174px;
 }
 
 /* Carries the entrance animation instead of the list item, so the item keeps its
@@ -17,6 +17,10 @@
     @media (prefers-reduced-motion) {
         animation: none;
     }
+}
+
+.openable {
+    cursor: pointer;
 }
 
 @keyframes chipEnter {
@@ -33,31 +37,29 @@
     min-width: 0;
 }
 
-/* A 116px square with three rows (title + metadata + icon/type). The icon/type row
+/* A 174 x 108px card with three rows (title + metadata + icon/type). The icon/type row
  * absorbs any slack below the fixed text rows. */
 .root {
     backdrop-filter: blur(24px);
     background-color: var(--ds-color-theme-control-fill-primary);
-    /* Reserved so the hover/pressed border doesn't shift the contents. */
-    border: 1px solid transparent;
     border-radius: 18px;
     box-sizing: border-box;
     color: var(--ds-color-theme-text-primary);
     display: flex;
     flex-direction: column;
-    height: 116px;
+    height: 108px;
     min-width: 0;
     overflow: hidden;
     position: relative;
     width: 100%;
 }
 
-/* Hover is gated on a real pointer: on touch it sticks after a tap. */
+/* Hover is gated on a real pointer: on touch it sticks after a tap. Borders are inset shadows so they take no layout space. */
 @media (hover: hover) {
     .root:hover {
         background-color: var(--ds-color-theme-control-fill-secondary);
-        border-color: var(--ds-color-theme-container-border-primary);
         box-shadow:
+            inset 0 0 0 1px var(--ds-color-theme-container-border-primary),
             0 0.25px 1px 0 var(--ds-color-theme-shadow-secondary),
             0 1px 4px 0 var(--ds-color-theme-shadow-primary);
     }
@@ -65,8 +67,8 @@
 
 .root:active {
     background-color: var(--ds-color-theme-control-fill-tertiary);
-    border-color: var(--ds-color-theme-container-border-secondary);
     box-shadow:
+        inset 0 0 0 1px var(--ds-color-theme-container-border-secondary),
         0 0.25px 1px 0 var(--ds-color-theme-shadow-secondary),
         0 1px 4px 0 var(--ds-color-theme-shadow-primary);
 }
@@ -93,6 +95,8 @@
     box-sizing: border-box;
     display: flex;
     flex: none;
+    /* Two title lines below the top padding; the bottom padding is clipped, as in the design. */
+    max-height: 52px;
     min-width: 0;
     overflow: hidden;
     padding: 12px 12px 2px;
@@ -137,6 +141,15 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     width: 100%;
+}
+
+/* The theme mappings don't cover destructive colours yet, hence the default-theme fallbacks. */
+.metadataInvalid {
+    color: var(--ds-color-theme-destructive-primary, var(--ds-color-theme-default-light-destructive-primary));
+
+    [data-theme='dark'] & {
+        color: var(--ds-color-theme-destructive-primary, var(--ds-color-theme-default-dark-destructive-primary));
+    }
 }
 
 .info {

@@ -1,7 +1,6 @@
 import { Service } from '../service.js';
 import { OmnibarSuggestionsService } from './omnibar.suggestions.service.js';
 import { OmnibarAiChatsService } from './omnibar.ai-chats.service.js';
-
 /**
  * @typedef {import("../../types/new-tab.js").OmnibarConfig} OmnibarConfig
  * @typedef {import("../../types/new-tab.js").SuggestionsData} SuggestionsData
@@ -223,6 +222,13 @@ export class OmnibarService {
      */
     openCustomizeResponses() {
         this.ntp.messaging.notify('omnibar_openCustomizeResponses', {});
+    }
+
+    /**
+     * Notify native to open the Duck.ai Privacy Policy and Terms of Service page in a new tab.
+     */
+    openPrivacyTerms() {
+        this.ntp.messaging.notify('omnibar_openPrivacyTerms', {});
     }
 
     /**
