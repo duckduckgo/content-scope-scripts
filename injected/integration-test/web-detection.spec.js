@@ -87,6 +87,62 @@ const XPATH_DETECTORS = {
 };
 
 /**
+ * The setup timing detector from privacy-configuration/features/web-detection.json (the `protectionsBreakage` group).
+ */
+const SETUP_TIMING_DETECTORS = {
+    setup_timings: {
+        actions: [
+            {
+                define: {
+                    setups: {
+                        api: {
+                            path: 'performance.getEntriesByType',
+                            args: ['mark'],
+                            where: { self: { path: 'name.search', args: ['Call(Load|Init)End$'] }, is: { gte: 0 } },
+                            field: {
+                                expr: [
+                                    { self: 'name' },
+                                    {
+                                        sum: [
+                                            { self: 'startTime' },
+                                            {
+                                                mul: [
+                                                    -1,
+                                                    {
+                                                        api: {
+                                                            path: 'performance.getEntriesByName',
+                                                            args: [{ self: { path: 'name.replace', args: ['End', 'Start'] } }, 'mark'],
+                                                            field: 'startTime',
+                                                        },
+                                                        using: { path: 'at', args: [-1] },
+                                                    },
+                                                ],
+                                            },
+                                        ],
+                                    },
+                                ],
+                            },
+                        },
+                    },
+                },
+            },
+            {
+                if: { ref: 'setups', using: 'length', is: { gt: 0 } },
+                then: {
+                    breakageReportData: {
+                        data: {
+                            setupCount: { value: { ref: 'setups', using: 'length' } },
+                            setupTotalMs: { value: { sum: { ref: 'setups', using: { self: { field: '1' } } } } },
+                            slowSetups: { value: { ref: 'setups', using: { self: { where: { 1: { gte: 1 } } } } } },
+                        },
+                    },
+                },
+            },
+        ],
+    },
+};
+
+/**
  * Helper class for web-detection tests.
  */
 class WebDetectionTestHelper {
@@ -214,6 +270,24 @@ class WebDetectionTestHelper {
     }
 
     /**
+     * Set up collector with the setup timing detector installed.
+     *
+     * @param {import('@playwright/test').Page} page
+     * @param {Record<string, any>} projectUse
+     * @returns {Promise<{collector: ResultsCollector, helper: WebDetectionTestHelper}>}
+     */
+    static async setupSetupTimingTest(page, projectUse) {
+        const config = JSON.parse(readFileSync(CONFIG, 'utf8'));
+        config.features.webDetection.settings.detectors.protectionsBreakage = SETUP_TIMING_DETECTORS;
+
+        const collector = ResultsCollector.create(page, projectUse);
+        await collector.load('/web-detection/index.html', config);
+        const helper = new WebDetectionTestHelper(page, collector);
+
+        return { collector, helper };
+    }
+
+    /**
      * Set up collector for captcha detection tests: enables webEvents and installs the captcha
      * detector group (auto-run + per-provider fireEvent), with fake timers.
      *
@@ -310,6 +384,60 @@ test.describe('WebDetection Feature', () => {
             const results = await helper.runDetectors();
 
             expect(results.length).toBe(0);
+        });
+    });
+
+    test.describe('feature setup timings', () => {
+        test("ends each feature's init marks before the next feature's init starts", async ({ page }, testInfo) => {
+            await WebDetectionTestHelper.setupSetupTimingTest(page, testInfo.project.use);
+            await page.waitForFunction(() => performance.getEntriesByName('webDetectionCallInitEnd', 'mark').length > 0);
+
+            const inits = await page.evaluate(() => {
+                const marks = performance.getEntriesByType('mark');
+                return marks
+                    .filter((m) => m.name.endsWith('CallInitStart'))
+                    .map((start) => {
+                        const feature = start.name.slice(0, -'CallInitStart'.length);
+                        const end = marks.find((m) => m.name === `${feature}CallInitEnd`);
+                        return { feature, start: start.startTime, end: end?.startTime };
+                    })
+                    .sort((a, b) => a.start - b.start);
+            });
+
+            expect(inits.length).toBeGreaterThan(1);
+            for (const [i, init] of inits.entries()) {
+                expect(init.end, `${init.feature} has a CallInitEnd mark`).toBeDefined();
+                const next = inits[i + 1];
+                if (next) {
+                    expect(init.end, `${init.feature}'s init ends before ${next.feature}'s starts`).toBeLessThanOrEqual(next.start);
+                }
+            }
+        });
+
+        // A smoke test of the detector's shape in a browser. The test above checks the marks it reads
+        test('reports the load and init of each enabled feature from its marks', async ({ page }, testInfo) => {
+            const { helper } = await WebDetectionTestHelper.setupSetupTimingTest(page, testInfo.project.use);
+            await page.evaluate(() => {
+                performance.mark('pageOwnStart');
+                performance.mark('pageOwnEnd');
+                performance.mark('pageOwnCallLoadEndless');
+            });
+
+            const results = await helper.runDetectors();
+            const featureEnds = await page.evaluate(
+                () => performance.getEntriesByType('mark').filter((m) => /Call(Load|Init)End$/.test(m.name)).length,
+            );
+
+            const entry = results.find((r) => r.detectorId === 'protectionsBreakage.setup_timings');
+            expect(featureEnds).toBeGreaterThanOrEqual(4);
+            expect(entry?.data?.setupCount).toBe(featureEnds);
+            expect(entry?.data?.setupTotalMs).toBeGreaterThanOrEqual(0);
+            const slowSetups = /** @type {Array<[string, number]>} */ (entry?.data?.slowSetups);
+            expect(Array.isArray(slowSetups)).toBe(true);
+            for (const [name, ms] of slowSetups) {
+                expect(name).toMatch(/Call(Load|Init)End$/);
+                expect(ms).toBeGreaterThanOrEqual(1);
+            }
         });
     });
 
