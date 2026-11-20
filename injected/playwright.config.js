@@ -116,6 +116,7 @@ export default defineConfig({
                 'integration-test/pages.spec.js',
                 'integration-test/utils.spec.js',
                 'integration-test/web-compat.spec.js',
+                'integration-test/message-bridge-extension.spec.js',
             ],
             use: { injectName: 'chrome-mv3', platform: 'extension', ...devices['Desktop Chrome'] },
         },

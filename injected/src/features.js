@@ -165,5 +165,6 @@ export const platformSupport = {
     firefox: ['cookie', 'webDetection', ...baseFeatures, 'clickToLoad', 'webEvents', 'webInterferenceDetection', 'breakageReporting'],
     chrome: ['cookie', 'webDetection', ...baseFeatures, 'clickToLoad', 'webEvents', 'webInterferenceDetection', 'breakageReporting'],
     'chrome-mv3': ['cookie', 'webDetection', ...baseFeatures, 'clickToLoad', 'webEvents', 'webInterferenceDetection', 'breakageReporting'],
+    'chrome-mv3-isolated': ['messageBridge'],
     integration: ['webDetection', ...baseFeatures, ...otherFeatures],
 };

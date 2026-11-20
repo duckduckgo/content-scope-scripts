@@ -47,6 +47,7 @@ export const pages = {
         integration: ['copy', 'build-js'],
         windows: ['copy', 'build-js'],
         apple: ['copy', 'build-js'],
+        'chrome-mv3': ['copy', 'build-js'],
     },
     /** @type {Partial<Record<ImportMeta['injectName'], string[]>>} */
     history: {

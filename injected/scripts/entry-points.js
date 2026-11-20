@@ -83,6 +83,10 @@ const builds = {
         input: 'entry-points/extension-mv3.js',
         output: ['../build/chrome-mv3/inject.js'],
     },
+    'chrome-mv3-isolated': {
+        input: 'entry-points/extension-mv3.js',
+        output: ['../build/chrome-mv3/isolated.js'],
+    },
 };
 
 async function init() {
