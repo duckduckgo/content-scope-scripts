@@ -7,13 +7,13 @@ import { BreakageEntries } from './web-detection/evaluate/breakage-entries.js';
 import { EvaluationContext } from './web-detection/evaluate/context.js';
 import { NativeReader } from './web-detection/evaluate/native-reader.js';
 import { createDetectorState, detectorNameScalars, runDetector } from './web-detection/evaluate/run.js';
-import { TaskReadCache } from './web-detection/evaluate/task-read-cache.js';
+import { FrameReadCache, TaskReadCache } from './web-detection/evaluate/task-read-cache.js';
 import { getOrCreate } from './web-detection/model/core.js';
 
 /**
  * @import { DetectorConfig } from './web-detection/compile/detector-config.js'
  * @import { CompiledDetector } from './web-detection/compile/compile.js'
- * @import { ActionSink, PayloadData } from './web-detection/model/types.js'
+ * @import { ActionSink, PayloadData, TaskReads } from './web-detection/model/types.js'
  * @import { DetectorState } from './web-detection/evaluate/run.js'
  * @import { BreakageEntry } from './web-detection/evaluate/breakage-entries.js'
  */
@@ -62,6 +62,12 @@ export default class WebDetection extends ContentFeature {
     /** @type {unknown} the feature settings object the detectors were parsed from */
     #parsedSettings;
 
+    /** the page reads kept across tasks while the page is unchanged, capturing its globals at construction */
+    #frameReads = new FrameReadCache(globalThis);
+
+    /** how long `#frameReads` keeps values, from the `readCacheMaxAgeMs` setting. 0 shares reads within a task only */
+    #readCacheMaxAgeMs = 0;
+
     _exposedMethods = this._declareExposedMethods(['runDetectors', 'getBreakageReportData']);
 
     /**
@@ -84,6 +90,8 @@ export default class WebDetection extends ContentFeature {
      */
     init() {
         this.#detectorPerfEnabled = hasOwnProperty.call(this.featureSettings ?? {}, 'detectorPerf');
+        const maxAgeMs = this.getFeatureSetting('readCacheMaxAgeMs');
+        this.#readCacheMaxAgeMs = typeof maxAgeMs === 'number' && maxAgeMs > 0 ? maxAgeMs : 0;
         this._parseDetectors();
         this._scheduleAutoRunDetectors();
     }
@@ -179,7 +187,7 @@ export default class WebDetection extends ContentFeature {
      *
      * @param {DetectorEntry} detector
      * @param {TriggerInfo} triggerInfo
-     * @param {TaskReadCache} task - the page reads shared by the detectors run with it
+     * @param {TaskReads} task - the page reads shared by the detectors run with it
      */
     _runDetector(detector, triggerInfo, task) {
         const { groupName, detectorId } = detector;
@@ -316,13 +324,14 @@ export default class WebDetection extends ContentFeature {
     }
 
     /**
-     * Run every detector the trigger runs that is not done, sharing one task's page reads. A throw that
-     * escapes a detector's run is recorded in its entry under `run`, and the other detectors still run.
+     * Run every detector the trigger runs that is not done, sharing one task's page reads, and those of
+     * earlier tasks while the page is unchanged when `readCacheMaxAgeMs` is above 0. A throw that escapes
+     * a detector's run is recorded in its entry under `run`, and the other detectors still run.
      *
      * @param {TriggerInfo} triggerInfo
      */
     runDetectors(triggerInfo) {
-        const task = new TaskReadCache();
+        const task = this.#readCacheMaxAgeMs > 0 ? this.#frameReads.beginTask(this.#readCacheMaxAgeMs) : new TaskReadCache();
         for (const detector of this._detectorsFor(triggerInfo)) {
             try {
                 this._runDetector(detector, triggerInfo, task);

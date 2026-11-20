@@ -160,8 +160,14 @@ function tailStart(buffer, chunkTail) {
  */
 
 /**
- * The text an XPath expression selects from a root, evaluated once per task and shared by every
- * detector in it that names the expression. A node's text is read when a scan first reaches it, so
+ * Whether an XPath expression can read attributes: through `@` or the `attribute` axis, in `id()` or
+ * `lang()`, or through namespace nodes. A string literal that matches only watches more of the page.
+ */
+const READS_ATTRIBUTES = /@|attribute|namespace|\bid\s*\(|\blang\s*\(/;
+
+/**
+ * The text an XPath expression selects from a root, evaluated once and shared by every detector that
+ * names the expression while the task's reads hold it. A node's text is read when a scan first reaches it, so
  * a scan that stops early leaves the rest unread.
  *
  * @param {string} expression
@@ -170,22 +176,27 @@ function tailStart(buffer, chunkTail) {
  * @returns {SelectedText}
  */
 function selectedText(expression, contextNode, ctx) {
-    return ctx.task.of(contextNode, `xpath:${expression}`, () => {
-        const snapshot = compileXPath(expression).evaluate(contextNode, ORDERED_NODE_SNAPSHOT_TYPE, null);
-        /** @type {string[]} */
-        const texts = [];
-        return {
-            length: snapshot.snapshotLength,
-            at(i) {
-                let text = texts[i];
-                if (text === undefined) {
-                    text = snapshot.snapshotItem(i)?.textContent || '';
-                    texts[i] = text;
-                }
-                return text;
-            },
-        };
-    });
+    return ctx.task.of(
+        contextNode,
+        `xpath:${expression}`,
+        () => {
+            const snapshot = compileXPath(expression).evaluate(contextNode, ORDERED_NODE_SNAPSHOT_TYPE, null);
+            /** @type {string[]} */
+            const texts = [];
+            return {
+                length: snapshot.snapshotLength,
+                at(i) {
+                    let text = texts[i];
+                    if (text === undefined) {
+                        text = snapshot.snapshotItem(i)?.textContent || '';
+                        texts[i] = text;
+                    }
+                    return text;
+                },
+            };
+        },
+        READS_ATTRIBUTES.test(expression),
+    );
 }
 
 /**

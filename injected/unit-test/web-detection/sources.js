@@ -3,7 +3,7 @@ import { compileDetector } from '../../src/features/web-detection/compile/compil
 import { EvaluationContext } from '../../src/features/web-detection/evaluate/context.js';
 import { NativeReader } from '../../src/features/web-detection/evaluate/native-reader.js';
 import { createDetectorState, runDetector } from '../../src/features/web-detection/evaluate/run.js';
-import { TaskReadCache } from '../../src/features/web-detection/evaluate/task-read-cache.js';
+import { FrameReadCache, TaskReadCache } from '../../src/features/web-detection/evaluate/task-read-cache.js';
 import { pageSources } from '../../src/features/web-detection/sources/index.js';
 import {
     REPORT,
@@ -627,6 +627,150 @@ describe('WebDetection sources', () => {
             expect(results.map((result) => result.match)).toEqual(['aborted', 'aborted']);
             expect(results[0].failedAt).toBeDefined();
             expect(results[1].failedAt).toBe(results[0].failedAt);
+        });
+    });
+
+    describe('reads across tasks', () => {
+        const PAGE = '<p>adblocker detected</p><div id="host"></div>';
+        const wall = (/** @type {Partial<TextBody>} */ extra = {}) => ({
+            match: { text: { xpath: RENDERED, pattern: 'adblocker detected', ...extra } },
+            actions: REPORT,
+        });
+        const hiddenAware = wall({ xpath: '//p[not(@hidden)]/text()' });
+        const inShadow = wall({
+            xpath: './/text()',
+            root: { only: { element: { selector: '#host' } }, using: 'shadowRoot' },
+        });
+
+        /** A macrotask, after which the observer's callback has run. */
+        const delivered = () => new Promise((resolve) => setTimeout(resolve));
+
+        /**
+         * A page whose tasks share one `FrameReadCache`, each running its detectors with their own state.
+         * `evaluations` counts the XPath expressions evaluated against the page.
+         *
+         * @param {object} [options]
+         * @param {number} [options.maxAgeMs]
+         * @param {(window: any) => void} [options.beforeCache] - runs before the cache captures the window's globals
+         */
+        function framePage({ maxAgeMs = 1000, beforeCache = () => {} } = {}) {
+            const window = new JSDOM(`<!DOCTYPE html><html><body>${PAGE}</body></html>`).window;
+            window.document.querySelector('#host').attachShadow({ mode: 'open' }).innerHTML = '<p>adblocker detected</p>';
+            const probe = window.document.createExpression('.', null);
+            const evaluations = spyOn(Object.getPrototypeOf(probe), 'evaluate').and.callThrough();
+            beforeCache(window);
+            const cache = new FrameReadCache(window);
+            return {
+                window,
+                evaluations,
+                /** @param {RawDetectorConfig[]} detectors */
+                task(detectors) {
+                    const originalDocument = globalThis.document;
+                    globalThis.document = window.document;
+                    try {
+                        const reads = cache.beginTask(maxAgeMs);
+                        return detectors.map((detector) => {
+                            const compiled = compileDetector(detector, pageSources(window));
+                            const state = createDetectorState();
+                            return runDetector(compiled, state, new EvaluationContext(readerFor(window, compiled), state.names, reads))
+                                .match;
+                        });
+                    } finally {
+                        globalThis.document = originalDocument;
+                    }
+                },
+            };
+        }
+
+        it('reads an XPath selection once across tasks while the page is unchanged', () => {
+            const page = framePage();
+            expect(page.task([wall()])).toEqual([true]);
+            expect(page.task([wall(), wall()])).toEqual([true, true]);
+            expect(page.evaluations).toHaveBeenCalledTimes(1);
+        });
+
+        it('reads the page again in a task after it changed', async () => {
+            const page = framePage();
+            expect(page.task([wall()])).toEqual([true]);
+            page.window.document.querySelector('p').textContent = 'nothing here';
+            await delivered();
+            expect(page.task([wall()])).toEqual([false]);
+        });
+
+        it('reads the page again after a change whose record the observer has not delivered', () => {
+            const page = framePage();
+            expect(page.task([wall()])).toEqual([true]);
+            page.window.document.querySelector('p').firstChild.data = 'nothing here';
+            expect(page.task([wall()])).toEqual([false]);
+        });
+
+        it("reads an element's text again after it changed", async () => {
+            const page = framePage();
+            const detector = { match: { text: { selector: 'p', pattern: 'adblocker detected' } }, actions: REPORT };
+            expect(page.task([detector])).toEqual([true]);
+            page.window.document.querySelector('p').textContent = 'nothing here';
+            await delivered();
+            expect(page.task([detector])).toEqual([false]);
+        });
+
+        it('keeps a selection through an attribute change, unless its expression reads attributes', async () => {
+            const page = framePage();
+            expect(page.task([wall(), hiddenAware])).toEqual([true, true]);
+            page.window.document.querySelector('p').setAttribute('hidden', '');
+            await delivered();
+            expect(page.task([hiddenAware])).toEqual([false]);
+
+            const unread = framePage();
+            expect(unread.task([wall()])).toEqual([true]);
+            unread.window.document.querySelector('p').setAttribute('hidden', '');
+            await delivered();
+            expect(unread.task([wall()])).toEqual([true]);
+            expect(unread.evaluations).toHaveBeenCalledTimes(1);
+        });
+
+        it('reads a shadow root again after a change inside it', async () => {
+            const page = framePage();
+            expect(page.task([inShadow])).toEqual([true]);
+            page.window.document.querySelector('#host').shadowRoot.querySelector('p').textContent = 'nothing here';
+            await delivered();
+            expect(page.task([inShadow])).toEqual([false]);
+        });
+
+        it('reads the page again once maxAgeMs has passed', () => {
+            jasmine.clock().install();
+            try {
+                const page = framePage({ maxAgeMs: 500 });
+                page.task([wall()]);
+                jasmine.clock().tick(499);
+                page.task([wall()]);
+                expect(page.evaluations).toHaveBeenCalledTimes(1);
+                jasmine.clock().tick(1);
+                page.task([wall()]);
+                expect(page.evaluations).toHaveBeenCalledTimes(2);
+            } finally {
+                jasmine.clock().uninstall();
+            }
+        });
+
+        it('stops observing at the first change', async () => {
+            /** @type {jasmine.Spy | undefined} */
+            let disconnect;
+            const page = framePage({
+                beforeCache: (window) => {
+                    disconnect = spyOn(window.MutationObserver.prototype, 'disconnect').and.callThrough();
+                },
+            });
+            page.task([wall()]);
+            const p = page.window.document.querySelector('p');
+            p.textContent = 'first';
+            await delivered();
+            p.textContent = 'second';
+            await delivered();
+            expect(disconnect).toHaveBeenCalledTimes(1);
+        });
+
+        it('shares reads within a task only where the global has no MutationObserver', () => {
+            expect(new FrameReadCache({}).beginTask(1000)).toBeInstanceOf(TaskReadCache);
         });
     });
 });
