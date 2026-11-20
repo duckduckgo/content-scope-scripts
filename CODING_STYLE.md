@@ -6,15 +6,15 @@ This document outlines the coding style and conventions used in the Content Scop
 
 ## Code Formatting
 
-### Prettier
+### oxfmt
 
-We use [Prettier](https://prettier.io/) for automatic code formatting. This ensures consistent code style across the entire codebase.
+We format code with [oxfmt](https://oxc.rs/docs/guide/usage/formatter), the formatter from the Oxc toolchain. It follows the Prettier style.
 
-- **Configuration**: See [`.prettierrc`](.prettierrc) for current formatting settings
-- **IDE Integration**: Enable Prettier in your IDE/editor for automatic formatting on save
-- **CI/CD**: Code formatting is checked in our continuous integration pipeline
+- **Configuration**: [`.oxfmtrc.json`](.oxfmtrc.json) holds the settings and the ignore patterns.
+- **Editor**: Install the Oxc extension (`oxc.oxc-vscode` in VS Code and Cursor, the Oxc plugin in JetBrains) and set it as the default formatter.
+- **CI**: `npm run lint` fails on unformatted files.
 
-### Running Prettier
+### Running oxfmt
 
 ```bash
 # Format all files

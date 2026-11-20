@@ -1,0 +1,25 @@
+{
+    "$schema": "./node_modules/oxfmt/configuration_schema.json",
+    "singleQuote": true,
+    "printWidth": 140,
+    "tabWidth": 4,
+    "sortPackageJson": false,
+    "ignorePatterns": [
+        "build/**/*",
+        "docs/**/*",
+        "!injected/docs/**/*",
+        "injected/src/types",
+        "injected/src/features/tracker-protection/surrogates-generated.js",
+        "special-pages/pages/**/types",
+        "injected/integration-test/extension/contentScope.js",
+        "**/*.json",
+        "**/*.md",
+        "!injected/docs/**/*.md",
+        "**/*.html",
+        "!injected/integration-test/test-pages/*",
+        "**/*.har",
+        "**/*.css",
+        "Sources/**/*",
+        "injected/integration-test/test-pages/page-translation/vendor"
+    ]
+}
