@@ -4,8 +4,8 @@ import { ErrorResponse, SuccessResponse } from '../types.js';
 /**
  * This builds the proper URL given the URL template and userData.
  *
- * @param action
- * @param {Record<string, any>} userData
+ * @param {import('../types.js').PirAction & {url?: string}} action
+ * @param {Record<string, string|number>} userData
  * @return {import('../types.js').ActionResponse}
  */
 export function buildUrl(action, userData) {
@@ -20,19 +20,31 @@ export function buildUrl(action, userData) {
 /**
  * Perform some basic validations before we continue into the templating.
  *
- * @param action
- * @param userData
+ * @overload
+ * @param {import('../types.js').PirAction & {url?: string | null}} action
+ * @param {Record<string, string|number>} [userData]
+ * @return {{url: string} | {error: string}}
+ */
+/**
+ * @overload
+ * @param {Record<string, unknown>} action
+ * @param {Record<string, string|number>} [userData]
+ * @return {{url: string} | {error: string}}
+ */
+/**
+ * @param {Record<string, unknown>} action
+ * @param {Record<string, string|number>} [userData]
  * @return {{url: string} | {error: string}}
  */
 export function replaceTemplatedUrl(action, userData) {
     const url = action?.url;
-    if (!url) {
+    if (!url || typeof url !== 'string') {
         return { error: 'Error: No url provided.' };
     }
 
     try {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const _ = new URL(action.url);
+        const _ = new URL(url);
     } catch (e) {
         return { error: 'Error: Invalid URL provided.' };
     }
@@ -41,5 +53,5 @@ export function replaceTemplatedUrl(action, userData) {
         return { url };
     }
 
-    return transformUrl(action, userData);
+    return transformUrl({ ...action, url }, userData);
 }
