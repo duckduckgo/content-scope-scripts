@@ -1,4 +1,11 @@
 #!/usr/bin/env node
+/**
+ * Manual dev helper: build, serve test pages, and launch Chromium with the
+ * integration-test extension loaded via web-ext.
+ *
+ * This path is NOT exercised in CI. Integration tests load the same extension
+ * through Playwright (--load-extension) in the chrome-mv3 / firefox projects.
+ */
 import { spawn } from 'child_process';
 import path from 'path';
 import { fileURLToPath } from 'url';
