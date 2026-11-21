@@ -44,3 +44,5 @@ coverage/
 # Local-only agent memory (not shared with the team)
 AGENTS.local.md
 .cursor
+# Playwright CLI output (may contain credentials)
+.playwright-cli/
