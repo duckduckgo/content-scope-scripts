@@ -41,6 +41,46 @@ test.describe('Cookie protection tests', () => {
         expect(result?.expires).toBeLessThan(Date.now() + 605_000_000);
     });
 
+    test('should restrict cookie expiry when config omits firstPartyCookiePolicy', async ({ page }) => {
+        await gotoAndWait(page, '/index.html', {
+            bundledConfig: {
+                version: 1,
+                features: {
+                    cookie: {
+                        state: 'enabled',
+                        exceptions: [],
+                        settings: {
+                            trackerCookie: 'enabled',
+                            nonTrackerCookie: 'enabled',
+                            excludedCookieDomains: [],
+                            firstPartyCookiePolicy: null,
+                            firstPartyTrackerCookiePolicy: null,
+                        },
+                    },
+                },
+                unprotectedTemporary: [],
+            },
+            cookie: {
+                isFrame: false,
+                isTracker: false,
+                shouldBlock: true,
+                isThirdPartyFrame: false,
+            },
+        });
+
+        const result = await page.evaluate(async () => {
+            document.cookie = 'test=1; expires=Wed, 21 Aug 2040 20:00:00 UTC;';
+            await new Promise((resolve) => setTimeout(resolve, 100));
+            // eslint-disable-next-line no-undef
+            return cookieStore.get('test');
+        });
+
+        expect(result?.name).toEqual('test');
+        expect(result?.value).toEqual('1');
+        // @ts-expect-error - expires exists at runtime but not in CookieListItem type
+        expect(result?.expires).toBeLessThan(Date.now() + 605_000_000);
+    });
+
     test('Erroneous values do not throw', async ({ page }) => {
         await gotoAndWait(page, '/index.html');
         const result = await page.evaluate(async () => {
