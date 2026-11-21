@@ -3,6 +3,7 @@ import { getElement } from '../utils/utils.js';
 import { expectMany } from '../utils/expectations.js';
 import { wait } from '../../../timer-utils.js';
 import * as turnOverlay from '../assist/turn-overlay.js';
+import * as visualizer from '../assist/visualizer.js';
 
 const POLL_MS = 250;
 
@@ -21,6 +22,7 @@ export async function userAssist(action, root, onHandOff) {
     while (!expectMany(action.completeWhen, root).every((x) => x.result)) {
         if (!handedOff && Date.now() >= handOffAt) {
             handedOff = true;
+            visualizer.hide();
             const widget = action.highlight ? getElement(root, action.highlight) : null;
             if (widget) turnOverlay.show(widget);
             onHandOff(action.id);
