@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>URL Change Bridge</title>
+    <link rel="stylesheet" href="../../shared/style.css">
+</head>
+<body>
+
+<script src="../../shared/utils.js"></script>
+
+<p>URL Change Bridge</p>
+
+<script>
+    test('URL change bridge receives pushState events', async () => {
+        const events = [];
+        const secret = window.__urlChangeBridgeSecret;
+        if (!secret) {
+            return [{ name: 'secret-present', result: false, expected: true }];
+        }
+        const eventName = 'URL_CHANGED-' + secret;
+        window.addEventListener(eventName, (e) => {
+            events.push(e.detail);
+        });
+
+        // Trigger URL changes via history API
+        history.pushState({}, '', '?push1');
+        history.replaceState({}, '', '?replace1');
+
+        // Give a tick for events to propagate
+        await new Promise(r => setTimeout(r, 100));
+
+        return [
+            { name: 'event-count', result: events.length, expected: 2 },
+            { name: 'push-type', result: events[0]?.navigationType, expected: 'push' },
+            { name: 'replace-type', result: events[1]?.navigationType, expected: 'replace' },
+        ];
+    });
+
+    renderResults();
+</script>
+</body>
+</html>
