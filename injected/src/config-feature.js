@@ -527,13 +527,10 @@ export default class ConfigFeature {
             throw new Error(`${featureKeyName} is a reserved feature setting key name`);
         }
         // We only support one of these keys at a time, where conditionalChanges takes precedence
-        let conditionalMatches = [];
         // Presence check using result to avoid the [] default response
-        if (result?.conditionalChanges) {
-            conditionalMatches = this.matchConditionalFeatureSetting('conditionalChanges');
-        } else {
-            conditionalMatches = this.matchConditionalFeatureSetting('domains');
-        }
+        const conditionalMatches = result?.conditionalChanges
+            ? this.matchConditionalFeatureSetting('conditionalChanges')
+            : this.matchConditionalFeatureSetting('domains');
         for (const match of conditionalMatches) {
             if (match.patchSettings === undefined) {
                 continue;

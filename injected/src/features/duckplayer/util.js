@@ -160,8 +160,6 @@ export class VideoParams {
             return null;
         }
 
-        let id = null;
-
         // known params
         const vParam = url.searchParams.get('v');
         const tParam = url.searchParams.get('t');
@@ -169,12 +167,11 @@ export class VideoParams {
         let time = null;
 
         // ensure youtube video id is good
-        if (vParam && VideoParams.validVideoId.test(vParam)) {
-            id = vParam;
-        } else {
+        if (!vParam || !VideoParams.validVideoId.test(vParam)) {
             // if the video ID is invalid, we cannot produce an instance of VideoParams
             return null;
         }
+        const id = vParam;
 
         // ensure timestamp is good, if set
         if (tParam && VideoParams.validTimestamp.test(tParam)) {

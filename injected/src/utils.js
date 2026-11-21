@@ -163,7 +163,8 @@ export function hasThirdPartyOrigin(scriptOrigins) {
  * @returns {URL | null}
  */
 export function getTabUrl() {
-    let framingURLString = null;
+    /** @type {string} */
+    let framingURLString;
     try {
         // @ts-expect-error - globalThis.top is possibly 'null' here
         framingURLString = globalThis.top.location.href;

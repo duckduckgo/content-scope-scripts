@@ -74,6 +74,8 @@ const messaging = createSpecialPageMessaging({
     mockTransport: () => {
         // only in integration environments
         if (baseEnvironment.injectName !== 'integration') return null;
+        // The $INTEGRATION label is stripped at build time, so outside integration builds this stays null.
+        // eslint-disable-next-line no-useless-assignment
         let mock = null;
         // eslint-disable-next-line no-labels,no-unused-labels
         $INTEGRATION: mock = mockTransport();

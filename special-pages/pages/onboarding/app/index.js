@@ -24,10 +24,7 @@ const messaging = createSpecialPageMessaging({
     mockTransport: () => {
         // only in integration environments
         if (baseEnvironment.injectName !== 'integration') return null;
-        let mock = null;
-
-        mock = mockTransport();
-        return mock;
+        return mockTransport();
     },
 });
 

@@ -91,6 +91,8 @@ export default tseslint.config(
         rules: {
             'react-hooks/rules-of-hooks': 'error',
             'react-hooks/exhaustive-deps': 'error',
+            // Browser subscription callbacks, not Node-style error-first callbacks
+            'n/no-callback-literal': 'off',
         },
     },
     {

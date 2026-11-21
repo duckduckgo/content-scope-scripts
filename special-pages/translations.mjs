@@ -39,6 +39,8 @@ async function processPage(path) {
             try {
                 json = JSON.parse(raw);
             } catch (e) {
+                // The TS lib target has no Error cause option; the message already carries the original error
+                // eslint-disable-next-line preserve-caught-error
                 throw new Error(`${e.name} in '${path}' ${e.name}\n  ${e.message}`);
             }
             return {
