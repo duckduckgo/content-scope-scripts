@@ -54,7 +54,7 @@ export class ActionExecutorBase extends ContentFeature {
      */
     async exec(action, data) {
         const retryConfig = this.retryConfigFor(action);
-        const { result, exceptions } = await retry(() => execute(action, data, document), retryConfig);
+        const { result, exceptions } = await retry(() => this.runAction(action, data), retryConfig);
 
         if (result) {
             if ('success' in result && Array.isArray(result.success.next)) {
@@ -75,6 +75,15 @@ export class ActionExecutorBase extends ContentFeature {
     }
 
     /**
+     * @param {PirAction | UserAssistAction} action
+     * @param {Record<string, any>} data
+     * @return {Promise<ActionResponse>}
+     */
+    runAction(action, data) {
+        return execute(action, data, document);
+    }
+
+    /**
      * @returns {any}
      */
     retryConfigFor(action) {
@@ -84,6 +93,8 @@ export class ActionExecutorBase extends ContentFeature {
 
 /**
  * @typedef {import("./broker-protection/types.js").ActionResponse} ActionResponse
+ * @typedef {import("./broker-protection/types.js").PirAction} PirAction
+ * @typedef {import("./broker-protection/types.js").UserAssistAction} UserAssistAction
  */
 export default class BrokerProtection extends ActionExecutorBase {
     init() {
@@ -91,6 +102,15 @@ export default class BrokerProtection extends ActionExecutorBase {
             const { action, data } = params.state;
             return await this.processActionAndNotify(action, data);
         });
+    }
+
+    /**
+     * @param {PirAction | UserAssistAction} action
+     * @param {Record<string, any>} data
+     * @return {Promise<ActionResponse>}
+     */
+    runAction(action, data) {
+        return execute(action, data, document, (actionID) => this.messaging.notify('userTurnNeeded', { actionID }));
     }
 
     /**

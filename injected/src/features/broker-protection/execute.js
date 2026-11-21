@@ -10,20 +10,22 @@ import {
     solveCaptcha,
     condition,
     executeScript,
+    userAssist,
 } from './actions/actions';
 import { ErrorResponse } from './types';
 
 /**
- * @import { ActionResponse, PirAction, PirInputData, ProfileData } from './types.js'
+ * @import { ActionResponse, PirAction, PirInputData, ProfileData, UserAssistAction } from './types.js'
  */
 
 /**
- * @param {PirAction} action
+ * @param {PirAction | UserAssistAction} action
  * @param {Record<string, any>} inputData
  * @param {Document} [root] - optional root element
+ * @param {(actionID: string) => void} [onHandOff] - called when `userAssist` hands a step to the user
  * @return {Promise<ActionResponse>}
  */
-export async function execute(action, inputData, root = document) {
+export async function execute(action, inputData, root = document, onHandOff = () => {}) {
     try {
         switch (action.actionType) {
             case 'navigate':
@@ -48,10 +50,15 @@ export async function execute(action, inputData, root = document) {
                 return scroll(action, root);
             case 'executeScript':
                 return await executeScript(action, data(action, inputData, 'userProfile'), root);
+            case 'userAssist':
+                // Only BrokerProtection is sent userAssist actions, and it always passes a hand-off.
+                return await userAssist(action, root, onHandOff);
             default: {
+                // Every known type is handled above, but native may send one this build doesn't know.
+                const unknown = /** @type {{ id: string, actionType: string }} */ (action);
                 return new ErrorResponse({
-                    actionID: action.id,
-                    message: `unimplemented actionType: ${action.actionType}`,
+                    actionID: unknown.id,
+                    message: `unimplemented actionType: ${unknown.actionType}`,
                 });
             }
         }
