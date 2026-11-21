@@ -1899,6 +1899,11 @@ export default class ClickToLoad extends ContentFeature {
         // Request the current state of Click to Load from the platform.
         // Note: When the response is received, the response handler resolves
         //       the readyToDisplayPlaceholders Promise.
+        // Pre-existing exception to `no-blocking-init-request`: every platform
+        // that bundles CTL implements this handler, and the rest of init (below)
+        // cannot run without the state. Do not copy this into new features -
+        // see injected/docs/features-guide.md#red-flags-in-init.
+        // eslint-disable-next-line ddg-local/no-blocking-init-request
         const clickToLoadState = await this.messaging.request('getClickToLoadState');
         this.onClickToLoadState(clickToLoadState);
 
