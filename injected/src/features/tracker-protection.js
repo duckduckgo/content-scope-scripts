@@ -29,7 +29,8 @@ import { surrogates as bundledSurrogates } from './tracker-protection/surrogates
  * @returns {URL | null}
  */
 function getTabURL() {
-    let framingOrigin = null;
+    /** @type {string | null | undefined} */
+    let framingOrigin;
 
     try {
         framingOrigin = globalThis.top?.location.href;

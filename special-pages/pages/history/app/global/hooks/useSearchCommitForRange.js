@@ -12,7 +12,6 @@ export function useSearchCommitForRange() {
     const query = useQueryContext();
 
     useEffect(() => {
-        let timer;
         let counter = 0;
         const sub = query.subscribe((nextQuery) => {
             const { range } = nextQuery;
@@ -34,7 +33,6 @@ export function useSearchCommitForRange() {
 
         return () => {
             sub();
-            clearTimeout(timer);
         };
     }, [query, dispatch]);
 }
