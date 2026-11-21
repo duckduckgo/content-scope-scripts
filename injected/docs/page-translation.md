@@ -29,6 +29,8 @@ Native sends subscriptions; the feature replies with notifications.
 
 `extract` needs no languages, so native can detect the page's language from the units it returns. `apply` carries `sourceLanguage` (the detected page language) and `targetLanguage` (the language translated into), both BCP 47. `extract` reads the page as it is, so a second one on a translated page returns translated text.
 
+`extract` and `apply` also take an optional string `requestId`, which comes back unchanged in the reply. Native can use it to drop a late reply to a request it cancelled. Without it, nothing is echoed.
+
 To show the original, native reloads the page. It also reloads before translating again, for example into another language.
 
 ## What becomes a unit
