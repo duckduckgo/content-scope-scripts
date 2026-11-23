@@ -287,6 +287,21 @@ test.describe('sitePermissionsMediaCapture', () => {
         });
     }
 
+    test('asks native code before a request with null constraints', async ({ page }, testInfo) => {
+        await stubNativeGetUserMedia(page);
+        const collector = ResultsCollector.create(page, testInfo.project.use);
+        collector.withMockResponse({ requestPermission: { decision: 'deny' } });
+        await collector.load(HTML, CONFIG_ENABLED);
+
+        const error = await page.evaluate(() =>
+            // @ts-expect-error null is valid per WebIDL but missing from the DOM types
+            navigator.mediaDevices.getUserMedia({ video: null, audio: null }).catch((e) => e.name),
+        );
+        expect(error).toBe('NotAllowedError');
+        const [request] = await collector.waitForMessage('requestPermission');
+        expect(request.payload.params).toMatchObject({ video: true, audio: true });
+    });
+
     test('passes requests without video or audio straight to the native getUserMedia', async ({ page }, testInfo) => {
         await stubNativeGetUserMedia(page);
         const collector = ResultsCollector.create(page, testInfo.project.use);

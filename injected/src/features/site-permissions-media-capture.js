@@ -214,8 +214,9 @@ export default class SitePermissionsMediaCapture extends ContentFeature {
                 return rejectPromise(error);
             }
 
-            const video = toBoolean(rawVideo);
-            const audio = toBoolean(rawAudio);
+            // WebIDL converts a null member to empty track constraints, so null requests the media type.
+            const video = rawVideo === null || toBoolean(rawVideo);
+            const audio = rawAudio === null || toBoolean(rawAudio);
             const capturedConstraints = { video: rawVideo, audio: rawAudio };
             if (!video && !audio) {
                 return apply(nativeGetUserMedia, this, [capturedConstraints]);
