@@ -8,14 +8,14 @@ import {
     shouldActivate,
     validSelectors,
     videoIDFromURL,
-} from './sponsor-block/helpers.js';
-import daxSvg from './sponsor-block/assets/DuckDuckGo-Color-16.svg';
-import skipSvg from './sponsor-block/assets/Skip-Recolorable-16.svg';
+} from './segment-skip/helpers.js';
+import daxSvg from './segment-skip/assets/DuckDuckGo-Color-16.svg';
+import skipSvg from './segment-skip/assets/Skip-Recolorable-16.svg';
 
-/** @typedef {import('../types/sponsor-block.js').Segment} Segment */
-/** @typedef {import('../types/sponsor-block.js').OnConfigChangedParams} Config */
+/** @typedef {import('../types/segment-skip.js').Segment} Segment */
+/** @typedef {import('../types/segment-skip.js').OnConfigChangedParams} Config */
 
-// Selector defaults, used until the privacy-config `sponsorBlock` settings ship the same keys. Ordered lists: the first
+// Selector defaults, used until the privacy-config `segmentSkip` settings ship the same keys. Ordered lists: the first
 // selector with a visible match wins, so put the preferred element first.
 // Where the segment overlay is drawn: desktop player bar, then the m.youtube.com bar hosts (the chaptered host wraps
 // the line host, so it comes first).
@@ -38,8 +38,8 @@ const DEFAULT_AD_SHOWING_SELECTORS = ['.ad-showing'];
 // How long the skip button stays up after it appears for a segment, unless playback leaves the segment first. Counted
 // only while the video plays, so a paused or buffering video keeps the button.
 const SKIP_BUTTON_TIMEOUT_MS = 8000;
-const OVERLAY_CLASS = 'ddg-sponsorblock-overlay';
-const SKIP_BUTTON_CLASS = 'ddg-sponsorblock-skip';
+const OVERLAY_CLASS = 'ddg-segmentskip-overlay';
+const SKIP_BUTTON_CLASS = 'ddg-segmentskip-skip';
 const STYLES = `
 .${OVERLAY_CLASS} { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
 .${OVERLAY_CLASS} > div { position: absolute; top: 0; bottom: 0; min-width: 2px; background: rgb(76, 186, 60); }
@@ -139,7 +139,7 @@ function duckPlayerEmbedDocument() {
  * Tracks the current video ID, asks native for its SponsorBlock segments, marks them on the progress bar and,
  * while playback is inside one, offers a button that jumps to its end.
  */
-export class SponsorBlock extends ContentFeature {
+export class SegmentSkip extends ContentFeature {
     /** @type {string | null} */
     #videoID = null;
     #active = false;
@@ -458,4 +458,4 @@ export class SponsorBlock extends ContentFeature {
     }
 }
 
-export default SponsorBlock;
+export default SegmentSkip;
