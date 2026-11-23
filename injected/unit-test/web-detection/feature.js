@@ -123,6 +123,28 @@ describe('WebDetection feature', () => {
         });
     });
 
+    describe('detectorPerf dispatches', () => {
+        inTopFrame();
+
+        it('records the runs of one runDetectors call under one dispatch ID, and the next call under the next', () => {
+            const measure = { actions: { fireEvent: { type: 'measured' } } };
+            const args = instanceArgs({ group: { first: measure, second: measure } });
+            args.featureSettings = { ...args.featureSettings, detectorPerf: {} };
+            const instance = new WebDetection('webDetection', undefined, {}, args);
+            instance.init();
+            const send = spyOn(instance, 'callFeatureMethod').and.resolveTo(undefined);
+            instance.runDetectors({ trigger: 'breakageReport' });
+            instance.runDetectors({ trigger: 'breakageReport' });
+            const records = /** @type {readonly unknown[][]} */ (send.calls.allArgs()).filter((call) => call[1] === 'record');
+            expect(records.map((call) => [call[4], call[6]])).toEqual([
+                ['group.first', 1],
+                ['group.second', 1],
+                ['group.first', 2],
+                ['group.second', 2],
+            ]);
+        });
+    });
+
     describe('_executeFireEvent', () => {
         inTopFrame();
 

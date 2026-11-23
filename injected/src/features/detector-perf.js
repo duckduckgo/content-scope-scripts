@@ -55,7 +55,8 @@ const DEBUG_STATS_EVENT_TYPE = `${EVENT_PREFIX}DebugStats`;
 /**
  * @typedef {{ runs: number, totalMs: number, worstMs: number }} DetectorStats
  * @typedef {{ singleRunThresholdsMs: number[], totalPerPageThresholdsMs: number[] }} DetectorThresholds
- * @typedef {'single' | 'total' | 'combined'} SevereKind
+ * @typedef {'single' | 'total' | 'combined' | 'dispatch'} SevereKind
+ * @typedef {{ id: number, totalMs: number, shares: Map<string, number>, severe: boolean }} DispatchStats
  */
 
 /**
@@ -163,6 +164,16 @@ export default class DetectorPerf extends ContentFeature {
 
     /** Total ms across all recorded detectors in this frame. */
     #combinedTotalMs = 0;
+
+    /**
+     * The dispatch the last run with a dispatch ID was in. A dispatch is one call from the browser into
+     * the calling feature that runs detectors, so its total is the detector work in that call stack.
+     * @type {DispatchStats | undefined}
+     */
+    #dispatch;
+
+    /** @type {DispatchStats | undefined} the dispatch with the largest total in this frame */
+    #worstDispatch;
 
     /** Event types already emitted in this frame (at-most-once guard). */
     /** @type {Set<string>} */
@@ -298,8 +309,10 @@ export default class DetectorPerf extends ContentFeature {
      *   attribution, e.g. `adwalls.generic_en` within the `adwalls` group.
      *   Never appears in periodic event-type names.
      * @param {boolean} [failed] - whether the detector invocation threw or gave a failed result
+     * @param {number} [dispatch] - the ID of the dispatch the run is in, a positive integer the caller
+     *   increments for each dispatch. Runs with the same ID as the previous run add to its dispatch total
      */
-    record(name, durationMs, detail, failed = false) {
+    record(name, durationMs, detail, failed = false, dispatch) {
         if (!this.#active) return;
         if (typeof name !== 'string' || !NAME_PATTERN.test(name)) return;
         if (typeof durationMs !== 'number' || !Number.isFinite(durationMs) || durationMs < 0) return;
@@ -324,9 +337,49 @@ export default class DetectorPerf extends ContentFeature {
             this._emit(`${EVENT_PREFIX}_${name}_failed`);
         }
         this._checkSevere(name, durationMs, stats, attributed, thresholds);
+        if (typeof dispatch === 'number' && Number.isInteger(dispatch) && dispatch > 0) {
+            this._recordDispatch(dispatch, attributed, durationMs);
+        }
 
         // After crossings/severe so the broadcast includes this run's effects.
         this._debugBroadcast({ name, attributed, durationMs: roundMs(durationMs), failed: failed === true });
+    }
+
+    /**
+     * Add a run to its dispatch's total, and fire `severe` with `kind: dispatch` once when the total
+     * goes past the single-run severe cutoff, attributed to the detector with the largest share so far.
+     * A dispatch ends when a run with another ID is recorded, so a dispatch is never left open.
+     *
+     * @param {number} id
+     * @param {string} attributed - exact detector identity
+     * @param {number} durationMs
+     */
+    _recordDispatch(id, attributed, durationMs) {
+        let dispatch = this.#dispatch;
+        if (dispatch === undefined || dispatch.id !== id) {
+            dispatch = { id, totalMs: 0, shares: new Map(), severe: false };
+            this.#dispatch = dispatch;
+        }
+        dispatch.totalMs += durationMs;
+        dispatch.shares.set(attributed, (dispatch.shares.get(attributed) ?? 0) + durationMs);
+        if (this.#worstDispatch === undefined || dispatch.totalMs > this.#worstDispatch.totalMs) {
+            this.#worstDispatch = dispatch;
+        }
+
+        const edges = this.#singleRunThresholdsMs;
+        const cutoff = this.#singleRunSevereThresholdMs ?? edges[edges.length - 1];
+        if (dispatch.severe || cutoff === undefined || dispatch.totalMs <= cutoff) return;
+        dispatch.severe = true;
+        // A tie goes to the detector that ran first in the dispatch
+        let largest = attributed;
+        let largestMs = -1;
+        for (const [detector, ms] of dispatch.shares) {
+            if (ms > largestMs) {
+                largest = detector;
+                largestMs = ms;
+            }
+        }
+        this._emitSevere('dispatch', largest, cutoff);
     }
 
     /**
@@ -364,7 +417,9 @@ export default class DetectorPerf extends ContentFeature {
      * Durations are rounded to 0.1ms to keep the payload compact —
      * finer precision is below timer granularity anyway.
      *
-     * @returns {{ combinedTotalMs: number, detectors: Record<string, DetectorStats> } | undefined}
+     * `worstDispatch` is the dispatch with the largest total, with each detector's share of it.
+     *
+     * @returns {{ combinedTotalMs: number, worstDispatch?: { totalMs: number, detectors: Record<string, number> }, detectors: Record<string, DetectorStats> } | undefined}
      */
     getStats() {
         if (!this.#active) return undefined;
@@ -377,7 +432,16 @@ export default class DetectorPerf extends ContentFeature {
                 worstMs: roundMs(stats.worstMs),
             };
         }
-        return { combinedTotalMs: roundMs(this.#combinedTotalMs), detectors };
+        const worst = this.#worstDispatch;
+        if (worst === undefined) return { combinedTotalMs: roundMs(this.#combinedTotalMs), detectors };
+        /** @type {Record<string, number>} */
+        const shares = {};
+        for (const [name, ms] of worst.shares) shares[name] = roundMs(ms);
+        return {
+            combinedTotalMs: roundMs(this.#combinedTotalMs),
+            worstDispatch: { totalMs: roundMs(worst.totalMs), detectors: shares },
+            detectors,
+        };
     }
 
     /**
@@ -531,9 +595,10 @@ export default class DetectorPerf extends ContentFeature {
  * @param {string} [detail] - exact detector identity for single-run severe
  *   attribution (e.g. `adwalls.generic_en` within `adwalls`)
  * @param {(result: T) => boolean} [isFailed] - whether a returned result is a failed run
+ * @param {number} [dispatch] - the ID of the dispatch the invocation is in, as `record` takes it
  * @returns {T}
  */
-export function timeDetector(feature, name, fn, detail, isFailed) {
+export function timeDetector(feature, name, fn, detail, isFailed, dispatch) {
     const t0 = performanceNow();
     let failed = true;
     try {
@@ -542,7 +607,7 @@ export function timeDetector(feature, name, fn, detail, isFailed) {
         return result;
     } finally {
         const durationMs = performanceNow() - t0;
-        void reportDuration(feature, name, durationMs, detail, failed);
+        void reportDuration(feature, name, durationMs, detail, failed, dispatch);
     }
 }
 
@@ -555,10 +620,11 @@ export function timeDetector(feature, name, fn, detail, isFailed) {
  * @param {number} durationMs
  * @param {string} [detail]
  * @param {boolean} [failed]
+ * @param {number} [dispatch]
  */
-async function reportDuration(feature, name, durationMs, detail, failed) {
+async function reportDuration(feature, name, durationMs, detail, failed, dispatch) {
     try {
-        await feature.callFeatureMethod('detectorPerf', 'record', name, durationMs, detail, failed);
+        await feature.callFeatureMethod('detectorPerf', 'record', name, durationMs, detail, failed, dispatch);
     } catch {
         // detectorPerf may not be loaded on this platform — silently ignore
     }

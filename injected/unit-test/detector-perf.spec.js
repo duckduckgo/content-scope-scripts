@@ -662,6 +662,96 @@ describe('DetectorPerf', () => {
         });
     });
 
+    describe('dispatch totals', () => {
+        /**
+         * @param {Array<{type: string, data?: Record<string, unknown>}>} capturedEvents
+         */
+        function dispatchSevere(capturedEvents) {
+            return capturedEvents
+                .filter((event) => event.type === 'detectorPerf_severe' && event.data?.kind === 'dispatch')
+                .map((event) => event.data);
+        }
+
+        it("adds the runs of one dispatch, with each detector's share", () => {
+            // An auto tick running X then Y, neither reaching a wait
+            const { feature } = createFeature();
+            feature.record('adwalls', 6, 'adwalls.x', false, 1);
+            feature.record('adwalls', 4, 'adwalls.y', false, 1);
+            expect(feature.getStats()?.worstDispatch).toEqual({ totalMs: 10, detectors: { 'adwalls.x': 6, 'adwalls.y': 4 } });
+        });
+
+        it("adds a detector's runs in one dispatch to its share", () => {
+            const { feature } = createFeature();
+            feature.record('adwalls', 6, 'adwalls.x', false, 1);
+            feature.record('adwalls', 4, 'adwalls.x', false, 1);
+            expect(feature.getStats()?.worstDispatch).toEqual({ totalMs: 10, detectors: { 'adwalls.x': 10 } });
+        });
+
+        it('keeps the dispatch with the largest total', () => {
+            const { feature } = createFeature();
+            feature.record('adwalls', 6, 'adwalls.x', false, 1);
+            feature.record('adwalls', 4, 'adwalls.y', false, 1);
+            feature.record('captcha', 8, 'captcha.z', false, 2);
+            feature.record('adwalls', 12, 'adwalls.y', false, 3);
+            feature.record('adwalls', 1, 'adwalls.x', false, 4);
+            expect(feature.getStats()?.worstDispatch).toEqual({ totalMs: 12, detectors: { 'adwalls.y': 12 } });
+        });
+
+        it('leaves worstDispatch out when no run had a dispatch ID', () => {
+            const { feature } = createFeature();
+            feature.record('bot', 5);
+            feature.record('bot', 5, undefined, false, 0);
+            feature.record('bot', 5, undefined, false, 1.5);
+            expect(feature.getStats()).toEqual({ combinedTotalMs: 15, detectors: { bot: { runs: 3, totalMs: 15, worstMs: 5 } } });
+        });
+
+        it('fires severe once a dispatch total goes past the single-run severe cutoff, against the largest share', async () => {
+            const { feature, capturedEvents } = createFeature();
+            feature.record('adwalls', 60, 'adwalls.x', false, 1);
+            feature.record('adwalls', 80, 'adwalls.y', false, 1);
+            feature.record('captcha', 20, 'captcha.z', false, 1);
+            feature.record('captcha', 20, 'captcha.z', false, 1);
+            await settle();
+            expect(dispatchSevere(capturedEvents)).toEqual([{ kind: 'dispatch', detector: 'adwalls.y', thresholdMs: 150 }]);
+            // No single run went past 150
+            expect(capturedEvents.filter((event) => event.data?.kind === 'single')).toEqual([]);
+        });
+
+        it('uses the configured single-run severe cutoff', async () => {
+            const { feature, capturedEvents } = createFeature({ singleRunSevereThresholdMs: 50 });
+            feature.record('adwalls', 30, 'adwalls.x', false, 1);
+            feature.record('adwalls', 30, 'adwalls.y', false, 1);
+            await settle();
+            expect(dispatchSevere(capturedEvents)).toEqual([{ kind: 'dispatch', detector: 'adwalls.x', thresholdMs: 50 }]);
+        });
+
+        it('does not fire severe for a dispatch at or under the cutoff', async () => {
+            const { feature, capturedEvents } = createFeature();
+            feature.record('adwalls', 100, 'adwalls.x', false, 1);
+            feature.record('adwalls', 50, 'adwalls.y', false, 1);
+            feature.record('adwalls', 100, 'adwalls.x', false, 2);
+            await settle();
+            expect(dispatchSevere(capturedEvents)).toEqual([]);
+        });
+
+        it('passes the dispatch ID through timeDetector', () => {
+            const { feature } = createFeature();
+            const caller = {
+                callFeatureMethod: (featureName, methodName, name, _durationMs, detail, failed, dispatch) => {
+                    if (featureName === 'detectorPerf' && methodName === 'record') {
+                        feature.record(name, 3, detail, failed, dispatch);
+                    }
+                    return Promise.resolve(undefined);
+                },
+            };
+            // @ts-expect-error - minimal caller stub for test
+            timeDetector(caller, 'adwalls', () => true, 'adwalls.x', undefined, 7);
+            // @ts-expect-error - minimal caller stub for test
+            timeDetector(caller, 'adwalls', () => true, 'adwalls.y', undefined, 7);
+            expect(feature.getStats()?.worstDispatch).toEqual({ totalMs: 6, detectors: { 'adwalls.x': 3, 'adwalls.y': 3 } });
+        });
+    });
+
     describe('timeDetector wrapper', () => {
         it('returns the wrapped result and records the duration', async () => {
             const { feature, captured } = createFeature();
