@@ -47,7 +47,7 @@
   "devDependencies": {
     "@canvas/image-data": "^1.1.0",
     "@duckduckgo/privacy-reference-tests": "github:duckduckgo/privacy-reference-tests#c2b49fe7ce4a75404c6a79e4dd1053710a9869ee",
-    "@fingerprintjs/fingerprintjs": "^5.2.0",
+    "@fingerprintjs/fingerprintjs": "^5.3.0",
     "@types/chrome": "^0.2.2",
     "@types/jasmine": "^6.0.0",
     "@types/node": "^26.1.1",
@@ -57,6 +57,6 @@
     "jasmine": "^7.0.0",
     "jsdom": "^30.0.1",
     "monocart-coverage-reports": "^2.13.0",
-    "web-ext": "^10.6.0"
+    "web-ext": "^10.8.0"
   }
 }
