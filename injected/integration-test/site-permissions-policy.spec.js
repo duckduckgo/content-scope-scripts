@@ -52,7 +52,7 @@ async function deliver(page, documentID) {
 
 /**
  * Calls the policy subscription the way native code does and returns what it resolves to.
- * @param {import('@playwright/test').Page} page
+ * @param {import('@playwright/test').Page | import('@playwright/test').Frame} page
  */
 async function requestConstraints(page) {
     return await page.evaluate(async () => {
@@ -65,6 +65,30 @@ async function requestConstraints(page) {
             params: {},
         });
     });
+}
+
+/**
+ * Adds an iframe to `parent` and returns its frame once the page inside has loaded.
+ * @param {import('@playwright/test').Page | import('@playwright/test').Frame} parent
+ * @param {{ allow?: string, srcdoc?: boolean }} options - `srcdoc` adds an about:srcdoc frame
+ */
+async function addFrame(parent, { allow, srcdoc = false }) {
+    const handle = await parent.evaluateHandle(
+        ({ allow, srcdoc }) =>
+            new Promise((resolve) => {
+                const frame = document.createElement('iframe');
+                if (allow !== undefined) frame.setAttribute('allow', allow);
+                if (srcdoc) frame.srcdoc = '<p>srcdoc</p>';
+                // Browsers refuse to nest a frame with the same URL as an ancestor.
+                else frame.src = `/site-permissions/index.html?frame=${crypto.randomUUID()}`;
+                frame.addEventListener('load', () => resolve(frame), { once: true });
+                document.body.append(frame);
+            }),
+        { allow, srcdoc },
+    );
+    const frame = await /** @type {import('@playwright/test').ElementHandle<HTMLIFrameElement>} */ (handle).contentFrame();
+    if (!frame) throw new Error('iframe has no content frame');
+    return frame;
 }
 
 test.describe('sitePermissionsGeolocationPolicy', () => {
@@ -108,5 +132,42 @@ test.describe('sitePermissionsGeolocationPolicy', () => {
         await collector.load(HTML, CONFIG_ENABLED);
 
         expect(await page.evaluate(() => '__ddgSitePermissionsGeolocationPolicy' in window)).toBe(false);
+    });
+
+    // Playwright's WebKit doesn't expose `allowsFeature`, so frames use the allow-attribute fallback.
+    for (const { allow, allowed } of [
+        { allow: undefined, allowed: true },
+        { allow: 'geolocation', allowed: true },
+        { allow: 'geolocation *', allowed: true },
+        { allow: "geolocation 'none'", allowed: false },
+        { allow: 'geolocation https://other.example', allowed: false },
+    ]) {
+        test(`a same-origin iframe with allow=${JSON.stringify(allow ?? null)} ${allowed ? 'may' : 'may not'} use geolocation`, async ({
+            page,
+        }, testInfo) => {
+            const collector = ResultsCollector.create(page, testInfo.project.use);
+            await collector.load(HTML, CONFIG_ENABLED);
+
+            const frame = await addFrame(page, { allow });
+            expect(await requestConstraints(frame)).toMatchObject({ isPolicyAllowed: allowed });
+        });
+    }
+
+    test('an ancestor iframe that withholds geolocation denies it to nested iframes', async ({ page }, testInfo) => {
+        const collector = ResultsCollector.create(page, testInfo.project.use);
+        await collector.load(HTML, CONFIG_ENABLED);
+
+        const outer = await addFrame(page, { allow: "geolocation 'none'" });
+        const inner = await addFrame(outer, { allow: 'geolocation' });
+        expect(await requestConstraints(inner)).toMatchObject({ isPolicyAllowed: false });
+    });
+
+    test('an iframe nested in a srcdoc iframe compares with the origin the srcdoc document inherits', async ({ page }, testInfo) => {
+        const collector = ResultsCollector.create(page, testInfo.project.use);
+        await collector.load(HTML, CONFIG_ENABLED);
+
+        const outer = await addFrame(page, { srcdoc: true });
+        const inner = await addFrame(outer, { allow: "geolocation 'self'" });
+        expect(await requestConstraints(inner)).toMatchObject({ isPolicyAllowed: true });
     });
 });
