@@ -91,6 +91,8 @@ Run from root. Use `nvm use` to set the correct Node version.
 | `npm run test-int` | Integration tests (Playwright) |
 | `npm run lint` | ESLint + TypeScript + oxfmt (run `npm run build` first; it also lints the built output) |
 | `npm run lint-fix` | Auto-fix lint issues |
+| `npm run format` | Format all files with oxfmt (about a second) |
+| `npm run check-format` | Check formatting without writing |
 | `npm run serve` | Serve injected test pages (port 3220) |
 | `npm run serve-special-pages` | Serve built special pages (port 3210) |
 

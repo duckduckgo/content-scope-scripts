@@ -19,13 +19,13 @@ We use [oxfmt](https://oxc.rs/docs/guide/usage/formatter), a Prettier-compatible
 
 ```bash
 # Format all files
-npx oxfmt
+npm run format
 
 # Format, plus ESLint fixes and type check
 npm run lint-fix
 
 # Check formatting (without making changes)
-npx oxfmt --check
+npm run check-format
 ```
 
 ## TypeScript via JSDoc
