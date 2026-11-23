@@ -13,14 +13,7 @@ import {
     objectGetPrototypeOf as getPrototypeOf,
     promiseReject as rejectPromise,
 } from '../captured-globals.js';
-import {
-    callThen,
-    embeddingFrameAllows,
-    isSameOriginAsTopLevel,
-    mediaCapturePolicyEvent,
-    permissionsPolicy,
-    randomHexToken,
-} from './site-permissions/shared.js';
+import { callThen, embeddingFrameAllows, mediaCapturePolicyEvent, permissionsPolicy, randomHexToken } from './site-permissions/shared.js';
 
 /**
  * Delays a website's getUserMedia call so the iOS app can ask for site permission first.
@@ -72,11 +65,22 @@ export default class SitePermissionsMediaCapture extends ContentFeature {
         const isDuckAIHost = hostname === 'duck.ai' || matchHostname(hostname, 'duckduckgo.com');
         const hasNonOpaqueOrigin = origin !== 'null' && origin.length > 0;
         const isSyntheticDocument = locationProtocol === 'about:';
-        const sameOriginAsTopLevel = isSameOriginAsTopLevel(origin);
         const isTopLevel = !isBeingFramed();
         // Native code checks that the request still belongs to the committed top-level page.
         const ancestorOrigins = globalThis.location.ancestorOrigins;
         const topOrigin = isTopLevel ? origin : (ancestorOrigins?.[ancestorOrigins.length - 1] ?? 'null');
+        // Compare with every ancestor, not only the top-level page: a frame can share the top-level
+        // origin and still sit inside a cross-origin frame (a.example → b.example → a.example).
+        // Whenever any ancestor is cross-origin, rely on WebKit's Permissions API for the whole
+        // chain's delegation. Top-level pages have no ancestors.
+        const hasCrossOriginAncestor = (() => {
+            for (let index = 0; index < (ancestorOrigins?.length ?? 0); index += 1) {
+                if (ancestorOrigins[index] !== origin) {
+                    return true;
+                }
+            }
+            return false;
+        })();
         // WebKit owns each document's effective sandbox restrictions, including after navigation.
         // An allow-same-origin sandbox may request media; opaque origins are marked ineligible.
         const policy = permissionsPolicy();
@@ -94,7 +98,7 @@ export default class SitePermissionsMediaCapture extends ContentFeature {
          * @param {'camera' | 'microphone'} feature
          */
         const localPolicyAllows = (feature) => {
-            if (hasPolicyIntrospection || !sameOriginAsTopLevel) {
+            if (hasPolicyIntrospection || hasCrossOriginAncestor) {
                 return false;
             }
             if (isTopLevel) {
@@ -217,7 +221,6 @@ export default class SitePermissionsMediaCapture extends ContentFeature {
                 return apply(nativeGetUserMedia, this, [capturedConstraints]);
             }
 
-            const isCrossOrigin = !sameOriginAsTopLevel;
             // Send ineligible requests too: native code checks rollback before denying custom-flow requests.
             const isEligibleContext =
                 this === mediaDevices &&
@@ -225,7 +228,7 @@ export default class SitePermissionsMediaCapture extends ContentFeature {
                 (isDuckAIHost ||
                     (isSecureContext &&
                         !isSyntheticDocument &&
-                        (isCrossOrigin || ((!video || policyAllows('camera')) && (!audio || policyAllows('microphone'))))));
+                        (hasCrossOriginAncestor || ((!video || policyAllows('camera')) && (!audio || policyAllows('microphone'))))));
 
             nextRequestID += 1;
             const requestID = `${nonce}:${nextRequestID}`;
@@ -236,7 +239,7 @@ export default class SitePermissionsMediaCapture extends ContentFeature {
             let bridgePromise;
             try {
                 bridgePromise =
-                    !isEligibleContext || !isCrossOrigin || isDuckAIHost
+                    !isEligibleContext || !hasCrossOriginAncestor || isDuckAIHost
                         ? post(isEligibleContext)
                         : callThen(delegationAllows(video && audio ? ['camera', 'microphone'] : [video ? 'camera' : 'microphone']), post);
             } catch (_) {
