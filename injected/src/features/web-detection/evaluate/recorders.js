@@ -20,9 +20,9 @@ import { isFailure, mismatch, thrownFailure } from '../model/core.js';
  * A body naming a recorded type, as `observed`, `trigger` and an `observe` trigger's `on` parse it.
  *
  * @typedef {object} RecordedBody
- * @property {'entryType' | 'event' | 'mutation' | 'detectorEvent'} kind - `mutation` in a `wait` only
- * @property {string} type - the entry type, event type or detector event name, or `mutation`
- * @property {Record<string, unknown>} [mutation] - for `mutation`, the options of `MutationObserver.observe()`
+ * @property {'entryType' | 'event' | 'mutation' | 'intersection' | 'resize' | 'detectorEvent'} kind - `mutation`, `intersection` and `resize` in a `wait` only
+ * @property {string} type - the entry type, event type or detector event name, or the kind for `mutation`, `intersection` and `resize`
+ * @property {Record<string, unknown>} [options] - for `mutation`, `intersection` and `resize`, the observer's options
  * @property {number} [durationThreshold] - for `event` entries, the shortest `duration` the body gives
  * @property {CompiledExpression} [target] - for events, the expression giving the `EventTarget` listened on
  * @property {CompiledPredicate} [where]
@@ -212,6 +212,12 @@ export class Recorder {
  * @property {typeof MutationObserver} [MutationObserver]
  * @property {Function} [observeMutations]
  * @property {Function} [disconnectMutations]
+ * @property {typeof IntersectionObserver} [IntersectionObserver]
+ * @property {Function} [observeIntersection]
+ * @property {Function} [disconnectIntersection]
+ * @property {typeof ResizeObserver} [ResizeObserver]
+ * @property {Function} [observeResize]
+ * @property {Function} [disconnectResize]
  */
 
 /**
@@ -229,7 +235,7 @@ export class Recorders {
     #globals;
 
     /**
-     * @param {{ PerformanceObserver?: typeof PerformanceObserver, EventTarget?: typeof EventTarget, MutationObserver?: typeof MutationObserver }} global - the global object to capture from
+     * @param {{ PerformanceObserver?: typeof PerformanceObserver, EventTarget?: typeof EventTarget, MutationObserver?: typeof MutationObserver, IntersectionObserver?: typeof IntersectionObserver, ResizeObserver?: typeof ResizeObserver }} global - the global object to capture from
      * @param {{ onEvent?: (event: Event) => void, now?: () => number }} [options] - `onEvent` runs for each trusted event before it's recorded
      */
     constructor(global, { onEvent, now = performanceNow } = {}) {
@@ -237,7 +243,15 @@ export class Recorders {
         const supported = Observer?.supportedEntryTypes;
         const listen = global.EventTarget?.prototype;
         const Mutations = global.MutationObserver;
+        const Intersections = global.IntersectionObserver;
+        const Resizes = global.ResizeObserver;
         this.#globals = {
+            IntersectionObserver: Intersections,
+            observeIntersection: Intersections?.prototype.observe,
+            disconnectIntersection: Intersections?.prototype.disconnect,
+            ResizeObserver: Resizes,
+            observeResize: Resizes?.prototype.observe,
+            disconnectResize: Resizes?.prototype.disconnect,
             MutationObserver: Mutations,
             observeMutations: Mutations?.prototype.observe,
             disconnectMutations: Mutations?.prototype.disconnect,
@@ -264,7 +278,7 @@ export class Recorders {
      * @returns {Recorder | undefined}
      */
     recorderFor(body, target, durationThreshold, create = true) {
-        if (body.kind === 'mutation') return undefined;
+        if (body.kind === 'mutation' || body.kind === 'intersection' || body.kind === 'resize') return undefined;
         if (body.kind === 'detectorEvent') {
             const existing = this.#detectorEvents.get(body.type);
             if (existing || !create) return existing;
@@ -380,6 +394,52 @@ export class Recorders {
             return () => ReflectApply(disconnect, observer, []);
         } catch (e) {
             return thrownFailure(e);
+        }
+    }
+
+    /**
+     * Observe an element's place in the viewport with the `IntersectionObserver` captured, with the
+     * viewport as root, giving each callback's entries. Gives the function that disconnects it, or
+     * `undefined` when the element can't be observed.
+     *
+     * @param {unknown} target
+     * @param {Record<string, unknown>} options - the options of `IntersectionObserver`, `root` and `rootMargin` left out
+     * @param {(entries: IntersectionObserverEntry[]) => void} onEntries
+     * @returns {(() => void) | undefined}
+     */
+    observeIntersection(target, options, onEntries) {
+        const { IntersectionObserver: Observer, observeIntersection: observe, disconnectIntersection: disconnect } = this.#globals;
+        if (!Observer || !observe || !disconnect) return undefined;
+        try {
+            const { root: _root, rootMargin: _rootMargin, ...rest } = options;
+            const observer = new Observer((entries) => onEntries(entries), rest);
+            ReflectApply(observe, observer, [target]);
+            return () => ReflectApply(disconnect, observer, []);
+        } catch {
+            // A target that isn't an element, or options the engine rejects
+            return undefined;
+        }
+    }
+
+    /**
+     * Observe an element's size with the `ResizeObserver` captured, giving each callback's entries.
+     * Gives the function that disconnects it, or `undefined` when the element can't be observed.
+     *
+     * @param {unknown} target
+     * @param {Record<string, unknown>} options - the options of `ResizeObserver.observe()`
+     * @param {(entries: ResizeObserverEntry[]) => void} onEntries
+     * @returns {(() => void) | undefined}
+     */
+    observeResize(target, options, onEntries) {
+        const { ResizeObserver: Observer, observeResize: observe, disconnectResize: disconnect } = this.#globals;
+        if (!Observer || !observe || !disconnect) return undefined;
+        try {
+            const observer = new Observer((entries) => onEntries(entries));
+            ReflectApply(observe, observer, [target, options]);
+            return () => ReflectApply(disconnect, observer, []);
+        } catch {
+            // A target that isn't an element, or options the engine rejects
+            return undefined;
         }
     }
 
