@@ -14,7 +14,7 @@ import { evaluateOccurrence } from './evaluate.js';
  *
  * @typedef {object} DetectorState
  * @property {Map<string, unknown>} names - the detector names `define` has bound, `this.x`
- * @property {boolean} done - whether a run's `match` has held, so the detector runs no more
+ * @property {boolean} done - whether a run's `match` or `done` action has held, so the detector runs no more
  */
 
 /**
@@ -57,6 +57,8 @@ export function runDetector(compiled, state, ctx) {
         state.done = true;
     }
     evaluatePart(compiled.actions, ctx, run);
+    // A `done` that held before a failure stays in effect, as a `match` that held does
+    if (ctx.done) state.done = true;
     return run;
 }
 

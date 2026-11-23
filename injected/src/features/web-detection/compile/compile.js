@@ -11,12 +11,26 @@ import {
     rejectUnknownKeys,
 } from '../model/core.js';
 import { compilePredicate } from '../predicates/predicates.js';
+import { parseItemKeys } from '../sources/common.js';
+import { parseRecordedType } from '../sources/recorded.js';
 import { finish } from './positions.js';
 
 /**
  * @import { Node, NodeBase, IfNode, ItemBinder, ItemNode, Position, CompiledPayloadField, SourceBody } from '../model/types.js'
  * @import { DetectorConfig as RawDetectorConfig } from '@duckduckgo/privacy-configuration/schema/features/web-detection.js'
  * @import { PageSources } from '../sources/index.js'
+ * @import { RecordedBody } from '../evaluate/recorders.js'
+ */
+
+/**
+ * A body of an `observe` trigger's `on`: the type whose arrival runs the detector, and when the run
+ * happens.
+ *
+ * @typedef {object} OnBody
+ * @property {RecordedBody} body
+ * @property {number} delayMs - the run is in a task this long after the arrival
+ * @property {boolean} sync - the run is in the listener, during dispatch
+ * @property {string} path
  */
 
 /**
@@ -27,6 +41,8 @@ import { finish } from './positions.js';
  * @property {Node} actions - in value position
  * @property {Set<string>} names - every name config reads or calls, for the native reader
  * @property {Set<string>} paths - every path config reads from the global object, up to the method it calls, for the native reader
+ * @property {Array<{ key: 'observed' | 'trigger', body: RecordedBody }>} recorded - every `observed` and `trigger` body naming a recorded type
+ * @property {OnBody[]} on - the `observe` trigger's `on` bodies, when it has any
  */
 
 const MODIFIER_KEYS = new Set(['using', 'is']);
@@ -49,6 +65,8 @@ export class Scope {
     readerNames = new Set();
     /** @type {Set<string>} */
     readerPaths = new Set();
+    /** @type {Array<{ key: 'observed' | 'trigger', body: RecordedBody }>} */
+    recorded = [];
     /** @type {ItemBinder[]} the `using`, `where` and `field` binding `self` around the expression being compiled, innermost last */
     bindings = [];
 
@@ -61,6 +79,7 @@ export class Scope {
         this.hooks = {
             names: this.readerNames,
             paths: this.readerPaths,
+            recorded: this.recorded,
             expression: (raw, path, position) => compileExpr(raw, position, path, this),
             item: (fn) => {
                 /** @type {ItemBinder} */
@@ -201,6 +220,7 @@ function compileActions(raw, keys, position, path, scope) {
     for (const key of keys) {
         const actionPath = `${path}.${key}`;
         if (key === 'define') actions.push(...compileDefine(raw.define, actionPath, scope));
+        else if (key === 'done') actions.push(compileDone(raw.done, actionPath, scope));
         else actions.push(compileAction(/** @type {'fireEvent' | 'breakageReportData'} */ (key), raw[key], actionPath, scope));
     }
     /** @type {Node} */
@@ -225,6 +245,20 @@ function compileDefine(raw, path, scope) {
         const value = compileExpr(raw[name], 'value', namePath, scope);
         return makeNode(scope, { kind: 'define', name, value, path: namePath, position: 'value' });
     });
+}
+
+/**
+ * `done`: the detector is done at the end of the run when its value is `true`, or a selected list with
+ * an item. Any other value, `undefined` included, leaves it as it is.
+ *
+ * @param {unknown} raw
+ * @param {string} path
+ * @param {Scope} scope
+ * @returns {Node}
+ */
+function compileDone(raw, path, scope) {
+    const value = compileExpr(raw, 'value', path, scope);
+    return makeNode(scope, { kind: 'done', value, path, position: 'value' });
 }
 
 /**
@@ -255,6 +289,8 @@ function compileKey(key, body, position, path, scope) {
         case 'element':
         case 'text':
         case 'api':
+        case 'observed':
+        case 'trigger':
             return compileSource(key, body, position, path, scope);
         case 'self':
             return compileSelf(body, position, path, scope);
@@ -383,7 +419,7 @@ function compileSelf(raw, position, path, scope, key = 'self') {
 }
 
 /**
- * @param {'element' | 'text' | 'api'} key
+ * @param {'element' | 'text' | 'api' | 'observed' | 'trigger'} key
  * @param {unknown} body
  * @param {Position} position
  * @param {string} path
@@ -392,11 +428,12 @@ function compileSelf(raw, position, path, scope, key = 'self') {
  */
 function compileSource(key, body, position, path, scope) {
     const source = scope.sources[key];
-    if (key === 'api' && isArray(body)) throw new ConfigParseError(path, '`api` takes one body');
+    if ((key === 'api' || key === 'observed' || key === 'trigger') && isArray(body))
+        throw new ConfigParseError(path, `\`${key}\` takes one body`);
     const bodies = asArray(body).map((raw, i) => source.parse(raw, isArray(body) ? `${path}.${i}` : path, scope.hooks));
     const withField = bodies.some(hasField);
-    // `text`, and `element` without `field`, are the condition leaf: a boolean under any / all / none
-    const leaf = key === 'text' || (key === 'element' && !withField);
+    // `text`, and `element` or `trigger` without `field`, are the condition leaf: a boolean under any / all / none
+    const leaf = key === 'text' || ((key === 'element' || key === 'trigger') && !withField);
     return makeNode(scope, { kind: 'source', source, bodies, withField, leaf, path, position });
 }
 
@@ -442,6 +479,36 @@ function compilePayload(raw, path, scope) {
 const DETECTOR_KEYS = ['state', 'triggers', 'match', 'actions'];
 
 /**
+ * Compile the `on` bodies of an `observe` trigger, when the detector has one.
+ *
+ * @param {unknown} triggers
+ * @param {Scope} scope
+ * @returns {OnBody[]}
+ */
+function compileOn(triggers, scope) {
+    const observe = isPlainObject(triggers) ? triggers.observe : undefined;
+    if (observe === undefined) return [];
+    const path = 'triggers.observe.on';
+    if (!isPlainObject(observe)) throw new ConfigParseError('triggers.observe', '`observe` takes an object');
+    if (!isArray(observe.on)) throw new ConfigParseError(path, '`on` takes an array of bodies');
+    return observe.on.map((raw, i) => {
+        const bodyPath = `${path}.${i}`;
+        if (!isPlainObject(raw)) throw new ConfigParseError(bodyPath, 'an `on` body takes an object');
+        rejectUnknownKeys(raw, ['entryType', 'event', 'durationThreshold', 'target', 'where', 'delayMs', 'sync'], bodyPath);
+        const body = { ...parseRecordedType(raw, bodyPath, scope.hooks), ...parseItemKeys(raw, bodyPath, scope.hooks) };
+        const delayMs = raw.delayMs ?? 0;
+        if (typeof delayMs !== 'number' || !(delayMs >= 0))
+            throw new ConfigParseError(`${bodyPath}.delayMs`, '`delayMs` takes a number at or above 0');
+        const sync = raw.sync ?? false;
+        if (typeof sync !== 'boolean') throw new ConfigParseError(`${bodyPath}.sync`, '`sync` takes a boolean');
+        if (sync && (body.kind !== 'event' || raw.delayMs !== undefined)) {
+            throw new ConfigParseError(`${bodyPath}.sync`, '`sync` is for `event` bodies with no `delayMs`');
+        }
+        return { body, delayMs, sync, path: bodyPath };
+    });
+}
+
+/**
  * Compile a detector's `match` and `actions`. Names are not checked: a `ref` reads whatever binding
  * exists when evaluation reaches it.
  *
@@ -456,6 +523,7 @@ export function compileDetector(config, sources) {
     const scope = new Scope(sources);
     const match = config.match === undefined ? undefined : compileExpr(config.match, 'boolean', 'match', scope);
     const actions = compileBody(config.actions, 'value', 'actions', scope);
+    const on = compileOn(config.triggers, scope);
     finish(scope);
-    return { ...(match && { match }), actions, names: scope.readerNames, paths: scope.readerPaths };
+    return { ...(match && { match }), actions, names: scope.readerNames, paths: scope.readerPaths, recorded: scope.recorded, on };
 }

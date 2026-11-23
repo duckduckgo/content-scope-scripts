@@ -10,12 +10,14 @@
  * @import { ApiBody } from '../sources/api.js'
  * @import { ElementBody } from '../sources/element.js'
  * @import { TextBody } from '../sources/text.js'
+ * @import { Arrival, RecordedBody } from '../evaluate/recorders.js'
+ * @import { TriggerBody } from '../sources/recorded.js'
  */
 
 /**
- * A body of `element`, `text` or `api`, as its source parsed it.
+ * A body of `element`, `text`, `api`, `observed` or `trigger`, as its source parsed it.
  *
- * @typedef {ApiBody | ElementBody | TextBody} SourceBody
+ * @typedef {ApiBody | ElementBody | TextBody | RecordedBody | TriggerBody} SourceBody
  */
 
 /**
@@ -57,7 +59,8 @@
  * @typedef {NodeBase & { kind: 'define', name: string, value: Node }} DefineNode
  * @typedef {NodeBase & { kind: 'fireEvent', type: string, data?: CompiledPayloadField[] }} FireEventNode
  * @typedef {NodeBase & { kind: 'breakageReportData', data?: CompiledPayloadField[] }} BreakageReportDataNode
- * @typedef {DefineNode | FireEventNode | BreakageReportDataNode} ActionNode
+ * @typedef {NodeBase & { kind: 'done', value: Node }} DoneNode - `value` in value position
+ * @typedef {DefineNode | FireEventNode | BreakageReportDataNode | DoneNode} ActionNode
  * @typedef {LiteralNode | SourceNode | LengthNode | ExprNode | UsingNode | ListNode | OnlyNode | ArithmeticNode | LogicNode | IfNode | SequenceNode | RefNode | ItemNode | ActionNode} Node
  */
 
@@ -127,6 +130,7 @@
  * @property {(value: unknown) => unknown[] | Failure | undefined} items - the items of a list value, or `undefined` for any other value
  * @property {<T>(binder: ItemBinder, value: unknown, fn: () => T) => T} bind - runs `fn` with `self` of a `where` or `field` bound to `value`
  * @property {TaskReads} task - the page reads the run shares with other runs
+ * @property {Arrival} [arrival] - what started the run, which `trigger` reads
  */
 
 /**
@@ -144,6 +148,7 @@
  * @property {<T>(fn: (binder: ItemBinder) => T) => T} item - compiles a `where` or `field` that binds `self`
  * @property {Set<string>} names - collects every name read, for the native reader
  * @property {Set<string>} paths - collects every path read from the global object, up to the method it calls, for the native reader
+ * @property {Array<{ key: 'observed' | 'trigger', body: RecordedBody }>} recorded - collects every `observed` and `trigger` body naming a recorded type, for registering recorders
  */
 
 /**

@@ -726,6 +726,61 @@ test.describe('WebDetection Feature', () => {
         });
     });
 
+    test.describe('observe trigger', () => {
+        /** Counts clicks on the page's heading, and is done after the second. */
+        const CLICKS = {
+            triggers: { breakageReport: { state: 'disabled' }, observe: { state: 'enabled', on: [{ event: 'click' }] } },
+            actions: [
+                {
+                    define: {
+                        'this.n': { if: { ref: 'this.n', is: { type: 'undefined' } }, then: 1, else: { sum: [{ ref: 'this.n' }, 1] } },
+                    },
+                },
+                {
+                    fireEvent: {
+                        type: 'clicked',
+                        data: {
+                            n: { value: { ref: 'this.n' } },
+                            tag: { value: { trigger: { event: 'click', field: 'target.tagName' }, using: { path: 'at', args: [0] } } },
+                        },
+                    },
+                },
+                { done: { ref: 'this.n', is: { gte: 2 } } },
+            ],
+        };
+
+        test('runs a detector on each trusted click until it is done', async ({ page }, testInfo) => {
+            const { helper } = await WebDetectionTestHelper.setupFireEventTest(page, testInfo.project.use, (config) => {
+                config.features.webDetection.settings.detectors.observe = { clicks: CLICKS };
+            });
+            await helper.navigateTo('/web-detection/pages/no-detection.html');
+
+            for (let i = 0; i < 3; i++) {
+                await page.click('h1');
+                await page.clock.runFor(10);
+            }
+
+            const clicked = (await helper.getWebEventNotifications()).filter((event) => event.type === 'clicked');
+            expect(clicked).toEqual([
+                { type: 'clicked', data: { n: 1, tag: 'H1' } },
+                { type: 'clicked', data: { n: 2, tag: 'H1' } },
+            ]);
+        });
+
+        test('ignores clicks a page script dispatches', async ({ page }, testInfo) => {
+            const { helper } = await WebDetectionTestHelper.setupFireEventTest(page, testInfo.project.use, (config) => {
+                config.features.webDetection.settings.detectors.observe = { clicks: CLICKS };
+            });
+            await helper.navigateTo('/web-detection/pages/no-detection.html');
+
+            await page.evaluate(() => document.querySelector('h1')?.dispatchEvent(new MouseEvent('click', { bubbles: true })));
+            await page.clock.runFor(10);
+
+            const clicked = (await helper.getWebEventNotifications()).filter((event) => event.type === 'clicked');
+            expect(clicked).toEqual([]);
+        });
+    });
+
     test.describe('captcha detection (per-provider events)', () => {
         /** @type {Array<[string, string]>} */
         const cases = [
