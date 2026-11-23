@@ -1,6 +1,6 @@
 import { isValidSelector } from '../../utils.js';
 
-/** @typedef {import('../../types/sponsor-block.js').Segment} Segment */
+/** @typedef {import('../../types/segment-skip.js').Segment} Segment */
 
 // Pure helpers, kept apart from the feature so the unit tests can load them: the feature imports SVG assets, which
 // plain Node can't.

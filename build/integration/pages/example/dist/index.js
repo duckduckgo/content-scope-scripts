@@ -727,7 +727,7 @@
       "textSelection",
       "chromeWebstorePatching",
       "selectionTools",
-      "sponsorBlock",
+      "segmentSkip",
       "pageTranslation"
     ]
   );
@@ -752,7 +752,7 @@
       "tabSuspension",
       "chromeWebstorePatching",
       "browserUiLock",
-      "sponsorBlock"
+      "segmentSkip"
     ],
     "apple-broker-protection": ["brokerProtection"],
     "apple-ai-clear": ["duckAiDataClearing"],
@@ -771,7 +771,7 @@
       "messageBridge",
       "pageContext",
       "browserUiLock",
-      "sponsorBlock"
+      "segmentSkip"
     ],
     "android-broker-protection": ["brokerProtection"],
     "android-ai-clear": ["duckAiDataClearing"],

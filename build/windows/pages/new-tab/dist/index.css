@@ -1,4 +1,4 @@
-/* ../node_modules/@duckduckgo/design-tokens/build/desktop-browsers/tokens.css */
+/* node_modules/@duckduckgo/design-tokens/build/embedded-fe/tokens.css */
 :root,
 :host {
   --ds-font-family-display:
@@ -47,45 +47,19 @@
   --ds-font-letter-spacing-narrow: -1px;
   --ds-font-letter-spacing-normal: 0;
   --ds-font-letter-spacing-wide: 2px;
-  --ds-font-title-01-line-height: 64px;
-  --ds-font-title-01-size: 64px;
-  --ds-font-title-02-line-height: 52px;
-  --ds-font-title-02-size: 52px;
-  --ds-font-title-03-line-height: 44px;
-  --ds-font-title-03-size: 44px;
-  --ds-font-title-04-line-height: 40px;
-  --ds-font-title-04-size: 36px;
-  --ds-font-title-05-line-height: 32px;
-  --ds-font-title-05-size: 24px;
-  --ds-font-title-06-line-height: 28px;
-  --ds-font-title-06-size: 20px;
-  --ds-font-body-xxl-line-height: 32px;
-  --ds-font-body-xxl-size: 24px;
-  --ds-font-body-xl-line-height: 28px;
-  --ds-font-body-xl-size: 20px;
-  --ds-font-body-lg-line-height: 24px;
-  --ds-font-body-lg-size: 16px;
+  --ds-font-label-01-line-height: 18px;
+  --ds-font-label-01-size: 18px;
+  --ds-font-label-02-line-height: 16px;
+  --ds-font-label-02-size: 16px;
+  --ds-font-label-03-line-height: 14px;
+  --ds-font-label-03-size: 14px;
+  --ds-font-label-04-line-height: 12px;
+  --ds-font-label-04-size: 12px;
   --ds-font-body-md-line-height: 20px;
   --ds-font-body-md-size: 14px;
   --ds-font-body-sm-line-height: 16px;
-  --ds-font-body-sm-size: 12px;
-  --ds-font-eyebrow-01-line-height: 20px;
-  --ds-font-eyebrow-01-size: 18px;
-  --ds-font-eyebrow-01-text-transform: uppercase;
-  --ds-font-eyebrow-02-line-height: 16px;
-  --ds-font-eyebrow-02-size: 14px;
-  --ds-font-eyebrow-02-text-transform: uppercase;
-  --ds-font-button-label-01-line-height: 20px;
   --ds-font-button-label-01-size: 18px;
-  --ds-font-button-label-02-line-height: 16px;
-  --ds-font-button-label-02-size: 16px;
-  --ds-font-button-label-03-line-height: 16px;
   --ds-font-button-label-03-size: 14px;
-  --ds-font-label-01-line-height: 12px;
-  --ds-font-label-01-size: 12px;
-  --ds-font-label-01-text-transform: uppercase;
-  --ds-font-caption-01-line-height: 16px;
-  --ds-font-caption-01-size: 13px;
   --ds-radius-full: 999px;
   --ds-radius-x01: 4px;
   --ds-radius-x02: 8px;
@@ -451,7 +425,7 @@
   --ds-color-theme-default-light-surface-decoration-primary: rgba(0, 0, 0, 0.08627450980392157);
   --ds-color-theme-default-light-surface-decoration-secondary: rgba(0, 0, 0, 0.1568627450980392);
   --ds-color-theme-default-light-surface-decoration-tertiary: rgba(0, 0, 0, 0.23921568627450981);
-  --ds-color-theme-default-light-surface-primary: #f2f2f2;
+  --ds-color-theme-default-light-surface-primary: #f8f8f8;
   --ds-color-theme-default-light-surface-secondary: #fafafa;
   --ds-color-theme-default-light-surface-tertiary: #ffffff;
   --ds-color-theme-default-light-text-primary: rgba(0, 0, 0, 0.9568627450980393);
@@ -1395,60 +1369,22 @@
   --ds-color-theme-violet-light-text-tertiary: rgba(7, 5, 13, 0.3568627450980392);
   --ds-color-theme-violet-light-tone-shade-primary: rgba(35, 20, 81, 0.058823529411764705);
   --ds-color-theme-violet-light-tone-tint-primary: rgba(245, 245, 254, 0.5568627450980392);
-  --ds-font-title-01-font-family: var(--ds-font-family-display);
-  --ds-font-title-01-letter-spacing: var(--ds-font-letter-spacing-narrow);
-  --ds-font-title-01-weight: var(--ds-font-weight-normal);
-  --ds-font-title-02-font-family: var(--ds-font-family-display);
-  --ds-font-title-02-letter-spacing: var(--ds-font-letter-spacing-narrow);
-  --ds-font-title-02-weight: var(--ds-font-weight-normal);
-  --ds-font-title-03-font-family: var(--ds-font-family-display);
-  --ds-font-title-03-letter-spacing: var(--ds-font-letter-spacing-narrow);
-  --ds-font-title-03-weight: var(--ds-font-weight-normal);
-  --ds-font-title-04-font-family: var(--ds-font-family-display);
-  --ds-font-title-04-letter-spacing: var(--ds-font-letter-spacing-narrow);
-  --ds-font-title-04-weight: var(--ds-font-weight-normal);
-  --ds-font-title-05-font-family: var(--ds-font-family-display);
-  --ds-font-title-05-letter-spacing: var(--ds-font-letter-spacing-normal);
-  --ds-font-title-05-weight: var(--ds-font-weight-normal);
-  --ds-font-title-06-font-family: var(--ds-font-family-display);
-  --ds-font-title-06-letter-spacing: var(--ds-font-letter-spacing-normal);
-  --ds-font-title-06-weight: var(--ds-font-weight-normal);
-  --ds-font-body-xxl-font-family: var(--ds-font-family-display);
-  --ds-font-body-xxl-letter-spacing: var(--ds-font-letter-spacing-normal);
-  --ds-font-body-xxl-weight: var(--ds-font-weight-normal);
-  --ds-font-body-xl-font-family: var(--ds-font-family-display);
-  --ds-font-body-xl-letter-spacing: var(--ds-font-letter-spacing-normal);
-  --ds-font-body-xl-weight: var(--ds-font-weight-normal);
-  --ds-font-body-lg-font-family: var(--ds-font-family-product);
-  --ds-font-body-lg-letter-spacing: var(--ds-font-letter-spacing-normal);
-  --ds-font-body-lg-weight: var(--ds-font-weight-normal);
-  --ds-font-body-md-font-family: var(--ds-font-family-product);
-  --ds-font-body-md-letter-spacing: var(--ds-font-letter-spacing-normal);
-  --ds-font-body-md-weight: var(--ds-font-weight-normal);
-  --ds-font-body-sm-font-family: var(--ds-font-family-product);
-  --ds-font-body-sm-letter-spacing: var(--ds-font-letter-spacing-normal);
-  --ds-font-body-sm-weight: var(--ds-font-weight-normal);
-  --ds-font-eyebrow-01-font-family: var(--ds-font-family-product);
-  --ds-font-eyebrow-01-letter-spacing: var(--ds-font-letter-spacing-wide);
-  --ds-font-eyebrow-01-weight: var(--ds-font-weight-semibold);
-  --ds-font-eyebrow-02-font-family: var(--ds-font-family-product);
-  --ds-font-eyebrow-02-letter-spacing: var(--ds-font-letter-spacing-wide);
-  --ds-font-eyebrow-02-weight: var(--ds-font-weight-semibold);
-  --ds-font-button-label-01-font-family: var(--ds-font-family-product);
-  --ds-font-button-label-01-letter-spacing: var(--ds-font-letter-spacing-normal);
-  --ds-font-button-label-01-weight: var(--ds-font-weight-semibold);
-  --ds-font-button-label-02-font-family: var(--ds-font-family-product);
-  --ds-font-button-label-02-letter-spacing: var(--ds-font-letter-spacing-normal);
-  --ds-font-button-label-02-weight: var(--ds-font-weight-bold);
-  --ds-font-button-label-03-font-family: var(--ds-font-family-product);
-  --ds-font-button-label-03-letter-spacing: var(--ds-font-letter-spacing-normal);
-  --ds-font-button-label-03-weight: var(--ds-font-weight-bold);
   --ds-font-label-01-font-family: var(--ds-font-family-product);
   --ds-font-label-01-letter-spacing: var(--ds-font-letter-spacing-normal);
   --ds-font-label-01-weight: var(--ds-font-weight-bold);
-  --ds-font-caption-01-font-family: var(--ds-font-family-product);
-  --ds-font-caption-01-letter-spacing: var(--ds-font-letter-spacing-normal);
-  --ds-font-caption-01-weight: var(--ds-font-weight-normal);
+  --ds-font-label-02-font-family: var(--ds-font-family-product);
+  --ds-font-label-02-letter-spacing: var(--ds-font-letter-spacing-normal);
+  --ds-font-label-02-weight: var(--ds-font-weight-bold);
+  --ds-font-label-03-font-family: var(--ds-font-family-product);
+  --ds-font-label-03-letter-spacing: var(--ds-font-letter-spacing-normal);
+  --ds-font-label-03-weight: var(--ds-font-weight-bold);
+  --ds-font-label-04-font-family: var(--ds-font-family-product);
+  --ds-font-label-04-letter-spacing: var(--ds-font-letter-spacing-normal);
+  --ds-font-label-04-weight: var(--ds-font-weight-bold);
+  --ds-font-body-md-font-family: var(--ds-font-family-product);
+  --ds-font-body-md-letter-spacing: var(--ds-font-letter-spacing-normal);
+  --ds-font-button-label-03-font-family: var(--ds-font-family-product);
+  --ds-font-button-label-03-letter-spacing: var(--ds-font-letter-spacing-normal);
 }
 
 /* shared/styles/design-tokens.css */
@@ -2548,7 +2484,7 @@ body[data-rebrand=true]:not([data-background-kind=default]) .themeContext[data-t
   --ds-color-theme-container-border-secondary: var(--ds-color-theme-ntp-on-custom-background-dark-container-border-secondary);
 }
 
-/* ../node_modules/@duckduckgo/design-tokens/build/desktop-browsers/ntp.css */
+/* node_modules/@duckduckgo/design-tokens/build/embedded-fe/ntp.css */
 :root,
 :host {
   --ds-color-theme-ntp-on-custom-background-dark-container-border-secondary: rgba(255, 255, 255, 0.12);

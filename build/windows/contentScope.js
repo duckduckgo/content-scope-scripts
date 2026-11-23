@@ -2476,7 +2476,7 @@
       "textSelection",
       "chromeWebstorePatching",
       "selectionTools",
-      "sponsorBlock",
+      "segmentSkip",
       "pageTranslation"
     ]
   );
@@ -2506,7 +2506,7 @@
       "tabSuspension",
       "chromeWebstorePatching",
       "browserUiLock",
-      "sponsorBlock"
+      "segmentSkip"
     ],
     "apple-broker-protection": ["brokerProtection"],
     "apple-ai-clear": ["duckAiDataClearing"],
@@ -2525,7 +2525,7 @@
       "messageBridge",
       "pageContext",
       "browserUiLock",
-      "sponsorBlock"
+      "segmentSkip"
     ],
     "android-broker-protection": ["brokerProtection"],
     "android-ai-clear": ["duckAiDataClearing"],
@@ -24572,7 +24572,7 @@ ${iframeContent}
     const importConfig = {
       trackerLookup: define_import_meta_trackerLookup_default,
       injectName: "windows",
-      contentScopeScriptsVersion: "22.4.0"
+      contentScopeScriptsVersion: "23.0.0"
     };
     const bundledFeatureNames = typeof importConfig.injectName === "string" ? platformSupport[importConfig.injectName] ?? [] : [];
     const featuresToLoad = isGloballyDisabled(args) ? platformSpecificFeatures : args.site.enabledFeatures || bundledFeatureNames;

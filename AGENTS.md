@@ -40,8 +40,8 @@ JavaScript features injected into web pages for privacy protections. Features ex
 - `performance-metrics` - Performance tracking
 - `print` - Overrides `window.print()` so native handles printing (iOS)
 - `referrer` - Referrer protection
+- `segment-skip` - Skips sponsored YouTube segments using SponsorBlock data fetched by native
 - `selection-tools` - Reports selected text, what kind of text it is and its position for native's Duck.ai selection toolbar and context menu (Windows)
-- `sponsor-block` - Skips sponsored YouTube segments using SponsorBlock data fetched by native
 - `tab-suspension` - Reports whether the tab can be suspended
 - `text-selection` - Reports text selection state to native
 - `tracker-protection` - In-page tracker blocking and surrogate injection

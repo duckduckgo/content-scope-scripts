@@ -6,12 +6,12 @@ import {
     shouldActivate,
     validSelectors,
     videoIDFromURL,
-} from '../src/features/sponsor-block/helpers.js';
+} from '../src/features/segment-skip/helpers.js';
 
 // Only the pure helpers are unit tested: the feature module imports SVG assets, which plain Node can't load. The
 // feature itself is covered by the integration specs.
 
-describe('SponsorBlock videoIDFromURL', () => {
+describe('SegmentSkip videoIDFromURL', () => {
     it('reads the video ID from watch, shorts, live and embed URLs', () => {
         expect(videoIDFromURL('https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=42')).toBe('dQw4w9WgXcQ');
         expect(videoIDFromURL('https://m.youtube.com/watch?list=PL1&v=dQw4w9WgXcQ')).toBe('dQw4w9WgXcQ');
@@ -36,7 +36,7 @@ describe('SponsorBlock videoIDFromURL', () => {
     });
 });
 
-describe('SponsorBlock shouldActivate', () => {
+describe('SegmentSkip shouldActivate', () => {
     /** @param {string} origin @param {Partial<{ isTop: boolean, ancestorOrigins: string[] }>} [frame] */
     const frame = (origin, { isTop = true, ancestorOrigins = [] } = {}) => ({
         hostname: new URL(origin).hostname,
@@ -65,7 +65,7 @@ describe('SponsorBlock shouldActivate', () => {
     });
 });
 
-describe('SponsorBlock segmentPosition', () => {
+describe('SegmentSkip segmentPosition', () => {
     /** @param {number} start @param {number} end */
     const segment = (start, end) => ({ start, end, category: 'sponsor', actionType: 'skip', uuid: 'u' });
 
@@ -85,7 +85,7 @@ describe('SponsorBlock segmentPosition', () => {
     });
 });
 
-describe('SponsorBlock segmentAt', () => {
+describe('SegmentSkip segmentAt', () => {
     const segments = [
         { start: 10, end: 20, category: 'sponsor', actionType: 'skip', uuid: 'a' },
         { start: 50, end: 60, category: 'sponsor', actionType: 'skip', uuid: 'b' },
@@ -104,7 +104,7 @@ describe('SponsorBlock segmentAt', () => {
     });
 });
 
-describe('SponsorBlock matchesDuration', () => {
+describe('SegmentSkip matchesDuration', () => {
     /** @param {number} [videoDuration] */
     const segment = (videoDuration) => ({ start: 0, end: 1, category: 'sponsor', actionType: 'skip', uuid: 'u', videoDuration });
 
@@ -122,7 +122,7 @@ describe('SponsorBlock matchesDuration', () => {
     });
 });
 
-describe('SponsorBlock validSelectors', () => {
+describe('SegmentSkip validSelectors', () => {
     const DEFAULTS = ['.default'];
     let dom;
     let originalDocument;
