@@ -42,16 +42,6 @@ const isHTMLDocument =
  */
 
 /**
- * Native builds embed the tracker lookup as a JSON string (see scripts/utils/build.js); extension builds
- * substitute an object literal. Taking the value as a parameter keeps the string literal emitted once.
- * @param {import('./trackers.js').TrackerNode | string | undefined} value
- * @returns {import('./trackers.js').TrackerNode | undefined}
- */
-function parseTrackerLookup(value) {
-    return typeof value === 'string' ? JSON.parse(value) : value;
-}
-
-/**
  * @param {LoadArgs} args
  */
 export function load(args) {
@@ -61,7 +51,7 @@ export function load(args) {
     }
 
     const importConfig = {
-        trackerLookup: parseTrackerLookup(import.meta.trackerLookup),
+        trackerLookup: import.meta.trackerLookup,
         injectName: import.meta.injectName,
         contentScopeScriptsVersion: import.meta.contentScopeScriptsVersion,
     };

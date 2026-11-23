@@ -1,4 +1,4 @@
-import { ddgGlobals } from '../../../captured-globals.js';
+import { isArray } from '../../../captured-globals.js';
 import { ConfigParseError, isExpressionObject, isFailure, isPlainObject, rejectUnknownKeys } from '../model/core.js';
 
 /**
@@ -54,7 +54,7 @@ export function readPath(reader, root, names, args) {
  * @returns {CompiledExpression[]}
  */
 export function compileArgs(raw, path, hooks) {
-    if (!ddgGlobals.isArray(raw)) throw new ConfigParseError(path, '`args` must be an array');
+    if (!isArray(raw)) throw new ConfigParseError(path, '`args` must be an array');
     return raw.map((entry, i) => hooks.expression(entry, `${path}.${i}`, 'value'));
 }
 

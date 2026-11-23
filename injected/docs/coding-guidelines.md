@@ -321,18 +321,15 @@ if (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElemen
 
 Use captured globals to avoid page-tampered native APIs:
 
-`captured-globals.js` exports a single `ddgGlobals` object. Import it and use property access, so captured values are
-never confused with the page's runtime globals of the same name (don't destructure it):
-
 ```js
-import { ddgGlobals } from '../captured-globals.js';
+import * as capturedGlobals from '../captured-globals.js';
 
 // Use captured versions instead of global
-const myMap = new ddgGlobals.Map();
-const mySet = new ddgGlobals.Set();
+const myMap = new capturedGlobals.Map();
+const mySet = new capturedGlobals.Set();
 
 // Dispatch events safely
-ddgGlobals.dispatchEvent(new ddgGlobals.CustomEvent('name', { detail }));
+capturedGlobals.dispatchEvent(new capturedGlobals.CustomEvent('name', { detail }));
 ```
 
 ### Frame and Context Guards

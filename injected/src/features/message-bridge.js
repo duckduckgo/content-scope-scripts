@@ -10,11 +10,11 @@ import {
     SubscriptionResponse,
     SubscriptionUnsubscribe,
 } from './message-bridge/schema.js';
-import { ddgGlobals } from '../captured-globals.js';
+import * as capturedGlobals from '../captured-globals.js';
 import { isBeingFramed } from '../utils.js';
 
 /**
- * @typedef {Pick<typeof import("../captured-globals.js").ddgGlobals,
+ * @typedef {Pick<import("../captured-globals.js"),
  *    "dispatchEvent" | "addEventListener" | "CustomEvent">
  * } Captured
  */
@@ -24,20 +24,20 @@ import { isBeingFramed } from '../utils.js';
  */
 export class MessageBridge extends ContentFeature {
     /** @type {Captured} */
-    captured = ddgGlobals;
+    captured = capturedGlobals;
     /**
      * A mapping of feature names to instances of `Messaging`.
      * This allows the bridge to handle more than 1 feature at a time.
      * @type {Map<string, Messaging>}
      */
-    proxies = new ddgGlobals.Map();
+    proxies = new capturedGlobals.Map();
 
     /**
      * If any subscriptions are created, we store the cleanup functions
      * for later use.
      * @type {Map<string, () => void>}
      */
-    subscriptions = new ddgGlobals.Map();
+    subscriptions = new capturedGlobals.Map();
 
     /**
      * This side of the bridge can only be instantiated once,

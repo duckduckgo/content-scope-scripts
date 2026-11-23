@@ -1,6 +1,6 @@
 import css from './thumbnail-overlay.css';
 import { createPolicy, html } from '../../../dom-utils.js';
-import { ddgGlobals } from '../../../captured-globals.js';
+import { customElementsDefine, customElementsGet } from '../../../captured-globals.js';
 import { VideoParams, Logger } from '../../duckplayer/util.js';
 import { appendImageAsBackground } from '../../duckplayer/poster.js';
 
@@ -23,8 +23,8 @@ export class DDGVideoThumbnailOverlay extends HTMLElement {
     href;
 
     static register() {
-        if (!ddgGlobals.customElementsGet(DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME)) {
-            ddgGlobals.customElementsDefine(DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME, DDGVideoThumbnailOverlay);
+        if (!customElementsGet(DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME)) {
+            customElementsDefine(DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME, DDGVideoThumbnailOverlay);
         }
     }
 

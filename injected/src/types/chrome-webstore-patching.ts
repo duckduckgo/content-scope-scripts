@@ -36,6 +36,8 @@ export interface GetCatalogExtensionIdsParams {}
 export interface GetCatalogExtensionIdsResponse {
   /**
    * Chrome Web Store extension IDs the store may offer for install. Empty when extension management is off. Native replies with an error, not an empty list, before its config is ready.
+   *
+   * Items: A Chrome Web Store extension ID
    */
   extensionIds: string[];
 }

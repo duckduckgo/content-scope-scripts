@@ -1,4 +1,4 @@
-import { ddgGlobals } from '../../../captured-globals.js';
+import { isArray } from '../../../captured-globals.js';
 import { isPlainObject, thrownMessage } from '../model/core.js';
 import { pageSources } from '../sources/index.js';
 import { compileDetector } from './compile.js';
@@ -105,7 +105,7 @@ function normalizeDetector(config) {
  */
 function intervalsOf(when) {
     const intervals = isPlainObject(when) ? when.intervalMs : undefined;
-    return ddgGlobals.isArray(intervals) ? intervals.filter((interval) => typeof interval === 'number') : [];
+    return isArray(intervals) ? intervals.filter((interval) => typeof interval === 'number') : [];
 }
 
 /**

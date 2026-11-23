@@ -1,5 +1,5 @@
 /* eslint-disable no-redeclare, no-global-assign */
-import { ddgGlobals } from './captured-globals.js';
+import { Set } from './captured-globals.js';
 import { platformSupport, featuresForFrame, configDependenciesFor } from './features.js';
 
 // Only use globalThis for testing this breaks window.wrappedJSObject code in Firefox
@@ -220,7 +220,7 @@ const lineTest = /(\()?(https?:[^)]+):[0-9]+:[0-9]+(\))?/;
  * @returns {Set<URL>}
  */
 export function getStackTraceUrls(stack) {
-    const urls = new ddgGlobals.Set();
+    const urls = new Set();
     if (!stack) return urls;
     try {
         const errorLines = stack.split('\n');
@@ -243,7 +243,7 @@ export function getStackTraceUrls(stack) {
  */
 export function getStackTraceOrigins(stack) {
     const urls = getStackTraceUrls(stack);
-    const origins = new ddgGlobals.Set();
+    const origins = new Set();
     for (const url of urls) {
         origins.add(url.hostname);
     }
@@ -889,7 +889,7 @@ export function isStateEnabled(state, platform) {
  */
 export function pruneConfigFeatures(data, featureNames, dependencies = {}) {
     if (!data?.features) return data;
-    const keep = new ddgGlobals.Set(featureNames);
+    const keep = new Set(featureNames);
     for (const featureName of featureNames) {
         for (const dependency of dependencies[featureName] ?? []) {
             keep.add(dependency);

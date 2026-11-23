@@ -5,7 +5,8 @@
 import ContentFeature from '../content-feature.js';
 import { getFaviconList } from './favicon.js';
 import { isDuckAi, isBeingFramed, getTabUrl } from '../utils.js';
-import { ddgGlobals } from '../captured-globals.js';
+// eslint-disable-next-line no-redeclare
+import { JSONparse, Set, hasOwnProperty } from '../captured-globals.js';
 const MSG_PAGE_CONTEXT_RESPONSE = 'collectionResult';
 
 // Bail past this nesting depth when walking JSON-LD so adversarially deep blocks
@@ -324,7 +325,7 @@ export function extractPageTypeSignals(document, { maxTypes = 10, maxBlockLength
  */
 function extractJsonLdTypes(document, maxTypes, maxBlockLength) {
     // A Set both dedupes and preserves insertion order, so it doubles as the store and the cap counter.
-    const types = new ddgGlobals.Set();
+    const types = new Set();
     /** @param {unknown} value */
     const recordType = (value) => {
         // Short-circuit once the cap is hit so a single wide `@graph` doesn't keep iterating.
@@ -343,7 +344,7 @@ function extractJsonLdTypes(document, maxTypes, maxBlockLength) {
         if (!text || text.length > maxBlockLength) continue;
         let data;
         try {
-            data = ddgGlobals.JSONparse(text);
+            data = JSONparse(text);
         } catch (e) {
             continue;
         }
@@ -369,7 +370,7 @@ function collectJsonLdTypes(node, recordType, depth = 0) {
     }
     if (!node || typeof node !== 'object') return;
     const obj = /** @type {Record<string, unknown>} */ (node);
-    if (ddgGlobals.hasOwnProperty.call(obj, '@type')) {
+    if (hasOwnProperty.call(obj, '@type')) {
         const type = obj['@type'];
         if (Array.isArray(type)) {
             for (const value of type) recordType(value);
@@ -377,7 +378,7 @@ function collectJsonLdTypes(node, recordType, depth = 0) {
             recordType(type);
         }
     }
-    if (ddgGlobals.hasOwnProperty.call(obj, '@graph')) {
+    if (hasOwnProperty.call(obj, '@graph')) {
         collectJsonLdTypes(obj['@graph'], recordType, depth + 1);
     }
 }

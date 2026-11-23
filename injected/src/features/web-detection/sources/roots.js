@@ -1,4 +1,4 @@
-import { ddgGlobals } from '../../../captured-globals.js';
+import { isArray } from '../../../captured-globals.js';
 import { DetectionError, asArray, isFailure } from '../model/core.js';
 import { isItemBuffer, listMembers } from '../model/lists.js';
 
@@ -22,7 +22,7 @@ import { isItemBuffer, listMembers } from '../model/lists.js';
  */
 export function parseRoot(raw, path, hooks) {
     if (raw === undefined) return undefined;
-    return { entries: asArray(raw).map((entry, i) => hooks.expression(entry, ddgGlobals.isArray(raw) ? `${path}.${i}` : path, 'root')) };
+    return { entries: asArray(raw).map((entry, i) => hooks.expression(entry, isArray(raw) ? `${path}.${i}` : path, 'root')) };
 }
 
 /**

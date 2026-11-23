@@ -1,5 +1,6 @@
 import ContentFeature from '../content-feature.js';
-import { ddgGlobals } from '../captured-globals.js';
+// eslint-disable-next-line no-redeclare
+import { hasOwnProperty } from '../captured-globals.js';
 import { timeDetector } from './detector-perf.js';
 import { compileDetectorConfig, parseDetectors } from './web-detection/compile/detector-config.js';
 import { BreakageEntries } from './web-detection/evaluate/breakage-entries.js';
@@ -82,7 +83,7 @@ export default class WebDetection extends ContentFeature {
      * Parse the detectors unless `load` parsed these settings, then schedule their automatic runs
      */
     init() {
-        this.#detectorPerfEnabled = ddgGlobals.hasOwnProperty.call(this.featureSettings ?? {}, 'detectorPerf');
+        this.#detectorPerfEnabled = hasOwnProperty.call(this.featureSettings ?? {}, 'detectorPerf');
         this._parseDetectors();
         this._scheduleAutoRunDetectors();
     }

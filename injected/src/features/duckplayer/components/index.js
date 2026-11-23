@@ -1,5 +1,5 @@
 import { DDGVideoOverlay } from './ddg-video-overlay.js';
-import { ddgGlobals } from '../../../captured-globals.js';
+import { customElementsDefine, customElementsGet } from '../../../captured-globals.js';
 import { DDGVideoOverlayMobile } from './ddg-video-overlay-mobile.js';
 import { DDGVideoThumbnailOverlay } from './ddg-video-thumbnail-overlay-mobile.js';
 import { DDGVideoDrawerMobile } from './ddg-video-drawer-mobile.js';
@@ -10,16 +10,16 @@ import { DDGVideoDrawerMobile } from './ddg-video-drawer-mobile.js';
  *
  */
 export function registerCustomElements() {
-    if (!ddgGlobals.customElementsGet(DDGVideoOverlay.CUSTOM_TAG_NAME)) {
-        ddgGlobals.customElementsDefine(DDGVideoOverlay.CUSTOM_TAG_NAME, DDGVideoOverlay);
+    if (!customElementsGet(DDGVideoOverlay.CUSTOM_TAG_NAME)) {
+        customElementsDefine(DDGVideoOverlay.CUSTOM_TAG_NAME, DDGVideoOverlay);
     }
-    if (!ddgGlobals.customElementsGet(DDGVideoOverlayMobile.CUSTOM_TAG_NAME)) {
-        ddgGlobals.customElementsDefine(DDGVideoOverlayMobile.CUSTOM_TAG_NAME, DDGVideoOverlayMobile);
+    if (!customElementsGet(DDGVideoOverlayMobile.CUSTOM_TAG_NAME)) {
+        customElementsDefine(DDGVideoOverlayMobile.CUSTOM_TAG_NAME, DDGVideoOverlayMobile);
     }
-    if (!ddgGlobals.customElementsGet(DDGVideoDrawerMobile.CUSTOM_TAG_NAME)) {
-        ddgGlobals.customElementsDefine(DDGVideoDrawerMobile.CUSTOM_TAG_NAME, DDGVideoDrawerMobile);
+    if (!customElementsGet(DDGVideoDrawerMobile.CUSTOM_TAG_NAME)) {
+        customElementsDefine(DDGVideoDrawerMobile.CUSTOM_TAG_NAME, DDGVideoDrawerMobile);
     }
-    if (!ddgGlobals.customElementsGet(DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME)) {
-        ddgGlobals.customElementsDefine(DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME, DDGVideoThumbnailOverlay);
+    if (!customElementsGet(DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME)) {
+        customElementsDefine(DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME, DDGVideoThumbnailOverlay);
     }
 }

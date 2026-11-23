@@ -4,7 +4,8 @@
  * Painting a YouTube thumbnail as an element's background, given candidates that may not
  * resolve to a real image.
  */
-import { ddgGlobals } from '../../captured-globals.js';
+// eslint-disable-next-line no-redeclare
+import { URL } from '../../captured-globals.js';
 
 /** @typedef {{url: string, source: 'page' | 'ytimg'}} PosterCandidate */
 
@@ -89,7 +90,7 @@ function imageLoads(url) {
  */
 function safePosterUrl(url) {
     try {
-        const parsed = new ddgGlobals.URL(url, window.location.href);
+        const parsed = new URL(url, window.location.href);
         if (parsed.protocol !== 'https:') return null;
         return parsed.href;
     } catch {

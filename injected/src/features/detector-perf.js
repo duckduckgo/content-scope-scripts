@@ -1,5 +1,6 @@
 import ContentFeature from '../content-feature.js';
-import { ddgGlobals } from '../captured-globals.js';
+// eslint-disable-next-line no-redeclare
+import { hasOwnProperty, performanceNow, CustomEvent, dispatchEvent, Map, Set } from '../captured-globals.js';
 
 /**
  * Default threshold bin edges (ms). These are discovery bins, not perf
@@ -69,7 +70,7 @@ export function parseThresholds(value, fallback) {
     if (!Array.isArray(value)) return fallback;
     const edges = value.filter((edge) => typeof edge === 'number' && Number.isFinite(edge) && edge > 0);
     if (edges.length === 0) return fallback;
-    return [...new ddgGlobals.Set(edges)].sort((a, b) => a - b);
+    return [...new Set(edges)].sort((a, b) => a - b);
 }
 
 /**
@@ -87,7 +88,7 @@ export function getDetectorPerfEventTypes(settings = {}, detectorNames = []) {
     const defaultSingle = parseThresholds(defaults.singleRunThresholdsMs, DEFAULT_SINGLE_RUN_THRESHOLDS_MS);
     const defaultTotal = parseThresholds(defaults.totalPerPageThresholdsMs, DEFAULT_TOTAL_PER_PAGE_THRESHOLDS_MS);
     const combined = parseThresholds(settings.combinedThresholdsMs, DEFAULT_COMBINED_THRESHOLDS_MS);
-    const types = new ddgGlobals.Set([`${EVENT_PREFIX}_measured`, SEVERE_EVENT_TYPE]);
+    const types = new Set([`${EVENT_PREFIX}_measured`, SEVERE_EVENT_TYPE]);
 
     for (const name of detectorNames) {
         types.add(`${EVENT_PREFIX}_${name}_ran`);
@@ -149,7 +150,7 @@ export default class DetectorPerf extends ContentFeature {
     #active = false;
 
     /** @type {Map<string, DetectorStats>} */
-    #detectors = new ddgGlobals.Map();
+    #detectors = new Map();
 
     /**
      * Per-page stats keyed by exact attribution (the `detail` config ID when
@@ -157,14 +158,14 @@ export default class DetectorPerf extends ContentFeature {
      * breakage-report payload, where exact IDs are wanted.
      * @type {Map<string, DetectorStats>}
      */
-    #detectorsDetailed = new ddgGlobals.Map();
+    #detectorsDetailed = new Map();
 
     /** Total ms across all recorded detectors in this frame. */
     #combinedTotalMs = 0;
 
     /** Event types already emitted in this frame (at-most-once guard). */
     /** @type {Set<string>} */
-    #emitted = new ddgGlobals.Set();
+    #emitted = new Set();
 
     /** @type {number[]} */
     #singleRunThresholdsMs = DEFAULT_SINGLE_RUN_THRESHOLDS_MS;
@@ -201,7 +202,7 @@ export default class DetectorPerf extends ContentFeature {
     #severeDebugLog = [];
 
     init() {
-        if (!ddgGlobals.hasOwnProperty.call(this.featureSettings ?? {}, this.name)) return;
+        if (!hasOwnProperty.call(this.featureSettings ?? {}, this.name)) return;
         this.#active = true;
         this._readThresholdSettings();
 
@@ -276,7 +277,7 @@ export default class DetectorPerf extends ContentFeature {
     _thresholdsFor(name) {
         // Own-property check: overrides are a config-supplied map, so a key
         // like 'constructor' must not resolve through the prototype chain.
-        const override = ddgGlobals.hasOwnProperty.call(this.#detectorOverrides, name) ? this.#detectorOverrides[name] : undefined;
+        const override = hasOwnProperty.call(this.#detectorOverrides, name) ? this.#detectorOverrides[name] : undefined;
         return {
             singleRunThresholdsMs: parseThresholds(override?.singleRunThresholdsMs, this.#singleRunThresholdsMs),
             totalPerPageThresholdsMs: parseThresholds(override?.totalPerPageThresholdsMs, this.#totalPerPageThresholdsMs),
@@ -465,7 +466,7 @@ export default class DetectorPerf extends ContentFeature {
                 severe: this.#severeDebugLog,
                 lastRun,
             };
-            ddgGlobals.dispatchEvent?.(new ddgGlobals.CustomEvent(DEBUG_STATS_EVENT_TYPE, { detail: JSON.stringify(payload) }));
+            dispatchEvent?.(new CustomEvent(DEBUG_STATS_EVENT_TYPE, { detail: JSON.stringify(payload) }));
         } catch {
             // never let debug plumbing affect measurement
         }
@@ -532,14 +533,14 @@ export default class DetectorPerf extends ContentFeature {
  * @returns {T}
  */
 export function timeDetector(feature, name, fn, detail, isFailed) {
-    const t0 = ddgGlobals.performanceNow();
+    const t0 = performanceNow();
     let failed = true;
     try {
         const result = fn();
         failed = isFailed?.(result) ?? false;
         return result;
     } finally {
-        const durationMs = ddgGlobals.performanceNow() - t0;
+        const durationMs = performanceNow() - t0;
         void reportDuration(feature, name, durationMs, detail, failed);
     }
 }

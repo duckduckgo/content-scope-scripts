@@ -1,4 +1,4 @@
-import { ddgGlobals } from '../../captured-globals.js';
+import * as capturedGlobals from '../../captured-globals.js';
 import {
     DidInstall,
     InstallProxy,
@@ -16,12 +16,12 @@ import { isBeingFramed } from '../../utils.js';
  */
 /**
  * @import { MessagingInterface } from "./schema.js"
- * @typedef {Pick<typeof import("../../captured-globals.js").ddgGlobals,
+ * @typedef {Pick<import("../../captured-globals.js"),
  *    "dispatchEvent" | "addEventListener" | "removeEventListener" | "CustomEvent" | "String" | "Error" | "randomUUID">
  * } Captured
  */
 /** @type {Captured} */
-const captured = ddgGlobals;
+const captured = capturedGlobals;
 
 export const ERROR_MSG = 'Did not install Message Bridge';
 

@@ -1,4 +1,4 @@
-import { ddgGlobals } from '../../../captured-globals.js';
+import { isArray, objectKeys } from '../../../captured-globals.js';
 import {
     ACTION_KEYS,
     ConfigParseError,
@@ -117,7 +117,7 @@ function makeNode(scope, fields) {
  * @returns {Node}
  */
 function compileBody(raw, position, path, scope) {
-    if (!ddgGlobals.isArray(raw)) return compileExpr(raw, position, path, scope);
+    if (!isArray(raw)) return compileExpr(raw, position, path, scope);
     const elements = raw.map((element, i) => compileExpr(element, i === raw.length - 1 ? position : 'value', `${path}.${i}`, scope));
     return makeNode(scope, { kind: 'sequence', elements, path, position });
 }
@@ -136,13 +136,13 @@ function compileExpr(raw, position, path, scope) {
     if (isScalar(raw)) {
         return makeNode(scope, { kind: 'literal', value: raw, path, position });
     }
-    if (ddgGlobals.isArray(raw)) {
+    if (isArray(raw)) {
         // The key holding an array decides what it means, and an array is never an expression
         throw new ConfigParseError(path, 'an array is not an expression: `{"expr": [...]}` gives a list, and `{"any": [...]}` an OR');
     }
     if (!isPlainObject(raw)) throw new ConfigParseError(path, 'expected an expression');
 
-    const keys = ddgGlobals.objectKeys(raw);
+    const keys = objectKeys(raw);
     if (keys.some((key) => ACTION_KEYS.has(key))) return compileActions(raw, keys, position, path, scope);
     /** @type {string[]} */
     const expressionKeys = [];
@@ -219,7 +219,7 @@ function compileActions(raw, keys, position, path, scope) {
  */
 function compileDefine(raw, path, scope) {
     if (!isPlainObject(raw)) throw new ConfigParseError(path, '`define` takes an object of names');
-    return ddgGlobals.objectKeys(raw).map((name) => {
+    return objectKeys(raw).map((name) => {
         const namePath = `${path}.${name}`;
         if (!DEFINE_NAME_PATTERN.test(name)) throw new ConfigParseError(namePath, `invalid name '${name}'`);
         const value = compileExpr(raw[name], 'value', namePath, scope);
@@ -259,7 +259,7 @@ function compileKey(key, body, position, path, scope) {
         case 'self':
             return compileSelf(body, position, path, scope);
         case 'expr': {
-            if (ddgGlobals.isArray(body)) {
+            if (isArray(body)) {
                 // A list of the entries' values
                 const entries = body.map((raw, i) => compileExpr(raw, 'value', `${path}.${i}`, scope));
                 return makeNode(scope, { kind: 'list', entries, path, position });
@@ -276,14 +276,14 @@ function compileKey(key, body, position, path, scope) {
         case 'sum':
         case 'mul': {
             const operands = asArray(body).map((raw, i) => {
-                const operand = compileExpr(raw, 'number', ddgGlobals.isArray(body) ? `${path}.${i}` : path, scope);
+                const operand = compileExpr(raw, 'number', isArray(body) ? `${path}.${i}` : path, scope);
                 scope.slots.push({ node: operand, single: 'number' });
                 return operand;
             });
             return makeNode(scope, { kind: key, operands, path, position });
         }
         case 'div': {
-            if (!ddgGlobals.isArray(body) || body.length !== 2) throw new ConfigParseError(path, `'div' takes two operands`);
+            if (!isArray(body) || body.length !== 2) throw new ConfigParseError(path, `'div' takes two operands`);
             const operands = body.map((raw, i) => compileExpr(raw, 'number', `${path}.${i}`, scope));
             return makeNode(scope, { kind: key, operands, path, position });
         }
@@ -291,7 +291,7 @@ function compileKey(key, body, position, path, scope) {
         case 'all':
         case 'none': {
             const operands = asArray(body).map((raw, i) => {
-                const operand = compileExpr(raw, 'boolean', ddgGlobals.isArray(body) ? `${path}.${i}` : path, scope);
+                const operand = compileExpr(raw, 'boolean', isArray(body) ? `${path}.${i}` : path, scope);
                 if (!operand.is) scope.slots.push({ node: operand, single: 'boolean' });
                 return operand;
             });
@@ -339,8 +339,7 @@ function compileIf(raw, position, path, scope) {
  */
 function compileUsing(raw, root, position, path, scope) {
     const usingPath = `${path}.using`;
-    if (isPlainObject(raw) && ddgGlobals.objectKeys(raw).length === 0)
-        throw new ConfigParseError(usingPath, '`using` needs `path` or an expression');
+    if (isPlainObject(raw) && objectKeys(raw).length === 0) throw new ConfigParseError(usingPath, '`using` needs `path` or an expression');
     /** @type {ItemBinder} */
     const binder = {};
     const operand = within(scope, binder, () => {
@@ -369,10 +368,10 @@ function compileSelf(raw, position, path, scope, key = 'self') {
     binder.readsSelf = true;
     /** @type {ItemNode} */
     const root = makeNode(scope, { kind: 'item', binder, path: '', position: 'value' });
-    if (isPlainObject(raw) && ddgGlobals.objectKeys(raw).length === 0) {
+    if (isPlainObject(raw) && objectKeys(raw).length === 0) {
         return makeNode(scope, { kind: 'expr', operand: root, path, position });
     }
-    if (raw === 'length' || (isPlainObject(raw) && raw.path === 'length' && ddgGlobals.objectKeys(raw).length === 1)) {
+    if (raw === 'length' || (isPlainObject(raw) && raw.path === 'length' && objectKeys(raw).length === 1)) {
         scope.readerNames.add('length');
         return makeNode(scope, { kind: 'length', operand: root, path, position });
     }
@@ -393,8 +392,8 @@ function compileSelf(raw, position, path, scope, key = 'self') {
  */
 function compileSource(key, body, position, path, scope) {
     const source = scope.sources[key];
-    if (key === 'api' && ddgGlobals.isArray(body)) throw new ConfigParseError(path, '`api` takes one body');
-    const bodies = asArray(body).map((raw, i) => source.parse(raw, ddgGlobals.isArray(body) ? `${path}.${i}` : path, scope.hooks));
+    if (key === 'api' && isArray(body)) throw new ConfigParseError(path, '`api` takes one body');
+    const bodies = asArray(body).map((raw, i) => source.parse(raw, isArray(body) ? `${path}.${i}` : path, scope.hooks));
     const withField = bodies.some(hasField);
     // `text`, and `element` without `field`, are the condition leaf: a boolean under any / all / none
     const leaf = key === 'text' || (key === 'element' && !withField);
@@ -417,7 +416,7 @@ function hasField(body) {
  */
 function compilePayload(raw, path, scope) {
     if (!isPlainObject(raw)) throw new ConfigParseError(path, '`data` takes an object');
-    return ddgGlobals.objectKeys(raw).map((key) => {
+    return objectKeys(raw).map((key) => {
         const fieldPath = `${path}.${key}`;
         if (!NAME_PATTERN.test(key) || key === 'nativeData') throw new ConfigParseError(fieldPath, `invalid payload key '${key}'`);
         const spec = raw[key];

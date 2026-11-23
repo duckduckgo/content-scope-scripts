@@ -30,7 +30,7 @@ interface ImportMeta {
         | 'android-ai-history'
         | 'android-ai-clear'
         | 'android-page-translation';
-    trackerLookup?: import('./trackers.js').TrackerNode | string;
+    trackerLookup?: import('./trackers.js').TrackerNode;
     pageName?: string;
     // C-S-S release version from the root package.json, or null for unversioned builds, which count as newer than every release
     contentScopeScriptsVersion?: string | null;

@@ -11,10 +11,7 @@
  */
 export interface WebCompatMessages {
   notifications:
-    | CloseNotificationNotification
-    | PasskeyFailedNotification
-    | PasskeyUsedNotification
-    | ShowNotificationNotification;
+    CloseNotificationNotification | PasskeyFailedNotification | PasskeyUsedNotification | ShowNotificationNotification;
   requests: DeviceEnumerationRequest | RequestPermissionRequest | WebShareRequest;
   subscriptions: NotificationEventSubscription;
 }
