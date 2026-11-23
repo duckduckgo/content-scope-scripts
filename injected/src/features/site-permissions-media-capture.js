@@ -25,7 +25,7 @@ import { callThen, embeddingFrameAllows, mediaCapturePolicyEvent, permissionsPol
  * types and frame eligibility to native code, then waits for the reply. Native code owns
  * the saved choices, dialogs, and OS authorization, and records a short-lived approval
  * before replying `allow`; WebKit's later WKUIDelegate callback consumes that approval.
- * A `bypass` reply restores WebKit's flow when the feature is off or for the Duck.ai
+ * A `bypass` reply restores WebKit's flow on iOS 15 or for the Duck.ai
  * exception. Native code activates this feature by injecting the `capability` setting,
  * which authenticates every message.
  */
@@ -221,7 +221,7 @@ export default class SitePermissionsMediaCapture extends ContentFeature {
                 return apply(nativeGetUserMedia, this, [capturedConstraints]);
             }
 
-            // Send ineligible requests too: native code checks rollback before denying custom-flow requests.
+            // Send ineligible requests too: native code returns them to WebKit when site permissions is off.
             const isEligibleContext =
                 this === mediaDevices &&
                 hasNonOpaqueOrigin &&

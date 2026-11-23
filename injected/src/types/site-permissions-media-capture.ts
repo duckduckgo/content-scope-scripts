@@ -21,7 +21,7 @@ export interface RequestPermissionRequest {
   result: RequestPermissionResponse;
 }
 /**
- * Asks native code whether a getUserMedia call may proceed. Ineligible requests are sent too, so native code can bypass when the feature is off.
+ * Asks native code whether a getUserMedia call may proceed. Ineligible requests are sent too, so native code can return them to WebKit when site permissions is off.
  */
 export interface RequestPermissionParams {
   /**

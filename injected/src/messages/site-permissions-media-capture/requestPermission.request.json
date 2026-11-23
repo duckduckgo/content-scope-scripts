@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "RequestPermissionParams",
-  "description": "Asks native code whether a getUserMedia call may proceed. Ineligible requests are sent too, so native code can bypass when the feature is off.",
+  "description": "Asks native code whether a getUserMedia call may proceed. Ineligible requests are sent too, so native code can return them to WebKit when site permissions is off.",
   "type": "object",
   "additionalProperties": false,
   "required": [
