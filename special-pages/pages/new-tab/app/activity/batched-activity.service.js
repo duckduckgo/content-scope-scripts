@@ -53,9 +53,9 @@ export class BatchedActivityService {
                     };
                 }
             },
-            subscribe: (cb) => {
+            subscribe: (listener) => {
                 const sub1 = ntp.messaging.subscribe('activity_onDataUpdate', (params) => {
-                    cb({
+                    listener({
                         activity: params.activity,
                         urls: params.activity.map((x) => x.url),
                         totalTrackers: params.activity.reduce((acc, item) => acc + item.trackingStatus.totalCount, 0),
@@ -64,9 +64,9 @@ export class BatchedActivityService {
                 const sub2 = ntp.messaging.subscribe('activity_onDataPatch', (params) => {
                     const totalTrackers = params.totalTrackersBlocked;
                     if ('patch' in params && params.patch !== null) {
-                        cb({ activity: [/** @type {DomainActivity} */ (params.patch)], urls: params.urls, totalTrackers });
+                        listener({ activity: [/** @type {DomainActivity} */ (params.patch)], urls: params.urls, totalTrackers });
                     } else {
-                        cb({ activity: [], urls: params.urls, totalTrackers });
+                        listener({ activity: [], urls: params.urls, totalTrackers });
                     }
                 });
                 return () => {

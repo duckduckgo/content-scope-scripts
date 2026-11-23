@@ -252,7 +252,7 @@ function alphaOf(color) {
 function isHidden(element, seen) {
     const known = seen.get(element);
     if (known !== undefined) return known;
-    let hidden = false;
+    let hidden;
     const style = getComputedStyle(element);
     // checkVisibility counts display: contents as hidden for want of a box, though what's in it shows. Some sites wrap
     // their whole article in one.
