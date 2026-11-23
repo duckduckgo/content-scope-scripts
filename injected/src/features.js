@@ -56,7 +56,7 @@ const otherFeatures = /** @type {FeatureName[]} */ ([
     'textSelection',
     'chromeWebstorePatching',
     'selectionTools',
-    'sponsorBlock',
+    'segmentSkip',
     'pageTranslation',
 ]);
 
@@ -100,7 +100,7 @@ export const platformSupport = {
         'tabSuspension',
         'chromeWebstorePatching',
         'browserUiLock',
-        'sponsorBlock',
+        'segmentSkip',
     ],
     'apple-broker-protection': ['brokerProtection'],
     'apple-ai-clear': ['duckAiDataClearing'],
@@ -119,7 +119,7 @@ export const platformSupport = {
         'messageBridge',
         'pageContext',
         'browserUiLock',
-        'sponsorBlock',
+        'segmentSkip',
     ],
     'android-broker-protection': ['brokerProtection'],
     'android-ai-clear': ['duckAiDataClearing'],
