@@ -4,6 +4,7 @@ import { SettingsContent } from '../components/SettingsContent';
 import { StepHeader } from '../components/StepHeader';
 import { DuckPlayerContent } from '../components/DuckPlayerContent';
 import { AddressBarContent } from '../components/AddressBarContent';
+import { FavoritesContent } from '../components/FavoritesContent';
 import { WelcomeContent } from '../components/WelcomeContent';
 import { GetStartedContent } from '../components/GetStartedContent';
 import { GetStartedAnimation } from '../components/GetStartedAnimation';
@@ -120,6 +121,17 @@ export const stepsConfig = {
             bottomBubble: { content: <SettingsContent advance={enqueueNext} dismiss={dismiss} updateSystemValue={updateSystemValue} /> },
             showProgress: true,
             bounceKey: `${activeStep}-${activeRow}`,
+        };
+    },
+    // Placeholder: real copy and content will replace the hardcoded strings.
+    // Only shown to clients that list it in `init.steps`.
+    favorites: ({ enqueueNext, onTitleComplete }) => {
+        return {
+            topBubble: {
+                content: <StepHeader title="Favorites" subtitle="Placeholder step" onTitleComplete={onTitleComplete} />,
+            },
+            bottomBubble: { content: <FavoritesContent advance={enqueueNext} /> },
+            showProgress: true,
         };
     },
     addressBarMode: ({ t, globalState, enqueueNext, dismiss, onTitleComplete, updateSystemValue }) => {
@@ -295,6 +307,10 @@ export const stepDefinitions = {
         id: 'customize',
         kind: 'settings',
         rows: ['bookmarks', 'session-restore', 'home-shortcut'],
+    },
+    favorites: {
+        id: 'favorites',
+        kind: 'info',
     },
     addressBarMode: {
         id: 'addressBarMode',

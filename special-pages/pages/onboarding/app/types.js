@@ -32,6 +32,7 @@ import { useContext } from 'preact/hooks';
  *   | DuckPlayerSingleStep
  *   | AddressBarModeStep
  *   | SearchOrChatStep
+ *   | FavoritesStep
  * } Step
  * @typedef {Record<Step['id'], Step>} StepDefinitions
  * @typedef {{ kind: 'info'; id: 'welcome' }} WelcomeStep
@@ -43,6 +44,7 @@ import { useContext } from 'preact/hooks';
  * @typedef {{ kind: 'info'; id: 'duckPlayerSingle'; variant?: 'ad-free' }} DuckPlayerSingleStep
  * @typedef {{ kind: 'info'; id: 'addressBarMode' }} AddressBarModeStep
  * @typedef {{ kind: 'info'; id: 'searchOrChat' }} SearchOrChatStep
+ * @typedef {{ kind: 'info'; id: 'favorites' }} FavoritesStep
  */
 
 /** @type {Step['id'][]} */
@@ -53,6 +55,7 @@ export const EVERY_PAGE_ID = [
     'makeDefaultSingle',
     'duckPlayerSingle',
     'customize',
+    'favorites',
     'addressBarMode',
     'searchOrChat',
 ];
@@ -67,7 +70,17 @@ export const ORDER_V4 = ['welcome', 'getStarted', 'makeDefaultSingle', 'systemSe
  * The page's own order for every step it can show. When native sends `steps`, the page shows only those, in this order.
  * @type {Step['id'][]}
  */
-export const STEPS_ORDER = [...ORDER_V4, 'searchOrChat'];
+export const STEPS_ORDER = [
+    'welcome',
+    'getStarted',
+    'makeDefaultSingle',
+    'systemSettings',
+    'duckPlayerSingle',
+    'customize',
+    'favorites',
+    'addressBarMode',
+    'searchOrChat',
+];
 
 /**
  * @typedef {BooleanSystemValue} SystemValue - values sent in messages to the host
