@@ -4708,13 +4708,14 @@
       __privateAdd(this, _sourceLanguage, "");
     }
     init() {
-      this.subscribe("extract", () => this._extract());
+      this.subscribe("extract", ({ requestId }) => this._extract(requestId));
       this.subscribe(
         "apply",
-        ({ sourceLanguage, targetLanguage, updates: updates2 }) => this._apply(String(sourceLanguage ?? ""), String(targetLanguage ?? ""), updates2)
+        ({ requestId, sourceLanguage, targetLanguage, updates: updates2 }) => this._apply(String(sourceLanguage ?? ""), String(targetLanguage ?? ""), updates2, requestId)
       );
     }
-    _extract() {
+    /** @param {unknown} [requestId] - echoed in the reply, so native can drop a late reply to a cancelled request */
+    _extract(requestId) {
       __privateGet(this, _units).clear();
       const units = [];
       const root = document.body;
@@ -4728,15 +4729,16 @@
       } catch (e) {
         this.log.error("extract failed", e);
       } finally {
-        this.notify("extractResult", { units });
+        this.notify("extractResult", { ...echoRequestId(requestId), units });
       }
     }
     /**
      * @param {string} sourceLanguage - the page's detected language: content marked as another language isn't written
      * @param {string} targetLanguage - set as the page's `lang` once anything is written
      * @param {{ id: number, text?: string, tree?: string }[]} updates - `text` for plain units, `tree` (TranslateKit's JSON) for HTML units
+     * @param {unknown} [requestId] - echoed in the reply
      */
-    _apply(sourceLanguage, targetLanguage, updates2) {
+    _apply(sourceLanguage, targetLanguage, updates2, requestId) {
       __privateSet(this, _sourceLanguage, sourceLanguage);
       let count = 0;
       for (const update of Array.isArray(updates2) ? updates2 : []) {
@@ -4754,7 +4756,7 @@
         count++;
       }
       if (count > 0) document.documentElement.setAttribute("lang", targetLanguage);
-      this.notify("applyResult", { count });
+      this.notify("applyResult", { ...echoRequestId(requestId), count });
     }
     /**
      * @param {UnitState} unit
@@ -4781,6 +4783,9 @@
   _units = new WeakMap();
   _nextId = new WeakMap();
   _sourceLanguage = new WeakMap();
+  function echoRequestId(requestId) {
+    return typeof requestId === "string" ? { requestId } : {};
+  }
   function containerOf(target) {
     return target.kind === "run" ? target.parent : target.element;
   }
@@ -4871,7 +4876,7 @@
     const importConfig = {
       trackerLookup: define_import_meta_trackerLookup_default,
       injectName: "android-page-translation",
-      contentScopeScriptsVersion: "23.0.0"
+      contentScopeScriptsVersion: "23.1.0"
     };
     const bundledFeatureNames = typeof importConfig.injectName === "string" ? platformSupport[importConfig.injectName] ?? [] : [];
     const featuresToLoad = isGloballyDisabled(args) ? platformSpecificFeatures : args.site.enabledFeatures || bundledFeatureNames;
