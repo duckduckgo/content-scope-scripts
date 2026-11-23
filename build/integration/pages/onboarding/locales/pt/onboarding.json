@@ -324,6 +324,10 @@
     "title" : "Agora, experimenta uma pesquisa privada!",
     "note" : "Title for the last onboarding step, where the user can try a private search or ask Duck.ai (DuckDuckGo's private AI chat) a question, shown when the user chose search only (no AI chat) on the previous step."
   },
+  "searchOrChat_toggleLabel" : {
+    "title" : "Pesquisar ou perguntar à IA",
+    "note" : "Accessibility label for the control that switches between searching and asking Duck.ai (DuckDuckGo's private AI chat)."
+  },
   "searchOrChat_searchTab" : {
     "title" : "Pesquisar",
     "note" : "Label of the option that switches the input to a web search."
@@ -340,6 +344,10 @@
     "title" : "Pergunta o que quiseres em privado",
     "note" : "Placeholder in the input when it will ask Duck.ai (DuckDuckGo's private AI chat)."
   },
+  "searchOrChat_submitLabel" : {
+    "title" : "Submeter",
+    "note" : "Accessibility label for the button that submits the search or the question."
+  },
   "searchOrChat_searchSuggestion1" : {
     "title" : "Como dizer \"pato\" em inglês",
     "note" : "Suggested search. Clicking it searches for this exact text, so it should read as a natural search query in the target language."
@@ -347,6 +355,10 @@
   "searchOrChat_searchSuggestion2" : {
     "title" : "Elenco do filme A Hora dos Campeões",
     "note" : "Suggested search for the cast of the film The Mighty Ducks. Clicking it searches for this exact text."
+  },
+  "searchOrChat_searchOnlySuggestion2" : {
+    "title" : "Como se diz \"pato\" em 10 línguas",
+    "note" : "Suggested search, shown when the user chose search only. Clicking it searches for this exact text."
   },
   "searchOrChat_aiSuggestion1" : {
     "title" : "Explica o mercado de ações como se tu tivesses 10 anos",
