@@ -16,7 +16,7 @@ import { testPredicate } from '../predicates/predicates.js';
 
 /**
  * @import { Failure } from '../model/core.js'
- * @import { ActionNode, ArithmeticNode, CompiledPayloadField, IfNode, ItemBinder, LengthNode, LogicNode } from '../model/types.js'
+ * @import { ActionNode, ArithmeticNode, BreakageReportDataNode, CompiledPayloadField, DefineNode, FireEventNode, IfNode, ItemBinder, LengthNode, LogicNode } from '../model/types.js'
  * @import { Node, OnlyNode, PayloadData, Position, SequenceNode, SourceNode, UsingNode } from '../model/types.js'
  * @import { CompiledPredicate } from '../predicates/predicates.js'
  * @import { EvaluationContext } from './context.js'
@@ -42,7 +42,18 @@ function boundValue(binder, ctx) {
  * @returns {unknown} the value, or a `Failure`
  */
 export function evaluateOccurrence(node, ctx) {
-    const value = evaluate(node, node.position, ctx);
+    return applyIs(node, evaluate(node, node.position, ctx), ctx);
+}
+
+/**
+ * The value of an expression where it sits, from its value: with `is`, the boolean its predicate gives.
+ *
+ * @param {Node} node
+ * @param {unknown} value - the expression's value, or a `Failure`
+ * @param {EvaluationContext} ctx
+ * @returns {unknown} the value, or a `Failure`
+ */
+function applyIs(node, value, ctx) {
     const is = node.is;
     if (!is) return value;
     try {
@@ -191,6 +202,7 @@ function computeUsing(node, position, ctx) {
  * @returns {unknown} the value, or a `Failure`
  */
 function readSource(node, position, ctx) {
+    if (node.source.suspends) throw new DetectionError(`\`${node.source.key}\` suspends the run, which it can't where it is`);
     const value = node.source.read(node.bodies, ctx);
     if (isItemBuffer(value)) value.leaf = node.leaf;
     return positioned(value, position);
@@ -375,27 +387,55 @@ function runAction(node, ctx) {
  * @returns {Failure | undefined}
  */
 function applyAction(node, ctx) {
-    if (node.kind === 'define') {
-        const value = evaluate(node.value, node.value.position, ctx);
-        if (isFailure(value)) return value;
-        // A list is held as its buffer, read in full now, so every `ref` reads the same items
-        if (isItemBuffer(value)) {
-            const failure = value.pull(Infinity);
-            if (failure) return failure.at(node.value.path);
-        }
-        (node.name.startsWith('this.') ? ctx.detectorNames : ctx.runNames).set(node.name, value);
-        if (isScalar(value)) ctx.measured[node.name] = value;
-        return undefined;
+    if (node.kind === 'define') return applyDefine(node, evaluate(node.value, node.value.position, ctx), ctx);
+    if (node.kind === 'done') return applyDone(evaluateOccurrence(node.value, ctx), ctx);
+    return applySend(node, node.data && evaluatePayload(node.data, ctx), ctx);
+}
+
+/**
+ * Bind a `define`'s name to its value.
+ *
+ * @param {DefineNode} node
+ * @param {unknown} value - the value, or a `Failure`
+ * @param {EvaluationContext} ctx
+ * @returns {Failure | undefined}
+ */
+function applyDefine(node, value, ctx) {
+    if (isFailure(value)) return value;
+    // A list is held as its buffer, read in full now, so every `ref` reads the same items
+    if (isItemBuffer(value)) {
+        const failure = value.pull(Infinity);
+        if (failure) return failure.at(node.value.path);
     }
-    if (node.kind === 'done') {
-        const value = evaluateOccurrence(node.value, ctx);
-        const held = isItemBuffer(value) ? presence(value) : value;
-        if (isFailure(held)) return held;
-        // `done`s in a run combine by OR, and one that held stays in effect whatever follows
-        if (held === true) ctx.done = true;
-        return undefined;
-    }
-    const data = node.data && evaluatePayload(node.data, ctx);
+    (node.name.startsWith('this.') ? ctx.detectorNames : ctx.runNames).set(node.name, value);
+    if (isScalar(value)) ctx.measured[node.name] = value;
+    return undefined;
+}
+
+/**
+ * Make the detector done at the end of the run when a `done` action's value holds.
+ *
+ * @param {unknown} value - the value, or a `Failure`
+ * @param {EvaluationContext} ctx
+ * @returns {Failure | undefined}
+ */
+function applyDone(value, ctx) {
+    const held = isItemBuffer(value) ? presence(value) : value;
+    if (isFailure(held)) return held;
+    // `done`s in a run combine by OR, and one that held stays in effect whatever follows
+    if (held === true) ctx.done = true;
+    return undefined;
+}
+
+/**
+ * Send a `fireEvent` or write a `breakageReportData` with its payload.
+ *
+ * @param {FireEventNode | BreakageReportDataNode} node
+ * @param {PayloadData | Failure | undefined} data
+ * @param {EvaluationContext} ctx
+ * @returns {Failure | undefined}
+ */
+function applySend(node, data, ctx) {
     if (isFailure(data)) return data;
     if (node.kind === 'fireEvent') ctx.sink.fireEvent(node.type, data);
     else ctx.sink.breakageReportData(data ?? {});
@@ -534,7 +574,16 @@ export function evaluatePayload(fields, ctx) {
  * @returns {unknown} the value as JSON parses it, a bucket name, a `Failure` or `OMIT`
  */
 function payloadValue(field, ctx) {
-    const value = evaluateOccurrence(field.value, ctx);
+    return payloadFrom(field, evaluateOccurrence(field.value, ctx), ctx);
+}
+
+/**
+ * @param {CompiledPayloadField} field
+ * @param {unknown} value - the field's value, or a `Failure`
+ * @param {EvaluationContext} ctx
+ * @returns {unknown} the value as JSON parses it, a bucket name, a `Failure` or `OMIT`
+ */
+function payloadFrom(field, value, ctx) {
     /**
      * @param {CompiledPredicate} predicate
      * @param {string} path
@@ -580,4 +629,144 @@ function payloadJson(value, path) {
     } catch (e) {
         return thrownFailure(e).at(path);
     }
+}
+
+/**
+ * The value an expression that suspends gives, evaluated as a generator: each source that suspends
+ * yields what it read, and the run resumes with the value. An expression that doesn't suspend
+ * evaluates synchronously, with no generator.
+ *
+ * @param {Node} node
+ * @param {Position} position
+ * @param {EvaluationContext} ctx
+ * @returns {Generator<unknown, unknown, unknown>} the value, or a `Failure`
+ */
+export function* evaluateSteps(node, position, ctx) {
+    if (!node.suspends) return evaluate(node, position, ctx);
+    try {
+        /** @type {unknown} */
+        let result;
+        switch (node.kind) {
+            case 'source':
+                result = positioned(yield node.source.read(node.bodies, ctx), position);
+                break;
+            case 'expr':
+                result = node.operand.is ? yield* occurrenceSteps(node.operand, ctx) : yield* evaluateSteps(node.operand, position, ctx);
+                break;
+            case 'using': {
+                const value = yield* evaluateSteps(node.root, node.root.position, ctx);
+                if (isFailure(value)) {
+                    result = value;
+                    break;
+                }
+                const operand = node.operand;
+                result = ctx.bind(node.binds, value, () =>
+                    operand.is ? evaluateOccurrence(operand, ctx) : evaluate(operand, position, ctx),
+                );
+                break;
+            }
+            case 'if': {
+                const test = yield* occurrenceSteps(node.test, ctx);
+                if (isFailure(test)) {
+                    result = test;
+                    break;
+                }
+                const branch = test ? node.then : node.else;
+                result = branch ? yield* resultSteps(branch, position, ctx) : undefined;
+                break;
+            }
+            case 'sequence': {
+                const last = node.elements[node.elements.length - 1];
+                for (const element of node.elements) {
+                    result = element === last ? yield* resultSteps(element, position, ctx) : yield* occurrenceSteps(element, ctx);
+                    if (isFailure(result)) break;
+                }
+                break;
+            }
+            case 'define':
+            case 'fireEvent':
+            case 'breakageReportData':
+            case 'done':
+                result = yield* actionSteps(node, ctx);
+                break;
+            default:
+                // Compile marks no other expression as suspending
+                throw new DetectionError(`'${node.kind}' can't suspend`);
+        }
+        if (isFailure(result)) return result.at(node.path);
+        checkType(result, position);
+        return result;
+    } catch (e) {
+        throw atPath(e, node.path, ctx);
+    }
+}
+
+/**
+ * `evaluateOccurrence` for an expression that may suspend.
+ *
+ * @param {Node} node
+ * @param {EvaluationContext} ctx
+ * @returns {Generator<unknown, unknown, unknown>}
+ */
+export function* occurrenceSteps(node, ctx) {
+    if (!node.suspends) return evaluateOccurrence(node, ctx);
+    return applyIs(node, yield* evaluateSteps(node, node.position, ctx), ctx);
+}
+
+/**
+ * `evaluateResult` for an expression that may suspend.
+ *
+ * @param {Node} node
+ * @param {Position} position
+ * @param {EvaluationContext} ctx
+ * @returns {Generator<unknown, unknown, unknown>}
+ */
+function* resultSteps(node, position, ctx) {
+    return position === 'spread' && !node.is ? yield* evaluateSteps(node, 'spread', ctx) : yield* occurrenceSteps(node, ctx);
+}
+
+/**
+ * `runAction` for an action whose value may suspend.
+ *
+ * @param {ActionNode} node
+ * @param {EvaluationContext} ctx
+ * @returns {Generator<unknown, Failure | undefined, unknown>}
+ */
+function* actionSteps(node, ctx) {
+    try {
+        /** @type {Failure | undefined} */
+        let failure;
+        if (node.kind === 'define') failure = applyDefine(node, yield* evaluateSteps(node.value, node.value.position, ctx), ctx);
+        else if (node.kind === 'done') failure = applyDone(yield* occurrenceSteps(node.value, ctx), ctx);
+        else failure = applySend(node, node.data && (yield* payloadSteps(node.data, ctx)), ctx);
+        ctx.outcomes[node.path] = failure ? 'aborted' : 'ran';
+        return failure;
+    } catch (e) {
+        ctx.outcomes[node.path] = 'error';
+        throw e;
+    }
+}
+
+/**
+ * `evaluatePayload` for a payload whose values may suspend.
+ *
+ * @param {CompiledPayloadField[]} fields
+ * @param {EvaluationContext} ctx
+ * @returns {Generator<unknown, PayloadData | Failure, unknown>}
+ */
+function* payloadSteps(fields, ctx) {
+    /** @type {PayloadData} */
+    const data = {};
+    for (const field of fields) {
+        /** @type {unknown} */
+        let value;
+        try {
+            value = payloadFrom(field, yield* occurrenceSteps(field.value, ctx), ctx);
+        } catch (e) {
+            throw atPath(e, `${field.path}.value`, ctx);
+        }
+        if (isFailure(value)) return value;
+        if (value !== OMIT) data[field.key] = value;
+    }
+    return data;
 }
