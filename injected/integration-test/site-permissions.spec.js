@@ -278,6 +278,7 @@ test.describe('sitePermissionsMediaCapture', () => {
                 capability: 'test-capability',
                 requestID: expect.stringMatching(/^[0-9a-f]{32}:1$/),
                 isEligible: true,
+                topOrigin: await page.evaluate(() => location.origin),
                 video: true,
                 audio: false,
             });

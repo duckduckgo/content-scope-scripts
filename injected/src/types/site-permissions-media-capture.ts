@@ -33,6 +33,10 @@ export interface RequestPermissionParams {
    * Whether the frame passes the page-side checks: secure context, non-opaque origin, and permissions policy.
    */
   isEligible: boolean;
+  /**
+   * The top-level page's origin, or "null" when the frame can't read it. Native code checks that the request still belongs to the committed top-level page.
+   */
+  topOrigin: string;
   video: boolean;
   audio: boolean;
 }

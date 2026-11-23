@@ -5,6 +5,7 @@ import {
     DOMException as NativeDOMException,
     Event as NativeEvent,
     EventTarget as NativeEventTarget,
+    Promise as NativePromise,
     addEventListener as addWindowEventListener,
     ReflectApply as apply,
     getOwnPropertyDescriptor,
@@ -52,6 +53,9 @@ export default class SitePermissionsMediaCapture extends ContentFeature {
         const prototype = mediaDevices && getPrototypeOf(mediaDevices);
         const descriptor = prototype && getOwnPropertyDescriptor(prototype, 'getUserMedia');
         const nativeGetUserMedia = descriptor && descriptor.value;
+        const permissions = navigator.permissions;
+        const queryPermission = permissions?.query;
+        const permissionState = globalThis.PermissionStatus && getOwnPropertyDescriptor(PermissionStatus.prototype, 'state')?.get;
 
         if (typeof nativeGetUserMedia !== 'function') {
             return;
@@ -70,6 +74,9 @@ export default class SitePermissionsMediaCapture extends ContentFeature {
         const isSyntheticDocument = locationProtocol === 'about:';
         const sameOriginAsTopLevel = isSameOriginAsTopLevel(origin);
         const isTopLevel = !isBeingFramed();
+        // Native code checks that the request still belongs to the committed top-level page.
+        const ancestorOrigins = globalThis.location.ancestorOrigins;
+        const topOrigin = isTopLevel ? origin : (ancestorOrigins?.[ancestorOrigins.length - 1] ?? 'null');
         // WebKit owns each document's effective sandbox restrictions, including after navigation.
         // An allow-same-origin sandbox may request media; opaque origins are marked ineligible.
         const policy = permissionsPolicy();
@@ -147,6 +154,38 @@ export default class SitePermissionsMediaCapture extends ContentFeature {
                 }
             });
         }
+        // A cross-origin frame can't read its iframe's allow attribute, but WebKit's Permissions API
+        // reports "denied" for a feature the embedding pages didn't delegate to it. Resolve only a
+        // promise made with the saved constructor: the page can change how derived promises are built.
+        /**
+         * @param {('camera' | 'microphone')[]} features
+         * @returns {Promise<boolean>}
+         */
+        const delegationAllows = (features) =>
+            new NativePromise((resolve) => {
+                /** @param {number} index */
+                const check = (index) => {
+                    if (index === features.length) {
+                        resolve(true);
+                        return;
+                    }
+                    if (typeof queryPermission !== 'function' || typeof permissionState !== 'function') {
+                        resolve(false);
+                        return;
+                    }
+                    try {
+                        void callThen(
+                            apply(queryPermission, permissions, [{ name: features[index] }]),
+                            (/** @type {PermissionStatus} */ status) =>
+                                apply(permissionState, status, []) === 'denied' ? resolve(false) : check(index + 1),
+                            () => resolve(false),
+                        );
+                    } catch (_) {
+                        resolve(false);
+                    }
+                };
+                check(0);
+            });
         let nextRequestID = 0;
 
         const permissionDenied = () => new NativeDOMException('Permission denied', 'NotAllowedError');
@@ -178,6 +217,7 @@ export default class SitePermissionsMediaCapture extends ContentFeature {
                 return apply(nativeGetUserMedia, this, [capturedConstraints]);
             }
 
+            const isCrossOrigin = !sameOriginAsTopLevel;
             // Send ineligible requests too: native code checks rollback before denying custom-flow requests.
             const isEligibleContext =
                 this === mediaDevices &&
@@ -185,20 +225,20 @@ export default class SitePermissionsMediaCapture extends ContentFeature {
                 (isDuckAIHost ||
                     (isSecureContext &&
                         !isSyntheticDocument &&
-                        (!video || policyAllows('camera')) &&
-                        (!audio || policyAllows('microphone'))));
+                        (isCrossOrigin || ((!video || policyAllows('camera')) && (!audio || policyAllows('microphone'))))));
 
             nextRequestID += 1;
+            const requestID = `${nonce}:${nextRequestID}`;
+            /** @param {boolean} isEligible */
+            const post = (isEligible) =>
+                messaging.request('requestPermission', { capability, requestID, isEligible, topOrigin, video, audio });
             /** @type {Promise<{ decision?: unknown }>} */
             let bridgePromise;
             try {
-                bridgePromise = messaging.request('requestPermission', {
-                    capability,
-                    requestID: `${nonce}:${nextRequestID}`,
-                    isEligible: isEligibleContext,
-                    video,
-                    audio,
-                });
+                bridgePromise =
+                    !isEligibleContext || !isCrossOrigin || isDuckAIHost
+                        ? post(isEligibleContext)
+                        : callThen(delegationAllows(video && audio ? ['camera', 'microphone'] : [video ? 'camera' : 'microphone']), post);
             } catch (_) {
                 return rejectPromise(permissionDenied());
             }

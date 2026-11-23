@@ -8,6 +8,7 @@
     "capability",
     "requestID",
     "isEligible",
+    "topOrigin",
     "video",
     "audio"
   ],
@@ -23,6 +24,10 @@
     "isEligible": {
       "type": "boolean",
       "description": "Whether the frame passes the page-side checks: secure context, non-opaque origin, and permissions policy."
+    },
+    "topOrigin": {
+      "type": "string",
+      "description": "The top-level page's origin, or \"null\" when the frame can't read it. Native code checks that the request still belongs to the committed top-level page."
     },
     "video": {
       "type": "boolean"
