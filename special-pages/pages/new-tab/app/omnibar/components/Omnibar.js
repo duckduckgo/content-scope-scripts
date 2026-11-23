@@ -1,5 +1,6 @@
 import { Fragment, h } from 'preact';
 import { useCallback, useContext, useRef, useState } from 'preact/hooks';
+import cn from 'classnames';
 import { ArrowRightIcon, LogoStacked, VoiceIcon } from '../../components/Icons';
 import { eventToTarget } from '../../../../../shared/handlers';
 import { usePlatformName, useNewTabPageRebranding } from '../../settings.provider';
@@ -20,9 +21,12 @@ import { Popover } from '../../components/Popover';
 import { useDrawerControls, useDrawerEventListeners } from '../../components/Drawer';
 import { Trans } from '../../../../../shared/components/TranslationsProvider.js';
 import { ImageAttachmentContent } from './chat-tools/image-attachment/ImageAttachmentTool';
-import { useImageAttachments } from './chat-tools/image-attachment/useImageAttachments';
-import { useFileAttachments } from './chat-tools/file-attachment/useFileAttachments';
+import { usePastedAttachments } from './chat-tools/image-attachment/usePastedAttachments';
+import { useScreenshotCapture } from './chat-tools/image-attachment/useScreenshotCapture';
 import { AttachmentChips } from './chat-tools/attachments/AttachmentChips';
+import { AttachmentsProvider, useAttachmentsContext } from './chat-tools/attachments/AttachmentsProvider';
+import { promptCharacterLimit, promptLength, resolvePastedTextLimits } from './chat-tools/text-pasted/textPasted.js';
+import { useDroppedAttachments } from './chat-tools/attachments/useDroppedAttachments';
 import { ModelSelectorTool } from './chat-tools/model-selector/ModelSelectorTool';
 import { ReasoningPickerTool } from './chat-tools/reasoning-picker/ReasoningPickerTool';
 import { ToolsMenu } from './chat-tools/tools-menu/ToolsMenu';
@@ -36,7 +40,10 @@ import { OpenTabsProvider } from './chat-tools/tab-attachment/OpenTabsProvider';
 import { useMentionPicker } from './chat-tools/tab-attachment/useMentionPicker';
 import { useTabAttachments } from './chat-tools/tab-attachment/useTabAttachments';
 import { NoticeDrawer } from './NoticeDrawer';
+import { TERMS_DISCLAIMER_ID, useTermsButtonLabel } from './useTermsDisclaimerNotice';
 import { useKeyboardFocusWithin } from './useKeyboardFocusWithin.js';
+import { SuggestedPrompts } from './suggested-prompts/SuggestedPrompts.js';
+import { fitToOneLine } from '../utils.js';
 
 /**
  * @typedef {typeof import('../strings.json')} Strings
@@ -46,6 +53,9 @@ import { useKeyboardFocusWithin } from './useKeyboardFocusWithin.js';
  * @typedef {import('../../../types/new-tab.js').SubmitChatAction} SubmitChatAction
  */
 
+/** Long enough to swallow a double-click on a suggested prompt. */
+const SUGGESTED_PROMPT_REPEAT_GUARD_MS = 1000;
+
 /**
  * Whether a focus change landed on another element inside `ref`, rather than leaving its subtree.
  * @param {{ current: HTMLElement | null }} ref
@@ -54,6 +64,14 @@ import { useKeyboardFocusWithin } from './useKeyboardFocusWithin.js';
 function focusStaysWithin(ref, event) {
     const next = event.relatedTarget;
     return next instanceof Node && (ref.current?.contains(next) ?? false);
+}
+
+/**
+ * Whether focus landed on the prompt textarea, not the one in the pasted-text dialog (which renders inside the form).
+ * @param {EventTarget | null} target
+ */
+function isComposerTextarea(target) {
+    return target instanceof HTMLTextAreaElement && !target.closest('[data-text-pasted-modal]');
 }
 
 /**
@@ -67,6 +85,7 @@ function focusStaysWithin(ref, event) {
  * @param {boolean} [props.enableVoiceChatAccess]
  * @param {boolean} [props.enableAskAiSuggestion]
  * @param {boolean} [props.enableAttachTabs]
+ * @param {boolean} [props.showSuggestedPrompts]
  * @param {string|null|undefined} props.tabId
  */
 export function Omnibar({
@@ -79,13 +98,20 @@ export function Omnibar({
     enableVoiceChatAccess = false,
     enableAskAiSuggestion = true,
     enableAttachTabs = false,
+    showSuggestedPrompts = false,
     tabId,
 }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const spacerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
+    const suggestedPromptsRef = useRef(/** @type {HTMLDivElement|null} */ (null));
+    const lastSameTabSuggestedPromptAt = useRef(0);
+    const launcherPromoVisibleRef = useRef(false);
     const [usageLimitsRevealed, setUsageLimitsRevealed] = useState(false);
+    const [noticeReservedHeight, setNoticeReservedHeight] = useState(0);
 
     const [query, setQuery] = useQueryWithLocalPersistence(tabId);
+    /** Text of the hovered or focused suggested prompt, previewed in the composer while it's empty. */
+    const [promptPlaceholder, setPromptPlaceholder] = useState(/** @type {string|null} */ (null));
     const [resetKey, setResetKey] = useState(0);
     const [autoFocus, setAutoFocus] = useState(false);
     /*
@@ -133,10 +159,35 @@ export function Omnibar({
         resetForm();
     };
 
+    /**
+     * Moving focus from the composer into the chips keeps focus-revealed notices open. Hiding them would drop the room
+     * they reserve and shift the chips mid-click.
+     * @param {FocusEvent} event
+     */
+    const hideNoticesOnFocusLeave = (event) => {
+        if (focusStaysWithin(spacerRef, event) || focusStaysWithin(suggestedPromptsRef, event)) return;
+        setUsageLimitsRevealed(false);
+    };
+
     /** @type {(params: SubmitChatAction) => void} */
     const handleSubmitChat = (params) => {
-        submitChat(params);
+        submitChat(launcherPromoVisibleRef.current ? { ...params, launcherPromoVisible: true } : params);
         resetForm();
+    };
+
+    /**
+     * A suggested prompt sends its own text, not the composer's, so the draft, attachments and tool stay as they were.
+     * With no form reset to disable it, a double-click would send twice, so a repeat same-tab send is dropped briefly.
+     * New-tab opens stay repeatable.
+     * @type {(params: SubmitChatAction) => void}
+     */
+    const handleSubmitSuggestedPrompt = (params) => {
+        if (params.target === 'same-tab') {
+            const now = Date.now();
+            if (now - lastSameTabSuggestedPromptAt.current < SUGGESTED_PROMPT_REPEAT_GUARD_MS) return;
+            lastSameTabSuggestedPromptAt.current = now;
+        }
+        submitChat(launcherPromoVisibleRef.current ? { ...params, launcherPromoVisible: true } : params);
     };
 
     /** @type {(mode: OmnibarConfig['mode']) => void} */
@@ -171,57 +222,78 @@ export function Omnibar({
                 </div>
             )}
             <SearchFormProvider term={query} setTerm={setQuery} enableAi={enableAi} enableAskAiSuggestion={enableAskAiSuggestion}>
-                <AiChatsProvider
-                    query={query}
-                    autoFocus={autoFocus}
-                    enableRecentAiChats={enableRecentAiChats}
-                    showViewAllAiChats={showViewAllAiChats}
-                >
-                    <div
-                        ref={spacerRef}
-                        class={styles.spacer}
-                        onFocusCapture={(event) => {
-                            // Toolbar/drawer focus must not reveal the drawer — only the composer itself.
-                            if (!(event.target instanceof HTMLTextAreaElement)) return;
-                            setUsageLimitsRevealed(true);
-                        }}
-                        onBlurCapture={(event) => {
-                            if (focusStaysWithin(spacerRef, event)) return;
-                            setUsageLimitsRevealed(false);
-                        }}
+                <AttachmentsProvider tabId={tabId}>
+                    <AiChatsProvider
+                        query={query}
+                        autoFocus={autoFocus}
+                        enableRecentAiChats={enableRecentAiChats}
+                        showViewAllAiChats={showViewAllAiChats}
                     >
-                        <div class={styles.popup} {...keyboardFocusWithinProps}>
-                            {mode === 'search' ? (
-                                <>
-                                    <ResizingContainer className={styles.field}>
-                                        <SearchForm
+                        <div
+                            ref={spacerRef}
+                            // Ease the room open with the drawer revealed on focus; notices open at load take it instantly.
+                            class={cn(styles.spacer, usageLimitsRevealed && styles.spacerReserveTransition)}
+                            style={{ marginBottom: noticeReservedHeight }}
+                            onFocusCapture={(event) => {
+                                // Toolbar/drawer focus must not reveal the drawer — only the composer itself.
+                                if (!isComposerTextarea(event.target)) return;
+                                setUsageLimitsRevealed(true);
+                            }}
+                            onBlurCapture={hideNoticesOnFocusLeave}
+                        >
+                            <div class={styles.popup} {...keyboardFocusWithinProps}>
+                                {mode === 'search' ? (
+                                    <>
+                                        <ResizingContainer className={styles.field}>
+                                            <SearchForm
+                                                autoFocus={autoFocus}
+                                                onOpenSuggestion={handleOpenSuggestion}
+                                                onSubmit={handleSubmitSearch}
+                                                onSubmitChat={handleSubmitChat}
+                                            />
+                                        </ResizingContainer>
+                                        <SuggestionsList onOpenSuggestion={handleOpenSuggestion} onSubmitChat={handleSubmitChat} />
+                                    </>
+                                ) : (
+                                    <OpenTabsProvider tabId={tabId} enabled={enableAttachTabs}>
+                                        <AiChatContent
+                                            query={query}
+                                            promptPlaceholder={promptPlaceholder}
                                             autoFocus={autoFocus}
-                                            onOpenSuggestion={handleOpenSuggestion}
-                                            onSubmit={handleSubmitSearch}
-                                            onSubmitChat={handleSubmitChat}
+                                            enableRecentAiChats={enableRecentAiChats}
+                                            enableVoiceChatAccess={enableVoiceChatAccess}
+                                            enableAttachTabs={enableAttachTabs}
+                                            tabId={tabId}
+                                            onChange={setQuery}
+                                            onSubmit={handleSubmitChat}
+                                            omnibarRef={spacerRef}
                                         />
-                                    </ResizingContainer>
-                                    <SuggestionsList onOpenSuggestion={handleOpenSuggestion} onSubmitChat={handleSubmitChat} />
-                                </>
-                            ) : (
-                                <OpenTabsProvider tabId={tabId} enabled={enableAttachTabs}>
-                                    <AiChatContent
-                                        query={query}
-                                        autoFocus={autoFocus}
-                                        enableRecentAiChats={enableRecentAiChats}
-                                        enableVoiceChatAccess={enableVoiceChatAccess}
-                                        enableAttachTabs={enableAttachTabs}
-                                        tabId={tabId}
-                                        onChange={setQuery}
-                                        onSubmit={handleSubmitChat}
-                                        omnibarRef={spacerRef}
-                                    />
-                                </OpenTabsProvider>
+                                    </OpenTabsProvider>
+                                )}
+                            </div>
+                            {mode === 'ai' && (
+                                <NoticeDrawer
+                                    revealed={usageLimitsRevealed}
+                                    onReservedHeightChange={setNoticeReservedHeight}
+                                    // The chips sit right below the drawer, so push them down instead of covering them.
+                                    reserveSpace={showSuggestedPrompts}
+                                    launcherPromoVisibleRef={launcherPromoVisibleRef}
+                                />
                             )}
                         </div>
-                        {mode === 'ai' && <NoticeDrawer revealed={usageLimitsRevealed} />}
-                    </div>
-                </AiChatsProvider>
+                        {/* `autoFocus` is only set by a mode switch, so the chips don't animate on page load. */}
+                        {mode === 'ai' && showSuggestedPrompts && (
+                            <SuggestedPrompts
+                                onSubmit={handleSubmitSuggestedPrompt}
+                                onPreview={setPromptPlaceholder}
+                                animateIn={autoFocus}
+                                enableVoiceChatAccess={enableVoiceChatAccess}
+                                containerRef={suggestedPromptsRef}
+                                onBlurCapture={hideNoticesOnFocusLeave}
+                            />
+                        )}
+                    </AiChatsProvider>
+                </AttachmentsProvider>
             </SearchFormProvider>
         </div>
     );
@@ -230,6 +302,7 @@ export function Omnibar({
 /**
  * @param {object} props
  * @param {string} props.query
+ * @param {string|null} [props.promptPlaceholder] - Replaces the placeholder, cut to one line.
  * @param {boolean} [props.autoFocus]
  * @param {boolean} props.enableRecentAiChats
  * @param {boolean} [props.enableVoiceChatAccess]
@@ -241,6 +314,7 @@ export function Omnibar({
  */
 function AiChatContent({
     query,
+    promptPlaceholder = null,
     autoFocus,
     enableRecentAiChats,
     enableVoiceChatAccess = false,
@@ -256,6 +330,7 @@ function AiChatContent({
     const { state, setImageGenerationActive } = useContext(OmnibarContext);
     const attachmentLimits = state.config?.attachmentLimits;
     const blocksPrompt = state.config?.usageLimits?.blocksPrompt === true;
+    const requiresAiTermsAcceptance = state.config?.requiresAiTermsAcceptance === true;
     const updatedCreateImageEnabled = state.config?.enableUpdatedCreateImage === true;
     const { selectedModel } = useSelectedModel();
     const { selectedEffort } = useSelectedReasoningEffort();
@@ -265,7 +340,8 @@ function AiChatContent({
     const hasVisibleImagesRef = useRef(false);
     const submittingRef = useRef(false);
     const [imageWarning, setImageWarning] = useState(false);
-    const imageState = useImageAttachments({ tabId, maxImages: attachmentLimits?.images?.maxPerTurn });
+    const [promptCollapsed, setPromptCollapsed] = useState(!autoFocus);
+    const { imageState, fileState, textPastedState } = useAttachmentsContext();
 
     const hasAttachedImages = imageState.attachedImages.length > 0;
     const imageGenerationPlaceholder = hasAttachedImages
@@ -274,19 +350,32 @@ function AiChatContent({
     const selectedModelSupportsImages = selectedModel?.supportsImageUpload ?? false;
     const canAttachImages = selectedModelSupportsImages || imageGenerationActive;
 
-    const fileState = useFileAttachments({
-        supportedFileTypes: selectedModel?.supportedFileTypes,
-        tabId,
-        maxFiles: attachmentLimits?.files?.maxPerConversation,
-        maxFileSizeMB: attachmentLimits?.files?.maxFileSizeMB,
-    });
     const canAttachFiles = !imageGenerationActive && (selectedModel?.supportedFileTypes?.length ?? 0) > 0;
 
     const canAttachTabs = enableAttachTabs && !imageGenerationActive;
+    const pastedTextEnabled = state.config?.enablePastedText === true;
+    const canAttachText = pastedTextEnabled && !imageGenerationActive;
+    const pastedTextLimits = resolvePastedTextLimits(state.config?.pastedTextLimits);
+    const attachedTextPasted = canAttachText ? textPastedState.attachedTextPasted : [];
+    const pastedAttachments = usePastedAttachments({
+        imageState,
+        canAttachImages,
+        processOtherFiles: canAttachFiles ? fileState.processFiles : null,
+        enabled: state.config?.enablePastedAttachments === true && !blocksPrompt,
+    });
+    const droppedAttachments = useDroppedAttachments({
+        processImages: canAttachImages ? imageState.processFiles : null,
+        processOtherFiles: canAttachFiles ? fileState.processFiles : null,
+        enabled: !blocksPrompt,
+    });
+    // Screenshots land in the image list; without an image-capable model the row shows greyed out.
+    const screenshotModes = state.config?.screenshotModes ?? [];
+    const canCaptureScreenshot = screenshotModes.length > 0;
+    const screenshotCapture = useScreenshotCapture({ imageState });
     const tabAttachments = useTabAttachments(tabId, attachmentLimits?.tabs?.maxAttached);
     const textareaRef = useRef(/** @type {HTMLTextAreaElement|null} */ (null));
     const mention = useMentionPicker({
-        enabled: canAttachTabs,
+        enabled: canAttachTabs && !blocksPrompt,
         query,
         onChange,
         hideChats,
@@ -331,10 +420,12 @@ function AiChatContent({
     };
 
     /**
-     * @param {string} chat
-     * @param {import('../../../types/new-tab.js').OpenTarget} target
+     * @param {object} params
+     * @param {string} params.chat
+     * @param {import('../../../types/new-tab.js').OpenTarget} params.target
+     * @param {boolean} [params.aiTermsAccepted] - Only a click on Ask/Create accepts the terms; Enter submits without it.
      */
-    const handleSubmit = async (chat, target) => {
+    const handleSubmit = async ({ chat, target, aiTermsAccepted = false }) => {
         if (blocksPrompt) return;
         if (submittingRef.current) return;
         submittingRef.current = true;
@@ -342,29 +433,37 @@ function AiChatContent({
             const images = canAttachImages ? imageState.getImagesForSubmission() : null;
             const files = canAttachFiles ? fileState.getFilesForSubmission() : null;
             const pageContext = canAttachTabs ? await tabAttachments.getTabsForSubmission() : null;
-            const modelId = imageGenerationActive ? null : (selectedModel?.id ?? null);
+            const textPasted = canAttachText ? textPastedState.getTextPastedForSubmission() : undefined;
+            // The updated flow submits the native-resolved image model through the GenerateImage tool,
+            // because native treats mode "image-generation" as the legacy path and drops the model.
+            const updatedImageGeneration = imageGenerationActive && updatedCreateImageEnabled;
+            const legacyImageGeneration = imageGenerationActive && !updatedCreateImageEnabled;
+            const modelId = legacyImageGeneration ? null : (selectedModel?.id ?? null);
             const reasoningEffort = imageGenerationActive ? null : selectedEffort;
-            const toolChoice = webSearchActive
-                ? /** @type {import('../../../types/new-tab.js').SubmitChatAction['toolChoice']} */ (['WebSearch'])
-                : null;
+            /** @type {import('../../../types/new-tab.js').SubmitChatAction['toolChoice'] | null} */
+            const toolChoice = updatedImageGeneration ? ['GenerateImage'] : webSearchActive ? ['WebSearch'] : null;
 
             /** @type {SubmitChatAction} */
             const action = {
                 chat,
                 target,
-                ...(imageGenerationActive && { mode: /** @type {const} */ ('image-generation') }),
+                ...(legacyImageGeneration && { mode: /** @type {const} */ ('image-generation') }),
                 ...(modelId && { modelId }),
                 ...(reasoningEffort && { reasoningEffort }),
                 ...(toolChoice && { toolChoice }),
                 ...(images && { images }),
                 ...(files && { files }),
                 ...(pageContext && { pageContext }),
+                ...(textPasted && { textPasted }),
+                ...(aiTermsAccepted && { aiTermsAccepted: true }),
             };
 
             onSubmit(action);
             imageState.clearAttachedImages();
+            screenshotCapture.clearCaptureError();
             fileState.clearAttachedFiles();
             tabAttachments.clearAttachedTabs();
+            textPastedState.clearTextPasted();
             clearTool();
         } finally {
             submittingRef.current = false;
@@ -391,22 +490,36 @@ function AiChatContent({
     const tabWarning = canAttachTabs && tabAttachments.tabLimitExceeded;
 
     const imageMessageShowing = !!(canAttachImages && (imageState.imageLimitExceeded || imageState.imageError));
-    const showFileError = !!fileError && !imageMessageShowing;
-    const showFileWarning = fileWarning && !imageMessageShowing && !showFileError;
+    const showCaptureError = screenshotCapture.captureError && !imageMessageShowing;
+    const showFileError = !!fileError && !imageMessageShowing && !showCaptureError;
+    const showFileWarning = fileWarning && !imageMessageShowing && !showCaptureError && !showFileError;
     // Only one attachment message shows at a time; the tab warning falls last in precedence.
-    const showTabWarning = tabWarning && !imageMessageShowing && !showFileError && !showFileWarning;
+    const showTabWarning = tabWarning && !imageMessageShowing && !showCaptureError && !showFileError && !showFileWarning;
+    // The typed text plus pastes over the limit; the cap only applies with the pasted-text feature on.
+    const currentPromptLength = promptLength(query, attachedTextPasted);
+    const hasAttachment = (canAttachImages && hasAttachedImages) || (canAttachFiles && fileState.attachedFiles.length > 0);
+    const maxPromptCharacters = promptCharacterLimit({
+        maxCharacters: pastedTextLimits.maxCharacters,
+        maxCharactersWithAttachments: hasAttachment ? attachmentLimits?.images?.maxInputCharsWithAttachments : null,
+    });
+    const promptTooLong = pastedTextEnabled && currentPromptLength > maxPromptCharacters;
+    const showPromptTooLong =
+        promptTooLong && !imageMessageShowing && !showCaptureError && !showFileError && !showFileWarning && !showTabWarning;
     const hasSendableAttachments =
         (canAttachImages && hasAttachedImages) ||
         (canAttachFiles && fileState.attachedFiles.length > 0) ||
-        (canAttachTabs && tabAttachments.attachedTabs.length > 0);
-    const disabled = blocksPrompt || (!query && !hasSendableAttachments) || imageWarning || fileWarning || tabWarning;
+        (canAttachTabs && tabAttachments.attachedTabs.length > 0) ||
+        attachedTextPasted.length > 0;
+    const disabled = blocksPrompt || (!query && !hasSendableAttachments) || imageWarning || fileWarning || tabWarning || promptTooLong;
 
     const isVoiceChatMode =
         enableVoiceChatAccess &&
+        !requiresAiTermsAcceptance &&
         !imageGenerationActive &&
         !hasAttachedImages &&
         fileState.attachedFiles.length === 0 &&
         tabAttachments.attachedTabs.length === 0 &&
+        attachedTextPasted.length === 0 &&
         !query;
 
     /** @type {(event: MouseEvent) => void} */
@@ -414,7 +527,7 @@ function AiChatContent({
         event.preventDefault();
         if (disabled) return;
         event.stopPropagation();
-        handleSubmit(query, eventToTarget(event, platformName));
+        handleSubmit({ chat: query, target: eventToTarget(event, platformName), aiTermsAccepted: requiresAiTermsAcceptance });
     };
 
     /** @type {(event: MouseEvent) => void} */
@@ -425,18 +538,23 @@ function AiChatContent({
     };
 
     const showRecentChats = enableRecentAiChats && !imageGenerationActive && !mention.pickerActive;
+    const termsButtonLabel = useTermsButtonLabel();
+    // A placeholder only shows while the input is empty, so a typed draft hides the preview by itself.
+    const fittedPromptPlaceholder = promptPlaceholder && textareaRef.current ? fitToOneLine(promptPlaceholder, textareaRef.current) : null;
 
     return (
         <div
             ref={containerRef}
             class={styles.aiChatContent}
-            data-attachment-warning={imageWarning || fileWarning || tabWarning || undefined}
+            data-attachment-warning={imageWarning || fileWarning || tabWarning || promptTooLong || undefined}
             onFocusCapture={(event) => {
-                if (!(event.target instanceof HTMLTextAreaElement)) return;
+                setPromptCollapsed(false);
+                if (!isComposerTextarea(event.target)) return;
                 if (!hasVisibleImagesRef.current && !imageGenerationActive && !mention.pickerActive) showChats();
             }}
             onBlurCapture={(event) => {
                 if (focusStaysWithin(omnibarRef, event)) return;
+                setPromptCollapsed(true);
                 // Don't hide the list while the native deletion dialog is open
                 if (deletionInProgress.current) {
                     return;
@@ -449,17 +567,24 @@ function AiChatContent({
                 <AiChatForm
                     query={query}
                     autoFocus={autoFocus}
+                    collapsed={promptCollapsed}
                     disabled={disabled}
                     readOnly={blocksPrompt}
-                    placeholder={imageGenerationActive ? imageGenerationPlaceholder : undefined}
+                    placeholder={fittedPromptPlaceholder ?? (imageGenerationActive ? imageGenerationPlaceholder : undefined)}
                     onChange={handleChange}
                     onSubmit={handleSubmit}
                     onTextareaKeyDown={mention.handleTextareaKeyDown}
                     combobox={mention.combobox}
                     textareaRef={textareaRef}
+                    onPaste={(event) => {
+                        if (canAttachText && !blocksPrompt) textPastedState.handlePaste(event, pastedTextLimits.pasteConversionThreshold);
+                        if (!event.defaultPrevented) pastedAttachments.handlePaste(event);
+                    }}
+                    onDragOver={droppedAttachments.handleDragOver}
+                    onDrop={droppedAttachments.handleDrop}
                     toolbarLeft={
                         <Fragment>
-                            {(canAttachImages || canAttachFiles || canAttachTabs) && (
+                            {(canAttachImages || canAttachFiles || canAttachTabs || canCaptureScreenshot) && (
                                 <AttachMenu
                                     image={
                                         canAttachImages
@@ -484,6 +609,19 @@ function AiChatContent({
                                     onToggleTab={tabAttachments.toggleTab}
                                     isAttached={tabAttachments.isAttached}
                                     maxTabs={tabAttachments.maxTabs}
+                                    screenshot={
+                                        canCaptureScreenshot
+                                            ? {
+                                                  modes: screenshotModes,
+                                                  onCapture: screenshotCapture.capture,
+                                                  disabled:
+                                                      blocksPrompt ||
+                                                      !canAttachImages ||
+                                                      screenshotCapture.capturing ||
+                                                      imageState.imageUploadDisabled,
+                                              }
+                                            : null
+                                    }
                                 />
                             )}
                             {toolsMenu.items.length > 0 && (
@@ -518,13 +656,17 @@ function AiChatContent({
                                 <button
                                     tabIndex={0}
                                     type="submit"
-                                    class={aiChatFormStyles.submitButton}
-                                    aria-label={t('omnibar_aiChatFormSubmitButtonLabel')}
+                                    class={cn(
+                                        aiChatFormStyles.submitButton,
+                                        requiresAiTermsAcceptance && aiChatFormStyles.termsSubmitButton,
+                                    )}
+                                    aria-label={requiresAiTermsAcceptance ? undefined : t('omnibar_aiChatFormSubmitButtonLabel')}
+                                    aria-describedby={requiresAiTermsAcceptance ? TERMS_DISCLAIMER_ID : undefined}
                                     disabled={disabled}
                                     onClick={handleClickSubmit}
                                     onAuxClick={handleClickSubmit}
                                 >
-                                    <ArrowRightIcon />
+                                    {requiresAiTermsAcceptance ? termsButtonLabel : <ArrowRightIcon />}
                                 </button>
                             )}
                         </Fragment>
@@ -534,10 +676,19 @@ function AiChatContent({
                         tabs={canAttachTabs ? tabAttachments.attachedTabs : []}
                         files={canAttachFiles ? fileState.attachedFiles : []}
                         images={canAttachImages ? imageState.attachedImages : []}
+                        textPasted={attachedTextPasted}
                         onRemoveTab={tabAttachments.removeTab}
                         onRemoveFile={fileState.handleRemoveFile}
                         onRemoveImage={imageState.handleRemoveImage}
+                        onRemoveTextPasted={textPastedState.removeTextPasted}
+                        onEditTextPasted={textPastedState.updateTextPasted}
+                        textPastedLimit={{ promptLength: currentPromptLength, maxCharacters: maxPromptCharacters }}
                     />
+                    {showCaptureError && (
+                        <p class={styles.attachmentWarning} role="alert">
+                            {t('omnibar_screenshotCaptureError')}
+                        </p>
+                    )}
                     {showFileError && (
                         <p class={styles.attachmentWarning} role="alert">
                             {t('omnibar_fileTooLargeError', { limit: String(fileState.maxFileSizeMB ?? '') })}
@@ -551,6 +702,11 @@ function AiChatContent({
                     {showTabWarning && (
                         <p class={styles.attachmentWarning} role="alert">
                             {t('omnibar_tabAttachmentLimitWarning', { limit: String(tabAttachments.maxTabs) })}
+                        </p>
+                    )}
+                    {showPromptTooLong && (
+                        <p class={styles.attachmentWarning} role="alert">
+                            {t('omnibar_promptTooLongWarning', { limit: String(maxPromptCharacters) })}
                         </p>
                     )}
                     <ImageAttachmentContent

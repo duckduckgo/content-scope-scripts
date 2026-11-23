@@ -1,21 +1,30 @@
 import { h, Fragment } from 'preact';
-import { useRef } from 'preact/hooks';
+import { useContext, useEffect, useRef, useState } from 'preact/hooks';
 import cn from 'classnames';
 import { DismissButton } from '../../components/DismissButton';
-import { ChevronSmall, InfoIcon } from '../../components/Icons';
+import { ChevronSmall, InfoIcon, ShieldCheckIcon } from '../../components/Icons';
 import { useTypedTranslationWith } from '../../types';
 import { Dropdown } from './chat-tools/dropdown/Dropdown';
 import { DropdownItem } from './chat-tools/dropdown/DropdownItem';
 import { useDropdown } from './chat-tools/useDropdown';
 import { getModelIcon } from './chat-tools/model-selector/Icons';
 import { useCreateImageModelSwitchNotice } from './useCreateImageModelSwitchNotice';
+import { useReservedHeight } from './useReservedHeight';
+import { useTermsDisclaimerNotice } from './useTermsDisclaimerNotice';
 import { useUsageLimitsDrawer } from './useUsageLimitsDrawer';
+import { useAttachmentPrivacyNotice } from './useAttachmentPrivacyNotice';
+import { useLauncherPromoNotice } from './useLauncherPromoNotice';
+import { OmnibarContext } from './OmnibarProvider';
 import styles from './NoticeDrawer.module.css';
 
 /** @typedef {typeof import('../strings.json')} Strings */
 
+/** Duck.ai messaging framework types, highest first. */
+const NOTICE_TYPES = /** @type {const} */ (['required', 'action', 'informational']);
+
 /**
- * @typedef {'info' | 'ring' | 'alert' | 'convert'} NoticeIcon
+ * @typedef {typeof NOTICE_TYPES[number]} NoticeType
+ * @typedef {'info' | 'ring' | 'alert' | 'convert' | 'shield' | 'announce'} NoticeIcon
  * @typedef {'neutral' | 'warning' | 'critical'} NoticeSeverity
  * @typedef {'none' | 'convert'} UsageLimitsCtaLeadingIcon
  * @typedef {{ id: string, name: string, variant?: string }} UsageLimitsCtaAlternative
@@ -28,9 +37,12 @@ import styles from './NoticeDrawer.module.css';
  *   alternatives?: UsageLimitsCtaAlternative[],
  * }} UsageLimitsCta
  * @typedef {{
- *   message: string,
- *   secondaryText: string,
+ *   type: NoticeType,
+ *   message: import('preact').ComponentChildren,
+ *   messageId?: string,
+ *   secondaryText: import('preact').ComponentChildren,
  *   secondaryOnNewLine?: boolean,
+ *   muted?: boolean,
  *   icon: NoticeIcon,
  *   percent?: number,
  *   severity?: NoticeSeverity,
@@ -121,6 +133,10 @@ function NoticeGlyph({ icon, percent, severity }) {
             return <UsageLimitsAlertIcon />;
         case 'convert':
             return <ConvertIcon />;
+        case 'shield':
+            return <ShieldCheckIcon class={cn(styles.glyph, styles.shield)} aria-hidden="true" />;
+        case 'announce':
+            return <AnnounceIcon />;
         case 'info':
             return infoIcon;
         default: {
@@ -130,6 +146,24 @@ function NoticeGlyph({ icon, percent, severity }) {
             return infoIcon;
         }
     }
+}
+
+/** Announce-16 from DDG Icons. */
+function AnnounceIcon() {
+    return (
+        <svg class={cn(styles.glyph, styles.announce)} viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path
+                fill="currentColor"
+                fill-rule="evenodd"
+                clip-rule="evenodd"
+                d="M12 2.625a.625.625 0 1 0-1.25 0V3L1.243 5.907A.625.625 0 0 0 0 6v4a.625.625 0 0 0 1.243.092l2.382.728v.574a2.59 2.59 0 0 0 4.76 1.418l.293-.449 2.072.633v.379a.625.625 0 1 0 1.25 0V2.625ZM1.25 8.787V7.212l9.497-2.904-.022 7.373L1.25 8.787Zm3.625 2.415 2.558.78-.095.146a1.34 1.34 0 0 1-2.463-.734v-.192Z"
+            />
+            <path
+                fill="currentColor"
+                d="M15.107 4.205a.625.625 0 0 0-.464-1.16l-1.25.5a.625.625 0 0 0 .464 1.16l1.25-.5Zm-.982 3.045a.625.625 0 1 0 0 1.25h1.25a.625.625 0 1 0 0-1.25h-1.25Zm-.268 4.045a.625.625 0 1 0-.464 1.16l1.25.5a.625.625 0 1 0 .464-1.16l-1.25-.5Z"
+            />
+        </svg>
+    );
 }
 
 /** Convert / switch-model glyph (Convert-16 from DDG Icons). */
@@ -236,21 +270,34 @@ function UsageLimitsCtaControl({ cta, onSelectCta }) {
 }
 
 /**
- * @param {object} props
- * @param {boolean} props.revealed - Whether focus-gated notices should be shown.
+ * The highest type that applies wins. Two Required notices show together; nothing else stacks.
+ *
+ * @param {(NoticePresentation | null)[]} notices
+ * @returns {NoticePresentation[]}
  */
-export function NoticeDrawer({ revealed }) {
-    const usageLimits = useUsageLimitsDrawer();
-    const createImageModelSwitch = useCreateImageModelSwitchNotice();
-    // Create Image wins visual priority; usage-limit blocking remains independent.
-    const presentation = createImageModelSwitch ?? usageLimits;
+function visibleNotices(notices) {
+    for (const type of NOTICE_TYPES) {
+        /** @type {NoticePresentation[]} */
+        const ofType = [];
+        for (const notice of notices) {
+            if (notice?.type === type) ofType.push(notice);
+        }
+        if (ofType.length > 0) return ofType.slice(0, type === 'required' ? 2 : 1);
+    }
+    return [];
+}
 
-    if (!presentation) return null;
-
+/**
+ * @param {object} props
+ * @param {NoticePresentation} props.presentation
+ */
+function NoticeRow({ presentation }) {
     const {
         message,
+        messageId,
         secondaryText,
         secondaryOnNewLine = false,
+        muted = false,
         icon,
         percent = 0,
         severity = 'neutral',
@@ -259,8 +306,65 @@ export function NoticeDrawer({ revealed }) {
         onDismiss,
     } = presentation;
 
-    const emphasize = icon === 'ring' || icon === 'alert' || icon === 'convert';
-    const isRevealed = revealed || createImageModelSwitch !== null;
+    const emphasize = icon === 'ring' || icon === 'alert' || icon === 'convert' || icon === 'announce';
+
+    return (
+        <div class={styles.content}>
+            <span class={styles.leading}>
+                <NoticeGlyph icon={icon} percent={percent} severity={severity} />
+            </span>
+            <p
+                id={messageId}
+                class={cn(
+                    styles.message,
+                    emphasize && styles.messageEmphasized,
+                    secondaryOnNewLine && styles.messageStacked,
+                    muted && styles.messageMuted,
+                )}
+            >
+                <span class={styles.primary}>{message}</span>
+                {secondaryOnNewLine && secondaryText ? ' ' : null}
+                {secondaryText ? <span class={styles.secondary}>{secondaryText}</span> : null}
+            </p>
+            {cta && onSelectCta ? <UsageLimitsCtaControl cta={cta} onSelectCta={onSelectCta} /> : null}
+            {onDismiss ? <DismissButton className={styles.dismiss} onClick={onDismiss} /> : null}
+        </div>
+    );
+}
+
+/**
+ * @param {object} props
+ * @param {boolean} props.revealed - Whether focus-gated notices should be shown.
+ * @param {(height: number) => void} props.onReservedHeightChange - Room the page must keep below the omnibar for a notice that stays open at rest.
+ * @param {boolean} [props.reserveSpace] - Also reserve room for focus-revealed notices, so they push content below down instead of covering it.
+ * @param {{ current: boolean }} props.launcherPromoVisibleRef - Whether the launcher promo drawer is on screen, for submitChat.
+ */
+export function NoticeDrawer({ revealed, onReservedHeightChange, reserveSpace = false, launcherPromoVisibleRef }) {
+    const termsDisclaimer = useTermsDisclaimerNotice();
+    const attachmentPrivacy = useAttachmentPrivacyNotice();
+    const usageLimits = useUsageLimitsDrawer();
+    const createImageModelSwitch = useCreateImageModelSwitchNotice();
+    const launcherPromo = useLauncherPromoNotice();
+    const { launcherPromoShown } = useContext(OmnibarContext);
+    const notices = visibleNotices([termsDisclaimer, usageLimits, attachmentPrivacy, createImageModelSwitch, launcherPromo]);
+    const topType = notices[0]?.type;
+
+    // A hidden drawer measures 0, so reserving for focus-revealed notices only takes room while they show.
+    const drawerRef = useReservedHeight(topType === 'required' || (reserveSpace && topType !== undefined), onReservedHeightChange);
+
+    const isRevealed = topType !== undefined && (revealed || topType !== 'informational');
+    const [shownAtMount] = useState(isRevealed);
+
+    const launcherPromoVisible = isRevealed && launcherPromo !== null && notices.includes(launcherPromo);
+    useEffect(() => {
+        if (launcherPromoVisible) launcherPromoShown();
+        launcherPromoVisibleRef.current = launcherPromoVisible;
+        return () => {
+            launcherPromoVisibleRef.current = false;
+        };
+    }, [launcherPromoVisible, launcherPromoShown, launcherPromoVisibleRef]);
+
+    if (!topType) return null;
 
     const keepComposerFocus = (event) => {
         // Keep the caret in the composer so clicking CTA/dismiss does not hide the drawer first.
@@ -269,23 +373,16 @@ export function NoticeDrawer({ revealed }) {
 
     return (
         <div
-            class={cn(styles.drawer, !isRevealed && styles.hidden)}
+            ref={drawerRef}
+            class={cn(styles.drawer, shownAtMount && styles.noSlideIn, !isRevealed && styles.hidden)}
             data-testid="notice-drawer"
             role="status"
             onMouseDown={keepComposerFocus}
         >
             <div class={styles.card}>
-                <div class={styles.content}>
-                    <span class={styles.leading}>
-                        <NoticeGlyph icon={icon} percent={percent} severity={severity} />
-                    </span>
-                    <p class={cn(styles.message, emphasize && styles.messageEmphasized, secondaryOnNewLine && styles.messageStacked)}>
-                        <span class={styles.primary}>{message}</span>
-                        {secondaryText ? <span class={styles.secondary}>{secondaryText}</span> : null}
-                    </p>
-                    {cta && onSelectCta ? <UsageLimitsCtaControl cta={cta} onSelectCta={onSelectCta} /> : null}
-                    {onDismiss ? <DismissButton className={styles.dismiss} onClick={onDismiss} /> : null}
-                </div>
+                {notices.map((presentation, index) => (
+                    <NoticeRow key={index} presentation={presentation} />
+                ))}
             </div>
         </div>
     );

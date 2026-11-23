@@ -1,0 +1,8 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Dismiss Launcher Promo",
+  "description": "Sent when the user dismisses the launcher promo. Native persists the dismissal and pushes an updated OmnibarConfig.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {}
+}

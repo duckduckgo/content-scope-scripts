@@ -7,7 +7,6 @@
  * @typedef {import('./types/feature-map').FeatureName} FeatureName
  */
 
-// Features must exist in either `baseFeatures` or `otherFeatures`
 export const baseFeatures = /** @type {FeatureName[]} */ ([
     'fingerprintingAudio',
     'fingerprintingBattery',
@@ -35,7 +34,6 @@ const otherFeatures = /** @type {FeatureName[]} */ ([
     'duckAiChatHistory',
     'harmfulApis',
     'webCompat',
-    'webDetection',
     'webEvents',
     'webInterferenceDetection',
     'detectorPerf',
@@ -57,22 +55,42 @@ const otherFeatures = /** @type {FeatureName[]} */ ([
     'autofillPasskeys',
     'textSelection',
     'chromeWebstorePatching',
+    'selectionTools',
+    'sponsorBlock',
+    'pageTranslation',
 ]);
 
-/** @type {Record<string, FeatureName[]>} */
+/**
+ * Remote config keys a feature reads beyond its own, used to keep them when pruning the config.
+ * Add an entry whenever a feature reads another feature's config (`bundledConfig.features.x`
+ * or `getFeatureSetting(key, 'x')`), otherwise that read returns nothing once pruned.
+ * @type {Partial<Record<FeatureName, string[]>>}
+ */
+export const featureConfigDependencies = {
+    trackerProtection: ['contentBlocking', 'trackerAllowlist', 'clickToLoad'],
+    breakageReporting: ['webInterferenceDetection'],
+    cookie: ['adClickAttribution'],
+};
+
+/**
+ * Features load and init in the order listed. `webDetection` comes first, after `cookie` where a platform
+ * has it, so its reader captures native getters and methods before any other feature replaces them.
+ * `cookie` replaces only `Document.prototype.cookie`.
+ *
+ * @type {Record<string, FeatureName[]>}
+ */
 export const platformSupport = {
-    apple: ['webCompat', 'duckPlayerNative', ...baseFeatures, 'pageContext', 'print', 'trackerProtection'],
+    apple: ['webCompat', 'duckPlayerNative', ...baseFeatures, 'pageContext', 'print', 'trackerProtection', 'textSelection'],
     'apple-isolated': [
+        'webDetection',
         'contextMenu',
         'duckPlayer',
         'duckPlayerNative',
-        'brokerProtection',
         'breakageReporting',
         'performanceMetrics',
         'clickToLoad',
         'messageBridge',
         'favicon',
-        'webDetection',
         'webEvents',
         'webInterferenceDetection',
         'detectorPerf',
@@ -80,14 +98,19 @@ export const platformSupport = {
         'pageObserver',
         'hover',
         'tabSuspension',
-        'textSelection',
+        'chromeWebstorePatching',
+        'browserUiLock',
+        'sponsorBlock',
     ],
+    'apple-broker-protection': ['brokerProtection'],
     'apple-ai-clear': ['duckAiDataClearing'],
+    // Its own bundle: native injects it only when the user translates a page.
+    'apple-page-translation': ['pageTranslation'],
     'apple-ai-history': ['duckAiChatHistory'],
     android: [
+        'webDetection',
         ...baseFeatures,
         'webCompat',
-        'webDetection',
         'webEvents',
         'webInterferenceDetection',
         'detectorPerf',
@@ -96,12 +119,15 @@ export const platformSupport = {
         'messageBridge',
         'pageContext',
         'browserUiLock',
+        'sponsorBlock',
     ],
     'android-broker-protection': ['brokerProtection'],
     'android-ai-clear': ['duckAiDataClearing'],
+    'android-page-translation': ['pageTranslation'],
     'android-ai-history': ['duckAiChatHistory'],
     'android-autofill-import': ['autofillImport'],
     'android-adsjs': [
+        'webDetection',
         'apiManipulation',
         'webCompat',
         'fingerprintingHardware',
@@ -110,14 +136,13 @@ export const platformSupport = {
         'fingerprintingAudio',
         'fingerprintingBattery',
         'gpc',
-        'webDetection',
         'webEvents',
         'breakageReporting',
     ],
     windows: [
         'cookie',
-        ...baseFeatures,
         'webDetection',
+        ...baseFeatures,
         'webEvents',
         'webInterferenceDetection',
         'detectorPerf',
@@ -135,9 +160,10 @@ export const platformSupport = {
         'duckAiChatHistory',
         'autofillPasskeys',
         'chromeWebstorePatching',
+        'selectionTools',
     ],
-    firefox: ['cookie', ...baseFeatures, 'clickToLoad', 'webDetection', 'webEvents', 'webInterferenceDetection', 'breakageReporting'],
-    chrome: ['cookie', ...baseFeatures, 'clickToLoad', 'webDetection', 'webEvents', 'webInterferenceDetection', 'breakageReporting'],
-    'chrome-mv3': ['cookie', ...baseFeatures, 'clickToLoad', 'webDetection', 'webEvents', 'webInterferenceDetection', 'breakageReporting'],
-    integration: [...baseFeatures, ...otherFeatures],
+    firefox: ['cookie', 'webDetection', ...baseFeatures, 'clickToLoad', 'webEvents', 'webInterferenceDetection', 'breakageReporting'],
+    chrome: ['cookie', 'webDetection', ...baseFeatures, 'clickToLoad', 'webEvents', 'webInterferenceDetection', 'breakageReporting'],
+    'chrome-mv3': ['cookie', 'webDetection', ...baseFeatures, 'clickToLoad', 'webEvents', 'webInterferenceDetection', 'breakageReporting'],
+    integration: ['webDetection', ...baseFeatures, ...otherFeatures],
 };

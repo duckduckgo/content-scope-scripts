@@ -11,7 +11,7 @@ import { useEffect, useRef, useState } from 'preact/hooks';
  * @param {Element} el
  * @returns {Element | null}
  */
-function findContainingBlock(el) {
+export function findContainingBlock(el) {
     let parent = el.parentElement;
     while (parent && parent !== document.body) {
         const style = getComputedStyle(parent);

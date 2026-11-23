@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GetExtensionStatusResponse",
+  "description": "macOS: native-authoritative status; unknown keeps the button hidden.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "status"
+  ],
+  "properties": {
+    "status": {
+      "type": "string",
+      "enum": [
+        "installable",
+        "installed",
+        "unsupported",
+        "unknown"
+      ]
+    }
+  }
+}

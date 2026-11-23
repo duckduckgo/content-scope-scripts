@@ -36,9 +36,12 @@ JavaScript features injected into web pages for privacy protections. Features ex
 - `navigator-interface` - Navigator API modifications
 - `page-context` - Extracts page content and sends it to native on request
 - `page-observer` - Notifies native when the DOM has loaded
+- `page-translation` - Extracts translatable text units, and writes translations back onto the original nodes (own bundles)
 - `performance-metrics` - Performance tracking
 - `print` - Overrides `window.print()` so native handles printing (iOS)
 - `referrer` - Referrer protection
+- `selection-tools` - Reports selected text, what kind of text it is and its position for native's Duck.ai selection toolbar and context menu (Windows)
+- `sponsor-block` - Skips sponsored YouTube segments using SponsorBlock data fetched by native
 - `tab-suspension` - Reports whether the tab can be suspended
 - `text-selection` - Reports text selection state to native
 - `tracker-protection` - In-page tracker blocking and surrogate injection

@@ -1,5 +1,6 @@
 /* eslint-disable no-redeclare, no-global-assign */
 import { Set } from './captured-globals.js';
+import { platformSupport, featureConfigDependencies } from './features.js';
 
 // Only use globalThis for testing this breaks window.wrappedJSObject code in Firefox
 
@@ -310,6 +311,21 @@ export function isFeatureBroken(args, feature) {
     }
 
     return args.site.isBroken || args.site.allowlisted || !isFeatureEnabled;
+}
+
+/**
+ * Remote config is a hot-fix channel, so a malformed selector is a question of when, not if. One bad entry would
+ * invalidate a whole injected CSS rule and throw out of querySelectorAll, so callers drop it and keep the rest.
+ * @param {string} selector
+ * @returns {boolean}
+ */
+export function isValidSelector(selector) {
+    try {
+        document.createDocumentFragment().querySelector(selector);
+        return true;
+    } catch {
+        return false;
+    }
 }
 
 /**
@@ -776,7 +792,7 @@ export function isMaxSupportedVersion(maxSupportedVersion, currentVersion) {
 
 /**
  * @typedef RemoteConfig
- * @property {Record<string, { state: string; settings: any; exceptions: { domain: string }[], minSupportedVersion?: string|number }>} features
+ * @property {Record<string, { state: string; settings: any; exceptions: { domain: string }[], minSupportedVersion?: string|number, maxSupportedVersion?: string|number }>} features
  * @property {{domain: string}[]} unprotectedTemporary
  */
 
@@ -785,8 +801,13 @@ export function isMaxSupportedVersion(maxSupportedVersion, currentVersion) {
  * @param {string[]} userList
  * @param {UserPreferences} preferences
  * @param {string[]} platformSpecificFeatures
+ * @param {string} [injectName] - the bundle being run, used to drop config for features it doesn't include
  */
-export function processConfig(data, userList, preferences, platformSpecificFeatures = []) {
+export function processConfig(data, userList, preferences, platformSpecificFeatures = [], injectName = import.meta.injectName) {
+    const bundledFeatureNames = injectName ? platformSupport[injectName] : undefined;
+    if (bundledFeatureNames) {
+        data = pruneConfigFeatures(data, bundledFeatureNames, featureConfigDependencies);
+    }
     const topLevelHostname = getTabHostname();
     const site = computeLimitedSiteObject();
     const allowlisted = userList.filter((domain) => domain === topLevelHostname).length > 0;
@@ -857,6 +878,32 @@ export function isStateEnabled(state, platform) {
 }
 
 /**
+ * Returns a copy of the config without the features a bundle never reads, so the rest can be garbage collected.
+ * Every bundled feature must be kept: platform specific features are enabled when absent from the config.
+ * @param {RemoteConfig} data
+ * @param {string[]} featureNames - features compiled into this bundle
+ * @param {Partial<Record<string, string[]>>} [dependencies] - extra config keys each feature reads
+ * @returns {RemoteConfig}
+ */
+export function pruneConfigFeatures(data, featureNames, dependencies = {}) {
+    if (!data?.features) return data;
+    const keep = new Set(featureNames);
+    for (const featureName of featureNames) {
+        for (const dependency of dependencies[featureName] ?? []) {
+            keep.add(dependency);
+        }
+    }
+    /** @type {RemoteConfig['features']} */
+    const features = {};
+    for (const [featureName, feature] of Object.entries(data.features)) {
+        if (keep.has(featureName)) {
+            features[featureName] = feature;
+        }
+    }
+    return { ...data, features };
+}
+
+/**
  * Returns a list of enabled features
  * @param {RemoteConfig} data
  * @param {string | null} topLevelHostname
@@ -873,9 +920,14 @@ export function computeEnabledFeatures(data, topLevelHostname, platform, platfor
         .filter((featureName) => {
             const feature = data.features[featureName];
             if (!feature) return false;
-            // Check that the platform supports minSupportedVersion checks and that the feature has a minSupportedVersion
+            // Version bounds are inclusive, and only checked when the platform reports a version
             if (feature.minSupportedVersion && platform?.version) {
                 if (!isSupportedVersion(feature.minSupportedVersion, platform.version)) {
+                    return false;
+                }
+            }
+            if (feature.maxSupportedVersion && platform?.version) {
+                if (!isMaxSupportedVersion(feature.maxSupportedVersion, platform.version)) {
                     return false;
                 }
             }
@@ -940,6 +992,8 @@ export const platformSpecificFeatures = [
     'textSelection',
     'uaChBrands',
     'chromeWebstorePatching',
+    'selectionTools',
+    'pageTranslation', // native triggers it; runs without a config entry and on sites with protections off
 ];
 /**
  * Features that bypass exception-based disabling in computeEnabledFeatures.

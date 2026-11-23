@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { ChipRemoveButton } from '../attachments/ChipRemoveButton';
+import { AttachmentChip } from '../attachments/AttachmentChip';
 import styles from './ImageAttachment.module.css';
 
 /**
@@ -11,12 +11,17 @@ import styles from './ImageAttachment.module.css';
  * @param {AttachedImage} props.image
  * @param {() => void} props.onRemove
  * @param {string} props.removeLabel
+ * @param {number} [props.enteringAnimationDelay]
  */
-export function ImageChip({ image, onRemove, removeLabel }) {
+export function ImageChip({ image, onRemove, removeLabel, enteringAnimationDelay }) {
     return (
-        <div class={styles.thumbnailWrapper} data-attachment-kind="image">
-            <img src={image.dataUrl} alt="" class={styles.thumbnail} />
-            <ChipRemoveButton onRemove={onRemove} label={removeLabel} stopPropagation />
-        </div>
+        <AttachmentChip
+            attachmentKind="image"
+            imagePreview={<img src={image.dataUrl} alt="" class={styles.chipPreview} />}
+            tooltipLabel={image.fileName}
+            onRemove={onRemove}
+            removeLabel={removeLabel}
+            enteringAnimationDelay={enteringAnimationDelay}
+        />
     );
 }

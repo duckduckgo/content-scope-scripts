@@ -353,6 +353,57 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
         });
     });
 
+    test.describe('omnibar terms disclaimer @screenshots', () => {
+        const requiresTerms = { 'omnibar.mode': 'ai', 'omnibar.requiresAiTermsAcceptance': 'true' };
+
+        test('terms disclaimer ask', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: requiresTerms });
+            await omnibar.ready();
+            await omnibar.chatInput().fill('pizza');
+            await expect(omnibar.askButton()).toBeEnabled();
+            await expect(page).toHaveScreenshot('omnibar-terms-ask.png', { maxDiffPixels });
+        });
+
+        test('terms disclaimer create', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({
+                additional: { ...requiresTerms, 'omnibar.enableAiChatTools': 'true', 'omnibar.enableImageGeneration': 'true' },
+            });
+            await omnibar.ready();
+            await omnibar.toolsMenuButton().click();
+            await omnibar.createImageMenuItem().click();
+            await omnibar.imageGenerationInput().fill('a neon duck');
+            await expect(omnibar.createButton()).toBeEnabled();
+            await expect(page).toHaveScreenshot('omnibar-terms-create.png', { maxDiffPixels });
+        });
+
+        test('terms disclaimer empty input', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: requiresTerms });
+            await omnibar.ready();
+            await expect(omnibar.askButton()).toBeDisabled();
+            await expect(page).toHaveScreenshot('omnibar-terms-empty.png', { maxDiffPixels });
+        });
+
+        test('terms disclaimer narrow', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await page.setViewportSize({ width: 360, height: 1500 });
+            await ntp.openPage({ additional: requiresTerms });
+            await omnibar.ready();
+            await omnibar.chatInput().fill('pizza');
+            await expect(page).toHaveScreenshot('omnibar-terms-narrow.png', { maxDiffPixels });
+        });
+    });
+
     test.describe('omnibar reasoning picker @screenshots', () => {
         test('reasoning picker rest', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
@@ -472,6 +523,23 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             await expect(page).toHaveScreenshot('omnibar-attached-file-chip.png', { maxDiffPixels });
         });
 
+        test('privacy disclaimer stacked under terms', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({
+                additional: {
+                    ...attachmentsConfig,
+                    'omnibar.requiresAiTermsAcceptance': 'true',
+                    'omnibar.showAttachmentPrivacyDisclaimer': 'true',
+                },
+            });
+            await omnibar.ready();
+            await omnibar.fileInput().setInputFiles({ name: 'q3-report.pdf', mimeType: 'application/pdf', buffer: pdfBytes });
+            await expect(omnibar.noticeDrawer()).toContainText('Files are automatically scanned');
+            await expect(page).toHaveScreenshot('omnibar-attachment-privacy-stacked.png', { maxDiffPixels });
+        });
+
         test('attached image chip', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);
@@ -500,17 +568,19 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
-            // Raise the tab cap above the chip count so this stays a pure overflow test — 4 chips
+            // Raise the tab cap above the chip count so this stays a pure overflow test — 6 chips
             // exceed the default cap of 3 and would otherwise render the over-limit warning chrome.
             await ntp.openPage({ additional: { ...attachmentsConfig, 'omnibar.tabMaxAttached': '10' } });
             await omnibar.ready();
-            // Enough wide tab chips to exceed the field width; they stay on one row and the
-            // trailing chip is clipped at the scroll edge rather than wrapping to a new row.
+            // Enough 108px chips to exceed the 620px field; they stay on one row and the
+            // row scrolls to the newest chip rather than wrapping to a new row.
             await omnibar.attachTab('MacBook Neo - Apple');
             await omnibar.attachTab('Starbucks Coffee Company');
             await omnibar.attachTab('MacBook Pro - Apple');
             await omnibar.attachTab('Daring Fireball');
-            await expect(omnibar.tabChip()).toHaveCount(4);
+            await omnibar.attachTab('Dinosaurus');
+            await omnibar.attachTab('The Verge');
+            await expect(omnibar.tabChip()).toHaveCount(6);
             await expect(page).toHaveScreenshot('omnibar-attachment-carousel-overflow.png', { maxDiffPixels });
         });
 
@@ -536,6 +606,61 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             await omnibar.chatInput().pressSequentially('@zzznomatch');
             await expect(omnibar.mentionPicker().getByText('No matching tabs')).toBeVisible();
             await expect(page).toHaveScreenshot('omnibar-mention-picker-empty.png', { maxDiffPixels });
+        });
+    });
+
+    test.describe('omnibar screenshot capture @screenshots', () => {
+        const screenshotConfig = {
+            'omnibar.mode': 'ai',
+            'omnibar.enableAiChatTools': 'true',
+            'omnibar.enableAttachTabs': 'true',
+            'omnibar.selectedModelId': 'claude-haiku-4-5',
+            'omnibar.screenshotModes': 'dragToSelect,selectWindowOrDisplay',
+        };
+
+        test('screenshot submenu open', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: screenshotConfig });
+            await omnibar.ready();
+            await omnibar.attachMenuButton().click();
+            await omnibar.addScreenshotMenuItem().hover();
+            await expect(omnibar.screenshotModeItem('Select Window or Display')).toBeVisible();
+            await expect(page).toHaveScreenshot('omnibar-screenshot-submenu-open.png', { maxDiffPixels });
+        });
+
+        test('add screenshot disabled without image support', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: { ...screenshotConfig, 'omnibar.selectedModelId': 'openai_gpt-oss-120b' } });
+            await omnibar.ready();
+            await omnibar.attachMenuButton().click();
+            await expect(omnibar.addScreenshotMenuItem()).toHaveAttribute('aria-disabled', 'true');
+            await expect(page).toHaveScreenshot('omnibar-screenshot-row-disabled.png', { maxDiffPixels });
+        });
+
+        test('attached screenshot chip', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: screenshotConfig });
+            await omnibar.ready();
+            await omnibar.captureScreenshot('Drag to Select');
+            await expect(omnibar.imagePreviews()).toHaveCount(1);
+            await expect(page).toHaveScreenshot('omnibar-screenshot-chip.png', { maxDiffPixels });
+        });
+
+        test('screenshot capture error', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: { ...screenshotConfig, 'omnibar.screenshotResult': 'error' } });
+            await omnibar.ready();
+            await omnibar.captureScreenshot('Drag to Select');
+            await expect(page.getByRole('alert')).toBeVisible();
+            await expect(page).toHaveScreenshot('omnibar-screenshot-error.png', { maxDiffPixels });
         });
     });
 

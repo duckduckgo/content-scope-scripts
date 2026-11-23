@@ -53,6 +53,7 @@ export function load(args) {
     const importConfig = {
         trackerLookup: import.meta.trackerLookup,
         injectName: import.meta.injectName,
+        contentScopeScriptsVersion: import.meta.contentScopeScriptsVersion,
     };
 
     const bundledFeatureNames = typeof importConfig.injectName === 'string' ? (platformSupport[importConfig.injectName] ?? []) : [];
@@ -79,7 +80,10 @@ export function load(args) {
             if (!featureInstance.getFeatureSettingEnabled('additionalCheck', 'enabled')) {
                 continue;
             }
-            featureInstance.callLoad();
+            // A feature whose load threw is not registered, so its init never runs
+            if (!featureInstance.callLoad()) {
+                continue;
+            }
             // @ts-expect-error - ignore typing for simplicity (avoids introducing runtime proofs for featureName => featureInstance)
             _features[featureName] = featureInstance;
         }

@@ -16,6 +16,10 @@
     }
 }
 
+.noSlideIn {
+    animation: none;
+}
+
 /* Hide focus-gated notices until the composer has focus. */
 .hidden {
     display: none;
@@ -90,6 +94,11 @@
     }
 }
 
+.shield,
+.announce {
+    color: var(--ds-color-theme-icons-secondary);
+}
+
 .ringTrack {
     stroke: var(--ds-color-theme-control-fill-primary);
 }
@@ -136,6 +145,28 @@
     font-weight: 600;
 }
 
+.primary button {
+    background: none;
+    border: none;
+    color: var(--ds-color-theme-accent-primary);
+    cursor: pointer;
+    font: inherit;
+    padding: 0;
+
+    &:hover {
+        color: var(--ds-color-theme-accent-secondary);
+    }
+
+    &:active {
+        color: var(--ds-color-theme-accent-tertiary);
+    }
+
+    &:focus-visible {
+        box-shadow: var(--focus-ring);
+        outline: none;
+    }
+}
+
 .messageStacked {
     display: flex;
     flex-direction: column;
@@ -144,6 +175,19 @@
 .secondary {
     color: var(--ds-color-theme-text-secondary);
     font-weight: 400;
+}
+
+.messageMuted {
+    color: var(--ds-color-theme-text-secondary);
+}
+
+.link {
+    color: var(--ds-color-theme-accent-text-primary);
+    text-decoration: none;
+
+    &:hover {
+        text-decoration: underline;
+    }
 }
 
 .dismiss {

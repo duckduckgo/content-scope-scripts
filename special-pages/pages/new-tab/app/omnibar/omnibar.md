@@ -22,6 +22,14 @@ title: Omnibar Widget
 }
 ```
 
+## Prompt box
+
+The Duck.ai prompt grows with its text up to 10 lines. While focus is outside the omnibar it shrinks to its first line, and it grows back when focus returns.
+
+## Tool selection
+
+Web Search and Create Image share one selection across NTP tabs in the window. Switching tabs preserves the tool; deselecting it or submitting a prompt clears it for all tabs. Feature configuration and model support still determine which tools are available. The selection lasts for the lifetime of the NTP page and is not persisted across page reloads.
+
 ## Requests:
 
 ### `omnibar_getConfig` 
@@ -35,12 +43,18 @@ title: Omnibar Widget
   - `enableImageGeneration` — shows "Create Image" in the tools menu (default `false`)
   - `enableUpdatedCreateImage` — enables the native-driven image-capable model switch and localized notice (default `false`)
   - `enableWebSearch` — shows "Web Search" in the tools menu (default `false`)
-  - `enableVoiceChatAccess` — when true and the input is empty, replaces the AI chat submit button with a 1-click voice-chat button. Click/Enter sends `omnibar_submitChat` with an empty `chat` and `mode: "voice-mode"` — native handles the voice handoff (default `false`)
+  - `enableVoiceChatAccess` — when true and the input is empty, replaces the AI chat submit button with a 1-click voice-chat button. Click/Enter sends `omnibar_submitChat` with an empty `chat` and `mode: "voice-mode"` — native handles the voice handoff. Hidden while `requiresAiTermsAcceptance` is `true` (default `false`)
   - `enableAskAiSuggestion` — when `false`, hides the inline "Ask Duck.ai: <query>" entry in the suggestions dropdown. Missing/undefined is treated as `true` (default `true`). Does not affect the Duck.ai mode pill or any other AI affordance — those remain governed by `enableAi`
   - `enableAttachTabs` — when `true`, the omnibar shows the page context entry point and accepts `@` mentions for attaching open tabs as context. Requires native to handle `omnibar_getOpenTabs` and `omnibar_getTabContent` (default `false`).
+  - `showSuggestedPrompts` — when `true`, shows the Duck.ai suggested-prompt chips below the input in Duck.ai mode: "How Duck.ai Works", "Chat Suggestions" and, when `enableImageGeneration` is on, "Create & Edit Images". Selecting a prompt sends `omnibar_submitChat` straight away, with `suggestedPromptId` set to the prompt's catalog ID and without `aiTermsAccepted`. "Edit Photo" turns on Create Image and opens the image picker instead. Native counts Duck.ai prompts sent from the NTP and pushes `false` once enough have been sent (default `false`).
+  - `screenshotModes` — capture modes (`"dragToSelect"`, `"selectWindowOrDisplay"`) listed, in order, under "Add Screenshot" in the paperclip menu. Absent or empty hides the screenshot UI. Requires native to handle `omnibar_captureScreenshot`. The row is disabled while a capture is pending, at the image cap, when the model cannot take images, or when the prompt is blocked.
+  - `enablePastedAttachments` — when `true`, pasting into the Duck.ai prompt attaches copied images and files (see [Paste](#paste)). When `false` or absent, paste is left to the browser (text only) (default `false`). The page needs no native support to paste; the flag lets native roll the behaviour out and switch it off remotely.
+  - `enablePastedText` — when `true`, a long text paste becomes a pasted-text chip and the prompt is capped (see [Pasted text](#pasted-text)). Requires native to forward `textPasted` from `omnibar_submitChat` (default `false`).
+  - `pastedTextLimits` — `{ pasteConversionThreshold, maxCharacters }`, in UTF-16 code units, used with `enablePastedText`. Native reads them from remote config. Absent, or a missing or invalid field, falls back to 4000 and 16000.
   - `aiModelSections` — array of model sections for the model selector. Each model may include `supportedReasoningEffort` (e.g. `["none", "low", "medium"]`) to surface the reasoning picker
   - `selectedModelId` — the user's persisted model choice
   - `selectedReasoningEffort` — the user's persisted reasoning-effort choice for the active model. Native validates against the model's `supportedReasoningEffort` on write
+  - `requiresAiTermsAcceptance` — `true` while the user hasn't accepted Duck.ai's terms. See [Duck.ai terms](#duckai-terms) (default `false`)
 ```json
 {
    "mode": "search",
@@ -51,7 +65,24 @@ title: Omnibar Widget
    "enableWebSearch": false,
    "enableVoiceChatAccess": false,
    "enableAskAiSuggestion": true,
-   "enableAttachTabs": false
+   "enableAttachTabs": false,
+   "showSuggestedPrompts": false,
+   "screenshotModes": ["dragToSelect", "selectWindowOrDisplay"],
+   "enablePastedAttachments": true
+}
+```
+
+### `omnibar_captureScreenshot`
+- {@link "NewTab Messages".OmnibarCaptureScreenshotRequest}
+- Sent when the user picks a mode from the "Add Screenshot" submenu. The reply comes once the capture is taken, fails or is cancelled, so the request can stay pending for as long as the user takes. The page disables the screenshot rows while a request is pending.
+- requires `mode`, one of the configured `screenshotModes`.
+- returns {@link "NewTab Messages".CaptureScreenshotResponse}:
+  - `image` — base64 `data` (no data-URL prefix), `format` (`png` or `jpeg`) and `kind` (`selection`, `screen` or `window`). It is at most 1024px on the long side; the page keeps that size and adds it as an image chip named "Screenshot" (numbered on repeats).
+  - `error: "screenshotFailed"` — the page shows "Couldn't capture screenshot" under the prompt and sends no telemetry for it.
+  - neither — the user cancelled; the page does nothing.
+```json
+{
+   "image": { "data": "iVBORw0KGgo...", "format": "png", "kind": "selection" }
 }
 ```
 
@@ -145,6 +176,41 @@ Picker telemetry distinguishes impressions from gated-row activations:
 
 The four CTA events retain their historical `_shown` names, but they represent activation rather than visibility. Their Try-for-free/Upgrade classification is derived from the item’s `upsell` value and the user’s free-trial eligibility. Native routing remains determined only by `upsell`, so an `*_upgrade_shown` event can precede `omnibar_showSubscriptionUpsell` when a `subscribe` item is activated by a user who is not eligible for a free trial.
 
+## Attachment telemetry
+
+Sent as `telemetryEvent` with `{ attributes: { name, value } }`:
+
+- `omnibar_image_attached` — every image chip added, with `value.source`: `file` (picker or drag and drop), `paste` or `screenshot`.
+- `omnibar_image_removed` — every image chip the user removes (its × button), with the chip's `value.source`. Clearing on submit or on a model switch does not count.
+- `omnibar_screenshot_taken` — once a screenshot has been added as a chip, with `value.kind` from the capture.
+- `omnibar_screenshot_removed` — the user removed a screenshot chip (sent alongside `omnibar_image_removed`).
+- `omnibar_screenshot_failed` — `value.reason: "failed"`, when the page could not process a returned image. `error` replies are not reported by the page.
+- `omnibar_pasted_text_attached` — a long paste became a pasted-text chip.
+- `omnibar_pasted_text_removed` — the user removed a pasted-text chip (its × button). Clearing on submit does not count.
+- `omnibar_pasted_text_edited` — the user saved changed text in the Pasted Text dialog. Saving unchanged text does not count.
+- `omnibar_pasted_text_dialog_opened` — the user opened the Pasted Text dialog from a chip.
+
+## Paste
+
+With `enablePastedAttachments`, a paste into the Duck.ai prompt is handled as follows:
+
+- If the clipboard has any text, the browser pastes the text and nothing is attached. Office apps put a picture of the copied cells next to the text; the text wins.
+- Otherwise a clipboard bitmap is attached at up to 1024px, so text in it stays legible, named "Pasted image" (numbered on repeats); copied image files are resized like picked ones (512px); copied PDFs go to the file chips. Images need an image-capable model and files a model that supports them, as with the picker. An image in an unsupported format shows the "Failed to process image" error.
+
+## Pasted text
+
+With `enablePastedText`, as in Duck.ai and the native apps:
+
+- A text paste of at least `pastedTextLimits.pasteConversionThreshold` characters that isn't only whitespace is attached as a "Pasted text" chip instead of inserted. It wins over any images or files on the clipboard. Shorter pastes go inline.
+- Chips show the start of the text. Clicking one (or Enter/Space) opens a "Pasted Text" dialog to view and edit it; "Save Changes" replaces the paste, and Cancel, ×, Escape or a backdrop click discard the edit. Once the edit is blank, "Save Changes" turns into a red "Delete text" button that removes the paste. An edit that leaves the prompt over the cap can still be saved, so several chips can be trimmed in turn; sending stays blocked until the prompt fits.
+- On submit, chips are sent in attach order as `textPasted: [{ content }]` in `omnibar_submitChat`. A chip alone, with an empty prompt, can be sent.
+- The typed text plus every chip may have at most `pastedTextLimits.maxCharacters` characters; over that, a warning shows and sending is blocked. While an image or file is attached, the cap drops to `attachmentLimits.images.maxInputCharsWithAttachments` when that is lower.
+- Not applied in image-generation mode: long pastes go inline and existing chips are hidden and not sent.
+
+## Drag and drop
+
+Files dragged onto the Duck.ai prompt (e.g. from Finder) are attached like picked ones: images are resized to 512px and PDFs go to the file chips, with the same model requirements. The page accepts a file drag only when the selected model can take images or files and the prompt isn't blocked; otherwise the drag is left to the browser, which opens the file. Text drags are always left to the browser. No config flag or native support is needed.
+
 ## Subscriptions:
 
 ### `omnibar_onConfigUpdate` 
@@ -161,6 +227,20 @@ The four CTA events retain their historical `_shown` names, but they represent a
 ### `omnibar_dismissCreateImageModelSwitch`
 - Sent when the user dismisses the native-provided Create Image model-switch notice.
 - Native clears the notice and pushes the updated config.
+
+### `omnibar_openPrivacyTerms`
+- {@link "NewTab Messages".OmnibarOpenPrivacyTermsNotification}
+- Sent when the user clicks the link in the Duck.ai terms disclaimer. See [Duck.ai terms](#duckai-terms).
+- Native opens the Duck.ai Privacy Policy and Terms of Service page in a new tab. No parameters.
+
+### `omnibar_launcherPromoShown`
+- Sent the first time per page load that the `launcherPromo` drawer is revealed on composer focus.
+
+### `omnibar_selectLauncherPromoCta`
+- Sent when the user activates the `launcherPromo` button. Native runs the action and pushes the updated config.
+
+### `omnibar_dismissLauncherPromo`
+- Sent when the user dismisses the `launcherPromo` drawer. Native persists the dismissal and pushes the updated config.
 
 ### `omnibar_setConfig` 
 - {@link "NewTab Messages".OmnibarSetConfigNotification}
@@ -190,12 +270,14 @@ The four CTA events retain their historical `_shown` names, but they represent a
 - Sent when the user submits a chat message to Duck.ai
 - requires `chat` (the chat message) and `target` (where to open the chat)
 - optional fields:
-  - `modelId` — the selected AI model identifier. Omitted when in image-generation mode.
-  - `reasoningEffort` — stable server key (e.g. `"none"`, `"low"`, `"medium"`) for the reasoning-effort selection. Omitted when the active model doesn't expose a reasoning picker, or in image-generation mode.
-  - `mode` — `"chat"` or `"image-generation"`. Sent as `"image-generation"` when the Create Image tool is active. Omitted for normal chat (defaults to `"chat"`).
-  - `toolChoice` — `["WebSearch"]` when the user has the Web Search tool active. Omitted otherwise.
+  - `modelId` — the selected AI model identifier. Omitted when in image-generation mode. With `enableUpdatedCreateImage`, Create Image sends the native-resolved image model instead.
+  - `reasoningEffort` — stable server key (e.g. `"none"`, `"low"`, `"medium"`) for the reasoning-effort selection. Omitted when the active model doesn't expose a reasoning picker, or when Create Image is active.
+  - `mode` — `"chat"` or `"image-generation"`. Sent as `"image-generation"` when the Create Image tool is active and `enableUpdatedCreateImage` is off. Omitted for normal chat (defaults to `"chat"`).
+  - `toolChoice` — `["WebSearch"]` when the user has the Web Search tool active, or `["GenerateImage"]` when Create Image is active and `enableUpdatedCreateImage` is on. Omitted otherwise.
   - `images` — array of `{ data, format }` objects for attached images. Omitted when no images are attached.
+  - `launcherPromoVisible` — `true` when the `launcherPromo` drawer was on screen as the prompt went out; native treats the prompt as passing over it. Omitted otherwise.
   - `pageContext` — array of {@link "NewTab Messages".PageContext} objects echoed back from `omnibar_getTabContent`. Each entry **always** includes `tabId` so native can attribute attachments to their source tab. Omitted when no tabs are attached so existing native handlers continue to work unchanged.
+  - `aiTermsAccepted` — `true` when this submission accepts Duck.ai's terms. See [Duck.ai terms](#duckai-terms). Omitted otherwise.
 - example payloads:
 
 **Normal chat:**
@@ -259,6 +341,15 @@ The four CTA events retain their historical `_shown` names, but they represent a
 }
 ```
 
+**Chat that accepts Duck.ai's terms:**
+```json
+{
+   "chat": "How do I enable privacy protection?",
+   "target": "same-tab",
+   "aiTermsAccepted": true
+}
+```
+
 ### `omnibar_openSuggestion` 
 - {@link "NewTab Messages".OmnibarOpenSuggestionNotification}
 - Sent when the user selects a suggestion from the dropdown
@@ -287,6 +378,29 @@ The omnibar supports various types of suggestions:
 - **website**: Direct website URL suggestions
 - **historyEntry**: Previously visited pages from browser history with title, URL, and relevance score
 - **internalPage**: Internal browser pages (settings, etc.) with title, URL, and relevance score
+
+## Duck.ai terms
+
+While `requiresAiTermsAcceptance` is `true`, the Duck.ai tab shows the terms disclaimer under the input, and the send button reads "Ask" ("Create" in image-generation mode) instead of the arrow.
+
+- Clicking the button accepts the terms: `omnibar_submitChat` includes `aiTermsAccepted: true`. Native passes it to Duck.ai with the prompt, so Duck.ai sends the prompt without its Continue card.
+- Pressing Enter still submits, but without `aiTermsAccepted`. Legal requires an explicit click to accept.
+- After that submission native should push `requiresAiTermsAcceptance: false` to every open NTP. The NTP doesn't hide the disclaimer on its own.
+- The voice-chat button is hidden until the terms are accepted. A disabled Ask button shows in its place while the input is empty.
+- The Search tab's "Ask Duck.ai" suggestion never sends `aiTermsAccepted`.
+- The disclaimer's link sends `omnibar_openPrivacyTerms`. Native opens the Duck.ai Privacy Policy and Terms of Service page in a new tab.
+- The disclaimer is the top notice in the [notice drawer](#notice-drawer). `usageLimits.blocksPrompt` still blocks sending.
+- `omnibar_setConfig` sends the whole config, so it echoes `requiresAiTermsAcceptance` back. Native should ignore it there.
+
+## Notice drawer
+
+The Duck.ai tab shows one notice under the input, or two when two Required notices apply (the terms disclaimer and the attachment privacy disclaimer on a first prompt with an attachment). It follows the [Duck.ai messaging framework](https://app.asana.com/1/137249556945/project/1211654189969294/task/1218246195820552). The highest type wins, then the order within a type:
+
+1. Required: the terms disclaimer, then `usageLimits` with `blocksPrompt: true`, then the attachment privacy disclaimer (`showAttachmentPrivacyDisclaimer`).
+2. Action: `createImageModelSwitch`.
+3. Informational: `usageLimits` without `blocksPrompt`, then `launcherPromo`.
+
+A higher notice hides a lower one. The lower one comes back if it still applies when the higher one goes away. Informational notices show only while the input is focused. Required and Action notices also show at rest.
 
 ## Open Targets
 

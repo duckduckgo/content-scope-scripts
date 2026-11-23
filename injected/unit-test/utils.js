@@ -5,6 +5,7 @@ import {
     processConfig,
     computeEnabledFeatures,
     parseFeatureSettings,
+    pruneConfigFeatures,
     satisfiesMinVersion,
     isMaxSupportedVersion,
     getTabHostname,
@@ -204,6 +205,123 @@ describe('Helpers checks', () => {
             bundledConfig: configIn,
             messagingContextName: 'contentScopeScripts',
         });
+    });
+
+    it('processes config in expected way for maxSupportedVersion and numeric versions', () => {
+        const configIn = {
+            features: {
+                testFeature: {
+                    state: 'enabled',
+                    settings: {},
+                    exceptions: [],
+                },
+                testFeatureBig: {
+                    state: 'enabled',
+                    maxSupportedVersion: 100,
+                    settings: {},
+                    exceptions: [],
+                },
+                testFeatureEqual: {
+                    state: 'enabled',
+                    maxSupportedVersion: 99,
+                    settings: {},
+                    exceptions: [],
+                },
+                testFeatureTooSmall: {
+                    state: 'enabled',
+                    maxSupportedVersion: 98,
+                    settings: {},
+                    exceptions: [],
+                },
+            },
+            unprotectedTemporary: [],
+        };
+        const processedConfig = processConfig(
+            configIn,
+            [],
+            {
+                platform: {
+                    name: 'android',
+                },
+                versionNumber: 99,
+                sessionKey: 'testSessionKey',
+            },
+            [],
+        );
+        expect(processedConfig.site.enabledFeatures).toEqual(['testFeature', 'testFeatureBig', 'testFeatureEqual']);
+    });
+
+    it('processes config in expected way for maxSupportedVersion and string versions', () => {
+        const configIn = {
+            features: {
+                testFeature: {
+                    state: 'enabled',
+                    settings: {},
+                    exceptions: [],
+                },
+                testFeatureBig: {
+                    state: 'enabled',
+                    maxSupportedVersion: '1.0.0',
+                    settings: {},
+                    exceptions: [],
+                },
+                testFeatureEqual: {
+                    state: 'enabled',
+                    maxSupportedVersion: '0.9.9',
+                    settings: {},
+                    exceptions: [],
+                },
+                testFeatureTooSmall: {
+                    state: 'enabled',
+                    maxSupportedVersion: '0.9.8',
+                    settings: {},
+                    exceptions: [],
+                },
+                testFeatureInRange: {
+                    state: 'enabled',
+                    minSupportedVersion: '0.9.0',
+                    maxSupportedVersion: '0.9.9',
+                    settings: {},
+                    exceptions: [],
+                },
+                testFeatureOutOfRange: {
+                    state: 'enabled',
+                    minSupportedVersion: '0.9.0',
+                    maxSupportedVersion: '0.9.8',
+                    settings: {},
+                    exceptions: [],
+                },
+            },
+            unprotectedTemporary: [],
+        };
+        const processedConfig = processConfig(
+            configIn,
+            [],
+            {
+                platform: {
+                    name: 'ios',
+                },
+                versionString: '0.9.9',
+                sessionKey: 'testSessionKey',
+            },
+            [],
+        );
+        expect(processedConfig.site.enabledFeatures).toEqual(['testFeature', 'testFeatureBig', 'testFeatureEqual', 'testFeatureInRange']);
+    });
+
+    it('ignores maxSupportedVersion when the platform has no version', () => {
+        const configIn = {
+            features: {
+                testFeatureTooSmall: {
+                    state: 'enabled',
+                    maxSupportedVersion: '0.9.8',
+                    settings: {},
+                    exceptions: [],
+                },
+            },
+            unprotectedTemporary: [],
+        };
+        expect(computeEnabledFeatures(configIn, 'localhost', { name: 'ios' })).toEqual(['testFeatureTooSmall']);
     });
 
     it('does not enable features with state "preview" when preview flag is not set', () => {
@@ -1329,6 +1447,45 @@ describe('Helpers checks', () => {
             };
             const result = parseFeatureSettings(data, ['featureA', 'navigatorInterface', 'messageBridge']);
             expect(result).toEqual({ featureA: { key: 'value' } });
+        });
+    });
+
+    describe('pruneConfigFeatures', () => {
+        it('keeps only bundled features and their dependencies, without mutating the input', () => {
+            const data = {
+                unprotectedTemporary: [],
+                features: {
+                    trackerProtection: { state: 'enabled', settings: {}, exceptions: [] },
+                    contentBlocking: { state: 'enabled', settings: {}, exceptions: [] },
+                    autofill: { state: 'enabled', settings: {}, exceptions: [] },
+                    gpc: { state: 'enabled', settings: {}, exceptions: [] },
+                },
+            };
+            const pruned = pruneConfigFeatures(data, ['trackerProtection', 'gpc'], { trackerProtection: ['contentBlocking'] });
+            expect(Object.keys(pruned.features).sort()).toEqual(['contentBlocking', 'gpc', 'trackerProtection']);
+            expect(pruned.unprotectedTemporary).toBe(data.unprotectedTemporary);
+            expect(Object.keys(data.features).length).toBe(4);
+        });
+
+        it('returns a config without features as is', () => {
+            const data = /** @type {any} */ ({});
+            expect(pruneConfigFeatures(data, ['gpc'])).toBe(data);
+        });
+
+        it('is applied by processConfig for the given inject name', () => {
+            const data = {
+                unprotectedTemporary: [],
+                features: {
+                    gpc: { state: 'enabled', settings: {}, exceptions: [] },
+                    autofill: { state: 'enabled', settings: {}, exceptions: [] },
+                },
+            };
+            /** @type {import('../src/utils.js').UserPreferences} */
+            const preferences = { platform: { name: 'ios' }, sessionKey: 'testSessionKey' };
+            const pruned = processConfig(data, [], preferences, [], 'apple');
+            expect(Object.keys(pruned.bundledConfig.features)).toEqual(['gpc']);
+            const unpruned = processConfig(data, [], preferences, []);
+            expect(Object.keys(unpruned.bundledConfig.features).sort()).toEqual(['autofill', 'gpc']);
         });
     });
 });

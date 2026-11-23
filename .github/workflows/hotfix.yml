@@ -134,8 +134,13 @@ jobs:
                   cache: 'npm'
 
             - name: Build release
+              env:
+                  VERSION: ${{ steps.version.outputs.version }}
               run: |
                   npm ci
+                  # The bundles embed this version; Check Release Version fails the
+                  # hotfix branch if it does not match the tag.
+                  npm pkg set version="$VERSION"
                   npm run build
 
             - name: Check in build artifacts
