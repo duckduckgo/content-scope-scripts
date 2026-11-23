@@ -1,0 +1,11 @@
+{
+    "readme": "This config is used to test the text selection feature, which reports selection state to native.",
+    "version": 1,
+    "features": {
+        "textSelection": {
+            "state": "enabled",
+            "exceptions": []
+        }
+    },
+    "unprotectedTemporary": []
+}

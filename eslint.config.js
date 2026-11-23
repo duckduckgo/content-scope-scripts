@@ -15,6 +15,7 @@ export default tseslint.config(
             'injected/playwright-report/',
             'injected/integration-test/extension/contentScope.js',
             'injected/integration-test/test-pages/duckplayer/scripts/dist',
+            'injected/integration-test/test-pages/page-translation/vendor',
             'Sources/ContentScopeScripts/dist',
             'special-pages/pages/**/public',
             'special-pages/pages/**/types',
@@ -34,6 +35,7 @@ export default tseslint.config(
                 $USER_PREFERENCES$: 'readonly',
                 $USER_UNPROTECTED_DOMAINS$: 'readonly',
                 $CONTENT_SCOPE$: 'readonly',
+                $CONTENT_SCOPE_JSON$: 'readonly',
                 $BUNDLED_CONFIG$: 'readonly',
             },
 
@@ -110,7 +112,7 @@ export default tseslint.config(
         },
     },
     {
-        files: ['**/unit-test/*.js'],
+        files: ['**/unit-test/**/*.js'],
         languageOptions: {
             globals: {
                 ...globals.jasmine,

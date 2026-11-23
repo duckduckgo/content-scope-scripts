@@ -19,6 +19,7 @@ export default defineConfig({
                 'integration-test/duck-ai-data-clearing.spec.js',
                 'integration-test/duck-ai-chat-history.spec.js',
                 'integration-test/web-detection.spec.js',
+                'integration-test/web-detection-browser-reads.spec.js',
                 'integration-test/detector-perf.spec.js',
                 'integration-test/turnstile-detection.spec.js',
                 'integration-test/web-events.spec.js',
@@ -26,6 +27,7 @@ export default defineConfig({
                 'integration-test/page-type-signals.spec.js',
                 'integration-test/page-context-root-selection.spec.js',
                 'integration-test/chrome-webstore-patching.spec.js',
+                'integration-test/selection-tools.spec.js',
             ],
             use: { injectName: 'windows', platform: 'windows' },
         },
@@ -35,14 +37,19 @@ export default defineConfig({
                 'integration-test/context-menu.spec.js',
                 'integration-test/duckplayer.spec.js',
                 'integration-test/duckplayer-remote-config.spec.js',
-                'integration-test/broker-protection-tests/**/*.spec.js',
                 'integration-test/favicon.spec.js',
                 'integration-test/page-observer.spec.js',
                 'integration-test/hover.spec.js',
                 'integration-test/tab-suspension.spec.js',
                 'integration-test/chrome-webstore-patching-macos.spec.js',
+                'integration-test/sponsor-block.spec.js',
             ],
             use: { injectName: 'apple-isolated', platform: 'macos' },
+        },
+        {
+            name: 'apple-broker-protection',
+            testMatch: ['integration-test/broker-protection-tests/**/*.spec.js'],
+            use: { injectName: 'apple-broker-protection', platform: 'macos' },
         },
         {
             name: 'apple',
@@ -58,6 +65,7 @@ export default defineConfig({
         {
             name: 'ios',
             testMatch: [
+                'integration-test/browser-ui-lock.spec.js',
                 'integration-test/duckplayer-mobile.spec.js',
                 'integration-test/duckplayer-mobile-drawer.spec.js',
                 'integration-test/duckplayer-native.spec.js',
@@ -68,7 +76,11 @@ export default defineConfig({
         },
         {
             name: 'ios-main-world',
-            testMatch: ['integration-test/page-context-root-selection.spec.js', 'integration-test/site-permissions.spec.js'],
+            testMatch: [
+                'integration-test/page-context-root-selection.spec.js',
+                'integration-test/site-permissions.spec.js',
+                'integration-test/text-selection.spec.js',
+            ],
             use: { injectName: 'apple', platform: 'ios', ...devices['iPhone 13'] },
         },
         {
@@ -79,8 +91,19 @@ export default defineConfig({
                 'integration-test/duckplayer-mobile-drawer.spec.js',
                 'integration-test/web-compat-android.spec.js',
                 'integration-test/message-bridge-android.spec.js',
+                'integration-test/sponsor-block.spec.js',
             ],
             use: { injectName: 'android', platform: 'android', ...devices['Galaxy S5'] },
+        },
+        {
+            name: 'apple-page-translation',
+            testMatch: ['integration-test/page-translation.spec.js'],
+            use: { injectName: 'apple-page-translation', platform: 'ios', ...devices['iPhone 13'] },
+        },
+        {
+            name: 'android-page-translation',
+            testMatch: ['integration-test/page-translation.spec.js'],
+            use: { injectName: 'android-page-translation', platform: 'android', ...devices['Galaxy S5'] },
         },
         {
             name: 'android-autofill-import',
