@@ -24,6 +24,10 @@ export interface ApplyResultNotification {
  * How many updates were written.
  */
 export interface ApplyResult {
+  /**
+   * The requestId native sent with the request, if any.
+   */
+  requestId?: string;
   count: number;
 }
 /**
@@ -37,6 +41,10 @@ export interface ExtractResultNotification {
  * Every translatable unit on the page.
  */
 export interface ExtractResult {
+  /**
+   * The requestId native sent with the request, if any.
+   */
+  requestId?: string;
   units: Unit[];
 }
 export interface Unit {
@@ -100,6 +108,10 @@ export interface ApplySubscription {
  */
 export interface ApplyParams {
   /**
+   * Opaque id native sends with the request; echoed in the reply.
+   */
+  requestId?: string;
+  /**
    * Detected page language (BCP 47). Content marked as another language is not written back.
    */
   sourceLanguage: string;
@@ -129,7 +141,12 @@ export interface ExtractSubscription {
 /**
  * Native asks for every translatable unit on the page. Languages come with apply.
  */
-export interface ExtractParams {}
+export interface ExtractParams {
+  /**
+   * Opaque id native sends with the request; echoed in the reply.
+   */
+  requestId?: string;
+}
 
 declare module "../features/page-translation.js" {
   export interface PageTranslation {
