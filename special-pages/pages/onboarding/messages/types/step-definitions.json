@@ -1,0 +1,7 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Step Definitions",
+  "description": "Per-step overrides keyed by step ID, for example `{ \"systemSettings\": { \"rows\": [\"dock\", \"import\"] } }`. Each entry is merged over the page's default definition for that step. Entries for steps that aren't in the running order are ignored.",
+  "type": "object",
+  "additionalProperties": true
+}
