@@ -1,5 +1,5 @@
 import { createContext, h } from 'preact';
-import { useCallback, useContext, useEffect, useReducer, useRef } from 'preact/hooks';
+import { useCallback, useContext, useEffect, useReducer } from 'preact/hooks';
 import { usePlatformName } from './shared/components/SettingsProvider.js';
 
 /**
@@ -47,24 +47,11 @@ export function reducer(state, action) {
             step: nextStepDefs[state.activeStep] ?? state.step,
         };
     }
-    if (action.kind === 'picker-answer') {
-        if (!action.show) {
-            return { ...state, order: state.order.filter((id) => id !== 'picker') };
-        }
-        const picker = state.stepDefinitions.picker;
-        if (!action.existingFavorites || picker?.id !== 'picker') return state;
-        return {
-            ...state,
-            stepDefinitions: {
-                ...state.stepDefinitions,
-                picker: { ...picker, existingFavorites: action.existingFavorites },
-            },
-        };
-    }
     switch (state.status.kind) {
         case 'idle': {
             switch (action.kind) {
-                case 'update-system-value': {
+                case 'update-system-value':
+                case 'picker-ask': {
                     return { ...state, status: { kind: 'executing', action } };
                 }
                 case 'error-boundary': {
@@ -116,6 +103,12 @@ export function reducer(state, action) {
             }
         }
         case 'executing': {
+            // While the page waits for native's picker answer, the answer is the only way out. Clicks on the
+            // step before the picker are dropped, since the answer advances the page itself.
+            if (state.status.action.kind === 'picker-ask') {
+                if (action.kind !== 'picker-answer') return state;
+                return { ...applyPickerAnswer(state, action), status: { kind: 'idle' } };
+            }
             switch (action.kind) {
                 case 'telemetry':
                     return state;
@@ -198,6 +191,28 @@ export function reducer(state, action) {
 }
 
 /**
+ * Drops the picker from the order on a no, and hands the picker native's favorites on a yes.
+ *
+ * @param {GlobalState} state
+ * @param {import('./types').PickerAnswerEvent} action
+ * @return {GlobalState}
+ */
+function applyPickerAnswer(state, action) {
+    if (!action.show) {
+        return { ...state, order: state.order.filter((id) => id !== 'picker') };
+    }
+    const picker = state.stepDefinitions.picker;
+    if (!action.existingFavorites || picker?.id !== 'picker') return state;
+    return {
+        ...state,
+        stepDefinitions: {
+            ...state.stepDefinitions,
+            picker: { ...picker, existingFavorites: action.existingFavorites },
+        },
+    };
+}
+
+/**
  * Provides navigation functionality for the application.
  * @param {Object} props - The properties for the NavigationProvider component.
  * @param {import('./types').Step['id'][]} props.order - The order of screens to display
@@ -236,39 +251,16 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
     });
 
     const platform = usePlatformName();
-    // Set once the page has asked native about the picker, so a second advance while it waits does nothing
-    const askedPicker = useRef(false);
+
     const proxy = useCallback(
         (/** @type {GlobalEvents} */ msg) => {
             /**
-             * @param {import('./types').Step['id'][]} order - the order the step after the active one comes from
-             */
-            const reportStepCompleted = (order) => {
-                const next = order[order.indexOf(state.activeStep) + 1] ?? null;
-                messaging.stepCompleted({ id: state.activeStep, next });
-                // Fire row_shown for the first row of the incoming settings step
-                if (next) {
-                    const nextStepDef = state.stepDefinitions[next];
-                    if (nextStepDef?.kind === 'settings' && nextStepDef.rows[0]) {
-                        messaging.telemetryEvent({ attributes: { name: 'row_shown', value: nextStepDef.rows[0] } });
-                    }
-                }
-            };
-
-            /**
              * Right before the picker, ask native whether to show it. Native enrolls the user at this point, so
              * the page asks only when the user is about to reach the step, and drops it if the answer is no.
+             * The ask runs in the effect below, and its answer advances the page.
              */
             if (msg.kind === 'advance' && state.order[state.order.indexOf(state.activeStep) + 1] === 'picker') {
-                if (askedPicker.current) return;
-                askedPicker.current = true;
-                const order = state.order;
-                // eslint-disable-next-line promise/prefer-await-to-then
-                askTopSitesPicker(messaging).then((answer) => {
-                    dispatch({ kind: 'picker-answer', ...answer });
-                    dispatch(msg);
-                    reportStepCompleted(answer.show ? order : order.filter((id) => id !== 'picker'));
-                });
+                dispatch({ kind: 'picker-ask' });
                 return;
             }
 
@@ -281,7 +273,7 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
              * Side effects that don't impact global state (advance to non-customize step, or other message kinds).
              */
             if (msg.kind === 'advance') {
-                reportStepCompleted(state.order);
+                reportStepCompleted(state, state.order, messaging);
             }
             if (msg.kind === 'show-overlay' && msg.overlay === 'dock-instructions') {
                 messaging.telemetryEvent({ attributes: { name: 'dock_instructions_shown' } });
@@ -332,10 +324,26 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
         // eslint-disable-next-line react-hooks/exhaustive-deps -- workaround during eslint react rollout; consider removing and addressing deps
     }, [state.status.kind, messaging]);
 
+    // handle 'picker-ask': ask native, then advance past the step before the picker with its answer applied
+    useEffect(() => {
+        if (state.status.kind !== 'executing' || state.status.action.kind !== 'picker-ask') return;
+        const order = state.order;
+        askTopSitesPicker(messaging)
+            // eslint-disable-next-line promise/prefer-await-to-then
+            .then((answer) => {
+                dispatch({ kind: 'picker-answer', ...answer });
+                dispatch({ kind: 'advance' });
+                reportStepCompleted(state, answer.show ? order : order.filter((id) => id !== 'picker'), messaging);
+            })
+            // eslint-disable-next-line promise/prefer-await-to-then
+            .catch((e) => console.warn('handling the picker answer failed', e));
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- runs once per ask, like the update-system-value effect below
+    }, [state.status.kind, messaging]);
+
     // handle 'update-system-value' messages from the UI
     useEffect(() => {
         if (state.status.kind !== 'executing') return;
-        if (state.status.action.kind !== 'update-system-value') throw new Error('only update-system-value is currently supported');
+        if (state.status.action.kind !== 'update-system-value') return;
 
         /** @type {import('./types').UpdateSystemValueEvent} */
         const action = state.status.action;
@@ -372,6 +380,25 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
             <GlobalDispatch.Provider value={proxy}>{children}</GlobalDispatch.Provider>
         </GlobalContext.Provider>
     );
+}
+
+/**
+ * Tells native the active step is done, and which step comes after it.
+ *
+ * @param {GlobalState} state
+ * @param {import('./types').Step['id'][]} order - the order the step after the active one comes from
+ * @param {import("../src/index.js").OnboardingPage} messaging
+ */
+function reportStepCompleted(state, order, messaging) {
+    const next = order[order.indexOf(state.activeStep) + 1] ?? null;
+    messaging.stepCompleted({ id: state.activeStep, next });
+    // Fire row_shown for the first row of the incoming settings step
+    if (next) {
+        const nextStepDef = state.stepDefinitions[next];
+        if (nextStepDef?.kind === 'settings' && nextStepDef.rows[0]) {
+            messaging.telemetryEvent({ attributes: { name: 'row_shown', value: nextStepDef.rows[0] } });
+        }
+    }
 }
 
 /**

@@ -750,13 +750,28 @@ test.describe('onboarding v4', () => {
         });
 
         test('Double click on Next asks native once', async ({ page }, workerInfo) => {
+            test.skip(workerInfo.project.name !== 'windows', 'holdRequests works on the Windows transport only');
             const onboarding = OnboardingV4Page.create(page, workerInfo);
+            // Held, so the second click lands while the page still waits rather than on the picker
+            onboarding.holdRequests(['shouldShowTopSitesPicker']);
             await onboarding.goToStepBeforePicker();
             await page.getByRole('button', { name: 'Next' }).dblclick();
 
-            await page.getByRole('button', { name: 'Skip' }).waitFor({ timeout: 1000 });
+            await page.getByRole('heading', { name: 'Want easy access to private AI Chat?' }).waitFor({ timeout: 4000 });
             expect(await onboarding.mocks.outgoing({ names: ['shouldShowTopSitesPicker'] })).toHaveLength(1);
-            await onboarding.didFireStepCompleted({ id: 'customize', next: 'picker' });
+        });
+
+        test('The step stays inert while the page waits for the answer', async ({ page }, workerInfo) => {
+            test.skip(workerInfo.project.name !== 'windows', 'holdRequests works on the Windows transport only');
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.holdRequests(['shouldShowTopSitesPicker']);
+            await onboarding.goToStepBeforePicker();
+            await page.getByRole('button', { name: 'Next' }).click();
+
+            await expect(page.getByRole('button', { name: 'Next' })).toBeDisabled();
+            await expect(page.getByRole('switch', { name: 'Show Bookmarks Bar' })).toBeDisabled();
+            await page.getByRole('heading', { name: 'Want easy access to private AI Chat?' }).waitFor({ timeout: 4000 });
+            await onboarding.didFireStepCompleted({ id: 'customize', next: 'addressBarMode' });
         });
     });
 

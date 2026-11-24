@@ -131,6 +131,7 @@ export const ORDER_V4 = STEPS_ORDER.filter((id) => !OPT_IN_STEPS.includes(id));
  *   | ShowOverlayEvent
  *   | DismissOverlayEvent
  *   | ConfigUpdateEvent
+ *   | PickerAskEvent
  *   | PickerAnswerEvent
  *   | TelemetryEvent
  *   | RequestChromeExtensionEvent
@@ -150,6 +151,7 @@ export const ORDER_V4 = STEPS_ORDER.filter((id) => !OPT_IN_STEPS.includes(id));
  * @typedef {{ kind: "show-overlay"; overlay: OverlayId }} ShowOverlayEvent
  * @typedef {{ kind: "dismiss-overlay" }} DismissOverlayEvent
  * @typedef {{ kind: "config-update"; stepDefinitions?: Record<string, any>; exclude?: Step['id'][] }} ConfigUpdateEvent
+ * @typedef {{ kind: "picker-ask" }} PickerAskEvent
  * @typedef {{ kind: "picker-answer"; show: boolean; existingFavorites?: string[] }} PickerAnswerEvent
  * @typedef {{ kind: "telemetry"; attributes: import('../types/onboarding.ts').TelemetryEvent['attributes'] }} TelemetryEvent
  * @typedef {{ kind: "request-chrome-extension" }} RequestChromeExtensionEvent
