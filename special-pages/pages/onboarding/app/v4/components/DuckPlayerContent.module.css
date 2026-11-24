@@ -49,15 +49,12 @@
 /* --- Button row (default variant) --- */
 
 .actions {
+    composes: buttonRow from './ButtonRow.module.css';
     display: flex;
     justify-content: flex-start;
     align-items: flex-start;
     gap: var(--sp-2); /* 8px */
     align-self: stretch;
-
-    [data-platform-name="windows"] & > *:last-child {
-        order: -1;
-    }
 }
 
 .toggleButton,

@@ -1,0 +1,10 @@
+/**
+ * Shared by every step's button row through CSS Modules `composes`.
+ * Each row keeps its own layout. This class only carries the platform button order.
+ */
+.buttonRow {
+    /* Windows puts the primary button first, so the last child moves to the front */
+    [data-platform-name='windows'] & > *:last-child {
+        order: -1;
+    }
+}
