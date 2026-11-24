@@ -1,4 +1,4 @@
-import { MessagingContext, WebkitMessagingConfig, WebkitMessagingTransport } from '@duckduckgo/messaging';
+import { Messaging, MessagingContext, WebkitMessagingConfig, WebkitMessagingTransport } from '@duckduckgo/messaging';
 
 /**
  * Sets up a minimal `window.webkit.messageHandlers` fake and returns
@@ -45,6 +45,17 @@ function makeTransport(handlerNames = ['contentScopeScripts']) {
     );
 }
 
+function makeMessaging(handlerNames = ['contentScopeScripts']) {
+    return new Messaging(
+        new MessagingContext({
+            context: 'contentScopeScripts',
+            featureName: 'webkit-transport-spec',
+            env: 'development',
+        }),
+        new WebkitMessagingConfig({ webkitMessageHandlerNames: handlerNames }),
+    );
+}
+
 describe('WebkitMessagingTransport', () => {
     /** @type {ReturnType<typeof setupWebkit>} */
     let env;
@@ -87,6 +98,48 @@ describe('WebkitMessagingTransport', () => {
         transport.wkSend('contentScopeScripts', { after: 'nullify' });
 
         expect(env.postMessageSpies.contentScopeScripts).toHaveBeenCalledOnceWith({ after: 'nullify' });
+    });
+
+    it('captures all configured handlers before `window.webkit.messageHandlers` is replaced', () => {
+        env = setupWebkit({ handlerNames: ['contentScopeScripts', 'specialPages'] });
+        const transport = makeTransport(['contentScopeScripts', 'specialPages']);
+
+        env.nullifyMessageHandlers();
+
+        transport.wkSend('contentScopeScripts', { handler: 'contentScopeScripts' });
+        transport.wkSend('specialPages', { handler: 'specialPages' });
+
+        expect(env.postMessageSpies.contentScopeScripts).toHaveBeenCalledOnceWith({ handler: 'contentScopeScripts' });
+        expect(env.postMessageSpies.specialPages).toHaveBeenCalledOnceWith({ handler: 'specialPages' });
+    });
+
+    it('public request path uses the captured handler after `window.webkit.messageHandlers` is replaced', async () => {
+        env = setupWebkit();
+        env.handlers.contentScopeScripts.postMessage = jasmine.createSpy('contentScopeScripts.request').and.callFake((message) =>
+            Promise.resolve(
+                JSON.stringify({
+                    context: message.context,
+                    featureName: message.featureName,
+                    id: message.id,
+                    result: { ok: true },
+                }),
+            ),
+        );
+        const messaging = makeMessaging();
+
+        env.nullifyMessageHandlers();
+
+        const result = await messaging.request('helloWorld', { foo: 'bar' });
+
+        expect(result).toEqual({ ok: true });
+        expect(env.handlers.contentScopeScripts.postMessage).toHaveBeenCalledOnceWith(
+            jasmine.objectContaining({
+                context: 'contentScopeScripts',
+                featureName: 'webkit-transport-spec',
+                method: 'helloWorld',
+                params: { foo: 'bar' },
+            }),
+        );
     });
 
     it('throws MissingHandler when a handler was never registered', () => {
