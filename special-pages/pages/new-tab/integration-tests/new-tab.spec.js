@@ -228,5 +228,89 @@ test.describe('newtab widgets', () => {
             const calls = await ntp.mocks.outgoing({ names: ['reportInitException'] });
             expect(calls).toHaveLength(0);
         });
+
+        test('falls back to ErrorEvent.message when event.error is null', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            await ntp.openPage();
+            await ntp.waitForCustomizer();
+
+            await page.evaluate(() => {
+                window.dispatchEvent(new ErrorEvent('error', { message: 'Script error.', error: null }));
+            });
+
+            const calls = await ntp.mocks.waitForCallCount({ method: 'reportInitException', count: 1 });
+            expect(calls).toMatchObject([
+                {
+                    payload: {
+                        params: { message: '[uncaught] Script error.' },
+                    },
+                },
+            ]);
+        });
+
+        test("falls back to 'unknown error' when ErrorEvent has neither error nor message", async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            await ntp.openPage();
+            await ntp.waitForCustomizer();
+
+            await page.evaluate(() => {
+                window.dispatchEvent(new ErrorEvent('error', { error: null }));
+            });
+
+            const calls = await ntp.mocks.waitForCallCount({ method: 'reportInitException', count: 1 });
+            expect(calls).toMatchObject([
+                {
+                    payload: {
+                        params: { message: '[uncaught] unknown error' },
+                    },
+                },
+            ]);
+        });
+
+        test('stringifies a thrown non-Error value', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            await ntp.openPage();
+            await ntp.waitForCustomizer();
+
+            await page.evaluate(() => {
+                setTimeout(() => {
+                    // eslint-disable-next-line no-throw-literal -- intentional: a non-Error throw surfaces via event.error
+                    throw 'raw string';
+                }, 0);
+            });
+
+            const calls = await ntp.mocks.waitForCallCount({ method: 'reportInitException', count: 1 });
+            expect(calls).toMatchObject([
+                {
+                    payload: {
+                        params: { message: '[uncaught] raw string' },
+                    },
+                },
+            ]);
+        });
+
+        test('reports primitive and nullish rejection reasons distinctly', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            await ntp.openPage();
+            await ntp.waitForCustomizer();
+
+            await page.evaluate(() => {
+                /* eslint-disable prefer-promise-reject-errors -- intentional: testing non-Error rejection reasons */
+                setTimeout(() => Promise.reject(undefined), 0);
+                setTimeout(() => Promise.reject(null), 0);
+                setTimeout(() => Promise.reject(0), 0);
+                /* eslint-enable prefer-promise-reject-errors */
+            });
+
+            const calls = await ntp.mocks.waitForCallCount({ method: 'reportInitException', count: 3 });
+            const messages = calls.map((c) => c.payload.params.message);
+            expect(messages).toEqual(
+                expect.arrayContaining(['[unhandledrejection] undefined', '[unhandledrejection] null', '[unhandledrejection] 0']),
+            );
+        });
     });
 });
