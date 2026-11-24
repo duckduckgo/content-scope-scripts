@@ -86,6 +86,7 @@ jobs:
               run: npm ci
             - run: npm run build
             - run: npm run lint
+            - run: npm run test-eslint-rules
             - run: npm run stylelint
             - run: npm run test-unit -w types-generator
             - name: 'Clean tree'
