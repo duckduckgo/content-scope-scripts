@@ -1,0 +1,8 @@
+{
+    "$schema": "./node_modules/oxlint/configuration_schema.json",
+    "categories": { "correctness": "off" },
+    "plugins": [],
+    "rules": {
+        "no-implicit-globals": "error"
+    }
+}

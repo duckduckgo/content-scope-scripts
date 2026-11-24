@@ -15,7 +15,7 @@ npm test
 
 ## Individual Test Commands
 
-### ESLint
+### Linting
 
 See root-level package for lint commands
 

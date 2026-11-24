@@ -11,10 +11,10 @@ updates:
       labels:
           - 'dependencies'
       groups:
-          eslint:
+          oxc:
               patterns:
-                  - 'eslint*'
-                  - '@typescript-eslint*'
+                  - 'oxlint*'
+                  - 'oxfmt'
           stylelint:
               patterns:
                   - 'stylelint*'
@@ -23,7 +23,6 @@ updates:
                   - 'typedoc'
                   - 'typescript'
                   - '@types/*'
-                  - '@typescript-eslint*'
           rollup:
               patterns:
                   - '@rollup/*'
