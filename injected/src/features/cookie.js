@@ -10,6 +10,7 @@ import {
 import { Cookie } from '../cookie.js';
 import ContentFeature from '../content-feature.js';
 import { isTrackerOrigin } from '../trackers.js';
+import { consoleWarn } from '../captured-globals.js';
 
 /**
  * @typedef ExtensionCookiePolicy
@@ -216,41 +217,63 @@ export default class CookieFeature extends ContentFeature {
             try {
                 // wait for config before doing same-site tests
                 loadPolicyThen(() => {
-                    const { shouldBlock, policy, trackerPolicy } = cookiePolicy;
-                    const stack = getStack();
-                    const scriptOrigins = getStackTraceOrigins(stack);
-                    const chosenPolicy = isFirstPartyTrackerScript(scriptOrigins) ? trackerPolicy : policy;
-                    if (!shouldBlock) {
-                        debugHelper('ignore', 'disabled', setCookieContext);
-                        return;
-                    }
-                    // extract cookie expiry from cookie string
-                    const cookie = new Cookie(value);
-                    // apply cookie policy
-                    if (cookie.getExpiry() > chosenPolicy.threshold) {
-                        // check if the cookie still exists
-                        const firstPart = cookie.parts[0];
-                        if (
-                            firstPart !== undefined &&
-                            document.cookie.split(';').findIndex((kv) => kv.trim().startsWith(firstPart.trim())) !== -1
-                        ) {
-                            cookie.maxAge = chosenPolicy.maxAge;
-
-                            debugHelper('restrict', 'expiry', setCookieContext);
-
-                            // @ts-expect-error - error TS18048: 'cookieSetter' is possibly 'undefined'.
-                            cookieSetter.apply(document, [cookie.toString()]);
-                        } else {
-                            debugHelper('ignore', 'dissappeared', setCookieContext);
+                    // Defensive try/catch around the deferred callback as well:
+                    // the outer try only protects the synchronous setup. Errors
+                    // thrown inside the `loadPolicy` `.then` callback (e.g. if
+                    // `chosenPolicy` is unexpectedly undefined and we read
+                    // `.threshold` off it) would otherwise surface as
+                    // unhandled-rejection warnings, since loadPolicyThen
+                    // returns a promise that we don't await.
+                    try {
+                        const { shouldBlock, policy, trackerPolicy } = cookiePolicy;
+                        const stack = getStack();
+                        const scriptOrigins = getStackTraceOrigins(stack);
+                        const chosenPolicy = isFirstPartyTrackerScript(scriptOrigins) ? trackerPolicy : policy;
+                        if (!shouldBlock) {
+                            debugHelper('ignore', 'disabled', setCookieContext);
+                            return;
                         }
-                    } else {
-                        debugHelper('ignore', 'expiry', setCookieContext);
+                        // `chosenPolicy` can be undefined if remote config has
+                        // not provided a first-party/tracker policy shape; bail
+                        // rather than reading `.threshold` off undefined.
+                        if (!chosenPolicy) {
+                            debugHelper('ignore', 'no-policy', setCookieContext);
+                            return;
+                        }
+                        // extract cookie expiry from cookie string
+                        const cookie = new Cookie(value);
+                        // apply cookie policy
+                        if (cookie.getExpiry() > chosenPolicy.threshold) {
+                            // check if the cookie still exists
+                            const firstPart = cookie.parts[0];
+                            if (
+                                firstPart !== undefined &&
+                                document.cookie.split(';').findIndex((kv) => kv.trim().startsWith(firstPart.trim())) !== -1
+                            ) {
+                                cookie.maxAge = chosenPolicy.maxAge;
+
+                                debugHelper('restrict', 'expiry', setCookieContext);
+
+                                // @ts-expect-error - error TS18048: 'cookieSetter' is possibly 'undefined'.
+                                cookieSetter.apply(document, [cookie.toString()]);
+                            } else {
+                                debugHelper('ignore', 'dissappeared', setCookieContext);
+                            }
+                        } else {
+                            debugHelper('ignore', 'expiry', setCookieContext);
+                        }
+                    } catch (e) {
+                        debugHelper('ignore', 'error', setCookieContext);
+                        // Use captured-globals consoleWarn rather than
+                        // console.warn directly, so a site that has overridden
+                        // console.warn can't observe the error path.
+                        consoleWarn('Error in cookie override', e);
                     }
                 });
             } catch (e) {
                 debugHelper('ignore', 'error', setCookieContext);
                 // suppress error in cookie override to avoid breakage
-                console.warn('Error in cookie override', e);
+                consoleWarn('Error in cookie override', e);
             }
         }
 
