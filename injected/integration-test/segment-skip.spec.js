@@ -5,6 +5,7 @@ import { ResultsCollector } from './page-objects/results-collector.js';
 const PAGES = './integration-test/test-pages/segment-skip';
 const CONFIG = `${PAGES}/config/segment-skip-enabled.json`;
 const CONFIG_SELECTOR_MISS = `${PAGES}/config/segment-skip-selector-miss.json`;
+const CONFIG_NO_CONTROLS_SELECTORS = `${PAGES}/config/segment-skip-no-controls-selectors.json`;
 const WATCH_URL = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
 const EMBED_URL = 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ';
 
@@ -122,6 +123,15 @@ async function pause(page) {
     await page.evaluate(() => /** @type {HTMLVideoElement} */ (document.querySelector('video')).pause());
 }
 
+/**
+ * Shows or hides the fake player's controls the way desktop YouTube does: ytp-autohide on the player while they are faded out.
+ * @param {import('@playwright/test').Page} page
+ * @param {boolean} visible
+ */
+async function setControlsVisible(page, visible) {
+    await page.evaluate((v) => document.querySelector('#movie_player')?.classList.toggle('ytp-autohide', !v), visible);
+}
+
 /** @param {import('@playwright/test').Page} page */
 function currentTime(page) {
     return page.evaluate(() => /** @type {HTMLVideoElement} */ (document.querySelector('video')).currentTime);
@@ -224,6 +234,78 @@ test.describe('SegmentSkip', () => {
         await expect(page.locator(SKIP_BUTTON)).toBeVisible();
     });
 
+    test("manual mode: shows the skip button only while YouTube's controls are hidden", async ({ page }, testInfo) => {
+        await loadPlayer(page, testInfo);
+        await expect(page.locator(MARKER)).toHaveCount(1);
+        await setControlsVisible(page, true);
+
+        // Paused, so no timeupdate fires: only the controls toggling can bring the button back.
+        await seekTo(page, 3);
+        await expect.poll(() => currentTime(page)).toBeCloseTo(3, 1);
+        await expect(page.locator(SKIP_BUTTON)).toBeHidden();
+
+        await setControlsVisible(page, false);
+        await expect(page.locator(SKIP_BUTTON)).toBeVisible();
+        await setControlsVisible(page, true);
+        await expect(page.locator(SKIP_BUTTON)).toBeHidden();
+        await setControlsVisible(page, false);
+        await page.locator(SKIP_BUTTON).click();
+        expect(await currentTime(page)).toBeCloseTo(5, 1);
+    });
+
+    test('manual mode: mobile controls layer hides the skip button while it fades in', async ({ page }, testInfo) => {
+        await loadPlayer(page, testInfo);
+        await expect(page.locator(MARKER)).toHaveCount(1);
+        // m.youtube.com and the mobile embed turn the player's own controls off and draw them in a separate layer, so the
+        // player never gets ytp-autohide there. That must not count as controls showing.
+        await page.evaluate(() => {
+            const player = /** @type {HTMLElement} */ (document.querySelector('#movie_player'));
+            player.classList.replace('ytp-autohide', 'ytp-hide-controls');
+            const overlay = document.createElement('div');
+            overlay.id = 'player-control-overlay';
+            overlay.style.cssText = 'position: absolute; inset: 0; pointer-events: none';
+            player.append(overlay);
+        });
+
+        await seekTo(page, 3);
+        await expect(page.locator(SKIP_BUTTON)).toBeVisible();
+        await page.evaluate(() => document.querySelector('#player-control-overlay')?.classList.add('fadein'));
+        await expect(page.locator(SKIP_BUTTON)).toBeHidden();
+        await page.evaluate(() => document.querySelector('#player-control-overlay')?.classList.remove('fadein'));
+        await expect(page.locator(SKIP_BUTTON)).toBeVisible();
+    });
+
+    test("manual mode: the skip button countdown pauses while YouTube's controls are visible", async ({ page }, testInfo) => {
+        await page.clock.install();
+        await loadPlayer(page, testInfo);
+        await expect(page.locator(MARKER)).toHaveCount(1);
+
+        await seekTo(page, 2);
+        await expect(page.locator(SKIP_BUTTON)).toBeVisible();
+        // Slowed down so playback stays inside the segment for the whole test.
+        await play(page, 0.1);
+        await page.clock.runFor(4000);
+        await setControlsVisible(page, true);
+        await expect(page.locator(SKIP_BUTTON)).toBeHidden();
+        await page.clock.runFor(10000);
+        // 14s of playback in total, but only 4s of it with the button on screen.
+        await setControlsVisible(page, false);
+        await expect(page.locator(SKIP_BUTTON)).toBeVisible();
+        await page.clock.runFor(3000);
+        await expect(page.locator(SKIP_BUTTON)).toBeVisible();
+        await page.clock.runFor(1000);
+        await expect(page.locator(SKIP_BUTTON)).toHaveCount(0);
+        await pause(page);
+    });
+
+    test('an empty controlsVisibleSelectors list shows the skip button whatever the controls do', async ({ page }, testInfo) => {
+        await loadPlayer(page, testInfo, { config: CONFIG_NO_CONTROLS_SELECTORS });
+        await expect(page.locator(MARKER)).toHaveCount(1);
+        await setControlsVisible(page, true);
+        await seekTo(page, 3);
+        await expect(page.locator(SKIP_BUTTON)).toBeVisible();
+    });
+
     test('auto mode: skips a segment that playback enters naturally, without showing a button', async ({ page }, testInfo) => {
         await loadPlayer(page, testInfo, { responses: { getConfig: CONFIG_AUTO } });
         await expect(page.locator(MARKER)).toHaveCount(1);
@@ -233,6 +315,16 @@ test.describe('SegmentSkip', () => {
         // Playing through the segment would take 3.5s; reaching its end sooner proves the skip.
         await expect.poll(() => currentTime(page), { timeout: 2500 }).toBeGreaterThanOrEqual(5);
         await expect(page.locator(SKIP_BUTTON)).toHaveCount(0);
+    });
+
+    test("auto mode: skips with YouTube's controls visible", async ({ page }, testInfo) => {
+        await loadPlayer(page, testInfo, { responses: { getConfig: CONFIG_AUTO } });
+        await expect(page.locator(MARKER)).toHaveCount(1);
+        await setControlsVisible(page, true);
+
+        await seekTo(page, 1.5);
+        await play(page);
+        await expect.poll(() => currentTime(page), { timeout: 2500 }).toBeGreaterThanOrEqual(5);
     });
 
     test('auto mode: a seek into a segment shows the button instead of skipping', async ({ page }, testInfo) => {

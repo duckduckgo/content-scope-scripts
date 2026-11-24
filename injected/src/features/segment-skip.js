@@ -34,15 +34,22 @@ const DEFAULT_PROGRESS_BAR_SELECTORS = [
 const DEFAULT_SKIP_BUTTON_HOST_SELECTORS = ['#player-container-id', '#player-controls', '#movie_player', '.html5-video-player'];
 // Present while YouTube plays an ad in the player; the video element then plays the ad, not the video.
 const DEFAULT_AD_SHOWING_SELECTORS = ['.ad-showing'];
+// Present while YouTube's player controls are on screen; the skip button hides then, so it never covers them. Desktop
+// youtube.com and the macOS embed add ytp-autohide to the player when the controls fade out. m.youtube.com and the
+// mobile embed (Duck Player) turn the player's own controls off (ytp-hide-controls) and draw their controls layer in
+// #player-control-overlay, which gets fadein while it shows. No match means "controls hidden", so a broken selector
+// leaves the button as it was before this check existed.
+const DEFAULT_CONTROLS_VISIBLE_SELECTORS = ['#movie_player:not(.ytp-autohide):not(.ytp-hide-controls)', '#player-control-overlay.fadein'];
 
 // How long the skip button stays up after it appears for a segment, unless playback leaves the segment first. Counted
-// only while the video plays, so a paused or buffering video keeps the button.
+// only while the video plays and the button is on screen, so a paused or buffering video keeps the button, and time
+// spent hidden while YouTube's controls show doesn't count against it.
 const SKIP_BUTTON_TIMEOUT_MS = 8000;
 const OVERLAY_CLASS = 'ddg-segmentskip-overlay';
 const SKIP_BUTTON_CLASS = 'ddg-segmentskip-skip';
 const STYLES = `
 .${OVERLAY_CLASS} { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
-.${OVERLAY_CLASS} > div { position: absolute; top: 0; bottom: 0; min-width: 2px; background: rgb(76, 186, 60); }
+.${OVERLAY_CLASS} > div { position: absolute; top: 0; bottom: 0; min-width: 2px; background: #FAB341; }
 /* Mobile: the playhead dot is a sibling of the bar host with no z-index of its own; keep it above the overlay. */
 .ytProgressBarPlayheadHost, .YtProgressBarPlayheadHost { z-index: 2; }
 /* Desktop: above the played line, below the scrubber knob. The bar is thin until hovered; follow its grow animation. */
@@ -171,6 +178,11 @@ export class SegmentSkip extends ContentFeature {
     #progressBarSelectors = DEFAULT_PROGRESS_BAR_SELECTORS;
     #skipButtonHostSelectors = DEFAULT_SKIP_BUTTON_HOST_SELECTORS;
     #adShowingSelectors = DEFAULT_AD_SHOWING_SELECTORS;
+    #controlsVisibleSelectors = DEFAULT_CONTROLS_VISIBLE_SELECTORS;
+    /** @type {MutationObserver | null} re-checks the skip button when YouTube shows or hides its controls */
+    #controlsObserver = null;
+    /** @type {Element | null} the element #controlsObserver watches */
+    #controlsObserved = null;
     // The document holding the player. On Android Duck Player it is the embed's, since the script runs only in the top frame.
     #doc = document;
 
@@ -201,6 +213,7 @@ export class SegmentSkip extends ContentFeature {
         this.#progressBarSelectors = this.selectorsSetting('progressBarSelectors', DEFAULT_PROGRESS_BAR_SELECTORS);
         this.#skipButtonHostSelectors = this.selectorsSetting('skipButtonHostSelectors', DEFAULT_SKIP_BUTTON_HOST_SELECTORS);
         this.#adShowingSelectors = this.selectorsSetting('adShowingSelectors', DEFAULT_AD_SHOWING_SELECTORS);
+        this.#controlsVisibleSelectors = this.selectorsSetting('controlsVisibleSelectors', DEFAULT_CONTROLS_VISIBLE_SELECTORS);
         // Android injects only into the top frame, so on Duck Player's page the embed gets no script of its own. An embed
         // opened directly is the player itself and has no embed inside it to wait for.
         if (
@@ -343,6 +356,25 @@ export class SegmentSkip extends ContentFeature {
         return findFirstVisible(this.#doc, this.#adShowingSelectors) !== null;
     }
 
+    // YouTube's controls are on screen. The skip button sits where they draw, so it waits for them to fade.
+    controlsVisible() {
+        return findFirstVisible(this.#doc, this.#controlsVisibleSelectors) !== null;
+    }
+
+    /**
+     * Toggling the controls changes only classes: no media event fires, and a paused video sends no timeupdate. So while
+     * the button is mounted, class changes in its host's subtree re-check it. The host contains the controls on every
+     * known surface (the player on desktop, its container or controls layer on mobile).
+     * @param {Element} host
+     */
+    observeControls(host) {
+        if (this.#controlsObserved === host) return;
+        this.#controlsObserver ??= new MutationObserver(() => this.updateSkip());
+        this.#controlsObserver.disconnect();
+        this.#controlsObserver.observe(host, { attributes: true, attributeFilter: ['class'], subtree: true });
+        this.#controlsObserved = host;
+    }
+
     /**
      * Segments that apply to the video currently loaded in the player.
      * @param {number} duration
@@ -369,6 +401,8 @@ export class SegmentSkip extends ContentFeature {
         this.#skipButton?.remove();
         this.stopSkipButtonCountdown();
         this.#skipButtonFor = null;
+        this.#controlsObserver?.disconnect();
+        this.#controlsObserved = null;
     }
 
     startSkipButtonCountdown() {
@@ -389,8 +423,9 @@ export class SegmentSkip extends ContentFeature {
     }
 
     // Reacts to the playhead: in auto mode seeks past a segment as soon as playback enters it, in manual mode (or for
-    // a segment the user seeked into) shows the skip button while inside one and hides it otherwise. An ended video is
-    // never inside one: a segment end past the player's duration clamps the skip to the end, still before that end.
+    // a segment the user seeked into) shows the skip button while inside one and hides it otherwise; while YouTube's
+    // controls are on screen the button stays mounted but hidden. An ended video is never inside one: a segment end
+    // past the player's duration clamps the skip to the end, still before that end.
     updateSkip() {
         const video = getMainVideo(this.#doc);
         // Segments first: timeupdate calls this often, and inAd queries the DOM.
@@ -418,8 +453,12 @@ export class SegmentSkip extends ContentFeature {
             this.#skipButtonFor = uuid;
             this.#skipButtonMsLeft = SKIP_BUTTON_TIMEOUT_MS;
         }
+        this.observeControls(host);
+        // Hidden rather than removed while YouTube's controls show, so its countdown keeps the time already used.
+        const controlsVisible = this.controlsVisible();
+        this.#skipButton.style.display = controlsVisible ? 'none' : '';
         // Playing means not paused and not stalled waiting for data.
-        if (video && !video.paused && video.readyState >= video.HAVE_FUTURE_DATA) {
+        if (!controlsVisible && video && !video.paused && video.readyState >= video.HAVE_FUTURE_DATA) {
             this.startSkipButtonCountdown();
         } else {
             this.stopSkipButtonCountdown();
