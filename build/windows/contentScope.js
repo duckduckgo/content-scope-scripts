@@ -32,10 +32,6 @@
       throw mod = 0, e;
     }
   };
-  var __export = (target, all) => {
-    for (var name in all)
-      __defProp(target, name, { get: all[name], enumerable: true });
-  };
   var __copyProps = (to, from, except, desc) => {
     if (from && typeof from === "object" || typeof from === "function") {
       for (let key of __getOwnPropNames(from))
@@ -2302,66 +2298,6 @@
   init_define_import_meta_trackerLookup();
 
   // src/captured-globals.js
-  var captured_globals_exports = {};
-  __export(captured_globals_exports, {
-    Arrayfrom: () => Arrayfrom,
-    CustomEvent: () => CustomEvent2,
-    DOMException: () => DOMException2,
-    Error: () => Error2,
-    JSONparse: () => JSONparse,
-    JSONstringify: () => JSONstringify,
-    Map: () => Map2,
-    NodePrototype: () => NodePrototype,
-    Promise: () => Promise2,
-    Proxy: () => Proxy2,
-    Reflect: () => Reflect2,
-    ReflectApply: () => ReflectApply,
-    ReflectDeleteProperty: () => ReflectDeleteProperty,
-    ReflectGet: () => ReflectGet,
-    Set: () => Set2,
-    String: () => String2,
-    Symbol: () => Symbol2,
-    TextDecoder: () => TextDecoder,
-    TextEncoder: () => TextEncoder2,
-    TypeError: () => TypeError2,
-    URL: () => URL2,
-    Uint16Array: () => Uint16Array,
-    Uint32Array: () => Uint32Array2,
-    Uint8Array: () => Uint8Array2,
-    addEventListener: () => addEventListener,
-    atob: () => atob,
-    charCodeAt: () => charCodeAt,
-    console: () => console2,
-    consoleError: () => consoleError,
-    consoleLog: () => consoleLog,
-    consoleWarn: () => consoleWarn,
-    customElementsDefine: () => customElementsDefine,
-    customElementsGet: () => customElementsGet,
-    decrypt: () => decrypt,
-    dispatchEvent: () => dispatchEvent,
-    encrypt: () => encrypt,
-    exportKey: () => exportKey,
-    functionToString: () => functionToString,
-    generateKey: () => generateKey,
-    getOwnPropertyDescriptor: () => getOwnPropertyDescriptor,
-    getOwnPropertyDescriptors: () => getOwnPropertyDescriptors,
-    getOwnPropertyNames: () => getOwnPropertyNames,
-    getPrototypeOf: () => getPrototypeOf,
-    getRandomValues: () => getRandomValues,
-    hasOwnProperty: () => hasOwnProperty,
-    importKey: () => importKey,
-    isArray: () => isArray,
-    numberIsFinite: () => numberIsFinite,
-    numberIsNaN: () => numberIsNaN,
-    objectDefineProperty: () => objectDefineProperty,
-    objectEntries: () => objectEntries,
-    objectFromEntries: () => objectFromEntries,
-    objectKeys: () => objectKeys,
-    performanceNow: () => performanceNow,
-    randomUUID: () => randomUUID,
-    removeEventListener: () => removeEventListener,
-    toString: () => toString
-  });
   init_define_import_meta_trackerLookup();
   var Set2 = globalThis.Set;
   var Reflect2 = globalThis.Reflect;
@@ -2369,7 +2305,6 @@
   var customElementsDefine = globalThis.customElements?.define.bind(globalThis.customElements);
   var getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
   var getOwnPropertyDescriptors = Object.getOwnPropertyDescriptors;
-  var getOwnPropertyNames = Object.getOwnPropertyNames;
   var getPrototypeOf = Object.getPrototypeOf;
   var isArray = Array.isArray;
   var numberIsFinite = Number.isFinite;
@@ -2377,7 +2312,6 @@
   var toString = Object.prototype.toString;
   var objectKeys = Object.keys;
   var objectEntries = Object.entries;
-  var objectFromEntries = Object.fromEntries;
   var objectDefineProperty = Object.defineProperty;
   var URL2 = globalThis.URL;
   var Proxy2 = globalThis.Proxy;
@@ -2407,7 +2341,6 @@
   var Uint32Array2 = globalThis.Uint32Array;
   var JSONstringify = JSON.stringify;
   var JSONparse = JSON.parse;
-  var Arrayfrom = Array.from;
   var atob = globalThis.atob?.bind(globalThis);
   var DOMException2 = globalThis.DOMException;
   var charCodeAt = globalThis.String.prototype.charCodeAt;
@@ -11176,7 +11109,15 @@
   var SubscriptionUnsubscribe = _SubscriptionUnsubscribe;
 
   // src/features/message-bridge/create-page-world-bridge.js
-  var captured = captured_globals_exports;
+  var captured = {
+    dispatchEvent,
+    addEventListener,
+    removeEventListener,
+    CustomEvent: CustomEvent2,
+    String: String2,
+    Error: Error2,
+    randomUUID
+  };
   var ERROR_MSG = "Did not install Message Bridge";
   function createPageWorldBridge(featureName, token, context) {
     if (typeof featureName !== "string" || !token) {
@@ -20203,7 +20144,7 @@
     constructor() {
       super(...arguments);
       /** @type {Captured} */
-      __publicField(this, "captured", captured_globals_exports);
+      __publicField(this, "captured", { dispatchEvent, addEventListener, CustomEvent: CustomEvent2 });
       /**
        * A mapping of feature names to instances of `Messaging`.
        * This allows the bridge to handle more than 1 feature at a time.
@@ -24572,7 +24513,7 @@ ${iframeContent}
     const importConfig = {
       trackerLookup: define_import_meta_trackerLookup_default,
       injectName: "windows",
-      contentScopeScriptsVersion: "23.2.0"
+      contentScopeScriptsVersion: "23.3.0"
     };
     const bundledFeatureNames = typeof importConfig.injectName === "string" ? platformSupport[importConfig.injectName] ?? [] : [];
     const featuresToLoad = isGloballyDisabled(args) ? platformSpecificFeatures : args.site.enabledFeatures || bundledFeatureNames;

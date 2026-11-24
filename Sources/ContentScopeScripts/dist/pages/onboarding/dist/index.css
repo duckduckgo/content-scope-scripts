@@ -2593,6 +2593,7 @@ h2 {
   line-height: var(--sp-7);
   text-align: left;
   white-space: pre-line;
+  text-wrap: pretty;
   color: var(--ds-text-primary);
   margin: 0;
   text-box-trim: trim-both;

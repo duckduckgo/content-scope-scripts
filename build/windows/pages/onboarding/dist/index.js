@@ -16398,192 +16398,1429 @@
     }
   });
 
-  // pages/onboarding/app/messages.js
-  var OnboardingMessages = class {
+  // ../messaging/lib/windows.js
+  var WindowsMessagingTransport = class {
     /**
-     * @param {import("@duckduckgo/messaging").Messaging} messaging
-     * @param {ImportMeta["injectName"]} injectName
+     * @param {WindowsMessagingConfig} config
+     * @param {import('../index.js').MessagingContext} messagingContext
      * @internal
      */
-    constructor(messaging2, injectName) {
-      this.messaging = messaging2;
-      this.injectName = injectName;
+    constructor(config, messagingContext) {
+      this.messagingContext = messagingContext;
+      this.config = config;
+      this.globals = {
+        window,
+        JSONparse: window.JSON.parse,
+        JSONstringify: window.JSON.stringify,
+        Promise: window.Promise,
+        Error: window.Error,
+        String: window.String
+      };
+      for (const [methodName, fn] of Object.entries(this.config.methods)) {
+        if (typeof fn !== "function") {
+          throw new Error("cannot create WindowsMessagingTransport, missing the method: " + methodName);
+        }
+      }
     }
     /**
-     * Sends an initial message to the native layer. This is the opportunity for the native layer
-     * to provide the initial state of the application or any configuration, for example:
-     *
-     * ```json
-     * {
-     *   "stepDefinitions": {
-     *     "systemSettings": {
-     *       "rows": ["dock", "import", "default-browser"]
-     *     }
-     *   },
-     *   "steps": ["welcome", "getStarted", "makeDefaultSingle", "systemSettings", "customize", "addressBarMode", "searchOrChat"],
-     *   "locale": "en"
-     * }
-     * ```
-     *
-     * In that example, the native layer is providing the list of rows that should be shown in the
-     * systemSettings step, overriding the default list provided in `data.js`.
-     *
-     * Clients that don't send `steps` can still send `exclude` to remove steps from the default order.
-     * It's ignored when `steps` is present, and will be removed once every platform sends `steps`.
-     *
-     * @returns {Promise<InitResponse>}
+     * @param {import('../index.js').NotificationMessage} msg
      */
-    async init() {
-      return await this.messaging.request("init");
+    notify(msg) {
+      const data2 = this.globals.JSONparse(this.globals.JSONstringify(msg.params || {}));
+      const notification = WindowsNotification.fromNotification(msg, data2);
+      this.config.methods.postMessage(notification);
     }
     /**
-     * Sends a notification to the native layer that the user has completed a step
-     *
-     * @param {StepCompleteParams} params
+     * @param {import('../index.js').RequestMessage} msg
+     * @param {{signal?: AbortSignal}} opts
+     * @return {Promise<any>}
      */
-    stepCompleted(params) {
-      this.messaging.notify("stepCompleted", params);
+    request(msg, opts = {}) {
+      const data2 = this.globals.JSONparse(this.globals.JSONstringify(msg.params || {}));
+      const outgoing = WindowsRequestMessage.fromRequest(msg, data2);
+      this.config.methods.postMessage(outgoing);
+      const comparator = (eventData) => {
+        return eventData.featureName === msg.featureName && eventData.context === msg.context && eventData.id === msg.id;
+      };
+      function isMessageResponse(data3) {
+        if ("result" in data3) return true;
+        if ("error" in data3) return true;
+        return false;
+      }
+      return new this.globals.Promise((resolve, reject) => {
+        try {
+          this._subscribe(comparator, opts, (value2, unsubscribe) => {
+            unsubscribe();
+            if (!isMessageResponse(value2)) {
+              console.warn("unknown response type", value2);
+              return reject(new this.globals.Error("unknown response"));
+            }
+            if (value2.result) {
+              return resolve(value2.result);
+            }
+            const message = this.globals.String(value2.error?.message || "unknown error");
+            reject(new this.globals.Error(message));
+          });
+        } catch (e3) {
+          reject(e3);
+        }
+      });
     }
     /**
-     * Sent when the user wants to enable or disable the bookmarks bar
-     *
-     * @param {import('./types').BooleanSystemValue} params
+     * @param {import('../index.js').Subscription} msg
+     * @param {(value: unknown | undefined) => void} callback
      */
-    setBookmarksBar(params) {
-      this.messaging.notify("setBookmarksBar", params);
+    subscribe(msg, callback) {
+      const comparator = (eventData) => {
+        return eventData.featureName === msg.featureName && eventData.context === msg.context && eventData.subscriptionName === msg.subscriptionName;
+      };
+      const cb = (eventData) => {
+        return callback(eventData.params);
+      };
+      return this._subscribe(comparator, {}, cb);
     }
     /**
-     * Sent when the user wants to enable or disable the session restore setting
-     *
-     * @param {import('./types').BooleanSystemValue} params
+     * @typedef {import('../index.js').MessageResponse | import('../index.js').SubscriptionEvent} Incoming
      */
-    setSessionRestore(params) {
-      this.messaging.notify("setSessionRestore", params);
-    }
     /**
-     * Sent when the user wants to enable or disable the home button
-     * Note: Although the home button can placed in multiple places in the browser taskbar, this
-     * application will only ever send enabled/disabled to the native layer
-     *
-     * @param {import('./types').BooleanSystemValue} params
+     * @param {(eventData: any) => boolean} comparator
+     * @param {{signal?: AbortSignal}} options
+     * @param {(value: Incoming, unsubscribe: (()=>void)) => void} callback
+     * @internal
      */
-    setShowHomeButton(params) {
-      this.messaging.notify("setShowHomeButton", params);
-    }
-    /**
-     * Sent when the user wants to keep the application in the dock/taskbar.
-     *
-     * Native side should respond when the operation is 'complete'.
-     *
-     * @returns {Promise<any>}
-     */
-    requestDockOptIn() {
-      return this.messaging.request("requestDockOptIn");
-    }
-    /**
-     * Sent when the user wants to import data. The UI will remain
-     * in a loading state until the native layer sends a response.
-     *
-     * Native side should respond when the operation is 'complete'.
-     *
-     * @returns {Promise<any>}
-     */
-    requestImport() {
-      return this.messaging.request("requestImport");
-    }
-    /**
-     * Sent when the user wants to set DuckDuckGo as their default browser. The UI will remain
-     * in a loading state until the native layer sends a response.
-     *
-     * Native side should respond when the operation is 'complete'.
-     *
-     * @returns {Promise<any>}
-     */
-    requestSetAsDefault() {
-      return this.messaging.request("requestSetAsDefault");
-    }
-    /**
-     * Sent to allow native to fire a pixel for UI interactions.
-     *
-     * @param {import('../types/onboarding.ts').TelemetryEvent} event
-     */
-    telemetryEvent(event) {
-      this.messaging.notify("telemetryEvent", event);
-    }
-    /**
-     * Sent when onboarding is complete and the user has chosen to go to settings
-     */
-    dismissToSettings() {
-      this.messaging.notify("dismissToSettings");
-    }
-    /**
-     * Sent when the "Start Browsing" button has been clicked.
-     */
-    dismissToAddressBar() {
-      this.messaging.notify("dismissToAddressBar");
-    }
-    /**
-     * Sent instead of `dismissToAddressBar` when the user submits a search or a Duck.ai prompt
-     * on the searchOrChat step. Native ends onboarding and opens the query in the Welcome tab.
-     * @param {import('./types').SubmitQueryParams} params
-     */
-    submitQuery(params) {
-      this.messaging.notify("submitQuery", params);
-    }
-    /**
-     * This will be sent if the application has loaded, but a client-side error
-     * has occurred that cannot be recovered from
-     * @param {import('./types').ErrorBoundaryEvent["error"]} params
-     */
-    reportPageException(params) {
-      this.messaging.notify("reportPageException", params);
-    }
-    /**
-     * This will be sent if the application fails to load.
-     * @param {{message: string}} params
-     */
-    reportInitException(params) {
-      this.messaging.notify("reportInitException", params);
-    }
-    /**
-     * Subscribe to config updates pushed by native (e.g. customize step rows).
-     * @param {(data: {stepDefinitions?: Record<string, any>, exclude?: string[]}) => void} params
-     * @returns {() => void}
-     */
-    onConfigUpdate(params) {
-      return this.messaging.subscribe("onConfigUpdate", params);
-    }
-    /**
-     * Sent when the user wants to enable or disable ad blocking.
-     *
-     * @param {import('./types').BooleanSystemValue} params
-     */
-    setAdBlocking(params) {
-      this.messaging.notify("setAdBlocking", params);
-    }
-    /**
-     * Sent when the user selects their Address Bar Mode preference -- Search only or Search & Duck.ai
-     *
-     * @param {import('./types').BooleanSystemValue} params
-     */
-    setDuckAiInAddressBar(params) {
-      this.messaging.notify("setDuckAiInAddressBar", params);
-    }
-    /**
-     * Sent when the user opts in to installing the Chrome search extension during onboarding.
-     * The UI advances immediately without waiting for the install to complete.
-     */
-    requestChromeExtensionInstall() {
-      this.messaging.notify("requestChromeExtensionInstall");
-    }
-    /**
-     * Sends the selected Windows onboarding options to native.
-     * @param {import('../types/onboarding.ts').OnboardingInstallOptions} params
-     */
-    setOnboardingInstallOptions(params) {
-      this.messaging.notify("setOnboardingInstallOptions", params);
+    _subscribe(comparator, options2, callback) {
+      if (options2?.signal?.aborted) {
+        throw new DOMException("Aborted", "AbortError");
+      }
+      let teardown;
+      const idHandler = (event) => {
+        if (this.messagingContext.env === "production") {
+          if (event.origin !== null && event.origin !== void 0) {
+            console.warn("ignoring because evt.origin is not `null` or `undefined`");
+            return;
+          }
+        }
+        if (!event.data) {
+          console.warn("data absent from message");
+          return;
+        }
+        if (comparator(event.data)) {
+          if (!teardown) throw new Error("unreachable");
+          callback(event.data, teardown);
+        }
+      };
+      const abortHandler = () => {
+        teardown?.();
+        throw new DOMException("Aborted", "AbortError");
+      };
+      this.config.methods.addEventListener("message", idHandler);
+      options2?.signal?.addEventListener("abort", abortHandler);
+      teardown = () => {
+        this.config.methods.removeEventListener("message", idHandler);
+        options2?.signal?.removeEventListener("abort", abortHandler);
+      };
+      return () => {
+        teardown?.();
+      };
     }
   };
+  var WindowsMessagingConfig = class {
+    /**
+     * @param {object} params
+     * @param {WindowsInteropMethods} params.methods
+     * @internal
+     */
+    constructor(params) {
+      this.methods = params.methods;
+      this.platform = "windows";
+    }
+  };
+  var WindowsNotification = class {
+    /**
+     * @param {object} params
+     * @param {string} params.Feature
+     * @param {string} params.SubFeatureName
+     * @param {string} params.Name
+     * @param {Record<string, any>} [params.Data]
+     * @internal
+     */
+    constructor(params) {
+      this.Feature = params.Feature;
+      this.SubFeatureName = params.SubFeatureName;
+      this.Name = params.Name;
+      this.Data = params.Data;
+    }
+    /**
+     * Helper to convert a {@link NotificationMessage} to a format that Windows can support
+     * @param {NotificationMessage} notification
+     * @returns {WindowsNotification}
+     */
+    static fromNotification(notification, data2) {
+      const output = {
+        Data: data2,
+        Feature: notification.context,
+        SubFeatureName: notification.featureName,
+        Name: notification.method
+      };
+      return output;
+    }
+  };
+  var WindowsRequestMessage = class {
+    /**
+     * @param {object} params
+     * @param {string} params.Feature
+     * @param {string} params.SubFeatureName
+     * @param {string} params.Name
+     * @param {Record<string, any>} [params.Data]
+     * @param {string} [params.Id]
+     * @internal
+     */
+    constructor(params) {
+      this.Feature = params.Feature;
+      this.SubFeatureName = params.SubFeatureName;
+      this.Name = params.Name;
+      this.Data = params.Data;
+      this.Id = params.Id;
+    }
+    /**
+     * Helper to convert a {@link RequestMessage} to a format that Windows can support
+     * @param {RequestMessage} msg
+     * @param {Record<string, any>} data
+     * @returns {WindowsRequestMessage}
+     */
+    static fromRequest(msg, data2) {
+      const output = {
+        Data: data2,
+        Feature: msg.context,
+        SubFeatureName: msg.featureName,
+        Name: msg.method,
+        Id: msg.id
+      };
+      return output;
+    }
+  };
+
+  // ../messaging/schema.js
+  var RequestMessage = class {
+    /**
+     * @param {object} params
+     * @param {string} params.context
+     * @param {string} params.featureName
+     * @param {string} params.method
+     * @param {string} params.id
+     * @param {Record<string, any>} [params.params]
+     * @internal
+     */
+    constructor(params) {
+      this.context = params.context;
+      this.featureName = params.featureName;
+      this.method = params.method;
+      this.id = params.id;
+      this.params = params.params;
+    }
+  };
+  var NotificationMessage = class {
+    /**
+     * @param {object} params
+     * @param {string} params.context
+     * @param {string} params.featureName
+     * @param {string} params.method
+     * @param {Record<string, any>} [params.params]
+     * @internal
+     */
+    constructor(params) {
+      this.context = params.context;
+      this.featureName = params.featureName;
+      this.method = params.method;
+      this.params = params.params;
+    }
+  };
+  var Subscription = class {
+    /**
+     * @param {object} params
+     * @param {string} params.context
+     * @param {string} params.featureName
+     * @param {string} params.subscriptionName
+     * @internal
+     */
+    constructor(params) {
+      this.context = params.context;
+      this.featureName = params.featureName;
+      this.subscriptionName = params.subscriptionName;
+    }
+  };
+  function isResponseFor(request, data2) {
+    if ("result" in data2) {
+      return data2.featureName === request.featureName && data2.context === request.context && data2.id === request.id;
+    }
+    if ("error" in data2) {
+      if ("message" in data2.error) {
+        return true;
+      }
+    }
+    return false;
+  }
+  function isSubscriptionEventFor(sub2, data2) {
+    if ("subscriptionName" in data2) {
+      return data2.featureName === sub2.featureName && data2.context === sub2.context && data2.subscriptionName === sub2.subscriptionName;
+    }
+    return false;
+  }
+
+  // ../injected/src/captured-globals.js
+  var Set2 = globalThis.Set;
+  var Reflect2 = globalThis.Reflect;
+  var customElementsGet = globalThis.customElements?.get.bind(globalThis.customElements);
+  var customElementsDefine = globalThis.customElements?.define.bind(globalThis.customElements);
+  var numberIsFinite = Number.isFinite;
+  var numberIsNaN = Number.isNaN;
+  var objectDefineProperty = Object.defineProperty;
+  var URL2 = globalThis.URL;
+  var Proxy2 = globalThis.Proxy;
+  var functionToString = Function.prototype.toString;
+  var TypeError2 = globalThis.TypeError;
+  var Symbol2 = globalThis.Symbol;
+  var dispatchEvent = globalThis.dispatchEvent?.bind(globalThis);
+  var performanceNow = globalThis.performance?.now?.bind(globalThis.performance) ?? Date.now;
+  var addEventListener = globalThis.addEventListener?.bind(globalThis);
+  var removeEventListener = globalThis.removeEventListener?.bind(globalThis);
+  var CustomEvent2 = globalThis.CustomEvent;
+  var NodePrototype = globalThis.Node?.prototype;
+  var Promise2 = globalThis.Promise;
+  var String2 = globalThis.String;
+  var Map2 = globalThis.Map;
+  var Error2 = globalThis.Error;
+  var randomUUID = globalThis.crypto?.randomUUID?.bind(globalThis.crypto);
+  var console2 = globalThis.console;
+  var consoleLog = console2.log.bind(console2);
+  var consoleWarn = console2.warn.bind(console2);
+  var consoleError = console2.error.bind(console2);
+  var TextEncoder = globalThis.TextEncoder;
+  var TextDecoder = globalThis.TextDecoder;
+  var Uint8Array2 = globalThis.Uint8Array;
+  var Uint16Array = globalThis.Uint16Array;
+  var Uint32Array = globalThis.Uint32Array;
+  var JSONparse = JSON.parse;
+  var atob = globalThis.atob?.bind(globalThis);
+  var DOMException2 = globalThis.DOMException;
+  var charCodeAt = globalThis.String.prototype.charCodeAt;
+  var ReflectDeleteProperty = Reflect2.deleteProperty.bind(Reflect2);
+  var ReflectApply = Reflect2.apply.bind(Reflect2);
+  var ReflectGet = Reflect2.get.bind(Reflect2);
+  var getRandomValues = globalThis.crypto?.getRandomValues?.bind(globalThis.crypto);
+  var generateKey = globalThis.crypto?.subtle?.generateKey?.bind(globalThis.crypto?.subtle);
+  var exportKey = globalThis.crypto?.subtle?.exportKey?.bind(globalThis.crypto?.subtle);
+  var importKey = globalThis.crypto?.subtle?.importKey?.bind(globalThis.crypto?.subtle);
+  var encrypt = globalThis.crypto?.subtle?.encrypt?.bind(globalThis.crypto?.subtle);
+  var decrypt = globalThis.crypto?.subtle?.decrypt?.bind(globalThis.crypto?.subtle);
+
+  // ../injected/src/navigator-global.js
+  function ensureNavigatorDuckDuckGo({ defineProperty = objectDefineProperty } = {}) {
+    if (navigator.duckduckgo) {
+      return navigator.duckduckgo;
+    }
+    const target2 = { messageHandlers: {} };
+    defineProperty(Navigator.prototype, "duckduckgo", {
+      value: target2,
+      enumerable: true,
+      configurable: false,
+      writable: false
+    });
+    return target2;
+  }
+
+  // ../messaging/lib/webkit.js
+  var WebkitMessagingTransport = class {
+    /**
+     * Null-prototype cache so a hostile page that pollutes `Object.prototype`
+     * cannot supply a callable from there if `capture` ever misses a handler.
+     *
+     * Uses the `{ __proto__: null }` literal rather than `Object.create(null)`
+     * because the latter is a method dispatch through `globalThis.Object`, which
+     * page JS could replace before this class field runs if transport
+     * construction is deferred (`Messaging` is lazy on `ContentFeature.messaging`).
+     * The `__proto__: null` literal is a syntactic construct, not method
+     * dispatch, so it always yields a true null-prototype object.
+     * @type {Record<string, { handler: any, postMessage: Function }>}
+     */
+    capturedWebkitHandlers = (
+      /** @type {any} */
+      { __proto__: null }
+    );
+    /**
+     * @param {WebkitMessagingConfig} config
+     * @param {import('../index.js').MessagingContext} messagingContext
+     */
+    constructor(config, messagingContext) {
+      this.messagingContext = messagingContext;
+      this.config = config;
+      this.captureWebkitHandlers(this.config.webkitMessageHandlerNames);
+    }
+    /**
+     * Sends message to the webkit layer (fire and forget)
+     * @param {String} handler
+     * @param {*} data
+     * @returns {*}
+     * @throws {MissingHandler}
+     * @internal
+     */
+    wkSend(handler, data2 = {}) {
+      const captured = this.capturedWebkitHandlers[handler];
+      if (!captured || typeof captured.postMessage !== "function") {
+        throw new MissingHandler(`Missing webkit handler: '${handler}'`, handler);
+      }
+      return ReflectApply(captured.postMessage, captured.handler, [data2]);
+    }
+    /**
+     * Sends message to the webkit layer and waits for the specified response
+     * @param {String} handler
+     * @param {import('../index.js').RequestMessage} data
+     * @returns {Promise<*>}
+     * @internal
+     */
+    async wkSendAndWait(handler, data2) {
+      const response = await this.wkSend(handler, data2);
+      return JSONparse(response || "{}");
+    }
+    /**
+     * @param {import('../index.js').NotificationMessage} msg
+     * @returns {Promise<void>}
+     */
+    async notify(msg) {
+      await this.wkSend(msg.context, msg);
+    }
+    /**
+     * @param {import('../index.js').RequestMessage} msg
+     */
+    async request(msg) {
+      const data2 = await this.wkSendAndWait(msg.context, msg);
+      if (isResponseFor(msg, data2)) {
+        if (data2.result) {
+          return data2.result || {};
+        }
+        if (data2.error) {
+          throw new Error2(data2.error.message);
+        }
+      }
+      throw new Error2("an unknown error occurred");
+    }
+    /**
+     * Capture the `postMessage` method on each webkit messageHandler so the
+     * transport can call them later without re-reading `window.webkit.messageHandlers`.
+     * Makes the transport resilient to later removal or replacement of
+     * `window.webkit.messageHandlers` (e.g. by privacy hardening that nullifies
+     * the namespace for site JS to reduce fingerprinting surface).
+     *
+     * Stores the handler object and its `postMessage` function as a pair so
+     * `wkSend` can dispatch via the captured `ReflectApply` rather than calling
+     * `.bind()` here. `.bind` is a method on the page-mutable
+     * `Function.prototype` — if transport construction is deferred (`Messaging`
+     * is lazy on `ContentFeature.messaging`) page JS could replace
+     * `Function.prototype.bind` first and have the cache store an attacker-
+     * controlled function. Storing the unbound pair sidesteps that.
+     *
+     * @param {string[]} handlerNames
+     */
+    captureWebkitHandlers(handlerNames) {
+      const handlers = window.webkit.messageHandlers;
+      if (!handlers) throw new MissingHandler("window.webkit.messageHandlers was absent", "all");
+      for (const webkitMessageHandlerName of handlerNames) {
+        const handler = handlers[webkitMessageHandlerName];
+        if (typeof handler?.postMessage === "function") {
+          this.capturedWebkitHandlers[webkitMessageHandlerName] = {
+            handler,
+            postMessage: handler.postMessage
+          };
+        }
+      }
+    }
+    /**
+     * @param {import('../index.js').Subscription} msg
+     * @param {(value: unknown) => void} callback
+     */
+    subscribe(msg, callback) {
+      const target2 = ensureNavigatorDuckDuckGo().messageHandlers;
+      if (msg.subscriptionName in target2) {
+        throw new Error2(`A subscription with the name ${msg.subscriptionName} already exists`);
+      }
+      objectDefineProperty(target2, msg.subscriptionName, {
+        enumerable: false,
+        configurable: true,
+        writable: false,
+        value: (data2) => {
+          if (data2 && isSubscriptionEventFor(msg, data2)) {
+            callback(data2.params);
+          } else {
+            console.warn("Received a message that did not match the subscription", data2);
+          }
+        }
+      });
+      return () => {
+        ReflectDeleteProperty(target2, msg.subscriptionName);
+      };
+    }
+  };
+  var WebkitMessagingConfig = class {
+    /**
+     * @param {object} params
+     * @param {string[]} params.webkitMessageHandlerNames
+     * @internal
+     */
+    constructor(params) {
+      this.webkitMessageHandlerNames = params.webkitMessageHandlerNames;
+    }
+  };
+
+  // ../messaging/lib/android.js
+  var AndroidMessagingTransport = class {
+    /**
+     * @param {AndroidMessagingConfig} config
+     * @param {MessagingContext} messagingContext
+     * @internal
+     */
+    constructor(config, messagingContext) {
+      this.messagingContext = messagingContext;
+      this.config = config;
+    }
+    /**
+     * @param {NotificationMessage} msg
+     */
+    notify(msg) {
+      try {
+        this.config.sendMessageThrows?.(JSON.stringify(msg));
+      } catch (e3) {
+        console.error(".notify failed", e3);
+      }
+    }
+    /**
+     * @param {RequestMessage} msg
+     * @return {Promise<any>}
+     */
+    request(msg) {
+      return new Promise((resolve, reject) => {
+        const unsub = this.config.subscribe(msg.id, handler);
+        try {
+          this.config.sendMessageThrows?.(JSON.stringify(msg));
+        } catch (e3) {
+          unsub();
+          reject(new Error("request failed to send: " + e3.message || "unknown error"));
+        }
+        function handler(data2) {
+          if (isResponseFor(msg, data2)) {
+            if (data2.result) {
+              resolve(data2.result || {});
+              return unsub();
+            }
+            if (data2.error) {
+              reject(new Error(data2.error.message));
+              return unsub();
+            }
+            unsub();
+            throw new Error("unreachable: must have `result` or `error` key by this point");
+          }
+        }
+      });
+    }
+    /**
+     * @param {Subscription} msg
+     * @param {(value: unknown | undefined) => void} callback
+     */
+    subscribe(msg, callback) {
+      const unsub = this.config.subscribe(msg.subscriptionName, (data2) => {
+        if (isSubscriptionEventFor(msg, data2)) {
+          callback(data2.params || {});
+        }
+      });
+      return () => {
+        unsub();
+      };
+    }
+  };
+  var AndroidMessagingConfig = class {
+    /** @type {(json: string, secret: string) => void} */
+    _capturedHandler;
+    /**
+     * @param {object} params
+     * @param {Record<string, any>} params.target
+     * @param {boolean} params.debug
+     * @param {string} params.messageSecret - a secret to ensure that messages are only
+     * processed by the correct handler
+     * @param {string} params.javascriptInterface - the name of the javascript interface
+     * registered on the native side
+     * @param {string} params.messageCallback - the name of the callback that the native
+     * side will use to send messages back to the javascript side
+     */
+    constructor(params) {
+      this.target = params.target;
+      this.debug = params.debug;
+      this.javascriptInterface = params.javascriptInterface;
+      this.messageSecret = params.messageSecret;
+      this.messageCallback = params.messageCallback;
+      this.listeners = new globalThis.Map();
+      this._captureGlobalHandler();
+      this._assignHandlerMethod();
+    }
+    /**
+     * The transport can call this to transmit a JSON payload along with a secret
+     * to the native Android handler.
+     *
+     * Note: This can throw - it's up to the transport to handle the error.
+     *
+     * @type {(json: string) => void}
+     * @throws
+     * @internal
+     */
+    sendMessageThrows(json) {
+      this._capturedHandler(json, this.messageSecret);
+    }
+    /**
+     * A subscription on Android is just a named listener. All messages from
+     * android -> are delivered through a single function, and this mapping is used
+     * to route the messages to the correct listener.
+     *
+     * Note: Use this to implement request->response by unsubscribing after the first
+     * response.
+     *
+     * @param {string} id
+     * @param {(msg: MessageResponse | SubscriptionEvent) => void} callback
+     * @returns {() => void}
+     * @internal
+     */
+    subscribe(id, callback) {
+      this.listeners.set(id, callback);
+      return () => {
+        this.listeners.delete(id);
+      };
+    }
+    /**
+     * Accept incoming messages and try to deliver it to a registered listener.
+     *
+     * This code is defensive to prevent any single handler from affecting another if
+     * it throws (producer interference).
+     *
+     * @param {MessageResponse | SubscriptionEvent} payload
+     * @internal
+     */
+    _dispatch(payload) {
+      if (!payload) return this._log("no response");
+      if ("id" in payload) {
+        if (this.listeners.has(payload.id)) {
+          this._tryCatch(() => this.listeners.get(payload.id)?.(payload));
+        } else {
+          this._log("no listeners for ", payload);
+        }
+      }
+      if ("subscriptionName" in payload) {
+        if (this.listeners.has(payload.subscriptionName)) {
+          this._tryCatch(() => this.listeners.get(payload.subscriptionName)?.(payload));
+        } else {
+          this._log("no subscription listeners for ", payload);
+        }
+      }
+    }
+    /**
+     *
+     * @param {(...args: any[]) => any} fn
+     * @param {string} [context]
+     */
+    _tryCatch(fn, context = "none") {
+      try {
+        return fn();
+      } catch (e3) {
+        if (this.debug) {
+          console.error("AndroidMessagingConfig error:", context);
+          console.error(e3);
+        }
+      }
+    }
+    /**
+     * @param {...any} args
+     */
+    _log(...args) {
+      if (this.debug) {
+        console.log("AndroidMessagingConfig", ...args);
+      }
+    }
+    /**
+     * Capture the global handler and remove it from the global object.
+     */
+    _captureGlobalHandler() {
+      const { target: target2, javascriptInterface } = this;
+      if (Object.prototype.hasOwnProperty.call(target2, javascriptInterface)) {
+        this._capturedHandler = target2[javascriptInterface].process.bind(target2[javascriptInterface]);
+        delete target2[javascriptInterface];
+      } else {
+        this._capturedHandler = () => {
+          this._log("Android messaging interface not available", javascriptInterface);
+        };
+      }
+    }
+    /**
+     * Assign the incoming handler method to the global object.
+     * This is the method that Android will call to deliver messages.
+     */
+    _assignHandlerMethod() {
+      const responseHandler = (providedSecret, response) => {
+        if (providedSecret === this.messageSecret) {
+          this._dispatch(response);
+        }
+      };
+      Object.defineProperty(this.target, this.messageCallback, {
+        value: responseHandler
+      });
+    }
+  };
+
+  // ../injected/src/features.js
+  var baseFeatures = (
+    /** @type {FeatureName[]} */
+    [
+      "fingerprintingAudio",
+      "fingerprintingBattery",
+      "fingerprintingCanvas",
+      "googleRejected",
+      "gpc",
+      "fingerprintingHardware",
+      "referrer",
+      "fingerprintingScreenSize",
+      "fingerprintingTemporaryStorage",
+      "navigatorInterface",
+      "elementHiding",
+      "exceptionHandler",
+      "apiManipulation"
+    ]
+  );
+  var otherFeatures = (
+    /** @type {FeatureName[]} */
+    [
+      "clickToLoad",
+      "contextMenu",
+      "cookie",
+      "messageBridge",
+      "duckPlayer",
+      "duckPlayerNative",
+      "duckAiDataClearing",
+      "duckAiChatHistory",
+      "harmfulApis",
+      "webCompat",
+      "webEvents",
+      "webInterferenceDetection",
+      "detectorPerf",
+      "windowsPermissionUsage",
+      "uaChBrands",
+      "brokerProtection",
+      "performanceMetrics",
+      "breakageReporting",
+      "autofillImport",
+      "favicon",
+      "webTelemetry",
+      "pageContext",
+      "print",
+      "pageObserver",
+      "hover",
+      "browserUiLock",
+      "trackerProtection",
+      "tabSuspension",
+      "autofillPasskeys",
+      "textSelection",
+      "chromeWebstorePatching",
+      "selectionTools",
+      "segmentSkip",
+      "pageTranslation"
+    ]
+  );
+  var platformSupport = {
+    apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "pageContext", "print", "trackerProtection", "textSelection"],
+    "apple-isolated": [
+      "webDetection",
+      "contextMenu",
+      "duckPlayer",
+      "duckPlayerNative",
+      "breakageReporting",
+      "performanceMetrics",
+      "clickToLoad",
+      "messageBridge",
+      "favicon",
+      "webEvents",
+      "webInterferenceDetection",
+      "detectorPerf",
+      "webTelemetry",
+      "pageObserver",
+      "hover",
+      "tabSuspension",
+      "chromeWebstorePatching",
+      "browserUiLock",
+      "segmentSkip"
+    ],
+    "apple-broker-protection": ["brokerProtection"],
+    "apple-ai-clear": ["duckAiDataClearing"],
+    // Its own bundle: native injects it only when the user translates a page.
+    "apple-page-translation": ["pageTranslation"],
+    "apple-ai-history": ["duckAiChatHistory"],
+    android: [
+      "webDetection",
+      ...baseFeatures,
+      "webCompat",
+      "webEvents",
+      "webInterferenceDetection",
+      "detectorPerf",
+      "breakageReporting",
+      "duckPlayer",
+      "messageBridge",
+      "pageContext",
+      "browserUiLock",
+      "segmentSkip"
+    ],
+    "android-broker-protection": ["brokerProtection"],
+    "android-ai-clear": ["duckAiDataClearing"],
+    "android-page-translation": ["pageTranslation"],
+    "android-ai-history": ["duckAiChatHistory"],
+    "android-autofill-import": ["autofillImport"],
+    "android-adsjs": [
+      "webDetection",
+      "apiManipulation",
+      "webCompat",
+      "fingerprintingHardware",
+      "fingerprintingScreenSize",
+      "fingerprintingTemporaryStorage",
+      "fingerprintingAudio",
+      "fingerprintingBattery",
+      "gpc",
+      "webEvents",
+      "breakageReporting"
+    ],
+    windows: [
+      "cookie",
+      "webDetection",
+      ...baseFeatures,
+      "webEvents",
+      "webInterferenceDetection",
+      "detectorPerf",
+      "webTelemetry",
+      "windowsPermissionUsage",
+      "uaChBrands",
+      "duckPlayer",
+      "brokerProtection",
+      "breakageReporting",
+      "messageBridge",
+      "webCompat",
+      "pageContext",
+      "duckAiDataClearing",
+      "performanceMetrics",
+      "duckAiChatHistory",
+      "autofillPasskeys",
+      "chromeWebstorePatching",
+      "selectionTools"
+    ],
+    firefox: ["cookie", "webDetection", ...baseFeatures, "clickToLoad", "webEvents", "webInterferenceDetection", "breakageReporting"],
+    chrome: ["cookie", "webDetection", ...baseFeatures, "clickToLoad", "webEvents", "webInterferenceDetection", "breakageReporting"],
+    "chrome-mv3": ["cookie", "webDetection", ...baseFeatures, "clickToLoad", "webEvents", "webInterferenceDetection", "breakageReporting"],
+    integration: ["webDetection", ...baseFeatures, ...otherFeatures]
+  };
+
+  // ../injected/src/utils.js
+  var globalObj = typeof window === "undefined" ? globalThis : window;
+  var Error3 = globalObj.Error;
+  var originalWindowDispatchEvent = typeof window === "undefined" ? null : window.dispatchEvent.bind(window);
+  function isBeingFramed() {
+    if (globalThis.location && "ancestorOrigins" in globalThis.location) {
+      return globalThis.location.ancestorOrigins.length > 0;
+    }
+    return globalThis.top !== globalThis.window;
+  }
+  var DDGPromise = globalObj.Promise;
+  var DDGReflect = globalObj.Reflect;
+
+  // ../messaging/lib/android-adsjs.js
+  var AndroidAdsjsMessagingTransport = class {
+    /**
+     * @param {AndroidAdsjsMessagingConfig} config
+     * @param {MessagingContext} messagingContext
+     * @internal
+     */
+    constructor(config, messagingContext) {
+      this.messagingContext = messagingContext;
+      this.config = config;
+    }
+    /**
+     * @param {NotificationMessage} msg
+     */
+    notify(msg) {
+      try {
+        this.config.sendMessageThrows?.(msg);
+      } catch (e3) {
+        console.error(".notify failed", e3);
+      }
+    }
+    /**
+     * @param {RequestMessage} msg
+     * @return {Promise<any>}
+     */
+    request(msg) {
+      return new Promise((resolve, reject) => {
+        const unsub = this.config.subscribe(msg.id, handler);
+        try {
+          this.config.sendMessageThrows?.(msg);
+        } catch (e3) {
+          unsub();
+          reject(new Error("request failed to send: " + e3.message || "unknown error"));
+        }
+        function handler(data2) {
+          if (isResponseFor(msg, data2)) {
+            if (data2.result) {
+              resolve(data2.result || {});
+              return unsub();
+            }
+            if (data2.error) {
+              reject(new Error(data2.error.message));
+              return unsub();
+            }
+            unsub();
+            throw new Error("unreachable: must have `result` or `error` key by this point");
+          }
+        }
+      });
+    }
+    /**
+     * @param {Subscription} msg
+     * @param {(value: unknown | undefined) => void} callback
+     */
+    subscribe(msg, callback) {
+      const unsub = this.config.subscribe(msg.subscriptionName, (data2) => {
+        if (isSubscriptionEventFor(msg, data2)) {
+          callback(data2.params || {});
+        }
+      });
+      return () => {
+        unsub();
+      };
+    }
+  };
+  var AndroidAdsjsMessagingConfig = class {
+    /** @type {{
+     * postMessage: (message: string) => void,
+     * addEventListener: (type: string, listener: (event: MessageEvent) => void) => void,
+     * } | null} */
+    _capturedHandler;
+    /**
+     * @param {object} params
+     * @param {Record<string, any>} params.target
+     * @param {boolean} params.debug
+     * @param {string} params.objectName - the object name for addWebMessageListener
+     */
+    constructor(params) {
+      this.target = params.target;
+      this.debug = params.debug;
+      this.objectName = params.objectName;
+      this.listeners = new globalThis.Map();
+      this._captureGlobalHandler();
+      this._setupEventListener();
+    }
+    /**
+     * The transport can call this to transmit a JSON payload along with a secret
+     * to the native Android handler via postMessage.
+     *
+     * Note: This can throw - it's up to the transport to handle the error.
+     *
+     * @type {(json: object) => void}
+     * @throws
+     * @internal
+     */
+    sendMessageThrows(message) {
+      if (!this.objectName) {
+        throw new Error("Object name not set for WebMessageListener");
+      }
+      if (this._capturedHandler && this._capturedHandler.postMessage) {
+        this._capturedHandler.postMessage(JSON.stringify(message));
+      } else {
+        throw new Error("postMessage not available");
+      }
+    }
+    /**
+     * A subscription on Android is just a named listener. All messages from
+     * android -> are delivered through a single function, and this mapping is used
+     * to route the messages to the correct listener.
+     *
+     * Note: Use this to implement request->response by unsubscribing after the first
+     * response.
+     *
+     * @param {string} id
+     * @param {(msg: MessageResponse | SubscriptionEvent) => void} callback
+     * @returns {() => void}
+     * @internal
+     */
+    subscribe(id, callback) {
+      this.listeners.set(id, callback);
+      return () => {
+        this.listeners.delete(id);
+      };
+    }
+    /**
+     * Accept incoming messages and try to deliver it to a registered listener.
+     *
+     * This code is defensive to prevent any single handler from affecting another if
+     * it throws (producer interference).
+     *
+     * @param {MessageResponse | SubscriptionEvent} payload
+     * @internal
+     */
+    _dispatch(payload) {
+      if (!payload) return this._log("no response");
+      if ("id" in payload) {
+        if (this.listeners.has(payload.id)) {
+          this._tryCatch(() => this.listeners.get(payload.id)?.(payload));
+        } else {
+          this._log("no listeners for ", payload);
+        }
+      }
+      if ("subscriptionName" in payload) {
+        if (this.listeners.has(payload.subscriptionName)) {
+          this._tryCatch(() => this.listeners.get(payload.subscriptionName)?.(payload));
+        } else {
+          this._log("no subscription listeners for ", payload);
+        }
+      }
+    }
+    /**
+     *
+     * @param {(...args: any[]) => any} fn
+     * @param {string} [context]
+     */
+    _tryCatch(fn, context = "none") {
+      try {
+        return fn();
+      } catch (e3) {
+        if (this.debug) {
+          console.error("AndroidAdsjsMessagingConfig error:", context);
+          console.error(e3);
+        }
+      }
+    }
+    /**
+     * @param {...any} args
+     */
+    _log(...args) {
+      if (this.debug) {
+        console.log("AndroidAdsjsMessagingConfig", ...args);
+      }
+    }
+    /**
+     * Capture the global handler and remove it from the global object.
+     */
+    _captureGlobalHandler() {
+      const { target: target2, objectName } = this;
+      if (Object.prototype.hasOwnProperty.call(target2, objectName)) {
+        this._capturedHandler = target2[objectName];
+        delete target2[objectName];
+      } else {
+        this._capturedHandler = null;
+        this._log("Android adsjs messaging interface not available", objectName);
+      }
+    }
+    /**
+     * Set up event listener for incoming messages from the captured handler.
+     */
+    _setupEventListener() {
+      if (!this._capturedHandler || !this._capturedHandler.addEventListener) {
+        this._log("No event listener support available");
+        return;
+      }
+      this._capturedHandler.addEventListener("message", (event) => {
+        try {
+          const data2 = (
+            /** @type {MessageEvent} */
+            event.data
+          );
+          if (typeof data2 === "string") {
+            const parsedData = JSON.parse(data2);
+            this._dispatch(parsedData);
+          }
+        } catch (e3) {
+          this._log("Error processing incoming message:", e3);
+        }
+      });
+    }
+    /**
+     * Send an initial ping message to the platform to establish communication.
+     * This is a fire-and-forget notification that signals the JavaScript side is ready.
+     * Only sends in top context (not in frames) and if the messaging interface is available.
+     *
+     * @param {MessagingContext} messagingContext
+     * @returns {boolean} true if ping was sent, false if in frame or interface not ready
+     */
+    sendInitialPing(messagingContext) {
+      if (isBeingFramed()) {
+        this._log("Skipping initial ping - running in frame context");
+        return false;
+      }
+      try {
+        const message = new RequestMessage({
+          id: "initialPing",
+          context: messagingContext.context,
+          featureName: "messaging",
+          method: "initialPing"
+        });
+        this.sendMessageThrows(message);
+        this._log("Initial ping sent successfully");
+        return true;
+      } catch (e3) {
+        this._log("Failed to send initial ping:", e3);
+        return false;
+      }
+    }
+  };
+
+  // ../messaging/lib/typed-messages.js
+  function createTypedMessages(_base, _messaging) {
+    const asAny = (
+      /** @type {any} */
+      _messaging
+    );
+    return (
+      /** @type {BaseClass} */
+      asAny
+    );
+  }
+
+  // ../messaging/index.js
+  var MessagingContext = class {
+    /**
+     * @param {object} params
+     * @param {string} params.context
+     * @param {string} params.featureName
+     * @param {"production" | "development"} params.env
+     * @internal
+     */
+    constructor(params) {
+      this.context = params.context;
+      this.featureName = params.featureName;
+      this.env = params.env;
+    }
+  };
+  var Messaging = class {
+    /**
+     * @param {MessagingContext} messagingContext
+     * @param {MessagingConfig} config
+     */
+    constructor(messagingContext, config) {
+      this.messagingContext = messagingContext;
+      this.transport = getTransport(config, this.messagingContext);
+    }
+    /**
+     * Send a 'fire-and-forget' message.
+     *
+     * @example
+     *
+     * ```ts
+     * const messaging = new Messaging(config)
+     * messaging.notify("foo", {bar: "baz"})
+     * ```
+     * @param {string} name
+     * @param {Record<string, any>} [data]
+     */
+    notify(name2, data2 = {}) {
+      try {
+        const message = new NotificationMessage({
+          context: this.messagingContext.context,
+          featureName: this.messagingContext.featureName,
+          method: name2,
+          params: data2
+        });
+        const maybeAsyncResult = this.transport.notify(message);
+        if (isPromiseLike(maybeAsyncResult)) {
+          void handleAsyncNotificationResult(maybeAsyncResult, this.messagingContext.env, name2, data2);
+        }
+      } catch (e3) {
+        logNotificationError(this.messagingContext.env, name2, data2, e3);
+      }
+    }
+    /**
+     * Send a request and wait for a response
+     * @throws {Error}
+     *
+     * @example
+     * ```
+     * const messaging = new Messaging(config)
+     * const response = await messaging.request("foo", {bar: "baz"})
+     * ```
+     *
+     * @param {string} name
+     * @param {Record<string, any>} [data]
+     * @return {Promise<any>}
+     */
+    request(name2, data2 = {}) {
+      const id = globalThis?.crypto?.randomUUID?.() || name2 + ".response";
+      const message = new RequestMessage({
+        context: this.messagingContext.context,
+        featureName: this.messagingContext.featureName,
+        method: name2,
+        params: data2,
+        id
+      });
+      return this.transport.request(message);
+    }
+    /**
+     * @param {string} name
+     * @param {(value: unknown) => void} callback
+     * @return {() => void}
+     */
+    subscribe(name2, callback) {
+      const msg = new Subscription({
+        context: this.messagingContext.context,
+        featureName: this.messagingContext.featureName,
+        subscriptionName: name2
+      });
+      return this.transport.subscribe(msg, callback);
+    }
+  };
+  var TestTransportConfig = class {
+    /**
+     * @param {MessagingTransport} impl
+     */
+    constructor(impl) {
+      this.impl = impl;
+    }
+  };
+  var TestTransport = class {
+    /**
+     * @param {TestTransportConfig} config
+     * @param {MessagingContext} messagingContext
+     */
+    constructor(config, messagingContext) {
+      this.config = config;
+      this.messagingContext = messagingContext;
+    }
+    notify(msg) {
+      return this.config.impl.notify(msg);
+    }
+    request(msg) {
+      return this.config.impl.request(msg);
+    }
+    subscribe(msg, callback) {
+      return this.config.impl.subscribe(msg, callback);
+    }
+  };
+  function getTransport(config, messagingContext) {
+    if (config instanceof WebkitMessagingConfig) {
+      return new WebkitMessagingTransport(config, messagingContext);
+    }
+    if (config instanceof WindowsMessagingConfig) {
+      return new WindowsMessagingTransport(config, messagingContext);
+    }
+    if (config instanceof AndroidMessagingConfig) {
+      return new AndroidMessagingTransport(config, messagingContext);
+    }
+    if (config instanceof AndroidAdsjsMessagingConfig) {
+      return new AndroidAdsjsMessagingTransport(config, messagingContext);
+    }
+    if (config instanceof TestTransportConfig) {
+      return new TestTransport(config, messagingContext);
+    }
+    throw new Error("unreachable");
+  }
+  function isPromiseLike(value2) {
+    return value2 !== null && value2 !== void 0 && typeof /** @type {{then?: unknown}} */
+    value2.then === "function";
+  }
+  async function handleAsyncNotificationResult(result, env, name2, data2) {
+    try {
+      await result;
+    } catch (error) {
+      logNotificationError(env, name2, data2, error);
+    }
+  }
+  function logNotificationError(env, name2, data2, error) {
+    if (env === "development") {
+      try {
+        console.error("[Messaging] Failed to send notification:", error);
+        console.error("[Messaging] Message details:", { name: name2, data: data2 });
+      } catch {
+      }
+    }
+  }
+  var MissingHandler = class extends Error {
+    /**
+     * @param {string} message
+     * @param {string} handlerName
+     */
+    constructor(message, handlerName) {
+      super(message);
+      this.handlerName = handlerName;
+    }
+  };
+
+  // shared/environment.js
+  var Environment = class _Environment {
+    /**
+     * @param {object} params
+     * @param {'app' | 'components'} [params.display] - whether to show the application or component list
+     * @param {'production' | 'development'} [params.env] - application environment
+     * @param {URLSearchParams} [params.urlParams] - URL params passed into the page
+     * @param {ImportMeta['injectName']} [params.injectName] - application platform
+     * @param {boolean} [params.willThrow] - whether the application will simulate an error
+     * @param {boolean} [params.debugState] - whether to show debugging UI
+     * @param {keyof typeof import('./utils').translationsLocales} [params.locale] - for applications strings and numbers formatting
+     * @param {number} [params.textLength] - what ratio of text should be used. Set a number higher than 1 to have longer strings for testing
+     */
+    constructor({
+      env = "production",
+      urlParams = new URLSearchParams(location.search),
+      injectName = "windows",
+      willThrow = urlParams.get("willThrow") === "true",
+      debugState = urlParams.has("debugState"),
+      display = "app",
+      locale = "en",
+      textLength = 1
+    } = {}) {
+      this.display = display;
+      this.urlParams = urlParams;
+      this.injectName = injectName;
+      this.willThrow = willThrow;
+      this.debugState = debugState;
+      this.env = env;
+      this.locale = locale;
+      this.textLength = textLength;
+    }
+    /**
+     * @param {string|null|undefined} injectName
+     * @returns {Environment}
+     */
+    withInjectName(injectName) {
+      if (!injectName) return this;
+      if (!isInjectName(injectName)) return this;
+      return new _Environment({
+        ...this,
+        injectName
+      });
+    }
+    /**
+     * @param {string|null|undefined} env
+     * @returns {Environment}
+     */
+    withEnv(env) {
+      if (!env) return this;
+      if (env !== "production" && env !== "development") return this;
+      return new _Environment({
+        ...this,
+        env
+      });
+    }
+    /**
+     * @param {string|null|undefined} display
+     * @returns {Environment}
+     */
+    withDisplay(display) {
+      if (!display) return this;
+      if (display !== "app" && display !== "components") return this;
+      return new _Environment({
+        ...this,
+        display
+      });
+    }
+    /**
+     * @param {string|null|undefined} locale
+     * @returns {Environment}
+     */
+    withLocale(locale) {
+      if (!locale) return this;
+      if (typeof locale !== "string") return this;
+      if (locale.length !== 2) return this;
+      return new _Environment({
+        ...this,
+        locale
+      });
+    }
+    /**
+     * @param {string|number|null|undefined} length
+     * @returns {Environment}
+     */
+    withTextLength(length2) {
+      if (!length2) return this;
+      const num = Number(length2);
+      if (num >= 1 && num <= 2) {
+        return new _Environment({
+          ...this,
+          textLength: num
+        });
+      }
+      return this;
+    }
+  };
+  function isInjectName(input) {
+    const allowed = ["windows", "apple", "integration", "android"];
+    return allowed.includes(input);
+  }
+
+  // shared/create-special-page-messaging.js
+  function createSpecialPageMessaging(opts) {
+    const messageContext = new MessagingContext({
+      context: "specialPages",
+      featureName: opts.pageName,
+      env: opts.env
+    });
+    try {
+      if (opts.injectName === "windows") {
+        const opts2 = new WindowsMessagingConfig({
+          methods: {
+            // @ts-expect-error - not in @types/chrome
+            postMessage: globalThis.windowsInteropPostMessage,
+            // @ts-expect-error - not in @types/chrome
+            addEventListener: globalThis.windowsInteropAddEventListener,
+            // @ts-expect-error - not in @types/chrome
+            removeEventListener: globalThis.windowsInteropRemoveEventListener
+          }
+        });
+        return new Messaging(messageContext, opts2);
+      } else if (opts.injectName === "apple") {
+        const opts2 = new WebkitMessagingConfig({
+          webkitMessageHandlerNames: ["specialPages"]
+        });
+        return new Messaging(messageContext, opts2);
+      } else if (opts.injectName === "android") {
+        const opts2 = new AndroidMessagingConfig({
+          messageSecret: "duckduckgo-android-messaging-secret",
+          messageCallback: "messageCallback",
+          javascriptInterface: messageContext.context,
+          target: globalThis,
+          debug: true
+        });
+        return new Messaging(messageContext, opts2);
+      }
+    } catch (e3) {
+      console.error("could not access handlers for %s, falling back to mock interface", opts.injectName);
+    }
+    const fallback = opts.mockTransport?.() || new TestTransportConfig({
+      /**
+       * @param {import('@duckduckgo/messaging').NotificationMessage} msg
+       */
+      notify(msg) {
+        console.log(msg);
+      },
+      /**
+       * @param {import('@duckduckgo/messaging').RequestMessage} msg
+       */
+      request: (msg) => {
+        console.log(msg);
+        if (msg.method === "initialSetup") {
+          return Promise.resolve({
+            locale: "en",
+            env: opts.env
+          });
+        }
+        return Promise.resolve(null);
+      },
+      /**
+       * @param {import('@duckduckgo/messaging').SubscriptionEvent} msg
+       */
+      subscribe(msg) {
+        console.log(msg);
+        return () => {
+          console.log("teardown");
+        };
+      }
+    });
+    return new Messaging(messageContext, fallback);
+  }
 
   // ../node_modules/preact/dist/preact.module.js
   var n;
@@ -21263,1418 +22500,6 @@
     return /* @__PURE__ */ k("div", { style: "position: fixed; bottom: 0; left: 0; width: 50px; height: 50px", onClick: handler, "data-testid": "skip" });
   }
 
-  // shared/environment.js
-  var Environment = class _Environment {
-    /**
-     * @param {object} params
-     * @param {'app' | 'components'} [params.display] - whether to show the application or component list
-     * @param {'production' | 'development'} [params.env] - application environment
-     * @param {URLSearchParams} [params.urlParams] - URL params passed into the page
-     * @param {ImportMeta['injectName']} [params.injectName] - application platform
-     * @param {boolean} [params.willThrow] - whether the application will simulate an error
-     * @param {boolean} [params.debugState] - whether to show debugging UI
-     * @param {keyof typeof import('./utils').translationsLocales} [params.locale] - for applications strings and numbers formatting
-     * @param {number} [params.textLength] - what ratio of text should be used. Set a number higher than 1 to have longer strings for testing
-     */
-    constructor({
-      env = "production",
-      urlParams = new URLSearchParams(location.search),
-      injectName = "windows",
-      willThrow = urlParams.get("willThrow") === "true",
-      debugState = urlParams.has("debugState"),
-      display = "app",
-      locale = "en",
-      textLength = 1
-    } = {}) {
-      this.display = display;
-      this.urlParams = urlParams;
-      this.injectName = injectName;
-      this.willThrow = willThrow;
-      this.debugState = debugState;
-      this.env = env;
-      this.locale = locale;
-      this.textLength = textLength;
-    }
-    /**
-     * @param {string|null|undefined} injectName
-     * @returns {Environment}
-     */
-    withInjectName(injectName) {
-      if (!injectName) return this;
-      if (!isInjectName(injectName)) return this;
-      return new _Environment({
-        ...this,
-        injectName
-      });
-    }
-    /**
-     * @param {string|null|undefined} env
-     * @returns {Environment}
-     */
-    withEnv(env) {
-      if (!env) return this;
-      if (env !== "production" && env !== "development") return this;
-      return new _Environment({
-        ...this,
-        env
-      });
-    }
-    /**
-     * @param {string|null|undefined} display
-     * @returns {Environment}
-     */
-    withDisplay(display) {
-      if (!display) return this;
-      if (display !== "app" && display !== "components") return this;
-      return new _Environment({
-        ...this,
-        display
-      });
-    }
-    /**
-     * @param {string|null|undefined} locale
-     * @returns {Environment}
-     */
-    withLocale(locale) {
-      if (!locale) return this;
-      if (typeof locale !== "string") return this;
-      if (locale.length !== 2) return this;
-      return new _Environment({
-        ...this,
-        locale
-      });
-    }
-    /**
-     * @param {string|number|null|undefined} length
-     * @returns {Environment}
-     */
-    withTextLength(length2) {
-      if (!length2) return this;
-      const num = Number(length2);
-      if (num >= 1 && num <= 2) {
-        return new _Environment({
-          ...this,
-          textLength: num
-        });
-      }
-      return this;
-    }
-  };
-  function isInjectName(input) {
-    const allowed = ["windows", "apple", "integration", "android"];
-    return allowed.includes(input);
-  }
-
-  // ../messaging/lib/windows.js
-  var WindowsMessagingTransport = class {
-    /**
-     * @param {WindowsMessagingConfig} config
-     * @param {import('../index.js').MessagingContext} messagingContext
-     * @internal
-     */
-    constructor(config, messagingContext) {
-      this.messagingContext = messagingContext;
-      this.config = config;
-      this.globals = {
-        window,
-        JSONparse: window.JSON.parse,
-        JSONstringify: window.JSON.stringify,
-        Promise: window.Promise,
-        Error: window.Error,
-        String: window.String
-      };
-      for (const [methodName, fn] of Object.entries(this.config.methods)) {
-        if (typeof fn !== "function") {
-          throw new Error("cannot create WindowsMessagingTransport, missing the method: " + methodName);
-        }
-      }
-    }
-    /**
-     * @param {import('../index.js').NotificationMessage} msg
-     */
-    notify(msg) {
-      const data2 = this.globals.JSONparse(this.globals.JSONstringify(msg.params || {}));
-      const notification = WindowsNotification.fromNotification(msg, data2);
-      this.config.methods.postMessage(notification);
-    }
-    /**
-     * @param {import('../index.js').RequestMessage} msg
-     * @param {{signal?: AbortSignal}} opts
-     * @return {Promise<any>}
-     */
-    request(msg, opts = {}) {
-      const data2 = this.globals.JSONparse(this.globals.JSONstringify(msg.params || {}));
-      const outgoing = WindowsRequestMessage.fromRequest(msg, data2);
-      this.config.methods.postMessage(outgoing);
-      const comparator = (eventData) => {
-        return eventData.featureName === msg.featureName && eventData.context === msg.context && eventData.id === msg.id;
-      };
-      function isMessageResponse(data3) {
-        if ("result" in data3) return true;
-        if ("error" in data3) return true;
-        return false;
-      }
-      return new this.globals.Promise((resolve, reject) => {
-        try {
-          this._subscribe(comparator, opts, (value2, unsubscribe) => {
-            unsubscribe();
-            if (!isMessageResponse(value2)) {
-              console.warn("unknown response type", value2);
-              return reject(new this.globals.Error("unknown response"));
-            }
-            if (value2.result) {
-              return resolve(value2.result);
-            }
-            const message = this.globals.String(value2.error?.message || "unknown error");
-            reject(new this.globals.Error(message));
-          });
-        } catch (e3) {
-          reject(e3);
-        }
-      });
-    }
-    /**
-     * @param {import('../index.js').Subscription} msg
-     * @param {(value: unknown | undefined) => void} callback
-     */
-    subscribe(msg, callback) {
-      const comparator = (eventData) => {
-        return eventData.featureName === msg.featureName && eventData.context === msg.context && eventData.subscriptionName === msg.subscriptionName;
-      };
-      const cb = (eventData) => {
-        return callback(eventData.params);
-      };
-      return this._subscribe(comparator, {}, cb);
-    }
-    /**
-     * @typedef {import('../index.js').MessageResponse | import('../index.js').SubscriptionEvent} Incoming
-     */
-    /**
-     * @param {(eventData: any) => boolean} comparator
-     * @param {{signal?: AbortSignal}} options
-     * @param {(value: Incoming, unsubscribe: (()=>void)) => void} callback
-     * @internal
-     */
-    _subscribe(comparator, options2, callback) {
-      if (options2?.signal?.aborted) {
-        throw new DOMException("Aborted", "AbortError");
-      }
-      let teardown;
-      const idHandler = (event) => {
-        if (this.messagingContext.env === "production") {
-          if (event.origin !== null && event.origin !== void 0) {
-            console.warn("ignoring because evt.origin is not `null` or `undefined`");
-            return;
-          }
-        }
-        if (!event.data) {
-          console.warn("data absent from message");
-          return;
-        }
-        if (comparator(event.data)) {
-          if (!teardown) throw new Error("unreachable");
-          callback(event.data, teardown);
-        }
-      };
-      const abortHandler = () => {
-        teardown?.();
-        throw new DOMException("Aborted", "AbortError");
-      };
-      this.config.methods.addEventListener("message", idHandler);
-      options2?.signal?.addEventListener("abort", abortHandler);
-      teardown = () => {
-        this.config.methods.removeEventListener("message", idHandler);
-        options2?.signal?.removeEventListener("abort", abortHandler);
-      };
-      return () => {
-        teardown?.();
-      };
-    }
-  };
-  var WindowsMessagingConfig = class {
-    /**
-     * @param {object} params
-     * @param {WindowsInteropMethods} params.methods
-     * @internal
-     */
-    constructor(params) {
-      this.methods = params.methods;
-      this.platform = "windows";
-    }
-  };
-  var WindowsNotification = class {
-    /**
-     * @param {object} params
-     * @param {string} params.Feature
-     * @param {string} params.SubFeatureName
-     * @param {string} params.Name
-     * @param {Record<string, any>} [params.Data]
-     * @internal
-     */
-    constructor(params) {
-      this.Feature = params.Feature;
-      this.SubFeatureName = params.SubFeatureName;
-      this.Name = params.Name;
-      this.Data = params.Data;
-    }
-    /**
-     * Helper to convert a {@link NotificationMessage} to a format that Windows can support
-     * @param {NotificationMessage} notification
-     * @returns {WindowsNotification}
-     */
-    static fromNotification(notification, data2) {
-      const output = {
-        Data: data2,
-        Feature: notification.context,
-        SubFeatureName: notification.featureName,
-        Name: notification.method
-      };
-      return output;
-    }
-  };
-  var WindowsRequestMessage = class {
-    /**
-     * @param {object} params
-     * @param {string} params.Feature
-     * @param {string} params.SubFeatureName
-     * @param {string} params.Name
-     * @param {Record<string, any>} [params.Data]
-     * @param {string} [params.Id]
-     * @internal
-     */
-    constructor(params) {
-      this.Feature = params.Feature;
-      this.SubFeatureName = params.SubFeatureName;
-      this.Name = params.Name;
-      this.Data = params.Data;
-      this.Id = params.Id;
-    }
-    /**
-     * Helper to convert a {@link RequestMessage} to a format that Windows can support
-     * @param {RequestMessage} msg
-     * @param {Record<string, any>} data
-     * @returns {WindowsRequestMessage}
-     */
-    static fromRequest(msg, data2) {
-      const output = {
-        Data: data2,
-        Feature: msg.context,
-        SubFeatureName: msg.featureName,
-        Name: msg.method,
-        Id: msg.id
-      };
-      return output;
-    }
-  };
-
-  // ../messaging/schema.js
-  var RequestMessage = class {
-    /**
-     * @param {object} params
-     * @param {string} params.context
-     * @param {string} params.featureName
-     * @param {string} params.method
-     * @param {string} params.id
-     * @param {Record<string, any>} [params.params]
-     * @internal
-     */
-    constructor(params) {
-      this.context = params.context;
-      this.featureName = params.featureName;
-      this.method = params.method;
-      this.id = params.id;
-      this.params = params.params;
-    }
-  };
-  var NotificationMessage = class {
-    /**
-     * @param {object} params
-     * @param {string} params.context
-     * @param {string} params.featureName
-     * @param {string} params.method
-     * @param {Record<string, any>} [params.params]
-     * @internal
-     */
-    constructor(params) {
-      this.context = params.context;
-      this.featureName = params.featureName;
-      this.method = params.method;
-      this.params = params.params;
-    }
-  };
-  var Subscription = class {
-    /**
-     * @param {object} params
-     * @param {string} params.context
-     * @param {string} params.featureName
-     * @param {string} params.subscriptionName
-     * @internal
-     */
-    constructor(params) {
-      this.context = params.context;
-      this.featureName = params.featureName;
-      this.subscriptionName = params.subscriptionName;
-    }
-  };
-  function isResponseFor(request, data2) {
-    if ("result" in data2) {
-      return data2.featureName === request.featureName && data2.context === request.context && data2.id === request.id;
-    }
-    if ("error" in data2) {
-      if ("message" in data2.error) {
-        return true;
-      }
-    }
-    return false;
-  }
-  function isSubscriptionEventFor(sub2, data2) {
-    if ("subscriptionName" in data2) {
-      return data2.featureName === sub2.featureName && data2.context === sub2.context && data2.subscriptionName === sub2.subscriptionName;
-    }
-    return false;
-  }
-
-  // ../injected/src/captured-globals.js
-  var Set2 = globalThis.Set;
-  var Reflect2 = globalThis.Reflect;
-  var customElementsGet = globalThis.customElements?.get.bind(globalThis.customElements);
-  var customElementsDefine = globalThis.customElements?.define.bind(globalThis.customElements);
-  var numberIsFinite = Number.isFinite;
-  var numberIsNaN = Number.isNaN;
-  var objectDefineProperty = Object.defineProperty;
-  var URL2 = globalThis.URL;
-  var Proxy2 = globalThis.Proxy;
-  var functionToString = Function.prototype.toString;
-  var TypeError2 = globalThis.TypeError;
-  var Symbol2 = globalThis.Symbol;
-  var dispatchEvent = globalThis.dispatchEvent?.bind(globalThis);
-  var performanceNow = globalThis.performance?.now?.bind(globalThis.performance) ?? Date.now;
-  var addEventListener = globalThis.addEventListener?.bind(globalThis);
-  var removeEventListener = globalThis.removeEventListener?.bind(globalThis);
-  var CustomEvent2 = globalThis.CustomEvent;
-  var NodePrototype = globalThis.Node?.prototype;
-  var Promise2 = globalThis.Promise;
-  var String2 = globalThis.String;
-  var Map2 = globalThis.Map;
-  var Error2 = globalThis.Error;
-  var randomUUID = globalThis.crypto?.randomUUID?.bind(globalThis.crypto);
-  var console2 = globalThis.console;
-  var consoleLog = console2.log.bind(console2);
-  var consoleWarn = console2.warn.bind(console2);
-  var consoleError = console2.error.bind(console2);
-  var TextEncoder = globalThis.TextEncoder;
-  var TextDecoder = globalThis.TextDecoder;
-  var Uint8Array2 = globalThis.Uint8Array;
-  var Uint16Array = globalThis.Uint16Array;
-  var Uint32Array = globalThis.Uint32Array;
-  var JSONparse = JSON.parse;
-  var atob = globalThis.atob?.bind(globalThis);
-  var DOMException2 = globalThis.DOMException;
-  var charCodeAt = globalThis.String.prototype.charCodeAt;
-  var ReflectDeleteProperty = Reflect2.deleteProperty.bind(Reflect2);
-  var ReflectApply = Reflect2.apply.bind(Reflect2);
-  var ReflectGet = Reflect2.get.bind(Reflect2);
-  var getRandomValues = globalThis.crypto?.getRandomValues?.bind(globalThis.crypto);
-  var generateKey = globalThis.crypto?.subtle?.generateKey?.bind(globalThis.crypto?.subtle);
-  var exportKey = globalThis.crypto?.subtle?.exportKey?.bind(globalThis.crypto?.subtle);
-  var importKey = globalThis.crypto?.subtle?.importKey?.bind(globalThis.crypto?.subtle);
-  var encrypt = globalThis.crypto?.subtle?.encrypt?.bind(globalThis.crypto?.subtle);
-  var decrypt = globalThis.crypto?.subtle?.decrypt?.bind(globalThis.crypto?.subtle);
-
-  // ../injected/src/navigator-global.js
-  function ensureNavigatorDuckDuckGo({ defineProperty = objectDefineProperty } = {}) {
-    if (navigator.duckduckgo) {
-      return navigator.duckduckgo;
-    }
-    const target2 = { messageHandlers: {} };
-    defineProperty(Navigator.prototype, "duckduckgo", {
-      value: target2,
-      enumerable: true,
-      configurable: false,
-      writable: false
-    });
-    return target2;
-  }
-
-  // ../messaging/lib/webkit.js
-  var WebkitMessagingTransport = class {
-    /**
-     * Null-prototype cache so a hostile page that pollutes `Object.prototype`
-     * cannot supply a callable from there if `capture` ever misses a handler.
-     *
-     * Uses the `{ __proto__: null }` literal rather than `Object.create(null)`
-     * because the latter is a method dispatch through `globalThis.Object`, which
-     * page JS could replace before this class field runs if transport
-     * construction is deferred (`Messaging` is lazy on `ContentFeature.messaging`).
-     * The `__proto__: null` literal is a syntactic construct, not method
-     * dispatch, so it always yields a true null-prototype object.
-     * @type {Record<string, { handler: any, postMessage: Function }>}
-     */
-    capturedWebkitHandlers = (
-      /** @type {any} */
-      { __proto__: null }
-    );
-    /**
-     * @param {WebkitMessagingConfig} config
-     * @param {import('../index.js').MessagingContext} messagingContext
-     */
-    constructor(config, messagingContext) {
-      this.messagingContext = messagingContext;
-      this.config = config;
-      this.captureWebkitHandlers(this.config.webkitMessageHandlerNames);
-    }
-    /**
-     * Sends message to the webkit layer (fire and forget)
-     * @param {String} handler
-     * @param {*} data
-     * @returns {*}
-     * @throws {MissingHandler}
-     * @internal
-     */
-    wkSend(handler, data2 = {}) {
-      const captured = this.capturedWebkitHandlers[handler];
-      if (!captured || typeof captured.postMessage !== "function") {
-        throw new MissingHandler(`Missing webkit handler: '${handler}'`, handler);
-      }
-      return ReflectApply(captured.postMessage, captured.handler, [data2]);
-    }
-    /**
-     * Sends message to the webkit layer and waits for the specified response
-     * @param {String} handler
-     * @param {import('../index.js').RequestMessage} data
-     * @returns {Promise<*>}
-     * @internal
-     */
-    async wkSendAndWait(handler, data2) {
-      const response = await this.wkSend(handler, data2);
-      return JSONparse(response || "{}");
-    }
-    /**
-     * @param {import('../index.js').NotificationMessage} msg
-     * @returns {Promise<void>}
-     */
-    async notify(msg) {
-      await this.wkSend(msg.context, msg);
-    }
-    /**
-     * @param {import('../index.js').RequestMessage} msg
-     */
-    async request(msg) {
-      const data2 = await this.wkSendAndWait(msg.context, msg);
-      if (isResponseFor(msg, data2)) {
-        if (data2.result) {
-          return data2.result || {};
-        }
-        if (data2.error) {
-          throw new Error2(data2.error.message);
-        }
-      }
-      throw new Error2("an unknown error occurred");
-    }
-    /**
-     * Capture the `postMessage` method on each webkit messageHandler so the
-     * transport can call them later without re-reading `window.webkit.messageHandlers`.
-     * Makes the transport resilient to later removal or replacement of
-     * `window.webkit.messageHandlers` (e.g. by privacy hardening that nullifies
-     * the namespace for site JS to reduce fingerprinting surface).
-     *
-     * Stores the handler object and its `postMessage` function as a pair so
-     * `wkSend` can dispatch via the captured `ReflectApply` rather than calling
-     * `.bind()` here. `.bind` is a method on the page-mutable
-     * `Function.prototype` — if transport construction is deferred (`Messaging`
-     * is lazy on `ContentFeature.messaging`) page JS could replace
-     * `Function.prototype.bind` first and have the cache store an attacker-
-     * controlled function. Storing the unbound pair sidesteps that.
-     *
-     * @param {string[]} handlerNames
-     */
-    captureWebkitHandlers(handlerNames) {
-      const handlers = window.webkit.messageHandlers;
-      if (!handlers) throw new MissingHandler("window.webkit.messageHandlers was absent", "all");
-      for (const webkitMessageHandlerName of handlerNames) {
-        const handler = handlers[webkitMessageHandlerName];
-        if (typeof handler?.postMessage === "function") {
-          this.capturedWebkitHandlers[webkitMessageHandlerName] = {
-            handler,
-            postMessage: handler.postMessage
-          };
-        }
-      }
-    }
-    /**
-     * @param {import('../index.js').Subscription} msg
-     * @param {(value: unknown) => void} callback
-     */
-    subscribe(msg, callback) {
-      const target2 = ensureNavigatorDuckDuckGo().messageHandlers;
-      if (msg.subscriptionName in target2) {
-        throw new Error2(`A subscription with the name ${msg.subscriptionName} already exists`);
-      }
-      objectDefineProperty(target2, msg.subscriptionName, {
-        enumerable: false,
-        configurable: true,
-        writable: false,
-        value: (data2) => {
-          if (data2 && isSubscriptionEventFor(msg, data2)) {
-            callback(data2.params);
-          } else {
-            console.warn("Received a message that did not match the subscription", data2);
-          }
-        }
-      });
-      return () => {
-        ReflectDeleteProperty(target2, msg.subscriptionName);
-      };
-    }
-  };
-  var WebkitMessagingConfig = class {
-    /**
-     * @param {object} params
-     * @param {string[]} params.webkitMessageHandlerNames
-     * @internal
-     */
-    constructor(params) {
-      this.webkitMessageHandlerNames = params.webkitMessageHandlerNames;
-    }
-  };
-
-  // ../messaging/lib/android.js
-  var AndroidMessagingTransport = class {
-    /**
-     * @param {AndroidMessagingConfig} config
-     * @param {MessagingContext} messagingContext
-     * @internal
-     */
-    constructor(config, messagingContext) {
-      this.messagingContext = messagingContext;
-      this.config = config;
-    }
-    /**
-     * @param {NotificationMessage} msg
-     */
-    notify(msg) {
-      try {
-        this.config.sendMessageThrows?.(JSON.stringify(msg));
-      } catch (e3) {
-        console.error(".notify failed", e3);
-      }
-    }
-    /**
-     * @param {RequestMessage} msg
-     * @return {Promise<any>}
-     */
-    request(msg) {
-      return new Promise((resolve, reject) => {
-        const unsub = this.config.subscribe(msg.id, handler);
-        try {
-          this.config.sendMessageThrows?.(JSON.stringify(msg));
-        } catch (e3) {
-          unsub();
-          reject(new Error("request failed to send: " + e3.message || "unknown error"));
-        }
-        function handler(data2) {
-          if (isResponseFor(msg, data2)) {
-            if (data2.result) {
-              resolve(data2.result || {});
-              return unsub();
-            }
-            if (data2.error) {
-              reject(new Error(data2.error.message));
-              return unsub();
-            }
-            unsub();
-            throw new Error("unreachable: must have `result` or `error` key by this point");
-          }
-        }
-      });
-    }
-    /**
-     * @param {Subscription} msg
-     * @param {(value: unknown | undefined) => void} callback
-     */
-    subscribe(msg, callback) {
-      const unsub = this.config.subscribe(msg.subscriptionName, (data2) => {
-        if (isSubscriptionEventFor(msg, data2)) {
-          callback(data2.params || {});
-        }
-      });
-      return () => {
-        unsub();
-      };
-    }
-  };
-  var AndroidMessagingConfig = class {
-    /** @type {(json: string, secret: string) => void} */
-    _capturedHandler;
-    /**
-     * @param {object} params
-     * @param {Record<string, any>} params.target
-     * @param {boolean} params.debug
-     * @param {string} params.messageSecret - a secret to ensure that messages are only
-     * processed by the correct handler
-     * @param {string} params.javascriptInterface - the name of the javascript interface
-     * registered on the native side
-     * @param {string} params.messageCallback - the name of the callback that the native
-     * side will use to send messages back to the javascript side
-     */
-    constructor(params) {
-      this.target = params.target;
-      this.debug = params.debug;
-      this.javascriptInterface = params.javascriptInterface;
-      this.messageSecret = params.messageSecret;
-      this.messageCallback = params.messageCallback;
-      this.listeners = new globalThis.Map();
-      this._captureGlobalHandler();
-      this._assignHandlerMethod();
-    }
-    /**
-     * The transport can call this to transmit a JSON payload along with a secret
-     * to the native Android handler.
-     *
-     * Note: This can throw - it's up to the transport to handle the error.
-     *
-     * @type {(json: string) => void}
-     * @throws
-     * @internal
-     */
-    sendMessageThrows(json) {
-      this._capturedHandler(json, this.messageSecret);
-    }
-    /**
-     * A subscription on Android is just a named listener. All messages from
-     * android -> are delivered through a single function, and this mapping is used
-     * to route the messages to the correct listener.
-     *
-     * Note: Use this to implement request->response by unsubscribing after the first
-     * response.
-     *
-     * @param {string} id
-     * @param {(msg: MessageResponse | SubscriptionEvent) => void} callback
-     * @returns {() => void}
-     * @internal
-     */
-    subscribe(id, callback) {
-      this.listeners.set(id, callback);
-      return () => {
-        this.listeners.delete(id);
-      };
-    }
-    /**
-     * Accept incoming messages and try to deliver it to a registered listener.
-     *
-     * This code is defensive to prevent any single handler from affecting another if
-     * it throws (producer interference).
-     *
-     * @param {MessageResponse | SubscriptionEvent} payload
-     * @internal
-     */
-    _dispatch(payload) {
-      if (!payload) return this._log("no response");
-      if ("id" in payload) {
-        if (this.listeners.has(payload.id)) {
-          this._tryCatch(() => this.listeners.get(payload.id)?.(payload));
-        } else {
-          this._log("no listeners for ", payload);
-        }
-      }
-      if ("subscriptionName" in payload) {
-        if (this.listeners.has(payload.subscriptionName)) {
-          this._tryCatch(() => this.listeners.get(payload.subscriptionName)?.(payload));
-        } else {
-          this._log("no subscription listeners for ", payload);
-        }
-      }
-    }
-    /**
-     *
-     * @param {(...args: any[]) => any} fn
-     * @param {string} [context]
-     */
-    _tryCatch(fn, context = "none") {
-      try {
-        return fn();
-      } catch (e3) {
-        if (this.debug) {
-          console.error("AndroidMessagingConfig error:", context);
-          console.error(e3);
-        }
-      }
-    }
-    /**
-     * @param {...any} args
-     */
-    _log(...args) {
-      if (this.debug) {
-        console.log("AndroidMessagingConfig", ...args);
-      }
-    }
-    /**
-     * Capture the global handler and remove it from the global object.
-     */
-    _captureGlobalHandler() {
-      const { target: target2, javascriptInterface } = this;
-      if (Object.prototype.hasOwnProperty.call(target2, javascriptInterface)) {
-        this._capturedHandler = target2[javascriptInterface].process.bind(target2[javascriptInterface]);
-        delete target2[javascriptInterface];
-      } else {
-        this._capturedHandler = () => {
-          this._log("Android messaging interface not available", javascriptInterface);
-        };
-      }
-    }
-    /**
-     * Assign the incoming handler method to the global object.
-     * This is the method that Android will call to deliver messages.
-     */
-    _assignHandlerMethod() {
-      const responseHandler = (providedSecret, response) => {
-        if (providedSecret === this.messageSecret) {
-          this._dispatch(response);
-        }
-      };
-      Object.defineProperty(this.target, this.messageCallback, {
-        value: responseHandler
-      });
-    }
-  };
-
-  // ../injected/src/features.js
-  var baseFeatures = (
-    /** @type {FeatureName[]} */
-    [
-      "fingerprintingAudio",
-      "fingerprintingBattery",
-      "fingerprintingCanvas",
-      "googleRejected",
-      "gpc",
-      "fingerprintingHardware",
-      "referrer",
-      "fingerprintingScreenSize",
-      "fingerprintingTemporaryStorage",
-      "navigatorInterface",
-      "elementHiding",
-      "exceptionHandler",
-      "apiManipulation"
-    ]
-  );
-  var otherFeatures = (
-    /** @type {FeatureName[]} */
-    [
-      "clickToLoad",
-      "contextMenu",
-      "cookie",
-      "messageBridge",
-      "duckPlayer",
-      "duckPlayerNative",
-      "duckAiDataClearing",
-      "duckAiChatHistory",
-      "harmfulApis",
-      "webCompat",
-      "webEvents",
-      "webInterferenceDetection",
-      "detectorPerf",
-      "windowsPermissionUsage",
-      "uaChBrands",
-      "brokerProtection",
-      "performanceMetrics",
-      "breakageReporting",
-      "autofillImport",
-      "favicon",
-      "webTelemetry",
-      "pageContext",
-      "print",
-      "pageObserver",
-      "hover",
-      "browserUiLock",
-      "trackerProtection",
-      "tabSuspension",
-      "autofillPasskeys",
-      "textSelection",
-      "chromeWebstorePatching",
-      "selectionTools",
-      "segmentSkip",
-      "pageTranslation"
-    ]
-  );
-  var platformSupport = {
-    apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "pageContext", "print", "trackerProtection", "textSelection"],
-    "apple-isolated": [
-      "webDetection",
-      "contextMenu",
-      "duckPlayer",
-      "duckPlayerNative",
-      "breakageReporting",
-      "performanceMetrics",
-      "clickToLoad",
-      "messageBridge",
-      "favicon",
-      "webEvents",
-      "webInterferenceDetection",
-      "detectorPerf",
-      "webTelemetry",
-      "pageObserver",
-      "hover",
-      "tabSuspension",
-      "chromeWebstorePatching",
-      "browserUiLock",
-      "segmentSkip"
-    ],
-    "apple-broker-protection": ["brokerProtection"],
-    "apple-ai-clear": ["duckAiDataClearing"],
-    // Its own bundle: native injects it only when the user translates a page.
-    "apple-page-translation": ["pageTranslation"],
-    "apple-ai-history": ["duckAiChatHistory"],
-    android: [
-      "webDetection",
-      ...baseFeatures,
-      "webCompat",
-      "webEvents",
-      "webInterferenceDetection",
-      "detectorPerf",
-      "breakageReporting",
-      "duckPlayer",
-      "messageBridge",
-      "pageContext",
-      "browserUiLock",
-      "segmentSkip"
-    ],
-    "android-broker-protection": ["brokerProtection"],
-    "android-ai-clear": ["duckAiDataClearing"],
-    "android-page-translation": ["pageTranslation"],
-    "android-ai-history": ["duckAiChatHistory"],
-    "android-autofill-import": ["autofillImport"],
-    "android-adsjs": [
-      "webDetection",
-      "apiManipulation",
-      "webCompat",
-      "fingerprintingHardware",
-      "fingerprintingScreenSize",
-      "fingerprintingTemporaryStorage",
-      "fingerprintingAudio",
-      "fingerprintingBattery",
-      "gpc",
-      "webEvents",
-      "breakageReporting"
-    ],
-    windows: [
-      "cookie",
-      "webDetection",
-      ...baseFeatures,
-      "webEvents",
-      "webInterferenceDetection",
-      "detectorPerf",
-      "webTelemetry",
-      "windowsPermissionUsage",
-      "uaChBrands",
-      "duckPlayer",
-      "brokerProtection",
-      "breakageReporting",
-      "messageBridge",
-      "webCompat",
-      "pageContext",
-      "duckAiDataClearing",
-      "performanceMetrics",
-      "duckAiChatHistory",
-      "autofillPasskeys",
-      "chromeWebstorePatching",
-      "selectionTools"
-    ],
-    firefox: ["cookie", "webDetection", ...baseFeatures, "clickToLoad", "webEvents", "webInterferenceDetection", "breakageReporting"],
-    chrome: ["cookie", "webDetection", ...baseFeatures, "clickToLoad", "webEvents", "webInterferenceDetection", "breakageReporting"],
-    "chrome-mv3": ["cookie", "webDetection", ...baseFeatures, "clickToLoad", "webEvents", "webInterferenceDetection", "breakageReporting"],
-    integration: ["webDetection", ...baseFeatures, ...otherFeatures]
-  };
-
-  // ../injected/src/utils.js
-  var globalObj = typeof window === "undefined" ? globalThis : window;
-  var Error3 = globalObj.Error;
-  var originalWindowDispatchEvent = typeof window === "undefined" ? null : window.dispatchEvent.bind(window);
-  function isBeingFramed() {
-    if (globalThis.location && "ancestorOrigins" in globalThis.location) {
-      return globalThis.location.ancestorOrigins.length > 0;
-    }
-    return globalThis.top !== globalThis.window;
-  }
-  var DDGPromise = globalObj.Promise;
-  var DDGReflect = globalObj.Reflect;
-
-  // ../messaging/lib/android-adsjs.js
-  var AndroidAdsjsMessagingTransport = class {
-    /**
-     * @param {AndroidAdsjsMessagingConfig} config
-     * @param {MessagingContext} messagingContext
-     * @internal
-     */
-    constructor(config, messagingContext) {
-      this.messagingContext = messagingContext;
-      this.config = config;
-    }
-    /**
-     * @param {NotificationMessage} msg
-     */
-    notify(msg) {
-      try {
-        this.config.sendMessageThrows?.(msg);
-      } catch (e3) {
-        console.error(".notify failed", e3);
-      }
-    }
-    /**
-     * @param {RequestMessage} msg
-     * @return {Promise<any>}
-     */
-    request(msg) {
-      return new Promise((resolve, reject) => {
-        const unsub = this.config.subscribe(msg.id, handler);
-        try {
-          this.config.sendMessageThrows?.(msg);
-        } catch (e3) {
-          unsub();
-          reject(new Error("request failed to send: " + e3.message || "unknown error"));
-        }
-        function handler(data2) {
-          if (isResponseFor(msg, data2)) {
-            if (data2.result) {
-              resolve(data2.result || {});
-              return unsub();
-            }
-            if (data2.error) {
-              reject(new Error(data2.error.message));
-              return unsub();
-            }
-            unsub();
-            throw new Error("unreachable: must have `result` or `error` key by this point");
-          }
-        }
-      });
-    }
-    /**
-     * @param {Subscription} msg
-     * @param {(value: unknown | undefined) => void} callback
-     */
-    subscribe(msg, callback) {
-      const unsub = this.config.subscribe(msg.subscriptionName, (data2) => {
-        if (isSubscriptionEventFor(msg, data2)) {
-          callback(data2.params || {});
-        }
-      });
-      return () => {
-        unsub();
-      };
-    }
-  };
-  var AndroidAdsjsMessagingConfig = class {
-    /** @type {{
-     * postMessage: (message: string) => void,
-     * addEventListener: (type: string, listener: (event: MessageEvent) => void) => void,
-     * } | null} */
-    _capturedHandler;
-    /**
-     * @param {object} params
-     * @param {Record<string, any>} params.target
-     * @param {boolean} params.debug
-     * @param {string} params.objectName - the object name for addWebMessageListener
-     */
-    constructor(params) {
-      this.target = params.target;
-      this.debug = params.debug;
-      this.objectName = params.objectName;
-      this.listeners = new globalThis.Map();
-      this._captureGlobalHandler();
-      this._setupEventListener();
-    }
-    /**
-     * The transport can call this to transmit a JSON payload along with a secret
-     * to the native Android handler via postMessage.
-     *
-     * Note: This can throw - it's up to the transport to handle the error.
-     *
-     * @type {(json: object) => void}
-     * @throws
-     * @internal
-     */
-    sendMessageThrows(message) {
-      if (!this.objectName) {
-        throw new Error("Object name not set for WebMessageListener");
-      }
-      if (this._capturedHandler && this._capturedHandler.postMessage) {
-        this._capturedHandler.postMessage(JSON.stringify(message));
-      } else {
-        throw new Error("postMessage not available");
-      }
-    }
-    /**
-     * A subscription on Android is just a named listener. All messages from
-     * android -> are delivered through a single function, and this mapping is used
-     * to route the messages to the correct listener.
-     *
-     * Note: Use this to implement request->response by unsubscribing after the first
-     * response.
-     *
-     * @param {string} id
-     * @param {(msg: MessageResponse | SubscriptionEvent) => void} callback
-     * @returns {() => void}
-     * @internal
-     */
-    subscribe(id, callback) {
-      this.listeners.set(id, callback);
-      return () => {
-        this.listeners.delete(id);
-      };
-    }
-    /**
-     * Accept incoming messages and try to deliver it to a registered listener.
-     *
-     * This code is defensive to prevent any single handler from affecting another if
-     * it throws (producer interference).
-     *
-     * @param {MessageResponse | SubscriptionEvent} payload
-     * @internal
-     */
-    _dispatch(payload) {
-      if (!payload) return this._log("no response");
-      if ("id" in payload) {
-        if (this.listeners.has(payload.id)) {
-          this._tryCatch(() => this.listeners.get(payload.id)?.(payload));
-        } else {
-          this._log("no listeners for ", payload);
-        }
-      }
-      if ("subscriptionName" in payload) {
-        if (this.listeners.has(payload.subscriptionName)) {
-          this._tryCatch(() => this.listeners.get(payload.subscriptionName)?.(payload));
-        } else {
-          this._log("no subscription listeners for ", payload);
-        }
-      }
-    }
-    /**
-     *
-     * @param {(...args: any[]) => any} fn
-     * @param {string} [context]
-     */
-    _tryCatch(fn, context = "none") {
-      try {
-        return fn();
-      } catch (e3) {
-        if (this.debug) {
-          console.error("AndroidAdsjsMessagingConfig error:", context);
-          console.error(e3);
-        }
-      }
-    }
-    /**
-     * @param {...any} args
-     */
-    _log(...args) {
-      if (this.debug) {
-        console.log("AndroidAdsjsMessagingConfig", ...args);
-      }
-    }
-    /**
-     * Capture the global handler and remove it from the global object.
-     */
-    _captureGlobalHandler() {
-      const { target: target2, objectName } = this;
-      if (Object.prototype.hasOwnProperty.call(target2, objectName)) {
-        this._capturedHandler = target2[objectName];
-        delete target2[objectName];
-      } else {
-        this._capturedHandler = null;
-        this._log("Android adsjs messaging interface not available", objectName);
-      }
-    }
-    /**
-     * Set up event listener for incoming messages from the captured handler.
-     */
-    _setupEventListener() {
-      if (!this._capturedHandler || !this._capturedHandler.addEventListener) {
-        this._log("No event listener support available");
-        return;
-      }
-      this._capturedHandler.addEventListener("message", (event) => {
-        try {
-          const data2 = (
-            /** @type {MessageEvent} */
-            event.data
-          );
-          if (typeof data2 === "string") {
-            const parsedData = JSON.parse(data2);
-            this._dispatch(parsedData);
-          }
-        } catch (e3) {
-          this._log("Error processing incoming message:", e3);
-        }
-      });
-    }
-    /**
-     * Send an initial ping message to the platform to establish communication.
-     * This is a fire-and-forget notification that signals the JavaScript side is ready.
-     * Only sends in top context (not in frames) and if the messaging interface is available.
-     *
-     * @param {MessagingContext} messagingContext
-     * @returns {boolean} true if ping was sent, false if in frame or interface not ready
-     */
-    sendInitialPing(messagingContext) {
-      if (isBeingFramed()) {
-        this._log("Skipping initial ping - running in frame context");
-        return false;
-      }
-      try {
-        const message = new RequestMessage({
-          id: "initialPing",
-          context: messagingContext.context,
-          featureName: "messaging",
-          method: "initialPing"
-        });
-        this.sendMessageThrows(message);
-        this._log("Initial ping sent successfully");
-        return true;
-      } catch (e3) {
-        this._log("Failed to send initial ping:", e3);
-        return false;
-      }
-    }
-  };
-
-  // ../messaging/index.js
-  var MessagingContext = class {
-    /**
-     * @param {object} params
-     * @param {string} params.context
-     * @param {string} params.featureName
-     * @param {"production" | "development"} params.env
-     * @internal
-     */
-    constructor(params) {
-      this.context = params.context;
-      this.featureName = params.featureName;
-      this.env = params.env;
-    }
-  };
-  var Messaging = class {
-    /**
-     * @param {MessagingContext} messagingContext
-     * @param {MessagingConfig} config
-     */
-    constructor(messagingContext, config) {
-      this.messagingContext = messagingContext;
-      this.transport = getTransport(config, this.messagingContext);
-    }
-    /**
-     * Send a 'fire-and-forget' message.
-     *
-     * @example
-     *
-     * ```ts
-     * const messaging = new Messaging(config)
-     * messaging.notify("foo", {bar: "baz"})
-     * ```
-     * @param {string} name
-     * @param {Record<string, any>} [data]
-     */
-    notify(name2, data2 = {}) {
-      try {
-        const message = new NotificationMessage({
-          context: this.messagingContext.context,
-          featureName: this.messagingContext.featureName,
-          method: name2,
-          params: data2
-        });
-        const maybeAsyncResult = this.transport.notify(message);
-        if (isPromiseLike(maybeAsyncResult)) {
-          void handleAsyncNotificationResult(maybeAsyncResult, this.messagingContext.env, name2, data2);
-        }
-      } catch (e3) {
-        logNotificationError(this.messagingContext.env, name2, data2, e3);
-      }
-    }
-    /**
-     * Send a request and wait for a response
-     * @throws {Error}
-     *
-     * @example
-     * ```
-     * const messaging = new Messaging(config)
-     * const response = await messaging.request("foo", {bar: "baz"})
-     * ```
-     *
-     * @param {string} name
-     * @param {Record<string, any>} [data]
-     * @return {Promise<any>}
-     */
-    request(name2, data2 = {}) {
-      const id = globalThis?.crypto?.randomUUID?.() || name2 + ".response";
-      const message = new RequestMessage({
-        context: this.messagingContext.context,
-        featureName: this.messagingContext.featureName,
-        method: name2,
-        params: data2,
-        id
-      });
-      return this.transport.request(message);
-    }
-    /**
-     * @param {string} name
-     * @param {(value: unknown) => void} callback
-     * @return {() => void}
-     */
-    subscribe(name2, callback) {
-      const msg = new Subscription({
-        context: this.messagingContext.context,
-        featureName: this.messagingContext.featureName,
-        subscriptionName: name2
-      });
-      return this.transport.subscribe(msg, callback);
-    }
-  };
-  var TestTransportConfig = class {
-    /**
-     * @param {MessagingTransport} impl
-     */
-    constructor(impl) {
-      this.impl = impl;
-    }
-  };
-  var TestTransport = class {
-    /**
-     * @param {TestTransportConfig} config
-     * @param {MessagingContext} messagingContext
-     */
-    constructor(config, messagingContext) {
-      this.config = config;
-      this.messagingContext = messagingContext;
-    }
-    notify(msg) {
-      return this.config.impl.notify(msg);
-    }
-    request(msg) {
-      return this.config.impl.request(msg);
-    }
-    subscribe(msg, callback) {
-      return this.config.impl.subscribe(msg, callback);
-    }
-  };
-  function getTransport(config, messagingContext) {
-    if (config instanceof WebkitMessagingConfig) {
-      return new WebkitMessagingTransport(config, messagingContext);
-    }
-    if (config instanceof WindowsMessagingConfig) {
-      return new WindowsMessagingTransport(config, messagingContext);
-    }
-    if (config instanceof AndroidMessagingConfig) {
-      return new AndroidMessagingTransport(config, messagingContext);
-    }
-    if (config instanceof AndroidAdsjsMessagingConfig) {
-      return new AndroidAdsjsMessagingTransport(config, messagingContext);
-    }
-    if (config instanceof TestTransportConfig) {
-      return new TestTransport(config, messagingContext);
-    }
-    throw new Error("unreachable");
-  }
-  function isPromiseLike(value2) {
-    return value2 !== null && value2 !== void 0 && typeof /** @type {{then?: unknown}} */
-    value2.then === "function";
-  }
-  async function handleAsyncNotificationResult(result, env, name2, data2) {
-    try {
-      await result;
-    } catch (error) {
-      logNotificationError(env, name2, data2, error);
-    }
-  }
-  function logNotificationError(env, name2, data2, error) {
-    if (env === "development") {
-      try {
-        console.error("[Messaging] Failed to send notification:", error);
-        console.error("[Messaging] Message details:", { name: name2, data: data2 });
-      } catch {
-      }
-    }
-  }
-  var MissingHandler = class extends Error {
-    /**
-     * @param {string} message
-     * @param {string} handlerName
-     */
-    constructor(message, handlerName) {
-      super(message);
-      this.handlerName = handlerName;
-    }
-  };
-
-  // shared/create-special-page-messaging.js
-  function createSpecialPageMessaging(opts) {
-    const messageContext = new MessagingContext({
-      context: "specialPages",
-      featureName: opts.pageName,
-      env: opts.env
-    });
-    try {
-      if (opts.injectName === "windows") {
-        const opts2 = new WindowsMessagingConfig({
-          methods: {
-            // @ts-expect-error - not in @types/chrome
-            postMessage: globalThis.windowsInteropPostMessage,
-            // @ts-expect-error - not in @types/chrome
-            addEventListener: globalThis.windowsInteropAddEventListener,
-            // @ts-expect-error - not in @types/chrome
-            removeEventListener: globalThis.windowsInteropRemoveEventListener
-          }
-        });
-        return new Messaging(messageContext, opts2);
-      } else if (opts.injectName === "apple") {
-        const opts2 = new WebkitMessagingConfig({
-          webkitMessageHandlerNames: ["specialPages"]
-        });
-        return new Messaging(messageContext, opts2);
-      } else if (opts.injectName === "android") {
-        const opts2 = new AndroidMessagingConfig({
-          messageSecret: "duckduckgo-android-messaging-secret",
-          messageCallback: "messageCallback",
-          javascriptInterface: messageContext.context,
-          target: globalThis,
-          debug: true
-        });
-        return new Messaging(messageContext, opts2);
-      }
-    } catch (e3) {
-      console.error("could not access handlers for %s, falling back to mock interface", opts.injectName);
-    }
-    const fallback = opts.mockTransport?.() || new TestTransportConfig({
-      /**
-       * @param {import('@duckduckgo/messaging').NotificationMessage} msg
-       */
-      notify(msg) {
-        console.log(msg);
-      },
-      /**
-       * @param {import('@duckduckgo/messaging').RequestMessage} msg
-       */
-      request: (msg) => {
-        console.log(msg);
-        if (msg.method === "initialSetup") {
-          return Promise.resolve({
-            locale: "en",
-            env: opts.env
-          });
-        }
-        return Promise.resolve(null);
-      },
-      /**
-       * @param {import('@duckduckgo/messaging').SubscriptionEvent} msg
-       */
-      subscribe(msg) {
-        console.log(msg);
-        return () => {
-          console.log("teardown");
-        };
-      }
-    });
-    return new Messaging(messageContext, fallback);
-  }
-
   // pages/onboarding/app/settings.js
   var Settings = class _Settings {
     /**
@@ -22849,6 +22674,38 @@
     return { error: "Unreachable: value not retrieved" };
   }
 
+  // pages/onboarding/app/index.js
+  async function init(onboarding2, baseEnvironment2) {
+    const result = await callWithRetry(() => onboarding2.init());
+    if ("error" in result) {
+      throw new Error(result.error);
+    }
+    const init2 = result.value;
+    const environment = baseEnvironment2.withEnv(init2.env).withLocale(init2.locale).withLocale(baseEnvironment2.urlParams.get("locale")).withTextLength(baseEnvironment2.urlParams.get("textLength")).withDisplay(baseEnvironment2.urlParams.get("display"));
+    const strings = environment.locale === "en" ? onboarding_default : await fetch(`./locales/${environment.locale}/onboarding.json`).then((x3) => x3.json()).catch((e3) => {
+      console.error("Could not load locale", environment.locale, e3);
+      return onboarding_default;
+    });
+    const settings = new Settings().withPlatformName(baseEnvironment2.injectName).withPlatformName(init2.platform?.name).withPlatformName(baseEnvironment2.urlParams.get("platform")).withSteps(init2.steps).withSteps(environment.urlParams.getAll("steps")).withStepDefinitions(init2.stepDefinitions).withExcludedScreens(init2.exclude).withExcludedScreens(environment.urlParams.getAll("exclude")).withFirst(environment.urlParams.get("page")).withTypingEffect(environment.urlParams.get("typingEffect"));
+    const root2 = document.querySelector("#app");
+    if (!root2) throw new Error("could not render, root element missing");
+    if (environment.display === "app") {
+      R(
+        /* @__PURE__ */ k(EnvironmentProvider, { debugState: environment.debugState, injectName: environment.injectName, willThrow: environment.willThrow }, /* @__PURE__ */ k(UpdateEnvironment, { search: window.location.search }), /* @__PURE__ */ k(TranslationProvider, { translationObject: strings, fallback: onboarding_default, textLength: environment.textLength }, /* @__PURE__ */ k(SettingsProvider, { platform: settings.platform, typingEffect: settings.typingEffect }, /* @__PURE__ */ k(
+          GlobalProvider,
+          {
+            messaging: onboarding2,
+            order: settings.order,
+            stepDefinitions: settings.stepDefinitions,
+            firstPage: settings.first
+          },
+          /* @__PURE__ */ k(App, null, environment.env === "development" && /* @__PURE__ */ k(SkipLink, null))
+        )))),
+        root2
+      );
+    }
+  }
+
   // pages/onboarding/src/mock-transport.js
   var url = new URL(window.location.href);
   function mockTransport() {
@@ -22977,7 +22834,192 @@
     });
   }
 
-  // pages/onboarding/app/index.js
+  // pages/onboarding/src/index.js
+  var OnboardingPage = class {
+    /**
+     * @param {import("@duckduckgo/messaging").Messaging} messaging
+     * @param {ImportMeta["injectName"]} injectName
+     * @internal
+     */
+    constructor(messaging2, injectName) {
+      this.messaging = createTypedMessages(this, messaging2);
+      this.injectName = injectName;
+    }
+    /**
+     * Sends an initial message to the native layer. This is the opportunity for the native layer
+     * to provide the initial state of the application or any configuration, for example:
+     *
+     * ```json
+     * {
+     *   "stepDefinitions": {
+     *     "systemSettings": {
+     *       "rows": ["dock", "import", "default-browser"]
+     *     }
+     *   },
+     *   "steps": ["welcome", "getStarted", "makeDefaultSingle", "systemSettings", "customize", "addressBarMode", "searchOrChat"],
+     *   "locale": "en"
+     * }
+     * ```
+     *
+     * In that example, the native layer is providing the list of rows that should be shown in the
+     * systemSettings step, overriding the default list provided in `data.js`.
+     *
+     * Clients that don't send `steps` can still send `exclude` to remove steps from the default order.
+     * It's ignored when `steps` is present, and will be removed once every platform sends `steps`.
+     *
+     * @returns {Promise<import('../types/onboarding.ts').InitResponse>}
+     */
+    async init() {
+      return await this.messaging.request("init");
+    }
+    /**
+     * Sends a notification to the native layer that the user has completed a step
+     *
+     * @param {import('../types/onboarding.ts').StepCompleted} params
+     */
+    stepCompleted(params) {
+      this.messaging.notify("stepCompleted", params);
+    }
+    /**
+     * Sent when the user wants to enable or disable the bookmarks bar
+     *
+     * @param {import('../types/onboarding.ts').SystemValue} params
+     */
+    setBookmarksBar(params) {
+      this.messaging.notify("setBookmarksBar", params);
+    }
+    /**
+     * Sent when the user wants to enable or disable the session restore setting
+     *
+     * @param {import('../types/onboarding.ts').SystemValue} params
+     */
+    setSessionRestore(params) {
+      this.messaging.notify("setSessionRestore", params);
+    }
+    /**
+     * Sent when the user wants to enable or disable the home button
+     * Note: Although the home button can placed in multiple places in the browser taskbar, this
+     * application will only ever send enabled/disabled to the native layer
+     *
+     * @param {import('../types/onboarding.ts').SystemValue} params
+     */
+    setShowHomeButton(params) {
+      this.messaging.notify("setShowHomeButton", params);
+    }
+    /**
+     * Sent when the user wants to keep the application in the dock/taskbar.
+     *
+     * Native side should respond when the operation is 'complete'.
+     *
+     * @returns {Promise<import('../types/onboarding.ts').RequestDockOptInRequest['result']>}
+     */
+    requestDockOptIn() {
+      return this.messaging.request("requestDockOptIn");
+    }
+    /**
+     * Sent when the user wants to import data. The UI will remain
+     * in a loading state until the native layer sends a response.
+     *
+     * Native side should respond when the operation is 'complete'.
+     *
+     * @returns {Promise<import('../types/onboarding.ts').SystemValue>}
+     */
+    requestImport() {
+      return this.messaging.request("requestImport");
+    }
+    /**
+     * Sent when the user wants to set DuckDuckGo as their default browser. The UI will remain
+     * in a loading state until the native layer sends a response.
+     *
+     * Native side should respond when the operation is 'complete'.
+     *
+     * @returns {Promise<import('../types/onboarding.ts').RequestSetAsDefaultRequest['result']>}
+     */
+    requestSetAsDefault() {
+      return this.messaging.request("requestSetAsDefault");
+    }
+    /**
+     * Sent to allow native to fire a pixel for UI interactions.
+     *
+     * @param {import('../types/onboarding.ts').TelemetryEvent} event
+     */
+    telemetryEvent(event) {
+      this.messaging.notify("telemetryEvent", event);
+    }
+    /**
+     * Sent when onboarding is complete and the user has chosen to go to settings
+     */
+    dismissToSettings() {
+      this.messaging.notify("dismissToSettings");
+    }
+    /**
+     * Sent when the "Start Browsing" button has been clicked.
+     */
+    dismissToAddressBar() {
+      this.messaging.notify("dismissToAddressBar");
+    }
+    /**
+     * Sent instead of `dismissToAddressBar` when the user submits a search or a Duck.ai prompt
+     * on the searchOrChat step. Native ends onboarding and opens the query in the Welcome tab.
+     * @param {import('../types/onboarding.ts').SubmitQuery} params
+     */
+    submitQuery(params) {
+      this.messaging.notify("submitQuery", params);
+    }
+    /**
+     * This will be sent if the application has loaded, but a client-side error
+     * has occurred that cannot be recovered from
+     * @param {import('../types/onboarding.ts').ReportPageExceptionNotify} params
+     */
+    reportPageException(params) {
+      this.messaging.notify("reportPageException", params);
+    }
+    /**
+     * This will be sent if the application fails to load.
+     * @param {import('../types/onboarding.ts').ReportInitExceptionNotify} params
+     */
+    reportInitException(params) {
+      this.messaging.notify("reportInitException", params);
+    }
+    /**
+     * Subscribe to config updates pushed by native (e.g. customize step rows).
+     * @param {(data: import('../types/onboarding.ts').ConfigUpdate) => void} params
+     * @returns {() => void}
+     */
+    onConfigUpdate(params) {
+      return this.messaging.subscribe("onConfigUpdate", params);
+    }
+    /**
+     * Sent when the user wants to enable or disable ad blocking.
+     *
+     * @param {import('../types/onboarding.ts').SystemValue} params
+     */
+    setAdBlocking(params) {
+      this.messaging.notify("setAdBlocking", params);
+    }
+    /**
+     * Sent when the user selects their Address Bar Mode preference -- Search only or Search & Duck.ai
+     *
+     * @param {import('../types/onboarding.ts').SystemValue} params
+     */
+    setDuckAiInAddressBar(params) {
+      this.messaging.notify("setDuckAiInAddressBar", params);
+    }
+    /**
+     * Sent when the user opts in to installing the Chrome search extension during onboarding.
+     * The UI advances immediately without waiting for the install to complete.
+     */
+    requestChromeExtensionInstall() {
+      this.messaging.notify("requestChromeExtensionInstall");
+    }
+    /**
+     * Sends the selected Windows onboarding options to native.
+     * @param {import('../types/onboarding.ts').OnboardingInstallOptions} params
+     */
+    setOnboardingInstallOptions(params) {
+      this.messaging.notify("setOnboardingInstallOptions", params);
+    }
+  };
   var baseEnvironment = new Environment().withInjectName(document.documentElement.dataset.platform).withEnv("production");
   var messaging = createSpecialPageMessaging({
     injectName: baseEnvironment.injectName,
@@ -22990,7 +23032,7 @@
       return mock;
     }
   });
-  var onboarding = new OnboardingMessages(messaging, baseEnvironment.injectName);
+  var onboarding = new OnboardingPage(messaging, baseEnvironment.injectName);
   window.addEventListener("error", (event) => {
     let message = "unknown error";
     if (event.error?.message) {
@@ -23006,37 +23048,7 @@
     const message = event.reason?.message || String(event.reason);
     onboarding.reportInitException({ message: `[unhandledrejection] ${message}` });
   });
-  async function init() {
-    const result = await callWithRetry(() => onboarding.init());
-    if ("error" in result) {
-      throw new Error(result.error);
-    }
-    const init2 = result.value;
-    const environment = baseEnvironment.withEnv(init2.env).withLocale(init2.locale).withLocale(baseEnvironment.urlParams.get("locale")).withTextLength(baseEnvironment.urlParams.get("textLength")).withDisplay(baseEnvironment.urlParams.get("display"));
-    const strings = environment.locale === "en" ? onboarding_default : await fetch(`./locales/${environment.locale}/onboarding.json`).then((x3) => x3.json()).catch((e3) => {
-      console.error("Could not load locale", environment.locale, e3);
-      return onboarding_default;
-    });
-    const settings = new Settings().withPlatformName(baseEnvironment.injectName).withPlatformName(init2.platform?.name).withPlatformName(baseEnvironment.urlParams.get("platform")).withSteps(init2.steps).withSteps(environment.urlParams.getAll("steps")).withStepDefinitions(init2.stepDefinitions).withExcludedScreens(init2.exclude).withExcludedScreens(environment.urlParams.getAll("exclude")).withFirst(environment.urlParams.get("page")).withTypingEffect(environment.urlParams.get("typingEffect"));
-    const root2 = document.querySelector("#app");
-    if (!root2) throw new Error("could not render, root element missing");
-    if (environment.display === "app") {
-      R(
-        /* @__PURE__ */ k(EnvironmentProvider, { debugState: environment.debugState, injectName: environment.injectName, willThrow: environment.willThrow }, /* @__PURE__ */ k(UpdateEnvironment, { search: window.location.search }), /* @__PURE__ */ k(TranslationProvider, { translationObject: strings, fallback: onboarding_default, textLength: environment.textLength }, /* @__PURE__ */ k(SettingsProvider, { platform: settings.platform, typingEffect: settings.typingEffect }, /* @__PURE__ */ k(
-          GlobalProvider,
-          {
-            messaging: onboarding,
-            order: settings.order,
-            stepDefinitions: settings.stepDefinitions,
-            firstPage: settings.first
-          },
-          /* @__PURE__ */ k(App, null, environment.env === "development" && /* @__PURE__ */ k(SkipLink, null))
-        )))),
-        root2
-      );
-    }
-  }
-  init().catch((e3) => {
+  init(onboarding, baseEnvironment).catch((e3) => {
     console.error(e3);
     const msg = typeof e3?.message === "string" ? e3.message : "unknown init error";
     onboarding.reportInitException({ message: msg });

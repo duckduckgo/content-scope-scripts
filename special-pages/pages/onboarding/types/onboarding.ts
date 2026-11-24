@@ -7,10 +7,102 @@
  */
 
 /**
+ * A unique identifier for each onboarding step
+ */
+export type StepID =
+  | "welcome"
+  | "getStarted"
+  | "systemSettings"
+  | "makeDefaultSingle"
+  | "duckPlayerSingle"
+  | "customize"
+  | "addressBarMode"
+  | "searchOrChat";
+
+/**
  * Requests, Notifications and Subscriptions from the Onboarding feature
  */
 export interface OnboardingMessages {
-  notifications: SetOnboardingInstallOptionsNotification | SubmitQueryNotification | TelemetryEventNotification;
+  notifications:
+    | DismissToAddressBarNotification
+    | DismissToSettingsNotification
+    | ReportInitExceptionNotification
+    | ReportPageExceptionNotification
+    | RequestChromeExtensionInstallNotification
+    | SetAdBlockingNotification
+    | SetBookmarksBarNotification
+    | SetDuckAiInAddressBarNotification
+    | SetOnboardingInstallOptionsNotification
+    | SetSessionRestoreNotification
+    | SetShowHomeButtonNotification
+    | StepCompletedNotification
+    | SubmitQueryNotification
+    | TelemetryEventNotification;
+  requests: InitRequest | RequestDockOptInRequest | RequestImportRequest | RequestSetAsDefaultRequest;
+  subscriptions: OnConfigUpdateSubscription;
+}
+/**
+ * Generated from @see "../messages/dismissToAddressBar.notify.json"
+ */
+export interface DismissToAddressBarNotification {
+  method: "dismissToAddressBar";
+}
+/**
+ * Generated from @see "../messages/dismissToSettings.notify.json"
+ */
+export interface DismissToSettingsNotification {
+  method: "dismissToSettings";
+}
+/**
+ * Generated from @see "../messages/reportInitException.notify.json"
+ */
+export interface ReportInitExceptionNotification {
+  method: "reportInitException";
+  params: ReportInitExceptionNotify;
+}
+export interface ReportInitExceptionNotify {
+  message: string;
+}
+/**
+ * Generated from @see "../messages/reportPageException.notify.json"
+ */
+export interface ReportPageExceptionNotification {
+  method: "reportPageException";
+  params: ReportPageExceptionNotify;
+}
+export interface ReportPageExceptionNotify {
+  message: string;
+  id: StepID;
+}
+/**
+ * Generated from @see "../messages/requestChromeExtensionInstall.notify.json"
+ */
+export interface RequestChromeExtensionInstallNotification {
+  method: "requestChromeExtensionInstall";
+}
+/**
+ * Generated from @see "../messages/setAdBlocking.notify.json"
+ */
+export interface SetAdBlockingNotification {
+  method: "setAdBlocking";
+  params: SystemValue;
+}
+export interface SystemValue {
+  enabled: boolean;
+}
+/**
+ * Generated from @see "../messages/setBookmarksBar.notify.json"
+ */
+export interface SetBookmarksBarNotification {
+  method: "setBookmarksBar";
+  params: SystemValue;
+}
+/**
+ * Generated from @see "../messages/setDuckAiInAddressBar.notify.json"
+ */
+export interface SetDuckAiInAddressBarNotification {
+  method: "setDuckAiInAddressBar";
+  params: SystemValue;
 }
 /**
  * Generated from @see "../messages/setOnboardingInstallOptions.notify.json"
@@ -22,6 +114,37 @@ export interface SetOnboardingInstallOptionsNotification {
 export interface OnboardingInstallOptions {
   sideloadExtensions?: boolean;
   openAtStartup?: boolean;
+}
+/**
+ * Generated from @see "../messages/setSessionRestore.notify.json"
+ */
+export interface SetSessionRestoreNotification {
+  method: "setSessionRestore";
+  params: SystemValue;
+}
+/**
+ * Generated from @see "../messages/setShowHomeButton.notify.json"
+ */
+export interface SetShowHomeButtonNotification {
+  method: "setShowHomeButton";
+  params: SystemValue;
+}
+/**
+ * Generated from @see "../messages/stepCompleted.notify.json"
+ */
+export interface StepCompletedNotification {
+  method: "stepCompleted";
+  params: StepCompleted;
+}
+/**
+ * Sent when the user moves from one step to the next
+ */
+export interface StepCompleted {
+  id: StepID;
+  /**
+   * The step about to display, or null if this is the last step
+   */
+  next: null | StepID;
 }
 /**
  * Generated from @see "../messages/submitQuery.notify.json"
@@ -77,9 +200,79 @@ export interface RowSkipped {
 export interface DuckPlayerToggled {
   name: "duck_player_toggled";
 }
+/**
+ * Generated from @see "../messages/init.request.json"
+ */
+export interface InitRequest {
+  method: "init";
+  result: InitResponse;
+}
+export interface InitResponse {
+  stepDefinitions?: StepDefinitions;
+  /**
+   * Step IDs (see StepID) to show, in the page's own order. Unknown IDs are ignored. Takes precedence over `exclude`.
+   */
+  steps?: string[];
+  /**
+   * Steps to remove from the default order. Ignored when `steps` is sent.
+   */
+  exclude?: string[];
+  /**
+   * Optional override for the running environment
+   */
+  env?: "development" | "production";
+  locale?: string;
+  platform?: {
+    name: "macos" | "windows" | "android" | "ios";
+  };
+}
+/**
+ * Per-step overrides keyed by step ID, for example `{ "systemSettings": { "rows": ["dock", "import"] } }`. Each entry is merged over the page's default definition for that step. Entries for steps that aren't in the running order are ignored.
+ */
+export interface StepDefinitions {
+  [k: string]: unknown;
+}
+/**
+ * Generated from @see "../messages/requestDockOptIn.request.json"
+ */
+export interface RequestDockOptInRequest {
+  method: "requestDockOptIn";
+  result: {
+    [k: string]: unknown;
+  };
+}
+/**
+ * Generated from @see "../messages/requestImport.request.json"
+ */
+export interface RequestImportRequest {
+  method: "requestImport";
+  result: SystemValue;
+}
+/**
+ * Generated from @see "../messages/requestSetAsDefault.request.json"
+ */
+export interface RequestSetAsDefaultRequest {
+  method: "requestSetAsDefault";
+  result: {
+    [k: string]: unknown;
+  };
+}
+/**
+ * Generated from @see "../messages/onConfigUpdate.subscribe.json"
+ */
+export interface OnConfigUpdateSubscription {
+  subscriptionEvent: "onConfigUpdate";
+  params: ConfigUpdate;
+}
+export interface ConfigUpdate {
+  stepDefinitions?: StepDefinitions;
+  exclude?: string[];
+}
 
 declare module "../src/index.js" {
   export interface OnboardingPage {
-    notify: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<OnboardingMessages>['notify']
+    notify: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<OnboardingMessages>['notify'],
+    request: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<OnboardingMessages>['request'],
+    subscribe: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<OnboardingMessages>['subscribe']
   }
 }

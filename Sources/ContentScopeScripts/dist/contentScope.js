@@ -11,24 +11,12 @@
     throw TypeError(msg);
   };
   var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __esm = (fn, res, err) => function __init() {
-    if (err) throw err[0];
-    try {
-      return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
-    } catch (e) {
-      throw err = [e], e;
-    }
-  };
   var __commonJS = (cb, mod) => function __require() {
     try {
       return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
     } catch (e) {
       throw mod = 0, e;
     }
-  };
-  var __export = (target, all) => {
-    for (var name in all)
-      __defProp(target, name, { get: all[name], enumerable: true });
   };
   var __copyProps = (to, from, except, desc) => {
     if (from && typeof from === "object" || typeof from === "function") {
@@ -53,18 +41,9 @@
   var __privateSet = (obj, member, value, setter) => (__accessCheck(obj, member, "write to private field"), setter ? setter.call(obj, value) : member.set(obj, value), value);
   var __privateMethod = (obj, member, method) => (__accessCheck(obj, member, "access private method"), method);
 
-  // <define:import.meta.trackerLookup>
-  var define_import_meta_trackerLookup_default;
-  var init_define_import_meta_trackerLookup = __esm({
-    "<define:import.meta.trackerLookup>"() {
-      define_import_meta_trackerLookup_default = { com: { "2020mustang": 1, "33across": 1, "360yield": 1, "3lift": 1, "4dsply": 1, "9gtb": 1, "a-mx": 1, aaxads: 1, abtasty: 1, acsbapp: 1, acscdn: 1, acuityplatform: 1, "ad-score": 1, adalyser: 1, adapf: 1, adara: 1, addtoany: 1, adelixir: 1, adentifi: 1, adgrx: 1, adhese: 1, adition: 1, adkernel: 1, adlightning: 1, admanmedia: 1, admedo: 1, adnxs: 1, adobedtm: 1, adpone: 1, adpushup: 1, adroll: 1, "ads-twitter": 1, adsafeprotected: 1, adswizz: 1, adthrive: 1, adtng: 1, adultfriendfinder: 1, adventive: 1, adyen: 1, aegpresents: 1, affinity: 1, affirm: 1, agilone: 1, agkn: 1, agoda: 1, ahrefs: 1, aimbase: 1, albacross: 1, alcmpn: 1, "alia-prod": 1, alicdn: 1, aliyuncs: 1, alocdn: 1, "amazon-adsystem": 1, amazon: 1, amplitude: 1, amspbs: 1, amxrtb: 1, "analytics-egain": 1, aniview: 1, anymind360: 1, "app-us1": 1, appboycdn: 1, "apple-mapkit": 1, applovin: 1, aswpsdkus: 1, atlassian: 1, atmtd: 1, attntags: 1, audioeye: 1, "automizely-analytics": 1, automizely: 1, avantlink: 1, aweber: 1, awswaf: 1, azure: 1, b2c: 1, batch: 1, bc0a: 1, beehiiv: 1, betweendigital: 1, bfmio: 1, bing: 1, bizrate: 1, blis: 1, blismedia: 1, blogherads: 1, bloomreach: 1, bluecava: 1, booking: 1, boomtrain: 1, bounceexchange: 1, bqstreamer: 1, brainlyads: 1, "brand-display": 1, brandmetrics: 1, brealtime: 1, browsiprod: 1, btloader: 1, bttrack: 1, btttag: 1, bugsnag: 1, buzzoola: 1, byspotify: 1, c1904584f2: 1, callrail: 1, campaigner: 1, canva: 1, "captcha-delivery": 1, cartstack: 1, casalemedia: 1, "cdn-net": 1, cdninstagram: 1, cdnwidget: 1, channeladvisor: 1, chartbeat: 1, chaseherbalpasty: 1, chatango: 1, chaturbate: 1, cheqzone: 1, "ck-ie": 1, clearbit: 1, clickagy: 1, clicktripz: 1, clientgear: 1, cloudflare: 1, cloudflareinsights: 1, cnn: 1, cnzz: 1, codedrink: 1, cognitivlabs: 1, collegenet: 1, comm100: 1, "company-target": 1, "config-security": 1, connatix: 1, consentmo: 1, contentabc: 1, contextweb: 1, convertexperiments: 1, convertkit: 1, "cookie-script": 1, coosync: 1, cootlogix: 1, copper6: 1, coveo: 1, cquotient: 1, crazyegg: 1, crcldu: 1, "creative-serving": 1, creativecdn: 1, criteo: 1, ctctcdn: 1, ctnsnet: 1, cudasvc: 1, cxense: 1, dailymotion: 1, "datadoghq-browser-agent": 1, deadlinefunnel: 1, dealerinspire: 1, deepintent: 1, delivra: 1, demandbase: 1, dianomi: 1, digitaloceanspaces: 1, dimelochat: 1, discover: 1, disqus: 1, docaccess: 1, dotomi: 1, doubleverify: 1, driftt: 1, dtscout: 1, dwin1: 1, dynamicyield: 1, dynatrace: 1, ebxcdn: 1, eccmp: 1, elfsight: 1, eloqua: 1, emxdgt: 1, en25: 1, endowmentoverhangutmost: 1, ensighten: 1, epichosted: 1, eskimi: 1, evergage: 1, evgnet: 1, evidon: 1, exdynsrv: 1, exelator: 1, exoclick: 1, exosrv: 1, exponea: 1, exponential: 1, extole: 1, ezodn: 1, ezoicanalytics: 1, ezojs: 1, feefo: 1, five9: 1, flashtalking: 1, flippback: 1, flixcdn: 1, flodesk: 1, foresee: 1, fouanalytics: 1, freshworks: 1, fullstory: 1, g2: 1, "gannett-cdn": 1, gbqofs: 1, getcandid: 1, getdrip: 1, getelevar: 1, getrockerbox: 1, getsitecontrol: 1, godaddy: 1, "google-analytics": 1, google: 1, googleadservices: 1, googlehosted: 1, googleoptimize: 1, googlesyndication: 1, googletagmanager: 1, googletagservices: 1, greylabeldelivery: 1, groovehq: 1, gsitrix: 1, gstatic: 1, "guarantee-cdn": 1, gumgum: 1, hawksearch: 1, hearstnp: 1, heatmap: 1, hextom: 1, histats: 1, hotjar: 1, "hrzn-nxt": 1, "hs-banner": 1, "hs-scripts": 1, htlbid: 1, "html-load": 1, hubspot: 1, hubspotfeedback: 1, iadvize: 1, "id5-sync": 1, igodigital: 1, iljmp: 1, impact: 1, impactcdn: 1, "impactradius-event": 1, improvedcontactform: 1, improvedigital: 1, imrworldwide: 1, indexww: 1, infolinks: 1, infusionsoft: 1, inmobi: 1, inq: 1, "inside-graph": 1, instagram: 1, intentiq: 1, intergient: 1, intuit: 1, investingchannel: 1, invocacdn: 1, iperceptions: 1, iplsc: 1, ipredictive: 1, iqm: 1, issuu: 1, iteratehq: 1, janusaent: 1, jimstatic: 1, journeymv: 1, journity: 1, amazonaws: { "us-west-2": { s3: 1 }, "ap-southeast-2": 1, "eu-west-3": { s3: { "yelda-chat": 1 } } }, juicyads: 1, jwplayer: 1, kargo: 1, ketchcdn: 1, kettledroopingcontinuation: 1, kit: 1, klarna: 1, klaviyo: 1, krushmedia: 1, kueezrtb: 1, ladesk: 1, ladsp: 1, leadsrx: 1, lendingtree: 1, lexisnexis: 1, liadm: 1, licdn: 1, liftdsp: 1, lightboxcdn: 1, lijit: 1, linkconnector: 1, linkedin: 1, linksynergy: 1, "list-manage": 1, listrakbi: 1, livechatinc: 1, lngtdv: 1, localytics: 1, loggly: 1, loop11: 1, luckyorange: 1, magsrv: 1, mailchimp: 1, mailchimpapp: 1, mailerlite: 1, "maillist-manage": 1, "mantis-intelligence": 1, marketiq: 1, marketo: 1, marphezis: 1, marzaent: 1, matheranalytics: 1, mathtag: 1, mavrtracktor: 1, maxmind: 1, mczbf: 1, measureadv: 1, medallia: 1, media6degrees: 1, mediarithmics: 1, mediavine: 1, memberful: 1, mercari: 1, mfadsrvr: 1, mgid: 1, micpn: 1, "minutemedia-prebid": 1, mixpo: 1, mktoresp: 1, mktoweb: 1, ml314: 1, mmvideocdn: 1, moloco: 1, monsido: 1, mookie1: 1, mountain: 1, mouseflow: 1, mpeasylink: 1, mql5: 1, mxpnl: 1, mygaru: 1, myregistry: 1, newrelic: 1, newscgp: 1, nextdoor: 1, nextmillmedia: 1, nitropay: 1, noibu: 1, nosto: 1, npttech: 1, nuance: 1, nytrng: 1, omappapi: 1, omguk: 1, omnisnippet1: 1, omnisrc: 1, omnitagjs: 1, onaudience: 1, onesignal: 1, "onetag-sys": 1, opecloud: 1, opentable: 1, opentext: 1, openwebmp: 1, opera: 1, opmnstr: 1, "opti-digital": 1, optidigital: 1, optimizely: 1, optimonk: 1, optmnstr: 1, optmstr: 1, optnmnstr: 1, optnmstr: 1, optum: 1, oraclecloud: 1, orbsrv: 1, osano: 1, outbrain: 1, outbrainimg: 1, ownlocal: 1, parastorage: 1, pardot: 1, parsely: 1, patreon: 1, paypal: 1, pbstck: 1, "peer-39": 1, pemsrv: 1, perfalytics: 1, perfdrive: 1, permutive: 1, picreel: 1, pinterest: 1, pippio: 1, pixlee: 1, playwire: 1, postaffiliatepro: 1, posthog: 1, postrelease: 1, preferencenail: 1, pricespider: 1, protrafficinspector: 1, providesupport: 1, ptengine: 1, publir: 1, publitas: 1, pubmatic: 1, pubnation: 1, pulseinsights: 1, pulselive: 1, pushnami: 1, qq: 1, qualaroo: 1, qualified: 1, qualtrics: 1, quantcount: 1, quantserve: 1, quantummetric: 1, quora: 1, rakuten: 1, raptivecdn: 1, realizationnewestfangs: 1, realsrv: 1, rebuyengine: 1, recombee: 1, recruitics: 1, reddit: 1, redditstatic: 1, refinery89: 1, reson8: 1, responsiveads: 1, retargetly: 1, revcontent: 1, rezync: 1, rfihub: 1, rfksrv: 1, richaudience: 1, ringcentral: 1, rkdms: 1, rlcdn: 1, rmhfrtnd: 1, rmtag: 1, roeyecdn: 1, rogersmedia: 1, route: 1, rtbhouse: 1, rubiconproject: 1, rudderlabs: 1, rudderstack: 1, rvlife: 1, "sail-horizon": 1, sailthru: 1, salecycle: 1, "salesforce-sites": 1, salesforceliveagent: 1, sascdn: 1, scene7: 1, scholarlyiq: 1, schwab: 1, scorecardresearch: 1, screenpopper: 1, scriptwrapper: 1, searchserverapi1: 1, securedvisit: 1, seedtag: 1, segment: 1, servenobid: 1, serverbid: 1, herokuapp: { "session-recording-now": 1 }, sharethis: 1, sharethrough: 1, "shb-sync": 1, shgcdn3: 1, sibautomation: 1, signifyd: 1, site: 1, siteimprove: 1, siteimproveanalytics: 1, sitescout: 1, skimresources: 1, slickstream: 1, smartadserver: 1, "smartnews-ads": 1, smilewanted: 1, snapchat: 1, snigelweb: 1, socdm: 1, sojern: 1, sonobi: 1, sparteo: 1, spendsdetachment: 1, sportradar: 1, sportradarserving: 1, sportslocalmedia: 1, springserve: 1, stackadapt: 1, startappnetwork: 1, statcounter: 1, stay22: 1, googleapis: { storage: 1, imasdk: 1, ajax: 1, fonts: 1, translate: 1 }, streamrail: 1, stripchat: 1, sumome: 1, swaven: 1, swymrelay: 1, syf: 1, symantec: 1, syncingbridge: 1, taboola: 1, talkable: 1, taobao: 1, tapad: 1, tapioni: 1, tappx: 1, "teads-xo": 1, tealiumiq: 1, temu: 1, "the-ozone-project": 1, theadex: 1, thejobnetwork: 1, thestar: 1, thrtle: 1, tiktok: 1, tinypass: 1, tiqcdn: 1, trackjs: 1, trafficjunky: 1, travelaudience: 1, travelpayouts: 1, treasuredata: 1, tremorhub: 1, trendemon: 1, tribalfusion: 1, trueleadid: 1, trustedstack: 1, trustpielote: 1, trustpilot: 1, trvdp: 1, tsyndicate: 1, turn: 1, tvpixel: 1, tvspix: 1, tvsquared: 1, tweakwise: 1, twitter: 1, tynt: 1, uidapi: 1, unbxdapi: 1, undertone: 1, unpkg: 1, unrulymedia: 1, "uplift-platform": 1, uplift: 1, upsellit: 1, urbanairship: 1, usabilla: 1, usablenet: 1, usbrowserspeed: 1, useamp: 1, usemessages: 1, userapi: 1, uservoice: 1, valuecommerce: 1, "verint-cdn": 1, vidazoo: 1, videoplayerhub: 1, vidoomy: 1, vimeocdn: 1, vistarsagency: 1, "visually-io": 1, visualwebsiteoptimizer: 1, vk: 1, vrtcal: 1, wbd: 1, "we-stats": 1, webcontentassessor: 1, webengage: 1, webeyez: 1, webtraxs: 1, "webtrends-optimize": 1, webtrends: 1, weglot: 1, woosmap: 1, workdeadlinededicate: 1, "wt-safetag": 1, wysistat: 1, x: 1, yahoo: 1, yandex: 1, yango: 1, yieldlove: 1, yieldmo: 1, ymmobi: 1, yotpo: 1, "youtube-nocookie": 1, youtube: 1, zemanta: 1, zendesk: 1, zeotap: 1, "zi-scripts": 1, zohocdn: 1, zoologyfibre: 1, zoominfo: 1, zopim: 1, createsend1: 1, jivox: 1, klarnaservices: 1, solarwinds: 1, ivitrack: 1, kiyoh: 1, adnuntius: 1, schibsted: 1, facebook: 1, attentivemobile: 1, bootstrapcdn: 1, cloudinary: 1, cookieyes: 1, dtscdn: 1, fontawesome: 1, getclicky: 1, microsoft: 1, playdigo: 1, roeye: 1, rtbwise: 1, shopifycdn: 1, shopifysvc: 1, stripe: 1, vimeo: 1, wp: 1, yimg: 1, yandexmetrica: 1, ymetrica1: 1 }, net: { "2mdn": 1, "a-mo": 1, acint: 1, adform: 1, adhigh: 1, adobedc: 1, adspeed: 1, aggle: 1, appier: 1, edgekey: { au: 1, "com-v1": 1, de: 1, fr: 1, io: 1, net: 1, nl: 1, org: 1, com: { scene7: 1 }, "com-v2": 1 }, azurefd: 1, bannerflow: 1, basis: 1, "bf-ad": 1, bidswitch: 1, blueconic: 1, buysellads: 1, cachefly: 1, ccgateway: 1, "confiant-integrations": 1, contentpass: 1, contentsquare: 1, criteo: 1, crwdcntrl: 1, cloudfront: { d14jnfavjicsbe: 1, d1af033869koo7: 1, d1j0xlutvd326g: 1, d1vg5xiq7qffdj: 1, d1x4rwm1kh8pnu: 1, d21gpk1vhmjuf5: 1, d2trly8m2h0e8p: 1, d38xvr37kwwhcm: 1, d3djbgmgf0l8ev: 1, d3fukwxve5r8zf: 1, d3fv2pqyjay52z: 1, d3nn82uaxijpm6: 1, d6tizftlrpuof: 1, dm2q9qfzyjfox: 1, dokumfe7mps0i: 1, dsh7ky7308k4b: 1, duube1y6ojsji: 1, dvagh3p3rk8xj: 1, d2638j3z8ek976: 1 }, datatrac: 1, demdex: 1, dotmetrics: 1, doubleclick: 1, "e-planning": 1, episerver: 1, esm1: 1, eulerian: 1, everestjs: 1, everesttech: 1, eyeota: 1, ezoic: 1, facebook: 1, fastclick: 1, fbcdn: 1, fonts: 1, fuseplatform: 1, fwmrm: 1, gcprivacy: 1, "go-mpulse": 1, "go-vip": 1, gtranslate: 1, hadronid: 1, "hs-analytics": 1, hsadspixel: 1, hsappstatic: 1, hscta: 1, "im-apps": 1, impervadns: 1, fastly: { global: { sni: { j: 1, m: 1, s: 1 } } }, jsdelivr: 1, kakaocdn: 1, listhub: 1, livedoor: 1, liveperson: 1, lpsnmedia: 1, magnetmail: 1, marketo: 1, mateti: 1, media: 1, mjedge: 1, mobon: 1, monetate: 1, mrktmtrcs: 1, mxptint: 1, naver: 1, "nr-data": 1, ojrq: 1, omtrdc: 1, onecount: 1, openx: 1, openxcdn: 1, opta: 1, optimove: 1, p7cloud: 1, pages02: 1, pages03: 1, pages04: 1, pages05: 1, pages06: 1, pages08: 1, pingdom: 1, pmdstatic: 1, popcash: 1, "pro-market": 1, protechts: 1, akamaihd: { "pxlclnmdecom-a": 1 }, r9cdn: 1, rfihub: 1, akamaized: { s13emagst: 1, tmssl: 1 }, sancdn: 1, "sc-static": 1, semasio: 1, sexad: 1, smaato: 1, spreadshirts: 1, tfaforms: 1, uuidksinc: 1, viafoura: 1, visx: 1, w55c: 1, witglobal: 1, "wt-eu02": 1, yandex: 1, yastatic: 1, zencdn: 1, zetaglobal: 1, zucks: 1, emarsys: 1, apicit: 1, tradetracker: 1, "ad-delivery": 1, bkcdn: 1, chartbeat: 1, ortb: 1, eviltracker: 1 }, io: { "506": 1, "4dex": 1, adapex: 1, aditude: 1, adnami: 1, advolve: 1, aidata: 1, anonm: 1, anonymised: 1, bidr: 1, branch: 1, center: 1, chatra: 1, connectad: 1, cordial: 1, edgetag: 1, extole: 1, fsrv: 1, grsm: 1, hbrd: 1, instana: 1, intelligems: 1, juicer: 1, kameleoon: 1, karte: 1, litix: 1, lytics: 1, mediago: 1, missena: 1, mrf: 1, nexx360: 1, northbeam: 1, ntv: 1, optad360: 1, oracleinfinity: 1, "p-n": 1, personalizer: 1, pghub: 1, piano: 1, postscript: 1, powr: 1, presage: 1, rapidedge: 1, receptivity: 1, searchspring: 1, segment: 1, smct: 1, smile: 1, sspinc: 1, stape: 1, t13: 1, termly: 1, wovn: 1, yellowblue: 1, zprk: 1, pzz: 1, "1rx": 1, akstat: 1, digitalaudience: 1, hotjar: 1, "inmobi-choice": 1, pinklion: 1 }, co: { "6sc": 1, ayads: 1, clinch: 1, empowerlocal: 1, getlasso: 1, idio: 1, increasingly: 1, jads: 1, nc0: 1, optable: 1, "pm-serv": 1, prmutv: 1, t: 1, tctm: 1, tidio: 1, ujet: 1, vibe: 1, zip: 1 }, gt: { ad: 1 }, cloud: { aditude: 1, stpd: 1, squiz: 1 }, cc: { admaster: 1, "html-load": 1 }, jp: { admatrix: 1, fout: 1, ne: { hatena: 1 }, "impact-ad": 1, nakanohito: 1, ptengine: 1, r10s: 1, co: { rakuten: 1, yahoo: 1 }, rtoaster: 1, shinobi: 1, "team-rec": 1, uncn: 1, yimg: 1 }, pl: { adocean: 1, gemius: 1, nsaudience: 1, onet: 1, salesmanago: 1, wp: 1 }, re: { adsco: 1 }, org: { adsrvr: 1, ampproject: 1, "browser-update": 1, cleantalk: 1, featureassets: 1, flowplayer: 1, openstreetmap: 1, "privacy-center": 1, webvisor: 1, framasoft: 1, prodregistryv2: 1, "do-not-tracker": 1, trackersimulator: 1 }, biz: { adtarget: 1 }, google: { adtrafficquality: 1 }, tv: { attn: 1, iris: 1, ispot: 1, teads: 1, twitch: 1 }, de: { "auswaertiges-amt": 1, ioam: 1, itzbund: 1, stroeerdigitalgroup: 1 }, ai: { axon: 1, blackcrow: 1, dxtech: 1, evolv: 1, hybrid: 1, m2: 1, nrich: 1, programmaticx: 1, sardine: 1, wknd: 1 }, delivery: { ay: 1, monu: 1 }, ws: { bids: 1, rmbl: 1 }, ms: { clarity: 1 }, my: { cnt: 1 }, chat: { crisp: 1, gorgias: 1 }, gov: { dhs: 1, digitalgov: 1, weather: 1 }, ru: { digitaltarget: 1, mail: 1, megafon: 1, mts: 1, rambler: 1, top100: 1, yadro: 1, yandex: 1 }, nl: { dpgmedia: 1, rijksoverheid: 1 }, tech: { dv: 1, ingage: 1, primis: 1, yads: 1 }, es: { gaug: 1, pandect: 1 }, ca: { bc: { gov: 1 } }, me: { grow: 1, loopme: 1, tldw: 1 }, media: { grv: 1, nextday: 1, townsquare: 1, underdog: 1 }, health: { hcn: 1 }, page: { hlx: 1 }, cz: { imedia: 1, performax: 1, seznam: 1 }, app: { infusionsoft: 1, permutive: 1, shop: 1, run: { "us-central1": 1 }, web: { "wec-virtualassistant-cx-prod": 1 } }, live: { iqzonertb: 1 }, br: { com: { jsuol: 1 } }, eu: { kameleoon: 1, medallia: 1, rqtrk: 1, slgnt: 1, media01: 1, trengo: 1 }, services: { marketingautomation: 1 }, sg: { mediacorp: 1 }, info: { navistechnologies: 1, usergram: 1, webantenna: 1 }, au: { com: { news: 1, nine: 1, zipmoney: 1 } }, bi: { newsroom: 1 }, fr: { "open-system": 1 }, fm: { pdst: 1 }, pro: { piwik: 1, usocial: 1 }, it: { plug: 1, stbm: 1 }, network: { pub: 1 }, ch: { "ringier-advertising": 1, admin: 1, "da-services": 1 }, fi: { satis: 1, simpli: 1 }, ac: { script: 1 }, pe: { shop: 1 }, us: { shopmy: 1, tiktokw: 1, trkn: 1, zoom: 1 }, xyz: { tracookiepixel: 1 }, digital: { postmedia: 1 }, no: { acdn: 1, api: 1 }, events: { growplow: 1 }, goog: { "merchant-center-analytics": 1 }, example: { "ad-company": 1 }, site: { "ad-company": 1, "third-party": { bad: 1, broken: 1 } } };
-    }
-  });
-
   // ../node_modules/seedrandom/lib/alea.js
   var require_alea = __commonJS({
     "../node_modules/seedrandom/lib/alea.js"(exports, module) {
-      init_define_import_meta_trackerLookup();
       //! Copyright (C) 2010 by Johannes Baagøe <baagoe@baagoe.org>
       //!
       //! Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -175,7 +154,6 @@
   // ../node_modules/seedrandom/lib/xor128.js
   var require_xor128 = __commonJS({
     "../node_modules/seedrandom/lib/xor128.js"(exports, module) {
-      init_define_import_meta_trackerLookup();
       (function(global, module2, define2) {
         function XorGen(seed) {
           var me2 = this, strseed = "";
@@ -249,7 +227,6 @@
   // ../node_modules/seedrandom/lib/xorwow.js
   var require_xorwow = __commonJS({
     "../node_modules/seedrandom/lib/xorwow.js"(exports, module) {
-      init_define_import_meta_trackerLookup();
       (function(global, module2, define2) {
         function XorGen(seed) {
           var me2 = this, strseed = "";
@@ -330,7 +307,6 @@
   // ../node_modules/seedrandom/lib/xorshift7.js
   var require_xorshift7 = __commonJS({
     "../node_modules/seedrandom/lib/xorshift7.js"(exports, module) {
-      init_define_import_meta_trackerLookup();
       (function(global, module2, define2) {
         function XorGen(seed) {
           var me2 = this;
@@ -422,7 +398,6 @@
   // ../node_modules/seedrandom/lib/xor4096.js
   var require_xor4096 = __commonJS({
     "../node_modules/seedrandom/lib/xor4096.js"(exports, module) {
-      init_define_import_meta_trackerLookup();
       (function(global, module2, define2) {
         function XorGen(seed) {
           var me2 = this;
@@ -532,7 +507,6 @@
   // ../node_modules/seedrandom/lib/tychei.js
   var require_tychei = __commonJS({
     "../node_modules/seedrandom/lib/tychei.js"(exports, module) {
-      init_define_import_meta_trackerLookup();
       (function(global, module2, define2) {
         function XorGen(seed) {
           var me2 = this, strseed = "";
@@ -612,14 +586,12 @@
   // (disabled):crypto
   var require_crypto = __commonJS({
     "(disabled):crypto"() {
-      init_define_import_meta_trackerLookup();
     }
   });
 
   // ../node_modules/seedrandom/seedrandom.js
   var require_seedrandom = __commonJS({
     "../node_modules/seedrandom/seedrandom.js"(exports, module) {
-      init_define_import_meta_trackerLookup();
       /*!
       Copyright 2019 David Bau.
       
@@ -791,7 +763,6 @@
   // ../node_modules/seedrandom/index.js
   var require_seedrandom2 = __commonJS({
     "../node_modules/seedrandom/index.js"(exports, module) {
-      init_define_import_meta_trackerLookup();
       var alea = require_alea();
       var xor128 = require_xor128();
       var xorwow = require_xorwow();
@@ -809,86 +780,13 @@
     }
   });
 
-  // entry-points/apple.js
-  init_define_import_meta_trackerLookup();
-
-  // src/content-scope-features.js
-  init_define_import_meta_trackerLookup();
-
-  // src/utils.js
-  init_define_import_meta_trackerLookup();
-
   // src/captured-globals.js
-  var captured_globals_exports = {};
-  __export(captured_globals_exports, {
-    Arrayfrom: () => Arrayfrom,
-    CustomEvent: () => CustomEvent2,
-    DOMException: () => DOMException2,
-    Error: () => Error2,
-    JSONparse: () => JSONparse,
-    JSONstringify: () => JSONstringify,
-    Map: () => Map2,
-    NodePrototype: () => NodePrototype,
-    Promise: () => Promise2,
-    Proxy: () => Proxy2,
-    Reflect: () => Reflect2,
-    ReflectApply: () => ReflectApply,
-    ReflectDeleteProperty: () => ReflectDeleteProperty,
-    ReflectGet: () => ReflectGet,
-    Set: () => Set2,
-    String: () => String2,
-    Symbol: () => Symbol2,
-    TextDecoder: () => TextDecoder,
-    TextEncoder: () => TextEncoder,
-    TypeError: () => TypeError2,
-    URL: () => URL2,
-    Uint16Array: () => Uint16Array,
-    Uint32Array: () => Uint32Array2,
-    Uint8Array: () => Uint8Array2,
-    addEventListener: () => addEventListener,
-    atob: () => atob,
-    charCodeAt: () => charCodeAt,
-    console: () => console2,
-    consoleError: () => consoleError,
-    consoleLog: () => consoleLog,
-    consoleWarn: () => consoleWarn,
-    customElementsDefine: () => customElementsDefine,
-    customElementsGet: () => customElementsGet,
-    decrypt: () => decrypt,
-    dispatchEvent: () => dispatchEvent2,
-    encrypt: () => encrypt,
-    exportKey: () => exportKey,
-    functionToString: () => functionToString,
-    generateKey: () => generateKey,
-    getOwnPropertyDescriptor: () => getOwnPropertyDescriptor,
-    getOwnPropertyDescriptors: () => getOwnPropertyDescriptors,
-    getOwnPropertyNames: () => getOwnPropertyNames,
-    getPrototypeOf: () => getPrototypeOf,
-    getRandomValues: () => getRandomValues,
-    hasOwnProperty: () => hasOwnProperty,
-    importKey: () => importKey,
-    isArray: () => isArray,
-    numberIsFinite: () => numberIsFinite,
-    numberIsNaN: () => numberIsNaN,
-    objectDefineProperty: () => objectDefineProperty,
-    objectEntries: () => objectEntries,
-    objectFromEntries: () => objectFromEntries,
-    objectKeys: () => objectKeys,
-    performanceNow: () => performanceNow,
-    randomUUID: () => randomUUID,
-    removeEventListener: () => removeEventListener,
-    toString: () => toString
-  });
-  init_define_import_meta_trackerLookup();
   var Set2 = globalThis.Set;
   var Reflect2 = globalThis.Reflect;
   var customElementsGet = globalThis.customElements?.get.bind(globalThis.customElements);
   var customElementsDefine = globalThis.customElements?.define.bind(globalThis.customElements);
   var getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
   var getOwnPropertyDescriptors = Object.getOwnPropertyDescriptors;
-  var getOwnPropertyNames = Object.getOwnPropertyNames;
-  var getPrototypeOf = Object.getPrototypeOf;
-  var isArray = Array.isArray;
   var numberIsFinite = Number.isFinite;
   var numberIsNaN = Number.isNaN;
   var toString = Object.prototype.toString;
@@ -922,9 +820,7 @@
   var Uint8Array2 = globalThis.Uint8Array;
   var Uint16Array = globalThis.Uint16Array;
   var Uint32Array2 = globalThis.Uint32Array;
-  var JSONstringify = JSON.stringify;
   var JSONparse = JSON.parse;
-  var Arrayfrom = Array.from;
   var atob = globalThis.atob?.bind(globalThis);
   var DOMException2 = globalThis.DOMException;
   var charCodeAt = globalThis.String.prototype.charCodeAt;
@@ -939,7 +835,6 @@
   var decrypt = globalThis.crypto?.subtle?.decrypt?.bind(globalThis.crypto?.subtle);
 
   // src/features.js
-  init_define_import_meta_trackerLookup();
   var baseFeatures = (
     /** @type {FeatureName[]} */
     [
@@ -1655,7 +1550,6 @@
   }
 
   // src/performance.js
-  init_define_import_meta_trackerLookup();
   var PerformanceMonitor = class {
     constructor() {
       this.marks = [];
@@ -1695,17 +1589,7 @@
     }
   };
 
-  // ddg:platformFeatures:ddg:platformFeatures
-  init_define_import_meta_trackerLookup();
-
-  // src/features/web-compat.js
-  init_define_import_meta_trackerLookup();
-
-  // src/content-feature.js
-  init_define_import_meta_trackerLookup();
-
   // src/wrapper-utils.js
-  init_define_import_meta_trackerLookup();
   var ddgShimMark = /* @__PURE__ */ Symbol("ddgShimMark");
   function defineProperty(object, propertyName, descriptor) {
     objectDefineProperty(object, propertyName, descriptor);
@@ -1963,11 +1847,7 @@
     definePropertyFn(baseObject, propertyName, descriptor);
   }
 
-  // ../messaging/index.js
-  init_define_import_meta_trackerLookup();
-
   // ../messaging/lib/windows.js
-  init_define_import_meta_trackerLookup();
   var WindowsMessagingTransport = class {
     /**
      * @param {WindowsMessagingConfig} config
@@ -2169,11 +2049,7 @@
     }
   };
 
-  // ../messaging/lib/webkit.js
-  init_define_import_meta_trackerLookup();
-
   // ../messaging/schema.js
-  init_define_import_meta_trackerLookup();
   var RequestMessage = class {
     /**
      * @param {object} params
@@ -2241,7 +2117,6 @@
   }
 
   // src/navigator-global.js
-  init_define_import_meta_trackerLookup();
   function ensureNavigatorDuckDuckGo({ defineProperty: defineProperty2 = objectDefineProperty } = {}) {
     if (navigator.duckduckgo) {
       return navigator.duckduckgo;
@@ -2401,7 +2276,6 @@
   };
 
   // ../messaging/lib/android.js
-  init_define_import_meta_trackerLookup();
   var AndroidMessagingTransport = class {
     /**
      * @param {AndroidMessagingConfig} config
@@ -2602,7 +2476,6 @@
   };
 
   // ../messaging/lib/android-adsjs.js
-  init_define_import_meta_trackerLookup();
   var AndroidAdsjsMessagingTransport = class {
     /**
      * @param {AndroidAdsjsMessagingConfig} config
@@ -2841,9 +2714,6 @@
     }
   };
 
-  // ../messaging/lib/typed-messages.js
-  init_define_import_meta_trackerLookup();
-
   // ../messaging/index.js
   var MessagingContext = class {
     /**
@@ -3012,7 +2882,6 @@
   };
 
   // src/sendmessage-transport.js
-  init_define_import_meta_trackerLookup();
   var sharedTransport = null;
   function extensionConstructMessagingConfig() {
     return new TestTransportConfig(getSharedMessagingTransport());
@@ -3125,7 +2994,6 @@
   };
 
   // src/trackers.js
-  init_define_import_meta_trackerLookup();
   function isTrackerOrigin(trackerLookup, originHostname = getGlobal().document.location.hostname) {
     const parts = originHostname.split(".").reverse();
     let node = trackerLookup;
@@ -3142,17 +3010,7 @@
     return false;
   }
 
-  // src/config-feature.js
-  init_define_import_meta_trackerLookup();
-
-  // ../node_modules/immutable-json-patch/lib/esm/index.js
-  init_define_import_meta_trackerLookup();
-
-  // ../node_modules/immutable-json-patch/lib/esm/immutabilityHelpers.js
-  init_define_import_meta_trackerLookup();
-
   // ../node_modules/immutable-json-patch/lib/esm/typeguards.js
-  init_define_import_meta_trackerLookup();
   function isJSONArray(value) {
     return Array.isArray(value);
   }
@@ -3162,7 +3020,6 @@
   }
 
   // ../node_modules/immutable-json-patch/lib/esm/utils.js
-  init_define_import_meta_trackerLookup();
   function isEqual(a2, b2) {
     return JSON.stringify(a2) === JSON.stringify(b2);
   }
@@ -3297,11 +3154,7 @@
     return existsIn(document2[path[0]], path.slice(1));
   }
 
-  // ../node_modules/immutable-json-patch/lib/esm/immutableJSONPatch.js
-  init_define_import_meta_trackerLookup();
-
   // ../node_modules/immutable-json-patch/lib/esm/jsonPointer.js
-  init_define_import_meta_trackerLookup();
   function parseJSONPointer(pointer) {
     const path = pointer.split("/");
     path.shift();
@@ -3432,11 +3285,7 @@
     return parseJSONPointer(fromPointer);
   }
 
-  // ../node_modules/urlpattern-polyfill/index.js
-  init_define_import_meta_trackerLookup();
-
   // ../node_modules/urlpattern-polyfill/dist/urlpattern.js
-  init_define_import_meta_trackerLookup();
   var Pe = Object.defineProperty;
   var a = (e, t) => Pe(e, "name", { value: t, configurable: true });
   var P = class {
@@ -6478,14 +6327,7 @@
   _permissionPollingTimer = new WeakMap();
   var web_compat_default = WebCompat;
 
-  // src/features/duck-player-native.js
-  init_define_import_meta_trackerLookup();
-
-  // src/features/duckplayer-native/messages.js
-  init_define_import_meta_trackerLookup();
-
   // src/features/duckplayer-native/constants.js
-  init_define_import_meta_trackerLookup();
   var MSG_NAME_INITIAL_SETUP = "initialSetup";
   var MSG_NAME_CURRENT_TIMESTAMP = "onCurrentTimestamp";
   var MSG_NAME_MEDIA_CONTROL = "onMediaControl";
@@ -6568,14 +6410,7 @@
     }
   };
 
-  // src/features/duckplayer-native/sub-feature.js
-  init_define_import_meta_trackerLookup();
-
-  // src/features/duckplayer-native/sub-features/duck-player-native-youtube.js
-  init_define_import_meta_trackerLookup();
-
   // src/features/duckplayer/util.js
-  init_define_import_meta_trackerLookup();
   var SideEffects = class {
     /**
      * @param {object} params
@@ -6770,7 +6605,6 @@
   };
 
   // src/features/duckplayer-native/mute-audio.js
-  init_define_import_meta_trackerLookup();
   function muteAudio(mute) {
     document.querySelectorAll("audio, video").forEach((media) => {
       media.muted = mute;
@@ -6778,7 +6612,6 @@
   }
 
   // src/features/duckplayer-native/get-current-timestamp.js
-  init_define_import_meta_trackerLookup();
   function getCurrentTimestamp(selector) {
     const video = (
       /** @type {HTMLVideoElement|null} */
@@ -6806,7 +6639,6 @@
   }
 
   // src/features/duckplayer-native/pause-video.js
-  init_define_import_meta_trackerLookup();
   function stopVideoFromPlaying(videoSelector) {
     const int = setInterval(() => {
       const video = (
@@ -6848,9 +6680,6 @@
       });
     };
   }
-
-  // src/features/duckplayer-native/overlays/thumbnail-overlay.js
-  init_define_import_meta_trackerLookup();
 
   // src/features/duckplayer-native/overlays/thumbnail-overlay.css
   var thumbnail_overlay_default = `/* -- VIDEO PLAYER OVERLAY */
@@ -6952,7 +6781,6 @@
 `;
 
   // src/dom-utils.js
-  init_define_import_meta_trackerLookup();
   function escapeXML(str) {
     const replacements = {
       "&": "&amp;",
@@ -7024,7 +6852,6 @@
   }
 
   // src/features/duckplayer/poster.js
-  init_define_import_meta_trackerLookup();
   async function paintFirstUsablePoster(target, candidates, { signal, onResult } = {}) {
     const probes = candidates.map((candidate) => {
       const url = safePosterUrl(candidate.url);
@@ -7260,12 +7087,6 @@
       this.sideEffects.destroy();
     }
   };
-
-  // src/features/duckplayer-native/sub-features/duck-player-native-no-cookie.js
-  init_define_import_meta_trackerLookup();
-
-  // src/features/duckplayer-native/custom-error/custom-error.js
-  init_define_import_meta_trackerLookup();
 
   // src/features/duckplayer-native/custom-error/custom-error.css
   var custom_error_default = `/* -- VIDEO PLAYER OVERLAY */
@@ -7573,11 +7394,7 @@ ul.messages {
     };
   }
 
-  // src/features/duckplayer-native/error-detection.js
-  init_define_import_meta_trackerLookup();
-
   // src/features/duckplayer-native/youtube-errors.js
-  init_define_import_meta_trackerLookup();
   var YOUTUBE_ERRORS = {
     ageRestricted: "age-restricted",
     signInRequired: "sign-in-required",
@@ -7799,7 +7616,6 @@ ul.messages {
   };
 
   // src/features/duckplayer-native/sub-features/duck-player-native-serp.js
-  init_define_import_meta_trackerLookup();
   var DuckPlayerNativeSerp = class {
     onLoad() {
       window.dispatchEvent(
@@ -7843,11 +7659,7 @@ ul.messages {
     return new DuckPlayerNativeSerp();
   }
 
-  // src/features/duckplayer/environment.js
-  init_define_import_meta_trackerLookup();
-
   // ../build/locales/duckplayer-locales.js
-  init_define_import_meta_trackerLookup();
   var duckplayer_locales_default = `{"bg":{"overlays.json":{"videoOverlayTitle2":"\u0412\u043A\u043B\u044E\u0447\u0435\u0442\u0435 Duck Player, \u0437\u0430 \u0434\u0430 \u0433\u043B\u0435\u0434\u0430\u0442\u0435 \u0431\u0435\u0437 \u043D\u0430\u0441\u043E\u0447\u0435\u043D\u0438 \u0440\u0435\u043A\u043B\u0430\u043C\u0438","videoButtonOpen2":"\u0412\u043A\u043B\u044E\u0447\u0432\u0430\u043D\u0435 \u043D\u0430 Duck Player","videoButtonOptOut2":"\u041D\u0435, \u0431\u043B\u0430\u0433\u043E\u0434\u0430\u0440\u044F","rememberLabel":"\u0417\u0430\u043F\u043E\u043C\u043D\u0438 \u043C\u043E\u044F \u0438\u0437\u0431\u043E\u0440"}},"cs":{"overlays.json":{"videoOverlayTitle2":"Zapn\u011Bte si Duck Player a\xA0sledujte videa bez c\xEDlen\xFDch reklam","videoButtonOpen2":"Zapni si Duck Player","videoButtonOptOut2":"Ne, d\u011Bkuji","rememberLabel":"Zapamatovat mou volbu"}},"da":{"overlays.json":{"videoOverlayTitle2":"Sl\xE5 Duck Player til for at se indhold uden m\xE5lrettede reklamer","videoButtonOpen2":"Sl\xE5 Duck Player til","videoButtonOptOut2":"Nej tak.","rememberLabel":"Husk mit valg"}},"de":{"overlays.json":{"videoOverlayTitle2":"Aktiviere den Duck Player, um ohne gezielte Werbung zu schauen","videoButtonOpen2":"Duck Player aktivieren","videoButtonOptOut2":"Nein, danke","rememberLabel":"Meine Auswahl merken"}},"el":{"overlays.json":{"videoOverlayTitle2":"\u0395\u03BD\u03B5\u03C1\u03B3\u03BF\u03C0\u03BF\u03B9\u03AE\u03C3\u03C4\u03B5 \u03C4\u03BF Duck Player \u03B3\u03B9\u03B1 \u03C0\u03B1\u03C1\u03B1\u03BA\u03BF\u03BB\u03BF\u03CD\u03B8\u03B7\u03C3\u03B7 \u03C7\u03C9\u03C1\u03AF\u03C2 \u03C3\u03C4\u03BF\u03C7\u03B5\u03C5\u03BC\u03AD\u03BD\u03B5\u03C2 \u03B4\u03B9\u03B1\u03C6\u03B7\u03BC\u03AF\u03C3\u03B5\u03B9\u03C2","videoButtonOpen2":"\u0395\u03BD\u03B5\u03C1\u03B3\u03BF\u03C0\u03BF\u03AF\u03B7\u03C3\u03B7 \u03C4\u03BF\u03C5 Duck Player","videoButtonOptOut2":"\u038C\u03C7\u03B9, \u03B5\u03C5\u03C7\u03B1\u03C1\u03B9\u03C3\u03C4\u03CE","rememberLabel":"\u0398\u03C5\u03BC\u03B7\u03B8\u03B5\u03AF\u03C4\u03B5 \u03C4\u03B7\u03BD \u03B5\u03C0\u03B9\u03BB\u03BF\u03B3\u03AE \u03BC\u03BF\u03C5"}},"en":{"native.json":{"unknownErrorHeading2":"Duck Player can\u2019t load this video","unknownErrorMessage2a":"This video can\u2019t be viewed outside of YouTube.","unknownErrorMessage2b":"You can still watch this video on YouTube, but without the added privacy of Duck Player.","ageRestrictedErrorHeading2":"Sorry, this video is age-restricted","ageRestrictedErrorMessage2a":"To watch age-restricted videos, you need to sign in to YouTube to verify your age.","ageRestrictedErrorMessage2b":"You can still watch this video, but you\u2019ll have to sign in and watch it on YouTube without the added privacy of Duck Player.","noEmbedErrorHeading2":"Sorry, this video can only be played on YouTube","noEmbedErrorMessage2a":"The creator of this video has chosen not to allow it to be viewed on other sites.","noEmbedErrorMessage2b":"You can still watch it on YouTube, but without the added privacy of Duck Player.","blockedVideoErrorHeading":"YouTube won\u2019t let Duck Player load this video","blockedVideoErrorMessage1":"YouTube doesn\u2019t allow this video to be viewed outside of YouTube.","blockedVideoErrorMessage2":"You can still watch this video on YouTube, but without the added privacy of Duck Player.","signInRequiredErrorHeading2":"Sorry, YouTube thinks you\u2019re a bot","signInRequiredErrorMessage1":"YouTube is blocking this video from loading. If you\u2019re using a VPN, try turning it off and reloading this page.","signInRequiredErrorMessage2":"If this doesn\u2019t work, you can still watch this video on YouTube, but without the added privacy of Duck Player.","signInRequiredErrorMessage2a":"This can happen if you\u2019re using a VPN. Try turning the VPN off or switching server locations and reloading this page.","signInRequiredErrorMessage2b":"If that doesn\u2019t work, you\u2019ll have to sign in and watch this video on YouTube without the added privacy of Duck Player."},"overlays.json":{"videoOverlayTitle2":"Turn on Duck Player to watch without targeted ads","videoButtonOpen2":"Turn On Duck Player","videoButtonOptOut2":"No Thanks","rememberLabel":"Remember my choice"}},"es":{"overlays.json":{"videoOverlayTitle2":"Activa Duck Player para ver sin anuncios personalizados","videoButtonOpen2":"Activar Duck Player","videoButtonOptOut2":"No, gracias","rememberLabel":"Recordar mi elecci\xF3n"}},"et":{"overlays.json":{"videoOverlayTitle2":"Sihitud reklaamideta vaatamiseks l\xFClita sisse Duck Player","videoButtonOpen2":"L\xFClita Duck Player sisse","videoButtonOptOut2":"Ei ait\xE4h","rememberLabel":"J\xE4ta mu valik meelde"}},"fi":{"overlays.json":{"videoOverlayTitle2":"Jos haluat katsoa ilman kohdennettuja mainoksia, ota Duck Player k\xE4ytt\xF6\xF6n","videoButtonOpen2":"Ota Duck Player k\xE4ytt\xF6\xF6n","videoButtonOptOut2":"Ei kiitos","rememberLabel":"Muista valintani"}},"fr":{"overlays.json":{"videoOverlayTitle2":"Activez Duck Player pour une vid\xE9o sans publicit\xE9s cibl\xE9es","videoButtonOpen2":"Activez Duck Player","videoButtonOptOut2":"Non merci","rememberLabel":"M\xE9moriser mon choix"}},"hr":{"overlays.json":{"videoOverlayTitle2":"Uklju\u010Di Duck Player za gledanje bez ciljanih oglasa","videoButtonOpen2":"Uklju\u010Di Duck Player","videoButtonOptOut2":"Ne, hvala","rememberLabel":"Zapamti moj izbor"}},"hu":{"overlays.json":{"videoOverlayTitle2":"Kapcsold be a Duck Playert, hogy c\xE9lzott hirdet\xE9sek n\xE9lk\xFCl vide\xF3zhass","videoButtonOpen2":"Duck Player bekapcsol\xE1sa","videoButtonOptOut2":"Nem, k\xF6sz\xF6n\xF6m","rememberLabel":"V\xE1lasztott be\xE1ll\xEDt\xE1s megjegyz\xE9se"}},"it":{"overlays.json":{"videoOverlayTitle2":"Attiva Duck Player per guardare senza annunci personalizzati","videoButtonOpen2":"Attiva Duck Player","videoButtonOptOut2":"No, grazie","rememberLabel":"Ricorda la mia scelta"}},"lt":{"overlays.json":{"videoOverlayTitle2":"\u012Ejunkite \u201EDuck Player\u201C, kad gal\u0117tum\u0117te \u017Ei\u016Br\u0117ti be tikslini\u0173 reklam\u0173","videoButtonOpen2":"\u012Ejunkite \u201EDuck Player\u201C","videoButtonOptOut2":"Ne, d\u0117koju","rememberLabel":"\u012Esiminti mano pasirinkim\u0105"}},"lv":{"overlays.json":{"videoOverlayTitle2":"Iesl\u0113dz Duck Player, lai skat\u012Btos bez m\u0113r\u0137\u0113t\u0101m rekl\u0101m\u0101m","videoButtonOpen2":"Iesl\u0113gt Duck Player","videoButtonOptOut2":"N\u0113, paldies","rememberLabel":"Atcer\u0113ties manu izv\u0113li"}},"nb":{"overlays.json":{"videoOverlayTitle2":"Sl\xE5 p\xE5 Duck Player for \xE5 se p\xE5 uten m\xE5lrettede annonser","videoButtonOpen2":"Sl\xE5 p\xE5 Duck Player","videoButtonOptOut2":"Nei takk","rememberLabel":"Husk valget mitt"}},"nl":{"overlays.json":{"videoOverlayTitle2":"Zet Duck Player aan om te kijken zonder gerichte advertenties","videoButtonOpen2":"Duck Player aanzetten","videoButtonOptOut2":"Nee, bedankt","rememberLabel":"Mijn keuze onthouden"}},"pl":{"overlays.json":{"videoOverlayTitle2":"W\u0142\u0105cz Duck Player, aby ogl\u0105da\u0107 bez reklam ukierunkowanych","videoButtonOpen2":"W\u0142\u0105cz Duck Player","videoButtonOptOut2":"Nie, dzi\u0119kuj\u0119","rememberLabel":"Zapami\u0119taj m\xF3j wyb\xF3r"}},"pt":{"overlays.json":{"videoOverlayTitle2":"Ativa o Duck Player para ver sem an\xFAncios personalizados","videoButtonOpen2":"Ligar o Duck Player","videoButtonOptOut2":"N\xE3o, obrigado","rememberLabel":"Memorizar a minha op\xE7\xE3o"}},"ro":{"overlays.json":{"videoOverlayTitle2":"Activeaz\u0103 Duck Player pentru a viziona f\u0103r\u0103 reclame direc\u021Bionate","videoButtonOpen2":"Activeaz\u0103 Duck Player","videoButtonOptOut2":"Nu, mul\u021Bumesc","rememberLabel":"Re\u021Bine alegerea mea"}},"ru":{"overlays.json":{"videoOverlayTitle2":"Duck Player\xA0\u2014 \u043F\u0440\u043E\u0441\u043C\u043E\u0442\u0440 \u0431\u0435\u0437 \u0446\u0435\u043B\u0435\u0432\u043E\u0439 \u0440\u0435\u043A\u043B\u0430\u043C\u044B","videoButtonOpen2":"\u0412\u043A\u043B\u044E\u0447\u0438\u0442\u044C Duck Player","videoButtonOptOut2":"\u041D\u0435\u0442, \u0441\u043F\u0430\u0441\u0438\u0431\u043E","rememberLabel":"\u0417\u0430\u043F\u043E\u043C\u043D\u0438\u0442\u044C \u0432\u044B\u0431\u043E\u0440"}},"sk":{"overlays.json":{"videoOverlayTitle2":"Zapnite Duck Player a pozerajte bez cielen\xFDch rekl\xE1m","videoButtonOpen2":"Zapn\xFA\u0165 prehr\xE1va\u010D Duck Player","videoButtonOptOut2":"Nie, \u010Fakujem","rememberLabel":"Zapam\xE4ta\u0165 si moju vo\u013Ebu"}},"sl":{"overlays.json":{"videoOverlayTitle2":"Vklopite predvajalnik Duck Player za gledanje brez ciljanih oglasov","videoButtonOpen2":"Vklopi predvajalnik Duck Player","videoButtonOptOut2":"Ne, hvala","rememberLabel":"Zapomni si mojo izbiro"}},"sv":{"overlays.json":{"videoOverlayTitle2":"Aktivera Duck Player f\xF6r att titta utan riktade annonser","videoButtonOpen2":"Aktivera Duck Player","videoButtonOptOut2":"Nej tack","rememberLabel":"Kom ih\xE5g mitt val"}},"tr":{"overlays.json":{"videoOverlayTitle2":"Hedeflenmi\u015F reklamlar olmadan izlemek i\xE7in Duck Player'\u0131 a\xE7\u0131n","videoButtonOpen2":"Duck Player'\u0131 A\xE7","videoButtonOptOut2":"Hay\u0131r Te\u015Fekk\xFCrler","rememberLabel":"Se\xE7imimi hat\u0131rla"}}}`;
 
   // src/features/duckplayer/environment.js
@@ -8046,14 +7858,7 @@ ul.messages {
   };
   var duck_player_native_default = DuckPlayerNativeFeature;
 
-  // src/features/fingerprinting-audio.js
-  init_define_import_meta_trackerLookup();
-
-  // src/crypto.js
-  init_define_import_meta_trackerLookup();
-
   // lib/sjcl.js
-  init_define_import_meta_trackerLookup();
   var sjcl = (() => {
     "use strict";
     var sjcl2 = {
@@ -8662,7 +8467,6 @@ ul.messages {
   };
 
   // src/features/fingerprinting-battery.js
-  init_define_import_meta_trackerLookup();
   var FingerprintingBattery = class extends ContentFeature {
     init() {
       if (globalThis.navigator.getBattery) {
@@ -8704,11 +8508,7 @@ ul.messages {
     }
   };
 
-  // src/features/fingerprinting-canvas.js
-  init_define_import_meta_trackerLookup();
-
   // src/canvas.js
-  init_define_import_meta_trackerLookup();
   var import_seedrandom = __toESM(require_seedrandom2(), 1);
   function computeOffScreenCanvas(canvas, domainKey, sessionKey, getImageDataProxy, ctx) {
     if (!ctx) {
@@ -8973,7 +8773,6 @@ ul.messages {
   };
 
   // src/features/google-rejected.js
-  init_define_import_meta_trackerLookup();
   var GoogleRejected = class extends ContentFeature {
     init() {
       try {
@@ -9001,7 +8800,6 @@ ul.messages {
   };
 
   // src/features/gpc.js
-  init_define_import_meta_trackerLookup();
   var GlobalPrivacyControl = class extends ContentFeature {
     /**
      * @param {{globalPrivacyControlValue?: boolean}} args
@@ -9029,7 +8827,6 @@ ul.messages {
   };
 
   // src/features/fingerprinting-hardware.js
-  init_define_import_meta_trackerLookup();
   var FingerprintingHardware = class extends ContentFeature {
     init() {
       this.wrapProperty(globalThis.Navigator.prototype, "keyboard", {
@@ -9051,7 +8848,6 @@ ul.messages {
   };
 
   // src/features/referrer.js
-  init_define_import_meta_trackerLookup();
   var Referrer = class extends ContentFeature {
     init() {
       if (document.referrer && new URL(document.URL).hostname !== new URL(document.referrer).hostname) {
@@ -9064,7 +8860,6 @@ ul.messages {
   };
 
   // src/features/fingerprinting-screen-size.js
-  init_define_import_meta_trackerLookup();
   var FingerprintingScreenSize = class extends ContentFeature {
     constructor() {
       super(...arguments);
@@ -9177,7 +8972,6 @@ ul.messages {
   };
 
   // src/features/fingerprinting-temporary-storage.js
-  init_define_import_meta_trackerLookup();
   var FingerprintingTemporaryStorage = class extends ContentFeature {
     init() {
       const navigator2 = globalThis.navigator;
@@ -9205,17 +8999,7 @@ ul.messages {
     }
   };
 
-  // src/features/navigator-interface.js
-  init_define_import_meta_trackerLookup();
-
-  // src/features/message-bridge/create-page-world-bridge.js
-  init_define_import_meta_trackerLookup();
-
-  // src/features/message-bridge/schema.js
-  init_define_import_meta_trackerLookup();
-
   // src/type-utils.js
-  init_define_import_meta_trackerLookup();
   function isObject(input) {
     return toString.call(input) === "[object Object]";
   }
@@ -9473,7 +9257,15 @@ ul.messages {
   var SubscriptionUnsubscribe = _SubscriptionUnsubscribe;
 
   // src/features/message-bridge/create-page-world-bridge.js
-  var captured = captured_globals_exports;
+  var captured = {
+    dispatchEvent: dispatchEvent2,
+    addEventListener,
+    removeEventListener,
+    CustomEvent: CustomEvent2,
+    String: String2,
+    Error: Error2,
+    randomUUID
+  };
   var ERROR_MSG = "Did not install Message Bridge";
   function createPageWorldBridge(featureName, token, context) {
     if (typeof featureName !== "string" || !token) {
@@ -9660,7 +9452,6 @@ ul.messages {
   };
 
   // src/features/element-hiding.js
-  init_define_import_meta_trackerLookup();
   var adLabelStrings = [];
   var parser = new DOMParser();
   var hiddenElements = /* @__PURE__ */ new WeakMap();
@@ -9945,7 +9736,6 @@ ul.messages {
   };
 
   // src/features/exception-handler.js
-  init_define_import_meta_trackerLookup();
   var ExceptionHandler = class extends ContentFeature {
     init() {
       const handleUncaughtException = (e) => {
@@ -9968,7 +9758,6 @@ ul.messages {
   };
 
   // src/features/api-manipulation.js
-  init_define_import_meta_trackerLookup();
   var ApiManipulation = class extends ContentFeature {
     constructor() {
       super(...arguments);
@@ -10263,11 +10052,7 @@ ul.messages {
     }
   };
 
-  // src/features/page-context.js
-  init_define_import_meta_trackerLookup();
-
   // src/features/favicon.js
-  init_define_import_meta_trackerLookup();
   function getFaviconList() {
     const selectors = [
       "link[href][rel='favicon']",
@@ -10964,7 +10749,6 @@ ${iframeContent}
   _activeCapture = new WeakMap();
 
   // src/features/print.js
-  init_define_import_meta_trackerLookup();
   var Print = class extends ContentFeature {
     init() {
       if (this.platform?.name === "macos") {
@@ -10983,11 +10767,7 @@ ${iframeContent}
   };
   var print_default = Print;
 
-  // src/features/tracker-protection.js
-  init_define_import_meta_trackerLookup();
-
   // src/features/tracker-protection/tracker-resolver.js
-  init_define_import_meta_trackerLookup();
   var REASON_FIRST_PARTY = "first party";
   var REASON_RULE_EXCEPTION = "matched rule - exception";
   var REASON_DEFAULT_IGNORE = "default ignore";
@@ -11317,7 +11097,6 @@ ${iframeContent}
   };
 
   // src/features/tracker-protection/surrogates-generated.js
-  init_define_import_meta_trackerLookup();
   var surrogates = {
     "ad_status.js": function() {
       (() => {
@@ -13955,7 +13734,6 @@ ${iframeContent}
   var tracker_protection_default = TrackerProtection;
 
   // src/features/text-selection.js
-  init_define_import_meta_trackerLookup();
   var TextSelection = class extends ContentFeature {
     constructor() {
       super(...arguments);
@@ -14117,7 +13895,6 @@ ${iframeContent}
   };
 
   // src/url-change.js
-  init_define_import_meta_trackerLookup();
   var urlChangeListeners = /* @__PURE__ */ new Set();
   function registerForURLChanges(listener) {
     if (urlChangeListeners.size === 0) {
@@ -14191,9 +13968,9 @@ ${iframeContent}
       return;
     }
     const importConfig = {
-      trackerLookup: define_import_meta_trackerLookup_default,
+      trackerLookup: void 0,
       injectName: "apple",
-      contentScopeScriptsVersion: "23.2.0"
+      contentScopeScriptsVersion: "23.3.0"
     };
     const bundledFeatureNames = typeof importConfig.injectName === "string" ? platformSupport[importConfig.injectName] ?? [] : [];
     const featuresToLoad = isGloballyDisabled(args) ? platformSpecificFeatures : args.site.enabledFeatures || bundledFeatureNames;
