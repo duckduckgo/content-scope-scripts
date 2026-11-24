@@ -1,6 +1,5 @@
 /* eslint-disable no-redeclare, no-global-assign */
 import { Set } from './captured-globals.js';
-import { platformSupport, featureConfigDependencies } from './features.js';
 
 // Only use globalThis for testing this breaks window.wrappedJSObject code in Firefox
 
@@ -801,10 +800,9 @@ export function isMaxSupportedVersion(maxSupportedVersion, currentVersion) {
  * @param {string[]} userList
  * @param {UserPreferences} preferences
  * @param {string[]} platformSpecificFeatures
- * @param {string} [injectName] - the bundle being run, used to drop config for features it doesn't include
+ * @param {string[]} [bundledFeatureNames] - the features in this bundle, used to drop config for features it doesn't include
  */
-export function processConfig(data, userList, preferences, platformSpecificFeatures = [], injectName = import.meta.injectName) {
-    const bundledFeatureNames = injectName ? platformSupport[injectName] : undefined;
+export function processConfig(data, userList, preferences, platformSpecificFeatures = [], bundledFeatureNames) {
     if (bundledFeatureNames) {
         data = pruneConfigFeatures(data, bundledFeatureNames, featureConfigDependencies);
     }
@@ -876,6 +874,18 @@ export function isStateEnabled(state, platform) {
             return false;
     }
 }
+
+/**
+ * Remote config keys a feature reads beyond its own, used to keep them when pruning the config.
+ * Add an entry whenever a feature reads another feature's config (`bundledConfig.features.x`
+ * or `getFeatureSetting(key, 'x')`), otherwise that read returns nothing once pruned.
+ * @type {Partial<Record<FeatureName, string[]>>}
+ */
+export const featureConfigDependencies = {
+    trackerProtection: ['contentBlocking', 'trackerAllowlist', 'clickToLoad'],
+    breakageReporting: ['webInterferenceDetection'],
+    cookie: ['adClickAttribution'],
+};
 
 /**
  * Returns a copy of the config without the features a bundle never reads, so the rest can be garbage collected.
@@ -971,7 +981,7 @@ export function isGloballyDisabled(args) {
 }
 
 /**
- * @import {FeatureName} from "./features";
+ * @import {FeatureName} from "./types/feature-map";
  * @type {FeatureName[]}
  */
 export const platformSpecificFeatures = [
@@ -1008,7 +1018,7 @@ export const selfGatingFeatures = ['trackerProtection', 'uaChBrands'];
  * @returns {boolean}
  */
 export function isPlatformSpecificFeature(featureName) {
-    return platformSpecificFeatures.includes(/** @type {import('./features.js').FeatureName} */ (featureName));
+    return platformSpecificFeatures.includes(/** @type {import('./types/feature-map').FeatureName} */ (featureName));
 }
 
 /**
@@ -1016,7 +1026,7 @@ export function isPlatformSpecificFeature(featureName) {
  * @returns {boolean}
  */
 export function isSelfGatingFeature(featureName) {
-    return selfGatingFeatures.includes(/** @type {import('./features.js').FeatureName} */ (featureName));
+    return selfGatingFeatures.includes(/** @type {import('./types/feature-map').FeatureName} */ (featureName));
 }
 
 /**

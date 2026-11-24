@@ -144,7 +144,7 @@ describe('WebDetection feature', () => {
         it('should not fire when webEvents feature is not loaded, or is skipped (disabled on page)', async () => {
             // callFeatureMethod returns CallFeatureMethodError, for a feature not found and for one skipped
             await expectAsync(createInstance({})._executeFireEvent('adwall')).toBeResolved();
-            /** @type {Partial<import('../../src/features.js').FeatureMap>} */
+            /** @type {Partial<import('../../src/types/feature-map').FeatureMap>} */
             const features = {};
             const webEvents = (features.webEvents = new WebEvents('webEvents', undefined, features, defaultArgs));
             webEvents.markFeatureAsSkipped('feature disabled for this site');
@@ -154,7 +154,7 @@ describe('WebDetection feature', () => {
         });
 
         it('should fire when webEvents feature is loaded and ready', async () => {
-            /** @type {Partial<import('../../src/features.js').FeatureMap>} */
+            /** @type {Partial<import('../../src/types/feature-map').FeatureMap>} */
             const features = {};
             const webEvents = (features.webEvents = new WebEvents('webEvents', undefined, features, defaultArgs));
             await webEvents.callInit(defaultArgs);

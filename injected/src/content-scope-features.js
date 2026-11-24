@@ -1,15 +1,17 @@
 import { initStringExemptionLists, isFeatureBroken, isGloballyDisabled, platformSpecificFeatures, registerMessageSecret } from './utils';
-import { platformSupport } from './features';
 import { PerformanceMonitor } from './performance';
-import platformFeatures from 'ddg:platformFeatures';
+import platformFeatures, { featureNames } from 'ddg:platformFeatures';
 import { registerForURLChanges } from './url-change';
+
+/** The features in this bundle, in the order they load and init (see scripts/bundles.js) */
+export const bundledFeatureNames = featureNames;
 
 /** @type {LoadArgs | null} */
 let initArgs = null;
 /** @type {LoadArgs[]} */
 const updates = [];
 /**
- * @type {Partial<import('./features.js').FeatureMap>}
+ * @type {Partial<import('./types/feature-map').FeatureMap>}
  */
 const _features = {};
 
@@ -56,8 +58,6 @@ export function load(args) {
         contentScopeScriptsVersion: import.meta.contentScopeScriptsVersion,
     };
 
-    const bundledFeatureNames = typeof importConfig.injectName === 'string' ? (platformSupport[importConfig.injectName] ?? []) : [];
-
     // prettier-ignore
     const featuresToLoad = isGloballyDisabled(args)
         // if we're globally disabled, only allow `platformSpecificFeatures`
@@ -97,7 +97,7 @@ export function load(args) {
  * Adds a micro delay between features loading with the intent of splitting up
  * the call stack.
  *
- * @returns {Promise<Partial<import('./features.js').FeatureMap>>}
+ * @returns {Promise<Partial<import('./types/feature-map').FeatureMap>>}
  */
 async function getFeatures() {
     // eslint-disable-next-line @typescript-eslint/await-thenable

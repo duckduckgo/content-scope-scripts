@@ -23,7 +23,6 @@ const CORE_FILES = new Set([
     'injected/src/cookie.js',
     'injected/src/crypto.js',
     'injected/src/dom-utils.js',
-    'injected/src/features.js',
     'injected/src/globals.d.ts',
     'injected/src/navigator-global.js',
     'injected/src/utils/dom-metadata.js',

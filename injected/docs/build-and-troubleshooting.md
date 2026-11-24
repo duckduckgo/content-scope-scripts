@@ -182,7 +182,7 @@ Use this when a feature "is not working" to confirm it is enabled and wired end-
 
 ### 3) Feature bundled on the platform
 
-- Check `injected/src/features.js` to confirm the platform bundle includes the feature.
+- Check the bundle's `features` in `injected/scripts/bundles.js` to confirm it includes the feature.
 - Confirm the correct entry point is used for the platform (`injected/entry-points/`).
 - Verify the built output (`build/<platform>/contentScope.js` or `inject.js`) contains the feature code.
 

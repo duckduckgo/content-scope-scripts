@@ -6,14 +6,16 @@ To add a new bundle to the Content Scope Scripts build system:
 
 ## 1. Define Build Configuration
 
-**File**: `injected/scripts/entry-points.js`
+**File**: `injected/scripts/bundles.js`
 
-Add your bundle to the `builds` object:
+Add your bundle to the `builds` object, with its entry point, output files and features. Features load and init in
+the order listed, and each bundle only contains (and only knows about) its own list:
 
 ```js
 'my-new-bundle': {
     input: 'entry-points/my-entry.js',
     output: ['../build/my-platform/myScript.js'],
+    features: ['cookie', ...baseFeatures, 'mySpecificFeature'],
 },
 ```
 
@@ -30,21 +32,7 @@ injectName?:
     | 'my-new-bundle'  // Add here
 ```
 
-## 3. Configure Platform Features (Optional)
-
-**File**: `injected/src/features.js`
-
-If creating a platform-specific bundle, add feature configuration:
-
-```js
-'my-platform': [
-    'cookie',
-    ...baseFeatures,
-    'mySpecificFeature',
-],
-```
-
-## Optional: 4. Create Entry Point
+## Optional: 3. Create Entry Point
 
 **Directory**: `injected/entry-points/`
 

@@ -1,4 +1,5 @@
-import { platformSupport, featureConfigDependencies } from '../src/features.js';
+import { builds } from '../scripts/bundles.js';
+import { featureConfigDependencies } from '../src/utils.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { readFile } from 'fs/promises';
@@ -22,7 +23,7 @@ async function createConfigSchemaGenerator() {
 
 describe('Features definition', () => {
     it('calls `webCompat` before `fingerPrintingScreenSize` https://app.asana.com/0/1177771139624306/1204944717262422/f', () => {
-        const arr = platformSupport.apple;
+        const arr = builds.apple.features;
         const webCompatIdx = arr.indexOf('webCompat');
         const fpScreenSizeIdx = arr.indexOf('fingerprintingScreenSize');
         expect(webCompatIdx).not.toBe(-1);
@@ -55,7 +56,7 @@ describe('Features definition', () => {
     });
 
     it('loads only `cookie` before `webDetection`, so it captures native APIs before other features replace them', () => {
-        for (const [platform, features] of Object.entries(platformSupport)) {
+        for (const [platform, { features }] of Object.entries(builds)) {
             if (!features.includes('webDetection')) continue;
             const before = features.slice(0, features.indexOf('webDetection'));
             expect(before.filter((name) => name !== 'cookie'))

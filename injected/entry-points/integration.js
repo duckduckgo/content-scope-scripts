@@ -1,7 +1,6 @@
-import { load, init, updateFeatureArgs } from '../src/content-scope-features.js';
+import { load, init, updateFeatureArgs, bundledFeatureNames } from '../src/content-scope-features.js';
 import { TestTransportConfig } from '../../messaging/index.js';
 import { getTabUrl, getLoadArgs } from '../src/utils.js';
-import { platformSupport } from '../src/features.js';
 
 /**
  * @typedef {import('../src/content-scope-features.js').LoadArgs & {
@@ -46,13 +45,13 @@ function generateConfig() {
             url: topLevelUrl?.href || '',
             isBroken: false,
             allowlisted: false,
-            // Derive enabled features from platformSupport to avoid drift.
+            // Derive enabled features from this bundle's feature list (scripts/bundles.js) to avoid drift.
             // Exclude features requiring a messaging backend (clickToLoad) or
             // platform-specific globals (brokerProtection, autofillImport) that
             // would fail or slow down initialization in the integration test context.
             // autofillPasskeys is Windows-only and globally wraps navigator.credentials.get,
             // so keep it out of the generic integration context as well.
-            enabledFeatures: (platformSupport.integration ?? []).filter(
+            enabledFeatures: bundledFeatureNames.filter(
                 (f) => !['clickToLoad', 'brokerProtection', 'autofillImport', 'autofillPasskeys'].includes(f),
             ),
         },

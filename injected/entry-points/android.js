@@ -1,7 +1,7 @@
 /**
  * @module Android integration
  */
-import { load, init } from '../src/content-scope-features.js';
+import { load, init, bundledFeatureNames } from '../src/content-scope-features.js';
 import { processConfig, platformSpecificFeatures, getLoadArgs } from './../src/utils';
 import { AndroidMessagingConfig } from '../../messaging/index.js';
 
@@ -20,6 +20,7 @@ function initCode() {
         userUnprotectedDomains,
         userPreferences,
         isPageTranslation ? platformSpecificFeatures : [],
+        bundledFeatureNames,
     );
 
     const configConstruct = processedConfig;

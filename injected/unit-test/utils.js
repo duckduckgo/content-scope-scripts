@@ -28,6 +28,7 @@ import {
 } from '../src/utils.js';
 import ConfigFeature from '../src/config-feature.js';
 import { polyfillProcessGlobals } from './helpers/polyfill-process-globals.js';
+import { builds } from '../scripts/bundles.js';
 
 /**
  * @typedef {import('../src/utils.js').ConfigSetting} ConfigSetting
@@ -1472,7 +1473,7 @@ describe('Helpers checks', () => {
             expect(pruneConfigFeatures(data, ['gpc'])).toBe(data);
         });
 
-        it('is applied by processConfig for the given inject name', () => {
+        it('is applied by processConfig for the given bundle features', () => {
             const data = {
                 unprotectedTemporary: [],
                 features: {
@@ -1482,7 +1483,7 @@ describe('Helpers checks', () => {
             };
             /** @type {import('../src/utils.js').UserPreferences} */
             const preferences = { platform: { name: 'ios' }, sessionKey: 'testSessionKey' };
-            const pruned = processConfig(data, [], preferences, [], 'apple');
+            const pruned = processConfig(data, [], preferences, [], builds.apple.features);
             expect(Object.keys(pruned.bundledConfig.features)).toEqual(['gpc']);
             const unpruned = processConfig(data, [], preferences, []);
             expect(Object.keys(unpruned.bundledConfig.features).sort()).toEqual(['autofill', 'gpc']);

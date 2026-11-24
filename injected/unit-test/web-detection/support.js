@@ -10,7 +10,7 @@ import { pageSources } from '../../src/features/web-detection/sources/index.js';
 import WebDetection from '../../src/features/web-detection.js';
 
 /**
- * @typedef {import('../../src/features.js').FeatureMap} FeatureMap
+ * @typedef {import('../../src/types/feature-map').FeatureMap} FeatureMap
  * @typedef {import('@duckduckgo/privacy-configuration/schema/features/web-detection.js').DetectorConfig} RawDetectorConfig
  * @typedef {import('@duckduckgo/privacy-configuration/schema/features/web-detection.js').Expr} Expr
  * @typedef {import('../../src/features/web-detection/evaluate/breakage-entries.js').BreakageEntry} BreakageEntry

@@ -11,13 +11,13 @@ JavaScript features injected into web pages or running in DOM environments of Du
 
 ```
 src/features/<name>.js    # Feature implementation (extends ContentFeature)
-src/features.js           # Feature registry (baseFeatures + otherFeatures arrays)
+scripts/bundles.js        # Every bundle: entry point, output files and features
 entry-points/<platform>.js # Platform-specific bundles
 integration-test/         # Playwright integration tests
 unit-test/                # Jasmine unit tests
 ```
 
-**Adding a new feature:** Add to `baseFeatures` or `otherFeatures` in `src/features.js`, then add to relevant platform arrays in `platformSupport`. Build the project after adding a new feature in `src/features/` to keep types up-to-date (`npm run build`).
+**Adding a new feature:** Add it to `baseFeatures` or `otherFeatures` in `scripts/bundles.js`, then to the `features` of each bundle that should include it. Build the project after adding a new feature in `src/features/` to keep types up-to-date (`npm run build`).
 
 **Strict TypeScript:** All new feature files must be added to the `CORE_FILES` set in `scripts/check-strict-core.js`. This enforces full TypeScript strict mode (`strict: true`, `noUncheckedIndexedAccess`) on the file. Run `npm run tsc-strict-core` from the repo root to verify. Existing files in the set must not regress.
 

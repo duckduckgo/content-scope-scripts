@@ -70,7 +70,7 @@ declare module '*.riv' {
 }
 
 declare module 'ddg:platformFeatures' {
-    type FeatureMap = import('./features.js').FeatureMap;
+    type FeatureMap = import('./types/feature-map').FeatureMap;
     type LoadArgs = import('./content-scope-features.js').LoadArgs;
     const output: Record<
         string,
@@ -82,4 +82,6 @@ declare module 'ddg:platformFeatures' {
         ) => FeatureMap[K]
     >;
     export default output;
+    // the features in this bundle, in the order they load and init (scripts/bundles.js)
+    export const featureNames: import('./types/feature-map').FeatureName[];
 }

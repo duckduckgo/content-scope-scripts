@@ -28,11 +28,11 @@ The `ConfigFeature` class is also exportable and can be used by other scripts to
 
 ### 1. Create Feature File
 
-Create a new content scope features file in `src/features/` and register it in [features.js](../src/features.js).
+Create a new content scope features file in `src/features/` and register it in [bundles.js](../scripts/bundles.js).
 
 ### 2. Register the Feature
 
-Add the feature name to the [features.js](../src/features.js) array.
+Add the feature name to `baseFeatures` or `otherFeatures` in [bundles.js](../scripts/bundles.js), and to the `features` of each bundle that should include it.
 
 ### 3. Add Debug Flags
 
@@ -67,7 +67,7 @@ There are three stages that the content scope code is hooked into the platform:
 
 ## Special-case init/load behaviors
 
-When editing core lifecycle code (`src/content-scope-features.js`, `src/utils.js`) or the feature registry (`src/features.js`), preserve these behaviors:
+When editing core lifecycle code (`src/content-scope-features.js`, `src/utils.js`) or the bundle manifest (`scripts/bundles.js`), preserve these behaviors:
 
 ### Always-run platform-specific features (global disable bypass)
 
@@ -95,7 +95,7 @@ When editing core lifecycle code (`src/content-scope-features.js`, `src/utils.js
 
 ### Extension load uses bundled feature list
 
-- In `load()`, extensions do not have `site.enabledFeatures` yet, so they fall back to `platformSupport[import.meta.injectName]`.
+- In `load()`, extensions do not have `site.enabledFeatures` yet, so they fall back to the bundle's own feature list, `bundledFeatureNames` (from scripts/bundles.js).
 - Avoid tightening this flow; it is required for early-load features (especially `cookie`) to install hooks on time.
 
 ## Debug and Breakage Management

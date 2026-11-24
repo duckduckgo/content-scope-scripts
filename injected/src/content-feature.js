@@ -24,7 +24,7 @@ import ConfigFeature from './config-feature.js';
  */
 
 /**
- * @typedef {import('./features.js').FeatureMap} FeatureMap
+ * @typedef {import('./types/feature-map').FeatureMap} FeatureMap
  */
 
 /**

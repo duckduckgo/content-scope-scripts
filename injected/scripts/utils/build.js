@@ -1,4 +1,3 @@
-import { platformSupport } from '../../src/features.js';
 import { readFileSync } from 'fs';
 import { cwd } from '../../../scripts/script-utils.js';
 import { join } from 'path';
@@ -15,7 +14,7 @@ const prefixMessage = '/*! © DuckDuckGo ContentScopeScripts $INJECT_NAME$ https
  * @param {object} params
  * @param {string} params.scriptPath
  * @param {string} params.platform
- * @param {string[]} [params.featureNames]
+ * @param {string[]} params.featureNames - the features in this bundle, in the order they load and init (see scripts/bundles.js)
  * @param {string} [params.name]
  * @param {boolean} [params.sourcemap] - Enable inline source maps for debugging
  * @return {Promise<string>}
@@ -28,10 +27,9 @@ export async function bundle(params) {
     let trackerLookup = '$TRACKER_LOOKUP$';
     if (!isExtension) {
         // Only the cookie feature reads the tracker lookup
-        const bundledFeatures = featureNames ?? platformSupport[platform] ?? [];
-        trackerLookup = bundledFeatures.includes('cookie') ? readFileSync('../build/tracker-lookup.json', 'utf8') : 'undefined';
+        trackerLookup = featureNames.includes('cookie') ? readFileSync('../build/tracker-lookup.json', 'utf8') : 'undefined';
     }
-    const loadFeaturesPlugin = loadFeatures(platform, featureNames);
+    const loadFeaturesPlugin = loadFeatures(featureNames);
     // The code is using a global, that we define here which means once tree shaken we get a browser specific output.
 
     const outputPrefixName = prefixMessage.replace('$INJECT_NAME$', platform);
@@ -82,13 +80,12 @@ export async function bundle(params) {
 }
 
 /**
- * Include the features required on each platform
+ * Include the features in this bundle, and export their names in order
  *
- * @param {string} platform
  * @param {string[]} featureNames
  * @returns {import("esbuild").Plugin}
  */
-function loadFeatures(platform, featureNames = platformSupport[platform]) {
+function loadFeatures(featureNames) {
     const pluginId = 'ddg:platformFeatures';
     return {
         name: 'ddg:platformFeatures',
@@ -116,11 +113,13 @@ function loadFeatures(platform, featureNames = platformSupport[platform]) {
                 const exportsString = imports.map((imp) => `${imp.ident}`).join(',\n    ');
 
                 const exportString = `export default {\n    ${exportsString}\n}`;
+                // the bundle's own feature list, in order (see scripts/bundles.js)
+                const featureNamesString = `export const featureNames = ${JSON.stringify(featureNames)};`;
 
                 return {
                     loader: 'js',
                     resolveDir: ROOT,
-                    contents: [importString, exportString].join('\n'),
+                    contents: [importString, exportString, featureNamesString].join('\n'),
                 };
             });
         },
