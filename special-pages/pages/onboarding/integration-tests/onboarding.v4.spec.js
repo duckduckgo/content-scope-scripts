@@ -472,6 +472,202 @@ test.describe('onboarding v4', () => {
         });
     });
 
+    test.describe('Given I am on the picker step', () => {
+        const gmail = { id: 'gmail', url: 'https://mail.google.com' };
+        const outlook = { id: 'outlook', url: 'https://outlook.live.com' };
+        const youtube = { id: 'youtube', url: 'https://www.youtube.com' };
+        const wikipedia = { id: 'wikipedia', url: 'https://www.wikipedia.org' };
+
+        test('Add sends the toggled sites', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            await onboarding.goToPicker();
+            await page.getByRole('switch', { name: 'YouTube' }).click();
+            await page.getByRole('switch', { name: 'Gmail' }).click();
+            await page.getByRole('button', { name: 'Add to favorites' }).click();
+
+            await page.getByRole('heading', { name: 'Want easy access to private AI Chat?' }).waitFor({ timeout: 1000 });
+            // in list order, not click order
+            await onboarding.didAddFavorites([gmail, youtube]);
+            await onboarding.didFireStepCompleted({ id: 'picker', next: 'addressBarMode' });
+        });
+
+        test('The primary button comes first on Windows and last on macOS', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            await onboarding.goToPicker();
+            const add = await page.getByRole('button', { name: 'Add to favorites' }).boundingBox();
+            const skip = await page.getByRole('button', { name: 'Skip' }).boundingBox();
+            if (!add || !skip) throw new Error('picker buttons not rendered');
+            if (workerInfo.project.name === 'windows') {
+                expect(add.x).toBeLessThan(skip.x);
+            } else {
+                expect(add.x).toBeGreaterThan(skip.x);
+            }
+        });
+
+        test('Add is disabled until a site is toggled', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            await onboarding.goToPicker();
+            await expect(page.getByRole('button', { name: 'Add to favorites' })).toBeDisabled();
+            await page.getByRole('switch', { name: 'YouTube' }).click();
+            await expect(page.getByRole('button', { name: 'Add to favorites' })).toBeEnabled();
+            await page.getByRole('switch', { name: 'YouTube' }).click();
+            await expect(page.getByRole('button', { name: 'Add to favorites' })).toBeDisabled();
+        });
+
+        test('Several email providers can be picked, next to a locked one', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            await onboarding.goToPicker();
+            await onboarding.pushConfigUpdate({ stepDefinitions: { picker: { existingFavorites: ['https://mail.yahoo.com'] } } });
+            await page.getByRole('switch', { name: 'Gmail' }).click();
+            await page.getByRole('switch', { name: 'Outlook' }).click();
+            for (const name of ['Gmail', 'Outlook', 'Yahoo Mail']) {
+                await expect(page.getByRole('switch', { name })).toHaveAttribute('aria-checked', 'true');
+            }
+            await page.getByRole('button', { name: 'Add to favorites' }).click();
+
+            await onboarding.didAddFavorites([gmail, outlook]);
+        });
+
+        test('Double click on Add sends one addFavorites', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            await onboarding.goToPicker();
+            await page.getByRole('switch', { name: 'YouTube' }).click();
+            await page.getByRole('button', { name: 'Add to favorites' }).dblclick();
+
+            await page.getByRole('heading', { name: 'Want easy access to private AI Chat?' }).waitFor({ timeout: 1000 });
+            await onboarding.didAddFavorites([youtube]);
+        });
+
+        test('During the exit fade, a second Add or a late Skip does nothing', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            await onboarding.goToPicker({ reducedMotion: false });
+            await page.getByRole('switch', { name: 'YouTube' }).click();
+            const add = page.getByRole('button', { name: 'Add to favorites' });
+            await add.click();
+            // the step is still mounted while it fades out, so every control must already be off
+            await expect(add).toBeDisabled();
+            await expect(page.getByRole('button', { name: 'Skip' })).toBeDisabled();
+            await expect(page.getByRole('switch', { name: 'Gmail' })).toBeDisabled();
+
+            await page.getByRole('heading', { name: 'Want easy access to private AI Chat?' }).waitFor({ timeout: 2000 });
+            await onboarding.didAddFavorites([youtube]);
+        });
+
+        test('Skip during the exit fade keeps Add from sending', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            await onboarding.goToPicker({ reducedMotion: false });
+            await page.getByRole('switch', { name: 'YouTube' }).click();
+            await page.getByRole('button', { name: 'Skip' }).click();
+            await expect(page.getByRole('button', { name: 'Add to favorites' })).toBeDisabled();
+
+            await page.getByRole('heading', { name: 'Want easy access to private AI Chat?' }).waitFor({ timeout: 2000 });
+            await onboarding.didNotAddFavorites();
+        });
+
+        test('Excluding the picker while it is shown still moves on to the next step', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            await onboarding.goToPicker();
+            await onboarding.pushConfigUpdate({ exclude: ['picker'] });
+            await page.getByRole('button', { name: 'Skip' }).click();
+
+            await page.getByRole('heading', { name: 'Want easy access to private AI Chat?' }).waitFor({ timeout: 1000 });
+            await onboarding.didFireStepCompleted({ id: 'picker', next: 'addressBarMode' });
+        });
+
+        test('existingFavorites: null shows every site instead of breaking the page', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            await onboarding.goToPicker();
+            await onboarding.pushConfigUpdate({ stepDefinitions: { picker: { existingFavorites: null } } });
+
+            await expect(page.getByRole('switch', { name: 'YouTube' })).toBeVisible();
+            await expect(page.getByRole('switch', { name: 'Gmail' })).toBeVisible();
+        });
+
+        test('Skip sends no addFavorites', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            await onboarding.goToPicker();
+            await page.getByRole('switch', { name: 'YouTube' }).click();
+            await page.getByRole('button', { name: 'Skip' }).click();
+
+            await page.getByRole('heading', { name: 'Want easy access to private AI Chat?' }).waitFor({ timeout: 1000 });
+            await onboarding.didFireStepCompleted({ id: 'picker', next: 'addressBarMode' });
+            await onboarding.didNotAddFavorites();
+        });
+
+        test('Existing favorites show as picked and locked, and the rest stay open', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            await onboarding.goToPicker();
+            await onboarding.pushConfigUpdate({ stepDefinitions: { picker: { existingFavorites: ['https://youtube.com/feed'] } } });
+
+            const youtubeSwitch = page.getByRole('switch', { name: 'YouTube' });
+            await expect(youtubeSwitch).toHaveAttribute('aria-checked', 'true');
+            await expect(youtubeSwitch).toBeDisabled();
+            // only existingFavorites was sent, so the default sites survive the merge
+            for (const name of ['Gmail', 'Outlook', 'Yahoo Mail', 'Wikipedia']) {
+                await expect(page.getByRole('switch', { name })).toHaveAttribute('aria-checked', 'false');
+                await expect(page.getByRole('switch', { name })).toBeEnabled();
+            }
+            // an existing favorite alone is not a pick
+            await expect(page.getByRole('button', { name: 'Add to favorites' })).toBeDisabled();
+        });
+
+        test('Add leaves existing favorites out of addFavorites', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            await onboarding.goToPicker();
+            await onboarding.pushConfigUpdate({ stepDefinitions: { picker: { existingFavorites: ['https://www.youtube.com'] } } });
+            await page.getByRole('switch', { name: 'Wikipedia' }).click();
+            await page.getByRole('button', { name: 'Add to favorites' }).click();
+
+            await onboarding.didAddFavorites([wikipedia]);
+        });
+
+        test('A late update locks a toggled site and drops it from the picks', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            await onboarding.goToPicker();
+            await page.getByRole('switch', { name: 'YouTube' }).click();
+            await page.getByRole('switch', { name: 'Gmail' }).click();
+            await onboarding.pushConfigUpdate({ stepDefinitions: { picker: { existingFavorites: ['https://www.youtube.com'] } } });
+            await expect(page.getByRole('switch', { name: 'YouTube' })).toBeDisabled();
+            await expect(page.getByRole('switch', { name: 'YouTube' })).toHaveAttribute('aria-checked', 'true');
+            await page.getByRole('button', { name: 'Add to favorites' }).click();
+
+            await onboarding.didAddFavorites([gmail]);
+        });
+
+        test('A section with every site already a favorite keeps its heading', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            await onboarding.goToPicker();
+            await onboarding.pushConfigUpdate({
+                stepDefinitions: {
+                    picker: { existingFavorites: ['https://mail.google.com', 'https://outlook.live.com', 'https://mail.yahoo.com'] },
+                },
+            });
+
+            await expect(page.getByRole('heading', { name: 'Email' })).toBeVisible();
+            for (const name of ['Gmail', 'Outlook', 'Yahoo Mail']) {
+                await expect(page.getByRole('switch', { name })).toBeDisabled();
+            }
+        });
+
+        test('exclude removes the picker mid-flow', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({ stepDefinitions: null, steps: ['welcome', 'getStarted', 'customize', 'picker', 'addressBarMode'] });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'customize' });
+            await expect(page.getByText('1 of 3')).toBeVisible();
+
+            await onboarding.pushConfigUpdate({ exclude: ['picker'] });
+            await expect(page.getByText('1 of 2')).toBeVisible();
+            await onboarding.skippedBookmarksBar();
+            await onboarding.skippedSessionRestore();
+            await onboarding.skippedShowHomeButton();
+            await page.getByRole('button', { name: 'Next' }).click();
+
+            await page.getByRole('heading', { name: 'Want easy access to private AI Chat?' }).waitFor({ timeout: 1000 });
+            await onboarding.didFireStepCompleted({ id: 'customize', next: 'addressBarMode' });
+        });
+    });
+
     test.describe('Given I am on the searchOrChat step', () => {
         test('Search is selected by default and a suggestion sends it as a search', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);

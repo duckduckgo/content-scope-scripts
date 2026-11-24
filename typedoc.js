@@ -49,7 +49,7 @@ const config = /** @type {Partial<import('typedoc').TypeDocOptions>} */ ({
     readme: 'none',
     treatWarningsAsErrors: true,
     searchInComments: true,
-    blockTags: [...OptionDefaults.blockTags, '@maxItems'],
+    blockTags: [...OptionDefaults.blockTags, '@maxItems', '@minItems'],
     modifierTags: [...OptionDefaults.modifierTags, '@implements'],
     highlightLanguages: [...OptionDefaults.highlightLanguages, 'mermaid', 'java', 'swift'],
 });

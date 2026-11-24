@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { hostKey, withoutExistingFavorites } from '../app/v4/data/existing-favorites.js';
+import { hostKey, existingSiteIds } from '../app/v4/data/existing-favorites.js';
 
 /** @type {import('../types/onboarding.ts').PickerSite} */
 const gmail = { id: 'gmail', url: 'https://mail.google.com', title: 'Gmail', section: 'email' };
@@ -18,15 +18,15 @@ test('hostKey returns null for unparseable input', () => {
     assert.equal(hostKey(''), null);
 });
 
-test('withoutExistingFavorites hides matching sites only', () => {
-    assert.deepEqual(withoutExistingFavorites([gmail, youtube], ['https://youtube.com/feed']), [gmail]);
-    assert.deepEqual(withoutExistingFavorites([gmail, youtube], ['https://google.com']), [gmail, youtube]);
+test('existingSiteIds returns the ids of matching sites only', () => {
+    assert.deepEqual(existingSiteIds([gmail, youtube], ['https://youtube.com/feed']), ['youtube']);
+    assert.deepEqual(existingSiteIds([gmail, youtube], ['https://google.com']), []);
 });
 
-test('withoutExistingFavorites skips malformed favorites', () => {
-    assert.deepEqual(withoutExistingFavorites([gmail, youtube], ['::', '', 'https://www.youtube.com']), [gmail]);
+test('existingSiteIds skips malformed favorites', () => {
+    assert.deepEqual(existingSiteIds([gmail, youtube], ['::', '', 'https://www.youtube.com']), ['youtube']);
 });
 
 test('m. hosts are a known miss', () => {
-    assert.deepEqual(withoutExistingFavorites([youtube], ['https://m.youtube.com']), [youtube]);
+    assert.deepEqual(existingSiteIds([youtube], ['https://m.youtube.com']), []);
 });

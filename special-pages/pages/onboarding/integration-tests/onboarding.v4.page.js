@@ -203,6 +203,40 @@ export class OnboardingV4Page extends OnboardingPage {
     }
 
     /**
+     * Asserts exactly one addFavorites was sent, with exactly these favorites.
+     * @param {import('../types/onboarding.ts').AddFavorites['favorites']} favorites
+     */
+    async didAddFavorites(favorites) {
+        const calls = await this.mocks.outgoing({ names: ['addFavorites'] });
+        expect(calls).toMatchObject([
+            {
+                payload: {
+                    context: 'specialPages',
+                    featureName: 'onboarding',
+                    method: 'addFavorites',
+                    params: { favorites },
+                },
+            },
+        ]);
+    }
+
+    async didNotAddFavorites() {
+        const calls = await this.mocks.outgoing({ names: ['addFavorites'] });
+        expect(calls).toHaveLength(0);
+    }
+
+    /**
+     * Opens the picker step, with customize before it and addressBarMode after it.
+     * @param {{ reducedMotion?: boolean }} [options] - without reduced motion the step stays mounted through its exit fade
+     */
+    async goToPicker({ reducedMotion = true } = {}) {
+        this.withInitData({ stepDefinitions: null, steps: ['welcome', 'getStarted', 'customize', 'picker', 'addressBarMode'] });
+        if (reducedMotion) await this.reducedMotion();
+        await this.openPage({ env: 'app', page: 'picker' });
+        await this.page.getByRole('button', { name: 'Skip' }).waitFor({ timeout: 1000 });
+    }
+
+    /**
      * Opens the addressBarMode step with searchOrChat listed after it, optionally picks Search Only, and moves on.
      * @param {{ searchOnly?: boolean }} [options]
      */

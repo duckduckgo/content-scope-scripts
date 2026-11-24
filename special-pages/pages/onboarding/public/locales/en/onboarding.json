@@ -572,5 +572,25 @@
   "getStarted_launchOnStartup_label": {
     "title": "Open DuckDuckGo when your computer starts up",
     "note": "Windows onboarding checkbox for opening the browser at Windows sign-in."
+  },
+  "picker_title": {
+    "title": "Add your favorite sites",
+    "note": "Placeholder until final copy. Title of the onboarding step where the user picks popular sites to add to their favorites."
+  },
+  "picker_section_email": {
+    "title": "Email",
+    "note": "Placeholder until final copy. Heading above the email provider options on the favorites picker step. The user can pick only one."
+  },
+  "picker_section_popular": {
+    "title": "Popular sites",
+    "note": "Placeholder until final copy. Heading above the popular site options on the favorites picker step."
+  },
+  "picker_add": {
+    "title": "Add to favorites",
+    "note": "Button on the favorites picker step that adds the picked sites to the user's favorites and moves on."
+  },
+  "picker_skip": {
+    "title": "Skip",
+    "note": "Button on the favorites picker step that moves on without adding any favorites."
   }
 }

@@ -37,7 +37,8 @@ export function reducer(state, action) {
         }
         let nextOrder = state.order;
         if (action.exclude) {
-            nextOrder = state.order.filter((id) => !action.exclude?.includes(id));
+            // The active step stays in the order even when excluded, so leaving it still finds the step after it
+            nextOrder = state.order.filter((id) => id === state.activeStep || !action.exclude?.includes(id));
         }
         return {
             ...state,
@@ -104,6 +105,11 @@ export function reducer(state, action) {
             switch (action.kind) {
                 case 'telemetry':
                     return state;
+                // The title can finish typing while a value is saving, e.g. after a click lands on a new step's
+                // option straight away
+                case 'title-complete': {
+                    return { ...state, activeStepVisible: true };
+                }
                 case 'exec-complete': {
                     if (state.step.kind === 'settings') {
                         // only advance to another row if we're updating the current item.
@@ -255,6 +261,9 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
             }
             if (msg.kind === 'submit-query') {
                 messaging.submitQuery(msg.params);
+            }
+            if (msg.kind === 'add-favorites') {
+                messaging.addFavorites(msg.params);
             }
             if (msg.kind === 'request-chrome-extension') {
                 messaging.requestChromeExtensionInstall();

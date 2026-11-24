@@ -81,6 +81,18 @@ Lets native push new step definitions or exclusions after `init`, for example to
 }
 ```
 
+After the import, native sends the user's existing favorites as URLs, and the picker step shows any suggested site whose hostname matches one, after dropping a leading `www.`, as picked and locked. Those sites never go out in `addFavorites`. In the same message, `exclude` can drop the picker when the user already has enough favorites.
+
+```json
+{
+  "stepDefinitions": {
+    "picker": {
+      "existingFavorites": ["https://youtube.com/feed", "https://example.com"]
+    }
+  }
+}
+```
+
 ## Notifications
 
 ### `stepCompleted`
@@ -161,6 +173,20 @@ Sent instead of `dismissToAddressBar` when the user submits a search or a Duck.a
   "mode": "duckAi",
   "query": "Plan a weekend in Lisbon",
   "source": "suggestion"
+}
+```
+
+### `addFavorites`
+{@link "Onboarding Messages".AddFavoritesNotification}
+
+Sent once when the user clicks Add to favorites on the picker step, before the page moves on. Native creates a favorite for each site and uses its `id` to find the bundled icon. Skip sends nothing beyond `stepCompleted`.
+
+```json
+{
+  "favorites": [
+    { "id": "gmail", "url": "https://mail.google.com" },
+    { "id": "youtube", "url": "https://www.youtube.com" }
+  ]
 }
 ```
 

@@ -1,0 +1,48 @@
+/* Plain layout for the PoC. The Figma styling replaces this. */
+.section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.heading {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.sites {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.site {
+    padding: 8px 12px;
+    border: 1px solid var(--color-black-at-18, rgba(0, 0, 0, 0.18));
+    border-radius: 8px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+}
+
+.site:disabled {
+    cursor: default;
+}
+
+.site[data-on='true'] {
+    border-color: var(--color-blue-50, #3969ef);
+    outline: 1px solid var(--color-blue-50, #3969ef);
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+
+    /* Windows puts the primary button first, as the other steps do */
+    [data-platform-name='windows'] & > *:last-child {
+        order: -1;
+    }
+}

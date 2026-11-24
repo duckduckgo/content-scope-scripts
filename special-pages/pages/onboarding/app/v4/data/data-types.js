@@ -48,6 +48,7 @@
  * @property {() => void} enqueueNext - Function that triggers exit animation, then advances
  * @property {() => void} dismiss - Function that dismisses onboarding completely
  * @property {(params: import('../../types').SubmitQueryParams) => void} submitQuery - Ends onboarding with a search or Duck.ai prompt
+ * @property {(params: import('../../types').AddFavoritesParams) => void} addFavorites - Sends the picker's picks to native
  * @property {() => void} onTitleComplete - Signals that the title typing effect has finished
  * @property {(id: import('../../types').SystemValueId, payload: import('../../types').SystemValue, current: boolean) => void} updateSystemValue - Dispatches a system value update
  * @property {boolean} isShortViewport - True when viewport height is below 550px

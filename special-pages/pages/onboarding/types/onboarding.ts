@@ -283,7 +283,7 @@ export interface PickerStep {
    */
   sites?: PickerSite[];
   /**
-   * URLs of the favorites the user already has, sent through onConfigUpdate after the import. Never more than 4, because native excludes the picker at 5 or more. The page hides any suggested site whose hostname matches one of these after dropping a leading "www.". Unparseable URLs are skipped.
+   * URLs of the favorites the user already has, sent through onConfigUpdate after the import. Never more than 4, because native excludes the picker at 5 or more. The page shows any suggested site whose hostname matches one of these, after dropping a leading "www.", as picked and locked, and leaves it out of addFavorites. Unparseable URLs are skipped.
    */
   existingFavorites?: string[];
 }
@@ -301,7 +301,7 @@ export interface PickerSite {
    */
   title: string;
   /**
-   * The group the tile appears in. The user can pick at most one site from "email".
+   * The group the tile appears in
    */
   section: "email" | "popular";
 }

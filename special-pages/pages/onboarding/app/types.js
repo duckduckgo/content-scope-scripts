@@ -134,7 +134,8 @@ export const ORDER_V4 = STEPS_ORDER.filter((id) => !OPT_IN_STEPS.includes(id));
  *   | TelemetryEvent
  *   | RequestChromeExtensionEvent
  *   | SetOnboardingInstallOptionsEvent
- *   | SubmitQueryEvent} GlobalEvents
+ *   | SubmitQueryEvent
+ *   | AddFavoritesEvent} GlobalEvents
  *  All the events that the UI can dispatch
  * @typedef {{ kind: "enqueue-next"; }} NextEvent
  * @typedef {{ kind: "advance" }} AdvanceEvent
@@ -152,6 +153,7 @@ export const ORDER_V4 = STEPS_ORDER.filter((id) => !OPT_IN_STEPS.includes(id));
  * @typedef {{ kind: "request-chrome-extension" }} RequestChromeExtensionEvent
  * @typedef {{ kind: "set-onboarding-install-options"; payload: import('../types/onboarding.ts').OnboardingInstallOptions }} SetOnboardingInstallOptionsEvent
  * @typedef {{ kind: "submit-query"; params: SubmitQueryParams }} SubmitQueryEvent
+ * @typedef {{ kind: "add-favorites"; params: AddFavoritesParams }} AddFavoritesEvent
  */
 
 /**
@@ -159,6 +161,7 @@ export const ORDER_V4 = STEPS_ORDER.filter((id) => !OPT_IN_STEPS.includes(id));
  * @typedef {'searchAndDuckAi' | 'searchOnly'} SearchOrChatVariant
  *
  * @typedef {import('../types/onboarding.ts').SubmitQuery} SubmitQueryParams
+ * @typedef {import('../types/onboarding.ts').AddFavorites} AddFavoritesParams
  */
 
 /** @type {ImportMeta['injectName'][]} */

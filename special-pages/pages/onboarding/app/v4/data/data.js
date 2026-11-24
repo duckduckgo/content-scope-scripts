@@ -11,6 +11,7 @@ import { SystemSettingsBackground, SystemSettingsForeground } from '../component
 import { FadeTransition } from '../components/FadeTransition';
 import { DockInstructionsContent } from '../components/DockInstructionsContent';
 import { SearchOrChatContent } from '../components/SearchOrChatContent';
+import { PickerContent } from '../components/PickerContent';
 
 /**
  * This sets up individual steps in the v4 (bubbles) version of onboarding
@@ -123,16 +124,14 @@ export const stepsConfig = {
         };
     },
     // Only shown to clients that list it in `init.steps`.
-    picker: ({ enqueueNext }) => {
+    picker: ({ t, globalState, addFavorites, enqueueNext, onTitleComplete }) => {
+        const step = /** @type {import('../../types').PickerStep} */ (globalState.step);
         return {
+            topBubble: {
+                content: <StepHeader title={t('picker_title')} onTitleComplete={onTitleComplete} />,
+            },
             bottomBubble: {
-                content: (
-                    <div>
-                        <button type="button" onClick={enqueueNext}>
-                            Skip
-                        </button>
-                    </div>
-                ),
+                content: <PickerContent step={step} addFavorites={addFavorites} advance={enqueueNext} />,
             },
             showProgress: true,
         };
