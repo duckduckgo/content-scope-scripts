@@ -126,12 +126,12 @@
  * @property {(expression: CompiledExpression) => boolean | Failure} test - evaluates a compiled boolean expression with its `is`, giving the boolean or a `Failure`
  * @property {(value: unknown) => unknown[] | Failure | undefined} items - the items of a list value, or `undefined` for any other value
  * @property {<T>(binder: ItemBinder, value: unknown, fn: () => T) => T} bind - runs `fn` with `self` of a `where` or `field` bound to `value`
- * @property {TaskReads} task - the page reads shared by the detectors of the task this run is part of
+ * @property {TaskReads} task - the page reads the run shares with other runs
  */
 
 /**
- * Page reads shared by every detector run in one task, and across tasks while the page is unchanged.
- * A value kept depends on the DOM tree alone, and on no style or layout. `evaluate/task-read-cache.js`
+ * Page reads shared by detector runs while the page is unchanged, so a read gives what a fresh read
+ * would. A value kept depends on the DOM tree alone, and on no style or layout. `evaluate/task-read-cache.js`
  * implements it.
  *
  * @typedef {object} TaskReads

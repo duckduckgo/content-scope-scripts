@@ -33,7 +33,7 @@ export class EvaluationContext {
     /**
      * @param {Reader} reader
      * @param {Map<string, unknown>} [detectorNames] - the detector's names, which outlive the run
-     * @param {TaskReads} [task] - the page reads shared with the other detectors of the task
+     * @param {TaskReads} [task] - the page reads shared with other runs
      * @param {ActionSink} [sink] - where `fireEvent` and `breakageReportData` send, as each runs
      */
     constructor(reader, detectorNames = new Map(), task = new TaskReadCache(), sink = NO_SINK) {

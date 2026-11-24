@@ -5,6 +5,7 @@ import { NativeReader } from '../../src/features/web-detection/evaluate/native-r
 import { createDetectorState, runDetector } from '../../src/features/web-detection/evaluate/run.js';
 import { FrameReadCache, TaskReadCache } from '../../src/features/web-detection/evaluate/task-read-cache.js';
 import { pageSources } from '../../src/features/web-detection/sources/index.js';
+import { readsAttributes } from '../../src/features/web-detection/sources/text.js';
 import {
     REPORT,
     RENDERED,
@@ -647,32 +648,45 @@ describe('WebDetection sources', () => {
 
         /**
          * A page whose tasks share one `FrameReadCache`, each running its detectors with their own state.
-         * `evaluations` counts the XPath expressions evaluated against the page.
+         * `evaluations` counts the XPath expressions evaluated against the page. The cache captures the
+         * window's `MutationObserver` and `Node`, and the timers of this realm, which `jasmine.clock()`
+         * mocks when it is installed first, from `global`.
          *
          * @param {object} [options]
-         * @param {number} [options.maxAgeMs]
+         * @param {number | null} [options.maxAgeMs]
+         * @param {boolean} [options.configured] - whether `configure` is called with `maxAgeMs`
          * @param {(window: any) => void} [options.beforeCache] - runs before the cache captures the window's globals
          */
-        function framePage({ maxAgeMs = 1000, beforeCache = () => {} } = {}) {
+        function framePage({ maxAgeMs = 1000, configured = true, beforeCache = () => {} } = {}) {
             const window = new JSDOM(`<!DOCTYPE html><html><body>${PAGE}</body></html>`).window;
             window.document.querySelector('#host').attachShadow({ mode: 'open' }).innerHTML = '<p>adblocker detected</p>';
             const probe = window.document.createExpression('.', null);
             const evaluations = spyOn(Object.getPrototypeOf(probe), 'evaluate').and.callThrough();
             beforeCache(window);
-            const cache = new FrameReadCache(window);
+            /** @type {Record<string, any>} */
+            const global = {
+                MutationObserver: window.MutationObserver,
+                Node: window.Node,
+                setTimeout: globalThis.setTimeout,
+                clearTimeout: globalThis.clearTimeout,
+                queueMicrotask: globalThis.queueMicrotask,
+            };
+            const cache = new FrameReadCache(global);
+            if (configured) cache.configure(maxAgeMs);
             return {
                 window,
+                global,
+                cache,
                 evaluations,
                 /** @param {RawDetectorConfig[]} detectors */
                 task(detectors) {
                     const originalDocument = globalThis.document;
                     globalThis.document = window.document;
                     try {
-                        const reads = cache.beginTask(maxAgeMs);
                         return detectors.map((detector) => {
                             const compiled = compileDetector(detector, pageSources(window));
                             const state = createDetectorState();
-                            return runDetector(compiled, state, new EvaluationContext(readerFor(window, compiled), state.names, reads))
+                            return runDetector(compiled, state, new EvaluationContext(readerFor(window, compiled), state.names, cache))
                                 .match;
                         });
                     } finally {
@@ -697,7 +711,7 @@ describe('WebDetection sources', () => {
             expect(page.task([wall()])).toEqual([false]);
         });
 
-        it('reads the page again after a change whose record the observer has not delivered', () => {
+        it('reads the page again after a change in the same call stack, whose record the observer has not delivered', () => {
             const page = framePage();
             expect(page.task([wall()])).toEqual([true]);
             page.window.document.querySelector('p').firstChild.data = 'nothing here';
@@ -736,9 +750,11 @@ describe('WebDetection sources', () => {
             expect(page.task([inShadow])).toEqual([false]);
         });
 
-        it('reads the page again once maxAgeMs has passed', () => {
-            jasmine.clock().install();
-            try {
+        describe('with a mock clock', () => {
+            beforeEach(() => jasmine.clock().install());
+            afterEach(() => jasmine.clock().uninstall());
+
+            it('reads the page again once a max age in ms has passed', () => {
                 const page = framePage({ maxAgeMs: 500 });
                 page.task([wall()]);
                 jasmine.clock().tick(499);
@@ -747,9 +763,34 @@ describe('WebDetection sources', () => {
                 jasmine.clock().tick(1);
                 page.task([wall()]);
                 expect(page.evaluations).toHaveBeenCalledTimes(2);
-            } finally {
-                jasmine.clock().uninstall();
-            }
+            });
+
+            it('keeps reads past any time with a `null` max age, until the page changes', () => {
+                const page = framePage({ maxAgeMs: null });
+                page.task([wall()]);
+                jasmine.clock().tick(24 * 60 * 60 * 1000);
+                expect(page.task([wall()])).toEqual([true]);
+                expect(page.evaluations).toHaveBeenCalledTimes(1);
+                page.window.document.querySelector('p').firstChild.data = 'nothing here';
+                expect(page.task([wall()])).toEqual([false]);
+            });
+        });
+
+        it('shares reads within a call stack with a max age of 0, and reads the page again after it', async () => {
+            const page = framePage({ maxAgeMs: 0 });
+            page.task([wall()]);
+            page.task([wall()]);
+            expect(page.evaluations).toHaveBeenCalledTimes(1);
+            await Promise.resolve();
+            page.task([wall()]);
+            expect(page.evaluations).toHaveBeenCalledTimes(2);
+        });
+
+        it('reads the page again after a change in the same call stack with a max age of 0', () => {
+            const page = framePage({ maxAgeMs: 0 });
+            expect(page.task([wall()])).toEqual([true]);
+            page.window.document.querySelector('p').firstChild.data = 'nothing here';
+            expect(page.task([wall()])).toEqual([false]);
         });
 
         it('stops observing at the first change', async () => {
@@ -769,8 +810,123 @@ describe('WebDetection sources', () => {
             expect(disconnect).toHaveBeenCalledTimes(1);
         });
 
-        it('shares reads within a task only where the global has no MutationObserver', () => {
-            expect(new FrameReadCache({}).beginTask(1000)).toBeInstanceOf(TaskReadCache);
+        it('creates no observer until a value is kept', () => {
+            let created = 0;
+            const page = framePage({
+                beforeCache: (window) => {
+                    window.MutationObserver = class extends window.MutationObserver {
+                        /** @param {MutationCallback} callback */
+                        constructor(callback) {
+                            super(callback);
+                            created++;
+                        }
+                    };
+                },
+            });
+            page.task([{ match: { element: { selector: 'p' } }, actions: REPORT }]);
+            expect(created).toBe(0);
+            page.task([wall(), wall()]);
+            expect(created).toBe(1);
         });
+
+        for (const [name, options] of /** @type {const} */ ([
+            ['configured with `undefined`', { maxAgeMs: undefined, configured: true }],
+            ['before `configure`', { configured: false }],
+        ])) {
+            it(`shares reads within a call stack, with no observer, ${name}`, async () => {
+                let created = 0;
+                const page = framePage({
+                    ...options,
+                    beforeCache: (window) => {
+                        window.MutationObserver = class extends window.MutationObserver {
+                            /** @param {MutationCallback} callback */
+                            constructor(callback) {
+                                super(callback);
+                                created++;
+                            }
+                        };
+                    },
+                });
+                if (options.configured) page.cache.configure(undefined);
+                expect(page.task([wall()])).toEqual([true]);
+                page.window.document.querySelector('p').firstChild.data = 'nothing here';
+                expect(page.task([wall()])).toEqual([true]);
+                await Promise.resolve();
+                expect(page.task([wall()])).toEqual([false]);
+                expect(page.evaluations).toHaveBeenCalledTimes(2);
+                expect(created).toBe(0);
+            });
+        }
+
+        for (const maxAgeMs of [1000, 0]) {
+            it(`calls the globals it captured, not those the page replaces after (max age ${maxAgeMs})`, async () => {
+                const page = framePage({ maxAgeMs });
+                const replaced = jasmine.createSpy('replaced').and.throwError('replaced');
+                const { MutationObserver, Node } = page.window;
+                for (const name of ['observe', 'takeRecords', 'disconnect']) MutationObserver.prototype[name] = replaced;
+                Node.prototype.getRootNode = replaced;
+                for (const name of ['setTimeout', 'clearTimeout', 'queueMicrotask']) page.global[name] = replaced;
+
+                expect(page.task([wall(), wall()])).toEqual([true, true]);
+                page.window.document.querySelector('p').firstChild.data = 'nothing here';
+                expect(page.task([wall()])).toEqual([false]);
+                page.window.document.querySelector('p').firstChild.data = 'adblocker detected';
+                await delivered();
+                expect(page.task([wall()])).toEqual([true]);
+                expect(page.evaluations).toHaveBeenCalledTimes(3);
+                expect(replaced).not.toHaveBeenCalled();
+            });
+        }
+
+        it('keeps nothing once released', () => {
+            const page = framePage({ maxAgeMs: null });
+            page.task([wall()]);
+            page.cache.release();
+            page.task([wall()]);
+            page.task([wall()]);
+            expect(page.evaluations).toHaveBeenCalledTimes(3);
+        });
+
+        it('shares reads within a call stack only where the global has no MutationObserver', async () => {
+            const cache = new FrameReadCache({ queueMicrotask: globalThis.queueMicrotask });
+            cache.configure(null);
+            const compute = jasmine.createSpy('compute').and.returnValue('text');
+            const node = {};
+            cache.of(node, 'k', compute);
+            cache.of(node, 'k', compute);
+            expect(compute).toHaveBeenCalledTimes(1);
+            await Promise.resolve();
+            cache.of(node, 'k', compute);
+            expect(compute).toHaveBeenCalledTimes(2);
+        });
+
+        it('keeps nothing where the global has neither a MutationObserver nor queueMicrotask', () => {
+            const cache = new FrameReadCache({});
+            cache.configure(null);
+            const compute = jasmine.createSpy('compute').and.returnValue('text');
+            cache.of({}, 'k', compute);
+            cache.of({}, 'k', compute);
+            expect(compute).toHaveBeenCalledTimes(2);
+        });
+    });
+
+    describe('readsAttributes', () => {
+        /** @type {Array<[string, boolean]>} */
+        const cases = [
+            ['//p[@hidden]/text()', true],
+            ['//p/attribute::title', true],
+            ['//p/namespace::*', true],
+            ["id('main')//text()", true],
+            ['id ("main")//text()', true],
+            ["//p[lang('en')]/text()", true],
+            ['//p/text()', false],
+            ['//body//text()[not(ancestor::script)]', false],
+            ['//div[contains(@class, "a")]', true],
+        ];
+        for (const [expression, expected] of cases) {
+            it(`is ${expected} for ${expression}`, () => {
+                expect(readsAttributes(expression)).toBe(expected);
+            });
+        }
     });
 });

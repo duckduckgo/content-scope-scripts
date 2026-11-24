@@ -1,6 +1,7 @@
 import { JSDOM } from 'jsdom';
 import WebDetection from '../../src/features/web-detection.js';
 import { NativeReader } from '../../src/features/web-detection/evaluate/native-reader.js';
+import { FrameReadCache } from '../../src/features/web-detection/evaluate/task-read-cache.js';
 import WebEvents from '../../src/features/web-events.js';
 import {
     FAILING,
@@ -206,39 +207,49 @@ describe('WebDetection feature', () => {
             expect(instance.callFeatureMethod).toHaveBeenCalledTimes(3);
         });
 
-        it('shares one task among the detectors of a timer or a report, and starts a new one for the next', () => {
+        it("passes the frame's page reads to every run, of a timer or a report", () => {
             const instance = create({ a: firing('a'), b: firing('b') });
             const run = spyOn(instance, '_runDetector').and.callThrough();
             jasmine.clock().tick(100);
             jasmine.clock().tick(100);
             instance.runDetectors({ trigger: 'breakageReport' });
-            const [first, second, third, fourth, fifth, sixth] = run.calls.allArgs().map((args) => args[2]);
-            expect(second).toBe(first);
-            expect(fourth).toBe(third);
-            expect(third).not.toBe(first);
-            expect(sixth).toBe(fifth);
-            expect(fifth).not.toBe(third);
+            const [first, ...rest] = run.calls.allArgs().map((args) => args[2]);
+            expect(first).toBeInstanceOf(FrameReadCache);
+            expect(rest.length).toBe(5);
+            for (const reads of rest) expect(reads).toBe(first);
         });
 
-        it('shares reads across the tasks of the frame when `readCacheMaxAgeMs` is above 0', () => {
-            const window = new JSDOM('<!DOCTYPE html><p>hello</p>').window;
-            testGlobal.MutationObserver = window.MutationObserver;
-            testGlobal.Node = window.Node;
-            try {
-                const detectors = { g: { a: firing('a'), b: firing('b') } };
-                const featureSettings = { webDetection: { detectors, readCacheMaxAgeMs: 500 } };
-                const instance = new WebDetection('webDetection', undefined, {}, { ...instanceArgs(undefined), featureSettings });
-                instance.init();
-                const run = spyOn(instance, '_runDetector').and.callThrough();
-                jasmine.clock().tick(100);
-                instance.runDetectors({ trigger: 'breakageReport' });
-                const [first, ...rest] = run.calls.allArgs().map((args) => args[2]);
-                expect(rest.length).toBe(3);
-                for (const task of rest) expect(task).toBe(first);
-            } finally {
-                delete testGlobal.MutationObserver;
-                delete testGlobal.Node;
-            }
+        /** @type {Array<[string, unknown, number | null | undefined]>} */
+        const maxAges = [
+            ['absent', undefined, undefined],
+            ['0', 0, 0],
+            ['a number of ms', 500, 500],
+            ['null', null, null],
+            ['negative', -1, undefined],
+            ['Infinity', Infinity, undefined],
+            ['a string', '500', undefined],
+        ];
+        for (const [name, value, expected] of maxAges) {
+            it(`keeps page reads for ${JSON.stringify(expected)} with \`readCacheMaxAgeMs\` ${name}`, () => {
+                const configure = spyOn(FrameReadCache.prototype, 'configure').and.callThrough();
+                const featureSettings = { webDetection: { detectors: {}, ...(value !== undefined && { readCacheMaxAgeMs: value }) } };
+                new WebDetection('webDetection', undefined, {}, { ...instanceArgs(undefined), featureSettings }).init();
+                expect(configure.calls.allArgs()).toEqual([[expected]]);
+            });
+        }
+
+        it('drops the page reads once every detector a trigger runs in the frame is done', () => {
+            const release = spyOn(FrameReadCache.prototype, 'release').and.callThrough();
+            create({ done: detects(true, { triggers: auto }), off: detects(true, { state: 'disabled' }) });
+            jasmine.clock().tick(1000);
+            expect(release).toHaveBeenCalledTimes(1);
+        });
+
+        it('keeps the page reads while a detector a trigger runs is not done', () => {
+            const release = spyOn(FrameReadCache.prototype, 'release').and.callThrough();
+            create({ done: detects(true, { triggers: auto }), running: firing('a') });
+            jasmine.clock().tick(1000);
+            expect(release).not.toHaveBeenCalled();
         });
 
         it('returns entries written by `auto` runs, and does not run a done detector for the report', () => {

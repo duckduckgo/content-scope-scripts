@@ -7,7 +7,7 @@ import { BreakageEntries } from './web-detection/evaluate/breakage-entries.js';
 import { EvaluationContext } from './web-detection/evaluate/context.js';
 import { NativeReader } from './web-detection/evaluate/native-reader.js';
 import { createDetectorState, detectorNameScalars, runDetector } from './web-detection/evaluate/run.js';
-import { FrameReadCache, TaskReadCache } from './web-detection/evaluate/task-read-cache.js';
+import { FrameReadCache } from './web-detection/evaluate/task-read-cache.js';
 import { getOrCreate } from './web-detection/model/core.js';
 
 /**
@@ -27,6 +27,19 @@ import { getOrCreate } from './web-detection/model/core.js';
 /**
  * @typedef {{ groupName: string, detectorId: string, config: DetectorConfig }} DetectorEntry
  */
+
+/**
+ * The longest the page reads are kept, from the `readCacheMaxAgeMs` setting: `null` until the page
+ * changes, a number of ms from 0, and `undefined` for anything else, including a missing setting, which
+ * keeps them until the end of the call stack with no check for changes.
+ *
+ * @param {unknown} value
+ * @returns {number | null | undefined}
+ */
+function readCacheMaxAgeMs(value) {
+    if (value === null || (typeof value === 'number' && value >= 0 && value < Infinity)) return value;
+    return undefined;
+}
 
 /**
  * WebDetection feature provides a configurable detector framework for identifying
@@ -62,11 +75,8 @@ export default class WebDetection extends ContentFeature {
     /** @type {unknown} the feature settings object the detectors were parsed from */
     #parsedSettings;
 
-    /** the page reads kept across tasks while the page is unchanged, capturing its globals at construction */
-    #frameReads = new FrameReadCache(globalThis);
-
-    /** how long `#frameReads` keeps values, from the `readCacheMaxAgeMs` setting. 0 shares reads within a task only */
-    #readCacheMaxAgeMs = 0;
+    /** the page reads every run shares while the page is unchanged, for as long as `readCacheMaxAgeMs` sets, capturing its globals at construction */
+    #reads = new FrameReadCache(globalThis);
 
     _exposedMethods = this._declareExposedMethods(['runDetectors', 'getBreakageReportData']);
 
@@ -90,8 +100,7 @@ export default class WebDetection extends ContentFeature {
      */
     init() {
         this.#detectorPerfEnabled = hasOwnProperty.call(this.featureSettings ?? {}, 'detectorPerf');
-        const maxAgeMs = this.getFeatureSetting('readCacheMaxAgeMs');
-        this.#readCacheMaxAgeMs = typeof maxAgeMs === 'number' && maxAgeMs > 0 ? maxAgeMs : 0;
+        this.#reads.configure(readCacheMaxAgeMs(this.getFeatureSetting('readCacheMaxAgeMs')));
         this._parseDetectors();
         this._scheduleAutoRunDetectors();
     }
@@ -187,7 +196,7 @@ export default class WebDetection extends ContentFeature {
      *
      * @param {DetectorEntry} detector
      * @param {TriggerInfo} triggerInfo
-     * @param {TaskReads} task - the page reads shared by the detectors run with it
+     * @param {TaskReads} task - the page reads the run shares
      */
     _runDetector(detector, triggerInfo, task) {
         const { groupName, detectorId } = detector;
@@ -216,7 +225,7 @@ export default class WebDetection extends ContentFeature {
         const result = this.#detectorPerfEnabled ? timeDetector(this, groupName, run, detectorId, (r) => r.failure !== undefined) : run();
 
         if (result.failedAt !== undefined && result.failure !== undefined) this.#breakage.fail(detectorId, result.failedAt, result.failure);
-        if (state.done) this._cancelFinishedTimers();
+        if (state.done) this._finishDetector();
 
         // Debug notification for integration tests, for a run in which `match` held or failed, or of a detector with no `match`
         if (this.isDebug && triggerInfo.trigger === 'auto' && result.match !== false) {
@@ -259,6 +268,18 @@ export default class WebDetection extends ContentFeature {
             const timer = setTimeout(() => this.runDetectors({ trigger: 'auto', intervalMs: interval }), interval);
             this.#timers.push({ timer, detectors });
         }
+    }
+
+    /**
+     * Once a detector is done: cancel the timers it no longer needs, and drop the page reads once every
+     * detector a trigger runs in the frame is done, as none will read the page again.
+     */
+    _finishDetector() {
+        this._cancelFinishedTimers();
+        for (const { detectorId, config } of this._eachDetector()) {
+            if (!this.#states.get(detectorId)?.done && this._runsInFrame(config)) return;
+        }
+        this.#reads.release();
     }
 
     /**
@@ -324,17 +345,15 @@ export default class WebDetection extends ContentFeature {
     }
 
     /**
-     * Run every detector the trigger runs that is not done, sharing one task's page reads, and those of
-     * earlier tasks while the page is unchanged when `readCacheMaxAgeMs` is above 0. A throw that escapes
-     * a detector's run is recorded in its entry under `run`, and the other detectors still run.
+     * Run every detector the trigger runs that is not done, sharing the frame's page reads. A throw that
+     * escapes a detector's run is recorded in its entry under `run`, and the other detectors still run.
      *
      * @param {TriggerInfo} triggerInfo
      */
     runDetectors(triggerInfo) {
-        const task = this.#readCacheMaxAgeMs > 0 ? this.#frameReads.beginTask(this.#readCacheMaxAgeMs) : new TaskReadCache();
         for (const detector of this._detectorsFor(triggerInfo)) {
             try {
-                this._runDetector(detector, triggerInfo, task);
+                this._runDetector(detector, triggerInfo, this.#reads);
             } catch (e) {
                 this.#breakage.fail(detector.detectorId, 'run', 'error');
                 if (this.isDebug) {
