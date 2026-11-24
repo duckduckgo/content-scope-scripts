@@ -484,7 +484,7 @@ export class SegmentSkip extends ContentFeature {
         style.textContent = SKIP_BUTTON_STYLES;
         const button = this.#doc.createElement('button');
         button.type = 'button';
-        button.append(createIcon(this.#doc, DAX_ICON_URI), 'Skip Content', createIcon(this.#doc, SKIP_ICON_URI));
+        button.append(createIcon(this.#doc, DAX_ICON_URI), 'Skip', createIcon(this.#doc, SKIP_ICON_URI));
         shadow.append(style, button);
         // Keep the tap from also reaching the player, which would toggle YouTube's controls.
         button.addEventListener('pointerdown', (e) => e.stopPropagation());
