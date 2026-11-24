@@ -29,6 +29,7 @@ export class HistoryRangeService {
             // and, store a local index, we can check it when the promise resolves
             const index = this.index;
 
+            // eslint-disable-next-line promise/prefer-await-to-then
             this.fetcher().then((next) => {
                 /**
                  * First, reject overlapping promises

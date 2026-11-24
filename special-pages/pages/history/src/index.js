@@ -110,6 +110,7 @@ if (!root) {
     throw new Error('Missing #app');
 }
 
+// eslint-disable-next-line promise/prefer-await-to-then
 init(root, historyPage, baseEnvironment).catch((e) => {
     console.error(e);
     const msg = typeof e?.message === 'string' ? e.message : 'unknown init error';

@@ -63,6 +63,7 @@ const messaging = createSpecialPageMessaging({
 
 const page = new SetAsDefaultPage(messaging);
 
+// eslint-disable-next-line promise/prefer-await-to-then
 init(page, baseEnvironment).catch((e) => {
     console.error(e);
     const msg = typeof e?.message === 'string' ? e.message : 'unknown init error';

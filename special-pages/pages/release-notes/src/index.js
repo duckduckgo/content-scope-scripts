@@ -119,6 +119,7 @@ const messaging = createSpecialPageMessaging({
 
 const releaseNotesPage = new ReleaseNotesPage(messaging);
 
+// eslint-disable-next-line promise/prefer-await-to-then
 init(releaseNotesPage, baseEnvironment).catch((e) => {
     console.error(e);
     const msg = typeof e?.message === 'string' ? e.message : 'unknown init error';

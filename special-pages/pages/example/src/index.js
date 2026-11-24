@@ -62,6 +62,7 @@ const messaging = createSpecialPageMessaging({
 
 const example = new ExamplePage(messaging);
 
+// eslint-disable-next-line promise/prefer-await-to-then
 init(example, baseEnvironment).catch((e) => {
     // messages.
     console.error(e);

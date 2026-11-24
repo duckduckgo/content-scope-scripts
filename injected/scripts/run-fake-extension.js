@@ -101,6 +101,7 @@ async function main() {
     }
 }
 
+// eslint-disable-next-line promise/prefer-await-to-then
 main().catch((err) => {
     console.error(err);
     process.exit(1);

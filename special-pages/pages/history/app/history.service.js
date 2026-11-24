@@ -75,6 +75,7 @@ export class HistoryService {
             this.ongoing = JSON.parse(JSON.stringify(detail));
 
             this.queryFetcher(detail)
+                // eslint-disable-next-line promise/prefer-await-to-then
                 .then((next) => {
                     const old = this.data;
                     if (old === null) throw new Error('unreachable - typescript this.query must always be there?');
@@ -98,6 +99,7 @@ export class HistoryService {
 
                     this.accept(valueToPublish);
                 })
+                // eslint-disable-next-line promise/prefer-await-to-then
                 .catch((e) => {
                     console.error(e, detail);
                 });
