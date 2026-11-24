@@ -423,6 +423,37 @@ test.describe('onboarding v4', () => {
             await onboarding.startBrowsing();
         });
 
+        test('Without steps, customize advances to addressBarMode and the picker never shows', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({ stepDefinitions: null, exclude: [] });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'customize' });
+            await onboarding.skippedBookmarksBar();
+            await onboarding.skippedSessionRestore();
+            await onboarding.skippedShowHomeButton();
+            await page.getByRole('button', { name: 'Next' }).click();
+
+            await page.getByRole('heading', { name: 'Want easy access to private AI Chat?' }).waitFor({ timeout: 1000 });
+            await onboarding.didFireStepCompleted({ id: 'customize', next: 'addressBarMode' });
+        });
+
+        test('With picker in steps, customize advances to the picker', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: null,
+                steps: ['welcome', 'getStarted', 'customize', 'picker', 'addressBarMode'],
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'customize' });
+            await onboarding.skippedBookmarksBar();
+            await onboarding.skippedSessionRestore();
+            await onboarding.skippedShowHomeButton();
+            await page.getByRole('button', { name: 'Next' }).click();
+
+            await page.getByRole('button', { name: 'Skip' }).waitFor({ timeout: 1000 });
+            await onboarding.didFireStepCompleted({ id: 'customize', next: 'picker' });
+        });
+
         test('Shows only the listed steps in the page order, ignoring unknown entries and exclude', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             onboarding.withInitData({

@@ -32,6 +32,7 @@ import { useContext } from 'preact/hooks';
  *   | DuckPlayerSingleStep
  *   | AddressBarModeStep
  *   | SearchOrChatStep
+ *   | PickerStep
  * } Step
  * @typedef {Record<Step['id'], Step>} StepDefinitions
  * @typedef {{ kind: 'info'; id: 'welcome' }} WelcomeStep
@@ -43,6 +44,8 @@ import { useContext } from 'preact/hooks';
  * @typedef {{ kind: 'info'; id: 'duckPlayerSingle'; variant?: 'ad-free' }} DuckPlayerSingleStep
  * @typedef {{ kind: 'info'; id: 'addressBarMode' }} AddressBarModeStep
  * @typedef {{ kind: 'info'; id: 'searchOrChat' }} SearchOrChatStep
+ * @typedef {{ kind: 'info'; id: 'picker'; sites: PickerSite[]; existingFavorites: string[] }} PickerStep
+ * @typedef {import('../types/onboarding.ts').PickerSite} PickerSite
  */
 
 /** @type {Step['id'][]} */
@@ -53,21 +56,38 @@ export const EVERY_PAGE_ID = [
     'makeDefaultSingle',
     'duckPlayerSingle',
     'customize',
+    'picker',
     'addressBarMode',
     'searchOrChat',
 ];
 
 /**
- * Today's onboarding. Used when native doesn't send `steps`, so it never includes steps a client must opt into.
- * @type {Step['id'][]}
- */
-export const ORDER_V4 = ['welcome', 'getStarted', 'makeDefaultSingle', 'systemSettings', 'duckPlayerSingle', 'customize', 'addressBarMode'];
-
-/**
  * The page's own order for every step it can show. When native sends `steps`, the page shows only those, in this order.
  * @type {Step['id'][]}
  */
-export const STEPS_ORDER = [...ORDER_V4, 'searchOrChat'];
+export const STEPS_ORDER = [
+    'welcome',
+    'getStarted',
+    'makeDefaultSingle',
+    'systemSettings',
+    'duckPlayerSingle',
+    'customize',
+    'picker',
+    'addressBarMode',
+    'searchOrChat',
+];
+
+/**
+ * Steps a client must opt into by listing them in `init.steps`.
+ * @type {Step['id'][]}
+ */
+const OPT_IN_STEPS = ['picker', 'searchOrChat'];
+
+/**
+ * Today's onboarding. Used when native doesn't send `steps`, so it never includes steps a client must opt into.
+ * @type {Step['id'][]}
+ */
+export const ORDER_V4 = STEPS_ORDER.filter((id) => !OPT_IN_STEPS.includes(id));
 
 /**
  * @typedef {BooleanSystemValue} SystemValue - values sent in messages to the host

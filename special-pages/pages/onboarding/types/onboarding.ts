@@ -16,6 +16,7 @@ export type StepID =
   | "makeDefaultSingle"
   | "duckPlayerSingle"
   | "customize"
+  | "picker"
   | "addressBarMode"
   | "searchOrChat";
 
@@ -24,6 +25,7 @@ export type StepID =
  */
 export interface OnboardingMessages {
   notifications:
+    | AddFavoritesNotification
     | DismissToAddressBarNotification
     | DismissToSettingsNotification
     | ReportInitExceptionNotification
@@ -40,6 +42,45 @@ export interface OnboardingMessages {
     | TelemetryEventNotification;
   requests: InitRequest | RequestDockOptInRequest | RequestImportRequest | RequestSetAsDefaultRequest;
   subscriptions: OnConfigUpdateSubscription;
+}
+/**
+ * Generated from @see "../messages/addFavorites.notify.json"
+ */
+export interface AddFavoritesNotification {
+  method: "addFavorites";
+  params: AddFavorites;
+}
+/**
+ * Sent once when the user clicks Add to favorites on the picker step. Native creates a favorite for each site and uses its id to find the bundled icon. Skip sends nothing.
+ */
+export interface AddFavorites {
+  /**
+   * The picked sites, in the order the picker shows them
+   *
+   * @minItems 1
+   */
+  favorites: [
+    {
+      /**
+       * The site's id from the picker's sites
+       */
+      id: string;
+      /**
+       * The URL to save as the favorite
+       */
+      url: string;
+    },
+    ...{
+      /**
+       * The site's id from the picker's sites
+       */
+      id: string;
+      /**
+       * The URL to save as the favorite
+       */
+      url: string;
+    }[]
+  ];
 }
 /**
  * Generated from @see "../messages/dismissToAddressBar.notify.json"
@@ -230,7 +271,39 @@ export interface InitResponse {
  * Per-step overrides keyed by step ID, for example `{ "systemSettings": { "rows": ["dock", "import"] } }`. Each entry is merged over the page's default definition for that step. Entries for steps that aren't in the running order are ignored.
  */
 export interface StepDefinitions {
+  picker?: PickerStep;
   [k: string]: unknown;
+}
+/**
+ * Overrides for the picker step. Each field replaces the page's default as a whole.
+ */
+export interface PickerStep {
+  /**
+   * The suggested sites, in display order. The page groups them by section. Every id needs a bundled icon and translated copy, so a new site still needs a page release.
+   */
+  sites?: PickerSite[];
+  /**
+   * URLs of the favorites the user already has, sent through onConfigUpdate after the import. Never more than 4, because native excludes the picker at 5 or more. The page hides any suggested site whose hostname matches one of these after dropping a leading "www.". Unparseable URLs are skipped.
+   */
+  existingFavorites?: string[];
+}
+export interface PickerSite {
+  /**
+   * Stable key for the site's copy, its bundled icon and the addFavorites message
+   */
+  id: string;
+  /**
+   * The URL saved as the favorite
+   */
+  url: string;
+  /**
+   * The site's name, shown on its tile and used as the favorite's title
+   */
+  title: string;
+  /**
+   * The group the tile appears in. The user can pick at most one site from "email".
+   */
+  section: "email" | "popular";
 }
 /**
  * Generated from @see "../messages/requestDockOptIn.request.json"

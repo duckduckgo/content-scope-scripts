@@ -1,0 +1,44 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PickerStep",
+  "description": "Overrides for the picker step. Each field replaces the page's default as a whole.",
+  "type": "object",
+  "properties": {
+    "sites": {
+      "type": "array",
+      "description": "The suggested sites, in display order. The page groups them by section. Every id needs a bundled icon and translated copy, so a new site still needs a page release.",
+      "items": {
+        "title": "PickerSite",
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "url", "title", "section"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Stable key for the site's copy, its bundled icon and the addFavorites message"
+          },
+          "url": {
+            "type": "string",
+            "description": "The URL saved as the favorite"
+          },
+          "title": {
+            "type": "string",
+            "description": "The site's name, shown on its tile and used as the favorite's title"
+          },
+          "section": {
+            "type": "string",
+            "enum": ["email", "popular"],
+            "description": "The group the tile appears in. The user can pick at most one site from \"email\"."
+          }
+        }
+      }
+    },
+    "existingFavorites": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "URLs of the favorites the user already has, sent through onConfigUpdate after the import. Never more than 4, because native excludes the picker at 5 or more. The page hides any suggested site whose hostname matches one of these after dropping a leading \"www.\". Unparseable URLs are skipped."
+    }
+  }
+}

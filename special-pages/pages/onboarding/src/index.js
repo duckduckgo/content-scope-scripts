@@ -159,6 +159,14 @@ export class OnboardingPage {
     }
 
     /**
+     * Sent once when the user clicks Add to favorites on the picker step. Native creates the favorites.
+     * @param {import('../types/onboarding.ts').AddFavorites} params
+     */
+    addFavorites(params) {
+        this.messaging.notify('addFavorites', params);
+    }
+
+    /**
      * This will be sent if the application has loaded, but a client-side error
      * has occurred that cannot be recovered from
      * @param {import('../types/onboarding.ts').ReportPageExceptionNotify} params

@@ -122,6 +122,21 @@ export const stepsConfig = {
             bounceKey: `${activeStep}-${activeRow}`,
         };
     },
+    // Only shown to clients that list it in `init.steps`.
+    picker: ({ enqueueNext }) => {
+        return {
+            bottomBubble: {
+                content: (
+                    <div>
+                        <button type="button" onClick={enqueueNext}>
+                            Skip
+                        </button>
+                    </div>
+                ),
+            },
+            showProgress: true,
+        };
+    },
     addressBarMode: ({ t, globalState, enqueueNext, dismiss, onTitleComplete, updateSystemValue }) => {
         const { order, activeStep } = globalState;
         // Read from `order`, which config updates keep current, like `SettingsContent` does.
@@ -303,5 +318,19 @@ export const stepDefinitions = {
     searchOrChat: {
         id: 'searchOrChat',
         kind: 'info',
+    },
+    picker: {
+        id: 'picker',
+        kind: 'info',
+        // Placeholder list until the Figma pass. Each id keys the site's copy and bundled icon.
+        sites: [
+            { id: 'gmail', url: 'https://mail.google.com', title: 'Gmail', section: 'email' },
+            { id: 'outlook', url: 'https://outlook.live.com', title: 'Outlook', section: 'email' },
+            { id: 'yahooMail', url: 'https://mail.yahoo.com', title: 'Yahoo Mail', section: 'email' },
+            { id: 'youtube', url: 'https://www.youtube.com', title: 'YouTube', section: 'popular' },
+            { id: 'wikipedia', url: 'https://www.wikipedia.org', title: 'Wikipedia', section: 'popular' },
+        ],
+        // Native sends these through onConfigUpdate after the import.
+        existingFavorites: [],
     },
 };

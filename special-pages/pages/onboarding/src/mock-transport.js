@@ -20,7 +20,8 @@ export function mockTransport() {
             const msg = /** @type {any} */ (_msg);
             switch (msg.method) {
                 case 'setOnboardingInstallOptions':
-                case 'submitQuery': {
+                case 'submitQuery':
+                case 'addFavorites': {
                     break;
                 }
                 default: {
@@ -110,6 +111,12 @@ export function mockTransport() {
         subscribe(_msg, callback) {
             window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
             if (!window.__playwright_01) {
+                // e.g. `?existingFavorites=https://www.youtube.com,https://mail.google.com` sends them as native would after the import.
+                // onConfigUpdate is the page's only subscription.
+                const existingFavorites = url.searchParams.get('existingFavorites');
+                if (existingFavorites) {
+                    setTimeout(() => callback({ stepDefinitions: { picker: { existingFavorites: existingFavorites.split(',') } } }), 0);
+                }
                 return () => {};
             }
             const msg = /** @type {{ method?: string; subscriptionName?: string }} */ (_msg);
