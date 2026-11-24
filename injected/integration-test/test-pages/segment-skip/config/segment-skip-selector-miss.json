@@ -1,8 +1,8 @@
 {
-    "readme": "Config for sponsorBlock integration tests: selectors that match nothing on the page.",
+    "readme": "Config for segmentSkip integration tests: selectors that match nothing on the page.",
     "version": 1,
     "features": {
-        "sponsorBlock": {
+        "segmentSkip": {
             "state": "enabled",
             "exceptions": [],
             "settings": {

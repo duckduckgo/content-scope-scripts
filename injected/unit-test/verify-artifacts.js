@@ -24,10 +24,19 @@ if (process.platform === 'win32') {
     CSS_OUTPUT_SIZE = CSS_OUTPUT_SIZE * 1.1; // 10% larger for Windows due to line endings
 }
 
+const TRACKER_LOOKUP_SAMPLE = '"2020mustang"';
+
+/**
+ * @typedef {{ kind: 'maxFileSize', value: number } | { kind: 'containsString', text: string, includes: boolean }} Check
+ * @type {Record<string, { file: string, tests: Check[] }>}
+ */
 const checks = {
     android: {
         file: join(BUILD, 'android/contentScope.js'),
-        tests: [{ kind: 'maxFileSize', value: CSS_OUTPUT_SIZE }],
+        tests: [
+            { kind: 'maxFileSize', value: CSS_OUTPUT_SIZE },
+            { kind: 'containsString', text: TRACKER_LOOKUP_SAMPLE, includes: false },
+        ],
     },
     'chrome-mv3': {
         file: join(BUILD, 'chrome-mv3/inject.js'),
@@ -51,18 +60,25 @@ const checks = {
     },
     windows: {
         file: join(BUILD, 'windows/contentScope.js'),
-        tests: [{ kind: 'maxFileSize', value: CSS_OUTPUT_SIZE }],
+        tests: [
+            { kind: 'maxFileSize', value: CSS_OUTPUT_SIZE },
+            { kind: 'containsString', text: TRACKER_LOOKUP_SAMPLE, includes: true },
+        ],
     },
     apple: {
         file: join(APPLE_BUILD, 'contentScope.js'),
         tests: [
             { kind: 'maxFileSize', value: CSS_OUTPUT_SIZE },
             { kind: 'containsString', text: '#bundledConfig', includes: false },
+            { kind: 'containsString', text: TRACKER_LOOKUP_SAMPLE, includes: false },
         ],
     },
     'apple-isolated': {
         file: join(APPLE_BUILD, 'contentScopeIsolated.js'),
-        tests: [{ kind: 'maxFileSize', value: CSS_OUTPUT_SIZE }],
+        tests: [
+            { kind: 'maxFileSize', value: CSS_OUTPUT_SIZE },
+            { kind: 'containsString', text: TRACKER_LOOKUP_SAMPLE, includes: false },
+        ],
     },
     'apple-broker-protection': {
         file: join(APPLE_BUILD, 'brokerProtection.js'),

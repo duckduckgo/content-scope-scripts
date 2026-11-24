@@ -23,13 +23,14 @@ export class PageTranslation extends ContentFeature {
     #sourceLanguage = '';
 
     init() {
-        this.subscribe('extract', () => this._extract());
-        this.subscribe('apply', ({ sourceLanguage, targetLanguage, updates }) =>
-            this._apply(String(sourceLanguage ?? ''), String(targetLanguage ?? ''), updates),
+        this.subscribe('extract', ({ requestId }) => this._extract(requestId));
+        this.subscribe('apply', ({ requestId, sourceLanguage, targetLanguage, updates }) =>
+            this._apply(String(sourceLanguage ?? ''), String(targetLanguage ?? ''), updates, requestId),
         );
     }
 
-    _extract() {
+    /** @param {unknown} [requestId] - echoed in the reply, so native can drop a late reply to a cancelled request */
+    _extract(requestId) {
         // The page as it is now: native reloads first when it needs the original.
         this.#units.clear();
         /** @type {Unit[]} */
@@ -46,7 +47,7 @@ export class PageTranslation extends ContentFeature {
             // A page that breaks the walk still gets a reply, with the units found so far.
             this.log.error('extract failed', e);
         } finally {
-            this.notify('extractResult', { units });
+            this.notify('extractResult', { ...echoRequestId(requestId), units });
         }
     }
 
@@ -54,8 +55,9 @@ export class PageTranslation extends ContentFeature {
      * @param {string} sourceLanguage - the page's detected language: content marked as another language isn't written
      * @param {string} targetLanguage - set as the page's `lang` once anything is written
      * @param {{ id: number, text?: string, tree?: string }[]} updates - `text` for plain units, `tree` (TranslateKit's JSON) for HTML units
+     * @param {unknown} [requestId] - echoed in the reply
      */
-    _apply(sourceLanguage, targetLanguage, updates) {
+    _apply(sourceLanguage, targetLanguage, updates, requestId) {
         this.#sourceLanguage = sourceLanguage;
         let count = 0;
         for (const update of Array.isArray(updates) ? updates : []) {
@@ -74,7 +76,7 @@ export class PageTranslation extends ContentFeature {
             count++;
         }
         if (count > 0) document.documentElement.setAttribute('lang', targetLanguage);
-        this.notify('applyResult', { count });
+        this.notify('applyResult', { ...echoRequestId(requestId), count });
     }
 
     /**
@@ -95,6 +97,15 @@ export class PageTranslation extends ContentFeature {
         mergeUnit(target, serialized.elements, parsed, (el) => isSentEmpty(el) || isOtherLanguage(el, this.#sourceLanguage));
         return true;
     }
+}
+
+/**
+ * The `requestId` to echo in a reply: only when native sent one.
+ * @param {unknown} requestId
+ * @returns {{ requestId?: string }}
+ */
+function echoRequestId(requestId) {
+    return typeof requestId === 'string' ? { requestId } : {};
 }
 
 /**

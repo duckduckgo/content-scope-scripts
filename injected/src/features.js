@@ -59,7 +59,7 @@ const otherFeatures = /** @type {FeatureName[]} */ ([
     'sitePermissionsMediaCapture',
     'chromeWebstorePatching',
     'selectionTools',
-    'sponsorBlock',
+    'segmentSkip',
     'pageTranslation',
 ]);
 
@@ -113,7 +113,7 @@ export const platformSupport = {
         'tabSuspension',
         'chromeWebstorePatching',
         'browserUiLock',
-        'sponsorBlock',
+        'segmentSkip',
         'sitePermissionsGeolocationPolicy',
     ],
     'apple-broker-protection': ['brokerProtection'],
@@ -133,7 +133,7 @@ export const platformSupport = {
         'messageBridge',
         'pageContext',
         'browserUiLock',
-        'sponsorBlock',
+        'segmentSkip',
     ],
     'android-broker-protection': ['brokerProtection'],
     'android-ai-clear': ['duckAiDataClearing'],
