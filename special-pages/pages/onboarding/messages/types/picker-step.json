@@ -38,7 +38,7 @@
       "items": {
         "type": "string"
       },
-      "description": "URLs of the favorites the user already has, sent through onConfigUpdate after the import. Never more than 4, because native excludes the picker at 5 or more. The page shows any suggested site whose hostname matches one of these, after dropping a leading \"www.\", as picked and locked, and leaves it out of addFavorites. Unparseable URLs are skipped."
+      "description": "URLs of the favorites the user already has, filled in from the shouldShowTopSitesPicker answer. Never more than 4, because native answers no at 5 or more. The page shows any suggested site whose hostname matches one of these, after dropping a leading \"www.\", as picked and locked, and leaves it out of addFavorites. Unparseable URLs are skipped."
     }
   }
 }

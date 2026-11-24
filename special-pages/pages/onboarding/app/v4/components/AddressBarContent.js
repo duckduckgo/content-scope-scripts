@@ -31,8 +31,14 @@ export function AddressBarContent({ dismiss, advance, updateSystemValue }) {
     const [selectedOption, setSelectedOption] = useState(/** @type {AddressBarOption} */ ('search-and-duckai'));
     const isPending = status.kind === 'executing';
 
-    /** @param {AddressBarOption} option */
-    const select = (option) => {
+    /**
+     * @param {AddressBarOption} option
+     * @param {MouseEvent} event
+     */
+    const select = (option, event) => {
+        // The second click of a double-click on the previous step's button can land here when the step switches
+        // instantly (reduced motion). It must not change the setting.
+        if (event.detail > 1) return;
         if (option === selectedOption || isPending) return;
         setSelectedOption(option);
         updateSystemValue('address-bar-mode', { enabled: option === 'search-and-duckai' }, true);
@@ -47,12 +53,12 @@ export function AddressBarContent({ dismiss, advance, updateSystemValue }) {
                 <ToggleButton
                     label={t('addressBarMode_searchAndDuckAi')}
                     selected={selectedOption === 'search-and-duckai'}
-                    onClick={() => select('search-and-duckai')}
+                    onClick={(e) => select('search-and-duckai', e)}
                 />
                 <ToggleButton
                     label={t('addressBarMode_searchOnly')}
                     selected={selectedOption === 'search-only'}
-                    onClick={() => select('search-only')}
+                    onClick={(e) => select('search-only', e)}
                 />
             </div>
             <div class={styles.footer}>

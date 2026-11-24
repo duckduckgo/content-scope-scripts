@@ -59,6 +59,20 @@ On macOS the page uses the response as the row's new value. Other platforms only
 }
 ```
 
+### `shouldShowTopSitesPicker`
+{@link "Onboarding Messages".ShouldShowTopSitesPickerRequest}
+
+Sent once, when the user leaves the step before the picker. Native lists `picker` in `init.steps` for every user who might see it, and enrolls the user in the experiment only when this request arrives and they're under the favorites threshold. The page waits for the answer, then shows the picker or moves on to the step after it. A failed request, or no answer within 2 seconds, skips the picker, and the page ignores a late answer. Native should answer straight away, because a user it enrolls after the page gave up never sees the picker. The progress counter counts the picker until a no drops it.
+
+When `show` is true, `existingFavorites` lists the user's favorites as URLs. The picker shows any suggested site whose hostname matches one, after dropping a leading `www.`, as picked and locked, and those sites never go out in `addFavorites`.
+
+```json
+{
+  "show": true,
+  "existingFavorites": ["https://youtube.com/feed", "https://example.com"]
+}
+```
+
 ### `requestSetAsDefault`
 {@link "Onboarding Messages".RequestSetAsDefaultRequest}
 
@@ -76,18 +90,6 @@ Lets native push new step definitions or exclusions after `init`, for example to
   "stepDefinitions": {
     "customize": {
       "rows": ["bookmarks", "session-restore", "home-shortcut"]
-    }
-  }
-}
-```
-
-After the import, native sends the user's existing favorites as URLs, and the picker step shows any suggested site whose hostname matches one, after dropping a leading `www.`, as picked and locked. Those sites never go out in `addFavorites`. In the same message, `exclude` can drop the picker when the user already has enough favorites.
-
-```json
-{
-  "stepDefinitions": {
-    "picker": {
-      "existingFavorites": ["https://youtube.com/feed", "https://example.com"]
     }
   }
 }

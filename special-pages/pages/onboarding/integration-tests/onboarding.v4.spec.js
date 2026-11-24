@@ -476,7 +476,7 @@ test.describe('onboarding v4', () => {
         const gmail = { id: 'gmail', url: 'https://mail.google.com' };
         const outlook = { id: 'outlook', url: 'https://outlook.live.com' };
         const youtube = { id: 'youtube', url: 'https://www.youtube.com' };
-        const wikipedia = { id: 'wikipedia', url: 'https://www.wikipedia.org' };
+        const wikipedia = { id: 'wikipedia', url: 'https://en.wikipedia.org' };
 
         test('Add sends the toggled sites', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
@@ -536,6 +536,11 @@ test.describe('onboarding v4', () => {
 
             await page.getByRole('heading', { name: 'Want easy access to private AI Chat?' }).waitFor({ timeout: 1000 });
             await onboarding.didAddFavorites([youtube]);
+            // The second click can land on the next step's address bar options, which must ignore it. Leaving the
+            // step first means any message the click caused has been sent before we check.
+            await page.getByRole('button', { name: 'Start Browsing' }).click();
+            await onboarding.mocks.waitForCallCount({ method: 'dismissToAddressBar', count: 1 });
+            expect(await onboarding.mocks.outgoing({ names: ['setDuckAiInAddressBar'] })).toHaveLength(0);
         });
 
         test('During the exit fade, a second Add or a late Skip does nothing', async ({ page }, workerInfo) => {
@@ -634,6 +639,34 @@ test.describe('onboarding v4', () => {
             await onboarding.didAddFavorites([gmail]);
         });
 
+        test('Amazon points at the store for init.region', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            await onboarding.goToPicker({ init: { region: 'GB' } });
+            await page.getByRole('switch', { name: 'Amazon' }).click();
+            await page.getByRole('button', { name: 'Add to favorites' }).click();
+
+            await onboarding.didAddFavorites([{ id: 'amazon', url: 'https://www.amazon.co.uk' }]);
+        });
+
+        test('Amazon falls back to amazon.com without a region', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            await onboarding.goToPicker();
+            await page.getByRole('switch', { name: 'Amazon' }).click();
+            await page.getByRole('button', { name: 'Add to favorites' }).click();
+
+            await onboarding.didAddFavorites([{ id: 'amazon', url: 'https://www.amazon.com' }]);
+        });
+
+        test('A site list from native keeps its own Amazon URL', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            const amazon = { id: 'amazon', url: 'https://www.amazon.com', title: 'Amazon', section: 'popular' };
+            await onboarding.goToPicker({ init: { region: 'GB', stepDefinitions: { picker: { sites: [amazon] } } } });
+            await page.getByRole('switch', { name: 'Amazon' }).click();
+            await page.getByRole('button', { name: 'Add to favorites' }).click();
+
+            await onboarding.didAddFavorites([{ id: 'amazon', url: 'https://www.amazon.com' }]);
+        });
+
         test('A section with every site already a favorite keeps its heading', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             await onboarding.goToPicker();
@@ -665,6 +698,65 @@ test.describe('onboarding v4', () => {
 
             await page.getByRole('heading', { name: 'Want easy access to private AI Chat?' }).waitFor({ timeout: 1000 });
             await onboarding.didFireStepCompleted({ id: 'customize', next: 'addressBarMode' });
+        });
+    });
+
+    test.describe('Given I am leaving the step before the picker', () => {
+        test('A yes shows the picker with the existing favorites locked', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withPickerAnswer({ show: true, existingFavorites: ['https://www.youtube.com'] });
+            await onboarding.goToStepBeforePicker();
+            await expect(page.getByText('1 of 3')).toBeVisible();
+            await page.getByRole('button', { name: 'Next' }).click();
+
+            await page.getByRole('button', { name: 'Skip' }).waitFor({ timeout: 1000 });
+            await expect(page.getByText('2 of 3')).toBeVisible();
+            await expect(page.getByRole('switch', { name: 'YouTube' })).toBeDisabled();
+            await expect(page.getByRole('switch', { name: 'YouTube' })).toHaveAttribute('aria-checked', 'true');
+            await onboarding.didFireStepCompleted({ id: 'customize', next: 'picker' });
+        });
+
+        test('A no skips the picker and shrinks the counter', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withPickerAnswer({ show: false });
+            await onboarding.goToStepBeforePicker();
+            await expect(page.getByText('1 of 3')).toBeVisible();
+            await page.getByRole('button', { name: 'Next' }).click();
+
+            await page.getByRole('heading', { name: 'Want easy access to private AI Chat?' }).waitFor({ timeout: 1000 });
+            await expect(page.getByText('2 of 2')).toBeVisible();
+            await onboarding.didFireStepCompleted({ id: 'customize', next: 'addressBarMode' });
+        });
+
+        test('An answer without show skips the picker', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withPickerAnswer({});
+            await onboarding.goToStepBeforePicker();
+            await page.getByRole('button', { name: 'Next' }).click();
+
+            await page.getByRole('heading', { name: 'Want easy access to private AI Chat?' }).waitFor({ timeout: 1000 });
+            await onboarding.didFireStepCompleted({ id: 'customize', next: 'addressBarMode' });
+        });
+
+        test('No answer skips the picker after the timeout', async ({ page }, workerInfo) => {
+            test.skip(workerInfo.project.name !== 'windows', 'holdRequests works on the Windows transport only');
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.holdRequests(['shouldShowTopSitesPicker']);
+            await onboarding.goToStepBeforePicker();
+            await page.getByRole('button', { name: 'Next' }).click();
+
+            await page.getByRole('heading', { name: 'Want easy access to private AI Chat?' }).waitFor({ timeout: 4000 });
+            await onboarding.didFireStepCompleted({ id: 'customize', next: 'addressBarMode' });
+        });
+
+        test('Double click on Next asks native once', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            await onboarding.goToStepBeforePicker();
+            await page.getByRole('button', { name: 'Next' }).dblclick();
+
+            await page.getByRole('button', { name: 'Skip' }).waitFor({ timeout: 1000 });
+            expect(await onboarding.mocks.outgoing({ names: ['shouldShowTopSitesPicker'] })).toHaveLength(1);
+            await onboarding.didFireStepCompleted({ id: 'customize', next: 'picker' });
         });
     });
 

@@ -6,9 +6,6 @@ import { TestTransportConfig } from '@duckduckgo/messaging';
 
 const url = new URL(window.location.href);
 
-/** @type {((data: unknown) => void) | null} */
-let onConfigUpdate = null;
-
 export function mockTransport() {
     if (typeof window !== 'undefined' && window.__playwright_01) {
         window.__playwright_01.publishSubscriptionEvent = (/** @type {{ subscriptionName: string; params?: unknown }} */ evt) => {
@@ -100,16 +97,19 @@ export function mockTransport() {
                         env: 'development',
                     });
                 }
-                case 'requestImport': {
-                    // e.g. `?excludeAfterImport=picker` removes the picker once the import answers, as native does at 5 or more favorites
-                    const excludeAfterImport = url.searchParams.getAll('excludeAfterImport');
-                    if (excludeAfterImport.length > 0) {
-                        setTimeout(() => onConfigUpdate?.({ exclude: excludeAfterImport }), 0);
+                case 'shouldShowTopSitesPicker': {
+                    // e.g. `?topSitesPicker=hide` answers no, as native does at 5 or more favorites or for the control cohort.
+                    // `?existingFavorites=https://www.youtube.com,https://mail.google.com` sends them along with a yes.
+                    if (url.searchParams.get('topSitesPicker') === 'hide') {
+                        return Promise.resolve({ show: false });
                     }
+                    const existingFavorites = url.searchParams.get('existingFavorites');
                     return Promise.resolve({
-                        enabled: true,
+                        show: true,
+                        ...(existingFavorites ? { existingFavorites: existingFavorites.split(',') } : {}),
                     });
                 }
+                case 'requestImport':
                 case 'requestSetAsDefault':
                 case 'requestDockOptIn': {
                     return Promise.resolve({
@@ -123,13 +123,6 @@ export function mockTransport() {
         subscribe(_msg, callback) {
             window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
             if (!window.__playwright_01) {
-                onConfigUpdate = callback;
-                // e.g. `?existingFavorites=https://www.youtube.com,https://mail.google.com` sends them as native would after the import.
-                // onConfigUpdate is the page's only subscription.
-                const existingFavorites = url.searchParams.get('existingFavorites');
-                if (existingFavorites) {
-                    setTimeout(() => callback({ stepDefinitions: { picker: { existingFavorites: existingFavorites.split(',') } } }), 0);
-                }
                 return () => {};
             }
             const msg = /** @type {{ method?: string; subscriptionName?: string }} */ (_msg);

@@ -40,7 +40,12 @@ export interface OnboardingMessages {
     | StepCompletedNotification
     | SubmitQueryNotification
     | TelemetryEventNotification;
-  requests: InitRequest | RequestDockOptInRequest | RequestImportRequest | RequestSetAsDefaultRequest;
+  requests:
+    | InitRequest
+    | RequestDockOptInRequest
+    | RequestImportRequest
+    | RequestSetAsDefaultRequest
+    | ShouldShowTopSitesPickerRequest;
   subscriptions: OnConfigUpdateSubscription;
 }
 /**
@@ -263,6 +268,10 @@ export interface InitResponse {
    */
   env?: "development" | "production";
   locale?: string;
+  /**
+   * The OS region as an ISO 3166-1 alpha-2 code (e.g. "GB"). The picker uses it to suggest the matching Amazon store, and falls back to amazon.com when it's missing or has no store.
+   */
+  region?: string;
   platform?: {
     name: "macos" | "windows" | "android" | "ios";
   };
@@ -283,7 +292,7 @@ export interface PickerStep {
    */
   sites?: PickerSite[];
   /**
-   * URLs of the favorites the user already has, sent through onConfigUpdate after the import. Never more than 4, because native excludes the picker at 5 or more. The page shows any suggested site whose hostname matches one of these, after dropping a leading "www.", as picked and locked, and leaves it out of addFavorites. Unparseable URLs are skipped.
+   * URLs of the favorites the user already has, filled in from the shouldShowTopSitesPicker answer. Never more than 4, because native answers no at 5 or more. The page shows any suggested site whose hostname matches one of these, after dropping a leading "www.", as picked and locked, and leaves it out of addFavorites. Unparseable URLs are skipped.
    */
   existingFavorites?: string[];
 }
@@ -329,6 +338,26 @@ export interface RequestSetAsDefaultRequest {
   result: {
     [k: string]: unknown;
   };
+}
+/**
+ * Generated from @see "../messages/shouldShowTopSitesPicker.request.json"
+ */
+export interface ShouldShowTopSitesPickerRequest {
+  method: "shouldShowTopSitesPicker";
+  result: TopSitesPickerAnswer;
+}
+/**
+ * Whether to show the picker step, sent right before the user would reach it. Native shows it only when the user is under the favorites threshold and enrolled in the treatment cohort.
+ */
+export interface TopSitesPickerAnswer {
+  /**
+   * true shows the picker. false drops it, and the page moves on to the step after it.
+   */
+  show: boolean;
+  /**
+   * URLs of the favorites the user already has. The page merges them into the picker's step definition (see PickerStep.existingFavorites). Ignored when show is false.
+   */
+  existingFavorites?: string[];
 }
 /**
  * Generated from @see "../messages/onConfigUpdate.subscribe.json"

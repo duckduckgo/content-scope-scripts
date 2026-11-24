@@ -1,5 +1,5 @@
 import { createContext, h } from 'preact';
-import { useCallback, useContext, useEffect, useReducer } from 'preact/hooks';
+import { useCallback, useContext, useEffect, useReducer, useRef } from 'preact/hooks';
 import { usePlatformName } from './shared/components/SettingsProvider.js';
 
 /**
@@ -45,6 +45,20 @@ export function reducer(state, action) {
             stepDefinitions: nextStepDefs,
             order: nextOrder,
             step: nextStepDefs[state.activeStep] ?? state.step,
+        };
+    }
+    if (action.kind === 'picker-answer') {
+        if (!action.show) {
+            return { ...state, order: state.order.filter((id) => id !== 'picker') };
+        }
+        const picker = state.stepDefinitions.picker;
+        if (!action.existingFavorites || picker?.id !== 'picker') return state;
+        return {
+            ...state,
+            stepDefinitions: {
+                ...state.stepDefinitions,
+                picker: { ...picker, existingFavorites: action.existingFavorites },
+            },
         };
     }
     switch (state.status.kind) {
@@ -222,8 +236,42 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
     });
 
     const platform = usePlatformName();
+    // Set once the page has asked native about the picker, so a second advance while it waits does nothing
+    const askedPicker = useRef(false);
     const proxy = useCallback(
         (/** @type {GlobalEvents} */ msg) => {
+            /**
+             * @param {import('./types').Step['id'][]} order - the order the step after the active one comes from
+             */
+            const reportStepCompleted = (order) => {
+                const next = order[order.indexOf(state.activeStep) + 1] ?? null;
+                messaging.stepCompleted({ id: state.activeStep, next });
+                // Fire row_shown for the first row of the incoming settings step
+                if (next) {
+                    const nextStepDef = state.stepDefinitions[next];
+                    if (nextStepDef?.kind === 'settings' && nextStepDef.rows[0]) {
+                        messaging.telemetryEvent({ attributes: { name: 'row_shown', value: nextStepDef.rows[0] } });
+                    }
+                }
+            };
+
+            /**
+             * Right before the picker, ask native whether to show it. Native enrolls the user at this point, so
+             * the page asks only when the user is about to reach the step, and drops it if the answer is no.
+             */
+            if (msg.kind === 'advance' && state.order[state.order.indexOf(state.activeStep) + 1] === 'picker') {
+                if (askedPicker.current) return;
+                askedPicker.current = true;
+                const order = state.order;
+                // eslint-disable-next-line promise/prefer-await-to-then
+                askTopSitesPicker(messaging).then((answer) => {
+                    dispatch({ kind: 'picker-answer', ...answer });
+                    dispatch(msg);
+                    reportStepCompleted(answer.show ? order : order.filter((id) => id !== 'picker'));
+                });
+                return;
+            }
+
             /**
              * Regular global state updates
              */
@@ -233,16 +281,7 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
              * Side effects that don't impact global state (advance to non-customize step, or other message kinds).
              */
             if (msg.kind === 'advance') {
-                const currentIndex = state.order.indexOf(state.activeStep);
-                const next = state.order[currentIndex + 1] ?? null;
-                messaging.stepCompleted({ id: state.activeStep, next });
-                // Fire row_shown for the first row of the incoming settings step
-                if (next) {
-                    const nextStepDef = state.stepDefinitions[next];
-                    if (nextStepDef?.kind === 'settings' && nextStepDef.rows[0]) {
-                        messaging.telemetryEvent({ attributes: { name: 'row_shown', value: nextStepDef.rows[0] } });
-                    }
-                }
+                reportStepCompleted(state.order);
             }
             if (msg.kind === 'show-overlay' && msg.overlay === 'dock-instructions') {
                 messaging.telemetryEvent({ attributes: { name: 'dock_instructions_shown' } });
@@ -333,6 +372,42 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
             <GlobalDispatch.Provider value={proxy}>{children}</GlobalDispatch.Provider>
         </GlobalContext.Provider>
     );
+}
+
+/**
+ * How long the page waits for native's picker answer before skipping the step, so a missing answer can't
+ * leave the user stuck on the step before the picker.
+ */
+const PICKER_ANSWER_TIMEOUT_MS = 2000;
+
+/**
+ * Asks native whether to show the picker. A failed request, an answer the page can't read, or no answer within
+ * PICKER_ANSWER_TIMEOUT_MS skips the step. An answer that arrives after the timeout is ignored.
+ *
+ * @param {import("../src/index.js").OnboardingPage} messaging
+ * @param {number} [timeoutMs]
+ * @returns {Promise<Omit<import('./types').PickerAnswerEvent, 'kind'>>}
+ */
+async function askTopSitesPicker(messaging, timeoutMs = PICKER_ANSWER_TIMEOUT_MS) {
+    /** @type {ReturnType<typeof setTimeout> | undefined} */
+    let timer;
+    const timeout = new Promise((resolve) => {
+        timer = setTimeout(() => resolve(null), timeoutMs);
+    });
+    try {
+        const answer = await Promise.race([messaging.shouldShowTopSitesPicker(), timeout]);
+        if (answer === null) console.warn(`shouldShowTopSitesPicker got no answer within ${timeoutMs}ms, skipping the picker`);
+        if (answer?.show !== true) return { show: false };
+        return {
+            show: true,
+            existingFavorites: Array.isArray(answer.existingFavorites) ? answer.existingFavorites : undefined,
+        };
+    } catch (e) {
+        console.warn('shouldShowTopSitesPicker failed, skipping the picker', e);
+        return { show: false };
+    } finally {
+        clearTimeout(timer);
+    }
 }
 
 /**

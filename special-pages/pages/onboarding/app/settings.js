@@ -1,5 +1,6 @@
 import { EVERY_PAGE_ID, ORDER_V4, STEPS_ORDER } from './types';
 import { stepDefinitions as defaultStepDefinitions } from './v4/data/data';
+import { regionalSites } from './v4/data/regional-sites';
 
 /**
  * Settings that affect the Application, such as running order
@@ -121,6 +122,22 @@ export class Settings {
         if (typingEffect === 'none') return new Settings({ ...this, typingEffect: null });
         if (typingEffect === 'title') return new Settings({ ...this, typingEffect: 'title' });
         return this;
+    }
+
+    /**
+     * Points the picker's default Amazon and Wikipedia sites at the user's store and language.
+     * Call it before `withStepDefinitions`, so a site list native sends replaces these URLs instead of being rewritten.
+     *
+     * @param {{ locale?: string | null, region?: string | null }} where
+     * @return {Settings}
+     */
+    withRegionalSites(where) {
+        const picker = this.stepDefinitions.picker;
+        if (picker?.id !== 'picker' || !picker.sites) return this;
+        return new Settings({
+            ...this,
+            stepDefinitions: { ...this.stepDefinitions, picker: { ...picker, sites: regionalSites(picker.sites, where) } },
+        });
     }
 
     /**

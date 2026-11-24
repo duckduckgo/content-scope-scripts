@@ -30,6 +30,7 @@ export class OnboardingPage {
             requestSetAsDefault: {},
             requestDockOptIn: {},
             requestImport: { enabled: true },
+            shouldShowTopSitesPicker: { show: true },
             stepCompleted: {},
             telemetryEvent: {},
             setAdBlocking: {},
@@ -70,6 +71,15 @@ export class OnboardingPage {
 
     withInitData(data) {
         this.defaultResponses = { ...this.defaultResponses, init: data };
+        this.mocks.defaultResponses(this.defaultResponses);
+    }
+
+    /**
+     * Sets native's answer to shouldShowTopSitesPicker. Call this before `openPage`.
+     * @param {Partial<import('../types/onboarding.ts').TopSitesPickerAnswer>} answer - can leave out `show`, to test an answer the page can't read
+     */
+    withPickerAnswer(answer) {
+        this.defaultResponses = { ...this.defaultResponses, shouldShowTopSitesPicker: /** @type {{ show: boolean }} */ (answer) };
         this.mocks.defaultResponses(this.defaultResponses);
     }
 

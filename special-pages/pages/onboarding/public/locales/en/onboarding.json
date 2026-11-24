@@ -579,7 +579,7 @@
   },
   "picker_section_email": {
     "title": "Email",
-    "note": "Placeholder until final copy. Heading above the email provider options on the favorites picker step. The user can pick only one."
+    "note": "Placeholder until final copy. Heading above the email provider options on the favorites picker step. The user can pick several."
   },
   "picker_section_popular": {
     "title": "Popular sites",

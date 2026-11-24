@@ -321,15 +321,22 @@ export const stepDefinitions = {
     picker: {
         id: 'picker',
         kind: 'info',
-        // Placeholder list until the Figma pass. Each id keys the site's copy and bundled icon.
+        // The experiment's list. Each id keys the site's copy and bundled icon. Gmail and Outlook use the hosts
+        // their short domains redirect to, so they match the favorites people import. Settings.withRegionalSites
+        // swaps the Amazon and Wikipedia URLs for the user's store and language (see regional-sites.js).
         sites: [
             { id: 'gmail', url: 'https://mail.google.com', title: 'Gmail', section: 'email' },
             { id: 'outlook', url: 'https://outlook.live.com', title: 'Outlook', section: 'email' },
             { id: 'yahooMail', url: 'https://mail.yahoo.com', title: 'Yahoo Mail', section: 'email' },
             { id: 'youtube', url: 'https://www.youtube.com', title: 'YouTube', section: 'popular' },
-            { id: 'wikipedia', url: 'https://www.wikipedia.org', title: 'Wikipedia', section: 'popular' },
+            { id: 'reddit', url: 'https://www.reddit.com', title: 'Reddit', section: 'popular' },
+            { id: 'facebook', url: 'https://www.facebook.com', title: 'Facebook', section: 'popular' },
+            { id: 'netflix', url: 'https://www.netflix.com', title: 'Netflix', section: 'popular' },
+            { id: 'bbcNews', url: 'https://www.bbc.com/news', title: 'BBC News', section: 'popular' },
+            { id: 'wikipedia', url: 'https://en.wikipedia.org', title: 'Wikipedia', section: 'popular' },
+            { id: 'amazon', url: 'https://www.amazon.com', title: 'Amazon', section: 'popular' },
         ],
-        // Native sends these through onConfigUpdate after the import.
+        // Native sends these in its shouldShowTopSitesPicker answer.
         existingFavorites: [],
     },
 };

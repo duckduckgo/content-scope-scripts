@@ -46,6 +46,7 @@ export async function init(onboarding, baseEnvironment) {
         .withPlatformName(baseEnvironment.urlParams.get('platform'))
         .withSteps(init.steps)
         .withSteps(environment.urlParams.getAll('steps'))
+        .withRegionalSites({ locale: environment.locale, region: environment.urlParams.get('region') ?? init.region })
         .withStepDefinitions(init.stepDefinitions)
         .withExcludedScreens(init.exclude)
         .withExcludedScreens(environment.urlParams.getAll('exclude'))

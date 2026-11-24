@@ -227,13 +227,26 @@ export class OnboardingV4Page extends OnboardingPage {
 
     /**
      * Opens the picker step, with customize before it and addressBarMode after it.
-     * @param {{ reducedMotion?: boolean }} [options] - without reduced motion the step stays mounted through its exit fade
+     * @param {{ reducedMotion?: boolean, init?: Record<string, any> }} [options] - without reduced motion the step stays
+     *   mounted through its exit fade; `init` adds to or replaces fields of the init response
      */
-    async goToPicker({ reducedMotion = true } = {}) {
-        this.withInitData({ stepDefinitions: null, steps: ['welcome', 'getStarted', 'customize', 'picker', 'addressBarMode'] });
+    async goToPicker({ reducedMotion = true, init = {} } = {}) {
+        this.withInitData({ stepDefinitions: null, steps: ['welcome', 'getStarted', 'customize', 'picker', 'addressBarMode'], ...init });
         if (reducedMotion) await this.reducedMotion();
         await this.openPage({ env: 'app', page: 'picker' });
         await this.page.getByRole('button', { name: 'Skip' }).waitFor({ timeout: 1000 });
+    }
+
+    /**
+     * Opens customize with the picker listed after it, so leaving customize asks native about the picker.
+     */
+    async goToStepBeforePicker() {
+        this.withInitData({ stepDefinitions: null, steps: ['welcome', 'getStarted', 'customize', 'picker', 'addressBarMode'] });
+        await this.reducedMotion();
+        await this.openPage({ env: 'app', page: 'customize' });
+        await this.skippedBookmarksBar();
+        await this.skippedSessionRestore();
+        await this.skippedShowHomeButton();
     }
 
     /**
