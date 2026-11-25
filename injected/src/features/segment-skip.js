@@ -221,6 +221,8 @@ export class SegmentSkip extends ContentFeature {
     #skipButton = null;
     /** @type {ReturnType<typeof setTimeout>[] | null} timers of the skip button's running exit animation */
     #skipButtonExit = null;
+    /** @type {ReturnType<typeof setTimeout> | undefined} hides the skip button once it has slid away from YouTube's controls */
+    #skipButtonConcealTimer;
     /** @type {Segment | null} */
     #skipSegment = null;
     /** @type {Segment | null} the segment skipped automatically, while the button offers to undo that */
@@ -492,8 +494,8 @@ export class SegmentSkip extends ContentFeature {
 
     /**
      * Shows the skip button in `parent` as `kind`, sliding it in when it wasn't on screen. Showing it while it animates
-     * out turns it back around. While YouTube's controls show it stays mounted but hidden, so its countdown keeps the
-     * time already used, and slides in again once they fade.
+     * out turns it back around. While YouTube's controls show it slides away and stays mounted but hidden, so its
+     * countdown keeps the time already used, and slides in again once they fade.
      * @param {Element} parent
      * @param {'skip' | 'undo'} kind
      * @param {boolean} visible
@@ -511,10 +513,20 @@ export class SegmentSkip extends ContentFeature {
         const moved = host.parentElement !== parent;
         if (moved) parent.append(host);
         if (!visible) {
-            host.style.display = 'none';
-            host.classList.remove('on');
+            if (host.classList.contains('on')) {
+                // Slides out to the right, as when it leaves for good, then hides.
+                host.classList.remove('on');
+                this.#skipButtonConcealTimer = setTimeout(() => {
+                    this.#skipButtonConcealTimer = undefined;
+                    host.style.display = 'none';
+                }, SLIDE_OUT_MS);
+            } else if (this.#skipButtonConcealTimer === undefined) {
+                host.style.display = 'none';
+            }
             return host;
         }
+        clearTimeout(this.#skipButtonConcealTimer);
+        this.#skipButtonConcealTimer = undefined;
         const wasHidden = host.style.display === 'none';
         host.style.display = '';
         // Appearing, or a new kind of offer: start the slide in from the hidden state.
@@ -568,6 +580,8 @@ export class SegmentSkip extends ContentFeature {
         const { host, collapsible } = this.#skipButton;
         for (const timer of this.#skipButtonExit ?? []) clearTimeout(timer);
         this.#skipButtonExit = null;
+        clearTimeout(this.#skipButtonConcealTimer);
+        this.#skipButtonConcealTimer = undefined;
         host.classList.remove('collapse', 'out');
         for (const el of collapsible) el.style.maxWidth = '';
     }
