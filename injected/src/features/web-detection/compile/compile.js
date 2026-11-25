@@ -32,6 +32,8 @@ import { finish, markSuspensions } from './positions.js';
  * @property {boolean} sync - the run is in the listener, during dispatch
  * @property {'run' | 'skip' | 'batch' | 'replace'} whenPending - what an arrival does while a run of the detector is pending:
  * schedule its own run, schedule nothing, add its items to the pending run, or cancel the pending run and schedule its own
+ * @property {'queue' | 'interrupt' | 'skip'} whenBusy - what the arrival's run does if a run of the detector is suspended in a
+ * `wait` when it's due
  * @property {string} path
  */
 
@@ -43,7 +45,7 @@ import { finish, markSuspensions } from './positions.js';
  * @property {Node} actions - in value position
  * @property {Set<string>} names - every name config reads or calls, for the native reader
  * @property {Set<string>} paths - every path config reads from the global object, up to the method it calls, for the native reader
- * @property {Array<{ key: 'observed' | 'trigger', body: RecordedBody }>} recorded - every `observed` and `trigger` body naming a recorded type
+ * @property {Array<{ key: 'observed' | 'trigger' | 'wait', body: RecordedBody }>} recorded - every `observed` and `trigger` body naming a recorded type, and `wait` body with no `target`
  * @property {OnBody[]} on - the `observe` trigger's `on` bodies, when it has any
  */
 
@@ -67,7 +69,7 @@ export class Scope {
     readerNames = new Set();
     /** @type {Set<string>} */
     readerPaths = new Set();
-    /** @type {Array<{ key: 'observed' | 'trigger', body: RecordedBody }>} */
+    /** @type {Array<{ key: 'observed' | 'trigger' | 'wait', body: RecordedBody }>} */
     recorded = [];
     /** @type {ItemBinder[]} the `using`, `where` and `field` binding `self` around the expression being compiled, innermost last */
     bindings = [];
@@ -293,6 +295,7 @@ function compileKey(key, body, position, path, scope) {
         case 'api':
         case 'observed':
         case 'trigger':
+        case 'wait':
             return compileSource(key, body, position, path, scope);
         case 'self':
             return compileSelf(body, position, path, scope);
@@ -421,7 +424,7 @@ function compileSelf(raw, position, path, scope, key = 'self') {
 }
 
 /**
- * @param {'element' | 'text' | 'api' | 'observed' | 'trigger'} key
+ * @param {'element' | 'text' | 'api' | 'observed' | 'trigger' | 'wait'} key
  * @param {unknown} body
  * @param {Position} position
  * @param {string} path
@@ -430,7 +433,7 @@ function compileSelf(raw, position, path, scope, key = 'self') {
  */
 function compileSource(key, body, position, path, scope) {
     const source = scope.sources[key];
-    if ((key === 'api' || key === 'observed' || key === 'trigger') && isArray(body))
+    if ((key === 'api' || key === 'observed' || key === 'trigger' || key === 'wait') && isArray(body))
         throw new ConfigParseError(path, `\`${key}\` takes one body`);
     const bodies = asArray(body).map((raw, i) => source.parse(raw, isArray(body) ? `${path}.${i}` : path, scope.hooks));
     const withField = bodies.some(hasField);
@@ -496,7 +499,11 @@ function compileOn(triggers, scope) {
     return observe.on.map((raw, i) => {
         const bodyPath = `${path}.${i}`;
         if (!isPlainObject(raw)) throw new ConfigParseError(bodyPath, 'an `on` body takes an object');
-        rejectUnknownKeys(raw, ['entryType', 'event', 'durationThreshold', 'target', 'where', 'delayMs', 'sync', 'whenPending'], bodyPath);
+        rejectUnknownKeys(
+            raw,
+            ['entryType', 'event', 'durationThreshold', 'target', 'where', 'delayMs', 'sync', 'whenPending', 'whenBusy'],
+            bodyPath,
+        );
         const body = { ...parseRecordedType(raw, bodyPath, scope.hooks), ...parseItemKeys(raw, bodyPath, scope.hooks) };
         const delayMs = raw.delayMs ?? 0;
         if (typeof delayMs !== 'number' || !(delayMs >= 0))
@@ -514,7 +521,11 @@ function compileOn(triggers, scope) {
         if (sync && raw.whenPending !== undefined) {
             throw new ConfigParseError(`${bodyPath}.whenPending`, '`whenPending` is for bodies with no `sync`');
         }
-        return { body, delayMs, sync, whenPending, path: bodyPath };
+        const whenBusy = raw.whenBusy ?? 'queue';
+        if (whenBusy !== 'queue' && whenBusy !== 'interrupt' && whenBusy !== 'skip') {
+            throw new ConfigParseError(`${bodyPath}.whenBusy`, '`whenBusy` takes "queue", "interrupt" or "skip"');
+        }
+        return { body, delayMs, sync, whenPending, whenBusy, path: bodyPath };
     });
 }
 

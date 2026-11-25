@@ -752,6 +752,70 @@ describe('DetectorPerf', () => {
         });
     });
 
+    describe('slices of a run that suspends', () => {
+        // A run that starts (S1), misses twice (M1, M2) and resumes (S2)
+        function pageEventWithWait(feature) {
+            feature.record('unresponsive', 4, 'unresponsive.s', false, 1, 'start');
+            feature.record('unresponsive', 1, 'unresponsive.s', false, 2, 'miss');
+            feature.record('unresponsive', 2, 'unresponsive.s', false, 3, 'miss');
+            feature.record('unresponsive', 5, 'unresponsive.s', false, 4, 'continue');
+        }
+
+        it('counts the run once, with its total across the slices that move it forward', () => {
+            const { feature } = createFeature();
+            pageEventWithWait(feature);
+            expect(feature.getStats()?.detectors['unresponsive.s']).toEqual({
+                runs: 1,
+                totalMs: 12,
+                worstMs: 9,
+                worstSliceMs: 5,
+                waitMisses: 2,
+                waitMissMs: 3,
+            });
+        });
+
+        it('adds wait misses to the accumulated totals', () => {
+            const { feature } = createFeature();
+            pageEventWithWait(feature);
+            expect(feature.getStats()?.combinedTotalMs).toBe(12);
+        });
+
+        it('leaves the slice fields out for a detector whose runs never suspended', () => {
+            const { feature } = createFeature();
+            feature.record('adwalls', 4, 'adwalls.x');
+            expect(feature.getStats()?.detectors['adwalls.x']).toEqual({ runs: 1, totalMs: 4, worstMs: 4 });
+        });
+
+        it('fires a single-run edge at the slice whose run total crosses it, and `ran` once', async () => {
+            const { feature, captured } = createFeature();
+            feature.record('unresponsive', 6, 'unresponsive.s', false, 1, 'start');
+            await settle();
+            expect(captured).not.toContain('detectorPerf_unresponsive_over8ms');
+            feature.record('unresponsive', 6, 'unresponsive.s', false, 2, 'miss');
+            await settle();
+            expect(captured).not.toContain('detectorPerf_unresponsive_over8ms');
+            feature.record('unresponsive', 3, 'unresponsive.s', false, 3, 'continue');
+            await settle();
+            expect(captured).toContain('detectorPerf_unresponsive_over8ms');
+            expect(captured.filter((type) => type === 'detectorPerf_unresponsive_ran').length).toBe(1);
+        });
+
+        it('starts a new run total at each first slice', () => {
+            const { feature } = createFeature();
+            feature.record('unresponsive', 5, 'unresponsive.s', false, 1, 'start');
+            feature.record('unresponsive', 5, 'unresponsive.s', false, 2, 'continue');
+            feature.record('unresponsive', 3, 'unresponsive.s', false, 3, 'start');
+            feature.record('unresponsive', 3, 'unresponsive.s', false, 4, 'continue');
+            expect(feature.getStats()?.detectors['unresponsive.s']?.worstMs).toBe(10);
+        });
+
+        it('ignores an unknown slice kind', () => {
+            const { feature } = createFeature();
+            feature.record('unresponsive', 5, 'unresponsive.s', false, 1, /** @type {any} */ ('other'));
+            expect(feature.getStats()?.detectors).toEqual({});
+        });
+    });
+
     describe('timeDetector wrapper', () => {
         it('returns the wrapped result and records the duration', async () => {
             const { feature, captured } = createFeature();

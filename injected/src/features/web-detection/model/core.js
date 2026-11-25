@@ -173,6 +173,7 @@ export const EXPRESSION_KEYS = new Set([
     'ref',
     'observed',
     'trigger',
+    'wait',
 ]);
 
 /**
