@@ -326,6 +326,7 @@ export class WebCompat extends ContentFeature {
             return;
         }
 
+        // eslint-disable-next-line ddg/no-this-alias
         const feature = this;
 
         // Check nativeEnabled setting - when false, install polyfill but skip native calls and return 'denied'
@@ -843,6 +844,7 @@ export class WebCompat extends ContentFeature {
      * @param {'get'|'create'} methodName
      */
     wrapPasskeyMethod(proto, methodName) {
+        // eslint-disable-next-line ddg/no-this-alias
         const feature = this;
         this.wrapMethod(proto, methodName, function (originalFn, ...args) {
             // Always call through with the original arguments/receiver first: the page

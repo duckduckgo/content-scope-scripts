@@ -1,4 +1,3 @@
-/* global process */
 import { defineConfig, devices } from '@playwright/test';
 
 const TEST_PAGE_SERVER_PORT = 3220;

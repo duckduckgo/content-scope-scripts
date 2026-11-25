@@ -282,7 +282,8 @@
         "typescript/no-namespace": "error",
         "typescript/no-non-null-asserted-optional-chain": "error",
         "typescript/no-require-imports": "error",
-        "typescript/no-this-alias": "error",
+        "ddg/no-this-alias": "error",
+        "ddg/no-return-then": "error",
         "typescript/no-unnecessary-type-constraint": "error",
         "typescript/no-unsafe-declaration-merging": "error",
         "typescript/no-unsafe-function-type": "error",
@@ -293,7 +294,8 @@
         "typescript/await-thenable": "error",
         "no-object-constructor": "error",
         "ddg/no-private-methods": "error",
-        "no-unreachable-loop": "error"
+        "no-unreachable-loop": "error",
+        "no-undef": "error"
     },
     "overrides": [
         {
@@ -304,6 +306,7 @@
                 "**/*.cts"
             ],
             "rules": {
+                "no-undef": "off",
                 "constructor-super": "off",
                 "getter-return": "off",
                 "no-class-assign": "off",
@@ -337,8 +340,7 @@
                 "injected/integration-test/extension/**"
             ],
             "rules": {
-                "typescript/await-thenable": "off",
-                "no-undef": "error"
+                "typescript/await-thenable": "off"
             }
         },
         {
@@ -401,7 +403,11 @@
                 "**/scripts/*.js",
                 "**/*.mjs",
                 "**/unit-test/**/*.js",
-                "**/integration-test/**/*.spec.js"
+                "**/integration-test/**/*.spec.js",
+                "**/playwright*.config.js",
+                "injected/integration-test/page-objects/**",
+                "injected/integration-test/helpers/**",
+                "special-pages/**/integration-tests/**/*.js"
             ],
             "env": {
                 "node": true
@@ -414,7 +420,8 @@
             "globals": {
                 "windowsInteropPostMessage": "readonly",
                 "windowsInteropAddEventListener": "readonly",
-                "windowsInteropRemoveEventListener": "readonly"
+                "windowsInteropRemoveEventListener": "readonly",
+                "contextID": "readonly"
             }
         },
         {

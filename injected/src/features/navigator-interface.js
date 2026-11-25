@@ -49,6 +49,7 @@ export default class NavigatorInterface extends ContentFeature {
             const target = ensureNavigatorDuckDuckGo({
                 defineProperty: this.defineProperty.bind(this),
             });
+            // eslint-disable-next-line ddg/no-this-alias
             const context = this;
 
             this.defineProperty(target, 'platform', {

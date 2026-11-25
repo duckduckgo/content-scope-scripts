@@ -1,4 +1,3 @@
-/* global process */
 import { defineConfig } from '@playwright/test';
 import { dirname, join } from 'node:path';
 const __dirname = dirname(new URL(import.meta.url).pathname);

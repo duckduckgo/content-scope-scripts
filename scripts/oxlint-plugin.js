@@ -38,5 +38,36 @@ export default {
                 };
             },
         },
+        // Same reason as ban-ts-comment
+        'no-this-alias': {
+            create(context) {
+                const report = (node) => context.report({ node, message: 'Unexpected aliasing of "this" to a local variable' });
+                return {
+                    VariableDeclarator(node) {
+                        if (node.init?.type === 'ThisExpression' && node.id.type === 'Identifier') report(node);
+                    },
+                    AssignmentExpression(node) {
+                        if (node.right.type === 'ThisExpression' && node.left.type === 'Identifier') report(node);
+                    },
+                };
+            },
+        },
+        // oxlint's promise/prefer-await-to-then skips `return promise.then()`
+        'no-return-then': {
+            create(context) {
+                return {
+                    ReturnStatement(node) {
+                        const arg = node.argument;
+                        if (
+                            arg?.type === 'CallExpression' &&
+                            arg.callee.type === 'MemberExpression' &&
+                            arg.callee.property.name === 'then'
+                        ) {
+                            context.report({ node: arg.callee.property, message: 'Prefer await to then()' });
+                        }
+                    },
+                };
+            },
+        },
     },
 };

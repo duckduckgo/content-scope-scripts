@@ -155,11 +155,10 @@ export class HistoryService {
      * The single place for the query to be made
      * @param {HistoryQuery} query
      */
-    queryFetcher(query) {
+    async queryFetcher(query) {
         console.log(`🦻 [query] ${JSON.stringify(query.query)} offset: ${query.offset}, limit: ${query.limit} source: ${query.source}`);
-        return this.history.messaging.request('query', query).then((resp) => {
-            return { info: resp.info, results: resp.value, lastQueryParams: query };
-        });
+        const resp = await this.history.messaging.request('query', query);
+        return { info: resp.info, results: resp.value, lastQueryParams: query };
     }
 
     /**

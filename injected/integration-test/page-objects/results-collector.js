@@ -1,4 +1,3 @@
-/* global process */
 import { readFileSync, writeFileSync, mkdirSync } from 'fs';
 import { join } from 'path';
 import {

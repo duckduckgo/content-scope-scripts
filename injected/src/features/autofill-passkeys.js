@@ -31,6 +31,7 @@ export default class AutofillPasskeys extends ContentFeature {
         }
 
         const credentialsSingleton = navigator.credentials;
+        // eslint-disable-next-line ddg/no-this-alias
         const feature = this;
 
         this.wrapMethod(
