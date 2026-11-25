@@ -358,6 +358,23 @@ describe('The wait source', () => {
             expect(new Set(recorded.map(({ dispatch }) => dispatch)).size).toBe(3);
         });
 
+        it('records the slice a resumed run ends on a failure in as failed', () => {
+            const instance = timedInstance([
+                { define: { got: { wait: { event: 'scroll', timeoutMs: 1000 } } } },
+                { define: { x: { sum: [{ ref: 'got' }] } } },
+            ]);
+            dispatch('click');
+            dispatch('scroll');
+            const failed = /** @type {jasmine.Spy} */ (instance.callFeatureMethod).calls
+                .allArgs()
+                .filter((args) => args[1] === 'record')
+                .map((args) => ({ slice: args[7], failed: args[5] }));
+            expect(failed).toEqual([
+                { slice: 'start', failed: false },
+                { slice: 'continue', failed: true },
+            ]);
+        });
+
         it('records the resume at `timeoutMs` as a later slice', () => {
             const instance = timedInstance([{ define: { got: { wait: { event: 'scroll', timeoutMs: 10 } } } }]);
             dispatch('click');

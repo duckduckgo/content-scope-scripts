@@ -997,11 +997,11 @@ function arrivalOf(triggerInfo) {
 }
 
 /**
- * Whether a slice ended its run with an error, which makes it a failed run.
+ * Whether a slice ended its run on a failure or an error, which makes it a failed run.
  *
  * @param {IteratorResult<unknown, DetectorRun>} step
  * @returns {boolean}
  */
 function failedStep(step) {
-    return step.done === true && step.value.error !== undefined;
+    return step.done === true && step.value.failure !== undefined;
 }
